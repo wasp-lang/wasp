@@ -31,7 +31,7 @@ After you've cloned this repository, you can run the app locally by following th
 Install Wasp
 
 ```bash
-curl -sSL https://get.wasp.sh/installer.sh | sh
+npm i -g @wasp.sh/wasp-cli@latest
 ```
 
 Position yourself in the project directory, then migrate the DB:

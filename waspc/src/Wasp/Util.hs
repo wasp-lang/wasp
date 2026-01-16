@@ -309,7 +309,9 @@ isOlderThanNHours nHours time = do
     numSecondsInHour = 3600
 
 -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
--- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo).
+-- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo) and
+-- in our npm analytics (scripts/make-npm-packages/templates/main-package/postinstall.js in this
+-- repo).
 checkIfOnCi :: IO Bool
 checkIfOnCi =
   any checkIfEnvValueIsTruthy

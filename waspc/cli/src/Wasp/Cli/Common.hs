@@ -5,6 +5,7 @@ module Wasp.Cli.Common
     waspScreams,
     CliPackagingMode (..),
     getPackagingMode,
+    getInstallationCommand,
   )
 where
 
@@ -37,3 +38,13 @@ getPackagingMode =
   lookupEnv packagingModeEnvVar >>= \case
     Just "npm" -> return NpmPackage
     _ -> return Installer
+
+getInstallationCommand :: CliPackagingMode -> Maybe String -> String
+getInstallationCommand NpmPackage (Just version) =
+  "npm i -g @wasp.sh/wasp-cli@" ++ version
+getInstallationCommand NpmPackage Nothing =
+  "npm i -g @wasp.sh/wasp-cli@latest"
+getInstallationCommand Installer (Just version) =
+  "curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v " ++ version
+getInstallationCommand Installer Nothing =
+  "curl -sSL https://get.wasp.sh/installer.sh | sh -s"

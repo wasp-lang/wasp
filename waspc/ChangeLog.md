@@ -13,6 +13,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🎉 New Features
 
+- Wasp can now be installed through `npm`. ([#3525](https://github.com/wasp-lang/wasp/pull/3525))
 - Wasp now supports Tailwind CSS v4. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 
 ### 🐞 Bug fixes
@@ -21,6 +22,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 📖 Documentation
 
+- Upgraded the installation instructions throughout the docs to the new npm installation method. ([#3630](https://github.com/wasp-lang/wasp/pull/3630))
 - The Wasp docs now include a "Guides" section, with step-by-step tutorials on how to use popular libraries and tools with Wasp. Check them out at https://wasp.sh/docs/guides! ([#3597](https://github.com/wasp-lang/wasp/pull/3597))
 
 ### 🔧 Small improvements

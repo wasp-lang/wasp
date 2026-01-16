@@ -116,10 +116,9 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
           [ "Your Wasp version does not match the app's requirements.",
             "You are running Wasp " ++ show actualVersion ++ ".",
             "This app requires Wasp " ++ show expectedVersionRange ++ ".",
-            "To install specific version of Wasp, do:",
-            "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
-            "where x.y.z is your desired version.",
-            "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
+            "To get instuctions on how to install the correct Wasp version, run:",
+            "  wasp version",
+            "and follow the instructions there."
           ]
 
     eitherUnitToErrorList :: Either e () -> [e]

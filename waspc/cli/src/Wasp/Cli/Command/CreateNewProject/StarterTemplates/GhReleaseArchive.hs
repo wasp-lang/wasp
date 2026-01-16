@@ -11,6 +11,7 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
+import Wasp.Cli.Common (getInstallationCommand, getPackagingMode)
 import Wasp.Cli.GithubRepo
   ( GithubReleaseArchiveName,
     GithubRepoRef (_repoName, _repoOwner),
@@ -18,6 +19,7 @@ import Wasp.Cli.GithubRepo
     fetchFolderFromGithubReleaseArchiveToDisk,
   )
 import Wasp.Project (WaspProjectDir)
+import Wasp.Util (indent)
 
 createProjectOnDiskFromGhReleaseArchiveTemplate ::
   String ->
@@ -31,7 +33,9 @@ createProjectOnDiskFromGhReleaseArchiveTemplate ::
 createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir projectName appName ghRepoRef assetName templatePathInRepo = do
   releaseExists <- liftIO (checkGitHubReleaseExists ghRepoRef)
 
-  unless releaseExists throwOutdatedTagError
+  unless releaseExists $
+    liftIO getPackagingMode
+      >>= throwOutdatedTagError
 
   fetchTemplateFromGhToWaspProjectDir
     >>= either throwProjectCreationError (const replaceTemplatePlaceholders)
@@ -42,7 +46,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
     replaceTemplatePlaceholders =
       liftIO $ replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
 
-    throwOutdatedTagError =
+    throwOutdatedTagError packagingMode =
       throwProjectCreationError $
         unlines
           [ "Template " ++ show templateName ++ " doesn't yet have a version compatible with the current Wasp version.",
@@ -52,7 +56,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
             "Visit " ++ releasesUrl ++ " to see available template releases,",
             "and install the Wasp version that matches the latest release tag available by running:",
             "",
-            "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
+            indent 2 $ getInstallationCommand packagingMode (Just "x.y.z"),
             "",
             "Then you can try creating your project again."
           ]
