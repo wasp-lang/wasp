@@ -324,6 +324,7 @@ library
     Wasp.Generator.SdkGenerator.Core.AuthG
     Wasp.Generator.SdkGenerator.Core.EnvG
     Wasp.Generator.SdkGenerator.Core.ClientG
+    Wasp.Generator.SdkGenerator.Core.Client.RouterG
     Wasp.Generator.SdkGenerator.Core.ServerG
     Wasp.Generator.SdkGenerator.Core.EntitiesG
     Wasp.Generator.SdkGenerator.Root

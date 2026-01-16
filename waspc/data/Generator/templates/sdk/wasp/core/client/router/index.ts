@@ -1,11 +1,11 @@
 {{={= =}=}}
-import { interpolatePath } from '../../../core/client/router/linkHelpers.js'
+import { interpolatePath } from './linkHelpers.js'
 import type {
   RouteDefinitionsToRoutes,
   OptionalRouteOptions,
   ParamValue,
   ExpandRouteOnOptionalStaticSegments,
-} from '../../../core/client/router/types.js'
+} from './types.js'
 
 // PUBLIC API
 export const routes = {

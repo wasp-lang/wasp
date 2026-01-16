@@ -1,38 +1,37 @@
-module Wasp.Generator.SdkGenerator.UserCore.Client.RouterGenerator
-  ( genNewClientRouterApi,
+module Wasp.Generator.SdkGenerator.Core.Client.RouterG
+  ( genClientRouter,
   )
 where
 
-import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import Data.Aeson (KeyValue ((.=)), Value, object)
+import StrongPath (reldir, relfile, (</>))
+import StrongPath.Types
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
-    mkTmplFd,
-    mkTmplFdWithData,
-  )
+import Wasp.Generator.SdkGenerator.Core.Common (CoreTemplatesDir, mkTmplFd, mkTmplFdWithData)
+import Wasp.Util ((<++>))
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
 
-genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
-genNewClientRouterApi spec =
+genClientRouter :: AppSpec -> Generator [FileDraft]
+genClientRouter spec =
   sequence
-    [ genIndexTs spec,
-      genClientRouterFileCopy [relfile|Link.tsx|]
+    [ genClientRouterIndex spec,
+      genClientRouterFileCopy [relfile|Link.tsx|],
+      genClientRouterFileCopy [relfile|linkHelpers.ts|],
+      genClientRouterFileCopy [relfile|types.ts|]
     ]
 
-genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec =
+genClientRouterIndex :: AppSpec -> Generator FileDraft
+genClientRouterIndex spec =
   return $ mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = clientRouterDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
-createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
+createRouteTemplateData :: (String, AS.Route.Route) -> Value
 createRouteTemplateData (name, route) =
   object
     [ "name" .= name,
@@ -48,11 +47,11 @@ createRouteTemplateData (name, route) =
     urlParams = [param | WebRouterPath.ParamSegment param <- routeSegments]
     optionalStaticSegments = [segment | (WebRouterPath.StaticSegment (WebRouterPath.OptionalStaticSegment segment)) <- routeSegments]
 
-    mapPathParamToJson :: WebRouterPath.ParamSegment -> Aeson.Value
+    mapPathParamToJson :: WebRouterPath.ParamSegment -> Value
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
 
-clientRouterDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+clientRouterDirInUserCoreTemplatesDir :: Path' (Rel CoreTemplatesDir) Dir'
 clientRouterDirInUserCoreTemplatesDir = [reldir|client/router|]
 
 genClientRouterFileCopy :: Path' Rel' File' -> Generator FileDraft
