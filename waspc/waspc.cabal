@@ -352,6 +352,7 @@ library
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.ServerGenerator.CrudG
+    Wasp.Generator.WebAppGenerator
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates

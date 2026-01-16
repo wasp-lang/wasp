@@ -39,7 +39,7 @@ export function buildDirExists(waspProjectDir: WaspProjectDir): boolean {
 export function getServerBuildArtefactsDir(
   waspProjectDir: WaspProjectDir,
 ): string {
-  return getServerBuildDir(waspProjectDir);
+  return getServerDeploymentDir(waspProjectDir);
 }
 
 export function getClientBuildArtefactsDir(
@@ -52,7 +52,7 @@ function getWaspBuildDir(waspProjectDir: WaspProjectDir): string {
   return path.join(waspProjectDir, ".wasp", "out");
 }
 
-export function getServerBuildDir(waspProjectDir: WaspProjectDir): string {
+export function getServerDeploymentDir(waspProjectDir: WaspProjectDir): string {
   // The server is built from the Wasp out directory.
   return path.join(getWaspBuildDir(waspProjectDir), ".");
 }

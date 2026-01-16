@@ -9,7 +9,7 @@ import {
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   getClientDeploymentDir,
-  getServerBuildDir,
+  getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
@@ -87,7 +87,7 @@ async function deployServer(
 ) {
   waspSays("Deploying your server now...");
 
-  cd(getServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir));
+  cd(getServerDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
   copyProjectServerTomlLocally(deploymentInstructions.tomlFilePaths);
 
   // Make sure we have a DATABASE_URL present. If not, they need to create/attach their DB first.

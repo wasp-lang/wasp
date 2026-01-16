@@ -6,7 +6,7 @@ import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
   getClientDeploymentDir,
-  getServerBuildDir,
+  getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
 import { createCommandWithCwd } from "../../../../common/zx.js";
 import {
@@ -170,8 +170,11 @@ async function setupServer({
   // server service env variables.
   await generateServiceUrl(clientServiceName, clientAppPort, options);
 
-  const serverBuildDir = getServerBuildDir(options.waspProjectDir);
-  const railwayCli = createCommandWithCwd(options.railwayExe, serverBuildDir);
+  const serverDeploymentDir = getServerDeploymentDir(options.waspProjectDir);
+  const railwayCli = createCommandWithCwd(
+    options.railwayExe,
+    serverDeploymentDir,
+  );
 
   const clientUrl = `https://${getRailwayEnvVarValueReference(`${clientServiceName}.RAILWAY_PUBLIC_DOMAIN`)}`;
   // If we reference the service URL in its OWN env variables, we don't prefix it with the service name.
