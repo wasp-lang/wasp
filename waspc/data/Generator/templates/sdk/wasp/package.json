@@ -126,7 +126,7 @@
 
     {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
     {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}
-    "./client/operations/rpc": "./dist/user-core/client/operations/rpc.js",
+    "./client/operations/rpc": "./dist/core/client/operations/rpc.js",
     "./server/operations/actions":  "./dist/user-core/server/operations/actions/index.js",
     "./server/operations/queries": "./dist/user-core/server/operations/queries/index.js",
     "./server/_types": "./dist/user-core/server/_types/index.js"

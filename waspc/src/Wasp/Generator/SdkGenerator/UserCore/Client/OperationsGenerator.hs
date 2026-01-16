@@ -35,7 +35,6 @@ genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
     [ genClientOpsFileCopy [relfile|internal/index.ts|],
-      genClientOpsFileCopy [relfile|rpc.ts|],
       genClientOpsFileCopy [relfile|hooks.ts|],
       genClientOpsFileCopy [relfile|index.ts|]
     ]

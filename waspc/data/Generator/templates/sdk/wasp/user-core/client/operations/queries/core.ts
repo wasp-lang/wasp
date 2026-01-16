@@ -5,7 +5,7 @@ import type {
   OperationRpcFor,
   Query,
   QueryMetadata,
-} from '../rpc'
+} from 'wasp/client/operations/rpc'
 import { callOperation, makeOperationRoute } from '../internal/index'
 import {
   addResourcesUsedByQuery,
