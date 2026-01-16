@@ -1,1 +1,1 @@
-export { ensureValidUsername } from '../../auth/validation.js'
+export { ensureValidUsername } from 'wasp/auth/validation';

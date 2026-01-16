@@ -24,6 +24,7 @@ genAuth spec =
     Just auth ->
       ( return
           [ mkTmplFd [relfile|auth/password.ts|],
+            mkTmplFd [relfile|auth/validation.ts|],
             mkTmplFd [relfile|auth/forms/internal/util.ts|],
             mkTmplFd [relfile|auth/forms/internal/auth-styles.css|],
             mkTmplFd [relfile|auth/forms/internal/Form.tsx|],

@@ -37,7 +37,7 @@
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/jwt": "./dist/user-core/auth/jwt.js",
     {=!  Used by user, documented. =}
-    "./auth/validation": "./dist/user-core/auth/validation.js",
+    "./auth/validation": "./dist/core/auth/validation.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/pages/createAuthRequiredPage": "./dist/user-core/auth/pages/createAuthRequiredPage.jsx",
     {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}

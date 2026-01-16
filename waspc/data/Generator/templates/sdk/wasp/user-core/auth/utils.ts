@@ -9,7 +9,7 @@ import {
 } from 'wasp/entities'
 import { Prisma } from '@prisma/client';
 
-import { throwValidationError } from './validation.js'
+import { throwValidationError } from "wasp/auth/validation";
 
 import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
 
@@ -33,7 +33,7 @@ export type OAuthProviderData = {}
 /**
  * This type is used for type-level programming e.g. to enumerate
  * all possible provider data types.
- * 
+ *
  * The keys of this type are the names of the providers and the values
  * are the types of the provider data.
  */
@@ -65,10 +65,10 @@ export const authConfig = {
 
 // PUBLIC API
 /**
- * ProviderId uniquely identifies an auth identity e.g. 
+ * ProviderId uniquely identifies an auth identity e.g.
  * "email" provider with user id "test@test.com" or
  * "google" provider with user id "1234567890".
- * 
+ *
  * We use this type to avoid passing the providerName and providerUserId
  * separately. Also, we can normalize the providerUserId to make sure it's
  * consistent across different DB operations.
@@ -127,7 +127,7 @@ export async function findAuthIdentity(providerId: ProviderId): Promise<{= authI
 // PUBLIC API
 /**
  * Updates the provider data for the given auth identity.
- * 
+ *
  * This function performs data sanitization and serialization.
  * Sanitization is done by hashing the password, so this function
  * expects the password received in the `providerDataUpdates`
@@ -225,7 +225,7 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
 // will make it harder for an attacker to determine
 // if a user exists or not.
 // NOTE: Attacker measuring time to response can still determine
-// if a user exists or not. We'll be able to avoid it when 
+// if a user exists or not. We'll be able to avoid it when
 // we implement e-mail sending via jobs.
 export async function doFakeWork(): Promise<unknown> {
   const timeToWork = Math.floor(Math.random() * 1000) + 1000;
