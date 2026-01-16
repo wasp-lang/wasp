@@ -22,7 +22,6 @@ import Wasp.Generator.SdkGenerator.UserCore.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.UserCore.Client.OperationsGenerator as ClientOpsGen
-import Wasp.Generator.SdkGenerator.UserCore.Client.RouterGenerator (genNewClientRouterApi)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( mkTmplFd,
     mkTmplFdWithData,
@@ -75,7 +74,6 @@ genUserCoreTsconfigProject spec =
     <++> genNewClientCrudApi spec
     <++> genNewEmailSenderApi spec
     <++> genNewJobsApi spec
-    <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
 
 genClientConfigFile :: Generator FileDraft

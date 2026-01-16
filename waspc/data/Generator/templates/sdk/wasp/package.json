@@ -113,7 +113,7 @@
     "./server/email": "./dist/user-core/server/email/index.js",
     "./server/jobs": "./dist/user-core/server/jobs/index.js",
     "./server/operations": "./dist/user-core/server/operations/index.js",
-    "./client/router": "./dist/user-core/client/router/index.js",
+    "./client/router": "./dist/core/client/router/index.js",
     "./client/test": "./dist/user-core/client/test/index.js",
     "./client/hooks": "./dist/core/client/hooks.js",
     "./client": "./dist/user-core/client/index.js",

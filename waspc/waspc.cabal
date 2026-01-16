@@ -343,7 +343,6 @@ library
     Wasp.Generator.SdkGenerator.UserCore.Client.AuthG
     Wasp.Generator.SdkGenerator.UserCore.Client.CrudG
     Wasp.Generator.SdkGenerator.UserCore.Client.OperationsGenerator
-    Wasp.Generator.SdkGenerator.UserCore.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.UserCore.ServerApiG
     Wasp.Generator.SdkGenerator.UserCore.Server.AuthG
     Wasp.Generator.SdkGenerator.UserCore.Server.CrudG

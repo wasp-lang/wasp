@@ -3,5 +3,5 @@
   "compilerOptions": {
     "outDir": "../dist/core"
   },
-  "include": [".", "../user-core/client/index.ts"]
+  "include": ["."]
 }
