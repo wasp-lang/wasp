@@ -3,12 +3,13 @@ module Wasp.Cli.GithubRepo where
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', Rel)
 import Wasp.Cli.Archive (fetchArchiveAndCopySubdirToDisk)
+import Wasp.Util.Network.HTTP (checkUrlExists)
 
 data GithubRepoRef = GithubRepoRef
   { _repoOwner :: GithubRepoOwner,
     _repoName :: GithubRepoName,
     -- Which point in repo history to download (a branch or commit hash).
-    _repoReferenceName :: GithubRepoReferenceName
+    _repoTagName :: GithubRepoReferenceName
   }
   deriving (Show, Eq)
 
@@ -19,6 +20,19 @@ type GithubRepoName = String
 type GithubRepoReferenceName = String
 
 type GithubReleaseArchiveName = String
+
+checkGitHubReleaseExists :: GithubRepoRef -> IO Bool
+checkGitHubReleaseExists githubRepoRef =
+  checkUrlExists $ getGithubReleaseURL githubRepoRef
+  where
+    getGithubReleaseURL :: GithubRepoRef -> String
+    getGithubReleaseURL
+      GithubRepoRef
+        { _repoName = repoName,
+          _repoOwner = repoOwner,
+          _repoTagName = repoTagName
+        } =
+        intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "tag", repoTagName]
 
 fetchFolderFromGithubReleaseArchiveToDisk ::
   GithubRepoRef ->
@@ -36,7 +50,7 @@ fetchFolderFromGithubReleaseArchiveToDisk githubRepoRef assetName folderInArchiv
       GithubRepoRef
         { _repoName = repoName,
           _repoOwner = repoOwner,
-          _repoReferenceName = repoReferenceName
+          _repoTagName = repoTagName
         }
       assetName' =
-        intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "download", repoReferenceName, assetName']
+        intercalate "/" ["https://github.com", repoOwner, repoName, "releases", "download", repoTagName, assetName']
