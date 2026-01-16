@@ -4,7 +4,7 @@ import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   registerActionInProgress,
   registerActionDone,
-} from '../internal/resources.js'
+} from '../../../../core/client/operations/internal/resources.js'
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(
