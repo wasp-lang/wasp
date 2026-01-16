@@ -82,7 +82,7 @@
     {=! Used by the framework client code, reconsider during refactoring. =}
     "./client/webSocket/WebSocketProvider": "./dist/user-core/client/webSocket/WebSocketProvider.jsx",
     {=! Still needed, reconsider during refactoring. =}
-    "./server/types": "./dist/user-core/server/types/index.js",
+    "./server/types": "./dist/core/server/types/index.js",
     {=! Used by the framework server code, reconsider during refactoring. =}
     "./server/middleware": "./dist/user-core/server/middleware/index.js",
 

@@ -1,1 +1,1 @@
-export * from './globalMiddleware.js'
+export * from '../../../core/server/middleware/globalMiddleware.js'

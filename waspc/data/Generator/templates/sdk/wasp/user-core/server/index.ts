@@ -5,7 +5,7 @@ export { default as config } from './config.js'
 // PUBLIC API
 export { default as prisma, type PrismaClient } from './dbClient.js'
 // PUBLIC API
-export { type ServerSetupFn } from './types/index.js'
+export { type ServerSetupFn } from '../../core/server/types/index.js'
 // PUBLIC API
 export { HttpError } from '../../core/server/HttpError.js'
 // PUBLIC API

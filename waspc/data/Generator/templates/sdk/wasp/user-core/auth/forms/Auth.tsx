@@ -2,7 +2,7 @@
 import { useState, createContext, useMemo } from 'react'
 import styles from './Auth.module.css'
 import './internal/auth-styles.css'
-import { tokenObjToCSSVars } from "./internal/util"
+import { tokenObjToCSSVars } from "../../../core/auth/forms/internal/util.js"
 import { CSSProperties } from "react"
 
 import {

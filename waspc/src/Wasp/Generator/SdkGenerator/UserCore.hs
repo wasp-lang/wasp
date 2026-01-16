@@ -68,7 +68,6 @@ genUserCoreTsconfigProject spec =
     <++> genServerApi spec
     <++> genWebSockets spec
     <++> genServerMiddleware
-    <++> genServerExportedTypesDir
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
@@ -153,13 +152,8 @@ genEntitiesAndServerTypesDirs spec =
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
-genServerExportedTypesDir :: Generator [FileDraft]
-genServerExportedTypesDir =
-  return [mkTmplFd [relfile|server/types/index.ts|]]
-
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
   sequence
-    [ return $ mkTmplFd [relfile|server/middleware/index.ts|],
-      return $ mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
+    [ return $ mkTmplFd [relfile|server/middleware/index.ts|]
     ]

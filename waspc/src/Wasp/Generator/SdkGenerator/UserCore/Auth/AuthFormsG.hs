@@ -66,8 +66,7 @@ genEmailForms auth =
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
   sequence
-    [ genAuthFormsFileCopy [relfile|internal/auth-styles.css|],
-      genAuthFormsFileCopy [relfile|internal/util.ts|]
+    [ genAuthFormsFileCopy [relfile|internal/auth-styles.css|]
     ]
     <++> genLoginSignupForm auth
     <++> genFormComponent

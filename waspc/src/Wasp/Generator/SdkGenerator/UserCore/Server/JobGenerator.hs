@@ -120,8 +120,7 @@ genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
     sequence
-      [ genServerJobFileCopy [relfile|core/job.ts|],
-        genServerJobFileCopy [relfile|core/pgBoss/pgBoss.ts|],
+      [ genServerJobFileCopy [relfile|core/pgBoss/pgBoss.ts|],
         genServerJobFileCopy [relfile|core/pgBoss/pgBossJob.ts|],
         genServerJobFileCopy [relfile|core/pgBoss/types.ts|],
         genServerJobFileCopy [relfile|core/pgBoss/index.ts|]
