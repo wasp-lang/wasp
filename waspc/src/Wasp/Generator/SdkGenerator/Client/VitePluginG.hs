@@ -45,8 +45,7 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "defaultClientPort" .= WebApp.defaultClientPort,
           "vitest"
             .= object
-              [ -- Loading the setup fn from the SDK
-                "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
+              [ "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
