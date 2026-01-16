@@ -213,7 +213,6 @@ npmDepsForSdk spec =
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
             ("react-dom", show reactDomVersion),
-            -- TODO: not sure if we go with peer or dev for React Query?
             ("@tanstack/react-query", reactQueryVersion),
             ("react-router-dom", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
