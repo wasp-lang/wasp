@@ -5,7 +5,6 @@ import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  getClientBuildDir,
   getClientDeploymentDir,
   getServerBuildDir,
 } from "../../../../common/waspProject.js";
@@ -207,9 +206,11 @@ async function setupClient({
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up client app with name ${clientServiceName}`);
 
-  const clientBuildDir = getClientBuildDir(options.waspProjectDir);
   const clientDeploymentDir = getClientDeploymentDir(options.waspProjectDir);
-  const railwayCli = createCommandWithCwd(options.railwayExe, clientBuildDir);
+  const railwayCli = createCommandWithCwd(
+    options.railwayExe,
+    clientDeploymentDir,
+  );
 
   // Having a Staticfile tells Railway to use a static file server.
   await $({ cwd: clientDeploymentDir })`touch Staticfile`;
