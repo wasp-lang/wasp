@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { requestPasswordReset } from '../../../email/actions/passwordReset'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
+import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../../../../../core/auth/forms/internal/Form'
 import { AuthContext } from '../../Auth'
 
 // PRIVATE API

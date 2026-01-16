@@ -1,7 +1,7 @@
 import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from "react";
 import styles from "./Form.module.css";
-import "../../../../core/auth/forms/internal/auth-styles.css";
-import { clsx } from "../../../../core/auth/forms/internal/util.js";
+import "./auth-styles.css";
+import { clsx } from "./util.js";
 
 // PRIVATE API
 export const Form = forwardRef<

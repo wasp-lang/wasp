@@ -15,7 +15,7 @@ import {
   FormError,
   FormTextarea,
   SubmitButton,
-} from '../Form'
+} from '../../../../../core/auth/forms/internal/Form'
 import type {
   AdditionalSignupFields,
   AdditionalSignupField,

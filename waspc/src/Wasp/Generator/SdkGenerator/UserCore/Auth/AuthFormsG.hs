@@ -68,17 +68,10 @@ genInternalAuthComponents auth =
   sequence
     []
     <++> genLoginSignupForm auth
-    <++> genFormComponent
     <++> genEmailComponents
     <++> genUsernameAndPasswordComponents
     <++> genSocialComponents
   where
-    genFormComponent =
-      sequence
-        [ genAuthFormsFileCopy [relfile|internal/Form.tsx|],
-          genAuthFormsFileCopy [relfile|internal/Form.module.css|]
-        ]
-
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
         sequence
