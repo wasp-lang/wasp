@@ -30,7 +30,9 @@ genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =
   case maybeAuth of
     Nothing -> return []
-    Just auth -> genServerAuthUsername auth
+    Just auth ->
+      genServerAuthUsername auth
+        <++> genServerAuthOAuth
   where
     maybeAuth = (snd $ getApp spec).auth
 
@@ -39,3 +41,7 @@ genServerAuthUsername auth =
   genConditionally isUsernameAndPasswordAuthEnabled [mkTmplFd [relfile|server/auth/username.ts|]]
   where
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+
+genServerAuthOAuth :: Generator [FileDraft]
+genServerAuthOAuth =
+  return [mkTmplFd [relfile|server/auth/oauth/provider.ts|]]

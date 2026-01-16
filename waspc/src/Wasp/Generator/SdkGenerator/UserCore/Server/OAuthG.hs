@@ -44,8 +44,7 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genServerAuthFileCopy [relfile|oneTimeCode.ts|],
-          genServerAuthFileCopy [relfile|provider.ts|]
+          genServerAuthFileCopy [relfile|oneTimeCode.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)

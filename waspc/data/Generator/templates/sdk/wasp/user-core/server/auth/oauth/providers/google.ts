@@ -2,7 +2,7 @@
 import { Google  } from 'arctic';
 
 import { getRedirectUriForCallback } from '../redirect.js';
-import { defineProvider } from '../provider.js';
+import { defineProvider } from '../../../../../core/server/auth/oauth/provider.js';
 import { env } from '../../../env.js';
 
 const id = '{= providerId =}';
