@@ -12,6 +12,7 @@ import Wasp.Generator.SdkGenerator.Core.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Core.ClientG (genClient)
 import Wasp.Generator.SdkGenerator.Core.Common (mkTmplFd)
 import Wasp.Generator.SdkGenerator.Core.CoreG (genCoreDir)
+import Wasp.Generator.SdkGenerator.Core.DevG (genDev)
 import Wasp.Generator.SdkGenerator.Core.EntitiesG (genEntities)
 import Wasp.Generator.SdkGenerator.Core.EnvG (genEnv)
 import Wasp.Generator.SdkGenerator.Core.ServerG (genServer)
@@ -33,3 +34,4 @@ genCoreTsconfigProject spec =
     <++> genApi
     <++> genEnv
     <++> genCoreDir spec
+    <++> genDev

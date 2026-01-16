@@ -117,7 +117,7 @@
     "./client/test": "./dist/user-core/client/test/index.js",
     "./client/hooks": "./dist/core/client/hooks.js",
     "./client": "./dist/user-core/client/index.js",
-    "./dev": "./dist/user-core/dev/index.js",
+    "./dev": "./dist/core/dev/index.js",
     "./env": "./dist/core/env/index.js",
     {=! Private: [client] =}
     "./env/validation": "./dist/core/env/validation.js",

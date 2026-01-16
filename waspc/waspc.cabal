@@ -323,6 +323,7 @@ library
     Wasp.Generator.SdkGenerator.Core.ApiG
     Wasp.Generator.SdkGenerator.Core.AuthG
     Wasp.Generator.SdkGenerator.Core.EnvG
+    Wasp.Generator.SdkGenerator.Core.DevG
     Wasp.Generator.SdkGenerator.Core.ClientG
     Wasp.Generator.SdkGenerator.Core.Client.RouterG
     Wasp.Generator.SdkGenerator.Core.ServerG

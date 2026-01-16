@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
-import StrongPath (Dir, Path', Rel, fromRelDir, relfile)
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -13,7 +13,7 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
-import Wasp.Generator.Common (WebAppRootDir, makeJsonWithEntityData)
+import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -38,7 +38,6 @@ import Wasp.Generator.SdkGenerator.UserCore.WebSocketGenerator (genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
 
@@ -56,8 +55,7 @@ genUserCoreTsconfigProject spec =
       genClientConfigFile,
       genServerConfigFile spec,
       genServerUtils spec,
-      genServerDbClient spec,
-      genDevIndex
+      genServerDbClient spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -120,13 +118,6 @@ genServerDbClient spec = do
       tmplData
   where
     maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
-
-genDevIndex :: Generator FileDraft
-genDevIndex =
-  return $ mkTmplFdWithData [relfile|dev/index.ts|] tmplData
-  where
-    tmplData = object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir]
-    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
