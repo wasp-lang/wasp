@@ -60,7 +60,7 @@ genUserCoreTsconfigProject spec =
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
-    <++> genEntitiesAndServerTypesDirs spec
+    <++> genServerTypes spec
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
@@ -118,17 +118,12 @@ genServerDbClient spec = do
   where
     maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
 
-genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
-genEntitiesAndServerTypesDirs spec =
+genServerTypes :: AppSpec -> Generator [FileDraft]
+genServerTypes spec =
   return
-    [ taggedEntitiesFileDraft,
-      typesIndexFileDraft
+    [ typesIndexFileDraft
     ]
   where
-    taggedEntitiesFileDraft =
-      mkTmplFdWithData
-        [relfile|server/_types/taggedEntities.ts|]
-        (object ["entities" .= allEntities])
     typesIndexFileDraft =
       mkTmplFdWithData
         [relfile|server/_types/index.ts|]
