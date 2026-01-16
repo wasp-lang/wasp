@@ -8,7 +8,7 @@ export function getIndexTsxContent(): string {
 
 
   const app = getWaspApp({
-    routesMapping,
+    routesMapping: routesMapping,
   });
 
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

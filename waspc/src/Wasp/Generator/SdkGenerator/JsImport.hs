@@ -2,20 +2,19 @@ module Wasp.Generator.SdkGenerator.JsImport
   ( extOperationImportToImportJson,
     extImportToImportJson,
     extImportToJsImport,
-    extImportToSdkSrcRelativeImport,
   )
 where
 
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (reldirP, (</>))
+import StrongPath ((</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (dropExtensionFromImportPath)
+import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (JsImport (..), JsImportPath (..))
-import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
 extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
@@ -39,20 +38,3 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
     importPath = C.makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> SP.castRel extImportPath
     extCodeDirP = fromJust $ SP.relDirToPosix C.extSrcDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName
-
-extImportToSdkSrcRelativeImport :: EI.ExtImport -> JsImport
-extImportToSdkSrcRelativeImport extImport@(EI.ExtImport extImportName extImportPath) =
-  JsImport
-    { _path = RelativeImportPath relativePath,
-      _name = importName,
-      _importAlias = Just $ getAliasedExtImportIdentifier extImport
-    }
-  where
-    relativePath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
-    -- User project's `src` dir relative from where Vite is executed.
-    -- NOW: Relative from `web-app` dir: ../../../
-    projectSrcDir = [reldirP|../../../|] </> fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
-    importName = GJI.extImportNameToJsImportName extImportName
-
-getAliasedExtImportIdentifier :: EI.ExtImport -> String
-getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"

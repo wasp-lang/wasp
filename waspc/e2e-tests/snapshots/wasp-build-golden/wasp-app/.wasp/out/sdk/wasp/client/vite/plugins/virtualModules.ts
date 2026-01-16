@@ -3,8 +3,6 @@ import { type Plugin } from "vite";
 import { getIndexTsxContent } from "./virtual-files/index.virtual.js";
 import { getRoutesTsxContent } from "./virtual-files/routes.virtual.js";
 
-
-
 export function waspVirtualModules(): Plugin {
   let projectRoot: string;
   let indexTsxPath: string;

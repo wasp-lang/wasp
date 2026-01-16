@@ -327,6 +327,7 @@ library
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
     Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
