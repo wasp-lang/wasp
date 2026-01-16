@@ -6,12 +6,12 @@ import { queryClientInitialized } from '../../operations/index'
 
 import { WebSocketProvider } from '../../webSocket/WebSocketProvider'
 
-export type WaspAppInput = {
+export type WaspAppProps = {
   RootComponent?: React.ComponentType;
   routesMapping: Record<string, React.ComponentType>;
 }
 
-export function WaspApp({ RootComponent, routesMapping }: Required<WaspAppInput>) {
+export function WaspApp({ RootComponent, routesMapping }: Required<WaspAppProps>) {
   const [queryClient, setQueryClient] = React.useState<any>(null)
 
   React.useEffect(() => {
