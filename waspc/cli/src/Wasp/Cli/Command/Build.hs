@@ -22,7 +22,6 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
@@ -51,18 +50,18 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
 
-  let relBuildDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
-      buildDir = waspProjectDir </> relBuildDir
+  let buildDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+      buildDir = waspProjectDir </> buildDirInWaspProjectDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
     cliSendMessageC $
       Msg.Start $
-        "Clearing the content of the " ++ fromRelDir relBuildDir ++ " directory..."
+        "Clearing the content of the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
     cliSendMessageC $
       Msg.Success $
-        "Successfully cleared the contents of the " ++ fromRelDir relBuildDir ++ " directory."
+        "Successfully cleared the contents of the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
@@ -79,7 +78,7 @@ build = do
 
   cliSendMessageC $
     Msg.Success $
-      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir relBuildDir ++ " directory."
+      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
@@ -98,11 +97,6 @@ build = do
         copyDirectory
           (waspProjectDir </> srcDirInWaspProjectDir)
           (buildDir </> castRel srcDirInWaspProjectDir)
-
-      liftIO $
-        copyDirectory
-          (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir)
-          (buildDir </> sdkRootDirInGeneratedCodeDir)
 
       let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
