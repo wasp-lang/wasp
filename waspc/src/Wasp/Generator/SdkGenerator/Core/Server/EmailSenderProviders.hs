@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.UserCore.EmailSender.Providers
+module Wasp.Generator.SdkGenerator.Core.Server.EmailSenderProviders
   ( smtp,
     sendGrid,
     mailgun,
@@ -9,12 +9,12 @@ where
 
 import StrongPath (File', Path', Rel, relfile)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.SdkGenerator.UserCore.Common (UserCoreTemplatesDir)
+import Wasp.Generator.SdkGenerator.Core.Common (CoreTemplatesDir)
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
-    setupFnFile :: Path' (Rel UserCoreTemplatesDir) File'
+    setupFnFile :: Path' (Rel CoreTemplatesDir) File'
   }
   deriving (Show, Eq)
 

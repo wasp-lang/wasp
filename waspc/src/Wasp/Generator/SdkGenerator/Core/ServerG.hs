@@ -14,6 +14,7 @@ import Wasp.Generator.Common (genConditionally)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Core.Common (mkTmplFd)
+import Wasp.Generator.SdkGenerator.Core.Server.EmailG (genServerEmail)
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
@@ -25,6 +26,7 @@ genServer spec =
       mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
     ]
     <++> genServerAuth spec
+    <++> genServerEmail spec
 
 genServerAuth :: AppSpec -> Generator [FileDraft]
 genServerAuth spec =

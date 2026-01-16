@@ -70,7 +70,7 @@
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./server/crud/*": "./dist/user-core/server/crud/*.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./server/email/core/types": "./dist/user-core/server/email/core/types.js",
+    "./server/email/core/types": "./dist/core/server/email/core/types.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./server/auth/email/utils": "./dist/user-core/server/auth/email/utils.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}

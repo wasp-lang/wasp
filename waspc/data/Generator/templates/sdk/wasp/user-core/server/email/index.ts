@@ -1,10 +1,10 @@
 {{={= =}=}}
 import { env } from '../env.js';
-import { initEmailSender } from "./core/index.js";
-import { EmailSender } from "./core/types.js";
+import { initEmailSender } from "../../../core/server/email/core/index.js";
+import { EmailSender } from "../../../core/server/email/core/types.js";
 
 {=# isSmtpProviderEnabled =}
-const emailProvider = { 
+const emailProvider = {
     type: "smtp",
     host: env.SMTP_HOST,
     port: env.SMTP_PORT,
@@ -36,4 +36,4 @@ const emailProvider = {
 export const emailSender: EmailSender = initEmailSender(emailProvider);
 
 // PUBLIC API
-export type { Email, EmailFromField, EmailSender, SentMessageInfo } from "./core/types.js";
+export type { Email, EmailFromField, EmailSender, SentMessageInfo } from "../../../core/server/email/core/types.js";

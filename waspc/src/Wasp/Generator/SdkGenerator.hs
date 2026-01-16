@@ -38,10 +38,10 @@ import Wasp.Generator.SdkGenerator.Common
     sdkRootDirInProjectRootDir,
   )
 import Wasp.Generator.SdkGenerator.Core (genCoreTsconfigProject)
+import Wasp.Generator.SdkGenerator.Core.Server.EmailG (depsRequiredByEmailSenderProviders)
 import Wasp.Generator.SdkGenerator.Root (genRootTsconfigProject)
 import Wasp.Generator.SdkGenerator.UserCore (genUserCoreTsconfigProject)
 import Wasp.Generator.SdkGenerator.UserCore.EnvValidation (depsRequiredByEnvValidation)
-import Wasp.Generator.SdkGenerator.UserCore.Server.EmailSenderG (depsRequiredByEmail)
 import Wasp.Generator.SdkGenerator.UserCore.Server.JobGenerator (depsRequiredByJobs)
 import Wasp.Generator.SdkGenerator.UserCore.Server.OAuthG (depsRequiredByOAuth)
 import Wasp.Generator.SdkGenerator.UserCore.WebSocketGenerator (depsRequiredByWebSockets)
@@ -131,7 +131,7 @@ npmDepsForSdk spec =
           -- TODO(filip): Find a better way to handle duplicate
           -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
           ++ ServerAuthG.depsRequiredByAuth spec
-          ++ depsRequiredByEmail spec
+          ++ depsRequiredByEmailSenderProviders spec
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
