@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom'
 import { initializeQueryClient } from '../operations'
-import { WaspApp, type WaspAppInput } from './components/WaspApp'
+import { WaspApp, type WaspAppProps } from './components/WaspApp'
 
 const DefaultRootComponent = () => <Outlet />
 
@@ -10,7 +10,7 @@ let isAppInitialized = false
 export function getWaspApp({
   RootComponent = DefaultRootComponent,
   routesMapping,
-}: WaspAppInput): React.ReactNode {
+}: WaspAppProps): React.ReactNode {
   if (!isAppInitialized) {
     initializeQueryClient()
     isAppInitialized = true
