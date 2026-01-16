@@ -11,7 +11,7 @@ import {
 } from 'wasp/auth/utils';
 import { config as waspServerConfig } from 'wasp/server';
 
-// PUBLIC API`
+// PUBLIC API
 export async function createEmailVerificationLink(
   email: string,
   clientRoute: string,

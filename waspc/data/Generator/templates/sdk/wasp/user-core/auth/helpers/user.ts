@@ -1,5 +1,5 @@
 import { setSessionId } from 'wasp/client/api'
-import { invalidateAndRemoveQueries } from '../../../core/client/operations/internal/resources.js'
+import { invalidateAndRemoveQueries } from '../../../core/client/operations/internal/resources'
 
 // PRIVATE API
 export async function initSession(sessionId: string): Promise<void> {

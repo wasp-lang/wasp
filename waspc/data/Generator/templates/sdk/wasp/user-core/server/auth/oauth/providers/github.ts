@@ -1,8 +1,8 @@
 {{={= =}=}}
 import { GitHub  } from 'arctic';
 
-import { defineProvider } from '../../../../../core/server/auth/oauth/provider.js';
-import { env } from '../../../env.js';
+import { defineProvider } from '../../../../../core/server/auth/oauth/provider';
+import { env } from '../../../env';
 
 const id = '{= providerId =}';
 const displayName = '{= displayName =}';

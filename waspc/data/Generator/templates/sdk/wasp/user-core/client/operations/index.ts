@@ -19,4 +19,4 @@ export {
     initializeQueryClient,
     // PRIVATE API (framework code)
     queryClientInitialized
-} from '../../../core/client/operations/queryClient.js'
+} from '../../../core/client/operations/queryClient'

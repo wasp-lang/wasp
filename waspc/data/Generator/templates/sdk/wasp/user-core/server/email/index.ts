@@ -1,7 +1,7 @@
 {{={= =}=}}
-import { env } from '../env.js';
-import { initEmailSender } from "../../../core/server/email/core/index.js";
-import { EmailSender } from "../../../core/server/email/core/types.js";
+import { env } from '../env';
+import { initEmailSender } from "../../../core/server/email/core/index";
+import { EmailSender } from "../../../core/server/email/core/types";
 
 {=# isSmtpProviderEnabled =}
 const emailProvider = {
@@ -36,4 +36,4 @@ const emailProvider = {
 export const emailSender: EmailSender = initEmailSender(emailProvider);
 
 // PUBLIC API
-export type { Email, EmailFromField, EmailSender, SentMessageInfo } from "../../../core/server/email/core/types.js";
+export type { Email, EmailFromField, EmailSender, SentMessageInfo } from "../../../core/server/email/core/types";

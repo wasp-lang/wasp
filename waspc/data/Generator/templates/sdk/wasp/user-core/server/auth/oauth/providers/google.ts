@@ -1,9 +1,9 @@
 {{={= =}=}}
 import { Google  } from 'arctic';
 
-import { getRedirectUriForCallback } from '../redirect.js';
-import { defineProvider } from '../../../../../core/server/auth/oauth/provider.js';
-import { env } from '../../../env.js';
+import { getRedirectUriForCallback } from '../redirect';
+import { defineProvider } from '../../../../../core/server/auth/oauth/provider';
+import { env } from '../../../env';
 
 const id = '{= providerId =}';
 const displayName = '{= displayName =}';

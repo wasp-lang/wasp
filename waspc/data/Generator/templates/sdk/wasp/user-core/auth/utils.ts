@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { hashPassword } from '../../core/auth/password.js'
+import { hashPassword } from '../../core/auth/password'
 import { prisma, HttpError } from 'wasp/server'
 import { sleep } from 'wasp/server/utils'
 import {
@@ -11,7 +11,7 @@ import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from "wasp/auth/validation";
 
-import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
+import { type UserSignupFields, type PossibleUserFields } from './providers/types'
 
 // PUBLIC API
 export type EmailProviderData = {

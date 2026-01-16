@@ -4,7 +4,7 @@ import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../../../../../core/auth/forms/internal/auth-styles.css'
 import { config } from 'wasp/client'
-import { clsx } from '../../../../../core/auth/forms/internal/util.js'
+import { clsx } from '../../../../../core/auth/forms/internal/util'
 
 import { AuthContext } from '../../Auth'
 import {

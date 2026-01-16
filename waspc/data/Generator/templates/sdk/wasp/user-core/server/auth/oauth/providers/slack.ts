@@ -1,9 +1,9 @@
 {{={= =}=}}
 import { Slack } from 'arctic';
 
-import { defineProvider } from '../../../../../core/server/auth/oauth/provider.js';
-import { getRedirectUriForCallback } from '../redirect.js';
-import { env } from '../../../env.js';
+import { defineProvider } from '../../../../../core/server/auth/oauth/provider';
+import { getRedirectUriForCallback } from '../redirect';
+import { env } from '../../../env';
 
 const id = '{= providerId =}';
 const displayName = '{= displayName =}';

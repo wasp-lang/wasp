@@ -1,5 +1,5 @@
-import { queryClientInitialized } from '../queryClient.js'
-import { makeUpdateHandlersMap } from './updateHandlersMap.js'
+import { queryClientInitialized } from '../queryClient'
+import { makeUpdateHandlersMap } from './updateHandlersMap'
 import { hashQueryKey } from '@tanstack/react-query'
 
 // Map where key is resource name and value is Set

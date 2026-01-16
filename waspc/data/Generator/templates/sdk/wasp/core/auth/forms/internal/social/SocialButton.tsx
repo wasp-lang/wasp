@@ -1,6 +1,6 @@
 import { ComponentPropsWithoutRef, ComponentRef, forwardRef } from "react";
 import "../auth-styles.css";
-import { clsx } from "../util.js";
+import { clsx } from "../util";
 import styles from "./SocialButton.module.css";
 
 // PRIVATE API
