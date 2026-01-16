@@ -49,6 +49,7 @@ npmUninstall = do
   liftIO removeWaspFiles
   cliSendMessageC $ Msg.Success "Removed Wasp data."
   cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run 'npm uninstall -g @wasp/cli'."
+  cliSendMessageC $ Msg.Info ""
   cliSendMessageC dockerVolumeMsg
 
 dockerVolumeMsg :: Message
