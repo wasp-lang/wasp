@@ -1,4 +1,4 @@
-import '../auth-styles.css'
+import '../../../../../core/auth/forms/internal/auth-styles.css'
 import styles from './SocialIcons.module.css'
 
 // PRIVATE API
