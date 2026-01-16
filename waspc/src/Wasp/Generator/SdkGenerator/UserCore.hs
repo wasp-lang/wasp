@@ -64,7 +64,6 @@ genUserCoreTsconfigProject spec =
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
-    <++> genServerMiddleware
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
@@ -140,9 +139,3 @@ genEntitiesAndServerTypesDirs spec =
         )
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
-
-genServerMiddleware :: Generator [FileDraft]
-genServerMiddleware =
-  sequence
-    [ return $ mkTmplFd [relfile|server/middleware/index.ts|]
-    ]

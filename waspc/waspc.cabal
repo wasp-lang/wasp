@@ -327,6 +327,7 @@ library
     Wasp.Generator.SdkGenerator.Core.ClientG
     Wasp.Generator.SdkGenerator.Core.Client.RouterG
     Wasp.Generator.SdkGenerator.Core.ServerG
+    Wasp.Generator.SdkGenerator.Core.Server.AuthG
     Wasp.Generator.SdkGenerator.Core.Server.EmailSenderProviders
     Wasp.Generator.SdkGenerator.Core.Server.EmailG
     Wasp.Generator.SdkGenerator.Core.EntitiesG

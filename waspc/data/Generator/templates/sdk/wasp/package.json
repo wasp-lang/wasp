@@ -84,7 +84,7 @@
     {=! Still needed, reconsider during refactoring. =}
     "./server/types": "./dist/core/server/types/index.js",
     {=! Used by the framework server code, reconsider during refactoring. =}
-    "./server/middleware": "./dist/user-core/server/middleware/index.js",
+    "./server/middleware": "./dist/core/server/middleware/index.js",
 
     {=! ================= NEW API HERE =================== =}
     {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}

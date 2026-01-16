@@ -9,7 +9,7 @@ export { type ServerSetupFn } from '../../core/server/types/index.js'
 // PUBLIC API
 export { HttpError } from '../../core/server/HttpError.js'
 // PUBLIC API
-export { MiddlewareConfigFn } from './middleware/index.js'
+export { MiddlewareConfigFn } from '../../core/server/middleware/index.js'
 // PUBLIC API
 export { env } from './env.js'
 
