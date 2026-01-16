@@ -4,8 +4,6 @@ import { type Plugin } from "vite";
 import { getIndexTsxContent } from "./virtual-files/index.virtual.js";
 import { getRoutesTsxContent } from "./virtual-files/routes.virtual.js";
 
-
-
 export function waspVirtualModules(): Plugin {
   let projectRoot: string;
   let indexTsxPath: string;
@@ -21,11 +19,11 @@ export function waspVirtualModules(): Plugin {
       routesPath = path.resolve(projectRoot, "{= routesVirtualFileName =}");
     },
     resolveId(id) {
-      // Intercept requests for /index.virtual.tsx and resolve to virtual module
+      // Intercept requests for /{= indexVirtualFileName =} and resolve to virtual module
       if (id === "/{= indexVirtualFileName =}") {
         return indexTsxPath;
       }
-      // Intercept requests for ./routes.virtual.tsx
+      // Intercept requests for ./{= routesVirtualFileName =}
       if (id === "./{= routesVirtualFileName =}") {
         return routesPath;
       }

@@ -21,7 +21,7 @@ export function getIndexTsxContent(): string {
     {=# rootComponent.isDefined =}
     RootComponent: {= rootComponent.importIdentifier =},
     {=/ rootComponent.isDefined =}
-    routesMapping,
+    routesMapping: {= routesMapping.importIdentifier =},
   });
 
   ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

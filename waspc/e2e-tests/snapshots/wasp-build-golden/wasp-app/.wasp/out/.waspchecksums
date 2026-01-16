@@ -284,7 +284,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/virtual-files/index.virtual.ts"
         ],
-        "d7a86c1cade766cd277691b055cd4f4b848a036ccf2ff80d5a2b494a900be7e0"
+        "0041281ef678bba93546c8cdde2bc2ebc25ff78ef45dd1c64078da844674d746"
     ],
     [
         [
@@ -305,7 +305,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/virtualModules.ts"
         ],
-        "e608cf6759782f56bb8ee0900729ccdfca569ae21250ab58af2e243c4c3db539"
+        "fdb9776c9a98c6701d38f5b4e131fa879ee74a0d48868ba460069c507e6eef94"
     ],
     [
         [
