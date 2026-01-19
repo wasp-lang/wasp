@@ -3,8 +3,8 @@ module Wasp.Cli.Common
     waspSays,
     waspWarns,
     waspScreams,
-    CliPackagingMode (..),
-    getPackagingMode,
+    CliInstallMethod (..),
+    getInstallMethod,
   )
 where
 
@@ -22,18 +22,18 @@ waspWarns what = putStrLn $ Term.applyStyles [Term.Magenta] what
 waspScreams :: String -> IO ()
 waspScreams what = putStrLn $ Term.applyStyles [Term.Red] what
 
-data CliPackagingMode
-  = Installer
+data CliInstallMethod
+  = BinaryInstaller
   | NpmPackage
 
 -- Keep the environment variable name and value in sync with
 -- scripts/make-npm-packages/templates/main-package/bin.js
 
-packagingModeEnvVar :: String
-packagingModeEnvVar = "WASP_CLI_PACKAGE_MODE"
+installMethodEnvVarName :: String
+installMethodEnvVarName = "WASP_CLI_INSTALL_METHOD"
 
-getPackagingMode :: IO CliPackagingMode
-getPackagingMode =
-  lookupEnv packagingModeEnvVar >>= \case
+getInstallMethod :: IO CliInstallMethod
+getInstallMethod =
+  lookupEnv installMethodEnvVarName >>= \case
     Just "npm" -> return NpmPackage
-    _ -> return Installer
+    _ -> return BinaryInstaller
