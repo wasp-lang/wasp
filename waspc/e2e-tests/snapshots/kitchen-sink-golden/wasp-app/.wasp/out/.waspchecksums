@@ -410,35 +410,35 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "4c0dc4604478542e3771e1c3ef637c2af319db1c94cae6d9a1d6ade57420a35b"
+        "b1ed7eab1c41d50237b95ae944f3a9377218b58b5b8f80faf4b75924839389f6"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "498f8de62ce666890e2d3d2167831662ac398d6ebaab817580e73a8537c178ae"
+        "329dc178292b7920d85b52e616b1d87dc1477ca3ead74f1fa8cd667c8bab22a4"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "d232635d5feed45a390041e968d4cb997e02a3690d3359cfe4fe7b776e9ea1ca"
+        "ccc0b566ab81b4640f26fc1322033ced0773ef2b851452592a22c93d4a3aded7"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/pages/createAuthRequiredPage.jsx"
         ],
-        "72bb8b49a7e4d6762239c08657f99fc4374e08bc24da4231a3779d4ea7c635c6"
+        "9596b98c2d8de5edf7f97df27d73f0aa2a4b423878fa46fd736d7178ba2df9a9"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/router/router.tsx"
         ],
-        "936f937508bd21b7aa0cfbbdb9233c51df83ce46348e6b56daa42981b59e6b95"
+        "ea22741750c28e8c171076d8cec34aad1e4c2d6ef92f5283409e534a08d0133b"
     ],
     [
         [
@@ -2419,7 +2419,7 @@
             "file",
             "web-app/src/index.tsx"
         ],
-        "d0b1ead4bcaab45a8fc6646db1685de85069b7bfaca5f05ec67e71328e93490a"
+        "5dd5f766686d661808471e29377e7ffe05ebe91c41b96e2977aae7f3e74ea478"
     ],
     [
         [

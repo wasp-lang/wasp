@@ -1,6 +1,6 @@
 {{={= =}=}}
-import React from "react";
-import ReactDOM from "react-dom/client";
+import * as React from "react";
+import * as ReactDOM from "react-dom/client";
 import { getWaspApp } from "wasp/client/app";
 import { routesMapping } from "./router";
 
@@ -18,11 +18,11 @@ await {= setupFn.importIdentifier =}()
 
 const app = getWaspApp({
   {=# rootComponent.isDefined =}
-  RootComponent: {= rootComponent.importIdentifier =},
+  rootElement: <{= rootComponent.importIdentifier =} />,
   {=/ rootComponent.isDefined =}
   routesMapping,
 });
 
-ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>{app}</React.StrictMode>,
 );

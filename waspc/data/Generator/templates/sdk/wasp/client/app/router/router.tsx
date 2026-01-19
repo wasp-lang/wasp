@@ -1,5 +1,5 @@
 {{={= =}=}}
-import React from 'react'
+import * as React from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 
 {=# isExternalAuthEnabled =}
@@ -12,10 +12,10 @@ import { routes } from '../../router/index'
 
 export function getRouter({
   routesMapping,
-  RootComponent,
+  rootElement,
 }: {
   routesMapping: Record<string, React.ComponentType>,
-  RootComponent: React.ComponentType,
+  rootElement: React.ReactNode,
 }) {
   const waspDefinedRoutes = [
     {=# isExternalAuthEnabled =}
@@ -34,7 +34,7 @@ export function getRouter({
 
   const browserRouter = createBrowserRouter([{
     path: '/',
-    element: <RootComponent />,
+    element: rootElement,
     ErrorBoundary: DefaultRootErrorBoundary,
     children: [
       ...waspDefinedRoutes,
