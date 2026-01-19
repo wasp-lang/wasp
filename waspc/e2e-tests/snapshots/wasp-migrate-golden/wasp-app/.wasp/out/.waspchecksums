@@ -739,20 +739,20 @@
             "file",
             "web-app/vite/plugins/detectServerImports.ts"
         ],
-        "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
+        "4d4451b2d692a7e4d623ba91016cab1391294d204763813bf08192cb866052db"
     ],
     [
         [
             "file",
             "web-app/vite/plugins/validateEnv.ts"
         ],
-        "956bb762df6ac7a2bb493dfa335c5fbd9c53be082e709eaa8a0873a75f143784"
+        "e4d0bb7a2fb9d3415e0d1dc5c137fec5e9a4073a2eda33daf50396f5d477490e"
     ],
     [
         [
             "file",
             "web-app/vite/wasp.ts"
         ],
-        "ef44ec1a0c2f269bad2c08c81c66f392ac4faa51cdebcbc80a5bb7ef97555bf9"
+        "0a0486bf484ea1062d2eba79f3b43ec0fd1c7c52de4124242adda07fd5cb59e7"
     ]
 ]

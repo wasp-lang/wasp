@@ -1,5 +1,5 @@
 import path from "node:path"
-import { type Plugin, mergeConfig } from "vite";
+import { type PluginOption, mergeConfig } from "vite";
 import { defaultExclude } from "vitest/config"
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
 import { validateEnv } from "./plugins/validateEnv";
@@ -9,13 +9,13 @@ export interface WaspPluginOptions {
   reactOptions?: ReactOptions;
 }
 
-export function wasp(options?: WaspPluginOptions): Plugin[] {
+export function wasp(options?: WaspPluginOptions): PluginOption {
   return [
     validateEnv(),
-    ...react(options?.reactOptions),
+    react(options?.reactOptions),
     detectServerImports(),
     {
-      name: "wasp-config",
+      name: "wasp:config",
       config(config) {
         return mergeConfig({
           base: "/",
