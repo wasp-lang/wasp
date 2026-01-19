@@ -12,3 +12,6 @@ node_modules/
 
 # Playwright
 test-results/
+
+# Flowbite React
+.flowbite-react
