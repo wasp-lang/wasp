@@ -8,6 +8,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Wasp now has **Tailwind CSS 4** support, and v3 support has been dropped. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 - Wasp now uses **Vitest 4** for testing. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
+- Removed the `.wasp/build` directory. Wasp now only uses `.wasp/out` for generated code, both in development and production mode. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
+- The Wasp SDK is now used as a workspace instead of a dependency. This avoids dependency resolution issues and further improves reliability of Wasp projects. ([#3544](https://github.com/wasp-lang/wasp/pull/3544))
 
 ### 🎉 New Features
 
@@ -17,12 +19,19 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Fixed an issue where if Wasp was installed from npm, `wasp new` would not work correctly. ([#3585](https://github.com/wasp-lang/wasp/pull/3585))
 
+### 📖 Documentation
+
+- The Wasp docs now include a "Guides" section, with step-by-step tutorials on how to use popular libraries and tools with Wasp. Check them out at https://wasp.sh/docs/guides! ([#3597](https://github.com/wasp-lang/wasp/pull/3597))
+
 ### 🔧 Small improvements
 
 - We've unlinked Wasp from any specific Tailwind CSS version, so in the future you can adopt new Tailwind CSS versions at your own pace, independently of Wasp. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
+- `wasp new` now shows a helpful message when the specified template has not been updated to the latest Wasp version. ([#3511](https://github.com/wasp-lang/wasp/pull/3511))
+- Running a Wasp in development or production mode won't modify your `package-lock.json` file anymore. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
 - We updated the `basic` starter template to the latest best practices for React 19 + TypeScript apps. This applies to new projects created with `wasp new -t basic`, and older projects are unaffected. ([#3572](https://github.com/wasp-lang/wasp/pull/3572))
 - We updated the testing environment to JSDOM 27 for more up-to-date mocking. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - We updated our API mocking to MSW 2 for better performance and reliability. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
+- `wasp info` now tells you if the last compilation was done in development or production mode. ([#3612](https://github.com/wasp-lang/wasp/pull/3612))
 
 ## 0.20.1
 

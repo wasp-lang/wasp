@@ -22,11 +22,17 @@ if [ "$WASP_COMMAND" != "wasp" ] && [ "$WASP_COMMAND" != "wasp-cli" ]; then
   exit 1
 fi
 
+WASP_INFO_OUTPUT=$($WASP_COMMAND info 2>&1) || {
+  echo "ERROR: '$WASP_COMMAND info' failed with exit code $?:" >&2
+  echo $WASP_INFO_OUTPUT >&2
+  exit 1
+}
+
 # Take the database line
 # Take everything after the colon
 # Remove ANSI color codes
 # Convert to lowercase
-DATABASE_PROVIDER=$($WASP_COMMAND info \
+DATABASE_PROVIDER=$(echo "$WASP_INFO_OUTPUT" \
   | grep "Database system" \
   | sed 's/.*: //' \
   | sed -e 's/\x1b\[[0-9;]*m//g' \

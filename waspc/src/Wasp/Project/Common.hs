@@ -12,7 +12,6 @@ module Wasp.Project.Common
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
-    buildDirInDotWaspDir,
     waspProjectDirFromProjectRootDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
@@ -73,10 +72,6 @@ generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRoot
 -- "GeneratedCodeDir". We should unify the naming (the latter is the beter
 -- name).
 generatedCodeDirInDotWaspDir = [reldir|out|]
-
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
-buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRootDir)
-buildDirInDotWaspDir = [reldir|build|]
 
 -- TODO: This backwards relative path relies on multiple forward relative path
 -- definitions. We should find a better way to express it (e.g., by somehow
