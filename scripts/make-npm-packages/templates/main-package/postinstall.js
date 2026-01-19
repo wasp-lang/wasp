@@ -1,24 +1,25 @@
-const POSTHOG_API_KEY = "CdDd2A0jKTI2vFAsrI9JWm3MqpOcgHz1bMyogAcwsE4";
-const POSTHOG_URL = "https://app.posthog.com/capture";
-const TIMEOUT_MS = 500;
-
-const CI_ENV_VARS = [
-  "BUILD_ID",
-  "BUILD_NUMBER",
-  "CI",
-  "CI_APP_ID",
-  "CI_BUILD_ID",
-  "CI_BUILD_NUMBER",
-  "CI_NAME",
-  "CONTINUOUS_INTEGRATION",
-  "GITHUB_ACTIONS",
-  "RUN_ID",
-  "TRAVIS",
-];
-
 sendAnalytics().catch(() => {});
 
 async function sendAnalytics() {
+  // This is a public API key for PostHog analytics - it's safe to include in plain text
+  const POSTHOG_API_KEY = "CdDd2A0jKTI2vFAsrI9JWm3MqpOcgHz1bMyogAcwsE4";
+  const POSTHOG_URL = "https://app.posthog.com/capture";
+  const TIMEOUT_MS = 500;
+
+  const CI_ENV_VARS = [
+    "BUILD_ID",
+    "BUILD_NUMBER",
+    "CI",
+    "CI_APP_ID",
+    "CI_BUILD_ID",
+    "CI_BUILD_NUMBER",
+    "CI_NAME",
+    "CONTINUOUS_INTEGRATION",
+    "GITHUB_ACTIONS",
+    "RUN_ID",
+    "TRAVIS",
+  ];
+
   if (process.env.WASP_TELEMETRY_DISABLE) {
     return;
   }
@@ -35,19 +36,12 @@ async function sendAnalytics() {
     },
   };
 
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
-
-  try {
-    await fetch(POSTHOG_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-      signal: controller.signal,
-    });
-  } finally {
-    clearTimeout(timeoutId);
-  }
+  await fetch(POSTHOG_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+    signal: AbortSignal.timeout(TIMEOUT_MS),
+  });
 }
 
 function generateDistinctId() {
