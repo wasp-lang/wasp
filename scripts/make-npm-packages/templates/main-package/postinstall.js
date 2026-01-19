@@ -56,6 +56,8 @@ function getOS() {
       return "linux";
     case "darwin":
       return "osx";
+    case "win32":
+      return "windows";
     default:
       return "Unknown";
   }
