@@ -50,7 +50,9 @@ function getOS() {
 }
 
 function isCI() {
-  // List of common CI environment variables, keep in sync with the get-wasp-sh/installer.sh.
+  // Keep in sync with the same list in:
+  // - https://github.com/wasp-lang/wasp/blob/main/waspc/src/Wasp/Util.hs
+  // - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
   const CI_ENV_VARS = [
     "BUILD_ID",
     "BUILD_NUMBER",
