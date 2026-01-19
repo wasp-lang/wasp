@@ -256,21 +256,21 @@
             "file",
             "sdk/wasp/client/vite/plugins/detectServerImports.ts"
         ],
-        "e9735d79c5d17f6f0ed45d978d705f7b815a00ca0a96dedde08d67b505db2225"
+        "4d4451b2d692a7e4d623ba91016cab1391294d204763813bf08192cb866052db"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "956bb762df6ac7a2bb493dfa335c5fbd9c53be082e709eaa8a0873a75f143784"
+        "e4d0bb7a2fb9d3415e0d1dc5c137fec5e9a4073a2eda33daf50396f5d477490e"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "b0f5e1542f56b39792a61739cddf2c84578a7a1008e1c4d7842f9aedf450aa17"
+        "93f2b92b57797941212ef84fdb5fe18c5ea7a9ba4d08fc8f1b01beba529846d8"
     ],
     [
         [
