@@ -17,7 +17,7 @@ Let's create and run our first Wasp app in 3 short steps:
    npm i -g @wasp.sh/wasp-cli@latest
    ```
 
-   ℹ️ Wasp requires Node.js and will warn you if it is missing: check below for [more details](#requirements).
+   ℹ️ Wasp requires Node.js and npm, which are usually installed together: check below for [more details](#requirements).
 
 2. **Then, create a new app by running:**
 
