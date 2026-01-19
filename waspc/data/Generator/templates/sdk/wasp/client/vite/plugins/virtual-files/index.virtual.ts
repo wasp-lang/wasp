@@ -1,7 +1,7 @@
 {{={= =}=}}
 export function getIndexTsxContent(): string {
-  return `import React from "react";
-  import ReactDOM from "react-dom/client";
+  return `import * as React from "react";
+  import * as ReactDOM from "react-dom/client";
   import { getWaspApp } from "wasp/client/app";
   {=& routesMapping.importStatement =}
 
@@ -19,12 +19,12 @@ export function getIndexTsxContent(): string {
 
   const app = getWaspApp({
     {=# rootComponent.isDefined =}
-    RootComponent: {= rootComponent.importIdentifier =},
+    rootElement: <{= rootComponent.importIdentifier =} />,
     {=/ rootComponent.isDefined =}
     routesMapping: {= routesMapping.importIdentifier =},
   });
 
-  ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+  ReactDOM.createRoot(document.getElementById("root")!).render(
     <React.StrictMode>{app}</React.StrictMode>,
   );
 `

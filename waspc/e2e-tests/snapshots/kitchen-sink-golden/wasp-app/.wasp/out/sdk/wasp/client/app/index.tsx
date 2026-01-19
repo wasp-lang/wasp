@@ -8,7 +8,7 @@ let isAppInitialized = false
 
 // PRIVATE API (web-app)
 export function getWaspApp({
-  RootComponent = DefaultRootComponent,
+  rootElement = <DefaultRootComponent />,
   routesMapping,
 }: WaspAppProps): React.ReactNode {
   if (!isAppInitialized) {
@@ -16,7 +16,7 @@ export function getWaspApp({
     isAppInitialized = true
   }
 
-  return <WaspApp RootComponent={RootComponent} routesMapping={routesMapping} />
+  return <WaspApp rootElement={rootElement} routesMapping={routesMapping} />
 }
 
 // PRIVATE API (web-app)
