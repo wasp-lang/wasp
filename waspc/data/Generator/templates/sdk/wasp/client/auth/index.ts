@@ -21,6 +21,9 @@ export * from './keycloak'
 {=# isGitHubAuthEnabled =}
 export * from './github'
 {=/ isGitHubAuthEnabled =}
+{=# isMicrosoftAuthEnabled =}
+export * from './microsoft'
+{=/ isMicrosoftAuthEnabled =}
 export {
   default as useAuth,
   getMe,

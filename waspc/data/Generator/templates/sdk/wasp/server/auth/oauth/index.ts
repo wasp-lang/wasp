@@ -22,6 +22,10 @@ export { github } from './providers/github.js';
 // PUBLIC API
 export { keycloak } from './providers/keycloak.js';
 {=/ enabledProviders.isKeycloakAuthEnabled =}
+{=# enabledProviders.isMicrosoftAuthEnabled =}
+// PUBLIC API
+export { microsoft } from './providers/microsoft.js';
+{=/ enabledProviders.isMicrosoftAuthEnabled =}
 
 // PRIVATE API
 export {
