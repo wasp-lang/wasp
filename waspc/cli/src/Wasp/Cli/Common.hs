@@ -6,6 +6,7 @@ module Wasp.Cli.Common
     CliInstallMethod (..),
     getInstallMethod,
     getInstallationCommand,
+    npmPackageName,
   )
 where
 
@@ -39,11 +40,14 @@ getInstallMethod =
     Just "npm" -> return NpmPackage
     _ -> return BinaryInstaller
 
+npmPackageName :: String
+npmPackageName = "@wasp.sh/wasp-cli"
+
 getInstallationCommand :: CliInstallMethod -> Maybe String -> String
 getInstallationCommand NpmPackage (Just version) =
-  "npm i -g @wasp.sh/wasp-cli@" ++ version
+  "npm i -g " ++ npmPackageName ++ "@" ++ version
 getInstallationCommand NpmPackage Nothing =
-  "npm i -g @wasp.sh/wasp-cli@latest"
+  "npm i -g " ++ npmPackageName ++ "@latest"
 getInstallationCommand BinaryInstaller (Just version) =
   "curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v " ++ version
 getInstallationCommand BinaryInstaller Nothing =
