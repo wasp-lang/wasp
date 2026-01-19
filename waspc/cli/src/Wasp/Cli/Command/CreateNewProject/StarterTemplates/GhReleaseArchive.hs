@@ -11,7 +11,7 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
-import Wasp.Cli.Common (getInstallationCommand, getPackagingMode)
+import Wasp.Cli.Common (getInstallMethod, getInstallationCommand)
 import Wasp.Cli.GithubRepo
   ( GithubReleaseArchiveName,
     GithubRepoRef (_repoName, _repoOwner),
@@ -34,7 +34,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
   releaseExists <- liftIO (checkGitHubReleaseExists ghRepoRef)
 
   unless releaseExists $
-    liftIO getPackagingMode
+    liftIO getInstallMethod
       >>= throwOutdatedTagError
 
   fetchTemplateFromGhToWaspProjectDir

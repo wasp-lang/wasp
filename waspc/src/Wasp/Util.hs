@@ -317,6 +317,9 @@ checkIfOnCi =
   any checkIfEnvValueIsTruthy
     <$> mapM
       ENV.lookupEnv
+      -- Keep in sync with the same list in:
+      -- - https://github.com/wasp-lang/wasp/blob/main/scripts/make-npm-packages/templates/main-package/postinstall.js
+      -- - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
       [ "BUILD_ID", -- Jenkins, Codeship
         "BUILD_NUMBER", -- Jenkins, TeamCity
         "CI", -- Github actions, Travis CI, CircleCI, Cirrus CI, Gitlab CI, Appveyor, Codeship, dsari

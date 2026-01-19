@@ -11,7 +11,7 @@ import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Start.Db (waspDevDbDockerVolumePrefix)
-import Wasp.Cli.Common (CliPackagingMode (..), getPackagingMode)
+import Wasp.Cli.Common (CliInstallMethod (..), getInstallMethod)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -32,8 +32,8 @@ import Wasp.Util.IO
 -- | Removes Wasp from the system.
 uninstall :: Command ()
 uninstall = do
-  liftIO getPackagingMode >>= \case
-    Installer -> installerUninstall
+  liftIO getInstallMethod >>= \case
+    BinaryInstaller -> installerUninstall
     NpmPackage -> npmUninstall
 
 installerUninstall :: Command ()
@@ -48,7 +48,7 @@ npmUninstall = do
   cliSendMessageC $ Msg.Start "Removing Wasp data..."
   liftIO removeWaspFiles
   cliSendMessageC $ Msg.Success "Removed Wasp data."
-  cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run 'npm uninstall -g @wasp/cli'."
+  cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run 'npm uninstall -g @wasp.sh/wasp-cli'."
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC dockerVolumeMsg
 
@@ -96,6 +96,4 @@ getWaspFiles :: IO [Path' Abs File']
 getWaspFiles = do
   homeDir <- getHomeDir
 
-  return
-    [ homeDir </> waspExecutableInHomeDir
-    ]
+  return [homeDir </> waspExecutableInHomeDir]

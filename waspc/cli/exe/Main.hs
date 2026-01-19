@@ -38,7 +38,7 @@ import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.TsConfigSetup (tsConfigSetup)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
-import Wasp.Cli.Common (getInstallationCommand, getPackagingMode)
+import Wasp.Cli.Common (getInstallMethod, getInstallationCommand)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Message
@@ -210,7 +210,7 @@ printUsage =
 
 printVersion :: IO ()
 printVersion = do
-  installCommand <- getInstallationCommand <$> getPackagingMode
+  installCommand <- getInstallationCommand <$> getInstallMethod
 
   putStrLn $
     unlines

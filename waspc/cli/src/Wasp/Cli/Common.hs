@@ -3,8 +3,8 @@ module Wasp.Cli.Common
     waspSays,
     waspWarns,
     waspScreams,
-    CliPackagingMode (..),
-    getPackagingMode,
+    CliInstallMethod (..),
+    getInstallMethod,
     getInstallationCommand,
   )
 where
@@ -23,28 +23,28 @@ waspWarns what = putStrLn $ Term.applyStyles [Term.Magenta] what
 waspScreams :: String -> IO ()
 waspScreams what = putStrLn $ Term.applyStyles [Term.Red] what
 
-data CliPackagingMode
-  = Installer
+data CliInstallMethod
+  = BinaryInstaller
   | NpmPackage
 
 -- Keep the environment variable name and value in sync with
 -- scripts/make-npm-packages/templates/main-package/bin.js
 
-packagingModeEnvVar :: String
-packagingModeEnvVar = "WASP_CLI_PACKAGE_MODE"
+installMethodEnvVarName :: String
+installMethodEnvVarName = "WASP_CLI_INSTALL_METHOD"
 
-getPackagingMode :: IO CliPackagingMode
-getPackagingMode =
-  lookupEnv packagingModeEnvVar >>= \case
+getInstallMethod :: IO CliInstallMethod
+getInstallMethod =
+  lookupEnv installMethodEnvVarName >>= \case
     Just "npm" -> return NpmPackage
-    _ -> return Installer
+    _ -> return BinaryInstaller
 
-getInstallationCommand :: CliPackagingMode -> Maybe String -> String
+getInstallationCommand :: CliInstallMethod -> Maybe String -> String
 getInstallationCommand NpmPackage (Just version) =
   "npm i -g @wasp.sh/wasp-cli@" ++ version
 getInstallationCommand NpmPackage Nothing =
   "npm i -g @wasp.sh/wasp-cli@latest"
-getInstallationCommand Installer (Just version) =
+getInstallationCommand BinaryInstaller (Just version) =
   "curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v " ++ version
-getInstallationCommand Installer Nothing =
+getInstallationCommand BinaryInstaller Nothing =
   "curl -sSL https://get.wasp.sh/installer.sh | sh -s"
