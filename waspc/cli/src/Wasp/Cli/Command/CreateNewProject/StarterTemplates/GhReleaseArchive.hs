@@ -46,7 +46,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
     replaceTemplatePlaceholders =
       liftIO $ replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
 
-    throwOutdatedTagError packagingMode =
+    throwOutdatedTagError installMethod =
       throwProjectCreationError $
         unlines
           [ "Template " ++ show templateName ++ " doesn't yet have a version compatible with the current Wasp version.",
@@ -56,7 +56,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
             "Visit " ++ releasesUrl ++ " to see available template releases,",
             "and install the Wasp version that matches the latest release tag available by running:",
             "",
-            indent 2 $ getInstallationCommand packagingMode (Just "x.y.z"),
+            indent 2 $ getInstallationCommand installMethod (Just "x.y.z"),
             "",
             "Then you can try creating your project again."
           ]
