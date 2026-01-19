@@ -88,5 +88,6 @@ async function exchangeOAuthCodeForToken(data: {
 function isResponseWithSessionId(
   response: AxiosResponse<unknown>
 ): response is AxiosResponse<{ sessionId: string }> {
-  return typeof response.data === 'object' && typeof (response.data as any).sessionId === 'string'
+  const data = response.data as any;
+  return !!data && typeof data.sessionId === 'string'
 }
