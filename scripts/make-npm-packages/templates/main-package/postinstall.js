@@ -6,20 +6,6 @@ async function sendAnalytics() {
   const POSTHOG_URL = "https://app.posthog.com/capture";
   const TIMEOUT_MS = 500;
 
-  const CI_ENV_VARS = [
-    "BUILD_ID",
-    "BUILD_NUMBER",
-    "CI",
-    "CI_APP_ID",
-    "CI_BUILD_ID",
-    "CI_BUILD_NUMBER",
-    "CI_NAME",
-    "CONTINUOUS_INTEGRATION",
-    "GITHUB_ACTIONS",
-    "RUN_ID",
-    "TRAVIS",
-  ];
-
   if (process.env.WASP_TELEMETRY_DISABLE) {
     return;
   }
@@ -64,5 +50,20 @@ function getOS() {
 }
 
 function isCI() {
+  // List of common CI environment variables, keep in sync with the get-wasp-sh/installer.sh.
+  const CI_ENV_VARS = [
+    "BUILD_ID",
+    "BUILD_NUMBER",
+    "CI",
+    "CI_APP_ID",
+    "CI_BUILD_ID",
+    "CI_BUILD_NUMBER",
+    "CI_NAME",
+    "CONTINUOUS_INTEGRATION",
+    "GITHUB_ACTIONS",
+    "RUN_ID",
+    "TRAVIS",
+  ];
+
   return CI_ENV_VARS.some((envVar) => process.env[envVar]);
 }
