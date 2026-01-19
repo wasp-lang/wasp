@@ -72,22 +72,32 @@ export function waspBuildStart({
   waspCliCmd,
   pathToApp,
   serverEnvVars,
+  clientEnvVars,
   serverEnvFile,
   clientEnvFile,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
-  serverEnvVars: EnvVars;
+  serverEnvVars?: EnvVars;
+  clientEnvVars?: EnvVars;
   serverEnvFile?: string;
   clientEnvFile?: string;
 }): Promise<{ exitCode: number | null }> {
   const args = [
     "build",
     "start",
-    ...Object.entries(serverEnvVars).flatMap(([key, value]) => [
-      "--server-env",
-      `${key}=${value}`,
-    ]),
+    ...(serverEnvVars
+      ? Object.entries(serverEnvVars).flatMap(([key, value]) => [
+          "--server-env",
+          `${key}=${value}`,
+        ])
+      : []),
+    ...(clientEnvVars
+      ? Object.entries(clientEnvVars).flatMap(([key, value]) => [
+          "--client-env",
+          `${key}=${value}`,
+        ])
+      : []),
     ...(serverEnvFile ? ["--server-env-file", serverEnvFile] : []),
     ...(clientEnvFile ? ["--client-env-file", clientEnvFile] : []),
   ];
