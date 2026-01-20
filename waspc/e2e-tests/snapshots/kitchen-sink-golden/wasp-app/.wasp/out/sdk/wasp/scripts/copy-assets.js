@@ -3,7 +3,11 @@ import * as path from "node:path"
 
 const base = path.resolve(import.meta.dirname, "..");
 
-const globs = ["./auth/forms/**/*.css", "./client/app/components/**/*.css"];
+const globs = [
+  "./auth/forms/**/*.css",
+  "./client/app/components/**/*.css",
+  "./client/vite/virtual-files/files/**/*.*",
+];
 
 for await (const file of fs.glob(globs, { cwd: base })) {
   const src = path.join(base, file);

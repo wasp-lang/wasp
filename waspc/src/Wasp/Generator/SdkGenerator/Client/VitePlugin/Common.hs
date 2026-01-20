@@ -1,20 +1,26 @@
 module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-  ( virtualFilesDirInVitePluginsDir,
-    indexTsxVirtualFileName,
-    routesTsxVirtualFileName,
+  ( virtualFilesDirInViteDir,
+    virtualFilesFilesDirInViteDir,
+    clientEntryPointPath,
+    routesEntryPointPath,
   )
 where
 
-import StrongPath (Dir, Path', Rel, reldir)
+import StrongPath (Dir, Path', Rel, reldir, (</>))
 import qualified Wasp.Generator.SdkGenerator.Common as C
 
 data VirtualFilesDir
 
-virtualFilesDirInVitePluginsDir :: Path' (Rel C.VitePluginsDir) (Dir VirtualFilesDir)
-virtualFilesDirInVitePluginsDir = [reldir|virtual-files|]
+data VirtualFilesFilesDir
 
-indexTsxVirtualFileName :: String
-indexTsxVirtualFileName = "index.virtual.tsx"
+virtualFilesDirInViteDir :: Path' (Rel C.ViteDir) (Dir VirtualFilesDir)
+virtualFilesDirInViteDir = [reldir|virtual-files|]
 
-routesTsxVirtualFileName :: String
-routesTsxVirtualFileName = "routes.virtual.tsx"
+virtualFilesFilesDirInViteDir :: Path' (Rel C.ViteDir) (Dir VirtualFilesFilesDir)
+virtualFilesFilesDirInViteDir = virtualFilesDirInViteDir </> [reldir|files|]
+
+clientEntryPointPath :: String
+clientEntryPointPath = "/@wasp/client-entry.tsx"
+
+routesEntryPointPath :: String
+routesEntryPointPath = "/@wasp/routes.tsx"

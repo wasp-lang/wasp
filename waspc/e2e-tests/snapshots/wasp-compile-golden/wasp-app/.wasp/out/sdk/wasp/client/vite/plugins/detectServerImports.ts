@@ -3,7 +3,7 @@ import path from 'path'
 
 export function detectServerImports(): Plugin {
   return {
-    name: 'wasp-detect-server-imports',
+    name: 'wasp:detect-server-imports',
     enforce: 'pre',
     resolveId(source, importer) {
       if (!importer) {

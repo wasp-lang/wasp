@@ -1,4 +1,4 @@
-import React from 'react'
+import * as React from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 
 import { getRouter } from '../router/router'
@@ -6,11 +6,11 @@ import { queryClientInitialized } from '../../operations/index'
 
 
 export type WaspAppProps = {
-  RootComponent?: React.ComponentType;
+  rootElement?: React.ReactNode;
   routesMapping: Record<string, React.ComponentType>;
 }
 
-export function WaspApp({ RootComponent, routesMapping }: Required<WaspAppProps>) {
+export function WaspApp({ rootElement, routesMapping }: Required<WaspAppProps>) {
   const [queryClient, setQueryClient] = React.useState<any>(null)
 
   React.useEffect(() => {
@@ -22,7 +22,7 @@ export function WaspApp({ RootComponent, routesMapping }: Required<WaspAppProps>
   }
 
   const router = getRouter({
-    RootComponent,
+    rootElement,
     routesMapping,
   })
 
