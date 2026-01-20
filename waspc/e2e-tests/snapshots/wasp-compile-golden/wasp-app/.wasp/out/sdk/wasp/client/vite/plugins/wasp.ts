@@ -5,7 +5,8 @@ import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
 import { validateEnv } from "./validateEnv.js";
 import { detectServerImports } from "./detectServerImports.js";
 import { waspVirtualModules } from "./virtualModules.js";
-import { waspHtml } from "./html.js";
+import { waspHtmlDev } from "./html/dev.js";
+import { waspHtmlBuild } from "./html/build.js";
 import { resolveProjectPath } from "../../../dev/index.js";
 
 export interface WaspPluginOptions {
@@ -14,7 +15,8 @@ export interface WaspPluginOptions {
 
 export function wasp(options?: WaspPluginOptions): PluginOption {
   return [
-    waspHtml(),
+    waspHtmlDev(),
+    waspHtmlBuild(),
     waspVirtualModules(),
     validateEnv(),
     react(options?.reactOptions),
