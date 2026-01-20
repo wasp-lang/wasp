@@ -11,7 +11,7 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
-import Wasp.Cli.Common (getInstallMethod, getInstallationCommand)
+import Wasp.Cli.Common (getInstallationCommand, waspCliInstallMethod)
 import Wasp.Cli.GithubRepo
   ( GithubReleaseArchiveName,
     GithubRepoRef (_repoName, _repoOwner),
@@ -33,9 +33,9 @@ createProjectOnDiskFromGhReleaseArchiveTemplate ::
 createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir projectName appName ghRepoRef assetName templatePathInRepo = do
   releaseExists <- liftIO (checkGitHubReleaseExists ghRepoRef)
 
-  unless releaseExists $
-    liftIO getInstallMethod
-      >>= throwOutdatedTagError
+  unless
+    releaseExists
+    throwOutdatedTagError
 
   fetchTemplateFromGhToWaspProjectDir
     >>= either throwProjectCreationError (const replaceTemplatePlaceholders)
@@ -46,7 +46,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
     replaceTemplatePlaceholders =
       liftIO $ replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
 
-    throwOutdatedTagError installMethod =
+    throwOutdatedTagError =
       throwProjectCreationError $
         unlines
           [ "Template " ++ show templateName ++ " doesn't yet have a version compatible with the current Wasp version.",
@@ -56,7 +56,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
             "Visit " ++ releasesUrl ++ " to see available template releases,",
             "and install the Wasp version that matches the latest release tag available by running:",
             "",
-            indent 2 $ getInstallationCommand installMethod (Just "x.y.z"),
+            indent 2 $ getInstallationCommand waspCliInstallMethod (Just "x.y.z"),
             "",
             "Then you can try creating your project again."
           ]

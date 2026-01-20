@@ -4,13 +4,14 @@ module Wasp.Cli.Common
     waspWarns,
     waspScreams,
     CliInstallMethod (..),
-    getInstallMethod,
+    waspCliInstallMethod,
     getInstallationCommand,
     npmPackageName,
   )
 where
 
 import System.Environment (lookupEnv)
+import System.IO.Unsafe (unsafePerformIO)
 import qualified Wasp.Util.Terminal as Term
 
 data CliTemplatesDir
@@ -34,11 +35,12 @@ data CliInstallMethod
 installMethodEnvVarName :: String
 installMethodEnvVarName = "WASP_CLI_INSTALL_METHOD"
 
-getInstallMethod :: IO CliInstallMethod
-getInstallMethod =
-  lookupEnv installMethodEnvVarName >>= \case
-    Just "npm" -> return NpmPackage
-    _ -> return BinaryInstaller
+{-# NOINLINE waspCliInstallMethod #-}
+waspCliInstallMethod :: CliInstallMethod
+waspCliInstallMethod =
+  case unsafePerformIO $ lookupEnv installMethodEnvVarName of
+    Just "npm" -> NpmPackage
+    _ -> BinaryInstaller
 
 npmPackageName :: String
 npmPackageName = "@wasp.sh/wasp-cli"

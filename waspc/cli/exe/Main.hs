@@ -38,7 +38,7 @@ import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.TsConfigSetup (tsConfigSetup)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
-import Wasp.Cli.Common (getInstallMethod, getInstallationCommand)
+import Wasp.Cli.Common (getInstallationCommand, waspCliInstallMethod)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Message
@@ -209,18 +209,16 @@ printUsage =
 {- ORMOLU_ENABLE -}
 
 printVersion :: IO ()
-printVersion = do
-  installMethod <- getInstallMethod
-
+printVersion =
   putStrLn $
     unlines
       [ show waspVersion,
         "",
         "If you wish to install/switch to the latest version of Wasp, do:",
-        indent 2 $ getInstallationCommand installMethod Nothing,
+        indent 2 $ getInstallationCommand waspCliInstallMethod Nothing,
         "",
-        "If you want specific x.y.z version of Wasp, do:",
-        indent 2 $ getInstallationCommand installMethod $ Just "x.y.z",
+        "If you want a specific x.y.z version of Wasp, do:",
+        indent 2 $ getInstallationCommand waspCliInstallMethod $ Just "x.y.z",
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]

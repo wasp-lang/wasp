@@ -11,7 +11,7 @@ import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Start.Db (waspDevDbDockerVolumePrefix)
-import Wasp.Cli.Common (CliInstallMethod (..), getInstallMethod, npmPackageName)
+import Wasp.Cli.Common (CliInstallMethod (..), npmPackageName, waspCliInstallMethod)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -31,8 +31,8 @@ import Wasp.Util.IO
 
 -- | Removes Wasp from the system.
 uninstall :: Command ()
-uninstall = do
-  liftIO getInstallMethod >>= \case
+uninstall =
+  case waspCliInstallMethod of
     BinaryInstaller -> installerUninstall
     NpmPackage -> npmUninstall
 
