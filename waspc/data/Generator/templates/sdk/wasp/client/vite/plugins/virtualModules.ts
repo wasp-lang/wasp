@@ -1,40 +1,48 @@
 {{={= =}=}}
 import path from "node:path";
 import { type Plugin } from "vite";
-import { getIndexTsxContent } from "./virtual-files/index.virtual.js";
-import { getRoutesTsxContent } from "./virtual-files/routes.virtual.js";
+import {
+  getIndexTsxContent,
+  getRoutesTsxContent,
+} from "../virtual-files/index.js";
+
+const virtualModules = {
+  clientEntryPoint: {
+    id: "{= clientEntryPointPath =}",
+    absPath: "",
+    getContent: () => getIndexTsxContent(),
+  },
+  routesEntryPoint: {
+    id: "{= routesEntryPointPath =}",
+    absPath: "",
+    getContent: () =>  getRoutesTsxContent(),
+  },
+};
 
 export function waspVirtualModules(): Plugin {
-  let projectRoot: string;
-  let indexTsxPath: string;
-  let routesPath: string;
-
   return {
     name: "wasp-virtual-modules",
     enforce: "pre",
     configResolved(config) {
-      projectRoot = config.root;
       // Using absolute paths gives proper context for resolving relative imports.
-      indexTsxPath = path.resolve(projectRoot, "{= indexVirtualFileName =}");
-      routesPath = path.resolve(projectRoot, "{= routesVirtualFileName =}");
+      virtualModules.clientEntryPoint.absPath = path.resolve(config.root, path.basename(virtualModules.clientEntryPoint.id));
+      virtualModules.routesEntryPoint.absPath = path.resolve(config.root, path.basename(virtualModules.routesEntryPoint.id));
     },
     resolveId(id) {
-      // Intercept requests for /{= indexVirtualFileName =} and resolve to virtual module
-      if (id === "/{= indexVirtualFileName =}") {
-        return indexTsxPath;
+      if (id === virtualModules.clientEntryPoint.id) {
+        return virtualModules.clientEntryPoint.absPath;
       }
-      // Intercept requests for ./{= routesVirtualFileName =}
-      if (id === "./{= routesVirtualFileName =}") {
-        return routesPath;
+      if (id === virtualModules.routesEntryPoint.id) {
+        return virtualModules.routesEntryPoint.absPath;
       }
     },
     load(id) {
-      if (id === indexTsxPath) {
-        const content = getIndexTsxContent();
+      if (id === virtualModules.clientEntryPoint.absPath) {
+        const content = virtualModules.clientEntryPoint.getContent();
         return { code: content, map: null };
       }
-      if (id === routesPath) {
-        const content = getRoutesTsxContent();
+      if (id === virtualModules.routesEntryPoint.absPath) {
+        const content = virtualModules.routesEntryPoint.getContent();
         return { code: content, map: null };
       }
     },

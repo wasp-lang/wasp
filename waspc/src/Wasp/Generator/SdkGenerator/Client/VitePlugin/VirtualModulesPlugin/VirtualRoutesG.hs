@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
-  ( genVirtualRoutesTs,
+  ( genVirtualRoutesTsx,
   )
 where
 
@@ -16,19 +16,19 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (virtualFilesDirInVitePluginsDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (virtualFilesFilesDirInViteDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport
   ( applyJsImportAlias,
     getJsImportStmtAndIdentifier,
   )
 
-genVirtualRoutesTs :: AppSpec -> Generator FileDraft
-genVirtualRoutesTs spec =
+genVirtualRoutesTsx :: AppSpec -> Generator FileDraft
+genVirtualRoutesTsx spec =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> virtualFilesDirInVitePluginsDir </> [relfile|routes.virtual.ts|]
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|routes.tsx|]
     tmplData =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
@@ -36,17 +36,18 @@ genVirtualRoutesTs spec =
           "isAuthEnabled" .= isAuthEnabled spec
         ]
 
--- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
-determineRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
-determineRouteTargetComponent spec (_, route) =
-  maybe
-    targetPageName
-    determineRouteTargetComponent'
-    (AS.Page.authRequired $ snd targetPage)
+getRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
+getRouteTargetComponent spec (_, route) =
+  if isAuthRequired
+    then -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
+      "createAuthRequiredPage(" ++ targetPageName ++ ")"
+    else targetPageName
   where
+    isAuthRequired = fromMaybe False $ AS.Page.authRequired $ snd targetPage
     targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
     targetPage =
       fromMaybe
+        -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
         ( error $
             "Can't find page with name '"
               ++ targetPageName
@@ -56,18 +57,11 @@ determineRouteTargetComponent spec (_, route) =
         )
         (find ((==) targetPageName . fst) (AS.getPages spec))
 
-    determineRouteTargetComponent' :: Bool -> String
-    determineRouteTargetComponent' authRequired =
-      if authRequired
-        then -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
-          "createAuthRequiredPage(" ++ targetPageName ++ ")"
-        else targetPageName
-
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> Aeson.Value
 createRouteTemplateData spec namedRoute@(name, _) =
   object
     [ "name" .= name,
-      "targetComponent" .= determineRouteTargetComponent spec namedRoute
+      "targetComponent" .= getRouteTargetComponent spec namedRoute
     ]
 
 createPageTemplateData :: (String, AS.Page.Page) -> Aeson.Value
