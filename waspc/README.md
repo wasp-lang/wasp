@@ -451,6 +451,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - This will automatically create a new draft release.
 - 👉 Find a new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
+- 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main`. Make sure to merge that PR. This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](/.github/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
