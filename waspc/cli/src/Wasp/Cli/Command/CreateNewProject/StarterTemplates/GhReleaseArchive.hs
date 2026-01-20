@@ -11,7 +11,6 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.CreateNewProject.Common (throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
-import Wasp.Cli.Common (getInstallationCommand, waspCliInstallMethod)
 import Wasp.Cli.GithubRepo
   ( GithubReleaseArchiveName,
     GithubRepoRef (_repoName, _repoOwner),
@@ -20,6 +19,7 @@ import Wasp.Cli.GithubRepo
   )
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent)
+import Wasp.Util.InstallMethod (getInstallationCommand, waspCliInstallMethod)
 
 createProjectOnDiskFromGhReleaseArchiveTemplate ::
   String ->

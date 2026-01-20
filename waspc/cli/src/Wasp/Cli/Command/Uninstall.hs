@@ -11,7 +11,6 @@ import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Start.Db (waspDevDbDockerVolumePrefix)
-import Wasp.Cli.Common (CliInstallMethod (..), npmPackageName, waspCliInstallMethod)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -28,6 +27,7 @@ import Wasp.Util.IO
     doesDirectoryExist,
     doesFileExist,
   )
+import Wasp.Util.InstallMethod (CliInstallMethod (..), npmPackageName, waspCliInstallMethod)
 
 -- | Removes Wasp from the system.
 uninstall :: Command ()
