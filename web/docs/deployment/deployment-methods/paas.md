@@ -65,7 +65,7 @@ While these are the general instructions on deploying the server anywhere, we al
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `build/` directory in the `.wasp/out/web-app/`.
+The command above will build the web client and put it in the `.wasp/out/web-app/build` directory.
 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
 
