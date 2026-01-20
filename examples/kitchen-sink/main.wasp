@@ -92,6 +92,11 @@ page CatchAllPage {
   component: import { CatchAllPage } from "@src/pages/CatchAllPage"
 }
 
+route LinkTestRoute { path: "/link-test", to: LinkTestPage }
+page LinkTestPage {
+  component: import { LinkTestPage } from "@src/pages/LinkTestPage"
+}
+
 // --------- Auth --------- //
 
 route SignupRoute { path: "/signup", to: SignupPage }
