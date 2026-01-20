@@ -36,6 +36,7 @@ data-files:
   Generator/templates/**/*.css
   Generator/templates/**/*.ts
   Generator/templates/**/*.json
+  Generator/templates/**/*.html
   Generator/templates/**/*.md
   Generator/templates/**/*.js
   Generator/templates/**/*.jsx
