@@ -64,5 +64,5 @@ jobs:
         run: |
           set -x # Log each command for debugging
           for pkg in ./packages/*; do
-            npm publish "$pkg"
+            npm publish --tag rc "$pkg"
           done
