@@ -8,11 +8,11 @@ import { Link } from './Link'
 describe('Link', () => {
   it('updates href when search prop changes', async () => {
     function Harness() {
-      const [intent, setIntent] = useState<'apply' | 'post'>('apply')
+      const [q, setQ] = useState<'foo' | 'bar'>('foo')
       return (
         <>
-          <Link to="/auth" search={{ intent }} data-testid="link">Auth</Link>
-          <button onClick={() => setIntent(intent === 'apply' ? 'post' : 'apply')}>Toggle</button>
+          <Link to="/page" search={{ q }} data-testid="link">Page</Link>
+          <button onClick={() => setQ(q === 'foo' ? 'bar' : 'foo')}>Toggle</button>
         </>
       )
     }
@@ -20,9 +20,9 @@ describe('Link', () => {
     render(<MemoryRouter><Harness /></MemoryRouter>)
     const link = screen.getByTestId('link')
 
-    expect(link).toHaveAttribute('href', '/auth?intent=apply')
+    expect(link).toHaveAttribute('href', '/page?q=foo')
     await userEvent.setup().click(screen.getByText('Toggle'))
-    expect(link).toHaveAttribute('href', '/auth?intent=post')
+    expect(link).toHaveAttribute('href', '/page?q=bar')
   })
 
   it('updates href when hash prop changes', async () => {
