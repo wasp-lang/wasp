@@ -29,6 +29,8 @@ jobs:
     container: ${{ matrix.runner.container }}
 
     steps:
+      - uses: actions/checkout@v6
+
       - uses: actions/download-artifact@v6
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
