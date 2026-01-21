@@ -33,9 +33,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate ::
 createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir projectName appName ghRepoRef assetName templatePathInRepo = do
   releaseExists <- liftIO (checkGitHubReleaseExists ghRepoRef)
 
-  unless
-    releaseExists
-    throwOutdatedTagError
+  unless releaseExists throwOutdatedTagError
 
   fetchTemplateFromGhToWaspProjectDir
     >>= either throwProjectCreationError (const replaceTemplatePlaceholders)
