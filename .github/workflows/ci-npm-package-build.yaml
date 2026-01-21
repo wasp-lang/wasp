@@ -74,20 +74,20 @@ jobs:
 
           cat ./input/data.json # For debugging purposes
 
-        # NOTE: We use Node 24 because this packaging script runs TypeScript
-        # directly (native TS execution requires Node 23+). This only affects
-        # the script itself, not end-user compatibility.
       - uses: actions/setup-node@v6
         with:
           cache: npm
-          node-version: "24"
+          node-version-file: '.nvmrc'
 
       - name: Install dependencies for script
         working-directory: ./scripts/make-npm-packages
         run: npm ci
 
+        # NOTE: --experimental-type-stripping allows Node to run TypeScript
+        # directly. This flag became the default in Node v22.18+, but we need
+        # it explicitly for our minimum supported version (v22.12.0).
       - name: Run packager script
-        run: node ./scripts/make-npm-packages/src/index.ts --input-dir ./input/ --output-dir ./output/
+        run: node --experimental-type-stripping ./scripts/make-npm-packages/src/index.ts --input-dir ./input/ --output-dir ./output/
 
       - uses: actions/upload-artifact@v5
         with:
