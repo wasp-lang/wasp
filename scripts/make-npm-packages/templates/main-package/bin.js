@@ -93,7 +93,7 @@ async function runWasp(
       env: {
         ...process.env,
         waspc_datadir: dataDirPath,
-        // Keep this property in sync with waspc/cli/src/Wasp/Cli/Common.hs:
+        // Keep this property in sync with waspc/src/Wasp/Util/InstallMethod.hs:
         WASP_CLI_INSTALL_METHOD: "npm",
       },
       stdio: "inherit",
