@@ -181,10 +181,10 @@ $ wasp version
 0.14.0
 
 If you wish to install/switch to the latest version of Wasp, do:
-curl -sSL https://get.wasp.sh/installer.sh | sh -s
+npm i -g @wasp.sh/wasp-cli@latest
 
 If you want specific x.y.z version of Wasp, do:
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z
+npm i -g @wasp.sh/wasp-cli@x.y.z
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 
