@@ -307,6 +307,7 @@ library
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
+    Wasp.Generator.FileDraft.CopyLibDraft
     Wasp.Generator.FileDraft.TemplateFileDraft
     Wasp.Generator.FileDraft.TextFileDraft
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
@@ -709,6 +710,7 @@ test-suite waspc-tests
     Generator.AuthInjectionTest
     Generator.DbGeneratorTest
     Generator.FileDraft.CopyFileDraftTest
+    Generator.FileDraft.CopyLibDraftTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.MockWriteableMonad

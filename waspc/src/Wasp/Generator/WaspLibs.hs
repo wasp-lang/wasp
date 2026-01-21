@@ -3,29 +3,28 @@ module Wasp.Generator.WaspLibs
   )
 where
 
-import StrongPath (Abs, Dir, Path', Rel, (</>))
+import StrongPath (Dir, Path', Rel, (</>))
 import qualified Wasp.AppSpec as AS
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
-import Wasp.Generator.Monad (Generator, getLibsSourceDir)
+import Wasp.Generator.FileDraft (FileDraft, createCopyLibFileDraft)
+import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
-import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir, libsRootDirInGeneratedCodeDir, libsRootDirNextToSdk)
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import Wasp.Generator.WaspLibs.Common (LibsRootDir, libsRootDirInGeneratedCodeDir, libsRootDirNextToSdk)
+import Wasp.Generator.WaspLibs.WaspLib (WaspLib, getTarballPathInLibsRootDir, getTarballPathInLibsSourceDir)
 
 genWaspLibs :: AS.AppSpec -> Generator [FileDraft]
-genWaspLibs spec = do
-  libsSourceDir <- getLibsSourceDir
+genWaspLibs spec =
   return
-    [ mkLibCopyDraft libsSourceDir libsDestDir waspLib
+    [ mkLibCopyDraft libsDestDir waspLib
       | libsDestDir <- libsDestDirs,
         waspLib <- waspLibs
     ]
   where
-    mkLibCopyDraft :: Path' Abs (Dir LibsSourceDir) -> Path' (Rel ProjectRootDir) (Dir LibsRootDir) -> WaspLib.WaspLib -> FileDraft
-    mkLibCopyDraft libsSourceDir libsDestDir waspLib =
-      createCopyFileDraft
-        (libsDestDir </> WaspLib.getTarballPathInLibsRootDir waspLib)
-        (WaspLib.getTarballPathInLibsSourceDir libsSourceDir waspLib)
+    mkLibCopyDraft :: Path' (Rel ProjectRootDir) (Dir LibsRootDir) -> WaspLib -> FileDraft
+    mkLibCopyDraft libsDestDir waspLib =
+      createCopyLibFileDraft
+        (libsDestDir </> getTarballPathInLibsRootDir waspLib)
+        (getTarballPathInLibsSourceDir waspLib)
 
     -- When we build the app for production, the Wasp SDK is not generated inside the
     -- build directory (to understand why read: https://github.com/wasp-lang/wasp/issues/1769),

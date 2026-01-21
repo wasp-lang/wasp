@@ -7,7 +7,7 @@ module Wasp.Generator.WaspLibs.WaspLib
   )
 where
 
-import StrongPath (Abs, Dir, File', Path', Rel, Rel', fromRelFile, (</>))
+import StrongPath (Dir, File', Path', Rel, Rel', fromRelFile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.ExternalConfig.Npm.Tarball (TarballFilename, tarballFilenameAsRelFile)
 import qualified Wasp.ExternalConfig.Npm.Tarball as Npm.Tarball
@@ -44,8 +44,5 @@ makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageN
 getTarballPathInLibsRootDir :: WaspLib -> Path' (Rel LibsRootDir) File'
 getTarballPathInLibsRootDir = tarballFilenameAsRelFile . tarballFilename
 
-getTarballPathInLibsSourceDir :: Path' Abs (Dir LibsSourceDir) -> WaspLib -> Path' Abs File'
-getTarballPathInLibsSourceDir libsSourceDir =
-  (libsSourceDir </>)
-    . tarballFilenameAsRelFile
-    . tarballFilename
+getTarballPathInLibsSourceDir :: WaspLib -> Path' (Rel LibsSourceDir) File'
+getTarballPathInLibsSourceDir = tarballFilenameAsRelFile . tarballFilename
