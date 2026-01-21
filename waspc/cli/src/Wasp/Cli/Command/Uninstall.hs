@@ -3,13 +3,15 @@ module Wasp.Cli.Command.Uninstall
   )
 where
 
-import Control.Monad (when)
+import Control.Monad (filterM, unless, when)
 import Control.Monad.IO.Class (liftIO)
-import StrongPath (fromAbsDir, fromAbsFile, (</>))
+import StrongPath (Abs, Dir', File', Path', (</>))
+import qualified StrongPath as SP
 import System.Exit (die)
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Start.Db (waspDevDbDockerVolumePrefix)
+import Wasp.Cli.Common (CliInstallMethod (..), getInstallMethod)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -17,44 +19,81 @@ import Wasp.Cli.FileSystem
     waspExecutableInHomeDir,
     waspInstallationDirInHomeDir,
   )
+import Wasp.Message (Message)
 import qualified Wasp.Message as Msg
-import Wasp.Util.IO (deleteDirectoryIfExists, deleteFileIfExists)
+import Wasp.Util (indent)
+import Wasp.Util.IO
+  ( deleteDirectoryIfExists,
+    deleteFileIfExists,
+    doesDirectoryExist,
+    doesFileExist,
+  )
 
 -- | Removes Wasp from the system.
 uninstall :: Command ()
 uninstall = do
-  cliSendMessageC $ Msg.Start "Uninstalling Wasp ..."
+  liftIO getInstallMethod >>= \case
+    BinaryInstaller -> installerUninstall
+    NpmPackage -> npmUninstall
+
+installerUninstall :: Command ()
+installerUninstall = do
+  cliSendMessageC $ Msg.Start "Uninstalling Wasp..."
   liftIO removeWaspFiles
   cliSendMessageC $ Msg.Success "Uninstalled Wasp."
-  cliSendMessageC $
-    Msg.Info $
-      "If you have used Wasp to run dev database for you, you might want to make sure you also"
-        <> " deleted all the docker volumes it might have created."
-        <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
+  cliSendMessageC dockerVolumeMsg
+
+npmUninstall :: Command ()
+npmUninstall = do
+  cliSendMessageC $ Msg.Start "Removing Wasp data..."
+  liftIO removeWaspFiles
+  cliSendMessageC $ Msg.Success "Removed Wasp data."
+  cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run 'npm uninstall -g @wasp.sh/wasp-cli'."
+  cliSendMessageC $ Msg.Info ""
+  cliSendMessageC dockerVolumeMsg
+
+dockerVolumeMsg :: Message
+dockerVolumeMsg =
+  Msg.Info $
+    "If you have used Wasp to run dev database for you, you might want to make sure you also"
+      <> " deleted all the docker volumes it might have created."
+      <> (" You can easily list them by doing `docker volume ls | grep " <> waspDevDbDockerVolumePrefix <> "`.")
 
 removeWaspFiles :: IO ()
 removeWaspFiles = do
+  dirsToRemove <- filterM doesDirectoryExist =<< getWaspDirectories
+  filesToRemove <- filterM doesFileExist =<< getWaspFiles
+
+  let allPathsToRemove =
+        (SP.fromAbsDir <$> dirsToRemove)
+          ++ (SP.fromAbsFile <$> filesToRemove)
+
+  unless (null allPathsToRemove) $ do
+    putStr $
+      unlines
+        [ "We will remove the following files and directories:",
+          indent 2 $ unlines allPathsToRemove,
+          "Are you sure you want to continue? [y/N]"
+        ]
+
+    answer <- getLine
+    when (answer /= "y") $ die "Aborted."
+
+    mapM_ deleteDirectoryIfExists dirsToRemove
+    mapM_ deleteFileIfExists filesToRemove
+
+getWaspDirectories :: IO [Path' Abs Dir']
+getWaspDirectories = do
   homeDir <- getHomeDir
   userCacheDir <- getUserCacheDir
 
-  let waspInstallationDir = homeDir </> waspInstallationDirInHomeDir
-      waspExecutableFile = homeDir </> waspExecutableInHomeDir
-      waspCacheDir = getWaspCacheDir userCacheDir
+  return
+    [ homeDir </> waspInstallationDirInHomeDir,
+      SP.castDir $ getWaspCacheDir userCacheDir
+    ]
 
-  putStr $
-    unlines
-      [ "We will remove the following directories:",
-        "  " ++ fromAbsDir waspInstallationDir,
-        "  " ++ fromAbsDir waspCacheDir,
-        "",
-        "We will also remove the following files:",
-        "  " ++ fromAbsFile waspExecutableFile,
-        "",
-        "Are you sure you want to continue? [y/N]"
-      ]
+getWaspFiles :: IO [Path' Abs File']
+getWaspFiles = do
+  homeDir <- getHomeDir
 
-  answer <- getLine
-  when (answer /= "y") $ die "Aborted."
-  deleteDirectoryIfExists waspInstallationDir
-  deleteFileIfExists waspExecutableFile
-  deleteDirectoryIfExists waspCacheDir
+  return [homeDir </> waspExecutableInHomeDir]

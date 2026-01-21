@@ -70,5 +70,7 @@ jobs:
         run: |
           set -x # Log each command for debugging
           for pkg in ./packages/*; do
-            npm publish "$pkg"
+            # The tag name has no special meaning, just avoids us
+            # broadly publishing an RC to the "latest" tag.
+            npm publish --tag rc "$pkg"
           done
