@@ -19,7 +19,7 @@ import Wasp.Cli.GithubRepo
   )
 import Wasp.Project (WaspProjectDir)
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand, waspCliInstallMethod)
+import Wasp.Util.InstallMethod (getInstallationCommand)
 
 createProjectOnDiskFromGhReleaseArchiveTemplate ::
   String ->
@@ -56,7 +56,7 @@ createProjectOnDiskFromGhReleaseArchiveTemplate templateName absWaspProjectDir p
             "Visit " ++ releasesUrl ++ " to see available template releases,",
             "and install the Wasp version that matches the latest release tag available by running:",
             "",
-            indent 2 $ getInstallationCommand waspCliInstallMethod (Just "x.y.z"),
+            indent 2 $ getInstallationCommand (Just "x.y.z"),
             "",
             "Then you can try creating your project again."
           ]

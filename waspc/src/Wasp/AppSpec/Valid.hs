@@ -45,7 +45,8 @@ import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
-import Wasp.Util (findDuplicateElems, isCapitalized)
+import Wasp.Util (findDuplicateElems, indent, isCapitalized)
+import Wasp.Util.InstallMethod (getInstallationCommand)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
 
@@ -116,9 +117,10 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
           [ "Your Wasp version does not match the app's requirements.",
             "You are running Wasp " ++ show actualVersion ++ ".",
             "This app requires Wasp " ++ show expectedVersionRange ++ ".",
-            "To get instuctions on how to install the correct Wasp version, run:",
-            "  wasp version",
-            "and follow the instructions there."
+            "To install a specific version of Wasp, do:",
+            indent 2 $ getInstallationCommand $ Just "x.y.z",
+            "where x.y.z is your desired version.",
+            "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
           ]
 
     eitherUnitToErrorList :: Either e () -> [e]

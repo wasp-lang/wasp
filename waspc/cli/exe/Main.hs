@@ -43,7 +43,7 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Message
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand, waspCliInstallMethod)
+import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
@@ -215,10 +215,10 @@ printVersion =
       [ show waspVersion,
         "",
         "If you wish to install/switch to the latest version of Wasp, do:",
-        indent 2 $ getInstallationCommand waspCliInstallMethod Nothing,
+        indent 2 $ getInstallationCommand Nothing,
         "",
         "If you want a specific x.y.z version of Wasp, do:",
-        indent 2 $ getInstallationCommand waspCliInstallMethod $ Just "x.y.z",
+        indent 2 $ getInstallationCommand $ Just "x.y.z",
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
