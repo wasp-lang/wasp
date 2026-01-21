@@ -61,6 +61,10 @@ Try out [Wasp AI](../wasp-ai/creating-new-app.md) 🤖 to generate a new Wasp ap
 ### Requirements
 
 You must have Node.js (and NPM) installed on your machine and available in `PATH`.
+<!--
+  NOTE: Don't change Wasp's lowest supported Node version without updating it in
+  all required places. Check /.nvmrc for the full list.
+-->
 A version of Node.js must be >= 22.12.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).

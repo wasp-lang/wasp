@@ -62,7 +62,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           cache: "npm"
-          node-version: "22"
+          node-version-file: .nvmrc
 
       - name: Setup Wasp TS Config (if needed)
         working-directory: ${{ matrix.app-dir }}
