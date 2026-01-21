@@ -24,6 +24,7 @@ import Wasp.Generator.Monad (runGenerator)
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
+import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Version as WV
 
@@ -61,14 +62,13 @@ spec_WebAppGenerator = do
                 { Npm.PackageJson.name = "testApp",
                   Npm.PackageJson.dependencies = M.empty,
                   Npm.PackageJson.devDependencies = M.empty,
-                  Npm.PackageJson.workspaces = Just $ S.toList NW.workspaceGlobs
+                  Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs
                 },
-            AS.isBuild = False,
+            AS.buildType = BuildType.Development,
             AS.migrationsDir = Nothing,
             AS.devEnvVarsServer = [],
             AS.devEnvVarsClient = [],
             AS.userDockerfileContents = Nothing,
-            AS.tailwindConfigFilesRelocators = [],
             AS.devDatabaseUrl = Nothing,
             AS.customViteConfigPath = Nothing,
             AS.srcTsConfigPath = [relfile|tsconfig.json|],

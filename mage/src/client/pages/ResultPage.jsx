@@ -254,8 +254,8 @@ export const ResultPage = () => {
 
       {isLoading && (
         <>
-          <header className="big-box items-flex-start mb-4 mt-4 flex justify-between">
-            <div className="mr-3 flex-shrink-0">
+          <header className="big-box items-flex-start mt-4 mb-4 flex justify-between">
+            <div className="mr-3 shrink-0">
               <Loader />
             </div>
             <pre className="flex-1">Fetching the app...</pre>
@@ -279,7 +279,7 @@ export const ResultPage = () => {
           className={`mx-auto flex items-center justify-center divide-white p-3 text-sm font-medium lg:container lg:divide-x lg:px-16 xl:px-20`}
         >
           <span
-            className="item-center flex cursor-pointer gap-2 rounded bg-pink-200 p-1 px-2 text-pink-800"
+            className="item-center flex cursor-pointer gap-2 rounded-sm bg-pink-200 p-1 px-2 text-pink-800"
             onClick={() => window.open("https://github.com/wasp-lang/wasp")}
           >
             <span>
@@ -346,14 +346,14 @@ export const ResultPage = () => {
                 className={isMobileFileBrowserOpen ? "hidden md:block" : ""}
               >
                 <div
-                  className={`flex items-center rounded rounded-b-none bg-slate-200 p-3 text-sm font-bold text-slate-700 md:justify-between`}
+                  className={`flex items-center rounded-sm rounded-b-none bg-slate-200 p-3 text-sm font-bold text-slate-700 md:justify-between`}
                 >
                   <span className="mr-3">{activeFilePath}:</span>
                   <Feedback projectId={appId} />
                 </div>
                 <div
                   key={activeFilePath}
-                  className="rounded rounded-t-none bg-slate-100 py-4"
+                  className="rounded-sm rounded-t-none bg-slate-100 py-4"
                 >
                   <CodeHighlight
                     language={language}
@@ -365,7 +365,7 @@ export const ResultPage = () => {
               </main>
             )}
             {!activeFilePath && (
-              <main className="grid place-content-center rounded bg-slate-100 p-8">
+              <main className="grid place-content-center rounded-sm bg-slate-100 p-8">
                 <div className="text-center">
                   <div className="font-bold">Select a file to view</div>
                   <div className="text-sm text-gray-500">
@@ -470,7 +470,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
 
   function FormattedText({ children }) {
     return (
-      <span className="rounded px-2 py-1 font-semibold text-pink-800">
+      <span className="rounded-sm px-2 py-1 font-semibold text-pink-800">
         {children}
       </span>
     );
@@ -657,7 +657,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             Congratulations, you are now running your app! 🎉
           </p>
 
-          <div className="rounded bg-pink-50 p-4 text-pink-800">
+          <div className="rounded-sm bg-pink-50 p-4 text-pink-800">
             If you like this project,{" "}
             <a
               href="https://github.com/wasp-lang/wasp"
@@ -676,10 +676,10 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
 
 function WarningAboutAI() {
   return (
-    <div className="rounded bg-yellow-50 p-4 text-yellow-700">
+    <div className="rounded-sm bg-yellow-50 p-4 text-yellow-700">
       <div className="flex">
         <div className="ml-3">
-          <p className="text-sm font-medium leading-5">⚠️ Experimental tech</p>
+          <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
               Since this is a GPT generated app, it might contain some mistakes,
@@ -748,7 +748,7 @@ function Feedback({ projectId }) {
         title={<span>Let us know how it went!</span>}
       >
         <form onSubmit={handleSubmit}>
-          <label className="mb-2 mt-8 block text-slate-700">
+          <label className="mt-8 mb-2 block text-slate-700">
             How likely are you to recommend this tool to a friend?{" "}
             <span className="text-red-500">*</span>
           </label>
@@ -761,9 +761,9 @@ function Feedback({ projectId }) {
                       <div
                         className={` ${
                           active
-                            ? "ring-2 ring-white ring-opacity-60 ring-offset-2 ring-offset-sky-300"
+                            ? "ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300"
                             : ""
-                        } ${checked ? "bg-sky-900 bg-opacity-75 text-white" : ""} cursor-pointer rounded-md px-3 py-2 shadow-md focus:outline-none`}
+                        } ${checked ? "bg-opacity-75 bg-sky-900 text-white" : ""} cursor-pointer rounded-md px-3 py-2 shadow-md focus:outline-hidden`}
                       >
                         {option}
                       </div>
@@ -776,7 +776,7 @@ function Feedback({ projectId }) {
 
           <label
             htmlFor="feedbackText"
-            className="mb-2 mt-8 block text-slate-700"
+            className="mt-8 mb-2 block text-slate-700"
           >
             How did it go? <span className="text-red-500">*</span>
           </label>

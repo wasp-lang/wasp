@@ -1,14 +1,79 @@
 # Changelog
 
-## Next
+## 0.21.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-20-to-0-21) for step-by-step documentation on how to upgrade.
+
+- Wasp now has **Tailwind CSS 4** support, and v3 support has been dropped. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
+- Wasp now uses **Vitest 4** for testing. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
+- Removed the `.wasp/build` directory. Wasp now only uses `.wasp/out` for generated code, both in development and production mode. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
+- The Wasp SDK is now used as a workspace instead of a dependency. This avoids dependency resolution issues and further improves reliability of Wasp projects. ([#3544](https://github.com/wasp-lang/wasp/pull/3544))
+
+### 🎉 New Features
+
+- Wasp now supports Tailwind CSS v4. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
+
+### 🐞 Bug fixes
+
+- Fixed an issue where if Wasp was installed from npm, `wasp new` would not work correctly. ([#3585](https://github.com/wasp-lang/wasp/pull/3585))
 
 ### 📖 Documentation
 
-- Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
+- The Wasp docs now include a "Guides" section, with step-by-step tutorials on how to use popular libraries and tools with Wasp. Check them out at https://wasp.sh/docs/guides! ([#3597](https://github.com/wasp-lang/wasp/pull/3597))
+
+### 🔧 Small improvements
+
+- We've unlinked Wasp from any specific Tailwind CSS version, so in the future you can adopt new Tailwind CSS versions at your own pace, independently of Wasp. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
+- `wasp new` now shows a helpful message when the specified template has not been updated to the latest Wasp version. ([#3511](https://github.com/wasp-lang/wasp/pull/3511))
+- Running a Wasp in development or production mode won't modify your `package-lock.json` file anymore. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
+- We updated the `basic` starter template to the latest best practices for React 19 + TypeScript apps. This applies to new projects created with `wasp new -t basic`, and older projects are unaffected. ([#3572](https://github.com/wasp-lang/wasp/pull/3572))
+- We updated the testing environment to JSDOM 27 for more up-to-date mocking. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
+- We updated our API mocking to MSW 2 for better performance and reliability. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
+- `wasp info` now tells you if the last compilation was done in development or production mode. ([#3612](https://github.com/wasp-lang/wasp/pull/3612))
+- `wasp uninstall` now supports the npm installation method. ([#3620](https://github.com/wasp-lang/wasp/pull/3620))
+- Added anonymous usage analytics to the npm package installer to help us understand how Wasp is being installed. You can disable this by setting `WASP_TELEMETRY_DISABLE=1`. ([#3619](https://github.com/wasp-lang/wasp/pull/3619))
+
+## 0.20.1
+
+### 🎉 New Features
+
+- `wasp news` - A new command you can use to stay up to date with the latest Wasp announcements and releases directly from your terminal. Wasp also periodically notifies you of important news (such as security vulnerabilities) during `wasp start`. You can disable this behavior by setting `WASP_AUTO_NEWS_DISABLE=1`. ([#3549](https://github.com/wasp-lang/wasp/pull/3549)).
+
+## 0.20.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-19-to-0-20) for step-by-step documentation on how to upgrade.
+
+- Wasp now uses **React 19**! ([#3489](https://github.com/wasp-lang/wasp/pull/3489))
+  - Check the following upgrade guide to see how to update your code: https://react.dev/blog/2024/04/25/react-19-upgrade-guide.
+  - For Wasp-related updates, check the migration guide above.
+
+### 🎉 New Features
+
+- You can now use the `--force` flag with `wasp db reset` to run the database reset non-interactively ([#3480](https://github.com/wasp-lang/wasp/pull/3480))
+
+### 🐞 Bug fixes
+
+- Fixed `onAfterEmailVerified` hook being called twice while in development mode. ([#3458](https://github.com/wasp-lang/wasp/pull/3458))
 
 ### 🔧 Small improvements
 
 - Wasp returns a proper exit code when `wasp db seed` and `wasp db reset` fail. ([#3414](https://github.com/wasp-lang/wasp/pull/3414))
+- Wasp now reports better errors for invalid `package.json` or `tsconfig.json` files. ([#3262](https://github.com/wasp-lang/wasp/pull/3262))
+- Wasp returns a proper exit code when using the `-h,--help` flag with `wasp build start`, `wasp start db`, and `wasp new`. ([#3440](https://github.com/wasp-lang/wasp/pull/3440))
+
+## 0.19.1
+
+### 🐞 Bug fixes
+
+- Fixed logic for getting Railway service domains in `wasp deploy railway` with Railway CLI 4.11.2 and greater. ([#3454](https://github.com/wasp-lang/wasp/pull/3454))
+
+### 🔧 Small improvements
+
+- `wasp build start` now shows an error if you forget to specify any environment variables ([#3412](https://github.com/wasp-lang/wasp/pull/3412))
 
 ## 0.19.0
 
@@ -46,6 +111,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Updated Tailwind CSS installation command in docs from exact version `3.2.7` to `3` (latest v3) to ensure compatibility with Wasp 0.18.0+ ESM config files. ([#3377](https://github.com/wasp-lang/wasp/issues/3377))
 - Added note for SMTP ports being blocked by some hosting providers (by @Vickram-T-G). ([#3109](https://github.com/wasp-lang/wasp/pull/3109))
 - Added documentation on how to setup the Chrome DevTools workspace mapping with Wasp (by @0xTaneja). ([#3103](https://github.com/wasp-lang/wasp/pull/3103))
+- Updated GitHub social login docs to use GitHub apps over OAuth apps per GitHub recommendation. ([#3277](https://github.com/wasp-lang/wasp/issues/3277))
 
 ### 🧩 Other changes
 

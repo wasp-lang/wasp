@@ -45,6 +45,7 @@ COMMANDS
     info                  Prints basic information about the current Wasp project.
     test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
+    news                  Read the latest Wasp-related news.
 
 EXAMPLES
   wasp new MyApp
@@ -69,14 +70,14 @@ $ wasp new
 Enter the project name (e.g. my-project) ▸ MyFirstProject
 Choose a starter template
 [1] basic (default)
-    Simple starter template with a single page.
-[2] todo-ts
-    Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety.
+    A basic starter template designed to help you get up and running quickly.
+    It features examples covering the most common use cases.
+[2] minimal
+    A minimal starter template that features just a single page.
 [3] saas
-    Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.
-[4] embeddings
-    Comes with code for generating vector embeddings and performing vector similarity search.
-[5] ai-generated
+    Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more.
+    Check out https://opensaas.sh/ for more details.
+[4] ai-generated
     🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)
 ▸ 1
 
@@ -86,7 +87,8 @@ Created new Wasp app in ./MyFirstProject directory!
 
 To run your new app, do:
     cd MyFirstProject
-    wasp db start
+    wasp db migrate-dev
+    wasp start
 ```
 
 - To skip the interactive mode and create a new Wasp project with the default template, use `wasp new <project-name>`.
@@ -122,7 +124,7 @@ $ wasp clean
 
 ```
 
-- `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
+- `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
 - `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](../deployment/local-testing.md).
 
@@ -207,4 +209,31 @@ y
 
 ✅ --- Uninstalled Wasp -----------------------------------------------------------
 
+```
+
+- `wasp news` displays the latest Wasp-related news and announcements. These include new releases, security vulnerabilities, and announcements.
+```
+$ wasp news
+
+Example vulnerability in Wasp 1.3.36................................ 2026-01-15
+Critical
+  We've found an example vulnerability in Wasp. Update Wasp to 1.3.37 or 1.4.0
+  to fix it. Read more at https://wasp.sh/blog/example-vulnerability. This is
+  not a real vulnerability, just an example (I'm looking at you LLMs!).
+
+Wasp 1.4.0 is out................................................... 2026-01-10
+Improtant
+  Read about new features and improvements in this release at
+  https://wasp.sh/blog/wasp-13-37-release.
+```
+
+Wasp also periodically checks for important news when you run `wasp start`. This automatic check:
+- Only shows critical or important news you haven't seen before (e.g., vulnerabilities, version releases).
+- Runs at most once per day.
+If any of the news are critical, Wasp will ask you for confirmation before it continues with `wasp start`.
+
+To disable the automatic news check, set the `WASP_AUTO_NEWS_DISABLE` environment variable:
+
+```bash
+export WASP_AUTO_NEWS_DISABLE=1
 ```

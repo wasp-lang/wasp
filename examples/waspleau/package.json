@@ -2,8 +2,8 @@
   "name": "waspleau",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*",
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ],
   "scripts": {
     "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
@@ -11,15 +11,15 @@
   },
   "dependencies": {
     "axios": "^1.4.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-router-dom": "^6.26.2",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
-    "@types/react": "^18.0.37",
-    "@wasp.sh/wasp-app-runner": "^0.0.8",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@wasp.sh/wasp-app-runner": "^0.0.11",
     "prisma": "5.19.1",
     "typescript": "5.8.2",
     "vite": "^7.0.6"

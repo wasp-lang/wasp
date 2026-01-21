@@ -35,7 +35,16 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.DepVersions (prismaVersion, superjsonVersion)
+import Wasp.Generator.DepVersions
+  ( axiosVersion,
+    expressTypesVersion,
+    expressVersionStr,
+    prismaVersion,
+    reactQueryVersion,
+    reactRouterVersion,
+    reactVersion,
+    superjsonVersion,
+  )
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
@@ -47,7 +56,6 @@ import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as Clien
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
-import Wasp.Generator.SdkGenerator.DepVersions (tailwindCssVersion)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
@@ -61,18 +69,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.DepVersions
-  ( expressTypesVersion,
-    expressVersionStr,
-  )
-import qualified Wasp.Generator.TailwindConfigFile as TCF
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Generator.WebAppGenerator.DepVersions
-  ( axiosVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactVersion,
-  )
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
@@ -95,7 +92,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
   where
-    dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
+    dstDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -110,6 +107,7 @@ genSdk spec =
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       genFileCopy [relfile|client/test/index.ts|],
+      genFileCopy [relfile|client/hooks.ts|],
       genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
@@ -224,10 +222,6 @@ npmDepsForSdk spec =
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
-          -- These deps need to be installed in the SDK becasue when we run client tests,
-          -- we are running them from the project root dir and PostCSS and Tailwind
-          -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
-          ++ depsRequiredByTailwind spec
           ++ depsRequiredByEnvValidation,
       N.devDependencies =
         Npm.Dependency.fromList
@@ -244,12 +238,12 @@ npmDepsForSdk spec =
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
   Npm.Dependency.fromList
-    [ ("vitest", "^1.2.1"),
-      ("@vitest/ui", "^1.2.1"),
-      ("jsdom", "^21.1.1"),
-      ("@testing-library/react", "^14.1.2"),
-      ("@testing-library/jest-dom", "^6.3.0"),
-      ("msw", "^1.1.0")
+    [ ("vitest", "^4.0.16"),
+      ("@vitest/ui", "^4.0.16"),
+      ("jsdom", "^27.4.0"),
+      ("@testing-library/react", "^16.3.1"),
+      ("@testing-library/jest-dom", "^6.9.1"),
+      ("msw", "^2.12.7")
     ]
 
 genClientConfigFile :: Generator FileDraft
@@ -317,17 +311,6 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
           ("@node-rs/argon2", "^1.8.3")
         ]
 
-depsRequiredByTailwind :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByTailwind spec =
-  if TCF.isTailwindUsed spec
-    then
-      Npm.Dependency.fromList
-        [ ("tailwindcss", show tailwindCssVersion),
-          ("postcss", "^8.4.21"),
-          ("autoprefixer", "^10.4.13")
-        ]
-    else []
-
 -- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
 -- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
@@ -354,7 +337,7 @@ genFile file
 genResourceFile :: EC.CodeFile -> Generator FileDraft
 genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
   where
-    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
+    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
     absSrcPath = EC.fileAbsPath file
 
 genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
@@ -362,7 +345,7 @@ genSourceFile file = return $ FD.createTextFileDraft relDstPath text
   where
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
     text = EC.fileText file
-    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
+    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =

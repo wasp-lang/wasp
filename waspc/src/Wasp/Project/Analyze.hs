@@ -20,8 +20,6 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
-import qualified Wasp.ConfigFile as CF
-import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
@@ -96,7 +94,6 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
-  tailwindConfigFilesRelocators <- CF.discoverConfigFiles waspDir TCF.tailwindConfigRelocationMap
 
   let appSpec =
         AS.AppSpec
@@ -108,14 +105,13 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
             AS.migrationsDir = maybeMigrationsDir,
             AS.devEnvVarsServer = serverEnvVars,
             AS.devEnvVarsClient = clientEnvVars,
-            AS.isBuild = CompileOptions.isBuild compileOptions,
+            AS.buildType = CompileOptions.buildType compileOptions,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.devDatabaseUrl = devDbUrl,
             AS.customViteConfigPath = customViteConfigPath,
             AS.packageJson = EC._packageJson externalConfigs,
             AS.srcTsConfigPath = srcTsConfigPath,
-            AS.srcTsConfig = EC._srcTsConfig externalConfigs,
-            AS.tailwindConfigFilesRelocators = tailwindConfigFilesRelocators
+            AS.srcTsConfig = EC._srcTsConfig externalConfigs
           }
 
   return $ runValidation ASV.validateAppSpec appSpec

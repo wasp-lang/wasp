@@ -28,7 +28,16 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.DepVersions (typescriptVersion)
+import Wasp.Generator.DepVersions
+  ( axiosVersion,
+    reactDomTypesVersion,
+    reactDomVersion,
+    reactQueryVersion,
+    reactRouterVersion,
+    reactTypesVersion,
+    reactVersion,
+    typescriptVersion,
+  )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
@@ -36,12 +45,6 @@ import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (webAppPackageName)
 import Wasp.Generator.WebAppGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.DepVersions
-  ( axiosVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactVersion,
-  )
 import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.WebAppGenerator.Vite (genVite)
@@ -90,7 +93,7 @@ genAppTsConfigJson spec = do
 genDotEnv :: AppSpec -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
 -- development.
-genDotEnv spec | AS.isBuild spec = return []
+genDotEnv spec | AS.isProduction spec = return []
 genDotEnv spec =
   return
     [ createTextFileDraft
@@ -103,16 +106,16 @@ dotEnvInWebAppRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
+  webAppDeps <- N.ensureNoConflictWithUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
       (C.asWebAppFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= webAppPackageName spec,
-              "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
+            [ "packageName" .= webAppPackageName,
+              "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
               "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
@@ -133,7 +136,7 @@ genNpmrc spec
   --
   -- We do expect users to manually go into the generated directories when bundling the built ouput.
   -- So we do add the `.npmrc` there to help them avoid using an incompatible Node.js version.
-  | AS.isBuild spec =
+  | AS.isProduction spec =
       return
         [ C.mkTmplFdWithDstAndData
             (C.asTmplFile [relfile|npmrc|])
@@ -150,8 +153,7 @@ npmDepsFromWasp _spec =
           Npm.Dependency.fromList
             [ ("axios", show axiosVersion),
               ("react", show reactVersion),
-              -- React and ReactDOM versions should always match.
-              ("react-dom", show reactVersion),
+              ("react-dom", show reactDomVersion),
               ("@tanstack/react-query", reactQueryVersion),
               ("react-router-dom", show reactRouterVersion)
             ],
@@ -160,8 +162,8 @@ npmDepsFromWasp _spec =
             [ -- TODO: Allow users to choose whether they want to use TypeScript
               -- in their projects and install these dependencies accordingly.
               ("typescript", show typescriptVersion),
-              ("@types/react", "^18.0.37"),
-              ("@types/react-dom", "^18.0.11"),
+              ("@types/react", show reactTypesVersion),
+              ("@types/react-dom", show reactDomTypesVersion),
               ("@vitejs/plugin-react", "^4.7.0"),
               -- NOTE: Make sure to bump the version of the tsconfig
               -- when updating Vite or React versions

@@ -17,6 +17,7 @@ jobs:
     name: Test waspc (${{ matrix.os }}, Node ${{ matrix.node-version }})
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os:
           # We are using a fixed Ubuntu version instead of 'ubuntu-latest' to
@@ -55,7 +56,7 @@ jobs:
           git config --global core.autocrlf input
           git config --global core.eol lf
 
-      - uses: "actions/checkout@v5"
+      - uses: "actions/checkout@v6"
 
       - name: Set up Haskell
         uses: ./.github/actions/setup-haskell
@@ -63,24 +64,24 @@ jobs:
           cabal-project-dir: waspc
 
       - name: Set up Node
-        uses: actions/setup-node@v5
+        uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: packages/ts-inspect - Run tests
+      - name: data/packages/ts-inspect - Run tests
         if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
+        working-directory: waspc/data/packages/ts-inspect
         run: |
-          cd packages/ts-inspect
           npm ci
           npm test
 
-      - name: Compile TS packages and move it into the Cabal data dir
+      - name: Compile TS packages
         if: runner.os == 'Linux' || runner.os == 'macOS'
-        run: ./tools/install_packages_to_data_dir.sh
+        run: ./run build:packages
 
-      - name: Compile TS packages and move them into the Cabal data dir on Windows
+      - name: Compile TS packages
         if: runner.os == 'Windows'
-        run: ./tools/install_packages_to_data_dir.ps1
+        run: ./run.ps1 build:packages
         shell: pwsh
 
       - name: Build external dependencies
@@ -91,10 +92,6 @@ jobs:
 
       - name: Run unit tests
         run: cabal test wasp-cli-tests waspc-tests waspls-tests
-
-      - name: Install `wasp-cli`
-        if: matrix.os == 'ubuntu-22.04'
-        run: cabal install
 
       - name: Run `waspc` e2e tests
         env:

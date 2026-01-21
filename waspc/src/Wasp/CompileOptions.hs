@@ -6,6 +6,7 @@ where
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Monad (GeneratorWarning)
 import Wasp.Message (SendMessage)
+import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
 
 -- TODO(martin): Should these be merged with Wasp data? Is it really a separate thing or not?
@@ -13,7 +14,7 @@ import Wasp.Project.Common (WaspProjectDir)
 --   Maybe it is, even more than this!
 data CompileOptions = CompileOptions
   { waspProjectDirPath :: !(Path' Abs (Dir WaspProjectDir)),
-    isBuild :: !Bool,
+    buildType :: !BuildType.BuildType,
     -- We give the compiler the ability to send messages. The code that
     -- invokes the compiler (such as the CLI) can then implement a way
     -- to display these messages.

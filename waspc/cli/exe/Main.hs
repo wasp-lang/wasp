@@ -19,7 +19,7 @@ import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
-import Wasp.Cli.Command.CreateNewProject.StarterTemplates (availableStarterTemplates)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
@@ -29,6 +29,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
+import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
@@ -65,6 +66,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
         ["info"] -> Command.Call.Info
+        ["news"] -> Command.Call.News
         ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:list"] -> Command.Call.BashCompletionListCommands
@@ -118,6 +120,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile
     Command.Call.Info -> runCommand info
+    Command.Call.News -> runCommand news
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.WaspLS -> runWaspLS
@@ -191,6 +194,7 @@ printUsage =
         cmd   "    info                  Prints basic information about the current Wasp project.",
         cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
+        cmd   "    news                  Read the latest Wasp-related news.",
               "",
         title "EXAMPLES",
               "  wasp new MyApp",
@@ -224,7 +228,7 @@ dbCli args = case args of
   -- These commands don't require an existing and running database.
   "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
   -- These commands require an existing and running database.
-  ["reset"] -> runCommandThatRequiresDbRunning Command.Db.Reset.reset
+  "reset" : resetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset resetArgs
   "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
   ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
   ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
@@ -246,7 +250,7 @@ printDbUsage =
               "                               Starts managed development database for you.",
               "                               Optionally specify a custom Docker image or Docker volume mount path."
         ],
-        cmd   "  reset                        Drops all data and tables from development database and re-applies all migrations.",
+        cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
         cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
               "                               If there are multiple seeds, you can specify a seed to execute by providing its name,",
               "                               or if not then you will be asked to provide the name interactively.",

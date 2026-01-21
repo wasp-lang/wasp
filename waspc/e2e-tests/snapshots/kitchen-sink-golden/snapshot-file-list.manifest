@@ -17,6 +17,7 @@ wasp-app/.wasp/out/db/migrations/20250122145423_headless_tests_update/migration.
 wasp-app/.wasp/out/db/migrations/20250321140734_add_visibility_enum/migration.sql
 wasp-app/.wasp/out/db/migrations/20250403101137_add_email_verification_hook/migration.sql
 wasp-app/.wasp/out/db/migrations/20250604115050_uppercase_text_job_request/migration.sql
+wasp-app/.wasp/out/db/migrations/20251127110727_add_on_after_email_verified_hook_call_count/migration.sql
 wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
@@ -83,6 +84,7 @@ wasp-app/.wasp/out/sdk/wasp/client/crud/operationsHelpers.ts
 wasp-app/.wasp/out/sdk/wasp/client/crud/tasks.ts
 wasp-app/.wasp/out/sdk/wasp/client/env.ts
 wasp-app/.wasp/out/sdk/wasp/client/env/schema.ts
+wasp-app/.wasp/out/sdk/wasp/client/hooks.ts
 wasp-app/.wasp/out/sdk/wasp/client/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/index.ts
@@ -336,6 +338,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/env/schema.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/hooks.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/index.js
@@ -1140,7 +1146,6 @@ wasp-app/.wasp/out/web-app/README.md
 wasp-app/.wasp/out/web-app/index.html
 wasp-app/.wasp/out/web-app/netlify.toml
 wasp-app/.wasp/out/web-app/package.json
-wasp-app/.wasp/out/web-app/postcss.config.js
 wasp-app/.wasp/out/web-app/public/.gitkeep
 wasp-app/.wasp/out/web-app/public/favicon.ico
 wasp-app/.wasp/out/web-app/public/manifest.json
@@ -1157,7 +1162,6 @@ wasp-app/.wasp/out/web-app/src/router.tsx
 wasp-app/.wasp/out/web-app/src/test/vitest/setup.ts
 wasp-app/.wasp/out/web-app/src/utils.js
 wasp-app/.wasp/out/web-app/src/vite-env.d.ts
-wasp-app/.wasp/out/web-app/tailwind.config.js
 wasp-app/.wasp/out/web-app/tsconfig.app.json
 wasp-app/.wasp/out/web-app/tsconfig.json
 wasp-app/.wasp/out/web-app/tsconfig.vite.json
@@ -1200,10 +1204,10 @@ wasp-app/migrations/20250122145423_headless_tests_update/migration.sql
 wasp-app/migrations/20250321140734_add_visibility_enum/migration.sql
 wasp-app/migrations/20250403101137_add_email_verification_hook/migration.sql
 wasp-app/migrations/20250604115050_uppercase_text_job_request/migration.sql
+wasp-app/migrations/20251127110727_add_on_after_email_verified_hook_call_count/migration.sql
 wasp-app/migrations/migration_lock.toml
 wasp-app/package-lock.json
 wasp-app/package.json
-wasp-app/postcss.config.js
 wasp-app/public/.gitkeep
 wasp-app/public/favicon.ico
 wasp-app/schema.prisma
@@ -1268,6 +1272,5 @@ wasp-app/src/rpcTests/operations/jsDefinitions.js
 wasp-app/src/rpcTests/operations/server.ts
 wasp-app/src/serverSetup.ts
 wasp-app/src/vite-env.d.ts
-wasp-app/tailwind.config.js
 wasp-app/tsconfig.json
 wasp-app/vite.config.ts
