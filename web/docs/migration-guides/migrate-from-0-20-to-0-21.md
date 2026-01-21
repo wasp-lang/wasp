@@ -4,17 +4,54 @@ title: Migration from 0.20.X to 0.21.X
 
 To install the latest version of Wasp, open your terminal and run:
 
+<Tabs>
+<TabItem value="installer" label="Installer">
+
 ```sh
 curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```sh
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+</TabItem>
+</Tabs>
+
 If you want to install Wasp 0.21.0 specifically, you can pass a version argument to the install script:
+
+<Tabs>
+<TabItem value="installer" label="Installer">
 
 ```sh
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.21.0
 ```
 
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.21.0
+```
+
+</TabItem>
+</Tabs>
+
 ## What's new in 0.21.X?
+
+### New npm-based installation
+
+Starting from Wasp 0.21.X, the recommended way to install Wasp is via npm. This simplifies the installation process and makes it easier to manage Wasp versions. For now, both the old and new installation methods are supported, but we recommend switching to the npm-based installation.
+
+To switch from the old installation method to the new one, simply uninstall Wasp using the old method and then install it again via npm:
+
+```sh
+wasp uninstall
+npm i -g @wasp.sh/wasp-cli@latest
+```
 
 ### Better Tailwind CSS support
 

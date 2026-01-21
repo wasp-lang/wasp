@@ -14,10 +14,10 @@ Let's create and run our first Wasp app in 3 short steps:
 1. **To install Wasp on Linux / OSX / WSL (Windows), open your terminal and run:**
 
    ```shell
-   curl -sSL https://get.wasp.sh/installer.sh | sh
+   npm i -g @wasp.sh/wasp-cli@latest
    ```
 
-   ℹ️ Wasp requires Node.js and will warn you if it is missing: check below for [more details](#requirements).
+   ℹ️ Wasp requires Node.js and npm, which are usually installed together: check below for [more details](#requirements).
 
 2. **Then, create a new app by running:**
 
@@ -102,14 +102,23 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
 ### Installation
 
 <Tabs
-  defaultValue="linux/osx"
+  defaultValue="npm"
   values={[
-    {label: 'Linux / macOS', value: 'linux/osx'},
+    {label: 'Linux / macOS (npm)', value: 'npm'},
+    {label: 'Linux / macOS (installer)', value: 'installer'},
     {label: 'Windows', value: 'win'},
     {label: 'From source', value: 'source'}
   ]}
 >
-  <TabItem value="linux/osx">
+  <TabItem value="npm">
+    Open your terminal and run:
+
+    ```shell
+    npm i -g @wasp.sh/wasp-cli@latest
+    ```
+  </TabItem>
+
+  <TabItem value="installer">
     Open your terminal and run:
 
     ```shell
@@ -138,7 +147,7 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
   </TabItem>
 
   <TabItem value="source">
-    If the installer is not working for you or your OS is not supported, you can try building Wasp from the source.
+    If the other methods are not working for you or your OS is not supported, you can try building Wasp from the source.
 
     To install from source, you need to clone the [wasp repo](https://github.com/wasp-lang/wasp), install [Cabal](https://cabal.readthedocs.io/en/stable/getting-started.html) on your machine and then run `cabal install` from the `waspc/` dir.
 

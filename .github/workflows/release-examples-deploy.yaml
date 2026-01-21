@@ -51,7 +51,7 @@ jobs:
     steps:
       - name: Install Wasp
         run: |
-          curl -sSfL https://get.wasp.sh/installer.sh | sh -s -- -v "${{  inputs.version }}"
+          npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
