@@ -13,8 +13,9 @@ import {
 } from "node:fs";
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const waspcDir = new URL("..", import.meta.url).pathname;
+const waspcDir = fileURLToPath(new URL("..", import.meta.url));
 const dataLibsDir = join(waspcDir, "data", "Generator", "libs");
 
 main();
@@ -28,8 +29,9 @@ async function main() {
 }
 
 function getWaspcVersion() {
-  const scriptPath = new URL("./get-waspc-version.mjs", import.meta.url)
-    .pathname;
+  const scriptPath = fileURLToPath(
+    new URL("./get-waspc-version.mjs", import.meta.url),
+  );
   return runCmd("node", [scriptPath]).trim();
 }
 
@@ -97,6 +99,7 @@ function runCmd(
   return execFileSync(cmd, args, {
     cwd,
     encoding: "utf-8",
+    shell: true,
     stdio: ["ignore", collectStdout ? "pipe" : "inherit", "inherit"],
   });
 }
