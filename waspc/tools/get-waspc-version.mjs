@@ -1,28 +1,17 @@
 // @ts-check
 
-// Gets the waspc version from the Cabal package.
+// Gets the waspc version from the Cabal package file.
 
-import { spawnSync } from "node:child_process";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const waspcDir = fileURLToPath(new URL("..", import.meta.url));
+const cabalFile = readFileSync(join(waspcDir, "waspc.cabal"), "utf-8");
 
-const result = spawnSync("cabal", ["repl", "waspc", "-v0"], {
-  cwd: waspcDir,
-  encoding: "utf-8",
-  shell: true,
-  input: "putStrLn $ Data.Version.showVersion Paths_waspc.version\n",
-});
-
-console.error("DEBUG: cwd =", waspcDir);
-console.error("DEBUG: status =", result.status);
-console.error("DEBUG: signal =", result.signal);
-console.error("DEBUG: error =", result.error);
-console.error("DEBUG: stderr =", result.stderr);
-console.error("DEBUG: stdout =", JSON.stringify(result.stdout));
-
-if (result.error) {
-  throw result.error;
+const match = cabalFile.match(/^version:\s*(.+)$/m);
+if (!match) {
+  throw new Error("Could not find version in waspc.cabal");
 }
 
-console.log(result.stdout.trim());
+console.log(match[1].trim());
