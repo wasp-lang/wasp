@@ -100,6 +100,6 @@ function runCmd(
     cwd,
     encoding: "utf-8",
     shell: true,
-    stdio: ["ignore", "inherit", "inherit"],
+    stdio: ["ignore", "pipe", "inherit"],
   });
 }
