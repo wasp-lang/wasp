@@ -21,7 +21,7 @@ const virtualModules = {
 
 export function waspVirtualModules(): Plugin {
   return {
-    name: "wasp-virtual-modules",
+    name: "wasp:virtual-modules",
     enforce: "pre",
     configResolved(config) {
       // Using absolute paths gives proper context for resolving relative imports.
@@ -38,12 +38,10 @@ export function waspVirtualModules(): Plugin {
     },
     load(id) {
       if (id === virtualModules.clientEntryPoint.absPath) {
-        const content = virtualModules.clientEntryPoint.getContent();
-        return { code: content, map: null };
+        return virtualModules.clientEntryPoint.getContent();
       }
       if (id === virtualModules.routesEntryPoint.absPath) {
-        const content = virtualModules.routesEntryPoint.getContent();
-        return { code: content, map: null };
+        return virtualModules.routesEntryPoint.getContent();
       }
     },
   };
