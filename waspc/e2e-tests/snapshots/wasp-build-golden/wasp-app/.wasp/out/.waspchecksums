@@ -2,13 +2,6 @@
     [
         [
             "file",
-            "../out/libs/wasp.sh-lib-auth-16b72422.tgz"
-        ],
-        "16b72422d43b95305d452ffddbaf63943faaff300bb8f379b16d52f2471e7ed6"
-    ],
-    [
-        [
-            "file",
             ".dockerignore"
         ],
         "a2a5ebe3785244437c0d490b4bfa1652c84b9ab0d4f25566fd7e69d1421d7a1b"

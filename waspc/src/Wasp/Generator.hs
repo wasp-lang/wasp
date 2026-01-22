@@ -67,4 +67,4 @@ genApp spec =
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
-    <++> genWaspLibs spec
+    <++> genWaspLibs
