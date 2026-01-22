@@ -98,6 +98,16 @@ ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color a
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
 
+function remove_wasp_libs_from_package_lock() {
+    PACKAGE_LOCK_TMP=$(mktemp)
+    jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > $PACKAGE_LOCK_TMP
+    if [ $? -ne 0 ]; then
+      rm -f $PACKAGE_LOCK_TMP
+      exit 1
+    fi
+    mv $PACKAGE_LOCK_TMP package-lock.json
+}
+
 echo_and_eval() {
   echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n" 1>&2
   eval "$1"
@@ -254,13 +264,7 @@ case $COMMAND in
     echo_and_eval "$RUN_CMD"
     ;;
   bust-libs-cache)
-    jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > package-lock.json.tmp
-    if [ $? -ne 0 ]; then
-      echo -e "${RED}Error: jq command failed. Make sure jq is installed.${RESET}"
-      rm -f package-lock.json.tmp
-      exit 1
-    fi
-    mv package-lock.json.tmp package-lock.json
+    remove_wasp_libs_from_package_lock || exit 1
 
     # Compiling the project copies the new lib tarball to the out dir.
     eval "$RUN_CMD compile"

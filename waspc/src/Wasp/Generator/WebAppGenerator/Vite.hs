@@ -54,22 +54,22 @@ relPathFromWebAppRootDirWaspProjectDir =
         SP.fromRelDir (dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> C.webAppRootDirInProjectRootDir)
 
 genViteConfig :: AppSpec -> Generator FileDraft
-genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile . getTmplData $ waspLibs
+genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile tmplData
   where
-    getTmplData waspLibs' =
+    tmplData =
       object
         [ "customViteConfig" .= jsImportToImportJson (makeCustomViteConfigJsImport <$> AS.customViteConfigPath spec),
           "baseDir" .= SP.fromAbsDirP (C.getBaseDir spec),
           "projectDir" .= SP.fromRelDirP relPathFromWebAppRootDirWaspProjectDir,
           "defaultClientPort" .= C.defaultClientPort,
-          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList (getDepsExcludedFromOptimization waspLibs'),
+          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
             .= object
               [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    getDepsExcludedFromOptimization waspLibs' =
+    depsExcludedFromOptimization =
       -- Why do we exclude Wasp SDK from optimization?
       -- - Wasp SDK is a dep that's regenerated over time and we don't want Vite to optimize it
       --   and cache it (which would break hot module reloading).
@@ -82,7 +82,7 @@ genViteConfig spec = return $ C.mkTmplFdWithData viteConfigTmplFile . getTmplDat
         -- have a static version during Wasp development which means once they are cached by Vite,
         -- they aren't updated even though the lib changes.
         -- Read more about libs versioning in `waspc/libs/README.md`.
-        map WaspLib.packageName waspLibs'
+        map WaspLib.packageName waspLibs
     vitestSetupFiles =
       [ SP.fromRelFile $
           dotWaspDirInWaspProjectDir
