@@ -1,4 +1,5 @@
 import { stripVTControlCharacters } from "node:util";
+import semver, { type SemVer } from "semver";
 
 import type { PathToApp, WaspCliCmd } from "./args.js";
 import { DbType } from "./db/index.js";
@@ -7,6 +8,7 @@ import { spawnAndCollectOutput, spawnWithLog } from "./process.js";
 import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;
+export type WaspVersion = Branded<SemVer, "WaspVersion">;
 
 export function waspMigrateDb({
   waspCliCmd,
@@ -64,6 +66,82 @@ export function waspBuild({
     args: ["build"],
     cwd: pathToApp,
   });
+}
+
+export function waspBuildStart({
+  waspCliCmd,
+  pathToApp,
+  serverEnvVars,
+  clientEnvVars,
+  serverEnvFile,
+  clientEnvFile,
+}: {
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
+  serverEnvVars?: EnvVars;
+  clientEnvVars?: EnvVars;
+  serverEnvFile?: string;
+  clientEnvFile?: string;
+}): Promise<{ exitCode: number | null }> {
+  const args = [
+    "build",
+    "start",
+    ...(serverEnvVars
+      ? Object.entries(serverEnvVars).flatMap(([key, value]) => [
+          "--server-env",
+          `${key}=${value}`,
+        ])
+      : []),
+    ...(clientEnvVars
+      ? Object.entries(clientEnvVars).flatMap(([key, value]) => [
+          "--client-env",
+          `${key}=${value}`,
+        ])
+      : []),
+    ...(serverEnvFile ? ["--server-env-file", serverEnvFile] : []),
+    ...(clientEnvFile ? ["--client-env-file", clientEnvFile] : []),
+  ];
+
+  return spawnWithLog({
+    name: "wasp-build-start",
+    cmd: waspCliCmd,
+    args,
+    cwd: pathToApp,
+  });
+}
+
+export async function getWaspVersion({
+  waspCliCmd,
+  pathToApp,
+}: {
+  waspCliCmd: WaspCliCmd;
+  pathToApp: PathToApp;
+}): Promise<{ waspVersion: WaspVersion }> {
+  const logger = createLogger("wasp-info");
+  const { stdoutData, exitCode } = await spawnAndCollectOutput({
+    name: "wasp-version",
+    cmd: waspCliCmd,
+    args: ["version"],
+    cwd: pathToApp,
+  });
+  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
+
+  if (exitCode !== 0) {
+    logger.error(`Failed to get wasp version: ${stdoutDataWithoutAnsiChars}`);
+    process.exit(1);
+  }
+
+  const [firstLine] = stdoutData.split("\n");
+  const waspVersion = semver.parse(firstLine);
+
+  if (!waspVersion) {
+    logger.error("Failed to get wasp version");
+    process.exit(1);
+  }
+
+  return {
+    waspVersion: waspVersion as WaspVersion,
+  };
 }
 
 export async function waspInfo({

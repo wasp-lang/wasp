@@ -44,7 +44,6 @@ import Wasp.Generator.DepVersions
     reactRouterVersion,
     reactVersion,
     superjsonVersion,
-    tailwindCssVersion,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
@@ -70,7 +69,6 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
@@ -97,7 +95,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> return $ Right ()
     ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
   where
-    dstDir = projectRootDir </> C.sdkRootDirInProjectRootDir
+    dstDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -229,10 +227,6 @@ npmDepsForSdk spec =
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
-          -- These deps need to be installed in the SDK becasue when we run client tests,
-          -- we are running them from the project root dir and PostCSS and Tailwind
-          -- can't be resolved from WebApp node_modules, so we need to install them in the SDK.
-          ++ depsRequiredByTailwind spec
           ++ depsRequiredByEnvValidation
           ++ waspLibsNpmDeps,
       N.devDependencies =
@@ -315,17 +309,6 @@ genTsConfigJson = do
             ]
       )
 
-depsRequiredByTailwind :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByTailwind spec =
-  if TCF.isTailwindUsed spec
-    then
-      Npm.Dependency.fromList
-        [ ("tailwindcss", show tailwindCssVersion),
-          ("postcss", "^8.4.21"),
-          ("autoprefixer", "^10.4.13")
-        ]
-    else []
-
 -- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
 -- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
@@ -352,7 +335,7 @@ genFile file
 genResourceFile :: EC.CodeFile -> Generator FileDraft
 genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
   where
-    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
+    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
     absSrcPath = EC.fileAbsPath file
 
 genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
@@ -360,7 +343,7 @@ genSourceFile file = return $ FD.createTextFileDraft relDstPath text
   where
     filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
     text = EC.fileText file
-    relDstPath = C.sdkRootDirInProjectRootDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
+    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =

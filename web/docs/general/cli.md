@@ -124,7 +124,7 @@ $ wasp clean
 
 ```
 
-- `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/build` folder.
+- `wasp build` generates the complete web app code, which is ready for [deployment](../deployment/intro.md). Use this command when you're deploying or ejecting. The generated code is stored in the `.wasp/out` folder.
 
 - `wasp build start` takes the output of `wasp build` and starts a local server to preview it. You can use it to test the production build of your app locally. It accepts `--server-env` and `--client-env` options to specify the environment variables for the server and client, respectively. This is useful for testing how your app behaves in production, and to check which environment variables are required for the production build to work correctly. For comprehensive documentation and examples, see [Production Build Preview](../deployment/local-testing.md).
 
@@ -181,10 +181,10 @@ $ wasp version
 0.14.0
 
 If you wish to install/switch to the latest version of Wasp, do:
-curl -sSL https://get.wasp.sh/installer.sh | sh -s
+npm i -g @wasp.sh/wasp-cli@latest
 
 If you want specific x.y.z version of Wasp, do:
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z
+npm i -g @wasp.sh/wasp-cli@x.y.z
 
 Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
 

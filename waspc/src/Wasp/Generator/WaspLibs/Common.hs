@@ -1,6 +1,5 @@
 module Wasp.Generator.WaspLibs.Common
-  ( libsRootDirNextToSdk,
-    libsRootDirInGeneratedCodeDir,
+  ( libsRootDirInGeneratedCodeDir,
     libsSrcDirPathInDataDir,
     libsRootDirFromSdkDir,
     libsRootDirFromServerDir,
@@ -10,10 +9,9 @@ module Wasp.Generator.WaspLibs.Common
   )
 where
 
-import StrongPath (Abs, Dir, Path', Rel, Rel', basename, reldir, (</>))
+import StrongPath (Abs, Dir, Path', Rel, Rel', reldir, (</>))
 import qualified Wasp.Data as Data
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Project.Common (generatedCodeDirInDotWaspDir)
 
 data LibsSourceDir
 
@@ -25,16 +23,6 @@ data LibsSourceDir
 --   ├── wasp.sh-lib-auth-<wasp-version>.tgz
 --   └── wasp.sh-lib-other-<wasp-version>.tgz
 data LibsRootDir
-
--- We are following the locaton of the SDK because of the
--- hack from `Wasp.Generator.SdkGenerator.sdkRootDirInProjectRootDir`.
--- To understand the hack, read this issue:
--- https://github.com/wasp-lang/wasp/issues/1769
-libsRootDirNextToSdk :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
-libsRootDirNextToSdk =
-  [reldir|../|]
-    </> basename generatedCodeDirInDotWaspDir
-    </> libsRootDirInGeneratedCodeDir
 
 libsRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
 libsRootDirInGeneratedCodeDir = [reldir|libs|]

@@ -21,7 +21,6 @@ import Wasp.AI.GenerateNewProject.Common
     getProjectPrimaryColor,
   )
 import Wasp.AI.GenerateNewProject.Plan (PlanRule)
-import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version
@@ -55,12 +54,10 @@ genAndWriteInitialFiles newProjectDetails waspProjectSkeletonFiles = do
       writeNewFile generateSignupJsPage
 
   writeNewFile generateDotEnvServerFile
+  writeNewFile generateViteConfigFile
 
-  -- Tailwind setup: config files + layout component + CSS imports.
-  writeNewFile $ generateTailwindConfigFile newProjectDetails
-  writeNewFile generatePostcssConfigFile
   writeNewFile $ generateLayoutComponent newProjectDetails
-  writeNewFile generateMainCssFile
+  writeNewFile $ generateMainCssFile newProjectDetails
 
   return $ InitialFilesGenResult waspFilePath prismaFilePath (waspFilePlanRules ++ prismaFilePlanRules)
 
@@ -153,17 +150,17 @@ generatePackageJson newProjectDetails =
         "name": "${appName}",
         "type": "module",
         "workspaces": [
-          ".wasp/build/*",
-          ".wasp/out/*"
+          ".wasp/out/*",
+          ".wasp/out/sdk/wasp"
         ],
         "dependencies": {
-          "${sdkPackageNameText}": "file:.wasp/out/sdk/wasp",
           "react": "^19.2.1",
           "react-dom": "^19.2.1",
           "react-router-dom": "^6.26.2",
-          "tailwindcss": "^3.4.17"
+          "tailwindcss": "^4.1.18"
         },
         "devDependencies": {
+          "@tailwindcss/vite": "^4.1.18",
           "typescript": "5.8.2",
           "vite": "^7.0.6",
           "@types/react": "^19.2.7",
@@ -176,7 +173,22 @@ generatePackageJson newProjectDetails =
   )
   where
     appName = T.pack $ _projectAppName newProjectDetails
-    sdkPackageNameText = T.pack sdkPackageName
+
+generateViteConfigFile :: File
+generateViteConfigFile =
+  ( "vite.config.js",
+    [trimming|
+      import tailwindcss from "@tailwindcss/vite";
+      import { defineConfig } from "vite";
+
+      export default defineConfig({
+        server: {
+          open: true,
+        },
+        plugins: [tailwindcss()],
+      });
+    |]
+  )
 
 generateLoginJsPage :: File
 generateLoginJsPage =
@@ -265,21 +277,41 @@ generateDotEnvServerFile =
     |]
   )
 
-generateMainCssFile :: File
-generateMainCssFile =
+generateMainCssFile :: NewProjectDetails -> File
+generateMainCssFile newProjectDetails =
   ( "src/Main.css",
     [trimming|
-      @tailwind base;
-      @tailwind components;
-      @tailwind utilities;
+      @import "tailwindcss" source(".");
+
+      @theme {
+        ${primaryColorAliases}
+      }
 
       :root {
-        --auth-form-brand: theme(colors.primary.500);
-        --auth-form-brand-accent: theme(colors.primary.600);
-        --auth-form-submit-button-text-color: theme(colors.white);
+        --auth-form-brand: var(--color-primary-500);
+        --auth-form-brand-accent: var(--color-primary-600);
+        --auth-form-submit-button-text-color: var(--color-white);
       }
     |]
   )
+  where
+    primaryColorAliases =
+      T.unlines $
+        makeAlias
+          <$> tailwindColorDefaultSteps
+
+    makeAlias step =
+      [trimming|
+        --color-primary-${step'}: var(--color-${primaryColorName}-${step'});
+      |]
+      where
+        step' = T.pack $ show step
+
+    primaryColorName = T.pack $ getProjectPrimaryColor newProjectDetails
+
+    tailwindColorDefaultSteps :: [Int]
+    tailwindColorDefaultSteps =
+      [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950]
 
 generateLayoutComponent :: NewProjectDetails -> File
 generateLayoutComponent newProjectDetails =
@@ -314,7 +346,7 @@ generateLayoutComponent newProjectDetails =
                 )}
               </div>
             </header>
-            <main className="container mx-auto px-4 py-2 flex-grow">
+            <main className="container mx-auto px-4 py-2 grow">
               <Outlet />
             </main>
             <footer>
@@ -331,44 +363,3 @@ generateLayoutComponent newProjectDetails =
   )
   where
     appName = T.pack $ _projectAppName newProjectDetails
-
-generateTailwindConfigFile :: NewProjectDetails -> File
-generateTailwindConfigFile newProjectDetails =
-  ( "tailwind.config.js",
-    [trimming|
-      import colors from "tailwindcss/colors";
-      import { resolveProjectPath } from "wasp/dev";
-
-      /** @type {import('tailwindcss').Config} */
-      export default {
-        content: [
-          resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}'),
-        ],
-        theme: {
-          extend: {
-            colors: {
-              primary: {
-                ...${primaryColorObject}
-              }
-            }
-          },
-        },
-      }
-    |]
-  )
-  where
-    primaryColorName = getProjectPrimaryColor newProjectDetails
-    primaryColorObject = T.pack $ "colors." <> primaryColorName
-
-generatePostcssConfigFile :: File
-generatePostcssConfigFile =
-  ( "postcss.config.js",
-    [trimming|
-      export default {
-        plugins: {
-          tailwindcss: {},
-          autoprefixer: {},
-        },
-      }
-    |]
-  )

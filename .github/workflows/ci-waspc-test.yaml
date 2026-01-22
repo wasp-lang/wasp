@@ -39,10 +39,13 @@ jobs:
         # In addition to the default matrix, we also want to run the build job for
         # additional Node.js versions, to make sure that Wasp works with them.
         # To reduce the number of jobs, we only test the Node.js versions on
-        # Ubuntu 20.04.
+        # Ubuntu 22.04.
         include:
           - os: ubuntu-22.04
-            node-version: 22
+            # NOTE: This should be equal to Wasp's lowest supported Node
+            # version. Don't change this version without updating it in all
+            # required places (full list in /.nvmrc).
+            node-version: "22.12.0"
           - os: ubuntu-22.04
             node-version: 24
 

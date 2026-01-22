@@ -2,8 +2,8 @@
   "name": "todo-app",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*",
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ],
   "scripts": {
     "test": "npm run test:install-deps && DEBUG=pw:webserver playwright test --config e2e-tests/",
@@ -12,8 +12,7 @@
   "dependencies": {
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-router-dom": "^6.26.2",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "react-router-dom": "^6.26.2"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",

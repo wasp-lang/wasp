@@ -23,6 +23,7 @@
   "dependencies": {
     "@docusaurus/core": "^3.7.0",
     "@docusaurus/preset-classic": "^3.7.0",
+    "@giscus/react": "^3.1.0",
     "@kodingdotninja/use-tailwind-breakpoint": "^0.0.5",
     "@mdx-js/react": "^3.1.0",
     "@svgr/webpack": "^6.5.1",
@@ -36,6 +37,7 @@
     "prism-react-renderer": "^2.4.1",
     "prismjs": "^1.29.0",
     "react": "^19.1.0",
+    "react-cookie-consent": "^10.0.0",
     "react-dom": "^19.1.0",
     "react-feather": "^2.0.10",
     "react-modal": "^3.14.3",

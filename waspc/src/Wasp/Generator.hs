@@ -24,7 +24,6 @@ import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
-import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
@@ -64,5 +63,4 @@ genApp spec =
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
-    <++> genTailwindConfigFiles spec
-    <++> genWaspLibs spec
+    <++> genWaspLibs

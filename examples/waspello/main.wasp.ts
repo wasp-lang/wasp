@@ -5,6 +5,10 @@ const app = new App("waspello", {
   wasp: { version: "^0.21.0" },
 });
 
+app.client({
+  rootComponent: { importDefault: "Layout", from: "@src/Layout" },
+});
+
 app.auth({
   userEntity: "User",
   methods: {
