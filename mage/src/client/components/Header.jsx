@@ -70,7 +70,7 @@ export function HomeButton() {
 
 function ToolTip({ children }) {
   return (
-    <div className="invisible absolute bottom-100 left-1/2 -translate-x-1/2 translate-y-1 transform rounded-sm bg-slate-600 px-4 py-1 text-center text-xs whitespace-nowrap text-white opacity-0 transition-all duration-275 ease-in-out group-hover:visible group-hover:opacity-100">
+    <div className="bottom-100 duration-275 invisible absolute left-1/2 -translate-x-1/2 translate-y-1 transform whitespace-nowrap rounded-sm bg-slate-600 px-4 py-1 text-center text-xs text-white opacity-0 transition-all ease-in-out group-hover:visible group-hover:opacity-100">
       {children}
     </div>
   );

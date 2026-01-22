@@ -46,7 +46,7 @@ export function UserPage({ user }) {
           </p>
           <button className="group relative mr-1" onClick={() => logout()}>
             <FiLogOut className="h-5 w-5 text-slate-600" />
-            <div className="invisible absolute bottom-100 left-1/2 -translate-x-1/2 translate-y-1 transform rounded-sm bg-slate-600 px-4 py-1 text-center text-xs whitespace-nowrap text-white opacity-0 transition-all duration-275 ease-in-out group-hover:visible group-hover:opacity-100">
+            <div className="bottom-100 duration-275 invisible absolute left-1/2 -translate-x-1/2 translate-y-1 transform whitespace-nowrap rounded-sm bg-slate-600 px-4 py-1 text-center text-xs text-white opacity-0 transition-all ease-in-out group-hover:visible group-hover:opacity-100">
               Log out
             </div>
           </button>
@@ -74,7 +74,7 @@ export function UserPage({ user }) {
 function UserProjectsTable({ projects }) {
   return (
     <table className="w-full text-left text-sm text-slate-500">
-      <thead className="bg-gray-50 text-xs text-slate-700 uppercase">
+      <thead className="bg-gray-50 text-xs uppercase text-slate-700">
         <tr>
           <th scope="col" className="px-6 py-3">
             App Name
@@ -97,7 +97,7 @@ function UserProjectsTable({ projects }) {
             <tr className="border-t bg-white" key={project.id}>
               <th
                 scope="row"
-                className="flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap text-gray-900"
+                className="flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900"
               >
                 <Color
                   value={getTailwindClassNameForProjectBrandColor(
@@ -183,13 +183,13 @@ function DeleteUserModal({ isOpen, setIsOpen, deleteUser }) {
         </p>
         <div className="flex items-center justify-between">
           <button
-            className="rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white shadow-xs hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:outline-hidden"
+            className="shadow-xs focus:outline-hidden rounded-md border border-transparent bg-red-600 px-4 py-2 text-base font-medium text-white hover:bg-red-700 focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
             onClick={deleteUserHandler}
           >
             Delete Account
           </button>
           <button
-            className="rounded-md border border-transparent bg-gray-100 px-4 py-2 text-base font-medium text-gray-700 shadow-xs hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:outline-hidden"
+            className="shadow-xs focus:outline-hidden rounded-md border border-transparent bg-gray-100 px-4 py-2 text-base font-medium text-gray-700 hover:bg-gray-200 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2"
             onClick={() => setIsOpen(false)}
           >
             Cancel

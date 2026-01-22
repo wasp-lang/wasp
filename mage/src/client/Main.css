@@ -47,7 +47,7 @@ body {
 }
 input,
 textarea {
-  @apply relative w-full rounded-lg bg-white py-3 pr-10 pl-3 text-left shadow-md focus:outline-hidden focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300;
+  @apply focus:outline-hidden relative w-full rounded-lg bg-white py-3 pl-3 pr-10 text-left shadow-md focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-sky-300;
 }
 
 input[type="text"],

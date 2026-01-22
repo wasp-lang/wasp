@@ -254,7 +254,7 @@ export const ResultPage = () => {
 
       {isLoading && (
         <>
-          <header className="big-box items-flex-start mt-4 mb-4 flex justify-between">
+          <header className="big-box items-flex-start mb-4 mt-4 flex justify-between">
             <div className="mr-3 shrink-0">
               <Loader />
             </div>
@@ -679,7 +679,7 @@ function WarningAboutAI() {
     <div className="rounded-sm bg-yellow-50 p-4 text-yellow-700">
       <div className="flex">
         <div className="ml-3">
-          <p className="text-sm leading-5 font-medium">⚠️ Experimental tech</p>
+          <p className="text-sm font-medium leading-5">⚠️ Experimental tech</p>
           <div className="mt-2 text-sm leading-5">
             <p>
               Since this is a GPT generated app, it might contain some mistakes,
@@ -748,7 +748,7 @@ function Feedback({ projectId }) {
         title={<span>Let us know how it went!</span>}
       >
         <form onSubmit={handleSubmit}>
-          <label className="mt-8 mb-2 block text-slate-700">
+          <label className="mb-2 mt-8 block text-slate-700">
             How likely are you to recommend this tool to a friend?{" "}
             <span className="text-red-500">*</span>
           </label>
@@ -763,7 +763,7 @@ function Feedback({ projectId }) {
                           active
                             ? "ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300"
                             : ""
-                        } ${checked ? "bg-opacity-75 bg-sky-900 text-white" : ""} cursor-pointer rounded-md px-3 py-2 shadow-md focus:outline-hidden`}
+                        } ${checked ? "bg-sky-900 bg-opacity-75 text-white" : ""} focus:outline-hidden cursor-pointer rounded-md px-3 py-2 shadow-md`}
                       >
                         {option}
                       </div>
@@ -776,7 +776,7 @@ function Feedback({ projectId }) {
 
           <label
             htmlFor="feedbackText"
-            className="mt-8 mb-2 block text-slate-700"
+            className="mb-2 mt-8 block text-slate-700"
           >
             How did it go? <span className="text-red-500">*</span>
           </label>

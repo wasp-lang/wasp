@@ -19,7 +19,7 @@ export function Feedback() {
       {feedback && feedback.feedbackEntries.length > 0 && (
         <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
           <table className="w-full text-left text-sm text-slate-500">
-            <thead className="bg-gray-50 text-xs text-slate-700 uppercase">
+            <thead className="bg-gray-50 text-xs uppercase text-slate-700">
               <tr>
                 <th scope="col" className="px-6 py-3">
                   App Name
@@ -41,7 +41,7 @@ export function Feedback() {
                 <tr className="border-b bg-white" key={idx}>
                   <th
                     scope="row"
-                    className="flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap text-gray-900"
+                    className="flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900"
                   >
                     <span title={entry.project.description}>
                       {entry.project.name}
@@ -55,7 +55,7 @@ export function Feedback() {
                   </td>
                   <td
                     scope="row"
-                    className="flex items-center gap-2 px-6 py-4 font-medium whitespace-nowrap text-gray-900"
+                    className="flex items-center gap-2 whitespace-nowrap px-6 py-4 font-medium text-gray-900"
                   >
                     {entry.score}
                   </td>

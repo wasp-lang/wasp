@@ -16,10 +16,10 @@ export function MyRadio({ options, value, onChange, label }) {
                   ? "ring-2 ring-white/60 ring-offset-2 ring-offset-sky-300"
                   : ""
               } ${
-                checked ? "bg-opacity-75 bg-slate-900 text-white" : "bg-white"
+                checked ? "bg-slate-900 bg-opacity-75 text-white" : "bg-white"
               } ${
                 disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
-              } relative flex flex-1 cursor-pointer rounded-lg px-5 py-4 shadow-md focus:outline-hidden`
+              } focus:outline-hidden relative flex flex-1 cursor-pointer rounded-lg px-5 py-4 shadow-md`
             }
           >
             {({ active, checked }) => (

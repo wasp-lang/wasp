@@ -49,7 +49,7 @@ export function RootComponent() {
     <>
       {shouldDisplayTopBanner && (
         <div
-          className="cursor-pointer flex-row space-x-3 overflow-hidden bg-linear-to-r from-pink-400 to-amber-400 text-white"
+          className="bg-linear-to-r cursor-pointer flex-row space-x-3 overflow-hidden from-pink-400 to-amber-400 text-white"
           onClick={() => window.open("https://github.com/wasp-lang/wasp")}
         >
           <div

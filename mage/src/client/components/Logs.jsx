@@ -72,7 +72,7 @@ export function Logs({ logs, status, onRetry }) {
           </div>
 
           <div className="items-flex-start flex justify-between">
-            <div className="mr-3 mb-2 shrink-0 self-end">
+            <div className="mb-2 mr-3 shrink-0 self-end">
               {(status === "inProgress" || status === "pending") && <Loader />}
               {status === "success" && (
                 <div className="status-icon bg-green-500">
