@@ -157,7 +157,7 @@ jobs:
             echo "$OUTPUT_DATA"
             echo 'EOF'
           } >> $GITHUB_OUTPUT
-          echo "waspc_version=$(node waspc/tools/get-waspc-version.mjs)" >> $GITHUB_OUTPUT
+          echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
 
   build-universal:
     name: Build Wasp (universal)

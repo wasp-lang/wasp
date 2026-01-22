@@ -182,6 +182,8 @@ print_usage() {
   echo ""
   print_usage_cmd "ghcup-set" \
     "Sets the correct version of GHC and Cabal for this project (via GHCup)."
+  print_usage_cmd "get-waspc-version" \
+    "Gets the current version of waspc from the Haskell project."
 }
 
 exitStatusToString() {
@@ -322,6 +324,9 @@ case $COMMAND in
     ;;
   ghcup-set)
     echo_and_eval "$GHCUP_SET"
+    ;;
+  get-waspc-version)
+    node "$SCRIPT_DIR/tools/get-waspc-version.mjs"
     ;;
   *)
     print_usage

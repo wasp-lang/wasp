@@ -27,6 +27,9 @@ switch ($Command) {
     "build:libs" {
         node "$PROJECT_ROOT/tools/install_libs_to_data_dir.mjs"
     }
+    "get-waspc-version" {
+        node "$PROJECT_ROOT/tools/get-waspc-version.mjs"
+    }
     "wasp-cli" {
         Invoke-Expression $RUN_CMD
     }
@@ -39,6 +42,7 @@ switch ($Command) {
         Write-Host "  build:hs          Builds the Haskell project only."
         Write-Host "  build:packages    Builds the TypeScript projects under data/packages/."
         Write-Host "  build:libs        Builds the TypeScript libs under libs/."
+        Write-Host "  get-waspc-version Gets the current version of waspc from the Haskell project."
         Write-Host "  wasp-cli <args>   Runs the dev version of wasp executable while forwarding arguments."
         Write-Host "                    Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
     }
