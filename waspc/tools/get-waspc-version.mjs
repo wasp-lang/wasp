@@ -14,6 +14,13 @@ const result = spawnSync("cabal", ["repl", "waspc", "-v0"], {
   input: "putStrLn $ Data.Version.showVersion Paths_waspc.version\n",
 });
 
+console.error("DEBUG: cwd =", waspcDir);
+console.error("DEBUG: status =", result.status);
+console.error("DEBUG: signal =", result.signal);
+console.error("DEBUG: error =", result.error);
+console.error("DEBUG: stderr =", result.stderr);
+console.error("DEBUG: stdout =", JSON.stringify(result.stdout));
+
 if (result.error) {
   throw result.error;
 }
