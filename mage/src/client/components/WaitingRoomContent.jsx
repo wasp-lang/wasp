@@ -23,7 +23,7 @@ export function WaitingRoomContent(props) {
       <header className="relative mb-4 rounded-xl bg-slate-50 p-8 text-gray-500">
         {estimatedWaitingTimeInMinutes > 5 && (
           <>
-            <p className="rounded bg-yellow-100 p-2 text-center text-yellow-700">
+            <p className="rounded-sm bg-yellow-100 p-2 text-center text-yellow-700">
               🚨 We are experiencing heavy load at the moment! 🚨
             </p>
             <br />
@@ -138,7 +138,7 @@ export function ShowcaseCard({ name, specimenURL, description, color }) {
             </h4>
             <button className="button sm gray">Check out the code</button>
           </div>
-          <div className="line-clamp-[10] text-base leading-relaxed text-slate-500">
+          <div className="line-clamp-10 text-base leading-relaxed text-slate-500">
             {description.split("\n").map((str) => (
               <p>{str}</p>
             ))}

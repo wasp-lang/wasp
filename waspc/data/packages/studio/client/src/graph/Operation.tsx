@@ -63,14 +63,14 @@ export const OperationNode = ({
   label?: React.ReactNode;
   color?: string;
 }) => (
-  <div className={`rounded px-6 py-3 bg-${color}-900 text-white`}>
+  <div className={`rounded-sm px-6 py-3 bg-${color}-900 text-white`}>
     <Handle
       type="target"
       position={targetPosition}
       isConnectable={isConnectable}
     />
     <div
-      className={`text-xs bg-${color}-300 text-${color}-900 absolute -top-1 left-1/2 -translate-x-1/2 rounded px-1`}
+      className={`text-xs bg-${color}-300 text-${color}-900 absolute -top-1 left-1/2 -translate-x-1/2 rounded-sm px-1`}
     >
       {label}
     </div>

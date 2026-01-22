@@ -167,6 +167,7 @@ library
     , megaparsec            ^>= 9.5.0
     , validation-selective  ^>= 0.2.0
     , selective             ^>= 0.7.0
+    , http-types            ^>= 0.12.4
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -256,7 +257,6 @@ library
     Wasp.AppSpec.App.Server
     Wasp.AppSpec.App.Wasp
     Wasp.AppSpec.App.WebSocket
-    Wasp.AppSpec.ConfigFile
     Wasp.AppSpec.Core.Decl
     Wasp.AppSpec.Core.Decl.JSON
     Wasp.AppSpec.Core.Decl.JSON.TH
@@ -275,7 +275,6 @@ library
     Wasp.AppSpec.Valid
     Wasp.AppSpec.Util
     Wasp.CompileOptions
-    Wasp.ConfigFile
     Wasp.Data
     Wasp.Db.Postgres
     Wasp.Error
@@ -294,8 +293,6 @@ library
     Wasp.Generator.Crud.Routes
     Wasp.Generator.Common
     Wasp.Generator.DepVersions
-    Wasp.Generator.TailwindConfigFile
-    Wasp.Generator.TailwindConfigFileGenerator
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
     Wasp.Generator.DbGenerator.Common
@@ -459,6 +456,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.HashMap
+    Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
     Wasp.Util.Json
@@ -556,6 +554,7 @@ library cli-lib
     , cryptonite
     , fsnotify
     , http-conduit
+    , http-types
     , optparse-applicative ^>=0.18.1
     , path
     , path-io

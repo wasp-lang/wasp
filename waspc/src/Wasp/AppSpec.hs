@@ -34,7 +34,6 @@ import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
-import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
@@ -85,8 +84,6 @@ data AppSpec = AppSpec
     buildType :: BuildType.BuildType,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | A list of paths to Tailwind specific config files and where to copy them.
-    tailwindConfigFilesRelocators :: [ConfigFileRelocator],
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,

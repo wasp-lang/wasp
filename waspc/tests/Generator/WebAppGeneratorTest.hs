@@ -69,7 +69,6 @@ spec_WebAppGenerator = do
             AS.devEnvVarsServer = [],
             AS.devEnvVarsClient = [],
             AS.userDockerfileContents = Nothing,
-            AS.tailwindConfigFilesRelocators = [],
             AS.devDatabaseUrl = Nothing,
             AS.customViteConfigPath = Nothing,
             AS.srcTsConfigPath = [relfile|tsconfig.json|],
