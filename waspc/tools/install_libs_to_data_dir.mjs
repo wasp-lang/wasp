@@ -94,12 +94,12 @@ async function buildAndCopyLib(
 function runCmd(
   /** @type {string} */ cmd,
   /** @type {string[]} */ args,
-  { cwd = waspcDir, collectStdout = true } = {},
+  { cwd = waspcDir } = {},
 ) {
   return execFileSync(cmd, args, {
     cwd,
     encoding: "utf-8",
     shell: true,
-    stdio: ["ignore", collectStdout ? "pipe" : "inherit", "inherit"],
+    stdio: ["ignore", "inherit", "inherit"],
   });
 }
