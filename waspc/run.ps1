@@ -24,12 +24,11 @@ switch ($Command) {
     "build:packages" {
         Invoke-Expression $WASP_PACKAGES_COMPILE
     }
+    "build:libs" {
+        node "$PROJECT_ROOT/tools/install_libs_to_data_dir.mjs"
+    }
     "wasp-cli" {
         Invoke-Expression $RUN_CMD
-    }
-    "get-waspc-version" {
-        # Direct pipe - Invoke-Expression breaks pipeline to native commands
-        'putStrLn $ Data.Version.showVersion Paths_waspc.version' | cabal repl waspc -v0
     }
     Default {
         Write-Host "USAGE"
@@ -39,6 +38,7 @@ switch ($Command) {
         Write-Host "  build             Builds the Haskell project + all sub-projects (i.e. TS packages)."
         Write-Host "  build:hs          Builds the Haskell project only."
         Write-Host "  build:packages    Builds the TypeScript projects under data/packages/."
+        Write-Host "  build:libs        Builds the TypeScript libs under libs/."
         Write-Host "  wasp-cli <args>   Runs the dev version of wasp executable while forwarding arguments."
         Write-Host "                    Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
     }
