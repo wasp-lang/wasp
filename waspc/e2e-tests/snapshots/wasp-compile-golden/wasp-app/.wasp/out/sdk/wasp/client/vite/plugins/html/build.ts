@@ -13,6 +13,7 @@ const htmlVirtualModule = {
 export function waspHtmlBuild(): Plugin {
   return {
     name: "wasp:html-build",
+    apply: 'build',
     config() {
       return {
         build: {

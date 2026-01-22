@@ -4,6 +4,7 @@ import { getIndexHtmlContent } from "../../virtual-files/index.js";
 export function waspHtmlDev(): Plugin {
   return {
     name: "wasp:html-dev",
+    apply: 'serve',
     configureServer(server) {
       return () => {
         server.middlewares.use(async (req, res, next) => {
