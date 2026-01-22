@@ -41,7 +41,7 @@
     "@types/node": "^22.17.1",
     "@types/react": "^19.2.7",
     "@vitest/coverage-v8": "^4.0.10",
-    "tsdown": "^0.16.5",
+    "tsdown": "^0.20.0",
     "typescript": "^5.8.2",
     "vitest": "^4.0.10"
   }
