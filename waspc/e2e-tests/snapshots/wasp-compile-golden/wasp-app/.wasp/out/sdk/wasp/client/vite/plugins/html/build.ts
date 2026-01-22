@@ -1,19 +1,18 @@
 import type { Plugin } from "vite";
-import path from "node:path";
 import { getIndexHtmlContent } from "../../virtual-files/index.js";
+import { makeVirtualFilesResolver, type VirtualFiles } from "../../virtual-files/resolver.js";
 
 const indexHtmlFileName = "index.html";
 
-const htmlVirtualModule = {
-  id: indexHtmlFileName,
-  absPath: "",
-  getContent: () => getIndexHtmlContent(),
-};
+const resolveVirtualFiles = makeVirtualFilesResolver([
+  { id: indexHtmlFileName, load: getIndexHtmlContent },
+]);
 
 export function waspHtmlBuild(): Plugin {
+  let virtualFiles!: VirtualFiles;
+
   return {
     name: "wasp:html-build",
-    apply: 'build',
     config() {
       return {
         build: {
@@ -27,19 +26,12 @@ export function waspHtmlBuild(): Plugin {
       };
     },
     configResolved(config) {
-      htmlVirtualModule.absPath = path.resolve(config.root, htmlVirtualModule.id);
+      virtualFiles = resolveVirtualFiles(config.root);
     },
-    resolveId(id) {
-      // Resolve index.html to a virtual module
-      if (id === htmlVirtualModule.id) {
-        return htmlVirtualModule.absPath;
-      }
-    },
+    resolveId: (id) => virtualFiles.ids.get(id),
     load(id) {
-      // Provide content for virtual index.html
-      if (id === htmlVirtualModule.absPath) {
-        return htmlVirtualModule.getContent();
-      }
+      const loader = virtualFiles.loaders.get(id);
+      return loader?.();
     },
   };
 }
