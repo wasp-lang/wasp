@@ -54,6 +54,7 @@ wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/index.html
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/index.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/routes.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/resolver.ts
 wasp-app/.wasp/out/sdk/wasp/core/serialization/custom-register.ts
 wasp-app/.wasp/out/sdk/wasp/core/serialization/index.ts
 wasp-app/.wasp/out/sdk/wasp/core/serialization/prisma.ts
@@ -219,6 +220,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/resolver.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/resolver.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/resolver.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/resolver.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/core/serialization/custom-register.js
