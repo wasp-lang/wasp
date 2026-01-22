@@ -126,7 +126,7 @@ print_usage() {
   print_usage_cmd "build:libs" \
     "Builds the Wasp libs under libs/."
   echo ""
-  print_usage_cmd "build:libs:bust-cache" \
+  print_usage_cmd "bust-libs-cache" \
     "Busts the npm cache for all @wasp.sh/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
   echo ""
   print_usage_cmd "wasp-cli <args>" \
@@ -251,7 +251,7 @@ case $COMMAND in
   wasp-cli)
     echo_and_eval "$RUN_CMD"
     ;;
-  build:libs:bust-cache)
+  bust-libs-cache)
     jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > package-lock.json.tmp
     if [ $? -ne 0 ]; then
       echo -e "${RED}Error: jq command failed. Make sure jq is installed.${RESET}"

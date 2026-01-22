@@ -28,7 +28,8 @@ async function main() {
 }
 
 function getWaspcVersion() {
-  const scriptPath = new URL("./get-waspc-version.mjs", import.meta.url).pathname;
+  const scriptPath = new URL("./get-waspc-version.mjs", import.meta.url)
+    .pathname;
   return runCmd("node", [scriptPath]).trim();
 }
 

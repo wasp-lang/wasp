@@ -89,10 +89,10 @@ Then you can use `./run wasp-cli` as you normally would.
 
 `npm` caches the installed packages based on their version. Since we don't change the lib version with each code change, rebuilding the libs and installing them in a Wasp app will install the old cached version.
 
-To bust the cache, use the `build:libs:bust-cache` command from the root of the Wasp app:
+To bust the cache, use the `bust-libs-cache` command from the root of the Wasp app:
 
 ```bash
-./run build:libs:bust-cache
+./run bust-libs-cache
 ```
 
 This command removes all `@wasp.sh/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,

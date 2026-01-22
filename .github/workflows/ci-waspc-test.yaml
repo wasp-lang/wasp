@@ -82,13 +82,13 @@ jobs:
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
           ./run build:packages
-          node ./tools/install_libs_to_data_dir.mjs
+          ./run build:libs
 
       - name: Compile TS packages and libs
         if: runner.os == 'Windows'
         run: |
           ./run.ps1 build:packages
-          node ./tools/install_libs_to_data_dir.mjs
+          ./run.ps1 build:libs
         shell: pwsh
 
       - name: Build external dependencies

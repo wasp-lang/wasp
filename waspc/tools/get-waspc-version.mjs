@@ -2,13 +2,18 @@
 
 // Gets the waspc version from the Cabal package.
 
-import { execSync } from "node:child_process";
+import { spawnSync } from "node:child_process";
 
 const waspcDir = new URL("..", import.meta.url).pathname;
 
-const version = execSync(
-  `echo 'putStrLn $ Data.Version.showVersion Paths_waspc.version' | cabal repl waspc -v0`,
-  { cwd: waspcDir, encoding: "utf-8" },
-).trim();
+const result = spawnSync("cabal", ["repl", "waspc", "-v0"], {
+  cwd: waspcDir,
+  encoding: "utf-8",
+  input: "putStrLn $ Data.Version.showVersion Paths_waspc.version\n",
+});
 
-console.log(version);
+if (result.error) {
+  throw result.error;
+}
+
+console.log(result.stdout.trim());
