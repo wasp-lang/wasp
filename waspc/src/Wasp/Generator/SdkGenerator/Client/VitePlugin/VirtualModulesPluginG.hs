@@ -22,6 +22,7 @@ getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getVirtualModulesPlugin spec =
   sequence
     [ getVirtualModulesTs,
+      genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualIndexTsx spec,
       genVirtualRoutesTsx spec
@@ -33,6 +34,13 @@ genVirtualFilesIndexTs =
     C.mkTmplFd tmplPath
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|index.ts|]
+
+genVirtualFilesResolverTs :: Generator FileDraft
+genVirtualFilesResolverTs =
+  return $
+    C.mkTmplFd tmplPath
+  where
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
 
 getVirtualModulesTs :: Generator FileDraft
 getVirtualModulesTs =
