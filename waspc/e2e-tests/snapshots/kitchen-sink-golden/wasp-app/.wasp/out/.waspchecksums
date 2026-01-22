@@ -690,7 +690,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/html/build.ts"
         ],
-        "e7fbcc758afcab70252d262a0dae0d918b9c4c824f79d1645f50ddb1a49f6311"
+        "01b78bedd1e89cedbe774436fdfa1527da94379507f778f75115dbf51f86000b"
     ],
     [
         [
@@ -711,7 +711,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/virtualModules.ts"
         ],
-        "70da7ba6ebfcd6c650e338f11109c94d5cdf5877dc3760c99e4ccf357ea1f3d9"
+        "3ff5f866b24b410514ed13f4adad218fad88a677b2172e57a02be4a3642eafe1"
     ],
     [
         [
@@ -747,6 +747,13 @@
             "sdk/wasp/client/vite/virtual-files/index.ts"
         ],
         "7f90d7c7578abce2405f27601b2005296ca37c40157ab9fa83d1cb93380c1e1f"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/vite/virtual-files/resolver.ts"
+        ],
+        "dcd995f6dceb185ac518ddd168ccc299dd3d1560593d9f37b931087da29f73b6"
     ],
     [
         [
