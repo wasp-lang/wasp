@@ -17,7 +17,14 @@ import Test.WaspDbSeedTest (waspDbSeedTest)
 import Test.WaspDepsTest (waspDepsTest)
 import Test.WaspDockerfileTest (waspDockerfileTest)
 import Test.WaspInfoTest (waspInfoTest)
-import Test.WaspNewTest (waspNewBasicInteractiveTest, waspNewBasicTest, waspNewMinimalInteractiveTest, waspNewMinimalTest, waspNewSaasInteractiveTest, waspNewSaasTest)
+import Test.WaspNewTest
+  ( waspNewBasicInteractiveTest,
+    waspNewBasicTest,
+    waspNewMinimalInteractiveTest,
+    waspNewMinimalTest,
+    waspNewSaasInteractiveTest,
+    waspNewSaasTest,
+  )
 import Test.WaspTelemetryTest (waspTelemetryTest)
 import Test.WaspVersionTest (waspVersionTest)
 
