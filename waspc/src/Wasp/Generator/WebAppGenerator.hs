@@ -18,20 +18,9 @@ import StrongPath
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.DepVersions
-  ( axiosVersion,
-    reactDomTypesVersion,
-    reactDomVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactTypesVersion,
-    reactVersion,
-    typescriptVersion,
-  )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
@@ -105,16 +94,10 @@ genPackageJson spec waspDependencies = do
             [ "packageName" .= webAppPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
-              "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
+              "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry [],
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
-  where
-    dependencyOverrides =
-      Npm.Dependency.fromList
-        [ -- TODO: remove this once Rollup fixes their lastest version https://github.com/rollup/rollup/issues/6012
-          ("rollup", "4.44.0")
-        ]
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec
@@ -138,26 +121,8 @@ npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
 npmDepsFromWasp _spec =
   N.NpmDepsFromWasp $
     N.NpmDepsForPackage
-      { N.dependencies =
-          Npm.Dependency.fromList
-            [ ("axios", show axiosVersion),
-              ("react", show reactVersion),
-              ("react-dom", show reactDomVersion),
-              ("@tanstack/react-query", reactQueryVersion),
-              ("react-router-dom", show reactRouterVersion)
-            ],
-        N.devDependencies =
-          Npm.Dependency.fromList
-            [ -- TODO: Allow users to choose whether they want to use TypeScript
-              -- in their projects and install these dependencies accordingly.
-              ("typescript", show typescriptVersion),
-              ("@types/react", show reactTypesVersion),
-              ("@types/react-dom", show reactDomTypesVersion),
-              ("@vitejs/plugin-react", "^4.7.0"),
-              -- NOTE: Make sure to bump the version of the tsconfig
-              -- when updating Vite or React versions
-              ("@tsconfig/vite-react", "^7.0.0")
-            ],
+      { N.dependencies = Npm.Dependency.fromList [],
+        N.devDependencies = Npm.Dependency.fromList [],
         N.peerDependencies = []
       }
 
