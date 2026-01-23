@@ -47,9 +47,9 @@ genCore email =
   sequence
     [ genCoreIndex email,
       genCoreTypes email,
-      genCoreHelpers email
+      genCoreHelpers email,
+      genEmailSenderProviderSetupFn email
     ]
-    <++> genEmailSenderProviderSetupFn email
 
 genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex email =
@@ -88,14 +88,11 @@ genCoreHelpers email =
     maybeName = defaultFromField >>= AS.EmailSender.name
     defaultFromField = AS.EmailSender.defaultFrom email
 
-genEmailSenderProviderSetupFn :: EmailSender -> Generator [FileDraft]
+genEmailSenderProviderSetupFn :: EmailSender -> Generator FileDraft
 genEmailSenderProviderSetupFn email =
-  sequence
-    [ return $ mkTmplFd $ Providers.setupFnFile provider
-    ]
+  return $ mkTmplFd tmplFile
   where
-    provider :: Providers.EmailSenderProvider
-    provider = getEmailSenderProvider email
+    tmplFile = Providers.setupFnFile . getEmailSenderProvider $ email
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency

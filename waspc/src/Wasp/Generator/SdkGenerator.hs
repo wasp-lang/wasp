@@ -14,8 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Abs, Dir, Path', Rel, castRel, fromRelDir, relfile, toFilePath, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
@@ -45,8 +44,7 @@ import Wasp.Generator.DepVersions
     reactVersion,
     superjsonVersion,
   )
-import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.FileDraft as FD
+import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -335,18 +333,18 @@ genExternalFile file
   where
     fileName = FP.takeFileName filePath
     extension = FP.takeExtension filePath
-    filePath = SP.toFilePath $ EF.filePathInExtCodeDir file
+    filePath = toFilePath $ EF.filePathInExtCodeDir file
 
     genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
-    genExternalSourceFile = return . FD.createTextFileDraft destFile . EF.fileText
+    genExternalSourceFile = return . createTextFileDraft destFile . EF.fileText
 
     genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
-    genExternalResourceFile = return . FD.createCopyFileDraft destFile . EF.fileAbsPath
+    genExternalResourceFile = return . createCopyFileDraft destFile . EF.fileAbsPath
 
     destFile =
       C.sdkRootDirInGeneratedCodeDir
         </> C.extSrcDirInSdkRootDir
-        </> SP.castRel (EF.filePathInExtCodeDir file)
+        </> castRel (EF.filePathInExtCodeDir file)
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
@@ -396,7 +394,7 @@ genDevIndex =
   return $
     C.mkTmplFdWithData
       [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
+      (object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir])
   where
     waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
       waspProjectDirFromAppComponentDir

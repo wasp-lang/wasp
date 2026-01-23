@@ -44,6 +44,7 @@ genIndexTsWithApiRoutes spec =
           "allEntities" .= nub (concatMap getApiEntitiesObject apis)
         ]
     usesAuth = fromMaybe (isAuthEnabledGlobally spec) . Api.auth
+
     tmplFile = C.asTmplFile [relfile|server/api/index.ts|]
     dstFile = SP.castRel tmplFile :: Path' (Rel C.SdkRootDir) File'
 
