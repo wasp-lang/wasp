@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import magicLogo from "../magic-app-gen-logo.png";
 
 export function Title() {

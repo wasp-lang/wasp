@@ -1,7 +1,7 @@
 import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
 import { resetPassword } from '../../../email/actions/passwordReset.js'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
 import { AuthContext } from '../../Auth'
 

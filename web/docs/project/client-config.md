@@ -62,7 +62,7 @@ Let's define a common layout for your application:
     ```
 
     ```jsx title="src/Root.jsx"
-    import { Outlet } from 'react-router-dom'
+    import { Outlet } from 'react-router'
 
     export default function Root() {
       return (
@@ -93,7 +93,7 @@ Let's define a common layout for your application:
     ```
 
     ```tsx title="src/Root.tsx"
-    import { Outlet } from 'react-router-dom'
+    import { Outlet } from 'react-router'
 
     export default function Root() {
       return (
@@ -113,7 +113,7 @@ Let's define a common layout for your application:
   </TabItem>
 </Tabs>
 
-You need to import the [`Outlet`](https://reactrouter.com/en/main/components/outlet#outlet) component from `react-router-dom` and put it where you want the current page to be rendered.
+You need to import the [`Outlet`](https://reactrouter.com/en/main/components/outlet#outlet) component from `react-router` and put it where you want the current page to be rendered.
 
 ### Setting up a Provider
 
@@ -132,7 +132,7 @@ This is how to set up various providers that your application needs:
     ```
 
     ```jsx title="src/Root.jsx"
-    import { Outlet } from 'react-router-dom'
+    import { Outlet } from 'react-router'
     import store from './store'
     import { Provider } from 'react-redux'
 
@@ -158,7 +158,7 @@ This is how to set up various providers that your application needs:
     ```
 
     ```tsx title="src/Root.tsx"
-    import { Outlet } from 'react-router-dom'
+    import { Outlet } from 'react-router'
     import store from './store'
     import { Provider } from 'react-redux'
 
@@ -327,7 +327,7 @@ Client has the following options:
   `rootComponent` defines the root component of your client application. It is
   expected to be a React component, and Wasp will use it as the root of the
   client application.
-  It must render the `Outlet` component from `react-router-dom` to render the
+  It must render the `Outlet` component from `react-router` to render the
   current page.
 
   Here's an example of a root component that both sets up a provider and
@@ -336,7 +336,7 @@ Client has the following options:
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
       ```jsx title="src/Root.jsx"
-      import { Outlet } from 'react-router-dom'
+      import { Outlet } from 'react-router'
       import store from './store'
       import { Provider } from 'react-redux'
 
@@ -367,7 +367,7 @@ Client has the following options:
 
     <TabItem value="ts" label="TypeScript">
       ```tsx title="src/Root.tsx"
-      import { Outlet } from 'react-router-dom'
+      import { Outlet } from 'react-router'
       import store from './store'
       import { Provider } from 'react-redux'
 

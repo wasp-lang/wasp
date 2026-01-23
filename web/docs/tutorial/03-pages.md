@@ -72,10 +72,10 @@ page HelloPage {
 }
 ```
 
-When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router-dom` to access the `name` parameter:
+When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router` to access the `name` parameter:
 
 ```tsx title="src/HelloPage.tsx" auto-js
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 export const HelloPage = () => {
   const { name } = useParams<"name">();

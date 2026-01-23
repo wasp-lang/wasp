@@ -4,7 +4,7 @@ import {
   PiMagicWandDuotone,
   PiStarDuotone,
 } from "react-icons/pi";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import { GitHubSignInButton, useAuth } from "wasp/client/auth";
 import {
