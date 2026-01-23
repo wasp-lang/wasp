@@ -12,7 +12,7 @@ import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
-    sdkRootDirInProjectRootDir,
+    sdkRootDirInGeneratedCodeDir,
     sdkTemplatesDirInTemplatesDir,
   )
 
@@ -40,7 +40,7 @@ mkTmplFdWithDestAndData ::
   FileDraft
 mkTmplFdWithDestAndData destFile tmplFile =
   createTemplateFileDraft
-    (sdkRootDirInProjectRootDir </> rootTemplatesDirInSdkRootDir </> destFile)
+    (sdkRootDirInGeneratedCodeDir </> rootTemplatesDirInSdkRootDir </> destFile)
     (sdkTemplatesDirInTemplatesDir </> rootTemplatesDirInSdkTemplatesDir </> tmplFile)
 
 rootTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir RootTemplatesDir)

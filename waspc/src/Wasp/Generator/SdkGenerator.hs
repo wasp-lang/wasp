@@ -35,7 +35,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.Common
   ( extSrcDirInSdkRootDir,
-    sdkRootDirInProjectRootDir,
+    sdkRootDirInGeneratedCodeDir,
   )
 import Wasp.Generator.SdkGenerator.Core (genCoreTsconfigProject)
 import Wasp.Generator.SdkGenerator.Root (genRootTsconfigProject)
@@ -63,7 +63,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
   where
-    sdkRootDir = projectRootDir </> sdkRootDirInProjectRootDir
+    sdkRootDir = projectRootDir </> sdkRootDirInGeneratedCodeDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -102,7 +102,7 @@ genExternalFile file
     genExternalResourceFile = return . createCopyFileDraft destFile . EF.fileAbsPath
 
     destFile =
-      sdkRootDirInProjectRootDir
+      sdkRootDirInGeneratedCodeDir
         </> extSrcDirInSdkRootDir
         </> castRel (EF.filePathInExtCodeDir file)
 

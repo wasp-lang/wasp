@@ -42,10 +42,6 @@ Check [More Details](#more-details) section below if anything went wrong with th
 Try out [Wasp AI](../wasp-ai/creating-new-app.md) 🤖 to generate a new Wasp app in minutes just from a title and short description!
 :::
 
-:::tip Try Wasp Without Installing 🤔?
-Give Wasp a spin in the browser with GitHub Codespaces by following the intructions in our [Tutorial App README](https://github.com/wasp-lang/wasp/tree/release/examples/tutorials/TodoApp)
-:::
-
 ### What next?
 
 - [ ] 👉 **Check out the [Todo App tutorial](../tutorial/01-create.md), which will take you through all the core features of Wasp!** 👈

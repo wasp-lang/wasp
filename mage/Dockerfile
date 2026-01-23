@@ -39,8 +39,7 @@ RUN mkdir -p /app/.wasp/build/server/node_modules
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
 FROM base AS server-production
-RUN curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.20.0
-ENV PATH "$PATH:/root/.local/bin"
+RUN npm i -g @wasp.sh/wasp-cli@0.20.0
 ENV NODE_ENV production
 WORKDIR /app
 # Copying the top level 'node_modules' because it contains the Prisma packages

@@ -42,10 +42,7 @@ genSharedEnvFiles =
     ]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
-genServerEnvFiles spec =
-  sequence
-    [ genServerEnv spec
-    ]
+genServerEnvFiles spec = sequence [genServerEnv spec]
 
 genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =

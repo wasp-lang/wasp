@@ -10,7 +10,7 @@ import Data.Set (Set, fromList)
 import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInProjectRootDir)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir)
 import Wasp.Project.Common
   ( WaspProjectDir,
     dotWaspDirInWaspProjectDir,
@@ -25,7 +25,7 @@ requiredWorkspaceGlobs :: Set String
 requiredWorkspaceGlobs =
   fromList
     [ makeGlobForAllSubdirs $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
-      makeGlobForDir $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInProjectRootDir
+      makeGlobForDir $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir
     ]
   where
     makeGlobForAllSubdirs :: Path' (Rel WaspProjectDir) (Dir a) -> String
