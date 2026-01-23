@@ -11,11 +11,11 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromJust, fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, fromRelFileP, parseRelFile, reldir, relfile, relfileP, (</>))
+import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', fromRelFileP, parseRelFile, reldir, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.JSON as AS.JSON
-import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
+import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss))
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -116,23 +116,21 @@ getImportJsonForJobDefinition jobName =
 genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
-  _someJobs ->
-    return $
-      mkTmplFd (serverJobsDirInSdkTemplatesDir </> [relfile|core/job.ts|]) : genAllJobExecutors
-  where
-    genAllJobExecutors = concatMap genJobExecutor jobExecutors
-
-    -- Per each defined job executor, we generate the needed files.
-    genJobExecutor :: JobExecutor -> [FileDraft]
-    genJobExecutor PgBoss =
-      [ mkTmplFd $ serverJobsDirInSdkTemplatesDir </> [relfile|core/pgBoss/pgBoss.ts|],
-        mkTmplFd $ serverJobsDirInSdkTemplatesDir </> [relfile|core/pgBoss/pgBossJob.ts|],
-        mkTmplFd $ serverJobsDirInSdkTemplatesDir </> [relfile|core/pgBoss/types.ts|],
-        mkTmplFd $ serverJobsDirInSdkTemplatesDir </> [relfile|core/pgBoss/index.ts|]
+  _anyJob ->
+    sequence
+      [ genServerJobFileCopy [relfile|core/job.ts|],
+        genServerJobFileCopy [relfile|core/pgBoss/pgBoss.ts|],
+        genServerJobFileCopy [relfile|core/pgBoss/pgBossJob.ts|],
+        genServerJobFileCopy [relfile|core/pgBoss/types.ts|],
+        genServerJobFileCopy [relfile|core/pgBoss/index.ts|]
       ]
 
 serverJobsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverJobsDirInSdkTemplatesDir = [reldir|server/jobs|]
+
+genServerJobFileCopy :: Path' Rel' File' -> Generator FileDraft
+genServerJobFileCopy =
+  return . mkTmplFd . (serverJobsDirInSdkTemplatesDir </>)
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).

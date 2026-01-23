@@ -91,13 +91,11 @@ genCoreHelpers email =
 genEmailSenderProviderSetupFn :: EmailSender -> Generator [FileDraft]
 genEmailSenderProviderSetupFn email =
   sequence
-    [ return $ mkTmplFd tmplPath
+    [ return $ mkTmplFd $ Providers.setupFnFile provider
     ]
   where
     provider :: Providers.EmailSenderProvider
     provider = getEmailSenderProvider email
-
-    tmplPath = Providers.providersDirInSdkTemplatesDir </> Providers.setupFnFile provider
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
