@@ -87,12 +87,12 @@ buildSdk projectRootDir = do
   (_, exitCode) <-
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob dstDir "npm" ["run", "build"] J.Wasp chan)
-  case exitCode of
-    ExitSuccess -> return $ Right ()
-    ExitFailure code -> return $ Left $ "SDK build failed with exit code: " ++ show code
+      (runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan)
+  return $ case exitCode of
+    ExitSuccess -> Right ()
+    ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
   where
-    dstDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
+    sdkRootDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -312,7 +312,8 @@ depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
           ("@node-rs/argon2", "^1.8.3")
         ]
 
--- TODO(filip): Figure out where this belongs. Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
+-- TODO(filip): Figure out where this belongs.
+-- Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
 -- Also, fix imports for wasp project.
 installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
 installNpmDependencies projectDir =

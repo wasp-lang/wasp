@@ -38,20 +38,16 @@ genAuthForms auth =
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|auth/forms/Auth.tsx|]
-      tmplData
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|auth/forms/Auth.tsx|]
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|auth/forms/types.ts|]
-      tmplData
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|auth/forms/types.ts|]
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
@@ -99,15 +95,20 @@ genInternalAuthComponents auth =
             copyInternalAuthComponent [relfile|email/ForgotPasswordForm.tsx|],
             copyInternalAuthComponent [relfile|email/ResetPasswordForm.tsx|]
           ]
+    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
+
     genUsernameAndPasswordComponents =
       genConditionally isUsernameAndPasswordAuthEnabled $
         sequence
           [ copyInternalAuthComponent [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
           ]
+    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+
     genSocialComponents =
       genConditionally isExternalAuthEnabled $
         genSocialButtonComponent
           <++> genSocialIconsComponent
+    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
     genSocialButtonComponent =
       sequence
@@ -121,22 +122,17 @@ genInternalAuthComponents auth =
           copyInternalAuthComponent [relfile|social/SocialIcons.module.css|]
         ]
 
-    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
-    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-
     copyInternalAuthComponent = return . C.mkTmplFd . (pathToInternalInAuth </>)
     pathToInternalInAuth = [reldir|auth/forms/internal|]
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =
-  return
-    [ C.mkTmplFdWithData
-        [relfile|auth/forms/internal/common/LoginSignupForm.tsx|]
-        tmplData,
-      C.mkTmplFd [relfile|auth/forms/internal/common/LoginSignupForm.module.css|]
+  sequence
+    [ return $ C.mkTmplFdWithData tmplFile tmplData,
+      return $ C.mkTmplFd [relfile|auth/forms/internal/common/LoginSignupForm.module.css|]
     ]
   where
+    tmplFile = [relfile|auth/forms/internal/common/LoginSignupForm.tsx|]
     tmplData =
       object
         [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,

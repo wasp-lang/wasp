@@ -4,8 +4,7 @@ import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types (Pair)
 import Data.Maybe (fromJust)
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Dir, File', Path', Rel, relDirToPosix, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec (..))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -67,18 +66,20 @@ genActions spec =
     ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ C.mkTmplFdWithData relPath tmplData
+genQueriesIndex spec =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    relPath = clientOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]
+    tmplFile = clientOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
         [ "queries" .= map getQueryData (AS.getQueries spec)
         ]
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ C.mkTmplFdWithData relPath tmplData
+genActionsIndex spec =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    relPath = clientOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]
+    tmplFile = clientOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
         [ "actions" .= map getActionData (AS.getActions spec)
@@ -137,5 +138,5 @@ getOperationTypeData operation = tmplData
       makeSdkImportPath $
         relDirToRelFileP $
           fromJust $
-            SP.relDirToPosix $
+            relDirToPosix $
               serverOperationsDirInSdkRootDir operation
