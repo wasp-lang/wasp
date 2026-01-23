@@ -27,14 +27,14 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ genServerIndex spec,
-          genClientIndex,
-          genClientWebSocketProvider spec
+        [ genServerWebSocketsIndex spec,
+          genClientWebSocketsIndex,
+          genClientWebSocketsProvider spec
         ]
   | otherwise = return []
 
-genServerIndex :: AppSpec -> Generator FileDraft
-genServerIndex spec =
+genServerWebSocketsIndex :: AppSpec -> Generator FileDraft
+genServerWebSocketsIndex spec =
   return $ mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = [relfile|server/webSocket/index.ts|]
@@ -47,14 +47,14 @@ genServerIndex spec =
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
-genClientIndex :: Generator FileDraft
-genClientIndex =
+genClientWebSocketsIndex :: Generator FileDraft
+genClientWebSocketsIndex =
   return $ mkTmplFd tempFile
   where
     tempFile = [relfile|client/webSocket/index.ts|]
 
-genClientWebSocketProvider :: AppSpec -> Generator FileDraft
-genClientWebSocketProvider spec =
+genClientWebSocketsProvider :: AppSpec -> Generator FileDraft
+genClientWebSocketsProvider spec =
   return $ mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = [relfile|client/webSocket/WebSocketProvider.tsx|]
