@@ -1,5 +1,6 @@
+// @ts-nocheck
 
-import { MainPage } from '../../../../src/MainPage'
+import { MainPage } from '../../../src/MainPage'
 
 export const routesMapping = {
   RootRoute: MainPage,

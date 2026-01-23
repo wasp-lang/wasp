@@ -7,16 +7,11 @@ module Wasp.Generator.WebAppGenerator
 where
 
 import Data.Aeson (object, (.=))
-import Data.List (intercalate)
 import StrongPath
-  ( Dir,
-    File,
+  ( File,
     File',
-    Path,
     Path',
-    Posix,
     Rel,
-    reldirP,
     relfile,
     (</>),
   )
@@ -24,7 +19,6 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -44,8 +38,6 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (webAppPackageName)
 import qualified Wasp.Generator.WebAppGenerator.Common as C
-import Wasp.Generator.WebAppGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.WebAppGenerator.RouterGenerator (genRouter)
 import Wasp.Generator.WebAppGenerator.Vite (genVite)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common
@@ -62,8 +54,7 @@ genWebApp spec = do
       genAppTsConfigJson spec,
       genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsFromWasp spec),
-      genGitignore,
-      genIndexHtml spec
+      genGitignore
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
@@ -194,50 +185,11 @@ genPublicDir spec =
     checkIfFileDraftExists = (`elem` existingDstPaths) . FD.getDstPath
     existingDstPaths = map FD.getDstPath extPublicFileDrafts
 
-genIndexHtml :: AppSpec -> Generator FileDraft
-genIndexHtml spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|index.html|])
-      targetPath
-      (Just templateData)
-  where
-    targetPath = [relfile|index.html|]
-    templateData =
-      object
-        [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
-          "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
-        ]
-
--- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
--- although they are not used anywhere outside.
--- We could further "templatize" this file so only what is needed is generated.
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|vite-env.d.ts|],
-      genFileCopy [relfile|test/vitest/setup.ts|],
-      getIndexTs spec
+      genFileCopy [relfile|test/vitest/setup.ts|]
     ]
-    <++> genRouter spec
   where
     genFileCopy = return . C.mkSrcTmplFd
-
-getIndexTs :: AppSpec -> Generator FileDraft
-getIndexTs spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/index.tsx|])
-      (C.asWebAppFile [relfile|src/index.tsx|])
-      ( Just $
-          object
-            [ "setupFn" .= extImportToImportJson relPathToWebAppSrcDir maybeSetupJsFunction,
-              "rootComponent" .= extImportToImportJson relPathToWebAppSrcDir maybeRootComponent
-            ]
-      )
-  where
-    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
-
-    relPathToWebAppSrcDir :: Path Posix (Rel importLocation) (Dir C.WebAppSrcDir)
-    relPathToWebAppSrcDir = [reldirP|./|]

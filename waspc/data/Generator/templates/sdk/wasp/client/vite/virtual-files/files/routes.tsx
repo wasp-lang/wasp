@@ -1,4 +1,5 @@
 {{={= =}=}}
+// @ts-nocheck
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
 {=/ isAuthEnabled =}

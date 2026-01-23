@@ -1,8 +1,14 @@
 {{={= =}=}}
+// @ts-nocheck
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { getWaspApp } from "wasp/client/app";
-import { routesMapping } from "./router";
+{=!
+  // NOTE: We are not inlining routes mapping into this file becuase once we
+  // allow users to override the `index.tsx` entry point they can use the existing
+  // routes mapping.
+=}
+{=& routesMapping.importStatement =}
 
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
@@ -20,7 +26,7 @@ const app = getWaspApp({
   {=# rootComponent.isDefined =}
   rootElement: <{= rootComponent.importIdentifier =} />,
   {=/ rootComponent.isDefined =}
-  routesMapping,
+  routesMapping: {= routesMapping.importIdentifier =},
 });
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
