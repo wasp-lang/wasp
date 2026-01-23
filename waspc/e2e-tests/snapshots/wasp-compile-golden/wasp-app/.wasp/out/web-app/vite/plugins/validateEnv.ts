@@ -12,7 +12,7 @@ const redColorFormatString = getColorizedConsoleFormatString('red');
 export function validateEnv(): Plugin {
   let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null
   return {
-    name: 'wasp-validate-env',
+    name: 'wasp:validate-env',
     configResolved: (config) => {
       const env = loadEnv(config.mode, process.cwd(), config.envPrefix)
       validationResult = getValidatedEnvOrError(env, clientEnvSchema)
