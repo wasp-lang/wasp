@@ -4,8 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (File', Path', Rel', reldir, relfile)
-import qualified StrongPath as SP
+import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
@@ -50,7 +49,7 @@ genOAuthHelpers auth =
         destFile
         (Just tmplData)
       where
-        destFile = SP.castRel $ [reldir|auth/helpers|] SP.</> helpersFp
+        destFile = [reldir|auth/helpers|] </> helpersFp
         tmplFile = [relfile|auth/helpers/_Provider.tsx|]
         tmplData =
           object
