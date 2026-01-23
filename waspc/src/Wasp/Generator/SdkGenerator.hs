@@ -337,18 +337,16 @@ genExternalFile file
     extension = FP.takeExtension filePath
     filePath = SP.toFilePath $ EF.filePathInExtCodeDir file
 
-genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
-genExternalResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
-  where
-    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EF._pathInExtCodeDir file)
-    absSrcPath = EF.fileAbsPath file
+    genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
+    genExternalSourceFile = return . FD.createTextFileDraft destFile . EF.fileText
 
-genExternalSourceFile :: EF.CodeFile -> Generator FD.FileDraft
-genExternalSourceFile file = return $ FD.createTextFileDraft relDstPath text
-  where
-    filePathInSrcExtCodeDir = EF.filePathInExtCodeDir file
-    text = EF.fileText file
-    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
+    genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
+    genExternalResourceFile = return . FD.createCopyFileDraft destFile . EF.fileAbsPath
+
+    destFile =
+      C.sdkRootDirInGeneratedCodeDir
+        </> C.extSrcDirInSdkRootDir
+        </> SP.castRel (EF.filePathInExtCodeDir file)
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
