@@ -73,9 +73,9 @@ genQueriesIndex spec =
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
-  return $ mkTmplFdWithData tmplF tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplF = clientOpsDirInUserCoreTemplatesDir </> [relfile|actions/index.ts|]
+    tmplFile = clientOpsDirInUserCoreTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
         [ "actions" .= map getActionData (AS.getActions spec)
