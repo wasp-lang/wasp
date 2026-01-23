@@ -40,7 +40,7 @@ Let's go through each of these steps.
 
 ### 1. Generating Deployable Code
 
-Running the command `wasp build` generates deployable code for the whole app in the `.wasp/build/` directory.
+Running the command `wasp build` generates deployable code for the whole app in the `.wasp/out/` directory.
 
 ```
 wasp build
@@ -53,7 +53,7 @@ You'll have to [switch to PostgreSQL](../../data-model/databases.md#migrating-fr
 
 ### 2. Deploying the API Server <Server />
 
-There's a Dockerfile that defines an image for building the server in the `.wasp/build` directory.
+There's a Dockerfile that defines an image for building the server in the `.wasp/out` directory.
 
 To run the server in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
 
@@ -65,9 +65,9 @@ While these are the general instructions on deploying the server anywhere, we al
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `build/` directory in the `.wasp/build/web-app/`.
+The command above will build the web client and put it in the `build/` directory in the `.wasp/out/web-app/`.
 
-Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/build/web-app/build/`.
+Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
 
 ### 4. Deploying the Database <Database />
 
@@ -114,10 +114,10 @@ You need to do this only once per Wasp app.
 
 Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
-After you have [built the app](#1-generating-deployable-code), position yourself in `.wasp/build/` directory:
+After you have [built the app](#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
-cd .wasp/build
+cd .wasp/out
 ```
 
 Next, run the launch command to set up a new app and create a `fly.toml` file:
@@ -179,7 +179,7 @@ If you want to make sure you've added your secrets correctly, run `fly secrets l
 
 ### Deploy to a Fly.io App
 
-While still in the `.wasp/build/` directory, run:
+While still in the `.wasp/out/` directory, run:
 
 ```bash
 fly deploy --remote-only --config ../../fly.toml
@@ -199,7 +199,7 @@ fly ssh console
 
 ### Redeploying After Wasp Builds
 
-When you rebuild your Wasp app (with `wasp build`), it will remove your `.wasp/build/` directory. In there, you may have a `fly.toml` from any prior Fly.io deployments.
+When you rebuild your Wasp app (with `wasp build`), it will remove your `.wasp/out/` directory. In there, you may have a `fly.toml` from any prior Fly.io deployments.
 
 While we will improve this process in the future, in the meantime, you have a few options:
 
@@ -207,9 +207,9 @@ While we will improve this process in the future, in the meantime, you have a fe
 
 From there, you can reference it in `fly deploy --config <path>` commands, like above.
 
-1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/build/ after.
+1. Backup the `fly.toml` file somewhere before running `wasp build`, and copy it into .wasp/out/ after.
 
-When the `fly.toml` file exists in .wasp/build/ dir, you do not need to specify the `--config <path>`.
+When the `fly.toml` file exists in .wasp/out/ dir, you do not need to specify the `--config <path>`.
 
 1. Run `fly config save -a <app-name>` to regenerate the `fly.toml` file from the remote state stored in Fly.io.
 
@@ -258,13 +258,13 @@ We'll need the domains for both the `server` and `client` services:
 
 You'll deploy the server first:
 
-1. Move into the `.wasp/build` directory:
+1. Move into the `.wasp/out` directory:
 
     ```shell
-    cd .wasp/build
+    cd .wasp/out
     ```
 
-2. Link the `.wasp/build` directory to your newly created Railway project:
+2. Link the `.wasp/out` directory to your newly created Railway project:
 
     ```shell
     railway link
@@ -298,11 +298,11 @@ You'll deploy the server first:
     We use the `--ci` flag to limit the log output to only the build process.
     </small>
 
-    Railway will locate the `Dockerfile` in `.wasp/build` and deploy your server.
+    Railway will locate the `Dockerfile` in `.wasp/out` and deploy your server.
 
 #### Deploying the Client
 
-1. Next, go into your app's frontend build directory `.wasp/build/web-app`:
+1. Next, go into your app's frontend build directory `.wasp/out/web-app`:
 
     ```shell
     cd web-app
@@ -343,13 +343,13 @@ Back in your [Railway dashboard](https://railway.com/dashboard?utm_medium=integr
 When you make updates and need to redeploy:
 
 1. Run `wasp build` to rebuild your app.
-1. Go into the `.wasp/build` directory and:
+1. Go into the `.wasp/out` directory and:
 
     Deploy the server with:
     ```shell
     railway up --ci
     ```
-1. Go into the `.wasp/build/web-app` directory and:
+1. Go into the `.wasp/out/web-app` directory and:
 
     Rebuild the client with:
     ```shell
@@ -413,10 +413,10 @@ If you do not know what your client URL is yet, don't worry. You can set `WASP_W
 
 ### Deploy the Heroku app
 
-After you have [built the app](#1-generating-deployable-code), position yourself in `.wasp/build/` directory:
+After you have [built the app](#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
-cd .wasp/build
+cd .wasp/out
 ```
 
 assuming you were at the root of your Wasp project at that moment.
@@ -502,7 +502,7 @@ Make sure you set the `https://<app-name>.netlify.app` URL as the `WASP_WEB_CLIE
 :::
 
 :::caution Redirecting URLs toward `index.html`
-If you follow the instructions above, the Netlify CLI will use `netlify.toml` file that Wasp generates by default in `.wasp/build/web-app/`. This will correctly configure Netlify to redirect URLs toward `index.html`, which is important since Wasp is a Single Page Application (SPA) and needs to handle routing on the client side.
+If you follow the instructions above, the Netlify CLI will use `netlify.toml` file that Wasp generates by default in `.wasp/out/web-app/`. This will correctly configure Netlify to redirect URLs toward `index.html`, which is important since Wasp is a Single Page Application (SPA) and needs to handle routing on the client side.
 
 If you instead use another method of deployment to Netlify, for example doing it using CI, make sure that Netlify picks up that `netlify.toml` file, or configure URL redirecting yourself manually on Netlify.
 
@@ -541,20 +541,20 @@ Here’s an example configuration file to help you get started. This example wor
             node-version: '22'
 
         - name: Install Wasp
-          run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
+          run: npm i -g @wasp.sh/wasp-cli@0.16.0 # Change to your Wasp version
 
         - name: Wasp Build
           run: wasp build
 
         - name: Install dependencies and build the client
           run: |
-            cd ./.wasp/build/web-app
+            cd ./.wasp/out/web-app
             npm install
             REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
 
         - name: Deploy to Netlify
           run: |
-            cd ./.wasp/build/web-app
+            cd ./.wasp/out/web-app
             npx netlify-cli@17.36.1 deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_NAME
 
       env:
@@ -642,14 +642,14 @@ Here’s an example configuration file to help you get started. This example wor
             node-version: '22'
 
         - name: Install Wasp
-          run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
+          run: npm i -g @wasp.sh/wasp-cli@0.16.0 # Change to your Wasp version
 
         - name: Wasp Build
           run: cd ./app && wasp build
 
         - name: Install dependencies and build the client
           run: |
-            cd ./app/.wasp/build/web-app
+            cd ./app/.wasp/out/web-app
             npm install
             REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
 
@@ -658,7 +658,7 @@ Here’s an example configuration file to help you get started. This example wor
           with:
             apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
             accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-            command: pages deploy ./app/.wasp/build/web-app/build --project-name=${{ env.CLIENT_CLOUDFLARE_APP_NAME }} --commit-dirty=true --branch=main
+            command: pages deploy ./app/.wasp/out/web-app/build --project-name=${{ env.CLIENT_CLOUDFLARE_APP_NAME }} --commit-dirty=true --branch=main
 
       env:
         CLIENT_CLOUDFLARE_APP_NAME: cloudflare-pages-app-name

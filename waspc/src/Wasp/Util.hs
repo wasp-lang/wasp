@@ -309,12 +309,17 @@ isOlderThanNHours nHours time = do
     numSecondsInHour = 3600
 
 -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
--- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo).
+-- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo) and
+-- in our npm analytics (scripts/make-npm-packages/templates/main-package/postinstall.js in this
+-- repo).
 checkIfOnCi :: IO Bool
 checkIfOnCi =
   any checkIfEnvValueIsTruthy
     <$> mapM
       ENV.lookupEnv
+      -- Keep in sync with the same list in:
+      -- - https://github.com/wasp-lang/wasp/blob/main/scripts/make-npm-packages/templates/main-package/postinstall.js
+      -- - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
       [ "BUILD_ID", -- Jenkins, Codeship
         "BUILD_NUMBER", -- Jenkins, TeamCity
         "CI", -- Github actions, Travis CI, CircleCI, Cirrus CI, Gitlab CI, Appveyor, Codeship, dsari

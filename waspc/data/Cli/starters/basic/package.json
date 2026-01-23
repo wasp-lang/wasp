@@ -2,8 +2,8 @@
   "name": "__waspAppName__",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*",
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ],
   "dependencies": {
     "react": "^19.2.1",
@@ -13,8 +13,7 @@
     "tailwind-merge": "~2.6.0",
     "react-hook-form": "^7.69.0",
     "tailwind-merge": "~3.4.0",
-    "tailwindcss": "^4.1.18",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
     "@eslint/js": "^9.27.0",

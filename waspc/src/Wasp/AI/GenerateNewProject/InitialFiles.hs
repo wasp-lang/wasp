@@ -21,7 +21,6 @@ import Wasp.AI.GenerateNewProject.Common
     getProjectPrimaryColor,
   )
 import Wasp.AI.GenerateNewProject.Plan (PlanRule)
-import Wasp.Analyzer.Parser.CST (SyntaxKind (Int))
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Version
@@ -151,11 +150,10 @@ generatePackageJson newProjectDetails =
         "name": "${appName}",
         "type": "module",
         "workspaces": [
-          ".wasp/build/*",
-          ".wasp/out/*"
+          ".wasp/out/*",
+          ".wasp/out/sdk/wasp"
         ],
         "dependencies": {
-          "wasp": "file:.wasp/out/sdk/wasp",
           "react": "^19.2.1",
           "react-dom": "^19.2.1",
           "react-router-dom": "^7.10.1",

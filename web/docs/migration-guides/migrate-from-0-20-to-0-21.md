@@ -4,23 +4,64 @@ title: Migration from 0.20.X to 0.21.X
 
 To install the latest version of Wasp, open your terminal and run:
 
+<Tabs>
+<TabItem value="installer" label="Installer">
+
 ```sh
 curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```sh
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+</TabItem>
+</Tabs>
+
 If you want to install Wasp 0.21.0 specifically, you can pass a version argument to the install script:
+
+<Tabs>
+<TabItem value="installer" label="Installer">
 
 ```sh
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.21.0
 ```
 
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.21.0
+```
+
+</TabItem>
+</Tabs>
+
 ## What's new in 0.21.X?
+
+### New npm-based installation
+
+Starting from Wasp 0.21.X, the recommended way to install Wasp is via npm. This simplifies the installation process and makes it easier to manage Wasp versions. For now, both the old and new installation methods are supported, but we recommend switching to the npm-based installation.
+
+To switch from the old installation method to the new one, simply uninstall Wasp using the old method and then install it again via npm:
+
+```sh
+wasp uninstall
+npm i -g @wasp.sh/wasp-cli@latest
+```
 
 ### Better Tailwind CSS support
 
 With this change, we will not require you to upgrade Tailwind CSS in lockstep with Wasp anymore. You can use any version of Tailwind CSS v4 or newer in your Wasp app, and upgrade it (or not) at your own pace.
 
 In previous versions of Wasp, we used a custom way of handling Tailwind CSS configuration files, which tightly coupled us to a specific version. Due to the new Vite installation method in version 4, we can simplify our support, and remove all custom steps. Now Tailwind CSS is just a regular dependency in your Wasp app like any other.
+
+### Merged the `.wasp/out` and `.wasp/build` directories
+
+In previous versions of Wasp, there were two separate directories for generated code: `.wasp/out` (used in development mode) and `.wasp/build` (used in production mode). Starting from Wasp 0.21.X, only the `.wasp/out` directory is used for generated code in both development and production modes. This change simplifies the project structure and reduces confusion.
 
 ### Upgraded to Vitest 4
 
@@ -42,7 +83,64 @@ app MyApp {
 }
 ```
 
-### 2. Upgrade Tailwind CSS to v4
+### 2. Update your `package.json`
+
+We've rearranged our workspace architecture a bit, so you'll need to update the `dependencies` and `workspaces` fields in your `package.json` file.
+
+- In your `workspaces` array:
+  - Remove `.wasp/build/*`.
+  - Add `.wasp/out/sdk/wasp`.
+- In your `dependencies` object:
+  - Remove the `wasp` dependency.
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  "workspaces": [
+    // highlight-next-line
+    ".wasp/build/*",
+    ".wasp/out/*"
+  ],
+  dependencies: {
+    // ... other dependencies ...
+    // highlight-next-line
+    "wasp": "file:.wasp/out/sdk/wasp"
+  }
+  // ... other fields ...
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```json title="package.json"
+{
+  "workspaces": [
+    ".wasp/out/*",
+    // highlight-next-line
+    ".wasp/out/sdk/wasp"
+  ],
+  dependencies: {
+    // ... other dependencies ...
+  }
+  // ... other fields ...
+}
+```
+
+</TabItem>
+</Tabs>
+
+Now, we will clean up the old `.wasp` directory (to avoid any potential conflicts), and let `npm` pick up the new workspace configuration. You can do this by running the following command in your terminal:
+
+```sh
+wasp clean
+wasp ts-setup # if you're using the TS Spec
+wasp compile
+```
+
+### 3. Upgrade Tailwind CSS to v4
 
 **If you don't have a `tailwindcss` dependency in your `package.json`, you can skip this step.**
 
@@ -131,7 +229,29 @@ app MyApp {
 
 If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../project/css-frameworks.md#tailwind).
 
-### 3. Upgrade Vitest tests to v4
+### 4. Update your custom Dockerfile
+
+**If you don't have a `Dockerfile` in your project folder, you can skip this step.**
+
+If you have a custom `Dockerfile` in your project, you need to update it to reference the new `.wasp/out` directory instead of the removed `.wasp/build` directory.
+
+This can be a quite straightforward find-and-replace operation:
+- **Find** `.wasp/build`
+- **Replace** with `.wasp/out`
+
+### 5. Update your custom deployment scripts
+
+**If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
+
+If you have custom deployment scripts, you'll need to update them to reference the new `.wasp/out` directory instead of the removed `.wasp/build` directory.
+
+This can be a quite straightforward find-and-replace operation:
+- **Find** `.wasp/build`
+- **Replace** with `.wasp/out`
+
+You can check our updated [deployment methods guide](../deployment/deployment-methods/overview.md) and [CI/CD guide](../deployment/ci-cd.md) for reference on the correct deployment steps.
+
+### 6. Upgrade Vitest tests to v4
 
 **If you don't have test files in your project, you can skip this step.**
 
@@ -141,6 +261,6 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 4. Enjoy your updated Wasp app
+### 7. Enjoy your updated Wasp app
 
 That's it!

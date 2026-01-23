@@ -2,8 +2,8 @@
   "name": "kitchen-sink",
   "type": "module",
   "workspaces": [
-    ".wasp/build/*",
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ],
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
@@ -21,8 +21,7 @@
     "react-router-dom": "^7.10.1",
     "tailwind-merge": "^3.4.0",
     "tailwindcss": "^4.1.18",
-    "wait-port": "^1.1.0",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "wait-port": "^1.1.0"
   },
   "devDependencies": {
     "@playwright/test": "1.51.1",
