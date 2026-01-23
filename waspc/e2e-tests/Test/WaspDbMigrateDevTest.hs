@@ -6,7 +6,7 @@ import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..), (~&&))
 import StrongPath (fromAbsDir, (</>))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
@@ -28,21 +28,21 @@ waspDbMigrateDevTest =
         waspCliDbMigrateDevFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Should succeed when migrations up to date inside of a Wasp project"
-        (withInE2eWaspProjectDir [waspCliDbMigrateDev "no_migration"]),
+        (withInTestWaspProjectDir [waspCliDbMigrateDev "no_migration"]),
       makeTestCase
         "Setup: Add a Task model to prisma"
-        ( withInE2eWaspProjectDir
+        ( withInTestWaspProjectDir
             [appendToPrismaFile taskPrismaModel]
         ),
       makeTestCase
         "Should succeed creating a new migration inside of a Wasp project"
-        (withInE2eWaspProjectDir [waspCliDbMigrateDev "yes_migration"]),
+        (withInTestWaspProjectDir [waspCliDbMigrateDev "yes_migration"]),
       makeTestCase
         "Assert migration directories exists"
-        (withInE2eWaspProjectDir [assertMigrationDirsExist "yes_migration"])
+        (withInTestWaspProjectDir [assertMigrationDirsExist "yes_migration"])
     ]
   where
     waspCliDbMigrateDevFails :: ShellCommandBuilder context ShellCommand

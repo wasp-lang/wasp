@@ -2,7 +2,7 @@ module Test.WaspCleanTest (waspCleanTest) where
 
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliClean, waspCliCompile)
 
 waspCleanTest :: Test
@@ -14,22 +14,22 @@ waspCleanTest =
         waspCliCleanFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInE2eWaspProjectDir [waspCliClean]),
+        (withInTestWaspProjectDir [waspCliClean]),
       makeTestCase
         "Setup: compile the Wasp project"
-        (withInE2eWaspProjectDir [waspCliCompile]),
+        (withInTestWaspProjectDir [waspCliCompile]),
       makeTestCase
         "Should succeed inside of a compiled Wasp project"
-        (withInE2eWaspProjectDir [waspCliClean]),
+        (withInTestWaspProjectDir [waspCliClean]),
       makeTestCase
         "Assert `.wasp` directory does not exist"
-        (withInE2eWaspProjectDir [assertDirectoryDoesNotExist ".wasp"]),
+        (withInTestWaspProjectDir [assertDirectoryDoesNotExist ".wasp"]),
       makeTestCase
         "Assert `node_modules` directory does not exist"
-        (withInE2eWaspProjectDir [assertDirectoryDoesNotExist "node_modules"])
+        (withInTestWaspProjectDir [assertDirectoryDoesNotExist "node_modules"])
     ]
   where
     waspCliCleanFails :: ShellCommandBuilder context ShellCommand

@@ -2,7 +2,7 @@ module Test.WaspDepsTest (waspDepsTest) where
 
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDeps)
 
 -- TODO: Test that deps change with installs/uninstalls.
@@ -15,10 +15,10 @@ waspDepsTest =
         waspCliDepsFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Should succeed inside of a Wasp project"
-        (withInE2eWaspProjectDir [waspCliDeps])
+        (withInTestWaspProjectDir [waspCliDeps])
     ]
   where
     waspCliDepsFails :: ShellCommandBuilder context ShellCommand

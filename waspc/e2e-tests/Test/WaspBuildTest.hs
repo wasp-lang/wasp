@@ -2,7 +2,7 @@ module Test.WaspBuildTest (waspBuildTest) where
 
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliBuild)
 
 waspBuildTest :: Test
@@ -14,23 +14,23 @@ waspBuildTest =
         waspCliBuildFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Should fail inside of a SQLite Wasp project"
-        (withInE2eWaspProjectDir [waspCliBuildFails]),
+        (withInTestWaspProjectDir [waspCliBuildFails]),
       makeTestCase
         "Setup: Modify Wasp project to use Postgresql"
-        (withInE2eWaspProjectDir [setWaspDbToPSQL]),
+        (withInTestWaspProjectDir [setWaspDbToPSQL]),
       makeTestCase
         "Should succeed inside of a Postgresql Wasp project"
-        (withInE2eWaspProjectDir [waspCliBuild]),
+        (withInTestWaspProjectDir [waspCliBuild]),
       -- `wasp build` should also compile the project.
       makeTestCase
         "Assert `.wasp` directory exists"
-        (withInE2eWaspProjectDir [assertDirectoryExists ".wasp"]),
+        (withInTestWaspProjectDir [assertDirectoryExists ".wasp"]),
       makeTestCase
         "Assert `node_modules` directory exists"
-        (withInE2eWaspProjectDir [assertDirectoryExists "node_modules"])
+        (withInTestWaspProjectDir [assertDirectoryExists "node_modules"])
     ]
   where
     waspCliBuildFails :: ShellCommandBuilder context ShellCommand

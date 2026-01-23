@@ -2,7 +2,7 @@ module Test.WaspBuildStartTest (waspBuildStartTest) where
 
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
 
 -- FIXME: @waspCliBuildStart@ - figure out long lasting processes
@@ -15,19 +15,19 @@ waspBuildStartTest =
         waspCliBuildStartFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Setup: Modify Wasp project to use Postgresql"
-        (withInE2eWaspProjectDir [setWaspDbToPSQL]),
+        (withInTestWaspProjectDir [setWaspDbToPSQL]),
       makeTestCase
         "Should fail inside of a unbuilt Wasp project"
-        (withInE2eWaspProjectDir [waspCliBuildStart "-s DATABASE_URL=none"]),
+        (withInTestWaspProjectDir [waspCliBuildStart "-s DATABASE_URL=none"]),
       makeTestCase
         "Setup: Build the Wasp project"
-        (withInE2eWaspProjectDir [waspCliBuild]),
+        (withInTestWaspProjectDir [waspCliBuild]),
       makeTestCase
         "Should succeed inside of a built Wasp project"
-        (withInE2eWaspProjectDir [waspCliBuildStart "-s DATABASE_URL=none"])
+        (withInTestWaspProjectDir [waspCliBuildStart "-s DATABASE_URL=none"])
     ]
   where
     waspCliBuildStartFails :: ShellCommandBuilder context ShellCommand

@@ -2,7 +2,7 @@ module Test.WaspDbStudioTest (waspDbStudioTest) where
 
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDbStudio)
 
 -- | NOTE: We don't test feature content since it's prisma feature.
@@ -16,10 +16,10 @@ waspDbStudioTest =
         waspCliDbStudioFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInE2eWaspProjectDir [waspCliDbStudio])
+        (withInTestWaspProjectDir [waspCliDbStudio])
     ]
   where
     waspCliDbStudioFails :: ShellCommandBuilder context ShellCommand

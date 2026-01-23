@@ -4,7 +4,7 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import Wasp.Version (waspVersion)
 import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 
@@ -19,10 +19,10 @@ waspDbResetTest =
         waspCliDbResetFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Setup: Add a Task model to prisma and migrate"
-        ( withInE2eWaspProjectDir
+        ( withInTestWaspProjectDir
             [ waspCliCompile,
               appendToPrismaFile taskPrismaModel,
               waspCliDbMigrateDev "foo",
@@ -50,22 +50,22 @@ waspDbResetTest =
       makeTestCase
         "Assert the tasks table is initially empty"
         -- FIXME: find a way without seed commands
-        (withInE2eWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName]),
+        (withInTestWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName]),
       makeTestCase
         "Setup: Add tasks to the tasks table"
         -- FIXME: find a way without seed commands
-        (withInE2eWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName]),
+        (withInTestWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName]),
       makeTestCase
         "Assert the database is no longer empty"
         -- FIXME: find a way without seed commands
-        (withInE2eWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName]),
+        (withInTestWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName]),
       makeTestCase
         "Should reset the database successfully"
-        (withInE2eWaspProjectDir [waspCliDbReset]),
+        (withInTestWaspProjectDir [waspCliDbReset]),
       makeTestCase
         "Assert the tasks table is empty"
         -- FIXME: find a way without seed commands
-        (withInE2eWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName])
+        (withInTestWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName])
     ]
   where
     waspCliDbResetFails :: ShellCommandBuilder context ShellCommand

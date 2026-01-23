@@ -2,7 +2,7 @@ module Test.WaspStudioTest (waspStudioTest) where
 
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliStudio)
 
 -- | NOTE: Once it evolves it will probably have it's own
@@ -18,10 +18,10 @@ waspStudioTest =
         waspCliStudioFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInE2eWaspProjectDir [waspCliStudio])
+        (withInTestWaspProjectDir [waspCliStudio])
     ]
   where
     waspCliStudioFails :: ShellCommandBuilder context ShellCommand

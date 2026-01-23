@@ -2,7 +2,7 @@ module Test.WaspInfoTest (waspInfoTest) where
 
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliInfo)
 
 -- TODO: Test `wasp info` values change properly:
@@ -16,10 +16,10 @@ waspInfoTest =
         waspCliInfoFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Should succeed inside of a Wasp project"
-        (withInE2eWaspProjectDir [waspCliInfo])
+        (withInTestWaspProjectDir [waspCliInfo])
     ]
   where
     waspCliInfoFails :: ShellCommandBuilder context ShellCommand

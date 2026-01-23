@@ -2,7 +2,7 @@ module Test.WaspStartTest (waspStartTest) where
 
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliStart)
 
 -- FIXME: @waspCliStart@ - figure out long lasting processes
@@ -15,19 +15,19 @@ waspStartTest =
         waspCliStartFails,
       makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createE2eWaspProject Minimal),
+        (createTestWaspProject Minimal),
       makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInE2eWaspProjectDir [waspCliStart]),
+        (withInTestWaspProjectDir [waspCliStart]),
       makeTestCase
         "Assert `.wasp` directory exists"
-        (withInE2eWaspProjectDir [assertDirectoryExists ".wasp"]),
+        (withInTestWaspProjectDir [assertDirectoryExists ".wasp"]),
       makeTestCase
         "Assert `node_modules` directory exists"
-        (withInE2eWaspProjectDir [assertDirectoryExists "node_modules"]),
+        (withInTestWaspProjectDir [assertDirectoryExists "node_modules"]),
       makeTestCase
         "Should succeed inside of a compiled Wasp project"
-        (withInE2eWaspProjectDir [waspCliStart])
+        (withInTestWaspProjectDir [waspCliStart])
     ]
   where
     waspCliStartFails :: ShellCommandBuilder context ShellCommand

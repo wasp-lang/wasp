@@ -1,3 +1,7 @@
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE NamedFieldPuns #-}
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Test
   ( Test,
     TestCase,
@@ -15,92 +19,95 @@ import ShellCommands
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
-import Test.FileSystem (TestDir, asWaspProjectDir, getE2eDir, getTestsTempDir, testWaspProjectDirInTestDir)
+import Test.FileSystem (TestDir, asWaspProjectDir, getTestDir, getTestsTempDir, testWaspProjectDirInTestDir)
 import Test.Hspec (Spec, expectationFailure, it, runIO)
-import Test.ShellCommands (E2eTestContext (..))
+import Test.ShellCommands (TestContext (..))
 import Test.Tasty (TestTree)
 import Test.Tasty.Hspec (testSpec)
 import WaspProject.ShellCommands (WaspProjectContext (..))
 
 data Test = Test
-  { _testName :: String,
-    _testCases :: [TestCase]
+  { name :: String,
+    testCases :: [TestCase]
   }
 
 makeTest :: String -> [TestCase] -> Test
-makeTest testName testCases =
+makeTest testName testTestCases =
   Test
-    { _testName = testName,
-      _testCases = testCases
+    { name = testName,
+      testCases = testTestCases
     }
 
 -- | Represent a single test case of some 'Test'.
 data TestCase = TestCase
-  { _testCaseName :: String,
-    _testCaseCommandBuilder :: ShellCommandBuilder E2eTestContext ShellCommand
+  { name :: String,
+    commandBuilder :: ShellCommandBuilder TestContext ShellCommand
   }
 
-makeTestCase :: String -> ShellCommandBuilder E2eTestContext ShellCommand -> TestCase
-makeTestCase testCaseName commandBuilder =
+makeTestCase :: String -> ShellCommandBuilder TestContext ShellCommand -> TestCase
+makeTestCase testCaseName testCaseCommandBuilder =
   TestCase
-    { _testCaseName = testCaseName,
-      _testCaseCommandBuilder = commandBuilder
+    { name = testCaseName,
+      commandBuilder = testCaseCommandBuilder
     }
 
--- | Runs a 'Test' by executing all e2e test cases' shell commands and then checking their exit code.
+-- | Runs a 'Test' by executing all test cases' shell commands and then checking their exit code.
 -- It executes the shell commands while builing the 'Spec'. This is to enforce the sequential execution of test cases.
 runTest :: Test -> IO TestTree
 runTest test = do
-  e2eDir <- getE2eDir (_testName test)
+  testDir <- getTestDir test.name
 
-  setupTest e2eDir
-  createAndExecuteTest e2eDir test
+  setupTest testDir
+  createAndExecuteTest testDir test
 
 setupTest :: Path' Abs (Dir TestDir) -> IO ()
-setupTest e2eDir = do
+setupTest testDir = do
   e2eTestsTempDir <- getTestsTempDir
 
   callCommand $ "mkdir -p " ++ fromAbsDir e2eTestsTempDir
-  callCommand $ "rm -rf " ++ fromAbsDir e2eDir
-  callCommand $ "mkdir " ++ fromAbsDir e2eDir
+  callCommand $ "rm -rf " ++ fromAbsDir testDir
+  callCommand $ "mkdir " ++ fromAbsDir testDir
 
 createAndExecuteTest :: Path' Abs (Dir TestDir) -> Test -> IO TestTree
-createAndExecuteTest e2eDir test = do
-  putStrLn $ "Creating e2e test: " ++ _testName test
+createAndExecuteTest testDir test = do
+  putStrLn $ "Creating test: " ++ test.name
   testSpec
-    (_testName test)
-    (mapM_ (createAndExecuteTestCase e2eDir) (_testCases test))
+    test.name
+    (mapM_ (createAndExecuteTestCase testDir) test.testCases)
 
 createAndExecuteTestCase :: Path' Abs (Dir TestDir) -> TestCase -> Spec
-createAndExecuteTestCase e2eDir e2eTestCase = do
-  runIO $ putStrLn $ "Executing test case: " ++ _testCaseName e2eTestCase
-  runIO $ putStrLn $ "Command: " ++ e2eTestCaseCommand
+createAndExecuteTestCase testDir testCase = do
+  runIO $ putStrLn $ "Executing test case: " ++ testCase.name
+  runIO $ putStrLn $ "Command: " ++ testCaseCommand
   (_, _, _, processHandle) <-
     runIO $
       createProcess
-        (shell e2eTestCaseCommand)
-          { cwd = Just $ fromAbsDir e2eDir,
+        (shell testCaseCommand)
+          { cwd = Just $ fromAbsDir testDir,
             std_in = Inherit,
             std_out = Inherit,
             std_err = Inherit
           }
   exitCode <- runIO $ waitForProcess processHandle
 
-  it (_testCaseName e2eTestCase) $ do
+  it testCase.name $ do
     case exitCode of
-      ExitFailure _ -> expectationFailure $ "Command failed: " ++ e2eTestCaseCommand
+      ExitFailure _ -> expectationFailure $ "Command failed: " ++ testCaseCommand
       ExitSuccess -> return ()
   where
-    e2eTestCaseCommand :: ShellCommand
-    e2eTestCaseCommand = buildShellCommand e2eTestContext (_testCaseCommandBuilder e2eTestCase)
+    testCaseCommand :: ShellCommand
+    testCaseCommand = buildShellCommand testContext testCase.commandBuilder
 
-    e2eTestContext :: E2eTestContext
-    e2eTestContext =
-      E2eTestContext
-        { _e2eDir = e2eDir,
-          _e2eWaspProjectContext =
-            WaspProjectContext
-              { _waspProjectDir = asWaspProjectDir $ e2eDir </> testWaspProjectDirInTestDir "wasp-app",
-                _waspProjectName = "wasp-app"
-              }
+    testContext :: TestContext
+    testContext =
+      TestContext
+        { testDir,
+          waspProjectContext
+        }
+
+    waspProjectContext :: WaspProjectContext
+    waspProjectContext =
+      WaspProjectContext
+        { _waspProjectDir = asWaspProjectDir $ testDir </> testWaspProjectDirInTestDir "wasp-app",
+          _waspProjectName = "wasp-app"
         }

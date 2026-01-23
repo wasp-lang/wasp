@@ -1,7 +1,9 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Test.ShellCommands
-  ( E2eTestContext (..),
-    withInE2eWaspProjectDir,
-    createE2eWaspProject,
+  ( TestContext (..),
+    withInTestWaspProjectDir,
+    createTestWaspProject,
   )
 where
 
@@ -11,26 +13,26 @@ import StrongPath (Abs, Dir, Path', fromAbsDir)
 import Test.FileSystem (TestDir)
 import WaspProject.ShellCommands (WaspProjectContext (..))
 
-data E2eTestContext = E2eTestContext
-  { _e2eDir :: Path' Abs (Dir TestDir),
-    _e2eWaspProjectContext :: WaspProjectContext
+data TestContext = TestContext
+  { testDir :: Path' Abs (Dir TestDir),
+    waspProjectContext :: WaspProjectContext
   }
 
-withInE2eWaspProjectDir ::
+withInTestWaspProjectDir ::
   [ShellCommandBuilder WaspProjectContext ShellCommand] ->
-  ShellCommandBuilder E2eTestContext ShellCommand
-withInE2eWaspProjectDir waspProjectCommandBuilders = do
-  e2eTestContext <- ask
+  ShellCommandBuilder TestContext ShellCommand
+withInTestWaspProjectDir waspProjectCommandBuilders = do
+  testContext <- ask
   return $
-    unwords ["cd", fromAbsDir (_waspProjectDir $ _e2eWaspProjectContext e2eTestContext)]
-      ~&& foldr1 (~&&) (e2eWaspProjectCommands e2eTestContext)
-      ~&& unwords ["cd", fromAbsDir (_e2eDir e2eTestContext)]
+    unwords ["cd", fromAbsDir (_waspProjectDir testContext.waspProjectContext)]
+      ~&& foldr1 (~&&) (testWaspProjectCommands testContext)
+      ~&& unwords ["cd", fromAbsDir testContext.testDir]
   where
-    e2eWaspProjectCommands :: E2eTestContext -> [ShellCommand]
-    e2eWaspProjectCommands e2eTestContext =
-      buildShellCommand (_e2eWaspProjectContext e2eTestContext) $ sequence waspProjectCommandBuilders
+    testWaspProjectCommands :: TestContext -> [ShellCommand]
+    testWaspProjectCommands testContext =
+      buildShellCommand testContext.waspProjectContext $ sequence waspProjectCommandBuilders
 
-createE2eWaspProject :: WaspNewTemplate -> ShellCommandBuilder E2eTestContext ShellCommand
-createE2eWaspProject template = do
-  e2eTestContext <- ask
-  waspCliNew (_waspProjectName $ _e2eWaspProjectContext e2eTestContext) template
+createTestWaspProject :: WaspNewTemplate -> ShellCommandBuilder TestContext ShellCommand
+createTestWaspProject template = do
+  testContext <- ask
+  waspCliNew (_waspProjectName testContext.waspProjectContext) template
