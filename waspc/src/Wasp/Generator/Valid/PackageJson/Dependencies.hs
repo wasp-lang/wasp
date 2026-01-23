@@ -10,56 +10,15 @@ module Wasp.Generator.Valid.PackageJson.Dependencies
 where
 
 import qualified Data.Map as M
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.DepVersions
-  ( expressTypesVersion,
-    prismaVersion,
-    reactDomTypesVersion,
-    reactDomVersion,
-    reactRouterVersion,
-    reactTypesVersion,
-    reactVersion,
-    typescriptVersion,
-    viteVersion,
-  )
+import qualified Wasp.Generator.Valid.PackageJson.Common as C
 import qualified Wasp.Generator.Valid.Validator as V
 
 data DependencyType = Runtime | Development deriving (Show)
 
-type DependencySpecification = (P.PackageName, P.PackageVersion)
-
-requiredRuntimeDeps :: [DependencySpecification]
-requiredRuntimeDeps =
-  [ -- Installing the wrong version of "react-router-dom" can make users believe that they
-    -- can use features that are not available in the version that Wasp supports.
-    ("react-router-dom", show reactRouterVersion),
-    ("react", show reactVersion),
-    ("react-dom", show reactDomVersion)
-  ]
-
-requiredDevelopmentDeps :: [DependencySpecification]
-requiredDevelopmentDeps =
-  [ ("vite", show viteVersion),
-    ("prisma", show prismaVersion)
-  ]
-
-optionalDeps :: [DependencySpecification]
-optionalDeps =
-  [ ("typescript", show typescriptVersion),
-    ("@types/react", show reactTypesVersion),
-    ("@types/react-dom", show reactDomTypesVersion),
-    ("@types/express", show expressTypesVersion)
-  ]
-
-forbiddenDeps :: [P.PackageName]
-forbiddenDeps =
-  [ -- The `wasp` package is used in the `workspaces` field of the user's package.json.
-    -- It shouldn't be listed as a dependency so it's not overwritten.
-    "wasp"
-  ]
-
-dependenciesValidator :: V.Validator P.PackageJson
-dependenciesValidator =
+dependenciesValidator :: AS.AppSpec -> V.Validator P.PackageJson
+dependenciesValidator spec =
   V.all
     [ runtimeDepsValidator,
       developmentDepsValidator,
@@ -69,18 +28,18 @@ dependenciesValidator =
   where
     runtimeDepsValidator :: V.Validator P.PackageJson
     runtimeDepsValidator =
-      V.all $ makeRequiredDepValidator Runtime <$> requiredRuntimeDeps
+      V.all $ makeRequiredDepValidator Runtime <$> C.requiredUserRuntimeDeps
 
     developmentDepsValidator :: V.Validator P.PackageJson
     developmentDepsValidator =
-      V.all $ makeRequiredDepValidator Development <$> requiredDevelopmentDeps
+      V.all $ makeRequiredDepValidator Development <$> C.requiredUserDevelopmentDeps
 
     optionalDepsValidator :: V.Validator P.PackageJson
     optionalDepsValidator =
       V.all $
         [ makeOptionalDepValidator depType dep
           | depType <- [Runtime, Development],
-            dep <- optionalDeps
+            dep <- M.toList $ C.allCheckedDeps spec
         ]
 
     forbiddenDepsValidator :: V.Validator P.PackageJson
@@ -88,14 +47,14 @@ dependenciesValidator =
       V.all $
         [ makeForbiddenDepValidator depType pkgName
           | depType <- [Runtime, Development],
-            pkgName <- forbiddenDeps
+            pkgName <- C.forbiddenUserDeps
         ]
 
 -- | Validates that a required dependency is present in the correct dependency
 -- list with the correct version. It shows an appropriate error message
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
-makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
+makeRequiredDepValidator :: DependencyType -> C.DependencySpecification -> V.Validator P.PackageJson
 makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
   inOppositeDepList notPresentValidator
     `V.and` inCorrectDepList correctVersionValidator
@@ -137,7 +96,7 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
 
 -- | Validates that an optional dependency is either not present, or present
 -- with the correct version.
-makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
+makeOptionalDepValidator :: DependencyType -> C.DependencySpecification -> V.Validator P.PackageJson
 makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
   inDependency depType pkgName optionalVersionValidator
   where
