@@ -7,7 +7,6 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Generator.DepVersions as DepVersions
 import qualified Wasp.Generator.NpmDependencies as N
-import qualified Wasp.Generator.SdkGenerator as Sdk
 import qualified Wasp.Generator.ServerGenerator as Server
 import qualified Wasp.Generator.WebAppGenerator as WebApp
 
@@ -50,20 +49,19 @@ forbiddenUserDeps =
     "wasp"
   ]
 
--- | Given an AppSpec, returns a Map of all dependencies used across the entire
--- Wasp project (user-specified, SDK, webapp, and server). This ensures no
--- package version conflicts occur between different parts of the generated code.
+-- | Given an AppSpec, returns a Map of all dependencies used across the
+-- top-level projects (user, webapp, and server -- not the SDK since that can
+-- use its own dependencies). This ensures no package version conflicts occur
+-- between different parts of the generated code.
 getAllWaspDependencies :: AS.AppSpec -> Map P.PackageName P.PackageVersion
 getAllWaspDependencies spec =
   M.fromListWithKey dedupeVersions $
     requiredUserRuntimeDeps
       <> requiredUserDevelopmentDeps
       <> optionalUserDeps
-      <> sdkDeps
       <> webAppDeps
       <> serverDeps
   where
-    sdkDeps = getAllDepsFromPackage $ Sdk.npmDepsForSdk spec
     webAppDeps = getAllDepsFromPackage $ N.fromWasp $ WebApp.npmDepsFromWasp spec
     serverDeps = getAllDepsFromPackage $ N.fromWasp $ Server.npmDepsFromWasp spec
 
