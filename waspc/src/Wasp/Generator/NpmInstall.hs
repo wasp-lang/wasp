@@ -8,7 +8,6 @@ import Control.Concurrent.Async (concurrently)
 import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import Data.Function ((&))
 import Data.Functor ((<&>))
 import qualified Data.Text as T
 import StrongPath (Abs, Dir, Path')
@@ -40,7 +39,7 @@ installNpmDependenciesWithInstallRecord ::
 installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
   messagesChan <- liftIO newChan
 
-  allNpmDeps <- getAllNpmDeps spec & onLeftThrowError
+  let allNpmDeps = getAllNpmDeps spec
 
   shouldInstallNpmDeps <-
     liftIO $

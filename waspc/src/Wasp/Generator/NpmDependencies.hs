@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.Generator.NpmDependencies
@@ -30,32 +31,20 @@ data NpmDepsForFramework = NpmDepsForFramework
   { npmDepsForServer :: NpmDepsForPackage,
     npmDepsForWebApp :: NpmDepsForPackage
   }
-  deriving (Show, Eq, Generic)
-
-instance ToJSON NpmDepsForFramework
-
-instance FromJSON NpmDepsForFramework
+  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
     devDependencies :: [D.Dependency],
     peerDependencies :: [D.Dependency]
   }
-  deriving (Show, Generic)
-
-instance ToJSON NpmDepsForPackage
-
-instance FromJSON NpmDepsForPackage
+  deriving (Show, Generic, ToJSON, FromJSON)
 
 newtype NpmDepsFromWasp = NpmDepsFromWasp {fromWasp :: NpmDepsForPackage}
   deriving (Show)
 
 newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
-  deriving (Show, Eq, Generic)
-
-instance ToJSON NpmDepsFromUser
-
-instance FromJSON NpmDepsFromUser
+  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 -- | Ensures there are no conflicts between Wasp's dependencies and user's dependencies,
 -- while allowing overrides for packages listed in overriddenDepNames.
@@ -98,13 +87,12 @@ mergeWithUserOverrides overriddenDepNames (NpmDepsFromWasp waspPkg) (NpmDepsFrom
               overriddenDepNames
        in Map.elems mergedMap
 
-buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> Either String NpmDepsForFramework
+buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> NpmDepsForFramework
 buildWaspFrameworkNpmDeps spec fromServer fromWebApp =
-  Right $
-    NpmDepsForFramework
-      { npmDepsForServer = mergeWithUserOverrides overriddenDepNames fromServer userDeps,
-        npmDepsForWebApp = mergeWithUserOverrides overriddenDepNames fromWebApp userDeps
-      }
+  NpmDepsForFramework
+    { npmDepsForServer = mergeWithUserOverrides overriddenDepNames fromServer userDeps,
+      npmDepsForWebApp = mergeWithUserOverrides overriddenDepNames fromWebApp userDeps
+    }
   where
     overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)
     userDeps = getUserNpmDepsForPackage spec
