@@ -1,7 +1,7 @@
 module Test.WaspTelemetryTest (waspTelemetryTest) where
 
 import ShellCommands (waspCliTelemetry, (~|))
-import Test (Test, makeTestCase, makeTest)
+import Test (Test, makeTest, makeTestCase)
 
 waspTelemetryTest :: Test
 waspTelemetryTest =
