@@ -156,7 +156,7 @@ generatePackageJson newProjectDetails =
         "dependencies": {
           "react": "^19.2.1",
           "react-dom": "^19.2.1",
-          "react-router-dom": "^7.10.1",
+          "react-router-dom": "^7.12.0",
           "tailwindcss": "^4.1.18"
         },
         "devDependencies": {

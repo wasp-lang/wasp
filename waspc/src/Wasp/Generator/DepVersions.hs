@@ -45,7 +45,7 @@ reactDomTypesVersion :: SV.ComparatorSet
 reactDomTypesVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 3
 
 reactRouterVersion :: SV.ComparatorSet
-reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 7 10 1
+reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 7 12 0
 
 -- TODO: Update react query and express to use Wasp.SemanticVersion when we'll
 -- have support for patch versions https://github.com/wasp-lang/wasp/issues/2941
