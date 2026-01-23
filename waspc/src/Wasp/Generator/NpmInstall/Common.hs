@@ -29,7 +29,7 @@ getAllNpmDeps :: AppSpec -> Either String AllNpmDeps
 getAllNpmDeps spec =
   let userNpmDeps = N.getUserNpmDepsForPackage spec
       errorOrWaspFrameworkNpmDeps =
-        N.buildWaspFrameworkNpmDeps spec (SG.npmDepsFromWasp spec) (WG.npmDepsFromWasp spec)
+        N.buildWaspFrameworkNpmDeps (SG.npmDepsFromWasp spec) (WG.npmDepsFromWasp spec)
       waspSdkNpmDeps = SdkGenerator.npmDepsForSdk spec
    in case errorOrWaspFrameworkNpmDeps of
         Left message -> Left $ "determining npm deps to install failed: " ++ message
