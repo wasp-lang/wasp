@@ -22,7 +22,6 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFd,
     mkTmplFdWithData,
   )
-
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
 import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Util ((<++>))
