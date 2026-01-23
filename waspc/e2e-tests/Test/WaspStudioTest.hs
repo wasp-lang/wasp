@@ -1,27 +1,27 @@
-module EphemeralTest.WaspStudioEphemeralTest (waspStudioEphemeralTest) where
+module Test.WaspStudioTest (waspStudioTest) where
 
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import Test (Test, makeTest, makeTestCase)
+import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
 import WaspProject.ShellCommands (waspCliStudio)
 
--- | NOTE: Once it evolves it will probably have it’s own
+-- | NOTE: Once it evolves it will probably have it's own
 -- playwright tests inside of the TS package.
 -- So we will tests just that the command works.
 -- FIXME: @waspCliStudio@ - figure out long lasting processes
-waspStudioEphemeralTest :: EphemeralTest
-waspStudioEphemeralTest =
-  makeEphemeralTest
+waspStudioTest :: Test
+waspStudioTest =
+  makeTest
     "wasp-studio"
-    [ makeEphemeralTestCase
+    [ makeTestCase
         "Should fail outside of a Wasp project"
         waspCliStudioFails,
-      makeEphemeralTestCase
+      makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createEphemeralWaspProject Minimal),
-      makeEphemeralTestCase
+        (createE2eWaspProject Minimal),
+      makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliStudio])
+        (withInE2eWaspProjectDir [waspCliStudio])
     ]
   where
     waspCliStudioFails :: ShellCommandBuilder context ShellCommand

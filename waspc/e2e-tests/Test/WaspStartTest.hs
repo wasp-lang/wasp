@@ -1,33 +1,33 @@
-module EphemeralTest.WaspStartEphemeralTest (waspStartEphemeralTest) where
+module Test.WaspStartTest (waspStartTest) where
 
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import Test (Test, makeTest, makeTestCase)
+import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
 import WaspProject.ShellCommands (waspCliStart)
 
 -- FIXME: @waspCliStart@ - figure out long lasting processes
-waspStartEphemeralTest :: EphemeralTest
-waspStartEphemeralTest =
-  makeEphemeralTest
+waspStartTest :: Test
+waspStartTest =
+  makeTest
     "wasp-start"
-    [ makeEphemeralTestCase
+    [ makeTestCase
         "Should fail outside of a Wasp project"
         waspCliStartFails,
-      makeEphemeralTestCase
+      makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createEphemeralWaspProject Minimal),
-      makeEphemeralTestCase
+        (createE2eWaspProject Minimal),
+      makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliStart]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [waspCliStart]),
+      makeTestCase
         "Assert `.wasp` directory exists"
-        (withInEphemeralWaspProjectDir [assertDirectoryExists ".wasp"]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [assertDirectoryExists ".wasp"]),
+      makeTestCase
         "Assert `node_modules` directory exists"
-        (withInEphemeralWaspProjectDir [assertDirectoryExists "node_modules"]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [assertDirectoryExists "node_modules"]),
+      makeTestCase
         "Should succeed inside of a compiled Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliStart])
+        (withInE2eWaspProjectDir [waspCliStart])
     ]
   where
     waspCliStartFails :: ShellCommandBuilder context ShellCommand

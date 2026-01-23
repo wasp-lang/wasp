@@ -1,28 +1,26 @@
-module EphemeralTest.WaspDbResetEphemeralTest (waspDbResetEphemeralTest) where
+module Test.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import Test (Test, makeTest, makeTestCase)
+import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
 import Wasp.Version (waspVersion)
-import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
+import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
 
--- | We include a seeding script as part of the ephemeral test,
--- because Wasp skips the seeding during the reset (unlike Prisma).
-waspDbResetEphemeralTest :: EphemeralTest
-waspDbResetEphemeralTest =
-  makeEphemeralTest
-    "wasp-db-reset"
-    [ makeEphemeralTestCase
+waspDbSeedTest :: Test
+waspDbSeedTest =
+  makeTest
+    "wasp-db-seed"
+    [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliDbResetFails,
-      makeEphemeralTestCase
+        waspCliDbSeedFails,
+      makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createEphemeralWaspProject Minimal),
-      makeEphemeralTestCase
+        (createE2eWaspProject Minimal),
+      makeTestCase
         "Setup: Add a Task model to prisma and migrate"
-        ( withInEphemeralWaspProjectDir
+        ( withInE2eWaspProjectDir
             [ waspCliCompile,
               appendToPrismaFile taskPrismaModel,
               waspCliDbMigrateDev "foo",
@@ -38,7 +36,7 @@ waspDbResetEphemeralTest =
               replaceMainWaspFile mainWaspWithSeeds
             ]
         ),
-      -- Both in 'WaspDbResetEphemeralTest.hs' and in `WaspDbSeedEphemeralTest.hs`
+      -- Both in 'WaspDbResetTest.hs' and in `WaspDbSeedTest.hs`
       -- I have the following comments with `FIXME`.
       -- This is because I needed access database to either do some action or assert state.
       -- I didn't want to bring in any extra dependencies.
@@ -47,29 +45,21 @@ waspDbResetEphemeralTest =
       -- They can only return the exit code, but that is enough.
       -- An alternative would be to directly use the `npx prisma execute` from the server files,
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
-      makeEphemeralTestCase
+      makeTestCase
         "Assert the tasks table is initially empty"
         -- FIXME: find a way without seed commands
-        (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName]),
-      makeEphemeralTestCase
-        "Setup: Add tasks to the tasks table"
-        -- FIXME: find a way without seed commands
-        (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName]),
+      makeTestCase
+        "Should seed the database successfully"
+        (withInE2eWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName]),
+      makeTestCase
         "Assert the database is no longer empty"
         -- FIXME: find a way without seed commands
-        (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName]),
-      makeEphemeralTestCase
-        "Should reset the database successfully"
-        (withInEphemeralWaspProjectDir [waspCliDbReset]),
-      makeEphemeralTestCase
-        "Assert the tasks table is empty"
-        -- FIXME: find a way without seed commands
-        (withInEphemeralWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName])
+        (withInE2eWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName])
     ]
   where
-    waspCliDbResetFails :: ShellCommandBuilder context ShellCommand
-    waspCliDbResetFails = return "! wasp-cli db reset"
+    waspCliDbSeedFails :: ShellCommandBuilder context ShellCommand
+    waspCliDbSeedFails = return "! wasp-cli db seed"
 
     taskPrismaModel :: T.Text
     taskPrismaModel =
@@ -111,7 +101,7 @@ waspDbResetEphemeralTest =
     seedScriptThatPopulatesTasksTable =
       [trimming|
         import { prisma } from 'wasp/server'
-        
+
         export async function $seedScriptThatPopulatesTasksTableName() {
           await prisma.task.create({
             data: { description: 'Test task', isDone: false }
@@ -124,7 +114,7 @@ waspDbResetEphemeralTest =
     seedScriptThatAssertsTasksTableIsEmpty =
       [trimming|
         import { prisma } from 'wasp/server'
-        
+
         export async function $seedScriptThatAssertsTasksTableIsEmptyName() {
           const taskCount = await prisma.task.count()
           if (taskCount !== 0) {
@@ -138,7 +128,7 @@ waspDbResetEphemeralTest =
     seedScriptThatAssertsTasksTableIsNotEmpty =
       [trimming|
         import { prisma } from 'wasp/server'
-        
+
         export async function $seedScriptThatAssertsTasksTableIsNotEmptyName() {
           const taskCount = await prisma.task.count()
           if (taskCount === 0) {

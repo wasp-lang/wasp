@@ -1,25 +1,25 @@
-module EphemeralTest.WaspDbStudioEphemeralTest (waspDbStudioEphemeralTest) where
+module Test.WaspDbStudioTest (waspDbStudioTest) where
 
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import Test (Test, makeTest, makeTestCase)
+import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDbStudio)
 
 -- | NOTE: We don't test feature content since it's prisma feature.
 -- FIXME: @waspCliDbStudio@ - figure out long lasting processes
-waspDbStudioEphemeralTest :: EphemeralTest
-waspDbStudioEphemeralTest =
-  makeEphemeralTest
+waspDbStudioTest :: Test
+waspDbStudioTest =
+  makeTest
     "wasp-db-studio"
-    [ makeEphemeralTestCase
+    [ makeTestCase
         "Should fail outside of a Wasp project"
         waspCliDbStudioFails,
-      makeEphemeralTestCase
+      makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createEphemeralWaspProject Minimal),
-      makeEphemeralTestCase
+        (createE2eWaspProject Minimal),
+      makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliDbStudio])
+        (withInE2eWaspProjectDir [waspCliDbStudio])
     ]
   where
     waspCliDbStudioFails :: ShellCommandBuilder context ShellCommand

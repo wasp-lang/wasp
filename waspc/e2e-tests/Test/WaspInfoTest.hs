@@ -1,25 +1,25 @@
-module EphemeralTest.WaspInfoEphemeralTest (waspInfoEphemeralTest) where
+module Test.WaspInfoTest (waspInfoTest) where
 
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import Test (Test, makeTest, makeTestCase)
+import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
 import WaspProject.ShellCommands (waspCliInfo)
 
 -- TODO: Test `wasp info` values change properly:
 -- name, database, project dir size, last compile.
-waspInfoEphemeralTest :: EphemeralTest
-waspInfoEphemeralTest =
-  makeEphemeralTest
+waspInfoTest :: Test
+waspInfoTest =
+  makeTest
     "wasp-info"
-    [ makeEphemeralTestCase
+    [ makeTestCase
         "Should fail outside of a Wasp project"
         waspCliInfoFails,
-      makeEphemeralTestCase
+      makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createEphemeralWaspProject Minimal),
-      makeEphemeralTestCase
+        (createE2eWaspProject Minimal),
+      makeTestCase
         "Should succeed inside of a Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliInfo])
+        (withInE2eWaspProjectDir [waspCliInfo])
     ]
   where
     waspCliInfoFails :: ShellCommandBuilder context ShellCommand

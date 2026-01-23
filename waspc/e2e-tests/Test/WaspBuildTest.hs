@@ -1,36 +1,36 @@
-module EphemeralTest.WaspBuildEphemeralTest (waspBuildEphemeralTest) where
+module Test.WaspBuildTest (waspBuildTest) where
 
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import Test (Test, makeTest, makeTestCase)
+import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliBuild)
 
-waspBuildEphemeralTest :: EphemeralTest
-waspBuildEphemeralTest =
-  makeEphemeralTest
+waspBuildTest :: Test
+waspBuildTest =
+  makeTest
     "wasp-build"
-    [ makeEphemeralTestCase
+    [ makeTestCase
         "Should fail outside of a Wasp project"
         waspCliBuildFails,
-      makeEphemeralTestCase
+      makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createEphemeralWaspProject Minimal),
-      makeEphemeralTestCase
+        (createE2eWaspProject Minimal),
+      makeTestCase
         "Should fail inside of a SQLite Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliBuildFails]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [waspCliBuildFails]),
+      makeTestCase
         "Setup: Modify Wasp project to use Postgresql"
-        (withInEphemeralWaspProjectDir [setWaspDbToPSQL]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [setWaspDbToPSQL]),
+      makeTestCase
         "Should succeed inside of a Postgresql Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliBuild]),
+        (withInE2eWaspProjectDir [waspCliBuild]),
       -- `wasp build` should also compile the project.
-      makeEphemeralTestCase
+      makeTestCase
         "Assert `.wasp` directory exists"
-        (withInEphemeralWaspProjectDir [assertDirectoryExists ".wasp"]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [assertDirectoryExists ".wasp"]),
+      makeTestCase
         "Assert `node_modules` directory exists"
-        (withInEphemeralWaspProjectDir [assertDirectoryExists "node_modules"])
+        (withInE2eWaspProjectDir [assertDirectoryExists "node_modules"])
     ]
   where
     waspCliBuildFails :: ShellCommandBuilder context ShellCommand

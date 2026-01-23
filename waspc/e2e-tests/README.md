@@ -17,26 +17,26 @@ In addition to applications, we also cover secondary outputs, such as the instal
 
 `waspc e2e-tests` consist of two different tests variants:
 
-1. **Ephemeral Tests**: tests whose output we don't need to save
+1. **Tests**: tests whose output we don't need to save
 2. **Snapshot Tests**: tests whose output we want to save
 
-### Ephemeral tests
+### Tests
 
 We test Wasp CLI commands whose outputs we can discard.
 
-Ephemeral tests **sequentially execute their test cases** in the `EhpemeralDir`.
-Ther `EhpemeralDir`s are created in the `waspc/e2e-tests/EphemeralTest/temp/` diectory.
-While the exact files within a `EhpemeralDir` aren’t strictly defined, they usually have the following structure:
+Tests **sequentially execute their test cases** in the `Test`.
+The `Test`s are created in the `waspc/e2e-tests/Test/temp/` diectory.
+While the exact files within a `Test` aren't strictly defined, they usually have the following structure:
 
 ```yaml
 # Where:
-#   `<name>` = the ephemeral test's name.
+#   `<name>` = the test's name.
 
 e2e-tests/
-└── EphemeralTest/
+└── Test/
     └── temp/
-        └── <name>/  # ephemeral dirctory, e.g. `wasp-info`
-            ├── wasp-app/ # contains the Wasp app for that ephemeral test
+        └── <name>/  # test dirctory, e.g. `wasp-info`
+            ├── wasp-app/ # contains the Wasp app for that test
             └── ...
 ```
 
@@ -54,7 +54,7 @@ For more details, check out the `waspc/e2e-tests/SnapshotTest.hs` file.
 
 Snapshot tests are executed in the `SnapshotDir`.
 The `SnapshotDir`s are created in the `waspc/e2e-tests/SnapshotTest/snapshots/` directory.
-While the exact files within a snapshot aren’t strictly defined, they usually have the following structure:
+While the exact files within a snapshot aren't strictly defined, they usually have the following structure:
 
 ```yaml
 # Where:

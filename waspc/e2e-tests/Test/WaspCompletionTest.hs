@@ -1,24 +1,24 @@
-module EphemeralTest.WaspCompletionEphemeralTest (waspCompletionEphemeralTest) where
+module Test.WaspCompletionTest (waspCompletionTest) where
 
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import ShellCommands (ShellCommand, ShellCommandBuilder, (~&&))
+import Test (Test, makeTest, makeTestCase)
 
-waspCompletionEphemeralTest :: EphemeralTest
-waspCompletionEphemeralTest =
-  makeEphemeralTest
+waspCompletionTest :: Test
+waspCompletionTest =
+  makeTest
     "wasp-completion"
     [ -- Ideally we would test this without calling `wasp cli completion:list`
       -- but I didn't find a nice way to do it so far.
-      makeEphemeralTestCase
+      makeTestCase
         "Should complete part of word: 'wasp tele' ~> 'telemetry'"
         (assertWaspCliCompletion "wasp-cli tele" "telemetry"),
-      makeEphemeralTestCase
+      makeTestCase
         "Should complete full word: 'wasp telemetry' ~> 'telemetry'"
         (assertWaspCliCompletion "wasp-cli telemetry" "telemetry"),
-      makeEphemeralTestCase
+      makeTestCase
         "Should complete multiple choice: 'wasp d' ~> 'db' | 'deploy' | 'deps' | 'dockerfile'"
         (assertWaspCliCompletion "wasp-cli d" "db\ndeploy\ndeps\ndockerfile"),
-      makeEphemeralTestCase
+      makeTestCase
         "Should reutrn empty string for unknown completion: 'wasp unknown' ~> ''"
         (assertWaspCliCompletion "wasp-cli unknown" "")
     ]

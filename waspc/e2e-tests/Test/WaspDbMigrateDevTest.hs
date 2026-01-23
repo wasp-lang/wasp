@@ -1,12 +1,12 @@
-module EphemeralTest.WaspDbMigrateDevEphemeralTest (waspDbMigrateDevEphemeralTest) where
+module Test.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 
 import Control.Monad.Reader (MonadReader (ask))
 import qualified Data.Text as T
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
-import EphemeralTest.ShellCommands (createEphemeralWaspProject, withInEphemeralWaspProjectDir)
 import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..), (~&&))
 import StrongPath (fromAbsDir, (</>))
+import Test (Test, makeTest, makeTestCase)
+import Test.ShellCommands (createE2eWaspProject, withInE2eWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
@@ -19,30 +19,30 @@ import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 import WaspProject.ShellCommands (WaspProjectContext (..), appendToPrismaFile, waspCliDbMigrateDev)
 
 -- | TODO: Test on all databases (e.g. Postgresql)
-waspDbMigrateDevEphemeralTest :: EphemeralTest
-waspDbMigrateDevEphemeralTest =
-  makeEphemeralTest
+waspDbMigrateDevTest :: Test
+waspDbMigrateDevTest =
+  makeTest
     "wasp-db-migrate-dev"
-    [ makeEphemeralTestCase
+    [ makeTestCase
         "Should fail outside of a Wasp project"
         waspCliDbMigrateDevFails,
-      makeEphemeralTestCase
+      makeTestCase
         "Setup: Create Wasp project from minimal starter"
-        (createEphemeralWaspProject Minimal),
-      makeEphemeralTestCase
+        (createE2eWaspProject Minimal),
+      makeTestCase
         "Should succeed when migrations up to date inside of a Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliDbMigrateDev "no_migration"]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [waspCliDbMigrateDev "no_migration"]),
+      makeTestCase
         "Setup: Add a Task model to prisma"
-        ( withInEphemeralWaspProjectDir
+        ( withInE2eWaspProjectDir
             [appendToPrismaFile taskPrismaModel]
         ),
-      makeEphemeralTestCase
+      makeTestCase
         "Should succeed creating a new migration inside of a Wasp project"
-        (withInEphemeralWaspProjectDir [waspCliDbMigrateDev "yes_migration"]),
-      makeEphemeralTestCase
+        (withInE2eWaspProjectDir [waspCliDbMigrateDev "yes_migration"]),
+      makeTestCase
         "Assert migration directories exists"
-        (withInEphemeralWaspProjectDir [assertMigrationDirsExist "yes_migration"])
+        (withInE2eWaspProjectDir [assertMigrationDirsExist "yes_migration"])
     ]
   where
     waspCliDbMigrateDevFails :: ShellCommandBuilder context ShellCommand

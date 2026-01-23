@@ -1,14 +1,14 @@
-module EphemeralTest.WaspVersionEphemeralTest (waspVersionEphemeralTest) where
+module Test.WaspVersionTest (waspVersionTest) where
 
-import EphemeralTest (EphemeralTest, makeEphemeralTest, makeEphemeralTestCase)
 import ShellCommands (waspCliVersion, (~|))
+import Test (Test, makeTest, makeTestCase)
 import Wasp.Version (waspVersion)
 
-waspVersionEphemeralTest :: EphemeralTest
-waspVersionEphemeralTest =
-  makeEphemeralTest
+waspVersionTest :: Test
+waspVersionTest =
+  makeTest
     "wasp-version"
-    [ makeEphemeralTestCase
+    [ makeTestCase
         "Should match the `waspc` project Wasp version"
         ((~| ("{ read ver; [ \"$ver\" = '" ++ show waspVersion ++ "' ]; }")) . (~| "head -n1") <$> waspCliVersion)
     ]
