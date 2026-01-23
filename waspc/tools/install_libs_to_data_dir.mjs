@@ -9,61 +9,75 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
+  readFileSync,
   rmSync,
 } from "node:fs";
-import { readFile } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const waspcDir = fileURLToPath(new URL("..", import.meta.url));
-const dataLibsDir = join(waspcDir, "data", "Generator", "libs");
+const waspcDirPath = fileURLToPath(new URL("..", import.meta.url));
+const dataLibsDirPath = join(waspcDirPath, "data", "Generator", "libs");
+const waspcVersion = getWaspcVersion();
 
 main();
 
-async function main() {
-  const waspcVersion = getWaspcVersion();
-  console.log(`Wasp version: ${waspcVersion}`);
-
+function main() {
   cleanupOldLibs();
-  await buildAndCopyLibs(waspcVersion);
-}
-
-function getWaspcVersion() {
-  const scriptPath = fileURLToPath(
-    new URL("./get-waspc-version.mjs", import.meta.url),
-  );
-  return runCmd("node", [scriptPath]).trim();
+  buildAndCopyLibs();
 }
 
 function cleanupOldLibs() {
-  if (existsSync(dataLibsDir)) {
-    rmSync(dataLibsDir, { recursive: true, force: true });
+  if (existsSync(dataLibsDirPath)) {
+    rmSync(dataLibsDirPath, { recursive: true, force: true });
   }
-  mkdirSync(dataLibsDir, { recursive: true });
+  mkdirSync(dataLibsDirPath, { recursive: true });
 }
 
-async function buildAndCopyLibs(/** @type {string} */ waspcVersion) {
-  const libsDir = join(waspcDir, "libs");
-  const libDirs = readdirSync(libsDir, { withFileTypes: true })
+function buildAndCopyLibs() {
+  const libsDirPath = join(waspcDirPath, "libs");
+  const libDirs = readdirSync(libsDirPath, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => join(libsDir, dirent.name));
+    .map((dirent) => join(libsDirPath, dirent.name));
 
   for (const libDir of libDirs) {
-    await buildAndCopyLib(libDir, waspcVersion);
+    buildAndCopyLib(libDir);
   }
 }
 
-async function buildAndCopyLib(
-  /** @type {string} */ libDir,
-  /** @type {string} */ waspcVersion,
-) {
+function buildAndCopyLib(/** @type {string} */ libDir) {
+  const { name: libName, version: libVersion } = getLibPackageJson(libDir);
+
+  assertLibVersionValid(libName, libVersion);
+
+  console.log(`Building ${libName} lib (${libDir})`);
+
+  runCmd("npm", ["install"], { cwd: libDir });
+
+  const oldTarballs = getTarballsInDir(libDir);
+  for (const tarballFileName of oldTarballs) {
+    rmSync(join(libDir, tarballFileName));
+  }
+
+  runCmd("npm", ["pack"], { cwd: libDir });
+
+  const newTarballs = getTarballsInDir(libDir);
+  for (const tarballFileName of newTarballs) {
+    copyFileSync(
+      join(libDir, tarballFileName),
+      join(dataLibsDirPath, tarballFileName),
+    );
+  }
+}
+
+function getLibPackageJson(/** @type {string} */ libDir) {
   const packageJsonPath = join(libDir, "package.json");
-  const packageJson = JSON.parse(await readFile(packageJsonPath, "utf-8"));
-  const libName = packageJson.name;
-  const libVersion = packageJson.version;
+  return JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+}
 
-  console.log(`Installing ${libName} lib (${libDir})`);
-
+function assertLibVersionValid(
+  /** @type {string} */ libName,
+  /** @type {string} */ libVersion,
+) {
   if (libVersion !== waspcVersion) {
     console.error(
       `ERROR: ${libName} lib version (${libVersion}) != current Wasp version (${waspcVersion}).`,
@@ -73,33 +87,27 @@ async function buildAndCopyLib(
     );
     throw new Error();
   }
+}
 
-  runCmd("npm", ["install"], { cwd: libDir });
+function getTarballsInDir(/** @type {string} */ dir) {
+  return readdirSync(dir).filter((f) => f.endsWith(".tgz"));
+}
 
-  // Clean up old lib tarballs.
-  const oldTarballs = readdirSync(libDir).filter((f) => f.endsWith(".tgz"));
-  for (const tarball of oldTarballs) {
-    rmSync(join(libDir, tarball));
-  }
-
-  runCmd("npm", ["pack"], { cwd: libDir });
-
-  // Copy the new tarball to data dir.
-  const newTarballs = readdirSync(libDir).filter((f) => f.endsWith(".tgz"));
-  for (const tarball of newTarballs) {
-    copyFileSync(join(libDir, tarball), join(dataLibsDir, tarball));
-  }
+function getWaspcVersion() {
+  return runCmd("node", [join("tools", "get-waspc-version.mjs")], {
+    cwd: waspcDirPath,
+  }).trim();
 }
 
 function runCmd(
   /** @type {string} */ cmd,
   /** @type {string[]} */ args,
-  { cwd = waspcDir } = {},
+  /** @type {{ cwd: string }} */ { cwd },
 ) {
   return execFileSync(cmd, args, {
     cwd,
     encoding: "utf-8",
+    // Required for Windows to find `npm` and `node`.
     shell: true,
-    stdio: ["ignore", "pipe", "inherit"],
   });
 }
