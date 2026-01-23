@@ -11,8 +11,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromJust, fromMaybe)
-import StrongPath (File', Path, Posix, Rel, reldir, relfile, relfileP, (</>))
-import qualified StrongPath as SP
+import StrongPath (Dir', File', Path, Path', Posix, Rel, fromRelFileP, parseRelFile, reldir, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.JSON as AS.JSON
@@ -24,8 +23,13 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (makeSdkImportPath)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
+  ( SdkTemplatesDir,
+    makeSdkImportPath,
+    mkTmplFd,
+    mkTmplFdWithData,
+    mkTmplFdWithDstAndData,
+  )
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util
@@ -43,9 +47,9 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ C.mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = [relfile|server/jobs/index.ts|]
+    tmplFile = serverJobsDirInSdkTemplatesDir </> [relfile|index.ts|]
     tmplData = object ["jobs" .= map getJobTmplData jobs]
     getJobTmplData (jobName, _) =
       object
@@ -55,15 +59,15 @@ genIndexTs jobs =
 
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
-  return $ C.mkTmplFdWithDstAndData tmplFile destFile (Just tmplData)
+  return $ mkTmplFdWithDstAndData tmplFile destFile (Just tmplData)
   where
-    destFile = [reldir|server/jobs|] </> fromJust (SP.parseRelFile $ jobName ++ ".ts")
-    tmplFile = [relfile|server/jobs/_job.ts|]
+    destFile = [reldir|server/jobs|] </> fromJust (parseRelFile $ jobName ++ ".ts")
+    tmplFile = serverJobsDirInSdkTemplatesDir </> [relfile|_job.ts|]
     tmplData =
       object
         [ "jobName" .= jobName,
           "typeName" .= toUpperFirst jobName,
-          "jobExecutorImportPath" .= SP.fromRelFileP jobExecutorImportPath,
+          "jobExecutorImportPath" .= fromRelFileP jobExecutorImportPath,
           "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job),
           -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
           -- This is why we must get a text representation of the object, either by
@@ -114,18 +118,21 @@ genJobExecutors spec = case getJobs spec of
   [] -> return []
   _someJobs ->
     return $
-      C.mkTmplFd [relfile|server/jobs/core/job.ts|] : genAllJobExecutors
+      mkTmplFd (serverJobsDirInSdkTemplatesDir </> [relfile|core/job.ts|]) : genAllJobExecutors
   where
     genAllJobExecutors = concatMap genJobExecutor jobExecutors
 
     -- Per each defined job executor, we generate the needed files.
     genJobExecutor :: JobExecutor -> [FileDraft]
     genJobExecutor PgBoss =
-      [ C.mkTmplFd [relfile|server/jobs/core/pgBoss/pgBoss.ts|],
-        C.mkTmplFd [relfile|server/jobs/core/pgBoss/pgBossJob.ts|],
-        C.mkTmplFd [relfile|server/jobs/core/pgBoss/types.ts|],
-        C.mkTmplFd [relfile|server/jobs/core/pgBoss/index.ts|]
+      [ mkTmplFd $ serverJobsDirInSdkTemplatesDir </> [relfile|core/pgBoss/pgBoss.ts|],
+        mkTmplFd $ serverJobsDirInSdkTemplatesDir </> [relfile|core/pgBoss/pgBossJob.ts|],
+        mkTmplFd $ serverJobsDirInSdkTemplatesDir </> [relfile|core/pgBoss/types.ts|],
+        mkTmplFd $ serverJobsDirInSdkTemplatesDir </> [relfile|core/pgBoss/index.ts|]
       ]
+
+serverJobsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+serverJobsDirInSdkTemplatesDir = [reldir|server/jobs|]
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).

@@ -4,14 +4,17 @@ module Wasp.Generator.SdkGenerator.Auth.LocalAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (relfile)
-import qualified StrongPath as SP
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (localAuthProvider)
 import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
+  ( SdkTemplatesDir,
+    mkTmplFd,
+    mkTmplFdWithData,
+  )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 
@@ -19,13 +22,10 @@ genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genLocalAuth auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
       sequence
-        [ genIndex
+        [ genLocalAuthDirFileCopy [relfile|index.ts|]
         ]
         <++> genActions auth
   | otherwise = return []
-
-genIndex :: Generator FileDraft
-genIndex = return $ C.mkTmplFd [relfile|auth/username/index.ts|]
 
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth =
@@ -35,15 +35,15 @@ genActions auth =
     ]
 
 genLoginAction :: Generator FileDraft
-genLoginAction = return $ C.mkTmplFdWithData tmplFile tmplData
+genLoginAction = return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = SP.castRel [relfile|auth/username/actions/login.ts|]
+    tmplFile = localAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|]
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
-genSignupAction auth = return $ C.mkTmplFdWithData tmplFile tmplData
+genSignupAction auth = return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = SP.castRel [relfile|auth/username/actions/signup.ts|]
+    tmplFile = localAuthDirInSdkTemplatesDir </> [relfile|actions/signup.ts|]
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl localAuthProvider,
@@ -51,3 +51,10 @@ genSignupAction auth = return $ C.mkTmplFdWithData tmplFile tmplData
         ]
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
+
+localAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+localAuthDirInSdkTemplatesDir = [reldir|auth/username|]
+
+genLocalAuthDirFileCopy :: Path' Rel' File' -> Generator FileDraft
+genLocalAuthDirFileCopy =
+  return . mkTmplFd . (localAuthDirInSdkTemplatesDir </>)
