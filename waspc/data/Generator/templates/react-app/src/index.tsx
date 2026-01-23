@@ -1,47 +1,28 @@
 {{={= =}=}}
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { QueryClientProvider } from '@tanstack/react-query'
+import * as React from "react";
+import * as ReactDOM from "react-dom/client";
+import { getWaspApp } from "wasp/client/app";
+import { routesMapping } from "./router";
 
-import { router } from './router'
-import {
-  initializeQueryClient,
-  queryClientInitialized,
-} from 'wasp/client/operations'
+{=# rootComponent.isDefined =}
+{=& rootComponent.importStatement =}
+{=/ rootComponent.isDefined =}
 
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
 {=/ setupFn.isDefined =}
 
-{=# areWebSocketsUsed =}
-import { WebSocketProvider } from 'wasp/client/webSocket/WebSocketProvider'
-{=/ areWebSocketsUsed =}
+{=# setupFn.isDefined =}
+await {= setupFn.importIdentifier =}()
+{=/ setupFn.isDefined =}
 
-startApp()
+const app = getWaspApp({
+  {=# rootComponent.isDefined =}
+  rootElement: <{= rootComponent.importIdentifier =} />,
+  {=/ rootComponent.isDefined =}
+  routesMapping,
+});
 
-async function startApp() {
-  {=# setupFn.isDefined =}
-  await {= setupFn.importIdentifier =}()
-  {=/ setupFn.isDefined =}
-  initializeQueryClient()
-
-  await render()
-}
-
-async function render() {
-  const queryClient = await queryClientInitialized
-  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        {=# areWebSocketsUsed =}
-        <WebSocketProvider>
-          {router}
-        </WebSocketProvider>
-        {=/ areWebSocketsUsed =}
-        {=^ areWebSocketsUsed =}
-        {router}
-        {=/ areWebSocketsUsed =}
-      </QueryClientProvider>
-    </React.StrictMode>
-  )
-}
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>{app}</React.StrictMode>,
+);

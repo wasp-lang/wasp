@@ -41,7 +41,6 @@ data-files:
   Generator/templates/**/*.js
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
-  Generator/templates/**/*.png
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
@@ -316,14 +315,17 @@ library
     Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
+    Wasp.Generator.SdkGenerator.Auth.Common
     Wasp.Generator.SdkGenerator.Auth.EmailAuthG
     Wasp.Generator.SdkGenerator.Auth.LocalAuthG
     Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
     Wasp.Generator.SdkGenerator.AuthG
+    Wasp.Generator.SdkGenerator.Client.AppG
     Wasp.Generator.SdkGenerator.Client.AuthG
     Wasp.Generator.SdkGenerator.Client.CrudG
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
+    Wasp.Generator.SdkGenerator.Client.VitePluginG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
@@ -365,14 +367,11 @@ library
     Wasp.Generator.WaspInfo
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.JsImport
-    Wasp.Generator.WebAppGenerator.AuthG
-    Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebAppGenerator.Vite
-    Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport

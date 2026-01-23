@@ -1,30 +1,15 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { QueryClientProvider } from '@tanstack/react-query'
-
-import { router } from './router'
-import {
-  initializeQueryClient,
-  queryClientInitialized,
-} from 'wasp/client/operations'
+import * as React from "react";
+import * as ReactDOM from "react-dom/client";
+import { getWaspApp } from "wasp/client/app";
+import { routesMapping } from "./router";
 
 
 
-startApp()
 
-async function startApp() {
-  initializeQueryClient()
+const app = getWaspApp({
+  routesMapping,
+});
 
-  await render()
-}
-
-async function render() {
-  const queryClient = await queryClientInitialized
-  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        {router}
-      </QueryClientProvider>
-    </React.StrictMode>
-  )
-}
+ReactDOM.createRoot(document.getElementById("root")!).render(
+  <React.StrictMode>{app}</React.StrictMode>,
+);
