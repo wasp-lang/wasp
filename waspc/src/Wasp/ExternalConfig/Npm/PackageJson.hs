@@ -3,6 +3,7 @@
 
 module Wasp.ExternalConfig.Npm.PackageJson
   ( PackageJson (..),
+    WaspConfig (..),
     DependenciesMap,
     PackageName,
     PackageVersion,
@@ -22,7 +23,13 @@ data PackageJson = PackageJson
   { name :: !String,
     dependencies :: !DependenciesMap,
     devDependencies :: !DependenciesMap,
-    workspaces :: !(Maybe [String])
+    workspaces :: !(Maybe [String]),
+    wasp :: !(Maybe WaspConfig)
+  }
+  deriving (Show, Generic, FromJSON)
+
+data WaspConfig = WaspConfig
+  { overriddenDeps :: !(Maybe DependenciesMap)
   }
   deriving (Show, Generic, FromJSON)
 

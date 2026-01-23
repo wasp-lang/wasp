@@ -9,6 +9,7 @@ module Wasp.Generator.Valid.PackageJson.Dependencies
   )
 where
 
+import Control.Monad (join)
 import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -57,26 +58,23 @@ dependenciesValidator spec =
 makeRequiredDepValidator :: DependencyType -> C.DependencySpecification -> V.Validator P.PackageJson
 makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
   inOppositeDepList notPresentValidator
-    `V.and` inCorrectDepList correctVersionValidator
+    `V.and` join (inCorrectDepList . correctVersionValidator . checkIsOverridden pkgName)
   where
     notPresentValidator :: V.Validator (Maybe P.PackageVersion)
     notPresentValidator Nothing = V.success
     notPresentValidator _ = wrongDepTypeError
 
-    correctVersionValidator :: V.Validator (Maybe P.PackageVersion)
-    correctVersionValidator (Just actualVersion)
+    correctVersionValidator :: Bool -> V.Validator (Maybe P.PackageVersion)
+    correctVersionValidator isOverridden (Just actualVersion)
+      | isOverridden = V.success
       | actualVersion == expectedPkgVersion = V.success
-    correctVersionValidator _ = incorrectPackageVersionError
+    correctVersionValidator _ _ = incorrectPackageVersionError
 
     inCorrectDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
     inCorrectDepList = inDependency depType pkgName
 
     inOppositeDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
     inOppositeDepList = inDependency (oppositeForDepType depType) pkgName
-
-    oppositeForDepType :: DependencyType -> DependencyType
-    oppositeForDepType Runtime = Development
-    oppositeForDepType Development = Runtime
 
     wrongDepTypeError =
       V.failure $
@@ -98,12 +96,13 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
 -- with the correct version.
 makeOptionalDepValidator :: DependencyType -> C.DependencySpecification -> V.Validator P.PackageJson
 makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
-  inDependency depType pkgName optionalVersionValidator
+  join (inDependency depType pkgName . optionalVersionValidator . checkIsOverridden pkgName)
   where
-    optionalVersionValidator :: V.Validator (Maybe P.PackageVersion)
-    optionalVersionValidator (Just actualVersion)
+    optionalVersionValidator :: Bool -> V.Validator (Maybe P.PackageVersion)
+    optionalVersionValidator isOverridden (Just actualVersion)
+      | isOverridden = V.success
       | actualVersion /= expectedPkgVersion = incorrectVersionError
-    optionalVersionValidator _ = V.success
+    optionalVersionValidator _ _ = V.success
 
     incorrectVersionError =
       V.failure $
@@ -129,6 +128,11 @@ makeForbiddenDepValidator depType pkgName =
           ++ show (fst $ fieldForDepType depType)
           ++ "."
 
+checkIsOverridden :: P.PackageName -> P.PackageJson -> Bool
+checkIsOverridden pkgName pkgJson =
+  maybe False (M.member pkgName) $
+    P.overriddenDeps =<< P.wasp pkgJson
+
 -- | Runs the validator on a specific dependency of the given PackageJson
 -- record, setting the appropriate path for errors.
 inDependency ::
@@ -143,3 +147,7 @@ inDependency depType pkgName versionValidator =
 fieldForDepType :: DependencyType -> (String, P.PackageJson -> P.DependenciesMap)
 fieldForDepType Runtime = ("dependencies", P.dependencies)
 fieldForDepType Development = ("devDependencies", P.devDependencies)
+
+oppositeForDepType :: DependencyType -> DependencyType
+oppositeForDepType Runtime = Development
+oppositeForDepType Development = Runtime
