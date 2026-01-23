@@ -48,7 +48,8 @@ genOAuth auth
     genFileCopy = return . C.mkTmplFd
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
-genIndexTs auth = return $ C.mkTmplFdWithData tmplFile tmplData
+genIndexTs auth =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = oauthDirInSdkTemplatesDir </> [relfile|index.ts|]
     tmplData =
@@ -57,7 +58,8 @@ genIndexTs auth = return $ C.mkTmplFdWithData tmplFile tmplData
         ]
 
 genRedirectHelper :: Generator FileDraft
-genRedirectHelper = return $ C.mkTmplFdWithData tmplFile tmplData
+genRedirectHelper =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = oauthDirInSdkTemplatesDir </> [relfile|redirect.ts|]
     tmplData =
@@ -79,19 +81,16 @@ genOAuthProvider provider maybeUserConfig
 genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
-genOAuthConfig provider = return $ C.mkTmplFdWithData tmplFile tmplData
+genOAuthConfig provider =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = oauthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile
+    providerTsFile = fromJust $ SP.parseRelFile $ OAuth.providerId provider ++ ".ts"
     tmplData =
       object
         [ "providerId" .= OAuth.providerId provider,
           "displayName" .= OAuth.displayName provider
         ]
-
-    providerTsFile :: Path' (Rel ()) File'
-    providerTsFile = fromJust $ SP.parseRelFile $ providerId ++ ".ts"
-
-    providerId = OAuth.providerId provider
 
 depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =

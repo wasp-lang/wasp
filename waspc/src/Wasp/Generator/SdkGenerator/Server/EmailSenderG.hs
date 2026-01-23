@@ -32,9 +32,10 @@ genNewEmailSenderApi spec = case maybeEmailSender of
     maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
-genIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
+genIndex email =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    tmplPath = [relfile|server/email/index.ts|]
+    tmplFile = [relfile|server/email/index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCore :: EmailSender -> Generator [FileDraft]
@@ -47,24 +48,27 @@ genCore email =
     <++> genEmailSenderProviderSetupFn email
 
 genCoreIndex :: EmailSender -> Generator FileDraft
-genCoreIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreIndex email =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    tmplPath = [relfile|server/email/core/index.ts|]
+    tmplFile = [relfile|server/email/core/index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
-genCoreTypes email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreTypes email =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    tmplPath = [relfile|server/email/core/types.ts|]
+    tmplFile = [relfile|server/email/core/types.ts|]
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
     isDefaultFromFieldDefined = isJust defaultFromField
     defaultFromField = AS.EmailSender.defaultFrom email
 
 genCoreHelpers :: EmailSender -> Generator FileDraft
-genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreHelpers email =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    tmplPath = [relfile|server/email/core/helpers.ts|]
+    tmplFile = [relfile|server/email/core/helpers.ts|]
     tmplData =
       object
         [ "defaultFromField"

@@ -34,10 +34,16 @@ genActions auth =
       genSignupAction auth
     ]
 
--- | Generates file with signup function to be used by Wasp developer.
-genSignupAction :: AS.Auth.Auth -> Generator FileDraft
-genSignupAction auth = return $ C.mkTmplFdWithData (SP.castRel [relfile|auth/username/actions/signup.ts|]) tmplData
+genLoginAction :: Generator FileDraft
+genLoginAction = return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = SP.castRel [relfile|auth/username/actions/login.ts|]
+    tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
+
+genSignupAction :: AS.Auth.Auth -> Generator FileDraft
+genSignupAction auth = return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    tmplFile = SP.castRel [relfile|auth/username/actions/signup.ts|]
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl localAuthProvider,
@@ -45,9 +51,3 @@ genSignupAction auth = return $ C.mkTmplFdWithData (SP.castRel [relfile|auth/use
         ]
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
-
--- | Generates file with login function to be used by Wasp developer.
-genLoginAction :: Generator FileDraft
-genLoginAction = return $ C.mkTmplFdWithData (SP.castRel [relfile|auth/username/actions/login.ts|]) tmplData
-  where
-    tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]

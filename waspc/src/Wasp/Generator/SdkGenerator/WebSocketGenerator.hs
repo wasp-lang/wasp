@@ -24,17 +24,17 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ genWebSocketServerIndex spec,
-          genFileCopy [relfile|client/webSocket/index.ts|],
-          genWebSocketProvider spec
+        [ genServerIndex spec,
+          genClientIndex,
+          genClientWebSocketProvider spec
         ]
   | otherwise = return []
-  where
-    genFileCopy = return . C.mkTmplFd
 
-genWebSocketServerIndex :: AppSpec -> Generator FileDraft
-genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSocket/index.ts|] tmplData
+genServerIndex :: AppSpec -> Generator FileDraft
+genServerIndex spec =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|server/webSocket/index.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -44,12 +44,20 @@ genWebSocketServerIndex spec = return $ C.mkTmplFdWithData [relfile|server/webSo
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
-genWebSocketProvider :: AppSpec -> Generator FileDraft
-genWebSocketProvider spec = return $ C.mkTmplFdWithData [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
+genClientIndex :: Generator FileDraft
+genClientIndex =
+  return $ C.mkTmplFd tempFile
   where
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
-    shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
+    tempFile = [relfile|client/webSocket/index.ts|]
+
+genClientWebSocketProvider :: AppSpec -> Generator FileDraft
+genClientWebSocketProvider spec =
+  return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    tmplFile = [relfile|client/webSocket/WebSocketProvider.tsx|]
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
+    shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
+    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
 depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByWebSockets spec =

@@ -42,7 +42,8 @@ genNewJobsApi spec =
         <++> genJobExecutors spec
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
-genIndexTs jobs = return $ C.mkTmplFdWithData tmplFile tmplData
+genIndexTs jobs =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = [relfile|server/jobs/index.ts|]
     tmplData = object ["jobs" .= map getJobTmplData jobs]
@@ -54,14 +55,10 @@ genIndexTs jobs = return $ C.mkTmplFdWithData tmplFile tmplData
 
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
-  return
-    $ C.mkTmplFdWithDstAndData
-      tmplFile
-      dstFile
-    $ Just tmplData
+  return $ C.mkTmplFdWithDstAndData tmplFile destFile (Just tmplData)
   where
+    destFile = [reldir|server/jobs|] </> fromJust (SP.parseRelFile $ jobName ++ ".ts")
     tmplFile = [relfile|server/jobs/_job.ts|]
-    dstFile = [reldir|server/jobs|] </> fromJust (SP.parseRelFile $ jobName ++ ".ts")
     tmplData =
       object
         [ "jobName" .= jobName,
@@ -74,11 +71,8 @@ genJob (jobName, job) =
           "jobSchedule" .= getJobScheduleData (J.schedule job),
           "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions)
         ]
-
     jobExecutorImportPath = getJobExecutorImportPath (J.executor job)
-
     maybeJobPerformOptions = J.performExecutorOptionsJson job
-
     getJobScheduleData =
       maybe
         (object ["isDefined" .= False])
@@ -94,7 +88,6 @@ genJob (jobName, job) =
       maybe
         (object ["isDefined" .= False])
         (\args -> object ["isDefined" .= True, "json" .= Aeson.Text.encodeToLazyText args])
-
     getJobSchduleOptions =
       maybe
         (object ["isDefined" .= False])

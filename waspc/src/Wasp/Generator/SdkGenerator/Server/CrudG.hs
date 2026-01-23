@@ -24,8 +24,10 @@ genNewServerCrudApi spec =
     areThereAnyCruds = not $ null cruds
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
-genCrudIndex spec cruds = return $ C.mkTmplFdWithData [relfile|server/crud/index.ts|] tmplData
+genCrudIndex spec cruds =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|server/crud/index.ts|]
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
     getCrudOperationJsonFromCrud :: (String, AS.Crud.Crud) -> Aeson.Value
     getCrudOperationJsonFromCrud (name, crud) = getCrudOperationJson name crud idField

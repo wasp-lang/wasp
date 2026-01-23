@@ -72,26 +72,28 @@ genAuth spec =
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
 genUseAuth :: AS.Auth.Auth -> Generator FileDraft
-genUseAuth auth = return $ C.mkTmplFdWithData [relfile|auth/useAuth.ts|] tmplData
+genUseAuth auth = return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|auth/useAuth.ts|]
     tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
-genLuciaTs auth = return $ C.mkTmplFdWithData [relfile|auth/lucia.ts|] tmplData
+genLuciaTs auth = return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|auth/lucia.ts|]
     tmplData =
       object
         [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
           "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
           "userEntityUpper" .= (userEntityName :: String)
         ]
-
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
-genSessionTs auth = return $ C.mkTmplFdWithData [relfile|auth/session.ts|] tmplData
+genSessionTs auth = return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|auth/session.ts|]
     tmplData =
       object
         [ "userEntityUpper" .= userEntityName,
@@ -99,13 +101,12 @@ genSessionTs auth = return $ C.mkTmplFdWithData [relfile|auth/session.ts|] tmplD
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName
         ]
-
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genUtils :: AS.Auth.Auth -> Generator FileDraft
-genUtils auth = return $ C.mkTmplFdWithData relUtilsFilePath tmplData
+genUtils auth = return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
+    tmplFile = [relfile|auth/utils.ts|]
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
@@ -120,9 +121,7 @@ genUtils auth = return $ C.mkTmplFdWithData relUtilsFilePath tmplData
           "failureRedirectPath" .= AS.Auth.onAuthFailedRedirectTo auth,
           "successRedirectPath" .= getOnAuthSucceededRedirectToOrDefault auth
         ]
-
-    relUtilsFilePath :: Path' (Rel C.SdkTemplatesDir) File'
-    relUtilsFilePath = [relfile|auth/utils.ts|]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genIndexTs :: AS.Auth.Auth -> Generator [FileDraft]
 genIndexTs auth =
@@ -137,30 +136,29 @@ genIndexTs auth =
     isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvdersIndex auth = return $ C.mkTmplFdWithData [relfile|auth/providers/index.ts|] tmplData
+genProvdersIndex auth = return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|auth/providers/index.ts|]
     tmplData =
       object
         [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
           "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
         ]
-
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
-genProvidersTypes auth = return $ C.mkTmplFdWithData [relfile|auth/providers/types.ts|] tmplData
+genProvidersTypes auth = return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-
+    tmplFile = [relfile|auth/providers/types.ts|]
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
           "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
           "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
         ]
-
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth

@@ -33,8 +33,10 @@ genNewClientCrudApi spec =
     genFileCopy = return . C.mkTmplFd
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
-genCrudIndex spec cruds = return $ C.mkTmplFdWithData [relfile|client/crud/index.ts|] tmplData
+genCrudIndex spec cruds =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|client/crud/index.ts|]
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
     getCrudOperationJsonFromCrud :: (String, AS.Crud.Crud) -> Aeson.Value
     getCrudOperationJsonFromCrud (name, crud) = getCrudOperationJson name crud idField
@@ -45,9 +47,10 @@ genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft
 genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudOperation (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
+    genCrudOperation (name, crud) =
+      C.mkTmplFdWithDstAndData tmplFile destFile (Just tmplData)
       where
-        tmplPath = [relfile|client/crud/_crud.ts|]
-        destPath = [reldir|client/crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
+        destFile = [reldir|client/crud|] </> fromJust (SP.parseRelFile (name ++ ".ts"))
+        tmplFile = [relfile|client/crud/_crud.ts|]
         tmplData = getCrudOperationJson name crud idField
         idField = getIdFieldFromCrudEntity spec crud

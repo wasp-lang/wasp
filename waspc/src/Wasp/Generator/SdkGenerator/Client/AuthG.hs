@@ -22,7 +22,7 @@ genNewClientAuth spec =
     Just auth ->
       sequence
         [ genAuthIndex auth,
-          genAuthUI auth
+          genAuthUi auth
         ]
         <++> genAuthEmail auth
         <++> genAuthUsername auth
@@ -36,20 +36,16 @@ genNewClientAuth spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|client/auth/index.ts|]
-      tmplData
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|client/auth/index.ts|]
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
-genAuthUI :: AS.Auth.Auth -> Generator FileDraft
-genAuthUI auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|client/auth/ui.ts|]
-      tmplData
+genAuthUi :: AS.Auth.Auth -> Generator FileDraft
+genAuthUi auth =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|client/auth/ui.ts|]
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]

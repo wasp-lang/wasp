@@ -26,10 +26,11 @@ genNewClientRouterApi spec =
     genFileCopy = return . C.mkTmplFd
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ C.mkTmplFdWithData [relfile|client/router/index.ts|] tmplData
+genIndexTs spec =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    tmplData =
-      object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
+    tmplFile = [relfile|client/router/index.ts|]
+    tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
 createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
 createRouteTemplateData (name, route) =

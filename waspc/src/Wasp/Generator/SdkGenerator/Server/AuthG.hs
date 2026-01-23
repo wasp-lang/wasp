@@ -35,11 +35,9 @@ genNewServerApi spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|server/auth/index.ts|]
-      tmplData
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|server/auth/index.ts|]
     tmplData =
       object
         [ "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
@@ -49,13 +47,9 @@ genAuthIndex auth =
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|server/auth/user.ts|]
-      tmplData
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-
+    tmplFile = [relfile|server/auth/user.ts|]
     tmplData =
       object
         [ "userEntityName" .= userEntityName,
@@ -65,10 +59,13 @@ genAuthUser auth =
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
-genHooks auth = return $ C.mkTmplFdWithData [relfile|server/auth/hooks.ts|] tmplData
+genHooks auth =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|server/auth/hooks.ts|]
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]

@@ -23,7 +23,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.ExternalFiles as EC
+import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -114,7 +114,7 @@ genSdk spec =
       genTsConfigJson,
       genServerUtils spec,
       genPackageJson spec,
-      genDbClient spec,
+      genServerDbClient spec,
       genDevIndex
     ]
     <++> ServerOpsGen.genOperations spec
@@ -127,8 +127,8 @@ genSdk spec =
     <++> genCrud spec
     <++> genServerApi spec
     <++> genWebSockets spec
-    <++> genMiddleware spec
-    <++> genExportedTypesDir spec
+    <++> genServerMiddleware
+    <++> genServerExportedTypesDir
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
@@ -247,9 +247,10 @@ depsRequiredForTesting =
     ]
 
 genClientConfigFile :: Generator FileDraft
-genClientConfigFile = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+genClientConfigFile =
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    relConfigFilePath = [relfile|client/config.ts|]
+    tmplFile = [relfile|client/config.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
@@ -275,9 +276,9 @@ genCoreSerializationDir spec =
     entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ C.mkTmplFdWithData relConfigFilePath tmplData
+genServerConfigFile spec = return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    relConfigFilePath = [relfile|server/config.ts|]
+    tmplFile = [relfile|server/config.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -319,32 +320,33 @@ installNpmDependencies projectDir =
 
 -- todo(filip): consider reorganizing/splitting the file.
 
--- | Takes external code files from Wasp and generates them in new location as part of the generated project.
+-- | Takes external code files from Wasp,
+-- and generates them in a new location as part of the generated project.
 -- It might not just copy them but also do some changes on them, as needed.
-genExternalCodeDir :: [EC.CodeFile] -> Generator [FileDraft]
-genExternalCodeDir = sequence . mapMaybe genFile
+genExternalCodeDir :: [EF.CodeFile] -> Generator [FileDraft]
+genExternalCodeDir = sequence . mapMaybe genExternalFile
 
-genFile :: EC.CodeFile -> Maybe (Generator FileDraft)
-genFile file
+genExternalFile :: EF.CodeFile -> Maybe (Generator FileDraft)
+genExternalFile file
   | fileName == "tsconfig.json" = Nothing
-  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genSourceFile file
-  | otherwise = Just $ genResourceFile file
+  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genExternalSourceFile file
+  | otherwise = Just $ genExternalResourceFile file
   where
-    extension = FP.takeExtension filePath
     fileName = FP.takeFileName filePath
-    filePath = SP.toFilePath $ EC.filePathInExtCodeDir file
+    extension = FP.takeExtension filePath
+    filePath = SP.toFilePath $ EF.filePathInExtCodeDir file
 
-genResourceFile :: EC.CodeFile -> Generator FileDraft
-genResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
+genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
+genExternalResourceFile file = return $ FD.createCopyFileDraft relDstPath absSrcPath
   where
-    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EC._pathInExtCodeDir file)
-    absSrcPath = EC.fileAbsPath file
+    relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel (EF._pathInExtCodeDir file)
+    absSrcPath = EF.fileAbsPath file
 
-genSourceFile :: EC.CodeFile -> Generator FD.FileDraft
-genSourceFile file = return $ FD.createTextFileDraft relDstPath text
+genExternalSourceFile :: EF.CodeFile -> Generator FD.FileDraft
+genExternalSourceFile file = return $ FD.createTextFileDraft relDstPath text
   where
-    filePathInSrcExtCodeDir = EC.filePathInExtCodeDir file
-    text = EC.fileText file
+    filePathInSrcExtCodeDir = EF.filePathInExtCodeDir file
+    text = EF.fileText file
     relDstPath = C.sdkRootDirInGeneratedCodeDir </> C.extSrcDirInSdkRootDir </> SP.castRel filePathInSrcExtCodeDir
 
 genUniversalDir :: Generator [FileDraft]
@@ -358,25 +360,25 @@ genUniversalDir =
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
-genServerUtils spec = return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
+genServerUtils spec =
+  return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
-genExportedTypesDir :: AppSpec -> Generator [FileDraft]
-genExportedTypesDir _spec =
+genServerExportedTypesDir :: Generator [FileDraft]
+genServerExportedTypesDir =
   return [C.mkTmplFd [relfile|server/types/index.ts|]]
 
-genMiddleware :: AppSpec -> Generator [FileDraft]
-genMiddleware _spec =
+genServerMiddleware :: Generator [FileDraft]
+genServerMiddleware =
   sequence
     [ return $ C.mkTmplFd [relfile|server/middleware/index.ts|],
       return $ C.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
-genDbClient :: AppSpec -> Generator FileDraft
-genDbClient spec = do
+genServerDbClient :: AppSpec -> Generator FileDraft
+genServerDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
-
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,

@@ -36,6 +36,20 @@ genEmailAuth auth
 genIndex :: Generator FileDraft
 genIndex = return $ C.mkTmplFd [relfile|auth/email/index.ts|]
 
+genServerUtils :: AS.Auth.Auth -> Generator FileDraft
+genServerUtils auth = return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    tmplFile = [relfile|server/auth/email/utils.ts|]
+    tmplData =
+      object
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
+          "authEntityUpper" .= (DbAuth.authEntityName :: String),
+          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
+          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
+        ]
+    userEntityName = AS.refName $ AS.Auth.userEntity auth
+
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth =
   sequence
@@ -47,53 +61,38 @@ genActions auth =
 
 genLoginAction :: Generator FileDraft
 genLoginAction =
-  return $
-    C.mkTmplFdWithData
-      [relfile|auth/email/actions/login.ts|]
-      (object ["loginPath" .= serverLoginUrl emailAuthProvider])
+  return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    tmplFile = [relfile|auth/email/actions/login.ts|]
+    tmplData = object ["loginPath" .= serverLoginUrl emailAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
-  return $
-    C.mkTmplFdWithData
-      [relfile|auth/email/actions/signup.ts|]
-      ( object
-          [ "signupPath" .= serverSignupUrl emailAuthProvider,
-            "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields
-          ]
-      )
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
+    tmplFile = [relfile|auth/email/actions/signup.ts|]
+    tmplData =
+      object
+        [ "signupPath" .= serverSignupUrl emailAuthProvider,
+          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields
+        ]
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     authMethods = AS.Auth.methods auth
 
 genPasswordResetActions :: Generator FileDraft
 genPasswordResetActions =
-  return $
-    C.mkTmplFdWithData
-      [relfile|auth/email/actions/passwordReset.ts|]
-      ( object
-          [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
-            "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
-          ]
-      )
+  return $ C.mkTmplFdWithData tmplFile tmplData
+  where
+    tmplFile = [relfile|auth/email/actions/passwordReset.ts|]
+    tmplData =
+      object
+        [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
+          "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
+        ]
 
 genVerifyEmailAction :: Generator FileDraft
 genVerifyEmailAction =
-  return $
-    C.mkTmplFdWithData
-      [relfile|auth/email/actions/verifyEmail.ts|]
-      (object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider])
-
-genServerUtils :: AS.Auth.Auth -> Generator FileDraft
-genServerUtils auth = return $ C.mkTmplFdWithData tmplFile tmplData
+  return $ C.mkTmplFdWithData tmplFile tmplData
   where
-    userEntityName = AS.refName $ AS.Auth.userEntity auth
-    tmplFile = [relfile|server/auth/email/utils.ts|]
-    tmplData =
-      object
-        [ "userEntityUpper" .= (userEntityName :: String),
-          "userEntityLower" .= (Util.toLowerFirst userEntityName :: String),
-          "authEntityUpper" .= (DbAuth.authEntityName :: String),
-          "authEntityLower" .= (Util.toLowerFirst DbAuth.authEntityName :: String),
-          "userFieldOnAuthEntityName" .= (DbAuth.userFieldOnAuthEntityName :: String)
-        ]
+    tmplFile = [relfile|auth/email/actions/verifyEmail.ts|]
+    tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
