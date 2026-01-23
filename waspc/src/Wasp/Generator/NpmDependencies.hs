@@ -15,14 +15,16 @@ module Wasp.Generator.NpmDependencies
   )
 where
 
+import Control.Monad (forM_)
 import Data.Aeson
 import Data.List (intercalate, sort)
+import qualified Data.Map as Map
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
-import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.Monad (Generator, GeneratorWarning (..), logGeneratorWarning)
 
 data NpmDepsForFramework = NpmDepsForFramework
   { npmDepsForServer :: NpmDepsForPackage,
@@ -55,16 +57,57 @@ instance ToJSON NpmDepsFromUser
 
 instance FromJSON NpmDepsFromUser
 
-mergeWaspAndUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> Generator NpmDepsForPackage
-mergeWaspAndUserDeps waspDeps _userDeps = return $ waspDepsToPackageDeps waspDeps
+-- | Ensures there are no conflicts between Wasp's dependencies and user's dependencies,
+-- while allowing overrides for packages listed in overriddenDepNames.
+-- For overridden packages, user's version is used instead of Wasp's, and a warning is emitted.
+mergeWaspAndUserDeps :: [PJ.PackageName] -> NpmDepsFromWasp -> NpmDepsFromUser -> Generator NpmDepsForPackage
+mergeWaspAndUserDeps overriddenDepNames waspDeps userDeps = do
+  -- Emit warnings for each override
+  forM_ overriddenDepNames $ \pkgName ->
+    logGeneratorWarning $
+      GenericGeneratorWarning $
+        "Dependency override active for \""
+          ++ pkgName
+          ++ "\". You are using an unsupported version. "
+          ++ "Wasp cannot guarantee compatibility."
+  -- Return merged dependencies with user versions for overridden packages
+  return $ mergeWithUserOverrides overriddenDepNames waspDeps userDeps
 
-buildWaspFrameworkNpmDeps :: NpmDepsFromWasp -> NpmDepsFromWasp -> Either String NpmDepsForFramework
-buildWaspFrameworkNpmDeps fromServer fromWebApp =
+-- | Merges Wasp dependencies with user dependencies, using user's versions
+-- for packages listed in overriddenDepNames.
+mergeWithUserOverrides :: [PJ.PackageName] -> NpmDepsFromWasp -> NpmDepsFromUser -> NpmDepsForPackage
+mergeWithUserOverrides overriddenDepNames (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
+  NpmDepsForPackage
+    { dependencies = mergeDeps (dependencies waspPkg) (dependencies userPkg),
+      devDependencies = mergeDeps (devDependencies waspPkg) (devDependencies userPkg),
+      peerDependencies = []
+    }
+  where
+    mergeDeps :: [D.Dependency] -> [D.Dependency] -> [D.Dependency]
+    mergeDeps waspDeps userDeps =
+      let waspMap = makeDepsByName waspDeps
+          userMap = makeDepsByName userDeps
+          -- For overridden deps, replace Wasp's version with user's version
+          mergedMap =
+            foldr
+              ( \pkgName m -> case Map.lookup pkgName userMap of
+                  Just userDep | pkgName `elem` overriddenDepNames -> Map.insert pkgName userDep m
+                  _ -> m
+              )
+              waspMap
+              overriddenDepNames
+       in Map.elems mergedMap
+
+buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> Either String NpmDepsForFramework
+buildWaspFrameworkNpmDeps spec fromServer fromWebApp =
   Right $
     NpmDepsForFramework
-      { npmDepsForServer = waspDepsToPackageDeps fromServer,
-        npmDepsForWebApp = waspDepsToPackageDeps fromWebApp
+      { npmDepsForServer = mergeWithUserOverrides overriddenDepNames fromServer userDeps,
+        npmDepsForWebApp = mergeWithUserOverrides overriddenDepNames fromWebApp userDeps
       }
+  where
+    overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)
+    userDeps = getUserNpmDepsForPackage spec
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser
 getUserNpmDepsForPackage spec =
@@ -84,16 +127,10 @@ instance Eq NpmDepsForPackage where
 sortedDependencies :: NpmDepsForPackage -> ([D.Dependency], [D.Dependency])
 sortedDependencies a = (sort $ dependencies a, sort $ devDependencies a)
 
-waspDepsToPackageDeps :: NpmDepsFromWasp -> NpmDepsForPackage
-waspDepsToPackageDeps npmDepsFromWasp =
-  NpmDepsForPackage
-    { dependencies = dependencies $ fromWasp npmDepsFromWasp,
-      devDependencies = devDependencies $ fromWasp npmDepsFromWasp,
-      -- Wasp dependencies are used for generating standalone applications, not libraries. They are
-      -- not consumed by another package that could provide peer dependencies. Thus, peer
-      -- dependencies are always empty.
-      peerDependencies = []
-    }
+type DepsByName = Map.Map String D.Dependency
+
+makeDepsByName :: [D.Dependency] -> DepsByName
+makeDepsByName = Map.fromList . fmap (\d -> (D.name d, d))
 
 getDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "dependencies" . dependencies
