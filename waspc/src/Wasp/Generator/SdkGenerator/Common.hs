@@ -1,7 +1,7 @@
 module Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
-    sdkRootDirInProjectRootDir,
+    sdkRootDirInGeneratedCodeDir,
     sdkTemplatesDirInTemplatesDir,
     extSrcDirInSdkRootDir,
     relDirToRelFileP,
@@ -24,8 +24,8 @@ data SdkRootDir
 -- | SDK root directory in data files templates directory.
 data SdkTemplatesDir
 
-sdkRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-sdkRootDirInProjectRootDir = [reldir|sdk/wasp|]
+sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
+sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
 
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]

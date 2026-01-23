@@ -34,16 +34,13 @@ genEnvValidation spec =
     <++> genClientEnvFiles spec
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
-genServerEnvFiles spec =
-  sequence
-    [ genServerEnv spec
-    ]
+genServerEnvFiles spec = sequence [genServerEnv spec]
 
 genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =
   sequence
-    [ genClientEnv,
-      genClientEnvSchema spec
+    [ genClientEnvSchema spec,
+      return $ mkTmplFd [relfile|client/env.ts|]
     ]
 
 genServerEnv :: AppSpec -> Generator FileDraft
@@ -69,12 +66,6 @@ genServerEnv spec = return $ mkTmplFdWithData tmplFile tmplData
     maybeEmailSender = AS.App.emailSender app
     maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
-
-genClientEnv :: Generator FileDraft
-genClientEnv =
-  return $ mkTmplFd tmplFile
-  where
-    tmplFile = [relfile|client/env.ts|]
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
 genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData

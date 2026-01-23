@@ -16,7 +16,7 @@ Make sure to first deploy your application from your local machine using `wasp d
 
 ### Deployment steps
 
-To automate deployment, you need to create a workflow file in your repository that specifies the deployment process when a new commit is pushed to the repository. 
+To automate deployment, you need to create a workflow file in your repository that specifies the deployment process when a new commit is pushed to the repository.
 
 The workflow needs to include the following steps:
 
@@ -61,7 +61,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v $WASP_VERSION
+        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -106,7 +106,7 @@ jobs:
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v $WASP_VERSION
+        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli
