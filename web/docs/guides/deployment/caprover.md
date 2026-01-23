@@ -77,7 +77,7 @@ In the server app, go to **App Configs > Environment Variables** and add:
 | `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
 | `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
 
-Add any other environment variables your app needs.
+Add any other environment variables your app needs (from `.env.server`).
 
 ### Step 4: Enable GitHub Container Registry Access
 
