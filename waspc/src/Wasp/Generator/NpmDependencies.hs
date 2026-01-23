@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.Generator.NpmDependencies
@@ -28,43 +29,30 @@ data NpmDepsForFramework = NpmDepsForFramework
   { npmDepsForServer :: NpmDepsForPackage,
     npmDepsForWebApp :: NpmDepsForPackage
   }
-  deriving (Show, Eq, Generic)
-
-instance ToJSON NpmDepsForFramework
-
-instance FromJSON NpmDepsForFramework
+  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
     devDependencies :: [D.Dependency],
     peerDependencies :: [D.Dependency]
   }
-  deriving (Show, Generic)
-
-instance ToJSON NpmDepsForPackage
-
-instance FromJSON NpmDepsForPackage
+  deriving (Show, Generic, ToJSON, FromJSON)
 
 newtype NpmDepsFromWasp = NpmDepsFromWasp {fromWasp :: NpmDepsForPackage}
   deriving (Show)
 
 newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
-  deriving (Show, Eq, Generic)
-
-instance ToJSON NpmDepsFromUser
-
-instance FromJSON NpmDepsFromUser
+  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 mergeWaspAndUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> Generator NpmDepsForPackage
 mergeWaspAndUserDeps waspDeps _userDeps = return $ waspDepsToPackageDeps waspDeps
 
-buildWaspFrameworkNpmDeps :: NpmDepsFromWasp -> NpmDepsFromWasp -> Either String NpmDepsForFramework
+buildWaspFrameworkNpmDeps :: NpmDepsFromWasp -> NpmDepsFromWasp -> NpmDepsForFramework
 buildWaspFrameworkNpmDeps fromServer fromWebApp =
-  Right $
-    NpmDepsForFramework
-      { npmDepsForServer = waspDepsToPackageDeps fromServer,
-        npmDepsForWebApp = waspDepsToPackageDeps fromWebApp
-      }
+  NpmDepsForFramework
+    { npmDepsForServer = waspDepsToPackageDeps fromServer,
+      npmDepsForWebApp = waspDepsToPackageDeps fromWebApp
+    }
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser
 getUserNpmDepsForPackage spec =
