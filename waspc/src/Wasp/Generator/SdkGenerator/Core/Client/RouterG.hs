@@ -12,7 +12,6 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Core.Common (CoreTemplatesDir, mkTmplFd, mkTmplFdWithData)
-import Wasp.Util ((<++>))
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
 
 genClientRouter :: AppSpec -> Generator [FileDraft]
