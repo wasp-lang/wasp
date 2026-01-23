@@ -10,7 +10,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir, Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -21,15 +21,15 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir, getOperationTypeName, mkTmplFdWithData, serverTemplatesDirInSdkTemplatesDir)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
+  ( SdkRootDir,
+    SdkTemplatesDir,
+    getOperationTypeName,
+    mkTmplFdWithData,
+    serverTemplatesDirInSdkTemplatesDir,
+  )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Util (toUpperFirst)
-
-data ServerOpsTemplatesDir
-
-serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerOpsTemplatesDir)
-serverOpsDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
@@ -109,12 +109,12 @@ getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData 
     operation = AS.Operation.ActionOp actionName action
 
 genOperationTypesFile ::
-  Path' (Rel C.SdkTemplatesDir) File' ->
+  Path' (Rel SdkTemplatesDir) File' ->
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
 genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
-  return $ C.mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
     tmplData =
       object
@@ -132,7 +132,7 @@ genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
     getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
-serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel C.SdkRootDir) Dir'
+serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) Dir'
 serverOperationsDirInSdkRootDir =
   castRel . (serverOpsDirInSdkTemplatesDir </>) . \case
     (AS.Operation.QueryOp _ _) -> [reldir|queries|]
@@ -148,3 +148,6 @@ getOperationTmplData isAuthEnabledGlobally operation =
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
+
+serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+serverOpsDirInSdkTemplatesDir = serverTemplatesDirInSdkTemplatesDir </> [reldir|operations|]

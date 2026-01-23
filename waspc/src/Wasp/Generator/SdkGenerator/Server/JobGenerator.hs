@@ -125,13 +125,6 @@ genJobExecutors spec = case getJobs spec of
         genServerJobFileCopy [relfile|core/pgBoss/index.ts|]
       ]
 
-serverJobsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverJobsDirInSdkTemplatesDir = [reldir|server/jobs|]
-
-genServerJobFileCopy :: Path' Rel' File' -> Generator FileDraft
-genServerJobFileCopy =
-  return . mkTmplFd . (serverJobsDirInSdkTemplatesDir </>)
-
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
 pgBossVersionRange :: SV.Range
@@ -142,3 +135,10 @@ pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
 
 depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
+
+serverJobsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+serverJobsDirInSdkTemplatesDir = [reldir|server/jobs|]
+
+genServerJobFileCopy :: Path' Rel' File' -> Generator FileDraft
+genServerJobFileCopy =
+  return . mkTmplFd . (serverJobsDirInSdkTemplatesDir </>)

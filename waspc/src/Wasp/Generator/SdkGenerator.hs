@@ -391,10 +391,7 @@ genServerDbClient spec = do
 
 genDevIndex :: Generator FileDraft
 genDevIndex =
-  return $
-    C.mkTmplFdWithData
-      [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir])
+  return $ C.mkTmplFdWithData [relfile|dev/index.ts|] tmplData
   where
-    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
-      waspProjectDirFromAppComponentDir
+    tmplData = object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir]
+    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)

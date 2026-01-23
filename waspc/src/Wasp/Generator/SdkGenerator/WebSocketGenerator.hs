@@ -16,7 +16,10 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
+  ( mkTmplFd,
+    mkTmplFdWithData,
+  )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
@@ -32,7 +35,7 @@ genWebSockets spec
 
 genServerIndex :: AppSpec -> Generator FileDraft
 genServerIndex spec =
-  return $ C.mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = [relfile|server/webSocket/index.ts|]
     tmplData =
@@ -46,13 +49,13 @@ genServerIndex spec =
 
 genClientIndex :: Generator FileDraft
 genClientIndex =
-  return $ C.mkTmplFd tempFile
+  return $ mkTmplFd tempFile
   where
     tempFile = [relfile|client/webSocket/index.ts|]
 
 genClientWebSocketProvider :: AppSpec -> Generator FileDraft
 genClientWebSocketProvider spec =
-  return $ C.mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData tmplFile tmplData
   where
     tmplFile = [relfile|client/webSocket/WebSocketProvider.tsx|]
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
