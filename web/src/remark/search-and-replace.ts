@@ -10,6 +10,14 @@ const replacements = [
     search: /{latestWaspVersion}/g,
     replace: `^${latestWaspVersion}`,
   },
+  {
+    search: /{pinnedLatestWaspVersion}/g,
+    replace: `${latestWaspVersion}`,
+  },
+  {
+    search: /{minimumNodeJsVersion}/g,
+    replace: "22.12",
+  },
 ];
 
 const plugin: Plugin<[], Root> = () => (tree) => {

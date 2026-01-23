@@ -2,6 +2,8 @@
 comments: true
 ---
 
+import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";
+
 # Caprover
 
 ## Deploy Wasp with Caprover
@@ -39,7 +41,7 @@ If you followed Caprover's install instructions with `*.apps` subdomain setup, y
 
 1. Go to **One-Click Apps** and select **PostgreSQL**
 2. Name it `myapp-db`
-3. Set version to `17` (or latest)
+3. Set version to `18` (or whichever version is latest)
 4. Deploy it
 5. Note the connection string: `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres`
 
@@ -70,7 +72,7 @@ In the server app, go to **App Configs > Environment Variables** and add:
 | Variable              | Value                                                                  |
 | --------------------- | ---------------------------------------------------------------------- |
 | `DATABASE_URL`        | `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres` |
-| `JWT_SECRET`          | Generate one at [djecrety.ir](https://djecrety.ir/)                    |
+| `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
 | `PORT`                | `3001`                                                                 |
 | `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
 | `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
@@ -103,7 +105,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "0.15.0"
+  WASP_VERSION: "{pinnedLatestWaspVersion}"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"
@@ -143,22 +145,31 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.CLIENT_APP_NAME }}
+          
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "{minimumNodeJsVersion}"
 
       - name: Install Wasp
         shell: bash
-        run: curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v ${{ env.WASP_VERSION }}
+        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v ${{ env.WASP_VERSION }}
+        
+      # Uncomment if using Wasp TS Config
+      # - name: Initialize Wasp TS Config
+      #   run: wasp ts-setup
 
       - name: Build Wasp app
         run: wasp build
 
       - name: (client) Build
         run: |
-          cd ./.wasp/build/web-app
+          cd ./.wasp/out/web-app
           REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npm run build
 
       - name: (client) Prepare Dockerfile
         run: |
-          cd ./.wasp/build/web-app
+          cd ./.wasp/out/web-app
           echo "FROM pierrezemb/gostatic" > Dockerfile
           echo "CMD [\"-fallback\", \"index.html\", \"-enable-logging\"]" >> Dockerfile
           echo "COPY ./build /srv/http" >> Dockerfile
@@ -167,8 +178,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           # Remove 'app/' if your app is at the repo root
-          context: ./app/.wasp/build
-          file: ./app/.wasp/build/Dockerfile
+          context: ./app/.wasp/out
+          file: ./app/.wasp/out/Dockerfile
           push: true
           tags: ${{ steps.meta-server.outputs.tags }}
           labels: ${{ steps.meta-server.outputs.labels }}
@@ -177,8 +188,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           # Remove 'app/' if your app is at the repo root
-          context: ./app/.wasp/build/web-app
-          file: ./app/.wasp/build/web-app/Dockerfile
+          context: ./app/.wasp/out/web-app
+          file: ./app/.wasp/out/web-app/Dockerfile
           push: true
           tags: ${{ steps.meta-client.outputs.tags }}
           labels: ${{ steps.meta-client.outputs.labels }}
@@ -230,81 +241,3 @@ Push to the `main` branch and the GitHub Action will:
 2. Create Docker images for server and client
 3. Push images to GitHub Container Registry
 4. Deploy both apps to Caprover
-
-### Database Migrations
-
-The `wasp build` command runs database migrations automatically. You need to pass the `DATABASE_URL` to it:
-
-```yaml
-- name: Build Wasp app
-  env:
-    DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  run: wasp build
-```
-
-Add `DATABASE_URL` to your GitHub secrets.
-
-#### Exposing Database for Migrations
-
-To run migrations from GitHub Actions, temporarily expose your database:
-
-1. In Caprover, go to your database app
-2. Under **HTTP Settings**, enable **Expose externally**
-3. Under **App Configs**, add port mapping: Server `5432` to Container `5432`
-4. Use the exposed URL as `DATABASE_URL` in GitHub secrets
-
-:::warning
-Consider disabling external database access after initial setup for security.
-:::
-
-### Troubleshooting
-
-#### CORS Issues
-
-If you're getting CORS errors, you may need custom middleware:
-
-```ts title="src/middleware.ts"
-import cors from "cors";
-import { MiddlewareConfigFn } from "wasp/server";
-
-export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  const clientUrl = process.env.WASP_WEB_CLIENT_URL ?? "http://localhost:3000";
-  const serverUrl = process.env.WASP_SERVER_URL ?? "http://localhost:3001";
-
-  config.delete("cors");
-  config.set(
-    "cors",
-    cors({
-      origin: [clientUrl, serverUrl],
-      credentials: true,
-      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
-      allowedHeaders: [
-        "Content-Type",
-        "Authorization",
-        "X-Requested-With",
-        "Accept",
-        "Origin",
-      ],
-    }),
-  );
-
-  return config;
-};
-```
-
-Add to `main.wasp`:
-
-```wasp
-app MyApp {
-  server: {
-    middlewareConfigFn: import { getGlobalMiddleware } from "@src/middleware",
-  },
-}
-```
-
-#### Using Cloudflare
-
-If using Cloudflare:
-
-1. Keep the `*.apps` A record in **DNS Only** mode (Cloudflare doesn't support multi-level wildcard SSL)
-2. Use **Full** SSL mode for custom domains with proxy enabled

@@ -2,6 +2,8 @@
 comments: true
 ---
 
+import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";
+
 # Coolify
 
 ## Deploy Wasp with Coolify
@@ -29,25 +31,21 @@ Point your DNS A records to your server IP:
 - `@` (root) → server IP (for `myapp.com` - client)
 - `api` → server IP (for `api.myapp.com` - server)
 
-:::tip
-You can also set up a subdomain like `coolify.myapp.com` for accessing the Coolify dashboard. See the [Coolify DNS documentation](https://coolify.io/docs/knowledge-base/dns-configuration) for details.
-:::
-
 ### Step 2: Create Coolify Resources
 
 #### Create the Database
 
 1. Create a new resource and select **PostgreSQL**
-2. Use the default PostgreSQL 16 variant
-3. Name it `db`
+2. Use the default PostgreSQL variant
+3. Name it `myapp-db`
 4. Click **Start** to set up the database
 5. Copy the **Postgres URL (internal)** - you'll need this later
 
 #### Create the Server App
 
-1. Create a new resource and select **Docker Image** under Docker Based
-2. Set the image name to `ghcr.io/<github-username>/<app-name>-server`
-3. Name it `server`
+1. Create a new resource and select **Docker Image**
+2. Set the image name to `ghcr.io/<your-github-username>/myapp-server`
+3. Name it `myapp-server`
 4. Configure:
    - **Domains**: `https://api.<your-domain>`
    - **Docker Image Tag**: `main`
@@ -56,9 +54,9 @@ You can also set up a subdomain like `coolify.myapp.com` for accessing the Cooli
 
 #### Create the Client App
 
-1. Create a new resource and select **Docker Image** under Docker Based
-2. Set the image name to `ghcr.io/<github-username>/<app-name>-client`
-3. Name it `client`
+1. Create a new resource and select **Docker Image**
+2. Set the image name to `ghcr.io/<your-github-username>/myapp-client`
+3. Name it `myapp-client`
 4. Configure:
    - **Domains**: `https://<your-domain>`
    - **Docker Image Tag**: `main`
@@ -72,7 +70,7 @@ In the server app, go to **Environment Variables** and add:
 | Variable              | Value                                               |
 | --------------------- | --------------------------------------------------- |
 | `DATABASE_URL`        | The Postgres URL (internal) from step 2             |
-| `JWT_SECRET`          | Generate one at [djecrety.ir](https://djecrety.ir/) |
+| `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
 | `PORT`                | `3001`                                              |
 | `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                             |
 | `WASP_SERVER_URL`     | `https://api.<your-domain>`                         |
@@ -96,7 +94,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  WASP_VERSION: "0.15.0"
+  WASP_VERSION: "{pinnedLatestWaspVersion}"
   SERVER_APP_NAME: "myapp-server"
   SERVER_APP_URL: "https://api.myapp.com"
   CLIENT_APP_NAME: "myapp-client"
@@ -137,9 +135,14 @@ jobs:
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.CLIENT_APP_NAME }}
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "{minimumNodeJsVersion}"
+
       - name: Install Wasp
         shell: bash
-        run: curl -sSL https://get.wasp-lang.dev/installer.sh | sh -s -- -v ${{ env.WASP_VERSION }}
+        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v ${{ env.WASP_VERSION }}
 
       # Uncomment if using Wasp TS Config
       # - name: Initialize Wasp TS Config
@@ -150,12 +153,12 @@ jobs:
 
       - name: (client) Build
         run: |
-          cd ./.wasp/build/web-app
+          cd ./.wasp/out/web-app
           REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npm run build
 
       - name: (client) Prepare Dockerfile
         run: |
-          cd ./.wasp/build/web-app
+          cd ./.wasp/out/web-app
           echo "FROM pierrezemb/gostatic" > Dockerfile
           echo "CMD [\"-fallback\", \"index.html\", \"-enable-logging\"]" >> Dockerfile
           echo "COPY ./build /srv/http" >> Dockerfile
@@ -164,8 +167,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           # Remove 'app/' if your app is at the repo root
-          context: ./app/.wasp/build
-          file: ./app/.wasp/build/Dockerfile
+          context: ./app/.wasp/out
+          file: ./app/.wasp/out/Dockerfile
           push: true
           tags: ${{ steps.meta-server.outputs.tags }}
           labels: ${{ steps.meta-server.outputs.labels }}
@@ -174,8 +177,8 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           # Remove 'app/' if your app is at the repo root
-          context: ./app/.wasp/build/web-app
-          file: ./app/.wasp/build/web-app/Dockerfile
+          context: ./app/.wasp/out/web-app
+          file: ./app/.wasp/out/web-app/Dockerfile
           push: true
           tags: ${{ steps.meta-client.outputs.tags }}
           labels: ${{ steps.meta-client.outputs.labels }}
@@ -208,9 +211,9 @@ In your GitHub repository, go to **Settings > Secrets and variables > Actions** 
 
 #### `COOLIFY_TOKEN`
 
-1. In Coolify, go to **Settings** and enable API
+1. In Coolify, go to **Settings** and under **Advanced** enable API Access
 2. Go to **Keys & Tokens** > **API tokens**
-3. Create a new API token with **Root Access**
+3. Create a new API token with **Deploy** permissions
 4. Copy the token
 
 ### Step 6: Deploy
@@ -221,21 +224,3 @@ Push to the `main` branch and the GitHub Action will:
 2. Create Docker images for server and client
 3. Push images to GitHub Container Registry
 4. Trigger Coolify to deploy the new images
-
-### Troubleshooting
-
-#### Unauthorized to Pull Images
-
-If Coolify can't pull images:
-
-1. Create a GitHub classic token with `read:packages` permission
-2. SSH into your server
-3. Run: `docker login ghcr.io -u <your-github-username>`
-4. Enter your token when prompted
-
-#### Using Cloudflare
-
-If using Cloudflare for DNS:
-
-1. Set your SSL mode to **Full** in Cloudflare
-2. Ensure your A records are proxied through Cloudflare

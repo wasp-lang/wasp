@@ -104,7 +104,7 @@ git clone git@github.com: < username > / < repo-name > .git
 Install the Wasp CLI:
 
 ```bash
-curl -sSL https://get.wasp-lang.dev/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
 Add Wasp to your PATH by adding this line to `~/.bashrc`:
@@ -138,7 +138,7 @@ In your project directory:
 wasp build
 
 ## Navigate to the build directory
-cd .wasp/build
+cd .wasp/out
 
 ## Build the Docker image
 docker build . -t wasp-app
@@ -217,7 +217,7 @@ curl localhost:3001
 ### Step 13: Build the Client
 
 ```bash
-cd .wasp/build/web-app
+cd .wasp/out/web-app
 npm install
 REACT_APP_API_URL=https://api.myapp.com npm run build
 ```
@@ -226,7 +226,7 @@ Copy the built files to a serving directory:
 
 ```bash
 mkdir -p ~/client
-cp -R .wasp/build/web-app/build/* ~/client/
+cp -R .wasp/out/web-app/build/* ~/client/
 ```
 
 ### Step 14: Configure Caddy
@@ -276,7 +276,7 @@ echo "Stopping existing container..."
 docker container stop wasp-app && docker container rm wasp-app || true
 
 echo "Building Docker image..."
-cd .wasp/build/
+cd .wasp/out/
 docker build . -t wasp-app
 
 echo "Starting new container..."
@@ -284,7 +284,7 @@ cd ~/\"$APP_NAME\"
 docker run -d --name wasp-app --env-file .env.production -p 127.0.0.1:3001:3001 --network wasp-network wasp-app
 
 echo "Building client..."
-cd .wasp/build/web-app/
+cd .wasp/out/web-app/
 npm install
 REACT_APP_API_URL=https://api.myapp.com npm run build
 
