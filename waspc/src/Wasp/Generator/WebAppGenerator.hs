@@ -107,9 +107,7 @@ dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
-genPackageJson spec waspDependencies = do
-  let overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)
-  webAppDeps <- N.mergeWaspAndUserDeps overriddenDepNames waspDependencies $ N.getUserNpmDepsForPackage spec
+genPackageJson spec waspDependencies =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -124,6 +122,8 @@ genPackageJson spec waspDependencies = do
             ]
       )
   where
+    webAppDeps = N.mergeWithUserOverrides waspDependencies $ N.getUserNpmDepsForPackage spec
+
     dependencyOverrides =
       Npm.Dependency.fromList
         [ -- TODO: remove this once Rollup fixes their lastest version https://github.com/rollup/rollup/issues/6012

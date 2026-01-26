@@ -12,20 +12,20 @@ module Wasp.Generator.NpmDependencies
     NpmDepsFromUser (..),
     buildWaspFrameworkNpmDeps,
     getDependencyOverridesPackageJsonEntry,
-    mergeWaspAndUserDeps,
+    mergeWithUserOverrides,
   )
 where
 
-import Control.Monad (forM_)
 import Data.Aeson
 import Data.List (intercalate, sort)
 import qualified Data.Map as Map
+import Data.Maybe (isJust)
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
-import Wasp.Generator.Monad (Generator, GeneratorWarning (..), logGeneratorWarning)
+import Wasp.Util (zipMaps)
 
 data NpmDepsForFramework = NpmDepsForFramework
   { npmDepsForServer :: NpmDepsForPackage,
@@ -46,55 +46,39 @@ newtype NpmDepsFromWasp = NpmDepsFromWasp {fromWasp :: NpmDepsForPackage}
 newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
   deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
--- | Ensures there are no conflicts between Wasp's dependencies and user's dependencies,
--- while allowing overrides for packages listed in overriddenDepNames.
--- For overridden packages, user's version is used instead of Wasp's, and a warning is emitted.
-mergeWaspAndUserDeps :: [PJ.PackageName] -> NpmDepsFromWasp -> NpmDepsFromUser -> Generator NpmDepsForPackage
-mergeWaspAndUserDeps overriddenDepNames waspDeps userDeps = do
-  -- Emit warnings for each override
-  forM_ overriddenDepNames $ \pkgName ->
-    logGeneratorWarning $
-      GenericGeneratorWarning $
-        "Dependency override active for \""
-          ++ pkgName
-          ++ "\". You are using an unsupported version. "
-          ++ "Wasp cannot guarantee compatibility."
-  -- Return merged dependencies with user versions for overridden packages
-  return $ mergeWithUserOverrides overriddenDepNames waspDeps userDeps
-
--- | Merges Wasp dependencies with user dependencies, using user's versions
--- for packages listed in overriddenDepNames.
-mergeWithUserOverrides :: [PJ.PackageName] -> NpmDepsFromWasp -> NpmDepsFromUser -> NpmDepsForPackage
-mergeWithUserOverrides overriddenDepNames (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
+-- | Merges Wasp dependencies with user dependencies, using user's versions for
+-- packages listed in overriddenDepNames.
+mergeWithUserOverrides :: NpmDepsFromWasp -> NpmDepsFromUser -> NpmDepsForPackage
+mergeWithUserOverrides (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
   NpmDepsForPackage
-    { dependencies = mergeDeps (dependencies waspPkg) (dependencies userPkg),
-      devDependencies = mergeDeps (devDependencies waspPkg) (devDependencies userPkg),
+    { dependencies = mergeDeps (dependencies waspPkg) allUserDependencies,
+      devDependencies = mergeDeps (devDependencies waspPkg) allUserDependencies,
       peerDependencies = []
     }
   where
+    allUserDependencies = dependencies userPkg ++ devDependencies userPkg
+
     mergeDeps :: [D.Dependency] -> [D.Dependency] -> [D.Dependency]
     mergeDeps waspDeps userDeps =
-      let waspMap = makeDepsByName waspDeps
-          userMap = makeDepsByName userDeps
-          -- For overridden deps, replace Wasp's version with user's version
-          mergedMap =
-            foldr
-              ( \pkgName m -> case Map.lookup pkgName userMap of
-                  Just userDep | pkgName `elem` overriddenDepNames -> Map.insert pkgName userDep m
-                  _ -> m
-              )
-              waspMap
-              overriddenDepNames
-       in Map.elems mergedMap
+      D.fromList $ Map.toList $ zipMaps (const merge) waspMap userMap
+      where
+        -- If it's in both, prefer `userDep`. Otherwise, take `waspDep`. (We
+        -- don't to want add a dependency that is only in userDeps here, only
+        -- override existing ones.)
+        merge waspDep userDep
+          | isJust waspDep && isJust userDep = userDep
+          | otherwise = waspDep
+
+        waspMap = Map.fromList $ D.toPair <$> waspDeps
+        userMap = Map.fromList $ D.toPair <$> userDeps
 
 buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> NpmDepsForFramework
 buildWaspFrameworkNpmDeps spec fromServer fromWebApp =
   NpmDepsForFramework
-    { npmDepsForServer = mergeWithUserOverrides overriddenDepNames fromServer userDeps,
-      npmDepsForWebApp = mergeWithUserOverrides overriddenDepNames fromWebApp userDeps
+    { npmDepsForServer = mergeWithUserOverrides fromServer userDeps,
+      npmDepsForWebApp = mergeWithUserOverrides fromWebApp userDeps
     }
   where
-    overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)
     userDeps = getUserNpmDepsForPackage spec
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser
@@ -114,11 +98,6 @@ instance Eq NpmDepsForPackage where
 
 sortedDependencies :: NpmDepsForPackage -> ([D.Dependency], [D.Dependency])
 sortedDependencies a = (sort $ dependencies a, sort $ devDependencies a)
-
-type DepsByName = Map.Map String D.Dependency
-
-makeDepsByName :: [D.Dependency] -> DepsByName
-makeDepsByName = Map.fromList . fmap (\d -> (D.name d, d))
 
 getDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "dependencies" . dependencies

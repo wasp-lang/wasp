@@ -21,6 +21,7 @@ module Wasp.Util
     leftPad,
     trim,
     wrapString,
+    zipMaps,
     (<++>),
     (<:>),
     bytestringToHex,
@@ -60,6 +61,8 @@ import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
 import Data.List (group, intercalate, sort)
 import Data.List.Split (splitOn, wordsBy)
+import Data.Map (Map)
+import qualified Data.Map.Merge.Lazy as Map.Merge
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -211,6 +214,16 @@ wrapString maxLength = intercalate "\n" . map unwords . groupWordsIntoLines . wo
       | otherwise =
           let (taken, leftover) = takeLine (remainingLength - length w - 1) ws
            in (w : taken, leftover)
+
+-- | It will call the given function for each key in both maps, with `Maybe`s
+-- representing the presence of the key in each map. The resulting value will be
+-- used to create a new Map.
+zipMaps :: (Ord k) => (k -> Maybe a -> Maybe b -> Maybe c) -> Map k a -> Map k b -> Map k c
+zipMaps f =
+  Map.Merge.merge
+    (Map.Merge.mapMaybeMissing $ \k x -> f k (Just x) Nothing)
+    (Map.Merge.mapMaybeMissing $ \k y -> f k Nothing (Just y))
+    (Map.Merge.zipWithMaybeMatched $ \k x y -> f k (Just x) (Just y))
 
 infixr 5 <++>
 

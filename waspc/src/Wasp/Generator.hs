@@ -6,15 +6,18 @@ module Wasp.Generator
   )
 where
 
+import Control.Monad (forM_)
 import Data.List.NonEmpty (toList)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.ExternalConfig.Npm.Dependency as D
+import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGenerator)
+import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning (GenericGeneratorWarning), logGeneratorWarning, runGenerator)
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
@@ -51,9 +54,23 @@ writeWebAppCode spec dstDir sendMessage = do
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
-genApp spec =
+genApp spec = do
+  warnOverriddenDeps spec
+
   genWebApp spec
     <++> genServer spec
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
+
+warnOverriddenDeps :: AppSpec -> Generator ()
+warnOverriddenDeps spec =
+  forM_ overriddenDepNames $ \pkgName ->
+    logGeneratorWarning $
+      GenericGeneratorWarning $
+        "Dependency override active for \""
+          ++ pkgName
+          ++ "\". You are using an unsupported version. "
+          ++ "Wasp cannot guarantee compatibility."
+  where
+    overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)
