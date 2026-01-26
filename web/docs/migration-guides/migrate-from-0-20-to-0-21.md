@@ -96,6 +96,7 @@ We've rearranged our workspace architecture a bit, so you'll need to update the 
   - Add `.wasp/out/sdk/wasp`.
 - In your `dependencies` object:
   - Remove the `wasp` dependency.
+  - Rename `react-router-dom` to `react-router` (and update the version).
 
 <Tabs>
 <TabItem value="before" label="Before">
@@ -107,7 +108,9 @@ We've rearranged our workspace architecture a bit, so you'll need to update the 
     ".wasp/build/*",
     ".wasp/out/*"
   ],
-  dependencies: {
+  "dependencies": {
+    // highlight-next-line
+    "react-router-dom": "^6.26.2",
     // ... other dependencies ...
     // highlight-next-line
     "wasp": "file:.wasp/out/sdk/wasp"
@@ -126,7 +129,9 @@ We've rearranged our workspace architecture a bit, so you'll need to update the 
     // highlight-next-line
     ".wasp/out/sdk/wasp"
   ],
-  dependencies: {
+  "dependencies": {
+    // highlight-next-line
+    "react-router": "^7.12.0",
     // ... other dependencies ...
   }
   // ... other fields ...
@@ -144,7 +149,39 @@ wasp ts-setup # if you're using the TS Spec
 wasp compile
 ```
 
-### 3. Upgrade Tailwind CSS to v4
+### 3. Update React Router imports
+
+We've upgraded from React Router 6 to React Router 7. The package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your imports.
+
+Search your codebase for the string `react-router-dom` and update imports to `react-router`:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```tsx title="src/SomePage.tsx"
+// highlight-next-line
+import { useNavigate, useParams } from 'react-router-dom'
+
+// ...
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```tsx title="src/SomePage.tsx"
+// highlight-next-line
+import { useNavigate, useParams } from 'react-router'
+
+// ...
+```
+
+</TabItem>
+</Tabs>
+
+React Router v7 is largely backwards compatible with v6, so there shouldn't be any changes besides the name.
+For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
+
+### 4. Upgrade Tailwind CSS to v4
 
 **If you don't have a `tailwindcss` dependency in your `package.json`, you can skip this step.**
 
@@ -233,7 +270,7 @@ wasp compile
 
 If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../project/css-frameworks.md#tailwind).
 
-### 4. Update your custom Dockerfile
+### 5. Update your custom Dockerfile
 
 **If you don't have a `Dockerfile` in your project folder, you can skip this step.**
 
@@ -243,7 +280,7 @@ This can be a quite straightforward find-and-replace operation:
 - **Find** `.wasp/build`
 - **Replace** with `.wasp/out`
 
-### 5. Update your custom deployment scripts
+### 6. Update your custom deployment scripts
 
 **If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
 
@@ -255,7 +292,7 @@ This can be a quite straightforward find-and-replace operation:
 
 You can check our updated [deployment methods guide](../deployment/deployment-methods/overview.md) and [CI/CD guide](../deployment/ci-cd.md) for reference on the correct deployment steps.
 
-### 6. Upgrade Vitest tests to v4
+### 7. Upgrade Vitest tests to v4
 
 **If you don't have test files in your project, you can skip this step.**
 
@@ -264,65 +301,6 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 1. [Migration guide from Vitest v1 to v2](https://v3.vitest.dev/guide/migration.html#vitest-2)
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
-
-### 7. Update React Router to v7
-
-We've upgraded from React Router 6 to React Router 7. The package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your `package.json` and imports.
-
-1. Update your `package.json`:
-
-    <Tabs>
-    <TabItem value="before" label="Before">
-
-    ```json title="package.json"
-    {
-      "dependencies": {
-        // highlight-next-line
-        "react-router-dom": "^6.26.2"
-      }
-    }
-    ```
-
-    </TabItem>
-    <TabItem value="after" label="After">
-
-    ```json title="package.json"
-    {
-      "dependencies": {
-        // highlight-next-line
-        "react-router": "^7.12.0"
-      }
-    }
-    ```
-
-    </TabItem>
-    </Tabs>
-
-2. Search your codebase for the string `react-router-dom` and update imports to `react-router`:
-
-    <Tabs>
-    <TabItem value="before" label="Before">
-
-    ```tsx title="src/SomePage.tsx"
-    import { useNavigate, useParams } from 'react-router-dom'
-
-    // ...
-    ```
-
-    </TabItem>
-    <TabItem value="after" label="After">
-
-    ```tsx title="src/SomePage.tsx"
-    import { useNavigate, useParams } from 'react-router'
-
-    // ...
-    ```
-
-    </TabItem>
-    </Tabs>
-
-React Router v7 is largely backwards compatible with v6, so there shouldn't be any changes besides the name.
-For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
 
 ### 8. Enjoy your updated Wasp app
 
