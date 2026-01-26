@@ -1,5 +1,4 @@
-// @ts-check
-
+/// <reference types="node" />
 // Gets the waspc version from the Cabal package file.
 
 import { readFileSync } from "node:fs";

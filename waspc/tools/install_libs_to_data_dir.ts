@@ -1,5 +1,4 @@
-// @ts-check
-
+/// <reference types="node" />
 // Helper to compile the waspc/libs/* packages locally and in CI and then move
 // them into the Cabal data dir.
 
@@ -21,19 +20,19 @@ const waspcVersion = getWaspcVersion();
 
 main();
 
-function main() {
+function main(): void {
   cleanupOldLibs();
   buildAndCopyLibs();
 }
 
-function cleanupOldLibs() {
+function cleanupOldLibs(): void {
   if (existsSync(dataLibsDirPath)) {
     rmSync(dataLibsDirPath, { recursive: true, force: true });
   }
   mkdirSync(dataLibsDirPath, { recursive: true });
 }
 
-function buildAndCopyLibs() {
+function buildAndCopyLibs(): void {
   const libsDirPath = join(waspcDirPath, "libs");
   const libDirs = readdirSync(libsDirPath, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
@@ -44,7 +43,7 @@ function buildAndCopyLibs() {
   }
 }
 
-function buildAndCopyLib(/** @type {string} */ libDir) {
+function buildAndCopyLib(libDir: string): void {
   const { name: libName, version: libVersion } = getLibPackageJson(libDir);
 
   assertLibVersionValid(libName, libVersion);
@@ -69,15 +68,12 @@ function buildAndCopyLib(/** @type {string} */ libDir) {
   }
 }
 
-function getLibPackageJson(/** @type {string} */ libDir) {
+function getLibPackageJson(libDir: string): { name: string; version: string } {
   const packageJsonPath = join(libDir, "package.json");
   return JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 }
 
-function assertLibVersionValid(
-  /** @type {string} */ libName,
-  /** @type {string} */ libVersion,
-) {
+function assertLibVersionValid(libName: string, libVersion: string): void {
   if (libVersion !== waspcVersion) {
     console.error(
       `ERROR: ${libName} lib version (${libVersion}) != current Wasp version (${waspcVersion}).`,
@@ -89,21 +85,19 @@ function assertLibVersionValid(
   }
 }
 
-function getTarballsInDir(/** @type {string} */ dir) {
+function getTarballsInDir(dir: string): string[] {
   return readdirSync(dir).filter((f) => f.endsWith(".tgz"));
 }
 
-function getWaspcVersion() {
-  return runCmd("node", [join("tools", "get-waspc-version.mjs")], {
-    cwd: waspcDirPath,
-  }).trim();
+function getWaspcVersion(): string {
+  return runCmd(
+    "node",
+    ["--experimental-strip-types", join("tools", "get-waspc-version.ts")],
+    { cwd: waspcDirPath },
+  ).trim();
 }
 
-function runCmd(
-  /** @type {string} */ cmd,
-  /** @type {string[]} */ args,
-  /** @type {{ cwd: string }} */ { cwd },
-) {
+function runCmd(cmd: string, args: string[], { cwd }: { cwd: string }): string {
   return execFileSync(cmd, args, {
     cwd,
     encoding: "utf-8",
