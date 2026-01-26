@@ -22,7 +22,7 @@ smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
     { npmDependency = Just nodeMailerDependency,
-      setupFnFile = serverEmailProvidersDirInSdkTemplatesDir </> [relfile|smtp.ts|]
+      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|smtp.ts|]
     }
   where
     nodeMailerVersionRange :: SV.Range
@@ -35,7 +35,7 @@ sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
     { npmDependency = Just sendGridDependency,
-      setupFnFile = serverEmailProvidersDirInSdkTemplatesDir </> [relfile|sendgrid.ts|]
+      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|sendgrid.ts|]
     }
   where
     sendGridVersionRange :: SV.Range
@@ -48,7 +48,7 @@ mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
     { npmDependency = Just mailgunDependency,
-      setupFnFile = serverEmailProvidersDirInSdkTemplatesDir </> [relfile|mailgun.ts|]
+      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|mailgun.ts|]
     }
   where
     mailgunVersionRange :: SV.Range
@@ -61,8 +61,8 @@ dummy :: EmailSenderProvider
 dummy =
   EmailSenderProvider
     { npmDependency = Nothing,
-      setupFnFile = serverEmailProvidersDirInSdkTemplatesDir </> [relfile|dummy.ts|]
+      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|dummy.ts|]
     }
 
-serverEmailProvidersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverEmailProvidersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]
+providersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]
