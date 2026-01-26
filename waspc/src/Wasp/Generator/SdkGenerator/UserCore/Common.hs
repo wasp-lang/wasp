@@ -28,20 +28,20 @@ data TemplatesSdkUserCoreProjectDir
 mkTmplFd ::
   Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
   FileDraft
-mkTmplFd tmplFile =
+mkTmplFd srcFilePath =
   mkTmplFdWithDestAndData
-    (castRel tmplFile)
-    tmplFile
+    (castRel srcFilePath)
+    srcFilePath
     Nothing
 
 mkTmplFdWithData ::
   Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
   Aeson.Value ->
   FileDraft
-mkTmplFdWithData tmplFile tmplData =
+mkTmplFdWithData srcFilePath tmplData =
   mkTmplFdWithDestAndData
-    (castRel tmplFile)
-    tmplFile
+    (castRel srcFilePath)
+    srcFilePath
     (Just tmplData)
 
 mkTmplFdWithDestAndData ::
@@ -49,10 +49,10 @@ mkTmplFdWithDestAndData ::
   Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDestAndData destFile tmplFile =
+mkTmplFdWithDestAndData destFilePath srcFilePath =
   createTemplateFileDraft
-    (sdkRootDirInGeneratedCodeDir </> sdkUserCoreProjectDirInSdkRootDir </> destFile)
-    (sdkRootDirInTemplatesDir </> templatesSdkUserCoreProjectDirInTemplatesSdkRootDir </> tmplFile)
+    (sdkRootDirInGeneratedCodeDir </> sdkUserCoreProjectDirInSdkRootDir </> destFilePath)
+    (sdkRootDirInTemplatesDir </> templatesSdkUserCoreProjectDirInTemplatesSdkRootDir </> srcFilePath)
 
 templatesSdkUserCoreProjectDirInTemplatesSdkRootDir :: Path' (Rel TemplatesSdkRootDir) (Dir TemplatesSdkUserCoreProjectDir)
 templatesSdkUserCoreProjectDirInTemplatesSdkRootDir = [reldir|user-core|]
