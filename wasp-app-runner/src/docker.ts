@@ -4,11 +4,6 @@ import { Branded } from "./types.js";
 import type { AppName } from "./waspCli.js";
 
 export type DbContainerName = Branded<string, "ContainerName">;
-export type ServerBuildContainerName = Branded<
-  string,
-  "ServerBuildContainerName"
->;
-export type ServerBuildImageName = Branded<string, "ServerBuildImageName">;
 
 export function createAppSpecificDbContainerName({
   appName,
@@ -22,26 +17,6 @@ export function createAppSpecificDbContainerName({
     pathToApp,
   });
   return `${prefix}-db` as DbContainerName;
-}
-
-export function createAppSpecificServerBuildDockerNames({
-  appName,
-  pathToApp,
-}: {
-  appName: AppName;
-  pathToApp: PathToApp;
-}): {
-  imageName: ServerBuildImageName;
-  containerName: ServerBuildContainerName;
-} {
-  const prefix = createAppSpecificPrefix({
-    appName,
-    pathToApp,
-  });
-  return {
-    imageName: `${prefix}-server` as ServerBuildImageName,
-    containerName: `${prefix}-server-container` as ServerBuildContainerName,
-  };
 }
 
 function createAppSpecificPrefix({

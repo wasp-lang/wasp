@@ -90,7 +90,12 @@ async function runWasp(
     debug("Passing arguments: %j", process.argv.slice(2));
 
     execFileSync(waspBinPath, process.argv.slice(2), {
-      env: { ...process.env, waspc_datadir: dataDirPath },
+      env: {
+        ...process.env,
+        waspc_datadir: dataDirPath,
+        // Keep this property in sync with waspc/src/Wasp/Util/InstallMethod.hs:
+        WASP_CLI_INSTALL_METHOD: "npm",
+      },
       stdio: "inherit",
     });
 

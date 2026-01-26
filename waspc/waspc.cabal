@@ -452,6 +452,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.HashMap
+    Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
     Wasp.Util.Json

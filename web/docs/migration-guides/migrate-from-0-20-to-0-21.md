@@ -4,17 +4,54 @@ title: Migration from 0.20.X to 0.21.X
 
 To install the latest version of Wasp, open your terminal and run:
 
+<Tabs>
+<TabItem value="installer" label="Installer">
+
 ```sh
 curl -sSL https://get.wasp.sh/installer.sh | sh
 ```
 
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```sh
+npm i -g @wasp.sh/wasp-cli@latest
+```
+
+</TabItem>
+</Tabs>
+
 If you want to install Wasp 0.21.0 specifically, you can pass a version argument to the install script:
+
+<Tabs>
+<TabItem value="installer" label="Installer">
 
 ```sh
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.21.0
 ```
 
+</TabItem>
+<TabItem value="npm" label="npm">
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.21.0
+```
+
+</TabItem>
+</Tabs>
+
 ## What's new in 0.21.X?
+
+### New npm-based installation
+
+Starting from Wasp 0.21.X, the recommended way to install Wasp is via npm. This simplifies the installation process and makes it easier to manage Wasp versions. For now, both the old and new installation methods are supported, but we recommend switching to the npm-based installation.
+
+To switch from the old installation method to the new one, simply uninstall Wasp using the old method and then install it again via npm:
+
+```sh
+wasp uninstall
+npm i -g @wasp.sh/wasp-cli@latest
+```
 
 ### Better Tailwind CSS support
 
@@ -25,6 +62,10 @@ In previous versions of Wasp, we used a custom way of handling Tailwind CSS conf
 ### Merged the `.wasp/out` and `.wasp/build` directories
 
 In previous versions of Wasp, there were two separate directories for generated code: `.wasp/out` (used in development mode) and `.wasp/build` (used in production mode). Starting from Wasp 0.21.X, only the `.wasp/out` directory is used for generated code in both development and production modes. This change simplifies the project structure and reduces confusion.
+
+### Upgraded to React Router 7
+
+Wasp has upgraded from React Router 6 to React Router 7. The new version is backwards compatible with v6 when used as a library, so you shouldn't notice any breaking changes.
 
 ### Upgraded to Vitest 4
 
@@ -224,6 +265,22 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 7. Enjoy your updated Wasp app
+### 7. Update React Router to v7
+
+We've upgraded from React Router 6 to React Router 7, so bump the version in your `package.json`:
+
+```json title="package.json"
+{
+  "dependencies": {
+    // highlight-next-line
+    "react-router-dom": "^7.12.0"
+  }
+}
+```
+
+React Router v7 is largely backwards compatible with v6, so most code should work without changes.
+If you encounter issues, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
+
+### 8. Enjoy your updated Wasp app
 
 That's it!
