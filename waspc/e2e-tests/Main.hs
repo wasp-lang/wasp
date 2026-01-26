@@ -88,6 +88,6 @@ e2eTests = do
   return $
     testGroup
       "E2E tests"
-      [ -- testGroup "Snapshot Tests" snapshotTests,
+      [ testGroup "Snapshot Tests" snapshotTests,
         testGroup "Tests" tests
       ]
