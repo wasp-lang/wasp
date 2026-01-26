@@ -541,7 +541,7 @@ Here’s an example configuration file to help you get started. This example wor
             node-version: '22'
 
         - name: Install Wasp
-          run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
+          run: npm i -g @wasp.sh/wasp-cli@0.16.0 # Change to your Wasp version
 
         - name: Wasp Build
           run: wasp build
@@ -642,7 +642,7 @@ Here’s an example configuration file to help you get started. This example wor
             node-version: '22'
 
         - name: Install Wasp
-          run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.16.0 # Change to your Wasp version
+          run: npm i -g @wasp.sh/wasp-cli@0.16.0 # Change to your Wasp version
 
         - name: Wasp Build
           run: cd ./app && wasp build

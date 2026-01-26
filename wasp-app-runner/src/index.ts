@@ -12,8 +12,7 @@ import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { createLogger } from "./logging.js";
-import { getSettingsForVersion } from "./versions.js";
-import { getWaspVersion, waspInfo, waspTsSetup } from "./waspCli.js";
+import { waspInfo, waspTsSetup } from "./waspCli.js";
 
 const logger = createLogger("main");
 
@@ -49,12 +48,6 @@ async function runWaspApp({
   dbImage?: DockerImageName;
 }): Promise<void> {
   await checkDependencies();
-
-  const { waspVersion } = await getWaspVersion({
-    waspCliCmd,
-    pathToApp,
-  });
-  const versionSettings = getSettingsForVersion(waspVersion);
 
   const { appName, dbType } = await waspInfo({
     waspCliCmd,
@@ -96,7 +89,6 @@ async function runWaspApp({
         waspCliCmd,
         pathToApp,
         appName,
-        versionSettings,
         dbType,
         dbImage,
       });
