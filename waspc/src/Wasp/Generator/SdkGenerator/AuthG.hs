@@ -7,9 +7,9 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import qualified Wasp.AppSpec.Core.Ref as AS
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
@@ -37,13 +37,13 @@ genAuth spec =
     Just auth ->
       -- shared stuff
       sequence
-        [ genAuthFileCopy [relfile|user.ts|]
+        [ genFileCopyInAuth [relfile|user.ts|]
         ]
         -- client stuff
         <++> sequence
-          [ genAuthFileCopy [relfile|helpers/user.ts|],
-            genAuthFileCopy [relfile|types.ts|],
-            genAuthFileCopy [relfile|logout.ts|],
+          [ genFileCopyInAuth [relfile|helpers/user.ts|],
+            genFileCopyInAuth [relfile|types.ts|],
+            genFileCopyInAuth [relfile|logout.ts|],
             genUseAuth auth
           ]
         <++> genAuthForms auth
@@ -53,9 +53,9 @@ genAuth spec =
         -- server stuff
         <++> sequence
           [ return $ mkTmplFd [relfile|core/auth.ts|],
-            genAuthFileCopy [relfile|validation.ts|],
-            genAuthFileCopy [relfile|password.ts|],
-            genAuthFileCopy [relfile|jwt.ts|],
+            genFileCopyInAuth [relfile|validation.ts|],
+            genFileCopyInAuth [relfile|password.ts|],
+            genFileCopyInAuth [relfile|jwt.ts|],
             genSessionTs auth,
             genLuciaTs auth,
             genUtils auth,
@@ -71,16 +71,14 @@ genAuth spec =
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
 genUseAuth :: AS.Auth.Auth -> Generator FileDraft
-genUseAuth auth = return $ mkTmplFdWithData tmplFile tmplData
+genUseAuth auth = return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|useAuth.ts|]) tmplData
   where
-    tmplFile = authDirInUserCoreTemplatesDir </> [relfile|useAuth.ts|]
     tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
-genLuciaTs auth = return $ mkTmplFdWithData tmplFile tmplData
+genLuciaTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|lucia.ts|]) tmplData
   where
-    tmplFile = authDirInUserCoreTemplatesDir </> [relfile|lucia.ts|]
     tmplData =
       object
         [ "sessionEntityLower" .= (Util.toLowerFirst DbAuth.sessionEntityName :: String),
@@ -91,9 +89,8 @@ genLuciaTs auth = return $ mkTmplFdWithData tmplFile tmplData
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
-genSessionTs auth = return $ mkTmplFdWithData tmplFile tmplData
+genSessionTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|session.ts|]) tmplData
   where
-    tmplFile = authDirInUserCoreTemplatesDir </> [relfile|session.ts|]
     tmplData =
       object
         [ "userEntityUpper" .= userEntityName,
@@ -104,9 +101,8 @@ genSessionTs auth = return $ mkTmplFdWithData tmplFile tmplData
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genUtils :: AS.Auth.Auth -> Generator FileDraft
-genUtils auth = return $ mkTmplFdWithData tmplFile tmplData
+genUtils auth = return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|utils.ts|]) tmplData
   where
-    tmplFile = authDirInUserCoreTemplatesDir </> [relfile|utils.ts|]
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
@@ -124,9 +120,8 @@ genUtils auth = return $ mkTmplFdWithData tmplFile tmplData
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
-genIndexTs auth = return $ mkTmplFdWithData tmplFile tmplData
+genIndexTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
   where
-    tmplFile = authDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "isEmailAuthEnabled" .= isEmailAuthEnabled,
@@ -136,9 +131,8 @@ genIndexTs auth = return $ mkTmplFdWithData tmplFile tmplData
     isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvdersIndex auth = return $ mkTmplFdWithData tmplFile tmplData
+genProvdersIndex auth = return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|providers/index.ts|]) tmplData
   where
-    tmplFile = authDirInUserCoreTemplatesDir </> [relfile|providers/index.ts|]
     tmplData =
       object
         [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
@@ -149,9 +143,8 @@ genProvdersIndex auth = return $ mkTmplFdWithData tmplFile tmplData
     authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
-genProvidersTypes auth = return $ mkTmplFdWithData tmplFile tmplData
+genProvidersTypes auth = return $ mkTmplFdWithData (authDirInSdkTemplatesDir </> [relfile|providers/types.ts|]) tmplData
   where
-    tmplFile = authDirInUserCoreTemplatesDir </> [relfile|providers/types.ts|]
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
@@ -166,6 +159,6 @@ genProvidersTypes auth = return $ mkTmplFdWithData tmplFile tmplData
 authDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 authDirInUserCoreTemplatesDir = [reldir|auth|]
 
-genAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
-genAuthFileCopy =
-  return . mkTmplFd . (authDirInUserCoreTemplatesDir </>)
+genFileCopyInAuth :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInAuth =
+  return . mkTmplFd . (authDirInSdkTemplatesDir </>)

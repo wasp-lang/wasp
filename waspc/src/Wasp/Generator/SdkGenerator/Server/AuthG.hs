@@ -38,9 +38,8 @@ genNewServerApi spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
   where
-    tmplFile = serverAuthDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
@@ -50,9 +49,8 @@ genAuthIndex auth =
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesDir </> [relfile|user.ts|]) tmplData
   where
-    tmplFile = serverAuthDirInUserCoreTemplatesDir </> [relfile|user.ts|]
     tmplData =
       object
         [ "userEntityName" .= userEntityName,
@@ -66,9 +64,8 @@ genAuthUser auth =
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesDir </> [relfile|hooks.ts|]) tmplData
   where
-    tmplFile = serverAuthDirInUserCoreTemplatesDir </> [relfile|hooks.ts|]
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
@@ -80,12 +77,12 @@ genAuthEmail auth =
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genServerAuthFileCopy [relfile|username.ts|]]
+    then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
     else return []
 
 serverAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 serverAuthDirInUserCoreTemplatesDir = [reldir|server/auth|]
 
-genServerAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
-genServerAuthFileCopy =
-  return . mkTmplFd . (serverAuthDirInUserCoreTemplatesDir </>)
+genFileCopyInServerAuth :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInServerAuth =
+  return . mkTmplFd . (serverAuthDirInSdkTemplatesDir </>)

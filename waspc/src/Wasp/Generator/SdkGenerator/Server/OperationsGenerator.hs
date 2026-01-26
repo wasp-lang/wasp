@@ -44,9 +44,8 @@ genOperations spec =
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ mkTmplFdWithData tmplFile tmplData
+genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
   where
-    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "actions" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec),
@@ -55,15 +54,13 @@ genIndexTs spec = return $ mkTmplFdWithData tmplFile tmplData
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genWrappers :: AppSpec -> Generator FileDraft
-genWrappers spec = return $ mkTmplFdWithData tmplFile tmplData
+genWrappers spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|]) tmplData
   where
-    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|wrappers.ts|]
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ mkTmplFdWithData tmplFile tmplData
+genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]) tmplData
   where
-    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabledGlobally,
@@ -72,9 +69,8 @@ genQueriesIndex spec = return $ mkTmplFdWithData tmplFile tmplData
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ mkTmplFdWithData tmplFile tmplData
+genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]) tmplData
   where
-    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabledGlobally,
@@ -83,16 +79,22 @@ genActionsIndex spec = return $ mkTmplFdWithData tmplFile tmplData
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
-genQueryTypesFile spec = genOperationTypesFile tmplFile operations isAuthEnabledGlobally
+genQueryTypesFile spec =
+  genOperationTypesFile
+    (serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|])
+    operations
+    isAuthEnabledGlobally
   where
-    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|queries/types.ts|]
     operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionTypesFile :: AppSpec -> Generator FileDraft
-genActionTypesFile spec = genOperationTypesFile tmplFile operations isAuthEnabledGlobally
+genActionTypesFile spec =
+  genOperationTypesFile
+    (serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|])
+    operations
+    isAuthEnabledGlobally
   where
-    tmplFile = serverOpsDirInUserCoreTemplatesDir </> [relfile|actions/types.ts|]
     operations = map (uncurry AS.Operation.ActionOp) $ AS.getActions spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
@@ -114,8 +116,8 @@ genOperationTypesFile ::
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
-genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
-  return $ mkTmplFdWithData tmplFile tmplData
+genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally =
+  return $ mkTmplFdWithData relOperationTypesFilePath tmplData
   where
     tmplData =
       object
