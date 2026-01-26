@@ -14,7 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, castRel, fromRelDir, relfile, toFilePath, (</>))
+import StrongPath (Abs, Dir, Path', Rel, castRel, fromRelDir, fromRelFile, relfile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
@@ -44,7 +44,7 @@ import Wasp.Generator.DepVersions
     reactVersion,
     superjsonVersion,
   )
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTextFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -148,31 +148,26 @@ genEntitiesAndServerTypesDirs spec =
     ]
   where
     entitiesIndexFileDraft =
-      C.mkTmplFdWithDstAndData
+      C.mkTmplFdWithData
         [relfile|entities/index.ts|]
-        [relfile|entities/index.ts|]
-        ( Just $
-            object
-              [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust maybeUserEntityName,
-                "authEntityName" .= DbAuth.authEntityName,
-                "authIdentityEntityName" .= DbAuth.authIdentityEntityName
-              ]
+        ( object
+            [ "entities" .= allEntities,
+              "isAuthEnabled" .= isJust maybeUserEntityName,
+              "authEntityName" .= DbAuth.authEntityName,
+              "authIdentityEntityName" .= DbAuth.authIdentityEntityName
+            ]
         )
     taggedEntitiesFileDraft =
-      C.mkTmplFdWithDstAndData
+      C.mkTmplFdWithData
         [relfile|server/_types/taggedEntities.ts|]
-        [relfile|server/_types/taggedEntities.ts|]
-        (Just $ object ["entities" .= allEntities])
+        (object ["entities" .= allEntities])
     typesIndexFileDraft =
-      C.mkTmplFdWithDstAndData
+      C.mkTmplFdWithData
         [relfile|server/_types/index.ts|]
-        [relfile|server/_types/index.ts|]
-        ( Just $
-            object
-              [ "entities" .= allEntities,
-                "isAuthEnabled" .= isJust maybeUserEntityName
-              ]
+        ( object
+            [ "entities" .= allEntities,
+              "isAuthEnabled" .= isJust maybeUserEntityName
+            ]
         )
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
@@ -180,15 +175,13 @@ genEntitiesAndServerTypesDirs spec =
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
   return $
-    C.mkTmplFdWithDstAndData
+    C.mkTmplFdWithData
       [relfile|package.json|]
-      [relfile|package.json|]
-      ( Just $
-          object
-            [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
-              "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
-            ]
+      ( object
+          [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
+            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
+            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
+          ]
       )
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
@@ -246,9 +239,8 @@ depsRequiredForTesting =
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
-  return $ C.mkTmplFdWithData tmplFile tmplData
+  return $ C.mkTmplFdWithData [relfile|client/config.ts|] tmplData
   where
-    tmplFile = [relfile|client/config.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
@@ -274,9 +266,8 @@ genCoreSerializationDir spec =
     entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ C.mkTmplFdWithData tmplFile tmplData
+genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts|] tmplData
   where
-    tmplFile = [relfile|server/config.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -291,13 +282,11 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData tmplFile tmplData
 genTsConfigJson :: Generator FileDraft
 genTsConfigJson = do
   return $
-    C.mkTmplFdWithDstAndData
+    C.mkTmplFdWithData
       [relfile|tsconfig.json|]
-      [relfile|tsconfig.json|]
-      ( Just $
-          object
-            [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
-            ]
+      ( object
+          [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
+          ]
       )
 
 depsRequiredForAuth :: AppSpec -> [Npm.Dependency.Dependency]
@@ -328,23 +317,15 @@ genExternalCodeDir = sequence . mapMaybe genExternalFile
 genExternalFile :: EF.CodeFile -> Maybe (Generator FileDraft)
 genExternalFile file
   | fileName == "tsconfig.json" = Nothing
-  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genExternalSourceFile file
-  | otherwise = Just $ genExternalResourceFile file
+  | otherwise = Just . return . createCopyFileDraft destFile . EF.fileAbsPath $ file
   where
-    fileName = FP.takeFileName filePath
-    extension = FP.takeExtension filePath
-    filePath = toFilePath $ EF.filePathInExtCodeDir file
-
-    genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
-    genExternalSourceFile = return . createTextFileDraft destFile . EF.fileText
-
-    genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
-    genExternalResourceFile = return . createCopyFileDraft destFile . EF.fileAbsPath
-
+    fileName = FP.takeFileName . fromRelFile $ externalFilePath
     destFile =
       C.sdkRootDirInGeneratedCodeDir
         </> C.extSrcDirInSdkRootDir
-        </> castRel (EF.filePathInExtCodeDir file)
+        </> castRel externalFilePath
+
+    externalFilePath = EF.filePathInExtCodeDir file
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
@@ -394,4 +375,6 @@ genDevIndex =
   return $ C.mkTmplFdWithData [relfile|dev/index.ts|] tmplData
   where
     tmplData = object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir]
-    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
+
+    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
+    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir

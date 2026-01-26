@@ -23,24 +23,27 @@ asTmplFile :: Path' (Rel d) File' -> Path' (Rel SdkTemplatesDir) File'
 asTmplFile = SP.castRel
 
 mkTmplFdWithDstAndData ::
-  Path' (Rel SdkTemplatesDir) File' ->
   Path' (Rel SdkRootDir) File' ->
+  Path' (Rel SdkTemplatesDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
+mkTmplFdWithDstAndData relDstPath relSrcPath tmplData =
   createTemplateFileDraft
     (sdkRootDirInGeneratedCodeDir </> relDstPath)
     (sdkTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
-mkTmplFdWithDst :: Path' (Rel SdkTemplatesDir) File' -> Path' (Rel SdkRootDir) File' -> FileDraft
-mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
+mkTmplFdWithDst ::
+  Path' (Rel SdkTemplatesDir) File' ->
+  Path' (Rel SdkRootDir) File' ->
+  FileDraft
+mkTmplFdWithDst src dst = mkTmplFdWithDstAndData dst src Nothing
 
 mkTmplFdWithData ::
   Path' (Rel SdkTemplatesDir) File' ->
   Aeson.Value ->
   FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath relDstPath (Just tmplData)
+mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relDstPath relSrcPath (Just tmplData)
   where
     relDstPath = castRel relSrcPath
 

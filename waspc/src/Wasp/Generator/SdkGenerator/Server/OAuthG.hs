@@ -37,8 +37,8 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genServerOAuthFileCopy [relfile|oneTimeCode.ts|],
-          genServerOAuthFileCopy [relfile|provider.ts|]
+          genFileCopyInServerOAuth [relfile|oneTimeCode.ts|],
+          genFileCopyInServerOAuth [relfile|provider.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
@@ -49,9 +49,8 @@ genOAuth auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|]
     tmplData =
       object
         [ "enabledProviders" .= getEnabledAuthProvidersJson auth
@@ -59,9 +58,8 @@ genIndexTs auth =
 
 genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|]) tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|]
     tmplData =
       object
         [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
@@ -82,15 +80,15 @@ genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
 genOAuthConfig provider =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile) tmplData
   where
-    tmplFile = serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile
-    providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"
     tmplData =
       object
         [ "providerId" .= OAuth.providerId provider,
           "displayName" .= OAuth.displayName provider
         ]
+
+    providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"
 
 depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =
@@ -101,6 +99,6 @@ depsRequiredByOAuth spec =
 serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
 
-genServerOAuthFileCopy :: Path' Rel' File' -> Generator FileDraft
-genServerOAuthFileCopy =
+genFileCopyInServerOAuth :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInServerOAuth =
   return . mkTmplFd . (serverOAuthDirInSdkTemplatesDir </>)

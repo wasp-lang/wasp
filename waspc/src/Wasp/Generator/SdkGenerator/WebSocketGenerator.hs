@@ -27,17 +27,16 @@ genWebSockets :: AppSpec -> Generator [FileDraft]
 genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
-        [ genServerWebSocketsIndex spec,
-          genClientWebSocketsIndex,
-          genClientWebSocketsProvider spec
+        [ genServerWebSocketIndex spec,
+          return $ mkTmplFd [relfile|client/webSocket/index.ts|],
+          genClientWebSocketProvider spec
         ]
   | otherwise = return []
 
-genServerWebSocketsIndex :: AppSpec -> Generator FileDraft
-genServerWebSocketsIndex spec =
-  return $ mkTmplFdWithData tmplFile tmplData
+genServerWebSocketIndex :: AppSpec -> Generator FileDraft
+genServerWebSocketIndex spec =
+  return $ mkTmplFdWithData [relfile|server/webSocket/index.ts|] tmplData
   where
-    tmplFile = [relfile|server/webSocket/index.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
@@ -47,17 +46,10 @@ genServerWebSocketsIndex spec =
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
     mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
-genClientWebSocketsIndex :: Generator FileDraft
-genClientWebSocketsIndex =
-  return $ mkTmplFd tempFile
+genClientWebSocketProvider :: AppSpec -> Generator FileDraft
+genClientWebSocketProvider spec =
+  return $ mkTmplFdWithData [relfile|client/webSocket/WebSocketProvider.tsx|] tmplData
   where
-    tempFile = [relfile|client/webSocket/index.ts|]
-
-genClientWebSocketsProvider :: AppSpec -> Generator FileDraft
-genClientWebSocketsProvider spec =
-  return $ mkTmplFdWithData tmplFile tmplData
-  where
-    tmplFile = [relfile|client/webSocket/WebSocketProvider.tsx|]
     tmplData = object ["autoConnect" .= map toLower (show shouldAutoConnect)]
     shouldAutoConnect = (AS.App.WS.autoConnect <$> maybeWebSocket) /= Just (Just False)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec

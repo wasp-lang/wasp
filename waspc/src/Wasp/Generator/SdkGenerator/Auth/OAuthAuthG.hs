@@ -45,12 +45,10 @@ genOAuthHelpers auth =
     makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     makeOAuthHelpersFd provider helpersFp =
       mkTmplFdWithDstAndData
-        tmplFile
-        destFile
+        ([reldir|auth/helpers|] </> helpersFp)
+        [relfile|auth/helpers/_Provider.tsx|]
         (Just tmplData)
       where
-        destFile = [reldir|auth/helpers|] </> helpersFp
-        tmplFile = [relfile|auth/helpers/_Provider.tsx|]
         tmplData =
           object
             [ "signInPath" .= OAuth.serverLoginUrl provider,

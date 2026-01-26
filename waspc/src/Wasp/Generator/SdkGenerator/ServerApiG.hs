@@ -34,7 +34,7 @@ genServerApi spec =
 
 genIndexTsWithApiRoutes :: AppSpec -> Generator FileDraft
 genIndexTsWithApiRoutes spec =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData [relfile|server/api/index.ts|] tmplData
   where
     namedApis = AS.getApis spec
     apis = snd <$> namedApis
@@ -46,9 +46,6 @@ genIndexTsWithApiRoutes spec =
           "allEntities" .= nub (concatMap getApiEntitiesObject apis)
         ]
     usesAuth = fromMaybe (isAuthEnabledGlobally spec) . Api.auth
-
-    tmplFile :: Path' (Rel SdkTemplatesDir) File'
-    tmplFile = [relfile|server/api/index.ts|]
 
     getTmplData :: (String, Api.Api) -> Aeson.Value
     getTmplData (name, api) =

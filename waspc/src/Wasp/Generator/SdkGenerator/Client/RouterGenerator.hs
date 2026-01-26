@@ -22,16 +22,15 @@ genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genClientRouterFileCopy [relfile|types.ts|],
-      genClientRouterFileCopy [relfile|linkHelpers.ts|],
-      genClientRouterFileCopy [relfile|Link.tsx|]
+      genFileCopyInClientRouter [relfile|types.ts|],
+      genFileCopyInClientRouter [relfile|linkHelpers.ts|],
+      genFileCopyInClientRouter [relfile|Link.tsx|]
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
   where
-    tmplFile = clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|]
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
 createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
@@ -57,6 +56,6 @@ createRouteTemplateData (name, route) =
 clientRouterDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 clientRouterDirInSdkTemplatesDir = [reldir|client/router|]
 
-genClientRouterFileCopy :: Path' Rel' File' -> Generator FileDraft
-genClientRouterFileCopy =
+genFileCopyInClientRouter :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInClientRouter =
   return . mkTmplFd . (clientRouterDirInSdkTemplatesDir </>)
