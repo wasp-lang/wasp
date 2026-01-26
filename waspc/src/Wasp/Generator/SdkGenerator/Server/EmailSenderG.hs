@@ -18,7 +18,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -108,5 +108,5 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.Mailgun -> Providers.mailgun
   AS.EmailSender.Dummy -> Providers.dummy
 
-serverEmailDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+serverEmailDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 serverEmailDirInUserCoreTemplatesDir = [reldir|server/email|]

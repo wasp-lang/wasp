@@ -12,7 +12,7 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -93,7 +93,7 @@ genAuthGitHub auth =
     then sequence [genClientAuthFileCopy [relfile|github.ts|]]
     else return []
 
-clientAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+clientAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 clientAuthDirInUserCoreTemplatesDir = [reldir|client/auth|]
 
 genClientAuthFileCopy :: Path' Rel' File' -> Generator FileDraft

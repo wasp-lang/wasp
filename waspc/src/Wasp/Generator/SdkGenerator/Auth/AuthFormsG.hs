@@ -18,7 +18,7 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -150,7 +150,7 @@ genLoginSignupForm auth =
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
 
-authFormsDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+authFormsDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 authFormsDirInUserCoreTemplatesDir = [reldir|auth/forms|]
 
 genAuthFormsFileCopy :: Path' Rel' File' -> Generator FileDraft

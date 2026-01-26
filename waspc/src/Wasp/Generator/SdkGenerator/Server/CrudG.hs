@@ -13,7 +13,7 @@ import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFdWithData,
   )
 
@@ -37,5 +37,5 @@ genCrudIndex spec cruds =
       where
         idField = getIdFieldFromCrudEntity spec crud
 
-serverCurdDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+serverCurdDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 serverCurdDirInUserCoreTemplatesDir = [reldir|server/crud|]

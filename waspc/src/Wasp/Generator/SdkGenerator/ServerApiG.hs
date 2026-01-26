@@ -15,7 +15,7 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFdWithData,
   )
 import Wasp.Generator.ServerGenerator.ApiRoutesG (getApiEntitiesObject, isAuthEnabledForApi)
@@ -47,7 +47,7 @@ genIndexTsWithApiRoutes spec =
         ]
     usesAuth = fromMaybe (isAuthEnabledGlobally spec) . Api.auth
 
-    tmplFile :: Path' (Rel UserCoreTemplatesDir) File'
+    tmplFile :: Path' (Rel TemplatesSdkUserCoreProjectDir) File'
     tmplFile = [relfile|server/api/index.ts|]
 
     getTmplData :: (String, Api.Api) -> Aeson.Value

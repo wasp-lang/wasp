@@ -1,5 +1,6 @@
 module Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
+    SdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDestAndData,
@@ -11,40 +12,50 @@ import StrongPath (Dir, File', Path', Rel, castRel, reldir, (</>))
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
-    SdkTemplatesDir,
+    TemplatesSdkRootDir,
     sdkRootDirInGeneratedCodeDir,
-    sdkTemplatesDirInTemplatesDir,
+    sdkRootDirInTemplatesDir,
   )
 
--- | Directory of the SDK user core tsconfig project.
+-- | Directory of the SDK user core tsconfig project in generated code.
 -- It contains all logic dependent on the user's project.
-data UserCoreTemplatesDir
+data SdkUserCoreProjectDir
+
+-- | Directory of the SDK user core tsconfig project in templates.
+-- It contains all logic dependent on the user's project.
+data TemplatesSdkUserCoreProjectDir
 
 mkTmplFd ::
-  Path' (Rel UserCoreTemplatesDir) File' ->
+  Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
   FileDraft
 mkTmplFd tmplFile =
-  mkTmplFdWithDestAndData tmplFile tmplFile Nothing
+  mkTmplFdWithDestAndData
+    (castRel tmplFile)
+    tmplFile
+    Nothing
 
 mkTmplFdWithData ::
-  Path' (Rel UserCoreTemplatesDir) File' ->
+  Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
   Aeson.Value ->
   FileDraft
 mkTmplFdWithData tmplFile tmplData =
-  mkTmplFdWithDestAndData tmplFile tmplFile (Just tmplData)
+  mkTmplFdWithDestAndData
+    (castRel tmplFile)
+    tmplFile
+    (Just tmplData)
 
 mkTmplFdWithDestAndData ::
-  Path' (Rel UserCoreTemplatesDir) File' ->
-  Path' (Rel UserCoreTemplatesDir) File' ->
+  Path' (Rel SdkUserCoreProjectDir) File' ->
+  Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
 mkTmplFdWithDestAndData destFile tmplFile =
   createTemplateFileDraft
-    (sdkRootDirInGeneratedCodeDir </> userCoreOutputDirInSdkRootDir </> destFile)
-    (sdkTemplatesDirInTemplatesDir </> userCoreTemplatesDirInSdkTemplatesDir </> tmplFile)
+    (sdkRootDirInGeneratedCodeDir </> sdkUserCoreProjectDirInSdkRootDir </> destFile)
+    (sdkRootDirInTemplatesDir </> templatesSdkUserCoreProjectDirInTemplatesSdkRootDir </> tmplFile)
 
-userCoreTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir UserCoreTemplatesDir)
-userCoreTemplatesDirInSdkTemplatesDir = [reldir|user-core|]
+templatesSdkUserCoreProjectDirInTemplatesSdkRootDir :: Path' (Rel TemplatesSdkRootDir) (Dir TemplatesSdkUserCoreProjectDir)
+templatesSdkUserCoreProjectDirInTemplatesSdkRootDir = [reldir|user-core|]
 
-userCoreOutputDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir UserCoreTemplatesDir)
-userCoreOutputDirInSdkRootDir = castRel userCoreTemplatesDirInSdkTemplatesDir
+sdkUserCoreProjectDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir SdkUserCoreProjectDir)
+sdkUserCoreProjectDirInSdkRootDir = [reldir|user-core|]

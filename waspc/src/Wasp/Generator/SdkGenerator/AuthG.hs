@@ -22,7 +22,7 @@ import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -163,7 +163,7 @@ genProvidersTypes auth = return $ mkTmplFdWithData tmplFile tmplData
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
-authDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+authDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 authDirInUserCoreTemplatesDir = [reldir|auth|]
 
 genAuthFileCopy :: Path' Rel' File' -> Generator FileDraft

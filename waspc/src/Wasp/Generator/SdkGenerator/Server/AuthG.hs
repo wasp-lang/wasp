@@ -15,7 +15,7 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -83,7 +83,7 @@ genAuthUsername auth =
     then sequence [genServerAuthFileCopy [relfile|username.ts|]]
     else return []
 
-serverAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+serverAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 serverAuthDirInUserCoreTemplatesDir = [reldir|server/auth|]
 
 genServerAuthFileCopy :: Path' Rel' File' -> Generator FileDraft

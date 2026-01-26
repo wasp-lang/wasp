@@ -32,7 +32,7 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -105,7 +105,7 @@ depsRequiredByOAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
-serverOAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+serverOAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 serverOAuthDirInUserCoreTemplatesDir = [reldir|server/auth/oauth|]
 
 genServerAuthFileCopy :: Path' Rel' File' -> Generator FileDraft

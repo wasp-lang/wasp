@@ -12,7 +12,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -54,7 +54,7 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
 
-clientRouterDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+clientRouterDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 clientRouterDirInUserCoreTemplatesDir = [reldir|client/router|]
 
 genClientRouterFileCopy :: Path' Rel' File' -> Generator FileDraft

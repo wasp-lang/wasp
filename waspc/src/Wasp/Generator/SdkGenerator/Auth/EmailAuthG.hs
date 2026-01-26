@@ -20,7 +20,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( TemplatesSdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -99,7 +99,7 @@ genVerifyEmailAction =
     tmplFile = emailAuthDirInUserCoreTemplatesDir </> [relfile|actions/verifyEmail.ts|]
     tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
 
-emailAuthDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
+emailAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 emailAuthDirInUserCoreTemplatesDir = [reldir|auth/email|]
 
 genEmailAuthDirFileCopy :: Path' Rel' File' -> Generator FileDraft
