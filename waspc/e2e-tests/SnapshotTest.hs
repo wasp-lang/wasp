@@ -24,14 +24,12 @@ import SnapshotTest.FileSystem
     SnapshotFileListManifestFile,
     SnapshotType (..),
     SnapshotsDir,
-    asWaspProjectDir,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
-    snapshotWaspProjectDirInSnapshotDir,
   )
 import SnapshotTest.ShellCommands (SnapshotTestContext (..))
-import StrongPath (Abs, Dir, File, Path', (</>))
+import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
@@ -99,7 +97,7 @@ executeSnapshotTestCommand snapshotTest snapshotDir = do
         { _snapshotDir = snapshotDir,
           _snapshotWaspProjectContext =
             WaspProjectContext
-              { _waspProjectDir = asWaspProjectDir $ snapshotDir </> snapshotWaspProjectDirInSnapshotDir "wasp-app",
+              { _waspProjectDir = snapshotDir </> (fromJust . parseRelDir $ "wasp-app"),
                 _waspProjectName = "wasp-app"
               }
         }
