@@ -1,5 +1,7 @@
 ---
 comments: true
+last_checked_with_versions:
+  Wasp: 0.21.0
 ---
 
 import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";
