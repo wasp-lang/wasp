@@ -2,8 +2,9 @@ module Wasp.Generator.Valid.PackageJson.Dependencies
   ( dependenciesValidator,
 
     -- * Exported for testing only
-    makeOptionalDepValidator,
     makeRequiredDepValidator,
+    makeOptionalDepValidator,
+    makeForbiddenDepValidator,
     inDependency,
     DependencyType (..),
   )
