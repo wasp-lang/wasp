@@ -19,9 +19,6 @@ data ClientTemplatesDir
 
 data ServerTemplatesDir
 
-asTmplFile :: Path' (Rel d) File' -> Path' (Rel SdkTemplatesDir) File'
-asTmplFile = SP.castRel
-
 mkTmplFdWithDstAndData ::
   Path' (Rel SdkRootDir) File' ->
   Path' (Rel SdkTemplatesDir) File' ->

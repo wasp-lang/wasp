@@ -7,7 +7,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (File', Path', Rel, relfile)
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as Api
@@ -15,8 +15,7 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    mkTmplFdWithData,
+  ( mkTmplFdWithData,
   )
 import Wasp.Generator.ServerGenerator.ApiRoutesG (getApiEntitiesObject, isAuthEnabledForApi)
 import Wasp.Util (toUpperFirst)
