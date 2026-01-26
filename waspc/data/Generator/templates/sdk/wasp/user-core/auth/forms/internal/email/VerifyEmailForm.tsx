@@ -1,9 +1,9 @@
 import { useContext } from 'react'
 import { useLocation } from 'react-router-dom'
-import { verifyEmail } from '../../../email/actions/verifyEmail.js'
+import { verifyEmail } from '../../../email/actions/verifyEmail'
 import { Message } from '../Message'
 import { AuthContext } from '../../Auth'
-import { useEffectOnce } from '../../../../client/hooks.js'
+import { useEffectOnce } from '../../../../client/hooks'
 
 // PRIVATE API
 export const VerifyEmailForm = () => {

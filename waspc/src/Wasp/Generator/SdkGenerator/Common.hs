@@ -1,74 +1,58 @@
-module Wasp.Generator.SdkGenerator.Common where
+module Wasp.Generator.SdkGenerator.Common
+  ( SdkRootDir,
+    SdkTemplatesDir,
+    sdkRootDirInGeneratedCodeDir,
+    sdkRootDirInTemplatesDir,
+    extSrcDirInSdkRootDir,
+    relDirToRelFileP,
+    makeSdkImportPath,
+    getOperationTypeName,
+    clientTemplatesDirInSdkTemplatesDir,
+    serverTemplatesDirInSdkTemplatesDir,
+  )
+where
 
-import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
-import qualified StrongPath as SP
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Util (toUpperFirst)
 
+-- | SDK root directory in a generated Wasp project.
 data SdkRootDir
 
+-- | SDK root directory in data files templates directory.
 data SdkTemplatesDir
 
 data ClientTemplatesDir
 
 data ServerTemplatesDir
 
-mkTmplFdWithDstAndData ::
-  Path' (Rel SdkRootDir) File' ->
-  Path' (Rel SdkTemplatesDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkTmplFdWithDstAndData relDstPath relSrcPath tmplData =
-  createTemplateFileDraft
-    (sdkRootDirInGeneratedCodeDir </> relDstPath)
-    (sdkTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
-
-mkTmplFdWithData ::
-  Path' (Rel SdkTemplatesDir) File' ->
-  Aeson.Value ->
-  FileDraft
-mkTmplFdWithData relSrcPath tmplData =
-  mkTmplFdWithDstAndData
-    (castRel relSrcPath)
-    relSrcPath
-    (Just tmplData)
-
-mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
-mkTmplFd relSrcPath =
-  mkTmplFdWithDstAndData
-    (SP.castRel relSrcPath)
-    relSrcPath
-    Nothing
-
 sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
 
-sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
-sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
+sdkRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
+sdkRootDirInTemplatesDir = [reldir|sdk/wasp|]
 
+-- | External @src@ directory refers to the user's @src@ directory.
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|src|]
 
 relDirToRelFileP :: Path Posix (Rel d) Dir' -> Path Posix (Rel d) File'
-relDirToRelFileP path = fromJust $ SP.parseRelFileP $ removeTrailingSlash $ SP.fromRelDirP path
+relDirToRelFileP path = fromJust $ parseRelFileP $ removeTrailingSlash $ fromRelDirP path
   where
     removeTrailingSlash = reverse . dropWhile (== '/') . reverse
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
 makeSdkImportPath path = [reldirP|wasp|] </> path
 
+getOperationTypeName :: AS.Operation.Operation -> String
+getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
 
 serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
 serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
-
-getOperationTypeName :: AS.Operation.Operation -> String
-getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"

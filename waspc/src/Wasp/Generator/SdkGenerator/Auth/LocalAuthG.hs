@@ -10,12 +10,12 @@ import Wasp.Generator.AuthProviders (localAuthProvider)
 import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
+import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -35,12 +35,12 @@ genActions auth =
     ]
 
 genLoginAction :: Generator FileDraft
-genLoginAction = return $ mkTmplFdWithData (localAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|]) tmplData
+genLoginAction = return $ mkTmplFdWithData (localAuthDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/login.ts|]) tmplData
   where
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
-genSignupAction auth = return $ mkTmplFdWithData (localAuthDirInSdkTemplatesDir </> [relfile|actions/signup.ts|]) tmplData
+genSignupAction auth = return $ mkTmplFdWithData (localAuthDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/signup.ts|]) tmplData
   where
     tmplData =
       object
@@ -50,9 +50,9 @@ genSignupAction auth = return $ mkTmplFdWithData (localAuthDirInSdkTemplatesDir 
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
-localAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-localAuthDirInSdkTemplatesDir = [reldir|auth/username|]
+localAuthDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+localAuthDirInSdkTemplatesUserCoreProjectDir = [reldir|auth/username|]
 
 genFileCopyInLocalAuthDir :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInLocalAuthDir =
-  return . mkTmplFd . (localAuthDirInSdkTemplatesDir </>)
+  return . mkTmplFd . (localAuthDirInSdkTemplatesUserCoreProjectDir </>)

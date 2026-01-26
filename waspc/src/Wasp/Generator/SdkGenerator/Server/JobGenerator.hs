@@ -24,8 +24,10 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    makeSdkImportPath,
+  ( makeSdkImportPath,
+  )
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
@@ -47,7 +49,7 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ mkTmplFdWithData (serverJobsDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["jobs" .= map getJobTmplData jobs]
     getJobTmplData (jobName, _) =
@@ -60,8 +62,8 @@ genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
   return $
     mkTmplFdWithDstAndData
-      (castRel (serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
-      (serverJobsDirInSdkTemplatesDir </> [relfile|_job.ts|])
+      (castRel (serverJobsDirInSdkTemplatesUserCoreProjectDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
+      (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|_job.ts|])
       (Just tmplData)
   where
     tmplData =
@@ -142,9 +144,9 @@ pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
 depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
 
-serverJobsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverJobsDirInSdkTemplatesDir = [reldir|server/jobs|]
+serverJobsDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+serverJobsDirInSdkTemplatesUserCoreProjectDir = [reldir|server/jobs|]
 
 genFileCopyInServerJob :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerJob =
-  return . mkTmplFd . (serverJobsDirInSdkTemplatesDir </>)
+  return . mkTmplFd . (serverJobsDirInSdkTemplatesUserCoreProjectDir </>)

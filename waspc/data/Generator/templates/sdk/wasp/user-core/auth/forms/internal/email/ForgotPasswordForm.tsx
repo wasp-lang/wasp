@@ -1,6 +1,6 @@
 import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
-import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
+import { requestPasswordReset } from '../../../email/actions/passwordReset'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
 import { AuthContext } from '../../Auth'
 

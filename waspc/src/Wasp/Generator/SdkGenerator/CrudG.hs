@@ -5,11 +5,7 @@ where
 
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson.Types as Aeson.Types
-import StrongPath
-  ( reldir,
-    relfile,
-    (</>),
-  )
+import StrongPath (reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -19,8 +15,10 @@ import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity, isAuthEnabled)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( mkTmplFdWithDstAndData,
+  )
 
 genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =
@@ -35,10 +33,12 @@ genCrudServerOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [Fil
 genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudOperation (name, crud) = C.mkTmplFdWithDstAndData destPath tmplPath (Just tmplData)
+    genCrudOperation (name, crud) =
+      mkTmplFdWithDstAndData
+        ([reldir|server/crud|] </> getCrudFilePath name "ts")
+        [relfile|server/crud/_operationTypes.ts|]
+        (Just tmplData)
       where
-        tmplPath = [relfile|server/crud/_operationTypes.ts|]
-        destPath = [reldir|server/crud|] </> getCrudFilePath name "ts"
         tmplData =
           object
             [ "crud" .= getCrudOperationJson name crud idField,
