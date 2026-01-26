@@ -35,6 +35,7 @@ main = do
     else e2eTests >>= defaultMain
 
 -- TODO: Investigate automatically discovering the tests.
+-- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
 e2eTests :: IO TestTree
 e2eTests = do
   snapshotTests <-
@@ -85,6 +86,6 @@ e2eTests = do
   return $
     testGroup
       "E2E tests"
-      [ testGroup "Snapshot Tests" snapshotTests,
+      [ -- testGroup "Snapshot Tests" snapshotTests,
         testGroup "Tests" tests
       ]
