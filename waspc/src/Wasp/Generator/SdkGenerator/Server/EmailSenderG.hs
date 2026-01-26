@@ -85,10 +85,7 @@ genCoreHelpers email =
     defaultFromField = AS.EmailSender.defaultFrom email
 
 genEmailSenderProviderSetupFn :: EmailSender -> Generator FileDraft
-genEmailSenderProviderSetupFn email =
-  return $ mkTmplFd tmplFile
-  where
-    tmplFile = Providers.setupFnFile . getEmailSenderProvider $ email
+genEmailSenderProviderSetupFn = return . mkTmplFd . Providers.setupFnFile . getEmailSenderProvider
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
