@@ -13,6 +13,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🎉 New Features
 
+- Wasp can now be installed through `npm`. ([#3525](https://github.com/wasp-lang/wasp/pull/3525))
 - Wasp now supports Tailwind CSS v4. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 
 ### 🐞 Bug fixes
@@ -21,6 +22,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 📖 Documentation
 
+- Upgraded the installation instructions throughout the docs to the new npm installation method. ([#3630](https://github.com/wasp-lang/wasp/pull/3630))
 - The Wasp docs now include a "Guides" section, with step-by-step tutorials on how to use popular libraries and tools with Wasp. Check them out at https://wasp.sh/docs/guides! ([#3597](https://github.com/wasp-lang/wasp/pull/3597))
 
 ### 🔧 Small improvements
@@ -32,6 +34,9 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - We updated the testing environment to JSDOM 27 for more up-to-date mocking. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - We updated our API mocking to MSW 2 for better performance and reliability. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - `wasp info` now tells you if the last compilation was done in development or production mode. ([#3612](https://github.com/wasp-lang/wasp/pull/3612))
+- `wasp uninstall` now supports the npm installation method. ([#3620](https://github.com/wasp-lang/wasp/pull/3620))
+- Added anonymous usage analytics to the npm package installer to help us understand how Wasp is being installed. You can disable this by setting `WASP_TELEMETRY_DISABLE=1`. ([#3619](https://github.com/wasp-lang/wasp/pull/3619))
+- Upgraded React Router from v6 to v7. The upgrade is backwards compatible for library usage. ([#3490](https://github.com/wasp-lang/wasp/pull/3490))
 
 ## 0.20.1
 

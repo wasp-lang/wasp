@@ -451,6 +451,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - This will automatically create a new draft release.
 - 👉 Find a new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
+- 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main`. Make sure to merge that PR. This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](/.github/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
@@ -474,10 +475,10 @@ If doing this, steps are the following:
 2. Locally execute the `new-release` script. Append `-rc` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc1`).
    The script will throw some warnings which you should accept.
 3. Once the draft release is created on Github, use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
-4. Since our installer installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing a `-v` flag to the installer! That way user's don't get in touch with it, but we can install and use it normally:
+4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
 
 ```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0-rc
+npm i -g @wasp.sh/wasp-cli@0.19.0-rc
 ```
 
 5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
