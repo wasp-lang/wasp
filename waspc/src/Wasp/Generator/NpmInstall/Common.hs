@@ -27,12 +27,11 @@ instance FromJSON AllNpmDeps
 
 getAllNpmDeps :: AppSpec -> AllNpmDeps
 getAllNpmDeps spec =
-  let userNpmDeps = N.getUserNpmDepsForPackage spec
-      waspFrameworkNpmDeps =
-        N.buildWaspFrameworkNpmDeps (SG.npmDepsFromWasp spec) (WG.npmDepsFromWasp spec)
-      waspSdkNpmDeps = SdkGenerator.npmDepsForSdk spec
-   in AllNpmDeps
-        { _userNpmDeps = userNpmDeps,
-          _waspFrameworkNpmDeps = waspFrameworkNpmDeps,
-          _waspSdkNpmDeps = waspSdkNpmDeps
-        }
+  AllNpmDeps
+    { _userNpmDeps =
+        N.getUserNpmDepsForPackage spec,
+      _waspFrameworkNpmDeps =
+        N.buildWaspFrameworkNpmDeps (SG.npmDepsFromWasp spec) (WG.npmDepsFromWasp spec),
+      _waspSdkNpmDeps =
+        SdkGenerator.npmDepsForSdk spec
+    }
