@@ -38,7 +38,7 @@ import ShellCommands
 import StrongPath (Abs, Dir, Path', fromAbsDir, (</>))
 import System.FilePath (joinPath)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir)
-import Wasp.Project.Common (WaspProjectDir, buildDirInDotWaspDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 import WaspProject.FileSystem (mainWaspFileInWaspProjectDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 
@@ -147,7 +147,7 @@ buildAndRemoveWaspProjectDockerImage = do
       waspProjectDir = _waspProjectDir waspProjectContext
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          ~? unwords ["cd", fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir)]
+          ~? unwords ["cd", fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir)]
           ~&& unwords ["docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t", dockerImageTag, "."]
           ~&& unwords ["docker image rm", dockerImageTag]
           ~&& unwords ["cd", fromAbsDir waspProjectDir]

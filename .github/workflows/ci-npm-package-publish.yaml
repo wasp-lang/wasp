@@ -1,0 +1,24 @@
+name: "Test - Publish nightly Wasp npm packages to pkg.pr.new"
+
+on:
+  workflow_call:
+
+jobs:
+  publish:
+    name: Publish packages
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
+          path: packages/
+
+      - name: Publish Wasp npm packages
+        run: npx pkg-pr-new publish --bin --compact ./packages/*

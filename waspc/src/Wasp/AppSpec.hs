@@ -21,6 +21,8 @@ module Wasp.AppSpec
     getApiNamespaces,
     getCruds,
     userNodeVersionRange,
+    isProduction,
+    isDevelopment,
   )
 where
 
@@ -32,7 +34,6 @@ import Wasp.AppSpec.Action (Action)
 import Wasp.AppSpec.Api (Api)
 import Wasp.AppSpec.ApiNamespace (ApiNamespace)
 import Wasp.AppSpec.App (App)
-import Wasp.AppSpec.ConfigFile (ConfigFileRelocator (..))
 import Wasp.AppSpec.Core.Decl (Decl, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref, refName)
@@ -49,6 +50,7 @@ import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
+import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -79,13 +81,9 @@ data AppSpec = AppSpec
     devEnvVarsServer :: [EnvVar],
     -- | Env variables to be provided to the client only during the development.
     devEnvVarsClient :: [EnvVar],
-    -- | If true, it means project is being compiled for production/deployment -> it is being "built".
-    -- If false, it means project is being compiled for development purposes (e.g. "wasp start").
-    isBuild :: Bool,
+    buildType :: BuildType.BuildType,
     -- | The contents of the optional user Dockerfile found in the root of the wasp project source.
     userDockerfileContents :: Maybe Text,
-    -- | A list of paths to Tailwind specific config files and where to copy them.
-    tailwindConfigFilesRelocators :: [ConfigFileRelocator],
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
@@ -160,3 +158,9 @@ asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file
 --   In the meantime, we determine it based on the oldest node version that Wasp supports.
 userNodeVersionRange :: AppSpec -> SV.Range
 userNodeVersionRange _ = SV.Range [SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion]
+
+isProduction :: AppSpec -> Bool
+isProduction spec = buildType spec == BuildType.Production
+
+isDevelopment :: AppSpec -> Bool
+isDevelopment spec = buildType spec == BuildType.Development

@@ -93,7 +93,7 @@ genAppTsConfigJson spec = do
 genDotEnv :: AppSpec -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
 -- development.
-genDotEnv spec | AS.isBuild spec = return []
+genDotEnv spec | AS.isProduction spec = return []
 genDotEnv spec =
   return
     [ createTextFileDraft
@@ -106,16 +106,16 @@ dotEnvInWebAppRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  combinedDependencies <- N.genNpmDepsForPackage spec waspDependencies
+  webAppDeps <- N.ensureNoConflictWithUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
       (C.asWebAppFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= webAppPackageName spec,
-              "depsChunk" .= N.getDependenciesPackageJsonEntry combinedDependencies,
-              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry combinedDependencies,
+            [ "packageName" .= webAppPackageName,
+              "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
+              "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
               "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
@@ -136,7 +136,7 @@ genNpmrc spec
   --
   -- We do expect users to manually go into the generated directories when bundling the built ouput.
   -- So we do add the `.npmrc` there to help them avoid using an incompatible Node.js version.
-  | AS.isBuild spec =
+  | AS.isProduction spec =
       return
         [ C.mkTmplFdWithDstAndData
             (C.asTmplFile [relfile|npmrc|])

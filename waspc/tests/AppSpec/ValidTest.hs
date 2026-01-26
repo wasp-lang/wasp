@@ -35,6 +35,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import qualified Wasp.ExternalConfig.TsConfig as T
 import qualified Wasp.Generator.NpmWorkspaces as NW
+import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -98,7 +99,7 @@ spec_AppSpecValid = do
                              [ "Your Wasp version does not match the app's requirements.",
                                "You are running Wasp " ++ show WV.waspVersion ++ ".",
                                "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ ".",
-                               "To install specific version of Wasp, do:",
+                               "To install a specific version of Wasp, do:",
                                "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
                                "where x.y.z is your desired version.",
                                "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
@@ -336,9 +337,9 @@ spec_AppSpecValid = do
                       }
                 }
 
-        let makeSpec emailSender isBuild =
+        let makeSpec emailSender isProduction =
               basicAppSpec
-                { AS.isBuild = isBuild,
+                { AS.buildType = if isProduction then BuildType.Production else BuildType.Development,
                   AS.decls =
                     [ AS.Decl.makeDecl "TestApp" $
                         basicApp
@@ -510,12 +511,11 @@ spec_AppSpecValid = do
                 Npm.PackageJson.devDependencies = M.empty,
                 Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs
               },
-          AS.isBuild = False,
+          AS.buildType = BuildType.Development,
           AS.migrationsDir = Nothing,
           AS.devEnvVarsClient = [],
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
-          AS.tailwindConfigFilesRelocators = [],
           AS.devDatabaseUrl = Nothing,
           AS.customViteConfigPath = Nothing,
           AS.srcTsConfigPath = [relfile|tsconfig.json|],

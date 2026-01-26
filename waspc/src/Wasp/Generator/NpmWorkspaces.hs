@@ -10,11 +10,9 @@ import Data.Set (Set, fromList)
 import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
-import Wasp.AppSpec (AppSpec, isBuild)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir)
 import Wasp.Project.Common
   ( WaspProjectDir,
-    buildDirInDotWaspDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
   )
@@ -26,17 +24,19 @@ import Wasp.Project.Common
 requiredWorkspaceGlobs :: Set String
 requiredWorkspaceGlobs =
   fromList
-    [ makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
-      makeGlobFromProjectRoot $ dotWaspDirInWaspProjectDir </> buildDirInDotWaspDir
-      -- TODO: Add SDK as a workspace (#3233)
+    [ makeGlobForAllSubdirs $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
+      makeGlobForDir $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir
     ]
   where
-    makeGlobFromProjectRoot :: Path' (Rel WaspProjectDir) (Dir ProjectRootDir) -> String
-    makeGlobFromProjectRoot projectRootDir =
-      relDirToPosixString projectRootDir FP.</> "*"
+    makeGlobForAllSubdirs :: Path' (Rel WaspProjectDir) (Dir a) -> String
+    makeGlobForAllSubdirs dir = makeGlobForDir dir FP.</> "*"
 
-    relDirToPosixString inputDir =
-      SP.fromRelDirP $ fromRight (makeNonPosixError inputDir) $ SP.relDirToPosix inputDir
+    makeGlobForDir :: Path' (Rel WaspProjectDir) (Dir a) -> String
+    makeGlobForDir inputDir =
+      FP.dropTrailingPathSeparator $
+        SP.fromRelDirP $
+          fromRight (makeNonPosixError inputDir) $
+            SP.relDirToPosix inputDir
 
     makeNonPosixError inputDir =
       error $
@@ -44,15 +44,11 @@ requiredWorkspaceGlobs =
           ++ show inputDir
           ++ ")"
 
-serverPackageName :: AppSpec -> String
+serverPackageName :: String
 serverPackageName = workspacePackageName "server"
 
-webAppPackageName :: AppSpec -> String
+webAppPackageName :: String
 webAppPackageName = workspacePackageName "webapp"
 
-workspacePackageName :: String -> AppSpec -> String
-workspacePackageName baseName spec = "@wasp.sh/generated-" ++ baseName ++ "-" ++ modeName
-  where
-    modeName
-      | isBuild spec = "build"
-      | otherwise = "dev"
+workspacePackageName :: String -> String
+workspacePackageName baseName = "@wasp.sh/generated-" ++ baseName

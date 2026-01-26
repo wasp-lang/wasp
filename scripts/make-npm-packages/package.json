@@ -1,0 +1,17 @@
+{
+  "name": "make-npm-packages",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@sindresorhus/slugify": "^3.0.0",
+    "execa": "^9.6.1",
+    "fs-extra": "^11.3.2",
+    "zod": "^4.1.13"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.19.2",
+    "type-fest": "^5.3.1",
+    "typescript": "^5.9.3"
+  }
+}

@@ -2,7 +2,11 @@ import { ActionConfig, App, ExtImport } from "wasp-config";
 
 const app = new App("waspello", {
   title: "Waspello",
-  wasp: { version: "^0.19.0" },
+  wasp: { version: "^0.21.0" },
+});
+
+app.client({
+  rootComponent: { importDefault: "Layout", from: "@src/Layout" },
 });
 
 app.auth({

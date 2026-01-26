@@ -19,11 +19,12 @@ RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
 # Building
-WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
-BUILD_HS_CMD="cabal build all"
+WASP_PACKAGES_COMPILE="for pkg in ${SCRIPT_DIR}/data/packages/*/package.json; do \
+  (cd \$(dirname \$pkg) && npm install && npm run build); \
+done"
+BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
 BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
-BUILD_ALL_STATIC_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD --enable-executable-static"
 
 INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
 
@@ -44,8 +45,8 @@ STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run 
 
 function run_examples_e2e_tests() {
   local paths=(
-    "examples/tutorials/todoApp"
-    "examples/tutorials/todoAppTs"
+    "examples/tutorials/TodoApp"
+    "examples/tutorials/TodoAppTs"
     "examples/waspello"
     "examples/waspleau"
     "examples/websockets-realtime-voting"
@@ -116,14 +117,11 @@ print_usage() {
   echo_bold "COMMANDS"
 
   print_usage_cmd "build" \
-    "Builds the Haskell project."
-  print_usage_cmd "build:all" \
-    "Builds the Haskell project + all sub-projects (i.e. TS packages)."
-  print_usage_cmd "build:all:static" \
-    "Builds the Haskell project statically + all sub-projects (i.e. TS packages). Only useful for release builds. Needs to be run on a musl-based Linux distribution (e.g. Alpine)."
+    "Builds the Haskell project + all sub-projects (i.e. TS packages). Run with the \`BUILD_STATIC=1\` env to build statically."
+  print_usage_cmd "build:hs" \
+    "Builds the Haskell project only. Run with the \`BUILD_STATIC=1\` env to build statically."
   print_usage_cmd "build:packages" \
-    "Builds the TypeScript projects under packages/."
-  echo ""
+    "Builds the TypeScript projects under data/packages/."
   print_usage_cmd "wasp-cli <args>" \
     "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
   echo ""
@@ -143,7 +141,7 @@ print_usage() {
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:waspls" \
-    "Executes only cli tests. Builds the project first if needed."
+    "Executes only waspls tests. Builds the project first if needed."
   print_usage_cmd "test:kitchen-sink" \
     "Executes only kitchen-sink e2e tests. Installs deps first if needed."
   print_usage_cmd "test:examples" \
@@ -187,13 +185,10 @@ exitStatusToString() {
 
 case $COMMAND in
   build)
-    echo_and_eval "$BUILD_HS_CMD"
-    ;;
-  build:all)
     echo_and_eval "$BUILD_ALL_CMD"
     ;;
-  build:all:static)
-    echo_and_eval "$BUILD_ALL_STATIC_CMD"
+  build:hs)
+    echo_and_eval "$BUILD_HS_CMD"
     ;;
   build:packages)
     echo_and_eval "$WASP_PACKAGES_COMPILE"
