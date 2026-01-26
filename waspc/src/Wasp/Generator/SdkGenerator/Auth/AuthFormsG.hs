@@ -159,7 +159,7 @@ genFileCopyInAuthForms =
   return . mkTmplFd . (authFormsDirInSdkTemplatesDir </>)
 
 authFormsInternalDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-authFormsInternalDirInSdkTemplatesDir = [reldir|auth/forms/internal|]
+authFormsInternalDirInSdkTemplatesDir = authFormsDirInSdkTemplatesDir </> [reldir|internal|]
 
 genFileCopyInAuthFormsInternal :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuthFormsInternal =
