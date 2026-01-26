@@ -63,9 +63,9 @@ runTest test = do
 
 setupTest :: Path' Abs (Dir TestDir) -> IO ()
 setupTest testDir = do
-  e2eTestsTempDir <- getTestOutputsDir
+  testOutputsDir <- getTestOutputsDir
 
-  callCommand $ "mkdir -p " ++ fromAbsDir e2eTestsTempDir
+  callCommand $ "mkdir -p " ++ fromAbsDir testOutputsDir
   callCommand $ "rm -rf " ++ fromAbsDir testDir
   callCommand $ "mkdir " ++ fromAbsDir testDir
 
