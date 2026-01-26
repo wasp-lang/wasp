@@ -48,8 +48,14 @@ dependenciesValidator spec =
           | depType <- [Runtime, Development],
             -- We check all the Wasp dependencies everywhere in case they are used
             -- in the user's package.json, to avoid conflicts.
-            dep <- M.toList $ getAllWaspDependencies spec
+            dep <- M.toList onlyOptionalWaspDeps
         ]
+
+    -- We don't check for dependencies as optional that are already going to be
+    -- checked as required, to avoid redundant error messages.
+    onlyOptionalWaspDeps = foldr (M.delete . fst) allWaspDeps allRequiredUserDeps
+    allWaspDeps = getAllWaspDependencies spec
+    allRequiredUserDeps = requiredUserRuntimeDeps <> requiredUserDevelopmentDeps
 
     forbiddenDepsValidator :: V.Validator P.PackageJson
     forbiddenDepsValidator =
