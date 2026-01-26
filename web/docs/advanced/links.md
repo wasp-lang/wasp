@@ -149,7 +149,7 @@ The `Link` component accepts the following props:
 
 - `hash: string`
 
-- all other props that `react-router`'s [Link](https://reactrouter.com/en/6.26.1/components/link) component accepts
+- all other props that the `react-router`'s [Link](https://reactrouter.com/api/components/Link) component accepts
 
 ### `routes` Object
 
