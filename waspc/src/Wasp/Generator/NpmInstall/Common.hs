@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.Generator.NpmInstall.Common
@@ -19,11 +20,7 @@ data AllNpmDeps = AllNpmDeps
     _waspFrameworkNpmDeps :: !N.NpmDepsForFramework, -- Deps coming from Wasp's framework code (webapp, server) package.jsons.
     _waspSdkNpmDeps :: !N.NpmDepsForPackage -- Deps coming from Wasp's SDK's package.json .
   }
-  deriving (Eq, Show, Generic)
-
-instance ToJSON AllNpmDeps
-
-instance FromJSON AllNpmDeps
+  deriving (Eq, Show, Generic, ToJSON, FromJSON)
 
 getAllNpmDeps :: AppSpec -> AllNpmDeps
 getAllNpmDeps spec =
