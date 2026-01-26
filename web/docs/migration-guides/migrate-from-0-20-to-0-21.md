@@ -65,7 +65,7 @@ In previous versions of Wasp, there were two separate directories for generated 
 
 ### Upgraded to React Router 7
 
-Wasp has upgraded from React Router 6 to React Router 7. This update includes various improvements and adds new features such as [middleware](https://reactrouter.com/how-to/middleware). React Router v7 is backwards compatible with v6 when used as a library, so most users should not notice any breaking changes.
+Wasp has upgraded from React Router 6 to React Router 7. This update includes various improvements and adds new features such as [middleware](https://reactrouter.com/how-to/middleware). React Router v7 is backwards compatible with v6 when used as a library, so you shouldn't notice any breaking changes.
 
 ### Upgraded to Vitest 4
 
