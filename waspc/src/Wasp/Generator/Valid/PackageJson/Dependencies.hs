@@ -78,6 +78,10 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
     inOppositeDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
     inOppositeDepList = inDependency (oppositeForDepType depType) pkgName
 
+    oppositeForDepType :: DependencyType -> DependencyType
+    oppositeForDepType Runtime = Development
+    oppositeForDepType Development = Runtime
+
     wrongDepTypeError =
       V.failure $
         "Wasp requires package "
@@ -149,7 +153,3 @@ inDependency depType pkgName versionValidator =
 fieldForDepType :: DependencyType -> (String, P.PackageJson -> P.DependenciesMap)
 fieldForDepType Runtime = ("dependencies", P.dependencies)
 fieldForDepType Development = ("devDependencies", P.devDependencies)
-
-oppositeForDepType :: DependencyType -> DependencyType
-oppositeForDepType Runtime = Development
-oppositeForDepType Development = Runtime
