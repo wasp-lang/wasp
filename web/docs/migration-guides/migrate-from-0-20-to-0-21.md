@@ -65,7 +65,7 @@ In previous versions of Wasp, there were two separate directories for generated 
 
 ### Upgraded to React Router 7
 
-Wasp has upgraded from React Router 6 to React Router 7. The new version is largely backwards compatible with v6 when used as a library. The main change you'll notice is that the package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your imports accordingly.
+Wasp has upgraded from React Router 6 to React Router 7. The only change you should notice is that the package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your `package.json` and imports accordingly.
 
 ### Upgraded to Vitest 4
 
@@ -298,29 +298,31 @@ We've upgraded from React Router 6 to React Router 7. The package has been renam
     </TabItem>
     </Tabs>
 
-2. Update your imports from `react-router-dom` to `react-router`:
+2. Search your codebase for the string `react-router-dom` and update imports to `react-router`:
 
     <Tabs>
     <TabItem value="before" label="Before">
 
     ```tsx title="src/SomePage.tsx"
-    // highlight-next-line
     import { useNavigate, useParams } from 'react-router-dom'
+
+    // ...
     ```
 
     </TabItem>
     <TabItem value="after" label="After">
 
     ```tsx title="src/SomePage.tsx"
-    // highlight-next-line
     import { useNavigate, useParams } from 'react-router'
+
+    // ...
     ```
 
     </TabItem>
     </Tabs>
 
-React Router v7 is largely backwards compatible with v6, so most code should work without changes beyond the import updates.
-If you encounter issues, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
+React Router v7 is largely backwards compatible with v6, so there shouldn't be any changes besides the name.
+For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
 
 ### 8. Enjoy your updated Wasp app
 
