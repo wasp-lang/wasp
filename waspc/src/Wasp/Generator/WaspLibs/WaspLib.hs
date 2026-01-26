@@ -2,8 +2,8 @@ module Wasp.Generator.WaspLibs.WaspLib
   ( WaspLib (..),
     makeWaspLib,
     makeLocalNpmDepFromWaspLib,
-    getTarballPathInLibsRootDir,
     getTarballPathInLibsSourceDir,
+    getTarballPathInProjectRootDir,
   )
 where
 
@@ -11,7 +11,8 @@ import StrongPath (Dir, File', Path', Rel, Rel', fromRelFile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.ExternalConfig.Npm.Tarball (TarballFilename, tarballFilenameAsRelFile)
 import qualified Wasp.ExternalConfig.Npm.Tarball as Npm.Tarball
-import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir)
+import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir, libsRootDirInGeneratedCodeDir)
 import Wasp.Version (waspVersion)
 
 {-
@@ -39,10 +40,12 @@ makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageN
   where
     npmDepFilePath = "file:" <> fromRelFile (tarballSrcDir </> getTarballPathInLibsRootDir waspLib)
 
--- | Gets the relative path to a WaspLib tarball within LibsRootDir.
--- Tarballs are stored at the top level of LibsRootDir (flat structure, no subdirectories).
+-- | Tarballs are stored at the top level of LibsRootDir (flat structure, no subdirectories).
 getTarballPathInLibsRootDir :: WaspLib -> Path' (Rel LibsRootDir) File'
 getTarballPathInLibsRootDir = tarballFilenameAsRelFile . tarballFilename
+
+getTarballPathInProjectRootDir :: WaspLib -> Path' (Rel ProjectRootDir) File'
+getTarballPathInProjectRootDir = (libsRootDirInGeneratedCodeDir </>) . getTarballPathInLibsRootDir
 
 getTarballPathInLibsSourceDir :: WaspLib -> Path' (Rel LibsSourceDir) File'
 getTarballPathInLibsSourceDir = tarballFilenameAsRelFile . tarballFilename
