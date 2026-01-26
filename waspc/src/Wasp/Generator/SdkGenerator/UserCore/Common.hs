@@ -12,7 +12,7 @@ import StrongPath (Dir, File', Path', Rel, castRel, reldir, (</>))
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
-    TemplatesSdkRootDir,
+    SdkTemplatesDir,
     sdkRootDirInGeneratedCodeDir,
     sdkRootDirInTemplatesDir,
   )
@@ -52,10 +52,10 @@ mkTmplFdWithDestAndData ::
 mkTmplFdWithDestAndData destFilePath srcFilePath =
   createTemplateFileDraft
     (sdkRootDirInGeneratedCodeDir </> sdkUserCoreProjectDirInSdkRootDir </> destFilePath)
-    (sdkRootDirInTemplatesDir </> templatesSdkUserCoreProjectDirInTemplatesSdkRootDir </> srcFilePath)
+    (sdkRootDirInTemplatesDir </> templatesSdkUserCoreProjectDirInSdkTemplatesDir </> srcFilePath)
 
-templatesSdkUserCoreProjectDirInTemplatesSdkRootDir :: Path' (Rel TemplatesSdkRootDir) (Dir TemplatesSdkUserCoreProjectDir)
-templatesSdkUserCoreProjectDirInTemplatesSdkRootDir = [reldir|user-core|]
+templatesSdkUserCoreProjectDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir TemplatesSdkUserCoreProjectDir)
+templatesSdkUserCoreProjectDirInSdkTemplatesDir = [reldir|user-core|]
 
 sdkUserCoreProjectDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir SdkUserCoreProjectDir)
 sdkUserCoreProjectDirInSdkRootDir = [reldir|user-core|]

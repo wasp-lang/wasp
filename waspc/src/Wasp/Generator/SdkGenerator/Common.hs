@@ -1,6 +1,6 @@
 module Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
-    TemplatesSdkRootDir,
+    SdkTemplatesDir,
     sdkRootDirInGeneratedCodeDir,
     sdkRootDirInTemplatesDir,
     extSrcDirInSdkRootDir,
@@ -22,7 +22,7 @@ import Wasp.Util (toUpperFirst)
 data SdkRootDir
 
 -- | SDK root directory in data files templates directory.
-data TemplatesSdkRootDir
+data SdkTemplatesDir
 
 data ClientTemplatesDir
 
@@ -31,7 +31,7 @@ data ServerTemplatesDir
 sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
 
-sdkRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir TemplatesSdkRootDir)
+sdkRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkRootDirInTemplatesDir = [reldir|sdk/wasp|]
 
 -- | External @src@ directory refers to the user's @src@ directory.
@@ -49,8 +49,8 @@ makeSdkImportPath path = [reldirP|wasp|] </> path
 getOperationTypeName :: AS.Operation.Operation -> String
 getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
 
-clientTemplatesDirInSdkTemplatesDir :: Path' (Rel TemplatesSdkRootDir) (Dir ClientTemplatesDir)
+clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
 
-serverTemplatesDirInSdkTemplatesDir :: Path' (Rel TemplatesSdkRootDir) (Dir ServerTemplatesDir)
+serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
 serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
