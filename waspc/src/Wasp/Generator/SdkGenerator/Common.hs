@@ -7,6 +7,8 @@ module Wasp.Generator.SdkGenerator.Common
     relDirToRelFileP,
     makeSdkImportPath,
     getOperationTypeName,
+    clientTemplatesDirInSdkTemplatesDir,
+    serverTemplatesDirInSdkTemplatesDir,
   )
 where
 
