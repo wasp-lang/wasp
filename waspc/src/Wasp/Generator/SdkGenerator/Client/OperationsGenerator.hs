@@ -20,7 +20,7 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( TemplatesSdkUserCoreProjectDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -63,7 +63,7 @@ genActions spec =
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
-  return $ mkTmplFdWithData (clientOpsDirInTemplatesSdkUserCoreProjectDir </> [relfile|queries/index.ts|]) tmplData
+  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|queries/index.ts|]) tmplData
   where
     tmplData =
       object
@@ -72,7 +72,7 @@ genQueriesIndex spec =
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
-  return $ mkTmplFdWithData (clientOpsDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/index.ts|]) tmplData
+  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/index.ts|]) tmplData
   where
     tmplData =
       object
@@ -135,9 +135,9 @@ getOperationTypeData operation = tmplData
             relDirToPosix $
               serverOperationsDirInSdkRootDir operation
 
-clientOpsDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) (Dir ClientOpsTemplatesDir)
-clientOpsDirInTemplatesSdkUserCoreProjectDir = [reldir|client/operations|]
+clientOpsDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) (Dir ClientOpsTemplatesDir)
+clientOpsDirInSdkTemplatesUserCoreProjectDir = [reldir|client/operations|]
 
 genFileCopyInClientOps :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
 genFileCopyInClientOps =
-  return . mkTmplFd . (clientOpsDirInTemplatesSdkUserCoreProjectDir </>)
+  return . mkTmplFd . (clientOpsDirInSdkTemplatesUserCoreProjectDir </>)

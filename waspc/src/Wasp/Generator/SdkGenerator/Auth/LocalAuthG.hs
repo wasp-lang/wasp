@@ -12,7 +12,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( TemplatesSdkUserCoreProjectDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -35,12 +35,12 @@ genActions auth =
     ]
 
 genLoginAction :: Generator FileDraft
-genLoginAction = return $ mkTmplFdWithData (localAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/login.ts|]) tmplData
+genLoginAction = return $ mkTmplFdWithData (localAuthDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/login.ts|]) tmplData
   where
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
-genSignupAction auth = return $ mkTmplFdWithData (localAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/signup.ts|]) tmplData
+genSignupAction auth = return $ mkTmplFdWithData (localAuthDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/signup.ts|]) tmplData
   where
     tmplData =
       object
@@ -50,9 +50,9 @@ genSignupAction auth = return $ mkTmplFdWithData (localAuthDirInTemplatesSdkUser
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
-localAuthDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-localAuthDirInTemplatesSdkUserCoreProjectDir = [reldir|auth/username|]
+localAuthDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+localAuthDirInSdkTemplatesUserCoreProjectDir = [reldir|auth/username|]
 
 genFileCopyInLocalAuthDir :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInLocalAuthDir =
-  return . mkTmplFd . (localAuthDirInTemplatesSdkUserCoreProjectDir </>)
+  return . mkTmplFd . (localAuthDirInSdkTemplatesUserCoreProjectDir </>)

@@ -27,7 +27,7 @@ import Wasp.Generator.SdkGenerator.Common
   ( makeSdkImportPath,
   )
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( TemplatesSdkUserCoreProjectDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDestAndData,
@@ -49,7 +49,7 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ mkTmplFdWithData (serverJobsDirInTemplatesSdkUserCoreProjectDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["jobs" .= map getJobTmplData jobs]
     getJobTmplData (jobName, _) =
@@ -62,8 +62,8 @@ genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
   return $
     mkTmplFdWithDestAndData
-      (castRel (serverJobsDirInTemplatesSdkUserCoreProjectDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
-      (serverJobsDirInTemplatesSdkUserCoreProjectDir </> [relfile|_job.ts|])
+      (castRel (serverJobsDirInSdkTemplatesUserCoreProjectDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
+      (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|_job.ts|])
       (Just tmplData)
   where
     tmplData =
@@ -144,9 +144,9 @@ pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
 depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
 
-serverJobsDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-serverJobsDirInTemplatesSdkUserCoreProjectDir = [reldir|server/jobs|]
+serverJobsDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+serverJobsDirInSdkTemplatesUserCoreProjectDir = [reldir|server/jobs|]
 
 genFileCopyInServerJob :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerJob =
-  return . mkTmplFd . (serverJobsDirInTemplatesSdkUserCoreProjectDir </>)
+  return . mkTmplFd . (serverJobsDirInSdkTemplatesUserCoreProjectDir </>)

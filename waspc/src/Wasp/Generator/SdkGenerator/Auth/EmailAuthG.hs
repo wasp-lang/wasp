@@ -20,7 +20,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( TemplatesSdkUserCoreProjectDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -62,13 +62,13 @@ genActions auth =
 
 genLoginAction :: Generator FileDraft
 genLoginAction =
-  return $ mkTmplFdWithData (emailAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/login.ts|]) tmplData
+  return $ mkTmplFdWithData (emailAuthDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/login.ts|]) tmplData
   where
     tmplData = object ["loginPath" .= serverLoginUrl emailAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
-  return $ mkTmplFdWithData (emailAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/signup.ts|]) tmplData
+  return $ mkTmplFdWithData (emailAuthDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/signup.ts|]) tmplData
   where
     tmplData =
       object
@@ -80,7 +80,7 @@ genSignupAction auth =
 
 genPasswordResetActions :: Generator FileDraft
 genPasswordResetActions =
-  return $ mkTmplFdWithData (emailAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/passwordReset.ts|]) tmplData
+  return $ mkTmplFdWithData (emailAuthDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/passwordReset.ts|]) tmplData
   where
     tmplData =
       object
@@ -90,13 +90,13 @@ genPasswordResetActions =
 
 genVerifyEmailAction :: Generator FileDraft
 genVerifyEmailAction =
-  return $ mkTmplFdWithData (emailAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/verifyEmail.ts|]) tmplData
+  return $ mkTmplFdWithData (emailAuthDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/verifyEmail.ts|]) tmplData
   where
     tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
 
-emailAuthDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-emailAuthDirInTemplatesSdkUserCoreProjectDir = [reldir|auth/email|]
+emailAuthDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+emailAuthDirInSdkTemplatesUserCoreProjectDir = [reldir|auth/email|]
 
 genFileCopyInEmailAuthDir :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInEmailAuthDir =
-  return . mkTmplFd . (emailAuthDirInTemplatesSdkUserCoreProjectDir </>)
+  return . mkTmplFd . (emailAuthDirInSdkTemplatesUserCoreProjectDir </>)

@@ -18,7 +18,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( TemplatesSdkUserCoreProjectDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -37,7 +37,7 @@ genNewEmailSenderApi spec = case maybeEmailSender of
 
 genIndex :: EmailSender -> Generator FileDraft
 genIndex email =
-  return $ mkTmplFdWithData (serverEmailDirInTemplatesSdkUserCoreProjectDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverEmailDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
@@ -52,13 +52,13 @@ genCore email =
 
 genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex email =
-  return $ mkTmplFdWithData (serverEmailDirInTemplatesSdkUserCoreProjectDir </> [relfile|core/index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverEmailDirInSdkTemplatesUserCoreProjectDir </> [relfile|core/index.ts|]) tmplData
   where
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
 genCoreTypes email =
-  return $ mkTmplFdWithData (serverEmailDirInTemplatesSdkUserCoreProjectDir </> [relfile|core/types.ts|]) tmplData
+  return $ mkTmplFdWithData (serverEmailDirInSdkTemplatesUserCoreProjectDir </> [relfile|core/types.ts|]) tmplData
   where
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
@@ -67,7 +67,7 @@ genCoreTypes email =
 
 genCoreHelpers :: EmailSender -> Generator FileDraft
 genCoreHelpers email =
-  return $ mkTmplFdWithData (serverEmailDirInTemplatesSdkUserCoreProjectDir </> [relfile|core/helpers.ts|]) tmplData
+  return $ mkTmplFdWithData (serverEmailDirInSdkTemplatesUserCoreProjectDir </> [relfile|core/helpers.ts|]) tmplData
   where
     tmplData =
       object
@@ -101,5 +101,5 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.Mailgun -> Providers.mailgun
   AS.EmailSender.Dummy -> Providers.dummy
 
-serverEmailDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-serverEmailDirInTemplatesSdkUserCoreProjectDir = [reldir|server/email|]
+serverEmailDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+serverEmailDirInSdkTemplatesUserCoreProjectDir = [reldir|server/email|]

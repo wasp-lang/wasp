@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.UserCore.Common
-  ( TemplatesSdkUserCoreProjectDir,
+  ( SdkTemplatesUserCoreProjectDir,
     SdkUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
@@ -23,10 +23,10 @@ data SdkUserCoreProjectDir
 
 -- | Directory of the SDK user core tsconfig project in templates.
 -- It contains all logic dependent on the user's project.
-data TemplatesSdkUserCoreProjectDir
+data SdkTemplatesUserCoreProjectDir
 
 mkTmplFd ::
-  Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
+  Path' (Rel SdkTemplatesUserCoreProjectDir) File' ->
   FileDraft
 mkTmplFd srcFilePath =
   mkTmplFdWithDestAndData
@@ -35,7 +35,7 @@ mkTmplFd srcFilePath =
     Nothing
 
 mkTmplFdWithData ::
-  Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
+  Path' (Rel SdkTemplatesUserCoreProjectDir) File' ->
   Aeson.Value ->
   FileDraft
 mkTmplFdWithData srcFilePath tmplData =
@@ -46,16 +46,16 @@ mkTmplFdWithData srcFilePath tmplData =
 
 mkTmplFdWithDestAndData ::
   Path' (Rel SdkUserCoreProjectDir) File' ->
-  Path' (Rel TemplatesSdkUserCoreProjectDir) File' ->
+  Path' (Rel SdkTemplatesUserCoreProjectDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
 mkTmplFdWithDestAndData destFilePath srcFilePath =
   createTemplateFileDraft
     (sdkRootDirInGeneratedCodeDir </> sdkUserCoreProjectDirInSdkRootDir </> destFilePath)
-    (sdkRootDirInTemplatesDir </> templatesSdkUserCoreProjectDirInSdkTemplatesDir </> srcFilePath)
+    (sdkRootDirInTemplatesDir </> sdkTemplatesUserCoreProjectDirInSdkTemplatesDir </> srcFilePath)
 
-templatesSdkUserCoreProjectDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir TemplatesSdkUserCoreProjectDir)
-templatesSdkUserCoreProjectDirInSdkTemplatesDir = [reldir|user-core|]
+sdkTemplatesUserCoreProjectDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir SdkTemplatesUserCoreProjectDir)
+sdkTemplatesUserCoreProjectDirInSdkTemplatesDir = [reldir|user-core|]
 
 sdkUserCoreProjectDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir SdkUserCoreProjectDir)
 sdkUserCoreProjectDirInSdkRootDir = [reldir|user-core|]

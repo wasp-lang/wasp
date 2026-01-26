@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Root.Common
-  ( TemplatesSdkRootProjectDir,
+  ( SdkTemplatesRootProjectDir,
     SdkRootProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
@@ -23,10 +23,10 @@ data SdkRootProjectDir
 
 -- | Directory of the SDK root tsconfig project in templates.
 -- References all other SDK tsconfig projects.
-data TemplatesSdkRootProjectDir
+data SdkTemplatesRootProjectDir
 
 mkTmplFd ::
-  Path' (Rel TemplatesSdkRootProjectDir) File' ->
+  Path' (Rel SdkTemplatesRootProjectDir) File' ->
   FileDraft
 mkTmplFd srcFilePath =
   mkTmplFdWithDestAndData
@@ -35,7 +35,7 @@ mkTmplFd srcFilePath =
     Nothing
 
 mkTmplFdWithData ::
-  Path' (Rel TemplatesSdkRootProjectDir) File' ->
+  Path' (Rel SdkTemplatesRootProjectDir) File' ->
   Aeson.Value ->
   FileDraft
 mkTmplFdWithData srcFilePath tmplData =
@@ -46,16 +46,16 @@ mkTmplFdWithData srcFilePath tmplData =
 
 mkTmplFdWithDestAndData ::
   Path' (Rel SdkRootProjectDir) File' ->
-  Path' (Rel TemplatesSdkRootProjectDir) File' ->
+  Path' (Rel SdkTemplatesRootProjectDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
 mkTmplFdWithDestAndData destFilePath srcFilePath =
   createTemplateFileDraft
     (sdkRootDirInGeneratedCodeDir </> sdkRootProjectDirInSdkRootDir </> destFilePath)
-    (sdkRootDirInTemplatesDir </> templatesSdkRootProjectDirInSdkTemplatesDir </> srcFilePath)
+    (sdkRootDirInTemplatesDir </> sdkTemplatesRootProjectDirInSdkTemplatesDir </> srcFilePath)
 
-templatesSdkRootProjectDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir TemplatesSdkRootProjectDir)
-templatesSdkRootProjectDirInSdkTemplatesDir = [reldir|.|]
+sdkTemplatesRootProjectDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir SdkTemplatesRootProjectDir)
+sdkTemplatesRootProjectDirInSdkTemplatesDir = [reldir|.|]
 
 sdkRootProjectDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir SdkRootProjectDir)
 sdkRootProjectDirInSdkRootDir = [reldir|.|]
