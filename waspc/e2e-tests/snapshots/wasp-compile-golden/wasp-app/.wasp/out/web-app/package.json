@@ -16,7 +16,7 @@
     "axios": "^1.4.0",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "react-router-dom": "^6.26.2"
+    "react-router-dom": "^7.12.0"
   },
   "devDependencies": {
     "@tsconfig/vite-react": "^7.0.0",
