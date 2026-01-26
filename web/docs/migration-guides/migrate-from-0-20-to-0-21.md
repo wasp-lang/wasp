@@ -63,6 +63,10 @@ In previous versions of Wasp, we used a custom way of handling Tailwind CSS conf
 
 In previous versions of Wasp, there were two separate directories for generated code: `.wasp/out` (used in development mode) and `.wasp/build` (used in production mode). Starting from Wasp 0.21.X, only the `.wasp/out` directory is used for generated code in both development and production modes. This change simplifies the project structure and reduces confusion.
 
+### Upgraded to React Router 7
+
+Wasp has upgraded from React Router 6 to React Router 7. This is a major version upgrade that brings performance improvements, better TypeScript support, and new features like middleware support. Most users should not notice any breaking changes since React Router v7 is largely backwards compatible with v6.
+
 ### Upgraded to Vitest 4
 
 Wasp has upgraded its testing framework from Vitest 1 all the way to Vitest 4. This brings a lot of improvements, especially in terms of performance and stability. Most users should not notice any breaking changes, but if you have custom test setups or configurations, please refer to the [Vitest migration guide](https://vitest.dev/guide/migration.html) for more details.
@@ -261,6 +265,22 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 7. Enjoy your updated Wasp app
+### 7. Update React Router to v7
+
+We've upgraded from React Router 6 to React Router 7, so bump the version in your `package.json`:
+
+```json title="package.json"
+{
+  "dependencies": {
+    // highlight-next-line
+    "react-router-dom": "^7.12.0"
+  }
+}
+```
+
+React Router v7 is largely backwards compatible with v6, so most code should work without changes.
+If you encounter issues, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
+
+### 8. Enjoy your updated Wasp app
 
 That's it!
