@@ -17,7 +17,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( mkTmplFdWithDestAndData,
+  ( mkTmplFdWithDstAndData,
   )
 
 genCrud :: AppSpec -> Generator [FileDraft]
@@ -34,7 +34,7 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
-      mkTmplFdWithDestAndData
+      mkTmplFdWithDstAndData
         ([reldir|server/crud|] </> getCrudFilePath name "ts")
         [relfile|server/crud/_operationTypes.ts|]
         (Just tmplData)

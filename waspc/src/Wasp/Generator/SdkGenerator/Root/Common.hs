@@ -3,7 +3,7 @@ module Wasp.Generator.SdkGenerator.Root.Common
     SdkRootProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
-    mkTmplFdWithDestAndData,
+    mkTmplFdWithDstAndData,
   )
 where
 
@@ -29,7 +29,7 @@ mkTmplFd ::
   Path' (Rel SdkTemplatesRootProjectDir) File' ->
   FileDraft
 mkTmplFd srcFilePath =
-  mkTmplFdWithDestAndData
+  mkTmplFdWithDstAndData
     (castRel srcFilePath)
     srcFilePath
     Nothing
@@ -39,17 +39,17 @@ mkTmplFdWithData ::
   Aeson.Value ->
   FileDraft
 mkTmplFdWithData srcFilePath tmplData =
-  mkTmplFdWithDestAndData
+  mkTmplFdWithDstAndData
     (castRel srcFilePath)
     srcFilePath
     (Just tmplData)
 
-mkTmplFdWithDestAndData ::
+mkTmplFdWithDstAndData ::
   Path' (Rel SdkRootProjectDir) File' ->
   Path' (Rel SdkTemplatesRootProjectDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDestAndData destFilePath srcFilePath =
+mkTmplFdWithDstAndData destFilePath srcFilePath =
   createTemplateFileDraft
     (sdkRootDirInGeneratedCodeDir </> sdkRootProjectDirInSdkRootDir </> destFilePath)
     (sdkRootDirInTemplatesDir </> sdkTemplatesRootProjectDirInSdkTemplatesDir </> srcFilePath)

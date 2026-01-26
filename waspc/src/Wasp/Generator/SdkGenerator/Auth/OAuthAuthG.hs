@@ -18,7 +18,7 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( mkTmplFdWithDestAndData,
+  ( mkTmplFdWithDstAndData,
   )
 
 genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -46,7 +46,7 @@ genOAuthHelpers auth =
 
     makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     makeOAuthHelpersFd provider helpersFp =
-      mkTmplFdWithDestAndData
+      mkTmplFdWithDstAndData
         ([reldir|auth/helpers|] </> helpersFp)
         [relfile|auth/helpers/_Provider.tsx|]
         (Just tmplData)

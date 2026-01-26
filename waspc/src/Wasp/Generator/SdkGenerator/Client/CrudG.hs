@@ -17,7 +17,7 @@ import Wasp.Generator.SdkGenerator.UserCore.Common
   ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
-    mkTmplFdWithDestAndData,
+    mkTmplFdWithDstAndData,
   )
 import Wasp.Util ((<++>))
 
@@ -50,7 +50,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
-      mkTmplFdWithDestAndData
+      mkTmplFdWithDstAndData
         (castRel (clientCrudDirInSdkTemplatesUserCoreProjectDir </> fromJust (parseRelFile (name ++ ".ts"))))
         (clientCrudDirInSdkTemplatesUserCoreProjectDir </> [relfile|_crud.ts|])
         (Just tmplData)

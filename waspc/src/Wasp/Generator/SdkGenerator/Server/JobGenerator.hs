@@ -30,7 +30,7 @@ import Wasp.Generator.SdkGenerator.UserCore.Common
   ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
-    mkTmplFdWithDestAndData,
+    mkTmplFdWithDstAndData,
   )
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
@@ -61,7 +61,7 @@ genIndexTs jobs =
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
   return $
-    mkTmplFdWithDestAndData
+    mkTmplFdWithDstAndData
       (castRel (serverJobsDirInSdkTemplatesUserCoreProjectDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
       (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|_job.ts|])
       (Just tmplData)
