@@ -6,7 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir', File', Path', Rel, Rel', parseRelFile, reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', castRel, parseRelFile, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec, getCruds)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
@@ -51,7 +51,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
       mkTmplFdWithDstAndData
-        ([reldir|client/crud|] </> fromJust (parseRelFile (name ++ ".ts")))
+        (castRel (clientCrudDirInSdkTemplatesDir </> fromJust (parseRelFile (name ++ ".ts"))))
         (clientCrudDirInSdkTemplatesDir </> [relfile|_crud.ts|])
         (Just tmplData)
       where
