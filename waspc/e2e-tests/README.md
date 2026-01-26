@@ -24,17 +24,17 @@ In addition to applications, we also cover secondary outputs, such as the instal
 
 We test Wasp CLI commands whose outputs we can discard.
 
-Tests **sequentially execute their test cases** in the `Test`.
-The `Test`s are created in the `waspc/e2e-tests/Test/temp/` diectory.
-While the exact files within a `Test` aren't strictly defined, they usually have the following structure:
+Tests **sequentially execute their test cases** in the `TestDir`.
+The `TestDir`s are created in the `waspc/e2e-tests/Test/test-outputs/` diectory.
+While the exact files within a `TestDir` aren't strictly defined, they usually have the following structure:
 
-```yaml
+```
 # Where:
 #   `<name>` = the test's name.
 
 e2e-tests/
 └── Test/
-    └── temp/
+    └── test-outputs/
         └── <name>/  # test dirctory, e.g. `wasp-info`
             ├── wasp-app/ # contains the Wasp app for that test
             └── ...
@@ -56,7 +56,7 @@ Snapshot tests are executed in the `SnapshotDir`.
 The `SnapshotDir`s are created in the `waspc/e2e-tests/SnapshotTest/snapshots/` directory.
 While the exact files within a snapshot aren't strictly defined, they usually have the following structure:
 
-```yaml
+```
 # Where:
 #   `<name>`          = the snapshot test's name.
 #   `<snapshot-type>` = `current` or `golden`.
