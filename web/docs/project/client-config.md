@@ -113,7 +113,7 @@ Let's define a common layout for your application:
   </TabItem>
 </Tabs>
 
-You need to import the [`Outlet`](https://reactrouter.com/en/main/components/outlet#outlet) component from `react-router` and put it where you want the current page to be rendered.
+You need to import the [`Outlet`](https://reactrouter.com/7.12.0/api/components/Outlet) component from `react-router` and put it where you want the current page to be rendered.
 
 ### Setting up a Provider
 
