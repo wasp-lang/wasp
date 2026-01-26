@@ -75,7 +75,9 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
 
     correctVersionValidator :: Bool -> V.Validator (Maybe P.PackageVersion)
     correctVersionValidator isOverridden (Just actualVersion)
-      | isOverridden = V.success
+      | isOverridden =
+          -- We don't check if the override is of the correct version since that is done at `./WaspConfig.hs`.
+          V.success
       | actualVersion == expectedPkgVersion = V.success
     correctVersionValidator _ _ = incorrectPackageVersionError
 
@@ -113,7 +115,9 @@ makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
   where
     optionalVersionValidator :: Bool -> V.Validator (Maybe P.PackageVersion)
     optionalVersionValidator isOverridden (Just actualVersion)
-      | isOverridden = V.success
+      | isOverridden =
+          -- We don't check if the override is of the correct version since that is done at `./WaspConfig.hs`.
+          V.success
       | actualVersion /= expectedPkgVersion = incorrectVersionError
     optionalVersionValidator _ _ = V.success
 
