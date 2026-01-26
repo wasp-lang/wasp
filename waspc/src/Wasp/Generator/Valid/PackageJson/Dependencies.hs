@@ -10,7 +10,6 @@ module Wasp.Generator.Valid.PackageJson.Dependencies
   )
 where
 
-import Control.Monad (join)
 import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -67,7 +66,7 @@ dependenciesValidator spec =
 makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
 makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
   inOppositeDepList notPresentValidator
-    `V.and` join (inCorrectDepList . correctVersionValidator . checkIsOverridden pkgName)
+    `V.and` withOverride pkgName (inCorrectDepList . correctVersionValidator)
   where
     notPresentValidator :: V.Validator (Maybe P.PackageVersion)
     notPresentValidator Nothing = V.success
@@ -75,9 +74,7 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
 
     correctVersionValidator :: Bool -> V.Validator (Maybe P.PackageVersion)
     correctVersionValidator isOverridden (Just actualVersion)
-      | isOverridden =
-          -- We don't check if the override is of the correct version since that is done at `./WaspConfig.hs`.
-          V.success
+      | isOverridden = V.success
       | actualVersion == expectedPkgVersion = V.success
     correctVersionValidator _ _ = incorrectPackageVersionError
 
@@ -111,13 +108,12 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
 -- with the correct version.
 makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
 makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
-  join (inDependency depType pkgName . optionalVersionValidator . checkIsOverridden pkgName)
+  withOverride pkgName $
+    inDependency depType pkgName . optionalVersionValidator
   where
     optionalVersionValidator :: Bool -> V.Validator (Maybe P.PackageVersion)
     optionalVersionValidator isOverridden (Just actualVersion)
-      | isOverridden =
-          -- We don't check if the override is of the correct version since that is done at `./WaspConfig.hs`.
-          V.success
+      | isOverridden = V.success
       | actualVersion /= expectedPkgVersion = incorrectVersionError
     optionalVersionValidator _ _ = V.success
 
@@ -145,10 +141,11 @@ makeForbiddenDepValidator depType pkgName =
           ++ show (fst $ fieldForDepType depType)
           ++ "."
 
-checkIsOverridden :: P.PackageName -> P.PackageJson -> Bool
-checkIsOverridden pkgName pkgJson =
-  maybe False (M.member pkgName) $
-    P.overriddenDeps =<< P.wasp pkgJson
+withOverride :: P.PackageName -> (Bool -> V.Validator P.PackageJson) -> V.Validator P.PackageJson
+withOverride pkgName innerValidator pkgJson =
+  innerValidator isOverridden pkgJson
+  where
+    isOverridden = maybe False (M.member pkgName) $ P.overriddenDeps =<< P.wasp pkgJson
 
 -- | Runs the validator on a specific dependency of the given PackageJson
 -- record, setting the appropriate path for errors.

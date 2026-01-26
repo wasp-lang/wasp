@@ -1,8 +1,6 @@
 module Wasp.Generator.Valid.PackageJson.WaspConfig (waspConfigValidator) where
 
-import Control.Monad (join)
 import qualified Data.Map as M
-import Data.Maybe (fromMaybe)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getAllWaspDependencies)
@@ -11,7 +9,7 @@ import qualified Wasp.Generator.Valid.Validator as V
 waspConfigValidator :: AS.AppSpec -> V.Validator P.PackageJson
 waspConfigValidator spec =
   V.inField ("wasp", P.wasp) $
-    maybe V.success $
+    V.ifJust $
       V.all
         [ overriddenDepsValidator spec
         ]
@@ -19,8 +17,10 @@ waspConfigValidator spec =
 overriddenDepsValidator :: AS.AppSpec -> V.Validator P.WaspConfig
 overriddenDepsValidator spec =
   V.inField ("overriddenDeps", P.overriddenDeps) $
-    forEachDep getValidationForDep . fromMaybe M.empty
+    V.ifJust $
+      forEachDep getValidationForDep
   where
+    overridableDeps :: M.Map P.PackageName P.PackageVersion
     overridableDeps = getAllWaspDependencies spec
 
     getValidationForDep (depName, actualVersion) =
@@ -46,8 +46,11 @@ overriddenDepsValidator spec =
         "Wasp doesn't require this dependency, so there's no need to override it."
 
 forEachDep :: V.Validator DependencySpecification -> V.Validator P.DependenciesMap
-forEachDep depValidator =
-  join $ V.all . fmap eachDepValidator . M.toList
+forEachDep depValidator depMap =
+  -- Here we create a "two-pass" validator. First we examine the DependenciesMap
+  -- to create a validator for each dep. Then, we call those validators with the
+  -- same DependenciesMap to do the actual validation.
+  (V.all $ eachDepValidator <$> M.toList depMap) depMap
   where
-    eachDepValidator dep@(pkgName, pkgVersion) =
-      V.inField (pkgName, const pkgVersion) $ const $ depValidator dep
+    eachDepValidator dep@(pkgName, _) =
+      V.inField (pkgName, const dep) depValidator
