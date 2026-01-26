@@ -49,7 +49,7 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ mkTmplFdWithData (serverJobsDirInUserCoreTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverJobsDirInTemplatesSdkUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["jobs" .= map getJobTmplData jobs]
     getJobTmplData (jobName, _) =
@@ -62,8 +62,8 @@ genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
   return $
     mkTmplFdWithDestAndData
-      (castRel (serverJobsDirInUserCoreTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
-      (serverJobsDirInUserCoreTemplatesDir </> [relfile|_job.ts|])
+      (castRel (serverJobsDirInTemplatesSdkUserCoreProjectDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
+      (serverJobsDirInTemplatesSdkUserCoreProjectDir </> [relfile|_job.ts|])
       (Just tmplData)
   where
     tmplData =
@@ -144,9 +144,9 @@ pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
 depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
 
-serverJobsDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-serverJobsDirInUserCoreTemplatesDir = [reldir|server/jobs|]
+serverJobsDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
+serverJobsDirInTemplatesSdkUserCoreProjectDir = [reldir|server/jobs|]
 
 genFileCopyInServerJob :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerJob =
-  return . mkTmplFd . (serverJobsDirInUserCoreTemplatesDir </>)
+  return . mkTmplFd . (serverJobsDirInTemplatesSdkUserCoreProjectDir </>)

@@ -39,13 +39,13 @@ genNewClientAuth spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $ mkTmplFdWithData (clientAuthDirInUserCoreTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (clientAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
 genAuthUi :: AS.Auth.Auth -> Generator FileDraft
 genAuthUi auth =
-  return $ mkTmplFdWithData (clientAuthDirInUserCoreTemplatesDir </> [relfile|ui.ts|]) tmplData
+  return $ mkTmplFdWithData (clientAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|ui.ts|]) tmplData
   where
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
@@ -91,9 +91,9 @@ genAuthGitHub auth =
     then sequence [genFileCopyInClientAuth [relfile|github.ts|]]
     else return []
 
-clientAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-clientAuthDirInUserCoreTemplatesDir = [reldir|client/auth|]
+clientAuthDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
+clientAuthDirInTemplatesSdkUserCoreProjectDir = [reldir|client/auth|]
 
 genFileCopyInClientAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInClientAuth =
-  return . mkTmplFd . (clientAuthDirInUserCoreTemplatesDir </>)
+  return . mkTmplFd . (clientAuthDirInTemplatesSdkUserCoreProjectDir </>)

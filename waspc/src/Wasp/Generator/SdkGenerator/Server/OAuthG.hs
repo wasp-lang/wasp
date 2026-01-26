@@ -56,7 +56,7 @@ genOAuth auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
-  return $ mkTmplFdWithData (serverOAuthDirInUserCoreTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
     tmplData =
       object
@@ -65,7 +65,7 @@ genIndexTs auth =
 
 genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
-  return $ mkTmplFdWithData (serverOAuthDirInUserCoreTemplatesDir </> [relfile|redirect.ts|]) tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|redirect.ts|]) tmplData
   where
     tmplData =
       object
@@ -87,7 +87,7 @@ genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
 genOAuthConfig provider =
-  return $ mkTmplFdWithData (serverOAuthDirInUserCoreTemplatesDir </> [reldir|providers|] </> providerTsFile) tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInTemplatesSdkUserCoreProjectDir </> [reldir|providers|] </> providerTsFile) tmplData
   where
     tmplData =
       object
@@ -103,9 +103,9 @@ depsRequiredByOAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
-serverOAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-serverOAuthDirInUserCoreTemplatesDir = [reldir|server/auth/oauth|]
+serverOAuthDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
+serverOAuthDirInTemplatesSdkUserCoreProjectDir = [reldir|server/auth/oauth|]
 
 genFileCopyInServerOAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerOAuth =
-  return . mkTmplFd . (serverOAuthDirInUserCoreTemplatesDir </>)
+  return . mkTmplFd . (serverOAuthDirInTemplatesSdkUserCoreProjectDir </>)

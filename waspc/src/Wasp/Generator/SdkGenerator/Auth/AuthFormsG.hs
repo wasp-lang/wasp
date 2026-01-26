@@ -40,13 +40,13 @@ genAuthForms auth =
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
-  return $ mkTmplFdWithData (authFormsDirInUserCoreTemplatesDir </> [relfile|Auth.tsx|]) tmplData
+  return $ mkTmplFdWithData (authFormsDirInTemplatesSdkUserCoreProjectDir </> [relfile|Auth.tsx|]) tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
-  return $ mkTmplFdWithData (authFormsDirInUserCoreTemplatesDir </> [relfile|types.ts|]) tmplData
+  return $ mkTmplFdWithData (authFormsDirInTemplatesSdkUserCoreProjectDir </> [relfile|types.ts|]) tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
@@ -151,15 +151,15 @@ genLoginSignupForm auth =
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
 
-authFormsDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-authFormsDirInUserCoreTemplatesDir = [reldir|auth/forms|]
+authFormsDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
+authFormsDirInTemplatesSdkUserCoreProjectDir = [reldir|auth/forms|]
 
 genFileCopyInAuthForms :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuthForms =
-  return . mkTmplFd . (authFormsDirInUserCoreTemplatesDir </>)
+  return . mkTmplFd . (authFormsDirInTemplatesSdkUserCoreProjectDir </>)
 
 authFormsInternalDirInSdkTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-authFormsInternalDirInSdkTemplatesDir = authFormsDirInUserCoreTemplatesDir </> [reldir|internal|]
+authFormsInternalDirInSdkTemplatesDir = authFormsDirInTemplatesSdkUserCoreProjectDir </> [reldir|internal|]
 
 genFileCopyInAuthFormsInternal :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuthFormsInternal =

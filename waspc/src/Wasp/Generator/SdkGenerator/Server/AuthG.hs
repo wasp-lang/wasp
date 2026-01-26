@@ -38,7 +38,7 @@ genNewServerApi spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $ mkTmplFdWithData (serverAuthDirInUserCoreTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
     tmplData =
       object
@@ -49,7 +49,7 @@ genAuthIndex auth =
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
-  return $ mkTmplFdWithData (serverAuthDirInUserCoreTemplatesDir </> [relfile|user.ts|]) tmplData
+  return $ mkTmplFdWithData (serverAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|user.ts|]) tmplData
   where
     tmplData =
       object
@@ -64,7 +64,7 @@ genAuthUser auth =
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =
-  return $ mkTmplFdWithData (serverAuthDirInUserCoreTemplatesDir </> [relfile|hooks.ts|]) tmplData
+  return $ mkTmplFdWithData (serverAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|hooks.ts|]) tmplData
   where
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
 
@@ -80,9 +80,9 @@ genAuthUsername auth =
     then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
     else return []
 
-serverAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-serverAuthDirInUserCoreTemplatesDir = [reldir|server/auth|]
+serverAuthDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
+serverAuthDirInTemplatesSdkUserCoreProjectDir = [reldir|server/auth|]
 
 genFileCopyInServerAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerAuth =
-  return . mkTmplFd . (serverAuthDirInUserCoreTemplatesDir </>)
+  return . mkTmplFd . (serverAuthDirInTemplatesSdkUserCoreProjectDir </>)

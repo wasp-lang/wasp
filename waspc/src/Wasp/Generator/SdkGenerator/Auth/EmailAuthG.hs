@@ -62,13 +62,13 @@ genActions auth =
 
 genLoginAction :: Generator FileDraft
 genLoginAction =
-  return $ mkTmplFdWithData (emailAuthDirInUserCoreTemplatesDir </> [relfile|actions/login.ts|]) tmplData
+  return $ mkTmplFdWithData (emailAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/login.ts|]) tmplData
   where
     tmplData = object ["loginPath" .= serverLoginUrl emailAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
-  return $ mkTmplFdWithData (emailAuthDirInUserCoreTemplatesDir </> [relfile|actions/signup.ts|]) tmplData
+  return $ mkTmplFdWithData (emailAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/signup.ts|]) tmplData
   where
     tmplData =
       object
@@ -80,7 +80,7 @@ genSignupAction auth =
 
 genPasswordResetActions :: Generator FileDraft
 genPasswordResetActions =
-  return $ mkTmplFdWithData (emailAuthDirInUserCoreTemplatesDir </> [relfile|actions/passwordReset.ts|]) tmplData
+  return $ mkTmplFdWithData (emailAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/passwordReset.ts|]) tmplData
   where
     tmplData =
       object
@@ -90,13 +90,13 @@ genPasswordResetActions =
 
 genVerifyEmailAction :: Generator FileDraft
 genVerifyEmailAction =
-  return $ mkTmplFdWithData (emailAuthDirInUserCoreTemplatesDir </> [relfile|actions/verifyEmail.ts|]) tmplData
+  return $ mkTmplFdWithData (emailAuthDirInTemplatesSdkUserCoreProjectDir </> [relfile|actions/verifyEmail.ts|]) tmplData
   where
     tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
 
-emailAuthDirInUserCoreTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
-emailAuthDirInUserCoreTemplatesDir = [reldir|auth/email|]
+emailAuthDirInTemplatesSdkUserCoreProjectDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
+emailAuthDirInTemplatesSdkUserCoreProjectDir = [reldir|auth/email|]
 
 genFileCopyInEmailAuthDir :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInEmailAuthDir =
-  return . mkTmplFd . (emailAuthDirInUserCoreTemplatesDir </>)
+  return . mkTmplFd . (emailAuthDirInTemplatesSdkUserCoreProjectDir </>)
