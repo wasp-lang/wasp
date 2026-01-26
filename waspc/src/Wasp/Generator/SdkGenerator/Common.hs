@@ -24,6 +24,10 @@ data SdkRootDir
 -- | SDK root directory in data files templates directory.
 data TemplatesSdkRootDir
 
+data ClientTemplatesDir
+
+data ServerTemplatesDir
+
 sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
 
@@ -44,3 +48,9 @@ makeSdkImportPath path = [reldirP|wasp|] </> path
 
 getOperationTypeName :: AS.Operation.Operation -> String
 getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+
+clientTemplatesDirInSdkTemplatesDir :: Path' (Rel TemplatesSdkRootDir) (Dir ClientTemplatesDir)
+clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
+
+serverTemplatesDirInSdkTemplatesDir :: Path' (Rel TemplatesSdkRootDir) (Dir ServerTemplatesDir)
+serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
