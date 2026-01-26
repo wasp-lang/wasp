@@ -2,8 +2,9 @@ module Wasp.Generator.Valid.PackageJson.Dependencies
   ( dependenciesValidator,
 
     -- * Exported for testing only
-    makeOptionalDepValidator,
     makeRequiredDepValidator,
+    makeOptionalDepValidator,
+    makeForbiddenDepValidator,
     inDependency,
     DependencyType (..),
   )
@@ -12,7 +13,13 @@ where
 import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import qualified Wasp.Generator.Valid.PackageJson.Common as C
+import Wasp.Generator.Valid.PackageJson.Common
+  ( DependencySpecification,
+    forbiddenUserDeps,
+    getAllWaspDependencies,
+    requiredUserDevelopmentDeps,
+    requiredUserRuntimeDeps,
+  )
 import qualified Wasp.Generator.Valid.Validator as V
 
 data DependencyType = Runtime | Development deriving (Show)
@@ -28,11 +35,11 @@ dependenciesValidator spec =
   where
     runtimeDepsValidator :: V.Validator P.PackageJson
     runtimeDepsValidator =
-      V.all $ makeRequiredDepValidator Runtime <$> C.requiredUserRuntimeDeps
+      V.all $ makeRequiredDepValidator Runtime <$> requiredUserRuntimeDeps
 
     developmentDepsValidator :: V.Validator P.PackageJson
     developmentDepsValidator =
-      V.all $ makeRequiredDepValidator Development <$> C.requiredUserDevelopmentDeps
+      V.all $ makeRequiredDepValidator Development <$> requiredUserDevelopmentDeps
 
     optionalDepsValidator :: V.Validator P.PackageJson
     optionalDepsValidator =
@@ -41,7 +48,7 @@ dependenciesValidator spec =
           | depType <- [Runtime, Development],
             -- We check all the Wasp dependencies everywhere in case they are used
             -- in the user's package.json, to avoid conflicts.
-            dep <- M.toList $ C.getAllWaspDependencies spec
+            dep <- M.toList $ getAllWaspDependencies spec
         ]
 
     forbiddenDepsValidator :: V.Validator P.PackageJson
@@ -49,14 +56,14 @@ dependenciesValidator spec =
       V.all $
         [ makeForbiddenDepValidator depType pkgName
           | depType <- [Runtime, Development],
-            pkgName <- C.forbiddenUserDeps
+            pkgName <- forbiddenUserDeps
         ]
 
 -- | Validates that a required dependency is present in the correct dependency
 -- list with the correct version. It shows an appropriate error message
 -- otherwise (with an explicit check for the case when the dependency is present
 -- in the opposite list -- runtime deps vs. devDeps).
-makeRequiredDepValidator :: DependencyType -> C.DependencySpecification -> V.Validator P.PackageJson
+makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
 makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
   inOppositeDepList notPresentValidator
     `V.and` inCorrectDepList correctVersionValidator
@@ -98,7 +105,7 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
 
 -- | Validates that an optional dependency is either not present, or present
 -- with the correct version.
-makeOptionalDepValidator :: DependencyType -> C.DependencySpecification -> V.Validator P.PackageJson
+makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
 makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
   inDependency depType pkgName optionalVersionValidator
   where

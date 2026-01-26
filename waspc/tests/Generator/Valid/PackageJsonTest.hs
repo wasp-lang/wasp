@@ -7,6 +7,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.Valid.PackageJson.Dependencies
   ( DependencyType (..),
     inDependency,
+    makeForbiddenDepValidator,
     makeOptionalDepValidator,
     makeRequiredDepValidator,
   )
@@ -65,6 +66,24 @@ spec_PackageJson = do
       makeRequiredDepValidator depType ("required-pkg", "1.0.0")
         <-- (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
         ~~> (([fieldName, "required-pkg"] ==) . V.fieldPath)
+
+  describe "makeForbiddenDepValidator" $ do
+    itEach "succeeds when forbidden dependency is not present" $ \depType pkgJson -> do
+      makeForbiddenDepValidator depType "forbidden-pkg"
+        <-- pkgJson
+        ~> []
+
+    itEach "fails when forbidden dependency is present" $ \depType pkgJson -> do
+      let fieldName = depTypeToFieldName depType
+      makeForbiddenDepValidator depType "forbidden-pkg"
+        <-- (pkgJson `withDep` (depType, ("forbidden-pkg", "1.0.0")))
+        ~> ["Wasp doesn't allow a package named \"forbidden-pkg\" to be present in \"" <> fieldName <> "\"."]
+
+    itEach "sets the correct field path in errors" $ \depType pkgJson -> do
+      let fieldName = depTypeToFieldName depType
+      makeForbiddenDepValidator depType "forbidden-pkg"
+        <-- (pkgJson `withDep` (depType, ("forbidden-pkg", "1.0.0")))
+        ~~> (([fieldName, "forbidden-pkg"] ==) . V.fieldPath)
 
   describe "inDependency" $ do
     itEach "runs validator on dependency version value" $ \depType pkgJson -> do
