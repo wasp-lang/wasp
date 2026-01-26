@@ -1,6 +1,7 @@
 module Generator.Valid.PackageJsonTest (spec_PackageJson) where
 
 import qualified Data.Map as M
+import Data.Maybe (fromMaybe)
 import Test.Hspec
 import Text.Printf (printf)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -18,63 +19,120 @@ spec_PackageJson :: Spec
 spec_PackageJson = do
   describe "makeOptionalDepValidator" $ do
     itEach "succeeds when optional dependency is not present" $ \depType pkgJson -> do
-      makeOptionalDepValidator [] depType ("optional-pkg", "1.0.0")
+      makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
         <-- pkgJson
         ~> []
 
     itEach "succeeds when optional dependency has correct version" $ \depType pkgJson -> do
-      makeOptionalDepValidator [] depType ("optional-pkg", "1.0.0")
+      makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
         <-- (pkgJson `withDep` (depType, ("optional-pkg", "1.0.0")))
         ~> []
 
     itEach "fails when optional dependency has wrong version" $ \depType pkgJson -> do
-      makeOptionalDepValidator [] depType ("optional-pkg", "1.0.0")
+      makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
         <-- (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
         ~> ["Wasp requires package \"optional-pkg\" to be version \"1.0.0\" if present."]
 
     itEach "sets the correct field path in errors" $ \depType pkgJson -> do
       let fieldName = depTypeToFieldName depType
-      makeOptionalDepValidator [] depType ("optional-pkg", "1.0.0")
+      makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
         <-- (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
         ~~> (([fieldName, "optional-pkg"] ==) . V.fieldPath)
 
-    itEach "skips validation when package is in overriddenDepNames" $ \depType pkgJson -> do
-      makeOptionalDepValidator ["optional-pkg"] depType ("optional-pkg", "1.0.0")
-        <-- (pkgJson `withDep` (depType, ("optional-pkg", "2.0.0")))
+    itEach "skips validation when package is in wasp.overriddenDeps" $ \depType pkgJson -> do
+      makeOptionalDepValidator depType ("optional-pkg", "1.0.0")
+        <-- ( pkgJson
+                `withDep` (depType, ("optional-pkg", "2.0.0"))
+                `withOverriddenDep` ("optional-pkg", "2.0.0")
+            )
+        ~> []
+
+  describe "makeOptionalDepValidator override behavior" $ do
+    itEach "override only affects the specified package, other packages still validated" $ \depType pkgJson -> do
+      makeOptionalDepValidator depType ("other-pkg", "1.0.0")
+        <-- ( pkgJson
+                `withDep` (depType, ("other-pkg", "2.0.0"))
+                `withOverriddenDep` ("optional-pkg", "2.0.0")
+            )
+        ~> ["Wasp requires package \"other-pkg\" to be version \"1.0.0\" if present."]
+
+    it "override works across different dependency types" $ do
+      let pkgJson =
+            emptyPackageJson
+              `withDep` (Runtime, ("pkg", "2.0.0"))
+              `withDep` (Development, ("pkg", "3.0.0"))
+              `withOverriddenDep` ("pkg", "2.0.0")
+      makeOptionalDepValidator Runtime ("pkg", "1.0.0")
+        <-- pkgJson
+        ~> []
+      makeOptionalDepValidator Development ("pkg", "1.0.0")
+        <-- pkgJson
         ~> []
 
   describe "makeRequiredDepValidator" $ do
     itEach "succeeds when required dependency is present with correct version" $ \depType pkgJson -> do
-      makeRequiredDepValidator [] depType ("required-pkg", "1.0.0")
+      makeRequiredDepValidator depType ("required-pkg", "1.0.0")
         <-- (pkgJson `withDep` (depType, ("required-pkg", "1.0.0")))
         ~> []
 
     itEach "fails when required dependency is missing" $ \depType pkgJson -> do
-      makeRequiredDepValidator [] depType ("required-pkg", "1.0.0")
+      makeRequiredDepValidator depType ("required-pkg", "1.0.0")
         <-- pkgJson
         ~> ["Wasp requires package \"required-pkg\" with version \"1.0.0\"."]
 
     itEach "fails when required dependency has wrong version" $ \depType pkgJson -> do
-      makeRequiredDepValidator [] depType ("required-pkg", "1.0.0")
+      makeRequiredDepValidator depType ("required-pkg", "1.0.0")
         <-- (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
         ~> ["Wasp requires package \"required-pkg\" with version \"1.0.0\"."]
 
     itEach "fails when required dependency is in the opposite list" $ \depType pkgJson -> do
       let oppositeDepType = depTypeToOpposite depType
           fieldName = depTypeToFieldName depType
-      makeRequiredDepValidator [] depType ("required-pkg", "1.0.0")
+      makeRequiredDepValidator depType ("required-pkg", "1.0.0")
         <-- (pkgJson `withDep` (oppositeDepType, ("required-pkg", "1.0.0")))
         ~> ["Wasp requires package \"required-pkg\" to be in \"" <> fieldName <> "\"."]
 
     itEach "sets the correct field path in errors" $ \depType pkgJson -> do
       let fieldName = depTypeToFieldName depType
-      makeRequiredDepValidator [] depType ("required-pkg", "1.0.0")
+      makeRequiredDepValidator depType ("required-pkg", "1.0.0")
         <-- (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
         ~~> (([fieldName, "required-pkg"] ==) . V.fieldPath)
 
-    itEach "skips validation when package is in overriddenDepNames" $ \depType pkgJson -> do
-      makeRequiredDepValidator ["required-pkg"] depType ("required-pkg", "1.0.0")
-        <-- (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
+    itEach "skips validation when package is in wasp.overriddenDeps" $ \depType pkgJson -> do
+      makeRequiredDepValidator depType ("required-pkg", "1.0.0")
+        <-- ( pkgJson
+                `withDep` (depType, ("required-pkg", "2.0.0"))
+                `withOverriddenDep` ("required-pkg", "2.0.0")
+            )
+        ~> []
+
+    itEach "still fails when package is missing even with override" $ \depType pkgJson -> do
+      makeRequiredDepValidator depType ("required-pkg", "1.0.0")
+        <-- (pkgJson `withOverriddenDep` ("required-pkg", "2.0.0"))
+        ~> ["Wasp requires package \"required-pkg\" with version \"1.0.0\"."]
+
+    itEach "still fails when package is in opposite list even with override" $ \depType pkgJson -> do
+      let oppositeDepType = depTypeToOpposite depType
+          fieldName = depTypeToFieldName depType
+      makeRequiredDepValidator depType ("required-pkg", "1.0.0")
+        <-- ( pkgJson
+                `withDep` (oppositeDepType, ("required-pkg", "2.0.0"))
+                `withOverriddenDep` ("required-pkg", "2.0.0")
+            )
+        ~> ["Wasp requires package \"required-pkg\" to be in \"" <> fieldName <> "\"."]
+
+    it "override works for both runtime and dev dependencies" $ do
+      let pkgJson =
+            emptyPackageJson
+              `withDep` (Runtime, ("runtime-pkg", "2.0.0"))
+              `withDep` (Development, ("dev-pkg", "2.0.0"))
+              `withOverriddenDep` ("runtime-pkg", "2.0.0")
+              `withOverriddenDep` ("dev-pkg", "2.0.0")
+      makeRequiredDepValidator Runtime ("runtime-pkg", "1.0.0")
+        <-- pkgJson
+        ~> []
+      makeRequiredDepValidator Development ("dev-pkg", "1.0.0")
+        <-- pkgJson
         ~> []
 
   describe "makeForbiddenDepValidator" $ do
@@ -159,6 +217,18 @@ withDep pkgJson (Runtime, (name, version)) =
   pkgJson {P.dependencies = M.insert name version (P.dependencies pkgJson)}
 withDep pkgJson (Development, (name, version)) =
   pkgJson {P.devDependencies = M.insert name version (P.devDependencies pkgJson)}
+
+withOverriddenDep :: P.PackageJson -> (String, String) -> P.PackageJson
+withOverriddenDep pkgJson (name, version) =
+  pkgJson {P.wasp = Just updatedWaspConfig}
+  where
+    existingWaspConfig = fromMaybe emptyWaspConfig $ P.wasp pkgJson
+    existingOverrides = fromMaybe M.empty $ P.overriddenDeps existingWaspConfig
+    updatedOverrides = M.insert name version existingOverrides
+    updatedWaspConfig = existingWaspConfig {P.overriddenDeps = Just updatedOverrides}
+
+emptyWaspConfig :: P.WaspConfig
+emptyWaspConfig = P.WaspConfig {P.overriddenDeps = Nothing}
 
 depTypeToFieldName :: DependencyType -> String
 depTypeToFieldName Runtime = "dependencies"
