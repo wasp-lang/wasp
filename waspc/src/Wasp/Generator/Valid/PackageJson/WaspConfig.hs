@@ -5,7 +5,7 @@ import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, allCheckedDeps)
+import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getAllWaspDependencies)
 import qualified Wasp.Generator.Valid.Validator as V
 
 waspConfigValidator :: AS.AppSpec -> V.Validator P.PackageJson
@@ -21,7 +21,7 @@ overriddenDepsValidator spec =
   V.inField ("overriddenDeps", P.overriddenDeps) $
     forEachDep getValidationForDep . fromMaybe M.empty
   where
-    overridableDeps = allCheckedDeps spec
+    overridableDeps = getAllWaspDependencies spec
 
     getValidationForDep (depName, actualVersion) =
       overridenVersionValidator
