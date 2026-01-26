@@ -1,6 +1,6 @@
 app waspApp {
   wasp: {
-    version: "^0.19.2"
+    version: "^0.21.0"
   },
   title: "wasp-app",
   head: [

@@ -73,7 +73,7 @@ Check [.nvmrc](.nvmrc) file to learn which version of `node` that should be.
 ### Build
 
 ```sh
-./run build:all
+./run build
 ```
 
 to build the whole `waspc` project.
@@ -102,7 +102,7 @@ to ensure all the tests are passing.
 ./run wasp-cli
 ```
 
-to run the `wasp-cli` executable (that you previously built with `./run build:all`)!
+to run the `wasp-cli` executable (that you previously built with `./run build`)!
 
 Since you provided no arguments, you should see help/usage.
 
@@ -158,7 +158,7 @@ When done, new tab in your browser should open and you will see the Kitchen Sink
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
-4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
+4. Use `./run build:hs` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `data/packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
 5. For easier manual testing of the changes you did on a Wasp app, you have the [`kitchen-sink`](../examples/kitchen-sink/) app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
 6. Run `./run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
@@ -234,7 +234,7 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 ### Typescript packages
 
-`waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
+`waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `data/packages/` and are normal npm projects. See `data/packages/README.md` for how the projects are expected to be set up.
 
 In order for `waspc`'s Haskell code to correctly use these TS packages (and to also have them correctly bundled when generating the release tarball), they need to be correctly installed/built in the `waspc_datadir` dir.
 To do so in development, run `./run build:packages` when any changes are made to these packages. We also run it in CI when building the release.
@@ -451,6 +451,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - This will automatically create a new draft release.
 - 👉 Find a new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
+- 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main`. Make sure to merge that PR. This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](/.github/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
@@ -474,10 +475,10 @@ If doing this, steps are the following:
 2. Locally execute the `new-release` script. Append `-rc` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc1`).
    The script will throw some warnings which you should accept.
 3. Once the draft release is created on Github, use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
-4. Since our installer installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing a `-v` flag to the installer! That way user's don't get in touch with it, but we can install and use it normally:
+4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
 
 ```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0-rc
+npm i -g @wasp.sh/wasp-cli@0.19.0-rc
 ```
 
 5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).

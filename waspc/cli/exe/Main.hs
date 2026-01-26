@@ -29,6 +29,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
+import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
@@ -42,6 +43,7 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Message
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
+import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
@@ -65,6 +67,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["deps"] -> Command.Call.Deps
         ["dockerfile"] -> Command.Call.Dockerfile
         ["info"] -> Command.Call.Info
+        ["news"] -> Command.Call.News
         ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:list"] -> Command.Call.BashCompletionListCommands
@@ -118,6 +121,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Deps -> runCommand deps
     Command.Call.Dockerfile -> runCommand printDockerfile
     Command.Call.Info -> runCommand info
+    Command.Call.News -> runCommand news
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
     Command.Call.WaspLS -> runWaspLS
@@ -191,6 +195,7 @@ printUsage =
         cmd   "    info                  Prints basic information about the current Wasp project.",
         cmd   "    test                  Executes tests in your project.",
         cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
+        cmd   "    news                  Read the latest Wasp-related news.",
               "",
         title "EXAMPLES",
               "  wasp new MyApp",
@@ -204,16 +209,16 @@ printUsage =
 {- ORMOLU_ENABLE -}
 
 printVersion :: IO ()
-printVersion = do
+printVersion =
   putStrLn $
     unlines
       [ show waspVersion,
         "",
         "If you wish to install/switch to the latest version of Wasp, do:",
-        "  curl -sSL https://get.wasp.sh/installer.sh | sh -s",
+        indent 2 $ getInstallationCommand Nothing,
         "",
-        "If you want specific x.y.z version of Wasp, do:",
-        "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
+        "If you want a specific x.y.z version of Wasp, do:",
+        indent 2 $ getInstallationCommand $ Just "x.y.z",
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]

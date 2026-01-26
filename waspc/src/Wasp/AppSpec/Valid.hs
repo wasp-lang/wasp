@@ -45,7 +45,8 @@ import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.SemanticVersion.VersionBound as SVB
-import Wasp.Util (findDuplicateElems, isCapitalized)
+import Wasp.Util (findDuplicateElems, indent, isCapitalized)
+import Wasp.Util.InstallMethod (getInstallationCommand)
 import Wasp.Valid (ValidationError (..))
 import qualified Wasp.Version as WV
 
@@ -116,8 +117,8 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
           [ "Your Wasp version does not match the app's requirements.",
             "You are running Wasp " ++ show actualVersion ++ ".",
             "This app requires Wasp " ++ show expectedVersionRange ++ ".",
-            "To install specific version of Wasp, do:",
-            "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
+            "To install a specific version of Wasp, do:",
+            indent 2 $ getInstallationCommand $ Just "x.y.z",
             "where x.y.z is your desired version.",
             "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
           ]
@@ -183,7 +184,7 @@ validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
 
 validateDummyEmailSenderIsNotUsedInProduction :: AppSpec -> [ValidationError]
 validateDummyEmailSenderIsNotUsedInProduction spec =
-  if AS.isBuild spec && isDummyEmailSenderUsed
+  if AS.isProduction spec && isDummyEmailSenderUsed
     then [GenericValidationError "app.emailSender must not be set to Dummy when building for production."]
     else []
   where

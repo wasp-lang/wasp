@@ -15,12 +15,12 @@ jobs:
 
       - uses: actions/setup-node@v6
         with:
-          node-version: lts/*
+          node-version-file: .nvmrc
 
       - name: Install wasp-config dependencies
-        working-directory: waspc/packages/wasp-config
+        working-directory: waspc/data/packages/wasp-config
         run: npm ci
 
       - name: Run wasp-config tests
-        working-directory: waspc/packages/wasp-config
+        working-directory: waspc/data/packages/wasp-config
         run: npm run test

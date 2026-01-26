@@ -42,7 +42,7 @@ data NewProjectDetails = NewProjectDetails
 
 data NewProjectConfig = NewProjectConfig
   { projectAuth :: !(Maybe AuthProvider),
-    -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
+    -- One of the Tailwind color names: https://tailwindcss.com/docs/colors
     projectPrimaryColor :: !(Maybe String),
     projectCodingGptModel :: !(Maybe GPT.Model),
     projectPlanningGptModel :: !(Maybe GPT.Model),
