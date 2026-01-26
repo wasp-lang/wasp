@@ -78,13 +78,21 @@ genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir 
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
-genQueryTypesFile spec = genOperationTypesFile (serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|]) operations isAuthEnabledGlobally
+genQueryTypesFile spec =
+  genOperationTypesFile
+    (serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|])
+    operations
+    isAuthEnabledGlobally
   where
     operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionTypesFile :: AppSpec -> Generator FileDraft
-genActionTypesFile spec = genOperationTypesFile (serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|]) operations isAuthEnabledGlobally
+genActionTypesFile spec =
+  genOperationTypesFile
+    (serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|])
+    operations
+    isAuthEnabledGlobally
   where
     operations = map (uncurry AS.Operation.ActionOp) $ AS.getActions spec
     isAuthEnabledGlobally = isAuthEnabled spec
@@ -107,8 +115,8 @@ genOperationTypesFile ::
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
-genOperationTypesFile tmplFile operations isAuthEnabledGlobally =
-  return $ mkTmplFdWithData tmplFile tmplData
+genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally =
+  return $ mkTmplFdWithData relOperationTypesFilePath tmplData
   where
     tmplData =
       object
