@@ -247,7 +247,7 @@ depsRequiredForTesting =
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
-  return $ C.mkTmplFdWithData [relfile|client/config.ts|] tmplData
+  return $ UserCore.mkTmplFdWithData [relfile|client/config.ts|] tmplData
   where
     tmplData =
       object
@@ -274,7 +274,7 @@ genCoreSerializationDir spec =
     entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts|] tmplData
+genServerConfigFile spec = return $ UserCore.mkTmplFdWithData [relfile|server/config.ts|] tmplData
   where
     tmplData =
       object
@@ -317,8 +317,8 @@ genExternalFile file
   where
     fileName = FP.takeFileName . fromRelFile $ externalFilePath
     destFile =
-      C.sdkRootDirInGeneratedCodeDir
-        </> C.extSrcDirInSdkRootDir
+      sdkRootDirInGeneratedCodeDir
+        </> extSrcDirInSdkRootDir
         </> castRel externalFilePath
 
     externalFilePath = EF.filePathInExtCodeDir file

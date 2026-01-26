@@ -37,7 +37,7 @@ genNewClientCrudApi spec =
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndex spec cruds =
-  return $ mkTmplFdWithData (clientCrudDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (clientCrudDirInUserCoreTemplatesDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
     getCrudOperationJsonFromCrud :: (String, AS.Crud.Crud) -> Aeson.Value
@@ -50,9 +50,9 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
-      mkTmplFdWithDstAndData
-        (castRel (clientCrudDirInSdkTemplatesDir </> fromJust (parseRelFile (name ++ ".ts"))))
-        (clientCrudDirInSdkTemplatesDir </> [relfile|_crud.ts|])
+      mkTmplFdWithDestAndData
+        (castRel (clientCrudDirInUserCoreTemplatesDir </> fromJust (parseRelFile (name ++ ".ts"))))
+        (clientCrudDirInUserCoreTemplatesDir </> [relfile|_crud.ts|])
         (Just tmplData)
       where
         tmplData = getCrudOperationJson name crud idField
@@ -63,4 +63,4 @@ clientCrudDirInUserCoreTemplatesDir = [reldir|client/crud|]
 
 genFileCopyInClientCrud :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInClientCrud =
-  return . mkTmplFd . (clientCrudDirInSdkTemplatesDir </>)
+  return . mkTmplFd . (clientCrudDirInUserCoreTemplatesDir </>)

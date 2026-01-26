@@ -33,10 +33,12 @@ genCrudServerOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [Fil
 genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudOperation (name, crud) = C.mkTmplFdWithDstAndData destPath tmplPath (Just tmplData)
+    genCrudOperation (name, crud) =
+      mkTmplFdWithDestAndData
+        ([reldir|server/crud|] </> getCrudFilePath name "ts")
+        [relfile|server/crud/_operationTypes.ts|]
+        (Just tmplData)
       where
-        destFile = [reldir|server/crud|] </> getCrudFilePath name "ts"
-        tmplFile = [relfile|server/crud/_operationTypes.ts|]
         tmplData =
           object
             [ "crud" .= getCrudOperationJson name crud idField,

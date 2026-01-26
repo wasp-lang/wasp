@@ -44,7 +44,7 @@ genOperations spec =
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInUserCoreTemplatesDir </> [relfile|index.ts|]) tmplData
   where
     tmplData =
       object
@@ -54,12 +54,12 @@ genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genWrappers :: AppSpec -> Generator FileDraft
-genWrappers spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|]) tmplData
+genWrappers spec = return $ mkTmplFdWithData (serverOpsDirInUserCoreTemplatesDir </> [relfile|wrappers.ts|]) tmplData
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]) tmplData
+genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInUserCoreTemplatesDir </> [relfile|queries/index.ts|]) tmplData
   where
     tmplData =
       object
@@ -69,7 +69,7 @@ genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir 
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]) tmplData
+genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInUserCoreTemplatesDir </> [relfile|actions/index.ts|]) tmplData
   where
     tmplData =
       object
@@ -81,7 +81,7 @@ genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec =
   genOperationTypesFile
-    (serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|])
+    (serverOpsDirInUserCoreTemplatesDir </> [relfile|queries/types.ts|])
     operations
     isAuthEnabledGlobally
   where
@@ -91,7 +91,7 @@ genQueryTypesFile spec =
 genActionTypesFile :: AppSpec -> Generator FileDraft
 genActionTypesFile spec =
   genOperationTypesFile
-    (serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|])
+    (serverOpsDirInUserCoreTemplatesDir </> [relfile|actions/types.ts|])
     operations
     isAuthEnabledGlobally
   where

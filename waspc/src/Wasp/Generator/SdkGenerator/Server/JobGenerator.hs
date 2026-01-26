@@ -49,7 +49,7 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ mkTmplFdWithData (serverJobsDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverJobsDirInUserCoreTemplatesDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["jobs" .= map getJobTmplData jobs]
     getJobTmplData (jobName, _) =
@@ -61,9 +61,9 @@ genIndexTs jobs =
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
   return $
-    mkTmplFdWithDstAndData
-      (castRel (serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
-      (serverJobsDirInSdkTemplatesDir </> [relfile|_job.ts|])
+    mkTmplFdWithDestAndData
+      (castRel (serverJobsDirInUserCoreTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
+      (serverJobsDirInUserCoreTemplatesDir </> [relfile|_job.ts|])
       (Just tmplData)
   where
     tmplData =
@@ -149,4 +149,4 @@ serverJobsDirInUserCoreTemplatesDir = [reldir|server/jobs|]
 
 genFileCopyInServerJob :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerJob =
-  return . mkTmplFd . (serverJobsDirInSdkTemplatesDir </>)
+  return . mkTmplFd . (serverJobsDirInUserCoreTemplatesDir </>)

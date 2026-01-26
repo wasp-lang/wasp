@@ -9,6 +9,7 @@ where
 
 import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
+import Wasp.Generator.SdkGenerator.Common (TemplatesSdkRootDir)
 import Wasp.Generator.SdkGenerator.UserCore.Common (TemplatesSdkUserCoreProjectDir)
 import qualified Wasp.SemanticVersion as SV
 
@@ -64,5 +65,5 @@ dummy =
       setupFnFile = providersDirInSdkTemplatesDir </> [relfile|dummy.ts|]
     }
 
-providersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+providersDirInSdkTemplatesDir :: Path' (Rel TemplatesSdkUserCoreProjectDir) Dir'
 providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]

@@ -52,7 +52,7 @@ genClientEnvFiles spec =
     ]
 
 genServerEnv :: AppSpec -> Generator FileDraft
-genServerEnv spec = return $ C.mkTmplFdWithData [relfile|server/env.ts|] tmplData
+genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
   where
     tmplData =
       object
