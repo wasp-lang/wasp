@@ -8,6 +8,8 @@ const latestWaspVersion = docsVersions[0];
 const replacer = createReplacer({
   latestWaspVersion: `^${latestWaspVersion}`,
   pinnedLatestWaspVersion: latestWaspVersion,
+  // NOTE: Don't change Wasp's lowest supported Node version without updating it
+  // in all required places. Check /.nvmrc for the full list.
   minimumNodeJsVersion: "22.12",
 });
 

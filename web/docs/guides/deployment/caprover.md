@@ -34,7 +34,7 @@ Point your DNS A records to your server IP:
 - `api` → server IP (for `api.myapp.com` - server)
 
 :::tip
-If you followed Caprover's install instructions with `*.apps` subdomain setup, you can use `https://<app-name>.apps.mydomain.com` for quick testing.
+If you followed Caprover's install instructions with `*.apps` subdomain setup, you can use `https://myapp-client.apps.mydomain.com` and `https://myapp-server.apps.mydomain.com` for quick testing.
 :::
 
 ### Step 2: Create Caprover Apps
