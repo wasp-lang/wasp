@@ -118,9 +118,9 @@ genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
-    sequence
-      [genFileCopyInServerJob [relfile|core/job.ts|]]
-      <++> sequence (concatMap genJobExecutor jobExecutors)
+    sequence $
+      genFileCopyInServerJob [relfile|core/job.ts|]
+        : concatMap genJobExecutor jobExecutors
     where
       -- Per each defined job executor, we generate the needed files.
       genJobExecutor :: JobExecutor -> [Generator FileDraft]
