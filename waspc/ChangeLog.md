@@ -36,7 +36,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - `wasp info` now tells you if the last compilation was done in development or production mode. ([#3612](https://github.com/wasp-lang/wasp/pull/3612))
 - `wasp uninstall` now supports the npm installation method. ([#3620](https://github.com/wasp-lang/wasp/pull/3620))
 - Added anonymous usage analytics to the npm package installer to help us understand how Wasp is being installed. You can disable this by setting `WASP_TELEMETRY_DISABLE=1`. ([#3619](https://github.com/wasp-lang/wasp/pull/3619))
-- Upgraded React Router from v6 to v7. This brings new features like middleware support. The upgrade is backwards compatible for library usage. ([#3490](https://github.com/wasp-lang/wasp/pull/3490))
+- Upgraded React Router from v6 to v7. The upgrade is backwards compatible for library usage. ([#3490](https://github.com/wasp-lang/wasp/pull/3490))
 
 ## 0.20.1
 
