@@ -1,7 +1,7 @@
 import { ReactElement, ReactNode } from 'react'
 import { http, type HttpResponseResolver, type RequestHandler } from 'msw'
 import { setupServer, type SetupServer } from 'msw/node'
-import { BrowserRouter as Router } from 'react-router-dom'
+import { BrowserRouter as Router } from 'react-router'
 import { render, RenderResult, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'

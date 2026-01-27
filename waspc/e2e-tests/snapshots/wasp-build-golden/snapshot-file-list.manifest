@@ -400,7 +400,6 @@ wasp-app/.wasp/out/tsconfig.json
 wasp-app/.wasp/out/web-app/.gitignore
 wasp-app/.wasp/out/web-app/.npmrc
 wasp-app/.wasp/out/web-app/README.md
-wasp-app/.wasp/out/web-app/netlify.toml
 wasp-app/.wasp/out/web-app/package.json
 wasp-app/.wasp/out/web-app/public/.gitkeep
 wasp-app/.wasp/out/web-app/public/favicon.ico

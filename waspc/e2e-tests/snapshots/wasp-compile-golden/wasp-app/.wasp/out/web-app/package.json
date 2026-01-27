@@ -18,7 +18,6 @@
     "node": ">=22.12.0"
   },
   "name": "@wasp.sh/generated-webapp",
-  "overrides": {},
   "private": true,
   "scripts": {
     "build": "tsc --build && vite build",

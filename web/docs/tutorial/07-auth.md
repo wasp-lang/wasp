@@ -115,7 +115,7 @@ Here's the React code for the pages you've just imported:
 <TutorialAction id="login-page-initial" action="APPLY_PATCH">
 
 ```tsx title="src/LoginPage.tsx" auto-js
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { LoginForm } from "wasp/client/auth";
 
 export const LoginPage = () => {
@@ -137,7 +137,7 @@ The signup page is very similar to the login page:
 <TutorialAction id="signup-page-initial" action="APPLY_PATCH">
 
 ```tsx title="src/SignupPage.tsx" auto-js
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { SignupForm } from "wasp/client/auth";
 
 export const SignupPage = () => {

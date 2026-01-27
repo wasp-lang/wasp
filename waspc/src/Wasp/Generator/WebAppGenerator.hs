@@ -41,7 +41,6 @@ genWebApp spec = do
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genAppTsConfigJson spec,
-      genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsFromWasp spec),
       genGitignore
     ]
@@ -94,7 +93,6 @@ genPackageJson spec waspDependencies = do
             [ "packageName" .= webAppPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
-              "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry [],
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )

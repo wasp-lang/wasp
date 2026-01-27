@@ -10,6 +10,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now uses **Vitest 4** for testing. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - Removed the `.wasp/build` directory. Wasp now only uses `.wasp/out` for generated code, both in development and production mode. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
 - The Wasp SDK is now used as a workspace instead of a dependency. This avoids dependency resolution issues and further improves reliability of Wasp projects. ([#3544](https://github.com/wasp-lang/wasp/pull/3544))
+- Wasp now uses **React Router 7**. The package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your imports. ([#3490](https://github.com/wasp-lang/wasp/pull/3490), [#3658](https://github.com/wasp-lang/wasp/pull/3658))
+- Wasp no longer generates `netlify.toml` in the `.wasp/out/web-app` dir. If you're deploying to Netlify, you'll need to add it manually. ([#3665](https://github.com/wasp-lang/wasp/pull/3665))
 
 ### 🎉 New Features
 
@@ -19,6 +21,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Fixed an issue where if Wasp was installed from npm, `wasp new` would not work correctly. ([#3585](https://github.com/wasp-lang/wasp/pull/3585))
+- Fixed an issue where the `Link` component might not update with the values of `search` and `hash` (by @Pipboyguy). ([#3633](https://github.com/wasp-lang/wasp/pull/3633))
 
 ### 📖 Documentation
 
@@ -36,7 +39,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - `wasp info` now tells you if the last compilation was done in development or production mode. ([#3612](https://github.com/wasp-lang/wasp/pull/3612))
 - `wasp uninstall` now supports the npm installation method. ([#3620](https://github.com/wasp-lang/wasp/pull/3620))
 - Added anonymous usage analytics to the npm package installer to help us understand how Wasp is being installed. You can disable this by setting `WASP_TELEMETRY_DISABLE=1`. ([#3619](https://github.com/wasp-lang/wasp/pull/3619))
-- Upgraded React Router from v6 to v7. The upgrade is backwards compatible for library usage. ([#3490](https://github.com/wasp-lang/wasp/pull/3490))
+- Removed a Rollup version override, since the upstream Rollup issue has been fixed. ([#3654](https://github.com/wasp-lang/wasp/pull/3654))
 
 ## 0.20.1
 

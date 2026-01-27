@@ -1241,7 +1241,6 @@ wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.wasp/out/web-app/.env
 wasp-app/.wasp/out/web-app/.gitignore
 wasp-app/.wasp/out/web-app/README.md
-wasp-app/.wasp/out/web-app/netlify.toml
 wasp-app/.wasp/out/web-app/package.json
 wasp-app/.wasp/out/web-app/public/.gitkeep
 wasp-app/.wasp/out/web-app/public/favicon.ico

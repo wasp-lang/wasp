@@ -9,7 +9,7 @@ import { getMe } from "wasp/client/auth";
 import { App } from "../../../App";
 import Todo, { areThereAnyTasks } from "./Todo";
 
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes } from "react-router";
 
 test("areThereAnyTasks", () => {
   expect(areThereAnyTasks([])).toBe(false);
