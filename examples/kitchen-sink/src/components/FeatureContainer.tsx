@@ -139,11 +139,6 @@ const features: Feature[] = [
     isPublic: true,
   },
   {
-    to: "/link-test",
-    title: "Link Test",
-    isPublic: true,
-  },
-  {
     to: "/profile",
     title: "User Profile",
   },
