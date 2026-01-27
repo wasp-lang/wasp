@@ -263,7 +263,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/detectServerImports.ts"
         ],
-        "567f1ff10d01363373f5a103ca1197c8a0e93ab1623c319835066b778299bcd2"
+        "8343c29095aa14554d0349f9089351de9bfc1377435258c62df065480caa6d96"
     ],
     [
         [
@@ -326,7 +326,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "90de1577f45a3c40ec36c7dc37a49eac4a68f52c87cad9471d524e4143dfcdf9"
+        "e100525c32a033a26126a9b502daf98e0d76dbcccb371e3aa54fddaca0470d14"
     ],
     [
         [
