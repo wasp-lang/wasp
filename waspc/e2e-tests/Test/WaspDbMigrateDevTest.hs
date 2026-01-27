@@ -25,28 +25,29 @@ waspDbMigrateDevTest =
     "wasp-db-migrate-dev"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliDbMigrateDevFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
+        (return [waspCliDbMigrateDevFails]),
       makeTestCase
         "Should succeed when migrations up to date inside of a Wasp project"
-        (withInTestWaspProjectDir [waspCliDbMigrateDev "no_migration"]),
-      makeTestCase
-        "Setup: Add a Task model to prisma"
-        ( withInTestWaspProjectDir
-            [appendToPrismaFile taskPrismaModel]
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir [waspCliDbMigrateDev "no_migration"]
+            ]
         ),
       makeTestCase
         "Should succeed creating a new migration inside of a Wasp project"
-        (withInTestWaspProjectDir [waspCliDbMigrateDev "yes_migration"]),
-      makeTestCase
-        "Assert migration directories exists"
-        (withInTestWaspProjectDir [assertMigrationDirsExist "yes_migration"])
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir
+                [ appendToPrismaFile taskPrismaModel,
+                  waspCliDbMigrateDev "yes_migration",
+                  assertMigrationDirsExist "yes_migration"
+                ]
+            ]
+        )
     ]
   where
-    waspCliDbMigrateDevFails :: ShellCommandBuilder context ShellCommand
-    waspCliDbMigrateDevFails = return "! wasp-cli db migrate-dev"
+    waspCliDbMigrateDevFails :: ShellCommand
+    waspCliDbMigrateDevFails = "! wasp-cli db migrate-dev"
 
     taskPrismaModel :: T.Text
     taskPrismaModel =
@@ -69,13 +70,7 @@ assertMigrationDirsExist migrationName = do
           </> dbRootDirInProjectRootDir
           </> dbMigrationsDirInDbRootDir
   return $
-    "cd "
-      ++ fromAbsDir waspMigrationsDir
-        ~&& "[ -d \"$(find . -type d -name '*"
-      ++ migrationName
-      ++ "*' -print -quit)\" ]"
-        ~&& "cd "
-      ++ fromAbsDir waspOutMigrationsDir
-        ~&& "[ -d \"$(find . -type d -name '*"
-      ++ migrationName
-      ++ "*' -print -quit)\" ]"
+    ("cd " ++ fromAbsDir waspMigrationsDir)
+      ~&& ("[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]")
+      ~&& ("cd " ++ fromAbsDir waspOutMigrationsDir)
+      ~&& ("[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]")

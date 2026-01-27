@@ -1,6 +1,6 @@
 module Test.WaspBuildTest (waspBuildTest) where
 
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
 import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliBuild)
@@ -11,30 +11,31 @@ waspBuildTest =
     "wasp-build"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliBuildFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
+        (return [waspCliBuildFails]),
       makeTestCase
         "Should fail inside of a SQLite Wasp project"
-        (withInTestWaspProjectDir [waspCliBuildFails]),
-      makeTestCase
-        "Setup: Modify Wasp project to use Postgresql"
-        (withInTestWaspProjectDir [setWaspDbToPSQL]),
-      makeTestCase
-        "Should succeed inside of a Postgresql Wasp project"
-        (withInTestWaspProjectDir [waspCliBuild]),
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir [return waspCliBuildFails]
+            ]
+        ),
       -- `wasp build` should also compile the project.
       makeTestCase
-        "Assert `.wasp` directory exists"
-        (withInTestWaspProjectDir [assertDirectoryExists ".wasp"]),
-      makeTestCase
-        "Assert `node_modules` directory exists"
-        (withInTestWaspProjectDir [assertDirectoryExists "node_modules"])
+        "Should succeed inside of a Postgresql Wasp project"
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  waspCliBuild,
+                  return $ assertDirectoryExists ".wasp",
+                  return $ assertDirectoryExists "node_modules"
+                ]
+            ]
+        )
     ]
   where
-    waspCliBuildFails :: ShellCommandBuilder context ShellCommand
-    waspCliBuildFails = return "! wasp-cli build"
+    waspCliBuildFails :: ShellCommand
+    waspCliBuildFails = "! wasp-cli build"
 
-    assertDirectoryExists :: FilePath -> ShellCommandBuilder context ShellCommand
-    assertDirectoryExists dirFilePath = return $ "[ -d '" ++ dirFilePath ++ "' ]"
+    assertDirectoryExists :: FilePath -> ShellCommand
+    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

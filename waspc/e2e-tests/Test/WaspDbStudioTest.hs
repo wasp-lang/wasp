@@ -1,6 +1,6 @@
 module Test.WaspDbStudioTest (waspDbStudioTest) where
 
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
 import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDbStudio)
@@ -13,14 +13,15 @@ waspDbStudioTest =
     "wasp-db-studio"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliDbStudioFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
+        (return [waspCliDbStudioFails]),
       makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInTestWaspProjectDir [waspCliDbStudio])
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir [waspCliDbStudio]
+            ]
+        )
     ]
   where
-    waspCliDbStudioFails :: ShellCommandBuilder context ShellCommand
-    waspCliDbStudioFails = return "! wasp-cli db studio"
+    waspCliDbStudioFails :: ShellCommand
+    waspCliDbStudioFails = "! wasp-cli db studio"

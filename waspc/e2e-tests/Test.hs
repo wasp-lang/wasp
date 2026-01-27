@@ -16,6 +16,7 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     buildShellCommand,
+    (~&&),
   )
 import StrongPath (Abs, Dir, Path', fromAbsDir, parseRelDir, (</>))
 import System.Exit (ExitCode (..))
@@ -42,15 +43,11 @@ makeTest testName testTestCases =
 -- | Represent a single test case of some 'Test'.
 data TestCase = TestCase
   { name :: String,
-    commandBuilder :: ShellCommandBuilder TestContext ShellCommand
+    shellCommandBuilder :: ShellCommandBuilder TestContext [ShellCommand]
   }
 
-makeTestCase :: String -> ShellCommandBuilder TestContext ShellCommand -> TestCase
-makeTestCase testCaseName testCaseCommandBuilder =
-  TestCase
-    { name = testCaseName,
-      commandBuilder = testCaseCommandBuilder
-    }
+makeTestCase :: String -> ShellCommandBuilder TestContext [ShellCommand] -> TestCase
+makeTestCase = TestCase
 
 -- | Runs a 'Test' by executing all test cases' shell commands and then checking their exit code.
 -- It executes the shell commands while builing the 'Spec'. This is to enforce the sequential execution of test cases.
@@ -97,7 +94,7 @@ createAndExecuteTestCase testDir testCase = do
       ExitSuccess -> return ()
   where
     testCaseCommand :: ShellCommand
-    testCaseCommand = buildShellCommand testContext testCase.commandBuilder
+    testCaseCommand = foldr1 (~&&) $ buildShellCommand testContext testCase.shellCommandBuilder
 
     testContext :: TestContext
     testContext =

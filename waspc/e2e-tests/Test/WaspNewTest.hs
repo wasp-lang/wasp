@@ -12,7 +12,7 @@ waspNewMinimalTest =
     "wasp-new-minimal"
     [ makeTestCase
         "Should create a minimal template project succesfully"
-        (waspCliNew "wasp-app" Minimal)
+        (sequence [waspCliNew "wasp-app" Minimal])
     ]
 
 waspNewMinimalInteractiveTest :: Test
@@ -21,7 +21,7 @@ waspNewMinimalInteractiveTest =
     "wasp-new-minimal-interactive"
     [ makeTestCase
         "Should create a minimal template project interactively succesfully"
-        (waspCliNewInteractive "wasp-app" Minimal)
+        (sequence [waspCliNewInteractive "wasp-app" Minimal])
     ]
 
 waspNewBasicTest :: Test
@@ -30,7 +30,7 @@ waspNewBasicTest =
     "wasp-new-basic"
     [ makeTestCase
         "Should create a basic template project succesfully"
-        (waspCliNew "wasp-app" Basic)
+        (sequence [waspCliNew "wasp-app" Basic])
     ]
 
 waspNewBasicInteractiveTest :: Test
@@ -39,7 +39,7 @@ waspNewBasicInteractiveTest =
     "wasp-new-basic-interactive"
     [ makeTestCase
         "Should create a basic template project interactively succesfully"
-        (waspCliNewInteractive "wasp-app" Basic)
+        (sequence [waspCliNewInteractive "wasp-app" Basic])
     ]
 
 waspNewSaasTest :: Test
@@ -48,7 +48,7 @@ waspNewSaasTest =
     "wasp-new-saas"
     [ makeTestCase
         "Should create a saas template project succesfully"
-        (waspCliNew "wasp-app" SaaS)
+        (sequence [waspCliNew "wasp-app" SaaS])
     ]
 
 waspNewSaasInteractiveTest :: Test
@@ -57,5 +57,5 @@ waspNewSaasInteractiveTest =
     "wasp-new-saas-interactive"
     [ makeTestCase
         "Should create a saas template project interactively succesfully"
-        (waspCliNewInteractive "wasp-app" SaaS)
+        (sequence [waspCliNewInteractive "wasp-app" SaaS])
     ]

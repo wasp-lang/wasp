@@ -1,6 +1,6 @@
 module Test.WaspDockerfileTest (waspDockerfileTest) where
 
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
 import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDockerfile)
@@ -12,14 +12,15 @@ waspDockerfileTest =
     "wasp-dockerfile"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliDockerfileFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
+        (return [waspCliDockerfileFails]),
       makeTestCase
         "Should succeed inside of a Wasp project"
-        (withInTestWaspProjectDir [waspCliDockerfile])
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir [waspCliDockerfile]
+            ]
+        )
     ]
   where
-    waspCliDockerfileFails :: ShellCommandBuilder context ShellCommand
-    waspCliDockerfileFails = return "! wasp-cli dockerfile"
+    waspCliDockerfileFails :: ShellCommand
+    waspCliDockerfileFails = "! wasp-cli dockerfile"

@@ -1,6 +1,6 @@
 module Test.WaspStartTest (waspStartTest) where
 
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
 import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliStart)
@@ -12,26 +12,32 @@ waspStartTest =
     "wasp-start"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliStartFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
+        (return [waspCliStartFails]),
       makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInTestWaspProjectDir [waspCliStart]),
-      makeTestCase
-        "Assert `.wasp` directory exists"
-        (withInTestWaspProjectDir [assertDirectoryExists ".wasp"]),
-      makeTestCase
-        "Assert `node_modules` directory exists"
-        (withInTestWaspProjectDir [assertDirectoryExists "node_modules"]),
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir
+                [ waspCliStart,
+                  return $ assertDirectoryExists ".wasp",
+                  return $ assertDirectoryExists "node_modules"
+                ]
+            ]
+        ),
       makeTestCase
         "Should succeed inside of a compiled Wasp project"
-        (withInTestWaspProjectDir [waspCliStart])
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir
+                [ waspCliStart,
+                  waspCliStart
+                ]
+            ]
+        )
     ]
   where
-    waspCliStartFails :: ShellCommandBuilder context ShellCommand
-    waspCliStartFails = return "! wasp-cli start"
+    waspCliStartFails :: ShellCommand
+    waspCliStartFails = "! wasp-cli start"
 
-    assertDirectoryExists :: FilePath -> ShellCommandBuilder context ShellCommand
-    assertDirectoryExists dirFilePath = return $ "[ -d '" ++ dirFilePath ++ "' ]"
+    assertDirectoryExists :: FilePath -> ShellCommand
+    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

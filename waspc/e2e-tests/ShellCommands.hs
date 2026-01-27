@@ -13,10 +13,8 @@ module ShellCommands
     createFile,
     appendToFile,
     replaceLineInFile,
-    waspCliVersion,
     waspCliNewInteractive,
     waspCliNew,
-    waspCliTelemetry,
     waspCliCompletion,
   )
 where
@@ -120,12 +118,6 @@ waspCliNew appName template = return $ unwords ["wasp-cli", "new", appName, "-t"
       Basic -> "basic"
       Minimal -> "minimal"
       SaaS -> "saas"
-
-waspCliVersion :: ShellCommandBuilder context ShellCommand
-waspCliVersion = return "wasp-cli version"
-
-waspCliTelemetry :: ShellCommandBuilder context ShellCommand
-waspCliTelemetry = return "wasp-cli telemetry"
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
 waspCliCompletion = return "wasp-cli completion"

@@ -1,6 +1,6 @@
 module Test.WaspTelemetryTest (waspTelemetryTest) where
 
-import ShellCommands (waspCliTelemetry, (~|))
+import ShellCommands (ShellCommand, (~|))
 import Test (Test, makeTest, makeTestCase)
 
 waspTelemetryTest :: Test
@@ -9,8 +9,11 @@ waspTelemetryTest =
     "wasp-telemetry"
     [ makeTestCase
         "Should be enabled by default"
-        (("env -u WASP_TELEMETRY_DISABLE " ++) . (~| "grep -q 'ENABLED'") <$> waspCliTelemetry),
+        (return . (: []) $ ("env -u WASP_TELEMETRY_DISABLE " ++) . (~| "grep -q 'ENABLED'") $ waspCliTelemetry),
       makeTestCase
         "Should be disabled when WASP_TELEMETRY_DISABLE=1 env var is set"
-        (("WASP_TELEMETRY_DISABLE=1 " ++) . (~| "grep -q 'DISABLED'") <$> waspCliTelemetry)
+        (return . (: []) $ ("WASP_TELEMETRY_DISABLE=1 " ++) . (~| "grep -q 'DISABLED'") $ waspCliTelemetry)
     ]
+
+waspCliTelemetry :: ShellCommand
+waspCliTelemetry = "wasp-cli telemetry"

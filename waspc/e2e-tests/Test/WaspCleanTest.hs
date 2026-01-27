@@ -1,6 +1,6 @@
 module Test.WaspCleanTest (waspCleanTest) where
 
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
 import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliClean, waspCliCompile)
@@ -11,29 +11,34 @@ waspCleanTest =
     "wasp-clean"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliCleanFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
+        (return [waspCliCleanFails]),
       makeTestCase
         "Should succeed inside of a uncompiled Wasp project"
-        (withInTestWaspProjectDir [waspCliClean]),
-      makeTestCase
-        "Setup: compile the Wasp project"
-        (withInTestWaspProjectDir [waspCliCompile]),
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir
+                [ waspCliClean,
+                  return $ assertDirectoryDoesNotExist ".wasp",
+                  return $ assertDirectoryDoesNotExist "node_modules"
+                ]
+            ]
+        ),
       makeTestCase
         "Should succeed inside of a compiled Wasp project"
-        (withInTestWaspProjectDir [waspCliClean]),
-      makeTestCase
-        "Assert `.wasp` directory does not exist"
-        (withInTestWaspProjectDir [assertDirectoryDoesNotExist ".wasp"]),
-      makeTestCase
-        "Assert `node_modules` directory does not exist"
-        (withInTestWaspProjectDir [assertDirectoryDoesNotExist "node_modules"])
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir
+                [ waspCliCompile,
+                  waspCliClean,
+                  return $ assertDirectoryDoesNotExist ".wasp",
+                  return $ assertDirectoryDoesNotExist "node_modules"
+                ]
+            ]
+        )
     ]
   where
-    waspCliCleanFails :: ShellCommandBuilder context ShellCommand
-    waspCliCleanFails = return "! wasp-cli clean"
+    waspCliCleanFails :: ShellCommand
+    waspCliCleanFails = "! wasp-cli clean"
 
-    assertDirectoryDoesNotExist :: FilePath -> ShellCommandBuilder context ShellCommand
-    assertDirectoryDoesNotExist dirFilePath = return $ "[ ! -d '" ++ dirFilePath ++ "' ]"
+    assertDirectoryDoesNotExist :: FilePath -> ShellCommand
+    assertDirectoryDoesNotExist dirFilePath = "[ ! -d '" ++ dirFilePath ++ "' ]"

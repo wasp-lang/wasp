@@ -2,7 +2,7 @@ module Test.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
 import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import Wasp.Version (waspVersion)
@@ -14,28 +14,8 @@ waspDbSeedTest =
     "wasp-db-seed"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliDbSeedFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
-      makeTestCase
-        "Setup: Add a Task model to prisma and migrate"
-        ( withInTestWaspProjectDir
-            [ waspCliCompile,
-              appendToPrismaFile taskPrismaModel,
-              waspCliDbMigrateDev "foo",
-              createSeedFile
-                (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
-                seedScriptThatPopulatesTasksTable,
-              createSeedFile
-                (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
-                seedScriptThatAssertsTasksTableIsEmpty,
-              createSeedFile
-                (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
-                seedScriptThatAssertsTasksTableIsNotEmpty,
-              replaceMainWaspFile mainWaspWithSeeds
-            ]
-        ),
+        (return [waspCliDbSeedFails]),
+      -- FIXME: find a way without seed commands
       -- Both in 'WaspDbResetTest.hs' and in `WaspDbSeedTest.hs`
       -- I have the following comments with `FIXME`.
       -- This is because I needed access database to either do some action or assert state.
@@ -46,20 +26,33 @@ waspDbSeedTest =
       -- An alternative would be to directly use the `npx prisma execute` from the server files,
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       makeTestCase
-        "Assert the tasks table is initially empty"
-        -- FIXME: find a way without seed commands
-        (withInTestWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName]),
-      makeTestCase
         "Should seed the database successfully"
-        (withInTestWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName]),
-      makeTestCase
-        "Assert the database is no longer empty"
-        -- FIXME: find a way without seed commands
-        (withInTestWaspProjectDir [waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName])
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir
+                [ waspCliCompile,
+                  appendToPrismaFile taskPrismaModel,
+                  waspCliDbMigrateDev "foo",
+                  createSeedFile
+                    (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
+                    seedScriptThatPopulatesTasksTable,
+                  createSeedFile
+                    (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
+                    seedScriptThatAssertsTasksTableIsEmpty,
+                  createSeedFile
+                    (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
+                    seedScriptThatAssertsTasksTableIsNotEmpty,
+                  replaceMainWaspFile mainWaspWithSeeds,
+                  waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName,
+                  waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName,
+                  waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName
+                ]
+            ]
+        )
     ]
   where
-    waspCliDbSeedFails :: ShellCommandBuilder context ShellCommand
-    waspCliDbSeedFails = return "! wasp-cli db seed"
+    waspCliDbSeedFails :: ShellCommand
+    waspCliDbSeedFails = "! wasp-cli db seed"
 
     taskPrismaModel :: T.Text
     taskPrismaModel =

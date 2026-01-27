@@ -1,6 +1,6 @@
 module Test.WaspInfoTest (waspInfoTest) where
 
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
 import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliInfo)
@@ -13,14 +13,15 @@ waspInfoTest =
     "wasp-info"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliInfoFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
+        (return [waspCliInfoFails]),
       makeTestCase
         "Should succeed inside of a Wasp project"
-        (withInTestWaspProjectDir [waspCliInfo])
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir [waspCliInfo]
+            ]
+        )
     ]
   where
-    waspCliInfoFails :: ShellCommandBuilder context ShellCommand
-    waspCliInfoFails = return "! wasp-cli info"
+    waspCliInfoFails :: ShellCommand
+    waspCliInfoFails = "! wasp-cli info"

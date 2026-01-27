@@ -1,6 +1,6 @@
 module Test.WaspDepsTest (waspDepsTest) where
 
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
 import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDeps)
@@ -12,14 +12,15 @@ waspDepsTest =
     "wasp-deps"
     [ makeTestCase
         "Should fail outside of a Wasp project"
-        waspCliDepsFails,
-      makeTestCase
-        "Setup: Create Wasp project from minimal starter"
-        (createTestWaspProject Minimal),
+        (return [waspCliDepsFails]),
       makeTestCase
         "Should succeed inside of a Wasp project"
-        (withInTestWaspProjectDir [waspCliDeps])
+        ( sequence
+            [ createTestWaspProject Minimal,
+              withInTestWaspProjectDir [waspCliDeps]
+            ]
+        )
     ]
   where
-    waspCliDepsFails :: ShellCommandBuilder context ShellCommand
-    waspCliDepsFails = return "! wasp-cli deps"
+    waspCliDepsFails :: ShellCommand
+    waspCliDepsFails = "! wasp-cli deps"
