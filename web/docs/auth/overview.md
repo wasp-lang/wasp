@@ -205,7 +205,7 @@ This hook is a thin wrapper over Wasp's `useQuery` hook and returns data in the 
 
 ```tsx title="src/pages/MainPage.tsx" auto-js
 import { useAuth, logout } from 'wasp/client/auth'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import Todo from '../Todo'
 
 export function Main() {

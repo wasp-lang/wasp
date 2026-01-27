@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 import { Link, type Routes } from "wasp/client/router";
 import { cn } from "../cn";
 
