@@ -16,7 +16,6 @@ buildClient config =
   runNodeCommandAsJobWithExtraEnv
     envVars
     projectDir
-    -- TODO: Missing `tsc --build` from the original `npm run build`.
     "npx"
     ["vite", "build"]
     J.WebApp
