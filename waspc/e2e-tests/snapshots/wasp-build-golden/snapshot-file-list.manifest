@@ -44,6 +44,7 @@ wasp-app/.wasp/out/sdk/wasp/client/vite/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/detectServerImports.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/html/build.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/html/dev.ts
+wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/typescriptCheck.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/validateEnv.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualModules.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/wasp.ts
@@ -200,6 +201,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/html/dev.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/html/dev.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/html/dev.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/html/dev.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/typescriptCheck.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/typescriptCheck.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/typescriptCheck.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/typescriptCheck.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/validateEnv.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/validateEnv.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/validateEnv.js

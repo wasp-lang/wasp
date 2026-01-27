@@ -25,7 +25,8 @@ genVitePlugins spec =
     [ genViteIndex,
       genWaspPlugin spec,
       genDetectServerImportsPlugin,
-      genValidateEnvPlugin
+      genValidateEnvPlugin,
+      genTypescriptCheckPlugin
     ]
     <++> getVirtualModulesPlugin spec
     <++> genHtmlPlugin spec
@@ -63,3 +64,8 @@ genValidateEnvPlugin :: Generator FileDraft
 genValidateEnvPlugin = return $ C.mkTmplFd tmplPath
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnv.ts|]
+
+genTypescriptCheckPlugin :: Generator FileDraft
+genTypescriptCheckPlugin = return $ C.mkTmplFd tmplPath
+  where
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|typescriptCheck.ts|]

@@ -7,6 +7,7 @@ import { detectServerImports } from "./detectServerImports.js";
 import { waspVirtualModules } from "./virtualModules.js";
 import { waspHtmlDev } from "./html/dev.js";
 import { waspHtmlBuild } from "./html/build.js";
+import { typescriptCheck } from "./typescriptCheck.js";
 
 export interface WaspPluginOptions {
   reactOptions?: ReactOptions;
@@ -14,6 +15,7 @@ export interface WaspPluginOptions {
 
 export function wasp(options?: WaspPluginOptions): PluginOption {
   return [
+    typescriptCheck(),
     waspHtmlDev(),
     waspHtmlBuild(),
     waspVirtualModules(),
