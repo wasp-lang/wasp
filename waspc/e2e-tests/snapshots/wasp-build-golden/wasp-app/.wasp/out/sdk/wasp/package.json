@@ -4,7 +4,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.0.16",
-    "@wasp.sh/lib-auth": "file:../../libs/wasp.sh-lib-auth-0.21.0.tgz",
+    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.21.0.tgz",
     "axios": "^1.4.0",
     "express": "~5.1.0",
     "jsdom": "^27.4.0",
