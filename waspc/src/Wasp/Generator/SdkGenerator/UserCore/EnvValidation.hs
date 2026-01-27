@@ -52,9 +52,8 @@ genClientEnvFiles spec =
     ]
 
 genServerEnv :: AppSpec -> Generator FileDraft
-genServerEnv spec = return $ mkTmplFdWithData tmplFile tmplData
+genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
   where
-    tmplFile = [relfile|server/env.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,

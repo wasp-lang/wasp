@@ -12,7 +12,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -22,16 +22,15 @@ genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genClientRouterFileCopy [relfile|types.ts|],
-      genClientRouterFileCopy [relfile|linkHelpers.ts|],
-      genClientRouterFileCopy [relfile|Link.tsx|]
+      genFileCopyInClientRouter [relfile|types.ts|],
+      genFileCopyInClientRouter [relfile|linkHelpers.ts|],
+      genFileCopyInClientRouter [relfile|Link.tsx|]
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (clientRouterDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
-    tmplFile = clientRouterDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
 createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
@@ -54,9 +53,9 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
 
-clientRouterDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-clientRouterDirInUserCoreTemplatesDir = [reldir|client/router|]
+clientRouterDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+clientRouterDirInSdkTemplatesUserCoreProjectDir = [reldir|client/router|]
 
-genClientRouterFileCopy :: Path' Rel' File' -> Generator FileDraft
-genClientRouterFileCopy =
-  return . mkTmplFd . (clientRouterDirInUserCoreTemplatesDir </>)
+genFileCopyInClientRouter :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInClientRouter =
+  return . mkTmplFd . (clientRouterDirInSdkTemplatesUserCoreProjectDir </>)

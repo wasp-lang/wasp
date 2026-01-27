@@ -1,8 +1,9 @@
 module Wasp.Generator.SdkGenerator.Root.Common
-  ( RootTemplatesDir,
+  ( SdkTemplatesRootProjectDir,
+    SdkRootProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
-    mkTmplFdWithDestAndData,
+    mkTmplFdWithDstAndData,
   )
 where
 
@@ -13,38 +14,48 @@ import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
     sdkRootDirInGeneratedCodeDir,
-    sdkTemplatesDirInTemplatesDir,
+    sdkRootDirInTemplatesDir,
   )
 
--- | Directory of the SDK root tsconfig project.
+-- | Directory of the SDK root tsconfig project in generated code.
 -- References all other SDK tsconfig projects.
-data RootTemplatesDir
+data SdkRootProjectDir
+
+-- | Directory of the SDK root tsconfig project in templates.
+-- References all other SDK tsconfig projects.
+data SdkTemplatesRootProjectDir
 
 mkTmplFd ::
-  Path' (Rel RootTemplatesDir) File' ->
+  Path' (Rel SdkTemplatesRootProjectDir) File' ->
   FileDraft
-mkTmplFd tmplFile =
-  mkTmplFdWithDestAndData tmplFile tmplFile Nothing
+mkTmplFd srcFilePath =
+  mkTmplFdWithDstAndData
+    (castRel srcFilePath)
+    srcFilePath
+    Nothing
 
 mkTmplFdWithData ::
-  Path' (Rel RootTemplatesDir) File' ->
+  Path' (Rel SdkTemplatesRootProjectDir) File' ->
   Aeson.Value ->
   FileDraft
-mkTmplFdWithData tmplFile tmplData =
-  mkTmplFdWithDestAndData tmplFile tmplFile (Just tmplData)
+mkTmplFdWithData srcFilePath tmplData =
+  mkTmplFdWithDstAndData
+    (castRel srcFilePath)
+    srcFilePath
+    (Just tmplData)
 
-mkTmplFdWithDestAndData ::
-  Path' (Rel RootTemplatesDir) File' ->
-  Path' (Rel RootTemplatesDir) File' ->
+mkTmplFdWithDstAndData ::
+  Path' (Rel SdkRootProjectDir) File' ->
+  Path' (Rel SdkTemplatesRootProjectDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDestAndData destFile tmplFile =
+mkTmplFdWithDstAndData destFilePath srcFilePath =
   createTemplateFileDraft
-    (sdkRootDirInGeneratedCodeDir </> rootTemplatesDirInSdkRootDir </> destFile)
-    (sdkTemplatesDirInTemplatesDir </> rootTemplatesDirInSdkTemplatesDir </> tmplFile)
+    (sdkRootDirInGeneratedCodeDir </> sdkRootProjectDirInSdkRootDir </> destFilePath)
+    (sdkRootDirInTemplatesDir </> sdkTemplatesRootProjectDirInSdkTemplatesDir </> srcFilePath)
 
-rootTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir RootTemplatesDir)
-rootTemplatesDirInSdkTemplatesDir = [reldir|.|]
+sdkTemplatesRootProjectDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir SdkTemplatesRootProjectDir)
+sdkTemplatesRootProjectDirInSdkTemplatesDir = [reldir|.|]
 
-rootTemplatesDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir RootTemplatesDir)
-rootTemplatesDirInSdkRootDir = castRel rootTemplatesDirInSdkTemplatesDir
+sdkRootProjectDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir SdkRootProjectDir)
+sdkRootProjectDirInSdkRootDir = [reldir|.|]
