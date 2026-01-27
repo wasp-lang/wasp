@@ -5,6 +5,7 @@ title: Cloud Providers
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.md'
 import BuildingTheWebClient from './\_building-the-web-client.md'
+import NetlifyTomlConfig from './\_netlify-toml-config.md'
 import { Required } from '@site/src/components/Tag'
 import { Server, Client, Database } from './DeploymentTag'
 import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
@@ -479,23 +480,15 @@ First, make sure you have [built the Wasp app](#1-generating-deployable-code). W
 
 <BuildingTheWebClient />
 
-Before deploying, you need to create a `netlify.toml` file in your project root to configure Netlify for building and deploying your Wasp app. This file tells Netlify where to find the web app, how to build it, and configures URL redirects for SPA routing.
+Before deploying, you need to create a `netlify.toml` file in your project root to configure Netlify for building and deploying your Wasp app. This file tells Netlify where to find the web app and configures URL redirects for SPA routing.
 
 Create the `netlify.toml` file with the following content:
 
-```toml title="netlify.toml"
-[build]
-  base = "./.wasp/out/web-app"
-  publish = "./build"
-  command = "npm run build"
+<NetlifyTomlConfig />
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-```
+The `build.base` path should point from your Git repository root to the `web-app` directory. Adjust the path if your Wasp project is in a subdirectory (e.g., `base = "./my-app/.wasp/out/web-app"`).
 
-The `base` path should point from your Git repository root to the `web-app` directory. Adjust the path if your Wasp project is in a subdirectory (e.g., `base = "./my-app/.wasp/out/web-app"`).
+The `build.command` is set to `exit 0` because the client is already built with the client environment variables.
 
 We can now deploy the client with:
 
@@ -551,7 +544,7 @@ Here’s an example configuration file to help you get started. This example wor
             node-version: '22'
 
         - name: Install Wasp
-          run: npm i -g @wasp.sh/wasp-cli@0.16.0 # Change to your Wasp version
+          run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Wasp Build
           run: wasp build
@@ -562,19 +555,9 @@ Here’s an example configuration file to help you get started. This example wor
             npm install
             REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
 
-        - name: Create Netlify config for SPA routing
-          run: |
-            cat > ./.wasp/out/web-app/netlify.toml << 'EOF'
-            [[redirects]]
-              from = "/*"
-              to = "/index.html"
-              status = 200
-            EOF
-
         - name: Deploy to Netlify
           run: |
-            cd ./.wasp/out/web-app
-            npx netlify-cli@17.36.1 deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_NAME
+            npx netlify-cli deploy --prod --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_NAME
 
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -661,7 +644,7 @@ Here’s an example configuration file to help you get started. This example wor
             node-version: '22'
 
         - name: Install Wasp
-          run: npm i -g @wasp.sh/wasp-cli@0.16.0 # Change to your Wasp version
+          run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Wasp Build
           run: cd ./app && wasp build

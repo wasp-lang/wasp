@@ -11,6 +11,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Removed the `.wasp/build` directory. Wasp now only uses `.wasp/out` for generated code, both in development and production mode. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
 - The Wasp SDK is now used as a workspace instead of a dependency. This avoids dependency resolution issues and further improves reliability of Wasp projects. ([#3544](https://github.com/wasp-lang/wasp/pull/3544))
 - Wasp now uses **React Router 7**. The package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your imports. ([#3490](https://github.com/wasp-lang/wasp/pull/3490), [#3658](https://github.com/wasp-lang/wasp/pull/3658))
+- Wasp no longer generates `netlify.toml` in the `.wasp/out/web-app` dir. If you're deploying to Netlify, you'll need to add it manually. ([#3665](https://github.com/wasp-lang/wasp/pull/3665))
 
 ### 🎉 New Features
 
@@ -37,7 +38,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - `wasp info` now tells you if the last compilation was done in development or production mode. ([#3612](https://github.com/wasp-lang/wasp/pull/3612))
 - `wasp uninstall` now supports the npm installation method. ([#3620](https://github.com/wasp-lang/wasp/pull/3620))
 - Added anonymous usage analytics to the npm package installer to help us understand how Wasp is being installed. You can disable this by setting `WASP_TELEMETRY_DISABLE=1`. ([#3619](https://github.com/wasp-lang/wasp/pull/3619))
-- Stop generating `netlify.toml` in user project and explain how to add it in the deployment documentation. ([#3665](https://github.com/wasp-lang/wasp/pull/3665))
 
 ## 0.20.1
 
