@@ -4,13 +4,12 @@ module Wasp.Generator.SdkGenerator.Core
 where
 
 import StrongPath (relfile)
-import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Core.Common (mkTmplFd)
 
-genCoreTsconfigProject :: AppSpec -> Generator [FileDraft]
-genCoreTsconfigProject _spec =
+genCoreTsconfigProject :: Generator [FileDraft]
+genCoreTsconfigProject =
   return
     [ mkTmplFd [relfile|tsconfig.json|],
       mkTmplFd [relfile|server/HttpError.ts|]

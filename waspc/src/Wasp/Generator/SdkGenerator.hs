@@ -68,7 +68,7 @@ buildSdk projectRootDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   genRootTsconfigProject spec (npmDepsForSdk spec)
-    <++> genCoreTsconfigProject spec
+    <++> genCoreTsconfigProject
     <++> genUserCoreTsconfigProject spec
     <++> genExternalCodeDir (AS.externalCodeFiles spec)
 
