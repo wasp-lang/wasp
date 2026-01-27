@@ -2,10 +2,15 @@
 import { type Plugin } from 'vite'
 import path from 'path'
 
+let parsePathToUserCode: ParsePathToUserCodeFn;
+
 export function detectServerImports(): Plugin {
   return {
     name: 'wasp:detect-server-imports',
     enforce: 'pre',
+    configResolved(config) {
+      parsePathToUserCode = createPathToUserCodeParser(config.root);
+    },
     resolveId(source, importer) {
       if (!importer) {
         return
@@ -31,19 +36,16 @@ function isServerImport(moduleName: string): boolean {
 
 type RelativePathToUserCode = string & { _brand: 'relativePathToUserCode' }
 
-function parsePathToUserCode(
-  importerPath: string
-): RelativePathToUserCode | null {
-  const importerPathRelativeToWaspProjectDir = path.relative(
-    getWaspProjectDirAbsPathWhileInWebAppDir(),
-    importerPath
-  )
-  return importerPathRelativeToWaspProjectDir.startsWith('{= srcDirInWaspProjectDir =}')
-    ? (importerPathRelativeToWaspProjectDir as RelativePathToUserCode)
-    : null
-}
+type ParsePathToUserCodeFn = (importerPath: string) => RelativePathToUserCode | null;
 
-
-function getWaspProjectDirAbsPathWhileInWebAppDir(): string {
-  return path.resolve('.')
+function createPathToUserCodeParser(waspProjectDirPath: string): ParsePathToUserCodeFn {
+  return (importerPath: string): RelativePathToUserCode | null => {
+    const importerPathRelativeToWaspProjectDir = path.relative(
+      waspProjectDirPath,
+      importerPath
+    )
+    return importerPathRelativeToWaspProjectDir.startsWith('{= srcDirInWaspProjectDir =}')
+      ? (importerPathRelativeToWaspProjectDir as RelativePathToUserCode)
+      : null
+  }
 }
