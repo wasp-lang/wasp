@@ -1,7 +1,7 @@
 module Tests.WaspDbStudioTest (waspDbStudioTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDbStudio)
 
@@ -9,12 +9,12 @@ import WaspProject.ShellCommands (waspCliDbStudio)
 -- FIXME: @waspCliDbStudio@ - figure out long lasting processes
 waspDbStudioTest :: Test
 waspDbStudioTest =
-  makeTest
+  Test
     "wasp-db-studio"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliDbStudioFails]),
-      makeTestCase
+      TestCase
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,

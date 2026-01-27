@@ -5,7 +5,7 @@ import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..), (~&&))
 import StrongPath (fromAbsDir, (</>))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
@@ -21,12 +21,12 @@ import WaspProject.ShellCommands (WaspProjectContext (..), appendToPrismaFile, w
 -- | TODO: Test on all databases (e.g. Postgresql)
 waspDbMigrateDevTest :: Test
 waspDbMigrateDevTest =
-  makeTest
+  Test
     "wasp-db-migrate-dev"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliDbMigrateDevFails]),
-      makeTestCase
+      TestCase
         "succeed-migrations-up-to-date"
         ( sequence
             [ createTestWaspProject Minimal,
@@ -35,7 +35,7 @@ waspDbMigrateDevTest =
                 ]
             ]
         ),
-      makeTestCase
+      TestCase
         "succeed-create-new-migration"
         ( sequence
             [ createTestWaspProject Minimal,

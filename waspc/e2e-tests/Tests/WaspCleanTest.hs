@@ -1,18 +1,18 @@
 module Tests.WaspCleanTest (waspCleanTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliClean, waspCliCompile)
 
 waspCleanTest :: Test
 waspCleanTest =
-  makeTest
+  Test
     "wasp-clean"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliCleanFails]),
-      makeTestCase
+      TestCase
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
@@ -23,7 +23,7 @@ waspCleanTest =
                 ]
             ]
         ),
-      makeTestCase
+      TestCase
         "succeed-compiled-project"
         ( sequence
             [ createTestWaspProject Minimal,

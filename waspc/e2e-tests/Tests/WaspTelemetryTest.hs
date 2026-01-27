@@ -1,16 +1,16 @@
 module Tests.WaspTelemetryTest (waspTelemetryTest) where
 
 import ShellCommands (ShellCommand, (~|))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 
 waspTelemetryTest :: Test
 waspTelemetryTest =
-  makeTest
+  Test
     "wasp-telemetry"
-    [ makeTestCase
+    [ TestCase
         "enabled-by-default"
         (return . (: []) $ ("env -u WASP_TELEMETRY_DISABLE " ++) . (~| "grep -q 'ENABLED'") $ waspCliTelemetry),
-      makeTestCase
+      TestCase
         "disabled-with-env-var"
         (return . (: []) $ ("WASP_TELEMETRY_DISABLE=1 " ++) . (~| "grep -q 'DISABLED'") $ waspCliTelemetry)
     ]

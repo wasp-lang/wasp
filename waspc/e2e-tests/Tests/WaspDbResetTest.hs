@@ -3,7 +3,7 @@ module Tests.WaspDbResetTest (waspDbResetTest) where
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import Wasp.Version (waspVersion)
 import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
@@ -12,9 +12,9 @@ import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMai
 -- because Wasp skips the seeding during the reset (unlike Prisma).
 waspDbResetTest :: Test
 waspDbResetTest =
-  makeTest
+  Test
     "wasp-db-reset"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliDbResetFails]),
       -- FIXME: find a way without seed commands
@@ -27,7 +27,7 @@ waspDbResetTest =
       -- They can only return the exit code, but that is enough.
       -- An alternative would be to directly use the `npx prisma execute` from the server files,
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
-      makeTestCase
+      TestCase
         "succeed-reset-database"
         ( sequence
             [ createTestWaspProject Minimal,

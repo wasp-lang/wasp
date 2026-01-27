@@ -1,7 +1,7 @@
 module Tests.WaspStudioTest (waspStudioTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliStudio)
 
@@ -11,12 +11,12 @@ import WaspProject.ShellCommands (waspCliStudio)
 -- FIXME: @waspCliStudio@ - figure out long lasting processes
 waspStudioTest :: Test
 waspStudioTest =
-  makeTest
+  Test
     "wasp-studio"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliStudioFails]),
-      makeTestCase
+      TestCase
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,

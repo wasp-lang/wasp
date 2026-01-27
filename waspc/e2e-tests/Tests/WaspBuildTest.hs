@@ -1,25 +1,25 @@
 module Tests.WaspBuildTest (waspBuildTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliBuild)
 
 waspBuildTest :: Test
 waspBuildTest =
-  makeTest
+  Test
     "wasp-build"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliBuildFails]),
-      makeTestCase
+      TestCase
         "fail-sqlite-project"
         ( sequence
             [ createTestWaspProject Minimal,
               inTestWaspProjectDir [return waspCliBuildFails]
             ]
         ),
-      makeTestCase
+      TestCase
         "succeed-postgresql-project"
         ( sequence
             [ createTestWaspProject Minimal,

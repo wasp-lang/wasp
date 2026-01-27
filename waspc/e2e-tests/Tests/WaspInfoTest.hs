@@ -1,7 +1,7 @@
 module Tests.WaspInfoTest (waspInfoTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliInfo)
 
@@ -9,12 +9,12 @@ import WaspProject.ShellCommands (waspCliInfo)
 -- name, database, project dir size, last compile.
 waspInfoTest :: Test
 waspInfoTest =
-  makeTest
+  Test
     "wasp-info"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliInfoFails]),
-      makeTestCase
+      TestCase
         "succeed-inside-project"
         ( sequence
             [ createTestWaspProject Minimal,

@@ -1,24 +1,24 @@
 module Tests.WaspCompletionTest (waspCompletionTest) where
 
 import ShellCommands (ShellCommand, (~&&))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 
 waspCompletionTest :: Test
 waspCompletionTest =
-  makeTest
+  Test
     "wasp-completion"
     [ -- Ideally we would test this without calling `wasp cli completion:list`
       -- but I didn't find a nice way to do it so far.
-      makeTestCase
+      TestCase
         "complete-partial-word"
         (return [assertWaspCliCompletion "wasp-cli tele" "telemetry"]),
-      makeTestCase
+      TestCase
         "complete-full-word"
         (return [assertWaspCliCompletion "wasp-cli telemetry" "telemetry"]),
-      makeTestCase
+      TestCase
         "complete-multiple-choice"
         (return [assertWaspCliCompletion "wasp-cli d" "db\ndeploy\ndeps\ndockerfile"]),
-      makeTestCase
+      TestCase
         "complete-unknown-empty"
         (return [assertWaspCliCompletion "wasp-cli unknown" ""])
     ]

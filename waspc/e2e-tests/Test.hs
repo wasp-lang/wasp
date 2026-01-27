@@ -1,12 +1,9 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Test
-  ( Test,
-    TestCase,
-    makeTest,
-    makeTestCase,
+  ( Test (..),
+    TestCase (..),
     runTest,
   )
 where
@@ -33,17 +30,11 @@ data Test = Test
     testCases :: [TestCase]
   }
 
-makeTest :: String -> [TestCase] -> Test
-makeTest = Test
-
 -- | Represent a single test case of some 'Test'.
 data TestCase = TestCase
   { name :: String,
     shellCommandBuilder :: ShellCommandBuilder TestContext [ShellCommand]
   }
-
-makeTestCase :: String -> ShellCommandBuilder TestContext [ShellCommand] -> TestCase
-makeTestCase = TestCase
 
 -- | Runs a 'Test' by executing all test cases' shell commands and then checking their exit code.
 -- Each test case runs in its own isolated directory.

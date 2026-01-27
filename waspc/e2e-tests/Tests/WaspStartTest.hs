@@ -1,19 +1,19 @@
 module Tests.WaspStartTest (waspStartTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliCompile, waspCliStart)
 
 -- FIXME: @waspCliStart@ - figure out long lasting processes
 waspStartTest :: Test
 waspStartTest =
-  makeTest
+  Test
     "wasp-start"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliStartFails]),
-      makeTestCase
+      TestCase
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
@@ -24,7 +24,7 @@ waspStartTest =
                 ]
             ]
         ),
-      makeTestCase
+      TestCase
         "succeed-compiled-project"
         ( sequence
             [ createTestWaspProject Minimal,

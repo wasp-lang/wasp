@@ -1,19 +1,19 @@
 module Tests.WaspDepsTest (waspDepsTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDeps)
 
 -- TODO: Test that deps change with installs/uninstalls.
 waspDepsTest :: Test
 waspDepsTest =
-  makeTest
+  Test
     "wasp-deps"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliDepsFails]),
-      makeTestCase
+      TestCase
         "succeed-inside-project"
         ( sequence
             [ createTestWaspProject Minimal,

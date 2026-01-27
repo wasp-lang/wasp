@@ -1,18 +1,18 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
-import Test (Test, makeTest, makeTestCase)
+import Test (Test (..), TestCase (..))
 import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliCompile)
 
 waspCompileTest :: Test
 waspCompileTest =
-  makeTest
+  Test
     "wasp-compile"
-    [ makeTestCase
+    [ TestCase
         "fail-outside-project"
         (return [waspCliCompileFails]),
-      makeTestCase
+      TestCase
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
@@ -23,7 +23,7 @@ waspCompileTest =
                 ]
             ]
         ),
-      makeTestCase
+      TestCase
         "succeed-compiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
