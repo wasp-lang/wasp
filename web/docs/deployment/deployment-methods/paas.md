@@ -479,6 +479,18 @@ First, make sure you have [built the Wasp app](#1-generating-deployable-code). W
 
 <BuildingTheWebClient />
 
+Before deploying, you need to create a `netlify.toml` file in the `.wasp/out/web-app` directory to configure Netlify to redirect all URLs to `index.html`. This is necessary because Wasp is a Single Page Application (SPA) and needs to handle routing on the client side.
+
+Create the `netlify.toml` file with the following content:
+
+```toml title=".wasp/out/web-app/netlify.toml"
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+  force = false
+```
+
 We can now deploy the client with:
 
 ```shell
@@ -499,14 +511,6 @@ That is it! Your client should be live at `https://<app-name>.netlify.app`.
 
 :::note
 Make sure you set the `https://<app-name>.netlify.app` URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
-:::
-
-:::caution Redirecting URLs toward `index.html`
-If you follow the instructions above, the Netlify CLI will use `netlify.toml` file that Wasp generates by default in `.wasp/out/web-app/`. This will correctly configure Netlify to redirect URLs toward `index.html`, which is important since Wasp is a Single Page Application (SPA) and needs to handle routing on the client side.
-
-If you instead use another method of deployment to Netlify, for example doing it using CI, make sure that Netlify picks up that `netlify.toml` file, or configure URL redirecting yourself manually on Netlify.
-
-We recommend to deploy using the Netlify CLI in Github Actions. You can find an example Github Action configuration below.
 :::
 
 ### Deploying through Github Actions
@@ -551,6 +555,16 @@ Here’s an example configuration file to help you get started. This example wor
             cd ./.wasp/out/web-app
             npm install
             REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
+
+        - name: Create Netlify config for SPA routing
+          run: |
+            cat > ./.wasp/out/web-app/netlify.toml << 'EOF'
+            [[redirects]]
+              from = "/*"
+              to = "/index.html"
+              status = 200
+              force = false
+            EOF
 
         - name: Deploy to Netlify
           run: |
