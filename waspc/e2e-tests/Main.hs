@@ -1,12 +1,12 @@
 import SnapshotTest (runSnapshotTest)
+import System.Info (os)
+import Test (runTest)
+import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
 import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
-import System.Info (os)
-import Test (runTest)
-import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.WaspBuildTest (waspBuildTest)
 import Tests.WaspCleanTest (waspCleanTest)
 import Tests.WaspCompileTest (waspCompileTest)
@@ -29,6 +29,7 @@ main = do
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
+--       See: github.com/wasp-lang/wasp/issues/3404
 e2eTests :: IO TestTree
 e2eTests = do
   snapshotTests <-
@@ -51,10 +52,8 @@ e2eTests = do
         -- Wasp project commands
         waspCompileTest,
         -- NOTE(Franjo): The following tests have the `FIXME` comment because they
-        -- are long running processes, i.e. can run for infinite amount of time.
-        -- While test cases for these CLI commands are written, because I dind't
-        -- find a reliable way to test long running processes yet, I've commented
-        -- them out. If you have an idea on how to make them works, do let me know.
+        -- are long running processes, which we haven't implmemented support for yet.
+        -- These will be fixed as part of the refactor to pure Haskell tests.
         -- FIXME: waspStartTest,
         waspBuildTest,
         -- FIXME: waspBuildStartTest,
