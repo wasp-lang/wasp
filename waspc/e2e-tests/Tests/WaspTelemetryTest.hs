@@ -1,4 +1,4 @@
-module Test.WaspTelemetryTest (waspTelemetryTest) where
+module Tests.WaspTelemetryTest (waspTelemetryTest) where
 
 import ShellCommands (ShellCommand, (~|))
 import Test (Test, makeTest, makeTestCase)

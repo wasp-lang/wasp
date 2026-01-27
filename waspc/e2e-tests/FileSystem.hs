@@ -10,6 +10,7 @@ module FileSystem
 where
 
 import Control.Monad (unless)
+import Data.Functor ((<&>))
 import StrongPath (Abs, Dir, Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
@@ -36,4 +37,4 @@ e2eTestsDirInWaspcDir :: Path' (Rel WaspcDir) (Dir E2eTestsDir)
 e2eTestsDirInWaspcDir = [reldir|e2e-tests|]
 
 getE2eTestsDir :: IO (Path' Abs (Dir E2eTestsDir))
-getE2eTestsDir = (</> e2eTestsDirInWaspcDir) <$> getWaspcDirPath
+getE2eTestsDir = getWaspcDirPath <&> (</> e2eTestsDirInWaspcDir)

@@ -6,6 +6,7 @@ module Test.FileSystem
   )
 where
 
+import Data.Functor ((<&>))
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, getE2eTestsDir)
 import StrongPath (Abs, Dir, Path', Rel, parseRelDir, reldir, (</>))
@@ -23,7 +24,7 @@ getTestCaseDir testName testCaseName = do
   return $ e2eTestsDir </> testsOutputsDirInTestsDir </> testCaseDirInTestOutputsDir (testName ++ "/" ++ testCaseName)
 
 getTestOutputsDir :: IO (Path' Abs (Dir TestOutputsDir))
-getTestOutputsDir = (</> testsOutputsDirInTestsDir) <$> getE2eTestsDir
+getTestOutputsDir = getE2eTestsDir <&> (</> testsOutputsDirInTestsDir)
 
 testCaseDirInTestOutputsDir :: String -> Path' (Rel TestOutputsDir) (Dir TestCaseDir)
 testCaseDirInTestOutputsDir = fromJust . parseRelDir

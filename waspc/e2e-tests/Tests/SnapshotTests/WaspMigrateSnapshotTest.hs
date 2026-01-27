@@ -1,4 +1,4 @@
-module SnapshotTest.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) where
+module Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)

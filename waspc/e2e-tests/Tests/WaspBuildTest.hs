@@ -1,8 +1,8 @@
-module Test.WaspBuildTest (waspBuildTest) where
+module Tests.WaspBuildTest (waspBuildTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliBuild)
 
 waspBuildTest :: Test
@@ -16,14 +16,14 @@ waspBuildTest =
         "fail-sqlite-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir [return waspCliBuildFails]
+              inTestWaspProjectDir [return waspCliBuildFails]
             ]
         ),
       makeTestCase
         "succeed-postgresql-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   waspCliBuild,
                   return $ assertDirectoryExists ".wasp",

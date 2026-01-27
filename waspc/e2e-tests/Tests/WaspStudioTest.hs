@@ -1,8 +1,8 @@
-module Test.WaspStudioTest (waspStudioTest) where
+module Tests.WaspStudioTest (waspStudioTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliStudio)
 
 -- | NOTE: Once it evolves it will probably have it's own
@@ -20,7 +20,7 @@ waspStudioTest =
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ waspCliStudio
                 ]
             ]

@@ -828,33 +828,33 @@ test-suite waspc-e2e-tests
     ShellCommands
     WaspProject.FileSystem
     WaspProject.ShellCommands
+    Test
+    Test.FileSystem
+    Test.ShellCommands
     SnapshotTest
     SnapshotTest.Snapshot
     SnapshotTest.FileSystem
     SnapshotTest.ShellCommands
-    SnapshotTest.WaspNewSnapshotTest
-    SnapshotTest.KitchenSinkSnapshotTest
-    SnapshotTest.WaspMigrateSnapshotTest
-    SnapshotTest.WaspCompileSnapshotTest
-    SnapshotTest.WaspBuildSnapshotTest
-    Test
-    Test.FileSystem
-    Test.ShellCommands
-    Test.WaspBuildStartTest
-    Test.WaspCleanTest
-    Test.WaspCompileTest
-    Test.WaspBuildTest
-    Test.WaspCompletionTest
-    Test.WaspNewTest
-    Test.WaspStartTest
-    Test.WaspStudioTest
-    Test.WaspVersionTest
-    Test.WaspInfoTest
-    Test.WaspDockerfileTest
-    Test.WaspTelemetryTest
-    Test.WaspDepsTest
-    Test.WaspDbStartTest
-    Test.WaspDbMigrateDevTest
-    Test.WaspDbSeedTest
-    Test.WaspDbResetTest
-    Test.WaspDbStudioTest
+    Tests.WaspBuildStartTest
+    Tests.WaspCleanTest
+    Tests.WaspCompileTest
+    Tests.WaspBuildTest
+    Tests.WaspCompletionTest
+    Tests.WaspNewTest
+    Tests.WaspStartTest
+    Tests.WaspStudioTest
+    Tests.WaspVersionTest
+    Tests.WaspInfoTest
+    Tests.WaspDockerfileTest
+    Tests.WaspTelemetryTest
+    Tests.WaspDepsTest
+    Tests.WaspDbStartTest
+    Tests.WaspDbMigrateDevTest
+    Tests.WaspDbSeedTest
+    Tests.WaspDbResetTest
+    Tests.WaspDbStudioTest
+    Tests.SnapshotTests.WaspNewSnapshotTest
+    Tests.SnapshotTests.KitchenSinkSnapshotTest
+    Tests.SnapshotTests.WaspMigrateSnapshotTest
+    Tests.SnapshotTests.WaspCompileSnapshotTest
+    Tests.SnapshotTests.WaspBuildSnapshotTest

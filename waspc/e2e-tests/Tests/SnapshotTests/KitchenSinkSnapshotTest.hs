@@ -1,4 +1,4 @@
-module SnapshotTest.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
+module Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
 
 import ShellCommands
   ( ShellCommand,

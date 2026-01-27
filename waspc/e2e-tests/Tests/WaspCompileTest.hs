@@ -1,8 +1,8 @@
-module Test.WaspCompileTest (waspCompileTest) where
+module Tests.WaspCompileTest (waspCompileTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliCompile)
 
 waspCompileTest :: Test
@@ -16,7 +16,7 @@ waspCompileTest =
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ waspCliCompile,
                   return $ assertDirectoryExists ".wasp",
                   return $ assertDirectoryExists "node_modules"
@@ -27,7 +27,7 @@ waspCompileTest =
         "succeed-compiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ waspCliCompile,
                   waspCliCompile,
                   return $ assertDirectoryExists ".wasp",

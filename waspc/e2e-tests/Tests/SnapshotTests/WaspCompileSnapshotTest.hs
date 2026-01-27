@@ -1,4 +1,4 @@
-module SnapshotTest.WaspCompileSnapshotTest (waspCompileSnapshotTest) where
+module Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest) where
 
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import SnapshotTest.ShellCommands

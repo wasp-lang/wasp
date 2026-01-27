@@ -1,4 +1,4 @@
-module Test.WaspVersionTest (waspVersionTest) where
+module Tests.WaspVersionTest (waspVersionTest) where
 
 import ShellCommands (ShellCommand, (~|))
 import Test (Test, makeTest, makeTestCase)

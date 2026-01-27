@@ -2,7 +2,7 @@
 
 module Test.ShellCommands
   ( TestContext (..),
-    withInTestWaspProjectDir,
+    inTestWaspProjectDir,
     createTestWaspProject,
   )
 where
@@ -18,10 +18,10 @@ data TestContext = TestContext
     waspProjectContext :: WaspProjectContext
   }
 
-withInTestWaspProjectDir ::
+inTestWaspProjectDir ::
   [ShellCommandBuilder WaspProjectContext ShellCommand] ->
   ShellCommandBuilder TestContext ShellCommand
-withInTestWaspProjectDir waspProjectCommandBuilders = do
+inTestWaspProjectDir waspProjectCommandBuilders = do
   testContext <- ask
   return $
     unwords ["cd", fromAbsDir (_waspProjectDir testContext.waspProjectContext)]

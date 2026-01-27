@@ -1,8 +1,8 @@
-module Test.WaspStartTest (waspStartTest) where
+module Tests.WaspStartTest (waspStartTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliCompile, waspCliStart)
 
 -- FIXME: @waspCliStart@ - figure out long lasting processes
@@ -17,7 +17,7 @@ waspStartTest =
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ waspCliStart,
                   return $ assertDirectoryExists ".wasp",
                   return $ assertDirectoryExists "node_modules"
@@ -28,7 +28,7 @@ waspStartTest =
         "succeed-compiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ waspCliCompile,
                   waspCliStart
                 ]

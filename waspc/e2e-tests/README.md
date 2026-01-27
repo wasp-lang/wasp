@@ -13,7 +13,7 @@ The main **outputs** of `waspc` are Wasp applications.
 We want to validate that CLI commands correctly generate or modify Wasp applications.
 In addition to applications, we also cover secondary outputs, such as the installation and uninstallation of the CLI itself, `bash` completions, and more.
 
-## Test varaints
+## Test variants
 
 `waspc e2e-tests` consist of two different tests variants:
 
@@ -24,9 +24,9 @@ In addition to applications, we also cover secondary outputs, such as the instal
 
 We test Wasp CLI commands whose outputs we can discard.
 
-Tests **sequentially execute their test cases** in the `TestDir`.
-The `TestDir`s are created in the `waspc/e2e-tests/Test/test-outputs/` diectory.
-While the exact files within a `TestDir` aren't strictly defined, they usually have the following structure:
+Tests execute their test cases in the `TestCaseDir`s.
+The `TestCaseDir`s are created in the `waspc/e2e-tests/Test/test-outputs/` diectory.
+While the exact files within a `TestCaseDir` aren't strictly defined, they usually have the following structure:
 
 ```
 # Where:
@@ -35,7 +35,7 @@ While the exact files within a `TestDir` aren't strictly defined, they usually h
 e2e-tests/
 └── Test/
     └── test-outputs/
-        └── <name>/  # test dirctory, e.g. `wasp-info`
+        └── <test-name>/<test-case-name>/  # test case dirctory
             ├── wasp-app/ # contains the Wasp app for that test
             └── ...
 ```

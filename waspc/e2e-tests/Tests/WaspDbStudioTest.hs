@@ -1,8 +1,8 @@
-module Test.WaspDbStudioTest (waspDbStudioTest) where
+module Tests.WaspDbStudioTest (waspDbStudioTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliDbStudio)
 
 -- | NOTE: We don't test feature content since it's prisma feature.
@@ -18,7 +18,7 @@ waspDbStudioTest =
         "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ waspCliDbStudio
                 ]
             ]

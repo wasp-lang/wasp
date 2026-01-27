@@ -1,4 +1,4 @@
-module Test.WaspNewTest (waspNewTest) where
+module Tests.WaspNewTest (waspNewTest) where
 
 import ShellCommands (WaspNewTemplate (..), waspCliNew, waspCliNewInteractive)
 import Test (Test, makeTest, makeTestCase)

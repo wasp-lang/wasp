@@ -1,8 +1,8 @@
-module Test.WaspDbStartTest (waspDbStartTest) where
+module Tests.WaspDbStartTest (waspDbStartTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliDbStart)
 
 -- FIXME: @waspCliDbStart@ - figure out long lasting processes
@@ -17,7 +17,7 @@ waspDbStartTest =
         "succeed-sqlite-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ waspCliDbStart
                 ]
             ]
@@ -26,7 +26,7 @@ waspDbStartTest =
         "succeed-postgresql-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   waspCliDbStart
                 ]

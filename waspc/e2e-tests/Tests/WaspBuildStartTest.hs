@@ -1,8 +1,8 @@
-module Test.WaspBuildStartTest (waspBuildStartTest) where
+module Tests.WaspBuildStartTest (waspBuildStartTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliBuild, waspCliBuildStart)
 
 -- FIXME: @waspCliBuildStart@ - figure out long lasting processes
@@ -17,7 +17,7 @@ waspBuildStartTest =
         "fail-unbuilt-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   return waspCliBuildStartFails
                 ]
@@ -27,7 +27,7 @@ waspBuildStartTest =
         "succeed-built-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   waspCliBuild,
                   waspCliBuildStart "-s DATABASE_URL=none"

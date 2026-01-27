@@ -1,4 +1,4 @@
-module Test.WaspCompletionTest (waspCompletionTest) where
+module Tests.WaspCompletionTest (waspCompletionTest) where
 
 import ShellCommands (ShellCommand, (~&&))
 import Test (Test, makeTest, makeTestCase)

@@ -1,8 +1,8 @@
-module Test.WaspInfoTest (waspInfoTest) where
+module Tests.WaspInfoTest (waspInfoTest) where
 
 import ShellCommands (ShellCommand, WaspNewTemplate (..))
 import Test (Test, makeTest, makeTestCase)
-import Test.ShellCommands (createTestWaspProject, withInTestWaspProjectDir)
+import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import WaspProject.ShellCommands (waspCliInfo)
 
 -- TODO: Test `wasp info` values change properly:
@@ -18,7 +18,7 @@ waspInfoTest =
         "succeed-inside-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir
+              inTestWaspProjectDir
                 [ waspCliInfo
                 ]
             ]

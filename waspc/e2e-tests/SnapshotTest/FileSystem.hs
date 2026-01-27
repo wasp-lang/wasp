@@ -13,6 +13,7 @@ module SnapshotTest.FileSystem
   )
 where
 
+import Data.Functor ((<&>))
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, GitRootDir, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRootDir)
 import SnapshotTest.Snapshot (SnapshotType (..))
@@ -38,7 +39,7 @@ snapshotsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir SnapshotsDir)
 snapshotsDirInE2eTests = [reldir|SnapshotTest/snapshots|]
 
 getSnapshotsDir :: IO (Path' Abs (Dir SnapshotsDir))
-getSnapshotsDir = (</> snapshotsDirInE2eTests) <$> getE2eTestsDir
+getSnapshotsDir = getE2eTestsDir <&> (</> snapshotsDirInE2eTests)
 
 snapshotDirInSnapshotsDir :: String -> SnapshotType -> Path' (Rel SnapshotsDir) (Dir SnapshotDir)
 snapshotDirInSnapshotsDir snapshotTestName snapshotType = (fromJust . parseRelDir) (snapshotTestName ++ "-" ++ show snapshotType)
