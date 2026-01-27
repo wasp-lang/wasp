@@ -10,16 +10,16 @@ waspCompletionTest =
     [ -- Ideally we would test this without calling `wasp cli completion:list`
       -- but I didn't find a nice way to do it so far.
       makeTestCase
-        "Should complete part of word: 'wasp tele' ~> 'telemetry'"
+        "complete-partial-word"
         (return [assertWaspCliCompletion "wasp-cli tele" "telemetry"]),
       makeTestCase
-        "Should complete full word: 'wasp telemetry' ~> 'telemetry'"
+        "complete-full-word"
         (return [assertWaspCliCompletion "wasp-cli telemetry" "telemetry"]),
       makeTestCase
-        "Should complete multiple choice: 'wasp d' ~> 'db' | 'deploy' | 'deps' | 'dockerfile'"
+        "complete-multiple-choice"
         (return [assertWaspCliCompletion "wasp-cli d" "db\ndeploy\ndeps\ndockerfile"]),
       makeTestCase
-        "Should reutrn empty string for unknown completion: 'wasp unknown' ~> ''"
+        "complete-unknown-empty"
         (return [assertWaspCliCompletion "wasp-cli unknown" ""])
     ]
   where

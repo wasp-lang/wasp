@@ -10,18 +10,17 @@ waspBuildTest =
   makeTest
     "wasp-build"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliBuildFails]),
       makeTestCase
-        "Should fail inside of a SQLite Wasp project"
+        "fail-sqlite-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir [return waspCliBuildFails]
             ]
         ),
-      -- `wasp build` should also compile the project.
       makeTestCase
-        "Should succeed inside of a Postgresql Wasp project"
+        "succeed-postgresql-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir

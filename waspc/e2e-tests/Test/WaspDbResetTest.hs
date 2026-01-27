@@ -15,7 +15,7 @@ waspDbResetTest =
   makeTest
     "wasp-db-reset"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliDbResetFails]),
       -- FIXME: find a way without seed commands
       -- Both in 'WaspDbResetTest.hs' and in `WaspDbSeedTest.hs`
@@ -28,7 +28,7 @@ waspDbResetTest =
       -- An alternative would be to directly use the `npx prisma execute` from the server files,
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       makeTestCase
-        "Should reset the database successfully"
+        "succeed-reset-database"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir

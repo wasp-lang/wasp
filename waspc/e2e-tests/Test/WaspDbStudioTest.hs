@@ -12,13 +12,15 @@ waspDbStudioTest =
   makeTest
     "wasp-db-studio"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliDbStudioFails]),
       makeTestCase
-        "Should succeed inside of a uncompiled Wasp project"
+        "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir [waspCliDbStudio]
+              withInTestWaspProjectDir
+                [ waspCliDbStudio
+                ]
             ]
         )
     ]

@@ -10,10 +10,10 @@ waspCompileTest =
   makeTest
     "wasp-compile"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliCompileFails]),
       makeTestCase
-        "Should succeed inside of a uncompiled Wasp project"
+        "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir
@@ -24,7 +24,7 @@ waspCompileTest =
             ]
         ),
       makeTestCase
-        "Should succeed inside of a compiled Wasp project"
+        "succeed-compiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir

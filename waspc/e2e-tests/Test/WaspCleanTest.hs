@@ -10,10 +10,10 @@ waspCleanTest =
   makeTest
     "wasp-clean"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliCleanFails]),
       makeTestCase
-        "Should succeed inside of a uncompiled Wasp project"
+        "succeed-uncompiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir
@@ -24,7 +24,7 @@ waspCleanTest =
             ]
         ),
       makeTestCase
-        "Should succeed inside of a compiled Wasp project"
+        "succeed-compiled-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir

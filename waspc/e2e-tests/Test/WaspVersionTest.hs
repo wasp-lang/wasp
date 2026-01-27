@@ -9,7 +9,7 @@ waspVersionTest =
   makeTest
     "wasp-version"
     [ makeTestCase
-        "Should match the `waspc` project Wasp version"
+        "match-waspc-version"
         (return . (: []) $ (~| ("{ read ver; [ \"$ver\" = '" ++ show waspVersion ++ "' ]; }")) . (~| "head -n1") $ waspCliVersion)
     ]
 

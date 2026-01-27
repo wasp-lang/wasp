@@ -10,11 +10,11 @@ where
 import Control.Monad.Reader (MonadReader (ask))
 import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate, buildShellCommand, waspCliNew, (~&&))
 import StrongPath (Abs, Dir, Path', fromAbsDir)
-import Test.FileSystem (TestDir)
+import Test.FileSystem (TestCaseDir)
 import WaspProject.ShellCommands (WaspProjectContext (..))
 
 data TestContext = TestContext
-  { testDir :: Path' Abs (Dir TestDir),
+  { testCaseDir :: Path' Abs (Dir TestCaseDir),
     waspProjectContext :: WaspProjectContext
   }
 
@@ -26,7 +26,7 @@ withInTestWaspProjectDir waspProjectCommandBuilders = do
   return $
     unwords ["cd", fromAbsDir (_waspProjectDir testContext.waspProjectContext)]
       ~&& foldr1 (~&&) (buildShellCommand testContext.waspProjectContext $ sequence waspProjectCommandBuilders)
-      ~&& unwords ["cd", fromAbsDir testContext.testDir]
+      ~&& unwords ["cd", fromAbsDir testContext.testCaseDir]
 
 createTestWaspProject :: WaspNewTemplate -> ShellCommandBuilder TestContext ShellCommand
 createTestWaspProject template = do

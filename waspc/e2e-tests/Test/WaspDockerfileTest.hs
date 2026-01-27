@@ -11,13 +11,15 @@ waspDockerfileTest =
   makeTest
     "wasp-dockerfile"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliDockerfileFails]),
       makeTestCase
-        "Should succeed inside of a Wasp project"
+        "succeed-inside-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir [waspCliDockerfile]
+              withInTestWaspProjectDir
+                [ waspCliDockerfile
+                ]
             ]
         )
     ]

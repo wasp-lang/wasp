@@ -13,7 +13,7 @@ waspDbSeedTest =
   makeTest
     "wasp-db-seed"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliDbSeedFails]),
       -- FIXME: find a way without seed commands
       -- Both in 'WaspDbResetTest.hs' and in `WaspDbSeedTest.hs`
@@ -26,7 +26,7 @@ waspDbSeedTest =
       -- An alternative would be to directly use the `npx prisma execute` from the server files,
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       makeTestCase
-        "Should seed the database successfully"
+        "succeed-seed-database"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir

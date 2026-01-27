@@ -24,17 +24,19 @@ waspDbMigrateDevTest =
   makeTest
     "wasp-db-migrate-dev"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliDbMigrateDevFails]),
       makeTestCase
-        "Should succeed when migrations up to date inside of a Wasp project"
+        "succeed-migrations-up-to-date"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir [waspCliDbMigrateDev "no_migration"]
+              withInTestWaspProjectDir
+                [ waspCliDbMigrateDev "no_migration"
+                ]
             ]
         ),
       makeTestCase
-        "Should succeed creating a new migration inside of a Wasp project"
+        "succeed-create-new-migration"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir

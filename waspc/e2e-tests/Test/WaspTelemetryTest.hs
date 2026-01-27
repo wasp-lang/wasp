@@ -8,10 +8,10 @@ waspTelemetryTest =
   makeTest
     "wasp-telemetry"
     [ makeTestCase
-        "Should be enabled by default"
+        "enabled-by-default"
         (return . (: []) $ ("env -u WASP_TELEMETRY_DISABLE " ++) . (~| "grep -q 'ENABLED'") $ waspCliTelemetry),
       makeTestCase
-        "Should be disabled when WASP_TELEMETRY_DISABLE=1 env var is set"
+        "disabled-with-env-var"
         (return . (: []) $ ("WASP_TELEMETRY_DISABLE=1 " ++) . (~| "grep -q 'DISABLED'") $ waspCliTelemetry)
     ]
 

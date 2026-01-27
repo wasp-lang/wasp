@@ -11,17 +11,19 @@ waspDbStartTest =
   makeTest
     "wasp-db-start"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliDbStartFails]),
       makeTestCase
-        "Should exit early and successfully inside of a SQLite Wasp project"
+        "succeed-sqlite-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir [waspCliDbStart]
+              withInTestWaspProjectDir
+                [ waspCliDbStart
+                ]
             ]
         ),
       makeTestCase
-        "Should succeed inside of a Postgresql Wasp project"
+        "succeed-postgresql-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir

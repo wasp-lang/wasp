@@ -11,10 +11,10 @@ waspBuildStartTest =
   makeTest
     "wasp-build-start"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliBuildStartFails]),
       makeTestCase
-        "Should fail inside of a unbuilt Wasp project"
+        "fail-unbuilt-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir
@@ -24,7 +24,7 @@ waspBuildStartTest =
             ]
         ),
       makeTestCase
-        "Should succeed inside of a built Wasp project"
+        "succeed-built-project"
         ( sequence
             [ createTestWaspProject Minimal,
               withInTestWaspProjectDir

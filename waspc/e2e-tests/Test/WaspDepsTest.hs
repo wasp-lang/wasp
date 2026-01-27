@@ -11,13 +11,15 @@ waspDepsTest =
   makeTest
     "wasp-deps"
     [ makeTestCase
-        "Should fail outside of a Wasp project"
+        "fail-outside-project"
         (return [waspCliDepsFails]),
       makeTestCase
-        "Should succeed inside of a Wasp project"
+        "succeed-inside-project"
         ( sequence
             [ createTestWaspProject Minimal,
-              withInTestWaspProjectDir [waspCliDeps]
+              withInTestWaspProjectDir
+                [ waspCliDeps
+                ]
             ]
         )
     ]

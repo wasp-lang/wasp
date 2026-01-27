@@ -17,12 +17,7 @@ import Test.WaspDbSeedTest (waspDbSeedTest)
 import Test.WaspDepsTest (waspDepsTest)
 import Test.WaspDockerfileTest (waspDockerfileTest)
 import Test.WaspInfoTest (waspInfoTest)
-import Test.WaspNewTest
-  ( waspNewBasicInteractiveTest,
-    waspNewBasicTest,
-    waspNewMinimalInteractiveTest,
-    waspNewMinimalTest,
-  )
+import Test.WaspNewTest (waspNewTest)
 import Test.WaspTelemetryTest (waspTelemetryTest)
 import Test.WaspVersionTest (waspVersionTest)
 
@@ -49,14 +44,7 @@ e2eTests = do
     mapM
       runTest
       [ -- general Wasp commads
-        waspNewMinimalTest,
-        waspNewMinimalInteractiveTest,
-        waspNewBasicTest,
-        waspNewBasicInteractiveTest,
-        -- Note(Franjo): These will fail because there "dev" opensaas template tag doesn't exist.
-        -- We can't really test the `saas` tempalte in  `waspc` e2e tests.
-        -- FIXME: waspNewSaasTest,
-        -- FIXME: waspNewSaasInteractiveTest,
+        waspNewTest,
         waspTelemetryTest,
         waspCompletionTest,
         waspVersionTest,
