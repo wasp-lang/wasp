@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.WebSocketGenerator
+module Wasp.Generator.SdkGenerator.UserCore.WebSocketGenerator
   ( genWebSockets,
     depsRequiredByWebSockets,
   )

@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Auth.LocalAuthG
+module Wasp.Generator.SdkGenerator.UserCore.Auth.LocalAuthG
   ( genLocalAuth,
   )
 where

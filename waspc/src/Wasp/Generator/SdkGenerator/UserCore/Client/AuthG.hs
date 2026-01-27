@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Client.AuthG
+module Wasp.Generator.SdkGenerator.UserCore.Client.AuthG
   ( genNewClientAuth,
   )
 where
