@@ -28,6 +28,12 @@ concurrency:
 
 jobs:
   deploy-test:
+    # Only run if the PR doesn't come from a fork, since then it wouldn't have
+    # access to secrets:
+    if: >
+      github.event.pull_request.head.repo.full_name
+      == github.event.pull_request.base.repo.full_name
+
     uses: ./.github/workflows/ci-deploy-test.yaml
     secrets: inherit
 
