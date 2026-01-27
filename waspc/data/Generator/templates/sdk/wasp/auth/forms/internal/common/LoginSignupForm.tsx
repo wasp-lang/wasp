@@ -27,7 +27,7 @@ import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'

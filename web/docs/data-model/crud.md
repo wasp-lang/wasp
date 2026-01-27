@@ -342,7 +342,7 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
   <TabItem value="js" label="JavaScript">
     ```jsx title="src/LoginPage.jsx"
     import { LoginForm } from 'wasp/client/auth'
-    import { Link } from 'react-router-dom'
+    import { Link } from 'react-router'
 
     export function LoginPage() {
       return (
@@ -365,7 +365,7 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/LoginPage.tsx"
     import { LoginForm } from 'wasp/client/auth'
-    import { Link } from 'react-router-dom'
+    import { Link } from 'react-router'
 
     export function LoginPage() {
       return (

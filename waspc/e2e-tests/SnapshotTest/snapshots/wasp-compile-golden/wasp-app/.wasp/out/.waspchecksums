@@ -151,7 +151,7 @@
             "file",
             "sdk/wasp/client/router/Link.tsx"
         ],
-        "66aebac1ceb458f661b4e24085c321e0764663ada56843261640a230718bb29d"
+        "55028462a72bdf7feaff65cd7407d3ecd9497eba12b82b55c1562930f42be367"
     ],
     [
         [
@@ -186,7 +186,7 @@
             "file",
             "sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "2a5d39421bbf65a1a9e74bbc57bd5ec6632f4df181e9d5b9e21ba26fddfd9602"
+        "ae31b78cbc3223f1be003031f7de6170bf019a2400eb2f8526bb26c8fdeab357"
     ],
     [
         [
@@ -242,7 +242,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "21930a1f855eea9250e26d3d02fef88688f55964f975f7f5033e21c51aef0909"
+        "42676a9d64e96e9b734442e1c23839c52a38f8783a2ac01aab54e1ccb283862f"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "web-app/package.json"
         ],
-        "8cc8171ddcfdb9a6e1ecdbd2e45a573105125cb45e650573d138955c67f25440"
+        "918d4fbe8b475bfe70ccecb243f01a52b0cfc55b550e7ef6897c576916a47677"
     ],
     [
         [
@@ -627,7 +627,7 @@
             "file",
             "web-app/src/components/DefaultRootErrorBoundary.tsx"
         ],
-        "73bbe8a2eb141e523c6b8169c0831e594b4ab6c7207f107d6d20c1561b44373a"
+        "303821bb9b02b284835f571618c5f92e3da1b97709b7ed6cb3313fb33cc871f6"
     ],
     [
         [
@@ -676,7 +676,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "51979a9b39bf2a0f84e7b3bc81e0f88b250dc950b31ef6aa069ef7a5e9ae4f00"
+        "86024a1eeb5357c8671ac93c1b51b1ed25677a2fa21ad76cad57015451e05aeb"
     ],
     [
         [
@@ -725,7 +725,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "0771ae124347aaa7f22ccdf35bd3e3b4ff8faa41f27efc67f8e171c86ed9bce5"
+        "978617cc55c35abdd65bcc6cfac3522c31e82c442f7499bb33bfb1451ea9d847"
     ],
     [
         [
