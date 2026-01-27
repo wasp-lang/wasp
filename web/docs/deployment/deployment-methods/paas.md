@@ -479,17 +479,23 @@ First, make sure you have [built the Wasp app](#1-generating-deployable-code). W
 
 <BuildingTheWebClient />
 
-Before deploying, you need to create a `netlify.toml` file in the `.wasp/out/web-app` directory to configure Netlify to redirect all URLs to `index.html`. This is necessary because Wasp is a Single Page Application (SPA) and needs to handle routing on the client side.
+Before deploying, you need to create a `netlify.toml` file in your project root to configure Netlify for building and deploying your Wasp app. This file tells Netlify where to find the web app, how to build it, and configures URL redirects for SPA routing.
 
 Create the `netlify.toml` file with the following content:
 
-```toml title=".wasp/out/web-app/netlify.toml"
+```toml title="netlify.toml"
+[build]
+  base = "./.wasp/out/web-app"
+  publish = "./build"
+  command = "npm run build"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
-  force = false
 ```
+
+The `base` path should point from your Git repository root to the `web-app` directory. Adjust the path if your Wasp project is in a subdirectory (e.g., `base = "./my-app/.wasp/out/web-app"`).
 
 We can now deploy the client with:
 
@@ -563,7 +569,6 @@ Here’s an example configuration file to help you get started. This example wor
               from = "/*"
               to = "/index.html"
               status = 200
-              force = false
             EOF
 
         - name: Deploy to Netlify
