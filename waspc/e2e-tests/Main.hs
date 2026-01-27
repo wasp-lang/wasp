@@ -22,8 +22,6 @@ import Test.WaspNewTest
     waspNewBasicTest,
     waspNewMinimalInteractiveTest,
     waspNewMinimalTest,
-    waspNewSaasInteractiveTest,
-    waspNewSaasTest,
   )
 import Test.WaspTelemetryTest (waspTelemetryTest)
 import Test.WaspVersionTest (waspVersionTest)
