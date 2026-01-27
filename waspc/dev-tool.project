@@ -6,6 +6,7 @@ packages: .
 jobs: $ncpus
 
 constraints:
+  cabal-gild ==1.7.0.1,
   ormolu ==0.7.2.0,
   stan ==0.2.1.0,
   hlint ==3.6.1,

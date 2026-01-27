@@ -44,3 +44,25 @@ jobs:
       - uses: haskell-actions/run-ormolu@v15
         with:
           version: ${{ env.ORMOLU_VERSION }}
+
+  cabal-gild:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Parse cabal-gild version
+        working-directory: waspc
+        run: |
+          echo "CABAL_GILD_VERSION=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+
+      - uses: tfausak/cabal-gild-setup-action@v2
+        with:
+          version: ${{ env.CABAL_GILD_VERSION }}
+
+      - name: Run cabal-gild
+        working-directory: waspc
+        run: |
+          for f in $(git ls-files '*.cabal'); do
+            cabal-gild --mode check --input "$f"
+          done
