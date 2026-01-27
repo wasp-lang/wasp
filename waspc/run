@@ -25,7 +25,7 @@ done"
 # NOTE: --experimental-strip-types allows Node to run TypeScript directly.
 # This flag became the default in Node v22.18+, but we need it explicitly
 # for our minimum supported version (v22.12.0).
-WASP_LIBS_COMPILE="node --experimental-strip-types ${SCRIPT_DIR}/tools/install_libs_to_data_dir.ts"
+WASP_LIBS_COMPILE="node --experimental-strip-types ${SCRIPT_DIR}/tools/build_libs.ts"
 WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
 BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"

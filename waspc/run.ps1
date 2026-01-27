@@ -28,7 +28,7 @@ switch ($Command) {
     # This flag became the default in Node v22.18+, but we need it explicitly
     # for our minimum supported version (v22.12.0).
     "build:libs" {
-        node --experimental-strip-types "$PROJECT_ROOT/tools/install_libs_to_data_dir.ts"
+        node --experimental-strip-types "$PROJECT_ROOT/tools/build_libs.ts"
     }
     "get-waspc-version" {
         node --experimental-strip-types "$PROJECT_ROOT/tools/get-waspc-version.ts"

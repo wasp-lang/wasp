@@ -42,7 +42,7 @@ data-files:
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
   Generator/templates/**/*.png
-  Generator/libs/*.tgz
+  Generator/libs/**/*.tgz
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx

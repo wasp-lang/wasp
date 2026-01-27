@@ -3,14 +3,7 @@
 // them into the Cabal data dir.
 
 import { execFileSync } from "node:child_process";
-import {
-  copyFileSync,
-  existsSync,
-  mkdirSync,
-  readdirSync,
-  readFileSync,
-  rmSync,
-} from "node:fs";
+import { readdirSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -18,54 +11,29 @@ const waspcDirPath = fileURLToPath(new URL("..", import.meta.url));
 const dataLibsDirPath = join(waspcDirPath, "data", "Generator", "libs");
 const waspcVersion = getWaspcVersion();
 
-main();
+buildLibs();
 
-function main(): void {
-  cleanupOldLibs();
-  buildAndCopyLibs();
-}
-
-function cleanupOldLibs(): void {
-  if (existsSync(dataLibsDirPath)) {
-    rmSync(dataLibsDirPath, { recursive: true, force: true });
-  }
-  mkdirSync(dataLibsDirPath, { recursive: true });
-}
-
-function buildAndCopyLibs(): void {
-  const libsDirPath = join(waspcDirPath, "libs");
-  const libDirs = readdirSync(libsDirPath, { withFileTypes: true })
+function buildLibs(): void {
+  const libDirs = readdirSync(dataLibsDirPath, { withFileTypes: true })
     .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => join(libsDirPath, dirent.name));
+    .map((dirent) => join(dataLibsDirPath, dirent.name));
 
   for (const libDir of libDirs) {
-    buildAndCopyLib(libDir);
+    buildLib(libDir);
   }
 }
 
-function buildAndCopyLib(libDir: string): void {
+function buildLib(libDir: string): void {
   const { name: libName, version: libVersion } = getLibPackageJson(libDir);
 
   assertLibVersionValid(libName, libVersion);
 
   console.log(`Building ${libName} lib (${libDir})`);
 
+  rmExistingTarballsInDir(libDir);
+
   runCmd("npm", ["install"], { cwd: libDir });
-
-  const oldTarballs = getTarballsInDir(libDir);
-  for (const tarballFileName of oldTarballs) {
-    rmSync(join(libDir, tarballFileName));
-  }
-
   runCmd("npm", ["pack"], { cwd: libDir });
-
-  const newTarballs = getTarballsInDir(libDir);
-  for (const tarballFileName of newTarballs) {
-    copyFileSync(
-      join(libDir, tarballFileName),
-      join(dataLibsDirPath, tarballFileName),
-    );
-  }
 }
 
 function getLibPackageJson(libDir: string): { name: string; version: string } {
@@ -85,10 +53,6 @@ function assertLibVersionValid(libName: string, libVersion: string): void {
   }
 }
 
-function getTarballsInDir(dir: string): string[] {
-  return readdirSync(dir).filter((f) => f.endsWith(".tgz"));
-}
-
 function getWaspcVersion(): string {
   return runCmd(
     "node",
@@ -97,11 +61,18 @@ function getWaspcVersion(): string {
   ).trim();
 }
 
+function rmExistingTarballsInDir(dir: string): void {
+  const oldTarballs = readdirSync(dir).filter((f) => f.endsWith(".tgz"));
+  for (const tarballFileName of oldTarballs) {
+    rmSync(join(dir, tarballFileName));
+  }
+}
+
 function runCmd(cmd: string, args: string[], { cwd }: { cwd: string }): string {
   return execFileSync(cmd, args, {
     cwd,
     encoding: "utf-8",
-    // Required for Windows to find `npm` and `node`.
+    // Required for Windows to find `npm` and `node` binaries.
     shell: true,
   });
 }
