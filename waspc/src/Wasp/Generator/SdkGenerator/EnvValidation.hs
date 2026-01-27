@@ -21,8 +21,8 @@ import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
-import qualified Wasp.Project.WebApp.Common as WebApp
 import Wasp.Util ((<++>))
 
 genEnvValidation :: AppSpec -> Generator [FileDraft]

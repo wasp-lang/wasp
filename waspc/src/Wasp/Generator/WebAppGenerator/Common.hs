@@ -1,4 +1,4 @@
-module Wasp.Project.WebApp.Common
+module Wasp.Generator.WebAppGenerator.Common
   ( getBaseDir,
     getDefaultDevClientUrl,
     defaultClientPort,

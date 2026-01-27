@@ -10,10 +10,10 @@ import Control.Monad (void)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Start (startServer)
+import Wasp.Generator.WebAppGenerator.Start (startWebApp)
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Project.Common (WaspProjectDir)
-import Wasp.Project.WebApp.Start (startWebApp)
 
 -- | This is a blocking action, that will start the processes that run web app and server.
 --   It will run as long as one of those processes does not fail.

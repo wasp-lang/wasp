@@ -32,9 +32,9 @@ import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir, makeAppUniqueId)
-import Wasp.Project.WebApp.Common (defaultClientPort, getDefaultDevClientUrl)
-import qualified Wasp.Project.WebApp.Common as WebApp
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig

@@ -1,4 +1,4 @@
-module Wasp.Project.WebApp.Start
+module Wasp.Generator.WebAppGenerator.Start
   ( startWebApp,
   )
 where

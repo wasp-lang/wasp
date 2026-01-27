@@ -1,4 +1,4 @@
-module Wasp.Project.WebApp.Test
+module Wasp.Generator.WebAppGenerator.Test
   ( testWebApp,
   )
 where

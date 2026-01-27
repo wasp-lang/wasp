@@ -367,6 +367,9 @@ library
     Wasp.Generator.Valid.Validator
     Wasp.Generator.WaspInfo
     Wasp.Generator.WebAppGenerator
+    Wasp.Generator.WebAppGenerator.Common
+    Wasp.Generator.WebAppGenerator.Start
+    Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
@@ -398,9 +401,6 @@ library
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
     Wasp.Project.WaspFile.WaspLang
-    Wasp.Project.WebApp.Common
-    Wasp.Project.WebApp.Start
-    Wasp.Project.WebApp.Test
     Wasp.Psl.Ast.Argument
     Wasp.Psl.Ast.Attribute
     Wasp.Psl.Ast.Common

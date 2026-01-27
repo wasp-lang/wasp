@@ -7,9 +7,9 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import StrongPath (Abs, Dir, Path')
 import System.Exit (ExitCode (..))
+import qualified Wasp.Generator.WebAppGenerator.Test as WebAppTest
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Project.Common (WaspProjectDir)
-import qualified Wasp.Project.WebApp.Test as WebAppTest
 
 testWebApp :: [String] -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 testWebApp args waspProjectDir = do

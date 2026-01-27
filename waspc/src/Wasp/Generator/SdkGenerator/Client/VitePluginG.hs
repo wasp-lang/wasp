@@ -13,12 +13,12 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG (genHtmlPlugin)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG (getVirtualModulesPlugin)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.WebAppGenerator (viteBuildDirInWebAppDir, webAppRootDirInProjectRootDir)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     srcDirInWaspProjectDir,
   )
-import qualified Wasp.Project.WebApp.Common as WebApp
 import Wasp.Util ((<++>))
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
