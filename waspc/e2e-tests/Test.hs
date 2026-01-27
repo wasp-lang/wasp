@@ -1,4 +1,5 @@
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE NamedFieldPuns #-}
 {-# LANGUAGE OverloadedRecordDot #-}
 
 module Test
@@ -48,14 +49,21 @@ runTest test = do
 createAndExecuteTestCase :: String -> TestCase -> Spec
 createAndExecuteTestCase testName testCase = do
   testCaseDir <- runIO $ getTestCaseDir testName testCase.name
-  runIO $ setupTestCase testCaseDir
+  let waspProjectContext =
+        WaspProjectContext
+          { _waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
+            _waspProjectName = "wasp-app"
+          }
+      testContext = TestContext {testCaseDir, waspProjectContext}
+      testCaseCommand = foldr1 (~&&) $ buildShellCommand testContext testCase.shellCommandBuilder
 
+  runIO $ setupTestCase testCaseDir
   runIO $ putStrLn $ "Executing test case: " ++ testName ++ "/" ++ testCase.name
-  runIO $ putStrLn $ "Command: " ++ testCaseCommand testCaseDir
+  runIO $ putStrLn $ "Command: " ++ testCaseCommand
   (_, _, _, processHandle) <-
     runIO $
       createProcess
-        (shell $ testCaseCommand testCaseDir)
+        (shell $ testCaseCommand)
           { cwd = Just $ fromAbsDir testCaseDir,
             std_in = Inherit,
             std_out = Inherit,
@@ -65,25 +73,8 @@ createAndExecuteTestCase testName testCase = do
 
   it testCase.name $ do
     case exitCode of
-      ExitFailure _ -> expectationFailure $ "Command failed: " ++ testCaseCommand testCaseDir
+      ExitFailure _ -> expectationFailure $ "Command failed: " ++ testCaseCommand
       ExitSuccess -> return ()
-  where
-    testCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand
-    testCaseCommand testCaseDir = foldr1 (~&&) $ buildShellCommand (testContext testCaseDir) testCase.shellCommandBuilder
-
-    testContext :: Path' Abs (Dir TestCaseDir) -> TestContext
-    testContext testCaseDir =
-      TestContext
-        { testCaseDir = testCaseDir,
-          waspProjectContext = waspProjectContext testCaseDir
-        }
-
-    waspProjectContext :: Path' Abs (Dir TestCaseDir) -> WaspProjectContext
-    waspProjectContext testCaseDir =
-      WaspProjectContext
-        { _waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
-          _waspProjectName = "wasp-app"
-        }
 
 setupTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
 setupTestCase testCaseDir = do
