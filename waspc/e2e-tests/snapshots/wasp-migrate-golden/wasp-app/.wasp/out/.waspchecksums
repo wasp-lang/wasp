@@ -282,6 +282,13 @@
     [
         [
             "file",
+            "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
+        ],
+        "4f0bfe611bd641b78fa362b7c53453272aa53db63df7958eadd5e5d59fb5ba20"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
         "e4d0bb7a2fb9d3415e0d1dc5c137fec5e9a4073a2eda33daf50396f5d477490e"
@@ -298,7 +305,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "4bc2d13e656c8b88d04870c04f6ed8615829206162e77b7637a9458c1e301982"
+        "9b334218efba823bdfc442790e622064081eb205fbee0b646dc1e635675c67e7"
     ],
     [
         [
