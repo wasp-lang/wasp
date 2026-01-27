@@ -37,11 +37,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
           },
           envPrefix: "REACT_APP_",
           build: {
-            // TODO: decide if we want to keep the old build dir or introduce
-            // a new one at root and use just `build`. This would affect the deployment,
-            // but people would need to migrate to `npx vite build` anyways since there
-            // is no longer a `build` script in `web-app` they can call.
-            outDir: ".wasp/out/web-app/build",
+            outDir: ".wasp/out/web-app/build/",
           },
           resolve: {
             // These packages rely on a single instance per page. Not deduping them

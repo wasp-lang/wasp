@@ -366,6 +366,7 @@ library
     Wasp.Generator.Valid.TsConfig
     Wasp.Generator.Valid.Validator
     Wasp.Generator.WaspInfo
+    Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport

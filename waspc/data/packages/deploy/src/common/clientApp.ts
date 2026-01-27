@@ -19,11 +19,12 @@ export async function buildClient(
 
   const clientBuildDir = getClientBuildDir(waspProjectDir);
   const npmCli = createCommandWithCwd("npm", clientBuildDir);
+  const npxCli = createCommandWithCwd("npx", clientBuildDir);
 
   await npmCli(["install"]);
 
   const serverUrl = getServerAppUrlEnvValue() ?? defaultServerAppUrl;
-  await npmCli(["run", "build"], {
+  await npxCli(["vite", "build"], {
     env: {
       ...process.env,
       [serverUrlEnvVarName]: serverUrl,
