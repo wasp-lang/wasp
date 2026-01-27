@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom";
+import { useLocation } from "react-router";
 import { FeatureContainer } from "../components/FeatureContainer";
 
 export function CatchAllPage() {
