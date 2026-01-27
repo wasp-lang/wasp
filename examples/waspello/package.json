@@ -24,7 +24,7 @@
     "@tailwindcss/vite": "^4.1.18",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
-    "@wasp.sh/wasp-app-runner": "^0.0.11",
+    "@wasp.sh/wasp-app-runner": "^0.0.13",
     "prisma": "5.19.1",
     "typescript": "5.8.2",
     "vite": "^7.0.6",
