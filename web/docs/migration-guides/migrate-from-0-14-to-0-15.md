@@ -97,7 +97,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
      </TabItem>
    </Tabs>
 
-   Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-navigate#optionsreplace) for more information on the `useNavigate()` hook.
+   Check the [React Router 6 docs](https://reactrouter.com/6.26.2/hooks/use-navigate#optionsreplace) for more information on the `useNavigate()` hook.
 
 2. If you used the `<Redirect />` component, you should now use the `<Navigate />` component.
 
@@ -131,7 +131,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
      </TabItem>
    </Tabs>
 
-   Check the [React Router 6 docs](https://reactrouter.com/en/main/components/navigate) for more information on the `<Navigate />` component.
+   Check the [React Router 6 docs](https://reactrouter.com/6.26.2/components/navigate) for more information on the `<Navigate />` component.
 
 3. If you accessed the route params using `props.match.params`, you should now use the `useParams()` hook.
 
@@ -169,7 +169,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
      </TabItem>
    </Tabs>
 
-   Check the [React Router 6 docs](https://reactrouter.com/en/main/hooks/use-params) for more information on the `useParams()` hook.
+   Check the [React Router 6 docs](https://reactrouter.com/6.26.2/hooks/use-params) for more information on the `useParams()` hook.
 
 4. If you used the `<NavLink />` component and its `isActive` prop to set the active link state, you should now set the `className` prop directly.
 
@@ -225,7 +225,7 @@ Update the usage of the old React Router 5 APIs to the new React Router 6 APIs:
      </TabItem>
    </Tabs>
 
-   Check the [React Router 6 docs](https://reactrouter.com/en/main/components/nav-link#navlink) for more information on the `<NavLink />` component.
+   Check the [React Router 6 docs](https://reactrouter.com/6.26.2/components/nav-link) for more information on the `<NavLink />` component.
 
 ### 4. Update your root component
 

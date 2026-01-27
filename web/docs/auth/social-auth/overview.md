@@ -138,7 +138,7 @@ For example:
 2. If it's `false`, it means the user has started the signup process but hasn't yet chosen their username. Therefore, you can redirect them to `EditUserDetailsPage` where they can edit the `username` property.
 
 ```tsx title="src/HomePage.tsx" auto-js
-import { Navigate } from 'react-router-dom'
+import { Navigate } from 'react-router'
 import type { AuthUser } from 'wasp/auth'
 
 export function HomePage({ user }: { user: AuthUser }) {

@@ -155,7 +155,7 @@ npmDepsFromWasp _spec =
               ("react", show reactVersion),
               ("react-dom", show reactDomVersion),
               ("@tanstack/react-query", reactQueryVersion),
-              ("react-router-dom", show reactRouterVersion)
+              ("react-router", show reactRouterVersion)
             ],
         N.devDependencies =
           Npm.Dependency.fromList
