@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'
 import { AuthContext } from '../../Auth'

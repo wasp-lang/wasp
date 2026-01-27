@@ -10,7 +10,7 @@ import {
   type OptimisticUpdateDefinition,
 } from "wasp/client/operations";
 
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { Button } from "../../../components/Button";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 import { TaskDetailView } from "../../../components/TaskDetailView";
