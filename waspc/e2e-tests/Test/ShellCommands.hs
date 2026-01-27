@@ -25,12 +25,8 @@ withInTestWaspProjectDir waspProjectCommandBuilders = do
   testContext <- ask
   return $
     unwords ["cd", fromAbsDir (_waspProjectDir testContext.waspProjectContext)]
-      ~&& foldr1 (~&&) (testWaspProjectCommands testContext)
+      ~&& foldr1 (~&&) (buildShellCommand testContext.waspProjectContext $ sequence waspProjectCommandBuilders)
       ~&& unwords ["cd", fromAbsDir testContext.testDir]
-  where
-    testWaspProjectCommands :: TestContext -> [ShellCommand]
-    testWaspProjectCommands testContext =
-      buildShellCommand testContext.waspProjectContext $ sequence waspProjectCommandBuilders
 
 createTestWaspProject :: WaspNewTemplate -> ShellCommandBuilder TestContext ShellCommand
 createTestWaspProject template = do
