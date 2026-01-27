@@ -16,6 +16,6 @@ export function Link(
 ): React.JSX.Element {
   const toPropWithParams = useMemo(() => {
     return interpolatePath(to, params, search, hash)
-  }, [to, params])
+  }, [to, params, search, hash])
   return <RouterLink to={toPropWithParams} {...restOfProps} />
 }

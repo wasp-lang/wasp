@@ -62,7 +62,6 @@ genWebApp spec = do
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genAppTsConfigJson spec,
-      genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsFromWasp spec),
       genGitignore,
       genIndexHtml spec
@@ -116,16 +115,9 @@ genPackageJson spec waspDependencies = do
             [ "packageName" .= webAppPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
-              "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
-  where
-    dependencyOverrides =
-      Npm.Dependency.fromList
-        [ -- TODO: remove this once Rollup fixes their lastest version https://github.com/rollup/rollup/issues/6012
-          ("rollup", "4.44.0")
-        ]
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec

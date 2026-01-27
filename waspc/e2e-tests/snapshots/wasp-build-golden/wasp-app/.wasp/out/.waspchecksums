@@ -151,7 +151,7 @@
             "file",
             "sdk/wasp/client/router/Link.tsx"
         ],
-        "55028462a72bdf7feaff65cd7407d3ecd9497eba12b82b55c1562930f42be367"
+        "d1a6f48d96f50b2900324f221f1fafa70a04bc9b5bba7d1dc78ffebfb7d2704b"
     ],
     [
         [
@@ -583,16 +583,9 @@
     [
         [
             "file",
-            "web-app/netlify.toml"
-        ],
-        "56ab3a5a45f041facffdebef3f0eeddcbddbeb67a9fc62dc8a2924e92d73a715"
-    ],
-    [
-        [
-            "file",
             "web-app/package.json"
         ],
-        "918d4fbe8b475bfe70ccecb243f01a52b0cfc55b550e7ef6897c576916a47677"
+        "cc45bd860d23ceac47e9fbf5580153561b6783b976efeab045941e39004a7e65"
     ],
     [
         [
