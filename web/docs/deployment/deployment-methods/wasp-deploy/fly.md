@@ -261,6 +261,14 @@ If you've added any [client-side environment variables](../../../project/env-var
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 ```
 
+#### Custom Server URL
+
+If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
+
+```shell
+wasp deploy fly launch my-wasp-app dfw --custom-server-url https://api.myapp.com
+```
+
 ### `setup`
 
 The `setup` command registers your client and server apps on Fly, and sets up needed environment variables.
@@ -330,6 +338,14 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
+
+#### Custom Server URL
+
+If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
+
+```shell
+wasp deploy fly deploy --custom-server-url https://api.myapp.com
+```
 
 ### `cmd`
 
