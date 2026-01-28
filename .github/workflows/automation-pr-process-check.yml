@@ -25,10 +25,8 @@ jobs:
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
-          # Get some context
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'no-releases-yet')
 
-          # Run Claude in headless mode with restricted tools
           claude -p "
           You are a PR process compliance checker for a Haskell project.
 
@@ -41,7 +39,7 @@ jobs:
           2. Reading CHANGELOG.md to check for updates
           3. Running 'git diff origin/${{ github.base_ref }}...HEAD' to see changes
 
-          Then produce a markdown report checking:
+          Analyze the following:
 
           **Version Bump**: Based on the diff, does this need a version bump?
           - Breaking API changes = major bump
@@ -56,14 +54,25 @@ jobs:
           - ⚠️ for warnings
           - ❌ for issues
 
-          End with '## Action Items' listing what the author should do.
+          Output only '## Action Items' listing what the author should do.
           Keep it concise.
           " \
           --allowedTools "Read,Bash(git diff:*),Bash(git log:*),Bash(git describe:*),Bash(cat:*),Bash(grep:*),Bash(head:*)" \
           --output-format text \
           > claude_report.md
 
-          cat claude_report.md
+          # Prepend header to the report
+          {
+            echo "## 🔍 PR Process Check"
+            echo ""
+            echo "Commit: ${{ github.event.pull_request.head.sha }}"
+            echo ""
+            echo "---"
+            echo ""
+            cat claude_report.md
+          } > final_report.md
+
+          cat final_report.md
 
       - name: Find existing comment
         uses: peter-evans/find-comment@v3
@@ -79,11 +88,4 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           comment-id: ${{ steps.find-comment.outputs.comment-id }}
           edit-mode: replace
-          body: |
-            ## 🔍 PR Process Check
-
-            ${{ github.event.pull_request.head.sha }}
-
-            ---
-
-          body-path: claude_report.md
+          body-path: final_report.md
