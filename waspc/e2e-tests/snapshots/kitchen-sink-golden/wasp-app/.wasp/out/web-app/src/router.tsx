@@ -1,5 +1,5 @@
 import React from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 import { App } from '../../../../src/App'
 
 import createAuthRequiredPage from "./auth/pages/createAuthRequiredPage"
