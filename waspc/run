@@ -99,6 +99,16 @@ ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color a
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
 
+function remove_wasp_libs_from_package_lock() {
+  PACKAGE_LOCK_TMP=$(mktemp)
+  jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > $PACKAGE_LOCK_TMP
+  if [ $? -ne 0 ]; then
+    rm -f $PACKAGE_LOCK_TMP
+    exit 1
+  fi
+  mv $PACKAGE_LOCK_TMP package-lock.json
+}
+
 echo_and_eval() {
   echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n" 1>&2
   eval "$1"
@@ -124,6 +134,12 @@ print_usage() {
     "Builds the Haskell project only. Run with the \`BUILD_STATIC=1\` env to build statically."
   print_usage_cmd "build:packages" \
     "Builds the TypeScript projects under data/packages/."
+  print_usage_cmd "build:libs" \
+    "Builds the Wasp libs under libs/."
+  echo ""
+  print_usage_cmd "bust-libs-cache" \
+    "Busts the npm cache for all @wasp.sh/lib-* packages in the current Wasp app. Must be run from a Wasp app directory."
+  echo ""
   print_usage_cmd "wasp-cli <args>" \
     "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
   echo ""
@@ -247,6 +263,15 @@ case $COMMAND in
     ;;
   wasp-cli)
     echo_and_eval "$RUN_CMD"
+    ;;
+  bust-libs-cache)
+    remove_wasp_libs_from_package_lock || exit 1
+
+    # Compiling the project copies the new lib tarball to the out dir.
+    eval "$RUN_CMD compile"
+
+    # The --force flag tells `npm` to ignore local cache when installing packages.
+    npm install --force
     ;;
   stan)
     echo_and_eval "$STAN_CMD"

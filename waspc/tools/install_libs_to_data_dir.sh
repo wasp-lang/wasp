@@ -7,6 +7,8 @@ script_dir=$(CDPATH="" cd -- "$(dirname -- "$0")" && pwd)
 waspc_dir=$script_dir/..
 data_libs_dir=$waspc_dir/data/Generator/libs
 
+waspc_version=$("$waspc_dir/run" get-waspc-version)
+
 # Clean up old libs.
 rm -rf "${data_libs_dir:?data_libs_dir must be set before cleanup}"
 mkdir -p "$data_libs_dir"
@@ -14,9 +16,17 @@ mkdir -p "$data_libs_dir"
 # Build and copy libs to data dir.
 for lib_dir in "$waspc_dir"/libs/*; do
   if [[ -d "$lib_dir" ]]; then
-    lib=$(basename "$lib_dir")
-    echo "Installing $lib lib ($lib_dir)"
     cd "$lib_dir"
+    lib_name=$(grep '"name"' package.json | cut -d'"' -f4)
+    lib_version=$(grep '"version"' package.json | cut -d'"' -f4)
+    echo "Installing $lib_name lib ($lib_dir)"
+
+    if [[ "$lib_version" != "$waspc_version" ]]; then
+      echo "ERROR: $lib_name lib version ($lib_version) != current Wasp version ($waspc_version)."
+      echo "       Update the lib version in package.json to $waspc_version."
+      exit 1
+    fi
+
     npm install
     # Clean up old lib tarballs.
     rm -f ./*.tgz

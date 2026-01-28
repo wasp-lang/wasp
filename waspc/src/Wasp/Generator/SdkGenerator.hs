@@ -48,7 +48,6 @@ import Wasp.Generator.DepVersions
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.Monad as Generator
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
@@ -70,6 +69,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -184,7 +184,6 @@ genEntitiesAndServerTypesDirs spec =
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec = do
-  npmDeps <- npmDepsForSdk spec <$> Generator.getWaspLibs
   return $
     C.mkTmplFdWithDstAndData
       [relfile|package.json|]
@@ -197,9 +196,11 @@ genPackageJson spec = do
               "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry npmDeps
             ]
       )
+  where
+    npmDeps = npmDepsForSdk spec
 
-npmDepsForSdk :: AppSpec -> [WaspLib.WaspLib] -> N.NpmDepsForPackage
-npmDepsForSdk spec waspLibs =
+npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
+npmDepsForSdk spec =
   N.NpmDepsForPackage
     { N.dependencies =
         Npm.Dependency.fromList

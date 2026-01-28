@@ -51,7 +51,6 @@ import Wasp.Generator.DepVersions
   )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.Monad as Generator
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
@@ -65,6 +64,7 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliase
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.Common (libsRootDirFromServerDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
@@ -74,8 +74,7 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
-genServer spec = do
-  npmDeps <- npmDepsFromWasp spec <$> Generator.getWaspLibs
+genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
@@ -92,6 +91,7 @@ genServer spec = do
     <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
+    npmDeps = npmDepsFromWasp spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
@@ -158,8 +158,8 @@ getPackageJsonPrismaField spec = object $ [] <> seedEntry
   where
     seedEntry = maybeToList $ Just . ("seed" .=) =<< getPackageJsonPrismaSeedField spec
 
-npmDepsFromWasp :: AppSpec -> [WaspLib.WaspLib] -> N.NpmDepsFromWasp
-npmDepsFromWasp spec waspLibs =
+npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
+npmDepsFromWasp spec =
   N.NpmDepsFromWasp $
     N.NpmDepsForPackage
       { N.dependencies =

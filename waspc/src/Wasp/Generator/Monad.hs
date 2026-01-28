@@ -4,28 +4,18 @@ module Wasp.Generator.Monad
   ( Generator,
     GeneratorError (..),
     GeneratorWarning (..),
-    GeneratorConfig (..),
     catchGeneratorError,
     logAndThrowGeneratorError,
     logGeneratorWarning,
     runGenerator,
-    makeGeneratorConfig,
-    getWaspLibs,
   )
 where
 
 import Control.Monad.Except (ExceptT, MonadError (throwError), runExceptT)
 import qualified Control.Monad.Except as MonadExcept
 import Control.Monad.Identity (Identity (runIdentity))
-import Control.Monad.RWS.Lazy
-import Control.Monad.Reader (ReaderT (runReaderT))
-import Control.Monad.State (State, runStateT)
+import Control.Monad.State (MonadState, State, modify, runStateT)
 import Data.List.NonEmpty (NonEmpty, fromList)
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
-
-data GeneratorConfig = GeneratorConfig
-  { gcWaspLibs :: [WaspLib.WaspLib]
-  }
 
 -- | Generator is a monad transformer stack where we abstract away the underlying
 -- concrete monad transformers with the helper functions below. This will allow us
@@ -35,15 +25,14 @@ data GeneratorConfig = GeneratorConfig
 -- The mechanism to catch errors is only there to assist in collecting more errors, not recover.
 -- There may optionally be additional errors or non-fatal warnings logged in the State.
 newtype Generator a = Generator
-  { _runGenerator :: ReaderT GeneratorConfig (ExceptT GeneratorError (State GeneratorState)) a
+  { _runGenerator :: ExceptT GeneratorError (State GeneratorState) a
   }
   deriving
     ( Functor,
       Applicative,
       Monad,
       MonadState GeneratorState,
-      MonadError GeneratorError,
-      MonadReader GeneratorConfig
+      MonadError GeneratorError
     )
 
 data GeneratorState = GeneratorState
@@ -68,11 +57,11 @@ instance Show GeneratorWarning where
 -- Runs the generator and either returns a result, or a list of 1 or more errors.
 -- Results in error if any error was ever logged and thrown (even if caught).
 -- Even if successful there may be warnings, so they are always included.
-runGenerator :: GeneratorConfig -> Generator a -> ([GeneratorWarning], Either (NonEmpty GeneratorError) a)
-runGenerator config generator =
+runGenerator :: Generator a -> ([GeneratorWarning], Either (NonEmpty GeneratorError) a)
+runGenerator generator =
   let (errorOrResult, finalState) =
         runIdentity $
-          runStateT (runExceptT (runReaderT (_runGenerator generator) config)) initialState
+          runStateT (runExceptT (_runGenerator generator)) initialState
    in (warnings finalState, loggedErrorsOrResult (errorOrResult, errors finalState))
   where
     initialState = GeneratorState {warnings = [], errors = []}
@@ -99,9 +88,3 @@ logAndThrowGeneratorError e = logGeneratorError >> throwError e
 -- more errors on the way up.
 catchGeneratorError :: Generator a -> (GeneratorError -> Generator a) -> Generator a
 catchGeneratorError = MonadExcept.catchError
-
-makeGeneratorConfig :: [WaspLib.WaspLib] -> GeneratorConfig
-makeGeneratorConfig waspLibs = GeneratorConfig {gcWaspLibs = waspLibs}
-
-getWaspLibs :: Generator [WaspLib.WaspLib]
-getWaspLibs = gcWaspLibs <$> ask

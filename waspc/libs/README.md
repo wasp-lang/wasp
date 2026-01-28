@@ -19,32 +19,13 @@ config objects and orchestrate the use of these libs.
 
 ## Lib Version
 
-We don't version the libraries by semantic versioning like usual npm packages.
-Instead, we use a fixed version `0.0.0` in the `package.json` of each lib.
+We version the libraries as the current Wasp compiler version e.g. `0.19.2`.
 They are considered to be an implementation detail of the Wasp CLI, so their version
 is whatever version the Wasp CLI is.
 
 When the Wasp CLI is shipped, the libs are packaged and shipped with it in the
 `waspc/data/` folder, and the Wasp CLI uses these local copies of the libs
 when generating the Wasp app.
-
-### `npm` cache busting
-
-`npm` caches installed packages based on their version, so if we used a fixed version
-like `0.0.0` for the libs, when a user updates their Wasp CLI `npm` would use the
-cached version of the lib instead of the new version that came with the updated Wasp CLI.
-
-To avoid this, the Wasp CLI computes a checksum of the tarball of the lib and uses
-that as the version when generating the Wasp app. This way, if a lib changes,
-the checksum changes, and `npm` will install the new version of the lib.
-
-```json
-{
-  "dependencies": {
-    "@wasp/lib-name": "file:./libs/lib-name-<checksum>.tgz"
-  }
-}
-```
 
 ## Lib Exports Naming Convention
 
@@ -103,6 +84,20 @@ To do that, you need to copy the compiled libs to the `waspc/data/` folder, whic
 packaged with the Wasp CLI.
 Run `./run build:libs` to compile the libs and copy them into `data/`.
 Then you can use `./run wasp-cli` as you normally would.
+
+### `npm` cache busting
+
+`npm` caches the installed packages based on their version. Since we don't change the lib version with each code change, rebuilding the libs and installing them in a Wasp app will install the old cached version.
+
+To bust the cache, use the `bust-libs-cache` command from the root of the Wasp app:
+
+```bash
+./run bust-libs-cache
+```
+
+This command removes all `@wasp.sh/lib-*` entries from `package-lock.json`, runs `wasp-cli compile`,
+and reinstalls packages. It's faster than deleting the entire `node_modules` directory and removing
+the `package-lock.json` file since it only targets Wasp lib packages.
 
 ## Adding a New Lib
 

@@ -28,6 +28,6 @@
     "prisma": "5.19.1",
     "typescript": "5.8.2",
     "vite": "^7.0.6",
-    "wasp-config": "file:../../../../.cabal/store/ghc-9.6.7/wspc-0.21.0-019aedf4/share/packages/wasp-config"
+    "wasp-config": "file:../../../../.cabal/store/ghc-9.6.7/wspc-0.21.0-ce00ffe5/share/packages/wasp-config"
   }
 }

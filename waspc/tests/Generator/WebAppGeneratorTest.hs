@@ -3,7 +3,7 @@ module Generator.WebAppGeneratorTest where
 import Data.Either (fromRight)
 import qualified Data.Map as M
 import qualified Data.Set as S
-import Fixtures
+import Fixtures (systemSPRoot)
 import StrongPath (relfile)
 import qualified StrongPath as SP
 import System.FilePath ((</>))
@@ -18,9 +18,10 @@ import Wasp.Generator.FileDraft
 import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
+import qualified Wasp.Generator.FileDraft.CopyLibDraft as CopyLibFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
-import Wasp.Generator.Monad (makeGeneratorConfig, runGenerator)
+import Wasp.Generator.Monad (runGenerator)
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
@@ -99,12 +100,10 @@ spec_WebAppGenerator = do
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
-      let waspLibs = []
-      let config = makeGeneratorConfig waspLibs
       let fileDrafts =
             fromRight
               (error "Expected Right but got Left")
-              (snd $ runGenerator config $ genWebApp testAppSpec)
+              (snd $ runGenerator $ genWebApp testAppSpec)
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
               concat
@@ -143,3 +142,4 @@ getFileDraftDstPath (FileDraftCopyFd fd) = SP.toFilePath $ CopyFD._dstPath fd
 getFileDraftDstPath (FileDraftCopyDirFd fd) = SP.toFilePath $ CopyDirFD._dstPath fd
 getFileDraftDstPath (FileDraftTextFd fd) = SP.toFilePath $ TextFD._dstPath fd
 getFileDraftDstPath (FileDraftCopyAndModifyTextFd fd) = SP.toFilePath $ CMTextFD._dstPath fd
+getFileDraftDstPath (FileDraftCopyLibFd fd) = SP.toFilePath $ CopyLibFD._dstPath fd

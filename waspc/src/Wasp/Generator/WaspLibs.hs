@@ -3,19 +3,20 @@ module Wasp.Generator.WaspLibs
   )
 where
 
-import StrongPath ((</>))
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
-import Wasp.Generator.Monad (Generator, getWaspLibs)
-import Wasp.Generator.WaspLibs.Common (libsRootDirInGeneratedCodeDir)
-import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import Wasp.Generator.FileDraft (FileDraft, createCopyLibFileDraft)
+import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.WaspLib
+  ( WaspLib,
+    getTarballPathInLibsSourceDir,
+    getTarballPathInProjectRootDir,
+  )
 
 genWaspLibs :: Generator [FileDraft]
-genWaspLibs = do
-  waspLibs <- getWaspLibs
-  return [mkLibCopyDraft waspLib | waspLib <- waspLibs]
+genWaspLibs = return $ mkLibCopyDraft <$> waspLibs
   where
-    mkLibCopyDraft :: WaspLib.WaspLib -> FileDraft
+    mkLibCopyDraft :: WaspLib -> FileDraft
     mkLibCopyDraft waspLib =
-      createCopyFileDraft
-        (libsRootDirInGeneratedCodeDir </> WaspLib.getTarballPathInLibsRootDir waspLib)
-        (WaspLib.waspDataDirTarballAbsPath waspLib)
+      createCopyLibFileDraft
+        (getTarballPathInProjectRootDir waspLib)
+        (getTarballPathInLibsSourceDir waspLib)
