@@ -5,8 +5,8 @@ import ShellCommands
     ShellCommandBuilder,
     WaspProjectContext,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+    inSnapshotWaspProjectDir,
     waspCliCompile,
-    withInSnapshotWaspProjectDir,
   )
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import StrongPath (reldir)
@@ -16,7 +16,7 @@ kitchenSinkSnapshotTest =
   makeSnapshotTest
     "kitchen-sink"
     [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|],
-      withInSnapshotWaspProjectDir
+      inSnapshotWaspProjectDir
         [ createDotEnvServerFile,
           normalizePostgresConnectionString,
           waspCliCompile

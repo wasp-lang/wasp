@@ -43,7 +43,7 @@ module ShellCommands
     createTestWaspProject,
     SnapshotTestContext (..),
     createSnapshotWaspProjectFromMinimalStarter,
-    withInSnapshotWaspProjectDir,
+    inSnapshotWaspProjectDir,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
   )
 where
@@ -306,10 +306,10 @@ createSnapshotWaspProjectFromMinimalStarter = do
   context <- ask
   waspCliNew context.waspProjectContext.waspProjectName Minimal
 
-withInSnapshotWaspProjectDir ::
+inSnapshotWaspProjectDir ::
   [ShellCommandBuilder WaspProjectContext ShellCommand] ->
   ShellCommandBuilder SnapshotTestContext ShellCommand
-withInSnapshotWaspProjectDir waspProjectCommandBuilders = do
+inSnapshotWaspProjectDir waspProjectCommandBuilders = do
   context <- ask
   return $
     unwords ["cd", fromAbsDir context.waspProjectContext.waspProjectDir]

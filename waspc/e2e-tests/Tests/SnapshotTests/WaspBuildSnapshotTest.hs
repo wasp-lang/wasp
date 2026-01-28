@@ -3,9 +3,9 @@ module Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 import ShellCommands
   ( buildAndRemoveWaspProjectDockerImage,
     createSnapshotWaspProjectFromMinimalStarter,
+    inSnapshotWaspProjectDir,
     setWaspDbToPSQL,
     waspCliBuild,
-    withInSnapshotWaspProjectDir,
   )
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 
@@ -14,7 +14,7 @@ waspBuildSnapshotTest =
   makeSnapshotTest
     "wasp-build"
     [ createSnapshotWaspProjectFromMinimalStarter,
-      withInSnapshotWaspProjectDir
+      inSnapshotWaspProjectDir
         [ setWaspDbToPSQL,
           waspCliBuild,
           buildAndRemoveWaspProjectDockerImage

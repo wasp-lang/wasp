@@ -5,9 +5,9 @@ import NeatInterpolation (trimming)
 import ShellCommands
   ( appendToPrismaFile,
     createSnapshotWaspProjectFromMinimalStarter,
+    inSnapshotWaspProjectDir,
     waspCliCompile,
     waspCliDbMigrateDev,
-    withInSnapshotWaspProjectDir,
   )
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 
@@ -16,7 +16,7 @@ waspMigrateSnapshotTest =
   makeSnapshotTest
     "wasp-migrate"
     [ createSnapshotWaspProjectFromMinimalStarter,
-      withInSnapshotWaspProjectDir
+      inSnapshotWaspProjectDir
         [ waspCliCompile,
           appendToPrismaFile taskPrismaModel,
           waspCliDbMigrateDev "foo"
