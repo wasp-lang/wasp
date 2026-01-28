@@ -4,6 +4,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.0.16",
+    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.21.0.tgz",
     "axios": "^1.4.0",
     "express": "~5.1.0",
     "jsdom": "^27.4.0",
@@ -12,7 +13,7 @@
     "prisma": "5.19.1",
     "react": "^19.2.1",
     "react-hook-form": "^7.45.4",
-    "react-router-dom": "^7.12.0",
+    "react-router": "^7.12.0",
     "superjson": "^2.2.1",
     "vitest": "^4.0.16",
     "zod": "^3.23.8"

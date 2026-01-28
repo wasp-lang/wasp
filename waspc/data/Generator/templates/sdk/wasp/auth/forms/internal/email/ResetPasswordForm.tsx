@@ -1,14 +1,14 @@
-import { useContext } from 'react'
 import { useForm } from 'react-hook-form'
+import { useLocation } from 'react-router'
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+
 import { resetPassword } from '../../../email/actions/passwordReset.js'
-import { useLocation } from 'react-router-dom'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
-import { AuthContext } from '../../Auth'
 
 // PRIVATE API
 export const ResetPasswordForm = () => {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<{ password: string; passwordConfirmation: string }>()
-  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useContext(AuthContext)
+  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useAuthContext()
   const location = useLocation()
   const token = new URLSearchParams(location.search).get('token')
   const onSubmit = async (data) => {
