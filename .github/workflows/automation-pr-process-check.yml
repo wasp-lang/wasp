@@ -1,0 +1,71 @@
+name: PR Process Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  process-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Get some context info via plain bash first
+      - name: Gather context
+        id: context
+        run: |
+          echo "latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo 'no-tags')" >> $GITHUB_OUTPUT
+          echo "cabal_version=$(grep -m1 '^version:' *.cabal | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - name: Run Claude Analysis
+        id: claude
+        uses: anthropics/claude-code-action@v1
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            You are a PR process compliance checker. Analyze this PR and output
+            ONLY a markdown report - do not take any actions, just analyze and report.
+
+            Context:
+            - PR #${{ github.event.pull_request.number }}
+            - Title: ${{ github.event.pull_request.title }}
+            - Latest release tag: ${{ steps.context.outputs.latest_tag }}
+            - Current cabal version: ${{ steps.context.outputs.cabal_version }}
+
+            Please READ the following files and the git diff, then produce a report:
+
+            1. Check the PR description for checklist compliance
+            2. Check if version in .cabal file needs bumping based on the diff
+            3. Check if CHANGELOG.md was updated
+
+            Output your analysis as clean markdown with:
+            - ✅ for passing items
+            - ⚠️ for warnings
+            - ❌ for issues
+
+            End with "## Action Items" listing what the author should address.
+
+            IMPORTANT: Only read files and analyze. Do not run any commands that
+            modify anything. Do not post comments. Just output your markdown report.
+
+          claude_args: |
+            --allowedTools "Read,Bash(git diff:*),Bash(git log:*),Bash(cat:*),Bash(grep:*),Bash(head:*),Bash(tail:*)"
+
+      # Separate step posts the comment - you control this completely
+      - name: Post PR Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ## 🔍 Process Compliance Check
+
+            ${{ steps.claude.outputs.conclusion }}
+
+            ---
+            <sub>Automated check run on commit ${{ github.sha }}</sub>
