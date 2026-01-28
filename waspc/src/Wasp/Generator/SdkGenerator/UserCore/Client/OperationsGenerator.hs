@@ -19,7 +19,7 @@ import Wasp.Generator.SdkGenerator.Common
     relDirToRelFileP,
   )
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -34,9 +34,9 @@ data ClientOpsTemplatesDir
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
-    [ genClientOpsFileCopy [relfile|internal/index.ts|],
-      genClientOpsFileCopy [relfile|hooks.ts|],
-      genClientOpsFileCopy [relfile|index.ts|]
+    [ genFileCopyInClientOps [relfile|internal/index.ts|],
+      genFileCopyInClientOps [relfile|hooks.ts|],
+      genFileCopyInClientOps [relfile|index.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec
@@ -44,22 +44,21 @@ genOperations spec =
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
   sequence
-    [ genClientOpsFileCopy [relfile|queries/core.ts|],
+    [ genFileCopyInClientOps [relfile|queries/core.ts|],
       genQueriesIndex spec
     ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
   sequence
-    [ genClientOpsFileCopy [relfile|actions/core.ts|],
+    [ genFileCopyInClientOps [relfile|actions/core.ts|],
       genActionsIndex spec
     ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|queries/index.ts|]) tmplData
   where
-    tmplFile = clientOpsDirInUserCoreTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
         [ "queries" .= map getQueryData (AS.getQueries spec)
@@ -67,9 +66,8 @@ genQueriesIndex spec =
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/index.ts|]) tmplData
   where
-    tmplFile = clientOpsDirInUserCoreTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
         [ "actions" .= map getActionData (AS.getActions spec)
@@ -131,9 +129,9 @@ getOperationTypeData operation = tmplData
             relDirToPosix $
               serverOperationsDirInSdkRootDir operation
 
-clientOpsDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) (Dir ClientOpsTemplatesDir)
-clientOpsDirInUserCoreTemplatesDir = [reldir|client/operations|]
+clientOpsDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) (Dir ClientOpsTemplatesDir)
+clientOpsDirInSdkTemplatesUserCoreProjectDir = [reldir|client/operations|]
 
-genClientOpsFileCopy :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
-genClientOpsFileCopy =
-  return . mkTmplFd . (clientOpsDirInUserCoreTemplatesDir </>)
+genFileCopyInClientOps :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
+genFileCopyInClientOps =
+  return . mkTmplFd . (clientOpsDirInSdkTemplatesUserCoreProjectDir </>)

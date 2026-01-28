@@ -12,7 +12,7 @@ import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFdWithData,
   )
 
@@ -26,10 +26,9 @@ genNewEmailSenderApi spec = case maybeEmailSender of
 
 genIndex :: EmailSender -> Generator FileDraft
 genIndex email =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (serverEmailDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
-    tmplFile = serverEmailDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
-serverEmailDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-serverEmailDirInUserCoreTemplatesDir = [reldir|server/email|]
+serverEmailDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+serverEmailDirInSdkTemplatesUserCoreProjectDir = [reldir|server/email|]

@@ -11,11 +11,11 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromJust, fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', fromRelFileP, parseRelFile, reldir, relfile, relfileP, (</>))
+import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', castRel, fromRelFileP, parseRelFile, reldir, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.JSON as AS.JSON
-import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss))
+import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -27,10 +27,10 @@ import Wasp.Generator.SdkGenerator.Common
   ( makeSdkImportPath,
   )
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
-    mkTmplFdWithDestAndData,
+    mkTmplFdWithDstAndData,
   )
 import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
@@ -49,9 +49,8 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
   where
-    tmplFile = serverJobsDirInUserCoreTemplatesDir </> [relfile|index.ts|]
     tmplData = object ["jobs" .= map getJobTmplData jobs]
     getJobTmplData (jobName, _) =
       object
@@ -61,10 +60,12 @@ genIndexTs jobs =
 
 genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
-  return $ mkTmplFdWithDestAndData destFile tmplFile (Just tmplData)
+  return $
+    mkTmplFdWithDstAndData
+      (castRel (serverJobsDirInSdkTemplatesUserCoreProjectDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
+      (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|_job.ts|])
+      (Just tmplData)
   where
-    destFile = [reldir|server/jobs|] </> fromJust (parseRelFile $ jobName ++ ".ts")
-    tmplFile = serverJobsDirInUserCoreTemplatesDir </> [relfile|_job.ts|]
     tmplData =
       object
         [ "jobName" .= jobName,
@@ -119,12 +120,16 @@ genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
-    sequence
-      [ genServerJobFileCopy [relfile|core/pgBoss/pgBoss.ts|],
-        genServerJobFileCopy [relfile|core/pgBoss/pgBossJob.ts|],
-        genServerJobFileCopy [relfile|core/pgBoss/types.ts|],
-        genServerJobFileCopy [relfile|core/pgBoss/index.ts|]
-      ]
+    sequence $ concatMap genJobExecutor jobExecutors
+    where
+      -- Per each defined job executor, we generate the needed files.
+      genJobExecutor :: JobExecutor -> [Generator FileDraft]
+      genJobExecutor PgBoss =
+        [ genFileCopyInServerJob [relfile|core/pgBoss/pgBoss.ts|],
+          genFileCopyInServerJob [relfile|core/pgBoss/pgBossJob.ts|],
+          genFileCopyInServerJob [relfile|core/pgBoss/types.ts|],
+          genFileCopyInServerJob [relfile|core/pgBoss/index.ts|]
+        ]
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
@@ -137,9 +142,9 @@ pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
 depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
 
-serverJobsDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-serverJobsDirInUserCoreTemplatesDir = [reldir|server/jobs|]
+serverJobsDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+serverJobsDirInSdkTemplatesUserCoreProjectDir = [reldir|server/jobs|]
 
-genServerJobFileCopy :: Path' Rel' File' -> Generator FileDraft
-genServerJobFileCopy =
-  return . mkTmplFd . (serverJobsDirInUserCoreTemplatesDir </>)
+genFileCopyInServerJob :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInServerJob =
+  return . mkTmplFd . (serverJobsDirInSdkTemplatesUserCoreProjectDir </>)

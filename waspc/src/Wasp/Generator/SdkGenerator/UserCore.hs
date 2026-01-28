@@ -75,18 +75,16 @@ genUserCoreTsconfigProject spec =
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData [relfile|client/config.ts|] tmplData
   where
-    tmplFile = [relfile|client/config.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
         ]
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ mkTmplFdWithData tmplFile tmplData
+genServerConfigFile spec = return $ mkTmplFdWithData [relfile|server/config.ts|] tmplData
   where
-    tmplFile = [relfile|server/config.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,

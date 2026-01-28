@@ -10,7 +10,7 @@ where
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Maybe (mapMaybe)
-import StrongPath (Abs, Dir, Path', castRel, toFilePath, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromRelFile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec
@@ -30,7 +30,7 @@ import Wasp.Generator.DepVersions
     reactVersion,
     superjsonVersion,
   )
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft, createTextFileDraft)
+import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.Common
@@ -88,23 +88,15 @@ genExternalCodeDir = sequence . mapMaybe genExternalFile
 genExternalFile :: EF.CodeFile -> Maybe (Generator FileDraft)
 genExternalFile file
   | fileName == "tsconfig.json" = Nothing
-  | extension `elem` [".js", ".jsx", ".ts", ".tsx"] = Just $ genExternalSourceFile file
-  | otherwise = Just $ genExternalResourceFile file
+  | otherwise = Just . return . createCopyFileDraft destFile . EF.fileAbsPath $ file
   where
-    fileName = FP.takeFileName filePath
-    extension = FP.takeExtension filePath
-    filePath = toFilePath $ EF.filePathInExtCodeDir file
-
-    genExternalSourceFile :: EF.CodeFile -> Generator FileDraft
-    genExternalSourceFile = return . createTextFileDraft destFile . EF.fileText
-
-    genExternalResourceFile :: EF.CodeFile -> Generator FileDraft
-    genExternalResourceFile = return . createCopyFileDraft destFile . EF.fileAbsPath
-
+    fileName = FP.takeFileName . fromRelFile $ externalFilePath
     destFile =
       sdkRootDirInGeneratedCodeDir
         </> extSrcDirInSdkRootDir
-        </> castRel (EF.filePathInExtCodeDir file)
+        </> castRel externalFilePath
+
+    externalFilePath = EF.filePathInExtCodeDir file
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =

@@ -18,7 +18,7 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Core.Common (CoreTemplatesDir, mkTmplFd, mkTmplFdWithData)
+import Wasp.Generator.SdkGenerator.Core.Common (SdkTemplatesCoreProjectDir, mkTmplFd, mkTmplFdWithData)
 import qualified Wasp.Generator.SdkGenerator.Core.Server.EmailSenderProviders as EmailSenderProviders
 
 genServerEmail :: AppSpec -> Generator [FileDraft]
@@ -41,14 +41,14 @@ genServerEmailCoreIndex :: EmailSender -> Generator FileDraft
 genServerEmailCoreIndex emailSender =
   return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverEmailDirInCoreTemplatesDir </> [relfile|core/index.ts|]
+    tmplFile = serverEmailDirInSdkTemplatesCoreProjectDir </> [relfile|core/index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson emailSender
 
 genServerEmailCoreTypes :: EmailSender -> Generator FileDraft
 genServerEmailCoreTypes emailSender =
   return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverEmailDirInCoreTemplatesDir </> [relfile|core/types.ts|]
+    tmplFile = serverEmailDirInSdkTemplatesCoreProjectDir </> [relfile|core/types.ts|]
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
     isDefaultFromFieldDefined = isJust defaultFromField
@@ -58,7 +58,7 @@ genServerEmailCoreHelpers :: EmailSender -> Generator FileDraft
 genServerEmailCoreHelpers emailSender =
   return $ mkTmplFdWithData tmplFile tmplData
   where
-    tmplFile = serverEmailDirInCoreTemplatesDir </> [relfile|core/helpers.ts|]
+    tmplFile = serverEmailDirInSdkTemplatesCoreProjectDir </> [relfile|core/helpers.ts|]
     tmplData =
       object
         [ "defaultFromField"
@@ -76,9 +76,7 @@ genServerEmailCoreHelpers emailSender =
 
 genServerEmailCoreProviderSetupFn :: EmailSender -> Generator FileDraft
 genServerEmailCoreProviderSetupFn emailSender =
-  return $ mkTmplFd tmplFile
-  where
-    tmplFile = EmailSenderProviders.setupFnFile . getEmailSenderProvider $ emailSender
+  return . mkTmplFd . EmailSenderProviders.setupFnFile . getEmailSenderProvider $ emailSender
 
 depsRequiredByEmailSenderProviders :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmailSenderProviders spec = maybeToList maybeNpmDepedency
@@ -94,5 +92,5 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.Mailgun -> EmailSenderProviders.mailgun
   AS.EmailSender.Dummy -> EmailSenderProviders.dummy
 
-serverEmailDirInCoreTemplatesDir :: Path' (Rel CoreTemplatesDir) Dir'
-serverEmailDirInCoreTemplatesDir = [reldir|server/email|]
+serverEmailDirInSdkTemplatesCoreProjectDir :: Path' (Rel SdkTemplatesCoreProjectDir) Dir'
+serverEmailDirInSdkTemplatesCoreProjectDir = [reldir|server/email|]

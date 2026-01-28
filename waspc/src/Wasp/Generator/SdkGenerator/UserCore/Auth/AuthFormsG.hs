@@ -18,7 +18,7 @@ import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( UserCoreTemplatesDir,
+  ( SdkTemplatesUserCoreProjectDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -29,36 +29,34 @@ import Wasp.Util ((<++>))
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
-    [ genAuthFormsFileCopy [relfile|Login.tsx|],
-      genAuthFormsFileCopy [relfile|Signup.tsx|],
-      genAuthFormsFileCopy [relfile|Auth.module.css|],
-      genAuthComponent auth,
-      genTypes auth
+    [ genAuthComponent auth,
+      genFileCopyInAuthForms [relfile|Auth.module.css|],
+      genTypes auth,
+      genFileCopyInAuthForms [relfile|Login.tsx|],
+      genFileCopyInAuthForms [relfile|Signup.tsx|]
     ]
     <++> genEmailForms auth
     <++> genInternalAuthComponents auth
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (authFormsDirInSdkTemplatesUserCoreProjectDir </> [relfile|Auth.tsx|]) tmplData
   where
-    tmplFile = authFormsDirInUserCoreTemplatesDir </> [relfile|Auth.tsx|]
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
-  return $ mkTmplFdWithData tmplFile tmplData
+  return $ mkTmplFdWithData (authFormsDirInSdkTemplatesUserCoreProjectDir </> [relfile|types.ts|]) tmplData
   where
-    tmplFile = authFormsDirInUserCoreTemplatesDir </> [relfile|types.ts|]
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailForms auth =
   genConditionally isEmailAuthEnabled $
     sequence
-      [ genAuthFormsFileCopy [relfile|ResetPassword.tsx|],
-        genAuthFormsFileCopy [relfile|ForgotPassword.tsx|],
-        genAuthFormsFileCopy [relfile|VerifyEmail.tsx|]
+      [ genFileCopyInAuthForms [relfile|ResetPassword.tsx|],
+        genFileCopyInAuthForms [relfile|ForgotPassword.tsx|],
+        genFileCopyInAuthForms [relfile|VerifyEmail.tsx|]
       ]
   where
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
@@ -74,50 +72,60 @@ genInternalAuthComponents auth =
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
         sequence
-          [ genAuthFormsFileCopy [relfile|internal/email/VerifyEmailForm.tsx|],
-            genAuthFormsFileCopy [relfile|internal/email/useEmail.ts|],
-            genAuthFormsFileCopy [relfile|internal/email/ForgotPasswordForm.tsx|],
-            genAuthFormsFileCopy [relfile|internal/email/ResetPasswordForm.tsx|]
+          [ genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
+            genFileCopyInAuthFormsInternal [relfile|email/useEmail.ts|],
+            genFileCopyInAuthFormsInternal [relfile|email/ForgotPasswordForm.tsx|],
+            genFileCopyInAuthFormsInternal [relfile|email/ResetPasswordForm.tsx|]
           ]
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
     genUsernameAndPasswordComponents =
       genConditionally isUsernameAndPasswordAuthEnabled $
         sequence
-          [ genAuthFormsFileCopy [relfile|internal/usernameAndPassword/useUsernameAndPassword.ts|]
+          [ genFileCopyInAuthFormsInternal [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
           ]
+
+    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
     isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =
   sequence
-    [ return $ mkTmplFdWithData tmplFile tmplData,
-      genAuthFormsFileCopy [relfile|internal/common/LoginSignupForm.module.css|]
+    [ genLoginSigunFormComponent,
+      genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
     ]
   where
-    tmplFile = authFormsDirInUserCoreTemplatesDir </> [relfile|internal/common/LoginSignupForm.tsx|]
-    tmplData =
-      object
-        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
-          "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
-          "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
-          "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
-          "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
-          "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-          "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-          "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
-        ]
-    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
-    isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
+    genLoginSigunFormComponent =
+      return $ mkTmplFdWithData (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|]) tmplData
+      where
+        tmplData =
+          object
+            [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+              "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
+              "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
+              "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+              "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
+              "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
+              "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
+              "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
+              "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
+              "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+            ]
+        areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
+        isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
 
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
 
-authFormsDirInUserCoreTemplatesDir :: Path' (Rel UserCoreTemplatesDir) Dir'
-authFormsDirInUserCoreTemplatesDir = [reldir|auth/forms|]
+authFormsDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+authFormsDirInSdkTemplatesUserCoreProjectDir = [reldir|auth/forms|]
 
-genAuthFormsFileCopy :: Path' Rel' File' -> Generator FileDraft
-genAuthFormsFileCopy =
-  return . mkTmplFd . (authFormsDirInUserCoreTemplatesDir </>)
+genFileCopyInAuthForms :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInAuthForms =
+  return . mkTmplFd . (authFormsDirInSdkTemplatesUserCoreProjectDir </>)
+
+authFormsInternalDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+authFormsInternalDirInSdkTemplatesDir = authFormsDirInSdkTemplatesUserCoreProjectDir </> [reldir|internal|]
+
+genFileCopyInAuthFormsInternal :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInAuthFormsInternal =
+  return . mkTmplFd . (authFormsInternalDirInSdkTemplatesDir </>)
