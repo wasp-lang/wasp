@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router'
 
 import { OAuthCallbackPage } from "../pages/OAuthCallback"
 

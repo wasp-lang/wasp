@@ -1,4 +1,4 @@
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 import { Link } from "wasp/client/router";
 
 import { tasks as tasksCrud } from "wasp/client/crud";

@@ -240,7 +240,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       ForgotPasswordForm,
       ResetPasswordForm,
     } from 'wasp/client/auth'
-    import { Link } from 'react-router-dom'
+    import { Link } from 'react-router'
 
     export function Login() {
       return (
@@ -326,7 +326,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       ForgotPasswordForm,
       ResetPasswordForm,
     } from 'wasp/client/auth'
-    import { Link } from 'react-router-dom'
+    import { Link } from 'react-router'
 
     export function Login() {
       return (

@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 import { initializeQueryClient } from '../operations'
 import { WaspApp, type WaspAppProps } from './components/WaspApp'
 

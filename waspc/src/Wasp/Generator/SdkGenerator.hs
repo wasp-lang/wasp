@@ -213,7 +213,7 @@ npmDepsForSdk spec =
             ("react", show reactVersion),
             ("react-dom", show reactDomVersion),
             ("@tanstack/react-query", reactQueryVersion),
-            ("react-router-dom", show reactRouterVersion),
+            ("react-router", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
           ]

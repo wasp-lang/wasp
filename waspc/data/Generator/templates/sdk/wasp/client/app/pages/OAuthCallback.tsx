@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { useState } from "react";
 import { type AxiosResponse } from "axios";
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router'
 import { useAuth } from "../../auth";
 import { api } from "../../../api";
 import { initSession } from "../../../auth/helpers/user";

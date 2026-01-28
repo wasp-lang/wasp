@@ -43,8 +43,8 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
           resolve: {
             // These packages rely on a single instance per page. Not deduping them
             // causes runtime errors (e.g., hook rule violation in react, QueryClient
-            // instance error in react-query, Invariant Error in react-router-dom).
-            dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router-dom"],
+            // instance error in react-query, Invariant Error in react-router).
+            dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router"],
             alias: [
               {
                 // Vite doesn't look for `.prisma/client` imports in the `node_modules`
