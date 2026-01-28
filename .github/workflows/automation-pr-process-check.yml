@@ -10,63 +10,80 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-      id-token: write
 
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      # Get some context info via plain bash first
-      - name: Gather context
-        id: context
+      - name: Install Claude Code
         run: |
-          echo "latest_tag=$(git describe --tags --abbrev=0 2>/dev/null || echo 'no-tags')" >> $GITHUB_OUTPUT
-          echo "cabal_version=$(grep -m1 '^version:' *.cabal | awk '{print $2}')" >> $GITHUB_OUTPUT
+          curl -fsSL https://claude.ai/install.sh | bash
+          echo "$HOME/.claude/bin" >> $GITHUB_PATH
 
       - name: Run Claude Analysis
-        id: claude
-        uses: anthropics/claude-code-action@v1
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          # Get some context
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'no-releases-yet')
+
+          # Run Claude in headless mode with restricted tools
+          claude -p "
+          You are a PR process compliance checker for a Haskell project.
+
+          Context:
+          - Latest release tag: $LATEST_TAG
+          - Base branch: ${{ github.base_ref }}
+
+          Please analyze this PR by:
+          1. Reading the .cabal file to get the current version
+          2. Reading CHANGELOG.md to check for updates
+          3. Running 'git diff origin/${{ github.base_ref }}...HEAD' to see changes
+
+          Then produce a markdown report checking:
+
+          **Version Bump**: Based on the diff, does this need a version bump?
+          - Breaking API changes = major bump
+          - New features = minor bump
+          - Bug fixes = patch bump
+          - Is the .cabal version appropriately updated vs the latest tag?
+
+          **Changelog**: Is CHANGELOG.md updated for this version?
+
+          Output format:
+          - ✅ for items that pass
+          - ⚠️ for warnings
+          - ❌ for issues
+
+          End with '## Action Items' listing what the author should do.
+          Keep it concise.
+          " \
+          --allowedTools "Read,Bash(git diff:*),Bash(git log:*),Bash(git describe:*),Bash(cat:*),Bash(grep:*),Bash(head:*)" \
+          --output-format text \
+          > claude_report.md
+
+          cat claude_report.md
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@v3
+        id: find-comment
         with:
-          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
-          prompt: |
-            You are a PR process compliance checker. Analyze this PR and output
-            ONLY a markdown report - do not take any actions, just analyze and report.
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-includes: "PR Process Check"
 
-            Context:
-            - PR #${{ github.event.pull_request.number }}
-            - Title: ${{ github.event.pull_request.title }}
-            - Latest release tag: ${{ steps.context.outputs.latest_tag }}
-            - Current cabal version: ${{ steps.context.outputs.cabal_version }}
-
-            Please READ the following files and the git diff, then produce a report:
-
-            1. Check the PR description for checklist compliance
-            2. Check if version in .cabal file needs bumping based on the diff
-            3. Check if CHANGELOG.md was updated
-
-            Output your analysis as clean markdown with:
-            - ✅ for passing items
-            - ⚠️ for warnings
-            - ❌ for issues
-
-            End with "## Action Items" listing what the author should address.
-
-            IMPORTANT: Only read files and analyze. Do not run any commands that
-            modify anything. Do not post comments. Just output your markdown report.
-
-          claude_args: |
-            --allowedTools "Read,Bash(git diff:*),Bash(git log:*),Bash(cat:*),Bash(grep:*),Bash(head:*),Bash(tail:*)"
-
-      # Separate step posts the comment - you control this completely
-      - name: Post PR Comment
+      - name: Post or update PR Comment
         uses: peter-evans/create-or-update-comment@v4
         with:
           issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          edit-mode: replace
           body: |
-            ## 🔍 Process Compliance Check
+            ## 🔍 PR Process Check
 
-            ${{ steps.claude.outputs.conclusion }}
+            ${{ github.event.pull_request.head.sha }}
 
             ---
-            <sub>Automated check run on commit ${{ github.sha }}</sub>
+
+          body-path: claude_report.md
