@@ -28,35 +28,32 @@ jobs:
           LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'no-releases-yet')
 
           claude -p "
-          You are a PR process compliance checker for a Haskell project.
+          You are a PR process compliance checker for the Wasp project (a Haskell-based full-stack web framework).
 
           Context:
           - Latest release tag: $LATEST_TAG
           - Base branch: ${{ github.base_ref }}
 
           Please analyze this PR by:
-          1. Reading the waspc/waspc.cabal file to get the current version
-          2. Reading waspc/ChangeLog.md to check for updates
-          3. Running 'git diff origin/${{ github.base_ref }}...HEAD' to see changes
+          1. Reading .github/pull_request_template.md to understand the PR checklist
+          2. Reading the waspc/waspc.cabal file to get the current version
+          3. Reading waspc/ChangeLog.md to check for updates
+          4. Running 'git diff origin/${{ github.base_ref }}...HEAD' to see all changes
+          5. Checking if relevant files were updated based on the type of change
 
-          Analyze the following:
-
-          **Version Bump**: Based on the diff, does this need a version bump?
-          - Breaking API changes = major bump
-          - New features = minor bump
-          - Bug fixes = patch bump
-          - Is the .cabal version appropriately updated vs the latest tag?
-
-          **Changelog**: Is waspc/ChangeLog.md updated for this version?
+          Based on the PR template, determine the type of change and check each applicable item in the checklist.
 
           Output format:
-          - ⚠️ for warnings
-          - ❌ for issues
+          - ✅ for items that are satisfied
+          - ⚠️ for warnings (might need attention)
+          - ❌ for issues (likely needs to be addressed)
+          - ➖ for items not applicable to this PR
 
-          Output only '## Action Items' listing what the author should do.
-          Keep it concise.
+          Output a '## PR Checklist Review' section with your findings organized by category.
+          Then output '## Action Items' listing what the author should do (if anything).
+          Keep it concise and actionable.
           " \
-          --allowedTools "Read,Bash(git diff:*),Bash(git log:*),Bash(git describe:*),Bash(cat:*),Bash(grep:*),Bash(head:*)" \
+          --allowedTools "Read,Bash(git diff:*),Bash(git log:*),Bash(git describe:*),Bash(cat:*),Bash(grep:*),Bash(head:*),Bash(ls:*),Bash(find:*)" \
           --output-format text \
           > claude_report.md
 
