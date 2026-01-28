@@ -1,14 +1,14 @@
 import { type Plugin } from 'vite'
 import path from 'path'
 
-let parsePathToUserCode: ParsePathToUserCodeFn;
+let parsePathToUserCode!: ParsePathToUserCodeFn;
 
 export function detectServerImports(): Plugin {
   return {
     name: 'wasp:detect-server-imports',
     enforce: 'pre',
     configResolved(config) {
-      parsePathToUserCode = createPathToUserCodeParser(config.root);
+      parsePathToUserCode = createPathToUserCodeParser(config.root)
     },
     resolveId(source, importer) {
       if (!importer) {
