@@ -50,7 +50,6 @@ jobs:
           **Changelog**: Is waspc/ChangeLog.md updated for this version?
 
           Output format:
-          - ✅ for items that pass
           - ⚠️ for warnings
           - ❌ for issues
 
