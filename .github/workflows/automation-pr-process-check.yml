@@ -35,8 +35,8 @@ jobs:
           - Base branch: ${{ github.base_ref }}
 
           Please analyze this PR by:
-          1. Reading the .cabal file to get the current version
-          2. Reading CHANGELOG.md to check for updates
+          1. Reading the waspc/waspc.cabal file to get the current version
+          2. Reading waspc/ChangeLog.md to check for updates
           3. Running 'git diff origin/${{ github.base_ref }}...HEAD' to see changes
 
           Analyze the following:
@@ -47,7 +47,7 @@ jobs:
           - Bug fixes = patch bump
           - Is the .cabal version appropriately updated vs the latest tag?
 
-          **Changelog**: Is CHANGELOG.md updated for this version?
+          **Changelog**: Is waspc/ChangeLog.md updated for this version?
 
           Output format:
           - ✅ for items that pass
