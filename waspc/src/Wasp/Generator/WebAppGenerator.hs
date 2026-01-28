@@ -27,9 +27,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
-import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.DepVersions
   ( axiosVersion,
     reactDomTypesVersion,
