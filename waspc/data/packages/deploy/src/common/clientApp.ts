@@ -13,9 +13,6 @@ export async function buildClient(
   { waspProjectDir }: { waspProjectDir: WaspProjectDir },
 ): Promise<string> {
   waspSays("Building web client for production...");
-  waspSays(
-    `If you configured a custom domain for the server, you should run the command with an env variable: ${serverUrlEnvVarName}=https://serverUrl.com <command>`,
-  );
 
   const clientBuildDir = getClientBuildDir(waspProjectDir);
   const npmCli = createCommandWithCwd("npm", clientBuildDir);
