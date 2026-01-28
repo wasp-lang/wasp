@@ -21,7 +21,7 @@ export function waspMigrateDb({
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
     name: "wasp-migrate-db",
-    cmd: waspCliCmd,
+    cmd: waspCliCmd.cmd,
     /**
      * We use the --name flag because sometimes we run apps without a migrations directory,
      * which causes Prisma to prompt for a migration name interactively. This would make
@@ -29,7 +29,7 @@ export function waspMigrateDb({
      * Prisma timestamps all migration filenames automatically.
      * See: https://github.com/wasp-lang/runner-action/issues/7
      */
-    args: ["db", "migrate-dev", "--name", "auto-migration"],
+    args: [...waspCliCmd.args, "db", "migrate-dev", "--name", "auto-migration"],
     cwd: pathToApp,
     extraEnv,
   });
@@ -46,8 +46,8 @@ export function waspStart({
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
     name: "wasp-start",
-    cmd: waspCliCmd,
-    args: ["start"],
+    cmd: waspCliCmd.cmd,
+    args: [...waspCliCmd.args, "start"],
     cwd: pathToApp,
     extraEnv,
   });
@@ -62,8 +62,8 @@ export function waspBuild({
 }): Promise<{ exitCode: number | null }> {
   return spawnWithLog({
     name: "wasp-build",
-    cmd: waspCliCmd,
-    args: ["build"],
+    cmd: waspCliCmd.cmd,
+    args: [...waspCliCmd.args, "build"],
     cwd: pathToApp,
   });
 }
@@ -104,8 +104,8 @@ export function waspBuildStart({
 
   return spawnWithLog({
     name: "wasp-build-start",
-    cmd: waspCliCmd,
-    args,
+    cmd: waspCliCmd.cmd,
+    args: [...waspCliCmd.args, ...args],
     cwd: pathToApp,
   });
 }
@@ -120,8 +120,8 @@ export async function getWaspVersion({
   const logger = createLogger("wasp-info");
   const { stdoutData, exitCode } = await spawnAndCollectOutput({
     name: "wasp-version",
-    cmd: waspCliCmd,
-    args: ["version"],
+    cmd: waspCliCmd.cmd,
+    args: [...waspCliCmd.args, "version"],
     cwd: pathToApp,
   });
   const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
@@ -157,8 +157,8 @@ export async function waspInfo({
   const logger = createLogger("wasp-info");
   const { stdoutData, exitCode } = await spawnAndCollectOutput({
     name: "wasp-info",
-    cmd: waspCliCmd,
-    args: ["info"],
+    cmd: waspCliCmd.cmd,
+    args: [...waspCliCmd.args, "info"],
     cwd: pathToApp,
   });
   const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
@@ -202,8 +202,8 @@ export async function waspTsSetup({
   const logger = createLogger("wasp-ts-setup");
   const { stderrData, exitCode } = await spawnAndCollectOutput({
     name: "wasp-ts-setup",
-    cmd: waspCliCmd,
-    args: ["ts-setup"],
+    cmd: waspCliCmd.cmd,
+    args: [...waspCliCmd.args, "ts-setup"],
     cwd: pathToApp,
   });
 

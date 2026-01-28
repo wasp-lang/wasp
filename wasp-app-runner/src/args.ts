@@ -5,8 +5,19 @@ import { Branded } from "./types.js";
 
 export type Mode = "dev" | "build";
 export type PathToApp = Branded<string, "PathToApp">;
-export type WaspCliCmd = Branded<string, "WaspCliCmd">;
+export type WaspCliCmd = Branded<
+  { cmd: string; args: string[] },
+  "WaspCliCmd"
+>;
 export type DockerImageName = Branded<string, "DockerImageName">;
+
+function parseWaspCliCmd(input: string): WaspCliCmd {
+  const parts = input.split(/\s+/);
+  return {
+    cmd: parts[0]!,
+    args: parts.slice(1),
+  } as WaspCliCmd;
+}
 
 export function parseArgs(): {
   mode: Mode;
@@ -37,7 +48,7 @@ export function parseArgs(): {
   return {
     mode,
     pathToApp: options.pathToApp as PathToApp,
-    waspCliCmd: options.waspCliCmd as WaspCliCmd,
+    waspCliCmd: parseWaspCliCmd(options.waspCliCmd),
     dbImage: options.dbImage as DockerImageName,
   };
 }
