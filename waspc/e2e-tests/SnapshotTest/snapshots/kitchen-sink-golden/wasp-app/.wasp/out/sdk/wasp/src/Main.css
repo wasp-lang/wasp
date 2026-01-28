@@ -1,0 +1,30 @@
+@import "tailwindcss" source(".");
+
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --color-primary-50: #fffee7;
+  --color-primary-100: #fffec1;
+  --color-primary-200: #fff886;
+  --color-primary-300: #ffec41;
+  --color-primary-400: #ffdb0d;
+  --color-primary-500: #ffcc00;
+  --color-primary-600: #d19500;
+  --color-primary-700: #a66a02;
+  --color-primary-800: #89530a;
+  --color-primary-900: #74430f;
+  --color-primary-950: #442304;
+}
+
+@utility link {
+  @apply text-primary-600 hover:text-primary-800 focus:ring-primary-500 underline underline-offset-4 focus:ring-2 focus:ring-offset-2 focus:outline-hidden;
+}
+
+@utility card {
+  @apply rounded-xl border border-gray-200 bg-white p-6 shadow-xs transition-all duration-200;
+}
+
+@utility feature-title {
+  @apply text-2xl font-semibold;
+}

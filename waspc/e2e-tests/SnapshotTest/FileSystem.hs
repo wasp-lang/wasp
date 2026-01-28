@@ -19,8 +19,7 @@ where
 import Data.Maybe (fromJust)
 import FileSystem (E2eTestsDir, GitRootDir, e2eTestsDirInWaspcDir, getE2eTestsDir, waspcDirInGitRootDir)
 import SnapshotTest.Snapshot (SnapshotType (..))
-import StrongPath (Dir, File, Path, Path', Rel, castDir, parseRelDir, reldir, relfile, (</>))
-import StrongPath.Types (Abs)
+import StrongPath (Abs, Dir, File, Path, Path', Rel, castDir, parseRelDir, reldir, relfile, (</>))
 import Wasp.Project.Common (WaspProjectDir)
 
 -- | The directory where all snapshots are stored.
@@ -48,7 +47,7 @@ asWaspProjectDir = castDir
 data SnapshotFileListManifestFile
 
 snapshotsDirInE2eTests :: Path' (Rel E2eTestsDir) (Dir SnapshotsDir)
-snapshotsDirInE2eTests = [reldir|snapshots|]
+snapshotsDirInE2eTests = [reldir|SnapshotTest/snapshots|]
 
 getSnapshotsDir :: IO (Path' Abs (Dir SnapshotsDir))
 getSnapshotsDir = (</> snapshotsDirInE2eTests) <$> getE2eTestsDir
@@ -74,4 +73,4 @@ snapshotDirInGitRootDir snapshotTestName snapshotType =
 -- | Inverse of 'snapshotDirInGitRootDir'.
 -- NOTE: If you change this function, change the other one too.
 gitRootFromSnapshotDir :: Path' (Rel SnapshotDir) (Dir GitRootDir)
-gitRootFromSnapshotDir = [reldir|../../../../|]
+gitRootFromSnapshotDir = [reldir|../../../../../|]

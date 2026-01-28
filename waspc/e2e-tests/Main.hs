@@ -1,11 +1,11 @@
 import SnapshotTest (runSnapshotTest)
+import SnapshotTest.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
+import SnapshotTest.WaspBuildSnapshotTest (waspBuildSnapshotTest)
+import SnapshotTest.WaspCompileSnapshotTest (waspCompileSnapshotTest)
+import SnapshotTest.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
+import SnapshotTest.WaspNewSnapshotTest (waspNewSnapshotTest)
 import System.Info (os)
 import Test.Tasty (TestTree, defaultMain, testGroup)
-import Tests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
-import Tests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
-import Tests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
-import Tests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
-import Tests.WaspNewSnapshotTest (waspNewSnapshotTest)
 
 main :: IO ()
 main = do

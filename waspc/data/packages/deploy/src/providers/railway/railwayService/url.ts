@@ -1,4 +1,6 @@
+import assert from "node:assert";
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
+import { waspInfo } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
 import {
   ClientServiceName,
@@ -41,7 +43,32 @@ export async function generateServiceUrl(
   if (domainAlreadyExistsPattern.test(result.stdout)) {
     return extractServiceUrlFromString(result.stdout);
   } else {
-    return RailwayCliDomainSchema.parse(result.json()).domain;
+    const { domains } = RailwayCliDomainSchema.parse(result.json());
+
+    const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
+    if (REACT_APP_API_URL) {
+      assert(
+        domains.includes(REACT_APP_API_URL),
+        `The domain specified in REACT_APP_API_URL (${REACT_APP_API_URL}) does not match any of the domains returned by Railway CLI: ${domains.join(", ")}`,
+      );
+
+      waspInfo(
+        `Using domain from REACT_APP_API_URL environment variable: ${REACT_APP_API_URL}`,
+      );
+
+      return REACT_APP_API_URL;
+    } else {
+      const domain = domains[0];
+
+      if (domains.length > 1) {
+        waspInfo(`Multiple domains detected, using the first one: ${domain}.`);
+        waspInfo(
+          "If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com <command>",
+        );
+      }
+
+      return domain;
+    }
   }
 }
 
