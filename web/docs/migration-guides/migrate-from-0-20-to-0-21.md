@@ -2,6 +2,8 @@
 title: Migration from 0.20.X to 0.21.X
 ---
 
+import NetlifyTomlConfig from '../deployment/deployment-methods/\_netlify-toml-config.md'
+
 To install the latest version of Wasp, open your terminal and run:
 
 <Tabs>
@@ -302,6 +304,18 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 8. Enjoy your updated Wasp app
+### 8. Add `netlify.toml` if deploying to Netlify
+
+**If you're not deploying to Netlify, you can skip this step.**
+
+Wasp no longer generates a `netlify.toml` file in your project. If you're deploying to Netlify, you'll need to create this file manually in your project root.
+
+Create a `netlify.toml` file with the following content:
+
+<NetlifyTomlConfig />
+
+For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
+
+### 9. Enjoy your updated Wasp app
 
 That's it!

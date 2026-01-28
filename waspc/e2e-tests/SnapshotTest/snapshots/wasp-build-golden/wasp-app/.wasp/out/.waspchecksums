@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "0affd64bf596d8e306555dc79897ba8607d825bc408bbc61ab8d39bc5b4cbbc0"
+        "79a40c490e5592b9bbc5a2e91b748ad3d8c7481ad39aef43cf12b2f1c450e6cf"
     ],
     [
         [
@@ -19,6 +19,13 @@
             "db/schema.prisma"
         ],
         "98426d54df43304f01a97c496cfff3a70d47d94c066f16685dd7035ef2510e46"
+    ],
+    [
+        [
+            "file",
+            "libs/auth/wasp.sh-lib-auth-0.21.0.tgz"
+        ],
+        "32a9f18afec1abb1fe8770226367f0cc7be7b02958b4ac2abca8753616f5b403"
     ],
     [
         [
@@ -151,7 +158,7 @@
             "file",
             "sdk/wasp/client/router/Link.tsx"
         ],
-        "55028462a72bdf7feaff65cd7407d3ecd9497eba12b82b55c1562930f42be367"
+        "d1a6f48d96f50b2900324f221f1fafa70a04bc9b5bba7d1dc78ffebfb7d2704b"
     ],
     [
         [
@@ -242,7 +249,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "42676a9d64e96e9b734442e1c23839c52a38f8783a2ac01aab54e1ccb283862f"
+        "f969c20f4af1821ac0d6f9817287c563e866861115270f90b5988ae295ced8b0"
     ],
     [
         [
@@ -487,7 +494,7 @@
             "file",
             "server/package.json"
         ],
-        "f108c5417d350d18aee59ae0fa1024cd14d5386cbcfbd13c53b6c014c88088ef"
+        "f8d4e4a04d6cca68ef9a6b736fddfca345a645119be0bb56b3ec496e6730da1b"
     ],
     [
         [
@@ -583,16 +590,9 @@
     [
         [
             "file",
-            "web-app/netlify.toml"
-        ],
-        "56ab3a5a45f041facffdebef3f0eeddcbddbeb67a9fc62dc8a2924e92d73a715"
-    ],
-    [
-        [
-            "file",
             "web-app/package.json"
         ],
-        "918d4fbe8b475bfe70ccecb243f01a52b0cfc55b550e7ef6897c576916a47677"
+        "cc45bd860d23ceac47e9fbf5580153561b6783b976efeab045941e39004a7e65"
     ],
     [
         [
@@ -718,7 +718,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "978617cc55c35abdd65bcc6cfac3522c31e82c442f7499bb33bfb1451ea9d847"
+        "e83faff5ea3ca1a742e7181276a91d525f20824f918407c96c443b592ee81682"
     ],
     [
         [

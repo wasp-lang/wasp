@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "59c3c8095e0851c430a2aae37c8031b4d094cba09f04d1dbd8a94cf11b91c5a8"
+        "676e1ca39b46ceeb296a989dd721ad1d7123483d8be5633f5d34ecf9aa3c0a7e"
     ],
     [
         [
@@ -26,6 +26,13 @@
             "db/schema.prisma"
         ],
         "0c62bb376ae204c687219387c06a25a9aef4bed05e7592526dbe1542bae59643"
+    ],
+    [
+        [
+            "file",
+            "libs/auth/wasp.sh-lib-auth-0.21.0.tgz"
+        ],
+        "32a9f18afec1abb1fe8770226367f0cc7be7b02958b4ac2abca8753616f5b403"
     ],
     [
         [
@@ -88,7 +95,7 @@
             "file",
             "sdk/wasp/auth/forms/Auth.tsx"
         ],
-        "6603800c5dd60b5384d5ce9f6679fe1937d1a9250cdd923f09df549dd7959589"
+        "785bac055550f92ce94b9457dd157a2a59e298081791ccff98b11c29162408e9"
     ],
     [
         [
@@ -172,28 +179,28 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "f846b3c613af4a671610a015f9d5fc1267a830ddfdb874197a508eac10ae396b"
+        "410308a920630ddf900870ef517399ef8eecdc9a109df1dd915b8e5f8497cbd5"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx"
         ],
-        "1334b84918066bb2cfc5af941854a8d13bdad286dc001b2425b5fe31a7354590"
+        "0cffa908694b6eb863d094c1e0027fd92876fe58e244a2ee092ef2aa38f07c12"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "2445d65b02e8607fe17f4ce1b21261a30a7f5e142db97cd824cd53a415e20daa"
+        "a31b0060f7605d31ccd6404dc779fe7fc8c1e70532a75c6584c705b88f61c363"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
         ],
-        "a10134e06a240982ea5e84bcc2eaaac4062e96481f3ba9cdf458b7cbb37ae30b"
+        "42fe32d173a9cc6aa759e434f6ad5894c85e82d6b534312927e170be52c9ea19"
     ],
     [
         [
@@ -242,7 +249,7 @@
             "file",
             "sdk/wasp/auth/forms/types.ts"
         ],
-        "560d5a2bd1192aed46c08e7d776c5727a57e735e180d5e8bd12c49dd4dc270c7"
+        "4cc8525de62fe00cdb13b6609556c9fc29693baaf75d707a37585e0f2bf5a407"
     ],
     [
         [
@@ -291,7 +298,7 @@
             "file",
             "sdk/wasp/auth/jwt.ts"
         ],
-        "4ebc9aa5b9986270a6b49ce2a9fd56dc45a9beed0e3eb3ddaba45a384f17b28d"
+        "5df76c69b9aae0cabe91ab0e93217a3f618097d7f02a7e10e4fbcc92b05b0aef"
     ],
     [
         [
@@ -312,7 +319,7 @@
             "file",
             "sdk/wasp/auth/password.ts"
         ],
-        "20b2cc9b5f2941419a91cb14e55edc282b9dec6abe366dec83eb230250ff4754"
+        "081a715926ee3bd14700d32cfc4d6c27994b205c52ad28e741406f2c9b5ceb84"
     ],
     [
         [
@@ -557,7 +564,7 @@
             "file",
             "sdk/wasp/client/router/Link.tsx"
         ],
-        "55028462a72bdf7feaff65cd7407d3ecd9497eba12b82b55c1562930f42be367"
+        "d1a6f48d96f50b2900324f221f1fafa70a04bc9b5bba7d1dc78ffebfb7d2704b"
     ],
     [
         [
@@ -676,7 +683,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "ed030de123cfb632d277968013055b58b8fe2b9c0d0da63f2fb9c5138eaea3d0"
+        "16a35b784f3801cea66ef4b20300374e233bc278b7fa2b7694aa235e20817673"
     ],
     [
         [
@@ -1537,7 +1544,7 @@
             "file",
             "server/package.json"
         ],
-        "3d13fedfc6de232a41e0120dff29da4079077593787da79ea154e4b82b9ed9bd"
+        "ee94b330db04e9355d0081e4166ab4403a2407a3a51792f2e36bf871013ff523"
     ],
     [
         [
@@ -1775,7 +1782,7 @@
             "file",
             "server/src/auth/providers/oauth/cookies.ts"
         ],
-        "d3550ba07c6685f033962a47b326609f3a15ab5456638b9a4cf6fbb84379044c"
+        "8171c10fd4a07294f0b1121575bb1a3cfba0859167e3f4dab6004b6eff0d7f73"
     ],
     [
         [
@@ -2284,16 +2291,9 @@
     [
         [
             "file",
-            "web-app/netlify.toml"
-        ],
-        "56ab3a5a45f041facffdebef3f0eeddcbddbeb67a9fc62dc8a2924e92d73a715"
-    ],
-    [
-        [
-            "file",
             "web-app/package.json"
         ],
-        "918d4fbe8b475bfe70ccecb243f01a52b0cfc55b550e7ef6897c576916a47677"
+        "cc45bd860d23ceac47e9fbf5580153561b6783b976efeab045941e39004a7e65"
     ],
     [
         [
@@ -2433,7 +2433,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "978617cc55c35abdd65bcc6cfac3522c31e82c442f7499bb33bfb1451ea9d847"
+        "e83faff5ea3ca1a742e7181276a91d525f20824f918407c96c443b592ee81682"
     ],
     [
         [

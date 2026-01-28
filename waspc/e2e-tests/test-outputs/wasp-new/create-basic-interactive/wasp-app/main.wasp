@@ -1,0 +1,100 @@
+app waspApp {
+  wasp: {
+    version: "^0.21.0"
+  },
+  title: "wasp-app",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ],
+  auth: {
+    userEntity: User,
+    methods: {
+      email: {
+        fromField: {
+          name: "Basic App",
+          email: "hello@example.com"
+        },
+        userSignupFields: import { userSignupFields } from "@src/auth/email/userSignupFields",
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute,
+        }
+      },
+    },
+    onAuthSucceededRedirectTo: "/",
+    onAuthFailedRedirectTo: "/login",
+  },
+  emailSender: {
+    provider: Dummy,
+  },
+  client: {
+    rootComponent: import { App } from "@src/App",
+  }
+}
+
+// #region Auth
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { LoginPage } from "@src/auth/email/LoginPage"
+}
+
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import { SignupPage } from "@src/auth/email/SignupPage"
+}
+
+route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
+page RequestPasswordResetPage {
+  component: import { RequestPasswordResetPage } from "@src/auth/email/RequestPasswordResetPage",
+}
+
+route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
+page PasswordResetPage {
+  component: import { PasswordResetPage } from "@src/auth/email/PasswordResetPage",
+}
+
+route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
+page EmailVerificationPage {
+  component: import { EmailVerificationPage } from "@src/auth/email/EmailVerificationPage",
+}
+// #endregion Auth
+
+// #region Tasks
+route TasksRoute { path: "/", to: TasksPage }
+page TasksPage {
+  authRequired: true,
+  component: import { TasksPage } from "@src/tasks/TasksPage"
+}
+
+query getTasks {
+  fn: import { getTasks } from "@src/tasks/queries",
+  entities: [Task, Tag]
+}
+
+action createTask {
+  fn: import { createTask } from "@src/tasks/actions",
+  entities: [Task]
+}
+
+action updateTaskStatus {
+  fn: import { updateTaskStatus } from "@src/tasks/actions",
+  entities: [Task]
+}
+
+action deleteCompletedTasks {
+  fn: import { deleteCompletedTasks } from "@src/tasks/actions",
+  entities: [Task],
+}
+
+query getTags {
+  fn: import { getTags } from "@src/tags/queries",
+  entities: [Tag]
+}
+
+action createTag {
+  fn: import { createTag } from "@src/tags/actions",
+  entities: [Tag]
+}
+// #endregion Tasks
