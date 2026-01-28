@@ -22,11 +22,13 @@ DEFAULT_COLOR="\033[39m"
 WASP_PACKAGES_COMPILE="for pkg in ${SCRIPT_DIR}/data/packages/*/package.json; do \
   (cd \$(dirname \$pkg) && npm install && npm run build); \
 done"
+WASP_LIBS_COMPILE="${SCRIPT_DIR}/tools/install_libs_to_data_dir.sh"
+WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
 BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
-BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
+BUILD_ALL_CMD="$WASP_ALL_DEPS_COMPILE && $BUILD_HS_CMD"
 
-INSTALL_CMD="$WASP_PACKAGES_COMPILE && cabal install --overwrite-policy=always"
+INSTALL_CMD="$WASP_ALL_DEPS_COMPILE && cabal install --overwrite-policy=always"
 
 # Testing
 WASPC_UNIT_TESTS_CMD="cabal test waspc-tests"
@@ -192,6 +194,9 @@ case $COMMAND in
     ;;
   build:packages)
     echo_and_eval "$WASP_PACKAGES_COMPILE"
+    ;;
+  build:libs)
+    echo_and_eval "$WASP_LIBS_COMPILE"
     ;;
   install)
     echo_and_eval "$INSTALL_CMD"

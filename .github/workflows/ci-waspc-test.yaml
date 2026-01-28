@@ -78,13 +78,17 @@ jobs:
           npm ci
           npm test
 
-      - name: Compile TS packages
+      - name: Compile TS packages and libs
         if: runner.os == 'Linux' || runner.os == 'macOS'
-        run: ./run build:packages
+        run: |
+          ./run build:packages
+          ./tools/install_libs_to_data_dir.sh
 
-      - name: Compile TS packages
+      - name: Compile TS packages and libs
         if: runner.os == 'Windows'
-        run: ./run.ps1 build:packages
+        run: |
+          ./run.ps1 build:packages
+          ./tools/install_libs_to_data_dir.ps1
         shell: pwsh
 
       - name: Build external dependencies

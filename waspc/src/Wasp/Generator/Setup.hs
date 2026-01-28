@@ -11,11 +11,12 @@ import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Message as Msg
 
-runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
-runSetup spec projectRootDir sendMessage = do
-  installNpmDependenciesWithInstallRecord spec projectRootDir >>= \case
+runSetup :: AppSpec -> [WaspLib.WaspLib] -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
+runSetup spec waspLibs projectRootDir sendMessage = do
+  installNpmDependenciesWithInstallRecord spec waspLibs projectRootDir >>= \case
     Right () -> do
       sendMessage $ Msg.Success "Successfully completed npm install."
       setUpDatabase spec projectRootDir sendMessage >>= \case

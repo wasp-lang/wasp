@@ -51,6 +51,7 @@ import Wasp.Generator.DepVersions
   )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
+import qualified Wasp.Generator.Monad as Generator
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.NpmWorkspaces (serverPackageName)
@@ -64,6 +65,8 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliase
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
+import Wasp.Generator.WaspLibs.Common (libsRootDirFromServerDir)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -71,12 +74,13 @@ import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 
 genServer :: AppSpec -> Generator [FileDraft]
-genServer spec =
+genServer spec = do
+  npmDeps <- npmDepsFromWasp spec <$> Generator.getWaspLibs
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
       genTsConfigJson spec,
-      genPackageJson spec (npmDepsFromWasp spec),
+      genPackageJson spec npmDeps,
       genGitignore,
       genNodemon
     ]
@@ -154,8 +158,8 @@ getPackageJsonPrismaField spec = object $ [] <> seedEntry
   where
     seedEntry = maybeToList $ Just . ("seed" .=) =<< getPackageJsonPrismaSeedField spec
 
-npmDepsFromWasp :: AppSpec -> N.NpmDepsFromWasp
-npmDepsFromWasp spec =
+npmDepsFromWasp :: AppSpec -> [WaspLib.WaspLib] -> N.NpmDepsFromWasp
+npmDepsFromWasp spec waspLibs =
   N.NpmDepsFromWasp $
     N.NpmDepsForPackage
       { N.dependencies =
@@ -168,7 +172,8 @@ npmDepsFromWasp spec =
               ("helmet", "^6.0.0"),
               ("superjson", show superjsonVersion)
             ]
-            ++ depsRequiredByWebSockets spec,
+            ++ depsRequiredByWebSockets spec
+            ++ waspLibsNpmDeps,
         N.devDependencies =
           Npm.Dependency.fromList
             [ ("nodemon", "^2.0.19"),
@@ -188,6 +193,8 @@ npmDepsFromWasp spec =
       }
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
+
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromServerDir) waspLibs
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec

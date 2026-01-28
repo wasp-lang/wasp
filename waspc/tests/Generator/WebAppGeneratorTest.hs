@@ -20,7 +20,7 @@ import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
-import Wasp.Generator.Monad (runGenerator)
+import Wasp.Generator.Monad (makeGeneratorConfig, runGenerator)
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import Wasp.Generator.WebAppGenerator
 import qualified Wasp.Generator.WebAppGenerator.Common as Common
@@ -99,10 +99,12 @@ spec_WebAppGenerator = do
     --   that they will successfully be written, it checks only that their
     --   destinations are correct.
     it "Given a simple AppSpec, creates file drafts at expected destinations" $ do
+      let waspLibs = []
+      let config = makeGeneratorConfig waspLibs
       let fileDrafts =
             fromRight
               (error "Expected Right but got Left")
-              (snd $ runGenerator $ genWebApp testAppSpec)
+              (snd $ runGenerator config $ genWebApp testAppSpec)
       let expectedFileDraftDstPaths =
             map (SP.toFilePath Common.webAppRootDirInProjectRootDir </>) $
               concat

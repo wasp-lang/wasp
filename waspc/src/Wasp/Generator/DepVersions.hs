@@ -30,6 +30,7 @@ superjsonVersion = SV.backwardsCompatibleWith $ SV.Version 2 2 1
 typescriptVersion :: SV.Version
 typescriptVersion = SV.Version 5 8 2
 
+-- When updating the React version, also update it in `peerDependencies` in `waspc/libs/auth/package.json`.
 reactVersion :: SV.ComparatorSet
 reactVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 1
 
@@ -38,6 +39,7 @@ reactDomVersion :: SV.ComparatorSet
 reactDomVersion = reactVersion
 
 -- Follows React major version
+-- When updating the React types version, also update it in `devDependencies` in `waspc/libs/auth/package.json`.
 reactTypesVersion :: SV.ComparatorSet
 reactTypesVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 7
 
