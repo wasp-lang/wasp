@@ -83,13 +83,13 @@ prepareSnapshotTestData snapshotTest = do
       }
 
 createSnapshotTestTree :: SnapshotTestData -> TestTree
-createSnapshotTestTree prepared =
+createSnapshotTestTree snapshotTestData =
   testGroup
-    prepared.name
+    snapshotTestData.name
     ( defineSnapshotTestCases
-        prepared.currentSnapshotDir
-        prepared.goldenSnapshotDir
-        prepared.currentSnapshotFilesForContentCheck
+        snapshotTestData.currentSnapshotDir
+        snapshotTestData.goldenSnapshotDir
+        snapshotTestData.currentSnapshotFilesForContentCheck
     )
 
 -- | Sets up the snapshot test environment by:
