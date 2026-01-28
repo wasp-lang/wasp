@@ -17,7 +17,13 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning (GenericGeneratorWarning), logGeneratorWarning, runGenerator)
+import Wasp.Generator.Monad
+  ( Generator,
+    GeneratorError,
+    GeneratorWarning (GenericGeneratorWarning),
+    logGeneratorWarning,
+    runGenerator,
+  )
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
@@ -25,6 +31,7 @@ import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
+import Wasp.Generator.WaspLibs (genWaspLibs)
 import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
@@ -62,6 +69,7 @@ genApp spec = do
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
+    <++> genWaspLibs
 
 warnOverriddenDeps :: AppSpec -> Generator ()
 warnOverriddenDeps spec =

@@ -63,7 +63,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 ## Adding a Second Page
 
-To add more pages, you can create another set of **page** and **route** declarations. You can even add parameters to the URL path, using the same syntax as [React Router](https://reactrouter.com/en/6.26.1). Let's test this out by adding a new page:
+To add more pages, you can create another set of **page** and **route** declarations. You can even add parameters to the URL path, using the same syntax as [React Router](https://reactrouter.com/7.12.0/start/declarative/routing#dynamic-segments). Let's test this out by adding a new page:
 
 ```wasp title="main.wasp"
 route HelloRoute { path: "/hello/:name", to: HelloPage }
@@ -72,10 +72,10 @@ page HelloPage {
 }
 ```
 
-When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router-dom` to access the `name` parameter:
+When a user visits `/hello/their-name`, Wasp renders the component exported from `src/HelloPage.{jsx,tsx}` and you can use the `useParams` hook from `react-router` to access the `name` parameter:
 
 ```tsx title="src/HelloPage.tsx" auto-js
-import { useParams } from "react-router-dom";
+import { useParams } from "react-router";
 
 export const HelloPage = () => {
   const { name } = useParams<"name">();
