@@ -4,7 +4,7 @@ index 0000000..ee62723
 --- /dev/null
 +++ b/src/SignupPage.tsx
 @@ -0,0 +1,14 @@
-+import { Link } from "react-router-dom";
++import { Link } from "react-router";
 +import { SignupForm } from "wasp/client/auth";
 +
 +export const SignupPage = () => {
