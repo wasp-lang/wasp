@@ -7,6 +7,7 @@ module Wasp.Generator.FileDraft
     createTextFileDraft,
     createCopyDirFileDraft,
     createCopyAndModifyTextFileDraft,
+    createCopyLibFileDraft,
   )
 where
 
@@ -19,10 +20,12 @@ import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy)
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
 import qualified Wasp.Generator.FileDraft.CopyFileDraft as CopyFD
+import qualified Wasp.Generator.FileDraft.CopyLibDraft as CopyLibFD
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import qualified Wasp.Generator.FileDraft.TextFileDraft as TextFD
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Generator.WaspLibs.Common (LibsSourceDir)
 
 -- | FileDraft unites different file draft types into a single type,
 --   so that in the rest of the system they can be passed around as heterogeneous
@@ -37,6 +40,7 @@ data FileDraft
   | FileDraftCopyDirFd CopyDirFD.CopyDirFileDraft
   | FileDraftTextFd TextFD.TextFileDraft
   | FileDraftCopyAndModifyTextFd CMTextFD.CopyAndModifyTextFileDraft
+  | FileDraftCopyLibFd CopyLibFD.CopyLibDraft
 
 instance Writeable FileDraft where
   write dstDir (FileDraftTemplateFd draft) = write dstDir draft
@@ -44,18 +48,21 @@ instance Writeable FileDraft where
   write dstDir (FileDraftCopyDirFd draft) = write dstDir draft
   write dstDir (FileDraftTextFd draft) = write dstDir draft
   write dstDir (FileDraftCopyAndModifyTextFd draft) = write dstDir draft
+  write dstDir (FileDraftCopyLibFd draft) = write dstDir draft
 
   getChecksum (FileDraftTemplateFd draft) = getChecksum draft
   getChecksum (FileDraftCopyFd draft) = getChecksum draft
   getChecksum (FileDraftCopyDirFd draft) = getChecksum draft
   getChecksum (FileDraftTextFd draft) = getChecksum draft
   getChecksum (FileDraftCopyAndModifyTextFd draft) = getChecksum draft
+  getChecksum (FileDraftCopyLibFd draft) = getChecksum draft
 
   getDstPath (FileDraftTemplateFd draft) = getDstPath draft
   getDstPath (FileDraftCopyFd draft) = getDstPath draft
   getDstPath (FileDraftCopyDirFd draft) = getDstPath draft
   getDstPath (FileDraftTextFd draft) = getDstPath draft
   getDstPath (FileDraftCopyAndModifyTextFd draft) = getDstPath draft
+  getDstPath (FileDraftCopyLibFd draft) = getDstPath draft
 
 createTemplateFileDraft ::
   Path' (Rel ProjectRootDir) (File a) ->
@@ -115,3 +122,14 @@ createCopyDirFileDraft dstDirStrategy dstPath srcPath =
 createTextFileDraft :: Path' (Rel ProjectRootDir) (File a) -> Text -> FileDraft
 createTextFileDraft dstPath content =
   FileDraftTextFd $ TextFD.TextFileDraft {TextFD._dstPath = SP.castFile dstPath, TextFD._content = content}
+
+createCopyLibFileDraft ::
+  Path' (Rel ProjectRootDir) (File a) ->
+  Path' (Rel LibsSourceDir) (File b) ->
+  FileDraft
+createCopyLibFileDraft dstPath srcPathInLibsSourceDir =
+  FileDraftCopyLibFd $
+    CopyLibFD.CopyLibDraft
+      { CopyLibFD._dstPath = SP.castFile dstPath,
+        CopyLibFD._srcPathInLibsSourceDir = SP.castFile srcPathInLibsSourceDir
+      }

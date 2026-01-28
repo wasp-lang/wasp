@@ -19,7 +19,7 @@ const defaultViteConfig = {
     detectServerImports(),
   ],
   optimizeDeps: {
-    exclude: ['wasp']
+    exclude: ['wasp', '@wasp.sh/lib-auth']
   },
   server: {
     port: 3000,
