@@ -16,7 +16,7 @@
     "commander": "^13.1.0",
     "semver": "^7.7.2",
     "toml": "^3.0.0",
-    "zod": "^3.24.4",
+    "zod": "^4.3.6",
     "zx": "^8.3.2"
   },
   "devDependencies": {

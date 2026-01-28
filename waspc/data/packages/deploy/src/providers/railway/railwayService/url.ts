@@ -43,7 +43,7 @@ export async function generateServiceUrl(
   if (domainAlreadyExistsPattern.test(result.stdout)) {
     return extractServiceUrlFromString(result.stdout);
   } else {
-    const { domains } = RailwayCliDomainSchema.parse(result.json());
+    const domains = RailwayCliDomainSchema.parse(result.json());
 
     const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
     if (REACT_APP_API_URL) {

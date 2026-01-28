@@ -1,44 +1,31 @@
 import * as z from "zod";
+import { canonicalSchema, toLowerCaseKeysSchema } from "../../common/schema";
 
-const FlyRegionSchema = z.object({
-  code: z.string(),
-  name: z.string(),
-});
+// flyctl plays loose with the casing of the keys in its JSON output, so we
+// wrap all schemas with toLowerCaseKeysSchema to accept any casing.
 
-const FlyRegionSchemaLegacy = z
-  .object({
-    Code: z.string(),
-    Name: z.string(),
-  })
-  .transform((data) => ({
-    code: data.Code,
-    name: data.Name,
-  }));
+const FlyRegionSchema = toLowerCaseKeysSchema.pipe(
+  z.object({
+    code: z.string(),
+    name: z.string(),
+  }),
+);
 
-export const FlyRegionListSchema = z.union([
-  // version before flyctl v0.3.121
-  z.array(FlyRegionSchemaLegacy),
-  // version as of flyctl v0.3.121
+export const FlyRegionListSchema = canonicalSchema(
+  // flyctl <v0.3.214
   z.array(FlyRegionSchema),
-  // version as of flyctl v0.3.214
-  z
-    .object({
-      Regions: z.array(FlyRegionSchema),
-    })
-    .transform((data) => data.Regions),
-]);
 
-export const FlySecretListSchema = z.union([
-  // current version
-  z.array(
-    z.object({
-      Name: z.string(),
-    }),
-  ),
-  // not the output yet, but just in case they update the command in the future
-  z.array(
-    z.object({
-      name: z.string(),
-    }),
-  ),
-]);
+  [
+    // flyctl >=v0.3.214
+    toLowerCaseKeysSchema
+      .pipe(z.object({ regions: z.unknown() }))
+      .transform((data) => data.regions),
+  ],
+);
+
+const FlySecretSchema = toLowerCaseKeysSchema.pipe(
+  z.object({
+    name: z.string(),
+  }),
+);
+export const FlySecretListSchema = z.array(FlySecretSchema);
