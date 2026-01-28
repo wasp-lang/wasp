@@ -34,15 +34,9 @@ data ClientOpsTemplatesDir
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
-    [ -- Not migrated to TS yet
-      genFileCopyInClientOps [relfile|internal/resources.js|],
-      genFileCopyInClientOps [relfile|internal/index.ts|],
-      -- Not migrated to TS yet
-      genFileCopyInClientOps [relfile|internal/updateHandlersMap.js|],
-      genFileCopyInClientOps [relfile|rpc.ts|],
+    [ genFileCopyInClientOps [relfile|internal/index.ts|],
       genFileCopyInClientOps [relfile|hooks.ts|],
-      genFileCopyInClientOps [relfile|index.ts|],
-      genFileCopyInClientOps [relfile|queryClient.ts|]
+      genFileCopyInClientOps [relfile|index.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec

@@ -32,7 +32,7 @@ function interpolatePathParams(path: string, params: Params) {
     .map(mapPathPart)
     .filter(isValidPathPart)
     .join("/");
-    
+
   return path.startsWith("/") ? `/${interpolatedPath}` : interpolatedPath;
 }
 

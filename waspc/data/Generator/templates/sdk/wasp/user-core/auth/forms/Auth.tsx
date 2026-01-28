@@ -1,8 +1,8 @@
 {{={= =}=}}
 import { useState, createContext, useMemo } from 'react'
 import styles from './Auth.module.css'
-import './internal/auth-styles.css'
-import { tokenObjToCSSVars } from "./internal/util"
+import '../../../core/auth/forms/internal/auth-styles.css'
+import { tokenObjToCSSVars } from "../../../core/auth/forms/internal/util"
 import { CSSProperties } from "react"
 
 import {
@@ -12,7 +12,7 @@ import {
   type AdditionalSignupFields,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
-import { MessageError, MessageSuccess } from './internal/Message'
+import { MessageError, MessageSuccess } from '../../../core/auth/forms/internal/Message'
 {=# isEmailAuthEnabled =}
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'

@@ -2,7 +2,7 @@
 import type { Request as ExpressRequest } from 'express'
 import { type ProviderId, type CreateUserResult, type FindAuthWithUserResult } from '../../auth/utils.js'
 import { prisma } from '../index.js'
-import { Expand } from '../../universal/types.js'
+import { Expand } from 'wasp/universal/types'
 
 // PUBLIC API
 export type OnBeforeSignupHook = (
@@ -17,9 +17,9 @@ export type OnAfterSignupHook = (
 // PUBLIC API
 /**
  * Use this type for typing your `onAfterEmailVerified` hook.
- * 
+ *
  * Wasp calls this hook exactly once, after a user successfully verifies their email during the email verification flow.
- * 
+ *
  * @example
  * ```ts
  * export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
@@ -173,7 +173,7 @@ export type OAuthData = {
   uniqueRequestId: string
 } & (
   {=# enabledProviders.isGoogleAuthEnabled =}
-  | { providerName: 'google'; tokens: import('arctic').GoogleTokens } 
+  | { providerName: 'google'; tokens: import('arctic').GoogleTokens }
   {=/ enabledProviders.isGoogleAuthEnabled =}
   {=# enabledProviders.isDiscordAuthEnabled =}
   | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }

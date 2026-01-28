@@ -3,7 +3,7 @@ import * as path from "node:path";
 
 const base = path.resolve(import.meta.dirname);
 
-const globs = ["./user-core/auth/forms/**/*.css"];
+const globs = ["./core/auth/forms/**/*.css", "./user-core/auth/forms/**/*.css"];
 
 for await (const file of fs.glob(globs, { cwd: base })) {
   const src = path.join(base, file);

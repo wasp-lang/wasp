@@ -9,10 +9,10 @@ import { prisma } from 'wasp/server'
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
-import { type _Entity } from './taggedEntities'
+import { type _Entity } from '../../../core/server/_types/taggedEntities'
 import { type Payload } from 'wasp/core/serialization'
 
-export * from "./taggedEntities"
+export * from "../../../core/server/_types/taggedEntities"
 export * from "wasp/core/serialization"
 
 export type UnauthenticatedQueryDefinition<

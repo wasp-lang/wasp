@@ -1,4 +1,4 @@
-import { type Route } from "wasp/client";
+import { type Route } from "../index";
 import type {
   IfAny,
   _Awaited,
@@ -9,7 +9,7 @@ import type {
 // type).
 //
 // Frontend queries are functions with some extra properties (metadata).
-// 
+//
 // To simplify working with the type (i.e., referencing the type's two different
 // components), we've defined it as an intersection of two distinct types:
 // one representing the function (QueryFunction), and the other representing the
@@ -65,7 +65,7 @@ export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
 // PRIVATE API (needed in SDK)
 /**
  * A supertype of all possible backend operation definitions (i.e., Queries and
- * Actions) 
+ * Actions)
  */
 export type GenericBackendOperation = (args: never, context: any) => unknown
 
