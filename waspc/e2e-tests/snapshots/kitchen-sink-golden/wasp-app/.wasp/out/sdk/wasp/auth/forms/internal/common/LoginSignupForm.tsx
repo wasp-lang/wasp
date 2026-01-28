@@ -22,7 +22,7 @@ import type {
 } from '../../types'
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { useEmail } from '../email/useEmail'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`

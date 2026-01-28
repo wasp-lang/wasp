@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import { verifyEmail } from '../../../email/actions/verifyEmail.js'
 import { Message } from '../Message'

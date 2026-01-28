@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { type AxiosResponse } from "axios";
-import { Navigate, useLocation } from 'react-router-dom'
+import { Navigate, useLocation } from 'react-router'
 import { useAuth } from 'wasp/client/auth'
 import { api } from 'wasp/client/api'
 import { initSession } from 'wasp/auth/helpers/user'

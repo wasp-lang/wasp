@@ -30,9 +30,9 @@ type DependencySpecification = (P.PackageName, P.PackageVersion)
 
 requiredRuntimeDeps :: [DependencySpecification]
 requiredRuntimeDeps =
-  [ -- Installing the wrong version of "react-router-dom" can make users believe that they
+  [ -- Installing the wrong version of "react-router" can make users believe that they
     -- can use features that are not available in the version that Wasp supports.
-    ("react-router-dom", show reactRouterVersion),
+    ("react-router", show reactRouterVersion),
     ("react", show reactVersion),
     ("react-dom", show reactDomVersion)
   ]

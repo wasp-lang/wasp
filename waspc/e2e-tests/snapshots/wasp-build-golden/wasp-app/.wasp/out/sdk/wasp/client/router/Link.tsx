@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { Link as RouterLink } from 'react-router-dom'
+import { Link as RouterLink } from 'react-router'
 import { interpolatePath } from './linkHelpers'
 import { type Routes } from './index'
 
@@ -16,6 +16,6 @@ export function Link(
 ): React.JSX.Element {
   const toPropWithParams = useMemo(() => {
     return interpolatePath(to, params, search, hash)
-  }, [to, params])
+  }, [to, params, search, hash])
   return <RouterLink to={toPropWithParams} {...restOfProps} />
 }

@@ -166,7 +166,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
   <TabItem value="js" label="JavaScript">
     ```tsx title="src/pages/auth.jsx"
     import { LoginForm, SignupForm } from 'wasp/client/auth'
-    import { Link } from 'react-router-dom'
+    import { Link } from 'react-router'
 
     export function Login() {
       return (
@@ -210,7 +210,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/pages/auth.tsx"
     import { LoginForm, SignupForm } from 'wasp/client/auth'
-    import { Link } from 'react-router-dom'
+    import { Link } from 'react-router'
 
     export function Login() {
       return (
