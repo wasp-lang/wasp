@@ -98,7 +98,8 @@ executeSnapshotTestCommand snapshotTest snapshotDir = do
         }
 
 generateSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> IO ()
-generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile = getSnapshotFilesForExistenceCheck >>= writeSnapshotFileListManifest
+generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
+  getSnapshotFilesForExistenceCheck >>= writeSnapshotFileListManifest
   where
     getSnapshotFilesForExistenceCheck :: IO [Path' Abs (File SnapshotFile)]
     getSnapshotFilesForExistenceCheck =
@@ -115,7 +116,8 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile = getS
     -- Creates a deterministic manifest of files that should exist in the snapshot.
     -- File paths are normalized to relative paths and sorted.
     writeSnapshotFileListManifest :: [Path' Abs (File SnapshotFile)] -> IO ()
-    writeSnapshotFileListManifest = writeFile (SP.fromAbsFile snapshotFileListManifestFile) . unlines . sort . map normalizeFile
+    writeSnapshotFileListManifest =
+      writeFile (SP.fromAbsFile snapshotFileListManifestFile) . unlines . sort . map normalizeFile
       where
         normalizeFile = makeRelative (SP.fromAbsDir snapshotDir) . SP.fromAbsFile
 
@@ -150,7 +152,9 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
     formatPackageJsonFiles = mapM_ formatPackageJsonFile . filter isPackageJsonFile
       where
         formatPackageJsonFile :: Path' Abs (File file) -> IO ()
-        formatPackageJsonFile packageJsonFile = BS.readFile (SP.fromAbsFile packageJsonFile) >>= BSL.writeFile (SP.fromAbsFile packageJsonFile) . formatJson . unsafeDecodeJson
+        formatPackageJsonFile packageJsonFile =
+          BS.readFile (SP.fromAbsFile packageJsonFile)
+            >>= BSL.writeFile (SP.fromAbsFile packageJsonFile) . formatJson . unsafeDecodeJson
 
         isPackageJsonFile :: Path' Abs (File file) -> Bool
         isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
@@ -173,7 +177,8 @@ defineSnapshotTestCases ::
   Path' Abs (Dir SnapshotDir) ->
   [Path' Abs (File SnapshotFile)] ->
   [TestTree]
-defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir = map defineSnapshotTestCase
+defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFiles =
+  map defineSnapshotTestCase currentSnapshotFiles
   where
     defineSnapshotTestCase :: Path' Abs (File SnapshotFile) -> TestTree
     defineSnapshotTestCase currentSnapshotFile =
