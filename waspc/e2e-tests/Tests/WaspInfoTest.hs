@@ -1,9 +1,7 @@
 module Tests.WaspInfoTest (waspInfoTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliInfo)
 import Test (Test (..), TestCase (..))
-import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
-import WaspProject.ShellCommands (waspCliInfo)
 
 -- TODO: Test `wasp info` values change properly:
 -- name, database, project dir size, last compile.

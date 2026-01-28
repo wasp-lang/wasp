@@ -2,11 +2,9 @@ module Tests.WaspDbResetTest (waspDbResetTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..), appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
-import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import Wasp.Version (waspVersion)
-import WaspProject.ShellCommands (appendToPrismaFile, createSeedFile, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 
 -- | We include a seeding script as part of the e2e test,
 -- because Wasp skips the seeding during the reset (unlike Prisma).

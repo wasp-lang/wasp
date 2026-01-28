@@ -1,9 +1,7 @@
 module Tests.WaspDbStartTest (waspDbStartTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliDbStart)
 import Test (Test (..), TestCase (..))
-import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
-import WaspProject.ShellCommands (setWaspDbToPSQL, waspCliDbStart)
 
 -- FIXME: @waspCliDbStart@ - figure out long lasting processes
 waspDbStartTest :: Test

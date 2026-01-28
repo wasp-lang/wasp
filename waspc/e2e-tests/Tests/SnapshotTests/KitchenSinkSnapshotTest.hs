@@ -3,17 +3,13 @@ module Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) whe
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-  )
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import SnapshotTest.ShellCommands
-  ( copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+    WaspProjectContext,
+    copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+    waspCliCompile,
     withInSnapshotWaspProjectDir,
   )
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import StrongPath (reldir)
-import WaspProject.ShellCommands
-  ( WaspProjectContext,
-    waspCliCompile,
-  )
 
 kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =

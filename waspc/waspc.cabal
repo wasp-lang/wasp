@@ -824,17 +824,10 @@ test-suite waspc-e2e-tests
     , base64-bytestring
     , neat-interpolation
   other-modules:
+    Test
+    SnapshotTest
     FileSystem
     ShellCommands
-    WaspProject.FileSystem
-    WaspProject.ShellCommands
-    Test
-    Test.FileSystem
-    Test.ShellCommands
-    SnapshotTest
-    SnapshotTest.Snapshot
-    SnapshotTest.FileSystem
-    SnapshotTest.ShellCommands
     Tests.WaspBuildStartTest
     Tests.WaspCleanTest
     Tests.WaspCompileTest

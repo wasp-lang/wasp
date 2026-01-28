@@ -25,7 +25,7 @@ In addition to applications, we also cover secondary outputs, such as the instal
 We test Wasp CLI commands whose outputs we can discard.
 
 Tests execute their test cases in the `TestCaseDir`s.
-The `TestCaseDir`s are created in the `waspc/e2e-tests/Test/test-outputs/` diectory.
+The `TestCaseDir`s are created in the `waspc/e2e-tests/test-outputs/` diectory.
 While the exact files within a `TestCaseDir` aren't strictly defined, they usually have the following structure:
 
 ```
@@ -33,11 +33,10 @@ While the exact files within a `TestCaseDir` aren't strictly defined, they usual
 #   `<name>` = the test's name.
 
 e2e-tests/
-└── Test/
-    └── test-outputs/
-        └── <test-name>/<test-case-name>/  # test case dirctory
-            ├── wasp-app/ # contains the Wasp app for that test
-            └── ...
+└── test-outputs/
+    └── <test-name>/<test-case-name>/  # test case dirctory
+        ├── wasp-app/ # contains the Wasp app for that test
+        └── ...
 ```
 
 ### Snapshot tests
@@ -53,7 +52,7 @@ Snapshots are compared in two ways:
 For more details, check out the `waspc/e2e-tests/SnapshotTest.hs` file.
 
 Snapshot tests are executed in the `SnapshotDir`.
-The `SnapshotDir`s are created in the `waspc/e2e-tests/SnapshotTest/snapshots/` directory.
+The `SnapshotDir`s are created in the `waspc/e2e-tests/test-outputs/snapshots/` directory.
 While the exact files within a snapshot aren't strictly defined, they usually have the following structure:
 
 ```
@@ -62,7 +61,7 @@ While the exact files within a snapshot aren't strictly defined, they usually ha
 #   `<snapshot-type>` = `current` or `golden`.
 
 e2e-tests/
-└── SnapshotTest/
+└── test-outputs/
     └── snapshots/
         └── <name>-<snapshot-type>/  # snapshot dirctory, e.g. `wasp-build-current`, `wasp-build-golden`
             ├── wasp-app/ # contains the Wasp app for that snapshot test

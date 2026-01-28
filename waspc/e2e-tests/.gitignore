@@ -1,2 +1,3 @@
-SnapshotTest/snapshots/*-current
-Test/test-outputs/*
+test-outputs/*
+!test-outputs/snapshots/
+test-outputs/snapshots/*-current

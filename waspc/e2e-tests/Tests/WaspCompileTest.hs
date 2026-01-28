@@ -1,9 +1,7 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliCompile)
 import Test (Test (..), TestCase (..))
-import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
-import WaspProject.ShellCommands (waspCliCompile)
 
 waspCompileTest :: Test
 waspCompileTest =

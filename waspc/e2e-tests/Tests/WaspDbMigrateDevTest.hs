@@ -1,12 +1,13 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 
 import Control.Monad.Reader (MonadReader (ask))
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..), (~&&))
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..), WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, waspCliDbMigrateDev, (~&&))
 import StrongPath (fromAbsDir, (</>))
 import Test (Test (..), TestCase (..))
-import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
     dbRootDirInProjectRootDir,
@@ -16,7 +17,6 @@ import Wasp.Project.Common
     generatedCodeDirInDotWaspDir,
   )
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
-import WaspProject.ShellCommands (WaspProjectContext (..), appendToPrismaFile, waspCliDbMigrateDev)
 
 -- | TODO: Test on all databases (e.g. Postgresql)
 waspDbMigrateDevTest :: Test
@@ -64,9 +64,9 @@ waspDbMigrateDevTest =
 assertMigrationDirsExist :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
 assertMigrationDirsExist migrationName = do
   waspProjectContext <- ask
-  let waspMigrationsDir = _waspProjectDir waspProjectContext </> dbMigrationsDirInWaspProjectDir
+  let waspMigrationsDir = waspProjectContext.waspProjectDir </> dbMigrationsDirInWaspProjectDir
       waspOutMigrationsDir =
-        _waspProjectDir waspProjectContext
+        waspProjectContext.waspProjectDir
           </> dotWaspDirInWaspProjectDir
           </> generatedCodeDirInDotWaspDir
           </> dbRootDirInProjectRootDir

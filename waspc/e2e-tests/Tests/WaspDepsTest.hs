@@ -1,9 +1,7 @@
 module Tests.WaspDepsTest (waspDepsTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliDeps)
 import Test (Test (..), TestCase (..))
-import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
-import WaspProject.ShellCommands (waspCliDeps)
 
 -- TODO: Test that deps change with installs/uninstalls.
 waspDepsTest :: Test

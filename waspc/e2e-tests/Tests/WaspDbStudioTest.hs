@@ -1,9 +1,7 @@
 module Tests.WaspDbStudioTest (waspDbStudioTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliDbStudio)
 import Test (Test (..), TestCase (..))
-import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
-import WaspProject.ShellCommands (waspCliDbStudio)
 
 -- | NOTE: We don't test feature content since it's prisma feature.
 -- FIXME: @waspCliDbStudio@ - figure out long lasting processes

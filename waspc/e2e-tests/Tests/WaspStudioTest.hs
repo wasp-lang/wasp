@@ -1,9 +1,7 @@
 module Tests.WaspStudioTest (waspStudioTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..))
+import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliStudio)
 import Test (Test (..), TestCase (..))
-import Test.ShellCommands (createTestWaspProject, inTestWaspProjectDir)
-import WaspProject.ShellCommands (waspCliStudio)
 
 -- | NOTE: Once it evolves it will probably have it's own
 -- playwright tests inside of the TS package.
