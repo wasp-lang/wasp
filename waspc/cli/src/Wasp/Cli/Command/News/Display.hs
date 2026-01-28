@@ -12,6 +12,11 @@ import qualified Wasp.Util.Terminal as Term
 
 showNewsEntry :: NewsEntry -> String
 showNewsEntry newsEntry =
+  -- The formatting here affects the validation in the wasp-news repo.
+  -- If you change something, update it there too.
+  --
+  -- Permalink at time of writing:
+  -- https://github.com/wasp-lang/wasp-news/blob/2335ee25f23de1664321d84ca63aba4331722c9d/scripts/validate-news-format.js#L16
   T.unpack
     [trimming|
     ${title} ${dots} ${publishedAt}
