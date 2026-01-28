@@ -829,16 +829,33 @@ test-suite waspc-e2e-tests
     , hspec
     , tasty-hspec
     , tasty-golden
+    , base64-bytestring
+    , neat-interpolation
   other-modules:
+    Test
+    SnapshotTest
     FileSystem
     ShellCommands
-    WaspProject.ShellCommands
-    SnapshotTest
-    SnapshotTest.Snapshot
-    SnapshotTest.FileSystem
-    SnapshotTest.ShellCommands
-    SnapshotTest.WaspNewSnapshotTest
-    SnapshotTest.KitchenSinkSnapshotTest
-    SnapshotTest.WaspMigrateSnapshotTest
-    SnapshotTest.WaspCompileSnapshotTest
-    SnapshotTest.WaspBuildSnapshotTest
+    Tests.WaspBuildStartTest
+    Tests.WaspCleanTest
+    Tests.WaspCompileTest
+    Tests.WaspBuildTest
+    Tests.WaspCompletionTest
+    Tests.WaspNewTest
+    Tests.WaspStartTest
+    Tests.WaspStudioTest
+    Tests.WaspVersionTest
+    Tests.WaspInfoTest
+    Tests.WaspDockerfileTest
+    Tests.WaspTelemetryTest
+    Tests.WaspDepsTest
+    Tests.WaspDbStartTest
+    Tests.WaspDbMigrateDevTest
+    Tests.WaspDbSeedTest
+    Tests.WaspDbResetTest
+    Tests.WaspDbStudioTest
+    Tests.SnapshotTests.WaspNewSnapshotTest
+    Tests.SnapshotTests.KitchenSinkSnapshotTest
+    Tests.SnapshotTests.WaspMigrateSnapshotTest
+    Tests.SnapshotTests.WaspCompileSnapshotTest
+    Tests.SnapshotTests.WaspBuildSnapshotTest
