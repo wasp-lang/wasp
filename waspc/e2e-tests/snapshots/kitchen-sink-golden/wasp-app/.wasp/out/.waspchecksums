@@ -179,7 +179,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "4a26d174868012e139dac4b5c26b9e4e72ba9557442e68aa5205a0900b5b3ba4"
+        "410308a920630ddf900870ef517399ef8eecdc9a109df1dd915b8e5f8497cbd5"
     ],
     [
         [
@@ -193,14 +193,14 @@
             "file",
             "sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx"
         ],
-        "ee5011e21da2b61ea5f0c559671bb4da8f858dfcd287febd54d405418df20a86"
+        "a31b0060f7605d31ccd6404dc779fe7fc8c1e70532a75c6584c705b88f61c363"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx"
         ],
-        "28afe54846dac3e51a5987f12254ff8c1ec9f67b66d5405c786d956619655135"
+        "42fe32d173a9cc6aa759e434f6ad5894c85e82d6b534312927e170be52c9ea19"
     ],
     [
         [
@@ -564,7 +564,7 @@
             "file",
             "sdk/wasp/client/router/Link.tsx"
         ],
-        "66aebac1ceb458f661b4e24085c321e0764663ada56843261640a230718bb29d"
+        "d1a6f48d96f50b2900324f221f1fafa70a04bc9b5bba7d1dc78ffebfb7d2704b"
     ],
     [
         [
@@ -599,7 +599,7 @@
             "file",
             "sdk/wasp/client/test/vitest/helpers.tsx"
         ],
-        "2a5d39421bbf65a1a9e74bbc57bd5ec6632f4df181e9d5b9e21ba26fddfd9602"
+        "ae31b78cbc3223f1be003031f7de6170bf019a2400eb2f8526bb26c8fdeab357"
     ],
     [
         [
@@ -683,7 +683,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "17350adfa47ea45917e936db6be6d2ca027495ec9f8633b679558cd4a3223648"
+        "693c02269ab11cfc61e3d651587174c84b6d06d9fe2f25d099892f52f996e300"
     ],
     [
         [
@@ -1040,7 +1040,7 @@
             "file",
             "sdk/wasp/src/App.tsx"
         ],
-        "8d4226be05a1c3ba97939b54099407fced6dbb02143a6dfe521c7d2985b91f67"
+        "35424c2c86c4b235dac11100e8493acfa015f07502fbdf5bd44b2df437169378"
     ],
     [
         [
@@ -1075,14 +1075,14 @@
             "file",
             "sdk/wasp/src/components/Button.tsx"
         ],
-        "5f9d45b4e7d4284b225c3dd6d8be47b0ab4c1e63d0daf26891673ab995e0e34e"
+        "ba33190d52bdd95cd62e3496ed4f9a699fdb4f703fea15c8ee1397896b71ec5c"
     ],
     [
         [
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "01cd7c17a3ec61a0ce098cc91f68837492c2d18cdb171628bf74a133cfd62a5b"
+        "af0eef1a1252b16c0744b2f1252f9ed1f433192362fe9219ad91950603b22f38"
     ],
     [
         [
@@ -1264,7 +1264,7 @@
             "file",
             "sdk/wasp/src/features/crud/pages/DetailPage.tsx"
         ],
-        "a80ff11afeabe063caa86cbb380b9b6ff44335a707c6294d392a84697ad8dbe7"
+        "33c59a6f08fdef3ef68b634977c14407a4470cb3af6a90beda9cd1032eb11646"
     ],
     [
         [
@@ -1327,7 +1327,7 @@
             "file",
             "sdk/wasp/src/features/operations/components/Todo.test.tsx"
         ],
-        "26e8e78ccfb1f63d9ce99db5b2b3c58fe7618fb697576cc433b2166d0fcac52f"
+        "8a4223a98785ccf0dea743346df26ec7bcac792d21c736920a6c2f2b0c9517a1"
     ],
     [
         [
@@ -1362,7 +1362,7 @@
             "file",
             "sdk/wasp/src/features/operations/pages/TaskDetailPage.tsx"
         ],
-        "2329c75371a72f8a050acd0fbd493265b4265e92e56f4b7d04da3781744776a7"
+        "3c5879fc7efe0f3635be2fd5ec9faa9f1fb57c10cc5119bb2e8ee8776366a966"
     ],
     [
         [
@@ -1397,7 +1397,7 @@
             "file",
             "sdk/wasp/src/pages/CatchAllPage.tsx"
         ],
-        "05f372d43e301eb39eba316d510eb5fb4a24a82ca529ea247b79ced8d6aefbf2"
+        "6555ae077424788ded578da7610e7202deff7feace2a0e76cf700dc1900b6a55"
     ],
     [
         [
@@ -2291,16 +2291,9 @@
     [
         [
             "file",
-            "web-app/netlify.toml"
-        ],
-        "56ab3a5a45f041facffdebef3f0eeddcbddbeb67a9fc62dc8a2924e92d73a715"
-    ],
-    [
-        [
-            "file",
             "web-app/package.json"
         ],
-        "c44a13591b607fbbaec7a25b0d272961dd9bb915ebd621382b36e05f0593b10e"
+        "cc45bd860d23ceac47e9fbf5580153561b6783b976efeab045941e39004a7e65"
     ],
     [
         [
@@ -2328,21 +2321,21 @@
             "file",
             "web-app/src/auth/pages/OAuthCallback.tsx"
         ],
-        "9f6e02152b2e15212ce7fee8f1ce5480d59ceab6786452f05592203ffec68e5a"
+        "d8cf0bedbf42e12d71df22e1b4bbb19f3c81ba323cabab7c4341459dac2d170b"
     ],
     [
         [
             "file",
             "web-app/src/auth/pages/createAuthRequiredPage.jsx"
         ],
-        "be2f872a6465690dec32a0d2a0c3b15d941846cc0059a9ec13d09650daccda7f"
+        "0638911a077c546259e4862437ccf1ceda09a1d2a66d7b6de9d46076e21331bc"
     ],
     [
         [
             "file",
             "web-app/src/components/DefaultRootErrorBoundary.tsx"
         ],
-        "73bbe8a2eb141e523c6b8169c0831e594b4ab6c7207f107d6d20c1561b44373a"
+        "303821bb9b02b284835f571618c5f92e3da1b97709b7ed6cb3313fb33cc871f6"
     ],
     [
         [
@@ -2391,7 +2384,7 @@
             "file",
             "web-app/src/router.tsx"
         ],
-        "f9900199f287c99bb6478e2d7a55dd263b6630d2c7e5a876a99f10c4db75e6e8"
+        "01a671269ab4ca57cae22a20a8431d56920340bbedaa0917b0d15feeaab1a66c"
     ],
     [
         [
@@ -2440,7 +2433,7 @@
             "file",
             "web-app/vite.config.ts"
         ],
-        "d509ac7e32f3b22edfa42c9d2f61eebc9068add52c0e4ddc300bdc300bada207"
+        "e83faff5ea3ca1a742e7181276a91d525f20824f918407c96c443b592ee81682"
     ],
     [
         [

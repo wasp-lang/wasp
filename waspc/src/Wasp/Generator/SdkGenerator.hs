@@ -209,7 +209,7 @@ npmDepsForSdk spec waspLibs =
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
-            ("react-router-dom", show reactRouterVersion),
+            ("react-router", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
           ]

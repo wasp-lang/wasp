@@ -42,7 +42,7 @@ export const TaskList = () => {
 
 ### Catch-all Routes
 
-If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/en/main/route/route#splats)), you can use the `Link` component like this:
+If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/7.12.0/start/declarative/routing#splats)), you can use the `Link` component like this:
 
 ```wasp title="main.wasp"
 route CatchAllRoute { path: "/pages/*", to: CatchAllPage }
@@ -149,7 +149,7 @@ The `Link` component accepts the following props:
 
 - `hash: string`
 
-- all other props that the `react-router-dom`'s [Link](https://reactrouter.com/en/6.26.1/components/link) component accepts
+- all other props that the `react-router`'s [Link](https://reactrouter.com/7.12.0/api/components/Link) component accepts
 
 ### `routes` Object
 

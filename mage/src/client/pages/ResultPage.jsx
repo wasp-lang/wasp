@@ -10,7 +10,7 @@ import {
   PiStarDuotone,
 } from "react-icons/pi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router";
 
 import {
   createFeedback,

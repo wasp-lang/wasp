@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { SignupForm } from "wasp/client/auth";
 import { AuthLayout } from "../AuthLayout";
 
