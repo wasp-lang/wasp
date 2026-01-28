@@ -9,10 +9,9 @@ module Wasp.Generator.NpmDependencies
     getNpmDepsConflicts,
     NpmDepsForPackage (..),
     conflictErrorToMessage,
-    NpmDepsForFramework,
     NpmDepsFromWasp (..),
     NpmDepsFromUser (..),
-    buildWaspFrameworkNpmDeps,
+    buildWaspServerNpmDeps,
     getDependencyOverridesPackageJsonEntry,
     ensureNoConflictWithUserDeps,
   )
@@ -29,16 +28,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
-
-data NpmDepsForFramework = NpmDepsForFramework
-  { npmDepsForServer :: NpmDepsForPackage,
-    npmDepsForWebApp :: NpmDepsForPackage
-  }
-  deriving (Show, Eq, Generic)
-
-instance ToJSON NpmDepsForFramework
-
-instance FromJSON NpmDepsForFramework
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
@@ -80,19 +69,13 @@ ensureNoConflictWithUserDeps waspDeps userDeps
   where
     conflicts = getNpmDepsConflicts waspDeps userDeps
 
-buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> Either String NpmDepsForFramework
-buildWaspFrameworkNpmDeps spec fromServer fromWebApp
+buildWaspServerNpmDeps :: AppSpec -> NpmDepsFromWasp -> Either String NpmDepsForPackage
+buildWaspServerNpmDeps spec fromServer
   | hasConflicts = Left "Could not construct npm dependencies due to a previously reported conflict."
-  | otherwise =
-      Right $
-        NpmDepsForFramework
-          { npmDepsForServer = waspDepsToPackageDeps fromServer,
-            npmDepsForWebApp = waspDepsToPackageDeps fromWebApp
-          }
+  | otherwise = Right $ waspDepsToPackageDeps fromServer
   where
-    hasConflicts = not $ null serverDepConflicts && null webAppDepConflicts
+    hasConflicts = not $ null serverDepConflicts
     serverDepConflicts = getNpmDepsConflicts fromServer userDeps
-    webAppDepConflicts = getNpmDepsConflicts fromWebApp userDeps
     userDeps = getUserNpmDepsForPackage spec
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser

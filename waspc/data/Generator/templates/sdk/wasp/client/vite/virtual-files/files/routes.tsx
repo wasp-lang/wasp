@@ -4,6 +4,8 @@
 import { createAuthRequiredPage } from "wasp/client/app"
 {=/ isAuthEnabled =}
 
+// These files are used from user-land and the import paths below are relative to the
+// user's project dir, and not the SDK:
 {=# pagesToImport =}
 {=& importStatement =}
 {=/ pagesToImport =}

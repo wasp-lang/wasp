@@ -1,12 +1,16 @@
 {{={= =}=}}
 import { type Plugin } from 'vite'
 import path from 'path'
-import { resolveProjectPath } from 'wasp/dev'
+
+let parsePathToUserCode!: ParsePathToUserCodeFn;
 
 export function detectServerImports(): Plugin {
   return {
     name: 'wasp:detect-server-imports',
     enforce: 'pre',
+    configResolved(config) {
+      parsePathToUserCode = createPathToUserCodeParser(config.root)
+    },
     resolveId(source, importer) {
       if (!importer) {
         return
@@ -32,22 +36,16 @@ function isServerImport(moduleName: string): boolean {
 
 type RelativePathToUserCode = string & { _brand: 'relativePathToUserCode' }
 
-function parsePathToUserCode(
-  importerPath: string
-): RelativePathToUserCode | null {
-  const importerPathRelativeToWaspProjectDir = path.relative(
-    getWaspProjectDirAbsPathWhileInWebAppDir(),
-    importerPath
-  )
-  return importerPathRelativeToWaspProjectDir.startsWith('{= srcDirInWaspProjectDir =}')
-    ? (importerPathRelativeToWaspProjectDir as RelativePathToUserCode)
-    : null
-}
+type ParsePathToUserCodeFn = (importerPath: string) => RelativePathToUserCode | null;
 
-// We can't pass the "waspProjectDir" path from Haskell because we need the absolute path:
-// e.g. /Users/{username}/dev/wasp/waspc/examples/todoApp
-// which contains machine specific info like the username which is different in the CI and locally.
-// This breaks our e2e tests in the CI because the path is different.
-function getWaspProjectDirAbsPathWhileInWebAppDir(): string {
-  return path.resolve(resolveProjectPath('./'))
+function createPathToUserCodeParser(waspProjectDirPath: string): ParsePathToUserCodeFn {
+  return (importerPath: string): RelativePathToUserCode | null => {
+    const importerPathRelativeToWaspProjectDir = path.relative(
+      waspProjectDirPath,
+      importerPath
+    )
+    return importerPathRelativeToWaspProjectDir.startsWith('{= srcDirInWaspProjectDir =}')
+      ? (importerPathRelativeToWaspProjectDir as RelativePathToUserCode)
+      : null
+  }
 }

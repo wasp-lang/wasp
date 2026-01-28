@@ -4,9 +4,9 @@ import * as ReactDOM from "react-dom/client";
 import { getWaspApp } from "wasp/client/app";
 import { routesMapping } from "/@wasp/routes.tsx"
 
-import { App as App_ext } from '../../../src/App'
+import { App as App_ext } from './src/App'
 
-import { setup as setup_ext } from '../../../src/clientSetup'
+import { setup as setup_ext } from './src/clientSetup'
 
 await setup_ext()
 

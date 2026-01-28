@@ -15,6 +15,7 @@ import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import Wasp.Generator.WebAppGenerator (viteBuildDirInWebAppDir, webAppRootDirInProjectRootDir)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
@@ -29,7 +30,8 @@ genVitePlugins spec =
     [ genViteIndex,
       genWaspPlugin spec,
       genDetectServerImportsPlugin,
-      genValidateEnvPlugin
+      genValidateEnvPlugin,
+      genTypescriptCheckPlugin
     ]
     <++> getVirtualModulesPlugin spec
     <++> genHtmlPlugin spec
@@ -47,21 +49,19 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "defaultClientPort" .= WebApp.defaultClientPort,
+          "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
           "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
           "vitest"
             .= object
-              [ "setupFilesArray" .= makeJsArrayFromHaskellList vitestSetupFiles,
+              [ "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    vitestSetupFiles =
-      [ SP.fromRelFile $
-          dotWaspDirInWaspProjectDir
-            </> generatedCodeDirInDotWaspDir
-            </> WebApp.webAppRootDirInProjectRootDir
-            </> WebApp.webAppSrcDirInWebAppRootDir
-            </> [relfile|test/vitest/setup.ts|]
-      ]
+    viteBuildDirPath =
+      dotWaspDirInWaspProjectDir
+        </> generatedCodeDirInDotWaspDir
+        </> webAppRootDirInProjectRootDir
+        </> viteBuildDirInWebAppDir
 
     depsExcludedFromOptimization =
       -- Why do we exclude Wasp SDK from optimization?
@@ -91,3 +91,8 @@ genValidateEnvPlugin :: Generator FileDraft
 genValidateEnvPlugin = return $ C.mkTmplFd tmplPath
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnv.ts|]
+
+genTypescriptCheckPlugin :: Generator FileDraft
+genTypescriptCheckPlugin = return $ C.mkTmplFd tmplPath
+  where
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|typescriptCheck.ts|]

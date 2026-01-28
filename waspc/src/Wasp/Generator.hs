@@ -28,7 +28,6 @@ import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
-import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -58,8 +57,7 @@ writeWebAppCode spec dstDir sendMessage = do
 
 genApp :: AppSpec -> Generator [FileDraft]
 genApp spec =
-  genWebApp spec
-    <++> genServer spec
+  genServer spec
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec

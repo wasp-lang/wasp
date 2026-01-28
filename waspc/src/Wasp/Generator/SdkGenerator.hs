@@ -14,7 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
+import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
@@ -30,7 +30,6 @@ import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ProjectRootDir,
-    WebAppRootDir,
     makeJsonWithEntityData,
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
@@ -83,7 +82,7 @@ import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
+import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
@@ -115,6 +114,7 @@ genSdk spec =
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
+      genFileCopy [relfile|client/test/setup.ts|],
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/hooks.ts|],
       genFileCopy [relfile|client/index.ts|],
@@ -123,8 +123,7 @@ genSdk spec =
       genTsConfigJson,
       genServerUtils spec,
       genPackageJson spec,
-      genDbClient spec,
-      genDevIndex
+      genDbClient spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -401,13 +400,3 @@ genDbClient spec = do
       tmplData
   where
     maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
-
-genDevIndex :: Generator FileDraft
-genDevIndex =
-  return $
-    C.mkTmplFdWithData
-      [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
-  where
-    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
-      waspProjectDirFromAppComponentDir

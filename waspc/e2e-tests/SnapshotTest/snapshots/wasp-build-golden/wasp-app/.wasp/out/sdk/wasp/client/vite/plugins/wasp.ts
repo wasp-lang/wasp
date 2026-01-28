@@ -7,7 +7,7 @@ import { detectServerImports } from "./detectServerImports.js";
 import { waspVirtualModules } from "./virtualModules.js";
 import { waspHtmlDev } from "./html/dev.js";
 import { waspHtmlBuild } from "./html/build.js";
-import { resolveProjectPath } from "../../../dev/index.js";
+import { typescriptCheck } from "./typescriptCheck.js";
 
 export interface WaspPluginOptions {
   reactOptions?: ReactOptions;
@@ -15,6 +15,7 @@ export interface WaspPluginOptions {
 
 export function wasp(options?: WaspPluginOptions): PluginOption {
   return [
+    typescriptCheck(),
     waspHtmlDev(),
     waspHtmlBuild(),
     waspVirtualModules(),
@@ -36,7 +37,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
           },
           envPrefix: "REACT_APP_",
           build: {
-            outDir: "build",
+            outDir: ".wasp/out/web-app/build/",
           },
           resolve: {
             // These packages rely on a single instance per page. Not deduping them
@@ -48,20 +49,20 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
                 // Vite doesn't look for `.prisma/client` imports in the `node_modules`
                 // folder. We point it to the correct place here.
                 // TODO: Check if we can remove when updating Prisma (#2504)
-                find: /^\.prisma\/(.+)$/,
-                replacement: path.join(
-                  resolveProjectPath("./"),
-                  "node_modules/.prisma/$1"
-                ),
+                find: /^\.prisma\/client\/(.+)$/,
+                replacement: "node_modules/.prisma/client/$1.js",
+              },
+              {
+                // Handle bare .prisma/client import
+                find: /^\.prisma\/client$/,
+                replacement: "node_modules/.prisma/client",
               },
             ],
           },
           test: {
             globals: true,
             environment: "jsdom",
-            // Since Vitest is running from the root of the project, we need
-            // to specify the path to the setup file relative to the root.
-            setupFiles: ['.wasp/out/web-app/src/test/vitest/setup.ts'],
+            setupFiles: ['wasp/client/test/setup'],
             exclude: [
               ...defaultExclude,
               ".wasp/**/*",

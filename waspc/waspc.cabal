@@ -27,8 +27,6 @@ data-files:
   --   Check https://github.com/haskell/cabal/issues/5883 for more details.
   Generator/templates/Dockerfile
   Generator/templates/dockerignore
-  Generator/templates/react-app/gitignore
-  Generator/templates/react-app/npmrc
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
   Generator/templates/**/*.prisma
@@ -372,11 +370,9 @@ library
     Wasp.Generator.Valid.Validator
     Wasp.Generator.WaspInfo
     Wasp.Generator.WebAppGenerator
-    Wasp.Generator.WebAppGenerator.JsImport
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
-    Wasp.Generator.WebAppGenerator.Vite
     Wasp.Generator.WebSocket
     Wasp.Generator.WaspLibs
     Wasp.Generator.WaspLibs.AvailableLibs
@@ -409,7 +405,6 @@ library
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
-    Wasp.Project.Vite
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
     Wasp.Project.WaspFile.WaspLang
@@ -714,7 +709,6 @@ test-suite waspc-tests
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.MockWriteableMonad
-    Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
     Generator.CrudTest
