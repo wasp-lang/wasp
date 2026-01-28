@@ -8,5 +8,5 @@
 # For .ps1 scripts on Win, it is important that their lines end with CRLF to execute correctly.
 *.ps1 text eol=crlf
 
-e2e-tests/snapshots/*-golden/** linguist-generated=true
+e2e-tests/SnapshotTest/snapshots/*-golden/** linguist-generated=true
 waspls/tests/completionTests/*.golden linguist-generated=true

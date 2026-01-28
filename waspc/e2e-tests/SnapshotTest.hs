@@ -53,7 +53,7 @@ makeSnapshotTest snapshotTestName snapshotTestCommandBuilders =
       _snapshotTestCommandsBuilder = sequence snapshotTestCommandBuilders
     }
 
--- | Runs a snapshot test by executing snapshot test's shell commands and then
+-- | Runs a 'SnapshotTest' by executing snapshot test's shell commands and then
 --  comparing the generated files to the previous "golden" (expected) version of those files.
 runSnapshotTest :: SnapshotTest -> IO TestTree
 runSnapshotTest snapshotTest = do
