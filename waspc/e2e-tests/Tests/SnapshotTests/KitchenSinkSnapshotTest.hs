@@ -1,26 +1,22 @@
-module SnapshotTest.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
+module Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
 
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-  )
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
-import SnapshotTest.ShellCommands
-  ( copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
-    withInSnapshotWaspProjectDir,
-  )
-import StrongPath (reldir)
-import WaspProject.ShellCommands
-  ( WaspProjectContext,
+    WaspProjectContext,
+    copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+    inSnapshotWaspProjectDir,
     waspCliCompile,
   )
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import StrongPath (reldir)
 
 kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
   makeSnapshotTest
     "kitchen-sink"
     [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|],
-      withInSnapshotWaspProjectDir
+      inSnapshotWaspProjectDir
         [ createDotEnvServerFile,
           normalizePostgresConnectionString,
           waspCliCompile
