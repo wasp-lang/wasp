@@ -27,7 +27,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
         return mergeConfig({
           base: "/",
           optimizeDeps: {
-            exclude: ['wasp']
+            exclude: ['wasp', '@wasp.sh/lib-auth']
           },
           server: {
             port: 3000,

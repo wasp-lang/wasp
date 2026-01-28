@@ -1,13 +1,12 @@
-import { useState, createContext, useMemo } from 'react'
+import { useState, useMemo } from 'react'
+import { AuthContext, type ErrorMessage } from '@wasp.sh/lib-auth/browser'
 import styles from './Auth.module.css'
 import './internal/auth-styles.css'
 import { tokenObjToCSSVars } from "./internal/util"
-import { CSSProperties } from "react"
 
 import {
   type State,
   type CustomizationOptions,
-  type ErrorMessage,
   type AdditionalSignupFields,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
@@ -20,14 +19,6 @@ const logoStyle = {
   height: '3rem'
 }
 
-
-// PRIVATE API
-export const AuthContext = createContext({
-  isLoading: false,
-  setIsLoading: (isLoading: boolean) => {},
-  setErrorMessage: (errorMessage: ErrorMessage | null) => {},
-  setSuccessMessage: (successMessage: string | null) => {},
-})
 
 function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additionalSignupFields }: {
     state: State;

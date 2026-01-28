@@ -44,12 +44,6 @@ export type CustomizationOptions = {
 }
 
 // PRIVATE API
-export type ErrorMessage = {
-  title: string
-  description?: string
-}
-
-// PRIVATE API
 export type FormState = {
   isLoading: boolean
 }

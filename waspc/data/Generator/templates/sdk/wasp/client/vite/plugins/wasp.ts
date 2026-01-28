@@ -28,7 +28,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
         return mergeConfig({
           base: "{= baseDir =}",
           optimizeDeps: {
-            exclude: ['wasp']
+            exclude: {=& depsExcludedFromOptimization =}
           },
           server: {
             port: {= defaultClientPort =},
