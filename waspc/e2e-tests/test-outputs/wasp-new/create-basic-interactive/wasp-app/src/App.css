@@ -1,0 +1,31 @@
+@import "tailwindcss" source(".");
+
+@theme {
+  --text-tiny: 0.625rem; /* Font size is 10px */
+  --text-tiny--line-height: 1rem;
+
+  /* Created using https://www.tints.dev */
+  --color-primary-50: #fffbeb;
+  --color-primary-100: #fff7d6;
+  --color-primary-200: #ffefad;
+  --color-primary-300: #ffe680;
+  --color-primary-400: #ffda47;
+  --color-primary-500: #ffcc00;
+  --color-primary-600: #e6b800;
+  --color-primary-700: #cca300;
+  --color-primary-800: #a88700;
+  --color-primary-900: #7a6200;
+  --color-primary-950: #574500;
+}
+
+body {
+  @apply has-[dialog:open]:overflow-hidden;
+}
+
+@utility card {
+  @apply rounded-xl border border-neutral-200 bg-white shadow-xs transition-all duration-200;
+}
+
+@utility label {
+  @apply text-sm font-medium text-neutral-700;
+}

@@ -1,7 +1,6 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE OverloadedRecordDot #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module ShellCommands
   ( ShellCommand,
