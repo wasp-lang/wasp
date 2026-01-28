@@ -24,12 +24,17 @@ switch ($Command) {
     "build:packages" {
         Invoke-Expression $WASP_PACKAGES_COMPILE
     }
-    "wasp-cli" {
-        Invoke-Expression $RUN_CMD
+    # NOTE: --experimental-strip-types allows Node to run TypeScript directly.
+    # This flag became the default in Node v22.18+, but we need it explicitly
+    # for our minimum supported version (v22.12.0).
+    "build:libs" {
+        node --experimental-strip-types "$PROJECT_ROOT/tools/build_libs.ts"
     }
     "get-waspc-version" {
-        # Direct pipe - Invoke-Expression breaks pipeline to native commands
-        'putStrLn $ Data.Version.showVersion Paths_waspc.version' | cabal repl waspc -v0
+        node --experimental-strip-types "$PROJECT_ROOT/tools/get-waspc-version.ts"
+    }
+    "wasp-cli" {
+        Invoke-Expression $RUN_CMD
     }
     Default {
         Write-Host "USAGE"
@@ -39,6 +44,8 @@ switch ($Command) {
         Write-Host "  build             Builds the Haskell project + all sub-projects (i.e. TS packages)."
         Write-Host "  build:hs          Builds the Haskell project only."
         Write-Host "  build:packages    Builds the TypeScript projects under data/packages/."
+        Write-Host "  build:libs        Builds the TypeScript libs under libs/."
+        Write-Host "  get-waspc-version Gets the current version of waspc from the Haskell project."
         Write-Host "  wasp-cli <args>   Runs the dev version of wasp executable while forwarding arguments."
         Write-Host "                    Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."
     }

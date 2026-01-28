@@ -3,12 +3,12 @@ module Wasp.Generator.WaspLibs.AvailableLibs
   )
 where
 
+import StrongPath (reldir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 
 waspLibs :: [WaspLib.WaspLib]
 waspLibs =
-  WaspLib.makeWaspLib
-    <$> [ -- NOTE: The package names of the libs should match the names in the
-          -- `package.json` files of the libs in the ./libs directory.
-          "@wasp.sh/lib-auth"
-        ]
+  [ -- NOTE: The package names of the libs should match the names in the
+    -- `package.json` files of the libs in the ./data/Generator/libs directory.
+    WaspLib.makeWaspLib "@wasp.sh/lib-auth" [reldir|auth|]
+  ]

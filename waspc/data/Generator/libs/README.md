@@ -110,8 +110,7 @@ Keep in mind:
 - `package.json` should include a `files` field that specifies which files
   should be included e.g. `"files": ["dist"]` if the built files are in `dist/`.
 
-The package will be packaged using `npm pack` and the resulting tarball will
-be copied to `waspc/data/libs/` by the `./run build:libs` script.
+The package will be packaged using `npm pack` by the `./run build:libs` script.
 
 Make sure to add this new library to the `Wasp.Generator.WaspLibs.AvailableLibs`
 module so that the Wasp CLI knows about it.
