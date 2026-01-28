@@ -41,6 +41,7 @@ data-files:
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
   Generator/templates/**/*.png
+  Generator/libs/**/*.tgz
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
@@ -279,6 +280,7 @@ library
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
+    Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
@@ -301,6 +303,7 @@ library
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
+    Wasp.Generator.FileDraft.CopyLibDraft
     Wasp.Generator.FileDraft.TemplateFileDraft
     Wasp.Generator.FileDraft.TextFileDraft
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
@@ -373,6 +376,10 @@ library
     Wasp.Generator.WebAppGenerator.Vite
     Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
+    Wasp.Generator.WaspLibs
+    Wasp.Generator.WaspLibs.AvailableLibs
+    Wasp.Generator.WaspLibs.Common
+    Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
     Wasp.Job
@@ -701,6 +708,7 @@ test-suite waspc-tests
     Generator.AuthInjectionTest
     Generator.DbGeneratorTest
     Generator.FileDraft.CopyFileDraftTest
+    Generator.FileDraft.CopyLibDraftTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.MockWriteableMonad
@@ -738,7 +746,8 @@ test-suite waspc-tests
     Project.WaspignoreTest
     Project.DbTest
     Paths_waspc
-    Generator.NpmDependenciesTest
+    ExternalConfig.Npm.NpmDependenciesTest
+    ExternalConfig.Npm.TarballTest
     Generator.Valid.PackageJsonTest
     Generator.Valid.ValidatorTest
     JsImportTest
