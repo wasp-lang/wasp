@@ -71,7 +71,7 @@ genHooks auth =
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then sequence [return $ mkTmplFd $ serverAuthDirInSdkTemplatesDir </> [relfile|email/index.ts|]]
+    then sequence [genFileCopyInServerAuth [relfile|email/index.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
