@@ -4,6 +4,7 @@ import Control.DeepSeq
 import Control.Exception (evaluate)
 import Data.Aeson (object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Time as T
 import Test.Hspec
 import Wasp.Util
 
@@ -221,3 +222,31 @@ spec_checkIfEnvValueIsTruthy = do
           ]
     checkIfEnvValueIsTruthy . fst <$> testCases
       `shouldBe` snd <$> testCases
+
+spec_isOlderThanNHours :: Spec
+spec_isOlderThanNHours = do
+  describe "isOlderThanNHours" $ do
+    it "returns True when time is older than N hours" $ do
+      now <- T.getCurrentTime
+      let _3h0m1s_ago = T.addUTCTime (negate $ 3 * 3600 + 1) now
+      isOlderThanNHours 3 _3h0m1s_ago `shouldReturn` True
+
+    it "returns False when time is newer than N hours" $ do
+      now <- T.getCurrentTime
+      let _2h59m59s_ago = T.addUTCTime (negate $ 2 * 3600 + 59 * 60 + 59) now
+      isOlderThanNHours 3 _2h59m59s_ago `shouldReturn` False
+
+    it "returns False when time is in the future" $ do
+      now <- T.getCurrentTime
+      let oneSecondFromNow = T.addUTCTime 1 now
+      isOlderThanNHours 1 oneSecondFromNow `shouldReturn` False
+
+    it "returns True for past time when N is 0" $ do
+      now <- T.getCurrentTime
+      let oneSecondAgo = T.addUTCTime (negate 1) now
+      isOlderThanNHours 0 oneSecondAgo `shouldReturn` True
+
+    it "returns False for future time when N is 0" $ do
+      now <- T.getCurrentTime
+      let oneSecondFromNow = T.addUTCTime 1 now
+      isOlderThanNHours 0 oneSecondFromNow `shouldReturn` False
