@@ -1,9 +1,10 @@
 {{={= =}=}}
-import path from "node:path"
 import { type PluginOption, mergeConfig } from "vite";
 import { defaultExclude } from "vitest/config"
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
 import { validateEnv } from "./validateEnv.js";
+import { envFile } from "./envFile.js";
+import { ENV_PREFIX } from "./config.js";
 import { detectServerImports } from "./detectServerImports.js";
 import { waspVirtualModules } from "./virtualModules.js";
 import { waspHtmlDev } from "./html/dev.js";
@@ -20,6 +21,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     waspHtmlDev(),
     waspHtmlBuild(),
     waspVirtualModules(),
+    envFile(),
     validateEnv(),
     react(options?.reactOptions),
     detectServerImports(),
@@ -36,7 +38,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
             host: "0.0.0.0",
             open: true,
           },
-          envPrefix: "REACT_APP_",
+          envPrefix: ENV_PREFIX,
           build: {
             outDir: "{= clientBuildDirPath =}",
           },

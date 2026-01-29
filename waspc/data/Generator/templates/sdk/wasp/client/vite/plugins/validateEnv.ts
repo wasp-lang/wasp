@@ -1,11 +1,13 @@
-import { type Plugin, loadEnv } from 'vite'
+import { type Plugin } from 'vite'
 
+import { loadWaspEnvClient } from './envFile.js'
+import { ENV_PREFIX } from './config.js'
 import {
   getValidatedEnvOrError,
   formatZodEnvErrors,
-} from 'wasp/env/validation'
-import { clientEnvSchema } from 'wasp/client/env/schema'
-import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
+} from '../../../env/validation.js'
+import { clientEnvSchema } from '../../env/schema.js'
+import { getColorizedConsoleFormatString } from '../../../universal/ansiColors.js'
 
 const redColorFormatString = getColorizedConsoleFormatString('red');
 
@@ -14,7 +16,7 @@ export function validateEnv(): Plugin {
   return {
     name: 'wasp:validate-env',
     configResolved: (config) => {
-      const env = loadEnv(config.mode, process.cwd(), config.envPrefix)
+      const env = loadWaspEnvClient(config.root, config.envPrefix!)
       validationResult = getValidatedEnvOrError(env, clientEnvSchema)
 
       // Exit if we are in build mode, because we can't show the error in the browser.

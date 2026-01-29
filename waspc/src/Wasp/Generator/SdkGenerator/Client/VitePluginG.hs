@@ -30,11 +30,15 @@ genVitePlugins spec =
     [ genViteIndex,
       genWaspPlugin spec,
       genDetectServerImportsPlugin,
-      genValidateEnvPlugin,
-      genTypescriptCheckPlugin
+      genFileCopy [relfile|config.ts|],
+      genFileCopy [relfile|envFile.ts|],
+      genFileCopy [relfile|validateEnv.ts|],
+      genFileCopy [relfile|typescriptCheck.ts|]
     ]
     <++> getVirtualModulesPlugin spec
     <++> genHtmlPlugin spec
+  where
+    genFileCopy = return . C.mkTmplFd . (C.vitePluginsDirInSdkTemplatesDir </>)
 
 genViteIndex :: Generator FileDraft
 genViteIndex = return $ C.mkTmplFd tmplPath
@@ -86,13 +90,3 @@ genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
       object
         [ "srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir
         ]
-
-genValidateEnvPlugin :: Generator FileDraft
-genValidateEnvPlugin = return $ C.mkTmplFd tmplPath
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnv.ts|]
-
-genTypescriptCheckPlugin :: Generator FileDraft
-genTypescriptCheckPlugin = return $ C.mkTmplFd tmplPath
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|typescriptCheck.ts|]
