@@ -63,6 +63,14 @@ discordAuthProvider =
       OA._requiredScope = ["identify"]
     }
 
+microsoftAuthProvider :: OA.OAuthAuthProvider
+microsoftAuthProvider =
+  OA.OAuthAuthProvider
+    { OA._providerId = fromJust $ makeProviderId "microsoft",
+      OA._displayName = "Microsoft",
+      OA._requiredScope = ["openid", "profile", "email"]
+    }
+
 getEnabledAuthProvidersJson :: AS.Auth.Auth -> Aeson.Value
 getEnabledAuthProvidersJson auth =
   object
@@ -71,6 +79,7 @@ getEnabledAuthProvidersJson auth =
       "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
       "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
+      "isMicrosoftAuthEnabled" .= AS.Auth.isMicrosoftAuthEnabled auth,
       "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
       "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
     ]
