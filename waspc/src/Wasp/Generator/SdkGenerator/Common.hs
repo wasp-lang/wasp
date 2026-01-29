@@ -9,6 +9,7 @@ module Wasp.Generator.SdkGenerator.Common
     getOperationTypeName,
     clientTemplatesDirInSdkTemplatesDir,
     serverTemplatesDirInSdkTemplatesDir,
+    sdkPackageName,
   )
 where
 
@@ -46,13 +47,16 @@ relDirToRelFileP path = fromJust $ parseRelFileP $ removeTrailingSlash $ fromRel
     removeTrailingSlash = reverse . dropWhile (== '/') . reverse
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
-makeSdkImportPath path = [reldirP|wasp|] </> path
-
-getOperationTypeName :: AS.Operation.Operation -> String
-getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
 
 serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
 serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
+
+getOperationTypeName :: AS.Operation.Operation -> String
+getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+
+sdkPackageName :: String
+sdkPackageName = "wasp"

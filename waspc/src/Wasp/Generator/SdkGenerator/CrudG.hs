@@ -35,8 +35,8 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
       mkTmplFdWithDstAndData
-        ([reldir|server/crud|] </> getCrudFilePath name "ts")
         [relfile|server/crud/_operationTypes.ts|]
+        ([reldir|server/crud|] </> getCrudFilePath name "ts")
         (Just tmplData)
       where
         tmplData =

@@ -30,8 +30,8 @@ mkTmplFd ::
   FileDraft
 mkTmplFd srcFilePath =
   mkTmplFdWithDstAndData
-    (castRel srcFilePath)
     srcFilePath
+    (castRel srcFilePath)
     Nothing
 
 mkTmplFdWithData ::
@@ -40,16 +40,16 @@ mkTmplFdWithData ::
   FileDraft
 mkTmplFdWithData srcFilePath tmplData =
   mkTmplFdWithDstAndData
-    (castRel srcFilePath)
     srcFilePath
+    (castRel srcFilePath)
     (Just tmplData)
 
 mkTmplFdWithDstAndData ::
-  Path' (Rel SdkUserCoreProjectDir) File' ->
   Path' (Rel SdkTemplatesUserCoreProjectDir) File' ->
+  Path' (Rel SdkUserCoreProjectDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData destFilePath srcFilePath =
+mkTmplFdWithDstAndData srcFilePath destFilePath =
   createTemplateFileDraft
     (sdkRootDirInGeneratedCodeDir </> sdkUserCoreProjectDirInSdkRootDir </> destFilePath)
     (sdkRootDirInTemplatesDir </> sdkTemplatesUserCoreProjectDirInSdkTemplatesDir </> srcFilePath)
