@@ -19,23 +19,24 @@ showNewsEntry newsEntry =
   -- https://github.com/wasp-lang/wasp-news/blob/2335ee25f23de1664321d84ca63aba4331722c9d/scripts/validate-news-format.js#L16
   T.unpack
     [trimming|
-    ${title} ${dots} ${publishedAt}
+    ${title}${separator}${publishedAt}
     ${level}
     ${body}
   |]
   where
     title = T.pack $ Term.applyStyles [Term.Bold] newsEntry.title
-    dots = T.pack $ replicate dotCount '.'
     publishedAt = T.pack $ Term.applyStyles [Term.Bold, Term.Yellow] date
     level = T.pack $ showNewsLevel newsEntry.level
     body = T.pack $ Term.applyStyles [Term.Grey] $ indent indentSize $ wrapString (maxColumns - indentSize) newsEntry.body
+    separator =
+      T.pack $
+        " "
+          <> replicate (max minDotsCount (maxColumns - length newsEntry.title - length date - 2)) '.'
+          <> " "
 
     date = formatTime defaultTimeLocale "%Y-%m-%d" newsEntry.publishedAt
 
-    dotCount = max minDotsCount $ maxColumns - length newsEntry.title - length date - spacesInSeparatorCount
-    spacesInSeparatorCount = 2
     minDotsCount = 5
-
     maxColumns = 80
     indentSize = 2
 
