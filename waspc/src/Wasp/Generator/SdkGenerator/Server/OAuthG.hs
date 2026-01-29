@@ -13,7 +13,14 @@ import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider, slackAuthProvider)
+import Wasp.Generator.AuthProviders
+  ( discordAuthProvider,
+    getEnabledAuthProvidersJson,
+    gitHubAuthProvider,
+    googleAuthProvider,
+    keycloakAuthProvider,
+    slackAuthProvider,
+  )
 import Wasp.Generator.AuthProviders.OAuth
   ( OAuthAuthProvider,
     clientOAuthCallbackPath,
@@ -24,8 +31,8 @@ import Wasp.Generator.AuthProviders.OAuth
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( SdkTemplatesUserCoreDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -49,7 +56,7 @@ genOAuth auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
-  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
   where
     tmplData =
       object
@@ -58,7 +65,7 @@ genIndexTs auth =
 
 genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
-  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|]) tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesUserCoreDir </> [relfile|redirect.ts|]) tmplData
   where
     tmplData =
       object
@@ -80,7 +87,7 @@ genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
 genOAuthConfig provider =
-  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile) tmplData
+  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesUserCoreDir </> [reldir|providers|] </> providerTsFile) tmplData
   where
     tmplData =
       object
@@ -96,9 +103,9 @@ depsRequiredByOAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
-serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
+serverOAuthDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+serverOAuthDirInSdkTemplatesUserCoreDir = [reldir|server/auth/oauth|]
 
 genFileCopyInServerOAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerOAuth =
-  return . mkTmplFd . (serverOAuthDirInSdkTemplatesDir </>)
+  return . mkTmplFd . (serverOAuthDirInSdkTemplatesUserCoreDir </>)

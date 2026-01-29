@@ -14,8 +14,8 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( SdkTemplatesUserCoreDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -38,7 +38,7 @@ genNewServerApi spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
   where
     tmplData =
       object
@@ -49,7 +49,7 @@ genAuthIndex auth =
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
-  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesDir </> [relfile|user.ts|]) tmplData
+  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|user.ts|]) tmplData
   where
     tmplData =
       object
@@ -64,7 +64,7 @@ genAuthUser auth =
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =
-  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesDir </> [relfile|hooks.ts|]) tmplData
+  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|hooks.ts|]) tmplData
   where
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
 
@@ -80,9 +80,9 @@ genAuthUsername auth =
     then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
     else return []
 
-serverAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]
+serverAuthDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+serverAuthDirInSdkTemplatesUserCoreDir = [reldir|server/auth|]
 
 genFileCopyInServerAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerAuth =
-  return . mkTmplFd . (serverAuthDirInSdkTemplatesDir </>)
+  return . mkTmplFd . (serverAuthDirInSdkTemplatesUserCoreDir </>)
