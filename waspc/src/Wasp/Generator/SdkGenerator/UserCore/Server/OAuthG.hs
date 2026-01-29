@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Server.OAuthG
+module Wasp.Generator.SdkGenerator.UserCore.Server.OAuthG
   ( genOAuth,
     depsRequiredByOAuth,
   )

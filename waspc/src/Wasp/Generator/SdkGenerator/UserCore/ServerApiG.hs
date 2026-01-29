@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.ServerApiG
+module Wasp.Generator.SdkGenerator.UserCore.ServerApiG
   ( genServerApi,
   )
 where

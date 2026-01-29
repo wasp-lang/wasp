@@ -317,31 +317,34 @@ library
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
     Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
-    Wasp.Generator.SdkGenerator.Auth.AuthFormsG
-    Wasp.Generator.SdkGenerator.Auth.EmailAuthG
-    Wasp.Generator.SdkGenerator.Auth.LocalAuthG
-    Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
-    Wasp.Generator.SdkGenerator.AuthG
-    Wasp.Generator.SdkGenerator.Client.AuthG
-    Wasp.Generator.SdkGenerator.Client.CrudG
-    Wasp.Generator.SdkGenerator.Client.OperationsGenerator
-    Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Common
-    Wasp.Generator.SdkGenerator.Core.Common
-    Wasp.Generator.SdkGenerator.CrudG
-    Wasp.Generator.SdkGenerator.EmailSender.Providers
-    Wasp.Generator.SdkGenerator.EnvValidation
     Wasp.Generator.SdkGenerator.JsImport
+    Wasp.Generator.SdkGenerator.Core
+    Wasp.Generator.SdkGenerator.Core.Common
+    Wasp.Generator.SdkGenerator.Root
     Wasp.Generator.SdkGenerator.Root.Common
-    Wasp.Generator.SdkGenerator.Server.AuthG
-    Wasp.Generator.SdkGenerator.Server.OAuthG
-    Wasp.Generator.SdkGenerator.Server.CrudG
-    Wasp.Generator.SdkGenerator.Server.EmailSenderG
-    Wasp.Generator.SdkGenerator.Server.JobGenerator
-    Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-    Wasp.Generator.SdkGenerator.ServerApiG
+    Wasp.Generator.SdkGenerator.UserCore
     Wasp.Generator.SdkGenerator.UserCore.Common
-    Wasp.Generator.SdkGenerator.WebSocketGenerator
+    Wasp.Generator.SdkGenerator.UserCore.CrudG
+    Wasp.Generator.SdkGenerator.UserCore.EnvValidation
+    Wasp.Generator.SdkGenerator.UserCore.WebSocketGenerator
+    Wasp.Generator.SdkGenerator.UserCore.EmailSender.Providers
+    Wasp.Generator.SdkGenerator.UserCore.AuthG
+    Wasp.Generator.SdkGenerator.UserCore.Auth.AuthFormsG
+    Wasp.Generator.SdkGenerator.UserCore.Auth.EmailAuthG
+    Wasp.Generator.SdkGenerator.UserCore.Auth.LocalAuthG
+    Wasp.Generator.SdkGenerator.UserCore.Auth.OAuthAuthG
+    Wasp.Generator.SdkGenerator.UserCore.Client.AuthG
+    Wasp.Generator.SdkGenerator.UserCore.Client.CrudG
+    Wasp.Generator.SdkGenerator.UserCore.Client.OperationsGenerator
+    Wasp.Generator.SdkGenerator.UserCore.Client.RouterGenerator
+    Wasp.Generator.SdkGenerator.UserCore.ServerApiG
+    Wasp.Generator.SdkGenerator.UserCore.Server.AuthG
+    Wasp.Generator.SdkGenerator.UserCore.Server.CrudG
+    Wasp.Generator.SdkGenerator.UserCore.Server.EmailSenderG
+    Wasp.Generator.SdkGenerator.UserCore.Server.JobGenerator
+    Wasp.Generator.SdkGenerator.UserCore.Server.OAuthG
+    Wasp.Generator.SdkGenerator.UserCore.Server.OperationsGenerator
     Wasp.Generator.ServerGenerator
     Wasp.Generator.ServerGenerator.JsImport
     Wasp.Generator.ServerGenerator.ApiRoutesG

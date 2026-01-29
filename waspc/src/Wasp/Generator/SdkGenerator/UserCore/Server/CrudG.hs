@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Server.CrudG
+module Wasp.Generator.SdkGenerator.UserCore.Server.CrudG
   ( genNewServerCrudApi,
   )
 where
