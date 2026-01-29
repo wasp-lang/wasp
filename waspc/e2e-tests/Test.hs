@@ -10,6 +10,7 @@ module Test
 where
 
 import Control.Concurrent.Async (mapConcurrently)
+import Control.Monad ((>=>))
 import Data.Maybe (fromJust)
 import FileSystem (TestCaseDir, getTestCaseDir, getTestOutputsDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
@@ -38,7 +39,7 @@ runTests tests = do
   testOutputsDir <- getTestOutputsDir
   callCommand $ "mkdir -p " ++ fromAbsDir testOutputsDir
 
-  mapConcurrently prepareTest tests >>= mapM createTestTree
+  mapConcurrently (prepareTest >=> createTestTree) tests
 
 -- | Data needed to create a test tree.
 data TestData = TestData
