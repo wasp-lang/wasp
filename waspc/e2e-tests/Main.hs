@@ -1,6 +1,6 @@
 import SnapshotTest (runSnapshotTest)
 import System.Info (os)
-import Test (runTest)
+import Test (runTests)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
@@ -42,8 +42,7 @@ e2eTests = do
         kitchenSinkSnapshotTest
       ]
   tests <-
-    mapM
-      runTest
+    runTests
       [ -- general Wasp commads
         waspNewTest,
         waspTelemetryTest,
