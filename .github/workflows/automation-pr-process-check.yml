@@ -1,0 +1,87 @@
+name: PR Process Check
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  process-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Claude Code
+        run: |
+          curl -fsSL https://claude.ai/install.sh | bash
+          echo "$HOME/.claude/bin" >> $GITHUB_PATH
+
+      - name: Run Claude Analysis
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo 'no-releases-yet')
+
+          claude -p "
+          You are a PR process compliance checker for the Wasp project (a Haskell-based full-stack web framework).
+
+          Context:
+          - Latest release tag: $LATEST_TAG
+          - Base branch: ${{ github.base_ref }}
+
+          Please analyze this PR by:
+          1. Reading .github/pull_request_template.md to understand the PR checklist
+          2. Reading the waspc/waspc.cabal file to get the current version
+          3. Reading waspc/ChangeLog.md to check for updates
+          4. Running 'git diff origin/${{ github.base_ref }}...HEAD' to see all changes
+          5. Checking if relevant files were updated based on the type of change
+
+          Based on the PR template, determine the type of change and check each applicable item in the checklist.
+
+          Output format:
+          - ✅ for items that are satisfied
+          - ⚠️ for warnings (might need attention)
+          - ❌ for issues (likely needs to be addressed)
+          - ➖ for items not applicable to this PR
+
+          Output a '## PR Checklist Review' section with your findings organized by category.
+          Then output '## Action Items' listing what the author should do (if anything).
+          Keep it concise and actionable.
+          " \
+          --allowedTools "Read,Bash(git diff:*),Bash(git log:*),Bash(git describe:*),Bash(cat:*),Bash(grep:*),Bash(head:*),Bash(ls:*),Bash(find:*)" \
+          --output-format text \
+          > claude_report.md
+
+          # Prepend header to the report
+          {
+            echo "## 🔍 PR Process Check"
+            echo ""
+            echo "Commit: ${{ github.event.pull_request.head.sha }}"
+            echo ""
+            echo "---"
+            echo ""
+            cat claude_report.md
+          } > final_report.md
+
+          cat final_report.md
+
+      - name: Find existing comment
+        uses: peter-evans/find-comment@v3
+        id: find-comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: "github-actions[bot]"
+          body-includes: "PR Process Check"
+
+      - name: Post or update PR Comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.find-comment.outputs.comment-id }}
+          edit-mode: replace
+          body-path: final_report.md

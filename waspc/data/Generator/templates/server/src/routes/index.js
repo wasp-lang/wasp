@@ -21,21 +21,9 @@ const router = express.Router()
 const middleware = globalMiddlewareConfigForExpress()
 
 router.get('/', middleware,
-  {=# isDevelopment =}
-    function (_req, res) {
-      const data = {
-        appName: "{= appName =}",
-        frontendUrl: config.frontendUrl
-      };
-      const wrongPortPage = makeWrongPortPage(data);
-      res.status(200).type('html').send(wrongPortPage);
-    }
-  {=/ isDevelopment =}
-  {=^ isDevelopment =}
     function (_req, res) {
       res.status(200).send();
     }
-  {=/ isDevelopment =}
 )
 
 {=# isAuthEnabled =}
