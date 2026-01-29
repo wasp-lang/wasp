@@ -37,7 +37,6 @@ sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
 sdkRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkRootDirInTemplatesDir = [reldir|sdk/wasp|]
 
--- | External @src@ directory refers to the user's @src@ directory.
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|src|]
 
