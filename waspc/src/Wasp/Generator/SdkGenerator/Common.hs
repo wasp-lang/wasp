@@ -20,11 +20,11 @@ data ClientTemplatesDir
 data ServerTemplatesDir
 
 mkTmplFdWithDstAndData ::
-  Path' (Rel SdkRootDir) File' ->
   Path' (Rel SdkTemplatesDir) File' ->
+  Path' (Rel SdkRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
-mkTmplFdWithDstAndData relDstPath relSrcPath tmplData =
+mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
   createTemplateFileDraft
     (sdkRootDirInGeneratedCodeDir </> relDstPath)
     (sdkTemplatesDirInTemplatesDir </> relSrcPath)
@@ -36,15 +36,15 @@ mkTmplFdWithData ::
   FileDraft
 mkTmplFdWithData relSrcPath tmplData =
   mkTmplFdWithDstAndData
-    (castRel relSrcPath)
     relSrcPath
+    (castRel relSrcPath)
     (Just tmplData)
 
 mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
 mkTmplFd relSrcPath =
   mkTmplFdWithDstAndData
-    (SP.castRel relSrcPath)
     relSrcPath
+    (SP.castRel relSrcPath)
     Nothing
 
 sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)

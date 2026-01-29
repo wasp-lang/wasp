@@ -51,8 +51,8 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
       mkTmplFdWithDstAndData
-        (castRel (clientCrudDirInSdkTemplatesDir </> fromJust (parseRelFile (name ++ ".ts"))))
         (clientCrudDirInSdkTemplatesDir </> [relfile|_crud.ts|])
+        (castRel (clientCrudDirInSdkTemplatesDir </> fromJust (parseRelFile (name ++ ".ts"))))
         (Just tmplData)
       where
         tmplData = getCrudOperationJson name crud idField

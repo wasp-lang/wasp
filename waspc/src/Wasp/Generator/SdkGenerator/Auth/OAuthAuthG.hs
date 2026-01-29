@@ -45,8 +45,8 @@ genOAuthHelpers auth =
     makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     makeOAuthHelpersFd provider helpersFp =
       mkTmplFdWithDstAndData
-        ([reldir|auth/helpers|] </> helpersFp)
         [relfile|auth/helpers/_Provider.tsx|]
+        ([reldir|auth/helpers|] </> helpersFp)
         (Just tmplData)
       where
         tmplData =

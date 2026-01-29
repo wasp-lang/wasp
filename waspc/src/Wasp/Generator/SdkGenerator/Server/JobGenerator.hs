@@ -60,8 +60,8 @@ genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
   return $
     mkTmplFdWithDstAndData
-      (castRel (serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
       (serverJobsDirInSdkTemplatesDir </> [relfile|_job.ts|])
+      (castRel (serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
       (Just tmplData)
   where
     tmplData =
