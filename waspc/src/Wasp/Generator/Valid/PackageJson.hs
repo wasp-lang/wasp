@@ -7,6 +7,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.Valid.PackageJson.Dependencies (dependenciesValidator)
+import Wasp.Generator.Valid.PackageJson.WaspConfig (waspConfigValidator)
 import Wasp.Generator.Valid.PackageJson.Workspaces (workspacesValidator)
 import qualified Wasp.Generator.Valid.Validator as V
 
@@ -20,5 +21,6 @@ validatePackageJson spec pkgJson =
       V.withFileName "package.json" $
         V.all
           [ workspacesValidator,
+            waspConfigValidator spec,
             dependenciesValidator spec
           ]

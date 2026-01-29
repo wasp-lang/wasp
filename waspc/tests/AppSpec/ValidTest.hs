@@ -509,7 +509,8 @@ spec_AppSpecValid = do
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
-                Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs
+                Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
+                Npm.PackageJson.wasp = Nothing
               },
           AS.buildType = BuildType.Development,
           AS.migrationsDir = Nothing,

@@ -18,13 +18,48 @@ You will notice that there are some other packages in the `dependencies` section
 
 ### Using Packages that are Already Used by Wasp Internally
 
-In the current version of Wasp, if Wasp is already internally using a certain dependency (e.g. React) with a certain version specified, you are not allowed to define that same npm dependency yourself while specifying _a different version_.
+Wasp internally uses certain dependencies (e.g. React, Prisma, Vite) with specific versions. By default, you cannot specify a different version for these packages - if you try, you'll get an error telling you which version Wasp requires.
 
-If you do that, you will get an error message telling you which exact version you have to use for that dependency.
-This means Wasp _dictates exact versions of certain packages_, so for example you can't choose the version of React you want to use.
+#### Overriding Wasp's Dependencies (Advanced)
+
+If you need to use a different version of a Wasp-managed dependency, you can override it using the `wasp.overriddenDeps` field in your `package.json`. This is an advanced feature intended for:
+
+- Testing newer versions before Wasp officially supports them
+- Working around bugs in a specific dependency version
+- Using older versions for compatibility reasons
+
+:::caution
+
+Overriding dependencies is **unsupported**. Wasp cannot guarantee compatibility when you use different versions than what it was tested with. You assume responsibility for any issues that arise.
+
+:::
+
+To override a dependency, add the `wasp` field to your `package.json` with an `overriddenDeps` object. The keys are the package names, and the values are **what Wasp currently requires** (not your desired version):
+
+```json title="package.json"
+{
+  "dependencies": {
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "wasp": {
+    "overriddenDeps": {
+      "react": "19.2.1",
+      "react-dom": "19.2.1"
+    }
+  }
+}
+```
+
+In this example:
+- You want to use React 18.2.0 (specified in `dependencies`)
+- Wasp requires React 19.2.1 (specified in `overriddenDeps`)
+- By declaring this, you acknowledge you're deviating from Wasp's tested version
+
+When Wasp updates its requirements in a new release, you'll need to update your `overriddenDeps` values to match. This ensures you consciously acknowledge each change.
 
 :::note
 
-We are currently working on a restructuring that will solve this and some other quirks: check [issue #1644](https://github.com/wasp-lang/wasp/issues/1644) to follow our progress.
+If you need the override to apply to transitive dependencies as well (dependencies of your dependencies), you can use npm's built-in [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) feature alongside `wasp.overriddenDeps`.
 
 :::
