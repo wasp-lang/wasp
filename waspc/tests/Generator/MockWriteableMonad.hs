@@ -21,6 +21,7 @@ import StrongPath.Operations (castFile)
 import StrongPath.Types (File)
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
+import qualified Wasp.Generator.WaspLibs.Common as WaspLibs
 
 -- TODO: Instead of manually defining mock like this, consider using monad-mock package,
 --   it should do most of this automatically, now there is a lot of boilerplate.
@@ -34,13 +35,14 @@ defaultMockConfig =
       compileAndRenderTemplate_impl = \_ _ -> pack "Mock template content",
       doesFileExist_impl = const True,
       doesDirectoryExist_impl = const True,
-      readFileAsText_impl = \_ -> pack "Mock text file content"
+      readFileAsText_impl = \_ -> pack "Mock text file content",
+      getLibsSourceDirAbsPath_impl = systemSPRoot </> [reldir|mock/libs/dir|]
     }
 
 getMockLogs :: MockWriteableMonad a -> MockWriteableMonadConfig -> MockWriteableMonadLogs
 getMockLogs mock config = fst $ execState (unMockWriteableMonad mock) (emptyLogs, config)
   where
-    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] [] [] []
+    emptyLogs = MockWriteableMonadLogs [] [] [] [] [] [] [] [] [] []
 
 instance WriteableMonad MockWriteableMonad where
   writeFileFromText dstPath text = MockWriteableMonad $ do
@@ -86,6 +88,11 @@ instance WriteableMonad MockWriteableMonad where
   removeDirectoryRecursive dir = MockWriteableMonad $ do
     modifyLogs (removeDirectoryRecursive_addCall (castDir dir))
 
+  getLibsSourceDirAbsPath = MockWriteableMonad $ do
+    modifyLogs getLibsSourceDirAbsPath_addCall
+    (_, config) <- get
+    return $ getLibsSourceDirAbsPath_impl config
+
   throwIO = throwIO
 
 instance MonadIO MockWriteableMonad where
@@ -108,7 +115,8 @@ data MockWriteableMonadLogs = MockWriteableMonadLogs
     getTemplateFileAbsPath_calls :: [Path' (Rel TemplatesDir) File'],
     compileAndRenderTemplate_calls :: [(Path' (Rel TemplatesDir) File', Aeson.Value)],
     copyDirectoryRecursive_calls :: [(Path' Abs Dir', Path' Abs Dir')],
-    removeDirectoryRecursive_calls :: [Path' Abs Dir']
+    removeDirectoryRecursive_calls :: [Path' Abs Dir'],
+    getLibsSourceDirAbsPath_calls :: [()]
   }
 
 data MockWriteableMonadConfig = MockWriteableMonadConfig
@@ -117,7 +125,8 @@ data MockWriteableMonadConfig = MockWriteableMonadConfig
     compileAndRenderTemplate_impl :: forall a. Path' (Rel TemplatesDir) (File a) -> Aeson.Value -> Text,
     doesFileExist_impl :: FilePath -> Bool,
     doesDirectoryExist_impl :: FilePath -> Bool,
-    readFileAsText_impl :: FilePath -> Text
+    readFileAsText_impl :: FilePath -> Text,
+    getLibsSourceDirAbsPath_impl :: Path' Abs (Dir WaspLibs.LibsSourceDir)
   }
 
 writeFileFromText_addCall :: FilePath -> Text -> MockWriteableMonadLogs -> MockWriteableMonadLogs
@@ -165,3 +174,7 @@ compileAndRenderTemplate_addCall path json logs =
     { compileAndRenderTemplate_calls =
         (path, json) : compileAndRenderTemplate_calls logs
     }
+
+getLibsSourceDirAbsPath_addCall :: MockWriteableMonadLogs -> MockWriteableMonadLogs
+getLibsSourceDirAbsPath_addCall logs =
+  logs {getLibsSourceDirAbsPath_calls = () : getLibsSourceDirAbsPath_calls logs}

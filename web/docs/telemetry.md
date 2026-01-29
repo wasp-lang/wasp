@@ -44,6 +44,17 @@ Our telemetry implementation is anonymized and very limited in its scope, focuse
   }
   ```
 
+- Information is also sent once via HTTPS request when the `wasp` npm package is installed (postinstall hook). Exact information as it is sent:
+  ```json
+  {
+    // Randomly generated id.
+    "distinct_id": "274701613078193779564259",
+    "os": "linux",
+    // "CI" if running on CI, empty string otherwise.
+    "context": "CI"
+  }
+  ```
+
 ## Opting out
 
 You sharing the telemetry data with us means a lot to us, since it helps us understand how popular Wasp is, how it is being used, how the changes we are doing affect usage, how many new vs old users there are, and just in general how Wasp is doing. We look at these numbers every morning and they drive us to make Wasp better.

@@ -2,64 +2,30 @@ module Wasp.Generator.Valid.PackageJson.Dependencies
   ( dependenciesValidator,
 
     -- * Exported for testing only
-    makeOptionalDepValidator,
     makeRequiredDepValidator,
+    makeOptionalDepValidator,
+    makeForbiddenDepValidator,
     inDependency,
     DependencyType (..),
   )
 where
 
 import qualified Data.Map as M
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.DepVersions
-  ( expressTypesVersion,
-    prismaVersion,
-    reactDomTypesVersion,
-    reactDomVersion,
-    reactRouterVersion,
-    reactTypesVersion,
-    reactVersion,
-    typescriptVersion,
-    viteVersion,
+import Wasp.Generator.Valid.PackageJson.Common
+  ( DependencySpecification,
+    forbiddenUserDeps,
+    getAllWaspDependencies,
+    requiredUserDevelopmentDeps,
+    requiredUserRuntimeDeps,
   )
 import qualified Wasp.Generator.Valid.Validator as V
 
 data DependencyType = Runtime | Development deriving (Show)
 
-type DependencySpecification = (P.PackageName, P.PackageVersion)
-
-requiredRuntimeDeps :: [DependencySpecification]
-requiredRuntimeDeps =
-  [ -- Installing the wrong version of "react-router-dom" can make users believe that they
-    -- can use features that are not available in the version that Wasp supports.
-    ("react-router-dom", show reactRouterVersion),
-    ("react", show reactVersion),
-    ("react-dom", show reactDomVersion)
-  ]
-
-requiredDevelopmentDeps :: [DependencySpecification]
-requiredDevelopmentDeps =
-  [ ("vite", show viteVersion),
-    ("prisma", show prismaVersion)
-  ]
-
-optionalDeps :: [DependencySpecification]
-optionalDeps =
-  [ ("typescript", show typescriptVersion),
-    ("@types/react", show reactTypesVersion),
-    ("@types/react-dom", show reactDomTypesVersion),
-    ("@types/express", show expressTypesVersion)
-  ]
-
-forbiddenDeps :: [P.PackageName]
-forbiddenDeps =
-  [ -- The `wasp` package is used in the `workspaces` field of the user's package.json.
-    -- It shouldn't be listed as a dependency so it's not overwritten.
-    "wasp"
-  ]
-
-dependenciesValidator :: V.Validator P.PackageJson
-dependenciesValidator =
+dependenciesValidator :: AS.AppSpec -> V.Validator P.PackageJson
+dependenciesValidator spec =
   V.all
     [ runtimeDepsValidator,
       developmentDepsValidator,
@@ -69,26 +35,34 @@ dependenciesValidator =
   where
     runtimeDepsValidator :: V.Validator P.PackageJson
     runtimeDepsValidator =
-      V.all $ makeRequiredDepValidator Runtime <$> requiredRuntimeDeps
+      V.all $ makeRequiredDepValidator Runtime <$> requiredUserRuntimeDeps
 
     developmentDepsValidator :: V.Validator P.PackageJson
     developmentDepsValidator =
-      V.all $ makeRequiredDepValidator Development <$> requiredDevelopmentDeps
+      V.all $ makeRequiredDepValidator Development <$> requiredUserDevelopmentDeps
 
     optionalDepsValidator :: V.Validator P.PackageJson
     optionalDepsValidator =
       V.all $
         [ makeOptionalDepValidator depType dep
           | depType <- [Runtime, Development],
-            dep <- optionalDeps
+            -- We check all the Wasp dependencies everywhere in case they are used
+            -- in the user's package.json, to avoid conflicts.
+            dep <- M.toList onlyOptionalWaspDeps
         ]
+
+    -- We don't check for dependencies as optional that are already going to be
+    -- checked as required, to avoid redundant error messages.
+    onlyOptionalWaspDeps = foldr (M.delete . fst) allWaspDeps allRequiredUserDeps
+    allWaspDeps = getAllWaspDependencies spec
+    allRequiredUserDeps = requiredUserRuntimeDeps <> requiredUserDevelopmentDeps
 
     forbiddenDepsValidator :: V.Validator P.PackageJson
     forbiddenDepsValidator =
       V.all $
         [ makeForbiddenDepValidator depType pkgName
           | depType <- [Runtime, Development],
-            pkgName <- forbiddenDeps
+            pkgName <- forbiddenUserDeps
         ]
 
 -- | Validates that a required dependency is present in the correct dependency

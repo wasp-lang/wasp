@@ -32,7 +32,6 @@ data-files:
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
   Generator/templates/**/*.prisma
-  Generator/templates/**/*.toml
   Generator/templates/**/*.css
   Generator/templates/**/*.ts
   Generator/templates/**/*.json
@@ -42,6 +41,7 @@ data-files:
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
   Generator/templates/**/*.png
+  Generator/libs/**/*.tgz
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
@@ -166,6 +166,7 @@ library
     , megaparsec            ^>= 9.5.0
     , validation-selective  ^>= 0.2.0
     , selective             ^>= 0.7.0
+    , http-types            ^>= 0.12.4
   other-modules: Paths_waspc
   exposed-modules:
     FilePath.Extra
@@ -279,6 +280,7 @@ library
     Wasp.Env
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
+    Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
     Wasp.Generator.AuthProviders
@@ -301,6 +303,7 @@ library
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
     Wasp.Generator.FileDraft.CopyFileDraft
+    Wasp.Generator.FileDraft.CopyLibDraft
     Wasp.Generator.FileDraft.TemplateFileDraft
     Wasp.Generator.FileDraft.TextFileDraft
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
@@ -357,6 +360,7 @@ library
     Wasp.Generator.Test
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
+    Wasp.Generator.Valid.PackageJson.Common
     Wasp.Generator.Valid.PackageJson.Dependencies
     Wasp.Generator.Valid.PackageJson.Workspaces
     Wasp.Generator.Valid.TsConfig
@@ -373,6 +377,10 @@ library
     Wasp.Generator.WebAppGenerator.Vite
     Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
+    Wasp.Generator.WaspLibs
+    Wasp.Generator.WaspLibs.AvailableLibs
+    Wasp.Generator.WaspLibs.Common
+    Wasp.Generator.WaspLibs.WaspLib
     Wasp.Generator.WriteFileDrafts
     Wasp.JsImport
     Wasp.Job
@@ -449,6 +457,7 @@ library
     Wasp.Util.Fib
     Wasp.Util.FilePath
     Wasp.Util.HashMap
+    Wasp.Util.InstallMethod
     Wasp.Util.IO
     Wasp.Util.IO.Retry
     Wasp.Util.Json
@@ -546,6 +555,7 @@ library cli-lib
     , cryptonite
     , fsnotify
     , http-conduit
+    , http-types
     , optparse-applicative ^>=0.18.1
     , path
     , path-io
@@ -699,6 +709,7 @@ test-suite waspc-tests
     Generator.AuthInjectionTest
     Generator.DbGeneratorTest
     Generator.FileDraft.CopyFileDraftTest
+    Generator.FileDraft.CopyLibDraftTest
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.MockWriteableMonad
@@ -736,7 +747,8 @@ test-suite waspc-tests
     Project.WaspignoreTest
     Project.DbTest
     Paths_waspc
-    Generator.NpmDependenciesTest
+    ExternalConfig.Npm.NpmDependenciesTest
+    ExternalConfig.Npm.TarballTest
     Generator.Valid.PackageJsonTest
     Generator.Valid.ValidatorTest
     JsImportTest
@@ -818,16 +830,33 @@ test-suite waspc-e2e-tests
     , hspec
     , tasty-hspec
     , tasty-golden
+    , base64-bytestring
+    , neat-interpolation
   other-modules:
+    Test
+    SnapshotTest
     FileSystem
     ShellCommands
-    WaspProject.ShellCommands
-    SnapshotTest
-    SnapshotTest.Snapshot
-    SnapshotTest.FileSystem
-    SnapshotTest.ShellCommands
-    Tests.WaspNewSnapshotTest
-    Tests.KitchenSinkSnapshotTest
-    Tests.WaspMigrateSnapshotTest
-    Tests.WaspCompileSnapshotTest
-    Tests.WaspBuildSnapshotTest
+    Tests.WaspBuildStartTest
+    Tests.WaspCleanTest
+    Tests.WaspCompileTest
+    Tests.WaspBuildTest
+    Tests.WaspCompletionTest
+    Tests.WaspNewTest
+    Tests.WaspStartTest
+    Tests.WaspStudioTest
+    Tests.WaspVersionTest
+    Tests.WaspInfoTest
+    Tests.WaspDockerfileTest
+    Tests.WaspTelemetryTest
+    Tests.WaspDepsTest
+    Tests.WaspDbStartTest
+    Tests.WaspDbMigrateDevTest
+    Tests.WaspDbSeedTest
+    Tests.WaspDbResetTest
+    Tests.WaspDbStudioTest
+    Tests.SnapshotTests.WaspNewSnapshotTest
+    Tests.SnapshotTests.KitchenSinkSnapshotTest
+    Tests.SnapshotTests.WaspMigrateSnapshotTest
+    Tests.SnapshotTests.WaspCompileSnapshotTest
+    Tests.SnapshotTests.WaspBuildSnapshotTest
