@@ -1,82 +1,47 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.Generator.NpmDependencies
-  ( DependencyConflictError (..),
-    getDependenciesPackageJsonEntry,
+  ( getDependenciesPackageJsonEntry,
     getDevDependenciesPackageJsonEntry,
     getPeerDependenciesPackageJsonEntry,
     getUserNpmDepsForPackage,
-    getNpmDepsConflicts,
     NpmDepsForPackage (..),
-    conflictErrorToMessage,
     NpmDepsFromWasp (..),
     NpmDepsFromUser (..),
     buildWaspServerNpmDeps,
     getDependencyOverridesPackageJsonEntry,
-    ensureNoConflictWithUserDeps,
+    mergeWaspAndUserDeps,
   )
 where
 
 import Data.Aeson
-import Data.Function (on)
 import Data.List (intercalate, sort)
-import qualified Data.Map as Map
-import qualified Data.Maybe as Maybe
 import GHC.Generics
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
-import Wasp.Generator.Monad (Generator, GeneratorError (..), logAndThrowGeneratorError)
+import Wasp.Generator.Monad (Generator)
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
     devDependencies :: [D.Dependency],
     peerDependencies :: [D.Dependency]
   }
-  deriving (Show, Generic)
-
-instance ToJSON NpmDepsForPackage
-
-instance FromJSON NpmDepsForPackage
+  deriving (Show, Generic, ToJSON, FromJSON)
 
 newtype NpmDepsFromWasp = NpmDepsFromWasp {fromWasp :: NpmDepsForPackage}
   deriving (Show)
 
 newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
-  deriving (Show, Eq, Generic)
+  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
-instance ToJSON NpmDepsFromUser
+mergeWaspAndUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> Generator NpmDepsForPackage
+mergeWaspAndUserDeps waspDeps _userDeps = return $ waspDepsToPackageDeps waspDeps
 
-instance FromJSON NpmDepsFromUser
-
-data DependencyConflictError = DependencyConflictError
-  { waspDependency :: D.Dependency,
-    userDependency :: D.Dependency
-  }
-  deriving (Show, Eq)
-
-ensureNoConflictWithUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> Generator NpmDepsForPackage
-ensureNoConflictWithUserDeps waspDeps userDeps
-  | null conflicts = return $ waspDepsToPackageDeps waspDeps
-  | otherwise =
-      logAndThrowGeneratorError $
-        GenericGeneratorError $
-          intercalate "\n " $
-            map
-              conflictErrorToMessage
-              conflicts
-  where
-    conflicts = getNpmDepsConflicts waspDeps userDeps
-
-buildWaspServerNpmDeps :: AppSpec -> NpmDepsFromWasp -> Either String NpmDepsForPackage
-buildWaspServerNpmDeps spec fromServer
-  | hasConflicts = Left "Could not construct npm dependencies due to a previously reported conflict."
-  | otherwise = Right $ waspDepsToPackageDeps fromServer
-  where
-    hasConflicts = not $ null serverDepConflicts
-    serverDepConflicts = getNpmDepsConflicts fromServer userDeps
-    userDeps = getUserNpmDepsForPackage spec
+buildWaspServerNpmDeps :: NpmDepsFromWasp -> NpmDepsForPackage
+buildWaspServerNpmDeps = waspDepsToPackageDeps
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser
 getUserNpmDepsForPackage spec =
@@ -87,17 +52,6 @@ getUserNpmDepsForPackage spec =
         devDependencies = PJ.getDevDependencies $ AS.packageJson spec,
         peerDependencies = []
       }
-
-conflictErrorToMessage :: DependencyConflictError -> String
-conflictErrorToMessage DependencyConflictError {waspDependency = waspDep, userDependency = userDep} =
-  "Error: Dependency conflict for user dependency ("
-    ++ D.name userDep
-    ++ ", "
-    ++ D.version userDep
-    ++ "): "
-    ++ "Version must be set to the exactly the same version as"
-    ++ " the one wasp is using: "
-    ++ D.version waspDep
 
 -- NpmDepsForPackage are equal if their sorted dependencies
 -- are equal.
@@ -117,41 +71,6 @@ waspDepsToPackageDeps npmDepsFromWasp =
       -- dependencies are always empty.
       peerDependencies = []
     }
-
--- | Checks the user's dependencies compatibility against Wasp's declared npm dependencies.
-getNpmDepsConflicts :: NpmDepsFromWasp -> NpmDepsFromUser -> [DependencyConflictError]
-getNpmDepsConflicts npmDepsFromWasp npmDepsFromUser =
-  conflictErrors ++ devConflictErrors
-  where
-    conflictErrors = determineConflictErrors allWaspDepsByName userDepsByName
-    devConflictErrors = determineConflictErrors allWaspDepsByName userDevDepsByName
-
-    allWaspDepsByName = (Map.union `on` makeDepsByName) waspDeps waspDevDeps
-    waspDeps = dependencies $ fromWasp npmDepsFromWasp
-    waspDevDeps = devDependencies $ fromWasp npmDepsFromWasp
-
-    userDepsByName = makeDepsByName $ dependencies $ fromUser npmDepsFromUser
-    userDevDepsByName = makeDepsByName $ devDependencies $ fromUser npmDepsFromUser
-
-type DepsByName = Map.Map String D.Dependency
-
--- Given a map of wasp dependencies and a map of user dependencies, construct a
--- list of conflict errors for any dependencies that have a matching name but
--- different version.
-determineConflictErrors :: DepsByName -> DepsByName -> [DependencyConflictError]
-determineConflictErrors waspDepsByName userDepsByName =
-  Maybe.mapMaybe makeConflictErrorIfMismatchedVersion (Map.toAscList overlappingDeps)
-  where
-    overlappingDeps = waspDepsByName `Map.intersection` userDepsByName
-    makeConflictErrorIfMismatchedVersion :: (String, D.Dependency) -> Maybe DependencyConflictError
-    makeConflictErrorIfMismatchedVersion (waspDepName, waspDep) = do
-      userDep <- Map.lookup waspDepName userDepsByName
-      if D.version waspDep /= D.version userDep
-        then Just $ DependencyConflictError waspDep userDep
-        else Nothing
-
-makeDepsByName :: [D.Dependency] -> DepsByName
-makeDepsByName = Map.fromList . fmap (\d -> (D.name d, d))
 
 getDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "dependencies" . dependencies

@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.Generator.NpmInstall.Common
@@ -18,24 +19,15 @@ data AllNpmDeps = AllNpmDeps
     _waspServerNpmDeps :: !N.NpmDepsForPackage, -- Deps coming from Wasp's server package.json.
     _waspSdkNpmDeps :: !N.NpmDepsForPackage -- Deps coming from Wasp's SDK's package.json .
   }
-  deriving (Eq, Show, Generic)
+  deriving (Eq, Show, Generic, ToJSON, FromJSON)
 
-instance ToJSON AllNpmDeps
-
-instance FromJSON AllNpmDeps
-
-getAllNpmDeps :: AppSpec -> Either String AllNpmDeps
+getAllNpmDeps :: AppSpec -> AllNpmDeps
 getAllNpmDeps spec =
-  let userNpmDeps = N.getUserNpmDepsForPackage spec
-      errorOrWaspServerNpmDeps =
-        N.buildWaspServerNpmDeps spec (SG.npmDepsFromWasp spec)
-      waspSdkNpmDeps = SdkGenerator.npmDepsForSdk spec
-   in case errorOrWaspServerNpmDeps of
-        Left message -> Left $ "determining npm deps to install failed: " ++ message
-        Right waspServerNpmDeps ->
-          Right $
-            AllNpmDeps
-              { _userNpmDeps = userNpmDeps,
-                _waspServerNpmDeps = waspServerNpmDeps,
-                _waspSdkNpmDeps = waspSdkNpmDeps
-              }
+  AllNpmDeps
+    { _userNpmDeps =
+        N.getUserNpmDepsForPackage spec,
+      _waspServerNpmDeps =
+        N.buildWaspServerNpmDeps (SG.npmDepsFromWasp spec),
+      _waspSdkNpmDeps =
+        SdkGenerator.npmDepsForSdk spec
+    }
