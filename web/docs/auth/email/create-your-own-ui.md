@@ -29,7 +29,7 @@ Below you can find a starting point for making your own UI in the client code. T
     } from 'wasp/client/auth'
 
     import { useState } from 'react'
-    import { useNavigate } from 'react-router-dom'
+    import { useNavigate } from 'react-router'
 
     // This will be shown when the user wants to log in
     export function Login() {
@@ -243,7 +243,7 @@ Below you can find a starting point for making your own UI in the client code. T
     } from 'wasp/client/auth'
 
     import { useState } from 'react'
-    import { useNavigate } from 'react-router-dom'
+    import { useNavigate } from 'react-router'
 
     // This will be shown when the user wants to log in
     export function Login() {

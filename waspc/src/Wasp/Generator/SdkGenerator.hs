@@ -17,7 +17,7 @@ import Data.Maybe (isJust, mapMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', Rel, castRel, fromRelDir, fromRelFile, relfile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
-import Wasp.AppSpec
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
@@ -52,6 +52,7 @@ import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
+import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
@@ -67,6 +68,9 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
@@ -173,12 +177,13 @@ genEntitiesAndServerTypesDirs spec =
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
 genPackageJson :: AppSpec -> Generator FileDraft
-genPackageJson spec =
+genPackageJson spec = do
   return $
     C.mkTmplFdWithData
       [relfile|package.json|]
       ( object
-          [ "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
+          [ "sdkPackageName" .= sdkPackageName,
+            "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
             "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
           ]
@@ -195,11 +200,10 @@ npmDepsForSdk spec =
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
-            ("react-router-dom", show reactRouterVersion),
+            ("react-router", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
           ]
-          ++ depsRequiredForAuth spec
           ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
           -- lists prisma/client as a dependency.
@@ -213,7 +217,8 @@ npmDepsForSdk spec =
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
-          ++ depsRequiredByEnvValidation,
+          ++ depsRequiredByEnvValidation
+          ++ waspLibsNpmDeps,
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
@@ -225,6 +230,8 @@ npmDepsForSdk spec =
           [ ("@tanstack/react-query", reactQueryVersion)
           ]
     }
+  where
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
@@ -288,16 +295,6 @@ genTsConfigJson = do
           [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
           ]
       )
-
-depsRequiredForAuth :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
-  where
-    maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
-    authDeps =
-      Npm.Dependency.fromList
-        [ -- Argon2 is used for hashing passwords.
-          ("@node-rs/argon2", "^1.8.3")
-        ]
 
 -- TODO(filip): Figure out where this belongs.
 -- Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
