@@ -27,7 +27,7 @@ import Wasp.Generator.SdkGenerator.Common
   ( makeSdkImportPath,
   )
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreProjectDir,
+  ( SdkTemplatesUserCoreDir,
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
@@ -49,7 +49,7 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ mkTmplFdWithData (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverJobsDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["jobs" .= map getJobTmplData jobs]
     getJobTmplData (jobName, _) =
@@ -62,8 +62,8 @@ genJob :: (String, Job) -> Generator FileDraft
 genJob (jobName, job) =
   return $
     mkTmplFdWithDstAndData
-      (serverJobsDirInSdkTemplatesUserCoreProjectDir </> [relfile|_job.ts|])
-      (castRel (serverJobsDirInSdkTemplatesUserCoreProjectDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
+      (serverJobsDirInSdkTemplatesUserCoreDir </> [relfile|_job.ts|])
+      (castRel (serverJobsDirInSdkTemplatesUserCoreDir </> fromJust (parseRelFile (jobName ++ ".ts"))))
       (Just tmplData)
   where
     tmplData =
@@ -144,9 +144,9 @@ pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)
 depsRequiredByJobs :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByJobs spec = [pgBossDependency | isPgBossJobExecutorUsed spec]
 
-serverJobsDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
-serverJobsDirInSdkTemplatesUserCoreProjectDir = [reldir|server/jobs|]
+serverJobsDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+serverJobsDirInSdkTemplatesUserCoreDir = [reldir|server/jobs|]
 
 genFileCopyInServerJob :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerJob =
-  return . mkTmplFd . (serverJobsDirInSdkTemplatesUserCoreProjectDir </>)
+  return . mkTmplFd . (serverJobsDirInSdkTemplatesUserCoreDir </>)

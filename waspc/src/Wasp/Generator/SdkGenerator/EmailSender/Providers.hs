@@ -9,12 +9,12 @@ where
 
 import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.SdkGenerator.UserCore.Common (SdkTemplatesUserCoreProjectDir)
+import Wasp.Generator.SdkGenerator.UserCore.Common (SdkTemplatesUserCoreDir)
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
-    setupFnFile :: Path' (Rel SdkTemplatesUserCoreProjectDir) File'
+    setupFnFile :: Path' (Rel SdkTemplatesUserCoreDir) File'
   }
   deriving (Show, Eq)
 
@@ -64,5 +64,5 @@ dummy =
       setupFnFile = providersDirInSdkTemplatesDir </> [relfile|dummy.ts|]
     }
 
-providersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
+providersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
 providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]

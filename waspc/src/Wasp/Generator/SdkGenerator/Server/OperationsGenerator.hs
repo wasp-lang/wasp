@@ -27,7 +27,7 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreProjectDir,
+  ( SdkTemplatesUserCoreDir,
     mkTmplFdWithData,
   )
 import Wasp.Util (toUpperFirst)
@@ -44,7 +44,7 @@ genOperations spec =
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
+genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
   where
     tmplData =
       object
@@ -54,12 +54,12 @@ genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreP
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genWrappers :: AppSpec -> Generator FileDraft
-genWrappers spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|wrappers.ts|]) tmplData
+genWrappers spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|wrappers.ts|]) tmplData
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|queries/index.ts|]) tmplData
+genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|queries/index.ts|]) tmplData
   where
     tmplData =
       object
@@ -69,7 +69,7 @@ genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUser
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/index.ts|]) tmplData
+genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|actions/index.ts|]) tmplData
   where
     tmplData =
       object
@@ -81,7 +81,7 @@ genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUser
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec =
   genOperationTypesFile
-    (serverOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|queries/types.ts|])
+    (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|queries/types.ts|])
     operations
     isAuthEnabledGlobally
   where
@@ -91,7 +91,7 @@ genQueryTypesFile spec =
 genActionTypesFile :: AppSpec -> Generator FileDraft
 genActionTypesFile spec =
   genOperationTypesFile
-    (serverOpsDirInSdkTemplatesUserCoreProjectDir </> [relfile|actions/types.ts|])
+    (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|actions/types.ts|])
     operations
     isAuthEnabledGlobally
   where
@@ -112,7 +112,7 @@ getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData 
     operation = AS.Operation.ActionOp actionName action
 
 genOperationTypesFile ::
-  Path' (Rel SdkTemplatesUserCoreProjectDir) File' ->
+  Path' (Rel SdkTemplatesUserCoreDir) File' ->
   [AS.Operation.Operation] ->
   Bool ->
   Generator FileDraft
@@ -137,7 +137,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
 
 serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) Dir'
 serverOperationsDirInSdkRootDir =
-  castRel . (serverOpsDirInSdkTemplatesUserCoreProjectDir </>) . \case
+  castRel . (serverOpsDirInSdkTemplatesUserCoreDir </>) . \case
     (AS.Operation.QueryOp _ _) -> [reldir|queries|]
     (AS.Operation.ActionOp _ _) -> [reldir|actions|]
 
@@ -152,5 +152,5 @@ getOperationTmplData isAuthEnabledGlobally operation =
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
 
-serverOpsDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
-serverOpsDirInSdkTemplatesUserCoreProjectDir = [reldir|server/operations|]
+serverOpsDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+serverOpsDirInSdkTemplatesUserCoreDir = [reldir|server/operations|]
