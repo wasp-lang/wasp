@@ -49,7 +49,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: 0.19.0
+      WASP_VERSION: "{pinnedLatestWaspVersion}"
 
     steps:
       - uses: actions/checkout@v6
@@ -92,7 +92,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: 0.19.0
+      WASP_VERSION: "{pinnedLatestWaspVersion}"
       RAILWAY_PROJECT_NAME: my-project-name
       RAILWAY_PROJECT_ID: MY_PROJECT_ID
 
