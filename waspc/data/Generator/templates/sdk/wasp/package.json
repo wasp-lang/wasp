@@ -64,8 +64,6 @@
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/auth/email": "./dist/server/auth/email/index.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./client/test/*": "./dist/client/test/*.js",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/crud/*": "./dist/server/crud/*.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./server/email/core/types": "./dist/server/email/core/types.js",
@@ -113,14 +111,18 @@
       "./server/operations": "./dist/server/operations/index.js",
       "./client/router": "./dist/client/router/index.js",
       "./client/test": "./dist/client/test/index.js",
+      "./client/test/setup": "./dist/client/test/setup.js",
       "./client/hooks": "./dist/client/hooks.js",
       "./client": "./dist/client/index.js",
-      "./dev": "./dist/dev/index.js",
       "./env": "./dist/env/index.js",
       {=! Private: [client] =}
       "./env/validation": "./dist/env/validation.js",
       {=! Private: [client, sdk] =}
       "./client/env/schema": "./dist/client/env/schema.js",
+      {=! Private: [client] =}
+      "./client/app": "./dist/client/app/index.jsx",
+      {=! Private: [client] =}
+      "./client/vite": "./dist/client/vite/index.js",
 
       {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
       {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}

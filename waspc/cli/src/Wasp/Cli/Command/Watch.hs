@@ -19,7 +19,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
-import Wasp.Project.Common (extPublicDirInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -42,7 +42,6 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
   chan <- newChan
   _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
   _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
-  _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan extPublicDirInWaspProjectDir
   listenForEvents chan =<< getCurrentTime
   where
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =

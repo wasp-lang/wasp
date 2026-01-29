@@ -7,10 +7,9 @@ module Wasp.Generator.NpmDependencies
     getPeerDependenciesPackageJsonEntry,
     getUserNpmDepsForPackage,
     NpmDepsForPackage (..),
-    NpmDepsForFramework,
     NpmDepsFromWasp (..),
     NpmDepsFromUser (..),
-    buildWaspFrameworkNpmDeps,
+    buildWaspServerNpmDeps,
     getDependencyOverridesPackageJsonEntry,
     mergeWaspAndUserDeps,
   )
@@ -24,12 +23,6 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Monad (Generator)
-
-data NpmDepsForFramework = NpmDepsForFramework
-  { npmDepsForServer :: NpmDepsForPackage,
-    npmDepsForWebApp :: NpmDepsForPackage
-  }
-  deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
@@ -47,12 +40,8 @@ newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
 mergeWaspAndUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> Generator NpmDepsForPackage
 mergeWaspAndUserDeps waspDeps _userDeps = return $ waspDepsToPackageDeps waspDeps
 
-buildWaspFrameworkNpmDeps :: NpmDepsFromWasp -> NpmDepsFromWasp -> NpmDepsForFramework
-buildWaspFrameworkNpmDeps fromServer fromWebApp =
-  NpmDepsForFramework
-    { npmDepsForServer = waspDepsToPackageDeps fromServer,
-      npmDepsForWebApp = waspDepsToPackageDeps fromWebApp
-    }
+buildWaspServerNpmDeps :: NpmDepsFromWasp -> NpmDepsForPackage
+buildWaspServerNpmDeps = waspDepsToPackageDeps
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser
 getUserNpmDepsForPackage spec =
