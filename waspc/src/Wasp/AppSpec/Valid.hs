@@ -11,11 +11,10 @@ module Wasp.AppSpec.Valid
   )
 where
 
+import Control.Applicative (asum)
 import Control.Monad (unless)
-import Data.List (find, group, groupBy, intercalate, sort, sortBy)
+import Data.List (find, group, groupBy, intercalate, sort, sortBy, stripPrefix)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
-import Text.Read (readMaybe)
-import Text.Regex.TDFA ((=~))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
@@ -44,6 +43,7 @@ import qualified Wasp.Psl.Db as Psl.Db
 import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
+import Wasp.SemanticVersion.Version (parseVersion)
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand)
@@ -91,24 +91,32 @@ validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
   specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
   unless (SV.isVersionInRange WV.waspVersion specWaspVersionRange) $
-    Left $
-      incompatibleVersionError WV.waspVersion specWaspVersionRange
+    Left (incompatibleVersionError WV.waspVersion specWaspVersionRange)
   where
-    -- TODO: Use version range parser from SemanticVersion when it is fully implemented.
-
     parseWaspVersionRange :: String -> Either ValidationError SV.Range
-    parseWaspVersionRange waspVersionRangeStr = do
-      -- Only ^x.y.z is allowed here because it was the easiest solution to start
-      -- with at the moment. In the future, we plan to allow any SemVer
-      -- definition.
-      let (_ :: String, _ :: String, _ :: String, waspVersionRangeDigits :: [String]) =
-            waspVersionRangeStr =~ ("\\`\\^([0-9]+)\\.([0-9]+)\\.([0-9]+)\\'" :: String)
+    parseWaspVersionRange waspVersionRangeString =
+      case asum
+        [ parsePrefixedVersion waspVersionRangeString "" SV.eq,
+          parsePrefixedVersion waspVersionRangeString "~" SV.tildeCompatibleWith,
+          parsePrefixedVersion waspVersionRangeString "^" SV.backwardsCompatibleWith
+        ] of
+        Just range -> Right range
+        Nothing -> Left badWaspVersionFormatError
 
-      waspSpecVersion <- case mapM readMaybe waspVersionRangeDigits of
-        Just [major, minor, patch] -> Right $ SV.Version major minor patch
-        __ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch"
+    parsePrefixedVersion :: String -> String -> (SV.Version -> SV.ComparatorSet) -> Maybe SV.Range
+    parsePrefixedVersion waspVersionRangeString prefix versionToComparatorSet = do
+      versionStr <- stripPrefix prefix waspVersionRangeString
+      case parseVersion versionStr of
+        -- Ensure the version string is exactly "major.minor.patch" format
+        -- by checking that the parsed version gives us back the input.
+        -- This rejects partial versions like "0.5" and trailing garbage like "0.5.0;2".
+        Right version | show version == versionStr -> Just $ SV.Range [versionToComparatorSet version]
+        _ -> Nothing
 
-      Right $ SV.Range [SV.backwardsCompatibleWith waspSpecVersion]
+    badWaspVersionFormatError :: ValidationError
+    badWaspVersionFormatError =
+      GenericValidationError
+        "Wasp version should be in the format ^major.minor.patch, ~major.minor.patch, or major.minor.patch"
 
     incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
     incompatibleVersionError actualVersion expectedVersionRange =

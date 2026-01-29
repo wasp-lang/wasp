@@ -18,6 +18,7 @@ spec_SemanticVersion_Version = do
     parseVersion "1.2.3foobar" `shouldBe` Right (Version 1 2 3)
     parseVersion "1.2.3-alpha" `shouldBe` Right (Version 1 2 3)
     parseVersion "1.2.3 some other stuff" `shouldBe` Right (Version 1 2 3)
+    parseVersion "0.5;2" `shouldBe` Right (Version 0 5 0)
     isLeft (parseVersion "1.2.3.") `shouldBe` True
     isLeft (parseVersion "1.2.3.blabla") `shouldBe` True
     isLeft (parseVersion "v1.2.3") `shouldBe` True

@@ -81,13 +81,19 @@ spec_AppSpecValid = do
                     ]
                 }
 
-        it "returns no error if waspVersion is compatible" $ do
-          ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
+        it "returns no error if waspVersion uses caret format" $ do
+          ASV.validateAppSpec (basicAppSpecWithVersionRange $ "^" ++ show WV.waspVersion) `shouldBe` []
+
+        it "returns no error if waspVersion uses tilde format" $ do
+          ASV.validateAppSpec (basicAppSpecWithVersionRange $ "~" ++ show WV.waspVersion) `shouldBe` []
+
+        it "returns no error if waspVersion uses exact version format" $ do
+          ASV.validateAppSpec (basicAppSpecWithVersionRange $ show WV.waspVersion) `shouldBe` []
 
         it "returns an error if 'waspVersion' has an incorrect format" $ do
           ASV.validateAppSpec (basicAppSpecWithVersionRange "0.5;2")
             `shouldBe` [ Valid.GenericValidationError
-                           "Wasp version should be in the format ^major.minor.patch"
+                           "Wasp version should be in the format ^major.minor.patch, ~major.minor.patch, or major.minor.patch"
                        ]
 
         it "returns an error if 'waspVersion' is not compatible" $ do

@@ -113,8 +113,12 @@ spec_SemanticVersion = do
     Range [gt [v|0.1.2|]] ~> [vi| (0.1.2, inf) |]
     Range [gt [v|0.1.2|] <> lt [v|0.2|]] ~> [vi| (0.1.2, 0.2) |]
     Range [lte [v|1.2.3|]] ~> [vi| (inf, 1.2.3] |]
+    Range [backwardsCompatibleWith [v|0.0.3|]] ~> [vi| [0.0.3, 0.0.4) |]
     Range [backwardsCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.3.0) |]
     Range [backwardsCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 2.0.0) |]
+    Range [tildeCompatibleWith [v|0.0.3|]] ~> [vi| [0.0.3, 0.0.4) |]
+    Range [tildeCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.2.4) |]
+    Range [tildeCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 1.3.0) |]
     Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1|], eq [v|0.5.6|]] ~> [vi| [0.5.6, 1.2.3] |]
 
   describe "doesVersionRangeAllowMajorChanges" $ do
