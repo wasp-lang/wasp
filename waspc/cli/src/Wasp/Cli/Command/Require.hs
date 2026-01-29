@@ -88,7 +88,8 @@ data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 
 instance Requirable DbConnectionEstablished where
   checkRequirement = do
-    -- TODO: Remove `GeneratedCodeIsDevelopment` requirement. (#2858)
+    -- TODO: Remove `GeneratedCodeIsDevelopment` requirement:
+    -- https://github.com/wasp-lang/wasp/issues/2858.
     -- The reason why we need it is because a Production build by design does
     -- not have some files like `.env` or `prisma.schema`, which makes it tricky
     -- to determine the database location. See the linked issue for more
