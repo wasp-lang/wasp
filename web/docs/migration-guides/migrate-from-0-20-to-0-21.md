@@ -73,6 +73,15 @@ Wasp has upgraded from React Router 6 to React Router 7. The only change you sho
 
 Wasp has upgraded its testing framework from Vitest 1 all the way to Vitest 4. This brings a lot of improvements, especially in terms of performance and stability. Most users should not notice any breaking changes, but if you have custom test setups or configurations, please refer to the [Vitest migration guide](https://vitest.dev/guide/migration.html) for more details.
 
+### New `--custom-server-url` option for deployment
+
+The `REACT_APP_API_URL` environment variable is no longer supported for specifying a custom server URL during deployment. Instead, use the new `--custom-server-url` CLI option:
+
+```sh
+wasp deploy fly deploy --custom-server-url https://my-custom-server.com
+wasp deploy railway deploy myproject --custom-server-url https://my-custom-server.com
+```
+
 ## How to migrate?
 
 To migrate your Wasp app from 0.20.X to 0.21.X, follow these steps:
@@ -304,7 +313,26 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 8. Add `netlify.toml` if deploying to Netlify
+### 8. Update custom server URL usage in deployment
+
+**If you weren't using `REACT_APP_API_URL` environment variable during deployment, you can skip this step.**
+
+If you were using the `REACT_APP_API_URL` environment variable to specify a custom server URL during deployment:
+
+```sh
+# Before (no longer supported)
+REACT_APP_API_URL=https://my-server.com wasp deploy fly deploy
+```
+
+You now need to use the `--custom-server-url` CLI option instead:
+
+```sh
+# After
+wasp deploy fly deploy --custom-server-url https://my-server.com
+wasp deploy railway deploy myproject --custom-server-url https://my-server.com
+```
+
+### 9. Add `netlify.toml` if deploying to Netlify
 
 **If you're not deploying to Netlify, you can skip this step.**
 
@@ -316,6 +344,6 @@ Create a `netlify.toml` file with the following content:
 
 For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
 
-### 9. Enjoy your updated Wasp app
+### 10. Enjoy your updated Wasp app
 
 That's it!

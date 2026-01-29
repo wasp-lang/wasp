@@ -134,6 +134,14 @@ If you've added any [client-side environment variables](../../../project/env-var
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
 ```
 
+#### Custom Server URL
+
+If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
+
+```shell
+wasp deploy railway launch my-wasp-app --custom-server-url https://api.myapp.com
+```
+
 ### The `deploy` command
 
 The `deploy` command deploys your client and server apps to Railway.
@@ -176,6 +184,14 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy <project-name>
 ```
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
+
+#### Custom Server URL
+
+If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
+
+```shell
+wasp deploy railway deploy my-wasp-app --custom-server-url https://api.myapp.com
+```
 
 ### The `setup` command
 

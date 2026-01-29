@@ -1,4 +1,3 @@
-import assert from "node:assert";
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
 import { waspInfo } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
@@ -44,31 +43,16 @@ export async function generateServiceUrl(
     return extractServiceUrlFromString(result.stdout);
   } else {
     const { domains } = RailwayCliDomainSchema.parse(result.json());
+    const domain = domains[0];
 
-    const REACT_APP_API_URL = process.env.REACT_APP_API_URL;
-    if (REACT_APP_API_URL) {
-      assert(
-        domains.includes(REACT_APP_API_URL),
-        `The domain specified in REACT_APP_API_URL (${REACT_APP_API_URL}) does not match any of the domains returned by Railway CLI: ${domains.join(", ")}`,
-      );
-
+    if (domains.length > 1) {
+      waspInfo(`Multiple domains detected, using the first one: ${domain}.`);
       waspInfo(
-        `Using domain from REACT_APP_API_URL environment variable: ${REACT_APP_API_URL}`,
+        'If you want to use a custom domain for the server, you should add the "--custom-server-url <url>" flag.',
       );
-
-      return REACT_APP_API_URL;
-    } else {
-      const domain = domains[0];
-
-      if (domains.length > 1) {
-        waspInfo(`Multiple domains detected, using the first one: ${domain}.`);
-        waspInfo(
-          "If you configured a custom domain for the server, you should run the command with an env variable: REACT_APP_API_URL=https://serverUrl.com <command>",
-        );
-      }
-
-      return domain;
     }
+
+    return domain;
   }
 }
 

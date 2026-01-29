@@ -12,6 +12,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - The Wasp SDK is now used as a workspace instead of a dependency. This avoids dependency resolution issues and further improves reliability of Wasp projects. ([#3544](https://github.com/wasp-lang/wasp/pull/3544))
 - Wasp now uses **React Router 7**. The package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your imports. ([#3490](https://github.com/wasp-lang/wasp/pull/3490), [#3658](https://github.com/wasp-lang/wasp/pull/3658))
 - Wasp no longer generates `netlify.toml` in the `.wasp/out/web-app` dir. If you're deploying to Netlify, you'll need to add it manually. ([#3665](https://github.com/wasp-lang/wasp/pull/3665))
+- The `REACT_APP_API_URL` environment variable is no longer supported for specifying a custom server URL during deployment. Use the new `--custom-server-url` CLI option instead. ([#3674](https://github.com/wasp-lang/wasp/pull/3674))
 
 ### 🎉 New Features
 
