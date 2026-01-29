@@ -25,7 +25,7 @@ Below you can find a starting point for making your own UI in the client code. Y
     import { login, signup } from 'wasp/client/auth'
 
     import { useState } from 'react'
-    import { useNavigate } from 'react-router-dom'
+    import { useNavigate } from 'react-router'
 
     export function Signup() {
       const [username, setUsername] = useState('')
@@ -74,7 +74,7 @@ Below you can find a starting point for making your own UI in the client code. Y
     import { login, signup } from 'wasp/client/auth'
 
     import { useState } from 'react'
-    import { useNavigate } from 'react-router-dom'
+    import { useNavigate } from 'react-router'
 
     export function Signup() {
       const [username, setUsername] = useState('')
@@ -127,7 +127,7 @@ Below you can find a starting point for making your own UI in the client code. Y
     import { login } from 'wasp/client/auth'
 
     import { useState } from 'react'
-    import { useNavigate } from 'react-router-dom'
+    import { useNavigate } from 'react-router'
 
     export function Login() {
       const [username, setUsername] = useState('')
@@ -175,7 +175,7 @@ Below you can find a starting point for making your own UI in the client code. Y
     import { login } from 'wasp/client/auth'
 
     import { useState } from 'react'
-    import { useNavigate } from 'react-router-dom'
+    import { useNavigate } from 'react-router'
 
     export function Login() {
       const [username, setUsername] = useState('')

@@ -5,6 +5,7 @@ module Wasp.ExternalConfig.Npm.Dependency
   ( Dependency (..),
     fromList,
     make,
+    toPair,
   )
 where
 
@@ -33,3 +34,6 @@ fromList = map make
 
 make :: (String, String) -> Dependency
 make (n, v) = Dependency {name = n, version = v}
+
+toPair :: Dependency -> (String, String)
+toPair dep = (name dep, version dep)

@@ -7,7 +7,7 @@ import {
   NavbarContent,
   NavbarItem,
 } from "@heroui/react";
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 import {
   logout,
   googleSignInUrl as signInUrl,
