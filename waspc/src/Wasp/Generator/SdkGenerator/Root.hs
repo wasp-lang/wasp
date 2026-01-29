@@ -10,6 +10,7 @@ import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
+import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import Wasp.Generator.SdkGenerator.Root.Common
   ( mkTmplFd,
     mkTmplFdWithData,
@@ -30,7 +31,8 @@ genPackageJson npmDeps =
   where
     tmplData =
       object
-        [ "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
+        [ "sdkPackageName" .= sdkPackageName,
+          "depsChunk" .= N.getDependenciesPackageJsonEntry npmDeps,
           "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry npmDeps,
           "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry npmDeps
         ]

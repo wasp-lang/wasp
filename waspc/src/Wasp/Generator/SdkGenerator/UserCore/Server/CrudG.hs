@@ -13,7 +13,7 @@ import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreProjectDir,
+  ( SdkTemplatesUserCoreDir,
     mkTmplFdWithData,
   )
 
@@ -28,7 +28,7 @@ genNewServerCrudApi spec =
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndex spec cruds =
-  return $ mkTmplFdWithData (serverCurdDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (serverCurdDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
     getCrudOperationJsonFromCrud :: (String, AS.Crud.Crud) -> Aeson.Value
@@ -36,5 +36,5 @@ genCrudIndex spec cruds =
       where
         idField = getIdFieldFromCrudEntity spec crud
 
-serverCurdDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
-serverCurdDirInSdkTemplatesUserCoreProjectDir = [reldir|server/crud|]
+serverCurdDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+serverCurdDirInSdkTemplatesUserCoreDir = [reldir|server/crud|]

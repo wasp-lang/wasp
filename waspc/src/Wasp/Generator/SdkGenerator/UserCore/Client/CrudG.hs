@@ -14,7 +14,7 @@ import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreProjectDir,
+  ( SdkTemplatesUserCoreDir,
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
@@ -37,7 +37,7 @@ genNewClientCrudApi spec =
 
 genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndex spec cruds =
-  return $ mkTmplFdWithData (clientCrudDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (clientCrudDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
     getCrudOperationJsonFromCrud :: (String, AS.Crud.Crud) -> Aeson.Value
@@ -51,16 +51,16 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
       mkTmplFdWithDstAndData
-        (castRel (clientCrudDirInSdkTemplatesUserCoreProjectDir </> fromJust (parseRelFile (name ++ ".ts"))))
-        (clientCrudDirInSdkTemplatesUserCoreProjectDir </> [relfile|_crud.ts|])
+        (clientCrudDirInSdkTemplatesUserCoreDir </> [relfile|_crud.ts|])
+        (castRel (clientCrudDirInSdkTemplatesUserCoreDir </> fromJust (parseRelFile (name ++ ".ts"))))
         (Just tmplData)
       where
         tmplData = getCrudOperationJson name crud idField
         idField = getIdFieldFromCrudEntity spec crud
 
-clientCrudDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
-clientCrudDirInSdkTemplatesUserCoreProjectDir = [reldir|client/crud|]
+clientCrudDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+clientCrudDirInSdkTemplatesUserCoreDir = [reldir|client/crud|]
 
 genFileCopyInClientCrud :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInClientCrud =
-  return . mkTmplFd . (clientCrudDirInSdkTemplatesUserCoreProjectDir </>)
+  return . mkTmplFd . (clientCrudDirInSdkTemplatesUserCoreDir </>)

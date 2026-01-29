@@ -3,14 +3,15 @@ module Wasp.Generator.Valid.PackageJson
   )
 where
 
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.Valid.PackageJson.Dependencies (dependenciesValidator)
 import Wasp.Generator.Valid.PackageJson.Workspaces (workspacesValidator)
 import qualified Wasp.Generator.Valid.Validator as V
 
-validatePackageJson :: P.PackageJson -> [GeneratorError]
-validatePackageJson pkgJson =
+validatePackageJson :: AS.AppSpec -> P.PackageJson -> [GeneratorError]
+validatePackageJson spec pkgJson =
   GenericGeneratorError . show
     <$> V.execValidator packageJsonValidator pkgJson
   where
@@ -19,5 +20,5 @@ validatePackageJson pkgJson =
       V.withFileName "package.json" $
         V.all
           [ workspacesValidator,
-            dependenciesValidator
+            dependenciesValidator spec
           ]

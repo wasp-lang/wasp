@@ -13,7 +13,7 @@ import Data.Maybe (mapMaybe)
 import StrongPath (Abs, Dir, Path', castRel, fromRelFile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
-import Wasp.AppSpec
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.ExternalFiles as EF
@@ -46,6 +46,9 @@ import Wasp.Generator.SdkGenerator.UserCore.Server.JobGenerator (depsRequiredByJ
 import Wasp.Generator.SdkGenerator.UserCore.Server.OAuthG (depsRequiredByOAuth)
 import Wasp.Generator.SdkGenerator.UserCore.WebSocketGenerator (depsRequiredByWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
@@ -109,11 +112,10 @@ npmDepsForSdk spec =
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
-            ("react-router-dom", show reactRouterVersion),
+            ("react-router", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
           ]
-          ++ depsRequiredForAuth spec
           ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
           -- lists prisma/client as a dependency.
@@ -127,7 +129,8 @@ npmDepsForSdk spec =
           ++ depsRequiredByWebSockets spec
           ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
-          ++ depsRequiredByEnvValidation,
+          ++ depsRequiredByEnvValidation
+          ++ waspLibsNpmDeps,
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
@@ -139,6 +142,8 @@ npmDepsForSdk spec =
           [ ("@tanstack/react-query", reactQueryVersion)
           ]
     }
+  where
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =

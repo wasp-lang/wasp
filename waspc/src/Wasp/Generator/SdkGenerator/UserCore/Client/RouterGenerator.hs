@@ -12,7 +12,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreProjectDir,
+  ( SdkTemplatesUserCoreDir,
     mkTmplFd,
     mkTmplFdWithData,
   )
@@ -29,7 +29,7 @@ genNewClientRouterApi spec =
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $ mkTmplFdWithData (clientRouterDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData (clientRouterDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
   where
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
@@ -53,9 +53,9 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
 
-clientRouterDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
-clientRouterDirInSdkTemplatesUserCoreProjectDir = [reldir|client/router|]
+clientRouterDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+clientRouterDirInSdkTemplatesUserCoreDir = [reldir|client/router|]
 
 genFileCopyInClientRouter :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInClientRouter =
-  return . mkTmplFd . (clientRouterDirInSdkTemplatesUserCoreProjectDir </>)
+  return . mkTmplFd . (clientRouterDirInSdkTemplatesUserCoreDir </>)

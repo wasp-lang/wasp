@@ -62,7 +62,6 @@ genWebApp spec = do
     [ genFileCopy [relfile|README.md|],
       genFileCopy [relfile|tsconfig.json|],
       genAppTsConfigJson spec,
-      genFileCopy [relfile|netlify.toml|],
       genPackageJson spec (npmDepsFromWasp spec),
       genGitignore,
       genIndexHtml spec
@@ -106,7 +105,7 @@ dotEnvInWebAppRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies = do
-  webAppDeps <- N.ensureNoConflictWithUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+  webAppDeps <- N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -116,16 +115,9 @@ genPackageJson spec waspDependencies = do
             [ "packageName" .= webAppPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry webAppDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry webAppDeps,
-              "overridesChunk" .= N.getDependencyOverridesPackageJsonEntry dependencyOverrides,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
-  where
-    dependencyOverrides =
-      Npm.Dependency.fromList
-        [ -- TODO: remove this once Rollup fixes their lastest version https://github.com/rollup/rollup/issues/6012
-          ("rollup", "4.44.0")
-        ]
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec
@@ -155,7 +147,7 @@ npmDepsFromWasp _spec =
               ("react", show reactVersion),
               ("react-dom", show reactDomVersion),
               ("@tanstack/react-query", reactQueryVersion),
-              ("react-router-dom", show reactRouterVersion)
+              ("react-router", show reactRouterVersion)
             ],
         N.devDependencies =
           Npm.Dependency.fromList
