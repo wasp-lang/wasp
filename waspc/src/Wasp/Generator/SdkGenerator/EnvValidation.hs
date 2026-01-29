@@ -33,12 +33,10 @@ genEnvValidation spec =
 
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
-  sequence
-    [ genFileCopy [relfile|env/index.ts|],
-      genFileCopy [relfile|env/validation.ts|]
+  return
+    [ C.mkTmplFd [relfile|env/index.ts|],
+      C.mkTmplFd [relfile|env/validation.ts|]
     ]
-  where
-    genFileCopy = return . C.mkTmplFd
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
 genServerEnvFiles spec = sequence [genServerEnv spec]
@@ -53,9 +51,8 @@ genClientEnvFiles spec =
     genFileCopy = return . C.mkTmplFd
 
 genServerEnv :: AppSpec -> Generator FileDraft
-genServerEnv spec = return $ C.mkTmplFdWithData tmplPath tmplData
+genServerEnv spec = return $ C.mkTmplFdWithData [relfile|server/env.ts|] tmplData
   where
-    tmplPath = [relfile|server/env.ts|]
     tmplData =
       object
         [ "isAuthEnabled" .= isJust maybeAuth,

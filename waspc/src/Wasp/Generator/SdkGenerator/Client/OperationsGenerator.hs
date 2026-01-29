@@ -4,8 +4,7 @@ import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types (Pair)
 import Data.Maybe (fromJust)
-import StrongPath (Dir, File', Path', Rel, reldir, relfile, (</>))
-import qualified StrongPath as SP
+import StrongPath (Dir, File', Path', Rel, relDirToPosix, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec (..))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -19,9 +18,10 @@ import Wasp.Generator.SdkGenerator.Common
     clientTemplatesDirInSdkTemplatesDir,
     getOperationTypeName,
     makeSdkImportPath,
+    mkTmplFd,
+    mkTmplFdWithData,
     relDirToRelFileP,
   )
-import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
@@ -30,24 +30,18 @@ import Wasp.Util ((<++>))
 
 data ClientOpsTemplatesDir
 
-clientOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientOpsTemplatesDir)
-clientOpsDirInSdkTemplatesDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
-
-genClientOpsFileCopy :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
-genClientOpsFileCopy path = return $ C.mkTmplFd $ clientOpsDirInSdkTemplatesDir </> path
-
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
     [ -- Not migrated to TS yet
-      genClientOpsFileCopy [relfile|internal/resources.js|],
-      genClientOpsFileCopy [relfile|internal/index.ts|],
+      genFileCopyInClientOps [relfile|internal/resources.js|],
+      genFileCopyInClientOps [relfile|internal/index.ts|],
       -- Not migrated to TS yet
-      genClientOpsFileCopy [relfile|internal/updateHandlersMap.js|],
-      genClientOpsFileCopy [relfile|rpc.ts|],
-      genClientOpsFileCopy [relfile|hooks.ts|],
-      genClientOpsFileCopy [relfile|index.ts|],
-      genClientOpsFileCopy [relfile|queryClient.ts|]
+      genFileCopyInClientOps [relfile|internal/updateHandlersMap.js|],
+      genFileCopyInClientOps [relfile|rpc.ts|],
+      genFileCopyInClientOps [relfile|hooks.ts|],
+      genFileCopyInClientOps [relfile|index.ts|],
+      genFileCopyInClientOps [relfile|queryClient.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec
@@ -55,30 +49,30 @@ genOperations spec =
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
   sequence
-    [ genClientOpsFileCopy [relfile|queries/core.ts|],
+    [ genFileCopyInClientOps [relfile|queries/core.ts|],
       genQueriesIndex spec
     ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
   sequence
-    [ genClientOpsFileCopy [relfile|actions/core.ts|],
+    [ genFileCopyInClientOps [relfile|actions/core.ts|],
       genActionsIndex spec
     ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ C.mkTmplFdWithData relPath tmplData
+genQueriesIndex spec =
+  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]) tmplData
   where
-    relPath = clientOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]
     tmplData =
       object
         [ "queries" .= map getQueryData (AS.getQueries spec)
         ]
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ C.mkTmplFdWithData relPath tmplData
+genActionsIndex spec =
+  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]) tmplData
   where
-    relPath = clientOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]
     tmplData =
       object
         [ "actions" .= map getActionData (AS.getActions spec)
@@ -137,5 +131,12 @@ getOperationTypeData operation = tmplData
       makeSdkImportPath $
         relDirToRelFileP $
           fromJust $
-            SP.relDirToPosix $
+            relDirToPosix $
               serverOperationsDirInSdkRootDir operation
+
+clientOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientOpsTemplatesDir)
+clientOpsDirInSdkTemplatesDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
+
+genFileCopyInClientOps :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
+genFileCopyInClientOps =
+  return . mkTmplFd . (clientOpsDirInSdkTemplatesDir </>)
