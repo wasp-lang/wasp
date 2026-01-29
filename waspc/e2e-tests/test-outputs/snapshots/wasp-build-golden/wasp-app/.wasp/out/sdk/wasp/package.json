@@ -7,6 +7,8 @@
     "@vitest/ui": "^4.0.16",
     "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.21.0.tgz",
     "axios": "^1.4.0",
+    "dotenv": "^17.2.3",
+    "dotenv-expand": "^12.0.3",
     "express": "~5.1.0",
     "jsdom": "^27.4.0",
     "mitt": "3.0.0",

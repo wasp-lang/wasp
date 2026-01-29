@@ -1,7 +1,6 @@
 import { type Plugin } from 'vite'
 
 import { loadWaspEnvClient } from './envFile.js'
-import { ENV_PREFIX } from './config.js'
 import {
   getValidatedEnvOrError,
   formatZodEnvErrors,

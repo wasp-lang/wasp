@@ -1,11 +1,10 @@
-{{={= =}=}}
 import { type Plugin, type UserConfig } from 'vite'
 import { resolve } from 'node:path'
 import { existsSync, readFileSync } from 'node:fs'
 import { parse as parseDotenv } from 'dotenv'
 import { expand, type DotenvPopulateInput } from 'dotenv-expand'
 
-const envFileName = '{= clientEnvFileName =}'
+const envFileName = '.env.client'
 
 // Based on: https://github.com/vitejs/vite/blob/8bb32036792a6f522f5c947112f3d688add755a0/packages/vite/src/node/env.ts
 export function loadWaspEnvClient(rootDir: string, envPrefix: NonNullable<UserConfig['envPrefix']>): Record<string, string> {

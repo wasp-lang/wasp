@@ -22,16 +22,17 @@ import Wasp.Project.Common
     generatedCodeDirInDotWaspDir,
     srcDirInWaspProjectDir,
   )
+import Wasp.Project.Env (dotEnvClient)
 import Wasp.Util ((<++>))
 
 genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
   sequence
     [ genViteIndex,
-      genWaspPlugin spec,
+      genFileCopy [relfile|wasp.ts|],
+      genWaspConfigPlugin spec,
+      genEnvFilePlugin,
       genDetectServerImportsPlugin,
-      genFileCopy [relfile|config.ts|],
-      genFileCopy [relfile|envFile.ts|],
       genFileCopy [relfile|validateEnv.ts|],
       genFileCopy [relfile|typescriptCheck.ts|]
     ]
@@ -45,10 +46,10 @@ genViteIndex = return $ C.mkTmplFd tmplPath
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|index.ts|]
 
-genWaspPlugin :: AppSpec -> Generator FileDraft
-genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
+genWaspConfigPlugin :: AppSpec -> Generator FileDraft
+genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|wasp.ts|]
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspConfig.ts|]
     tmplData =
       object
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
@@ -82,11 +83,14 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         -- Read more about libs versioning in `waspc/libs/README.md`.
         map WaspLib.packageName waspLibs
 
+genEnvFilePlugin :: Generator FileDraft
+genEnvFilePlugin = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|envFile.ts|]
+    tmplData = object ["clientEnvFileName" .= SP.fromRelFile dotEnvClient]
+
 genDetectServerImportsPlugin :: Generator FileDraft
 genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|detectServerImports.ts|]
-    tmplData =
-      object
-        [ "srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir
-        ]
+    tmplData = object ["srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir]

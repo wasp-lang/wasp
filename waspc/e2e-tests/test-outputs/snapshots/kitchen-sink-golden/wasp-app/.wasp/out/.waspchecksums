@@ -690,7 +690,14 @@
             "file",
             "sdk/wasp/client/vite/plugins/detectServerImports.ts"
         ],
-        "4bebf5a19faa908bfe87960584d09107b687cbdfb90a4bd7fa65cdb9c9235870"
+        "93885302fbb1758384e990fb6a7eac52fa03459f4df66a2b59eb8ac7b3e5c14a"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/vite/plugins/envFile.ts"
+        ],
+        "6d67038d95118fadad6101c46916cfe017b710ab298bc3a62c6c7d0da0b0deb4"
     ],
     [
         [
@@ -718,7 +725,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "e4d0bb7a2fb9d3415e0d1dc5c137fec5e9a4073a2eda33daf50396f5d477490e"
+        "3fd436012dd0b55108862f6979f042ff0b26b98523db27496106bce3ce1a3cd6"
     ],
     [
         [
@@ -732,7 +739,14 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "425297c6b6b2c2acf7d2966d99324f3ffd56f005b668e5c0e62f1604aacc67dc"
+        "f681a58c39936f57eebd7894f2343719d14c386f225d4a29772efa7e7cd96ef3"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/vite/plugins/waspConfig.ts"
+        ],
+        "37682805e490ada71b3f7b10105bb3f9e96674c5b0639593b0a1b6f8c5e7ec60"
     ],
     [
         [
@@ -844,7 +858,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "c067f8b8cf1b3cb219eb6a3522314dc8378d32afbef1f9de6a1b3944d5f80108"
+        "af7f833765f662cb434e9e4b145bc28ffdca40f5d2186cabed1f0e492a25b432"
     ],
     [
         [

@@ -1,15 +1,13 @@
-{{={= =}=}}
-import { type PluginOption, mergeConfig } from "vite";
-import { defaultExclude } from "vitest/config"
+import { type PluginOption } from "vite";
 import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
 import { validateEnv } from "./validateEnv.js";
 import { envFile } from "./envFile.js";
-import { ENV_PREFIX } from "./config.js";
 import { detectServerImports } from "./detectServerImports.js";
 import { waspVirtualModules } from "./virtualModules.js";
 import { waspHtmlDev } from "./html/dev.js";
 import { waspHtmlBuild } from "./html/build.js";
 import { typescriptCheck } from "./typescriptCheck.js";
+import { waspConfig } from "./waspConfig.js";
 
 export interface WaspPluginOptions {
   reactOptions?: ReactOptions;
@@ -17,62 +15,22 @@ export interface WaspPluginOptions {
 
 export function wasp(options?: WaspPluginOptions): PluginOption {
   return [
+    /**
+    * Plugins running before core plugins (enforce: 'pre').
+    */
+    // The `wasp:config` plugin must come first because
+    // other plugins may depend on its configuration.
+    waspConfig(),
+    waspVirtualModules(),
+    envFile(),
+    detectServerImports(),
+    /**
+     * Plugins running after core Vite plugins.
+     */
     typescriptCheck(),
     waspHtmlDev(),
     waspHtmlBuild(),
-    waspVirtualModules(),
-    envFile(),
     validateEnv(),
     react(options?.reactOptions),
-    detectServerImports(),
-    {
-      name: "wasp:config",
-      config(config) {
-        return mergeConfig({
-          base: "{= baseDir =}",
-          optimizeDeps: {
-            exclude: {=& depsExcludedFromOptimization =}
-          },
-          server: {
-            port: {= defaultClientPort =},
-            host: "0.0.0.0",
-            open: true,
-          },
-          envPrefix: ENV_PREFIX,
-          build: {
-            outDir: "{= clientBuildDirPath =}",
-          },
-          resolve: {
-            // These packages rely on a single instance per page. Not deduping them
-            // causes runtime errors (e.g., hook rule violation in react, QueryClient
-            // instance error in react-query, Invariant Error in react-router).
-            dedupe: ["react", "react-dom", "@tanstack/react-query", "react-router"],
-            alias: [
-              {
-                // Vite doesn't look for `.prisma/client` imports in the `node_modules`
-                // folder. We point it to the correct place here.
-                // TODO: Check if we can remove when updating Prisma (#2504)
-                find: /^\.prisma\/client\/(.+)$/,
-                replacement: "node_modules/.prisma/client/$1.js",
-              },
-              {
-                // Handle bare .prisma/client import
-                find: /^\.prisma\/client$/,
-                replacement: "node_modules/.prisma/client",
-              },
-            ],
-          },
-          test: {
-            globals: true,
-            environment: "jsdom",
-            setupFiles: {=& vitest.setupFilesArray =},
-            exclude: [
-              ...defaultExclude,
-              "{= vitest.excludeWaspArtefactsPattern =}",
-            ]
-          },
-        }, config);
-      }
-    },
   ];
 }
