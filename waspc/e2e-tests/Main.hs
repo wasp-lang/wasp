@@ -1,4 +1,4 @@
-import SnapshotTest (runSnapshotTest)
+import SnapshotTest (runSnapshotTests)
 import System.Info (os)
 import Test (runTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
@@ -33,8 +33,7 @@ main = do
 e2eTests :: IO TestTree
 e2eTests = do
   snapshotTests <-
-    mapM
-      runSnapshotTest
+    runSnapshotTests
       [ waspNewSnapshotTest,
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,
