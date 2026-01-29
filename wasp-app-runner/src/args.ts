@@ -5,10 +5,7 @@ import { Branded } from "./types.js";
 
 export type Mode = "dev" | "build";
 export type PathToApp = Branded<string, "PathToApp">;
-export type WaspCliCmd = Branded<
-  { cmd: string; args: string[] },
-  "WaspCliCmd"
->;
+export type WaspCliCmd = Branded<{ cmd: string; args: string[] }, "WaspCliCmd">;
 export type DockerImageName = Branded<string, "DockerImageName">;
 
 function parseWaspCliCmd(input: string): WaspCliCmd {
