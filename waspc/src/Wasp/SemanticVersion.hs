@@ -11,6 +11,8 @@ module Wasp.SemanticVersion
     backwardsCompatibleWith,
     approximatelyEquivalentWith,
     doesVersionRangeAllowMajorChanges,
+    parseWaspVersionRange,
+    waspVersionRangeParser,
   )
 where
 
@@ -18,7 +20,8 @@ import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (isJust)
-import Wasp.SemanticVersion.Version (Version (..), nextApproximatelyEquivalentVersion, nextBreakingChangeVersion)
+import Text.Parsec (ParseError, Parsec, char, choice, parse)
+import Wasp.SemanticVersion.Version (Version (..), nextApproximatelyEquivalentVersion, nextBreakingChangeVersion, versionParser)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (Exclusive, Inclusive, Inf),
@@ -151,3 +154,16 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
       let noMajorChangesInterval =
             (lowerBound, Exclusive $ nextBreakingChangeVersion lowerBoundVersion)
       guard $ versionInterval `isSubintervalOf` noMajorChangesInterval
+
+parseWaspVersionRange :: String -> Either ParseError Range
+parseWaspVersionRange = parse waspVersionRangeParser ""
+
+waspVersionRangeParser :: Parsec String () Range
+waspVersionRangeParser =
+  Range . pure <$> (choice prefixParsers <*> versionParser)
+  where
+    prefixParsers =
+      [ char '^' *> pure backwardsCompatibleWith,
+        char '~' *> pure approximatelyEquivalentWith,
+        pure eq
+      ]

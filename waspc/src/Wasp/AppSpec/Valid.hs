@@ -11,9 +11,8 @@ module Wasp.AppSpec.Valid
   )
 where
 
-import Control.Applicative (asum)
 import Control.Monad (unless)
-import Data.List (find, group, groupBy, intercalate, sort, sortBy, stripPrefix)
+import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -43,7 +42,6 @@ import qualified Wasp.Psl.Db as Psl.Db
 import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
-import Wasp.SemanticVersion.Version (parseVersion)
 import qualified Wasp.SemanticVersion.VersionBound as SVB
 import Wasp.Util (findDuplicateElems, indent, isCapitalized)
 import Wasp.Util.InstallMethod (getInstallationCommand)
@@ -95,23 +93,12 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
   where
     parseWaspVersionRange :: String -> Either ValidationError SV.Range
     parseWaspVersionRange waspVersionRangeString =
-      case asum
-        [ parsePrefixedVersion waspVersionRangeString "" SV.eq,
-          parsePrefixedVersion waspVersionRangeString "~" SV.approximatelyEquivalentWith,
-          parsePrefixedVersion waspVersionRangeString "^" SV.backwardsCompatibleWith
-        ] of
-        Just range -> Right range
-        Nothing -> Left badWaspVersionFormatError
-
-    parsePrefixedVersion :: String -> String -> (SV.Version -> SV.ComparatorSet) -> Maybe SV.Range
-    parsePrefixedVersion waspVersionRangeString prefix versionToComparatorSet = do
-      versionStr <- stripPrefix prefix waspVersionRangeString
-      case parseVersion versionStr of
-        -- Ensure the version string is exactly "major.minor.patch" format
-        -- by checking that the parsed version gives us back the input.
-        -- This rejects partial versions like "0.5" and trailing garbage like "0.5.0;2".
-        Right version | show version == versionStr -> Just $ SV.Range [versionToComparatorSet version]
-        _ -> Nothing
+      case SV.parseWaspVersionRange waspVersionRangeString of
+        Right range
+          -- Ensure the input matches exactly what we parsed (no trailing garbage,
+          -- no partial versions like "0.5" which would parse as "0.5.0").
+          | show range == waspVersionRangeString -> Right range
+        _ -> Left badWaspVersionFormatError
 
     badWaspVersionFormatError :: ValidationError
     badWaspVersionFormatError =
