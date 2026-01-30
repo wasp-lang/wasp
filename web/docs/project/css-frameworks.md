@@ -20,7 +20,6 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 1. Add the Tailwind CSS Vite plugin to your `vite.config.ts` file:
 
     ```ts title="vite.config.ts"
-    // highlight-next-line
     import { wasp } from 'wasp/client/vite'
     // highlight-next-line
     import tailwindcss from '@tailwindcss/vite'
@@ -28,8 +27,8 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 
     export default defineConfig({
       plugins: [
-        // highlight-next-line
         wasp(),
+        // highlight-next-line
         tailwindcss()
       ],
       server: {
@@ -77,38 +76,3 @@ npm install -D @tailwindcss/typography
 
 /* ... */
 ```
-
-### Troubleshooting
-
-#### Tailwind classes are not being applied
-
-If your Tailwind classes aren't working, make sure the `wasp()` plugin is properly configured in your `vite.config.ts` file and that it's the **first plugin** in the plugins array.
-
-<Tabs>
-<TabItem value="check" label="Check your config">
-
-```ts title="vite.config.ts"
-import { wasp } from 'wasp/client/vite'
-import tailwindcss from '@tailwindcss/vite'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [
-    wasp(),
-    tailwindcss()
-  ],
-  server: {
-    open: true,
-  },
-})
-```
-
-</TabItem>
-<TabItem value="common" label="Common issues">
-
-1. **`wasp()` plugin is not imported** - Make sure you have `import { wasp } from 'wasp/client/vite'` at the top of your config
-2. **`wasp()` is not the first plugin** - The plugin must be listed before other plugins like `tailwindcss()`
-3. **Tailwind import is missing** - Make sure your CSS file has `@import "tailwindcss";` (without `source(".")`)
-
-</TabItem>
-</Tabs>
