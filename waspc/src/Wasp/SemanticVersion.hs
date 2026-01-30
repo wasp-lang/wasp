@@ -18,7 +18,7 @@ import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (isJust)
-import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion, nextMinorVersion)
+import Wasp.SemanticVersion.Version (Version (..), getTildeVersionUpperBound, nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (Exclusive, Inclusive, Inf),
@@ -95,7 +95,7 @@ instance HasVersionBounds Comparator where
   versionBounds (BackwardsCompatibleWith version) =
     (Inclusive version, Exclusive $ nextBreakingChangeVersion version)
   versionBounds (TildeCompatibleWith version) =
-    (Inclusive version, Exclusive $ nextMinorVersion version)
+    (Inclusive version, Exclusive $ getTildeVersionUpperBound version)
 
 instance HasVersionBounds ComparatorSet where
   versionBounds (ComparatorSet comps) = foldr1 intervalIntersection $ versionBounds <$> comps
