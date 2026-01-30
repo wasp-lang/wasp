@@ -5,6 +5,7 @@ title: Cloud Providers
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import AddExternalAuthEnvVarsReminder from './\_addExternalAuthEnvVarsReminder.md'
 import BuildingTheWebClient from './\_building-the-web-client.md'
+import NetlifyTomlConfig from './\_netlify-toml-config.md'
 import { Required } from '@site/src/components/Tag'
 import { Server, Client, Database } from './DeploymentTag'
 import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
@@ -65,7 +66,7 @@ While these are the general instructions on deploying the server anywhere, we al
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `build/` directory in the `.wasp/out/web-app/`.
+The command above will build the web client and put it in the `.wasp/out/web-app/build` directory.
 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
 
@@ -479,6 +480,16 @@ First, make sure you have [built the Wasp app](#1-generating-deployable-code). W
 
 <BuildingTheWebClient />
 
+Before deploying, you need to create a `netlify.toml` file in your project root to configure Netlify for building and deploying your Wasp app. This file tells Netlify where to find the web app and configures URL redirects for SPA routing.
+
+Create the `netlify.toml` file with the following content:
+
+<NetlifyTomlConfig />
+
+The `build.base` path should point from your Git repository root to the `web-app` directory. Adjust the path if your Wasp project is in a subdirectory (e.g., `base = "./my-app/.wasp/out/web-app"`).
+
+The `build.command` is set to `exit 0` because the client is already built with the client environment variables.
+
 We can now deploy the client with:
 
 ```shell
@@ -499,14 +510,6 @@ That is it! Your client should be live at `https://<app-name>.netlify.app`.
 
 :::note
 Make sure you set the `https://<app-name>.netlify.app` URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
-:::
-
-:::caution Redirecting URLs toward `index.html`
-If you follow the instructions above, the Netlify CLI will use `netlify.toml` file that Wasp generates by default in `.wasp/out/web-app/`. This will correctly configure Netlify to redirect URLs toward `index.html`, which is important since Wasp is a Single Page Application (SPA) and needs to handle routing on the client side.
-
-If you instead use another method of deployment to Netlify, for example doing it using CI, make sure that Netlify picks up that `netlify.toml` file, or configure URL redirecting yourself manually on Netlify.
-
-We recommend to deploy using the Netlify CLI in Github Actions. You can find an example Github Action configuration below.
 :::
 
 ### Deploying through Github Actions
@@ -541,7 +544,7 @@ Here’s an example configuration file to help you get started. This example wor
             node-version: '22'
 
         - name: Install Wasp
-          run: npm i -g @wasp.sh/wasp-cli@0.16.0 # Change to your Wasp version
+          run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Wasp Build
           run: wasp build
@@ -554,8 +557,7 @@ Here’s an example configuration file to help you get started. This example wor
 
         - name: Deploy to Netlify
           run: |
-            cd ./.wasp/out/web-app
-            npx netlify-cli@17.36.1 deploy --prod --dir=build --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_NAME
+            npx netlify-cli deploy --prod --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_NAME
 
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
@@ -642,7 +644,7 @@ Here’s an example configuration file to help you get started. This example wor
             node-version: '22'
 
         - name: Install Wasp
-          run: npm i -g @wasp.sh/wasp-cli@0.16.0 # Change to your Wasp version
+          run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
 
         - name: Wasp Build
           run: cd ./app && wasp build
