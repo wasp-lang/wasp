@@ -97,7 +97,7 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
     parseWaspVersionRange waspVersionRangeString =
       case asum
         [ parsePrefixedVersion waspVersionRangeString "" SV.eq,
-          parsePrefixedVersion waspVersionRangeString "~" SV.tildeCompatibleWith,
+          parsePrefixedVersion waspVersionRangeString "~" SV.approximatelyEquivalentWith,
           parsePrefixedVersion waspVersionRangeString "^" SV.backwardsCompatibleWith
         ] of
         Just range -> Right range

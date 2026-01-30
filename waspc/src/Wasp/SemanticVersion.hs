@@ -9,7 +9,7 @@ module Wasp.SemanticVersion
     gte,
     eq,
     backwardsCompatibleWith,
-    tildeCompatibleWith,
+    approximatelyEquivalentWith,
     doesVersionRangeAllowMajorChanges,
   )
 where
@@ -18,7 +18,7 @@ import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (isJust)
-import Wasp.SemanticVersion.Version (Version (..), getTildeVersionUpperBound, nextBreakingChangeVersion)
+import Wasp.SemanticVersion.Version (Version (..), nextApproximatelyEquivalentVersion, nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (Exclusive, Inclusive, Inf),
@@ -50,14 +50,14 @@ instance Show Operator where
 data Comparator
   = PrimitiveComparator Operator Version
   | BackwardsCompatibleWith Version
-  | TildeCompatibleWith Version
+  | ApproximatelyEquivalentWith Version
   deriving (Eq)
 
 -- | We rely on this `show` implementation to produce valid semver representation of comparator.
 instance Show Comparator where
   show (PrimitiveComparator op v) = show op ++ show v
   show (BackwardsCompatibleWith v) = "^" ++ show v
-  show (TildeCompatibleWith v) = "~" ++ show v
+  show (ApproximatelyEquivalentWith v) = "~" ++ show v
 
 data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
   deriving (Eq)
@@ -94,8 +94,8 @@ instance HasVersionBounds Comparator where
       GreaterThanOrEqual -> (Inclusive version, Inf)
   versionBounds (BackwardsCompatibleWith version) =
     (Inclusive version, Exclusive $ nextBreakingChangeVersion version)
-  versionBounds (TildeCompatibleWith version) =
-    (Inclusive version, Exclusive $ getTildeVersionUpperBound version)
+  versionBounds (ApproximatelyEquivalentWith version) =
+    (Inclusive version, Exclusive $ nextApproximatelyEquivalentVersion version)
 
 instance HasVersionBounds ComparatorSet where
   versionBounds (ComparatorSet comps) = foldr1 intervalIntersection $ versionBounds <$> comps
@@ -135,8 +135,8 @@ eq = mkPrimCompSet Equal
 backwardsCompatibleWith :: Version -> ComparatorSet
 backwardsCompatibleWith = ComparatorSet . pure . BackwardsCompatibleWith
 
-tildeCompatibleWith :: Version -> ComparatorSet
-tildeCompatibleWith = ComparatorSet . pure . TildeCompatibleWith
+approximatelyEquivalentWith :: Version -> ComparatorSet
+approximatelyEquivalentWith = ComparatorSet . pure . ApproximatelyEquivalentWith
 
 mkPrimCompSet :: Operator -> Version -> ComparatorSet
 mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op
