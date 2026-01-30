@@ -1,4 +1,3 @@
-{-# LANGUAGE LambdaCase #-}
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Wasp.Cli.Command.News.Listing
@@ -20,9 +19,9 @@ module Wasp.Cli.Command.News.Listing
   )
 where
 
-import Control.Monad (unless, when)
 import Data.Functor ((<&>))
 import Data.List (intercalate)
+import Data.Maybe (catMaybes)
 import qualified Data.Time as T
 import Wasp.Cli.Command.News.Core (NewsEntry (..), NewsLevel (..))
 import Wasp.Cli.Command.News.Display (showNewsEntry)
@@ -75,13 +74,7 @@ getNewsToMarkAsSeen localState listing = case listing of
 
 listNews :: LocalNewsState -> NewsListing -> IO ()
 listNews localState listing = do
-  printNews
-
-  when shouldTellUserAboutWaspNewsCommand $ do
-    putStrLn $
-      "\nIf you don't want to see these messages again, run "
-        ++ styleCode "wasp news"
-        ++ " to confirm you've seen them."
+  putStrLn $ intercalate "\n\n" $ catMaybes [newsListingStr, messageForUser]
 
   shouldMarkNewsAsSeen <-
     if isConfirmationRequired localState listing
@@ -92,15 +85,8 @@ listNews localState listing = do
     then updateTimestampAndMarkAsSeen (getNewsToMarkAsSeen localState listing)
     else updateTimestampAndMarkAsSeen []
   where
-    printNews =
-      unless (null newsToShow) $ putStrLn $ intercalate "\n\n" $ showNewsEntry <$> newsToShow
-
-    newsToShow = getNewsToShow localState listing
-
-    shouldTellUserAboutWaspNewsCommand = case listing of
-      UserListingAllNews {} -> False
-      WaspListingMustSeeNews {} ->
-        not (null newsToShow) && not (isConfirmationRequired localState listing)
+    newsListingStr = showNewsListing localState listing
+    messageForUser = showMessageForUser localState listing
 
     getConfirmationFromUser =
       tryGettingConfirmationWithTimeout
@@ -114,6 +100,25 @@ listNews localState listing = do
       saveLocalNewsState $
         setLastListingTimestamp currentTime $
           markNewsAsSeen newsToMarkAsSeen localState
+
+showMessageForUser :: LocalNewsState -> NewsListing -> Maybe String
+showMessageForUser localState listing = case listing of
+  UserListingAllNews {} -> Nothing
+  WaspListingMustSeeNews {}
+    | null (getNewsToShow localState listing) -> Nothing
+    | isConfirmationRequired localState listing -> Nothing
+    | otherwise ->
+        Just $
+          "If you don't want to see these messages again, run "
+            <> styleCode "wasp news"
+            <> " to confirm you've seen them."
+
+showNewsListing :: LocalNewsState -> NewsListing -> Maybe String
+showNewsListing localState listing
+  | null newsToShow = Nothing
+  | otherwise = Just $ intercalate "\n\n" $ showNewsEntry <$> newsToShow
+  where
+    newsToShow = getNewsToShow localState listing
 
 doesUserHaveNewsHistory :: LocalNewsState -> Bool
 doesUserHaveNewsHistory = (/= emptyLocalNewsState)
