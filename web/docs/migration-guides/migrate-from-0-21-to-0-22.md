@@ -2,43 +2,9 @@
 title: Migration from 0.21.X to 0.22.X
 ---
 
-To install the latest version of Wasp, open your terminal and run:
+import InstallInstructions from './_install-instructions.md'
 
-<Tabs>
-<TabItem value="installer" label="Installer">
-
-```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```sh
-npm i -g @wasp.sh/wasp-cli@latest
-```
-
-</TabItem>
-</Tabs>
-
-If you want to install Wasp 0.22.0 specifically, you can pass a version argument to the install script:
-
-<Tabs>
-<TabItem value="installer" label="Installer">
-
-```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.22.0
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```sh
-npm i -g @wasp.sh/wasp-cli@0.22.0
-```
-
-</TabItem>
-</Tabs>
+<InstallInstructions version="0.22.0" />
 
 ## What's new in 0.22.0?
 
