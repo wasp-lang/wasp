@@ -7,7 +7,7 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import versionsJson from "../versions.json";
+import waspVersionsJson from "../versions.json";
 
 const SITE_ROOT = process.cwd();
 const STATIC_DIR = path.join(SITE_ROOT, "static/");
@@ -20,194 +20,270 @@ const WASP_BASE_URL = "https://wasp.sh/";
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 
 const LLMS_TXT_INTRO = `# Wasp
-Wasp is a full-stack framework with batteries included for React, Node.js, and Prisma.`;
 
-const LLMS_TXT_MISC = `## Miscellaneous
+> Wasp is a full-stack web framework with batteries included for React, Node.js, and Prisma.
+> It handles auth, database, routing, deployment, and more out of the box,
+> letting you build production-ready apps faster with less boilerplate.`;
+
+const LLMS_TXT_RESOURCES = `## Other Resources
 - [Wasp Developer Discord](https://discord.com/invite/rzdnErX)
-- [Open SaaS -- Wasp's free, open-source SaaS boilerplate starter](https://opensaas.sh)
+- [Open SaaS - Free, Open-Source SaaS Boilerplate built on Wasp](https://opensaas.sh)
+- [Wasp GitHub](https://github.com/wasp-lang/wasp)
 `;
 
-generateFiles();
+type SourceDoc = {
+  title: string;
+  processedBody: string;
+  absolutePath: string;
+  relativePath: string;
+};
 
-/**
- * Main function to generate the LLM-friendly doc files.
- * Loops through all versioned docs and generates llms.txt files for each.
- * The latest version also gets llms-full.txt generated.
- */
+type DocMapEntry = {
+  title: string;
+  githubRawUrl: string;
+  processedBody: string;
+};
+
+type CategorizedDocs = {
+  categories: Array<{
+    label: string;
+    docs: DocMapEntry[];
+  }>;
+};
+
+type SidebarCategory = {
+  label: string;
+  docIds: string[];
+};
+
+type BlogPost = {
+  title: string;
+  fileDate: string;
+  linkPath: string;
+};
+
+generateFiles().catch((err) => {
+  console.error("Failed to generate LLM files:", err);
+  process.exit(1);
+});
+
 async function generateFiles() {
   console.log("Starting LLM file generation...");
 
-  const blogSectionContent = await processBlogFiles();
-  const latestVersion = versionsJson[0];
+  if (!waspVersionsJson || waspVersionsJson.length === 0) {
+    throw new Error("No versions found in versions.json");
+  }
+  // Our llms.txt URL is the entry point for the LLM.
+  // It contains a section with links to llms-{version}.txt files
+  // which are versioned documentation maps that link
+  // to the individual raw markdown files on GitHub.
+  const latestWaspVersion = waspVersionsJson[0];
+  const blogPostsSection = await buildBlogPostsSection();
+  const docsMapsByVersionSection =
+    buildDocsMapsByVersionSection(waspVersionsJson);
+  const llmsTxtContent = buildLlmsTxtContent(
+    docsMapsByVersionSection,
+    blogPostsSection,
+  );
+  await fs.writeFile(path.join(STATIC_DIR, "llms.txt"), llmsTxtContent, "utf8");
+  console.log("Generated: llms.txt");
 
-  for (const version of versionsJson) {
-    const isLatest = version === latestVersion;
+  for (const version of waspVersionsJson) {
     console.log(`Processing version ${version}...`);
-
+    const isLatest = version === latestWaspVersion;
     const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
     const sidebarItems = await loadVersionedSidebar(version);
+    const categorizedDocs = await loadCategorizedDocs(sidebarItems, docsDir);
+    const versionedLlmsTxtContent = buildVersionedLlmsTxtContent(
+      version,
+      categorizedDocs,
+    );
+    await fs.writeFile(
+      path.join(STATIC_DIR, `llms-${version}.txt`),
+      versionedLlmsTxtContent,
+      "utf8",
+    );
+    console.log(`  Generated: llms-${version}.txt`);
 
-    const { overviewDocsSection, llmsFullTxtContent } =
-      await processDocumentationFiles(sidebarItems, docsDir, version, {
-        generateLlmsFullTxt: isLatest,
-      });
-
-    const filename = isLatest ? "llms.txt" : `llms-${version}.txt`;
-    await writeLlmsTxtFile(filename, overviewDocsSection, blogSectionContent);
+    // We also generate a full concatenated documentation file, llms-full.txt,
+    // for the latest version only with a section containing links
+    // to each llms-full-{version}.txt file.
+    const fullDocsBody = buildFullDocsBody(categorizedDocs);
+    const llmsFullVersionedContent =
+      buildFullDocsHeader(version) + fullDocsBody;
+    await fs.writeFile(
+      path.join(STATIC_DIR, `llms-full-${version}.txt`),
+      llmsFullVersionedContent.trim(),
+      "utf8",
+    );
+    console.log(`  Generated: llms-full-${version}.txt`);
 
     if (isLatest) {
-      await writeLlmsFullTxtFile(llmsFullTxtContent);
+      const llmsFullWithIndex =
+        buildFullDocsHeaderWithIndex(version, waspVersionsJson) + fullDocsBody;
+      await fs.writeFile(
+        path.join(STATIC_DIR, "llms-full.txt"),
+        llmsFullWithIndex.trim(),
+        "utf8",
+      );
+      console.log(`  Generated: llms-full.txt`);
     }
   }
 
-  console.log("🎉 LLM files generation completed successfully.");
+  console.log("LLM files generation completed successfully.");
 }
 
-async function writeLlmsTxtFile(
-  filename: string,
-  overviewDocsSection: string,
-  blogSectionContent: string,
-): Promise<void> {
-  const content = buildLlmsTxtContent(overviewDocsSection, blogSectionContent);
-  const outputPath = path.join(STATIC_DIR, filename);
-  await fs.writeFile(outputPath, content, "utf8");
-  console.log(`  Generated: ${filename}`);
+function buildDocsMapsByVersionSection(versions: string[]): string {
+  const latestVersion = versions[0];
+  let section = `## Documentation Maps by Version\n*IMPORTANT:* You should run \`wasp version\` to get the installed Wasp CLI version before choosing the correct link.\n`;
+  for (const version of versions) {
+    const label = version === latestVersion ? `${version} (latest)` : version;
+    section += `- [${label}](${WASP_BASE_URL}llms-${version}.txt)\n`;
+  }
+  return section.trim();
 }
 
-async function writeLlmsFullTxtFile(content: string): Promise<void> {
-  const outputPath = path.join(STATIC_DIR, "llms-full.txt");
-  await fs.writeFile(outputPath, content.trim(), "utf8");
-  console.log(`  Generated: llms-full.txt`);
+function buildFullDocsByVersionSection(versions: string[]): string {
+  const latestVersion = versions[0];
+  let section = `## Full Documentation by Version\n`;
+  for (const version of versions) {
+    if (version === latestVersion) {
+      continue;
+    }
+    section += `- [${version}](${WASP_BASE_URL}llms-full-${version}.txt)\n`;
+  }
+  return section.trim();
 }
 
-/**
- * Assembles the overview content for llms.txt from its component sections.
- */
 function buildLlmsTxtContent(
-  overviewDocsSection: string,
-  blogSectionContent: string,
+  docsMapsByVersionSection: string,
+  blogPostsSection: string,
 ): string {
+  const fullDocsSection = `## Full Concatenated Documentation Files
+Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}llms-full-{version}.txt`;
+
   return [
     LLMS_TXT_INTRO,
-    overviewDocsSection,
-    blogSectionContent,
-    LLMS_TXT_MISC,
+    docsMapsByVersionSection,
+    fullDocsSection,
+    blogPostsSection,
+    LLMS_TXT_RESOURCES,
   ].join("\n\n");
 }
 
-/**
- * Processes all documentation files based on the sidebar configuration's order.
- * It builds a map of document IDs to file paths, processes each document,
- * and generates both a summarized overview and a full concatenated string of the content.
- */
-async function processDocumentationFiles(
-  docsSidebarItems: SidebarItemConfig[],
+async function loadCategorizedDocs(
+  sidebarItems: SidebarItemConfig[],
   docsDir: string,
-  version: string,
-  { generateLlmsFullTxt = false } = {},
-): Promise<{ overviewDocsSection: string; llmsFullTxtContent: string }> {
-  let overviewDocsSection = `## Documentation Raw Text URLs -- Version ${version}:\n`;
-  let llmsFullTxtContent = "";
-
-  const orderedDocIds = flattenSidebarItemsToDocIds(docsSidebarItems);
+): Promise<CategorizedDocs> {
+  const orderedDocIds = flattenSidebarItemsToDocIds(sidebarItems);
   console.log(
     `Found ${orderedDocIds.length} document IDs in sidebar order for processing.`,
   );
 
-  const sidebarOverviewStructure =
-    getDocsSidebarCategoryStructure(docsSidebarItems);
-
+  const sidebarCategories = extractSidebarCategories(sidebarItems);
   const docIdToPathMap = buildDocIdToPathMap(docsDir);
-
   const docInfoMap = await populateDocInfoMap(
     orderedDocIds,
     docIdToPathMap,
     docsDir,
   );
 
-  for (const category of sidebarOverviewStructure) {
-    overviewDocsSection += `${category.categoryLabel}\n`;
-    for (const docId of category.docIds) {
-      if (docInfoMap.has(docId)) {
-        const info = docInfoMap.get(docId);
-        const relativeToSiteForGithub = path
+  const categories = sidebarCategories.map((category) => ({
+    label: category.label,
+    docs: category.docIds
+      .filter((docId) => docInfoMap.has(docId))
+      .map((docId) => {
+        const info = docInfoMap.get(docId)!;
+        const relativeToSite = path
           .relative(SITE_ROOT, info.absolutePath)
           .replace(/\\/g, "/");
-        const githubRawUrl = GITHUB_RAW_BASE_URL + relativeToSiteForGithub;
-        overviewDocsSection += `- [${info.title}](${githubRawUrl})\n`;
-      } else {
-        // Warning already issued during docInfoMap population
-      }
-    }
-  }
+        return {
+          title: info.title,
+          githubRawUrl: GITHUB_RAW_BASE_URL + relativeToSite,
+          processedBody: info.processedBody,
+        };
+      }),
+  }));
 
-  if (generateLlmsFullTxt) {
-    for (const category of sidebarOverviewStructure) {
-      // Add category header as H1 and separator
-      llmsFullTxtContent += `# ${category.categoryLabel}\n\n`;
-
-      for (const docId of category.docIds) {
-        if (docInfoMap.has(docId)) {
-          const info = docInfoMap.get(docId);
-          // Add document title as H2
-          llmsFullTxtContent += `## ${info.title}\n\n${info.processedBody}\n\n`;
-        }
-      }
-
-      // Add category separator
-      llmsFullTxtContent += `------\n\n`;
-    }
-  }
-  return { overviewDocsSection, llmsFullTxtContent };
+  return { categories };
 }
 
-/**
- * Scans a directory for markdown files, normalizes their paths to create doc IDs,
- * and returns a map from each unique doc ID to its relative file path.
- */
+function buildVersionedLlmsTxtContent(
+  version: string,
+  docs: CategorizedDocs,
+): string {
+  const lines: string[] = [];
+
+  for (const category of docs.categories) {
+    lines.push(category.label);
+    for (const doc of category.docs) {
+      lines.push(`- [${doc.title}](${doc.githubRawUrl})`);
+    }
+  }
+
+  const documentationMap = `## Documentation Map\n${lines.join("\n")}`;
+  return `# Wasp ${version} Documentation\n\n${documentationMap}`;
+}
+
+function buildFullDocsHeader(version: string): string {
+  return `# Wasp ${version} Full Documentation\n\n`;
+}
+
+function buildFullDocsHeaderWithIndex(
+  version: string,
+  versions: string[],
+): string {
+  const header = buildFullDocsHeader(version);
+  const versionSection = buildFullDocsByVersionSection(versions);
+  return (
+    header +
+    "> This is the full documentation for the latest version of Wasp.\n> For other versions, see the links below.\n\n" +
+    versionSection +
+    "\n\n---\n\n"
+  );
+}
+
+function buildFullDocsBody(docs: CategorizedDocs): string {
+  let content = "";
+  for (const category of docs.categories) {
+    content += `# ${category.label}\n\n`;
+    for (const doc of category.docs) {
+      content += `## ${doc.title}\n\n${doc.processedBody}\n\n`;
+    }
+    content += `------\n\n`;
+  }
+  return content;
+}
+
 function buildDocIdToPathMap(directory: string): Map<string, string> {
   console.log(`Gathering and processing source files from: ${directory}...`);
-  // Use **/*.{md,mdx} to match files at any depth, including directly under docs/
-  const allGlobbedRelativeFilePaths = globSync("**/*.{md,mdx}", {
+  const markdownFiles = globSync("**/*.{md,mdx}", {
     cwd: directory,
     nodir: true,
     ignore: ["**/_*.md", "**/_*.mdx"],
   });
 
-  const docsRelativePaths = new Map();
-  for (const filePath of allGlobbedRelativeFilePaths) {
+  const docIdToPath = new Map<string, string>();
+  for (const filePath of markdownFiles) {
     const docId = normalizePathToDocId(filePath);
-    if (!docsRelativePaths.has(docId)) {
-      docsRelativePaths.set(docId, filePath);
+    if (!docIdToPath.has(docId)) {
+      docIdToPath.set(docId, filePath);
     }
   }
-  return docsRelativePaths;
+  return docIdToPath;
 }
 
-type DocDetails = {
-  title: string;
-  processedBody: string;
-  absolutePath: string;
-  relativeDocPath: string;
-};
-
-/**
- * Iterates through an ordered list of doc IDs, reads the corresponding file for each,
- * processes its content, and returns a map containing the processed information for each document.
- * This loop ensures that we process the files in the exact order specified in sidebars.js,
- * regardless of how the filesystem returns them.
- */
 async function populateDocInfoMap(
   orderedDocIds: string[],
   docIdToPathMap: Map<string, string>,
   docsDir: string,
-): Promise<Map<string, DocDetails>> {
-  const docInfoMap = new Map<string, DocDetails>();
+): Promise<Map<string, SourceDoc>> {
+  const docInfoMap = new Map<string, SourceDoc>();
   for (const docId of orderedDocIds) {
-    const relativeDocPath = docIdToPathMap.get(docId);
+    const relativePath = docIdToPathMap.get(docId);
 
-    if (relativeDocPath) {
-      const absolutePath = path.join(docsDir, relativeDocPath);
+    if (relativePath) {
+      const absolutePath = path.join(docsDir, relativePath);
       try {
         const rawContent = await fs.readFile(absolutePath, "utf8");
         const { attributes, body } = fm(rawContent);
@@ -220,7 +296,7 @@ async function populateDocInfoMap(
           title,
           processedBody,
           absolutePath,
-          relativeDocPath,
+          relativePath,
         });
       } catch (fileReadError) {
         // This is intentionally not re-thrown to allow the script to continue
@@ -239,103 +315,69 @@ async function populateDocInfoMap(
   return docInfoMap;
 }
 
-/**
- * Normalizes a file path into a standardized document ID.
- * e.g., 'tutorial/01-create.mdx' becomes 'tutorial/create'
- * e.g., 'data-model/entities/index.md' becomes 'data-model/entities'
- */
+// e.g., 'tutorial/01-create.mdx' → 'tutorial/create'
+// e.g., 'data-model/entities/index.md' → 'data-model/entities'
 function normalizePathToDocId(filePath: string): string {
-  const docIdWithoutExtAndIndex = filePath
+  const normalizedPath = filePath
     .replace(/\.(mdx|md)$/, "")
     .replace(/\/index$/, "");
 
-  const pathSegments = docIdWithoutExtAndIndex.split("/");
-  const lastSegment = pathSegments.pop(); // This will be the filename or last directory name
+  const pathSegments = normalizedPath.split("/");
+  const filename = pathSegments.pop() ?? ""; // This will be the filename or last directory name
 
   // Remove leading "NN-" or "NN." from the filename part, e.g. "01-create" => "create"
-  const cleanedLastSegment = lastSegment.replace(/^\d+[-.]/, "");
+  const cleanFilename = filename.replace(/^\d+[-.]/, "");
 
-  let docId;
-  if (pathSegments.length > 0) {
-    docId = [...pathSegments, cleanedLastSegment].join("/");
-  } else {
-    docId = cleanedLastSegment;
-  }
-  return docId;
+  return pathSegments.length > 0
+    ? [...pathSegments, cleanFilename].join("/")
+    : cleanFilename;
 }
 
-type StructuredOverview = {
-  categoryLabel: string;
-  docIds: string[];
-};
+function extractSidebarCategories(
+  sidebarItems: SidebarItemConfig[],
+): SidebarCategory[] {
+  const categories: SidebarCategory[] = [];
 
-/**
- * Returns an ordered structure of the sidebar categories and their docIds.
- * This is used for generating the overview section of the LLM files.
- * It ignores categories that are not relevant for the LLM context (e.g., 'Miscellaneous').
- */
-function getDocsSidebarCategoryStructure(
-  docsSidebarItems: SidebarItemConfig[],
-): StructuredOverview[] {
-  const structuredOverview: StructuredOverview[] = [];
-
-  for (const topLvlItem of docsSidebarItems) {
+  for (const item of sidebarItems) {
     if (
-      typeof topLvlItem !== "string" &&
-      topLvlItem.type === "category" &&
-      topLvlItem.label &&
-      topLvlItem.items &&
-      !CATEGORIES_TO_IGNORE.includes(topLvlItem.label)
+      typeof item !== "string" &&
+      item.type === "category" &&
+      item.label &&
+      item.items &&
+      !CATEGORIES_TO_IGNORE.includes(item.label)
     ) {
-      const docIdsWithinCategory = flattenSidebarItemsToDocIds(
-        topLvlItem.items,
-      );
-      if (docIdsWithinCategory.length > 0) {
-        structuredOverview.push({
-          categoryLabel: topLvlItem.label,
-          docIds: docIdsWithinCategory,
+      const docIds = flattenSidebarItemsToDocIds(item.items);
+      if (docIds.length > 0) {
+        categories.push({
+          label: item.label,
+          docIds,
         });
       }
     }
   }
-  return structuredOverview;
+  return categories;
 }
 
-/**
- * Recursively traverses the sidebar configuration to produce a flat, ordered list of document IDs.
- */
 function flattenSidebarItemsToDocIds(sidebarItems: SidebarConfig): string[] {
-  let paths = [];
-  // `SidebarConfig` type can be a list or an object - we handle only the list
-  // case here, as the sidebar is expected to be an array of items.
+  let docIds: string[] = [];
   if (!Array.isArray(sidebarItems)) {
-    return paths;
+    return docIds;
   }
   for (const item of sidebarItems) {
     if (typeof item === "string") {
-      paths.push(item);
+      docIds.push(item);
     } else if (item.type === "category" && item.items) {
-      paths = paths.concat(flattenSidebarItemsToDocIds(item.items));
+      docIds = docIds.concat(flattenSidebarItemsToDocIds(item.items));
     } else if (item.type === "autogenerated") {
       console.warn(
         `Warning: 'autogenerated' sidebar type for dirName '${item.dirName}' might not be fully processed.`,
       );
     }
   }
-  return paths;
+  return docIds;
 }
 
-type BlogPost = {
-  title: string;
-  fileDate: string;
-  linkPath: string;
-};
-
-/**
- * Processes all blog post files, extracting their title, date, and URL.
- * It returns a markdown-formatted string of the blog posts, sorted by date.
- */
-async function processBlogFiles(): Promise<string> {
+async function buildBlogPostsSection(): Promise<string> {
   const blogPostFiles = globSync("*.{md,mdx}", {
     cwd: BLOG_DIR,
     nodir: true,
@@ -376,84 +418,56 @@ async function processBlogFiles(): Promise<string> {
 
   blogPosts.sort((a, b) => b.fileDate.localeCompare(a.fileDate));
 
-  let blogSectionContent = `## Blogposts\n`;
-  if (blogPosts.length > 0) {
-    for (const post of blogPosts) {
-      blogSectionContent += `- [${post.title}](${post.linkPath})\n`;
-    }
-    return blogSectionContent.trim();
-  } else {
+  if (blogPosts.length === 0) {
     return "";
   }
+
+  let section = `## Blogposts\n`;
+  for (const post of blogPosts) {
+    section += `- [${post.title}](${post.linkPath})\n`;
+  }
+  return section.trim();
 }
 
-/**
- * Tries to parse a blog post filename against the 'YYYY-MM-DD-slug' format.
- * Logs a warning for files that don't match and aren't explicitly ignored.
- */
 function parseBlogFileDate(file: string): string | null {
   const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})-.*\.(mdx|md)$/);
   if (dateMatch !== null) {
     return dateMatch[1];
   }
 
-  // If it doesn't match, check if it's a file type we should warn about.
-  const isIgnoredType =
-    file === "authors.yml" ||
-    file.startsWith("_") ||
-    file.includes("components/");
-
-  if (!isIgnoredType) {
-    console.warn(
-      `Skipping file in web/blog, does not match YYYY-MM-DD-name.md(x) naming convention or is an ignored type: ${file}`,
-    );
-  }
+  console.warn(
+    `Skipping file in web/blog, does not match YYYY-MM-DD-name.md(x) naming convention: ${file}`,
+  );
   return null;
 }
 
-/**
- * Extracts the title for a blog post.
- * It first checks for a title in the front-matter attributes. If not found,
- * it generates a title from the filename.
- */
 function extractBlogPostTitle(attributes: unknown, filename: string): string {
-  if (isAttributesWithTitle(attributes)) {
-    return attributes.title;
+  if (
+    typeof attributes === "object" &&
+    attributes !== null &&
+    "title" in attributes &&
+    typeof (attributes as { title: unknown }).title === "string"
+  ) {
+    return (attributes as { title: string }).title;
   }
 
-  // Generate title from filename if not in front-matter
   let title = path.basename(filename, path.extname(filename));
-  title = title.replace(/^\d{4}-\d{2}-\d{2}-/, ""); // Remove date prefix
-  title = title.replace(/-/g, " "); // Replace hyphens with spaces
-  // Capitalize each word
+  title = title.replace(/^\d{4}-\d{2}-\d{2}-/, "");
+  title = title.replace(/-/g, " ");
   return title
     .split(" ")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 }
 
-function isAttributesWithTitle(
-  attributes: unknown,
-): attributes is { title: string } {
-  return typeof attributes === "object" && "title" in attributes;
-}
-
-/**
- * Constructs the absolute URL for a blog post based on its filename.
- * The filename is expected to follow the 'YYYY-MM-DD-slug' format.
- */
 function constructBlogUrl(filename: string): string {
-  const fileNoExt = filename.replace(/\.(mdx|md)$/, "");
-  const [year, month, day, ...slugParts] = fileNoExt.split("-");
+  const basename = filename.replace(/\.(mdx|md)$/, "");
+  const [year, month, day, ...slugParts] = basename.split("-");
   const slug = slugParts.join("-");
   const blogPath = `${WASP_BASE_URL}blog/${year}/${month}/${day}/${slug}`;
   return blogPath.replace(/\\/g, "/");
 }
 
-/**
- * Loads and parses a versioned sidebar configuration file.
- * Returns the docs array from the sidebar config.
- */
 async function loadVersionedSidebar(
   version: string,
 ): Promise<SidebarItemConfig[]> {
@@ -462,7 +476,17 @@ async function loadVersionedSidebar(
     `version-${version}-sidebars.json`,
   );
   const sidebarContent = await fs.readFile(sidebarPath, "utf8");
-  const sidebarConfig = JSON.parse(sidebarContent);
+
+  let sidebarConfig: { docs?: unknown };
+  try {
+    sidebarConfig = JSON.parse(sidebarContent);
+  } catch (parseError) {
+    const errorMessage =
+      parseError instanceof Error ? parseError.message : String(parseError);
+    throw new Error(
+      `Failed to parse sidebar JSON for version "${version}" at ${sidebarPath}: ${errorMessage}`,
+    );
+  }
 
   if (!Array.isArray(sidebarConfig.docs)) {
     throw new Error(
@@ -473,24 +497,17 @@ async function loadVersionedSidebar(
   return sidebarConfig.docs;
 }
 
-/**
- * Cleans the raw markdown content of a document to make it more suitable for an LLM.
- * This involves removing React/HTML components, import statements, comments, and other non-content elements.
- * It also adjusts heading levels to be consistent with the overall document structure.
- */
 function cleanDocContent(content: string): string {
   if (!content) return "";
 
-  const componentsToReplace = new Set();
-  // NOTE: Not sure if this is needed, as LLMs can probably parse the components's meaning from the context.
+  const componentsToReplace = new Set<string>();
+  // NOTE: Not sure if this is needed, as LLMs can probably parse the component's meaning from context.
   // Regex to capture imports from '@site/src/components/Tag'
-  // Example: import MyTag from '...' -> MyTag
-  // Example: import {Tag1, Tag2 as MyTag2} from '...' -> {Tag1, Tag2 as MyTag2}
+  // e.g. import MyTag from '...' -> MyTag
+  // e.g. import {Tag1, Tag2 as MyTag2} from '...' -> {Tag1, Tag2 as MyTag2}
   const importRegex =
     /^\s*import\s+(.+?)\s+from\s+['"]@site\/src\/components\/Tag['"]\s*;?\s*$/gm;
 
-  // Helper to extract actual component names (including aliases)
-  // Defined inside cleanContent to be self-contained
   function extractNames(rawSpecifier: string): string[] {
     const names: string[] = [];
     const specifier = rawSpecifier.trim();
@@ -507,38 +524,34 @@ function cleanDocContent(content: string): string {
         });
       }
     } else {
-      // Default import
       names.push(specifier);
     }
-    return names.filter(Boolean); // Filter out any empty names
+    return names.filter(Boolean);
   }
 
-  // Scan the original content for these specific imports BEFORE any modifications
   for (const importMatch of content.matchAll(importRegex)) {
     for (const name of extractNames(importMatch[1])) {
       componentsToReplace.add(name);
     }
   }
 
-  let cleaned = content; // Start modifications from original content
+  let cleaned = content;
 
+  // Replace <CompName ... /> with "CompName!" (e.g. <Internal /> -> Internal!)
   componentsToReplace.forEach((compName) => {
-    // Regex to match <CompName ... /> (self-closing with optional attributes)
-    // Example: <Internal />, <Internal prop="foo" />, <Internal/>
     const tagRegex = new RegExp(`<(?:${compName})(\\s+[^>]*)?\\s*/>`, "g");
     cleaned = cleaned.replace(tagRegex, `${compName}!`);
   });
 
-  // General import removal (removes all imports, including processed ones from @site/src/components/Tag)
+  // Remove all import statements
   cleaned = cleaned.replace(/^import\s+.*(?:from\s+['"].*['"])?;?\s*$/gm, "");
-  // Remove lines like {/* TODO: ... */}
+  // Remove JSX comments like {/* TODO: ... */}
   cleaned = cleaned.replace(/^\{\/\*.*\*\/\}\s*$/gm, "");
-  // Remove lines like <!-- TODO: ... -->
+  // Remove HTML comments like <!-- TODO: ... -->
   cleaned = cleaned.replace(/^<!--.*-->\s*$/gm, "");
-  // Remove more than two line breaks
+  // Collapse 3+ newlines to 2
   cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
-
-  // Increase heading level by adding an extra # to any existing headings
+  // Increase heading levels (# -> ##, ## -> ###, etc.)
   cleaned = cleaned.replace(/^(#{1,6})\s/gm, "#$1 ");
 
   return cleaned.trim();
