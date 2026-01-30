@@ -50,3 +50,7 @@ export interface SecretsOptions {
   // They are useless right now (might be useful when we go with SSR) since our client can't access them.
   clientSecret: string[];
 }
+
+export interface CustomServerUrlOption {
+  customServerUrl?: string;
+}
