@@ -6,23 +6,22 @@ import InstallInstructions from './_install-instructions.md'
 
 <InstallInstructions version="0.22.0" />
 
-## What's new in 0.22.0?
+## What's new in 0.22.X?
 
-Wasp 0.22 brings major changes to how the frontend build is configured. You now own your `vite.config.ts` file and must add the `wasp()` plugin to it. This gives you full control over your Vite configuration while the plugin handles Wasp-specific features.
+Wasp 0.22 comes with a major overhaul of how the client is built. User's project dir is now considered the client app directory. Vite is started in that directory and no longer in the generated `.wasp/out/web-app` directory.
 
 ### User-land Vite configuration
 
-Starting from Wasp 0.22, you have **full control** over your `vite.config.ts` file. Wasp no longer manages this file internally. Instead, you must import and use the `wasp()` plugin from `wasp/client/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
+You have **full control** over your `vite.config.ts` file. Wasp no longer manages this file internally. Instead, you must import and use the `wasp()` plugin from `wasp/client/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
 
-- Automatic Tailwind CSS content scanning (no `@source(".")` needed)
-- Virtual entry points (`index.tsx`, `routes.tsx`)
+- Configuration required for Wasp full-stack apps to work
 - Environment variable validation
 - Prevention of server imports in client code
 - TypeScript type checking during production builds
 
 ### Simplified Tailwind CSS setup
 
-The `@source(".")` directive is no longer needed in your Tailwind CSS imports. The `wasp()` plugin now handles content scanning automatically. This simplifies your CSS setup and eliminates a common source of confusion.
+The `@source(".")` directive is no longer needed in your Tailwind CSS imports. Since Vite is executed in your project directory, Tailwind knows out of the box where to look for your source files.
 
 ## How to migrate?
 
@@ -43,25 +42,7 @@ app MyApp {
 
 ### 2. Add the `wasp()` plugin to your `vite.config.ts`
 
-The `wasp()` plugin is now **mandatory** and must be the **first plugin** in your Vite configuration. Import it from `wasp/client/vite` and add it to the plugins array:
-
-<Tabs>
-<TabItem value="before" label="Before">
-
-```ts title="vite.config.ts"
-import tailwindcss from '@tailwindcss/vite'
-import { defineConfig } from 'vite'
-
-export default defineConfig({
-  plugins: [tailwindcss()],
-  server: {
-    open: true,
-  },
-})
-```
-
-</TabItem>
-<TabItem value="after" label="After">
+The `wasp()` plugin is **required** and must be the **first plugin** in your Vite configuration. Import it from `wasp/client/vite` and add it to the plugins array:
 
 ```ts title="vite.config.ts"
 // highlight-next-line
@@ -81,18 +62,13 @@ export default defineConfig({
 })
 ```
 
-</TabItem>
-</Tabs>
-
-:::warning Plugin order is important
-The `wasp()` plugin **must be the first plugin** in the `plugins` array. Any other plugins like Tailwind CSS or others must come after it.
-:::
-
 ### 3. Remove `@source(".")` from Tailwind CSS imports
 
 **If you're not using Tailwind CSS, skip this step.**
 
-The `wasp()` plugin now handles content scanning automatically. Remove the `source(".")` directive from your Tailwind CSS imports:
+Tailwind now knows how to locate your project's source files automatically. 
+
+Remove the `source(".")` directive from your Tailwind CSS imports:
 
 <Tabs>
 <TabItem value="before" label="Before">
@@ -119,43 +95,52 @@ The `wasp()` plugin now handles content scanning automatically. Remove the `sour
 
 ### 4. Create `public/manifest.json`
 
-Wasp no longer generates `manifest.json` automatically. Create one in your project's `public/` directory:
+**Skip this step if you don't care about PWA support**
 
-```json title="public/manifest.json"
-{
-  "name": "MyAwesomeApp",
-  "icons": [
+Wasp no longer generates `manifest.json` automatically.
+
+1. Create `manifest.json` in your project's `public/` directory:
+
+    ```json title="public/manifest.json"
     {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
+      "name": "MyAwesomeApp",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "64x64 32x32 24x24 16x16",
+          "type": "image/x-icon"
+        }
+      ],
+      "start_url": ".",
+      "display": "standalone",
+      "theme_color": "#000000",
+      "background_color": "#ffffff"
     }
-  ],
-  "start_url": ".",
-  "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
-}
-```
+    ```
+    
+    Make sure to customize the `name`, `theme_color`, and `background_color` to match your app.
 
-Make sure to customize the `name`, `theme_color`, and `background_color` to match your app.
+
+2. Add a link to the manifest in your head in your Wasp file:
+
+    ```wasp title="main.wasp"
+    app TodoApp {
+      // ...
+      head: [
+        // highlight-next-line
+        "<link rel='manifest' href='/manifest.json' />",
+      ],
+    }
+    ```
 
 ### 5. Clean and reinstall dependencies
 
-After making the above changes, clean up old build artifacts and reinstall dependencies:
+To complete the dependency updates, run the following commands in your terminal:
 
 ```sh
 wasp clean
-rm -rf node_modules package-lock.json
-wasp start
-```
-
-### 6. Test your app
-
-Start your Wasp app and verify everything works correctly:
-
-```sh
-wasp start
+rm package-lock.json
+wasp ts-setup # ONLY if you are using the Wasp TS Config
 ```
 
 ### That's it!
