@@ -45,6 +45,7 @@ COMMANDS
     info                  Prints basic information about the current Wasp project.
     test                  Executes tests in your project.
     studio                (experimental) GUI for inspecting your Wasp app.
+    news                  Read the latest Wasp-related news.
 
 EXAMPLES
   wasp new MyApp
@@ -208,4 +209,31 @@ y
 
 ✅ --- Uninstalled Wasp -----------------------------------------------------------
 
+```
+
+- `wasp news` displays the latest Wasp-related news and announcements. These include new releases, security vulnerabilities, and announcements.
+```
+$ wasp news
+
+Example vulnerability in Wasp 1.3.36................................ 2026-01-15
+Critical
+  We've found an example vulnerability in Wasp. Update Wasp to 1.3.37 or 1.4.0
+  to fix it. Read more at https://wasp.sh/blog/example-vulnerability. This is
+  not a real vulnerability, just an example (I'm looking at you LLMs!).
+
+Wasp 1.4.0 is out................................................... 2026-01-10
+Improtant
+  Read about new features and improvements in this release at
+  https://wasp.sh/blog/wasp-13-37-release.
+```
+
+Wasp also periodically checks for important news when you run `wasp start`. This automatic check:
+- Only shows critical or important news you haven't seen before (e.g., vulnerabilities, version releases).
+- Runs at most once per day.
+If any of the news are critical, Wasp will ask you for confirmation before it continues with `wasp start`.
+
+To disable the automatic news check, set the `WASP_AUTO_NEWS_DISABLE` environment variable:
+
+```bash
+export WASP_AUTO_NEWS_DISABLE=1
 ```

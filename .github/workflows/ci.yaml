@@ -38,13 +38,20 @@ jobs:
     uses: ./.github/workflows/ci-waspc-build.yaml
     secrets: inherit
 
-  npm-package-test:
+  npm-package-build:
     needs: waspc-build
+    uses: ./.github/workflows/ci-npm-package-build.yaml
+    secrets: inherit
+    with:
+      build-outputs: ${{ toJson(needs.waspc-build.outputs) }}
+
+  npm-package-test:
+    needs: npm-package-build
     uses: ./.github/workflows/ci-npm-package-test.yaml
     secrets: inherit
 
   npm-package-publish:
-    needs: waspc-build
+    needs: npm-package-build
     uses: ./.github/workflows/ci-npm-package-publish.yaml
 
   waspc-test:

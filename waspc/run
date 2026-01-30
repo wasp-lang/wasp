@@ -19,7 +19,9 @@ RED="\033[31m"
 DEFAULT_COLOR="\033[39m"
 
 # Building
-WASP_PACKAGES_COMPILE="${SCRIPT_DIR}/tools/install_packages_to_data_dir.sh"
+WASP_PACKAGES_COMPILE="for pkg in ${SCRIPT_DIR}/data/packages/*/package.json; do \
+  (cd \$(dirname \$pkg) && npm install && npm run build); \
+done"
 BUILD_HS_CMD="cabal build all"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
 BUILD_ALL_CMD="$WASP_PACKAGES_COMPILE && $BUILD_HS_CMD"
@@ -122,7 +124,7 @@ print_usage() {
   print_usage_cmd "build:all:static" \
     "Builds the Haskell project statically + all sub-projects (i.e. TS packages). Only useful for release builds. Needs to be run on a musl-based Linux distribution (e.g. Alpine)."
   print_usage_cmd "build:packages" \
-    "Builds the TypeScript projects under packages/."
+    "Builds the TypeScript projects under data/packages/."
   echo ""
   print_usage_cmd "wasp-cli <args>" \
     "Runs the dev version of wasp executable while forwarding arguments. Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."

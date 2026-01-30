@@ -69,7 +69,7 @@ genPrismaSchema spec = do
   (datasourceProvider :: String) <- case dbSystem of
     AS.Db.PostgreSQL -> return Pls.Db.dbProviderPostgresqlStringLiteral
     AS.Db.SQLite ->
-      if AS.isBuild spec
+      if AS.isProduction spec
         then logAndThrowGeneratorError $ GenericGeneratorError "SQLite (a default database) is not supported in production. To build your Wasp app for production, switch to a different database. Switching to PostgreSQL: https://wasp.sh/docs/data-model/databases#migrating-from-sqlite-to-postgresql ."
         else return Pls.Db.dbProviderSqliteStringLiteral
 
@@ -144,7 +144,7 @@ postWriteDbGeneratorActions spec dstDir = do
     -- example if we are in development (`wasp start`).
     -- However if we are in build (`wasp build`), then there is no database to check against right
     -- now.
-    if not (AS.isBuild spec)
+    if not (AS.isProduction spec)
       then maybeToList <$> warnIfDbNeedsMigration spec dstDir
       else pure []
   dbGeneratorErrors <- maybeToList <$> generatePrismaClient spec dstDir

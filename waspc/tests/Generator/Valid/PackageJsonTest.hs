@@ -4,7 +4,7 @@ import qualified Data.Map as M
 import Test.Hspec
 import Text.Printf (printf)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.Valid.PackageJson
+import Wasp.Generator.Valid.PackageJson.Dependencies
   ( DependencyType (..),
     inDependency,
     makeOptionalDepValidator,
@@ -51,7 +51,7 @@ spec_PackageJson = do
     itEach "fails when required dependency has wrong version" $ \depType pkgJson -> do
       makeRequiredDepValidator depType ("required-pkg", "1.0.0")
         <-- (pkgJson `withDep` (depType, ("required-pkg", "2.0.0")))
-        ~> ["Wasp requires package \"required-pkg\" to be version \"1.0.0\"."]
+        ~> ["Wasp requires package \"required-pkg\" with version \"1.0.0\"."]
 
     itEach "fails when required dependency is in the opposite list" $ \depType pkgJson -> do
       let oppositeDepType = depTypeToOpposite depType
