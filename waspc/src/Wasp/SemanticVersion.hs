@@ -160,10 +160,10 @@ parseWaspVersionRange = parse waspVersionRangeParser ""
 
 waspVersionRangeParser :: Parsec String () Range
 waspVersionRangeParser =
-  Range . pure <$> (choice prefixParsers <*> versionParser)
+  Range . return <$> (choice prefixParsers <*> versionParser)
   where
     prefixParsers =
-      [ char '^' *> pure backwardsCompatibleWith,
-        char '~' *> pure approximatelyEquivalentWith,
-        pure eq
+      [ char '^' *> return backwardsCompatibleWith,
+        char '~' *> return approximatelyEquivalentWith,
+        return eq
       ]
