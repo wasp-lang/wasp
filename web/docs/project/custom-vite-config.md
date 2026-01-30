@@ -3,16 +3,18 @@ title: Custom Vite Config
 ---
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
+import { Optional } from '@site/src/components/Tag'
 
-Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and bundling it for production. You own your `vite.config.{js,ts}` file in your project root directory, which means you have full control over your frontend build configuration.
+Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and bundling it for production. If you want to customize the Vite config, you can do that by editing the `vite.config.{js,ts}` file in your project root directory.
 
 ## Required Configuration
 
-The `wasp()` plugin is **mandatory** and must be imported from `wasp/client/vite` and added as the **first plugin** in your Vite configuration. This plugin handles essential features like:
+You have **full control** over your `vite.config.ts` file. Wasp doesn't manage this file internally. Instead, you must import and use the `wasp()` plugin from `wasp/client/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
 
-- Validating environment variables during builds
-- Detecting and preventing server imports in client code
-- Running TypeScript type checking during production builds
+- Configuration required for Wasp full-stack apps to work.
+- Environment variable validation.
+- Prevention of server imports in client code.
+- TypeScript type checking during production builds.
 
 Here's the minimal required configuration:
 
@@ -46,55 +48,32 @@ The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any oth
 
 ## Customization
 
-Beyond the required `wasp()` plugin, you can add additional configuration and plugins as needed. Wasp will use your config and **merge** it with the built-in defaults provided by the `wasp()` plugin.
+You can add additional configuration and plugins as needed. The `wasp()` plugin will use your config and merge it with the built-in defaults.
 
 Vite config customization can be useful for things like:
 
-- Adding additional Vite plugins (after the `wasp()` plugin).
+- Adding additional Vite plugins.
 - Customizing the dev server behavior.
 - Customizing the build process.
 
 ## Plugin Options
 
-The `wasp()` plugin accepts options through the `WaspPluginOptions` interface, allowing you to customize the underlying React plugin behavior if needed:
+The `wasp()` plugin accepts options allowing you to customize the underlying React plugin behavior if needed:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="vite.config.js"
-    import { wasp } from 'wasp/client/vite'
-    import { defineConfig } from 'vite'
+```ts title="vite.config.ts" auto-js
+import { wasp } from 'wasp/client/vite'
+import { defineConfig } from 'vite'
 
-    export default defineConfig({
-      plugins: [
-        wasp({
-          // Optional: customize React plugin options
-          reactOptions: {
-            // Pass any @vitejs/plugin-react options here
-          }
-        })
-      ],
+export default defineConfig({
+  plugins: [
+    wasp({
+      reactOptions: {
+        // Pass any @vitejs/plugin-react options here
+      }
     })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="vite.config.ts"
-    import { wasp } from 'wasp/client/vite'
-    import { defineConfig } from 'vite'
-
-    export default defineConfig({
-      plugins: [
-        wasp({
-          // Optional: customize React plugin options
-          reactOptions: {
-            // Pass any @vitejs/plugin-react options here
-          }
-        })
-      ],
-    })
-    ```
-  </TabItem>
-</Tabs>
+  ],
+})
+```
 
 ## Examples
 
@@ -104,77 +83,37 @@ Below are some examples of how you can customize the Vite config.
 
 If you want to stop Vite from opening the browser automatically when you run `wasp start`, you can do that by customizing the `open` option.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="vite.config.js"
-    import { wasp } from 'wasp/client/vite'
-    import { defineConfig } from 'vite'
+```ts title="vite.config.ts" auto-js
+import { wasp } from 'wasp/client/vite'
+import { defineConfig } from 'vite'
 
-    export default defineConfig({
-      plugins: [wasp()],
-      server: {
-        open: false,
-      },
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="vite.config.ts"
-    import { wasp } from 'wasp/client/vite'
-    import { defineConfig } from 'vite'
-
-    export default defineConfig({
-      plugins: [wasp()],
-      server: {
-        open: false,
-      },
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default defineConfig({
+  plugins: [wasp()],
+  server: {
+    open: false,
+  },
+})
+```
 
 ### Custom Dev Server Port
 
 You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the dev server port by setting the `port` option.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="vite.config.js"
-    import { wasp } from 'wasp/client/vite'
-    import { defineConfig } from 'vite'
+```ts title="vite.config.ts" auto-js
+import { wasp } from 'wasp/client/vite'
+import { defineConfig } from 'vite'
 
-    export default defineConfig({
-      plugins: [wasp()],
-      server: {
-        port: 4000,
-      },
-    })
-    ```
+export default defineConfig({
+  plugins: [wasp()],
+  server: {
+    port: 4000,
+  },
+})
+```
 
-    ```env title=".env.server"
-    WASP_WEB_CLIENT_URL=http://localhost:4000
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="vite.config.ts"
-    import { wasp } from 'wasp/client/vite'
-    import { defineConfig } from 'vite'
-
-    export default defineConfig({
-      plugins: [wasp()],
-      server: {
-        port: 4000,
-      },
-    })
-    ```
-
-    ```env title=".env.server"
-    WASP_WEB_CLIENT_URL=http://localhost:4000
-    ```
-  </TabItem>
-</Tabs>
+```env title=".env.server"
+WASP_WEB_CLIENT_URL=http://localhost:4000
+```
 
 :::warning Changing the dev server port
 ⚠️ Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
@@ -210,3 +149,28 @@ export default defineConfig({
 :::tip Path normalisation
 The latest version of `vite-plugin-devtools-json` includes Windows, WSL and Docker Desktop path fixes contributed by the Wasp community – make sure you are on version 0.4.0 or greater.
 :::
+
+## API Reference
+
+```ts title="vite.config.ts" auto-js
+import { wasp } from 'wasp/client/vite'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    wasp({
+      reactOptions: {
+        // ...
+      },
+    }),
+  ],
+})
+```
+
+The `wasp()` plugin accepts the following options:
+
+- #### `reactOptions: ReactOptions` <Optional />
+
+  Object to customize the underlying [`@vitejs/plugin-react`](https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react) plugin.
+
+  This allows you to configure React-specific options like Babel plugins, Fast Refresh settings, and JSX configuration.
