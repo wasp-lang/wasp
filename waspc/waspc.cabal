@@ -672,6 +672,7 @@ test-suite waspc-tests
     , split
     , strong-path
     , text
+    , time
     , unordered-containers
     , bytestring
     , waspc
