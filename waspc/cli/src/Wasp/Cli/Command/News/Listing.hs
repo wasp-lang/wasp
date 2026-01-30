@@ -103,7 +103,9 @@ listNews localState listing = do
 
 showMessageForUser :: LocalNewsState -> NewsListing -> Maybe String
 showMessageForUser localState listing = case listing of
-  UserListingAllNews {} -> Nothing
+  UserListingAllNews {allNews}
+    | null allNews -> Just "No news to report, you're all caught up!"
+    | otherwise -> Nothing
   WaspListingMustSeeNews {}
     | null (getNewsToShow localState listing) -> Nothing
     | isConfirmationRequired localState listing -> Nothing
