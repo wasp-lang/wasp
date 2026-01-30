@@ -360,6 +360,7 @@ library
     Wasp.Generator.Test
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
+    Wasp.Generator.Valid.PackageJson.Common
     Wasp.Generator.Valid.PackageJson.Dependencies
     Wasp.Generator.Valid.PackageJson.Workspaces
     Wasp.Generator.Valid.TsConfig
@@ -674,6 +675,7 @@ test-suite waspc-tests
     , split
     , strong-path
     , text
+    , time
     , unordered-containers
     , bytestring
     , waspc
