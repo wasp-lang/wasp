@@ -32,7 +32,7 @@ main = do
 --       See: github.com/wasp-lang/wasp/issues/3404
 e2eTests :: IO TestTree
 e2eTests = do
-  snapshotTests <-
+  snapshotTestTrees <-
     runSnapshotTests
       [ waspNewSnapshotTest,
         waspCompileSnapshotTest,
@@ -72,6 +72,6 @@ e2eTests = do
   return $
     testGroup
       "E2E tests"
-      [ testGroup "Snapshot Tests" snapshotTests,
+      [ testGroup "Snapshot Tests" snapshotTestTrees,
         testGroup "Tests" testTrees
       ]
