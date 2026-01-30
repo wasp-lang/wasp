@@ -75,7 +75,6 @@ data AppSpec = AppSpec
     waspProjectDir :: Path' Abs (Dir WaspProjectDir),
     -- | List of external code files (they are referenced/used in the declarations).
     externalCodeFiles :: [ExternalFiles.CodeFile],
-    externalPublicFiles :: [ExternalFiles.PublicFile],
     migrationsDir :: Maybe (Path' Abs (Dir DbMigrationsDir)),
     -- | Env variables to be provided to the server only during the development.
     devEnvVarsServer :: [EnvVar],
@@ -87,7 +86,6 @@ data AppSpec = AppSpec
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
-    customViteConfigPath :: Maybe (Path' (Rel WaspProjectDir) File'),
     srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
     srcTsConfig :: TsConfig
   }

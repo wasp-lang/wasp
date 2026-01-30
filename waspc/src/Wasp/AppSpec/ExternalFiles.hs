@@ -13,12 +13,10 @@ module Wasp.AppSpec.ExternalFiles
     -- Therefore, the whole specification of the web app is not just Wasp code, but a combination of
     -- Wasp code and external files.
     CodeFile (..),
-    PublicFile (..),
     filePathInExtCodeDir,
     fileAbsPath,
     fileText,
     SourceExternalCodeDir,
-    SourceExternalPublicDir,
   )
 where
 
@@ -31,21 +29,12 @@ import StrongPath (Abs, Dir, File', Path', Rel, (</>))
 --   External code files are obtained from it.
 data SourceExternalCodeDir deriving (Data)
 
--- | Directory in Wasp project that contains external public static files.
---   Public files are obtained from it.
-data SourceExternalPublicDir deriving (Data)
-
 data CodeFile = CodeFile
   { _pathInExtCodeDir :: !(Path' (Rel SourceExternalCodeDir) File'),
     _extCodeDirPath :: !(Path' Abs (Dir SourceExternalCodeDir)),
     -- | File content. Since it is lazy, it might throw error when evaluated,
     -- since reading will happen only then. E.g. it will throw error if file is not a textual file.
     _text :: TextL.Text
-  }
-
-data PublicFile = PublicFile
-  { _pathInPublicDir :: !(Path' (Rel SourceExternalPublicDir) File'),
-    _publicDirPath :: !(Path' Abs (Dir SourceExternalPublicDir))
   }
 
 instance Show CodeFile where

@@ -3,7 +3,10 @@ app KitchenSink {
     version: "^0.21.0"
   },
   title: "Wasp Kitchen Sink",
-  // head: [],
+  head: [
+    "<link rel='manifest' href='/manifest.json'>",
+    "<link rel='icon' href='/favicon.ico' />",
+  ],
   webSocket: {
     fn: import { webSocketFn } from "@src/features/chat/webSocket",
     // autoConnect: false

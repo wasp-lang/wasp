@@ -178,14 +178,18 @@ generateViteConfigFile :: File
 generateViteConfigFile =
   ( "vite.config.js",
     [trimming|
+      import { wasp } from "wasp/client/vite";
       import tailwindcss from "@tailwindcss/vite";
       import { defineConfig } from "vite";
 
       export default defineConfig({
+        plugins: [
+          wasp(),
+          tailwindcss()
+        ],
         server: {
           open: true,
         },
-        plugins: [tailwindcss()],
       });
     |]
   )
@@ -281,7 +285,7 @@ generateMainCssFile :: NewProjectDetails -> File
 generateMainCssFile newProjectDetails =
   ( "src/Main.css",
     [trimming|
-      @import "tailwindcss" source(".");
+      @import "tailwindcss";
 
       @theme {
         ${primaryColorAliases}

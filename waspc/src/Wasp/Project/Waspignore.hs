@@ -14,7 +14,7 @@ import StrongPath.TH (relfile)
 import System.FilePath.Glob (Pattern, compile, match)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Project.Common
 import qualified Wasp.Util.IO as IOUtil
 
@@ -23,8 +23,6 @@ class AffectedByWaspignoreFile a
 newtype WaspignoreFile = WaspignoreFile [Pattern]
 
 instance AffectedByWaspignoreFile SourceExternalCodeDir
-
-instance AffectedByWaspignoreFile SourceExternalPublicDir
 
 getNotIgnoredRelFilePaths ::
   (AffectedByWaspignoreFile d) =>

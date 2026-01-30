@@ -2,45 +2,10 @@
 title: Migration from 0.20.X to 0.21.X
 ---
 
+import InstallInstructions from './_install-instructions.md'
 import NetlifyTomlConfig from '../deployment/deployment-methods/\_netlify-toml-config.md'
 
-To install the latest version of Wasp, open your terminal and run:
-
-<Tabs>
-<TabItem value="installer" label="Installer">
-
-```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```sh
-npm i -g @wasp.sh/wasp-cli@latest
-```
-
-</TabItem>
-</Tabs>
-
-If you want to install Wasp 0.21.0 specifically, you can pass a version argument to the install script:
-
-<Tabs>
-<TabItem value="installer" label="Installer">
-
-```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.21.0
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```sh
-npm i -g @wasp.sh/wasp-cli@0.21.0
-```
-
-</TabItem>
-</Tabs>
+<InstallInstructions version="0.21.0" />
 
 ## What's new in 0.21.X?
 
