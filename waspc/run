@@ -76,6 +76,7 @@ TEST_CMD="cabal test && \
   echo 'Running e2e tests' && \
   $STARTERS_E2E_TESTS_CMD && \
   $EXAMPLES_E2E_TESTS_CMD && \
+  $LIBS_TESTS_CMD && \
   echo 'ALL TESTS PASSED' || \
   { echo 'SOME TESTS FAILED'; exit 1; }"
 
