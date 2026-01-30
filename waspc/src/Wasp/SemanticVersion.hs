@@ -18,7 +18,7 @@ import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (isJust)
-import Wasp.SemanticVersion.Version (Version (..), nextApproximatelyEquivalentVersion, nextBreakingChangeVersion)
+import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (Exclusive, Inclusive, Inf),
@@ -151,3 +151,9 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
       let noMajorChangesInterval =
             (lowerBound, Exclusive $ nextBreakingChangeVersion lowerBoundVersion)
       guard $ versionInterval `isSubintervalOf` noMajorChangesInterval
+
+nextApproximatelyEquivalentVersion :: Version -> Version
+nextApproximatelyEquivalentVersion = \case
+  (Version 0 x y) -> Version 0 x (succ y)
+  (Version x 0 0) -> Version (succ x) 0 0
+  (Version x y _) -> Version x (succ y) 0

@@ -3,7 +3,6 @@
 module Wasp.SemanticVersion.Version
   ( Version (..),
     nextBreakingChangeVersion,
-    nextApproximatelyEquivalentVersion,
     parseVersion,
     versionParser,
     v,
@@ -52,9 +51,3 @@ nextBreakingChangeVersion = \case
   (Version 0 0 x) -> Version 0 0 (succ x)
   (Version 0 x _) -> Version 0 (succ x) 0
   (Version x _ _) -> Version (succ x) 0 0
-
-nextApproximatelyEquivalentVersion :: Version -> Version
-nextApproximatelyEquivalentVersion = \case
-  (Version 0 x y) -> Version 0 x (succ y)
-  (Version x 0 0) -> Version (succ x) 0 0
-  (Version x y _) -> Version x (succ y) 0
