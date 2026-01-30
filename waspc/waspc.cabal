@@ -815,7 +815,6 @@ test-suite waspc-e2e-tests
   build-depends:
     , waspc
     , aeson
-    , async
     , directory
     , base
     , filepath
