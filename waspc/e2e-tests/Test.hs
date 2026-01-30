@@ -5,14 +5,12 @@
 module Test
   ( Test (..),
     TestCase (..),
-    runTests,
+    testTreeFromTest,
   )
 where
 
-import Control.Concurrent.Async (mapConcurrently)
-import Control.Monad ((>=>))
 import Data.Maybe (fromJust)
-import FileSystem (TestCaseDir, getTestCaseDir, getTestOutputsDir)
+import FileSystem (TestCaseDir, getTestCaseDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
 import StrongPath (Abs, Dir, Path', fromAbsDir, parseRelDir, (</>))
 import System.Exit (ExitCode (..))
@@ -32,60 +30,44 @@ data TestCase = TestCase
     shellCommandBuilder :: ShellCommandBuilder TestContext [ShellCommand]
   }
 
--- | Prepares a list of 'Test's in parallel (executing shell commands and capturing exit codes),
---  and then creates test trees that check the results.
-runTests :: [Test] -> IO [TestTree]
-runTests tests = do
-  testOutputsDir <- getTestOutputsDir
-  callCommand $ "mkdir -p " ++ fromAbsDir testOutputsDir
-
-  mapConcurrently (prepareTest >=> createTestTree) tests
-
--- | Data needed to create a test tree.
-data TestData = TestData
-  { name :: String,
-    testCaseResults :: [TestCaseResult]
-  }
-
--- | Result of executing a single test case.
-data TestCaseResult = TestCaseResult
-  { name :: String,
-    command :: String,
-    exitCode :: ExitCode
-  }
-
--- | Prepares a test by executing all its test cases sequentially and capturing results.
-prepareTest :: Test -> IO TestData
-prepareTest test = do
-  testCaseResults <- mapM (executeTestCase test.name) test.testCases
-  return TestData {name = test.name, testCaseResults}
-
-createTestTree :: TestData -> IO TestTree
-createTestTree testData =
-  testSpec testData.name (mapM_ checkTestCaseResult testData.testCaseResults)
+testTreeFromTest :: Test -> IO TestTree
+testTreeFromTest test = do
+  testSpec test.name (mapM_ createTestCaseSpec test.testCases)
   where
-    checkTestCaseResult :: TestCaseResult -> Spec
-    checkTestCaseResult result =
-      it result.name $ do
-        case result.exitCode of
-          ExitFailure _ -> expectationFailure $ "Command failed: " ++ result.command
+    createTestCaseSpec :: TestCase -> Spec
+    createTestCaseSpec testCase =
+      it testCase.name $ do
+        testCaseDir <- getTestCaseDir test.name testCase.name
+        let testCaseCommand = createTestCaseCommand testCaseDir testCase
+
+        setupTestCase testCaseDir
+
+        putStrLn $ "Executing test case: " ++ test.name ++ "/" ++ testCase.name
+        putStrLn $ "Command: " ++ testCaseCommand
+        exitCode <- executeTestCaseCommand testCaseDir testCaseCommand
+
+        case exitCode of
+          ExitFailure _ -> expectationFailure $ "Command failed: " ++ testCaseCommand
           ExitSuccess -> return ()
 
--- | Executes a single test case and captures its result.
-executeTestCase :: String -> TestCase -> IO TestCaseResult
-executeTestCase testName testCase = do
-  testCaseDir <- getTestCaseDir testName testCase.name
-  let waspProjectContext =
-        WaspProjectContext
-          { waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
-            waspProjectName = "wasp-app"
-          }
-      testContext = TestContext {testCaseDir, waspProjectContext}
-      testCaseCommand = foldr1 (~&&) $ buildShellCommand testContext testCase.shellCommandBuilder
+createTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> TestCase -> ShellCommand
+createTestCaseCommand testCaseDir testCase =
+  foldr1 (~&&) $ buildShellCommand testContext testCase.shellCommandBuilder
+  where
+    testContext = TestContext {testCaseDir, waspProjectContext}
+    waspProjectContext =
+      WaspProjectContext
+        { waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
+          waspProjectName = "wasp-app"
+        }
 
-  setupTestCase testCaseDir
-  putStrLn $ "Executing test case: " ++ testName ++ "/" ++ testCase.name
-  putStrLn $ "Command: " ++ testCaseCommand
+setupTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
+setupTestCase testCaseDir = do
+  callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
+  callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
+
+executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> IO ExitCode
+executeTestCaseCommand testCaseDir testCaseCommand = do
   (_, _, _, processHandle) <-
     createProcess
       (shell testCaseCommand)
@@ -94,11 +76,4 @@ executeTestCase testName testCase = do
           std_out = Inherit,
           std_err = Inherit
         }
-  exitCode <- waitForProcess processHandle
-
-  return TestCaseResult {name = testCase.name, command = testCaseCommand, exitCode}
-
-setupTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
-setupTestCase testCaseDir = do
-  callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
-  callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
+  waitForProcess processHandle

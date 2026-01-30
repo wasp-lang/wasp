@@ -1,6 +1,6 @@
 import SnapshotTest (runSnapshotTest)
 import System.Info (os)
-import Test (runTests)
+import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
@@ -41,8 +41,9 @@ e2eTests = do
         waspMigrateSnapshotTest,
         kitchenSinkSnapshotTest
       ]
-  tests <-
-    runTests
+  testTrees <-
+    mapM
+      testTreeFromTest
       [ -- general Wasp commads
         waspNewTest,
         waspTelemetryTest,
@@ -73,5 +74,5 @@ e2eTests = do
     testGroup
       "E2E tests"
       [ testGroup "Snapshot Tests" snapshotTests,
-        testGroup "Tests" tests
+        testGroup "Tests" testTrees
       ]
