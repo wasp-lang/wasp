@@ -2,6 +2,7 @@
 comments: true
 last_checked_with_versions:
   Wasp: 0.21.0
+  Coolify: 2026-01-30
 ---
 
 import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";

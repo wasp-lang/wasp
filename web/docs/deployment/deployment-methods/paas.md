@@ -541,7 +541,7 @@ Here’s an example configuration file to help you get started. This example wor
           id: setup-node
           uses: actions/setup-node@v5
           with:
-            node-version: '22'
+            node-version: "{minimumNodeJsVersion}"
 
         - name: Install Wasp
           run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
@@ -641,7 +641,7 @@ Here’s an example configuration file to help you get started. This example wor
           id: setup-node
           uses: actions/setup-node@v5
           with:
-            node-version: '22'
+            node-version: "{minimumNodeJsVersion}"
 
         - name: Install Wasp
           run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version

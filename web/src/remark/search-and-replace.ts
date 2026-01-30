@@ -26,15 +26,10 @@ const plugin: Plugin<[], Root> = () => (tree) => {
   the text is searched and replaced.
 */
 function createReplacer(definitions: Record<string, string>) {
-  const compiled = Object.entries(definitions).map(([key, value]) => ({
-    regex: new RegExp(`\\{${key}\\}`, "g"),
-    value,
-  }));
-
   return {
     searchAndReplace(text: string): string {
-      for (const { regex, value } of compiled) {
-        text = text.replace(regex, value);
+      for (const [key, value] of Object.entries(definitions)) {
+        text = text.replaceAll(`{${key}}`, value);
       }
       return text;
     },

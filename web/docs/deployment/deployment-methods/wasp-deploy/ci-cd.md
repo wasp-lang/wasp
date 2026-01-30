@@ -57,7 +57,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: "{minimumNodeJsVersion}"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
@@ -102,7 +102,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: "{minimumNodeJsVersion}"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
