@@ -8,7 +8,7 @@ import InstallInstructions from './_install-instructions.md'
 
 ## What's new in 0.22.X?
 
-Wasp 0.22 comes with a major overhaul of how the client is built. User's project dir is now considered the client app directory. Vite is started in that directory and no longer in the generated `.wasp/out/web-app` directory.
+Wasp 0.22 comes with a major overhaul of how the client app is built. User's project directory is now considered the client app directory. This means that Vite is started in user's project directory instead of the `.wasp/out/web-app` directory.
 
 ### User-land Vite configuration
 
