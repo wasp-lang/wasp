@@ -1,4 +1,5 @@
-import SnapshotTest (runSnapshotTests)
+import Control.Concurrent.Async (mapConcurrently)
+import SnapshotTest (testTreeFromSnapshotTest)
 import System.Info (os)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
@@ -33,7 +34,8 @@ main = do
 e2eTests :: IO TestTree
 e2eTests = do
   snapshotTestTrees <-
-    runSnapshotTests
+    mapConcurrently
+      testTreeFromSnapshotTest
       [ waspNewSnapshotTest,
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,

@@ -5,11 +5,10 @@
 module SnapshotTest
   ( SnapshotTest,
     makeSnapshotTest,
-    runSnapshotTests,
+    testTreeFromSnapshotTest,
   )
 where
 
-import Control.Concurrent.Async (mapConcurrently)
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -48,11 +47,10 @@ makeSnapshotTest name shellCommandBuilders =
       shellCommandBuilder = sequence shellCommandBuilders
     }
 
--- | Prepares a list of 'SnapshotTest's in parallel (executing shell commands and generating snapshots),
---  and then creates test trees for comparing the generated files to the "golden" (expected) versions.
-runSnapshotTests :: [SnapshotTest] -> IO [TestTree]
-runSnapshotTests snapshotTests =
-  map createSnapshotTestTree <$> mapConcurrently prepareSnapshotTestData snapshotTests
+-- | Prepares a 'SnapshotTest' (executing shell commands and generating snapshots),
+--  and then creates a test tree for comparing the generated files to the "golden" (expected) versions.
+testTreeFromSnapshotTest :: SnapshotTest -> IO TestTree
+testTreeFromSnapshotTest = fmap createSnapshotTestTree . prepareSnapshotTestData
 
 -- | Data needed to create a snapshot test tree.
 data SnapshotTestData = SnapshotTestData
