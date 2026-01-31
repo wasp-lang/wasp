@@ -86,24 +86,19 @@ validateWasp :: AppSpec -> [ValidationError]
 validateWasp = validateWaspVersion . Wasp.version . App.wasp . snd . getApp
 
 validateWaspVersion :: String -> [ValidationError]
-validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
-  specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
-  unless (SV.isVersionInRange WV.waspVersion specWaspVersionRange) $
-    Left (incompatibleVersionError WV.waspVersion specWaspVersionRange)
+validateWaspVersion specWaspVersionString = eitherUnitToErrorList $ do
+  specWaspVersion <- parseAndValidateWaspVersion specWaspVersionString
+  unless (SV.isVersionInRange WV.waspVersion specWaspVersion) $
+    Left (incompatibleVersionError WV.waspVersion specWaspVersion)
   where
-    parseWaspVersionRange :: String -> Either ValidationError SV.Range
-    parseWaspVersionRange waspVersionRangeString =
-      case SV.parseWaspVersionRange waspVersionRangeString of
-        Right range
+    parseAndValidateWaspVersion :: String -> Either ValidationError SV.Range
+    parseAndValidateWaspVersion waspVersionString =
+      case WV.parseWaspVersion waspVersionString of
+        Right waspVersionRange
           -- Ensure the input matches exactly what we parsed (no trailing garbage,
           -- no partial versions like "0.5" which would parse as "0.5.0").
-          | show range == waspVersionRangeString -> Right range
-        _ -> Left badWaspVersionFormatError
-
-    badWaspVersionFormatError :: ValidationError
-    badWaspVersionFormatError =
-      GenericValidationError
-        "Wasp version should be in the format ^major.minor.patch, ~major.minor.patch, or major.minor.patch"
+          | show waspVersionRange == waspVersionString -> Right waspVersionRange
+        _ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch, ~major.minor.patch, or major.minor.patch"
 
     incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
     incompatibleVersionError actualVersion expectedVersionRange =
