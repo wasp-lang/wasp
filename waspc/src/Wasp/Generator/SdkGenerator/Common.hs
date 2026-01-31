@@ -19,9 +19,6 @@ data ClientTemplatesDir
 
 data ServerTemplatesDir
 
-asTmplFile :: Path' (Rel d) File' -> Path' (Rel SdkTemplatesDir) File'
-asTmplFile = SP.castRel
-
 mkTmplFdWithDstAndData ::
   Path' (Rel SdkTemplatesDir) File' ->
   Path' (Rel SdkRootDir) File' ->
@@ -33,19 +30,22 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     (sdkTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
-mkTmplFdWithDst :: Path' (Rel SdkTemplatesDir) File' -> Path' (Rel SdkRootDir) File' -> FileDraft
-mkTmplFdWithDst src dst = mkTmplFdWithDstAndData src dst Nothing
-
 mkTmplFdWithData ::
   Path' (Rel SdkTemplatesDir) File' ->
   Aeson.Value ->
   FileDraft
-mkTmplFdWithData relSrcPath tmplData = mkTmplFdWithDstAndData relSrcPath relDstPath (Just tmplData)
-  where
-    relDstPath = castRel relSrcPath
+mkTmplFdWithData relSrcPath tmplData =
+  mkTmplFdWithDstAndData
+    relSrcPath
+    (castRel relSrcPath)
+    (Just tmplData)
 
 mkTmplFd :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
-mkTmplFd path = mkTmplFdWithDst path (SP.castRel path)
+mkTmplFd relSrcPath =
+  mkTmplFdWithDstAndData
+    relSrcPath
+    (SP.castRel relSrcPath)
+    Nothing
 
 sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]

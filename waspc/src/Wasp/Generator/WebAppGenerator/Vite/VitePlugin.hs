@@ -58,7 +58,8 @@ genDetectServerImportsPlugin tmplFile = return $ C.mkTmplFdWithData tmplFile tmp
           "srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir
         ]
 
-    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
+    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
+    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir
 
 genValidateEnvPlugin :: Path' (Rel WebAppTemplatesDir) File' -> Generator FileDraft
 genValidateEnvPlugin tmplFile = return $ C.mkTmplFd tmplFile

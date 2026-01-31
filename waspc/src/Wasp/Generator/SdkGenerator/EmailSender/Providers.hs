@@ -3,32 +3,26 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
     sendGrid,
     mailgun,
     dummy,
-    providersDirInSdkTemplatesDir,
     EmailSenderProvider (..),
   )
 where
 
-import StrongPath (Dir, File', Path', Rel, reldir, relfile)
+import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
-    setupFnFile :: Path' (Rel ProvidersDir) File'
+    setupFnFile :: Path' (Rel SdkTemplatesDir) File'
   }
   deriving (Show, Eq)
-
-data ProvidersDir
-
-providersDirInSdkTemplatesDir :: Path' (Rel C.SdkTemplatesDir) (Dir ProvidersDir)
-providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]
 
 smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
     { npmDependency = Just nodeMailerDependency,
-      setupFnFile = [relfile|smtp.ts|]
+      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|smtp.ts|]
     }
   where
     nodeMailerVersionRange :: SV.Range
@@ -41,7 +35,7 @@ sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
     { npmDependency = Just sendGridDependency,
-      setupFnFile = [relfile|sendgrid.ts|]
+      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|sendgrid.ts|]
     }
   where
     sendGridVersionRange :: SV.Range
@@ -54,7 +48,7 @@ mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
     { npmDependency = Just mailgunDependency,
-      setupFnFile = [relfile|mailgun.ts|]
+      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|mailgun.ts|]
     }
   where
     mailgunVersionRange :: SV.Range
@@ -67,5 +61,8 @@ dummy :: EmailSenderProvider
 dummy =
   EmailSenderProvider
     { npmDependency = Nothing,
-      setupFnFile = [relfile|dummy.ts|]
+      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|dummy.ts|]
     }
+
+providersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]

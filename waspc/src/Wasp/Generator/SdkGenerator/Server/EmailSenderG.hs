@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, isJust, maybeToList)
-import StrongPath (File', Path', Rel, relfile, (</>))
+import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.App.EmailSender (EmailSender)
@@ -16,7 +16,11 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common
+  ( SdkTemplatesDir,
+    mkTmplFd,
+    mkTmplFdWithData,
+  )
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
 
@@ -32,9 +36,12 @@ genNewEmailSenderApi spec = case maybeEmailSender of
     maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
-genIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
+genIndex email =
+  return $
+    mkTmplFdWithData
+      (serverEmailDirInSdkTemplatesDir </> [relfile|index.ts|])
+      tmplData
   where
-    tmplPath = [relfile|server/email/index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCore :: EmailSender -> Generator [FileDraft]
@@ -42,29 +49,38 @@ genCore email =
   sequence
     [ genCoreIndex email,
       genCoreTypes email,
-      genCoreHelpers email
+      genCoreHelpers email,
+      genEmailSenderProviderSetupFn email
     ]
-    <++> genEmailSenderProviderSetupFn email
 
 genCoreIndex :: EmailSender -> Generator FileDraft
-genCoreIndex email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreIndex email =
+  return $
+    mkTmplFdWithData
+      (serverEmailDirInSdkTemplatesDir </> [relfile|core/index.ts|])
+      tmplData
   where
-    tmplPath = [relfile|server/email/core/index.ts|]
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
-genCoreTypes email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreTypes email =
+  return $
+    mkTmplFdWithData
+      (serverEmailDirInSdkTemplatesDir </> [relfile|core/types.ts|])
+      tmplData
   where
-    tmplPath = [relfile|server/email/core/types.ts|]
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
     isDefaultFromFieldDefined = isJust defaultFromField
     defaultFromField = AS.EmailSender.defaultFrom email
 
 genCoreHelpers :: EmailSender -> Generator FileDraft
-genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath tmplData
+genCoreHelpers email =
+  return $
+    mkTmplFdWithData
+      (serverEmailDirInSdkTemplatesDir </> [relfile|core/helpers.ts|])
+      tmplData
   where
-    tmplPath = [relfile|server/email/core/helpers.ts|]
     tmplData =
       object
         [ "defaultFromField"
@@ -80,16 +96,8 @@ genCoreHelpers email = return $ C.mkTmplFdWithData tmplPath tmplData
     maybeName = defaultFromField >>= AS.EmailSender.name
     defaultFromField = AS.EmailSender.defaultFrom email
 
-genEmailSenderProviderSetupFn :: EmailSender -> Generator [FileDraft]
-genEmailSenderProviderSetupFn email =
-  sequence
-    [ genFileCopy tmplPath
-    ]
-  where
-    provider :: Providers.EmailSenderProvider
-    provider = getEmailSenderProvider email
-
-    tmplPath = Providers.providersDirInSdkTemplatesDir </> Providers.setupFnFile provider
+genEmailSenderProviderSetupFn :: EmailSender -> Generator FileDraft
+genEmailSenderProviderSetupFn = return . mkTmplFd . Providers.setupFnFile . getEmailSenderProvider
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
@@ -105,5 +113,5 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.Mailgun -> Providers.mailgun
   AS.EmailSender.Dummy -> Providers.dummy
 
-genFileCopy :: Path' (Rel C.SdkTemplatesDir) File' -> Generator FileDraft
-genFileCopy = return . C.mkTmplFd
+serverEmailDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+serverEmailDirInSdkTemplatesDir = [reldir|server/email|]
