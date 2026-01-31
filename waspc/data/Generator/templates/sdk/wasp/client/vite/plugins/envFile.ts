@@ -50,11 +50,14 @@ export function loadWaspEnvClient(rootDir: string, envPrefix: NonNullable<UserCo
 
 
 export function envFile(): Plugin {
+  let envFilePath!: string
   return {
     name: 'wasp:env-file',
     enforce: 'pre',
     config(config) {
-      const envVars = loadWaspEnvClient(config.root || process.cwd(), config.envPrefix!)
+      const rootDir = config.root || process.cwd()
+      const envVars = loadWaspEnvClient(rootDir, config.envPrefix!)
+      envFilePath = resolve(rootDir, envFileName)
 
       const prefixedVars = Object.entries(envVars)
         .reduce((acc, [key, value]) => {
@@ -66,6 +69,18 @@ export function envFile(): Plugin {
         // Disable Vite's default .env loading.
         envDir: false,
         define: prefixedVars,
+      }
+    },
+    buildStart() {
+      if (existsSync(envFilePath)) {
+        this.addWatchFile(envFilePath)
+      }
+    },
+    handleHotUpdate(ctx) {
+      if (ctx.file === envFilePath) {
+        // We need to do a full server reload to ensure the new env vars are picked up.
+        ctx.server.restart()
+        return []
       }
     },
   }
