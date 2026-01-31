@@ -70,6 +70,7 @@ failure message' =
         fileName = Nothing
       }
 
+-- | Validates that the value exists and is equal to the expected value.
 eqJust :: (Eq a, Show a) => a -> Validator (Maybe a)
 eqJust expected (Just actual)
   | actual == expected = success
@@ -77,6 +78,11 @@ eqJust expected (Just actual)
       failure $ "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
 eqJust expected Nothing =
   failure $ "Missing value, expected " ++ show expected ++ "."
+
+-- | Runs the inner validator only if the value is Just. If the value is
+-- Nothing, no validation is needed and the validation succeeds.
+ifJust :: Validator a -> Validator (Maybe a)
+ifJust = maybe success
 
 instance Show ValidationError where
   show

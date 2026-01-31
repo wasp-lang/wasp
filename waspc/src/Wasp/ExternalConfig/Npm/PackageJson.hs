@@ -3,11 +3,13 @@
 
 module Wasp.ExternalConfig.Npm.PackageJson
   ( PackageJson (..),
+    WaspConfig (..),
     DependenciesMap,
     PackageName,
     PackageVersion,
     getDependencies,
     getDevDependencies,
+    getOverriddenDeps,
   )
 where
 
@@ -22,9 +24,21 @@ data PackageJson = PackageJson
   { name :: !String,
     dependencies :: !DependenciesMap,
     devDependencies :: !DependenciesMap,
-    workspaces :: !(Maybe [String])
+    workspaces :: !(Maybe [String]),
+    wasp :: !(Maybe WaspConfig)
   }
   deriving (Show, Generic, FromJSON)
+
+data WaspConfig = WaspConfig
+  { overriddenDeps :: !(Maybe DependenciesMap)
+  }
+  deriving (Show, Generic, FromJSON)
+
+type DependenciesMap = Map PackageName PackageVersion
+
+type PackageName = String
+
+type PackageVersion = String
 
 getDependencies :: PackageJson -> [Dependency]
 getDependencies packageJson = D.fromList $ M.toList $ dependencies packageJson
@@ -32,8 +46,7 @@ getDependencies packageJson = D.fromList $ M.toList $ dependencies packageJson
 getDevDependencies :: PackageJson -> [Dependency]
 getDevDependencies packageJson = D.fromList $ M.toList $ devDependencies packageJson
 
-type DependenciesMap = Map PackageName PackageVersion
-
-type PackageName = String
-
-type PackageVersion = String
+-- | (The version is what Wasp requires, not what the user is using.)
+getOverriddenDeps :: PackageJson -> [Dependency]
+getOverriddenDeps pkgJson =
+  maybe [] (D.fromList . M.toList) $ overriddenDeps =<< wasp pkgJson
