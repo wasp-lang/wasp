@@ -62,7 +62,10 @@ genActions spec =
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
-  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (clientOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|])
+      tmplData
   where
     tmplData =
       object
@@ -71,7 +74,10 @@ genQueriesIndex spec =
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
-  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (clientOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|])
+      tmplData
   where
     tmplData =
       object

@@ -29,7 +29,10 @@ genNewClientRouterApi spec =
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $ mkTmplFdWithData (clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|])
+      tmplData
   where
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 

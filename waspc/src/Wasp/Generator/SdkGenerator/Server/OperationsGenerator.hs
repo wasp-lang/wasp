@@ -43,7 +43,11 @@ genOperations spec =
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+genIndexTs spec =
+  return $
+    mkTmplFdWithData
+      (serverOpsDirInSdkTemplatesDir </> [relfile|index.ts|])
+      tmplData
   where
     tmplData =
       object
@@ -53,12 +57,20 @@ genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genWrappers :: AppSpec -> Generator FileDraft
-genWrappers spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|]) tmplData
+genWrappers spec =
+  return $
+    mkTmplFdWithData
+      (serverOpsDirInSdkTemplatesDir </> [relfile|wrappers.ts|])
+      tmplData
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|]) tmplData
+genQueriesIndex spec =
+  return $
+    mkTmplFdWithData
+      (serverOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|])
+      tmplData
   where
     tmplData =
       object
@@ -68,7 +80,11 @@ genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir 
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|]) tmplData
+genActionsIndex spec =
+  return $
+    mkTmplFdWithData
+      (serverOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|])
+      tmplData
   where
     tmplData =
       object

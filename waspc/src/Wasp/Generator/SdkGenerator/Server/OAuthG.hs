@@ -49,7 +49,10 @@ genOAuth auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
-  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
+      tmplData
   where
     tmplData =
       object
@@ -58,7 +61,10 @@ genIndexTs auth =
 
 genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
-  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|])
+      tmplData
   where
     tmplData =
       object
@@ -80,7 +86,10 @@ genOAuthConfig ::
   OAuthAuthProvider ->
   Generator FileDraft
 genOAuthConfig provider =
-  return $ mkTmplFdWithData (serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile) tmplData
+  return $
+    mkTmplFdWithData
+      (serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile)
+      tmplData
   where
     tmplData =
       object

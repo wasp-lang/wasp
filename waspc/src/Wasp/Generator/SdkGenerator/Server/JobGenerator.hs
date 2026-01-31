@@ -47,7 +47,10 @@ genNewJobsApi spec =
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
-  return $ mkTmplFdWithData (serverJobsDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (serverJobsDirInSdkTemplatesDir </> [relfile|index.ts|])
+      tmplData
   where
     tmplData = object ["jobs" .= map getJobTmplData jobs]
     getJobTmplData (jobName, _) =

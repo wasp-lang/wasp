@@ -40,13 +40,19 @@ genAuthForms auth =
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
-  return $ mkTmplFdWithData (authFormsDirInSdkTemplatesDir </> [relfile|Auth.tsx|]) tmplData
+  return $
+    mkTmplFdWithData
+      (authFormsDirInSdkTemplatesDir </> [relfile|Auth.tsx|])
+      tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
-  return $ mkTmplFdWithData (authFormsDirInSdkTemplatesDir </> [relfile|types.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (authFormsDirInSdkTemplatesDir </> [relfile|types.ts|])
+      tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
@@ -125,28 +131,32 @@ genInternalAuthComponents auth =
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =
   sequence
-    [ genLoginSigunFormComponent,
+    [ genLoginSigunFormComponent auth,
       genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
     ]
+
+genLoginSigunFormComponent :: AS.Auth.Auth -> Generator FileDraft
+genLoginSigunFormComponent auth =
+  return $
+    mkTmplFdWithData
+      (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
+      tmplData
   where
-    genLoginSigunFormComponent =
-      return $ mkTmplFdWithData (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|]) tmplData
-      where
-        tmplData =
-          object
-            [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
-              "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
-              "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
-              "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-              "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
-              "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
-              "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-              "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-              "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-              "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
-            ]
-        areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
-        isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
+    tmplData =
+      object
+        [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
+          "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
+          "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
+          "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
+          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
+          "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
+          "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
+          "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
+          "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
+          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+        ]
+    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
+    isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
 
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []

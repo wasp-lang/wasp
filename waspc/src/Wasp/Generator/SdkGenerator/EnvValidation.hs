@@ -17,7 +17,7 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Common (mkTmplFd, mkTmplFdWithData)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
@@ -34,8 +34,8 @@ genEnvValidation spec =
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
   return
-    [ C.mkTmplFd [relfile|env/index.ts|],
-      C.mkTmplFd [relfile|env/validation.ts|]
+    [ mkTmplFd [relfile|env/index.ts|],
+      mkTmplFd [relfile|env/validation.ts|]
     ]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
@@ -48,10 +48,10 @@ genClientEnvFiles spec =
       genFileCopy [relfile|client/env.ts|]
     ]
   where
-    genFileCopy = return . C.mkTmplFd
+    genFileCopy = return . mkTmplFd
 
 genServerEnv :: AppSpec -> Generator FileDraft
-genServerEnv spec = return $ C.mkTmplFdWithData [relfile|server/env.ts|] tmplData
+genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
   where
     tmplData =
       object
@@ -74,7 +74,7 @@ genServerEnv spec = return $ C.mkTmplFdWithData [relfile|server/env.ts|] tmplDat
     app = snd $ getApp spec
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
-genClientEnvSchema spec = return $ C.mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =

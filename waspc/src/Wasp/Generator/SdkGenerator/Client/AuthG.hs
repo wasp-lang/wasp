@@ -39,13 +39,19 @@ genNewClientAuth spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $ mkTmplFdWithData (clientAuthDirInSdkTemplatesDir </> [relfile|index.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (clientAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
+      tmplData
   where
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
 genAuthUi :: AS.Auth.Auth -> Generator FileDraft
 genAuthUi auth =
-  return $ mkTmplFdWithData (clientAuthDirInSdkTemplatesDir </> [relfile|ui.ts|]) tmplData
+  return $
+    mkTmplFdWithData
+      (clientAuthDirInSdkTemplatesDir </> [relfile|ui.ts|])
+      tmplData
   where
     tmplData = AuthProviders.getEnabledAuthProvidersJson auth
 
