@@ -1,5 +1,11 @@
 # Changelog
 
+## Next
+
+### 🎉 New Features
+
+- Wasp now supports exact and tilde Wasp version in `main.wasp` files. ([#3682](https://github.com/wasp-lang/wasp/pull/3682))
+
 ## 0.21.0
 
 ### ⚠️ Breaking Changes
