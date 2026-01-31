@@ -40,12 +40,14 @@ wasp-app/.wasp/out/sdk/wasp/client/test/setup.ts
 wasp-app/.wasp/out/sdk/wasp/client/test/vitest/helpers.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/detectServerImports.ts
+wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/envFile.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/html/build.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/html/dev.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/typescriptCheck.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/validateEnv.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/virtualModules.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/wasp.ts
+wasp-app/.wasp/out/sdk/wasp/client/vite/plugins/waspConfig.ts
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/index.html
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/index.tsx
 wasp-app/.wasp/out/sdk/wasp/client/vite/virtual-files/files/routes.tsx
@@ -191,6 +193,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/detectServerImports.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/detectServerImports.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/detectServerImports.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/detectServerImports.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/envFile.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/envFile.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/envFile.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/envFile.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/html/build.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/html/build.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/html/build.js
@@ -215,6 +221,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/wasp.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/wasp.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/wasp.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/wasp.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/vite/plugins/waspConfig.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/index.html
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/index.tsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/vite/virtual-files/files/routes.tsx
