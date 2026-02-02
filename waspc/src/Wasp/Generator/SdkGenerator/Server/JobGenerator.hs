@@ -117,17 +117,17 @@ genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
-    sequence $
-      (return . mkTmplFd $ [relfile|server/jobs/core/job.ts|])
-        : concatMap genJobExecutor jobExecutors
+    return $ mkTmplFd [relfile|server/jobs/core/job.ts|] : genAllJobExecutorsFds
     where
+      genAllJobExecutorsFds = concatMap genJobExecutorFds jobExecutors
+
       -- Per each defined job executor, we generate the needed files.
-      genJobExecutor :: JobExecutor -> [Generator FileDraft]
-      genJobExecutor PgBoss =
-        [ return . mkTmplFd $ [relfile|server/jobs/core/pgBoss/pgBoss.ts|],
-          return . mkTmplFd $ [relfile|server/jobs/core/pgBoss/pgBossJob.ts|],
-          return . mkTmplFd $ [relfile|server/jobs/core/pgBoss/types.ts|],
-          return . mkTmplFd $ [relfile|server/jobs/core/pgBoss/index.ts|]
+      genJobExecutorFds :: JobExecutor -> [FileDraft]
+      genJobExecutorFds PgBoss =
+        [ mkTmplFd [relfile|server/jobs/core/pgBoss/pgBoss.ts|],
+          mkTmplFd [relfile|server/jobs/core/pgBoss/pgBossJob.ts|],
+          mkTmplFd [relfile|server/jobs/core/pgBoss/types.ts|],
+          mkTmplFd [relfile|server/jobs/core/pgBoss/index.ts|]
         ]
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.
