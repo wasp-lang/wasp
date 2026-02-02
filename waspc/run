@@ -25,7 +25,7 @@ done"
 # NOTE: --experimental-strip-types allows Node to run TypeScript directly.
 # This flag became the default in Node v22.18+, but we need it explicitly
 # for our minimum supported version (v22.12.0).
-WASP_LIBS_COMPILE="node --experimental-strip-types ${SCRIPT_DIR}/tools/build_libs.ts"
+WASP_LIBS_COMPILE="node --experimental-strip-types ${SCRIPT_DIR}/tools/libs/build.ts"
 WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
 BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
@@ -43,6 +43,8 @@ WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests"
 
 WASPLS_TESTS_CMD="cabal test waspls-tests"
+
+LIBS_TESTS_CMD="node --experimental-strip-types ${SCRIPT_DIR}/tools/libs/test.ts"
 
 KITCHEN_SINK_E2E_TESTS_CMD="cd $REPOSITORY_ROOT/examples/kitchen-sink && npm i && npm run test"
 
@@ -74,6 +76,7 @@ TEST_CMD="cabal test && \
   echo 'Running e2e tests' && \
   $STARTERS_E2E_TESTS_CMD && \
   $EXAMPLES_E2E_TESTS_CMD && \
+  $LIBS_TESTS_CMD && \
   echo 'ALL TESTS PASSED' || \
   { echo 'SOME TESTS FAILED'; exit 1; }"
 
@@ -162,6 +165,8 @@ print_usage() {
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:waspls" \
     "Executes only waspls tests. Builds the project first if needed."
+  print_usage_cmd "test:libs" \
+    "Run tests on Wasp libs (types, unit, type-exports)."
   print_usage_cmd "test:kitchen-sink" \
     "Executes only kitchen-sink e2e tests. Installs deps first if needed."
   print_usage_cmd "test:examples" \
@@ -253,6 +258,9 @@ case $COMMAND in
     ;;
   test:waspls)
     echo_and_eval "$WASPLS_TESTS_CMD"
+    ;;
+  test:libs)
+    echo_and_eval "$LIBS_TESTS_CMD"
     ;;
   test:kitchen-sink)
     echo_and_eval "$KITCHEN_SINK_E2E_TESTS_CMD"
