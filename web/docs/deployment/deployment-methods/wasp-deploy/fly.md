@@ -6,6 +6,7 @@ title-llm: Automated Deployment to Fly.io with Wasp CLI
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
 import CiCdMention from './\_ci-cd-mention.md'
+import CustomServerUrlOption from './\_custom-server-url-option.md'
 
 [Fly.io](https://fly.io/) is a platform for running containerized apps and microservices on servers around the world. It makes deploying and managing your apps straightforward with minimal setup.
 
@@ -261,6 +262,8 @@ If you've added any [client-side environment variables](../../../project/env-var
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 ```
 
+<CustomServerUrlOption provider="fly" command="launch" example="my-wasp-app dfw" />
+
 ### `setup`
 
 The `setup` command registers your client and server apps on Fly, and sets up needed environment variables.
@@ -330,6 +333,8 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 ```
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
+
+<CustomServerUrlOption provider="fly" command="deploy" example="" />
 
 ### `cmd`
 
