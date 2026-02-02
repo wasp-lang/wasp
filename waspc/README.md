@@ -484,8 +484,8 @@ If doing this, steps are the following:
 2. Locally execute the `new-release` script. Append `-rc` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc1`).
    The script will throw some warnings which you should accept.
 3. Once the draft release is created on Github:
-  - Use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
-  - Push the `rc-<version>` branch to remote.
+    - Use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
+    - Push the `rc-<version>` branch to remote.
 4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
 
 ```sh
