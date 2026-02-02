@@ -12,7 +12,7 @@ Wasp uses [Vite](https://vitejs.dev/) to serve the client during development and
 You have **full control** over your `vite.config.ts` file. Wasp doesn't manage this file internally. Instead, you must import and use the `wasp()` plugin from `wasp/client/vite` in your Vite configuration. This plugin provides all the essential Wasp features:
 
 - Configuration required for Wasp full-stack apps to work.
-- Environment variable validation.
+- Environment variables validation.
 - Prevention of server imports in client code.
 - TypeScript type checking during production builds.
 
