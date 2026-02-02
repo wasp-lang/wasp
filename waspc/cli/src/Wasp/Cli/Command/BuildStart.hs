@@ -24,7 +24,7 @@ import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
-  GeneratedCodeIsProduction <- require
+  GeneratedCodeIsProduction _ <- require
 
   InWaspProject waspProjectDir <- require
   appSpec <- analyze waspProjectDir

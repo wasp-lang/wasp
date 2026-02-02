@@ -10,17 +10,23 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now uses **Vitest 4** for testing. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - Removed the `.wasp/build` directory. Wasp now only uses `.wasp/out` for generated code, both in development and production mode. ([#3540](https://github.com/wasp-lang/wasp/pull/3540))
 - The Wasp SDK is now used as a workspace instead of a dependency. This avoids dependency resolution issues and further improves reliability of Wasp projects. ([#3544](https://github.com/wasp-lang/wasp/pull/3544))
+- Wasp now uses **React Router 7**. The package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your imports. ([#3490](https://github.com/wasp-lang/wasp/pull/3490), [#3658](https://github.com/wasp-lang/wasp/pull/3658))
+- Wasp no longer generates `netlify.toml` in the `.wasp/out/web-app` dir. If you're deploying to Netlify, you'll need to add it manually. ([#3665](https://github.com/wasp-lang/wasp/pull/3665))
 
 ### 🎉 New Features
 
+- Wasp can now be installed through `npm`. ([#3525](https://github.com/wasp-lang/wasp/pull/3525))
 - Wasp now supports Tailwind CSS v4. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 
 ### 🐞 Bug fixes
 
 - Fixed an issue where if Wasp was installed from npm, `wasp new` would not work correctly. ([#3585](https://github.com/wasp-lang/wasp/pull/3585))
+- Fixed an issue where the `Link` component might not update with the values of `search` and `hash` (by @Pipboyguy). ([#3633](https://github.com/wasp-lang/wasp/pull/3633))
+- We now support Railway CLI v4.18.1 and greater on `wasp deploy railway`. ([#3667](https://github.com/wasp-lang/wasp/pull/3667))
 
 ### 📖 Documentation
 
+- Upgraded the installation instructions throughout the docs to the new npm installation method. ([#3630](https://github.com/wasp-lang/wasp/pull/3630))
 - The Wasp docs now include a "Guides" section, with step-by-step tutorials on how to use popular libraries and tools with Wasp. Check them out at https://wasp.sh/docs/guides! ([#3597](https://github.com/wasp-lang/wasp/pull/3597))
 
 ### 🔧 Small improvements
@@ -32,6 +38,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - We updated the testing environment to JSDOM 27 for more up-to-date mocking. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - We updated our API mocking to MSW 2 for better performance and reliability. ([#3580](https://github.com/wasp-lang/wasp/pull/3580))
 - `wasp info` now tells you if the last compilation was done in development or production mode. ([#3612](https://github.com/wasp-lang/wasp/pull/3612))
+- `wasp uninstall` now supports the npm installation method. ([#3620](https://github.com/wasp-lang/wasp/pull/3620))
+- Added anonymous usage analytics to the npm package installer to help us understand how Wasp is being installed. You can disable this by setting `WASP_TELEMETRY_DISABLE=1`. ([#3619](https://github.com/wasp-lang/wasp/pull/3619))
+- Improved error messages when using dependencies that are incompatible with internal Wasp dependencies. ([#3655](https://github.com/wasp-lang/wasp/pull/3655))
+- Removed a Rollup version override, since the upstream Rollup issue has been fixed. ([#3654](https://github.com/wasp-lang/wasp/pull/3654))
 
 ## 0.20.1
 

@@ -16,7 +16,7 @@ Make sure to first deploy your application from your local machine using `wasp d
 
 ### Deployment steps
 
-To automate deployment, you need to create a workflow file in your repository that specifies the deployment process when a new commit is pushed to the repository. 
+To automate deployment, you need to create a workflow file in your repository that specifies the deployment process when a new commit is pushed to the repository.
 
 The workflow needs to include the following steps:
 
@@ -49,7 +49,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: 0.19.0
+      WASP_VERSION: "{pinnedLatestWaspVersion}"
 
     steps:
       - uses: actions/checkout@v6
@@ -57,11 +57,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: "{minimumNodeJsVersion}"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v $WASP_VERSION
+        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
 
       - name: Install Flyctl
         uses: superfly/flyctl-actions/setup-flyctl@master
@@ -92,7 +92,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: 0.19.0
+      WASP_VERSION: "{pinnedLatestWaspVersion}"
       RAILWAY_PROJECT_NAME: my-project-name
       RAILWAY_PROJECT_ID: MY_PROJECT_ID
 
@@ -102,11 +102,11 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: "{minimumNodeJsVersion}"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v $WASP_VERSION
+        run: npm i -g @wasp.sh/wasp-cli@$WASP_VERSION
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli

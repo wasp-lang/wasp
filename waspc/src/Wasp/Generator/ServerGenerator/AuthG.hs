@@ -137,7 +137,6 @@ depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
     authDeps =
       Npm.Dependency.fromList
         [ ("lucia", "^3.0.1"),
-          ("oslo", "^1.1.2"),
           ("@lucia-auth/adapter-prisma", "^4.0.0")
         ]
 

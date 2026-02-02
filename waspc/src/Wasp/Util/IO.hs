@@ -30,7 +30,18 @@ import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import qualified Data.Text.IO as Text.IO
 import qualified Path.IO as PathIO
-import StrongPath (Abs, Dir, File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
+import StrongPath
+  ( Abs,
+    Dir,
+    File,
+    Path',
+    Rel,
+    basename,
+    parseRelDir,
+    parseRelFile,
+    toFilePath,
+    (</>),
+  )
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP.Path
 import qualified System.Directory as SD

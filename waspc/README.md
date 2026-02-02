@@ -205,7 +205,9 @@ Check `src/Wasp/Analyzer.hs` for more details.
 AppSpec is passed to the Generator, which based on it decides how to generate a web app.
 Output of Generator is a list of FileDrafts, where each FileDraft explains how to create a file on the disk.
 Therefore, Generator doesn't generate anything itself, instead it provides instructions (FileDrafts) on how to generate the web app.
-FileDrafts are using mustache templates a lot (they can be found in `data/Generator/templates`).
+FileDrafts are using mustache templates a lot (they can be found in `data/Generator/templates`). Alongside mustache templates,
+generated apps use internal npm packages (WaspLibs) that contain core logic and are unit tested. WaspLibs are bundled with Wasp
+and installed into generated apps (see [WaspLibs](#wasplibs) for more details).
 
 Generator is split into three generators, for the three main parts of the web app: WebAppGenerator, ServerGenerator and DbGenerator.
 
@@ -230,6 +232,8 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - `cli/exe/` -> thin executable wrapper around cli library code
 - `tests/`, `e2e-tests/`, `cli/tests/`, `waspls/tests/`, `starters-e2e-tests` -> tests
 - `data/Generator/templates/` -> mustache templates for the generated client/server.
+- `libs/` -> internal npm packages (WaspLibs) that are bundled with Wasp and copied into generated apps (see [WaspLibs](#wasplibs) for more details)
+- `packages/` -> TypeScript packages used by Wasp compiler (see [TypeScript Packages](#typescript-packages) for more details)
 - `data/Cli/starters/` -> starter templates for new projects
 
 ### Typescript packages
@@ -238,6 +242,10 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 
 In order for `waspc`'s Haskell code to correctly use these TS packages (and to also have them correctly bundled when generating the release tarball), they need to be correctly installed/built in the `waspc_datadir` dir.
 To do so in development, run `./run build:packages` when any changes are made to these packages. We also run it in CI when building the release.
+
+### WaspLibs
+
+WaspLibs are internal npm packages located under [`libs/`](libs/) and are bundled with Wasp and installed into generated apps. A more detailed description of WaspLibs can be found in the [`libs/README.md`](libs/README.md).
 
 ## Tests
 
@@ -451,6 +459,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - This will automatically create a new draft release.
 - 👉 Find a new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
+- 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main`. Make sure to merge that PR. This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](/.github/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
@@ -474,10 +483,10 @@ If doing this, steps are the following:
 2. Locally execute the `new-release` script. Append `-rc` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc1`).
    The script will throw some warnings which you should accept.
 3. Once the draft release is created on Github, use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
-4. Since our installer installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing a `-v` flag to the installer! That way user's don't get in touch with it, but we can install and use it normally:
+4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
 
 ```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.19.0-rc
+npm i -g @wasp.sh/wasp-cli@0.19.0-rc
 ```
 
 5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
