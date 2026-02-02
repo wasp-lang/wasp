@@ -146,6 +146,10 @@ MAILGUN_API_URL=https://api.eu.mailgun.net
 
 ### Using the SendGrid Provider {#sendgrid}
 
+:::caution SendGrid Free Plan Retired
+As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com/en-us/changelog/sendgrid-free-plan). A paid SendGrid plan is now required to send emails. Consider using [Mailgun](#mailgun) or [SMTP](#smtp) with another provider if you need a free tier option.
+:::
+
 Set the provider field to `SendGrid` in your `main.wasp` file.
 
 ```wasp title="main.wasp"
@@ -161,7 +165,7 @@ Then, get the SendGrid API key and add it to your `.env.server` file.
 
 #### Getting the API Key
 
-1. Go to [SendGrid](https://sendgrid.com/) and create an account.
+1. Go to [SendGrid](https://sendgrid.com/) and create an account (paid plan required).
 2. Go to [API Keys](https://app.sendgrid.com/settings/api_keys) and create a new API key.
 3. Copy the API key and add it to your `.env.server` file.
 

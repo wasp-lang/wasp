@@ -102,7 +102,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
   <TabItem value="js" label="JavaScript">
     ```js title="src/helpers.js"
     export function areThereAnyTasks(tasks) {
-      return tasks.length === 0;
+      return tasks.length !== 0;
     }
     ```
 
@@ -122,7 +122,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     import { type Task } from "wasp/entities";
 
     export function areThereAnyTasks(tasks: Task[]): boolean {
-      return tasks.length === 0;
+      return tasks.length !== 0;
     }
     ```
 
@@ -152,7 +152,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
           {tasks &&
             tasks.map((task) => (
               <li key={task.id}>
-                <input type="checkbox" value={task.isDone} />
+                <input type="checkbox" checked={task.isDone} />
                 {task.description}
               </li>
             ))}
@@ -206,7 +206,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
           {tasks &&
             tasks.map((task) => (
               <li key={task.id}>
-                <input type="checkbox" value={task.isDone} />
+                <input type="checkbox" checked={task.isDone} />
                 {task.description}
               </li>
             ))}
@@ -271,7 +271,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
           {tasks &&
             tasks.map((task) => (
               <li key={task.id}>
-                <input type="checkbox" value={task.isDone} />
+                <input type="checkbox" checked={task.isDone} />
                 {task.description}
               </li>
             ))}
@@ -332,7 +332,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
           {tasks &&
             tasks.map((task) => (
               <li key={task.id}>
-                <input type="checkbox" value={task.isDone} />
+                <input type="checkbox" checked={task.isDone} />
                 {task.description}
               </li>
             ))}
