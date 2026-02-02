@@ -3,8 +3,7 @@ module Wasp.Generator.SdkGenerator.Client.OperationsGenerator (genOperations) wh
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types (Pair)
-import Data.Maybe (fromJust)
-import StrongPath (relDirToPosix, relfile)
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec (..))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -18,9 +17,8 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkImportPath,
     mkTmplFd,
     mkTmplFdWithData,
-    relDirToRelFileP,
   )
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
+import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (getServerOperationsImportPath)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)
@@ -125,7 +123,4 @@ getOperationTypeData operation = tmplData
         makeJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ getOperationTypeName operation)
     serverOpsImportPath =
       makeSdkImportPath $
-        relDirToRelFileP $
-          fromJust $
-            relDirToPosix $
-              serverOperationsDirInSdkRootDir operation
+        getServerOperationsImportPath operation
