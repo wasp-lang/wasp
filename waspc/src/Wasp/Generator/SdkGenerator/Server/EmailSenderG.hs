@@ -35,37 +35,37 @@ genNewEmailSenderApi spec = case maybeEmailSender of
     maybeEmailSender = AS.App.emailSender $ snd $ getApp spec
 
 genIndex :: EmailSender -> Generator FileDraft
-genIndex email =
+genIndex emailSender =
   return $ mkTmplFdWithData [relfile|server/email/index.ts|] tmplData
   where
-    tmplData = EmailSenders.getEnabledEmailProvidersJson email
+    tmplData = EmailSenders.getEnabledEmailProvidersJson emailSender
 
 genCore :: EmailSender -> Generator [FileDraft]
-genCore email =
+genCore emailSender =
   sequence
-    [ genCoreIndex email,
-      genCoreTypes email,
-      genCoreHelpers email,
-      genEmailSenderProviderSetupFn email
+    [ genCoreIndex emailSender,
+      genCoreTypes emailSender,
+      genCoreHelpers emailSender,
+      genEmailSenderProviderSetupFn emailSender
     ]
 
 genCoreIndex :: EmailSender -> Generator FileDraft
-genCoreIndex email =
+genCoreIndex emailSender =
   return $ mkTmplFdWithData [relfile|server/email/core/index.ts|] tmplData
   where
-    tmplData = EmailSenders.getEnabledEmailProvidersJson email
+    tmplData = EmailSenders.getEnabledEmailProvidersJson emailSender
 
 genCoreTypes :: EmailSender -> Generator FileDraft
-genCoreTypes email =
+genCoreTypes emailSender =
   return $ mkTmplFdWithData [relfile|server/email/core/types.ts|] tmplData
   where
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
     isDefaultFromFieldDefined = isJust defaultFromField
-    defaultFromField = AS.EmailSender.defaultFrom email
+    defaultFromField = AS.EmailSender.defaultFrom emailSender
 
 genCoreHelpers :: EmailSender -> Generator FileDraft
-genCoreHelpers email =
+genCoreHelpers emailSender =
   return $ mkTmplFdWithData [relfile|server/email/core/helpers.ts|] tmplData
   where
     tmplData =
@@ -81,15 +81,13 @@ genCoreHelpers email =
     isDefaultFromFieldDefined = isJust defaultFromField
     maybeEmail = AS.EmailSender.email <$> defaultFromField
     maybeName = defaultFromField >>= AS.EmailSender.name
-    defaultFromField = AS.EmailSender.defaultFrom email
+    defaultFromField = AS.EmailSender.defaultFrom emailSender
 
 genEmailSenderProviderSetupFn :: AS.EmailSender.EmailSender -> Generator FileDraft
-genEmailSenderProviderSetupFn =
-  return
-    . mkTmplFd
-    . ([reldir|server/email/core/providers|] </>)
-    . Providers.setupFnFile
-    . Providers.getEmailSenderProvider
+genEmailSenderProviderSetupFn emailSender =
+  return . mkTmplFd $ ([reldir|server/email/core/providers|] </> setupFnFromProvidersDir)
+  where
+    setupFnFromProvidersDir = Providers.setupFnFile . Providers.getEmailSenderProvider $ emailSender
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
