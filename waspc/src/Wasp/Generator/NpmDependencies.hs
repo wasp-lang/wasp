@@ -47,8 +47,9 @@ newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
   deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
 -- | Merges Wasp dependencies with user dependencies. When a package appears in
--- both, the user's version takes precedence. User-only dependencies are not
--- included here (they are added separately via the package.json overrides field).
+-- both, the user's version takes precedence. User-only dependencies don't need
+-- to appear in the generated project's dependencies, so we don't regard them 
+-- here.
 mergeWaspAndUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> NpmDepsForPackage
 mergeWaspAndUserDeps (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
   NpmDepsForPackage
