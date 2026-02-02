@@ -93,12 +93,16 @@ validateWaspVersion specWaspVersionString = eitherUnitToErrorList $ do
   where
     parseAndValidateWaspVersion :: String -> Either ValidationError SV.Range
     parseAndValidateWaspVersion waspVersionString =
+      -- TODO: It would be nice to create a general verison range parse
+      -- and use that instead.
       case WV.parseWaspVersion waspVersionString of
         Right waspVersionRange
           -- Ensure the input matches exactly what we parsed (no trailing garbage,
           -- no partial versions like "0.5" which would parse as "0.5.0").
           | show waspVersionRange == waspVersionString -> Right waspVersionRange
-        _ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch, ~major.minor.patch, or major.minor.patch"
+        _ ->
+          -- TODO: Show the 'Parsec' error message to the user.
+          Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch, ~major.minor.patch, or major.minor.patch"
 
     incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
     incompatibleVersionError actualVersion expectedVersionRange =

@@ -53,6 +53,8 @@ nextBreakingChangeVersion = \case
   (Version 0 x _) -> Version 0 (succ x) 0
   (Version x _ _) -> Version (succ x) 0 0
 
+-- FIXME: this is incorrect, ~ behaves different depending if
+-- the minor is defined, but we don't support that in our current implementation.
 nextApproximatelyEquivalentVersion :: Version -> Version
 nextApproximatelyEquivalentVersion = \case
   (Version 0 x y) -> Version 0 x (succ y)

@@ -117,6 +117,9 @@ spec_SemanticVersion = do
     Range [backwardsCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.3.0) |]
     Range [backwardsCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 2.0.0) |]
     Range [approximatelyEquivalentWith [v|1|]] ~> [vi| [1, 2) |]
+    -- TODO: This should pass once we refactor the 'SemanticVersion' module.
+    -- See: https://github.com/wasp-lang/wasp/issues/3699
+    -- Range [approximatelyEquivalentWith [v|1.0.0|]] ~> [vi| [1, 1.1.0) |]
     Range [approximatelyEquivalentWith [v|1.2|]] ~> [vi| [1.2, 1.3) |]
     Range [approximatelyEquivalentWith [v|1.2.3|]] ~> [vi| [1.2.3, 1.3.0) |]
     Range [approximatelyEquivalentWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.2.4) |]
