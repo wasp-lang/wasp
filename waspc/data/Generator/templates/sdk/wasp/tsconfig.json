@@ -75,14 +75,6 @@
       bundler`).
     */
     "moduleResolution": "bundler",
-    "types": [
-      /*
-         This is needed to properly support Vitest testing with jest-dom matchers.
-         Types for jest-dom are not recognized automatically and Typescript complains
-         about missing types e.g. when using `toBeInTheDocument` and other matchers.
-      */
-      "@testing-library/jest-dom"
-    ],
     /*
        The `incremental` option enables faster SDK compilation, less Vite HMR
        messages and it prevent unnecessary full-page reloads when using Vite HMR.

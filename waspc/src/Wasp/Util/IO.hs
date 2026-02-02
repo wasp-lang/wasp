@@ -109,11 +109,11 @@ doesDirectoryExist = SD.doesDirectoryExist . SP.fromAbsDir
 readFile :: Path' Abs (File f) -> IO String
 readFile = P.readFile . SP.fromAbsFile
 
-readFileBytes :: Path' Abs (File f) -> IO B.ByteString
-readFileBytes = B.readFile . SP.fromAbsFile
-
 readFileStrict :: Path' Abs (File f) -> IO Text
 readFileStrict = T.IO.readFile . SP.toFilePath
+
+readFileBytes :: Path' Abs (File f) -> IO B.ByteString
+readFileBytes = B.readFile . SP.fromAbsFile
 
 writeFile :: Path' Abs (File f) -> String -> IO ()
 writeFile = P.writeFile . SP.fromAbsFile

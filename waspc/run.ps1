@@ -8,9 +8,9 @@ param(
 
 $PROJECT_ROOT = Split-Path -Parent $MyInvocation.MyCommand.Path
 $REPOSITORY_ROOT = Split-Path -Parent $PROJECT_ROOT
-    
+
 # Building
-$WASP_PACKAGES_COMPILE = Join-Path $PROJECT_ROOT "tools\install_packages_to_data_dir.ps1"
+$WASP_PACKAGES_COMPILE = "Get-ChildItem `"$PROJECT_ROOT\data\packages\*\package.json`" | ForEach-Object { Push-Location (Split-Path `$_); npm install; npm run build; Pop-Location }"
 $BUILD_HS_CMD = "cabal build all"
 $BUILD_ALL_CMD = "$WASP_PACKAGES_COMPILE -and $BUILD_HS_CMD"
 $RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- $Args"
@@ -21,6 +21,9 @@ switch ($Command) {
     }
     "build:all" {
         Invoke-Expression $BUILD_ALL_CMD
+    }
+    "build:packages" {
+        Invoke-Expression $WASP_PACKAGES_COMPILE
     }
     "wasp-cli" {
         Invoke-Expression $RUN_CMD
