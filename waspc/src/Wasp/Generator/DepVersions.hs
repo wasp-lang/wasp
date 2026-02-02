@@ -22,17 +22,17 @@ import qualified Wasp.SemanticVersion as SV
 -- `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to
 -- date.
 prismaVersion :: SV.Version
-prismaVersion = SV.Version 5 19 1
+prismaVersion = SV.FullVersion 5 19 1
 
 superjsonVersion :: SV.ComparatorSet
-superjsonVersion = SV.backwardsCompatibleWith $ SV.Version 2 2 1
+superjsonVersion = SV.backwardsCompatibleWith $ SV.FullVersion 2 2 1
 
 typescriptVersion :: SV.Version
-typescriptVersion = SV.Version 5 8 2
+typescriptVersion = SV.FullVersion 5 8 2
 
 -- When updating the React version, also update it in `peerDependencies` in `waspc/libs/auth/package.json`.
 reactVersion :: SV.ComparatorSet
-reactVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 1
+reactVersion = SV.backwardsCompatibleWith $ SV.FullVersion 19 2 1
 
 -- React and ReactDOM versions should always match.
 reactDomVersion :: SV.ComparatorSet
@@ -41,13 +41,13 @@ reactDomVersion = reactVersion
 -- Follows React major version
 -- When updating the React types version, also update it in `devDependencies` in `waspc/libs/auth/package.json`.
 reactTypesVersion :: SV.ComparatorSet
-reactTypesVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 7
+reactTypesVersion = SV.backwardsCompatibleWith $ SV.FullVersion 19 2 7
 
 reactDomTypesVersion :: SV.ComparatorSet
-reactDomTypesVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 3
+reactDomTypesVersion = SV.backwardsCompatibleWith $ SV.FullVersion 19 2 3
 
 reactRouterVersion :: SV.ComparatorSet
-reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 7 12 0
+reactRouterVersion = SV.backwardsCompatibleWith $ SV.FullVersion 7 12 0
 
 -- TODO: Update react query and express to use Wasp.SemanticVersion when we'll
 -- have support for patch versions https://github.com/wasp-lang/wasp/issues/2941
@@ -59,10 +59,10 @@ expressVersionStr :: String
 expressVersionStr = "~5.1.0"
 
 expressTypesVersion :: SV.ComparatorSet
-expressTypesVersion = SV.backwardsCompatibleWith $ SV.Version 5 0 0
+expressTypesVersion = SV.backwardsCompatibleWith $ SV.FullVersion 5 0 0
 
 axiosVersion :: SV.ComparatorSet
-axiosVersion = SV.backwardsCompatibleWith $ SV.Version 1 4 0
+axiosVersion = SV.backwardsCompatibleWith $ SV.FullVersion 1 4 0
 
 viteVersion :: SV.ComparatorSet
-viteVersion = SV.backwardsCompatibleWith $ SV.Version 7 0 6
+viteVersion = SV.backwardsCompatibleWith $ SV.FullVersion 7 0 6

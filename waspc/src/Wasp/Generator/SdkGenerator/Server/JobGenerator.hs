@@ -137,7 +137,7 @@ genJobExecutors spec = case getJobs spec of
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
 pgBossVersionRange :: SV.Range
-pgBossVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 8 4 2)]
+pgBossVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.FullVersion 8 4 2)]
 
 pgBossDependency :: Npm.Dependency.Dependency
 pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)

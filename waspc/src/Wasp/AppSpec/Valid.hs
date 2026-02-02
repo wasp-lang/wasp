@@ -105,7 +105,7 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
             waspVersionRangeStr =~ ("\\`\\^([0-9]+)\\.([0-9]+)\\.([0-9]+)\\'" :: String)
 
       waspSpecVersion <- case mapM readMaybe waspVersionRangeDigits of
-        Just [major, minor, patch] -> Right $ SV.Version major minor patch
+        Just [major, minor, patch] -> Right $ SV.FullVersion major minor patch
         __ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch"
 
       Right $ SV.Range [SV.backwardsCompatibleWith waspSpecVersion]

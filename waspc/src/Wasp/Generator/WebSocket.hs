@@ -16,10 +16,10 @@ areWebSocketsUsed :: AppSpec -> Bool
 areWebSocketsUsed spec = isJust $ AS.App.webSocket $ snd $ getApp spec
 
 socketIoVersionRange :: SV.Range
-socketIoVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 6 1)]
+socketIoVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.FullVersion 4 6 1)]
 
 socketIoComponentEmitterVersionRange :: SV.Range
-socketIoComponentEmitterVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 4 0 0)]
+socketIoComponentEmitterVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.FullVersion 4 0 0)]
 
 serverDepsRequiredForWebSockets :: [Npm.Dependency.Dependency]
 serverDepsRequiredForWebSockets =

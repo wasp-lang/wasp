@@ -1,5 +1,8 @@
+{-# LANGUAGE PatternSynonyms #-}
+
 module Wasp.SemanticVersion
   ( Version (..),
+    pattern FullVersion,
     Range (..),
     ComparatorSet,
     isVersionInRange,
@@ -17,7 +20,7 @@ import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (isJust)
-import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
+import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion, pattern FullVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
     VersionBound (Exclusive, Inclusive, Inf),

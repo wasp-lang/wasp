@@ -7,18 +7,18 @@ import Wasp.SemanticVersion.VersionBound
 spec_SemanticVersionBound :: Spec
 spec_SemanticVersionBound = do
   it "showInterval" $ do
-    showInterval (Inclusive (Version 1 2 3), Exclusive (Version 2 3 4)) `shouldBe` "[1.2.3, 2.3.4)"
-    showInterval (Exclusive (Version 1 2 3), Inclusive (Version 2 3 4)) `shouldBe` "(1.2.3, 2.3.4]"
+    showInterval (Inclusive (FullVersion 1 2 3), Exclusive (FullVersion 2 3 4)) `shouldBe` "[1.2.3, 2.3.4)"
+    showInterval (Exclusive (FullVersion 1 2 3), Inclusive (FullVersion 2 3 4)) `shouldBe` "(1.2.3, 2.3.4]"
     showInterval (Inf, Inf) `shouldBe` "(inf, inf)"
 
   it "parseInterval" $ do
-    parseInterval "[1.2.3, 0.1)" `shouldBe` Right (Inclusive (Version 1 2 3), Exclusive (Version 0 1 0))
-    parseInterval "(1,inf)" `shouldBe` Right (Exclusive (Version 1 0 0), Inf)
-    parseInterval "  ( inf , 1.2.3 ] " `shouldBe` Right (Inf, Inclusive (Version 1 2 3))
+    parseInterval "[1.2.3, 0.1)" `shouldBe` Right (Inclusive (FullVersion 1 2 3), Exclusive (Version 0 (Just 1) Nothing))
+    parseInterval "(1,inf)" `shouldBe` Right (Exclusive (Version 1 Nothing Nothing), Inf)
+    parseInterval "  ( inf , 1.2.3 ] " `shouldBe` Right (Inf, Inclusive (FullVersion 1 2 3))
 
   it "vi quasi quoter" $ do
-    [vi| [1.2.3, 2.3.4) |] `shouldBe` (Inclusive (Version 1 2 3), Exclusive (Version 2 3 4))
-    [vi| (1.2.3, 2.3.4] |] `shouldBe` (Exclusive (Version 1 2 3), Inclusive (Version 2 3 4))
+    [vi| [1.2.3, 2.3.4) |] `shouldBe` (Inclusive (FullVersion 1 2 3), Exclusive (FullVersion 2 3 4))
+    [vi| (1.2.3, 2.3.4] |] `shouldBe` (Exclusive (FullVersion 1 2 3), Inclusive (FullVersion 2 3 4))
     [vi| (inf, inf) |] `shouldBe` (Inf, Inf)
 
   describe "intervalIntersection" $ do

@@ -32,7 +32,7 @@ smtp =
     }
   where
     nodeMailerVersionRange :: SV.Range
-    nodeMailerVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 6 9 1)]
+    nodeMailerVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.FullVersion 6 9 1)]
 
     nodeMailerDependency :: Npm.Dependency.Dependency
     nodeMailerDependency = Npm.Dependency.make ("nodemailer", show nodeMailerVersionRange)
@@ -45,7 +45,7 @@ sendGrid =
     }
   where
     sendGridVersionRange :: SV.Range
-    sendGridVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 7 7 0)]
+    sendGridVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.FullVersion 7 7 0)]
 
     sendGridDependency :: Npm.Dependency.Dependency
     sendGridDependency = Npm.Dependency.make ("@sendgrid/mail", show sendGridVersionRange)
@@ -58,7 +58,7 @@ mailgun =
     }
   where
     mailgunVersionRange :: SV.Range
-    mailgunVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 10 2 3)]
+    mailgunVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.FullVersion 10 2 3)]
 
     mailgunDependency :: Npm.Dependency.Dependency
     mailgunDependency = Npm.Dependency.make ("mailgun.js", show mailgunVersionRange)
