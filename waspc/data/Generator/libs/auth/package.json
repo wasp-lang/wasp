@@ -22,12 +22,12 @@
   ],
   "scripts": {
     "build": "tsdown",
-    "check": "npm run check:types && npm run check:coverage && npm run check:type-exports",
-    "check:coverage": "vitest run --coverage",
-    "check:type-exports": "attw -P --profile esm-only",
-    "check:types": "tsc --noEmit",
     "dev": "vitest dev",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "npm run test:types && npm run test:coverage && npm run test:type-exports",
+    "test:coverage": "vitest run --coverage",
+    "test:type-exports": "attw -P --profile esm-only",
+    "test:types": "tsc --noEmit"
   },
   "peerDependencies": {
     "react": "^19.2.1"

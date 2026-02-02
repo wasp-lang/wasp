@@ -48,7 +48,7 @@ switch ($Command) {
         Write-Host "  build:hs          Builds the Haskell project only."
         Write-Host "  build:packages    Builds the TypeScript projects under data/packages/."
         Write-Host "  build:libs        Builds the TypeScript libs under libs/."
-        Write-Host "  test:libs         Run checks on Wasp libs (types, unit, type-exports)."
+        Write-Host "  test:libs         Run tests on Wasp libs (types, unit, type-exports)."
         Write-Host "  get-waspc-version Gets the current version of waspc from the Haskell project."
         Write-Host "  wasp-cli <args>   Runs the dev version of wasp executable while forwarding arguments."
         Write-Host "                    Builds the project (hs) first if needed. Doesn't require you to be in the waspc project to run it."

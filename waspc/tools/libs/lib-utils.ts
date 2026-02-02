@@ -6,8 +6,8 @@ import { join } from "node:path";
 
 export function discoverLibDirs(dataLibsDirPath: string): string[] {
   return readdirSync(dataLibsDirPath, { withFileTypes: true })
-    .filter((dirent) => dirent.isDirectory())
-    .map((dirent) => join(dataLibsDirPath, dirent.name));
+    .filter((dirEntry) => dirEntry.isDirectory())
+    .map((dir) => join(dataLibsDirPath, dir.name));
 }
 
 export function getLibPackageJson(libDir: string): {

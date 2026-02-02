@@ -24,5 +24,5 @@ function testLib(libDir: string): void {
   console.log(`Testing ${libName} lib (${libDir})`);
 
   runCmd("npm", ["install"], { cwd: libDir, stdio: "inherit" });
-  runCmd("npm", ["run", "check"], { cwd: libDir, stdio: "inherit" });
+  runCmd("npm", ["run", "test"], { cwd: libDir, stdio: "inherit" });
 }
