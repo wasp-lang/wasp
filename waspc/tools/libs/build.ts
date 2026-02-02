@@ -5,7 +5,7 @@
 import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { discoverLibDirs, getLibPackageJson, runCmd } from "./lib-utils.ts";
+import { discoverLibDirs, getLibPackageJson, runCmd } from "./utils.ts";
 
 const waspcDirPath = fileURLToPath(new URL("../..", import.meta.url));
 const dataLibsDirPath = join(waspcDirPath, "data", "Generator", "libs");
