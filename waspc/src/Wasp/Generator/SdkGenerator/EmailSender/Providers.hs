@@ -4,10 +4,12 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
     mailgun,
     dummy,
     EmailSenderProvider (..),
+    getEmailSenderProvider,
   )
 where
 
-import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (File', Path', Rel, relfile)
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.SemanticVersion as SV
@@ -22,7 +24,7 @@ smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
     { npmDependency = Just nodeMailerDependency,
-      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|smtp.ts|]
+      setupFnFile = [relfile|smtp.ts|]
     }
   where
     nodeMailerVersionRange :: SV.Range
@@ -35,7 +37,7 @@ sendGrid :: EmailSenderProvider
 sendGrid =
   EmailSenderProvider
     { npmDependency = Just sendGridDependency,
-      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|sendgrid.ts|]
+      setupFnFile = [relfile|sendgrid.ts|]
     }
   where
     sendGridVersionRange :: SV.Range
@@ -48,7 +50,7 @@ mailgun :: EmailSenderProvider
 mailgun =
   EmailSenderProvider
     { npmDependency = Just mailgunDependency,
-      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|mailgun.ts|]
+      setupFnFile = [relfile|mailgun.ts|]
     }
   where
     mailgunVersionRange :: SV.Range
@@ -61,8 +63,12 @@ dummy :: EmailSenderProvider
 dummy =
   EmailSenderProvider
     { npmDependency = Nothing,
-      setupFnFile = providersDirInSdkTemplatesDir </> [relfile|dummy.ts|]
+      setupFnFile = [relfile|dummy.ts|]
     }
 
-providersDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]
+getEmailSenderProvider :: AS.EmailSender.EmailSender -> EmailSenderProvider
+getEmailSenderProvider email = case AS.EmailSender.provider email of
+  AS.EmailSender.SMTP -> smtp
+  AS.EmailSender.SendGrid -> sendGrid
+  AS.EmailSender.Mailgun -> mailgun
+  AS.EmailSender.Dummy -> dummy

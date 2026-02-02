@@ -6,7 +6,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromMaybe, isJust, maybeToList)
-import StrongPath (Dir', Path', Rel, reldir, relfile, (</>))
+import StrongPath (reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.App.EmailSender (EmailSender)
@@ -17,8 +17,7 @@ import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    mkTmplFd,
+  ( mkTmplFd,
     mkTmplFdWithData,
   )
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
@@ -37,10 +36,7 @@ genNewEmailSenderApi spec = case maybeEmailSender of
 
 genIndex :: EmailSender -> Generator FileDraft
 genIndex email =
-  return $
-    mkTmplFdWithData
-      (serverEmailDirInSdkTemplatesDir </> [relfile|index.ts|])
-      tmplData
+  return $ mkTmplFdWithData [relfile|server/email/index.ts|] tmplData
   where
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
@@ -55,19 +51,13 @@ genCore email =
 
 genCoreIndex :: EmailSender -> Generator FileDraft
 genCoreIndex email =
-  return $
-    mkTmplFdWithData
-      (serverEmailDirInSdkTemplatesDir </> [relfile|core/index.ts|])
-      tmplData
+  return $ mkTmplFdWithData [relfile|server/email/core/index.ts|] tmplData
   where
     tmplData = EmailSenders.getEnabledEmailProvidersJson email
 
 genCoreTypes :: EmailSender -> Generator FileDraft
 genCoreTypes email =
-  return $
-    mkTmplFdWithData
-      (serverEmailDirInSdkTemplatesDir </> [relfile|core/types.ts|])
-      tmplData
+  return $ mkTmplFdWithData [relfile|server/email/core/types.ts|] tmplData
   where
     tmplData =
       object ["isDefaultFromFieldDefined" .= isDefaultFromFieldDefined]
@@ -76,10 +66,7 @@ genCoreTypes email =
 
 genCoreHelpers :: EmailSender -> Generator FileDraft
 genCoreHelpers email =
-  return $
-    mkTmplFdWithData
-      (serverEmailDirInSdkTemplatesDir </> [relfile|core/helpers.ts|])
-      tmplData
+  return $ mkTmplFdWithData [relfile|server/email/core/helpers.ts|] tmplData
   where
     tmplData =
       object
@@ -96,22 +83,17 @@ genCoreHelpers email =
     maybeName = defaultFromField >>= AS.EmailSender.name
     defaultFromField = AS.EmailSender.defaultFrom email
 
-genEmailSenderProviderSetupFn :: EmailSender -> Generator FileDraft
-genEmailSenderProviderSetupFn = return . mkTmplFd . Providers.setupFnFile . getEmailSenderProvider
+genEmailSenderProviderSetupFn :: AS.EmailSender.EmailSender -> Generator FileDraft
+genEmailSenderProviderSetupFn =
+  return
+    . mkTmplFd
+    . ([reldir|server/email/core/providers|] </>)
+    . Providers.setupFnFile
+    . Providers.getEmailSenderProvider
 
 depsRequiredByEmail :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByEmail spec = maybeToList maybeNpmDepedency
   where
     maybeProvider :: Maybe Providers.EmailSenderProvider
-    maybeProvider = getEmailSenderProvider <$> (AS.App.emailSender . snd . getApp $ spec)
+    maybeProvider = Providers.getEmailSenderProvider <$> (AS.App.emailSender . snd . getApp $ spec)
     maybeNpmDepedency = maybeProvider >>= Providers.npmDependency
-
-getEmailSenderProvider :: EmailSender -> Providers.EmailSenderProvider
-getEmailSenderProvider email = case AS.EmailSender.provider email of
-  AS.EmailSender.SMTP -> Providers.smtp
-  AS.EmailSender.SendGrid -> Providers.sendGrid
-  AS.EmailSender.Mailgun -> Providers.mailgun
-  AS.EmailSender.Dummy -> Providers.dummy
-
-serverEmailDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverEmailDirInSdkTemplatesDir = [reldir|server/email|]
