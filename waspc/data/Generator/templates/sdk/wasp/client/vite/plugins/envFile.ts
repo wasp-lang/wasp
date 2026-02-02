@@ -73,15 +73,19 @@ export function envFile(): Plugin {
         define: prefixedVars,
       }
     },
+    configureServer(server) {
+      const reloadServerOnEnvFileEvent = (path: string) => {
+        if (path === envFilePath) {
+          server.restart()
+        }
+      }
+
+      server.watcher.on('add', reloadServerOnEnvFileEvent)
+      server.watcher.on('change', reloadServerOnEnvFileEvent)
+      server.watcher.on('unlink', reloadServerOnEnvFileEvent)
+    },
     async buildStart() {
       this.addWatchFile(envFilePath)
-    },
-    handleHotUpdate(ctx) {
-      if (ctx.file === envFilePath) {
-        // We need to do a full server reload to ensure the new env vars are picked up.
-        ctx.server.restart()
-        return []
-      }
     },
   }
 }
