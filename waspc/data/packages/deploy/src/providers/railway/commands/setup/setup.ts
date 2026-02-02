@@ -239,6 +239,7 @@ function getRailwayEnvVarValueReference(
   const parts = [name];
 
   if (service) {
+    // JSON.stringify wraps the string in quotes and escapes any special characters.
     parts.unshift(JSON.stringify(service));
   }
 
