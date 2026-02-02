@@ -1,23 +1,25 @@
 {{={= =}=}}
 import { type Plugin, type UserConfig } from 'vite'
 import { resolve } from 'node:path'
-import { existsSync, readFileSync } from 'node:fs'
+import { readFile, access, constants } from 'node:fs/promises'
 import { parse as parseDotenv } from 'dotenv'
 import { expand, type DotenvPopulateInput } from 'dotenv-expand'
 
 const envFileName = '{= clientEnvFileName =}'
 
 // Based on: https://github.com/vitejs/vite/blob/8bb32036792a6f522f5c947112f3d688add755a0/packages/vite/src/node/env.ts
-export function loadWaspEnvClient(rootDir: string, envPrefix: NonNullable<UserConfig['envPrefix']>): Record<string, string> {
+export async function loadWaspEnvClient(rootDir: string, envPrefix: NonNullable<UserConfig['envPrefix']>): Promise<Record<string, string>> {
   const envPrefixNormalized = Array.isArray(envPrefix) ? envPrefix : [envPrefix]
   const envFilePath = resolve(rootDir, envFileName)
 
-  if (!existsSync(envFilePath)) {
+  try {
+    await access(envFilePath, constants.R_OK)
+  } catch {
     return {}
   }
 
   try {
-    const parsed = parseDotenv(readFileSync(envFilePath, 'utf-8'))
+    const parsed = parseDotenv(await readFile(envFilePath, 'utf-8'))
 
     // Let environment variables use each other. Make a copy of `process.env` so that `dotenv-expand`
     // doesn't re-assign the expanded values to the global `process.env`.
@@ -54,9 +56,9 @@ export function envFile(): Plugin {
   return {
     name: 'wasp:env-file',
     enforce: 'pre',
-    config(config) {
+    async config(config) {
       const rootDir = config.root || process.cwd()
-      const envVars = loadWaspEnvClient(rootDir, config.envPrefix!)
+      const envVars = await loadWaspEnvClient(rootDir, config.envPrefix!)
       envFilePath = resolve(rootDir, envFileName)
 
       const prefixedVars = Object.entries(envVars)
@@ -71,10 +73,8 @@ export function envFile(): Plugin {
         define: prefixedVars,
       }
     },
-    buildStart() {
-      if (existsSync(envFilePath)) {
-        this.addWatchFile(envFilePath)
-      }
+    async buildStart() {
+      this.addWatchFile(envFilePath)
     },
     handleHotUpdate(ctx) {
       if (ctx.file === envFilePath) {
