@@ -175,12 +175,12 @@ async function setupServer({
 
   const clientUrl = `https://${getRailwayEnvVarValueReference(
     "RAILWAY_PUBLIC_DOMAIN",
-    { service: clientServiceName },
+    { serviceName: clientServiceName },
   )}`;
   // If we reference the service URL in its OWN env variables, we don't prefix it with the service name.
   const serverUrl = `https://${getRailwayEnvVarValueReference("RAILWAY_PUBLIC_DOMAIN")}`;
   const databaseUrl = getRailwayEnvVarValueReference("DATABASE_URL", {
-    service: dbServiceName,
+    serviceName: dbServiceName,
   });
   const jwtSecret = generateRandomHexString();
   await railwayCli(
@@ -229,7 +229,7 @@ async function setupClient({
 
 function getRailwayEnvVarValueReference(
   name: string,
-  { service }: { service?: string } = {},
+  { serviceName }: { serviceName?: string } = {},
 ): string {
   // Railway variable references have the format ${{VARIABLE}} for local variables
   // or ${{serviceName.VARIABLE}} for cross-service references.
@@ -238,9 +238,9 @@ function getRailwayEnvVarValueReference(
 
   const parts = [name];
 
-  if (service) {
+  if (serviceName) {
     // JSON.stringify wraps the string in quotes and escapes any special characters.
-    parts.unshift(JSON.stringify(service));
+    parts.unshift(JSON.stringify(serviceName));
   }
 
   return "${{" + parts.join(".") + "}}";
