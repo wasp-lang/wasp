@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( serverOperationsDirInSdkRootDir,
+  ( getServerOperationsImportPath,
     genOperations,
   )
 where
@@ -10,7 +10,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>))
+import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -29,12 +29,11 @@ import Wasp.Generator.SdkGenerator.UserCore.Common
   )
 import Wasp.Util (toUpperFirst)
 
--- TODO(franjo): explore
-serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) Dir'
-serverOperationsDirInSdkRootDir =
-  ([reldir|server/operations|] </>) . \case
-    (AS.Operation.QueryOp _ _) -> [reldir|queries|]
-    (AS.Operation.ActionOp _ _) -> [reldir|actions|]
+getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel SdkRootDir) File'
+getServerOperationsImportPath =
+  ([reldirP|server/operations|] </>) . \case
+    (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
+    (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =

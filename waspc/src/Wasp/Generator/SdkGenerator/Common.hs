@@ -40,11 +40,6 @@ sdkRootDirInTemplatesDir = [reldir|sdk/wasp|]
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|src|]
 
-relDirToRelFileP :: Path Posix (Rel d) Dir' -> Path Posix (Rel d) File'
-relDirToRelFileP path = fromJust $ parseRelFileP $ removeTrailingSlash $ fromRelDirP path
-  where
-    removeTrailingSlash = reverse . dropWhile (== '/') . reverse
-
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
 makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path
 
