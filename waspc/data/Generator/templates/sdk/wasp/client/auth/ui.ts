@@ -23,9 +23,9 @@ export { SignInButton as KeycloakSignInButton } from '../../auth/helpers/Keycloa
 {=# isGitHubAuthEnabled =}
 export { SignInButton as GitHubSignInButton } from '../../auth/helpers/GitHub'
 {=/ isGitHubAuthEnabled =}
-{=# isMicrosoftAuthEnabled =}
-export { SignInButton as MicrosoftSignInButton } from '../../auth/helpers/Microsoft'
-{=/ isMicrosoftAuthEnabled =}
+{=# isMicrosoftEntraAuthEnabled =}
+export { SignInButton as MicrosoftEntraSignInButton } from '../../auth/helpers/MicrosoftEntra'
+{=/ isMicrosoftEntraAuthEnabled =}
 export {
   FormError,
   FormInput,

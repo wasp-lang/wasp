@@ -148,7 +148,7 @@ spec_Analyzer = do
                                   Auth.google = Nothing,
                                   Auth.keycloak = Nothing,
                                   Auth.gitHub = Nothing,
-                                  Auth.microsoft = Nothing,
+                                  Auth.microsoftEntra = Nothing,
                                   Auth.email = Nothing
                                 },
                             Auth.onAuthFailedRedirectTo = "/",

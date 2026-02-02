@@ -31,7 +31,7 @@ genNewClientAuth spec =
         <++> genAuthGoogle auth
         <++> genAuthKeycloak auth
         <++> genAuthGitHub auth
-        <++> genAuthMicrosoft auth
+        <++> genAuthMicrosoftEntra auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -95,10 +95,10 @@ genAuthGitHub auth =
     then sequence [genFileCopy [relfile|client/auth/github.ts|]]
     else return []
 
-genAuthMicrosoft :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthMicrosoft auth =
-  if AS.Auth.isMicrosoftAuthEnabled auth
-    then sequence [genFileCopy [relfile|client/auth/microsoft.ts|]]
+genAuthMicrosoftEntra :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthMicrosoftEntra auth =
+  if AS.Auth.isMicrosoftEntraAuthEnabled auth
+    then sequence [genFileCopy [relfile|client/auth/microsoftEntra.ts|]]
     else return []
 
 genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> Generator FileDraft

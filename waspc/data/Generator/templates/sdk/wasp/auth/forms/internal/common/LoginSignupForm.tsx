@@ -55,9 +55,9 @@ const keycloakSignInUrl = `${config.apiUrl}{= keycloakSignInPath =}`
 {=# enabledProviders.isGitHubAuthEnabled =}
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 {=/ enabledProviders.isGitHubAuthEnabled =}
-{=# enabledProviders.isMicrosoftAuthEnabled =}
-const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
-{=/ enabledProviders.isMicrosoftAuthEnabled =}
+{=# enabledProviders.isMicrosoftEntraAuthEnabled =}
+const microsoftEntraSignInUrl = `${config.apiUrl}{= microsoftEntraSignInPath =}`
+{=/ enabledProviders.isMicrosoftEntraAuthEnabled =}
 
 {=!
 // Since we allow users to add additional fields to the signup form, we don't
@@ -155,9 +155,9 @@ export const LoginSignupForm = ({
               <SocialButton href={gitHubSignInUrl}><SocialIcons.GitHub/></SocialButton>
             {=/ enabledProviders.isGitHubAuthEnabled =}
 
-            {=# enabledProviders.isMicrosoftAuthEnabled =}
-              <SocialButton href={microsoftSignInUrl}><SocialIcons.Microsoft/></SocialButton>
-            {=/ enabledProviders.isMicrosoftAuthEnabled =}
+            {=# enabledProviders.isMicrosoftEntraAuthEnabled =}
+              <SocialButton href={microsoftEntraSignInUrl}><SocialIcons.MicrosoftEntra/></SocialButton>
+            {=/ enabledProviders.isMicrosoftEntraAuthEnabled =}
           </div>
         </div>
       {=/ isSocialAuthEnabled =}

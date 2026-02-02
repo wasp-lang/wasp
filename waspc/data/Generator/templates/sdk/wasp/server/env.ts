@@ -102,17 +102,17 @@ const waspServerCommonSchema = z.object({
       message: 'KEYCLOAK_REALM_URL must be a valid URL',
     }),
   {=/ enabledAuthProviders.isKeycloakAuthEnabled =}
-  {=# enabledAuthProviders.isMicrosoftAuthEnabled =}
+  {=# enabledAuthProviders.isMicrosoftEntraAuthEnabled =}
   MICROSOFT_ENTRA_TENANT_ID: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_ENTRA_TENANT_ID'),
+    required_error: getRequiredEnvVarErrorMessage('Microsoft Entra auth provider', 'MICROSOFT_ENTRA_TENANT_ID'),
   }),
   MICROSOFT_ENTRA_CLIENT_ID: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_ENTRA_CLIENT_ID'),
+    required_error: getRequiredEnvVarErrorMessage('Microsoft Entra auth provider', 'MICROSOFT_ENTRA_CLIENT_ID'),
   }),
   MICROSOFT_ENTRA_CLIENT_SECRET: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_ENTRA_CLIENT_SECRET'),
+    required_error: getRequiredEnvVarErrorMessage('Microsoft Entra auth provider', 'MICROSOFT_ENTRA_CLIENT_SECRET'),
   }),
-  {=/ enabledAuthProviders.isMicrosoftAuthEnabled =}
+  {=/ enabledAuthProviders.isMicrosoftEntraAuthEnabled =}
   {=/ isAuthEnabled =}
 })
 

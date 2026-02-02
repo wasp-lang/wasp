@@ -16,7 +16,7 @@ const oAuthClient = new MicrosoftEntraId(
 );
 
 // PUBLIC API
-export const microsoft = defineProvider({
+export const microsoftEntra = defineProvider({
   id,
   displayName,
   oAuthClient,

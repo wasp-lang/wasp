@@ -1,6 +1,6 @@
 {{={= =}=}}
 import type { ProviderConfig } from "wasp/auth/providers/types";
-import { microsoft } from "wasp/server/auth";
+import { microsoftEntra } from "wasp/server/auth";
 
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
@@ -21,8 +21,8 @@ const _waspUserDefinedConfigFn = undefined
 {=/ configFn.isDefined =}
 
 const _waspConfig: ProviderConfig = {
-    id: microsoft.id,
-    displayName: microsoft.displayName,
+    id: microsoftEntra.id,
+    displayName: microsoftEntra.displayName,
     createRouter(provider) {
         const config = mergeDefaultAndUserConfig({
             scopes: {=& requiredScopes =},
@@ -64,8 +64,8 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state, codeVerifier }) => microsoft.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
-            getProviderTokens: ({ code, codeVerifier }) => microsoft.oAuthClient.validateAuthorizationCode(code, codeVerifier),
+            getAuthorizationUrl: ({ state, codeVerifier }) => microsoftEntra.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
+            getProviderTokens: ({ code, codeVerifier }) => microsoftEntra.oAuthClient.validateAuthorizationCode(code, codeVerifier),
             getProviderInfo: ({ accessToken }) => getMicrosoftProfile(accessToken),
         });
     },
