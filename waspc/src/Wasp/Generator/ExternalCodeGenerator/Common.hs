@@ -9,6 +9,6 @@ where
 -- Name should probably be narrowed down to something that represents only the
 -- src/ directory. Maybe 'GeneratedExtSrcDir'?
 
--- | Directory where we generate the external code.
--- External code refer to the code files in user's @src/@ directory.
+-- | The term 'External code' refers to the code users write in their src directory
+-- This type represents the folder containing user-written code inside our generated SDK code.
 data GeneratedExternalCodeDir

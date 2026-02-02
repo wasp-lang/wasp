@@ -61,7 +61,7 @@ import qualified Wasp.Generator.SdkGenerator.Core.Common as CoreC
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
-import qualified Wasp.Generator.SdkGenerator.Root.Common as Root
+import qualified Wasp.Generator.SdkGenerator.Root.Common as RootC
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -146,15 +146,15 @@ genSdk spec =
 genRootFiles :: AppSpec -> Generator [FileDraft]
 genRootFiles spec =
   sequence
-    [ return $ Root.mkTmplFd [relfile|tsconfig.json|],
-      return $ Root.mkTmplFd [relfile|tsconfig.sdk.json|],
-      return $ Root.mkTmplFd [relfile|copy-assets.js|],
+    [ return $ RootC.mkTmplFd [relfile|tsconfig.json|],
+      return $ RootC.mkTmplFd [relfile|tsconfig.sdk.json|],
+      return $ RootC.mkTmplFd [relfile|copy-assets.js|],
       genPackageJson spec
     ]
 
 genPackageJson :: AppSpec -> Generator FileDraft
 genPackageJson spec =
-  return $ Root.mkTmplFdWithData [relfile|package.json|] tmplData
+  return $ RootC.mkTmplFdWithData [relfile|package.json|] tmplData
   where
     tmplData =
       object
