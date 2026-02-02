@@ -11,14 +11,15 @@ where
 import StrongPath (File', Path', Rel, relfile)
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
   { npmDependency :: Maybe Npm.Dependency.Dependency,
-    setupFnFile :: Path' (Rel SdkTemplatesDir) File'
+    setupFnFile :: Path' (Rel ProvidersDir) File'
   }
   deriving (Show, Eq)
+
+data ProvidersDir
 
 smtp :: EmailSenderProvider
 smtp =
