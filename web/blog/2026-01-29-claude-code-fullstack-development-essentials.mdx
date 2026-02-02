@@ -70,7 +70,7 @@ This is crucial when working with LLMs that may have outdated knowledge, or hall
 
 **Use the right tech stack or framework**
 
-This is probably the most critical of these three approaches. By picking the right framework, you give AI clear patterns to follow, and remove a lot of complexity right from the start.
+This is probably the most overlooked of these three approaches. By picking the right framework, you give AI clear patterns to follow, and remove a lot of complexity right from the start.
 
 With this foundation, you'll be able to build and deploy fullstack apps easily by mostly using Claude Code's default workflows, and just a couple custom commands/skills (I also packed these ideas into a simple Claude Code plugin you can install and use, but I'll talk more about that later).
 
@@ -92,6 +92,7 @@ And I have wildly good results ¯\_(ツ)_/¯*  — [Chris McCord, creator of the
 Our typical AI-assisted coding workflow tends to look like this: we prompt, then wait, then look over the generated code (maybe), then check on things in the browser. If we've got some errors or some bad looking frontend designs, we copy and paste them and try to (better) explain what we want.
 
 {/* TODO: Add video - an AI-assisted coding workflow without "full-stack vision" */}
+> *An AI-assisted coding workflow without "full-stack vision". 🤖*
 
 What's worse, is we might have to do this a few times before we're satisfied, or get things working again.
 
@@ -129,6 +130,7 @@ Problems that only show up **after the app is running in the browser**, like des
 But luckily, we can arm Claude Code with browser automation tools to solve for this. These tools allow for programmatic control of the browser, like loading pages, clicking buttons, inspecting elements, reading console logs, and even taking screenshots.
 
 {/* TODO: Add video demo of browser automation */}
+> *Logging in and adding a task with browser automation. 🤖*
 
 This closes the loop for the *entire* stack and gives Claude the autonomy to complete larger features tasks entirely on its own.
 
@@ -153,6 +155,7 @@ You should see a separate Chrome instance open up being controlled by Claude. Go
 - giving you feedback on how to improve your app's design
 
 {/* TODO: Add video - Adding a full-stack "subtasks" feature with our "full-stack vision" workflow */}
+> *Adding a full-stack "subtasks" feature with our "full-stack vision" workflow. 🤖*
 
 Now when you're implementing full-stack features in your app, ask Claude to verify the feature works correctly by checking the logs in the development server, as well as in the browser with the Chrome DevTools MCP.
 
@@ -189,34 +192,29 @@ Here are the two main ways developers are accomplishing this:
 
 ### MCP Servers for Docs Fetching
 
-The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) is an open standard for connecting AI applications (i.e. agents, LLMs) to external systems. An MCP client, like Claude Code, can communicate with an MCP server, which acts as a "portal" to tools and information that the agent can use.
+The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) is an open standard for connecting AI applications (i.e. agents, LLMs) to external systems. Claude Code can communicate with an MCP server to access specialized tools and information.
 
-Think of MCP like a USB port for AI agents. Any tools or application can create an MCP server for AI agents to plug into. Each MCP server might do different things, but each MCP server is structured similarly, so the AI agent only needs one kind of "plug" to access them all.
-
-{/* TODO: Add image - MCP diagram */}
-
-There are already tons of MCP servers for popular tools, like Supabase, Jira, Canva, Notion, and Vercel. Claude Code has [a docs section listing these and many more](https://code.claude.com/docs/en/mcp#popular-mcp-servers), with instructions on how to install them if you're interested.
+There are already tons of MCP servers for popular tools, like Supabase, Jira, Canva, Notion, and Vercel. Claude Code has [a docs section listing these and many more](https://code.claude.com/docs/en/mcp#popular-mcp-servers), with instructions on how to install them if you’re interested.
 
 {/* TODO: Add image - MCP servers list screenshot */}
 
 Developer Tool MCP servers like Supabase and Vercel expose tools like `search_docs` which will take a query from the agent, fetch relevant files and guides on the MCP server, and return the relevant information back to the agent. Because the doc fetching is done on the MCP server, it can do a number of things before sending that information back, like filtering, attaching metadata, check for the proper doc version, and more.
 
-There are some pros and cons to this approach, though.
+Developer Tool MCP servers like Supabase and Vercel have tools which will fetch documentation for the agent based on a query. There are some pros and cons to this approach, though. 
 
 **Pros**
 
 - can do some pre-processing on the docs before sending them back
-- can filter and fetch relevant snippets across multiple docs/guides
+- can version-check, filter ,and fetch relevant snippets across multiple docs/guides
 - return structured outputs instead of raw text
-- can be paired with other tool calls in the same MCP server, e.g. Supabase's `list_projects`
 
 **Cons**
 
 - the MCP server decides what is relevant, ignoring potentially useful information
-- all of its tools (not just doc fetching tools) get loaded into, and quickly fill up, the LLM's context window (i.e. "memory"), degrading the agent's performance
+- all of its tools (not just doc fetching tools) get loaded into, and quickly fill up, the LLM’s context window (i.e. “memory”), degrading the agent’s performance
 - more overhead for the agent: evaluate prompt → find the right MCP tool → call it → wait for response from MCP server → evaluate response → take action
 
-Because LLMs don't have a real memory, they have to load information into context every session. All the MCP server tools available to an agent like Claude Code always get loaded into its context. The agent searches through this list to see if there's a suitable tool it can call when processing each request.
+Because LLMs don’t have a real memory, they have to load information into context with every new session, such as the tools they can use. A single MCP server can add around 15-30 tools to the context, and with multiple servers you can easily consume 10-20% or more of your LLM’s context window before you even begin working.
 
 {/* TODO: Add image - Context window usage tip screenshot */}
 
@@ -224,49 +222,26 @@ Because LLMs don't have a real memory, they have to load information into contex
 Run the `/context` slash command in an active Claude Code session to see how much of your context window is already used up, and proportionally by each feature.
 :::
 
-A single MCP server can add around 15-30 tools to the context, and with multiple servers, you can easily consume 10-20% or more of your LLM's context window (i.e. "available memory") before sending any messages or prompts due to the limited size of an LLM's context window
-
-Once a context window gets close to full, it's performance degrades significantly. Some people even suggest starting a new session once the context is 75% full to avoid this, which is possible with the `/clear` command in Claude Code. You can also run the `/compact` command which creates a summary of your current session's context and passes it along to the next session.
-
-There are also other attempts to solve this issue, such as Claude's new [Tool Search tool](https://platform.claude.com/docs/en/agents-and-tools/tool-use/tool-search-tool), which will search and load tools on-demand, rather than loading all MCP tools upfront, but this adds even more overhead to the agent.
+As an LLM’s context window fills up, it’s performance degrades. Some devs even suggest starting a new session once the context is 75% full to avoid this, which is possible with the `/clear` command in Claude Code. You can also run the `/compact` command which creates a summary of your current session’s context and passes it along to the next session.
 
 Luckily, if your main reason for using an MCP server is just for documentation searching, then an alternative open standard exists that may be a better fit.
 
 ### LLM-friendly Docs URLs — LLMs.txt
 
-[LLMs.txt](https://llmstxt.org/) has quickly become the standard for providing LLMs with context-friendly versions of websites. The website maintainers add a concise, text-only markdown file at a `/llms.txt` path which the LLM can easily navigate.
+[LLMs.txt](https://llmstxt.org/) has quickly become the standard for providing LLMs with context-friendly versions of websites at an `/llms.txt` path.
 
-Developer tools and the like often use it to provide a map of links to their raw documentation text files, among other links and references. Try it out on some of your favorite developer tools URLs, such as:
+Try it out on some of your favorite developer tools URLs, such as:
 
 - [stripe.com/llms.txt](https://stripe.com/llms.txt)
 - [supabase.com/llms.txt](https://supabase.com/llms.txt)
 - [wasp.sh/llms.txt](https://wasp.sh/llms.txt)
 
 {/* TODO: Add video - Vercel versus Supabase's llms.txt URLs */}
+> *Some llms.txt provide lots of information up front, while others are simply maps to documentation.
 
-While some llms.txt URLs serve as a simple map to further documentation, others provide a complete list of references. The differences can be pretty extreme!
+Although llms.txt files might vary widely in the content they surface, they always follow the same format of a simple markdown file with the title of the website and some links. That’s it! This allows LLMs to get precise information without all the fluff.
 
-But although llms.txt files might vary widely in the content they surface, they always follow the same format of a simple markdown file with the title of the website and some links. That's it!
-
-```markdown
-# Title
-
-> Optional description goes here
-
-Optional details go here
-
-## Section name
-
-- [Link title](https://link_url): Optional link details
-
-## Optional
-
-- [Link title](https://link_url)
-```
-
-This allows LLMs to get precise information without all the fluff. In contrast, if they fetch a normal website URL, an LLM has to convert complex HTML with navigation, ads, and javascript into something it can make use of.
-
-Here are some of the pros and cons of using llms.txt as a documentation fetching method for coding agents:
+Here are some of the pros and cons of using llms.txt for documentation fetching:
 
 **Pros**
 
@@ -281,21 +256,19 @@ Here are some of the pros and cons of using llms.txt as a documentation fetching
 - the agent could fetch incompatible links / files
 - the agent might need more guidance / rules on how to interact with the docs correctly
 
-In my opinion, I think that fetching docs via an `llms.txt` URL is the better approach. It doesn't use up any of the context window until its fetched, and once it is the token size of a typical documentation file is ~100 tokens versus 5,000-10,000 tokens for just one MCP server.
+In my opinion, I think that fetching docs via an `llms.txt` URL is the better approach as its more context efficient. For example, a typical documentation file is ~100 tokens versus 5,000-10,000 tokens for just one MCP server.
 
-**That's a 10x reduction in context usage.**
+**That’s a 10x reduction in context usage.** 
 
 Plus, you get the added benefit that `llms.txt` files are easier for humans to reference as well.
 
 {/* TODO: Add image - llms.txt example */}
 
-Even though the agent is responsible for reading and reasoning about the docs correctly, they've gotten *very* good at this recently, so it's not the drawback that it might sound like. It's more than enough to give them the the documentation map `llms.txt` URL, and let them navigate it and fetch the links relevant to the current task.
+It's also the method that Claude Code uses for its [own doc fetching internally](https://simonwillison.net/2025/Oct/24/claude-code-docs-map/). So when you ask it a question about its own features, it will first fetch its [documentation map markdown file URL](https://simonwillison.net/2025/Oct/24/claude-code-docs-map/) to find the correct guides.
 
-This means that you may need to explicitly provide Claude with the correct URL for the tools you're using, and perhaps some short rules about how you'd prefer it to retrieve doc files in your `CLAUDE.md` (but you can think of this as being analogous to installing an MCP server).
+So now that you know how to give Claude Code access to up-to-date documenation, the next question to answer is which tools might you need to provide the docs for? 
 
-It's actually the method that Claude Code uses for its [own docs](https://simonwillison.net/2025/Oct/24/claude-code-docs-map/). So when you ask it a question about its own features, like "How can I create a new Skill?" or "How do I start a background task in Claude Code?", it will first fetch its own [documentation map markdown file URL](https://simonwillison.net/2025/Oct/24/claude-code-docs-map/), find the correct guides, and then retrieve them from their respective URLs before giving you an answer.
-
-The question now is, which tools might you actually be needing to provide the docs for? And the most obvious answer is the tech stack or framework you're building your full-stack with.
+And the most obvious answer is the **tech stack or framework** you’re building your full-stack app with.
 
 ---
 
@@ -464,8 +437,8 @@ I've spent this whole article arguing that you can ignore a lot Claude Code feat
 Custom subagents, commands, and skills shine when you're doing the same task repeatedly with consistent criteria, e.g.:
 
 - **Testing** — A dedicated test-runner subagent that knows your testing patterns, runs suites, analyzes failures, and suggests fixes.
-- **Code / PR Reviews** — A code review command with your team's specific standards baked in, checking for security issues, performance concerns, and style consistency across every pull request.
-- **Running Scripts** — Skills can be useful if you have deterministic tasks you run often. Define them in a Skill and link those scripts to them, and Claude Code will run them when it deems it fit for the task at hand.
+- **[Code Reviews](https://code.claude.com/docs/en/sub-agents#code-reviewer)** — A code review command or subagent that runs tests, fixes bugs, and reviews code after every development.
+- **Running Scripts** — Skills can be useful if you have deterministic tasks you run often, like a deployment script. Define them in a Skill and link those scripts to them, and Claude Code will run them when it deems it fit for the task at hand.
 
 These are tasks where you want the same process followed every time and where a well-configured subagent with specific rules makes sense.
 
