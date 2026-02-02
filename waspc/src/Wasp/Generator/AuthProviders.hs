@@ -66,7 +66,7 @@ discordAuthProvider =
 microsoftEntraAuthProvider :: OA.OAuthAuthProvider
 microsoftEntraAuthProvider =
   OA.OAuthAuthProvider
-    { OA._providerId = fromJust $ makeProviderId "microsoftEntra",
+    { OA._providerId = fromJust $ makeProviderId "microsoft-entra",
       OA._displayName = "Microsoft Entra",
       OA._requiredScope = ["openid", "profile", "email"]
     }

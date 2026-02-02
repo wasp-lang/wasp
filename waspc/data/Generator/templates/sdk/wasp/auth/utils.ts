@@ -45,7 +45,7 @@ export type PossibleProviderData = {
   google: OAuthProviderData;
   keycloak: OAuthProviderData;
   github: OAuthProviderData;
-  microsoftEntra: OAuthProviderData;
+  'microsoft-entra': OAuthProviderData;
 }
 
 // PUBLIC API
@@ -98,7 +98,7 @@ export function normalizeProviderUserId(providerName: ProviderName, providerUser
     case 'discord':
     case 'keycloak':
     case 'slack':
-    case 'microsoftEntra':
+    case 'microsoft-entra':
       return providerUserId;
     /*
       Why the default case?

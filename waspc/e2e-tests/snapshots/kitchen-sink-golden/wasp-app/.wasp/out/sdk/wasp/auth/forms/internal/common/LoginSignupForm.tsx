@@ -94,6 +94,7 @@ export const LoginSignupForm = ({
 
 
               <SocialButton href={gitHubSignInUrl}><SocialIcons.GitHub/></SocialButton>
+
           </div>
         </div>
         <div className={styles.orContinueWith}>

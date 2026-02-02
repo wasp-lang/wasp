@@ -172,7 +172,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "3960378fd8ff2a72e0a11625eb000ef6a325badfd3de9862bd88106b848efbbc"
+        "81217b69de5428ac233a4d47cfe69c4c20fd0fe0c7784075469b217323094249"
     ],
     [
         [
@@ -228,7 +228,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "0bee13ba6f1218cad07372845c797b3e418de17f8556604b7429cbd32e319093"
+        "ff1712010a4f64b6cd55fab2a1cf3292ca26c28269aa8f2fcece7df037869546"
     ],
     [
         [
@@ -361,7 +361,7 @@
             "file",
             "sdk/wasp/auth/utils.ts"
         ],
-        "a6f1f6c48d7f6940c5ce8b615c5b625498a573913429397289b2b00517026570"
+        "fda6c67dbb723f071ffbdff77299cf2ddeb6ae32091cb1082c3e19e83a178ea8"
     ],
     [
         [
