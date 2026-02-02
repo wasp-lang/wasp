@@ -6,6 +6,9 @@ module Wasp.Generator.ServerGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Char (toUpper)
+import Data.List (intercalate)
+import Data.List.Split (splitOn)
 import Data.Maybe (fromJust)
 import StrongPath
   ( Dir,
@@ -105,8 +108,16 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
           JI.JsImport
             { JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
               JI._name = JI.JsImportModule providerId,
-              JI._importAlias = Nothing
+              JI._importAlias = if '-' `elem` providerId then Just (kebabToCamel providerId) else Nothing
             }
+
+    kebabToCamel :: String -> String
+    kebabToCamel s = case splitOn "-" s of
+      [] -> s
+      (first : rest) -> first ++ concatMap capitalize rest
+      where
+        capitalize [] = []
+        capitalize (c : cs) = toUpper c : cs
 
 genAuthHooks :: AS.Auth.Auth -> Generator FileDraft
 genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Just tmplData)

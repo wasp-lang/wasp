@@ -24,7 +24,7 @@ export { keycloak } from './providers/keycloak.js';
 {=/ enabledProviders.isKeycloakAuthEnabled =}
 {=# enabledProviders.isMicrosoftEntraAuthEnabled =}
 // PUBLIC API
-export { microsoftEntra } from './providers/microsoftEntra.js';
+export { microsoftEntra } from './providers/microsoft-entra.js';
 {=/ enabledProviders.isMicrosoftEntraAuthEnabled =}
 
 // PRIVATE API

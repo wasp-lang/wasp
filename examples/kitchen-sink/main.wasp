@@ -30,6 +30,10 @@ app KitchenSink {
         configFn: import { config } from "@src/features/auth/providers/github",
         userSignupFields: import { userSignupFields } from "@src/features/auth/providers/github"
       },
+      microsoftEntra: {
+        configFn: import { config } from "@src/features/auth/providers/microsoftEntra",
+        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/microsoftEntra"
+      },
       // keycloak: {},
       email: {
         userSignupFields: import { userSignupFields } from "@src/features/auth/providers/email",

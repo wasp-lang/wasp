@@ -4,6 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.List (filter)
 import StrongPath (File', Path', Rel', reldir, relfile)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
@@ -56,5 +57,6 @@ genHelpers auth =
         tmplData =
           object
             [ "signInPath" .= OAuth.serverLoginUrl provider,
-              "displayName" .= OAuth.displayName provider
+              "displayName" .= OAuth.displayName provider,
+              "iconName" .= Data.List.filter (/= ' ') (OAuth.displayName provider)
             ]
