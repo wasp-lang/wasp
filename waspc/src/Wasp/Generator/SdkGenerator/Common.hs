@@ -4,7 +4,6 @@ module Wasp.Generator.SdkGenerator.Common
     sdkRootDirInGeneratedCodeDir,
     sdkRootDirInTemplatesDir,
     extSrcDirInSdkRootDir,
-    relDirToRelFileP,
     makeSdkImportPath,
     getOperationTypeName,
     clientTemplatesDirInSdkTemplatesDir,

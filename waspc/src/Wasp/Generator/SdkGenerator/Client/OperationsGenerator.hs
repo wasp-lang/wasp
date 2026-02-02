@@ -15,9 +15,8 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( getOperationTypeName,
     makeSdkImportPath,
-    relDirToRelFileP,
   )
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
+import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (getServerOperationsImportPath)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( mkTmplFd,
     mkTmplFdWithData,
