@@ -45,10 +45,8 @@ genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =
   sequence
     [ genClientEnvSchema spec,
-      genFileCopy [relfile|client/env.ts|]
+      return . mkTmplFd $ [relfile|client/env.ts|]
     ]
-  where
-    genFileCopy = return . mkTmplFd
 
 genServerEnv :: AppSpec -> Generator FileDraft
 genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData

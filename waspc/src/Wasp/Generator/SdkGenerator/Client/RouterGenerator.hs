@@ -22,17 +22,14 @@ genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genFileCopyInClientRouter [relfile|types.ts|],
-      genFileCopyInClientRouter [relfile|linkHelpers.ts|],
-      genFileCopyInClientRouter [relfile|Link.tsx|]
+      return . mkTmplFd $ [relfile|client/router/types.ts|],
+      return . mkTmplFd $ [relfile|client/router/linkHelpers.ts|],
+      return . mkTmplFd $ [relfile|client/router/Link.tsx|]
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $
-    mkTmplFdWithData
-      (clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|])
-      tmplData
+  return $ mkTmplFdWithData [relfile|client/router/index.ts|] tmplData
   where
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
@@ -55,10 +52,3 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson :: WebRouterPath.ParamSegment -> Aeson.Value
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
-
-clientRouterDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-clientRouterDirInSdkTemplatesDir = [reldir|client/router|]
-
-genFileCopyInClientRouter :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInClientRouter =
-  return . mkTmplFd . (clientRouterDirInSdkTemplatesDir </>)
