@@ -7,6 +7,7 @@ import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
 import CustomPostgresOption from './\_railway-custom-postgres-option.md'
 import CiCdMention from './\_ci-cd-mention.md'
+import CustomServerUrlOption from './\_custom-server-url-option.md'
 
 [Railway](https://railway.com/?utm_medium=integration&utm_source=docs&utm_campaign=wasp) is a cloud development platform that streamlines building and deploying applications with built-in support for databases and services. It offers an intuitive interface and automates infrastructure.
 
@@ -134,13 +135,7 @@ If you've added any [client-side environment variables](../../../project/env-var
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway launch my-wasp-app
 ```
 
-#### Custom Server URL
-
-If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
-
-```shell
-wasp deploy railway launch my-wasp-app --custom-server-url https://api.myapp.com
-```
+<CustomServerUrlOption provider="railway" command="launch" example="my-wasp-app" />
 
 ### The `deploy` command
 
@@ -185,13 +180,7 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy railway deploy <project-name>
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
 
-#### Custom Server URL
-
-If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
-
-```shell
-wasp deploy railway deploy my-wasp-app --custom-server-url https://api.myapp.com
-```
+<CustomServerUrlOption provider="railway" command="deploy" example="my-wasp-app" />
 
 ### The `setup` command
 

@@ -317,20 +317,30 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 
 **If you weren't using `REACT_APP_API_URL` environment variable during deployment, you can skip this step.**
 
-If you were using the `REACT_APP_API_URL` environment variable to specify a custom server URL during deployment:
+If you were using the `REACT_APP_API_URL` environment variable to specify a custom server URL during deployment, you now need to use the `--custom-server-url` CLI option instead:
+
+<Tabs>
+<TabItem value="before" label="Before">
 
 ```sh
-# Before (no longer supported)
-REACT_APP_API_URL=https://my-server.com wasp deploy fly deploy
+# For Fly
+REACT_APP_API_URL=https://my-server.com wasp deploy fly launch ...
+# For Railway
+REACT_APP_API_URL=https://my-server.com wasp deploy railway launch ...
 ```
 
-You now need to use the `--custom-server-url` CLI option instead:
+</TabItem>
+<TabItem value="after" label="After">
 
 ```sh
-# After
-wasp deploy fly deploy --custom-server-url https://my-server.com
-wasp deploy railway deploy myproject --custom-server-url https://my-server.com
+# For Fly
+wasp deploy fly launch --custom-server-url https://my-server.com ...
+# For Railway
+wasp deploy railway launch --custom-server-url https://my-server.com ...
 ```
+
+</TabItem>
+</Tabs>
 
 ### 9. Add `netlify.toml` if deploying to Netlify
 

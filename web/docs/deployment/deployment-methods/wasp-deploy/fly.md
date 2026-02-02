@@ -6,6 +6,7 @@ title-llm: Automated Deployment to Fly.io with Wasp CLI
 import { Required } from '@site/src/components/Tag';
 import LaunchCommandEnvVars from './\_launch-command-env-vars.md'
 import CiCdMention from './\_ci-cd-mention.md'
+import CustomServerUrlOption from './\_custom-server-url-option.md'
 
 [Fly.io](https://fly.io/) is a platform for running containerized apps and microservices on servers around the world. It makes deploying and managing your apps straightforward with minimal setup.
 
@@ -261,13 +262,7 @@ If you've added any [client-side environment variables](../../../project/env-var
 REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly launch my-wasp-app dfw
 ```
 
-#### Custom Server URL
-
-If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
-
-```shell
-wasp deploy fly launch my-wasp-app dfw --custom-server-url https://api.myapp.com
-```
+<CustomServerUrlOption provider="fly" command="launch" example="my-wasp-app dfw" />
 
 ### `setup`
 
@@ -339,13 +334,7 @@ REACT_APP_ANOTHER_VAR=somevalue wasp deploy fly deploy
 
 You must specify your client-side environment variables every time you redeploy with the above command [to ensure they are included in the build process](../../env-vars.md#client-env-vars).
 
-#### Custom Server URL
-
-If you want your client to connect to a different server URL (for example, if you're using a custom domain for your server), use the `--custom-server-url` option:
-
-```shell
-wasp deploy fly deploy --custom-server-url https://api.myapp.com
-```
+<CustomServerUrlOption provider="fly" command="deploy" example="" />
 
 ### `cmd`
 
