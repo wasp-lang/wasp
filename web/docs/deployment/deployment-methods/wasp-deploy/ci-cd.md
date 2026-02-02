@@ -49,7 +49,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: 0.19.0
+      WASP_VERSION: "{pinnedLatestWaspVersion}"
 
     steps:
       - uses: actions/checkout@v6
@@ -57,7 +57,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: "{minimumNodeJsVersion}"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
@@ -92,7 +92,7 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     env:
-      WASP_VERSION: 0.19.0
+      WASP_VERSION: "{pinnedLatestWaspVersion}"
       RAILWAY_PROJECT_NAME: my-project-name
       RAILWAY_PROJECT_ID: MY_PROJECT_ID
 
@@ -102,7 +102,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: "{minimumNodeJsVersion}"
 
       - name: Install Wasp
         # We pin the Wasp CLI version to avoid issues when a new Wasp version is released.
