@@ -12,7 +12,7 @@ module Wasp.Generator.NpmDependencies
     NpmDepsFromUser (..),
     buildWaspFrameworkNpmDeps,
     getDependencyOverridesPackageJsonEntry,
-    mergeWithUserOverrides,
+    mergeWaspAndUserDeps,
   )
 where
 
@@ -46,10 +46,11 @@ newtype NpmDepsFromWasp = NpmDepsFromWasp {fromWasp :: NpmDepsForPackage}
 newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
   deriving (Show, Eq, Generic, ToJSON, FromJSON)
 
--- | Merges Wasp dependencies with user dependencies, using user's versions for
--- packages listed in overriddenDepNames.
-mergeWithUserOverrides :: NpmDepsFromWasp -> NpmDepsFromUser -> NpmDepsForPackage
-mergeWithUserOverrides (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
+-- | Merges Wasp dependencies with user dependencies. When a package appears in
+-- both, the user's version takes precedence. User-only dependencies are not
+-- included here (they are added separately via the package.json overrides field).
+mergeWaspAndUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> NpmDepsForPackage
+mergeWaspAndUserDeps (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
   NpmDepsForPackage
     { dependencies = mergeDeps (dependencies waspPkg) allUserDependencies,
       devDependencies = mergeDeps (devDependencies waspPkg) allUserDependencies,
@@ -75,8 +76,8 @@ mergeWithUserOverrides (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
 buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> NpmDepsForFramework
 buildWaspFrameworkNpmDeps spec fromServer fromWebApp =
   NpmDepsForFramework
-    { npmDepsForServer = mergeWithUserOverrides fromServer userDeps,
-      npmDepsForWebApp = mergeWithUserOverrides fromWebApp userDeps
+    { npmDepsForServer = mergeWaspAndUserDeps fromServer userDeps,
+      npmDepsForWebApp = mergeWaspAndUserDeps fromWebApp userDeps
     }
   where
     userDeps = getUserNpmDepsForPackage spec

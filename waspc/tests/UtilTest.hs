@@ -4,6 +4,7 @@ import Control.DeepSeq
 import Control.Exception (evaluate)
 import Data.Aeson (object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Map as Map
 import Test.Hspec
 import Wasp.Util
 
@@ -221,3 +222,85 @@ spec_checkIfEnvValueIsTruthy = do
           ]
     checkIfEnvValueIsTruthy . fst <$> testCases
       `shouldBe` snd <$> testCases
+
+spec_zipMaps :: Spec
+spec_zipMaps = do
+  describe "zipMaps" $ do
+    let zipMapToTuples :: Map.Map String Int -> Map.Map String Int -> Map.Map String (Maybe Int, Maybe Int)
+        zipMapToTuples = zipMaps $ \_ ma mb -> Just (ma, mb)
+
+    it "returns empty map when both input maps are empty" $ do
+      let map1 = Map.empty
+          map2 = Map.empty
+      zipMapToTuples map1 map2
+        `shouldBe` Map.empty
+
+    it "processes keys only in first map" $ do
+      let map1 = Map.fromList [("a", 1), ("b", 2)]
+          map2 = Map.empty
+      zipMapToTuples map1 map2
+        `shouldBe` Map.fromList
+          [ ("a", (Just 1, Nothing)),
+            ("b", (Just 2, Nothing))
+          ]
+
+    it "processes keys only in second map" $ do
+      let map1 = Map.empty
+          map2 = Map.fromList [("x", 10), ("y", 20)]
+      zipMapToTuples map1 map2
+        `shouldBe` Map.fromList
+          [ ("x", (Nothing, Just 10)),
+            ("y", (Nothing, Just 20))
+          ]
+
+    it "processes keys present in both maps" $ do
+      let map1 = Map.fromList [("a", 1), ("b", 2)]
+          map2 = Map.fromList [("a", 10), ("b", 20)]
+      zipMapToTuples map1 map2
+        `shouldBe` Map.fromList
+          [ ("a", (Just 1, Just 10)),
+            ("b", (Just 2, Just 20))
+          ]
+
+    it "processes keys from both maps with partial overlap" $ do
+      let map1 = Map.fromList [("a", 1), ("b", 2)]
+          map2 = Map.fromList [("b", 20), ("c", 30)]
+      zipMapToTuples map1 map2
+        `shouldBe` Map.fromList
+          [ ("a", (Just 1, Nothing)),
+            ("b", (Just 2, Just 20)),
+            ("c", (Nothing, Just 30))
+          ]
+
+    it "filters out keys when function returns Nothing" $ do
+      let map1 = Map.fromList [("a", 1), ("b", 2), ("c", 3)]
+          map2 = Map.fromList [("a", 10), ("b", 20), ("d", 40)]
+
+          -- Only keep keys present in both maps
+          f :: String -> Maybe Int -> Maybe Int -> Maybe Int
+          f _ (Just x) (Just y) = Just (x + y)
+          f _ _ _ = Nothing
+
+      zipMaps f map1 map2
+        `shouldBe` Map.fromList [("a", 11), ("b", 22)]
+
+    it "can use the key in the combining function" $ do
+      let map1 = Map.fromList [(1, "a"), (2, "b")]
+          map2 = Map.fromList [(2, "c"), (3, "d")]
+
+          f :: Int -> Maybe String -> Maybe String -> Maybe Int
+          f k _ _ = Just k
+
+      zipMaps f map1 map2
+        `shouldBe` Map.fromList [(1, 1), (2, 2), (3, 3)]
+
+    it "can transform values from different types" $ do
+      let map1 = Map.fromList [("x", 5)]
+          map2 = Map.fromList [("x", "hello")]
+
+          f :: String -> Maybe Int -> Maybe String -> Maybe String
+          f _ (Just n) (Just s) = Just (replicate n (head s))
+          f _ _ _ = Nothing
+
+      zipMaps f map1 map2
+        `shouldBe` Map.fromList [("x", "hhhhh")]

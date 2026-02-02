@@ -118,7 +118,7 @@ genPackageJson spec waspDependencies =
             ]
       )
   where
-    webAppDeps = N.mergeWithUserOverrides waspDependencies $ N.getUserNpmDepsForPackage spec
+    webAppDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec

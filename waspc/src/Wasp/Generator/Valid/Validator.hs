@@ -51,7 +51,13 @@ withFileName fileName' innerValidator =
 -- | Runs the validator on a specific field of the input, adding the field name to the error path.
 inField :: (String, a -> b) -> Validator b -> Validator a
 inField (fieldName, fieldGetter) innerValidator =
-  mapErrors prependFieldName . innerValidator . fieldGetter
+  withFieldName fieldName . innerValidator . fieldGetter
+
+-- | Adds a field name to the error path for a validation result.
+-- Unlike 'inField', this doesn't extract a field - use this when you already
+-- have the value and just need to add context to errors.
+withFieldName :: String -> Validation -> Validation
+withFieldName fieldName = mapErrors prependFieldName
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
 

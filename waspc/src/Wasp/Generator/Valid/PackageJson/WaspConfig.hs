@@ -1,5 +1,6 @@
 module Wasp.Generator.Valid.PackageJson.WaspConfig (waspConfigValidator) where
 
+import Data.Foldable (traverse_)
 import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
@@ -47,10 +48,7 @@ overriddenDepsValidator spec =
 
 forEachDep :: V.Validator DependencySpecification -> V.Validator P.DependenciesMap
 forEachDep depValidator depMap =
-  -- Here we create a "two-pass" validator. First we examine the DependenciesMap
-  -- to create a validator for each dep. Then, we call those validators with the
-  -- same DependenciesMap to do the actual validation.
-  (V.all $ eachDepValidator <$> M.toList depMap) depMap
+  traverse_ validateDep (M.toList depMap)
   where
-    eachDepValidator dep@(pkgName, _) =
-      V.inField (pkgName, const dep) depValidator
+    validateDep dep@(pkgName, _) =
+      V.withFieldName pkgName $ depValidator dep
