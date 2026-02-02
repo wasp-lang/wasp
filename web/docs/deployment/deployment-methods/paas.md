@@ -66,7 +66,7 @@ While these are the general instructions on deploying the server anywhere, we al
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `build/` directory in the `.wasp/out/web-app/`.
+The command above will build the web client and put it in the `.wasp/out/web-app/build` directory.
 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
 
@@ -541,7 +541,7 @@ Here’s an example configuration file to help you get started. This example wor
           id: setup-node
           uses: actions/setup-node@v5
           with:
-            node-version: '22'
+            node-version: "{minimumNodeJsVersion}"
 
         - name: Install Wasp
           run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
@@ -641,7 +641,7 @@ Here’s an example configuration file to help you get started. This example wor
           id: setup-node
           uses: actions/setup-node@v5
           with:
-            node-version: '22'
+            node-version: "{minimumNodeJsVersion}"
 
         - name: Install Wasp
           run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version

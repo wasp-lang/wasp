@@ -5,6 +5,7 @@ import Control.Exception (evaluate)
 import Data.Aeson (object, toJSON, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Map as Map
+import qualified Data.Time as T
 import Test.Hspec
 import Wasp.Util
 
@@ -304,3 +305,28 @@ spec_zipMaps = do
 
       zipMaps f map1 map2
         `shouldBe` Map.fromList [("x", "hhhhh")]
+
+spec_isOlderThanNHours :: Spec
+spec_isOlderThanNHours = do
+  describe "isOlderThanNHours" $ do
+    it "returns True when time is older than N hours" $ do
+      _3h0m1s_ago <- secondsFromNow (negate $ 3 * 3600 + 1)
+      isOlderThanNHours 3 _3h0m1s_ago `shouldReturn` True
+
+    it "returns False when time is not older than N hours" $ do
+      _2h59m59s_ago <- secondsFromNow (negate $ 2 * 3600 + 59 * 60 + 59)
+      isOlderThanNHours 3 _2h59m59s_ago `shouldReturn` False
+
+    it "returns False when time was exactly N hours ago" $ do
+      threeHoursAgo <- secondsFromNow (negate $ 2 * 3600 + 59 * 60 + 59)
+      isOlderThanNHours 3 threeHoursAgo `shouldReturn` False
+
+    it "returns True for past time when N is 0" $ do
+      oneSecondAgo <- secondsFromNow (negate 1)
+      isOlderThanNHours 0 oneSecondAgo `shouldReturn` True
+
+    it "returns False for future time when N is 0" $ do
+      oneSecondFromNow <- secondsFromNow 1
+      isOlderThanNHours 0 oneSecondFromNow `shouldReturn` False
+  where
+    secondsFromNow nSeconds = T.addUTCTime nSeconds <$> T.getCurrentTime

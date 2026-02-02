@@ -199,20 +199,22 @@ trim :: String -> String
 trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
 wrapString :: Int -> String -> String
-wrapString maxLength = intercalate "\n" . map unwords . groupWordsIntoLines . words
+wrapString lineLength = intercalate "\n" . map unwords . groupWordsIntoLines . words
   where
     groupWordsIntoLines :: [String] -> [[String]]
     groupWordsIntoLines [] = []
-    groupWordsIntoLines ws =
-      let (line, rest) = takeLine maxLength ws
-       in line : groupWordsIntoLines rest
+    groupWordsIntoLines (firstWord : restWords) =
+      let remainingLength = lineLength - length firstWord - 1
+          (moreWords, leftover) = takeWordsUpToLength remainingLength restWords
+          line = firstWord : moreWords
+       in line : groupWordsIntoLines leftover
 
-    takeLine :: Int -> [String] -> ([String], [String])
-    takeLine _ [] = ([], [])
-    takeLine remainingLength (w : ws)
-      | length w > remainingLength && remainingLength /= maxLength = ([], w : ws)
+    takeWordsUpToLength :: Int -> [String] -> ([String], [String])
+    takeWordsUpToLength _ [] = ([], [])
+    takeWordsUpToLength remainingLength (w : ws)
+      | length w > remainingLength = ([], w : ws)
       | otherwise =
-          let (taken, leftover) = takeLine (remainingLength - length w - 1) ws
+          let (taken, leftover) = takeWordsUpToLength (remainingLength - length w - 1) ws
            in (w : taken, leftover)
 
 -- | It will call the given function for each key in both maps, with `Maybe`s
