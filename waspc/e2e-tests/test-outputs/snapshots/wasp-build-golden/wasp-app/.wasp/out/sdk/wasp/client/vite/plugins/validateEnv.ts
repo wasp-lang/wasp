@@ -14,8 +14,8 @@ export function validateEnv(): Plugin {
   let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null
   return {
     name: 'wasp:validate-env',
-    configResolved: (config) => {
-      const env = loadWaspEnvClient(config.root, config.envPrefix!)
+    async configResolved(config) {
+      const env = await loadWaspEnvClient(config.root, config.envPrefix!)
       validationResult = getValidatedEnvOrError(env, clientEnvSchema)
 
       // Exit if we are in build mode, because we can't show the error in the browser.
