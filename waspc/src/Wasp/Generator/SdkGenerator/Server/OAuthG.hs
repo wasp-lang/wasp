@@ -25,6 +25,8 @@ import Wasp.Generator.AuthProviders.OAuth
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.NpmDependencies (NpmDepsForPackage)
+import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Util ((<++>))
@@ -93,9 +95,12 @@ genOAuthConfig provider = return $ C.mkTmplFdWithData tmplFile tmplData
 
     providerId = OAuth.providerId provider
 
-depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
+depsRequiredByOAuth :: AppSpec -> NpmDepsForPackage
 depsRequiredByOAuth spec =
-  [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
+  N.empty
+    { N.dependencies =
+        [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
+    }
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 

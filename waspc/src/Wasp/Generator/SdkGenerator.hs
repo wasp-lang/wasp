@@ -201,16 +201,29 @@ genPackageJson spec = do
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
+  {-
+    Where to add a new dependency?
+
+    - `devDependencies`: if it's only required at building time. This mostly
+      means `@types/*` packages, and the build tools themselves (e.g TypeScript
+      or Vite).
+
+    - `peerDependencies`: if it's required by the code at runtime **and** needs
+      a single, common initialized instance between the SDK and the app using
+      the SDK. For example, React needs a single root instance, and React Query
+      has a single QueryClient to efficiently cache everything.
+
+    - `dependencies`: in all other cases. This mostly means packages required at
+      runtime that can have multiple instances without issues, or that are used
+      exclusively inside the SDK. For example, `react-router-form` or `axios`.
+  -}
   N.NpmDepsForPackage
     { N.dependencies =
         Npm.Dependency.fromList
-          [ ("@prisma/client", show prismaVersion),
-            ("prisma", show prismaVersion),
-            ("axios", show axiosVersion),
+          [ ("axios", show axiosVersion),
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
-            ("react", show reactVersion),
-            ("react-router", show reactRouterVersion),
+            ("prisma", show prismaVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
           ]
@@ -220,8 +233,6 @@ npmDepsForSdk spec =
           -- Installing it inside .wasp/out/server/node_modules would also
           -- install prisma/client in the same folder, which would cause our
           -- runtime to load the wrong (uninitialized prisma/client).
-          -- TODO(filip): Find a better way to handle duplicate
-          -- dependencies: https://github.com/wasp-lang/wasp/issues/1640
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
@@ -237,7 +248,10 @@ npmDepsForSdk spec =
           ],
       N.peerDependencies =
         Npm.Dependency.fromList
-          [ ("@tanstack/react-query", reactQueryVersion)
+          [ ("@prisma/client", show prismaVersion),
+            ("@tanstack/react-query", reactQueryVersion),
+            ("react-router", show reactRouterVersion),
+            ("react", show reactVersion)
           ]
     }
   where

@@ -11,16 +11,18 @@ module Wasp.Generator.NpmDependencies
     NpmDepsFromWasp (..),
     NpmDepsFromUser (..),
     buildWaspFrameworkNpmDeps,
-    getDependencyOverridesPackageJsonEntry,
     mergeWaspAndUserDeps,
+    mergeDepsWith,
+    empty,
   )
 where
 
-import Data.Aeson
+import Control.Applicative ((<|>))
+import Data.Aeson (FromJSON, ToJSON)
 import Data.List (intercalate, sort)
 import qualified Data.Map as Map
 import Data.Maybe (isJust)
-import GHC.Generics
+import GHC.Generics (Generic)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
@@ -40,6 +42,9 @@ data NpmDepsForPackage = NpmDepsForPackage
   }
   deriving (Show, Generic, ToJSON, FromJSON)
 
+empty :: NpmDepsForPackage
+empty = NpmDepsForPackage [] [] []
+
 newtype NpmDepsFromWasp = NpmDepsFromWasp {fromWasp :: NpmDepsForPackage}
   deriving (Show)
 
@@ -51,27 +56,40 @@ newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
 -- included here (they are added separately via the package.json overrides field).
 mergeWaspAndUserDeps :: NpmDepsFromWasp -> NpmDepsFromUser -> NpmDepsForPackage
 mergeWaspAndUserDeps (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
+  mergeDepsWith merge waspPkg userPkg
+  where
+    -- If it's in both, prefer `userDep`. Otherwise, take `waspDep`. (We don't
+    -- to want add a dependency that is only in userDeps here, only override
+    -- existing ones.)
+    merge _pkgName waspDep userDep
+      | isJust waspDep && isJust userDep = userDep
+      | otherwise = waspDep
+
+mergeDepsWith :: (String -> Maybe String -> Maybe String -> Maybe String) -> NpmDepsForPackage -> NpmDepsForPackage -> NpmDepsForPackage
+mergeDepsWith mergeFunc a b =
   NpmDepsForPackage
-    { dependencies = mergeDeps (dependencies waspPkg) allUserDependencies,
-      devDependencies = mergeDeps (devDependencies waspPkg) allUserDependencies,
-      peerDependencies = []
+    { dependencies = mergeOn dependencies,
+      devDependencies = mergeOn devDependencies,
+      peerDependencies = mergeOn peerDependencies
     }
   where
-    allUserDependencies = dependencies userPkg ++ devDependencies userPkg
+    mergeOn field = fromMap $ zipMaps mergeFunc (toMap $ field a) (toMap $ field b)
 
-    mergeDeps :: [D.Dependency] -> [D.Dependency] -> [D.Dependency]
-    mergeDeps waspDeps userDeps =
-      D.fromList $ Map.toList $ zipMaps (const merge) waspMap userMap
-      where
-        -- If it's in both, prefer `userDep`. Otherwise, take `waspDep`. (We
-        -- don't to want add a dependency that is only in userDeps here, only
-        -- override existing ones.)
-        merge waspDep userDep
-          | isJust waspDep && isJust userDep = userDep
-          | otherwise = waspDep
+    toMap = Map.fromList . map D.toPair
+    fromMap = D.fromList . Map.toList
 
-        waspMap = Map.fromList $ D.toPair <$> waspDeps
-        userMap = Map.fromList $ D.toPair <$> userDeps
+newtype ErrorOnIncompatible = ErrorOnIncompatible {getNpmDepsForPackage :: NpmDepsForPackage}
+
+instance Semigroup ErrorOnIncompatible where
+  a <> b = ErrorOnIncompatible $ mergeDepsWith mergeFunc (getNpmDepsForPackage a) (getNpmDepsForPackage b)
+    where
+      mergeFunc pkgName (Just waspVersion) (Just userVersion)
+        | waspVersion /= userVersion =
+            error $ "Incompatible versions for package " ++ pkgName ++ ": " ++ waspVersion ++ " vs " ++ userVersion ++ "."
+      mergeFunc _ x y = x <|> y
+
+instance Monoid ErrorOnIncompatible where
+  mempty = ErrorOnIncompatible empty
 
 buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> NpmDepsForFramework
 buildWaspFrameworkNpmDeps spec fromServer fromWebApp =
@@ -108,9 +126,6 @@ getDevDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "devD
 
 getPeerDependenciesPackageJsonEntry :: NpmDepsForPackage -> String
 getPeerDependenciesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "peerDependencies" . peerDependencies
-
-getDependencyOverridesPackageJsonEntry :: [D.Dependency] -> String
-getDependencyOverridesPackageJsonEntry = dependenciesToPackageJsonEntryWithKey "overrides"
 
 dependenciesToPackageJsonEntryWithKey :: String -> [D.Dependency] -> String
 dependenciesToPackageJsonEntryWithKey key deps =
