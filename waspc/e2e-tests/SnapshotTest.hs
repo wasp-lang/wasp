@@ -5,7 +5,7 @@
 module SnapshotTest
   ( SnapshotTest,
     makeSnapshotTest,
-    runSnapshotTest,
+    testTreeFromSnapshotTest,
   )
 where
 
@@ -21,7 +21,6 @@ import FileSystem
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
-    SnapshotsDir,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
@@ -48,25 +47,48 @@ makeSnapshotTest name shellCommandBuilders =
       shellCommandBuilder = sequence shellCommandBuilders
     }
 
--- | Runs a 'SnapshotTest' by executing snapshot test's shell commands and then
---  comparing the generated files to the previous "golden" (expected) version of those files.
-runSnapshotTest :: SnapshotTest -> IO TestTree
-runSnapshotTest snapshotTest = getSnapshotsDir >>= executeSnapshotTestWorkflow
-  where
-    executeSnapshotTestWorkflow :: Path' Abs (Dir SnapshotsDir) -> IO TestTree
-    executeSnapshotTestWorkflow snapshotsDir = do
-      setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
-      executeSnapshotTestCommand snapshotTest currentSnapshotDir
-      generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
-      currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
-      return $
-        testGroup
-          snapshotTest.name
-          (defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFilesForContentCheck)
-      where
-        goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Golden
-        currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Current
-        currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
+-- | Prepares a 'SnapshotTest' (executing shell commands and generating snapshots),
+--  and then creates a test tree for comparing the generated files to the "golden" (expected) versions.
+testTreeFromSnapshotTest :: SnapshotTest -> IO TestTree
+testTreeFromSnapshotTest = fmap createSnapshotTestTree . prepareSnapshotTestData
+
+-- | Data needed to create a snapshot test tree.
+data SnapshotTestData = SnapshotTestData
+  { name :: String,
+    currentSnapshotDir :: Path' Abs (Dir SnapshotDir),
+    goldenSnapshotDir :: Path' Abs (Dir SnapshotDir),
+    currentSnapshotFilesForContentCheck :: [Path' Abs (File SnapshotFile)]
+  }
+
+prepareSnapshotTestData :: SnapshotTest -> IO SnapshotTestData
+prepareSnapshotTestData snapshotTest = do
+  snapshotsDir <- getSnapshotsDir
+  let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Golden
+      currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Current
+      currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
+
+  setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
+  executeSnapshotTestCommand snapshotTest currentSnapshotDir
+  generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
+  currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
+
+  return
+    SnapshotTestData
+      { name = snapshotTest.name,
+        currentSnapshotDir,
+        goldenSnapshotDir,
+        currentSnapshotFilesForContentCheck
+      }
+
+createSnapshotTestTree :: SnapshotTestData -> TestTree
+createSnapshotTestTree snapshotTestData =
+  testGroup
+    snapshotTestData.name
+    ( defineSnapshotTestCases
+        snapshotTestData.currentSnapshotDir
+        snapshotTestData.goldenSnapshotDir
+        snapshotTestData.currentSnapshotFilesForContentCheck
+    )
 
 -- | Sets up the snapshot test environment by:
 -- 1. Removing any existing files in the current snapshot directory from a prior test run.
@@ -191,7 +213,9 @@ defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFile
 
     mapCurrentToGoldenSnapshotFile :: Path' Abs (File SnapshotFile) -> Path' Abs (File SnapshotFile)
     mapCurrentToGoldenSnapshotFile currentSnapshotFile =
-      goldenSnapshotDir </> fromJust (SP.parseRelFile $ makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile))
+      goldenSnapshotDir </> fromJust (SP.parseRelFile relSnapshotFilePath)
+      where
+        relSnapshotFilePath = makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile)
 
 isTgzFile :: FilePath -> Bool
 isTgzFile = (".tgz" `isExtensionOf`)
