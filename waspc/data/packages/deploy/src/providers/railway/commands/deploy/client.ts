@@ -19,11 +19,10 @@ export async function deployClient({
 }: DeploymentInstructions<DeployCmdOptions>): Promise<void> {
   waspSays("Deploying your client now...");
 
-  const serverServiceUrl = await generateServiceUrl(
-    serverServiceName,
-    serverAppPort,
-    options,
-  );
+  const serverServiceUrl =
+    options.customServerUrl ??
+    (await generateServiceUrl(serverServiceName, serverAppPort, options));
+
   const clientBuildArtefactsDir = await buildClient(serverServiceUrl, options);
 
   const deploymentStatus = await deployServiceWithStreamingLogs(

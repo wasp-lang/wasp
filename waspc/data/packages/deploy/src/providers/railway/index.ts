@@ -33,6 +33,12 @@ class RailwayCommand extends Command {
       [],
     );
   }
+  addCustomServerUrlOption(): this {
+    return this.option(
+      "--custom-server-url <url>",
+      "URL of the server that the client will connect to",
+    );
+  }
 }
 
 export const railwaySetupCommand = makeRailwaySetupCommand();
@@ -128,6 +134,7 @@ function makeRailwayDeployCommand(): Command {
       "--existing-project-id [projectId]",
       "use existing project for deployment",
     )
+    .addCustomServerUrlOption()
     .action(deployFn);
 }
 
@@ -148,5 +155,6 @@ function makeRailwayLaunchCommand(): Command {
       "--db-image <dbImage>",
       "custom Docker image for the PostgreSQL database",
     )
+    .addCustomServerUrlOption()
     .action(launchFn);
 }

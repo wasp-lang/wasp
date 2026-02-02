@@ -4,7 +4,7 @@ import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import Data.Aeson.Types (Pair)
 import Data.Maybe (fromJust)
-import StrongPath (Dir, File', Path', Rel, relDirToPosix, reldir, relfile, (</>))
+import StrongPath (relDirToPosix, relfile)
 import Wasp.AppSpec (AppSpec (..))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -20,8 +20,7 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (serverOperationsDirInSdkRootDir)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreDir,
-    mkTmplFd,
+  ( mkTmplFd,
     mkTmplFdWithData,
   )
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
@@ -29,20 +28,18 @@ import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOpera
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)
 import Wasp.Util ((<++>))
 
-data ClientOpsTemplatesDir
-
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
     [ -- Not migrated to TS yet
-      genFileCopyInClientOps [relfile|internal/resources.js|],
-      genFileCopyInClientOps [relfile|internal/index.ts|],
+      return . mkTmplFd $ [relfile|client/operations/internal/resources.js|],
+      return . mkTmplFd $ [relfile|client/operations/internal/index.ts|],
       -- Not migrated to TS yet
-      genFileCopyInClientOps [relfile|internal/updateHandlersMap.js|],
-      genFileCopyInClientOps [relfile|rpc.ts|],
-      genFileCopyInClientOps [relfile|hooks.ts|],
-      genFileCopyInClientOps [relfile|index.ts|],
-      genFileCopyInClientOps [relfile|queryClient.ts|]
+      return . mkTmplFd $ [relfile|client/operations/internal/updateHandlersMap.js|],
+      return . mkTmplFd $ [relfile|client/operations/rpc.ts|],
+      return . mkTmplFd $ [relfile|client/operations/hooks.ts|],
+      return . mkTmplFd $ [relfile|client/operations/index.ts|],
+      return . mkTmplFd $ [relfile|client/operations/queryClient.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec
@@ -50,20 +47,20 @@ genOperations spec =
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
   sequence
-    [ genFileCopyInClientOps [relfile|queries/core.ts|],
+    [ return . mkTmplFd $ [relfile|client/operations/queries/core.ts|],
       genQueriesIndex spec
     ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
   sequence
-    [ genFileCopyInClientOps [relfile|actions/core.ts|],
+    [ return . mkTmplFd $ [relfile|client/operations/actions/core.ts|],
       genActionsIndex spec
     ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
-  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesUserCoreDir </> [relfile|queries/index.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|client/operations/queries/index.ts|] tmplData
   where
     tmplData =
       object
@@ -72,7 +69,7 @@ genQueriesIndex spec =
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
-  return $ mkTmplFdWithData (clientOpsDirInSdkTemplatesUserCoreDir </> [relfile|actions/index.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|client/operations/actions/index.ts|] tmplData
   where
     tmplData =
       object
@@ -134,10 +131,3 @@ getOperationTypeData operation = tmplData
           fromJust $
             relDirToPosix $
               serverOperationsDirInSdkRootDir operation
-
-clientOpsDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) (Dir ClientOpsTemplatesDir)
-clientOpsDirInSdkTemplatesUserCoreDir = [reldir|client/operations|]
-
-genFileCopyInClientOps :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
-genFileCopyInClientOps =
-  return . mkTmplFd . (clientOpsDirInSdkTemplatesUserCoreDir </>)
