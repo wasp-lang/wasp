@@ -31,6 +31,7 @@ data Style
   | Magenta
   | Cyan
   | White
+  | Grey
   | BlackBg
   | RedBg
   | GreenBg
@@ -62,6 +63,7 @@ getAnsiCodeFor Blue = "[34m"
 getAnsiCodeFor Magenta = "[35m"
 getAnsiCodeFor Cyan = "[36m"
 getAnsiCodeFor White = "[37m"
+getAnsiCodeFor Grey = "[90m"
 getAnsiCodeFor BlackBg = "[40m"
 getAnsiCodeFor RedBg = "[41m"
 getAnsiCodeFor GreenBg = "[42m"

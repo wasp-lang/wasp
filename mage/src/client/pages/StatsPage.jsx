@@ -1,4 +1,3 @@
-import ParentSize from "@visx/responsive/lib/components/ParentSize";
 import { useMemo, useState } from "react";
 import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
 import { Link } from "react-router-dom";
@@ -126,16 +125,7 @@ export function Stats() {
               </div>
             </div>
             <div style={{ height: 300, width: "100%" }} className="mb-4">
-              <ParentSize>
-                {({ width, height }) => (
-                  <BarChart
-                    chartType={chartType.value}
-                    data={barChartData}
-                    width={width}
-                    height={height}
-                  />
-                )}
-              </ParentSize>
+              <BarChart data={barChartData} />
             </div>
 
             <div className="flex items-center justify-between py-2">

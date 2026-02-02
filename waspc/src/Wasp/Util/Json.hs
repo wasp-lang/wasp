@@ -1,13 +1,15 @@
 module Wasp.Util.Json
   ( parseJsonWithComments,
     updateJsonFile,
+    readJsonFile,
+    writeJsonFile,
   )
 where
 
 import Control.Monad.Except (ExceptT (..), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (FromJSON, Value (..), eitherDecode, encode)
-import StrongPath (Abs, File, Path')
+import Data.Aeson (FromJSON, ToJSON, Value (..), decodeFileStrict, eitherDecode, encodeFile)
+import StrongPath (Abs, File, Path', fromAbsFile)
 import System.Exit (ExitCode (..))
 import qualified System.Process as P
 import Wasp.Util.Aeson (decodeFromString)
@@ -28,7 +30,10 @@ parseJsonWithComments jsonStr = do
 updateJsonFile :: (Value -> Value) -> Path' Abs (File a) -> IO (Either String ())
 updateJsonFile updateFn jsonFilePath = runExceptT $ do
   jsonContent <- ExceptT $ eitherDecode <$> IOUtil.readFileBytes jsonFilePath
-  liftIO $ writeJsonValue jsonFilePath $ updateFn jsonContent
+  liftIO $ writeJsonFile jsonFilePath $ updateFn jsonContent
 
-writeJsonValue :: Path' Abs (File f) -> Value -> IO ()
-writeJsonValue file = IOUtil.writeFileBytes file . encode
+readJsonFile :: (FromJSON a) => Path' Abs (File f) -> IO (Maybe a)
+readJsonFile = decodeFileStrict . fromAbsFile
+
+writeJsonFile :: (ToJSON a) => Path' Abs (File f) -> a -> IO ()
+writeJsonFile = encodeFile . fromAbsFile
