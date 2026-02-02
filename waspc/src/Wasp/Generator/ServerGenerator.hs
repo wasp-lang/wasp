@@ -44,7 +44,8 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
-  ( expressTypesVersion,
+  ( dotenvVersion,
+    expressTypesVersion,
     expressVersionStr,
     superjsonVersion,
     typescriptVersion,
@@ -168,7 +169,7 @@ npmDepsFromWasp spec =
               ("cors", "^2.8.5"),
               ("express", expressVersionStr),
               ("morgan", "~1.10.0"),
-              ("dotenv", "^16.0.2"),
+              ("dotenv", show dotenvVersion),
               ("helmet", "^6.0.0"),
               ("superjson", show superjsonVersion)
             ]
