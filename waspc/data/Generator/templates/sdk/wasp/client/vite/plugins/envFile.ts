@@ -35,8 +35,8 @@ export async function loadWaspEnvClient(rootDir: string, envPrefix: NonNullable<
       }
     }
 
-    // Check if there are actual env variables starting with the prefix
-    // these are typically provided inline and should be prioritized.
+    // Make sure that inline env variables are prioritized over env file variables.
+    // Follows the logic Vite uses for env variables.
     for (const key in process.env) {
       if (envPrefixNormalized.some(prefix => key.startsWith(prefix))) {
         env[key] = process.env[key] as string
