@@ -118,9 +118,11 @@ async function deployClient(
   cd(getClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir));
   copyProjectClientTomlLocally(deploymentInstructions.tomlFilePaths);
 
-  const serverFlyAppUrl = getFlyAppUrl(deploymentInstructions.serverFlyAppName);
+  const serverUrl =
+    deploymentInstructions.cmdOptions.customServerUrl ??
+    getFlyAppUrl(deploymentInstructions.serverFlyAppName);
 
-  await buildClient(serverFlyAppUrl, deploymentInstructions.cmdOptions);
+  await buildClient(serverUrl, deploymentInstructions.cmdOptions);
 
   // Creates the necessary Dockerfile for deploying static websites to Fly.io.
   // Adds dummy .dockerignore to supress CLI question.
