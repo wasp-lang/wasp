@@ -1,3 +1,4 @@
+v22.12.0
 # IMPORTANT: This should be set to the lowest Node version Wasp claims to
 # support. The CI reads this file when running tests.
 # If you change Wasp's lowest official supported Node version here, you must
@@ -6,4 +7,3 @@
 #   - The docs: /web/docs/introduction/getting-started.md -> The "Requirements" section.
 #   - The docs plugin: /web/src/remark/search-and-replace.ts
 #   - CI files that don't read this file (search for the version string and setup-node).
-v22.12.0
