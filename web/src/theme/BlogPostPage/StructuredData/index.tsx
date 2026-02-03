@@ -1,6 +1,6 @@
-import React, {type ReactNode} from 'react';
-import Head from '@docusaurus/Head';
-import {useBlogPostStructuredData} from '@docusaurus/plugin-content-blog/client';
+import Head from "@docusaurus/Head";
+import { useBlogPostStructuredData } from "@docusaurus/plugin-content-blog/client";
+import { type ReactNode } from "react";
 
 export default function BlogPostStructuredData(): ReactNode {
   const structuredData = useBlogPostStructuredData();
@@ -8,16 +8,16 @@ export default function BlogPostStructuredData(): ReactNode {
   const structuredDataWithPublisher = {
     ...structuredData,
     mainEntityOfPage: {
-      '@type': 'WebPage',
-      '@id': structuredData.mainEntityOfPage,
+      "@type": "WebPage",
+      "@id": structuredData.mainEntityOfPage,
     },
     publisher: {
-      '@type': 'Organization',
-      name: 'Wasp',
-      url: 'https://wasp.sh',
+      "@type": "Organization",
+      name: "Wasp",
+      url: "https://wasp.sh",
       logo: {
-        '@type': 'ImageObject',
-        url: 'https://wasp.sh/img/wasp-logo.png',
+        "@type": "ImageObject",
+        url: "https://wasp.sh/img/wasp-logo.png",
       },
     },
   };
