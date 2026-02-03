@@ -453,6 +453,7 @@ library
     Wasp.SemanticVersion.Range.Parser
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
+    Wasp.SemanticVersion.Parsers
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson

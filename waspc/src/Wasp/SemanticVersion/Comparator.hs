@@ -59,14 +59,14 @@ instance HasVersionBounds Comparator where
         -- <=1.2 means <1.3.0
         -- <=1 means <2.0.0
         case pv of
-          PVFull m n p -> (Inf, Inclusive (Version m n p))
+          Full m n p -> (Inf, Inclusive (Version m n p))
           _ -> (Inf, toUpperBound pv)
       GreaterThan ->
         -- >1.2.3 means >1.2.3
         -- >1.2 means >=1.3.0
         -- >1 means >=2.0.0
         case pv of
-          PVFull m n p -> (Exclusive (Version m n p), Inf)
+          Full m n p -> (Exclusive (Version m n p), Inf)
           _ -> case toUpperBound pv of
             Exclusive v -> (Inclusive v, Inf)
             Inclusive v -> (Exclusive v, Inf)
@@ -85,7 +85,7 @@ instance HasVersionBounds Comparator where
   versionBounds (HyphenRange lower upper) =
     let lowerBound = Inclusive (toLowerBound lower)
         upperBound = case upper of
-          PVFull m n p -> Inclusive (Version m n p)
+          Full m n p -> Inclusive (Version m n p)
           _ -> toUpperBound upper
      in (lowerBound, upperBound)
 

@@ -13,9 +13,8 @@ import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import Numeric.Natural (Natural)
 import Text.Parsec (ParseError, Parsec, char, parse, sepBy)
-import Text.Parsec.Language (emptyDef)
-import Text.Parsec.Token (makeTokenParser, natural)
 import Text.Printf (printf)
+import Wasp.SemanticVersion.Parsers (noLeadingZeroNaturalP)
 import Wasp.Util.TH (quasiQuoterFromParser)
 
 data Version = Version
@@ -34,15 +33,12 @@ parseVersion = parse versionParser ""
 
 -- | A 'Version' number must take the form X.Y.Z where:
 -- - X, Y, and Z are non-negative integers,
--- - X, Y, and Z must not contain leading zeroes (not implemented).
+-- - X, Y, and Z must not contain leading zeroes.
 versionParser :: Parsec String () Version
 versionParser = do
-  naturalP `sepBy` char '.' >>= \case
+  noLeadingZeroNaturalP `sepBy` char '.' >>= \case
     [a, b, c] -> return $ Version a b c
     _invalidFormat -> fail "Invalid version format"
-  where
-    naturalP = fromIntegral <$> natural lexer
-    lexer = makeTokenParser emptyDef
 
 v :: TH.QuasiQuoter
 v = quasiQuoterFromParser parseVersion

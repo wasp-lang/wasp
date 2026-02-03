@@ -13,11 +13,15 @@ module Wasp.SemanticVersion.PartialVersion
   )
 where
 
+import Control.Applicative ((<|>))
+import Control.Monad (void)
+import Data.Maybe (catMaybes)
 import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import Numeric.Natural (Natural)
-import Text.Parsec (ParseError, Parsec, char, choice, digit, many1, oneOf, optional, parse, try)
+import Text.Parsec (ParseError, Parsec, char, oneOf, optionMaybe, parse, try)
 import Text.Printf (printf)
+import Wasp.SemanticVersion.Parsers (noLeadingZeroNaturalP)
 import Wasp.SemanticVersion.Version (Version (..))
 import Wasp.SemanticVersion.VersionBound (VersionBound (..))
 import Wasp.Util.TH (quasiQuoterFromParser)
@@ -27,68 +31,47 @@ import Wasp.Util.TH (quasiQuoterFromParser)
 -- 'PartialVersion' can represent partial/wildcard versions as they appear in ranges.
 data PartialVersion
   = -- | Major, minor and patch (1.2.3).
-    PVFull !Natural !Natural !Natural
+    Full !Natural !Natural !Natural
   | -- | Major and minor only (1.2 meaning 1.2.x).
-    PVMajorMinor !Natural !Natural
+    MajorMinor !Natural !Natural
   | -- | Major only (1 meaning 1.x.x).
-    PVMajorOnly !Natural
+    Major !Natural
   | -- | No version value (*, x or X, meaning x.x.x).
-    PVAny
+    Any
   deriving (Eq, TH.Lift)
 
 fromVersion :: Version -> PartialVersion
-fromVersion (Version m n p) = PVFull m n p
+fromVersion (Version m n p) = Full m n p
 
 instance Show PartialVersion where
-  show (PVFull m n p) = printf "%d.%d.%d" m n p
-  show (PVMajorMinor m n) = printf "%d.%d" m n
-  show (PVMajorOnly m) = printf "%d" m
-  show PVAny = "*"
+  show (Full m n p) = printf "%d.%d.%d" m n p
+  show (MajorMinor m n) = printf "%d.%d" m n
+  show (Major m) = printf "%d" m
+  show Any = "*"
 
 parsePartialVersion :: String -> Either ParseError PartialVersion
 parsePartialVersion = parse partialVersionParser ""
 
--- | Parser for PartialVersion. Does NOT consume trailing whitespace.
 partialVersionParser :: Parsec String () PartialVersion
-partialVersionParser = choice [try fullParser, try majorMinorParser, try majorOnlyParser, anyParser]
+partialVersionParser = do
+  first <- componentP
+  maybeSecond <- optionMaybe (try (char '.' *> componentP))
+  maybeThird <- optionMaybe (try (char '.' *> componentP))
+  let components = first : catMaybes [maybeSecond, maybeThird]
+  case components of
+    [Nothing] -> pure Any -- "*" / "x" / "X"
+    [Just m] -> pure (Major m) -- "1"
+    [Just m, Nothing] -> pure (Major m) -- "1.x"
+    [Just m, Nothing, Nothing] -> pure (Major m) -- "1.x.x"
+    [Just m, Just n] -> pure (MajorMinor m n) -- "1.2"
+    [Just m, Just n, Nothing] -> pure (MajorMinor m n) -- "1.2.x"
+    [Just m, Just n, Just p] -> pure (Full m n p) -- "1.2.3"
+    [Nothing, _, _] -> fail "wildcard must be the only component"
+    [_, Nothing, Just _] -> fail "patch cannot be specified if minor is wildcard"
+    _ -> fail "invalid version form"
   where
-    fullParser = do
-      m <- naturalP
-      _ <- char '.'
-      n <- naturalP
-      _ <- char '.'
-      p <- naturalP
-      return $ PVFull m n p
-
-    majorMinorParser = do
-      m <- naturalP
-      _ <- char '.'
-      -- Could be a number or x/*
-      n <-
-        choice
-          [ try (xParser >> return Nothing),
-            Just <$> naturalP
-          ]
-      -- Check for optional trailing .x or .*
-      optional (try $ char '.' >> xParser)
-      case n of
-        Nothing -> return $ PVMajorOnly m -- 1.x or 1.*
-        Just mnr -> return $ PVMajorMinor m mnr
-
-    majorOnlyParser = do
-      m <- naturalP
-      -- Check for optional trailing .x.x or .*.* patterns
-      optional (try $ char '.' >> xParser >> optional (try $ char '.' >> xParser))
-      return $ PVMajorOnly m
-
-    anyParser = do
-      _ <- xParser
-      return PVAny
-
-    xParser = oneOf "xX*" >> return ()
-
-    naturalP :: Parsec String () Natural
-    naturalP = read <$> many1 digit
+    componentP = (Nothing <$ wildcardP) <|> (Just <$> noLeadingZeroNaturalP)
+    wildcardP = void (oneOf "xX*")
 
 pv :: TH.QuasiQuoter
 pv = quasiQuoterFromParser parsePartialVersion
@@ -96,43 +79,35 @@ pv = quasiQuoterFromParser parsePartialVersion
 -- | Converts a 'PartialVersion' to its lower bound 'Version'.
 -- For partial versions, missing components default to 0.
 toLowerBound :: PartialVersion -> Version
-toLowerBound PVAny = Version 0 0 0
-toLowerBound (PVMajorOnly m) = Version m 0 0
-toLowerBound (PVMajorMinor m n) = Version m n 0
-toLowerBound (PVFull m n p) = Version m n p
+toLowerBound Any = Version 0 0 0
+toLowerBound (Major m) = Version m 0 0
+toLowerBound (MajorMinor m n) = Version m n 0
+toLowerBound (Full m n p) = Version m n p
 
 -- | Converts a 'PartialVersion' to its exclusive upper bound for X-ranges.
 -- For full versions, this returns an Inclusive bound (exact match).
 -- For partial versions, returns Exclusive bound of next increment.
 toUpperBound :: PartialVersion -> VersionBound
-toUpperBound PVAny = Inf
-toUpperBound (PVMajorOnly m) = Exclusive (Version (m + 1) 0 0)
-toUpperBound (PVMajorMinor m n) = Exclusive (Version m (n + 1) 0)
-toUpperBound (PVFull m n p) = Inclusive (Version m n p)
+toUpperBound Any = Inf
+toUpperBound (Major m) = Exclusive (Version (m + 1) 0 0)
+toUpperBound (MajorMinor m n) = Exclusive (Version m (n + 1) 0)
+toUpperBound (Full m n p) = Inclusive (Version m n p)
 
 -- | Tilde allows patch-level changes if minor is specified.
--- ~1.2.3 -> <1.3.0
--- ~1.2 -> <1.3.0
--- ~1 -> <2.0.0
 toTildeUpperBound :: PartialVersion -> VersionBound
-toTildeUpperBound PVAny = Inf
-toTildeUpperBound (PVMajorOnly m) = Exclusive (Version (m + 1) 0 0)
-toTildeUpperBound (PVMajorMinor m n) = Exclusive (Version m (n + 1) 0)
-toTildeUpperBound (PVFull m n _) = Exclusive (Version m (n + 1) 0)
+toTildeUpperBound Any = Inf
+toTildeUpperBound (Major m) = Exclusive (Version (m + 1) 0 0)
+toTildeUpperBound (MajorMinor m n) = Exclusive (Version m (n + 1) 0)
+toTildeUpperBound (Full m n _) = Exclusive (Version m (n + 1) 0)
 
 -- | Caret allows changes that don't modify the leftmost non-zero digit.
--- ^1.2.3 -> <2.0.0,
--- ^1.2 -> <2.0.0
--- ^1 -> <2.0.0
--- ^0.2.3 -> <0.3.0
--- ^0.0.3 -> <0.0.4
 toCaretUpperBound :: PartialVersion -> VersionBound
-toCaretUpperBound PVAny = Inf
-toCaretUpperBound (PVMajorOnly 0) = Exclusive (Version 1 0 0)
-toCaretUpperBound (PVMajorOnly m) = Exclusive (Version (m + 1) 0 0)
-toCaretUpperBound (PVMajorMinor 0 0) = Exclusive (Version 0 1 0)
-toCaretUpperBound (PVMajorMinor 0 n) = Exclusive (Version 0 (n + 1) 0)
-toCaretUpperBound (PVMajorMinor m _) = Exclusive (Version (m + 1) 0 0)
-toCaretUpperBound (PVFull 0 0 p) = Exclusive (Version 0 0 (p + 1))
-toCaretUpperBound (PVFull 0 n _) = Exclusive (Version 0 (n + 1) 0)
-toCaretUpperBound (PVFull m _ _) = Exclusive (Version (m + 1) 0 0)
+toCaretUpperBound Any = Inf
+toCaretUpperBound (Major 0) = Exclusive (Version 1 0 0)
+toCaretUpperBound (Major m) = Exclusive (Version (m + 1) 0 0)
+toCaretUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
+toCaretUpperBound (MajorMinor 0 n) = Exclusive (Version 0 (n + 1) 0)
+toCaretUpperBound (MajorMinor m _) = Exclusive (Version (m + 1) 0 0)
+toCaretUpperBound (Full 0 0 p) = Exclusive (Version 0 0 (p + 1))
+toCaretUpperBound (Full 0 n _) = Exclusive (Version 0 (n + 1) 0)
+toCaretUpperBound (Full m _ _) = Exclusive (Version (m + 1) 0 0)
