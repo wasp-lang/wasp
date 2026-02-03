@@ -1,20 +1,20 @@
 ---
 title: "Claude Code for Fullstack Development: The 3 Things You Actually Need"
 authors: [vinny]
-image: /img/claude-code-fullstack/banner.png
+image: /img/claude-code-fullstack/banner.webp
 tags: [wasp, ai, claude-code, fullstack]
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
+import { VideoWithCaption } from './components/VideoWithCaption';
 import SchemaMarkup from './components/SchemaMarkup';
 
-// TODO: Add image URL to schema
 <SchemaMarkup schema={{
   "@context": "https://schema.org",
   "@type": "Article",
   "headline": "Claude Code for Fullstack Development: The 3 Things You Actually Need",
   "description": "Learn the 3 essential approaches to using Claude Code effectively for fullstack development: full-stack debugging visibility, LLM-friendly documentation, and opinionated frameworks.",
-  "image": "https://wasp.sh/img/claude-code-fullstack/banner.png",
+  "image": "https://wasp.sh/img/claude-code-fullstack/banner.webp",
   "datePublished": "2026-01-29",
   "dateModified": "2026-01-29",
   "author": {
@@ -45,32 +45,34 @@ There's a lot of hype around vibe coding with Claude Code.
 
 The good news is that it's warranted. Claude Code can take care of some [surprisingly complex coding tasks](https://www.anthropic.com/news/claude-opus-4-5).
 
-The bad news is that we're now getting bombarded with claims of amazing apps being vibe coded in a couple hours, or about complex workflows that use 10 parallel sub-agents running in a loop to replace the work of 5 software engineers.
+The bad news is that it's over-hyped, with claims of amazing apps being vibe coded in a couple hours, or complex workflows that use 10 parallel sub-agents running in a loop to replace the work of 5 software engineers.
 
-If you're not already a Claude Code power user, all this talk can leave you feeling a bit uneasy about how to use it effectively or how to get started with it.
-
-*Am I missing out on productivity gains by not adopting this insane new workflow? Should I be using subagents, commands, skills, or MCP servers for my use case? If so, how?*
+If you're not already a Claude Code power user, all this hype can leave you questioning how to use it effectively. *Am I missing out on productivity gains by not adopting this insane new workflow? Should I be using subagents, commands, skills, or MCP servers for my use case? If so, how?*
 
 I was asking myself these exact questions, so I did a good few weeks of research and testing, and reached the following conclusion:
 
 **With just a few well-picked tools, and Claude Code's basic features, you have enough to "vibe code" great full-stack apps.**
 
-## You Don't Need All its Features
+### You Don't Need All its Features
+
+> *Weird seeing all these complex LLM workflows and tools. Meanwhile I run one continuous Claude convo per project... I've never used a subagent. Never used MCP…
+And I have wildly good results ¯\_(ツ)_/¯*  
+> — [Chris McCord, creator of the Phoenix framework](https://x.com/chris_mccord/status/2016554559078883510)
 
 While Claude Code's abilities are impressive, you quickly realize that there is a lot of feature overlap and stuff you just generally won't have to touch often if you get a few things right from the start. I'll explain what these are, and then go into more detail on each topic within this article.
 {/* truncate */}
 
-**Provide it with full-stack debugging visibility**
+**1. Provide it with full-stack debugging visibility**
 
-This allows Claude to actually see and respond to what it's coding, rather than us having to copy-paste errors, or describe issues.
+  - This allows Claude to actually see and respond to what it's coding, rather than us having to copy-paste errors, or describe issues.
 
-**Give Claude Code access to up-to-date, LLM-friendly documentation**
+**2. Give Claude Code access to up-to-date, LLM-friendly documentation**
 
-This is crucial when working with LLMs that may have outdated knowledge, or hallucinate solutions that are sub-optimal or just flat out don't work.
+  - This is crucial when working with LLMs that may have outdated knowledge, hallucinate solutions, or get thrown off by "noisy" documentation that's not optimized for LLMs.
 
-**Use the right tech stack or framework**
+**3. Use the right tech stack or framework**
 
-This is probably the most overlooked of these three approaches. By picking the right framework, you give AI clear patterns to follow, and remove a lot of complexity right from the start.
+  - This is probably the most overlooked of these three approaches. By picking the right framework, you give AI clear patterns to follow, and remove a lot of complexity right from the start.
 
 With this foundation, you'll be able to build and deploy fullstack apps easily by mostly using Claude Code's default workflows, and just a couple custom commands/skills (I also packed these ideas into a simple Claude Code plugin you can install and use, but I'll talk more about that later).
 
@@ -78,10 +80,7 @@ This approach works because it provides guardrails and the right patterns for th
 
 Essentially, you get to work with the agent on *what* you want, rather than having to explain *how* you want it, bringing that magic feeling of AI-assisted coding to complex, full-stack apps.
 
-Let me explain.
-
-> *Weird seeing all these complex LLM workflows and tools. Meanwhile I run one continuous Claude convo per project... I've never used a subagent. Never used MCP…
-And I have wildly good results ¯\_(ツ)_/¯*  — [Chris McCord, creator of the Phoenix framework](https://x.com/chris_mccord/status/2016554559078883510)
+Let's dive in.
 
 ---
 
@@ -91,24 +90,29 @@ And I have wildly good results ¯\_(ツ)_/¯*  — [Chris McCord, creator of the
 
 Our typical AI-assisted coding workflow tends to look like this: we prompt, then wait, then look over the generated code (maybe), then check on things in the browser. If we've got some errors or some bad looking frontend designs, we copy and paste them and try to (better) explain what we want.
 
-{/* TODO: Add video - an AI-assisted coding workflow without "full-stack vision" */}
-> *An AI-assisted coding workflow without "full-stack vision". 🤖*
+<VideoWithCaption
+    source="img/claude-code-fullstack/workflow-without-vision.mp4"
+    alt="An AI-assisted coding workflow without full-stack vision"
+    caption="An AI-assisted coding workflow without 'full-stack vision'."
+/>
 
-What's worse, is we might have to do this a few times before we're satisfied, or get things working again.
+What's worse is we might have to do this a few times before we're satisfied, or get things working again.
 
 By always keeping ourselves in the loop, [we're slowing things down a lot](https://www.anthropic.com/research/estimating-productivity-gains). We should, at times, just get out of the way and let the agent improve the code with each iteration until its done, before checking the result.
 
 But to do this, we need to give Claude Code a "set of eyes". Luckily, this is possible with the right features and tools, allowing it to see the results of the code it wrote, and quickly modify it autonomously if it encounters an error anywhere in the stack.
 
-This allows Claude to keep running in a loop until it reaches the outcome or goal you specified in your prompt. It no longer needs to *wait on you* to report back on the status of each incremental change.
-
 Let's check out how.
 
-## Running the Dev Server as a Background Task
+### Running the Dev Server as a Background Task
 
 Claude Code introduced their [background tasks feature](https://code.claude.com/docs/en/interactive-mode#background-bash-commands) which lets it execute long-running tasks, like app development servers (e.g. `npm run dev`), on the side without blocking Claude's progress on other work. The nice part is that Claude can continue to read and respond to the output of this task while you work.
 
-{/* TODO: Add video demo of background tasks */}
+<VideoWithCaption
+    source="img/claude-code-fullstack/background-tasks-demo.mp4"
+    caption="Running the dev server as a background task."
+    alt="Running the dev server as a background task"
+/>
 
 To run commands in the background, you can either:
 
@@ -121,7 +125,7 @@ This is great because now Claude can react to issues that occur from building an
 
 But there's a cool way to solve this.
 
-## Browser Automation Tools
+### Browser Automation Tools
 
 The missing piece so far is giving Claude the ability to actually *see* the result of the code it wrote, most typically what the UI looks like.
 
@@ -129,8 +133,11 @@ Problems that only show up **after the app is running in the browser**, like des
 
 But luckily, we can arm Claude Code with browser automation tools to solve for this. These tools allow for programmatic control of the browser, like loading pages, clicking buttons, inspecting elements, reading console logs, and even taking screenshots.
 
-{/* TODO: Add video demo of browser automation */}
-> *Logging in and adding a task with browser automation. 🤖*
+<VideoWithCaption
+    source="img/claude-code-fullstack/browser-automation-login.mp4"
+    alt="Logging in and adding a task with browser automation"
+    caption="Logging in and adding a task with browser automation."
+/>
 
 This closes the loop for the *entire* stack and gives Claude the autonomy to complete larger features tasks entirely on its own.
 
@@ -154,10 +161,15 @@ You should see a separate Chrome instance open up being controlled by Claude. Go
 - checking the lighthouse performance score of a site (e.g. how fast it loads)
 - giving you feedback on how to improve your app's design
 
-{/* TODO: Add video - Adding a full-stack "subtasks" feature with our "full-stack vision" workflow */}
-> *Adding a full-stack "subtasks" feature with our "full-stack vision" workflow. 🤖*
+### Tying it All Together
 
-Now when you're implementing full-stack features in your app, ask Claude to verify the feature works correctly by checking the logs in the development server, as well as in the browser with the Chrome DevTools MCP.
+<VideoWithCaption
+    source="img/claude-code-fullstack/subtasks-fullstack-demo.mp4"
+    alt="Adding a full-stack subtasks feature with full-stack vision workflow"
+    caption="Adding a full-stack 'subtasks' feature with our 'full-stack vision' workflow."
+/>
+
+Now, when you're implementing full-stack features in your app, ask Claude to verify the feature works correctly by checking the logs in the development server, as well as in the browser with the Chrome DevTools MCP.
 
 Alternatively, if you want Claude to *always* automatically verify changes in the browser with the DevTools MCP without having to explicitly ask it to do so, you can [add a rule to Claude's memory in your `CLAUDE.md` file](https://code.claude.com/docs/en/memory#set-up-project-memory).
 
@@ -188,7 +200,7 @@ The fix is simple: give the agent the ability to fetch and read the relevant, LL
 Here are the two main ways developers are accomplishing this:
 
 - **MCP Servers** — A standard for external systems to serve data to AI agents. Popular dev tools, such as [Vercel](https://vercel.com/docs/mcp/vercel-mcp), make these available with doc searching tools.
-- **llms.txt and doc maps** — A standard for publishing LLM-friendly documentation at a well-known URL, e.g. [https://wasp.sh/llms.txt](https://wasp.sh/llms.txt) — what we're using at Wasp. The agent fetches structured docs optimized for LLM context windows.
+- **llms.txt and doc maps** — A standard for publishing LLM-friendly documentation at a well-known URL, e.g. [https://wasp.sh/llms.txt](https://wasp.sh/llms.txt). The agent fetches structured docs optimized for LLM context windows.
 
 ### MCP Servers for Docs Fetching
 
@@ -196,33 +208,38 @@ The [Model Context Protocol (MCP)](https://modelcontextprotocol.io/) is an open 
 
 There are already tons of MCP servers for popular tools, like Supabase, Jira, Canva, Notion, and Vercel. Claude Code has [a docs section listing these and many more](https://code.claude.com/docs/en/mcp#popular-mcp-servers), with instructions on how to install them if you’re interested.
 
-{/* TODO: Add image - MCP servers list screenshot */}
+<ImgWithCaption
+    alt="the Context7 MCP's `get-library-docs` tool for Material-UI "
+    caption="the Context7 MCP's `get-library-docs` tool"
+    source="img/claude-code-fullstack/mcp-servers-list.webp"
+/>
 
-Developer Tool MCP servers like Supabase and Vercel expose tools like `search_docs` which will take a query from the agent, fetch relevant files and guides on the MCP server, and return the relevant information back to the agent. Because the doc fetching is done on the MCP server, it can do a number of things before sending that information back, like filtering, attaching metadata, check for the proper doc version, and more.
-
-Developer Tool MCP servers like Supabase and Vercel have tools which will fetch documentation for the agent based on a query. There are some pros and cons to this approach, though. 
+Developer Tool MCP servers like [Supabase](https://supabase.com/docs/guides/getting-started/mcp) and [Vercel](https://vercel.com/docs/ai-resources/vercel-mcp) have tools which will fetch documentation for the agent based on a query. There are some pros and cons to this approach, though. 
 
 **Pros**
 
 - can do some pre-processing on the docs before sending them back
-- can version-check, filter ,and fetch relevant snippets across multiple docs/guides
+- can version-check, filter, and fetch relevant snippets across multiple docs/guides
 - return structured outputs instead of raw text
 
 **Cons**
 
 - the MCP server decides what is relevant, ignoring potentially useful information
-- all of its tools (not just doc fetching tools) get loaded into, and quickly fill up, the LLM’s context window (i.e. “memory”), degrading the agent’s performance
+- all of its tools (not just doc fetching tools) get loaded into, and quickly fill up, the LLM’s context window, degrading the agent’s performance
 - more overhead for the agent: evaluate prompt → find the right MCP tool → call it → wait for response from MCP server → evaluate response → take action
 
 Because LLMs don’t have a real memory, they have to load information into context with every new session, such as the tools they can use. A single MCP server can add around 15-30 tools to the context, and with multiple servers you can easily consume 10-20% or more of your LLM’s context window before you even begin working.
 
-{/* TODO: Add image - Context window usage tip screenshot */}
+<ImgWithCaption
+    alt="Claude Code context window usage showing MCP server overhead"
+    source="img/claude-code-fullstack/context-usage-tip.webp"
+    caption="Checking the context usage in a Claude Code session."
+/>
 
-:::tip
-Run the `/context` slash command in an active Claude Code session to see how much of your context window is already used up, and proportionally by each feature.
-:::
+If you want to see how much of your context window is already used up, you can run the `/context` slash command in an active Claude Code session.
+The example above shows that 2.5% of the context window is used up by just one MCP server.
 
-As an LLM’s context window fills up, it’s performance degrades. Some devs even suggest starting a new session once the context is 75% full to avoid this, which is possible with the `/clear` command in Claude Code. You can also run the `/compact` command which creates a summary of your current session’s context and passes it along to the next session.
+And as an LLM’s context window fills up, it’s performance degrades. Some devs even suggest starting a new session once the context is 75% full to avoid this, which is possible with the `/clear` command in Claude Code. You can also run the `/compact` command which creates a summary of your current session’s context and passes it along to the next session.
 
 Luckily, if your main reason for using an MCP server is just for documentation searching, then an alternative open standard exists that may be a better fit.
 
@@ -236,8 +253,12 @@ Try it out on some of your favorite developer tools URLs, such as:
 - [supabase.com/llms.txt](https://supabase.com/llms.txt)
 - [wasp.sh/llms.txt](https://wasp.sh/llms.txt)
 
-{/* TODO: Add video - Vercel versus Supabase's llms.txt URLs */}
-> *Some llms.txt provide lots of information up front, while others are simply maps to documentation.
+<VideoWithCaption
+    source="img/claude-code-fullstack/llmstxt-comparison.mp4"
+    alt="Comparison of different llms.txt files"
+    caption="Some llms.txt provide lots of information up front, while others are simply maps to documentation."
+/>
+  
 
 Although llms.txt files might vary widely in the content they surface, they always follow the same format of a simple markdown file with the title of the website and some links. That’s it! This allows LLMs to get precise information without all the fluff.
 
@@ -245,7 +266,7 @@ Here are some of the pros and cons of using llms.txt for documentation fetching:
 
 **Pros**
 
-- curated list of the most relevant information for LLMs / AI agents
+- curated list of the most relevant information for LLMs and agents
 - extremely simple; works with any agent that can fetch URLs
 - agents decide which links to follow and can see full source text
 - very context window efficient
@@ -260,9 +281,12 @@ In my opinion, I think that fetching docs via an `llms.txt` URL is the better ap
 
 **That’s a 10x reduction in context usage.** 
 
-Plus, you get the added benefit that `llms.txt` files are easier for humans to reference as well.
+Claude Code is also great at navigating documentation maps to only fetch the most relevant information. Plus, you get the added benefit that `llms.txt` files are easier for humans to reference as well.
 
-{/* TODO: Add image - llms.txt example */}
+<ImgWithCaption
+    alt="Example of an llms.txt file structure"
+    source="img/claude-code-fullstack/llmstxt-example.webp"
+/>
 
 It's also the method that Claude Code uses for its [own doc fetching internally](https://simonwillison.net/2025/Oct/24/claude-code-docs-map/). So when you ask it a question about its own features, it will first fetch its [documentation map markdown file URL](https://simonwillison.net/2025/Oct/24/claude-code-docs-map/) to find the correct guides.
 
@@ -276,14 +300,14 @@ And the most obvious answer is the **tech stack or framework** you’re building
 
 ### Popular Choices
 
-This is probably the most important of the 3 pillars. Starting with a tech stack that AI can easily reason about will make the job of building the app you want significantly easier.
+This is probably the most overlooked of the 3 pillars. 
 
-There are a lot of options out there, but luckily there are many solid choices, such as:
+Starting with a tech stack that AI can easily reason about will make the job of building the app you want significantly easier. There are a lot of options out there, but luckily there are many solid choices, such as:
 
 - [NextJS](https://nextjs.org/docs) (React, NodeJS)
 - [Laravel](https://laravel.com/docs) (PHP)
 - [Ruby on Rails](https://rubyonrails.org/docs) (Rails)
-- [Wasp](https://wasp.sh) (React, NodeJS, Prisma) — the framework we're building
+- [Wasp](https://wasp.sh) (React, NodeJS, Prisma)
 
 In 2026, you'll be able to get very far with Claude Code and any of the frameworks listed above. But while these frameworks all offer good conventions, and are responsible for stitching together the most important parts of the stack, most of these still require some sort of additional integration.
 
@@ -294,8 +318,8 @@ For NextJS, which is more client-side focused, you have to chose and connect you
 That's why a lot of developers will reach for popular stacks/combos that include these frameworks, such as:
 
 - NextJS + tRPC + Prisma + NextAuth (aka [T3 Stack](https://create.t3.gg/en/introduction))
-- Laravel + Inertia.js + React ([Laravel Inertia Stack](https://inertiajs.com/docs/introduction))
-- Rails + Hotwire ([Rails Hotwire Stack](https://hotwired.dev/))
+- [Laravel + Inertia.js + React](https://inertiajs.com/docs/introduction)
+- [Rails + Hotwire](https://hotwired.dev/)
 
 You might have noticed as well that the T3 Stack is the only one to include an authentication library, NextAuth. That's because the backend-focused frameworks, Laravel and Rails, have an opinionated way of adding authentication to your app already, but NextJS does not.
 
@@ -321,7 +345,7 @@ So in the end, the choice you make largely depends on what you're trying to achi
 
 Just remember, the more a framework gives you structure and defaults, the easier it is for AI to generate code that fits correctly — and the less time you spend fixing confusing or inconsistent output.
 
-## What This Means for Claude Code
+### What This Means for Claude Code
 
 Ok. So we've established that working with an opinionated framework means that it it manages a lot of the complexity for you.
 
@@ -337,17 +361,17 @@ In a sense, the framework acts as a large specification that both you and Claude
 
 **Instead of multi-turn conversations to figure out HOW things should be built, you get to just say WHAT you want built.**
 
-{/* TODO: Add image - Wasp visual representation of full-stack app */}
-
-:::info
-[Wasp even gives you a visual representation](https://wasp.sh/blog/2024/04/25/first-framework-that-lets-you-visualize-react-node-app-code) of your full-stack app that an opinionated framework provides to AI
-:::
+<ImgWithCaption
+    alt="Wasp visual representation of a full-stack app structure"
+    source="img/claude-code-fullstack/wasp-visual-representation.webp"
+    caption="Wasp Studio even gives you a visual representation of your full-stack app structure."
+/>
 
 So when you tell Claude "add a new model for Comments" or "add a user account settings feature", Claude will know exactly what that means and where it all goes. And you also get the added benefit that the implementations follow best practices and are backed by the decisions of experienced professionals behind the framework, and is not just some [LLM hastily implementing a feature on the wrong assumptions.](https://x.com/karpathy/status/2015883857489522876)
 
-Research shows that LLMs generate 'confident but incorrect responses' when context contains distractors, with hallucination rates increasing as context grows. An opinionated framework acts as a buffer against these confident mistakes.
+This isn't to say that you no longer have to do good planning, create a good spec, or Product Requirement Doc for your agent to follow. This can still be a really important step when vibe coding (or practicing "[spec-driven development](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)").
 
-This isn't to say that you no longer have to do good planning, create a good spec, or Product Requirement Doc for your agent to follow. This can still be a really important step when vibe coding (or practicing "[spec-driven development](https://martinfowler.com/articles/exploring-gen-ai/sdd-3-tools.html)"). But it does mean that, with an opinionated full-stack framework, much less of your planning phases need to be devoted to discussing architectural and technical implementation details.
+But it does mean that, with an opinionated full-stack framework, much less of your planning phases need to be devoted to discussing architectural and technical implementation details.
 
 ---
 
@@ -399,7 +423,11 @@ claude
 
 From there, you can tell Claude to "start the dev server" and it will walk you through spinning up fullstack visibility as we outlined above. Or ask it to implement a Wasp feature and watch it fetch version-matched documentation guides for you!
 
-{/* TODO: Add image - Plugin in action screenshot */}
+<ImgWithCaption
+    alt="Wasp Claude Code plugin in action"
+    source="img/claude-code-fullstack/plugin-in-action.webp"
+    caption="Wasp Claude Code plugin in action."
+/>
 
 More importantly, Wasp as a framework pushes into territory that's even more AI-native than the rest, because of its central configuration file(s) where the app is defined.
 
@@ -438,7 +466,7 @@ Custom subagents, commands, and skills shine when you're doing the same task rep
 
 - **Testing** — A dedicated test-runner subagent that knows your testing patterns, runs suites, analyzes failures, and suggests fixes.
 - **[Code Reviews](https://code.claude.com/docs/en/sub-agents#code-reviewer)** — A code review command or subagent that runs tests, fixes bugs, and reviews code after every development.
-- **Running Scripts** — Skills can be useful if you have deterministic tasks you run often, like a deployment script. Define them in a Skill and link those scripts to them, and Claude Code will run them when it deems it fit for the task at hand.
+- **Running Scripts** — Skills can be useful if you have deterministic tasks you run often, like a deployment script or using a cli tool to convert your blog images to webp. Define them in a Skill and link those scripts to them, and Claude Code will run them when it deems it fit for the task at hand.
 
 These are tasks where you want the same process followed every time and where a well-configured subagent with specific rules makes sense.
 
