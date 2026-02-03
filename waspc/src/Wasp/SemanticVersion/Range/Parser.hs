@@ -24,10 +24,20 @@ rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP)
     logicalOrP :: Parsec String () ()
     logicalOrP = P.spaces *> P.string "||" *> P.spaces
 
+    -- A comparator set is either:
+    -- 1. A single hyphen range (cannot be combined with other comparators).
+    -- 2. One or more simple comparators (primitive, caret, tilde, x-range).
     comparatorSetParser :: Parsec String () ComparatorSet
-    comparatorSetParser = do
-      comps <- comparatorParser `P.sepBy1` P.try spaceSeparator
-      case NE.nonEmpty comps of
+    comparatorSetParser =
+      P.choice
+        [ ComparatorSet . pure <$> P.try hyphenRangeParser,
+          simpleComparatorSetParser
+        ]
+
+    simpleComparatorSetParser :: Parsec String () ComparatorSet
+    simpleComparatorSetParser = do
+      comparators <- simpleComparatorParser `P.sepBy1` P.try spaceSeparator
+      case NE.nonEmpty comparators of
         Just neComps -> return $ ComparatorSet neComps
         Nothing -> fail "Expected at least one comparator"
       where
@@ -38,15 +48,16 @@ rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP)
           P.notFollowedBy P.eof
           return ()
 
-    comparatorParser :: Parsec String () Comparator
-    comparatorParser =
+    -- Simple comparators are all comparators except hyphen ranges.
+    simpleComparatorParser :: Parsec String () Comparator
+    simpleComparatorParser =
       P.choice
-        [ P.try hyphenRangeParser,
-          P.try tildeParser,
+        [ P.try tildeParser,
           P.try caretParser,
           P.try primitiveParser,
           xRangeParser
         ]
+        -- TODO: test this erorr message
         <?> "comparator"
 
     hyphenRangeParser :: Parsec String () Comparator
@@ -58,11 +69,14 @@ rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP)
     caretParser :: Parsec String () Comparator
     caretParser = BackwardsCompatibleWith <$> (P.char '^' *> partialVersionParser)
 
-    primitiveParser :: Parsec String () Comparator
-    primitiveParser = PrimitiveComparator <$> operatorParser <*> partialVersionParser
+    xRangeParser :: Parsec String () Comparator
+    xRangeParser = XRange <$> partialVersionParser
 
-    operatorParser :: Parsec String () PrimitiveOperator
-    operatorParser =
+    primitiveParser :: Parsec String () Comparator
+    primitiveParser = PrimitiveComparator <$> primitiveOperatorParser <*> partialVersionParser
+
+    primitiveOperatorParser :: Parsec String () PrimitiveOperator
+    primitiveOperatorParser =
       P.choice
         [ LessThanOrEqual <$ P.try (P.string "<="),
           GreaterThanOrEqual <$ P.try (P.string ">="),
@@ -71,6 +85,3 @@ rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP)
           Equal <$ P.char '='
         ]
         <?> "operator"
-
-    xRangeParser :: Parsec String () Comparator
-    xRangeParser = XRange <$> partialVersionParser
