@@ -21,15 +21,15 @@ import Wasp.SemanticVersion.VersionBound
 -- It represents a single version constraint in a 'Range'.
 data Comparator
   = PrimitiveComparator PrimitiveOperator PartialVersion
-  | -- | Caret range (^): allows changes that don't modify leftmost non-zero digit.
+  | -- | Caret range (^) allows changes that don't modify leftmost non-zero digit.
     BackwardsCompatibleWith PartialVersion
-  | -- | Tilde range (~): allows patch-level changes if minor is specified.
+  | -- | Tilde range (~) allows patch-level changes if minor is specified.
     ApproximatelyEquvivalentTo PartialVersion
-  | -- | X-Range: used as "stand in" for one of the numeric values.
+  | -- | X-Range specifies a "stand in" for numeric values.
     -- Any of "X", "x" or "*" are valid.
     -- A partial version range is treated as an X-Range.
     XRange PartialVersion
-  | -- | Hyphen range: specifies an inclusive set.
+  | -- | Hyphen range specifies an inclusive set.
     HyphenRange PartialVersion PartialVersion
   deriving (Eq)
 

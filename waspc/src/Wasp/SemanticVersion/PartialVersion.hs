@@ -93,7 +93,7 @@ partialVersionParser = choice [try fullParser, try majorMinorParser, try majorOn
 pv :: TH.QuasiQuoter
 pv = quasiQuoterFromParser parsePartialVersion
 
--- | Convert a 'PartialVersion' to its lower bound 'Version'.
+-- | Converts a 'PartialVersion' to its lower bound 'Version'.
 -- For partial versions, missing components default to 0.
 toLowerBound :: PartialVersion -> Version
 toLowerBound PVAny = Version 0 0 0
@@ -101,7 +101,7 @@ toLowerBound (PVMajorOnly m) = Version m 0 0
 toLowerBound (PVMajorMinor m n) = Version m n 0
 toLowerBound (PVFull m n p) = Version m n p
 
--- | Convert a PartialVersion to its exclusive upper bound for X-ranges.
+-- | Converts a 'PartialVersion' to its exclusive upper bound for X-ranges.
 -- For full versions, this returns an Inclusive bound (exact match).
 -- For partial versions, returns Exclusive bound of next increment.
 toUpperBound :: PartialVersion -> VersionBound
@@ -110,20 +110,22 @@ toUpperBound (PVMajorOnly m) = Exclusive (Version (m + 1) 0 0)
 toUpperBound (PVMajorMinor m n) = Exclusive (Version m (n + 1) 0)
 toUpperBound (PVFull m n p) = Inclusive (Version m n p)
 
--- | Convert a PartialVersion to its exclusive upper bound for approximatelyEquvivalentTo ranges (~).
--- Tilde allows patch-level changes if minor is specified.
--- ~1.2.3 -> <1.3.0, ~1.2 -> <1.3.0, ~1 -> <2.0.0
+-- | Tilde allows patch-level changes if minor is specified.
+-- ~1.2.3 -> <1.3.0
+-- ~1.2 -> <1.3.0
+-- ~1 -> <2.0.0
 toTildeUpperBound :: PartialVersion -> VersionBound
 toTildeUpperBound PVAny = Inf
 toTildeUpperBound (PVMajorOnly m) = Exclusive (Version (m + 1) 0 0)
 toTildeUpperBound (PVMajorMinor m n) = Exclusive (Version m (n + 1) 0)
 toTildeUpperBound (PVFull m n _) = Exclusive (Version m (n + 1) 0)
 
--- | Convert a PartialVersion to its exclusive upper bound for caret ranges (^).
--- Caret allows changes that don't modify the leftmost non-zero digit.
--- ^1.2.3 -> <2.0.0, ^0.2.3 -> <0.3.0, ^0.0.3 -> <0.0.4
--- ^1.2 -> <2.0.0, ^0.2 -> <0.3.0, ^0.0 -> <0.1.0
--- ^1 -> <2.0.0, ^0 -> <1.0.0
+-- | Caret allows changes that don't modify the leftmost non-zero digit.
+-- ^1.2.3 -> <2.0.0,
+-- ^1.2 -> <2.0.0
+-- ^1 -> <2.0.0
+-- ^0.2.3 -> <0.3.0
+-- ^0.0.3 -> <0.0.4
 toCaretUpperBound :: PartialVersion -> VersionBound
 toCaretUpperBound PVAny = Inf
 toCaretUpperBound (PVMajorOnly 0) = Exclusive (Version 1 0 0)

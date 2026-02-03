@@ -1,7 +1,5 @@
 module Wasp.SemanticVersion.Range
   ( Range (..),
-
-    -- * Range matching
     isVersionInRange,
     doesVersionRangeAllowMajorChanges,
   )
@@ -21,9 +19,9 @@ import Wasp.SemanticVersion.VersionBound
     versionFromBound,
   )
 
--- | A 'Range' is composed of one or more 'ComparatorSet', joined by ||.
+-- | A 'Range' is composed of one or more 'ComparatorSet', joined by "||".
 -- A 'Version' matches a 'Range' if and only if every 'Comparator' in at least one
--- of the ||-separated 'ComparatorSet' is satisfied by the 'Version'.
+-- of the "||"-separated 'ComparatorSet' is satisfied by the 'Version'.
 data Range = Range [ComparatorSet]
   deriving (Eq)
 

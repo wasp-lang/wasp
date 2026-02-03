@@ -33,9 +33,9 @@ data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
 instance Show ComparatorSet where
   show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
 
--- | We define concatenation of two 'ComparatorSet' as a union of their 'Comparator'.
+-- | We define concatenation of two 'ComparatorSet' as a union of their comparators.
 instance Semigroup ComparatorSet where
-  (ComparatorSet compsl) <> (ComparatorSet compsr) = ComparatorSet $ NE.nub $ compsl <> compsr
+  (ComparatorSet leftComps) <> (ComparatorSet rightComps) = ComparatorSet $ NE.nub $ leftComps <> rightComps
 
 instance HasVersionBounds ComparatorSet where
   versionBounds (ComparatorSet comps) = foldr1 intervalIntersection $ versionBounds <$> comps
