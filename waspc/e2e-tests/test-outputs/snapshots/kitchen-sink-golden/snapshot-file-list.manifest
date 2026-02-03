@@ -22,6 +22,7 @@ wasp-app/.wasp/out/db/migrations/migration_lock.toml
 wasp-app/.wasp/out/db/schema.prisma
 wasp-app/.wasp/out/db/schema.prisma.wasp-generate-checksum
 wasp-app/.wasp/out/installedNpmDepsLog.json
+wasp-app/.wasp/out/sdk/wasp/.copy-assets-cache.json
 wasp-app/.wasp/out/sdk/wasp/api/events.ts
 wasp-app/.wasp/out/sdk/wasp/api/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/email/actions/login.ts

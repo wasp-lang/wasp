@@ -1,0 +1,13 @@
+{
+  "auth/forms/Auth.module.css": "b804d03ac790396cf152a5ca3290d018b03c8764f5edb78f45785013aae635d1",
+  "auth/forms/internal/Form.module.css": "e49b449078e9b6e140194ce8e933ad56db5445816b292cc90bd42df298997596",
+  "auth/forms/internal/Message.module.css": "b283ee90a6179fdb266253042990ab7e9fbe2385532ff12d60d7c3c744a2c2c0",
+  "auth/forms/internal/auth-styles.css": "6abead385f76fe9e5ea16f437da00871f534050467a73800520ef9db2e94c41f",
+  "auth/forms/internal/common/LoginSignupForm.module.css": "ceb7e900e700da20b71487c1ad65d0d3148747990c1e2d4540b18ec001ea2bcd",
+  "auth/forms/internal/social/SocialButton.module.css": "833da255bbeb0e37d33bfade98a6dcb03272acede1b7fd760bb5ac5d21d17269",
+  "auth/forms/internal/social/SocialIcons.module.css": "6b90709d4b819aeeb7bbc9494d6c1204eedb6d9e8fbd8bd7ec68d028d0993ece",
+  "client/app/components/Loader.module.css": "a6e938f872c66e409fe9a5e38c376354b7ace72662ebfc298b577ebc6e2b42c6",
+  "client/vite/virtual-files/files/index.html": "b0e016c159dfb8ab9a7026aa4cf40e010f34b1ab83aa78562900d47ea6e58688",
+  "client/vite/virtual-files/files/index.tsx": "3757d217053f495819bca253cf994bb0283877e4865b59954a348549a2b00711",
+  "client/vite/virtual-files/files/routes.tsx": "06a37b6c3c21000add6ceae5228249c836473582870465d56735237c708d93d5"
+}
