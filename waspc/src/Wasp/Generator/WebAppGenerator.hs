@@ -104,8 +104,7 @@ dotEnvInWebAppRootDir :: Path' (Rel C.WebAppRootDir) File'
 dotEnvInWebAppRootDir = [relfile|.env|]
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
-genPackageJson spec waspDependencies = do
-  webAppDeps <- N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+genPackageJson spec waspDependencies =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -118,6 +117,8 @@ genPackageJson spec waspDependencies = do
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion)
             ]
       )
+  where
+    webAppDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec

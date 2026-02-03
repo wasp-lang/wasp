@@ -131,8 +131,7 @@ genTsConfigJson spec = do
       waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
-genPackageJson spec waspDependencies = do
-  serverDeps <- N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+genPackageJson spec waspDependencies =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -151,6 +150,8 @@ genPackageJson spec waspDependencies = do
             ]
       )
   where
+    serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+
     hasEntities = AS.Util.hasEntities spec
 
 getPackageJsonPrismaField :: AppSpec -> Aeson.Value

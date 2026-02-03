@@ -18,6 +18,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Wasp can now be installed through `npm`. ([#3525](https://github.com/wasp-lang/wasp/pull/3525))
 - Wasp now supports Tailwind CSS v4. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
+- Wasp now allows you to override built-in dependencies (advanced, best-effort support only). ([#3643](https://github.com/wasp-lang/wasp/pull/3643))
 
 ### 🐞 Bug fixes
 

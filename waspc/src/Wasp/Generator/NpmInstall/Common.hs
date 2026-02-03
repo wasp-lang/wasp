@@ -28,7 +28,7 @@ getAllNpmDeps spec =
     { _userNpmDeps =
         N.getUserNpmDepsForPackage spec,
       _waspFrameworkNpmDeps =
-        N.buildWaspFrameworkNpmDeps (SG.npmDepsFromWasp spec) (WG.npmDepsFromWasp spec),
+        N.buildWaspFrameworkNpmDeps spec (SG.npmDepsFromWasp spec) (WG.npmDepsFromWasp spec),
       _waspSdkNpmDeps =
         SdkGenerator.npmDepsForSdk spec
     }
