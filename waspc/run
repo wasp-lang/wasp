@@ -106,12 +106,11 @@ ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.
 
 function remove_wasp_libs_from_package_lock() {
   PACKAGE_LOCK_TMP=$(mktemp)
-  jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > $PACKAGE_LOCK_TMP
-  if [ $? -ne 0 ]; then
-    rm -f $PACKAGE_LOCK_TMP
+  if ! jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > "$PACKAGE_LOCK_TMP"; then
+    rm -f "$PACKAGE_LOCK_TMP"
     exit 1
   fi
-  mv $PACKAGE_LOCK_TMP package-lock.json
+  mv "$PACKAGE_LOCK_TMP" package-lock.json
 }
 
 echo_and_eval() {
