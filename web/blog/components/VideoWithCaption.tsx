@@ -8,13 +8,11 @@ interface VideoWithCaptionProps {
 
 export function VideoWithCaption(props: VideoWithCaptionProps) {
   return (
-    <div style={{ display: "flex", justifyContent: "center", margin: "1rem 0" }}>
+    <div
+      style={{ display: "flex", justifyContent: "center", margin: "1rem 0" }}
+    >
       <figure style={{ width: "100%", margin: 0 }}>
-        <video
-          width="100%"
-          controls
-          aria-label={props.alt}
-        >
+        <video width="100%" controls aria-label={props.alt}>
           <source src={useBaseUrl(props.source)} type="video/mp4" />
         </video>
         {props.caption && (

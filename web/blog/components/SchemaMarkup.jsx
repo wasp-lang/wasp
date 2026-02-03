@@ -1,12 +1,9 @@
-import React from 'react';
-import Head from '@docusaurus/Head';
+import Head from "@docusaurus/Head";
 
 export default function SchemaMarkup({ schema }) {
   return (
     <Head>
-      <script type="application/ld+json">
-        {JSON.stringify(schema)}
-      </script>
+      <script type="application/ld+json">{JSON.stringify(schema)}</script>
     </Head>
   );
 }
