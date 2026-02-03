@@ -32,11 +32,12 @@ instance Show Version where
 parseVersion :: String -> Either ParseError Version
 parseVersion = parse versionParser ""
 
+-- | A 'Version' number must take the form X.Y.Z where:
+-- - X, Y, and Z are non-negative integers,
+-- - X, Y, and Z must not contain leading zeroes (not implemented).
 versionParser :: Parsec String () Version
 versionParser = do
   naturalP `sepBy` char '.' >>= \case
-    [a] -> return $ Version a 0 0
-    [a, b] -> return $ Version a b 0
     [a, b, c] -> return $ Version a b c
     _invalidFormat -> fail "Invalid version format"
   where
