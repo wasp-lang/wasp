@@ -10,14 +10,9 @@ await copyAssets([
 ])
 
 async function copyAssets(globs) {
-  try {
-    const sourceFiles = await findSourceFiles(globs)
-    const { copied, skipped } = await copyChangedFiles(sourceFiles)
-    console.log(`[copy-assets] ${copied} copied, ${skipped} skipped`)
-  } catch (error) {
-    console.error("[copy-assets] Fatal error:", error.message)
-    process.exit(1)
-  }
+  const sourceFiles = await Array.fromAsync(fs.glob(globs, { cwd: base }))
+  const { copied, skipped } = await copyChangedFiles(sourceFiles)
+  console.log(`[copy-assets] ${copied} copied, ${skipped} skipped`)
 }
 
 async function copyChangedFiles(sourceFiles) {
@@ -25,9 +20,11 @@ async function copyChangedFiles(sourceFiles) {
   let skipped = 0
 
   for (const file of sourceFiles) {
+    const sourcePath = getSourcePath(file)
+    const destPath = getDestinationPath(file)
     try {
-      if (await shouldCopyFile(file)) {
-        await copyFile(file)
+      if (await shouldCopyFile(sourcePath, destPath)) {
+        await copyFile(sourcePath, destPath)
         copied++
       } else {
         skipped++
@@ -45,11 +42,12 @@ async function copyChangedFiles(sourceFiles) {
  * File should be copied if:
  * - It doesn't exist in the destination directory.
  * - Its modification time is newer than the destination file.
+ *
+ * We want to avoid needless copying of files to avoid triggering
+ * Vite's file watcher which can cause full page reloads when not
+ * necessary.
  */
-async function shouldCopyFile(file) {
-  const sourcePath = getSourcePath(file)
-  const destPath = getDestinationPath(file)
-
+async function shouldCopyFile(sourcePath, destPath) {
   try {
     const [sourceStat, destStat] = await Promise.all([
       fs.stat(sourcePath),
@@ -62,10 +60,9 @@ async function shouldCopyFile(file) {
   }
 }
 
-async function copyFile(file) {
-  const dest = getDestinationPath(file)
-  await fs.mkdir(path.dirname(dest), { recursive: true })
-  await fs.copyFile(getSourcePath(file), dest)
+async function copyFile(sourcePath, destPath) {
+  await fs.mkdir(path.dirname(destPath), { recursive: true })
+  await fs.copyFile(sourcePath, destPath)
 }
 
 function getSourcePath(file) {
@@ -74,12 +71,4 @@ function getSourcePath(file) {
 
 function getDestinationPath(file) {
   return path.join(base, "dist", file)
-}
-
-async function findSourceFiles(globs) {
-  const files = []
-  for await (const file of fs.glob(globs, { cwd: base })) {
-    files.push(file)
-  }
-  return files
 }
