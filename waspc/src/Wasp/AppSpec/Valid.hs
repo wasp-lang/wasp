@@ -16,6 +16,7 @@ import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
+import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
@@ -28,7 +29,7 @@ import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
-import Wasp.AppSpec.Core.Decl (takeDecls)
+import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
@@ -297,7 +298,8 @@ validateUniqueDeclarationNames spec =
 validateDeclarationNames :: AppSpec -> [ValidationError]
 validateDeclarationNames spec =
   concat
-    [ capitalizedOperationsErrorMessage,
+    [ invalidDeclNamesErrorMessage,
+      capitalizedOperationsErrorMessage,
       capitalizedJobsErrorMessage,
       nonCapitalizedEntitesErrorMessage
     ]
@@ -333,6 +335,22 @@ validateDeclarationNames spec =
                   "Entity names must start with an uppercase letter. Please rename entities: "
                     ++ intercalate ", " nonCapitalizedEntitieNames
                     ++ "."
+              ]
+
+    invalidDeclNamesErrorMessage =
+      let invalidDeclNames = filter (not . isValidWaspIdentifier) $ map getDeclName $ AS.decls spec
+          declNameRules =
+            [ "must start with a letter or an underscore",
+              "must contain only letters, numbers, or underscores",
+              "must not be a Wasp keyword"
+            ]
+       in case invalidDeclNames of
+            [] -> []
+            _ ->
+              [ GenericValidationError $
+                  intercalate "\n" $
+                    ("Invalid declaration names: " ++ intercalate ", " invalidDeclNames ++ ". Each declaration name:")
+                      : map (indent 2 . ("- " ++)) declNameRules
               ]
 
 validateWebAppBaseDir :: AppSpec -> [ValidationError]

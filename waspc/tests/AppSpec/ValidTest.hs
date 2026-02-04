@@ -2,6 +2,7 @@
 
 module AppSpec.ValidTest where
 
+import Data.List (isInfixOf)
 import qualified Data.Map as M
 import Data.Maybe (fromJust)
 import qualified Data.Set as S
@@ -453,6 +454,47 @@ spec_AppSpecValid = do
           `shouldBe` [ Valid.GenericValidationError
                          "You must have at least one route in your app. You can add it using the 'route' declaration."
                      ]
+
+    describe "invalid declaration names validation" $ do
+      let testInvalidDeclName makeDecl invalidName = it invalidName $ do
+            let decl = makeDecl invalidName
+            let errors = ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, decl, basicRouteDecl]})
+            case errors of
+              [err] -> invalidName `isInfixOf` show err `shouldBe` True
+              _ -> expectationFailure $ "Expected 1 error, got: " ++ show errors
+
+          testValidDeclName makeDecl validName = it validName $ do
+            let decl = makeDecl validName
+            let errors = ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, decl, basicRouteDecl]})
+            errors `shouldBe` []
+
+      describe "returns an error for declaration names which are not valid identifiers" $ do
+        testInvalidDeclName makeBasicPageDecl "Import"
+        testInvalidDeclName makeBasicJobDecl "1st job"
+        testInvalidDeclName makeBasicQueryDecl "my-query"
+        testInvalidDeclName makeBasicActionDecl "my action"
+
+      describe "returns no error for valid identifiers" $ do
+        testValidDeclName makeBasicPageDecl "Import"
+        testValidDeclName makeBasicJobDecl "_1stJob"
+        testValidDeclName makeBasicQueryDecl "my_query"
+        testValidDeclName makeBasicActionDecl "myAction"
+
+      describe "returns an error for capitalized operation and job names" $ do
+        testInvalidDeclName makeBasicQueryDecl "MyQuery"
+        testInvalidDeclName makeBasicActionDecl "MyAction"
+        testInvalidDeclName makeBasicJobDecl "MyJob"
+
+      describe "returns no errors for non-capitalized operation and job names" $ do
+        testValidDeclName makeBasicQueryDecl "myQuery"
+        testValidDeclName makeBasicActionDecl "myAction"
+        testValidDeclName makeBasicJobDecl "myJob"
+
+      describe "returns an error for non-capitalized entity names" $ do
+        testInvalidDeclName makeBasicEntityDecl "task"
+
+      describe "returns no errors for capitalized entity names" $ do
+        testValidDeclName makeBasicEntityDecl "Task"
   where
     makeIdField name typ =
       Psl.Model.Field
