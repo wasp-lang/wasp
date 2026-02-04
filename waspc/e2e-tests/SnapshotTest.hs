@@ -33,7 +33,7 @@ import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.Exit (ExitCode (..))
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, takeFileName)
-import System.Process (CreateProcess (..), createProcess, interruptProcessGroupOf, shell, waitForProcess)
+import System.Process (CreateProcess (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
@@ -97,10 +97,10 @@ createSnapshotTestTree snapshotTestData =
 -- 2. Ensuring the current and golden snapshot directories exist.
 setupSnapshotTestEnvironment :: Path' Abs (Dir SnapshotDir) -> Path' Abs (Dir SnapshotDir) -> IO ()
 setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
-  callCommandInProcessGroup $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir
+  callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir
 
-  callCommandInProcessGroup $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
-  callCommandInProcessGroup $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
+  callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
+  callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
 executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO ()
 executeSnapshotTestCommand snapshotTest snapshotDir = do
