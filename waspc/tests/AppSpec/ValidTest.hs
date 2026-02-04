@@ -545,13 +545,13 @@ spec_AppSpecValid = do
           AS.prismaSchema = getPrismaSchemaWithConfig "",
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeFiles = [],
-          AS.externalPublicFiles = [],
           AS.packageJson =
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
-                Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs
+                Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
+                Npm.PackageJson.wasp = Nothing
               },
           AS.buildType = BuildType.Development,
           AS.migrationsDir = Nothing,
@@ -559,7 +559,6 @@ spec_AppSpecValid = do
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
           AS.devDatabaseUrl = Nothing,
-          AS.customViteConfigPath = Nothing,
           AS.srcTsConfigPath = [relfile|tsconfig.json|],
           AS.srcTsConfig =
             T.TsConfig

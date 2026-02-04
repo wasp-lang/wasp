@@ -1,6 +1,5 @@
 module Wasp.Project.ExternalFiles
-  ( readPublicFiles,
-    readCodeFiles,
+  ( readCodeFiles,
   )
 where
 
@@ -11,18 +10,9 @@ import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
-import Wasp.AppSpec.ExternalFiles (CodeFile (CodeFile), PublicFile (PublicFile))
-import Wasp.Project.Common (WaspProjectDir, extPublicDirInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.AppSpec.ExternalFiles (CodeFile (CodeFile))
+import Wasp.Project.Common (WaspProjectDir, srcDirInWaspProjectDir)
 import Wasp.Project.Waspignore (getNotIgnoredRelFilePaths, waspIgnorePathInWaspProjectDir)
-
--- | Returns all files contained in the specified ext public dir
---   except files ignores by the specified waspignore file.
-readPublicFiles :: Path' Abs (Dir WaspProjectDir) -> IO [PublicFile]
-readPublicFiles waspProjectDir = do
-  let externalPublicDirPath = waspProjectDir </> extPublicDirInWaspProjectDir
-  let waspignoreFilePath = waspProjectDir </> waspIgnorePathInWaspProjectDir
-  relFilePaths <- getNotIgnoredRelFilePaths waspignoreFilePath externalPublicDirPath
-  return $ map (`PublicFile` externalPublicDirPath) relFilePaths
 
 -- | Returns all files contained in the specified ext code dir
 --   except files ignores by the specified waspignore file.

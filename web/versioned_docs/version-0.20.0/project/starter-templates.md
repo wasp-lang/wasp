@@ -15,14 +15,14 @@ $ wasp new
 Enter the project name (e.g. my-project) ▸ MyFirstProject
 Choose a starter template
 [1] basic (default)
-    Simple starter template with a single page.
-[2] todo-ts
-    Simple but well-rounded Wasp app implemented with Typescript & full-stack type safety.
+    A basic starter template designed to help you get up and running quickly.
+    It features examples covering the most common use cases.
+[2] minimal
+    A minimal starter template that features just a single page.
 [3] saas
-    Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more. Check out https://opensaas.sh/ for more details.
-[4] embeddings
-    Comes with code for generating vector embeddings and performing vector similarity search.
-[5] ai-generated
+    Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more.
+    Check out https://opensaas.sh/ for more details.
+[4] ai-generated
     🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)
  ▸ 1
 
@@ -32,7 +32,8 @@ Created new Wasp app in ./MyFirstProject directory!
 
 To run your new app, do:
     cd MyFirstProject
-    wasp db start
+    wasp db migrate-dev
+    wasp start
 ```
 
 ## Available Templates
@@ -53,30 +54,14 @@ Use this template:
 wasp new <project-name> -t saas
 ```
 
-### Vector Similarity Search Template
+### Minimal Template
 
-![Vector Similarity Search Template](/img/starter-templates/embeddings-client.png)
-
-A template for generating embeddings and performing vector similarity search on your text data!
-
-**Features:** Embeddings & vector similarity search, OpenAI Embeddings API, Vector DB (Pinecone), Tailwind, Full-stack Type Safety
+A minimal starter template that features just a single page. Perfect for starting from scratch with the bare essentials.
 
 Use this template:
 
 ```
-wasp new <project-name> -t embeddings
-```
-
-### Todo App w/ Typescript
-
-A simple Todo App with Typescript and Full-stack Type Safety.
-
-**Features:** Auth (username/password), Full-stack Type Safety
-
-Use this template:
-
-```
-wasp new <project-name> -t todo-ts
+wasp new <project-name> -t minimal
 ```
 
 ### AI Generated Starter 🤖

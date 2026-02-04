@@ -14,7 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, relfile, (</>))
+import StrongPath (Abs, Dir, Path', relfile, (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
@@ -30,30 +30,36 @@ import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ProjectRootDir,
-    WebAppRootDir,
     makeJsonWithEntityData,
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
   ( axiosVersion,
+    dotenvVersion,
     expressTypesVersion,
     expressVersionStr,
     prismaVersion,
+    reactDomTypesVersion,
+    reactDomVersion,
     reactQueryVersion,
     reactRouterVersion,
+    reactTypesVersion,
     reactVersion,
     superjsonVersion,
+    typescriptVersion,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.FileDraft as FD
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
+import Wasp.Generator.SdkGenerator.Client.AppG (genClientApp)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
+import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
@@ -77,7 +83,7 @@ import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
+import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
@@ -109,6 +115,7 @@ genSdk spec =
       genFileCopy [relfile|server/index.ts|],
       genFileCopy [relfile|server/HttpError.ts|],
       genFileCopy [relfile|client/test/vitest/helpers.tsx|],
+      genFileCopy [relfile|client/test/setup.ts|],
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/hooks.ts|],
       genFileCopy [relfile|client/index.ts|],
@@ -117,8 +124,7 @@ genSdk spec =
       genTsConfigJson,
       genServerUtils spec,
       genPackageJson spec,
-      genDbClient spec,
-      genDevIndex
+      genDbClient spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -141,6 +147,8 @@ genSdk spec =
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
+    <++> genClientApp spec
+    <++> genVitePlugins spec
   where
     genFileCopy = return . C.mkTmplFd
 
@@ -207,9 +215,13 @@ npmDepsForSdk spec =
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
             ("axios", show axiosVersion),
+            ("dotenv", show dotenvVersion),
+            ("dotenv-expand", "^12.0.3"),
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
+            ("react-dom", show reactDomVersion),
+            ("@tanstack/react-query", reactQueryVersion),
             ("react-router", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
@@ -232,13 +244,17 @@ npmDepsForSdk spec =
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
+            ("typescript", show typescriptVersion),
+            ("@vitejs/plugin-react", "^4.7.0"),
             ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion)
+            ("@types/express-serve-static-core", show expressTypesVersion),
+            ("@types/react", show reactTypesVersion),
+            ("@types/react-dom", show reactDomTypesVersion),
+            -- NOTE: Make sure to bump the version of the tsconfig
+            -- when updating Vite or React versions
+            ("@tsconfig/vite-react", "^7.0.0")
           ],
-      N.peerDependencies =
-        Npm.Dependency.fromList
-          [ ("@tanstack/react-query", reactQueryVersion)
-          ]
+      N.peerDependencies = Npm.Dependency.fromList []
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
@@ -387,13 +403,3 @@ genDbClient spec = do
       tmplData
   where
     maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
-
-genDevIndex :: Generator FileDraft
-genDevIndex =
-  return $
-    C.mkTmplFdWithData
-      [relfile|dev/index.ts|]
-      (object ["waspProjectDirFromWebAppDir" .= SP.fromRelDir waspProjectDirFromWebAppDir])
-  where
-    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir) =
-      waspProjectDirFromAppComponentDir

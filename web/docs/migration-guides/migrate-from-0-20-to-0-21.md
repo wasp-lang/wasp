@@ -2,47 +2,23 @@
 title: Migration from 0.20.X to 0.21.X
 ---
 
+import InstallInstructions from './_install-instructions.md'
 import NetlifyTomlConfig from '../deployment/deployment-methods/\_netlify-toml-config.md'
 
-To install the latest version of Wasp, open your terminal and run:
-
-<Tabs>
-<TabItem value="installer" label="Installer">
-
-```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```sh
-npm i -g @wasp.sh/wasp-cli@latest
-```
-
-</TabItem>
-</Tabs>
-
-If you want to install Wasp 0.21.0 specifically, you can pass a version argument to the install script:
-
-<Tabs>
-<TabItem value="installer" label="Installer">
-
-```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.21.0
-```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```sh
-npm i -g @wasp.sh/wasp-cli@0.21.0
-```
-
-</TabItem>
-</Tabs>
+<InstallInstructions version="0.21.0" />
 
 ## What's new in 0.21.X?
+
+### User-land Vite configuration
+
+Wasp has significantly overhauled how the client app is built. Your project directory is now the client app directory, and Vite runs directly from it instead of from `.wasp/out/web-app`.
+
+You now have **full control** over your `vite.config.ts` file. Wasp no longer manages this file internally. Instead, you must import and use the `wasp()` plugin from `wasp/client/vite`, which provides all essential Wasp features:
+
+- Configuration required for Wasp full-stack apps.
+- Environment variables validation.
+- Prevention of server imports in client code.
+- TypeScript type checking during production builds.
 
 ### New npm-based installation
 
@@ -73,6 +49,15 @@ Wasp has upgraded from React Router 6 to React Router 7. The only change you sho
 
 Wasp has upgraded its testing framework from Vitest 1 all the way to Vitest 4. This brings a lot of improvements, especially in terms of performance and stability. Most users should not notice any breaking changes, but if you have custom test setups or configurations, please refer to the [Vitest migration guide](https://vitest.dev/guide/migration.html) for more details.
 
+### New `--custom-server-url` option for deployment
+
+The `REACT_APP_API_URL` environment variable is no longer supported for specifying a custom server URL during deployment. Instead, use the new `--custom-server-url` CLI option:
+
+```sh
+wasp deploy fly deploy --custom-server-url https://my-custom-server.com
+wasp deploy railway deploy myproject --custom-server-url https://my-custom-server.com
+```
+
 ## How to migrate?
 
 To migrate your Wasp app from 0.20.X to 0.21.X, follow these steps:
@@ -89,7 +74,29 @@ app MyApp {
 }
 ```
 
-### 2. Update your `package.json`
+### 2. Add the `wasp()` plugin to your `vite.config.ts`
+
+The `wasp()` plugin is **required** and must be the **first plugin** in your Vite configuration:
+
+```ts title="vite.config.ts"
+// highlight-next-line
+import { wasp } from 'wasp/client/vite'
+import tailwindcss from '@tailwindcss/vite'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [
+    // highlight-next-line
+    wasp(),
+    tailwindcss()
+  ],
+  server: {
+    open: true,
+  },
+})
+```
+
+### 3. Update your `package.json`
 
 We've rearranged our workspace architecture a bit, so you'll need to update the `dependencies` and `workspaces` fields in your `package.json` file.
 
@@ -151,7 +158,7 @@ wasp ts-setup # if you're using the TS Spec
 wasp compile
 ```
 
-### 3. Update React Router imports
+### 4. Update React Router imports
 
 We've upgraded from React Router 6 to React Router 7. The package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your imports.
 
@@ -183,7 +190,7 @@ import { useNavigate, useParams } from 'react-router'
 React Router v7 is largely backwards compatible with v6, so there shouldn't be any changes besides the name.
 For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
 
-### 4. Upgrade Tailwind CSS to v4
+### 5. Upgrade Tailwind CSS to v4
 
 **If you don't have a `tailwindcss` dependency in your `package.json`, you can skip this step.**
 
@@ -245,34 +252,10 @@ For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reac
     });
     ```
 
-1. Find the CSS file with the `@import "tailwindcss"` directive and add `source(".")` to it.
-
-    If you used the default starter templates, the file will be `src/Main.css` or `src/App.css`. If it is in a different location, adjust the path in `source()` accordingly, so that it points to your `src` folder.
-
-    <Tabs>
-    <TabItem value="before" label="Before">
-
-    ```css title="src/Main.css" {1}
-    @import "tailwindcss";
-
-    /* ... */
-    ```
-
-    </TabItem>
-    <TabItem value="after" label="After">
-
-    ```css title="src/Main.css" {1}
-    @import "tailwindcss" source(".");
-
-    /* ... */
-    ```
-
-    </TabItem>
-    </Tabs>
 
 If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../project/css-frameworks.md#tailwind).
 
-### 5. Update your custom Dockerfile
+### 6. Update your custom Dockerfile
 
 **If you don't have a `Dockerfile` in your project folder, you can skip this step.**
 
@@ -282,7 +265,7 @@ This can be a quite straightforward find-and-replace operation:
 - **Find** `.wasp/build`
 - **Replace** with `.wasp/out`
 
-### 6. Update your custom deployment scripts
+### 7. Update your custom deployment scripts
 
 **If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
 
@@ -294,7 +277,7 @@ This can be a quite straightforward find-and-replace operation:
 
 You can check our updated [deployment methods guide](../deployment/deployment-methods/overview.md) and [CI/CD guide](../deployment/ci-cd.md) for reference on the correct deployment steps.
 
-### 7. Upgrade Vitest tests to v4
+### 8. Upgrade Vitest tests to v4
 
 **If you don't have test files in your project, you can skip this step.**
 
@@ -304,7 +287,75 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 8. Add `netlify.toml` if deploying to Netlify
+### 9. Update custom server URL usage in deployment
+
+**If you weren't using `REACT_APP_API_URL` environment variable during deployment, you can skip this step.**
+
+If you were using the `REACT_APP_API_URL` environment variable to specify a custom server URL during deployment, you now need to use the `--custom-server-url` CLI option instead:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```sh
+# For Fly
+REACT_APP_API_URL=https://my-server.com wasp deploy fly launch ...
+# For Railway
+REACT_APP_API_URL=https://my-server.com wasp deploy railway launch ...
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```sh
+# For Fly
+wasp deploy fly launch --custom-server-url https://my-server.com ...
+# For Railway
+wasp deploy railway launch --custom-server-url https://my-server.com ...
+```
+
+</TabItem>
+</Tabs>
+
+### 10. Create `public/manifest.json`
+
+**Skip this step if you don't care about PWA support**
+
+Wasp no longer generates `manifest.json` automatically. If you want to enable PWA support, you'll need to create this file manually.
+
+1. Create `manifest.json` in your project's `public/` directory:
+
+    ```json title="public/manifest.json"
+    {
+      "name": "MyAwesomeApp",
+      "icons": [
+        {
+          "src": "favicon.ico",
+          "sizes": "64x64 32x32 24x24 16x16",
+          "type": "image/x-icon"
+        }
+      ],
+      "start_url": ".",
+      "display": "standalone",
+      "theme_color": "#000000",
+      "background_color": "#ffffff"
+    }
+    ```
+
+    Make sure to customize the `name`, `theme_color`, and `background_color` to match your app.
+
+2. Add a link to the manifest in your head in your Wasp file:
+
+    ```wasp title="main.wasp"
+    app TodoApp {
+      // ...
+      head: [
+        // highlight-next-line
+        "<link rel='manifest' href='/manifest.json' />",
+      ],
+    }
+    ```
+
+### 11. Add `netlify.toml` if deploying to Netlify
 
 **If you're not deploying to Netlify, you can skip this step.**
 
@@ -316,6 +367,6 @@ Create a `netlify.toml` file with the following content:
 
 For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
 
-### 9. Enjoy your updated Wasp app
+### 12. Enjoy your updated Wasp app
 
 That's it!
