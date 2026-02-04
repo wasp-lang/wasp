@@ -63,6 +63,6 @@ export function getClientDeploymentDir(waspProjectDir: WaspProjectDir): string {
 }
 
 export function getClientBuildDir(waspProjectDir: WaspProjectDir): string {
-  // The client is build from the project root dir.
+  // The client is built from the project root dir.
   return path.join(waspProjectDir, ".");
 }
