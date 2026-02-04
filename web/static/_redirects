@@ -20,3 +20,14 @@
 /docs/migrate-from-0-13-to-0-14    /docs/migration-guides/migrate-from-0-13-to-0-14    301
 
 /docs/deployment/deployment-methods/cli /docs/deployment/deployment-methods/wasp-deploy/overview 301
+
+# Version path redirects (0.X.0 -> 0.X)
+/docs/0.12.0/*  /docs/0.12/:splat  301
+/docs/0.13.0/*  /docs/0.13/:splat  301
+/docs/0.14.0/*  /docs/0.14/:splat  301
+/docs/0.15.0/*  /docs/0.15/:splat  301
+/docs/0.16.0/*  /docs/0.16/:splat  301
+/docs/0.17.0/*  /docs/0.17/:splat  301
+/docs/0.18.0/*  /docs/0.18/:splat  301
+/docs/0.19.0/*  /docs/0.19/:splat  301
+/docs/0.20.0/*  /docs/0.20/:splat  301
