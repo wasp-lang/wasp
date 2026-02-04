@@ -23,6 +23,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Fixed an issue where if Wasp was installed from npm, `wasp new` would not work correctly. ([#3585](https://github.com/wasp-lang/wasp/pull/3585))
 - Fixed an issue where the `Link` component might not update with the values of `search` and `hash` (by @Pipboyguy). ([#3633](https://github.com/wasp-lang/wasp/pull/3633))
 - We now support Railway CLI v4.18.1 and greater on `wasp deploy railway`. ([#3667](https://github.com/wasp-lang/wasp/pull/3667))
+- Wasp TS spec now validates declaration names ([#3721](https://github.com/wasp-lang/wasp/pull/3721))
 
 ### 📖 Documentation
 
