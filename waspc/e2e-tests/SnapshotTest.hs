@@ -33,7 +33,7 @@ import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.Exit (ExitCode (..))
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, takeFileName)
-import System.Process (CreateProcess (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
+import System.Process (CreateProcess (..), createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
