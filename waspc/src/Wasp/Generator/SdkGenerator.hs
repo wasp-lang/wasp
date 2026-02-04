@@ -15,9 +15,7 @@ import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
-import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.ExternalFiles as EF
-import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DepVersions
@@ -155,13 +153,3 @@ depsRequiredForTesting =
       ("@testing-library/jest-dom", "^6.9.1"),
       ("msw", "^2.12.7")
     ]
-
-depsRequiredForAuth :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredForAuth spec = maybe [] (const authDeps) maybeAuth
-  where
-    maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
-    authDeps =
-      Npm.Dependency.fromList
-        [ -- Argon2 is used for hashing passwords.
-          ("@node-rs/argon2", "^1.8.3")
-        ]

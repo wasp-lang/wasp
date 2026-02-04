@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.UserCore.Server.OperationsGenerator
-  ( serverOperationsDirInSdkRootDir,
+  ( getServerOperationsImportPath,
     genOperations,
   )
 where
@@ -10,7 +10,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
+import StrongPath (File', Path, Path', Posix, Rel, reldirP, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -21,16 +21,19 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkRootDir,
-    getOperationTypeName,
-  )
+import Wasp.Generator.SdkGenerator.Common (SdkRootDir, getOperationTypeName)
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( SdkTemplatesUserCoreDir,
     mkTmplFdWithData,
   )
 import Wasp.Util (toUpperFirst)
+
+getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel SdkRootDir) File'
+getServerOperationsImportPath =
+  ([reldirP|server/operations|] </>) . \case
+    (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
+    (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
@@ -44,7 +47,8 @@ genOperations spec =
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
-genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
+genIndexTs spec =
+  return $ mkTmplFdWithData [relfile|server/operations/index.ts|] tmplData
   where
     tmplData =
       object
@@ -54,12 +58,14 @@ genIndexTs spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreD
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genWrappers :: AppSpec -> Generator FileDraft
-genWrappers spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|wrappers.ts|]) tmplData
+genWrappers spec =
+  return $ mkTmplFdWithData [relfile|server/operations/wrappers.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft
-genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|queries/index.ts|]) tmplData
+genQueriesIndex spec =
+  return $ mkTmplFdWithData [relfile|server/operations/queries/index.ts|] tmplData
   where
     tmplData =
       object
@@ -69,7 +75,8 @@ genQueriesIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUser
     isAuthEnabledGlobally = isAuthEnabled spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
-genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|actions/index.ts|]) tmplData
+genActionsIndex spec =
+  return $ mkTmplFdWithData [relfile|server/operations/actions/index.ts|] tmplData
   where
     tmplData =
       object
@@ -81,7 +88,7 @@ genActionsIndex spec = return $ mkTmplFdWithData (serverOpsDirInSdkTemplatesUser
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec =
   genOperationTypesFile
-    (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|queries/types.ts|])
+    [relfile|server/operations/queries/types.ts|]
     operations
     isAuthEnabledGlobally
   where
@@ -91,7 +98,7 @@ genQueryTypesFile spec =
 genActionTypesFile :: AppSpec -> Generator FileDraft
 genActionTypesFile spec =
   genOperationTypesFile
-    (serverOpsDirInSdkTemplatesUserCoreDir </> [relfile|actions/types.ts|])
+    [relfile|server/operations/actions/types.ts|]
     operations
     isAuthEnabledGlobally
   where
@@ -135,12 +142,6 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
     getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
-serverOperationsDirInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) Dir'
-serverOperationsDirInSdkRootDir =
-  castRel . (serverOpsDirInSdkTemplatesUserCoreDir </>) . \case
-    (AS.Operation.QueryOp _ _) -> [reldir|queries|]
-    (AS.Operation.ActionOp _ _) -> [reldir|actions|]
-
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
@@ -151,6 +152,3 @@ getOperationTmplData isAuthEnabledGlobally operation =
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
-
-serverOpsDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
-serverOpsDirInSdkTemplatesUserCoreDir = [reldir|server/operations|]

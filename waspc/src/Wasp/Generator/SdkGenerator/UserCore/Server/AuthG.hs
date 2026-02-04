@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.UserCore.Server.AuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -15,8 +15,7 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreDir,
-    mkTmplFd,
+  ( mkTmplFd,
     mkTmplFdWithData,
   )
 import Wasp.Util ((<++>))
@@ -38,7 +37,7 @@ genNewServerApi spec =
 
 genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
-  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|server/auth/index.ts|] tmplData
   where
     tmplData =
       object
@@ -49,7 +48,7 @@ genAuthIndex auth =
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
-  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|user.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|server/auth/user.ts|] tmplData
   where
     tmplData =
       object
@@ -64,25 +63,18 @@ genAuthUser auth =
 
 genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =
-  return $ mkTmplFdWithData (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|hooks.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|server/auth/hooks.ts|] tmplData
   where
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then sequence [genFileCopyInServerAuth [relfile|email/index.ts|]]
+    then sequence [return . mkTmplFd $ [relfile|server/auth/email/index.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
+    then sequence [return . mkTmplFd $ [relfile|server/auth/username.ts|]]
     else return []
-
-serverAuthDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
-serverAuthDirInSdkTemplatesUserCoreDir = [reldir|server/auth|]
-
-genFileCopyInServerAuth :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInServerAuth =
-  return . mkTmplFd . (serverAuthDirInSdkTemplatesUserCoreDir </>)

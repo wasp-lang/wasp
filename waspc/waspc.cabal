@@ -681,6 +681,7 @@ test-suite waspc-tests
     , split
     , strong-path
     , text
+    , time
     , unordered-containers
     , bytestring
     , waspc
@@ -831,6 +832,7 @@ test-suite waspc-e2e-tests
     , bytestring
     , dir-traverse
     , aeson-pretty
+    , async
     , process
     , tasty
     , hspec

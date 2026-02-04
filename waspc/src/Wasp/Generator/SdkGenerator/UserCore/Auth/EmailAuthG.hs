@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.UserCore.Auth.EmailAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (relfile)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (emailAuthProvider)
@@ -20,8 +20,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreDir,
-    mkTmplFd,
+  ( mkTmplFd,
     mkTmplFdWithData,
   )
 import Wasp.Util ((<++>))
@@ -31,7 +30,7 @@ genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
   | AS.Auth.isEmailAuthEnabled auth =
       sequence
-        [ genFileCopyInEmailAuthDir [relfile|index.ts|],
+        [ return . mkTmplFd $ [relfile|auth/email/index.ts|],
           genServerUtils auth
         ]
         <++> genActions auth
@@ -62,13 +61,13 @@ genActions auth =
 
 genLoginAction :: Generator FileDraft
 genLoginAction =
-  return $ mkTmplFdWithData (emailAuthDirInSdkTemplatesUserCoreDir </> [relfile|actions/login.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|auth/email/actions/login.ts|] tmplData
   where
     tmplData = object ["loginPath" .= serverLoginUrl emailAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
-  return $ mkTmplFdWithData (emailAuthDirInSdkTemplatesUserCoreDir </> [relfile|actions/signup.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|auth/email/actions/signup.ts|] tmplData
   where
     tmplData =
       object
@@ -80,7 +79,7 @@ genSignupAction auth =
 
 genPasswordResetActions :: Generator FileDraft
 genPasswordResetActions =
-  return $ mkTmplFdWithData (emailAuthDirInSdkTemplatesUserCoreDir </> [relfile|actions/passwordReset.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|auth/email/actions/passwordReset.ts|] tmplData
   where
     tmplData =
       object
@@ -90,13 +89,6 @@ genPasswordResetActions =
 
 genVerifyEmailAction :: Generator FileDraft
 genVerifyEmailAction =
-  return $ mkTmplFdWithData (emailAuthDirInSdkTemplatesUserCoreDir </> [relfile|actions/verifyEmail.ts|]) tmplData
+  return $ mkTmplFdWithData [relfile|auth/email/actions/verifyEmail.ts|] tmplData
   where
     tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
-
-emailAuthDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
-emailAuthDirInSdkTemplatesUserCoreDir = [reldir|auth/email|]
-
-genFileCopyInEmailAuthDir :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInEmailAuthDir =
-  return . mkTmplFd . (emailAuthDirInSdkTemplatesUserCoreDir </>)
