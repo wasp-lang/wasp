@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Auth.AuthFormsG
+module Wasp.Generator.SdkGenerator.UserCore.Auth.AuthFormsG
   ( genAuthForms,
   )
 where

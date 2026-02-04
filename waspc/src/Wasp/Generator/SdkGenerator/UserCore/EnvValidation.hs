@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.EnvValidation
+module Wasp.Generator.SdkGenerator.UserCore.EnvValidation
   ( genEnvValidation,
     depsRequiredByEnvValidation,
   )

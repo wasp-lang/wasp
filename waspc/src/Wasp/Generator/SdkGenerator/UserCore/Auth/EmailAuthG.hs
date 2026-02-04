@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.Auth.EmailAuthG
+module Wasp.Generator.SdkGenerator.UserCore.Auth.EmailAuthG
   ( genEmailAuth,
   )
 where
