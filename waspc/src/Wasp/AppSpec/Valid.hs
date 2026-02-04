@@ -338,6 +338,26 @@ validateDeclarationNames spec =
               ]
 
     invalidDeclNamesErrorMessage =
+      {-
+         NOTE: This check is only necessary if the user is using the TS spec.
+         If the user is using the DSL, the check is redundant and will never
+         trigger.
+
+         More precisely:
+         - DSL - If a declaration name isn't a valid identifier, the lexer
+           doesn't tokenize it and stops the compilation much earlier with a
+           syntax error.
+         - TS Spec - Since declaration names come from TypeScript
+           strings, they can still be anything by this point. The check here
+           ensures that declarations in the TS spec follow the same rules as
+           the DSL.
+
+         It would be more consistent to perform this check much earlier,
+         probably in TypeScript. We decided to put it here because:
+         - This is where we keep similar app spec validations.
+         - It reuses the actual lexer instead of duplicating its rules in
+           TypeScript (and potential future spec variants)
+       -}
       let invalidDeclNames = filter (not . isValidWaspIdentifier) $ map getDeclName $ AS.decls spec
           declNameRules =
             [ "must start with a letter or an underscore",
