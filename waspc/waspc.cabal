@@ -27,8 +27,6 @@ data-files:
   --   Check https://github.com/haskell/cabal/issues/5883 for more details.
   Generator/templates/Dockerfile
   Generator/templates/dockerignore
-  Generator/templates/react-app/gitignore
-  Generator/templates/react-app/npmrc
   Generator/templates/server/gitignore
   Generator/templates/server/npmrc
   Generator/templates/**/*.prisma
@@ -40,7 +38,6 @@ data-files:
   Generator/templates/**/*.js
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
-  Generator/templates/**/*.png
   Generator/libs/**/*.tgz
   Cli/starters/**/*.js
   Cli/starters/**/*.ts
@@ -318,14 +315,21 @@ library
     Wasp.Generator.NpmWorkspaces
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
+    Wasp.Generator.SdkGenerator.Auth.Common
     Wasp.Generator.SdkGenerator.Auth.EmailAuthG
     Wasp.Generator.SdkGenerator.Auth.LocalAuthG
     Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
     Wasp.Generator.SdkGenerator.AuthG
+    Wasp.Generator.SdkGenerator.Client.AppG
     Wasp.Generator.SdkGenerator.Client.AuthG
     Wasp.Generator.SdkGenerator.Client.CrudG
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
+    Wasp.Generator.SdkGenerator.Client.VitePluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
     Wasp.Generator.SdkGenerator.EmailSender.Providers
@@ -368,15 +372,9 @@ library
     Wasp.Generator.Valid.Validator
     Wasp.Generator.WaspInfo
     Wasp.Generator.WebAppGenerator
-    Wasp.Generator.WebAppGenerator.JsImport
-    Wasp.Generator.WebAppGenerator.AuthG
-    Wasp.Generator.WebAppGenerator.Auth.Common
     Wasp.Generator.WebAppGenerator.Common
-    Wasp.Generator.WebAppGenerator.RouterGenerator
     Wasp.Generator.WebAppGenerator.Start
     Wasp.Generator.WebAppGenerator.Test
-    Wasp.Generator.WebAppGenerator.Vite
-    Wasp.Generator.WebAppGenerator.Vite.VitePlugin
     Wasp.Generator.WebSocket
     Wasp.Generator.WaspLibs
     Wasp.Generator.WaspLibs.AvailableLibs
@@ -409,7 +407,6 @@ library
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
-    Wasp.Project.Vite
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
     Wasp.Project.WaspFile.WaspLang
@@ -715,7 +712,6 @@ test-suite waspc-tests
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.MockWriteableMonad
-    Generator.WebAppGeneratorTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
     Generator.CrudTest

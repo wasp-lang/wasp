@@ -5,8 +5,8 @@ import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  getClientBuildDir,
-  getServerBuildDir,
+  getClientDeploymentDir,
+  getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
 import { createCommandWithCwd } from "../../../../common/zx.js";
 import {
@@ -170,8 +170,11 @@ async function setupServer({
   // server service env variables.
   await generateServiceUrl(clientServiceName, clientAppPort, options);
 
-  const serverBuildDir = getServerBuildDir(options.waspProjectDir);
-  const railwayCli = createCommandWithCwd(options.railwayExe, serverBuildDir);
+  const serverDeploymentDir = getServerDeploymentDir(options.waspProjectDir);
+  const railwayCli = createCommandWithCwd(
+    options.railwayExe,
+    serverDeploymentDir,
+  );
 
   const clientUrl = `https://${getRailwayEnvVarValueReference(
     "RAILWAY_PUBLIC_DOMAIN",
@@ -209,11 +212,14 @@ async function setupClient({
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up client app with name ${clientServiceName}`);
 
-  const clientBuildDir = getClientBuildDir(options.waspProjectDir);
-  const railwayCli = createCommandWithCwd(options.railwayExe, clientBuildDir);
+  const clientDeploymentDir = getClientDeploymentDir(options.waspProjectDir);
+  const railwayCli = createCommandWithCwd(
+    options.railwayExe,
+    clientDeploymentDir,
+  );
 
   // Having a Staticfile tells Railway to use a static file server.
-  await $({ cwd: clientBuildDir })`touch Staticfile`;
+  await $({ cwd: clientDeploymentDir })`touch Staticfile`;
 
   await railwayCli(
     [

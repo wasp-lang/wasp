@@ -7,10 +7,9 @@ module Wasp.Generator.NpmDependencies
     getPeerDependenciesPackageJsonEntry,
     getUserNpmDepsForPackage,
     NpmDepsForPackage (..),
-    NpmDepsForFramework,
     NpmDepsFromWasp (..),
     NpmDepsFromUser (..),
-    buildWaspFrameworkNpmDeps,
+    buildWaspServerNpmDeps,
     getDependencyOverridesPackageJsonEntry,
     mergeWaspAndUserDeps,
   )
@@ -27,12 +26,6 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Util (zipMaps)
 
-data NpmDepsForFramework = NpmDepsForFramework
-  { npmDepsForServer :: NpmDepsForPackage,
-    npmDepsForWebApp :: NpmDepsForPackage
-  }
-  deriving (Show, Eq, Generic, ToJSON, FromJSON)
-
 data NpmDepsForPackage = NpmDepsForPackage
   { dependencies :: [D.Dependency],
     devDependencies :: [D.Dependency],
@@ -45,6 +38,11 @@ newtype NpmDepsFromWasp = NpmDepsFromWasp {fromWasp :: NpmDepsForPackage}
 
 newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
   deriving (Show, Eq, Generic, ToJSON, FromJSON)
+
+buildWaspServerNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsForPackage
+buildWaspServerNpmDeps spec fromServer = mergeWaspAndUserDeps fromServer userDeps
+  where
+    userDeps = getUserNpmDepsForPackage spec
 
 -- | Merges Wasp dependencies with user dependencies. When a package appears in
 -- both, the user's version takes precedence. User-only dependencies don't need
@@ -73,15 +71,6 @@ mergeWaspAndUserDeps (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
 
         waspMap = Map.fromList $ D.toPair <$> waspDeps
         userMap = Map.fromList $ D.toPair <$> userDeps
-
-buildWaspFrameworkNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsFromWasp -> NpmDepsForFramework
-buildWaspFrameworkNpmDeps spec fromServer fromWebApp =
-  NpmDepsForFramework
-    { npmDepsForServer = mergeWaspAndUserDeps fromServer userDeps,
-      npmDepsForWebApp = mergeWaspAndUserDeps fromWebApp userDeps
-    }
-  where
-    userDeps = getUserNpmDepsForPackage spec
 
 getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser
 getUserNpmDepsForPackage spec =

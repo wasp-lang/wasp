@@ -1,4 +1,4 @@
-@import "tailwindcss" source(".");
+@import "tailwindcss";
 
 @source inline("{bg,text}-{pink,emerald}-{300,900}");
 
