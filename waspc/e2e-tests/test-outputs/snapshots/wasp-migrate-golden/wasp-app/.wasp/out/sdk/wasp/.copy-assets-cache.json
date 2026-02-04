@@ -1,6 +1,0 @@
-{
-  "client/app/components/Loader.module.css": "a6e938f872c66e409fe9a5e38c376354b7ace72662ebfc298b577ebc6e2b42c6",
-  "client/vite/virtual-files/files/index.html": "b79803770dc2881b08a348e473049814df1e97c3c740183207753a267ed3918b",
-  "client/vite/virtual-files/files/index.tsx": "1380e61a2cc7f93036b9a820062fb03d982c27aac4eb3f92a0f53a4feed7927a",
-  "client/vite/virtual-files/files/routes.tsx": "0ead25c5f37895afa471357c298fab3a0593fe4e12b1b7e9b404f7f7fe375d1a"
-}
