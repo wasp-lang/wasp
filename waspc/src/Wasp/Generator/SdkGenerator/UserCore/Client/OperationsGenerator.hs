@@ -29,15 +29,9 @@ import Wasp.Util ((<++>))
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
-    [ -- Not migrated to TS yet
-      return . mkTmplFd $ [relfile|client/operations/internal/resources.js|],
-      return . mkTmplFd $ [relfile|client/operations/internal/index.ts|],
-      -- Not migrated to TS yet
-      return . mkTmplFd $ [relfile|client/operations/internal/updateHandlersMap.js|],
-      return . mkTmplFd $ [relfile|client/operations/rpc.ts|],
+    [ return . mkTmplFd $ [relfile|client/operations/internal/index.ts|],
       return . mkTmplFd $ [relfile|client/operations/hooks.ts|],
-      return . mkTmplFd $ [relfile|client/operations/index.ts|],
-      return . mkTmplFd $ [relfile|client/operations/queryClient.ts|]
+      return . mkTmplFd $ [relfile|client/operations/index.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec

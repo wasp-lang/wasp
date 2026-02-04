@@ -10,7 +10,6 @@ import {
   type EmailProviderData,
 } from 'wasp/auth/utils';
 import { config as waspServerConfig } from 'wasp/server';
-import { type {= userEntityUpper =}, type {= authEntityUpper =} } from 'wasp/entities'
 
 // PUBLIC API
 export async function createEmailVerificationLink(

@@ -1,9 +1,9 @@
 {{={= =}=}}
 import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
-import '../auth-styles.css'
+import '../../../../../core/auth/forms/internal/auth-styles.css'
 import { config } from 'wasp/client'
-import { clsx } from '../util'
+import { clsx } from '../../../../../core/auth/forms/internal/util'
 
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import {
@@ -14,7 +14,7 @@ import {
   FormError,
   FormTextarea,
   SubmitButton,
-} from '../Form'
+} from '../../../../../core/auth/forms/internal/Form'
 import type {
   AdditionalSignupFields,
   AdditionalSignupField,
@@ -22,8 +22,8 @@ import type {
   FormState,
 } from '../../types'
 {=# isSocialAuthEnabled =}
-import * as SocialIcons from '../social/SocialIcons'
-import { SocialButton } from '../social/SocialButton'
+import * as SocialIcons from '../../../../../core/auth/forms/internal/social/SocialIcons'
+import { SocialButton } from '../../../../../core/auth/forms/internal/social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
 import { useNavigate } from 'react-router'

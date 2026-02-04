@@ -3,7 +3,7 @@ import { useLocation } from 'react-router'
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 
 import { resetPassword } from '../../../email/actions/passwordReset'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
+import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../../../../../core/auth/forms/internal/Form'
 
 // PRIVATE API
 export const ResetPasswordForm = () => {

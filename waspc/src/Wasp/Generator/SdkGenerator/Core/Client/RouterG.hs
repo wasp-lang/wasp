@@ -1,24 +1,23 @@
-module Wasp.Generator.SdkGenerator.UserCore.Client.RouterGenerator
-  ( genNewClientRouterApi,
+module Wasp.Generator.SdkGenerator.Core.Client.RouterG
+  ( genClientRouter,
   )
 where
 
-import Data.Aeson (object, (.=))
-import qualified Data.Aeson as Aeson
+import Data.Aeson (KeyValue ((.=)), Value, object)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.UserCore.Common
+import Wasp.Generator.SdkGenerator.Core.Common
   ( mkTmplFd,
     mkTmplFdWithData,
   )
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
 
-genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
-genNewClientRouterApi spec =
+genClientRouter :: AppSpec -> Generator [FileDraft]
+genClientRouter spec =
   sequence
     [ genIndexTs spec,
       return . mkTmplFd $ [relfile|client/router/types.ts|],
@@ -32,7 +31,7 @@ genIndexTs spec =
   where
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
-createRouteTemplateData :: (String, AS.Route.Route) -> Aeson.Value
+createRouteTemplateData :: (String, AS.Route.Route) -> Value
 createRouteTemplateData (name, route) =
   object
     [ "name" .= name,
@@ -48,6 +47,6 @@ createRouteTemplateData (name, route) =
     urlParams = [param | WebRouterPath.ParamSegment param <- routeSegments]
     optionalStaticSegments = [segment | (WebRouterPath.StaticSegment (WebRouterPath.OptionalStaticSegment segment)) <- routeSegments]
 
-    mapPathParamToJson :: WebRouterPath.ParamSegment -> Aeson.Value
+    mapPathParamToJson :: WebRouterPath.ParamSegment -> Value
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]

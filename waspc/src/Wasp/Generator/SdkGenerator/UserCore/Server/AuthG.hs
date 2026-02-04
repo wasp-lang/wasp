@@ -31,7 +31,6 @@ genNewServerApi spec =
           genHooks auth
         ]
         <++> genAuthEmail auth
-        <++> genAuthUsername auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 

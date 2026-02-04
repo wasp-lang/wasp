@@ -1,4 +1,4 @@
-module Wasp.Generator.SdkGenerator.UserCore.EmailSender.Providers
+module Wasp.Generator.SdkGenerator.Core.Server.EmailSenderProviders
   ( smtp,
     sendGrid,
     mailgun,

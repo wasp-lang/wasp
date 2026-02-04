@@ -7,9 +7,9 @@ import {
   useQuery as rqUseQuery,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { Action, Query } from "./rpc";
+import { Action, Query } from "wasp/client/operations/rpc";
 import { makeQueryCacheKey } from "./queries/core";
-export { configureQueryClient } from "./queryClient";
+export { configureQueryClient } from "../../../core/client/operations/queryClient";
 
 // PUBLIC API
 export function useQuery<Input, Output>(
@@ -85,7 +85,7 @@ export function useAction<Input = unknown, Output = unknown>(
 
 // PUBLIC API
 // todo: Improve this type. Details here:
-// https://github.com/wasp-lang/wasp/issues/2017 
+// https://github.com/wasp-lang/wasp/issues/2017
 /**
  * A documented (public) way to define optimistic updates.
  */

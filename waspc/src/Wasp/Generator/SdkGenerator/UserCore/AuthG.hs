@@ -51,8 +51,6 @@ genAuth spec =
         -- server stuff
         <++> sequence
           [ return $ mkTmplFd [relfile|core/auth.ts|],
-            return . mkTmplFd $ [relfile|auth/validation.ts|],
-            return . mkTmplFd $ [relfile|auth/password.ts|],
             return . mkTmplFd $ [relfile|auth/jwt.ts|],
             genSessionTs auth,
             genLuciaTs auth,

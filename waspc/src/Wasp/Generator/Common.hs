@@ -10,6 +10,7 @@ module Wasp.Generator.Common
     GeneratedSrcDir,
     makeJsArrayFromHaskellList,
     dropExtensionFromImportPath,
+    genConditionally,
   )
 where
 
@@ -21,6 +22,7 @@ import StrongPath (Dir, File, Path, Posix, Rel, reldir)
 import qualified StrongPath as SP
 import StrongPath.Types (Path')
 import System.FilePath (splitExtension)
+import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Util (toLowerFirst)
 
@@ -75,3 +77,7 @@ dropExtensionFromImportPath :: Path Posix (Rel r) (File f) -> Path Posix (Rel r)
 dropExtensionFromImportPath = fromJust . SP.parseRelFileP . dropExtension . SP.fromRelFileP
   where
     dropExtension = fst . splitExtension
+
+genConditionally :: Bool -> [a] -> Generator [a]
+genConditionally True gen = return gen
+genConditionally False _ = return []

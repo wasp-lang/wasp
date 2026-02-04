@@ -16,9 +16,9 @@
     {=!  Some of the statements in the comments might become incorrect. =}
     {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./core/storage": "./dist/user-core/core/storage.js",
+    "./core/storage": "./dist/core/core/storage.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./core/serialization": "./dist/user-core/core/serialization/index.js",
+    "./core/serialization": "./dist/core/core/serialization/index.js",
     "./core/auth": "./dist/user-core/core/auth.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/helpers/user": "./dist/user-core/auth/helpers/user.js",
@@ -33,15 +33,15 @@
     {=!  Used by users, documented. =}
     "./auth/utils": "./dist/user-core/auth/utils.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./auth/password": "./dist/user-core/auth/password.js",
+    "./auth/password": "./dist/core/auth/password.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/jwt": "./dist/user-core/auth/jwt.js",
     {=!  Used by user, documented. =}
-    "./auth/validation": "./dist/user-core/auth/validation.js",
+    "./auth/validation": "./dist/core/auth/validation.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/pages/createAuthRequiredPage": "./dist/user-core/auth/pages/createAuthRequiredPage.jsx",
     {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
-    "./api/events": "./dist/user-core/api/events.js",
+    "./api/events": "./dist/core/api/events.js",
     {=!  Used by users, documented. =}
     "./operations": "./dist/user-core/operations/index.js",
     {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
@@ -52,13 +52,15 @@
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./operations/*": "./dist/user-core/operations/*",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./universal/url": "./dist/user-core/universal/url.js",
+    "./universal/url": "./dist/core/universal/url.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./universal/types": "./dist/user-core/universal/types.js",
+    "./universal/types": "./dist/core/universal/types.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./universal/validators": "./dist/user-core/universal/validators.js",
+    "./universal/validators": "./dist/core/universal/validators.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./universal/ansiColors": "./dist/user-core/universal/ansiColors.js",
+    "./universal/ansiColors": "./dist/core/universal/ansiColors.js",
+    {=!  Used by our code, undocumented (but accessible) for users. =}
+    "./universal/predicates": "./dist/core/universal/predicates.js",
     {=!  Parts are used by users, documented. Parts are probably used by our code, undocumented (but accessible). =}
     "./server/utils": "./dist/user-core/server/utils.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
@@ -68,7 +70,7 @@
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./server/crud/*": "./dist/user-core/server/crud/*.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./server/email/core/types": "./dist/user-core/server/email/core/types.js",
+    "./server/email/core/types": "./dist/core/server/email/core/types.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./server/auth/email/utils": "./dist/user-core/server/auth/email/utils.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
@@ -80,9 +82,9 @@
     {=! Used by the framework client code, reconsider during refactoring. =}
     "./client/webSocket/WebSocketProvider": "./dist/user-core/client/webSocket/WebSocketProvider.jsx",
     {=! Still needed, reconsider during refactoring. =}
-    "./server/types": "./dist/user-core/server/types/index.js",
+    "./server/types": "./dist/core/server/types/index.js",
     {=! Used by the framework server code, reconsider during refactoring. =}
-    "./server/middleware": "./dist/user-core/server/middleware/index.js",
+    "./server/middleware": "./dist/core/server/middleware/index.js",
 
     {=! ================= NEW API HERE =================== =}
     {=! Public: { config, prisma, type ServerSetupFn, HttpError, type DbSeedFn, type MiddlewareConfigFn } =}
@@ -100,7 +102,7 @@
     {=! Public: { type WebSocketDefinition, type WaspSocketData } =}
     {=! Private: [server, sdk] =}
     "./server/webSocket": "./dist/user-core/server/webSocket/index.js",
-    "./entities": "./dist/user-core/entities/index.js",
+    "./entities": "./dist/core/entities/index.js",
     "./auth": "./dist/user-core/auth/index.js",
     "./auth/providers": "./dist/user-core/auth/providers/index.js",
     "./client/auth": "./dist/user-core/client/auth/index.js",
@@ -111,20 +113,20 @@
     "./server/email": "./dist/user-core/server/email/index.js",
     "./server/jobs": "./dist/user-core/server/jobs/index.js",
     "./server/operations": "./dist/user-core/server/operations/index.js",
-    "./client/router": "./dist/user-core/client/router/index.js",
+    "./client/router": "./dist/core/client/router/index.js",
     "./client/test": "./dist/user-core/client/test/index.js",
-    "./client/hooks": "./dist/user-core/client/hooks.js",
+    "./client/hooks": "./dist/core/client/hooks.js",
     "./client": "./dist/user-core/client/index.js",
-    "./dev": "./dist/user-core/dev/index.js",
-    "./env": "./dist/user-core/env/index.js",
+    "./dev": "./dist/core/dev/index.js",
+    "./env": "./dist/core/env/index.js",
     {=! Private: [client] =}
-    "./env/validation": "./dist/user-core/env/validation.js",
+    "./env/validation": "./dist/core/env/validation.js",
     {=! Private: [client, sdk] =}
     "./client/env/schema": "./dist/user-core/client/env/schema.js",
 
     {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
     {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}
-    "./client/operations/rpc": "./dist/user-core/client/operations/rpc.js",
+    "./client/operations/rpc": "./dist/core/client/operations/rpc.js",
     "./server/operations/actions":  "./dist/user-core/server/operations/actions/index.js",
     "./server/operations/queries": "./dist/user-core/server/operations/queries/index.js",
     "./server/_types": "./dist/user-core/server/_types/index.js"

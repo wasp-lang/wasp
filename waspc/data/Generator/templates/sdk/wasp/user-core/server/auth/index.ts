@@ -23,7 +23,7 @@ export {
   ensurePasswordIsPresent,
   ensureValidPassword,
   ensureTokenIsPresent,
-} from '../../auth/validation.js'
+} from 'wasp/auth/validation';
 
 export type {
   OnBeforeSignupHook,
@@ -45,5 +45,5 @@ export * from './email/index.js'
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-export * from './username.js'
+export * from '../../../core/server/auth/username'
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}

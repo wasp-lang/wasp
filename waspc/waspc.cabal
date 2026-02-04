@@ -321,6 +321,19 @@ library
     Wasp.Generator.SdkGenerator.JsImport
     Wasp.Generator.SdkGenerator.Core
     Wasp.Generator.SdkGenerator.Core.Common
+    Wasp.Generator.SdkGenerator.Core.UniversalG
+    Wasp.Generator.SdkGenerator.Core.CoreG
+    Wasp.Generator.SdkGenerator.Core.ApiG
+    Wasp.Generator.SdkGenerator.Core.AuthG
+    Wasp.Generator.SdkGenerator.Core.EnvG
+    Wasp.Generator.SdkGenerator.Core.DevG
+    Wasp.Generator.SdkGenerator.Core.ClientG
+    Wasp.Generator.SdkGenerator.Core.Client.RouterG
+    Wasp.Generator.SdkGenerator.Core.ServerG
+    Wasp.Generator.SdkGenerator.Core.Server.AuthG
+    Wasp.Generator.SdkGenerator.Core.Server.EmailSenderProviders
+    Wasp.Generator.SdkGenerator.Core.Server.EmailG
+    Wasp.Generator.SdkGenerator.Core.EntitiesG
     Wasp.Generator.SdkGenerator.Root
     Wasp.Generator.SdkGenerator.Root.Common
     Wasp.Generator.SdkGenerator.UserCore
@@ -328,7 +341,6 @@ library
     Wasp.Generator.SdkGenerator.UserCore.CrudG
     Wasp.Generator.SdkGenerator.UserCore.EnvValidation
     Wasp.Generator.SdkGenerator.UserCore.WebSocketGenerator
-    Wasp.Generator.SdkGenerator.UserCore.EmailSender.Providers
     Wasp.Generator.SdkGenerator.UserCore.AuthG
     Wasp.Generator.SdkGenerator.UserCore.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.UserCore.Auth.EmailAuthG
@@ -337,7 +349,6 @@ library
     Wasp.Generator.SdkGenerator.UserCore.Client.AuthG
     Wasp.Generator.SdkGenerator.UserCore.Client.CrudG
     Wasp.Generator.SdkGenerator.UserCore.Client.OperationsGenerator
-    Wasp.Generator.SdkGenerator.UserCore.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.UserCore.ServerApiG
     Wasp.Generator.SdkGenerator.UserCore.Server.AuthG
     Wasp.Generator.SdkGenerator.UserCore.Server.CrudG

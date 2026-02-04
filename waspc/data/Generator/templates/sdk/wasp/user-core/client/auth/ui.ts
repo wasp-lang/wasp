@@ -29,4 +29,4 @@ export {
   FormTextarea,
   FormItemGroup,
   FormLabel,
-} from '../../auth/forms/internal/Form'
+} from '../../../core/auth/forms/internal/Form'

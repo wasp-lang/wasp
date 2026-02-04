@@ -117,10 +117,8 @@ genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
-    return $ mkTmplFd [relfile|server/jobs/core/job.ts|] : genAllJobExecutorsFds
+    return $ concatMap genJobExecutorFds jobExecutors
     where
-      genAllJobExecutorsFds = concatMap genJobExecutorFds jobExecutors
-
       -- Per each defined job executor, we generate the needed files.
       genJobExecutorFds :: JobExecutor -> [FileDraft]
       genJobExecutorFds PgBoss =

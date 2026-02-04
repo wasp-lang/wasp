@@ -43,8 +43,7 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          return . mkTmplFd $ [relfile|server/auth/oauth/oneTimeCode.ts|],
-          return . mkTmplFd $ [relfile|server/auth/oauth/provider.ts|]
+          return . mkTmplFd $ [relfile|server/auth/oauth/oneTimeCode.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
