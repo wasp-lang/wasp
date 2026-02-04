@@ -1,11 +1,10 @@
 module Wasp.Generator.SdkGenerator.UserCore.AuthG
   ( genAuth,
-    authDirInSdkTemplatesUserCoreProjectDir,
   )
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -21,8 +20,7 @@ import Wasp.Generator.SdkGenerator.UserCore.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( SdkTemplatesUserCoreProjectDir,
-    mkTmplFd,
+  ( mkTmplFd,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.UserCore.Server.OAuthG (genOAuth)
@@ -37,13 +35,13 @@ genAuth spec =
     Just auth ->
       -- shared stuff
       sequence
-        [ genFileCopyInAuth [relfile|user.ts|]
+        [ return . mkTmplFd $ [relfile|auth/user.ts|]
         ]
         -- client stuff
         <++> sequence
-          [ genFileCopyInAuth [relfile|helpers/user.ts|],
-            genFileCopyInAuth [relfile|types.ts|],
-            genFileCopyInAuth [relfile|logout.ts|],
+          [ return . mkTmplFd $ [relfile|auth/helpers/user.ts|],
+            return . mkTmplFd $ [relfile|auth/types.ts|],
+            return . mkTmplFd $ [relfile|auth/logout.ts|],
             genUseAuth auth
           ]
         <++> genAuthForms auth
@@ -53,7 +51,7 @@ genAuth spec =
         -- server stuff
         <++> sequence
           [ return $ mkTmplFd [relfile|core/auth.ts|],
-            genFileCopyInAuth [relfile|jwt.ts|],
+            return . mkTmplFd $ [relfile|auth/jwt.ts|],
             genSessionTs auth,
             genLuciaTs auth,
             genUtils auth,
@@ -69,13 +67,15 @@ genAuth spec =
 --   access to the currently logged in user (and check whether user is logged in
 --   ot not).
 genUseAuth :: AS.Auth.Auth -> Generator FileDraft
-genUseAuth auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjectDir </> [relfile|useAuth.ts|]) tmplData
+genUseAuth auth =
+  return $ mkTmplFdWithData [relfile|auth/useAuth.ts|] tmplData
   where
     tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
-genLuciaTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjectDir </> [relfile|lucia.ts|]) tmplData
+genLuciaTs auth =
+  return $ mkTmplFdWithData [relfile|auth/lucia.ts|] tmplData
   where
     tmplData =
       object
@@ -87,7 +87,8 @@ genLuciaTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjec
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genSessionTs :: AS.Auth.Auth -> Generator FileDraft
-genSessionTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjectDir </> [relfile|session.ts|]) tmplData
+genSessionTs auth =
+  return $ mkTmplFdWithData [relfile|auth/session.ts|] tmplData
   where
     tmplData =
       object
@@ -99,7 +100,8 @@ genSessionTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProj
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genUtils :: AS.Auth.Auth -> Generator FileDraft
-genUtils auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjectDir </> [relfile|utils.ts|]) tmplData
+genUtils auth =
+  return $ mkTmplFdWithData [relfile|auth/utils.ts|] tmplData
   where
     tmplData =
       object
@@ -118,7 +120,8 @@ genUtils auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjectD
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
-genIndexTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjectDir </> [relfile|index.ts|]) tmplData
+genIndexTs auth =
+  return $ mkTmplFdWithData [relfile|auth/index.ts|] tmplData
   where
     tmplData =
       object
@@ -129,7 +132,8 @@ genIndexTs auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjec
     isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvdersIndex auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjectDir </> [relfile|providers/index.ts|]) tmplData
+genProvdersIndex auth =
+  return $ mkTmplFdWithData [relfile|auth/providers/index.ts|] tmplData
   where
     tmplData =
       object
@@ -141,7 +145,8 @@ genProvdersIndex auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCore
     authMethods = AS.Auth.methods auth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
-genProvidersTypes auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCoreProjectDir </> [relfile|providers/types.ts|]) tmplData
+genProvidersTypes auth =
+  return $ mkTmplFdWithData [relfile|auth/providers/types.ts|] tmplData
   where
     tmplData =
       object
@@ -153,10 +158,3 @@ genProvidersTypes auth = return $ mkTmplFdWithData (authDirInSdkTemplatesUserCor
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
-
-authDirInSdkTemplatesUserCoreProjectDir :: Path' (Rel SdkTemplatesUserCoreProjectDir) Dir'
-authDirInSdkTemplatesUserCoreProjectDir = [reldir|auth|]
-
-genFileCopyInAuth :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInAuth =
-  return . mkTmplFd . (authDirInSdkTemplatesUserCoreProjectDir </>)

@@ -4,11 +4,11 @@ module Wasp.Generator.SdkGenerator.Common
     sdkRootDirInGeneratedCodeDir,
     sdkRootDirInTemplatesDir,
     extSrcDirInSdkRootDir,
-    relDirToRelFileP,
     makeSdkImportPath,
     getOperationTypeName,
     clientTemplatesDirInSdkTemplatesDir,
     serverTemplatesDirInSdkTemplatesDir,
+    sdkPackageName,
   )
 where
 
@@ -36,23 +36,20 @@ sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
 sdkRootDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkRootDirInTemplatesDir = [reldir|sdk/wasp|]
 
--- | External @src@ directory refers to the user's @src@ directory.
 extSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir GeneratedExternalCodeDir)
 extSrcDirInSdkRootDir = [reldir|src|]
 
-relDirToRelFileP :: Path Posix (Rel d) Dir' -> Path Posix (Rel d) File'
-relDirToRelFileP path = fromJust $ parseRelFileP $ removeTrailingSlash $ fromRelDirP path
-  where
-    removeTrailingSlash = reverse . dropWhile (== '/') . reverse
-
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
-makeSdkImportPath path = [reldirP|wasp|] </> path
-
-getOperationTypeName :: AS.Operation.Operation -> String
-getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
 
 serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
 serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
+
+getOperationTypeName :: AS.Operation.Operation -> String
+getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+
+sdkPackageName :: String
+sdkPackageName = "wasp"

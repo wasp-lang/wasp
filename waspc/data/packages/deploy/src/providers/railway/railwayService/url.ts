@@ -1,4 +1,5 @@
 import { WaspProjectDir } from "../../../common/brandedTypes.js";
+import { waspInfo } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
 import {
   ClientServiceName,
@@ -41,7 +42,17 @@ export async function generateServiceUrl(
   if (domainAlreadyExistsPattern.test(result.stdout)) {
     return extractServiceUrlFromString(result.stdout);
   } else {
-    return RailwayCliDomainSchema.parse(result.json()).domain;
+    const { domains } = RailwayCliDomainSchema.parse(result.json());
+    const domain = domains[0];
+
+    if (domains.length > 1) {
+      waspInfo(`Multiple domains detected, using the first one: ${domain}.`);
+      waspInfo(
+        'If you want to use a custom domain for the server, you should add the "--custom-server-url <url>" flag.',
+      );
+    }
+
+    return domain;
   }
 }
 

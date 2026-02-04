@@ -1,0 +1,48 @@
+{
+  "name": "@wasp.sh/lib-auth",
+  "version": "0.21.0",
+  "type": "module",
+  "license": "MIT",
+  "exports": {
+    "./index": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./node": {
+      "types": "./dist/node.d.ts",
+      "default": "./dist/node.js"
+    },
+    "./browser": {
+      "types": "./dist/browser.d.ts",
+      "default": "./dist/browser.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "vitest dev",
+    "prepare": "npm run build",
+    "test": "npm run test:types && npm run test:coverage && npm run test:type-exports",
+    "test:coverage": "vitest run --coverage",
+    "test:type-exports": "attw -P --profile esm-only",
+    "test:types": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": "^19.2.1"
+  },
+  "dependencies": {
+    "@node-rs/argon2": "^2.0.2",
+    "oslo": "^1.1.2"
+  },
+  "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.2",
+    "@types/node": "^22.17.1",
+    "@types/react": "^19.2.7",
+    "@vitest/coverage-v8": "^4.0.10",
+    "tsdown": "^0.20.0",
+    "typescript": "^5.8.2",
+    "vitest": "^4.0.10"
+  }
+}

@@ -37,9 +37,17 @@ jobs:
         working-directory: waspc
         run: ./run install
 
-      - name: Install node dependencies for ${{ matrix.example }}
+      - name: Setup Wasp TS Config (if needed)
         working-directory: examples/${{ matrix.example }}
-        run: npm ci
+        run: |
+          if [ -f *.wasp.ts ]; then
+            wasp-cli ts-setup
+          fi
+
+      # We must compile the project to generate the Wasp libs before installing deps
+      - name: Compile project and install deps for ${{ matrix.example }}
+        working-directory: examples/${{ matrix.example }}
+        run: wasp-cli compile
 
       - name: Setup project environment for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}

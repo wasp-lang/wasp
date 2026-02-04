@@ -38,9 +38,7 @@ genServerMiddleware =
 
 genServerTaggedEntities :: AppSpec -> Generator [FileDraft]
 genServerTaggedEntities spec =
-  return [mkTmplFdWithData tmplFile tmplData]
+  return [mkTmplFdWithData [relfile|server/_types/taggedEntities.ts|] tmplData]
   where
-    tmplFile = [relfile|server/_types/taggedEntities.ts|]
     tmplData = object ["entities" .= allEntities]
-
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec

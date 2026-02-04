@@ -1,12 +1,11 @@
 {{={= =}=}}
-import { useContext } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../../../../../core/auth/forms/internal/auth-styles.css'
 import { config } from 'wasp/client'
 import { clsx } from '../../../../../core/auth/forms/internal/util'
 
-import { AuthContext } from '../../Auth'
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import {
   Form,
   FormInput,
@@ -27,7 +26,7 @@ import * as SocialIcons from '../../../../../core/auth/forms/internal/social/Soc
 import { SocialButton } from '../../../../../core/auth/forms/internal/social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
@@ -81,7 +80,7 @@ export const LoginSignupForm = ({
     setErrorMessage,
     setSuccessMessage,
     setIsLoading,
-  } = useContext(AuthContext)
+  } = useAuthContext();
   const isLogin = state === 'login'
   const cta = isLogin ? 'Log in' : 'Sign up';
   {=# isAnyPasswordBasedAuthEnabled =}

@@ -2,6 +2,8 @@
 title: Migration from 0.20.X to 0.21.X
 ---
 
+import NetlifyTomlConfig from '../deployment/deployment-methods/\_netlify-toml-config.md'
+
 To install the latest version of Wasp, open your terminal and run:
 
 <Tabs>
@@ -65,11 +67,20 @@ In previous versions of Wasp, there were two separate directories for generated 
 
 ### Upgraded to React Router 7
 
-Wasp has upgraded from React Router 6 to React Router 7. The new version is backwards compatible with v6 when used as a library, so you shouldn't notice any breaking changes.
+Wasp has upgraded from React Router 6 to React Router 7. The only change you should notice is that the package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your `package.json` and imports accordingly.
 
 ### Upgraded to Vitest 4
 
 Wasp has upgraded its testing framework from Vitest 1 all the way to Vitest 4. This brings a lot of improvements, especially in terms of performance and stability. Most users should not notice any breaking changes, but if you have custom test setups or configurations, please refer to the [Vitest migration guide](https://vitest.dev/guide/migration.html) for more details.
+
+### New `--custom-server-url` option for deployment
+
+The `REACT_APP_API_URL` environment variable is no longer supported for specifying a custom server URL during deployment. Instead, use the new `--custom-server-url` CLI option:
+
+```sh
+wasp deploy fly deploy --custom-server-url https://my-custom-server.com
+wasp deploy railway deploy myproject --custom-server-url https://my-custom-server.com
+```
 
 ## How to migrate?
 
@@ -96,6 +107,7 @@ We've rearranged our workspace architecture a bit, so you'll need to update the 
   - Add `.wasp/out/sdk/wasp`.
 - In your `dependencies` object:
   - Remove the `wasp` dependency.
+  - Rename `react-router-dom` to `react-router` (and update the version).
 
 <Tabs>
 <TabItem value="before" label="Before">
@@ -107,7 +119,9 @@ We've rearranged our workspace architecture a bit, so you'll need to update the 
     ".wasp/build/*",
     ".wasp/out/*"
   ],
-  dependencies: {
+  "dependencies": {
+    // highlight-next-line
+    "react-router-dom": "^6.26.2",
     // ... other dependencies ...
     // highlight-next-line
     "wasp": "file:.wasp/out/sdk/wasp"
@@ -126,7 +140,9 @@ We've rearranged our workspace architecture a bit, so you'll need to update the 
     // highlight-next-line
     ".wasp/out/sdk/wasp"
   ],
-  dependencies: {
+  "dependencies": {
+    // highlight-next-line
+    "react-router": "^7.12.0",
     // ... other dependencies ...
   }
   // ... other fields ...
@@ -144,7 +160,39 @@ wasp ts-setup # if you're using the TS Spec
 wasp compile
 ```
 
-### 3. Upgrade Tailwind CSS to v4
+### 3. Update React Router imports
+
+We've upgraded from React Router 6 to React Router 7. The package has been renamed from `react-router-dom` to `react-router`, so you'll need to update your imports.
+
+Search your codebase for the string `react-router-dom` and update imports to `react-router`:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```tsx title="src/SomePage.tsx"
+// highlight-next-line
+import { useNavigate, useParams } from 'react-router-dom'
+
+// ...
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```tsx title="src/SomePage.tsx"
+// highlight-next-line
+import { useNavigate, useParams } from 'react-router'
+
+// ...
+```
+
+</TabItem>
+</Tabs>
+
+React Router v7 is largely backwards compatible with v6, so there shouldn't be any changes besides the name.
+For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
+
+### 4. Upgrade Tailwind CSS to v4
 
 **If you don't have a `tailwindcss` dependency in your `package.json`, you can skip this step.**
 
@@ -233,7 +281,7 @@ wasp compile
 
 If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../project/css-frameworks.md#tailwind).
 
-### 4. Update your custom Dockerfile
+### 5. Update your custom Dockerfile
 
 **If you don't have a `Dockerfile` in your project folder, you can skip this step.**
 
@@ -243,7 +291,7 @@ This can be a quite straightforward find-and-replace operation:
 - **Find** `.wasp/build`
 - **Replace** with `.wasp/out`
 
-### 5. Update your custom deployment scripts
+### 6. Update your custom deployment scripts
 
 **If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
 
@@ -255,7 +303,7 @@ This can be a quite straightforward find-and-replace operation:
 
 You can check our updated [deployment methods guide](../deployment/deployment-methods/overview.md) and [CI/CD guide](../deployment/ci-cd.md) for reference on the correct deployment steps.
 
-### 6. Upgrade Vitest tests to v4
+### 7. Upgrade Vitest tests to v4
 
 **If you don't have test files in your project, you can skip this step.**
 
@@ -265,22 +313,47 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 7. Update React Router to v7
+### 8. Update custom server URL usage in deployment
 
-We've upgraded from React Router 6 to React Router 7, so bump the version in your `package.json`:
+**If you weren't using `REACT_APP_API_URL` environment variable during deployment, you can skip this step.**
 
-```json title="package.json"
-{
-  "dependencies": {
-    // highlight-next-line
-    "react-router-dom": "^7.12.0"
-  }
-}
+If you were using the `REACT_APP_API_URL` environment variable to specify a custom server URL during deployment, you now need to use the `--custom-server-url` CLI option instead:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```sh
+# For Fly
+REACT_APP_API_URL=https://my-server.com wasp deploy fly launch ...
+# For Railway
+REACT_APP_API_URL=https://my-server.com wasp deploy railway launch ...
 ```
 
-React Router v7 is largely backwards compatible with v6, so most code should work without changes.
-If you encounter issues, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
+</TabItem>
+<TabItem value="after" label="After">
 
-### 8. Enjoy your updated Wasp app
+```sh
+# For Fly
+wasp deploy fly launch --custom-server-url https://my-server.com ...
+# For Railway
+wasp deploy railway launch --custom-server-url https://my-server.com ...
+```
+
+</TabItem>
+</Tabs>
+
+### 9. Add `netlify.toml` if deploying to Netlify
+
+**If you're not deploying to Netlify, you can skip this step.**
+
+Wasp no longer generates a `netlify.toml` file in your project. If you're deploying to Netlify, you'll need to create this file manually in your project root.
+
+Create a `netlify.toml` file with the following content:
+
+<NetlifyTomlConfig />
+
+For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
+
+### 10. Enjoy your updated Wasp app
 
 That's it!
