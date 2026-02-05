@@ -68,6 +68,15 @@ This means the overall architecture stays at **two servers**:
 - Backend server: API/auth/actions/queries.
 - Web server: static assets + SSR rendering for selected routes.
 
+```mermaid
+flowchart LR
+  User["Browser"] --> Web["Web server (SSR + static assets)"]
+  Web -->|SSR HTML| User
+  Web -->|Static assets| User
+  Web -->|API calls| Api["Backend server (API/auth)"]
+  Api --> Db["Database (PostgreSQL)"]
+```
+
 ### Build outputs (web app)
 - `src/routes.tsx`: generated route table + SSR flags per route.
 - `src/entry-server.tsx`: SSR entry that builds a MemoryRouter and renders to string.

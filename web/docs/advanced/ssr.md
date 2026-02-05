@@ -103,6 +103,15 @@ Overall, the app still runs **two servers**:
 - Backend server: API/auth/actions/queries.
 - Web server: static assets + SSR rendering for selected routes.
 
+```mermaid
+flowchart LR
+  User["Browser"] --> Web["Web server (SSR + static assets)"]
+  Web -->|SSR HTML| User
+  Web -->|Static assets| User
+  Web -->|API calls| Api["Backend server (API/auth)"]
+  Api --> Db["Database (PostgreSQL)"]
+```
+
 ## Limitations (current)
 - No SSR in dev mode.
 - No streaming or partial hydration.
