@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.21.1
+
+### 🎉 New Features
+
+- Added opt-in SSR for selected public pages, with SSR preview server and deploy support for Fly.io/Railway. Also includes basic SSR head rendering and 404 status for unknown routes.
+
+### 📖 Documentation
+
+- Added SSR documentation and deployment notes.
+
 ## 0.21.0
 
 ### ⚠️ Breaking Changes
