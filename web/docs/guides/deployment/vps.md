@@ -188,7 +188,7 @@ Set up DNS A records pointing to your server IP:
 After you built the app with `wasp build`, build the server app Docker image:
 
 ```bash
-# Navigate to the build directory
+# Navigate to the out directory
 cd .wasp/out
 
 # Build the server Docker image
@@ -232,6 +232,8 @@ curl -I http://localhost:3001
 You should see a `200 OK` HTTP status code.
 
 ### Step 13: Build the Client
+
+In the project directory run:
 
 ```bash
 REACT_APP_API_URL=https://api.myapp.com npx vite build
