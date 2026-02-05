@@ -82,6 +82,8 @@ This means the overall architecture stays at **two servers**:
    - Adds `data-wasp-ssr="1"` to the root element.
 3. If not SSR:
    - Serves the plain `index.html` (CSR).
+4. If the route does not match any app route:
+   - Serves the app shell with a `404` status.
 
 ### Client hydration
 `src/index.tsx` checks for `data-wasp-ssr="1"` on the root element:
@@ -99,6 +101,7 @@ This means the overall architecture stays at **two servers**:
   - No streaming.
   - No server‑only data access beyond what the component does on render.
 - `window`/DOM usage in SSR pages must be guarded.
+- Server‑side redirects are not supported in this iteration.
 
 ## Implementation details
 

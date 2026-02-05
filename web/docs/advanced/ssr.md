@@ -63,6 +63,7 @@ The SSR web server is a single Node process. In production we expect it to run i
 - **View Page Source**: you should see HTML content inside the root element.
 - **Disable JavaScript** and reload: SSR content should still render.
 - The root element will include `data-wasp-ssr="1"` when SSR is used.
+- Unknown routes return `404` (while still serving the app shell HTML).
 
 ## How it works (high level)
 - Wasp generates a small SSR server (`server-ssr.mjs`) alongside the Vite build.
@@ -84,6 +85,7 @@ Overall, the app still runs **two servers**:
 - No automatic data prefetch/dehydrate.
 - SSR is limited to public pages (no `authRequired`).
 - This is classic React SSR (rendering HTML for the initial response). It does **not** include React Server Components, server actions/functions, or other “full‑stack SSR framework” features.
+- No server‑side redirects yet (e.g., for auth or route guards).
 
 ### What “full SSR framework” support would mean
 Supporting React Server Components, server actions/functions, and streaming would require major changes to Wasp’s build pipeline, routing, runtime server, and deployment model. This is intentionally out of scope for the current, lightweight SSR layer.

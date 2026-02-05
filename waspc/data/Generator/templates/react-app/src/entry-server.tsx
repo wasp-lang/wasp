@@ -29,14 +29,26 @@ function stripBase(pathname: string): string | null {
 }
 
 export function isSsrRoute(url: string): boolean {
+  return getRouteMatchInfo(url).ssr
+}
+
+export function getRouteMatchInfo(url: string): {
+  matched: boolean
+  ssr: boolean
+  outsideBase: boolean
+} {
   const pathname = new URL(url, 'http://localhost').pathname
   const strippedPathname = stripBase(pathname)
   if (!strippedPathname) {
-    return false
+    return { matched: false, ssr: false, outsideBase: true }
   }
 
   const matches = matchRoutes(appRoutes, strippedPathname)
-  return matches?.some((match) => match.route.handle?.ssr) ?? false
+  return {
+    matched: matches !== null,
+    ssr: matches?.some((match) => match.route.handle?.ssr) ?? false,
+    outsideBase: false,
+  }
 }
 
 export async function render(url: string): Promise<string> {

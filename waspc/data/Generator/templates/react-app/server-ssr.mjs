@@ -6,7 +6,7 @@ import { fileURLToPath } from 'node:url'
 
 import {
   baseDir,
-  isSsrRoute,
+  getRouteMatchInfo,
   render,
 } from './build-ssr/entry-server.js'
 
@@ -123,19 +123,26 @@ async function tryServeStatic(strippedPathname, res) {
 async function handleRequest(req, res) {
   const url = new URL(req.url ?? '/', `http://${req.headers.host}`)
   const strippedPathname = stripBase(url.pathname)
+  if (strippedPathname && (await tryServeStatic(strippedPathname, res))) {
+    return
+  }
 
-  if (!strippedPathname) {
+  const routeInfo = getRouteMatchInfo(url.pathname)
+  if (routeInfo.outsideBase) {
     res.statusCode = 200
     res.setHeader('Content-Type', 'text/html')
     res.end(indexHtml)
     return
   }
 
-  if (await tryServeStatic(strippedPathname, res)) {
+  if (!routeInfo.matched) {
+    res.statusCode = 404
+    res.setHeader('Content-Type', 'text/html')
+    res.end(indexHtml)
     return
   }
 
-  if (isSsrRoute(url.pathname)) {
+  if (routeInfo.ssr) {
     const appHtml = await render(url.pathname + url.search)
     const html = indexHtml
       .replace('<div id="root">', '<div id="root" data-wasp-ssr="1">')
