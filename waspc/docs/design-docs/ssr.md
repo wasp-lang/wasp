@@ -22,6 +22,19 @@ This document describes the first implementation of SSR in Wasp that can be enab
 - SEO head management (no special support for Helmet/etc.).
 - React Server Components, server actions/functions, or “full‑stack SSR framework” features.
 
+## Scope note (use cases)
+This first iteration is intentionally **lightweight** and best suited for public, marketing/landing pages where an HTML first response is useful. It is not intended to replace a full SSR framework.
+
+## What a full SSR framework would imply (high level)
+Adding React Server Components, server actions/functions, and streaming SSR would require:
+- A new build pipeline that splits server/client component graphs and produces a Flight manifest.
+- A new runtime server capable of streaming RSC payloads and SSR HTML.
+- Routing changes to support server component trees and streaming.
+- New transport and security model for server actions/functions.
+- Deployment and dev‑mode tooling changes (the web client becomes a server runtime).
+
+This is a significant architectural shift and intentionally out of scope for the current POC.
+
 ## User‑facing design
 ### Wasp file
 

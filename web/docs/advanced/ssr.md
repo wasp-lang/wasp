@@ -3,6 +3,7 @@ title: Server-Side Rendering (SSR)
 ---
 
 SSR can be enabled per page to render HTML on the server for the initial response. This is useful for faster first paint and basic SEO use cases.
+In its current form, SSR is best suited for **public, marketing/landing pages** and other content pages where an HTML first response is valuable.
 
 ## Enable SSR for a page
 Add `ssr: true` to the `page` block:
@@ -83,6 +84,9 @@ Overall, the app still runs **two servers**:
 - No automatic data prefetch/dehydrate.
 - SSR is limited to public pages (no `authRequired`).
 - This is classic React SSR (rendering HTML for the initial response). It does **not** include React Server Components, server actions/functions, or other “full‑stack SSR framework” features.
+
+### What “full SSR framework” support would mean
+Supporting React Server Components, server actions/functions, and streaming would require major changes to Wasp’s build pipeline, routing, runtime server, and deployment model. This is intentionally out of scope for the current, lightweight SSR layer.
 
 ## Roadmap ideas
 - Dev‑mode SSR.
