@@ -166,9 +166,7 @@ jobs:
         run: wasp build
 
       - name: (client) Build
-        run: |
-          cd ./.wasp/out/web-app
-          REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npm run build
+        run: REACT_APP_API_URL=${{ env.SERVER_APP_URL }} npx vite build
 
       - name: (client) Prepare Dockerfile
         run: |

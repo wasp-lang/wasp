@@ -234,9 +234,7 @@ You should see a `200 OK` HTTP status code.
 ### Step 13: Build the Client
 
 ```bash
-cd .wasp/out/web-app
-npm install
-REACT_APP_API_URL=https://api.myapp.com npm run build
+REACT_APP_API_URL=https://api.myapp.com npx vite build
 ```
 
 Copy the built files to a serving directory:
@@ -301,13 +299,11 @@ cd ~/"$APP_DIR"
 docker run -d --name $SERVER_APP_NAME --env-file .env.production -p 127.0.0.1:3001:3001 --network myapp-network $SERVER_APP_NAME
 
 echo "Building client..."
-cd .wasp/out/web-app/
-npm install
-REACT_APP_API_URL=$SERVER_APP_URL npm run build
+REACT_APP_API_URL=$SERVER_APP_URL npx vite build
 
 echo "Copying new client files..."
 rm -r /var/www/*
-cp -R build/* /var/www
+cp -R .wasp/out/web-app/build/* /var/www
 ```
 
 Make it executable and run:
