@@ -38,6 +38,22 @@ npm run preview
 
 Open the URL printed by `npm run preview`.
 
+## Deploy SSR
+When SSR is enabled, the web client is not a purely static build. Wasp generates:
+- `server-ssr.mjs` (Node SSR server)
+- `build/` (static assets)
+- `build-ssr/` (SSR bundle)
+
+In production, run the SSR server with:
+
+```bash
+node server-ssr.mjs
+```
+
+It reads the `PORT` environment variable (defaults to `4173`).
+
+If you are using Wasp Deploy, the CLI detects SSR and deploys the web client as a Node service on Fly.io and Railway. Static hosting (Netlify/Cloudflare) works only when SSR is **not** enabled.
+
 ## Verify SSR output
 - **View Page Source**: you should see HTML content inside the root element.
 - **Disable JavaScript** and reload: SSR content should still render.
@@ -47,6 +63,15 @@ Open the URL printed by `npm run preview`.
 - Wasp generates a small SSR server (`server-ssr.mjs`) alongside the Vite build.
 - Requests to SSR‑enabled routes are rendered with `renderToString`.
 - The client hydrates using `hydrateRoot` when SSR HTML is present.
+
+### Impact on architecture
+Previously, the web server only served static files for the SPA. With SSR enabled,
+the web server becomes an **active renderer** for selected routes while still serving
+static assets. The backend server remains unchanged.
+
+Overall, the app still runs **two servers**:
+- Backend server: API/auth/actions/queries.
+- Web server: static assets + SSR rendering for selected routes.
 
 ## Limitations (current)
 - No SSR in dev mode.

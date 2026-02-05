@@ -6,8 +6,10 @@ module Wasp.Generator.WebAppGenerator
   )
 where
 
-import Data.Aeson (object, (.=))
+import Data.Aeson (encode, object, (.=))
+import qualified Data.ByteString.Lazy as BL
 import Data.List (intercalate)
+import qualified Data.Text.Encoding as TE
 import StrongPath
   ( Dir,
     File,
@@ -25,6 +27,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
+import qualified Wasp.AppSpec.Page as AS.Page
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -65,7 +68,8 @@ genWebApp spec = do
       genPackageJson spec (npmDepsFromWasp spec),
       genGitignore,
       genIndexHtml spec,
-      genFileCopy [relfile|server-ssr.mjs|]
+      genFileCopy [relfile|server-ssr.mjs|],
+      genSsrConfig spec
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
@@ -204,6 +208,20 @@ genIndexHtml spec =
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
           "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
         ]
+
+genSsrConfig :: AppSpec -> Generator FileDraft
+genSsrConfig spec =
+  return $
+    createTextFileDraft
+      (C.webAppRootDirInProjectRootDir </> [relfile|ssr.json|])
+      (TE.decodeUtf8 $ BL.toStrict $ encode ssrConfig)
+  where
+    ssrConfig =
+      object
+        [ "enabled" .= hasSsrEnabledPage
+        ]
+    hasSsrEnabledPage =
+      any (maybe False id . AS.Page.ssr . snd) (AS.getPages spec)
 
 -- TODO(matija): Currently we also generate auth-specific parts in this file (e.g. token management),
 -- although they are not used anywhere outside.

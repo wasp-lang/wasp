@@ -2,6 +2,7 @@ import { $, cd, fs } from "zx";
 
 import { buildClient } from "../../../../common/clientApp.js";
 import { getFullCommandName } from "../../../../common/commander.js";
+import { isSsrEnabled } from "../../../../common/ssr.js";
 import {
   displayWaspRocketImage,
   waspSays,
@@ -30,6 +31,8 @@ import {
   serverTomlExistsInProject,
 } from "../../tomlFile.js";
 import { DeployCmdOptions } from "./DeployCmdOptions.js";
+
+const clientAppPort = 8043;
 
 export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
   waspSays("Deploying your Wasp app to Fly.io!");
@@ -122,12 +125,24 @@ async function deployClient(
     deploymentInstructions.cmdOptions.customServerUrl ??
     getFlyAppUrl(deploymentInstructions.serverFlyAppName);
 
+  const ssrEnabled = isSsrEnabled(deploymentInstructions.cmdOptions.waspProjectDir);
   await buildClient(serverUrl, deploymentInstructions.cmdOptions);
 
-  // Creates the necessary Dockerfile for deploying static websites to Fly.io.
-  // Adds dummy .dockerignore to supress CLI question.
-  // Ref: https://fly.io/docs/languages-and-frameworks/static/
-  const dockerfileContents = `
+  const dockerfileContents = ssrEnabled
+    ? `
+		FROM node:22.12.0-alpine3.20
+		WORKDIR /app
+		ENV NODE_ENV=production
+		ENV PORT=${clientAppPort}
+		COPY package.json package-lock.json ./
+		RUN npm ci --omit=dev
+		COPY ./build/ ./build/
+		COPY ./build-ssr/ ./build-ssr/
+		COPY ./server-ssr.mjs ./server-ssr.mjs
+		EXPOSE ${clientAppPort}
+		CMD [ "node", "server-ssr.mjs" ]
+	`
+    : `
 		FROM pierrezemb/gostatic
 		CMD [ "-fallback", "index.html" ]
 		COPY ./build/ /srv/http/

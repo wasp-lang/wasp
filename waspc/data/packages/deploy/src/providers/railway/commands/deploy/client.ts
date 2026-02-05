@@ -1,8 +1,12 @@
+import fs from "fs";
+
 import { buildClient } from "../../../../common/clientApp.js";
+import { isSsrEnabled } from "../../../../common/ssr.js";
 import {
   displayWaspRocketImage,
   waspSays,
 } from "../../../../common/terminal.js";
+import { getClientBuildDir } from "../../../../common/waspProject.js";
 import { DeploymentInstructions } from "../../DeploymentInstructions.js";
 import { clientAppPort, serverAppPort } from "../../ports.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
@@ -23,12 +27,31 @@ export async function deployClient({
     options.customServerUrl ??
     (await generateServiceUrl(serverServiceName, serverAppPort, options));
 
+  const ssrEnabled = isSsrEnabled(options.waspProjectDir);
   const clientBuildArtefactsDir = await buildClient(serverServiceUrl, options);
+  const clientBuildDir = getClientBuildDir(options.waspProjectDir);
+
+  if (ssrEnabled) {
+    const dockerfileContents = `
+      FROM node:22.12.0-alpine3.20
+      WORKDIR /app
+      ENV NODE_ENV=production
+      ENV PORT=${clientAppPort}
+      COPY package.json package-lock.json ./
+      RUN npm ci --omit=dev
+      COPY ./build/ ./build/
+      COPY ./build-ssr/ ./build-ssr/
+      COPY ./server-ssr.mjs ./server-ssr.mjs
+      EXPOSE ${clientAppPort}
+      CMD [ "node", "server-ssr.mjs" ]
+    `;
+    fs.writeFileSync(`${clientBuildDir}/Dockerfile`, dockerfileContents);
+  }
 
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {
       name: clientServiceName,
-      dirToDeploy: clientBuildArtefactsDir,
+      dirToDeploy: ssrEnabled ? clientBuildDir : clientBuildArtefactsDir,
     },
     options,
   );

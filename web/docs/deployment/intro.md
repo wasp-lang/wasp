@@ -16,7 +16,8 @@ What we call a "Wasp app" consists of three different parts:
 
 - **Client app**
   - It's a single-page application (SPA), built using [React](https://react.dev/). It's what the user sees and interacts with.
-  - It's usually served by some static file server or you can host it on a CDN like Cloudflare or Netlify.
+  - If you enable SSR for any page, Wasp also generates a small Node web server that renders those routes on the server and serves static assets.
+  - Without SSR, it's usually served by a static file server or a CDN like Cloudflare or Netlify. With SSR, you deploy it as a Node app.
 
 - **Server app**:
   - The backend of your app, built using [Express](https://expressjs.com/) on Node.js.

@@ -45,10 +45,20 @@ This yields server‑rendered HTML for SSR‑enabled routes, with hydration on t
 
 ## Architecture
 
+### Impact on app topology
+Previously, the web server was a pure static file server for the SPA. With SSR enabled,
+the web server becomes an **active renderer** for selected routes while still serving
+static assets. The backend server (API/auth) remains unchanged.
+
+This means the overall architecture stays at **two servers**:
+- Backend server: API/auth/actions/queries.
+- Web server: static assets + SSR rendering for selected routes.
+
 ### Build outputs (web app)
 - `src/routes.tsx`: generated route table + SSR flags per route.
 - `src/entry-server.tsx`: SSR entry that builds a MemoryRouter and renders to string.
 - `server-ssr.mjs`: Node server that serves static assets and SSR HTML.
+- `ssr.json`: tiny JSON file used by deploy tooling to detect whether SSR is enabled.
 
 ### SSR flow
 1. `server-ssr.mjs` receives the request and checks if the route is SSR‑enabled.
@@ -64,6 +74,10 @@ This yields server‑rendered HTML for SSR‑enabled routes, with hydration on t
 - If present, it calls `hydrateRoot`.
 - Otherwise, it calls `createRoot`.
 
+### Deployment implications
+- If any page uses SSR, the web client must be deployed as a Node server (not static hosting).
+- Wasp Deploy (Fly/Railway) detects SSR via `.wasp/out/web-app/ssr.json` and builds a Node-based client image when needed.
+
 ## Validation & constraints
 - SSR is **only supported for public pages**. Pages with `authRequired` are rejected by validation.
 - SSR uses `renderToString`, so:
@@ -77,6 +91,7 @@ This yields server‑rendered HTML for SSR‑enabled routes, with hydration on t
 - `Page` spec adds `ssr :: Maybe Bool`.
 - Router generation includes `routeNameToSsr` mapping and emits `routes.tsx`.
 - App templates updated to add SSR outputs and switch to `hydrateRoot` when SSR is used.
+- Web app generator writes `ssr.json` for deploy detection.
 
 ### SSR server (`server-ssr.mjs`)
 - Serves static assets from the Vite build output.
@@ -101,3 +116,22 @@ This yields server‑rendered HTML for SSR‑enabled routes, with hydration on t
 - How should auth‑required pages be handled (redirect? 401)?
 - Should we add first‑class data prefetch/dehydrate support?
 - Should SSR be enabled for all routes under a flag, or keep per‑page only?
+- Should the backend server take over SSR to allow a single‑server deployment?
+
+## Alternative: SSR handled by the backend server (single‑server deployment)
+It is technically possible to move SSR into the Wasp backend server so that a
+single Node process serves API **and** SSR HTML. This would remove the need for
+a separate web server in production, but it’s a larger architectural change:
+
+Pros:
+- Single deployable service (simpler ops in some environments).
+- No separate “client app” deploy target.
+
+Cons:
+- Requires the backend server to serve static assets and SSR HTML.
+- Requires runtime access to the web build output (`build/` + `build-ssr/`).
+- Changes the current deployment model (Fly/Railway currently assume a static client app).
+- Needs updates to generator output layout, server start scripts, and docs.
+
+For this POC, SSR is kept in the web server to minimize disruption and avoid
+reworking deploy tooling.

@@ -28,6 +28,10 @@ Feel free to [open a
 PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/deployment/deployment-methods/paas.md)
 if you'd like to write one yourself :)
 
+:::note SSR and static hosting
+Netlify and Cloudflare (static hosting) are suitable only when SSR is not enabled. If any page uses `ssr: true`, deploy the web client as a Node app on a provider that can run a server (e.g. Fly.io, Railway, Heroku, or your own server).
+:::
+
 ## Deploying a Wasp App
 
 Deploying a Wasp app comes down to the following:
@@ -68,7 +72,9 @@ While these are the general instructions on deploying the server anywhere, we al
 
 The command above will build the web client and put it in the `.wasp/out/web-app/build` directory.
 
-Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
+If you are not using SSR, the result is just a bunch of static files, so you can deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
+
+If any page has `ssr: true`, Wasp also generates a small Node server (`server-ssr.mjs`) and an SSR bundle (`build-ssr/`). In that case, the web client must be deployed as a Node app (or Docker container) that runs the SSR server. Wasp Deploy handles this automatically for Fly.io and Railway.
 
 ### 4. Deploying the Database <Database />
 
