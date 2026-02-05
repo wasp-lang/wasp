@@ -65,6 +65,30 @@ The SSR web server is a single Node process. In production we expect it to run i
 - The root element will include `data-wasp-ssr="1"` when SSR is used.
 - Unknown routes return `404` (while still serving the app shell HTML).
 
+## Head management (SEO)
+For basic SEO tags, you can use [react-helmet-async](https://github.com/staylor/react-helmet-async). Wasp renders Helmet tags on the server when SSR is enabled.
+
+Example:
+
+```tsx
+import { Helmet } from 'react-helmet-async'
+
+export function HomePage() {
+  return (
+    <>
+      <Helmet>
+        <title>My Landing Page</title>
+        <meta name="description" content="Fast, simple, and delightful." />
+        <meta property="og:title" content="My Landing Page" />
+      </Helmet>
+      <main>...</main>
+    </>
+  )
+}
+```
+
+Note: Helmet HTML/body attributes are not supported in SSR yet.
+
 ## How it works (high level)
 - Wasp generates a small SSR server (`server-ssr.mjs`) alongside the Vite build.
 - Requests to SSR‑enabled routes are rendered with `renderToString`.
@@ -86,6 +110,7 @@ Overall, the app still runs **two servers**:
 - SSR is limited to public pages (no `authRequired`).
 - This is classic React SSR (rendering HTML for the initial response). It does **not** include React Server Components, server actions/functions, or other “full‑stack SSR framework” features.
 - No server‑side redirects yet (e.g., for auth or route guards).
+- SSR head management is limited to head tags (title/meta/link/script/style/noscript).
 
 ### What “full SSR framework” support would mean
 Supporting React Server Components, server actions/functions, and streaming would require major changes to Wasp’s build pipeline, routing, runtime server, and deployment model. This is intentionally out of scope for the current, lightweight SSR layer.

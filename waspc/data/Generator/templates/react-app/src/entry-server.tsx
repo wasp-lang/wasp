@@ -2,6 +2,8 @@ import React from 'react'
 import { createMemoryRouter, matchRoutes, RouterProvider } from 'react-router'
 import { renderToString } from 'react-dom/server'
 import { QueryClientProvider } from '@tanstack/react-query'
+import { HelmetProvider } from 'react-helmet-async'
+import type { HelmetServerState } from 'react-helmet-async'
 
 import {
   initializeQueryClient,
@@ -51,7 +53,10 @@ export function getRouteMatchInfo(url: string): {
   }
 }
 
-export async function render(url: string): Promise<string> {
+export async function render(url: string): Promise<{
+  appHtml: string
+  headHtml: string
+}> {
   const queryClient = await queryClientInitialized
   queryClient.clear()
 
@@ -60,13 +65,36 @@ export async function render(url: string): Promise<string> {
     basename: baseDir,
   })
 
+  const helmetContext: { helmet?: HelmetServerState } = {}
   const app = (
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
+    <HelmetProvider context={helmetContext}>
+      <QueryClientProvider client={queryClient}>
+        <RouterProvider router={router} />
+      </QueryClientProvider>
+    </HelmetProvider>
   )
 
-  return renderToString(app)
+  const appHtml = renderToString(app)
+  const headHtml = renderHelmetToString(helmetContext.helmet)
+  return { appHtml, headHtml }
+}
+
+function renderHelmetToString(helmet?: HelmetServerState): string {
+  if (!helmet) {
+    return ''
+  }
+
+  return [
+    helmet.title?.toString(),
+    helmet.base?.toString(),
+    helmet.meta?.toString(),
+    helmet.link?.toString(),
+    helmet.script?.toString(),
+    helmet.style?.toString(),
+    helmet.noscript?.toString(),
+  ]
+    .filter(Boolean)
+    .join('')
 }
 
 export { baseDir }

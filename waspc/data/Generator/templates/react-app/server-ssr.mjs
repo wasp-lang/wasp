@@ -143,8 +143,9 @@ async function handleRequest(req, res) {
   }
 
   if (routeInfo.ssr) {
-    const appHtml = await render(url.pathname + url.search)
+    const { appHtml, headHtml } = await render(url.pathname + url.search)
     const html = indexHtml
+      .replace('<!--ssr-head-->', headHtml)
       .replace('<div id="root">', '<div id="root" data-wasp-ssr="1">')
       .replace('<!--ssr-outlet-->', appHtml)
 

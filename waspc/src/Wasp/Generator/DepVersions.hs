@@ -8,6 +8,7 @@ module Wasp.Generator.DepVersions
     reactDomTypesVersion,
     reactRouterVersion,
     reactQueryVersion,
+    reactHelmetAsyncVersion,
     expressVersionStr,
     expressTypesVersion,
     axiosVersion,
@@ -54,6 +55,9 @@ reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 7 12 0
 
 reactQueryVersion :: String
 reactQueryVersion = "~4.42.0"
+
+reactHelmetAsyncVersion :: SV.ComparatorSet
+reactHelmetAsyncVersion = SV.backwardsCompatibleWith $ SV.Version 1 3 0
 
 expressVersionStr :: String
 expressVersionStr = "~5.1.0"

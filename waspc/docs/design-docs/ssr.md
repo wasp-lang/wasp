@@ -80,6 +80,7 @@ This means the overall architecture stays at **two servers**:
    - It calls `renderToString` with a MemoryRouter.
    - Injects HTML into `index.html` at `<!--ssr-outlet-->`.
    - Adds `data-wasp-ssr="1"` to the root element.
+   - Injects Helmet head tags (title/meta/link/script/style/noscript) into `<!--ssr-head-->`.
 3. If not SSR:
    - Serves the plain `index.html` (CSR).
 4. If the route does not match any app route:
@@ -102,6 +103,7 @@ This means the overall architecture stays at **two servers**:
   - No server‑only data access beyond what the component does on render.
 - `window`/DOM usage in SSR pages must be guarded.
 - Server‑side redirects are not supported in this iteration.
+- SSR head management supports Helmet head tags only (no html/body attributes yet).
 
 ## Implementation details
 

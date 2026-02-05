@@ -33,6 +33,7 @@ import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.DepVersions
   ( axiosVersion,
+    reactHelmetAsyncVersion,
     reactDomTypesVersion,
     reactDomVersion,
     reactQueryVersion,
@@ -153,7 +154,8 @@ npmDepsFromWasp _spec =
               ("react", show reactVersion),
               ("react-dom", show reactDomVersion),
               ("@tanstack/react-query", reactQueryVersion),
-              ("react-router", show reactRouterVersion)
+              ("react-router", show reactRouterVersion),
+              ("react-helmet-async", show reactHelmetAsyncVersion)
             ],
         N.devDependencies =
           Npm.Dependency.fromList
