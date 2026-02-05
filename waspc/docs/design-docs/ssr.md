@@ -77,6 +77,7 @@ This means the overall architecture stays at **two servers**:
 ### Deployment implications
 - If any page uses SSR, the web client must be deployed as a Node server (not static hosting).
 - Wasp Deploy (Fly/Railway) detects SSR via `.wasp/out/web-app/ssr.json` and builds a Node-based client image when needed.
+- The SSR web server is a single Node process; we expect container/platform supervision (Fly/Railway/etc.) instead of a separate process manager like PM2.
 
 ## Validation & constraints
 - SSR is **only supported for public pages**. Pages with `authRequired` are rejected by validation.

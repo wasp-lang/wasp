@@ -54,6 +54,10 @@ It reads the `PORT` environment variable (defaults to `4173`).
 
 If you are using Wasp Deploy, the CLI detects SSR and deploys the web client as a Node service on Fly.io and Railway. Static hosting (Netlify/Cloudflare) works only when SSR is **not** enabled.
 
+:::note Process management
+The SSR web server is a single Node process. In production we expect it to run inside a container, and the hosting platform (Fly.io, Railway, etc.) should handle restarts and monitoring. You do not need a separate process manager like PM2.
+:::
+
 ## Verify SSR output
 - **View Page Source**: you should see HTML content inside the root element.
 - **Disable JavaScript** and reload: SSR content should still render.
