@@ -455,7 +455,7 @@ spec_AppSpecValid = do
                          "You must have at least one route in your app. You can add it using the 'route' declaration."
                      ]
 
-    describe "invalid declaration names validation" $ do
+    describe "declaration names validation" $ do
       let testInvalidDeclName makeDecl invalidName = it invalidName $ do
             let decl = makeDecl invalidName
             let errors = ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, decl, basicRouteDecl]})

@@ -298,7 +298,7 @@ validateUniqueDeclarationNames spec =
 validateDeclarationNames :: AppSpec -> [ValidationError]
 validateDeclarationNames spec =
   concat
-    [ invalidDeclNamesErrorMessage,
+    [ declNameIsNotAValidIdentifierErrorMessage,
       capitalizedOperationsErrorMessage,
       capitalizedJobsErrorMessage,
       nonCapitalizedEntitesErrorMessage
@@ -337,7 +337,7 @@ validateDeclarationNames spec =
                     ++ "."
               ]
 
-    invalidDeclNamesErrorMessage =
+    declNameIsNotAValidIdentifierErrorMessage =
       {-
         NOTE: This check is only relevant if the user is using the TS spec. If
         the user is using the DSL, the check is redundant and will never
@@ -358,19 +358,19 @@ validateDeclarationNames spec =
         - It reuses the actual lexer instead of duplicating its rules in
           TypeScript (and in potential future spec runtimes).
       -}
-      let invalidDeclNames = filter (not . isValidWaspIdentifier) $ map getDeclName $ AS.decls spec
-          declNameRules =
+      let invalidIdentifierDeclNames = filter (not . isValidWaspIdentifier) $ map getDeclName $ AS.decls spec
+          waspIdentifierNameRules =
             [ "must start with a letter or an underscore",
               "must contain only letters, numbers, or underscores",
               "must not be a Wasp keyword"
             ]
-       in case invalidDeclNames of
+       in case invalidIdentifierDeclNames of
             [] -> []
             _ ->
               [ GenericValidationError $
                   intercalate "\n" $
-                    ("Please rename: " ++ intercalate ", " invalidDeclNames ++ ". Each declaration name:")
-                      : map (indent 2 . ("- " ++)) declNameRules
+                    ("Please rename: " ++ intercalate ", " invalidIdentifierDeclNames ++ ". Each declaration name:")
+                      : map (indent 2 . ("- " ++)) waspIdentifierNameRules
               ]
 
 validateWebAppBaseDir :: AppSpec -> [ValidationError]
