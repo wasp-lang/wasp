@@ -94,10 +94,10 @@ parseWaspProjectNameIntoAppName projectName
   | isValidWaspIdentifier appName = Right $ NewProjectAppName appName
   | otherwise =
       Left . intercalate "\n" $
-        [ "The project's name is not in the valid format!",
-          indent 2 "- It must start with a letter or an underscore.",
-          indent 2 "- It must contain only letters, numbers, dashes, or underscores.",
-          indent 2 "- It must not be a Wasp keyword."
+        [ "The project's name is not in the valid format! The project's name:",
+          indent 2 "- must start with a letter or an underscore",
+          indent 2 "- must contain only letters, numbers, dashes, or underscores",
+          indent 2 "- must not be a Wasp keyword"
         ]
   where
     appName = kebabToCamelCase projectName
