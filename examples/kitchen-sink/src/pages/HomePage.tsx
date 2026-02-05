@@ -1,5 +1,16 @@
 import { FeatureContainer } from "../components/FeatureContainer";
 
+export const head = () => ({
+  title: "Home",
+  meta: [
+    { name: "description", content: "Landing page" },
+    { property: "og:title", content: "Home" },
+  ],
+  link: [
+    { rel: "canonical", href: "https://example.com" },
+  ],
+});
+
 export function HomePage() {
   return (
     <FeatureContainer>

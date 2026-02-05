@@ -32,6 +32,7 @@ import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
+import Wasp.Generator.WebAppGenerator (genWebApp)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -65,6 +66,7 @@ genApp spec = do
 
   genServer spec
     <++> genSdk spec
+    <++> genWebApp spec
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genWaspLibs

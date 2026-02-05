@@ -6,6 +6,7 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (isJust)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -14,8 +15,12 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import qualified StrongPath as SP
+import Wasp.Generator.WebAppGenerator.Common (getBaseDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
+import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import qualified Wasp.Generator.SdkGenerator.Common as C
 
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
@@ -25,6 +30,7 @@ getVirtualModulesPlugin spec =
       genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualIndexTsx spec,
+      genVirtualEntryServerTsx spec,
       genVirtualRoutesTsx spec
     ]
 
@@ -51,7 +57,8 @@ getVirtualModulesTs =
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
-          "routesEntryPointPath" .= routesEntryPointPath
+          "routesEntryPointPath" .= routesEntryPointPath,
+          "ssrEntryPointPath" .= ssrEntryPointPath
         ]
 
 genVirtualIndexTsx :: AppSpec -> Generator FileDraft
@@ -64,7 +71,8 @@ genVirtualIndexTsx spec =
       object
         [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
           "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
-          "routesMapping" .= routesMappingImportJson
+          "routesMapping" .= routesMappingImportJson,
+          "routeNameToSsr" .= routeNameToSsrImportJson
         ]
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
@@ -73,4 +81,53 @@ genVirtualIndexTsx spec =
         [ "isDefined" .= True,
           "importStatement" .= ("import { routesMapping } from \"" ++ routesEntryPointPath ++ "\""),
           "importIdentifier" .= ("routesMapping" :: String)
+        ]
+    routeNameToSsrImportJson =
+      object
+        [ "isDefined" .= True,
+          "importStatement" .= ("import { routeNameToSsr } from \"" ++ routesEntryPointPath ++ "\""),
+          "importIdentifier" .= ("routeNameToSsr" :: String)
+        ]
+
+genVirtualEntryServerTsx :: AppSpec -> Generator FileDraft
+genVirtualEntryServerTsx spec =
+  return $
+    C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|entry-server.tsx|]
+    tmplData =
+      object
+        [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
+          "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
+          "routesMapping" .= routesMappingImportJson,
+          "routeNameToSsr" .= routeNameToSsrImportJson,
+          "routeNameToHead" .= routeNameToHeadImportJson,
+          "isExternalAuthEnabled" .= isExternalAuthEnabled,
+          "oAuthCallbackPath" .= clientOAuthCallbackPath,
+          "baseDir" .= SP.fromAbsDirP (getBaseDir spec),
+          "isAuthEnabled" .= isAuthEnabled
+        ]
+    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
+    maybeAuth = AS.App.auth $ snd $ getApp spec
+    isExternalAuthEnabled = maybe False AS.Auth.isExternalAuthEnabled maybeAuth
+    clientOAuthCallbackPath = OAuth.clientOAuthCallbackPath
+    isAuthEnabled = isJust maybeAuth
+    routesMappingImportJson =
+      object
+        [ "isDefined" .= True,
+          "importStatement" .= ("import { routesMapping } from \"" ++ routesEntryPointPath ++ "\""),
+          "importIdentifier" .= ("routesMapping" :: String)
+        ]
+    routeNameToSsrImportJson =
+      object
+        [ "isDefined" .= True,
+          "importStatement" .= ("import { routeNameToSsr } from \"" ++ routesEntryPointPath ++ "\""),
+          "importIdentifier" .= ("routeNameToSsr" :: String)
+        ]
+    routeNameToHeadImportJson =
+      object
+        [ "isDefined" .= True,
+          "importStatement" .= ("import { routeNameToHead } from \"" ++ routesEntryPointPath ++ "\""),
+          "importIdentifier" .= ("routeNameToHead" :: String)
         ]

@@ -21,6 +21,8 @@ import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Page as Page
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
@@ -38,13 +40,14 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 
   config <- makeBuildStartConfig appSpec args waspProjectDir
 
-  buildAndStartServerAndClient config
+  let ssrEnabled = any ((== Just True) . Page.ssr . snd) (AS.getPages appSpec)
+  buildAndStartServerAndClient config ssrEnabled
 
-buildAndStartServerAndClient :: BuildStartConfig -> Command ()
-buildAndStartServerAndClient config = do
+buildAndStartServerAndClient :: BuildStartConfig -> Bool -> Command ()
+buildAndStartServerAndClient config ssrEnabled = do
   cliSendMessageC $ Msg.Start "Building client..."
   runAndPrintJob "Building client failed." $
-    buildClient config
+    buildClient config ssrEnabled
   cliSendMessageC $ Msg.Success "Client built."
 
   cliSendMessageC $ Msg.Start "Building server..."
@@ -55,7 +58,7 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Starting client and server..."
   runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_
-      (startClient config)
+      (startClient config ssrEnabled)
       (startServer config)
   where
     runAndPrintJob :: String -> ExceptJob -> Command ()

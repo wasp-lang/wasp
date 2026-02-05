@@ -121,6 +121,10 @@
       "./client/env/schema": "./dist/client/env/schema.js",
       {=! Private: [client] =}
       "./client/app": "./dist/client/app/index.jsx",
+      {=! Private: [web-app] =}
+      "./client/app/components/DefaultRootErrorBoundary": "./dist/client/app/components/DefaultRootErrorBoundary.jsx",
+      {=! Private: [web-app] =}
+      "./client/app/pages/OAuthCallback": "./dist/client/app/pages/OAuthCallback.jsx",
       {=! Private: [client] =}
       "./client/vite": "./dist/client/vite/index.js",
 

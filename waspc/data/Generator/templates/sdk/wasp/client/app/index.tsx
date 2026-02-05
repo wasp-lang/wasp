@@ -11,13 +11,20 @@ let isAppInitialized = false
 export function getWaspApp({
   rootElement = <DefaultRootComponent />,
   routesMapping,
+  routeNameToSsr = {},
 }: WaspAppProps): React.ReactNode {
   if (!isAppInitialized) {
     initializeQueryClient()
     isAppInitialized = true
   }
 
-  return <WaspApp rootElement={rootElement} routesMapping={routesMapping} />
+  return (
+    <WaspApp
+      rootElement={rootElement}
+      routesMapping={routesMapping}
+      routeNameToSsr={routeNameToSsr}
+    />
+  )
 }
 
 {=# isAuthEnabled =}
