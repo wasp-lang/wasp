@@ -102,6 +102,8 @@ When releasing new version of Wasp, what we do is run `npm run docusaurus docs:v
 
 The version should not be a full version (e.g. `0.21.0`), but valid for all the non-breaking changes in that range (e.g. `0.21`).
 
+Note: This means users can't access docs for a specific patch version (e.g., `0.21.2`) - they always see the docs for the latest patch in that minor version (e.g., `0.21.4`). This could lead to users reading about features not yet available in their exact version. We consider this an acceptable trade-off for now, since upgrading within the same minor version has no breaking changes. We may revisit this approach in the future if needed.
+
 This command does everything for us, and since we use Docusaurus' default settings for versions,
 there is nothing else we need to do, it will be picked up as the latest version by default.
 
