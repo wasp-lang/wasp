@@ -21,7 +21,10 @@
 
 /docs/deployment/deployment-methods/cli /docs/deployment/deployment-methods/wasp-deploy/overview 301
 
-# Version path redirects (0.X.0 -> 0.X)
+# Legacy version path redirects (0.X.0 -> 0.X)
+# These exist because docs versions used to be named 0.X.0 but were renamed to 0.X,
+# so we want to redirect links going to the old URLs.
+# You don't need to add new redirects for new versions.
 /docs/0.12.0/*  /docs/0.12/:splat  301
 /docs/0.13.0/*  /docs/0.13/:splat  301
 /docs/0.14.0/*  /docs/0.14/:splat  301
