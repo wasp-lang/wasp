@@ -108,7 +108,7 @@ flowchart LR
   User["Browser"] --> Web["Web server (SSR + static assets)"]
   Web -->|SSR HTML| User
   Web -->|Static assets| User
-  Web -->|API calls| Api["Backend server (API/auth)"]
+  User -->|API calls| Api["Backend server (API/auth)"]
   Api --> Db["Database (PostgreSQL)"]
 ```
 
