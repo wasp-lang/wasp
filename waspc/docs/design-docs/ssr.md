@@ -20,6 +20,7 @@ This document describes the first implementation of SSR in Wasp that can be enab
 - Automatic data prefetch/dehydration across React Query.
 - Auth‑aware SSR (SSR for pages requiring auth). Only public pages are supported.
 - SEO head management (no special support for Helmet/etc.).
+- React Server Components, server actions/functions, or “full‑stack SSR framework” features.
 
 ## User‑facing design
 ### Wasp file

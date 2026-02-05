@@ -82,6 +82,7 @@ Overall, the app still runs **two servers**:
 - No streaming or partial hydration.
 - No automatic data prefetch/dehydrate.
 - SSR is limited to public pages (no `authRequired`).
+- This is classic React SSR (rendering HTML for the initial response). It does **not** include React Server Components, server actions/functions, or other “full‑stack SSR framework” features.
 
 ## Roadmap ideas
 - Dev‑mode SSR.
