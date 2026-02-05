@@ -19,7 +19,7 @@ parseRange :: String -> Either ParseError Range
 parseRange = P.parse rangeParser ""
 
 rangeParser :: Parsec String () Range
-rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP)
+rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP) <* P.spaces <* P.eof
   where
     logicalOrP :: Parsec String () ()
     logicalOrP = P.spaces *> P.string "||" *> P.spaces

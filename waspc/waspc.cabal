@@ -748,7 +748,9 @@ test-suite waspc-tests
     Util.FilePathTest
     Util.IO.RetryTest
     Util.Prisma
-    SemanticVersionTest
+    SemanticVersion.ComparatorSetTest
+    SemanticVersion.RangeTest
+    SemanticVersion.Range.ParserTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
     Project.WaspignoreTest

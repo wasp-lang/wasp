@@ -1,55 +1,18 @@
 module Wasp.SemanticVersion
-  ( -- * Types
-    Version (..),
-    PartialVersion (..),
-    fromVersion,
-    Range (..),
-    ComparatorSet (..),
-    Comparator (..),
-    PrimitiveOperator (..),
-
-    -- * Range matching
-    isVersionInRange,
-    doesVersionRangeAllowMajorChanges,
-
-    -- * ComparatorSet constructors
-    lt,
-    lte,
-    gt,
-    gte,
-    eq,
-    backwardsCompatibleWith,
-    approximatelyEquvivalentTo,
-    xRange,
-    hyphenRange,
-
-    -- * Parsing
-    parseRange,
-    rangeParser,
+  ( module Wasp.SemanticVersion.Comparator,
+    module Wasp.SemanticVersion.ComparatorSet,
+    module Wasp.SemanticVersion.PartialVersion,
+    module Wasp.SemanticVersion.Range,
+    module Wasp.SemanticVersion.Range.Parser,
+    module Wasp.SemanticVersion.Version,
+    module Wasp.SemanticVersion.VersionBound,
   )
 where
 
 import Wasp.SemanticVersion.Comparator
-  ( Comparator (..),
-    PrimitiveOperator (..),
-  )
 import Wasp.SemanticVersion.ComparatorSet
-  ( ComparatorSet (..),
-    approximatelyEquvivalentTo,
-    backwardsCompatibleWith,
-    eq,
-    gt,
-    gte,
-    hyphenRange,
-    lt,
-    lte,
-    xRange,
-  )
-import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), fromVersion)
+import Wasp.SemanticVersion.PartialVersion
 import Wasp.SemanticVersion.Range
-  ( Range (..),
-    doesVersionRangeAllowMajorChanges,
-    isVersionInRange,
-  )
-import Wasp.SemanticVersion.Range.Parser (parseRange, rangeParser)
-import Wasp.SemanticVersion.Version (Version (..))
+import Wasp.SemanticVersion.Range.Parser
+import Wasp.SemanticVersion.Version
+import Wasp.SemanticVersion.VersionBound
