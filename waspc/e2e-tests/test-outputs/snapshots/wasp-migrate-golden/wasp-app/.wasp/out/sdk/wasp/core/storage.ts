@@ -14,11 +14,11 @@ function createLocalStorageDataStore(prefix: string): DataStore {
   return {
     getPrefixedKey,
     set(key, value) {
-      ensureLocalStorageIsAvailable()
+      if (!isLocalStorageAvailable()) return
       localStorage.setItem(getPrefixedKey(key), JSON.stringify(value))
     },
     get(key) {
-      ensureLocalStorageIsAvailable()
+      if (!isLocalStorageAvailable()) return undefined
       const value = localStorage.getItem(getPrefixedKey(key))
       try {
         return value ? JSON.parse(value) : undefined
@@ -27,11 +27,11 @@ function createLocalStorageDataStore(prefix: string): DataStore {
       }
     },
     remove(key) {
-      ensureLocalStorageIsAvailable()
+      if (!isLocalStorageAvailable()) return
       localStorage.removeItem(getPrefixedKey(key))
     },
     clear() {
-      ensureLocalStorageIsAvailable()
+      if (!isLocalStorageAvailable()) return
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith(prefix)) {
           localStorage.removeItem(key)
@@ -43,8 +43,14 @@ function createLocalStorageDataStore(prefix: string): DataStore {
 
 export const storage = createLocalStorageDataStore('wasp')
 
-function ensureLocalStorageIsAvailable(): void {
+function isLocalStorageAvailable(): boolean {
+  // In SSR environment, localStorage is not available - gracefully return false
+  if (typeof window === 'undefined') {
+    return false
+  }
+  // In browser, throw if localStorage is not available (preserves original behavior)
   if (!window.localStorage) {
     throw new Error('Local storage is not available.')
   }
+  return true
 }

@@ -15,15 +15,16 @@ export type WebSocketContextValue = {
 // PRIVATE API
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  config.apiUrl,
-  {
-    transports: ['websocket'],
-    autoConnect: true,
-  }
-)
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
+  typeof window !== 'undefined'
+    ? io(config.apiUrl, {
+        transports: ['websocket'],
+        autoConnect: true,
+      })
+    : (null as unknown as Socket<ServerToClientEvents, ClientToServerEvents>)
 
 function refreshAuthToken() {
+  if (typeof window === 'undefined') return
   // NOTE: When we figure out how `auth: true` works for Operations, we should
   // mirror that behavior here for WebSockets. Ref: https://github.com/wasp-lang/wasp/issues/1133
   socket.auth = {
@@ -36,9 +37,11 @@ function refreshAuthToken() {
   }
 }
 
-refreshAuthToken()
-apiEventsEmitter.on('sessionId.set', refreshAuthToken)
-apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
+if (typeof window !== 'undefined') {
+  refreshAuthToken()
+  apiEventsEmitter.on('sessionId.set', refreshAuthToken)
+  apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
+}
 
 // PRIVATE API
 export const WebSocketContext: Context<WebSocketContextValue> = createContext<WebSocketContextValue>({
@@ -48,9 +51,11 @@ export const WebSocketContext: Context<WebSocketContextValue> = createContext<We
 
 // PRIVATE API
 export function WebSocketProvider({ children }: { children: ReactNode }) {
-  const [isConnected, setIsConnected] = useState(socket.connected)
+  const [isConnected, setIsConnected] = useState(socket?.connected ?? false)
 
   useEffect(() => {
+    if (!socket) return
+
     function onConnect() {
       setIsConnected(true)
     }

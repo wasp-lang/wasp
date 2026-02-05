@@ -160,6 +160,7 @@ export type ExecutorOptions = {
 export type PageConfig = {
   component: ExtImport;
   authRequired?: boolean;
+  ssr?: boolean;
 };
 
 export type QueryConfig = {

@@ -476,6 +476,7 @@ export function getPageConfig(
         config: {
           component: getExtImport("full", "named"),
           authRequired: false,
+          ssr: false,
         },
       } satisfies FullNamedConfig<TsAppSpec.PageConfig>;
     case "password-reset":
@@ -484,6 +485,7 @@ export function getPageConfig(
         config: {
           component: getExtImport("full", "named"),
           authRequired: false,
+          ssr: false,
         },
       } satisfies FullNamedConfig<TsAppSpec.PageConfig>;
     case "full":
@@ -492,6 +494,7 @@ export function getPageConfig(
         config: {
           component: getExtImport(pageType, "named"),
           authRequired: true,
+          ssr: true,
         },
       } satisfies NamedConfig<TsAppSpec.PageConfig>;
     default:

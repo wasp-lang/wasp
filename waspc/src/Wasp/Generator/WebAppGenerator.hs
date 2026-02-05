@@ -64,7 +64,8 @@ genWebApp spec = do
       genAppTsConfigJson spec,
       genPackageJson spec (npmDepsFromWasp spec),
       genGitignore,
-      genIndexHtml spec
+      genIndexHtml spec,
+      genFileCopy [relfile|server-ssr.mjs|]
     ]
     <++> genNpmrc spec
     <++> genSrcDir spec
@@ -219,6 +220,7 @@ genSrcDir spec =
       genFileCopy [relfile|components/Loader.module.css|],
       genFileCopy [relfile|components/FullPageWrapper.tsx|],
       genFileCopy [relfile|components/DefaultRootErrorBoundary.tsx|],
+      genFileCopy [relfile|entry-server.tsx|],
       getIndexTs spec
     ]
     <++> genAuth spec

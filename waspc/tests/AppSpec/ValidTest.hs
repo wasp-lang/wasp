@@ -561,7 +561,8 @@ spec_AppSpecValid = do
             AS.ExtImport.ExtImport
               (AS.ExtImport.ExtImportModule "Home")
               (fromJust $ SP.parseRelFileP "pages/Main"),
-          AS.Page.authRequired = Nothing
+          AS.Page.authRequired = Nothing,
+          AS.Page.ssr = Nothing
         }
 
     basicPageName = "TestPage"
@@ -577,7 +578,8 @@ spec_AppSpecValid = do
         name
         AS.Page.Page
           { AS.Page.component = dummyExtImport,
-            AS.Page.authRequired = Nothing
+            AS.Page.authRequired = Nothing,
+            AS.Page.ssr = Nothing
           }
 
     makeBasicRouteDecl name pageName =

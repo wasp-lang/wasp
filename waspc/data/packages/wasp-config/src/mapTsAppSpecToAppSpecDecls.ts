@@ -456,10 +456,11 @@ export function mapCrudOperationOptions(
 }
 
 export function mapPage(pageConfig: TsAppSpec.PageConfig): AppSpec.Page {
-  const { component, authRequired } = pageConfig;
+  const { component, authRequired, ssr } = pageConfig;
   return {
     component: mapExtImport(component),
     authRequired,
+    ssr,
   };
 }
 

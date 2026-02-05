@@ -52,14 +52,16 @@ instance ToJSON RouterTemplateData where
 
 data RouteTemplateData = RouteTemplateData
   { _routeName :: !String,
-    _targetComponent :: !String
+    _targetComponent :: !String,
+    _ssrEnabled :: !Bool
   }
 
 instance ToJSON RouteTemplateData where
   toJSON routeTD =
     object
       [ "name" .= _routeName routeTD,
-        "targetComponent" .= _targetComponent routeTD
+        "targetComponent" .= _targetComponent routeTD,
+        "ssr" .= _ssrEnabled routeTD
       ]
 
 data PageTemplateData = PageTemplateData
@@ -76,20 +78,32 @@ instance ToJSON PageTemplateData where
 genRouter :: AppSpec -> Generator [FileDraft]
 genRouter spec =
   sequence
-    [ genRouterTsx spec
+    [ genRouterTsx,
+      genRoutesTsx spec
     ]
 
-genRouterTsx :: AppSpec -> Generator FileDraft
-genRouterTsx spec = do
+genRouterTsx :: Generator FileDraft
+genRouterTsx = do
   return $
     C.mkTmplFdWithDstAndData
       (asTmplFile $ [reldir|src|] </> routerPath)
       targetPath
-      (Just $ toJSON templateData)
+      Nothing
   where
     routerPath = [relfile|router.tsx|]
-    templateData = createRouterTemplateData spec
     targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routerPath
+
+genRoutesTsx :: AppSpec -> Generator FileDraft
+genRoutesTsx spec = do
+  return $
+    C.mkTmplFdWithDstAndData
+      (asTmplFile $ [reldir|src|] </> routesPath)
+      targetPath
+      (Just $ toJSON templateData)
+  where
+    routesPath = [relfile|routes.tsx|]
+    templateData = createRouterTemplateData spec
+    targetPath = C.webAppSrcDirInWebAppRootDir </> asWebAppSrcFile routesPath
 
 createRouterTemplateData :: AppSpec -> RouterTemplateData
 createRouterTemplateData spec =
@@ -111,7 +125,8 @@ createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> RouteTemplateD
 createRouteTemplateData spec namedRoute@(name, _) =
   RouteTemplateData
     { _routeName = name,
-      _targetComponent = determineRouteTargetComponent spec namedRoute
+      _targetComponent = determineRouteTargetComponent spec namedRoute,
+      _ssrEnabled = isRouteSsrEnabled spec namedRoute
     }
 
 -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
@@ -120,19 +135,9 @@ determineRouteTargetComponent spec (_, route) =
   maybe
     targetPageName
     determineRouteTargetComponent'
-    (AS.Page.authRequired $ snd targetPage)
+    (AS.Page.authRequired targetPage)
   where
-    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
-    targetPage =
-      fromMaybe
-        ( error $
-            "Can't find page with name '"
-              ++ targetPageName
-              ++ "', pointed to by route '"
-              ++ AS.Route.path route
-              ++ "'"
-        )
-        (find ((==) targetPageName . fst) (AS.getPages spec))
+    (targetPageName, targetPage) = resolveTargetPage spec route
 
     determineRouteTargetComponent' :: Bool -> String
     determineRouteTargetComponent' authRequired =
@@ -140,6 +145,26 @@ determineRouteTargetComponent spec (_, route) =
         then -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
           "createAuthRequiredPage(" ++ targetPageName ++ ")"
         else targetPageName
+
+isRouteSsrEnabled :: AppSpec -> (String, AS.Route.Route) -> Bool
+isRouteSsrEnabled spec (_, route) =
+  AS.Page.ssr (snd targetPage) == Just True
+  where
+    targetPage = resolveTargetPage spec route
+
+resolveTargetPage :: AppSpec -> AS.Route.Route -> (String, AS.Page.Page)
+resolveTargetPage spec route =
+  fromMaybe
+    ( error $
+        "Can't find page with name '"
+          ++ targetPageName
+          ++ "', pointed to by route '"
+          ++ AS.Route.path route
+          ++ "'"
+    )
+    (find ((==) targetPageName . fst) (AS.getPages spec))
+  where
+    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
 
 createPageTemplateData :: (String, AS.Page.Page) -> PageTemplateData
 createPageTemplateData page =

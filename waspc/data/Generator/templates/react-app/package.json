@@ -8,8 +8,8 @@
   {=& devDepsChunk =},
   "scripts": {
     "start": "vite",
-    "build": "tsc --build && vite build",
-    "preview": "vite preview"
+    "build": "tsc --build && vite build && vite build --ssr src/entry-server.tsx --outDir build-ssr",
+    "preview": "node server-ssr.mjs"
   },
   "engineStrict": true,
   "engines": {

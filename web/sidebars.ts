@@ -169,6 +169,7 @@ const sidebars: SidebarsConfig = {
       collapsible: true,
       items: [
         "advanced/email/email",
+        "advanced/ssr",
         "advanced/jobs",
         "advanced/web-sockets",
         "advanced/accessing-app-config",

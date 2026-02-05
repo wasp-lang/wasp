@@ -23,7 +23,11 @@ async function startApp() {
 
 async function render() {
   const queryClient = await queryClientInitialized
-  ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
+  const rootElement = document.getElementById('root')
+  if (!rootElement) {
+    throw new Error('Root element not found')
+  }
+  const app = (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
         <WebSocketProvider>
@@ -32,4 +36,10 @@ async function render() {
       </QueryClientProvider>
     </React.StrictMode>
   )
+
+  if (rootElement.dataset.waspSsr === '1') {
+    ReactDOM.hydrateRoot(rootElement, app)
+  } else {
+    ReactDOM.createRoot(rootElement).render(app)
+  }
 }

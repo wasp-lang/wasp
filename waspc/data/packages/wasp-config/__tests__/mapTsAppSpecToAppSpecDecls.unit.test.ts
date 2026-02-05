@@ -602,6 +602,7 @@ describe("mapPage", () => {
     expect(result).toStrictEqual({
       component: mapExtImport(page.component),
       authRequired: page.authRequired,
+      ssr: page.ssr,
     } satisfies AppSpec.Page);
   }
 });

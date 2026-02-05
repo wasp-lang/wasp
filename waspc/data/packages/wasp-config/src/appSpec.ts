@@ -36,6 +36,7 @@ export type DeclType = Decl["declType"] | "Entity";
 export type Page = {
   component: ExtImport;
   authRequired: Optional<boolean>;
+  ssr: Optional<boolean>;
 };
 
 export type Route = {
