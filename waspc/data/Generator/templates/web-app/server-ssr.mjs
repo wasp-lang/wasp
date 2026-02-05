@@ -103,7 +103,9 @@ async function tryServeStatic(pathname, res) {
 }
 
 async function handleRequest(req, res) {
-  const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
+  // Use a fixed base URL since we only need pathname and search params.
+  // Avoids potential Host header injection if the URL were used elsewhere.
+  const url = new URL(req.url ?? "/", "http://localhost");
 
   if (await tryServeStatic(url.pathname, res)) {
     return;
