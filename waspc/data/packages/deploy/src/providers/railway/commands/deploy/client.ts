@@ -1,10 +1,18 @@
-import { buildClient } from "../../../../common/clientApp.js";
+import {
+  buildClient,
+  isSsrEnabled,
+} from "../../../../common/clientApp.js";
 import {
   displayWaspRocketImage,
   waspSays,
 } from "../../../../common/terminal.js";
+import { getClientDeploymentDir } from "../../../../common/waspProject.js";
 import { DeploymentInstructions } from "../../DeploymentInstructions.js";
-import { clientAppPort, serverAppPort } from "../../ports.js";
+import {
+  clientAppPortSsr,
+  clientAppPortStatic,
+  serverAppPort,
+} from "../../ports.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
 import { DeployCmdOptions } from "./DeployCmdOptions.js";
 import {
@@ -25,10 +33,24 @@ export async function deployClient({
 
   const clientBuildArtefactsDir = await buildClient(serverServiceUrl, options);
 
+  // Check if SSR is enabled to determine deployment strategy
+  const ssrEnabled = isSsrEnabled(options.waspProjectDir);
+  const clientAppPort = ssrEnabled ? clientAppPortSsr : clientAppPortStatic;
+
+  // For SSR, we need to deploy the entire web-app directory (not just build artifacts)
+  // as it contains the Node.js server and dependencies
+  const dirToDeploy = ssrEnabled
+    ? getClientDeploymentDir(options.waspProjectDir)
+    : clientBuildArtefactsDir;
+
+  if (ssrEnabled) {
+    waspSays("SSR is enabled. Deploying as Node.js server...");
+  }
+
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {
       name: clientServiceName,
-      dirToDeploy: clientBuildArtefactsDir,
+      dirToDeploy,
     },
     options,
   );
