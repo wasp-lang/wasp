@@ -356,7 +356,7 @@ validateDeclarationNames spec =
         probably in TypeScript. We decided to put it here because:
         - This is where we keep similar app spec validations.
         - It reuses the actual lexer instead of duplicating its rules in
-          TypeScript (and potential future spec variants)
+          TypeScript (and potential future spec variants).
       -}
       let invalidDeclNames = filter (not . isValidWaspIdentifier) $ map getDeclName $ AS.decls spec
           declNameRules =
@@ -369,7 +369,7 @@ validateDeclarationNames spec =
             _ ->
               [ GenericValidationError $
                   intercalate "\n" $
-                    ("Invalid declaration names: " ++ intercalate ", " invalidDeclNames ++ ". Each declaration name:")
+                    ("Please rename: " ++ intercalate ", " invalidDeclNames ++ ". Each declaration name:")
                       : map (indent 2 . ("- " ++)) declNameRules
               ]
 

@@ -469,7 +469,7 @@ spec_AppSpecValid = do
             errors `shouldBe` []
 
       describe "returns an error for declaration names which are not valid identifiers" $ do
-        testInvalidDeclName makeBasicPageDecl "Import"
+        testInvalidDeclName makeBasicPageDecl "import"
         testInvalidDeclName makeBasicJobDecl "1st job"
         testInvalidDeclName makeBasicQueryDecl "my-query"
         testInvalidDeclName makeBasicActionDecl "my action"
