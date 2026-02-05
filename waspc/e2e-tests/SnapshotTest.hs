@@ -9,6 +9,7 @@ module SnapshotTest
   )
 where
 
+import Control.Exception (bracket)
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -30,8 +31,9 @@ import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
+import System.Exit (ExitCode (..))
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, takeFileName)
-import System.Process (callCommand)
+import System.Process (CreateProcess (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
@@ -104,7 +106,7 @@ executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO 
 executeSnapshotTestCommand snapshotTest snapshotDir = do
   putStrLn $ "Executing snapshot test: " ++ snapshotTest.name
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommand $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+  callCommandInProcessGroup $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
   where
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTest.shellCommandBuilder
@@ -224,3 +226,18 @@ type FileName = String
 
 createFilenameFilter :: [FileName -> Bool] -> FilePath -> Bool
 createFilenameFilter predicates filePath = all ($ takeFileName filePath) predicates
+
+-- | Interruptible version of callCommand that terminates the entire process tree on async exception.
+-- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
+-- all child processes are also terminated rather than continuing to run.
+callCommandInProcessGroup :: String -> IO ()
+callCommandInProcessGroup cmd =
+  bracket
+    (createProcess (shell cmd) {create_group = True})
+    (\(_, _, _, ph) -> interruptProcessGroupOf ph)
+    ( \(_, _, _, ph) -> do
+        exitCode <- waitForProcess ph
+        case exitCode of
+          ExitSuccess -> return ()
+          ExitFailure code -> fail $ "Command failed with exit code " ++ show code ++ ": " ++ cmd
+    )
