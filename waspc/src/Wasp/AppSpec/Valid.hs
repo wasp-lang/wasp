@@ -339,8 +339,8 @@ validateDeclarationNames spec =
 
     invalidDeclNamesErrorMessage =
       {-
-        NOTE: This check is only necessary if the user is using the TS spec.
-        If the user is using the DSL, the check is redundant and will never
+        NOTE: This check is only relevant if the user is using the TS spec. If
+        the user is using the DSL, the check is redundant and will never
         trigger.
 
         More precisely:
