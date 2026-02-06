@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import Data.List (find, stripPrefix)
+import Data.List (find, partition, stripPrefix)
 import Data.Maybe (fromMaybe)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
@@ -30,10 +30,19 @@ genVirtualRoutesTsx spec =
     C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|routes.tsx|]
+
+    allPages = AS.getPages spec
+    -- Partition pages into SSR (static import) and non-SSR (lazy import).
+    -- SSR pages must be statically imported so they can be server-side rendered.
+    -- Non-SSR pages are lazy-loaded to keep their dependency trees (e.g. browser-only
+    -- packages like monaco-editor) out of the SSR bundle.
+    (ssrPages, nonSsrPages) = partition (\(_, page) -> fromMaybe False $ AS.Page.ssr page) allPages
+
     tmplData =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
-          "pagesToImport" .= map createPageTemplateData (AS.getPages spec),
+          "ssrPagesToImport" .= map createPageTemplateData ssrPages,
+          "nonSsrPagesToImport" .= map createLazyPageTemplateData nonSsrPages,
           "isAuthEnabled" .= isAuthEnabled spec
         ]
 
@@ -80,6 +89,8 @@ createRouteTemplateData spec namedRoute@(name, _) =
   where
     (targetPageName, targetPage) = getTargetPage spec namedRoute
 
+-- | Generate a static namespace import for an SSR page.
+-- e.g. import * as LandingPage from './src/client/landing-page/LandingPage'
 createPageTemplateData :: (String, AS.Page.Page) -> Aeson.Value
 createPageTemplateData (pageName, page) =
   object
@@ -94,6 +105,33 @@ createPageTemplateData (pageName, page) =
     importStmt = toNamespaceImport defaultImportStmt pageName
 
     pageComponent = AS.Page.component page
+
+-- | Generate lazy import data for a non-SSR page.
+-- This creates a namespace-like object with the exported component wrapped in
+-- React.lazy + Suspense, so the page's dependency tree is code-split and
+-- excluded from the SSR bundle.
+createLazyPageTemplateData :: (String, AS.Page.Page) -> Aeson.Value
+createLazyPageTemplateData (pageName, page) =
+  object
+    [ "moduleIdentifier" .= pageName,
+      "importPath" .= importPath,
+      "exportedName" .= exportedName
+    ]
+  where
+    pageComponent = AS.Page.component page
+    (defaultImportStmt, _) =
+      getJsImportStmtAndIdentifier $
+        applyJsImportAlias (Just pageName) $
+          GJI.extImportToRelativeSrcImportFromViteExecution pageComponent
+
+    -- Extract the module path from the generated import statement.
+    importPath = fromMaybe "" $ do
+      rest <- stripPrefix "import " defaultImportStmt
+      extractPath rest
+
+    exportedName = case EI.name pageComponent of
+      EI.ExtImportModule _ -> "default"
+      EI.ExtImportField n -> n
 
 toNamespaceImport :: String -> String -> String
 toNamespaceImport importStmt importIdentifier =

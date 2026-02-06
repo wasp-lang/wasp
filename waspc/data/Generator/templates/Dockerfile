@@ -35,6 +35,8 @@ WORKDIR /app
 COPY src ./src
 COPY package.json .
 COPY package-lock.json .
+# Copy .npmrc if it exists, so user npm config (e.g. legacy-peer-deps) is respected.
+COPY .npmr[c] .
 COPY tsconfig*.json .
 COPY server .wasp/out/server
 COPY sdk .wasp/out/sdk
@@ -46,6 +48,8 @@ COPY db/schema.prisma .wasp/out/db/
 RUN cd .wasp/out/server && npx prisma generate --schema='{= dbSchemaFileFromServerDir =}'
 {=/ usingPrisma =}
 # Building the server should come after Prisma generation.
+# Increase Node heap size to prevent OOM on large projects during bundling.
+ENV NODE_OPTIONS="--max-old-space-size=4096"
 RUN cd .wasp/out/server && npm run bundle
 
 # Depending on `npm`'s dependency resolution, this folder may or may not exist.

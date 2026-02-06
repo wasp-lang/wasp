@@ -4,6 +4,73 @@ import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+// Provide minimal browser API stubs so that client-side code which accesses
+// localStorage, sessionStorage, window, or document at module-init time does
+// not crash during SSR. These stubs return safe no-op / empty values.
+if (typeof globalThis.window === "undefined") {
+  const noopStorage = {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {},
+    key: () => null,
+    get length() { return 0; },
+  };
+  globalThis.localStorage = noopStorage;
+  globalThis.sessionStorage = noopStorage;
+  // Since window = globalThis, libraries like react-router call
+  // window.addEventListener etc. Add these on globalThis itself.
+  globalThis.addEventListener = globalThis.addEventListener || (() => {});
+  globalThis.removeEventListener = globalThis.removeEventListener || (() => {});
+  globalThis.dispatchEvent = globalThis.dispatchEvent || (() => true);
+  globalThis.window = globalThis;
+  globalThis.document = {
+    documentElement: {
+      classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => false },
+      style: {},
+      setAttribute: () => {},
+      getAttribute: () => null,
+    },
+    body: {
+      classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => false },
+      style: {},
+    },
+    createElement: () => ({
+      style: {},
+      setAttribute: () => {},
+      getAttribute: () => null,
+      appendChild: () => {},
+      classList: { add: () => {}, remove: () => {} },
+    }),
+    createTextNode: () => ({}),
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    getElementById: () => null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => true,
+    head: { appendChild: () => {}, removeChild: () => {} },
+  };
+  // In Node.js >= 21 `navigator` is a built-in read-only getter on globalThis,
+  // so a plain assignment throws. Use Object.defineProperty to safely provide
+  // a fallback only when the property does not already exist.
+  if (typeof globalThis.navigator === "undefined") {
+    Object.defineProperty(globalThis, "navigator", {
+      value: { userAgent: "node" },
+      writable: true,
+      configurable: true,
+    });
+  }
+  globalThis.CustomEvent = globalThis.CustomEvent || class CustomEvent extends Event {
+    constructor(type, params = {}) { super(type); this.detail = params.detail || null; }
+  };
+  globalThis.matchMedia = globalThis.matchMedia || (() => ({
+    matches: false,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+  }));
+}
+
 import { getRouteMatchInfo, render } from "./build-ssr/entry-server.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));

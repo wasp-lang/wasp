@@ -3,7 +3,7 @@ import * as React from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 
 import { getRouter } from '../router/router'
-import { queryClientInitialized } from '../../operations/index'
+import { queryClientInitialized, getQueryClientSync } from '../../operations/index'
 
 {=# areWebSocketsUsed =}
 import { WebSocketProvider } from '../../webSocket/WebSocketProvider'
@@ -20,11 +20,16 @@ export function WaspApp({
   routesMapping,
   routeNameToSsr,
 }: Required<WaspAppProps>) {
-  const [queryClient, setQueryClient] = React.useState<any>(null)
+  // Use synchronous getter as initial value so the first client render matches
+  // the server-rendered HTML during SSR hydration (avoids returning null and
+  // causing a hydration mismatch / double-tree).
+  const [queryClient, setQueryClient] = React.useState<any>(() => getQueryClientSync())
 
   React.useEffect(() => {
-    queryClientInitialized.then(setQueryClient)
-  }, [])
+    if (!queryClient) {
+      queryClientInitialized.then(setQueryClient)
+    }
+  }, [queryClient])
 
   if (!queryClient) {
     return null

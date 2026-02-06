@@ -41,6 +41,18 @@ export function waspConfig(): PluginOption {
             },
           ],
         },
+        ssr: {
+          // Bundle all dependencies into the SSR output instead of leaving them
+          // as bare external imports for Node.js to resolve at runtime. This
+          // prevents ESM resolution errors (ERR_MODULE_NOT_FOUND,
+          // ERR_UNSUPPORTED_DIR_IMPORT) from browser-only packages that don't
+          // have proper Node.js ESM exports (e.g., monaco-editor, react-icons).
+          // Node.js built-ins (fs, path, http, etc.) are always kept external.
+          noExternal: true,
+          // Prisma Client uses __dirname and native query engine binaries.
+          // It must remain external (resolved by Node.js at runtime, not bundled).
+          external: ['@prisma/client', '.prisma/client'],
+        },
         test: {
           globals: true,
           environment: "jsdom",

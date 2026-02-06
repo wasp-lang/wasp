@@ -11,7 +11,7 @@ import Data.Aeson (object, (.=))
 import Data.List.NonEmpty (NonEmpty)
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
-import StrongPath (File, File', Path', Rel, relfile)
+import StrongPath (File, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -25,13 +25,13 @@ import Wasp.Generator.DbGenerator.Common
   ( PrismaDbSchema,
     dbSchemaFileFromAppComponentDir,
   )
-import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
+import Wasp.Generator.FileDraft (FileDraft (..), createCopyFileDraftIfExists, createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
 import Wasp.Generator.Monad (Generator, GeneratorError, runGenerator)
 import Wasp.Generator.Templates (TemplatesDir, compileAndRenderTemplate)
 
 genDockerFiles :: AppSpec -> Generator [FileDraft]
-genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
+genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec, genUserNpmrc spec]
 
 -- TODO: Inject paths to server and db files/dirs, right now they are hardcoded in the templates.
 genDockerfile :: AppSpec -> Generator FileDraft
@@ -57,6 +57,15 @@ genDockerignore _ =
       ([relfile|.dockerignore|] :: Path' (Rel ProjectRootDir) File')
       ([relfile|dockerignore|] :: Path' (Rel TemplatesDir) File')
       Nothing
+
+-- | Copy the user's .npmrc (if it exists) to the project root so the Docker build
+-- respects user npm config (e.g. legacy-peer-deps=true).
+genUserNpmrc :: AppSpec -> Generator FileDraft
+genUserNpmrc spec =
+  return $
+    createCopyFileDraftIfExists
+      ([relfile|.npmrc|] :: Path' (Rel ProjectRootDir) File')
+      (AS.waspProjectDir spec </> [relfile|.npmrc|])
 
 -- | Helper to return what the Dockerfile content will be based on the AppSpec.
 compileAndRenderDockerfile :: AppSpec -> IO (Either (NonEmpty GeneratorError) Text)
