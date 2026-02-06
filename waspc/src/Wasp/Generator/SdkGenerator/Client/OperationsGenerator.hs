@@ -129,9 +129,7 @@ getOperationTypeData operation = tmplData
     (operationTypeImportStmt, operationTypeImportIdentifier) =
       getJsImportStmtAndIdentifier $
         makeJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ getOperationTypeName operation)
-    serverOpsImportPath =
-      makeSdkImportPath $
-        getServerOperationsImportPath operation
+    serverOpsImportPath = getServerOperationsImportPath operation
 
 data ClientOpsTemplatesDir
 

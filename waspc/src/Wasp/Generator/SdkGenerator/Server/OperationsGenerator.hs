@@ -22,20 +22,21 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkRootDir,
-    SdkTemplatesDir,
+  ( SdkTemplatesDir,
     getOperationTypeName,
+    makeSdkImportPath,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Util (toUpperFirst)
 
 -- | This function should match the `exports` path from the SDK's package.json.
-getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel SdkRootDir) File'
-getServerOperationsImportPath =
-  ([reldirP|server/operations|] </>) . \case
-    (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
-    (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
+getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
+getServerOperationsImportPath = \operation ->
+  makeSdkImportPath $
+    [reldirP|server/operations|] </> case operation of
+      (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
+      (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
