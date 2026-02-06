@@ -29,6 +29,14 @@ This is a lightweight SSR for public/marketing pages where HTML-first matters. N
 
 > **Why not full SSR?** RSC, server actions, and streaming would require: split server/client component graphs, Flight manifest, streaming runtime, new routing model, server action transport/security, and turning the web client into a server runtime. Out of scope for this POC.
 
+## Zero-Config Activation
+
+The entire SSR pipeline is activated automatically when at least one page has `ssr: true` in `main.wasp`. The user does not need to configure Dockerfiles, servers, package.json files, or build scripts. The chain is:
+
+1. **Code generation** (`wasp build`): The Haskell generator checks if any page has `ssr: true`. If so, it generates `server-ssr.mjs` (the SSR HTTP server), `package.json` (with runtime dependencies like sirv), and `ssr.json` with `{ "enabled": true }`. If no page has `ssr: true`, only `ssr.json` with `{ "enabled": false }` is emitted.
+2. **Build**: The deployment tooling reads `ssr.json` and, if enabled, runs an additional `vite build --ssr` to produce the `build-ssr/` bundle alongside the standard client build.
+3. **Deployment**: The deployment tooling reads `ssr.json` again and selects the appropriate strategy (Node.js server for SSR vs static file server for CSR) -- see [Deployment](#deployment) below.
+
 ## Design Decisions
 
 ### Per-Page SSR Opt-In
@@ -82,6 +90,19 @@ page LandingPage {
 
 **Rationale**: Vite's recommended approach for SSR. The SSR build produces a Node.js-compatible bundle.
 
+**Vite SSR config**: `ssr.noExternal: true` bundles all dependencies into the SSR output instead of leaving them as bare Node.js imports. This prevents ESM resolution errors from browser-only packages that lack proper Node.js exports (e.g., monaco-editor, react-icons). `@prisma/client` is explicitly externalized since it relies on `__dirname` and native query engine binaries.
+
+### SSR / Non-SSR Page Code Splitting
+
+**Decision**: SSR pages are statically imported, while non-SSR pages are lazy-loaded via `React.lazy` + dynamic `import()`.
+
+**Rationale**: Non-SSR pages may depend on browser-only packages (e.g., monaco-editor). If these were statically imported, they would be pulled into the SSR bundle and crash the server at evaluation time. Lazy loading keeps their dependency trees out of the SSR bundle entirely.
+
+- SSR pages: `import * as LandingPage from './src/pages/Landing'` (static, included in SSR bundle)
+- Non-SSR pages: `const Dashboard = { default: createLazyPage(() => import('./src/pages/Dashboard')) }` (dynamic, excluded from SSR bundle)
+
+This partitioning happens automatically in the generated `routes.tsx` virtual module based on each page's `ssr` setting.
+
 ### Hydration Detection
 
 **Decision**: Use a `data-wasp-ssr="1"` attribute on the root element to detect SSR.
@@ -110,6 +131,7 @@ export function getRouteMatchInfo(url: string): {
   matched: boolean;
   ssr: boolean;
   outsideBase: boolean;
+  isCatchAll: boolean;
 }
 ```
 
@@ -169,18 +191,25 @@ Importantly, the SSR server **does not call the Wasp API** during rendering (no 
 
 This keeps the feature focused on landing/marketing pages and avoids the larger design surface of authenticated SSR and data fetching.
 
-### Files Added/Modified
+### Key Files Added/Modified
 
 **New Files:**
 - `waspc/data/Generator/templates/web-app/server-ssr.mjs` - SSR HTTP server
-- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/entry-server.tsx` - SSR entry point
+- `waspc/data/Generator/templates/web-app/ssr-package.json` - SSR server dependencies (sirv for static asset serving)
+- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/entry-server.tsx` - SSR entry point (route matching, rendering, head resolution)
 
-**Modified Files:**
+**Modified Files (highlights):**
 - `waspc/src/Wasp/AppSpec/Page.hs` - Added `ssr :: Maybe Bool` field
 - `waspc/src/Wasp/AppSpec/Valid.hs` - Validation: SSR + authRequired = error
+- `waspc/src/Wasp/Generator/WebAppGenerator.hs` - Conditional generation of SSR files (only when `hasSsrEnabledPage`)
 - `waspc/cli/src/Wasp/Cli/Command/BuildStart/Client.hs` - SSR build step
-- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/index.html` - SSR placeholders
-- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/index.tsx` - Hydration logic
+- `waspc/data/Generator/templates/sdk/wasp/client/vite/plugins/waspConfig.ts` - Vite SSR config (`ssr.noExternal: true` to bundle all deps)
+- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/index.html` - SSR placeholders (`<!--ssr-outlet-->`, `<!--ssr-head-->`)
+- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/index.tsx` - Hydration logic (`hydrateRoot` vs `createRoot`)
+- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/routes.tsx` - Route generation with SSR/head flags
+- `waspc/data/packages/deploy/src/providers/fly/commands/deploy/deploy.ts` - Fly.io SSR Dockerfile generation
+- `waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts` - Railway SSR deployment
+- `waspc/data/packages/deploy/src/common/clientApp.ts` - SSR detection (`ssr.json`), SSR Vite build step
 
 ### Head Management (Lightweight)
 
@@ -230,6 +259,28 @@ page NotFoundPage {
 **Without `ssr: true`**: 404 status + empty shell (content requires JS)
 
 **Recommendation**: Add `ssr: true` to catch-all pages so the 404 content is visible to crawlers and users with JavaScript disabled.
+
+### Deployment
+
+SSR changes the deployment strategy for the client app. A generated `ssr.json` config file (containing `{ "enabled": true/false }`) is used by the deployment tooling to detect whether SSR is enabled.
+
+**Fly.io:**
+- **SSR enabled**: Generates a Node.js Dockerfile that runs `server-ssr.mjs`. Includes `npm install` for the sirv static-serving dependency.
+- **SSR disabled**: Uses `pierrezemb/gostatic` Docker image for static file serving (unchanged from pre-SSR behavior).
+
+**Railway:**
+- **SSR enabled**: Deploys the full `web-app/` directory. Railway's Nixpacks detects the `package.json` (with a `start` script pointing to `node server-ssr.mjs`) and runs it as a Node.js service.
+- **SSR disabled**: Deploys only the `build/` subdirectory with a `Staticfile` marker for Railway's static file server (unchanged).
+
+**Static asset serving**: The SSR server uses [sirv](https://github.com/lukeed/sirv) for serving static assets from `build/`, providing ETag support, Cache-Control headers (immutable for hashed Vite assets, 1-hour for others), and pre-compressed file serving (gzip/brotli if available).
+
+### Browser API Polyfills
+
+The SSR server sets up minimal browser API stubs (`window`, `document`, `localStorage`, `sessionStorage`, etc.) before loading the SSR bundle. This prevents crashes from third-party libraries that access browser globals at module-init time.
+
+**Known limitation**: Setting `globalThis.window = globalThis` defeats the standard `typeof window !== 'undefined'` browser detection pattern used in some SDK files (e.g., `operations/internal/index.ts`, `webSocket/WebSocketProvider.tsx`, `api/index.ts`). Those guards evaluate to `true` during SSR, which is technically incorrect. The practical impact is currently low (operations are not called during `renderToString`, socket.io connection attempts fail silently), but if more SSR-sensitive logic is added to the SDK in the future, consider switching to a custom flag (e.g., `globalThis.__WASP_SSR__ = true`) for SSR detection.
+
+**Import ordering**: The SSR bundle is loaded via dynamic `await import()` (not a static `import`) to ensure the polyfills are in place before any transitive dependencies are evaluated. ES module `import` statements are hoisted above all top-level code, which would otherwise cause the polyfills to run too late.
 
 ## Future Work
 
