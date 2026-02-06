@@ -71,7 +71,12 @@ if (typeof globalThis.window === "undefined") {
   }));
 }
 
-import { getRouteMatchInfo, render } from "./build-ssr/entry-server.js";
+// Dynamic import so that the browser API polyfills above are in place
+// before the SSR bundle (and its transitive dependencies) are evaluated.
+// A static `import` would be hoisted above the polyfill block by the
+// ES module system, causing crashes in libraries that access window/document
+// at module-init time.
+const { getRouteMatchInfo, render } = await import("./build-ssr/entry-server.js");
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientBuildDir = path.join(__dirname, "build");
