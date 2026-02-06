@@ -1,88 +1,25 @@
+import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sirv from "sirv";
 
-// Provide minimal browser API stubs so that client-side code which accesses
-// localStorage, sessionStorage, window, or document at module-init time does
-// not crash during SSR. These stubs return safe no-op / empty values.
+// Register a complete browser environment (window, document, localStorage,
+// navigator, location, etc.) on globalThis so that client-side libraries
+// which access browser APIs at module-init time don't crash during SSR.
 //
-// TODO: Setting `globalThis.window = globalThis` defeats the standard
-// `typeof window !== 'undefined'` browser detection used in SDK files
-// (e.g., operations/internal/index.ts, webSocket/WebSocketProvider.tsx,
-// api/index.ts). Those guards evaluate to true during SSR, which is incorrect.
-// Current practical impact is low (operations aren't called during renderToString,
-// socket.io connection attempts fail silently), but if more SSR-sensitive logic
-// is added to the SDK, consider switching to a custom flag like
+// NOTE: This makes `typeof window !== 'undefined'` evaluate to true during
+// SSR, which defeats isBrowser guards in SDK files (e.g., operations/internal,
+// WebSocketProvider, api/index). Current practical impact is low — operations
+// aren't called during renderToString and socket.io fails silently. If more
+// SSR-sensitive logic is added to the SDK, consider using a custom flag like
 // `globalThis.__WASP_SSR__ = true` for SSR detection instead.
-if (typeof globalThis.window === "undefined") {
-  const noopStorage = {
-    getItem: () => null,
-    setItem: () => {},
-    removeItem: () => {},
-    clear: () => {},
-    key: () => null,
-    get length() { return 0; },
-  };
-  globalThis.localStorage = noopStorage;
-  globalThis.sessionStorage = noopStorage;
-  // Since window = globalThis, libraries like react-router call
-  // window.addEventListener etc. Add these on globalThis itself.
-  globalThis.addEventListener = globalThis.addEventListener || (() => {});
-  globalThis.removeEventListener = globalThis.removeEventListener || (() => {});
-  globalThis.dispatchEvent = globalThis.dispatchEvent || (() => true);
-  globalThis.window = globalThis;
-  globalThis.document = {
-    documentElement: {
-      classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => false },
-      style: {},
-      setAttribute: () => {},
-      getAttribute: () => null,
-    },
-    body: {
-      classList: { add: () => {}, remove: () => {}, contains: () => false, toggle: () => false },
-      style: {},
-    },
-    createElement: () => ({
-      style: {},
-      setAttribute: () => {},
-      getAttribute: () => null,
-      appendChild: () => {},
-      classList: { add: () => {}, remove: () => {} },
-    }),
-    createTextNode: () => ({}),
-    querySelector: () => null,
-    querySelectorAll: () => [],
-    getElementById: () => null,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => true,
-    head: { appendChild: () => {}, removeChild: () => {} },
-  };
-  // In Node.js >= 21 `navigator` is a built-in read-only getter on globalThis,
-  // so a plain assignment throws. Use Object.defineProperty to safely provide
-  // a fallback only when the property does not already exist.
-  if (typeof globalThis.navigator === "undefined") {
-    Object.defineProperty(globalThis, "navigator", {
-      value: { userAgent: "node" },
-      writable: true,
-      configurable: true,
-    });
-  }
-  globalThis.CustomEvent = globalThis.CustomEvent || class CustomEvent extends Event {
-    constructor(type, params = {}) { super(type); this.detail = params.detail || null; }
-  };
-  globalThis.matchMedia = globalThis.matchMedia || (() => ({
-    matches: false,
-    addEventListener: () => {},
-    removeEventListener: () => {},
-  }));
-}
+GlobalRegistrator.register();
 
-// Dynamic import so that the browser API polyfills above are in place
-// before the SSR bundle (and its transitive dependencies) are evaluated.
-// A static `import` would be hoisted above the polyfill block by the
+// Dynamic import so that the browser environment registered above is in
+// place before the SSR bundle (and its transitive dependencies) are evaluated.
+// A static `import` would be hoisted above the register() call by the
 // ES module system, causing crashes in libraries that access window/document
 // at module-init time.
 const { getRouteMatchInfo, render } = await import("./build-ssr/entry-server.js");
