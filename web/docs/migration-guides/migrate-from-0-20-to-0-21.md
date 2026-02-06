@@ -269,11 +269,37 @@ This can be a quite straightforward find-and-replace operation:
 
 **If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
 
-If you have custom deployment scripts, you'll need to update them to reference the new `.wasp/out` directory instead of the removed `.wasp/build` directory.
+If you have custom deployment scripts, you'll need to make two changes:
 
-This can be a quite straightforward find-and-replace operation:
+#### 1. Replace `.wasp/build` with `.wasp/out`
+
+Since the `.wasp/build` directory has been removed, you need to update your scripts to reference `.wasp/out` instead:
 - **Find** `.wasp/build`
 - **Replace** with `.wasp/out`
+
+#### 2. Update the client build command
+
+Since Vite now runs from the project root, the way you build the client app for deployment has changed.
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```shell
+cd .wasp/out/web-app
+npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+```
+
+</TabItem>
+<TabItem value="after" label="After">
+
+```shell
+REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
+```
+
+Run this from the **project root**. The client build output directory stayed the same: `.wasp/out/web-app/build`.
+
+</TabItem>
+</Tabs>
 
 You can check our updated [deployment methods guide](../deployment/deployment-methods/overview.md) and [CI/CD guide](../deployment/ci-cd.md) for reference on the correct deployment steps.
 
