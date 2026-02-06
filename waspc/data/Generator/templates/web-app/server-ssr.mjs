@@ -153,7 +153,7 @@ function handleSsrRequest(url, res) {
   }
 
   if (routeInfo.ssr) {
-    render(url.pathname + url.search).then(({ appHtml, headHtml, hasPageTitle }) => {
+    return render(url.pathname + url.search).then(({ appHtml, headHtml, hasPageTitle }) => {
       let html = indexHtml;
 
       // If page has its own title, remove the global <title> to avoid duplicates
@@ -178,7 +178,6 @@ function handleSsrRequest(url, res) {
         res.end("Internal Server Error");
       }
     });
-    return;
   }
 
   // Return 404 for catch-all routes even without SSR
@@ -188,27 +187,43 @@ function handleSsrRequest(url, res) {
 }
 
 function handleRequest(req, res) {
-  // Use a fixed base URL since we only need pathname and search params.
-  // Avoids potential Host header injection if the URL were used elsewhere.
-  const url = new URL(req.url ?? "/", "http://localhost");
+  return new Promise((resolve, reject) => {
+    try {
+      // Use a fixed base URL since we only need pathname and search params.
+      // Avoids potential Host header injection if the URL were used elsewhere.
+      const url = new URL(req.url ?? "/", "http://localhost");
 
-  // Let sirv try to serve the static asset first.
-  // If sirv doesn't find a matching file, the callback runs and we
-  // fall through to SSR / SPA rendering.
-  serveStatic(req, res, () => {
-    handleSsrRequest(url, res);
+      // Let sirv try to serve the static asset first.
+      // If sirv doesn't find a matching file, the callback runs and we
+      // fall through to SSR / SPA rendering.
+      serveStatic(req, res, () => {
+        try {
+          Promise.resolve(handleSsrRequest(url, res)).then(resolve, reject);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
 const { port, strictPort } = parseArgs(process.argv);
 const server = http.createServer((req, res) => {
-  try {
-    handleRequest(req, res);
-  } catch (error) {
+  function send500(error) {
     console.error(error);
-    res.statusCode = 500;
-    res.setHeader("Content-Type", "text/plain");
-    res.end("Internal Server Error");
+    if (!res.headersSent) {
+      res.statusCode = 500;
+      res.setHeader("Content-Type", "text/plain");
+      res.end("Internal Server Error");
+    }
+  }
+
+  try {
+    Promise.resolve(handleRequest(req, res)).catch(send500);
+  } catch (error) {
+    send500(error);
   }
 });
 
