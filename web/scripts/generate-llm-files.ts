@@ -135,7 +135,7 @@ async function generateFiles() {
 
 function buildDocsMapsByVersionSection(versions: string[]): string {
   const latestVersion = versions[0];
-  let section = `## Documentation Maps by Version\n*IMPORTANT:* You should run \`wasp version\` to get the installed Wasp CLI version before choosing the correct link. The 0.X.0 documentation is good for any 0.X.* version.\n`;
+  let section = `## Documentation Maps by Version\n*IMPORTANT:* You should run \`wasp version\` to get the installed Wasp CLI version before choosing the correct link.\n`;
   for (const version of versions) {
     const label = version === latestVersion ? `${version} (latest)` : version;
     section += `- [${label}](${WASP_BASE_URL}llms-${version}.txt)\n`;
