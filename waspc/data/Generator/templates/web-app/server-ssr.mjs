@@ -1,13 +1,12 @@
-import { GlobalRegistrator } from "@happy-dom/global-registrator";
 import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sirv from "sirv";
 
-// Register a complete browser environment (window, document, localStorage,
-// navigator, location, etc.) on globalThis so that client-side libraries
-// which access browser APIs at module-init time don't crash during SSR.
+// Provide minimal browser API stubs so that client-side code which accesses
+// localStorage, sessionStorage, window, or document at module-init time does
+// not crash during SSR. These stubs return safe no-op / empty values.
 //
 // NOTE: This makes `typeof window !== 'undefined'` evaluate to true during
 // SSR, which defeats isBrowser guards in SDK files (e.g., operations/internal,
@@ -15,11 +14,312 @@ import sirv from "sirv";
 // aren't called during renderToString and socket.io fails silently. If more
 // SSR-sensitive logic is added to the SDK, consider using a custom flag like
 // `globalThis.__WASP_SSR__ = true` for SSR detection instead.
-GlobalRegistrator.register();
+if (typeof globalThis.window === "undefined") {
+  // ---------------------------------------------------------------------------
+  // Storage (localStorage, sessionStorage)
+  // ---------------------------------------------------------------------------
+  const noopStorage = {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {},
+    key: () => null,
+    get length() { return 0; },
+  };
+  globalThis.localStorage = noopStorage;
+  globalThis.sessionStorage = noopStorage;
 
-// Dynamic import so that the browser environment registered above is in
-// place before the SSR bundle (and its transitive dependencies) are evaluated.
-// A static `import` would be hoisted above the register() call by the
+  // ---------------------------------------------------------------------------
+  // Event system — react-router and other libs call window.addEventListener
+  // ---------------------------------------------------------------------------
+  globalThis.addEventListener = globalThis.addEventListener || (() => {});
+  globalThis.removeEventListener = globalThis.removeEventListener || (() => {});
+  globalThis.dispatchEvent = globalThis.dispatchEvent || (() => true);
+
+  // ---------------------------------------------------------------------------
+  // Location — axios reads window.location.href at module-init time
+  // ---------------------------------------------------------------------------
+  globalThis.location = {
+    href: "http://localhost",
+    origin: "http://localhost",
+    protocol: "http:",
+    host: "localhost",
+    hostname: "localhost",
+    port: "",
+    pathname: "/",
+    search: "",
+    hash: "",
+    assign: () => {},
+    replace: () => {},
+    reload: () => {},
+    toString: () => "http://localhost",
+  };
+
+  // ---------------------------------------------------------------------------
+  // History — react-router and navigation libs access window.history
+  // ---------------------------------------------------------------------------
+  globalThis.history = {
+    length: 1,
+    state: null,
+    scrollRestoration: "auto",
+    pushState: () => {},
+    replaceState: () => {},
+    go: () => {},
+    back: () => {},
+    forward: () => {},
+  };
+
+  // ---------------------------------------------------------------------------
+  // window = globalThis (must come after location/history so they're visible)
+  // ---------------------------------------------------------------------------
+  globalThis.window = globalThis;
+
+  // ---------------------------------------------------------------------------
+  // Document — comprehensive stub covering common DOM operations
+  // ---------------------------------------------------------------------------
+  const noopClassList = { add: () => {}, remove: () => {}, contains: () => false, toggle: () => false, replace: () => false, item: () => null, get length() { return 0; }, forEach: () => {}, entries: () => [][Symbol.iterator](), keys: () => [][Symbol.iterator](), values: () => [][Symbol.iterator]() };
+  const noopStyle = new Proxy({}, { get: () => "", set: () => true });
+  const makeElement = (tag) => ({
+    tagName: (tag || "DIV").toUpperCase(),
+    style: { ...noopStyle },
+    dataset: {},
+    setAttribute: () => {},
+    getAttribute: () => null,
+    removeAttribute: () => {},
+    hasAttribute: () => false,
+    appendChild: (c) => c,
+    removeChild: (c) => c,
+    insertBefore: (n) => n,
+    replaceChild: (n) => n,
+    cloneNode: () => makeElement(tag),
+    contains: () => false,
+    classList: { ...noopClassList },
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => true,
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    getElementsByTagName: () => [],
+    getElementsByClassName: () => [],
+    getBoundingClientRect: () => ({ top: 0, right: 0, bottom: 0, left: 0, width: 0, height: 0, x: 0, y: 0, toJSON: () => {} }),
+    getAnimations: () => [],
+    animate: () => ({ finished: Promise.resolve(), cancel: () => {}, play: () => {}, pause: () => {} }),
+    focus: () => {},
+    blur: () => {},
+    click: () => {},
+    innerHTML: "",
+    outerHTML: "",
+    textContent: "",
+    innerText: "",
+    children: [],
+    childNodes: [],
+    firstChild: null,
+    lastChild: null,
+    nextSibling: null,
+    previousSibling: null,
+    parentNode: null,
+    parentElement: null,
+    offsetWidth: 0,
+    offsetHeight: 0,
+    offsetTop: 0,
+    offsetLeft: 0,
+    clientWidth: 0,
+    clientHeight: 0,
+    scrollWidth: 0,
+    scrollHeight: 0,
+    scrollTop: 0,
+    scrollLeft: 0,
+  });
+
+  globalThis.document = {
+    documentElement: { ...makeElement("html"), ...{ classList: { ...noopClassList } } },
+    body: { ...makeElement("body"), ...{ classList: { ...noopClassList } } },
+    head: { appendChild: (c) => c, removeChild: (c) => c, insertBefore: (n) => n, children: [], querySelectorAll: () => [] },
+    createElement: (tag) => makeElement(tag),
+    createElementNS: (_ns, tag) => makeElement(tag),
+    createTextNode: (text) => ({ textContent: text, nodeType: 3 }),
+    createComment: (text) => ({ textContent: text, nodeType: 8 }),
+    createDocumentFragment: () => ({ appendChild: (c) => c, children: [], querySelectorAll: () => [], querySelector: () => null }),
+    querySelector: () => null,
+    querySelectorAll: () => [],
+    getElementById: () => null,
+    getElementsByTagName: () => [],
+    getElementsByClassName: () => [],
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    dispatchEvent: () => true,
+    createEvent: (type) => new Event(type),
+    cookie: "",
+    title: "",
+    readyState: "complete",
+    hidden: false,
+    visibilityState: "visible",
+    hasFocus: () => false,
+    activeElement: null,
+    implementation: { createHTMLDocument: () => globalThis.document },
+  };
+
+  // ---------------------------------------------------------------------------
+  // Navigator — Node.js >= 21 has a read-only navigator getter, so use
+  // Object.defineProperty for safe fallback.
+  // ---------------------------------------------------------------------------
+  if (typeof globalThis.navigator === "undefined") {
+    Object.defineProperty(globalThis, "navigator", {
+      value: {
+        userAgent: "node",
+        language: "en",
+        languages: ["en"],
+        onLine: true,
+        cookieEnabled: false,
+        hardwareConcurrency: 1,
+        maxTouchPoints: 0,
+        clipboard: { readText: () => Promise.resolve(""), writeText: () => Promise.resolve() },
+        mediaDevices: { enumerateDevices: () => Promise.resolve([]) },
+        permissions: { query: () => Promise.resolve({ state: "denied" }) },
+        serviceWorker: { ready: new Promise(() => {}), register: () => Promise.resolve(), getRegistrations: () => Promise.resolve([]) },
+        sendBeacon: () => true,
+        vibrate: () => false,
+      },
+      writable: true,
+      configurable: true,
+    });
+  }
+
+  // ---------------------------------------------------------------------------
+  // Screen — analytics and responsive libs read window.screen
+  // ---------------------------------------------------------------------------
+  globalThis.screen = {
+    width: 1920,
+    height: 1080,
+    availWidth: 1920,
+    availHeight: 1080,
+    colorDepth: 24,
+    pixelDepth: 24,
+    orientation: { type: "landscape-primary", angle: 0, addEventListener: () => {}, removeEventListener: () => {} },
+  };
+
+  // ---------------------------------------------------------------------------
+  // Animation frame — framer-motion, react-spring, GSAP reference at init
+  // ---------------------------------------------------------------------------
+  let rafId = 0;
+  globalThis.requestAnimationFrame = globalThis.requestAnimationFrame || ((cb) => setTimeout(cb, 16, ++rafId));
+  globalThis.cancelAnimationFrame = globalThis.cancelAnimationFrame || ((id) => clearTimeout(id));
+  globalThis.requestIdleCallback = globalThis.requestIdleCallback || ((cb) => setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 50 }), 1));
+  globalThis.cancelIdleCallback = globalThis.cancelIdleCallback || ((id) => clearTimeout(id));
+
+  // ---------------------------------------------------------------------------
+  // Observers — IntersectionObserver, ResizeObserver, MutationObserver
+  // Used by lazy-loading, auto-sizing, and DOM-watching libraries.
+  // ---------------------------------------------------------------------------
+  const NoopObserver = class {
+    constructor() {}
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+    takeRecords() { return []; }
+  };
+  globalThis.IntersectionObserver = globalThis.IntersectionObserver || NoopObserver;
+  globalThis.ResizeObserver = globalThis.ResizeObserver || NoopObserver;
+  globalThis.MutationObserver = globalThis.MutationObserver || NoopObserver;
+
+  // ---------------------------------------------------------------------------
+  // CSS / layout — CSS-in-JS libs (Chakra, styled-components, emotion)
+  // ---------------------------------------------------------------------------
+  globalThis.getComputedStyle = globalThis.getComputedStyle || (() => new Proxy({}, { get: (_, prop) => prop === "getPropertyValue" ? () => "" : "" }));
+  globalThis.getSelection = globalThis.getSelection || (() => ({ rangeCount: 0, addRange: () => {}, removeAllRanges: () => {}, getRangeAt: () => null, toString: () => "" }));
+
+  // ---------------------------------------------------------------------------
+  // Scroll — scroll libraries and react-router scroll restoration
+  // ---------------------------------------------------------------------------
+  globalThis.scrollTo = globalThis.scrollTo || (() => {});
+  globalThis.scrollBy = globalThis.scrollBy || (() => {});
+  globalThis.scroll = globalThis.scroll || (() => {});
+
+  // ---------------------------------------------------------------------------
+  // Viewport dimensions — responsive hooks, media queries
+  // ---------------------------------------------------------------------------
+  globalThis.innerWidth = globalThis.innerWidth || 1920;
+  globalThis.innerHeight = globalThis.innerHeight || 1080;
+  globalThis.outerWidth = globalThis.outerWidth || 1920;
+  globalThis.outerHeight = globalThis.outerHeight || 1080;
+  globalThis.devicePixelRatio = globalThis.devicePixelRatio || 1;
+  globalThis.visualViewport = globalThis.visualViewport || {
+    width: 1920, height: 1080, offsetLeft: 0, offsetTop: 0, pageLeft: 0, pageTop: 0, scale: 1,
+    addEventListener: () => {}, removeEventListener: () => {},
+  };
+
+  // ---------------------------------------------------------------------------
+  // Events & custom events
+  // ---------------------------------------------------------------------------
+  globalThis.CustomEvent = globalThis.CustomEvent || class CustomEvent extends Event {
+    constructor(type, params = {}) { super(type); this.detail = params.detail || null; }
+  };
+
+  // ---------------------------------------------------------------------------
+  // matchMedia — responsive / dark-mode detection
+  // ---------------------------------------------------------------------------
+  globalThis.matchMedia = globalThis.matchMedia || ((query) => ({
+    matches: false,
+    media: query,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},    // deprecated but still used by older libs
+    removeListener: () => {}, // deprecated but still used by older libs
+    dispatchEvent: () => true,
+  }));
+
+  // ---------------------------------------------------------------------------
+  // XMLHttpRequest — axios falls back to XHR if it detects a browser env
+  // ---------------------------------------------------------------------------
+  globalThis.XMLHttpRequest = globalThis.XMLHttpRequest || class XMLHttpRequest {
+    open() {}
+    send() {}
+    abort() {}
+    setRequestHeader() {}
+    getResponseHeader() { return null; }
+    getAllResponseHeaders() { return ""; }
+    addEventListener() {}
+    removeEventListener() {}
+    get readyState() { return 0; }
+    get status() { return 0; }
+    get statusText() { return ""; }
+    get responseText() { return ""; }
+    get response() { return null; }
+  };
+
+  // ---------------------------------------------------------------------------
+  // Miscellaneous APIs accessed at init by various popular libraries
+  // ---------------------------------------------------------------------------
+  globalThis.DOMParser = globalThis.DOMParser || class DOMParser {
+    parseFromString() { return globalThis.document; }
+  };
+  globalThis.HTMLElement = globalThis.HTMLElement || class HTMLElement {};
+  globalThis.HTMLIFrameElement = globalThis.HTMLIFrameElement || class HTMLIFrameElement {};
+  globalThis.HTMLImageElement = globalThis.HTMLImageElement || class HTMLImageElement {};
+  globalThis.SVGElement = globalThis.SVGElement || class SVGElement {};
+  globalThis.Image = globalThis.Image || class Image { constructor() { this.src = ""; this.onload = null; this.onerror = null; } };
+  globalThis.self = globalThis.self || globalThis;
+  globalThis.top = globalThis.top || globalThis;
+  globalThis.parent = globalThis.parent || globalThis;
+  globalThis.frames = globalThis.frames || globalThis;
+  globalThis.frameElement = globalThis.frameElement || null;
+  globalThis.open = globalThis.open || (() => null);
+  globalThis.close = globalThis.close || (() => {});
+  globalThis.focus = globalThis.focus || (() => {});
+  globalThis.blur = globalThis.blur || (() => {});
+  globalThis.postMessage = globalThis.postMessage || (() => {});
+  globalThis.alert = globalThis.alert || (() => {});
+  globalThis.confirm = globalThis.confirm || (() => false);
+  globalThis.prompt = globalThis.prompt || (() => null);
+  globalThis.print = globalThis.print || (() => {});
+  globalThis.origin = globalThis.origin || "http://localhost";
+  globalThis.isSecureContext = globalThis.isSecureContext ?? false;
+}
+
+// Dynamic import so that the browser API polyfills above are in place
+// before the SSR bundle (and its transitive dependencies) are evaluated.
+// A static `import` would be hoisted above the polyfill block by the
 // ES module system, causing crashes in libraries that access window/document
 // at module-init time.
 const { getRouteMatchInfo, render } = await import("./build-ssr/entry-server.js");

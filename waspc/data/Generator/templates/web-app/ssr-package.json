@@ -6,7 +6,6 @@
     "start": "node server-ssr.mjs"
   },
   "dependencies": {
-    "@happy-dom/global-registrator": "^20.0.11",
     "sirv": "^2.0.4"
   }
 }
