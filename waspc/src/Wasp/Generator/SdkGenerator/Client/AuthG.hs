@@ -12,7 +12,7 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Util ((<++>))
@@ -51,41 +51,41 @@ genAuthUi auth =
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|client/auth/email.ts|]]
+    then sequence [genFileCopy [relfile|client/auth/email.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|client/auth/username.ts|]]
+    then sequence [genFileCopy [relfile|client/auth/username.ts|]]
     else return []
 
 genAuthSlack :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthSlack auth =
   if AS.Auth.isSlackAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|client/auth/slack.ts|]]
+    then sequence [genFileCopy [relfile|client/auth/slack.ts|]]
     else return []
 
 genAuthDiscord :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthDiscord auth =
   if AS.Auth.isDiscordAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|client/auth/discord.ts|]]
+    then sequence [genFileCopy [relfile|client/auth/discord.ts|]]
     else return []
 
 genAuthGoogle :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthGoogle auth =
   if AS.Auth.isGoogleAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|client/auth/google.ts|]]
+    then sequence [genFileCopy [relfile|client/auth/google.ts|]]
     else return []
 
 genAuthKeycloak :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthKeycloak auth =
   if AS.Auth.isKeycloakAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|client/auth/keycloak.ts|]]
+    then sequence [genFileCopy [relfile|client/auth/keycloak.ts|]]
     else return []
 
 genAuthGitHub :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthGitHub auth =
   if AS.Auth.isGitHubAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|client/auth/github.ts|]]
+    then sequence [genFileCopy [relfile|client/auth/github.ts|]]
     else return []

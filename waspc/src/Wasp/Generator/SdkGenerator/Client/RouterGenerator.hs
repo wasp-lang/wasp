@@ -12,7 +12,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
@@ -21,9 +21,9 @@ genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      return . mkTmplFd $ [relfile|client/router/types.ts|],
-      return . mkTmplFd $ [relfile|client/router/linkHelpers.ts|],
-      return . mkTmplFd $ [relfile|client/router/Link.tsx|]
+      genFileCopy [relfile|client/router/types.ts|],
+      genFileCopy [relfile|client/router/linkHelpers.ts|],
+      genFileCopy [relfile|client/router/Link.tsx|]
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft

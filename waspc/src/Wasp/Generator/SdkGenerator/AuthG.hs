@@ -19,7 +19,7 @@ import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -35,13 +35,13 @@ genAuth spec =
     Just auth ->
       -- shared stuff
       sequence
-        [ return . mkTmplFd $ [relfile|auth/user.ts|]
+        [ genFileCopy [relfile|auth/user.ts|]
         ]
         -- client stuff
         <++> sequence
-          [ return . mkTmplFd $ [relfile|auth/helpers/user.ts|],
-            return . mkTmplFd $ [relfile|auth/types.ts|],
-            return . mkTmplFd $ [relfile|auth/logout.ts|],
+          [ genFileCopy [relfile|auth/helpers/user.ts|],
+            genFileCopy [relfile|auth/types.ts|],
+            genFileCopy [relfile|auth/logout.ts|],
             genUseAuth auth
           ]
         <++> genAuthForms auth
@@ -50,10 +50,10 @@ genAuth spec =
         <++> genEmailAuth auth
         -- server stuff
         <++> sequence
-          [ return $ mkTmplFd [relfile|core/auth.ts|],
-            return . mkTmplFd $ [relfile|auth/validation.ts|],
-            return . mkTmplFd $ [relfile|auth/password.ts|],
-            return . mkTmplFd $ [relfile|auth/jwt.ts|],
+          [ genFileCopy [relfile|core/auth.ts|],
+            genFileCopy [relfile|auth/validation.ts|],
+            genFileCopy [relfile|auth/password.ts|],
+            genFileCopy [relfile|auth/jwt.ts|],
             genSessionTs auth,
             genLuciaTs auth,
             genUtils auth,

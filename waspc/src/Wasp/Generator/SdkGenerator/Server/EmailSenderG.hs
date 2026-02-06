@@ -17,7 +17,7 @@ import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
@@ -85,7 +85,7 @@ genCoreHelpers emailSender =
 
 genEmailSenderProviderSetupFn :: AS.EmailSender.EmailSender -> Generator FileDraft
 genEmailSenderProviderSetupFn emailSender =
-  return . mkTmplFd $ ([reldir|server/email/core/providers|] </> setupFnFromProvidersDir)
+  genFileCopy ([reldir|server/email/core/providers|] </> setupFnFromProvidersDir)
   where
     setupFnFromProvidersDir = Providers.setupFnFile . Providers.getEmailSenderProvider $ emailSender
 

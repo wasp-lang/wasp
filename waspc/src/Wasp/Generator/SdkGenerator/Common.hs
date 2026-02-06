@@ -8,6 +8,7 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Util (toUpperFirst)
 
@@ -46,6 +47,9 @@ mkTmplFd relSrcPath =
     relSrcPath
     (SP.castRel relSrcPath)
     Nothing
+
+genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> Generator FileDraft
+genFileCopy = return . mkTmplFd
 
 sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
 sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]

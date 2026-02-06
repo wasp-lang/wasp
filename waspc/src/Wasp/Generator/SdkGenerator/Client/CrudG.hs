@@ -14,7 +14,7 @@ import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
   )
@@ -26,7 +26,7 @@ genNewClientCrudApi spec =
     then
       sequence
         [ genCrudIndex spec cruds,
-          return . mkTmplFd $ [relfile|client/crud/operationsHelpers.ts|]
+          genFileCopy [relfile|client/crud/operationsHelpers.ts|]
         ]
         <++> genCrudOperations spec cruds
     else return []

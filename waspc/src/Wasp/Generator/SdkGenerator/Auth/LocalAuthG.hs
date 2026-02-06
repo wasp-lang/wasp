@@ -11,7 +11,7 @@ import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -21,7 +21,7 @@ genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genLocalAuth auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
       sequence
-        [ return . mkTmplFd $ [relfile|auth/username/index.ts|]
+        [ genFileCopy [relfile|auth/username/index.ts|]
         ]
         <++> genActions auth
   | otherwise = return []

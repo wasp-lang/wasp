@@ -19,7 +19,7 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -30,7 +30,7 @@ genEmailAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailAuth auth
   | AS.Auth.isEmailAuthEnabled auth =
       sequence
-        [ return . mkTmplFd $ [relfile|auth/email/index.ts|],
+        [ genFileCopy [relfile|auth/email/index.ts|],
           genServerUtils auth
         ]
         <++> genActions auth

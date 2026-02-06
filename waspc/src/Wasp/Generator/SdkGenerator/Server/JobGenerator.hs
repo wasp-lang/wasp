@@ -24,8 +24,8 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( makeSdkImportPath,
-    mkTmplFd,
+  ( genFileCopy,
+    makeSdkImportPath,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
   )
@@ -117,17 +117,17 @@ genJobExecutors :: AppSpec -> Generator [FileDraft]
 genJobExecutors spec = case getJobs spec of
   [] -> return []
   _anyJob ->
-    return $ mkTmplFd [relfile|server/jobs/core/job.ts|] : genAllJobExecutorsFds
+    sequence $ genFileCopy [relfile|server/jobs/core/job.ts|] : genAllJobExecutors
     where
-      genAllJobExecutorsFds = concatMap genJobExecutorFds jobExecutors
+      genAllJobExecutors = concatMap genJobExecutor jobExecutors
 
       -- Per each defined job executor, we generate the needed files.
-      genJobExecutorFds :: JobExecutor -> [FileDraft]
-      genJobExecutorFds PgBoss =
-        [ mkTmplFd [relfile|server/jobs/core/pgBoss/pgBoss.ts|],
-          mkTmplFd [relfile|server/jobs/core/pgBoss/pgBossJob.ts|],
-          mkTmplFd [relfile|server/jobs/core/pgBoss/types.ts|],
-          mkTmplFd [relfile|server/jobs/core/pgBoss/index.ts|]
+      genJobExecutor :: JobExecutor -> [Generator FileDraft]
+      genJobExecutor PgBoss =
+        [ genFileCopy [relfile|server/jobs/core/pgBoss/pgBoss.ts|],
+          genFileCopy [relfile|server/jobs/core/pgBoss/pgBossJob.ts|],
+          genFileCopy [relfile|server/jobs/core/pgBoss/types.ts|],
+          genFileCopy [relfile|server/jobs/core/pgBoss/index.ts|]
         ]
 
 -- NOTE: Our pg-boss related documentation references this version in URLs.

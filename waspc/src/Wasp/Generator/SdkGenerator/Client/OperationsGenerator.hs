@@ -15,9 +15,9 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     clientTemplatesDirInSdkTemplatesDir,
+    genFileCopy,
     getOperationTypeName,
     makeSdkImportPath,
-    mkTmplFd,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (getServerOperationsImportPath)
@@ -139,4 +139,4 @@ clientOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientOpsTempl
 clientOpsDirInSdkTemplatesDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
 
 genClientOpsFileCopy :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
-genClientOpsFileCopy path = return $ mkTmplFd $ clientOpsDirInSdkTemplatesDir </> path
+genClientOpsFileCopy = genFileCopy . (clientOpsDirInSdkTemplatesDir </>)

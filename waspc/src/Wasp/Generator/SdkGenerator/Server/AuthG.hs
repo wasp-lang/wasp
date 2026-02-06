@@ -15,7 +15,7 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Util ((<++>))
@@ -70,11 +70,11 @@ genHooks auth =
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
   if AS.Auth.isEmailAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|server/auth/email/index.ts|]]
+    then sequence [genFileCopy [relfile|server/auth/email/index.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
   if AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    then sequence [return . mkTmplFd $ [relfile|server/auth/username.ts|]]
+    then sequence [genFileCopy [relfile|server/auth/username.ts|]]
     else return []

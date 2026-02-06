@@ -19,7 +19,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
-    mkTmplFd,
+    genFileCopy,
     mkTmplFdWithData,
   )
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
@@ -162,11 +162,11 @@ authFormsDirInSdkTemplatesDir = [reldir|auth/forms|]
 
 genFileCopyInAuthForms :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuthForms =
-  return . mkTmplFd . (authFormsDirInSdkTemplatesDir </>)
+  genFileCopy . (authFormsDirInSdkTemplatesDir </>)
 
 authFormsInternalDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 authFormsInternalDirInSdkTemplatesDir = authFormsDirInSdkTemplatesDir </> [reldir|internal|]
 
 genFileCopyInAuthFormsInternal :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuthFormsInternal =
-  return . mkTmplFd . (authFormsInternalDirInSdkTemplatesDir </>)
+  genFileCopy . (authFormsInternalDirInSdkTemplatesDir </>)

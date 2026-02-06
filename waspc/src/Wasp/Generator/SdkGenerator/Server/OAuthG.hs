@@ -26,7 +26,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
-    mkTmplFd,
+    genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Util ((<++>))
@@ -109,4 +109,4 @@ serverOauthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOauthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
 
 genServerOauthDirFileCopy :: Path' Rel' File' -> Generator FileDraft
-genServerOauthDirFileCopy = return . mkTmplFd . (serverOauthDirInSdkTemplatesDir </>)
+genServerOauthDirFileCopy = genFileCopy . (serverOauthDirInSdkTemplatesDir </>)
