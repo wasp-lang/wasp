@@ -7,6 +7,15 @@ import sirv from "sirv";
 // Provide minimal browser API stubs so that client-side code which accesses
 // localStorage, sessionStorage, window, or document at module-init time does
 // not crash during SSR. These stubs return safe no-op / empty values.
+//
+// TODO: Setting `globalThis.window = globalThis` defeats the standard
+// `typeof window !== 'undefined'` browser detection used in SDK files
+// (e.g., operations/internal/index.ts, webSocket/WebSocketProvider.tsx,
+// api/index.ts). Those guards evaluate to true during SSR, which is incorrect.
+// Current practical impact is low (operations aren't called during renderToString,
+// socket.io connection attempts fail silently), but if more SSR-sensitive logic
+// is added to the SDK, consider switching to a custom flag like
+// `globalThis.__WASP_SSR__ = true` for SSR detection instead.
 if (typeof globalThis.window === "undefined") {
   const noopStorage = {
     getItem: () => null,

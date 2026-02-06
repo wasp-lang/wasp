@@ -8,6 +8,3 @@ export const serverAppPort = 8080 as Port;
 export const clientAppPortStatic = 8080 as Port;
 // Port for SSR client (Node.js server)
 export const clientAppPortSsr = 3000 as Port;
-
-// Default client port (for backward compatibility)
-export const clientAppPort = clientAppPortStatic;
