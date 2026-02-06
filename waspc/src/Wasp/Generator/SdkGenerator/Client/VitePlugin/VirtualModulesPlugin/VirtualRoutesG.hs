@@ -125,9 +125,25 @@ createLazyPageTemplateData (pageName, page) =
           GJI.extImportToRelativeSrcImportFromViteExecution pageComponent
 
     -- Extract the module path from the generated import statement.
-    importPath = fromMaybe "" $ do
-      rest <- stripPrefix "import " defaultImportStmt
-      extractPath rest
+    -- NOTE: This should never fail if the import statement is well-formed,
+    -- so use error to fail loudly rather than silently generating import('').
+    importPath =
+      case stripPrefix "import " defaultImportStmt of
+        Nothing ->
+          error $
+            "Failed to extract import path for page '"
+              ++ pageName
+              ++ "': expected defaultImportStmt to start with 'import ' but got: "
+              ++ defaultImportStmt
+        Just rest ->
+          case extractPath rest of
+            Nothing ->
+              error $
+                "Failed to extract import path for page '"
+                  ++ pageName
+                  ++ "': extractPath returned Nothing for: "
+                  ++ rest
+            Just path -> path
 
     exportedName = case EI.name pageComponent of
       EI.ExtImportModule _ -> "default"
