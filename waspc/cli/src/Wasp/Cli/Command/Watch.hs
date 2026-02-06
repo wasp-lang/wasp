@@ -52,6 +52,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
           -- TODO: Might be valuable to also filter out files from .gitignore.
           not (isEditorTmpFile filename)
             && filename /= "package-lock.json"
+            && filename /= ".DS_Store"
           where
             filename = FP.takeFileName $ FSN.eventPath event
 
@@ -62,6 +63,7 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
         eventFilter event =
           -- TODO: Might be valuable to also filter out files from .gitignore.
           not (isEditorTmpFile filename)
+            && filename /= ".DS_Store"
           where
             filename = FP.takeFileName $ FSN.eventPath event
 
