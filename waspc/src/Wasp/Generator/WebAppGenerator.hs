@@ -48,17 +48,16 @@ createWebAppRootDir projectDir = createDirectoryIfMissing True webAppRootDir
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec =
   sequence $
-    [ genSsrConfig spec
+    [ genSsrConfig ssrEnabled
     ]
-      ++ if hasSsrEnabledPage
+      ++ if ssrEnabled
         then
           [ genServerSsr,
             genSsrPackageJson
           ]
         else []
   where
-    hasSsrEnabledPage =
-      any (maybe False id . AS.Page.ssr . snd) (AS.getPages spec)
+    ssrEnabled = hasSsrEnabledPage spec
 
 genServerSsr :: Generator FileDraft
 genServerSsr =
@@ -76,8 +75,12 @@ genSsrPackageJson =
       ([relfile|web-app/ssr-package.json|] :: Path' (Rel TemplatesDir) (File ()))
       Nothing
 
-genSsrConfig :: AppSpec -> Generator FileDraft
-genSsrConfig spec =
+hasSsrEnabledPage :: AppSpec -> Bool
+hasSsrEnabledPage spec =
+  any (maybe False id . AS.Page.ssr . snd) (AS.getPages spec)
+
+genSsrConfig :: Bool -> Generator FileDraft
+genSsrConfig ssrEnabled =
   return $
     createTextFileDraft
       (webAppRootDirInProjectRootDir </> [relfile|ssr.json|])
@@ -85,7 +88,5 @@ genSsrConfig spec =
   where
     ssrConfig =
       object
-        [ "enabled" .= hasSsrEnabledPage
+        [ "enabled" .= ssrEnabled
         ]
-    hasSsrEnabledPage =
-      any (maybe False id . AS.Page.ssr . snd) (AS.getPages spec)
