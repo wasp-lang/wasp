@@ -47,11 +47,18 @@ createWebAppRootDir projectDir = createDirectoryIfMissing True webAppRootDir
 
 genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec =
-  sequence
-    [ genServerSsr,
-      genSsrPackageJson,
-      genSsrConfig spec
+  sequence $
+    [ genSsrConfig spec
     ]
+      ++ if hasSsrEnabledPage
+        then
+          [ genServerSsr,
+            genSsrPackageJson
+          ]
+        else []
+  where
+    hasSsrEnabledPage =
+      any (maybe False id . AS.Page.ssr . snd) (AS.getPages spec)
 
 genServerSsr :: Generator FileDraft
 genServerSsr =
