@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.BuildStart.Client
   ( buildClient,
+    buildSsr,
     startClient,
   )
 where
@@ -7,7 +8,6 @@ where
 import Data.Function ((&))
 import StrongPath ((</>))
 import qualified StrongPath as SP
-import System.Exit (ExitCode (..))
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import qualified Wasp.Generator.SdkGenerator.Client.VitePlugin.Common as ViteCommon
@@ -20,19 +20,19 @@ import Wasp.Job.Except (ExceptJob, toExceptJob)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
 
-buildClient :: BuildStartConfig -> Bool -> ExceptJob
-buildClient config ssrEnabled = toExceptJob errorMsg $ \jobChan -> do
-  -- Run the standard client build first.
-  buildResult <- runNodeCommandAsJobWithExtraEnv envVars projectDir "npx" ["vite", "build"] J.WebApp jobChan
-  case buildResult of
-    -- If not using SSR, just return the result of the standard build.
-    _ | not ssrEnabled -> return buildResult
-    -- If SSR is enabled but the standard build failed, return the failure.
-    exitCode | exitCode /= ExitSuccess -> return exitCode
-    -- If SSR is enabled and the standard build succeeded, also build the SSR entry point.
-    _ -> runNodeCommandAsJobWithExtraEnv envVars projectDir "npx" ["vite", "build", "--ssr", ViteCommon.ssrEntryPointPath, "--outDir", ssrBuildOutDir] J.WebApp jobChan
+buildClient :: BuildStartConfig -> ExceptJob
+buildClient config =
+  runNodeCommandAsJobWithExtraEnv envVars projectDir "npx" ["vite", "build"] J.WebApp
+    & toExceptJob (("Building the client failed with exit code: " <>) . show)
   where
-    errorMsg = ("Building the client failed with exit code: " <>) . show
+    envVars = Config.clientEnvVars config
+    projectDir = Config.projectDir config
+
+buildSsr :: BuildStartConfig -> ExceptJob
+buildSsr config =
+  runNodeCommandAsJobWithExtraEnv envVars projectDir "npx" ["vite", "build", "--ssr", ViteCommon.ssrEntryPointPath, "--outDir", ssrBuildOutDir] J.WebApp
+    & toExceptJob (("Building the SSR bundle failed with exit code: " <>) . show)
+  where
     envVars = Config.clientEnvVars config
     projectDir = Config.projectDir config
     ssrBuildOutDir =
