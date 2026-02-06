@@ -13,7 +13,6 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
-import qualified Wasp.Generator.WebAppGenerator as WebAppGenerator
 import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
 
@@ -45,16 +44,6 @@ depsMessage appSpec =
       ++ printDeps
         "Server devDependencies:"
         ( N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
-        )
-      ++ [""]
-      ++ printDeps
-        "Webapp dependencies:"
-        ( N.dependencies $ N.fromWasp $ WebAppGenerator.npmDepsFromWasp appSpec
-        )
-      ++ [""]
-      ++ printDeps
-        "Webapp devDependencies:"
-        ( N.devDependencies $ N.fromWasp $ WebAppGenerator.npmDepsFromWasp appSpec
         )
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]

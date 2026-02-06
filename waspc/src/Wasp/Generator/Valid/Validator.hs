@@ -51,7 +51,13 @@ withFileName fileName' innerValidator =
 -- | Runs the validator on a specific field of the input, adding the field name to the error path.
 inField :: (String, a -> b) -> Validator b -> Validator a
 inField (fieldName, fieldGetter) innerValidator =
-  mapErrors prependFieldName . innerValidator . fieldGetter
+  withFieldName fieldName . innerValidator . fieldGetter
+
+-- | Adds a field name to the error path for a validation result.
+-- Unlike 'inField', this doesn't extract a field - use this when you already
+-- have the value and just need to add context to errors.
+withFieldName :: String -> Validation -> Validation
+withFieldName fieldName = mapErrors prependFieldName
   where
     prependFieldName err = err {fieldPath = fieldName : fieldPath err}
 
@@ -70,6 +76,7 @@ failure message' =
         fileName = Nothing
       }
 
+-- | Validates that the value exists and is equal to the expected value.
 eqJust :: (Eq a, Show a) => a -> Validator (Maybe a)
 eqJust expected (Just actual)
   | actual == expected = success
@@ -77,6 +84,11 @@ eqJust expected (Just actual)
       failure $ "Expected " ++ show expected ++ " but got " ++ show actual ++ "."
 eqJust expected Nothing =
   failure $ "Missing value, expected " ++ show expected ++ "."
+
+-- | Runs the inner validator only if the value is Just. If the value is
+-- Nothing, no validation is needed and the validation succeeds.
+ifJust :: Validator a -> Validator (Maybe a)
+ifJust = maybe success
 
 instance Show ValidationError where
   show

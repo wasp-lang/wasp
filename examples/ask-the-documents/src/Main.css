@@ -1,4 +1,4 @@
-@import "tailwindcss" source(".");
+@import "tailwindcss";
 
 /* Hero UI */
 @plugin "./hero.ts";

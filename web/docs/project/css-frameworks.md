@@ -20,37 +20,30 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
 1. Add the Tailwind CSS Vite plugin to your `vite.config.ts` file:
 
     ```ts title="vite.config.ts"
+    import { wasp } from 'wasp/client/vite'
     // highlight-next-line
     import tailwindcss from '@tailwindcss/vite'
     import { defineConfig } from 'vite'
 
     export default defineConfig({
-      server: {
-        open: true,
-      },
       plugins: [
+        wasp(),
         // highlight-next-line
         tailwindcss()
       ],
+      server: {
+        open: true,
+      },
     })
     ```
 
 1. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
 
     ```css title="src/Main.css" {1}
-    @import "tailwindcss" source(".");
+    @import "tailwindcss";
 
     /* ... */
     ```
-
-    :::info
-
-    Make sure to add `source(".")` to the `@import "tailwindcss"` directive. Otherwise Tailwind won't be able to find your class names in the `src` folder and won't generate the corresponding CSS rules.
-
-
-    Moreover, if your main CSS file is in a different location, adjust the path in `source()` accordingly so that it points to the `src` folder. For example, if your main CSS file is located in `src/styles/Main.css` then we'd need to adjust it to be `source("../")`.
-
-    :::
 
 1. Start using Tailwind 🥳
 
@@ -75,42 +68,11 @@ npm install -D @tailwindcss/forms
 npm install -D @tailwindcss/typography
 ```
 
-```css title="src/Main.css" {3-4}
-@import "tailwindcss" source(".");
+```css title="src/Main.css" {1,3-4}
+@import "tailwindcss";
 
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
 /* ... */
 ```
-
-### Troubleshooting
-
-#### I followed the installation steps but Tailwind classes are not being applied
-
-Due to how Wasp works internally, we need to tell Tailwind explicitly where to look for class names. While our guides walk you through this step, you might have missed it.
-
-To fix this issue, find the CSS file with the `@import "tailwindcss"` directive and add `source(".")` to it.
-
-If you used the default starter templates, the main CSS file will be located in the `src` dir, for example `src/Main.css` or `src/App.css`. If it is in a different location, adjust the path in `source()` accordingly, so that it points to your `src` folder.
-
-<Tabs>
-<TabItem value="before" label="Before">
-
-```css title="src/Main.css" {1}
-@import "tailwindcss";
-
-/* ... */
-```
-
-</TabItem>
-<TabItem value="after" label="After">
-
-```css title="src/Main.css" {1}
-@import "tailwindcss" source(".");
-
-/* ... */
-```
-
-</TabItem>
-</Tabs>
