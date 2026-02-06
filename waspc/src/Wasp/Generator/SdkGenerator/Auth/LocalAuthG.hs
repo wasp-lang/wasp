@@ -4,14 +4,15 @@ module Wasp.Generator.SdkGenerator.Auth.LocalAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (relfile)
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (localAuthProvider)
 import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( genFileCopy,
+  ( SdkTemplatesDir,
+    genFileCopy,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -21,7 +22,7 @@ genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genLocalAuth auth
   | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
       sequence
-        [ genFileCopy [relfile|auth/username/index.ts|]
+        [ genFileCopyInLocalAuthDir [relfile|index.ts|]
         ]
         <++> genActions auth
   | otherwise = return []
@@ -35,13 +36,19 @@ genActions auth =
 
 genLoginAction :: Generator FileDraft
 genLoginAction =
-  return $ mkTmplFdWithData [relfile|auth/username/actions/login.ts|] tmplData
+  return $
+    mkTmplFdWithData
+      (localAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|])
+      tmplData
   where
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
-  return $ mkTmplFdWithData [relfile|auth/username/actions/signup.ts|] tmplData
+  return $
+    mkTmplFdWithData
+      (localAuthDirInSdkTemplatesDir </> [relfile|actions/signup.ts|])
+      tmplData
   where
     tmplData =
       object
@@ -50,3 +57,10 @@ genSignupAction auth =
         ]
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
+
+localAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+localAuthDirInSdkTemplatesDir = [reldir|auth/username|]
+
+genFileCopyInLocalAuthDir :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInLocalAuthDir =
+  genFileCopy . (localAuthDirInSdkTemplatesDir </>)

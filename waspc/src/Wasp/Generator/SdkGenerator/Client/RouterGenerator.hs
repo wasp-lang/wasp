@@ -5,14 +5,15 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import StrongPath (relfile)
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( genFileCopy,
+  ( SdkTemplatesDir,
+    genFileCopy,
     mkTmplFdWithData,
   )
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
@@ -21,14 +22,17 @@ genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
 genNewClientRouterApi spec =
   sequence
     [ genIndexTs spec,
-      genFileCopy [relfile|client/router/types.ts|],
-      genFileCopy [relfile|client/router/linkHelpers.ts|],
-      genFileCopy [relfile|client/router/Link.tsx|]
+      genFileCopyInClientRouter [relfile|types.ts|],
+      genFileCopyInClientRouter [relfile|linkHelpers.ts|],
+      genFileCopyInClientRouter [relfile|Link.tsx|]
     ]
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
-  return $ mkTmplFdWithData [relfile|client/router/index.ts|] tmplData
+  return $
+    mkTmplFdWithData
+      (clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|])
+      tmplData
   where
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
 
@@ -51,3 +55,10 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson :: WebRouterPath.ParamSegment -> Aeson.Value
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
+
+clientRouterDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+clientRouterDirInSdkTemplatesDir = [reldir|client/router|]
+
+genFileCopyInClientRouter :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInClientRouter =
+  genFileCopy . (clientRouterDirInSdkTemplatesDir </>)

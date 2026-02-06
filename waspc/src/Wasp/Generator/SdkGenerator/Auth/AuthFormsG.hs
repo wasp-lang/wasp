@@ -131,13 +131,15 @@ genInternalAuthComponents auth =
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =
   sequence
-    [ return $
-        mkTmplFdWithData
-          (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
-          loginSignupFormComponentTmplData,
+    [ genLoginSigunFormComponent,
       genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
     ]
   where
+    genLoginSigunFormComponent =
+      return $
+        mkTmplFdWithData
+          (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
+          loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
       object
         [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,

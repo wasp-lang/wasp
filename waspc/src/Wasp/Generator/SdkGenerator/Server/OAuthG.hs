@@ -37,8 +37,8 @@ genOAuth auth
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
-          genServerOauthDirFileCopy [relfile|oneTimeCode.ts|],
-          genServerOauthDirFileCopy [relfile|provider.ts|]
+          genFileCopyInServerOAuth [relfile|oneTimeCode.ts|],
+          genFileCopyInServerOAuth [relfile|provider.ts|]
         ]
         <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
         <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
@@ -51,7 +51,7 @@ genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
   return $
     mkTmplFdWithData
-      (serverOauthDirInSdkTemplatesDir </> [relfile|index.ts|])
+      (serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
       tmplData
   where
     tmplData =
@@ -63,7 +63,7 @@ genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
   return $
     mkTmplFdWithData
-      (serverOauthDirInSdkTemplatesDir </> [relfile|redirect.ts|])
+      (serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|])
       tmplData
   where
     tmplData =
@@ -88,7 +88,7 @@ genOAuthConfig ::
 genOAuthConfig provider =
   return $
     mkTmplFdWithData
-      (serverOauthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile)
+      (serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile)
       tmplData
   where
     tmplData =
@@ -105,8 +105,8 @@ depsRequiredByOAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
-serverOauthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverOauthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
+serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
 
-genServerOauthDirFileCopy :: Path' Rel' File' -> Generator FileDraft
-genServerOauthDirFileCopy = genFileCopy . (serverOauthDirInSdkTemplatesDir </>)
+genFileCopyInServerOAuth :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInServerOAuth = genFileCopy . (serverOAuthDirInSdkTemplatesDir </>)
