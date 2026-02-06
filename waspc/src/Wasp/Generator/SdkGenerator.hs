@@ -99,22 +99,23 @@ buildSdk projectRootDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ genFileCopy [relfile|vite-env.d.ts|],
-      genFileCopy [relfile|prisma-runtime-library.d.ts|],
-      genFileCopy [relfile|scripts/copy-assets.js|],
-      genFileCopy [relfile|api/index.ts|],
-      genFileCopy [relfile|api/events.ts|],
-      genFileCopy [relfile|core/storage.ts|],
-      genFileCopy [relfile|server/index.ts|],
-      genFileCopy [relfile|server/HttpError.ts|],
-      genFileCopy [relfile|client/test/vitest/helpers.tsx|],
-      genFileCopy [relfile|client/test/index.ts|],
-      genFileCopy [relfile|client/hooks.ts|],
-      genFileCopy [relfile|client/index.ts|],
+    [ C.genFileCopy [relfile|vite-env.d.ts|],
+      C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
+      C.genFileCopy [relfile|scripts/copy-assets.js|],
+      C.genFileCopy [relfile|api/index.ts|],
+      C.genFileCopy [relfile|api/events.ts|],
+      C.genFileCopy [relfile|core/storage.ts|],
+      C.genFileCopy [relfile|server/index.ts|],
+      C.genFileCopy [relfile|server/HttpError.ts|],
+      C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
+      C.genFileCopy [relfile|client/test/index.ts|],
+      C.genFileCopy [relfile|client/hooks.ts|],
+      C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
       genServerUtils spec,
+      genServerExportedTypesDir,
       genPackageJson spec,
       genServerDbClient spec,
       genDevIndex
@@ -130,7 +131,6 @@ genSdk spec =
     <++> genServerApi spec
     <++> genWebSockets spec
     <++> genServerMiddleware
-    <++> genServerExportedTypesDir
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
@@ -140,8 +140,6 @@ genSdk spec =
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
-  where
-    genFileCopy = return . C.mkTmplFd
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
@@ -326,12 +324,12 @@ genExternalFile file
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
-  return
-    [ C.mkTmplFd [relfile|universal/url.ts|],
-      C.mkTmplFd [relfile|universal/types.ts|],
-      C.mkTmplFd [relfile|universal/validators.ts|],
-      C.mkTmplFd [relfile|universal/predicates.ts|],
-      C.mkTmplFd [relfile|universal/ansiColors.ts|]
+  sequence
+    [ C.genFileCopy [relfile|universal/url.ts|],
+      C.genFileCopy [relfile|universal/types.ts|],
+      C.genFileCopy [relfile|universal/validators.ts|],
+      C.genFileCopy [relfile|universal/predicates.ts|],
+      C.genFileCopy [relfile|universal/ansiColors.ts|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
@@ -340,15 +338,14 @@ genServerUtils spec =
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
-genServerExportedTypesDir :: Generator [FileDraft]
-genServerExportedTypesDir =
-  return [C.mkTmplFd [relfile|server/types/index.ts|]]
+genServerExportedTypesDir :: Generator FileDraft
+genServerExportedTypesDir = C.genFileCopy [relfile|server/types/index.ts|]
 
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
   sequence
-    [ return $ C.mkTmplFd [relfile|server/middleware/index.ts|],
-      return $ C.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
+    [ C.genFileCopy [relfile|server/middleware/index.ts|],
+      C.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
 genServerDbClient :: AppSpec -> Generator FileDraft
