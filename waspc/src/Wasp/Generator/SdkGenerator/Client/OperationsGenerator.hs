@@ -26,6 +26,14 @@ import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOpera
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)
 import Wasp.Util ((<++>))
 
+data ClientOpsTemplatesDir
+
+clientOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientOpsTemplatesDir)
+clientOpsDirInSdkTemplatesDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
+
+genClientOpsFileCopy :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
+genClientOpsFileCopy = genFileCopy . (clientOpsDirInSdkTemplatesDir </>)
+
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
@@ -132,11 +140,3 @@ getOperationTypeData operation = tmplData
     serverOpsImportPath =
       makeSdkImportPath $
         getServerOperationsImportPath operation
-
-data ClientOpsTemplatesDir
-
-clientOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientOpsTemplatesDir)
-clientOpsDirInSdkTemplatesDir = clientTemplatesDirInSdkTemplatesDir </> [reldir|operations|]
-
-genClientOpsFileCopy :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
-genClientOpsFileCopy = genFileCopy . (clientOpsDirInSdkTemplatesDir </>)

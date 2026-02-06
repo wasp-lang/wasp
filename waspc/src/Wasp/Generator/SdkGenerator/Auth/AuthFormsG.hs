@@ -131,11 +131,11 @@ genInternalAuthComponents auth =
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =
   sequence
-    [ genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|],
-      return $
+    [ return $
         mkTmplFdWithData
           (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
-          loginSignupFormComponentTmplData
+          loginSignupFormComponentTmplData,
+      genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
     ]
   where
     loginSignupFormComponentTmplData =
