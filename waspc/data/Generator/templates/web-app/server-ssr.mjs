@@ -154,7 +154,7 @@ function handleSsrRequest(url, res) {
   if (!routeInfo.matched) {
     // Inject a basic 404 message for users with JS disabled
     const notFoundHtml = indexHtml
-      .replace("<!--ssr-outlet-->", '<div style="text-align:center;padding:2rem;"><h1>404</h1><p>Page not found</p></div>');
+      .replace("<!--ssr-outlet-->", () => '<div style="text-align:center;padding:2rem;"><h1>404</h1><p>Page not found</p></div>');
     res.statusCode = 404;
     res.setHeader("Content-Type", "text/html");
     res.end(notFoundHtml);
@@ -171,9 +171,9 @@ function handleSsrRequest(url, res) {
       }
 
       html = html
-        .replace("<!--ssr-head-->", headHtml)
+        .replace("<!--ssr-head-->", () => headHtml)
         .replace('<div id="root">', '<div id="root" data-wasp-ssr="1">')
-        .replace("<!--ssr-outlet-->", appHtml);
+        .replace("<!--ssr-outlet-->", () => appHtml);
 
       // Return 404 for catch-all routes (e.g., path: "*")
       res.statusCode = routeInfo.isCatchAll ? 404 : 200;
