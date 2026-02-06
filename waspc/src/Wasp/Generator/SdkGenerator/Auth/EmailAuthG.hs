@@ -41,7 +41,7 @@ genServerUtils :: AS.Auth.Auth -> Generator FileDraft
 genServerUtils auth =
   return $
     mkTmplFdWithData
-      (emailAuthDirInSdkTemplatesDir </> [relfile|email/utils.ts|])
+      [relfile|server/auth/email/utils.ts|]
       tmplData
   where
     tmplData =

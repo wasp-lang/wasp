@@ -3,12 +3,15 @@
     "@lucia-auth/adapter-prisma": "^4.0.0",
     "@prisma/client": "5.19.1",
     "@socket.io/component-emitter": "^4.0.0",
+    "@tanstack/react-query": "~4.42.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.0.16",
     "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.21.0.tgz",
     "arctic": "^1.2.1",
     "axios": "^1.4.0",
+    "dotenv": "^16.6.1",
+    "dotenv-expand": "^12.0.3",
     "express": "~5.1.0",
     "jsdom": "^27.4.0",
     "lucia": "^3.0.1",
@@ -18,6 +21,7 @@
     "pg-boss": "^8.4.2",
     "prisma": "5.19.1",
     "react": "^19.2.1",
+    "react-dom": "^19.2.1",
     "react-hook-form": "^7.45.4",
     "react-router": "^7.12.0",
     "socket.io": "^4.6.1",
@@ -27,8 +31,13 @@
     "zod": "^3.23.8"
   },
   "devDependencies": {
+    "@tsconfig/vite-react": "^7.0.0",
     "@types/express": "^5.0.0",
-    "@types/express-serve-static-core": "^5.0.0"
+    "@types/express-serve-static-core": "^5.0.0",
+    "@types/react": "^19.2.7",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^4.7.0",
+    "typescript": "5.8.2"
   },
   "exports": {
     "./api/events": "./dist/api/events.js",
@@ -46,6 +55,7 @@
     "./auth/validation": "./dist/auth/validation.js",
     "./client": "./dist/client/index.js",
     "./client/api": "./dist/api/index.js",
+    "./client/app": "./dist/client/app/index.jsx",
     "./client/auth": "./dist/client/auth/index.js",
     "./client/crud": "./dist/client/crud/index.js",
     "./client/env/schema": "./dist/client/env/schema.js",
@@ -54,13 +64,13 @@
     "./client/operations/rpc": "./dist/client/operations/rpc.js",
     "./client/router": "./dist/client/router/index.js",
     "./client/test": "./dist/client/test/index.js",
-    "./client/test/*": "./dist/client/test/*.js",
+    "./client/test/setup": "./dist/client/test/setup.js",
+    "./client/vite": "./dist/client/vite/index.js",
     "./client/webSocket": "./dist/client/webSocket/index.js",
     "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
     "./core/auth": "./dist/core/auth.js",
     "./core/serialization": "./dist/core/serialization/index.js",
     "./core/storage": "./dist/core/storage.js",
-    "./dev": "./dist/dev/index.js",
     "./entities": "./dist/entities/index.js",
     "./env": "./dist/env/index.js",
     "./env/validation": "./dist/env/validation.js",
@@ -97,9 +107,7 @@
   ],
   "license": "ISC",
   "name": "wasp",
-  "peerDependencies": {
-    "@tanstack/react-query": "~4.42.0"
-  },
+  "peerDependencies": {},
   "private": true,
   "scripts": {
     "build": "tsc && node ./scripts/copy-assets.js",

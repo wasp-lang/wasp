@@ -15,6 +15,7 @@ import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.AuthFormsG (genAuthForms)
+import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
@@ -25,7 +26,6 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
-import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 

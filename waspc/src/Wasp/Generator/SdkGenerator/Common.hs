@@ -20,6 +20,10 @@ data ClientTemplatesDir
 
 data ServerTemplatesDir
 
+data ViteDir
+
+data VitePluginsDir
+
 mkTmplFdWithDstAndData ::
   Path' (Rel SdkTemplatesDir) File' ->
   Path' (Rel SdkRootDir) File' ->
@@ -71,6 +75,12 @@ serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
 
 getOperationTypeName :: AS.Operation.Operation -> String
 getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "_ext"
+
+viteDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ViteDir)
+viteDirInSdkTemplatesDir = [reldir|client/vite|]
+
+vitePluginsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir VitePluginsDir)
+vitePluginsDirInSdkTemplatesDir = viteDirInSdkTemplatesDir </> [reldir|plugins|]
 
 sdkPackageName :: String
 sdkPackageName = "wasp"
