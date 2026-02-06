@@ -49,6 +49,7 @@ genWebApp :: AppSpec -> Generator [FileDraft]
 genWebApp spec =
   sequence
     [ genServerSsr,
+      genSsrPackageJson,
       genSsrConfig spec
     ]
 
@@ -58,6 +59,14 @@ genServerSsr =
     createTemplateFileDraft
       (webAppRootDirInProjectRootDir </> [relfile|server-ssr.mjs|])
       ([relfile|web-app/server-ssr.mjs|] :: Path' (Rel TemplatesDir) (File ()))
+      Nothing
+
+genSsrPackageJson :: Generator FileDraft
+genSsrPackageJson =
+  return $
+    createTemplateFileDraft
+      (webAppRootDirInProjectRootDir </> [relfile|package.json|])
+      ([relfile|web-app/ssr-package.json|] :: Path' (Rel TemplatesDir) (File ()))
       Nothing
 
 genSsrConfig :: AppSpec -> Generator FileDraft

@@ -1,0 +1,8 @@
+{
+  "name": "wasp-ssr-server",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "sirv": "^2.0.4"
+  }
+}

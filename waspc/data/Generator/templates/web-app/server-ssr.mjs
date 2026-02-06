@@ -1,8 +1,8 @@
-import { createReadStream } from "node:fs";
 import fs from "node:fs/promises";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import sirv from "sirv";
 
 // Provide minimal browser API stubs so that client-side code which accesses
 // localStorage, sessionStorage, window, or document at module-init time does
@@ -108,76 +108,27 @@ function parseArgs(argv) {
   return { port, strictPort };
 }
 
-function getContentType(filePath) {
-  if (filePath.endsWith(".html")) return "text/html";
-  if (filePath.endsWith(".js")) return "text/javascript";
-  if (filePath.endsWith(".mjs")) return "text/javascript";
-  if (filePath.endsWith(".css")) return "text/css";
-  if (filePath.endsWith(".json")) return "application/json";
-  if (filePath.endsWith(".svg")) return "image/svg+xml";
-  if (filePath.endsWith(".png")) return "image/png";
-  if (filePath.endsWith(".jpg") || filePath.endsWith(".jpeg")) return "image/jpeg";
-  if (filePath.endsWith(".gif")) return "image/gif";
-  if (filePath.endsWith(".webp")) return "image/webp";
-  if (filePath.endsWith(".ico")) return "image/x-icon";
-  if (filePath.endsWith(".map")) return "application/json";
-  if (filePath.endsWith(".woff")) return "font/woff";
-  if (filePath.endsWith(".woff2")) return "font/woff2";
-  if (filePath.endsWith(".ttf")) return "font/ttf";
-  return "application/octet-stream";
-}
-
-async function tryServeStatic(pathname, res) {
-  if (pathname === "/" || pathname === "") {
-    return false;
-  }
-
-  const relativePath = pathname.startsWith("/")
-    ? pathname.slice(1)
-    : pathname;
-
-  const resolvedPath = path.join(clientBuildDir, relativePath);
-  // Use path.relative to safely check if resolvedPath is inside clientBuildDir
-  const relativeFromBuild = path.relative(clientBuildDir, resolvedPath);
-  if (relativeFromBuild.startsWith("..") || path.isAbsolute(relativeFromBuild)) {
-    return false;
-  }
-
-  try {
-    const stat = await fs.stat(resolvedPath);
-    if (!stat.isFile()) {
-      return false;
-    }
-  } catch {
-    return false;
-  }
-
-  res.statusCode = 200;
-  res.setHeader("Content-Type", getContentType(resolvedPath));
-  const stream = createReadStream(resolvedPath);
-  stream.on("error", (err) => {
-    console.error(`Error reading file ${resolvedPath}:`, err);
-    if (!res.headersSent) {
-      res.statusCode = 500;
-      res.setHeader("Content-Type", "text/plain");
-      res.end("Internal Server Error");
+// Serve static assets from the client build directory using sirv.
+// sirv caches file-system lookups upfront for fast responses and provides
+// ETag / 304 Not Modified support out of the box.
+// We disable extension fallbacks (e.g. .html) since we handle routing ourselves.
+const serveStatic = sirv(clientBuildDir, {
+  etag: true,
+  gzip: true,
+  brotli: true,
+  extensions: [],
+  setHeaders: (res, pathname) => {
+    // Vite-built assets have content hashes in filenames (e.g. assets/index-a1b2c3.js),
+    // so they are safe to cache indefinitely. Other static files get a shorter cache.
+    if (pathname.startsWith("/assets/")) {
+      res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
     } else {
-      res.end();
+      res.setHeader("Cache-Control", "public, max-age=3600");
     }
-  });
-  stream.pipe(res);
-  return true;
-}
+  },
+});
 
-async function handleRequest(req, res) {
-  // Use a fixed base URL since we only need pathname and search params.
-  // Avoids potential Host header injection if the URL were used elsewhere.
-  const url = new URL(req.url ?? "/", "http://localhost");
-
-  if (await tryServeStatic(url.pathname, res)) {
-    return;
-  }
-
+function handleSsrRequest(url, res) {
   const routeInfo = getRouteMatchInfo(url.pathname);
   if (routeInfo.outsideBase) {
     res.statusCode = 200;
@@ -197,23 +148,31 @@ async function handleRequest(req, res) {
   }
 
   if (routeInfo.ssr) {
-    const { appHtml, headHtml, hasPageTitle } = await render(url.pathname + url.search);
-    let html = indexHtml;
+    render(url.pathname + url.search).then(({ appHtml, headHtml, hasPageTitle }) => {
+      let html = indexHtml;
 
-    // If page has its own title, remove the global <title> to avoid duplicates
-    if (hasPageTitle) {
-      html = html.replace(/<title>[^<]*<\/title>/, "");
-    }
+      // If page has its own title, remove the global <title> to avoid duplicates
+      if (hasPageTitle) {
+        html = html.replace(/<title>[^<]*<\/title>/, "");
+      }
 
-    html = html
-      .replace("<!--ssr-head-->", headHtml)
-      .replace('<div id="root">', '<div id="root" data-wasp-ssr="1">')
-      .replace("<!--ssr-outlet-->", appHtml);
+      html = html
+        .replace("<!--ssr-head-->", headHtml)
+        .replace('<div id="root">', '<div id="root" data-wasp-ssr="1">')
+        .replace("<!--ssr-outlet-->", appHtml);
 
-    // Return 404 for catch-all routes (e.g., path: "*")
-    res.statusCode = routeInfo.isCatchAll ? 404 : 200;
-    res.setHeader("Content-Type", "text/html");
-    res.end(html);
+      // Return 404 for catch-all routes (e.g., path: "*")
+      res.statusCode = routeInfo.isCatchAll ? 404 : 200;
+      res.setHeader("Content-Type", "text/html");
+      res.end(html);
+    }).catch((error) => {
+      console.error("SSR render error:", error);
+      if (!res.headersSent) {
+        res.statusCode = 500;
+        res.setHeader("Content-Type", "text/plain");
+        res.end("Internal Server Error");
+      }
+    });
     return;
   }
 
@@ -223,14 +182,29 @@ async function handleRequest(req, res) {
   res.end(indexHtml);
 }
 
+function handleRequest(req, res) {
+  // Use a fixed base URL since we only need pathname and search params.
+  // Avoids potential Host header injection if the URL were used elsewhere.
+  const url = new URL(req.url ?? "/", "http://localhost");
+
+  // Let sirv try to serve the static asset first.
+  // If sirv doesn't find a matching file, the callback runs and we
+  // fall through to SSR / SPA rendering.
+  serveStatic(req, res, () => {
+    handleSsrRequest(url, res);
+  });
+}
+
 const { port, strictPort } = parseArgs(process.argv);
 const server = http.createServer((req, res) => {
-  handleRequest(req, res).catch((error) => {
+  try {
+    handleRequest(req, res);
+  } catch (error) {
     console.error(error);
     res.statusCode = 500;
     res.setHeader("Content-Type", "text/plain");
     res.end("Internal Server Error");
-  });
+  }
 });
 
 server.listen(port);

@@ -147,6 +147,9 @@ async function deployClient(
     dockerfileContents = `
 FROM node:20-alpine
 WORKDIR /app
+# Install dependencies first (cached layer unless package.json changes)
+COPY package.json .
+RUN npm install --production
 # Copy the built application
 COPY . .
 ENV PORT=${ssrServerPort}
