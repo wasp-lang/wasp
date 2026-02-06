@@ -4,55 +4,49 @@ title: Migration from 0.20.X to 0.21.X
 
 import NetlifyTomlConfig from '../deployment/deployment-methods/\_netlify-toml-config.md'
 
-To install the latest version of Wasp, open your terminal and run:
-
-<Tabs>
-<TabItem value="installer" label="Installer">
+:::important New installation method
+Wasp is now installed as a global npm package, instead of the old custom installer. To start using the new installation method, you can run our migration tool:
 
 ```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh
+curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 ```
+:::
 
-</TabItem>
-<TabItem value="npm" label="npm">
+To install the latest version of Wasp, open your terminal and run:
 
 ```sh
 npm i -g @wasp.sh/wasp-cli@latest
 ```
 
-</TabItem>
-</Tabs>
-
-If you want to install Wasp 0.21.0 specifically, you can pass a version argument to the install script:
-
-<Tabs>
-<TabItem value="installer" label="Installer">
+If you want to install Wasp 0.21 specifically, you can set an explicit version in npm:
 
 ```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v 0.21.0
+npm i -g @wasp.sh/wasp-cli@0.21
 ```
-
-</TabItem>
-<TabItem value="npm" label="npm">
-
-```sh
-npm i -g @wasp.sh/wasp-cli@0.21.0
-```
-
-</TabItem>
-</Tabs>
 
 ## What's new in 0.21.X?
 
 ### New npm-based installation
 
-Starting from Wasp 0.21.X, the recommended way to install Wasp is via npm. This simplifies the installation process and makes it easier to manage Wasp versions. For now, both the old and new installation methods are supported, but we recommend switching to the npm-based installation.
+Starting from Wasp 0.21.X, we've switched Wasp to be installed through npm. This simplifies the installation process and makes it easier to manage Wasp versions.
 
-To switch from the old installation method to the new one, simply uninstall Wasp using the old method and then install it again via npm:
+To switch from the old installation method to the new one, you can run our migration tool:
 
 ```sh
-wasp uninstall
-npm i -g @wasp.sh/wasp-cli@latest
+curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
+```
+
+The tool will uninstall the old version of Wasp, and guide you through installing the new version through npm.
+
+We strongly discourage using both installation methods at the same time, as it can lead to confusion and potential conflicts. For your convenience, we have also published old versions of Wasp on npm, so after migrating you can keep developing on projects that haven't migrated to the latest version yet.
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.16
+npm i -g @wasp.sh/wasp-cli@0.17
+npm i -g @wasp.sh/wasp-cli@0.18
+npm i -g @wasp.sh/wasp-cli@0.19
+npm i -g @wasp.sh/wasp-cli@0.20
+npm i -g @wasp.sh/wasp-cli@0.21
 ```
 
 ### Better Tailwind CSS support
