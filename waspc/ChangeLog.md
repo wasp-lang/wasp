@@ -50,6 +50,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Added anonymous usage analytics to the npm package installer to help us understand how Wasp is being installed. You can disable this by setting `WASP_TELEMETRY_DISABLE=1`. ([#3619](https://github.com/wasp-lang/wasp/pull/3619))
 - Improved error messages when using dependencies that are incompatible with internal Wasp dependencies. ([#3655](https://github.com/wasp-lang/wasp/pull/3655))
 - Removed a Rollup version override, since the upstream Rollup issue has been fixed. ([#3654](https://github.com/wasp-lang/wasp/pull/3654))
+- The dev compiler file watcher now ignores `.DS_Store` files, preventing unnecessary recompilations on macOS. ([#3734](https://github.com/wasp-lang/wasp/pull/3734))
 - Added guardrails to avoid installing Wasp through the installer or npm methods when the other method is already being used. ([#3711](https://github.com/wasp-lang/wasp/pull/3711))
 
 ## 0.20.1
