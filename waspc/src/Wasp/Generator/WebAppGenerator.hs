@@ -1,5 +1,3 @@
-{-# LANGUAGE TypeApplications #-}
-
 module Wasp.Generator.WebAppGenerator
   ( webAppRootDirInProjectRootDir,
     viteBuildDirInWebAppDir,

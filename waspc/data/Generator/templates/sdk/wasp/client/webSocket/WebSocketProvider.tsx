@@ -13,6 +13,8 @@ export type WebSocketContextValue = {
   isConnected: boolean
 }
 
+// Works correctly in SSR: waspConfig.ts replaces `typeof window` with
+// `"undefined"` in the SSR bundle, so this evaluates to false on the server.
 const isBrowser = typeof window !== 'undefined'
 
 function createNoopSocket(): any {
