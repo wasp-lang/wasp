@@ -6,6 +6,7 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
 where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson as Aeson
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -69,24 +70,11 @@ genVirtualIndexTsx spec =
     tmplData =
       object
         [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
-          "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
+          "rootComponent" .= rootComponentImportJson spec,
           "routesMapping" .= routesMappingImportJson,
           "routeNameToSsr" .= routeNameToSsrImportJson
         ]
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
-    routesMappingImportJson =
-      object
-        [ "isDefined" .= True,
-          "importStatement" .= ("import { routesMapping } from \"" ++ routesEntryPointPath ++ "\""),
-          "importIdentifier" .= ("routesMapping" :: String)
-        ]
-    routeNameToSsrImportJson =
-      object
-        [ "isDefined" .= True,
-          "importStatement" .= ("import { routeNameToSsr } from \"" ++ routesEntryPointPath ++ "\""),
-          "importIdentifier" .= ("routeNameToSsr" :: String)
-        ]
 
 genVirtualEntryServerTsx :: AppSpec -> Generator FileDraft
 genVirtualEntryServerTsx spec =
@@ -96,7 +84,7 @@ genVirtualEntryServerTsx spec =
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|entry-server.tsx|]
     tmplData =
       object
-        [ "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
+        [ "rootComponent" .= rootComponentImportJson spec,
           "routesMapping" .= routesMappingImportJson,
           "routeNameToSsr" .= routeNameToSsrImportJson,
           "routeNameToHead" .= routeNameToHeadImportJson,
@@ -104,25 +92,38 @@ genVirtualEntryServerTsx spec =
           "oAuthCallbackPath" .= clientOAuthCallbackPath,
           "baseDir" .= SP.fromAbsDirP (getBaseDir spec)
         ]
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
     maybeAuth = AS.App.auth $ snd $ getApp spec
     isExternalAuthEnabled = maybe False AS.Auth.isExternalAuthEnabled maybeAuth
     clientOAuthCallbackPath = OAuth.clientOAuthCallbackPath
-    routesMappingImportJson =
-      object
-        [ "isDefined" .= True,
-          "importStatement" .= ("import { routesMapping } from \"" ++ routesEntryPointPath ++ "\""),
-          "importIdentifier" .= ("routesMapping" :: String)
-        ]
-    routeNameToSsrImportJson =
-      object
-        [ "isDefined" .= True,
-          "importStatement" .= ("import { routeNameToSsr } from \"" ++ routesEntryPointPath ++ "\""),
-          "importIdentifier" .= ("routeNameToSsr" :: String)
-        ]
-    routeNameToHeadImportJson =
-      object
-        [ "isDefined" .= True,
-          "importStatement" .= ("import { routeNameToHead } from \"" ++ routesEntryPointPath ++ "\""),
-          "importIdentifier" .= ("routeNameToHead" :: String)
-        ]
+
+-- Shared import JSON helpers for routes-related virtual module imports.
+
+rootComponentImportJson :: AppSpec -> Aeson.Value
+rootComponentImportJson spec =
+  GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent)
+  where
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
+
+routesMappingImportJson :: Aeson.Value
+routesMappingImportJson =
+  object
+    [ "isDefined" .= True,
+      "importStatement" .= ("import { routesMapping } from \"" ++ routesEntryPointPath ++ "\""),
+      "importIdentifier" .= ("routesMapping" :: String)
+    ]
+
+routeNameToSsrImportJson :: Aeson.Value
+routeNameToSsrImportJson =
+  object
+    [ "isDefined" .= True,
+      "importStatement" .= ("import { routeNameToSsr } from \"" ++ routesEntryPointPath ++ "\""),
+      "importIdentifier" .= ("routeNameToSsr" :: String)
+    ]
+
+routeNameToHeadImportJson :: Aeson.Value
+routeNameToHeadImportJson =
+  object
+    [ "isDefined" .= True,
+      "importStatement" .= ("import { routeNameToHead } from \"" ++ routesEntryPointPath ++ "\""),
+      "importIdentifier" .= ("routeNameToHead" :: String)
+    ]
