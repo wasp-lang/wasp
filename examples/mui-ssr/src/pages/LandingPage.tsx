@@ -73,7 +73,7 @@ function HeroSection() {
 
       <Container maxWidth="lg">
         <Grid container spacing={4} alignItems="center">
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid item xs={12} md={6}>
             <Typography
               variant="overline"
               sx={{
@@ -133,7 +133,7 @@ function HeroSection() {
           </Grid>
 
           <Grid
-            size={{ xs: 12, md: 6 }}
+            item xs={12} md={6}
             sx={{ display: { xs: 'none', md: 'flex' }, justifyContent: 'center' }}
           >
             <Box
@@ -232,7 +232,7 @@ function ServicesSection() {
 
         <Grid container spacing={4}>
           {SERVICES.map((service, index) => (
-            <Grid key={service.name} size={{ xs: 12, sm: 6, md: 3 }}>
+            <Grid item key={service.name} xs={12} sm={6} md={3}>
               <Paper
                 variant="outlined"
                 sx={(theme) => ({
@@ -322,7 +322,7 @@ function FaqSection() {
     >
       <Container maxWidth="lg">
         <Grid container spacing={4} alignItems="flex-start">
-          <Grid size={{ xs: 12, md: 5 }}>
+          <Grid item xs={12} md={5}>
             <Typography variant="overline" sx={{ color: 'text.disabled', mb: 2, display: 'block' }}>
               FAQ
             </Typography>
@@ -337,7 +337,7 @@ function FaqSection() {
             </Typography>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 7 }}>
+          <Grid item xs={12} md={7}>
             {FAQS.map((faq) => (
               <Accordion
                 key={faq.question}

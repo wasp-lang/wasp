@@ -68,7 +68,7 @@ function AboutHero() {
     >
       <Container maxWidth="lg">
         <Grid container spacing={4} alignItems="center">
-          <Grid size={{ xs: 12, md: 6 }}>
+          <Grid item xs={12} md={6}>
             <Typography variant="overline" sx={{ color: 'grey.500', mb: 2, display: 'block' }}>
               About Us
             </Typography>
@@ -107,7 +107,7 @@ function AboutHero() {
           </Grid>
 
           <Grid
-            size={{ xs: 12, md: 6 }}
+            item xs={12} md={6}
             sx={{
               display: 'flex',
               justifyContent: 'center',
@@ -229,6 +229,13 @@ function VerificationSection() {
             &lt;style data-emotion&gt;
           </Box>{' '}
           tags in the head containing all MUI styles.
+        </Typography>
+
+        <Typography sx={{ color: 'rgba(255,255,255,0.72)', mb: 4, fontSize: '1rem' }}>
+          You can also try disabling JavaScript in your browser
+          (DevTools &rarr; Settings &rarr; Debugger &rarr; Disable JavaScript)
+          and reloading the page. SSR pages will still render their full content,
+          while non-SSR pages will show a blank screen.
         </Typography>
 
         <Stack direction="row" spacing={2} justifyContent="center">

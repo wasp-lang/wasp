@@ -258,6 +258,26 @@ if (import.meta.env.SSR) {
 ```
 :::
 
+## Testing SSR
+
+A quick way to verify that SSR is working correctly is to **disable JavaScript in your browser** and reload the page. If SSR is working, the page content will still be visible — because it was rendered on the server and delivered as HTML.
+
+**In Chrome/Edge DevTools:**
+1. Open DevTools (F12)
+2. Go to **Settings** (gear icon, or press F1)
+3. Under **Debugger**, check **Disable JavaScript**
+4. Reload the page
+
+With JavaScript disabled:
+- **SSR pages** will render their full content (text, styles, layout)
+- **Non-SSR pages** will show a blank page (since they rely on client-side React to render)
+
+This is also how search engine crawlers experience your site when they don't execute JavaScript, making it a good test for SEO.
+
+:::tip
+Remember to re-enable JavaScript after testing!
+:::
+
 ## Architecture (preview)
 
 ```mermaid
