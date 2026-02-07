@@ -100,6 +100,101 @@ wasp build start
 Remember to update the `DATABASE_URL` if you recreate the managed database, as the database name includes a unique hash.
 :::
 
+## CSS-in-JS Support (Emotion, styled-components, etc.)
+
+When using CSS-in-JS libraries like **Emotion** (used by MUI), **styled-components**, or **Stitches** with SSR, styles need to be extracted during server-side rendering and injected into the HTML `<head>`. Without this, the page would flash unstyled content (FOUC) until the client re-generates the styles after hydration.
+
+Wasp provides a **generic, opt-in hook** for this. Create a file at `src/ssr/styles.tsx` that exports a `createSsrStylesProvider` function:
+
+### Emotion / MUI
+
+```tsx title="src/ssr/styles.tsx"
+import React from 'react';
+import createCache from '@emotion/cache';
+import { CacheProvider } from '@emotion/react';
+import createEmotionServer from '@emotion/server/create-instance';
+
+export function createSsrStylesProvider() {
+  const cache = createCache({ key: 'css' });
+  const { extractCriticalToChunks, constructStyleTagsFromChunks } =
+    createEmotionServer(cache);
+
+  return {
+    Wrapper: ({ children }: { children: React.ReactNode }) => (
+      <CacheProvider value={cache}>{children}</CacheProvider>
+    ),
+    extractStyles: (appHtml: string): string => {
+      const chunks = extractCriticalToChunks(appHtml);
+      return constructStyleTagsFromChunks(chunks);
+    },
+  };
+}
+```
+
+Required packages: `@emotion/cache`, `@emotion/react`, `@emotion/server`
+
+### styled-components
+
+```tsx title="src/ssr/styles.tsx"
+import React from 'react';
+import { ServerStyleSheet, StyleSheetManager } from 'styled-components';
+
+export function createSsrStylesProvider() {
+  const sheet = new ServerStyleSheet();
+  return {
+    Wrapper: ({ children }: { children: React.ReactNode }) => (
+      <StyleSheetManager sheet={sheet.instance}>{children}</StyleSheetManager>
+    ),
+    extractStyles: () => sheet.getStyleTags(),
+  };
+}
+```
+
+Required packages: `styled-components`
+
+### Stitches
+
+```tsx title="src/ssr/styles.tsx"
+import { getCssText } from '../stitches.config';
+
+export function createSsrStylesProvider() {
+  return {
+    extractStyles: () =>
+      `<style id="stitches" data-stitches>${getCssText()}</style>`,
+  };
+}
+```
+
+### How it works
+
+1. Wasp's SSR entry point tries to import `src/ssr/styles.tsx` at startup.
+2. For each SSR request, it calls `createSsrStylesProvider()` to get a fresh provider instance (new instance per request prevents style leakage).
+3. If a `Wrapper` component is returned, the React tree is wrapped with it during `renderToString`.
+4. After rendering, `extractStyles(appHtml)` is called to collect the generated CSS.
+5. The extracted `<style>` tags are prepended to the HTML `<head>`.
+
+If `src/ssr/styles.tsx` does not exist, SSR proceeds without CSS-in-JS integration — no error, no crash. This is fine for projects that only use static CSS (Tailwind, plain CSS, CSS Modules).
+
+### TypeScript types
+
+Wasp exports the `SsrStylesProvider` interface for type safety:
+
+```tsx title="src/ssr/styles.tsx"
+import type { SsrStylesProvider } from 'wasp/client/ssr';
+
+export function createSsrStylesProvider(): SsrStylesProvider {
+  // ...
+}
+```
+
+### Browser detection in SSR
+
+Wasp automatically handles the common `typeof window !== 'undefined'` and `typeof document !== 'undefined'` browser-detection patterns. During the SSR build, these expressions are replaced with `"undefined"` so that libraries like Emotion, React, and MUI correctly take their server code paths. You don't need to configure anything — this works automatically for all packages.
+
+:::tip
+If you write custom code that needs to detect SSR, `typeof window === 'undefined'` works correctly in Wasp's SSR builds. You can also use `import.meta.env.SSR` (a Vite built-in) which is `true` in the SSR bundle and `false` in the client bundle.
+:::
+
 ## Architecture (preview)
 
 ```mermaid
@@ -118,3 +213,4 @@ graph TD
 - No React Server Components / server actions
 - No streaming / partial hydration
 - No data prefetching (SSR renders with client-side data loading; API calls still happen in the browser after hydration)
+- If SSR rendering fails, the server gracefully falls back to the SPA shell (client-side rendering takes over)

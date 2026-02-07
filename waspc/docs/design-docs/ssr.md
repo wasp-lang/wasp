@@ -194,9 +194,10 @@ This keeps the feature focused on landing/marketing pages and avoids the larger 
 ### Key Files Added/Modified
 
 **New Files:**
-- `waspc/data/Generator/templates/web-app/server-ssr.mjs` - SSR HTTP server
+- `waspc/data/Generator/templates/web-app/server-ssr.mjs` - SSR HTTP server (browser API polyfills, error fallback to CSR)
 - `waspc/data/Generator/templates/web-app/ssr-package.json` - SSR server dependencies (sirv for static asset serving)
-- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/entry-server.tsx` - SSR entry point (route matching, rendering, head resolution)
+- `waspc/data/Generator/templates/sdk/wasp/client/vite/virtual-files/files/entry-server.tsx` - SSR entry point (route matching, rendering, head resolution, CSS-in-JS integration)
+- `waspc/data/Generator/templates/sdk/wasp/client/ssr/index.ts` - `SsrStylesProvider` TypeScript interface for CSS-in-JS SSR hooks
 
 **Modified Files (highlights):**
 - `waspc/src/Wasp/AppSpec/Page.hs` - Added `ssr :: Maybe Bool` field
@@ -276,15 +277,82 @@ SSR changes the deployment strategy for the client app. A generated `ssr.json` c
 
 ### Browser API Polyfills
 
-The SSR server sets up minimal browser API stubs (`window`, `document`, `localStorage`, `sessionStorage`, etc.) before loading the SSR bundle. This prevents crashes from third-party libraries that access browser globals at module-init time.
-
-**Known limitation**: Setting `globalThis.window = globalThis` defeats the standard `typeof window !== 'undefined'` browser detection pattern used in some SDK files (e.g., `operations/internal/index.ts`, `webSocket/WebSocketProvider.tsx`, `api/index.ts`). Those guards evaluate to `true` during SSR, which is technically incorrect. The practical impact is currently low (operations are not called during `renderToString`, socket.io connection attempts fail silently), but if more SSR-sensitive logic is added to the SDK in the future, consider switching to a custom flag (e.g., `globalThis.__WASP_SSR__ = true`) for SSR detection.
+The SSR server sets up minimal browser API stubs (`window`, `document`, `localStorage`, `sessionStorage`, `HTMLElement`, etc.) before loading the SSR bundle. This prevents crashes from third-party libraries that access browser globals at module-init time.
 
 **Import ordering**: The SSR bundle is loaded via dynamic `await import()` (not a static `import`) to ensure the polyfills are in place before any transitive dependencies are evaluated. ES module `import` statements are hoisted above all top-level code, which would otherwise cause the polyfills to run too late.
 
+### Build-Time `typeof` Replacement
+
+**Problem**: The runtime polyfills (e.g., `globalThis.window = globalThis`) make `typeof window !== 'undefined'` evaluate to `true` during SSR, which is incorrect. This breaks browser-detection guards in Emotion, React, MUI, socket.io, and many other libraries. For Emotion specifically, this forces the browser code path where `useInsertionEffect` (a no-op during `renderToString`) handles style injection — resulting in zero CSS in the SSR HTML.
+
+**Solution**: The `waspConfig.ts` Vite plugin includes a `transform` hook that replaces `typeof document` and `typeof window` with `"undefined"` **only in the SSR bundle** at build time. This happens during Rollup's transform pipeline (not via Vite's `define` option, because esbuild does not support `typeof x` as a define key).
+
+```typescript
+// In the SSR bundle, after the transform:
+var isBrowser = "undefined" !== "undefined"  // = false ✓
+```
+
+The replacement uses regex alternation to match string literals first (and preserve them), preventing false replacements inside strings like `"if (typeof window !== 'undefined') ..."` (which appears in papaparse and other libraries that embed code as strings).
+
+The runtime polyfills remain as a safety net for code that accesses these globals **without** a `typeof` guard (e.g., `document.createElement()`).
+
+**Effect**: All `typeof window` and `typeof document` browser-detection guards in the SSR bundle correctly evaluate to `false`, including:
+- Emotion's `isBrowser` flag (enables server-side style injection)
+- React's environment detection
+- MUI's feature detection
+- Wasp SDK files (`operations/internal/index.ts`, `webSocket/WebSocketProvider.tsx`)
+- Any third-party library using this pattern
+
+### CSS-in-JS SSR Support (SSR Styles Provider)
+
+**Problem**: CSS-in-JS libraries (Emotion, styled-components, Stitches) generate styles at render time. During SSR, these styles need to be extracted and injected into the HTML `<head>` to prevent FOUC. Each library has a different API for this. Hardcoding support for any single library in Wasp would be inflexible.
+
+**Decision**: Provide a generic, convention-based hook that users implement for their chosen CSS-in-JS library. No Haskell/AppSpec changes required.
+
+**Convention**: If `src/ssr/styles.tsx` (or `.ts`/`.js`) exists and exports a `createSsrStylesProvider` function, Wasp's `entry-server.tsx` dynamically imports it and uses it.
+
+```
+entry-server.tsx
+  ├── try { import("./src/ssr/styles") }  ← convention-based discovery
+  ├── createSsrStylesProvider()           ← called once per SSR request
+  │     └── returns { Wrapper?, extractStyles? }
+  ├── <Wrapper>{appTree}</Wrapper>        ← wraps React tree for renderToString
+  ├── renderToString(appTree)
+  ├── extractStyles(appHtml)              ← collects CSS for <head>
+  └── return { appHtml, headHtml: styles + headHtml }
+```
+
+**Interface** (exported from `wasp/client/ssr`):
+
+```typescript
+interface SsrStylesProvider {
+  Wrapper?: React.ComponentType<{ children: React.ReactNode }>;
+  extractStyles?: (appHtml: string) => string;
+}
+type CreateSsrStylesProvider = () => SsrStylesProvider;
+```
+
+**Rationale**:
+- Package-agnostic: works with any CSS-in-JS library
+- Zero-config default: projects without CSS-in-JS don't need to create the file
+- Convention-based: no `main.wasp` or Haskell changes needed
+- Per-request isolation: `createSsrStylesProvider()` is called for each request, preventing style leakage
+
+**Trade-off**: The convention-based approach is less discoverable than an explicit `main.wasp` config. Mitigated by documentation and the `wasp/client/ssr` TypeScript types. A future iteration could add explicit `main.wasp` configuration (e.g., `client.ssrStylesProvider: import { ... } from "@src/ssr/styles"`) once the API stabilizes.
+
+**Fallback behavior**: If `src/ssr/styles.tsx` doesn't exist, the `catch` block silently skips it. SSR works normally without CSS-in-JS integration. If the file exists but `createSsrStylesProvider` throws, the error is caught and logged as a warning, and SSR continues without styles.
+
+**Interaction with the `typeof` replacement**: The build-time transform ensures Emotion's `isBrowser` flag is `false` in the SSR bundle. Combined with the SSR styles provider:
+1. The `typeof` transform makes Emotion use its synchronous server code path
+2. `createEmotionServer(cache)` sets `cache.compat = true`, storing CSS text in the cache
+3. `extractCriticalToChunks` collects the CSS after render
+4. The extracted `<style data-emotion="css ...">` tags go into the HTML `<head>`
+5. On the client, Emotion's hydration picks up the existing style tags — no FOUC, no mismatch
+
 ## Future Work
 
-- Dev mode SSR (`wasp start`) | Streaming SSR | Data prefetching | Auth-aware SSR | Response caching | CSR fallback on error
+- Dev mode SSR (`wasp start`) | Streaming SSR | Data prefetching | Auth-aware SSR | Response caching
+- Explicit `main.wasp` configuration for SSR styles provider (e.g., `client.ssrStylesProvider: import { ... } from "@src/ssr/styles"`) as an alternative to the convention-based approach
 
 ## Usage Example
 

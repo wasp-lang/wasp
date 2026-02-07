@@ -16,8 +16,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
-import Control.Monad (forM_)
-import Wasp.Generator.Monad (Generator, GeneratorWarning (..), logGeneratorWarning)
+import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (virtualFilesFilesDirInViteDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport
@@ -26,28 +25,13 @@ import Wasp.JsImport
   )
 
 genVirtualRoutesTsx :: AppSpec -> Generator FileDraft
-genVirtualRoutesTsx spec = do
-  -- Warn for pages that have ssr: true but also authRequired: true,
-  -- since SSR is currently only supported for public pages.
-  forM_ pagesWithSsrAndAuth $ \(pageName, _) ->
-    logGeneratorWarning $
-      GenericGeneratorWarning $
-        "Page '"
-          ++ pageName
-          ++ "' has both 'ssr: true' and 'authRequired: true'. "
-          ++ "SSR is currently only supported for public pages, so SSR will be "
-          ++ "disabled for this page. Remove 'ssr: true' to silence this warning."
+genVirtualRoutesTsx spec =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|routes.tsx|]
 
     allPages = AS.getPages spec
-    -- Pages that have both ssr: true and authRequired: true — we warn about these.
-    pagesWithSsrAndAuth =
-      filter
-        (\(_, page) -> fromMaybe False (AS.Page.ssr page) && fromMaybe False (AS.Page.authRequired page))
-        allPages
     -- A page is SSR-eligible if it has ssr: true and does not require auth.
     -- Auth-required pages are excluded from SSR since SSR currently targets
     -- public pages only (auth state is not available during server-side rendering).

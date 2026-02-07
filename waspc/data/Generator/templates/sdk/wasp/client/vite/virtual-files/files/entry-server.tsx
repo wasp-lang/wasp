@@ -136,6 +136,9 @@ export async function render(url: string): Promise<{
   headHtml: string;
   hasPageTitle: boolean;
 }> {
+  // NOTE: We reuse a single QueryClient across requests. This is fine because
+  // we don't prefetch data during SSR. If prefetching is added in the future,
+  // create a new QueryClient per request to prevent data leakage.
   const queryClient = await queryClientInitialized;
   queryClient.clear();
 
