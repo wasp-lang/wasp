@@ -158,19 +158,13 @@ function handleSsrRequest(url, res) {
     res.statusCode = 200;
     res.setHeader("Content-Type", "text/html");
     res.end(indexHtml);
-    return;
-  }
-
-  if (!routeInfo.matched) {
+  } else if (!routeInfo.matched) {
     const notFoundHtml = indexHtml
       .replace("<!--ssr-outlet-->", () => '<div style="text-align:center;padding:2rem;"><h1>404</h1><p>Page not found</p></div>');
     res.statusCode = 404;
     res.setHeader("Content-Type", "text/html");
     res.end(notFoundHtml);
-    return;
-  }
-
-  if (routeInfo.ssr) {
+  } else if (routeInfo.ssr) {
     return render(url.pathname + url.search).then(({ appHtml, headHtml, hasPageTitle }) => {
       let html = indexHtml;
 
@@ -196,11 +190,11 @@ function handleSsrRequest(url, res) {
         res.end(indexHtml);
       }
     });
+  } else {
+    res.statusCode = routeInfo.isCatchAll ? 404 : 200;
+    res.setHeader("Content-Type", "text/html");
+    res.end(indexHtml);
   }
-
-  res.statusCode = routeInfo.isCatchAll ? 404 : 200;
-  res.setHeader("Content-Type", "text/html");
-  res.end(indexHtml);
 }
 
 function handleRequest(req, res) {
