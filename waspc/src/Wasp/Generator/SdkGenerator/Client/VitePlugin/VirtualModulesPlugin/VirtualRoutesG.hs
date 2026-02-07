@@ -32,11 +32,15 @@ genVirtualRoutesTsx spec =
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|routes.tsx|]
 
     allPages = AS.getPages spec
-    -- Partition pages into SSR (static import) and non-SSR (lazy import).
+    anySsrEnabled = any (\(_, page) -> fromMaybe False $ AS.Page.ssr page) allPages
+    -- When SSR is in use, partition pages into SSR (static import) and non-SSR (lazy import).
     -- SSR pages must be statically imported so they can be server-side rendered.
     -- Non-SSR pages are lazy-loaded to keep their dependency trees (e.g. browser-only
     -- packages like monaco-editor) out of the SSR bundle.
-    (ssrPages, nonSsrPages) = partition (\(_, page) -> fromMaybe False $ AS.Page.ssr page) allPages
+    -- When no page uses SSR, all pages are statically imported (preserving pre-SSR behavior).
+    (ssrPages, nonSsrPages)
+      | anySsrEnabled = partition (\(_, page) -> fromMaybe False $ AS.Page.ssr page) allPages
+      | otherwise = (allPages, [])
 
     tmplData =
       object
