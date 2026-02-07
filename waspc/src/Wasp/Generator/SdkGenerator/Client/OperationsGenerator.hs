@@ -58,7 +58,7 @@ genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
   return $
     mkTmplFdWithData
-      (clientOpsDirInSdkTemplatesDir </> [relfile|queries/index.ts|])
+      (clientOpsDirInSdkTemplatesUserCoreDir </> [relfile|queries/index.ts|])
       tmplData
   where
     tmplData =
@@ -70,7 +70,7 @@ genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
   return $
     mkTmplFdWithData
-      (clientOpsDirInSdkTemplatesDir </> [relfile|actions/index.ts|])
+      (clientOpsDirInSdkTemplatesUserCoreDir </> [relfile|actions/index.ts|])
       tmplData
   where
     tmplData =
@@ -131,8 +131,8 @@ getOperationTypeData operation = tmplData
 
 data ClientOpsTemplatesDir
 
-clientOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesUserCoreDir) (Dir ClientOpsTemplatesDir)
-clientOpsDirInSdkTemplatesDir = [reldir|client/operations|]
+clientOpsDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) (Dir ClientOpsTemplatesDir)
+clientOpsDirInSdkTemplatesUserCoreDir = [reldir|client/operations|]
 
 genFileCopyInClientOps :: Path' (Rel ClientOpsTemplatesDir) File' -> Generator FileDraft
-genFileCopyInClientOps = genFileCopy . (clientOpsDirInSdkTemplatesDir </>)
+genFileCopyInClientOps = genFileCopy . (clientOpsDirInSdkTemplatesUserCoreDir </>)

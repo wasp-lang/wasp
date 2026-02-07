@@ -58,7 +58,7 @@ genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
   return $
     mkTmplFdWithData
-      (serverOAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
+      (serverOAuthDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|])
       tmplData
   where
     tmplData =
@@ -70,7 +70,7 @@ genRedirectHelper :: Generator FileDraft
 genRedirectHelper =
   return $
     mkTmplFdWithData
-      (serverOAuthDirInSdkTemplatesDir </> [relfile|redirect.ts|])
+      (serverOAuthDirInSdkTemplatesUserCoreDir </> [relfile|redirect.ts|])
       tmplData
   where
     tmplData =
@@ -95,7 +95,7 @@ genOAuthConfig ::
 genOAuthConfig provider =
   return $
     mkTmplFdWithData
-      (serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile)
+      (serverOAuthDirInSdkTemplatesUserCoreDir </> [reldir|providers|] </> providerTsFile)
       tmplData
   where
     tmplData =
@@ -112,8 +112,8 @@ depsRequiredByOAuth spec =
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
-serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
-serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
+serverOAuthDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+serverOAuthDirInSdkTemplatesUserCoreDir = [reldir|server/auth/oauth|]
 
 genFileCopyInServerOAuth :: Path' Rel' File' -> Generator FileDraft
-genFileCopyInServerOAuth = genFileCopy . (serverOAuthDirInSdkTemplatesDir </>)
+genFileCopyInServerOAuth = genFileCopy . (serverOAuthDirInSdkTemplatesUserCoreDir </>)

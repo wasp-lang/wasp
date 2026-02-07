@@ -31,7 +31,7 @@ genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
   return $
     mkTmplFdWithData
-      (clientRouterDirInSdkTemplatesDir </> [relfile|index.ts|])
+      (clientRouterDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|])
       tmplData
   where
     tmplData = object ["routes" .= map createRouteTemplateData (AS.getRoutes spec)]
@@ -56,9 +56,9 @@ createRouteTemplateData (name, route) =
     mapPathParamToJson (WebRouterPath.RequiredParamSegment paramName) = object ["name" .= paramName, "isOptional" .= False]
     mapPathParamToJson (WebRouterPath.OptionalParamSegment paramName) = object ["name" .= paramName, "isOptional" .= True]
 
-clientRouterDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
-clientRouterDirInSdkTemplatesDir = [reldir|client/router|]
+clientRouterDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+clientRouterDirInSdkTemplatesUserCoreDir = [reldir|client/router|]
 
 genFileCopyInClientRouter :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInClientRouter =
-  genFileCopy . (clientRouterDirInSdkTemplatesDir </>)
+  genFileCopy . (clientRouterDirInSdkTemplatesUserCoreDir </>)

@@ -38,7 +38,7 @@ genLoginAction :: Generator FileDraft
 genLoginAction =
   return $
     mkTmplFdWithData
-      (localAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|])
+      (localAuthDirInSdkTemplatesUserCoreDir </> [relfile|actions/login.ts|])
       tmplData
   where
     tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
@@ -47,7 +47,7 @@ genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
   return $
     mkTmplFdWithData
-      (localAuthDirInSdkTemplatesDir </> [relfile|actions/signup.ts|])
+      (localAuthDirInSdkTemplatesUserCoreDir </> [relfile|actions/signup.ts|])
       tmplData
   where
     tmplData =
@@ -58,9 +58,9 @@ genSignupAction auth =
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
-localAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
-localAuthDirInSdkTemplatesDir = [reldir|auth/username|]
+localAuthDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+localAuthDirInSdkTemplatesUserCoreDir = [reldir|auth/username|]
 
 genFileCopyInLocalAuthDir :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInLocalAuthDir =
-  genFileCopy . (localAuthDirInSdkTemplatesDir </>)
+  genFileCopy . (localAuthDirInSdkTemplatesUserCoreDir </>)
