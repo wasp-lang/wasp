@@ -127,6 +127,7 @@
       "./client/app/pages/OAuthCallback": "./dist/client/app/pages/OAuthCallback.jsx",
       {=! Private: [client] =}
       "./client/vite": "./dist/client/vite/index.js",
+      "./client/ssr": "./dist/client/ssr/index.js",
 
       {=! todo(filip): Fixes below are for type errors in 0.13.1, remove ASAP =}
       {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}

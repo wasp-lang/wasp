@@ -5,35 +5,25 @@ import { Outlet, createMemoryRouter, matchRoutes, RouterProvider } from "react-r
 import { renderToString } from "react-dom/server";
 import { QueryClientProvider } from "@tanstack/react-query";
 
-// Emotion SSR support – three things are needed:
-//  1. CacheProvider with a fresh cache per render so styled() components
-//     don't crash ("Cannot read properties of null (reading 'registered')").
-//  2. extractCriticalToChunks + constructStyleTagsFromChunks from
-//     @emotion/server to collect the generated CSS and inject it into the
-//     HTML <head>.  This eliminates the flash of unstyled content (FOUC)
-//     and gives the client Emotion instance the styles it needs for
-//     seamless hydration (no mismatch warnings).
-//  3. Graceful fallback when @emotion packages are not installed.
-let CacheProvider: React.ComponentType<{ value: any; children: React.ReactNode }> | null = null;
-let createEmotionCache: ((options: { key: string }) => any) | null = null;
-let createEmotionServer: ((cache: any) => {
-  extractCriticalToChunks: (html: string) => any;
-  constructStyleTagsFromChunks: (chunks: any) => string;
-}) | null = null;
+// SSR Styles Provider – generic hook for CSS-in-JS libraries.
+//
+// If the user creates `src/ssr/styles.tsx` (or .ts/.js) and exports a
+// `createSsrStylesProvider` function, Wasp uses it to:
+//   1. Wrap the React tree (e.g. Emotion CacheProvider, SC StyleSheetManager)
+//   2. Extract critical CSS after renderToString and inject it into <head>
+//
+// This is package-agnostic: works with Emotion, styled-components, Stitches,
+// or any other CSS-in-JS library.  See `wasp/client/ssr` for the type API.
+//
+// If the file doesn't exist, SSR proceeds without CSS-in-JS integration.
+import type { CreateSsrStylesProvider } from "wasp/client/ssr";
+
+let createSsrStylesProvider: CreateSsrStylesProvider | null = null;
 try {
-  const emotionReact = await import("@emotion/react");
-  const emotionCache = await import("@emotion/cache");
-  CacheProvider = emotionReact.CacheProvider;
-  createEmotionCache = emotionCache.default || emotionCache;
-  try {
-    const emotionServer = await import("@emotion/server/create-instance");
-    createEmotionServer = emotionServer.default || emotionServer;
-  } catch {
-    // @emotion/server not installed – CacheProvider still prevents the
-    // crash but CSS won't be extracted (client will re-generate styles).
-  }
+  const mod = await import("./src/ssr/styles");
+  createSsrStylesProvider = mod.createSsrStylesProvider || mod.default || null;
 } catch {
-  // @emotion packages not installed – skip CacheProvider wrapping.
+  // No user-provided SSR styles configuration – skip.
 }
 
 import { initializeQueryClient, queryClientInitialized } from "wasp/client/operations";
@@ -162,56 +152,30 @@ export async function render(url: string): Promise<{
     </QueryClientProvider>
   );
 
-  // Wrap with Emotion CacheProvider if available, so styled components
-  // have a valid cache during server-side rendering.
-  //
-  // Two approaches work depending on whether @emotion/server is installed:
-  //
-  //  Advanced (preferred): createEmotionServer(cache) is called BEFORE
-  //    renderToString, which sets cache.compat = true.  This makes the
-  //    internal _insert function store the actual CSS text (not just `true`)
-  //    in cache.inserted, and suppresses the inline <style> tags that the
-  //    Default Approach would emit.  After render, extractCriticalToChunks
-  //    collects the CSS and we place it in the <head>.  No nth-child issues.
-  //
-  //  Default (fallback): If @emotion/server is not installed, Emotion's
-  //    built-in SSR emits inline <style> tags before each styled element
-  //    during renderToString.  This works thanks to the `typeof document`
-  //    define replacement in waspConfig.ts that makes isBrowser = false.
-  let ssrCache: any = null;
-  let emotionExtractor: {
-    extractCriticalToChunks: (html: string) => any;
-    constructStyleTagsFromChunks: (chunks: any) => string;
-  } | null = null;
+  // If the user provided an SSR styles provider, initialize it for this
+  // request and wrap the app tree with its Wrapper component.
+  const ssrStyles = createSsrStylesProvider?.() ?? null;
 
-  if (CacheProvider && createEmotionCache) {
-    ssrCache = createEmotionCache({ key: "css" });
-
-    // MUST happen BEFORE renderToString so that cache.compat = true during
-    // style insertion.  This switches _insert to store CSS text and prevents
-    // the Default Approach from emitting inline <style> tags.
-    if (createEmotionServer) {
-      emotionExtractor = createEmotionServer(ssrCache);
-    }
-
-    appTree = <CacheProvider value={ssrCache}>{appTree}</CacheProvider>;
+  if (ssrStyles?.Wrapper) {
+    const SsrWrapper = ssrStyles.Wrapper;
+    appTree = <SsrWrapper>{appTree}</SsrWrapper>;
   }
 
   const appHtml = renderToString(appTree);
 
-  // Extract critical CSS from the Emotion cache and prepend it to headHtml.
-  // This ensures MUI/Emotion styles arrive with the initial HTML, preventing
-  // FOUC and giving the client's Emotion instance the data it needs for
-  // seamless hydration (matching class names + existing <style> tags).
-  let emotionStyleTags = "";
-  if (emotionExtractor) {
-    const chunks = emotionExtractor.extractCriticalToChunks(appHtml);
-    emotionStyleTags = emotionExtractor.constructStyleTagsFromChunks(chunks);
+  // After rendering, let the provider extract critical CSS for the <head>.
+  let stylesHtml = "";
+  if (ssrStyles?.extractStyles) {
+    try {
+      stylesHtml = ssrStyles.extractStyles(appHtml);
+    } catch (e) {
+      console.warn("[wasp:ssr] extractStyles failed:", e);
+    }
   }
 
   return {
     appHtml,
-    headHtml: emotionStyleTags + headHtml,
+    headHtml: stylesHtml + headHtml,
     hasPageTitle: hasTitle,
   };
 }

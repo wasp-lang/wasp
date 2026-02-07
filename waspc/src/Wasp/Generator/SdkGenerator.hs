@@ -119,6 +119,7 @@ genSdk spec =
       genFileCopy [relfile|client/test/index.ts|],
       genFileCopy [relfile|client/hooks.ts|],
       genFileCopy [relfile|client/index.ts|],
+      genFileCopy [relfile|client/ssr/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genTsConfigJson,
