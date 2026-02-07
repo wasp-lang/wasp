@@ -2,7 +2,7 @@ module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (fromJust)
-import StrongPath (File', Path', Rel, Rel', relfile, (</>))
+import StrongPath (File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
@@ -29,7 +29,7 @@ import Wasp.Util ((<++>))
 genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
   sequence
-    [ genFileCopyInVitePluginsDir [relfile|index.ts|],
+    [ genViteIndex,
       genFileCopyInVitePluginsDir [relfile|wasp.ts|],
       genWaspConfigPlugin spec,
       genEnvFilePlugin,
@@ -39,6 +39,9 @@ genVitePlugins spec =
     ]
     <++> getVirtualModulesPlugin spec
     <++> genHtmlPlugin spec
+
+genViteIndex :: Generator FileDraft
+genViteIndex = genFileCopy $ viteDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]
 
 genWaspConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspConfigPlugin spec =
