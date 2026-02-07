@@ -3,10 +3,16 @@ import { type PluginOption, mergeConfig } from "vite";
 import { defaultExclude } from "vitest/config"
 
 export function waspConfig(): PluginOption {
+  // Track whether this is an SSR build so the transform hook can apply
+  // browser-detection replacements only in the SSR bundle.
+  let isSsr = false;
+
   return {
     name: "wasp:config",
     enforce: 'pre',
     config(config) {
+      isSsr = !!config.build?.ssr;
+
       return mergeConfig({
         base: "{= baseDir =}",
         optimizeDeps: {
@@ -63,6 +69,47 @@ export function waspConfig(): PluginOption {
           ]
         },
       }, config);
-    }
+    },
+
+    // During the SSR build, replace `typeof document` and `typeof window`
+    // with `"undefined"` so that browser-detection guards in Emotion, React,
+    // MUI, and other libraries correctly take the server code path.
+    //
+    // Without this, Wasp's runtime polyfills (in server-ssr.mjs) make
+    // `typeof document !== "undefined"` evaluate to `true`, which forces
+    // Emotion into its browser path where useInsertionEffect (a no-op in
+    // renderToString) handles style injection — resulting in zero CSS in
+    // the SSR HTML.
+    //
+    // We use a `transform` hook instead of Vite's `define` option because
+    // esbuild (used by Vite internally) does not support `typeof x` as a
+    // define key.  The Rollup transform pipeline handles it correctly.
+    //
+    // The runtime polyfills remain as a safety net for code that accesses
+    // these globals *without* a typeof guard (e.g. `document.createElement`).
+    transform(code, id) {
+      if (!isSsr) return null;
+      // Only transform JS/TS source files (id may contain ?query params)
+      if (!/\.[cm]?[jt]sx?(\?|$)/.test(id)) return null;
+
+      let changed = false;
+      // Use alternation to match string literals first (and skip them),
+      // then match `typeof document` / `typeof window` in actual code.
+      // This prevents replacing typeof checks that appear inside string
+      // literals (e.g. papaparse embeds code in strings like
+      //   "if (typeof window !== 'undefined') ..."
+      // where a naive replacement would break the quoted syntax).
+      const result = code.replace(
+        /("(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'|`(?:[^`\\]|\\.)*`)|typeof\s+(document|window)\b/gs,
+        (match, stringLiteral) => {
+          if (stringLiteral) return match; // preserve string literals
+          changed = true;
+          return '"undefined"';
+        }
+      );
+
+      if (!changed) return null;
+      return { code: result, map: null };
+    },
   };
 }

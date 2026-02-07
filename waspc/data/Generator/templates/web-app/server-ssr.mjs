@@ -55,6 +55,9 @@ if (typeof globalThis.window === "undefined") {
       setAttribute: () => {},
       getAttribute: () => null,
       appendChild: () => {},
+      insertBefore: () => {},
+      nextSibling: null,
+      sheet: { cssRules: [], insertRule: () => 0, deleteRule: () => {} },
       classList: { add: () => {}, remove: () => {} },
     }),
     createTextNode: () => ({}),
@@ -64,7 +67,8 @@ if (typeof globalThis.window === "undefined") {
     addEventListener: () => {},
     removeEventListener: () => {},
     dispatchEvent: () => true,
-    head: { appendChild: () => {}, removeChild: () => {} },
+    head: { appendChild: () => {}, removeChild: () => {}, insertBefore: () => {}, firstChild: null, childNodes: [] },
+    styleSheets: [],
   };
   // In Node.js >= 21 `navigator` is a built-in read-only getter on globalThis,
   // so a plain assignment throws. Use Object.defineProperty to safely provide
@@ -76,6 +80,11 @@ if (typeof globalThis.window === "undefined") {
       configurable: true,
     });
   }
+  // Emotion's default cache context uses `typeof HTMLElement !== "undefined"`
+  // to decide whether to create a default cache or set it to null. Without
+  // this polyfill the cache is null, and MUI's styled() components crash with
+  // "Cannot read properties of null (reading 'registered')".
+  globalThis.HTMLElement = globalThis.HTMLElement || class HTMLElement {};
   globalThis.CustomEvent = globalThis.CustomEvent || class CustomEvent extends Event {
     constructor(type, params = {}) { super(type); this.detail = params.detail || null; }
   };
@@ -179,10 +188,12 @@ function handleSsrRequest(url, res) {
       res.end(html);
     }).catch((error) => {
       console.error("SSR render error:", error);
+      // Fall back to the SPA shell so the client can render the page via
+      // CSR instead of showing a blank "Internal Server Error" page.
       if (!res.headersSent) {
-        res.statusCode = 500;
-        res.setHeader("Content-Type", "text/plain");
-        res.end("Internal Server Error");
+        res.statusCode = 200;
+        res.setHeader("Content-Type", "text/html");
+        res.end(indexHtml);
       }
     });
   }
