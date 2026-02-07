@@ -58,11 +58,7 @@ import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
-import Wasp.Generator.SdkGenerator.Common
-  ( extSrcDirInSdkRootDir,
-    sdkPackageName,
-    sdkRootDirInGeneratedCodeDir,
-  )
+import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.SdkGenerator.Core.Common as CoreC
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
@@ -102,7 +98,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
   where
-    sdkRootDir = projectRootDir </> sdkRootDirInGeneratedCodeDir
+    sdkRootDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -166,7 +162,7 @@ genPackageJson spec =
   where
     tmplData =
       object
-        [ "sdkPackageName" .= sdkPackageName,
+        [ "sdkPackageName" .= C.sdkPackageName,
           "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
           "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
           "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
@@ -330,8 +326,8 @@ genExternalFile file
   where
     fileName = FP.takeFileName . fromRelFile $ externalFilePath
     destFile =
-      sdkRootDirInGeneratedCodeDir
-        </> extSrcDirInSdkRootDir
+      C.sdkRootDirInGeneratedCodeDir
+        </> C.extSrcDirInSdkRootDir
         </> castRel externalFilePath
 
     externalFilePath = EF.filePathInExtCodeDir file
