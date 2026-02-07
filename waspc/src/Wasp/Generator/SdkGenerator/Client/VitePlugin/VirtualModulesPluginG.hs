@@ -6,7 +6,6 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
 where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (isJust)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -97,22 +96,18 @@ genVirtualEntryServerTsx spec =
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|entry-server.tsx|]
     tmplData =
       object
-        [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
-          "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
+        [ "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
           "routesMapping" .= routesMappingImportJson,
           "routeNameToSsr" .= routeNameToSsrImportJson,
           "routeNameToHead" .= routeNameToHeadImportJson,
           "isExternalAuthEnabled" .= isExternalAuthEnabled,
           "oAuthCallbackPath" .= clientOAuthCallbackPath,
-          "baseDir" .= SP.fromAbsDirP (getBaseDir spec),
-          "isAuthEnabled" .= isAuthEnabled
+          "baseDir" .= SP.fromAbsDirP (getBaseDir spec)
         ]
-    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
     maybeAuth = AS.App.auth $ snd $ getApp spec
     isExternalAuthEnabled = maybe False AS.Auth.isExternalAuthEnabled maybeAuth
     clientOAuthCallbackPath = OAuth.clientOAuthCallbackPath
-    isAuthEnabled = isJust maybeAuth
     routesMappingImportJson =
       object
         [ "isDefined" .= True,
