@@ -5,6 +5,8 @@ import { serialize, deserialize } from 'wasp/core/serialization'
 // PRIVATE API
 export type OperationRoute = { method: HttpMethod.Post, path: string }
 
+// Works correctly in SSR: waspConfig.ts replaces `typeof window` with
+// `"undefined"` in the SSR bundle, so this evaluates to false on the server.
 const isBrowser = typeof window !== 'undefined'
 
 // PRIVATE API
