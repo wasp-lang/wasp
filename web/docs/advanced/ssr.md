@@ -100,13 +100,46 @@ wasp build start
 Remember to update the `DATABASE_URL` if you recreate the managed database, as the database name includes a unique hash.
 :::
 
-## CSS-in-JS Support (Emotion, styled-components, etc.)
+## CSS-in-JS Libraries (Emotion, styled-components, etc.)
 
-When using CSS-in-JS libraries like **Emotion** (used by MUI), **styled-components**, or **Stitches** with SSR, styles need to be extracted during server-side rendering and injected into the HTML `<head>`. Without this, the page would flash unstyled content (FOUC) until the client re-generates the styles after hydration.
+:::caution Do you use a CSS-in-JS library?
+If your project uses **Emotion** (including MUI/Material UI), **styled-components**, **Stitches**, or any other CSS-in-JS library, you **must create a configuration file** for styles to work correctly with SSR. Without it, your SSR pages will render with broken or missing styles (flash of unstyled content).
 
-Wasp provides a **generic, opt-in hook** for this. Create a file at `src/ssr/styles.tsx` that exports a `createSsrStylesProvider` function:
+**You do NOT need this if** you only use Tailwind CSS, plain CSS, CSS Modules, or other static stylesheets — those work with SSR automatically.
+:::
 
-### Emotion / MUI
+### Why is this needed?
+
+CSS-in-JS libraries generate styles dynamically at render time. In a normal client-side app, this happens in the browser. But during SSR, the server renders your React components to HTML — and the generated styles must be **extracted** from that render and **injected into the HTML `<head>`** so the browser displays styled content immediately.
+
+Wasp cannot do this automatically because each CSS-in-JS library has a different API for style extraction. Instead, Wasp provides a **hook** that you implement once for your chosen library.
+
+### Setup (step by step)
+
+**Step 1:** Create the file `src/ssr/styles.tsx` in your project:
+
+```
+your-project/
+├── src/
+│   ├── ssr/
+│   │   └── styles.tsx    ← Create this file
+│   ├── pages/
+│   └── ...
+├── main.wasp
+└── ...
+```
+
+**Step 2:** Export a `createSsrStylesProvider` function from that file. Choose the example that matches your library:
+
+#### Emotion / MUI (Material UI)
+
+First, install the required packages (if not already installed):
+
+```bash
+npm install @emotion/cache @emotion/react @emotion/server
+```
+
+Then create the provider:
 
 ```tsx title="src/ssr/styles.tsx"
 import React from 'react';
@@ -131,9 +164,7 @@ export function createSsrStylesProvider() {
 }
 ```
 
-Required packages: `@emotion/cache`, `@emotion/react`, `@emotion/server`
-
-### styled-components
+#### styled-components
 
 ```tsx title="src/ssr/styles.tsx"
 import React from 'react';
@@ -150,9 +181,7 @@ export function createSsrStylesProvider() {
 }
 ```
 
-Required packages: `styled-components`
-
-### Stitches
+#### Stitches
 
 ```tsx title="src/ssr/styles.tsx"
 import { getCssText } from '../stitches.config';
@@ -165,19 +194,41 @@ export function createSsrStylesProvider() {
 }
 ```
 
-### How it works
+**Step 3:** Build and test. That's it — no changes to `main.wasp` or `vite.config.ts` needed.
 
-1. Wasp's SSR entry point tries to import `src/ssr/styles.tsx` at startup.
-2. For each SSR request, it calls `createSsrStylesProvider()` to get a fresh provider instance (new instance per request prevents style leakage).
-3. If a `Wrapper` component is returned, the React tree is wrapped with it during `renderToString`.
-4. After rendering, `extractStyles(appHtml)` is called to collect the generated CSS.
-5. The extracted `<style>` tags are prepended to the HTML `<head>`.
+```bash
+wasp build
+wasp build start
+```
 
-If `src/ssr/styles.tsx` does not exist, SSR proceeds without CSS-in-JS integration — no error, no crash. This is fine for projects that only use static CSS (Tailwind, plain CSS, CSS Modules).
+View the page source in your browser. You should see `<style data-emotion="css ...">` tags (or your library's equivalent) in the `<head>`.
 
-### TypeScript types
+### How it works under the hood
 
-Wasp exports the `SsrStylesProvider` interface for type safety:
+Wasp's SSR entry point automatically discovers `src/ssr/styles.tsx` by convention:
+
+1. At startup, Wasp tries to import `src/ssr/styles.tsx`. If the file doesn't exist, SSR proceeds normally without CSS-in-JS — no error.
+2. For **each SSR request**, Wasp calls `createSsrStylesProvider()` to get a fresh instance. A new instance per request prevents styles from one request leaking into another.
+3. If the returned object has a `Wrapper` component, Wasp wraps the React tree with it during rendering (e.g., Emotion's `CacheProvider`).
+4. After `renderToString` completes, Wasp calls `extractStyles(appHtml)` to collect the CSS.
+5. The extracted `<style>` tags are prepended to the HTML `<head>`, before any page-specific head tags.
+
+### Verifying it works
+
+After building, open an SSR page and **View Page Source** (not the DevTools Elements panel). Look for:
+
+- **Emotion/MUI**: `<style data-emotion="css ...">` tags in the `<head>`
+- **styled-components**: `<style data-styled="true">` tags in the `<head>`
+- **Stitches**: `<style id="stitches">` tag in the `<head>`
+
+If these are missing, double-check that:
+1. The file is at exactly `src/ssr/styles.tsx` (not `src/styles/ssr.tsx` or any other path)
+2. The function is named `createSsrStylesProvider` (or is the `default` export)
+3. The required packages are installed
+
+### TypeScript types (optional)
+
+Wasp exports a `SsrStylesProvider` interface you can use for type safety:
 
 ```tsx title="src/ssr/styles.tsx"
 import type { SsrStylesProvider } from 'wasp/client/ssr';
@@ -189,10 +240,22 @@ export function createSsrStylesProvider(): SsrStylesProvider {
 
 ### Browser detection in SSR
 
-Wasp automatically handles the common `typeof window !== 'undefined'` and `typeof document !== 'undefined'` browser-detection patterns. During the SSR build, these expressions are replaced with `"undefined"` so that libraries like Emotion, React, and MUI correctly take their server code paths. You don't need to configure anything — this works automatically for all packages.
+Wasp automatically handles the common `typeof window !== 'undefined'` and `typeof document !== 'undefined'` browser-detection patterns used by CSS-in-JS libraries internally. During the SSR build, these expressions are replaced so that libraries correctly take their server code paths. **You don't need to configure anything** — this works automatically for all packages.
 
-:::tip
-If you write custom code that needs to detect SSR, `typeof window === 'undefined'` works correctly in Wasp's SSR builds. You can also use `import.meta.env.SSR` (a Vite built-in) which is `true` in the SSR bundle and `false` in the client bundle.
+:::tip Writing SSR-safe code
+If you write custom code that needs to detect whether it's running on the server or in the browser, both of these work correctly in Wasp's SSR builds:
+
+```ts
+// Option 1: standard browser detection (works thanks to Wasp's build-time transform)
+if (typeof window === 'undefined') {
+  // Server-side code
+}
+
+// Option 2: Vite built-in (true in SSR bundle, false in client bundle)
+if (import.meta.env.SSR) {
+  // Server-side code
+}
+```
 :::
 
 ## Architecture (preview)
