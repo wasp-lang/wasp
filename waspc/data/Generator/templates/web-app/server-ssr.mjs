@@ -138,6 +138,8 @@ function parseArgs(argv) {
 }
 
 // Serve static assets from the client build directory using sirv.
+// NOTE: This assumes the default baseDir "/". If a custom client.baseDir is used,
+// sirv would need to strip the base prefix from request paths to find the files.
 const serveStatic = sirv(clientBuildDir, {
   etag: true,
   gzip: true,
