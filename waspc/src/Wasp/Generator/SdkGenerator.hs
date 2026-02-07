@@ -14,7 +14,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', Rel, castRel, fromRelDir, fromRelFile, relfile, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
@@ -29,29 +29,35 @@ import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ProjectRootDir,
-    WebAppRootDir,
     makeJsonWithEntityData,
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
   ( axiosVersion,
+    dotenvVersion,
     expressTypesVersion,
     expressVersionStr,
     prismaVersion,
+    reactDomTypesVersion,
+    reactDomVersion,
     reactQueryVersion,
     reactRouterVersion,
+    reactTypesVersion,
     reactVersion,
     superjsonVersion,
+    typescriptVersion,
   )
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
+import Wasp.Generator.SdkGenerator.Client.AppG (genClientApp)
 import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
+import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import Wasp.Generator.SdkGenerator.Common
   ( extSrcDirInSdkRootDir,
     sdkPackageName,
@@ -81,7 +87,7 @@ import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromAppComponentDir)
+import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
 
@@ -101,24 +107,25 @@ buildSdk projectRootDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ return $ CoreC.mkTmplFd [relfile|tsconfig.json|],
-      return $ CoreC.mkTmplFd [relfile|server/HttpError.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|tsconfig.json|],
-      return $ UserCoreC.mkTmplFd [relfile|vite-env.d.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|prisma-runtime-library.d.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|api/index.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|api/events.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|core/storage.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|server/index.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|client/test/vitest/helpers.tsx|],
-      return $ UserCoreC.mkTmplFd [relfile|client/test/index.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|client/hooks.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|client/index.ts|],
+    [ CoreC.genFileCopy [relfile|tsconfig.json|],
+      CoreC.genFileCopy [relfile|server/HttpError.ts|],
+      UserCoreC.genFileCopy [relfile|tsconfig.json|],
+      UserCoreC.genFileCopy [relfile|vite-env.d.ts|],
+      UserCoreC.genFileCopy [relfile|prisma-runtime-library.d.ts|],
+      UserCoreC.genFileCopy [relfile|api/index.ts|],
+      UserCoreC.genFileCopy [relfile|api/events.ts|],
+      UserCoreC.genFileCopy [relfile|core/storage.ts|],
+      UserCoreC.genFileCopy [relfile|server/index.ts|],
+      UserCoreC.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
+      UserCoreC.genFileCopy [relfile|client/test/index.ts|],
+      UserCoreC.genFileCopy [relfile|client/test/setup.ts|],
+      UserCoreC.genFileCopy [relfile|client/hooks.ts|],
+      UserCoreC.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
       genServerUtils spec,
-      genServerDbClient spec,
-      genDevIndex
+      genServerExportedTypesDir,
+      genServerDbClient spec
     ]
     <++> genRootFiles spec
     <++> ServerOpsGen.genOperations spec
@@ -132,7 +139,6 @@ genSdk spec =
     <++> genServerApi spec
     <++> genWebSockets spec
     <++> genServerMiddleware
-    <++> genServerExportedTypesDir
     -- New API
     <++> genNewClientAuth spec
     <++> genNewServerApi spec
@@ -142,13 +148,15 @@ genSdk spec =
     <++> genNewJobsApi spec
     <++> genNewClientRouterApi spec
     <++> genEnvValidation spec
+    <++> genClientApp spec
+    <++> genVitePlugins spec
 
 genRootFiles :: AppSpec -> Generator [FileDraft]
 genRootFiles spec =
   sequence
-    [ return $ RootC.mkTmplFd [relfile|tsconfig.json|],
-      return $ RootC.mkTmplFd [relfile|tsconfig.sdk.json|],
-      return $ RootC.mkTmplFd [relfile|copy-assets.js|],
+    [ RootC.genFileCopy [relfile|tsconfig.json|],
+      RootC.genFileCopy [relfile|tsconfig.sdk.json|],
+      RootC.genFileCopy [relfile|copy-assets.js|],
       genPackageJson spec
     ]
 
@@ -205,9 +213,13 @@ npmDepsForSdk spec =
           [ ("@prisma/client", show prismaVersion),
             ("prisma", show prismaVersion),
             ("axios", show axiosVersion),
+            ("dotenv", show dotenvVersion),
+            ("dotenv-expand", "^12.0.3"),
             ("express", expressVersionStr),
             ("mitt", "3.0.0"),
             ("react", show reactVersion),
+            ("react-dom", show reactDomVersion),
+            ("@tanstack/react-query", reactQueryVersion),
             ("react-router", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
             ("superjson", show superjsonVersion)
@@ -230,13 +242,17 @@ npmDepsForSdk spec =
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
+            ("typescript", show typescriptVersion),
+            ("@vitejs/plugin-react", "^4.7.0"),
             ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion)
+            ("@types/express-serve-static-core", show expressTypesVersion),
+            ("@types/react", show reactTypesVersion),
+            ("@types/react-dom", show reactDomTypesVersion),
+            -- NOTE: Make sure to bump the version of the tsconfig
+            -- when updating Vite or React versions
+            ("@tsconfig/vite-react", "^7.0.0")
           ],
-      N.peerDependencies =
-        Npm.Dependency.fromList
-          [ ("@tanstack/react-query", reactQueryVersion)
-          ]
+      N.peerDependencies = Npm.Dependency.fromList []
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
@@ -322,12 +338,12 @@ genExternalFile file
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
-  return
-    [ UserCoreC.mkTmplFd [relfile|universal/url.ts|],
-      UserCoreC.mkTmplFd [relfile|universal/types.ts|],
-      UserCoreC.mkTmplFd [relfile|universal/validators.ts|],
-      UserCoreC.mkTmplFd [relfile|universal/predicates.ts|],
-      UserCoreC.mkTmplFd [relfile|universal/ansiColors.ts|]
+  sequence
+    [ UserCoreC.genFileCopy [relfile|universal/url.ts|],
+      UserCoreC.genFileCopy [relfile|universal/types.ts|],
+      UserCoreC.genFileCopy [relfile|universal/validators.ts|],
+      UserCoreC.genFileCopy [relfile|universal/predicates.ts|],
+      UserCoreC.genFileCopy [relfile|universal/ansiColors.ts|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
@@ -336,15 +352,14 @@ genServerUtils spec =
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
-genServerExportedTypesDir :: Generator [FileDraft]
-genServerExportedTypesDir =
-  return [UserCoreC.mkTmplFd [relfile|server/types/index.ts|]]
+genServerExportedTypesDir :: Generator FileDraft
+genServerExportedTypesDir = UserCoreC.genFileCopy [relfile|server/types/index.ts|]
 
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
   sequence
-    [ return $ UserCoreC.mkTmplFd [relfile|server/middleware/index.ts|],
-      return $ UserCoreC.mkTmplFd [relfile|server/middleware/globalMiddleware.ts|]
+    [ UserCoreC.genFileCopy [relfile|server/middleware/index.ts|],
+      UserCoreC.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
 genServerDbClient :: AppSpec -> Generator FileDraft
@@ -362,12 +377,3 @@ genServerDbClient spec = do
       tmplData
   where
     maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
-
-genDevIndex :: Generator FileDraft
-genDevIndex =
-  return $ UserCoreC.mkTmplFdWithData [relfile|dev/index.ts|] tmplData
-  where
-    tmplData = object ["waspProjectDirFromWebAppDir" .= fromRelDir waspProjectDirFromWebAppDir]
-
-    waspProjectDirFromWebAppDir :: Path' (Rel WebAppRootDir) (Dir WaspProjectDir)
-    waspProjectDirFromWebAppDir = waspProjectDirFromAppComponentDir

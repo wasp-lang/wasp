@@ -4,12 +4,14 @@ module Wasp.Generator.SdkGenerator.Core.Common
     mkTmplFd,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
+    genFileCopy,
   )
 where
 
 import qualified Data.Aeson as Aeson
 import StrongPath (Dir, File', Path', Rel, castRel, reldir, (</>))
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
+import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
     SdkTemplatesDir,
@@ -24,6 +26,9 @@ data SdkCoreDir
 -- | Directory of the SDK core tsconfig project in templates.
 -- It contains all logic not dependent on the user's project.
 data SdkTemplatesCoreDir
+
+genFileCopy :: Path' (Rel SdkTemplatesCoreDir) File' -> Generator FileDraft
+genFileCopy = return . mkTmplFd
 
 mkTmplFd ::
   Path' (Rel SdkTemplatesCoreDir) File' ->

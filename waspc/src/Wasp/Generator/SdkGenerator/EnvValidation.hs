@@ -19,7 +19,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
@@ -36,9 +36,9 @@ genEnvValidation spec =
 
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
-  return
-    [ mkTmplFd [relfile|env/index.ts|],
-      mkTmplFd [relfile|env/validation.ts|]
+  sequence
+    [ genFileCopy [relfile|env/index.ts|],
+      genFileCopy [relfile|env/validation.ts|]
     ]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
@@ -48,7 +48,7 @@ genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =
   sequence
     [ genClientEnvSchema spec,
-      return . mkTmplFd $ [relfile|client/env.ts|]
+      genFileCopy [relfile|client/env.ts|]
     ]
 
 genServerEnv :: AppSpec -> Generator FileDraft

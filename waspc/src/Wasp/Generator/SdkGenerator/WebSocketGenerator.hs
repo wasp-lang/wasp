@@ -18,7 +18,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( mkTmplFd,
+  ( genFileCopy,
     mkTmplFdWithData,
   )
 import qualified Wasp.Generator.WebSocket as AS.WS
@@ -28,7 +28,7 @@ genWebSockets spec
   | AS.WS.areWebSocketsUsed spec =
       sequence
         [ genServerWebSocketIndex spec,
-          return $ mkTmplFd [relfile|client/webSocket/index.ts|],
+          genFileCopy [relfile|client/webSocket/index.ts|],
           genClientWebSocketProvider spec
         ]
   | otherwise = return []

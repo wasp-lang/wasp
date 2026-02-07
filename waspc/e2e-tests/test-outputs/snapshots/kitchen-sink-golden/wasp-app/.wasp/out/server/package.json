@@ -5,7 +5,7 @@
     "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.21.0.tgz",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.2",
+    "dotenv": "^16.6.1",
     "express": "~5.1.0",
     "helmet": "^6.0.0",
     "morgan": "~1.10.0",

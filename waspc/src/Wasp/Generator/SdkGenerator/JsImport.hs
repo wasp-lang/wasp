@@ -1,6 +1,7 @@
 module Wasp.Generator.SdkGenerator.JsImport
   ( extOperationImportToImportJson,
     extImportToImportJson,
+    extImportToJsImport,
   )
 where
 
@@ -9,6 +10,7 @@ import Data.Maybe (fromJust)
 import StrongPath (castRel, relDirToPosix, (</>))
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (dropExtensionFromImportPath)
+import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.SdkGenerator.Common
   ( extSrcDirInSdkRootDir,
@@ -32,7 +34,7 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
   JsImport
     { _path = ModuleImportPath importPath,
       _name = importName,
-      _importAlias = Just $ EI.importIdentifier extImport ++ "_ext"
+      _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
   where
     importPath = makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath

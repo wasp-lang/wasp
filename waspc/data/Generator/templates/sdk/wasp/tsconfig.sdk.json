@@ -84,6 +84,11 @@
     "incremental": true,
   },
   "exclude": [
-    "node_modules",
-  ]
+      "node_modules",
+      "dist",
+      // Virtual modules don't belong in the SDK runtime, they are used by the
+      // web-app runtime via Vite virtual modules. That's why we don't want the
+      // SDK to compile them.
+      "client/vite/virtual-files/files",
+    ]
 }
