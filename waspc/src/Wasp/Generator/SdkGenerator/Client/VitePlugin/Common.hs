@@ -1,5 +1,9 @@
 module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-  ( viteDirInSdkTemplatesUserCoreDir,
+  ( ViteDir,
+    VitePluginsDir,
+    VirtualFilesDir,
+    VirtualFilesFilesDir,
+    viteDirInSdkTemplatesUserCoreDir,
     vitePluginsDirInSdkTemplatesUserCoreDir,
     virtualFilesDirInSdkTemplatesUserCoreDir,
     virtualFilesFilesDirInSdkTemplatesUserCoreDir,

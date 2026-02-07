@@ -32,14 +32,10 @@ genHtmlPlugin spec =
     ]
 
 genHtmlDevTs :: Generator FileDraft
-genHtmlDevTs =
-  genFileCopy $
-    vitePluginsDirInSdkTemplatesUserCoreDir </> [relfile|html/dev.ts|]
+genHtmlDevTs = genFileCopy $ vitePluginsDirInSdkTemplatesUserCoreDir </> [relfile|html/dev.ts|]
 
 genHtmlBuildTs :: Generator FileDraft
-genHtmlBuildTs =
-  genFileCopy $
-    vitePluginsDirInSdkTemplatesUserCoreDir </> [relfile|html/build.ts|]
+genHtmlBuildTs = genFileCopy $ vitePluginsDirInSdkTemplatesUserCoreDir </> [relfile|html/build.ts|]
 
 genVirtualIndexHtml :: AppSpec -> Generator FileDraft
 genVirtualIndexHtml spec =

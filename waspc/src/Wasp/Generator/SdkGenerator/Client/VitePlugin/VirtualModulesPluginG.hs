@@ -37,14 +37,6 @@ getVirtualModulesPlugin spec =
       genVirtualRoutesTsx spec
     ]
 
-genVirtualFilesIndexTs :: Generator FileDraft
-genVirtualFilesIndexTs =
-  genFileCopy $ virtualFilesDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]
-
-genVirtualFilesResolverTs :: Generator FileDraft
-genVirtualFilesResolverTs =
-  genFileCopy $ virtualFilesDirInSdkTemplatesUserCoreDir </> [relfile|resolver.ts|]
-
 getVirtualModulesTs :: Generator FileDraft
 getVirtualModulesTs =
   return $
@@ -57,6 +49,12 @@ getVirtualModulesTs =
         [ "clientEntryPointPath" .= clientEntryPointPath,
           "routesEntryPointPath" .= routesEntryPointPath
         ]
+
+genVirtualFilesIndexTs :: Generator FileDraft
+genVirtualFilesIndexTs = genFileCopy $ virtualFilesDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]
+
+genVirtualFilesResolverTs :: Generator FileDraft
+genVirtualFilesResolverTs = genFileCopy $ virtualFilesDirInSdkTemplatesUserCoreDir </> [relfile|resolver.ts|]
 
 genVirtualIndexTsx :: AppSpec -> Generator FileDraft
 genVirtualIndexTsx spec =
