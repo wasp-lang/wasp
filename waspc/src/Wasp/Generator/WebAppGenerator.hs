@@ -4,6 +4,7 @@ module Wasp.Generator.WebAppGenerator
     viteSsrBuildDirInWebAppDir,
     createWebAppRootDir,
     genWebApp,
+    hasSsrEnabledPage,
   )
 where
 
