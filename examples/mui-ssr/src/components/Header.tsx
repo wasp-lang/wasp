@@ -60,7 +60,13 @@ export function Header() {
 
           <Box sx={{ flexGrow: 1 }} />
 
-          <Button variant="contained" color="primary" size="large">
+          <Button
+            component={RouterLink}
+            to="/about"
+            variant="contained"
+            color="primary"
+            size="large"
+          >
             Get Started
           </Button>
         </Toolbar>

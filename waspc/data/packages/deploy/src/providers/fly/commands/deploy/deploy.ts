@@ -145,13 +145,20 @@ async function deployClient(
     waspSays("SSR is enabled. Deploying as Node.js server...");
     const ssrServerFile = getSsrServerFileName();
     dockerfileContents = `
-FROM node:20-alpine
+FROM node:22-alpine3.20
+RUN apk --no-cache -U upgrade
 WORKDIR /app
-# Install dependencies first (cached layer unless package.json changes)
+# Install dependencies first (cached layer unless package.json changes).
+# --ignore-scripts prevents @prisma/client postinstall from running before
+# schema.prisma is available in the build context.
 COPY package.json .
-RUN npm install --production
-# Copy the built application
+RUN npm install --production --ignore-scripts
+# Copy the built application (includes schema.prisma, build/, build-ssr/)
 COPY . .
+# Generate the Prisma client from the schema bundled with the web-app.
+# The Vite SSR build externalizes @prisma/client (native query engine),
+# so it must be available as a real node_module at runtime.
+RUN npx prisma generate --schema=./schema.prisma
 ENV PORT=${ssrServerPort}
 EXPOSE ${ssrServerPort}
 CMD ["node", "${ssrServerFile}"]

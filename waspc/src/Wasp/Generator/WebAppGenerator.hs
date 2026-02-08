@@ -18,9 +18,10 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Page as AS.Page
 import Wasp.Generator.Common (ProjectRootDir)
+import qualified Wasp.Generator.DepVersions as DepVersions
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft, createTextFileDraft)
-import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.Templates (TemplatesDir)
 
 data WebAppRootDir
 
@@ -72,7 +73,11 @@ genSsrPackageJson =
     createTemplateFileDraft
       (webAppRootDirInProjectRootDir </> [relfile|package.json|])
       ([relfile|web-app/ssr-package.json|] :: Path' (Rel TemplatesDir) (File ()))
-      Nothing
+      ( Just $
+          object
+            [ "prismaVersion" .= show DepVersions.prismaVersion
+            ]
+      )
 
 hasSsrEnabledPage :: AppSpec -> Bool
 hasSsrEnabledPage spec =

@@ -4,6 +4,7 @@ import Divider from '@mui/material/Divider';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import Link from '@mui/material/Link';
+import { Link as RouterLink } from 'react-router';
 
 export function Footer() {
   return (
@@ -29,10 +30,10 @@ export function Footer() {
               <Typography variant="overline" sx={{ color: 'grey.500' }}>
                 Pages
               </Typography>
-              <Link href="/" color="inherit" underline="hover" variant="body2">
+              <Link component={RouterLink} to="/" color="inherit" underline="hover" variant="body2">
                 Home
               </Link>
-              <Link href="/about" color="inherit" underline="hover" variant="body2">
+              <Link component={RouterLink} to="/about" color="inherit" underline="hover" variant="body2">
                 About
               </Link>
             </Stack>

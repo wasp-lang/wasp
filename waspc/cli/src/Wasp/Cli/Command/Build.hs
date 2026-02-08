@@ -14,7 +14,7 @@ import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens
 import Data.List (isSuffixOf)
-import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromRelDir, relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
@@ -26,6 +26,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Generator.SdkGenerator.Client.VitePlugin.Common as ViteCommon
+import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
 import Wasp.Generator.WebAppGenerator
   ( hasSsrEnabledPage,
     viteSsrBuildDirInWebAppDir,
@@ -104,6 +105,15 @@ build = do
     runAndPrintJob "Building the SSR bundle failed." $
       buildViteSsr waspProjectDir
     cliSendMessageC $ Msg.Success "SSR bundle built."
+
+    -- Copy schema.prisma into the web-app directory so the SSR deployment is
+    -- self-contained.  The Vite SSR build externalizes @prisma/client (it uses
+    -- native query-engine binaries and __dirname), so it must be installed at
+    -- runtime via npm, and `prisma generate` needs the schema file.
+    let schemaSource = buildDir </> dbSchemaFileInProjectRootDir
+        schemaDest = buildDir </> webAppRootDirInProjectRootDir </> [relfile|schema.prisma|]
+    liftIO $ copyFile schemaSource schemaDest
+    cliSendMessageC $ Msg.Success "Copied schema.prisma to web-app/ for SSR deployment."
 
   cliSendMessageC $
     Msg.Success $
