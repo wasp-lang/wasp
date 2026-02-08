@@ -168,6 +168,70 @@ spec_AppSpecValid = do
           ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "id" `shouldBe` Just True
           ASV.doesUserEntityContainField (makeSpec (Just validAppAuth) Nothing) "missing" `shouldBe` Just False
 
+      describe "should validate that SSR is only allowed for public pages" $ do
+        let makeSpecForSsr pageSsr pageAuthRequired =
+              basicAppSpec
+                { AS.decls =
+                    [ basicAppDecl,
+                      AS.Decl.makeDecl "TestPage" $
+                        AS.Page.Page
+                          { AS.Page.component = dummyExtImport,
+                            AS.Page.authRequired = pageAuthRequired,
+                            AS.Page.ssr = pageSsr
+                          },
+                      basicRouteDecl
+                    ]
+                }
+
+        it "returns no error if page has ssr: true and no authRequired" $ do
+          ASV.validateAppSpec (makeSpecForSsr (Just True) Nothing) `shouldBe` []
+
+        it "returns no error if page has ssr: true and authRequired: false" $ do
+          ASV.validateAppSpec (makeSpecForSsr (Just True) (Just False)) `shouldBe` []
+
+        it "returns no error if page has no ssr and authRequired: true (with auth set)" $ do
+          let spec =
+                basicAppSpec
+                  { AS.decls =
+                      [ AS.Decl.makeDecl "TestApp" $
+                          basicApp {AS.App.auth = Just validAppAuth},
+                        AS.Decl.makeDecl "TestPage" $
+                          AS.Page.Page
+                            { AS.Page.component = dummyExtImport,
+                              AS.Page.authRequired = Just True,
+                              AS.Page.ssr = Nothing
+                            },
+                        AS.Decl.makeDecl userEntityName validUserEntity,
+                        basicRouteDecl
+                      ]
+                  }
+          ASV.validateAppSpec spec `shouldBe` []
+
+        it "returns an error if page has ssr: true and authRequired: true" $ do
+          let spec =
+                basicAppSpec
+                  { AS.decls =
+                      [ AS.Decl.makeDecl "TestApp" $
+                          basicApp {AS.App.auth = Just validAppAuth},
+                        AS.Decl.makeDecl "SsrAuthPage" $
+                          AS.Page.Page
+                            { AS.Page.component = dummyExtImport,
+                              AS.Page.authRequired = Just True,
+                              AS.Page.ssr = Just True
+                            },
+                        AS.Decl.makeDecl userEntityName validUserEntity,
+                        basicRouteDecl
+                      ]
+                  }
+          ASV.validateAppSpec spec
+            `shouldContain` [ Valid.GenericValidationError
+                                "Page 'SsrAuthPage' has ssr: true but requires auth. SSR is only supported for public pages."
+                            ]
+
+        it "returns no error if page has ssr: false or no ssr set" $ do
+          ASV.validateAppSpec (makeSpecForSsr (Just False) Nothing) `shouldBe` []
+          ASV.validateAppSpec (makeSpecForSsr Nothing Nothing) `shouldBe` []
+
       describe "should validate that UsernameAndPassword and Email auth cannot used at the same time" $ do
         let makeSpec authMethods userEntity =
               basicAppSpec
@@ -601,7 +665,8 @@ spec_AppSpecValid = do
             AS.ExtImport.ExtImport
               (AS.ExtImport.ExtImportModule "Home")
               (fromJust $ SP.parseRelFileP "pages/Main"),
-          AS.Page.authRequired = Nothing
+          AS.Page.authRequired = Nothing,
+          AS.Page.ssr = Nothing
         }
 
     basicPageName = "TestPage"
@@ -617,7 +682,8 @@ spec_AppSpecValid = do
         name
         AS.Page.Page
           { AS.Page.component = dummyExtImport,
-            AS.Page.authRequired = Nothing
+            AS.Page.authRequired = Nothing,
+            AS.Page.ssr = Nothing
           }
 
     makeBasicRouteDecl name pageName =
