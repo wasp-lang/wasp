@@ -221,7 +221,8 @@ spec_Analyzer = do
                       ExtImport
                         (ExtImportModule "Home")
                         (fromJust $ SP.parseRelFileP "pages/Main"),
-                    Page.authRequired = Nothing
+                    Page.authRequired = Nothing,
+                    Page.ssr = Nothing
                   }
               ),
               ( "ProfilePage",
@@ -230,7 +231,8 @@ spec_Analyzer = do
                       ExtImport
                         (ExtImportField "profilePage")
                         (fromJust $ SP.parseRelFileP "pages/Profile"),
-                    Page.authRequired = Just True
+                    Page.authRequired = Just True,
+                    Page.ssr = Nothing
                   }
               )
             ]
