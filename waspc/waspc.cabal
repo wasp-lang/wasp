@@ -36,6 +36,7 @@ data-files:
   Generator/templates/**/*.html
   Generator/templates/**/*.md
   Generator/templates/**/*.js
+  Generator/templates/**/*.mjs
   Generator/templates/**/*.jsx
   Generator/templates/**/*.tsx
   Generator/libs/**/*.tgz

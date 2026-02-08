@@ -11,14 +11,22 @@ export const api: AxiosInstance = axios.create({
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
+const isBrowser = typeof window !== 'undefined'
+
 // PRIVATE API (sdk)
 export function setSessionId(sessionId: string): void {
+  if (!isBrowser) {
+    return
+  }
   storage.set(WASP_APP_AUTH_SESSION_ID_NAME, sessionId)
   apiEventsEmitter.emit('sessionId.set')
 }
 
 // PRIVATE API (sdk)
 export function getSessionId(): string | null {
+  if (!isBrowser) {
+    return null
+  }
   const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME) as
     | string
     | undefined
@@ -26,12 +34,18 @@ export function getSessionId(): string | null {
 }
 // PRIVATE API (sdk)
 export function clearSessionId(): void {
+  if (!isBrowser) {
+    return
+  }
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME)
   apiEventsEmitter.emit('sessionId.clear')
 }
 
 // PRIVATE API (sdk)
 export function removeLocalUserData(): void {
+  if (!isBrowser) {
+    return
+  }
   storage.clear()
   apiEventsEmitter.emit('sessionId.clear')
 }
@@ -67,7 +81,7 @@ api.interceptors.request.use((config) => {
 })
 
 api.interceptors.response.use(undefined, (error) => {
-  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers['Authorization'])
+  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config?.headers?.['Authorization'])
   const currentSessionId = getSessionId()
   if (error.response?.status === 401 && failingSessionId === currentSessionId) {
     clearSessionId()
@@ -80,15 +94,17 @@ api.interceptors.response.use(undefined, (error) => {
 // Ref: https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event
 // "Note: This won't work on the same page that is making the changes — it is really a way
 // for other pages on the domain using the storage to sync any changes that are made."
-window.addEventListener('storage', (event) => {
-  if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
-    if (!!event.newValue) {
-      apiEventsEmitter.emit('sessionId.set')
-    } else {
-      apiEventsEmitter.emit('sessionId.clear')
+if (typeof window !== 'undefined') {
+  window.addEventListener('storage', (event) => {
+    if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+      if (!!event.newValue) {
+        apiEventsEmitter.emit('sessionId.set')
+      } else {
+        apiEventsEmitter.emit('sessionId.clear')
+      }
     }
-  }
-})
+  })
+}
 
 // PRIVATE API (sdk)
 /**

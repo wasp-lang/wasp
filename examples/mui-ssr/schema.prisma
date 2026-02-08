@@ -1,0 +1,9 @@
+datasource db {
+  provider = "postgresql"
+  // Wasp requires that the url is set to the DATABASE_URL environment variable.
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}

@@ -171,6 +171,7 @@ const sidebars: SidebarsConfig = {
         "advanced/email/email",
         "advanced/jobs",
         "advanced/web-sockets",
+        "advanced/ssr",
         "advanced/accessing-app-config",
         "advanced/apis",
         "advanced/middleware-config",
