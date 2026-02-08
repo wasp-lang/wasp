@@ -1,18 +1,11 @@
-{{={= =}=}}
 {
   "name": "wasp-ssr-server",
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server-ssr.mjs",
-    "postinstall": "[ -f ./schema.prisma ] && prisma generate --schema=./schema.prisma || true"
-  },
-  "prisma": {
-    "schema": "./schema.prisma"
+    "start": "node server-ssr.mjs"
   },
   "dependencies": {
-    "@prisma/client": "{= prismaVersion =}",
-    "prisma": "{= prismaVersion =}",
     "sirv": "3.0.2"
   }
 }

@@ -55,9 +55,6 @@ export function waspConfig(): PluginOption {
           // have proper Node.js ESM exports (e.g., monaco-editor, react-icons).
           // Node.js built-ins (fs, path, http, etc.) are always kept external.
           noExternal: true,
-          // Prisma Client uses __dirname and native query engine binaries.
-          // It must remain external (resolved by Node.js at runtime, not bundled).
-          external: ['@prisma/client', '.prisma/client'],
         },
         test: {
           globals: true,
@@ -69,6 +66,35 @@ export function waspConfig(): PluginOption {
           ]
         },
       }, config);
+    },
+
+    // During SSR builds, replace the Prisma serialization module with an
+    // empty stub.  The SSR server only renders HTML (renderToString) and
+    // never calls serialize/deserialize for operation data, so the Prisma
+    // Decimal handler registered in `core/serialization/prisma.ts` is not
+    // needed.  Without this, the import chain
+    //   operations → serialization → prisma.ts → @prisma/client
+    // would pull Prisma Client into the SSR bundle as an external
+    // dependency, requiring it to be installed at deployment time along
+    // with schema.prisma and `prisma generate`.  Stubbing it out keeps
+    // the SSR deployment free of Prisma entirely.
+    resolveId(source, importer) {
+      if (!isSsr) return null;
+      if (
+        source === './prisma' &&
+        importer &&
+        /\/core\/serialization\//.test(importer)
+      ) {
+        return '\0wasp:empty-prisma-serialization';
+      }
+      return null;
+    },
+
+    load(id) {
+      if (id === '\0wasp:empty-prisma-serialization') {
+        return 'export {};';
+      }
+      return null;
     },
 
     // During the SSR build, replace `typeof document` and `typeof window`

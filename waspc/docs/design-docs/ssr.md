@@ -90,7 +90,9 @@ page LandingPage {
 
 **Rationale**: Vite's recommended approach for SSR. The SSR build produces a Node.js-compatible bundle.
 
-**Vite SSR config**: `ssr.noExternal: true` bundles all dependencies into the SSR output instead of leaving them as bare Node.js imports. This prevents ESM resolution errors from browser-only packages that lack proper Node.js exports (e.g., monaco-editor, react-icons). `@prisma/client` is explicitly externalized since it relies on `__dirname` and native query engine binaries.
+**Vite SSR config**: `ssr.noExternal: true` bundles all dependencies into the SSR output instead of leaving them as bare Node.js imports. This prevents ESM resolution errors from browser-only packages that lack proper Node.js exports (e.g., monaco-editor, react-icons).
+
+**Prisma exclusion**: The SDK's `core/serialization/index.ts` eagerly imports `./prisma`, which registers the Prisma Decimal type with SuperJSON. This creates an import chain (`operations → serialization → prisma.ts → @prisma/client`) that would pull Prisma Client into the SSR bundle. Since the SSR server only renders HTML and never calls `serialize`/`deserialize` for operation data, the Vite plugin uses a `resolveId`/`load` hook to replace the prisma serialization module with an empty stub during SSR builds. This keeps the SSR deployment free of Prisma entirely — no `@prisma/client` dependency, no `schema.prisma`, no `prisma generate`.
 
 ### SSR / Non-SSR Page Code Splitting
 
