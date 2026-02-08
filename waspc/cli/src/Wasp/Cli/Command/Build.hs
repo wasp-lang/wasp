@@ -3,6 +3,8 @@ module Wasp.Cli.Command.Build
   )
 where
 
+import Control.Concurrent.Async (concurrently)
+import Control.Concurrent.Chan (newChan)
 import Control.Lens
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
@@ -12,16 +14,27 @@ import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.KeyMap as KM
 import Data.Aeson.Lens
 import Data.List (isSuffixOf)
-import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromRelDir, relfile, (</>))
+import qualified StrongPath as SP
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
+import Wasp.Cli.Command.Compile (analyze, compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
+import qualified Wasp.Generator.SdkGenerator.Client.VitePlugin.Common as ViteCommon
+import Wasp.Generator.WebAppGenerator
+  ( hasSsrEnabledPage,
+    viteSsrBuildDirInWebAppDir,
+    webAppRootDirInProjectRootDir,
+  )
+import qualified Wasp.Job as J
+import Wasp.Job.Except (ExceptJob, toExceptJob)
+import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
+import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
@@ -75,6 +88,22 @@ build = do
   liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir buildDir) >>= \case
     Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
     Right () -> return ()
+
+  -- Build the Vite client and SSR bundles so that .wasp/out/web-app/ is
+  -- deployment-ready (build/ and build-ssr/ directories).
+  appSpec <- analyze waspProjectDir
+  let ssrEnabled = hasSsrEnabledPage appSpec
+
+  cliSendMessageC $ Msg.Start "Building client..."
+  runAndPrintJob "Building the client failed." $
+    buildViteClient waspProjectDir
+  cliSendMessageC $ Msg.Success "Client built."
+
+  when ssrEnabled $ do
+    cliSendMessageC $ Msg.Start "Building SSR bundle..."
+    runAndPrintJob "Building the SSR bundle failed." $
+      buildViteSsr waspProjectDir
+    cliSendMessageC $ Msg.Success "SSR bundle built."
 
   cliSendMessageC $
     Msg.Success $
@@ -168,3 +197,38 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
                   _ -> True
               )
         }
+
+-- | Builds the Vite client bundle (produces .wasp/out/web-app/build/).
+buildViteClient :: Path' Abs (Dir WaspProjectDir) -> ExceptJob
+buildViteClient waspProjectDir =
+  runNodeCommandAsJob waspProjectDir "npx" ["vite", "build"] J.WebApp
+    & toExceptJob (("Building the client failed with exit code: " <>) . show)
+
+-- | Builds the Vite SSR bundle (produces .wasp/out/web-app/build-ssr/).
+buildViteSsr :: Path' Abs (Dir WaspProjectDir) -> ExceptJob
+buildViteSsr waspProjectDir =
+  runNodeCommandAsJob waspProjectDir "npx" ["vite", "build", "--ssr", ViteCommon.ssrEntryPointPath, "--outDir", ssrBuildOutDir] J.WebApp
+    & toExceptJob (("Building the SSR bundle failed with exit code: " <>) . show)
+  where
+    ssrBuildOutDir =
+      SP.fromRelDir
+        ( dotWaspDirInWaspProjectDir
+            </> generatedCodeDirInDotWaspDir
+            </> webAppRootDirInProjectRootDir
+            </> viteSsrBuildDirInWebAppDir
+        )
+
+-- | Runs an ExceptJob, printing its output messages, and throws a CommandError on failure.
+runAndPrintJob :: String -> ExceptJob -> Command ()
+runAndPrintJob errorMessage job = do
+  liftIO (runAndPrintJobIO job)
+    >>= either (throwError . CommandError errorMessage) return
+
+runAndPrintJobIO :: ExceptJob -> IO (Either String ())
+runAndPrintJobIO job = do
+  chan <- newChan
+  (result, _) <-
+    concurrently
+      (runExceptT $ job chan)
+      (readJobMessagesAndPrintThemPrefixed chan)
+  return result

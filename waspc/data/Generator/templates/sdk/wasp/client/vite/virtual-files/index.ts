@@ -8,6 +8,10 @@ export function getRoutesTsxContent(): string {
   return getFileContentFromRelativePath("./files/routes.tsx");
 }
 
+export function getEntryServerTsxContent(): string {
+  return getFileContentFromRelativePath("./files/entry-server.tsx");
+}
+
 export function getIndexHtmlContent(): string {
   return getFileContentFromRelativePath("./files/index.html");
 }

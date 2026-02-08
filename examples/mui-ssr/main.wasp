@@ -1,0 +1,27 @@
+app MuiSsr {
+  wasp: {
+    version: "^0.21.0"
+  },
+  title: "MUI SSR Example",
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+    "<link rel='preconnect' href='https://fonts.googleapis.com'>",
+    "<link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>",
+    "<link href='https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap' rel='stylesheet'>",
+  ],
+  client: {
+    rootComponent: import { Root } from "@src/Root.tsx"
+  }
+}
+
+route LandingRoute { path: "/", to: LandingPage }
+page LandingPage {
+  component: import { LandingPage } from "@src/pages/LandingPage.tsx",
+  ssr: true
+}
+
+route AboutRoute { path: "/about", to: AboutPage }
+page AboutPage {
+  component: import { AboutPage } from "@src/pages/AboutPage.tsx",
+  ssr: true
+}

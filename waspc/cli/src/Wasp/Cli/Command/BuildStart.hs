@@ -9,7 +9,8 @@ import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
-import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
+import Control.Monad (when)
+import Wasp.Cli.Command.BuildStart.Client (buildClient, buildSsr, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
@@ -21,6 +22,8 @@ import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Page as Page
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
@@ -38,14 +41,21 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
 
   config <- makeBuildStartConfig appSpec args waspProjectDir
 
-  buildAndStartServerAndClient config
+  let ssrEnabled = any ((== Just True) . Page.ssr . snd) (AS.getPages appSpec)
+  buildAndStartServerAndClient config ssrEnabled
 
-buildAndStartServerAndClient :: BuildStartConfig -> Command ()
-buildAndStartServerAndClient config = do
+buildAndStartServerAndClient :: BuildStartConfig -> Bool -> Command ()
+buildAndStartServerAndClient config ssrEnabled = do
   cliSendMessageC $ Msg.Start "Building client..."
   runAndPrintJob "Building client failed." $
     buildClient config
   cliSendMessageC $ Msg.Success "Client built."
+
+  when ssrEnabled $ do
+    cliSendMessageC $ Msg.Start "Building SSR bundle..."
+    runAndPrintJob "Building SSR bundle failed." $
+      buildSsr config
+    cliSendMessageC $ Msg.Success "SSR bundle built."
 
   cliSendMessageC $ Msg.Start "Building server..."
   runAndPrintJob "Building server failed." $
@@ -55,7 +65,7 @@ buildAndStartServerAndClient config = do
   cliSendMessageC $ Msg.Start "Starting client and server..."
   runAndPrintJob "Starting Wasp app failed." $
     ExceptJob.race_
-      (startClient config)
+      (startClient config ssrEnabled)
       (startServer config)
   where
     runAndPrintJob :: String -> ExceptJob -> Command ()

@@ -15,7 +15,8 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Page = Page
   { component :: ExtImport,
-    authRequired :: Maybe Bool
+    authRequired :: Maybe Bool,
+    ssr :: Maybe Bool
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 

@@ -1,6 +1,7 @@
 import { $ } from "zx";
 
 import { WaspProjectDir } from "../../../../common/brandedTypes.js";
+import { isSsrEnabled } from "../../../../common/clientApp.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
@@ -18,7 +19,11 @@ import {
   createDeploymentInstructions,
   DeploymentInstructions,
 } from "../../DeploymentInstructions.js";
-import { clientAppPort, serverAppPort } from "../../ports.js";
+import {
+  clientAppPortSsr,
+  clientAppPortStatic,
+  serverAppPort,
+} from "../../ports.js";
 import {
   initRailwayProject,
   linkRailwayProjectToWaspProjectDir,
@@ -166,6 +171,10 @@ async function setupServer({
 }: DeploymentInstructions<SetupCmdOptions>): Promise<void> {
   waspSays(`Setting up server app with name ${serverServiceName}`);
 
+  // Check if SSR is enabled to determine the correct client port
+  const ssrEnabled = isSsrEnabled(options.waspProjectDir);
+  const clientAppPort = ssrEnabled ? clientAppPortSsr : clientAppPortStatic;
+
   // The client service needs a URL so it can be referenced in the
   // server service env variables.
   await generateServiceUrl(clientServiceName, clientAppPort, options);
@@ -218,8 +227,17 @@ async function setupClient({
     clientDeploymentDir,
   );
 
-  // Having a Staticfile tells Railway to use a static file server.
-  await $({ cwd: clientDeploymentDir })`touch Staticfile`;
+  // Check if SSR is enabled to determine deployment strategy
+  const ssrEnabled = isSsrEnabled(options.waspProjectDir);
+  const clientAppPort = ssrEnabled ? clientAppPortSsr : clientAppPortStatic;
+
+  if (ssrEnabled) {
+    waspSays("SSR is enabled. Setting up client as Node.js server...");
+  } else {
+    // Having a Staticfile tells Railway to use a static file server.
+    // Only create it for non-SSR (static) deployments.
+    await $({ cwd: clientDeploymentDir })`touch Staticfile`;
+  }
 
   await railwayCli(
     [
