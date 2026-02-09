@@ -4,7 +4,6 @@ module Wasp.Generator.SdkGenerator.Auth.OAuthAuthG
 where
 
 import Data.Aeson (object, (.=))
-import Data.List (filter)
 import StrongPath (File', Path', Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
