@@ -63,7 +63,8 @@ makeBuildStartConfig appSpec args projectDir' = do
         ]
       waspServerEnvVars =
         [ (Server.clientUrlEnvVarName, clientUrl'),
-          (Server.serverUrlEnvVarName, serverUrl')
+          (Server.serverUrlEnvVarName, serverUrl'),
+          ("PORT", show Server.defaultServerPort)
         ]
   clientEnvVars' <- overrideEnvVarsCommand waspClientEnvVars userClientEnvVars
   serverEnvVars' <- overrideEnvVarsCommand waspServerEnvVars userServerEnvVars
