@@ -20,6 +20,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - **User-land Vite configuration**: Wasp runs Vite in your project root and no longer in `.wasp/out/web-app` dir. Your `vite.config.ts` is the source of truth for Vite configuration. ([#3652](https://github.com/wasp-lang/wasp/pull/3652))
 - The `wasp()` plugin accepts options to customize the underlying `@vitejs/plugin-react` behavior. ([#3652](https://github.com/wasp-lang/wasp/pull/3652))
+- Wasp apps can now offer login with Microsoft (both consumer and Entra accounts) (by @Pipboyguy). ([#3637](https://github.com/wasp-lang/wasp/pull/3637))
 - Wasp can now be installed through `npm`. ([#3525](https://github.com/wasp-lang/wasp/pull/3525))
 - Wasp now supports Tailwind CSS v4. ([#3571](https://github.com/wasp-lang/wasp/pull/3571))
 - Wasp now allows you to override built-in dependencies (advanced, best-effort support only). ([#3643](https://github.com/wasp-lang/wasp/pull/3643))
