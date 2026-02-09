@@ -217,6 +217,19 @@ function handleRequest(req, res) {
   });
 }
 
+// Prevent the process from crashing when sirv tries to stream a file
+// that doesn't exist (e.g. a stale asset reference after a rebuild).
+// Without this, the ReadStream emits an unhandled 'error' event that
+// kills the entire SSR server.
+process.on("uncaughtException", (error) => {
+  if (error.code === "ENOENT") {
+    console.warn(`[ssr] File not found (ignored): ${error.path}`);
+    return;
+  }
+  console.error("[ssr] Uncaught exception:", error);
+  process.exit(1);
+});
+
 const { port, strictPort } = parseArgs(process.argv);
 const server = http.createServer((req, res) => {
   function send500(error) {
