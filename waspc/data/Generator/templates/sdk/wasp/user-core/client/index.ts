@@ -6,7 +6,7 @@ export { HttpMethod } from '../../core/client'
 export { Route } from '../../core/client'
 
 // PUBLIC API
-export { config, ClientConfig } from './config.js'
+export { ClientConfig, config } from '../../core/client/config.js'
 
 // PUBLIC API
 export { env } from './env.js'

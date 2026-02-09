@@ -1,6 +1,6 @@
 import { api, handleApiError } from 'wasp/client/api'
-import { HttpMethod } from 'wasp/client'
-import { serialize, deserialize } from 'wasp/core/serialization'
+import { deserialize, serialize } from 'wasp/core/serialization'
+import { HttpMethod } from '../../../../core/client/index'
 
 // PRIVATE API
 export type OperationRoute = { method: HttpMethod.Post, path: string }

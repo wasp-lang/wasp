@@ -1,5 +1,5 @@
 {{={= =}=}}
-import * as z from 'zod'
+import { waspClientEnvSchema } from '../../../core/client/env/waspSchema.js'
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
@@ -9,14 +9,6 @@ const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
 const userClientEnvSchema = z.object({})
 {=/ envValidationSchema.isDefined =}
 
-const waspClientEnvSchema = z.object({
-  "{= serverUrlEnvVarName =}": z
-  .string()
-  .url({
-    message: '{= serverUrlEnvVarName =} must be a valid URL',
-  })
-  .default('{= defaultServerUrl =}'),
-})
 
 // PRIVATE API (sdk, Vite config)
 export const clientEnvSchema = userClientEnvSchema.merge(waspClientEnvSchema)

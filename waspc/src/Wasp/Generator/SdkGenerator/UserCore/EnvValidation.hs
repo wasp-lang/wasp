@@ -72,9 +72,7 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
       object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+        [ "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec

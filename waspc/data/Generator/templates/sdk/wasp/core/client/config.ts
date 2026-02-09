@@ -1,8 +1,8 @@
 {{={= =}=}}
 import { stripTrailingSlash } from 'wasp/universal/url'
-import { env } from './env.js'
+import { waspEnv } from './waspEnv.js'
 
-const apiUrl = stripTrailingSlash(env["{= serverUrlEnvVarName =}"])
+const apiUrl = stripTrailingSlash(waspEnv["{= serverUrlEnvVarName =}"])
 
 // PUBLIC API
 export type ClientConfig = {

@@ -37,7 +37,6 @@ import Wasp.Generator.SdkGenerator.UserCore.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.UserCore.WebSocketGenerator (genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
 
@@ -52,7 +51,6 @@ genUserCoreTsconfigProject spec =
       return $ mkTmplFd [relfile|client/test/vitest/helpers.tsx|],
       return $ mkTmplFd [relfile|client/test/index.ts|],
       return $ mkTmplFd [relfile|client/index.ts|],
-      genClientConfigFile,
       genServerConfigFile spec,
       genServerUtils spec,
       genServerDbClient spec
@@ -72,15 +70,6 @@ genUserCoreTsconfigProject spec =
     <++> genNewEmailSenderApi spec
     <++> genNewJobsApi spec
     <++> genEnvValidation spec
-
-genClientConfigFile :: Generator FileDraft
-genClientConfigFile =
-  return $ mkTmplFdWithData [relfile|client/config.ts|] tmplData
-  where
-    tmplData =
-      object
-        [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName
-        ]
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
 genServerConfigFile spec = return $ mkTmplFdWithData [relfile|server/config.ts|] tmplData
