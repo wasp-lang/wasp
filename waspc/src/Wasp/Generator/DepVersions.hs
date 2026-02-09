@@ -12,6 +12,7 @@ module Wasp.Generator.DepVersions
     expressTypesVersion,
     axiosVersion,
     viteVersion,
+    dotenvVersion,
   )
 where
 
@@ -66,3 +67,6 @@ axiosVersion = SV.backwardsCompatibleWith $ SV.Version 1 4 0
 
 viteVersion :: SV.ComparatorSet
 viteVersion = SV.backwardsCompatibleWith $ SV.Version 7 0 6
+
+dotenvVersion :: SV.ComparatorSet
+dotenvVersion = SV.backwardsCompatibleWith $ SV.Version 16 6 1

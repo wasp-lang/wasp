@@ -19,7 +19,7 @@ import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Generator.Common as Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
-import Wasp.Project.Common (extPublicDirInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 -- TODO: Idea: Read .gitignore file, and ignore everything from it. This will then also cover the
 --   .wasp dir, and users can easily add any custom stuff they want ignored. But, we also have to
@@ -27,7 +27,7 @@ import Wasp.Project.Common (extPublicDirInWaspProjectDir, srcDirInWaspProjectDir
 
 -- | Forever listens for any file changes at the very top level of
 -- @waspProjectDir@, and also for any changes at any depth in the
--- @waspProjectDir@/src/ and @WaspProjectDir@/public dirs. If there is a change,
+-- @waspProjectDir@/src/ dir. If there is a change,
 -- compiles Wasp source files in @waspProjectDir@ and regenerates files in
 -- @outDir@. It will defer recompilation until no new change was detected in the
 -- last second. It also takes 'ongoingCompilationResultMVar' MVar, into which it
@@ -42,29 +42,26 @@ watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mg
   chan <- newChan
   _ <- watchFilesAtTopLevelOfWaspProjectDir mgr chan
   _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan srcDirInWaspProjectDir
-  _ <- watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan extPublicDirInWaspProjectDir
   listenForEvents chan =<< getCurrentTime
   where
     watchFilesAtTopLevelOfWaspProjectDir mgr chan =
       FSN.watchDirChan mgr (SP.fromAbsDir waspProjectDir) eventFilter chan
       where
-        eventFilter :: FSN.Event -> Bool
         eventFilter event =
-          -- TODO: Might be valuable to also filter out files from .gitignore.
-          not (isEditorTmpFile filename)
-            && filename /= "package-lock.json"
+          isWatchedFile filename && filename /= "package-lock.json"
           where
             filename = FP.takeFileName $ FSN.eventPath event
 
     watchFilesAtAllLevelsOfDirInWaspProjectDir mgr chan dirInWaspProjectDir =
       FSN.watchTreeChan mgr (SP.fromAbsDir $ waspProjectDir </> dirInWaspProjectDir) eventFilter chan
       where
-        eventFilter :: FSN.Event -> Bool
-        eventFilter event =
-          -- TODO: Might be valuable to also filter out files from .gitignore.
-          not (isEditorTmpFile filename)
-          where
-            filename = FP.takeFileName $ FSN.eventPath event
+        eventFilter = isWatchedFile . FP.takeFileName . FSN.eventPath
+
+    -- TODO: Might be valuable to also filter out files from .gitignore.
+    isWatchedFile :: String -> Bool
+    isWatchedFile filename =
+      not (isEditorTmpFile filename)
+        && filename /= ".DS_Store"
 
     listenForEvents :: Chan FSN.Event -> UTCTime -> IO ()
     listenForEvents chan lastCompileTime = do

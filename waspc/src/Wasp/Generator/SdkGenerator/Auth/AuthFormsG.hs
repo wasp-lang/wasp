@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.AuthFormsG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders
   ( discordAuthProvider,
@@ -18,30 +18,32 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common as C
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
-import Wasp.Generator.WebAppGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
+import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
+import Wasp.Generator.SdkGenerator.Common
+  ( SdkTemplatesDir,
+    genFileCopy,
+    mkTmplFdWithData,
+  )
 import Wasp.Util ((<++>))
 
 genAuthForms :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthForms auth =
   sequence
     [ genAuthComponent auth,
-      genFileCopy [relfile|auth/forms/Auth.module.css|],
+      genFileCopyInAuthForms [relfile|Auth.module.css|],
       genTypes auth,
-      genFileCopy [relfile|auth/forms/Login.tsx|],
-      genFileCopy [relfile|auth/forms/Signup.tsx|]
+      genFileCopyInAuthForms [relfile|Login.tsx|],
+      genFileCopyInAuthForms [relfile|Signup.tsx|]
     ]
     <++> genEmailForms auth
     <++> genInternalAuthComponents auth
-  where
-    genFileCopy = return . C.mkTmplFd
 
 genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
   return $
-    C.mkTmplFdWithData
-      [relfile|auth/forms/Auth.tsx|]
+    mkTmplFdWithData
+      (authFormsDirInSdkTemplatesDir </> [relfile|Auth.tsx|])
       tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
@@ -49,8 +51,8 @@ genAuthComponent auth =
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
   return $
-    C.mkTmplFdWithData
-      [relfile|auth/forms/types.ts|]
+    mkTmplFdWithData
+      (authFormsDirInSdkTemplatesDir </> [relfile|types.ts|])
       tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
@@ -59,19 +61,18 @@ genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailForms auth =
   genConditionally isEmailAuthEnabled $
     sequence
-      [ genFileCopy [relfile|auth/forms/ResetPassword.tsx|],
-        genFileCopy [relfile|auth/forms/ForgotPassword.tsx|],
-        genFileCopy [relfile|auth/forms/VerifyEmail.tsx|]
+      [ genFileCopyInAuthForms [relfile|ResetPassword.tsx|],
+        genFileCopyInAuthForms [relfile|ForgotPassword.tsx|],
+        genFileCopyInAuthForms [relfile|VerifyEmail.tsx|]
       ]
   where
-    genFileCopy = return . C.mkTmplFd
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
 
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
   sequence
-    [ copyInternalAuthComponent [relfile|auth-styles.css|],
-      copyInternalAuthComponent [relfile|util.ts|]
+    [ genFileCopyInAuthFormsInternal [relfile|auth-styles.css|],
+      genFileCopyInAuthFormsInternal [relfile|util.ts|]
     ]
     <++> genLoginSignupForm auth
     <++> genFormComponent
@@ -82,29 +83,31 @@ genInternalAuthComponents auth =
   where
     genFormComponent =
       sequence
-        [ copyInternalAuthComponent [relfile|Form.tsx|],
-          copyInternalAuthComponent [relfile|Form.module.css|]
+        [ genFileCopyInAuthFormsInternal [relfile|Form.tsx|],
+          genFileCopyInAuthFormsInternal [relfile|Form.module.css|]
         ]
 
     genMessageComponent =
       sequence
-        [ copyInternalAuthComponent [relfile|Message.tsx|],
-          copyInternalAuthComponent [relfile|Message.module.css|]
+        [ genFileCopyInAuthFormsInternal [relfile|Message.tsx|],
+          genFileCopyInAuthFormsInternal [relfile|Message.module.css|]
         ]
 
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
         sequence
-          [ copyInternalAuthComponent [relfile|email/VerifyEmailForm.tsx|],
-            copyInternalAuthComponent [relfile|email/useEmail.ts|],
-            copyInternalAuthComponent [relfile|email/ForgotPasswordForm.tsx|],
-            copyInternalAuthComponent [relfile|email/ResetPasswordForm.tsx|]
+          [ genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
+            genFileCopyInAuthFormsInternal [relfile|email/useEmail.ts|],
+            genFileCopyInAuthFormsInternal [relfile|email/ForgotPasswordForm.tsx|],
+            genFileCopyInAuthFormsInternal [relfile|email/ResetPasswordForm.tsx|]
           ]
+
     genUsernameAndPasswordComponents =
       genConditionally isUsernameAndPasswordAuthEnabled $
         sequence
-          [ copyInternalAuthComponent [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
+          [ genFileCopyInAuthFormsInternal [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
           ]
+
     genSocialComponents =
       genConditionally isExternalAuthEnabled $
         genSocialButtonComponent
@@ -112,33 +115,33 @@ genInternalAuthComponents auth =
 
     genSocialButtonComponent =
       sequence
-        [ copyInternalAuthComponent [relfile|social/SocialButton.tsx|],
-          copyInternalAuthComponent [relfile|social/SocialButton.module.css|]
+        [ genFileCopyInAuthFormsInternal [relfile|social/SocialButton.tsx|],
+          genFileCopyInAuthFormsInternal [relfile|social/SocialButton.module.css|]
         ]
 
     genSocialIconsComponent =
       sequence
-        [ copyInternalAuthComponent [relfile|social/SocialIcons.tsx|],
-          copyInternalAuthComponent [relfile|social/SocialIcons.module.css|]
+        [ genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.tsx|],
+          genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.module.css|]
         ]
 
-    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
-    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-
-    copyInternalAuthComponent = return . C.mkTmplFd . (pathToInternalInAuth </>)
-    pathToInternalInAuth = [reldir|auth/forms/internal|]
+    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =
-  return
-    [ C.mkTmplFdWithData
-        [relfile|auth/forms/internal/common/LoginSignupForm.tsx|]
-        tmplData,
-      C.mkTmplFd [relfile|auth/forms/internal/common/LoginSignupForm.module.css|]
+  sequence
+    [ genLoginSigunFormComponent,
+      genFileCopyInAuthFormsInternal [relfile|common/LoginSignupForm.module.css|]
     ]
   where
-    tmplData =
+    genLoginSigunFormComponent =
+      return $
+        mkTmplFdWithData
+          (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
+          loginSignupFormComponentTmplData
+    loginSignupFormComponentTmplData =
       object
         [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
@@ -157,3 +160,17 @@ genLoginSignupForm auth =
 
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
+
+authFormsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+authFormsDirInSdkTemplatesDir = [reldir|auth/forms|]
+
+genFileCopyInAuthForms :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInAuthForms =
+  genFileCopy . (authFormsDirInSdkTemplatesDir </>)
+
+authFormsInternalDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
+authFormsInternalDirInSdkTemplatesDir = authFormsDirInSdkTemplatesDir </> [reldir|internal|]
+
+genFileCopyInAuthFormsInternal :: Path' Rel' File' -> Generator FileDraft
+genFileCopyInAuthFormsInternal =
+  genFileCopy . (authFormsInternalDirInSdkTemplatesDir </>)
