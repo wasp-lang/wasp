@@ -14,9 +14,18 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
+  ( clientEntryPointPath,
+    routesEntryPointPath,
+    virtualFilesDirInSdkTemplatesUserCoreDir,
+    virtualFilesFilesDirInSdkTemplatesUserCoreDir,
+    vitePluginsDirInSdkTemplatesUserCoreDir,
+  )
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( genFileCopy,
+    mkTmplFdWithData,
+  )
 
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getVirtualModulesPlugin spec =
@@ -28,38 +37,32 @@ getVirtualModulesPlugin spec =
       genVirtualRoutesTsx spec
     ]
 
-genVirtualFilesIndexTs :: Generator FileDraft
-genVirtualFilesIndexTs =
-  return $
-    C.mkTmplFd tmplPath
-  where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|index.ts|]
-
-genVirtualFilesResolverTs :: Generator FileDraft
-genVirtualFilesResolverTs =
-  return $
-    C.mkTmplFd tmplPath
-  where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
-
 getVirtualModulesTs :: Generator FileDraft
 getVirtualModulesTs =
   return $
-    C.mkTmplFdWithData tmplPath tmplData
+    mkTmplFdWithData
+      (vitePluginsDirInSdkTemplatesUserCoreDir </> [relfile|virtualModules.ts|])
+      tmplData
   where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualModules.ts|]
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
           "routesEntryPointPath" .= routesEntryPointPath
         ]
 
+genVirtualFilesIndexTs :: Generator FileDraft
+genVirtualFilesIndexTs = genFileCopy $ virtualFilesDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|]
+
+genVirtualFilesResolverTs :: Generator FileDraft
+genVirtualFilesResolverTs = genFileCopy $ virtualFilesDirInSdkTemplatesUserCoreDir </> [relfile|resolver.ts|]
+
 genVirtualIndexTsx :: AppSpec -> Generator FileDraft
 genVirtualIndexTsx spec =
   return $
-    C.mkTmplFdWithData tmplPath tmplData
+    mkTmplFdWithData
+      (virtualFilesFilesDirInSdkTemplatesUserCoreDir </> [relfile|index.tsx|])
+      tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|index.tsx|]
     tmplData =
       object
         [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),

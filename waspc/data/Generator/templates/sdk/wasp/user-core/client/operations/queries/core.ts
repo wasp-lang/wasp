@@ -1,13 +1,12 @@
 import { Route } from 'wasp/client'
-import type { _Awaited, _ReturnType } from 'wasp/universal/types'
 import type {
   GenericBackendOperation,
   GenericOperationRpc,
   OperationRpcFor,
   Query,
   QueryMetadata,
-} from '../rpc.js'
-import { callOperation, makeOperationRoute } from '../internal/index.js'
+} from '../rpc'
+import { callOperation, makeOperationRoute } from '../internal/index'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,

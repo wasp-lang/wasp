@@ -14,8 +14,8 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( SdkTemplatesUserCoreDir,
     genFileCopy,
     mkTmplFdWithData,
   )
@@ -40,7 +40,7 @@ genAuthIndex :: AS.Auth.Auth -> Generator FileDraft
 genAuthIndex auth =
   return $
     mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|index.ts|])
+      (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|])
       tmplData
   where
     tmplData =
@@ -54,7 +54,7 @@ genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
   return $
     mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|user.ts|])
+      (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|user.ts|])
       tmplData
   where
     tmplData =
@@ -72,7 +72,7 @@ genHooks :: AS.Auth.Auth -> Generator FileDraft
 genHooks auth =
   return $
     mkTmplFdWithData
-      (serverAuthDirInSdkTemplatesDir </> [relfile|hooks.ts|])
+      (serverAuthDirInSdkTemplatesUserCoreDir </> [relfile|hooks.ts|])
       tmplData
   where
     tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
@@ -89,9 +89,9 @@ genAuthUsername auth =
     then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
     else return []
 
-serverAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverAuthDirInSdkTemplatesDir = [reldir|server/auth|]
+serverAuthDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+serverAuthDirInSdkTemplatesUserCoreDir = [reldir|server/auth|]
 
 genFileCopyInServerAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerAuth =
-  genFileCopy . (serverAuthDirInSdkTemplatesDir </>)
+  genFileCopy . (serverAuthDirInSdkTemplatesUserCoreDir </>)

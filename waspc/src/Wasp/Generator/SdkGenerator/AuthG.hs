@@ -19,13 +19,14 @@ import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDe
 import Wasp.Generator.SdkGenerator.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.Auth.LocalAuthG (genLocalAuth)
 import Wasp.Generator.SdkGenerator.Auth.OAuthAuthG (genOAuthAuth)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
-    genFileCopy,
-    mkTmplFdWithData,
-  )
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.OAuthG (genOAuth)
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( SdkTemplatesUserCoreDir,
+    genFileCopy,
+    mkTmplFd,
+    mkTmplFdWithData,
+  )
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -73,7 +74,7 @@ genUseAuth :: AS.Auth.Auth -> Generator FileDraft
 genUseAuth auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|useAuth.ts|])
+      (authDirInSdkTemplatesUserCoreDir </> [relfile|useAuth.ts|])
       tmplData
   where
     tmplData = object ["entitiesGetMeDependsOn" .= makeJsArrayFromHaskellList [userEntityName]]
@@ -83,7 +84,7 @@ genLuciaTs :: AS.Auth.Auth -> Generator FileDraft
 genLuciaTs auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|lucia.ts|])
+      (authDirInSdkTemplatesUserCoreDir </> [relfile|lucia.ts|])
       tmplData
   where
     tmplData =
@@ -99,7 +100,7 @@ genSessionTs :: AS.Auth.Auth -> Generator FileDraft
 genSessionTs auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|session.ts|])
+      (authDirInSdkTemplatesUserCoreDir </> [relfile|session.ts|])
       tmplData
   where
     tmplData =
@@ -115,7 +116,7 @@ genUtils :: AS.Auth.Auth -> Generator FileDraft
 genUtils auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|utils.ts|])
+      (authDirInSdkTemplatesUserCoreDir </> [relfile|utils.ts|])
       tmplData
   where
     tmplData =
@@ -138,7 +139,7 @@ genIndexTs :: AS.Auth.Auth -> Generator FileDraft
 genIndexTs auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|index.ts|])
+      (authDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|])
       tmplData
   where
     tmplData =
@@ -153,7 +154,7 @@ genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
 genProvdersIndex auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|providers/index.ts|])
+      (authDirInSdkTemplatesUserCoreDir </> [relfile|providers/index.ts|])
       tmplData
   where
     tmplData =
@@ -169,7 +170,7 @@ genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
 genProvidersTypes auth =
   return $
     mkTmplFdWithData
-      (authDirInSdkTemplatesDir </> [relfile|providers/types.ts|])
+      (authDirInSdkTemplatesUserCoreDir </> [relfile|providers/types.ts|])
       tmplData
   where
     tmplData =
@@ -183,9 +184,9 @@ genProvidersTypes auth =
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth
 
-authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-authDirInSdkTemplatesDir = [reldir|auth|]
+authDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+authDirInSdkTemplatesUserCoreDir = [reldir|auth|]
 
 genFileCopyInAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuth =
-  genFileCopy . (authDirInSdkTemplatesDir </>)
+  genFileCopy . (authDirInSdkTemplatesUserCoreDir </>)

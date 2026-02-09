@@ -13,8 +13,8 @@ import Wasp.AppSpec.Valid (getIdFieldFromCrudEntity)
 import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( SdkTemplatesUserCoreDir,
     genFileCopy,
     mkTmplFdWithData,
     mkTmplFdWithDstAndData,
@@ -39,7 +39,7 @@ genCrudIndex :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator FileDraft
 genCrudIndex spec cruds =
   return $
     mkTmplFdWithData
-      (clientCrudDirInSdkTemplatesDir </> [relfile|index.ts|])
+      (clientCrudDirInSdkTemplatesUserCoreDir </> [relfile|index.ts|])
       tmplData
   where
     tmplData = object ["cruds" .= map getCrudOperationJsonFromCrud cruds]
@@ -54,16 +54,16 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) =
       mkTmplFdWithDstAndData
-        (clientCrudDirInSdkTemplatesDir </> [relfile|_crud.ts|])
-        (castRel clientCrudDirInSdkTemplatesDir </> fromJust (parseRelFile (name ++ ".ts")))
+        (clientCrudDirInSdkTemplatesUserCoreDir </> [relfile|_crud.ts|])
+        (castRel clientCrudDirInSdkTemplatesUserCoreDir </> fromJust (parseRelFile (name ++ ".ts")))
         (Just tmplData)
       where
         tmplData = getCrudOperationJson name crud idField
         idField = getIdFieldFromCrudEntity spec crud
 
-clientCrudDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-clientCrudDirInSdkTemplatesDir = [reldir|client/crud|]
-
 genFileCopyInClientCrud :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInClientCrud =
-  genFileCopy . (clientCrudDirInSdkTemplatesDir </>)
+  genFileCopy . (clientCrudDirInSdkTemplatesUserCoreDir </>)
+
+clientCrudDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+clientCrudDirInSdkTemplatesUserCoreDir = [reldir|client/crud|]

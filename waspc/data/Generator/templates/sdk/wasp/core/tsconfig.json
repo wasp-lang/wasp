@@ -1,0 +1,7 @@
+{
+  "extends": "../tsconfig.sdk.json",
+  "compilerOptions": {
+    "outDir": "../dist/core"
+  },
+  "include": ["."]
+}

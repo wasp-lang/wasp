@@ -13,8 +13,15 @@ import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, virtualFilesFilesDirInViteDir)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
+  ( clientEntryPointPath,
+    virtualFilesFilesDirInSdkTemplatesUserCoreDir,
+    vitePluginsDirInSdkTemplatesUserCoreDir,
+  )
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( genFileCopy,
+    mkTmplFdWithData,
+  )
 
 genHtmlPlugin :: AppSpec -> Generator [FileDraft]
 genHtmlPlugin spec =
@@ -25,25 +32,18 @@ genHtmlPlugin spec =
     ]
 
 genHtmlDevTs :: Generator FileDraft
-genHtmlDevTs =
-  return $
-    C.mkTmplFd tmplPath
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|html/dev.ts|]
+genHtmlDevTs = genFileCopy $ vitePluginsDirInSdkTemplatesUserCoreDir </> [relfile|html/dev.ts|]
 
 genHtmlBuildTs :: Generator FileDraft
-genHtmlBuildTs =
-  return $
-    C.mkTmplFd tmplPath
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|html/build.ts|]
+genHtmlBuildTs = genFileCopy $ vitePluginsDirInSdkTemplatesUserCoreDir </> [relfile|html/build.ts|]
 
 genVirtualIndexHtml :: AppSpec -> Generator FileDraft
 genVirtualIndexHtml spec =
   return $
-    C.mkTmplFdWithData tmplPath tmplData
+    mkTmplFdWithData
+      (virtualFilesFilesDirInSdkTemplatesUserCoreDir </> [relfile|index.html|])
+      tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|index.html|]
     tmplData =
       object
         [ "title" .= (AS.App.title (snd $ getApp spec) :: String),

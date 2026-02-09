@@ -19,8 +19,8 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
-import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
+import Wasp.Generator.SdkGenerator.UserCore.Common
+  ( SdkTemplatesUserCoreDir,
     genFileCopy,
     mkTmplFdWithData,
   )
@@ -42,7 +42,7 @@ genAuthComponent :: AS.Auth.Auth -> Generator FileDraft
 genAuthComponent auth =
   return $
     mkTmplFdWithData
-      (authFormsDirInSdkTemplatesDir </> [relfile|Auth.tsx|])
+      (authFormsDirInSdkTemplatesUserCoreDir </> [relfile|Auth.tsx|])
       tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
@@ -51,7 +51,7 @@ genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
   return $
     mkTmplFdWithData
-      (authFormsDirInSdkTemplatesDir </> [relfile|types.ts|])
+      (authFormsDirInSdkTemplatesUserCoreDir </> [relfile|types.ts|])
       tmplData
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
@@ -138,7 +138,7 @@ genLoginSignupForm auth =
     genLoginSigunFormComponent =
       return $
         mkTmplFdWithData
-          (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
+          (authFormsInternalDirInSdkTemplatesUserCoreDir </> [relfile|common/LoginSignupForm.tsx|])
           loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
       object
@@ -159,16 +159,16 @@ genLoginSignupForm auth =
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
 
-authFormsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-authFormsDirInSdkTemplatesDir = [reldir|auth/forms|]
+authFormsDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+authFormsDirInSdkTemplatesUserCoreDir = [reldir|auth/forms|]
 
 genFileCopyInAuthForms :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuthForms =
-  genFileCopy . (authFormsDirInSdkTemplatesDir </>)
+  genFileCopy . (authFormsDirInSdkTemplatesUserCoreDir </>)
 
-authFormsInternalDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-authFormsInternalDirInSdkTemplatesDir = authFormsDirInSdkTemplatesDir </> [reldir|internal|]
+authFormsInternalDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) Dir'
+authFormsInternalDirInSdkTemplatesUserCoreDir = authFormsDirInSdkTemplatesUserCoreDir </> [reldir|internal|]
 
 genFileCopyInAuthFormsInternal :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInAuthFormsInternal =
-  genFileCopy . (authFormsInternalDirInSdkTemplatesDir </>)
+  genFileCopy . (authFormsInternalDirInSdkTemplatesUserCoreDir </>)

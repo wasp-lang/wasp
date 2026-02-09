@@ -1,23 +1,39 @@
 module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-  ( virtualFilesDirInViteDir,
-    virtualFilesFilesDirInViteDir,
+  ( ViteDir,
+    VitePluginsDir,
+    VirtualFilesDir,
+    VirtualFilesFilesDir,
+    viteDirInSdkTemplatesUserCoreDir,
+    vitePluginsDirInSdkTemplatesUserCoreDir,
+    virtualFilesDirInSdkTemplatesUserCoreDir,
+    virtualFilesFilesDirInSdkTemplatesUserCoreDir,
     clientEntryPointPath,
     routesEntryPointPath,
   )
 where
 
 import StrongPath (Dir, Path', Rel, reldir, (</>))
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.UserCore.Common (SdkTemplatesUserCoreDir)
+
+data ViteDir
+
+data VitePluginsDir
 
 data VirtualFilesDir
 
 data VirtualFilesFilesDir
 
-virtualFilesDirInViteDir :: Path' (Rel C.ViteDir) (Dir VirtualFilesDir)
-virtualFilesDirInViteDir = [reldir|virtual-files|]
+viteDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) (Dir ViteDir)
+viteDirInSdkTemplatesUserCoreDir = [reldir|client/vite|]
 
-virtualFilesFilesDirInViteDir :: Path' (Rel C.ViteDir) (Dir VirtualFilesFilesDir)
-virtualFilesFilesDirInViteDir = virtualFilesDirInViteDir </> [reldir|files|]
+vitePluginsDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) (Dir VitePluginsDir)
+vitePluginsDirInSdkTemplatesUserCoreDir = viteDirInSdkTemplatesUserCoreDir </> [reldir|plugins|]
+
+virtualFilesDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) (Dir VirtualFilesDir)
+virtualFilesDirInSdkTemplatesUserCoreDir = viteDirInSdkTemplatesUserCoreDir </> [reldir|virtual-files|]
+
+virtualFilesFilesDirInSdkTemplatesUserCoreDir :: Path' (Rel SdkTemplatesUserCoreDir) (Dir VirtualFilesFilesDir)
+virtualFilesFilesDirInSdkTemplatesUserCoreDir = virtualFilesDirInSdkTemplatesUserCoreDir </> [reldir|files|]
 
 clientEntryPointPath :: String
 clientEntryPointPath = "/@wasp/client-entry.tsx"

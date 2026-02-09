@@ -2,7 +2,7 @@ import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router'
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 
-import { resetPassword } from '../../../email/actions/passwordReset.js'
+import { resetPassword } from '../../../email/actions/passwordReset'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
 
 // PRIVATE API

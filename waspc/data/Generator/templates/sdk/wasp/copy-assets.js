@@ -1,12 +1,12 @@
-import * as fs from "node:fs/promises"
-import * as path from "node:path"
+import * as fs from "node:fs/promises";
+import * as path from "node:path";
 
-const base = path.resolve(import.meta.dirname, "..")
+const base = path.resolve(import.meta.dirname);
 
 await copyAssets([
-  "./auth/forms/**/*.css",
-  "./client/app/components/**/*.css",
-  "./client/vite/virtual-files/files/**/*.*",
+  "./user-core/auth/forms/**/*.css",
+  "./user-core/client/app/components/**/*.css",
+  "./user-core/client/vite/virtual-files/files/**/*.*",
 ])
 
 async function copyAssets(globs) {

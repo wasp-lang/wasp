@@ -59,9 +59,11 @@ import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as Clien
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
 import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import qualified Wasp.Generator.SdkGenerator.Core.Common as CoreC
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.Generator.SdkGenerator.Root.Common as RootC
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -69,6 +71,7 @@ import Wasp.Generator.SdkGenerator.Server.JobGenerator (depsRequiredByJobs, genN
 import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
+import qualified Wasp.Generator.SdkGenerator.UserCore.Common as UserCoreC
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
@@ -80,12 +83,8 @@ import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
-import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
-import qualified Wasp.SemanticVersion.Version as SV
-  ( Version (major),
-  )
 import Wasp.Util ((<++>))
 
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
@@ -104,27 +103,27 @@ buildSdk projectRootDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ C.genFileCopy [relfile|vite-env.d.ts|],
-      C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
-      C.genFileCopy [relfile|scripts/copy-assets.js|],
-      C.genFileCopy [relfile|api/index.ts|],
-      C.genFileCopy [relfile|api/events.ts|],
-      C.genFileCopy [relfile|core/storage.ts|],
-      C.genFileCopy [relfile|server/index.ts|],
-      C.genFileCopy [relfile|server/HttpError.ts|],
-      C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
-      C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|client/test/setup.ts|],
-      C.genFileCopy [relfile|client/hooks.ts|],
-      C.genFileCopy [relfile|client/index.ts|],
+    [ CoreC.genFileCopy [relfile|tsconfig.json|],
+      CoreC.genFileCopy [relfile|server/HttpError.ts|],
+      UserCoreC.genFileCopy [relfile|tsconfig.json|],
+      UserCoreC.genFileCopy [relfile|vite-env.d.ts|],
+      UserCoreC.genFileCopy [relfile|prisma-runtime-library.d.ts|],
+      UserCoreC.genFileCopy [relfile|api/index.ts|],
+      UserCoreC.genFileCopy [relfile|api/events.ts|],
+      UserCoreC.genFileCopy [relfile|core/storage.ts|],
+      UserCoreC.genFileCopy [relfile|server/index.ts|],
+      UserCoreC.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
+      UserCoreC.genFileCopy [relfile|client/test/index.ts|],
+      UserCoreC.genFileCopy [relfile|client/test/setup.ts|],
+      UserCoreC.genFileCopy [relfile|client/hooks.ts|],
+      UserCoreC.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
       genServerConfigFile spec,
-      genTsConfigJson,
       genServerUtils spec,
       genServerExportedTypesDir,
-      genPackageJson spec,
       genServerDbClient spec
     ]
+    <++> genRootFiles spec
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
@@ -148,6 +147,27 @@ genSdk spec =
     <++> genClientApp spec
     <++> genVitePlugins spec
 
+genRootFiles :: AppSpec -> Generator [FileDraft]
+genRootFiles spec =
+  sequence
+    [ RootC.genFileCopy [relfile|tsconfig.json|],
+      RootC.genFileCopy [relfile|tsconfig.sdk.json|],
+      RootC.genFileCopy [relfile|copy-assets.js|],
+      genPackageJson spec
+    ]
+
+genPackageJson :: AppSpec -> Generator FileDraft
+genPackageJson spec =
+  return $ RootC.mkTmplFdWithData [relfile|package.json|] tmplData
+  where
+    tmplData =
+      object
+        [ "sdkPackageName" .= C.sdkPackageName,
+          "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
+          "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
+          "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
+        ]
+
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
   return
@@ -157,7 +177,7 @@ genEntitiesAndServerTypesDirs spec =
     ]
   where
     entitiesIndexFileDraft =
-      C.mkTmplFdWithData
+      UserCoreC.mkTmplFdWithData
         [relfile|entities/index.ts|]
         ( object
             [ "entities" .= allEntities,
@@ -167,11 +187,11 @@ genEntitiesAndServerTypesDirs spec =
             ]
         )
     taggedEntitiesFileDraft =
-      C.mkTmplFdWithData
+      UserCoreC.mkTmplFdWithData
         [relfile|server/_types/taggedEntities.ts|]
         (object ["entities" .= allEntities])
     typesIndexFileDraft =
-      C.mkTmplFdWithData
+      UserCoreC.mkTmplFdWithData
         [relfile|server/_types/index.ts|]
         ( object
             [ "entities" .= allEntities,
@@ -180,19 +200,6 @@ genEntitiesAndServerTypesDirs spec =
         )
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
-
-genPackageJson :: AppSpec -> Generator FileDraft
-genPackageJson spec = do
-  return $
-    C.mkTmplFdWithData
-      [relfile|package.json|]
-      ( object
-          [ "sdkPackageName" .= C.sdkPackageName,
-            "depsChunk" .= N.getDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry (npmDepsForSdk spec),
-            "peerDepsChunk" .= N.getPeerDependenciesPackageJsonEntry (npmDepsForSdk spec)
-          ]
-      )
 
 npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
@@ -259,7 +266,7 @@ depsRequiredForTesting =
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
-  return $ C.mkTmplFdWithData [relfile|client/config.ts|] tmplData
+  return $ UserCoreC.mkTmplFdWithData [relfile|client/config.ts|] tmplData
   where
     tmplData =
       object
@@ -269,8 +276,8 @@ genClientConfigFile =
 genCoreSerializationDir :: AppSpec -> Generator [FileDraft]
 genCoreSerializationDir spec =
   return $
-    [ C.mkTmplFd [relfile|core/serialization/custom-register.ts|],
-      C.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
+    [ UserCoreC.mkTmplFd [relfile|core/serialization/custom-register.ts|],
+      UserCoreC.mkTmplFdWithData [relfile|core/serialization/index.ts|] tmplData
     ]
       ++ maybeToList prismaSerializationFile
   where
@@ -280,13 +287,13 @@ genCoreSerializationDir spec =
         ]
 
     prismaSerializationFile
-      | entitiesExist = Just $ C.mkTmplFd [relfile|core/serialization/prisma.ts|]
+      | entitiesExist = Just $ UserCoreC.mkTmplFd [relfile|core/serialization/prisma.ts|]
       | otherwise = Nothing
 
     entitiesExist = hasEntities spec
 
 genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts|] tmplData
+genServerConfigFile spec = return $ UserCoreC.mkTmplFdWithData [relfile|server/config.ts|] tmplData
   where
     tmplData =
       object
@@ -296,18 +303,6 @@ genServerConfigFile spec = return $ C.mkTmplFdWithData [relfile|server/config.ts
           "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
           "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
         ]
-
--- todo(filip): remove this duplication, we have almost the same thing in the
--- ServerGenerator.
-genTsConfigJson :: Generator FileDraft
-genTsConfigJson = do
-  return $
-    C.mkTmplFdWithData
-      [relfile|tsconfig.json|]
-      ( object
-          [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
-          ]
-      )
 
 -- TODO(filip): Figure out where this belongs.
 -- Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
@@ -340,27 +335,27 @@ genExternalFile file
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   sequence
-    [ C.genFileCopy [relfile|universal/url.ts|],
-      C.genFileCopy [relfile|universal/types.ts|],
-      C.genFileCopy [relfile|universal/validators.ts|],
-      C.genFileCopy [relfile|universal/predicates.ts|],
-      C.genFileCopy [relfile|universal/ansiColors.ts|]
+    [ UserCoreC.genFileCopy [relfile|universal/url.ts|],
+      UserCoreC.genFileCopy [relfile|universal/types.ts|],
+      UserCoreC.genFileCopy [relfile|universal/validators.ts|],
+      UserCoreC.genFileCopy [relfile|universal/predicates.ts|],
+      UserCoreC.genFileCopy [relfile|universal/ansiColors.ts|]
     ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
 genServerUtils spec =
-  return $ C.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
+  return $ UserCoreC.mkTmplFdWithData [relfile|server/utils.ts|] tmplData
   where
     tmplData = object ["isAuthEnabled" .= (isAuthEnabled spec :: Bool)]
 
 genServerExportedTypesDir :: Generator FileDraft
-genServerExportedTypesDir = C.genFileCopy [relfile|server/types/index.ts|]
+genServerExportedTypesDir = UserCoreC.genFileCopy [relfile|server/types/index.ts|]
 
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
   sequence
-    [ C.genFileCopy [relfile|server/middleware/index.ts|],
-      C.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
+    [ UserCoreC.genFileCopy [relfile|server/middleware/index.ts|],
+      UserCoreC.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
 genServerDbClient :: AppSpec -> Generator FileDraft
@@ -373,7 +368,7 @@ genServerDbClient spec = do
           ]
 
   return $
-    C.mkTmplFdWithData
+    UserCoreC.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
   where

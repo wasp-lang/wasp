@@ -1,0 +1,13 @@
+{
+  // TODO: Eventually split 'user-core' and 'src'
+  // into two different tsconfig projects.
+  "extends": "../tsconfig.sdk.json",
+  "compilerOptions": {
+    "rootDir": "..",
+    "outDir": "../dist/"
+  },
+  "include": [".", "../src"],
+  "references": [
+    { "path": "../core" },
+  ]
+}

@@ -16,8 +16,10 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (virtualFilesFilesDirInViteDir)
-import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
+  ( virtualFilesFilesDirInSdkTemplatesUserCoreDir,
+  )
+import Wasp.Generator.SdkGenerator.UserCore.Common (mkTmplFdWithData)
 import Wasp.JsImport
   ( applyJsImportAlias,
     getJsImportStmtAndIdentifier,
@@ -26,9 +28,10 @@ import Wasp.JsImport
 genVirtualRoutesTsx :: AppSpec -> Generator FileDraft
 genVirtualRoutesTsx spec =
   return $
-    C.mkTmplFdWithData tmplPath tmplData
+    mkTmplFdWithData
+      (virtualFilesFilesDirInSdkTemplatesUserCoreDir </> [relfile|routes.tsx|])
+      tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|routes.tsx|]
     tmplData =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
