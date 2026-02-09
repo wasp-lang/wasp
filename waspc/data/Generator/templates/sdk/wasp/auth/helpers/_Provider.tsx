@@ -11,7 +11,7 @@ export const signInUrl: string = `${config.apiUrl}{= signInPath =}`
 export function SignInButton(): React.JSX.Element {
   return (
     <SocialButton href={signInUrl}>
-      <SocialIcons.{= iconName =} />
+      <SocialIcons.{= displayName =} />
     </SocialButton>
   )
 }

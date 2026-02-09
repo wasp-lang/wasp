@@ -45,7 +45,7 @@ export type PossibleProviderData = {
   google: OAuthProviderData;
   keycloak: OAuthProviderData;
   github: OAuthProviderData;
-  'microsoft': OAuthProviderData;
+  microsoft: OAuthProviderData;
 }
 
 // PUBLIC API

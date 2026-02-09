@@ -56,6 +56,5 @@ genOAuthHelpers auth =
         tmplData =
           object
             [ "signInPath" .= OAuth.serverLoginUrl provider,
-              "displayName" .= OAuth.displayName provider,
-              "iconName" .= Data.List.filter (/= ' ') (OAuth.displayName provider)
+              "displayName" .= OAuth.displayName provider
             ]
