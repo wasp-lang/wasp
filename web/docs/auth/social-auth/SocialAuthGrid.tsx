@@ -29,6 +29,11 @@ export function SocialAuthGrid({
       description: "Users sign in with their Discord account.",
       linkTo: "./discord" + pagePart,
     },
+    {
+      title: "Microsoft",
+      description: "Users sign in with their Microsoft account.",
+      linkTo: "./microsoft" + pagePart,
+    },
   ];
 
   return (
