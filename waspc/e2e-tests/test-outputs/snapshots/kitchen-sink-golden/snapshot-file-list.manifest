@@ -56,6 +56,7 @@ wasp-app/.wasp/out/sdk/wasp/auth/forms/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/helpers/Discord.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/helpers/GitHub.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/helpers/Google.tsx
+wasp-app/.wasp/out/sdk/wasp/auth/helpers/Microsoft.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/helpers/Slack.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/helpers/user.ts
 wasp-app/.wasp/out/sdk/wasp/auth/index.ts
@@ -86,6 +87,7 @@ wasp-app/.wasp/out/sdk/wasp/client/auth/email.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/github.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/google.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/auth/microsoft.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/slack.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/ui.ts
 wasp-app/.wasp/out/sdk/wasp/client/config.ts
@@ -251,6 +253,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Google.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Google.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Google.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Google.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Microsoft.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Microsoft.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Microsoft.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Microsoft.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Slack.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Slack.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/helpers/Slack.jsx
@@ -368,6 +374,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/microsoft.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/microsoft.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/microsoft.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/auth/microsoft.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/slack.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/slack.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/slack.js
@@ -631,6 +641,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/google.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/google.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/google.js
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/google.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/microsoft.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/microsoft.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/microsoft.js
+wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/microsoft.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/slack.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/slack.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/server/auth/oauth/providers/slack.js
@@ -871,6 +885,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/google.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/google.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/google.js
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/google.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/microsoft.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/microsoft.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/microsoft.js
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/microsoft.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/slack.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/slack.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/auth/providers/slack.js
@@ -1044,6 +1062,7 @@ wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/provider.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/providers/discord.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/providers/github.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/providers/google.ts
+wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/providers/microsoft.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/providers/slack.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/oauth/redirect.ts
 wasp-app/.wasp/out/sdk/wasp/server/auth/user.ts
@@ -1105,6 +1124,7 @@ wasp-app/.wasp/out/sdk/wasp/src/features/auth/providers/discord.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/providers/email.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/providers/github.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/providers/google.ts
+wasp-app/.wasp/out/sdk/wasp/src/features/auth/providers/microsoft.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/providers/slack.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/auth/user.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/chat/pages/ChatPage.tsx
@@ -1176,6 +1196,7 @@ wasp-app/.wasp/out/server/src/auth/providers/config/discord.ts
 wasp-app/.wasp/out/server/src/auth/providers/config/email.ts
 wasp-app/.wasp/out/server/src/auth/providers/config/github.ts
 wasp-app/.wasp/out/server/src/auth/providers/config/google.ts
+wasp-app/.wasp/out/server/src/auth/providers/config/microsoft.ts
 wasp-app/.wasp/out/server/src/auth/providers/config/slack.ts
 wasp-app/.wasp/out/server/src/auth/providers/email/login.ts
 wasp-app/.wasp/out/server/src/auth/providers/email/requestPasswordReset.ts
@@ -1324,6 +1345,7 @@ wasp-app/src/features/auth/providers/discord.ts
 wasp-app/src/features/auth/providers/email.ts
 wasp-app/src/features/auth/providers/github.ts
 wasp-app/src/features/auth/providers/google.ts
+wasp-app/src/features/auth/providers/microsoft.ts
 wasp-app/src/features/auth/providers/slack.ts
 wasp-app/src/features/auth/user.ts
 wasp-app/src/features/chat/pages/ChatPage.tsx

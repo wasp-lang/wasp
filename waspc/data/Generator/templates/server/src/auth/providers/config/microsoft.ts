@@ -1,20 +1,31 @@
+{{={= =}=}}
 import type { ProviderConfig } from "wasp/auth/providers/types";
-import { microsoftEntra } from "wasp/server/auth";
+import { microsoft } from "wasp/server/auth";
 
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { userSignupFields } from '../../../../../../../src/features/auth/providers/microsoftEntra'
-const _waspUserSignupFields = userSignupFields
-import { config } from '../../../../../../../src/features/auth/providers/microsoftEntra'
-const _waspUserDefinedConfigFn = config
+{=# userSignupFields.isDefined =}
+{=& userSignupFields.importStatement =}
+const _waspUserSignupFields = {= userSignupFields.importIdentifier =}
+{=/ userSignupFields.isDefined =}
+{=^ userSignupFields.isDefined =}
+const _waspUserSignupFields = undefined
+{=/ userSignupFields.isDefined =}
+{=# configFn.isDefined =}
+{=& configFn.importStatement =}
+const _waspUserDefinedConfigFn = {= configFn.importIdentifier =}
+{=/ configFn.isDefined =}
+{=^ configFn.isDefined =}
+const _waspUserDefinedConfigFn = undefined
+{=/ configFn.isDefined =}
 
 const _waspConfig: ProviderConfig = {
-    id: microsoftEntra.id,
-    displayName: microsoftEntra.displayName,
+    id: microsoft.id,
+    displayName: microsoft.displayName,
     createRouter(provider) {
         const config = mergeDefaultAndUserConfig({
-            scopes: ['openid', 'profile', 'email'],
+            scopes: {=& requiredScopes =},
         }, _waspUserDefinedConfigFn);
 
         async function getMicrosoftProfile(accessToken: string): Promise<{
@@ -29,32 +40,23 @@ const _waspConfig: ProviderConfig = {
                     },
                 }
             );
-            const profile = (await response.json()) as {
+            const providerProfile = (await response.json()) as {
                 sub?: string;
-                givenname?: string;
-                familyname?: string;
             };
 
-            if (!profile.sub) {
+            if (!providerProfile.sub) {
                 throw new Error("Invalid profile");
             }
 
-            // Microsoft uses non-standard field names
-            const providerProfile = {
-                ...profile,
-                given_name: profile.givenname,
-                family_name: profile.familyname,
-            };
-
-            return { providerProfile, providerUserId: profile.sub };
+            return { providerProfile, providerUserId: providerProfile.sub };
         }
 
         return createOAuthProviderRouter({
             provider,
             oAuthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state, codeVerifier }) => microsoftEntra.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
-            getProviderTokens: ({ code, codeVerifier }) => microsoftEntra.oAuthClient.validateAuthorizationCode(code, codeVerifier),
+            getAuthorizationUrl: ({ state, codeVerifier }) => microsoft.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
+            getProviderTokens: ({ code, codeVerifier }) => microsoft.oAuthClient.validateAuthorizationCode(code, codeVerifier),
             getProviderInfo: ({ accessToken }) => getMicrosoftProfile(accessToken),
         });
     },

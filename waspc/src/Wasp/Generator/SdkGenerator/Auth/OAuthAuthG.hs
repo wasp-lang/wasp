@@ -12,7 +12,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
-    microsoftEntraAuthProvider,
+    microsoftAuthProvider,
     slackAuthProvider,
   )
 import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
@@ -36,7 +36,7 @@ genOAuthHelpers auth =
         [gitHubHelpersFd | AS.Auth.isGitHubAuthEnabled auth],
         [googleHelpersFd | AS.Auth.isGoogleAuthEnabled auth],
         [keycloakHelpersFd | AS.Auth.isKeycloakAuthEnabled auth],
-        [microsoftEntraHelpersFd | AS.Auth.isMicrosoftEntraAuthEnabled auth]
+        [microsoftHelpersFd | AS.Auth.isMicrosoftAuthEnabled auth]
       ]
   where
     slackHelpersFd = makeOAuthHelpersFd slackAuthProvider [relfile|Slack.tsx|]
@@ -44,7 +44,7 @@ genOAuthHelpers auth =
     gitHubHelpersFd = makeOAuthHelpersFd gitHubAuthProvider [relfile|GitHub.tsx|]
     googleHelpersFd = makeOAuthHelpersFd googleAuthProvider [relfile|Google.tsx|]
     keycloakHelpersFd = makeOAuthHelpersFd keycloakAuthProvider [relfile|Keycloak.tsx|]
-    microsoftEntraHelpersFd = makeOAuthHelpersFd microsoftEntraAuthProvider [relfile|MicrosoftEntra.tsx|]
+    microsoftHelpersFd = makeOAuthHelpersFd microsoftAuthProvider [relfile|Microsoft.tsx|]
 
     makeOAuthHelpersFd :: OAuthAuthProvider -> Path' Rel' File' -> FileDraft
     makeOAuthHelpersFd provider helpersFp =

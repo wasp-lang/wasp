@@ -11,7 +11,7 @@ import Wasp.Generator.AuthProviders
     gitHubAuthProvider,
     googleAuthProvider,
     keycloakAuthProvider,
-    microsoftEntraAuthProvider,
+    microsoftAuthProvider,
     slackAuthProvider,
   )
 import qualified Wasp.Generator.AuthProviders as AuthProviders
@@ -152,7 +152,7 @@ genLoginSignupForm auth =
           "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
           "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
           "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          "microsoftEntraSignInPath" .= OAuth.serverLoginUrl microsoftEntraAuthProvider,
+          "microsoftSignInPath" .= OAuth.serverLoginUrl microsoftAuthProvider,
           "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
         ]
     areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled

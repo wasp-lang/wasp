@@ -22,10 +22,10 @@ export { github } from './providers/github.js';
 // PUBLIC API
 export { keycloak } from './providers/keycloak.js';
 {=/ enabledProviders.isKeycloakAuthEnabled =}
-{=# enabledProviders.isMicrosoftEntraAuthEnabled =}
+{=# enabledProviders.isMicrosoftAuthEnabled =}
 // PUBLIC API
-export { microsoftEntra } from './providers/microsoft-entra.js';
-{=/ enabledProviders.isMicrosoftEntraAuthEnabled =}
+export { microsoft } from './providers/microsoft.js';
+{=/ enabledProviders.isMicrosoftAuthEnabled =}
 
 // PRIVATE API
 export {

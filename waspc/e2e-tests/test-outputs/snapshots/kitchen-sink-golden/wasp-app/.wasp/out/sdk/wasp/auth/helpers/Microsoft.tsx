@@ -4,13 +4,13 @@ import { SocialButton } from '../forms/internal/social/SocialButton'
 import * as SocialIcons from '../forms/internal/social/SocialIcons'
 
 // PUBLIC API
-export const signInUrl: string = `${config.apiUrl}/auth/microsoft-entra/login`
+export const signInUrl: string = `${config.apiUrl}/auth/microsoft/login`
 
 // PUBLIC API
 export function SignInButton(): React.JSX.Element {
   return (
     <SocialButton href={signInUrl}>
-      <SocialIcons.MicrosoftEntra />
+      <SocialIcons.Microsoft />
     </SocialButton>
   )
 }

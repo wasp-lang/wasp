@@ -9,6 +9,8 @@ export { discord } from './providers/discord.js';
 
 // PUBLIC API
 export { github } from './providers/github.js';
+// PUBLIC API
+export { microsoft } from './providers/microsoft.js';
 
 // PRIVATE API
 export {

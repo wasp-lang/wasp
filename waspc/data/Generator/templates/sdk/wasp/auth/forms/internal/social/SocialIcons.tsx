@@ -73,7 +73,7 @@ export const Slack = () => (
   </svg>
 )
 
-export const MicrosoftEntra = () => (
+export const Microsoft = () => (
   <svg
     className={styles.icon}
     aria-hidden="true"

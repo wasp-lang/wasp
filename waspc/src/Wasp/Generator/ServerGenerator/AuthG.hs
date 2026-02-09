@@ -7,7 +7,6 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Char (toUpper)
-import Data.List (intercalate)
 import Data.List.Split (splitOn)
 import Data.Maybe (fromJust)
 import StrongPath
@@ -34,7 +33,7 @@ import Wasp.Generator.AuthProviders
     googleAuthProvider,
     keycloakAuthProvider,
     localAuthProvider,
-    microsoftEntraAuthProvider,
+    microsoftAuthProvider,
     slackAuthProvider,
   )
 import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
@@ -97,7 +96,7 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
             [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
             [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
             [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
-            [OAuthProvider.providerId microsoftEntraAuthProvider | AS.Auth.isMicrosoftEntraAuthEnabled auth],
+            [OAuthProvider.providerId microsoftAuthProvider | AS.Auth.isMicrosoftAuthEnabled auth],
             [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
             [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
           ]

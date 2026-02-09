@@ -21,9 +21,9 @@ export * from './keycloak'
 {=# isGitHubAuthEnabled =}
 export * from './github'
 {=/ isGitHubAuthEnabled =}
-{=# isMicrosoftEntraAuthEnabled =}
-export * from './microsoftEntra'
-{=/ isMicrosoftEntraAuthEnabled =}
+{=# isMicrosoftAuthEnabled =}
+export * from './microsoft'
+{=/ isMicrosoftAuthEnabled =}
 export {
   default as useAuth,
   getMe,

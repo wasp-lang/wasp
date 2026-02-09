@@ -63,11 +63,11 @@ discordAuthProvider =
       OA._requiredScope = ["identify"]
     }
 
-microsoftEntraAuthProvider :: OA.OAuthAuthProvider
-microsoftEntraAuthProvider =
+microsoftAuthProvider :: OA.OAuthAuthProvider
+microsoftAuthProvider =
   OA.OAuthAuthProvider
-    { OA._providerId = fromJust $ makeProviderId "microsoft-entra",
-      OA._displayName = "Microsoft Entra",
+    { OA._providerId = fromJust $ makeProviderId "microsoft",
+      OA._displayName = "Microsoft",
       OA._requiredScope = ["openid", "profile", "email"]
     }
 
@@ -79,7 +79,7 @@ getEnabledAuthProvidersJson auth =
       "isGoogleAuthEnabled" .= AS.Auth.isGoogleAuthEnabled auth,
       "isKeycloakAuthEnabled" .= AS.Auth.isKeycloakAuthEnabled auth,
       "isGitHubAuthEnabled" .= AS.Auth.isGitHubAuthEnabled auth,
-      "isMicrosoftEntraAuthEnabled" .= AS.Auth.isMicrosoftEntraAuthEnabled auth,
+      "isMicrosoftAuthEnabled" .= AS.Auth.isMicrosoftAuthEnabled auth,
       "isUsernameAndPasswordAuthEnabled" .= AS.Auth.isUsernameAndPasswordAuthEnabled auth,
       "isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth
     ]
