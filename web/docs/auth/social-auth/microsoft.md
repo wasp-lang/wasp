@@ -200,6 +200,8 @@ Our pages use an automatically generated Auth UI component. Read more about Auth
 
 Yay, we've successfully set up Microsoft Auth! 🎉
 
+![Microsoft Auth](/img/auth/microsoft.jpeg)
+
 Running `wasp db migrate-dev` and `wasp start` should now give you a working app with authentication.
 To see how to protect specific pages (i.e., hide them from non-authenticated users), read the docs on [using auth](../../auth/overview).
 
