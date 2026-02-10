@@ -7,7 +7,7 @@ last_checked_with_versions:
 
 # Legacy Wasp installer
 
-Starting from Wasp 0.21, installation is done [through npm](../../introduction/quick-start.md#detailed-installation). The old installation method using the script installer is now considered legacy and is not recommended for new users. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
+Starting from Wasp 0.21, installation is done [through npm](../../introduction/quick-start.md#detailed-installation). The installation method using the script installer is now considered legacy and is not supported anymore. We'll keep it around for the foreseeable future to give users time to switch, but you will not be able to get newer versions until you migrate to npm-based installation.
 
 ## How to migrate off the legacy installer {#migrate}
 
@@ -25,19 +25,19 @@ npm i -g @wasp.sh/wasp-cli@latest
 
 ## Keep using the legacy installer {#keep-using}
 
-You should only use the legacy installer as a stopgap while migrating workstations and CI to npm installations, as it can cause conflicts with the new method. For that reason, the installer will not work in the following cases:
-
-- ❌ You have already installed Wasp through npm.
-- ❌ You have already run the migration tool.
-- ❌ The installer is asked to install Wasp >= 0.21.
-- ❌ The installer is called without a version argument.
-
-To use it nevertheless, open your terminal and run:
+To use the installer, run:
 
 ```shell
 # Set x.y.z to the version you want to install, e.g. 0.20.1
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z
 ```
+
+You should only use the legacy installer as a stopgap while migrating workstations and CI to npm installations, as it can cause conflicts with the new method. For that reason, the installer will not work in the following cases:
+
+- You have already installed Wasp through npm.
+- You have already run the migration tool.
+- You are trying to install Wasp >= 0.21.
+- You are calling the installer without a version argument.
 
 ## Troubleshooting
 

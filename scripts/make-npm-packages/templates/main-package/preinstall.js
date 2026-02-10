@@ -39,19 +39,18 @@ function hasNpmMarker() {
 function ensureNpmMarker() {
   try {
     fs.mkdirSync(WASP_LANG_DIR, { recursive: true });
-    fs.writeFileSync(NPM_MARKER_FILE, "", {
-      // We open the file in appending mode, so if we store some data in
-      // the future, we won't overwrite it.
-      flag: "a",
-    });
+
+    // Same as `touch` - By appending nothing, we create the file if it doesn't
+    // exist, or leave the contents unchanged if it does.
+    fs.appendFileSync(NPM_MARKER_FILE, "");
   } catch {
     // Ignore errors - marker file is best-effort
   }
 }
 
 function printInstallerConflictError() {
-  console.error(`
-Error: Detected an existing installer-based Wasp installation.
+  console.error(`\
+Error: Detected an existing legacy Wasp installation.
 
 You have Wasp installed via the curl installer script. To prevent conflicts,
 please migrate to npm before installing the npm package.
