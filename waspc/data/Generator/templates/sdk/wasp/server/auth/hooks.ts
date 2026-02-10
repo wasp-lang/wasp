@@ -184,5 +184,8 @@ export type OAuthData = {
   {=# enabledProviders.isKeycloakAuthEnabled =}
   | { providerName: 'keycloak'; tokens: import('arctic').KeycloakTokens }
   {=/ enabledProviders.isKeycloakAuthEnabled =}
+  {=# enabledProviders.isMicrosoftAuthEnabled =}
+  | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
+  {=/ enabledProviders.isMicrosoftAuthEnabled =}
   | never
 )

@@ -179,7 +179,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx"
         ],
-        "410308a920630ddf900870ef517399ef8eecdc9a109df1dd915b8e5f8497cbd5"
+        "ba0f86a5afad700a7a617af51b0634d5e79ac5dad0aa0ae7cdd6bc15cff86ce5"
     ],
     [
         [
@@ -235,7 +235,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/social/SocialIcons.tsx"
         ],
-        "0bee13ba6f1218cad07372845c797b3e418de17f8556604b7429cbd32e319093"
+        "8b936fcdd74f8d8245cab8bf99095e9d802c1fbc935c5452a60516a62fec33c6"
     ],
     [
         [
@@ -271,6 +271,13 @@
             "sdk/wasp/auth/helpers/Google.tsx"
         ],
         "7b06fa271e4c1a6dc9ef73749a97b51c8c7328f7eebecb0b11bf2d80ef46f060"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/auth/helpers/Microsoft.tsx"
+        ],
+        "bcc73062fd9dedaec5d72ffac30929b255cddb0317d447e6cf35092119c0a656"
     ],
     [
         [
@@ -368,7 +375,7 @@
             "file",
             "sdk/wasp/auth/utils.ts"
         ],
-        "a6f1f6c48d7f6940c5ce8b615c5b625498a573913429397289b2b00517026570"
+        "bc402f3ab831d0ec981d58f35e6d4a01bc093ac679ecdca839dc3e370e9cbf8b"
     ],
     [
         [
@@ -480,7 +487,14 @@
             "file",
             "sdk/wasp/client/auth/index.ts"
         ],
-        "463d493c2b0daf4da1c08855a89f7b4615f1b243cac5293ff5a58358bd1b4983"
+        "d637e7f7ac33a73ed335a6c8889dc43e6a6cf23035aec8b0ab062e88f6d7c2e6"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/auth/microsoft.ts"
+        ],
+        "f639041cc70895ba6e797063005f07e6aeb490e65f9e8befb063e2ace2a8c90b"
     ],
     [
         [
@@ -494,7 +508,7 @@
             "file",
             "sdk/wasp/client/auth/ui.ts"
         ],
-        "7d91c4e6ef503789ad7cf01f7173a634bb1427784aabe6800db1dd9940e5052c"
+        "f4fa00950f9fa65280c9180d4dbe13039412773d021dbc7bfe9d9ee1845d40c5"
     ],
     [
         [
@@ -921,7 +935,7 @@
             "file",
             "sdk/wasp/server/auth/hooks.ts"
         ],
-        "ad939ab0df1ff5dabd1d715498a4aeea70e6006186ea430491124ef058f225d4"
+        "eeed54475dc629b87bee0f652ced2fa45268e9464c07438133aebfcafa4069c2"
     ],
     [
         [
@@ -935,7 +949,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/index.ts"
         ],
-        "88f4a20f662151670356d1708b9538c8c2d5a499c2a571735a694b223301d745"
+        "65ea738b50a72e3dd7b95cc8223d5954150c6c9192854c2e67e7ffc8613bb03b"
     ],
     [
         [
@@ -975,6 +989,13 @@
     [
         [
             "file",
+            "sdk/wasp/server/auth/oauth/providers/microsoft.ts"
+        ],
+        "c8e90731e495521c54823258005ac813658181f93957d6dfd5045753650ccf51"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/server/auth/oauth/providers/slack.ts"
         ],
         "00a1a92e4436693b18cd383233a5f760e3b1981a28b26719b0abd9bbd8b8aba7"
@@ -991,7 +1012,7 @@
             "file",
             "sdk/wasp/server/auth/user.ts"
         ],
-        "5fe31ab5c30e0589d50e7aaceb383d2433d633750f76839291bbb51a46ae1830"
+        "a2a6b38bf27a1324a0cc097b904b4431bbce626dec99f6c53ed7ec95ef13351e"
     ],
     [
         [
@@ -1061,7 +1082,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "6cb02463249931afee6f94529f7df30f2a6eb32132c4eb1974cf199133aa4750"
+        "64c9bfdf7e34609ef9321ecfbe65e1fb472428d22b08b027a1d6b32b659c50bb"
     ],
     [
         [
@@ -1402,6 +1423,13 @@
     [
         [
             "file",
+            "sdk/wasp/src/features/auth/providers/microsoft.ts"
+        ],
+        "ccf383b51558afe53a2d0493ff4cd8c141304142ae10688720079ff693fa7553"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/src/features/auth/providers/slack.ts"
         ],
         "9d98d07e62de9b24ea30726547b53baf7389821db62d2cfe7563a23ba0b085d4"
@@ -1411,7 +1439,7 @@
             "file",
             "sdk/wasp/src/features/auth/user.ts"
         ],
-        "f221aeb09ca586cf410fe1a0279a51dd41937502684f438edc093a05079455b0"
+        "143bb07b96dd1369f6e8becfc45f0b720547eaade5f9f4f66d33e3214b04ad82"
     ],
     [
         [
@@ -1691,7 +1719,7 @@
             "file",
             "server/.env"
         ],
-        "9056f61643a41eb32e9ee3dcdff28efc68d7a1ea0a960e17ffdc5c85d5c6a33e"
+        "b1a6be6e91e7b5d10652479a6ed732628ef1378f3831acb0fe8fcf6329794c04"
     ],
     [
         [
@@ -1899,6 +1927,13 @@
     [
         [
             "file",
+            "server/src/auth/providers/config/microsoft.ts"
+        ],
+        "b0acaed02c73d48b4c208d1ca745fdb123b8a1c213cd638c3ce69cd5df3fc241"
+    ],
+    [
+        [
+            "file",
             "server/src/auth/providers/config/slack.ts"
         ],
         "b3627a85a6233c04cc5b8d844db29414e6f7c64d6a524ab357e3b26aa615751f"
@@ -1943,7 +1978,7 @@
             "file",
             "server/src/auth/providers/index.ts"
         ],
-        "6844d6653d98a0c0389a22b81cbbec5c8944d2d11e696dfd4ba83392fce6dfc3"
+        "0aaf2369abd9f59ec8f77af0ae4a1ab25ea68480502f3f8c67a00c6aaa6f822f"
     ],
     [
         [

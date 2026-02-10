@@ -35,6 +35,7 @@ export type AuthUserData = Omit<CompleteUserEntityWithAuth, 'auth'> & {
     discord: Expand<UserFacingProviderData<'discord'>> | null
     google: Expand<UserFacingProviderData<'google'>> | null
     github: Expand<UserFacingProviderData<'github'>> | null
+    microsoft: Expand<UserFacingProviderData<'microsoft'>> | null
   },
 }
 
@@ -84,6 +85,7 @@ This should never happen, but it did which means there is a bug in the code.`)
     discord: getProviderInfo<'discord'>(auth, 'discord'),
     google: getProviderInfo<'google'>(auth, 'google'),
     github: getProviderInfo<'github'>(auth, 'github'),
+    microsoft: getProviderInfo<'microsoft'>(auth, 'microsoft'),
   }
   return {
     ...rest,

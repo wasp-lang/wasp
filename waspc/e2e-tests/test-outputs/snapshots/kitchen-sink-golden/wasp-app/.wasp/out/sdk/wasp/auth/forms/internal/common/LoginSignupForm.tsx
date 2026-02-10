@@ -29,6 +29,7 @@ const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
 const discordSignInUrl = `${config.apiUrl}/auth/discord/login`
 const googleSignInUrl = `${config.apiUrl}/auth/google/login`
 const gitHubSignInUrl = `${config.apiUrl}/auth/github/login`
+const microsoftSignInUrl = `${config.apiUrl}/auth/microsoft/login`
 
 // PRIVATE API
 export type LoginSignupFormFields = {
@@ -93,6 +94,8 @@ export const LoginSignupForm = ({
 
 
               <SocialButton href={gitHubSignInUrl}><SocialIcons.GitHub/></SocialButton>
+
+              <SocialButton href={microsoftSignInUrl}><SocialIcons.Microsoft/></SocialButton>
           </div>
         </div>
         <div className={styles.orContinueWith}>
