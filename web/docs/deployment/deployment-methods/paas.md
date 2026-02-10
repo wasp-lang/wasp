@@ -303,22 +303,16 @@ You'll deploy the server first:
 
 #### Deploying the Client
 
-1. Next, go into your app's frontend build directory `.wasp/out/web-app`:
+1. Create the production build from the project root, using the `server` domain as the `REACT_APP_API_URL`:
 
     ```shell
-    cd web-app
+    REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
     ```
 
-2. Create the production build, using the `server` domain as the `REACT_APP_API_URL`:
+2. Next, we want to link the client build directory to the `client` service:
 
     ```shell
-    npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
-    ```
-
-3. Next, we want to link the client build directory to the `client` service:
-
-    ```shell
-    cd build
+    cd .wasp/out/web-app/build
     railway link
     ```
 
@@ -350,15 +344,13 @@ When you make updates and need to redeploy:
     ```shell
     railway up --ci
     ```
-1. Go into the `.wasp/out/web-app` directory and:
-
-    Rebuild the client with:
+1. Rebuild the client from the project root:
     ```shell
-    npm install && REACT_APP_API_URL=<url_to_wasp_backend> npm run build
+    REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
     ```
     And then deploy the client with:
     ```shell
-    cd build
+    cd .wasp/out/web-app/build
     railway up --ci
     ```
 
@@ -549,11 +541,8 @@ Here’s an example configuration file to help you get started. This example wor
         - name: Wasp Build
           run: wasp build
 
-        - name: Install dependencies and build the client
-          run: |
-            cd ./.wasp/out/web-app
-            npm install
-            REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
+        - name: Build the client
+          run: REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build
 
         - name: Deploy to Netlify
           run: |
@@ -649,11 +638,8 @@ Here’s an example configuration file to help you get started. This example wor
         - name: Wasp Build
           run: cd ./app && wasp build
 
-        - name: Install dependencies and build the client
-          run: |
-            cd ./app/.wasp/out/web-app
-            npm install
-            REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npm run build
+        - name: Build the client
+          run: cd ./app && REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build
 
         - name: Deploy to Cloudflare Pages
           uses: cloudflare/wrangler-action@v3

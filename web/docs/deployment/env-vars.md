@@ -18,7 +18,7 @@ When building for production, the `.env.client` file will be ignored, since it i
 Instead, you should provide the production client env vars directly to the build command that turns client code into static files:
 
 ```shell
-REACT_APP_API_URL=<url_to_wasp_backend> REACT_APP_SOME_OTHER_VAR_NAME=someothervalue npm run build
+REACT_APP_API_URL=<url_to_wasp_backend> REACT_APP_SOME_OTHER_VAR_NAME=someothervalue npx vite build
 ```
 
 Also, notice **that you can't and shouldn't provide client env vars to the client code by setting them on the hosting provider** (unlike providing server env vars to the server app, in that case this is how you should do it). Your client code will ignore those, as at that point client code is just static files.

@@ -132,8 +132,8 @@ Wasp's client app is a single page application (SPA) which you build into static
 **To deploy the client app as static files**, you'll need to:
 
 1. Build the app with `wasp build` in the CD environment.
-2. Build the client app with `npm run build`.
-3. Upload the static files to your hosting provider.
+2. Build the client app with `npx vite build`.
+3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
 
 <!-- TOOD: update links below -->
 
