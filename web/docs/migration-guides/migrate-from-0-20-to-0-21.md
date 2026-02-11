@@ -46,6 +46,10 @@ npm i -g @wasp.sh/wasp-cli@0.20
 npm i -g @wasp.sh/wasp-cli@0.21
 ```
 
+:::caution Versions older than 0.16 are not supported
+Wasp versions older than 0.16 are not available through the npm installer. If you have projects using an older version, we strongly urge you to upgrade them to a supported version (0.16 or newer) as soon as possible.
+:::
+
 ### Better Tailwind CSS support
 
 With this change, we will not require you to upgrade Tailwind CSS in lockstep with Wasp anymore. You can use any version of Tailwind CSS v4 or newer in your Wasp app, and upgrade it (or not) at your own pace.
