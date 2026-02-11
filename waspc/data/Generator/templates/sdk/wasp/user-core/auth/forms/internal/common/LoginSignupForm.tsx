@@ -2,7 +2,6 @@
 import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../../../../../core/auth/forms/internal/auth-styles.css'
-import { config } from 'wasp/client'
 import { clsx } from '../../../../../core/auth/forms/internal/util'
 
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
@@ -33,6 +32,7 @@ import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPas
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
 {=# enabledProviders.isEmailAuthEnabled =}
 import { useEmail } from '../email/useEmail'
+import { config } from '../../../../../core/client/config'
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# areBothSocialAndPasswordBasedAuthEnabled =}

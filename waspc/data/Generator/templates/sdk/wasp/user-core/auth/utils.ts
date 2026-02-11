@@ -6,10 +6,10 @@ import {
   type {= userEntityUpper =},
   type {= authEntityUpper =},
   type {= authIdentityEntityUpper =},
-} from 'wasp/entities'
+} from '../../core/entities/index.js'
 import { Prisma } from '@prisma/client';
 
-import { throwValidationError } from "wasp/auth/validation";
+import { throwValidationError } from "../../core/auth/validation.js";
 
 import { type UserSignupFields, type PossibleUserFields } from './providers/types'
 

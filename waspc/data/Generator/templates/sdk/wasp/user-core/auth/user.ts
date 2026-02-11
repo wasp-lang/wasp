@@ -4,7 +4,7 @@ import type {
   AuthUser,
   UserEntityWithAuth,
 } from '../server/auth/user.js'
-import { isNotNull } from 'wasp/universal/predicates'
+import { isNotNull } from '../../core/universal/predicates.js'
 
 /**
  * We split the user.ts code into two files to avoid some server-only

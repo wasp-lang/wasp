@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { Request as ExpressRequest } from "express";
 
-import { type {= userEntityUpper =} } from 'wasp/entities';
+import { type {= userEntityUpper =} } from '../../core/entities/index.js';
 import { type AuthUserData } from '../server/auth/user.js';
 
 import { auth } from "./lucia.js";

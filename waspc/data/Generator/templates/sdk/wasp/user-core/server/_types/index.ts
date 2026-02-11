@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { type Expand } from 'wasp/universal/types'
+import { type Expand } from '../../../core/universal/types.js'
 import { type Request, type Response } from 'express'
 import {
   type ParamsDictionary as ExpressParams,
@@ -10,10 +10,10 @@ import { prisma } from 'wasp/server'
 import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
 import { type _Entity } from '../../../core/server/_types/taggedEntities'
-import { type Payload } from 'wasp/core/serialization'
+import { type Payload } from '../../../core/core/serialization/index.js'
 
 export * from "../../../core/server/_types/taggedEntities"
-export * from "wasp/core/serialization"
+export * from '../../../core/core/serialization/index.js'
 
 export type UnauthenticatedQueryDefinition<
   Entities extends _Entity[],

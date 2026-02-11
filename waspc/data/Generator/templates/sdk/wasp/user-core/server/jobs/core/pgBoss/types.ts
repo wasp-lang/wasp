@@ -1,5 +1,5 @@
 import { PrismaDelegate } from 'wasp/server/_types'
-import type { JSONValue, JSONObject } from 'wasp/core/serialization'
+import type { JSONValue, JSONObject } from '../../../../../core/core/serialization/index.js'
 
 // PRIVATE API
 export type JobFn<

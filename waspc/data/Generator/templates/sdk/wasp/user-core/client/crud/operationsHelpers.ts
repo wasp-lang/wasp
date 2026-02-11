@@ -1,6 +1,6 @@
 import { useAction, useQuery } from "../operations"
-import type { Query, Action } from "wasp/client/operations/rpc"
-import type { Tail } from "wasp/universal/types"
+import type { Query, Action } from "../../../core/client/operations/rpc.js"
+import type { Tail } from "../../../core/universal/types.js"
 
 // PRIVATE API
 export function makeUseQueryFor<Input, Output>(

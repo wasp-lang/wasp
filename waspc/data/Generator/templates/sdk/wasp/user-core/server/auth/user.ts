@@ -3,13 +3,13 @@ import {
   type {= userEntityName =},
   type {= authEntityName =},
   type {= authIdentityEntityName =},
-} from 'wasp/entities'
+} from '../../../core/entities/index.js'
 import {
   type PossibleProviderData,
   getProviderData,
 } from '../../auth/utils.js'
 import { type ProviderName } from '../_types/index.js'
-import { Expand } from 'wasp/universal/types'
+import { Expand } from '../../../core/universal/types.js'
 
 // PUBLIC API
 export type AuthUser = AuthUserData & {

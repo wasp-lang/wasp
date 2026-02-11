@@ -1,7 +1,7 @@
 {{={= =}=}}
 import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
-import type { Expand, Exact } from 'wasp/universal/types'
+import type { Expand, Exact } from '../../../core/universal/types.js'
 import type { ProviderName } from '../utils'
 
 // PUBLIC API

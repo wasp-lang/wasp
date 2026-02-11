@@ -1,7 +1,7 @@
 {{={= =}=}}
 import * as z from 'zod'
 
-import { ensureEnvSchema } from 'wasp/env/validation'
+import { ensureEnvSchema } from '../../core/env/validation.js'
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}

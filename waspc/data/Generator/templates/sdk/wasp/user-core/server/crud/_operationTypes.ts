@@ -11,10 +11,10 @@ import type {
   _{= crud.entityUpper =},
 } from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload, SuperJSONObject } from "wasp/core/serialization";
+import type { Payload, SuperJSONObject } from "../../../core/core/serialization/index.js";
 import type {
   {= crud.entityUpper =},
-} from "wasp/entities";
+} from "../../../core/entities/index.js";
 {=# overrides.GetAll.isDefined =}
 {=& overrides.GetAll.importStatement =}
 {=/ overrides.GetAll.isDefined =}

@@ -2,7 +2,7 @@
 import type { Request as ExpressRequest } from 'express'
 import { type ProviderId, type CreateUserResult, type FindAuthWithUserResult } from '../../auth/utils.js'
 import { prisma } from '../index.js'
-import { Expand } from 'wasp/universal/types'
+import { Expand } from '../../../core/universal/types.js'
 
 // PUBLIC API
 export type OnBeforeSignupHook = (

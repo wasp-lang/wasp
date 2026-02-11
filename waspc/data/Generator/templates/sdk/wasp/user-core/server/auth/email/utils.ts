@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { createJWT, TimeSpan } from 'wasp/auth/jwt'
 import { emailSender } from 'wasp/server/email';
-import { Email } from 'wasp/server/email/core/types';
+import { Email } from '../../../../core/server/email/core/types.js';
 import {
   createProviderId,
   updateAuthIdentityProviderData,

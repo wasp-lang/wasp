@@ -17,4 +17,4 @@ export {
     sendPasswordResetEmail,
     isEmailResendAllowed,
 } from './utils.js'
-export { ensureValidEmail } from 'wasp/auth/validation';
+export { ensureValidEmail } from '../../../../core/auth/validation.js';

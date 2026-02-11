@@ -1,8 +1,8 @@
 {{={= =}=}}
-import { deserialize } from 'wasp/core/serialization'
+import { deserialize } from '../../core/core/serialization/index.js'
 import { useQuery, buildAndRegisterQuery } from 'wasp/client/operations'
-import type { QueryFunction, Query } from 'wasp/client/operations/rpc'
-import { api, handleApiError } from 'wasp/client/api'
+import type { QueryFunction, Query } from '../../core/client/operations/rpc.js'
+import { api, handleApiError } from '../../core/api/index.js'
 import { HttpMethod } from 'wasp/client'
 import type { AuthUser, AuthUserData } from '../server/auth/user'
 import { makeAuthUserIfPossible } from './user'

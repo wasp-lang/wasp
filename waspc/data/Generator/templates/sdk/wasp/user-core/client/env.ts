@@ -1,4 +1,4 @@
-import { ensureEnvSchema } from 'wasp/env/validation'
+import { ensureEnvSchema } from '../../core/env/validation.js'
 import { clientEnvSchema } from './env/schema.js'
 
 // PUBLIC API
