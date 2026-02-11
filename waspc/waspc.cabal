@@ -713,6 +713,7 @@ test-suite waspc-tests
     Generator.FileDraft.CopyAndModifyTextFileDraftTest
     Generator.FileDraft.TemplateFileDraftTest
     Generator.MockWriteableMonad
+    Generator.WebAppSsrTemplateTest
     Generator.WriteFileDraftsTest
     Generator.JsImportTest
     Generator.CrudTest

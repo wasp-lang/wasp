@@ -8,6 +8,7 @@ import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Generator.DepVersions as DepVersions
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as Server
+import qualified Wasp.Generator.WebAppGenerator as WebApp
 
 type DependencySpecification = (P.PackageName, P.PackageVersion)
 
@@ -58,8 +59,10 @@ getAllWaspDependencies spec =
     requiredUserRuntimeDeps
       <> requiredUserDevelopmentDeps
       <> optionalUserDeps
+      <> webAppDeps
       <> serverDeps
   where
+    webAppDeps = getAllDepsFromPackage $ WebApp.npmDepsFromWasp spec
     serverDeps = getAllDepsFromPackage $ N.fromWasp $ Server.npmDepsFromWasp spec
 
     dedupeVersions pkgName v1 v2
