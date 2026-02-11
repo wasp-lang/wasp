@@ -14,8 +14,7 @@ import Wasp.Generator.Crud (getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.UserCore.Common
-  ( mkTmplFd,
-    mkTmplFdWithData,
+  ( mkTmplFdWithData,
     mkTmplFdWithDstAndData,
   )
 import Wasp.Util ((<++>))

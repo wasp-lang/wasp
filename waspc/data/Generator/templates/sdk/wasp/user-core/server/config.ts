@@ -1,8 +1,9 @@
 {{={= =}=}}
-import { env } from './env.js'
+import { waspEnv } from '../../core/server/waspEnv.js';
 import { stripTrailingSlash, getOrigin } from '../../core/universal/url.js'
+// TODO: needs server env instead
 
-type NodeEnv = typeof env.NODE_ENV
+type NodeEnv = typeof waspEnv.NODE_ENV
 
 type Config = {
   env: NodeEnv;
@@ -19,26 +20,26 @@ type Config = {
   {=/ isAuthEnabled =}
 }
 
-const frontendUrl = stripTrailingSlash(env['{= clientUrlEnvVarName =}'])
-const serverUrl = stripTrailingSlash(env['{= serverUrlEnvVarName =}'])
+const frontendUrl = stripTrailingSlash(waspEnv['{= clientUrlEnvVarName =}'])
+const serverUrl = stripTrailingSlash(waspEnv['{= serverUrlEnvVarName =}'])
 
 const allowedCORSOriginsPerEnv: Record<NodeEnv, Config['allowedCORSOrigins']> = {
   development: [/.*/],
   production: [getOrigin(frontendUrl)]
 }
-const allowedCORSOrigins = allowedCORSOriginsPerEnv[env.NODE_ENV]
+const allowedCORSOrigins = allowedCORSOriginsPerEnv[waspEnv.NODE_ENV]
 
 const config: Config = {
   frontendUrl,
   serverUrl,
   allowedCORSOrigins,
-  env: env.NODE_ENV,
-  isDevelopment: env.NODE_ENV === 'development',
-  port: env.PORT,
-  databaseUrl: env.{= databaseUrlEnvVarName =},
+  env: waspEnv.NODE_ENV,
+  isDevelopment: waspEnv.NODE_ENV === 'development',
+  port: waspEnv.PORT,
+  databaseUrl: waspEnv.{= databaseUrlEnvVarName =},
   {=# isAuthEnabled =}
   auth: {
-    jwtSecret: env["{= jwtSecretEnvVarName =}"]
+    jwtSecret: waspEnv["{= jwtSecretEnvVarName =}"]
   }
   {=/ isAuthEnabled =}
 }

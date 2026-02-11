@@ -5,7 +5,6 @@ module Wasp.Generator.SdkGenerator.UserCore.EnvValidation
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
-import Data.Maybe (isJust)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -13,8 +12,6 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.AuthProviders as AuthProviders
-import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -22,10 +19,6 @@ import Wasp.Generator.SdkGenerator.UserCore.Common
   ( mkTmplFd,
     mkTmplFdWithData,
   )
-import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
-import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
 
 genEnvValidation :: AppSpec -> Generator [FileDraft]
@@ -48,21 +41,8 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
   where
     tmplData =
       object
-        [ "isAuthEnabled" .= isJust maybeAuth,
-          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
-          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
-          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
-          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName,
-          "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "defaultServerPort" .= Server.defaultServerPort,
-          "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
-          "isEmailSenderEnabled" .= isJust maybeEmailSender,
-          "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+        [ "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
-    maybeAuth = AS.App.auth app
-    maybeEmailSender = AS.App.emailSender app
     maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
 
