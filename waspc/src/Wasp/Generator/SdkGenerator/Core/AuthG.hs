@@ -39,7 +39,8 @@ genAuth spec =
           mkTmplFd [relfile|auth/forms/internal/Form.tsx|],
           mkTmplFd [relfile|auth/forms/internal/Form.module.css|],
           mkTmplFd [relfile|auth/forms/internal/Message.tsx|],
-          mkTmplFd [relfile|auth/forms/internal/Message.module.css|]
+          mkTmplFd [relfile|auth/forms/internal/Message.module.css|],
+          mkTmplFd [relfile|auth/forms/internal/email/VerifyEmailForm.tsx|]
         ]
         <++> genSocialComponents auth
         <++> genAuthEmailActions

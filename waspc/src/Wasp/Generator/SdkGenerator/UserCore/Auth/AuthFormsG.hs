@@ -71,8 +71,7 @@ genInternalAuthComponents auth =
     genEmailComponents =
       genConditionally isEmailAuthEnabled $
         sequence
-          [ return . mkTmplFd $ [relfile|auth/forms/internal/email/VerifyEmailForm.tsx|],
-            return . mkTmplFd $ [relfile|auth/forms/internal/email/useEmail.ts|],
+          [ return . mkTmplFd $ [relfile|auth/forms/internal/email/useEmail.ts|],
             return . mkTmplFd $ [relfile|auth/forms/internal/email/ForgotPasswordForm.tsx|],
             return . mkTmplFd $ [relfile|auth/forms/internal/email/ResetPasswordForm.tsx|]
           ]

@@ -15,7 +15,7 @@ import { MessageError, MessageSuccess } from '../../../core/auth/forms/internal/
 {=# isEmailAuthEnabled =}
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
-import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
+import { VerifyEmailForm } from '../../../core/auth/forms/internal/email/VerifyEmailForm'
 {=/ isEmailAuthEnabled =}
 
 const logoStyle = {
