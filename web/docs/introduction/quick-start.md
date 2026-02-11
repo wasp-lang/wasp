@@ -103,13 +103,12 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
   </div>
 </details>
 
-### Installation
+### Installation {#detailed-installation}
 
 <Tabs
   defaultValue="npm"
   values={[
     {label: 'Linux / macOS (npm)', value: 'npm'},
-    {label: 'Linux / macOS (installer)', value: 'installer'},
     {label: 'Windows', value: 'win'},
     {label: 'From source', value: 'source'}
   ]}
@@ -120,24 +119,11 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
     ```shell
     npm i -g @wasp.sh/wasp-cli@latest
     ```
-  </TabItem>
 
-  <TabItem value="installer">
-    Open your terminal and run:
+    :::note Looking for the old installer script?
 
-    ```shell
-    curl -sSL https://get.wasp.sh/installer.sh | sh
-    ```
+    Check out the **[Legacy installer guide](../guides/legacy/installer.md)** for instructions on how to keep using it or how to migrate to npm-based installation.
 
-    :::note Running Wasp on Mac with Mx chip (arm64)
-    **Experiencing the 'Bad CPU type in executable' issue on a device with arm64 (Apple Silicon)?**
-    Given that the wasp binary is built for x86 and not for arm64 (Apple Silicon), you'll need to install [Rosetta on your Mac](https://support.apple.com/en-us/HT211861) if you are using a Mac with Mx (M1, M2, ...). Rosetta is a translation process that enables users to run applications designed for x86 on arm64 (Apple Silicon). To install Rosetta, run the following command in your terminal
-
-    ```bash
-    softwareupdate --install-rosetta
-    ```
-
-    Once Rosetta is installed, you should be able to run Wasp without any issues.
     :::
   </TabItem>
 

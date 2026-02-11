@@ -2,12 +2,46 @@
 title: Migration from 0.20.X to 0.21.X
 ---
 
-import InstallInstructions from './_install-instructions.md'
 import NetlifyTomlConfig from '../deployment/deployment-methods/\_netlify-toml-config.md'
+import InstallInstructions from './_install-instructions.md'
+import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
-<InstallInstructions version="0.21.0" />
+<LegacyInstallerMigration />
+
+<InstallInstructions version="0.21" />
 
 ## What's new in 0.21.X?
+
+### New npm-based installation
+
+Starting from Wasp 0.21, we've switched Wasp to be installed through npm. This simplifies the installation process, makes it easier to manage Wasp versions, and allows npm-centric workflows like mirroring and vetting packages.
+
+We strongly discourage using both installation methods at the same time, as it can lead to potential conflicts over which version is used when calling the `wasp` CLI. The legacy and npm installers will try to detect each other and refuse to run if the other method is already in use.
+
+To switch from the old legacy installer to the npm method, you can run our migration tool:
+
+```sh
+curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
+```
+
+The tool will uninstall the old version of Wasp, and guide you through installing the new version through npm.
+
+For your convenience, we have also published older versions of Wasp on npm (from 0.16 onwards), so after migrating to the npm method, you can keep developing on projects that haven't been upgraded yet. Just tell npm which version you need:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.16
+npm i -g @wasp.sh/wasp-cli@0.17
+npm i -g @wasp.sh/wasp-cli@0.18
+npm i -g @wasp.sh/wasp-cli@0.19
+npm i -g @wasp.sh/wasp-cli@0.20
+npm i -g @wasp.sh/wasp-cli@0.21
+```
+
+:::caution Versions older than 0.16 are not supported
+Wasp versions older than 0.16 are not available through the npm installer. If you have projects using an older version, you should keep using the installer and upgrade to a npm-supported version as soon as possible.
+:::
+
+If you want to learn more about this migration or troubleshoot any problems you might find, read our [Legacy Installer guide](../guides/legacy/installer.md).
 
 ### User-land Vite configuration
 
@@ -19,17 +53,6 @@ You now have **full control** over your `vite.config.ts` file. Wasp no longer ma
 - Environment variables validation.
 - Prevention of server imports in client code.
 - TypeScript type checking during production builds.
-
-### New npm-based installation
-
-Starting from Wasp 0.21.X, the recommended way to install Wasp is via npm. This simplifies the installation process and makes it easier to manage Wasp versions. For now, both the old and new installation methods are supported, but we recommend switching to the npm-based installation.
-
-To switch from the old installation method to the new one, simply uninstall Wasp using the old method and then install it again via npm:
-
-```sh
-wasp uninstall
-npm i -g @wasp.sh/wasp-cli@latest
-```
 
 ### Better Tailwind CSS support
 

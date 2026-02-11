@@ -37,9 +37,10 @@ getUserCacheDir = SD.getXdgDirectory SD.XdgCache "" >>= SP.parseAbsDir
 withTempDir :: (Path' Abs (Dir r) -> IO a) -> IO a
 withTempDir action = withSystemTempDirectory ".wasp" (action . fromJust . SP.parseAbsDir)
 
--- NOTE: these paths are based on the installer script and if you change them there
--- you need to change them here as well (and vice versa).
--- Task to improve this: https://github.com/wasp-lang/wasp/issues/980
+-- These paths are also defined in:
+-- - https://github.com/wasp-lang/wasp/blob/main/scripts/make-npm-packages/templates/main-package/preinstall.js
+-- - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
+-- TODO: Do not hardcode: https://github.com/wasp-lang/wasp/issues/980
 waspInstallationDirInHomeDir :: Path' (Rel UserHomeDir) Dir'
 waspInstallationDirInHomeDir = [reldir|.local/share/wasp-lang|]
 
