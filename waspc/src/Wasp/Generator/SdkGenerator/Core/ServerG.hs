@@ -11,7 +11,7 @@ import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
-import Wasp.AppSpec.Valid (getApp)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import qualified Wasp.Generator.EmailSenders as EmailSenders
@@ -38,6 +38,7 @@ genServer spec =
     <++> genServerAuth spec
     <++> genServerEmail spec
     <++> genServerWaspEnv spec
+    <++> genServerConfigFile spec
 
 genServerMiddleware :: Generator [FileDraft]
 genServerMiddleware =
@@ -73,3 +74,15 @@ genServerWaspEnv spec = return [mkTmplFdWithData [relfile|server/waspEnv.ts|] tm
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
     app = snd $ getApp spec
+
+genServerConfigFile :: AppSpec -> Generator [FileDraft]
+genServerConfigFile spec = return [mkTmplFdWithData [relfile|server/config.ts|] tmplData]
+  where
+    tmplData =
+      object
+        [ "isAuthEnabled" .= isAuthEnabled spec,
+          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
+          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
+          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
+          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
+        ]

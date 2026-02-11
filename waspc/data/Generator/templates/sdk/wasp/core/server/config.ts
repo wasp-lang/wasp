@@ -1,7 +1,6 @@
 {{={= =}=}}
-import { waspEnv } from '../../core/server/waspEnv.js';
-import { stripTrailingSlash, getOrigin } from '../../core/universal/url.js'
-// TODO: needs server env instead
+import { waspEnv } from './waspEnv.js';
+import { stripTrailingSlash, getOrigin } from '../universal/url.js'
 
 type NodeEnv = typeof waspEnv.NODE_ENV
 

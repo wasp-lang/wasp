@@ -35,9 +35,6 @@ import Wasp.Generator.SdkGenerator.UserCore.Server.JobGenerator (genNewJobsApi)
 import qualified Wasp.Generator.SdkGenerator.UserCore.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.UserCore.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.UserCore.WebSocketGenerator (genWebSockets)
-import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
-import qualified Wasp.Generator.ServerGenerator.Common as Server
-import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
 
 genUserCoreTsconfigProject :: AppSpec -> Generator [FileDraft]
@@ -46,7 +43,6 @@ genUserCoreTsconfigProject spec =
     [ return $ mkTmplFd [relfile|tsconfig.json|],
       return $ mkTmplFd [relfile|server/index.ts|],
       return $ mkTmplFd [relfile|client/index.ts|],
-      genServerConfigFile spec,
       genServerUtils spec,
       genServerDbClient spec
     ]
@@ -65,18 +61,6 @@ genUserCoreTsconfigProject spec =
     <++> genNewEmailSenderApi spec
     <++> genNewJobsApi spec
     <++> genEnvValidation spec
-
-genServerConfigFile :: AppSpec -> Generator FileDraft
-genServerConfigFile spec = return $ mkTmplFdWithData [relfile|server/config.ts|] tmplData
-  where
-    tmplData =
-      object
-        [ "isAuthEnabled" .= isAuthEnabled spec,
-          "clientUrlEnvVarName" .= Server.clientUrlEnvVarName,
-          "serverUrlEnvVarName" .= Server.serverUrlEnvVarName,
-          "jwtSecretEnvVarName" .= AuthG.jwtSecretEnvVarName,
-          "databaseUrlEnvVarName" .= Db.databaseUrlEnvVarName
-        ]
 
 genServerUtils :: AppSpec -> Generator FileDraft
 genServerUtils spec =
