@@ -25,10 +25,11 @@ npm i -g @wasp.sh/wasp-cli@latest
 
 ## Keep using the legacy installer {#keep-using}
 
-To use the installer, run:
+If you haven't yet migrated to the npm installer method, you can keep using the legacy installer, by running:
 
 ```shell
 # Set x.y.z to the version you want to install, e.g. 0.20.1
+# The installer will refuse to run without a specific version argument
 curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z
 ```
 
@@ -39,9 +40,31 @@ You should only use the legacy installer as a stopgap while migrating workstatio
 - You are trying to install Wasp >= 0.21.
 - You are calling the installer without a version argument.
 
+In any of these cases, the installer will print an error message and exit without installing Wasp. You can still [switch back manually](#switch-back) if needed.
+
 ## Troubleshooting
 
-### I need to switch back to the legacy installer
+### I need to use versions older than Wasp 0.21
+
+For your convenience, we have also published older versions of Wasp on npm (from 0.16 onwards), so after migrating to the npm method, you can keep developing on projects that haven't been upgraded yet.
+
+You can run the `npm install` command with any given version to switch to that Wasp version:
+
+```shell
+npm i -g @wasp.sh/wasp-cli@0.16
+npm i -g @wasp.sh/wasp-cli@0.17
+npm i -g @wasp.sh/wasp-cli@0.18
+npm i -g @wasp.sh/wasp-cli@0.19
+npm i -g @wasp.sh/wasp-cli@0.20
+```
+
+### I need to use versions older than Wasp 0.16
+
+These versions are very out of date and we don't recommend using them. We urge you to upgrade your Wasp project to a newer version as soon as possible to keep your app secure and stable.
+
+In the transition period until these apps are migrated, you will need to [keep using the legacy installer](#keep-using) to install these older versions of Wasp.
+
+### I need to switch back to the legacy installer {#switch-back}
 
 :::note
 If you found a bug in the npm-based Wasp, or a workflow that is no longer possible, please report it to us so we can fix it as soon as possible. You can do that [through a GitHub issue](https://github.com/wasp-lang/wasp/issues/new/choose), or [on our Discord server](https://discord.gg/rzdnErX).
@@ -55,16 +78,25 @@ If you have already switched to npm installation but need to switch back to the 
     npm uninstall -g @wasp.sh/wasp-cli
     ```
 
-2. Remove the npm marker file from your system
+2. Make sure that Wasp is uninstalled from your system:
+
+    ```shell
+    type wasp
+    ```
+
+    If Wasp was correctly uninstalled, the `type` command will output "not found". If Wasp has not been completely uninstalled, it will print the path of the `wasp` binary, and you can manually remove it.
+
+3. Remove the npm marker file from your system:
 
     ```shell
     rm $HOME/.local/share/wasp-lang/.uses-npm
     ```
 
-3. Run the installer again with the version you need:
+4. Run the installer again with the version you need:
 
     ```shell
     # Set x.y.z to the version you want to install, e.g. 0.20.1
+    # The installer will refuse to run without a specific version argument
     curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z
     ```
 
