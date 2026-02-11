@@ -1,6 +1,6 @@
-import { useAction, useQuery } from "../operations"
-import type { Query, Action } from "../../../core/client/operations/rpc.js"
-import type { Tail } from "../../../core/universal/types.js"
+import { useAction, useQuery } from "../operations/hooks.js"
+import type { Query, Action } from "../operations/rpc.js"
+import type { Tail } from "../../universal/types.js"
 
 // PRIVATE API
 export function makeUseQueryFor<Input, Output>(

@@ -31,7 +31,8 @@ genClient spec =
       mkTmplFd [relfile|client/operations/actions/core.ts|],
       mkTmplFd [relfile|client/operations/hooks.ts|],
       mkTmplFd [relfile|client/test/vitest/helpers.tsx|],
-      mkTmplFd [relfile|client/test/index.ts|]
+      mkTmplFd [relfile|client/test/index.ts|],
+      mkTmplFd [relfile|client/crud/operationsHelpers.ts|]
     ]
     <++> genClientRouter spec
     <++> genClientEnvWaspSchema

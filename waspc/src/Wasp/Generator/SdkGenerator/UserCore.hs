@@ -44,8 +44,6 @@ genUserCoreTsconfigProject :: AppSpec -> Generator [FileDraft]
 genUserCoreTsconfigProject spec =
   sequence
     [ return $ mkTmplFd [relfile|tsconfig.json|],
-      return $ mkTmplFd [relfile|vite-env.d.ts|],
-      return $ mkTmplFd [relfile|prisma-runtime-library.d.ts|],
       return $ mkTmplFd [relfile|server/index.ts|],
       return $ mkTmplFd [relfile|client/index.ts|],
       genServerConfigFile spec,

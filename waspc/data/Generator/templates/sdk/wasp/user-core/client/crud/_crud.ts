@@ -1,7 +1,7 @@
 {{={= =}=}}
 import { createAction } from "../../../core/client/operations/actions/core.js";
 import { createQuery } from "../../../core/client/operations/queries/core.js";
-import { makeUseActionFor, makeUseQueryFor } from "./operationsHelpers.js";
+import { makeUseActionFor, makeUseQueryFor } from "../../../core/client/crud/operationsHelpers.js";
 import { 
     {=# operations.Get =}
     GetQueryResolved,

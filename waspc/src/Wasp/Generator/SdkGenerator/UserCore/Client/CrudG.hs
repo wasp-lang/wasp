@@ -25,8 +25,7 @@ genNewClientCrudApi spec =
   if areThereAnyCruds
     then
       sequence
-        [ genCrudIndex spec cruds,
-          return . mkTmplFd $ [relfile|client/crud/operationsHelpers.ts|]
+        [ genCrudIndex spec cruds
         ]
         <++> genCrudOperations spec cruds
     else return []
