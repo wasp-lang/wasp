@@ -1,2 +1,3 @@
 // PUBLIC API
-export { signInUrl as googleSignInUrl } from '../../auth/helpers/Google'
+export { signInUrl as googleSignInUrl } from '../../../core/auth/helpers/Google';
+

@@ -1,2 +1,3 @@
 // PUBLIC API
-export { signInUrl as slackSignInUrl } from '../../auth/helpers/Slack'
+export { signInUrl as slackSignInUrl } from '../../../core/auth/helpers/Slack';
+

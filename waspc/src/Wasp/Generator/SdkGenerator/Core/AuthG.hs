@@ -17,6 +17,7 @@ import qualified Wasp.Generator.AuthProviders.Local as AP.UsernameAndPassword
 import Wasp.Generator.Common (genConditionally)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Core.Auth.HelpersG (genAuthHelpers)
 import Wasp.Generator.SdkGenerator.Core.Common (mkTmplFd, mkTmplFdWithData)
 import Wasp.Util ((<++>))
 
@@ -44,6 +45,7 @@ genAuth spec =
         <++> genAuthEmailActions
         <++> genAuthUsernameAndPasswordActions
         <++> genAuthFormsTypes auth
+        <++> genAuthHelpers auth
   where
     maybeAuth = (snd $ getApp spec).auth
 

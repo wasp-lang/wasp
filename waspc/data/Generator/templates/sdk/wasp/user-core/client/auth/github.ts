@@ -1,2 +1,3 @@
 // PUBLIC API
-export { signInUrl as githubSignInUrl } from '../../auth/helpers/GitHub'
+export { signInUrl as githubSignInUrl } from '../../../core/auth/helpers/GitHub';
+

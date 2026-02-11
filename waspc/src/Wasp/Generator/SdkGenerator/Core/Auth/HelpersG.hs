@@ -1,5 +1,5 @@
-module Wasp.Generator.SdkGenerator.UserCore.Auth.OAuthAuthG
-  ( genOAuthAuth,
+module Wasp.Generator.SdkGenerator.Core.Auth.HelpersG
+  ( genAuthHelpers,
   )
 where
 
@@ -17,12 +17,12 @@ import Wasp.Generator.AuthProviders.OAuth (OAuthAuthProvider)
 import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.UserCore.Common
+import Wasp.Generator.SdkGenerator.Core.Common
   ( mkTmplFdWithDstAndData,
   )
 
-genOAuthAuth :: AS.Auth.Auth -> Generator [FileDraft]
-genOAuthAuth auth
+genAuthHelpers :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthHelpers auth
   | AS.Auth.isExternalAuthEnabled auth =
       genOAuthHelpers auth
   | otherwise = return []

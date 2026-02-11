@@ -9,19 +9,19 @@ export { ResetPasswordForm } from '../../auth/forms/ResetPassword'
 {=/ isEmailAuthEnabled =}
 export type { CustomizationOptions } from '../../../core/auth/forms/types'
 {=# isSlackAuthEnabled =}
-export { SignInButton as SlackSignInButton } from '../../auth/helpers/Slack'
+export { SignInButton as SlackSignInButton } from '../../../core/auth/helpers/Slack'
 {=/ isSlackAuthEnabled =}
 {=# isDiscordAuthEnabled =}
-export { SignInButton as DiscordSignInButton } from '../../auth/helpers/Discord'
+export { SignInButton as DiscordSignInButton } from '../../../core/auth/helpers/Discord'
 {=/ isDiscordAuthEnabled =}
 {=# isGoogleAuthEnabled =}
-export { SignInButton as GoogleSignInButton } from '../../auth/helpers/Google'
+export { SignInButton as GoogleSignInButton } from '../../../core/auth/helpers/Google'
 {=/ isGoogleAuthEnabled =}
 {=# isKeycloakAuthEnabled =}
-export { SignInButton as KeycloakSignInButton } from '../../auth/helpers/Keycloak'
+export { SignInButton as KeycloakSignInButton } from '../../../core/auth/helpers/Keycloak'
 {=/ isKeycloakAuthEnabled =}
 {=# isGitHubAuthEnabled =}
-export { SignInButton as GitHubSignInButton } from '../../auth/helpers/GitHub'
+export { SignInButton as GitHubSignInButton } from '../../../core/auth/helpers/GitHub'
 {=/ isGitHubAuthEnabled =}
 export {
   FormError,

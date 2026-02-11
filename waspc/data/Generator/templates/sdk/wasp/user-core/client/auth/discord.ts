@@ -1,2 +1,3 @@
 // PUBLIC API
-export { signInUrl as discordSignInUrl } from '../../auth/helpers/Discord'
+export { signInUrl as discordSignInUrl } from '../../../core/auth/helpers/Discord';
+

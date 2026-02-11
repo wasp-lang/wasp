@@ -18,7 +18,6 @@ import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.UserCore.Auth.AuthFormsG (genAuthForms)
 import Wasp.Generator.SdkGenerator.UserCore.Auth.EmailAuthG (genEmailAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Auth.LocalAuthG (genLocalAuth)
-import Wasp.Generator.SdkGenerator.UserCore.Auth.OAuthAuthG (genOAuthAuth)
 import Wasp.Generator.SdkGenerator.UserCore.Common
   ( mkTmplFd,
     mkTmplFdWithData,
@@ -44,7 +43,6 @@ genAuth spec =
           ]
         <++> genAuthForms auth
         <++> genLocalAuth auth
-        <++> genOAuthAuth auth
         <++> genEmailAuth auth
         -- server stuff
         <++> sequence

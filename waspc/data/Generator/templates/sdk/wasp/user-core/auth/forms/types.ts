@@ -2,7 +2,6 @@ import { RegisterOptions, UseFormReturn } from 'react-hook-form'
 import { FormState } from '../../../core/auth/forms/types'
 import type { LoginSignupFormFields } from './internal/common/LoginSignupForm'
 
-
 // PRIVATE API
 export type AdditionalSignupFieldRenderFn = (
   hookForm: UseFormReturn<LoginSignupFormFields>,

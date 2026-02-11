@@ -1,8 +1,8 @@
 {{={= =}=}}
 
-import { SocialButton } from '../../../core/auth/forms/internal/social/SocialButton'
-import * as SocialIcons from '../../../core/auth/forms/internal/social/SocialIcons'
-import { config } from '../../../core/client/config'
+import { SocialButton } from '../forms/internal/social/SocialButton'
+import * as SocialIcons from '../forms/internal/social/SocialIcons'
+import { config } from '../../client/config'
 
 // PUBLIC API
 export const signInUrl: string = `${config.apiUrl}{= signInPath =}`
