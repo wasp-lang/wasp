@@ -7,7 +7,7 @@ import Data.Aeson (object, (.=))
 import StrongPath (relfile)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (localAuthProvider)
-import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
+import Wasp.Generator.AuthProviders.Local (serverSignupUrl)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
@@ -29,15 +29,8 @@ genLocalAuth auth
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth =
   sequence
-    [ genLoginAction,
-      genSignupAction auth
+    [ genSignupAction auth
     ]
-
-genLoginAction :: Generator FileDraft
-genLoginAction =
-  return $ mkTmplFdWithData [relfile|auth/username/actions/login.ts|] tmplData
-  where
-    tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =

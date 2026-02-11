@@ -11,13 +11,9 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.AuthProviders (emailAuthProvider)
-import Wasp.Generator.AuthProviders.Email
-  ( serverLoginUrl,
-    serverRequestPasswordResetUrl,
-    serverResetPasswordUrl,
-    serverVerifyEmailUrl,
-  )
+import Wasp.Generator.AuthProviders (emailAuthProvider, localAuthProvider)
+import qualified Wasp.Generator.AuthProviders.Email as AP.Email
+import qualified Wasp.Generator.AuthProviders.Local as AP.UsernameAndPassword
 import Wasp.Generator.Common (genConditionally)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -46,6 +42,7 @@ genAuth spec =
         ]
         <++> genSocialComponents auth
         <++> genAuthEmailActions
+        <++> genAuthUsernameAndPasswordActions
   where
     maybeAuth = (snd $ getApp spec).auth
 
@@ -61,6 +58,18 @@ genSocialComponents auth =
   where
     isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
+genAuthUsernameAndPasswordActions :: Generator [FileDraft]
+genAuthUsernameAndPasswordActions =
+  sequence
+    [ genLoginAction
+    ]
+  where
+    genLoginAction :: Generator FileDraft
+    genLoginAction =
+      return $ mkTmplFdWithData [relfile|auth/username/actions/login.ts|] tmplData
+      where
+        tmplData = object ["loginPath" .= AP.UsernameAndPassword.serverLoginUrl localAuthProvider]
+
 genAuthEmailActions :: Generator [FileDraft]
 genAuthEmailActions =
   sequence
@@ -68,25 +77,25 @@ genAuthEmailActions =
       genPasswordResetActions,
       genVerifyEmailAction
     ]
-
-genLoginAction :: Generator FileDraft
-genLoginAction =
-  return $ mkTmplFdWithData [relfile|auth/email/actions/login.ts|] tmplData
   where
-    tmplData = object ["loginPath" .= serverLoginUrl emailAuthProvider]
+    genLoginAction :: Generator FileDraft
+    genLoginAction =
+      return $ mkTmplFdWithData [relfile|auth/email/actions/login.ts|] tmplData
+      where
+        tmplData = object ["loginPath" .= AP.Email.serverLoginUrl emailAuthProvider]
 
-genPasswordResetActions :: Generator FileDraft
-genPasswordResetActions =
-  return $ mkTmplFdWithData [relfile|auth/email/actions/passwordReset.ts|] tmplData
-  where
-    tmplData =
-      object
-        [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
-          "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
-        ]
+    genPasswordResetActions :: Generator FileDraft
+    genPasswordResetActions =
+      return $ mkTmplFdWithData [relfile|auth/email/actions/passwordReset.ts|] tmplData
+      where
+        tmplData =
+          object
+            [ "requestPasswordResetPath" .= AP.Email.serverRequestPasswordResetUrl emailAuthProvider,
+              "resetPasswordPath" .= AP.Email.serverResetPasswordUrl emailAuthProvider
+            ]
 
-genVerifyEmailAction :: Generator FileDraft
-genVerifyEmailAction =
-  return $ mkTmplFdWithData [relfile|auth/email/actions/verifyEmail.ts|] tmplData
-  where
-    tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]
+    genVerifyEmailAction :: Generator FileDraft
+    genVerifyEmailAction =
+      return $ mkTmplFdWithData [relfile|auth/email/actions/verifyEmail.ts|] tmplData
+      where
+        tmplData = object ["verifyEmailPath" .= AP.Email.serverVerifyEmailUrl emailAuthProvider]
