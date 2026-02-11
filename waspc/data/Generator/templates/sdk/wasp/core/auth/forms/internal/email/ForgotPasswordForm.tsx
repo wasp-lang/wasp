@@ -1,8 +1,8 @@
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import { useForm } from 'react-hook-form'
 
-import { requestPasswordReset } from '../../../../../core/auth/email/actions/passwordReset'
-import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../../../../../core/auth/forms/internal/Form'
+import { requestPasswordReset } from '../../../email/actions/passwordReset'
+import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../Form'
 
 // PRIVATE API
 export const ForgotPasswordForm = () => {

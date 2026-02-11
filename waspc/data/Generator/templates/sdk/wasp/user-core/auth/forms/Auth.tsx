@@ -13,8 +13,8 @@ import {
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
 import { MessageError, MessageSuccess } from '../../../core/auth/forms/internal/Message'
 {=# isEmailAuthEnabled =}
-import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
-import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
+import { ForgotPasswordForm } from '../../../core/auth/forms/internal/email/ForgotPasswordForm'
+import { ResetPasswordForm } from '../../../core/auth/forms/internal/email/ResetPasswordForm'
 import { VerifyEmailForm } from '../../../core/auth/forms/internal/email/VerifyEmailForm'
 {=/ isEmailAuthEnabled =}
 

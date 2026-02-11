@@ -6,7 +6,7 @@
     "rootDir": "..",
     "outDir": "../dist/"
   },
-  "include": [".", "../src", "../core/auth/forms/internal/email/VerifyEmailForm.tsx"],
+  "include": [".", "../src"],
   "references": [
     { "path": "../core" },
   ]
