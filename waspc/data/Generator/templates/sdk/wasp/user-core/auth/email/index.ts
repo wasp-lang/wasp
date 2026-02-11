@@ -1,5 +1,5 @@
-export { login } from './actions/login';
+export { login } from '../../../core/auth/email/actions/login';
+export { requestPasswordReset, resetPassword } from '../../../core/auth/email/actions/passwordReset';
+export { verifyEmail } from '../../../core/auth/email/actions/verifyEmail';
 export { signup } from './actions/signup';
-export { requestPasswordReset } from './actions/passwordReset';
-export { resetPassword } from './actions/passwordReset';
-export { verifyEmail } from './actions/verifyEmail';
+

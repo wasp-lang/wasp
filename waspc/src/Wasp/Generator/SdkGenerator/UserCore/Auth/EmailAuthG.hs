@@ -53,17 +53,8 @@ genServerUtils auth =
 genActions :: AS.Auth.Auth -> Generator [FileDraft]
 genActions auth =
   sequence
-    [ genLoginAction,
-      genSignupAction auth,
-      genPasswordResetActions,
-      genVerifyEmailAction
+    [ genSignupAction auth
     ]
-
-genLoginAction :: Generator FileDraft
-genLoginAction =
-  return $ mkTmplFdWithData [relfile|auth/email/actions/login.ts|] tmplData
-  where
-    tmplData = object ["loginPath" .= serverLoginUrl emailAuthProvider]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
@@ -76,19 +67,3 @@ genSignupAction auth =
         ]
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     authMethods = AS.Auth.methods auth
-
-genPasswordResetActions :: Generator FileDraft
-genPasswordResetActions =
-  return $ mkTmplFdWithData [relfile|auth/email/actions/passwordReset.ts|] tmplData
-  where
-    tmplData =
-      object
-        [ "requestPasswordResetPath" .= serverRequestPasswordResetUrl emailAuthProvider,
-          "resetPasswordPath" .= serverResetPasswordUrl emailAuthProvider
-        ]
-
-genVerifyEmailAction :: Generator FileDraft
-genVerifyEmailAction =
-  return $ mkTmplFdWithData [relfile|auth/email/actions/verifyEmail.ts|] tmplData
-  where
-    tmplData = object ["verifyEmailPath" .= serverVerifyEmailUrl emailAuthProvider]

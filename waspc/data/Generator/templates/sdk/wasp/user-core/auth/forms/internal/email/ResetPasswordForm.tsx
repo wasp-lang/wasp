@@ -1,9 +1,9 @@
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import { useForm } from 'react-hook-form'
 import { useLocation } from 'react-router'
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 
-import { resetPassword } from '../../../email/actions/passwordReset'
-import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../../../../../core/auth/forms/internal/Form'
+import { resetPassword } from '../../../../../core/auth/email/actions/passwordReset'
+import { Form, FormError, FormInput, FormItemGroup, FormLabel, SubmitButton } from '../../../../../core/auth/forms/internal/Form'
 
 // PRIVATE API
 export const ResetPasswordForm = () => {

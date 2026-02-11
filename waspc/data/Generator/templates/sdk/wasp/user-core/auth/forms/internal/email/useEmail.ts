@@ -1,5 +1,5 @@
+import { login } from '../../../../../core/auth/email/actions/login'
 import { signup } from '../../../email/actions/signup'
-import { login } from '../../../email/actions/login'
 
 // PRIVATE API
 export function useEmail({

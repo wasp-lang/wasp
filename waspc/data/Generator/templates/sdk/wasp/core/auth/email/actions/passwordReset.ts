@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { api, handleApiError } from '../../../../core/api/index.js';
+import { api, handleApiError } from '../../../api/index.js';
 
 // PUBLIC API
 export async function requestPasswordReset(data: { email: string; }): Promise<{ success: boolean }> {
