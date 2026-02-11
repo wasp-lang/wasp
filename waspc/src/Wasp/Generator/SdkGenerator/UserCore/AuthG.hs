@@ -39,9 +39,7 @@ genAuth spec =
         ]
         -- client stuff
         <++> sequence
-          [ return . mkTmplFd $ [relfile|auth/helpers/user.ts|],
-            return . mkTmplFd $ [relfile|auth/types.ts|],
-            return . mkTmplFd $ [relfile|auth/logout.ts|],
+          [ return . mkTmplFd $ [relfile|auth/types.ts|],
             genUseAuth auth
           ]
         <++> genAuthForms auth

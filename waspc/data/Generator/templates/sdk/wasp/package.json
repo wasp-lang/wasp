@@ -21,7 +21,7 @@
     "./core/serialization": "./dist/core/core/serialization/index.js",
     "./core/auth": "./dist/user-core/core/auth.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./auth/helpers/user": "./dist/user-core/auth/helpers/user.js",
+    "./auth/helpers/user": "./dist/core/auth/helpers/user.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./auth/session": "./dist/user-core/auth/session.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
@@ -66,7 +66,7 @@
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./server/auth/email": "./dist/user-core/server/auth/email/index.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
-    "./client/test/*": "./dist/user-core/client/test/*.js",
+    "./client/test/*": "./dist/core/client/test/*.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
     "./server/crud/*": "./dist/user-core/server/crud/*.js",
     {=!  Used by our code, undocumented (but accessible) for users. =}
@@ -95,7 +95,7 @@
     "./server/api": "./dist/user-core/server/api/index.js",
     {=! Public: { api }  =}
     {=! Private: [sdk] =}
-    "./client/api": "./dist/user-core/api/index.js",
+    "./client/api": "./dist/core/api/index.js",
     {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
     {=! Private: [] =}
     "./client/webSocket": "./dist/user-core/client/webSocket/index.js",
@@ -114,7 +114,7 @@
     "./server/jobs": "./dist/user-core/server/jobs/index.js",
     "./server/operations": "./dist/user-core/server/operations/index.js",
     "./client/router": "./dist/core/client/router/index.js",
-    "./client/test": "./dist/user-core/client/test/index.js",
+    "./client/test": "./dist/core/client/test/index.js",
     "./client/hooks": "./dist/core/client/hooks.js",
     "./client": "./dist/user-core/client/index.js",
     "./dev": "./dist/core/dev/index.js",
@@ -140,7 +140,7 @@
   =}
   "typesVersions": {
     "*": {
-      "client/api": ["api/index.ts"]
+      "client/api": ["core/api/index.ts"]
     }
   },
   "license": "ISC",

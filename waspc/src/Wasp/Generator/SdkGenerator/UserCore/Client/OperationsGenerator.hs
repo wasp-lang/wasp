@@ -29,9 +29,7 @@ import Wasp.Util ((<++>))
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
-    [ return . mkTmplFd $ [relfile|client/operations/internal/index.ts|],
-      return . mkTmplFd $ [relfile|client/operations/hooks.ts|],
-      return . mkTmplFd $ [relfile|client/operations/index.ts|]
+    [ return . mkTmplFd $ [relfile|client/operations/index.ts|]
     ]
     <++> genQueries spec
     <++> genActions spec
@@ -39,15 +37,13 @@ genOperations spec =
 genQueries :: AppSpec -> Generator [FileDraft]
 genQueries spec =
   sequence
-    [ return . mkTmplFd $ [relfile|client/operations/queries/core.ts|],
-      genQueriesIndex spec
+    [ genQueriesIndex spec
     ]
 
 genActions :: AppSpec -> Generator [FileDraft]
 genActions spec =
   sequence
-    [ return . mkTmplFd $ [relfile|client/operations/actions/core.ts|],
-      genActionsIndex spec
+    [ genActionsIndex spec
     ]
 
 genQueriesIndex :: AppSpec -> Generator FileDraft

@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { type QueryFor, createQuery } from './core'
+import { type QueryFor, createQuery } from '../../../../core/client/operations/queries/core.js'
 {=# queries =}
 {=& operationTypeImportStmt =}
 {=/ queries =}
@@ -13,4 +13,4 @@ export const {= operationName =}: QueryFor<{= operationTypeName =}> = createQuer
 {=/ queries =}
 
 // PRIVATE API (used in SDK)
-export { buildAndRegisterQuery } from './core'
+export { buildAndRegisterQuery } from '../../../../core/client/operations/queries/core.js'

@@ -1,6 +1,6 @@
 {{={= =}=}}
-import { createAction } from "../operations/actions/core.js";
-import { createQuery } from "../operations/queries/core.js";
+import { createAction } from "../../../core/client/operations/actions/core.js";
+import { createQuery } from "../../../core/client/operations/queries/core.js";
 import { makeUseActionFor, makeUseQueryFor } from "./operationsHelpers.js";
 import { 
     {=# operations.Get =}

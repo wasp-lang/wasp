@@ -10,7 +10,7 @@ export {
     useQuery,
     // PUBLIC API
     type OptimisticUpdateDefinition,
-} from './hooks'
+} from '../../../core/client/operations/hooks.js'
 
 export {
     // PUBLIC API

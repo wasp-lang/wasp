@@ -5,10 +5,10 @@ import { BrowserRouter as Router } from 'react-router'
 import { render, RenderResult, cleanup } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { beforeAll, afterEach, afterAll } from 'vitest'
-import { Query } from 'wasp/client/operations/rpc'
-import { config } from 'wasp/client'
-import { HttpMethod, Route } from 'wasp/client'
-import { serialize } from 'wasp/core/serialization'
+import { Query } from '../../operations/rpc.js'
+import { config } from '../../config.js'
+import { HttpMethod, Route } from '../../index.js'
+import { serialize } from '../../../core/serialization/index.js'
 
 // PRIVATE API
 export type MockQuery = <Input, Output, MockOutput extends Output>(

@@ -26,4 +26,4 @@ export {
   getMe,
 } from '../../auth/useAuth'
 
-export { default as logout } from '../../auth/logout'
+export { default as logout } from '../../../core/auth/logout.js'

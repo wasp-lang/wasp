@@ -25,7 +25,13 @@ genClient spec =
       -- Not migrated to TS yet
       mkTmplFd [relfile|client/operations/internal/updateHandlersMap.js|],
       mkTmplFd [relfile|client/operations/rpc.ts|],
-      mkTmplFd [relfile|client/operations/queryClient.ts|]
+      mkTmplFd [relfile|client/operations/queryClient.ts|],
+      mkTmplFd [relfile|client/operations/internal/index.ts|],
+      mkTmplFd [relfile|client/operations/queries/core.ts|],
+      mkTmplFd [relfile|client/operations/actions/core.ts|],
+      mkTmplFd [relfile|client/operations/hooks.ts|],
+      mkTmplFd [relfile|client/test/vitest/helpers.tsx|],
+      mkTmplFd [relfile|client/test/index.ts|]
     ]
     <++> genClientRouter spec
     <++> genClientEnvWaspSchema

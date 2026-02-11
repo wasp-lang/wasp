@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { type ActionFor, createAction } from './core'
+import { type ActionFor, createAction } from '../../../../core/client/operations/actions/core.js'
 {=# actions =}
 {=& operationTypeImportStmt =}
 {=/ actions =}

@@ -22,7 +22,9 @@ genAuth spec =
     Nothing -> return []
     Just auth ->
       return
-        [ mkTmplFd [relfile|auth/password.ts|],
+        [ mkTmplFd [relfile|auth/logout.ts|],
+          mkTmplFd [relfile|auth/helpers/user.ts|],
+          mkTmplFd [relfile|auth/password.ts|],
           mkTmplFd [relfile|auth/validation.ts|],
           mkTmplFd [relfile|auth/forms/internal/util.ts|],
           mkTmplFd [relfile|auth/forms/internal/auth-styles.css|],

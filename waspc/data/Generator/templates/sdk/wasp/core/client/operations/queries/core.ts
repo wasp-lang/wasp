@@ -4,13 +4,13 @@ import type {
   OperationRpcFor,
   Query,
   QueryMetadata,
-} from 'wasp/client/operations/rpc'
-import { Route } from '../../../../core/client/index'
+} from '../rpc.js'
+import { Route } from '../../index.js'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
-} from '../../../../core/client/operations/internal/resources'
-import { callOperation, makeOperationRoute } from '../internal/index'
+} from '../internal/resources.js'
+import { callOperation, makeOperationRoute } from '../internal/index.js'
 
 // PRIVATE API (used in the SDK)
 // todo: find ways to remove this duplication and make the type more precise.

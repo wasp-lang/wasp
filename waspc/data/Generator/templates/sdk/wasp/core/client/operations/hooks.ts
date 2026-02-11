@@ -7,9 +7,9 @@ import {
   useQuery as rqUseQuery,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { Action, Query } from "wasp/client/operations/rpc";
-import { makeQueryCacheKey } from "./queries/core";
-export { configureQueryClient } from "../../../core/client/operations/queryClient";
+import { Action, Query } from "./rpc.js";
+import { makeQueryCacheKey } from "./queries/core.js";
+export { configureQueryClient } from "./queryClient.js";
 
 // PUBLIC API
 export function useQuery<Input, Output>(

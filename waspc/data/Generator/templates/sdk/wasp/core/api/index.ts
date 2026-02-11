@@ -1,8 +1,8 @@
 import axios, { type AxiosInstance, type AxiosError } from 'axios'
 
-import { config } from 'wasp/client'
-import { storage } from 'wasp/core/storage'
-import { apiEventsEmitter } from 'wasp/api/events'
+import { config } from '../client/config.js'
+import { storage } from '../core/storage.js'
+import { apiEventsEmitter } from './events.js'
 
 // PUBLIC API
 export const api: AxiosInstance = axios.create({
