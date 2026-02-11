@@ -43,8 +43,15 @@ genAuth spec =
         <++> genSocialComponents auth
         <++> genAuthEmailActions
         <++> genAuthUsernameAndPasswordActions
+        <++> genAuthFormsTypes auth
   where
     maybeAuth = (snd $ getApp spec).auth
+
+genAuthFormsTypes :: AS.Auth.Auth -> Generator [FileDraft]
+genAuthFormsTypes auth =
+  return [mkTmplFdWithData [relfile|auth/forms/types.ts|] tmplData]
+  where
+    tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
 genSocialComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genSocialComponents auth =

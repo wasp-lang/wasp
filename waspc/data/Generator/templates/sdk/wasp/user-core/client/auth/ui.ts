@@ -7,7 +7,7 @@ export { ForgotPasswordForm } from '../../auth/forms/ForgotPassword'
 export { VerifyEmailForm } from '../../auth/forms/VerifyEmail'
 export { ResetPasswordForm } from '../../auth/forms/ResetPassword'
 {=/ isEmailAuthEnabled =}
-export type { CustomizationOptions } from '../../auth/forms/types'
+export type { CustomizationOptions } from '../../../core/auth/forms/types'
 {=# isSlackAuthEnabled =}
 export { SignInButton as SlackSignInButton } from '../../auth/helpers/Slack'
 {=/ isSlackAuthEnabled =}

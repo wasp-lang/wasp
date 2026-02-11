@@ -1,9 +1,8 @@
-import Auth from './Auth'
+import { type CustomizationOptions, State } from '../../../core/auth/forms/types';
+import Auth from './Auth';
 import {
-  type CustomizationOptions,
   type AdditionalSignupFields,
-  State,
-} from './types'
+} from './types';
 
 // PUBLIC API
 export function SignupForm({

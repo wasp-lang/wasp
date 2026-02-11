@@ -4,10 +4,8 @@ import { AuthContext, type ErrorMessage } from '@wasp.sh/lib-auth/browser'
 import styles from './Auth.module.css'
 import '../../../core/auth/forms/internal/auth-styles.css'
 import { tokenObjToCSSVars } from "../../../core/auth/forms/internal/util"
-
+import { type CustomizationOptions, type State } from '../../../core/auth/forms/types';
 import {
-  type State,
-  type CustomizationOptions,
   type AdditionalSignupFields,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'

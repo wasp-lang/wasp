@@ -30,7 +30,7 @@ genAuthForms auth =
   sequence
     [ genAuthComponent auth,
       return . mkTmplFd $ [relfile|auth/forms/Auth.module.css|],
-      genTypes auth,
+      genTypes,
       return . mkTmplFd $ [relfile|auth/forms/Login.tsx|],
       return . mkTmplFd $ [relfile|auth/forms/Signup.tsx|]
     ]
@@ -43,11 +43,9 @@ genAuthComponent auth =
   where
     tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
 
-genTypes :: AS.Auth.Auth -> Generator FileDraft
-genTypes auth =
-  return $ mkTmplFdWithData [relfile|auth/forms/types.ts|] tmplData
-  where
-    tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
+genTypes :: Generator FileDraft
+genTypes =
+  return $ mkTmplFd [relfile|auth/forms/types.ts|]
 
 genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailForms auth =

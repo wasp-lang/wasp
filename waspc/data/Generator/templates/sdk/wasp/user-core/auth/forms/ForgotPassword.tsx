@@ -1,5 +1,5 @@
-import Auth from './Auth'
-import { type CustomizationOptions, State } from './types'
+import { type CustomizationOptions, State } from '../../../core/auth/forms/types';
+import Auth from './Auth';
 
 // PUBLIC API
 export function ForgotPasswordForm({

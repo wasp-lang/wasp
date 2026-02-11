@@ -18,7 +18,6 @@ import type {
   AdditionalSignupFields,
   AdditionalSignupField,
   AdditionalSignupFieldRenderFn,
-  FormState,
 } from '../../types'
 {=# isSocialAuthEnabled =}
 import * as SocialIcons from '../../../../../core/auth/forms/internal/social/SocialIcons'
@@ -33,6 +32,7 @@ import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPas
 {=# enabledProviders.isEmailAuthEnabled =}
 import { useEmail } from '../email/useEmail'
 import { config } from '../../../../../core/client/config'
+import { FormState } from '../../../../../core/auth/forms/types'
 {=/ enabledProviders.isEmailAuthEnabled =}
 
 {=# areBothSocialAndPasswordBasedAuthEnabled =}
