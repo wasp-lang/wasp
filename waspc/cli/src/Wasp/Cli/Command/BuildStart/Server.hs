@@ -95,12 +95,15 @@ startServer config chan = do
       case existingContainer of
         Left err -> throwError err
         Right isPresent -> when isPresent $ do
-          removeExitCode <- liftIO $ runProcessAsJob (proc "docker" ["rm", "-f", dockerContainerName]) J.Server chan
+          (removeExitCode, _removeOutput, removeStderr) <-
+            liftIO $ readProcessWithExitCode "docker" ["rm", "-f", dockerContainerName] ""
           case removeExitCode of
             ExitSuccess -> pure ()
             ExitFailure code ->
               throwError $
-                "Removing stale server container failed with exit code: " <> show code
+                "Removing stale server container failed with exit code: "
+                  <> show code
+                  <> if null removeStderr then "" else " (" <> removeStderr <> ")"
 
     isContainerPresent = do
       let args =

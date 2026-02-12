@@ -582,6 +582,7 @@ library cli-lib
     Wasp.Cli.Archive
     Wasp.Cli.Command.BashCompletion
     Wasp.Cli.Command.Build
+    Wasp.Cli.Command.Build.DockerBuildContext
     Wasp.Cli.Command.BuildStart
     Wasp.Cli.Command.BuildStart.ArgumentsParser
     Wasp.Cli.Command.BuildStart.Client
@@ -803,6 +804,7 @@ test-suite wasp-cli-tests
     DbMigrateTest
     TerminalTest
     Paths_waspc
+    Wasp.Cli.Command.Build.DockerBuildContextTest
     Wasp.Cli.Util.EnvVarArgumentTest
     Wasp.Cli.Command.News.ListingTest
     Wasp.Cli.Command.News.LocalNewsStateTest
