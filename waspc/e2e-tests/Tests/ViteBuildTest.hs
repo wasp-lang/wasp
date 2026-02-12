@@ -20,11 +20,12 @@ import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
+import Wasp.Project.Env (dotEnvClient)
 
 viteBuildTest :: Test
 viteBuildTest =
   Test
-    "loading-env-var-vite-build"
+    "loading-env-vars-vite-build"
     [ TestCase
         "fail-missing-inline-env-var"
         ( sequence
@@ -34,7 +35,7 @@ viteBuildTest =
                   writeMainPageTsx,
                   waspCliBuild,
                   viteBuild,
-                  expectCommandFailure <$> assertBuildOutputContains testEnvVarValue
+                  expectCommandFailure <$> assertBuildOutputContains inlineEnvVarValue
                 ]
             ]
         ),
@@ -47,8 +48,36 @@ viteBuildTest =
                 [ setWaspDbToPSQL,
                   writeMainPageTsx,
                   waspCliBuild,
-                  appendInlineEnvVar testEnvVarKey testEnvVarValue <$> viteBuild,
-                  assertBuildOutputContains testEnvVarValue
+                  appendInlineEnvVar testEnvVarKey inlineEnvVarValue <$> viteBuild,
+                  assertBuildOutputContains inlineEnvVarValue
+                ]
+            ]
+        ),
+      TestCase
+        "ignore-dotenv-client-file-in-build"
+        ( sequence
+            [ createTestWaspProject Minimal,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  writeMainPageTsx,
+                  writeDotEnvClientFile dotEnvFileValue,
+                  waspCliBuild,
+                  viteBuild,
+                  expectCommandFailure <$> assertBuildOutputContains dotEnvFileValue
+                ]
+            ]
+        ),
+      TestCase
+        "inline-env-vars-work-with-env-file-present"
+        ( sequence
+            [ createTestWaspProject Minimal,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  writeMainPageTsx,
+                  writeDotEnvClientFile dotEnvFileValue,
+                  waspCliBuild,
+                  appendInlineEnvVar testEnvVarKey inlineEnvVarValue <$> viteBuild,
+                  assertBuildOutputContains inlineEnvVarValue
                 ]
             ]
         )
@@ -72,14 +101,24 @@ viteBuildTest =
           }
         |]
 
+    writeDotEnvClientFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+    writeDotEnvClientFile value = do
+      waspProjectContext <- ask
+      createFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
+        T.pack $
+          testEnvVarKey ++ "=" ++ value
+
     appendInlineEnvVar :: String -> String -> ShellCommand -> ShellCommand
     appendInlineEnvVar envVarName envVarValue command = envVarName ++ "=" ++ envVarValue ++ " " ++ command
 
     testEnvVarKey :: String
     testEnvVarKey = "REACT_APP_NAME"
 
-    testEnvVarValue :: String
-    testEnvVarValue = "RandomNameTest"
+    inlineEnvVarValue :: String
+    inlineEnvVarValue = "RandomNameTest"
+
+    dotEnvFileValue :: String
+    dotEnvFileValue = "DotEnvFileValue"
 
     expectCommandFailure :: ShellCommand -> ShellCommand
     expectCommandFailure command = "! " ++ command
