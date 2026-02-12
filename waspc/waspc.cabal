@@ -840,6 +840,7 @@ test-suite waspc-e2e-tests
     Tests.WaspCleanTest
     Tests.WaspCompileTest
     Tests.WaspBuildTest
+    Tests.ViteBuildTest
     Tests.WaspCompletionTest
     Tests.WaspNewTest
     Tests.WaspStartTest
