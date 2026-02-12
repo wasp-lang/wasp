@@ -20,6 +20,7 @@ import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInfoTest (waspInfoTest)
 import Tests.WaspNewTest (waspNewTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
+import Tests.ViteBuildTest (viteBuildTest)
 import Tests.WaspVersionTest (waspVersionTest)
 
 main :: IO ()
@@ -57,6 +58,7 @@ e2eTests = do
         -- These will be fixed as part of the refactor to pure Haskell tests.
         -- FIXME: waspStartTest,
         waspBuildTest,
+        viteBuildTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
         waspInfoTest,
