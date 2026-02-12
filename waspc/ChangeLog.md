@@ -55,6 +55,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - The dev compiler file watcher now ignores `.DS_Store` files, preventing unnecessary recompilations on macOS. ([#3734](https://github.com/wasp-lang/wasp/pull/3734))
 - Added guardrails to avoid installing Wasp through the installer or npm methods when the other method is already being used. ([#3711](https://github.com/wasp-lang/wasp/pull/3711))
 
+## 0.20.2
+
+### 🐞 Bug fixes
+
+- Backported npm migration guardrails to 0.20.2 to prevent users to have both installer- and npm-based versions of Wasp at the same time. ([#3743](https://github.com/wasp-lang/wasp/pull/3743))
+
 ## 0.20.1
 
 ### 🎉 New Features
