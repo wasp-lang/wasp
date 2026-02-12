@@ -277,7 +277,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/envFile.ts"
         ],
-        "ee601fb455ed4f89216b62de23f316a3961a148e1f412b0bd305679e5b3dd596"
+        "76706cff54294b5e208908a38bfe919d50a4a9878cb6fae0f621021af19a1400"
     ],
     [
         [
@@ -305,7 +305,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "fe981378ad9d0df5abff0494651ff551ed238db1353b02d2e44f0ceff5c33d77"
+        "2e3853fe012c4feb60cd29d0818288397680c78b25245ebe4b107b003a7c0af2"
     ],
     [
         [

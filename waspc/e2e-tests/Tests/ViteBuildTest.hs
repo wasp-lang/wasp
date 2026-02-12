@@ -76,7 +76,7 @@ viteBuildTest =
                   writeDotEnvClientFile dotEnvFileValue,
                   waspCliBuild,
                   appendInlineEnvVar testEnvVarKey inlineEnvVarValue <$> viteBuild,
-                  assertBuildOutputContains dotEnvFileValue
+                  assertBuildOutputContains inlineEnvVarValue
                 ]
             ]
         )
