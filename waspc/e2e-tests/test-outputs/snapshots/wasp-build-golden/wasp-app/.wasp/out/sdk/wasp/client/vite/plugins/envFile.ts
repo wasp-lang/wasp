@@ -13,7 +13,7 @@ export function envFile(): Plugin {
     enforce: 'pre',
     async config(config, env) {
       const rootDir = config.root || process.cwd()
-      const envVars = await loadWaspEnvClient({
+      const envVars = await loadEnvVars({
         rootDir,
         envPrefix: config.envPrefix!,
         loadDotEnvFile: env.command === 'serve',
@@ -49,18 +49,18 @@ export function envFile(): Plugin {
   }
 }
 
-interface LoadWaspEnvClientOptions {
+interface LoadEnvVarsOptions {
   rootDir: string
   envPrefix: NonNullable<UserConfig['envPrefix']>
   loadDotEnvFile: boolean
 }
 
 // Based on: https://github.com/vitejs/vite/blob/8bb32036792a6f522f5c947112f3d688add755a0/packages/vite/src/node/env.ts
-export async function loadWaspEnvClient({
+export async function loadEnvVars({
   rootDir,
   envPrefix,
   loadDotEnvFile,
-}: LoadWaspEnvClientOptions): Promise<Record<string, string>> {
+}: LoadEnvVarsOptions): Promise<Record<string, string>> {
   const envPrefixNormalized = Array.isArray(envPrefix) ? envPrefix : [envPrefix]
   const env: Record<string, string> = {}
 
