@@ -54,8 +54,6 @@ jobs:
       - uses: actions/checkout@v6
 
       - uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
 
       # Tokenless npm publishing requires npm v11.5.1+ so we install it
       # explicitly.
