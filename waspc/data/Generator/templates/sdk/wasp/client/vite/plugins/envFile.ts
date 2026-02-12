@@ -12,9 +12,18 @@ export function envFile(): Plugin {
   return {
     name: 'wasp:env-file',
     enforce: 'pre',
-    async config(config) {
+    async config(config, env) {
       const rootDir = config.root || process.cwd()
-      const envVars = await loadWaspEnvClient(rootDir, config.envPrefix!)
+      const envVars = await loadEnvVars({
+        rootDir,
+        // We are sure that `envPrefix` is defined because
+        // we defined it in an earlier plugin.
+        envPrefix: config.envPrefix!,
+        // We load the env file variables only in development,
+        // when building for production, users are expected to
+        // provide the environment variables inline.
+        loadDotEnvFile: env.command === 'serve',
+      })
       envFilePath = resolve(rootDir, envFileName)
 
       const prefixedVars = Object.entries(envVars)
@@ -47,23 +56,32 @@ export function envFile(): Plugin {
 }
 
 // Based on: https://github.com/vitejs/vite/blob/8bb32036792a6f522f5c947112f3d688add755a0/packages/vite/src/node/env.ts
-export async function loadWaspEnvClient(rootDir: string, envPrefix: NonNullable<UserConfig['envPrefix']>): Promise<Record<string, string>> {
+export async function loadEnvVars({
+  rootDir,
+  envPrefix,
+  loadDotEnvFile,
+}: {
+  rootDir: string
+  envPrefix: NonNullable<UserConfig['envPrefix']>
+  loadDotEnvFile: boolean
+}): Promise<Record<string, string>> {
   const envPrefixNormalized = Array.isArray(envPrefix) ? envPrefix : [envPrefix]
-  const envFilePath = resolve(rootDir, envFileName)
-
-  const parsed = await parseEnvFile(envFilePath)
-
-  // Let environment variables use each other. Make a copy of `process.env` so that `dotenv-expand`
-  // doesn't re-assign the expanded values to the global `process.env`.
-  const processEnv = { ...process.env } as DotenvPopulateInput
-  expand({ parsed, processEnv })
-
   const env: Record<string, string> = {}
 
-  // Only keys that start with prefix are exposed to client.
-  for (const [key, value] of Object.entries(parsed)) {
-    if (envPrefixNormalized.some(prefix => key.startsWith(prefix))) {
-      env[key] = value
+  if (loadDotEnvFile) {
+    const envFilePath = resolve(rootDir, envFileName)
+    const parsed = await parseEnvFile(envFilePath)
+
+    // Let environment variables use each other. Make a copy of `process.env` so that `dotenv-expand`
+    // doesn't re-assign the expanded values to the global `process.env`.
+    const processEnv = { ...process.env } as DotenvPopulateInput
+    expand({ parsed, processEnv })
+
+    // Only keys that start with prefix are exposed to client.
+    for (const [key, value] of Object.entries(parsed)) {
+      if (envPrefixNormalized.some(prefix => key.startsWith(prefix))) {
+        env[key] = value
+      }
     }
   }
 

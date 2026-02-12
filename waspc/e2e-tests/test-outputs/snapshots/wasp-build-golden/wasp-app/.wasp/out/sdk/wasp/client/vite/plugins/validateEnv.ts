@@ -1,6 +1,6 @@
 import { type Plugin } from 'vite'
 
-import { loadWaspEnvClient } from './envFile.js'
+import { loadEnvVars } from './envFile.js'
 import {
   getValidatedEnvOrError,
   formatZodEnvErrors,
@@ -15,7 +15,16 @@ export function validateEnv(): Plugin {
   return {
     name: 'wasp:validate-env',
     async configResolved(config) {
-      const env = await loadWaspEnvClient(config.root, config.envPrefix!)
+      const env = await loadEnvVars({
+        rootDir: config.root,
+        // We are sure that `envPrefix` is defined because
+        // we defined it in an earlier plugin.
+        envPrefix: config.envPrefix!,
+        // We load the env file variables only in development,
+        // when building for production, users are expected to
+        // provide the environment variables inline.
+        loadDotEnvFile: config.command === 'serve',
+      })
       validationResult = getValidatedEnvOrError(env, clientEnvSchema)
 
       // Exit if we are in build mode, because we can't show the error in the browser.
