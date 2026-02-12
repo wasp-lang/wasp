@@ -15,7 +15,12 @@ export function envFile(): Plugin {
       const rootDir = config.root || process.cwd()
       const envVars = await loadEnvVars({
         rootDir,
+        // We are sure that `envPrefix` is defined because
+        // we defined it in an earlier plugin.
         envPrefix: config.envPrefix!,
+        // We load the env file variables only in development,
+        // when building for production, users are expected to
+        // provide the environment variables inline.
         loadDotEnvFile: env.command === 'serve',
       })
       envFilePath = resolve(rootDir, envFileName)
@@ -49,18 +54,16 @@ export function envFile(): Plugin {
   }
 }
 
-interface LoadEnvVarsOptions {
-  rootDir: string
-  envPrefix: NonNullable<UserConfig['envPrefix']>
-  loadDotEnvFile: boolean
-}
-
 // Based on: https://github.com/vitejs/vite/blob/8bb32036792a6f522f5c947112f3d688add755a0/packages/vite/src/node/env.ts
 export async function loadEnvVars({
   rootDir,
   envPrefix,
   loadDotEnvFile,
-}: LoadEnvVarsOptions): Promise<Record<string, string>> {
+}: {
+  rootDir: string
+  envPrefix: NonNullable<UserConfig['envPrefix']>
+  loadDotEnvFile: boolean
+}): Promise<Record<string, string>> {
   const envPrefixNormalized = Array.isArray(envPrefix) ? envPrefix : [envPrefix]
   const env: Record<string, string> = {}
 
