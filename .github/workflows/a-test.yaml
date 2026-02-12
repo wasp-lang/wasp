@@ -1,0 +1,26 @@
+on:
+  pull_request:
+
+jobs:
+  install-npm:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      # Tokenless npm publishing requires npm v11.5.1+ so we install it
+      # explicitly.
+      # Read more: https://docs.npmjs.com/trusted-publishers/
+      - name: Install latest npm
+        run: sudo npm i -g npm@^11.5.1
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
+          path: packages/
+
+      - run: npm --version

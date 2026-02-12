@@ -6,7 +6,7 @@ on:
       - main
       - release
 
-  pull_request:
+  # pull_request:
 
   workflow_call:
     inputs:
