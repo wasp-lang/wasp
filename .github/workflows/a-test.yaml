@@ -16,6 +16,4 @@ jobs:
       # explicitly.
       # Read more: https://docs.npmjs.com/trusted-publishers/
       - name: Install latest npm
-        run: sudo npm i -g npm@^11.5.1
-
-      - run: npm --version
+        run: npx npm@^11.5.1 --version
