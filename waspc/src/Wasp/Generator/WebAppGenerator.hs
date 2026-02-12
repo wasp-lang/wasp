@@ -1,7 +1,7 @@
 module Wasp.Generator.WebAppGenerator
   ( webAppRootDirInProjectRootDir,
-    viteBuildDirInWebAppDir,
     createWebAppRootDir,
+    viteBuildDirPath,
   )
 where
 
@@ -9,6 +9,11 @@ import StrongPath (Abs, Dir, Path', Rel, reldir, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing)
 import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Project.Common
+  ( WaspProjectDir,
+    dotWaspDirInWaspProjectDir,
+    generatedCodeDirInDotWaspDir,
+  )
 
 data WebAppRootDir
 
@@ -19,6 +24,13 @@ data WebAppViteBuildDir
 -- dir where e.g. Dockerfile for static server or Staticfile can be created.
 webAppRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir WebAppRootDir)
 webAppRootDirInProjectRootDir = [reldir|web-app|]
+
+viteBuildDirPath :: Path' (Rel WaspProjectDir) (Dir WebAppViteBuildDir)
+viteBuildDirPath =
+  dotWaspDirInWaspProjectDir
+    </> generatedCodeDirInDotWaspDir
+    </> webAppRootDirInProjectRootDir
+    </> viteBuildDirInWebAppDir
 
 viteBuildDirInWebAppDir :: Path' (Rel WebAppRootDir) (Dir WebAppViteBuildDir)
 viteBuildDirInWebAppDir = [reldir|build|]

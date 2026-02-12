@@ -4,6 +4,7 @@ module Tests.ViteBuildTest (viteBuildTest) where
 
 import Control.Monad.Reader (ask)
 import qualified Data.Text as T
+import NeatInterpolation (trimming)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -16,12 +17,14 @@ import ShellCommands
     waspCliBuild,
   )
 import StrongPath (relfile, (</>))
+import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
+import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 
 viteBuildTest :: Test
 viteBuildTest =
   Test
-    "vite-build"
+    "loading-env-var-vite-build"
     [ TestCase
         "fail-missing-inline-env-var"
         ( sequence
@@ -30,12 +33,13 @@ viteBuildTest =
                 [ setWaspDbToPSQL,
                   writeMainPageTsx,
                   waspCliBuild,
-                  return viteBuild,
-                  return $ expectCommandFailure $ assertBuildOutputContains testEnvVarValue
+                  viteBuild,
+                  expectCommandFailure <$> assertBuildOutputContains testEnvVarValue
                 ]
             ]
         ),
       TestCase
+        -- Based on https://github.com/wasp-lang/wasp/issues/3741
         "succeed-inline-env-var"
         ( sequence
             [ createTestWaspProject Minimal,
@@ -43,34 +47,39 @@ viteBuildTest =
                 [ setWaspDbToPSQL,
                   writeMainPageTsx,
                   waspCliBuild,
-                  return $ addInlineEnvVarToCommand viteBuild testEnvVarValue,
-                  return $ assertBuildOutputContains testEnvVarValue
+                  appendInlineEnvVar testEnvVarKey testEnvVarValue <$> viteBuild,
+                  assertBuildOutputContains testEnvVarValue
                 ]
             ]
         )
     ]
   where
-    testEnvVarValue :: String
-    testEnvVarValue = "RandomNameTest"
+    viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
+    viteBuild = return "npx vite build"
 
-    viteBuild :: ShellCommand
-    viteBuild = "npx vite build"
-
-    assertBuildOutputContains :: String -> ShellCommand
-    assertBuildOutputContains value = "grep -r '" ++ value ++ "' .wasp/out/web-app/build/"
-
-    addInlineEnvVarToCommand :: ShellCommand -> String -> ShellCommand
-    addInlineEnvVarToCommand command value = "REACT_APP_NAME=" ++ value ++ " " ++ command
-
-    expectCommandFailure :: ShellCommand -> ShellCommand
-    expectCommandFailure command = "! " ++ command
+    assertBuildOutputContains :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+    assertBuildOutputContains value = return $ "grep -r '" ++ value ++ "' " ++ SP.fromRelDir viteBuildDirPath
 
     writeMainPageTsx :: ShellCommandBuilder WaspProjectContext ShellCommand
     writeMainPageTsx = do
       waspProjectContext <- ask
-      createFile (waspProjectContext.waspProjectDir </> [relfile|src/MainPage.tsx|]) $
-        T.unlines
-          [ "export function MainPage() {",
-            "  return <h2>{import.meta.env.REACT_APP_NAME}</h2>",
-            "}"
-          ]
+      let testEnvVarKeyText = T.pack testEnvVarKey
+      createFile
+        (waspProjectContext.waspProjectDir </> [relfile|src/MainPage.tsx|])
+        [trimming|
+          export function MainPage() {
+            return <h2>{import.meta.env.${testEnvVarKeyText}}</h2>
+          }
+        |]
+
+    appendInlineEnvVar :: String -> String -> ShellCommand -> ShellCommand
+    appendInlineEnvVar envVarName envVarValue command = envVarName ++ "=" ++ envVarValue ++ " " ++ command
+
+    testEnvVarKey :: String
+    testEnvVarKey = "REACT_APP_NAME"
+
+    testEnvVarValue :: String
+    testEnvVarValue = "RandomNameTest"
+
+    expectCommandFailure :: ShellCommand -> ShellCommand
+    expectCommandFailure command = "! " ++ command
