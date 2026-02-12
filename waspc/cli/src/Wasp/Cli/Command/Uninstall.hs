@@ -27,28 +27,17 @@ import Wasp.Util.IO
     doesDirectoryExist,
     doesFileExist,
   )
-import Wasp.Util.InstallMethod (CliInstallMethod (..), npmPackageName, waspCliInstallMethod)
+import Wasp.Util.InstallMethod (uninstallationCommand)
 
 -- | Removes Wasp from the system.
 uninstall :: Command ()
-uninstall =
-  case waspCliInstallMethod of
-    BinaryInstaller -> installerUninstall
-    NpmPackage -> npmUninstall
-
-installerUninstall :: Command ()
-installerUninstall = do
-  cliSendMessageC $ Msg.Start "Uninstalling Wasp..."
-  liftIO removeWaspFiles
-  cliSendMessageC $ Msg.Success "Uninstalled Wasp."
-  cliSendMessageC dockerVolumeMsg
-
-npmUninstall :: Command ()
-npmUninstall = do
+uninstall = do
   cliSendMessageC $ Msg.Start "Removing Wasp data..."
   liftIO removeWaspFiles
   cliSendMessageC $ Msg.Success "Removed Wasp data."
-  cliSendMessageC $ Msg.Info $ "To uninstall the Wasp CLI, please run 'npm uninstall -g " ++ npmPackageName ++ "'."
+  cliSendMessageC $ Msg.Info ""
+  cliSendMessageC $ Msg.Info "To uninstall the Wasp CLI, please run:"
+  cliSendMessageC $ Msg.Info $ indent 2 uninstallationCommand
   cliSendMessageC $ Msg.Info ""
   cliSendMessageC dockerVolumeMsg
 

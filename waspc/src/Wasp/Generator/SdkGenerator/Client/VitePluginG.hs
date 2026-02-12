@@ -15,11 +15,10 @@ import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
-import Wasp.Generator.WebAppGenerator (viteBuildDirInWebAppDir, webAppRootDirInProjectRootDir)
+import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
     srcDirInWaspProjectDir,
   )
 import Wasp.Project.Env (dotEnvClient)
@@ -62,11 +61,6 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
                 "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
               ]
         ]
-    viteBuildDirPath =
-      dotWaspDirInWaspProjectDir
-        </> generatedCodeDirInDotWaspDir
-        </> webAppRootDirInProjectRootDir
-        </> viteBuildDirInWebAppDir
 
     depsExcludedFromOptimization =
       -- Why do we exclude Wasp SDK from optimization?

@@ -6,50 +6,6 @@ import { expand, type DotenvPopulateInput } from 'dotenv-expand'
 
 const envFileName = '.env.client'
 
-// Based on: https://github.com/vitejs/vite/blob/8bb32036792a6f522f5c947112f3d688add755a0/packages/vite/src/node/env.ts
-export async function loadWaspEnvClient(rootDir: string, envPrefix: NonNullable<UserConfig['envPrefix']>): Promise<Record<string, string>> {
-  const envPrefixNormalized = Array.isArray(envPrefix) ? envPrefix : [envPrefix]
-  const envFilePath = resolve(rootDir, envFileName)
-
-  try {
-    await access(envFilePath, constants.R_OK)
-  } catch {
-    return {}
-  }
-
-  try {
-    const parsed = parseDotenv(await readFile(envFilePath, 'utf-8'))
-
-    // Let environment variables use each other. Make a copy of `process.env` so that `dotenv-expand`
-    // doesn't re-assign the expanded values to the global `process.env`.
-    const processEnv = { ...process.env } as DotenvPopulateInput
-    expand({ parsed, processEnv })
-
-    const env: Record<string, string> = {}
-
-    // Only keys that start with prefix are exposed to client.
-    for (const [key, value] of Object.entries(parsed || {})) {
-      if (envPrefixNormalized.some(prefix => key.startsWith(prefix))) {
-        env[key] = value
-      }
-    }
-
-    // Make sure that inline env variables are prioritized over env file variables.
-    // Follows the logic Vite uses for env variables.
-    for (const key in process.env) {
-      if (envPrefixNormalized.some(prefix => key.startsWith(prefix))) {
-        env[key] = process.env[key] as string
-      }
-    }
-
-    return env
-  } catch (error) {
-    console.error(`Error parsing ${envFileName}:`, error)
-    throw error
-  }
-}
-
-
 export function envFile(): Plugin {
   let envFilePath!: string
   return {
@@ -86,5 +42,52 @@ export function envFile(): Plugin {
     async buildStart() {
       this.addWatchFile(envFilePath)
     },
+  }
+}
+
+// Based on: https://github.com/vitejs/vite/blob/8bb32036792a6f522f5c947112f3d688add755a0/packages/vite/src/node/env.ts
+export async function loadWaspEnvClient(rootDir: string, envPrefix: NonNullable<UserConfig['envPrefix']>): Promise<Record<string, string>> {
+  const envPrefixNormalized = Array.isArray(envPrefix) ? envPrefix : [envPrefix]
+  const envFilePath = resolve(rootDir, envFileName)
+
+  const parsed = await parseEnvFile(envFilePath)
+
+  // Let environment variables use each other. Make a copy of `process.env` so that `dotenv-expand`
+  // doesn't re-assign the expanded values to the global `process.env`.
+  const processEnv = { ...process.env } as DotenvPopulateInput
+  expand({ parsed, processEnv })
+
+  const env: Record<string, string> = {}
+
+  // Only keys that start with prefix are exposed to client.
+  for (const [key, value] of Object.entries(parsed)) {
+    if (envPrefixNormalized.some(prefix => key.startsWith(prefix))) {
+      env[key] = value
+    }
+  }
+
+  // Make sure that inline env variables are prioritized over env file variables.
+  // Follows the logic Vite uses for env variables.
+  for (const key in process.env) {
+    if (envPrefixNormalized.some(prefix => key.startsWith(prefix))) {
+      env[key] = process.env[key] as string
+    }
+  }
+
+  return env
+}
+
+async function parseEnvFile(envFilePath: string): Promise<Record<string, string>> {
+  try {
+    await access(envFilePath, constants.R_OK)
+  } catch {
+    return {}
+  }
+
+  try {
+    return parseDotenv(await readFile(envFilePath, 'utf-8'))
+  } catch (error) {
+    console.error(`Error parsing ${envFileName}:`, error)
+    throw error
   }
 }

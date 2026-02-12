@@ -61,7 +61,7 @@ jobs:
       # explicitly.
       # Read more: https://docs.npmjs.com/trusted-publishers/
       - name: Install latest npm
-        run: npm i -g npm@^11.5.1
+        run: sudo npm i -g npm@^11.5.1
 
       - uses: actions/download-artifact@v6
         with:
