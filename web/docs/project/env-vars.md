@@ -20,6 +20,35 @@ Client environment variables are injected into the client Javascript code during
 
 <ClientEnvVarsNote />
 
+**Important:**  
+If you choose to use the `env` object from `wasp/client` or `wasp/server` to access your client environment variables, you **must** implement validations for each env var you want to expose. This is not an optional extra step, but rather a required configuration. Without these validations, the `env` object will not include your custom env vars.  
+  
+However, if you prefer not to validate your env vars, you can still access your environment variables directly using the platform primitives:
+- **Client-side:** Use `import.meta.env`
+- **Server-side:** Use `process.env`  
+These are fully functional without any additional configs. 
+ 
+This requirement will ensure that every env var is explicitly validated, helping to catch configuration issues early and prevent runtime errors. This will that validate that every var is present and properly formatted before being used by your application.
+
+  
+In summary:
+1. **Using the `env` object:** Requires you to define a validation for every env var you want to use.
+2. **Not using validations:** Simply use the built-in primitives (`import.meta.env` on the client and `process.env` on the server) without any additional configuration.
+  
+Choose the approach that best fits your project’s needs.
+
+Take this simple example below of validating `MY_ENV_VAR` as defined and as a string.
+### Example: Validating an Environment Variable
+```js title="src/env.js"
+import * as z from 'zod';
+import { defineEnvValidationSchema } from 'wasp/env';
+
+export const envValidationSchema = defineEnvValidationSchema(
+  z.object({
+    MY_ENV_VAR: z.string({ required_error: 'MY_ENV_VAR is required.' }),
+  })
+);
+
 You can read them from the client code like this:
 
 <Tabs groupId="js-ts">
