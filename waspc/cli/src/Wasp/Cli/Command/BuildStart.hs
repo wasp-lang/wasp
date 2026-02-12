@@ -5,13 +5,14 @@ where
 
 import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (newChan)
+import Control.Monad (when)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
+import Wasp.Cli.Command.Build.DockerBuildContext (prepareFilesNecessaryForDockerBuild)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
-import Control.Monad (when)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, buildSsr, startClient)
-import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
+import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, buildDir, makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
@@ -40,6 +41,10 @@ buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
   -- error message that we print.
 
   config <- makeBuildStartConfig appSpec args waspProjectDir
+
+  liftIO (prepareFilesNecessaryForDockerBuild waspProjectDir (buildDir config)) >>= \case
+    Left err -> throwError $ CommandError "Failed to prepare files necessary for docker build" err
+    Right () -> return ()
 
   let ssrEnabled = any ((== Just True) . Page.ssr . snd) (AS.getPages appSpec)
   buildAndStartServerAndClient config ssrEnabled

@@ -49,11 +49,13 @@ startClient config ssrEnabled
       runNodeCommandAsJob
         projectDir
         "node"
-        [ ".wasp/out/web-app/server-ssr.mjs",
-          "--port",
-          port,
-          "--strictPort"
-        ]
+        ( [ ".wasp/out/web-app/server-ssr.mjs",
+            "--port",
+            port,
+            "--strictPort"
+          ]
+            <> ["--debug" | Config.debug config]
+        )
         J.WebApp
         & toExceptJob (("Serving the client failed with exit code: " <>) . show)
   | otherwise =

@@ -3,6 +3,7 @@ module Wasp.Cli.Command.BuildStart.Config
     buildDir,
     projectDir,
     clientEnvVars,
+    debug,
     clientPort,
     clientUrl,
     dockerContainerName,
@@ -44,6 +45,7 @@ data BuildStartConfig = BuildStartConfig
     clientUrl :: String,
     serverEnvVars :: [EnvVar],
     clientEnvVars :: [EnvVar],
+    debug :: Bool,
     buildDir :: SP.Path' SP.Abs (SP.Dir ProjectRootDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
@@ -78,7 +80,8 @@ makeBuildStartConfig appSpec args projectDir' = do
         clientPort = clientPort',
         clientUrl = clientUrl',
         serverEnvVars = serverEnvVars',
-        clientEnvVars = clientEnvVars'
+        clientEnvVars = clientEnvVars',
+        debug = Args.debug args
       }
   where
     appUniqueId' = makeAppUniqueId projectDir' appName

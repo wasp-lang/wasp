@@ -81,6 +81,23 @@ SSR is only available in **production build** mode (not in `wasp start` dev mode
 
 4. Open `http://localhost:3000` (SSR client) and `http://localhost:3001` (API server).
 
+### SSR server request debugging
+
+The SSR runtime (`.wasp/out/web-app/server-ssr.mjs`) supports a `--debug` flag that enables per-request logs prefixed with `[ssr:debug]`.
+
+This flag is **only for the SSR server**:
+- It applies only when SSR is enabled.
+- It does not affect non-SSR preview mode (`vite preview`).
+
+To use it in normal preview flow:
+
+```bash
+wasp build start \
+  --server-env DATABASE_URL=postgresql://postgresWaspDevUser:postgresWaspDevPass@localhost:5432/YourApp-xxxxx \
+  --server-env JWT_SECRET=dev-secret-change-me \
+  --debug
+```
+
 ### Alternative: Using .env.server
 
 Instead of passing `--server-env` flags, you can add the credentials to your `.env.server` file:

@@ -13,7 +13,8 @@ data BuildStartArgs = BuildStartArgs
   { clientEnvironmentVariables :: [EnvVar],
     clientEnvironmentFiles :: [FilePathArgument],
     serverEnvironmentVariables :: [EnvVar],
-    serverEnvironmentFiles :: [FilePathArgument]
+    serverEnvironmentFiles :: [FilePathArgument],
+    debug :: Bool
   }
 
 buildStartArgsParser :: Opt.Parser BuildStartArgs
@@ -23,6 +24,7 @@ buildStartArgsParser =
     <*> Opt.many clientEnvironmentFileParser
     <*> Opt.many serverEnvironmentVariableParser
     <*> Opt.many serverEnvironmentFileParser
+    <*> debugParser
   where
     clientEnvironmentVariableParser =
       makeEnvironmentVariableParser "client" "client-env" 'c'
@@ -49,3 +51,9 @@ buildStartArgsParser =
           <> Opt.metavar "FILE_PATH"
           <> Opt.help ("Load environment variables for the " <> targetName <> " from a file (can be used multiple times)")
           <> Opt.action "file"
+
+    debugParser :: Opt.Parser Bool
+    debugParser =
+      Opt.switch $
+        Opt.long "debug"
+          <> Opt.help "Enable request-level debug logs for the SSR client server (has effect only when SSR is enabled)"
