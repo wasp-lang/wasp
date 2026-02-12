@@ -61,7 +61,8 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( Page.Page
               { component = fromJust $ decodeJson extNamedImportJson,
-                authRequired = Just True
+                authRequired = Just True,
+                ssr = Nothing
               }
           )
     it "parses a valid Page JSON without auth" $ do
@@ -73,7 +74,8 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( Page.Page
               { component = fromJust $ decodeJson extNamedImportJson,
-                authRequired = Nothing
+                authRequired = Nothing,
+                ssr = Nothing
               }
           )
     it "fails to parse a Page JSON without a component" $ do

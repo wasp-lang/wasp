@@ -60,6 +60,7 @@ validateAppSpec spec =
       concat
         [ validateWasp spec,
           validateAppAuthIsSetIfAnyPageRequiresAuth spec,
+          validateSsrOnlyForPublicPages spec,
           validateUserEntity spec,
           validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec,
           validateEmailSenderIsDefinedIfEmailAuthIsUsed spec,
@@ -153,6 +154,15 @@ validateAppAuthIsSetIfAnyPageRequiresAuth spec =
   ]
   where
     anyPageRequiresAuth = any ((== Just True) . Page.authRequired) (snd <$> AS.getPages spec)
+
+validateSsrOnlyForPublicPages :: AppSpec -> [ValidationError]
+validateSsrOnlyForPublicPages spec =
+  [ GenericValidationError $
+      "Page '" ++ pageName ++ "' has ssr: true but requires auth. SSR is only supported for public pages."
+    | (pageName, page) <- AS.getPages spec,
+      Page.ssr page == Just True,
+      Page.authRequired page == Just True
+  ]
 
 validateOnlyEmailOrUsernameAndPasswordAuthIsUsed :: AppSpec -> [ValidationError]
 validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =

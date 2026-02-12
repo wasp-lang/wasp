@@ -13,18 +13,38 @@ export type WebSocketContextValue = {
   isConnected: boolean
 }
 
+// Works correctly in SSR: waspConfig.ts replaces `typeof window` with
+// `"undefined"` in the SSR bundle, so this evaluates to false on the server.
+const isBrowser = typeof window !== 'undefined'
+
+function createNoopSocket(): any {
+  const noop = () => {}
+  return {
+    connected: false,
+    auth: {},
+    on: noop,
+    off: noop,
+    connect: noop,
+    disconnect: noop,
+    emit: noop,
+  }
+}
+
 // PRIVATE API
 // TODO: In the future, it would be nice if users could pass more
 // options to `io`, likely via some `configFn`.
-export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-  config.apiUrl,
-  {
-    transports: ['websocket'],
-    autoConnect: {= autoConnect =},
-  }
-)
+export const socket: Socket<ServerToClientEvents, ClientToServerEvents> =
+  isBrowser
+    ? io(config.apiUrl, {
+        transports: ['websocket'],
+        autoConnect: {= autoConnect =},
+      })
+    : (createNoopSocket() as Socket<ServerToClientEvents, ClientToServerEvents>)
 
 function refreshAuthToken() {
+  if (!isBrowser) {
+    return
+  }
   // NOTE: When we figure out how `auth: true` works for Operations, we should
   // mirror that behavior here for WebSockets. Ref: https://github.com/wasp-lang/wasp/issues/1133
   socket.auth = {
@@ -37,9 +57,11 @@ function refreshAuthToken() {
   }
 }
 
-refreshAuthToken()
-apiEventsEmitter.on('sessionId.set', refreshAuthToken)
-apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
+if (isBrowser) {
+  refreshAuthToken()
+  apiEventsEmitter.on('sessionId.set', refreshAuthToken)
+  apiEventsEmitter.on('sessionId.clear', refreshAuthToken)
+}
 
 // PRIVATE API
 export const WebSocketContext: Context<WebSocketContextValue> = createContext<WebSocketContextValue>({

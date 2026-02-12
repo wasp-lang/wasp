@@ -9,6 +9,7 @@ import { getWaspApp } from "wasp/client/app";
   // routes mapping.
 =}
 {=& routesMapping.importStatement =}
+{=& routeNameToSsr.importStatement =}
 
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
@@ -27,8 +28,18 @@ const app = getWaspApp({
   rootElement: <{= rootComponent.importIdentifier =} />,
   {=/ rootComponent.isDefined =}
   routesMapping: {= routesMapping.importIdentifier =},
+  routeNameToSsr: {= routeNameToSsr.importIdentifier =},
 });
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
-  <React.StrictMode>{app}</React.StrictMode>,
-);
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Root element not found");
+}
+
+const appWithProviders = <React.StrictMode>{app}</React.StrictMode>;
+
+if (rootElement.dataset.waspSsr === "1") {
+  ReactDOM.hydrateRoot(rootElement, appWithProviders);
+} else {
+  ReactDOM.createRoot(rootElement).render(appWithProviders);
+}

@@ -18,5 +18,7 @@ export {
     // PRIVATE API (framework code)
     initializeQueryClient,
     // PRIVATE API (framework code)
-    queryClientInitialized
+    queryClientInitialized,
+    // PRIVATE API (framework code)
+    getQueryClientSync
 } from './queryClient'

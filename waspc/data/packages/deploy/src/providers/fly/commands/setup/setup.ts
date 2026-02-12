@@ -1,5 +1,6 @@
 import { $, cd, chalk, question } from "zx";
 
+import { isSsrEnabled } from "../../../../common/clientApp.js";
 import { getFullCommandName } from "../../../../common/commander.js";
 import { generateRandomHexString } from "../../../../common/random.js";
 import { waspSays } from "../../../../common/terminal.js";
@@ -28,7 +29,10 @@ import { SetupCmdOptions } from "./SetupCmdOptions.js";
 
 const internalPortOptionRegex = /internal_port = \d+/g;
 const serverAppPort = 8080;
-const clientAppPort = 8043;
+// Port for static client (goStatic default)
+const clientAppPortStatic = 8043;
+// Port for SSR client (Node.js server)
+const clientAppPortSsr = 3000;
 
 export async function setup(
   baseName: string,
@@ -161,7 +165,8 @@ async function setupClient(
     `Setting up client app with name ${deploymentInstructions.clientFlyAppName}`,
   );
 
-  cd(getClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
+  const waspProjectDir = deploymentInstructions.cmdOptions.waspProjectDir;
+  cd(getClientDeploymentDir(waspProjectDir));
   deleteLocalToml();
 
   const launchArgs = [
@@ -178,6 +183,10 @@ async function setupClient(
   // This creates the fly.toml file, but does not attempt to deploy.
   await $`flyctl launch --no-deploy ${launchArgs}`;
 
+  // Check if SSR is enabled to determine the correct port
+  const ssrEnabled = isSsrEnabled(waspProjectDir);
+  const clientAppPort = ssrEnabled ? clientAppPortSsr : clientAppPortStatic;
+
   if (!doesLocalTomlContainLine(internalPortOptionRegex)) {
     await question(`\n⚠️  There was an issue setting up your client app.
 We tried modifying your client fly.toml to set ${chalk.bold(
@@ -190,12 +199,25 @@ Contact the Wasp Team at our Discord server if you need help with this: https://
 
 Press any key to continue or Ctrl+C to cancel.`);
   } else {
-    // goStatic listens on port 8043 by default, but the default fly.toml
-    // assumes port 8080 (or 3000, depending on flyctl version).
+    // Set the appropriate port based on deployment type:
+    // - Static (goStatic): port 8043
+    // - SSR (Node.js): port 3000
     replaceLineInLocalToml(
       internalPortOptionRegex,
       `internal_port = ${clientAppPort}`,
     );
+  }
+
+  // For SSR, we should ensure min_machines_running = 1 since it's an active server
+  // that needs to be running to handle requests (unlike static files which can scale to zero)
+  if (ssrEnabled) {
+    const minMachinesOptionRegex = /min_machines_running = 0/g;
+    if (doesLocalTomlContainLine(minMachinesOptionRegex)) {
+      waspSays(
+        "SSR is enabled. Setting min_machines_running = 1 for client app...",
+      );
+      replaceLineInLocalToml(minMachinesOptionRegex, "min_machines_running = 1");
+    }
   }
 
   copyLocalClientTomlToProject(deploymentInstructions.tomlFilePaths);

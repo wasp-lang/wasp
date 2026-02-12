@@ -1,6 +1,10 @@
 import { $, cd, fs } from "zx";
 
-import { buildClient } from "../../../../common/clientApp.js";
+import {
+  buildClient,
+  getSsrServerFileName,
+  isSsrEnabled,
+} from "../../../../common/clientApp.js";
 import { getFullCommandName } from "../../../../common/commander.js";
 import {
   displayWaspRocketImage,
@@ -30,6 +34,9 @@ import {
   serverTomlExistsInProject,
 } from "../../tomlFile.js";
 import { DeployCmdOptions } from "./DeployCmdOptions.js";
+
+// Port for SSR Node.js server (must match what the SSR server listens on via PORT env var)
+const ssrServerPort = 3000;
 
 export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
   waspSays("Deploying your Wasp app to Fly.io!");
@@ -115,7 +122,8 @@ async function deployClient(
 ) {
   waspSays("Deploying your client now...");
 
-  cd(getClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
+  const waspProjectDir = deploymentInstructions.cmdOptions.waspProjectDir;
+  cd(getClientDeploymentDir(waspProjectDir));
   copyProjectClientTomlLocally(deploymentInstructions.tomlFilePaths);
 
   const serverUrl =
@@ -124,14 +132,39 @@ async function deployClient(
 
   await buildClient(serverUrl, deploymentInstructions.cmdOptions);
 
-  // Creates the necessary Dockerfile for deploying static websites to Fly.io.
-  // Adds dummy .dockerignore to supress CLI question.
-  // Ref: https://fly.io/docs/languages-and-frameworks/static/
-  const dockerfileContents = `
-		FROM pierrezemb/gostatic
-		CMD [ "-fallback", "index.html" ]
-		COPY ./build/ /srv/http/
-	`;
+  // Check if SSR is enabled to determine deployment strategy
+  const ssrEnabled = isSsrEnabled(waspProjectDir);
+
+  // Creates the necessary Dockerfile for deploying to Fly.io.
+  // Adds dummy .dockerignore to suppress CLI question.
+  let dockerfileContents: string;
+
+  if (ssrEnabled) {
+    // SSR deployment: Use Node.js to run the SSR server
+    // Ref: https://fly.io/docs/languages-and-frameworks/node/
+    waspSays("SSR is enabled. Deploying as Node.js server...");
+    const ssrServerFile = getSsrServerFileName();
+    dockerfileContents = `
+FROM node:22-alpine3.20
+RUN apk --no-cache -U upgrade
+WORKDIR /app
+COPY package.json .
+RUN npm install --production
+COPY . .
+ENV PORT=${ssrServerPort}
+EXPOSE ${ssrServerPort}
+CMD ["node", "${ssrServerFile}"]
+`;
+  } else {
+    // Static deployment: Use goStatic to serve static files
+    // Ref: https://fly.io/docs/languages-and-frameworks/static/
+    dockerfileContents = `
+FROM pierrezemb/gostatic
+CMD [ "-fallback", "index.html" ]
+COPY ./build/ /srv/http/
+`;
+  }
+
   fs.writeFileSync("Dockerfile", dockerfileContents);
   fs.writeFileSync(".dockerignore", "");
 
