@@ -112,12 +112,6 @@ const indexHtml = await fs.readFile(indexHtmlPath, "utf-8");
 const baseDir = {=& baseDirJson =};
 let debugEnabled = false;
 
-function parseBooleanFlag(value) {
-  if (typeof value !== "string") return false;
-  const normalized = value.trim().toLowerCase();
-  return normalized === "1" || normalized === "true" || normalized === "yes" || normalized === "on";
-}
-
 function debugLog(message, ...args) {
   if (!debugEnabled) return;
   console.log(`[ssr:debug] ${message}`, ...args);
@@ -145,7 +139,7 @@ function parseArgs(argv) {
   const args = argv.slice(2);
   let port = Number(process.env.PORT) || 4173;
   let strictPort = false;
-  let debug = parseBooleanFlag(process.env.WASP_SSR_DEBUG);
+  let debug = false;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -170,10 +164,6 @@ function parseArgs(argv) {
     }
     if (arg === "--debug") {
       debug = true;
-      continue;
-    }
-    if (arg === "--no-debug") {
-      debug = false;
       continue;
     }
   }
