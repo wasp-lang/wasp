@@ -18,9 +18,4 @@ jobs:
       - name: Install latest npm
         run: sudo npm i -g npm@^11.5.1
 
-      - uses: actions/download-artifact@v6
-        with:
-          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
-          path: packages/
-
       - run: npm --version
