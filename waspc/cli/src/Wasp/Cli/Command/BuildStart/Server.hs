@@ -4,10 +4,14 @@ module Wasp.Cli.Command.BuildStart.Server
   )
 where
 
+import Control.Monad (when)
+import Control.Monad.Except (throwError)
+import Control.Monad.IO.Class (liftIO)
 import Data.Function ((&))
 import Data.List (isInfixOf)
 import qualified StrongPath as SP
-import System.Process (proc)
+import System.Exit (ExitCode (ExitFailure, ExitSuccess))
+import System.Process (proc, readProcessWithExitCode)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig)
 import qualified Wasp.Cli.Command.BuildStart.Config as Config
 import Wasp.Generator.ServerGenerator.Common (defaultServerPort)
@@ -34,24 +38,9 @@ buildServer config =
 -- so the container can reach host services (DB, SMTP, etc.), except
 -- for WASP_SERVER_URL and WASP_WEB_CLIENT_URL which are browser-facing.
 startServer :: BuildStartConfig -> ExceptJob
-startServer config =
-  runProcessAsJob
-    ( proc
-        "docker"
-        ( [ "run",
-            "--name",
-            dockerContainerName,
-            "--rm",
-            "-p",
-            portMapping,
-            "--add-host=host.docker.internal:host-gateway"
-          ]
-            <> envVarParams
-            <> [dockerImageName]
-        )
-    )
-    J.Server
-    & toExceptJob (("Running the server failed with exit code: " <>) . show)
+startServer config chan = do
+  removeStaleContainerIfExists
+  toExceptJob (("Running the server failed with exit code: " <>) . show) dockerRunJob chan
   where
     port = show defaultServerPort
     portMapping = port <> ":" <> port
@@ -80,6 +69,55 @@ startServer config =
     envVarParams = toEnvVarParams $ map rewriteLocalhostForDocker $ Config.serverEnvVars config
     dockerContainerName = Config.dockerContainerName config
     dockerImageName = Config.dockerImageName config
+    dockerRunJob =
+      runProcessAsJob
+        ( proc
+            "docker"
+            ( [ "run",
+                "--name",
+                dockerContainerName,
+                "--rm",
+                "-p",
+                portMapping,
+                "--add-host=host.docker.internal:host-gateway"
+              ]
+                <> envVarParams
+                <> [dockerImageName]
+            )
+        )
+        J.Server
 
     toEnvVarParams list =
       list >>= \(name, value) -> ["--env", name <> "=" <> value]
+
+    removeStaleContainerIfExists = do
+      existingContainer <- liftIO isContainerPresent
+      case existingContainer of
+        Left err -> throwError err
+        Right isPresent -> when isPresent $ do
+          removeExitCode <- liftIO $ runProcessAsJob (proc "docker" ["rm", "-f", dockerContainerName]) J.Server chan
+          case removeExitCode of
+            ExitSuccess -> pure ()
+            ExitFailure code ->
+              throwError $
+                "Removing stale server container failed with exit code: " <> show code
+
+    isContainerPresent = do
+      let args =
+            [ "container",
+              "ls",
+              "--all",
+              "--filter",
+              "name=^/" <> dockerContainerName <> "$",
+              "--format",
+              "{{.Names}}"
+            ]
+      (exitCode, output, stderr) <- readProcessWithExitCode "docker" args ""
+      case exitCode of
+        ExitSuccess -> return $ Right $ dockerContainerName `elem` lines output
+        ExitFailure code ->
+          return $
+            Left $
+              "Checking for an existing server container failed with exit code: "
+                <> show code
+                <> if null stderr then "" else " (" <> stderr <> ")"

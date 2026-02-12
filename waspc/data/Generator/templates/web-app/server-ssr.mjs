@@ -107,7 +107,9 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const clientBuildDir = path.join(__dirname, "build");
 const indexHtmlPath = path.join(clientBuildDir, "index.html");
 const indexHtml = await fs.readFile(indexHtmlPath, "utf-8");
-const baseDir = "{= baseDir =}";
+// `baseDirJson` is injected as a JSON string literal via an unescaped tag so
+// we avoid Mustache HTML escaping (e.g. `&` -> `&amp;`).
+const baseDir = {=& baseDirJson =};
 let debugEnabled = false;
 
 function parseBooleanFlag(value) {

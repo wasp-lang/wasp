@@ -70,9 +70,11 @@ genServerSsr spec =
       ([relfile|web-app/server-ssr.mjs|] :: Path' (Rel TemplatesDir) (File ()))
       (Just tmplData)
   where
+    baseDir = SP.fromAbsDirP (WebApp.getBaseDir spec)
     tmplData =
       object
-        [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
+        [ -- Must be JSON-encoded because the template injects it unescaped to avoid HTML escaping.
+          "baseDirJson" .= (TE.decodeUtf8 $ BL.toStrict $ encode baseDir)
         ]
 
 genSsrPackageJson :: Generator FileDraft
