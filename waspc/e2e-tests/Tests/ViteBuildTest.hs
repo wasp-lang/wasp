@@ -20,6 +20,7 @@ import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
+import Wasp.Project.Env (dotEnvClient)
 
 viteBuildTest :: Test
 viteBuildTest =
@@ -103,7 +104,7 @@ viteBuildTest =
     writeDotEnvClientFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     writeDotEnvClientFile value = do
       waspProjectContext <- ask
-      createFile (waspProjectContext.waspProjectDir </> [relfile|.env.client|]) $
+      createFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
         T.pack $
           testEnvVarKey ++ "=" ++ value
 
