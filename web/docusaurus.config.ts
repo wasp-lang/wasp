@@ -237,6 +237,10 @@ const config: Config = {
       };
     },
   ],
+  themes: ["@docusaurus/theme-mermaid"],
+  markdown: {
+    mermaid: true,
+  },
 };
 
 type DocusaurusScript = DocusaurusConfig["scripts"][number];
