@@ -13,6 +13,8 @@ jobs:
   ci:
     uses: ./.github/workflows/ci.yaml
     secrets: inherit
+    with:
+      override-npm-package-version: ${{ github.ref_name }}
 
   create-release:
     needs: ci
@@ -39,3 +41,36 @@ jobs:
           artifacts: "./wasp-cli-*/*"
           artifactErrorsFailBuild: true
           replacesArtifacts: true
+
+  publish-npm:
+    needs: ci
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+
+      # Tokenless npm publishing requires npm v11.5.1+ so we install it
+      # explicitly.
+      # Read more: https://docs.npmjs.com/trusted-publishers/
+      - name: Install latest npm
+        run: npm i -g npm@^11.5.1
+
+      - uses: actions/download-artifact@v6
+        with:
+          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
+          path: packages/
+
+      - name: Publish Wasp npm packages
+        run: |
+          set -x # Log each command for debugging
+          for pkg in ./packages/*; do
+            # The tag name has no special meaning, just avoids us
+            # broadly publishing an RC to the "latest" tag.
+            npm publish --tag rc "$pkg"
+          done

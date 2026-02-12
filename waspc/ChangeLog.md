@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.20.2
+
+### 🐞 Bug fixes
+
+- Backported npm migration guardrails to 0.20.2 to prevent users to have both installer- and npm-based versions of Wasp at the same time. ([#3743](https://github.com/wasp-lang/wasp/pull/3743))
+
 ## 0.20.1
 
 ### 🎉 New Features

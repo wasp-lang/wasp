@@ -13,7 +13,7 @@ jobs:
 
       - uses: actions/download-artifact@v6
         with:
-          name: wasp-npm-packages
+          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
 
       - name: Publish Wasp npm packages
