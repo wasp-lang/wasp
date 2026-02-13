@@ -49,13 +49,6 @@ jobs:
       url: ${{ steps.app-info.outputs.url }}
 
     steps:
-      - name: Install Wasp
-        run: |
-          npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"
-
-      - name: Install Fly CLI
-        uses: superfly/flyctl-actions/setup-flyctl@v1
-
       - name: Checkout repo
         uses: actions/checkout@v6
 
@@ -63,6 +56,13 @@ jobs:
         with:
           cache: "npm"
           node-version-file: .nvmrc
+
+      - name: Install Wasp
+        run: |
+          sudo npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"
+
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Setup Wasp TS Config (if needed)
         working-directory: ${{ matrix.app-dir }}
