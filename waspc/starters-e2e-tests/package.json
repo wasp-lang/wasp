@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
-    "@playwright/test": "1.51.1",
+    "@playwright/test": "1.55.1",
     "@wasp.sh/wasp-app-runner": "^0.0.13",
     "commander": "^14.0.0",
     "zx": "^8.8.0"
