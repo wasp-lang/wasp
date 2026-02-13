@@ -12,12 +12,12 @@
   },
   "dependencies": {
     "@commander-js/extra-typings": "^14.0.0",
-    "@playwright/test": "1.51.1",
     "@wasp.sh/wasp-app-runner": "^0.0.13",
     "commander": "^14.0.0",
     "zx": "^8.8.0"
   },
   "devDependencies": {
+    "@playwright/test": "1.55.1",
     "@types/node": "^24.0.1",
     "typescript": "^5.9.2"
   }
