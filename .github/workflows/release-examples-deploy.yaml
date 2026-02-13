@@ -8,7 +8,7 @@ on:
         type: string
         description: "Wasp version to use for deployment (e.g., 0.18.0), defaults to latest"
         required: false
-        default: "" # We are relying on the install script treating the empty string as the latest version
+        default: "latest"
     secrets:
       FLY_GITHUB_PRODUCTION_TOKEN:
         description: "Fly API token for deploying apps"
@@ -20,7 +20,7 @@ on:
       version:
         description: "Wasp version to use for deployment (e.g., 0.18.0), defaults to latest"
         required: false
-        default: "" # We are relying on the install script treating the empty string as the latest version
+        default: "latest"
 
 concurrency:
   group: "release-examples-deploy"
