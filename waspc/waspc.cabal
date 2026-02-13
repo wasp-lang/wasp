@@ -444,8 +444,14 @@ library
     Wasp.Psl.Valid
     Wasp.Psl.Db
     Wasp.SemanticVersion
-    Wasp.SemanticVersion.VersionBound
+    Wasp.SemanticVersion.Comparator
+    Wasp.SemanticVersion.ComparatorSet
+    Wasp.SemanticVersion.PartialVersion
+    Wasp.SemanticVersion.Range
+    Wasp.SemanticVersion.Range.Parser
     Wasp.SemanticVersion.Version
+    Wasp.SemanticVersion.VersionBound
+    Wasp.SemanticVersion.Parsers
     Wasp.TypeScript.Inspect.Exports
     Wasp.Util
     Wasp.Util.Aeson
