@@ -8,7 +8,7 @@ import { defaultExclude } from "vitest/config"
 //
 // This allows us to treat config values differently:
 //  - Forced: hardcoded in the return object so they always win. If the
-//    user set one of these in their vite.config.ts, we log a warning.
+//    user set one of these in their vite.config.ts, we throw an error.
 //  - Overridable: we read the user's value from `config` and use it or
 //    fall back to our default.
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
@@ -26,7 +26,7 @@ export function waspConfig(): PluginOption {
     name: "wasp:config",
     enforce: 'pre',
     config(config) {
-      warnIfOverridingForcedOptions(config);
+      throwIfOverridingForcedOptions(config);
 
       return {
         base: forcedOptions['base'],
@@ -80,16 +80,24 @@ function overridable<T>(userValue: T | undefined, defaultValue: T): T {
   return userValue ?? defaultValue;
 }
 
-function warnIfOverridingForcedOptions(config: Record<string, any>): void {
+function throwIfOverridingForcedOptions(config: Record<string, any>): void {
+  const conflicts: string[] = [];
   for (const [path, forcedValue] of Object.entries(forcedOptions)) {
     const userValue = getByPath(config, path);
-    const isOverriding = userValue !== undefined && userValue !== forcedValue;
-    if (isOverriding) {
-      console.warn(
-        `[wasp:config] Ignoring Vite config "${path}" (set to ${JSON.stringify(userValue)}). ` +
-        `Wasp requires the value to be ${JSON.stringify(forcedValue)}.`
+    if (userValue !== undefined && userValue !== forcedValue) {
+      conflicts.push(
+        `  - "${path}" is set to ${JSON.stringify(userValue)}, ` +
+        `but Wasp requires ${JSON.stringify(forcedValue)}`
       );
     }
+  }
+  if (conflicts.length > 0) {
+    throw new Error(
+      `Your vite.config.ts sets options that Wasp controls:\n` +
+      conflicts.join('\n') +
+      `\n\nRemove these from your Vite config. ` +
+      `The wasp() plugin sets them automatically.`
+    );
   }
 }
 

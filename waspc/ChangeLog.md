@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.1
+
+### 🔧 Small improvements
+
+- The `wasp()` Vite plugin now enforces certain Vite config options that Wasp requires (e.g. `base`, `envPrefix`, `build.outDir`) and throws an error if the user tries to override them. ([#3771](https://github.com/wasp-lang/wasp/pull/3771))
+
 ## 0.21.0
 
 ### ⚠️ Breaking Changes
