@@ -145,7 +145,7 @@ jobs:
 
       - name: Install Wasp
         shell: bash
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v ${{ env.WASP_VERSION }}
+        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
 
       # Uncomment if using Wasp TS Config
       # - name: Initialize Wasp TS Config
