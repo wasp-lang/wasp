@@ -251,8 +251,15 @@ export function mapAuthMethods(
   routeRefParser: RefParser<"Route">,
 ): AppSpec.AuthMethods {
   // TODO: check keyof danger, effective ts
-  const { usernameAndPassword, discord, google, gitHub, keycloak, email } =
-    methods;
+  const {
+    usernameAndPassword,
+    discord,
+    google,
+    gitHub,
+    keycloak,
+    microsoft,
+    email,
+  } = methods;
   return {
     usernameAndPassword:
       usernameAndPassword && mapUsernameAndPassword(usernameAndPassword),
@@ -260,6 +267,7 @@ export function mapAuthMethods(
     google: google && mapExternalAuth(google),
     gitHub: gitHub && mapExternalAuth(gitHub),
     keycloak: keycloak && mapExternalAuth(keycloak),
+    microsoft: microsoft && mapExternalAuth(microsoft),
     email: email && mapEmailAuth(email, routeRefParser),
   };
 }
