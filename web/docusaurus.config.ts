@@ -223,6 +223,7 @@ const config: Config = {
         },
         blog: {
           showReadingTime: true,
+          showLastUpdateTime: true,
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
