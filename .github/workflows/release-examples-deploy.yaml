@@ -8,7 +8,7 @@ on:
         type: string
         description: "Wasp version to use for deployment (e.g., 0.18.0), defaults to latest"
         required: false
-        default: "" # We are relying on the install script treating the empty string as the latest version
+        default: "latest"
     secrets:
       FLY_GITHUB_PRODUCTION_TOKEN:
         description: "Fly API token for deploying apps"
@@ -20,7 +20,7 @@ on:
       version:
         description: "Wasp version to use for deployment (e.g., 0.18.0), defaults to latest"
         required: false
-        default: "" # We are relying on the install script treating the empty string as the latest version
+        default: "latest"
 
 concurrency:
   group: "release-examples-deploy"
@@ -49,13 +49,6 @@ jobs:
       url: ${{ steps.app-info.outputs.url }}
 
     steps:
-      - name: Install Wasp
-        run: |
-          npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"
-
-      - name: Install Fly CLI
-        uses: superfly/flyctl-actions/setup-flyctl@v1
-
       - name: Checkout repo
         uses: actions/checkout@v6
 
@@ -63,6 +56,12 @@ jobs:
         with:
           cache: "npm"
           node-version-file: .nvmrc
+
+      - name: Install Wasp
+        run: npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"
+
+      - name: Install Fly CLI
+        uses: superfly/flyctl-actions/setup-flyctl@v1
 
       - name: Setup Wasp TS Config (if needed)
         working-directory: ${{ matrix.app-dir }}
