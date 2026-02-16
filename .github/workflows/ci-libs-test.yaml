@@ -1,0 +1,22 @@
+name: "Test - Wasp Libs"
+
+on:
+  workflow_call:
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+jobs:
+  test-libs:
+    name: Test Wasp libs
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: "actions/checkout@v6"
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+
+      - name: Test all libs
+        working-directory: waspc
+        run: ./run test:libs

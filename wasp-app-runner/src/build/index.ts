@@ -1,23 +1,21 @@
+import * as path from "path";
 import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
+import { doesFileExist } from "../files.js";
 import { startLocalSmtpServer } from "../smtp.js";
-import type { VersionSettings } from "../versions.js";
-import { type AppName, waspBuild } from "../waspCli.js";
-import { buildClientApp, startClientApp } from "./client.js";
-import { buildServerAppContainer, runServerAppContainer } from "./server.js";
+import { EnvVars } from "../types.js";
+import { type AppName, waspBuild, waspBuildStart } from "../waspCli.js";
 
 export async function startAppInBuildMode({
   waspCliCmd,
   pathToApp,
   appName,
-  versionSettings,
   dbType,
   dbImage,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
-  versionSettings: VersionSettings;
   dbType: DbType;
   dbImage: DockerImageName;
 }) {
@@ -35,36 +33,19 @@ export async function startAppInBuildMode({
 
   await startLocalSmtpServer();
 
-  /*
-    We do the client and server builds first, in parallel. Then it starts the
-    client build, waits until it's up; and only then starts the server build.
-    Then it waits for both processes.
+  const serverEnvVars: EnvVars = {
+    JWT_SECRET: "some-jwt-secret",
+    ...dbEnvVars,
+  };
 
-    This is because the client needs to be fully started before the server
-    starts, as `playwright` tests start executing as soon as the server is up.
-  */
+  const serverEnvFile = path.resolve(pathToApp, ".env.server");
+  const clientEnvFile = path.resolve(pathToApp, ".env.client");
 
-  const [, { containerName, imageName }] = await Promise.all([
-    buildClientApp({ pathToApp, versionSettings }),
-    buildServerAppContainer({
-      appName,
-      pathToApp,
-      versionSettings,
-    }),
-  ]);
-
-  const { processPromise: startClientProcessPromise } = await startClientApp({
+  await waspBuildStart({
+    waspCliCmd,
     pathToApp,
-    versionSettings,
+    serverEnvVars,
+    serverEnvFile: doesFileExist(serverEnvFile) ? serverEnvFile : undefined,
+    clientEnvFile: doesFileExist(clientEnvFile) ? clientEnvFile : undefined,
   });
-
-  const { processPromise: startServerProcessPromise } =
-    await runServerAppContainer({
-      containerName,
-      imageName,
-      pathToApp,
-      extraEnv: dbEnvVars,
-    });
-
-  await Promise.race([startClientProcessPromise, startServerProcessPromise]);
 }

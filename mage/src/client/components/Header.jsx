@@ -1,6 +1,6 @@
 import { BiSolidHome, BiSolidUser } from "react-icons/bi";
 import { RxQuestionMarkCircled } from "react-icons/rx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router";
 
 import { useAuth } from "wasp/client/auth";
 import { Link } from "wasp/client/router";

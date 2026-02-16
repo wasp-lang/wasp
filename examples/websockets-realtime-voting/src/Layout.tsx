@@ -1,4 +1,4 @@
-import { Outlet } from "react-router-dom";
+import { Outlet } from "react-router";
 import { logout, useAuth } from "wasp/client/auth";
 import "./Main.css";
 
