@@ -9,8 +9,8 @@ import { defaultExclude } from "vitest/config"
 // This allows us to treat config values differently:
 //  - Forced: hardcoded in the return object so they always win. If the
 //    user set one of these in their vite.config.ts, we throw an error.
-//  - Overridable: we read the user's value from `config` and use it or
-//    fall back to our default.
+//  - Overridable: we read the user's value and use it or fall back to
+//    our default.
 //  - Additive (arrays): we only return Wasp's entries; Vite's merge
 //    appends them to whatever the user already has.
 
@@ -35,8 +35,8 @@ export function waspConfig(): PluginOption {
         },
         server: {
           port: forcedOptions['server.port'],
-          host: overridable(config.server?.host, "0.0.0.0"),
-          open: overridable(config.server?.open, true),
+          host: useUserValue(config.server?.host, "0.0.0.0"),
+          open: useUserValue(config.server?.open, true),
         },
         envPrefix: forcedOptions['envPrefix'],
         build: {
@@ -63,8 +63,8 @@ export function waspConfig(): PluginOption {
           ],
         },
         test: {
-          globals: overridable((config as any).test?.globals, true),
-          environment: overridable((config as any).test?.environment, "jsdom"),
+          globals: useUserValue((config as any).test?.globals, true),
+          environment: useUserValue((config as any).test?.environment, "jsdom"),
           setupFiles: {=& vitest.setupFilesArray =},
           exclude: [
             ...defaultExclude,
@@ -76,7 +76,7 @@ export function waspConfig(): PluginOption {
   };
 }
 
-function overridable<T>(userValue: T | undefined, defaultValue: T): T {
+function useUserValue<T>(userValue: T | undefined, defaultValue: T): T {
   return userValue ?? defaultValue;
 }
 
