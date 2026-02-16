@@ -35,7 +35,7 @@ export type UserUsernameAndPasswordSignupFields =
  * into an object with the same keys but whose values are the return types
  * of those functions.
  */
-export type InferUserSignupFields<T extends UserSignupFields> = {
+type InferUserSignupFields<T extends UserSignupFields> = {
   [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues>
     ? ReturnType<T[K]>
     : never
