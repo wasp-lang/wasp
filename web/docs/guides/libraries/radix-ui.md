@@ -1,5 +1,4 @@
 ---
-title: Radix UI
 comments: true
 last_checked_with_versions:
   Wasp: "0.15"
