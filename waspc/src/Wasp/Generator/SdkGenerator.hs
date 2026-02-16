@@ -115,6 +115,9 @@ genSdk spec =
       C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|types/index.ts|],
       C.genFileCopy [relfile|server/dbRegistry.ts|],
+      C.genFileCopy [relfile|server/operations/operationsRegistry.ts|],
+      C.genFileCopy [relfile|server/envRegistry.ts|],
+      C.genFileCopy [relfile|client/env/envRegistry.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
@@ -129,7 +132,7 @@ genSdk spec =
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
     <++> genUniversalDir
-    <++> genExternalCodeDir (AS.externalCodeFiles spec)
+    -- <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec

@@ -50,7 +50,6 @@
       {=!  expose it here (which leaks it to our users). We could avoid this by =}
       {=!  using relative imports inside SDK code (instead of library imports), =}
       {=!  but I didn't have time to implement it. =}
-      "./src/*": "./dist/src/*.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./operations/*": "./dist/operations/*",
       {=!  Used by our code, undocumented (but accessible) for users. =}
@@ -83,6 +82,12 @@
       "./server/types": "./dist/server/types/index.js",
       {=! Used by server manifest to register prisma setup fn before dbClient initializes. =}
       "./server/dbRegistry": "./dist/server/dbRegistry.js",
+      {=! Used by server manifest to register operations before SDK initializes. =}
+      "./server/operations/operationsRegistry": "./dist/server/operations/operationsRegistry.js",
+      {=! Used by server manifest to register server env schema before env.ts initializes. =}
+      "./server/envRegistry": "./dist/server/envRegistry.js",
+      {=! Used by client env manifest virtual file to register client env schema. =}
+      "./client/env/envRegistry": "./dist/client/env/envRegistry.js",
       {=! Used by the framework server code, reconsider during refactoring. =}
       "./server/middleware": "./dist/server/middleware/index.js",
 

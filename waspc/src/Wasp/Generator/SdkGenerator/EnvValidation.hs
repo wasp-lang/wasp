@@ -9,8 +9,6 @@ import Data.Maybe (isJust)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Client as AS.App.Client
-import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
@@ -18,7 +16,6 @@ import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -63,26 +60,21 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "defaultServerPort" .= Server.defaultServerPort,
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
-          "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+          "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender)
         ]
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
-    maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
-genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema _spec = return $ mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+          "defaultServerUrl" .= Server.defaultDevServerUrl
         ]
-    maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
-    app = snd $ getApp spec
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =

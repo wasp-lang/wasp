@@ -2,14 +2,15 @@
 import * as z from 'zod'
 
 import { ensureEnvSchema } from '../env/validation.js'
+import { getServerEnvSchema } from './envRegistry.js'
+import type { Register } from 'wasp/types'
 
-{=# envValidationSchema.isDefined =}
-{=& envValidationSchema.importStatement =}
-const userServerEnvSchema = {= envValidationSchema.importIdentifier =}
-{=/ envValidationSchema.isDefined =}
-{=^ envValidationSchema.isDefined =}
-const userServerEnvSchema = z.object({})
-{=/ envValidationSchema.isDefined =}
+type UserServerEnvSchema =
+  Register extends { serverEnvSchema: infer T extends z.ZodTypeAny }
+    ? T
+    : z.ZodObject<{}>
+
+const userServerEnvSchema = getServerEnvSchema() as UserServerEnvSchema
 
 const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default({= defaultServerPort =}),
@@ -170,14 +171,24 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
 
 const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
-// PUBLIC API
-export const env = ensureEnvSchema(
+
+const _env = ensureEnvSchema(
   {
     NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,
   },
   serverEnvSchema,
 )
+
+// Intersect the concrete wasp env type with user-defined env vars from Register.
+// The conditional is preserved in .d.ts so consumers get the full type.
+type ServerEnv = typeof _env &
+  (Register extends { serverEnvSchema: infer T extends z.ZodTypeAny }
+    ? z.infer<T>
+    : {})
+
+// PUBLIC API
+export const env = _env as ServerEnv
 
 function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
   return `${envVarName} is required when using ${featureName}`

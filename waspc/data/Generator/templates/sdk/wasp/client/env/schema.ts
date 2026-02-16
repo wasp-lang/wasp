@@ -1,13 +1,14 @@
 {{={= =}=}}
 import * as z from 'zod'
+import { getClientEnvSchema } from './envRegistry.js'
+import type { Register } from 'wasp/types'
 
-{=# envValidationSchema.isDefined =}
-{=& envValidationSchema.importStatement =}
-const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
-{=/ envValidationSchema.isDefined =}
-{=^ envValidationSchema.isDefined =}
-const userClientEnvSchema = z.object({})
-{=/ envValidationSchema.isDefined =}
+type UserClientEnvSchema =
+  Register extends { clientEnvSchema: infer T extends z.ZodTypeAny }
+    ? T
+    : z.ZodObject<{}>
+
+const userClientEnvSchema = getClientEnvSchema() as UserClientEnvSchema
 
 const waspClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": z

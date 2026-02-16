@@ -12,6 +12,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Types as Aeson.Types
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Maybe
   ( isJust,
@@ -37,6 +38,7 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
@@ -282,11 +284,24 @@ genManifest spec =
       (C.asServerFile [relfile|src/manifest.ts|])
       ( Just $
           object
-            [ "prismaSetupFn" .= extImportToImportJson relPathToServerSrcDir maybePrismaSetupFn
+            [ "prismaSetupFn" .= extImportToImportJson relPathToServerSrcDir maybePrismaSetupFn,
+              "operations" .= map mkOperationData allOperations,
+              "hasOperations" .= (not . null $ allOperations),
+              "serverEnvValidationSchema" .= extImportToImportJson relPathToServerSrcDir maybeServerEnvSchema
             ]
       )
   where
-    maybePrismaSetupFn = AS.App.db (snd $ getApp spec) >>= AS.Db.prismaSetupFn
+    app = snd $ getApp spec
+    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+    allOperations = AS.getOperations spec
+
+    mkOperationData :: AS.Operation.Operation -> Aeson.Types.Value
+    mkOperationData operation =
+      object
+        [ "jsFn" .= extImportToImportJson relPathToServerSrcDir (Just $ AS.Operation.getFn operation),
+          "operationName" .= AS.Operation.getName operation
+        ]
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
