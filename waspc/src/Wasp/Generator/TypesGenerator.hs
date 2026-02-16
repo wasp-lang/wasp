@@ -9,11 +9,13 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.TypesGenerator.Common (mkTmplFdWithData)
+import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.Util ((<++>))
 
 genTypes :: AppSpec -> Generator [FileDraft]
@@ -22,6 +24,7 @@ genTypes spec =
     <++> case maybeAuth of
       Nothing -> return []
       Just auth -> genAuthProviderTypes auth
+    <++> genWebSocketTypes spec
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
 
@@ -57,4 +60,20 @@ genDbTypes spec =
     tmplData =
       object
         [ "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+        ]
+
+genWebSocketTypes :: AppSpec -> Generator [FileDraft]
+genWebSocketTypes spec
+  | AS.WS.areWebSocketsUsed spec =
+      return
+        [ mkTmplFdWithData
+            ([reldir|webSocket|] </> [relfile|types.d.ts|])
+            tmplData
+        ]
+  | otherwise = return []
+  where
+    maybeWebSocketFn = AS.App.WS.fn <$> (AS.App.webSocket $ snd $ getApp spec)
+    tmplData =
+      object
+        [ "webSocketFn" .= extImportToImportJson maybeWebSocketFn
         ]
