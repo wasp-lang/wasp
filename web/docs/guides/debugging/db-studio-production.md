@@ -1,9 +1,10 @@
 ---
-title: Database Studio on Production
+title: Database Studio on Fly.io Production
+last_checked_with_versions:
+  Wasp: 0.21.1
+  Fly CLI: 0.4.11
 comments: true
 ---
-
-# Running Database Studio on Production
 
 This guide shows you how to connect to your production database on Fly.io and run `wasp db studio` to inspect or modify your data.
 

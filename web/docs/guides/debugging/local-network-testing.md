@@ -1,9 +1,11 @@
 ---
 title: Local Network Testing
+last_checked_with_versions:
+  Wasp: 0.21.1
 comments: true
 ---
 
-# Testing Wasp Apps on Local Network
+
 
 This guide shows you how to test your Wasp application on other devices (phones, tablets) connected to the same local network during development.
 
@@ -25,7 +27,7 @@ wasp start
 Look for the network URLs in Wasp's terminal output:
 
 ```
-[ Client ]   VITE v5.2.6  ready in 229 ms
+[ Client ]   VITE v7.3.1  ready in 536 ms
 [ Client ]
 [ Client ]   ->  Local:   http://localhost:3000/
 [ Client ]   ->  Network: http://192.168.1.39:3000/
@@ -62,7 +64,28 @@ Replace `192.168.1.39` with your actual IP address from Step 2.
 - **REACT_APP_API_URL**: Tells the client where to find the server on the local network
   :::
 
-## Step 4: Restart and Test
+## Step 4: Allow the Host in Vite Config
+
+By default, Vite blocks requests from hostnames other than `localhost`. Since we're using a `.nip.io` hostname, you need to explicitly allow it.
+
+Add `allowedHosts` to the `server` section in your `vite.config.ts`:
+
+```ts title="vite.config.ts"
+import { defineConfig } from "vitest/config";
+import { wasp } from "wasp/client/vite";
+
+export default defineConfig({
+  server: {
+    // highlight-next-line
+    allowedHosts: ["192.168.1.39.nip.io"],
+  },
+  plugins: [wasp()],
+});
+```
+
+Replace `192.168.1.39.nip.io` with the hostname matching your IP from Step 2.
+
+## Step 5: Restart and Test
 
 After saving the environment files, restart your app:
 
