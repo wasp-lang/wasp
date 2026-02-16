@@ -34,6 +34,7 @@ import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -239,7 +240,8 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genServerJs spec
+      genServerJs spec,
+      genManifest spec
     ]
     <++> genRoutesDir spec
     <++> genViewsDir spec
@@ -268,6 +270,23 @@ genServerJs spec =
   where
     maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
+
+genManifest :: AppSpec -> Generator FileDraft
+genManifest spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/manifest.ts|])
+      (C.asServerFile [relfile|src/manifest.ts|])
+      ( Just $
+          object
+            [ "prismaSetupFn" .= extImportToImportJson relPathToServerSrcDir maybePrismaSetupFn
+            ]
+      )
+  where
+    maybePrismaSetupFn = AS.App.db (snd $ getApp spec) >>= AS.Db.prismaSetupFn
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]

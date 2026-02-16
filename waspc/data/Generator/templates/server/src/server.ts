@@ -1,4 +1,5 @@
 {{={= =}=}}
+import './manifest.js'
 import http from 'http'
 
 import app from './app.js'
