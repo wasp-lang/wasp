@@ -4,6 +4,7 @@ module Wasp.Generator.SdkGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -149,8 +150,19 @@ genIndexTs auth =
     isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
 
 genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
-genProvdersIndex _auth =
-  genFileCopy (authDirInSdkTemplatesDir </> [relfile|providers/index.ts|])
+genProvdersIndex auth =
+  return $
+    mkTmplFdWithData
+      (authDirInSdkTemplatesDir </> [relfile|providers/index.ts|])
+      tmplData
+  where
+    tmplData =
+      object
+        [ "hasEmailSignupFields" .= hasEmailSignupFields,
+          "hasUsernameSignupFields" .= hasUsernameSignupFields
+        ]
+    hasEmailSignupFields = isJust $ AS.Auth.email (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForEmailAuth
+    hasUsernameSignupFields = isJust $ AS.Auth.usernameAndPassword (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForUsernameAuth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
 genProvidersTypes auth =
@@ -161,9 +173,13 @@ genProvidersTypes auth =
   where
     tmplData =
       object
-        [ "userEntityUpper" .= (userEntityName :: String)
+        [ "userEntityUpper" .= (userEntityName :: String),
+          "hasEmailSignupFields" .= hasEmailSignupFields,
+          "hasUsernameSignupFields" .= hasUsernameSignupFields
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
+    hasEmailSignupFields = isJust $ AS.Auth.email (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForEmailAuth
+    hasUsernameSignupFields = isJust $ AS.Auth.usernameAndPassword (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForUsernameAuth
 
 authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 authDirInSdkTemplatesDir = [reldir|auth|]

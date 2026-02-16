@@ -12,17 +12,21 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
+{=# hasEmailSignupFields =}
 // PUBLIC API
 export type UserEmailSignupFields =
   Register extends { emailUserSignupFields: infer T extends UserSignupFields}
     ? InferUserSignupFields<T>
     : {}
+{=/ hasEmailSignupFields =}
 
+{=# hasUsernameSignupFields =}
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields =
   Register extends { usernameAndPasswordUserSignupFields: infer T extends UserSignupFields}
     ? InferUserSignupFields<T>
     : {}
+{=/ hasUsernameSignupFields =}
 
 /**
  * Extracts the result types from a UserSignupFields object.
