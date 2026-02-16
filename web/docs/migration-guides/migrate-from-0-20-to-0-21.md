@@ -276,7 +276,7 @@ For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reac
     ```
 
 
-If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../project/css-frameworks.md#tailwind).
+If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../guides/libraries/tailwind.md).
 
 ### 6. Update your custom Dockerfile
 

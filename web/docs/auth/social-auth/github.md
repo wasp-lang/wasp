@@ -126,7 +126,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 ### 6. Creating the Client Pages
 
 :::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../../project/css-frameworks).
+We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../../guides/libraries/tailwind.md).
 :::
 
 Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
