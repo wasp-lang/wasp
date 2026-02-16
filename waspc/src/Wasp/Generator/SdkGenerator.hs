@@ -21,7 +21,6 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
@@ -369,13 +368,10 @@ genServerDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
   let tmplData =
         object
-          [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "hasPrismaSetupFn" .= isJust maybePrismaSetupFn
+          [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined
           ]
 
   return $
     C.mkTmplFdWithData
       [relfile|server/dbClient.ts|]
       tmplData
-  where
-    maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
