@@ -156,6 +156,7 @@ export type AuthMethods = {
   google: Optional<ExternalAuthConfig>;
   gitHub: Optional<ExternalAuthConfig>;
   keycloak: Optional<ExternalAuthConfig>;
+  microsoft: Optional<ExternalAuthConfig>;
   email: Optional<EmailAuthConfig>;
 };
 

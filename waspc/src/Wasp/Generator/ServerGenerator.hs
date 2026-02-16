@@ -44,7 +44,8 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
-  ( expressTypesVersion,
+  ( dotenvVersion,
+    expressTypesVersion,
     expressVersionStr,
     superjsonVersion,
     typescriptVersion,
@@ -131,8 +132,7 @@ genTsConfigJson spec = do
       waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
-genPackageJson spec waspDependencies = do
-  serverDeps <- N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+genPackageJson spec waspDependencies =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
@@ -151,6 +151,8 @@ genPackageJson spec waspDependencies = do
             ]
       )
   where
+    serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+
     hasEntities = AS.Util.hasEntities spec
 
 getPackageJsonPrismaField :: AppSpec -> Aeson.Value
@@ -168,7 +170,7 @@ npmDepsFromWasp spec =
               ("cors", "^2.8.5"),
               ("express", expressVersionStr),
               ("morgan", "~1.10.0"),
-              ("dotenv", "^16.0.2"),
+              ("dotenv", show dotenvVersion),
               ("helmet", "^6.0.0"),
               ("superjson", show superjsonVersion)
             ]

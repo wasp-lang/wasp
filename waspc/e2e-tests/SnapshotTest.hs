@@ -5,10 +5,11 @@
 module SnapshotTest
   ( SnapshotTest,
     makeSnapshotTest,
-    runSnapshotTest,
+    testTreeFromSnapshotTest,
   )
 where
 
+import Control.Exception (bracket)
 import Control.Monad (filterM)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
@@ -21,7 +22,6 @@ import FileSystem
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
-    SnapshotsDir,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
@@ -31,8 +31,9 @@ import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
+import System.Exit (ExitCode (..))
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, takeFileName)
-import System.Process (callCommand)
+import System.Process (CreateProcess (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
@@ -48,25 +49,48 @@ makeSnapshotTest name shellCommandBuilders =
       shellCommandBuilder = sequence shellCommandBuilders
     }
 
--- | Runs a 'SnapshotTest' by executing snapshot test's shell commands and then
---  comparing the generated files to the previous "golden" (expected) version of those files.
-runSnapshotTest :: SnapshotTest -> IO TestTree
-runSnapshotTest snapshotTest = getSnapshotsDir >>= executeSnapshotTestWorkflow
-  where
-    executeSnapshotTestWorkflow :: Path' Abs (Dir SnapshotsDir) -> IO TestTree
-    executeSnapshotTestWorkflow snapshotsDir = do
-      setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
-      executeSnapshotTestCommand snapshotTest currentSnapshotDir
-      generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
-      currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
-      return $
-        testGroup
-          snapshotTest.name
-          (defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFilesForContentCheck)
-      where
-        goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Golden
-        currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Current
-        currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
+-- | Prepares a 'SnapshotTest' (executing shell commands and generating snapshots),
+--  and then creates a test tree for comparing the generated files to the "golden" (expected) versions.
+testTreeFromSnapshotTest :: SnapshotTest -> IO TestTree
+testTreeFromSnapshotTest = fmap createSnapshotTestTree . prepareSnapshotTestData
+
+-- | Data needed to create a snapshot test tree.
+data SnapshotTestData = SnapshotTestData
+  { name :: String,
+    currentSnapshotDir :: Path' Abs (Dir SnapshotDir),
+    goldenSnapshotDir :: Path' Abs (Dir SnapshotDir),
+    currentSnapshotFilesForContentCheck :: [Path' Abs (File SnapshotFile)]
+  }
+
+prepareSnapshotTestData :: SnapshotTest -> IO SnapshotTestData
+prepareSnapshotTestData snapshotTest = do
+  snapshotsDir <- getSnapshotsDir
+  let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Golden
+      currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Current
+      currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
+
+  setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
+  executeSnapshotTestCommand snapshotTest currentSnapshotDir
+  generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
+  currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
+
+  return
+    SnapshotTestData
+      { name = snapshotTest.name,
+        currentSnapshotDir,
+        goldenSnapshotDir,
+        currentSnapshotFilesForContentCheck
+      }
+
+createSnapshotTestTree :: SnapshotTestData -> TestTree
+createSnapshotTestTree snapshotTestData =
+  testGroup
+    snapshotTestData.name
+    ( defineSnapshotTestCases
+        snapshotTestData.currentSnapshotDir
+        snapshotTestData.goldenSnapshotDir
+        snapshotTestData.currentSnapshotFilesForContentCheck
+    )
 
 -- | Sets up the snapshot test environment by:
 -- 1. Removing any existing files in the current snapshot directory from a prior test run.
@@ -82,7 +106,7 @@ executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO 
 executeSnapshotTestCommand snapshotTest snapshotDir = do
   putStrLn $ "Executing snapshot test: " ++ snapshotTest.name
   putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommand $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+  callCommandInProcessGroup $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
   where
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTest.shellCommandBuilder
@@ -191,7 +215,9 @@ defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFile
 
     mapCurrentToGoldenSnapshotFile :: Path' Abs (File SnapshotFile) -> Path' Abs (File SnapshotFile)
     mapCurrentToGoldenSnapshotFile currentSnapshotFile =
-      goldenSnapshotDir </> fromJust (SP.parseRelFile $ makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile))
+      goldenSnapshotDir </> fromJust (SP.parseRelFile relSnapshotFilePath)
+      where
+        relSnapshotFilePath = makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile)
 
 isTgzFile :: FilePath -> Bool
 isTgzFile = (".tgz" `isExtensionOf`)
@@ -200,3 +226,18 @@ type FileName = String
 
 createFilenameFilter :: [FileName -> Bool] -> FilePath -> Bool
 createFilenameFilter predicates filePath = all ($ takeFileName filePath) predicates
+
+-- | Interruptible version of callCommand that terminates the entire process tree on async exception.
+-- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
+-- all child processes are also terminated rather than continuing to run.
+callCommandInProcessGroup :: String -> IO ()
+callCommandInProcessGroup cmd =
+  bracket
+    (createProcess (shell cmd) {create_group = True})
+    (\(_, _, _, ph) -> interruptProcessGroupOf ph)
+    ( \(_, _, _, ph) -> do
+        exitCode <- waitForProcess ph
+        case exitCode of
+          ExitSuccess -> return ()
+          ExitFailure code -> fail $ "Command failed with exit code " ++ show code ++ ": " ++ cmd
+    )

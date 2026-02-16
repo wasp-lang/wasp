@@ -47,6 +47,10 @@ jobs:
     uses: ./.github/workflows/ci-tsspec-test.yaml
     secrets: inherit
 
+  libs-test:
+    uses: ./.github/workflows/ci-libs-test.yaml
+    secrets: inherit
+
   waspc-build:
     uses: ./.github/workflows/ci-waspc-build.yaml
     secrets: inherit

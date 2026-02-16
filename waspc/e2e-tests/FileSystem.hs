@@ -6,7 +6,9 @@ module FileSystem
     seedsDirInWaspProjectDir,
     mainWaspFileInWaspProjectDir,
     seedsFileInSeedsDir,
+    TestOutputsDir,
     TestCaseDir,
+    testCaseDirInTestOutputsDir,
     getTestCaseDir,
     getTestOutputsDir,
     SnapshotType (..),
@@ -28,7 +30,7 @@ import Data.Maybe (fromJust)
 import StrongPath (Abs, Dir, File, File', Path', Rel, parseRelDir, parseRelFile, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
-import System.FilePath (takeFileName)
+import System.FilePath (joinPath, takeFileName)
 import Wasp.Project (WaspProjectDir)
 
 data GitRootDir
@@ -79,10 +81,10 @@ data TestCaseDir
 getTestCaseDir :: String -> String -> IO (Path' Abs (Dir TestCaseDir))
 getTestCaseDir testName testCaseName = do
   testOutputsDir <- getTestOutputsDir
-  return $ testOutputsDir </> testCaseDirInTestOutputsDir (testName ++ "/" ++ testCaseName)
+  return $ testOutputsDir </> testCaseDirInTestOutputsDir testName testCaseName
 
-testCaseDirInTestOutputsDir :: String -> Path' (Rel TestOutputsDir) (Dir TestCaseDir)
-testCaseDirInTestOutputsDir = fromJust . parseRelDir
+testCaseDirInTestOutputsDir :: String -> String -> Path' (Rel TestOutputsDir) (Dir TestCaseDir)
+testCaseDirInTestOutputsDir testName testCaseName = fromJust . parseRelDir $ joinPath [testName, testCaseName]
 
 -- 'SnapshotTest' tests file system
 --

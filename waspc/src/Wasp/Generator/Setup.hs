@@ -11,6 +11,7 @@ import qualified Wasp.Generator.DbGenerator as DbGenerator
 import Wasp.Generator.Monad (GeneratorError (..), GeneratorWarning (..))
 import Wasp.Generator.NpmInstall (installNpmDependenciesWithInstallRecord)
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
+import Wasp.Generator.WebAppGenerator (createWebAppRootDir)
 import qualified Wasp.Message as Msg
 
 runSetup :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> Msg.SendMessage -> IO ([GeneratorWarning], [GeneratorError])
@@ -23,6 +24,7 @@ runSetup spec projectRootDir sendMessage = do
           -- todo(filip): Should we consider building SDK as part of code generation?
           -- todo(filip): Avoid building on each setup if we don't need to.
           buildSdkResults <- buildSdk projectRootDir sendMessage
+          createWebAppRootDir projectRootDir
           return $ setUpDatabaseResults <> buildSdkResults
         setUpDatabaseResults -> return setUpDatabaseResults
     Left npmInstallError -> return ([], [npmInstallError])

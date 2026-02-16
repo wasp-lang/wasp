@@ -72,16 +72,17 @@ dependenciesValidator spec =
 makeRequiredDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
 makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
   inOppositeDepList notPresentValidator
-    `V.and` inCorrectDepList correctVersionValidator
+    `V.and` withOverride pkgName (inCorrectDepList . correctVersionValidator)
   where
     notPresentValidator :: V.Validator (Maybe P.PackageVersion)
     notPresentValidator Nothing = V.success
     notPresentValidator _ = wrongDepTypeError
 
-    correctVersionValidator :: V.Validator (Maybe P.PackageVersion)
-    correctVersionValidator (Just actualVersion)
+    correctVersionValidator :: Bool -> V.Validator (Maybe P.PackageVersion)
+    correctVersionValidator isOverridden (Just actualVersion)
+      | isOverridden = V.success
       | actualVersion == expectedPkgVersion = V.success
-    correctVersionValidator _ = incorrectPackageVersionError
+    correctVersionValidator _ _ = incorrectPackageVersionError
 
     inCorrectDepList :: V.Validator (Maybe P.PackageVersion) -> V.Validator P.PackageJson
     inCorrectDepList = inDependency depType pkgName
@@ -113,12 +114,14 @@ makeRequiredDepValidator depType (pkgName, expectedPkgVersion) =
 -- with the correct version.
 makeOptionalDepValidator :: DependencyType -> DependencySpecification -> V.Validator P.PackageJson
 makeOptionalDepValidator depType (pkgName, expectedPkgVersion) =
-  inDependency depType pkgName optionalVersionValidator
+  withOverride pkgName $
+    inDependency depType pkgName . optionalVersionValidator
   where
-    optionalVersionValidator :: V.Validator (Maybe P.PackageVersion)
-    optionalVersionValidator (Just actualVersion)
+    optionalVersionValidator :: Bool -> V.Validator (Maybe P.PackageVersion)
+    optionalVersionValidator isOverridden (Just actualVersion)
+      | isOverridden = V.success
       | actualVersion /= expectedPkgVersion = incorrectVersionError
-    optionalVersionValidator _ = V.success
+    optionalVersionValidator _ _ = V.success
 
     incorrectVersionError =
       V.failure $
@@ -143,6 +146,12 @@ makeForbiddenDepValidator depType pkgName =
           ++ " to be present in "
           ++ show (fst $ fieldForDepType depType)
           ++ "."
+
+withOverride :: P.PackageName -> (Bool -> V.Validator P.PackageJson) -> V.Validator P.PackageJson
+withOverride pkgName innerValidator pkgJson =
+  innerValidator isOverridden pkgJson
+  where
+    isOverridden = maybe False (M.member pkgName) $ P.overriddenDeps =<< P.wasp pkgJson
 
 -- | Runs the validator on a specific dependency of the given PackageJson
 -- record, setting the appropriate path for errors.

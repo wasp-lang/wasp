@@ -1,12 +1,14 @@
-import SnapshotTest (runSnapshotTest)
+import Control.Concurrent.Async (mapConcurrently)
+import SnapshotTest (testTreeFromSnapshotTest)
 import System.Info (os)
-import Test (runTest)
+import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
 import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
+import Tests.ViteBuildTest (viteBuildTest)
 import Tests.WaspBuildTest (waspBuildTest)
 import Tests.WaspCleanTest (waspCleanTest)
 import Tests.WaspCompileTest (waspCompileTest)
@@ -32,18 +34,18 @@ main = do
 --       See: github.com/wasp-lang/wasp/issues/3404
 e2eTests :: IO TestTree
 e2eTests = do
-  snapshotTests <-
-    mapM
-      runSnapshotTest
+  snapshotTestTrees <-
+    mapConcurrently
+      testTreeFromSnapshotTest
       [ waspNewSnapshotTest,
         waspCompileSnapshotTest,
         waspBuildSnapshotTest,
         waspMigrateSnapshotTest,
         kitchenSinkSnapshotTest
       ]
-  tests <-
+  testTrees <-
     mapM
-      runTest
+      testTreeFromTest
       [ -- general Wasp commads
         waspNewTest,
         waspTelemetryTest,
@@ -56,6 +58,7 @@ e2eTests = do
         -- These will be fixed as part of the refactor to pure Haskell tests.
         -- FIXME: waspStartTest,
         waspBuildTest,
+        viteBuildTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
         waspInfoTest,
@@ -73,6 +76,6 @@ e2eTests = do
   return $
     testGroup
       "E2E tests"
-      [ testGroup "Snapshot Tests" snapshotTests,
-        testGroup "Tests" tests
+      [ testGroup "Snapshot Tests" snapshotTestTrees,
+        testGroup "Tests" testTrees
       ]

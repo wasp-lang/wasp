@@ -5,17 +5,17 @@
 module Test
   ( Test (..),
     TestCase (..),
-    runTest,
+    testTreeFromTest,
   )
 where
 
 import Data.Maybe (fromJust)
-import FileSystem (TestCaseDir, getTestCaseDir, getTestOutputsDir)
+import FileSystem (TestCaseDir, getTestCaseDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
 import StrongPath (Abs, Dir, Path', fromAbsDir, parseRelDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
-import Test.Hspec (Spec, expectationFailure, it, runIO)
+import Test.Hspec (Spec, expectationFailure, it)
 import Test.Tasty (TestTree)
 import Test.Tasty.Hspec (testSpec)
 
@@ -30,46 +30,50 @@ data TestCase = TestCase
     shellCommandBuilder :: ShellCommandBuilder TestContext [ShellCommand]
   }
 
--- | Runs a 'Test' by executing all test cases' shell commands and then checking their exit code.
--- Each test case runs in its own isolated directory.
-runTest :: Test -> IO TestTree
-runTest test = do
-  testOutputsDir <- getTestOutputsDir
-  callCommand $ "mkdir -p " ++ fromAbsDir testOutputsDir
+testTreeFromTest :: Test -> IO TestTree
+testTreeFromTest test = do
+  testSpec test.name (mapM_ createTestCaseSpec test.testCases)
+  where
+    createTestCaseSpec :: TestCase -> Spec
+    createTestCaseSpec testCase =
+      it testCase.name $ do
+        testCaseDir <- getTestCaseDir test.name testCase.name
+        let testCaseCommand = createTestCaseCommand testCaseDir testCase
 
-  testSpec test.name (mapM_ (createAndExecuteTestCase test.name) test.testCases)
+        setupTestCase testCaseDir
 
-createAndExecuteTestCase :: String -> TestCase -> Spec
-createAndExecuteTestCase testName testCase = do
-  testCaseDir <- runIO $ getTestCaseDir testName testCase.name
-  let waspProjectContext =
-        WaspProjectContext
-          { waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
-            waspProjectName = "wasp-app"
-          }
-      testContext = TestContext {testCaseDir, waspProjectContext}
-      testCaseCommand = foldr1 (~&&) $ buildShellCommand testContext testCase.shellCommandBuilder
+        putStrLn $ "Executing test case: " ++ test.name ++ "/" ++ testCase.name
+        putStrLn $ "Command: " ++ testCaseCommand
+        exitCode <- executeTestCaseCommand testCaseDir testCaseCommand
 
-  runIO $ setupTestCase testCaseDir
-  runIO $ putStrLn $ "Executing test case: " ++ testName ++ "/" ++ testCase.name
-  runIO $ putStrLn $ "Command: " ++ testCaseCommand
-  (_, _, _, processHandle) <-
-    runIO $
-      createProcess
-        (shell testCaseCommand)
-          { cwd = Just $ fromAbsDir testCaseDir,
-            std_in = Inherit,
-            std_out = Inherit,
-            std_err = Inherit
-          }
-  exitCode <- runIO $ waitForProcess processHandle
+        case exitCode of
+          ExitFailure _ -> expectationFailure $ "Command failed: " ++ testCaseCommand
+          ExitSuccess -> return ()
 
-  it testCase.name $ do
-    case exitCode of
-      ExitFailure _ -> expectationFailure $ "Command failed: " ++ testCaseCommand
-      ExitSuccess -> return ()
+createTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> TestCase -> ShellCommand
+createTestCaseCommand testCaseDir testCase =
+  foldr1 (~&&) $ buildShellCommand testContext testCase.shellCommandBuilder
+  where
+    testContext = TestContext {testCaseDir, waspProjectContext}
+    waspProjectContext =
+      WaspProjectContext
+        { waspProjectDir = testCaseDir </> (fromJust . parseRelDir $ "wasp-app"),
+          waspProjectName = "wasp-app"
+        }
 
 setupTestCase :: Path' Abs (Dir TestCaseDir) -> IO ()
 setupTestCase testCaseDir = do
   callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
   callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
+
+executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> IO ExitCode
+executeTestCaseCommand testCaseDir testCaseCommand = do
+  (_, _, _, processHandle) <-
+    createProcess
+      (shell testCaseCommand)
+        { cwd = Just $ fromAbsDir testCaseDir,
+          std_in = Inherit,
+          std_out = Inherit,
+          std_err = Inherit
+        }
+  waitForProcess processHandle

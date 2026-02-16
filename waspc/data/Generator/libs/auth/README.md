@@ -57,12 +57,12 @@ When you need to add a new entry point e.g. `@wasp.sh/lib-auth/web-app`:
    }
    ```
 
-## Running checks
+## Running tests
 
-We have a few checks that we run to ensure the library is in good shape. You can run them all at once with:
+We have a few tests that we run to ensure the library is in good shape. You can run them all at once with:
 
 ```bash
-npm run check
+npm run test
 ```
 
 ### Tests coverage
@@ -70,7 +70,7 @@ npm run check
 To check the test coverage, run:
 
 ```bash
-npm run check:coverage
+npm run test:coverage
 ```
 
 ### Type checking
@@ -78,25 +78,25 @@ npm run check:coverage
 To type check the code, run:
 
 ```bash
-npm run check:types
+npm run test:types
 ```
 
 ### Verifying type exports
 
-This check uses [`arethetypeswrong`](https://github.com/arethetypeswrong/arethetypeswrong.github.io) under the hood which:
+This test uses [`arethetypeswrong`](https://github.com/arethetypeswrong/arethetypeswrong.github.io) under the hood which:
 
 > attempts to analyze npm package contents for issues with their TypeScript types,
 > particularly ESM-related module resolution issues
 
-We use the `--profile esm-only` when running the check because we only care about the ESM related checks since this library will be only imported using ESM.
+We use the `--profile esm-only` when running the test because we only care about the ESM related tests since this library will be only imported using ESM.
 
-To check the type exports are okay run:
+To test the type exports are okay run:
 
 ```bash
-npm run check:type-exports
+npm run test:type-exports
 ```
 
-You want to see `🟢` for all ESM related check since this library will be only imported using ESM. This means the library's
+You want to see `🟢` for all ESM related tests since this library will be only imported using ESM. This means the library's
 types will resolve correctly when used in the SDK, the server and the web app.
 
 ## Building the library
