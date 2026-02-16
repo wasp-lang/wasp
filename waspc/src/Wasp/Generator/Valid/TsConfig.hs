@@ -22,7 +22,7 @@ validateSrcTsConfig config =
     tsConfigValidator =
       V.withFileName "tsconfig.json" $
         V.all
-          [ V.inField ("include", T.include) $ V.eqJust ["src"],
+          [ V.inField ("include", T.include) $ V.eqJust ["src", ".wasp/out/types"],
             V.inField ("compilerOptions", T.compilerOptions) compilerOptionsValidator
           ]
 
