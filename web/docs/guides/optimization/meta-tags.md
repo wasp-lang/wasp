@@ -46,7 +46,7 @@ app MyApp {
 
 ### Setting metadata for a specific page
 
-You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. This allows you to customize the metadata based on the content of each page. These tags will only
+You can use [React's support for `<meta>` tags](https://react.dev/reference/react-dom/components/meta) within components to set metadata for specific pages. This allows you to customize the metadata based on the content of each page. These tags will only be included in the page when the component is being shown, so it's better to add them to the top-most level if possible.
 
 ```tsx title="src/pages/HomePage.tsx"
 export function HomePage() {
@@ -94,7 +94,7 @@ This is the most common standard used by social media platforms (e.g. Facebook, 
 - `og:site_name`: Your app/site name
 - `og:url`: The canonical URL
 - `og:description`: Description for the preview
-- `og:image`: Preview image URL (recommended: 1200x630px)
+- `og:image`: Preview image URL
 
 You can check [Open Graph tag guidelines](https://ogp.me/) for more information on how this information is used.
 
