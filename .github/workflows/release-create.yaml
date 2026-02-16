@@ -51,7 +51,7 @@ jobs:
           # and link the binaries statically:
           # https://github.com/wasp-lang/wasp/issues/650#issuecomment-1180488040
           - ubuntu-22.04
-          - macos-latest
+          - macos-15-intel
           - windows-latest
         node-version:
           - "latest"
@@ -138,14 +138,14 @@ jobs:
         run: ./run ormolu:check
 
       - name: packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
         run: |
           cd packages/ts-inspect
           npm ci
           npm test
 
       - name: Compile TS packages and move it into the Cabal data dir
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
         run: ./tools/install_packages_to_data_dir.sh
 
       - name: Build external dependencies
@@ -155,21 +155,21 @@ jobs:
         run: cabal build all
 
       - name: On MacOS, skip e2e tests with Docker since it is not installed
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-15-intel'
         run: export WASP_E2E_TESTS_SKIP_DOCKER=1
 
       - name: Run unit tests
         run: cabal test cli-test waspc-test waspls-test
 
       - name: Ensure examples/todoApp compiles and builds
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest'
+        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel'
         run: ./examples/todoApp/ensure_app_compiles_and_builds.sh
 
       - name: Run e2e tests
         run: cabal test e2e-test
 
       - name: Create binary package (Unix)
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel') && matrix.node-version == 'latest'
         run: |
           OS_NAME=`case "${{ runner.os }}" in Linux) echo "linux";; macOS) echo "macos";; *) exit 1;; esac`
           mkdir artifacts
@@ -177,7 +177,7 @@ jobs:
 
       - name: Create Github release
         uses: ncipollo/release-action@v1
-        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-latest') && matrix.node-version == 'latest'
+        if: startsWith(github.ref, 'refs/tags/v') && (matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel') && matrix.node-version == 'latest'
         with:
           draft: true
           allowUpdates: true
