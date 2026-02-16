@@ -1,8 +1,8 @@
 ---
 comments: true
 last_checked_with_versions:
-    Wasp: "0.20.0"
-    Shadcn: 2025-01-13
+    Wasp: "0.21"
+    Shadcn: 2026-02-16
 ---
 
 # Shadcn
@@ -19,7 +19,7 @@ If you haven't added Tailwind CSS to your Wasp project yet, follow the instructi
 
 ### 2. Temporarily set up the `@` alias
 
-We need to temporarily setup the `@` alias to pass the Shadcn preflight checks. We'll remove it later.
+We need to temporarily setup the `@` alias to pass Shadcn's "Preflight checks". We'll remove it later.
 
 Add the following lines to your `tsconfig.json`:
 
@@ -85,31 +85,19 @@ Remove the lines we added in the `tsconfig.json`:
 
 Adjust the `aliases` in `components.json` to be:
 
-```diff title="components.json"
- {
-   "$schema": "https://ui.shadcn.com/schema.json",
-   "style": "new-york",
-   "rsc": false,
-   "tsx": true,
-   "tailwind": {
-     "config": "tailwind.config.js",
-     "css": "src/Main.css",
-     "baseColor": "neutral",
-     "cssVariables": true,
-     "prefix": ""
+```json title="components.json"
+{
+  "$schema": "https://ui.shadcn.com/schema.json",
+  // ...
+  "aliases": {
+     // highlight-start
+     "components": "src/components",
+     "utils": "src/lib/utils",
+     "ui": "src/components/ui",
+     "lib": "src/lib",
+     "hooks": "src/hooks"
+     // highlight-end
    },
-   "aliases": {
--    "components": "@/components",
--    "utils": "@/lib/utils",
--    "ui": "@/components/ui",
--    "lib": "@/lib",
--    "hooks": "@/hooks"
-+    "components": "src/components",
-+    "utils": "src/lib/utils",
-+    "ui": "src/components/ui",
-+    "lib": "src/lib",
-+    "hooks": "src/hooks"
-   }
  }
 ```
 
