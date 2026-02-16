@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.17.3
+
+### 🐞 Bug fixes
+
+- Fixed the npm-published version failing with `wasp-bin: npm: readCreateProcessWithExitCode: chdir: invalid argument (Bad file descriptor)`. ([#3776](https://github.com/wasp-lang/wasp/pull/3776))
+- Fixed the npm-published version incorrectly declaring Node.js 22.12 as a requirement, instead of Node.js 20. ([#3776](https://github.com/wasp-lang/wasp/pull/3776))
+
 ## 0.17.2
 
 ### 🐞 Bug fixes
