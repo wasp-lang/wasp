@@ -156,7 +156,7 @@ generatePackageJson newProjectDetails =
         "dependencies": {
           "react": "^19.2.1",
           "react-dom": "^19.2.1",
-          "react-router-dom": "^6.26.2",
+          "react-router": "^7.12.0",
           "tailwindcss": "^4.1.18"
         },
         "devDependencies": {
@@ -178,14 +178,18 @@ generateViteConfigFile :: File
 generateViteConfigFile =
   ( "vite.config.js",
     [trimming|
+      import { wasp } from "wasp/client/vite";
       import tailwindcss from "@tailwindcss/vite";
       import { defineConfig } from "vite";
 
       export default defineConfig({
+        plugins: [
+          wasp(),
+          tailwindcss()
+        ],
         server: {
           open: true,
         },
-        plugins: [tailwindcss()],
       });
     |]
   )
@@ -281,7 +285,7 @@ generateMainCssFile :: NewProjectDetails -> File
 generateMainCssFile newProjectDetails =
   ( "src/Main.css",
     [trimming|
-      @import "tailwindcss" source(".");
+      @import "tailwindcss";
 
       @theme {
         ${primaryColorAliases}
@@ -319,7 +323,7 @@ generateLayoutComponent newProjectDetails =
     [trimming|
       import { Link } from "wasp/client/router";
       import { useAuth, logout } from "wasp/client/auth";
-      import { Outlet } from "react-router-dom";
+      import { Outlet } from "react-router";
       import "./Main.css";
 
       export const Layout = () => {

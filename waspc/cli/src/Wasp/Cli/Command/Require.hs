@@ -33,12 +33,15 @@ where
 import Control.Monad (unless, when)
 import Control.Monad.Error.Class (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.Bool (bool)
 import Data.Data (Typeable)
 import Data.Maybe (fromJust)
+import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (checkRequirement), require)
+import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import qualified Wasp.Project.BuildType as BuildType
@@ -52,7 +55,7 @@ import qualified Wasp.Project.Common as Project.Common
 -- do
 --   InWaspProject waspProjectDir <- require
 -- @
-newtype InWaspProject = InWaspProject (SP.Path' SP.Abs (SP.Dir WaspProjectDir)) deriving (Typeable)
+newtype InWaspProject = InWaspProject (Path' Abs (Dir WaspProjectDir)) deriving (Typeable)
 
 instance Requirable InWaspProject where
   checkRequirement = do
@@ -85,15 +88,13 @@ data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 
 instance Requirable DbConnectionEstablished where
   checkRequirement = do
-    -- NOTE: 'InWaspProject' does not depend on this requirement, so this
-    -- call to 'require' will not result in an infinite loop.
-    InWaspProject waspProjectDir <- require
-    GeneratedCodeIsDevelopment <- require
-
-    let outDir =
-          waspProjectDir
-            SP.</> Project.Common.dotWaspDirInWaspProjectDir
-            SP.</> Project.Common.generatedCodeDirInDotWaspDir
+    -- TODO: Remove `GeneratedCodeIsDevelopment` requirement:
+    -- https://github.com/wasp-lang/wasp/issues/2858.
+    -- The reason why we need it is because a Production build by design does
+    -- not have some files like `.env` or `prisma.schema`, which makes it tricky
+    -- to determine the database location. See the linked issue for more
+    -- details.
+    GeneratedCodeIsDevelopment outDir <- require
 
     dbIsRunning <- liftIO $ isDbConnectionPossible <$> testDbConnection outDir
 
@@ -108,31 +109,41 @@ instance Requirable DbConnectionEstablished where
               ++ " You can easily start a managed dev database with `wasp start db`."
           )
 
-data GeneratedCodeIsDevelopment = GeneratedCodeIsDevelopment deriving (Typeable)
+data GeneratedCodeIsDevelopment
+  = GeneratedCodeIsDevelopment (Path' Abs (Dir ProjectRootDir))
+  deriving (Typeable)
 
 instance Requirable GeneratedCodeIsDevelopment where
   checkRequirement =
-    isBuildTypeCompatibleWithGeneratedCode BuildType.Development >>= \case
-      True -> return GeneratedCodeIsDevelopment
-      False ->
-        throwError $
-          CommandError
-            "Built app does not exist"
-            "You can build the app with the `wasp start` or `wasp compile` commands."
+    isBuildTypeCompatibleWithGeneratedCode BuildType.Development
+      >>= maybe
+        (throwError noDevelopmentCodeError)
+        (return . GeneratedCodeIsDevelopment)
+    where
+      noDevelopmentCodeError =
+        CommandError
+          "Built app does not exist"
+          "You can build the app with the `wasp start` or `wasp compile` commands."
 
-data GeneratedCodeIsProduction = GeneratedCodeIsProduction deriving (Typeable)
+data GeneratedCodeIsProduction
+  = GeneratedCodeIsProduction (Path' Abs (Dir ProjectRootDir))
+  deriving (Typeable)
 
 instance Requirable GeneratedCodeIsProduction where
   checkRequirement =
-    isBuildTypeCompatibleWithGeneratedCode BuildType.Production >>= \case
-      True -> return GeneratedCodeIsProduction
-      False ->
-        throwError $
-          CommandError
-            "Built app does not exist"
-            "You can build the app with the `wasp build` command."
+    isBuildTypeCompatibleWithGeneratedCode BuildType.Production
+      >>= maybe
+        (throwError noProductionCodeError)
+        (return . GeneratedCodeIsProduction)
+    where
+      noProductionCodeError =
+        CommandError
+          "Built app does not exist"
+          "You can build the app with the `wasp build` command."
 
-isBuildTypeCompatibleWithGeneratedCode :: BuildType.BuildType -> Command Bool
+isBuildTypeCompatibleWithGeneratedCode ::
+  BuildType.BuildType ->
+  Command (Maybe (Path' Abs (Dir ProjectRootDir)))
 isBuildTypeCompatibleWithGeneratedCode expectedBuildType = do
   InWaspProject waspProjectDir <- require
 
@@ -142,4 +153,5 @@ isBuildTypeCompatibleWithGeneratedCode expectedBuildType = do
           SP.</> Project.Common.generatedCodeDirInDotWaspDir
 
   liftIO $
-    expectedBuildType `WaspInfo.isCompatibleWithExistingBuildAt` generatedCodeDir
+    bool Nothing (Just generatedCodeDir)
+      <$> expectedBuildType `WaspInfo.isCompatibleWithExistingBuildAt` generatedCodeDir

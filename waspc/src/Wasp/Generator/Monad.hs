@@ -59,7 +59,9 @@ instance Show GeneratorWarning where
 -- Even if successful there may be warnings, so they are always included.
 runGenerator :: Generator a -> ([GeneratorWarning], Either (NonEmpty GeneratorError) a)
 runGenerator generator =
-  let (errorOrResult, finalState) = runIdentity $ runStateT (runExceptT (_runGenerator generator)) initialState
+  let (errorOrResult, finalState) =
+        runIdentity $
+          runStateT (runExceptT (_runGenerator generator)) initialState
    in (warnings finalState, loggedErrorsOrResult (errorOrResult, errors finalState))
   where
     initialState = GeneratorState {warnings = [], errors = []}

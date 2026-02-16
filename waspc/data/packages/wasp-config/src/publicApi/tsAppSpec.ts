@@ -69,6 +69,7 @@ export type AuthMethods = {
   google?: ExternalAuthConfig;
   gitHub?: ExternalAuthConfig;
   keycloak?: ExternalAuthConfig;
+  microsoft?: ExternalAuthConfig;
   email?: EmailAuthConfig;
 };
 

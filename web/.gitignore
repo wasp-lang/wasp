@@ -22,3 +22,6 @@ yarn-error.log*
 
 # LLM files
 llms*.txt
+
+# Blog drafts
+_blog_drafts

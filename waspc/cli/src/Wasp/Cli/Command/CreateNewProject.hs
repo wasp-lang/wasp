@@ -44,7 +44,7 @@ createProjectOnDisk
     cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
     case template of
       GhRepoReleaseArchiveTemplate {repo = ghRepoRef, archiveName = archiveName', archivePath = archivePath'} ->
-        createProjectOnDiskFromGhReleaseArchiveTemplate absWaspProjectDir projectName appName ghRepoRef archiveName' archivePath'
+        createProjectOnDiskFromGhReleaseArchiveTemplate (show template) absWaspProjectDir projectName appName ghRepoRef archiveName' archivePath'
       BundledStarterTemplate {bundledPath = bundledPath'} ->
         liftIO $ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName bundledPath'
       AiGeneratedStarterTemplate ->

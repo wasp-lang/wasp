@@ -9,6 +9,6 @@ import Wasp.Generator.Valid.TsConfig (validateSrcTsConfig)
 validateAppSpec :: AppSpec -> [GeneratorError]
 validateAppSpec spec =
   concat
-    [ validatePackageJson (AS.packageJson spec),
+    [ validatePackageJson spec (AS.packageJson spec),
       validateSrcTsConfig (AS.srcTsConfig spec)
     ]
