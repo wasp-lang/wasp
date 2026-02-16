@@ -2,7 +2,7 @@
 title: Multiple Domains CORS
 comments: true
 last_checked_with_versions:
-  Wasp: "0.15"
+  Wasp: "0.21"
 ---
 
 # Multiple Domains CORS
@@ -17,9 +17,8 @@ Make sure you have a Wasp project set up. If you haven't, follow the [Getting St
 
 By default, Wasp configures CORS to allow requests only from your client URL (defined by `WASP_WEB_CLIENT_URL`). You might need to support multiple domains when:
 
-- You have multiple frontend applications
+- You have multiple domains for the same client application
 - You're building a public API
-- You want different domains for staging and production
 - You're migrating from one domain to another
 
 ## Setting up Multiple Domain CORS
@@ -31,7 +30,7 @@ Add the server middleware configuration:
 ```wasp title="main.wasp"
 app CorsTest {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.21.0"
   },
   title: "cors-test",
   server: {
@@ -56,30 +55,21 @@ Create a middleware file that configures CORS with multiple origins:
 
 ```ts title="src/middleware.ts"
 import cors from "cors";
-import { MiddlewareConfigFn } from "wasp/server";
+import { env, MiddlewareConfigFn } from "wasp/server";
 
 export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  const isDevelopment = process.env.NODE_ENV === "development";
-  const clientUrl = process.env.WASP_WEB_CLIENT_URL ?? "http://localhost:3000";
+  const isDevelopment = env.NODE_ENV === "development";
 
   // Allow all origins in development, otherwise allow specific domains
   const origin = isDevelopment
-    ? "*"
+    ? [/.*/]
     : [
-        clientUrl,
+        env.WASP_WEB_CLIENT_URL,
         "https://app.example.com",
         "https://admin.example.com",
-        // Add more domains as needed
       ];
 
-  // Remove the default CORS setup and provide custom configuration
-  config.delete("cors");
-  config.set(
-    "cors",
-    cors({
-      origin,
-    }),
-  );
+  config.set("cors", cors({ origin }));
 
   return config;
 };
@@ -107,18 +97,18 @@ You can make the allowed domains configurable via environment variables:
 
 ```ts title="src/middleware.ts"
 import cors from "cors";
-import { MiddlewareConfigFn } from "wasp/server";
+import { env, MiddlewareConfigFn } from "wasp/server";
 
 export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  const isDevelopment = process.env.NODE_ENV === "development";
-  const clientUrl = process.env.WASP_WEB_CLIENT_URL ?? "http://localhost:3000";
+  const isDevelopment = env.NODE_ENV === "development";
 
   // Parse additional domains from environment variable
   const additionalDomains = process.env.CORS_ALLOWED_DOMAINS?.split(",") ?? [];
 
-  const origin = isDevelopment ? "*" : [clientUrl, ...additionalDomains];
+  const origin = isDevelopment
+    ? [/.*/]
+    : [env.WASP_WEB_CLIENT_URL, ...additionalDomains];
 
-  config.delete("cors");
   config.set("cors", cors({ origin }));
 
   return config;
@@ -140,7 +130,6 @@ import cors from "cors";
 import { MiddlewareConfigFn } from "wasp/server";
 
 export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  config.delete("cors");
   config.set(
     "cors",
     cors({
@@ -175,7 +164,6 @@ import cors from "cors";
 import { MiddlewareConfigFn } from "wasp/server";
 
 export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  config.delete("cors");
   config.set(
     "cors",
     cors({
@@ -193,7 +181,7 @@ export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
 
 ## Security Considerations
 
-- **Never use `origin: "*"` in production** when your API uses credentials (cookies, authorization headers)
+- **Never use `origin: "*"` or `origin: [/.*/]` in production** — always restrict origins to specific domains
 - Always explicitly list the domains you want to allow
 - Consider using environment variables to manage allowed domains across environments
 - Regularly audit your allowed domains list
