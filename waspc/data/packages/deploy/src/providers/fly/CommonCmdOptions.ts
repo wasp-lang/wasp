@@ -22,3 +22,7 @@ export interface SecretsOptions {
   serverSecret: string[];
   clientSecret: string[];
 }
+
+export interface CustomServerUrlOption {
+  customServerUrl?: string;
+}

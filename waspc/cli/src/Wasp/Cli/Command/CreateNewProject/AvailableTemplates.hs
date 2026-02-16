@@ -75,7 +75,7 @@ openSaasStarterTemplate =
         ( GhRepo.GithubRepoRef
             { GhRepo._repoOwner = "wasp-lang",
               GhRepo._repoName = "open-saas",
-              GhRepo._repoReferenceName = waspVersionTemplateGitTag
+              GhRepo._repoTagName = waspVersionTemplateGitTag
             }
         ),
       archiveName = "template.tar.gz",

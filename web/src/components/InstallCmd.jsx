@@ -6,7 +6,7 @@ const copyToClipboard = (text) => {
 };
 
 const InstallCmd = () => {
-  const code = "curl -sSL https://get.wasp.sh/installer.sh | sh";
+  const code = "npm i -g @wasp.sh/wasp-cli@latest";
 
   return (
     <div

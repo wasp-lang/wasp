@@ -22,7 +22,6 @@ import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir)
 import qualified Wasp.Message as Msg
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common

@@ -1,8 +1,8 @@
 {
   "name": "mage",
   "workspaces": [
-    ".wasp/build/*",
-    ".wasp/out/*"
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
   ],
   "scripts": {
     "env:pull": "npx dotenv-vault@latest pull development .env.server",
@@ -20,11 +20,10 @@
     "react-dom": "^19.2.1",
     "react-icons": "4.10.1",
     "react-parallax-tilt": "^1.7.315",
-    "react-router-dom": "^6.26.2",
+    "react-router": "^7.12.0",
     "recharts": "^2.15.0",
     "tailwindcss": "^4.1.18",
-    "timeago.js": "4.0.2",
-    "wasp": "file:.wasp/out/sdk/wasp"
+    "timeago.js": "4.0.2"
   },
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.18",

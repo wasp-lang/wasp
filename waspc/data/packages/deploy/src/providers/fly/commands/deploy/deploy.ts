@@ -8,8 +8,8 @@ import {
 } from "../../../../common/terminal.js";
 import { ensureWaspProjectIsBuilt } from "../../../../common/waspBuild.js";
 import {
-  getClientBuildDir,
-  getServerBuildDir,
+  getClientDeploymentDir,
+  getServerDeploymentDir,
 } from "../../../../common/waspProject.js";
 import {
   createDeploymentInstructions,
@@ -87,7 +87,7 @@ async function deployServer(
 ) {
   waspSays("Deploying your server now...");
 
-  cd(getServerBuildDir(deploymentInstructions.cmdOptions.waspProjectDir));
+  cd(getServerDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
   copyProjectServerTomlLocally(deploymentInstructions.tomlFilePaths);
 
   // Make sure we have a DATABASE_URL present. If not, they need to create/attach their DB first.
@@ -115,12 +115,14 @@ async function deployClient(
 ) {
   waspSays("Deploying your client now...");
 
-  cd(getClientBuildDir(deploymentInstructions.cmdOptions.waspProjectDir));
+  cd(getClientDeploymentDir(deploymentInstructions.cmdOptions.waspProjectDir));
   copyProjectClientTomlLocally(deploymentInstructions.tomlFilePaths);
 
-  const serverFlyAppUrl = getFlyAppUrl(deploymentInstructions.serverFlyAppName);
+  const serverUrl =
+    deploymentInstructions.cmdOptions.customServerUrl ??
+    getFlyAppUrl(deploymentInstructions.serverFlyAppName);
 
-  await buildClient(serverFlyAppUrl, deploymentInstructions.cmdOptions);
+  await buildClient(serverUrl, deploymentInstructions.cmdOptions);
 
   // Creates the necessary Dockerfile for deploying static websites to Fly.io.
   // Adds dummy .dockerignore to supress CLI question.

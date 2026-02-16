@@ -51,9 +51,11 @@ jobs:
       id-token: write
 
     steps:
-      - # We don't set a specific node version here because we want to use the
-        # latest, to get token-less npm publishing.
-        uses: actions/setup-node@v6
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
 
       - uses: actions/download-artifact@v6
         with:
@@ -61,8 +63,13 @@ jobs:
           path: packages/
 
       - name: Publish Wasp npm packages
+        # Tokenless npm publishing requires npm v11.5.1+ so we request it
+        # explicitly.
+        # Read more: https://docs.npmjs.com/trusted-publishers/
         run: |
           set -x # Log each command for debugging
           for pkg in ./packages/*; do
-            npm publish "$pkg"
+            # The tag name has no special meaning, just avoids us
+            # broadly publishing an RC to the "latest" tag.
+            npx npm@^11.5.1 publish --tag rc "$pkg"
           done

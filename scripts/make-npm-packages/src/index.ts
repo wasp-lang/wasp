@@ -10,14 +10,10 @@ import { BuildDataSchema } from "./schema/input-data.ts";
 const args = parseArgs({ strict: true, options: ARGS_OPTIONS });
 
 if (args.values.help) {
-  console.log(`Available options: ${ARGS_OPTIONS}`);
+  console.log(`Available options: ${JSON.stringify(ARGS_OPTIONS, null, 2)}`);
 } else {
   console.log(
-    `Running program with options: ${JSON.stringify(
-      { ...args.values },
-      null,
-      2,
-    )}`,
+    `Running program with options: ${JSON.stringify(args.values, null, 2)}`,
   );
 
   const {
