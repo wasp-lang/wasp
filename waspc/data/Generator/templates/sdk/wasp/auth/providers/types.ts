@@ -35,7 +35,6 @@ export type UserUsernameAndPasswordSignupFields =
  * into an object with the same keys but whose values are the return types
  * of those functions.
  */
-// PUBLIC API (used by .wasp/out/types/ for module augmentation)
 export type InferUserSignupFields<T extends UserSignupFields> = {
   [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues>
     ? ReturnType<T[K]>
