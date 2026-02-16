@@ -19,7 +19,7 @@ This is an example Wasp app that supports:
 1. Make sure you have the latest version of Wasp installed.
 
    ```bash
-   curl -sSL https://get.wasp.sh/installer.sh | sh
+   npm i -g @wasp.sh/wasp-cli@latest
    ```
 
 2. Start the database with:

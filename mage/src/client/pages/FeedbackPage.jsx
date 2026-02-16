@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { format } from "timeago.js";
 
 import { getFeedback, useQuery } from "wasp/client/operations";

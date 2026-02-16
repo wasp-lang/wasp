@@ -14,7 +14,7 @@ spec_IsValidWaspIdentifier = do
   it "Correctly identifies valid identifiers" $ do
     all isValidWaspIdentifier ["foo", "foo12", "_12", "_"]
   it "Correctly identifies invalid identifiers" $ do
-    not (any isValidWaspIdentifier ["true", "12", "12_", "1foo"])
+    not (any isValidWaspIdentifier ["dash-name", "space delimited", "trailingSpace ", "true", "12", "12_", "1foo"])
 
 spec_ParseExpression :: Spec
 spec_ParseExpression = do

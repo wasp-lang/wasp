@@ -1,5 +1,6 @@
 import {
   CommonCmdOptions,
+  CustomServerUrlOption,
   DbOptions,
   LocalBuildOptions,
   SecretsOptions,
@@ -9,4 +10,5 @@ export interface LaunchCmdOptions
   extends CommonCmdOptions,
     DbOptions,
     LocalBuildOptions,
-    SecretsOptions {}
+    SecretsOptions,
+    CustomServerUrlOption {}

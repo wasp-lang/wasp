@@ -1,4 +1,4 @@
-@import "tailwindcss" source(".");
+@import "tailwindcss";
 
 @theme {
   --text-tiny: 0.625rem; /* Font size is 10px */

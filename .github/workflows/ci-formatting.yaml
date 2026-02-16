@@ -18,7 +18,7 @@ jobs:
       - uses: actions/setup-node@v6
         with:
           cache: "npm"
-          node-version: "22"
+          node-version-file: .nvmrc
 
       - name: Run Prettier
         run: |

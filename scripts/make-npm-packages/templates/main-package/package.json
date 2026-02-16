@@ -19,5 +19,9 @@
   },
   "bin": {
     "wasp": "bin.js"
+  },
+  "scripts": {
+    "postinstall": "node postinstall.js",
+    "preinstall": "node preinstall.js"
   }
 }

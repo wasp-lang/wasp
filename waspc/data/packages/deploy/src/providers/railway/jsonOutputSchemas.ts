@@ -23,8 +23,15 @@ export const RailwayCliProjectSchema = z.object({
 
 export const RailwayProjectListSchema = z.array(RailwayCliProjectSchema);
 
-export const RailwayCliDomainSchema = z.object({
-  domain: z.string(),
-});
+export const RailwayCliDomainSchema = z.union([
+  // Railway CLI >=4.18.1
+  z.object({ domains: z.array(z.string()).min(1) }),
+
+  // Railway CLI <4.18.1
+  z
+    .object({ domain: z.string() })
+    // Convert to the newer format
+    .transform(({ domain }) => ({ domains: [domain] })),
+]);
 
 export type RailwayCliDomain = z.infer<typeof RailwayCliDomainSchema>;

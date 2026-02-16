@@ -34,7 +34,7 @@
 
 ## What is Wasp?
 
-Wasp (**W**eb **A**pplication **Sp**ecification) is a Rails-like framework for React, Node.js, and Prisma.  
+Wasp (**W**eb **A**pplication **Sp**ecification) is a Rails-like framework for React, Node.js, and Prisma.
 Build your app in a day and deploy it with a single CLI command!
 
 ### Why is Wasp awesome
@@ -112,7 +112,7 @@ For more information about Wasp, check [**docs**](https://wasp.sh/docs).
 Run to install Wasp on OSX/Linux/WSL(Win):
 
 ```sh
-curl -sSL https://get.wasp.sh/installer.sh | sh
+npm i -g @wasp.sh/wasp-cli@latest
 ```
 
 From there, follow the instructions to run your first app in less than a minute!

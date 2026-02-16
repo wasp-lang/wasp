@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { PiDownloadDuotone, PiUserDuotone } from "react-icons/pi";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 import { format } from "timeago.js";
 
 import { logout } from "wasp/client/auth";
