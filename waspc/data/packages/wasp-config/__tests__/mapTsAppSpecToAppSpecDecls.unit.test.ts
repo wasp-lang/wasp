@@ -259,6 +259,8 @@ describe("mapAuthMethods", () => {
       google: authMethods.google && mapExternalAuth(authMethods.google),
       gitHub: authMethods.gitHub && mapExternalAuth(authMethods.gitHub),
       keycloak: authMethods.keycloak && mapExternalAuth(authMethods.keycloak),
+      microsoft:
+        authMethods.microsoft && mapExternalAuth(authMethods.microsoft),
       email:
         authMethods.email && mapEmailAuth(authMethods.email, routeRefParser),
     } satisfies AppSpec.AuthMethods);
