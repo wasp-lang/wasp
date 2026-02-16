@@ -13,10 +13,12 @@ import { Button, ButtonLink } from "./components/Button";
 import { getName } from "./features/auth/user";
 
 // Necessary to trigger type tests.
+import { UserEmailSignupFields } from "wasp/auth/providers";
 import "./rpcTests/operations/client";
 
 export function App() {
   const { data: user } = useAuth();
+  const test: UserEmailSignupFields = { address: "" };
 
   return (
     <div className="grid min-h-screen grid-rows-[auto_1fr_auto] bg-gray-50">

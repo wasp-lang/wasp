@@ -115,6 +115,7 @@ genSdk spec =
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/setup.ts|],
+      C.genFileCopy [relfile|types/index.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,

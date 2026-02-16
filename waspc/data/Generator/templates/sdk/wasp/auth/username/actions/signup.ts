@@ -17,4 +17,3 @@ export async function signup(data: UsernameSignupData): Promise<void> {
     throw handleApiError(error)
   }
 }
-
