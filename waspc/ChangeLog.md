@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.20.3
+
+### 🐞 Bug fixes
+
+- Fixed an issue where the npm-published version failed with `wasp-bin: npm: readCreateProcessWithExitCode: chdir: invalid argument (Bad file descriptor)`. ([#3773](https://github.com/wasp-lang/wasp/pull/3773))
+
 ## 0.20.2
 
 ### 🐞 Bug fixes
