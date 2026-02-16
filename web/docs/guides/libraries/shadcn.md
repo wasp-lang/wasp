@@ -15,7 +15,7 @@ You won't be able to use the `@` alias setup since it's not currently supported 
 
 ### 1. Add Tailwind CSS
 
-If you haven't added Tailwind CSS to your Wasp project yet, follow the instructions in the [Tailwind CSS guide](../../pguides/libraries/tailwind.md) first.
+If you haven't added Tailwind CSS to your Wasp project yet, follow the instructions in the [Tailwind CSS guide](./tailwind.md) first.
 
 ### 2. Temporarily set up the `@` alias
 
