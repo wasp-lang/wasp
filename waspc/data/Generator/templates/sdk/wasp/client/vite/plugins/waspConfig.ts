@@ -1,4 +1,5 @@
 {{={= =}=}}
+/// <reference types="vitest/config" />
 import { type PluginOption } from "vite";
 import { defaultExclude } from "vitest/config"
 
@@ -17,7 +18,6 @@ import { defaultExclude } from "vitest/config"
 const forcedOptions = {
   'base': "{= baseDir =}",
   'envPrefix': "REACT_APP_",
-  'server.port': {= defaultClientPort =},
   'build.outDir': "{= clientBuildDirPath =}",
 } as const;
 
@@ -28,13 +28,14 @@ export function waspConfig(): PluginOption {
     config(config) {
       throwIfOverridingForcedOptions(config);
 
+      // Returned config is merged with the user's config by Vite (mergeConfig).
       return {
         base: forcedOptions['base'],
         optimizeDeps: {
           exclude: {=& depsExcludedFromOptimization =}
         },
         server: {
-          port: forcedOptions['server.port'],
+          port: useUserValue(config.server?.port, {= defaultClientPort =}),
           host: useUserValue(config.server?.host, "0.0.0.0"),
           open: useUserValue(config.server?.open, true),
         },
@@ -63,8 +64,8 @@ export function waspConfig(): PluginOption {
           ],
         },
         test: {
-          globals: useUserValue((config as any).test?.globals, true),
-          environment: useUserValue((config as any).test?.environment, "jsdom"),
+          globals: useUserValue(config.test?.globals, true),
+          environment: useUserValue(config.test?.environment, "jsdom"),
           setupFiles: {=& vitest.setupFilesArray =},
           exclude: [
             ...defaultExclude,
@@ -86,17 +87,13 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
     const userValue = getByPath(config, path);
     if (userValue !== undefined && userValue !== forcedValue) {
       conflicts.push(
-        `  - "${path}" is set to ${JSON.stringify(userValue)}, ` +
-        `but Wasp requires ${JSON.stringify(forcedValue)}`
+        `  - "${path}" is set to ${JSON.stringify(userValue)}, but Wasp requires ${JSON.stringify(forcedValue)}`
       );
     }
   }
   if (conflicts.length > 0) {
     throw new Error(
-      `Your vite.config.ts sets options that Wasp controls:\n` +
-      conflicts.join('\n') +
-      `\n\nRemove these from your Vite config. ` +
-      `The wasp() plugin sets them automatically.`
+      `Your vite.config.ts sets options that Wasp controls:\n${conflicts.join('\n')}\n\nRemove these from your Vite config. Wasp sets them automatically.`
     );
   }
 }

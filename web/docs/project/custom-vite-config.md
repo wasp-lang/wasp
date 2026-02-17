@@ -50,12 +50,11 @@ The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any oth
 
 The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
 
-| Option | Value | Why it's needed |
+| Option | Internal value | Why you can't customize it |
 |---|---|---|
-| `base` | Set from the app's `baseDir` config | Must match React Router's `basename` for routing to work correctly. |
+| `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
 | `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
-| `server.port` | `3000` | The Wasp CLI expects the dev client on this port to coordinate with the server. |
-| `build.outDir` | Wasp's internal build path | Build artifacts must go to the location Wasp expects for deployment. |
+| `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
 
 ## Customization
 
@@ -105,6 +104,30 @@ export default defineConfig({
   },
 })
 ```
+
+### Custom Dev Server Port
+
+You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the dev server port by setting the `port` option.
+
+```ts title="vite.config.ts" auto-js
+import { wasp } from 'wasp/client/vite'
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  plugins: [wasp()],
+  server: {
+    port: 4000,
+  },
+})
+```
+
+```env title=".env.server"
+WASP_WEB_CLIENT_URL=http://localhost:4000
+```
+
+:::warning Changing the dev server port
+Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
+:::
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
 
