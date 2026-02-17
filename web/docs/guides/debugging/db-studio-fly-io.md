@@ -1,5 +1,5 @@
 ---
-title: Database Studio on Fly.io Production
+title: Database Studio with Fly.io
 last_checked_with_versions:
   Wasp: 0.21.1
   Fly CLI: 0.4.11
