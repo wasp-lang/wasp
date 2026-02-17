@@ -7,7 +7,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.0.16",
-    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.21.1.tgz",
+    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.21.2.tgz",
     "arctic": "^1.2.1",
     "axios": "^1.4.0",
     "dotenv": "^16.6.1",
