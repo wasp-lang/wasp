@@ -1,4 +1,4 @@
-import "./GuideLink.css";
+import "./styles.css";
 
 export function GuideLink({
   linkToGuide,

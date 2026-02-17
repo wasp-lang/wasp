@@ -2,6 +2,8 @@
 title: Database
 ---
 
+import { GuideLink } from '@site/src/components/GuideLink'
+
 In this section, we'll discuss what happens with the database when your app goes live. When you develop your app locally, you probably use a local dev database (started with `wasp start db` or some other way). However, when it's time to deploy your app, you'll need to set up a production database.
 
 ### Production database requirements
@@ -73,4 +75,6 @@ That's why we recommend setting the `DATABASE_URL` env variable in the terminal 
 
 :::
 
-If you are looking how to connect to a Fly.io production database, we wrote a [guide](https://github.com/wasp-lang/learning-materials/?tab=readme-ov-file#running-wasp-db-studio-on-production-db) on how to do that.
+If you are looking how to connect to a Fly.io production database, we wrote a guide on how to do that:
+
+<GuideLink linkToGuide="../guides/debugging/db-studio-fly-io" title="Database Studio with Fly.io" description="Connect to your Fly.io production database and run wasp db studio" />
