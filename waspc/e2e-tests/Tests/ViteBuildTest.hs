@@ -101,7 +101,10 @@ viteBuildTest =
           testEnvVarKey ++ "=" ++ value
 
     appendInlineEnvVars :: [(String, String)] -> ShellCommand -> ShellCommand
-    appendInlineEnvVars envVars command = concatMap (\(name', value) -> name' ++ "=" ++ value ++ " ") envVars ++ command
+    appendInlineEnvVars envVars command = foldr appendInlineEnvVar command envVars
+
+    appendInlineEnvVar :: (String, String) -> ShellCommand -> ShellCommand
+    appendInlineEnvVar (key, value) command = key ++ "=" ++ value ++ " " ++ command
 
     apiUrlEnvVar :: (String, String)
     apiUrlEnvVar = ("REACT_APP_API_URL", "http://localhost:3001")
