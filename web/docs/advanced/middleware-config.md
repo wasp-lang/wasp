@@ -3,6 +3,7 @@ title: Configuring Middleware
 ---
 
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
+import { GuideLink } from '@site/src/components/GuideLink';
 
 Wasp comes with a minimal set of useful Express middleware in every application. While this is good for most users, we realize some may wish to add, modify, or remove some of these choices both globally, or on a per-`api`/path basis.
 
@@ -30,6 +31,8 @@ Wasp's Express server has the following middleware by default:
 You have three places where you can customize middleware:
 
 1. [global](#1-customize-global-middleware): here, any changes will apply by default _to all operations (`query` and `action`) and `api`._ This is helpful if you wanted to add support for multiple domains to CORS, for example.
+
+<GuideLink linkToGuide="../guides/configuration/cors-multiple-domains" title="Multiple Domains CORS" description="Configure CORS to support multiple domains in your Wasp application" />
 
 :::caution Modifying global middleware
 Please treat modifications to global middleware with extreme care as they will affect all operations and APIs. If you are unsure, use one of the other two options.

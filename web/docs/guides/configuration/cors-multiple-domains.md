@@ -34,6 +34,7 @@ app CorsTest {
   },
   title: "cors-test",
   server: {
+    // highlight-next-line
     middlewareConfigFn: import { getGlobalMiddleware } from "@src/middleware",
   }
 }
@@ -55,23 +56,19 @@ Create a middleware file that configures CORS with multiple origins:
 
 ```ts title="src/middleware.ts"
 import cors from "cors";
-import { env, MiddlewareConfigFn } from "wasp/server";
+import { config, type MiddlewareConfigFn } from "wasp/server";
 
-export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  const isDevelopment = env.NODE_ENV === "development";
+export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
+  // Add extra domains to the existing allowed CORS origins.
+  const origin = [
+    ...config.allowedCORSOrigins,
+    "https://app.example.com",
+    "https://admin.example.com",
+  ];
 
-  // Allow all origins in development, otherwise allow specific domains
-  const origin = isDevelopment
-    ? [/.*/]
-    : [
-        env.WASP_WEB_CLIENT_URL,
-        "https://app.example.com",
-        "https://admin.example.com",
-      ];
+  middlewareConfig.set("cors", cors({ origin }));
 
-  config.set("cors", cors({ origin }));
-
-  return config;
+  return middlewareConfig;
 };
 ```
 
@@ -97,21 +94,17 @@ You can make the allowed domains configurable via environment variables:
 
 ```ts title="src/middleware.ts"
 import cors from "cors";
-import { env, MiddlewareConfigFn } from "wasp/server";
+import { config, type MiddlewareConfigFn } from "wasp/server";
 
-export const getGlobalMiddleware: MiddlewareConfigFn = (config) => {
-  const isDevelopment = env.NODE_ENV === "development";
-
-  // Parse additional domains from environment variable
+export const getGlobalMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
+  // Parse additional domains from environment variable.
   const additionalDomains = process.env.CORS_ALLOWED_DOMAINS?.split(",") ?? [];
 
-  const origin = isDevelopment
-    ? [/.*/]
-    : [env.WASP_WEB_CLIENT_URL, ...additionalDomains];
+  const origin = [...config.allowedCORSOrigins, ...additionalDomains];
 
-  config.set("cors", cors({ origin }));
+  middlewareConfig.set("cors", cors({ origin }));
 
-  return config;
+  return middlewareConfig;
 };
 ```
 
