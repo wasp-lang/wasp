@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.21.1
+
+### 🐞 Bug fixes
+
+- The new Microsoft auth provider was not exposed in the Wasp TypeScript Config. ([#3762](https://github.com/wasp-lang/wasp/pull/3762))
+
 ## 0.21.0
 
 ### ⚠️ Breaking Changes
