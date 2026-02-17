@@ -3,12 +3,9 @@ import * as z from 'zod'
 
 import { ensureEnvSchema } from '../env/validation.js'
 import { getServerEnvSchema } from './envRegistry.js'
-import type { Register } from 'wasp/types'
+import type { GetFromRegister } from 'wasp/types'
 
-type UserServerEnvSchema =
-  Register extends { serverEnvSchema: infer T extends z.ZodTypeAny }
-    ? T
-    : z.ZodObject<{}>
+type UserServerEnvSchema = GetFromRegister<'serverEnvSchema', z.ZodObject<{}>>
 
 const userServerEnvSchema = getServerEnvSchema() as UserServerEnvSchema
 
@@ -181,11 +178,9 @@ const _env = ensureEnvSchema(
 )
 
 // Intersect the concrete wasp env type with user-defined env vars from Register.
-// The conditional is preserved in .d.ts so consumers get the full type.
+// GetFromRegister is preserved in .d.ts so consumers get the full type.
 type ServerEnv = typeof _env &
-  (Register extends { serverEnvSchema: infer T extends z.ZodTypeAny }
-    ? z.infer<T>
-    : {})
+  z.infer<GetFromRegister<'serverEnvSchema', z.ZodObject<{}>>>
 
 // PUBLIC API
 export const env = _env as ServerEnv
