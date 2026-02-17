@@ -6,7 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson.Types as Aeson.Types
 import StrongPath (reldir, relfile, (</>))
-import Wasp.AppSpec (AppSpec, getCruds, getActions, getQueries)
+import Wasp.AppSpec (AppSpec, getActions, getCruds, getQueries)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
@@ -19,8 +19,8 @@ import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
 import Wasp.Generator.TypesGenerator.Common (mkTmplFdWithData, mkTmplFdWithDstAndData)
+import Wasp.Generator.TypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.Util ((<++>))
 

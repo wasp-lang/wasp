@@ -1,6 +1,19 @@
 import { useAction, useQuery } from "../operations"
-import type { Query, Action } from "../operations/rpc"
-import type { Tail } from "../../universal/types"
+import type { UseQueryResult } from "@tanstack/react-query"
+import type { Query, Action, GenericBackendOperation, OperationRpcFor } from "../operations/rpc"
+import type { OptimisticUpdateDefinition } from "../operations/hooks"
+import type { Tail, _Awaited, _ReturnType } from "../../universal/types"
+
+// PRIVATE API
+export type UseQueryFor<BackendQuery extends GenericBackendOperation> =
+  (queryFnArgs?: Parameters<BackendQuery>[0], options?: any) =>
+    UseQueryResult<_Awaited<_ReturnType<BackendQuery>>, Error>
+
+// PRIVATE API
+export type UseActionFor<BackendAction extends GenericBackendOperation> =
+  (actionOptions?: {
+    optimisticUpdates: OptimisticUpdateDefinition<Parameters<BackendAction>[0], any>[]
+  }) => OperationRpcFor<BackendAction>
 
 // PRIVATE API
 export function makeUseQueryFor<Input, Output>(

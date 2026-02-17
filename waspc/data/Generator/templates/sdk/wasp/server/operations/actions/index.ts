@@ -16,7 +16,9 @@ import type {
   {=/ operations =}
 } from './types.js'
 
-type _GetOperationType<K extends string, Default> =
+// PRIVATE API (exported so TypeScript preserves it in .d.ts instead of inlining
+// and eagerly resolving the conditional before module augmentation can take effect)
+export type _GetOperationType<K extends string, Default> =
   K extends keyof Register
     ? Register[K]
     : Default

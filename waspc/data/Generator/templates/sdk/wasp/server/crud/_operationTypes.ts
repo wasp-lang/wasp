@@ -51,22 +51,23 @@ export declare namespace {= crud.name =} {
  * The types with the `Resolved` suffix are the types that are used internally by the Wasp client
  * to implement full-stack type safety.
  */
+// PRIVATE API (exported so TypeScript preserves it in .d.ts instead of inlining
+// and eagerly resolving the conditional before module augmentation can take effect)
+export type _GetCrudType<K extends string, Default> =
+  K extends keyof Register
+    ? Register[K]
+    : Default
+
 {=# crud.operations.GetAll =}
 type GetAllInput = {}
 type GetAllOutput = _WaspEntity[]
-export type GetAllQueryResolved =
-  Register extends { 'crud_{= crud.name =}_GetAll': infer T }
-    ? T
-    : {= crud.name =}.GetAllQuery<GetAllInput, GetAllOutput>
+export type GetAllQueryResolved = _GetCrudType<'crud_{= crud.name =}_GetAll', {= crud.name =}.GetAllQuery<GetAllInput, GetAllOutput>>
 {=/ crud.operations.GetAll =}
 
 {=# crud.operations.Get =}
 type GetInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type GetOutput = _WaspEntity | null
-export type GetQueryResolved =
-  Register extends { 'crud_{= crud.name =}_Get': infer T }
-    ? T
-    : {= crud.name =}.GetQuery<GetInput, GetOutput>
+export type GetQueryResolved = _GetCrudType<'crud_{= crud.name =}_Get', {= crud.name =}.GetQuery<GetInput, GetOutput>>
 {=/ crud.operations.Get =}
 
 {=# crud.operations.Create =}
@@ -75,10 +76,7 @@ type CreateInput = SuperJSONObject & Prisma.XOR<
   Prisma.{= crud.entityUpper =}UncheckedCreateInput
 >
 type CreateOutput = _WaspEntity
-export type CreateActionResolved =
-  Register extends { 'crud_{= crud.name =}_Create': infer T }
-    ? T
-    : {= crud.name =}.CreateAction<CreateInput, CreateOutput>
+export type CreateActionResolved = _GetCrudType<'crud_{= crud.name =}_Create', {= crud.name =}.CreateAction<CreateInput, CreateOutput>>
 {=/ crud.operations.Create =}
 
 {=# crud.operations.Update =}
@@ -89,17 +87,11 @@ type UpdateInput = SuperJSONObject & Prisma.XOR<
   & Prisma.{= crud.entityUpper =}WhereUniqueInput
 
 type UpdateOutput = _WaspEntity
-export type UpdateActionResolved =
-  Register extends { 'crud_{= crud.name =}_Update': infer T }
-    ? T
-    : {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput>
+export type UpdateActionResolved = _GetCrudType<'crud_{= crud.name =}_Update', {= crud.name =}.UpdateAction<UpdateInput, UpdateOutput>>
 {=/ crud.operations.Update =}
 
 {=# crud.operations.Delete =}
 type DeleteInput = SuperJSONObject & Prisma.{= crud.entityUpper =}WhereUniqueInput
 type DeleteOutput = _WaspEntity
-export type DeleteActionResolved =
-  Register extends { 'crud_{= crud.name =}_Delete': infer T }
-    ? T
-    : {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>
+export type DeleteActionResolved = _GetCrudType<'crud_{= crud.name =}_Delete', {= crud.name =}.DeleteAction<DeleteInput, DeleteOutput>>
 {=/ crud.operations.Delete =}

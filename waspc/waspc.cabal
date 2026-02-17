@@ -290,6 +290,7 @@ library
     Wasp.Generator.Common
     Wasp.Generator.DepVersions
     Wasp.Generator.TypesGenerator
+    Wasp.Generator.TypesGenerator.JsImport
     Wasp.Generator.TypesGenerator.Common
     Wasp.Generator.DbGenerator
     Wasp.Generator.DbGenerator.Auth
