@@ -527,7 +527,7 @@ Here’s an example configuration file to help you get started. This example wor
 
       steps:
         - name: Checkout Code
-          uses: actions/checkout@v5
+          uses: actions/checkout@v6
 
         - name: Setup Node.js
           id: setup-node
@@ -624,7 +624,7 @@ Here’s an example configuration file to help you get started. This example wor
 
       steps:
         - name: Checkout Code
-          uses: actions/checkout@v5
+          uses: actions/checkout@v6
 
         - name: Setup Node.js
           id: setup-node

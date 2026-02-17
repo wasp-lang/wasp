@@ -128,7 +128,7 @@ jobs:
         working-directory: ./app
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Log in to Container registry
         uses: docker/login-action@v3
