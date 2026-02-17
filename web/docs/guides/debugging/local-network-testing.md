@@ -5,8 +5,6 @@ last_checked_with_versions:
 comments: true
 ---
 
-
-
 This guide shows you how to test your Wasp application on other devices (phones, tablets) connected to the same local network during development.
 
 ## Prerequisites
