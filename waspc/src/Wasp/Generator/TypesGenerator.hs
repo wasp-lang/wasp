@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson.Types as Aeson.Types
-import StrongPath (reldir, relfile, (</>))
+import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec, getActions, getCruds, getQueries)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
@@ -27,32 +27,33 @@ import Wasp.Util ((<++>))
 genTypes :: AppSpec -> Generator [FileDraft]
 genTypes spec =
   genDbTypes spec
-    <++> case maybeAuth of
-      Nothing -> return []
-      Just auth -> genAuthProviderTypes auth
+    <++> genAuthProviderTypes spec
     <++> genWebSocketTypes spec
     <++> genCrudTypes spec
     <++> genOperationTypes spec
     <++> genEnvTypes spec
+
+genAuthProviderTypes :: AppSpec -> Generator [FileDraft]
+genAuthProviderTypes spec =
+  case maybeAuth of
+    Nothing -> return []
+    Just auth ->
+      return
+        [ mkTmplFdWithData
+            [relfile|authProviders.d.ts|]
+            tmplData
+        ]
+      where
+        tmplData =
+          object
+            [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
+              "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
+            ]
+        userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
+        userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
+        authMethods = AS.Auth.methods auth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-
-genAuthProviderTypes :: AS.Auth.Auth -> Generator [FileDraft]
-genAuthProviderTypes auth =
-  return
-    [ mkTmplFdWithData
-        ([reldir|auth/providers|] </> [relfile|types.d.ts|])
-        tmplData
-    ]
-  where
-    tmplData =
-      object
-        [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
-        ]
-    userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-    userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
-    authMethods = AS.Auth.methods auth
 
 genDbTypes :: AppSpec -> Generator [FileDraft]
 genDbTypes spec =
@@ -61,7 +62,7 @@ genDbTypes spec =
     Just _ ->
       return
         [ mkTmplFdWithData
-            ([reldir|db|] </> [relfile|types.d.ts|])
+            [relfile|db.d.ts|]
             tmplData
         ]
   where
@@ -76,7 +77,7 @@ genWebSocketTypes spec
   | AS.WS.areWebSocketsUsed spec =
       return
         [ mkTmplFdWithData
-            ([reldir|webSocket|] </> [relfile|types.d.ts|])
+            [relfile|websocket.d.ts|]
             tmplData
         ]
   | otherwise = return []
@@ -97,8 +98,8 @@ genCrudTypes spec
     genCrudType :: (String, AS.Crud.Crud) -> FileDraft
     genCrudType (name, crud) =
       mkTmplFdWithDstAndData
-        [relfile|crud/_types.d.ts|]
-        ([reldir|crud|] </> getCrudFilePath name "d.ts")
+        [relfile|_crudTypes.d.ts|]
+        (getCrudFilePath ("crud" ++ name) "d.ts")
         (Just tmplData)
       where
         tmplData =
@@ -132,8 +133,8 @@ genOperationTypes spec
     genQueryTypes :: FileDraft
     genQueryTypes =
       mkTmplFdWithDstAndData
-        [relfile|operations/_types.d.ts|]
-        ([reldir|operations|] </> [relfile|queries.d.ts|])
+        [relfile|_operationTypes.d.ts|]
+        [relfile|operationQueries.d.ts|]
         (Just tmplData)
       where
         tmplData =
@@ -144,8 +145,8 @@ genOperationTypes spec
     genActionTypes :: FileDraft
     genActionTypes =
       mkTmplFdWithDstAndData
-        [relfile|operations/_types.d.ts|]
-        ([reldir|operations|] </> [relfile|actions.d.ts|])
+        [relfile|_operationTypes.d.ts|]
+        [relfile|operationActions.d.ts|]
         (Just tmplData)
       where
         tmplData =
@@ -174,10 +175,9 @@ genEnvTypes spec =
 
     genServerEnvType :: FileDraft
     genServerEnvType =
-      mkTmplFdWithDstAndData
-        [relfile|env/server.d.ts|]
-        ([reldir|env|] </> [relfile|server.d.ts|])
-        (Just tmplData)
+      mkTmplFdWithData
+        [relfile|envServer.d.ts|]
+        tmplData
       where
         tmplData =
           object
@@ -186,10 +186,9 @@ genEnvTypes spec =
 
     genClientEnvType :: FileDraft
     genClientEnvType =
-      mkTmplFdWithDstAndData
-        [relfile|env/client.d.ts|]
-        ([reldir|env|] </> [relfile|client.d.ts|])
-        (Just tmplData)
+      mkTmplFdWithData
+        [relfile|envClient.d.ts|]
+        tmplData
       where
         tmplData =
           object

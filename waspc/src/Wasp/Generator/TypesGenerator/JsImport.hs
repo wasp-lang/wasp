@@ -37,6 +37,6 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
   where
-    importPath = ((fromJust . parseRelDirP $ "../../../../") </>) $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath
+    importPath = ((fromJust . parseRelDirP $ "../../../") </>) $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath
     extCodeDirP = fromJust $ relDirToPosix extSrcDirInSdkRootDir
     importName = GJI.extImportNameToJsImportName extImportName
