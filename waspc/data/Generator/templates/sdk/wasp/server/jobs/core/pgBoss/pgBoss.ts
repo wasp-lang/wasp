@@ -1,4 +1,4 @@
-import PgBoss from 'pg-boss'
+import { PgBoss } from 'pg-boss'
 import { config, env } from '../../../index.js'
 
 const boss = createPgBoss()

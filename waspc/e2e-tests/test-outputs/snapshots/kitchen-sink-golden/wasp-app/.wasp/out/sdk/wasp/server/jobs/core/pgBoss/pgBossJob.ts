@@ -1,4 +1,4 @@
-import PgBoss from 'pg-boss'
+import { PgBoss } from 'pg-boss'
 import { pgBossStarted } from './pgBoss.js'
 import { Job, SubmittedJob } from '../job.js'
 import type { JSONValue, JSONObject } from 'wasp/core/serialization'
@@ -68,6 +68,9 @@ export function registerJob<
   // to submit jobs even if there are no workers registered.
   // Once they are registered, they will just start on the first job in their queue.
   pgBossStarted.then(async (boss) => {
+    // Ensure queue exists before any operations (required since pg-boss v10).
+    await boss.createQueue(job.jobName).catch(() => {})
+
     // As a safety precaution against undefined behavior of registering different
     // functions for the same job name, remove all registered functions first.
     await boss.offWork(job.jobName)
@@ -136,6 +139,7 @@ export class PgBossJob<
   }
   async submit(jobArgs: Input, jobOptions: Parameters<PgBoss['send']>[2] = {}) {
     const boss = await pgBossStarted
+    await boss.createQueue(this.jobName).catch(() => {})
     const jobId = await (boss.send as any)(this.jobName, jobArgs, {
       ...this.defaultJobOptions,
       ...(this.startAfter && { startAfter: this.startAfter }),
@@ -166,11 +170,12 @@ class PgBossSubmittedJob<
   ) {
     super(job, jobId)
     this.pgBoss = {
-      cancel: () => boss.cancel(jobId),
-      resume: () => boss.resume(jobId),
+      cancel: () => boss.cancel(job.jobName, jobId),
+      resume: () => boss.resume(job.jobName, jobId),
       // Coarcing here since pg-boss typings are not precise enough.
+      // NOTE: getJobById is deprecated in pg-boss v12, consider migrating to findJobs().
       details: () =>
-        boss.getJobById(jobId) as Promise<PgBossDetails<Input, Output> | null>,
+        boss.getJobById(job.jobName, jobId) as Promise<PgBossDetails<Input, Output> | null>,
     }
   }
 }
@@ -189,9 +194,9 @@ function pgBossCallbackWrapper<
   // Entities used by job, passed into callback context.
   entities: Entities
 ) {
-  return (args: { data: Input }) => {
+  return ([job]: PgBoss.Job<Input>[]) => {
     const context = { entities }
-    return jobFn(args.data, context)
+    return jobFn(job.data, context)
   }
 }
 
@@ -212,7 +217,7 @@ type PgBossDetails<
         output: object
       }
     | {
-        state: 'created' | 'retry' | 'active' | 'expired' | 'cancelled'
+        state: 'created' | 'retry' | 'active' | 'cancelled'
         output: null
       }
   )
