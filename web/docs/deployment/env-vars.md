@@ -15,7 +15,9 @@ However, when we are deploying our app, **`.env.client` and `.env.server` files 
 During the build process, client env vars are injected into the client Javascript code, making them public and readable by anyone. Therefore, you should **never store secrets in them** (such as secret API keys).
 
 When building for production, the `.env.client` file will be ignored, since it is meant to be used only during development.
-Instead, you should provide the production client env vars directly to the build command that turns client code into static files:
+Instead, you should provide the production client env vars directly to the build command that turns client code into static files.
+
+Make sure to check the [required client env vars](../project/env-vars.md#client-general-configuration) and set them when building for production, the build will fail if any required env vars are missing.
 
 ```shell
 REACT_APP_API_URL=<url_to_wasp_backend> REACT_APP_SOME_OTHER_VAR_NAME=someothervalue npx vite build
