@@ -5,7 +5,8 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson.Types as Aeson.Types
-import StrongPath (relfile, (</>))
+import Data.Maybe (isJust)
+import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec, getActions, getCruds, getQueries)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
@@ -82,7 +83,7 @@ genWebSocketTypes spec
         ]
   | otherwise = return []
   where
-    maybeWebSocketFn = AS.App.WS.fn <$> (AS.App.webSocket $ snd $ getApp spec)
+    maybeWebSocketFn = AS.App.WS.fn <$> AS.App.webSocket (snd $ getApp spec)
     tmplData =
       object
         [ "webSocketFn" .= extImportToImportJson maybeWebSocketFn
@@ -170,8 +171,8 @@ genEnvTypes spec =
     app = snd $ getApp spec
     maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybeClientEnvSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
-    hasServerEnvSchema = maybe False (const True) maybeServerEnvSchema
-    hasClientEnvSchema = maybe False (const True) maybeClientEnvSchema
+    hasServerEnvSchema = isJust maybeServerEnvSchema
+    hasClientEnvSchema = isJust maybeClientEnvSchema
 
     genServerEnvType :: FileDraft
     genServerEnvType =

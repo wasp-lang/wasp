@@ -37,15 +37,13 @@ extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
   where
-    importPath = dropExtensionFromImportPath $ SP.castRel $ extSrcDirFromTypesRootDir </> SP.castRel extImportPath
+    importPath = dropExtensionFromImportPath $ SP.castRel $ extSrcDirFromTypesRootDir </> extImportPath
 
--- | Path from the types root directory to the user's external source directory.
--- types/ -> ../ (inverse of typesRootDirInGeneratedCodeDir) -> ./ (ProjectRootDir -> WaspProjectDir) -> src/ (WaspProjectDir -> SourceExternalCodeDir)
 extSrcDirFromTypesRootDir :: Path Posix (Rel TypesRootDir) (Dir SourceExternalCodeDir)
 extSrcDirFromTypesRootDir =
   SP.castRel $
-    projectRootDirFromTypesRootDir </> waspProjectDirFromProjectRootDirInPosix </> srcDirInWaspProjectDirInPosix
+    fromJust $
+      relDirToPosix $
+        generatedCodeDirFromTypesRootDir </> waspProjectDirFromProjectRootDir </> srcDirInWaspProjectDir
   where
-    projectRootDirFromTypesRootDir = fromJust $ relDirToPosix $ invertRelDir typesRootDirInGeneratedCodeDir
-    waspProjectDirFromProjectRootDirInPosix = fromJust $ relDirToPosix waspProjectDirFromProjectRootDir
-    srcDirInWaspProjectDirInPosix = fromJust $ relDirToPosix srcDirInWaspProjectDir
+    generatedCodeDirFromTypesRootDir = invertRelDir typesRootDirInGeneratedCodeDir
