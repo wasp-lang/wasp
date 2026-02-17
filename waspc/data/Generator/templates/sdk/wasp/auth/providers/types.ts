@@ -3,6 +3,7 @@ import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand, Exact } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
+import type { Register } from 'wasp/types'
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -11,28 +12,32 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-{=# emailUserSignupFields.isDefined =}
-{=& emailUserSignupFields.importStatement =}
+{=# hasEmailSignupFields =}
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof {= emailUserSignupFields.importIdentifier =}>;
-{=/ emailUserSignupFields.isDefined =}
+export type UserEmailSignupFields =
+  Register extends { emailUserSignupFields: infer T extends UserSignupFields}
+    ? InferUserSignupFields<T>
+    : {}
+{=/ hasEmailSignupFields =}
 
-{=# usernameAndPasswordUserSignupFields.isDefined =}
-{=& usernameAndPasswordUserSignupFields.importStatement =}
+{=# hasUsernameSignupFields =}
 // PUBLIC API
-export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {= usernameAndPasswordUserSignupFields.importIdentifier =}>;
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+export type UserUsernameAndPasswordSignupFields =
+  Register extends { usernameAndPasswordUserSignupFields: infer T extends UserSignupFields}
+    ? InferUserSignupFields<T>
+    : {}
+{=/ hasUsernameSignupFields =}
 
 /**
  * Extracts the result types from a UserSignupFields object.
- * 
+ *
  * This type transforms an object containing field getter functions
  * into an object with the same keys but whose values are the return types
  * of those functions.
  */
 type InferUserSignupFields<T extends UserSignupFields> = {
-  [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues> 
-    ? ReturnType<T[K]> 
+  [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues>
+    ? ReturnType<T[K]>
     : never
 }
 

@@ -2,6 +2,7 @@
   "name": "kitchen-sink",
   "type": "module",
   "workspaces": [
+    ".",
     ".wasp/out/*",
     ".wasp/out/sdk/wasp"
   ],
