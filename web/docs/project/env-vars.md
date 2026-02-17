@@ -52,7 +52,7 @@ These are some general env variables used for various Wasp features:
 
 <EnvVarsTable
   envVars={[
-{ name: "REACT_APP_API_URL", type: "URL", isRequired: false, defaultValue: "http://localhost:3001", note: "The client uses this as the server URL." }
+{ name: "REACT_APP_API_URL", type: "URL", isRequired: true, note: <>The client uses this as the server URL. This app is required in production but defaults to <code>http://localhost:3001</code> in development.</> }
 ]}
 />
 

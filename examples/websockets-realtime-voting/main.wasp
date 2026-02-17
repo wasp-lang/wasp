@@ -1,6 +1,6 @@
 app whereDoWeEat {
   wasp: {
-    version: "^0.21.0"
+    version: "^0.21.2"
   },
   title: "where-do-we-eat",
   client: {

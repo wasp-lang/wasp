@@ -9,14 +9,25 @@ const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
 const userClientEnvSchema = z.object({})
 {=/ envValidationSchema.isDefined =}
 
-const waspClientEnvSchema = z.object({
-  "{= serverUrlEnvVarName =}": z
-  .string()
+const serverUrlSchema = z
+  .string({
+    required_error: '{= serverUrlEnvVarName =} is required',
+  })
   .url({
     message: '{= serverUrlEnvVarName =} must be a valid URL',
   })
-  .default('{= defaultServerUrl =}'),
+
+const waspClientDevSchema = z.object({
+  "{= serverUrlEnvVarName =}": serverUrlSchema
+    .default('{= defaultServerUrl =}'),
+})
+
+const waspClientProdSchema = z.object({
+  "{= serverUrlEnvVarName =}": serverUrlSchema,
 })
 
 // PRIVATE API (sdk, Vite config)
-export const clientEnvSchema = userClientEnvSchema.merge(waspClientEnvSchema)
+export function getClientEnvSchema(mode: string) {
+  const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
+  return userClientEnvSchema.merge(waspSchema)
+}
