@@ -93,7 +93,7 @@ function throwIfOverridingForcedOptions(config: Record<string, any>): void {
   }
   if (conflicts.length > 0) {
     throw new Error(
-      `Your vite.config.ts sets options that Wasp controls:\n${conflicts.join('\n')}\n\nRemove these from your Vite config. Wasp sets them automatically.`
+      `Your vite.config.ts sets options that Wasp controls:\n${conflicts.join('\n')}\n\nRemove these from your Vite config, Wasp sets them automatically.`
     );
   }
 }
