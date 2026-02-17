@@ -1,6 +1,6 @@
 app askTheDocuments {
   wasp: {
-    version: "^0.21.0"
+    version: "^0.21.2"
   },
   title: "PG Vector Example",
   auth: {

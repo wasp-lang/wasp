@@ -23,6 +23,13 @@ Afterwards, you can use [the regular installation instructions](../../introducti
 npm i -g @wasp.sh/wasp-cli@latest
 ```
 
+You can also ask for a specific version of Wasp. Wasp versions 0.20.2 and greater are available through npm:
+
+```shell
+# Set x.y.z to the version you want to install, e.g. 0.20.2
+npm i -g @wasp.sh/wasp-cli@x.y.z
+```
+
 ## Keep using the legacy installer {#keep-using}
 
 If you haven't yet migrated to the npm installer method, you can keep using the legacy installer, by running:
@@ -44,21 +51,7 @@ In any of these cases, the installer will print an error message and exit withou
 
 ## Troubleshooting
 
-### I need to use versions older than Wasp 0.21
-
-For your convenience, we have also published older versions of Wasp on npm (from 0.16 onwards), so after migrating to the npm method, you can keep developing on projects that haven't been upgraded yet.
-
-You can run the `npm install` command with any given version to switch to that Wasp version:
-
-```shell
-npm i -g @wasp.sh/wasp-cli@0.16
-npm i -g @wasp.sh/wasp-cli@0.17
-npm i -g @wasp.sh/wasp-cli@0.18
-npm i -g @wasp.sh/wasp-cli@0.19
-npm i -g @wasp.sh/wasp-cli@0.20
-```
-
-### I need to use versions older than Wasp 0.16
+### I need to use versions older than Wasp 0.20.2
 
 These versions are very out of date and we don't recommend using them. We urge you to upgrade your Wasp project to a newer version as soon as possible to keep your app secure and stable.
 
