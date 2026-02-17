@@ -102,7 +102,7 @@ genOAuthConfig provider =
 
 depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =
-  [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
+  [Npm.Dependency.make ("arctic", "^3.0.0") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 

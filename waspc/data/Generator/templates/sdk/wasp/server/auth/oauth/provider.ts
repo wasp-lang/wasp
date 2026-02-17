@@ -1,7 +1,5 @@
-import { OAuth2Provider, OAuth2ProviderWithPKCE } from "arctic";
-
 export function defineProvider<
-  OAuthClient extends OAuth2Provider | OAuth2ProviderWithPKCE,
+  OAuthClient,
   const Id extends string
 >({
   id,
