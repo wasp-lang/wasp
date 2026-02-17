@@ -13,6 +13,7 @@ import ShellCommands
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliStart,
+    withTimeout,
   )
 import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
@@ -27,7 +28,7 @@ viteOptionsValidationTest =
             [ createTestWaspProject Minimal,
               inTestWaspProjectDir
                 [ writeViteConfigWithForcedOption,
-                  expectCommandFailure <$> waspCliStart
+                  expectCommandFailure . withTimeout 10 <$> waspCliStart
                 ]
             ]
         )
