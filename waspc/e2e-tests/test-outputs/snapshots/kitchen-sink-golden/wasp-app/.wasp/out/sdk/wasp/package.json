@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "@lucia-auth/adapter-prisma": "^4.0.0",
-    "@prisma/client": "5.19.1",
+    "@prisma/client": "6.19.2",
     "@socket.io/component-emitter": "^4.0.0",
     "@tanstack/react-query": "~4.42.0",
     "@testing-library/jest-dom": "^6.9.1",
@@ -19,7 +19,7 @@
     "msw": "^2.12.7",
     "nodemailer": "^6.9.1",
     "pg-boss": "^8.4.2",
-    "prisma": "5.19.1",
+    "prisma": "6.19.2",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-hook-form": "^7.45.4",

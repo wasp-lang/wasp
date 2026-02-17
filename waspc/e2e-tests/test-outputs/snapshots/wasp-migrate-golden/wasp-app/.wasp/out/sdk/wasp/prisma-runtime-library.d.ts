@@ -1,5 +1,5 @@
 // Without this import, Prisma types are resolved incorrectly.
-import * as runtime from '@prisma/client/runtime';
+import * as runtime from '@prisma/client/runtime/library';
 
 // Prisma generated types which we use as default input and output types for CRUD
 // operations internally use interfaces for some types.

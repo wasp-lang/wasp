@@ -14,7 +14,7 @@
   "dependencies": {
     "json5": "^2.2.3",
     "prisma": "Prisma version here needs to be kept in sync with prisma version used in wasp-cli.",
-    "prisma": "5.19.1",
+    "prisma": "6.19.2",
     "strip-ansi": "^7.1.2",
     "tmp-promise": "3.0.3"
   },

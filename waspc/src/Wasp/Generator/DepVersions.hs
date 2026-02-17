@@ -23,7 +23,7 @@ import qualified Wasp.SemanticVersion as SV
 -- `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to
 -- date.
 prismaVersion :: SV.Version
-prismaVersion = SV.Version 5 19 1
+prismaVersion = SV.Version 6 19 2
 
 superjsonVersion :: SV.ComparatorSet
 superjsonVersion = SV.backwardsCompatibleWith $ SV.Version 2 2 1
