@@ -177,10 +177,8 @@ const _env = ensureEnvSchema(
   serverEnvSchema,
 )
 
-// Intersect the concrete wasp env type with user-defined env vars from Register.
-// GetFromRegister is preserved in .d.ts so consumers get the full type.
-type ServerEnv = typeof _env &
-  z.infer<GetFromRegister<'serverEnvSchema', z.ZodObject<{}>>>
+// TODO: see if necessary
+type ServerEnv = typeof _env & z.infer<UserServerEnvSchema>
 
 // PUBLIC API
 export const env = _env as ServerEnv
