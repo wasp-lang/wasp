@@ -1,4 +1,5 @@
 {{={= =}=}}
+import './registrations.js'
 import './manifest.js'
 import http from 'http'
 

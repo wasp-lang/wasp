@@ -243,6 +243,7 @@ genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
       genServerJs spec,
+      genRegistrations spec,
       genManifest spec
     ]
     <++> genRoutesDir spec
@@ -276,6 +277,26 @@ genServerJs spec =
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
 
+genRegistrations :: AppSpec -> Generator FileDraft
+genRegistrations spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/registrations.ts|])
+      (C.asServerFile [relfile|src/registrations.ts|])
+      ( Just $
+          object
+            [ "prismaSetupFn" .= extImportToImportJson relPathToServerSrcDir maybePrismaSetupFn,
+              "serverEnvValidationSchema" .= extImportToImportJson relPathToServerSrcDir maybeServerEnvSchema
+            ]
+      )
+  where
+    app = snd $ getApp spec
+    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+
+    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathToServerSrcDir = [reldirP|./|]
+
 genManifest :: AppSpec -> Generator FileDraft
 genManifest spec =
   return $
@@ -284,16 +305,11 @@ genManifest spec =
       (C.asServerFile [relfile|src/manifest.ts|])
       ( Just $
           object
-            [ "prismaSetupFn" .= extImportToImportJson relPathToServerSrcDir maybePrismaSetupFn,
-              "operations" .= map mkOperationData allOperations,
-              "hasOperations" .= (not . null $ allOperations),
-              "serverEnvValidationSchema" .= extImportToImportJson relPathToServerSrcDir maybeServerEnvSchema
+            [ "operations" .= map mkOperationData allOperations,
+              "hasOperations" .= (not . null $ allOperations)
             ]
       )
   where
-    app = snd $ getApp spec
-    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     allOperations = AS.getOperations spec
 
     mkOperationData :: AS.Operation.Operation -> Aeson.Types.Value
