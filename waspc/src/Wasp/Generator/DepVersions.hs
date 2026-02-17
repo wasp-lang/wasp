@@ -63,7 +63,7 @@ expressTypesVersion :: SV.ComparatorSet
 expressTypesVersion = SV.backwardsCompatibleWith $ SV.Version 5 0 0
 
 axiosVersion :: SV.ComparatorSet
-axiosVersion = SV.backwardsCompatibleWith $ SV.Version 1 4 0
+axiosVersion = SV.backwardsCompatibleWith $ SV.Version 1 7 9
 
 viteVersion :: SV.ComparatorSet
 viteVersion = SV.backwardsCompatibleWith $ SV.Version 7 0 6
