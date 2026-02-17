@@ -1,7 +1,7 @@
 {
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
-    "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.21.1.tgz",
+    "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.21.2.tgz",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",

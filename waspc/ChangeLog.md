@@ -4,7 +4,8 @@
 
 ### 🔧 Small improvements
 
-- The `wasp()` Vite plugin now enforces certain Vite config options that Wasp requires (e.g. `base`, `envPrefix`, `build.outDir`) and throws an error if the user tries to override them. ([#3771](https://github.com/wasp-lang/wasp/pull/3771))
+- `REACT_APP_API_URL` is now **required** when building the client for production (it no longer defaults to any value). In development mode, it still defaults to the local server URL. This prevents silently broken production deployments where the client can't reach the server. ([#3740](https://github.com/wasp-lang/wasp/pull/3740))
+- - The `wasp()` Vite plugin now enforces certain Vite config options that Wasp requires (e.g. `base`, `envPrefix`, `build.outDir`) and throws an error if the user tries to override them. ([#3771](https://github.com/wasp-lang/wasp/pull/3771))
 
 ## 0.21.1
 

@@ -30,9 +30,9 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.21.1.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.21.2.tgz"
         ],
-        "f4739294e77ecec0604280788581e46160d11e6b0bded5c10c780c86e98876f5"
+        "eaa68666ff5b205c2b259b7b51f29cfc1577064e4f80704db7ca05706a27b31a"
     ],
     [
         [
@@ -543,14 +543,14 @@
             "file",
             "sdk/wasp/client/env.ts"
         ],
-        "533337ff26b1df5f3c5c4eeb0b21830b97cbf2eabd5c76fc85d064893ecc2d86"
+        "5fe8057a1d26540c02ff7f7ca17ef87f6b92c6a0132620a78ae6f7525abf17ec"
     ],
     [
         [
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "7ab9f1b689ee9c6a495a442ea8a8559b3fd1301f68df22fc66008142083f93a3"
+        "407cf5bacb7e492838585733f77359d68be7ce35e5b88437c4bd52d9c84ebae6"
     ],
     [
         [
@@ -739,7 +739,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "4a0cb5654eb2040dbc15ce586ed588043ce54aa6dad847a068596568dbc5934a"
+        "e21f628cd253db6aae912d4e155d0ec6e4ae30afa160c2e39accd96a2752a224"
     ],
     [
         [
@@ -872,7 +872,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "11d945777ccdf33541d12983efc3a531bf6fb19f7c0c6216f70b3ced2c01d050"
+        "84caa7bad3dd53347f5c582b1cbc688396dfe89117a1366543cb829ce11fcdda"
     ],
     [
         [
@@ -1747,7 +1747,7 @@
             "file",
             "server/package.json"
         ],
-        "a8cc495338aff4d0f45d373e3f7e5a0eba6835f23d2ecce26f288b348950070a"
+        "838d7c0d34b314b3d299cd1447ae942b57b97251184618ca9cf89ac5a8e3f61c"
     ],
     [
         [
