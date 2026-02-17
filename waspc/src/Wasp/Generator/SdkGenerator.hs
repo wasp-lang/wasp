@@ -3,7 +3,6 @@
 module Wasp.Generator.SdkGenerator
   ( genSdk,
     installNpmDependencies,
-    genExternalCodeDir,
     buildSdk,
     npmDepsForSdk,
   )
@@ -132,7 +131,6 @@ genSdk spec =
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
     <++> genUniversalDir
-    -- <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec
@@ -320,25 +318,6 @@ installNpmDependencies projectDir =
   runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp
 
 -- todo(filip): consider reorganizing/splitting the file.
-
--- | Takes external code files from Wasp,
--- and generates them in a new location as part of the generated project.
--- It might not just copy them but also do some changes on them, as needed.
-genExternalCodeDir :: [EF.CodeFile] -> Generator [FileDraft]
-genExternalCodeDir = sequence . mapMaybe genExternalFile
-
-genExternalFile :: EF.CodeFile -> Maybe (Generator FileDraft)
-genExternalFile file
-  | fileName == "tsconfig.json" = Nothing
-  | otherwise = Just . return . createCopyFileDraft destFile . EF.fileAbsPath $ file
-  where
-    fileName = FP.takeFileName . fromRelFile $ externalFilePath
-    destFile =
-      C.sdkRootDirInGeneratedCodeDir
-        </> C.extSrcDirInSdkRootDir
-        </> castRel externalFilePath
-
-    externalFilePath = EF.filePathInExtCodeDir file
 
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =

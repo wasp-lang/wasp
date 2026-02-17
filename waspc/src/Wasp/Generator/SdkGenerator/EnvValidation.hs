@@ -26,7 +26,7 @@ genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
   genSharedEnvFiles
     <++> genServerEnvFiles spec
-    <++> genClientEnvFiles spec
+    <++> genClientEnvFiles
 
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
@@ -38,10 +38,10 @@ genSharedEnvFiles =
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
 genServerEnvFiles spec = sequence [genServerEnv spec]
 
-genClientEnvFiles :: AppSpec -> Generator [FileDraft]
-genClientEnvFiles spec =
+genClientEnvFiles :: Generator [FileDraft]
+genClientEnvFiles =
   sequence
-    [ genClientEnvSchema spec,
+    [ genClientEnvSchema,
       genFileCopy [relfile|client/env.ts|]
     ]
 
@@ -66,8 +66,8 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
     maybeEmailSender = AS.App.emailSender app
     app = snd $ getApp spec
 
-genClientEnvSchema :: AppSpec -> Generator FileDraft
-genClientEnvSchema _spec = return $ mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema :: Generator FileDraft
+genClientEnvSchema = return $ mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
