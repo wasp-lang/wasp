@@ -52,8 +52,8 @@ const waspServerCommonSchema = z.object({
     .enum(['true', 'false'], {
       message: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
     })
-    .transform((value) => value === 'true')
-    .default('false'),
+    .default('false')
+    .transform((value) => value === 'true'),
   {=# isAuthEnabled =}
   {=# enabledAuthProviders.isGoogleAuthEnabled =}
   GOOGLE_CLIENT_ID: z.string({
@@ -162,10 +162,10 @@ const serverProdSchema = z.object({
   {=/ isAuthEnabled =}
 })
 
-const serverCommonSchema = userServerEnvSchema.merge(waspServerCommonSchema)
+const serverCommonSchema = userServerEnvSchema.extend(waspServerCommonSchema.shape)
 const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
-  serverDevSchema.merge(serverCommonSchema),
-  serverProdSchema.merge(serverCommonSchema)
+  serverDevSchema.extend(serverCommonSchema.shape),
+  serverProdSchema.extend(serverCommonSchema.shape)
 ])
 
 const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;

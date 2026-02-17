@@ -5,7 +5,7 @@ import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
 const redColorFormatString = getColorizedConsoleFormatString('red');
 
 // PRIVATE API (SDK)
-export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
+export function ensureEnvSchema<Schema extends z.ZodType>(
   data: unknown,
   schema: Schema
 ): z.infer<Schema> {
@@ -19,7 +19,7 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
 }
 
 // PRIVATE API (SDK, Vite config)
-export function getValidatedEnvOrError<Schema extends z.ZodTypeAny>(
+export function getValidatedEnvOrError<Schema extends z.ZodType>(
   env: unknown,
   schema: Schema
 ): z.SafeParseReturnType<unknown, z.infer<Schema>> {

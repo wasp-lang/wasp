@@ -29,5 +29,5 @@ const waspClientProdSchema = z.object({
 // PRIVATE API (sdk, Vite config)
 export function getClientEnvSchema(mode: string) {
   const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return userClientEnvSchema.merge(waspSchema)
+  return userClientEnvSchema.extend(waspSchema.shape)
 }
