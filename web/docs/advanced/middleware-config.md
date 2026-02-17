@@ -3,6 +3,7 @@ title: Configuring Middleware
 ---
 
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
+import { GuideLink } from '@site/src/components/GuideLink';
 
 Wasp comes with a minimal set of useful Express middleware in every application. While this is good for most users, we realize some may wish to add, modify, or remove some of these choices both globally, or on a per-`api`/path basis.
 
@@ -31,13 +32,15 @@ You have three places where you can customize middleware:
 
 1. [global](#1-customize-global-middleware): here, any changes will apply by default _to all operations (`query` and `action`) and `api`._ This is helpful if you wanted to add support for multiple domains to CORS, for example.
 
-:::caution Modifying global middleware
-Please treat modifications to global middleware with extreme care as they will affect all operations and APIs. If you are unsure, use one of the other two options.
-:::
-
+    :::caution Modifying global middleware
+    Please treat modifications to global middleware with extreme care as they will affect all operations and APIs. If you are unsure, use one of the other two options.
+    :::
+    
 2. [per-api](#2-customize-api-specific-middleware): you can override middleware for a specific api route (e.g. `POST /webhook/callback`). This is helpful if you want to disable JSON parsing for some callback, for example.
 3. [per-path](#3-customize-per-path-middleware): this is helpful if you need to customize middleware for all methods under a given path.
    - It's helpful for things like "complex CORS requests" which may need to apply to both `OPTIONS` and `GET`, or to apply some middleware to a _set of `api` routes_.
+
+<GuideLink linkToGuide="../guides/configuration/cors-multiple-domains" title="Multiple Domains CORS" description="Configure CORS to support multiple domains in your Wasp application" />
 
 ### Default Middleware Definitions
 
