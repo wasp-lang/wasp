@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🔧 Small improvements
+
+- Upgraded our internal `nodemailer` dependency to v8.0.1 to address [a possible security issue](https://github.com/advisories/GHSA-rcmh-qjqh-p98v). ([#3756](https://github.com/wasp-lang/wasp/pull/3756))
+
 ## 0.21.1
 
 ### 🐞 Bug fixes
