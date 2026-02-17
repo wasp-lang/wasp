@@ -46,6 +46,6 @@ extSrcDirFromTypesRootDir =
   SP.castRel $
     projectRootDirFromTypesRootDir </> waspProjectDirFromProjectRootDirInPosix </> srcDirInWaspProjectDirInPosix
   where
-    projectRootDirFromTypesRootDir = invertRelDir typesRootDirInGeneratedCodeDir
+    projectRootDirFromTypesRootDir = fromJust $ relDirToPosix $ invertRelDir typesRootDirInGeneratedCodeDir
     waspProjectDirFromProjectRootDirInPosix = fromJust $ relDirToPosix waspProjectDirFromProjectRootDir
     srcDirInWaspProjectDirInPosix = fromJust $ relDirToPosix srcDirInWaspProjectDir

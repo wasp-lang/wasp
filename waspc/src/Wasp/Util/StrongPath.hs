@@ -43,14 +43,16 @@ findAllFilesWithSuffix :: String -> [SP.Path p r (SP.File f)] -> [SP.Path p r (S
 findAllFilesWithSuffix extension = filter ((extension `isSuffixOf`) . SP.toFilePath)
 
 -- | Given a relative directory path from @a@ to @b@, returns the inverse
--- Posix path from @b@ back to @a@. Each directory component in the input
--- produces one @../@ segment in the output.
+-- path from @b@ back to @a@. Each directory component in the input
+-- produces one @..@ segment in the output.
+--
+-- The path must not contain any @..@ segments, since those can't be inverted.
 --
 -- >>> invertRelDir [reldir|types|]     -- "../"
 -- >>> invertRelDir [reldir|.wasp/out|] -- "../../"
-invertRelDir :: SP.Path' (SP.Rel a) (SP.Dir b) -> SP.Path SP.Posix (SP.Rel b) (SP.Dir a)
-invertRelDir path =
-  fromJust $ SP.parseRelDirP inversePosixPath
+invertRelDir :: SP.Path' (SP.Rel a) (SP.Dir b) -> SP.Path' (SP.Rel b) (SP.Dir a)
+invertRelDir relDir
+  | ".." `elem` pathSegments = error $ "invertRelDir: path contains '..' segment: " ++ SP.fromRelDir relDir
+  | otherwise = fromJust . SP.parseRelDir $ FP.joinPath $ replicate (length pathSegments) ".."
   where
-    inversePosixPath = concat $ replicate depth "../"
-    depth = length $ FP.splitDirectories $ SP.fromRelDir path
+    pathSegments = FP.splitDirectories $ SP.fromRelDir relDir
