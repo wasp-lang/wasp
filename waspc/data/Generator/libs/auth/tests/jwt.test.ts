@@ -53,7 +53,7 @@ describe("jwt helpers", () => {
       );
     });
     testTamperingWithPartOfJWTToken("header", 0, /Unexpected/);
-    testTamperingWithPartOfJWTToken("payload", 1, /Unexpected/);
+    testTamperingWithPartOfJWTToken("payload", 1, /Invalid signature/);
     testTamperingWithPartOfJWTToken("signature", 2, /Invalid signature/);
   });
 });
