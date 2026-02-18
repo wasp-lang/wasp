@@ -3,9 +3,9 @@ import * as z from 'zod'
 
 import { ensureEnvSchema } from '../env/validation.js'
 import { getServerEnvSchema } from './envRegistry.js'
-import type { GetFromRegister } from 'wasp/types'
+import type { GetConfigFromRegistry } from 'wasp/types'
 
-type UserServerEnvSchema = GetFromRegister<'serverEnvSchema', z.ZodObject<{}>>
+type UserServerEnvSchema = GetConfigFromRegistry<'serverEnvSchema', z.ZodObject<{}>>
 
 const userServerEnvSchema = getServerEnvSchema() as UserServerEnvSchema
 

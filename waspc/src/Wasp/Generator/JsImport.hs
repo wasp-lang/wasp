@@ -20,6 +20,7 @@ import Wasp.JsImport
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (RelativeImportPath),
     getJsImportStmtAndIdentifier,
+    getJsTypeofImportExpr,
     makeJsImport,
   )
 import Wasp.Project.Common (srcDirInWaspProjectDir)
@@ -48,10 +49,12 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
     mkTmplData :: JsImport -> Aeson.Value
     mkTmplData jsImport =
       let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
+          typeofImportExpr = getJsTypeofImportExpr jsImport
        in object
             [ "isDefined" .= True,
               "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier
+              "importIdentifier" .= jsImportIdentifier,
+              "typeofImportExpr" .= typeofImportExpr
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport

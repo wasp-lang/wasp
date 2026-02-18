@@ -1,36 +1,26 @@
 {{={= =}=}}
-{=# overrides.GetAll.isDefined =}
-{=& overrides.GetAll.importStatement =}
-{=/ overrides.GetAll.isDefined =}
-{=# overrides.Get.isDefined =}
-{=& overrides.Get.importStatement =}
-{=/ overrides.Get.isDefined =}
-{=# overrides.Create.isDefined =}
-{=& overrides.Create.importStatement =}
-{=/ overrides.Create.isDefined =}
-{=# overrides.Update.isDefined =}
-{=& overrides.Update.importStatement =}
-{=/ overrides.Update.isDefined =}
-{=# overrides.Delete.isDefined =}
-{=& overrides.Delete.importStatement =}
-{=/ overrides.Delete.isDefined =}
+// Forces the file to be interpreted as a module.
+// This is necessary for module augmentation to work.
+export {}
 
 declare module 'wasp/types' {
-  interface Register {
+  interface RegisteredCrudOverrides {
+    '{= crud.name =}': {
 {=# overrides.GetAll.isDefined =}
-    'crud_{= crud.name =}_GetAll': typeof {= overrides.GetAll.importIdentifier =}
+      GetAll: typeof {=& overrides.GetAll.typeofImportExpr =}
 {=/ overrides.GetAll.isDefined =}
 {=# overrides.Get.isDefined =}
-    'crud_{= crud.name =}_Get': typeof {= overrides.Get.importIdentifier =}
+      Get: typeof {=& overrides.Get.typeofImportExpr =}
 {=/ overrides.Get.isDefined =}
 {=# overrides.Create.isDefined =}
-    'crud_{= crud.name =}_Create': typeof {= overrides.Create.importIdentifier =}
+      Create: typeof {=& overrides.Create.typeofImportExpr =}
 {=/ overrides.Create.isDefined =}
 {=# overrides.Update.isDefined =}
-    'crud_{= crud.name =}_Update': typeof {= overrides.Update.importIdentifier =}
+      Update: typeof {=& overrides.Update.typeofImportExpr =}
 {=/ overrides.Update.isDefined =}
 {=# overrides.Delete.isDefined =}
-    'crud_{= crud.name =}_Delete': typeof {= overrides.Delete.importIdentifier =}
+      Delete: typeof {=& overrides.Delete.typeofImportExpr =}
 {=/ overrides.Delete.isDefined =}
+    }
   }
 }

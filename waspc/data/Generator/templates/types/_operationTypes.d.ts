@@ -1,12 +1,12 @@
 {{={= =}=}}
-{=# operations =}
-{=& jsFn.importStatement =}
-{=/ operations =}
+// Forces the file to be interpreted as a module.
+// This is necessary for module augmentation to work.
+export {}
 
 declare module 'wasp/types' {
-  interface Register {
+  interface RegisteredOperations {
 {=# operations =}
-    'operation_{= operationName =}': typeof {= jsFn.importIdentifier =}
+    '{= operationName =}': typeof {=& jsFn.typeofImportExpr =}
 {=/ operations =}
   }
 }

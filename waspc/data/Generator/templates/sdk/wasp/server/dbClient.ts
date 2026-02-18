@@ -2,7 +2,7 @@
 {=# areThereAnyEntitiesDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 import { getPrismaSetupFn } from './dbRegistry.js'
-import type { Register } from 'wasp/types'
+import type { RegisteredConfig } from 'wasp/types'
 
 function createDbClient(): InternalPrismaClient {
   const prismaSetupFn = getPrismaSetupFn()
@@ -27,7 +27,7 @@ const dbClient = createDbClient()
 
 // PUBLIC API
 export type PrismaClient =
-  Register extends { prismaSetupFn: infer T extends (...args: any[]) => any }
+  RegisteredConfig extends { prismaSetupFn: infer T extends (...args: any[]) => any }
     ? ReturnType<T>
     : typeof dbClient
 

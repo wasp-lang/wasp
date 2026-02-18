@@ -1,9 +1,9 @@
 {{={= =}=}}
 import * as z from 'zod'
 import { getClientEnvSchema } from './envRegistry.js'
-import type { GetFromRegister } from 'wasp/types'
+import type { GetConfigFromRegistry } from 'wasp/types'
 
-type UserClientEnvSchema = GetFromRegister<'clientEnvSchema', z.ZodObject<{}>>
+type UserClientEnvSchema = GetConfigFromRegistry<'clientEnvSchema', z.ZodObject<{}>>
 
 const userClientEnvSchema = getClientEnvSchema() as UserClientEnvSchema
 

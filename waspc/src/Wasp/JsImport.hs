@@ -11,6 +11,8 @@ module Wasp.JsImport
     applyJsImportAlias,
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
+    getImportPathString,
+    getJsTypeofImportExpr,
   )
 where
 
@@ -68,22 +70,35 @@ makeJsImport importPath importName = JsImport importPath importName Nothing
 applyJsImportAlias :: Maybe JsImportAlias -> JsImport -> JsImport
 applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
+getJsTypeofImportExpr :: JsImport -> String
+getJsTypeofImportExpr (JsImport importPath importName _) =
+  "import('" ++ pathString ++ "')." ++ memberName
+  where
+    pathString = getImportPathString importPath
+    memberName = case importName of
+      JsImportModule _ -> "default"
+      JsImportField name -> name
+
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
 getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
   (importStatement, importIdentifier)
   where
     importStatement = "import " ++ importClause ++ " from '" ++ pathString ++ "'"
     (importIdentifier, importClause) = getJsImportIdentifierAndClause importName maybeImportAlias
-    pathString = case importPath of
-      RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
-      ModuleImportPath modulePath -> SP.fromRelFileP modulePath
-    normalizePath path
+    pathString = getImportPathString importPath
+
+getImportPathString :: JsImportPath -> String
+getImportPathString (RelativeImportPath relPath) =
+  normalizeRelativePath $ SP.fromRelFileP relPath
+  where
+    normalizeRelativePath path
       | ".." `isPrefixOf` path = path
       | otherwise = "./" ++ path
+getImportPathString (ModuleImportPath modulePath) = SP.fromRelFileP modulePath
 
 -- First part of import statement based on type of import and alias
 -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
--- e.g. for import Name from "file.js" it returns ("Name", "Name")
+-- e.g. for import Name   from "file.js" it returns ("Name", "Name")
 getJsImportIdentifierAndClause :: JsImportName -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportClause)
 getJsImportIdentifierAndClause importName maybeImportAlias = case (importName, maybeImportAlias) of
   (JsImportModule moduleName, Nothing) -> (moduleName, moduleName)

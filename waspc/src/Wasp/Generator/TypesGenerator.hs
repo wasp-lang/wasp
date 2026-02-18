@@ -5,7 +5,6 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson.Types as Aeson.Types
-import Data.Maybe (isJust)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec, getActions, getCruds, getQueries)
 import qualified Wasp.AppSpec.App as AS.App
@@ -22,80 +21,38 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.TypesGenerator.Common (mkTmplFdWithData, mkTmplFdWithDstAndData)
 import Wasp.Generator.TypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
-import qualified Wasp.Generator.WebSocket as AS.WS
 import Wasp.Util ((<++>))
 
 genTypes :: AppSpec -> Generator [FileDraft]
 genTypes spec =
-  genDbTypes spec
-    <++> genAuthProviderTypes spec
-    <++> genWebSocketTypes spec
+  genConfigTypes spec
     <++> genCrudTypes spec
     <++> genOperationTypes spec
-    <++> genEnvTypes spec
 
-genAuthProviderTypes :: AppSpec -> Generator [FileDraft]
-genAuthProviderTypes spec =
-  case maybeAuth of
-    Nothing -> return []
-    Just auth ->
-      return
-        [ mkTmplFdWithData
-            [relfile|authProviders.d.ts|]
-            tmplData
-        ]
-      where
-        tmplData =
-          object
-            [ "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields,
-              "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
-            ]
-        userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
-        userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
-        authMethods = AS.Auth.methods auth
+genConfigTypes :: AppSpec -> Generator [FileDraft]
+genConfigTypes spec =
+  return
+    [ mkTmplFdWithData
+        [relfile|configuration.d.ts|]
+        tmplData
+    ]
   where
-    maybeAuth = AS.App.auth $ snd $ getApp spec
-
-genDbTypes :: AppSpec -> Generator [FileDraft]
-genDbTypes spec =
-  case maybePrismaSetupFn of
-    Nothing -> return []
-    Just _ ->
-      return
-        [ mkTmplFdWithData
-            [relfile|db.d.ts|]
-            tmplData
-        ]
-  where
-    maybePrismaSetupFn = AS.App.db (snd $ getApp spec) >>= AS.Db.prismaSetupFn
     tmplData =
       object
-        [ "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+        [ "serverEnvSchema" .= extImportToImportJson (AS.App.server app >>= AS.App.Server.envValidationSchema),
+          "clientEnvSchema" .= extImportToImportJson (AS.App.client app >>= AS.App.Client.envValidationSchema),
+          "webSocketFn" .= extImportToImportJson (AS.App.WS.fn <$> AS.App.webSocket app),
+          "prismaSetupFn" .= extImportToImportJson (AS.App.db app >>= AS.Db.prismaSetupFn),
+          "emailUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.email >>= AS.Auth.userSignupFieldsForEmailAuth),
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.usernameAndPassword >>= AS.Auth.userSignupFieldsForUsernameAuth)
         ]
-
-genWebSocketTypes :: AppSpec -> Generator [FileDraft]
-genWebSocketTypes spec
-  | AS.WS.areWebSocketsUsed spec =
-      return
-        [ mkTmplFdWithData
-            [relfile|websocket.d.ts|]
-            tmplData
-        ]
-  | otherwise = return []
-  where
-    maybeWebSocketFn = AS.App.WS.fn <$> AS.App.webSocket (snd $ getApp spec)
-    tmplData =
-      object
-        [ "webSocketFn" .= extImportToImportJson maybeWebSocketFn
-        ]
+    authMethods = AS.Auth.methods <$> maybeAuth
+    maybeAuth = AS.App.auth app
+    app = snd $ getApp spec
 
 genCrudTypes :: AppSpec -> Generator [FileDraft]
-genCrudTypes spec
-  | null cruds = return []
-  | otherwise = return $ map genCrudType cruds
+genCrudTypes spec = return $ map genCrudType $ getCruds spec
   where
-    cruds = getCruds spec
-
     genCrudType :: (String, AS.Crud.Crud) -> FileDraft
     genCrudType (name, crud) =
       mkTmplFdWithDstAndData
@@ -121,39 +78,40 @@ genCrudTypes spec
             importJson = extImportToImportJson $ AS.Crud.overrideFn options
 
 genOperationTypes :: AppSpec -> Generator [FileDraft]
-genOperationTypes spec
-  | null queries && null actions = return []
-  | otherwise =
-      return $
-        (if null queries then [] else [genQueryTypes])
-          ++ (if null actions then [] else [genActionTypes])
+genOperationTypes spec =
+  return $ genQueryTypes ++ genActionTypes
   where
-    queries = getQueries spec
-    actions = getActions spec
-
-    genQueryTypes :: FileDraft
-    genQueryTypes =
-      mkTmplFdWithDstAndData
-        [relfile|_operationTypes.d.ts|]
-        [relfile|operationQueries.d.ts|]
-        (Just tmplData)
+    genQueryTypes :: [FileDraft]
+    genQueryTypes
+      | null queries = []
+      | otherwise =
+          [ mkTmplFdWithDstAndData
+              [relfile|_operationTypes.d.ts|]
+              [relfile|operationQueries.d.ts|]
+              (Just tmplData)
+          ]
       where
         tmplData =
           object
-            [ "operations" .= map mkOperationData (map (uncurry AS.Operation.QueryOp) queries)
+            [ "operations" .= map (mkOperationData . uncurry AS.Operation.QueryOp) queries
             ]
+        queries = getQueries spec
 
-    genActionTypes :: FileDraft
-    genActionTypes =
-      mkTmplFdWithDstAndData
-        [relfile|_operationTypes.d.ts|]
-        [relfile|operationActions.d.ts|]
-        (Just tmplData)
+    genActionTypes :: [FileDraft]
+    genActionTypes
+      | null actions = []
+      | otherwise =
+          [ mkTmplFdWithDstAndData
+              [relfile|_operationTypes.d.ts|]
+              [relfile|operationActions.d.ts|]
+              (Just tmplData)
+          ]
       where
         tmplData =
           object
-            [ "operations" .= map mkOperationData (map (uncurry AS.Operation.ActionOp) actions)
+            [ "operations" .= map (mkOperationData . uncurry AS.Operation.ActionOp) actions
             ]
+        actions = getActions spec
 
     mkOperationData :: AS.Operation.Operation -> Aeson.Types.Value
     mkOperationData operation =
@@ -161,37 +119,3 @@ genOperationTypes spec
         [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
           "operationName" .= AS.Operation.getName operation
         ]
-
-genEnvTypes :: AppSpec -> Generator [FileDraft]
-genEnvTypes spec =
-  return $
-    (if hasServerEnvSchema then [genServerEnvType] else [])
-      ++ (if hasClientEnvSchema then [genClientEnvType] else [])
-  where
-    app = snd $ getApp spec
-    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
-    maybeClientEnvSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
-    hasServerEnvSchema = isJust maybeServerEnvSchema
-    hasClientEnvSchema = isJust maybeClientEnvSchema
-
-    genServerEnvType :: FileDraft
-    genServerEnvType =
-      mkTmplFdWithData
-        [relfile|envServer.d.ts|]
-        tmplData
-      where
-        tmplData =
-          object
-            [ "envValidationSchema" .= extImportToImportJson maybeServerEnvSchema
-            ]
-
-    genClientEnvType :: FileDraft
-    genClientEnvType =
-      mkTmplFdWithData
-        [relfile|envClient.d.ts|]
-        tmplData
-      where
-        tmplData =
-          object
-            [ "envValidationSchema" .= extImportToImportJson maybeClientEnvSchema
-            ]
