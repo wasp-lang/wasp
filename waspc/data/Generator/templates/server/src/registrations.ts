@@ -13,14 +13,17 @@
 // lazy wrapper (see operationsRegistry.ts).
 {{={= =}=}}
 {=# prismaSetupFn.isDefined =}
-{=& prismaSetupFn.importStatement =}
 import { registerPrismaSetupFn } from 'wasp/server/dbRegistry'
-
+{=& prismaSetupFn.importStatement =}
 registerPrismaSetupFn({= prismaSetupFn.importIdentifier =})
 {=/ prismaSetupFn.isDefined =}
 
+import { registerServerEnvSchema } from 'wasp/server/envRegistry'
 {=# serverEnvValidationSchema.isDefined =}
 {=& serverEnvValidationSchema.importStatement =}
-import { registerServerEnvSchema } from 'wasp/server/envRegistry'
 registerServerEnvSchema({= serverEnvValidationSchema.importIdentifier =})
+{=/ serverEnvValidationSchema.isDefined =}
+{=^ serverEnvValidationSchema.isDefined =}
+import * as z from 'zod'
+registerServerEnvSchema(z.object({}))
 {=/ serverEnvValidationSchema.isDefined =}

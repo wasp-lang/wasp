@@ -9,5 +9,10 @@ export function registerClientEnvSchema(schema: EnvSchema): void {
 }
 
 export function getClientEnvSchema(): EnvSchema {
-  return _clientEnvSchema ?? z.object({})
+  if (_clientEnvSchema === undefined) {
+    throw new Error(
+      'Internal Wasp error:\nClient env schema is not registered.' 
+    )
+  }
+  return _clientEnvSchema
 }

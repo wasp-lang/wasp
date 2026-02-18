@@ -1,7 +1,11 @@
 // @ts-nocheck
 {{={= =}=}}
+import { registerClientEnvSchema } from 'wasp/client/env/envRegistry'
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-import { registerClientEnvSchema } from 'wasp/client/env/envRegistry'
 registerClientEnvSchema({= envValidationSchema.importIdentifier =})
+{=/ envValidationSchema.isDefined =}
+{=^ envValidationSchema.isDefined =}
+import * as z from 'zod'
+registerClientEnvSchema(z.object({}))
 {=/ envValidationSchema.isDefined =}

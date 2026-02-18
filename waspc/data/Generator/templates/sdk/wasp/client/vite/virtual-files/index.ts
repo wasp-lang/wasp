@@ -8,8 +8,8 @@ export function getRoutesTsxContent(): string {
   return getFileContentFromRelativePath("./files/routes.tsx");
 }
 
-export function getEnvManifestContent(): string {
-  return getFileContentFromRelativePath("./files/envManifest.ts");
+export function getManifestContent(): string {
+  return getFileContentFromRelativePath("./files/manifest.ts");
 }
 
 export function getIndexHtmlContent(): string {

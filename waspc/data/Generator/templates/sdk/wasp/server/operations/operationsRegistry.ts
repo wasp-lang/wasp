@@ -20,7 +20,9 @@ export function getOperation(name: string): OperationFn {
   return (...args: any[]) => {
     const fn = _operations.get(name)
     if (!fn) {
-      throw new Error(`Operation '${name}' is not registered. This is a Wasp internal error.`)
+      throw new Error(`
+        'Internal Wasp error:\nOperation '${name}' is not registered.`
+      )
     }
     return fn(...args)
   }
