@@ -455,9 +455,9 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Fast-forward `release` to the RC branch by running `git merge rc-<version>` while on the `release` branch.
 - 👉 Make sure you are on `release` and then run `./new-release 0.x.y`.
   - This script will do some checks, tag the commit with the new release version, and push the tag.
-- 👉 Wait for CI to finish & succeed for the new tag (this is triggered automatically on tag push).
+- 👉 Wait for CI to finish & succeed for the new tag.
   - This is triggered automatically on tag push. When it's done, it will create a new draft release.
-- 👉 Find the new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
+- 👉 Find the new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes. This usually means copy-pasting the ChangeLog entries for the released version.
 - 👉 Publish the draft release when ready.
 - 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
 - 👉 Push your local `release` branch to remote.
