@@ -40,7 +40,6 @@ module ShellCommands
     TestContext (..),
     inTestWaspProjectDir,
     createTestWaspProject,
-    withTimeout,
     SnapshotTestContext (..),
     createSnapshotWaspProjectFromMinimalStarter,
     inSnapshotWaspProjectDir,
@@ -101,12 +100,6 @@ infixl 6 ~||
   "if " ++ condition ++ "; then " ++ command ++ " ;fi"
 
 infixl 4 ~?
-
--- | Wraps a command with a timeout (in seconds).
--- If the command doesn't exit within the given time, it is killed
--- and the timeout command exits with code 124.
-withTimeout :: Int -> ShellCommand -> ShellCommand
-withTimeout seconds cmd = "timeout " ++ show seconds ++ " " ++ cmd
 
 -- General commands
 

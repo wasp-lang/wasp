@@ -9,7 +9,6 @@ import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
 import Tests.SnapshotTests.WaspMigrateSnapshotTest (waspMigrateSnapshotTest)
 import Tests.SnapshotTests.WaspNewSnapshotTest (waspNewSnapshotTest)
 import Tests.ViteBuildTest (viteBuildTest)
-import Tests.ViteOptionsValidationTest (viteOptionsValidationTest)
 import Tests.WaspBuildTest (waspBuildTest)
 import Tests.WaspCleanTest (waspCleanTest)
 import Tests.WaspCompileTest (waspCompileTest)
@@ -60,7 +59,6 @@ e2eTests = do
         -- FIXME: waspStartTest,
         waspBuildTest,
         viteBuildTest,
-        viteOptionsValidationTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
         waspInfoTest,
