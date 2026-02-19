@@ -1,10 +1,12 @@
 #!/usr/bin/env npx tsx
 
 /**
- * MDX-to-DEV.to Converter & Publisher
+ * MDX Converter & Publisher
  *
- * Converts a Wasp blog MDX file to DEV.to-compatible markdown and
- * optionally publishes it via the Forem API.
+ * Converts a Wasp blog MDX file to clean markdown and HTML, saving both to
+ * .claude/skills/reposting/output/. Optionally publishes to DEV.to via
+ * the Forem API. The HTML output is used for reposting to Medium via
+ * Chrome DevTools MCP (see SKILL.md).
  *
  * Usage:
  *   npx tsx mdx-to-devto.ts <path-to-mdx-file> [--publish] [--update <id>] [--upload-videos] [--dry-run]
@@ -18,11 +20,17 @@
  *   --update <id>     PUT updated content to an existing DEV.to article by ID (requires DEVTO_API_KEY)
  *   --upload-videos   Upload local .mp4 videos to YouTube and embed them as liquid tags
  *   --dry-run         Print the converted markdown to stdout (default without --publish or --update)
+ *
+ * Output (always written):
+ *   .claude/skills/reposting/output/<slug>.md   — clean markdown
+ *   .claude/skills/reposting/output/<slug>.html  — same content as HTML (for Medium)
+ *   .claude/skills/reposting/output/<slug>-medium-chunks.json — pre-split HTML chunks for Medium pasting
  */
 
-import { readFileSync, existsSync } from "fs";
-import { basename, resolve } from "path";
+import { readFileSync, existsSync, writeFileSync, mkdirSync } from "fs";
+import { basename, resolve, dirname } from "path";
 import { parse as parseYaml } from "yaml";
+import { marked } from "marked";
 import { uploadVideo } from "./youtube-upload.js";
 
 // ---------------------------------------------------------------------------
@@ -560,6 +568,84 @@ async function sendToDevTo(
 }
 
 // ---------------------------------------------------------------------------
+// Output file saving
+// ---------------------------------------------------------------------------
+
+/** Derive a slug from the MDX filename (e.g. "2026-01-29-claude-code-fullstack" from the full path) */
+function deriveSlug(filePath: string): string {
+  return basename(filePath, ".mdx");
+}
+
+/** Resolve the output directory relative to this script's location */
+function getOutputDir(): string {
+  const scriptDir = dirname(new URL(import.meta.url).pathname);
+  return resolve(scriptDir, "output");
+}
+
+/** Post-process HTML for Medium compatibility */
+function postProcessHtmlForMedium(html: string): string {
+  // Convert DEV.to YouTube liquid tags to standalone URLs that Medium auto-embeds
+  html = html.replace(
+    /<p>\s*{% youtube (https:\/\/youtu\.be\/[a-zA-Z0-9_-]+) %}\s*<\/p>/g,
+    "<p>$1</p>"
+  );
+
+  // Add spacer paragraphs before headings to prevent merging when pasting in chunks
+  html = html.replace(
+    /(<h[2-6][^>]*>)/g,
+    "<p><br></p>\n$1"
+  );
+
+  return html;
+}
+
+/** Save clean markdown and HTML versions of the converted article */
+function saveOutputFiles(
+  slug: string,
+  markdown: string,
+  title: string,
+  canonicalUrl: string
+): { mdPath: string; htmlPath: string; chunksPath: string } {
+  const outputDir = getOutputDir();
+  mkdirSync(outputDir, { recursive: true });
+
+  const mdPath = resolve(outputDir, `${slug}.md`);
+  const htmlPath = resolve(outputDir, `${slug}.html`);
+  const chunksPath = resolve(outputDir, `${slug}-medium-chunks.json`);
+
+  // Save clean markdown
+  writeFileSync(mdPath, markdown, "utf-8");
+
+  // Convert markdown to HTML via marked, post-process for Medium, and save
+  const rawHtml = marked.parse(markdown) as string;
+  const bodyHtml = postProcessHtmlForMedium(rawHtml);
+  const fullHtml = `<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>${title}</title>
+  <meta name="canonical" content="${canonicalUrl}">
+</head>
+<body>
+${bodyHtml}
+</body>
+</html>`;
+  writeFileSync(htmlPath, fullHtml, "utf-8");
+
+  // Split bodyHtml into chunks at <h2> boundaries and save as JSON for Medium pasting
+  const chunks = bodyHtml
+    .split(/(?=<p><br><\/p>\n<h[2-6])/)
+    .map((chunk) => chunk.replace(/`/g, "\\`").replace(/\$\{/g, "\\${"));
+  writeFileSync(
+    chunksPath,
+    JSON.stringify({ title, chunks }, null, 2),
+    "utf-8"
+  );
+
+  return { mdPath, htmlPath, chunksPath };
+}
+
+// ---------------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------------
 
@@ -582,9 +668,22 @@ async function main() {
 
   const result: ConversionResult = { markdown, frontmatter, canonicalUrl };
 
+  // Always save output files (markdown + HTML)
+  const slug = deriveSlug(filePath);
+  const { mdPath, htmlPath, chunksPath } = saveOutputFiles(
+    slug,
+    result.markdown,
+    frontmatter.title,
+    canonicalUrl
+  );
+  console.log(`Output saved:`);
+  console.log(`  Markdown: ${mdPath}`);
+  console.log(`  HTML:     ${htmlPath}`);
+  console.log(`  Chunks:   ${chunksPath}`);
+
   if (!publish && !updateId) {
-    // Dry-run: print the converted markdown
-    console.log("--- CONVERTED MARKDOWN ---\n");
+    // Dry-run: also print the converted markdown to stdout
+    console.log("\n--- CONVERTED MARKDOWN ---\n");
     console.log(result.markdown);
     console.log("\n--- METADATA ---");
     console.log(`Title:         ${frontmatter.title}`);
