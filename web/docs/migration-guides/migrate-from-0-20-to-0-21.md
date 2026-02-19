@@ -26,19 +26,15 @@ curl -sSL https://get.wasp.sh/installer.sh | sh -s -- migrate-to-npm
 
 The tool will uninstall the old version of Wasp, and guide you through installing the new version through npm.
 
-For your convenience, we have also published older versions of Wasp on npm (from 0.16 onwards), so after migrating to the npm method, you can keep developing on projects that haven't been upgraded yet. Just tell npm which version you need:
+For your convenience, we have also published Wasp 0.20.2 to npm so you can keep developing on projects that haven't been upgraded yet. Just tell npm which version you need:
 
 ```sh
-npm i -g @wasp.sh/wasp-cli@0.16
-npm i -g @wasp.sh/wasp-cli@0.17
-npm i -g @wasp.sh/wasp-cli@0.18
-npm i -g @wasp.sh/wasp-cli@0.19
 npm i -g @wasp.sh/wasp-cli@0.20
 npm i -g @wasp.sh/wasp-cli@0.21
 ```
 
-:::caution Versions older than 0.16 are not supported
-Wasp versions older than 0.16 are not available through the npm installer. If you have projects using an older version, you should keep using the installer and upgrade to a npm-supported version as soon as possible.
+:::caution Versions older than 0.20.2 are not supported
+Wasp versions older than 0.20.2 are not available through the npm installer. If you have projects using an older version, you should keep using the installer and upgrade to a npm-supported version as soon as possible.
 :::
 
 If you want to learn more about this migration or troubleshoot any problems you might find, read our [Legacy Installer guide](../guides/legacy/installer.md).
