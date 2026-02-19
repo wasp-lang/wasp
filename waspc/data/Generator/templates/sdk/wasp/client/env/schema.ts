@@ -5,8 +5,6 @@ import type { GetConfigFromRegistry } from 'wasp/types'
 
 type UserClientEnvSchema = GetConfigFromRegistry<'clientEnvSchema', z.ZodObject<{}>>
 
-const userClientEnvSchema = getClientEnvSchema() as UserClientEnvSchema
-
 const waspClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": z
   .string()
@@ -17,4 +15,20 @@ const waspClientEnvSchema = z.object({
 })
 
 // PRIVATE API (sdk, Vite config)
-export const clientEnvSchema = userClientEnvSchema.merge(waspClientEnvSchema)
+
+type ClientEnvSchema = typeof waspClientEnvSchema
+    & UserClientEnvSchema
+
+let _cached: ClientEnvSchema | undefined
+
+// Lazy Proxy: defers env validation to first property access.
+export const clientEnvSchema: UserClientEnvSchema = new Proxy({} as ClientEnvSchema, {
+  get(_, prop, receiver) {
+    if (!_cached) {
+      const userClientEnvSchema = getClientEnvSchema() as UserClientEnvSchema
+      _cached = userClientEnvSchema.merge(waspClientEnvSchema) as ClientEnvSchema
+    }
+    return Reflect.get(_cached!, prop, receiver)
+  },
+})
+
