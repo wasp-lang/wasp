@@ -56,9 +56,9 @@ You now have **full control** over your `vite.config.ts` file. Wasp no longer ma
 
 ### Better Tailwind CSS support
 
-With this change, we will not require you to upgrade Tailwind CSS in lockstep with Wasp anymore. You can use any version of Tailwind CSS v4 or newer in your Wasp app, and upgrade it (or not) at your own pace.
+With this change, we will not require you to upgrade Tailwind CSS in lockstep with Wasp anymore. You can use any version of Tailwind CSS in your Wasp app, and upgrade it (or not) at your own pace.
 
-In previous versions of Wasp, we used a custom way of handling Tailwind CSS configuration files, which tightly coupled us to a specific version. Due to the new Vite installation method in version 4, we can simplify our support, and remove all custom steps. Now Tailwind CSS is just a regular dependency in your Wasp app like any other.
+In previous versions of Wasp, we used a custom way of handling Tailwind CSS configuration files, which tightly coupled us to a specific version. Due to our new Vite setup, we can simplify our support, and remove all custom steps. Now Tailwind CSS is just a regular dependency in your Wasp app like any other.
 
 ### Merged the `.wasp/out` and `.wasp/build` directories
 
@@ -213,72 +213,7 @@ import { useNavigate, useParams } from 'react-router'
 React Router v7 is largely backwards compatible with v6, so there shouldn't be any changes besides the name.
 For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
 
-### 5. Upgrade Tailwind CSS to v4
-
-**If you don't have a `tailwindcss` dependency in your `package.json`, you can skip this step.**
-
-1. Run the Tailwind CSS upgrade tool:
-
-    ```sh
-    npx @tailwindcss/upgrade
-    ```
-
-    It will update any changed classes to the new name, and migrate your config file to the new CSS format.
-
-1. Remove the `@tailwindcss/postcss` plugin from your `postcss.config.js` file.
-
-    <Tabs>
-    <TabItem value="before" label="Before">
-
-    ```js title="postcss.config.js"
-    export default {
-      plugins: {
-        // highlight-next-line
-        '@tailwindcss/postcss': {},
-      },
-    };
-    ```
-
-    </TabItem>
-    <TabItem value="after" label="After">
-
-    ```js title="postcss.config.js"
-    export default {
-      plugins: {},
-    };
-    ```
-
-    If the file is now empty, you can delete it entirely.
-
-    </TabItem>
-    </Tabs>
-
-1. Uninstall the `@tailwindcss/postcss` package and install `@tailwindcss/vite`.
-
-    ```sh
-    npm un @tailwindcss/postcss
-    npm i -D @tailwindcss/vite
-    ```
-
-1. Add the `@tailwindcss/vite` plugin to your `vite.config.{js,ts}` file.
-
-    ```ts title="vite.config.ts"
-    // highlight-next-line
-    import tailwindcss from '@tailwindcss/vite';
-    import { defineConfig } from 'vite';
-
-    export default defineConfig({
-      plugins: [
-        // highlight-next-line
-        tailwindcss(),
-      ],
-    });
-    ```
-
-
-If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../guides/libraries/tailwind.md).
-
-### 6. Update your custom Dockerfile
+### 5. Update your custom Dockerfile
 
 **If you don't have a `Dockerfile` in your project folder, you can skip this step.**
 
@@ -288,7 +223,7 @@ This can be a quite straightforward find-and-replace operation:
 - **Find** `.wasp/build`
 - **Replace** with `.wasp/out`
 
-### 7. Update your custom deployment scripts
+### 6. Update your custom deployment scripts
 
 **If you use `wasp deploy fly` or `wasp deploy railway` to deploy your app, you can skip this step.**
 
@@ -326,7 +261,7 @@ Run this from the **project root**. The client build output directory stayed the
 
 You can check our updated [deployment methods guide](../deployment/deployment-methods/overview.md) and [CI/CD guide](../deployment/ci-cd.md) for reference on the correct deployment steps.
 
-### 8. Upgrade Vitest tests to v4
+### 7. Upgrade Vitest tests to v4
 
 **If you don't have test files in your project, you can skip this step.**
 
@@ -336,7 +271,7 @@ We upgraded our testing support from Vitest v1 to Vitest v4. Most of the breakin
 2. [Migration guide from Vitest v2 to v3](https://v3.vitest.dev/guide/migration.html#vitest-3)
 3. [Migration guide from Vitest v3 to v4](https://vitest.dev/guide/migration.html#vitest-4)
 
-### 9. Update custom server URL usage in deployment
+### 8. Update custom server URL usage in deployment
 
 **If you weren't using `REACT_APP_API_URL` environment variable during deployment, you can skip this step.**
 
@@ -365,7 +300,7 @@ wasp deploy railway launch --custom-server-url https://my-server.com ...
 </TabItem>
 </Tabs>
 
-### 10. Create `public/manifest.json`
+### 9. Create `public/manifest.json`
 
 **Skip this step if you don't care about PWA support**
 
@@ -404,7 +339,7 @@ Wasp no longer generates `manifest.json` automatically. If you want to enable PW
     }
     ```
 
-### 11. Add `netlify.toml` if deploying to Netlify
+### 10. Add `netlify.toml` if deploying to Netlify
 
 **If you're not deploying to Netlify, you can skip this step.**
 
@@ -416,6 +351,6 @@ Create a `netlify.toml` file with the following content:
 
 For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
 
-### 12. Enjoy your updated Wasp app
+### 11. Enjoy your updated Wasp app
 
 That's it!

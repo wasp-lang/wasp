@@ -7,12 +7,7 @@ last_checked_with_versions:
 
 # Tailwind CSS
 
-Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first CSS framework. You can use Tailwind CSS v4 and newer, setting it up through their [Vite installation method](https://tailwindcss.com/docs/installation/using-vite) as with any other project.
-
-:::note
-Tailwind CSS version 3 was included on older versions of Wasp, but from Wasp 0.21 onwards **version 3 is not supported anymore**.
-If you have an older Wasp app, you will have to upgrade to Wasp 0.21 and Tailwind CSS 4 together. You can check [our **migration guide**](../../migration-guides/migrate-from-0-20-to-0-21.md) for step-by-step instructions.
-:::
+Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first CSS framework. You can use Tailwind CSS by setting it up through their [Vite installation method](https://tailwindcss.com/docs/installation/using-vite), as with any other project.
 
 ## Adding Tailwind to your Wasp project
 
