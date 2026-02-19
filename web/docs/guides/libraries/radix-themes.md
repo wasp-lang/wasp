@@ -9,10 +9,6 @@ last_checked_with_versions:
 
 This guide shows you how to integrate the [Radix Themes](https://www.radix-ui.com/themes) component library into your Wasp application.
 
-## Prerequisites
-
-Make sure you have a Wasp project set up. If you haven't, follow the [Getting Started](../../introduction/quick-start.md) guide first.
-
 ## Setting up Radix Themes
 
 ### 1. Install Radix Themes
