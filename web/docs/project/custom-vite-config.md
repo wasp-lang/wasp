@@ -46,6 +46,16 @@ Here's the minimal required configuration:
 The `wasp()` plugin must be the **first** plugin in the `plugins` array. Any other plugins (like Tailwind CSS) should be added after it.
 :::
 
+## Enforced Options
+
+The `wasp()` plugin enforces certain Vite config values that Wasp needs to function correctly. If you set any of these in your `vite.config.ts`, Wasp will throw an error asking you to remove them.
+
+| Option | Internal value | Why you can't customize it |
+|---|---|---|
+| `base` | Based on the [`client.baseDir`](./client-config.md#base-directory) option | Wasp sets the React Router's `basename` to the same value. |
+| `envPrefix` | `"REACT_APP_"` | Wasp's environment variable validation depends on this prefix. |
+| `build.outDir` | `".wasp/out/web-app/build"` | Build artifacts must go to the location Wasp expects for deployment. |
+
 ## Customization
 
 You can add additional configuration and plugins as needed. The `wasp()` plugin will use your config and merge it with the built-in defaults.
@@ -116,7 +126,7 @@ WASP_WEB_CLIENT_URL=http://localhost:4000
 ```
 
 :::warning Changing the dev server port
-⚠️ Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
+Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
 :::
 
 ### Editing from the Chrome DevTools {#devtools-workspace}

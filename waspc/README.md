@@ -441,23 +441,23 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - Update Open Saas:
   - Check and merge all Open Saas PRs with the label `merge-before-release`.
   - Create and merge new PRs if necessary (i.e., if there are breaking changes or new features it should make use of but aren't in one of the `merge-before-release` PRs).
-- 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
-  - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
 - 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
 - 👉 Update your local repository state to have all remote changes (`git fetch`) and ensure local `main` is up to date.
 - 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.19.1`) and do the rest of the steps from there.
-- 👉 Create an RC and do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
+- 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
+  - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into the RC branch.
+- 👉 Create an RC release do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
 - 👉 Consider enriching and polishing the `ChangeLog.md` a bit:
-  - If you modify `ChangeLog.md`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
+  - If you modify `ChangeLog.md`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into the RC branch.
 - 👉 Update your local repository state to have all remote changes (`git fetch`).
 - 👉 Update the RC branch to contain changes from `release` by running `git merge release` while on the `rc-<version>` branch. Resolve any conflicts.
 - If this is a major version update, take a versioned "snapshot" of the current docs on the RC branch by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the [README in the `web` dir](https://github.com/wasp-lang/wasp/blob/main/web/README.md) for more details. Commit this change to the RC branch and push it.
-  - This will do some checks, tag it with new release version, and push it.
 - 👉 Fast-forward `release` to the RC branch by running `git merge rc-<version>` while on the `release` branch.
 - 👉 Make sure you are on `release` and then run `./new-release 0.x.y`.
+  - This script will do some checks, tag the commit with the new release version, and push the tag.
 - 👉 Wait for CI to finish & succeed for the new tag.
-  - This will automatically create a new draft release.
-- 👉 Find a new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
+  - This is triggered automatically on tag push. When it's done, it will create a new draft release.
+- 👉 Find the new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes. This usually means copy-pasting the ChangeLog entries for the released version.
 - 👉 Publish the draft release when ready.
 - 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
 - 👉 Push your local `release` branch to remote.
@@ -492,7 +492,7 @@ If doing this, steps are the following:
 npm i -g @wasp.sh/wasp-cli@0.19.0-rc
 ```
 
-5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
+5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`, see step 2).
 
 ## Documentation
 
