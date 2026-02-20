@@ -72,7 +72,7 @@ export function Logs({ logs, status, onRetry }) {
           </div>
 
           <div className="items-flex-start flex justify-between">
-            <div className="mb-2 mr-3 flex-shrink-0 self-end">
+            <div className="mr-3 mb-2 shrink-0 self-end">
               {(status === "inProgress" || status === "pending") && <Loader />}
               {status === "success" && (
                 <div className="status-icon bg-green-500">
@@ -121,7 +121,7 @@ export function Logs({ logs, status, onRetry }) {
               showAllLogs={showAllLogs}
               toggleShowAllLogs={toggleShowAllLogs}
               status={status}
-              className="z-10 ml-3 hidden flex-shrink-0 md:block"
+              className="z-10 ml-3 hidden shrink-0 md:block"
             />
           </div>
         </header>

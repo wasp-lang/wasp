@@ -12,7 +12,6 @@ module Wasp.Project.Common
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
-    buildDirInDotWaspDir,
     waspProjectDirFromProjectRootDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
@@ -20,7 +19,6 @@ module Wasp.Project.Common
     packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
-    extPublicDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
     getSrcTsConfigInWaspProjectDir,
     srcTsConfigInWaspLangProject,
@@ -33,7 +31,7 @@ where
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
-import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir, SourceExternalPublicDir)
+import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
 
@@ -73,10 +71,6 @@ generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRoot
 -- "GeneratedCodeDir". We should unify the naming (the latter is the beter
 -- name).
 generatedCodeDirInDotWaspDir = [reldir|out|]
-
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
-buildDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRootDir)
-buildDirInDotWaspDir = [reldir|build|]
 
 -- TODO: This backwards relative path relies on multiple forward relative path
 -- definitions. We should find a better way to express it (e.g., by somehow
@@ -119,9 +113,6 @@ prismaSchemaFileInWaspProjectDir = [relfile|schema.prisma|]
 
 srcDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalCodeDir)
 srcDirInWaspProjectDir = [reldir|src|]
-
-extPublicDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir SourceExternalPublicDir)
-extPublicDirInWaspProjectDir = [reldir|public|]
 
 findFileInWaspProjectDir ::
   Path' Abs (Dir WaspProjectDir) ->

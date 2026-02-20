@@ -1,4 +1,4 @@
-import React from "react";
+import { useCallback } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { createTask, getTags, useQuery } from "wasp/client/operations";
 import { Tag } from "wasp/entities";
@@ -34,7 +34,7 @@ export function CreateTaskForm() {
     }
   };
 
-  const toggleTag = React.useCallback(
+  const toggleTag = useCallback(
     function toggleTag(id: Tag["id"]) {
       const tagIds = getValues("tagIds");
       if (tagIds.includes(id)) {

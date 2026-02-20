@@ -7,7 +7,7 @@ export const EntityNode = ({
   sourcePosition = Position.Right,
 }: NodeProps) => (
   <div
-    className={`rounded bg-yellow-900 px-6 py-3 text-center text-white ${data.isUserEntity ? "border-3 border-yellow-300" : ""} `}
+    className={`rounded-sm bg-yellow-900 px-6 py-3 text-center text-white ${data.isUserEntity ? "border-3 border-yellow-300" : ""} `}
   >
     <Handle
       type="source"
@@ -15,7 +15,7 @@ export const EntityNode = ({
       isConnectable={isConnectable}
     />
     <div
-      className={`absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded bg-yellow-300 px-1 text-xs text-yellow-900`}
+      className={`absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded-sm bg-yellow-300 px-1 text-xs text-yellow-900`}
     >
       <span className="mr-1">Entity</span>
       <svg

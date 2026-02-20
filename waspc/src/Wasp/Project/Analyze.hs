@@ -20,8 +20,6 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
-import qualified Wasp.ConfigFile as CF
-import qualified Wasp.Generator.TailwindConfigFile as TCF
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
@@ -38,7 +36,6 @@ import Wasp.Project.Deployment (loadUserDockerfileContents)
 import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
 import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
-import Wasp.Project.Vite (findCustomViteConfigPath)
 import Wasp.Project.WaspFile (analyzeWaspFile, findWaspFile)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
@@ -87,8 +84,6 @@ constructAppSpec ::
   IO (Either [CompileError] AS.AppSpec, [CompileWarning])
 constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls srcTsConfigPath = do
   externalCodeFiles <- ExternalFiles.readCodeFiles waspDir
-  externalPublicFiles <- ExternalFiles.readPublicFiles waspDir
-  customViteConfigPath <- findCustomViteConfigPath waspDir
 
   maybeMigrationsDir <- findMigrationsDir waspDir
   maybeUserDockerfileContents <- loadUserDockerfileContents waspDir
@@ -96,7 +91,6 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
   let devDbUrl = makeDevDatabaseUrl waspDir dbSystem decls
   serverEnvVars <- readDotEnvServer waspDir
   clientEnvVars <- readDotEnvClient waspDir
-  tailwindConfigFilesRelocators <- CF.discoverConfigFiles waspDir TCF.tailwindConfigRelocationMap
 
   let appSpec =
         AS.AppSpec
@@ -104,18 +98,15 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
             AS.prismaSchema = parsedPrismaSchema,
             AS.waspProjectDir = waspDir,
             AS.externalCodeFiles = externalCodeFiles,
-            AS.externalPublicFiles = externalPublicFiles,
             AS.migrationsDir = maybeMigrationsDir,
             AS.devEnvVarsServer = serverEnvVars,
             AS.devEnvVarsClient = clientEnvVars,
             AS.buildType = CompileOptions.buildType compileOptions,
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.devDatabaseUrl = devDbUrl,
-            AS.customViteConfigPath = customViteConfigPath,
             AS.packageJson = EC._packageJson externalConfigs,
             AS.srcTsConfigPath = srcTsConfigPath,
-            AS.srcTsConfig = EC._srcTsConfig externalConfigs,
-            AS.tailwindConfigFilesRelocators = tailwindConfigFilesRelocators
+            AS.srcTsConfig = EC._srcTsConfig externalConfigs
           }
 
   return $ runValidation ASV.validateAppSpec appSpec

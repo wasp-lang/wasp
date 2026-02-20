@@ -120,7 +120,7 @@ const faqs = [
         To run Wasp AI (Mage) locally, make sure you have wasp installed and
         just run:
         <br />
-        <span className="rounded bg-slate-800 p-1 text-slate-200">
+        <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
           wasp new
         </span>
         <br />
@@ -131,7 +131,7 @@ const faqs = [
         There is also a command for running the same thing programmatically,
         without interactive questions:
         <br />
-        <span className="rounded bg-slate-800 p-1 text-slate-200">
+        <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
           wasp new:ai
         </span>
         <br />

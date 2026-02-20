@@ -262,7 +262,7 @@ export default function Flow({ data }: { data: Data }) {
       <ReactFlow nodes={nodes} edges={edges} fitView nodeTypes={nodeTypes}>
         <Background
           style={{
-            backgroundColor: `hsl(var(--nextui-background)`,
+            backgroundColor: `hsl(var(--heroui-background)`,
           }}
           color={`#444`}
         />

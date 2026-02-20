@@ -70,6 +70,12 @@ class FlyCommand extends Command {
       [],
     );
   }
+  addCustomServerUrlOption(): this {
+    return this.option(
+      "--custom-server-url <url>",
+      "URL of the server that the client will connect to",
+    );
+  }
 }
 
 const flyLaunchCommand = makeFlyLaunchCommand();
@@ -160,6 +166,7 @@ function makeFlyLaunchCommand(): Command {
     .addDbOptions()
     .addLocalBuildOption()
     .addSecretsOptions()
+    .addCustomServerUrlOption()
     .action(launchFn);
 }
 
@@ -178,6 +185,7 @@ function makeFlyDeployCommand(): Command {
     .option("--skip-client", "do not deploy the web client")
     .option("--skip-server", "do not deploy the server")
     .addLocalBuildOption()
+    .addCustomServerUrlOption()
     .action(deployFn);
 }
 

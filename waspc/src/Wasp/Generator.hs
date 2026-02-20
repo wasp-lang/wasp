@@ -6,24 +6,32 @@ module Wasp.Generator
   )
 where
 
+import Control.Monad (forM_)
 import Data.List.NonEmpty (toList)
 import StrongPath (Abs, Dir, Path')
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.ExternalConfig.Npm.Dependency as D
+import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft)
-import Wasp.Generator.Monad (Generator, GeneratorError, GeneratorWarning, runGenerator)
+import Wasp.Generator.Monad
+  ( Generator,
+    GeneratorError,
+    GeneratorWarning (GenericGeneratorWarning),
+    logGeneratorWarning,
+    runGenerator,
+  )
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
-import Wasp.Generator.TailwindConfigFileGenerator (genTailwindConfigFiles)
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
-import Wasp.Generator.WebAppGenerator (genWebApp)
+import Wasp.Generator.WaspLibs (genWaspLibs)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
 import Wasp.Message (SendMessage)
 import Wasp.Util ((<++>))
@@ -52,10 +60,23 @@ writeWebAppCode spec dstDir sendMessage = do
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
-genApp spec =
-  genWebApp spec
-    <++> genServer spec
+genApp spec = do
+  warnOverriddenDeps spec
+
+  genServer spec
     <++> genSdk spec
     <++> genDb spec
     <++> genDockerFiles spec
-    <++> genTailwindConfigFiles spec
+    <++> genWaspLibs
+
+warnOverriddenDeps :: AppSpec -> Generator ()
+warnOverriddenDeps spec =
+  forM_ overriddenDepNames $ \pkgName ->
+    logGeneratorWarning $
+      GenericGeneratorWarning $
+        "Dependency override active for \""
+          ++ pkgName
+          ++ "\". You are using an unsupported version. "
+          ++ "Wasp cannot guarantee compatibility."
+  where
+    overriddenDepNames = D.name <$> PJ.getOverriddenDeps (AS.packageJson spec)

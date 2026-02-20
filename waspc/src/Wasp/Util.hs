@@ -21,6 +21,7 @@ module Wasp.Util
     leftPad,
     trim,
     wrapString,
+    zipMaps,
     (<++>),
     (<:>),
     bytestringToHex,
@@ -60,6 +61,8 @@ import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
 import Data.List (group, intercalate, sort)
 import Data.List.Split (splitOn, wordsBy)
+import Data.Map (Map)
+import qualified Data.Map.Merge.Lazy as Map.Merge
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -196,21 +199,33 @@ trim :: String -> String
 trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
 wrapString :: Int -> String -> String
-wrapString maxLength = intercalate "\n" . map unwords . groupWordsIntoLines . words
+wrapString lineLength = intercalate "\n" . map unwords . groupWordsIntoLines . words
   where
     groupWordsIntoLines :: [String] -> [[String]]
     groupWordsIntoLines [] = []
-    groupWordsIntoLines ws =
-      let (line, rest) = takeLine maxLength ws
-       in line : groupWordsIntoLines rest
+    groupWordsIntoLines (firstWord : restWords) =
+      let remainingLength = lineLength - length firstWord - 1
+          (moreWords, leftover) = takeWordsUpToLength remainingLength restWords
+          line = firstWord : moreWords
+       in line : groupWordsIntoLines leftover
 
-    takeLine :: Int -> [String] -> ([String], [String])
-    takeLine _ [] = ([], [])
-    takeLine remainingLength (w : ws)
-      | length w > remainingLength && remainingLength /= maxLength = ([], w : ws)
+    takeWordsUpToLength :: Int -> [String] -> ([String], [String])
+    takeWordsUpToLength _ [] = ([], [])
+    takeWordsUpToLength remainingLength (w : ws)
+      | length w > remainingLength = ([], w : ws)
       | otherwise =
-          let (taken, leftover) = takeLine (remainingLength - length w - 1) ws
+          let (taken, leftover) = takeWordsUpToLength (remainingLength - length w - 1) ws
            in (w : taken, leftover)
+
+-- | It will call the given function for each key in both maps, with `Maybe`s
+-- representing the presence of the key in each map. The resulting value will be
+-- used to create a new Map.
+zipMaps :: (Ord k) => (k -> Maybe a -> Maybe b -> Maybe c) -> Map k a -> Map k b -> Map k c
+zipMaps f =
+  Map.Merge.merge
+    (Map.Merge.mapMaybeMissing $ \k x -> f k (Just x) Nothing)
+    (Map.Merge.mapMaybeMissing $ \k y -> f k Nothing (Just y))
+    (Map.Merge.zipWithMaybeMatched $ \k x y -> f k (Just x) (Just y))
 
 infixr 5 <++>
 
@@ -309,12 +324,17 @@ isOlderThanNHours nHours time = do
     numSecondsInHour = 3600
 
 -- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
--- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo).
+-- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo) and
+-- in our npm analytics (scripts/make-npm-packages/templates/main-package/postinstall.js in this
+-- repo).
 checkIfOnCi :: IO Bool
 checkIfOnCi =
   any checkIfEnvValueIsTruthy
     <$> mapM
       ENV.lookupEnv
+      -- Keep in sync with the same list in:
+      -- - https://github.com/wasp-lang/wasp/blob/main/scripts/make-npm-packages/templates/main-package/postinstall.js
+      -- - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
       [ "BUILD_ID", -- Jenkins, Codeship
         "BUILD_NUMBER", -- Jenkins, TeamCity
         "CI", -- Github actions, Travis CI, CircleCI, Cirrus CI, Gitlab CI, Appveyor, Codeship, dsari

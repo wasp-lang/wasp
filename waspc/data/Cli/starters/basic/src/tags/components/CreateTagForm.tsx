@@ -1,3 +1,4 @@
+import { FormEvent } from "react";
 import { Controller, SubmitHandler, useForm } from "react-hook-form";
 import { createTag } from "wasp/client/operations";
 import { Input } from "../../shared/components/Input";
@@ -6,6 +7,7 @@ import { generateBrightColor } from "./colors";
 import { TagLabel } from "./TagLabel";
 
 interface CreateTagFormProps {
+  id: string;
   onTagCreated: () => void;
 }
 
@@ -14,9 +16,7 @@ interface CreateTagFormValues {
   color: string;
 }
 
-export const CREATE_TAG_FORM_ID = "create-tag";
-
-export function CreateTagForm({ onTagCreated }: CreateTagFormProps) {
+export function CreateTagForm({ id, onTagCreated }: CreateTagFormProps) {
   const { handleSubmit, setValue, watch, control, reset } =
     useForm<CreateTagFormValues>({
       defaultValues: {
@@ -40,7 +40,7 @@ export function CreateTagForm({ onTagCreated }: CreateTagFormProps) {
 
   return (
     <form
-      id={CREATE_TAG_FORM_ID}
+      id={id}
       onSubmit={stopPropagate(handleSubmit(onSubmit))}
       className="flex flex-col gap-6"
     >
@@ -90,10 +90,8 @@ export function CreateTagForm({ onTagCreated }: CreateTagFormProps) {
  *
  * @see https://github.com/react-hook-form/documentation/issues/916
  */
-function stopPropagate(
-  callback: (event: React.FormEvent<HTMLFormElement>) => void,
-) {
-  return (e: React.FormEvent<HTMLFormElement>) => {
+function stopPropagate(callback: (event: FormEvent<HTMLFormElement>) => void) {
+  return (e: FormEvent<HTMLFormElement>) => {
     e.stopPropagation();
     callback(e);
   };

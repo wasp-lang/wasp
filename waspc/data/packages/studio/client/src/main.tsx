@@ -1,4 +1,4 @@
-import { NextUIProvider } from "@nextui-org/react";
+import { HeroUIProvider } from "@heroui/react";
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { ReactFlowProvider } from "reactflow";
@@ -8,11 +8,11 @@ import "./index.css";
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ReactFlowProvider>
-      <NextUIProvider>
-        <div className="text-foreground bg-background dark">
+      <HeroUIProvider>
+        <div className="bg-background text-foreground dark">
           <App />
         </div>
-      </NextUIProvider>
+      </HeroUIProvider>
     </ReactFlowProvider>
   </React.StrictMode>,
 );

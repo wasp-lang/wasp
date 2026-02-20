@@ -14,7 +14,7 @@ export function MyDialog({ isOpen, onClose, title, children }) {
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25" />
+          <div className="bg-opacity-25 fixed inset-0 bg-black" />
         </Transition.Child>
 
         <div className="fixed inset-0 overflow-y-auto">
@@ -31,11 +31,11 @@ export function MyDialog({ isOpen, onClose, title, children }) {
               <Dialog.Panel className="w-full max-w-xl transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                 <Dialog.Title
                   as="h3"
-                  className="text-lg font-medium leading-6 text-gray-900"
+                  className="text-lg leading-6 font-medium text-gray-900"
                 >
                   {title}
                 </Dialog.Title>
-                <div className="absolute right-0 top-0 pr-4 pt-4">
+                <div className="absolute top-0 right-0 pt-4 pr-4">
                   <button
                     type="button"
                     className="ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-gray-400 hover:bg-gray-200 hover:text-gray-900"

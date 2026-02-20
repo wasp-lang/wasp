@@ -1,3 +1,4 @@
+import { ChangeEvent } from "react";
 import { twJoin } from "tailwind-merge";
 import { updateTaskStatus } from "wasp/client/operations";
 import { TagLabel } from "../../tags/components/TagLabel";
@@ -9,7 +10,7 @@ interface TaskListItemProps {
 
 export function TaskListItem({ task }: TaskListItemProps) {
   async function setTaskDone(
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: ChangeEvent<HTMLInputElement>,
   ): Promise<void> {
     try {
       await updateTaskStatus({
@@ -36,7 +37,7 @@ export function TaskListItem({ task }: TaskListItemProps) {
             checked={task.isDone}
             onChange={setTaskDone}
           />
-          <div className="flex min-w-0 flex-col break-words">
+          <div className="flex min-w-0 flex-col wrap-break-word">
             <p>{task.description}</p>
             <span className="text-xs text-neutral-500">
               {task.createdAt.toLocaleDateString()}

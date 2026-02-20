@@ -16,6 +16,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
 import StrongPath (Abs, Dir, Path', (</>))
+import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -49,20 +50,23 @@ compile = do
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   InWaspProject waspProjectDir <- require
-  let outDir =
-        waspProjectDir
-          </> dotWaspDirInWaspProjectDir
-          </> generatedCodeDirInDotWaspDir
 
-  isCleanBuildNeeded <-
-    liftIO $ WaspInfo.checkIfCleanBuildNeeded outDir $ buildType options
+  let relOutDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+      outDir = waspProjectDir </> relOutDir
 
-  doesOutDirExist <- liftIO $ doesDirectoryExist outDir
+  generatedCodeIsCompatible <-
+    liftIO $ buildType options `WaspInfo.isCompatibleWithExistingBuildAt` outDir
 
-  when (isCleanBuildNeeded && doesOutDirExist) $ do
-    cliSendMessageC $ Msg.Start "Clearing the content of the .wasp/out directory..."
+  outDirExists <- liftIO $ doesDirectoryExist outDir
+
+  when (outDirExists && not generatedCodeIsCompatible) $ do
+    cliSendMessageC $
+      Msg.Start $
+        "Clearing the content of the " ++ SP.fromRelDir relOutDir ++ " directory..."
     liftIO $ removeDirectory outDir
-    cliSendMessageC $ Msg.Success "Successfully cleared the contents of the .wasp/out directory."
+    cliSendMessageC $
+      Msg.Success $
+        "Successfully cleared the contents of the " ++ SP.fromRelDir relOutDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   (warnings, errors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir

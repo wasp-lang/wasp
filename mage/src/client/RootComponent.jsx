@@ -1,7 +1,7 @@
 import Prism from "prismjs";
 import "prismjs/components/prism-json";
 import { useEffect, useMemo } from "react";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router";
 import addPrismaLanguage from "./prism/prisma";
 import addWaspLangauge from "./prism/wasp";
 import { saveReferrerToLocalStorage } from "./storage";
@@ -49,7 +49,7 @@ export function RootComponent() {
     <>
       {shouldDisplayTopBanner && (
         <div
-          className="cursor-pointer flex-row space-x-3 overflow-hidden bg-gradient-to-r from-pink-400 to-amber-400 text-white"
+          className="cursor-pointer flex-row space-x-3 overflow-hidden bg-linear-to-r from-pink-400 to-amber-400 text-white"
           onClick={() => window.open("https://github.com/wasp-lang/wasp")}
         >
           <div
