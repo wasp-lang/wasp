@@ -45,7 +45,7 @@ Use `--publish-devto` or `--update-devto <id>` flags. Requires `DEVTO_API_KEY`.
 
 # Crossposting to Medium
 
-Paste HTML into Medium's editor via Chrome DevTools MCP. The user must be logged in to Medium as `info@wasp-lang.dev`.
+Paste HTML into Medium's editor via Chrome DevTools MCP. The user must be logged in to Medium using email login (not google oauth) with `info@wasp-lang.dev`.
 
 ## Steps
 
@@ -59,6 +59,8 @@ for f in static/img/<slug>/*.webp; do sips -s format jpeg "$f" --out ".claude/sk
 ```
 
 ### 2. Navigate to `https://medium.com/new-story`
+
+The human user must login to Medium with the `info@wasp-lang.dev` email and get the OTP sent to your email.
 
 ### 3. Set the article title
 

@@ -27,4 +27,4 @@ llms*.txt
 _blog_drafts
 
 # Crossposting output
-.claude/skills/crossposting/output
+.claude/skills/crossposting/scripts/output

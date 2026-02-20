@@ -7,7 +7,7 @@ If your article has local .mp4 videos, the skill can optionally upload them to Y
 
 The Dev.to API key, as well as the Youtube Client ID and Secret, are saved in the Wasp shared 1password account.
 
-For Medium, allow Claude to start a Chrome browser session, then log in with `info@wasp-lang.dev` using the OTP sent to your email.
+For Medium, allow Claude to start a Chrome browser session, then use email login (not google oauth) to log in with `info@wasp-lang.dev` using the OTP sent to your email.
 
 ## How To Crosspost
 
