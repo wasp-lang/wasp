@@ -1,14 +1,14 @@
 #!/usr/bin/env npx tsx
 
 /**
- * youtube-upload.ts — Upload videos to YouTube via the Data API v3
+ * upload-youtube.ts — Upload videos to YouTube via the Data API v3
  *
  * Usage (CLI):
- *   npx tsx youtube-upload.ts --auth                              # One-time OAuth setup
- *   npx tsx youtube-upload.ts <video> --title "..." [options]     # Upload a video
+ *   npx tsx upload-youtube.ts --auth                              # One-time OAuth setup
+ *   npx tsx upload-youtube.ts <video> --title "..." [options]     # Upload a video
  *
  * Usage (module):
- *   import { authorize, uploadVideo } from "./youtube-upload.js";
+ *   import { authorize, uploadVideo } from "./upload-youtube.js";
  *   await authorize();
  *   const result = await uploadVideo("video.mp4", { title: "My Video" });
  *
@@ -18,11 +18,12 @@
  */
 
 import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { readFileSync, writeFileSync, statSync, existsSync, chmodSync } from "node:fs";
+import { createReadStream, readFileSync, writeFileSync, statSync, existsSync, chmodSync } from "node:fs";
 import { homedir } from "node:os";
 import { exec } from "node:child_process";
-import { join } from "node:path";
-import { URL, URLSearchParams } from "node:url";
+import { join, resolve } from "node:path";
+import { URL, URLSearchParams, fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
 
 // ─── Configuration ──────────────────────────────────────────────────────────
 
@@ -37,6 +38,10 @@ const SCOPES = [
   "https://www.googleapis.com/auth/youtube.upload",
   "https://www.googleapis.com/auth/youtube.readonly",
 ].join(" ");
+/** YouTube category: "People & Blogs" */
+const YOUTUBE_CATEGORY_PEOPLE_BLOGS = "22";
+/** Owner read/write only — keeps OAuth tokens private */
+const TOKEN_FILE_PERMISSIONS = 0o600;
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -51,7 +56,7 @@ interface UploadOptions {
   title?: string;
   description?: string;
   privacy?: "private" | "unlisted" | "public";
-  tags?: string;
+  tags?: string[];
 }
 
 interface UploadResult {
@@ -80,7 +85,9 @@ function openBrowser(url: string): void {
       : process.platform === "win32"
         ? `start "${url}"`
         : `xdg-open "${url}"`;
-  exec(cmd, () => {}); // fire-and-forget
+  exec(cmd, (err) => {
+    if (err) console.warn("Could not open browser automatically.");
+  });
 }
 
 // ─── OAuth: capture authorization code via local HTTP server ────────────────
@@ -158,6 +165,11 @@ export async function authorize(): Promise<void> {
     }),
   });
 
+  if (!resp.ok) {
+    const body = await resp.text();
+    throw new Error(`Token exchange failed (HTTP ${resp.status}): ${body}`);
+  }
+
   const tokens: TokenResponse = await resp.json();
 
   if (!tokens.refresh_token) {
@@ -165,7 +177,7 @@ export async function authorize(): Promise<void> {
   }
 
   writeFileSync(TOKEN_FILE, JSON.stringify(tokens, null, 2));
-  chmodSync(TOKEN_FILE, 0o600);
+  chmodSync(TOKEN_FILE, TOKEN_FILE_PERMISSIONS);
 
   console.log(`\nAuth complete! Tokens saved to ${TOKEN_FILE}`);
 
@@ -181,12 +193,12 @@ async function getAccessToken(): Promise<string> {
   const { clientId, clientSecret } = getClientCredentials();
 
   if (!existsSync(TOKEN_FILE)) {
-    throw new Error("Not authenticated. Run: npx tsx youtube-upload.ts --auth");
+    throw new Error("Not authenticated. Run: npx tsx upload-youtube.ts --auth");
   }
 
   const stored: TokenResponse = JSON.parse(readFileSync(TOKEN_FILE, "utf-8"));
   if (!stored.refresh_token) {
-    throw new Error("Invalid token file. Run: npx tsx youtube-upload.ts --auth");
+    throw new Error("Invalid token file. Run: npx tsx upload-youtube.ts --auth");
   }
 
   const resp = await fetch(TOKEN_URL, {
@@ -200,6 +212,11 @@ async function getAccessToken(): Promise<string> {
     }),
   });
 
+  if (!resp.ok) {
+    const body = await resp.text();
+    throw new Error(`Token refresh failed (HTTP ${resp.status}): ${body}`);
+  }
+
   const tokens: TokenResponse = await resp.json();
 
   if (!tokens.access_token) {
@@ -211,13 +228,18 @@ async function getAccessToken(): Promise<string> {
 
 // ─── verifyChannel() — confirm which YouTube channel the tokens belong to ───
 
-export async function verifyChannel(): Promise<{ id: string; title: string; handle: string }> {
-  const token = await getAccessToken();
+export async function verifyChannel(existingToken?: string): Promise<{ id: string; title: string; handle: string }> {
+  const token = existingToken ?? await getAccessToken();
 
   const resp = await fetch(
     `${CHANNELS_URL}?part=snippet&mine=true`,
     { headers: { Authorization: `Bearer ${token}` } }
   );
+
+  if (!resp.ok) {
+    const body = await resp.text();
+    throw new Error(`Channels API request failed (HTTP ${resp.status}): ${body}`);
+  }
 
   const data = (await resp.json()) as Record<string, unknown>;
   const items = data.items as Array<Record<string, unknown>> | undefined;
@@ -253,21 +275,19 @@ export async function uploadVideo(
     options.title || filePath.replace(/^.*[\\/]/, "").replace(/\.[^.]*$/, "");
   const description = options.description || "";
   const privacy = options.privacy || "private";
-  const tags = options.tags
-    ? options.tags.split(",").map((t) => t.trim()).filter(Boolean)
-    : [];
-
-  await verifyChannel();
+  const tags = options.tags ?? [];
 
   console.log("Getting access token...");
   const token = await getAccessToken();
+
+  await verifyChannel(token);
 
   const metadata = JSON.stringify({
     snippet: {
       title,
       description,
       tags,
-      categoryId: "22",
+      categoryId: YOUTUBE_CATEGORY_PEOPLE_BLOGS,
     },
     status: {
       privacyStatus: privacy,
@@ -303,15 +323,16 @@ export async function uploadVideo(
   const fileName = filePath.replace(/^.*[\\/]/, "");
   console.log(`Uploading ${fileName} (~${sizeMb} MB)...`);
 
-  const fileBuffer = readFileSync(filePath);
+  const fileStream = createReadStream(filePath);
   const uploadResp = await fetch(uploadUri, {
     method: "PUT",
     headers: {
       "Content-Type": "video/*",
       "Content-Length": String(fileSize),
     },
-    body: fileBuffer,
-  });
+    body: fileStream,
+    duplex: "half",
+  } as RequestInit);
 
   const result = (await uploadResp.json()) as Record<string, unknown>;
   const videoId = result.id as string | undefined;
@@ -338,12 +359,12 @@ export async function uploadVideo(
 // ─── CLI ────────────────────────────────────────────────────────────────────
 
 function printHelp(): void {
-  console.log(`youtube-upload.ts — Upload videos to YouTube via the Data API v3
+  console.log(`upload-youtube.ts — Upload videos to YouTube via the Data API v3
 
 Usage:
-  npx tsx youtube-upload.ts --auth                              One-time OAuth setup
-  npx tsx youtube-upload.ts --whoami                             Check authenticated channel
-  npx tsx youtube-upload.ts <video> [options]                   Upload a video
+  npx tsx upload-youtube.ts --auth                              One-time OAuth setup
+  npx tsx upload-youtube.ts --whoami                             Check authenticated channel
+  npx tsx upload-youtube.ts <video> [options]                   Upload a video
 
 Options:
   --title "..."         Video title (defaults to filename)
@@ -359,55 +380,42 @@ Setup:
   1. Create a Google Cloud project and enable YouTube Data API v3
   2. Create OAuth 2.0 credentials (Desktop app type)
   3. Add YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET to ~/.zshrc
-  4. Run: npx tsx youtube-upload.ts --auth
+  4. Run: npx tsx upload-youtube.ts --auth
   5. Authorize in the browser (one-time)`);
 }
 
 async function cli(): Promise<void> {
-  const args = process.argv.slice(2);
+  const { values, positionals } = parseArgs({
+    args: process.argv.slice(2),
+    options: {
+      help:        { type: "boolean", short: "h", default: false },
+      auth:        { type: "boolean", default: false },
+      whoami:      { type: "boolean", default: false },
+      title:       { type: "string" },
+      description: { type: "string" },
+      privacy:     { type: "string" },
+      tags:        { type: "string" },
+    },
+    allowPositionals: true,
+    strict: true,
+  });
 
-  if (args.length === 0 || args.includes("--help") || args.includes("-h")) {
+  if (positionals.length === 0 && !values.auth && !values.whoami || values.help) {
     printHelp();
     return;
   }
 
-  if (args.includes("--auth")) {
+  if (values.auth) {
     await authorize();
     return;
   }
 
-  if (args.includes("--whoami")) {
+  if (values.whoami) {
     await verifyChannel();
     return;
   }
 
-  // Parse upload arguments
-  let file = "";
-  const opts: UploadOptions = {};
-
-  for (let i = 0; i < args.length; i++) {
-    switch (args[i]) {
-      case "--title":
-        opts.title = args[++i];
-        break;
-      case "--description":
-        opts.description = args[++i];
-        break;
-      case "--privacy":
-        opts.privacy = args[++i] as UploadOptions["privacy"];
-        break;
-      case "--tags":
-        opts.tags = args[++i];
-        break;
-      default:
-        if (!args[i].startsWith("--")) {
-          file = args[i];
-        } else {
-          console.error(`Unknown option: ${args[i]}`);
-          process.exit(1);
-        }
-    }
-  }
+  const file = positionals[0] ?? "";
 
   if (!file) {
     console.error("Error: No video file specified");
@@ -415,14 +423,19 @@ async function cli(): Promise<void> {
     process.exit(1);
   }
 
+  const opts: UploadOptions = {
+    title: values.title,
+    description: values.description,
+    privacy: values.privacy as UploadOptions["privacy"],
+    tags: values.tags?.split(",").map((t) => t.trim()).filter(Boolean),
+  };
+
   await uploadVideo(file, opts);
 }
 
 // Run CLI if executed directly (not imported as a module)
 const isDirectExecution =
-  process.argv[1] &&
-  (process.argv[1].endsWith("youtube-upload.ts") ||
-    process.argv[1].endsWith("youtube-upload.js"));
+  process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isDirectExecution) {
   cli().catch((err) => {

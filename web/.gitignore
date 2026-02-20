@@ -26,5 +26,5 @@ llms*.txt
 # Blog drafts
 _blog_drafts
 
-# Reposting output
-.claude/skills/reposting/output
+# Crossposting output
+.claude/skills/crossposting/output

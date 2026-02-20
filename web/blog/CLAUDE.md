@@ -31,8 +31,11 @@ This is the blog for Wasp.sh (batteries-included full-stack framework for React,
 2. Instruct the user to run the `/geo-fundamentals` skill on the draft to check if it is GEO-friendly.
 4. If necessary, have the user amend the proposed revisions before making further changes to the draft.
 
-### 4. Creating Social Media Content
-1. Inform the user to create social media posts (tweets, linkedin posts, etc.) for the article by running the `/social-content` skill on the blogpost's mdx file.
+### 4. Blog Crossposting
+- Invoke the `/crossposting` skill to crosspost the Wasp blog article to popular blogging platforms.
+
+### 5. Creating Social Media Content
+- Inform the user to create social media posts (tweets, linkedin posts, etc.) for the article by invoking the `/social-content` skill.
 
 
 ## Blogpost Style Guide

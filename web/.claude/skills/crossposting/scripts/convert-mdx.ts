@@ -4,38 +4,41 @@
  * MDX Converter & Publisher
  *
  * Converts a Wasp blog MDX file to clean markdown and HTML, saving both to
- * .claude/skills/reposting/output/. Optionally publishes to DEV.to via
- * the Forem API. The HTML output is used for reposting to Medium via
+ * .claude/skills/crossposting/output/. Optionally publishes to DEV.to via
+ * the Forem API. The HTML output is used for crossposting to Medium via
  * Chrome DevTools MCP (see SKILL.md).
  *
  * Usage:
- *   npx tsx mdx-to-devto.ts <path-to-mdx-file> [--publish] [--update <id>] [--upload-videos] [--dry-run]
+ *   npx tsx convert-mdx.ts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]
  *
  * Environment:
- *   DEVTO_API_KEY — required for --publish and --update
+ *   DEVTO_API_KEY — required for --publish-devto and --update-devto
  *   YOUTUBE_CLIENT_ID + YOUTUBE_CLIENT_SECRET — required for --upload-videos
  *
  * Options:
- *   --publish         POST the article as a draft to DEV.to (requires DEVTO_API_KEY)
- *   --update <id>     PUT updated content to an existing DEV.to article by ID (requires DEVTO_API_KEY)
- *   --upload-videos   Upload local .mp4 videos to YouTube and embed them as liquid tags
- *   --dry-run         Print the converted markdown to stdout (default without --publish or --update)
+ *   --publish-devto      POST the article as a draft to DEV.to (requires DEVTO_API_KEY)
+ *   --update-devto <id>  PUT updated content to an existing DEV.to article by ID (requires DEVTO_API_KEY)
+ *   --upload-videos      Upload local .mp4 videos to YouTube and embed them as liquid tags
  *
  * Output (always written):
- *   .claude/skills/reposting/output/<slug>.md   — clean markdown
- *   .claude/skills/reposting/output/<slug>.html  — same content as HTML (for Medium)
- *   .claude/skills/reposting/output/<slug>-medium-chunks.json — pre-split HTML chunks for Medium pasting
+ *   .claude/skills/crossposting/output/<slug>.md   — clean markdown
+ *   .claude/skills/crossposting/output/<slug>.html  — same content as HTML (for Medium)
+ *   .claude/skills/crossposting/output/<slug>-medium-chunks.json — pre-split HTML chunks for Medium pasting
  */
 
 import { readFileSync, existsSync, writeFileSync, mkdirSync } from "fs";
 import { basename, resolve, dirname } from "path";
+import { parseArgs } from "node:util";
 import { parse as parseYaml } from "yaml";
 import { marked } from "marked";
-import { uploadVideo } from "./youtube-upload.js";
+import { uploadVideo } from "./upload-youtube.js";
 
 // ---------------------------------------------------------------------------
 // Config
 // ---------------------------------------------------------------------------
+
+// Ensure marked.parse() returns a string synchronously (not a Promise).
+marked.use({ async: false });
 
 const WASP_BASE_URL = "https://wasp.sh";
 const DISCORD_URL = "https://discord.gg/rzdnErX";
@@ -47,6 +50,24 @@ const MAX_TAGS = 4;
 
 // DEV.to organization ID for Wasp (https://dev.to/wasp)
 const WASP_ORG_ID = 3369;
+
+// ---------------------------------------------------------------------------
+// Shared regex patterns (source strings — use createVideoWithCaptionRegex() /
+// createReactPlayerRegex() to get a fresh stateful RegExp with the `g` flag)
+// ---------------------------------------------------------------------------
+
+const VIDEO_WITH_CAPTION_PATTERN = /<VideoWithCaption\s+([\s\S]*?)\/>/g;
+const REACT_PLAYER_PATTERN = /<ReactPlayer[\s\S]*?url=["']([^"']+)["'][\s\S]*?\/>/g;
+
+/** Create a fresh global RegExp for matching <VideoWithCaption> tags */
+function createVideoWithCaptionRegex(): RegExp {
+  return new RegExp(VIDEO_WITH_CAPTION_PATTERN.source, VIDEO_WITH_CAPTION_PATTERN.flags);
+}
+
+/** Create a fresh global RegExp for matching <ReactPlayer> tags */
+function createReactPlayerRegex(): RegExp {
+  return new RegExp(REACT_PLAYER_PATTERN.source, REACT_PLAYER_PATTERN.flags);
+}
 
 // ---------------------------------------------------------------------------
 // Types
@@ -88,38 +109,38 @@ interface ConversionResult {
 // CLI argument parsing
 // ---------------------------------------------------------------------------
 
-function parseArgs(argv: string[]) {
-  const args = argv.slice(2);
-  let filePath = "";
-  let publish = false;
-  let dryRun = false;
-  let updateId = "";
-  let uploadVideos = false;
+function parseCli(argv: string[]) {
+  const { values, positionals } = parseArgs({
+    args: argv.slice(2),
+    options: {
+      "publish-devto":  { type: "boolean", default: false },
+      "upload-videos":  { type: "boolean", default: false },
+      "update-devto":   { type: "string",  default: "" },
+    },
+    allowPositionals: true,
+  });
 
-  for (let i = 0; i < args.length; i++) {
-    const arg = args[i];
-    if (arg === "--publish") publish = true;
-    else if (arg === "--dry-run") dryRun = true;
-    else if (arg === "--upload-videos") uploadVideos = true;
-    else if (arg === "--update") {
-      updateId = args[++i] || "";
-      if (!updateId) {
-        console.error("Error: --update requires an article ID");
-        process.exit(1);
-      }
-    } else if (!arg.startsWith("--")) {
-      filePath = arg;
-    }
-  }
+  const filePath = positionals[0] ?? "";
 
   if (!filePath) {
     console.error(
-      "Usage: npx tsx mdx-to-devto.ts <path-to-mdx-file> [--publish] [--update <id>] [--upload-videos] [--dry-run]"
+      "Usage: npx tsx convert-mdx.ts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]"
     );
     process.exit(1);
   }
 
-  return { filePath, publish, dryRun, updateId, uploadVideos };
+  const updateDevtoId = (values["update-devto"] as string) ?? "";
+  if (updateDevtoId && updateDevtoId.startsWith("-")) {
+    console.error("Error: --update-devto requires an article ID");
+    process.exit(1);
+  }
+
+  return {
+    filePath,
+    publishDevto: values["publish-devto"] as boolean,
+    updateDevtoId,
+    uploadVideos: values["upload-videos"] as boolean,
+  };
 }
 
 // ---------------------------------------------------------------------------
@@ -181,7 +202,7 @@ function convertImgWithCaption(md: string): string {
 function convertVideoWithCaption(videoMap?: Map<string, string>): MdConverter {
   return (md: string) =>
     md.replace(
-      /<VideoWithCaption\s+([\s\S]*?)\/>/g,
+      createVideoWithCaptionRegex(),
       (_match, attrs: string) => {
         const source = extractAttr(attrs, "source") || "";
         const alt = extractAttr(attrs, "alt") || "";
@@ -211,7 +232,7 @@ function stripSimpleComponents(md: string): string {
 function convertReactPlayer(videoMap?: Map<string, string>): MdConverter {
   return (md: string) =>
     md.replace(
-      /<ReactPlayer[\s\S]*?url=["']([^"']+)["'][\s\S]*?\/>/g,
+      createReactPlayerRegex(),
       (_match, url: string) => {
         const ytId = videoMap?.get(url);
         if (ytId) {
@@ -227,12 +248,8 @@ function stripTocInline(md: string): string {
 }
 
 function convertYouTubeIframes(md: string): string {
-  md = md.replace(
-    /<(?:div[^>]*>\s*)?<iframe[\s\S]*?src=["']https?:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_-]+)[^"']*["'][\s\S]*?(?:<\/iframe>|\/?>)\s*(?:<\/div>)?/g,
-    (_match, videoId: string) => `{% youtube https://youtu.be/${videoId} %}`
-  );
   return md.replace(
-    /<iframe[\s\S]*?src=["']https?:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_-]+)[^"']*["'][\s\S]*?(?:<\/iframe>|\/?>)/g,
+    /(?:<div[^>]*>\s*)?<iframe[\s\S]*?src=["']https?:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_-]+)[^"']*["'][\s\S]*?(?:<\/iframe>\s*<\/iframe>|<\/iframe>|\/?>)\s*(?:<\/div>)?/g,
     (_match, videoId: string) => `{% youtube https://youtu.be/${videoId} %}`
   );
 }
@@ -267,24 +284,15 @@ function convertAdmonitions(md: string): string {
 }
 
 function convertImgTags(md: string): string {
-  // JSX src={useBaseUrl('...')}
-  md = md.replace(
-    /<img[^>]*alt=["']([^"']*)["'][^>]*src=\{useBaseUrl\(['"]([^'"]+)['"]\)\}[^>]*\/?>/g,
-    (_match, alt: string, src: string) =>
-      `![${alt}](${makeAbsoluteUrl(src, WASP_BASE_URL)})`
-  );
-  // Regular src="..." (alt before src)
-  md = md.replace(
-    /<img[^>]*alt=["']([^"']*)["'][^>]*src=["']([^"']+)["'][^>]*\/?>/g,
-    (_match, alt: string, src: string) =>
-      `![${alt}](${makeAbsoluteUrl(src, WASP_BASE_URL)})`
-  );
-  // src before alt
-  return md.replace(
-    /<img[^>]*src=["']([^"']+)["'][^>]*alt=["']([^"']*)["'][^>]*\/?>/g,
-    (_match, src: string, alt: string) =>
-      `![${alt}](${makeAbsoluteUrl(src, WASP_BASE_URL)})`
-  );
+  return md.replace(/<img([^>]*)\/?>/g, (_match, attrs: string) => {
+    let src = extractAttr(attrs, "src");
+    // Handle JSX useBaseUrl pattern
+    const useBaseUrlMatch = attrs.match(/src=\{useBaseUrl\(['"]([^'"]+)['"]\)\}/);
+    if (useBaseUrlMatch) src = useBaseUrlMatch[1];
+    const alt = extractAttr(attrs, "alt") || "";
+    if (!src) return _match; // leave unchanged if no src found
+    return `![${alt}](${makeAbsoluteUrl(src, WASP_BASE_URL)})`;
+  });
 }
 
 function convertFigures(md: string): string {
@@ -435,7 +443,7 @@ function stripImportsOutsideCodeFences(md: string): string {
 /** Strip Docusaurus-specific code fence metadata (title=, ref=, auto-js) */
 function stripCodeFenceMeta(md: string): string {
   return md.replace(
-    /^(```\w+)\s+(?:title=["'][^"']*["']|ref=["'][^"']*["']|auto-js)[\s]*/gm,
+    /^(```\w+)(?:\s+(?:title=["'][^"']*["']|ref=["'][^"']*["']|auto-js))+\s*/gm,
     "$1\n"
   );
 }
@@ -472,7 +480,7 @@ function collectVideoSources(body: string): Array<{ source: string; title: strin
   const seen = new Set<string>();
 
   // Collect from <VideoWithCaption>
-  const vwcRegex = /<VideoWithCaption\s+([\s\S]*?)\/>/g;
+  const vwcRegex = createVideoWithCaptionRegex();
   let match;
   while ((match = vwcRegex.exec(body)) !== null) {
     const source = extractAttr(match[1], "source") || "";
@@ -484,7 +492,7 @@ function collectVideoSources(body: string): Array<{ source: string; title: strin
   }
 
   // Collect from <ReactPlayer>
-  const rpRegex = /<ReactPlayer[\s\S]*?url=["']([^"']+)["'][\s\S]*?\/>/g;
+  const rpRegex = createReactPlayerRegex();
   while ((match = rpRegex.exec(body)) !== null) {
     const source = match[1];
     if (source && source.endsWith(".mp4") && !seen.has(source)) {
@@ -599,25 +607,20 @@ function postProcessHtmlForMedium(html: string): string {
   return html;
 }
 
-/** Save clean markdown and HTML versions of the converted article */
-function saveOutputFiles(
-  slug: string,
+/** Write the clean markdown file and return its path */
+function saveMarkdownFile(outputDir: string, slug: string, markdown: string): string {
+  const mdPath = resolve(outputDir, `${slug}.md`);
+  writeFileSync(mdPath, markdown, "utf-8");
+  return mdPath;
+}
+
+/** Convert markdown to HTML, apply Medium post-processing, and wrap in a full document */
+function convertToHtml(
   markdown: string,
   title: string,
   canonicalUrl: string
-): { mdPath: string; htmlPath: string; chunksPath: string } {
-  const outputDir = getOutputDir();
-  mkdirSync(outputDir, { recursive: true });
-
-  const mdPath = resolve(outputDir, `${slug}.md`);
-  const htmlPath = resolve(outputDir, `${slug}.html`);
-  const chunksPath = resolve(outputDir, `${slug}-medium-chunks.json`);
-
-  // Save clean markdown
-  writeFileSync(mdPath, markdown, "utf-8");
-
-  // Convert markdown to HTML via marked, post-process for Medium, and save
-  const rawHtml = marked.parse(markdown) as string;
+): { fullHtml: string; bodyHtml: string } {
+  const rawHtml = marked.parse(markdown);
   const bodyHtml = postProcessHtmlForMedium(rawHtml);
   const fullHtml = `<!DOCTYPE html>
 <html>
@@ -630,10 +633,49 @@ function saveOutputFiles(
 ${bodyHtml}
 </body>
 </html>`;
-  writeFileSync(htmlPath, fullHtml, "utf-8");
+  return { fullHtml, bodyHtml };
+}
 
-  // Split bodyHtml into chunks at <h2> boundaries and save as JSON for Medium pasting
-  const chunks = bodyHtml
+/** Write the full HTML file and return its path */
+function saveHtmlFile(outputDir: string, slug: string, html: string): string {
+  const htmlPath = resolve(outputDir, `${slug}.html`);
+  writeFileSync(htmlPath, html, "utf-8");
+  return htmlPath;
+}
+
+/** Post-process HTML specifically for Medium chunks (videos → URLs, images → placeholders) */
+function postProcessChunksForMedium(html: string): string {
+  // Convert YouTube liquid tags (marked wraps URLs in <a> tags) to standalone URLs
+  // that Medium auto-embeds. Handle both <a>-wrapped and plain patterns.
+  html = html.replace(
+    /{% youtube <a href="(https:\/\/youtu\.be\/[a-zA-Z0-9_-]+)">[^<]*<\/a> %}/g,
+    "</p><p>$1</p><p>"
+  );
+  html = html.replace(
+    /{% youtube (https:\/\/youtu\.be\/[a-zA-Z0-9_-]+) %}/g,
+    "</p><p>$1</p><p>"
+  );
+
+  // Replace images with placeholder markers for manual upload in Medium's editor.
+  // Medium doesn't support webp; images must be uploaded by hand.
+  html = html.replace(
+    /<img src="[^"]*\/([^/"]+)\.\w+" alt="([^"]*)">/g,
+    "<em>[IMAGE: $1.jpg] $2</em>"
+  );
+
+  return html;
+}
+
+/** Split body HTML into chunks for Medium pasting, escape template literals, and write as JSON */
+function saveMediumChunks(
+  outputDir: string,
+  slug: string,
+  bodyHtml: string,
+  title: string
+): string {
+  const chunksPath = resolve(outputDir, `${slug}-medium-chunks.json`);
+  const mediumHtml = postProcessChunksForMedium(bodyHtml);
+  const chunks = mediumHtml
     .split(/(?=<p><br><\/p>\n<h[2-6])/)
     .map((chunk) => chunk.replace(/`/g, "\\`").replace(/\$\{/g, "\\${"));
   writeFileSync(
@@ -641,6 +683,23 @@ ${bodyHtml}
     JSON.stringify({ title, chunks }, null, 2),
     "utf-8"
   );
+  return chunksPath;
+}
+
+/** Save clean markdown and HTML versions of the converted article */
+function saveOutputFiles(
+  slug: string,
+  markdown: string,
+  title: string,
+  canonicalUrl: string
+): { mdPath: string; htmlPath: string; chunksPath: string } {
+  const outputDir = getOutputDir();
+  mkdirSync(outputDir, { recursive: true });
+
+  const mdPath = saveMarkdownFile(outputDir, slug, markdown);
+  const { fullHtml, bodyHtml } = convertToHtml(markdown, title, canonicalUrl);
+  const htmlPath = saveHtmlFile(outputDir, slug, fullHtml);
+  const chunksPath = saveMediumChunks(outputDir, slug, bodyHtml, title);
 
   return { mdPath, htmlPath, chunksPath };
 }
@@ -650,7 +709,7 @@ ${bodyHtml}
 // ---------------------------------------------------------------------------
 
 async function main() {
-  const { filePath, publish, updateId, uploadVideos } = parseArgs(process.argv);
+  const { filePath, publishDevto, updateDevtoId, uploadVideos } = parseCli(process.argv);
 
   // Read and parse the MDX file
   const raw = readFileSync(filePath, "utf-8");
@@ -681,7 +740,7 @@ async function main() {
   console.log(`  HTML:     ${htmlPath}`);
   console.log(`  Chunks:   ${chunksPath}`);
 
-  if (!publish && !updateId) {
+  if (!publishDevto && !updateDevtoId) {
     // Dry-run: also print the converted markdown to stdout
     console.log("\n--- CONVERTED MARKDOWN ---\n");
     console.log(result.markdown);
@@ -702,7 +761,7 @@ async function main() {
   const apiKey = process.env.DEVTO_API_KEY;
   if (!apiKey) {
     console.error(
-      "Error: DEVTO_API_KEY environment variable is required for --publish and --update"
+      "Error: DEVTO_API_KEY environment variable is required for --publish-devto and --update-devto"
     );
     process.exit(1);
   }
@@ -722,7 +781,7 @@ async function main() {
     },
   };
 
-  await sendToDevTo(article, apiKey, updateId || undefined);
+  await sendToDevTo(article, apiKey, updateDevtoId || undefined);
 }
 
 main().catch((err) => {
