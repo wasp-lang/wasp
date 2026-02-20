@@ -17,10 +17,21 @@
  *   YOUTUBE_CLIENT_SECRET — OAuth 2.0 client secret from Google Cloud Console
  */
 
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
-import { createReadStream, readFileSync, writeFileSync, statSync, existsSync, chmodSync } from "node:fs";
-import { homedir } from "node:os";
 import { exec } from "node:child_process";
+import {
+  chmodSync,
+  createReadStream,
+  existsSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from "node:fs";
+import {
+  createServer,
+  type IncomingMessage,
+  type ServerResponse,
+} from "node:http";
+import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { URL, URLSearchParams, fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
@@ -72,7 +83,7 @@ function getClientCredentials(): { clientId: string; clientSecret: string } {
   const clientSecret = process.env.YOUTUBE_CLIENT_SECRET;
   if (!clientId || !clientSecret) {
     throw new Error(
-      "YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET must be set in environment"
+      "YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET must be set in environment",
     );
   }
   return { clientId, clientSecret };
@@ -198,7 +209,9 @@ async function getAccessToken(): Promise<string> {
 
   const stored: TokenResponse = JSON.parse(readFileSync(TOKEN_FILE, "utf-8"));
   if (!stored.refresh_token) {
-    throw new Error("Invalid token file. Run: npx tsx upload-youtube.ts --auth");
+    throw new Error(
+      "Invalid token file. Run: npx tsx upload-youtube.ts --auth",
+    );
   }
 
   const resp = await fetch(TOKEN_URL, {
@@ -228,24 +241,29 @@ async function getAccessToken(): Promise<string> {
 
 // ─── verifyChannel() — confirm which YouTube channel the tokens belong to ───
 
-export async function verifyChannel(existingToken?: string): Promise<{ id: string; title: string; handle: string }> {
-  const token = existingToken ?? await getAccessToken();
+export async function verifyChannel(
+  existingToken?: string,
+): Promise<{ id: string; title: string; handle: string }> {
+  const token = existingToken ?? (await getAccessToken());
 
-  const resp = await fetch(
-    `${CHANNELS_URL}?part=snippet&mine=true`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const resp = await fetch(`${CHANNELS_URL}?part=snippet&mine=true`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
   if (!resp.ok) {
     const body = await resp.text();
-    throw new Error(`Channels API request failed (HTTP ${resp.status}): ${body}`);
+    throw new Error(
+      `Channels API request failed (HTTP ${resp.status}): ${body}`,
+    );
   }
 
   const data = (await resp.json()) as Record<string, unknown>;
   const items = data.items as Array<Record<string, unknown>> | undefined;
 
   if (!items || items.length === 0) {
-    throw new Error("No YouTube channel found for this account. Did you select the right channel during --auth?");
+    throw new Error(
+      "No YouTube channel found for this account. Did you select the right channel during --auth?",
+    );
   }
 
   const channel = items[0];
@@ -257,7 +275,9 @@ export async function verifyChannel(existingToken?: string): Promise<{ id: strin
     handle: (snippet.customUrl as string) || "",
   };
 
-  console.log(`Authenticated channel: ${info.title} (${info.handle || info.id})`);
+  console.log(
+    `Authenticated channel: ${info.title} (${info.handle || info.id})`,
+  );
   return info;
 }
 
@@ -265,7 +285,7 @@ export async function verifyChannel(existingToken?: string): Promise<{ id: strin
 
 export async function uploadVideo(
   filePath: string,
-  options: UploadOptions = {}
+  options: UploadOptions = {},
 ): Promise<UploadResult> {
   if (!existsSync(filePath)) {
     throw new Error(`File not found: ${filePath}`);
@@ -309,7 +329,7 @@ export async function uploadVideo(
         "X-Upload-Content-Length": String(fileSize),
       },
       body: metadata,
-    }
+    },
   );
 
   const uploadUri = initResp.headers.get("location");
@@ -338,7 +358,9 @@ export async function uploadVideo(
   const videoId = result.id as string | undefined;
 
   if (!videoId) {
-    throw new Error(`Upload may have failed. Response: ${JSON.stringify(result)}`);
+    throw new Error(
+      `Upload may have failed. Response: ${JSON.stringify(result)}`,
+    );
   }
 
   const uploadResult: UploadResult = {
@@ -388,19 +410,22 @@ async function cli(): Promise<void> {
   const { values, positionals } = parseArgs({
     args: process.argv.slice(2),
     options: {
-      help:        { type: "boolean", short: "h", default: false },
-      auth:        { type: "boolean", default: false },
-      whoami:      { type: "boolean", default: false },
-      title:       { type: "string" },
+      help: { type: "boolean", short: "h", default: false },
+      auth: { type: "boolean", default: false },
+      whoami: { type: "boolean", default: false },
+      title: { type: "string" },
       description: { type: "string" },
-      privacy:     { type: "string" },
-      tags:        { type: "string" },
+      privacy: { type: "string" },
+      tags: { type: "string" },
     },
     allowPositionals: true,
     strict: true,
   });
 
-  if (positionals.length === 0 && !values.auth && !values.whoami || values.help) {
+  if (
+    (positionals.length === 0 && !values.auth && !values.whoami) ||
+    values.help
+  ) {
     printHelp();
     return;
   }
@@ -427,7 +452,10 @@ async function cli(): Promise<void> {
     title: values.title,
     description: values.description,
     privacy: values.privacy as UploadOptions["privacy"],
-    tags: values.tags?.split(",").map((t) => t.trim()).filter(Boolean),
+    tags: values.tags
+      ?.split(",")
+      .map((t) => t.trim())
+      .filter(Boolean),
   };
 
   await uploadVideo(file, opts);
@@ -435,7 +463,8 @@ async function cli(): Promise<void> {
 
 // Run CLI if executed directly (not imported as a module)
 const isDirectExecution =
-  process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+  process.argv[1] &&
+  resolve(process.argv[1]) === fileURLToPath(import.meta.url);
 
 if (isDirectExecution) {
   cli().catch((err) => {

@@ -26,11 +26,11 @@
  *   .claude/skills/crossposting/output/<slug>-medium-chunks.json — pre-split HTML chunks for Medium pasting
  */
 
-import { readFileSync, existsSync, writeFileSync, mkdirSync } from "fs";
-import { basename, resolve, dirname } from "path";
-import { parseArgs } from "node:util";
-import { parse as parseYaml } from "yaml";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "fs";
 import { marked } from "marked";
+import { parseArgs } from "node:util";
+import { basename, dirname, resolve } from "path";
+import { parse as parseYaml } from "yaml";
 import { uploadVideo } from "./upload-youtube.js";
 
 // ---------------------------------------------------------------------------
@@ -57,11 +57,15 @@ const WASP_ORG_ID = 3369;
 // ---------------------------------------------------------------------------
 
 const VIDEO_WITH_CAPTION_PATTERN = /<VideoWithCaption\s+([\s\S]*?)\/>/g;
-const REACT_PLAYER_PATTERN = /<ReactPlayer[\s\S]*?url=["']([^"']+)["'][\s\S]*?\/>/g;
+const REACT_PLAYER_PATTERN =
+  /<ReactPlayer[\s\S]*?url=["']([^"']+)["'][\s\S]*?\/>/g;
 
 /** Create a fresh global RegExp for matching <VideoWithCaption> tags */
 function createVideoWithCaptionRegex(): RegExp {
-  return new RegExp(VIDEO_WITH_CAPTION_PATTERN.source, VIDEO_WITH_CAPTION_PATTERN.flags);
+  return new RegExp(
+    VIDEO_WITH_CAPTION_PATTERN.source,
+    VIDEO_WITH_CAPTION_PATTERN.flags,
+  );
 }
 
 /** Create a fresh global RegExp for matching <ReactPlayer> tags */
@@ -113,9 +117,9 @@ function parseCli(argv: string[]) {
   const { values, positionals } = parseArgs({
     args: argv.slice(2),
     options: {
-      "publish-devto":  { type: "boolean", default: false },
-      "upload-videos":  { type: "boolean", default: false },
-      "update-devto":   { type: "string",  default: "" },
+      "publish-devto": { type: "boolean", default: false },
+      "upload-videos": { type: "boolean", default: false },
+      "update-devto": { type: "string", default: "" },
     },
     allowPositionals: true,
   });
@@ -124,7 +128,7 @@ function parseCli(argv: string[]) {
 
   if (!filePath) {
     console.error(
-      "Usage: npx tsx convert-mdx.ts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]"
+      "Usage: npx tsx convert-mdx.ts <path-to-mdx-file> [--publish-devto] [--update-devto <id>] [--upload-videos]",
     );
     process.exit(1);
   }
@@ -195,31 +199,28 @@ function convertImgWithCaption(md: string): string {
       let result = `![${alt}](${url})`;
       if (caption) result += `\n*${stripMarkdownFromCaption(caption)}*`;
       return result;
-    }
+    },
   );
 }
 
 function convertVideoWithCaption(videoMap?: Map<string, string>): MdConverter {
   return (md: string) =>
-    md.replace(
-      createVideoWithCaptionRegex(),
-      (_match, attrs: string) => {
-        const source = extractAttr(attrs, "source") || "";
-        const alt = extractAttr(attrs, "alt") || "";
-        const caption = extractAttr(attrs, "caption") || "";
+    md.replace(createVideoWithCaptionRegex(), (_match, attrs: string) => {
+      const source = extractAttr(attrs, "source") || "";
+      const alt = extractAttr(attrs, "alt") || "";
+      const caption = extractAttr(attrs, "caption") || "";
 
-        const ytId = videoMap?.get(source);
-        if (ytId) {
-          let result = `{% youtube https://youtu.be/${ytId} %}`;
-          if (caption) result += `\n*${stripMarkdownFromCaption(caption)}*`;
-          return result;
-        }
-
-        const url = makeAbsoluteUrl(source, WASP_BASE_URL);
-        const label = caption || alt || "Video";
-        return `[${label}](${url})`;
+      const ytId = videoMap?.get(source);
+      if (ytId) {
+        let result = `{% youtube https://youtu.be/${ytId} %}`;
+        if (caption) result += `\n*${stripMarkdownFromCaption(caption)}*`;
+        return result;
       }
-    );
+
+      const url = makeAbsoluteUrl(source, WASP_BASE_URL);
+      const label = caption || alt || "Video";
+      return `[${label}](${url})`;
+    });
 }
 
 function stripSimpleComponents(md: string): string {
@@ -231,16 +232,13 @@ function stripSimpleComponents(md: string): string {
 
 function convertReactPlayer(videoMap?: Map<string, string>): MdConverter {
   return (md: string) =>
-    md.replace(
-      createReactPlayerRegex(),
-      (_match, url: string) => {
-        const ytId = videoMap?.get(url);
-        if (ytId) {
-          return `{% youtube https://youtu.be/${ytId} %}`;
-        }
-        return `[Video](${makeAbsoluteUrl(url, WASP_BASE_URL)})`;
+    md.replace(createReactPlayerRegex(), (_match, url: string) => {
+      const ytId = videoMap?.get(url);
+      if (ytId) {
+        return `{% youtube https://youtu.be/${ytId} %}`;
       }
-    );
+      return `[Video](${makeAbsoluteUrl(url, WASP_BASE_URL)})`;
+    });
 }
 
 function stripTocInline(md: string): string {
@@ -250,24 +248,21 @@ function stripTocInline(md: string): string {
 function convertYouTubeIframes(md: string): string {
   return md.replace(
     /(?:<div[^>]*>\s*)?<iframe[\s\S]*?src=["']https?:\/\/www\.youtube\.com\/embed\/([a-zA-Z0-9_-]+)[^"']*["'][\s\S]*?(?:<\/iframe>\s*<\/iframe>|<\/iframe>|\/?>)\s*(?:<\/div>)?/g,
-    (_match, videoId: string) => `{% youtube https://youtu.be/${videoId} %}`
+    (_match, videoId: string) => `{% youtube https://youtu.be/${videoId} %}`,
   );
 }
 
 function convertTabsToBlocks(md: string): string {
-  return md.replace(
-    /<Tabs>\s*([\s\S]*?)<\/Tabs>/g,
-    (_match, inner: string) => {
-      const items: string[] = [];
-      const tabRegex =
-        /<TabItem[^>]*label=["']([^"']+)["'][^>]*>([\s\S]*?)<\/TabItem>/g;
-      let tabMatch;
-      while ((tabMatch = tabRegex.exec(inner)) !== null) {
-        items.push(`**${tabMatch[1]}**\n\n${tabMatch[2].trim()}`);
-      }
-      return items.join("\n\n---\n\n");
+  return md.replace(/<Tabs>\s*([\s\S]*?)<\/Tabs>/g, (_match, inner: string) => {
+    const items: string[] = [];
+    const tabRegex =
+      /<TabItem[^>]*label=["']([^"']+)["'][^>]*>([\s\S]*?)<\/TabItem>/g;
+    let tabMatch;
+    while ((tabMatch = tabRegex.exec(inner)) !== null) {
+      items.push(`**${tabMatch[1]}**\n\n${tabMatch[2].trim()}`);
     }
-  );
+    return items.join("\n\n---\n\n");
+  });
 }
 
 function convertAdmonitions(md: string): string {
@@ -279,7 +274,7 @@ function convertAdmonitions(md: string): string {
       const prefix = title ? `**${label}: ${title}**` : `**${label}**`;
       const lines = content.trim().split("\n");
       return `> ${prefix}\n> \n${lines.map((l) => `> ${l}`).join("\n")}`;
-    }
+    },
   );
 }
 
@@ -287,7 +282,9 @@ function convertImgTags(md: string): string {
   return md.replace(/<img([^>]*)\/?>/g, (_match, attrs: string) => {
     let src = extractAttr(attrs, "src");
     // Handle JSX useBaseUrl pattern
-    const useBaseUrlMatch = attrs.match(/src=\{useBaseUrl\(['"]([^'"]+)['"]\)\}/);
+    const useBaseUrlMatch = attrs.match(
+      /src=\{useBaseUrl\(['"]([^'"]+)['"]\)\}/,
+    );
     if (useBaseUrlMatch) src = useBaseUrlMatch[1];
     const alt = extractAttr(attrs, "alt") || "";
     if (!src) return _match; // leave unchanged if no src found
@@ -301,7 +298,7 @@ function convertFigures(md: string): string {
     (_match, inner: string) => {
       let result = inner;
       const captionMatch = result.match(
-        /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/
+        /<figcaption[^>]*>([\s\S]*?)<\/figcaption>/,
       );
       result = result.replace(/<figcaption[^>]*>[\s\S]*?<\/figcaption>/, "");
       result = result.trim();
@@ -309,7 +306,7 @@ function convertFigures(md: string): string {
         result += `\n*${captionMatch[1].trim()}*`;
       }
       return result;
-    }
+    },
   );
 }
 
@@ -318,13 +315,13 @@ function convertLinks(md: string): string {
   md = md.replace(
     /<Link\s+to=\{useBaseUrl\(['"]([^'"]+)['"]\)\}>([\s\S]*?)<\/Link>/g,
     (_match, url: string, text: string) =>
-      `[${text.trim()}](${makeAbsoluteUrl(url, WASP_BASE_URL)})`
+      `[${text.trim()}](${makeAbsoluteUrl(url, WASP_BASE_URL)})`,
   );
   // <Link to="...">text</Link> and <Link to={'...'}>text</Link>
   return md.replace(
     /<Link\s+to=(?:["']|{'")([^"'}]+)(?:["']|"'})[^>]*>([\s\S]*?)<\/Link>/g,
     (_match, url: string, text: string) =>
-      `[${text.trim()}](${makeAbsoluteUrl(url, WASP_BASE_URL)})`
+      `[${text.trim()}](${makeAbsoluteUrl(url, WASP_BASE_URL)})`,
   );
 }
 
@@ -337,20 +334,20 @@ function convertAnchorTags(md: string): string {
         return trimmed;
       }
       return `[${trimmed}](${url})`;
-    }
+    },
   );
 }
 
 function stripWrapperHtml(md: string): string {
   md = md.replace(
     /<div\s+(?:className|style)=[^>]+>\s*([\s\S]*?)<\/div>/g,
-    (_match, inner: string) => inner.trim()
+    (_match, inner: string) => inner.trim(),
   );
   md = md.replace(/<div\s[^>]*><\/div>/g, "");
   md = md.replace(/<div\s[^>]*\/>/g, "");
   md = md.replace(
     /<p\s+align=["'][^"']+["']\s*>\s*([\s\S]*?)<\/p>/g,
-    (_match, inner: string) => inner.trim()
+    (_match, inner: string) => inner.trim(),
   );
   return md.replace(/<br\s*\/?>/g, "\n");
 }
@@ -364,7 +361,10 @@ function normalizeWhitespace(md: string): string {
 // MDX → Markdown conversion
 // ---------------------------------------------------------------------------
 
-function convertMdxToMarkdown(body: string, videoMap?: Map<string, string>): string {
+function convertMdxToMarkdown(
+  body: string,
+  videoMap?: Map<string, string>,
+): string {
   const pipeline: MdConverter[] = [
     stripImportsOutsideCodeFences,
     stripMdxComments,
@@ -429,10 +429,7 @@ function stripImportsOutsideCodeFences(md: string): string {
     if (line.trimStart().startsWith("```")) {
       insideCodeFence = !insideCodeFence;
     }
-    if (
-      !insideCodeFence &&
-      /^\s*import\s+.+\s+from\s+['"]/.test(line)
-    ) {
+    if (!insideCodeFence && /^\s*import\s+.+\s+from\s+['"]/.test(line)) {
       continue; // skip this import line
     }
     result.push(line);
@@ -444,7 +441,7 @@ function stripImportsOutsideCodeFences(md: string): string {
 function stripCodeFenceMeta(md: string): string {
   return md.replace(
     /^(```\w+)(?:\s+(?:title=["'][^"']*["']|ref=["'][^"']*["']|auto-js))+\s*/gm,
-    "$1\n"
+    "$1\n",
   );
 }
 
@@ -462,20 +459,26 @@ function sanitizeTags(tags: string[]): string {
 
 /** Resolve a local video source path (e.g. /img/foo/demo.mp4) to a file on disk */
 function resolveVideoPath(source: string): string | null {
-  if (source.startsWith("http://") || source.startsWith("https://")) return null;
+  if (source.startsWith("http://") || source.startsWith("https://"))
+    return null;
   const localPath = source.startsWith("/") ? source.slice(1) : source;
   const fullPath = resolve("static", localPath);
   return existsSync(fullPath) ? fullPath : null;
 }
 
 /** Upload a single video to YouTube and return the video ID */
-async function uploadSingleVideo(videoPath: string, title: string): Promise<string> {
+async function uploadSingleVideo(
+  videoPath: string,
+  title: string,
+): Promise<string> {
   const result = await uploadVideo(videoPath, { title, privacy: "unlisted" });
   return result.videoId;
 }
 
 /** Scan MDX body for local .mp4 video references and return deduplicated source/title pairs */
-function collectVideoSources(body: string): Array<{ source: string; title: string }> {
+function collectVideoSources(
+  body: string,
+): Array<{ source: string; title: string }> {
   const results: Array<{ source: string; title: string }> = [];
   const seen = new Set<string>();
 
@@ -486,7 +489,8 @@ function collectVideoSources(body: string): Array<{ source: string; title: strin
     const source = extractAttr(match[1], "source") || "";
     if (source && source.endsWith(".mp4") && !seen.has(source)) {
       seen.add(source);
-      const title = extractAttr(match[1], "alt") || extractAttr(match[1], "caption") || "";
+      const title =
+        extractAttr(match[1], "alt") || extractAttr(match[1], "caption") || "";
       results.push({ source, title });
     }
   }
@@ -507,7 +511,7 @@ function collectVideoSources(body: string): Array<{ source: string; title: strin
 /** Upload local .mp4 videos to YouTube, return source→videoId map */
 async function uploadLocalVideos(
   body: string,
-  postTitle: string
+  postTitle: string,
 ): Promise<Map<string, string>> {
   const videoMap = new Map<string, string>();
   const sources = collectVideoSources(body);
@@ -542,7 +546,7 @@ async function uploadLocalVideos(
 async function sendToDevTo(
   article: DevToArticle,
   apiKey: string,
-  articleId?: string
+  articleId?: string,
 ): Promise<void> {
   const url = articleId
     ? `https://dev.to/api/articles/${articleId}`
@@ -569,7 +573,9 @@ async function sendToDevTo(
   console.log(`  Status: ${data.published ? "PUBLISHED" : "DRAFT"}`);
   if (!data.published) {
     console.log(`  Dashboard: https://dev.to/dashboard`);
-    console.log(`  Note: Draft preview URLs are only available from the DEV.to dashboard.`);
+    console.log(
+      `  Note: Draft preview URLs are only available from the DEV.to dashboard.`,
+    );
   } else {
     console.log(`  URL: ${data.url}`);
   }
@@ -595,20 +601,21 @@ function postProcessHtmlForMedium(html: string): string {
   // Convert DEV.to YouTube liquid tags to standalone URLs that Medium auto-embeds
   html = html.replace(
     /<p>\s*{% youtube (https:\/\/youtu\.be\/[a-zA-Z0-9_-]+) %}\s*<\/p>/g,
-    "<p>$1</p>"
+    "<p>$1</p>",
   );
 
   // Add spacer paragraphs before headings to prevent merging when pasting in chunks
-  html = html.replace(
-    /(<h[2-6][^>]*>)/g,
-    "<p><br></p>\n$1"
-  );
+  html = html.replace(/(<h[2-6][^>]*>)/g, "<p><br></p>\n$1");
 
   return html;
 }
 
 /** Write the clean markdown file and return its path */
-function saveMarkdownFile(outputDir: string, slug: string, markdown: string): string {
+function saveMarkdownFile(
+  outputDir: string,
+  slug: string,
+  markdown: string,
+): string {
   const mdPath = resolve(outputDir, `${slug}.md`);
   writeFileSync(mdPath, markdown, "utf-8");
   return mdPath;
@@ -618,7 +625,7 @@ function saveMarkdownFile(outputDir: string, slug: string, markdown: string): st
 function convertToHtml(
   markdown: string,
   title: string,
-  canonicalUrl: string
+  canonicalUrl: string,
 ): { fullHtml: string; bodyHtml: string } {
   const rawHtml = marked.parse(markdown);
   const bodyHtml = postProcessHtmlForMedium(rawHtml);
@@ -649,18 +656,18 @@ function postProcessChunksForMedium(html: string): string {
   // that Medium auto-embeds. Handle both <a>-wrapped and plain patterns.
   html = html.replace(
     /{% youtube <a href="(https:\/\/youtu\.be\/[a-zA-Z0-9_-]+)">[^<]*<\/a> %}/g,
-    "</p><p>$1</p><p>"
+    "</p><p>$1</p><p>",
   );
   html = html.replace(
     /{% youtube (https:\/\/youtu\.be\/[a-zA-Z0-9_-]+) %}/g,
-    "</p><p>$1</p><p>"
+    "</p><p>$1</p><p>",
   );
 
   // Replace images with placeholder markers for manual upload in Medium's editor.
   // Medium doesn't support webp; images must be uploaded by hand.
   html = html.replace(
     /<img src="[^"]*\/([^/"]+)\.\w+" alt="([^"]*)">/g,
-    "<em>[IMAGE: $1.jpg] $2</em>"
+    "<em>[IMAGE: $1.jpg] $2</em>",
   );
 
   return html;
@@ -671,7 +678,7 @@ function saveMediumChunks(
   outputDir: string,
   slug: string,
   bodyHtml: string,
-  title: string
+  title: string,
 ): string {
   const chunksPath = resolve(outputDir, `${slug}-medium-chunks.json`);
   const mediumHtml = postProcessChunksForMedium(bodyHtml);
@@ -681,7 +688,7 @@ function saveMediumChunks(
   writeFileSync(
     chunksPath,
     JSON.stringify({ title, chunks }, null, 2),
-    "utf-8"
+    "utf-8",
   );
   return chunksPath;
 }
@@ -691,7 +698,7 @@ function saveOutputFiles(
   slug: string,
   markdown: string,
   title: string,
-  canonicalUrl: string
+  canonicalUrl: string,
 ): { mdPath: string; htmlPath: string; chunksPath: string } {
   const outputDir = getOutputDir();
   mkdirSync(outputDir, { recursive: true });
@@ -709,7 +716,9 @@ function saveOutputFiles(
 // ---------------------------------------------------------------------------
 
 async function main() {
-  const { filePath, publishDevto, updateDevtoId, uploadVideos } = parseCli(process.argv);
+  const { filePath, publishDevto, updateDevtoId, uploadVideos } = parseCli(
+    process.argv,
+  );
 
   // Read and parse the MDX file
   const raw = readFileSync(filePath, "utf-8");
@@ -733,7 +742,7 @@ async function main() {
     slug,
     result.markdown,
     frontmatter.title,
-    canonicalUrl
+    canonicalUrl,
   );
   console.log(`Output saved:`);
   console.log(`  Markdown: ${mdPath}`);
@@ -751,7 +760,7 @@ async function main() {
     console.log(`Description:   ${frontmatter.description || "(none)"}`);
     if (frontmatter.image) {
       console.log(
-        `Main Image:    ${makeAbsoluteUrl(frontmatter.image, WASP_BASE_URL)}`
+        `Main Image:    ${makeAbsoluteUrl(frontmatter.image, WASP_BASE_URL)}`,
       );
     }
     return;
@@ -761,7 +770,7 @@ async function main() {
   const apiKey = process.env.DEVTO_API_KEY;
   if (!apiKey) {
     console.error(
-      "Error: DEVTO_API_KEY environment variable is required for --publish-devto and --update-devto"
+      "Error: DEVTO_API_KEY environment variable is required for --publish-devto and --update-devto",
     );
     process.exit(1);
   }

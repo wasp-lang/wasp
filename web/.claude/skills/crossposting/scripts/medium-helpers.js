@@ -27,8 +27,8 @@
  */
 function setMediumTitle() {
   const title = `TITLE_PLACEHOLDER`;
-  const editor = document.querySelector('[contenteditable]');
-  const titleEl = editor.querySelector('h3');
+  const editor = document.querySelector("[contenteditable]");
+  const titleEl = editor.querySelector("h3");
   titleEl.focus();
   const range = document.createRange();
   range.selectNodeContents(titleEl);
@@ -36,12 +36,14 @@ function setMediumTitle() {
   sel.removeAllRanges();
   sel.addRange(range);
   const dt = new DataTransfer();
-  dt.setData('text/plain', title);
-  const pasteEvent = new ClipboardEvent('paste', {
-    bubbles: true, cancelable: true, clipboardData: dt
+  dt.setData("text/plain", title);
+  const pasteEvent = new ClipboardEvent("paste", {
+    bubbles: true,
+    cancelable: true,
+    clipboardData: dt,
   });
   titleEl.dispatchEvent(pasteEvent);
-  return 'title set';
+  return "title set";
 }
 
 /**
@@ -56,7 +58,7 @@ function setMediumTitle() {
  */
 function pasteMediumChunk() {
   const htmlChunk = `HTML_CHUNK_PLACEHOLDER`;
-  const editor = document.querySelector('[contenteditable]');
+  const editor = document.querySelector("[contenteditable]");
   const range = document.createRange();
   range.selectNodeContents(editor);
   range.collapse(false);
@@ -64,11 +66,13 @@ function pasteMediumChunk() {
   sel.removeAllRanges();
   sel.addRange(range);
   const dt = new DataTransfer();
-  dt.setData('text/html', htmlChunk);
-  dt.setData('text/plain', '');
-  const pasteEvent = new ClipboardEvent('paste', {
-    bubbles: true, cancelable: true, clipboardData: dt
+  dt.setData("text/html", htmlChunk);
+  dt.setData("text/plain", "");
+  const pasteEvent = new ClipboardEvent("paste", {
+    bubbles: true,
+    cancelable: true,
+    clipboardData: dt,
   });
   editor.dispatchEvent(pasteEvent);
-  return 'pasted ' + htmlChunk.length + ' chars';
+  return "pasted " + htmlChunk.length + " chars";
 }
