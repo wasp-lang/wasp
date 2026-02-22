@@ -14,7 +14,7 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, clientManifestPath, routesEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, userClientEnvSchemaPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 
@@ -26,7 +26,7 @@ getVirtualModulesPlugin spec =
       genVirtualFilesIndexTs,
       genVirtualIndexTsx spec,
       genVirtualRoutesTsx spec,
-      genManifestTs spec
+      genUserClientEnvSchemaTs spec
     ]
 
 genVirtualFilesIndexTs :: Generator FileDraft
@@ -53,7 +53,7 @@ getVirtualModulesTs =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
           "routesEntryPointPath" .= routesEntryPointPath,
-          "clientManifestPath" .= clientManifestPath
+          "userClientEnvSchemaPath" .= userClientEnvSchemaPath
         ]
 
 genVirtualIndexTsx :: AppSpec -> Generator FileDraft
@@ -66,8 +66,7 @@ genVirtualIndexTsx spec =
       object
         [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
           "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
-          "routesMapping" .= routesMappingImportJson,
-          "clientManifestPath" .= clientManifestPath
+          "routesMapping" .= routesMappingImportJson
         ]
     maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
@@ -78,12 +77,12 @@ genVirtualIndexTsx spec =
           "importIdentifier" .= ("routesMapping" :: String)
         ]
 
-genManifestTs :: AppSpec -> Generator FileDraft
-genManifestTs spec =
+genUserClientEnvSchemaTs :: AppSpec -> Generator FileDraft
+genUserClientEnvSchemaTs spec =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|manifest.ts|]
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|userClientEnvSchema.ts|]
     tmplData =
       object
         [ "envValidationSchema" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeEnvValidationSchema)

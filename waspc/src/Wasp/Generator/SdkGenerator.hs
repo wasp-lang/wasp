@@ -12,15 +12,13 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
+import Data.Maybe (isJust, maybeToList)
+import StrongPath (Abs, Dir, Path', relfile, (</>))
 import System.Exit (ExitCode (..))
-import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
-import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -46,7 +44,7 @@ import Wasp.Generator.DepVersions
     superjsonVersion,
     typescriptVersion,
   )
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
+import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -116,7 +114,6 @@ genSdk spec =
       C.genFileCopy [relfile|server/dbRegistry.ts|],
       C.genFileCopy [relfile|server/operations/operationsRegistry.ts|],
       C.genFileCopy [relfile|server/envRegistry.ts|],
-      C.genFileCopy [relfile|client/env/envRegistry.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,

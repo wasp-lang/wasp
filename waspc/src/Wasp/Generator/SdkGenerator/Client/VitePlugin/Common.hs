@@ -3,7 +3,7 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
     virtualFilesFilesDirInViteDir,
     clientEntryPointPath,
     routesEntryPointPath,
-    clientManifestPath,
+    userClientEnvSchemaPath,
   )
 where
 
@@ -26,5 +26,5 @@ clientEntryPointPath = "/@wasp/client-entry.tsx"
 routesEntryPointPath :: String
 routesEntryPointPath = "/@wasp/routes.tsx"
 
-clientManifestPath :: String
-clientManifestPath = "/@wasp/manifest.ts"
+userClientEnvSchemaPath :: String
+userClientEnvSchemaPath = "virtual:wasp/user-client-env"

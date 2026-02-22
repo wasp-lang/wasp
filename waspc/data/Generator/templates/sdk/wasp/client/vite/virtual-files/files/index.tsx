@@ -1,6 +1,5 @@
 {{={= =}=}}
 // @ts-nocheck
-import "{= clientManifestPath =}"
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import { getWaspApp } from "wasp/client/app";

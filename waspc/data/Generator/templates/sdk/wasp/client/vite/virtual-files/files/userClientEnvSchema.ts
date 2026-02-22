@@ -1,11 +1,10 @@
 // @ts-nocheck
 {{={= =}=}}
-import { registerClientEnvSchema } from 'wasp/client/env/envRegistry'
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-registerClientEnvSchema({= envValidationSchema.importIdentifier =})
+export const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
 import * as z from 'zod'
-registerClientEnvSchema(z.object({}))
+export const userClientEnvSchema = z.object({})
 {=/ envValidationSchema.isDefined =}

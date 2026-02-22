@@ -38,6 +38,7 @@
     "declaration": true, // Allows users to consume the SDK as a library, enables autocomplete
     "declarationMap": true, // Makes go-to-definition go to source instead of type definitions
     "sourceMap": true, // Needed for debugging
+    "composite": true, // Necessary for project references
 
     /* Modules */
     "module": "esnext",

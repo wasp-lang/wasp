@@ -86,8 +86,6 @@
       "./server/operations/operationsRegistry": "./dist/server/operations/operationsRegistry.js",
       {=! Used by server manifest to register server env schema before env.ts initializes. =}
       "./server/envRegistry": "./dist/server/envRegistry.js",
-      {=! Used by client env manifest virtual file to register client env schema. =}
-      "./client/env/envRegistry": "./dist/client/env/envRegistry.js",
       {=! Used by the framework server code, reconsider during refactoring. =}
       "./server/middleware": "./dist/server/middleware/index.js",
 

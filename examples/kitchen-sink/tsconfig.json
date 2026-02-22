@@ -24,5 +24,6 @@
     "allowJs": true,
     "outDir": ".wasp/out/user"
   },
-  "include": ["src", ".wasp/out/types"]
+  "include": ["src", ".wasp/out/types"],
+  "references": [{ "path": ".wasp/out/sdk/wasp/tsconfig.json" }]
 }

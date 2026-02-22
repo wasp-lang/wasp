@@ -15,6 +15,7 @@ import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (userClientEnvSchemaPath)
 import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
@@ -42,6 +43,7 @@ genClientEnvFiles :: Generator [FileDraft]
 genClientEnvFiles =
   sequence
     [ genClientEnvSchema,
+      genClientEnvSchemaType,
       genFileCopy [relfile|client/env.ts|]
     ]
 
@@ -73,7 +75,17 @@ genClientEnvSchema = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= Server.defaultDevServerUrl
+          "defaultServerUrl" .= Server.defaultDevServerUrl,
+          "userClientEnvSchemaPath" .= userClientEnvSchemaPath
+        ]
+
+genClientEnvSchemaType :: Generator FileDraft
+genClientEnvSchemaType = return $ mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = [relfile|client/env/userClientEnvSchema.d.ts|]
+    tmplData =
+      object
+        [ "userClientEnvSchemaPath" .= userClientEnvSchemaPath
         ]
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]

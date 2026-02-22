@@ -3,12 +3,12 @@ import { type Plugin } from "vite";
 import {
   getIndexTsxContent,
   getRoutesTsxContent,
-  getManifestContent,
+  getUserClientEnvSchemaContent,
 } from "../virtual-files/index.js";
 import { makeVirtualFilesResolver, type VirtualFiles } from "../virtual-files/resolver.js";
 
 const resolveVirtualFiles = makeVirtualFilesResolver([
-  { id: "{= clientManifestPath =}", load: getManifestContent },
+  { id: "{= userClientEnvSchemaPath =}", load: getUserClientEnvSchemaContent },
   { id: "{= clientEntryPointPath =}", load: getIndexTsxContent },
   { id: "{= routesEntryPointPath =}", load: getRoutesTsxContent },
 ]);
