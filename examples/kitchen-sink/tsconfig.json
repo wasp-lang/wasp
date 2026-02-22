@@ -13,6 +13,7 @@
     "module": "esnext",
     "composite": true,
     "target": "esnext",
+    "preserveSymlinks": true,
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "strict": true,
