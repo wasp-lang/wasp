@@ -12,7 +12,7 @@
   "dependencies": {
     "express": "~5.1.0",
     "flowbite": "^4.0.1",
-    "flowbite-react": "^0.12.15",
+    "flowbite-react": "^0.12.17",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-router": "^7.12.0",
