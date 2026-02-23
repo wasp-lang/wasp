@@ -226,7 +226,8 @@ const config: Config = {
           path: "./blog",
           routeBasePath: "blog",
           blogTitle: "Blog",
-          blogDescription: "The latest updates, tutorials, and deep-dives from the Wasp team.",
+          blogDescription:
+            "The latest updates, tutorials, and deep-dives from the Wasp team.",
           showReadingTime: true,
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
