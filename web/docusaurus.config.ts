@@ -229,6 +229,7 @@ const config: Config = {
           postsPerPage: "ALL",
           editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
           onUntruncatedBlogPosts: "throw",
+          exclude: ["**/CLAUDE.md", "_wasp-intro.md"],
         },
         theme: {
           customCss: ["./src/css/custom.css"],
