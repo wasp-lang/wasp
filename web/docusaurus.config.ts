@@ -252,6 +252,7 @@ const config: Config = {
         routeBasePath: "resources",
         blogTitle: "Resources",
         blogDescription: "Guides, comparisons, and other resources.",
+        authorsMapPath: "../blog/authors.yml",
         showReadingTime: true,
         showLastUpdateTime: true,
         blogSidebarCount: "ALL",
