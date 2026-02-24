@@ -1,7 +1,7 @@
 import { createLogger } from "./logging.js";
 import { spawnWithLog } from "./process.js";
 
-export async function startLocalSmtpServer(): Promise<void> {
+export async function startLocalSmtpServer(signal?: AbortSignal): Promise<void> {
   const logger = createLogger("smtp-server");
   spawnWithLog({
     name: "smtp-server",
@@ -15,10 +15,11 @@ export async function startLocalSmtpServer(): Promise<void> {
       "1025:1025",
       "marlonb/mailcrab:latest",
     ],
-  }).then(({ exitCode }) => {
-    if (exitCode !== 0) {
-      logger.error(`SMTP server exited with code ${exitCode}`);
-      process.exit(1);
+    signal,
+  }).catch((err) => {
+    if (err?.name === "AbortError") {
+      return;
     }
+    logger.error(`SMTP server exited unexpectedly: ${err}`);
   });
 }

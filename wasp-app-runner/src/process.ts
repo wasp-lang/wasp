@@ -14,10 +14,10 @@ class ChildProcessManager {
   private children: ChildProcess[] = [];
   private logger = createLogger("child-process-manager");
 
-  constructor() {
-    process.on("SIGINT", () => this.cleanExit("SIGINT"));
-    process.on("SIGTERM", () => this.cleanExit("SIGTERM"));
-    process.on("exit", (exitCode) => this.cleanExit(`exit code ${exitCode}`));
+  connectSignal(signal: AbortSignal): void {
+    signal.addEventListener("abort", () => {
+      this.killAll("abort signal");
+    });
   }
 
   addChild(child: ChildProcess) {
@@ -31,21 +31,21 @@ class ChildProcessManager {
     }
   }
 
-  private cleanExit(reason: string) {
+  killAll(reason: string) {
     if (this.children.length === 0) {
       return;
     }
     this.logger.warn(`Received ${reason}. Cleaning up...`);
-    this.children.forEach((child) => {
+    for (const child of this.children) {
       if (!child.killed) {
         child.kill();
       }
-    });
-    process.exit();
+    }
+    this.children = [];
   }
 }
 
-const childProcessManager = new ChildProcessManager();
+export const childProcessManager = new ChildProcessManager();
 
 export function spawnWithLog({
   name,
@@ -53,8 +53,10 @@ export function spawnWithLog({
   args,
   cwd,
   extraEnv = {},
+  signal,
 }: SpawnOptions & {
   extraEnv?: EnvVars;
+  signal?: AbortSignal;
 }): Promise<{ exitCode: number | null }> {
   return new Promise((resolve, reject) => {
     const logger = createLogger(name);
@@ -62,6 +64,7 @@ export function spawnWithLog({
       cwd,
       env: { ...process.env, ...extraEnv },
       stdio: ["ignore", "pipe", "pipe"],
+      signal,
     });
     childProcessManager.addChild(proc);
 
@@ -69,6 +72,10 @@ export function spawnWithLog({
     readStreamLines(proc.stderr, (line) => logger.error(line));
 
     proc.on("error", (err) => {
+      if (err.name === "AbortError") {
+        reject(err);
+        return;
+      }
       logger.error(`Process error: ${err.message}`);
       reject(err);
     });
@@ -94,21 +101,30 @@ export function spawnAndCollectOutput({
   cmd,
   args,
   cwd,
-}: SpawnOptions): Promise<{
+  signal,
+}: SpawnOptions & {
+  signal?: AbortSignal;
+}): Promise<{
   exitCode: number | null;
   stdoutData: string;
   stderrData: string;
 }> {
   let stdoutData = "";
   let stderrData = "";
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const proc = spawn(cmd, args, {
       cwd,
+      signal,
     });
     childProcessManager.addChild(proc);
 
     readStreamLines(proc.stdout, (line) => (stdoutData += line + "\n"));
     readStreamLines(proc.stderr, (line) => (stderrData += line + "\n"));
+
+    proc.on("error", (err) => {
+      childProcessManager.removeChild(proc);
+      reject(err);
+    });
 
     proc.on("close", (exitCode) => {
       childProcessManager.removeChild(proc);

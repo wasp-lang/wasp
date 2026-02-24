@@ -19,10 +19,12 @@ export const setupPostgres = async ({
   appName,
   pathToApp,
   dbImage,
+  signal,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
   dbImage: DockerImageName;
+  signal?: AbortSignal;
 }): Promise<SetupDbResult> => {
   await ensureDockerIsRunning();
 
@@ -30,6 +32,7 @@ export const setupPostgres = async ({
     appName,
     pathToApp,
     dbImage,
+    signal,
   });
 
   logger.info(`Using DATABASE_URL: ${databaseUrl}`);
@@ -43,10 +46,12 @@ async function startPostgresContainerForApp({
   appName,
   pathToApp,
   dbImage,
+  signal,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
   dbImage: DockerImageName;
+  signal?: AbortSignal;
 }): Promise<DatabaseConnectionUrl> {
   const containerName = createAppSpecificDbContainerName({
     appName,
@@ -58,6 +63,7 @@ async function startPostgresContainerForApp({
   const databaseUrl = await startPostgresContainerAndWaitUntilReady(
     containerName,
     dbImage,
+    signal,
   );
 
   return databaseUrl;
@@ -66,13 +72,15 @@ async function startPostgresContainerForApp({
 async function startPostgresContainerAndWaitUntilReady(
   containerName: DbContainerName,
   dbImage: DockerImageName,
+  signal?: AbortSignal,
 ): Promise<DatabaseConnectionUrl> {
   const port = 5432;
   const password = "devpass";
 
   logger.info(`Starting the PostgreSQL container with image: ${dbImage}...`);
 
-  spawnAndCollectOutput({
+  // Start Docker container -- this promise settles when the container exits.
+  const containerExited = spawnAndCollectOutput({
     name: "create-postgres-container",
     cmd: "docker",
     args: [
@@ -86,24 +94,33 @@ async function startPostgresContainerAndWaitUntilReady(
       `--rm`,
       dbImage,
     ],
-  })
-    // If we awaited here, we would block the main thread indefinitely.
-    .then(({ exitCode, stderrData }) => {
-      if (exitCode !== 0) {
-        logger.error(stderrData);
-        const extraInfo = getExtraInfoOnPostgresStartError({
-          originalErrorText: stderrData,
-          containerName,
-          port,
-        });
-        if (extraInfo !== null) {
-          logger.info(extraInfo);
-        }
-        process.exit(1);
-      }
-    });
+    signal,
+  }).then(({ exitCode, stderrData }) => {
+    if (exitCode !== 0) {
+      const extraInfo = getExtraInfoOnPostgresStartError({
+        originalErrorText: stderrData,
+        containerName,
+        port,
+      });
+      const fullMessage = extraInfo
+        ? `${stderrData.trim()}\n${extraInfo}`
+        : stderrData.trim();
+      throw logger.cliError(
+        `Docker container failed to start: ${fullMessage}`,
+      );
+    }
+    // Container exited with code 0 while we expected it to run indefinitely.
+    throw logger.cliError(
+      "PostgreSQL container exited unexpectedly.",
+    );
+  });
 
-  await waitForPostgresReady(containerName);
+  // Race: either Postgres becomes ready, or the container dies first.
+  await Promise.race([waitForPostgresReady(containerName), containerExited]);
+
+  // Suppress late rejections -- if the container crashes after postgres is ready,
+  // downstream operations will surface their own errors.
+  containerExited.catch(() => {});
 
   return `postgresql://postgres:${password}@localhost:${port}/postgres` as DatabaseConnectionUrl;
 }
@@ -150,8 +167,9 @@ async function waitForPostgresReady(
     await wait(healthCheckDelay);
   }
 
-  logger.error("PostgreSQL did not become ready in time");
-  process.exit(1);
+  throw logger.cliError(
+    "PostgreSQL did not become ready in time",
+  );
 }
 
 async function checkIfPostgresIsReady(
@@ -173,12 +191,11 @@ async function wait(ms: number): Promise<void> {
 async function ensureDockerIsRunning(): Promise<void> {
   const isDockerRunning = await checkIfDockerIsRunning();
 
-  if (isDockerRunning) {
-    return;
+  if (!isDockerRunning) {
+    throw logger.cliError(
+      "Docker is not running. Please start Docker and try again.",
+    );
   }
-
-  logger.error("Docker is not running. Please start Docker and try again.");
-  process.exit(1);
 }
 
 async function checkIfDockerIsRunning(): Promise<boolean> {

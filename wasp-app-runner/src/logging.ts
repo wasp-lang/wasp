@@ -1,5 +1,15 @@
 import chalk, { type ChalkInstance } from "chalk";
 
+export class CLIError extends Error {
+  constructor(
+    message: string,
+    public readonly processName: string,
+  ) {
+    super(message);
+    this.name = "CLIError";
+  }
+}
+
 type LogType = "error" | "warn" | "info" | "success" | "debug";
 
 export function createLogger(processName: string) {
@@ -33,6 +43,9 @@ export function createLogger(processName: string) {
     },
     debug(message: string): void {
       log("debug", message);
+    },
+    cliError(message: string): CLIError {
+      return new CLIError(message, processName);
     },
   };
 }

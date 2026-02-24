@@ -12,16 +12,19 @@ export async function startAppInBuildMode({
   appName,
   dbType,
   dbImage,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
   dbType: DbType;
   dbImage: DockerImageName;
+  signal?: AbortSignal;
 }) {
   await waspBuild({
     waspCliCmd,
     pathToApp,
+    signal,
   });
 
   const { dbEnvVars } = await setupDb({
@@ -29,9 +32,10 @@ export async function startAppInBuildMode({
     dbType,
     pathToApp,
     dbImage,
+    signal,
   });
 
-  await startLocalSmtpServer();
+  await startLocalSmtpServer(signal);
 
   const serverEnvVars: EnvVars = {
     JWT_SECRET: "some-jwt-secret",
@@ -47,5 +51,6 @@ export async function startAppInBuildMode({
     serverEnvVars,
     serverEnvFile: doesFileExist(serverEnvFile) ? serverEnvFile : undefined,
     clientEnvFile: doesFileExist(clientEnvFile) ? clientEnvFile : undefined,
+    signal,
   });
 }
