@@ -6,7 +6,6 @@
 export interface RegisteredOperations {}
 export interface RegisteredCrudOverrides {}
 export interface RegisteredConfig {}
-
 // PRIVATE API
 /**
  * Looks up an operation key in RegisteredOperations, returning the registered

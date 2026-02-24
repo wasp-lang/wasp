@@ -1,10 +1,9 @@
 {{={= =}=}}
-// Forces the file to be interpreted as a module.
-// This is necessary for module augmentation to work.
-export {}
-
 declare module 'wasp/types' {
   interface RegisteredConfig {
+{=# prismaSetupFn.isDefined =}
+    userPrismaClient: ReturnType<typeof {=& prismaSetupFn.typeofImportExpr =}>
+{=/ prismaSetupFn.isDefined =}
 {=# serverEnvSchema.isDefined =}
     serverEnvSchema: typeof {=& serverEnvSchema.typeofImportExpr =}
 {=/ serverEnvSchema.isDefined =}
@@ -14,9 +13,6 @@ declare module 'wasp/types' {
 {=# webSocketFn.isDefined =}
     webSocketFn: typeof {=& webSocketFn.typeofImportExpr =}
 {=/ webSocketFn.isDefined =}
-{=# prismaSetupFn.isDefined =}
-    prismaSetupFn: typeof {=& prismaSetupFn.typeofImportExpr =}
-{=/ prismaSetupFn.isDefined =}
 {=# emailUserSignupFields.isDefined =}
     emailUserSignupFields: typeof {=& emailUserSignupFields.typeofImportExpr =}
 {=/ emailUserSignupFields.isDefined =}
@@ -25,3 +21,5 @@ declare module 'wasp/types' {
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
   }
 }
+
+

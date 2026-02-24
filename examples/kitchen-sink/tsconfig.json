@@ -13,7 +13,6 @@
     "module": "esnext",
     "composite": true,
     "target": "esnext",
-    "preserveSymlinks": true,
     "moduleResolution": "bundler",
     "jsx": "preserve",
     "strict": true,
@@ -25,6 +24,5 @@
     "allowJs": true,
     "outDir": ".wasp/out/user"
   },
-  "include": ["src", ".wasp/out/types"],
-  "references": [{ "path": ".wasp/out/sdk/wasp/tsconfig.json" }]
+  "include": ["src", ".wasp/out/types"]
 }

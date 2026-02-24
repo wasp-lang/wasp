@@ -33,7 +33,7 @@ genConfigTypes :: AppSpec -> Generator [FileDraft]
 genConfigTypes spec =
   return
     [ mkTmplFdWithData
-        [relfile|configuration.d.ts|]
+        [relfile|configuration.mts|]
         tmplData
     ]
   where
@@ -56,8 +56,8 @@ genCrudTypes spec = return $ map genCrudType $ getCruds spec
     genCrudType :: (String, AS.Crud.Crud) -> FileDraft
     genCrudType (name, crud) =
       mkTmplFdWithDstAndData
-        [relfile|_crudTypes.d.ts|]
-        (getCrudFilePath ("crud" ++ name) "d.ts")
+        [relfile|_crudTypes.mts|]
+        (getCrudFilePath ("crud" ++ name) "mts")
         (Just tmplData)
       where
         tmplData =
@@ -86,8 +86,8 @@ genOperationTypes spec =
       | null queries = []
       | otherwise =
           [ mkTmplFdWithDstAndData
-              [relfile|_operationTypes.d.ts|]
-              [relfile|operationQueries.d.ts|]
+              [relfile|_operationTypes.mts|]
+              [relfile|operationQueries.mts|]
               (Just tmplData)
           ]
       where
@@ -102,8 +102,8 @@ genOperationTypes spec =
       | null actions = []
       | otherwise =
           [ mkTmplFdWithDstAndData
-              [relfile|_operationTypes.d.ts|]
-              [relfile|operationActions.d.ts|]
+              [relfile|_operationTypes.mts|]
+              [relfile|operationActions.mts|]
               (Just tmplData)
           ]
       where

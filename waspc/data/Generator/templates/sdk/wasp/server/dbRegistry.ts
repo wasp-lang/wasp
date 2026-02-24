@@ -1,11 +1,15 @@
-type PrismaSetupFn = () => any
+type PrismaClient = any;
+let _prismaClient: PrismaClient | undefined = undefined;
 
-let _prismaSetupFn: PrismaSetupFn | undefined = undefined
-
-export function registerPrismaSetupFn(fn: PrismaSetupFn): void {
-  _prismaSetupFn = fn
+export function registerPrismaClient(fn: PrismaClient): void {
+  _prismaClient = fn;
 }
 
-export function getPrismaSetupFn(): PrismaSetupFn | undefined {
-  return _prismaSetupFn
+export function getPrismaClient(): PrismaClient {
+  if (!_prismaClient) {
+    throw new Error(`
+      'Internal Wasp error: _prismaClient is not registered.`
+    );
+  }
+  return _prismaClient;
 }

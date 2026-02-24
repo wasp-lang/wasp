@@ -13,9 +13,9 @@
 // lazy wrapper (see operationsRegistry.ts).
 {{={= =}=}}
 {=# prismaSetupFn.isDefined =}
-import { registerPrismaSetupFn } from 'wasp/server/dbRegistry'
+import { registerPrismaClient } from 'wasp/server/dbRegistry'
 {=& prismaSetupFn.importStatement =}
-registerPrismaSetupFn({= prismaSetupFn.importIdentifier =})
+registerPrismaClient({= prismaSetupFn.importIdentifier =}())
 {=/ prismaSetupFn.isDefined =}
 
 import { registerServerEnvSchema } from 'wasp/server/envRegistry'
