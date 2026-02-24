@@ -23,42 +23,6 @@ import {
     {=/ operations.Delete =}
 } from 'wasp/server/crud/{= name =}'
 
-{=# operations.Get =}
-const _getQuery: QueryFor<GetQueryResolved> = createQuery<GetQueryResolved>(
-    '{= fullPath =}',
-    {=& entitiesArray =}
-)
-const _getUseQuery: UseQueryFor<GetQueryResolved> = makeUseQueryFor(_getQuery)
-{=/ operations.Get =}
-{=# operations.GetAll =}
-const _getAllQuery: QueryFor<GetAllQueryResolved> = createQuery<GetAllQueryResolved>(
-    '{= fullPath =}',
-    {=& entitiesArray =}
-)
-const _getAllUseQuery: UseQueryFor<GetAllQueryResolved> = makeUseQueryFor(_getAllQuery)
-{=/ operations.GetAll =}
-{=# operations.Create =}
-const _createAction: ActionFor<CreateActionResolved> = createAction<CreateActionResolved>(
-    '{= fullPath =}',
-    {=& entitiesArray =}
-)
-const _createUseAction: UseActionFor<CreateActionResolved> = makeUseActionFor(_createAction)
-{=/ operations.Create =}
-{=# operations.Update =}
-const _updateAction: ActionFor<UpdateActionResolved> = createAction<UpdateActionResolved>(
-    '{= fullPath =}',
-    {=& entitiesArray =}
-)
-const _updateUseAction: UseActionFor<UpdateActionResolved> = makeUseActionFor(_updateAction)
-{=/ operations.Update =}
-{=# operations.Delete =}
-const _deleteAction: ActionFor<DeleteActionResolved> = createAction<DeleteActionResolved>(
-    '{= fullPath =}',
-    {=& entitiesArray =}
-)
-const _deleteUseAction: UseActionFor<DeleteActionResolved> = makeUseActionFor(_deleteAction)
-{=/ operations.Delete =}
-
 // PUBLIC API
 export const {= name =}: {
     {=# operations.Get =}
@@ -123,3 +87,39 @@ export const {= name =}: {
     },
     {=/ operations.Delete =}
 }
+
+{=# operations.Get =}
+const _getQuery: QueryFor<GetQueryResolved> = createQuery<GetQueryResolved>(
+    '{= fullPath =}',
+    {=& entitiesArray =}
+)
+const _getUseQuery: UseQueryFor<GetQueryResolved> = makeUseQueryFor(_getQuery)
+{=/ operations.Get =}
+{=# operations.GetAll =}
+const _getAllQuery: QueryFor<GetAllQueryResolved> = createQuery<GetAllQueryResolved>(
+    '{= fullPath =}',
+    {=& entitiesArray =}
+)
+const _getAllUseQuery: UseQueryFor<GetAllQueryResolved> = makeUseQueryFor(_getAllQuery)
+{=/ operations.GetAll =}
+{=# operations.Create =}
+const _createAction: ActionFor<CreateActionResolved> = createAction<CreateActionResolved>(
+    '{= fullPath =}',
+    {=& entitiesArray =}
+)
+const _createUseAction: UseActionFor<CreateActionResolved> = makeUseActionFor(_createAction)
+{=/ operations.Create =}
+{=# operations.Update =}
+const _updateAction: ActionFor<UpdateActionResolved> = createAction<UpdateActionResolved>(
+    '{= fullPath =}',
+    {=& entitiesArray =}
+)
+const _updateUseAction: UseActionFor<UpdateActionResolved> = makeUseActionFor(_updateAction)
+{=/ operations.Update =}
+{=# operations.Delete =}
+const _deleteAction: ActionFor<DeleteActionResolved> = createAction<DeleteActionResolved>(
+    '{= fullPath =}',
+    {=& entitiesArray =}
+)
+const _deleteUseAction: UseActionFor<DeleteActionResolved> = makeUseActionFor(_deleteAction)
+{=/ operations.Delete =}
