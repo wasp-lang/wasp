@@ -50,7 +50,9 @@
   "devDependencies": {
     "@docusaurus/module-type-aliases": "^3.7.0",
     "@docusaurus/tsconfig": "^3.7.0",
+    "@types/marked": "^5.0.2",
     "@types/mdast": "^4.0.4",
+    "marked": "^17.0.3",
     "mdast": "^2.3.2",
     "mdast-util-mdx": "^3.0.0",
     "prettier": "^3.0.3",

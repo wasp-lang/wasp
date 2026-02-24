@@ -223,11 +223,13 @@ const config: Config = {
         },
         blog: {
           showReadingTime: true,
+          showLastUpdateTime: true,
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
           editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
           onUntruncatedBlogPosts: "throw",
+          exclude: ["**/CLAUDE.md", "_wasp-intro.md"],
         },
         theme: {
           customCss: ["./src/css/custom.css"],
