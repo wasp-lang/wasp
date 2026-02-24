@@ -1,8 +1,8 @@
 // Registrations that must complete before manifest.js runs.
 //
 // manifest.js imports user operation code, which transitively imports SDK
-// modules (e.g., wasp/server → wasp/server/env.ts). Those SDK modules call
-// registry getters (getServerEnvSchema, getPrismaSetupFn) at module scope.
+// modules (e.g., wasp/server → wasp/server/dbClient.ts). Those SDK modules call
+// registry getters (getPrismaClient) at module scope.
 //
 // By importing registrations.js before manifest.js in server.ts, we ensure
 // these registrations execute first — before any user operation code triggers
@@ -11,19 +11,12 @@
 //
 // Operations don't need this treatment because their getOperation() uses a
 // lazy wrapper (see operationsRegistry.ts).
+//
+// Note: serverEnvSchema is wired via a Rollup virtual module
+// (virtual:wasp/user-server-env), not via a registry.
 {{={= =}=}}
 {=# prismaSetupFn.isDefined =}
 import { registerPrismaClient } from 'wasp/server/dbRegistry'
 {=& prismaSetupFn.importStatement =}
 registerPrismaClient({= prismaSetupFn.importIdentifier =}())
 {=/ prismaSetupFn.isDefined =}
-
-import { registerServerEnvSchema } from 'wasp/server/envRegistry'
-{=# serverEnvValidationSchema.isDefined =}
-{=& serverEnvValidationSchema.importStatement =}
-registerServerEnvSchema({= serverEnvValidationSchema.importIdentifier =})
-{=/ serverEnvValidationSchema.isDefined =}
-{=^ serverEnvValidationSchema.isDefined =}
-import * as z from 'zod'
-registerServerEnvSchema(z.object({}))
-{=/ serverEnvValidationSchema.isDefined =}

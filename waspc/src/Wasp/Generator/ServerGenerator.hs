@@ -7,6 +7,7 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsFromWasp,
+    userServerEnvSchemaPath,
   )
 where
 
@@ -244,7 +245,8 @@ genSrcDir spec =
     [ genFileCopy [relfile|app.js|],
       genServerJs spec,
       genRegistrations spec,
-      genManifest spec
+      genManifest spec,
+      genUserServerEnvSchemaVirtualFile spec
     ]
     <++> genRoutesDir spec
     <++> genViewsDir spec
@@ -285,17 +287,37 @@ genRegistrations spec =
       (C.asServerFile [relfile|src/registrations.ts|])
       ( Just $
           object
-            [ "prismaSetupFn" .= extImportToImportJson relPathToServerSrcDir maybePrismaSetupFn,
-              "serverEnvValidationSchema" .= extImportToImportJson relPathToServerSrcDir maybeServerEnvSchema
+            [ "prismaSetupFn" .= extImportToImportJson relPathToServerSrcDir maybePrismaSetupFn
             ]
       )
   where
     app = snd $ getApp spec
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
+
+userServerEnvSchemaPath :: String
+userServerEnvSchemaPath = "virtual:wasp/user-server-env"
+
+genUserServerEnvSchemaVirtualFile :: AppSpec -> Generator FileDraft
+genUserServerEnvSchemaVirtualFile spec =
+  return $
+    C.mkTmplFdWithDstAndData
+      (C.asTmplFile [relfile|src/virtual-files/userServerEnvSchema.ts|])
+      (C.asServerFile [relfile|src/virtual-files/userServerEnvSchema.ts|])
+      ( Just $
+          object
+            [ "envValidationSchema" .= extImportToImportJson relPathFromVirtualFilesToServerSrcDir maybeServerEnvSchema
+            ]
+      )
+  where
+    app = snd $ getApp spec
+    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+
+    -- Virtual files are at server/src/virtual-files/, one level deeper than server/src/
+    relPathFromVirtualFilesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathFromVirtualFilesToServerSrcDir = [reldirP|../|]
 
 genManifest :: AppSpec -> Generator FileDraft
 genManifest spec =
@@ -399,6 +421,10 @@ genRollupConfigJs spec =
   return $
     C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
   where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
+    tmplData =
+      object
+        [ "areDbSeedsDefined" .= areDbSeedsDefined,
+          "userServerEnvSchemaPath" .= userServerEnvSchemaPath
+        ]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec

@@ -1,6 +1,10 @@
-{{={= =}=}}
+{ {={= = }= } }
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 import esbuild from 'rollup-plugin-esbuild'
 import resolve from '@rollup/plugin-node-resolve';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default [
   createBundle('src/server.ts', 'bundle/server.js'),
@@ -18,6 +22,7 @@ function createBundle(inputFilePath, outputFilePath) {
       sourcemap: true,
     },
     plugins: [
+      waspVirtualModules(),
       resolve(),
       esbuild({
         target: 'esnext',
@@ -40,5 +45,18 @@ function createBundle(inputFilePath, outputFilePath) {
     //
     // Source: https://rollupjs.org/configuration-options/#preservesymlinks
     preserveSymlinks: false,
+  }
+}
+
+function waspVirtualModules() {
+  const virtualModules = {
+    '{= userServerEnvSchemaPath =}': path.resolve(__dirname, 'src/virtual-files/userServerEnvSchema.ts'),
+  }
+
+  return {
+    name: 'wasp:virtual-modules',
+    resolveId(id) {
+      return virtualModules[id] ?? null
+    },
   }
 }

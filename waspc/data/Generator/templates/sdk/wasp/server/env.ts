@@ -2,12 +2,7 @@
 import * as z from 'zod'
 
 import { ensureEnvSchema } from '../env/validation.js'
-import { getServerEnvSchema } from './envRegistry.js'
-import type { FromRegistry } from 'wasp/types'
-
-type UserServerEnvSchema = FromRegistry<'serverEnvSchema', z.ZodObject<{}>>
-
-const userServerEnvSchema = getServerEnvSchema() as UserServerEnvSchema
+import { userServerEnvSchema } from '{= userServerEnvSchemaPath =}'
 
 const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default({= defaultServerPort =}),
@@ -178,7 +173,7 @@ const _env = ensureEnvSchema(
 )
 
 // TODO: see if necessary
-type ServerEnv = typeof _env & z.infer<UserServerEnvSchema>
+type ServerEnv = typeof _env & z.infer<typeof userServerEnvSchema>
 
 // PUBLIC API
 export const env = _env as ServerEnv

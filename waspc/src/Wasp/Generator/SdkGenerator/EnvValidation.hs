@@ -19,6 +19,7 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (userClientEnvSchema
 import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.ServerGenerator (userServerEnvSchemaPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))
@@ -37,7 +38,11 @@ genSharedEnvFiles =
     ]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
-genServerEnvFiles spec = sequence [genServerEnv spec]
+genServerEnvFiles spec =
+  sequence
+    [ genServerEnv spec,
+      genServerEnvSchemaType
+    ]
 
 genClientEnvFiles :: Generator [FileDraft]
 genClientEnvFiles =
@@ -62,7 +67,8 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "defaultServerPort" .= Server.defaultServerPort,
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
-          "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender)
+          "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
+          "userServerEnvSchemaPath" .= userServerEnvSchemaPath
         ]
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
@@ -86,6 +92,15 @@ genClientEnvSchemaType = return $ mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "userClientEnvSchemaPath" .= userClientEnvSchemaPath
+        ]
+
+genServerEnvSchemaType :: Generator FileDraft
+genServerEnvSchemaType = return $ mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = [relfile|server/userServerEnvSchema.d.ts|]
+    tmplData =
+      object
+        [ "userServerEnvSchemaPath" .= userServerEnvSchemaPath
         ]
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
