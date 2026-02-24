@@ -217,13 +217,13 @@ Wasp no longer manages Tailwind CSS internally, so there are a few changes regar
 
 #### Option A: Stay on Tailwind CSS v3
 
-1. Install `postcss` and `autoprefixer` as dev dependencies (Wasp previously provided these for you):
+1. Install `tailwindcss@3`, `postcss`, and `autoprefixer` as dev dependencies (Wasp previously provided them for you):
 
     ```sh
     npm i -D tailwindcss@3 postcss autoprefixer
     ```
 
-1. Remove the `resolveProjectPath` helper from your `tailwind.config.cjs` file. Since Vite now runs from the project root, `resolveProjectPath` no longer exists and is no longer needed. Use plain paths instead:
+1. Remove the `resolveProjectPath` helper from your `tailwind.config.cjs` file. Since Vite now runs from the project root, `resolveProjectPath` is no longer needed. Use plain paths instead:
 
     <Tabs>
     <TabItem value="before" label="Before">
