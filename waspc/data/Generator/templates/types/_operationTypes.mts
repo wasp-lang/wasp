@@ -1,6 +1,6 @@
 {{={= =}=}}
 declare module 'wasp/types' {
-  interface RegisteredOperations {
+  interface OperationsRegistry {
 {=# operations =}
     '{= operationName =}': typeof {=& jsFn.typeofImportExpr =}
 {=/ operations =}

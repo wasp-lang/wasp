@@ -158,11 +158,11 @@ genProvdersIndex auth =
   where
     tmplData =
       object
-        [ "hasEmailSignupFields" .= hasEmailSignupFields,
-          "hasUsernameSignupFields" .= hasUsernameSignupFields
+        [ "hasUserEmailSignupFields" .= hasUserEmailSignupFields,
+          "hasUserUsernameAndPasswordSignupFields" .= hasUserUsernameAndPasswordSignupFields
         ]
-    hasEmailSignupFields = isJust $ AS.Auth.email (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForEmailAuth
-    hasUsernameSignupFields = isJust $ AS.Auth.usernameAndPassword (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForUsernameAuth
+    hasUserEmailSignupFields = isJust $ AS.Auth.email (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForEmailAuth
+    hasUserUsernameAndPasswordSignupFields = isJust $ AS.Auth.usernameAndPassword (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForUsernameAuth
 
 genProvidersTypes :: AS.Auth.Auth -> Generator FileDraft
 genProvidersTypes auth =
@@ -174,12 +174,12 @@ genProvidersTypes auth =
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
-          "hasEmailSignupFields" .= hasEmailSignupFields,
-          "hasUsernameSignupFields" .= hasUsernameSignupFields
+          "hasUserEmailSignupFields" .= hasUserEmailSignupFields,
+          "hasUserUsernameAndPasswordSignupFields" .= hasUserUsernameAndPasswordSignupFields
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
-    hasEmailSignupFields = isJust $ AS.Auth.email (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForEmailAuth
-    hasUsernameSignupFields = isJust $ AS.Auth.usernameAndPassword (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForUsernameAuth
+    hasUserEmailSignupFields = isJust $ AS.Auth.email (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForEmailAuth
+    hasUserUsernameAndPasswordSignupFields = isJust $ AS.Auth.usernameAndPassword (AS.Auth.methods auth) >>= AS.Auth.userSignupFieldsForUsernameAuth
 
 authDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 authDirInSdkTemplatesDir = [reldir|auth|]

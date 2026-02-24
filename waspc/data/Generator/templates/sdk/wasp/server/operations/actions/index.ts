@@ -9,7 +9,7 @@ import {
   {=/ isAuthEnabled =}
 } from '../wrappers.js'
 import { getOperation } from '../operationsRegistry.js'
-import type { GetOperationFromRegistry } from 'wasp/types'
+import type { FromOperationsRegistry } from 'wasp/types'
 import type {
   {=# operations =}
   {= typeName =},
@@ -18,7 +18,7 @@ import type {
 {=# operations =}
 
 // PRIVATE API
-export type {= operationTypeName =} = GetOperationFromRegistry<'{= operationName =}', {= typeName =}>
+export type {= operationTypeName =} = FromOperationsRegistry<'{= operationName =}', {= typeName =}>
 
 // PUBLIC API
 {=# usesAuth =}

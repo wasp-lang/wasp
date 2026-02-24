@@ -3,7 +3,7 @@ import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand, Exact } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
-import type { RegisteredConfig } from 'wasp/types'
+import type { Registry } from 'wasp/types'
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -12,21 +12,21 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-{=# hasEmailSignupFields =}
+{=# hasUserEmailSignupFields =}
 // PUBLIC API
 export type UserEmailSignupFields =
-  RegisteredConfig extends { emailUserSignupFields: infer T extends UserSignupFields}
+  Registry extends { emailUserSignupFields: infer T extends UserSignupFields}
     ? InferUserSignupFields<T>
     : {}
-{=/ hasEmailSignupFields =}
+{=/ hasUserEmailSignupFields =}
 
-{=# hasUsernameSignupFields =}
+{=# hasUserUsernameAndPasswordSignupFields =}
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields =
-  RegisteredConfig extends { usernameAndPasswordUserSignupFields: infer T extends UserSignupFields}
+  Registry extends { usernameAndPasswordUserSignupFields: infer T extends UserSignupFields}
     ? InferUserSignupFields<T>
     : {}
-{=/ hasUsernameSignupFields =}
+{=/ hasUserUsernameAndPasswordSignupFields =}
 
 /**
  * Extracts the result types from a UserSignupFields object.

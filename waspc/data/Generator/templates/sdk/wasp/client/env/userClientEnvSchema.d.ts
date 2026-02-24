@@ -1,7 +1,7 @@
 {{={= =}=}}
 declare module '{= userClientEnvSchemaPath =}' {
   import type { z } from 'zod'
-  import type { GetConfigFromRegistry } from 'wasp/types'
+  import type { FromRegistry } from 'wasp/types'
 
-  export const userClientEnvSchema: GetConfigFromRegistry<'clientEnvSchema', z.ZodObject<{}>>
+  export const userClientEnvSchema: FromRegistry<'clientEnvSchema', z.ZodObject<{}>>
 }

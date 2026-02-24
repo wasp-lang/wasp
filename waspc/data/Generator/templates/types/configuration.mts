@@ -1,6 +1,6 @@
 {{={= =}=}}
 declare module 'wasp/types' {
-  interface RegisteredConfig {
+  interface Registry {
 {=# prismaSetupFn.isDefined =}
     userPrismaClient: ReturnType<typeof {=& prismaSetupFn.typeofImportExpr =}>
 {=/ prismaSetupFn.isDefined =}

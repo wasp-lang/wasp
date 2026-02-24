@@ -1,9 +1,9 @@
 {{={= =}=}}
 import * as z from 'zod'
 import { userClientEnvSchema } from '{= userClientEnvSchemaPath =}'
-import type { GetConfigFromRegistry } from 'wasp/types'
+import type { FromRegistry } from 'wasp/types'
 
-type UserClientEnvSchema = GetConfigFromRegistry<'clientEnvSchema', z.ZodObject<{}>>
+type UserClientEnvSchema = FromRegistry<'clientEnvSchema', z.ZodObject<{}>>
 
 const waspClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": z

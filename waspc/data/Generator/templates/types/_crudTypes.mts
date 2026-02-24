@@ -1,6 +1,6 @@
 {{={= =}=}}
 declare module 'wasp/types' {
-  interface RegisteredCrudOverrides {
+  interface CrudOverridesRegistry {
     '{= crud.name =}': {
 {=# overrides.GetAll.isDefined =}
       GetAll: typeof {=& overrides.GetAll.typeofImportExpr =}

@@ -1,38 +1,26 @@
-// PRIVATE API
 /**
- * These interfaces are augmented in .wasp/out/types/ to register
- * user-defined types into the SDK's type system.
- */
-export interface RegisteredOperations {}
-export interface RegisteredCrudOverrides {}
-export interface RegisteredConfig {}
-// PRIVATE API
-/**
- * Looks up an operation key in RegisteredOperations, returning the registered
- * type if present or the provided Default otherwise.
- */
-export type GetOperationFromRegistry<K extends string, Default> =
-  K extends keyof RegisteredOperations
-    ? RegisteredOperations[K]
-    : Default
+ * The interfaces in this module are augmented by types from `.wasp/out/types/`.
+ * They are agumented with user declarations types.
+ * 
+ * E.g., a user defined prisma client.
+*/
 
-// PRIVATE API
-/**
- * Looks up a CRUD override by CRUD name and operation name.
- */
-export type GetCrudOverrideFromRegistry<CrudName extends string, Op extends string, Default> =
-  CrudName extends keyof RegisteredCrudOverrides
-    ? Op extends keyof RegisteredCrudOverrides[CrudName]
-      ? RegisteredCrudOverrides[CrudName][Op]
+export interface Registry {}
+export type FromRegistry<K extends string, Default> =
+K extends keyof Registry
+? Registry[K]
+: Default
+
+export interface CrudOverridesRegistry {}
+export type FromOperationsRegistry<Operation extends string, Default> =
+Operation extends keyof OperationsRegistry
+? OperationsRegistry[Operation]
+: Default
+
+export interface OperationsRegistry {}
+export type FromCudOverridesRegistry<CrudName extends string, CrudOperation extends string, Default> =
+  CrudName extends keyof CrudOverridesRegistry
+    ? CrudOperation extends keyof CrudOverridesRegistry[CrudName]
+      ? CrudOverridesRegistry[CrudName][CrudOperation]
       : Default
-    : Default
-
-// PRIVATE API
-/**
- * Looks up a config key in RegisteredConfig, returning the registered type
- * if present or the provided Default otherwise.
- */
-export type GetConfigFromRegistry<K extends string, Default> =
-  K extends keyof RegisteredConfig
-    ? RegisteredConfig[K]
     : Default

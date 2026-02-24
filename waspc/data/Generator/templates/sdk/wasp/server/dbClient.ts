@@ -1,13 +1,11 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
-import type { RegisteredConfig } from 'wasp/types'
+import type { FromRegistry } from 'wasp/types'
 {=# isPrismaSetupFnDefined =} 
 import { getPrismaClient } from './dbRegistry.js'
 
-export type UserPrismaClient = RegisteredConfig extends { userPrismaClient: infer T }
-  ? T
-  : InternalPrismaClient
+export type UserPrismaClient = FromRegistry<'userPrismaClient', InternalPrismaClient>
 
 const dbClient: UserPrismaClient = getPrismaClient();
 {=/ isPrismaSetupFnDefined =}
