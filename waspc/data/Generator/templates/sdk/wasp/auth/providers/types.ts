@@ -12,19 +12,19 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-{=# hasUserEmailSignupFields =}
+{=# hasEmailUserSignupFields =}
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<
   FromRegistry<"emailUserSignupFields", {}>
 >
-{=/ hasUserEmailSignupFields =}
+{=/ hasEmailUserSignupFields =}
 
-{=# hasUserUsernameAndPasswordSignupFields =}
+{=# hasUsernameAndPasswordUserSignupFields =}
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<
   FromRegistry<"usernameAndPasswordUserSignupFields", {}>
 >
-{=/ hasUserUsernameAndPasswordSignupFields =}
+{=/ hasUsernameAndPasswordUserSignupFields =}
 
 /**
  * Extracts the result types from a UserSignupFields object.

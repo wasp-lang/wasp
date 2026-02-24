@@ -98,7 +98,7 @@ getImportPathString (ModuleImportPath modulePath) = SP.fromRelFileP modulePath
 
 -- First part of import statement based on type of import and alias
 -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
--- e.g. for import Name   from "file.js" it returns ("Name", "Name")
+-- e.g. for import Name from "file.js" it returns ("Name", "Name")
 getJsImportIdentifierAndClause :: JsImportName -> Maybe JsImportAlias -> (JsImportIdentifier, JsImportClause)
 getJsImportIdentifierAndClause importName maybeImportAlias = case (importName, maybeImportAlias) of
   (JsImportModule moduleName, Nothing) -> (moduleName, moduleName)
