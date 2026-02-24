@@ -12,7 +12,7 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
-import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), FromOutDir (FromOutDir), InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -41,7 +41,7 @@ start = do
 
   warnings <- compile
 
-  DbConnectionEstablished FromOutDir <- require
+  DbConnectionEstablished <- require
 
   cliSendMessageC $ Msg.Start "Listening for file changes..."
   cliSendMessageC $ Msg.Start "Starting up generated project..."
@@ -54,7 +54,7 @@ start = do
     -- 'watch') once jobs from 'start' quiet down a bit.
     ongoingCompilationResultMVar <- newMVar (warnings, [])
     let watchWaspProjectSource = watch waspProjectDir outDir ongoingCompilationResultMVar
-    let startGeneratedWebApp = Wasp.Generator.start outDir (onJobsQuietDown ongoingCompilationResultMVar)
+    let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
     --    code. On any change, Wasp is recompiled (and generated code is re-generated).

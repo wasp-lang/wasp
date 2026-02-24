@@ -1,0 +1,7 @@
+{
+  "name": "waspc-tools",
+  "type": "module",
+  "devDependencies": {
+    "@types/node": "^22.19.2"
+  }
+}

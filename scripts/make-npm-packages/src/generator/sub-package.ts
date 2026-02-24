@@ -39,6 +39,7 @@ export const makeSubPackage = ({
   execaSync({
     // We want to see the extraction logs in our logs
     quiet: false,
+    stdout: "inherit",
     stderr: "inherit",
   })`tar -xzvf ${tarballPath} -C ${outputDirPath}`;
 

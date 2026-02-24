@@ -179,6 +179,7 @@ export function getAuthMethods(
         google: getExternalAuthConfig(scope),
         gitHub: getExternalAuthConfig(scope),
         keycloak: getExternalAuthConfig(scope),
+        microsoft: getExternalAuthConfig(scope),
       } satisfies FullConfig<TsAppSpec.AuthMethods>;
     default:
       assertUnreachable(scope);

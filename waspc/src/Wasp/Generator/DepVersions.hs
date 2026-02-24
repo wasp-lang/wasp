@@ -12,7 +12,7 @@ module Wasp.Generator.DepVersions
     expressTypesVersion,
     axiosVersion,
     viteVersion,
-    tailwindCssVersion,
+    dotenvVersion,
   )
 where
 
@@ -31,6 +31,7 @@ superjsonVersion = SV.backwardsCompatibleWith $ SV.Version 2 2 1
 typescriptVersion :: SV.Version
 typescriptVersion = SV.Version 5 8 2
 
+-- When updating the React version, also update it in `peerDependencies` in `waspc/libs/auth/package.json`.
 reactVersion :: SV.ComparatorSet
 reactVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 1
 
@@ -39,6 +40,7 @@ reactDomVersion :: SV.ComparatorSet
 reactDomVersion = reactVersion
 
 -- Follows React major version
+-- When updating the React types version, also update it in `devDependencies` in `waspc/libs/auth/package.json`.
 reactTypesVersion :: SV.ComparatorSet
 reactTypesVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 7
 
@@ -46,7 +48,7 @@ reactDomTypesVersion :: SV.ComparatorSet
 reactDomTypesVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 3
 
 reactRouterVersion :: SV.ComparatorSet
-reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 6 26 2
+reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 7 12 0
 
 -- TODO: Update react query and express to use Wasp.SemanticVersion when we'll
 -- have support for patch versions https://github.com/wasp-lang/wasp/issues/2941
@@ -66,5 +68,5 @@ axiosVersion = SV.backwardsCompatibleWith $ SV.Version 1 4 0
 viteVersion :: SV.ComparatorSet
 viteVersion = SV.backwardsCompatibleWith $ SV.Version 7 0 6
 
-tailwindCssVersion :: SV.ComparatorSet
-tailwindCssVersion = SV.backwardsCompatibleWith $ SV.Version 3 4 17
+dotenvVersion :: SV.ComparatorSet
+dotenvVersion = SV.backwardsCompatibleWith $ SV.Version 16 6 1

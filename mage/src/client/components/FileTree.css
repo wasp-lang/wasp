@@ -1,3 +1,5 @@
+@reference "../Main.css";
+
 .directory {
   @apply rounded bg-slate-900 p-5 font-mono text-base text-white;
   user-select: none;
@@ -47,7 +49,7 @@
     background-color: inherit;
   }
   25% {
-    @apply bg-amber-400;
+    background-color: var(--color-amber-400);
   }
   100% {
     background-color: inherit;

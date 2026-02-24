@@ -10,14 +10,10 @@ import { BuildDataSchema } from "./schema/input-data.ts";
 const args = parseArgs({ strict: true, options: ARGS_OPTIONS });
 
 if (args.values.help) {
-  console.log(`Available options: ${ARGS_OPTIONS}`);
+  console.log(`Available options: ${JSON.stringify(ARGS_OPTIONS, null, 2)}`);
 } else {
   console.log(
-    `Running program with options: ${JSON.stringify(
-      { ...args.values },
-      null,
-      2,
-    )}`,
+    `Running program with options: ${JSON.stringify(args.values, null, 2)}`,
   );
 
   const {
@@ -27,9 +23,10 @@ if (args.values.help) {
     "sub-package-name": makeSubPackageName,
   } = ArgsSchema.parse(args.values);
 
-  const dataFilePath = fs.readJsonSync(path.join(inputDir, "data.json"));
+  const dataFilePath = path.join(inputDir, "data.json");
   console.log(`Reading input data from: ${dataFilePath}`);
-  const data = BuildDataSchema(inputDir).parse(dataFilePath);
+  const dataFile = fs.readJsonSync(dataFilePath);
+  const data = BuildDataSchema(inputDir).parse(dataFile);
 
   console.group("Creating subpackages in:", outputDir);
   const createdSubPackages = data.tarballs.map((tarballData) => {

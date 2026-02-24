@@ -44,7 +44,8 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
-  ( expressTypesVersion,
+  ( dotenvVersion,
+    expressTypesVersion,
     expressVersionStr,
     superjsonVersion,
     typescriptVersion,
@@ -64,6 +65,9 @@ import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliase
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
+import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
+import Wasp.Generator.WaspLibs.Common (libsRootDirFromServerDir)
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -76,7 +80,7 @@ genServer spec =
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
       genTsConfigJson spec,
-      genPackageJson spec (npmDepsFromWasp spec),
+      genPackageJson spec npmDeps,
       genGitignore,
       genNodemon
     ]
@@ -88,6 +92,7 @@ genServer spec =
     <++> genCrud spec
   where
     genFileCopy = return . C.mkTmplFd
+    npmDeps = npmDepsFromWasp spec
 
 genDotEnv :: AppSpec -> Generator [FileDraft]
 -- Don't generate .env if we are building for production, since .env is to be used only for
@@ -127,15 +132,14 @@ genTsConfigJson spec = do
       waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
-genPackageJson spec waspDependencies = do
-  serverDeps <- N.ensureNoConflictWithUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+genPackageJson spec waspDependencies =
   return $
     C.mkTmplFdWithDstAndData
       (C.asTmplFile [relfile|package.json|])
       (C.asServerFile [relfile|package.json|])
       ( Just $
           object
-            [ "packageName" .= serverPackageName spec,
+            [ "packageName" .= serverPackageName,
               "depsChunk" .= N.getDependenciesPackageJsonEntry serverDeps,
               "devDepsChunk" .= N.getDevDependenciesPackageJsonEntry serverDeps,
               "nodeVersionRange" .= (">=" <> show NodeVersion.oldestWaspSupportedNodeVersion),
@@ -147,6 +151,8 @@ genPackageJson spec waspDependencies = do
             ]
       )
   where
+    serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+
     hasEntities = AS.Util.hasEntities spec
 
 getPackageJsonPrismaField :: AppSpec -> Aeson.Value
@@ -164,11 +170,12 @@ npmDepsFromWasp spec =
               ("cors", "^2.8.5"),
               ("express", expressVersionStr),
               ("morgan", "~1.10.0"),
-              ("dotenv", "^16.0.2"),
+              ("dotenv", show dotenvVersion),
               ("helmet", "^6.0.0"),
               ("superjson", show superjsonVersion)
             ]
-            ++ depsRequiredByWebSockets spec,
+            ++ depsRequiredByWebSockets spec
+            ++ waspLibsNpmDeps,
         N.devDependencies =
           Npm.Dependency.fromList
             [ ("nodemon", "^2.0.19"),
@@ -188,6 +195,8 @@ npmDepsFromWasp spec =
       }
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
+
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromServerDir) waspLibs
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec

@@ -6,13 +6,13 @@ export const AppNode = ({
   targetPosition = Position.Left,
   sourcePosition = Position.Right,
 }: NodeProps) => (
-  <div className="rounded bg-cyan-900 px-6 py-3 text-center text-white">
+  <div className="rounded-sm bg-cyan-900 px-6 py-3 text-center text-white">
     <Handle
       type="target"
       position={targetPosition}
       isConnectable={isConnectable}
     />
-    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded bg-cyan-300 px-1 text-xs text-cyan-900">
+    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded-sm bg-cyan-300 px-1 text-xs text-cyan-900">
       <span className="mr-1">App</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"
@@ -36,13 +36,13 @@ export const AppNode = ({
       isConnectable={isConnectable}
     />
     <div className="mt-2 flex flex-col items-center justify-center gap-2">
-      <div className="bg-foreground text-background rounded px-1 text-xs">
+      <div className="bg-foreground text-background rounded-sm px-1 text-xs">
         <span>{data.db?.system || "SQLite"}</span>
       </div>
       {data.auth &&
         data.auth.methods.map((method: string) => (
           <div
-            className="bg-foreground text-background rounded px-1 text-xs"
+            className="bg-foreground text-background rounded-sm px-1 text-xs"
             key={method}
           >
             <span>Auth: {method}</span>

@@ -5,13 +5,13 @@ export const PageNode = ({
   isConnectable,
   targetPosition = Position.Right,
 }: NodeProps) => (
-  <div className="rounded bg-sky-900 px-6 py-3 text-white">
+  <div className="rounded-sm bg-sky-900 px-6 py-3 text-white">
     <Handle
       type="target"
       position={targetPosition}
       isConnectable={isConnectable}
     />
-    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded bg-sky-300 px-1 text-xs text-sky-900">
+    <div className="absolute -top-1 left-1/2 flex -translate-x-1/2 items-center rounded-sm bg-sky-300 px-1 text-xs text-sky-900">
       <span className="mr-1">Page</span>
       <svg
         xmlns="http://www.w3.org/2000/svg"

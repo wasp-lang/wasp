@@ -2,16 +2,18 @@ module Wasp.Util.Network.HTTP
   ( catchRetryableHttpException,
     getHttpExceptionStatusCode,
     httpJSONThatThrowsIfNot2xx,
+    checkUrlExists,
   )
 where
 
 import Control.Arrow ()
 import Control.Monad (void, when)
-import Control.Monad.IO.Class (MonadIO)
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Aeson (FromJSON)
 import qualified Data.Aeson as Aeson
 import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
+import Network.HTTP.Types.Status (statusIsSuccessful)
 import UnliftIO (MonadUnliftIO)
 import UnliftIO.Exception (catch, throwIO)
 
@@ -49,3 +51,17 @@ httpJSONThatThrowsIfNot2xx request = do
       HTTP.HttpExceptionRequest request (HTTP.C.StatusCodeException (void response) "")
 
   return $ Aeson.eitherDecode $ HTTP.getResponseBody response
+
+checkUrlExists :: (MonadIO m) => String -> m Bool
+checkUrlExists url = liftIO $ do
+  res <- httpHeadRequest url
+  return $ statusIsSuccessful $ HTTP.getResponseStatus res
+
+httpHeadRequest :: String -> IO (HTTP.Response ())
+httpHeadRequest url = do
+  req <-
+    HTTP.setRequestIgnoreStatus
+      . HTTP.setRequestMethod "HEAD"
+      <$> HTTP.parseRequest url
+
+  HTTP.httpNoBody req

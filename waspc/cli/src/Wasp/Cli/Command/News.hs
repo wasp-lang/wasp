@@ -1,5 +1,17 @@
 module Wasp.Cli.Command.News
-  ( news,
+  ( -- * News
+
+    -- This module's job is to keep Wasp users up to date with Wasp-related
+    -- news (e.g,. new versions, security vulnerabilities and patches).
+    --
+    -- The module fetches the news from a remote URL and shows them
+    -- to the user. It has two modes of operation. Wasp either:
+    --   - Shows all news entries when the user runs `wasp news`.
+    --   - Shows news entries it deems relevant every now and then during `wasp start`.
+    --
+    -- The news are published through https://github.com/wasp-lang/wasp-news.
+    -- Check the repo's README for more details.
+    news,
     fetchAndListMustSeeNewsIfDue,
   )
 where
