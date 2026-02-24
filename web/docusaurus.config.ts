@@ -229,6 +229,7 @@ const config: Config = {
           blogDescription:
             "The latest updates, tutorials, and deep-dives from the Wasp team.",
           showReadingTime: true,
+          showLastUpdateTime: true,
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
