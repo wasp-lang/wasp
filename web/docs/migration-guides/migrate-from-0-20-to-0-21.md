@@ -209,9 +209,59 @@ import { useNavigate, useParams } from 'react-router'
 React Router v7 is largely backwards compatible with v6, so there shouldn't be any changes besides the name.
 For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reactrouter.com/upgrading/v6).
 
-### 5. Upgrade Tailwind CSS to v4
+### 5. Update Tailwind CSS
 
 **If you don't have a `tailwindcss` dependency in your `package.json`, you can skip this step.**
+
+Wasp no longer manages Tailwind CSS internally, so there are a few changes regardless of which version you use. You can choose to stay on Tailwind CSS v3 or upgrade to v4.
+
+#### Option A: Stay on Tailwind CSS v3
+
+1. Install `postcss` and `autoprefixer` as dev dependencies (Wasp previously provided these for you):
+
+    ```sh
+    npm i -D tailwindcss@3 postcss autoprefixer
+    ```
+
+1. Remove the `resolveProjectPath` helper from your `tailwind.config.cjs` file. Since Vite now runs from the project root, `resolveProjectPath` no longer exists and is no longer needed. Use plain paths instead:
+
+    <Tabs>
+    <TabItem value="before" label="Before">
+
+    ```js title="tailwind.config.cjs"
+    // highlight-next-line
+    import { resolveProjectPath } from 'wasp/dev'
+
+    /** @type {import('tailwindcss').Config} */
+    export default {
+      // highlight-next-line
+      content: [resolveProjectPath('./src/**/*.{js,jsx,ts,tsx}')],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    }
+    ```
+
+    </TabItem>
+    <TabItem value="after" label="After">
+
+    ```js title="tailwind.config.cjs"
+    /** @type {import('tailwindcss').Config} */
+    export default {
+      // highlight-next-line
+      content: ['./src/**/*.{js,jsx,ts,tsx}'],
+      theme: {
+        extend: {},
+      },
+      plugins: [],
+    }
+    ```
+
+    </TabItem>
+    </Tabs>
+
+#### Option B: Upgrade to Tailwind CSS v4
 
 1. Run the Tailwind CSS upgrade tool:
 
@@ -272,7 +322,7 @@ For advanced usage, check the [React Router v6 to v7 upgrade guide](https://reac
     ```
 
 
-If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../project/css-frameworks.md#tailwind).
+If you hit any snags or would like more details, check out the official [Tailwind CSS v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide), and our updated [Tailwind documentation](../guides/libraries/tailwind.md).
 
 ### 6. Update your custom Dockerfile
 
