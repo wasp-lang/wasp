@@ -228,7 +228,7 @@ Wasp no longer manages Tailwind CSS internally, so there are a few changes regar
     <Tabs>
     <TabItem value="before" label="Before">
 
-    ```js title="tailwind.config.cjs"
+    ```js title="tailwind.config.js"
     // highlight-next-line
     import { resolveProjectPath } from 'wasp/dev'
 
@@ -246,7 +246,7 @@ Wasp no longer manages Tailwind CSS internally, so there are a few changes regar
     </TabItem>
     <TabItem value="after" label="After">
 
-    ```js title="tailwind.config.cjs"
+    ```js title="tailwind.config.js"
     /** @type {import('tailwindcss').Config} */
     export default {
       // highlight-next-line
