@@ -8,6 +8,10 @@
 - The `wasp()` Vite plugin now enforces certain Vite config options that Wasp requires (e.g. `base`, `envPrefix`, `build.outDir`) and throws an error if the user tries to override them. ([#3771](https://github.com/wasp-lang/wasp/pull/3771))
 - Upgraded our internal `nodemailer` dependency to v8.0.1 to address [a possible security issue](https://github.com/advisories/GHSA-rcmh-qjqh-p98v). ([#3756](https://github.com/wasp-lang/wasp/pull/3756))
 
+### 🐞 Bug fixes
+
+- Removing the `server.open` option from the Vite config will no longer open the browser regardless. ([3831](https://github.com/wasp-lang/wasp/pull/3831))
+
 ## 0.21.1
 
 ### 🐞 Bug fixes
