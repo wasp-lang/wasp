@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
+    "@waspello/todo-module": "file:packages/todo-module",
     "classnames": "^2.5.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
@@ -28,6 +29,6 @@
     "prisma": "5.19.1",
     "typescript": "5.8.2",
     "vite": "^7.0.6",
-    "wasp-config": "file:../../waspc/data/packages/wasp-config"
+    "wasp-config": "file:.wasp/packages/wasp-config"
   }
 }

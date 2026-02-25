@@ -221,6 +221,7 @@ library
     Wasp.Analyzer.Parser.Valid
     Wasp.Analyzer.StdTypeDefinitions
     Wasp.Analyzer.StdTypeDefinitions.App.Dependency
+    Wasp.Analyzer.StdTypeDefinitions.App.ModuleProvide
     Wasp.Analyzer.StdTypeDefinitions.Entity
     Wasp.Analyzer.Type
     Wasp.Analyzer.TypeChecker
@@ -409,6 +410,7 @@ library
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
+    Wasp.Project.WaspFile.WaspConfigPackage
     Wasp.Project.WaspFile.WaspLang
     Wasp.Psl.Ast.Argument
     Wasp.Psl.Ast.Attribute
@@ -548,8 +550,6 @@ library cli-lib
     , mtl
     , async
     , exceptions
-    , lens
-    , lens-aeson ^>=1.2.3
     , cryptonite
     , fsnotify
     , http-conduit
@@ -625,7 +625,6 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
     Wasp.Cli.Command.Test
-    Wasp.Cli.Command.TsConfigSetup
     Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Common

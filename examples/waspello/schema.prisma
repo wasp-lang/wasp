@@ -12,8 +12,9 @@ generator client {
 model User {
   id Int @id @default(autoincrement())
 
-  lists List[]
-  cards Card[]
+  lists     List[]
+  cards     Card[]
+  todoItems TodoItem[]
 }
 
 model List {
@@ -40,4 +41,12 @@ model Card {
   // Card has a single author.
   author   User @relation(fields: [authorId], references: [id])
   authorId Int
+}
+
+model TodoItem {
+  id     Int     @id @default(autoincrement())
+  text   String
+  isDone Boolean @default(false)
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int
 }

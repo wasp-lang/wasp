@@ -1,4 +1,5 @@
 export { App } from "./publicApi/App.js";
+export { Module } from "./publicApi/Module.js";
 export type {
   ActionConfig,
   ApiConfig,
@@ -34,5 +35,6 @@ export type {
    */
   // TsAppSpec,
   UsernameAndPasswordConfig,
+  JsonSerializable,
   WebsocketConfig,
 } from "./publicApi/tsAppSpec.js";

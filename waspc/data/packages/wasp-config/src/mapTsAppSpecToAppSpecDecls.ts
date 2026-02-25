@@ -73,6 +73,9 @@ export function mapTsAppSpecToAppSpecDecls(
       db,
       emailSender,
       websocket,
+      tsAppSpec.moduleServerSetupFns,
+      tsAppSpec.moduleClientSetupFns,
+      tsAppSpec.moduleProvides,
     ),
   };
 
@@ -192,6 +195,9 @@ export function mapApp(
   db?: TsAppSpec.DbConfig,
   emailSender?: TsAppSpec.EmailSenderConfig,
   webSocket?: TsAppSpec.WebsocketConfig,
+  moduleServerSetupFns: TsAppSpec.ExtImport[] = [],
+  moduleClientSetupFns: TsAppSpec.ExtImport[] = [],
+  moduleProvides: TsAppSpec.ModuleProvideEntry[] = [],
 ): AppSpec.App {
   const { title, wasp, head } = app;
   return {
@@ -204,6 +210,18 @@ export function mapApp(
     webSocket: webSocket && mapWebSocket(webSocket),
     db: db && mapDb(db),
     emailSender: emailSender && mapEmailSender(emailSender),
+    moduleServerSetupFns:
+      moduleServerSetupFns.length > 0
+        ? moduleServerSetupFns.map(mapExtImport)
+        : undefined,
+    moduleClientSetupFns:
+      moduleClientSetupFns.length > 0
+        ? moduleClientSetupFns.map(mapExtImport)
+        : undefined,
+    moduleProvides:
+      moduleProvides.length > 0
+        ? moduleProvides
+        : undefined,
   };
 }
 

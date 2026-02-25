@@ -18,7 +18,7 @@ import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport (..),
     JsImportName (JsImportField, JsImportModule),
-    JsImportPath (RelativeImportPath),
+    JsImportPath (RawModuleImportPath, RelativeImportPath),
     getJsImportStmtAndIdentifier,
     makeJsImport,
   )
@@ -30,11 +30,17 @@ extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport = makeJsImport (RelativeImportPath importPath) importName
+extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport =
+  case EI.path extImport of
+    EI.ExtImportSrcPath srcPath ->
+      makeJsImport (RelativeImportPath importPath) importName
+      where
+        userDefinedPathInExtSrcDir = SP.castRel srcPath :: Path Posix (Rel GeneratedExternalCodeDir) File'
+        importPath = SP.castRel $ pathFromImportLocationToSrcDir </> pathFromSrcDirToExtCodeDir </> userDefinedPathInExtSrcDir
+    EI.ExtImportPkgPath pkgPath ->
+      makeJsImport (RawModuleImportPath pkgPath) importName
   where
-    userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel GeneratedExternalCodeDir) File'
     importName = extImportNameToJsImportName $ EI.name extImport
-    importPath = SP.castRel $ pathFromImportLocationToSrcDir </> pathFromSrcDirToExtCodeDir </> userDefinedPathInExtSrcDir
 
 extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
 extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
@@ -55,16 +61,25 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
-extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath) =
-  JsImport
-    { _path = RelativeImportPath relativePath,
-      _name = importName,
-      _importAlias = Just $ getAliasedExtImportIdentifier extImport
-    }
+extImportToRelativeSrcImportFromViteExecution extImport =
+  case EI.path extImport of
+    EI.ExtImportSrcPath srcPath ->
+      JsImport
+        { _path = RelativeImportPath relativePath,
+          _name = importName,
+          _importAlias = Just $ getAliasedExtImportIdentifier extImport
+        }
+      where
+        relativePath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> srcPath
+        projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
+    EI.ExtImportPkgPath pkgPath ->
+      JsImport
+        { _path = RawModuleImportPath pkgPath,
+          _name = importName,
+          _importAlias = Just $ getAliasedExtImportIdentifier extImport
+        }
   where
-    relativePath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
-    projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
-    importName = extImportNameToJsImportName extImportName
+    importName = extImportNameToJsImportName $ EI.name extImport
 
 getAliasedExtImportIdentifier :: EI.ExtImport -> String
 getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"

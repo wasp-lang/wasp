@@ -12,8 +12,10 @@ where
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
+import qualified Data.Aeson.Text as Aeson.Text
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
+import qualified Data.Text.Lazy as TL
 import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
@@ -48,6 +50,7 @@ import Wasp.Generator.DepVersions
     superjsonVersion,
     typescriptVersion,
   )
+import qualified Data.Text as T
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -112,6 +115,7 @@ genSdk spec =
       C.genFileCopy [relfile|core/storage.ts|],
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/HttpError.ts|],
+      C.genFileCopy [relfile|server/module/index.ts|],
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/setup.ts|],
@@ -147,6 +151,7 @@ genSdk spec =
     <++> genEnvValidation spec
     <++> genClientApp spec
     <++> genVitePlugins spec
+    <++> genModuleConfigFile spec
 
 genEntitiesAndServerTypesDirs :: AppSpec -> Generator [FileDraft]
 genEntitiesAndServerTypesDirs spec =
@@ -378,3 +383,23 @@ genServerDbClient spec = do
       tmplData
   where
     maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
+
+genModuleConfigFile :: AppSpec -> Generator [FileDraft]
+genModuleConfigFile spec =
+  return
+    [ C.mkTmplFdWithData
+        [relfile|modules/config.ts|]
+        ( object
+            [ "moduleProvides" .= map moduleProvideToJson provides
+            ]
+        )
+    ]
+  where
+    provides = case AS.App.moduleProvides (snd $ AS.Valid.getApp spec) of
+      Nothing -> []
+      Just ps -> ps
+    moduleProvideToJson mp =
+      object
+        [ "packageNameJson" .= TL.toStrict (Aeson.Text.encodeToLazyText (T.pack $ AS.App.packageName mp)),
+          "valuesJson" .= TL.toStrict (Aeson.Text.encodeToLazyText (AS.App.values mp))
+        ]

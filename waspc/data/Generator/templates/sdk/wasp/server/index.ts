@@ -15,3 +15,9 @@ export { env } from './env.js'
 
 // PUBLIC API
 export type DbSeedFn = (prisma: PrismaClient) => Promise<void>
+
+// Ensure TypeScript includes server/module/index.ts in the compilation.
+// Without this, wasp/server/module is only referenced by external module
+// packages (.d.ts files in node_modules), which resolves to dist/ and
+// causes TS5055 on rebuild.
+export type { OperationContext as _OperationContext } from 'wasp/server/module'

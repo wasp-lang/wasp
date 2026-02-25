@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { writeFileSync } from "fs";
+import { readFileSync, writeFileSync } from "fs";
 import { analyzeApp } from "./appAnalyzer.js";
 import { parseProcessArgsOrThrow } from "./cli.js";
 
@@ -14,7 +14,8 @@ async function main(args: string[]): Promise<void> {
   const { waspTsSpecPath, outputFilePath, entityNames } =
     parseProcessArgsOrThrow(args);
 
-  const declsResult = await analyzeApp(waspTsSpecPath, entityNames);
+  const pkgJson = JSON.parse(readFileSync("package.json", "utf-8"));
+  const declsResult = await analyzeApp(waspTsSpecPath, entityNames, pkgJson.name);
 
   if (declsResult.status === "error") {
     console.error(declsResult.error);

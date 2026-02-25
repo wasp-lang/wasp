@@ -3,17 +3,10 @@ module Wasp.Cli.Command.Build
   )
 where
 
-import Control.Lens
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (Value (..))
-import qualified Data.Aeson.Key as Key
-import qualified Data.Aeson.KeyMap as KM
-import Data.Aeson.Lens
-import Data.List (isSuffixOf)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -37,7 +30,6 @@ import Wasp.Project.Common
   )
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
-import Wasp.Util.Json (updateJsonFile)
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code
@@ -118,36 +110,6 @@ build = do
         copyFile
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
-
-      -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
-      -- We should remove this code once we implement a proper solution.
-      ExceptT $ updateJsonFile removeWaspConfigFromDevDependenciesArray packageJsonInBuildDir
-      ExceptT $ updateJsonFile removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonInBuildDir
-
-    removeAllMentionsOfWaspConfigInPackageLockJson :: Value -> Value
-    removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonObject =
-      -- We want to:
-      --   1. Remove the `wasp-config` dev dependency from the root package in package-lock.json.
-      --   This is at `packageLock["packages"][""]["wasp-config"]`.
-      --   2. Remove all package location entries for the `wasp-config` package
-      --   (i.e., entries whose location keys end in `/wasp-config`).
-      --   Example locations include:
-      --      packageLock["packages"]["../../data/packages/wasp-config"]
-      --      packageLock["packages"]["node_modules/wasp-config"]
-      --      packageLock["packages"]["/home/filip/../wasp-config"]
-      packageLockJsonObject
-        & key "packages" . key "" %~ removeWaspConfigFromDevDependenciesArray
-        & key "packages" . _Object
-          %~ KM.filterWithKey
-            (\packageLocation _ -> not $ isWaspConfigPackageLocation (Key.toString packageLocation))
-
-    isWaspConfigPackageLocation :: String -> Bool
-    isWaspConfigPackageLocation packageLocation =
-      (FP.pathSeparator : "wasp-config") `isSuffixOf` packageLocation
-
-    removeWaspConfigFromDevDependenciesArray :: Value -> Value
-    removeWaspConfigFromDevDependenciesArray original =
-      original & key "devDependencies" . _Object . at "wasp-config" .~ Nothing
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->

@@ -24,7 +24,7 @@ import Wasp.Analyzer.TypeDefinitions.Class.HasCustomEvaluation (HasCustomEvaluat
 import Wasp.Analyzer.TypeDefinitions.TH
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.Core.Ref (Ref (..))
-import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
+import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..), ExtImportPath (..))
 import Wasp.AppSpec.JSON (JSON (..))
 
 fromRight :: (Show a) => Either a b -> b
@@ -209,8 +209,8 @@ spec_Evaluator = do
           `shouldBe` Right
             [ ( "Test",
                 Special
-                  [ ExtImport (ExtImportField "field") (fromJust $ SP.parseRelFileP "main.js"),
-                    ExtImport (ExtImportModule "main") (fromJust $ SP.parseRelFileP "main.js")
+                  [ ExtImport (ExtImportField "field") (ExtImportSrcPath $ fromJust $ SP.parseRelFileP "main.js"),
+                    ExtImport (ExtImportModule "main") (ExtImportSrcPath $ fromJust $ SP.parseRelFileP "main.js")
                   ]
                   (JSON $ Aeson.object ["key" Aeson..= (1 :: Integer)])
               )

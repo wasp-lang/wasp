@@ -37,6 +37,7 @@ import Wasp.Project.Env (readDotEnvClient, readDotEnvServer)
 import qualified Wasp.Project.ExternalConfig as EC
 import qualified Wasp.Project.ExternalFiles as ExternalFiles
 import Wasp.Project.WaspFile (analyzeWaspFile, findWaspFile)
+import Wasp.Project.WaspFile.WaspConfigPackage (ensureWaspConfigPackageInstalled)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Parser.Schema as Psl.Parser
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
@@ -54,25 +55,31 @@ analyzeWaspProject waspDir compileOptions = do
 
   case waspFilePathOrError of
     Left err -> return (Left err, [])
-    Right waspFilePath ->
-      analyzePrismaSchema waspDir >>= \case
-        (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
-        -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
-        (Right prismaSchemaAst, _) ->
-          analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
-            Left errors -> return (Left errors, [])
-            Right declarations -> do
-              let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
-              EC.readExternalConfigs waspDir srcTsConfigPath >>= \case
-                Left externalConfigError -> return (Left [externalConfigError], [])
-                Right externalConfigs ->
-                  constructAppSpec
-                    waspDir
-                    compileOptions
-                    externalConfigs
-                    prismaSchemaAst
-                    declarations
-                    srcTsConfigPath
+    Right waspFilePath -> do
+      waspConfigResult <- case waspFilePath of
+        WaspTs _ -> ensureWaspConfigPackageInstalled waspDir
+        WaspLang _ -> return $ Right ()
+      case waspConfigResult of
+        Left err -> return (Left [err], [])
+        Right () ->
+          analyzePrismaSchema waspDir >>= \case
+            (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
+            -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
+            (Right prismaSchemaAst, _) ->
+              analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
+                Left errors -> return (Left errors, [])
+                Right declarations -> do
+                  let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+                  EC.readExternalConfigs waspDir srcTsConfigPath >>= \case
+                    Left externalConfigError -> return (Left [externalConfigError], [])
+                    Right externalConfigs ->
+                      constructAppSpec
+                        waspDir
+                        compileOptions
+                        externalConfigs
+                        prismaSchemaAst
+                        declarations
+                        srcTsConfigPath
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->

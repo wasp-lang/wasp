@@ -1,0 +1,21 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        Int        @id @default(autoincrement())
+  todoItems TodoItem[]
+}
+
+model TodoItem {
+  id     Int     @id @default(autoincrement())
+  text   String
+  isDone Boolean @default(false)
+  user   User    @relation(fields: [userId], references: [id])
+  userId Int
+}

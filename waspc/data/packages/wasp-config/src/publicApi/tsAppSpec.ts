@@ -1,22 +1,39 @@
 import * as AppSpec from "../appSpec.js";
 import { Branded } from "../branded.js";
 
-export type TsAppSpec = {
-  app: { name: string; config: AppConfig };
+// The declarations a Module can hold (things with names, can have multiples)
+export type TsModuleSpec = {
   actions: Map<string, ActionConfig>;
   apiNamespaces: Map<string, ApiNamespaceConfig>;
   apis: Map<string, ApiConfig>;
-  auth?: AuthConfig;
-  client?: ClientConfig;
   cruds: Map<string, CrudConfig>;
-  db?: DbConfig;
-  emailSender?: EmailSenderConfig;
   jobs: Map<string, JobConfig>;
   pages: Map<string, PageConfig>;
   queries: Map<string, QueryConfig>;
   routes: Map<string, RouteConfig>;
+  serverSetupFn?: ExtImport;
+  clientSetupFn?: ExtImport;
+  provides: Map<string, JsonSerializable>;
+  packageName?: string;
+};
+
+export type ModuleProvideEntry = {
+  packageName: string;
+  values: Record<string, JsonSerializable>;
+};
+
+// Full app spec = module declarations + app-level singletons
+export type TsAppSpec = TsModuleSpec & {
+  app: { name: string; config: AppConfig };
+  auth?: AuthConfig;
+  client?: ClientConfig;
+  db?: DbConfig;
+  emailSender?: EmailSenderConfig;
   server?: ServerConfig;
   websocket?: WebsocketConfig;
+  moduleServerSetupFns: ExtImport[];
+  moduleClientSetupFns: ExtImport[];
+  moduleProvides: ModuleProvideEntry[];
 };
 
 export type AppConfig = {
@@ -201,3 +218,11 @@ export type EmailFromField = {
   name?: string;
   email: string;
 };
+
+export type JsonSerializable =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonSerializable[]
+  | { [key: string]: JsonSerializable };

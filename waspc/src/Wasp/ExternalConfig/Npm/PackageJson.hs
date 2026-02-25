@@ -1,5 +1,6 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 module Wasp.ExternalConfig.Npm.PackageJson
   ( PackageJson (..),
@@ -13,7 +14,7 @@ module Wasp.ExternalConfig.Npm.PackageJson
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON (..), (.:), (.:?), withObject)
 import Data.Map (Map)
 import qualified Data.Map as M
 import GHC.Generics (Generic)
@@ -27,7 +28,16 @@ data PackageJson = PackageJson
     workspaces :: !(Maybe [String]),
     wasp :: !(Maybe WaspConfig)
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Show, Generic)
+
+instance FromJSON PackageJson where
+  parseJSON = withObject "PackageJson" $ \o ->
+    PackageJson
+      <$> o .: "name"
+      <*> (maybe M.empty id <$> o .:? "dependencies")
+      <*> (maybe M.empty id <$> o .:? "devDependencies")
+      <*> o .:? "workspaces"
+      <*> o .:? "wasp"
 
 -- | Configuration for Wasp-specific features in package.json.
 data WaspConfig = WaspConfig

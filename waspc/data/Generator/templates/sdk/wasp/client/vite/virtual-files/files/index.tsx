@@ -17,10 +17,16 @@ import { getWaspApp } from "wasp/client/app";
 {=# setupFn.isDefined =}
 {=& setupFn.importStatement =}
 {=/ setupFn.isDefined =}
+{=# moduleClientSetupFns =}
+{=& importStatement =}
+{=/ moduleClientSetupFns =}
 
 {=# setupFn.isDefined =}
 await {= setupFn.importIdentifier =}()
 {=/ setupFn.isDefined =}
+{=# moduleClientSetupFns =}
+await {= importIdentifier =}()
+{=/ moduleClientSetupFns =}
 
 const app = getWaspApp({
   {=# rootComponent.isDefined =}

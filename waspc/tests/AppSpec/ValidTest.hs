@@ -537,7 +537,10 @@ spec_AppSpecValid = do
           AS.App.auth = Nothing,
           AS.App.head = Nothing,
           AS.App.emailSender = Nothing,
-          AS.App.webSocket = Nothing
+          AS.App.webSocket = Nothing,
+          AS.App.moduleServerSetupFns = Nothing,
+          AS.App.moduleClientSetupFns = Nothing,
+          AS.App.moduleProvides = Nothing
         }
 
     basicAppDecl = AS.Decl.makeDecl "TestApp" basicApp
@@ -603,7 +606,7 @@ spec_AppSpecValid = do
         { AS.Page.component =
             AS.ExtImport.ExtImport
               (AS.ExtImport.ExtImportModule "Home")
-              (fromJust $ SP.parseRelFileP "pages/Main"),
+              (AS.ExtImport.ExtImportSrcPath $ fromJust $ SP.parseRelFileP "pages/Main"),
           AS.Page.authRequired = Nothing
         }
 
@@ -709,4 +712,4 @@ spec_AppSpecValid = do
     dummyExtImport =
       AS.ExtImport.ExtImport
         (AS.ExtImport.ExtImportModule "Dummy")
-        (fromJust $ SP.parseRelFileP "dummy/File")
+        (AS.ExtImport.ExtImportSrcPath $ fromJust $ SP.parseRelFileP "dummy/File")

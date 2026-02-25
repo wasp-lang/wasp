@@ -6,7 +6,9 @@ import { App } from "./publicApi/App.js";
 export async function analyzeApp(
   waspTsSpecPath: string,
   entityNames: string[],
+  projectPackageName?: string,
 ): Promise<Result<AppSpec.Decl[], string>> {
+  App.projectPackageName = projectPackageName;
   const appResult = await getApp(waspTsSpecPath);
 
   if (appResult.status === "error") {

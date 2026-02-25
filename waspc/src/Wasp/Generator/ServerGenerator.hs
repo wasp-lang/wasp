@@ -14,7 +14,8 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Maybe
-  ( isJust,
+  ( fromMaybe,
+    isJust,
     maybeToList,
   )
 import StrongPath
@@ -261,13 +262,16 @@ genServerJs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
+              "moduleServerSetupFns" .= map (extImportToImportJson relPathToServerSrcDir . Just) moduleSetupFns,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
             ]
       )
   where
-    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server (snd $ getApp spec)
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
+    appData = snd $ getApp spec
+    maybeSetupJsFunction = AS.App.Server.setupFn =<< AS.App.server appData
+    moduleSetupFns = fromMaybe [] $ AS.App.moduleServerSetupFns appData
+    maybeWebSocket = AS.App.webSocket appData
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
@@ -349,6 +353,15 @@ genRollupConfigJs spec =
   return $
     C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
   where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
+    tmplData =
+      object
+        [ "areDbSeedsDefined" .= areDbSeedsDefined,
+          "modulePackageNames" .= modulePackageNames
+        ]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
+
+    modulePackageNames =
+      map
+        (\mp -> object ["name" .= AS.App.packageName mp])
+        (fromMaybe [] $ AS.App.moduleProvides (snd $ getApp spec))

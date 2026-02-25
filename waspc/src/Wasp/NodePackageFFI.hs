@@ -38,9 +38,8 @@ data RunnablePackage
     PrismaPackage
   | WaspStudioPackage
 
--- | This are the globally installed packages waspc installs into
--- the user's project using `npm`. They are used/run from inside the project's
--- node_modules.
+-- | Packages that waspc installs into the user's project via @npm@.
+-- They are used from inside the project's @node_modules@.
 data InstallablePackage = WaspConfigPackage
 
 data PackagesDir

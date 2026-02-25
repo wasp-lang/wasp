@@ -36,6 +36,7 @@ data JsImport = JsImport
 data JsImportPath
   = RelativeImportPath (Path Posix (Rel Dir') File')
   | ModuleImportPath (Path Posix (Rel Dir') File')
+  | RawModuleImportPath String -- ^ Verbatim package path, emitted as-is.
   deriving (Show, Eq, Data)
 
 -- Note (filip): not a fan of so many aliases for regular types
@@ -77,6 +78,7 @@ getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
     pathString = case importPath of
       RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
       ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+      RawModuleImportPath rawPath -> rawPath
     normalizePath path
       | ".." `isPrefixOf` path = path
       | otherwise = "./" ++ path

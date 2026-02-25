@@ -6,6 +6,7 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (fromMaybe)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
@@ -64,10 +65,13 @@ genVirtualIndexTsx spec =
       object
         [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
           "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
+          "moduleClientSetupFns" .= map (GJI.jsImportToImportJson . Just . GJI.extImportToRelativeSrcImportFromViteExecution) moduleClientSetupFns,
           "routesMapping" .= routesMappingImportJson
         ]
-    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
+    appData = snd $ getApp spec
+    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client appData
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client appData
+    moduleClientSetupFns = fromMaybe [] $ AS.App.moduleClientSetupFns appData
     routesMappingImportJson =
       object
         [ "isDefined" .= True,

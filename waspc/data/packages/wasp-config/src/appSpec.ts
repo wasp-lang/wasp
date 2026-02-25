@@ -90,6 +90,19 @@ export type Crud = {
   operations: CrudOperations;
 };
 
+export type ModuleProvide = {
+  packageName: string;
+  values: Record<string, JsonSerializable>;
+};
+
+export type JsonSerializable =
+  | string
+  | number
+  | boolean
+  | null
+  | JsonSerializable[]
+  | { [key: string]: JsonSerializable };
+
 export type App = {
   wasp: Wasp;
   title: string;
@@ -100,13 +113,16 @@ export type App = {
   db: Optional<Db>;
   emailSender: Optional<EmailSender>;
   webSocket: Optional<WebSocket>;
+  moduleServerSetupFns: Optional<ExtImport[]>;
+  moduleClientSetupFns: Optional<ExtImport[]>;
+  moduleProvides: Optional<ModuleProvide[]>;
 };
 
 export type ExtImportKind = "named" | "default";
 export type ExtImport = {
   kind: ExtImportKind;
   name: string;
-  path: `@src/${string}`;
+  path: `@src/${string}` | `@pkg/${string}`;
 };
 
 export type JobExecutor = "PgBoss";

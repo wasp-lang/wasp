@@ -1,41 +1,245 @@
 /** This module defines the user-facing API for defining a Wasp app.
  */
-import { GET_TS_APP_SPEC } from "../_private.js";
+import type * as AppSpec from "../appSpec.js";
+import { getModuleSpec, GET_TS_APP_SPEC } from "../_private.js";
+import { Module } from "./Module.js";
 import * as TsAppSpec from "./tsAppSpec.js";
 
 export class App {
-  #tsAppSpec: TsAppSpec.TsAppSpec;
+  static projectPackageName: string | undefined;
+
+  #module: Module;
+  #app: { name: string; config: TsAppSpec.AppConfig };
+  #auth?: TsAppSpec.AuthConfig;
+  #client?: TsAppSpec.ClientConfig;
+  #db?: TsAppSpec.DbConfig;
+  #emailSender?: TsAppSpec.EmailSenderConfig;
+  #server?: TsAppSpec.ServerConfig;
+  #websocket?: TsAppSpec.WebsocketConfig;
+  #moduleServerSetupFns: TsAppSpec.ExtImport[] = [];
+  #moduleClientSetupFns: TsAppSpec.ExtImport[] = [];
+  #moduleProvides: TsAppSpec.ModuleProvideEntry[] = [];
 
   // NOTE: Using a non-public symbol gives us a package-private property.
   // It's not that important to hide it from the users, but we still don't want
   // user's IDE to suggest it during autocompletion.
   [GET_TS_APP_SPEC](): TsAppSpec.TsAppSpec {
-    return this.#tsAppSpec;
+    const moduleSpec = getModuleSpec(this.#module);
+    return {
+      app: this.#app,
+      actions: moduleSpec.actions,
+      apiNamespaces: moduleSpec.apiNamespaces,
+      apis: moduleSpec.apis,
+      auth: this.#auth,
+      client: this.#client,
+      cruds: moduleSpec.cruds,
+      db: this.#db,
+      emailSender: this.#emailSender,
+      jobs: moduleSpec.jobs,
+      pages: moduleSpec.pages,
+      queries: moduleSpec.queries,
+      routes: moduleSpec.routes,
+      provides: moduleSpec.provides,
+      server: this.#server,
+      websocket: this.#websocket,
+      moduleServerSetupFns: this.#moduleServerSetupFns,
+      moduleClientSetupFns: this.#moduleClientSetupFns,
+      moduleProvides: this.#moduleProvides,
+    };
   }
 
   constructor(name: string, config: TsAppSpec.AppConfig) {
-    this.#tsAppSpec = {
-      app: { name, config },
-      actions: new Map<string, TsAppSpec.ActionConfig>(),
-      apiNamespaces: new Map<string, TsAppSpec.ApiNamespaceConfig>(),
-      apis: new Map<string, TsAppSpec.ApiConfig>(),
-      auth: undefined,
-      client: undefined,
-      cruds: new Map<string, TsAppSpec.CrudConfig>(),
-      db: undefined,
-      emailSender: undefined,
-      jobs: new Map<string, TsAppSpec.JobConfig>(),
-      pages: new Map<string, TsAppSpec.PageConfig>(),
-      queries: new Map<string, TsAppSpec.QueryConfig>(),
-      routes: new Map<string, TsAppSpec.RouteConfig>(),
-      server: undefined,
-      websocket: undefined,
+    this.#module = new Module();
+    this.#app = { name, config };
+  }
+
+  use(this: App, module: Module): void {
+    const original = getModuleSpec(module);
+    const current = getModuleSpec(this.#module);
+
+    const packageName = original.packageName;
+
+    const mapKeys: (keyof TsAppSpec.TsModuleSpec)[] = [
+      "actions",
+      "apiNamespaces",
+      "apis",
+      "cruds",
+      "jobs",
+      "pages",
+      "queries",
+      "routes",
+    ];
+
+    // Clone maps so we don't mutate the original module spec.
+    const incoming: TsAppSpec.TsModuleSpec = {
+      ...original,
+      provides: new Map(original.provides),
+      serverSetupFn: original.serverSetupFn,
+      clientSetupFn: original.clientSetupFn,
     };
+    for (const key of mapKeys) {
+      (incoming as any)[key] = new Map(original[key] as Map<string, unknown>);
+    }
+
+    if (packageName && packageName !== App.projectPackageName) {
+      App.#rewriteModuleImports(incoming, packageName);
+    }
+
+    for (const key of mapKeys) {
+      const currentMap = current[key] as Map<string, unknown>;
+      const incomingMap = incoming[key] as Map<string, unknown>;
+      for (const [name, value] of incomingMap) {
+        if (currentMap.has(name)) {
+          throw new Error(
+            `Duplicate ${key} declaration: '${name}' is already defined.`,
+          );
+        }
+        currentMap.set(name, value);
+      }
+    }
+
+    if (incoming.serverSetupFn) {
+      this.#moduleServerSetupFns.push(incoming.serverSetupFn);
+    }
+    if (incoming.clientSetupFn) {
+      this.#moduleClientSetupFns.push(incoming.clientSetupFn);
+    }
+    if (packageName) {
+      this.#moduleProvides.push({
+        packageName,
+        values: Object.fromEntries(incoming.provides),
+      });
+    } else if (incoming.provides.size > 0) {
+      throw new Error(
+        `Cannot use provide() without a package name. ` +
+          `Pass the package name to the Module constructor: new Module("@scope/my-module")`,
+      );
+    }
+  }
+
+  static #rewritePath(
+    path: AppSpec.ExtImport["path"],
+    packageName: string,
+  ): AppSpec.ExtImport["path"] {
+    if (path.startsWith("@src/")) {
+      const suffix = path.slice("@src/".length);
+      return `@pkg/${packageName}/${suffix}` as `@pkg/${string}`;
+    }
+    return path;
+  }
+
+  static #rewriteExtImport(
+    extImport: TsAppSpec.ExtImport,
+    packageName: string,
+  ): TsAppSpec.ExtImport {
+    return { ...extImport, from: App.#rewritePath(extImport.from, packageName) };
+  }
+
+  static #rewriteOptionalExtImport(
+    extImport: TsAppSpec.ExtImport | undefined,
+    packageName: string,
+  ): TsAppSpec.ExtImport | undefined {
+    return extImport ? App.#rewriteExtImport(extImport, packageName) : undefined;
+  }
+
+  static #rewriteModuleImports(
+    spec: TsAppSpec.TsModuleSpec,
+    packageName: string,
+  ): void {
+    for (const [name, config] of spec.actions) {
+      spec.actions.set(name, {
+        ...config,
+        fn: App.#rewriteExtImport(config.fn, packageName),
+      });
+    }
+
+    for (const [name, config] of spec.apiNamespaces) {
+      spec.apiNamespaces.set(name, {
+        ...config,
+        middlewareConfigFn: App.#rewriteExtImport(
+          config.middlewareConfigFn,
+          packageName,
+        ),
+      });
+    }
+
+    for (const [name, config] of spec.apis) {
+      spec.apis.set(name, {
+        ...config,
+        fn: App.#rewriteExtImport(config.fn, packageName),
+        middlewareConfigFn: App.#rewriteOptionalExtImport(
+          config.middlewareConfigFn,
+          packageName,
+        ),
+      });
+    }
+
+    for (const [name, config] of spec.cruds) {
+      const rewriteOp = (
+        op: TsAppSpec.CrudOperationOptions | undefined,
+      ): TsAppSpec.CrudOperationOptions | undefined => {
+        if (!op) return undefined;
+        return {
+          ...op,
+          overrideFn: App.#rewriteOptionalExtImport(
+            op.overrideFn,
+            packageName,
+          ),
+        };
+      };
+      spec.cruds.set(name, {
+        ...config,
+        operations: {
+          get: rewriteOp(config.operations.get),
+          getAll: rewriteOp(config.operations.getAll),
+          create: rewriteOp(config.operations.create),
+          update: rewriteOp(config.operations.update),
+          delete: rewriteOp(config.operations.delete),
+        },
+      });
+    }
+
+    for (const [name, config] of spec.jobs) {
+      spec.jobs.set(name, {
+        ...config,
+        perform: {
+          ...config.perform,
+          fn: App.#rewriteExtImport(config.perform.fn, packageName),
+        },
+      });
+    }
+
+    for (const [name, config] of spec.pages) {
+      spec.pages.set(name, {
+        ...config,
+        component: App.#rewriteExtImport(config.component, packageName),
+      });
+    }
+
+    for (const [name, config] of spec.queries) {
+      spec.queries.set(name, {
+        ...config,
+        fn: App.#rewriteExtImport(config.fn, packageName),
+      });
+    }
+
+    if (spec.serverSetupFn) {
+      spec.serverSetupFn = App.#rewriteExtImport(
+        spec.serverSetupFn,
+        packageName,
+      );
+    }
+    if (spec.clientSetupFn) {
+      spec.clientSetupFn = App.#rewriteExtImport(
+        spec.clientSetupFn,
+        packageName,
+      );
+    }
   }
 
   // TODO: Enforce that all methods are covered in compile time
   action(this: App, name: string, config: TsAppSpec.ActionConfig): void {
-    this.#tsAppSpec.actions.set(name, config);
+    this.#module.action(name, config);
   }
 
   apiNamespace(
@@ -43,35 +247,35 @@ export class App {
     name: string,
     config: TsAppSpec.ApiNamespaceConfig,
   ): void {
-    this.#tsAppSpec.apiNamespaces.set(name, config);
+    this.#module.apiNamespace(name, config);
   }
 
   api(this: App, name: string, config: TsAppSpec.ApiConfig): void {
-    this.#tsAppSpec.apis.set(name, config);
+    this.#module.api(name, config);
   }
 
   auth(this: App, config: TsAppSpec.AuthConfig): void {
-    this.#tsAppSpec.auth = config;
+    this.#auth = config;
   }
 
   client(this: App, config: TsAppSpec.ClientConfig): void {
-    this.#tsAppSpec.client = config;
+    this.#client = config;
   }
 
   crud(this: App, name: string, config: TsAppSpec.CrudConfig): void {
-    this.#tsAppSpec.cruds.set(name, config);
+    this.#module.crud(name, config);
   }
 
   db(this: App, config: TsAppSpec.DbConfig): void {
-    this.#tsAppSpec.db = config;
+    this.#db = config;
   }
 
   emailSender(this: App, config: TsAppSpec.EmailSenderConfig): void {
-    this.#tsAppSpec.emailSender = config;
+    this.#emailSender = config;
   }
 
   job(this: App, name: string, config: TsAppSpec.JobConfig): void {
-    this.#tsAppSpec.jobs.set(name, config);
+    this.#module.job(name, config);
   }
 
   page(
@@ -79,23 +283,22 @@ export class App {
     name: string,
     config: TsAppSpec.PageConfig,
   ): TsAppSpec.PageName {
-    this.#tsAppSpec.pages.set(name, config);
-    return name as TsAppSpec.PageName;
+    return this.#module.page(name, config);
   }
 
   query(this: App, name: string, config: TsAppSpec.QueryConfig): void {
-    this.#tsAppSpec.queries.set(name, config);
+    this.#module.query(name, config);
   }
 
   route(this: App, name: string, config: TsAppSpec.RouteConfig): void {
-    this.#tsAppSpec.routes.set(name, config);
+    this.#module.route(name, config);
   }
 
   server(this: App, config: TsAppSpec.ServerConfig): void {
-    this.#tsAppSpec.server = config;
+    this.#server = config;
   }
 
   webSocket(this: App, config: TsAppSpec.WebsocketConfig) {
-    this.#tsAppSpec.websocket = config;
+    this.#websocket = config;
   }
 }

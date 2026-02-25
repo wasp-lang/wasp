@@ -44,6 +44,47 @@ describe("mapApp", () => {
     testMapApp(Fixtures.createApp("full").app);
   });
 
+  test("should map module fields when populated", () => {
+    const { app } = Fixtures.createApp("minimal");
+    const tsAppSpec = app[GET_TS_APP_SPEC]();
+
+    const serverSetupFns: TsAppSpec.ExtImport[] = [
+      { import: "setupServer", from: "@pkg/@acme/mod/setup" },
+    ];
+    const clientSetupFns: TsAppSpec.ExtImport[] = [
+      { importDefault: "setupClient", from: "@pkg/@acme/mod/client" },
+    ];
+    const moduleProvides: TsAppSpec.ModuleProvideEntry[] = [
+      { packageName: "@acme/mod", values: { apiKey: "test-key", debug: true } },
+    ];
+
+    const entityRefParser = makeRefParser("Entity", []);
+    const routeRefParser = makeRefParser("Route", []);
+
+    const result = mapApp(
+      tsAppSpec.app.config,
+      entityRefParser,
+      routeRefParser,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      serverSetupFns,
+      clientSetupFns,
+      moduleProvides,
+    );
+
+    expect(result.moduleServerSetupFns).toStrictEqual(
+      serverSetupFns.map(mapExtImport),
+    );
+    expect(result.moduleClientSetupFns).toStrictEqual(
+      clientSetupFns.map(mapExtImport),
+    );
+    expect(result.moduleProvides).toStrictEqual(moduleProvides);
+  });
+
   function testMapApp(app: App): void {
     const tsAppSpec = app[GET_TS_APP_SPEC]();
 
@@ -95,6 +136,9 @@ describe("mapApp", () => {
       emailSender:
         tsAppSpec.emailSender && mapEmailSender(tsAppSpec.emailSender),
       webSocket: tsAppSpec.websocket && mapWebSocket(tsAppSpec.websocket),
+      moduleServerSetupFns: undefined,
+      moduleClientSetupFns: undefined,
+      moduleProvides: undefined,
     } satisfies AppSpec.App);
   }
 });

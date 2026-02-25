@@ -5,6 +5,7 @@
 module Wasp.AppSpec.ExtImport
   ( ExtImport (..),
     ExtImportName (..),
+    ExtImportPath (..),
     importIdentifier,
     parseExtImportPath,
   )
@@ -42,7 +43,12 @@ instance FromJSON ExtImport where
         "named" -> pure $ ExtImportField nameStr
         _ -> fail $ "Failed to parse import kind: " <> kindStr
 
-type ExtImportPath = Path Posix (Rel SourceExternalCodeDir) File'
+data ExtImportPath
+  = -- | Path relative to the user's source directory (from @src/ prefix).
+    ExtImportSrcPath (Path Posix (Rel SourceExternalCodeDir) File')
+  | -- | Verbatim package path (from @pkg/ prefix), e.g. "@acme/dashboard/src/queries.js".
+    ExtImportPkgPath String
+  deriving (Show, Eq, Data)
 
 type Identifier = String
 
@@ -59,21 +65,20 @@ importIdentifier (ExtImport importName _) = case importName of
   ExtImportField n -> n
 
 parseExtImportPath :: String -> Either String ExtImportPath
-parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
-  Nothing -> Left $ "Path in external import must start with \"" ++ extSrcPrefix ++ "\"!"
-  Just relFileFP ->
-    left
-      (("Failed to parse relative posix path to file: " ++) . show)
-      $ SP.parseRelFileP relFileFP
+parseExtImportPath extImportPath
+  | Just relFileFP <- stripPrefix extSrcPrefix extImportPath =
+      left
+        (("Failed to parse relative posix path to file: " ++) . show)
+        (ExtImportSrcPath <$> SP.parseRelFileP relFileFP)
+  | Just pkgPath <- stripPrefix extPkgPrefix extImportPath =
+      Right $ ExtImportPkgPath pkgPath
+  | otherwise =
+      Left $
+        "Path in external import must start with \""
+          ++ extSrcPrefix
+          ++ "\" or \""
+          ++ extPkgPrefix
+          ++ "\"!"
   where
-    stripImportPrefix importPath = stripPrefix extSrcPrefix importPath
-    -- Filip: We no longer want separation between client and server code
-    -- todo (filip): Do we still want to know which is which. We might (because of the reloading).
-    -- For now, as we'd like (expect):
-    --   - Nodemon watches all files in the user's source folder (client files
-    --   included), but tsc only compiles the server files (I think because it
-    --   knows that the others aren't used). I am not yet sure how it knows this.
-    --   - Vite also only triggers on client files. I am not sure how it knows
-    --   about the difference either.
-    -- todo (filip): investigate
     extSrcPrefix = "@src/"
+    extPkgPrefix = "@pkg/"

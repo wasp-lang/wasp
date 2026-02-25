@@ -30,7 +30,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportField "foo",
-                ExtImport.path = [relfileP|folder/file.js|]
+                ExtImport.path = ExtImport.ExtImportSrcPath [relfileP|folder/file.js|]
               }
           )
     it "parses a valid default ext import" $
@@ -38,7 +38,7 @@ spec_AppSpecFromJSON = do
         `shouldDecodeTo` Just
           ( ExtImport.ExtImport
               { ExtImport.name = ExtImport.ExtImportModule "foo",
-                ExtImport.path = [relfileP|folder/subfolder/file.js|]
+                ExtImport.path = ExtImport.ExtImportSrcPath [relfileP|folder/subfolder/file.js|]
               }
           )
     it "fails to parse an invalid of import" $ do

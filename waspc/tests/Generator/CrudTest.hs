@@ -79,7 +79,7 @@ spec_GeneratorCrudTest = do
                               Just $
                                 AS.ExtImport.ExtImport
                                   { AS.ExtImport.name = AS.ExtImport.ExtImportField "getTask",
-                                    AS.ExtImport.path = SP.castRel [relfileP|bla/tasks.js|]
+                                    AS.ExtImport.path = AS.ExtImport.ExtImportSrcPath $ SP.castRel [relfileP|bla/tasks.js|]
                                   }
                           }
                       ),

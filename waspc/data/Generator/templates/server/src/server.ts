@@ -9,6 +9,9 @@ import { config } from 'wasp/server'
 import { ServerSetupFn } from 'wasp/server'
 import { ServerSetupFnContext } from 'wasp/server/types'
 {=/ setupFn.isDefined =}
+{=# moduleServerSetupFns =}
+{=& importStatement =}
+{=/ moduleServerSetupFns =}
 
 {=# isPgBossJobExecutorUsed =}
 import { startPgBoss } from 'wasp/server/jobs/core/pgBoss'
@@ -33,6 +36,9 @@ const startServer = async () => {
   const serverSetupFnContext: ServerSetupFnContext = { app, server }
   await ({= setupFn.importIdentifier =} as ServerSetupFn)(serverSetupFnContext)
   {=/ setupFn.isDefined =}
+  {=# moduleServerSetupFns =}
+  await {= importIdentifier =}()
+  {=/ moduleServerSetupFns =}
 
   {=# userWebSocketFn.isDefined =}
   await initWebSocket(server)

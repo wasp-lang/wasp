@@ -1,3 +1,4 @@
+import { createTodoModule } from "@waspello/todo-module";
 import { ActionConfig, App, ExtImport } from "wasp-config";
 
 const app = new App("waspello", {
@@ -81,5 +82,15 @@ appAction("createCard", "@src/cards/cards", ["Card"]);
 appAction("updateCard", "@src/cards/cards", ["Card"]);
 appAction("deleteList", "@src/cards/lists", ["List", "Card"]);
 appAction("createListCopy", "@src/cards/lists", ["List", "Card"]);
+
+app.use(
+  createTodoModule({
+    todoEntityName: "TodoItem",
+    route: "/todos",
+    cleanDoneTodosCron: "* * * * *",
+    userEntityName: "User",
+    userForeignKey: "userId",
+  }),
+);
 
 export default app;
