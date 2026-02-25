@@ -15,12 +15,12 @@ app.auth({
 });
 
 const loginPage = app.page("LoginPage", {
-  component: { import: "LoginPage", from: "@src/LoginPage" },
+  component: { import: "LoginPage", from: "@src/scaffold/LoginPage" },
 });
 app.route("LoginRoute", { path: "/login", to: loginPage });
 
 const signupPage = app.page("SignupPage", {
-  component: { import: "SignupPage", from: "@src/SignupPage" },
+  component: { import: "SignupPage", from: "@src/scaffold/SignupPage" },
 });
 app.route("SignupRoute", { path: "/signup", to: signupPage });
 
