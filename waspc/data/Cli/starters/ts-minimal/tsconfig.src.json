@@ -1,0 +1,28 @@
+// =============================== IMPORTANT =================================
+// This file is mainly used for Wasp IDE support.
+//
+// Wasp will compile your code with slightly different (less strict) compilerOptions.
+// You can increase the configuration's strictness (e.g., by adding
+// "noUncheckedIndexedAccess": true), but you shouldn't reduce it (e.g., by
+// adding "strict": false). Just keep in mind that this will only affect your
+// IDE support, not the actual compilation.
+//
+// Full TypeScript configurability is coming very soon :)
+{
+  "compilerOptions": {
+    "module": "esnext",
+    "composite": true,
+    "target": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
+    "strict": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "skipLibCheck": true,
+    "allowJs": true,
+    "outDir": ".wasp/out/user"
+  },
+  "include": ["src"]
+}
