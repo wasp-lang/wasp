@@ -1,12 +1,12 @@
 import { describe, expect, test } from "vitest";
 import { getModuleSpec, GET_TS_APP_SPEC } from "../src/_private.js";
-import { Module } from "../src/publicApi/Module.js";
+import { AppDeclBuilder, Module } from "../src/publicApi/Module.js";
 import { App } from "../src/publicApi/App.js";
 import type * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
 
 describe("Module", () => {
   test("collects page declarations and returns PageName", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     const pageName = mod.page("MyPage", {
       component: { import: "MyPage", from: "@src/pages/MyPage" },
     });
@@ -20,7 +20,7 @@ describe("Module", () => {
   });
 
   test("collects route declarations", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     const pageName = mod.page("MyPage", {
       component: { import: "MyPage", from: "@src/pages/MyPage" },
     });
@@ -35,7 +35,7 @@ describe("Module", () => {
   });
 
   test("collects query declarations", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     mod.query("getItems", {
       fn: { import: "getItems", from: "@src/queries" },
       entities: ["Item"],
@@ -49,7 +49,7 @@ describe("Module", () => {
   });
 
   test("collects action declarations", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     mod.action("createItem", {
       fn: { import: "createItem", from: "@src/actions" },
     });
@@ -62,7 +62,7 @@ describe("Module", () => {
   });
 
   test("collects api, apiNamespace, crud, and job declarations", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
 
     mod.api("myApi", {
       fn: { import: "myApi", from: "@src/apis" },
@@ -91,7 +91,7 @@ describe("Module", () => {
 
 describe("Module path resolution", () => {
   test("passes through @src/ paths unchanged", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     mod.page("MyPage", {
       component: { import: "MyPage", from: "@src/pages/MyPage" },
     });
@@ -103,7 +103,7 @@ describe("Module path resolution", () => {
   });
 
   test("throws on relative paths", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     expect(() =>
       mod.query("q", {
         fn: { import: "q", from: "./queries.js" },
@@ -112,7 +112,7 @@ describe("Module path resolution", () => {
   });
 
   test("throws on paths that escape with ../", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     expect(() =>
       mod.query("q", {
         fn: { import: "q", from: "../outside.js" },
@@ -121,7 +121,7 @@ describe("Module path resolution", () => {
   });
 
   test("throws on bare specifier paths", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     expect(() =>
       mod.query("q", {
         fn: { import: "q", from: "bare-specifier" },
@@ -130,7 +130,7 @@ describe("Module path resolution", () => {
   });
 
   test("resolves nested ExtImport in CrudConfig overrideFn", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     mod.crud("myCrud", {
       entity: "Task",
       operations: {
@@ -150,7 +150,7 @@ describe("Module path resolution", () => {
   });
 
   test("resolves ExtImport in job perform.fn", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     mod.job("myJob", {
       executor: "PgBoss",
       perform: { fn: { import: "run", from: "@src/jobs" } },
@@ -164,7 +164,7 @@ describe("Module path resolution", () => {
   });
 
   test("resolves ExtImport in api middlewareConfigFn", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     mod.api("myApi", {
       fn: { import: "handler", from: "@src/apis" },
       middlewareConfigFn: { import: "mw", from: "@src/middleware" },
@@ -184,6 +184,20 @@ describe("Module path resolution", () => {
   });
 });
 
+describe("AppDeclBuilder", () => {
+  test("can be created without packageName", () => {
+    const builder = new AppDeclBuilder();
+    const spec = getModuleSpec(builder);
+    expect(spec.packageName).toBeUndefined();
+  });
+
+  test("can be created with packageName", () => {
+    const builder = new AppDeclBuilder("my-pkg");
+    const spec = getModuleSpec(builder);
+    expect(spec.packageName).toBe("my-pkg");
+  });
+});
+
 describe("App.use()", () => {
   function createTestApp(): App {
     return new App("TestApp", {
@@ -194,7 +208,7 @@ describe("App.use()", () => {
 
   test("merges module declarations into app", () => {
     const app = createTestApp();
-    const mod = new Module();
+    const mod = new Module("test-pkg");
 
     mod.page("DashPage", {
       component: { import: "DashPage", from: "@src/pages/Dash" },
@@ -215,44 +229,44 @@ describe("App.use()", () => {
     expect(spec.queries.get("getData")).toBeDefined();
   });
 
-  test("throws on duplicate declaration names", () => {
+  test("throws on duplicate between app and module with provenance", () => {
     const app = createTestApp();
     app.page("SharedPage", {
       component: { import: "SharedPage", from: "@src/pages/Shared" },
     });
 
-    const mod = new Module();
+    const mod = new Module("@pkg/a");
     mod.page("SharedPage", {
       component: { import: "OtherPage", from: "@src/pages/Other" },
     });
 
     expect(() => app.use(mod)).toThrow(
-      "Duplicate pages declaration: 'SharedPage' is already defined.",
+      "Duplicate pages declaration: 'SharedPage' from '@pkg/a' conflicts with 'SharedPage' from 'app'.",
     );
   });
 
-  test("throws on duplicate between two modules", () => {
+  test("throws on duplicate between two modules with provenance", () => {
     const app = createTestApp();
-    const mod1 = new Module();
+    const mod1 = new Module("@pkg/a");
     mod1.query("getData", {
       fn: { import: "getData", from: "@src/queries1" },
     });
 
-    const mod2 = new Module();
+    const mod2 = new Module("@pkg/b");
     mod2.query("getData", {
       fn: { import: "getData", from: "@src/queries2" },
     });
 
     app.use(mod1);
     expect(() => app.use(mod2)).toThrow(
-      "Duplicate queries declaration: 'getData' is already defined.",
+      "Duplicate queries declaration: 'getData' from '@pkg/b' conflicts with 'getData' from '@pkg/a'.",
     );
   });
 
   test("can be called multiple times with different modules", () => {
     const app = createTestApp();
 
-    const mod1 = new Module();
+    const mod1 = new Module("@pkg/a");
     mod1.page("Page1", {
       component: { import: "Page1", from: "@src/pages/Page1" },
     });
@@ -261,7 +275,7 @@ describe("App.use()", () => {
       to: "Page1" as TsAppSpec.PageName,
     });
 
-    const mod2 = new Module();
+    const mod2 = new Module("@pkg/b");
     mod2.page("Page2", {
       component: { import: "Page2", from: "@src/pages/Page2" },
     });
@@ -279,7 +293,7 @@ describe("App.use()", () => {
   });
 
   test("page() returns PageName usable in route() config", () => {
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     const pageName = mod.page("TestPage", {
       component: { import: "TestPage", from: "@src/pages/Test" },
     });
@@ -300,7 +314,7 @@ describe("App.use()", () => {
       methods: {},
     });
 
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     mod.query("getUser", {
       fn: { import: "getUser", from: "@src/queries" },
     });
@@ -308,10 +322,8 @@ describe("App.use()", () => {
     app.use(mod);
 
     const spec = app[GET_TS_APP_SPEC]();
-    // App-level singleton
     expect(spec.auth).toBeDefined();
     expect(spec.app.name).toBe("TestApp");
-    // Module declaration
     expect(spec.queries.get("getUser")).toBeDefined();
   });
 
@@ -361,7 +373,7 @@ describe("App.use()", () => {
       component: { import: "AppPage", from: "@src/pages/App" },
     });
 
-    const mod = new Module();
+    const mod = new Module("test-pkg");
     mod.page("ModPage", {
       component: { import: "ModPage", from: "@src/pages/Mod" },
     });

@@ -6,7 +6,7 @@ A proof-of-concept **Wasp module** — a reusable, distributable npm package tha
 registers Wasp declarations (pages, queries, actions, APIs, CRUD, jobs, setup
 hooks) into a host app via `app.use(createTodoModule({ ... }))`.
 
-## Key concept: `Module` from `wasp-config/module`
+## Key concept: `Module` from `wasp-config`
 
 `createTodoModule` (in `src/index.ts`) instantiates `Module` and calls its
 builder methods (`mod.page`, `mod.query`, `mod.action`, `mod.api`,

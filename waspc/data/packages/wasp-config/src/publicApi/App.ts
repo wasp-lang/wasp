@@ -2,13 +2,13 @@
  */
 import type * as AppSpec from "../appSpec.js";
 import { getModuleSpec, GET_TS_APP_SPEC } from "../_private.js";
-import { Module } from "./Module.js";
+import { AppDeclBuilder, Module } from "./Module.js";
 import * as TsAppSpec from "./tsAppSpec.js";
 
 export class App {
   static projectPackageName: string | undefined;
 
-  #module: Module;
+  #module: AppDeclBuilder;
   #app: { name: string; config: TsAppSpec.AppConfig };
   #auth?: TsAppSpec.AuthConfig;
   #client?: TsAppSpec.ClientConfig;
@@ -19,6 +19,7 @@ export class App {
   #moduleServerSetupFns: TsAppSpec.ExtImport[] = [];
   #moduleClientSetupFns: TsAppSpec.ExtImport[] = [];
   #moduleProvides: TsAppSpec.ModuleProvideEntry[] = [];
+  #declarationSources = new Map<string, string>();
 
   // NOTE: Using a non-public symbol gives us a package-private property.
   // It's not that important to hide it from the users, but we still don't want
@@ -49,7 +50,7 @@ export class App {
   }
 
   constructor(name: string, config: TsAppSpec.AppConfig) {
-    this.#module = new Module();
+    this.#module = new AppDeclBuilder();
     this.#app = { name, config };
   }
 
@@ -87,16 +88,22 @@ export class App {
       App.#rewriteModuleImports(incoming, packageName);
     }
 
+    const incomingSource = packageName ?? "anonymous module";
+
     for (const key of mapKeys) {
       const currentMap = current[key] as Map<string, unknown>;
       const incomingMap = incoming[key] as Map<string, unknown>;
       for (const [name, value] of incomingMap) {
+        const sourceKey = `${key}:${name}`;
         if (currentMap.has(name)) {
+          const existingSource = this.#declarationSources.get(sourceKey) ?? "app";
           throw new Error(
-            `Duplicate ${key} declaration: '${name}' is already defined.`,
+            `Duplicate ${key} declaration: '${name}' from '${incomingSource}' ` +
+            `conflicts with '${name}' from '${existingSource}'.`,
           );
         }
         currentMap.set(name, value);
+        this.#declarationSources.set(sourceKey, incomingSource);
       }
     }
 
@@ -239,8 +246,13 @@ export class App {
     }
   }
 
+  #trackSource(declType: string, name: string): void {
+    this.#declarationSources.set(`${declType}:${name}`, "app");
+  }
+
   // TODO: Enforce that all methods are covered in compile time
   action(this: App, name: string, config: TsAppSpec.ActionConfig): void {
+    this.#trackSource("actions", name);
     this.#module.action(name, config);
   }
 
@@ -249,10 +261,12 @@ export class App {
     name: string,
     config: TsAppSpec.ApiNamespaceConfig,
   ): void {
+    this.#trackSource("apiNamespaces", name);
     this.#module.apiNamespace(name, config);
   }
 
   api(this: App, name: string, config: TsAppSpec.ApiConfig): void {
+    this.#trackSource("apis", name);
     this.#module.api(name, config);
   }
 
@@ -265,6 +279,7 @@ export class App {
   }
 
   crud(this: App, name: string, config: TsAppSpec.CrudConfig): void {
+    this.#trackSource("cruds", name);
     this.#module.crud(name, config);
   }
 
@@ -277,6 +292,7 @@ export class App {
   }
 
   job(this: App, name: string, config: TsAppSpec.JobConfig): void {
+    this.#trackSource("jobs", name);
     this.#module.job(name, config);
   }
 
@@ -285,14 +301,17 @@ export class App {
     name: string,
     config: TsAppSpec.PageConfig,
   ): TsAppSpec.PageName {
+    this.#trackSource("pages", name);
     return this.#module.page(name, config);
   }
 
   query(this: App, name: string, config: TsAppSpec.QueryConfig): void {
+    this.#trackSource("queries", name);
     this.#module.query(name, config);
   }
 
   route(this: App, name: string, config: TsAppSpec.RouteConfig): void {
+    this.#trackSource("routes", name);
     this.#module.route(name, config);
   }
 

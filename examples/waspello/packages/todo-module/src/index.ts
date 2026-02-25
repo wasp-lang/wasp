@@ -1,4 +1,4 @@
-import { Module } from "wasp-config/module";
+import { Module } from "wasp-config";
 
 export const PACKAGE_NAME = "@waspello/todo-module";
 

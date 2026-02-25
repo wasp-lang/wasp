@@ -77,13 +77,13 @@ function resolveCrudOperations(
   };
 }
 
-function spec(module: Module): TsAppSpec.TsModuleSpec {
+function spec(module: AppDeclBuilder): TsAppSpec.TsModuleSpec {
   return getModuleSpec(module);
 }
 
-// --- Module class ---
+// --- AppDeclBuilder (internal: packageName optional) ---
 
-export class Module {
+export class AppDeclBuilder {
   constructor(packageName?: string) {
     setModuleSpec(this, {
       actions: new Map(),
@@ -188,5 +188,13 @@ export class Module {
       );
     }
     s.provides.set(key, value);
+  }
+}
+
+// --- Module (public: packageName required) ---
+
+export class Module extends AppDeclBuilder {
+  constructor(packageName: string) {
+    super(packageName);
   }
 }

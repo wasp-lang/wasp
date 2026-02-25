@@ -1,5 +1,6 @@
 export { App } from "./publicApi/App.js";
 export { Module } from "./publicApi/Module.js";
+export type { ModuleExtImport, ResolveExtImports } from "./publicApi/Module.js";
 export type {
   ActionConfig,
   ApiConfig,
