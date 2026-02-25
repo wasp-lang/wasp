@@ -7,6 +7,7 @@
 - `REACT_APP_API_URL` is now **required** when building the client for production (it no longer defaults to any value). In development mode, it still defaults to the local server URL. This prevents silently broken production deployments where the client can't reach the server. ([#3740](https://github.com/wasp-lang/wasp/pull/3740))
 - The `wasp()` Vite plugin now enforces certain Vite config options that Wasp requires (e.g. `base`, `envPrefix`, `build.outDir`) and throws an error if the user tries to override them. ([#3771](https://github.com/wasp-lang/wasp/pull/3771))
 - Upgraded our internal `nodemailer` dependency to v8.0.1 to address [a possible security issue](https://github.com/advisories/GHSA-rcmh-qjqh-p98v). ([#3756](https://github.com/wasp-lang/wasp/pull/3756))
+- In the Vite config, removing the `server.open` field will no longer open the browser on `wasp start`. ([3831](https://github.com/wasp-lang/wasp/pull/3831))
 
 ## 0.21.1
 
