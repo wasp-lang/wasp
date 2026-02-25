@@ -1,0 +1,5 @@
+{
+  "permissions": {
+    "allow": ["Bash(npx tsc:*)", "Bash(npx tsx:*)", "mcp__chrome-devtools__*"]
+  }
+}
