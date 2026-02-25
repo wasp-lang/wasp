@@ -5,7 +5,6 @@ where
 
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
-import Data.Maybe (fromJust)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (createDirectoryIfMissing, doesFileExist)
@@ -41,14 +40,16 @@ installWaspConfigPackage projectDir = do
   srcPath <- getPackageInstallationPath WaspConfigPackage
   let packagesDir = projectDir </> dotWaspDirInWaspProjectDir </> packagesDirInDotWaspDir
       destDir = packagesDir </> waspConfigDirInPackagesDir
-  createDirectoryIfMissing True (fromAbsDir packagesDir)
-  let absSrc = fromJust $ SP.parseAbsDir srcPath
-  IOUtil.copyDirectory absSrc destDir
-  chan <- newChan
-  (_, exitCode) <-
-    concurrently
-      (readJobMessagesAndPrintThemPrefixed chan)
-      (runNodeCommandAsJob projectDir "npm" ["install", "--save-dev", "file:.wasp/packages/wasp-config"] J.Wasp chan)
-  return $ case exitCode of
-    ExitSuccess -> Right ()
-    ExitFailure _ -> Left "npm install of wasp-config failed."
+  case SP.parseAbsDir srcPath of
+    Nothing -> return $ Left $ "Failed to parse wasp-config source path: " ++ srcPath
+    Just absSrc -> do
+      createDirectoryIfMissing True (fromAbsDir packagesDir)
+      IOUtil.copyDirectory absSrc destDir
+      chan <- newChan
+      (_, exitCode) <-
+        concurrently
+          (readJobMessagesAndPrintThemPrefixed chan)
+          (runNodeCommandAsJob projectDir "npm" ["install", "--save-dev", "file:.wasp/packages/wasp-config"] J.Wasp chan)
+      return $ case exitCode of
+        ExitSuccess -> Right ()
+        ExitFailure _ -> Left "npm install of wasp-config failed."

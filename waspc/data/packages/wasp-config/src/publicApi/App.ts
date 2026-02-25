@@ -59,6 +59,8 @@ export class App {
 
     const packageName = original.packageName;
 
+    // Map-typed declaration keys that get merged by name.
+    // `provides`, `serverSetupFn`, and `clientSetupFn` are handled separately below.
     const mapKeys: (keyof TsAppSpec.TsModuleSpec)[] = [
       "actions",
       "apiNamespaces",

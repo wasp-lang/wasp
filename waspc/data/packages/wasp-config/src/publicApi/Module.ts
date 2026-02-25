@@ -11,6 +11,10 @@ export type ModuleExtImport =
 /**
  * Recursively replaces `ExtImport` fields with `ModuleExtImport` in a config type.
  * This allows module authors to use `@src/` paths in `from` fields.
+ *
+ * NOTE: Does not recurse into arrays (e.g. `ExtImport[]`). No module-level
+ * config currently uses array-of-ExtImport fields, but if one is added this
+ * type will need an array branch.
  */
 export type ResolveExtImports<T> = {
   [K in keyof T]: T[K] extends TsAppSpec.ExtImport
