@@ -133,8 +133,17 @@
 
       {=! Used by module runtime code to access config-time values via mod.provide(). =}
       "./modules/config": "./dist/modules/config.js",
-      {=! Used by module runtime code for generic operation types. =}
-      "./server/module": "./dist/server/module/index.js"
+      {=! Used by external module packages for generic operation types.
+          The "types" condition is required because external module packages
+          (installed in node_modules) have .d.ts files that import from
+          wasp/server/module. Without it, TypeScript resolves through "default"
+          to dist/server/module/index.d.ts, treating it as an input — then
+          fails with TS5055 when it tries to write the same file as output.
+      =}
+      "./server/module": {
+        "types": "./server/module/index.ts",
+        "default": "./dist/server/module/index.js"
+      }
 
    },
    {=!
