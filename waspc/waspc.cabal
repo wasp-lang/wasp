@@ -748,6 +748,8 @@ test-suite waspc-tests
     Util.FilePathTest
     Util.IO.RetryTest
     Util.Prisma
+    SemanticVersion.ParsersTest
+    SemanticVersion.PartialVersionTest
     SemanticVersion.ComparatorSetTest
     SemanticVersion.RangeTest
     SemanticVersion.Range.ParserTest
