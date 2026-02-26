@@ -1,4 +1,4 @@
-{ {={= = }= } }
+{{={= =}=}}
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import esbuild from 'rollup-plugin-esbuild'
@@ -23,7 +23,7 @@ function createBundle(inputFilePath, outputFilePath) {
     },
     plugins: [
       waspVirtualModules(),
-      resolve(),
+      resolve({ extensions: ['.mjs', '.js', '.ts', '.json', '.node'] }),
       esbuild({
         target: 'esnext',
       }),
@@ -49,14 +49,17 @@ function createBundle(inputFilePath, outputFilePath) {
 }
 
 function waspVirtualModules() {
-  const virtualModules = {
-    '{= userServerEnvSchemaPath =}': path.resolve(__dirname, 'src/virtual-files/userServerEnvSchema.ts'),
-  }
-
   return {
     name: 'wasp:virtual-modules',
-    resolveId(id) {
-      return virtualModules[id] ?? null
+    async resolveId(id) {
+      {=# serverEnvSchema.isDefined =}
+      if (id === '{= userServerEnvSchemaPath =}') {
+        const absPath = path.resolve(__dirname, '{=& serverEnvSchema.importPath =}')
+        const resolved = await this.resolve(absPath, undefined, { skipSelf: true })
+        return resolved
+      }
+      {=/ serverEnvSchema.isDefined =}
+      return null
     },
   }
 }

@@ -19,6 +19,7 @@ import Wasp.JsImport
   ( JsImport (..),
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (RelativeImportPath),
+    getImportPathString,
     getJsImportStmtAndIdentifier,
     getJsTypeofImportExpr,
     makeJsImport,
@@ -50,10 +51,12 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
     mkTmplData jsImport =
       let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
           typeofImportExpr = getJsTypeofImportExpr jsImport
+          importPathStr = getImportPathString (_path jsImport)
        in object
             [ "isDefined" .= True,
               "importStatement" .= jsImportStmt,
               "importIdentifier" .= jsImportIdentifier,
+              "importPath" .= importPathStr,
               "typeofImportExpr" .= typeofImportExpr
             ]
 

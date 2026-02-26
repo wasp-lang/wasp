@@ -9,6 +9,8 @@ import Data.Maybe (isJust)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
@@ -41,7 +43,7 @@ genServerEnvFiles :: AppSpec -> Generator [FileDraft]
 genServerEnvFiles spec =
   sequence
     [ genServerEnv spec,
-      genServerEnvSchemaType
+      genServerEnvSchemaType spec
     ]
 
 genClientEnvFiles :: Generator [FileDraft]
@@ -68,11 +70,31 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
-          "userServerEnvSchemaPath" .= userServerEnvSchemaPath
+          "serverEnvSchema" .= serverEnvSchemaTmplData
         ]
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
     app = snd $ getApp spec
+    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+
+    serverEnvSchemaTmplData = case maybeServerEnvSchema of
+      Just extImport ->
+        object
+          [ "isDefined" .= True,
+            "virtualImportStatement" .= makeVirtualImportStatement extImport,
+            "importIdentifier" .= EI.importIdentifier extImport
+          ]
+      Nothing -> object ["isDefined" .= False]
+
+    -- Build an import statement that imports from the virtual module path.
+    -- Named:  import { serverEnvValidationSchema } from 'virtual:wasp/...'
+    -- Default: import serverEnvValidationSchema from 'virtual:wasp/...'
+    makeVirtualImportStatement :: EI.ExtImport -> String
+    makeVirtualImportStatement (EI.ExtImport name _) = case name of
+      EI.ExtImportField fieldName ->
+        "import { " ++ fieldName ++ " } from '" ++ userServerEnvSchemaPath ++ "'"
+      EI.ExtImportModule moduleName ->
+        "import " ++ moduleName ++ " from '" ++ userServerEnvSchemaPath ++ "'"
 
 genClientEnvSchema :: Generator FileDraft
 genClientEnvSchema = return $ mkTmplFdWithData tmplPath tmplData
@@ -94,14 +116,27 @@ genClientEnvSchemaType = return $ mkTmplFdWithData tmplPath tmplData
         [ "userClientEnvSchemaPath" .= userClientEnvSchemaPath
         ]
 
-genServerEnvSchemaType :: Generator FileDraft
-genServerEnvSchemaType = return $ mkTmplFdWithData tmplPath tmplData
+genServerEnvSchemaType :: AppSpec -> Generator FileDraft
+genServerEnvSchemaType spec = return $ mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|server/userServerEnvSchema.d.ts|]
+    app = snd $ getApp spec
+    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+
     tmplData =
       object
-        [ "userServerEnvSchemaPath" .= userServerEnvSchemaPath
+        [ "userServerEnvSchemaPath" .= userServerEnvSchemaPath,
+          "serverEnvSchema" .= serverEnvSchemaTmplData
         ]
+
+    serverEnvSchemaTmplData = case maybeServerEnvSchema of
+      Just extImport ->
+        object
+          [ "isDefined" .= True,
+            "importIdentifier" .= EI.importIdentifier extImport
+          ]
+      Nothing -> object ["isDefined" .= False]
+
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =

@@ -245,8 +245,7 @@ genSrcDir spec =
     [ genFileCopy [relfile|app.js|],
       genServerJs spec,
       genRegistrations spec,
-      genManifest spec,
-      genUserServerEnvSchemaVirtualFile spec
+      genManifest spec
     ]
     <++> genRoutesDir spec
     <++> genViewsDir spec
@@ -299,25 +298,6 @@ genRegistrations spec =
 
 userServerEnvSchemaPath :: String
 userServerEnvSchemaPath = "virtual:wasp/user-server-env"
-
-genUserServerEnvSchemaVirtualFile :: AppSpec -> Generator FileDraft
-genUserServerEnvSchemaVirtualFile spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/virtual-files/userServerEnvSchema.ts|])
-      (C.asServerFile [relfile|src/virtual-files/userServerEnvSchema.ts|])
-      ( Just $
-          object
-            [ "envValidationSchema" .= extImportToImportJson relPathFromVirtualFilesToServerSrcDir maybeServerEnvSchema
-            ]
-      )
-  where
-    app = snd $ getApp spec
-    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
-
-    -- Virtual files are at server/src/virtual-files/, one level deeper than server/src/
-    relPathFromVirtualFilesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathFromVirtualFilesToServerSrcDir = [reldirP|../|]
 
 genManifest :: AppSpec -> Generator FileDraft
 genManifest spec =
@@ -424,7 +404,17 @@ genRollupConfigJs spec =
     tmplData =
       object
         [ "areDbSeedsDefined" .= areDbSeedsDefined,
-          "userServerEnvSchemaPath" .= userServerEnvSchemaPath
+          "userServerEnvSchemaPath" .= userServerEnvSchemaPath,
+          -- importPath from this JSON is relative to server root (via relPathFromRollupToServerSrcDir),
+          -- used by path.resolve(__dirname, importPath) in the rollup config.
+          "serverEnvSchema" .= extImportToImportJson relPathFromRollupToServerSrcDir maybeServerEnvSchema
         ]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
+
+    app = snd $ getApp spec
+    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+
+    -- rollup.config.js is at server root, server src dir is at server/src/
+    relPathFromRollupToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    relPathFromRollupToServerSrcDir = [reldirP|src/|]

@@ -2,7 +2,13 @@
 import * as z from 'zod'
 
 import { ensureEnvSchema } from '../env/validation.js'
-import { userServerEnvSchema } from '{= userServerEnvSchemaPath =}'
+{=# serverEnvSchema.isDefined =}
+{=& serverEnvSchema.virtualImportStatement =}
+const userServerEnvSchema: typeof {= serverEnvSchema.importIdentifier =} = {= serverEnvSchema.importIdentifier =}
+{=/ serverEnvSchema.isDefined =}
+{=^ serverEnvSchema.isDefined =}
+const userServerEnvSchema = z.object({})
+{=/ serverEnvSchema.isDefined =}
 
 const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default({= defaultServerPort =}),
@@ -172,7 +178,6 @@ const _env = ensureEnvSchema(
   serverEnvSchema,
 )
 
-// TODO: see if necessary
 type ServerEnv = typeof _env & z.infer<typeof userServerEnvSchema>
 
 // PUBLIC API
