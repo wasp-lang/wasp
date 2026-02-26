@@ -62,7 +62,7 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.CrudG (genCrud)
 import Wasp.Generator.ServerGenerator.Db.Seed (genDbSeed, getDbSeeds, getPackageJsonPrismaSeedField)
 import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
-import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.JsImport (extImportToAliasedImportJson, extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
@@ -262,7 +262,7 @@ genServerJs spec =
       ( Just $
           object
             [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
-              "moduleServerSetupFns" .= map (extImportToImportJson relPathToServerSrcDir . Just) moduleSetupFns,
+              "moduleServerSetupFns" .= zipWith (\i fn -> extImportToAliasedImportJson ("moduleSetupFn_" ++ show i) relPathToServerSrcDir (Just fn)) [(0 :: Int) ..] moduleSetupFns,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
             ]

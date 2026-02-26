@@ -10,7 +10,12 @@ generator client {
 // Entities
 
 model User {
-  id Int @id @default(autoincrement())
+  id                 Int       @id @default(autoincrement())
+  email              String?   @unique
+  stripeCustomerId   String?   @unique
+  subscriptionStatus String?
+  subscriptionPlan   String?
+  datePaid           DateTime?
 
   lists     List[]
   cards     Card[]

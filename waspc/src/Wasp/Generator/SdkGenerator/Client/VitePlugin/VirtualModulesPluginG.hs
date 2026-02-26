@@ -14,6 +14,7 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
+import Wasp.JsImport (applyJsImportAlias)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
@@ -65,7 +66,7 @@ genVirtualIndexTsx spec =
       object
         [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
           "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
-          "moduleClientSetupFns" .= map (GJI.jsImportToImportJson . Just . GJI.extImportToRelativeSrcImportFromViteExecution) moduleClientSetupFns,
+          "moduleClientSetupFns" .= zipWith (\i fn -> GJI.jsImportToImportJson . Just . applyJsImportAlias (Just $ "moduleClientSetupFn_" ++ show i) $ GJI.extImportToRelativeSrcImportFromViteExecution fn) [(0 :: Int) ..] moduleClientSetupFns,
           "routesMapping" .= routesMappingImportJson
         ]
     appData = snd $ getApp spec

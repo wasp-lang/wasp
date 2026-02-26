@@ -1,4 +1,22 @@
 import { HttpError } from "wasp/server";
+import { isActiveSubscription } from "@waspello/stripe-payments";
+
+const FREE_TIER_LIST_LIMIT = 3;
+
+async function assertListLimitNotReached(context) {
+  if (isActiveSubscription(context.user.subscriptionStatus)) {
+    return;
+  }
+  const listCount = await context.entities.List.count({
+    where: { user: { id: context.user.id } },
+  });
+  if (listCount >= FREE_TIER_LIST_LIMIT) {
+    throw new HttpError(
+      403,
+      `Free plan is limited to ${FREE_TIER_LIST_LIMIT} lists. Upgrade to Premium for unlimited lists.`,
+    );
+  }
+}
 
 export const getListsAndCards = async (args, context) => {
   if (!context.user) {
@@ -15,6 +33,7 @@ export const createList = async ({ name, pos }, context) => {
   if (!context.user) {
     throw new HttpError(403);
   }
+  await assertListLimitNotReached(context);
   return context.entities.List.create({
     data: {
       name,
@@ -64,6 +83,7 @@ export const createListCopy = async ({ listId, pos }, context) => {
   if (!context.user) {
     throw new HttpError(403);
   }
+  await assertListLimitNotReached(context);
 
   // Check if user owns the list.
   const list = await context.entities.List.findFirst({

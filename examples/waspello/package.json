@@ -11,7 +11,8 @@
   },
   "dependencies": {
     "@hello-pangea/dnd": "^18.0.1",
-    "@waspello/todo-module": "file:packages/todo-module",
+    "@waspello/stripe-payments": "file:../fsm-modules/stripe-payments/waspello-stripe-payments-1.0.0.tgz",
+    "@waspello/todo-module": "file:../fsm-modules/todo-module/waspello-todo-module-1.0.0.tgz",
     "classnames": "^2.5.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",

@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import { logout } from "wasp/client/auth";
 import { getName } from "../auth/user";
 import "./Navbar.css";
@@ -17,6 +18,10 @@ const Navbar = ({ user }) => {
       <div className="navbar-item">
         <span>
           {name}
+          &nbsp;|&nbsp;
+          <Link to="/subscription" className="logout-btn">
+            Premium
+          </Link>
           &nbsp;|&nbsp;
           <button className="logout-btn" onClick={logout}>
             {" "}

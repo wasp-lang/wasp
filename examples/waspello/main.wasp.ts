@@ -1,3 +1,4 @@
+import { createStripePaymentsModule } from "@waspello/stripe-payments";
 import { createTodoModule } from "@waspello/todo-module";
 import { ActionConfig, App, ExtImport } from "wasp-config";
 
@@ -10,13 +11,49 @@ app.client({
   rootComponent: { importDefault: "Layout", from: "@src/Layout" },
 });
 
+app.emailSender({ provider: "Dummy" });
+
 app.auth({
   userEntity: "User",
   methods: {
-    usernameAndPassword: {},
-    google: {},
+    email: {
+      userSignupFields: {
+        import: "getEmailUserFields",
+        from: "@src/auth/userSignupFields",
+      },
+      fromField: {
+        name: "Waspello",
+        email: "noreply@waspello.dev",
+      },
+      emailVerification: {
+        clientRoute: "EmailVerificationRoute",
+      },
+      passwordReset: {
+        clientRoute: "PasswordResetRoute",
+      },
+    },
   },
   onAuthFailedRedirectTo: "/login",
+});
+
+app.route("EmailVerificationRoute", {
+  path: "/email-verification",
+  to: app.page("EmailVerification", {
+    component: {
+      importDefault: "EmailVerification",
+      from: "@src/auth/EmailVerificationPage",
+    },
+  }),
+});
+
+app.route("PasswordResetRoute", {
+  path: "/password-reset",
+  to: app.page("PasswordReset", {
+    component: {
+      importDefault: "PasswordReset",
+      from: "@src/auth/PasswordResetPage",
+    },
+  }),
 });
 
 /* Pages */
@@ -82,6 +119,15 @@ appAction("createCard", "@src/cards/cards", ["Card"]);
 appAction("updateCard", "@src/cards/cards", ["Card"]);
 appAction("deleteList", "@src/cards/lists", ["List", "Card"]);
 appAction("createListCopy", "@src/cards/lists", ["List", "Card"]);
+
+app.use(
+  createStripePaymentsModule({
+    userEntityName: "User",
+    // TODO: Support reading env vars at runtime instead of hardcoding
+    premiumPlanPriceId: "price_1T4oHFFaHKs7M0PTaaRNXrj6",
+    subscriptionRoute: "/subscription",
+  }),
+);
 
 app.use(
   createTodoModule({

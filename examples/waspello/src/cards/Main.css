@@ -476,6 +476,66 @@ textarea.card-composer-textarea {
   border-color: #000;
 }
 
+/* List limit & upgrade prompt */
+
+.list-limit-counter {
+  display: block;
+  text-align: center;
+  font-size: 12px;
+  color: #5e6c84;
+  margin-top: 4px;
+}
+
+.upgrade-prompt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 12px;
+  gap: 6px;
+}
+
+.upgrade-prompt-icon {
+  color: #bf9900;
+}
+
+.upgrade-prompt-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #172b4d;
+}
+
+.upgrade-prompt-subtitle {
+  font-size: 12px;
+  color: #5e6c84;
+}
+
+.upgrade-prompt-button {
+  display: inline-block;
+  margin-top: 4px;
+  padding: 6px 16px;
+  background-color: #bf9900;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 3px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.upgrade-prompt-button:hover {
+  background-color: #a68600;
+}
+
+.popover-menu-disabled {
+  color: #a5adba;
+  cursor: not-allowed;
+}
+
+.popover-content-list li > button[disabled]:hover {
+  background-color: transparent;
+  cursor: not-allowed;
+}
+
 /* Board header */
 
 .board-header {

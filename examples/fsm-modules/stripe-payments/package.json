@@ -1,0 +1,48 @@
+{
+  "name": "@waspello/stripe-payments",
+  "version": "1.0.0",
+  "type": "module",
+  "workspaces": [
+    ".wasp/out/*",
+    ".wasp/out/sdk/wasp"
+  ],
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json"
+  },
+  "dependencies": {
+    "react": "^19.2.1",
+    "react-dom": "^19.2.1",
+    "react-router": "^7.12.0",
+    "stripe": "^17.7.0"
+  },
+  "peerDependencies": {
+    "@tanstack/react-query": "~4.42.0",
+    "axios": "^1.4.0",
+    "express": "~5.1.0",
+    "react": "^19.2.1",
+    "zod": "^3.23.0"
+  },
+  "devDependencies": {
+    "@tanstack/react-query": "~4.42.0",
+    "@types/express": "^5.0.0",
+    "@types/react": "^19.2.7",
+    "prisma": "5.19.1",
+    "typescript": "5.8.2",
+    "vite": "^7.0.6",
+    "wasp-config": "file:.wasp/packages/wasp-config",
+    "zod": "^3.23.0"
+  }
+}

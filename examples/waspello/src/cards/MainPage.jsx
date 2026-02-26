@@ -1,7 +1,9 @@
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
+import { isActiveSubscription } from "@waspello/stripe-payments";
 import classnames from "classnames";
 import { useContext, useRef, useState } from "react";
-import { MoreHorizontal, Plus, X } from "react-feather";
+import { MoreHorizontal, Plus, X, Zap } from "react-feather";
+import { Link } from "react-router";
 import { Popover } from "react-tiny-popover";
 
 import UserPageLayout from "./UserPageLayout";
@@ -24,6 +26,8 @@ import {
   updateList,
   useQuery,
 } from "wasp/client/operations";
+
+const FREE_LIST_LIMIT = 3;
 
 const createListIdToSortedCardsMap = (listsAndCards) => {
   const listIdToSortedCardsMap = {};
@@ -51,6 +55,10 @@ const MainPage = ({ user }) => {
   // Create a map with listId -> cards sorted by pos.
   const listIdToSortedCardsMap =
     listsAndCards && createListIdToSortedCardsMap(listsAndCards);
+
+  const isPremium = isActiveSubscription(user?.subscriptionStatus);
+  const listCount = listsSortedByPos?.length ?? 0;
+  const isAtLimit = !isPremium && listCount >= FREE_LIST_LIMIT;
 
   const onDragEnd = async (result) => {
     // Item was dropped outside of the droppable area.
@@ -138,10 +146,15 @@ const MainPage = ({ user }) => {
                   <Lists
                     lists={listsSortedByPos}
                     listIdToCardsMap={listIdToSortedCardsMap}
+                    isAtLimit={isAtLimit}
                   />
                 )}
                 {provided.placeholder}
-                <AddList />
+                <AddList
+                  isPremium={isPremium}
+                  isAtLimit={isAtLimit}
+                  listCount={listCount}
+                />
               </div>
             </PositionProvider>
           )}
@@ -151,7 +164,7 @@ const MainPage = ({ user }) => {
   );
 };
 
-const Lists = ({ lists, listIdToCardsMap }) => {
+const Lists = ({ lists, listIdToCardsMap, isAtLimit }) => {
   // TODO(matija): what if some of the props is empty? Although we make sure not to add it
   // to DOM in that case.
 
@@ -162,12 +175,13 @@ const Lists = ({ lists, listIdToCardsMap }) => {
         key={list.id}
         index={index}
         cards={listIdToCardsMap[list.id]}
+        isAtLimit={isAtLimit}
       />
     );
   });
 };
 
-const List = ({ list, index, cards }) => {
+const List = ({ list, index, cards, isAtLimit }) => {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [isHeaderTargetShown, setIsHeaderTargetShown] = useState(true);
   const [isInEditMode, setIsInEditMode] = useState(false);
@@ -198,7 +212,7 @@ const List = ({ list, index, cards }) => {
         pos: getPosOfItemInsertedInAnotherListAfter(idx),
       });
     } catch (err) {
-      window.alert("Error while copying list: " + err.message);
+      console.error("Error while copying list: " + err.message);
     }
 
     setIsPopoverOpen(false);
@@ -245,8 +259,12 @@ const List = ({ list, index, cards }) => {
               <button onClick={() => handleAddCard()}>Add card...</button>
             </li>
             <li>
-              <button onClick={() => handleCopyList(list.id, index)}>
-                Copy list...
+              <button
+                className={classnames({ "popover-menu-disabled": isAtLimit })}
+                disabled={isAtLimit}
+                onClick={() => handleCopyList(list.id, index)}
+              >
+                {isAtLimit ? "Copy list (limit reached)" : "Copy list..."}
               </button>
             </li>
             <li>
@@ -378,7 +396,25 @@ const Card = ({ card, index }) => {
   );
 };
 
-const AddList = () => {
+const UpgradePrompt = ({ listCount }) => {
+  return (
+    <div className="upgrade-prompt">
+      <Zap size={24} className="upgrade-prompt-icon" />
+      <span className="upgrade-prompt-title">List limit reached</span>
+      <span className="upgrade-prompt-subtitle">
+        Upgrade to Premium for unlimited lists
+      </span>
+      <Link to="/subscription" className="upgrade-prompt-button">
+        Upgrade to Premium
+      </Link>
+      <span className="list-limit-counter">
+        {listCount} / {FREE_LIST_LIMIT} lists
+      </span>
+    </div>
+  );
+};
+
+const AddList = ({ isPremium, isAtLimit, listCount }) => {
   const [isInEditMode, setIsInEditMode] = useState(false);
   const { getPosOfNewItem } = useContext(PositionContext);
 
@@ -401,7 +437,7 @@ const AddList = () => {
         event.target.reset();
         await createList({ name: listName, pos: getPosOfNewItem() });
       } catch (err) {
-        window.alert("Error: " + err.message);
+        console.error("Error while creating list: " + err.message);
       }
     };
 
@@ -428,6 +464,14 @@ const AddList = () => {
     );
   };
 
+  if (isAtLimit) {
+    return (
+      <div className="add-list list-wrapper mod-add">
+        <UpgradePrompt listCount={listCount} />
+      </div>
+    );
+  }
+
   return (
     <div
       className={classnames("add-list", "list-wrapper", "mod-add", {
@@ -435,6 +479,11 @@ const AddList = () => {
       })}
     >
       {isInEditMode ? <AddListInput /> : <AddListButton />}
+      {!isPremium && !isInEditMode && (
+        <span className="list-limit-counter">
+          {listCount} / {FREE_LIST_LIMIT} lists
+        </span>
+      )}
     </div>
   );
 };
