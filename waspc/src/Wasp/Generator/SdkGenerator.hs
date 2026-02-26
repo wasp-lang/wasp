@@ -80,7 +80,6 @@ import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
