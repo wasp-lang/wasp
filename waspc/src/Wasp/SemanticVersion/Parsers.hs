@@ -5,14 +5,11 @@ where
 
 import Control.Applicative ((<|>))
 import Numeric.Natural (Natural)
-import Text.Parsec (Parsec, digit, many, notFollowedBy, oneOf, string)
+import Text.Parsec (Parsec, digit, many, notFollowedBy, oneOf, string, try)
 
 noLeadingZeroNaturalP :: Parsec String () Natural
 noLeadingZeroNaturalP = do
-  digitString <- zeroP <|> noLeadingZeroNumberP
-  -- Ensure we consumed all digits. E.g., fail on "01".
-  notFollowedBy digit
-  pure (read digitString)
+  read <$> (zeroP <|> noLeadingZeroNumberP)
   where
-    zeroP = string "0"
+    zeroP = try (string "0" <* notFollowedBy digit)
     noLeadingZeroNumberP = (:) <$> oneOf ['1' .. '9'] <*> many digit

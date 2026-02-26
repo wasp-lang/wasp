@@ -17,7 +17,7 @@ import Wasp.SemanticVersion.VersionBound
     VersionBound (Exclusive, Inclusive, Inf),
   )
 
--- | A 'Comparator' is composed of an operator and a version.
+-- | A 'Comparator' is composed of an operator and a partial version.
 -- It represents a single version constraint in a 'Range'.
 data Comparator
   = PrimitiveComparator PrimitiveOperator PartialVersion
@@ -33,7 +33,7 @@ data Comparator
     HyphenRange PartialVersion PartialVersion
   deriving (Eq)
 
--- | We rely on this `show` implementation to produce valid semver representation of comparator.
+-- | We rely on this `show` implementation to produce valid node-semver comparator.
 instance Show Comparator where
   show (PrimitiveComparator op pv) = show op ++ show pv
   show (BackwardsCompatibleWith pv) = "^" ++ show pv
@@ -97,10 +97,10 @@ data PrimitiveOperator
   | GreaterThanOrEqual
   deriving (Eq)
 
--- | We rely on this `show` implementation to produce valid semver representation of version.
--- Note: Equal shows as "" because both "=1.2.3" and "1.2.3" are valid semver,
--- and the canonical form omits the "=".
+-- | We rely on this `show` implementation to produce valid node-semver comparator.
 instance Show PrimitiveOperator where
+  -- Equal shows as "" because both "=1.2.3" and "1.2.3" are valid,
+  -- and the canonical form omits the "=".
   show Equal = ""
   show LessThan = "<"
   show LessThanOrEqual = "<="

@@ -2,10 +2,10 @@
 
 module Wasp.SemanticVersion.Version
   ( Version (..),
-    nextBreakingChangeVersion,
     parseVersion,
     versionParser,
     v,
+    nextBreakingChangeVersion,
   )
 where
 
@@ -24,14 +24,14 @@ data Version = Version
   }
   deriving (Eq, Ord, TH.Lift)
 
--- | We rely on this `show` implementation to produce valid semver representation of version.
+-- | We rely on this 'show' implementation to produce a valid SemVer version.
 instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
 parseVersion :: String -> Either ParseError Version
 parseVersion = parse versionParser ""
 
--- | Follows SemVer version specification.
+-- | Follows SemVer specification.
 -- See: https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
 -- TODO: Add pre-release (-) and build (+) support.
 versionParser :: Parsec String () Version

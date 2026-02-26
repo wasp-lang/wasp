@@ -19,9 +19,8 @@ import Wasp.SemanticVersion.VersionBound
     versionFromBound,
   )
 
--- | A 'Range' is composed of one or more 'ComparatorSet', joined by "||".
--- A 'Version' matches a 'Range' if and only if every 'Comparator' in at least one
--- of the "||"-separated 'ComparatorSet' is satisfied by the 'Version'.
+-- | Comparator sets can be joined by "||" to form a range,
+-- which is satisfied by satisfying any of the comparator sets it includes.
 data Range = Range [ComparatorSet]
   deriving (Eq)
 

@@ -26,9 +26,9 @@ import Wasp.SemanticVersion.Version (Version (..))
 import Wasp.SemanticVersion.VersionBound (VersionBound (..))
 import Wasp.Util.TH (quasiQuoterFromParser)
 
--- | Version representation used in range expressions.
+-- | Version representation used in node-semver range expressions.
 -- Unlike 'Version' which always has all 3 components,
--- 'PartialVersion' can represent partial/wildcard versions as they appear in ranges.
+-- 'PartialVersion' can represent partial/wildcard versions as they appear in range.
 data PartialVersion
   = -- | Major, minor and patch (1.2.3).
     Full !Natural !Natural !Natural
@@ -40,14 +40,15 @@ data PartialVersion
     Any
   deriving (Eq, TH.Lift)
 
-fromVersion :: Version -> PartialVersion
-fromVersion (Version m n p) = Full m n p
-
+-- | We rely on this `show` implementation to produce valid node-semver partial version.
 instance Show PartialVersion where
   show (Full m n p) = printf "%d.%d.%d" m n p
   show (MajorMinor m n) = printf "%d.%d" m n
   show (Major m) = printf "%d" m
   show Any = "*"
+
+fromVersion :: Version -> PartialVersion
+fromVersion (Version m n p) = Full m n p
 
 parsePartialVersion :: String -> Either ParseError PartialVersion
 parsePartialVersion = parse partialVersionParser ""

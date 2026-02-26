@@ -4,66 +4,74 @@ import Data.Either (isLeft, isRight)
 import Test.Hspec
 import Wasp.SemanticVersion.Version
 
+-- Valid SemVer versiosn grammar can be found here:
+-- https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
 spec_SemanticVersion_Version :: Spec
 spec_SemanticVersion_Version = do
-  it "show produces valid semver representation of version" $ do
-    show (Version 1 2 3) `shouldBe` "1.2.3"
+  describe "show" $ do
+    it "produces valid semver representation of version" $ do
+      show (Version 1 2 3) `shouldBe` "1.2.3"
+      show (Version 0 2 3) `shouldBe` "0.2.3"
+      show (Version 0 0 3) `shouldBe` "0.0.3"
+      show (Version 0 0 0) `shouldBe` "0.0.0"
 
-  it "parseVersion succeeds for valid full versions" $ do
-    parseVersion "1.2.3" `shouldBe` Right (Version 1 2 3)
-    parseVersion "103.20.35" `shouldBe` Right (Version 103 20 35)
-    parseVersion "0.1.33" `shouldBe` Right (Version 0 1 33)
-    parseVersion "0.0.0" `shouldBe` Right (Version 0 0 0)
+  describe "parserVersion" $ do
+    it "prases full versions" $ do
+      parseVersion "1.2.3" `shouldBe` Right (Version 1 2 3)
+      parseVersion "103.20.35" `shouldBe` Right (Version 103 20 35)
+      parseVersion "0.1.33" `shouldBe` Right (Version 0 1 33)
+      parseVersion "0.0.0" `shouldBe` Right (Version 0 0 0)
+      parseVersion "1.0.1" `shouldBe` Right (Version 1 0 1)
 
-  it "parseVersion fails for partial versions" $ do
-    isLeft (parseVersion "1") `shouldBe` True
-    isLeft (parseVersion "1.2") `shouldBe` True
+    it "rejects partial versions" $ do
+      isLeft (parseVersion "1") `shouldBe` True
+      isLeft (parseVersion "1.2") `shouldBe` True
 
-  -- TODO: enable once we add pre-release and build support
-  -- it "parseVersion succeeds for valid pre-release versions" $ do
-  --   parseVersion "1.2.3-123" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3-123.123" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3-abc" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3-abc.123.abc" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3---.--.-" `shouldBe` Right (Version 1 2 3)
+    -- TODO: enable once we add pre-release and build support
+    -- it "parseVersion succeeds for valid pre-release versions" $ do
+    --   parseVersion "1.2.3-123" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3-123.123" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3-abc" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3-abc.123.abc" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3---.--.-" `shouldBe` Right (Version 1 2 3)
 
-  -- it "parseVersion fails for invalid pre-release versions" $ do
-  --   parseVersion "1.2.3-" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3-123." `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3-?" `shouldBe` Right (Version 1 2 3)
+    -- it "parseVersion fails for invalid pre-release versions" $ do
+    --   parseVersion "1.2.3-" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3-123." `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3-?" `shouldBe` Right (Version 1 2 3)
 
-  -- it "parseVersion succeeds for valid build versions" $ do
-  --   parseVersion "1.2.3+123" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3+abc" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3+123.abc" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3+abc.123.abc" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3+--.--.-" `shouldBe` Right (Version 1 2 3)
+    -- it "parseVersion succeeds for valid build versions" $ do
+    --   parseVersion "1.2.3+123" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3+abc" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3+123.abc" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3+abc.123.abc" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3+--.--.-" `shouldBe` Right (Version 1 2 3)
 
-  -- it "parseVersion fails for invalid build versions" $ do
-  --   parseVersion "1.2.3+" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3+123." `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3+?" `shouldBe` Right (Version 1 2 3)
+    -- it "parseVersion fails for invalid build versions" $ do
+    --   parseVersion "1.2.3+" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3+123." `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3+?" `shouldBe` Right (Version 1 2 3)
 
-  -- it "parseVersion parses pre-release and build order properly" $ do
-  --   parseVersion "1.2.3-123+abc" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3-123.abc+abc.123" `shouldBe` Right (Version 1 2 3)
-  --   parseVersion "1.2.3----.---+---" `shouldBe` Right (Version 1 2 3)
-  --   isLeft (parseVersion "1.2.3+123-abc") `shouldBe` True
-  --   isLeft (parseVersion "1.2.3-123+") `shouldBe` True
+    -- it "parseVersion parses pre-release and build order properly" $ do
+    --   parseVersion "1.2.3-123+abc" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3-123.abc+abc.123" `shouldBe` Right (Version 1 2 3)
+    --   parseVersion "1.2.3----.---+---" `shouldBe` Right (Version 1 2 3)
+    --   isLeft (parseVersion "1.2.3+123-abc") `shouldBe` True
+    --   isLeft (parseVersion "1.2.3-123+") `shouldBe` True
 
-  it "parseVersion accepts versions with trailing content" $ do
-    isRight (parseVersion "1.2.3.4.5.6.7.8.9.0") `shouldBe` True
-    isRight (parseVersion "1.2.3foobar") `shouldBe` True
-    isRight (parseVersion "1.2.3 some other stuff") `shouldBe` True
+    it "parses full versions with trailing content" $ do
+      isRight (parseVersion "1.2.3.4.5.6.7.8.9.0") `shouldBe` True
+      isRight (parseVersion "1.2.3foobar") `shouldBe` True
+      isRight (parseVersion "1.2.3 some other stuff") `shouldBe` True
 
-  it "parseVersion fails for invalid formats" $ do
-    isLeft (parseVersion "01.2.3") `shouldBe` True
-    isLeft (parseVersion "1.02.3") `shouldBe` True
-    isLeft (parseVersion "1.2.03") `shouldBe` True
-    isLeft (parseVersion "v1.2.3") `shouldBe` True
-    isLeft (parseVersion ".2.3") `shouldBe` True
-    isLeft (parseVersion "foo") `shouldBe` True
-    isLeft (parseVersion "") `shouldBe` True
+    it "rejects invalid formats" $ do
+      isLeft (parseVersion "01.2.3") `shouldBe` True
+      isLeft (parseVersion "1.02.3") `shouldBe` True
+      isLeft (parseVersion "1.2.03") `shouldBe` True
+      isLeft (parseVersion "v1.2.3") `shouldBe` True
+      isLeft (parseVersion ".2.3") `shouldBe` True
+      isLeft (parseVersion "foo") `shouldBe` True
+      isLeft (parseVersion "") `shouldBe` True
 
   it "v quasi quoter" $ do
     [v|1.2.3|] `shouldBe` Version 1 2 3

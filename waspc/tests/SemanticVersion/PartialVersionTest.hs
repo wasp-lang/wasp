@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module SemanticVersion.PartialVersionTest where
 
 import Data.Either (isLeft)

@@ -24,16 +24,16 @@ import Wasp.SemanticVersion.VersionBound
     intervalIntersection,
   )
 
--- | 'Comparator' can be joined by whitespace to form a 'ComparatorSet',
--- which is satisfied by the intersection of all of the 'Comparator' it includes.
+-- | Comparators can be joined by whitespace to form a comparator set,
+-- which is satisfied by the intersection of all of the comparators it includes.
 data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
   deriving (Eq)
 
--- | We rely on this `show` implementation to produce valid semver representation of comparator set.
+-- | We rely on this `show` implementation to produce valid node-semver comparator set.
 instance Show ComparatorSet where
   show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
 
--- | We define concatenation of two 'ComparatorSet' as a union of their comparators.
+-- | We define concatenation of two comparator sets as a union of their comparators.
 instance Semigroup ComparatorSet where
   (ComparatorSet leftComps) <> (ComparatorSet rightComps) = ComparatorSet $ NE.nub $ leftComps <> rightComps
 
@@ -41,8 +41,8 @@ instance HasVersionBounds ComparatorSet where
   versionBounds (ComparatorSet comps) = foldr1 intervalIntersection $ versionBounds <$> comps
 
 -- Helper methods for constructing 'ComparatorSet'.
--- While 'Comparator' works with 'PartialVersion' internally, we only ever use 'Version' in our code.
--- For 'PartialVersion' comparator sets, pelease use the 'ComparatorSet' constructor directly.
+-- While 'Comparator' works with 'PartialVersion' internally, we only use it through 'Version' in our code.
+-- To create 'PartialVersion' comparator sets, pelease use the 'ComparatorSet' constructor directly.
 
 lt :: Version -> ComparatorSet
 lt = mkPrimCompSet LessThan

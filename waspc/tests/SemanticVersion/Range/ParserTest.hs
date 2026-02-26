@@ -1,5 +1,3 @@
-{-# LANGUAGE QuasiQuotes #-}
-
 module SemanticVersion.Range.ParserTest where
 
 import Data.Either (isRight)
