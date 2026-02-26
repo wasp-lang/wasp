@@ -8,14 +8,12 @@ import Wasp.SemanticVersion
 spec_SemanticVersion_Range_Parser :: Spec
 spec_SemanticVersion_Range_Parser = do
   describe "parseRange" $ do
-    it "parses primitive operators with full versions" $ do
+    it "parses primitive operator ranges" $ do
       parseRange ">=1.2.3" `shouldBe` Right (Range [gte [v|1.2.3|]])
       parseRange "<=1.2.3" `shouldBe` Right (Range [lte [v|1.2.3|]])
       parseRange ">1.2.3" `shouldBe` Right (Range [gt [v|1.2.3|]])
       parseRange "<1.2.3" `shouldBe` Right (Range [lt [v|1.2.3|]])
       parseRange "=1.2.3" `shouldBe` Right (Range [eq [v|1.2.3|]])
-
-    it "parses primitive operators with partial versions" $ do
       parseRange ">=1.2" `shouldBe` Right (Range [primCompSet GreaterThanOrEqual [pv|1.2|]])
       parseRange "<=1.2" `shouldBe` Right (Range [primCompSet LessThanOrEqual [pv|1.2|]])
       parseRange ">1" `shouldBe` Right (Range [primCompSet GreaterThan [pv|1|]])
@@ -94,28 +92,21 @@ spec_SemanticVersion_Range_Parser = do
     -- Hyphen ranges are mutually exclusive with other comparators within the same comparator set.
     -- They can only appear alone in a comparator set, or combined with other sets via ||.
     describe "hyphen ranges cannot be combined with other comparators in the same comparator set" $ do
-      it "allows hyphen range alone" $ do
-        isRight (parseRange "1.2.3 - 2.0.0") `shouldBe` True
-
-      it "allows hyphen range with || (different comparator sets)" $ do
+      it "allows hyphen range when other comparators are not in the same comparator set" $ do
         isRight (parseRange "1.2.3 - 2.0.0 || >=3.0.0") `shouldBe` True
         isRight (parseRange ">=0.5.0 || 1.2.3 - 2.0.0") `shouldBe` True
         isRight (parseRange "^1.0.0 || ~1.0.0 || 1.2.3 - 2.0.0") `shouldBe` True
         isRight (parseRange "1.0.0 - 2.0.0 || 3.0.0 - 4.0.0") `shouldBe` True
 
-      it "rejects primitive comparator with hyphen range in the same comparator set" $ do
+      it "rejects hyphen range with other comparators in the same comparator set" $ do
         isRight (parseRange ">=1.2.3 1.2.3 - 2.0.0") `shouldBe` False
         isRight (parseRange ">1.0.0 1.2.3 - 2.0.0") `shouldBe` False
         isRight (parseRange "<2.0.0 1.2.3 - 2.0.0") `shouldBe` False
         isRight (parseRange "1.2.3 - 2.0.0 >=3.0.0") `shouldBe` False
         isRight (parseRange "1.2.3 - 2.0.0 <3.0.0") `shouldBe` False
-
-      it "rejects caret/tilde with hyphen range in the same comparator set" $ do
         isRight (parseRange "^1.0.0 1.2.3 - 2.0.0") `shouldBe` False
         isRight (parseRange "~1.0.0 1.2.3 - 2.0.0") `shouldBe` False
         isRight (parseRange "1.2.3 - 2.0.0 ^3.0.0") `shouldBe` False
-
-      it "rejects x-range with hyphen range in the same comparator set" $ do
         isRight (parseRange "1.x 1.2.3 - 2.0.0") `shouldBe` False
         isRight (parseRange "1.2.3 - 2.0.0 3.x") `shouldBe` False
   where
