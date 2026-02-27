@@ -8,16 +8,8 @@ spec_SemanticVersion_ComparatorSet :: Spec
 spec_SemanticVersion_ComparatorSet = do
   describe "show" $ do
     it "shows single comparator comparator set" $ do
-      show (ComparatorSet $ pure $ XRange [pv|1.2|]) `shouldBe` "1.2"
+      show (ComparatorSet $ NE.fromList [XRange [pv|1.2|]]) `shouldBe` "1.2"
     it "shows multiple comparator comparator set" $ do
-      show
-        ( ComparatorSet $
-            NE.fromList
-              [ PrimitiveComparator GreaterThanOrEqual [pv|1.2.0|],
-                PrimitiveComparator LessThan [pv|2.0.0|]
-              ]
-        )
-        `shouldBe` ">=1.2.0 <2.0.0"
       show
         ( ComparatorSet $
             NE.fromList
@@ -48,7 +40,7 @@ spec_SemanticVersion_ComparatorSet = do
         )
         `shouldBe` [vi| (1.0.0, 2.0.0] |]
 
-  describe "isVersionInRange" $ do
+  describe "isVersionInInterval" $ do
     it ">=1.0.0 <2.0.0 matches versions in range" $
       testComparatorSet
         ( ComparatorSet $

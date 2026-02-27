@@ -49,18 +49,44 @@ spec_SemanticVersion_Range = do
           ([v|2.0.0|], False)
         ]
 
+  describe "isVersionInInterval (versionBounds range)" $ do
+    it "Empty range bounds are (inf, inf) which matches everything" $
+      testBounds
+        mempty
+        [ ([v|0.0.0|], True),
+          ([v|1.0.0|], True)
+        ]
+    it "Single comparator set matches exactly" $
+      testBounds
+        (Range [backwardsCompatibleWith [v|1.2.3|]])
+        [ ([v|1.2.2|], False),
+          ([v|1.2.3|], True),
+          ([v|1.5.0|], True),
+          ([v|2.0.0|], False)
+        ]
+    it "Disjoint OR sets over-approximate (gap included)" $
+      testBounds
+        (Range [backwardsCompatibleWith [v|1.0.0|], backwardsCompatibleWith [v|3.0.0|]])
+        [ ([v|0.9.9|], False),
+          ([v|1.0.0|], True),
+          ([v|1.5.0|], True),
+          ([v|2.5.0|], True), -- In bounds but NOT in range (gap)
+          ([v|3.0.0|], True),
+          ([v|3.9.9|], True),
+          ([v|4.0.0|], False)
+        ]
+
   describe "versionBounds" $ do
-    describe "Using helper functions" $ do
-      let range ~> expectedInterval =
-            it (show range) $
-              versionBounds range `shouldBe` expectedInterval
-      Range [] ~> [vi| (inf, inf) |]
-      Range [gt [v|0.1.2|]] ~> [vi| (0.1.2, inf) |]
-      Range [gt [v|0.1.2|] <> lt [v|0.2.0|]] ~> [vi| (0.1.2, 0.2.0) |]
-      Range [lte [v|1.2.3|]] ~> [vi| (inf, 1.2.3] |]
-      Range [backwardsCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.3.0) |]
-      Range [backwardsCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 2.0.0) |]
-      Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1.0|], eq [v|0.5.6|]] ~> [vi| [0.5.6, 1.2.3] |]
+    let range ~> expectedInterval =
+          it (show range) $ versionBounds range `shouldBe` expectedInterval
+
+    Range [] ~> [vi| (inf, inf) |]
+    Range [gt [v|0.1.2|]] ~> [vi| (0.1.2, inf) |]
+    Range [gt [v|0.1.2|] <> lt [v|0.2.0|]] ~> [vi| (0.1.2, 0.2.0) |]
+    Range [lte [v|1.2.3|]] ~> [vi| (inf, 1.2.3] |]
+    Range [backwardsCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.3.0) |]
+    Range [backwardsCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 2.0.0) |]
+    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1.0|], eq [v|0.5.6|]] ~> [vi| [0.5.6, 1.2.3] |]
 
   describe "doesVersionRangeAllowMajorChanges" $ do
     let range ~> expected =
@@ -79,4 +105,9 @@ spec_SemanticVersion_Range = do
     testRange :: Range -> [(Version, Bool)] -> Expectation
     testRange range versionsWithResults =
       map (\(ver, _) -> isVersionInRange ver range) versionsWithResults
+        `shouldBe` map snd versionsWithResults
+
+    testBounds :: Range -> [(Version, Bool)] -> Expectation
+    testBounds range versionsWithResults =
+      map (\(ver, _) -> isVersionInInterval (versionBounds range) ver) versionsWithResults
         `shouldBe` map snd versionsWithResults

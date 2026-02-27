@@ -8,12 +8,11 @@ import Wasp.SemanticVersion.Version
 -- https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
 spec_SemanticVersion_Version :: Spec
 spec_SemanticVersion_Version = do
-  describe "show" $ do
-    it "produces valid semver representation of version" $ do
-      show (Version 1 2 3) `shouldBe` "1.2.3"
-      show (Version 0 2 3) `shouldBe` "0.2.3"
-      show (Version 0 0 3) `shouldBe` "0.0.3"
-      show (Version 0 0 0) `shouldBe` "0.0.0"
+  it "show" $ do
+    show (Version 1 2 3) `shouldBe` "1.2.3"
+    show (Version 0 2 3) `shouldBe` "0.2.3"
+    show (Version 0 0 3) `shouldBe` "0.0.3"
+    show (Version 0 0 0) `shouldBe` "0.0.0"
 
   describe "parserVersion" $ do
     it "prases full versions" $ do
