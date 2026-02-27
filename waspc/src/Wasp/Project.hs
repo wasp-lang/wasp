@@ -11,7 +11,6 @@ module Wasp.Project
 where
 
 import Control.Arrow (ArrowChoice (left), first)
-import Control.Concurrent (newChan)
 import Data.List.NonEmpty (toList)
 import Data.Maybe (maybeToList)
 import Data.Text (Text)
@@ -20,8 +19,6 @@ import qualified Wasp.AppSpec as AS
 import Wasp.CompileOptions (CompileOptions (generatorWarningsFilter), sendMessage)
 import qualified Wasp.Generator as Generator
 import qualified Wasp.Generator.DockerGenerator as DockerGenerator
-import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageAtInstallationPathInProject)
 import Wasp.Project.Analyze (analyzeWaspProject)
 import Wasp.Project.Common (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project.Env as Project.Env
@@ -32,22 +29,17 @@ compile ::
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
-  ensurePackageAtInstallationPathInProject waspDir WaspConfigPackage
-  chan <- newChan
-  installProjectNpmDependencies chan waspDir >>= \case
-    Left err -> return ([], [err])
-    Right () -> do
-      compileWarningsAndErrors <-
-        analyzeWaspProject waspDir options >>= \case
-          (Left analyzerErrors, analyzerWarnings) -> return (analyzerWarnings, analyzerErrors)
-          (Right appSpec, analyzerWarnings) ->
-            first (<> analyzerWarnings) <$> generateCode appSpec outDir options
-      dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
-      return $
-        mconcat
-          [ compileWarningsAndErrors,
-            (dotEnvWarnings, [])
-          ]
+  compileWarningsAndErrors <-
+    analyzeWaspProject waspDir options >>= \case
+      (Left analyzerErrors, analyzerWarnings) -> return (analyzerWarnings, analyzerErrors)
+      (Right appSpec, analyzerWarnings) ->
+        first (<> analyzerWarnings) <$> generateCode appSpec outDir options
+  dotEnvWarnings <- maybeToList <$> Project.Env.warnIfTheDotEnvPresent waspDir
+  return $
+    mconcat
+      [ compileWarningsAndErrors,
+        (dotEnvWarnings, [])
+      ]
 
 generateCode ::
   AS.AppSpec ->
