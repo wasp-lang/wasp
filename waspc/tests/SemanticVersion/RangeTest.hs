@@ -1,11 +1,39 @@
 module SemanticVersion.RangeTest where
 
+import Data.Either (isRight)
+import qualified Data.List.NonEmpty as NE
 import Test.Hspec
 import Wasp.SemanticVersion
 
--- TODO(franjo)
 spec_SemanticVersion_Range :: Spec
 spec_SemanticVersion_Range = do
+  describe "parsing" $ do
+    it "parses ranges with multiple comparator sets (OR)" $ do
+      parseRange ">=1.0.0 <2.0.0 || >=3.0.0"
+        `shouldBe` Right
+          ( Range
+              [ ComparatorSet $
+                  NE.fromList
+                    [ PrimitiveComparator GreaterThanOrEqual (Full 1 0 0),
+                      PrimitiveComparator LessThan (Full 2 0 0)
+                    ],
+                ComparatorSet $ pure $ PrimitiveComparator GreaterThanOrEqual (Full 3 0 0)
+              ]
+          )
+      parseRange "^1.2.3 || ^2.0.0"
+        `shouldBe` Right
+          ( Range
+              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
+                ComparatorSet $ pure $ BackwardsCompatibleWith (Full 2 0 0)
+              ]
+          )
+
+    it "parses hyphen ranges combined with other sets via ||" $ do
+      isRight (parseRange "1.2.3 - 2.0.0 || >=3.0.0") `shouldBe` True
+      isRight (parseRange ">=0.5.0 || 1.2.3 - 2.0.0") `shouldBe` True
+      isRight (parseRange "^1.0.0 || ~1.0.0 || 1.2.3 - 2.0.0") `shouldBe` True
+      isRight (parseRange "1.0.0 - 2.0.0 || 3.0.0 - 4.0.0") `shouldBe` True
+
   describe "show" $ do
     it "show empty range" $ do
       show (mempty :: Range) `shouldBe` ""

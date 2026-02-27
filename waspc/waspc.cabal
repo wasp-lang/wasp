@@ -450,7 +450,6 @@ library
     Wasp.SemanticVersion.ComparatorSet
     Wasp.SemanticVersion.PartialVersion
     Wasp.SemanticVersion.Range
-    Wasp.SemanticVersion.Range.Parser
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.SemanticVersion.Parsers
@@ -753,7 +752,6 @@ test-suite waspc-tests
     SemanticVersion.ComparatorTest
     SemanticVersion.ComparatorSetTest
     SemanticVersion.RangeTest
-    SemanticVersion.Range.ParserTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
     Project.WaspignoreTest

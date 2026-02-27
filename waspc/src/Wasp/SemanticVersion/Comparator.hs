@@ -1,11 +1,16 @@
 module Wasp.SemanticVersion.Comparator
   ( Comparator (..),
     PrimitiveOperator (..),
+    simpleComparatorParser,
+    hyphenComparatorParser,
   )
 where
 
+import Text.Parsec (Parsec, (<?>))
+import qualified Text.Parsec as P
 import Wasp.SemanticVersion.PartialVersion
   ( PartialVersion (..),
+    partialVersionParser,
     toCaretUpperBound,
     toLowerBound,
     toTildeUpperBound,
@@ -106,3 +111,43 @@ instance Show PrimitiveOperator where
   show LessThanOrEqual = "<="
   show GreaterThan = ">"
   show GreaterThanOrEqual = ">="
+
+-- | Parses a hyphen range (e.g. "1.2.3 - 2.3.4").
+-- Separated from 'simpleComparatorParser' because hyphen ranges cannot be
+-- combined with other comparators in a comparator set.
+hyphenComparatorParser :: Parsec String () Comparator
+hyphenComparatorParser = HyphenRange <$> partialVersionParser <*> (P.space *> P.char '-' *> P.space *> partialVersionParser)
+
+-- | Parses a single non-hyphen comparator (primitive, tilde, caret, or x-range).
+simpleComparatorParser :: Parsec String () Comparator
+simpleComparatorParser =
+  P.choice
+    [ P.try tildeParser,
+      P.try caretParser,
+      P.try primitiveParser,
+      xRangeParser
+    ]
+    <?> "comparator"
+  where
+    tildeParser :: Parsec String () Comparator
+    tildeParser = ApproximatelyEquvivalentTo <$> (P.char '~' *> partialVersionParser)
+
+    caretParser :: Parsec String () Comparator
+    caretParser = BackwardsCompatibleWith <$> (P.char '^' *> partialVersionParser)
+
+    xRangeParser :: Parsec String () Comparator
+    xRangeParser = XRange <$> partialVersionParser
+
+    primitiveParser :: Parsec String () Comparator
+    primitiveParser = PrimitiveComparator <$> primitiveOperatorParser <*> partialVersionParser
+
+    primitiveOperatorParser :: Parsec String () PrimitiveOperator
+    primitiveOperatorParser =
+      P.choice
+        [ LessThanOrEqual <$ P.try (P.string "<="),
+          GreaterThanOrEqual <$ P.try (P.string ">="),
+          LessThan <$ P.char '<',
+          GreaterThan <$ P.char '>',
+          Equal <$ P.char '='
+        ]
+        <?> "operator"

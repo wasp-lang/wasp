@@ -1,6 +1,7 @@
 module SemanticVersion.ComparatorTest where
 
 import Test.Hspec
+import qualified Text.Parsec as P
 import Wasp.SemanticVersion
 
 spec_SemanticVersion_Comparator :: Spec
@@ -24,6 +25,58 @@ spec_SemanticVersion_Comparator = do
       show (XRange [pv|*|]) `shouldBe` "*"
     it "hyphen range" $ do
       show (HyphenRange [pv|1.2.3|] [pv|2.3.4|]) `shouldBe` "1.2.3 - 2.3.4"
+
+  describe "simpleComparatorParser" $ do
+    let parseComp = P.parse simpleComparatorParser ""
+    it "parses primitive operator comparators" $ do
+      parseComp ">=1.2.3" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual (Full 1 2 3))
+      parseComp "<=1.2.3" `shouldBe` Right (PrimitiveComparator LessThanOrEqual (Full 1 2 3))
+      parseComp ">1.2.3" `shouldBe` Right (PrimitiveComparator GreaterThan (Full 1 2 3))
+      parseComp "<1.2.3" `shouldBe` Right (PrimitiveComparator LessThan (Full 1 2 3))
+      parseComp "=1.2.3" `shouldBe` Right (PrimitiveComparator Equal (Full 1 2 3))
+      parseComp ">=1.2" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual (MajorMinor 1 2))
+      parseComp "<=1.2" `shouldBe` Right (PrimitiveComparator LessThanOrEqual (MajorMinor 1 2))
+      parseComp "=1.2" `shouldBe` Right (PrimitiveComparator Equal (MajorMinor 1 2))
+      parseComp ">1" `shouldBe` Right (PrimitiveComparator GreaterThan (Major 1))
+      parseComp "<1" `shouldBe` Right (PrimitiveComparator LessThan (Major 1))
+
+    it "parses caret comparators" $ do
+      parseComp "^1.2.3" `shouldBe` Right (BackwardsCompatibleWith (Full 1 2 3))
+      parseComp "^1.2" `shouldBe` Right (BackwardsCompatibleWith (MajorMinor 1 2))
+      parseComp "^1" `shouldBe` Right (BackwardsCompatibleWith (Major 1))
+
+    it "parses tilde comparators" $ do
+      parseComp "~1.2.3" `shouldBe` Right (ApproximatelyEquvivalentTo (Full 1 2 3))
+      parseComp "~1.2" `shouldBe` Right (ApproximatelyEquvivalentTo (MajorMinor 1 2))
+      parseComp "~1" `shouldBe` Right (ApproximatelyEquvivalentTo (Major 1))
+
+    it "parses X-range comparators" $ do
+      parseComp "*" `shouldBe` Right (XRange Any)
+      parseComp "x" `shouldBe` Right (XRange Any)
+      parseComp "X" `shouldBe` Right (XRange Any)
+      parseComp "1" `shouldBe` Right (XRange (Major 1))
+      parseComp "1.x" `shouldBe` Right (XRange (Major 1))
+      parseComp "1.x.x" `shouldBe` Right (XRange (Major 1))
+      parseComp "1.2" `shouldBe` Right (XRange (MajorMinor 1 2))
+      parseComp "1.2.x" `shouldBe` Right (XRange (MajorMinor 1 2))
+      parseComp "1.2.3" `shouldBe` Right (XRange (Full 1 2 3))
+
+    it "parses simple comparators with trailing content" $ do
+      parseComp "* 1.2.3" `shouldBe` Right (XRange Any)
+      parseComp "<1.2.3 || 5" `shouldBe` Right (PrimitiveComparator LessThan (Full 1 2 3))
+
+  describe "hyphenComparatorParser" $ do
+    let parseHyphen = P.parse hyphenComparatorParser ""
+
+    it "parses hyphen range" $ do
+      parseHyphen "1.2.3 - 2.3.4" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))
+      parseHyphen "1.2 - 2.3.4" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (Full 2 3 4))
+      parseHyphen "1.2.3 - 2.3" `shouldBe` Right (HyphenRange (Full 1 2 3) (MajorMinor 2 3))
+      parseHyphen "1 - 3" `shouldBe` Right (HyphenRange (Major 1) (Major 3))
+
+    it "parses hyphen range with trailing content" $ do
+      parseHyphen "1.2.3 - 2.3.4 || something" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))
+      parseHyphen "1.2 - 2.3.4 ^1.2.3" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (Full 2 3 4))
 
   describe "versionBounds" $ do
     let comp ~> expectedInterval =

@@ -1,5 +1,7 @@
 module Wasp.SemanticVersion.Range
   ( Range (..),
+    parseRange,
+    rangeParser,
     isVersionInRange,
     doesVersionRangeAllowMajorChanges,
   )
@@ -8,7 +10,9 @@ where
 import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import Data.Maybe (isJust)
-import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..))
+import Text.Parsec (ParseError, Parsec)
+import qualified Text.Parsec as P
+import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), comparatorSetParser)
 import Wasp.SemanticVersion.Version (Version, nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
@@ -56,3 +60,12 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
       let noMajorChangesInterval =
             (lowerBound, Exclusive $ nextBreakingChangeVersion lowerBoundVersion)
       guard $ versionInterval `isSubintervalOf` noMajorChangesInterval
+
+parseRange :: String -> Either ParseError Range
+parseRange = P.parse rangeParser ""
+
+rangeParser :: Parsec String () Range
+rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP) <* P.spaces <* P.eof
+  where
+    logicalOrP :: Parsec String () ()
+    logicalOrP = P.spaces *> P.string "||" *> P.spaces

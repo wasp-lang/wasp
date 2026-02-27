@@ -1,5 +1,6 @@
 module Wasp.SemanticVersion.ComparatorSet
   ( ComparatorSet (..),
+    comparatorSetParser,
     lt,
     lte,
     gt,
@@ -13,9 +14,13 @@ module Wasp.SemanticVersion.ComparatorSet
 where
 
 import qualified Data.List.NonEmpty as NE
+import Text.Parsec (Parsec)
+import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
   ( Comparator (..),
     PrimitiveOperator (..),
+    hyphenComparatorParser,
+    simpleComparatorParser,
   )
 import Wasp.SemanticVersion.PartialVersion (fromVersion)
 import Wasp.SemanticVersion.Version (Version)
@@ -73,3 +78,26 @@ hyphenRange rv1 rv2 = ComparatorSet . pure $ HyphenRange (fromVersion rv1) (from
 
 mkPrimCompSet :: PrimitiveOperator -> Version -> ComparatorSet
 mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op . fromVersion
+
+-- | Parses a comparator set: either a single hyphen range or
+-- one or more simple comparators separated by spaces.
+comparatorSetParser :: Parsec String () ComparatorSet
+comparatorSetParser =
+  P.choice
+    [ ComparatorSet . pure <$> P.try hyphenComparatorParser,
+      simpleComparatorSetParser
+    ]
+  where
+    simpleComparatorSetParser :: Parsec String () ComparatorSet
+    simpleComparatorSetParser = do
+      comparators <- simpleComparatorParser `P.sepBy1` P.try spaceSeparator
+      case NE.nonEmpty comparators of
+        Just neComps -> return $ ComparatorSet neComps
+        Nothing -> fail "Expected at least one comparator"
+
+    -- Space separator, but not before || or at end
+    spaceSeparator :: Parsec String () ()
+    spaceSeparator = do
+      _ <- P.many1 (P.char ' ')
+      P.notFollowedBy (P.string "||")
+      P.notFollowedBy P.eof
