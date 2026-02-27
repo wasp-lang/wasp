@@ -750,6 +750,7 @@ test-suite waspc-tests
     Util.Prisma
     SemanticVersion.ParsersTest
     SemanticVersion.PartialVersionTest
+    SemanticVersion.ComparatorTest
     SemanticVersion.ComparatorSetTest
     SemanticVersion.RangeTest
     SemanticVersion.Range.ParserTest

@@ -37,4 +37,4 @@ spec_SemanticVersion_Parsers = do
       isLeft (parseNatural "-1") `shouldBe` True
       isLeft (parseNatural ".123") `shouldBe` True
   where
-    parseNatural = parse (noLeadingZeroNaturalP) ""
+    parseNatural = parse noLeadingZeroNaturalP ""

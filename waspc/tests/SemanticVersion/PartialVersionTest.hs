@@ -6,15 +6,14 @@ import Wasp.SemanticVersion
 
 spec_SemanticVersion_PartialVersion :: Spec
 spec_SemanticVersion_PartialVersion = do
-  describe "show" $ do
-    it "produces valid semver representation" $ do
-      show (Full 1 2 3) `shouldBe` "1.2.3"
-      show (MajorMinor 1 2) `shouldBe` "1.2"
-      show (Major 1) `shouldBe` "1"
-      show Any `shouldBe` "*"
+  it "show" $ do
+    show (Full 1 2 3) `shouldBe` "1.2.3"
+    show (MajorMinor 1 2) `shouldBe` "1.2"
+    show (Major 1) `shouldBe` "1"
+    show Any `shouldBe` "*"
 
   describe "parsePartialVersion" $ do
-    it "parses full versions" $ do
+    it "parses major.minor.patch versions" $ do
       parsePartialVersion "1.2.3" `shouldBe` Right (Full 1 2 3)
       parsePartialVersion "0.0.0" `shouldBe` Right (Full 0 0 0)
       parsePartialVersion "103.20.35" `shouldBe` Right (Full 103 20 35)
@@ -29,7 +28,7 @@ spec_SemanticVersion_PartialVersion = do
       parsePartialVersion "0" `shouldBe` Right (Major 0)
       parsePartialVersion "123" `shouldBe` Right (Major 123)
 
-    it "parses Any wildcards" $ do
+    it "parses sole wildcards" $ do
       parsePartialVersion "*" `shouldBe` Right Any
       parsePartialVersion "x" `shouldBe` Right Any
       parsePartialVersion "X" `shouldBe` Right Any
@@ -63,21 +62,23 @@ spec_SemanticVersion_PartialVersion = do
       isLeft (parsePartialVersion "1.x.3") `shouldBe` True
       isLeft (parsePartialVersion "1.*.3") `shouldBe` True
 
-  describe "pv quasiquoter" $ do
-    it "creates Full versions" $ do
+  describe "pv quasi quoter" $ do
+    it "creates major.minor.patch versions" $ do
       [pv|1.2.3|] `shouldBe` Full 1 2 3
       [pv|0.0.0|] `shouldBe` Full 0 0 0
 
-    it "creates MajorMinor versions" $ do
+    it "creates major.minor versions" $ do
       [pv|1.2|] `shouldBe` MajorMinor 1 2
       [pv|0.0|] `shouldBe` MajorMinor 0 0
 
-    it "creates Major versions" $ do
+    it "creates major versions" $ do
       [pv|1|] `shouldBe` Major 1
       [pv|0|] `shouldBe` Major 0
 
-    it "creates Any from wildcards" $ do
+    it "creates wildcard versions from wildcards" $ do
       [pv|*|] `shouldBe` Any
+      [pv|x|] `shouldBe` Any
+      [pv|X|] `shouldBe` Any
 
   describe "fromVersion" $ do
     it "converts Version to Full PartialVersion" $ do
