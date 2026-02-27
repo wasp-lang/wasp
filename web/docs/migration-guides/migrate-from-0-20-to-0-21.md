@@ -309,12 +309,14 @@ Wasp no longer manages Tailwind CSS internally, so there are a few changes regar
 1. Add the `@tailwindcss/vite` plugin to your `vite.config.{js,ts}` file.
 
     ```ts title="vite.config.ts"
+    import { wasp } from 'wasp/client/vite';
     // highlight-next-line
     import tailwindcss from '@tailwindcss/vite';
     import { defineConfig } from 'vite';
 
     export default defineConfig({
       plugins: [
+        wasp(),
         // highlight-next-line
         tailwindcss(),
       ],
