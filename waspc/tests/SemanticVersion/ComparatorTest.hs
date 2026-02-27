@@ -1,5 +1,6 @@
 module SemanticVersion.ComparatorTest where
 
+import Data.Either (isLeft)
 import Test.Hspec
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion
@@ -65,6 +66,10 @@ spec_SemanticVersion_Comparator = do
       parseComp "* 1.2.3" `shouldBe` Right (XRange Any)
       parseComp "<1.2.3 || 5" `shouldBe` Right (PrimitiveComparator LessThan (Full 1 2 3))
 
+    it "rejects invalid formats" $ do
+      isLeft (parseComp "") `shouldBe` True
+      isLeft (parseComp "foo") `shouldBe` True
+
   describe "hyphenComparatorParser" $ do
     let parseHyphen = P.parse hyphenComparatorParser ""
 
@@ -77,6 +82,13 @@ spec_SemanticVersion_Comparator = do
     it "parses hyphen range with trailing content" $ do
       parseHyphen "1.2.3 - 2.3.4 || something" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))
       parseHyphen "1.2 - 2.3.4 ^1.2.3" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (Full 2 3 4))
+
+    it "rejects invalid formats" $ do
+      isLeft (parseHyphen "") `shouldBe` True
+      isLeft (parseHyphen "foo") `shouldBe` True
+      isLeft (parseHyphen "1.2") `shouldBe` True
+      isLeft (parseHyphen "1.2 - ") `shouldBe` True
+      isLeft (parseHyphen "1.2 - a") `shouldBe` True
 
   describe "versionBounds" $ do
     let comp ~> expectedInterval =

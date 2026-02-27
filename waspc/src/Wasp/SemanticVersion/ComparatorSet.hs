@@ -90,8 +90,9 @@ comparatorSetParser =
   where
     simpleComparatorSetParser :: Parsec String () ComparatorSet
     simpleComparatorSetParser = do
-      comparators <- simpleComparatorParser `P.sepBy1` P.try spaceSeparator
-      case NE.nonEmpty comparators of
+      first <- simpleComparatorParser
+      rest <- P.many $ P.try (spaceSeparator *> simpleComparatorParser)
+      case NE.nonEmpty (first : rest) of
         Just neComps -> return $ ComparatorSet neComps
         Nothing -> fail "Expected at least one comparator"
 
