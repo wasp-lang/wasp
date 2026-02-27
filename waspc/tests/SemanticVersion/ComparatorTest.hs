@@ -29,6 +29,10 @@ spec_SemanticVersion_Comparator = do
 
   describe "simpleComparatorParser" $ do
     let parseComp = P.parse simpleComparatorParser ""
+
+    it "parses minimal possible comparator" $ do
+      parseComp "" `shouldBe` Right (XRange Any)
+
     it "parses primitive operator comparators" $ do
       parseComp ">=1.2.3" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual (Full 1 2 3))
       parseComp "<=1.2.3" `shouldBe` Right (PrimitiveComparator LessThanOrEqual (Full 1 2 3))

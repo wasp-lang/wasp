@@ -31,7 +31,25 @@ spec_SemanticVersion_ComparatorSet = do
   describe "comparatorSetParser" $ do
     let parseCompSet = P.parse comparatorSetParser ""
 
-    it "parses comparator sets with multiple comparators (AND)" $ do
+    it "parses minimal possible comparator set" $ do
+      parseCompSet ""
+        `shouldBe` Right
+          ( ComparatorSet $
+              NE.fromList
+                [ XRange Any
+                ]
+          )
+
+    it "parses comparator sets with single comparator" $ do
+      parseCompSet ">=1.0.0 <2.0.0"
+        `shouldBe` Right
+          ( ComparatorSet $
+              NE.fromList
+                [ PrimitiveComparator GreaterThanOrEqual (Full 1 0 0)
+                ]
+          )
+
+    it "parses comparator sets with multiple comparators" $ do
       parseCompSet ">=1.0.0 <2.0.0"
         `shouldBe` Right
           ( ComparatorSet $

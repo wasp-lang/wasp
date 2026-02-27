@@ -1,15 +1,54 @@
 module SemanticVersion.RangeTest where
 
-import Data.Either (isRight)
+import Data.Either (isLeft)
 import qualified Data.List.NonEmpty as NE
 import Test.Hspec
 import Wasp.SemanticVersion
 
 spec_SemanticVersion_Range :: Spec
 spec_SemanticVersion_Range = do
+  describe "show" $ do
+    it "show empty range" $ do
+      show (mempty :: Range)
+        `shouldBe` ""
+    it "show simple range" $ do
+      show (Range [lte [v|1.3.6|]])
+        `shouldBe` "<=1.3.6"
+    it "show complex range" $ do
+      show (Range [lte [v|1.3.6|] <> backwardsCompatibleWith [v|1.2.0|]] <> Range [eq [v|1.2.3|]])
+        `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
+
   describe "parsing" $ do
-    it "parses ranges with multiple comparator sets (OR)" $ do
-      parseRange ">=1.0.0 <2.0.0 || >=3.0.0"
+    it "parses minimal possible range" $ do
+      parseRange ""
+        `shouldBe` Right
+          ( Range
+              [ ComparatorSet $
+                  NE.fromList
+                    [ XRange Any
+                    ]
+              ]
+          )
+
+    it "parses ranges with single comparator set" $ do
+      parseRange ">=1.0.0 <2.0.0"
+        `shouldBe` Right
+          ( Range
+              [ ComparatorSet $
+                  NE.fromList
+                    [ PrimitiveComparator GreaterThanOrEqual (Full 1 0 0),
+                      PrimitiveComparator LessThan (Full 2 0 0)
+                    ]
+              ]
+          )
+      parseRange "^1.2.3"
+        `shouldBe` Right
+          ( Range
+              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3)
+              ]
+          )
+    it "parses ranges with multiple comparator sets" $ do
+      parseRange ">=1.0.0 <2.0.0 || >=3.0.0 || *"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $
@@ -17,7 +56,8 @@ spec_SemanticVersion_Range = do
                     [ PrimitiveComparator GreaterThanOrEqual (Full 1 0 0),
                       PrimitiveComparator LessThan (Full 2 0 0)
                     ],
-                ComparatorSet $ pure $ PrimitiveComparator GreaterThanOrEqual (Full 3 0 0)
+                ComparatorSet $ pure $ PrimitiveComparator GreaterThanOrEqual (Full 3 0 0),
+                ComparatorSet $ pure $ XRange Any
               ]
           )
       parseRange "^1.2.3 || ^2.0.0"
@@ -28,23 +68,9 @@ spec_SemanticVersion_Range = do
               ]
           )
 
-    it "parses hyphen ranges combined with other sets via ||" $ do
-      isRight (parseRange "1.2.3 - 2.0.0 || >=3.0.0") `shouldBe` True
-      isRight (parseRange ">=0.5.0 || 1.2.3 - 2.0.0") `shouldBe` True
-      isRight (parseRange "^1.0.0 || ~1.0.0 || 1.2.3 - 2.0.0") `shouldBe` True
-      isRight (parseRange "1.0.0 - 2.0.0 || 3.0.0 - 4.0.0") `shouldBe` True
-
-  describe "show" $ do
-    it "show empty range" $ do
-      show (mempty :: Range) `shouldBe` ""
-    it "show simple range" $ do
-      show (Range [lte [v|1.3.6|]]) `shouldBe` "<=1.3.6"
-    it "show complex range" $ do
-      show
-        ( Range [lte [v|1.3.6|] <> backwardsCompatibleWith [v|1.2.0|]]
-            <> Range [eq [v|1.2.3|]]
-        )
-        `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
+    it "rejects invalid formats" $ do
+      isLeft (parseRange "") `shouldBe` True
+      isLeft (parseRange "foo") `shouldBe` True
 
   it "Concatenating version ranges produces union of their comparator sets" $ do
     let v1 = [v|1.0.0|]
@@ -54,6 +80,10 @@ spec_SemanticVersion_Range = do
     r1 <> r2 `shouldBe` r1
 
   describe "isVersionInRange" $ do
+    let testRange range versionsWithResults =
+          map (\(ver, _) -> isVersionInRange ver range) versionsWithResults
+            `shouldBe` map snd versionsWithResults
+
     it "No version is in empty range" $
       testRange
         mempty
@@ -75,33 +105,6 @@ spec_SemanticVersion_Range = do
           ([v|1.2.4|], False),
           ([v|1.3.0|], False),
           ([v|2.0.0|], False)
-        ]
-
-  describe "isVersionInInterval (versionBounds range)" $ do
-    it "Empty range bounds are (inf, inf) which matches everything" $
-      testBounds
-        mempty
-        [ ([v|0.0.0|], True),
-          ([v|1.0.0|], True)
-        ]
-    it "Single comparator set matches exactly" $
-      testBounds
-        (Range [backwardsCompatibleWith [v|1.2.3|]])
-        [ ([v|1.2.2|], False),
-          ([v|1.2.3|], True),
-          ([v|1.5.0|], True),
-          ([v|2.0.0|], False)
-        ]
-    it "Disjoint OR sets over-approximate (gap included)" $
-      testBounds
-        (Range [backwardsCompatibleWith [v|1.0.0|], backwardsCompatibleWith [v|3.0.0|]])
-        [ ([v|0.9.9|], False),
-          ([v|1.0.0|], True),
-          ([v|1.5.0|], True),
-          ([v|2.5.0|], True), -- In bounds but NOT in range (gap)
-          ([v|3.0.0|], True),
-          ([v|3.9.9|], True),
-          ([v|4.0.0|], False)
         ]
 
   describe "versionBounds" $ do
@@ -129,13 +132,3 @@ spec_SemanticVersion_Range = do
     Range [lte [v|2.9.99|]] ~> True
     Range [backwardsCompatibleWith [v|0.2.3|]] ~> False
     Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1.0|], eq [v|0.5.6|]] ~> True
-  where
-    testRange :: Range -> [(Version, Bool)] -> Expectation
-    testRange range versionsWithResults =
-      map (\(ver, _) -> isVersionInRange ver range) versionsWithResults
-        `shouldBe` map snd versionsWithResults
-
-    testBounds :: Range -> [(Version, Bool)] -> Expectation
-    testBounds range versionsWithResults =
-      map (\(ver, _) -> isVersionInInterval (versionBounds range) ver) versionsWithResults
-        `shouldBe` map snd versionsWithResults
