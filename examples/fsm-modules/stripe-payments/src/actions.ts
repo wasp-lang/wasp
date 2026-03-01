@@ -1,5 +1,5 @@
 import { HttpError } from "wasp/server";
-import type { AuthenticatedActionDefinition } from "wasp/server/module";
+import type { AuthenticatedAction } from "wasp/server/module";
 import { requireUser } from "./auth.js";
 import {
   createCheckoutSession,
@@ -7,15 +7,16 @@ import {
   getCustomerPortalSession,
 } from "./checkoutUtils.js";
 import { moduleConfig } from "./config.js";
+import type { Entities } from "./store.js";
 
-const { userEntityName, premiumPlanPriceId } = moduleConfig;
+const { premiumPlanPriceId } = moduleConfig;
 
-export const generateCheckoutSession: AuthenticatedActionDefinition<void, { sessionUrl: string | null }> = async (
+export const generateCheckoutSession: AuthenticatedAction<Entities, void, { sessionUrl: string | null }> = async (
   _args,
   context,
 ) => {
   const user = requireUser(context);
-  const dbUser = await context.entities[userEntityName].findUniqueOrThrow({
+  const dbUser = await context.entities.User.findUniqueOrThrow({
     where: { id: user.id },
   });
 
@@ -26,7 +27,7 @@ export const generateCheckoutSession: AuthenticatedActionDefinition<void, { sess
 
   const customer = await ensureStripeCustomer(email);
 
-  await context.entities[userEntityName].update({
+  await context.entities.User.update({
     where: { id: user.id },
     data: { stripeCustomerId: customer.id },
   });
@@ -35,23 +36,22 @@ export const generateCheckoutSession: AuthenticatedActionDefinition<void, { sess
   return { sessionUrl: session.url };
 };
 
-export const cancelSubscription: AuthenticatedActionDefinition<void, { success: boolean }> = async (
+export const cancelSubscription: AuthenticatedAction<Entities, void, { success: boolean }> = async (
   _args,
   context,
 ) => {
   const user = requireUser(context);
-  const dbUser = await context.entities[userEntityName].findUniqueOrThrow({
+  const dbUser = await context.entities.User.findUniqueOrThrow({
     where: { id: user.id },
   });
 
-  const stripeCustomerId = (dbUser as any).stripeCustomerId;
-  if (!stripeCustomerId) {
+  if (!dbUser.stripeCustomerId) {
     throw new HttpError(400, "No Stripe customer found");
   }
 
   const { stripe } = await import("./stripeClient.js");
   const subscriptions = await stripe.subscriptions.list({
-    customer: stripeCustomerId,
+    customer: dbUser.stripeCustomerId,
     status: "active",
   });
 
@@ -61,7 +61,7 @@ export const cancelSubscription: AuthenticatedActionDefinition<void, { success: 
     });
   }
 
-  await context.entities[userEntityName].update({
+  await context.entities.User.update({
     where: { id: user.id },
     data: { subscriptionStatus: "cancel_at_period_end" },
   });
@@ -69,20 +69,19 @@ export const cancelSubscription: AuthenticatedActionDefinition<void, { success: 
   return { success: true };
 };
 
-export const getCustomerPortalUrl: AuthenticatedActionDefinition<void, { portalUrl: string | null }> = async (
+export const getCustomerPortalUrl: AuthenticatedAction<Entities, void, { portalUrl: string | null }> = async (
   _args,
   context,
 ) => {
   const user = requireUser(context);
-  const dbUser = await context.entities[userEntityName].findUniqueOrThrow({
+  const dbUser = await context.entities.User.findUniqueOrThrow({
     where: { id: user.id },
   });
 
-  const stripeCustomerId = (dbUser as any).stripeCustomerId;
-  if (!stripeCustomerId) {
+  if (!dbUser.stripeCustomerId) {
     throw new HttpError(400, "No Stripe customer found");
   }
 
-  const session = await getCustomerPortalSession(stripeCustomerId);
+  const session = await getCustomerPortalSession(dbUser.stripeCustomerId);
   return { portalUrl: session.url };
 };

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router";
 import {
   useQuery,
   getSubscriptionStatus,
@@ -44,6 +45,7 @@ export default function SubscriptionPage() {
 
   return (
     <div style={styles.container}>
+      <Link to="/" style={styles.backLink}>&larr; Back to home</Link>
       <h1>Subscription</h1>
 
       <div style={styles.card}>
@@ -89,19 +91,22 @@ export default function SubscriptionPage() {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    maxWidth: 600,
+    maxWidth: 480,
     margin: "2rem auto",
-    fontFamily: "sans-serif",
     padding: "0 16px",
+  },
+  backLink: {
+    color: "#555",
+    textDecoration: "none",
+    fontSize: 14,
   },
   card: {
     border: "1px solid #e0e0e0",
     borderRadius: 8,
     padding: 24,
-    background: "#fafafa",
   },
   secondaryButton: {
-    backgroundColor: "#f0f0f0",
+    backgroundColor: "#f5f5f5",
     color: "#333",
     border: "1px solid #ddd",
     borderRadius: 6,
@@ -112,8 +117,8 @@ const styles: Record<string, React.CSSProperties> = {
   },
   dangerButton: {
     backgroundColor: "#fff",
-    color: "#dc3545",
-    border: "1px solid #dc3545",
+    color: "#c00",
+    border: "1px solid #c00",
     borderRadius: 6,
     padding: "10px 20px",
     fontSize: 14,

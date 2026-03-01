@@ -1,16 +1,18 @@
-import type { AuthenticatedQueryDefinition } from "wasp/server/module";
+import type { AuthenticatedQuery } from "wasp/server/module";
 import type { Todo } from "./store.js";
 import { requireUser } from "./auth.js";
 import { moduleConfig } from "./config.js";
 
-const { todoEntityName, userForeignKey } = moduleConfig;
+const { userForeignKey } = moduleConfig;
 
-export const getTodos: AuthenticatedQueryDefinition<void, Todo[]> = async (
+type Entities = { Todo: Todo };
+
+export const getTodos: AuthenticatedQuery<Entities, void, Todo[]> = async (
   _args,
   context,
 ) => {
   const user = requireUser(context);
-  return context.entities[todoEntityName].findMany({
+  return context.entities.Todo.findMany({
     where: userForeignKey ? { [userForeignKey]: user.id } : undefined,
     orderBy: { id: "asc" },
   });

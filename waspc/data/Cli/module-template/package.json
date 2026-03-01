@@ -1,0 +1,28 @@
+{
+  "name": "__waspModuleName__",
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    ".wasp/out/sdk/wasp"
+  ],
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./*": { "types": "./dist/*.d.ts", "default": "./dist/*.js" }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "wasp module build && tsc -p tsconfig.build.json",
+    "dev": "wasp module build --watch"
+  },
+  "peerDependencies": {
+    "wasp-config": "^0.x",
+    "react": "^19.0.0",
+    "react-router": "^7.0.0"
+  },
+  "devDependencies": {
+    "prisma": "5.19.1",
+    "@prisma/client": "5.19.1",
+    "wasp-config": "file:.wasp/packages/wasp-config",
+    "typescript": "^5.0.0"
+  }
+}

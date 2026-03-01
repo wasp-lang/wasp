@@ -18,6 +18,7 @@ import Wasp.Generator.SdkGenerator.Common
   ( mkTmplFdWithData,
   )
 import Wasp.Generator.ServerGenerator.ApiRoutesG (getApiEntitiesObject, isAuthEnabledForApi)
+import Wasp.Generator.ServerGenerator.OperationsG (getModuleEntityMaps)
 import Wasp.Util (toUpperFirst)
 
 genServerApi :: AppSpec -> Generator [FileDraft]
@@ -37,12 +38,13 @@ genIndexTsWithApiRoutes spec =
   where
     namedApis = AS.getApis spec
     apis = snd <$> namedApis
+    entityMaps = getModuleEntityMaps spec
     tmplData =
       object
         [ "apiRoutes" .= map getTmplData namedApis,
           "shouldImportAuthenticatedApi" .= any usesAuth apis,
           "shouldImportNonAuthenticatedApi" .= not (all usesAuth apis),
-          "allEntities" .= nub (concatMap getApiEntitiesObject apis)
+          "allEntities" .= nub (concatMap (getApiEntitiesObject entityMaps) apis)
         ]
     usesAuth = fromMaybe (isAuthEnabledGlobally spec) . Api.auth
 
@@ -50,7 +52,7 @@ genIndexTsWithApiRoutes spec =
     getTmplData (name, api) =
       object
         [ "typeName" .= toUpperFirst name,
-          "entities" .= getApiEntitiesObject api,
+          "entities" .= getApiEntitiesObject entityMaps api,
           "usesAuth" .= isAuthEnabledForApi spec api
         ]
 

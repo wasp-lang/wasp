@@ -15,12 +15,14 @@ import Wasp.AppSpec (AppSpec, getApis)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as Api
 import qualified Wasp.AppSpec.ApiNamespace as ApiNamespace
+import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (ServerRootDir, makeJsonWithEntityData)
+import Wasp.Generator.Common (ServerRootDir)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (getAliasedJsImportStmtAndIdentifier)
+import Wasp.Generator.ServerGenerator.OperationsG (getModuleEntityMaps, resolveEntityRefWithAlias)
 
 genApis :: AppSpec -> Generator [FileDraft]
 genApis spec =
@@ -39,6 +41,7 @@ genApiRoutes spec =
   where
     namedApis = AS.getApis spec
     namedNamespaces = AS.getApiNamespaces spec
+    entityMaps = getModuleEntityMaps spec
     tmplData =
       object
         [ "apiRoutes" .= map getApiRoutesTmplData namedApis,
@@ -66,7 +69,7 @@ genApiRoutes spec =
           "routePath" .= Api.path api,
           "importStatement" .= jsImportStmt,
           "importIdentifier" .= jsImportIdentifier,
-          "entities" .= getApiEntitiesObject api,
+          "entities" .= getApiEntitiesObject entityMaps api,
           "usesAuth" .= isAuthEnabledForApi spec api,
           "routeMiddlewareConfigFn" .= middlewareConfigFnTmplData,
           "apiName" .= apiName
@@ -87,8 +90,9 @@ genApiRoutes spec =
 relPathFromApisRoutesToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
 relPathFromApisRoutesToServerSrcDir = [reldirP|../..|]
 
-getApiEntitiesObject :: Api.Api -> [Aeson.Value]
-getApiEntitiesObject api = maybe [] (map (makeJsonWithEntityData . AS.refName)) (Api.entities api)
+getApiEntitiesObject :: [AS.App.ModuleEntityMap] -> Api.Api -> [Aeson.Value]
+getApiEntitiesObject entityMaps api =
+  maybe [] (map (resolveEntityRefWithAlias entityMaps (Api.fn api))) (Api.entities api)
 
 isAuthEnabledGlobally :: AppSpec -> Bool
 isAuthEnabledGlobally = isAuthEnabled

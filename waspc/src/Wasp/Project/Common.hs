@@ -9,6 +9,7 @@ module Wasp.Project.Common
     WaspFilePath (..),
     WaspLangFile,
     WaspTsFile,
+    WaspProjectMode (..),
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
@@ -56,6 +57,9 @@ data WaspFilePath
 data WaspLangFile
 
 data WaspTsFile
+
+data WaspProjectMode = AppMode | ModuleMode
+  deriving (Show, Eq)
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?

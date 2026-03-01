@@ -96,7 +96,24 @@ export class AppDeclBuilder {
       routes: new Map(),
       provides: new Map(),
       packageName,
+      entityAliases: new Set(),
+      entityDeclarations: new Map(),
     });
+  }
+
+  entity(alias: string, config?: { fields?: Record<string, string> }): void {
+    const s = spec(this);
+    if (s.entityAliases.has(alias)) {
+      throw new Error(`Entity alias '${alias}' is already declared on this module.`);
+    }
+    s.entityAliases.add(alias);
+    if (config?.fields) {
+      s.entityDeclarations.set(alias, { fields: config.fields });
+    }
+  }
+
+  requiresAuth(): void {
+    spec(this).requiresAuth = true;
   }
 
   action(name: string, config: ResolveExtImports<TsAppSpec.ActionConfig>): void {

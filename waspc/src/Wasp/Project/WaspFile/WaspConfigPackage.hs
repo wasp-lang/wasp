@@ -5,9 +5,10 @@ where
 
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
+import Control.Monad (when)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
 import qualified StrongPath as SP
-import System.Directory (createDirectoryIfMissing, doesFileExist)
+import System.Directory (createDirectoryIfMissing, doesFileExist, removeDirectoryRecursive, doesDirectoryExist)
 import System.Exit (ExitCode (..))
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
@@ -44,6 +45,9 @@ installWaspConfigPackage projectDir = do
     Nothing -> return $ Left $ "Failed to parse wasp-config source path: " ++ srcPath
     Just absSrc -> do
       createDirectoryIfMissing True (fromAbsDir packagesDir)
+      let destDirFp = fromAbsDir destDir
+      destExists <- doesDirectoryExist destDirFp
+      when destExists $ removeDirectoryRecursive destDirFp
       IOUtil.copyDirectory absSrc destDir
       chan <- newChan
       (_, exitCode) <-

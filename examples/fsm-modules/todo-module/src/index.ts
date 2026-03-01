@@ -3,26 +3,38 @@ import { Module } from "wasp-config";
 export const PACKAGE_NAME = "@waspello/todo-module";
 
 export type TodoModuleConfig = {
-  todoEntityName: string;
   route: string;
   cleanDoneTodosCron?: string;
-  userEntityName?: string;
+  useAuth?: boolean;
   userForeignKey?: string;
 };
 
 export function createTodoModule(config: TodoModuleConfig): Module {
   const mod = new Module(PACKAGE_NAME);
-  const { todoEntityName, userEntityName, userForeignKey } = config;
-  const useAuth = !!userEntityName;
+  const { useAuth = false, userForeignKey } = config;
 
-  mod.provide("todoEntityName", todoEntityName);
+  // Declare entity requirements
+  mod.entity("Todo", {
+    fields: {
+      id: "Int @id @default(autoincrement())",
+      text: "String",
+      isDone: "Boolean @default(false)",
+    },
+  });
+  if (useAuth) {
+    mod.entity("User", {
+      fields: {
+        id: "Int @id @default(autoincrement())",
+      },
+    });
+    mod.requiresAuth();
+  }
+
   if (userForeignKey) {
     mod.provide("userForeignKey", userForeignKey);
   }
 
-  const entities = userEntityName
-    ? [todoEntityName, userEntityName]
-    : [todoEntityName];
+  const entities = useAuth ? ["Todo", "User"] : ["Todo"];
 
   // page + route
   const todosPage = mod.page("Todos", {
@@ -78,7 +90,7 @@ export function createTodoModule(config: TodoModuleConfig): Module {
 
   // crud
   mod.crud("todoCrud", {
-    entity: todoEntityName,
+    entity: "Todo",
     operations: {
       getAll: {
         isPublic: !useAuth,

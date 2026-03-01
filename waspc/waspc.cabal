@@ -221,6 +221,7 @@ library
     Wasp.Analyzer.Parser.Valid
     Wasp.Analyzer.StdTypeDefinitions
     Wasp.Analyzer.StdTypeDefinitions.App.Dependency
+    Wasp.Analyzer.StdTypeDefinitions.App.ModuleEntityMap
     Wasp.Analyzer.StdTypeDefinitions.App.ModuleProvide
     Wasp.Analyzer.StdTypeDefinitions.Entity
     Wasp.Analyzer.Type
@@ -265,6 +266,7 @@ library
     Wasp.AppSpec.ExtImport
     Wasp.AppSpec.Job
     Wasp.AppSpec.JSON
+    Wasp.AppSpec.Module
     Wasp.AppSpec.Operation
     Wasp.AppSpec.Page
     Wasp.AppSpec.Query
@@ -308,6 +310,9 @@ library
     Wasp.Generator.FileDraft.Writeable
     Wasp.Generator.FileDraft.WriteableMonad
     Wasp.Generator.JsImport
+    Wasp.Generator.ModuleGenerator
+    Wasp.Generator.ModuleGenerator.DbGenerator
+    Wasp.Generator.ModuleGenerator.SdkGenerator
     Wasp.Generator.Monad
     Wasp.Generator.NpmDependencies
     Wasp.Generator.NpmInstall
@@ -468,6 +473,7 @@ library
     Wasp.Util.TH
     Wasp.Util.WebRouterPath
     Wasp.Valid
+    Wasp.Validator.ModuleValidator
     Wasp.Version
     Wasp.Project.Waspignore
 
@@ -630,6 +636,7 @@ library cli-lib
     Wasp.Cli.Common
     Wasp.Cli.Terminal
     Wasp.Cli.Command.Message
+    Wasp.Cli.Command.Module
     Wasp.Cli.Message
     Wasp.Cli.Interactive
     Wasp.Cli.GithubRepo

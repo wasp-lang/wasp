@@ -14,7 +14,8 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import qualified Data.Aeson.Text as Aeson.Text
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe, maybeToList)
+import qualified Data.Map as Map
+import Data.Maybe (fromMaybe, isJust, mapMaybe, maybeToList)
 import qualified Data.Text.Lazy as TL
 import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
 import System.Exit (ExitCode (..))
@@ -31,6 +32,7 @@ import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
   ( ProjectRootDir,
+    makeJsonWithAliasEntityData,
     makeJsonWithEntityData,
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
@@ -166,6 +168,7 @@ genEntitiesAndServerTypesDirs spec =
         [relfile|entities/index.ts|]
         ( object
             [ "entities" .= allEntities,
+              "entityAliases" .= entityAliases,
               "isAuthEnabled" .= isJust maybeUserEntityName,
               "authEntityName" .= DbAuth.authEntityName,
               "authIdentityEntityName" .= DbAuth.authIdentityEntityName
@@ -174,16 +177,28 @@ genEntitiesAndServerTypesDirs spec =
     taggedEntitiesFileDraft =
       C.mkTmplFdWithData
         [relfile|server/_types/taggedEntities.ts|]
-        (object ["entities" .= allEntities])
+        (object ["entities" .= allEntitiesWithAliases])
     typesIndexFileDraft =
       C.mkTmplFdWithData
         [relfile|server/_types/index.ts|]
         ( object
-            [ "entities" .= allEntities,
+            [ "entities" .= allEntitiesWithAliases,
               "isAuthEnabled" .= isJust maybeUserEntityName
             ]
         )
     allEntities = map (makeJsonWithEntityData . fst) $ AS.getEntities spec
+    -- Entity aliases from module entity maps (e.g. Todo -> TodoItem).
+    -- These allow module code that references alias names (like "Todo") to
+    -- resolve correctly in the host app's generated SDK.
+    entityAliases =
+      [ makeJsonWithAliasEntityData alias realName
+        | AS.App.ModuleEntityMap {AS.App._memEntityMap = entityMap} <-
+            fromMaybe [] $ AS.App.moduleEntityMaps (snd $ AS.Valid.getApp spec),
+          (alias, realName) <- Map.toList entityMap,
+          -- Skip identity mappings (alias == realName)
+          alias /= realName
+      ]
+    allEntitiesWithAliases = allEntities ++ entityAliases
     maybeUserEntityName = AS.refName . AS.App.Auth.userEntity <$> AS.App.auth (snd $ AS.Valid.getApp spec)
 
 genPackageJson :: AppSpec -> Generator FileDraft

@@ -15,11 +15,19 @@ export type TsModuleSpec = {
   clientSetupFn?: ExtImport;
   provides: Map<string, JsonSerializable>;
   packageName?: string;
+  entityAliases: Set<string>;
+  entityDeclarations: Map<string, { fields: Record<string, string> }>;
+  requiresAuth?: boolean;
 };
 
 export type ModuleProvideEntry = {
   packageName: string;
   values: Record<string, JsonSerializable>;
+};
+
+export type ModuleEntityMapEntry = {
+  packageName: string;
+  entityMap: Record<string, string>;
 };
 
 // Full app spec = module declarations + app-level singletons
@@ -34,6 +42,7 @@ export type TsAppSpec = TsModuleSpec & {
   moduleServerSetupFns: ExtImport[];
   moduleClientSetupFns: ExtImport[];
   moduleProvides: ModuleProvideEntry[];
+  moduleEntityMaps: ModuleEntityMapEntry[];
 };
 
 export type AppConfig = {

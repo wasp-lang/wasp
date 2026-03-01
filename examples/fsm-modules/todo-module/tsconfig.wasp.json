@@ -9,5 +9,5 @@
     "noEmit": true,
     "lib": ["ES2023"]
   },
-  "include": ["main.wasp.ts"]
+  "include": ["module.wasp.ts"]
 }

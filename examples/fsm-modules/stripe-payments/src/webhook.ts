@@ -2,15 +2,13 @@ import type { Request, Response } from "express";
 import type Stripe from "stripe";
 import type { OperationContext } from "wasp/server/module";
 import { stripe } from "./stripeClient.js";
-import { moduleConfig } from "./config.js";
+import type { Entities } from "./store.js";
 import { SubscriptionStatus } from "./types.js";
-
-const { userEntityName } = moduleConfig;
 
 export async function stripeWebhook(
   req: Request,
   res: Response,
-  context: OperationContext,
+  context: OperationContext<Entities>,
 ) {
   try {
     const event = constructEvent(req);
@@ -63,14 +61,14 @@ function getCustomerId(
 
 async function handleInvoicePaid(
   event: Stripe.InvoicePaidEvent,
-  context: OperationContext,
+  context: OperationContext<Entities>,
 ) {
   const invoice = event.data.object;
   const customerId = getCustomerId(invoice.customer);
   const paidAt = invoice.status_transitions.paid_at;
   const datePaid = paidAt ? new Date(paidAt * 1000) : new Date();
 
-  await context.entities[userEntityName].updateMany({
+  await context.entities.User.updateMany({
     where: { stripeCustomerId: customerId },
     data: {
       subscriptionStatus: SubscriptionStatus.Active,
@@ -82,7 +80,7 @@ async function handleInvoicePaid(
 
 async function handleSubscriptionUpdated(
   event: Stripe.CustomerSubscriptionUpdatedEvent,
-  context: OperationContext,
+  context: OperationContext<Entities>,
 ) {
   const subscription = event.data.object;
   const customerId = getCustomerId(subscription.customer);
@@ -90,7 +88,7 @@ async function handleSubscriptionUpdated(
 
   if (!status) return;
 
-  await context.entities[userEntityName].updateMany({
+  await context.entities.User.updateMany({
     where: { stripeCustomerId: customerId },
     data: { subscriptionStatus: status },
   });
@@ -98,12 +96,12 @@ async function handleSubscriptionUpdated(
 
 async function handleSubscriptionDeleted(
   event: Stripe.CustomerSubscriptionDeletedEvent,
-  context: OperationContext,
+  context: OperationContext<Entities>,
 ) {
   const subscription = event.data.object;
   const customerId = getCustomerId(subscription.customer);
 
-  await context.entities[userEntityName].updateMany({
+  await context.entities.User.updateMany({
     where: { stripeCustomerId: customerId },
     data: {
       subscriptionStatus: SubscriptionStatus.Deleted,

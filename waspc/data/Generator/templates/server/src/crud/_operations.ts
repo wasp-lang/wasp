@@ -39,6 +39,9 @@ import type {
 
 const entities = {
   {= crud.entityUpper =}: prisma.{= crud.entityLower =},
+  {=# entityAlias =}
+  {= entityAlias =}: prisma.{= crud.entityLower =},
+  {=/ entityAlias =}
 }
 
 {=!

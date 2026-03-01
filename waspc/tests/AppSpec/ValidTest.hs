@@ -540,7 +540,8 @@ spec_AppSpecValid = do
           AS.App.webSocket = Nothing,
           AS.App.moduleServerSetupFns = Nothing,
           AS.App.moduleClientSetupFns = Nothing,
-          AS.App.moduleProvides = Nothing
+          AS.App.moduleProvides = Nothing,
+          AS.App.moduleEntityMaps = Nothing
         }
 
     basicAppDecl = AS.Decl.makeDecl "TestApp" basicApp

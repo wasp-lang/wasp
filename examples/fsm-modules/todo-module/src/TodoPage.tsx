@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router";
 import {
   useQuery,
   getTodos,
@@ -61,11 +62,11 @@ export default function TodoPage() {
   };
 
   return (
-    <div style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "sans-serif" }}>
-      {/* Section 1: Todos (useQuery + actions) */}
+    <div style={{ maxWidth: 480, margin: "2rem auto", padding: "0 16px" }}>
+      <Link to="/" style={{ color: "#555", textDecoration: "none", fontSize: 14 }}>&larr; Back to home</Link>
       {user && (
         <p style={{ color: "#555" }}>
-          Hello, {(user as any).identities?.username?.id ?? "User"}!
+          Hello, {user.getFirstProviderUserId() ?? "User"}!
         </p>
       )}
       <h1>Todos</h1>

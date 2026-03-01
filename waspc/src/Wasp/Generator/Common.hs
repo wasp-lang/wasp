@@ -6,6 +6,7 @@ module Wasp.Generator.Common
     AppComponentRootDir,
     DbRootDir,
     makeJsonWithEntityData,
+    makeJsonWithAliasEntityData,
     GeneratedSrcDir,
     makeJsArrayFromHaskellList,
     dropExtensionFromImportPath,
@@ -49,17 +50,30 @@ makeJsonWithEntityData :: String -> Aeson.Value
 makeJsonWithEntityData name =
   object
     [ "name" .= name,
+      "entityTypeName" .= name,
       "internalTypeName" .= ('_' : name),
       "prismaIdentifier" .= entityNameToPrismaIdentifier name
     ]
-  where
-    -- Takes a Wasp Entity name (like `SomeTask` from `entity SomeTask {...}`) and
-    -- converts it into a corresponding Prisma identifier (e.g., `someTask` used in
-    -- `prisma.someTask`).  This is what Prisma implicitly does when translating
-    -- `model` declarations to client SDK identifiers. Useful when creating
-    -- `context.entities` JS objects in Wasp templates.
-    entityNameToPrismaIdentifier :: String -> String
-    entityNameToPrismaIdentifier = toLowerFirst
+
+-- | Like 'makeJsonWithEntityData' but for entity aliases from module entity maps.
+-- The alias name is used as the entity identifier, while the real entity type name
+-- is used for the underlying Prisma type and delegate.
+makeJsonWithAliasEntityData ::
+  -- | Alias name (e.g. "Todo")
+  String ->
+  -- | Real entity name (e.g. "TodoItem")
+  String ->
+  Aeson.Value
+makeJsonWithAliasEntityData aliasName realEntityName =
+  object
+    [ "name" .= aliasName,
+      "entityTypeName" .= realEntityName,
+      "internalTypeName" .= ('_' : aliasName),
+      "prismaIdentifier" .= entityNameToPrismaIdentifier realEntityName
+    ]
+
+entityNameToPrismaIdentifier :: String -> String
+entityNameToPrismaIdentifier = toLowerFirst
 
 makeJsArrayFromHaskellList :: [String] -> String
 makeJsArrayFromHaskellList list = "[" ++ intercalate ", " listOfJsStrings ++ "]"

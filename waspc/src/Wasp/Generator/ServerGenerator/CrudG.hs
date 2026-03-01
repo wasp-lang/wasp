@@ -6,7 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson
 import qualified Data.Aeson.Types as Aeson.Types
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, listToMaybe, mapMaybe)
 import StrongPath (reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
@@ -26,6 +26,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.ServerGenerator.OperationsG (getEntityAliasForExtImport, getModuleEntityMaps)
 import Wasp.JsImport (JsImportPath (RelativeImportPath))
 import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
@@ -83,6 +84,8 @@ genCrudRoutes spec cruds = return $ map genCrudRoute cruds
 genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
 genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
+    entityMaps = getModuleEntityMaps spec
+
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
     genCrudOperation (name, crud) = C.mkTmplFdWithDstAndData tmplPath destPath (Just tmplData)
       where
@@ -95,7 +98,8 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
               "userEntityUpper" .= maybeUserEntity,
               "overrides" .= object overrides,
               "queryType" .= queryTsType,
-              "actionType" .= actionTsType
+              "actionType" .= actionTsType,
+              "entityAlias" .= entityAlias
             ]
         idField = getIdFieldFromCrudEntity spec crud
         maybeUserEntity = AS.refName . AS.Auth.userEntity <$> maybeAuth
@@ -116,3 +120,14 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
         operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
           where
             importJson = extImportToImportJson [reldirP|../|] (AS.Crud.overrideFn options)
+
+        -- Use the first override's import to determine the module package,
+        -- then look up the entity alias from that package's entity map.
+        -- All overrides for a single CRUD come from the same module.
+        entityAlias :: Maybe String
+        entityAlias =
+          let realEntityName = AS.refName $ AS.Crud.entity crud
+              overrideImports = mapMaybe (AS.Crud.overrideFn . snd) crudOperations
+           in case listToMaybe overrideImports of
+                Just imp -> getEntityAliasForExtImport entityMaps imp realEntityName
+                Nothing -> Nothing

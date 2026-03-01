@@ -18,6 +18,7 @@ import Wasp.Project.Common
   ( CompileError,
     WaspFilePath (..),
     WaspProjectDir,
+    WaspProjectMode (..),
   )
 import Wasp.Project.WaspFile.TypeScript (analyzeWaspTsFile)
 import Wasp.Project.WaspFile.WaspLang (analyzeWaspLangFile)
@@ -25,24 +26,34 @@ import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.StrongPath (findAllFilesWithSuffix)
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
+findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (WaspProjectMode, WaspFilePath))
 findWaspFile projectDir = do
   filesInProjectDir <- fst <$> IOUtil.listDirectory projectDir
   let filesEndingWithWasp = findAllFilesWithSuffix ".wasp" filesInProjectDir
       filesEndingWithWaspTs = findAllFilesWithSuffix ".wasp.ts" filesInProjectDir
-  return $ case (filesEndingWithWasp, filesEndingWithWaspTs) of
-    ([], []) -> Left fileNotFoundMessage
-    (_ : _, _ : _) -> Left bothFilesFoundMessage
-    ([], waspTsFiles) -> case waspTsFiles of
-      [singleWaspTsFile]
-        | fromRelFile singleWaspTsFile == ".wasp.ts" -> Left (makeInvalidFileNameMessage ".wasp.ts")
-        | otherwise -> Right . WaspTs $ castFile (projectDir </> singleWaspTsFile)
-      multipleWaspTsFiles -> Left (makeMultipleFilesMessage "*.wasp.ts" (map fromRelFile multipleWaspTsFiles))
-    (waspLangFiles, []) -> case waspLangFiles of
-      [singleWaspLangFile]
-        | fromRelFile singleWaspLangFile == ".wasp" -> Left (makeInvalidFileNameMessage ".wasp")
-        | otherwise -> Right . WaspLang $ castFile (projectDir </> singleWaspLangFile)
-      multipleWaspFiles -> Left (makeMultipleFilesMessage "*.wasp" (map fromRelFile multipleWaspFiles))
+      hasModuleWaspTs = any (\f -> fromRelFile f == "module.wasp.ts") filesEndingWithWaspTs
+      appWaspTsFiles = filter (\f -> fromRelFile f /= "module.wasp.ts") filesEndingWithWaspTs
+  return $
+    -- When module.wasp.ts is the ONLY wasp file, enter ModuleMode.
+    -- When module.wasp.ts coexists with main.wasp.ts, use AppMode
+    -- (the module file is ignored — it's only used by `wasp module build`).
+    if hasModuleWaspTs && null filesEndingWithWasp && null appWaspTsFiles
+      then case filter (\f -> fromRelFile f == "module.wasp.ts") filesEndingWithWaspTs of
+        (moduleFile : _) -> Right (ModuleMode, WaspTs $ castFile (projectDir </> moduleFile))
+        [] -> Left fileNotFoundMessage
+      else case (filesEndingWithWasp, appWaspTsFiles) of
+        ([], []) -> Left fileNotFoundMessage
+        (_ : _, _ : _) -> Left bothFilesFoundMessage
+        ([], waspTsFiles) -> case waspTsFiles of
+          [singleWaspTsFile]
+            | fromRelFile singleWaspTsFile == ".wasp.ts" -> Left (makeInvalidFileNameMessage ".wasp.ts")
+            | otherwise -> Right (AppMode, WaspTs $ castFile (projectDir </> singleWaspTsFile))
+          multipleWaspTsFiles -> Left (makeMultipleFilesMessage "*.wasp.ts" (map fromRelFile multipleWaspTsFiles))
+        (waspLangFiles, []) -> case waspLangFiles of
+          [singleWaspLangFile]
+            | fromRelFile singleWaspLangFile == ".wasp" -> Left (makeInvalidFileNameMessage ".wasp")
+            | otherwise -> Right (AppMode, WaspLang $ castFile (projectDir </> singleWaspLangFile))
+          multipleWaspFiles -> Left (makeMultipleFilesMessage "*.wasp" (map fromRelFile multipleWaspFiles))
   where
     fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the project directory."
     bothFilesFoundMessage =

@@ -1,16 +1,16 @@
 import type { OperationContext } from "wasp/server/module";
-import { moduleConfig } from "./config.js";
+import type { Todo } from "./store.js";
 
-const { todoEntityName } = moduleConfig;
+type Entities = { Todo: Todo };
 
 export async function cleanDoneTodos(
   _args: unknown,
-  context: OperationContext
+  context: OperationContext<Entities>
 ): Promise<void> {
-  const { count } = await context.entities[todoEntityName].deleteMany({
+  const { count } = await context.entities.Todo.deleteMany({
     where: { isDone: true },
   });
-  const remaining = await context.entities[todoEntityName].count();
+  const remaining = await context.entities.Todo.count();
   const now = new Date().toISOString();
   console.log(
     `[todo-module] cleanDoneTodos executed at ${now} — removed ${count} done todo(s), ${remaining} remaining`

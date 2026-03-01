@@ -95,6 +95,33 @@ export type ModuleProvide = {
   values: Record<string, JsonSerializable>;
 };
 
+export type ModuleEntityMap = {
+  packageName: string;
+  entityMap: Record<string, string>;
+};
+
+export type ModuleEntityDeclaration = {
+  name: string;
+  fields: Record<string, string>;
+};
+
+export type ModuleSpecOutput = {
+  packageName: string;
+  entityDeclarations: ModuleEntityDeclaration[];
+  requiresAuth: boolean;
+  queries: GetDeclForType<"Query">[];
+  actions: GetDeclForType<"Action">[];
+  pages: GetDeclForType<"Page">[];
+  routes: GetDeclForType<"Route">[];
+  apis: GetDeclForType<"Api">[];
+  apiNamespaces: GetDeclForType<"ApiNamespace">[];
+  cruds: GetDeclForType<"Crud">[];
+  jobs: GetDeclForType<"Job">[];
+  provides: Record<string, JsonSerializable>;
+  serverSetupFn?: ExtImport;
+  clientSetupFn?: ExtImport;
+};
+
 export type JsonSerializable =
   | string
   | number
@@ -116,6 +143,7 @@ export type App = {
   moduleServerSetupFns: Optional<ExtImport[]>;
   moduleClientSetupFns: Optional<ExtImport[]>;
   moduleProvides: Optional<ModuleProvide[]>;
+  moduleEntityMaps: Optional<ModuleEntityMap[]>;
 };
 
 export type ExtImportKind = "named" | "default";

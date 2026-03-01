@@ -73,7 +73,7 @@ build = do
       "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
-      waspFilePath <- ExceptT $ findWaspFile waspProjectDir
+      (_, waspFilePath) <- ExceptT $ findWaspFile waspProjectDir
       let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
 
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,

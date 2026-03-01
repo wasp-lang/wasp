@@ -12,8 +12,9 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
-import Data.List (find, group, groupBy, intercalate, sort, sortBy)
-import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
+import Data.List (find, group, groupBy, intercalate, nub, sort, sortBy)
+import qualified Data.Map as Map
+import Data.Maybe (fromJust, fromMaybe, isJust, isNothing, maybeToList)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
@@ -21,7 +22,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
-import Wasp.AppSpec.App (App)
+import Wasp.AppSpec.App (App, ModuleEntityMap (..))
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
@@ -72,7 +73,8 @@ validateAppSpec spec =
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
           validateUserNodeVersionRange spec,
-          validateAtLeastOneRoute spec
+          validateAtLeastOneRoute spec,
+          validateModuleEntityMapsTargetExistingEntities spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -434,6 +436,30 @@ validateAtLeastOneRoute spec =
     else []
   where
     routes = AS.getRoutes spec
+
+validateModuleEntityMapsTargetExistingEntities :: AppSpec -> [ValidationError]
+validateModuleEntityMapsTargetExistingEntities spec =
+  concatMap validateEntityMap entityMaps
+  where
+    app = snd $ getApp spec
+    entityMaps = concat $ maybeToList $ App.moduleEntityMaps app
+    entityNames = nub $ map fst $ AS.getEntities spec
+
+    validateEntityMap :: ModuleEntityMap -> [ValidationError]
+    validateEntityMap mem =
+      [ GenericValidationError $
+          "Module '"
+            ++ _memPackageName mem
+            ++ "' maps entity alias '"
+            ++ alias
+            ++ "' to '"
+            ++ realName
+            ++ "', but entity '"
+            ++ realName
+            ++ "' does not exist in the app."
+        | (alias, realName) <- Map.toList (_memEntityMap mem),
+          realName `notElem` entityNames
+      ]
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

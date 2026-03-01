@@ -23,6 +23,14 @@ import {
 export type {= operationTypeName =} = typeof {= jsFn.importIdentifier =}
 
 // PUBLIC API
+{=! Assign entities to a variable to avoid TypeScript's excess property
+    checking on object literals (module operations may declare more entities
+    in their config than their function type requires). =}
+const _{= operationName =}_entities = {
+  {=# entities =}
+  {= name =}: prisma.{= prismaIdentifier =},
+  {=/ entities =}
+}
 {=# usesAuth =}
 export const {= operationName =}: AuthenticatedOperationFor<{= operationTypeName =}> =
   createAuthenticatedOperation(
@@ -32,11 +40,7 @@ export const {= operationName =}: UnauthenticatedOperationFor<{= operationTypeNa
   createUnauthenticatedOperation(
 {=/ usesAuth =}
     {= jsFn.importIdentifier =},
-    {
-      {=# entities =}
-      {= name =}: prisma.{= prismaIdentifier =},
-      {=/ entities =}
-    },
+    _{= operationName =}_entities,
   )
 
 {=/ operations =}

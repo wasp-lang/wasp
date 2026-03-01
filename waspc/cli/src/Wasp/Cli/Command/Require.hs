@@ -59,8 +59,8 @@ newtype InWaspProject = InWaspProject (Path' Abs (Dir WaspProjectDir)) deriving 
 
 instance Requirable InWaspProject where
   checkRequirement = do
-    -- Recursively searches up from CWD until @.wasproot@ file is found, or
-    -- throw an error if it is never found.
+    -- Recursively searches up from CWD until a wasp project marker is found
+    -- (.wasproot or module.wasp.ts), or throw an error if none is found.
     currentDir <- fromJust . SP.parseAbsDir <$> liftIO getCurrentDirectory
     findWaspProjectRoot currentDir
     where
@@ -69,8 +69,10 @@ instance Requirable InWaspProject where
         doesCurrentDirExist <- liftIO $ doesPathExist absCurrentDirFp
         unless doesCurrentDirExist (throwError notFoundError)
         let dotWaspRootFilePath = absCurrentDirFp FP.</> SP.fromRelFile Project.Common.dotWaspRootFileInWaspProjectDir
-        isCurrentDirRoot <- liftIO $ doesFileExist dotWaspRootFilePath
-        if isCurrentDirRoot
+            moduleWaspTsPath = absCurrentDirFp FP.</> "module.wasp.ts"
+        hasDotWaspRoot <- liftIO $ doesFileExist dotWaspRootFilePath
+        hasModuleWaspTs <- liftIO $ doesFileExist moduleWaspTsPath
+        if hasDotWaspRoot || hasModuleWaspTs
           then return $ InWaspProject $ SP.castDir currentDir
           else do
             let parentDir = SP.parent currentDir

@@ -4,6 +4,61 @@ import { AppDeclBuilder, Module } from "../src/publicApi/Module.js";
 import { App } from "../src/publicApi/App.js";
 import type * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
 
+describe("Module entity declarations", () => {
+  test("stores field declarations when fields are provided", () => {
+    const mod = new Module("test-pkg");
+    mod.entity("Todo", {
+      fields: {
+        id: "Int @id @default(autoincrement())",
+        text: "String",
+        isDone: "Boolean @default(false)",
+      },
+    });
+
+    const spec = getModuleSpec(mod);
+    expect(spec.entityAliases.has("Todo")).toBe(true);
+    expect(spec.entityDeclarations.get("Todo")).toEqual({
+      fields: {
+        id: "Int @id @default(autoincrement())",
+        text: "String",
+        isDone: "Boolean @default(false)",
+      },
+    });
+  });
+
+  test("does not store declaration when no fields are provided", () => {
+    const mod = new Module("test-pkg");
+    mod.entity("Todo");
+
+    const spec = getModuleSpec(mod);
+    expect(spec.entityAliases.has("Todo")).toBe(true);
+    expect(spec.entityDeclarations.has("Todo")).toBe(false);
+  });
+
+  test("stores multiple entity declarations", () => {
+    const mod = new Module("test-pkg");
+    mod.entity("User", {
+      fields: { id: "Int @id @default(autoincrement())", email: "String" },
+    });
+    mod.entity("Post", {
+      fields: { id: "Int @id @default(autoincrement())", title: "String" },
+    });
+
+    const spec = getModuleSpec(mod);
+    expect(spec.entityDeclarations.size).toBe(2);
+    expect(spec.entityDeclarations.get("User")?.fields.email).toBe("String");
+    expect(spec.entityDeclarations.get("Post")?.fields.title).toBe("String");
+  });
+
+  test("throws on duplicate entity alias", () => {
+    const mod = new Module("test-pkg");
+    mod.entity("Todo", { fields: { id: "Int @id" } });
+    expect(() => mod.entity("Todo", { fields: { id: "Int @id" } })).toThrow(
+      "Entity alias 'Todo' is already declared on this module.",
+    );
+  });
+});
+
 describe("Module", () => {
   test("collects page declarations and returns PageName", () => {
     const mod = new Module("test-pkg");

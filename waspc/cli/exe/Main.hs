@@ -34,6 +34,7 @@ import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
 import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
+import Wasp.Cli.Command.Module (moduleBuild, moduleBuildWatch, moduleInit)
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
@@ -72,6 +73,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         ("test" : testArgs) -> Command.Call.Test testArgs
+        ("module" : moduleArgs) -> Command.Call.ModuleCmd moduleArgs
         _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
@@ -124,6 +126,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
     Command.Call.Test testArgs -> runCommand $ test testArgs
+    Command.Call.ModuleCmd moduleArgs -> moduleCli moduleArgs
     Command.Call.Unknown _ -> printUsage >> exitFailure
   -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
@@ -219,6 +222,33 @@ printVersion =
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
+
+moduleCli :: [String] -> IO ()
+moduleCli args = case args of
+  ["build"] -> runCommand moduleBuild
+  ["build", "--watch"] -> runCommand moduleBuildWatch
+  ("build" : _) -> runCommand moduleBuild
+  ["init", name] -> runCommand $ moduleInit name
+  ["init"] -> runCommand $ moduleInit ""
+  _unknownModuleCommand -> printModuleUsage >> exitFailure
+
+{- ORMOLU_DISABLE -}
+printModuleUsage :: IO ()
+printModuleUsage =
+  putStrLn $
+    unlines
+      [ title "USAGE",
+              "  wasp module <command> [command-args]",
+              "",
+        title "COMMANDS",
+        cmd   "  build [--watch]        Generates module SDK. With --watch, re-runs on file changes.",
+        cmd   "  init [name]            Scaffolds a new module project.",
+              "",
+        title "EXAMPLES",
+              "  wasp module build",
+              "  wasp module init @myorg/my-module"
+      ]
+{- ORMOLU_ENABLE -}
 
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()

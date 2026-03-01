@@ -55,7 +55,7 @@ analyzeWaspProject waspDir compileOptions = do
 
   case waspFilePathOrError of
     Left err -> return (Left err, [])
-    Right waspFilePath -> do
+    Right (_mode, waspFilePath) -> do
       waspConfigResult <- case waspFilePath of
         WaspTs _ -> ensureWaspConfigPackageInstalled waspDir
         WaspLang _ -> return $ Right ()

@@ -29,8 +29,8 @@ replaceTemplatePlaceholdersInWaspFile ::
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Left _error -> return ()
-    Right (WaspLang absMainWaspFile) -> replaceTemplatePlaceholders absMainWaspFile
-    Right (WaspTs absMainTsFile) -> replaceTemplatePlaceholders absMainTsFile
+    Right (_, WaspLang absMainWaspFile) -> replaceTemplatePlaceholders absMainWaspFile
+    Right (_, WaspTs absMainTsFile) -> replaceTemplatePlaceholders absMainTsFile
   where
     replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk appName projectName
 

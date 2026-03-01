@@ -1,28 +1,26 @@
-import type { AuthenticatedQueryDefinition } from "wasp/server/module";
+import type { AuthenticatedQuery } from "wasp/server/module";
 import { requireUser } from "./auth.js";
-import { moduleConfig } from "./config.js";
+import type { Entities } from "./store.js";
 
-const { userEntityName } = moduleConfig;
-
-type SubscriptionStatus = {
+type SubscriptionStatusResult = {
   subscriptionStatus: string | null;
   subscriptionPlan: string | null;
   datePaid: Date | null;
   hasStripeCustomer: boolean;
 };
 
-export const getSubscriptionStatus: AuthenticatedQueryDefinition<void, SubscriptionStatus> = async (
+export const getSubscriptionStatus: AuthenticatedQuery<Entities, void, SubscriptionStatusResult> = async (
   _args,
   context,
 ) => {
   const user = requireUser(context);
-  const dbUser = await context.entities[userEntityName].findUniqueOrThrow({
+  const dbUser = await context.entities.User.findUniqueOrThrow({
     where: { id: user.id },
   });
   return {
-    subscriptionStatus: dbUser.subscriptionStatus as string | null,
-    subscriptionPlan: dbUser.subscriptionPlan as string | null,
-    datePaid: dbUser.datePaid as Date | null,
+    subscriptionStatus: dbUser.subscriptionStatus,
+    subscriptionPlan: dbUser.subscriptionPlan,
+    datePaid: dbUser.datePaid,
     hasStripeCustomer: !!dbUser.stripeCustomerId,
   };
 };

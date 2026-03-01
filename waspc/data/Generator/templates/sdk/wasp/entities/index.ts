@@ -15,14 +15,21 @@ export {
   {=/ isAuthEnabled =}
 } from "@prisma/client"
 
-export type Entity = 
+{=# entityAliases =}
+export type {= name =} = {= entityTypeName =}
+{=/ entityAliases =}
+
+export type Entity =
   {=# entities =}
   | {= name =}
   {=/ entities =}
   | never
 
-export type EntityName = 
+export type EntityName =
   {=# entities =}
   | "{= name =}"
   {=/ entities =}
+  {=# entityAliases =}
+  | "{= name =}"
+  {=/ entityAliases =}
   | never

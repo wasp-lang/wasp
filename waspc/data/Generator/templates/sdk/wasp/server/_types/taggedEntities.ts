@@ -4,8 +4,8 @@
 //
 // We must explicitly tag all entities with their name to avoid issues with
 // structural typing. See https://github.com/wasp-lang/wasp/pull/982 for details.
-import { 
-  type Entity, 
+import {
+  type Entity,
   type EntityName,
   {=# entities =}
   type {= name =},
@@ -16,11 +16,11 @@ import {
 export type {= internalTypeName =} = WithName<{= name =}, "{= name =}">
 {=/ entities =}
 
-export type _Entity = 
+export type _Entity =
   {=# entities =}
   | {= internalTypeName =}
   {=/ entities =}
   | never
 
-type WithName<E extends Entity, Name extends EntityName> = 
+type WithName<E extends Entity, Name extends EntityName> =
   E & { _entityName: Name }

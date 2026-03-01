@@ -22,12 +22,12 @@ export default function PayButton() {
       onClick={handleClick}
       disabled={isLoading}
       style={{
-        backgroundColor: "#635BFF",
+        backgroundColor: "#333",
         color: "white",
         border: "none",
         borderRadius: 6,
         padding: "12px 24px",
-        fontSize: 16,
+        fontSize: 14,
         fontWeight: 600,
         cursor: isLoading ? "not-allowed" : "pointer",
         opacity: isLoading ? 0.7 : 1,

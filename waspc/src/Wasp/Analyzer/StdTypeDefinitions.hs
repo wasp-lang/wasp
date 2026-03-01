@@ -7,6 +7,7 @@ module Wasp.Analyzer.StdTypeDefinitions
 where
 
 import Wasp.Analyzer.StdTypeDefinitions.App.Dependency ()
+import Wasp.Analyzer.StdTypeDefinitions.App.ModuleEntityMap ()
 import Wasp.Analyzer.StdTypeDefinitions.App.ModuleProvide ()
 import Wasp.Analyzer.StdTypeDefinitions.Entity ()
 import qualified Wasp.Analyzer.TypeDefinitions as TD

@@ -19,10 +19,10 @@ command -v jq >/dev/null || { echo "jq is required"; exit 1; }
 for pkg in "$SCRIPT_DIR"/*/package.json; do
   dir=$(dirname "$pkg")
   name=$(basename "$dir")
-  step "Compiling $name"
-  (cd "$dir" && "${LW[@]}" clean && "${LW[@]}" compile)
+  step "Installing dependencies for $name"
+  (cd "$dir" && npm install)
   step "Building $name"
-  (cd "$dir" && npm run build)
+  (cd "$dir" && "${LW[@]}" module build && npx tsc -p tsconfig.build.json)
   step "Packing $name"
   (cd "$dir" && npm pack)
 done

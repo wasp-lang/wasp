@@ -4,6 +4,7 @@
  */
 
 import * as AppSpec from "./appSpec.js";
+import type { TsModuleSpec } from "./publicApi/tsAppSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapTsAppSpecToAppSpecDecls(
@@ -76,6 +77,7 @@ export function mapTsAppSpecToAppSpecDecls(
       tsAppSpec.moduleServerSetupFns,
       tsAppSpec.moduleClientSetupFns,
       tsAppSpec.moduleProvides,
+      tsAppSpec.moduleEntityMaps,
     ),
   };
 
@@ -198,6 +200,7 @@ export function mapApp(
   moduleServerSetupFns: TsAppSpec.ExtImport[] = [],
   moduleClientSetupFns: TsAppSpec.ExtImport[] = [],
   moduleProvides: TsAppSpec.ModuleProvideEntry[] = [],
+  moduleEntityMaps: TsAppSpec.ModuleEntityMapEntry[] = [],
 ): AppSpec.App {
   const { title, wasp, head } = app;
   return {
@@ -221,6 +224,10 @@ export function mapApp(
     moduleProvides:
       moduleProvides.length > 0
         ? moduleProvides
+        : undefined,
+    moduleEntityMaps:
+      moduleEntityMaps.length > 0
+        ? moduleEntityMaps
         : undefined,
   };
 }
@@ -505,5 +512,66 @@ export function makeRefParser<T extends AppSpec.DeclType>(
       name: potentialRef,
       declType,
     } as AppSpec.Ref<T>;
+  };
+}
+
+export function mapTsModuleSpecToModuleSpecOutput(
+  moduleSpec: TsModuleSpec,
+): AppSpec.ModuleSpecOutput {
+  const packageName = moduleSpec.packageName;
+  if (!packageName) {
+    throw new Error(
+      "Module must have a packageName to produce a ModuleSpecOutput.",
+    );
+  }
+
+  const entityNames = Array.from(moduleSpec.entityAliases);
+  const pageNames = Array.from(moduleSpec.pages.keys());
+  const routeNames = Array.from(moduleSpec.routes.keys());
+
+  const entityRefParser = makeRefParser("Entity", entityNames);
+  const pageRefParser = makeRefParser("Page", pageNames);
+
+  const entityDeclarations: AppSpec.ModuleEntityDeclaration[] = [];
+  for (const alias of moduleSpec.entityAliases) {
+    const decl = moduleSpec.entityDeclarations.get(alias);
+    entityDeclarations.push({ name: alias, fields: decl?.fields ?? {} });
+  }
+
+  return {
+    packageName,
+    entityDeclarations,
+    requiresAuth: moduleSpec.requiresAuth ?? false,
+    queries: mapToDecls(moduleSpec.queries, "Query", (config) =>
+      mapOperation(config, entityRefParser),
+    ),
+    actions: mapToDecls(moduleSpec.actions, "Action", (config) =>
+      mapOperation(config, entityRefParser),
+    ),
+    pages: mapToDecls(moduleSpec.pages, "Page", mapPage),
+    routes: mapToDecls(moduleSpec.routes, "Route", (config) =>
+      mapRoute(config, pageRefParser),
+    ),
+    apis: mapToDecls(moduleSpec.apis, "Api", (config) =>
+      mapApi(config, entityRefParser),
+    ),
+    apiNamespaces: mapToDecls(
+      moduleSpec.apiNamespaces,
+      "ApiNamespace",
+      mapApiNamespace,
+    ),
+    cruds: mapToDecls(moduleSpec.cruds, "Crud", (config) =>
+      mapCrud(config, entityRefParser),
+    ),
+    jobs: mapToDecls(moduleSpec.jobs, "Job", (config) =>
+      mapJob(config, entityRefParser),
+    ),
+    provides: Object.fromEntries(moduleSpec.provides),
+    serverSetupFn: moduleSpec.serverSetupFn
+      ? mapExtImport(moduleSpec.serverSetupFn)
+      : undefined,
+    clientSetupFn: moduleSpec.clientSetupFn
+      ? mapExtImport(moduleSpec.clientSetupFn)
+      : undefined,
   };
 }

@@ -1,20 +1,22 @@
 import { z } from "zod";
-import type { AuthenticatedActionDefinition } from "wasp/server/module";
+import type { AuthenticatedAction } from "wasp/server/module";
 import type { Todo } from "./store.js";
 import { requireUser } from "./auth.js";
 import { moduleConfig } from "./config.js";
 
-const { todoEntityName, userForeignKey } = moduleConfig;
+const { userForeignKey } = moduleConfig;
+
+type Entities = { Todo: Todo };
 
 const createTodoInput = z.object({ text: z.string().min(1) });
 
-export const createTodo: AuthenticatedActionDefinition<unknown, Todo> = async (
+export const createTodo: AuthenticatedAction<Entities, unknown, Todo> = async (
   args,
   context,
 ) => {
   const user = requireUser(context);
   const { text } = createTodoInput.parse(args);
-  return context.entities[todoEntityName].create({
+  return context.entities.Todo.create({
     data: {
       text,
       isDone: false,
@@ -29,13 +31,13 @@ const updateTodoInput = z.object({
   isDone: z.boolean().optional(),
 });
 
-export const updateTodo: AuthenticatedActionDefinition<unknown, Todo> = async (
+export const updateTodo: AuthenticatedAction<Entities, unknown, Todo> = async (
   args,
   context,
 ) => {
   const user = requireUser(context);
   const { id, ...data } = updateTodoInput.parse(args);
-  return context.entities[todoEntityName].update({
+  return context.entities.Todo.update({
     where: { id, ...(userForeignKey && { [userForeignKey]: user.id }) },
     data,
   });
@@ -43,13 +45,13 @@ export const updateTodo: AuthenticatedActionDefinition<unknown, Todo> = async (
 
 const deleteTodoInput = z.object({ id: z.number() });
 
-export const deleteTodo: AuthenticatedActionDefinition<unknown, Todo> = async (
+export const deleteTodo: AuthenticatedAction<Entities, unknown, Todo> = async (
   args,
   context,
 ) => {
   const user = requireUser(context);
   const { id } = deleteTodoInput.parse(args);
-  return context.entities[todoEntityName].delete({
+  return context.entities.Todo.delete({
     where: { id, ...(userForeignKey && { [userForeignKey]: user.id }) },
   });
 };

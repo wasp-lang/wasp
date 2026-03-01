@@ -5,7 +5,6 @@ export { SubscriptionStatus, isActiveSubscription } from "./types.js";
 export const PACKAGE_NAME = "@waspello/stripe-payments";
 
 export type StripePaymentsConfig = {
-  userEntityName: string;
   premiumPlanPriceId: string;
   subscriptionRoute: string;
   webhookRoute?: string;
@@ -18,7 +17,6 @@ export function createStripePaymentsModule(
 ): Module {
   const mod = new Module(PACKAGE_NAME);
   const {
-    userEntityName,
     premiumPlanPriceId,
     subscriptionRoute,
     webhookRoute = "/payments-webhook",
@@ -26,14 +24,26 @@ export function createStripePaymentsModule(
     cancelUrl = `${subscriptionRoute}?status=canceled`,
   } = config;
 
-  mod.provide("userEntityName", userEntityName);
+  // Declare entity requirements
+  mod.entity("User", {
+    fields: {
+      id: "Int @id @default(autoincrement())",
+      email: "String?",
+      stripeCustomerId: "String?",
+      subscriptionStatus: "String?",
+      subscriptionPlan: "String?",
+      datePaid: "DateTime?",
+    },
+  });
+  mod.requiresAuth();
+
   mod.provide("premiumPlanPriceId", premiumPlanPriceId);
   mod.provide("subscriptionRoute", subscriptionRoute);
   mod.provide("webhookRoute", webhookRoute);
   mod.provide("successUrl", successUrl);
   mod.provide("cancelUrl", cancelUrl);
 
-  const entities = [userEntityName];
+  const entities = ["User"];
 
   // Page + Route
   const subscriptionPage = mod.page("SubscriptionPage", {

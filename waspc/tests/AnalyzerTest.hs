@@ -212,7 +212,8 @@ spec_Analyzer = do
                     App.webSocket = Nothing,
                     App.moduleServerSetupFns = Nothing,
                     App.moduleClientSetupFns = Nothing,
-                    App.moduleProvides = Nothing
+                    App.moduleProvides = Nothing,
+                    App.moduleEntityMaps = Nothing
                   }
               )
             ]

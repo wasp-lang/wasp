@@ -1,0 +1,22 @@
+{
+  "name": "wasp",
+  "version": "0.0.0",
+  "type": "module",
+  "exports": {
+    "./entities": "./entities/index.ts",
+    "./server": "./server/index.ts",
+    "./server/module": {
+      "types": "./server/module/index.ts",
+      "default": "./server/module/index.ts"
+    },
+    "./server/operations/queries/types": "./server/operations/queries/types.ts",
+    "./server/operations/actions/types": "./server/operations/actions/types.ts",
+    "./client/operations": "./client/operations/index.ts",
+    "./client/operations/queries": "./client/operations/queries/index.ts",
+    "./client/operations/actions": "./client/operations/actions/index.ts",
+    "./client/crud": "./client/crud/index.ts",
+    "./client/api": "./client/api.ts",
+    "./client/auth": "./client/auth.ts",
+    "./modules/config": "./modules/config.ts"
+  }
+}

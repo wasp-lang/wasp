@@ -13,13 +13,13 @@ import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromJust, fromMaybe)
 import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', castRel, fromRelFileP, parseRelFile, reldir, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec, getJobs)
-import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.JSON as AS.JSON
 import Wasp.AppSpec.Job (Job, JobExecutor (PgBoss), jobExecutors)
 import qualified Wasp.AppSpec.Job as J
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.Common (makeJsonWithEntityData)
+import Wasp.Generator.ServerGenerator.OperationsG (getModuleEntityMaps, resolveEntityRefWithAlias)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
@@ -42,8 +42,10 @@ genNewJobsApi spec =
       sequence
         [ genIndexTs jobs
         ]
-        <++> mapM genJob jobs
+        <++> mapM (genJob entityMaps) jobs
         <++> genJobExecutors spec
+      where
+        entityMaps = getModuleEntityMaps spec
 
 genIndexTs :: [(String, Job)] -> Generator FileDraft
 genIndexTs jobs =
@@ -59,20 +61,21 @@ genIndexTs jobs =
           "jobName" .= jobName
         ]
 
-genJob :: (String, Job) -> Generator FileDraft
-genJob (jobName, job) =
+genJob :: [AS.App.ModuleEntityMap] -> (String, Job) -> Generator FileDraft
+genJob entityMaps (jobName, job) =
   return $
     mkTmplFdWithDstAndData
       (serverJobsDirInSdkTemplatesDir </> [relfile|_job.ts|])
       (castRel serverJobsDirInSdkTemplatesDir </> fromJust (parseRelFile (jobName ++ ".ts")))
       (Just tmplData)
   where
+    jobFnImport = (J.fn . J.perform) job
     tmplData =
       object
         [ "jobName" .= jobName,
           "typeName" .= toUpperFirst jobName,
           "jobExecutorImportPath" .= fromRelFileP jobExecutorImportPath,
-          "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job),
+          "entities" .= maybe [] (map (resolveEntityRefWithAlias entityMaps jobFnImport)) (J.entities job),
           -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
           -- This is why we must get a text representation of the object, either by
           -- `Aeson.Text.encodeToLazyText` on an Aeson.Object, or `show` on an AS.JSON.

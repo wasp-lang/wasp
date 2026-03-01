@@ -14,11 +14,11 @@ import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfil
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
+import qualified Wasp.AppSpec.App as AS.App
 import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
-import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -28,6 +28,10 @@ import Wasp.Generator.SdkGenerator.Common
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
+import Wasp.Generator.ServerGenerator.OperationsG
+  ( getModuleEntityMaps,
+    resolveEntityRefWithAlias,
+  )
 import Wasp.Util (toUpperFirst)
 
 -- | This function should match the `exports` path from the SDK's package.json.
@@ -58,10 +62,11 @@ genIndexTs spec =
   where
     tmplData =
       object
-        [ "actions" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec),
-          "queries" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
+        [ "actions" .= map (getActionData entityMaps isAuthEnabledGlobally) (AS.getActions spec),
+          "queries" .= map (getQueryData entityMaps isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
+    entityMaps = getModuleEntityMaps spec
 
 genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =
@@ -82,9 +87,10 @@ genQueriesIndex spec =
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabledGlobally,
-          "operations" .= map (getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
+          "operations" .= map (getQueryData entityMaps isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
+    entityMaps = getModuleEntityMaps spec
 
 genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
@@ -96,9 +102,10 @@ genActionsIndex spec =
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabledGlobally,
-          "operations" .= map (getActionData isAuthEnabledGlobally) (AS.getActions spec)
+          "operations" .= map (getActionData entityMaps isAuthEnabledGlobally) (AS.getActions spec)
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
+    entityMaps = getModuleEntityMaps spec
 
 genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec =
@@ -106,9 +113,11 @@ genQueryTypesFile spec =
     (serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|])
     operations
     isAuthEnabledGlobally
+    moduleEntityMaps
   where
     operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
+    moduleEntityMaps = getModuleEntityMaps spec
 
 genActionTypesFile :: AppSpec -> Generator FileDraft
 genActionTypesFile spec =
@@ -116,20 +125,22 @@ genActionTypesFile spec =
     (serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|])
     operations
     isAuthEnabledGlobally
+    moduleEntityMaps
   where
     operations = map (uncurry AS.Operation.ActionOp) $ AS.getActions spec
     isAuthEnabledGlobally = isAuthEnabled spec
+    moduleEntityMaps = getModuleEntityMaps spec
 
 -- | Here we generate JS file that basically imports JS query function provided by user,
 --   decorates it (mostly injects stuff into it) and exports. Idea is that the rest of the server,
 --   and user also, should use this new JS function, and not the old one directly.
-getQueryData :: Bool -> (String, AS.Query.Query) -> Aeson.Value
-getQueryData isAuthEnabledGlobally (queryName, query) = getOperationTmplData isAuthEnabledGlobally operation
+getQueryData :: [AS.App.ModuleEntityMap] -> Bool -> (String, AS.Query.Query) -> Aeson.Value
+getQueryData entityMaps isAuthEnabledGlobally (queryName, query) = getOperationTmplData entityMaps isAuthEnabledGlobally operation
   where
     operation = AS.Operation.QueryOp queryName query
 
-getActionData :: Bool -> (String, AS.Action.Action) -> Aeson.Value
-getActionData isAuthEnabledGlobally (actionName, action) = getOperationTmplData isAuthEnabledGlobally operation
+getActionData :: [AS.App.ModuleEntityMap] -> Bool -> (String, AS.Action.Action) -> Aeson.Value
+getActionData entityMaps isAuthEnabledGlobally (actionName, action) = getOperationTmplData entityMaps isAuthEnabledGlobally operation
   where
     operation = AS.Operation.ActionOp actionName action
 
@@ -137,8 +148,9 @@ genOperationTypesFile ::
   Path' (Rel SdkTemplatesDir) File' ->
   [AS.Operation.Operation] ->
   Bool ->
+  [AS.App.ModuleEntityMap] ->
   Generator FileDraft
-genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally =
+genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally entityMaps =
   return $ mkTmplFdWithData relOperationTypesFilePath tmplData
   where
     tmplData =
@@ -154,17 +166,18 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
           "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
-    getEntities = map makeJsonWithEntityData . maybe [] (map AS.refName) . AS.Operation.getEntities
+    getEntities operation =
+      maybe [] (map (resolveEntityRefWithAlias entityMaps (AS.Operation.getFn operation))) $ AS.Operation.getEntities operation
     usesAuth = fromMaybe isAuthEnabledGlobally . AS.Operation.getAuth
 
-getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
-getOperationTmplData isAuthEnabledGlobally operation =
+getOperationTmplData :: [AS.App.ModuleEntityMap] -> Bool -> AS.Operation.Operation -> Aeson.Value
+getOperationTmplData entityMaps isAuthEnabledGlobally operation =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
       "operationName" .= getName operation,
       "operationTypeName" .= getOperationTypeName operation,
       "entities"
-        .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
+        .= maybe [] (map (resolveEntityRefWithAlias entityMaps (AS.Operation.getFn operation))) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
 

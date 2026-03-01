@@ -14,10 +14,6 @@ export interface PrismaDelegate<T = any> {
   count(args?: any): Promise<number>;
 }
 
-export type OperationContext = {
-  entities: Record<string, PrismaDelegate>;
-};
-
 export type AuthUser = {
   id: number | string;
   identities: Record<string, { id: string } | null>;
@@ -25,14 +21,43 @@ export type AuthUser = {
   [key: string]: unknown;
 };
 
-export type AuthOperationContext = OperationContext & {
+export type OperationContext<
+  Entities extends Record<string, any> = Record<string, any>,
+> = {
+  entities: { [K in keyof Entities]: PrismaDelegate<Entities[K]> };
+};
+
+export type AuthOperationContext<
+  Entities extends Record<string, any> = Record<string, any>,
+> = OperationContext<Entities> & {
   user?: AuthUser;
 };
 
-// Simplified versions of the SDK's operation definition types
-// (from wasp/server/_types). These use 2 generics instead of 3 because modules
-// don't know the app's entities at compile time (entities are a dynamic
-// Record<string, PrismaDelegate> rather than a tagged _Entity[] type).
+export type Query<
+  Entities extends Record<string, any>,
+  Input,
+  Output,
+> = (args: Input, context: OperationContext<Entities>) => Output | Promise<Output>;
+
+export type AuthenticatedQuery<
+  Entities extends Record<string, any>,
+  Input,
+  Output,
+> = (args: Input, context: AuthOperationContext<Entities>) => Output | Promise<Output>;
+
+export type Action<
+  Entities extends Record<string, any>,
+  Input,
+  Output,
+> = (args: Input, context: OperationContext<Entities>) => Output | Promise<Output>;
+
+export type AuthenticatedAction<
+  Entities extends Record<string, any>,
+  Input,
+  Output,
+> = (args: Input, context: AuthOperationContext<Entities>) => Output | Promise<Output>;
+
+// Legacy 2-generic types (backward compatible, untyped entities)
 export type UnauthenticatedQueryDefinition<Input, Output> = (
   args: Input,
   context: OperationContext,

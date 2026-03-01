@@ -28,10 +28,13 @@ import {
   mapRoute,
   mapSchedule,
   mapServer,
+  mapTsModuleSpecToModuleSpecOutput,
   mapUsernameAndPassword,
   mapWebSocket,
 } from "../src/mapTsAppSpecToAppSpecDecls.js";
 import { App } from "../src/publicApi/App.js";
+import { AppDeclBuilder, Module } from "../src/publicApi/Module.js";
+import { getModuleSpec } from "../src/_private.js";
 import * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -139,6 +142,7 @@ describe("mapApp", () => {
       moduleServerSetupFns: undefined,
       moduleClientSetupFns: undefined,
       moduleProvides: undefined,
+      moduleEntityMaps: undefined,
     } satisfies AppSpec.App);
   }
 });
@@ -1118,4 +1122,125 @@ describe("mapExtImport", () => {
       } satisfies AppSpec.ExtImport);
     }
   }
+});
+
+describe("mapTsModuleSpecToModuleSpecOutput", () => {
+  test("serializes a module with entity declarations and operations", () => {
+    const mod = new Module("@test/my-module");
+    mod.entity("Todo", {
+      fields: {
+        id: "Int @id @default(autoincrement())",
+        text: "String",
+        isDone: "Boolean @default(false)",
+      },
+    });
+    mod.entity("User", {
+      fields: {
+        id: "Int @id @default(autoincrement())",
+        email: "String",
+      },
+    });
+    mod.requiresAuth();
+    mod.query("getTodos", {
+      fn: { import: "getTodos", from: "@src/queries" },
+      entities: ["Todo"],
+    });
+    mod.action("createTodo", {
+      fn: { import: "createTodo", from: "@src/actions" },
+      entities: ["Todo", "User"],
+    });
+
+    const moduleSpec = getModuleSpec(mod);
+    const output = mapTsModuleSpecToModuleSpecOutput(moduleSpec);
+
+    expect(output.packageName).toBe("@test/my-module");
+    expect(output.requiresAuth).toBe(true);
+    expect(output.entityDeclarations).toEqual([
+      {
+        name: "Todo",
+        fields: {
+          id: "Int @id @default(autoincrement())",
+          text: "String",
+          isDone: "Boolean @default(false)",
+        },
+      },
+      {
+        name: "User",
+        fields: {
+          id: "Int @id @default(autoincrement())",
+          email: "String",
+        },
+      },
+    ]);
+    expect(output.queries).toHaveLength(1);
+    expect(output.queries[0]!.declName).toBe("getTodos");
+    expect(output.actions).toHaveLength(1);
+    expect(output.actions[0]!.declName).toBe("createTodo");
+  });
+
+  test("serializes a minimal module with no entity fields", () => {
+    const mod = new Module("@test/simple");
+    mod.entity("Item");
+    mod.query("getItems", {
+      fn: { import: "getItems", from: "@src/queries" },
+      entities: ["Item"],
+    });
+
+    const moduleSpec = getModuleSpec(mod);
+    const output = mapTsModuleSpecToModuleSpecOutput(moduleSpec);
+
+    expect(output.packageName).toBe("@test/simple");
+    expect(output.requiresAuth).toBe(false);
+    expect(output.entityDeclarations).toEqual([
+      { name: "Item", fields: {} },
+    ]);
+    expect(output.queries).toHaveLength(1);
+    expect(output.provides).toEqual({});
+  });
+
+  test("throws when module has no packageName", () => {
+    const builder = new AppDeclBuilder();
+    const moduleSpec = getModuleSpec(builder);
+
+    expect(() => mapTsModuleSpecToModuleSpecOutput(moduleSpec)).toThrow(
+      "Module must have a packageName",
+    );
+  });
+
+  test("includes provides in the output", () => {
+    const mod = new Module("@test/with-provides");
+    mod.entity("Widget", {
+      fields: { id: "Int @id @default(autoincrement())" },
+    });
+    mod.provide("apiKey", "test-key-123");
+    mod.provide("debug", true);
+
+    const moduleSpec = getModuleSpec(mod);
+    const output = mapTsModuleSpecToModuleSpecOutput(moduleSpec);
+
+    expect(output.provides).toEqual({
+      apiKey: "test-key-123",
+      debug: true,
+    });
+  });
+
+  test("includes serverSetupFn and clientSetupFn", () => {
+    const mod = new Module("@test/with-setup");
+    mod.serverSetup({ import: "setupServer", from: "@src/setup" });
+    mod.clientSetup({ import: "setupClient", from: "@src/clientSetup" });
+
+    const moduleSpec = getModuleSpec(mod);
+    const output = mapTsModuleSpecToModuleSpecOutput(moduleSpec);
+
+    expect(output.serverSetupFn).toEqual({
+      kind: "named",
+      name: "setupServer",
+      path: "@src/setup",
+    });
+    expect(output.clientSetupFn).toEqual({
+      kind: "named",
+      name: "setupClient",
+      path: "@src/clientSetup",
+    });
+  });
 });

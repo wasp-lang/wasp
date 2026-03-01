@@ -122,21 +122,30 @@ appAction("createListCopy", "@src/cards/lists", ["List", "Card"]);
 
 app.use(
   createStripePaymentsModule({
-    userEntityName: "User",
     // TODO: Support reading env vars at runtime instead of hardcoding
     premiumPlanPriceId: "price_1T4oHFFaHKs7M0PTaaRNXrj6",
     subscriptionRoute: "/subscription",
   }),
+  {
+    entityMap: {
+      User: "User",
+    },
+  },
 );
 
 app.use(
   createTodoModule({
-    todoEntityName: "TodoItem",
     route: "/todos",
     cleanDoneTodosCron: "* * * * *",
-    userEntityName: "User",
+    useAuth: true,
     userForeignKey: "userId",
   }),
+  {
+    entityMap: {
+      Todo: "TodoItem",
+      User: "User",
+    },
+  },
 );
 
 export default app;

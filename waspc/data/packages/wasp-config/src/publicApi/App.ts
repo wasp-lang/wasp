@@ -19,6 +19,7 @@ export class App {
   #moduleServerSetupFns: TsAppSpec.ExtImport[] = [];
   #moduleClientSetupFns: TsAppSpec.ExtImport[] = [];
   #moduleProvides: TsAppSpec.ModuleProvideEntry[] = [];
+  #moduleEntityMaps: TsAppSpec.ModuleEntityMapEntry[] = [];
   #declarationSources = new Map<string, string>();
 
   // NOTE: Using a non-public symbol gives us a package-private property.
@@ -41,11 +42,14 @@ export class App {
       queries: moduleSpec.queries,
       routes: moduleSpec.routes,
       provides: moduleSpec.provides,
+      entityAliases: moduleSpec.entityAliases,
+      entityDeclarations: moduleSpec.entityDeclarations,
       server: this.#server,
       websocket: this.#websocket,
       moduleServerSetupFns: this.#moduleServerSetupFns,
       moduleClientSetupFns: this.#moduleClientSetupFns,
       moduleProvides: this.#moduleProvides,
+      moduleEntityMaps: this.#moduleEntityMaps,
     };
   }
 
@@ -54,11 +58,37 @@ export class App {
     this.#app = { name, config };
   }
 
-  use(this: App, module: Module): void {
+  use(
+    this: App,
+    module: Module,
+    config?: { entityMap?: Record<string, string> },
+  ): void {
     const original = getModuleSpec(module);
     const current = getModuleSpec(this.#module);
 
     const packageName = original.packageName;
+    const entityMap = config?.entityMap;
+
+    // Validate entity map against module's declared entity aliases
+    if (entityMap && original.entityAliases.size > 0) {
+      const incomingSource = packageName ?? "anonymous module";
+      for (const alias of original.entityAliases) {
+        if (!entityMap[alias]) {
+          throw new Error(
+            `Module '${incomingSource}' declares entity '${alias}' but no mapping ` +
+            `was provided. Add '${alias}' to the entityMap in app.use().`,
+          );
+        }
+      }
+      for (const alias of Object.keys(entityMap)) {
+        if (!original.entityAliases.has(alias)) {
+          throw new Error(
+            `entityMap contains '${alias}' but module '${incomingSource}' ` +
+            `does not declare an entity with that alias.`,
+          );
+        }
+      }
+    }
 
     // Map-typed declaration keys that get merged by name.
     // `provides`, `serverSetupFn`, and `clientSetupFn` are handled separately below.
@@ -79,9 +109,16 @@ export class App {
       provides: new Map(original.provides),
       serverSetupFn: original.serverSetupFn,
       clientSetupFn: original.clientSetupFn,
+      entityAliases: new Set(original.entityAliases),
+      entityDeclarations: new Map(original.entityDeclarations),
     };
     for (const key of mapKeys) {
       (incoming as any)[key] = new Map(original[key] as Map<string, unknown>);
+    }
+
+    // Rewrite entity aliases to real entity names in operations
+    if (entityMap) {
+      App.#rewriteEntityAliases(incoming, entityMap);
     }
 
     if (packageName && packageName !== App.projectPackageName) {
@@ -123,6 +160,11 @@ export class App {
         `Cannot use provide() without a package name. ` +
           `Pass the package name to the Module constructor: new Module("@scope/my-module")`,
       );
+    }
+
+    // Store entity map for code generation
+    if (packageName && entityMap && Object.keys(entityMap).length > 0) {
+      this.#moduleEntityMaps.push({ packageName, entityMap });
     }
   }
 
@@ -243,6 +285,32 @@ export class App {
         spec.clientSetupFn,
         packageName,
       );
+    }
+  }
+
+  static #rewriteEntityAliases(
+    spec: TsAppSpec.TsModuleSpec,
+    entityMap: Record<string, string>,
+  ): void {
+    const resolveEntities = (entities?: string[]): string[] | undefined => {
+      if (!entities) return undefined;
+      return entities.map((name) => entityMap[name] ?? name);
+    };
+
+    for (const [name, config] of spec.actions) {
+      spec.actions.set(name, { ...config, entities: resolveEntities(config.entities) });
+    }
+    for (const [name, config] of spec.queries) {
+      spec.queries.set(name, { ...config, entities: resolveEntities(config.entities) });
+    }
+    for (const [name, config] of spec.apis) {
+      spec.apis.set(name, { ...config, entities: resolveEntities(config.entities) });
+    }
+    for (const [name, config] of spec.jobs) {
+      spec.jobs.set(name, { ...config, entities: resolveEntities(config.entities) });
+    }
+    for (const [name, config] of spec.cruds) {
+      spec.cruds.set(name, { ...config, entity: entityMap[config.entity] ?? config.entity });
     }
   }
 
