@@ -26,6 +26,7 @@ import Wasp.AppSpec.App (App, ModuleEntityMap (..))
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App as App
 import qualified Wasp.AppSpec.App.Auth as Auth
+import Wasp.AppSpec.Module (EntityDeclaration (..))
 import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
@@ -42,7 +43,9 @@ import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Node.Version as V
 import qualified Wasp.Psl.Ast.Model as Psl.Model
+import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import qualified Wasp.Psl.Db as Psl.Db
+import Wasp.Psl.Parser.Model (parseField)
 import qualified Wasp.Psl.Util as Psl.Util
 import Wasp.Psl.Valid (getValidDbSystemFromPrismaSchema)
 import qualified Wasp.SemanticVersion as SV
@@ -74,7 +77,7 @@ validateAppSpec spec =
           validateWebAppBaseDir spec,
           validateUserNodeVersionRange spec,
           validateAtLeastOneRoute spec,
-          validateModuleEntityMapsTargetExistingEntities spec
+          validateModuleUse spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -437,16 +440,24 @@ validateAtLeastOneRoute spec =
   where
     routes = AS.getRoutes spec
 
-validateModuleEntityMapsTargetExistingEntities :: AppSpec -> [ValidationError]
-validateModuleEntityMapsTargetExistingEntities spec =
-  concatMap validateEntityMap entityMaps
+validateModuleUse :: AppSpec -> [ValidationError]
+validateModuleUse spec =
+  concatMap validateModule entityMaps
   where
     app = snd $ getApp spec
     entityMaps = concat $ maybeToList $ App.moduleEntityMaps app
-    entityNames = nub $ map fst $ AS.getEntities spec
+    entities = AS.getEntities spec
+    entityNames = nub $ map fst entities
+    hostHasAuth = isAuthEnabled spec
 
-    validateEntityMap :: ModuleEntityMap -> [ValidationError]
-    validateEntityMap mem =
+    validateModule :: ModuleEntityMap -> [ValidationError]
+    validateModule mem =
+      validateEntityMapTargetsExist mem
+        ++ validateFieldCompatibility mem
+        ++ validateAuthRequirement mem
+
+    validateEntityMapTargetsExist :: ModuleEntityMap -> [ValidationError]
+    validateEntityMapTargetsExist mem =
       [ GenericValidationError $
           "Module '"
             ++ _memPackageName mem
@@ -459,6 +470,83 @@ validateModuleEntityMapsTargetExistingEntities spec =
             ++ "' does not exist in the app."
         | (alias, realName) <- Map.toList (_memEntityMap mem),
           realName `notElem` entityNames
+      ]
+
+    validateFieldCompatibility :: ModuleEntityMap -> [ValidationError]
+    validateFieldCompatibility mem =
+      concatMap (validateEntityDeclaration mem) (_memEntityDeclarations mem)
+
+    validateEntityDeclaration :: ModuleEntityMap -> EntityDeclaration -> [ValidationError]
+    validateEntityDeclaration mem decl =
+      case Map.lookup (edName decl) (_memEntityMap mem) of
+        Nothing -> []
+        Just hostEntityName ->
+          case lookup hostEntityName entities of
+            Nothing -> []
+            Just hostEntity ->
+              let hostFields = getPslFields hostEntity
+               in concatMap (validateDeclaredField mem (edName decl) hostEntityName hostFields) (Map.toList (edFields decl))
+
+    getPslFields :: Entity.Entity -> [Psl.Model.Field]
+    getPslFields entity =
+      let (Psl.Model.Body elements) = Entity.getPslModelBody entity
+       in [f | (Psl.Model.ElementField f) <- Psl.WithCtx.getNode <$> elements]
+
+    validateDeclaredField :: ModuleEntityMap -> String -> String -> [Psl.Model.Field] -> (String, String) -> [ValidationError]
+    validateDeclaredField mem alias hostEntityName hostFields (fieldName, fieldType) =
+      case parseField (fieldName ++ " " ++ fieldType) of
+        Left parseErr ->
+          [ GenericValidationError $
+              "Module '"
+                ++ _memPackageName mem
+                ++ "': failed to parse field declaration '"
+                ++ fieldName
+                ++ " "
+                ++ fieldType
+                ++ "' for entity alias '"
+                ++ alias
+                ++ "': "
+                ++ parseErr
+          ]
+        Right expectedField ->
+          case find (\f -> Psl.Model._name f == fieldName) hostFields of
+            Nothing ->
+              [ GenericValidationError $
+                  "Module '"
+                    ++ _memPackageName mem
+                    ++ "' expects entity '"
+                    ++ hostEntityName
+                    ++ "' (mapped from '"
+                    ++ alias
+                    ++ "') to have field '"
+                    ++ fieldName
+                    ++ "', but it does not."
+              ]
+            Just hostField ->
+              [ GenericValidationError $
+                  "Module '"
+                    ++ _memPackageName mem
+                    ++ "' expects field '"
+                    ++ fieldName
+                    ++ "' in entity '"
+                    ++ hostEntityName
+                    ++ "' (mapped from '"
+                    ++ alias
+                    ++ "') to have type '"
+                    ++ show (Psl.Model._type expectedField)
+                    ++ "', but it has type '"
+                    ++ show (Psl.Model._type hostField)
+                    ++ "'."
+                | Psl.Model._type expectedField /= Psl.Model._type hostField
+              ]
+
+    validateAuthRequirement :: ModuleEntityMap -> [ValidationError]
+    validateAuthRequirement mem =
+      [ GenericValidationError $
+          "Module '"
+            ++ _memPackageName mem
+            ++ "' requires auth but app.auth is not configured."
+        | _memRequiresAuth mem && not hostHasAuth
       ]
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).

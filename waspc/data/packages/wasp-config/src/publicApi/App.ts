@@ -162,9 +162,17 @@ export class App {
       );
     }
 
-    // Store entity map for code generation
-    if (packageName && entityMap && Object.keys(entityMap).length > 0) {
-      this.#moduleEntityMaps.push({ packageName, entityMap });
+    if (packageName) {
+      const entityDeclarations = Array.from(original.entityAliases).map(alias => {
+        const decl = original.entityDeclarations.get(alias);
+        return { name: alias, fields: decl?.fields ?? {} };
+      });
+      this.#moduleEntityMaps.push({
+        packageName,
+        entityMap: entityMap ?? {},
+        entityDeclarations,
+        requiresAuth: original.requiresAuth ?? false,
+      });
     }
   }
 

@@ -18,6 +18,7 @@ import Wasp.AppSpec.App.Wasp (Wasp)
 import Wasp.AppSpec.App.WebSocket (WebSocket)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import Wasp.AppSpec.ExtImport (ExtImport)
+import Wasp.AppSpec.Module (EntityDeclaration)
 
 data ModuleProvide = ModuleProvide
   { packageName :: String,
@@ -27,7 +28,9 @@ data ModuleProvide = ModuleProvide
 
 data ModuleEntityMap = ModuleEntityMap
   { _memPackageName :: String,
-    _memEntityMap :: Map.Map String String
+    _memEntityMap :: Map.Map String String,
+    _memEntityDeclarations :: [EntityDeclaration],
+    _memRequiresAuth :: Bool
   }
   deriving (Show, Eq, Data, Generic)
 
@@ -36,6 +39,8 @@ instance FromJSON ModuleEntityMap where
     ModuleEntityMap
       <$> v Aeson..: "packageName"
       <*> v Aeson..: "entityMap"
+      <*> v Aeson..: "entityDeclarations"
+      <*> v Aeson..: "requiresAuth"
 
 data App = App
   { wasp :: Wasp,

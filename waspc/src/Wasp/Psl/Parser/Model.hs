@@ -1,5 +1,6 @@
 module Wasp.Psl.Parser.Model
   ( parseBody,
+    parseField,
     model,
     body,
   )
@@ -30,6 +31,9 @@ import Wasp.Psl.Parser.WithCtx (withCtx)
 -- leading whitespace is not consumed by the `schema` parser.
 parseBody :: SourceCode -> Either String Psl.Model.Body
 parseBody = left errorBundlePretty . Megaparsec.parse (whiteSpace >> body) ""
+
+parseField :: String -> Either String Psl.Model.Field
+parseField = left errorBundlePretty . Megaparsec.parse (whiteSpace >> field) ""
 
 -- | Parses PSL (Prisma Schema Language model).
 -- Example of PSL model:

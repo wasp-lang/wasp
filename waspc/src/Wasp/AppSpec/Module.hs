@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 
 module Wasp.AppSpec.Module
@@ -19,6 +20,7 @@ where
 
 import Data.Aeson (FromJSON (parseJSON), withObject, (.:), (.:?))
 import qualified Data.Aeson as Aeson
+import Data.Data (Data)
 import qualified Data.Map as Map
 import GHC.Generics (Generic)
 import Wasp.AppSpec.ExtImport (ExtImport)
@@ -27,7 +29,7 @@ data EntityDeclaration = EntityDeclaration
   { edName :: String,
     edFields :: Map.Map String String
   }
-  deriving (Show, Eq, Generic)
+  deriving (Show, Eq, Data, Generic)
 
 instance FromJSON EntityDeclaration where
   parseJSON = withObject "EntityDeclaration" $ \v ->

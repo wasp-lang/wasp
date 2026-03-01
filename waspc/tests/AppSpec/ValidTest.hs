@@ -17,7 +17,9 @@ import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Api as AS.Api
 import qualified Wasp.AppSpec.ApiNamespace as AS.ApiNamespace
 import qualified Wasp.AppSpec.App as AS.App
+import Wasp.AppSpec.App (ModuleEntityMap (..))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
+import Wasp.AppSpec.Module (EntityDeclaration (..))
 import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerification
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.Db as AS.Db
@@ -498,6 +500,172 @@ spec_AppSpecValid = do
 
       describe "returns no errors for capitalized entity names" $ do
         testValidDeclName makeBasicEntityDecl "Task"
+
+    describe "module entity validation" $ do
+      let taskEntity =
+            AS.Entity.makeEntity
+              ( Psl.Model.Body $
+                  Psl.WithCtx.empty
+                    <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String,
+                          Psl.Model.ElementField $
+                            Psl.Model.Field
+                              { Psl.Model._name = "description",
+                                Psl.Model._type = Psl.Model.String,
+                                Psl.Model._typeModifiers = [],
+                                Psl.Model._attrs = []
+                              },
+                          Psl.Model.ElementField $
+                            Psl.Model.Field
+                              { Psl.Model._name = "isDone",
+                                Psl.Model._type = Psl.Model.Boolean,
+                                Psl.Model._typeModifiers = [],
+                                Psl.Model._attrs = []
+                              }
+                        ]
+              )
+
+      let makeModuleSpec entityMaps =
+            basicAppSpec
+              { AS.decls =
+                  [ AS.Decl.makeDecl "TestApp" $
+                      basicApp {AS.App.moduleEntityMaps = Just entityMaps},
+                    AS.Decl.makeDecl "Task" taskEntity,
+                    basicPageDecl,
+                    basicRouteDecl
+                  ]
+              }
+
+      it "returns no error when module fields match host entity" $ do
+        let mem =
+              ModuleEntityMap
+                { _memPackageName = "test-module",
+                  _memEntityMap = M.fromList [("Todo", "Task")],
+                  _memEntityDeclarations =
+                    [ EntityDeclaration
+                        { edName = "Todo",
+                          edFields = M.fromList [("description", "String")]
+                        }
+                    ],
+                  _memRequiresAuth = False
+                }
+        ASV.validateAppSpec (makeModuleSpec [mem]) `shouldBe` []
+
+      it "returns an error when module field is missing from host entity" $ do
+        let mem =
+              ModuleEntityMap
+                { _memPackageName = "test-module",
+                  _memEntityMap = M.fromList [("Todo", "Task")],
+                  _memEntityDeclarations =
+                    [ EntityDeclaration
+                        { edName = "Todo",
+                          edFields = M.fromList [("title", "String")]
+                        }
+                    ],
+                  _memRequiresAuth = False
+                }
+        let errors = ASV.validateAppSpec (makeModuleSpec [mem])
+        length errors `shouldBe` 1
+        head (map show errors) `shouldSatisfy` isInfixOf "to have field 'title'"
+
+      it "returns an error when module field type doesn't match host entity" $ do
+        let mem =
+              ModuleEntityMap
+                { _memPackageName = "test-module",
+                  _memEntityMap = M.fromList [("Todo", "Task")],
+                  _memEntityDeclarations =
+                    [ EntityDeclaration
+                        { edName = "Todo",
+                          edFields = M.fromList [("description", "Int")]
+                        }
+                    ],
+                  _memRequiresAuth = False
+                }
+        let errors = ASV.validateAppSpec (makeModuleSpec [mem])
+        length errors `shouldBe` 1
+        head (map show errors) `shouldSatisfy` isInfixOf "to have type 'Int'"
+
+      it "returns an error when host entity doesn't exist" $ do
+        let mem =
+              ModuleEntityMap
+                { _memPackageName = "test-module",
+                  _memEntityMap = M.fromList [("Todo", "NonExistent")],
+                  _memEntityDeclarations =
+                    [ EntityDeclaration
+                        { edName = "Todo",
+                          edFields = M.fromList [("description", "String")]
+                        }
+                    ],
+                  _memRequiresAuth = False
+                }
+        let errors = ASV.validateAppSpec (makeModuleSpec [mem])
+        length errors `shouldBe` 1
+        head (map show errors) `shouldSatisfy` isInfixOf "does not exist"
+
+      it "returns an error when module requiresAuth but auth is not configured" $ do
+        let mem =
+              ModuleEntityMap
+                { _memPackageName = "test-module",
+                  _memEntityMap = M.empty,
+                  _memEntityDeclarations = [],
+                  _memRequiresAuth = True
+                }
+        let errors = ASV.validateAppSpec (makeModuleSpec [mem])
+        length errors `shouldBe` 1
+        head (map show errors) `shouldSatisfy` isInfixOf "requires auth"
+
+      it "returns no error when module requiresAuth and auth is configured" $ do
+        let validUserEntity =
+              AS.Entity.makeEntity
+                ( Psl.Model.Body $
+                    Psl.WithCtx.empty
+                      <$> [ Psl.Model.ElementField $ makeIdField "id" Psl.Model.String
+                          ]
+                )
+        let mem =
+              ModuleEntityMap
+                { _memPackageName = "test-module",
+                  _memEntityMap = M.empty,
+                  _memEntityDeclarations = [],
+                  _memRequiresAuth = True
+                }
+        let specWithAuth =
+              basicAppSpec
+                { AS.decls =
+                    [ AS.Decl.makeDecl "TestApp" $
+                        basicApp
+                          { AS.App.moduleEntityMaps = Just [mem],
+                            AS.App.auth =
+                              Just
+                                AS.Auth.Auth
+                                  { AS.Auth.userEntity = AS.Core.Ref.Ref "User",
+                                    AS.Auth.externalAuthEntity = Nothing,
+                                    AS.Auth.methods =
+                                      AS.Auth.AuthMethods
+                                        { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
+                                          AS.Auth.discord = Nothing,
+                                          AS.Auth.slack = Nothing,
+                                          AS.Auth.google = Nothing,
+                                          AS.Auth.gitHub = Nothing,
+                                          AS.Auth.keycloak = Nothing,
+                                          AS.Auth.microsoft = Nothing,
+                                          AS.Auth.email = Nothing
+                                        },
+                                    AS.Auth.onAuthFailedRedirectTo = "/",
+                                    AS.Auth.onAuthSucceededRedirectTo = Nothing,
+                                    AS.Auth.onBeforeSignup = Nothing,
+                                    AS.Auth.onAfterSignup = Nothing,
+                                    AS.Auth.onAfterEmailVerified = Nothing,
+                                    AS.Auth.onBeforeOAuthRedirect = Nothing,
+                                    AS.Auth.onBeforeLogin = Nothing,
+                                    AS.Auth.onAfterLogin = Nothing
+                                  }
+                          },
+                      AS.Decl.makeDecl "User" validUserEntity,
+                      basicPageDecl,
+                      basicRouteDecl
+                    ]
+                }
+        ASV.validateAppSpec specWithAuth `shouldBe` []
   where
     makeIdField name typ =
       Psl.Model.Field

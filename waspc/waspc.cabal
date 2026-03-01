@@ -473,7 +473,6 @@ library
     Wasp.Util.TH
     Wasp.Util.WebRouterPath
     Wasp.Valid
-    Wasp.Validator.ModuleValidator
     Wasp.Version
     Wasp.Project.Waspignore
 

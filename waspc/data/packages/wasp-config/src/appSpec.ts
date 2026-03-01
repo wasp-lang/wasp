@@ -98,6 +98,8 @@ export type ModuleProvide = {
 export type ModuleEntityMap = {
   packageName: string;
   entityMap: Record<string, string>;
+  entityDeclarations: ModuleEntityDeclaration[];
+  requiresAuth: boolean;
 };
 
 export type ModuleEntityDeclaration = {

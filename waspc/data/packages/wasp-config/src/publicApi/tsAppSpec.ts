@@ -28,6 +28,8 @@ export type ModuleProvideEntry = {
 export type ModuleEntityMapEntry = {
   packageName: string;
   entityMap: Record<string, string>;
+  entityDeclarations: Array<{ name: string; fields: Record<string, string> }>;
+  requiresAuth: boolean;
 };
 
 // Full app spec = module declarations + app-level singletons
