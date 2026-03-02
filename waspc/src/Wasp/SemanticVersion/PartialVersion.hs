@@ -5,10 +5,6 @@ module Wasp.SemanticVersion.PartialVersion
     fromVersion,
     parsePartialVersion,
     partialVersionParser,
-    toLowerBoundVersion,
-    toUpperBound,
-    toTildeUpperBound,
-    toCaretUpperBound,
     pv,
   )
 where
@@ -23,7 +19,6 @@ import Text.Parsec (ParseError, Parsec, char, oneOf, optionMaybe, parse, try)
 import Text.Printf (printf)
 import Wasp.SemanticVersion.Parsers (noLeadingZeroNaturalP)
 import Wasp.SemanticVersion.Version (Version (..))
-import Wasp.SemanticVersion.VersionBound (VersionBound (..))
 import Wasp.Util.TH (quasiQuoterFromParser)
 
 -- | Version representation used in `node-semver` range expressions.
@@ -40,7 +35,7 @@ data PartialVersion
     Any
   deriving (Eq, TH.Lift)
 
--- | We rely on this 'show' implementation to produce valid node-semver partial version.
+-- | We rely on this 'show' implementation to produce valid `node-semver` partial version.
 instance Show PartialVersion where
   show (Full mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
   show (MajorMinor mjr mnr) = printf "%d.%d" mjr mnr
@@ -53,7 +48,7 @@ fromVersion (Version mjr mnr ptc) = Full mjr mnr ptc
 parsePartialVersion :: String -> Either ParseError PartialVersion
 parsePartialVersion = parse partialVersionParser ""
 
--- See `partial` defintion here: https://github.com/npm/node-semver#range-grammar
+-- See `partial` definition here: https://github.com/npm/node-semver#range-grammar
 partialVersionParser :: Parsec String () PartialVersion
 partialVersionParser = do
   maybeMajor <- componentP
@@ -77,39 +72,3 @@ partialVersionParser = do
 
 pv :: TH.QuasiQuoter
 pv = quasiQuoterFromParser parsePartialVersion
-
--- | Converts a 'PartialVersion' to its lower bound 'Version'.
--- For partial versions, missing components default to 0.
-toLowerBoundVersion :: PartialVersion -> Version
-toLowerBoundVersion Any = Version 0 0 0
-toLowerBoundVersion (Major mjr) = Version mjr 0 0
-toLowerBoundVersion (MajorMinor mjr mnr) = Version mjr mnr 0
-toLowerBoundVersion (Full mjr mnr ptc) = Version mjr mnr ptc
-
--- | Converts a 'PartialVersion' to its exclusive upper bound for X-ranges.
--- For full versions, this returns an Inclusive bound (exact match).
--- For partial versions, returns Exclusive bound of next increment.
-toUpperBound :: PartialVersion -> VersionBound
-toUpperBound Any = Inf
-toUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
-toUpperBound (Full mjr mnr ptc) = Inclusive (Version mjr mnr ptc)
-
--- | Tilde allows patch-level changes if minor is specified.
-toTildeUpperBound :: PartialVersion -> VersionBound
-toTildeUpperBound Any = Inf
-toTildeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toTildeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
-toTildeUpperBound (Full mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
-
--- | Caret allows changes that don't modify the leftmost non-zero digit.
-toCaretUpperBound :: PartialVersion -> VersionBound
-toCaretUpperBound Any = Inf
-toCaretUpperBound (Major 0) = Exclusive (Version 1 0 0)
-toCaretUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toCaretUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
-toCaretUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
-toCaretUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
-toCaretUpperBound (Full 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
-toCaretUpperBound (Full 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
-toCaretUpperBound (Full mjr _ _) = Exclusive (Version (mjr + 1) 0 0)

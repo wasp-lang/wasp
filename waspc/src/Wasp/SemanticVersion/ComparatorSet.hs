@@ -29,13 +29,13 @@ import Wasp.SemanticVersion.VersionBound
     intervalIntersection,
   )
 
--- | Comparators can be joined by whitespace to form a comparator set,
--- which is satisfied by the intersection of all of the comparators it includes.
+-- | Comparators can be joined together to form a comparator set,
+-- A comparator set is satisfied by the intersection of all comparators it includes.
 -- See: https://github.com/npm/node-semver#ranges
 data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
   deriving (Eq)
 
--- | We rely on this `show` implementation to produce valid node-semver comparator set.
+-- | We rely on this 'show' implementation to produce valid `node-semver` comparator set.
 instance Show ComparatorSet where
   show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
 
@@ -46,7 +46,7 @@ instance Semigroup ComparatorSet where
 instance HasVersionBounds ComparatorSet where
   versionBounds (ComparatorSet comps) = foldr1 intervalIntersection $ versionBounds <$> comps
 
--- Helper methods for constructing 'ComparatorSet'.
+-- Helper methods for constructing a 'ComparatorSet'.
 -- While 'Comparator' works with 'PartialVersion' internally, we only use it through 'Version' in our code.
 -- To create 'PartialVersion' comparator sets, pelease use the 'ComparatorSet' constructor directly.
 
@@ -82,7 +82,7 @@ mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op . fromVersion
 
 -- | Parses a comparator set: either a single hyphen range or
 -- one or more simple comparators separated by spaces.
--- See `range` defintion here: https://github.com/npm/node-semver#range-grammar
+-- See `range` definition here: https://github.com/npm/node-semver#range-grammar
 -- NOTE: Grammar's `range` is our comparator set. And grammar's `range-set` is our range.
 comparatorSetParser :: Parsec String () ComparatorSet
 comparatorSetParser =

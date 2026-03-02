@@ -29,7 +29,7 @@ import Wasp.SemanticVersion.VersionBound
 data Range = Range [ComparatorSet]
   deriving (Eq)
 
--- | We rely on this `show` implementation to produce valid semver representation of version range.
+-- | We rely on this 'show' implementation to produce valid `node-semver` range.
 instance Show Range where
   show (Range compSets) = intercalate " || " $ show <$> compSets
 
@@ -65,7 +65,7 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
 parseRange :: String -> Either ParseError Range
 parseRange = P.parse rangeParser ""
 
--- See `range-set` defintion here: https://github.com/npm/node-semver#range-grammar
+-- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
 rangeParser :: Parsec String () Range
 rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP) <* P.spaces <* P.eof
   where
