@@ -176,7 +176,9 @@ function buildCanonicalUrl(filePath: string): string {
     throw new Error(`Unexpected filename format: ${filename}`);
   }
   const [, year, month, day, slug] = match;
-  return `${WASP_BASE_URL}/blog/${year}/${month}/${day}/${slug}`;
+  // Detect section from parent directory (e.g. "blog", "resources")
+  const section = basename(dirname(resolve(filePath)));
+  return `${WASP_BASE_URL}/${section}/${year}/${month}/${day}/${slug}`;
 }
 
 // ---------------------------------------------------------------------------
