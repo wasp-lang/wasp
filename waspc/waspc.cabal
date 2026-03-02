@@ -48,6 +48,7 @@ data-files:
   Cli/starters/**/*.svg
   Cli/starters/**/*.prisma
   Cli/starters/**/*.wasp
+  Cli/starters/skeleton/.npmignore
   Cli/starters/skeleton/.gitignore
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/.waspignore
