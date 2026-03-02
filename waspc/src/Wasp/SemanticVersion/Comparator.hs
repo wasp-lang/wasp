@@ -12,7 +12,7 @@ import Wasp.SemanticVersion.PartialVersion
   ( PartialVersion (..),
     partialVersionParser,
     toCaretUpperBound,
-    toLowerBound,
+    toLowerBoundVersion,
     toTildeUpperBound,
     toUpperBound,
   )
@@ -23,7 +23,8 @@ import Wasp.SemanticVersion.VersionBound
   )
 
 -- | A 'Comparator' is composed of an operator and a partial version.
--- It represents a single version constraint in a 'Range'.
+-- It represents a single version constraint in a range.
+-- See: https://github.com/npm/node-semver#ranges
 data Comparator
   = PrimitiveComparator PrimitiveOperator PartialVersion
   | -- | Caret range (^) allows changes that don't modify leftmost non-zero digit.
@@ -53,12 +54,12 @@ instance HasVersionBounds Comparator where
         -- =1.2.3 means exactly 1.2.3
         -- =1.2 means >=1.2.0 <1.3.0
         -- =1 means >=1.0.0 <2.0.0
-        (Inclusive (toLowerBound pv), toUpperBound pv)
+        (Inclusive (toLowerBoundVersion pv), toUpperBound pv)
       LessThan ->
         -- <1.2.3 means <1.2.3
         -- <1.2 means <1.2.0
         -- <1 means <1.0.0
-        (Inf, Exclusive (toLowerBound pv))
+        (Inf, Exclusive (toLowerBoundVersion pv))
       LessThanOrEqual ->
         -- <=1.2.3 means <=1.2.3
         -- <=1.2 means <1.3.0
@@ -80,15 +81,15 @@ instance HasVersionBounds Comparator where
         -- >=1.2.3 means >=1.2.3
         -- >=1.2 means >=1.2.0
         -- >=1 means >=1.0.0
-        (Inclusive (toLowerBound pv), Inf)
+        (Inclusive (toLowerBoundVersion pv), Inf)
   versionBounds (BackwardsCompatibleWith rv) =
-    (Inclusive (toLowerBound rv), toCaretUpperBound rv)
+    (Inclusive (toLowerBoundVersion rv), toCaretUpperBound rv)
   versionBounds (ApproximatelyEquvivalentTo rv) =
-    (Inclusive (toLowerBound rv), toTildeUpperBound rv)
+    (Inclusive (toLowerBoundVersion rv), toTildeUpperBound rv)
   versionBounds (XRange rv) =
-    (Inclusive (toLowerBound rv), toUpperBound rv)
+    (Inclusive (toLowerBoundVersion rv), toUpperBound rv)
   versionBounds (HyphenRange lower upper) =
-    let lowerBound = Inclusive (toLowerBound lower)
+    let lowerBound = Inclusive (toLowerBoundVersion lower)
         upperBound = case upper of
           Full m n p -> Inclusive (Version m n p)
           _ -> toUpperBound upper
@@ -115,10 +116,12 @@ instance Show PrimitiveOperator where
 -- | Parses a hyphen range (e.g. "1.2.3 - 2.3.4").
 -- Separated from 'simpleComparatorParser' because hyphen ranges cannot be
 -- combined with other comparators in a comparator set.
+-- See `hyphen` defintion here: https://github.com/npm/node-semver#range-grammar
 hyphenComparatorParser :: Parsec String () Comparator
 hyphenComparatorParser = HyphenRange <$> partialVersionParser <*> (P.space *> P.char '-' *> P.space *> partialVersionParser)
 
 -- | Parses a single non-hyphen comparator (primitive, tilde, caret, or x-range).
+-- See `simple` defintion here: https://github.com/npm/node-semver#range-grammar
 simpleComparatorParser :: Parsec String () Comparator
 simpleComparatorParser =
   P.choice

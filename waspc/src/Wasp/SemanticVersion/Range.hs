@@ -25,6 +25,7 @@ import Wasp.SemanticVersion.VersionBound
 
 -- | Comparator sets can be joined by "||" to form a range,
 -- which is satisfied by satisfying any of the comparator sets it includes.
+-- See: https://github.com/npm/node-semver#ranges
 data Range = Range [ComparatorSet]
   deriving (Eq)
 
@@ -64,6 +65,7 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
 parseRange :: String -> Either ParseError Range
 parseRange = P.parse rangeParser ""
 
+-- See `range-set` defintion here: https://github.com/npm/node-semver#range-grammar
 rangeParser :: Parsec String () Range
 rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrP) <* P.spaces <* P.eof
   where

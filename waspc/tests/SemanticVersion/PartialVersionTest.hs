@@ -85,12 +85,12 @@ spec_SemanticVersion_PartialVersion = do
       fromVersion (Version 1 2 3) `shouldBe` Full 1 2 3
       fromVersion (Version 0 0 0) `shouldBe` Full 0 0 0
 
-  describe "toLowerBound" $ do
+  describe "toLowerBoundVersion" $ do
     it "returns version with missing components as 0" $ do
-      toLowerBound (Full 1 2 3) `shouldBe` Version 1 2 3
-      toLowerBound (MajorMinor 1 2) `shouldBe` Version 1 2 0
-      toLowerBound (Major 1) `shouldBe` Version 1 0 0
-      toLowerBound Any `shouldBe` Version 0 0 0
+      toLowerBoundVersion (Full 1 2 3) `shouldBe` Version 1 2 3
+      toLowerBoundVersion (MajorMinor 1 2) `shouldBe` Version 1 2 0
+      toLowerBoundVersion (Major 1) `shouldBe` Version 1 0 0
+      toLowerBoundVersion Any `shouldBe` Version 0 0 0
 
   describe "toUpperBound" $ do
     it "returns Inclusive for full versions" $ do

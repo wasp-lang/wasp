@@ -17,6 +17,8 @@ import Text.Printf (printf)
 import Wasp.SemanticVersion.Parsers (noLeadingZeroNaturalP)
 import Wasp.Util.TH (quasiQuoterFromParser)
 
+-- | Follows SemVer specification.
+-- See: https://semver.org/
 data Version = Version
   { major :: !Natural,
     minor :: !Natural,

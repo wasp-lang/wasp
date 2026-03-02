@@ -31,6 +31,7 @@ import Wasp.SemanticVersion.VersionBound
 
 -- | Comparators can be joined by whitespace to form a comparator set,
 -- which is satisfied by the intersection of all of the comparators it includes.
+-- See: https://github.com/npm/node-semver#ranges
 data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
   deriving (Eq)
 
@@ -81,6 +82,8 @@ mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op . fromVersion
 
 -- | Parses a comparator set: either a single hyphen range or
 -- one or more simple comparators separated by spaces.
+-- See `range` defintion here: https://github.com/npm/node-semver#range-grammar
+-- NOTE: Grammar's `range` is our comparator set. And grammar's `range-set` is our range.
 comparatorSetParser :: Parsec String () ComparatorSet
 comparatorSetParser =
   P.choice
