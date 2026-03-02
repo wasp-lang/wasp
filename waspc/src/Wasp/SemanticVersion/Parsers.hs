@@ -1,5 +1,5 @@
 module Wasp.SemanticVersion.Parsers
-  ( noLeadingZeroNaturalP,
+  ( naturalNumberParser,
   )
 where
 
@@ -7,9 +7,12 @@ import Control.Applicative ((<|>))
 import Numeric.Natural (Natural)
 import Text.Parsec (Parsec, digit, many, notFollowedBy, oneOf, string, try)
 
-noLeadingZeroNaturalP :: Parsec String () Natural
-noLeadingZeroNaturalP = do
-  read <$> (zeroP <|> noLeadingZeroNumberP)
+naturalNumberParser :: Parsec String () Natural
+naturalNumberParser = do
+  read <$> (zeroParser <|> noLeadingZeroNaturalNumberParser)
   where
-    zeroP = try (string "0" <* notFollowedBy digit)
-    noLeadingZeroNumberP = (:) <$> oneOf ['1' .. '9'] <*> many digit
+    zeroParser :: Parsec String () String
+    zeroParser = try (string "0" <* notFollowedBy digit)
+
+    noLeadingZeroNaturalNumberParser :: Parsec String () String
+    noLeadingZeroNaturalNumberParser = (:) <$> oneOf ['1' .. '9'] <*> many digit

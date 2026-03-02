@@ -14,7 +14,7 @@ import qualified Language.Haskell.TH.Syntax as TH
 import Numeric.Natural (Natural)
 import Text.Parsec (ParseError, Parsec, char, parse)
 import Text.Printf (printf)
-import Wasp.SemanticVersion.Parsers (noLeadingZeroNaturalP)
+import Wasp.SemanticVersion.Parsers (naturalNumberParser)
 import Wasp.Util.TH (quasiQuoterFromParser)
 
 -- | Follows SemVer specification.
@@ -38,16 +38,16 @@ parseVersion = parse versionParser ""
 -- TODO: Add pre-release (-) and build (+) support.
 versionParser :: Parsec String () Version
 versionParser = do
-  (mjr, mnr, ptc) <- versionCoreP
-
+  (mjr, mnr, ptc) <- versionCoreParser
   pure (Version mjr mnr ptc)
   where
-    versionCoreP = do
-      mjr <- noLeadingZeroNaturalP
+    versionCoreParser :: Parsec String () (Natural, Natural, Natural)
+    versionCoreParser = do
+      mjr <- naturalNumberParser
       _ <- char '.'
-      mnr <- noLeadingZeroNaturalP
+      mnr <- naturalNumberParser
       _ <- char '.'
-      ptc <- noLeadingZeroNaturalP
+      ptc <- naturalNumberParser
       pure (mjr, mnr, ptc)
 
 v :: TH.QuasiQuoter

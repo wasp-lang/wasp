@@ -17,7 +17,7 @@ import qualified Language.Haskell.TH.Syntax as TH
 import Numeric.Natural (Natural)
 import Text.Parsec (ParseError, Parsec, char, oneOf, optionMaybe, parse, try)
 import Text.Printf (printf)
-import Wasp.SemanticVersion.Parsers (noLeadingZeroNaturalP)
+import Wasp.SemanticVersion.Parsers (naturalNumberParser)
 import Wasp.SemanticVersion.Version (Version (..))
 import Wasp.Util.TH (quasiQuoterFromParser)
 
@@ -67,7 +67,7 @@ partialVersionParser = do
     [_, Nothing, Just _] -> fail "patch cannot be specified if minor is wildcard"
     _ -> fail "invalid version form"
   where
-    componentP = (Nothing <$ wildcardP) <|> (Just <$> noLeadingZeroNaturalP)
+    componentP = (Nothing <$ wildcardP) <|> (Just <$> naturalNumberParser)
     wildcardP = void (oneOf "xX*")
 
 pv :: TH.QuasiQuoter

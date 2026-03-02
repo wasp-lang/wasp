@@ -3,11 +3,11 @@ module SemanticVersion.ParsersTest where
 import Data.Either (isLeft)
 import Test.Hspec
 import Text.Parsec (parse)
-import Wasp.SemanticVersion.Parsers (noLeadingZeroNaturalP)
+import Wasp.SemanticVersion.Parsers (naturalNumberParser)
 
 spec_SemanticVersion_Parsers :: Spec
 spec_SemanticVersion_Parsers = do
-  describe "noLeadingZeroNaturalP" $ do
+  describe "naturalNumberParser" $ do
     it "parses zero" $ do
       parseNatural "0" `shouldBe` Right 0
 
@@ -37,4 +37,4 @@ spec_SemanticVersion_Parsers = do
       isLeft (parseNatural "-1") `shouldBe` True
       isLeft (parseNatural ".123") `shouldBe` True
   where
-    parseNatural = parse noLeadingZeroNaturalP ""
+    parseNatural = parse naturalNumberParser ""
