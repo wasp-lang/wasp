@@ -19,7 +19,7 @@ spec_SemanticVersion_Range = do
         `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
 
   describe "parsing" $ do
-    it "parses minimal possible range" $ do
+    it "parses empty input correctly" $ do
       parseRange ""
         `shouldBe` Right
           ( Range
@@ -69,7 +69,6 @@ spec_SemanticVersion_Range = do
           )
 
     it "rejects invalid formats" $ do
-      isLeft (parseRange "") `shouldBe` True
       isLeft (parseRange "foo") `shouldBe` True
 
   it "Concatenating version ranges produces union of their comparator sets" $ do

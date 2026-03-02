@@ -30,7 +30,7 @@ spec_SemanticVersion_Comparator = do
   describe "simpleComparatorParser" $ do
     let parseComp = P.parse simpleComparatorParser ""
 
-    it "parses minimal possible comparator" $ do
+    it "parses empty input correctly" $ do
       parseComp "" `shouldBe` Right (XRange Any)
 
     it "parses primitive operator comparators" $ do
@@ -71,7 +71,6 @@ spec_SemanticVersion_Comparator = do
       parseComp "<1.2.3 || 5" `shouldBe` Right (PrimitiveComparator LessThan (Full 1 2 3))
 
     it "rejects invalid formats" $ do
-      isLeft (parseComp "") `shouldBe` True
       isLeft (parseComp "foo") `shouldBe` True
 
   describe "hyphenComparatorParser" $ do

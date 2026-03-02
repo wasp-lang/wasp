@@ -122,13 +122,17 @@ hyphenComparatorParser = HyphenRange <$> partialVersionParser <*> (P.space *> P.
 simpleComparatorParser :: Parsec String () Comparator
 simpleComparatorParser =
   P.choice
-    [ P.try tildeParser,
+    [ emptyInputIsAnyVersionParser,
+      P.try tildeParser,
       P.try caretParser,
       P.try primitiveParser,
       xRangeParser
     ]
     <?> "comparator"
   where
+    emptyInputIsAnyVersionParser :: Parsec String () Comparator
+    emptyInputIsAnyVersionParser = XRange Any <$ P.lookAhead P.eof
+
     tildeParser :: Parsec String () Comparator
     tildeParser = ApproximatelyEquvivalentTo <$> (P.char '~' *> partialVersionParser)
 
