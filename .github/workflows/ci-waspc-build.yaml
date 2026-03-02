@@ -146,6 +146,7 @@ jobs:
           path: ./waspc/artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
           if-no-files-found: error
+          include-hidden-files: true
 
       - name: Set job outputs
         id: set-outputs
