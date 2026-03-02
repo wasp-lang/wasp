@@ -1,9 +1,9 @@
 wasp-app/.gitignore
+wasp-app/.npmignore
 wasp-app/.waspignore
 wasp-app/.wasproot
 wasp-app/main.wasp
 wasp-app/package.json
-wasp-app/public/.gitkeep
 wasp-app/public/favicon.ico
 wasp-app/schema.prisma
 wasp-app/src/Main.css

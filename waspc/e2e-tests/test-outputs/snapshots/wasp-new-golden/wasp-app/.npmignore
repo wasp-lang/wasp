@@ -1,0 +1,3 @@
+# npm by default will ignore the `.gitignore` file, but we _do_ want to ship it,
+# so we need to explicitly tell npm not to ignore it.
+!.gitignore
