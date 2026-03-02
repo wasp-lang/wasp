@@ -73,8 +73,8 @@ spec_SemanticVersion_Comparator = do
     it "rejects invalid formats" $ do
       isLeft (parseComp "foo") `shouldBe` True
 
-  describe "hyphenComparatorParser" $ do
-    let parseHyphen = P.parse hyphenComparatorParser ""
+  describe "hyphenRangeComparatorParser" $ do
+    let parseHyphen = P.parse hyphenRangeComparatorParser ""
 
     it "parses hyphen range" $ do
       parseHyphen "1.2.3 - 2.3.4" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))

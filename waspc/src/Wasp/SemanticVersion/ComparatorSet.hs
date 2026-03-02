@@ -19,7 +19,7 @@ import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
   ( Comparator (..),
     PrimitiveOperator (..),
-    hyphenComparatorParser,
+    hyphenRangeComparatorParser,
     simpleComparatorParser,
   )
 import Wasp.SemanticVersion.PartialVersion (fromVersion)
@@ -80,28 +80,29 @@ hyphenRange rv1 rv2 = ComparatorSet . pure $ HyphenRange (fromVersion rv1) (from
 mkPrimCompSet :: PrimitiveOperator -> Version -> ComparatorSet
 mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op . fromVersion
 
--- | Parses a comparator set: either a single hyphen range or
+-- | Parses a comparator set: either a single hyphen range comparator or
 -- one or more simple comparators separated by spaces.
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
 -- NOTE: Grammar's `range` is our comparator set. And grammar's `range-set` is our range.
 comparatorSetParser :: Parsec String () ComparatorSet
 comparatorSetParser =
   P.choice
-    [ ComparatorSet . pure <$> P.try hyphenComparatorParser,
+    [ hyphenRangeComparatorSetParser,
       simpleComparatorSetParser
     ]
   where
+    hyphenRangeComparatorSetParser :: Parsec String () ComparatorSet
+    hyphenRangeComparatorSetParser = ComparatorSet . pure <$> P.try hyphenRangeComparatorParser
+
     simpleComparatorSetParser :: Parsec String () ComparatorSet
     simpleComparatorSetParser = do
       first <- simpleComparatorParser
-      rest <- P.many $ P.try (spaceSeparator *> simpleComparatorParser)
-      case NE.nonEmpty (first : rest) of
-        Just neComps -> return $ ComparatorSet neComps
-        Nothing -> fail "Expected at least one comparator"
+      rest <- P.many $ P.try (spacesBetweenComparatorsParser *> simpleComparatorParser)
+      pure $ ComparatorSet (NE.fromList (first : rest))
 
-    -- Space separator, but not before || or at end
-    spaceSeparator :: Parsec String () ()
-    spaceSeparator = do
-      _ <- P.many1 (P.char ' ')
+    -- Consumes whitespace only when it separates comparators.
+    spacesBetweenComparatorsParser :: Parsec String () ()
+    spacesBetweenComparatorsParser = do
+      _ <- P.many1 P.space
       P.notFollowedBy (P.string "||")
       P.notFollowedBy P.eof

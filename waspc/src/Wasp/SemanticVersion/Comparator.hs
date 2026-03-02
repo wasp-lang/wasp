@@ -5,11 +5,11 @@ module Wasp.SemanticVersion.Comparator
   ( Comparator (..),
     PrimitiveOperator (..),
     simpleComparatorParser,
-    hyphenComparatorParser,
+    hyphenRangeComparatorParser,
   )
 where
 
-import Text.Parsec (Parsec, (<?>))
+import Text.Parsec (Parsec)
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.PartialVersion
   ( PartialVersion (..),
@@ -121,8 +121,8 @@ instance Show PrimitiveOperator where
 -- Separated from 'simpleComparatorParser' because hyphen ranges cannot be
 -- combined with other comparators in a comparator set.
 -- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
-hyphenComparatorParser :: Parsec String () Comparator
-hyphenComparatorParser = do
+hyphenRangeComparatorParser :: Parsec String () Comparator
+hyphenRangeComparatorParser = do
   lowerVersion <- partialVersionParser
   _ <- hyphenParser
   upperVersion <- partialVersionParser
@@ -132,34 +132,34 @@ hyphenComparatorParser = do
     hyphenParser = P.spaces *> P.char '-' <* P.spaces
 
 -- | Parses a single non-hyphen comparator (primitive, tilde, caret, or x-range).
--- Separated from 'hyphenComparatorParser' because hyphen ranges cannot be
+-- Separated from 'hyphenRangeComparatorParser' because hyphen ranges cannot be
 -- combined with other comparators in a comparator set.
 -- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
 simpleComparatorParser :: Parsec String () Comparator
 simpleComparatorParser =
   P.choice
-    [ emptyInputIsAnyVersionParser,
-      P.try tildeParser,
-      P.try caretParser,
-      P.try primitiveParser,
-      xRangeParser
+    [ emptyInputIsAnyParser,
+      tildeComparatorParser,
+      caretComparatorParser,
+      xRangeComparatorParser,
+      primitiveComparatorParser
     ]
-    <?> "comparator"
   where
-    emptyInputIsAnyVersionParser :: Parsec String () Comparator
-    emptyInputIsAnyVersionParser = XRange Any <$ P.lookAhead P.eof
+    -- `node-semver` allows parsing of a empty string into the x-range any comparator (*).
+    emptyInputIsAnyParser :: Parsec String () Comparator
+    emptyInputIsAnyParser = XRange Any <$ P.eof
 
-    tildeParser :: Parsec String () Comparator
-    tildeParser = ApproximatelyEquvivalentTo <$> (P.char '~' *> partialVersionParser)
+    tildeComparatorParser :: Parsec String () Comparator
+    tildeComparatorParser = ApproximatelyEquvivalentTo <$> (P.char '~' *> partialVersionParser)
 
-    caretParser :: Parsec String () Comparator
-    caretParser = BackwardsCompatibleWith <$> (P.char '^' *> partialVersionParser)
+    caretComparatorParser :: Parsec String () Comparator
+    caretComparatorParser = BackwardsCompatibleWith <$> (P.char '^' *> partialVersionParser)
 
-    xRangeParser :: Parsec String () Comparator
-    xRangeParser = XRange <$> partialVersionParser
+    xRangeComparatorParser :: Parsec String () Comparator
+    xRangeComparatorParser = XRange <$> partialVersionParser
 
-    primitiveParser :: Parsec String () Comparator
-    primitiveParser = PrimitiveComparator <$> primitiveOperatorParser <*> partialVersionParser
+    primitiveComparatorParser :: Parsec String () Comparator
+    primitiveComparatorParser = PrimitiveComparator <$> primitiveOperatorParser <*> partialVersionParser
 
     primitiveOperatorParser :: Parsec String () PrimitiveOperator
     primitiveOperatorParser =
@@ -170,4 +170,3 @@ simpleComparatorParser =
           GreaterThan <$ P.char '>',
           Equal <$ P.char '='
         ]
-        <?> "operator"
