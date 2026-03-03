@@ -116,6 +116,7 @@ spec_SemanticVersion_ComparatorSet = do
         isLeft (strictParseCompSet "1.2.3 - 2.0.0 3.x") `shouldBe` True
         isLeft (strictParseCompSet "1.2.3 - 2.0.0 1.2.3 - 2.0.0") `shouldBe` True
 
+  -- Just does 'intervalIntersection' under the hood.
   describe "versionBounds" $ do
     let comps ~> expectedInterval =
           let compSet = ComparatorSet (NE.fromList comps)
