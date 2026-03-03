@@ -452,8 +452,10 @@ library
     Wasp.Psl.Valid
     Wasp.SemanticVersion
     Wasp.SemanticVersion.Comparator
+    Wasp.SemanticVersion.ComparatorSet
     Wasp.SemanticVersion.Parsers
     Wasp.SemanticVersion.PartialVersion
+    Wasp.SemanticVersion.Range
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.TypeScript.Inspect.Exports
@@ -753,12 +755,13 @@ test-suite waspc-tests
     Psl.Parser.ViewTest
     Psl.Parser.WithCtxTest
     Psl.ValidTest
+    SemanticVersion.ComparatorSetTest
     SemanticVersion.ComparatorTest
     SemanticVersion.ParsersTest
     SemanticVersion.PartialVersionTest
+    SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    SemanticVersionTest
     Test.Util
     Util.Control.MonadTest
     Util.Diff
