@@ -111,7 +111,7 @@ there is nothing else we need to do, it will be picked up as the latest version 
 
 If you are writing/updating docs on `main` for the new release of Wasp, you should edit "current" docs (docs/).
 
-If you are (hot)fixing currently published docs on `release`, then you should edit the versioned docs (versioned_docs/{version}), for whatever version you want to do this for. If you want this change to also be present in all the new docs, then you should also do it for the "current" docs (docs/) (yes, that means duplicating the same change).
+If you are (hot)fixing currently published docs on `release`, then you should edit the current docs (docs/), and then regenerate the versioned docs for the current version (versioned_docs/{version}), for whatever version you want to do this for. You can do that by running `npm run remove-version {version}` to remove the old versioned docs, and then `npm run docusaurus docs:version {version}` to create new versioned docs from the current docs.
 
 Prefer doing doc edits on `main`, as that keeps the whole process simpler, and do changes to docs on `release` only if it really matters to fix the already published versioned docs.
 

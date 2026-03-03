@@ -2,7 +2,6 @@
 
 module Wasp.Generator.SdkGenerator
   ( genSdk,
-    installNpmDependencies,
     genExternalCodeDir,
     buildSdk,
     npmDepsForSdk,
@@ -81,7 +80,6 @@ import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
@@ -308,13 +306,6 @@ genTsConfigJson = do
           [ "majorNodeVersion" .= show (SV.major NodeVersion.oldestWaspSupportedNodeVersion)
           ]
       )
-
--- TODO(filip): Figure out where this belongs.
--- Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
--- Also, fix imports for wasp project.
-installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
-installNpmDependencies projectDir =
-  runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp
 
 -- todo(filip): consider reorganizing/splitting the file.
 

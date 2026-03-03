@@ -50,6 +50,10 @@ const company = [
     text: "Company",
     url: "https://wasp-lang.notion.site/Framework-Engineer-at-Wasp-12a18a74854c80de9481c33ebe9cccff?pvs=25#1371801161fd404a8c583cde3611238e",
   },
+  {
+    text: "Resources",
+    url: "/resources",
+  },
 ];
 
 // TODO(matija): duplication, I already have Logo in Nav/index.js
