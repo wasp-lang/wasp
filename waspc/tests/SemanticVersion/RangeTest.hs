@@ -36,12 +36,12 @@ spec_SemanticVersion_Range = do
           )
 
     it "parses ranges with single comparator set" $ do
-      parseRange ">=1.0.0 <2.0.0"
+      parseRange ">=1.0 <2.0.0"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $
                   NE.fromList
-                    [ PrimitiveComparator GreaterThanOrEqual (Full 1 0 0),
+                    [ PrimitiveComparator GreaterThanOrEqual (MajorMinor 1 0),
                       PrimitiveComparator LessThan (Full 2 0 0)
                     ]
               ]
@@ -53,28 +53,30 @@ spec_SemanticVersion_Range = do
               ]
           )
     it "parses ranges with multiple comparator sets" $ do
-      parseRange ">=1.0.0 <2.0.0 || >=3.0.0 || *"
+      parseRange ">=1 <2 || >=3.0.0 || *"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $
                   NE.fromList
-                    [ PrimitiveComparator GreaterThanOrEqual (Full 1 0 0),
-                      PrimitiveComparator LessThan (Full 2 0 0)
+                    [ PrimitiveComparator GreaterThanOrEqual (Major 1),
+                      PrimitiveComparator LessThan (Major 2)
                     ],
                 ComparatorSet $ pure $ PrimitiveComparator GreaterThanOrEqual (Full 3 0 0),
                 ComparatorSet $ pure $ XRange Any
               ]
           )
-      parseRange "^1.2.3 || ^2.0.0"
+      parseRange "^1.2.3 || ^2.0"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
-                ComparatorSet $ pure $ BackwardsCompatibleWith (Full 2 0 0)
+                ComparatorSet $ pure $ BackwardsCompatibleWith (MajorMinor 2 0)
               ]
           )
 
     it "rejects invalid formats" $ do
       isLeft (parseRange "foo") `shouldBe` True
+      isLeft (parseRange "|| 1.23 || 2.0") `shouldBe` True
+      isLeft (parseRange "1.23 || $2.0") `shouldBe` True
 
   it "Concatenating version ranges produces union of their comparator sets" $ do
     let v1 = [v|1.0.0|]

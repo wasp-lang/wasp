@@ -24,38 +24,6 @@ spec_SemanticVersion_Version = do
       isLeft (parseVersion "1") `shouldBe` True
       isLeft (parseVersion "1.2") `shouldBe` True
 
-    -- TODO: enable once we add pre-release and build support
-    -- it "parseVersion succeeds for valid pre-release versions" $ do
-    --   parseVersion "1.2.3-123" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3-123.123" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3-abc" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3-abc.123.abc" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3---.--.-" `shouldBe` Right (Version 1 2 3)
-
-    -- it "parseVersion fails for invalid pre-release versions" $ do
-    --   parseVersion "1.2.3-" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3-123." `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3-?" `shouldBe` Right (Version 1 2 3)
-
-    -- it "parseVersion succeeds for valid build versions" $ do
-    --   parseVersion "1.2.3+123" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3+abc" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3+123.abc" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3+abc.123.abc" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3+--.--.-" `shouldBe` Right (Version 1 2 3)
-
-    -- it "parseVersion fails for invalid build versions" $ do
-    --   parseVersion "1.2.3+" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3+123." `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3+?" `shouldBe` Right (Version 1 2 3)
-
-    -- it "parseVersion parses pre-release and build order properly" $ do
-    --   parseVersion "1.2.3-123+abc" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3-123.abc+abc.123" `shouldBe` Right (Version 1 2 3)
-    --   parseVersion "1.2.3----.---+---" `shouldBe` Right (Version 1 2 3)
-    --   isLeft (parseVersion "1.2.3+123-abc") `shouldBe` True
-    --   isLeft (parseVersion "1.2.3-123+") `shouldBe` True
-
     it "parses full versions with trailing content" $ do
       isRight (parseVersion "1.2.3.4.5.6.7.8.9.0") `shouldBe` True
       isRight (parseVersion "1.2.3foobar") `shouldBe` True

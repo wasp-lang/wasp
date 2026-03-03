@@ -45,6 +45,9 @@ instance Show PartialVersion where
 fromVersion :: Version -> PartialVersion
 fromVersion (Version mjr mnr ptc) = Full mjr mnr ptc
 
+pv :: TH.QuasiQuoter
+pv = quasiQuoterFromParser parsePartialVersion
+
 parsePartialVersion :: String -> Either ParseError PartialVersion
 parsePartialVersion = parse partialVersionParser ""
 
@@ -69,6 +72,3 @@ partialVersionParser = do
   where
     componentP = (Nothing <$ wildcardP) <|> (Just <$> naturalNumberParser)
     wildcardP = void (oneOf "xX*")
-
-pv :: TH.QuasiQuoter
-pv = quasiQuoterFromParser parsePartialVersion
