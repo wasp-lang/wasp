@@ -48,7 +48,7 @@ instance HasVersionBounds ComparatorSet where
 
 -- Helper methods for constructing a 'ComparatorSet'.
 -- While 'Comparator' works with 'PartialVersion' internally, we only use it through 'Version' in our code.
--- To create 'PartialVersion' comparator sets, pelease use the 'ComparatorSet' constructor directly.
+-- To create 'PartialVersion' comparator sets, please use the 'ComparatorSet' constructor directly.
 
 lt :: Version -> ComparatorSet
 lt = mkPrimCompSet LessThan
@@ -69,7 +69,7 @@ backwardsCompatibleWith :: Version -> ComparatorSet
 backwardsCompatibleWith = ComparatorSet . pure . BackwardsCompatibleWith . fromVersion
 
 approximatelyEquvivalentTo :: Version -> ComparatorSet
-approximatelyEquvivalentTo = ComparatorSet . pure . ApproximatelyEquvivalentTo . fromVersion
+approximatelyEquvivalentTo = ComparatorSet . pure . ApproximatelyEquivalentTo . fromVersion
 
 xRange :: Version -> ComparatorSet
 xRange = ComparatorSet . pure . XRange . fromVersion

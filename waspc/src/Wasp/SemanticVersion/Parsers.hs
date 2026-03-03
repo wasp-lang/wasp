@@ -8,7 +8,7 @@ import Numeric.Natural (Natural)
 import Text.Parsec (Parsec, digit, many, notFollowedBy, oneOf, string, try)
 
 naturalNumberParser :: Parsec String () Natural
-naturalNumberParser = do
+naturalNumberParser =
   read <$> (zeroParser <|> noLeadingZeroNaturalNumberParser)
   where
     zeroParser :: Parsec String () String

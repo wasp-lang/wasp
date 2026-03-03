@@ -4,8 +4,6 @@ import Data.Either (isLeft, isRight)
 import Test.Hspec
 import Wasp.SemanticVersion.Version
 
--- Valid SemVer versiosn grammar can be found here:
--- https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
 spec_SemanticVersion_Version :: Spec
 spec_SemanticVersion_Version = do
   it "show" $ do
@@ -15,7 +13,7 @@ spec_SemanticVersion_Version = do
     show (Version 0 0 0) `shouldBe` "0.0.0"
 
   describe "parserVersion" $ do
-    it "prases full versions" $ do
+    it "parses full versions" $ do
       parseVersion "1.2.3" `shouldBe` Right (Version 1 2 3)
       parseVersion "103.20.35" `shouldBe` Right (Version 103 20 35)
       parseVersion "0.1.33" `shouldBe` Right (Version 0 1 33)

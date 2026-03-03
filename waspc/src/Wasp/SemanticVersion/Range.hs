@@ -13,10 +13,11 @@ import Data.Maybe (isJust)
 import Text.Parsec (ParseError, Parsec)
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), comparatorSetParser)
-import Wasp.SemanticVersion.Version (Version, nextBreakingChangeVersion)
+import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
-    VersionBound (Exclusive, Inf),
+    VersionBound (..),
+    allVersionsInterval,
     intervalUnion,
     isSubintervalOf,
     isVersionInInterval,
@@ -41,7 +42,7 @@ instance Monoid Range where
   mempty = Range []
 
 instance HasVersionBounds Range where
-  versionBounds (Range []) = (Inf, Inf)
+  versionBounds (Range []) = allVersionsInterval
   versionBounds (Range compSets) = foldr1 intervalUnion $ versionBounds <$> compSets
 
 isVersionInRange :: Version -> Range -> Bool

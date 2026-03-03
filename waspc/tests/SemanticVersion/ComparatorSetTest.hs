@@ -66,7 +66,7 @@ spec_SemanticVersion_ComparatorSet = do
                   PrimitiveComparator LessThanOrEqual (Full 2 0 0),
                   BackwardsCompatibleWith (MajorMinor 1 2),
                   XRange Any,
-                  ApproximatelyEquvivalentTo (MajorMinor 0 1)
+                  ApproximatelyEquivalentTo (MajorMinor 0 1)
                 ]
           )
 
@@ -87,7 +87,7 @@ spec_SemanticVersion_ComparatorSet = do
                   PrimitiveComparator LessThanOrEqual (Full 2 0 0),
                   BackwardsCompatibleWith (MajorMinor 1 2),
                   XRange Any,
-                  ApproximatelyEquvivalentTo (MajorMinor 0 1)
+                  ApproximatelyEquivalentTo (MajorMinor 0 1)
                 ]
           )
 
@@ -128,7 +128,7 @@ spec_SemanticVersion_ComparatorSet = do
       ~> [vi| [1.2.0, 2.0.0) |]
 
     -- Tilde narrows further than caret
-    [BackwardsCompatibleWith [pv|1.0.0|], ApproximatelyEquvivalentTo [pv|1.2.0|]]
+    [BackwardsCompatibleWith [pv|1.0.0|], ApproximatelyEquivalentTo [pv|1.2.0|]]
       ~> [vi| [1.2.0, 1.3.0) |]
 
     -- Three comparators: the tightest wins on each side
@@ -139,4 +139,4 @@ spec_SemanticVersion_ComparatorSet = do
     [PrimitiveComparator GreaterThan [pv|1.0.0|], PrimitiveComparator GreaterThanOrEqual [pv|1.0.0|]]
       ~> [vi| (1.0.0, inf) |]
     [PrimitiveComparator LessThan [pv|2.0.0|], PrimitiveComparator LessThanOrEqual [pv|2.0.0|]]
-      ~> [vi| (inf, 2.0.0) |]
+      ~> [vi| [0.0.0, 2.0.0) |]

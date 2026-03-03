@@ -19,6 +19,7 @@ import Wasp.SemanticVersion.Version (Version (..))
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (..),
     VersionBound (..),
+    noVersionsInterval,
   )
 
 -- | A comparator is composed of an operator and a partial version.
@@ -27,7 +28,7 @@ import Wasp.SemanticVersion.VersionBound
 data Comparator
   = PrimitiveComparator PrimitiveOperator PartialVersion
   | BackwardsCompatibleWith PartialVersion
-  | ApproximatelyEquvivalentTo PartialVersion
+  | ApproximatelyEquivalentTo PartialVersion
   | XRange PartialVersion
   | HyphenRange PartialVersion PartialVersion
   deriving (Eq)
@@ -36,28 +37,24 @@ data Comparator
 instance Show Comparator where
   show (PrimitiveComparator op pv) = show op ++ show pv
   show (BackwardsCompatibleWith pv) = "^" ++ show pv
-  show (ApproximatelyEquvivalentTo pv) = "~" ++ show pv
+  show (ApproximatelyEquivalentTo pv) = "~" ++ show pv
   show (XRange pv) = show pv
   show (HyphenRange pv1 pv2) = show pv1 ++ " - " ++ show pv2
 
 instance HasVersionBounds Comparator where
   versionBounds (PrimitiveComparator primOp pv) = case primOp of
     Equal -> (toXRangeLowerBound pv, toXRangeUpperBound pv)
-    LessThan -> (Inf, toLessThanUpperBound pv)
-      where
-        toLessThanUpperBound :: PartialVersion -> VersionBound
-        toLessThanUpperBound Any = Exclusive $ Version 0 0 0
-        toLessThanUpperBound (Major mjr) = Exclusive $ Version mjr 0 0
-        toLessThanUpperBound (MajorMinor mjr mnr) = Exclusive $ Version mjr mnr 0
-        toLessThanUpperBound (Full mjr mnr ptc) = Exclusive $ Version mjr mnr ptc
-    LessThanOrEqual -> (Inf, toXRangeUpperBound pv)
-    GreaterThan -> (toGreaterThanLowerBound pv, Inf)
-      where
-        toGreaterThanLowerBound :: PartialVersion -> VersionBound
-        toGreaterThanLowerBound Any = Inf
-        toGreaterThanLowerBound (Major mjr) = Inclusive $ Version (mjr + 1) 0 0
-        toGreaterThanLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr (mnr + 1) 0
-        toGreaterThanLowerBound (Full mjr mnr ptc) = Exclusive $ Version mjr mnr ptc
+    LessThan -> case pv of
+      Any -> noVersionsInterval
+      (Major mjr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr 0 0)
+      (MajorMinor mjr mnr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr 0)
+      (Full mjr mnr ptc) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr ptc)
+    LessThanOrEqual -> (Inclusive $ Version 0 0 0, toXRangeUpperBound pv)
+    GreaterThan -> case pv of
+      Any -> noVersionsInterval
+      (Major mjr) -> (Inclusive $ Version (mjr + 1) 0 0, Inf)
+      (MajorMinor mjr mnr) -> (Inclusive $ Version mjr (mnr + 1) 0, Inf)
+      (Full mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
     GreaterThanOrEqual -> (toXRangeLowerBound pv, Inf)
   versionBounds (XRange pv) =
     (toXRangeLowerBound pv, toXRangeUpperBound pv)
@@ -77,7 +74,7 @@ instance HasVersionBounds Comparator where
       toCaretUpperBound (Full 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
       toCaretUpperBound (Full 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
       toCaretUpperBound (Full mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
-  versionBounds (ApproximatelyEquvivalentTo pv) =
+  versionBounds (ApproximatelyEquivalentTo pv) =
     (toXRangeLowerBound pv, toTildeUpperBound pv)
     where
       -- Tilde allows patch-level changes if minor is specified.
@@ -129,7 +126,7 @@ hyphenRangeComparatorParser = do
   pure $ HyphenRange lowerVersion upperVersion
   where
     hyphenParser :: Parsec String () Char
-    hyphenParser = P.spaces *> P.char '-' <* P.spaces
+    hyphenParser = P.space *> P.char '-' <* P.space
 
 -- | Parses a single non-hyphen comparator (primitive, tilde, caret, or x-range).
 -- Separated from 'hyphenRangeComparatorParser' because hyphen ranges cannot be
@@ -150,7 +147,7 @@ simpleComparatorParser =
     emptyInputIsAnyParser = XRange Any <$ P.eof
 
     tildeComparatorParser :: Parsec String () Comparator
-    tildeComparatorParser = ApproximatelyEquvivalentTo <$> (P.char '~' *> partialVersionParser)
+    tildeComparatorParser = ApproximatelyEquivalentTo <$> (P.char '~' *> partialVersionParser)
 
     caretComparatorParser :: Parsec String () Comparator
     caretComparatorParser = BackwardsCompatibleWith <$> (P.char '^' *> partialVersionParser)
