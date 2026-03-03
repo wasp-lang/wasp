@@ -1,6 +1,5 @@
 import assert from "node:assert/strict";
 import * as path from "node:path";
-import { text } from "node:stream/consumers";
 import type { Plugin } from "vite";
 import { PLUGIN_NAME, type Options } from "./common";
 import type { Routes } from "./routes";
@@ -118,8 +117,7 @@ export const ssrBuild = (
           "Expected prerenderApp to return a successful response with an HTML body",
         );
 
-        // Node 22 coerces web ReadableStream to Node stream automatically.
-        return await text(prerenderedAppResponse.body);
+        return await prerenderedAppResponse.text();
       },
     },
   };
