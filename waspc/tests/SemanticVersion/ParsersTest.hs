@@ -29,10 +29,8 @@ spec_SemanticVersion_Parsers = do
       isLeft (parseNatural "00") `shouldBe` True
       isLeft (parseNatural "0123") `shouldBe` True
 
-    it "rejects empty input" $ do
+    it "rejects invalid formats" $ do
       isLeft (parseNatural "") `shouldBe` True
-
-    it "rejects not natural number input" $ do
       isLeft (parseNatural "abc") `shouldBe` True
       isLeft (parseNatural "-1") `shouldBe` True
       isLeft (parseNatural ".123") `shouldBe` True
