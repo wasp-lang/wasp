@@ -3,12 +3,14 @@ import { type Plugin } from "vite";
 import {
   getIndexTsxContent,
   getRoutesTsxContent,
+  getSsrEntryTsxContent,
 } from "../virtual-files/index.js";
 import { makeVirtualFilesResolver, type VirtualFiles } from "../virtual-files/resolver.js";
 
 const resolveVirtualFiles = makeVirtualFilesResolver([
   { id: "{= clientEntryPointPath =}", load: getIndexTsxContent },
   { id: "{= routesEntryPointPath =}", load: getRoutesTsxContent },
+  { id: "{= ssrEntryPointPath =}", load: getSsrEntryTsxContent },
 ]);
 
 export function waspVirtualModules(): Plugin {

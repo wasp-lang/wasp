@@ -209,7 +209,8 @@ npmDepsForSdk spec =
             ("@tanstack/react-query", reactQueryVersion),
             ("react-router", show reactRouterVersion),
             ("react-hook-form", "^7.45.4"),
-            ("superjson", show superjsonVersion)
+            ("superjson", show superjsonVersion),
+            ("@suspensive/react", "^3.19.0")
           ]
           ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"

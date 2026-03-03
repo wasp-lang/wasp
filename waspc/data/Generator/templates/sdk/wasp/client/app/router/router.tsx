@@ -1,6 +1,6 @@
 {{={= =}=}}
-import * as React from 'react'
-import { createBrowserRouter, RouterProvider } from 'react-router'
+import type { ReactNode, ComponentType } from 'react'
+import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router'
 
 {=# isExternalAuthEnabled =}
 import { OAuthCallbackPage } from "../pages/OAuthCallback"
@@ -10,13 +10,13 @@ import { DefaultRootErrorBoundary } from '../components/DefaultRootErrorBoundary
 
 import { routes } from '../../router/index'
 
-export function getRouter({
+export function getRouteObjects({
   routesMapping,
   rootElement,
 }: {
-  routesMapping: Record<string, React.ComponentType>,
-  rootElement: React.ReactNode,
-}) {
+  routesMapping: Record<string, ComponentType>,
+  rootElement: ReactNode,
+}): RouteObject[] {
   const waspDefinedRoutes = [
     {=# isExternalAuthEnabled =}
     {
@@ -32,7 +32,7 @@ export function getRouter({
     }
   })
 
-  const browserRouter = createBrowserRouter([{
+  return [{
     path: '/',
     element: rootElement,
     ErrorBoundary: DefaultRootErrorBoundary,
@@ -40,7 +40,18 @@ export function getRouter({
       ...waspDefinedRoutes,
       ...userDefinedRoutes,
     ],
-  }], {
+  }]
+}
+
+export function getRouter({
+  routesMapping,
+  rootElement,
+}: {
+  routesMapping: Record<string, ComponentType>,
+  rootElement: ReactNode,
+}) {
+  const routeObjects = getRouteObjects({ routesMapping, rootElement })
+  const browserRouter = createBrowserRouter(routeObjects, {
     basename: '{= baseDir =}',
   })
   return <RouterProvider router={browserRouter} />;
