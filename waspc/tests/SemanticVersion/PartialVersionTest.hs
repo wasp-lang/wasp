@@ -2,7 +2,7 @@ module SemanticVersion.PartialVersionTest where
 
 import Data.Either (isLeft)
 import Test.Hspec
-import Wasp.SemanticVersion
+import Wasp.SemanticVersion.PartialVersion
 
 spec_SemanticVersion_PartialVersion :: Spec
 spec_SemanticVersion_PartialVersion = do
@@ -79,8 +79,3 @@ spec_SemanticVersion_PartialVersion = do
       [pv|*|] `shouldBe` Any
       [pv|x|] `shouldBe` Any
       [pv|X|] `shouldBe` Any
-
-  describe "fromVersion" $ do
-    it "converts Version to Full PartialVersion" $ do
-      fromVersion (Version 1 2 3) `shouldBe` Full 1 2 3
-      fromVersion (Version 0 0 0) `shouldBe` Full 0 0 0

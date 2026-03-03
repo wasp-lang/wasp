@@ -4,7 +4,10 @@ import Data.Either (isLeft, isRight)
 import qualified Data.List.NonEmpty as NE
 import Test.Hspec
 import qualified Text.Parsec as P
-import Wasp.SemanticVersion
+import Wasp.SemanticVersion.Comparator
+import Wasp.SemanticVersion.ComparatorSet
+import Wasp.SemanticVersion.PartialVersion
+import Wasp.SemanticVersion.VersionBound
 
 spec_SemanticVersion_ComparatorSet :: Spec
 spec_SemanticVersion_ComparatorSet = do
@@ -111,6 +114,7 @@ spec_SemanticVersion_ComparatorSet = do
         isLeft (strictParseCompSet "1.2.3 - 2.0.0 ^3.0.0") `shouldBe` True
         isLeft (strictParseCompSet "1.x 1.2.3 - 2.0.0") `shouldBe` True
         isLeft (strictParseCompSet "1.2.3 - 2.0.0 3.x") `shouldBe` True
+        isLeft (strictParseCompSet "1.2.3 - 2.0.0 1.2.3 - 2.0.0") `shouldBe` True
 
   describe "versionBounds" $ do
     let comps ~> expectedInterval =

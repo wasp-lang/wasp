@@ -3,7 +3,12 @@ module SemanticVersion.RangeTest where
 import Data.Either (isLeft)
 import qualified Data.List.NonEmpty as NE
 import Test.Hspec
-import Wasp.SemanticVersion
+import Wasp.SemanticVersion.Comparator
+import Wasp.SemanticVersion.ComparatorSet
+import Wasp.SemanticVersion.PartialVersion
+import Wasp.SemanticVersion.Range
+import Wasp.SemanticVersion.Version
+import Wasp.SemanticVersion.VersionBound
 
 spec_SemanticVersion_Range :: Spec
 spec_SemanticVersion_Range = do
