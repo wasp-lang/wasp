@@ -6,6 +6,9 @@ module Wasp.Generator.SdkGenerator
     genExternalCodeDir,
     buildSdk,
     npmDepsForSdk,
+    baseSdkDeps,
+    sdkDevDeps,
+    depsRequiredForTesting,
   )
 where
 
@@ -218,21 +221,7 @@ npmDepsForSdk :: AppSpec -> N.NpmDepsForPackage
 npmDepsForSdk spec =
   N.NpmDepsForPackage
     { N.dependencies =
-        Npm.Dependency.fromList
-          [ ("@prisma/client", show prismaVersion),
-            ("prisma", show prismaVersion),
-            ("axios", show axiosVersion),
-            ("dotenv", show dotenvVersion),
-            ("dotenv-expand", "^12.0.3"),
-            ("express", expressVersionStr),
-            ("mitt", "3.0.0"),
-            ("react", show reactVersion),
-            ("react-dom", show reactDomVersion),
-            ("@tanstack/react-query", reactQueryVersion),
-            ("react-router", show reactRouterVersion),
-            ("react-hook-form", "^7.45.4"),
-            ("superjson", show superjsonVersion)
-          ]
+        baseSdkDeps
           ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
           -- lists prisma/client as a dependency.
@@ -248,23 +237,41 @@ npmDepsForSdk spec =
           ++ depsRequiredByJobs spec
           ++ depsRequiredByEnvValidation
           ++ waspLibsNpmDeps,
-      N.devDependencies =
-        Npm.Dependency.fromList
-          [ -- Should @types/* go into their package.json?
-            ("typescript", show typescriptVersion),
-            ("@vitejs/plugin-react", "^4.7.0"),
-            ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion),
-            ("@types/react", show reactTypesVersion),
-            ("@types/react-dom", show reactDomTypesVersion),
-            -- NOTE: Make sure to bump the version of the tsconfig
-            -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^7.0.0")
-          ],
+      N.devDependencies = sdkDevDeps,
       N.peerDependencies = Npm.Dependency.fromList []
     }
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
+
+baseSdkDeps :: [Npm.Dependency.Dependency]
+baseSdkDeps =
+  Npm.Dependency.fromList
+    [ ("@prisma/client", show prismaVersion),
+      ("prisma", show prismaVersion),
+      ("axios", show axiosVersion),
+      ("dotenv", show dotenvVersion),
+      ("dotenv-expand", "^12.0.3"),
+      ("express", expressVersionStr),
+      ("mitt", "3.0.0"),
+      ("react", show reactVersion),
+      ("react-dom", show reactDomVersion),
+      ("@tanstack/react-query", reactQueryVersion),
+      ("react-router", show reactRouterVersion),
+      ("react-hook-form", "^7.45.4"),
+      ("superjson", show superjsonVersion)
+    ]
+
+sdkDevDeps :: [Npm.Dependency.Dependency]
+sdkDevDeps =
+  Npm.Dependency.fromList
+    [ ("typescript", show typescriptVersion),
+      ("@vitejs/plugin-react", "^4.7.0"),
+      ("@types/express", show expressTypesVersion),
+      ("@types/express-serve-static-core", show expressTypesVersion),
+      ("@types/react", show reactTypesVersion),
+      ("@types/react-dom", show reactDomTypesVersion),
+      ("@tsconfig/vite-react", "^7.0.0")
+    ]
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =

@@ -1,6 +1,7 @@
 module Wasp.Generator.ServerGenerator.AuthG
   ( genAuth,
     depsRequiredByAuth,
+    authDeps,
     jwtSecretEnvVarName,
   )
 where
@@ -134,11 +135,13 @@ depsRequiredByAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByAuth spec = maybe [] (const authDeps) maybeAuth
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
-    authDeps =
-      Npm.Dependency.fromList
-        [ ("lucia", "^3.0.1"),
-          ("@lucia-auth/adapter-prisma", "^4.0.0")
-        ]
+
+authDeps :: [Npm.Dependency.Dependency]
+authDeps =
+  Npm.Dependency.fromList
+    [ ("lucia", "^3.0.1"),
+      ("@lucia-auth/adapter-prisma", "^4.0.0")
+    ]
 
 jwtSecretEnvVarName :: String
 jwtSecretEnvVarName = "JWT_SECRET"

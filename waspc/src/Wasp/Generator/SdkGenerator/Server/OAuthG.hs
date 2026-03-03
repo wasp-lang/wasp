@@ -1,6 +1,7 @@
 module Wasp.Generator.SdkGenerator.Server.OAuthG
   ( genOAuth,
     depsRequiredByOAuth,
+    oauthDeps,
   )
 where
 
@@ -101,10 +102,14 @@ genOAuthConfig provider =
     providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"
 
 depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
-depsRequiredByOAuth spec =
-  [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
+depsRequiredByOAuth spec
+  | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True = oauthDeps
+  | otherwise = []
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
+
+oauthDeps :: [Npm.Dependency.Dependency]
+oauthDeps = [Npm.Dependency.make ("arctic", "^1.2.1")]
 
 serverOAuthDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]

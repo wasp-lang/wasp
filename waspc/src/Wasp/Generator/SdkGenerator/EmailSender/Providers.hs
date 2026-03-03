@@ -3,11 +3,13 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
     sendGrid,
     mailgun,
     dummy,
+    allEmailProviderDeps,
     EmailSenderProvider (..),
     getEmailSenderProvider,
   )
 where
 
+import Data.Maybe (mapMaybe)
 import StrongPath (File', Path', Rel, relfile)
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -73,3 +75,6 @@ getEmailSenderProvider email = case AS.EmailSender.provider email of
   AS.EmailSender.SendGrid -> sendGrid
   AS.EmailSender.Mailgun -> mailgun
   AS.EmailSender.Dummy -> dummy
+
+allEmailProviderDeps :: [Npm.Dependency.Dependency]
+allEmailProviderDeps = mapMaybe npmDependency [smtp, sendGrid, mailgun]

@@ -2,6 +2,7 @@ module Wasp.Generator.SdkGenerator.Server.JobGenerator
   ( genNewJobsApi,
     genJobExecutors,
     depsRequiredByJobs,
+    pgBossDependency,
     getJobExecutorImportPath,
     getImportJsonForJobDefinition,
   )

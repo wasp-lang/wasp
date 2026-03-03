@@ -35,12 +35,10 @@
   },
   "devDependencies": {
     "@prisma/client": "5.19.1",
-    "@tanstack/react-query": "~4.42.0",
     "@types/express": "^5.0.0",
     "@types/react": "^19.2.7",
     "prisma": "5.19.1",
     "typescript": "5.8.2",
-    "wasp-config": "file:.wasp/packages/wasp-config",
-    "zod": "^3.23.0"
+    "wasp-config": "file:.wasp/packages/wasp-config"
   }
 }

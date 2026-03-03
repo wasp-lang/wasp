@@ -7,6 +7,7 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsFromWasp,
+    baseServerDeps,
   )
 where
 
@@ -166,15 +167,7 @@ npmDepsFromWasp spec =
   N.NpmDepsFromWasp $
     N.NpmDepsForPackage
       { N.dependencies =
-          Npm.Dependency.fromList
-            [ ("cookie-parser", "~1.4.6"),
-              ("cors", "^2.8.5"),
-              ("express", expressVersionStr),
-              ("morgan", "~1.10.0"),
-              ("dotenv", show dotenvVersion),
-              ("helmet", "^6.0.0"),
-              ("superjson", show superjsonVersion)
-            ]
+          baseServerDeps
             ++ depsRequiredByWebSockets spec
             ++ waspLibsNpmDeps,
         N.devDependencies =
@@ -198,6 +191,18 @@ npmDepsFromWasp spec =
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromServerDir) waspLibs
+
+baseServerDeps :: [Npm.Dependency.Dependency]
+baseServerDeps =
+  Npm.Dependency.fromList
+    [ ("cookie-parser", "~1.4.6"),
+      ("cors", "^2.8.5"),
+      ("express", expressVersionStr),
+      ("morgan", "~1.10.0"),
+      ("dotenv", show dotenvVersion),
+      ("helmet", "^6.0.0"),
+      ("superjson", show superjsonVersion)
+    ]
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec

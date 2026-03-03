@@ -9,7 +9,7 @@ import Control.Concurrent (newChan, threadDelay)
 import Control.Concurrent.Async (concurrently, race)
 import Control.Concurrent.Chan (Chan, readChan)
 import Control.Monad (unless)
-import Control.Monad.Except (throwError)
+import Control.Monad.Except (ExceptT (..), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.Aeson (withObject, (.:))
@@ -34,6 +34,8 @@ import qualified Wasp.Data as Data
 import Wasp.Generator.DbGenerator.Common (dbSchemaFileInProjectRootDir)
 import Wasp.Generator.FileDraft (Writeable (write))
 import Wasp.Generator.ModuleGenerator (genModuleSdk)
+import Wasp.Generator.Valid.PackageJson.ModuleDependencies (moduleDependenciesValidator)
+import qualified Wasp.Generator.Valid.Validator as V
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
@@ -44,6 +46,7 @@ import Wasp.Project.Common
     generatedCodeDirInDotWaspDir,
     srcDirInWaspProjectDir,
   )
+import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
 import Wasp.Project.WaspFile.WaspConfigPackage (ensureWaspConfigPackageInstalled)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -79,90 +82,93 @@ moduleBuildWatch = do
 
 -- | The single build pipeline implementation. Returns Left on failure.
 runModuleBuild :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-runModuleBuild waspProjectDir = do
+runModuleBuild waspProjectDir = runExceptT $ do
   let moduleWaspTsFile = waspProjectDir </> [relfile|module.wasp.ts|]
-  moduleWaspTsExists <- IOUtil.doesFileExist moduleWaspTsFile
-  if not moduleWaspTsExists
-    then return $ Left "Could not find module.wasp.ts in the project directory."
-    else do
-      -- Ensure the SDK stub package.json exists so npm can resolve the
-      -- workspace symlink on the very first `npm install`.
-      let sdkDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> [reldir|sdk/wasp|]
-      let stubPkgJsonPath = fromAbsFile $ sdkDir </> [relfile|package.json|]
-      sdkDirExists <- doesDirectoryExist (fromAbsDir sdkDir)
-      unless sdkDirExists $ do
-        createDirectoryIfMissing True (fromAbsDir sdkDir)
-        writeFile stubPkgJsonPath stubSdkPackageJson
+  moduleWaspTsExists <- liftIO $ IOUtil.doesFileExist moduleWaspTsFile
+  unless moduleWaspTsExists $
+    ExceptT . return . Left $ "Could not find module.wasp.ts in the project directory."
 
-      cliSendMessage $ Msg.Info "Ensuring wasp-config package is installed..."
-      setupResult <- ensureWaspConfigPackageInstalled waspProjectDir
-      case setupResult of
-        Left err -> return $ Left $ "Failed to install wasp-config: " ++ err
-        Right () -> do
-          cliSendMessage $ Msg.Info "Compiling module.wasp.ts..."
-          tscResult <-
-            runJobAndWait
-              waspProjectDir
-              "npx"
-              [ "tsc",
-                "-p",
-                fromAbsFile (waspProjectDir </> [relfile|tsconfig.wasp.json|]),
-                "--noEmit",
-                "false",
-                "--outDir",
-                fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir)
-              ]
-          case tscResult of
-            ExitFailure _ -> return $ Left "TypeScript compilation of module.wasp.ts failed."
-            ExitSuccess -> do
-              let compiledJsFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> castFile [relfile|module.wasp.js|]
-              let outputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> castFile [relfile|decls.json|]
+  liftIO $ cliSendMessage $ Msg.Info "Validating package.json dependencies..."
+  pkgJson <- ExceptT $ prefixLeft "Failed to read package.json: " <$> readPackageJsonFile waspProjectDir
+  let validationErrors = V.execValidator moduleDependenciesValidator pkgJson
+  unless (null validationErrors) $
+    ExceptT . return . Left $
+      "Module package.json has invalid dependencies:\n"
+        ++ unlines (map show validationErrors)
 
-              cliSendMessage $ Msg.Info "Evaluating module spec..."
-              evalResult <-
-                runJobAndWait
-                  waspProjectDir
-                  "npx"
-                  [ "wasp-config",
-                    fromAbsFile compiledJsFile,
-                    fromAbsFile outputFile,
-                    "[]"
-                  ]
-              case evalResult of
-                ExitFailure _ -> return $ Left "Error while evaluating module.wasp.ts."
-                ExitSuccess -> do
-                  cliSendMessage $ Msg.Info "Parsing module spec..."
-                  jsonBytes <- IOUtil.readFileBytes outputFile
-                  case Aeson.eitherDecode jsonBytes of
-                    Left err -> return $ Left $ "Failed to parse module spec JSON: " ++ err
-                    Right envelope -> do
-                      let spec = _envSpec envelope
-                      cliSendMessage $ Msg.Info "Generating module SDK..."
-                      let fileDrafts = genModuleSdk spec
-                      let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
-                      createDirectoryIfMissing True (fromAbsDir outDir)
-                      mapM_ (write outDir) fileDrafts
+  -- Ensure the SDK stub package.json exists so npm can resolve the
+  -- workspace symlink on the very first `npm install`.
+  let sdkDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> [reldir|sdk/wasp|]
+  let stubPkgJsonPath = fromAbsFile $ sdkDir </> [relfile|package.json|]
+  liftIO $ do
+    sdkDirExists <- doesDirectoryExist (fromAbsDir sdkDir)
+    unless sdkDirExists $ do
+      createDirectoryIfMissing True (fromAbsDir sdkDir)
+      writeFile stubPkgJsonPath stubSdkPackageJson
 
-                      cliSendMessage $ Msg.Info "Running prisma generate..."
-                      let schemaPath = outDir </> dbSchemaFileInProjectRootDir
-                      prismaResult <-
-                        runJobAndWait
-                          waspProjectDir
-                          "npx"
-                          [ "prisma",
-                            "generate",
-                            "--schema=" ++ fromAbsFile (castFile schemaPath)
-                          ]
-                      case prismaResult of
-                        ExitFailure _ -> return $ Left "prisma generate failed."
-                        ExitSuccess -> do
-                          cliSendMessage $ Msg.Info "Verifying types with tsc --noEmit..."
-                          tscCheckResult <- runJobAndWait waspProjectDir "npx" ["tsc", "--noEmit"]
-                          case tscCheckResult of
-                            ExitFailure _ -> return $ Left "tsc --noEmit found type errors."
-                            ExitSuccess -> do
-                              cliSendMessage $ Msg.Success "Module SDK generated successfully."
-                              return $ Right ()
+  liftIO $ cliSendMessage $ Msg.Info "Ensuring wasp-config package is installed..."
+  ExceptT $ prefixLeft "Failed to install wasp-config: " <$> ensureWaspConfigPackageInstalled waspProjectDir
+
+  liftIO $ cliSendMessage $ Msg.Info "Compiling module.wasp.ts..."
+  runStep
+    "TypeScript compilation of module.wasp.ts failed."
+    "npx"
+    [ "tsc",
+      "-p",
+      fromAbsFile (waspProjectDir </> [relfile|tsconfig.wasp.json|]),
+      "--noEmit",
+      "false",
+      "--outDir",
+      fromAbsDir (waspProjectDir </> dotWaspDirInWaspProjectDir)
+    ]
+
+  let compiledJsFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> castFile [relfile|module.wasp.js|]
+  let outputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> castFile [relfile|decls.json|]
+
+  liftIO $ cliSendMessage $ Msg.Info "Evaluating module spec..."
+  runStep
+    "Error while evaluating module.wasp.ts."
+    "npx"
+    [ "wasp-config",
+      fromAbsFile compiledJsFile,
+      fromAbsFile outputFile,
+      "[]"
+    ]
+
+  liftIO $ cliSendMessage $ Msg.Info "Parsing module spec..."
+  jsonBytes <- liftIO $ IOUtil.readFileBytes outputFile
+  envelope <- ExceptT . return $ prefixLeft "Failed to parse module spec JSON: " $ Aeson.eitherDecode jsonBytes
+  let spec = _envSpec envelope
+
+  liftIO $ cliSendMessage $ Msg.Info "Generating module SDK..."
+  let fileDrafts = genModuleSdk spec
+  let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+  liftIO $ do
+    createDirectoryIfMissing True (fromAbsDir outDir)
+    mapM_ (write outDir) fileDrafts
+
+  liftIO $ cliSendMessage $ Msg.Info "Running prisma generate..."
+  let schemaPath = outDir </> dbSchemaFileInProjectRootDir
+  runStep
+    "prisma generate failed."
+    "npx"
+    [ "prisma",
+      "generate",
+      "--schema=" ++ fromAbsFile (castFile schemaPath)
+    ]
+
+  liftIO $ cliSendMessage $ Msg.Info "Verifying types with tsc --noEmit..."
+  runStep "tsc --noEmit found type errors." "npx" ["tsc", "--noEmit"]
+
+  liftIO $ cliSendMessage $ Msg.Success "Module SDK generated successfully."
+  where
+    runStep errMsg cmd args = do
+      exitCode <- liftIO $ runJobAndWait waspProjectDir cmd args
+      case exitCode of
+        ExitFailure _ -> ExceptT . return $ Left errMsg
+        ExitSuccess -> return ()
+
+    prefixLeft prefix = either (Left . (prefix ++)) Right
 
 stubSdkPackageJson :: String
 stubSdkPackageJson = "{\"name\":\"wasp\",\"version\":\"0.0.0\",\"type\":\"module\"}"
