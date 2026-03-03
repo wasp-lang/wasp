@@ -451,10 +451,10 @@ library
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
-    Wasp.SemanticVersion.Parsers
-    Wasp.SemanticVersion.PartialVersion
     Wasp.SemanticVersion.Comparator
     Wasp.SemanticVersion.ComparatorSet
+    Wasp.SemanticVersion.Parsers
+    Wasp.SemanticVersion.PartialVersion
     Wasp.SemanticVersion.Range
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
