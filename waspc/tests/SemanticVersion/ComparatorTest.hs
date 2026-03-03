@@ -18,20 +18,27 @@ spec_SemanticVersion_Comparator = do
       show (PrimitiveComparator Equal [pv|1.2.3|]) `shouldBe` "1.2.3"
     it "backwardsCompatibleWith" $ do
       show (BackwardsCompatibleWith [pv|1.2.3|]) `shouldBe` "^1.2.3"
-      show (BackwardsCompatibleWith [pv|0.2|]) `shouldBe` "^0.2"
+      show (BackwardsCompatibleWith [pv|1.2|]) `shouldBe` "^1.2"
+      show (BackwardsCompatibleWith [pv|1|]) `shouldBe` "^1"
+      show (BackwardsCompatibleWith [pv|*|]) `shouldBe` "^*"
     it "approximatelyEquvivalentTo" $ do
       show (ApproximatelyEquivalentTo [pv|1.2.3|]) `shouldBe` "~1.2.3"
       show (ApproximatelyEquivalentTo [pv|1.2|]) `shouldBe` "~1.2"
+      show (ApproximatelyEquivalentTo [pv|1|]) `shouldBe` "~1"
+      show (ApproximatelyEquivalentTo [pv|*|]) `shouldBe` "~*"
     it "x-range" $ do
+      show (XRange [pv|1.2.3|]) `shouldBe` "1.2.3"
       show (XRange [pv|1.2|]) `shouldBe` "1.2"
       show (XRange [pv|1|]) `shouldBe` "1"
       show (XRange [pv|*|]) `shouldBe` "*"
     it "hyphen range" $ do
-      show (HyphenRange [pv|1.2.3|] [pv|2.3.4|]) `shouldBe` "1.2.3 - 2.3.4"
+      show (HyphenRange [pv|1.2.3|] [pv|4.5.6|]) `shouldBe` "1.2.3 - 4.5.6"
+      show (HyphenRange [pv|1.2|] [pv|3|]) `shouldBe` "1.2 - 3"
+      show (HyphenRange [pv|1|] [pv|2.3|]) `shouldBe` "1 - 2.3"
+      show (HyphenRange [pv|*|] [pv|*|]) `shouldBe` "* - *"
 
   describe "simpleComparatorParser" $ do
     let parseComp = P.parse simpleComparatorParser ""
-        strictParseComp = P.parse (simpleComparatorParser *> P.eof) ""
 
     it "parses empty input correctly" $ do
       parseComp "" `shouldBe` Right (XRange Any)
@@ -58,7 +65,7 @@ spec_SemanticVersion_Comparator = do
       parseComp "~1.2" `shouldBe` Right (ApproximatelyEquivalentTo (MajorMinor 1 2))
       parseComp "~1" `shouldBe` Right (ApproximatelyEquivalentTo (Major 1))
 
-    it "parses X-range comparators" $ do
+    it "parses x-range comparators" $ do
       parseComp "*" `shouldBe` Right (XRange Any)
       parseComp "x" `shouldBe` Right (XRange Any)
       parseComp "X" `shouldBe` Right (XRange Any)
@@ -75,8 +82,8 @@ spec_SemanticVersion_Comparator = do
 
     it "rejects invalid formats" $ do
       isLeft (parseComp "foo") `shouldBe` True
-      -- Hyphen ranges requires spaces
-      isLeft (strictParseComp "1.2.3-1.2.3") `shouldBe` True
+      isLeft (parseComp "$1.2.3") `shouldBe` True
+      isLeft (parseComp "?1.x.x") `shouldBe` True
 
   describe "hyphenRangeComparatorParser" $ do
     let parseHyphen = P.parse hyphenRangeComparatorParser ""
@@ -98,6 +105,7 @@ spec_SemanticVersion_Comparator = do
       isLeft (parseHyphen "1.2") `shouldBe` True
       isLeft (parseHyphen "1.2 - ") `shouldBe` True
       isLeft (parseHyphen "1.2 - a") `shouldBe` True
+      isLeft (parseHyphen "1.2-3.4") `shouldBe` True
 
   describe "versionBounds" $ do
     let comp ~> expectedInterval =
