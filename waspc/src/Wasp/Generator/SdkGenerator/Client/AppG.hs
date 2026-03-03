@@ -63,7 +63,7 @@ genRouter spec =
   sequence
     [ return $
         C.mkTmplFdWithData
-          [relfile|client/app/router/router.tsx|]
+          [relfile|client/app/router.tsx|]
           ( object
               [ "isExternalAuthEnabled" .= isExternalAuthEnabled,
                 "oAuthCallbackPath" .= clientOAuthCallbackPath,

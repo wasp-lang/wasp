@@ -6,7 +6,7 @@ import { createBrowserRouter, type HydrationState } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Layout } from "wasp/client/app/layout";
-import { getRouteObjects } from "wasp/client/app/router/router";
+import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient, queryClientInitialized } from "wasp/client/operations";
 {=!
   // NOTE: We are not inlining routes mapping into this file because once we

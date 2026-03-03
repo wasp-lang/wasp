@@ -10,7 +10,7 @@ import {
   RouterProvider,
 } from "react-router";
 import { Layout } from "wasp/client/app/layout";
-import { getRouteObjects } from "wasp/client/app/router/router";
+import { getRouteObjects } from "wasp/client/app/router";
 {=& routesMapping.importStatement =}
 
 {=# rootComponent.isDefined =}

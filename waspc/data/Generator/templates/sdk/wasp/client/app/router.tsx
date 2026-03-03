@@ -3,12 +3,12 @@ import type { ReactNode, ComponentType } from 'react'
 import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router'
 
 {=# isExternalAuthEnabled =}
-import { OAuthCallbackPage } from "../pages/OAuthCallback"
+import { OAuthCallbackPage } from "./pages/OAuthCallback"
 {=/ isExternalAuthEnabled =}
 
-import { DefaultRootErrorBoundary } from '../components/DefaultRootErrorBoundary'
+import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
 
-import { routes } from '../../router/index'
+import { routes } from '../router/index'
 
 export function getRouteObjects({
   routesMapping,

@@ -2,7 +2,7 @@
 import * as React from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 
-import { getRouter } from '../router/router'
+import { getRouter } from '../router'
 import { queryClientInitialized } from '../../operations/index'
 
 {=# areWebSocketsUsed =}
