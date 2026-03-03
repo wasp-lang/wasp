@@ -37,27 +37,21 @@ const prerenderApp = async (
   }: { isFallbackPage: boolean; children?: ReactNode },
   { clientEntrySrc, transformIndexHtml }: PrerenderContext,
 ) => {
-  const app = <Layout isFallbackPage={isFallbackPage}>{children}</Layout>;
+  const app = (
+    <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
+      {children}
+    </Layout>
+  );
 
   const html = await reactPrerender(app)
     .then((result) => text(result.prelude))
-    .then((html) =>
-      transformIndexHtml(addModuleScriptTag(html, clientEntrySrc)),
-    );
+    .then((html) => transformIndexHtml(html));
 
   return new Response(html, {
     status: 200,
     headers: { "Content-Type": "text/html; charset=utf-8" },
   });
 };
-
-// This regex assumes a </head> tag exists in the HTML. Since we control the
-// Layout component and it always renders <head>, this is deemed enough.
-const addModuleScriptTag = (html: string, src: string) =>
-  html.replace(
-    /<\/\s*head\s*>/i,
-    `<script async type="module" src=${JSON.stringify(src)}></script></head>`,
-  );
 
 const { query, dataRoutes } = createStaticHandler(routeObjects, {
   basename: "{= baseDir =}",
@@ -66,7 +60,7 @@ const { query, dataRoutes } = createStaticHandler(routeObjects, {
 const prerenderWithRouter: PrerenderFn = async (route, ctx) => {
   const req = new Request(new URL(route, "http://localhost"));
 
-  const context = await query(req, { requestContext: {} });
+  const context = await query(req);
 
   if (context instanceof Response) {
     return context;
