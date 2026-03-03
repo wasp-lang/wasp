@@ -54,27 +54,32 @@ spec_SemanticVersion_Comparator = do
       parseComp "=1.2" `shouldBe` Right (PrimitiveComparator Equal (MajorMinor 1 2))
       parseComp ">1" `shouldBe` Right (PrimitiveComparator GreaterThan (Major 1))
       parseComp "<1" `shouldBe` Right (PrimitiveComparator LessThan (Major 1))
+      parseComp "=*" `shouldBe` Right (PrimitiveComparator Equal Any)
+      parseComp ">=*" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual Any)
+      parseComp "<=*" `shouldBe` Right (PrimitiveComparator LessThanOrEqual Any)
 
     it "parses caret comparators" $ do
       parseComp "^1.2.3" `shouldBe` Right (BackwardsCompatibleWith (Full 1 2 3))
       parseComp "^1.2" `shouldBe` Right (BackwardsCompatibleWith (MajorMinor 1 2))
       parseComp "^1" `shouldBe` Right (BackwardsCompatibleWith (Major 1))
+      parseComp "^*" `shouldBe` Right (BackwardsCompatibleWith Any)
 
     it "parses tilde comparators" $ do
       parseComp "~1.2.3" `shouldBe` Right (ApproximatelyEquivalentTo (Full 1 2 3))
       parseComp "~1.2" `shouldBe` Right (ApproximatelyEquivalentTo (MajorMinor 1 2))
       parseComp "~1" `shouldBe` Right (ApproximatelyEquivalentTo (Major 1))
+      parseComp "~*" `shouldBe` Right (ApproximatelyEquivalentTo Any)
 
     it "parses x-range comparators" $ do
-      parseComp "*" `shouldBe` Right (XRange Any)
-      parseComp "x" `shouldBe` Right (XRange Any)
-      parseComp "X" `shouldBe` Right (XRange Any)
-      parseComp "1" `shouldBe` Right (XRange (Major 1))
-      parseComp "1.x" `shouldBe` Right (XRange (Major 1))
+      parseComp "1.2.3" `shouldBe` Right (XRange (Full 1 2 3))
+      parseComp "1.2.x" `shouldBe` Right (XRange (MajorMinor 1 2))
       parseComp "1.x.x" `shouldBe` Right (XRange (Major 1))
       parseComp "1.2" `shouldBe` Right (XRange (MajorMinor 1 2))
-      parseComp "1.2.x" `shouldBe` Right (XRange (MajorMinor 1 2))
-      parseComp "1.2.3" `shouldBe` Right (XRange (Full 1 2 3))
+      parseComp "1.x" `shouldBe` Right (XRange (Major 1))
+      parseComp "1" `shouldBe` Right (XRange (Major 1))
+      parseComp "X" `shouldBe` Right (XRange Any)
+      parseComp "x" `shouldBe` Right (XRange Any)
+      parseComp "*" `shouldBe` Right (XRange Any)
 
     it "parses simple comparators with trailing content" $ do
       parseComp "* 1.2.3" `shouldBe` Right (XRange Any)
@@ -92,6 +97,7 @@ spec_SemanticVersion_Comparator = do
       parseHyphen "1.2.3 - 2.3.4" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))
       parseHyphen "1.2 - 2.3.4" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (Full 2 3 4))
       parseHyphen "1.2.3 - 2.3" `shouldBe` Right (HyphenRange (Full 1 2 3) (MajorMinor 2 3))
+      parseHyphen "1.2 - 3.4" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (MajorMinor 3 4))
       parseHyphen "1 - 3" `shouldBe` Right (HyphenRange (Major 1) (Major 3))
       parseHyphen "* - *" `shouldBe` Right (HyphenRange Any Any)
 
