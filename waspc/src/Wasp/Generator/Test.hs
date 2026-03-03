@@ -12,9 +12,9 @@ import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Project.Common (WaspProjectDir)
 
 testWebApp :: [String] -> Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
-testWebApp args projectDir = do
+testWebApp args waspProjectDir = do
   chan <- newChan
-  let testWebAppJob = WebAppTest.testWebApp args projectDir chan
+  let testWebAppJob = WebAppTest.testWebApp args waspProjectDir chan
   (testExitCode, _) <-
     testWebAppJob `concurrently` readJobMessagesAndPrintThemPrefixed chan
   case testExitCode of

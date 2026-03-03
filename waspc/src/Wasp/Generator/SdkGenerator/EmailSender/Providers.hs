@@ -3,14 +3,14 @@ module Wasp.Generator.SdkGenerator.EmailSender.Providers
     sendGrid,
     mailgun,
     dummy,
-    providersDirInSdkTemplatesDir,
     EmailSenderProvider (..),
+    getEmailSenderProvider,
   )
 where
 
-import StrongPath (Dir, File', Path', Rel, reldir, relfile)
+import StrongPath (File', Path', Rel, relfile)
+import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.SemanticVersion as SV
 
 data EmailSenderProvider = EmailSenderProvider
@@ -21,9 +21,6 @@ data EmailSenderProvider = EmailSenderProvider
 
 data ProvidersDir
 
-providersDirInSdkTemplatesDir :: Path' (Rel C.SdkTemplatesDir) (Dir ProvidersDir)
-providersDirInSdkTemplatesDir = [reldir|server/email/core/providers|]
-
 smtp :: EmailSenderProvider
 smtp =
   EmailSenderProvider
@@ -32,7 +29,7 @@ smtp =
     }
   where
     nodeMailerVersionRange :: SV.Range
-    nodeMailerVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 6 9 1)]
+    nodeMailerVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 8 0 1)]
 
     nodeMailerDependency :: Npm.Dependency.Dependency
     nodeMailerDependency = Npm.Dependency.make ("nodemailer", show nodeMailerVersionRange)
@@ -69,3 +66,10 @@ dummy =
     { npmDependency = Nothing,
       setupFnFile = [relfile|dummy.ts|]
     }
+
+getEmailSenderProvider :: AS.EmailSender.EmailSender -> EmailSenderProvider
+getEmailSenderProvider email = case AS.EmailSender.provider email of
+  AS.EmailSender.SMTP -> smtp
+  AS.EmailSender.SendGrid -> sendGrid
+  AS.EmailSender.Mailgun -> mailgun
+  AS.EmailSender.Dummy -> dummy

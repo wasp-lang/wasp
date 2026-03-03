@@ -1,9 +1,12 @@
 app KitchenSink {
   wasp: {
-    version: "^0.21.0"
+    version: "^0.21.2"
   },
   title: "Wasp Kitchen Sink",
-  // head: [],
+  head: [
+    "<link rel='manifest' href='/manifest.json'>",
+    "<link rel='icon' href='/favicon.ico' />",
+  ],
   webSocket: {
     fn: import { webSocketFn } from "@src/features/chat/webSocket",
     // autoConnect: false
@@ -29,6 +32,10 @@ app KitchenSink {
       gitHub: {
         configFn: import { config } from "@src/features/auth/providers/github",
         userSignupFields: import { userSignupFields } from "@src/features/auth/providers/github"
+      },
+      microsoft: {
+        configFn: import { config } from "@src/features/auth/providers/microsoft",
+        userSignupFields: import { userSignupFields } from "@src/features/auth/providers/microsoft"
       },
       // keycloak: {},
       email: {

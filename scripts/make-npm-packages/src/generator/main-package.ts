@@ -13,6 +13,7 @@ const TEMPLATE_STATIC_FILES = [
   "bin.js",
   "CLIError.js",
   "readme.md",
+  "preinstall.js",
   "postinstall.js",
 ];
 

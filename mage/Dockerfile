@@ -25,6 +25,7 @@ COPY package-lock.json .
 COPY tsconfig*.json .
 COPY server .wasp/out/server
 COPY sdk .wasp/out/sdk
+COPY libs .wasp/out/libs
 # Install npm packages, resulting in node_modules/.
 RUN npm install && cd .wasp/out/server && npm install
 COPY db/schema.prisma .wasp/out/db/

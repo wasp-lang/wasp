@@ -54,6 +54,15 @@ const waspServerCommonSchema = z.object({
   DISCORD_CLIENT_SECRET: z.string({
     required_error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_SECRET'),
   }),
+  MICROSOFT_TENANT_ID: z.string({
+    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_TENANT_ID'),
+  }),
+  MICROSOFT_CLIENT_ID: z.string({
+    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_ID'),
+  }),
+  MICROSOFT_CLIENT_SECRET: z.string({
+    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_SECRET'),
+  }),
 })
 
 const serverUrlSchema = z

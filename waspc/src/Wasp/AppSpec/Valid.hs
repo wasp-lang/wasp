@@ -16,6 +16,7 @@ import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import Text.Read (readMaybe)
 import Text.Regex.TDFA ((=~))
+import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api
@@ -28,7 +29,7 @@ import qualified Wasp.AppSpec.App.Client as Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import qualified Wasp.AppSpec.App.Wasp as Wasp
-import Wasp.AppSpec.Core.Decl (takeDecls)
+import Wasp.AppSpec.Core.Decl (getDeclName, takeDecls)
 import Wasp.AppSpec.Core.IsDecl (IsDecl)
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Entity as Entity
@@ -297,7 +298,8 @@ validateUniqueDeclarationNames spec =
 validateDeclarationNames :: AppSpec -> [ValidationError]
 validateDeclarationNames spec =
   concat
-    [ capitalizedOperationsErrorMessage,
+    [ declNameIsNotAValidIdentifierErrorMessage,
+      capitalizedOperationsErrorMessage,
       capitalizedJobsErrorMessage,
       nonCapitalizedEntitesErrorMessage
     ]
@@ -333,6 +335,42 @@ validateDeclarationNames spec =
                   "Entity names must start with an uppercase letter. Please rename entities: "
                     ++ intercalate ", " nonCapitalizedEntitieNames
                     ++ "."
+              ]
+
+    declNameIsNotAValidIdentifierErrorMessage =
+      {-
+        NOTE: This check is only relevant if the user is using the TS spec. If
+        the user is using the DSL, the check is redundant and will never
+        trigger.
+
+        More precisely:
+        - DSL - If a declaration name isn't a valid identifier, the lexer
+          doesn't tokenize it and stops the compilation much earlier with a
+          syntax error.
+        - TS Spec - Since declaration names come from TypeScript
+          strings, they can still be anything by this point. The check here
+          ensures that declarations in the TS spec follow the same rules as
+          the DSL.
+
+        It would be more consistent to perform this check much earlier,
+        probably in TypeScript. We decided to put it here because:
+        - This is where we keep similar app spec validations.
+        - It reuses the actual lexer instead of duplicating its rules in
+          TypeScript (and in potential future spec runtimes).
+      -}
+      let invalidIdentifierDeclNames = filter (not . isValidWaspIdentifier) $ map getDeclName $ AS.decls spec
+          waspIdentifierNameRules =
+            [ "must start with a letter or an underscore",
+              "must contain only letters, numbers, or underscores",
+              "must not be a Wasp keyword"
+            ]
+       in case invalidIdentifierDeclNames of
+            [] -> []
+            _ ->
+              [ GenericValidationError $
+                  intercalate "\n" $
+                    ("Please rename: " ++ intercalate ", " invalidIdentifierDeclNames ++ ". Each declaration name:")
+                      : map (indent 2 . ("- " ++)) waspIdentifierNameRules
               ]
 
 validateWebAppBaseDir :: AppSpec -> [ValidationError]

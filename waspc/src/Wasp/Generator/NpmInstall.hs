@@ -1,5 +1,6 @@
 module Wasp.Generator.NpmInstall
   ( installNpmDependenciesWithInstallRecord,
+    installProjectNpmDependencies,
   )
 where
 
@@ -19,19 +20,16 @@ import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
-import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import Wasp.Job (Job, JobMessage, JobType)
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
+import Wasp.Job.Process (runNodeCommandAsJob)
 import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
 import qualified Wasp.Util.IO as IOUitl
 
--- Runs `npm install` for:
---   1. User's Wasp project (based on their package.json): user deps.
---   2. Wasp's generated webapp project: wasp deps.
---   3. Wasp's generated server project: wasp deps.
--- (1) runs first, (2) and (3) run concurrently after it.
--- It collects the output produced by these commands to pass them along to IO with a prefix.
+-- Runs `npm install` in the user's Wasp project directory.
+-- Thanks to npm workspaces, this single install covers the user's project deps,
+-- the generated server and web app deps, and the Wasp SDK.
 installNpmDependenciesWithInstallRecord ::
   AppSpec ->
   Path' Abs (Dir ProjectRootDir) ->
@@ -77,7 +75,10 @@ installProjectNpmDependencies messagesChan projectDir =
       _success -> Right ()
   where
     installProjectDepsJob =
-      installNpmDependenciesAndReport (SdkGenerator.installNpmDependencies projectDir) messagesChan J.Wasp
+      installNpmDependenciesAndReport
+        (runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp)
+        messagesChan
+        J.Wasp
     handleProjectInstallMessages :: Chan J.JobMessage -> IO ()
     handleProjectInstallMessages = runPrefixedWriter . processMessages
       where
