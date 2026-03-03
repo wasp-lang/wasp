@@ -25,9 +25,6 @@
   "peerDependencies": {
     "vite": "^7"
   },
-  "dependencies": {
-    "@mjackson/node-fetch-server": "^0.7.0"
-  },
   "devDependencies": {
     "@tsconfig/node-ts": "^23.6.4",
     "@tsconfig/node22": "^22.0.5",

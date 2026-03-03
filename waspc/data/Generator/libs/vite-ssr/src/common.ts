@@ -1,6 +1,6 @@
-import { name as PLUGIN_NAME } from "../package.json" with { type: "json" };
+import { name } from "../package.json" with { type: "json" };
 
-export { PLUGIN_NAME };
+export const PLUGIN_NAME = name as `$PLUGIN_NAME`;
 
 export interface Options {
   clientEntrySrc: string;
