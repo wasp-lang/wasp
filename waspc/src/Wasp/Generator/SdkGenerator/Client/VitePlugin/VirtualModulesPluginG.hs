@@ -26,7 +26,7 @@ getVirtualModulesPlugin spec =
     [ getVirtualModulesTs,
       genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
-      genVirtualIndexTsx spec,
+      genVirtualClientEntryTsx spec,
       genVirtualSsrEntryTsx spec,
       genVirtualRoutesTsx spec
     ]
@@ -66,12 +66,12 @@ routesMappingImportJson =
       "importIdentifier" .= ("routesMapping" :: String)
     ]
 
-genVirtualIndexTsx :: AppSpec -> Generator FileDraft
-genVirtualIndexTsx spec =
+genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
+genVirtualClientEntryTsx spec =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|index.tsx|]
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|client-entry.tsx|]
     tmplData =
       object
         [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),

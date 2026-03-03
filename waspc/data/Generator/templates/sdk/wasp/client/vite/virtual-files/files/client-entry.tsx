@@ -4,10 +4,10 @@ import { startTransition } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { createBrowserRouter, type HydrationState } from "react-router";
 import { RouterProvider } from "react-router/dom";
-import { QueryClientProvider } from "@tanstack/react-query";
 import { Layout } from "wasp/client/app/layout";
+import { WaspApp } from "wasp/client/app";
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient, queryClientInitialized } from "wasp/client/operations";
+import { initializeQueryClient } from "wasp/client/operations";
 {=!
   // NOTE: We are not inlining routes mapping into this file because once we
   // allow users to override the `index.tsx` entry point they can use the existing
@@ -51,14 +51,12 @@ const router = createBrowserRouter(routeObjects, {
   hydrationData,
 })
 
-const queryClient = await queryClientInitialized
-
 function App({ isFallbackPage }: { isFallbackPage: boolean }) {
   return (
     <Layout isFallbackPage={isFallbackPage}>
-      <QueryClientProvider client={queryClient}>
+      <WaspApp>
         <RouterProvider router={router} />
-      </QueryClientProvider>
+      </WaspApp>
     </Layout>
   );
 }
