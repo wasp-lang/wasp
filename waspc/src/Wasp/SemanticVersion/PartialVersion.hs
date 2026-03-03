@@ -55,9 +55,9 @@ parsePartialVersion = parse partialVersionParser ""
 partialVersionParser :: Parsec String () PartialVersion
 partialVersionParser = do
   maybeMajor <- componentP
-  maybeMinor <- optionMaybe $ try (char '.' *> componentP)
-  maybePatch <- optionMaybe $ try (char '.' *> componentP)
-  let components = maybeMajor : catMaybes [maybeMinor, maybePatch]
+  maybeMaybeMinor <- optionMaybe $ try (char '.' *> componentP)
+  maybeMaybePatch <- optionMaybe $ try (char '.' *> componentP)
+  let components = maybeMajor : catMaybes [maybeMaybeMinor, maybeMaybePatch]
   case components of
     [Nothing] -> pure Any -- "*" / "x" / "X"
     [Just mjr] -> pure (Major mjr) -- "1"
