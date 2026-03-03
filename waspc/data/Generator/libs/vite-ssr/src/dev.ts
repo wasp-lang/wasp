@@ -21,7 +21,7 @@ export const ssrDev = (
         const ssrEnv = server.environments.ssr;
         assert(
           isRunnableDevEnvironment(ssrEnv),
-          "Expected ssr to be in a runnable dev environment",
+          "Expected ssr to be a runnable dev environment",
         );
 
         server.middlewares.use(async ({ url, originalUrl }, res, next) => {
