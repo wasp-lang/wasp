@@ -22,8 +22,8 @@ import Wasp.SemanticVersion.Version (Version (..))
 import Wasp.Util.TH (quasiQuoterFromParser)
 
 -- | Version representation used in `node-semver` range expressions.
--- Unlike 'Version' which always has all 3 components,
--- 'PartialVersion' can represent partial/wildcard versions as they appear in range.
+-- Unlike 'Version' which always has all 3 version components,
+-- 'PartialVersion' can represent partial/wildcard versions as they appear in a range.
 data PartialVersion
   = -- | Major, minor and patch version (e.g. 1.2.3).
     Full !Natural !Natural !Natural
@@ -54,11 +54,11 @@ parsePartialVersion = parse partialVersionParser ""
 -- See `partial` definition here: https://github.com/npm/node-semver#range-grammar
 partialVersionParser :: Parsec String () PartialVersion
 partialVersionParser = do
-  maybeMajor <- componentP
-  maybeMaybeMinor <- optionMaybe $ try (char '.' *> componentP)
-  maybeMaybePatch <- optionMaybe $ try (char '.' *> componentP)
-  let components = maybeMajor : catMaybes [maybeMaybeMinor, maybeMaybePatch]
-  case components of
+  maybeMajor <- versionComponentParser
+  maybeMaybeMinor <- optionMaybe $ try (char '.' *> versionComponentParser)
+  maybeMaybePatch <- optionMaybe $ try (char '.' *> versionComponentParser)
+  let versionComponents = maybeMajor : catMaybes [maybeMaybeMinor, maybeMaybePatch]
+  case versionComponents of
     [Nothing] -> pure Any -- "*" / "x" / "X"
     [Just mjr] -> pure (Major mjr) -- "1"
     [Just mjr, Nothing] -> pure (Major mjr) -- "1.x"
@@ -70,5 +70,8 @@ partialVersionParser = do
     [_, Nothing, Just _] -> fail "patch cannot be specified if minor is wildcard"
     _ -> fail "invalid version form"
   where
-    componentP = (Nothing <$ wildcardP) <|> (Just <$> naturalNumberParser)
-    wildcardP = void (oneOf "xX*")
+    versionComponentParser :: Parsec String () (Maybe Natural)
+    versionComponentParser = (Nothing <$ wildcardParser) <|> (Just <$> naturalNumberParser)
+
+    wildcardParser :: Parsec String () ()
+    wildcardParser = void (oneOf "xX*")
