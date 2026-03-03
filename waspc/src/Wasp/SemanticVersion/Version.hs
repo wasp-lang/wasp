@@ -19,6 +19,7 @@ import Wasp.Util.TH (quasiQuoterFromParser)
 
 -- | Follows SemVer specification.
 -- See: https://semver.org/
+-- TODO: Add pre-release (-) and build (+) support.
 data Version = Version
   { major :: !Natural,
     minor :: !Natural,
