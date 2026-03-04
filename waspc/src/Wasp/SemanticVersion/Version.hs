@@ -12,7 +12,7 @@ where
 import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import Numeric.Natural (Natural)
-import Text.Parsec (ParseError, Parsec, char, parse)
+import qualified Text.Parsec as P
 import Text.Printf (printf)
 import Wasp.SemanticVersion.Parsers (naturalNumberParser)
 import Wasp.Util.TH (quasiQuoterFromParser)
@@ -31,23 +31,23 @@ data Version = Version
 instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
-parseVersion :: String -> Either ParseError Version
-parseVersion = parse versionParser ""
+parseVersion :: String -> Either P.ParseError Version
+parseVersion = P.parse versionParser ""
 
 -- | Follows SemVer specification.
 -- See: https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
 -- TODO: Add pre-release (-) and build (+) support.
-versionParser :: Parsec String () Version
+versionParser :: P.Parsec String () Version
 versionParser = do
   (mjr, mnr, ptc) <- versionCoreParser
   pure (Version mjr mnr ptc)
   where
-    versionCoreParser :: Parsec String () (Natural, Natural, Natural)
+    versionCoreParser :: P.Parsec String () (Natural, Natural, Natural)
     versionCoreParser = do
       mjr <- naturalNumberParser
-      _ <- char '.'
+      _ <- P.char '.'
       mnr <- naturalNumberParser
-      _ <- char '.'
+      _ <- P.char '.'
       ptc <- naturalNumberParser
       pure (mjr, mnr, ptc)
 
