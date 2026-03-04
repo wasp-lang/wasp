@@ -24,10 +24,8 @@ import Data.List (find)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
-import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
 import Wasp.AI.OpenAI (OpenAIApiKey)
-import qualified Wasp.Util as Util
 import Wasp.Util.Debug (debugTrace)
 import qualified Wasp.Util.Network.HTTP as Utils.HTTP
 
@@ -43,7 +41,7 @@ queryChatGPT apiKey params requestMessages = do
       request =
         -- 90 seconds should be more than enough for ChatGPT to generate an answer, or reach its own timeout.
         -- If it proves in the future that it might need more time, we can increase this number.
-        HTTP.setRequestResponseTimeout (HTTP.C.responseTimeoutMicro $ Util.secondsToMicroSeconds 300) $
+        Utils.HTTP.setRequestTimeout 300 $
           HTTP.setRequestHeader "Authorization" [BSU.fromString $ "Bearer " <> apiKey] $
             HTTP.setRequestBodyJSON reqBodyJson $
               HTTP.parseRequest_ "POST https://api.openai.com/v1/chat/completions"

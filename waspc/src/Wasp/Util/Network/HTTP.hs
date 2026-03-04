@@ -3,17 +3,24 @@ module Wasp.Util.Network.HTTP
     getHttpExceptionStatusCode,
     httpJSONThatThrowsIfNot2xx,
     checkUrlExists,
+    withTimeout,
+    setRequestTimeout,
+    httpLBS,
   )
 where
 
 import Control.Arrow ()
 import Control.Monad (void, when)
 import Control.Monad.IO.Class (MonadIO (liftIO))
+import Data.ByteString.Lazy (ByteString)
 import Data.Aeson (FromJSON)
 import qualified Data.Aeson as Aeson
+import Data.Functor ((<&>))
+import Data.Maybe (fromMaybe)
 import qualified Network.HTTP.Conduit as HTTP.C
 import qualified Network.HTTP.Simple as HTTP
 import Network.HTTP.Types.Status (statusIsSuccessful)
+import qualified System.Timeout as Timeout
 import UnliftIO (MonadUnliftIO)
 import UnliftIO.Exception (catch, throwIO)
 
@@ -65,3 +72,28 @@ httpHeadRequest url = do
       <$> HTTP.parseRequest url
 
   HTTP.httpNoBody req
+
+-- | Execute an IO action with a timeout in seconds.
+-- Returns 'Left' with the timeout message if the action times out,
+-- otherwise returns 'Right' with the result.
+withTimeout :: Int -> String -> IO a -> IO (Either String a)
+withTimeout timeoutSeconds timeoutMsg action =
+  Timeout.timeout timeoutMicroseconds action
+    <&> fromMaybe (Left timeoutMsg) . fmap Right
+  where
+    timeoutMicroseconds = timeoutSeconds * 1000000
+
+-- | Set request timeout in seconds for an HTTP request.
+setRequestTimeout :: Int -> HTTP.Request -> HTTP.Request
+setRequestTimeout timeoutSeconds =
+  HTTP.setRequestResponseTimeout (HTTP.C.responseTimeoutMicro timeoutMicroseconds)
+  where
+    timeoutMicroseconds = timeoutSeconds * 1000000
+
+-- | A simpler wrapper around HTTP.httpLBS for making basic HTTP requests.
+-- Fetches the content from a URL and returns it as a lazy ByteString.
+httpLBS :: (MonadIO m) => String -> m ByteString
+httpLBS url = liftIO $ do
+  request <- HTTP.parseRequest url
+  response <- HTTP.httpLBS request
+  return $ HTTP.getResponseBody response
