@@ -331,13 +331,13 @@ Normally we set it up in our editors to run on file save.
 You can also run it manually with
 
 ```sh
-./run ormolu:check
+./run check:ormolu
 ```
 
 to see if there is any formatting that needs to be fixed, or with
 
 ```sh
-./run ormolu:format
+./run format:ormolu
 ```
 
 to have Ormolu actually format (in-place) all files that need formatting.
