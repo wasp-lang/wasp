@@ -9,7 +9,6 @@ module Wasp.SemanticVersion.Comparator
   )
 where
 
-import Text.Parsec (Parsec)
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.PartialVersion
   ( PartialVersion (..),
@@ -118,21 +117,21 @@ instance Show PrimitiveOperator where
 -- Separated from 'simpleComparatorParser' because hyphen ranges cannot be
 -- combined with other comparators in a comparator set.
 -- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
-hyphenRangeComparatorParser :: Parsec String () Comparator
+hyphenRangeComparatorParser :: P.Parsec String () Comparator
 hyphenRangeComparatorParser = do
   lowerVersion <- partialVersionParser
   _ <- hyphenParser
   upperVersion <- partialVersionParser
   pure $ HyphenRange lowerVersion upperVersion
   where
-    hyphenParser :: Parsec String () Char
+    hyphenParser :: P.Parsec String () Char
     hyphenParser = P.space *> P.char '-' <* P.space
 
 -- | Parses a single non-hyphen comparator (primitive, tilde, caret, or x-range).
 -- Separated from 'hyphenRangeComparatorParser' because hyphen ranges cannot be
 -- combined with other comparators in a comparator set.
 -- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
-simpleComparatorParser :: Parsec String () Comparator
+simpleComparatorParser :: P.Parsec String () Comparator
 simpleComparatorParser =
   P.choice
     [ tildeComparatorParser,
@@ -141,19 +140,19 @@ simpleComparatorParser =
       primitiveComparatorParser
     ]
   where
-    tildeComparatorParser :: Parsec String () Comparator
+    tildeComparatorParser :: P.Parsec String () Comparator
     tildeComparatorParser = ApproximatelyEquivalentTo <$> (P.char '~' *> partialVersionParser)
 
-    caretComparatorParser :: Parsec String () Comparator
+    caretComparatorParser :: P.Parsec String () Comparator
     caretComparatorParser = BackwardsCompatibleWith <$> (P.char '^' *> partialVersionParser)
 
-    xRangeComparatorParser :: Parsec String () Comparator
+    xRangeComparatorParser :: P.Parsec String () Comparator
     xRangeComparatorParser = XRange <$> partialVersionParser
 
-    primitiveComparatorParser :: Parsec String () Comparator
+    primitiveComparatorParser :: P.Parsec String () Comparator
     primitiveComparatorParser = PrimitiveComparator <$> primitiveOperatorParser <*> partialVersionParser
 
-    primitiveOperatorParser :: Parsec String () PrimitiveOperator
+    primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
     primitiveOperatorParser =
       P.choice
         [ LessThanOrEqual <$ P.try (P.string "<="),
