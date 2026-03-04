@@ -3,6 +3,7 @@ module SemanticVersion.RangeTest where
 import Data.Either (isLeft)
 import qualified Data.List.NonEmpty as NE
 import Test.Hspec
+import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
 import Wasp.SemanticVersion.ComparatorSet
 import Wasp.SemanticVersion.PartialVersion
@@ -23,9 +24,11 @@ spec_SemanticVersion_Range = do
       show (Range [lte [v|1.3.6|] <> backwardsCompatibleWith [v|1.2.0|]] <> Range [eq [v|1.2.3|]])
         `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
 
-  describe "parsing" $ do
+  describe "rangeParser" $ do
+    let strictParseRange = P.parse (rangeParser <* P.eof) ""
+
     it "parses empty input correctly" $ do
-      parseRange ""
+      strictParseRange ""
         `shouldBe` Right
           ( Range
               [ ComparatorSet $
@@ -36,7 +39,7 @@ spec_SemanticVersion_Range = do
           )
 
     it "parses ranges with single comparator set" $ do
-      parseRange ">=1.0 <2.0.0"
+      strictParseRange ">=1.0 <2.0.0"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $
@@ -46,14 +49,14 @@ spec_SemanticVersion_Range = do
                     ]
               ]
           )
-      parseRange "^1.2.3"
+      strictParseRange "^1.2.3"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3)
               ]
           )
     it "parses ranges with multiple comparator sets" $ do
-      parseRange ">=1 <2 || >=3.0.0 || *"
+      strictParseRange ">=1  <2   || >=3.0.0    || *"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $
@@ -65,7 +68,24 @@ spec_SemanticVersion_Range = do
                 ComparatorSet $ pure $ XRange Any
               ]
           )
-      parseRange "^1.2.3 || ^2.0"
+      strictParseRange "^1.2.3 ||   ^2.0"
+        `shouldBe` Right
+          ( Range
+              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
+                ComparatorSet $ pure $ BackwardsCompatibleWith (MajorMinor 2 0)
+              ]
+          )
+      -- Allow 0 spaces around the OR operator
+      strictParseRange "^1.2.3||^2.0"
+        `shouldBe` Right
+          ( Range
+              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
+                ComparatorSet $ pure $ BackwardsCompatibleWith (MajorMinor 2 0)
+              ]
+          )
+
+    it "parses range with trailing content" $ do
+      parseRange "^1.2.3 || ^2.0 abs"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
@@ -74,11 +94,11 @@ spec_SemanticVersion_Range = do
           )
 
     it "rejects invalid formats" $ do
-      isLeft (parseRange "foo") `shouldBe` True
-      isLeft (parseRange "|| 1.23 || 2.0") `shouldBe` True
-      isLeft (parseRange "1.23 || $2.0") `shouldBe` True
+      isLeft (strictParseRange "foo") `shouldBe` True
+      isLeft (strictParseRange "|| 1.23 || 2.0") `shouldBe` True
+      isLeft (strictParseRange "1.23 || $2.0") `shouldBe` True
 
-  it "Concatenating version ranges produces union of their comparator sets" $ do
+  it "concatenating version ranges produces union of their comparator sets" $ do
     let v1 = [v|1.0.0|]
     let v2 = [v|2.0.0|]
     let r1 = Range [gt v1, lt v2]

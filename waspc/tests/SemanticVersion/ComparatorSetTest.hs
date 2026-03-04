@@ -33,9 +33,10 @@ spec_SemanticVersion_ComparatorSet = do
 
   describe "comparatorSetParser" $ do
     let parseCompSet = P.parse comparatorSetParser ""
+        strictParseCompSet = P.parse (comparatorSetParser <* P.eof) ""
 
     it "parses empty input correctly" $ do
-      parseCompSet ""
+      strictParseCompSet ""
         `shouldBe` Right
           ( ComparatorSet $
               NE.fromList
@@ -44,7 +45,7 @@ spec_SemanticVersion_ComparatorSet = do
           )
 
     it "parses comparator sets with single comparator" $ do
-      parseCompSet ">=1.0.0"
+      strictParseCompSet ">=1.0.0"
         `shouldBe` Right
           ( ComparatorSet $
               NE.fromList
@@ -53,7 +54,7 @@ spec_SemanticVersion_ComparatorSet = do
           )
 
     it "parses comparator sets with multiple comparators" $ do
-      parseCompSet ">=1.0.0 <2.0.0"
+      strictParseCompSet ">=1.0.0 <2.0.0"
         `shouldBe` Right
           ( ComparatorSet $
               NE.fromList
@@ -61,7 +62,7 @@ spec_SemanticVersion_ComparatorSet = do
                   PrimitiveComparator LessThan (Full 2 0 0)
                 ]
           )
-      parseCompSet ">1.0.0 <=2.0.0 ^1.2 * ~0.1.X"
+      strictParseCompSet ">1.0.0    <=2.0.0      ^1.2  * ~0.1.X"
         `shouldBe` Right
           ( ComparatorSet $
               NE.fromList
@@ -94,10 +95,13 @@ spec_SemanticVersion_ComparatorSet = do
                 ]
           )
 
+    it "rejects invalid formats" $ do
+      isLeft (strictParseCompSet "foo") `shouldBe` True
+      isLeft (strictParseCompSet ">1<2") `shouldBe` True
+
     describe "hyphen ranges cannot be combined with other comparators" $ do
       -- We must use a strict parser here because "1.2.3 - 2.0.0 3.x" will be parsed
       -- as "1.2.3 - 2.0.0" hyphen range comparator set with " 3.x" suffix.
-      let strictParseCompSet = P.parse (comparatorSetParser *> P.eof) ""
 
       it "parses hyphen ranges as sole comparator in a set" $ do
         isRight (strictParseCompSet "1.2.3 - 2.0.0") `shouldBe` True

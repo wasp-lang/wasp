@@ -68,7 +68,7 @@ parseRange = P.parse rangeParser ""
 
 -- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
 rangeParser :: Parsec String () Range
-rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrParser) <* P.spaces <* P.eof
+rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrParser)
   where
     logicalOrParser :: Parsec String () ()
     logicalOrParser = P.spaces *> P.string "||" *> P.spaces
