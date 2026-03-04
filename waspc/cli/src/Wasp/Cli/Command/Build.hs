@@ -14,7 +14,6 @@ import Data.Aeson.Lens
 import Data.List (isSuffixOf)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import qualified System.FilePath as FP
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -24,6 +23,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
