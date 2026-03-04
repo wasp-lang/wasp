@@ -23,7 +23,7 @@ jobs:
       - name: Run Prettier
         run: |
           npm ci
-          npm run prettier:check
+          npm run check:prettier
 
   ormolu:
     runs-on: ubuntu-latest
