@@ -14,6 +14,7 @@
     "@waspello/stripe-payments": "file:../fsm-modules/stripe-payments/waspello-stripe-payments-1.0.0.tgz",
     "@waspello/todo-module": "file:../fsm-modules/todo-module/waspello-todo-module-1.0.0.tgz",
     "classnames": "^2.5.1",
+    "dotenv": "^16.6.1",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "react-feather": "^2.0.10",

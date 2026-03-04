@@ -1,6 +1,9 @@
 import { createStripePaymentsModule } from "@waspello/stripe-payments";
 import { createTodoModule } from "@waspello/todo-module";
+import { config } from "dotenv";
 import { ActionConfig, App, ExtImport } from "wasp-config";
+
+const env = loadEnv(".env.server");
 
 const app = new App("waspello", {
   title: "Waspello",
@@ -122,8 +125,7 @@ appAction("createListCopy", "@src/cards/lists", ["List", "Card"]);
 
 app.use(
   createStripePaymentsModule({
-    // TODO: Support reading env vars at runtime instead of hardcoding
-    premiumPlanPriceId: "price_1T4oHFFaHKs7M0PTaaRNXrj6",
+    premiumPlanPriceId: env.STRIPE_PREMIUM_PRICE_ID,
     subscriptionRoute: "/subscription",
   }),
   {
@@ -147,5 +149,13 @@ app.use(
     },
   },
 );
+
+function loadEnv(path: string): Record<string, string> {
+  const { parsed } = config({ path });
+  if (!parsed) {
+    throw new Error(`Failed to load env from ${path}`);
+  }
+  return parsed;
+}
 
 export default app;
