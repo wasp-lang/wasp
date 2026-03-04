@@ -85,7 +85,14 @@ spec_SemanticVersion_Range = do
           )
 
     it "parses range with trailing content" $ do
-      parseRange "^1.2.3 || ^2.0 abs"
+      parseRange "^1.2.3 || ^2.0 "
+        `shouldBe` Right
+          ( Range
+              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
+                ComparatorSet $ pure $ BackwardsCompatibleWith (MajorMinor 2 0)
+              ]
+          )
+      parseRange "^1.2.3 || ^2.0 abc"
         `shouldBe` Right
           ( Range
               [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),

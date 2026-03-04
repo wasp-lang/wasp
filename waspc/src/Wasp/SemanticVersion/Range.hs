@@ -12,7 +12,9 @@ import Data.List (intercalate, nub)
 import Data.Maybe (isJust)
 import Text.Parsec (ParseError, Parsec)
 import qualified Text.Parsec as P
+import Wasp.SemanticVersion.Comparator (Comparator (..))
 import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), comparatorSetParser)
+import Wasp.SemanticVersion.PartialVersion (PartialVersion (..))
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
@@ -68,7 +70,15 @@ parseRange = P.parse rangeParser ""
 
 -- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
 rangeParser :: Parsec String () Range
-rangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrParser)
+rangeParser =
+  P.choice
+    [ P.try emptyRangeParser,
+      Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrParser)
+    ]
   where
+    -- `node-semver` allows parsing of an empty string into the x-range any comparator (*).
+    emptyRangeParser :: Parsec String () Range
+    emptyRangeParser = Range [ComparatorSet (pure (XRange Any))] <$ P.eof
+
     logicalOrParser :: Parsec String () ()
     logicalOrParser = P.spaces *> P.string "||" *> P.spaces

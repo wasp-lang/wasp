@@ -35,15 +35,6 @@ spec_SemanticVersion_ComparatorSet = do
     let parseCompSet = P.parse comparatorSetParser ""
         strictParseCompSet = P.parse (comparatorSetParser <* P.eof) ""
 
-    it "parses empty input correctly" $ do
-      strictParseCompSet ""
-        `shouldBe` Right
-          ( ComparatorSet $
-              NE.fromList
-                [ XRange Any
-                ]
-          )
-
     it "parses comparator sets with single comparator" $ do
       strictParseCompSet ">=1.0.0"
         `shouldBe` Right
@@ -96,6 +87,7 @@ spec_SemanticVersion_ComparatorSet = do
           )
 
     it "rejects invalid formats" $ do
+      isLeft (strictParseCompSet "") `shouldBe` True
       isLeft (strictParseCompSet "foo") `shouldBe` True
       isLeft (strictParseCompSet ">1<2") `shouldBe` True
 
