@@ -5,14 +5,14 @@ where
 
 import Control.Applicative ((<|>))
 import Numeric.Natural (Natural)
-import Text.Parsec (Parsec, digit, many, notFollowedBy, oneOf, string, try)
+import qualified Text.Parsec as P
 
-naturalNumberParser :: Parsec String () Natural
+naturalNumberParser :: P.Parsec String () Natural
 naturalNumberParser =
   read <$> (zeroParser <|> noLeadingZeroNaturalNumberParser)
   where
-    zeroParser :: Parsec String () String
-    zeroParser = try (string "0" <* notFollowedBy digit)
+    zeroParser :: P.Parsec String () String
+    zeroParser = P.try (P.string "0" <* P.notFollowedBy P.digit)
 
-    noLeadingZeroNaturalNumberParser :: Parsec String () String
-    noLeadingZeroNaturalNumberParser = (:) <$> oneOf ['1' .. '9'] <*> many digit
+    noLeadingZeroNaturalNumberParser :: P.Parsec String () String
+    noLeadingZeroNaturalNumberParser = (:) <$> P.oneOf ['1' .. '9'] <*> P.many P.digit
