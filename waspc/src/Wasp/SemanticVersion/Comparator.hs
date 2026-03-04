@@ -135,17 +135,12 @@ hyphenRangeComparatorParser = do
 simpleComparatorParser :: Parsec String () Comparator
 simpleComparatorParser =
   P.choice
-    [ emptyInputIsAnyParser,
-      tildeComparatorParser,
+    [ tildeComparatorParser,
       caretComparatorParser,
       xRangeComparatorParser,
       primitiveComparatorParser
     ]
   where
-    -- `node-semver` allows parsing of a empty string into the x-range any comparator (*).
-    emptyInputIsAnyParser :: Parsec String () Comparator
-    emptyInputIsAnyParser = XRange Any <$ P.eof
-
     tildeComparatorParser :: Parsec String () Comparator
     tildeComparatorParser = ApproximatelyEquivalentTo <$> (P.char '~' *> partialVersionParser)
 
