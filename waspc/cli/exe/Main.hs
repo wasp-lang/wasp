@@ -229,7 +229,7 @@ moduleCli args = case args of
   ["build", "--watch"] -> runCommand moduleBuildWatch
   ("build" : _) -> runCommand moduleBuild
   ["init", name] -> runCommand $ moduleInit name
-  ["init"] -> runCommand $ moduleInit ""
+  ["init"] -> printModuleUsage >> exitFailure
   _unknownModuleCommand -> printModuleUsage >> exitFailure
 
 {- ORMOLU_DISABLE -}
@@ -242,7 +242,7 @@ printModuleUsage =
               "",
         title "COMMANDS",
         cmd   "  build [--watch]        Generates module SDK. With --watch, re-runs on file changes.",
-        cmd   "  init [name]            Scaffolds a new module project.",
+        cmd   "  init <name>            Scaffolds a new module project.",
               "",
         title "EXAMPLES",
               "  wasp module build",

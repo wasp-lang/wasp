@@ -25,7 +25,7 @@ import System.Directory (createDirectoryIfMissing, doesDirectoryExist, makeAbsol
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import qualified System.FSNotify as FSN
-import Wasp.AppSpec.Module (ModuleSpec)
+import Wasp.AppSpec.Module (ModuleSpec (msEntities))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
@@ -147,15 +147,16 @@ runModuleBuild waspProjectDir = runExceptT $ do
     createDirectoryIfMissing True (fromAbsDir outDir)
     mapM_ (write outDir) fileDrafts
 
-  liftIO $ cliSendMessage $ Msg.Info "Running prisma generate..."
-  let schemaPath = outDir </> dbSchemaFileInProjectRootDir
-  runStep
-    "prisma generate failed."
-    "npx"
-    [ "prisma",
-      "generate",
-      "--schema=" ++ fromAbsFile (castFile schemaPath)
-    ]
+  unless (null $ msEntities spec) $ do
+    liftIO $ cliSendMessage $ Msg.Info "Running prisma generate..."
+    let schemaPath = outDir </> dbSchemaFileInProjectRootDir
+    runStep
+      "prisma generate failed."
+      "npx"
+      [ "prisma",
+        "generate",
+        "--schema=" ++ fromAbsFile (castFile schemaPath)
+      ]
 
   liftIO $ cliSendMessage $ Msg.Info "Verifying types with tsc --noEmit..."
   runStep "tsc --noEmit found type errors." "npx" ["tsc", "--noEmit"]
@@ -248,31 +249,28 @@ watchLoop waspProjectDir = FSN.withManager $ \mgr -> do
 
 moduleInit :: String -> Command ()
 moduleInit name = do
-  let safeName =
-        if null name
-          then "@myorg/my-module"
-          else name
-      camelName = "create" ++ toCamelCase safeName
-  cliSendMessageC $ Msg.Start $ "Initializing module '" ++ safeName ++ "'..."
+  let camelName = "create" ++ toCamelCase name
+      dirName = FP.takeFileName name
+  cliSendMessageC $ Msg.Start $ "Initializing module '" ++ name ++ "'..."
 
-  dirExists <- liftIO $ doesDirectoryExist safeName
+  dirExists <- liftIO $ doesDirectoryExist dirName
   if dirExists
     then
       throwError $
         CommandError "Module init failed" $
-          "Directory '" ++ safeName ++ "' already exists."
+          "Directory '" ++ dirName ++ "' already exists."
     else do
-      absProjectDir <- liftIO $ SP.parseAbsDir =<< makeAbsolute safeName
+      absProjectDir <- liftIO $ SP.parseAbsDir =<< makeAbsolute dirName
       liftIO $ do
         dataDir <- Data.getAbsDataDirPath
         let templateDir = dataDir </> [reldir|Cli/module-template|]
         copyDirRecur (toPathAbsDir templateDir) (toPathAbsDir absProjectDir)
         let replacements =
-              [ ("__waspModuleName__", safeName),
+              [ ("__waspModuleName__", name),
                 ("__waspModuleCamelName__", camelName)
               ]
         replaceModulePlaceholders replacements absProjectDir
-      cliSendMessageC $ Msg.Success $ "Module '" ++ safeName ++ "' initialized."
+      cliSendMessageC $ Msg.Success $ "Module '" ++ name ++ "' initialized in '" ++ dirName ++ "/'."
 
 replaceModulePlaceholders :: [(String, String)] -> Path' Abs (Dir d) -> IO ()
 replaceModulePlaceholders replacements dir = do

@@ -23,6 +23,6 @@
     "prisma": "5.19.1",
     "@prisma/client": "5.19.1",
     "wasp-config": "file:.wasp/packages/wasp-config",
-    "typescript": "^5.0.0"
+    "typescript": "5.8.2"
   }
 }
