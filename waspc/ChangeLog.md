@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.22.0
+
+### 🔧 Small improvements
+
+- The `wasp-config` package is now installed from a local copy inside the project (`.wasp/wasp-config/`) instead of directly from the global Wasp data directory. This makes projects more self-contained and avoids issues with npm resolving paths outside the project. ([#3861](https://github.com/wasp-lang/wasp/pull/3861))
+
 ## 0.21.2
 
 ### 🔧 Small improvements
