@@ -15,7 +15,7 @@ import Data.Maybe (catMaybes)
 import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import Numeric.Natural (Natural)
-import Text.Parsec (ParseError, Parsec, char, oneOf, optionMaybe, parse, try)
+import qualified Text.Parsec as P
 import Text.Printf (printf)
 import Wasp.SemanticVersion.Parsers (naturalNumberParser)
 import Wasp.SemanticVersion.Version (Version (..))
@@ -48,15 +48,15 @@ fromVersion (Version mjr mnr ptc) = Full mjr mnr ptc
 pv :: TH.QuasiQuoter
 pv = quasiQuoterFromParser parsePartialVersion
 
-parsePartialVersion :: String -> Either ParseError PartialVersion
-parsePartialVersion = parse partialVersionParser ""
+parsePartialVersion :: String -> Either P.ParseError PartialVersion
+parsePartialVersion = P.parse partialVersionParser ""
 
 -- See `partial` definition here: https://github.com/npm/node-semver#range-grammar
-partialVersionParser :: Parsec String () PartialVersion
+partialVersionParser :: P.Parsec String () PartialVersion
 partialVersionParser = do
   maybeMajor <- versionComponentParser
-  maybeMaybeMinor <- optionMaybe $ try (char '.' *> versionComponentParser)
-  maybeMaybePatch <- optionMaybe $ try (char '.' *> versionComponentParser)
+  maybeMaybeMinor <- P.optionMaybe $ P.try (P.char '.' *> versionComponentParser)
+  maybeMaybePatch <- P.optionMaybe $ P.try (P.char '.' *> versionComponentParser)
   let versionComponents = maybeMajor : catMaybes [maybeMaybeMinor, maybeMaybePatch]
   case versionComponents of
     [Nothing] -> pure Any -- "*" / "x" / "X"
@@ -70,8 +70,8 @@ partialVersionParser = do
     [_, Nothing, Just _] -> fail "patch cannot be specified if minor is wildcard"
     _ -> fail "invalid version form"
   where
-    versionComponentParser :: Parsec String () (Maybe Natural)
+    versionComponentParser :: P.Parsec String () (Maybe Natural)
     versionComponentParser = (Nothing <$ wildcardParser) <|> (Just <$> naturalNumberParser)
 
-    wildcardParser :: Parsec String () ()
-    wildcardParser = void (oneOf "xX*")
+    wildcardParser :: P.Parsec String () ()
+    wildcardParser = void (P.oneOf "xX*")
