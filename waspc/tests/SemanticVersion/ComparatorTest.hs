@@ -38,78 +38,80 @@ spec_SemanticVersion_Comparator = do
       show (HyphenRange [pv|*|] [pv|*|]) `shouldBe` "* - *"
 
   describe "simpleComparatorParser" $ do
-    let parseComp = P.parse simpleComparatorParser ""
+    let parseSimpleComp = P.parse simpleComparatorParser ""
+        strictParseSimpleComp = P.parse (simpleComparatorParser <* P.eof) ""
 
     it "parses primitive operator comparators" $ do
-      parseComp ">=1.2.3" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual (Full 1 2 3))
-      parseComp "<=1.2.3" `shouldBe` Right (PrimitiveComparator LessThanOrEqual (Full 1 2 3))
-      parseComp ">1.2.3" `shouldBe` Right (PrimitiveComparator GreaterThan (Full 1 2 3))
-      parseComp "<1.2.3" `shouldBe` Right (PrimitiveComparator LessThan (Full 1 2 3))
-      parseComp "=1.2.3" `shouldBe` Right (PrimitiveComparator Equal (Full 1 2 3))
-      parseComp ">=1.2" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual (MajorMinor 1 2))
-      parseComp "<=1.2" `shouldBe` Right (PrimitiveComparator LessThanOrEqual (MajorMinor 1 2))
-      parseComp "=1.2" `shouldBe` Right (PrimitiveComparator Equal (MajorMinor 1 2))
-      parseComp ">1" `shouldBe` Right (PrimitiveComparator GreaterThan (Major 1))
-      parseComp "<1" `shouldBe` Right (PrimitiveComparator LessThan (Major 1))
-      parseComp "=*" `shouldBe` Right (PrimitiveComparator Equal Any)
-      parseComp ">=*" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual Any)
-      parseComp "<=*" `shouldBe` Right (PrimitiveComparator LessThanOrEqual Any)
+      strictParseSimpleComp ">=1.2.3" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual (Full 1 2 3))
+      strictParseSimpleComp "<=1.2.3" `shouldBe` Right (PrimitiveComparator LessThanOrEqual (Full 1 2 3))
+      strictParseSimpleComp ">1.2.3" `shouldBe` Right (PrimitiveComparator GreaterThan (Full 1 2 3))
+      strictParseSimpleComp "<1.2.3" `shouldBe` Right (PrimitiveComparator LessThan (Full 1 2 3))
+      strictParseSimpleComp "=1.2.3" `shouldBe` Right (PrimitiveComparator Equal (Full 1 2 3))
+      strictParseSimpleComp ">=1.2" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual (MajorMinor 1 2))
+      strictParseSimpleComp "<=1.2" `shouldBe` Right (PrimitiveComparator LessThanOrEqual (MajorMinor 1 2))
+      strictParseSimpleComp "=1.2" `shouldBe` Right (PrimitiveComparator Equal (MajorMinor 1 2))
+      strictParseSimpleComp ">1" `shouldBe` Right (PrimitiveComparator GreaterThan (Major 1))
+      strictParseSimpleComp "<1" `shouldBe` Right (PrimitiveComparator LessThan (Major 1))
+      strictParseSimpleComp "=*" `shouldBe` Right (PrimitiveComparator Equal Any)
+      strictParseSimpleComp ">=*" `shouldBe` Right (PrimitiveComparator GreaterThanOrEqual Any)
+      strictParseSimpleComp "<=*" `shouldBe` Right (PrimitiveComparator LessThanOrEqual Any)
 
     it "parses caret comparators" $ do
-      parseComp "^1.2.3" `shouldBe` Right (BackwardsCompatibleWith (Full 1 2 3))
-      parseComp "^1.2" `shouldBe` Right (BackwardsCompatibleWith (MajorMinor 1 2))
-      parseComp "^1" `shouldBe` Right (BackwardsCompatibleWith (Major 1))
-      parseComp "^*" `shouldBe` Right (BackwardsCompatibleWith Any)
+      strictParseSimpleComp "^1.2.3" `shouldBe` Right (BackwardsCompatibleWith (Full 1 2 3))
+      strictParseSimpleComp "^1.2" `shouldBe` Right (BackwardsCompatibleWith (MajorMinor 1 2))
+      strictParseSimpleComp "^1" `shouldBe` Right (BackwardsCompatibleWith (Major 1))
+      strictParseSimpleComp "^*" `shouldBe` Right (BackwardsCompatibleWith Any)
 
     it "parses tilde comparators" $ do
-      parseComp "~1.2.3" `shouldBe` Right (ApproximatelyEquivalentTo (Full 1 2 3))
-      parseComp "~1.2" `shouldBe` Right (ApproximatelyEquivalentTo (MajorMinor 1 2))
-      parseComp "~1" `shouldBe` Right (ApproximatelyEquivalentTo (Major 1))
-      parseComp "~*" `shouldBe` Right (ApproximatelyEquivalentTo Any)
+      strictParseSimpleComp "~1.2.3" `shouldBe` Right (ApproximatelyEquivalentTo (Full 1 2 3))
+      strictParseSimpleComp "~1.2" `shouldBe` Right (ApproximatelyEquivalentTo (MajorMinor 1 2))
+      strictParseSimpleComp "~1" `shouldBe` Right (ApproximatelyEquivalentTo (Major 1))
+      strictParseSimpleComp "~*" `shouldBe` Right (ApproximatelyEquivalentTo Any)
 
     it "parses x-range comparators" $ do
-      parseComp "1.2.3" `shouldBe` Right (XRange (Full 1 2 3))
-      parseComp "1.2.x" `shouldBe` Right (XRange (MajorMinor 1 2))
-      parseComp "1.x.x" `shouldBe` Right (XRange (Major 1))
-      parseComp "1.2" `shouldBe` Right (XRange (MajorMinor 1 2))
-      parseComp "1.x" `shouldBe` Right (XRange (Major 1))
-      parseComp "1" `shouldBe` Right (XRange (Major 1))
-      parseComp "X" `shouldBe` Right (XRange Any)
-      parseComp "x" `shouldBe` Right (XRange Any)
-      parseComp "*" `shouldBe` Right (XRange Any)
+      strictParseSimpleComp "1.2.3" `shouldBe` Right (XRange (Full 1 2 3))
+      strictParseSimpleComp "1.2.x" `shouldBe` Right (XRange (MajorMinor 1 2))
+      strictParseSimpleComp "1.x.x" `shouldBe` Right (XRange (Major 1))
+      strictParseSimpleComp "1.2" `shouldBe` Right (XRange (MajorMinor 1 2))
+      strictParseSimpleComp "1.x" `shouldBe` Right (XRange (Major 1))
+      strictParseSimpleComp "1" `shouldBe` Right (XRange (Major 1))
+      strictParseSimpleComp "X" `shouldBe` Right (XRange Any)
+      strictParseSimpleComp "x" `shouldBe` Right (XRange Any)
+      strictParseSimpleComp "*" `shouldBe` Right (XRange Any)
 
     it "parses simple comparators with trailing content" $ do
-      parseComp "* 1.2.3" `shouldBe` Right (XRange Any)
-      parseComp "<1.2.3 || 5" `shouldBe` Right (PrimitiveComparator LessThan (Full 1 2 3))
+      parseSimpleComp "* 1.2.3" `shouldBe` Right (XRange Any)
+      parseSimpleComp "<1.2.3 || 5" `shouldBe` Right (PrimitiveComparator LessThan (Full 1 2 3))
 
     it "rejects invalid formats" $ do
-      isLeft (parseComp "") `shouldBe` True
-      isLeft (parseComp "foo") `shouldBe` True
-      isLeft (parseComp "$1.2.3") `shouldBe` True
-      isLeft (parseComp "?1.x.x") `shouldBe` True
+      isLeft (strictParseSimpleComp "") `shouldBe` True
+      isLeft (strictParseSimpleComp "foo") `shouldBe` True
+      isLeft (strictParseSimpleComp "$1.2.3") `shouldBe` True
+      isLeft (strictParseSimpleComp "?1.x.x") `shouldBe` True
 
   describe "hyphenRangeComparatorParser" $ do
-    let parseHyphen = P.parse hyphenRangeComparatorParser ""
+    let parseHyphenRangeComp = P.parse hyphenRangeComparatorParser ""
+        strictParseHyphenRangeComp = P.parse (hyphenRangeComparatorParser <* P.eof) ""
 
     it "parses hyphen range" $ do
-      parseHyphen "1.2.3 - 2.3.4" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))
-      parseHyphen "1.2 - 2.3.4" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (Full 2 3 4))
-      parseHyphen "1.2.3 - 2.3" `shouldBe` Right (HyphenRange (Full 1 2 3) (MajorMinor 2 3))
-      parseHyphen "1.2 - 3.4" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (MajorMinor 3 4))
-      parseHyphen "1 - 3" `shouldBe` Right (HyphenRange (Major 1) (Major 3))
-      parseHyphen "* - *" `shouldBe` Right (HyphenRange Any Any)
+      strictParseHyphenRangeComp "1.2.3 - 2.3.4" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))
+      strictParseHyphenRangeComp "1.2 - 2.3.4" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (Full 2 3 4))
+      strictParseHyphenRangeComp "1.2.3 - 2.3" `shouldBe` Right (HyphenRange (Full 1 2 3) (MajorMinor 2 3))
+      strictParseHyphenRangeComp "1.2 - 3.4" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (MajorMinor 3 4))
+      strictParseHyphenRangeComp "1 - 3" `shouldBe` Right (HyphenRange (Major 1) (Major 3))
+      strictParseHyphenRangeComp "* - *" `shouldBe` Right (HyphenRange Any Any)
 
     it "parses hyphen range with trailing content" $ do
-      parseHyphen "1.2.3 - 2.3.4 || something" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))
-      parseHyphen "1.2 - 2.3.4 ^1.2.3" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (Full 2 3 4))
+      parseHyphenRangeComp "1.2.3 - 2.3.4 || something" `shouldBe` Right (HyphenRange (Full 1 2 3) (Full 2 3 4))
+      parseHyphenRangeComp "1.2 - 2.3.4 ^1.2.3" `shouldBe` Right (HyphenRange (MajorMinor 1 2) (Full 2 3 4))
 
     it "rejects invalid formats" $ do
-      isLeft (parseHyphen "") `shouldBe` True
-      isLeft (parseHyphen "foo") `shouldBe` True
-      isLeft (parseHyphen "1.2") `shouldBe` True
-      isLeft (parseHyphen "1.2 - ") `shouldBe` True
-      isLeft (parseHyphen "1.2 - a") `shouldBe` True
-      isLeft (parseHyphen "1.2-3.4") `shouldBe` True
+      isLeft (strictParseHyphenRangeComp "") `shouldBe` True
+      isLeft (strictParseHyphenRangeComp "foo") `shouldBe` True
+      isLeft (strictParseHyphenRangeComp "1.2") `shouldBe` True
+      isLeft (strictParseHyphenRangeComp "1.2 - ") `shouldBe` True
+      isLeft (strictParseHyphenRangeComp "1.2 - a") `shouldBe` True
+      isLeft (strictParseHyphenRangeComp "1.2-3.4") `shouldBe` True
 
   describe "versionBounds" $ do
     let comp ~> expectedInterval =
