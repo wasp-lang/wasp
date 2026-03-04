@@ -222,12 +222,20 @@ const config: Config = {
           // ------------------------------------------------------ //
         },
         blog: {
+          id: "blog",
+          path: "./blog",
+          routeBasePath: "blog",
+          blogTitle: "Blog",
+          blogDescription:
+            "The latest updates, tutorials, and deep-dives from the Wasp team.",
           showReadingTime: true,
+          showLastUpdateTime: true,
           blogSidebarCount: "ALL",
           blogSidebarTitle: "All our posts",
           postsPerPage: "ALL",
           editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
           onUntruncatedBlogPosts: "throw",
+          exclude: ["**/CLAUDE.md", "_wasp-intro.md"],
         },
         theme: {
           customCss: ["./src/css/custom.css"],
@@ -238,6 +246,26 @@ const config: Config = {
   scripts: getScripts(),
   plugins: [
     "plugin-image-zoom",
+
+    [
+      "@docusaurus/plugin-content-blog",
+      {
+        id: "resources",
+        path: "./resources",
+        routeBasePath: "resources",
+        blogTitle: "Resources",
+        blogDescription: "Guides, comparisons, and other resources.",
+        authorsMapPath: "../blog/authors.yml",
+        showReadingTime: true,
+        showLastUpdateTime: true,
+        blogSidebarCount: "ALL",
+        blogSidebarTitle: "All resources",
+        postsPerPage: "ALL",
+        editUrl: "https://github.com/wasp-lang/wasp/edit/release/web",
+        onUntruncatedBlogPosts: "throw",
+      },
+    ],
+
     async function myPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
