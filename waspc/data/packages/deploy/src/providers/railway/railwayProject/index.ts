@@ -22,11 +22,13 @@ export async function getRailwayProjectStatus({
   waspProjectDir,
   railwayExe,
   existingProjectId,
+  workspace,
 }: {
   projectName: RailwayProjectName;
   existingProjectId?: RailwayProjectId;
   waspProjectDir: WaspProjectDir;
   railwayExe: RailwayCliExe;
+  workspace?: string;
 }): Promise<
   | {
       status: ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED;
@@ -62,6 +64,7 @@ export async function getRailwayProjectStatus({
     const existingProject = await getExistingProjectById(
       railwayExe,
       existingProjectId,
+      workspace,
     );
 
     return {
@@ -70,7 +73,7 @@ export async function getRailwayProjectStatus({
     };
   }
 
-  await assertUniqueProjectName(railwayExe, projectName);
+  await assertUniqueProjectName(railwayExe, projectName, workspace);
   return {
     status: ProjectStatus.MISSING_PROJECT,
     project: null,
@@ -80,10 +83,12 @@ export async function getRailwayProjectStatus({
 async function getExistingProjectById(
   railwayExe: RailwayCliExe,
   existingProjectId: RailwayProjectId,
+  workspace?: string,
 ): Promise<RailwayProject> {
   const projectById = await getRailwayProjectById(
     railwayExe,
     existingProjectId,
+    workspace,
   );
   if (projectById === null) {
     throw new Error(`Project with ID "${existingProjectId}" does not exist.`);
@@ -106,8 +111,13 @@ async function assertProvidedProjectNameSameAsExistingProjectName(
 async function assertUniqueProjectName(
   railwayExe: RailwayCliExe,
   projectName: RailwayProjectName,
+  workspace?: string,
 ): Promise<void> {
-  const project = await getRailwayProjectByName(railwayExe, projectName);
+  const project = await getRailwayProjectByName(
+    railwayExe,
+    projectName,
+    workspace,
+  );
   if (project !== null) {
     throw new Error(
       `Project with name "${project.name}" already exists. Add "--existing-project-id ${project.id}" option to this command to link it or use a different name.`,
