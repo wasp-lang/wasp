@@ -14,6 +14,7 @@ import Data.Aeson.Lens
 import Data.List (isSuffixOf)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import qualified System.FilePath as FP
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -143,11 +144,14 @@ build = do
 
     isWaspConfigPackageLocation :: String -> Bool
     isWaspConfigPackageLocation packageLocation =
-      (FP.pathSeparator : "wasp-config") `isSuffixOf` packageLocation
+      (FP.pathSeparator : waspConfigPackageName) `isSuffixOf` packageLocation
 
     removeWaspConfigFromDevDependenciesArray :: Value -> Value
     removeWaspConfigFromDevDependenciesArray original =
-      original & key "devDependencies" . _Object . at "wasp-config" .~ Nothing
+      original & key "devDependencies" . _Object . at (Key.fromString waspConfigPackageName) .~ Nothing
+
+    waspConfigPackageName :: String
+    waspConfigPackageName = getInstallablePackageName WaspConfigPackage
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
