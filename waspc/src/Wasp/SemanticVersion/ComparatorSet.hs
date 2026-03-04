@@ -14,7 +14,6 @@ module Wasp.SemanticVersion.ComparatorSet
 where
 
 import qualified Data.List.NonEmpty as NE
-import Text.Parsec (Parsec)
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
   ( Comparator (..),
@@ -84,24 +83,24 @@ mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op . fromVersion
 -- one or more simple comparators separated by spaces.
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
 -- NOTE: Grammar's `range` is our comparator set. And grammar's `range-set` is our range.
-comparatorSetParser :: Parsec String () ComparatorSet
+comparatorSetParser :: P.Parsec String () ComparatorSet
 comparatorSetParser =
   P.choice
     [ hyphenRangeComparatorSetParser,
       simpleComparatorSetParser
     ]
   where
-    hyphenRangeComparatorSetParser :: Parsec String () ComparatorSet
+    hyphenRangeComparatorSetParser :: P.Parsec String () ComparatorSet
     hyphenRangeComparatorSetParser = ComparatorSet . pure <$> P.try hyphenRangeComparatorParser
 
-    simpleComparatorSetParser :: Parsec String () ComparatorSet
+    simpleComparatorSetParser :: P.Parsec String () ComparatorSet
     simpleComparatorSetParser = do
       first <- simpleComparatorParser
       rest <- P.many $ P.try (spacesBetweenComparatorsParser *> simpleComparatorParser)
       pure $ ComparatorSet (NE.fromList (first : rest))
 
     -- Consumes whitespace only when it separates comparators.
-    spacesBetweenComparatorsParser :: Parsec String () ()
+    spacesBetweenComparatorsParser :: P.Parsec String () ()
     spacesBetweenComparatorsParser = do
       _ <- P.many1 P.space
       P.notFollowedBy (P.string "||")
