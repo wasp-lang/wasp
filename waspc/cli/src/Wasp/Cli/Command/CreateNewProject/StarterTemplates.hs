@@ -10,6 +10,7 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates
 where
 
 import Data.Foldable (find)
+import Data.Maybe (fromJust)
 import Data.Text (Text)
 import StrongPath (Dir', File', Path, Path', Rel, Rel', System, reldir, (</>))
 import qualified StrongPath as SP
@@ -87,6 +88,12 @@ readWaspProjectSkeletonFiles = do
   -- have favicons until we properly fix this.
   -- See the issue for details: https://github.com/wasp-lang/wasp/issues/2951
   skeletonFilePaths <- filter (not . isFavicon) <$> listDirectoryDeep skeletonFilesDir
-  mapM (\path -> (path,) <$> readFileStrict (skeletonFilesDir </> path)) skeletonFilePaths
+  mapM (\path -> (restoreDotfileName path,) <$> readFileStrict (skeletonFilesDir </> path)) skeletonFilePaths
   where
     isFavicon path = SP.fromRelFile (SP.basename path) == "favicon.ico"
+
+    -- Some files are stored without their leading dot to prevent tools
+    -- (e.g. npm) from interpreting them during packaging. We restore the dot here.
+    restoreDotfileName path
+      | SP.fromRelFile path == "gitignore" = fromJust $ SP.parseRelFile ".gitignore"
+      | otherwise = path

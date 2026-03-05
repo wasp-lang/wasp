@@ -35,7 +35,7 @@ data-files:
   Cli/starters/**/*.wasp
   Cli/starters/basic/.prettierignore
   Cli/starters/basic/.prettierrc
-  Cli/starters/skeleton/.gitignore
+  Cli/starters/skeleton/gitignore
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/public/.gitkeep

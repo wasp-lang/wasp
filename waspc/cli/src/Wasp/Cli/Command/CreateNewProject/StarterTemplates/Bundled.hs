@@ -4,8 +4,10 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled
 where
 
 import Path.IO (copyDirRecur)
-import StrongPath (Abs, Dir, Dir', Path', Rel', reldir, (</>))
+import StrongPath (Abs, Dir, Dir', Path', Rel', fromAbsDir, reldir, (</>))
 import StrongPath.Path (toPathAbsDir)
+import System.Directory (renameFile)
+import qualified System.FilePath as FP
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
 import qualified Wasp.Data as Data
@@ -27,4 +29,12 @@ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName tem
       -- First we copy skeleton files, which form the basis of any Wasp project,
       -- and then on top of that we add files specific to the specified local template.
       copyDirRecur (toPathAbsDir absSkeletonTemplateDir) (toPathAbsDir absWaspProjectDir)
+      renameDotfiles absWaspProjectDir
       copyDirRecur (toPathAbsDir absLocalTemplateDir) (toPathAbsDir absWaspProjectDir)
+
+    -- Some skeleton files are stored without their leading dot to prevent tools
+    -- (e.g. npm) from interpreting them during packaging. We restore the dot here.
+    renameDotfiles :: Path' Abs (Dir WaspProjectDir) -> IO ()
+    renameDotfiles projectDir = do
+      let dir = fromAbsDir projectDir
+      renameFile (dir FP.</> "gitignore") (dir FP.</> ".gitignore")
