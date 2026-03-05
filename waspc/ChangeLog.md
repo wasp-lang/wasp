@@ -6,9 +6,9 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-21-to-0-22) for step-by-step documentation on how to upgrade.
 
-- Vitest is no longer bundled with Wasp. You must install it yourself and configure it in your `vite.config.ts`. ([#3735](https://github.com/wasp-lang/wasp/issues/3735))
-- `renderInContext` and `mockServer` are no longer exported from `wasp/client/test`. Use `WaspTestWrapper` directly with your own testing library, or copy the helper implementations from the [Vitest guide](https://wasp.sh/docs/guides/libraries/vitest).
-- The `wasp test client` CLI command has been removed. Run `npx vitest` from your project root instead.
+- Vitest is no longer bundled with Wasp. You must install it yourself and configure it in your `vite.config.ts`. ([#3872](https://github.com/wasp-lang/wasp/pull/3872))
+- `renderInContext` and `mockServer` are no longer exported from `wasp/client/test`. Use `WaspTestWrapper` directly with your own testing library, or copy the helper implementations from the [Vitest guide](https://wasp.sh/docs/guides/libraries/vitest). ([#3872](https://github.com/wasp-lang/wasp/pull/3872))
+- The `wasp test client` CLI command has been removed. Run `npx vitest` from your project root instead. ([#3872](https://github.com/wasp-lang/wasp/pull/3872))
 
 ### 🔧 Small improvements
 
