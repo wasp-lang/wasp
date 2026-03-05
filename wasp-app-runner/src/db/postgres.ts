@@ -84,7 +84,25 @@ async function startPostgresContainerForApp({
       `--rm`,
       dbImage,
     ],
-  }).log("postgres-container");
+  });
+
+  // Fire-and-forget: log stderr and diagnostics if container exits with error
+  const processLogger = createLogger("postgres-container");
+  postgresProcess.collect().then(({ exitCode, stderr }) => {
+    if (exitCode !== 0 && exitCode !== null) {
+      for (const line of stderr.split("\n").filter(Boolean)) {
+        processLogger.error(line);
+      }
+      const extraInfo = getExtraInfoOnPostgresStartError({
+        originalErrorText: stderr,
+        containerName,
+        port,
+      });
+      if (extraInfo !== null) {
+        processLogger.info(extraInfo);
+      }
+    }
+  });
 
   return {
     containerName,
@@ -138,6 +156,28 @@ async function ensureDockerIsRunning(): Promise<void> {
   }
 
   logger.fatal("Docker is not running. Please start Docker and try again.");
+}
+
+function getExtraInfoOnPostgresStartError({
+  originalErrorText,
+  containerName,
+  port,
+}: {
+  originalErrorText: string;
+  containerName: DbContainerName;
+  port: number;
+}): string | null {
+  const errorText = originalErrorText.toLowerCase();
+
+  if (errorText.includes("is already in use by container")) {
+    return `It looks like the cleanup failed, try running: "docker rm -f ${containerName}" and then try again.`;
+  }
+
+  if (errorText.includes("port is already allocated")) {
+    return `It seems the port ${port} is already in use. Stop any other process using this port and try again.`;
+  }
+
+  return null;
 }
 
 async function checkIfDockerIsRunning(): Promise<boolean> {
