@@ -1,10 +1,7 @@
-import { createLogger } from "./logging.js";
-import { spawnWithLog } from "./process.js";
+import { Process } from "./process.js";
 
-export async function startLocalSmtpServer(signal?: AbortSignal): Promise<void> {
-  const logger = createLogger("smtp-server");
-  spawnWithLog({
-    name: "smtp-server",
+export function startLocalSmtpServer(): AsyncDisposable {
+  return new Process({
     cmd: "docker",
     args: [
       "run",
@@ -15,11 +12,7 @@ export async function startLocalSmtpServer(signal?: AbortSignal): Promise<void> 
       "1025:1025",
       "marlonb/mailcrab:latest",
     ],
-    signal,
-  }).catch((err) => {
-    if (err?.name === "AbortError") {
-      return;
-    }
-    logger.error(`SMTP server exited unexpectedly: ${err}`);
-  });
+  })
+    .log("smtp-server")
+    .disposable();
 }

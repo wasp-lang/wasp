@@ -16,7 +16,7 @@
     "outDir": "dist",
     // "declaration": true,
     // "sourceMap": true,
-    "lib": ["es2022"]
+    "lib": ["es2022", "esnext.disposable"]
   },
   "include": ["src"]
 }

@@ -14,19 +14,17 @@ export function setupDb({
   dbType,
   pathToApp,
   dbImage,
-  signal,
 }: {
   dbType: DbType;
   appName: AppName;
   pathToApp: PathToApp;
   dbImage: DockerImageName;
-  signal?: AbortSignal;
 }): Promise<SetupDbResult> {
   switch (dbType) {
     case DbType.Sqlite:
       return setupSqlite();
     case DbType.Postgres:
-      return setupPostgres({ appName, pathToApp, dbImage, signal });
+      return setupPostgres({ appName, pathToApp, dbImage });
     default:
       dbType satisfies never;
       throw new Error(`Unknown database type: ${dbType}`);

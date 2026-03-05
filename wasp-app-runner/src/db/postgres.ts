@@ -1,10 +1,12 @@
+import { setTimeout as delay } from "node:timers/promises";
 import type { DockerImageName, PathToApp } from "../args.js";
 import {
   DbContainerName,
   createAppSpecificDbContainerName,
 } from "../docker.js";
 import { createLogger } from "../logging.js";
-import { spawnAndCollectOutput } from "../process.js";
+import { Process } from "../process.js";
+import { shutdownSignal } from "../shutdown.js";
 import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
 import type { SetupDbResult } from "./types.js";
@@ -19,26 +21,28 @@ export const setupPostgres = async ({
   appName,
   pathToApp,
   dbImage,
-  signal,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
   dbImage: DockerImageName;
-  signal?: AbortSignal;
 }): Promise<SetupDbResult> => {
   await ensureDockerIsRunning();
 
-  const databaseUrl = await startPostgresContainerForApp({
-    appName,
-    pathToApp,
-    dbImage,
-    signal,
-  });
+  const { databaseUrl, disposable, containerName } =
+    await startPostgresContainerForApp({
+      appName,
+      pathToApp,
+      dbImage,
+    });
 
   logger.info(`Using DATABASE_URL: ${databaseUrl}`);
 
   return {
-    dbEnvVars: { DATABASE_URL: databaseUrl },
+    waitUntilReady: async () => {
+      await waitForPostgresReady(containerName);
+      return { dbEnvVars: { DATABASE_URL: databaseUrl } };
+    },
+    [Symbol.asyncDispose]: disposable[Symbol.asyncDispose],
   };
 };
 
@@ -46,13 +50,15 @@ async function startPostgresContainerForApp({
   appName,
   pathToApp,
   dbImage,
-  signal,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
   dbImage: DockerImageName;
-  signal?: AbortSignal;
-}): Promise<DatabaseConnectionUrl> {
+}): Promise<{
+  containerName: DbContainerName;
+  databaseUrl: DatabaseConnectionUrl;
+  disposable: AsyncDisposable;
+}> {
   const containerName = createAppSpecificDbContainerName({
     appName,
     pathToApp,
@@ -60,28 +66,12 @@ async function startPostgresContainerForApp({
 
   logger.info(`Using container name: ${containerName}`);
 
-  const databaseUrl = await startPostgresContainerAndWaitUntilReady(
-    containerName,
-    dbImage,
-    signal,
-  );
-
-  return databaseUrl;
-}
-
-async function startPostgresContainerAndWaitUntilReady(
-  containerName: DbContainerName,
-  dbImage: DockerImageName,
-  signal?: AbortSignal,
-): Promise<DatabaseConnectionUrl> {
   const port = 5432;
   const password = "devpass";
 
   logger.info(`Starting the PostgreSQL container with image: ${dbImage}...`);
 
-  // Start Docker container -- this promise settles when the container exits.
-  const containerExited = spawnAndCollectOutput({
-    name: "create-postgres-container",
+  const postgresProcess = new Process({
     cmd: "docker",
     args: [
       "run",
@@ -94,57 +84,14 @@ async function startPostgresContainerAndWaitUntilReady(
       `--rm`,
       dbImage,
     ],
-    signal,
-  }).then(({ exitCode, stderrData }) => {
-    if (exitCode !== 0) {
-      const extraInfo = getExtraInfoOnPostgresStartError({
-        originalErrorText: stderrData,
-        containerName,
-        port,
-      });
-      const fullMessage = extraInfo
-        ? `${stderrData.trim()}\n${extraInfo}`
-        : stderrData.trim();
-      throw logger.cliError(
-        `Docker container failed to start: ${fullMessage}`,
-      );
-    }
-    // Container exited with code 0 while we expected it to run indefinitely.
-    throw logger.cliError(
-      "PostgreSQL container exited unexpectedly.",
-    );
-  });
+  }).log("postgres-container");
 
-  // Race: either Postgres becomes ready, or the container dies first.
-  await Promise.race([waitForPostgresReady(containerName), containerExited]);
-
-  // Suppress late rejections -- if the container crashes after postgres is ready,
-  // downstream operations will surface their own errors.
-  containerExited.catch(() => {});
-
-  return `postgresql://postgres:${password}@localhost:${port}/postgres` as DatabaseConnectionUrl;
-}
-
-function getExtraInfoOnPostgresStartError({
-  originalErrorText,
-  containerName,
-  port,
-}: {
-  originalErrorText: string;
-  containerName: DbContainerName;
-  port: number;
-}): string | null {
-  const errorText = originalErrorText.toLowerCase();
-
-  if (errorText.includes("is already in use by container")) {
-    return `It looks like the cleanup failed, try running: "docker rm -f ${containerName}" and then try again.`;
-  }
-
-  if (errorText.includes("port is already allocated")) {
-    return `It seems the port ${port} is already in use. Stop any other process using this port and try again.`;
-  }
-
-  return null;
+  return {
+    containerName,
+    disposable: postgresProcess.disposable(),
+    databaseUrl:
+      `postgresql://postgres:${password}@localhost:${port}/postgres` as DatabaseConnectionUrl,
+  };
 }
 
 async function waitForPostgresReady(
@@ -164,46 +111,43 @@ async function waitForPostgresReady(
       logger.success("PostgreSQL is ready");
       return;
     }
-    await wait(healthCheckDelay);
+
+    await delay(healthCheckDelay, undefined, { signal: shutdownSignal });
   }
 
-  throw logger.cliError(
-    "PostgreSQL did not become ready in time",
-  );
+  logger.fatal("PostgreSQL did not become ready in time");
 }
 
 async function checkIfPostgresIsReady(
   containerName: DbContainerName,
 ): Promise<boolean> {
-  const { exitCode } = await spawnAndCollectOutput({
-    name: "postgres-readiness-check",
-    cmd: "docker",
-    args: ["exec", containerName, "pg_isready", "-U", "postgres"],
-  });
+  try {
+    const { exitCode } = await new Process({
+      cmd: "docker",
+      args: ["exec", containerName, "pg_isready", "-U", "postgres"],
+    }).wait();
 
-  return exitCode === 0;
-}
-
-async function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+    return exitCode === 0;
+  } catch {
+    return false;
+  }
 }
 
 async function ensureDockerIsRunning(): Promise<void> {
   const isDockerRunning = await checkIfDockerIsRunning();
 
-  if (!isDockerRunning) {
-    throw logger.cliError(
-      "Docker is not running. Please start Docker and try again.",
-    );
+  if (isDockerRunning) {
+    return;
   }
+
+  logger.fatal("Docker is not running. Please start Docker and try again.");
 }
 
 async function checkIfDockerIsRunning(): Promise<boolean> {
-  const { exitCode } = await spawnAndCollectOutput({
-    name: "docker-health-check",
+  const { exitCode } = await new Process({
     cmd: "docker",
     args: ["info"],
-  });
+  }).wait();
 
   return exitCode === 0;
 }

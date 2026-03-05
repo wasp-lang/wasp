@@ -11,9 +11,7 @@ import { DbType } from "./db/index.js";
 import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
-import { createLogger } from "./logging.js";
-import { CLIError } from "./logging.js";
-import { childProcessManager } from "./process.js";
+import { CLIError, createLogger } from "./logging.js";
 import { waspInfo, waspTsSetup } from "./waspCli.js";
 
 const logger = createLogger("main");
@@ -21,34 +19,20 @@ const logger = createLogger("main");
 export async function main(): Promise<void> {
   const { mode, waspCliCmd, pathToApp, dbImage } = parseArgs();
 
-  const abortController = new AbortController();
-  const { signal } = abortController;
-
-  const onSignal = () => abortController.abort();
-  process.on("SIGINT", onSignal);
-  process.on("SIGTERM", onSignal);
-
-  childProcessManager.connectSignal(signal);
-
   try {
-    await runWaspApp({ mode, waspCliCmd, pathToApp, dbImage, signal });
+    await runWaspApp({
+      mode,
+      waspCliCmd,
+      pathToApp,
+      dbImage,
+    });
   } catch (error: unknown) {
-    if (signal.aborted) {
-      process.exitCode = 1;
-      return;
-    }
     if (error instanceof CLIError) {
-      const errorLogger = createLogger(error.processName);
-      errorLogger.error(error.message);
+      error.logger.error(error.message);
       process.exitCode = 1;
-      return;
-    }
-    if (error instanceof Error) {
-      logger.error(`Fatal error: ${error.message}`);
     } else {
-      logger.error(`Fatal error: ${error}`);
+      throw error;
     }
-    process.exitCode = 1;
   }
 }
 
@@ -57,13 +41,11 @@ async function runWaspApp({
   waspCliCmd,
   pathToApp,
   dbImage: dbImageArg,
-  signal,
 }: {
   mode: Mode;
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   dbImage?: DockerImageName;
-  signal: AbortSignal;
 }): Promise<void> {
   await checkDependencies();
 
@@ -73,8 +55,8 @@ async function runWaspApp({
   });
 
   if (dbImageArg && dbType !== DbType.Postgres) {
-    throw logger.cliError(
-      "The --db-image option is only valid when using PostgreSQL as the database.",
+    logger.fatal(
+      `The --db-image option is only valid when using PostgreSQL as the database.`,
     );
   }
   const dbImage = dbImageArg ?? defaultPostgresDbImage;
@@ -98,7 +80,6 @@ async function runWaspApp({
         appName,
         dbType,
         dbImage,
-        signal,
       });
       break;
 
@@ -109,7 +90,6 @@ async function runWaspApp({
         appName,
         dbType,
         dbImage,
-        signal,
       });
       break;
 
@@ -125,8 +105,6 @@ async function isWaspTypescriptConfigProject(
     const files = await readdir(pathToApp);
     return files.some((file) => file.endsWith(".wasp.ts"));
   } catch (error) {
-    throw logger.cliError(
-      `Failed to read directory ${pathToApp}: ${error}`,
-    );
+    return logger.fatal(`Failed to read directory ${pathToApp}: ${error}`);
   }
 }

@@ -1,5 +1,5 @@
 export type SetupDbResult = {
-  dbEnvVars: {
-    [envVarName: string]: string;
-  };
-};
+  waitUntilReady: () => Promise<{
+    dbEnvVars: { [envVarName: string]: string };
+  }>;
+} & AsyncDisposable;

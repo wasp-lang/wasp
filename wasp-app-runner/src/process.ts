@@ -1,150 +1,94 @@
-import { ChildProcess, spawn } from "child_process";
+import { spawn } from "child_process";
+import { text } from "node:stream/consumers";
 import readline from "readline";
-import { createLogger } from "./logging.js";
+import { CLIError, createLogger, type Logger } from "./logging.js";
+import { shutdownSignal } from "./shutdown.js";
 import type { EnvVars } from "./types.js";
 
-type SpawnOptions = {
-  name: string;
+export type SpawnOptions = {
   cmd: string;
   args: string[];
   cwd?: string;
+  env?: EnvVars;
 };
 
-class ChildProcessManager {
-  private children: ChildProcess[] = [];
-  private logger = createLogger("child-process-manager");
-
-  connectSignal(signal: AbortSignal): void {
-    signal.addEventListener("abort", () => {
-      this.killAll("abort signal");
-    });
-  }
-
-  addChild(child: ChildProcess) {
-    this.children.push(child);
-  }
-
-  removeChild(proc: ChildProcess) {
-    const index = this.children.indexOf(proc);
-    if (index !== -1) {
-      this.children.splice(index, 1);
-    }
-  }
-
-  killAll(reason: string) {
-    if (this.children.length === 0) {
-      return;
-    }
-    this.logger.warn(`Received ${reason}. Cleaning up...`);
-    for (const child of this.children) {
-      if (!child.killed) {
-        child.kill();
-      }
-    }
-    this.children = [];
-  }
-}
-
-export const childProcessManager = new ChildProcessManager();
-
-export function spawnWithLog({
-  name,
-  cmd,
-  args,
-  cwd,
-  extraEnv = {},
-  signal,
-}: SpawnOptions & {
-  extraEnv?: EnvVars;
-  signal?: AbortSignal;
-}): Promise<{ exitCode: number | null }> {
-  return new Promise((resolve, reject) => {
-    const logger = createLogger(name);
-    const proc = spawn(cmd, args, {
-      cwd,
-      env: { ...process.env, ...extraEnv },
-      stdio: ["ignore", "pipe", "pipe"],
-      signal,
-    });
-    childProcessManager.addChild(proc);
-
-    readStreamLines(proc.stdout, (line) => logger.info(line));
-    readStreamLines(proc.stderr, (line) => logger.error(line));
-
-    proc.on("error", (err) => {
-      if (err.name === "AbortError") {
-        reject(err);
-        return;
-      }
-      logger.error(`Process error: ${err.message}`);
-      reject(err);
-    });
-
-    proc.on("close", (exitCode) => {
-      childProcessManager.removeChild(proc);
-      if (exitCode === 0) {
-        logger.success("Process completed successfully");
-        resolve({
-          exitCode,
-        });
-      } else {
-        logger.error(`Process exited with code ${exitCode}`);
-        reject({
-          exitCode,
-        });
-      }
-    });
-  });
-}
-
-export function spawnAndCollectOutput({
-  cmd,
-  args,
-  cwd,
-  signal,
-}: SpawnOptions & {
-  signal?: AbortSignal;
-}): Promise<{
+export type ProcessResult = {
   exitCode: number | null;
-  stdoutData: string;
-  stderrData: string;
-}> {
-  let stdoutData = "";
-  let stderrData = "";
-  return new Promise((resolve, reject) => {
-    const proc = spawn(cmd, args, {
-      cwd,
-      signal,
-    });
-    childProcessManager.addChild(proc);
+  stdout: string;
+  stderr: string;
+};
 
-    readStreamLines(proc.stdout, (line) => (stdoutData += line + "\n"));
-    readStreamLines(proc.stderr, (line) => (stderrData += line + "\n"));
+export class Process {
+  #proc: ReturnType<typeof spawn>;
+  #logger?: Logger;
+  #closePromise: Promise<number | null>;
 
-    proc.on("error", (err) => {
-      childProcessManager.removeChild(proc);
-      reject(err);
+  constructor(options: SpawnOptions) {
+    this.#proc = spawn(options.cmd, options.args, {
+      cwd: options.cwd,
+      env: options.env ? { ...process.env, ...options.env } : undefined,
+      signal: shutdownSignal,
+      stdio: ["ignore", "pipe", "pipe"],
     });
 
-    proc.on("close", (exitCode) => {
-      childProcessManager.removeChild(proc);
-      resolve({
-        exitCode,
-        stdoutData,
-        stderrData,
+    this.#closePromise = new Promise<number | null>((resolve, reject) => {
+      this.#proc.on("close", (code) => resolve(code));
+      this.#proc.on("error", (err) => {
+        if (err.name === "AbortError") return;
+        reject(err);
       });
     });
-  });
-}
+  }
 
-function readStreamLines(
-  stream: NodeJS.ReadableStream,
-  callback: (line: string) => void,
-) {
-  const rl = readline.createInterface({
-    input: stream,
-    crlfDelay: Infinity,
-  });
+  log(name: string): this {
+    this.#logger = createLogger(name);
+    const logger = this.#logger;
 
-  rl.on("line", callback);
+    if (this.#proc.stdout) {
+      const stdoutRl = readline.createInterface({ input: this.#proc.stdout });
+      stdoutRl.on("line", (line) => logger.info(line));
+    }
+
+    if (this.#proc.stderr) {
+      const stderrRl = readline.createInterface({ input: this.#proc.stderr });
+      stderrRl.on("line", (line) => logger.error(line));
+    }
+
+    return this;
+  }
+
+  async collect(): Promise<ProcessResult> {
+    const [stdout, stderr, exitCode] = await Promise.all([
+      this.#proc.stdout ? text(this.#proc.stdout) : Promise.resolve(""),
+      this.#proc.stderr ? text(this.#proc.stderr) : Promise.resolve(""),
+      this.#closePromise,
+    ]);
+    return { exitCode, stdout, stderr };
+  }
+
+  async wait(): Promise<{ exitCode: number | null }> {
+    const exitCode = await this.#closePromise;
+    if (exitCode !== null && exitCode !== 0) {
+      const logger = this.#logger ?? createLogger("process");
+      throw new CLIError(logger, `Process exited with code ${exitCode}`);
+    }
+    return { exitCode };
+  }
+
+  async kill(): Promise<void> {
+    if (!this.#proc.killed) {
+      this.#proc.kill();
+    }
+    try {
+      await this.#closePromise;
+    } catch {
+      // ignore errors, since we know we're killing the process anyway
+    }
+  }
+
+  disposable(): AsyncDisposable {
+    return {
+      [Symbol.asyncDispose]: () => this.kill(),
+    };
+  }
 }
