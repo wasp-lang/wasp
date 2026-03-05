@@ -2,16 +2,16 @@
 {=# areThereAnyEntitiesDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 import type { FromRegistry } from 'wasp/types'
-{=# isPrismaSetupFnDefined =} 
-import { getPrismaClient } from './dbRegistry.js'
+{=# prismaSetupFn.isDefined =}
+{=& prismaSetupFn.importStatement =}
 
 export type UserPrismaClient = FromRegistry<'userPrismaClient', InternalPrismaClient>
 
-const dbClient: UserPrismaClient = getPrismaClient();
-{=/ isPrismaSetupFnDefined =}
-{=^ isPrismaSetupFnDefined =} 
+const dbClient: UserPrismaClient = {= prismaSetupFn.importIdentifier =}();
+{=/ prismaSetupFn.isDefined =}
+{=^ prismaSetupFn.isDefined =}
 const dbClient = InternalPrismaClient();
-{=/ isPrismaSetupFnDefined =}
+{=/ prismaSetupFn.isDefined =}
 {=/ areThereAnyEntitiesDefined =}
 {=^ areThereAnyEntitiesDefined =}
 // * Prisma will not generate a PrismaClient if there no
@@ -26,4 +26,3 @@ const dbClient = null;
 export type PrismaClient = typeof dbClient;
 // PUBLIC API
 export default dbClient;
-

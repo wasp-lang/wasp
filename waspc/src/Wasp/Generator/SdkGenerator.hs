@@ -57,6 +57,8 @@ import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi
 import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
+import qualified Wasp.Generator.JsImport as GJI
+import Wasp.Generator.ServerGenerator (userPrismaSetupVF)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
@@ -112,9 +114,6 @@ genSdk spec =
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/setup.ts|],
       C.genFileCopy [relfile|types/index.ts|],
-      C.genFileCopy [relfile|server/dbRegistry.ts|],
-      C.genFileCopy [relfile|server/operations/operationsRegistry.ts|],
-      C.genFileCopy [relfile|server/envRegistry.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
@@ -122,9 +121,9 @@ genSdk spec =
       genTsConfigJson,
       genServerUtils spec,
       genServerExportedTypesDir,
-      genPackageJson spec,
-      genServerDbClient spec
+      genPackageJson spec
     ]
+    <++> genServerDbClient spec
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
@@ -343,19 +342,23 @@ genServerMiddleware =
       C.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
-genServerDbClient :: AppSpec -> Generator FileDraft
+genServerDbClient :: AppSpec -> Generator [FileDraft]
 genServerDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
-  let tmplData =
+  let prismaSetupFnJson = GJI.virtualExtImportToImportJson userPrismaSetupVF maybePrismaSetupFn
+  let dbClientTmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "isPrismaSetupFnDefined" .= isPrismaSetupFnDefined
+            "prismaSetupFn" .= prismaSetupFnJson
           ]
-
-  return $
-    C.mkTmplFdWithData
-      [relfile|server/dbClient.ts|]
-      tmplData
+  let dbClientFd = C.mkTmplFdWithData [relfile|server/dbClient.ts|] dbClientTmplData
+  let prismaSetupDeclFds =
+        [ C.mkTmplFdWithData
+            [relfile|server/userPrismaSetup.d.ts|]
+            (object ["prismaSetupFn" .= prismaSetupFnJson])
+          | isJust maybePrismaSetupFn
+        ]
+  return $ dbClientFd : prismaSetupDeclFds
   where
     app = snd $ getApp spec
-    isPrismaSetupFnDefined = not . null $ AS.Db.prismaSetupFn =<< AS.App.db app
+    maybePrismaSetupFn = AS.Db.prismaSetupFn =<< AS.App.db app

@@ -8,15 +8,17 @@ module Wasp.Generator.ServerGenerator
     operationsRouteInRootRouter,
     npmDepsFromWasp,
     userServerEnvSchemaVF,
+    userPrismaSetupVF,
+    operationVF,
   )
 where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
-import qualified Data.Aeson.Types as Aeson.Types
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Maybe
-  ( isJust,
+  ( fromJust,
+    isJust,
     maybeToList,
   )
 import StrongPath
@@ -40,6 +42,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
@@ -246,9 +249,7 @@ genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =
   sequence
     [ genFileCopy [relfile|app.js|],
-      genServerJs spec,
-      genRegistrations spec,
-      genManifest spec
+      genServerJs spec
     ]
     <++> genRoutesDir spec
     <++> genViewsDir spec
@@ -281,51 +282,15 @@ genServerJs spec =
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
 
-genRegistrations :: AppSpec -> Generator FileDraft
-genRegistrations spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/registrations.ts|])
-      (C.asServerFile [relfile|src/registrations.ts|])
-      ( Just $
-          object
-            [ "prismaSetupFn" .= extImportToImportJson relPathToServerSrcDir maybePrismaSetupFn
-            ]
-      )
-  where
-    app = snd $ getApp spec
-    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
-
-    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathToServerSrcDir = [reldirP|./|]
-
 userServerEnvSchemaVF :: VirtualFile
 userServerEnvSchemaVF = [relfileP|virtual:wasp/user-server-env-schema|]
 
-genManifest :: AppSpec -> Generator FileDraft
-genManifest spec =
-  return $
-    C.mkTmplFdWithDstAndData
-      (C.asTmplFile [relfile|src/manifest.ts|])
-      (C.asServerFile [relfile|src/manifest.ts|])
-      ( Just $
-          object
-            [ "operations" .= map mkOperationData allOperations,
-              "hasOperations" .= (not . null $ allOperations)
-            ]
-      )
-  where
-    allOperations = AS.getOperations spec
+userPrismaSetupVF :: VirtualFile
+userPrismaSetupVF = [relfileP|virtual:wasp/user-prisma-setup|]
 
-    mkOperationData :: AS.Operation.Operation -> Aeson.Types.Value
-    mkOperationData operation =
-      object
-        [ "jsFn" .= extImportToImportJson relPathToServerSrcDir (Just $ AS.Operation.getFn operation),
-          "operationName" .= AS.Operation.getName operation
-        ]
-
-    relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathToServerSrcDir = [reldirP|./|]
+operationVF :: String -> VirtualFile
+operationVF operationName =
+  fromJust $ SP.parseRelFileP $ "virtual:wasp/operation/" ++ operationName
 
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
@@ -407,13 +372,35 @@ genRollupConfigJs spec =
     tmplData =
       object
         [ "areDbSeedsDefined" .= areDbSeedsDefined,
-          "userServerEnvSchemaVF" .= toFilePath userServerEnvSchemaVF,
-          "serverEnvSchema" .= extImportToImportJson rollupDirToServerSrcDir maybeServerEnvSchema
+          "virtualModules" .= virtualModules,
+          "hasVirtualModules" .= (not . null $ virtualModules)
         ]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
 
+    virtualModules :: [Aeson.Value]
+    virtualModules =
+      maybeToList (mkVirtualModuleFromExtImport userServerEnvSchemaVF <$> maybeServerEnvSchema)
+        ++ maybeToList (mkVirtualModuleFromExtImport userPrismaSetupVF <$> maybePrismaSetupFn)
+        ++ map mkOperationVirtualModule allOperations
+
+    mkVirtualModuleFromExtImport :: VirtualFile -> EI.ExtImport -> Aeson.Value
+    mkVirtualModuleFromExtImport vf extImport =
+      let importJson = extImportToImportJson rollupDirToServerSrcDir (Just extImport)
+       in object
+            [ "virtualPath" .= toFilePath vf,
+              "importJson" .= importJson
+            ]
+
+    mkOperationVirtualModule :: AS.Operation.Operation -> Aeson.Value
+    mkOperationVirtualModule operation =
+      mkVirtualModuleFromExtImport
+        (operationVF $ AS.Operation.getName operation)
+        (AS.Operation.getFn operation)
+
     maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    allOperations = AS.getOperations spec
     app = snd $ getApp spec
 
     rollupDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)

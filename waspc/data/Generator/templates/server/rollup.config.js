@@ -22,7 +22,9 @@ function createBundle(inputFilePath, outputFilePath) {
       sourcemap: true,
     },
     plugins: [
+      {=# hasVirtualModules =}
       waspVirtualModules(),
+      {=/ hasVirtualModules =}
       resolve({ extensions: ['.mjs', '.js', '.ts', '.json', '.node'] }),
       esbuild({
         target: 'esnext',
@@ -48,18 +50,24 @@ function createBundle(inputFilePath, outputFilePath) {
   }
 }
 
+{=# hasVirtualModules =}
 function waspVirtualModules() {
+  const virtualModuleMap = {
+    {=# virtualModules =}
+    '{= virtualPath =}': '{=& importJson.importPath =}',
+    {=/ virtualModules =}
+  }
+
   return {
     name: 'wasp:virtual-modules',
     async resolveId(id) {
-      {=# serverEnvSchema.isDefined =}
-      if (id === '{= userServerEnvSchemaVF =}') {
-        const absPath = path.resolve(__dirname, '{=& serverEnvSchema.importPath =}')
+      if (id in virtualModuleMap) {
+        const absPath = path.resolve(__dirname, virtualModuleMap[id])
         const resolved = await this.resolve(absPath, undefined, { skipSelf: true })
         return resolved
       }
-      {=/ serverEnvSchema.isDefined =}
       return null
     },
   }
 }
+{=/ hasVirtualModules =}

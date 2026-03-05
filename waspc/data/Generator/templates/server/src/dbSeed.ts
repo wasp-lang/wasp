@@ -1,6 +1,4 @@
 {{={= =}=}}
-import './manifest.js'
-
 // This is a script that is used to seed the database. It is present here in the server project in
 // order to have easy access to the server logic, like operations and the rest, since we often want
 // to use that logic in our seeding.

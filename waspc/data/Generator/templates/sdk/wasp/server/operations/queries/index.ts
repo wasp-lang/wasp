@@ -8,13 +8,15 @@ import {
   createAuthenticatedOperation,
   {=/ isAuthEnabled =}
 } from '../wrappers.js'
-import { getOperation } from '../operationsRegistry.js'
 import type { FromOperationsRegistry } from 'wasp/types'
 import type {
   {=# operations =}
   {= typeName =},
   {=/ operations =}
 } from './types.js'
+{=# operations =}
+{=& jsFn.importStatement =}
+{=/ operations =}
 {=# operations =}
 
 // PRIVATE API
@@ -29,7 +31,7 @@ export const {= operationName =}: AuthenticatedOperationFor<{= operationTypeName
 export const {= operationName =}: UnauthenticatedOperationFor<{= operationTypeName =}> =
   createUnauthenticatedOperation(
 {=/ usesAuth =}
-    getOperation('{= operationName =}') as {= operationTypeName =},
+    ((...args: any[]) => {= jsFn.importIdentifier =}(...args)) as {= operationTypeName =},
     {
       {=# entities =}
       {= name =}: prisma.{= prismaIdentifier =},

@@ -10,7 +10,8 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
+import qualified Data.Aeson.Types as Aeson.Types
+import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, toFilePath, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -19,6 +20,7 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (virtualExtImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
@@ -26,7 +28,8 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkImportPath,
     mkTmplFdWithData,
   )
-import Wasp.Util (toUpperFirst)
+import Wasp.Generator.ServerGenerator (operationVF)
+import Wasp.Util (toUpperFirst, (<++>))
 
 -- | This function should match the `exports` path from the SDK's package.json.
 getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
@@ -46,6 +49,7 @@ genOperations spec =
       genWrappers spec,
       genIndexTs spec
     ]
+    <++> genOperationVirtualModuleDecls spec
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
@@ -161,10 +165,34 @@ getOperationTmplData isAuthEnabledGlobally operation =
     [ "operationName" .= AS.Operation.getName operation,
       "operationTypeName" .= getOperationTypeName operation,
       "typeName" .= toUpperFirst (AS.Operation.getName operation),
+      "jsFn" .= virtualExtImportToImportJson (operationVF operationName) (Just $ AS.Operation.getFn operation),
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
+  where
+    operationName = AS.Operation.getName operation
+
+genOperationVirtualModuleDecls :: AppSpec -> Generator [FileDraft]
+genOperationVirtualModuleDecls spec
+  | null allOperations = return []
+  | otherwise =
+      return
+        [ mkTmplFdWithData
+            (serverOpsDirInSdkTemplatesDir </> [relfile|_operationVirtualModules.d.ts|])
+            tmplData
+        ]
+  where
+    allOperations = AS.getOperations spec
+    tmplData =
+      object
+        [ "operations" .= map mkVirtualModuleData allOperations
+        ]
+    mkVirtualModuleData :: AS.Operation.Operation -> Aeson.Types.Value
+    mkVirtualModuleData operation =
+      object
+        [ "virtualModulePath" .= toFilePath (operationVF $ AS.Operation.getName operation)
+        ]
 
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOpsDirInSdkTemplatesDir = [reldir|server/operations|]

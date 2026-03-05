@@ -23,6 +23,7 @@ import Wasp.JsImport
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (..),
     VirtualFile,
+    getImportIdentifier,
     getImportPathString,
     getJsImportStmtAndIdentifier,
     getJsTypeofImportExpr,
@@ -57,12 +58,14 @@ jsImportToImportJson = maybe notDefinedValue mkTmplData
       let (importStatement, importIdentifier) = getJsImportStmtAndIdentifier jsImport
           importPath = getImportPathString jsImport._path
           typeofImportExpression = getJsTypeofImportExpr jsImport
+          exportName = getImportIdentifier jsImport
        in object
             [ "isDefined" .= True,
               "importStatement" .= importStatement,
               "importIdentifier" .= importIdentifier,
               "importPath" .= importPath,
-              "typeofImportExpression" .= typeofImportExpression
+              "typeofImportExpression" .= typeofImportExpression,
+              "exportName" .= exportName
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
@@ -91,5 +94,5 @@ virtualExtImportToJsImport virtualFileId extImport =
   JsImport
     { _path = ModuleImportPath virtualFileId,
       _name = extImportNameToJsImportName extImport.name,
-      _importAlias = Nothing
+      _importAlias = Just $ EI.importIdentifier extImport ++ "_vf"
     }

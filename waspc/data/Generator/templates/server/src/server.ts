@@ -1,7 +1,4 @@
 {{={= =}=}}
-// Order matters: registrations must run before manifest (see registrations.ts).
-import './registrations.js'
-import './manifest.js'
 import http from 'http'
 
 import app from './app.js'

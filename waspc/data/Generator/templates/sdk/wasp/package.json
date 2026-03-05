@@ -80,12 +80,6 @@
       "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
       {=! Still needed, reconsider during refactoring. =}
       "./server/types": "./dist/server/types/index.js",
-      {=! Used by server manifest to register prisma setup fn before dbClient initializes. =}
-      "./server/dbRegistry": "./dist/server/dbRegistry.js",
-      {=! Used by server manifest to register operations before SDK initializes. =}
-      "./server/operations/operationsRegistry": "./dist/server/operations/operationsRegistry.js",
-      {=! Used by server manifest to register server env schema before env.ts initializes. =}
-      "./server/envRegistry": "./dist/server/envRegistry.js",
       {=! Used by the framework server code, reconsider during refactoring. =}
       "./server/middleware": "./dist/server/middleware/index.js",
 
