@@ -25,13 +25,13 @@ export type {= operationTypeName =} = FromOperationsRegistry<'{= operationName =
 // PUBLIC API
 {=# usesAuth =}
 export const {= operationName =}: AuthenticatedOperationFor<{= operationTypeName =}> =
-  createAuthenticatedOperation(
+  createAuthenticatedOperation<{= operationTypeName =}>(
 {=/ usesAuth =}
 {=^ usesAuth =}
 export const {= operationName =}: UnauthenticatedOperationFor<{= operationTypeName =}> =
-  createUnauthenticatedOperation(
+  createUnauthenticatedOperation<{= operationTypeName =}>(
 {=/ usesAuth =}
-    ((...args: any[]) => {= jsFn.importIdentifier =}(...args)),
+    () => {= jsFn.importIdentifier =},
     {
       {=# entities =}
       {= name =}: prisma.{= prismaIdentifier =},

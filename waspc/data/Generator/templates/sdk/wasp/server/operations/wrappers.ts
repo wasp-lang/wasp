@@ -40,18 +40,20 @@ export type UnauthenticatedOperationFor<
  * Creates the server-side API for an unauthenticated operation.
  *
  * @template OperationDefinition The type of the unauthenticated operation's definition.
- * @param userOperation The unauthenticated operation's definition.
+ * @param getUserOperation A getter that returns the unauthenticated operation's
+ * definition. Using a getter defers the module binding read, avoiding TDZ
+ * errors when Rollup merges virtual module chunks.
  * @param entities The unauthenticated operation's entity map .
  * @returns The server-side API for the provided unauthenticated operation.
  */
 export function createUnauthenticatedOperation<
   OperationDefinition extends GenericUnauthenticatedOperationDefinition
 >(
-  userOperation: OperationDefinition,
+  getUserOperation: () => OperationDefinition,
   entities: EntityMapFor<OperationDefinition>
 ): UnauthenticatedOperationFor<OperationDefinition> {
   async function operation(payload: Parameters<OperationDefinition>[0]) {
-    return userOperation(payload, {
+    return getUserOperation()(payload, {
       entities,
     })
   }
@@ -95,19 +97,22 @@ export type AuthenticatedOperationContext = { user: AuthUser }
  * Creates the server-side API for an authenticated operation.
  *
  * @template OperationDefinition The type of the authenticated operation's definition.
- * @param userOperation The authenticated operation's definition.
+ * @param getUserOperation A getter that returns the authenticated operation's
+ * definition. Using a getter defers the module binding read, avoiding TDZ
+ * errors when Rollup merges virtual module chunks.
  * @param entities The authenticated operation's entity map .
  * @returns The server-side API for the provided authenticated operation.
  */
 export function createAuthenticatedOperation<
   OperationDefinition extends GenericAuthenticatedOperationDefinition
 >(
-  userOperation: OperationDefinition,
+  getUserOperation: () => OperationDefinition,
   entities: EntityMapFor<OperationDefinition>
 ): AuthenticatedOperationFor<OperationDefinition> {
   async function operation(...args: AuthenticatedOperationArgsFor<OperationDefinition>) {
     // To understand this function and its limitations, read
     // https://github.com/wasp-lang/wasp/issues/2050
+    const userOperation = getUserOperation()
     if (args.length < 1) {
       // No arguments sent -> no user and no payload specified -> there's no way this was called correctly.
       throw new Error(`
