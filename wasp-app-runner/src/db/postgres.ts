@@ -121,16 +121,13 @@ async function waitForPostgresReady(
 async function checkIfPostgresIsReady(
   containerName: DbContainerName,
 ): Promise<boolean> {
-  try {
-    const { exitCode } = await new Process({
-      cmd: "docker",
-      args: ["exec", containerName, "pg_isready", "-U", "postgres"],
-    }).wait();
-
-    return exitCode === 0;
-  } catch {
-    return false;
-  }
+  return await new Process({
+    cmd: "docker",
+    args: ["exec", containerName, "pg_isready", "-U", "postgres"],
+  })
+    .wait()
+    .then(({ exitCode }) => exitCode === 0)
+    .catch(() => false);
 }
 
 async function ensureDockerIsRunning(): Promise<void> {
@@ -144,10 +141,11 @@ async function ensureDockerIsRunning(): Promise<void> {
 }
 
 async function checkIfDockerIsRunning(): Promise<boolean> {
-  const { exitCode } = await new Process({
+  return await new Process({
     cmd: "docker",
     args: ["info"],
-  }).wait();
-
-  return exitCode === 0;
+  })
+    .wait()
+    .then(({ exitCode }) => exitCode === 0)
+    .catch(() => false);
 }

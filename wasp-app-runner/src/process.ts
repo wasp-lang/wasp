@@ -68,7 +68,7 @@ export class Process {
 
   async wait(): Promise<{ exitCode: number | null }> {
     const exitCode = await this.#closePromise;
-    if (exitCode !== null && exitCode !== 0) {
+    if (exitCode !== 0) {
       const logger = this.#logger ?? createLogger("process");
       throw new CLIError(logger, `Process exited with code ${exitCode}`);
     }
