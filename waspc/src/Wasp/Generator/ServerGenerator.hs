@@ -7,7 +7,7 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsFromWasp,
-    userServerEnvSchemaPath,
+    userServerEnvSchemaVF,
   )
 where
 
@@ -30,6 +30,8 @@ import StrongPath
     fromRelDir,
     reldirP,
     relfile,
+    relfileP,
+    toFilePath,
     (</>),
   )
 import qualified StrongPath as SP
@@ -72,6 +74,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.Common (libsRootDirFromServerDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import Wasp.JsImport (VirtualFile)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -296,8 +299,8 @@ genRegistrations spec =
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
 
-userServerEnvSchemaPath :: String
-userServerEnvSchemaPath = "virtual:wasp/user-server-env"
+userServerEnvSchemaVF :: VirtualFile
+userServerEnvSchemaVF = [relfileP|virtual:wasp/user-server-env-schema|]
 
 genManifest :: AppSpec -> Generator FileDraft
 genManifest spec =
@@ -404,17 +407,14 @@ genRollupConfigJs spec =
     tmplData =
       object
         [ "areDbSeedsDefined" .= areDbSeedsDefined,
-          "userServerEnvSchemaPath" .= userServerEnvSchemaPath,
-          -- importPath from this JSON is relative to server root (via relPathFromRollupToServerSrcDir),
-          -- used by path.resolve(__dirname, importPath) in the rollup config.
-          "serverEnvSchema" .= extImportToImportJson relPathFromRollupToServerSrcDir maybeServerEnvSchema
+          "userServerEnvSchemaVF" .= toFilePath userServerEnvSchemaVF,
+          "serverEnvSchema" .= extImportToImportJson rollupDirToServerSrcDir maybeServerEnvSchema
         ]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
 
-    app = snd $ getApp spec
     maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+    app = snd $ getApp spec
 
-    -- rollup.config.js is at server root, server src dir is at server/src/
-    relPathFromRollupToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
-    relPathFromRollupToServerSrcDir = [reldirP|src/|]
+    rollupDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    rollupDirToServerSrcDir = [reldirP|src/|]

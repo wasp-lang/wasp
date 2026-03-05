@@ -53,7 +53,7 @@ function waspVirtualModules() {
     name: 'wasp:virtual-modules',
     async resolveId(id) {
       {=# serverEnvSchema.isDefined =}
-      if (id === '{= userServerEnvSchemaPath =}') {
+      if (id === '{= userServerEnvSchemaVF =}') {
         const absPath = path.resolve(__dirname, '{=& serverEnvSchema.importPath =}')
         const resolved = await this.resolve(absPath, undefined, { skipSelf: true })
         return resolved

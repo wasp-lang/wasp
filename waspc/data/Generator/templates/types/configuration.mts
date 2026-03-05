@@ -2,22 +2,22 @@
 declare module 'wasp/types' {
   interface Registry {
 {=# prismaSetupFn.isDefined =}
-    userPrismaClient: ReturnType<typeof {=& prismaSetupFn.typeofImportExpr =}>
+    userPrismaClient: ReturnType<typeof {=& prismaSetupFn.typeofImportExpression =}>
 {=/ prismaSetupFn.isDefined =}
 {=# serverEnvSchema.isDefined =}
-    serverEnvSchema: typeof {=& serverEnvSchema.typeofImportExpr =}
+    serverEnvSchema: typeof {=& serverEnvSchema.typeofImportExpression =}
 {=/ serverEnvSchema.isDefined =}
 {=# clientEnvSchema.isDefined =}
-    clientEnvSchema: typeof {=& clientEnvSchema.typeofImportExpr =}
+    clientEnvSchema: typeof {=& clientEnvSchema.typeofImportExpression =}
 {=/ clientEnvSchema.isDefined =}
 {=# webSocketFn.isDefined =}
-    webSocketFn: typeof {=& webSocketFn.typeofImportExpr =}
+    webSocketFn: typeof {=& webSocketFn.typeofImportExpression =}
 {=/ webSocketFn.isDefined =}
 {=# emailUserSignupFields.isDefined =}
-    emailUserSignupFields: typeof {=& emailUserSignupFields.typeofImportExpr =}
+    emailUserSignupFields: typeof {=& emailUserSignupFields.typeofImportExpression =}
 {=/ emailUserSignupFields.isDefined =}
 {=# usernameAndPasswordUserSignupFields.isDefined =}
-    usernameAndPasswordUserSignupFields: typeof {=& usernameAndPasswordUserSignupFields.typeofImportExpr =}
+    usernameAndPasswordUserSignupFields: typeof {=& usernameAndPasswordUserSignupFields.typeofImportExpression =}
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
   }
 }

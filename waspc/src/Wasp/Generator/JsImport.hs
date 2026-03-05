@@ -1,7 +1,10 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Wasp.Generator.JsImport
   ( extImportToJsImport,
     jsImportToImportJson,
     extImportNameToJsImportName,
+    virtualExtImportToImportJson,
     getAliasedExtImportIdentifier,
     extImportToRelativeSrcImportFromViteExecution,
   )
@@ -18,7 +21,8 @@ import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport (..),
     JsImportName (JsImportField, JsImportModule),
-    JsImportPath (RelativeImportPath),
+    JsImportPath (..),
+    VirtualFile,
     getImportPathString,
     getJsImportStmtAndIdentifier,
     getJsTypeofImportExpr,
@@ -43,21 +47,22 @@ extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
 extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
 
 jsImportToImportJson :: Maybe JsImport -> Aeson.Value
-jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImport
+jsImportToImportJson = maybe notDefinedValue mkTmplData
   where
+    notDefinedValue :: Aeson.Value
     notDefinedValue = object ["isDefined" .= False]
 
     mkTmplData :: JsImport -> Aeson.Value
     mkTmplData jsImport =
-      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
-          typeofImportExpr = getJsTypeofImportExpr jsImport
-          importPathStr = getImportPathString (_path jsImport)
+      let (importStatement, importIdentifier) = getJsImportStmtAndIdentifier jsImport
+          importPath = getImportPathString jsImport._path
+          typeofImportExpression = getJsTypeofImportExpr jsImport
        in object
             [ "isDefined" .= True,
-              "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier,
-              "importPath" .= importPathStr,
-              "typeofImportExpr" .= typeofImportExpr
+              "importStatement" .= importStatement,
+              "importIdentifier" .= importIdentifier,
+              "importPath" .= importPath,
+              "typeofImportExpression" .= typeofImportExpression
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
@@ -74,3 +79,17 @@ extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportN
 
 getAliasedExtImportIdentifier :: EI.ExtImport -> String
 getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"
+
+virtualExtImportToImportJson :: VirtualFile -> Maybe EI.ExtImport -> Aeson.Value
+virtualExtImportToImportJson virtualFileId maybeExtImport =
+  jsImportToImportJson jsImport
+  where
+    jsImport = virtualExtImportToJsImport virtualFileId <$> maybeExtImport
+
+virtualExtImportToJsImport :: VirtualFile -> EI.ExtImport -> JsImport
+virtualExtImportToJsImport virtualFileId extImport =
+  JsImport
+    { _path = ModuleImportPath virtualFileId,
+      _name = extImportNameToJsImportName extImport.name,
+      _importAlias = Nothing
+    }
