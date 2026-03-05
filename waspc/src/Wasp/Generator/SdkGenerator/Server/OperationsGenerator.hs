@@ -8,13 +8,14 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Types as Aeson.Types
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import qualified Data.Aeson.Types as Aeson.Types
 import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, toFilePath, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
+import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
@@ -179,7 +180,7 @@ genOperationVirtualModuleDecls spec
   | otherwise =
       return
         [ mkTmplFdWithData
-            (serverOpsDirInSdkTemplatesDir </> [relfile|_operationVirtualModules.d.ts|])
+            (serverOpsDirInSdkTemplatesDir </> [relfile|userOperations.d.ts|])
             tmplData
         ]
   where
@@ -191,8 +192,16 @@ genOperationVirtualModuleDecls spec
     mkVirtualModuleData :: AS.Operation.Operation -> Aeson.Types.Value
     mkVirtualModuleData operation =
       object
-        [ "virtualModulePath" .= toFilePath (operationVF $ AS.Operation.getName operation)
+        [ "virtualModulePath" .= toFilePath (operationVF operationName),
+          "operationName" .= operationName,
+          "typeName" .= toUpperFirst operationName,
+          "exportName" .= EI.importIdentifier (AS.Operation.getFn operation),
+          "isQuery" .= isQuery operation
         ]
+      where
+        operationName = AS.Operation.getName operation
+        isQuery (AS.Operation.QueryOp _ _) = True
+        isQuery (AS.Operation.ActionOp _ _) = False
 
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOpsDirInSdkTemplatesDir = [reldir|server/operations|]
