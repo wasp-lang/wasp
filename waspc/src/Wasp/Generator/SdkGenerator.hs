@@ -110,9 +110,8 @@ genSdk spec =
       C.genFileCopy [relfile|core/storage.ts|],
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/HttpError.ts|],
-      C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
-      C.genFileCopy [relfile|client/test/setup.ts|],
+      C.genFileCopy [relfile|client/test/WaspTestWrapper.tsx|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
@@ -222,7 +221,6 @@ npmDepsForSdk spec =
           ++ ServerAuthG.depsRequiredByAuth spec
           ++ depsRequiredByEmail spec
           ++ depsRequiredByWebSockets spec
-          ++ depsRequiredForTesting
           ++ depsRequiredByJobs spec
           ++ depsRequiredByEnvValidation
           ++ waspLibsNpmDeps,
@@ -244,16 +242,6 @@ npmDepsForSdk spec =
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
 
-depsRequiredForTesting :: [Npm.Dependency.Dependency]
-depsRequiredForTesting =
-  Npm.Dependency.fromList
-    [ ("vitest", "^4.0.16"),
-      ("@vitest/ui", "^4.0.16"),
-      ("jsdom", "^27.4.0"),
-      ("@testing-library/react", "^16.3.1"),
-      ("@testing-library/jest-dom", "^6.9.1"),
-      ("msw", "^2.12.7")
-    ]
 
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =

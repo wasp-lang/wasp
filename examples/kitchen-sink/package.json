@@ -28,14 +28,20 @@
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "^4.1.18",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.1",
     "@types/chai": "^5.2.2",
     "@types/express": "^5.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^9.0.8",
+    "@vitest/ui": "^4.0.16",
     "@wasp.sh/wasp-app-runner": "^0.0.13",
+    "jsdom": "^27.4.0",
+    "msw": "^2.12.7",
     "prisma": "5.19.1",
     "typescript": "5.8.2",
-    "vite": "^7.0.6"
+    "vite": "^7.0.6",
+    "vitest": "^4.0.16"
   }
 }

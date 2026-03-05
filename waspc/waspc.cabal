@@ -367,7 +367,6 @@ library
     Wasp.Generator.Setup
     Wasp.Generator.Start
     Wasp.Generator.Templates
-    Wasp.Generator.Test
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common
@@ -384,7 +383,6 @@ library
     Wasp.Generator.WebAppGenerator
     Wasp.Generator.WebAppGenerator.Common
     Wasp.Generator.WebAppGenerator.Start
-    Wasp.Generator.WebAppGenerator.Test
     Wasp.Generator.WebSocket
     Wasp.Generator.WriteFileDrafts
     Wasp.Job
@@ -632,7 +630,6 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Common
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
-    Wasp.Cli.Command.Test
     Wasp.Cli.Command.TsConfigSetup
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.WaspLS

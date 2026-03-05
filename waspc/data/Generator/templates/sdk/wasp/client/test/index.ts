@@ -1,1 +1,2 @@
-export { renderInContext, mockServer } from './vitest/helpers'
+// PUBLIC API
+export { WaspTestWrapper } from './WaspTestWrapper'

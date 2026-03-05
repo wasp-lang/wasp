@@ -111,7 +111,6 @@
       "./server/operations": "./dist/server/operations/index.js",
       "./client/router": "./dist/client/router/index.js",
       "./client/test": "./dist/client/test/index.js",
-      "./client/test/setup": "./dist/client/test/setup.js",
       "./client/hooks": "./dist/client/hooks.js",
       "./client": "./dist/client/index.js",
       "./env": "./dist/env/index.js",
