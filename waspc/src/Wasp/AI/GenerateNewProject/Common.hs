@@ -42,7 +42,7 @@ data NewProjectDetails = NewProjectDetails
 
 data NewProjectConfig = NewProjectConfig
   { projectAuth :: !(Maybe AuthProvider),
-    -- One of the Tailwind color names: https://tailwindcss.com/docs/customizing-colors
+    -- One of the Tailwind color names: https://tailwindcss.com/docs/colors
     projectPrimaryColor :: !(Maybe String),
     projectCodingGptModel :: !(Maybe GPT.Model),
     projectPlanningGptModel :: !(Maybe GPT.Model),
@@ -95,7 +95,7 @@ instance Aeson.FromJSON AuthProvider where
 -- TODO: Make these relative to WaspProjectDir, via StrongPath?
 type File = (FilePath, Text)
 
-queryChatGPTForJSON :: FromJSON a => ChatGPTParams -> [ChatMessage] -> CodeAgent a
+queryChatGPTForJSON :: (FromJSON a) => ChatGPTParams -> [ChatMessage] -> CodeAgent a
 queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
   where
     -- Retry logic here got a bit complex, here is a short explanation.

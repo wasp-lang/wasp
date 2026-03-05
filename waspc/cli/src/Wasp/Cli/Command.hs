@@ -40,9 +40,9 @@ runCommand cmd = do
 data CommandError = CommandError {_errorTitle :: !String, _errorMsg :: !String}
 
 data Requirement where
-  Requirement :: Requirable r => r -> Requirement
+  Requirement :: (Requirable r) => r -> Requirement
 
-class Typeable r => Requirable r where
+class (Typeable r) => Requirable r where
   -- | Check if the requirement is met and return a value representing that
   -- requirement.
   --
@@ -59,7 +59,7 @@ class Typeable r => Requirable r where
 -- do
 --   HasDbConnection <- require
 -- @
-require :: Requirable r => Command r
+require :: (Requirable r) => Command r
 require =
   Command (gets (mapMaybe cast)) >>= \case
     (req : _) -> return req

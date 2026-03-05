@@ -122,7 +122,8 @@ studio = do
           ]
 
   let generatedProjectDir =
-        waspDir </> dotWaspDirInWaspProjectDir
+        waspDir
+          </> dotWaspDirInWaspProjectDir
           </> generatedCodeDirInDotWaspDir
 
   let waspStudioDataJsonFilePath = generatedProjectDir </> [relfile|.wasp-studio-data.json|]

@@ -2,7 +2,7 @@ module Psl.Parser.ViewTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model

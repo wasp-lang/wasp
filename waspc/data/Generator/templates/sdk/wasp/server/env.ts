@@ -102,6 +102,17 @@ const waspServerCommonSchema = z.object({
       message: 'KEYCLOAK_REALM_URL must be a valid URL',
     }),
   {=/ enabledAuthProviders.isKeycloakAuthEnabled =}
+  {=# enabledAuthProviders.isMicrosoftAuthEnabled =}
+  MICROSOFT_TENANT_ID: z.string({
+    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_TENANT_ID'),
+  }),
+  MICROSOFT_CLIENT_ID: z.string({
+    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_ID'),
+  }),
+  MICROSOFT_CLIENT_SECRET: z.string({
+    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_SECRET'),
+  }),
+  {=/ enabledAuthProviders.isMicrosoftAuthEnabled =}
   {=/ isAuthEnabled =}
 })
 
@@ -157,9 +168,14 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
   serverProdSchema.merge(serverCommonSchema)
 ])
 
+const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
+const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
 // PUBLIC API
 export const env = ensureEnvSchema(
-  { NODE_ENV: serverDevSchema.shape.NODE_ENV.value, ...process.env },
+  {
+    NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
+    ...restEnv,
+  },
   serverEnvSchema,
 )
 

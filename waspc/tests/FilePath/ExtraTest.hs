@@ -2,7 +2,7 @@ module FilePath.ExtraTest where
 
 import qualified FilePath.Extra as PE
 import StrongPath (reldirP, toFilePath)
-import Test.Tasty.Hspec
+import Test.Hspec
 
 spec_reversePosixPath :: Spec
 spec_reversePosixPath = do

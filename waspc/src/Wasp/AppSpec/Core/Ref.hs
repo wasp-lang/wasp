@@ -19,9 +19,9 @@ import Wasp.AppSpec.Core.IsDecl (IsDecl (declTypeName))
 data Ref a where
   Ref :: (IsDecl a) => String -> Ref a
 
-deriving instance Eq a => Eq (Ref a)
+deriving instance (Eq a) => Eq (Ref a)
 
-deriving instance Show a => Show (Ref a)
+deriving instance (Show a) => Show (Ref a)
 
 deriving instance (IsDecl a, Data a) => Data (Ref a)
 
@@ -36,7 +36,8 @@ instance (IsDecl a) => FromJSON (Ref a) where
       then pure $ Ref name
       else
         fail $
-          "Expected declType to be '" <> declTypeName @a
+          "Expected declType to be '"
+            <> declTypeName @a
             <> "', but it was '"
             <> declType
             <> "'."

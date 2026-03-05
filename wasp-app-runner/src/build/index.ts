@@ -1,21 +1,23 @@
-import type { PathToApp, WaspCliCmd } from "../args.js";
+import * as path from "path";
+import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
+import { doesFileExist } from "../files.js";
 import { startLocalSmtpServer } from "../smtp.js";
-import { type AppName, waspBuild } from "../waspCli.js";
-import { buildAndRunClientApp } from "./client.js";
-import { buildAndRunServerApp } from "./server.js";
+import { EnvVars } from "../types.js";
+import { type AppName, waspBuild, waspBuildStart } from "../waspCli.js";
 
-// Based on https://github.com/wasp-lang/wasp/issues/1883#issuecomment-2766265289
 export async function startAppInBuildMode({
   waspCliCmd,
   pathToApp,
   appName,
   dbType,
+  dbImage,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
   dbType: DbType;
+  dbImage: DockerImageName;
 }) {
   await waspBuild({
     waspCliCmd,
@@ -26,20 +28,24 @@ export async function startAppInBuildMode({
     appName,
     dbType,
     pathToApp,
+    dbImage,
   });
 
   await startLocalSmtpServer();
 
-  // Client needs to be running before the server
-  // because `playwright` tests start executing as soon
-  // as the server is up.
-  await buildAndRunClientApp({
-    pathToApp,
-  });
+  const serverEnvVars: EnvVars = {
+    JWT_SECRET: "some-jwt-secret",
+    ...dbEnvVars,
+  };
 
-  await buildAndRunServerApp({
-    appName,
+  const serverEnvFile = path.resolve(pathToApp, ".env.server");
+  const clientEnvFile = path.resolve(pathToApp, ".env.client");
+
+  await waspBuildStart({
+    waspCliCmd,
     pathToApp,
-    extraEnv: dbEnvVars,
+    serverEnvVars,
+    serverEnvFile: doesFileExist(serverEnvFile) ? serverEnvFile : undefined,
+    clientEnvFile: doesFileExist(clientEnvFile) ? clientEnvFile : undefined,
   });
 }

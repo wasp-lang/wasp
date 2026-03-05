@@ -1,8 +1,8 @@
 module Wasp.LSP.SyntaxTest where
 
 import qualified Language.LSP.Types as LSP
+import Test.Hspec
 import Test.QuickCheck
-import Test.Tasty.Hspec
 import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (SourceSpan))
 import Wasp.LSP.Syntax
 

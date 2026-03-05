@@ -1,7 +1,7 @@
 module Analyzer.ValidTest where
 
 import Data.Either (fromRight, isRight)
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Analyzer.Parser hiding (withCtx)
 import qualified Wasp.Analyzer.Parser as P
 import Wasp.Analyzer.Parser.Valid (validateAst)
@@ -38,7 +38,7 @@ spec_ValidateAst = do
         "    userEntity: User,",
         "    methods: {",
         "      usernameAndPassword: {",
-        "        userSignupFields: import { getUserFields } from \"@src/auth/signup.js\",",
+        "        userSignupFields: import { getUserFields } from \"@src/auth/signup\",",
         "      }",
         "    },",
         "    onAuthFailedRedirectTo: \"/\",",
@@ -52,12 +52,12 @@ spec_ValidateAst = do
         "route HomeRoute { path: \"/\", to: HomePage }",
         "",
         "query getUsers {",
-        "  fn: import { getAllUsers } from \"@src/foo.js\",",
+        "  fn: import { getAllUsers } from \"@src/foo\",",
         "  entities: [User]",
         "}",
         "",
         "action updateUser {",
-        "  fn: import { updateUser } from \"@src/foo.js\",",
+        "  fn: import { updateUser } from \"@src/foo\",",
         "  entities: [User],",
         "  auth: true",
         "}"

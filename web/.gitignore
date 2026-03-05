@@ -21,5 +21,10 @@ yarn-error.log*
 .vercel
 
 # LLM files
-llms.txt
-llms-full.txt
+llms*.txt
+
+# Blog drafts
+_blog_drafts
+
+# Crossposting output
+.claude/skills/crossposting/scripts/output

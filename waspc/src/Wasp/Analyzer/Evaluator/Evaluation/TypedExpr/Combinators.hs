@@ -60,7 +60,7 @@ bool = evaluation' . withCtx $ \ctx -> \case
   expr -> Left $ ER.mkEvaluationError ctx $ ER.ExpectedType T.BoolType (TypedAST.exprType expr)
 
 -- | An evaluation that expects a "Var" bound to a "Decl" of type "a".
-declRef :: forall a. TD.IsDeclType a => TypedExprEvaluation (Ref a)
+declRef :: forall a. (TD.IsDeclType a) => TypedExprEvaluation (Ref a)
 declRef = evaluation' . withCtx $ \ctx -> \case
   TypedAST.Var varName varType ->
     case varType of
@@ -80,7 +80,7 @@ declRef = evaluation' . withCtx $ \ctx -> \case
     expectedType = T.DeclType expectedDeclTypeName
 
 -- | An evaluation that expects a "Var" bound to an "EnumType" for "a".
-enum :: forall a. TD.IsEnumType a => TypedExprEvaluation a
+enum :: forall a. (TD.IsEnumType a) => TypedExprEvaluation a
 enum = evaluation' . withCtx $ \ctx -> \case
   TypedAST.Var identifier _ -> case TD.enumEvaluate @a identifier of
     Nothing -> Left $ ER.mkEvaluationError ctx $ ER.InvalidEnumVariant enumName enumVariants identifier

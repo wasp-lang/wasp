@@ -2,7 +2,7 @@
 
 module Util.Control.MonadTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Util.Control.Monad
 
 data Identity a = Identity {runIdentity :: a} deriving (Functor)
@@ -12,7 +12,6 @@ instance Applicative Identity where
   Identity f <*> Identity x = Identity (f x)
 
 instance Monad Identity where
-  return = Identity
   Identity x >>= f = f x
 
 spec_untilM :: Spec

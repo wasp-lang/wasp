@@ -1,0 +1,216 @@
+name: "Build - Wasp CLI binaries"
+
+# We never trigger this workflow directly.
+# We can call it manually (workflow_dispatch) or from other workflows (workflow_call).
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        # NOTE: This should be equal to Wasp's lowest supported Node version.
+        # Don't change this version without updating it in all required
+        # places (full list in /.nvmrc).
+        description: "Node.js version to use for building"
+        default: "22.12.0"
+        type: string
+        required: false
+    outputs:
+      waspc_version:
+        value: ${{ jobs.build.outputs.waspc_version }}
+        description: "The Wasp version built in this workflow."
+      output_linux-x86_64:
+        value: ${{ jobs.build.outputs.output_linux-x86_64 }}
+        description: "The build output metadata for linux-x86_64."
+      output_linux-x86_64-static:
+        value: ${{ jobs.build.outputs.output_linux-x86_64-static }}
+        description: "The build output metadata for linux-x86_64-static."
+      output_macos-x86_64:
+        value: ${{ jobs.build.outputs.output_macos-x86_64 }}
+        description: "The build output metadata for macos-x86_64."
+      output_macos-aarch64:
+        value: ${{ jobs.build.outputs.output_macos-aarch64 }}
+        description: "The build output metadata for macos-aarch64."
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+
+jobs:
+  build:
+    outputs:
+      waspc_version: ${{ steps.set-outputs.outputs.waspc_version }}
+      output_linux-x86_64: ${{ steps.set-outputs.outputs.output_linux-x86_64 }}
+      output_linux-x86_64-static: ${{ steps.set-outputs.outputs.output_linux-x86_64-static }}
+      output_macos-x86_64: ${{ steps.set-outputs.outputs.output_macos-x86_64 }}
+      output_macos-aarch64: ${{ steps.set-outputs.outputs.output_macos-aarch64 }}
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        # == Why such a big, heterogeneous list? ==
+        # This is a bit of mish-mash of different platforms and architectures,
+        # so we need to build some of these directly in the runners, and some in
+        # containers. Each environment is a different OS and needs different
+        # dependencies.
+        #
+        # When possible, we build inside containers so we are not affected when
+        # GitHub updates the runners or deprecates old ones. When we build inside
+        # containers, the runner is only used to host the container, and all the
+        # steps are run inside the container and not the host (like a Dockerfile).
+        env:
+          - name: linux-x86_64
+            runner: ubuntu-latest
+            # We use an old Ubuntu version so we can link to a low `glibc` version.
+            # `glibc` is backwards-compatible but not forwards-compatible, so it
+            # is a good idea to use the oldest version we reasonably can. Otherwise,
+            # the wasp binary would possibly not work on the system using an older
+            # glibc than what it was built with (e.g. an older Ubuntu version).
+            container: ubuntu:20.04
+            static: false
+            install-deps: |
+              export DEBIAN_FRONTEND=noninteractive
+              apt-get update -y
+              # GHCup dependencies (https://www.haskell.org/ghcup/install/#version-2004-2010)
+              apt-get install -y build-essential curl libffi-dev libffi7 libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5
+              # Cabal dependencies
+              apt-get install -y zlib1g-dev
+
+          - name: linux-x86_64-static
+            runner: ubuntu-latest
+            # actions/setup-node does not work in alpine.
+            # https://github.com/actions/setup-node/issues/1293 To work around
+            # this, we use the alpine variant of the official node image, which
+            # already has a working Node.js version installed.
+            # We also pin the `alpine` version to a specific one we have tested,
+            # since newer releases might have different versions of the
+            # libraries we depend on.
+            container: node:${{ inputs.node-version }}-alpine3.21
+            skip-node-install: true
+            static: true
+            install-deps: |
+              apk update
+              # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
+              apk add binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
+              # `./run` script dependencies
+              apk add bash
+              # Cabal dependencies
+              apk add zlib-dev zlib-static
+
+          - name: macos-x86_64
+            runner: macos-15-intel
+            # macOS's syscalls are private and change between versions, so we
+            # can't statically link the binary.
+            static: false
+
+          - name: macos-aarch64
+            runner: macos-15 # By default an Apple Silicon-based runner.
+            static: false # Check the comment above for why we can't statically link on macOS
+
+    runs-on: ${{ matrix.env.runner }}
+    container: ${{ matrix.env.container }}
+    name: Build Wasp (${{ matrix.env.name }})
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Compute artifact names
+        uses: ./.github/actions/compute-artifact-names
+        id: compute-artifact-names
+        with:
+          build-name: ${{ matrix.env.name }}
+
+      - name: Install dependencies
+        if: ${{ matrix.env.install-deps }}
+        run: ${{ matrix.env.install-deps }}
+
+      - uses: ./.github/actions/setup-haskell
+        with:
+          extra-cache-key-segment: ${{ matrix.env.static && 'static' || 'default' }}
+
+      - uses: actions/setup-node@v6
+        if: ${{ !matrix.env.skip-node-install }}
+        with:
+          node-version: ${{ inputs.node-version }}
+
+      - name: Build and package
+        working-directory: waspc
+        env:
+          LC_ALL: C.UTF-8 # In some Docker containers the LOCALE is not UTF-8 by default
+          BUILD_STATIC: ${{ matrix.env.static && '1' || '' }}
+        run: |
+          ./run build
+          mkdir -p artifacts
+          ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ./waspc/artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}
+          name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
+          if-no-files-found: error
+
+      - name: Set job outputs
+        id: set-outputs
+        env:
+          OUTPUT_DATA: ${{ toJson(steps.compute-artifact-names.outputs) }}
+        run: |
+          {
+            echo 'output_${{ matrix.env.name }}<<EOF'
+            echo "$OUTPUT_DATA"
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+          echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
+
+  build-universal:
+    name: Build Wasp (universal)
+    needs: build
+    runs-on: macos-15
+
+    env:
+      X86_64_TARBALL_NAME: ${{ fromJson(needs.build.outputs.output_macos-x86_64).tarball-name }}
+      X86_64_ARTIFACT_NAME: ${{ fromJson(needs.build.outputs.output_macos-x86_64).artifact-name }}
+      AARCH64_TARBALL_NAME: ${{ fromJson(needs.build.outputs.output_macos-aarch64).tarball-name }}
+      AARCH64_ARTIFACT_NAME: ${{ fromJson(needs.build.outputs.output_macos-aarch64).artifact-name }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Compute artifact names
+        uses: ./.github/actions/compute-artifact-names
+        id: compute-artifact-names
+        with:
+          build-name: macos-universal
+
+      - name: Download macOS Intel binaries
+        uses: actions/download-artifact@v5
+        with:
+          name: "${{ env.X86_64_ARTIFACT_NAME }}"
+
+      - name: Download macOS ARM binaries
+        uses: actions/download-artifact@v5
+        with:
+          name: "${{ env.AARCH64_ARTIFACT_NAME }}"
+
+      - name: Unpack, create universal binary and pack
+        run: |
+          set -eux # Fail on error and print each command
+
+          mkdir x86_64 aarch64 universal
+
+          # Unpack both architectures
+          tar -xzf "$X86_64_TARBALL_NAME" -C x86_64
+          tar -xzf "$AARCH64_TARBALL_NAME" -C aarch64
+
+          # Create the universal binary
+          lipo \
+            -create "x86_64/wasp-bin" "aarch64/wasp-bin" \
+            -output "universal/wasp-bin"
+
+          # Copy the data folder too (we take the first one, should be identical in both)
+          cp -R "x86_64/data/" "universal/"
+
+          # Pack back up
+          tar -czf ${{ steps.compute-artifact-names.outputs.tarball-name }} -C universal .
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
+          path: ./${{ steps.compute-artifact-names.outputs.tarball-name }}

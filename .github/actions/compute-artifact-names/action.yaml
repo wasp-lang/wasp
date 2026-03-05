@@ -1,0 +1,66 @@
+name: Compute artifact names
+description: Central place for computing the artifact names in the CI builds.
+
+inputs:
+  build-name:
+    description: >
+      The build name (e.g., linux-x86_64, macos-aarch64, etc.). The special
+      value "all" can be used to receive a glob that matches all of the build
+      names.
+    required: true
+
+runs:
+  using: composite
+
+  steps:
+    - name: Check valid build name
+      if: >
+        ! contains(
+          fromJson('[
+            "all",
+            "linux-x86_64",
+            "linux-x86_64-static",
+            "macos-x86_64",
+            "macos-aarch64",
+            "macos-universal"
+          ]'),
+          inputs.build-name
+        )
+      shell: sh
+      run: |
+        echo '::error::Invalid build name provided: ${{ inputs.build-name }}.'
+        exit 1
+
+    - name: Set artifact names
+      id: set-artifact-names
+      shell: sh
+      env:
+        BUILD_NAME: ${{ inputs.build-name == 'all' && '*' || inputs.build-name }}
+      run: |
+        echo "artifact-name=wasp-cli-${BUILD_NAME}" >> $GITHUB_OUTPUT
+        echo "tarball-name=wasp-${BUILD_NAME}.tar.gz" >> $GITHUB_OUTPUT
+
+    - name: Set npm target
+      id: set-npm-target
+      if: inputs.build-name != 'all' && inputs.build-name != 'macos-universal'
+      shell: sh
+      run: |
+        case '${{ inputs.build-name }}' in
+            linux-x86_64) npm_target='{"os":"linux","cpu":"x64","libc":"glibc"}' ;;
+            linux-x86_64-static) npm_target='{"os":"linux","cpu":"x64","libc":"musl"}' ;;
+            macos-x86_64) npm_target='{"os":"darwin","cpu":"x64"}' ;;
+            macos-aarch64) npm_target='{"os":"darwin","cpu":"arm64"}' ;;
+        esac
+
+        echo "npm-target=$npm_target" >>"$GITHUB_OUTPUT"
+
+outputs:
+  artifact-name:
+    value: ${{ steps.set-artifact-names.outputs.artifact-name }}
+    description: "The name of the artifact attached to the CI build."
+  tarball-name:
+    value: ${{ steps.set-artifact-names.outputs.tarball-name }}
+    description: "The name of the tarball inside the artifact."
+  npm-target:
+    value: ${{ steps.set-npm-target.outputs.npm-target }}
+    description: "A JSON-encoded object of {os, cpu, libc?} for this build."

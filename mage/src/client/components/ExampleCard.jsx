@@ -24,7 +24,7 @@ export function ExampleCard({ idea, useIdea }) {
             </h4>
             <button className="button sm gray">Use this idea</button>
           </div>
-          <div className="line-clamp-[10] text-base leading-relaxed text-slate-500">
+          <div className="line-clamp-10 text-base leading-relaxed text-slate-500">
             {idea.description.split("\n").map((str) => (
               <p key={str}>{str}</p>
             ))}

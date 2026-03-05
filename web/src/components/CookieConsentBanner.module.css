@@ -1,0 +1,71 @@
+.container {
+  background: var(--custom-background-color);
+  border: 1px solid var(--ifm-color-emphasis-300);
+  border-radius: var(--custom-border-radius-md);
+  padding: 16px;
+  box-shadow: var(--custom-shadow-lw);
+  position: fixed;
+  left: 10px;
+  bottom: 10px;
+  right: 10px;
+  width: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+@media (min-width: 40rem) {
+  .container {
+    max-width: 380px;
+    right: 20px;
+    bottom: 20px;
+    left: auto;
+  }
+}
+
+.content {
+  color: var(--ifm-font-color-base);
+  font-size: 14px;
+  margin: 0 0 12px 0;
+}
+
+.content a {
+  color: var(--ifm-color-primary);
+  text-decoration: underline;
+}
+
+.buttonWrapper {
+  display: flex;
+  gap: 10px;
+}
+
+.buttonAccept {
+  background: var(--ifm-color-primary);
+  color: #000;
+  font-size: 14px;
+  border-radius: var(--custom-border-radius);
+  padding: 10px 24px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  flex: 1;
+}
+
+.buttonAccept:hover {
+  opacity: 0.9;
+}
+
+.buttonDecline {
+  background: transparent;
+  border: 1px solid var(--ifm-color-emphasis-300);
+  color: var(--ifm-font-color-base);
+  font-size: 14px;
+  border-radius: var(--custom-border-radius);
+  padding: 10px 24px;
+  cursor: pointer;
+  flex: 1;
+}
+
+.buttonDecline:hover {
+  background: var(--ifm-color-emphasis-100);
+}

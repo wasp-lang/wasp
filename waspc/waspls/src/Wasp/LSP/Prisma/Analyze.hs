@@ -1,7 +1,7 @@
 module Wasp.LSP.Prisma.Analyze where
 
 import Control.Lens ((.~))
-import Control.Monad.Cont (liftIO)
+import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Log.Class (logM)
 import StrongPath (Abs, Dir, Path')
 import Wasp.LSP.ServerMonads (ServerM, modify)

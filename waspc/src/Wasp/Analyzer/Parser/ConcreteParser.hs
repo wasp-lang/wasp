@@ -76,12 +76,17 @@ quoter = Quoter <$$> lquote <> quoterTail
 extImport :: GrammarRule
 extImport =
   ExtImport
-    <$$> kwImport <> extImportName <> kwFrom <> (T.String `as` ExtImportPath)
+    <$$> kwImport
+    <> extImportName
+    <> kwFrom
+    <> (T.String `as` ExtImportPath)
   where
     extImportName :: GrammarRule
     extImportName =
-      lcurly <> (T.Identifier `as` ExtImportField) <> rcurly
-        <|> (T.Identifier `as` ExtImportModule)
+      lcurly
+        <> (T.Identifier `as` ExtImportField)
+        <> rcurly
+          <|> (T.Identifier `as` ExtImportModule)
 
 -- | @listLike open value sep close@ parses list like structures in the form:
 --

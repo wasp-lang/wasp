@@ -11,9 +11,9 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as Key
 import qualified Data.Aeson.Types as Aeson.Types
 import Data.Maybe (catMaybes, fromJust, fromMaybe)
-import qualified Data.Text as T
 import StrongPath (File', Path', Rel)
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
@@ -68,4 +68,4 @@ crudDeclarationToOperationsList crud =
 makeCrudOperationKeyAndJsonPair :: AS.Crud.CrudOperation -> Aeson.Value -> Aeson.Types.Pair
 makeCrudOperationKeyAndJsonPair operation json = key .= json
   where
-    key = T.pack . show $ operation
+    key = Key.fromString . show $ operation

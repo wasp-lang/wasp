@@ -30,34 +30,34 @@ app __waspAppName__ {
     provider: Dummy,
   },
   client: {
-    rootComponent: import { App } from "@src/App.tsx",
+    rootComponent: import { App } from "@src/App",
   }
 }
 
 // #region Auth
 route LoginRoute { path: "/login", to: LoginPage }
 page LoginPage {
-  component: import { LoginPage } from "@src/auth/email/LoginPage.tsx"
+  component: import { LoginPage } from "@src/auth/email/LoginPage"
 }
 
 route SignupRoute { path: "/signup", to: SignupPage }
 page SignupPage {
-  component: import { SignupPage } from "@src/auth/email/SignupPage.tsx"
+  component: import { SignupPage } from "@src/auth/email/SignupPage"
 }
 
 route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
 page RequestPasswordResetPage {
-  component: import { RequestPasswordResetPage } from "@src/auth/email/RequestPasswordResetPage.tsx",
+  component: import { RequestPasswordResetPage } from "@src/auth/email/RequestPasswordResetPage",
 }
 
 route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
 page PasswordResetPage {
-  component: import { PasswordResetPage } from "@src/auth/email/PasswordResetPage.tsx",
+  component: import { PasswordResetPage } from "@src/auth/email/PasswordResetPage",
 }
 
 route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
 page EmailVerificationPage {
-  component: import { EmailVerificationPage } from "@src/auth/email/EmailVerificationPage.tsx",
+  component: import { EmailVerificationPage } from "@src/auth/email/EmailVerificationPage",
 }
 // #endregion Auth
 
@@ -65,7 +65,7 @@ page EmailVerificationPage {
 route TasksRoute { path: "/", to: TasksPage }
 page TasksPage {
   authRequired: true,
-  component: import { TasksPage } from "@src/tasks/TasksPage.tsx"
+  component: import { TasksPage } from "@src/tasks/TasksPage"
 }
 
 query getTasks {

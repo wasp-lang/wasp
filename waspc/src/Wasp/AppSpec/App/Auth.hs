@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.AppSpec.App.Auth
   ( Auth (..),
@@ -16,6 +17,7 @@ module Wasp.AppSpec.App.Auth
     isGoogleAuthEnabled,
     isKeycloakAuthEnabled,
     isGitHubAuthEnabled,
+    isMicrosoftAuthEnabled,
     isEmailAuthEnabled,
     userSignupFieldsForEmailAuth,
     userSignupFieldsForUsernameAuth,
@@ -56,6 +58,7 @@ data AuthMethods = AuthMethods
     google :: Maybe ExternalAuthConfig,
     gitHub :: Maybe ExternalAuthConfig,
     keycloak :: Maybe ExternalAuthConfig,
+    microsoft :: Maybe ExternalAuthConfig,
     email :: Maybe EmailAuthConfig
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
@@ -91,7 +94,8 @@ isExternalAuthEnabled auth =
       isDiscordAuthEnabled,
       isGoogleAuthEnabled,
       isGitHubAuthEnabled,
-      isKeycloakAuthEnabled
+      isKeycloakAuthEnabled,
+      isMicrosoftAuthEnabled
     ]
 
 isSlackAuthEnabled :: Auth -> Bool
@@ -109,17 +113,20 @@ isKeycloakAuthEnabled = isJust . keycloak . methods
 isGitHubAuthEnabled :: Auth -> Bool
 isGitHubAuthEnabled = isJust . gitHub . methods
 
+isMicrosoftAuthEnabled :: Auth -> Bool
+isMicrosoftAuthEnabled = isJust . microsoft . methods
+
 isEmailAuthEnabled :: Auth -> Bool
 isEmailAuthEnabled = isJust . email . methods
 
 -- These helper functions are used to avoid ambiguity when using the
--- `userSignupFields` function (otherwise we need to use the DuplicateRecordFields
--- extension in each module that uses them).
+-- `userSignupFields` function (otherwise we need to use DuplicateRecordFields
+-- and OverloadedRecordDot extension in each module that uses them).
 userSignupFieldsForEmailAuth :: EmailAuthConfig -> Maybe ExtImport
-userSignupFieldsForEmailAuth = userSignupFields
+userSignupFieldsForEmailAuth = (.userSignupFields)
 
 userSignupFieldsForUsernameAuth :: UsernameAndPasswordConfig -> Maybe ExtImport
-userSignupFieldsForUsernameAuth = userSignupFields
+userSignupFieldsForUsernameAuth = (.userSignupFields)
 
 userSignupFieldsForExternalAuth :: ExternalAuthConfig -> Maybe ExtImport
-userSignupFieldsForExternalAuth = userSignupFields
+userSignupFieldsForExternalAuth = (.userSignupFields)

@@ -1,12 +1,11 @@
 {{={= =}=}}
-import { useContext } from 'react'
 import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
 import { config } from 'wasp/client'
 import { clsx } from '../util'
 
-import { AuthContext } from '../../Auth'
+import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import {
   Form,
   FormInput,
@@ -27,7 +26,7 @@ import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
 {=/ isSocialAuthEnabled =}
 {=# isAnyPasswordBasedAuthEnabled =}
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
 import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
@@ -55,6 +54,9 @@ const keycloakSignInUrl = `${config.apiUrl}{= keycloakSignInPath =}`
 {=# enabledProviders.isGitHubAuthEnabled =}
 const gitHubSignInUrl = `${config.apiUrl}{= gitHubSignInPath =}`
 {=/ enabledProviders.isGitHubAuthEnabled =}
+{=# enabledProviders.isMicrosoftAuthEnabled =}
+const microsoftSignInUrl = `${config.apiUrl}{= microsoftSignInPath =}`
+{=/ enabledProviders.isMicrosoftAuthEnabled =}
 
 {=!
 // Since we allow users to add additional fields to the signup form, we don't
@@ -81,7 +83,7 @@ export const LoginSignupForm = ({
     setErrorMessage,
     setSuccessMessage,
     setIsLoading,
-  } = useContext(AuthContext)
+  } = useAuthContext();
   const isLogin = state === 'login'
   const cta = isLogin ? 'Log in' : 'Sign up';
   {=# isAnyPasswordBasedAuthEnabled =}
@@ -151,6 +153,10 @@ export const LoginSignupForm = ({
             {=# enabledProviders.isGitHubAuthEnabled =}
               <SocialButton href={gitHubSignInUrl}><SocialIcons.GitHub/></SocialButton>
             {=/ enabledProviders.isGitHubAuthEnabled =}
+
+            {=# enabledProviders.isMicrosoftAuthEnabled =}
+              <SocialButton href={microsoftSignInUrl}><SocialIcons.Microsoft/></SocialButton>
+            {=/ enabledProviders.isMicrosoftAuthEnabled =}
           </div>
         </div>
       {=/ isSocialAuthEnabled =}

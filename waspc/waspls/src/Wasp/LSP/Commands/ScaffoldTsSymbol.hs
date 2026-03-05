@@ -230,7 +230,7 @@ hasTemplateForArgs Args {..} = case P.fileExtension $ SP.toPathAbsFile filepath 
 
 -- | @getTemplateFor pathToExtImport extension@ finds the mustache template in
 -- @data/Lsp/templates/ts@ and compiles it.
-getTemplateFor :: MonadIO m => ExprPath -> String -> m (Either String Mustache.Template)
+getTemplateFor :: (MonadIO m) => ExprPath -> String -> m (Either String Mustache.Template)
 getTemplateFor exprPath ext = runExceptT $ do
   templatesDir <- liftIO getTemplatesDir
   templateFile <- (templatesDir SP.</>) <$> templateFileFor exprPath ext
@@ -271,7 +271,7 @@ getTemplatesDir :: IO (SP.Path' SP.Abs (SP.Dir TemplatesDir))
 getTemplatesDir = (SP.</> templatesDirInDataDir) <$> Wasp.Data.getAbsDataDirPath
 
 templateFileFor ::
-  MonadError String m =>
+  (MonadError String m) =>
   -- | Path to the external import that the scaffold request came from.
   ExprPath ->
   -- | Extension of the file that the request is scaffolding code in.

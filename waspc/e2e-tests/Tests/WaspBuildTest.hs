@@ -1,21 +1,38 @@
-module Tests.WaspBuildTest (waspBuild) where
+module Tests.WaspBuildTest (waspBuildTest) where
 
-import GoldenTest (GoldenTest, makeGoldenTest)
-import ShellCommands
-  ( cdIntoCurrentProject,
-    dockerBuild,
-    setDbToPSQL,
-    waspCliBuild,
-    waspCliNewMinimalStarter,
-  )
+import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliBuild)
+import Test (Test (..), TestCase (..))
 
-waspBuild :: GoldenTest
-waspBuild =
-  makeGoldenTest "waspBuild" $
-    sequence
-      [ waspCliNewMinimalStarter,
-        cdIntoCurrentProject,
-        setDbToPSQL,
-        waspCliBuild,
-        dockerBuild
-      ]
+waspBuildTest :: Test
+waspBuildTest =
+  Test
+    "wasp-build"
+    [ TestCase
+        "fail-outside-project"
+        (return [waspCliBuildFails]),
+      TestCase
+        "fail-sqlite-project"
+        ( sequence
+            [ createTestWaspProject Minimal,
+              inTestWaspProjectDir [return waspCliBuildFails]
+            ]
+        ),
+      TestCase
+        "succeed-postgresql-project"
+        ( sequence
+            [ createTestWaspProject Minimal,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  waspCliBuild,
+                  return $ assertDirectoryExists ".wasp",
+                  return $ assertDirectoryExists "node_modules"
+                ]
+            ]
+        )
+    ]
+  where
+    waspCliBuildFails :: ShellCommand
+    waspCliBuildFails = "! wasp-cli build"
+
+    assertDirectoryExists :: FilePath -> ShellCommand
+    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

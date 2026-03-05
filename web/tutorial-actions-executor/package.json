@@ -1,0 +1,36 @@
+{
+  "name": "tutorial-app-generator",
+  "version": "0.0.1",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "edit-patch-action": "npm run tacte -- edit-patch-action --app-name TodoApp --tutorial-dir ../docs/tutorial",
+    "generate-app": "npm run tacte -- generate-app --app-name TodoApp --tutorial-dir ../docs/tutorial",
+    "list-actions": "npm run tacte -- list-actions --app-name TodoApp --tutorial-dir ../docs/tutorial",
+    "tacte": "tsx ./src/index.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@commander-js/extra-typings": "^14.0.0",
+    "@inquirer/prompts": "^8.0.1",
+    "acorn": "8.15.0",
+    "commander": "^14.0.2",
+    "dedent": "^1.7.0",
+    "mdast-util-from-markdown": "^2.0.2",
+    "mdast-util-frontmatter": "^2.0.1",
+    "mdast-util-mdx": "^3.0.0",
+    "mdast-util-mdx-jsx": "^3.2.0",
+    "mdast-util-to-markdown": "^2.1.2",
+    "micromark-extension-mdx-jsx": "^3.0.2",
+    "parse-git-diff": "0.0.19",
+    "remark-comment": "^1.0.0",
+    "tsx": "^4.20.6",
+    "unist-util-visit": "^5.0.0",
+    "zx": "^8.8.5"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/mdast": "^4.0.4",
+    "vitest": "^4.0.10"
+  }
+}

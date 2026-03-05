@@ -1,0 +1,36 @@
+diff --git a/src/MainPage.tsx b/src/MainPage.tsx
+index addc7ba..3f1732f 100644
+--- a/src/MainPage.tsx
++++ b/src/MainPage.tsx
+@@ -1,4 +1,5 @@
+-import { getTasks, useQuery } from "wasp/client/operations";
++import type { FormEvent } from "react";
++import { createTask, getTasks, useQuery } from "wasp/client/operations";
+ import type { Task } from "wasp/entities";
+ 
+ export const MainPage = () => {
+@@ -34,3 +35,24 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
+     </div>
+   );
+ };
++
++const NewTaskForm = () => {
++  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
++    event.preventDefault();
++    try {
++      const target = event.target as HTMLFormElement;
++      const description = target.description.value;
++      target.reset();
++      await createTask({ description });
++    } catch (err: any) {
++      window.alert("Error: " + err.message);
++    }
++  };
++
++  return (
++    <form onSubmit={handleSubmit}>
++      <input name="description" type="text" defaultValue="" />
++      <input type="submit" value="Create task" />
++    </form>
++  );
++};

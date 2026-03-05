@@ -1,6 +1,6 @@
 module Node.InternalTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Node.Internal (parseVersionFromCommandOutput)
 import Wasp.SemanticVersion.Version (Version (..))
 

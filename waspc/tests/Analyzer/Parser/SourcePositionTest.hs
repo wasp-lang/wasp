@@ -1,6 +1,6 @@
 module Analyzer.Parser.SourcePositionTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Analyzer.Parser.SourcePosition
 
 spec_SourcePositionTest :: Spec

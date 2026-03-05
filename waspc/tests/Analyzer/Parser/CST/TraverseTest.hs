@@ -2,7 +2,7 @@
 
 module Analyzer.Parser.CST.TraverseTest where
 
-import Test.Tasty.Hspec (Spec, it, shouldBe)
+import Test.Hspec (Spec, it, shouldBe)
 import Wasp.Analyzer.Parser.CST (SyntaxKind (..), SyntaxNode)
 import Wasp.Analyzer.Parser.CST.Traverse
 import Wasp.Analyzer.Parser.ConcreteParser (parseCST)

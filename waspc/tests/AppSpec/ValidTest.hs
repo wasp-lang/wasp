@@ -2,13 +2,15 @@
 
 module AppSpec.ValidTest where
 
+import Data.List (isInfixOf)
 import qualified Data.Map as M
 import Data.Maybe (fromJust)
+import qualified Data.Set as S
 import Fixtures (systemSPRoot)
 import NeatInterpolation (trimming)
 import StrongPath (relfile)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Util.Prisma as Util
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -33,6 +35,8 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import qualified Wasp.ExternalConfig.TsConfig as T
+import qualified Wasp.Generator.NpmWorkspaces as NW
+import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute
 import qualified Wasp.Psl.Ast.Model as Psl.Model
@@ -96,8 +100,8 @@ spec_AppSpecValid = do
                              [ "Your Wasp version does not match the app's requirements.",
                                "You are running Wasp " ++ show WV.waspVersion ++ ".",
                                "This app requires Wasp ^" ++ show incompatibleWaspVersion ++ ".",
-                               "To install specific version of Wasp, do:",
-                               "  curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v x.y.z",
+                               "To install a specific version of Wasp, do:",
+                               "  npm i -g @wasp.sh/wasp-cli@x.y.z",
                                "where x.y.z is your desired version.",
                                "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions."
                              ]
@@ -124,6 +128,7 @@ spec_AppSpecValid = do
                       AS.Auth.google = Nothing,
                       AS.Auth.gitHub = Nothing,
                       AS.Auth.keycloak = Nothing,
+                      AS.Auth.microsoft = Nothing,
                       AS.Auth.email = Nothing
                     },
                 AS.Auth.onAuthFailedRedirectTo = "/",
@@ -218,7 +223,7 @@ spec_AppSpecValid = do
                 }
 
         it "returns no error if app.auth is not set" $ do
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing, email = Nothing}) validUserEntity) `shouldBe` []
 
         it "returns no error if app.auth is set and only one of UsernameAndPassword and Email is used" $ do
           ASV.validateAppSpec
@@ -234,13 +239,14 @@ spec_AppSpecValid = do
                       google = Nothing,
                       keycloak = Nothing,
                       gitHub = Nothing,
+                      microsoft = Nothing,
                       email = Nothing
                     }
                 )
                 validUserEntity
             )
             `shouldBe` []
-          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
+          ASV.validateAppSpec (makeSpec (AS.Auth.AuthMethods {usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing, email = Just emailAuthConfig}) validUserEntity) `shouldBe` []
 
         it "returns an error if app.auth is set and both UsernameAndPassword and Email are used" $ do
           ASV.validateAppSpec
@@ -256,6 +262,7 @@ spec_AppSpecValid = do
                       google = Nothing,
                       keycloak = Nothing,
                       gitHub = Nothing,
+                      microsoft = Nothing,
                       email = Just emailAuthConfig
                     }
                 )
@@ -334,9 +341,9 @@ spec_AppSpecValid = do
                       }
                 }
 
-        let makeSpec emailSender isBuild =
+        let makeSpec emailSender isProduction =
               basicAppSpec
-                { AS.isBuild = isBuild,
+                { AS.buildType = if isProduction then BuildType.Production else BuildType.Development,
                   AS.decls =
                     [ AS.Decl.makeDecl "TestApp" $
                         basicApp
@@ -344,7 +351,7 @@ spec_AppSpecValid = do
                               Just
                                 AS.Auth.Auth
                                   { AS.Auth.methods =
-                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing},
+                                      AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing},
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
                                     AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
@@ -450,6 +457,47 @@ spec_AppSpecValid = do
           `shouldBe` [ Valid.GenericValidationError
                          "You must have at least one route in your app. You can add it using the 'route' declaration."
                      ]
+
+    describe "declaration names validation" $ do
+      let testInvalidDeclName makeDecl invalidName = it invalidName $ do
+            let decl = makeDecl invalidName
+            let errors = ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, decl, basicRouteDecl]})
+            case errors of
+              [err] -> invalidName `isInfixOf` show err `shouldBe` True
+              _ -> expectationFailure $ "Expected 1 error, got: " ++ show errors
+
+          testValidDeclName makeDecl validName = it validName $ do
+            let decl = makeDecl validName
+            let errors = ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, decl, basicRouteDecl]})
+            errors `shouldBe` []
+
+      describe "returns an error for declaration names which are not valid identifiers" $ do
+        testInvalidDeclName makeBasicPageDecl "import"
+        testInvalidDeclName makeBasicJobDecl "1st job"
+        testInvalidDeclName makeBasicQueryDecl "my-query"
+        testInvalidDeclName makeBasicActionDecl "my action"
+
+      describe "returns no error for valid identifiers" $ do
+        testValidDeclName makeBasicPageDecl "Import"
+        testValidDeclName makeBasicJobDecl "_1stJob"
+        testValidDeclName makeBasicQueryDecl "my_query"
+        testValidDeclName makeBasicActionDecl "myAction"
+
+      describe "returns an error for capitalized operation and job names" $ do
+        testInvalidDeclName makeBasicQueryDecl "MyQuery"
+        testInvalidDeclName makeBasicActionDecl "MyAction"
+        testInvalidDeclName makeBasicJobDecl "MyJob"
+
+      describe "returns no errors for non-capitalized operation and job names" $ do
+        testValidDeclName makeBasicQueryDecl "myQuery"
+        testValidDeclName makeBasicActionDecl "myAction"
+        testValidDeclName makeBasicJobDecl "myJob"
+
+      describe "returns an error for non-capitalized entity names" $ do
+        testInvalidDeclName makeBasicEntityDecl "task"
+
+      describe "returns no errors for capitalized entity names" $ do
+        testValidDeclName makeBasicEntityDecl "Task"
   where
     makeIdField name typ =
       Psl.Model.Field
@@ -500,21 +548,20 @@ spec_AppSpecValid = do
           AS.prismaSchema = getPrismaSchemaWithConfig "",
           AS.waspProjectDir = systemSPRoot SP.</> [SP.reldir|test/|],
           AS.externalCodeFiles = [],
-          AS.externalPublicFiles = [],
           AS.packageJson =
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
                 Npm.PackageJson.dependencies = M.empty,
-                Npm.PackageJson.devDependencies = M.empty
+                Npm.PackageJson.devDependencies = M.empty,
+                Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
+                Npm.PackageJson.wasp = Nothing
               },
-          AS.isBuild = False,
+          AS.buildType = BuildType.Development,
           AS.migrationsDir = Nothing,
           AS.devEnvVarsClient = [],
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
-          AS.tailwindConfigFilesRelocators = [],
           AS.devDatabaseUrl = Nothing,
-          AS.customViteConfigPath = Nothing,
           AS.srcTsConfigPath = [relfile|tsconfig.json|],
           AS.srcTsConfig =
             T.TsConfig

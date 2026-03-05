@@ -40,20 +40,20 @@ waspPositionToLspPosition (W.SourcePosition ln col) =
     }
 
 -- | Check if all the supplied predicates are true.
-allP :: Foldable f => f (a -> Bool) -> a -> Bool
+allP :: (Foldable f) => f (a -> Bool) -> a -> Bool
 allP preds x = all ($ x) preds
 
 -- | Check if any of the supplied predicates are true.
-anyP :: Foldable f => f (a -> Bool) -> a -> Bool
+anyP :: (Foldable f) => f (a -> Bool) -> a -> Bool
 anyP preds x = any ($ x) preds
 
 -- | Lift a 'Maybe' into a 'MaybeT' monad transformer.
-hoistMaybe :: Applicative m => Maybe a -> MaybeT m a
+hoistMaybe :: (Applicative m) => Maybe a -> MaybeT m a
 hoistMaybe = MaybeT . pure
 
 -- | @getPathRelativeToProjectDir file@ finds the path to @file@ if it is inside the
 -- project root directory.
-getPathRelativeToProjectDir :: HasProjectRootDir m => SP.Path' SP.Abs (SP.File a) -> m (Maybe (SP.Path' (SP.Rel WaspProjectDir) (SP.File a)))
+getPathRelativeToProjectDir :: (HasProjectRootDir m) => SP.Path' SP.Abs (SP.File a) -> m (Maybe (SP.Path' (SP.Rel WaspProjectDir) (SP.File a)))
 getPathRelativeToProjectDir file = do
   maybeProjectRootDir <- getProjectRootDir
   case maybeProjectRootDir of

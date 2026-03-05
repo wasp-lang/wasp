@@ -3,7 +3,6 @@ module Wasp.Generator.Common
     UniversalTemplatesDir,
     universalTemplatesDirInTemplatesDir,
     ServerRootDir,
-    WebAppRootDir,
     AppComponentRootDir,
     DbRootDir,
     makeJsonWithEntityData,
@@ -41,10 +40,6 @@ class AppComponentRootDir d
 data ServerRootDir
 
 instance AppComponentRootDir ServerRootDir
-
-data WebAppRootDir
-
-instance AppComponentRootDir WebAppRootDir
 
 data DbRootDir
 

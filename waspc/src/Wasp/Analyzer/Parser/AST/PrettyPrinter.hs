@@ -18,7 +18,12 @@ prettyPrintAST (AST stmts) = "(AST\n" ++ indent 2 (concatMap prettyPrintStmt stm
 
 prettyPrintStmt :: WithCtx Stmt -> String
 prettyPrintStmt (WithCtx ctx (Decl typ name body)) =
-  prettyPrintWithCtx "(Decl" ctx ++ " type=" ++ typ ++ " name=" ++ name ++ "\n"
+  prettyPrintWithCtx "(Decl" ctx
+    ++ " type="
+    ++ typ
+    ++ " name="
+    ++ name
+    ++ "\n"
     ++ indent 2 (prettyPrintExpr body)
     ++ ")\n"
 
@@ -54,7 +59,7 @@ prettyPrintExpr (WithCtx ctx expr) = "(" ++ prettyPrintWithCtx (exprName expr) c
     showExtImportName (ExtImportField name) = "field=" ++ name
     showExtImportName (ExtImportModule name) = "module=" ++ name
 
-    showLiteral :: Show a => a -> String
+    showLiteral :: (Show a) => a -> String
     showLiteral value = " value=" ++ show value
 
 prettyPrintWithCtx :: String -> Ctx -> String

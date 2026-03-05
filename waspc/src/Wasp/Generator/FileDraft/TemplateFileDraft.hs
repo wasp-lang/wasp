@@ -46,7 +46,7 @@ instance Writeable TemplateFileDraft where
 
   getDstPath draft = Left $ _dstPath draft
 
-processBasedOnTmplDataExistence :: WriteableMonad m => TemplateFileDraft -> (Path' Abs File' -> m b) -> (Text -> m b) -> m b
+processBasedOnTmplDataExistence :: (WriteableMonad m) => TemplateFileDraft -> (Path' Abs File' -> m b) -> (Text -> m b) -> m b
 processBasedOnTmplDataExistence draft onNoTmplData onTmplData = case _tmplData draft of
   Nothing -> do
     absDraftSrcPath <- getTemplateFileAbsPath (_srcPathInTmplDir draft)

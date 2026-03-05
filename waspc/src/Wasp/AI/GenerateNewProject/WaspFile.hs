@@ -102,7 +102,7 @@ fixWaspFile newProjectDetails waspFilePath plan = do
                 For example, the following is missing ',' after the component field:
                 ```wasp
                   page ExamplePage {
-                    component: import ExamplePage from "@src/pages/ExamplePage.jsx" // <- missing ','
+                    component: import ExamplePage from "@src/pages/ExamplePage" // <- missing ','
                     authRequired: true
                   }
                 ```
@@ -110,8 +110,8 @@ fixWaspFile newProjectDetails waspFilePath plan = do
                 Fix these by replacing them with actual implementation.
               - Strings in Wasp must use double quotes, not single quotes.
               - Value of `fn:` field in `query` or `action` not having correct import syntax,
-                for example it might have invalid syntax, e.g. `fn: @src/actions.js`.
-                Fix these by replacing it with correct syntax, e.g. `fn: import { actionName } from "@src/actions.js"`.
+                for example it might have invalid syntax, e.g. `fn: @src/actions`.
+                Fix these by replacing it with correct syntax, e.g. `fn: import { actionName } from "@src/actions"`.
               - I noticed that you sometimes by accident add redundant "}" at the end of the Wasp file while fixing it.
                 Be careful not to do that.
               - We are using SQLite as a database for Prisma, so we can't use scalar arrays in PSL, like `String[]`,

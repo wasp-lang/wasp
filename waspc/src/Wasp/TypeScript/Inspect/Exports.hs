@@ -51,7 +51,8 @@ getExportsOfTsFiles requests = do
 groupExportRequestsByTsconfig :: [TsExportsRequest] -> [TsExportsRequest]
 groupExportRequestsByTsconfig requests =
   map (uncurry $ flip TsExportsRequest) $
-    M.toList $ foldr insertRequest M.empty requests
+    M.toList $
+      foldr insertRequest M.empty requests
   where
     insertRequest (TsExportsRequest names maybeTsconfig) grouped =
       M.insertWith (++) maybeTsconfig names grouped

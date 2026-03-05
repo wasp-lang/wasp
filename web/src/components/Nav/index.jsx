@@ -19,7 +19,7 @@ const Nav = () => {
         />
       </Link>
       <span className="ml-3 text-lg font-semibold text-neutral-700">
-        Wasp <sup className="text-base text-yellow-500">βeta</sup>
+        Wasp <span className="text-base text-yellow-500">(beta)</span>
       </span>
     </div>
   );

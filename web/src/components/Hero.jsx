@@ -74,11 +74,11 @@ const Hero = () => {
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true, // Limit access to logged in users.
-  component: import Main from "@client/Main.tsx" // Your React code.
+  component: import Main from "@client/Main" // Your React code.
 }
 
 query getTasks {
-  fn: import { getTasks } from "@server/tasks.js", // Your Node.js code.
+  fn: import { getTasks } from "@server/tasks", // Your Node.js code.
   entities: [Task] // Automatic cache invalidation.
 }`;
 

@@ -10,7 +10,7 @@ import Data.Data (Data)
 import Data.List.Split (splitOn)
 import Data.Maybe (fromJust)
 import qualified StrongPath as SP
-import Test.Tasty.Hspec
+import Test.Hspec
 import Text.Read (readMaybe)
 import Wasp.Analyzer.Evaluator
 import qualified Wasp.Analyzer.Evaluator.Evaluation as E
@@ -27,7 +27,7 @@ import Wasp.AppSpec.Core.Ref (Ref (..))
 import Wasp.AppSpec.ExtImport (ExtImport (..), ExtImportName (..))
 import Wasp.AppSpec.JSON (JSON (..))
 
-fromRight :: Show a => Either a b -> b
+fromRight :: (Show a) => Either a b -> b
 fromRight (Right x) = x
 fromRight (Left e) = error $ show e
 
@@ -178,7 +178,8 @@ spec_Evaluator = do
         let typeDefs =
               TD.addDeclType @Business $
                 TD.addEnumType @BusinessType $
-                  TD.addDeclType @Person $ TD.empty
+                  TD.addDeclType @Person $
+                    TD.empty
         let source =
               [ "person Tim { name: \"Tim Stocker\", age: 40 }",
                 "person John { name: \"John Cashier\", age: 23 }",
@@ -226,7 +227,9 @@ spec_Evaluator = do
                 "  booleanValue: {=json false json=},",
                 "}"
               ]
-        let Right [("Test", allJson)] = takeDecls <$> eval typeDefs source
+        let allJson = case takeDecls <$> eval typeDefs source of
+              Right [(_, aj)] -> aj
+              other -> error $ "Couldn't deconstroct value: " ++ show other
         show (objectValue allJson) `shouldBe` "{\"key\":1}"
         show (arrayValue allJson) `shouldBe` "[1,2,3]"
         show (stringValue allJson) `shouldBe` "\"hello\""

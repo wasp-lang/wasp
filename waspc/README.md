@@ -9,7 +9,7 @@ If you are a Wasp user and not a contributor (yet 😉), you might want to look 
 If you would like to make your first contribution, here is a handy checklist we made for you:
 
 - [ ] Read [Quick overview](#quick-overview).
-- [ ] Compile the project successfully and get todoApp example running (follow [Basics](#basics)).
+- [ ] Compile the project successfully and get `kitchen-sink` example running (follow [Basics](#basics)).
 - [ ] Join [Discord](https://discord.gg/rzdnErX) and say hi :)!
 - [ ] Pick an issue [labeled with "good first issue"](https://github.com/wasp-lang/wasp/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) and let us know you would like to work on it - ideally immediately propose a plan of action and ask questions.
       If you can't find a suitable issue for you, reach out to us on Discord and we can try to find something for you together.
@@ -73,19 +73,13 @@ Check [.nvmrc](.nvmrc) file to learn which version of `node` that should be.
 ### Build
 
 ```sh
-./run build:all
+./run build
 ```
 
 to build the whole `waspc` project.
 
 This might take a while (e.g. 10 mins) if you are doing it for the very first time, due to having to download all the dependencies (which will later be cached).
 If that is the case, relax and feel free to get yourself a cup of coffee! When somebody asks what you are doing, you can finally rightfully say "compiling!" 😀.
-
-> [!NOTE]
-> If you are on Mac and get "Couldn't figure out LLVM version!" error message while building, make sure you have LLVM installed and that it is correctly exposed via env vars (PATH, LDFLAGS, CPPFLAGS).
-> The easiest way to do it is by just running `brew install llvm@13`, this should install LLVM and also set up env vars.
->
-> If the LLVM error persists even after its installation, you may need to manually add it your PATH. To do this, you should add the following to end of your shell rc file (e.g. _~/.bashrc_ or _~/.zshrc_): `export PATH="/opt/homebrew/opt/llvm@13/bin:$PATH"`.
 
 ### Run tests
 
@@ -108,16 +102,16 @@ to ensure all the tests are passing.
 ./run wasp-cli
 ```
 
-to run the `wasp-cli` executable (that you previously built with `./run build:all`)!
+to run the `wasp-cli` executable (that you previously built with `./run build`)!
 
 Since you provided no arguments, you should see help/usage.
 
 Note that the executable during development is named `wasp-cli`, unlike `wasp` which is how it is named when you install a public release of Wasp via official installation method.
 This is to make it easier to differentiate between the development version of wasp CLI and the released version.
 
-### Running the example app
+### Running the `kitchen-sink` example
 
-First, position yourself in the [waspc/examples/todoApp/](examples/todoApp/) dir.
+First, position yourself in the [`examples/kitchen-sink/`](../examples/kitchen-sink/) dir.
 
 Then, run the dev database:
 
@@ -151,10 +145,10 @@ to run the example app in the development mode.
 
 If you are doing this for the very first time, it might take a minute or so to download and install npm dependencies.
 
-When done, new tab in your browser should open and you will see a Todo App!
+When done, new tab in your browser should open and you will see the Kitchen Sink App!
 
 > [!NOTE]
-> You will notice that some functionality in the Todo App is not working. That is because the env vars in `.env.server` files are just mock values. Check Todo App's README for more details on how to set up env vars for development.
+> You will notice that some functionality in the `kitchen-sink` is not working. That is because the env vars in `.env.server` files are just mock values. Check `kitchen-sink`'s README for more details on how to set up env vars for development.
 
 ## Typical development workflow
 
@@ -164,8 +158,8 @@ When done, new tab in your browser should open and you will see a Todo App!
 3. Do a change in the codebase (most often in `src/` or `cli/src/` or `data/`), and update tests if that makes sense (see [Test](#tests)).
    Fix any errors shown by HLS/`ghcid`.
    Rinse and repeat. If you're an internal team member, postpone updating waspc e2e tests tests until approval (see [here](#note-for-team-members)).
-4. Use `./run build` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build:all` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
-5. For easier manual testing of the changes you did on a Wasp app, you have the `examples/todoApp` app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
+4. Use `./run build:hs` to build the Haskell/cabal project, and `./run wasp-cli` to both build and run it. If you changed code in `data/packages/`, you will also need to run `./run build:packages` (check [TypeScript Packages section](#typescript-packages) for more details). Alternatively, you can also run slower `./run build` to at the same time build Haskell, TS packages, and any other piece of the project in one command.
+5. For easier manual testing of the changes you did on a Wasp app, you have the [`kitchen-sink`](../examples/kitchen-sink/) app, which we always keep updated. Also, if you added a new feature, add it to this app (+ tests) if needed. Check its README for more details (including how to run it).
 6. Run `./run test` to confirm that all the tests are passing. If needed, accept changes in the waspc e2e tests with `./run test:waspc:e2e:accept-all`. Check "Tests" for more info.
 7. If you did a bug fix, added new feature or did a breaking change, add short info about it to `Changelog.md`. Also, bump version in `waspc.cabal` and `ChangeLog.md` if needed. If you are not sure how to decide which version to go with, check out [how we determine the next version](#determining-next-version).
 8. Create a PR. Keep an eye on CI tests -> Everything must pass. If it doesn't, look into it.
@@ -211,7 +205,9 @@ Check `src/Wasp/Analyzer.hs` for more details.
 AppSpec is passed to the Generator, which based on it decides how to generate a web app.
 Output of Generator is a list of FileDrafts, where each FileDraft explains how to create a file on the disk.
 Therefore, Generator doesn't generate anything itself, instead it provides instructions (FileDrafts) on how to generate the web app.
-FileDrafts are using mustache templates a lot (they can be found in `data/Generator/templates`).
+FileDrafts are using mustache templates a lot (they can be found in `data/Generator/templates`). Alongside mustache templates,
+generated apps use internal npm packages (WaspLibs) that contain core logic and are unit tested. WaspLibs are bundled with Wasp
+and installed into generated apps (see [WaspLibs](#wasplibs) for more details).
 
 Generator is split into three generators, for the three main parts of the web app: WebAppGenerator, ServerGenerator and DbGenerator.
 
@@ -236,15 +232,20 @@ On any changes you do to the source code of Wasp, Wasp project gets recompiled, 
 - `cli/exe/` -> thin executable wrapper around cli library code
 - `tests/`, `e2e-tests/`, `cli/tests/`, `waspls/tests/`, `starters-e2e-tests` -> tests
 - `data/Generator/templates/` -> mustache templates for the generated client/server.
+- `libs/` -> internal npm packages (WaspLibs) that are bundled with Wasp and copied into generated apps (see [WaspLibs](#wasplibs) for more details)
+- `packages/` -> TypeScript packages used by Wasp compiler (see [TypeScript Packages](#typescript-packages) for more details)
 - `data/Cli/starters/` -> starter templates for new projects
-- `examples/todoApp/` -> our kitchen sink app
 
 ### Typescript packages
 
-`waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `packages/` and are normal npm projects. See `packages/README.md` for how the projects are expected to be set up.
+`waspc`, while implemented in Haskell, relies on TypeScript for some of its functionality (e.g. for parsing TS code, or for deployment scripts). In these cases, the Haskell code runs these TS packages as separate processes and communicates through input/output streams. These packages are located in `data/packages/` and are normal npm projects. See `data/packages/README.md` for how the projects are expected to be set up.
 
 In order for `waspc`'s Haskell code to correctly use these TS packages (and to also have them correctly bundled when generating the release tarball), they need to be correctly installed/built in the `waspc_datadir` dir.
 To do so in development, run `./run build:packages` when any changes are made to these packages. We also run it in CI when building the release.
+
+### WaspLibs
+
+WaspLibs are internal npm packages located under [`libs/`](libs/) and are bundled with Wasp and installed into generated apps. A more detailed description of WaspLibs can be found in the [`libs/README.md`](libs/README.md).
 
 ## Tests
 
@@ -285,7 +286,7 @@ To run tests:
 - To run `waspc` e2e tests only, you can do `./run test:waspc:e2e`.
 - To run Wasp CLI tests only, you can do `./run test:cli`.
 - To run Wasp LS tests only, you can do `./run test:waspls`.
-- To run `todoApp` e2e tests, you can do `./run test:todoApp`.
+- To run `kitchen-sink` e2e tests, you can do `./run test:kitchen-sink`.
 - To run examples e2e tests, you can do `./run test:examples`.
 - To run starter templates e2e tests, you can do `./run test:starters`.
 
@@ -396,6 +397,9 @@ How do I know where I want to target my PR, to `release` or `main`?
   - `release` represents the present, and is for changes to the already published stuff.
   - `main` represents near future, and is for changes to the to-be-published stuff.
 
+> [!IMPORTANT]
+> If you merge a PR or push any changes to `release`, a new PR will automatically be created to update `main` with the changes from `release`. You will be assigned it, and it's your responsibility to merge it.
+
 ## Deployment / CI
 
 We use Github Actions for CI.
@@ -406,19 +410,19 @@ During CI, we build and test Wasp code on Linux, MacOS and Windows.
 
 If commit is tagged with tag starting with `v`, github draft release is created from it containing binary packages.
 
-We also have a workflow for deploying example apps to Fly.io (`deploy-examples.yml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
+We also have a workflow for deploying example apps to Fly.io (`release-examples-deploy.yaml`). This workflow can be run manually from the GitHub UI and should typically be run from the `release` branch after publishing a new release to ensure the deployed examples are using the latest stable version of Wasp.
 
 You can run this workflow:
 
-- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/deploy-examples.yml (click "Run workflow" and select the `release` branch)
+- **From GitHub UI**: https://github.com/wasp-lang/wasp/actions/workflows/release-examples-deploy.yaml (click "Run workflow" and select the `release` branch)
 - **From GitHub CLI**:
 
   ```bash
   # Deploy with latest Wasp version
-  gh workflow run deploy-examples.yml --ref release
+  gh workflow run release-examples-deploy --ref release
   
   # Deploy with specific Wasp version
-  gh workflow run deploy-examples.yml --ref release -f version=0.13.2
+  gh workflow run release-examples-deploy --ref release -f version=0.13.2
   ```
 
 If you put `[skip ci]` in commit message, that commit will be ignored by Github Actions.
@@ -433,38 +437,37 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 Do the steps marked with 👉 for every release of `waspc`.
 Do the non-bold steps when necessary (decide for each step depending on the changes, e.g. some can be skipped if there were no breaking changes).
 
-- Update the starter templates if necessary (i.e., if there are breaking changes or new features they should make use of):
-  - Context: they are used by used by `wasp new`, you can find reference to them in `Wasp.Cli. ... .StarterTemplates`.
-  - Check and merge all PRs with the label `merge-before-release`.
-  - In `StarterTemplates.hs` file, update git tag to new version of Wasp we are about to release (e.g. `wasp-v0.13.1-template`).
-  - Ensure that all starter templates are working with this new version of Wasp.
-    Update Wasp version in their main.wasp files, and update their code as neccessary. Finally, in their repos (for those templates that are on Github), create new git tag that is the same as the new one in `StarterTemplates.hs` (e.g. `wasp-v0.13.1-template`). Now, once new wasp release is out, it will immediately be able to pull the correct and working version of the starter templates, which is why all this needs to happen before we release new wasp version.
-  - Open-saas also falls under this!
-- Make sure apps in [examples](/examples) are up to date and using a version compatible with the newest version of Wasp.
-- Make sure that Wasp AI (which is part of `waspc` and you can run it with e.g. `wasp new:ai`) is correctly producing apps that work with and use this newest version of Wasp.
-  This usually means checking that templates and prompts (e.g. examples of Wasp code) are up to date. If there were no breaking changes, there is likely nothing to be done here.
-- Make sure [mage](/mage) is producing Wasp apps that support the newest version of Wasp (this is configured in its Dockerfile: which version of `wasp` CLI will it use to produce app via AI).
-  Mage itself, as a Wasp app, doesn't have to be using the latest Wasp version to run, but the apps it is producing should.
-- 👉 `ChangeLog.md` and the version in `waspc.cabal` should already be up to date, but double check that they are correct and update them if needed. Also consider enriching and polishing `ChangeLog.md` a bit even if all the data is already there. Also make sure the `ChangeLog.md` specifies the correct version of Wasp.
-  - If you modify `ChangeLog.md` or `waspc.cabal`, create a PR, wait for approval and all the checks (CI) to pass, then squash and merge mentioned PR into `main`.
-- 👉 Update your local repository state to have all remote changes (`git fetch`).\*\*
-- 👉 Update `main` to contain changes from `release` by running `git merge release` while on the `main` branch. Resolve any conflicts.
-- Take a versioned "snapshot" of the current docs by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the README in the `web` dir for more details. Commit this change to `main`.
-- 👉 Fast-forward `release` to this new, updated `main` by running `git merge main` while on the `release` branch.
-- 👉 Make sure you are on `release` and then run `./new-release 0.x.y`.
+- Update the templates in Wasp AI if necessary
+- Update Open Saas:
+  - Check and merge all Open Saas PRs with the label `merge-before-release`.
+  - Create and merge new PRs if necessary (i.e., if there are breaking changes or new features it should make use of but aren't in one of the `merge-before-release` PRs).
+- 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
+  - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
+- 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
+- 👉 Update your local repository state to have all remote changes (`git fetch`) and ensure local `main` is up to date.
+- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.19.1`) and do the rest of the steps from there.
+- 👉 Create an RC and do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
+- 👉 Consider enriching and polishing the `ChangeLog.md` a bit:
+  - If you modify `ChangeLog.md`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
+- 👉 Update your local repository state to have all remote changes (`git fetch`).
+- 👉 Update the RC branch to contain changes from `release` by running `git merge release` while on the `rc-<version>` branch. Resolve any conflicts.
+- If this is a major version update, take a versioned "snapshot" of the current docs on the RC branch by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the [README in the `web` dir](https://github.com/wasp-lang/wasp/blob/main/web/README.md) for more details. Commit this change to the RC branch and push it.
   - This will do some checks, tag it with new release version, and push it.
+- 👉 Fast-forward `release` to the RC branch by running `git merge rc-<version>` while on the `release` branch.
+- 👉 Make sure you are on `release` and then run `./new-release 0.x.y`.
 - 👉 Wait for CI to finish & succeed for the new tag.
   - This will automatically create a new draft release.
-- 👉 Find new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
+- 👉 Find a new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
 - 👉 Publish the draft release when ready.
-- 👉 Merge `release` back into `main` (`git merge release` while on the `main` branch), if needed.
-- Deploy the example apps to Fly.io by running the [deploy-examples workflow](/.github/workflows/deploy-examples.yml) (see "Deployment / CI" section for more details).
+- 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
+- 👉 Push your local `release` branch to remote.
+- 👉 You will have been tagged in an automated PR to merge `release` back to `main` (you can also find it [here](https://github.com/wasp-lang/wasp/pulls?q=is%3Apr+head%3Arelease+base%3Amain+is%3Aopen)). Make sure to merge that PR (create a merge commit, **don't squash or rebase**). This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
+- Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](/.github/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
 - If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
-- If you published new docs, rerun the Algolia Crawler to update the search index. If you published a new version of the docs, the search won't work until you do this.
-  - To do this, go to https://crawler.algolia.com/admin and click "Restart crawling" under the "wasp-lang" crawler.
 - If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
-- Announce new release in Discord if it makes sense.
+- Announce the new release in Discord.
+- Go back to [Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "After the release" section of the checklist.
 
 #### Determining next version
 
@@ -474,14 +477,22 @@ So how do changes to waspls affect the version of waspc, since they are packaged
 
 #### Test releases (e.g. Release Candidate)
 
-Making a test release, especially "Release Candidate" release is useful when you want to test the release without it being published to the normal users.
+Making a test release, especially "Release Candidate" (RC) release is useful when you want to test the release without it being published to the normal users.
 If doing this, steps are the following:
 
-1. You can do it from whatever branch you want, probably you will be doing it from `main`.
-2. You will want to use a version name that indicates you are doing test, probably you will want to add `-rc` at the end.
-   So for example: `./new-release 0.7.0-rc`. Release script will throw some warnings which you should accept.
-3. Once draft release is created on Github, you should mark it in their UI as pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. This is the crucial step that differentiates test release from the proper release.
-4. Since our wasp installer by default installs the latest release from Github, it will skip this release we made, because it is pre-release, which is great, it is what we wanted. Instead, you can install it by using the `-v` flag of wasp installer! That way user's don't get in touch with it, but we can install and use it normally.
+1. Create a new branch called `rc-<version>` (e.g., `rc-0.19.0`) by branching out of the last commit you want to release (probably latest `main`).
+2. Locally execute the `new-release` script. Append `-rc` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc1`).
+   The script will throw some warnings which you should accept.
+3. Once the draft release is created on Github:
+   - Use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
+   - Push the `rc-<version>` branch to remote.
+4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
+
+```sh
+npm i -g @wasp.sh/wasp-cli@0.19.0-rc
+```
+
+5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
 
 ## Documentation
 

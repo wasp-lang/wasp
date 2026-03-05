@@ -61,7 +61,8 @@ runCodeAgent config codeAgent =
                 Handler
                   ( \(e :: SomeException) -> do
                       _writeLog config $
-                        fromString $ "Code agent failed with the following error: " <> showShortException e
+                        fromString $
+                          "Code agent failed with the following error: " <> showShortException e
                       throwIO e
                   )
               ]
@@ -77,10 +78,10 @@ runCodeAgent config codeAgent =
         then text
         else take maxLen text <> "..."
 
-    showShortException :: forall e. Exception e => e -> String
+    showShortException :: forall e. (Exception e) => e -> String
     showShortException = shortenWithEllipsisTo 30 . displayException
 
-writeToLog :: IsString logMsg => logMsg -> CodeAgent logMsg ()
+writeToLog :: (IsString logMsg) => logMsg -> CodeAgent logMsg ()
 writeToLog msg = asks _writeLog >>= \f -> liftIO $ f msg
 
 writeToFile :: FilePath -> (Maybe Text -> Text) -> CodeAgent logMsg ()

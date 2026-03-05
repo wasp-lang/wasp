@@ -1,17 +1,42 @@
-module Tests.WaspCompileTest (waspCompile) where
+module Tests.WaspCompileTest (waspCompileTest) where
 
-import GoldenTest (GoldenTest, makeGoldenTest)
-import ShellCommands
-  ( cdIntoCurrentProject,
-    waspCliCompile,
-    waspCliNewMinimalStarter,
-  )
+import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliCompile)
+import Test (Test (..), TestCase (..))
 
-waspCompile :: GoldenTest
-waspCompile =
-  makeGoldenTest "waspCompile" $
-    sequence
-      [ waspCliNewMinimalStarter,
-        cdIntoCurrentProject,
-        waspCliCompile
-      ]
+waspCompileTest :: Test
+waspCompileTest =
+  Test
+    "wasp-compile"
+    [ TestCase
+        "fail-outside-project"
+        (return [waspCliCompileFails]),
+      TestCase
+        "succeed-uncompiled-project"
+        ( sequence
+            [ createTestWaspProject Minimal,
+              inTestWaspProjectDir
+                [ waspCliCompile,
+                  return $ assertDirectoryExists ".wasp",
+                  return $ assertDirectoryExists "node_modules"
+                ]
+            ]
+        ),
+      TestCase
+        "succeed-compiled-project"
+        ( sequence
+            [ createTestWaspProject Minimal,
+              inTestWaspProjectDir
+                [ waspCliCompile,
+                  waspCliCompile,
+                  return $ assertDirectoryExists ".wasp",
+                  return $ assertDirectoryExists "node_modules"
+                ]
+            ]
+        )
+    ]
+  where
+    waspCliCompileFails :: ShellCommand
+    waspCliCompileFails = "! wasp-cli compile"
+
+    assertDirectoryExists :: FilePath -> ShellCommand
+    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

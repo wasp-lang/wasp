@@ -1,6 +1,6 @@
 module Project.WaspignoreTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Test.Tasty.QuickCheck (arbitraryPrintableChar, forAll, listOf, property)
 import Wasp.Project.Waspignore (ignores, parseWaspignoreFile)
 

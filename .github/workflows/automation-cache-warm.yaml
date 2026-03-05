@@ -1,0 +1,16 @@
+name: "Automation - Warm caches"
+
+on:
+  workflow_dispatch:
+  schedule:
+    # GitHub evicts unused caches after 7 days, so we run this every 6 days
+    - cron: "0 0 */6 * *"
+
+concurrency:
+  group: "automation-cache-warm"
+  cancel-in-progress: false
+
+jobs:
+  warm-cache-ci:
+    uses: ./.github/workflows/ci.yaml
+    secrets: inherit

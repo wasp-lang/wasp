@@ -1,0 +1,14 @@
+wasp-app/.gitignore
+wasp-app/.waspignore
+wasp-app/.wasproot
+wasp-app/main.wasp
+wasp-app/package.json
+wasp-app/public/.gitkeep
+wasp-app/public/favicon.ico
+wasp-app/schema.prisma
+wasp-app/src/Main.css
+wasp-app/src/MainPage.tsx
+wasp-app/src/assets/logo.svg
+wasp-app/src/vite-env.d.ts
+wasp-app/tsconfig.json
+wasp-app/vite.config.ts

@@ -2,6 +2,7 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.AppSpec.Job
   ( Job (..),
@@ -72,12 +73,12 @@ jobExecutors = enumFrom minBound :: [JobExecutor]
 -- Helpers to disambiguate duplicate field `executorOptions`.
 performExecutorOptionsJson :: Job -> Maybe JSON
 performExecutorOptionsJson job =
-  executorOptionsJson (executor job) (executorOptions (perform job :: Perform))
+  executorOptionsJson (executor job) job.perform.executorOptions
 
 scheduleExecutorOptionsJson :: Job -> Maybe JSON
 scheduleExecutorOptionsJson job = do
   s <- schedule job
-  executorOptionsJson (executor job) (executorOptions (s :: Schedule))
+  executorOptionsJson (executor job) s.executorOptions
 
 executorOptionsJson :: JobExecutor -> Maybe ExecutorOptions -> Maybe JSON
 executorOptionsJson PgBoss (Just ExecutorOptions {pgBoss = Just json}) = Just json

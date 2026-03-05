@@ -3,7 +3,7 @@
 
 module Psl.Generator.SchemaTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Test.Tasty.QuickCheck
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
@@ -162,7 +162,7 @@ instance Arbitrary Psl.ConfigBlock.ConfigBlock where
 instance Arbitrary Psl.ConfigBlock.KeyValuePair where
   arbitrary = Psl.ConfigBlock.KeyValuePair <$> arbitraryIdentifier <*> arbitrary
 
-instance Arbitrary a => Arbitrary (Psl.WithCtx.WithCtx a) where
+instance (Arbitrary a) => Arbitrary (Psl.WithCtx.WithCtx a) where
   arbitrary = arbitrary >>= withArbitraryCtx
 
 withArbitraryCtx :: node -> Gen (Psl.WithCtx.WithCtx node)

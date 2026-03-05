@@ -1,0 +1,23 @@
+name: Prepare for Deploy Test
+description: |
+  Sets up the environment for deployment testing by:
+  - Setting up Haskell toolchain
+  - Setting up Node.js
+  - Installing the Wasp CLI
+
+runs:
+  using: composite
+  steps:
+    - name: Setup Haskell
+      uses: ./.github/actions/setup-haskell
+
+    - name: Setup Node
+      uses: actions/setup-node@v6
+      with:
+        cache: "npm"
+        node-version-file: .nvmrc
+
+    - name: Install Wasp CLI
+      working-directory: waspc
+      shell: bash
+      run: ./run install

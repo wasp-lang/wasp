@@ -15,9 +15,11 @@ import qualified Data.Aeson as Aeson
 import Data.Default (Default (def))
 import qualified Data.HashMap.Strict as M
 import qualified Data.Text as Text
+import Language.LSP.Extra (setupLogger)
 import qualified Language.LSP.Server as LSP
 import qualified Language.LSP.Types as LSP
 import System.Exit (ExitCode (ExitFailure), exitWith)
+import System.IO (stdin, stdout)
 import qualified System.Log.Logger
 import qualified Wasp.LSP.Commands as Commands
 import Wasp.LSP.Debouncer (newDebouncerIO)
@@ -95,7 +97,10 @@ serve maybeLogFile = do
             LSP.runLspT env $ runRLspM stateTVar handler
 
   exitCode <-
-    LSP.runServer
+    -- Setting the first two arguments to mempty disables LSP's default
+    -- logging. We are instead using our own logger for reasons explained in
+    -- @Language.LSP.Extra@.
+    LSP.runServerWithHandles mempty mempty stdin stdout $
       LSP.ServerDefinition
         { defaultConfig = def :: ServerConfig,
           onConfigurationChange = lspServerUpdateConfig,
@@ -121,8 +126,8 @@ serve maybeLogFile = do
 -- @setupLspLogger (Just filepath)@ writes log messages to the path given
 setupLspLogger :: Maybe FilePath -> IO ()
 setupLspLogger Nothing = pure ()
-setupLspLogger (Just "[OUTPUT]") = LSP.setupLogger Nothing [] System.Log.Logger.DEBUG
-setupLspLogger file = LSP.setupLogger file [] System.Log.Logger.DEBUG
+setupLspLogger (Just "[OUTPUT]") = setupLogger Nothing [] System.Log.Logger.DEBUG
+setupLspLogger file = setupLogger file [] System.Log.Logger.DEBUG
 
 -- | Returns either a JSON parsing error message or the updated "ServerConfig".
 lspServerUpdateConfig :: ServerConfig -> Aeson.Value -> Either Text.Text ServerConfig

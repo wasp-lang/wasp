@@ -1,8 +1,8 @@
-import type { PathToApp } from "../args.js";
+import type { DockerImageName, PathToApp } from "../args.js";
 import type { AppName } from "../waspCli.js";
 import { setupPostgres } from "./postgres.js";
 import { setupSqlite } from "./sqlite.js";
-import type { SetupDbFn } from "./types.js";
+import type { SetupDbResult } from "./types.js";
 
 export enum DbType {
   Sqlite = "sqlite",
@@ -13,16 +13,18 @@ export function setupDb({
   appName,
   dbType,
   pathToApp,
+  dbImage,
 }: {
   dbType: DbType;
   appName: AppName;
   pathToApp: PathToApp;
-}): ReturnType<SetupDbFn> {
+  dbImage: DockerImageName;
+}): Promise<SetupDbResult> {
   switch (dbType) {
     case DbType.Sqlite:
-      return setupSqlite({ appName, pathToApp });
+      return setupSqlite();
     case DbType.Postgres:
-      return setupPostgres({ appName, pathToApp });
+      return setupPostgres({ appName, pathToApp, dbImage });
     default:
       dbType satisfies never;
       throw new Error(`Unknown database type: ${dbType}`);

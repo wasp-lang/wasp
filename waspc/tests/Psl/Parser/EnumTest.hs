@@ -2,7 +2,7 @@ module Psl.Parser.EnumTest where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Text.Megaparsec as Megaparsec
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute

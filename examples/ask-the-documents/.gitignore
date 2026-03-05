@@ -1,0 +1,21 @@
+.wasp/
+node_modules/
+**/.DS_Store
+
+# We ignore env files recognized and used by Wasp.
+.env.server
+.env.client
+
+# To be extra safe, we by default ignore any files with `.env` extension in them.
+# If this is too agressive for you, consider allowing specific files with `!` operator,
+# or modify/delete these two lines.
+/.wasp/
+
+.env*
+.flaskenv*
+!.env.project
+!.env.vault
+!.env.server.example
+
+# Playwright
+test-results/

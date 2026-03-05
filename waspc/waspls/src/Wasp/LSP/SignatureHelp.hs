@@ -207,7 +207,7 @@ signatureToFragments signature = case signatureType signature of
      in concat [["("], fields, [")"]]
   typ -> [fromString (show typ)]
   where
-    showInnerType :: IsString s => Type -> s
+    showInnerType :: (IsString s) => Type -> s
     showInnerType (Type.DictType _) = "{ ... }"
     showInnerType typ = fromString (show typ)
 

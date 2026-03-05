@@ -13,7 +13,7 @@ import Wasp.Analyzer.TypeDefinitions.Internal (EnumType)
 --
 -- NOTE: If this Haskell type satisfies certain requirements, the IsEnumType instance for it
 -- can be automatically derived from its shape by using 'Analyzer.Evaluator.TH.makeEnumType'.
-class Typeable a => IsEnumType a where
+class (Typeable a) => IsEnumType a where
   enumType :: EnumType
 
   -- | Converts a string to a Haskell value of this type.

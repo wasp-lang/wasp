@@ -1,6 +1,6 @@
 module Generator.CommonTest where
 
-import Test.Tasty.Hspec
+import Test.Hspec
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 
 spec_GeneratorCommonTest :: Spec

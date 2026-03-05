@@ -56,11 +56,15 @@ const MainPage = () => {
                   <h2 className="text-xl font-semibold">{option.text}</h2>
                   <p className="text-gray-700">{option.description}</p>
                 </div>
-                <div className="absolute bottom-5 right-5">
+                <div className="absolute right-5 bottom-5">
                   {username && !option.votes.includes(username) ? (
-                    <Button onClick={() => handleVote(option.id)}>Vote</Button>
+                    <Button color="cyan" onClick={() => handleVote(option.id)}>
+                      Vote
+                    </Button>
                   ) : (
-                    <Button disabled>Voted</Button>
+                    <Button color="cyan" disabled>
+                      Voted
+                    </Button>
                   )}
                   {!user}
                 </div>
@@ -73,7 +77,7 @@ const MainPage = () => {
                       return (
                         <div
                           key={username}
-                          className="username flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow"
+                          className="username flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow-sm"
                         >
                           <div className="mr-2 h-2 w-2 rounded-full bg-green-500"></div>
                           <div className="text-gray-700">{username}</div>
@@ -84,7 +88,7 @@ const MainPage = () => {
                       <div className="text-gray-700">{`...`}</div>
                     )}
                     {option.votes.length > TRUNCATE_SIZE + 1 && (
-                      <div className="flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow">
+                      <div className="flex items-center justify-center rounded-lg bg-gray-100 px-3 py-1 text-sm shadow-sm">
                         <div className="mr-2 h-2 w-2 rounded-full bg-green-500"></div>
                         <div className="text-gray-700">
                           {option.votes[option.votes.length - 1]}
@@ -94,11 +98,11 @@ const MainPage = () => {
                   </div>
                 )}
               </div>
-              <div className="votes-count absolute right-5 top-5 z-10 rounded-lg bg-gray-100 p-2 text-sm font-semibold">
+              <div className="votes-count absolute top-5 right-5 z-10 rounded-lg bg-gray-100 p-2 text-sm font-semibold">
                 {option.votes.length} / {totalVotes}
               </div>
               <div
-                className="absolute inset-0 rounded-lg bg-gradient-to-r from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
+                className="absolute inset-0 rounded-lg bg-linear-to-r from-yellow-400 to-orange-500 opacity-75 transition-all duration-300"
                 style={{
                   width: `${
                     totalVotes > 0

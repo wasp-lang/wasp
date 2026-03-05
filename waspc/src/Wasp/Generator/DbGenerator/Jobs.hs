@@ -17,7 +17,7 @@ import StrongPath (Abs, Dir, File', Path', (</>))
 import qualified StrongPath as SP
 import StrongPath.TH (relfile)
 import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), dbSchemaFileInProjectRootDir)
+import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), ResetArgs (..), dbSchemaFileInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Job as J
@@ -88,13 +88,21 @@ migrateStatus projectRootDir =
 
 -- | Runs `prisma migrate reset`, which drops the tables (so schemas and data is lost) and then
 -- reapplies all the migrations.
-reset :: Path' Abs (Dir ProjectRootDir) -> J.Job
-reset projectRootDir =
+reset :: Path' Abs (Dir ProjectRootDir) -> ResetArgs -> J.Job
+reset projectRootDir resetArgs =
   runPrismaCommandAsJobFromWaspServerDir
     projectRootDir
-    -- NOTE(martin): We do "--skip-seed" here because I just think seeding happening automatically on
-    --   reset is too aggressive / confusing.
-    ["migrate", "reset", "--schema", SP.fromAbsFile schema, "--skip-generate", "--skip-seed"]
+    ( [ "migrate",
+        "reset",
+        "--schema",
+        SP.fromAbsFile schema,
+        "--skip-generate",
+        -- NOTE(martin): We do "--skip-seed" here because I just think seeding
+        --   happening automatically on reset is too aggressive / confusing.
+        "--skip-seed"
+      ]
+        ++ if force resetArgs then ["--force"] else []
+    )
   where
     schema = projectRootDir </> dbSchemaFileInProjectRootDir
 

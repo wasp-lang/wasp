@@ -22,5 +22,5 @@ import Parser.Common (runWaspParser)
 import Text.Pretty.Simple (pPrint)
 
 -- | Prints any ToJSON instance, useful when testing parser.
-printJSON :: ToJSON a => a -> IO ()
+printJSON :: (ToJSON a) => a -> IO ()
 printJSON = L.putStrLn . encodePretty

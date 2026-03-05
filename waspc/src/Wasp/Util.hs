@@ -19,6 +19,9 @@ module Wasp.Util
     concatPrefixAndText,
     insertAt,
     leftPad,
+    trim,
+    wrapString,
+    zipMaps,
     (<++>),
     (<:>),
     bytestringToHex,
@@ -38,32 +41,39 @@ module Wasp.Util
     whenM,
     naiveTrimJSON,
     textToLazyBS,
-    trim,
     secondsToMicroSeconds,
     findDuplicateElems,
+    isOlderThanNHours,
+    checkIfOnCi,
+    -- NOTE: Exported only for testing purposes
+    checkIfEnvValueIsTruthy,
   )
 where
 
-import Control.Applicative (liftA2)
 import Control.Monad (unless, when)
 import qualified Crypto.Hash.SHA256 as SHA256
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Key as Key
+import qualified Data.Aeson.KeyMap as KM
 import qualified Data.ByteString as B
 import qualified Data.ByteString.Lazy as BSL
 import qualified Data.ByteString.UTF8 as BSU
 import Data.Char (isSpace, isUpper, toLower, toUpper)
-import qualified Data.HashMap.Strict as M
 import Data.List (group, intercalate, sort)
 import Data.List.Split (splitOn, wordsBy)
+import Data.Map (Map)
+import qualified Data.Map.Merge.Lazy as Map.Merge
 import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
-import qualified Data.Text as Text
 import qualified Data.Text.Encoding as TextEncoding
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TLE
+import qualified Data.Time as T
+import Numeric.Natural (Natural)
 import StrongPath (File, Path')
 import qualified StrongPath as SP
+import qualified System.Environment as ENV
 import Text.Printf (printf)
 
 camelToKebabCase :: String -> String
@@ -107,8 +117,8 @@ headSafe xs = Just (head xs)
 second3 :: (b -> d) -> (a, b, c) -> (a, d, c)
 second3 f (x, y, z) = (x, f y, z)
 
-jsonSet :: Text.Text -> Aeson.Value -> Aeson.Value -> Aeson.Value
-jsonSet key value (Aeson.Object o) = Aeson.Object $ M.insert key value o
+jsonSet :: Key.Key -> Aeson.Value -> Aeson.Value -> Aeson.Value
+jsonSet key value (Aeson.Object o) = Aeson.Object $ KM.insert key value o
 jsonSet _ _ _ = error "Input JSON must be an object"
 
 indent :: Int -> String -> String
@@ -138,10 +148,11 @@ indent numSpaces = intercalate "\n" . map (toEmptyStringIfAllWhiteSpace . (inden
 --      Written to file bar.txt
 -- @
 concatShortPrefixAndText :: String -> String -> String
-concatShortPrefixAndText prefix "" = prefix
 concatShortPrefixAndText prefix text =
-  let (l : ls) = lines text
-   in prefix ++ l ++ if null ls then "" else "\n" ++ indent (length prefix) (intercalate "\n" ls)
+  prefix <> case lines text of
+    [] -> ""
+    [l] -> l
+    (l : ls) -> l <> "\n" <> indent (length prefix) (intercalate "\n" ls)
 
 -- | Given a prefix and text, concatenates them in the following manner:
 -- - If just one line of text:
@@ -187,23 +198,52 @@ insertAt theInsert idx host =
 trim :: String -> String
 trim = reverse . dropWhile isSpace . reverse . dropWhile isSpace
 
+wrapString :: Int -> String -> String
+wrapString lineLength = intercalate "\n" . map unwords . groupWordsIntoLines . words
+  where
+    groupWordsIntoLines :: [String] -> [[String]]
+    groupWordsIntoLines [] = []
+    groupWordsIntoLines (firstWord : restWords) =
+      let remainingLength = lineLength - length firstWord - 1
+          (moreWords, leftover) = takeWordsUpToLength remainingLength restWords
+          line = firstWord : moreWords
+       in line : groupWordsIntoLines leftover
+
+    takeWordsUpToLength :: Int -> [String] -> ([String], [String])
+    takeWordsUpToLength _ [] = ([], [])
+    takeWordsUpToLength remainingLength (w : ws)
+      | length w > remainingLength = ([], w : ws)
+      | otherwise =
+          let (taken, leftover) = takeWordsUpToLength (remainingLength - length w - 1) ws
+           in (w : taken, leftover)
+
+-- | It will call the given function for each key in both maps, with `Maybe`s
+-- representing the presence of the key in each map. The resulting value will be
+-- used to create a new Map.
+zipMaps :: (Ord k) => (k -> Maybe a -> Maybe b -> Maybe c) -> Map k a -> Map k b -> Map k c
+zipMaps f =
+  Map.Merge.merge
+    (Map.Merge.mapMaybeMissing $ \k x -> f k (Just x) Nothing)
+    (Map.Merge.mapMaybeMissing $ \k y -> f k Nothing (Just y))
+    (Map.Merge.zipWithMaybeMatched $ \k x y -> f k (Just x) (Just y))
+
 infixr 5 <++>
 
-(<++>) :: Applicative f => f [a] -> f [a] -> f [a]
+(<++>) :: (Applicative f) => f [a] -> f [a] -> f [a]
 (<++>) = liftA2 (++)
 
 infixr 5 <:>
 
-(<:>) :: Applicative f => f a -> f [a] -> f [a]
+(<:>) :: (Applicative f) => f a -> f [a] -> f [a]
 (<:>) = liftA2 (:)
 
-ifM :: Monad m => m Bool -> m a -> m a -> m a
+ifM :: (Monad m) => m Bool -> m a -> m a -> m a
 ifM p x y = p >>= \b -> if b then x else y
 
-whenM :: Monad m => m Bool -> m () -> m ()
+whenM :: (Monad m) => m Bool -> m () -> m ()
 whenM ma mb = ma >>= (`when` mb)
 
-unlessM :: Monad m => m Bool -> m () -> m ()
+unlessM :: (Monad m) => m Bool -> m () -> m ()
 unlessM ma mb = ma >>= (`unless` mb)
 
 type Checksum = Hex
@@ -272,5 +312,43 @@ textToLazyBS = TLE.encodeUtf8 . TL.fromStrict
 secondsToMicroSeconds :: Int -> Int
 secondsToMicroSeconds = (* 1000000)
 
-findDuplicateElems :: Ord a => [a] -> [a]
+findDuplicateElems :: (Ord a) => [a] -> [a]
 findDuplicateElems = map head . filter ((> 1) . length) . group . sort
+
+isOlderThanNHours :: Natural -> T.UTCTime -> IO Bool
+isOlderThanNHours nHours time = do
+  now <- T.getCurrentTime
+  let diffSeconds = T.nominalDiffTimeToSeconds (now `T.diffUTCTime` time)
+  return $ diffSeconds > fromIntegral nHours * numSecondsInHour
+  where
+    numSecondsInHour = 3600
+
+-- This function was inspired by https://github.com/watson/ci-info/blob/master/index.js .
+-- We also replicate this logic in our wasp installer script (installer.sh in get-wasp-sh repo) and
+-- in our npm analytics (scripts/make-npm-packages/templates/main-package/postinstall.js in this
+-- repo).
+checkIfOnCi :: IO Bool
+checkIfOnCi =
+  any checkIfEnvValueIsTruthy
+    <$> mapM
+      ENV.lookupEnv
+      -- Keep in sync with the same list in:
+      -- - https://github.com/wasp-lang/wasp/blob/main/scripts/make-npm-packages/templates/main-package/postinstall.js
+      -- - https://github.com/wasp-lang/get-wasp-sh/blob/master/installer.sh
+      [ "BUILD_ID", -- Jenkins, Codeship
+        "BUILD_NUMBER", -- Jenkins, TeamCity
+        "CI", -- Github actions, Travis CI, CircleCI, Cirrus CI, Gitlab CI, Appveyor, Codeship, dsari
+        "CI_APP_ID", -- Appflow
+        "CI_BUILD_ID", -- Appflow
+        "CI_BUILD_NUMBER", -- Appflow
+        "CI_NAME", -- Codeship and others
+        "CONTINUOUS_INTEGRATION", -- Travis CI, Cirrus CI
+        "RUN_ID" -- TaskCluster, dsari
+      ]
+
+checkIfEnvValueIsTruthy :: Maybe String -> Bool
+checkIfEnvValueIsTruthy Nothing = False
+checkIfEnvValueIsTruthy (Just v)
+  | null v = False
+  | (toLower <$> v) == "false" = False
+  | otherwise = True

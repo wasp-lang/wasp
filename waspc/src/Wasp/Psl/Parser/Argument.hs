@@ -59,7 +59,8 @@ stringExpr = Psl.Argument.StringExpr <$> stringLiteral
 funcCallExpr :: Parser Psl.Argument.Expression
 funcCallExpr =
   Psl.Argument.FuncExpr
-    <$> identifier <*> argumentList
+    <$> identifier
+    <*> argumentList
 
 arrayExpr :: Parser Psl.Argument.Expression
 arrayExpr =

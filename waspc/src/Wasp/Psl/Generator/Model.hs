@@ -13,7 +13,8 @@ generateModelBody (Psl.Model.Body elements) = unlines $ generateWithCtx generate
 
 generateModelElement :: Psl.Model.Element -> PslSource
 generateModelElement (Psl.Model.ElementField field) =
-  Psl.Model._name field ++ " "
+  Psl.Model._name field
+    ++ " "
     ++ generateModelFieldType (Psl.Model._type field)
     ++ concatMap generateModelFieldTypeModifier (Psl.Model._typeModifiers field)
     ++ concatMap ((" " ++) . generateAttribute) (Psl.Model._attrs field)

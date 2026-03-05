@@ -1,7 +1,7 @@
 module Project.DbTest where
 
 import NeatInterpolation (trimming)
-import Test.Tasty.Hspec
+import Test.Hspec
 import qualified Util.Prisma as Util
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import Wasp.Project.Db

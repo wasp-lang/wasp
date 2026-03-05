@@ -25,11 +25,23 @@ where
 import Control.Monad (filterM)
 import Control.Monad.Extra (whenM)
 import qualified Data.ByteString.Lazy as B
+import Data.List (sort)
 import Data.Text (Text)
 import qualified Data.Text.IO as T.IO
 import qualified Data.Text.IO as Text.IO
 import qualified Path.IO as PathIO
-import StrongPath (Abs, Dir, File, Path', Rel, basename, parseRelDir, parseRelFile, toFilePath, (</>))
+import StrongPath
+  ( Abs,
+    Dir,
+    File,
+    Path',
+    Rel,
+    basename,
+    parseRelDir,
+    parseRelFile,
+    toFilePath,
+    (</>),
+  )
 import qualified StrongPath as SP
 import qualified StrongPath.Path as SP.Path
 import qualified System.Directory as SD
@@ -69,8 +81,9 @@ listDirectoryDeep absDirPath = do
 listDirectory :: forall r d f. Path' Abs (Dir r) -> IO ([Path' (Rel r) (File f)], [Path' (Rel r) (Dir d)])
 listDirectory absDirPath = do
   fpRelItemPaths <- SD.listDirectory fpAbsDirPath
-  relFilePaths <- filterFiles fpAbsDirPath fpRelItemPaths
-  relDirPaths <- filterDirs fpAbsDirPath fpRelItemPaths
+  let sortedFpRelItemPaths = sort fpRelItemPaths
+  relFilePaths <- filterFiles fpAbsDirPath sortedFpRelItemPaths
+  relDirPaths <- filterDirs fpAbsDirPath sortedFpRelItemPaths
   return (relFilePaths, relDirPaths)
   where
     fpAbsDirPath :: FilePath
@@ -107,11 +120,11 @@ doesDirectoryExist = SD.doesDirectoryExist . SP.fromAbsDir
 readFile :: Path' Abs (File f) -> IO String
 readFile = P.readFile . SP.fromAbsFile
 
-readFileBytes :: Path' Abs (File f) -> IO B.ByteString
-readFileBytes = B.readFile . SP.fromAbsFile
-
 readFileStrict :: Path' Abs (File f) -> IO Text
 readFileStrict = T.IO.readFile . SP.toFilePath
+
+readFileBytes :: Path' Abs (File f) -> IO B.ByteString
+readFileBytes = B.readFile . SP.fromAbsFile
 
 writeFile :: Path' Abs (File f) -> String -> IO ()
 writeFile = P.writeFile . SP.fromAbsFile

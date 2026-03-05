@@ -160,7 +160,7 @@ actionDocPrompt =
     - Wasp declaration:
     ```wasp
     action updateTask {
-      fn: import { updateTask } from "@src/taskActions.js",
+      fn: import { updateTask } from "@src/taskActions",
       entities: [Task] // Entities that action mutates.
     }
     ```
@@ -189,7 +189,7 @@ actionDocPrompt =
 
     ```wasp
     action deleteList {
-      fn: import { deleteList } from "@src/actions.js",
+      fn: import { deleteList } from "@src/actions",
       entities: [List, Card]
     }
     ```
@@ -232,7 +232,7 @@ queryDocPrompt =
     - Wasp declaration:
     ```wasp
     query fetchFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/taskQueries.js",
+      fn: import { getFilteredTasks } from "@src/taskQueries",
       entities: [Task] // Entities that query uses.
     }
     ```
@@ -259,7 +259,7 @@ queryDocPrompt =
     - Wasp declaration:
     ```wasp
     query getAuthor {
-      fn: import { getAuthor } from "@src/author/queries.js",
+      fn: import { getAuthor } from "@src/author/queries",
       entities: [Author]
     }
     ```

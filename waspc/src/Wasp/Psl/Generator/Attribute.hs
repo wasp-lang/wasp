@@ -10,7 +10,8 @@ import Wasp.Psl.Generator.Common (PslSource)
 
 generateAttribute :: Psl.Attribute.Attribute -> PslSource
 generateAttribute attribute =
-  "@" ++ Psl.Attribute._attrName attribute
+  "@"
+    ++ Psl.Attribute._attrName attribute
     ++ if null (Psl.Attribute._attrArgs attribute)
       then ""
       else "(" ++ intercalate ", " (map generateArgument (Psl.Attribute._attrArgs attribute)) ++ ")"

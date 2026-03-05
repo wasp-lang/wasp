@@ -44,7 +44,9 @@ type PlanRule = String
 generatePlan :: NewProjectDetails -> [PlanRule] -> CodeAgent Plan
 generatePlan newProjectDetails planRules = do
   writeToLog $
-    "\n" <> L.styled L.Generating "Generating" <> " plan (slowest step, can take up to 90 seconds for slower models)"
+    "\n"
+      <> L.styled L.Generating "Generating"
+      <> " plan (slowest step, can take up to 90 seconds for slower models)"
       <> L.styled (L.Custom [Term.Blink]) "..."
   initialPlan <- queryChatGPTForJSON (planningChatGPTParams newProjectDetails) chatMessages
   writeToLog $ "Initial plan generated!\n" <> L.fromText (summarizePlan initialPlan)
@@ -209,7 +211,9 @@ checkPlanForEntityIssues plan =
           expectedNumEntities = 2
        in if numEntities < expectedNumEntities
             then
-              [ "There is only " <> show numEntities <> " entities in the plan,"
+              [ "There is only "
+                  <> show numEntities
+                  <> " entities in the plan,"
                   <> (" I would expect at least " <> show expectedNumEntities <> " or more.")
               ]
             else []
@@ -222,7 +226,9 @@ checkPlanForEntityIssues plan =
     checkIfEntityBodyParses entity =
       case Psl.Parser.Model.parseBody (entityBodyPsl entity) of
         Left parseError ->
-          [ "Failed to parse PSL body of entity '" <> entityName entity <> "': "
+          [ "Failed to parse PSL body of entity '"
+              <> entityName entity
+              <> "': "
               <> show parseError
           ]
         Right _ -> []
@@ -267,7 +273,11 @@ checkPlanForOperationIssues opType plan =
           expectedNumOps = 1
        in if numOps < expectedNumOps
             then
-              [ "There is only " <> show numOps <> " " <> caseOnOpType "queries" "actions" <> " in the plan,"
+              [ "There is only "
+                  <> show numOps
+                  <> " "
+                  <> caseOnOpType "queries" "actions"
+                  <> " in the plan,"
                   <> (" I would expect at least " <> show expectedNumOps <> " or more.")
               ]
             else []
@@ -275,7 +285,10 @@ checkPlanForOperationIssues opType plan =
     checkOperationFnPath op =
       if not ("@src" `isPrefixOf` opFnPath op)
         then
-          [ "fn path of " <> caseOnOpType "query" "action" <> " '" <> opName op
+          [ "fn path of "
+              <> caseOnOpType "query" "action"
+              <> " '"
+              <> opName op
               <> "' must start with '@src'."
           ]
         else []
@@ -302,7 +315,9 @@ checkPlanForPageIssues plan =
           expectedNumPages = 1
        in if numPages < expectedNumPages
             then
-              [ "There is only " <> show numPages <> " pages in the plan,"
+              [ "There is only "
+                  <> show numPages
+                  <> " pages in the plan,"
                   <> (" I would expect at least " <> show expectedNumPages <> " or more.")
               ]
             else []
@@ -331,7 +346,7 @@ summarizePlan plan =
         - ${numPages} pages: ${pageNames}
       |]
   where
-    showT :: Show a => a -> Text
+    showT :: (Show a) => a -> Text
     showT = T.pack . show
 
 -- TODO: Alternative idea is to give quite more autonomy and equip it with tools (functions) it

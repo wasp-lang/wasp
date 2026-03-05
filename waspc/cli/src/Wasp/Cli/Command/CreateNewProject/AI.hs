@@ -7,7 +7,8 @@ where
 
 import Control.Arrow ()
 import Control.Monad (unless)
-import Control.Monad.Except (MonadError (throwError), MonadIO (liftIO))
+import Control.Monad.Except (MonadError (throwError))
+import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.List (intercalate)
@@ -50,41 +51,41 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
   appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences"
   (planningGptModel, codingGptModel) <-
-    liftIO $
-      Interactive.askToChoose'
+    liftIO
+      $ Interactive.askToChoose'
         "Choose GPT model(s) you want to use:"
-        $ NE.fromList
-          [ Interactive.Option
-              "gpt-4o (planning + coding)"
-              (Just "Good results. Cheap and fast. Best cost/benefit ratio.")
-              (ChatGPT.GPT_4o, ChatGPT.GPT_4o),
-            Interactive.Option
-              "gpt-4 (planning) + gpt-4o (coding)"
-              (Just "Possibly better results, but somewhat slower and somewhat more expensive.")
-              (ChatGPT.GPT_4, ChatGPT.GPT_4o),
-            Interactive.Option
-              "gpt-4 (planning + coding)"
-              (Just "Possibly best results, but quite slower and quite more expensive.")
-              (ChatGPT.GPT_4, ChatGPT.GPT_4)
-          ]
+      $ NE.fromList
+        [ Interactive.Option
+            "gpt-4o (planning + coding)"
+            (Just "Good results. Cheap and fast. Best cost/benefit ratio.")
+            (ChatGPT.GPT_4o, ChatGPT.GPT_4o),
+          Interactive.Option
+            "gpt-4 (planning) + gpt-4o (coding)"
+            (Just "Possibly better results, but somewhat slower and somewhat more expensive.")
+            (ChatGPT.GPT_4, ChatGPT.GPT_4o),
+          Interactive.Option
+            "gpt-4 (planning + coding)"
+            (Just "Possibly best results, but quite slower and quite more expensive.")
+            (ChatGPT.GPT_4, ChatGPT.GPT_4)
+        ]
   temperature <-
-    liftIO $
-      Interactive.askToChoose'
+    liftIO
+      $ Interactive.askToChoose'
         "Choose the creativity level (temperature):"
-        $ NE.fromList
-          [ Interactive.Option
-              "Balanced (0.7)"
-              (Just "Optimal trade-off between creativity and possible mistakes.")
-              0.7,
-            Interactive.Option
-              "Conventional (0.4)"
-              (Just "Generates sensible code with minimal amount of mistakes.")
-              0.4,
-            Interactive.Option
-              "Creative (1.0)"
-              (Just "Generates more creative code, but mistakes are more likely.")
-              1.0
-          ]
+      $ NE.fromList
+        [ Interactive.Option
+            "Balanced (0.7)"
+            (Just "Optimal trade-off between creativity and possible mistakes.")
+            0.7,
+          Interactive.Option
+            "Conventional (0.4)"
+            (Just "Generates sensible code with minimal amount of mistakes.")
+            0.4,
+          Interactive.Option
+            "Creative (1.0)"
+            (Just "Generates more creative code, but mistakes are more likely.")
+            1.0
+        ]
   let projectConfig =
         emptyNewProjectConfig
           { GNP.C.projectPlanningGptModel = Just planningGptModel,
@@ -217,20 +218,20 @@ getOpenAIApiKey =
     validateKey k = Just k
 
     throwMissingOpenAIApiKeyEnvVarError =
-      throwError $
-        CommandError
+      throwError
+        $ CommandError
           "Missing OPENAI_API_KEY environment variable"
-          $ unlines
-            [ "Wasp AI uses ChatGPT to generate your project, and therefore requires you to provide it with an OpenAI API key.",
-              "You can obtain this key via your OpenAI account's user settings (https://platform.openai.com/account/api-keys).",
-              "Then, set OPENAI_API_KEY env var to it and wasp CLI will read from it.",
-              "",
-              "To persist the OPENAI_API_KEY env var, add",
-              "  export OPENAI_API_KEY=<yourkeyhere>",
-              "to your .bash_profile (or .profile or .zprofile or whatever your machine is using), restart your shell, and you should be good to go.",
-              "",
-              "Alternatively, you can go to our Mage web app at https://usemage.ai and generate new Wasp app there for free, with no OpenAI API keys needed."
-            ]
+        $ unlines
+          [ "Wasp AI uses ChatGPT to generate your project, and therefore requires you to provide it with an OpenAI API key.",
+            "You can obtain this key via your OpenAI account's user settings (https://platform.openai.com/account/api-keys).",
+            "Then, set OPENAI_API_KEY env var to it and wasp CLI will read from it.",
+            "",
+            "To persist the OPENAI_API_KEY env var, add",
+            "  export OPENAI_API_KEY=<yourkeyhere>",
+            "to your .bash_profile (or .profile or .zprofile or whatever your machine is using), restart your shell, and you should be good to go.",
+            "",
+            "Alternatively, you can go to our Mage web app at https://usemage.ai and generate new Wasp app there for free, with no OpenAI API keys needed."
+          ]
 
 newProjectDetails :: NewProjectConfig -> String -> String -> NewProjectDetails
 newProjectDetails projectConfig webAppName webAppDescription =
