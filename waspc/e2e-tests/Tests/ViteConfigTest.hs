@@ -3,7 +3,7 @@
 module Tests.ViteConfigTest (viteConfigTest) where
 
 import Control.Monad.Reader (ask)
-import qualified Data.Text as T
+import NeatInterpolation (trimming)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -12,7 +12,6 @@ import ShellCommands
     createFile,
     createTestWaspProject,
     inTestWaspProjectDir,
-    setWaspDbToPSQL,
     waspCliCompile,
   )
 import StrongPath (relfile, (</>))
@@ -27,8 +26,7 @@ viteConfigTest =
         ( sequence
             [ createTestWaspProject Minimal,
               inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  deleteViteConfig,
+                [ deleteViteConfig,
                   expectCommandFailure <$> waspCliCompile
                 ]
             ]
@@ -38,8 +36,7 @@ viteConfigTest =
         ( sequence
             [ createTestWaspProject Minimal,
               inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  writeViteConfigWithoutPlugin,
+                [ writeViteConfigWithoutPlugin,
                   expectCommandFailure <$> waspCliCompile
                 ]
             ]
@@ -54,13 +51,11 @@ writeViteConfigWithoutPlugin = do
   context <- ask
   createFile
     (context.waspProjectDir </> [relfile|vite.config.ts|])
-    ( T.pack $
-        unlines
-          [ "import { defineConfig } from \"vite\";",
-            "",
-            "export default defineConfig({});"
-          ]
-    )
+    [trimming|
+      import { defineConfig } from "vite";
+
+      export default defineConfig({});
+    |]
 
 expectCommandFailure :: ShellCommand -> ShellCommand
 expectCommandFailure command = "! " ++ command
