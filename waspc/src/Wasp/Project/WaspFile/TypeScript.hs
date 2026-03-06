@@ -26,11 +26,10 @@ import System.Exit (ExitCode (..))
 import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
-import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageIsAtInstallationPathInProject, getInstallablePackageName)
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
 import Wasp.Project.Common
   ( CompileError,
     WaspProjectDir,
@@ -55,7 +54,6 @@ analyzeWaspTsFile ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
-  ExceptT $ ensureWaspConfigPackageIsInstalled waspProjectDir
   -- TODO: I'm not yet sure where tsconfig.wasp.json location should come from
   -- because we also need that knowledge when generating a TS SDK project.
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.wasp.json|] waspFilePath
@@ -146,14 +144,6 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
   where
     absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
-
-ensureWaspConfigPackageIsInstalled :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] ())
-ensureWaspConfigPackageIsInstalled waspProjectDir = do
-  ensurePackageIsAtInstallationPathInProject waspProjectDir WaspConfigPackage
-  chan <- newChan
-  installProjectNpmDependencies chan waspProjectDir >>= \case
-    Left err -> return $ Left [err]
-    Right () -> return $ Right ()
 
 readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
 readDecls prismaSchemaAst declsJsonFile = runExceptT $ do

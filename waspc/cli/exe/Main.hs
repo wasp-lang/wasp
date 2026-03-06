@@ -29,6 +29,7 @@ import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
 import Wasp.Cli.Command.Info (info)
+import Wasp.Cli.Command.Install (install, reinstall)
 import Wasp.Cli.Command.News (news)
 import Wasp.Cli.Command.Start (start)
 import qualified Wasp.Cli.Command.Start.Db as Command.Start.Db
@@ -55,6 +56,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["start"] -> Command.Call.Start
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
         ["clean"] -> Command.Call.Clean
+        ["install"] -> Command.Call.Install
+        ["reinstall"] -> Command.Call.Reinstall
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
         ["uninstall"] -> Command.Call.Uninstall
@@ -107,6 +110,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Start -> runCommand start
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
+    Command.Call.Install -> runCommand install
+    Command.Call.Reinstall -> runCommand reinstall
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
@@ -181,6 +186,8 @@ printUsage =
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom Docker image or Docker volume mount path.",
         cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
+        cmd   "    install               Copies all local npm dependencies to the project folder and runs npm install.",
+        cmd   "    reinstall             Runs wasp clean followed by wasp install.",
         cmd   "    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.",
               "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
         cmd   "    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.",

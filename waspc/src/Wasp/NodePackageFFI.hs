@@ -10,6 +10,7 @@ module Wasp.NodePackageFFI
     InstallablePackage (..),
     getInstallablePackageName,
     getPackageJsonSpecifierForPackage,
+    getPackagePathInNodeModules,
     ensurePackageIsAtInstallationPathInProject,
   )
 where
@@ -23,7 +24,7 @@ import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
 
 -- | These are the globally installed packages waspc runs directly from
@@ -110,6 +111,12 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =
   dotWaspDirInWaspProjectDir </> case package of
+    WaspConfigPackage -> fromJust $ parseRelDir $ getInstallablePackageName package
+
+-- todo: probably remove
+getPackagePathInNodeModules :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
+getPackagePathInNodeModules package =
+  nodeModulesDirInWaspProjectDir </> case package of
     WaspConfigPackage -> fromJust $ parseRelDir $ getInstallablePackageName package
 
 getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
