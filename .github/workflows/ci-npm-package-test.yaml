@@ -59,7 +59,7 @@ jobs:
             if [ -d "$pkg_dir/data" ]; then
               (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
                 hash=$($HASH_CMD "$file" | cut -d' ' -f1)
-                printf '%s\0%s\n' "$file" "$hash"
+                printf '%s\t%s\n' "$file" "$hash"
               done | sort) > actual-data-files.txt
               break
             fi

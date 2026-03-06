@@ -160,7 +160,7 @@ jobs:
               | grep '^\./data/' \
               | while IFS= read -r file; do
                   hash=$($HASH_CMD "$file" | cut -d' ' -f1)
-                  printf '%s\0%s\n' "$file" "$hash"
+                  printf '%s\t%s\n' "$file" "$hash"
                 done \
               | sort
             echo 'EOF'
