@@ -6,11 +6,7 @@ import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Client as AS.App.Client
-import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.AppSpec.Valid (getApp)
-import Wasp.Generator.Common (dropExtensionFromImportPath, makeJsArrayFromHaskellList)
+import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG (genHtmlPlugin)
@@ -36,8 +32,6 @@ genVitePlugins spec =
       genWaspConfigPlugin spec,
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
-      genFileCopy [relfile|validateEnv.ts|],
-      genValidateEnvBundlePlugin spec,
       genFileCopy [relfile|typescriptCheck.ts|]
     ]
     <++> getVirtualModulesPlugin spec
@@ -93,21 +87,3 @@ genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|detectServerImports.ts|]
     tmplData = object ["srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir]
-
-genValidateEnvBundlePlugin :: AppSpec -> Generator FileDraft
-genValidateEnvBundlePlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
-  where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnvBundle.ts|]
-    tmplData =
-      object
-        [ "userEnvSchemaPath" .= maybeUserEnvSchemaPath
-        ]
-    maybeUserEnvSchemaPath :: Maybe String
-    maybeUserEnvSchemaPath =
-      getUserEnvSchemaRelPath <$> maybeClientEnvSchema
-    maybeClientEnvSchema =
-      AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
-    getUserEnvSchemaRelPath extImport =
-      SP.fromRelFileP $
-        dropExtensionFromImportPath $
-          fromJust (SP.relDirToPosix srcDirInWaspProjectDir) </> EI.path extImport
