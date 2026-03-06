@@ -242,7 +242,6 @@ npmDepsForSdk spec =
   where
     waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
 
-
 genClientConfigFile :: Generator FileDraft
 genClientConfigFile =
   return $ C.mkTmplFdWithData [relfile|client/config.ts|] tmplData
