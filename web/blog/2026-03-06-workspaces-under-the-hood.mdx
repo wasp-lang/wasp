@@ -13,7 +13,7 @@ Imagine that you are working on a full-stack web app, and want to separate your 
 
 {/* truncate */}
 
-Well, first off, [you should be using Wasp](#whats-wasp), which will happily help you bypass this problem. But, if you were to DIY it, you'd probably end up splitting into multiple packages. But the moment a JS project grows beyond a single package, things get painful fast. Multiple `package.json` files, multiple `npm install`s, dependency versions drifting out of sync, and runtime errors when two packages end up with different copies of the same library. Is this the brave new world of monorepos? 'Cause it sure is not saving me any headache.
+Well, first off, [you should be using Wasp](/), which will happily help you bypass this problem. But, if you were to DIY it, you'd probably end up splitting into multiple packages. But the moment a JS project grows beyond a single package, things get painful fast. Multiple `package.json` files, multiple `npm install`s, dependency versions drifting out of sync, and runtime errors when two packages end up with different copies of the same library. Is this the brave new world of monorepos? 'Cause it sure is not saving me any headache.
 
 Wait, don't start asking your agent to generate a thousand shell scripts to deal with this. Thankfully, our projects don't need to be held up by bash and good wishes anymore, and we don't need as many custom tools as we once did. The JS ecosystem especially has been hard at work creating versatile infrastructure for big monorepos, and most bleeding-edge open source projects have migrated to one big repo for their whole source code inventory.
 
@@ -23,8 +23,6 @@ This post digs into how workspaces actually work under the hood: how package man
 
 This is a technical explanation of a feature we use internally in Wasp projects. If you're only interested in making Wasp apps, you won't miss anything by skipping this post. But if you're curious about the internals, or want to explore workspaces for use in your own projects, read on.
 
-<div id="whats-wasp">
-
 :::tip Hey, what's Wasp?
 
 If you arrived here and don't know anything about Wasp, don't worry! You don't need to know anything about it to learn from this post.
@@ -32,8 +30,6 @@ If you arrived here and don't know anything about Wasp, don't worry! You don't n
 But, if you're curious, Wasp is the quickest way to create full-stack app in TypeScript; with database, auth, email, and async jobs already included in the deal. To learn more, check out our [website](/) and join our [Discord](https://discord.gg/rzdnErX).
 
 :::
-
-</div>
 
 ## Enter workspaces {#definition}
 
