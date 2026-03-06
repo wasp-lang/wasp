@@ -2,6 +2,11 @@ name: "Test - Wasp npm packages"
 
 on:
   workflow_call:
+    inputs:
+      data-files-list:
+        description: "Expected data files list with per-file SHA-256 hashes."
+        required: true
+        type: string
 
 jobs:
   test:
@@ -35,6 +40,28 @@ jobs:
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
+
+      - name: Verify data files in packages
+        env:
+          EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
+        run: |
+          set -eux
+
+          echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
+
+          if command -v sha256sum >/dev/null 2>&1; then
+            HASH_CMD="sha256sum"
+          else
+            HASH_CMD="shasum -a 256"
+          fi
+
+          for pkg_dir in ./packages/*; do
+            if [ -d "$pkg_dir/data" ]; then
+              (cd "$pkg_dir" && find ./data -type f | sort | xargs $HASH_CMD) > actual-data-files.txt
+              diff expected-data-files.txt actual-data-files.txt
+              echo "Data files verified: $pkg_dir"
+            fi
+          done
 
       - name: Install dependencies
         if: matrix.runner.install-deps

@@ -64,9 +64,11 @@ jobs:
       override-npm-package-version: ${{ inputs.override-npm-package-version }}
 
   npm-package-test:
-    needs: npm-package-build
+    needs: [npm-package-build, waspc-build]
     uses: ./.github/workflows/ci-npm-package-test.yaml
     secrets: inherit
+    with:
+      data-files-list: ${{ needs.waspc-build.outputs.data_files_list }}
 
   npm-package-publish:
     needs: npm-package-build
