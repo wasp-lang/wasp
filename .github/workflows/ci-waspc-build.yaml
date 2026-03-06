@@ -162,7 +162,7 @@ jobs:
                   hash=$($HASH_CMD "$file" | cut -d' ' -f1)
                   printf '%s\t%s\n' "$file" "$hash"
                 done \
-              | sort
+              | LC_COLLATE=C sort
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 

@@ -60,7 +60,7 @@ jobs:
               (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
                 hash=$($HASH_CMD "$file" | cut -d' ' -f1)
                 printf '%s\t%s\n' "$file" "$hash"
-              done | sort) > actual-data-files.txt
+              done | LC_COLLATE=C sort) > actual-data-files.txt
               break
             fi
           done
