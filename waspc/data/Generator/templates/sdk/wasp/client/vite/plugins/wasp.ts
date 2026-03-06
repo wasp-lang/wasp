@@ -6,6 +6,7 @@ import { waspHtmlBuild } from "./html/build.js";
 import { waspHtmlDev } from "./html/dev.js";
 import { typescriptCheck } from "./typescriptCheck.js";
 import { waspVirtualModules } from "./virtualModules.js";
+import { validateEnvBundle } from "./validateEnvBundle.js";
 import { waspConfig } from "./waspConfig.js";
 
 export interface WaspPluginOptions {
@@ -29,7 +30,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     typescriptCheck(),
     waspHtmlDev(),
     waspHtmlBuild(),
-    // validateEnv(),
+    validateEnvBundle(),
     react(options?.reactOptions),
   ];
 }
