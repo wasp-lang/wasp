@@ -57,7 +57,10 @@ jobs:
 
           for pkg_dir in ./packages/*; do
             if [ -d "$pkg_dir/data" ]; then
-              (cd "$pkg_dir" && find ./data -type f | sort | xargs $HASH_CMD) > actual-data-files.txt
+              (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
+                hash=$($HASH_CMD "$file" | cut -d' ' -f1)
+                printf '%s\0%s\n' "$file" "$hash"
+              done | sort) > actual-data-files.txt
               diff expected-data-files.txt actual-data-files.txt
               echo "Data files verified: $pkg_dir"
             fi

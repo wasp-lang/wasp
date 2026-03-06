@@ -156,7 +156,13 @@ jobs:
           fi
           {
             echo 'list<<EOF'
-            cabal sdist --list-only | grep '^\./data/' | sort | xargs $HASH_CMD
+            cabal sdist --list-only \
+              | grep '^\./data/' \
+              | while IFS= read -r file; do
+                  hash=$($HASH_CMD "$file" | cut -d' ' -f1)
+                  printf '%s\0%s\n' "$file" "$hash"
+                done \
+              | sort
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
