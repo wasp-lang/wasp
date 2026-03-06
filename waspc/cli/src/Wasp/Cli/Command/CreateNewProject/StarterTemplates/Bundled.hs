@@ -9,6 +9,7 @@ import StrongPath.Path (toPathAbsDir)
 import System.Directory (renameFile)
 import qualified System.FilePath as FP
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates (skeletonDotfiles)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
 import qualified Wasp.Data as Data
 import Wasp.Project (WaspProjectDir)
@@ -32,9 +33,7 @@ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName tem
       renameDotfiles absWaspProjectDir
       copyDirRecur (toPathAbsDir absLocalTemplateDir) (toPathAbsDir absWaspProjectDir)
 
-    -- Some skeleton files are stored without their leading dot to prevent tools
-    -- (e.g. npm) from interpreting them during packaging. We restore the dot here.
     renameDotfiles :: Path' Abs (Dir WaspProjectDir) -> IO ()
     renameDotfiles projectDir = do
       let dir = fromAbsDir projectDir
-      renameFile (dir FP.</> "gitignore") (dir FP.</> ".gitignore")
+      mapM_ (\name -> renameFile (dir FP.</> name) (dir FP.</> ("." <> name))) skeletonDotfiles
