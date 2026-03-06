@@ -41,7 +41,7 @@ jobs:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
 
-      - name: Verify data files in packages
+      - name: Generate data files lists
         env:
           EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
         run: |
@@ -61,10 +61,19 @@ jobs:
                 hash=$($HASH_CMD "$file" | cut -d' ' -f1)
                 printf '%s\0%s\n' "$file" "$hash"
               done | sort) > actual-data-files.txt
-              diff expected-data-files.txt actual-data-files.txt
-              echo "Data files verified: $pkg_dir"
+              break
             fi
           done
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: data-files-check-${{ matrix.runner.os }}${{ matrix.runner.container && '-container' || '' }}
+          path: |
+            expected-data-files.txt
+            actual-data-files.txt
+
+      - name: Verify data files match
+        run: diff expected-data-files.txt actual-data-files.txt
 
       - name: Install dependencies
         if: matrix.runner.install-deps
