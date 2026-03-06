@@ -60,7 +60,7 @@ jobs:
               (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
                 hash=$($HASH_CMD "$file" | cut -d' ' -f1)
                 printf '%s\t%s\n' "$file" "$hash"
-              done | LC_COLLATE=C sort) > actual-data-files.txt
+              done) > actual-data-files.txt
               break
             fi
           done
@@ -73,7 +73,7 @@ jobs:
             actual-data-files.txt
 
       - name: Verify data files match
-        run: diff expected-data-files.txt actual-data-files.txt
+        run: diff <(LC_COLLATE=C sort expected-data-files.txt) <(LC_COLLATE=C sort actual-data-files.txt)
 
       - name: Install dependencies
         if: matrix.runner.install-deps

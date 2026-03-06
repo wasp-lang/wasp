@@ -19,7 +19,7 @@ on:
         description: "The Wasp version built in this workflow."
       data_files_list:
         value: ${{ jobs.build.outputs.data_files_list }}
-        description: "Sorted list of data files with per-file SHA-256 hashes."
+        description: "List of data files with per-file SHA-256 hashes."
       output_linux-x86_64:
         value: ${{ jobs.build.outputs.output_linux-x86_64 }}
         description: "The build output metadata for linux-x86_64."
@@ -161,8 +161,7 @@ jobs:
               | while IFS= read -r file; do
                   hash=$($HASH_CMD "$file" | cut -d' ' -f1)
                   printf '%s\t%s\n' "$file" "$hash"
-                done \
-              | LC_COLLATE=C sort
+                done
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
