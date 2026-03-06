@@ -82,7 +82,7 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp {6} title="main.wasp"
+    ```wasp {5} title="main.wasp"
     app todoApp {
       // ...
 
@@ -105,7 +105,7 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp {6} title="main.wasp"
+    ```wasp {5} title="main.wasp"
     app todoApp {
       // ...
 

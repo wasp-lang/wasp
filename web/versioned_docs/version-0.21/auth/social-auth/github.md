@@ -13,6 +13,7 @@ import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
 import GithubData from '../entities/\_github-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
+import SocialLoginClientPages from './\_social-login-client-pages.md';
 
 Wasp supports GitHub Authentication out of the box.
 GitHub is a great external auth choice when you're building apps for developers, as most of them already have a GitHub account.
@@ -79,10 +80,10 @@ To use GitHub as an authentication method, you'll first need to create a GitHub 
 
 1. Create a GitHub account if you do not already have one: https://github.com.
 2. Create and configure a new GitHub App: https://github.com/settings/apps.
-   
+
    ![GitHub App Screenshot 1](/img/github-social-login/github-app-1.png)
 
-3. We have to fill out **App name** and **Homepage URL** fields. 
+3. We have to fill out **App name** and **Homepage URL** fields.
    Additionally we will add our authorization **Callback URL**s:
     - For development, put: `http://localhost:3001/auth/github/callback`.
     - Once you know your production URL you can add it via the **Add Callback URL** button, e.g. `https://your-server-url.com/auth/github/callback`.
@@ -125,39 +126,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 ### 6. Creating the Client Pages
 
-:::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../../project/css-frameworks).
-:::
-
-Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
-
-```tsx title="src/pages/auth.tsx" auto-js
-import type { ReactNode } from 'react'
-import { LoginForm } from 'wasp/client/auth'
-
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }: { children: ReactNode }) {
-  return (
-    <div className="h-full w-full bg-white">
-      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-        <div className="h-full w-full max-w-sm bg-white p-5">
-          <div>{children}</div>
-        </div>
-      </div>
-    </div>
-  )
-}
-```
-
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../../auth/ui).
+<SocialLoginClientPages />
 
 ### Conclusion
 

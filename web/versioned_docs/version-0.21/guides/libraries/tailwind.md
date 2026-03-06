@@ -1,14 +1,15 @@
 ---
-title: CSS Frameworks
+comments: true
+last_checked_with_versions:
+  Wasp: "0.21"
+  Tailwind: 4
 ---
 
-import useBaseUrl from '@docusaurus/useBaseUrl';
+# Tailwind CSS
 
-## Tailwind
+Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first CSS framework. You can use Tailwind CSS by setting it up through their [Vite installation method](https://tailwindcss.com/docs/installation/using-vite), as with any other project.
 
-Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first CSS framework. You can use Tailwind CSS v4 and newer, with the [Vite installation method](https://tailwindcss.com/docs/installation/using-vite).
-
-### Adding Tailwind to your Wasp project
+## Adding Tailwind to your Wasp project
 
 1. Install Tailwind and its Vite plugin.
 
@@ -37,7 +38,7 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
     })
     ```
 
-1. Import Tailwind into your CSS file. For example, in a new project you might import Tailwind into `Main.css`.
+1. Import Tailwind into your base CSS file. For example, in a project created with `wasp new` you might import Tailwind into `Main.css`.
 
     ```css title="src/Main.css" {1}
     @import "tailwindcss";
@@ -57,7 +58,7 @@ Wasp works great with [Tailwind CSS](https://tailwindcss.com/), a utility-first 
     // ...
     ```
 
-### Adding Tailwind Plugins
+## Adding Tailwind Plugins
 
 Wasp doesn't require any special configuration to use Tailwind plugins. You can follow each plugin's installation instructions as you normally would.
 
@@ -68,7 +69,7 @@ npm install -D @tailwindcss/forms
 npm install -D @tailwindcss/typography
 ```
 
-```css title="src/Main.css" {1,3-4}
+```css title="src/Main.css" {3-4}
 @import "tailwindcss";
 
 @plugin "@tailwindcss/forms";
