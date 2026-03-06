@@ -41,40 +41,6 @@ jobs:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
 
-      - name: Generate data files lists
-        env:
-          EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
-        run: |
-          set -eux
-
-          echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
-
-          if command -v sha256sum >/dev/null 2>&1; then
-            HASH_CMD="sha256sum"
-          else
-            HASH_CMD="shasum -a 256"
-          fi
-
-          for pkg_dir in ./packages/*; do
-            if [ -d "$pkg_dir/data" ]; then
-              (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
-                hash=$($HASH_CMD "$file" | cut -d' ' -f1)
-                printf '%s\t%s\n' "$file" "$hash"
-              done) > actual-data-files.txt
-              break
-            fi
-          done
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: data-files-check-${{ matrix.runner.os }}${{ matrix.runner.container && '-container' || '' }}
-          path: |
-            expected-data-files.txt
-            actual-data-files.txt
-
-      - name: Verify data files match
-        run: diff <(LC_COLLATE=C sort expected-data-files.txt) <(LC_COLLATE=C sort actual-data-files.txt)
-
       - name: Install dependencies
         if: matrix.runner.install-deps
         run: ${{ matrix.runner.install-deps }}
@@ -124,3 +90,49 @@ jobs:
           NODE_DEBUG=wasp-bin-wrapper npx -y @wasp.sh/wasp-cli version
 
           exit 0 # Done, do not wait for registry to exit
+
+  check-data-files:
+    runs-on: ubuntu-latest
+    name: Check data files
+
+    steps:
+      - uses: actions/download-artifact@v6
+        with:
+          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
+          path: packages/
+
+      - name: Install package into temporary folder
+        run: |
+          set -eux
+
+          tarball=$(npm pack --pack-destination /tmp ./packages/wasp-cli-linux-amd64-glibc)
+
+          mkdir /tmp/install-check
+          cd /tmp/install-check
+          npm init -y
+          npm install "/tmp/$tarball"
+
+      - name: Generate data files lists
+        env:
+          EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
+        run: |
+          set -eux
+
+          echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
+
+          pkg_dir="/tmp/install-check/node_modules/@wasp.sh/wasp-cli-linux-amd64-glibc"
+
+          (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
+            hash=$(sha256sum "$file" | cut -d' ' -f1)
+            printf '%s\t%s\n' "$file" "$hash"
+          done) > actual-data-files.txt
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: data-files-check
+          path: |
+            expected-data-files.txt
+            actual-data-files.txt
+
+      - name: Verify data files match
+        run: diff <(LC_COLLATE=C sort expected-data-files.txt) <(LC_COLLATE=C sort actual-data-files.txt)
