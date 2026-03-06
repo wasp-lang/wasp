@@ -1,7 +1,14 @@
 {{={= =}=}}
 import * as z from 'zod'
-import { userClientEnvSchema } from '{= userClientEnvSchemaPath =}'
 import type { FromRegistry } from 'wasp/types'
+
+{=# userClientEnvSchema.isDefined =}
+{=& userClientEnvSchema.importStatement =}
+const userClientEnvSchema: typeof {= userClientEnvSchema.importIdentifier =} = {= userClientEnvSchema.importIdentifier =}
+{=/ userClientEnvSchema.isDefined =}
+{=^ userClientEnvSchema.isDefined =}
+const userClientEnvSchema = z.object({})
+{=/ userClientEnvSchema.isDefined =}
 
 type UserClientEnvSchema = FromRegistry<'clientEnvSchema', z.ZodObject<{}>>
 

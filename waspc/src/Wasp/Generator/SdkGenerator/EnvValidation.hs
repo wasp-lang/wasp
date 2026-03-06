@@ -9,6 +9,7 @@ import Data.Maybe (isJust)
 import StrongPath (relfile)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
@@ -17,7 +18,7 @@ import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (virtualExtImportToImportJson)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (userClientEnvSchemaPath)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (userClientEnvSchemaVF)
 import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
 import Wasp.Generator.ServerGenerator (userServerEnvSchemaVF)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
@@ -30,7 +31,7 @@ genEnvValidation :: AppSpec -> Generator [FileDraft]
 genEnvValidation spec =
   genSharedEnvFiles
     <++> genServerEnvFiles spec
-    <++> genClientEnvFiles
+    <++> genClientEnvFiles spec
 
 genSharedEnvFiles :: Generator [FileDraft]
 genSharedEnvFiles =
@@ -46,13 +47,13 @@ genServerEnvFiles spec =
     ]
     <++> genUserServerEnvSchemaModuleDecl spec
 
-genClientEnvFiles :: Generator [FileDraft]
-genClientEnvFiles =
+genClientEnvFiles :: AppSpec -> Generator [FileDraft]
+genClientEnvFiles spec =
   sequence
-    [ genClientEnvSchema,
-      genUserClientEnvSchemaModuleDecl,
+    [ genClientEnvSchema spec,
       genFileCopy [relfile|client/env.ts|]
     ]
+    <++> genUserClientEnvSchemaModuleDecl spec
 
 genServerEnv :: AppSpec -> Generator FileDraft
 genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
@@ -77,22 +78,30 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
     app = snd $ getApp spec
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
 
-genClientEnvSchema :: Generator FileDraft
-genClientEnvSchema = return $ mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema :: AppSpec -> Generator FileDraft
+genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "userClientEnvSchemaPath" .= userClientEnvSchemaPath
+          "userClientEnvSchema" .= virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvValidationSchema
         ]
+    maybeClientEnvValidationSchema = AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
 
-genUserClientEnvSchemaModuleDecl :: Generator FileDraft
-genUserClientEnvSchemaModuleDecl = return $ mkTmplFdWithData tmplPath tmplData
+genUserClientEnvSchemaModuleDecl :: AppSpec -> Generator [FileDraft]
+genUserClientEnvSchemaModuleDecl spec
+  | isJust maybeClientEnvSchema =
+      return
+        [ mkTmplFdWithData
+            [relfile|client/env/userClientEnvSchema.d.ts|]
+            (object ["userClientEnvSchema" .= userClientEnvSchemaImportJson])
+        ]
+  | otherwise = return []
   where
-    tmplPath = [relfile|client/env/userClientEnvSchema.d.ts|]
-    tmplData = object ["userClientEnvSchemaPath" .= userClientEnvSchemaPath]
+    userClientEnvSchemaImportJson = virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvSchema
+    maybeClientEnvSchema = AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
 
 genUserServerEnvSchemaModuleDecl :: AppSpec -> Generator [FileDraft]
 genUserServerEnvSchemaModuleDecl spec

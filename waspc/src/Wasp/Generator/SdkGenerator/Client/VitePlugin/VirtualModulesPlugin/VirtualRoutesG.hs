@@ -16,7 +16,7 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (pageVF, virtualFilesFilesDirInViteDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport
   ( applyJsImportAlias,
@@ -74,6 +74,6 @@ createPageTemplateData (pageName, page) =
     (importStmt, _) =
       getJsImportStmtAndIdentifier $
         applyJsImportAlias (Just pageName) $
-          GJI.extImportToRelativeSrcImportFromViteExecution pageComponent
+          GJI.virtualExtImportToJsImport (pageVF pageName) pageComponent
 
     pageComponent = AS.Page.component page

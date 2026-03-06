@@ -5,6 +5,7 @@ module Wasp.Generator.JsImport
     jsImportToImportJson,
     extImportNameToJsImportName,
     virtualExtImportToImportJson,
+    virtualExtImportToJsImport,
     getAliasedExtImportIdentifier,
     extImportToRelativeSrcImportFromViteExecution,
   )
