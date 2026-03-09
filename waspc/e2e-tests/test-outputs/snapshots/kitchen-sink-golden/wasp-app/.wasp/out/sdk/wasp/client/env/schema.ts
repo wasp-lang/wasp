@@ -1,7 +1,7 @@
 import * as z from 'zod'
 
 import { clientEnvValidationSchema as clientEnvValidationSchema_ext } from 'wasp/src/env'
-const userClientEnvSchema = clientEnvValidationSchema_ext
+export const userClientEnvSchema = clientEnvValidationSchema_ext
 
 const serverUrlSchema = z
   .string({
@@ -21,7 +21,6 @@ const waspClientProdSchema = z.object({
 })
 
 // PRIVATE API (sdk, Vite config)
-export function getClientEnvSchema(mode: string) {
-  const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return z.object({ ...userClientEnvSchema.shape, ...waspSchema.shape })
+export function getClientWaspEnvSchema(mode: string) {
+  return mode === 'production' ? waspClientProdSchema : waspClientDevSchema
 }

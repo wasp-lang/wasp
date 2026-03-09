@@ -1,14 +1,11 @@
 {{={= =}=}}
 import * as z from 'zod'
 
-import { ensureEnvSchema } from '../env/validation.js'
+import { ensureZodEnvSchema, ensureStandardSchemaEnv } from '../env/validation.js'
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
 const userServerEnvSchema = {= envValidationSchema.importIdentifier =}
-{=/ envValidationSchema.isDefined =}
-{=^ envValidationSchema.isDefined =}
-const userServerEnvSchema = z.object({})
 {=/ envValidationSchema.isDefined =}
 
 const waspServerCommonSchema = z.object({
@@ -161,25 +158,32 @@ const serverProdSchema = z.object({
   {=/ isAuthEnabled =}
 })
 
-const serverCommonSchema = z.object({
-  ...userServerEnvSchema.shape,
-  ...waspServerCommonSchema.shape,
-})
-const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
-  z.object({ ...serverDevSchema.shape, ...serverCommonSchema.shape }),
-  z.object({ ...serverProdSchema.shape, ...serverCommonSchema.shape }),
+const waspServerEnvSchema = z.discriminatedUnion('NODE_ENV', [
+  z.object({ ...serverDevSchema.shape, ...waspServerCommonSchema.shape }),
+  z.object({ ...serverProdSchema.shape, ...waspServerCommonSchema.shape }),
 ])
 
 const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
-// PUBLIC API
-export const env = ensureEnvSchema(
+const waspEnv = ensureZodEnvSchema(
   {
     NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,
   },
-  serverEnvSchema,
+  waspServerEnvSchema,
 )
+
+{=# envValidationSchema.isDefined =}
+const userEnv = ensureStandardSchemaEnv(process.env, userServerEnvSchema)
+{=/ envValidationSchema.isDefined =}
+
+// PUBLIC API
+export const env = {
+  ...waspEnv,
+{=# envValidationSchema.isDefined =}
+  ...userEnv,
+{=/ envValidationSchema.isDefined =}
+}
 
 function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
   return `${envVarName} is required when using ${featureName}`

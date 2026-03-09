@@ -1,8 +1,6 @@
 import * as z from 'zod'
 
-import { ensureEnvSchema } from '../env/validation.js'
-
-const userServerEnvSchema = z.object({})
+import { ensureZodEnvSchema, ensureStandardSchemaEnv } from '../env/validation.js'
 
 const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default(3001),
@@ -51,25 +49,26 @@ const serverProdSchema = z.object({
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
 })
 
-const serverCommonSchema = z.object({
-  ...userServerEnvSchema.shape,
-  ...waspServerCommonSchema.shape,
-})
-const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
-  z.object({ ...serverDevSchema.shape, ...serverCommonSchema.shape }),
-  z.object({ ...serverProdSchema.shape, ...serverCommonSchema.shape }),
+const waspServerEnvSchema = z.discriminatedUnion('NODE_ENV', [
+  z.object({ ...serverDevSchema.shape, ...waspServerCommonSchema.shape }),
+  z.object({ ...serverProdSchema.shape, ...waspServerCommonSchema.shape }),
 ])
 
 const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
-// PUBLIC API
-export const env = ensureEnvSchema(
+const waspEnv = ensureZodEnvSchema(
   {
     NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,
   },
-  serverEnvSchema,
+  waspServerEnvSchema,
 )
+
+
+// PUBLIC API
+export const env = {
+  ...waspEnv,
+}
 
 function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
   return `${envVarName} is required when using ${featureName}`

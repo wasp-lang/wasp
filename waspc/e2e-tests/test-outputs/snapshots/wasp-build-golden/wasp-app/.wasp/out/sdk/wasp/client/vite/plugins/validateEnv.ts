@@ -2,16 +2,18 @@ import { type Plugin } from 'vite'
 
 import { loadEnvVars } from './envFile.js'
 import {
-  getValidatedEnvOrError,
+  getValidatedZodEnvOrError,
+  getValidatedStandardSchemaEnvOrError,
   formatZodEnvErrors,
+  formatStandardSchemaErrors,
 } from '../../../env/validation.js'
-import { getClientEnvSchema } from '../../env/schema.js'
+import { getClientWaspEnvSchema, userClientEnvSchema } from '../../env/schema.js'
 import { getColorizedConsoleFormatString } from '../../../universal/ansiColors.js'
 
 const redColorFormatString = getColorizedConsoleFormatString('red');
 
 export function validateEnv(): Plugin {
-  let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null
+  let errorMessage: string | null = null
   return {
     name: 'wasp:validate-env',
     async configResolved(config) {
@@ -25,28 +27,43 @@ export function validateEnv(): Plugin {
         // provide the environment variables inline.
         loadDotEnvFile: config.command === 'serve',
       })
-      const schema = getClientEnvSchema(config.mode)
-      validationResult = getValidatedEnvOrError(env, schema)
 
-      // Exit if we are in build mode, because we can't show the error in the browser.
-      if (config.command === 'build' && !validationResult.success) {
-        const message = formatZodEnvErrors(validationResult.error.issues)
-        console.error(`${redColorFormatString}${message}`)
-        process.exit(1)
+      const errors: string[] = []
+
+      const waspSchema = getClientWaspEnvSchema(config.mode)
+      const waspResult = getValidatedZodEnvOrError(env, waspSchema)
+      if (!waspResult.success) {
+        errors.push(formatZodEnvErrors(waspResult.error.issues))
+      }
+
+      if (userClientEnvSchema) {
+        const userResult = getValidatedStandardSchemaEnvOrError(env, userClientEnvSchema)
+        if (userResult.issues) {
+          errors.push(formatStandardSchemaErrors(userResult.issues))
+        }
+      }
+
+      if (errors.length > 0) {
+        errorMessage = errors.join('\n')
+
+        // Exit if we are in build mode, because we can't show the error in the browser.
+        if (config.command === 'build') {
+          console.error(`${redColorFormatString}${errorMessage}`)
+          process.exit(1)
+        }
       }
     },
     configureServer: (server) => {
-      if (validationResult === null || validationResult.success) {
+      if (!errorMessage) {
         return
       }
 
       // Send the error to the browser.
-      const message = formatZodEnvErrors(validationResult.error.issues)
       server.ws.on('connection', () => {
         server.ws.send({
           type: 'error',
           err: {
-            message,
+            message: errorMessage!,
             stack: '',
           },
         })
