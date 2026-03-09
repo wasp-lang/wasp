@@ -123,7 +123,7 @@ jobs:
 
           echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
 
-          pkg_dir="/tmp/install-check/node_modules/@wasp.sh/wasp-sh-wasp-cli-linux-x64-glibc"
+          pkg_dir="/tmp/install-check/node_modules/@wasp.sh/wasp-cli-linux-x64-glibc"
 
           (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
             hash=$(sha256sum "$file" | cut -d' ' -f1)
