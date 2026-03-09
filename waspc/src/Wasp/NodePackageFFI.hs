@@ -64,8 +64,8 @@ runnablePackageDirInPackagesDir = \case
   WaspStudioPackage -> [reldir|studio|]
 
 installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
-installablePackageDirInPackagesDir package = case package of
-  WaspConfigPackage -> fromJust $ parseRelDir $ getInstallablePackageName package
+installablePackageDirInPackagesDir package =
+  fromJust $ parseRelDir $ getInstallablePackageName package
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]
@@ -103,15 +103,13 @@ getInstallablePackageName = \case
 ensurePackageIsAtInstallationPathInProject :: Path' Abs (Dir WaspProjectDir) -> InstallablePackage -> IO ()
 ensurePackageIsAtInstallationPathInProject projectDir package = do
   let dstPackageDirInProject = projectDir </> getPackageInstallationPathInProject package
-  unlessM (IOUtil.doesDirectoryExist dstPackageDirInProject) $ do
-    waspDataDir <- Data.getAbsDataDirPath
-    let srcPackageDir = waspDataDir </> packagesDirInDataDir </> installablePackageDirInPackagesDir package
-    IOUtil.copyDirectory srcPackageDir dstPackageDirInProject
+  waspDataDir <- Data.getAbsDataDirPath
+  let srcPackageDir = waspDataDir </> packagesDirInDataDir </> installablePackageDirInPackagesDir package
+  IOUtil.copyDirectory srcPackageDir dstPackageDirInProject
 
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =
-  dotWaspDirInWaspProjectDir </> case package of
-    WaspConfigPackage -> fromJust $ parseRelDir $ getInstallablePackageName package
+  dotWaspDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
 
 -- todo: probably remove
 getPackagePathInNodeModules :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
