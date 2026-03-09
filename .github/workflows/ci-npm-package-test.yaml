@@ -127,5 +127,7 @@ jobs:
         env:
           EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
         run: |
+          set -eux
+          
           echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
           diff <(sort expected-data-files.txt) <(sort actual-data-files.txt)
