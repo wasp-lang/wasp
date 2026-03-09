@@ -96,7 +96,7 @@ jobs:
     name: Check data files
 
     steps:
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
@@ -108,7 +108,7 @@ jobs:
         run: |
           set -eux
 
-          tarball=$(npm pack --pack-destination /tmp ./packages/wasp-cli-linux-amd64-glibc)
+          tarball=$(npm pack --pack-destination /tmp ./packages/wasp-sh-wasp-cli-linux-x64-glibc)
 
           mkdir /tmp/install-check
           cd /tmp/install-check
@@ -123,14 +123,14 @@ jobs:
 
           echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
 
-          pkg_dir="/tmp/install-check/node_modules/@wasp.sh/wasp-cli-linux-amd64-glibc"
+          pkg_dir="/tmp/install-check/node_modules/@wasp.sh/wasp-sh-wasp-cli-linux-x64-glibc"
 
           (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
             hash=$(sha256sum "$file" | cut -d' ' -f1)
             printf '%s\t%s\n' "$file" "$hash"
           done) > actual-data-files.txt
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: data-files-check
           path: |
@@ -138,4 +138,4 @@ jobs:
             actual-data-files.txt
 
       - name: Verify data files match
-        run: diff <(LC_COLLATE=C sort expected-data-files.txt) <(LC_COLLATE=C sort actual-data-files.txt)
+        run: diff <(sort expected-data-files.txt) <(sort actual-data-files.txt)
