@@ -1,8 +1,9 @@
 ---
-title: Sentry
 comments: true
 last_checked_with_versions:
-  Wasp: "0.15"
+  Wasp: "0.21"
+  "@sentry/node": "8"
+  "@sentry/react": "8"
 ---
 
 # Sentry
@@ -33,37 +34,44 @@ Install the Sentry SDKs:
 npm install @sentry/node @sentry/react
 ```
 
-### 3. Configure Server-Side Sentry
+### 3. Configure your Wasp file
 
-First, add the server setup function to your `main.wasp`:
+Add both the server and client setup functions to your `main.wasp`:
 
 ```wasp title="main.wasp"
-app SentryTest {
+app MyApp {
   wasp: {
-    version: "^0.15.0"
+    version: "^0.21.0"
   },
-  title: "sentry-test",
+  title: "my-app",
   server: {
-    setupFn: import { setupFn } from "@src/serverSetup"
-  }
+    // highlight-start
+    setupFn: import { setupServer } from "@src/serverSetup"
+    // highlight-end
+  },
+  client: {
+    // highlight-start
+    setupFn: import { setupClient } from "@src/clientSetup"
+    // highlight-end
+  },
 }
 ```
 
-Then create the server setup file:
+### 4. Configure Server-Side Sentry
 
-```ts title="src/serverSetup.ts"
+Create the server setup file:
+
+```ts title="src/serverSetup.ts" auto-js
 import * as Sentry from "@sentry/node";
 import { ServerSetupFn } from "wasp/server";
 
 Sentry.init({
-  dsn: "https://your-server-dsn@sentry.io/your-project-id",
-  // Optionally add more configuration
+  dsn: process.env.SENTRY_SERVER_DSN,
   environment: process.env.NODE_ENV,
   tracesSampleRate: 1.0,
 });
 
-export const setupFn: ServerSetupFn = async ({ app }) => {
-  // Set up Sentry error handler for Express
+export const setupServer: ServerSetupFn = async ({ app }) => {
   Sentry.setupExpressErrorHandler(app);
 };
 ```
@@ -72,64 +80,30 @@ export const setupFn: ServerSetupFn = async ({ app }) => {
 Find your DSN in Sentry under **Settings > Client Keys (DSN)**.
 :::
 
-### 4. Configure Client-Side Sentry
-
-Add the client setup function to your `main.wasp`:
-
-```wasp title="main.wasp"
-app SentryTest {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "sentry-test",
-  server: {
-    setupFn: import { setupFn } from "@src/serverSetup"
-  },
-  client: {
-    setupFn: import { setupFn } from "@src/clientSetup"
-  },
-}
-```
+### 5. Configure Client-Side Sentry
 
 Create the client setup file:
 
-```ts title="src/clientSetup.ts"
+```ts title="src/clientSetup.ts" auto-js
 import * as Sentry from "@sentry/react";
 
 Sentry.init({
-  dsn: "https://your-client-dsn@sentry.io/your-project-id",
-  integrations: [],
-  // Optionally add more configuration
+  dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
   environment: import.meta.env.MODE,
   tracesSampleRate: 1.0,
 });
 
-export const setupFn = async () => {
-  // You can add additional client-side setup here if needed
+export const setupClient = async () => {
+  // Sentry is initialized above, before the setup function runs.
+  // You can add additional client-side setup here if needed.
 };
 ```
 
 :::note
-Even if your `setupFn` is empty, you must define and export it - this is how Wasp works.
+The `setupFn` must be defined and exported even if it has no additional logic. Sentry's `init` call runs at module load time, which is before Wasp calls the setup function.
 :::
 
-## Using Environment Variables
-
-For better security, use environment variables for your DSNs:
-
-```ts title="src/serverSetup.ts"
-Sentry.init({
-  dsn: process.env.SENTRY_SERVER_DSN,
-  environment: process.env.NODE_ENV,
-});
-```
-
-```ts title="src/clientSetup.ts"
-Sentry.init({
-  dsn: import.meta.env.REACT_APP_SENTRY_CLIENT_DSN,
-  environment: import.meta.env.MODE,
-});
-```
+### 6. Set up environment variables
 
 Add to your `.env.server`:
 
@@ -149,7 +123,7 @@ REACT_APP_SENTRY_CLIENT_DSN=https://your-client-dsn@sentry.io/your-project-id
 
 Create an API endpoint that throws an error:
 
-```ts title="src/apis.ts"
+```ts title="src/apis.ts" auto-js
 import { TestError } from "wasp/server/api";
 
 export const testError: TestError = async (req, res) => {
@@ -161,7 +135,7 @@ export const testError: TestError = async (req, res) => {
 
 Add a button that triggers an error:
 
-```tsx title="src/MainPage.tsx"
+```tsx title="src/MainPage.tsx" auto-js
 export const MainPage = () => {
   const handleError = () => {
     throw new Error("Test client error for Sentry");
@@ -181,7 +155,7 @@ export const MainPage = () => {
 
 Track which user encountered an error:
 
-```ts title="src/serverSetup.ts"
+```ts title="src/serverSetup.ts" auto-js
 import * as Sentry from "@sentry/node";
 
 // In your API handlers or operations
@@ -192,7 +166,7 @@ export const someOperation = async (args, context) => {
       email: context.user.email,
     });
   }
-  // ... rest of your code
+  // ...
 };
 ```
 
@@ -200,7 +174,7 @@ export const someOperation = async (args, context) => {
 
 Enable performance monitoring:
 
-```ts
+```ts auto-js
 Sentry.init({
   dsn: "your-dsn",
   tracesSampleRate: 0.1, // Capture 10% of transactions
@@ -212,7 +186,7 @@ Sentry.init({
 
 Use Sentry's error boundary for React:
 
-```tsx title="src/App.tsx"
+```tsx title="src/App.tsx" auto-js
 import * as Sentry from "@sentry/react";
 
 export const App = ({ children }) => {
