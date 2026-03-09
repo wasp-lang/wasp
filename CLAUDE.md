@@ -23,6 +23,7 @@ Wasp is a full-stack web framework that compiles `.wasp` configuration files int
 All waspc development commands run from the `waspc/` directory via the `./run` script. Run `./run` with no arguments to see the full list of available commands (build, test, format, lint, etc.).
 
 Key things to know:
+
 - Two-phase build: TS packages in `data/packages/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
 - Toolchain versions (GHC, HLS) are specified in `waspc/cabal.project` and `waspc/dev-tool.project`. Use `./run ghcup-set` to set the correct versions.
@@ -31,6 +32,7 @@ Key things to know:
 ## Code Conventions
 
 ### Haskell
+
 - Simple, readable Haskell — no complicated features. See `CONTRIBUTING.md`.
 - Default extensions are listed in `waspc/waspc.cabal`.
 - CamelCase for types/modules, camelCase for functions/values.
@@ -39,10 +41,12 @@ Key things to know:
 - Tests use `tasty` + `hspec` + `QuickCheck`, mirroring source module paths with a `Test` suffix.
 
 ### TypeScript/JavaScript
+
 - Prettier-formatted (config in `.prettierrc`). Check/fix with `./run check:prettier` / `./run format:prettier`.
 - camelCase for files/functions, PascalCase for components/types.
 
 ### Architecture
+
 - **Analyzer** parses `.wasp` files → **AppSpec** (AST) → **Generator** produces React/Node.js code.
 - Code generation uses a file draft system and Mustache templates in `data/Generator/templates/`.
 
