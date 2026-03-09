@@ -1,8 +1,7 @@
 ---
-title: Custom OAuth Provider
 comments: true
 last_checked_with_versions:
-  Wasp: "0.15"
+  Wasp: "0.21"
 ---
 
 # Custom OAuth Provider
@@ -16,12 +15,48 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 
 ## Setting up a Custom OAuth Provider
 
-### 1. Install dependencies
+### 1. Configure main.wasp
 
-Install the Arctic library for OAuth handling and Zod for validation:
+Set up the auth configuration and API routes:
 
-```bash
-npm install arctic zod
+```wasp title="main.wasp"
+app SpotifyOauth {
+  wasp: {
+    version: "^0.21.0"
+  },
+  title: "spotify-oauth",
+  auth: {
+    userEntity: User,
+    onAuthFailedRedirectTo: "/",
+    methods: {
+      // highlight-start
+      // Enable at least one OAuth provider so Wasp exposes OAuth helpers
+      google: {}
+      // highlight-end
+    }
+  },
+}
+
+route RootRoute { path: "/", to: MainPage }
+page MainPage {
+  component: import { MainPage } from "@src/MainPage",
+}
+
+// highlight-start
+api authWithSpotify {
+  httpRoute: (GET, "/auth/spotify"),
+  fn: import { authWithSpotify } from "@src/auth",
+  entities: []
+}
+// highlight-end
+
+// highlight-start
+api authWithSpotifyCallback {
+  httpRoute: (GET, "/auth/spotify/callback"),
+  fn: import { authWithSpotifyCallback } from "@src/auth",
+  entities: []
+}
+// highlight-end
 ```
 
 ### 2. Configure environment variables
@@ -29,7 +64,6 @@ npm install arctic zod
 Create or update your `.env.server` file:
 
 ```bash title=".env.server"
-# Spotify OAuth credentials
 SPOTIFY_CLIENT_ID=your_client_id
 SPOTIFY_CLIENT_SECRET=your_client_secret
 
@@ -51,58 +85,25 @@ model User {
 }
 ```
 
-### 4. Configure main.wasp
-
-Set up the auth configuration and API routes:
-
-```wasp title="main.wasp"
-app SpotifyOauth {
-  wasp: {
-    version: "^0.15.0"
-  },
-  title: "spotify-oauth",
-  client: {
-    rootComponent: import { App } from "@src/App",
-  },
-  auth: {
-    userEntity: User,
-    onAuthFailedRedirectTo: "/",
-    methods: {
-      // Enable at least one OAuth provider so Wasp installs the `arctic` package
-      google: {}
-    }
-  },
-}
-
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  component: import { MainPage } from "@src/MainPage",
-}
-
-api authWithSpotify {
-  httpRoute: (GET, "/auth/spotify"),
-  fn: import { authWithSpotify } from "@src/auth",
-  entities: []
-}
-
-api authWithSpotifyCallback {
-  httpRoute: (GET, "/auth/spotify/callback"),
-  fn: import { authWithSpotifyCallback } from "@src/auth",
-  entities: []
-}
-```
-
-### 5. Implement the OAuth handlers
+### 4. Implement the OAuth handlers
 
 Create the authentication logic:
 
-```ts title="src/auth.ts"
-import { AuthWithSpotify, AuthWithSpotifyCallback } from "wasp/server/api";
-import { generateState, Spotify, SpotifyTokens } from "arctic";
+```ts title="src/auth.ts" auto-js
+import * as arctic from "arctic";
 import { config } from "wasp/server";
-import { createUser, findAuthIdentity, ProviderName } from "wasp/auth/utils";
+import {
+  type AuthWithSpotify,
+  type AuthWithSpotifyCallback,
+} from "wasp/server/api";
+import {
+  createUser,
+  findAuthIdentity,
+  getRedirectUriForOneTimeCode,
+  tokenStore,
+  type ProviderName,
+} from "wasp/server/auth";
 import * as z from "zod";
-import { getRedirectUriForOneTimeCode, tokenStore } from "wasp/server/auth";
 
 if (!process.env.SPOTIFY_CLIENT_ID || !process.env.SPOTIFY_CLIENT_SECRET) {
   throw new Error(
@@ -114,14 +115,12 @@ const clientId = process.env.SPOTIFY_CLIENT_ID;
 const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
 const redirectURI = `${config.serverUrl}/auth/spotify/callback`;
 
-const spotify = new Spotify(clientId, clientSecret, redirectURI);
+const spotify = new arctic.Spotify(clientId, clientSecret, redirectURI);
 
 // Handler for /auth/spotify - initiates OAuth flow
 export const authWithSpotify: AuthWithSpotify = async (req, res) => {
-  const state = generateState();
-  const url: URL = await spotify.createAuthorizationURL(state, {
-    scopes: [], // Add scopes as needed, e.g., ["user-read-email"]
-  });
+  const state = arctic.generateState();
+  const url = await spotify.createAuthorizationURL(state, { scopes: ["user-read-email"] });
   res.redirect(url.toString());
 };
 
@@ -131,8 +130,9 @@ export const authWithSpotifyCallback: AuthWithSpotifyCallback = async (
   res,
 ) => {
   const code = req.query.code as string;
-  const tokens: SpotifyTokens = await spotify.validateAuthorizationCode(code);
-  const spotifyUser = await getSpotifyUser(tokens.accessToken);
+  const tokens = await spotify.validateAuthorizationCode(code);
+  const accessToken = tokens.accessToken;
+  const spotifyUser = await getSpotifyUser(accessToken);
 
   const providerId = {
     providerName: "spotify" as ProviderName,
@@ -153,7 +153,7 @@ export const authWithSpotifyCallback: AuthWithSpotifyCallback = async (
       profilePicture:
         spotifyUser.images[1]?.url || spotifyUser.images[0]?.url || "",
     });
-    const authId = user.auth.id;
+    const authId = user.auth!.id;
     return redirectWithOneTimeToken(authId, res);
   }
 };
@@ -163,8 +163,7 @@ async function redirectWithOneTimeToken(
   res: Parameters<AuthWithSpotifyCallback>[1],
 ) {
   const oneTimeCode = await tokenStore.createToken(authId);
-  // Redirect to Wasp's OAuth callback on the client side
-  return res.redirect(getRedirectUriForOneTimeCode(oneTimeCode));
+  return res.redirect(getRedirectUriForOneTimeCode(oneTimeCode).toString());
 }
 
 // Spotify user schema for validation
@@ -191,17 +190,21 @@ async function getSpotifyUser(accessToken: string): Promise<SpotifyUser> {
       Authorization: `Bearer ${accessToken}`,
     },
   });
-  const spotifyUser = spotifyUserSchema.parse(await response.json());
-  return spotifyUser;
+  return spotifyUserSchema.parse(await response.json());
 }
 ```
 
-### 6. Create the login page
+:::note
+The `tokenStore` and `getRedirectUriForOneTimeCode` are internal Wasp APIs that may change in future versions. This guide relies on them because there is currently no public API for implementing fully custom OAuth flows.
+:::
+
+### 5. Create the login page
 
 Add a login button that redirects to your OAuth endpoint:
 
-```tsx title="src/MainPage.tsx"
+```tsx title="src/MainPage.tsx" auto-js
 import { logout, useAuth } from "wasp/client/auth";
+import { config } from "wasp/client";
 
 export const MainPage = () => {
   const { data: user } = useAuth();
@@ -223,7 +226,7 @@ export const MainPage = () => {
         <div className="buttons">
           <a
             className="button button-filled"
-            href="http://localhost:3001/auth/spotify"
+            href={`${config.apiUrl}/auth/spotify`}
           >
             Login with Spotify
           </a>
@@ -236,23 +239,6 @@ export const MainPage = () => {
 
 ## Configuring Your OAuth Provider
 
-### Spotify Setup
-
-1. Go to the [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
-2. Create a new application
-3. Add `http://localhost:3001/auth/spotify/callback` as a redirect URI
-4. Copy your Client ID and Client Secret to `.env.server`
-
-### Other Providers
-
-The Arctic library supports many providers. Check the [Arctic documentation](https://arcticjs.dev/) for the full list and their specific setup requirements.
-
-Common providers include:
-
-- GitHub
-- Discord
-- Twitter
-- Apple
-- Microsoft
+The Arctic library supports many providers. Check the [Arctic documentation](https://v1.arcticjs.dev/) for the full list and their specific setup requirements.
 
 Each provider follows the same pattern - just replace the Spotify-specific code with the appropriate provider from Arctic.
