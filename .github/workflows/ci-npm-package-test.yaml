@@ -125,12 +125,15 @@ jobs:
         run: |
           set -eux
 
+          # Extract platform fields from the npm-target JSON.
+          # "unknown" is the placeholder for platforms without libc (e.g. macOS),
+          # matching the UNDEFINED_LIBC_NAME convention in the packager script.
           os=$(echo "$NPM_TARGET" | jq -r '.os')
           cpu=$(echo "$NPM_TARGET" | jq -r '.cpu')
           libc=$(echo "$NPM_TARGET" | jq -r '.libc // "unknown"')
 
-          pkg_dir="./packages/wasp-sh-wasp-cli-${os}-${cpu}-${libc}"
           pkg_name="@wasp.sh/wasp-cli-${os}-${cpu}-${libc}"
+          pkg_dir="./packages/wasp-sh-wasp-cli-${os}-${cpu}-${libc}"
 
           # Pack the sub-package
           mkdir packed-tarballs
@@ -141,6 +144,9 @@ jobs:
           cd install-test
           npm init -y
 
+          # Override npm's platform detection so it accepts packages built for
+          # a different os/cpu/libc than the runner (e.g. macOS packages on Linux).
+          # Only pass --libc for platforms that actually declare it (Linux).
           npm_flags=(--os="$os" --cpu="$cpu")
           if [ "$libc" != "unknown" ]; then
             npm_flags+=(--libc="$libc")
@@ -156,6 +162,9 @@ jobs:
 
           pkg_dir="${{ steps.install.outputs.installed-pkg-dir }}"
 
+          # Walk the data directory and produce a tab-separated manifest of
+          # relative paths and their SHA-256 hashes, to compare against the
+          # expected list from the build step.
           (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
             hash=$(sha256sum "$file" | cut -d' ' -f1)
             printf '%s\t%s\n' "$file" "$hash"
@@ -168,4 +177,7 @@ jobs:
           set -eux
 
           echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
+          
+          # Both lists are sorted before comparison so file discovery order
+          # doesn't cause spurious failures.
           diff <(sort expected-data-files.txt) <(sort actual-data-files.txt)
