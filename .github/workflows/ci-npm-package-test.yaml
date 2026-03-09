@@ -93,30 +93,68 @@ jobs:
 
   check-data-files:
     runs-on: ubuntu-latest
-    name: Check data files
+
+    strategy:
+      fail-fast: false
+      matrix:
+        build-name:
+          - linux-x86_64
+          - linux-x86_64-static
+          - macos-x86_64
+          - macos-aarch64
+
+    name: "Check data files (${{ matrix.build-name }})"
 
     steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/compute-artifact-names
+        id: artifact
+        with:
+          build-name: ${{ matrix.build-name }}
+
       - uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
 
-      - name: Install package into temporary folder
+      - name: Install sub-package into test project
+        id: install
+        env:
+          NPM_TARGET: ${{ steps.artifact.outputs.npm-target }}
         run: |
           set -eux
 
-          tarball=$(npm pack --pack-destination /tmp ./packages/wasp-sh-wasp-cli-linux-x64-glibc)
+          os=$(echo "$NPM_TARGET" | jq -r '.os')
+          cpu=$(echo "$NPM_TARGET" | jq -r '.cpu')
+          libc=$(echo "$NPM_TARGET" | jq -r '.libc // "unknown"')
 
-          mkdir /tmp/install-check
-          cd /tmp/install-check
+          pkg_dir="./packages/wasp-sh-wasp-cli-${os}-${cpu}-${libc}"
+          pkg_name="@wasp.sh/wasp-cli-${os}-${cpu}-${libc}"
+
+          # Pack the sub-package
+          mkdir packed-tarballs
+          tarball=$(npm pack --pack-destination ./packed-tarballs "$pkg_dir")
+
+          # Create a test project and install the package
+          mkdir install-test
+          cd install-test
           npm init -y
-          npm install "/tmp/$tarball"
+
+          npm_flags=(--os="$os" --cpu="$cpu")
+          if [ "$libc" != "unknown" ]; then
+            npm_flags+=(--libc="$libc")
+          fi
+
+          npm install "../packed-tarballs/$tarball" "${npm_flags[@]}"
+
+          echo "installed-pkg-dir=install-test/node_modules/${pkg_name}" >> "$GITHUB_OUTPUT"
 
       - name: Generate list of installed data files
         run: |
           set -eux
 
-          pkg_dir="/tmp/install-check/node_modules/@wasp.sh/wasp-cli-linux-x64-glibc"
+          pkg_dir="${{ steps.install.outputs.installed-pkg-dir }}"
 
           (cd "$pkg_dir" && find ./data -type f | while IFS= read -r file; do
             hash=$(sha256sum "$file" | cut -d' ' -f1)
@@ -128,6 +166,6 @@ jobs:
           EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
         run: |
           set -eux
-          
+
           echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
           diff <(sort expected-data-files.txt) <(sort actual-data-files.txt)
