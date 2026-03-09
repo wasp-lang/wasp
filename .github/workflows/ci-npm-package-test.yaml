@@ -101,9 +101,6 @@ jobs:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
 
-      # Only for debug
-      - run: tree packages/ || ls -R packages/
-
       - name: Install package into temporary folder
         run: |
           set -eux
@@ -115,13 +112,9 @@ jobs:
           npm init -y
           npm install "/tmp/$tarball"
 
-      - name: Generate data files lists
-        env:
-          EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
+      - name: Generate list of installed data files
         run: |
           set -eux
-
-          echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
 
           pkg_dir="/tmp/install-check/node_modules/@wasp.sh/wasp-cli-linux-x64-glibc"
 
@@ -130,12 +123,9 @@ jobs:
             printf '%s\t%s\n' "$file" "$hash"
           done) > actual-data-files.txt
 
-      - uses: actions/upload-artifact@v7
-        with:
-          name: data-files-check
-          path: |
-            expected-data-files.txt
-            actual-data-files.txt
-
       - name: Verify data files match
-        run: diff <(sort expected-data-files.txt) <(sort actual-data-files.txt)
+        env:
+          EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
+        run: |
+          echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
+          diff <(sort expected-data-files.txt) <(sort actual-data-files.txt)

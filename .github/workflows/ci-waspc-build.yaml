@@ -145,7 +145,7 @@ jobs:
           mkdir -p artifacts
           ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
 
-      - name: Compute data files list with per-file hashes
+      - name: Compute data files list
         id: data-files
         working-directory: waspc
         run: |
