@@ -11,6 +11,7 @@ module Wasp.JsImport
     applyJsImportAlias,
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
+    getJsImportPathString,
   )
 where
 
@@ -77,6 +78,15 @@ getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
     pathString = case importPath of
       RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
       ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+    normalizePath path
+      | ".." `isPrefixOf` path = path
+      | otherwise = "./" ++ path
+
+getJsImportPathString :: JsImport -> String
+getJsImportPathString (JsImport importPath _ _) = case importPath of
+  RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
+  ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+  where
     normalizePath path
       | ".." `isPrefixOf` path = path
       | otherwise = "./" ++ path
