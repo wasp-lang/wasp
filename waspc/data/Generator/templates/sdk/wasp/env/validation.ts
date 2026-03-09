@@ -1,6 +1,6 @@
-import * as z from 'zod'
+import * as z from 'zod';
 
-import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
+import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors';
 
 const redColorFormatString = getColorizedConsoleFormatString('red');
 
@@ -30,7 +30,7 @@ export function getValidatedEnvOrError<Schema extends z.ZodTypeAny>(
 export function formatZodEnvErrors(issues: z.ZodIssue[]): string {
   const errorOutput = ['', '══ Env vars validation failed ══', '']
   for (const error of issues) {
-    errorOutput.push(` - ${error.message}`)
+    errorOutput.push(`${error.path} - ${error.message}`)
   }
   errorOutput.push('')
   errorOutput.push('════════════════════════════════')
