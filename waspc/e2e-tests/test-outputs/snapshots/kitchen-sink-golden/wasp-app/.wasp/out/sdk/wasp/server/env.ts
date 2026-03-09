@@ -8,82 +8,81 @@ const userServerEnvSchema = serverEnvValidationSchema_ext
 const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string({
-    required_error: 'DATABASE_URL is required',
+    error: 'DATABASE_URL is required',
   }),
   PG_BOSS_NEW_OPTIONS: z.string().optional(),
   SMTP_HOST: z.string({
-    required_error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_HOST'),
+    error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_HOST'),
   }),
   SMTP_PORT: z.coerce.number({
-    required_error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_PORT'),
-    invalid_type_error: 'SMTP_PORT must be a number',
+    error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_PORT'),
   }),
   SMTP_USERNAME: z.string({
-    required_error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_USERNAME'),
+    error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_USERNAME'),
   }),
   SMTP_PASSWORD: z.string({
-    required_error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_PASSWORD'),
+    error: getRequiredEnvVarErrorMessage('SMTP email sender', 'SMTP_PASSWORD'),
   }),
   SKIP_EMAIL_VERIFICATION_IN_DEV: z
     .enum(['true', 'false'], {
-      message: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
+      error: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
     })
-    .transform((value) => value === 'true')
-    .default('false'),
+    .default('false')
+    .transform((value) => value === 'true'),
   GOOGLE_CLIENT_ID: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_ID'),
+    error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_ID'),
   }),
   GOOGLE_CLIENT_SECRET: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_SECRET'),
+    error: getRequiredEnvVarErrorMessage('Google auth provider', 'GOOGLE_CLIENT_SECRET'),
   }),
   GITHUB_CLIENT_ID: z.string({
-    required_error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_ID'),
+    error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_ID'),
   }),
   GITHUB_CLIENT_SECRET: z.string({
-    required_error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_SECRET'),
+    error: getRequiredEnvVarErrorMessage('GitHub auth provider', 'GITHUB_CLIENT_SECRET'),
   }),
   SLACK_CLIENT_ID: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_ID'),
+    error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_ID'),
   }),
   SLACK_CLIENT_SECRET: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_SECRET'),
+    error: getRequiredEnvVarErrorMessage('Slack auth provider', 'SLACK_CLIENT_SECRET'),
   }),
   DISCORD_CLIENT_ID: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_ID'),
+    error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_ID'),
   }),
   DISCORD_CLIENT_SECRET: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_SECRET'),
+    error: getRequiredEnvVarErrorMessage('Discord auth provider', 'DISCORD_CLIENT_SECRET'),
   }),
   MICROSOFT_TENANT_ID: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_TENANT_ID'),
+    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_TENANT_ID'),
   }),
   MICROSOFT_CLIENT_ID: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_ID'),
+    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_ID'),
   }),
   MICROSOFT_CLIENT_SECRET: z.string({
-    required_error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_SECRET'),
+    error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_SECRET'),
   }),
 })
 
 const serverUrlSchema = z
   .string({
-    required_error: 'WASP_SERVER_URL is required',
+    error: 'WASP_SERVER_URL is required',
   })
   .url({
-    message: 'WASP_SERVER_URL must be a valid URL',
+    error: 'WASP_SERVER_URL must be a valid URL',
   })
 
 const clientUrlSchema = z
   .string({
-    required_error: 'WASP_WEB_CLIENT_URL is required',
+    error: 'WASP_WEB_CLIENT_URL is required',
   })
   .url({
-    message: 'WASP_WEB_CLIENT_URL must be a valid URL',
+    error: 'WASP_WEB_CLIENT_URL must be a valid URL',
   })
 
 const jwtTokenSchema = z
   .string({
-    required_error: 'JWT_SECRET is required',
+    error: 'JWT_SECRET is required',
   })
 
 // In development, we provide default values for some environment variables
@@ -105,10 +104,13 @@ const serverProdSchema = z.object({
   "JWT_SECRET": jwtTokenSchema,
 })
 
-const serverCommonSchema = userServerEnvSchema.merge(waspServerCommonSchema)
+const serverCommonSchema = z.object({
+  ...userServerEnvSchema.shape,
+  ...waspServerCommonSchema.shape,
+})
 const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
-  serverDevSchema.merge(serverCommonSchema),
-  serverProdSchema.merge(serverCommonSchema)
+  z.object({ ...serverDevSchema.shape, ...serverCommonSchema.shape }),
+  z.object({ ...serverProdSchema.shape, ...serverCommonSchema.shape }),
 ])
 
 const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;

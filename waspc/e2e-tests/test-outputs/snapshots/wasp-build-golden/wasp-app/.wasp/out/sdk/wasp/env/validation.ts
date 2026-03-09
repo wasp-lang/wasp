@@ -5,7 +5,7 @@ import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
 const redColorFormatString = getColorizedConsoleFormatString('red');
 
 // PRIVATE API (SDK)
-export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
+export function ensureEnvSchema<Schema extends z.ZodType>(
   data: unknown,
   schema: Schema
 ): z.infer<Schema> {
@@ -19,15 +19,15 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
 }
 
 // PRIVATE API (SDK, Vite config)
-export function getValidatedEnvOrError<Schema extends z.ZodTypeAny>(
+export function getValidatedEnvOrError<Schema extends z.ZodType>(
   env: unknown,
   schema: Schema
-): z.SafeParseReturnType<unknown, z.infer<Schema>> {
+): z.ZodSafeParseResult<z.infer<Schema>> {
   return schema.safeParse(env)
 }
 
 // PRIVATE API (SDK, Vite config)
-export function formatZodEnvErrors(issues: z.ZodIssue[]): string {
+export function formatZodEnvErrors(issues: z.core.$ZodIssue[]): string {
   const errorOutput = ['', '══ Env vars validation failed ══', '']
   for (const error of issues) {
     errorOutput.push(` - ${error.message}`)

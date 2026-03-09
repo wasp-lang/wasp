@@ -11,10 +11,10 @@ const userClientEnvSchema = z.object({})
 
 const serverUrlSchema = z
   .string({
-    required_error: '{= serverUrlEnvVarName =} is required',
+    error: '{= serverUrlEnvVarName =} is required',
   })
   .url({
-    message: '{= serverUrlEnvVarName =} must be a valid URL',
+    error: '{= serverUrlEnvVarName =} must be a valid URL',
   })
 
 const waspClientDevSchema = z.object({
@@ -29,5 +29,5 @@ const waspClientProdSchema = z.object({
 // PRIVATE API (sdk, Vite config)
 export function getClientEnvSchema(mode: string) {
   const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return userClientEnvSchema.merge(waspSchema)
+  return z.object({ ...userClientEnvSchema.shape, ...waspSchema.shape })
 }

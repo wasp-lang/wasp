@@ -7,31 +7,31 @@ const userServerEnvSchema = z.object({})
 const waspServerCommonSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string({
-    required_error: 'DATABASE_URL is required',
+    error: 'DATABASE_URL is required',
   }),
   PG_BOSS_NEW_OPTIONS: z.string().optional(),
   SKIP_EMAIL_VERIFICATION_IN_DEV: z
     .enum(['true', 'false'], {
-      message: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
+      error: 'SKIP_EMAIL_VERIFICATION_IN_DEV must be either "true" or "false"',
     })
-    .transform((value) => value === 'true')
-    .default('false'),
+    .default('false')
+    .transform((value) => value === 'true'),
 })
 
 const serverUrlSchema = z
   .string({
-    required_error: 'WASP_SERVER_URL is required',
+    error: 'WASP_SERVER_URL is required',
   })
   .url({
-    message: 'WASP_SERVER_URL must be a valid URL',
+    error: 'WASP_SERVER_URL must be a valid URL',
   })
 
 const clientUrlSchema = z
   .string({
-    required_error: 'WASP_WEB_CLIENT_URL is required',
+    error: 'WASP_WEB_CLIENT_URL is required',
   })
   .url({
-    message: 'WASP_WEB_CLIENT_URL must be a valid URL',
+    error: 'WASP_WEB_CLIENT_URL must be a valid URL',
   })
 
 
@@ -51,10 +51,13 @@ const serverProdSchema = z.object({
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
 })
 
-const serverCommonSchema = userServerEnvSchema.merge(waspServerCommonSchema)
+const serverCommonSchema = z.object({
+  ...userServerEnvSchema.shape,
+  ...waspServerCommonSchema.shape,
+})
 const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
-  serverDevSchema.merge(serverCommonSchema),
-  serverProdSchema.merge(serverCommonSchema)
+  z.object({ ...serverDevSchema.shape, ...serverCommonSchema.shape }),
+  z.object({ ...serverProdSchema.shape, ...serverCommonSchema.shape }),
 ])
 
 const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
