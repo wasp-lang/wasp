@@ -1,34 +1,32 @@
-import { DummyEmailProvider, EmailSender } from "../types";
 import { getDefaultFromField } from "../helpers.js";
+import { DummyEmailProvider, EmailSender } from "../types";
 
-import { getColorizedConsoleFormatString } from 'wasp/universal/ansiColors'
-
-const yellowColorFormatString = getColorizedConsoleFormatString('yellow');
+import { colorize } from "wasp/universal/ansiColors";
 
 // PRIVATE API
 export function initDummyEmailSender(
-    config?: DummyEmailProvider,
+  _config?: DummyEmailProvider,
 ): EmailSender {
-    const defaultFromField = getDefaultFromField();
-    return {
-        send: async (email) => {
-            const fromField = email.from || defaultFromField;
+  const defaultFromField = getDefaultFromField();
+  return {
+    send: async (email) => {
+      const fromField = email.from || defaultFromField;
 
-            console.log(yellowColorFormatString, '╔═══════════════════════╗');
-            console.log(yellowColorFormatString, '║ Dummy email sender ✉️  ║');
-            console.log(yellowColorFormatString, '╚═══════════════════════╝');
-            console.log(`From:    ${fromField.name} <${fromField.email}>`);
-            console.log(`To:      ${email.to}`);
-            console.log(`Subject: ${email.subject}`);
-            console.log(yellowColorFormatString, '═════════ Text ═════════');
-            console.log(email.text);
-            console.log(yellowColorFormatString, '═════════ HTML ═════════');
-            console.log(email.html);
-            console.log(yellowColorFormatString, '════════════════════════');
+      console.log(colorize("yellow", "╔═══════════════════════╗"));
+      console.log(colorize("yellow", "║ Dummy email sender ✉️  ║"));
+      console.log(colorize("yellow", "╚═══════════════════════╝"));
+      console.log(`From:    ${fromField.name} <${fromField.email}>`);
+      console.log(`To:      ${email.to}`);
+      console.log(`Subject: ${email.subject}`);
+      console.log(colorize("yellow", "═════════ Text ═════════"));
+      console.log(email.text);
+      console.log(colorize("yellow", "═════════ HTML ═════════"));
+      console.log(email.html);
+      console.log(colorize("yellow", "════════════════════════"));
 
-            return {
-                success: true,
-            };
-        }
-    }
+      return {
+        success: true,
+      };
+    },
+  };
 }
