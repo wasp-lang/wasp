@@ -87,5 +87,6 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =
   Npm.Dependency.fromList
-    [ ("zod", "^4.3.6")
+    [ ("zod", "^4.3.6"),
+      ("@standard-schema/spec", "^1.0.0")
     ]

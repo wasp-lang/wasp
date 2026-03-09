@@ -3,10 +3,10 @@ import * as z from 'zod'
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
+export const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
-const userClientEnvSchema = z.object({})
+export const userClientEnvSchema = null
 {=/ envValidationSchema.isDefined =}
 
 const serverUrlSchema = z
@@ -27,7 +27,6 @@ const waspClientProdSchema = z.object({
 })
 
 // PRIVATE API (sdk, Vite config)
-export function getClientEnvSchema(mode: string) {
-  const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return z.object({ ...userClientEnvSchema.shape, ...waspSchema.shape })
+export function getClientWaspEnvSchema(mode: string) {
+  return mode === 'production' ? waspClientProdSchema : waspClientDevSchema
 }
