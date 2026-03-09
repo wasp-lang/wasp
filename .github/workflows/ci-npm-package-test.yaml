@@ -101,6 +101,9 @@ jobs:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/
 
+      # Only for debug
+      - run: tree packages/ || ls -R packages/
+
       - name: Install package into temporary folder
         run: |
           set -eux
