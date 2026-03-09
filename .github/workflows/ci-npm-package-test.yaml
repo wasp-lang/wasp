@@ -152,7 +152,7 @@ jobs:
           # Override npm's platform detection so it accepts packages built for
           # a different os/cpu/libc than the runner (e.g. macOS packages on Linux).
           # Only pass --libc for platforms that actually declare it (Linux).
-          npm_flags=(--os="$os" --cpu="$cpu")
+          npm_flags=(--force --os="$os" --cpu="$cpu")
           if [ "$libc" != "unknown" ]; then
             npm_flags+=(--libc="$libc")
           fi
