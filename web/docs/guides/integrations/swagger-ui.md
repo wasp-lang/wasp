@@ -1,17 +1,14 @@
 ---
-title: Swagger UI
 comments: true
 last_checked_with_versions:
-  Wasp: "0.16"
+  Wasp: "0.21"
+  swagger-jsdoc: "6"
+  swagger-ui-express: "5"
 ---
 
 # Swagger UI
 
 This guide shows you how to add Swagger UI documentation to your Wasp APIs, making it easy to explore and test your endpoints.
-
-## Prerequisites
-
-Make sure you have a Wasp project set up. If you haven't, follow the [Getting Started](../../introduction/quick-start.md) guide first.
 
 ## Setting up Swagger UI
 
@@ -20,7 +17,7 @@ Make sure you have a Wasp project set up. If you haven't, follow the [Getting St
 Install the required packages:
 
 ```bash
-npm install swagger-jsdoc swagger-ui-express helmet
+npm install swagger-jsdoc swagger-ui-express
 npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 ```
 
@@ -31,38 +28,37 @@ Add an API namespace for the Swagger UI endpoint:
 ```wasp title="main.wasp"
 app MyApp {
   wasp: {
-    version: "^0.16.0"
+    version: "^0.21.0"
   },
   title: "my-app",
 }
 
+// highlight-start
 apiNamespace swaggerUI {
   middlewareConfigFn: import { swaggerMiddleware } from "@src/swagger-ui",
   path: "/api-docs"
 }
+// highlight-end
 
-// Example API endpoint with Swagger documentation
-api barBaz {
-  fn: import { barBaz } from "@src/apis",
+api getStatus {
+  fn: import { getStatus } from "@src/apis",
   auth: false,
   entities: [],
-  httpRoute: (GET, "/bar/baz")
+  httpRoute: (GET, "/status")
 }
 ```
 
-### 3. Create the Swagger middleware
+### 3. Create the spec generator script
 
-Create the Swagger UI configuration and middleware:
+Because `swagger-jsdoc` scans source files at runtime and `src/` is not available in the production Docker image, you need to pre-generate the spec as a TypeScript module that gets bundled with the server.
 
-```ts title="src/swagger-ui.ts"
-import * as express from "express";
-import helmet from "helmet";
+Create `scripts/generate-swagger.js`:
+
+```js title="scripts/generate-swagger.js"
 import swaggerJsdoc from "swagger-jsdoc";
-import swaggerUi from "swagger-ui-express";
-import { MiddlewareConfigFn } from "wasp/server";
+import { writeFileSync } from "fs";
 
-// Swagger configuration
-const swaggerDoc = swaggerJsdoc({
+const spec = swaggerJsdoc({
   definition: {
     openapi: "3.0.0",
     info: {
@@ -75,12 +71,6 @@ const swaggerDoc = swaggerJsdoc({
         email: "support@example.com",
       },
     },
-    servers: [
-      {
-        url: process.env.WASP_SERVER_URL || "http://localhost:3001",
-        description: "API server",
-      },
-    ],
     components: {
       securitySchemes: {
         bearerAuth: {
@@ -91,18 +81,47 @@ const swaggerDoc = swaggerJsdoc({
         },
       },
     },
-    security: [
-      {
-        bearerAuth: [],
-      },
-    ],
+    security: [{ bearerAuth: [] }],
   },
-  // Parse JSDoc comments from these files
-  apis: ["../../**/*.wasp*"],
+  apis: ["./src/**/*.ts", "!./src/swaggerSpec.ts"],
 });
 
+writeFileSync(
+  "./src/swaggerSpec.ts",
+  `const swaggerSpec = ${JSON.stringify(spec, null, 2)} as const;\nexport default swaggerSpec;\n`,
+);
+console.log("swaggerSpec.ts generated");
+```
+
+Run this script whenever you add or change JSDoc annotations:
+
+```bash
+node scripts/generate-swagger.js
+```
+
+This generates `src/swaggerSpec.ts`, which gets bundled into the server and works in both dev and production.
+
+:::note
+You may want to add `src/swaggerSpec.ts` to your `.gitignore` since it's a generated file.
+:::
+
+### 4. Create the Swagger middleware
+
+Create the Swagger UI middleware that serves the pre-generated spec:
+
+```ts title="src/swagger-ui.ts" auto-js
+import * as express from "express";
+import helmet from "helmet";
+import swaggerUi from "swagger-ui-express";
+import { env, MiddlewareConfigFn } from "wasp/server";
+import baseSwaggerDoc from "./swaggerSpec";
+
+const swaggerDoc = {
+  ...baseSwaggerDoc,
+  servers: [{ url: env.WASP_SERVER_URL, description: "API server" }],
+};
+
 export const swaggerMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
-  // Use a custom Helmet configuration with CSP disabled for Swagger UI
   middlewareConfig.delete("helmet");
   middlewareConfig.set(
     "helmet",
@@ -112,23 +131,9 @@ export const swaggerMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
     }),
   );
 
-  // Register Swagger middleware
-  middlewareConfig.set(
-    "swaggerServe",
-    (
-      req: express.Request,
-      res: express.Response,
-      next: express.NextFunction,
-    ) => {
-      const applyMiddleware = (index: number) => {
-        if (index >= swaggerUi.serve.length) {
-          return next();
-        }
-        swaggerUi.serve[index](req, res, () => applyMiddleware(index + 1));
-      };
-      applyMiddleware(0);
-    },
-  );
+  swaggerUi.serve.forEach((handler, i) => {
+    middlewareConfig.set(`swaggerServe${i}`, handler);
+  });
 
   middlewareConfig.set(
     "swaggerSetup",
@@ -148,29 +153,25 @@ export const swaggerMiddleware: MiddlewareConfigFn = (middlewareConfig) => {
     },
   );
 
-  console.log(
-    `Swagger UI available at ${process.env.WASP_SERVER_URL || "http://localhost:3001"}/api-docs`,
-  );
-
   return middlewareConfig;
 };
 ```
 
-### 4. Document your APIs
+### 5. Document your APIs
 
 Add JSDoc comments with Swagger annotations above your API definitions:
 
-```ts title="src/apis.ts"
-import { BarBaz } from "wasp/server/api";
+```ts title="src/apis.ts" auto-js
+import { GetStatus } from "wasp/server/api";
 
 /**
  * @swagger
- * /bar/baz:
+ * /status:
  *   get:
- *     summary: Get bar baz data
- *     description: Returns some example data
+ *     summary: Get API status
+ *     description: Returns the current status of the API
  *     tags:
- *       - Bar
+ *       - Status
  *     security:
  *       - bearerAuth: []
  *     responses:
@@ -188,12 +189,12 @@ import { BarBaz } from "wasp/server/api";
  *       500:
  *         description: Server error
  */
-export const barBaz: BarBaz = async (req, res) => {
-  return res.json({ message: "Hello from bar baz!" });
+export const getStatus: GetStatus = async (req, res) => {
+  return res.json({ message: "OK" });
 };
 ```
 
-### 5. Access the documentation
+### 6. Access the documentation
 
 Start your Wasp application and navigate to `http://localhost:3001/api-docs` to see your API documentation.
 
@@ -293,7 +294,7 @@ Start your Wasp application and navigate to `http://localhost:3001/api-docs` to 
 
 You can customize the Swagger UI appearance:
 
-```ts
+```ts auto-js
 swaggerUi.setup(swaggerDoc, {
   customCss: `
     .swagger-ui .topbar { display: none }
@@ -306,10 +307,10 @@ swaggerUi.setup(swaggerDoc, {
 
 ### Group APIs with Tags
 
-Use tags to organize your endpoints:
+Use tags to organize your endpoints. Add a `tags` array to the `definition` in `scripts/generate-swagger.js`:
 
-```ts
-const swaggerDoc = swaggerJsdoc({
+```ts auto-js
+const spec = swaggerJsdoc({
   definition: {
     // ... other config
     tags: [
@@ -318,7 +319,7 @@ const swaggerDoc = swaggerJsdoc({
       { name: "Auth", description: "Authentication endpoints" },
     ],
   },
-  apis: ["../../**/*.wasp*"],
+  apis: ["./src/**/*.ts", "!./src/swaggerSpec.ts"],
 });
 ```
 
