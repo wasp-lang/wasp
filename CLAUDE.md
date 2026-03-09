@@ -110,11 +110,6 @@ CI runs on push to main/release and on PRs. Key checks:
 - TypeScript lib tests
 - NPM package build/test/publish
 
-## Environment Variables
-- `WASP_TELEMETRY_DISABLE=1` — Disable telemetry
-- `WASP_E2E_TESTS_SKIP_DOCKER=1` — Skip Docker in e2e tests (useful on macOS)
-- `BUILD_STATIC=1` — Build static binaries
-
 ## Important Notes
 - Two-phase build: TS packages compile first, then Haskell (which embeds them)
 - **E2E snapshots** (`waspc/e2e-tests/test-outputs/snapshots/`) must never be manually edited. Regenerate them by running `cd waspc && ./run build && ./run test:waspc:e2e:accept-all`.
