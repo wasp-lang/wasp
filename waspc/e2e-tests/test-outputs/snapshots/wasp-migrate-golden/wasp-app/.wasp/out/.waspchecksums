@@ -25,7 +25,7 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.21.2.tgz"
         ],
-        "eaa68666ff5b205c2b259b7b51f29cfc1577064e4f80704db7ca05706a27b31a"
+        "316b69b8d4b1c53104c2fd74b255906706adea008e3aace85a4d3664ad072ccd"
     ],
     [
         [
@@ -410,7 +410,7 @@
             "file",
             "sdk/wasp/env/validation.ts"
         ],
-        "885deaa7f922a54cfd5c196ba96f2b53e10e084529687f24090bbf61ad4b4d48"
+        "dcae44fe3e10fce0563d69917ea661f84a0977eac998905e1283c338871a8d7c"
     ],
     [
         [
