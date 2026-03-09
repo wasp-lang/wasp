@@ -13,8 +13,8 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   if (result.success) {
     return result.data;
   } else {
-    console.error(formatZodEnvErrors(result.error.issues));
-    throw new Error("Error parsing environment variables");
+    console.error(`${redColorFormatString}${formatZodEnvErrors(result.error.issues)}`);
+    throw new Error('Error parsing environment variables');
   }
 }
 
