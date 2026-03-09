@@ -177,7 +177,7 @@ jobs:
           set -eux
 
           echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
-          
+
           # Both lists are sorted before comparison so file discovery order
           # doesn't cause spurious failures.
           diff <(sort expected-data-files.txt) <(sort actual-data-files.txt)
