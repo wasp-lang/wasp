@@ -10,6 +10,7 @@ where
 import Data.Aeson (FromJSON, ToJSON)
 import GHC.Generics (Generic)
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.SdkGenerator as SdkGenerator
 import qualified Wasp.Generator.ServerGenerator as SG
@@ -25,7 +26,7 @@ getAllNpmDeps :: AppSpec -> AllNpmDeps
 getAllNpmDeps spec =
   AllNpmDeps
     { _userNpmDeps =
-        N.getUserNpmDepsForPackage spec,
+        N.getUserNpmDepsForPackage (AS.packageJson spec),
       _waspServerNpmDeps =
         N.buildWaspServerNpmDeps spec (SG.npmDepsFromWasp spec),
       _waspSdkNpmDeps =

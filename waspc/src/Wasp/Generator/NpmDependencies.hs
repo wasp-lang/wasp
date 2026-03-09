@@ -42,7 +42,7 @@ newtype NpmDepsFromUser = NpmDepsFromUser {fromUser :: NpmDepsForPackage}
 buildWaspServerNpmDeps :: AppSpec -> NpmDepsFromWasp -> NpmDepsForPackage
 buildWaspServerNpmDeps spec fromServer = mergeWaspAndUserDeps fromServer userDeps
   where
-    userDeps = getUserNpmDepsForPackage spec
+    userDeps = getUserNpmDepsForPackage (AS.packageJson spec)
 
 -- | Merges Wasp dependencies with user dependencies. When a package appears in
 -- both, the user's version takes precedence. User-only dependencies don't need
@@ -72,13 +72,13 @@ mergeWaspAndUserDeps (NpmDepsFromWasp waspPkg) (NpmDepsFromUser userPkg) =
         waspMap = Map.fromList $ D.toPair <$> waspDeps
         userMap = Map.fromList $ D.toPair <$> userDeps
 
-getUserNpmDepsForPackage :: AppSpec -> NpmDepsFromUser
-getUserNpmDepsForPackage spec =
+getUserNpmDepsForPackage :: PJ.PackageJson -> NpmDepsFromUser
+getUserNpmDepsForPackage packageJson =
   NpmDepsFromUser $
     NpmDepsForPackage
-      { dependencies = PJ.getDependencies $ AS.packageJson spec,
+      { dependencies = PJ.getDependencies packageJson,
         -- Should we allow user devDependencies? https://github.com/wasp-lang/wasp/issues/456
-        devDependencies = PJ.getDevDependencies $ AS.packageJson spec,
+        devDependencies = PJ.getDevDependencies packageJson,
         peerDependencies = []
       }
 
