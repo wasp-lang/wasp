@@ -1,6 +1,5 @@
 {{={= =}=}}
 import * as z from 'zod'
-import type { FromRegistry } from 'wasp/types'
 
 {=# userClientEnvSchema.isDefined =}
 {=& userClientEnvSchema.importStatement =}
