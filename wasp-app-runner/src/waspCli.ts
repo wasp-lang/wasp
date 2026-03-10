@@ -44,15 +44,13 @@ export function waspStart({
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   extraEnv: EnvVars;
-}): Promise<{ exitCode: number | null }> {
+}): Process {
   return new Process({
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "start"],
     cwd: pathToApp,
     env: extraEnv,
-  })
-    .log("wasp-start")
-    .wait();
+  }).log("wasp-start");
 }
 
 export function waspBuild({
@@ -85,7 +83,7 @@ export function waspBuildStart({
   clientEnvVars?: EnvVars;
   serverEnvFile?: string;
   clientEnvFile?: string;
-}): Promise<{ exitCode: number | null }> {
+}): Process {
   const args = [
     "build",
     "start",
@@ -109,9 +107,7 @@ export function waspBuildStart({
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, ...args],
     cwd: pathToApp,
-  })
-    .log("wasp-build-start")
-    .wait();
+  }).log("wasp-build-start");
 }
 
 export async function getWaspVersion({

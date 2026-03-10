@@ -17,7 +17,7 @@ import { waspInfo, waspTsSetup } from "./waspCli.js";
 const logger = createLogger("main");
 
 export async function main(): Promise<void> {
-  const { mode, waspCliCmd, pathToApp, dbImage } = parseArgs();
+  const { mode, waspCliCmd, pathToApp, dbImage, run, exit } = parseArgs();
 
   try {
     await runWaspApp({
@@ -25,6 +25,8 @@ export async function main(): Promise<void> {
       waspCliCmd,
       pathToApp,
       dbImage,
+      run,
+      exit,
     });
   } catch (error: unknown) {
     if (error instanceof CLIError) {
@@ -41,11 +43,15 @@ async function runWaspApp({
   waspCliCmd,
   pathToApp,
   dbImage: dbImageArg,
+  run,
+  exit,
 }: {
   mode: Mode;
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   dbImage?: DockerImageName;
+  run?: string;
+  exit: boolean;
 }): Promise<void> {
   await checkDependencies();
 
@@ -80,6 +86,8 @@ async function runWaspApp({
         appName,
         dbType,
         dbImage,
+        run,
+        exit,
       });
       break;
 
@@ -90,6 +98,8 @@ async function runWaspApp({
         appName,
         dbType,
         dbImage,
+        run,
+        exit,
       });
       break;
 
