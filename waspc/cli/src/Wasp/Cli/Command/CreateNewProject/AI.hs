@@ -68,29 +68,10 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
             (Just "Best results, but slower and more expensive.")
             (ChatGPT.GPT_5, ChatGPT.GPT_5)
         ]
-  temperature <-
-    liftIO
-      $ Interactive.askToChoose'
-        "Choose the creativity level (temperature):"
-      $ NE.fromList
-        [ Interactive.Option
-            "Balanced (0.7)"
-            (Just "Optimal trade-off between creativity and possible mistakes.")
-            0.7,
-          Interactive.Option
-            "Conventional (0.4)"
-            (Just "Generates sensible code with minimal amount of mistakes.")
-            0.4,
-          Interactive.Option
-            "Creative (1.0)"
-            (Just "Generates more creative code, but mistakes are more likely.")
-            1.0
-        ]
   let projectConfig =
         emptyNewProjectConfig
           { GNP.C.projectPlanningGptModel = Just planningGptModel,
-            GNP.C.projectCodingGptModel = Just codingGptModel,
-            GNP.C.projectDefaultGptTemperature = Just temperature
+            GNP.C.projectCodingGptModel = Just codingGptModel
           }
 
   liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projectConfig

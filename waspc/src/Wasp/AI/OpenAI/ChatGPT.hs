@@ -39,7 +39,7 @@ queryChatGPT apiKey params requestMessages = do
           [ "model" .= show (_model params),
             "messages" .= requestMessages
           ]
-            <> ["temperature" .= t | Just t <- pure $ _temperature params]
+            <> ["temperature" .= t | Just t <- pure $ _temperature params, not (isReasoningModel (_model params))]
       request =
         -- 90 seconds should be more than enough for ChatGPT to generate an answer, or reach its own timeout.
         -- If it proves in the future that it might need more time, we can increase this number.
@@ -112,6 +112,15 @@ modelOpenAiId = \case
   GPT_4_0613 -> "gpt-4-0613"
   GPT_4_turbo -> "gpt-4-turbo"
   GPT_4_turbo_2024_04_09 -> "gpt-4-turbo-2024-04-09"
+
+-- | Reasoning models (GPT-5 family) only support the default temperature (1).
+-- Sending any other temperature value results in a 400 Bad Request from OpenAI.
+isReasoningModel :: Model -> Bool
+isReasoningModel = \case
+  GPT_5 -> True
+  GPT_5_mini -> True
+  GPT_5_nano -> True
+  _ -> False
 
 instance FromJSON Model where
   parseJSON = Aeson.withText "Model" $ \t ->

@@ -154,7 +154,7 @@ codingChatGPTParams :: NewProjectDetails -> ChatGPTParams
 codingChatGPTParams projectDetails =
   GPT.ChatGPTParams
     { GPT._model = fromMaybe defaultCodingGptModel (projectCodingGptModel $ _projectConfig projectDetails),
-      GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
+      GPT._temperature = projectDefaultGptTemperature $ _projectConfig projectDetails
     }
   where
     defaultCodingGptModel = GPT.GPT_5_mini
@@ -163,7 +163,7 @@ planningChatGPTParams :: NewProjectDetails -> ChatGPTParams
 planningChatGPTParams projectDetails =
   GPT.ChatGPTParams
     { GPT._model = fromMaybe defaultPlanningGptModel (projectPlanningGptModel $ _projectConfig projectDetails),
-      GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
+      GPT._temperature = projectDefaultGptTemperature $ _projectConfig projectDetails
     }
   where
     defaultPlanningGptModel = GPT.GPT_5
