@@ -1,14 +1,8 @@
 import * as z from "zod";
 import { ensureEnvSchema } from "../env/validation.js";
-import { FromRegistry } from "../types/index.js";
-import { getClientEnvSchema } from "./env/schema.js";
+import { clientEnvSchema, userClientEnvSchema } from "./env/schema.js";
 
-const _env = ensureEnvSchema(
-  import.meta.env,
-  getClientEnvSchema(import.meta.env.MODE),
-);
-type ClientEnv = typeof _env &
-  z.infer<FromRegistry<"clientEnvSchema", z.ZodObject<{}>>>;
+const _env = ensureEnvSchema(import.meta.env, clientEnvSchema);
 
 // PUBLIC API
-export const env = _env as ClientEnv;
+export const env: typeof _env & z.infer<typeof userClientEnvSchema> = _env;
