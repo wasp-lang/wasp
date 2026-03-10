@@ -43,7 +43,7 @@ import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
-import Wasp.Generator.DepVersions
+import Wasp.Project.DepVersions
   ( dotenvVersion,
     expressTypesVersion,
     expressVersionStr,
@@ -54,7 +54,7 @@ import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
-import Wasp.Generator.NpmWorkspaces (serverPackageName)
+import Wasp.Project.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C

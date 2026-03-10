@@ -35,7 +35,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
 import qualified Wasp.ExternalConfig.TsConfig as T
-import qualified Wasp.Generator.NpmWorkspaces as NW
+import qualified Wasp.Project.NpmWorkspaces as NW
 import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
 import qualified Wasp.Psl.Ast.Attribute as Psl.Attribute

@@ -1,4 +1,4 @@
-module Wasp.Generator.DepVersions
+module Wasp.Project.DepVersions
   ( prismaVersion,
     superjsonVersion,
     typescriptVersion,

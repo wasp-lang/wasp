@@ -299,7 +299,7 @@ library
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
-    Wasp.Generator.DepVersions
+    Wasp.Project.DepVersions
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
@@ -318,7 +318,7 @@ library
     Wasp.Generator.NpmInstall
     Wasp.Generator.NpmInstall.Common
     Wasp.Generator.NpmInstall.InstalledNpmDepsLog
-    Wasp.Generator.NpmWorkspaces
+    Wasp.Project.NpmWorkspaces
     Wasp.Generator.SdkGenerator
     Wasp.Generator.SdkGenerator.Auth.AuthFormsG
     Wasp.Generator.SdkGenerator.Auth.Common

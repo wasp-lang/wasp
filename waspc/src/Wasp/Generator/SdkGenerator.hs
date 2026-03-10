@@ -32,7 +32,7 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
-import Wasp.Generator.DepVersions
+import Wasp.Project.DepVersions
   ( axiosVersion,
     dotenvVersion,
     expressTypesVersion,
