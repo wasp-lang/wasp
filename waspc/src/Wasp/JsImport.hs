@@ -70,17 +70,11 @@ applyJsImportAlias :: Maybe JsImportAlias -> JsImport -> JsImport
 applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
+getJsImportStmtAndIdentifier jsImport@(JsImport _ importName maybeImportAlias) =
   (importStatement, importIdentifier)
   where
-    importStatement = "import " ++ importClause ++ " from '" ++ pathString ++ "'"
+    importStatement = "import " ++ importClause ++ " from '" ++ getJsImportPathString jsImport ++ "'"
     (importIdentifier, importClause) = getJsImportIdentifierAndClause importName maybeImportAlias
-    pathString = case importPath of
-      RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
-      ModuleImportPath modulePath -> SP.fromRelFileP modulePath
-    normalizePath path
-      | ".." `isPrefixOf` path = path
-      | otherwise = "./" ++ path
 
 getJsImportPathString :: JsImport -> String
 getJsImportPathString (JsImport importPath _ _) = case importPath of
