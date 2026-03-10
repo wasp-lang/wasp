@@ -30,10 +30,10 @@ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName tem
       -- First we copy skeleton files, which form the basis of any Wasp project,
       -- and then on top of that we add files specific to the specified local template.
       copyDirRecur (toPathAbsDir absSkeletonTemplateDir) (toPathAbsDir absWaspProjectDir)
-      renameDotfiles absWaspProjectDir
+      renameDotfiles absWaspProjectDir skeletonDotfiles
       copyDirRecur (toPathAbsDir absLocalTemplateDir) (toPathAbsDir absWaspProjectDir)
 
-    renameDotfiles :: Path' Abs (Dir WaspProjectDir) -> IO ()
-    renameDotfiles projectDir = do
+    renameDotfiles :: Path' Abs (Dir WaspProjectDir) -> [String] -> IO ()
+    renameDotfiles projectDir dotfiles = do
       let dir = fromAbsDir projectDir
-      mapM_ (\name -> renameFile (dir FP.</> name) (dir FP.</> ("." <> name))) skeletonDotfiles
+      mapM_ (\name -> renameFile (dir FP.</> name) (dir FP.</> ("." <> name))) dotfiles
