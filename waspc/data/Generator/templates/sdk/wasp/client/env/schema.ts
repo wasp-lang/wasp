@@ -1,33 +1,35 @@
 {{={= =}=}}
-import * as z from 'zod'
+import * as z from "zod"
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
+export const userClientEnvSchema: typeof {= envValidationSchema.importIdentifier =} = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
-const userClientEnvSchema = z.object({})
+export const userClientEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
 const serverUrlSchema = z
   .string({
-    required_error: '{= serverUrlEnvVarName =} is required',
+    required_error: "{= serverUrlEnvVarName =} is required",
   })
   .url({
-    message: '{= serverUrlEnvVarName =} must be a valid URL',
-  })
+    message: "{= serverUrlEnvVarName =} must be a valid URL",
+  });
 
-const waspClientDevSchema = z.object({
+const waspDevClientEnvSchema = z.object({
+  MODE: z.literal("development"),
   "{= serverUrlEnvVarName =}": serverUrlSchema
-    .default('{= defaultServerUrl =}'),
-})
+    .default("{= defaultServerUrl =}"),
+});
 
-const waspClientProdSchema = z.object({
+const waspProdClientEnvSchema = z.object({
+  MODE: z.literal("production"),
   "{= serverUrlEnvVarName =}": serverUrlSchema,
-})
+});
 
 // PRIVATE API (sdk, Vite config)
-export function getClientEnvSchema(mode: string) {
-  const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return userClientEnvSchema.merge(waspSchema)
-}
+export const clientEnvSchema = z.discriminatedUnion("MODE", [
+  waspDevClientEnvSchema.merge(userClientEnvSchema),
+  waspProdClientEnvSchema.merge(userClientEnvSchema),
+]);
