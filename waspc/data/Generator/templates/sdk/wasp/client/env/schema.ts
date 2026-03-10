@@ -3,7 +3,7 @@ import * as z from "zod"
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-export const userClientEnvSchema: typeof {= envValidationSchema.importIdentifier =} = {= envValidationSchema.importIdentifier =};
+const userClientEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
 export const userClientEnvSchema = z.object({});

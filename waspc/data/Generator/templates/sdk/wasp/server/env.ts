@@ -4,7 +4,7 @@ import * as z from "zod"
 import { ensureEnvSchema } from "../env/validation.js"
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-const userServerEnvSchema: typeof {= envValidationSchema.importIdentifier =} = {= envValidationSchema.importIdentifier =};
+const userServerEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
 const userServerEnvSchema = z.object({});
@@ -170,18 +170,14 @@ const serverEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
 const defaultNodeEnvValue = waspDevServerEnvSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
 
-const _env = ensureEnvSchema(
+// PUBLIC API
+export const env = ensureEnvSchema(
   {
     NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,
   },
   serverEnvSchema,
 );
-
-type ServerEnv = typeof _env & z.infer<typeof userServerEnvSchema>;
-
-// PUBLIC API
-export const env: ServerEnv = _env;
 
 function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
   return `${envVarName} is required when using ${featureName}`
