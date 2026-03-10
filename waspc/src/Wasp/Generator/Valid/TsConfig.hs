@@ -5,7 +5,7 @@ where
 
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
-import qualified Wasp.Generator.Valid.Validator as V
+import qualified Wasp.Valid.Validator as V
 
 validateSrcTsConfig :: T.TsConfig -> [GeneratorError]
 validateSrcTsConfig config =

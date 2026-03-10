@@ -9,7 +9,7 @@ import Wasp.Generator.Monad (GeneratorError (GenericGeneratorError))
 import Wasp.Generator.Valid.PackageJson.Dependencies (dependenciesValidator)
 import Wasp.Generator.Valid.PackageJson.WaspConfig (waspConfigValidator)
 import Wasp.Generator.Valid.PackageJson.Workspaces (workspacesValidator)
-import qualified Wasp.Generator.Valid.Validator as V
+import qualified Wasp.Valid.Validator as V
 
 validatePackageJson :: AS.AppSpec -> P.PackageJson -> [GeneratorError]
 validatePackageJson spec pkgJson =

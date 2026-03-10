@@ -1,4 +1,4 @@
-module Wasp.Generator.Valid.Validator where
+module Wasp.Valid.Validator where
 
 import Data.Bifunctor (first)
 import Data.Functor (void)
