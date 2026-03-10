@@ -2,6 +2,10 @@
 
 ## 0.21.2
 
+### 🎉 New Features
+
+- The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
+
 ### 🔧 Small improvements
 
 - `REACT_APP_API_URL` is now **required** when building the client for production (it no longer defaults to any value). In development mode, it still defaults to the local server URL. This prevents silently broken production deployments where the client can't reach the server. ([#3740](https://github.com/wasp-lang/wasp/pull/3740))

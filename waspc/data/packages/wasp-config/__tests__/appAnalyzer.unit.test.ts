@@ -30,7 +30,6 @@ describe("analyzeApp", () => {
     vi.doMock(mockMainWaspTs, () => ({ default: Promise.resolve(app) }));
 
     const result = await analyzeApp(mockMainWaspTs, entities);
-
     const tsAppSpec = app[GET_TS_APP_SPEC]();
     const appSpecDecls = mapTsAppSpecToAppSpecDecls(tsAppSpec, entities);
 
