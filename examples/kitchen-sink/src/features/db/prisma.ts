@@ -21,7 +21,7 @@ export const setUpPrisma = () => {
         _extraField: {
           needs: {},
           compute() {
-            return "EXTRA EXTRA!";
+            return "Some string!" as const;
           },
         },
       },

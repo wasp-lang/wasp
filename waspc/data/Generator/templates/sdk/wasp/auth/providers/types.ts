@@ -3,7 +3,6 @@ import type { Router, Request } from 'express'
 import type { Prisma } from '@prisma/client'
 import type { Expand, Exact } from 'wasp/universal/types'
 import type { ProviderName } from '../utils'
-import type { Registry, FromRegistry } from 'wasp/types'
 
 // PUBLIC API
 export function defineUserSignupFields<T extends UserSignupFields>(
@@ -13,13 +12,14 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 }
 
 {=# hasEmailUserSignupFields =}
+import type { FromRegistry } from 'wasp/types'
 // PUBLIC API
 export type UserEmailSignupFields = InferUserSignupFields<
   FromRegistry<"emailUserSignupFields", {}>
 >
 {=/ hasEmailUserSignupFields =}
-
 {=# hasUsernameAndPasswordUserSignupFields =}
+import type { FromRegistry } from 'wasp/types'
 // PUBLIC API
 export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<
   FromRegistry<"usernameAndPasswordUserSignupFields", {}>
