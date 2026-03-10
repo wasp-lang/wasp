@@ -148,7 +148,7 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.DOCKER_REGISTRY }}/${{ env.DOCKER_REGISTRY_USERNAME }}/${{ env.CLIENT_APP_NAME }}
-          
+
       - name: Setup Node.js
         uses: actions/setup-node@v6
         with:
@@ -156,8 +156,8 @@ jobs:
 
       - name: Install Wasp
         shell: bash
-        run: curl -sSL https://get.wasp.sh/installer.sh | sh -s -- -v ${{ env.WASP_VERSION }}
-        
+        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+
       # Uncomment if using Wasp TS Config
       # - name: Initialize Wasp TS Config
       #   run: wasp ts-setup

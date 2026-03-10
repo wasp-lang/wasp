@@ -10,6 +10,7 @@ import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
 import UserFields from './\_user-fields.md';
 import EmailData from './entities/\_email-data.md';
 import AccessingUserDataNote from './\_accessing-user-data-note.md';
+import TailwindNote from './\_tailwind-note.md';
 
 Wasp supports e-mail authentication out of the box, along with email verification and "forgot your password?" flows. It provides you with the server-side implementation and email templates for all of these flows.
 
@@ -224,9 +225,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 ### 4. Create the Client Pages
 
-:::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../project/css-frameworks).
-:::
+<TailwindNote />
 
 Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 

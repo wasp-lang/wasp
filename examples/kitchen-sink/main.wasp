@@ -1,6 +1,6 @@
 app KitchenSink {
   wasp: {
-    version: "^0.21.0"
+    version: "^0.21.2"
   },
   title: "Wasp Kitchen Sink",
   head: [

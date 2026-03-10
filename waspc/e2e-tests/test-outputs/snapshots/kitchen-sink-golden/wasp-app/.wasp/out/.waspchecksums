@@ -30,9 +30,9 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.21.0.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.21.2.tgz"
         ],
-        "30e32ee4a4395e91030c6cb2ae260a1319f01c6659ef68147d9833529cb26aff"
+        "eaa68666ff5b205c2b259b7b51f29cfc1577064e4f80704db7ca05706a27b31a"
     ],
     [
         [
@@ -543,14 +543,14 @@
             "file",
             "sdk/wasp/client/env.ts"
         ],
-        "533337ff26b1df5f3c5c4eeb0b21830b97cbf2eabd5c76fc85d064893ecc2d86"
+        "5fe8057a1d26540c02ff7f7ca17ef87f6b92c6a0132620a78ae6f7525abf17ec"
     ],
     [
         [
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "7ab9f1b689ee9c6a495a442ea8a8559b3fd1301f68df22fc66008142083f93a3"
+        "407cf5bacb7e492838585733f77359d68be7ce35e5b88437c4bd52d9c84ebae6"
     ],
     [
         [
@@ -739,7 +739,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "4a0cb5654eb2040dbc15ce586ed588043ce54aa6dad847a068596568dbc5934a"
+        "e21f628cd253db6aae912d4e155d0ec6e4ae30afa160c2e39accd96a2752a224"
     ],
     [
         [
@@ -760,7 +760,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "37682805e490ada71b3f7b10105bb3f9e96674c5b0639593b0a1b6f8c5e7ec60"
+        "0c077ff79fa63e1caa37f82ab29646413b6129ef7d5ab58dbdb2eacd979c8685"
     ],
     [
         [
@@ -865,14 +865,14 @@
             "file",
             "sdk/wasp/env/validation.ts"
         ],
-        "885deaa7f922a54cfd5c196ba96f2b53e10e084529687f24090bbf61ad4b4d48"
+        "acbc036ea26fb1133d994cdc7cc648e4e62e5920f98b137f20c99c9d9a34de06"
     ],
     [
         [
             "file",
             "sdk/wasp/package.json"
         ],
-        "83a905424d6f2478bd5631fff8b4c4824729a0af37c5402be70e7b1ce04b034c"
+        "0f1e04ac3c1dd8006e483599a507d0a2a81f0ac4a5ba53243f06d457a36fb64e"
     ],
     [
         [
@@ -1747,7 +1747,7 @@
             "file",
             "server/package.json"
         ],
-        "f3fd7d584037f937837e8c1489c518e3fd2743d59b0b8470ab78bd19952e4881"
+        "838d7c0d34b314b3d299cd1447ae942b57b97251184618ca9cf89ac5a8e3f61c"
     ],
     [
         [
