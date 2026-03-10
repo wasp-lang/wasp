@@ -95,62 +95,58 @@ For more complex tests you'll want `renderInContext` (a shorthand for rendering 
 ```tsx title="src/test/helpers.tsx"
 import type { ReactElement, ReactNode } from 'react'
 import { render, type RenderResult } from '@testing-library/react'
-import { http, type HttpResponseResolver, type RequestHandler } from 'msw'
-import { setupServer, type SetupServer } from 'msw/node'
+import { http } from 'msw'
+import { setupServer } from 'msw/node'
 import { afterAll, afterEach, beforeAll } from 'vitest'
-import { WaspTestWrapper } from 'wasp/client/test'
-import { config, HttpMethod, type Route } from 'wasp/client'
-import { serialize } from 'wasp/core/serialization'
+import {
+  WaspTestWrapper,
+  getOperationRoute,
+  getApiUrl,
+  serializeForResponse,
+  type Route,
+} from 'wasp/client/test'
+
+const httpMethodToHandler = {
+  GET: http.get,
+  POST: http.post,
+  PUT: http.put,
+  DELETE: http.delete,
+} as const
 
 export function renderInContext(ui: ReactElement): RenderResult {
   const { rerender, ...result } = render(ui, { wrapper: WaspTestWrapper })
   return {
     ...result,
-    rerender: (rerenderUi: ReactNode) => rerender(<WaspTestWrapper>{rerenderUi}</WaspTestWrapper>),
+    rerender: (rerenderUi: ReactNode) =>
+      rerender(<WaspTestWrapper>{rerenderUi}</WaspTestWrapper>),
   }
 }
 
-export type MockQuery = (query: { route: Route }, resJson: unknown) => void
-
-export type MockApi = (route: Route, resJson: unknown) => void
-
-export function mockServer(): {
-  server: SetupServer
-  mockQuery: MockQuery
-  mockApi: MockApi
-} {
+export function mockServer() {
   const server = setupServer()
 
   beforeAll(() => server.listen())
   afterEach(() => server.resetHandlers())
   afterAll(() => server.close())
 
-  const mockQuery: MockQuery = (query, mockData) => {
-    const route = (query as unknown as { route: Route }).route
-    mockRoute(server, route, () => Response.json(serialize(mockData)))
+  return {
+    server,
+    mockQuery(query: { route: Route }, mockData: unknown) {
+      const { method, url } = getOperationRoute(query)
+      server.use(
+        httpMethodToHandler[method](url, () =>
+          Response.json(serializeForResponse(mockData))
+        )
+      )
+    },
+    mockApi(route: Route, mockData: unknown) {
+      server.use(
+        httpMethodToHandler[route.method](getApiUrl(route), () =>
+          Response.json(mockData)
+        )
+      )
+    },
   }
-
-  const mockApi: MockApi = (route, mockData) => {
-    mockRoute(server, route, () => Response.json(mockData))
-  }
-
-  return { server, mockQuery, mockApi }
-}
-
-// Registers an MSW handler that intercepts requests to the given API endpoint.
-function mockRoute(
-  server: SetupServer,
-  route: Route,
-  responseHandler: HttpResponseResolver
-) {
-  const url = `${config.apiUrl}${route.path}`
-  const handlers: Record<HttpMethod, RequestHandler> = {
-    [HttpMethod.Get]: http.get(url, responseHandler),
-    [HttpMethod.Post]: http.post(url, responseHandler),
-    [HttpMethod.Put]: http.put(url, responseHandler),
-    [HttpMethod.Delete]: http.delete(url, responseHandler),
-  }
-  server.use(handlers[route.method])
 }
 ```
 

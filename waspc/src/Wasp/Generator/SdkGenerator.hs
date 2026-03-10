@@ -112,6 +112,7 @@ genSdk spec =
       C.genFileCopy [relfile|server/HttpError.ts|],
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/WaspTestWrapper.tsx|],
+      C.genFileCopy [relfile|client/test/helpers.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,

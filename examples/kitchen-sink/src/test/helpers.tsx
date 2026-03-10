@@ -1,15 +1,22 @@
 import { render, type RenderResult } from "@testing-library/react";
-import { http, type HttpResponseResolver, type RequestHandler } from "msw";
-import { setupServer, type SetupServer } from "msw/node";
+import { http } from "msw";
+import { setupServer } from "msw/node";
 import type { ReactElement, ReactNode } from "react";
 import { afterAll, afterEach, beforeAll } from "vitest";
-import { config, HttpMethod, type Route } from "wasp/client";
-import { WaspTestWrapper } from "wasp/client/test";
-import { serialize } from "wasp/core/serialization";
+import {
+  WaspTestWrapper,
+  getOperationRoute,
+  getApiUrl,
+  serializeForResponse,
+  type Route,
+} from "wasp/client/test";
 
-export type MockQuery = (query: { route: Route }, resJson: unknown) => void;
-
-export type MockApi = (route: Route, resJson: unknown) => void;
+const httpMethodToHandler = {
+  GET: http.get,
+  POST: http.post,
+  PUT: http.put,
+  DELETE: http.delete,
+} as const;
 
 export function renderInContext(ui: ReactElement): RenderResult {
   const { rerender, ...result } = render(ui, { wrapper: WaspTestWrapper });
@@ -20,47 +27,29 @@ export function renderInContext(ui: ReactElement): RenderResult {
   };
 }
 
-export function mockServer(): {
-  server: SetupServer;
-  mockQuery: MockQuery;
-  mockApi: MockApi;
-} {
-  const server: SetupServer = setupServer();
+export function mockServer() {
+  const server = setupServer();
 
   beforeAll(() => server.listen());
   afterEach(() => server.resetHandlers());
   afterAll(() => server.close());
 
-  const mockQuery: MockQuery = (query, mockData) => {
-    mockRoute(server, query.route, () => Response.json(serialize(mockData)));
+  return {
+    server,
+    mockQuery(query: { route: Route }, mockData: unknown) {
+      const { method, url } = getOperationRoute(query);
+      server.use(
+        httpMethodToHandler[method](url, () =>
+          Response.json(serializeForResponse(mockData)),
+        ),
+      );
+    },
+    mockApi(route: Route, mockData: unknown) {
+      server.use(
+        httpMethodToHandler[route.method](getApiUrl(route), () =>
+          Response.json(mockData),
+        ),
+      );
+    },
   };
-
-  const mockApi: MockApi = (route, mockData) => {
-    mockRoute(server, route, () => Response.json(mockData));
-  };
-
-  return { server, mockQuery, mockApi };
-}
-
-function mockRoute(
-  server: SetupServer,
-  route: Route,
-  responseHandler: HttpResponseResolver,
-) {
-  if (!Object.values(HttpMethod).includes(route.method)) {
-    throw new Error(
-      `Unsupported query method for mocking: ${route.method}. Supported method strings are: ${Object.values(HttpMethod).join(", ")}.`,
-    );
-  }
-
-  const url = `${config.apiUrl}${route.path}`;
-
-  const handlers: Record<HttpMethod, RequestHandler> = {
-    [HttpMethod.Get]: http.get(url, responseHandler),
-    [HttpMethod.Post]: http.post(url, responseHandler),
-    [HttpMethod.Put]: http.put(url, responseHandler),
-    [HttpMethod.Delete]: http.delete(url, responseHandler),
-  };
-
-  server.use(handlers[route.method]);
 }
