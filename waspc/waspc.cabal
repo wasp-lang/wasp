@@ -411,6 +411,7 @@ library
     Wasp.Project.ExternalConfig
     Wasp.Project.ExternalConfig.PackageJson
     Wasp.Project.ExternalConfig.TsConfig
+    Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile
@@ -858,6 +859,7 @@ test-suite waspc-e2e-tests
     Tests.SnapshotTests.WaspMigrateSnapshotTest
     Tests.SnapshotTests.WaspNewSnapshotTest
     Tests.ViteBuildTest
+    Tests.ViteConfigTest
     Tests.WaspBuildStartTest
     Tests.WaspBuildTest
     Tests.WaspCleanTest
