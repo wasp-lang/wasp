@@ -75,7 +75,7 @@ applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsTypeofImportExpr :: JsImport -> String
 getJsTypeofImportExpr (JsImport importPath importName _) =
-  "import('" ++ pathString ++ "')." ++ memberName
+  "typeof import('" ++ pathString ++ "')." ++ memberName
   where
     pathString = getImportPathString importPath
     memberName = case importName of

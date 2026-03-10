@@ -2,7 +2,7 @@
 declare module 'wasp/types' {
   interface OperationsRegistry {
 {=# operations =}
-    '{= operationName =}': typeof {=& jsFn.typeofImportExpression =}
+    '{= operationName =}': {=& jsFn.typeofImportExpression =}
 {=/ operations =}
   }
 }

@@ -3,7 +3,6 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
     virtualFilesFilesDirInViteDir,
     clientEntryPointPath,
     routesEntryPointPath,
-    userClientEnvSchemaPath,
     userClientEnvSchemaVF,
     userSetupFnVF,
     userRootComponentVF,
@@ -14,8 +13,8 @@ where
 import Data.Maybe (fromJust)
 import StrongPath (Dir, Path', Rel, reldir, relfileP, (</>))
 import qualified StrongPath as SP
-import Wasp.JsImport (VirtualFile)
 import qualified Wasp.Generator.SdkGenerator.Common as C
+import Wasp.JsImport (VirtualFile)
 
 data VirtualFilesDir
 
@@ -32,9 +31,6 @@ clientEntryPointPath = "/@wasp/client-entry.tsx"
 
 routesEntryPointPath :: String
 routesEntryPointPath = "/@wasp/routes.tsx"
-
-userClientEnvSchemaPath :: String
-userClientEnvSchemaPath = "virtual:wasp/user-client-env"
 
 userClientEnvSchemaVF :: VirtualFile
 userClientEnvSchemaVF = [relfileP|virtual:wasp/user-client-env|]
