@@ -5,7 +5,6 @@ module Wasp.Project.ExternalConfig.ViteConfig
   )
 where
 
-import Data.List (isInfixOf)
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import StrongPath (Abs, Dir, File', Path', relfile, toFilePath, (</>))
