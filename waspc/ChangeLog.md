@@ -10,6 +10,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - `renderInContext` and `mockServer` are no longer exported from `wasp/client/test`. Use `WaspTestWrapper` directly with your own testing library, or copy the helper implementations from the [Vitest guide](https://wasp.sh/docs/guides/libraries/vitest). ([#3872](https://github.com/wasp-lang/wasp/pull/3872))
 - The `wasp test client` CLI command has been removed. Run `npx vitest` from your project root instead. ([#3872](https://github.com/wasp-lang/wasp/pull/3872))
 
+### 🎉 New Features
+
+- The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
+
 ### 🔧 Small improvements
 
 - `REACT_APP_API_URL` is now **required** when building the client for production (it no longer defaults to any value). In development mode, it still defaults to the local server URL. This prevents silently broken production deployments where the client can't reach the server. ([#3740](https://github.com/wasp-lang/wasp/pull/3740))
@@ -17,6 +21,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Upgraded our internal `nodemailer` dependency to v8.0.1 to address [a possible security issue](https://github.com/advisories/GHSA-rcmh-qjqh-p98v). ([#3756](https://github.com/wasp-lang/wasp/pull/3756))
 - In the Vite config, removing the `server.open` field will no longer open the browser on `wasp start`. ([3831](https://github.com/wasp-lang/wasp/pull/3831))
 - Wasp now validates that `vite.config.ts` (or `vite.config.js`) exists in your project at compile time, and warns if it's missing the `wasp` plugin import. ([#3863](https://github.com/wasp-lang/wasp/pull/3863))
+- Wasp now prefixes env validation errors with the name of the field that failed the validation ([#3876](https://github.com/wasp-lang/wasp/pull/3876))
 
 ## 0.21.1
 

@@ -1,7 +1,10 @@
+import { readFile } from "fs/promises";
 import { ActionConfig, App, ExtImport } from "wasp-config";
 
+const title = (await readFile("appTitle.txt", "utf-8")).trim();
+
 const app = new App("waspello", {
-  title: "Waspello",
+  title,
   wasp: { version: "^0.22.0" },
 });
 
