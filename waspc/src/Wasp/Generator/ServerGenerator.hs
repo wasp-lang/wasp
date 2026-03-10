@@ -43,18 +43,10 @@ import Wasp.Env (envVarsToDotEnvContent)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
-import Wasp.Project.DepVersions
-  ( dotenvVersion,
-    expressTypesVersion,
-    expressVersionStr,
-    superjsonVersion,
-    typescriptVersion,
-  )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.NpmDependencies (NpmDepsForPackage (peerDependencies))
 import qualified Wasp.Generator.NpmDependencies as N
-import Wasp.Project.NpmWorkspaces (serverPackageName)
 import Wasp.Generator.ServerGenerator.ApiRoutesG (genApis)
 import Wasp.Generator.ServerGenerator.AuthG (genAuth)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -71,6 +63,14 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
+import Wasp.Project.DepVersions
+  ( dotenvVersion,
+    expressTypesVersion,
+    expressVersionStr,
+    superjsonVersion,
+    typescriptVersion,
+  )
+import Wasp.Project.NpmWorkspaces (serverPackageName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 

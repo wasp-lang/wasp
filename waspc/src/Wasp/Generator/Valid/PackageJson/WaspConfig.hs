@@ -5,7 +5,7 @@ import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.Valid.PackageJson.Common (DependencySpecification, getAllWaspDependencies)
-import qualified Wasp.Valid.Validator as V
+import qualified Wasp.Validator as V
 
 waspConfigValidator :: AS.AppSpec -> V.Validator P.PackageJson
 waspConfigValidator spec =

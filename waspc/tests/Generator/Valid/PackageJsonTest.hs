@@ -12,7 +12,7 @@ import Wasp.Generator.Valid.PackageJson.Dependencies
     makeOptionalDepValidator,
     makeRequiredDepValidator,
   )
-import qualified Wasp.Valid.Validator as V
+import qualified Wasp.Validator as V
 import Prelude hiding (fail)
 
 spec_PackageJson :: Spec

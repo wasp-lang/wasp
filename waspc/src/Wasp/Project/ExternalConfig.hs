@@ -8,16 +8,16 @@ import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import StrongPath (Abs, Dir, File, Path', Rel)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.ExternalConfig.TsConfig (TsConfig)
+import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common
   ( CompileError,
     SrcTsConfigFile,
     WaspProjectDir,
   )
-import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
 import Wasp.Project.ExternalConfig.TsConfig (readSrcTsConfigFile)
 import Wasp.Project.ExternalConfig.ViteConfig (validateViteConfig)
-import qualified Wasp.Valid.Validator as V
+import qualified Wasp.Validator as V
 
 data ExternalConfigs = ExternalConfigs
   { _packageJson :: PackageJson,
