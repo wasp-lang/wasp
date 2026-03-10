@@ -56,17 +56,17 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
         "Choose GPT model(s) you want to use:"
       $ NE.fromList
         [ Interactive.Option
-            "gpt-4o (planning + coding)"
+            "gpt-5-mini (planning + coding)"
             (Just "Good results. Cheap and fast. Best cost/benefit ratio.")
-            (ChatGPT.GPT_4o, ChatGPT.GPT_4o),
+            (ChatGPT.GPT_5_mini, ChatGPT.GPT_5_mini),
           Interactive.Option
-            "gpt-4 (planning) + gpt-4o (coding)"
-            (Just "Possibly better results, but somewhat slower and somewhat more expensive.")
-            (ChatGPT.GPT_4, ChatGPT.GPT_4o),
+            "gpt-5 (planning) + gpt-5-mini (coding)"
+            (Just "Better planning results. Good cost/benefit ratio.")
+            (ChatGPT.GPT_5, ChatGPT.GPT_5_mini),
           Interactive.Option
-            "gpt-4 (planning + coding)"
-            (Just "Possibly best results, but quite slower and quite more expensive.")
-            (ChatGPT.GPT_4, ChatGPT.GPT_4)
+            "gpt-5 (planning + coding)"
+            (Just "Best results, but slower and more expensive.")
+            (ChatGPT.GPT_5, ChatGPT.GPT_5)
         ]
   temperature <-
     liftIO

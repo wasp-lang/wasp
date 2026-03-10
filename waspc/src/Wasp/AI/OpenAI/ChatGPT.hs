@@ -79,17 +79,20 @@ data ChatGPTParams = ChatGPTParams
   deriving (Show)
 
 data Model
-  = -- New flagship model.
-    GPT_4o -- Alias model
+  = -- GPT-5 flagship model.
+    GPT_5
+  | -- Faster & cheaper version of GPT-5.
+    GPT_5_mini
+  | -- Cheapest & fastest GPT-5 variant.
+    GPT_5_nano
+  | -- Legacy models kept for backward compatibility.
+    GPT_4o
   | GPT_4o_2024_08_06
-  | -- Faster & cheaper version of the new flagship model.
-    GPT_4o_mini -- Alias model
+  | GPT_4o_mini
   | GPT_4o_mini_2024_07_18
-  | -- Old flagship model.
-    GPT_4 -- Alias model
+  | GPT_4
   | GPT_4_0613
-  | -- Faster & cheaper version of the old flagship model.
-    GPT_4_turbo -- Alias model
+  | GPT_4_turbo
   | GPT_4_turbo_2024_04_09
   deriving (Eq, Bounded, Enum)
 
@@ -98,6 +101,9 @@ instance Show Model where
 
 modelOpenAiId :: Model -> String
 modelOpenAiId = \case
+  GPT_5 -> "gpt-5"
+  GPT_5_mini -> "gpt-5-mini"
+  GPT_5_nano -> "gpt-5-nano"
   GPT_4o -> "gpt-4o"
   GPT_4o_2024_08_06 -> "gpt-4o-2024-08-06"
   GPT_4o_mini -> "gpt-4o-mini"
