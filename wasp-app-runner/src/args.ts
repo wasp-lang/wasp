@@ -21,6 +21,8 @@ export function parseArgs(): {
   pathToApp: PathToApp;
   waspCliCmd: WaspCliCmd;
   dbImage?: DockerImageName;
+  run?: string;
+  exit: boolean;
 } {
   const parsedProgram = program
     .name("run-wasp-app")
@@ -37,6 +39,15 @@ export function parseArgs(): {
       "--db-image <image>",
       `Custom PostgreSQL Docker image to use (default: "${defaultPostgresDbImage}")`,
     )
+    .option(
+      "--run <cmd>",
+      "Command to run after both servers are ready (sets $client_url and $server_url env vars)",
+    )
+    .option(
+      "--exit",
+      "Exit after both servers are ready (and after --run command completes, if provided)",
+      false,
+    )
     .parse();
 
   const options = parsedProgram.opts();
@@ -47,5 +58,7 @@ export function parseArgs(): {
     pathToApp: options.pathToApp as PathToApp,
     waspCliCmd: parseWaspCliCmd(options.waspCliCmd),
     dbImage: options.dbImage as DockerImageName,
+    run: options.run,
+    exit: options.exit,
   };
 }

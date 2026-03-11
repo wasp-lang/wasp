@@ -1,5 +1,7 @@
 import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
+import { createLogger } from "../logging.js";
+import { Process } from "../process.js";
 import { type AppName, waspMigrateDb, waspStart } from "../waspCli.js";
 
 export async function startAppInDevMode({
@@ -8,12 +10,16 @@ export async function startAppInDevMode({
   appName,
   dbType,
   dbImage,
+  run,
+  exit,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
   dbType: DbType;
   dbImage: DockerImageName;
+  run?: string;
+  exit: boolean;
 }): Promise<void> {
   using db = await setupDb({
     appName,
@@ -34,5 +40,23 @@ export async function startAppInDevMode({
     extraEnv: db.dbEnvVars,
   });
 
-  await wasp.proc.wait();
+  if (run) {
+    await new Process({
+      logger: createLogger("run"),
+      cmd: process.env.SHELL ?? "sh",
+      args: ["-c", run],
+      env: {
+        client_url: "http://localhost:3000",
+        server_url: "http://localhost:3001",
+      },
+    })
+      .print()
+      .wait();
+  }
+
+  if (exit) {
+    return;
+  } else {
+    await wasp.proc.wait();
+  }
 }
