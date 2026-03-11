@@ -11,28 +11,31 @@ export function defineUserSignupFields<T extends UserSignupFields>(
   return fields
 }
 
-{=# emailUserSignupFields.isDefined =}
-{=& emailUserSignupFields.importStatement =}
+{=# hasEmailUserSignupFields =}
+import type { FromRegistry } from 'wasp/types'
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof {= emailUserSignupFields.importIdentifier =}>;
-{=/ emailUserSignupFields.isDefined =}
-
-{=# usernameAndPasswordUserSignupFields.isDefined =}
-{=& usernameAndPasswordUserSignupFields.importStatement =}
+export type UserEmailSignupFields = InferUserSignupFields<
+  FromRegistry<"emailUserSignupFields", {}>
+>
+{=/ hasEmailUserSignupFields =}
+{=# hasUsernameAndPasswordUserSignupFields =}
+import type { FromRegistry } from 'wasp/types'
 // PUBLIC API
-export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {= usernameAndPasswordUserSignupFields.importIdentifier =}>;
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<
+  FromRegistry<"usernameAndPasswordUserSignupFields", {}>
+>
+{=/ hasUsernameAndPasswordUserSignupFields =}
 
 /**
  * Extracts the result types from a UserSignupFields object.
- * 
+ *
  * This type transforms an object containing field getter functions
  * into an object with the same keys but whose values are the return types
  * of those functions.
  */
 type InferUserSignupFields<T extends UserSignupFields> = {
-  [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues> 
-    ? ReturnType<T[K]> 
+  [K in keyof T]: T[K] extends FieldGetter<PossibleUserFieldValues>
+    ? ReturnType<T[K]>
     : never
 }
 

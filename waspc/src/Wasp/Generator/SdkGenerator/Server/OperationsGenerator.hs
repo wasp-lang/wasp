@@ -8,18 +8,20 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
+import qualified Data.Aeson.Types as Aeson.Types
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
+import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, toFilePath, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
-import Wasp.AppSpec.Operation (getName)
+import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (virtualExtImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
@@ -27,8 +29,8 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkImportPath,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
-import Wasp.Util (toUpperFirst)
+import Wasp.Generator.ServerGenerator (operationVF)
+import Wasp.Util (toUpperFirst, (<++>))
 
 -- | This function should match the `exports` path from the SDK's package.json.
 getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
@@ -48,6 +50,7 @@ genOperations spec =
       genWrappers spec,
       genIndexTs spec
     ]
+    <++> genOperationVirtualModuleDecls spec
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
@@ -150,7 +153,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
         ]
     operationTypeData operation =
       object
-        [ "typeName" .= toUpperFirst (getName operation),
+        [ "typeName" .= toUpperFirst (AS.Operation.getName operation),
           "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
@@ -160,13 +163,45 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
-      "operationName" .= getName operation,
+    [ "operationName" .= AS.Operation.getName operation,
       "operationTypeName" .= getOperationTypeName operation,
+      "typeName" .= toUpperFirst (AS.Operation.getName operation),
+      "jsFn" .= virtualExtImportToImportJson (operationVF operationName) (Just $ AS.Operation.getFn operation),
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
+  where
+    operationName = AS.Operation.getName operation
+
+genOperationVirtualModuleDecls :: AppSpec -> Generator [FileDraft]
+genOperationVirtualModuleDecls spec
+  | null allOperations = return []
+  | otherwise =
+      return
+        [ mkTmplFdWithData
+            (serverOpsDirInSdkTemplatesDir </> [relfile|userOperations.d.ts|])
+            tmplData
+        ]
+  where
+    allOperations = AS.getOperations spec
+    tmplData =
+      object
+        [ "operations" .= map mkVirtualModuleData allOperations
+        ]
+    mkVirtualModuleData :: AS.Operation.Operation -> Aeson.Types.Value
+    mkVirtualModuleData operation =
+      object
+        [ "virtualModulePath" .= toFilePath (operationVF operationName),
+          "operationName" .= operationName,
+          "typeName" .= toUpperFirst operationName,
+          "exportName" .= EI.importIdentifier (AS.Operation.getFn operation),
+          "isQuery" .= isQuery operation
+        ]
+      where
+        operationName = AS.Operation.getName operation
+        isQuery (AS.Operation.QueryOp _ _) = True
+        isQuery (AS.Operation.ActionOp _ _) = False
 
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOpsDirInSdkTemplatesDir = [reldir|server/operations|]

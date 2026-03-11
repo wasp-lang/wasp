@@ -16,6 +16,8 @@
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
       {=!  Used by our code, undocumented (but accessible) for users. =}
+      "./types": "./dist/types/index.js",
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./core/serialization": "./dist/core/serialization/index.js",
@@ -48,7 +50,6 @@
       {=!  expose it here (which leaks it to our users). We could avoid this by =}
       {=!  using relative imports inside SDK code (instead of library imports), =}
       {=!  but I didn't have time to implement it. =}
-      "./src/*": "./dist/src/*.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./operations/*": "./dist/operations/*",
       {=!  Used by our code, undocumented (but accessible) for users. =}

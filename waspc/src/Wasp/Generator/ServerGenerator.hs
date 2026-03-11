@@ -7,6 +7,9 @@ module Wasp.Generator.ServerGenerator
   ( genServer,
     operationsRouteInRootRouter,
     npmDepsFromWasp,
+    userServerEnvSchemaVF,
+    userPrismaSetupVF,
+    operationVF,
   )
 where
 
@@ -14,7 +17,8 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as ByteStringLazyUTF8
 import Data.Maybe
-  ( isJust,
+  ( fromJust,
+    isJust,
     maybeToList,
   )
 import StrongPath
@@ -28,14 +32,19 @@ import StrongPath
     fromRelDir,
     reldirP,
     relfile,
+    relfileP,
+    toFilePath,
     (</>),
   )
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Db as AS.Db
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
+import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import qualified Wasp.AppSpec.Operation as AS.Operation
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import qualified Wasp.AppSpec.Util as AS.Util
 import Wasp.AppSpec.Valid (getApp, getLowestNodeVersionUserAllows, isAuthEnabled)
@@ -68,6 +77,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.Common (libsRootDirFromServerDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import Wasp.JsImport (VirtualFile)
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -272,6 +282,16 @@ genServerJs spec =
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|./|]
 
+userServerEnvSchemaVF :: VirtualFile
+userServerEnvSchemaVF = [relfileP|virtual:wasp/user-server-env-schema|]
+
+userPrismaSetupVF :: VirtualFile
+userPrismaSetupVF = [relfileP|virtual:wasp/user-prisma-setup|]
+
+operationVF :: String -> VirtualFile
+operationVF operationName =
+  fromJust $ SP.parseRelFileP $ "virtual:wasp/operation/" ++ operationName
+
 genRoutesDir :: AppSpec -> Generator [FileDraft]
 genRoutesDir spec =
   -- TODO(martin): We will probably want to extract "routes" path here same as we did with "src", to avoid hardcoding,
@@ -349,6 +369,39 @@ genRollupConfigJs spec =
   return $
     C.mkTmplFdWithData [relfile|rollup.config.js|] (Just tmplData)
   where
-    tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
+    tmplData =
+      object
+        [ "areDbSeedsDefined" .= areDbSeedsDefined,
+          "virtualModules" .= virtualModules,
+          "hasVirtualModules" .= (not . null $ virtualModules)
+        ]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
+
+    virtualModules :: [Aeson.Value]
+    virtualModules =
+      maybeToList (mkVirtualModuleFromExtImport userServerEnvSchemaVF <$> maybeServerEnvSchema)
+        ++ maybeToList (mkVirtualModuleFromExtImport userPrismaSetupVF <$> maybePrismaSetupFn)
+        ++ map mkOperationVirtualModule allOperations
+
+    mkVirtualModuleFromExtImport :: VirtualFile -> EI.ExtImport -> Aeson.Value
+    mkVirtualModuleFromExtImport vf extImport =
+      let importJson = extImportToImportJson rollupDirToServerSrcDir (Just extImport)
+       in object
+            [ "virtualPath" .= toFilePath vf,
+              "importJson" .= importJson
+            ]
+
+    mkOperationVirtualModule :: AS.Operation.Operation -> Aeson.Value
+    mkOperationVirtualModule operation =
+      mkVirtualModuleFromExtImport
+        (operationVF $ AS.Operation.getName operation)
+        (AS.Operation.getFn operation)
+
+    maybeServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    allOperations = AS.getOperations spec
+    app = snd $ getApp spec
+
+    rollupDirToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
+    rollupDirToServerSrcDir = [reldirP|src/|]

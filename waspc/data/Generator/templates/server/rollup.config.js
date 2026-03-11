@@ -1,6 +1,10 @@
 {{={= =}=}}
+import { fileURLToPath } from 'node:url'
+import path from 'node:path'
 import esbuild from 'rollup-plugin-esbuild'
 import resolve from '@rollup/plugin-node-resolve';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default [
   createBundle('src/server.ts', 'bundle/server.js'),
@@ -18,7 +22,10 @@ function createBundle(inputFilePath, outputFilePath) {
       sourcemap: true,
     },
     plugins: [
-      resolve(),
+      {=# hasVirtualModules =}
+      waspVirtualModules(),
+      {=/ hasVirtualModules =}
+      resolve({ extensions: ['.mjs', '.js', '.ts', '.json', '.node'] }),
       esbuild({
         target: 'esnext',
       }),
@@ -42,3 +49,25 @@ function createBundle(inputFilePath, outputFilePath) {
     preserveSymlinks: false,
   }
 }
+
+{=# hasVirtualModules =}
+function waspVirtualModules() {
+  const virtualModuleMap = {
+    {=# virtualModules =}
+    '{= virtualPath =}': '{=& importJson.importPath =}',
+    {=/ virtualModules =}
+  }
+
+  return {
+    name: 'wasp:virtual-modules',
+    async resolveId(id) {
+      if (id in virtualModuleMap) {
+        const absPath = path.resolve(__dirname, virtualModuleMap[id])
+        const resolved = await this.resolve(absPath, undefined, { skipSelf: true })
+        return resolved
+      }
+      return null
+    },
+  }
+}
+{=/ hasVirtualModules =}

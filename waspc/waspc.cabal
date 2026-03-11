@@ -368,6 +368,9 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
+    Wasp.Generator.TypesGenerator
+    Wasp.Generator.TypesGenerator.Common
+    Wasp.Generator.TypesGenerator.JsImport
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common

@@ -16,9 +16,11 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.AuthProviders as AuthProviders
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (virtualExtImportToImportJson)
 import Wasp.Generator.Monad (Generator)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (userClientEnvSchemaVF)
 import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
+import Wasp.Generator.ServerGenerator (userServerEnvSchemaVF)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -39,7 +41,11 @@ genSharedEnvFiles =
     ]
 
 genServerEnvFiles :: AppSpec -> Generator [FileDraft]
-genServerEnvFiles spec = sequence [genServerEnv spec]
+genServerEnvFiles spec =
+  sequence
+    [ genServerEnv spec
+    ]
+    <++> genUserServerEnvSchemaModuleDecl spec
 
 genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =
@@ -47,6 +53,7 @@ genClientEnvFiles spec =
     [ genClientEnvSchema spec,
       genFileCopy [relfile|client/env.ts|]
     ]
+    <++> genUserClientEnvSchemaModuleDecl spec
 
 genServerEnv :: AppSpec -> Generator FileDraft
 genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
@@ -64,12 +71,12 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+          "userServerEnvSchema" .= virtualExtImportToImportJson userServerEnvSchemaVF maybeServerEnvValidationSchema
         ]
     maybeAuth = AS.App.auth app
     maybeEmailSender = AS.App.emailSender app
-    maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
+    maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
 
 genClientEnvSchema :: AppSpec -> Generator FileDraft
 genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
@@ -79,9 +86,35 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+          "userClientEnvSchema" .= virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvValidationSchema
         ]
-    maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
+    maybeClientEnvValidationSchema = AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
+
+genUserClientEnvSchemaModuleDecl :: AppSpec -> Generator [FileDraft]
+genUserClientEnvSchemaModuleDecl spec
+  | isJust maybeClientEnvSchema =
+      return
+        [ mkTmplFdWithData
+            [relfile|client/env/userClientEnvSchema.d.ts|]
+            (object ["userClientEnvSchema" .= userClientEnvSchemaImportJson])
+        ]
+  | otherwise = return []
+  where
+    userClientEnvSchemaImportJson = virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvSchema
+    maybeClientEnvSchema = AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
+
+genUserServerEnvSchemaModuleDecl :: AppSpec -> Generator [FileDraft]
+genUserServerEnvSchemaModuleDecl spec
+  | isJust maybeUserServerEnvSchema =
+      return
+        [ mkTmplFdWithData
+            [relfile|server/userServerEnvSchema.d.ts|]
+            (object ["userServerEnvSchema" .= userServerEnvSchemaImportJson])
+        ]
+  | otherwise = return []
+  where
+    userServerEnvSchemaImportJson = virtualExtImportToImportJson userServerEnvSchemaVF maybeUserServerEnvSchema
+    maybeUserServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]

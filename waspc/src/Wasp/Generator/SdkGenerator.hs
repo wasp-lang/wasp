@@ -2,7 +2,6 @@
 
 module Wasp.Generator.SdkGenerator
   ( genSdk,
-    genExternalCodeDir,
     buildSdk,
     npmDepsForSdk,
   )
@@ -12,18 +11,16 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
-import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
+import Data.Maybe (isJust, maybeToList)
+import StrongPath (Abs, Dir, Path', relfile, (</>))
 import System.Exit (ExitCode (..))
-import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Db as AS.Db
-import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -47,7 +44,8 @@ import Wasp.Generator.DepVersions
     superjsonVersion,
     typescriptVersion,
   )
-import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
+import Wasp.Generator.FileDraft (FileDraft)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -60,7 +58,6 @@ import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -69,6 +66,7 @@ import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
+import Wasp.Generator.ServerGenerator (userPrismaSetupVF)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
@@ -113,6 +111,7 @@ genSdk spec =
       C.genFileCopy [relfile|client/test/vitest/helpers.tsx|],
       C.genFileCopy [relfile|client/test/index.ts|],
       C.genFileCopy [relfile|client/test/setup.ts|],
+      C.genFileCopy [relfile|types/index.ts|],
       C.genFileCopy [relfile|client/hooks.ts|],
       C.genFileCopy [relfile|client/index.ts|],
       genClientConfigFile,
@@ -120,14 +119,13 @@ genSdk spec =
       genTsConfigJson,
       genServerUtils spec,
       genServerExportedTypesDir,
-      genPackageJson spec,
-      genServerDbClient spec
+      genPackageJson spec
     ]
+    <++> genServerDbClient spec
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
     <++> genUniversalDir
-    <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec
@@ -309,25 +307,6 @@ genTsConfigJson = do
 
 -- todo(filip): consider reorganizing/splitting the file.
 
--- | Takes external code files from Wasp,
--- and generates them in a new location as part of the generated project.
--- It might not just copy them but also do some changes on them, as needed.
-genExternalCodeDir :: [EF.CodeFile] -> Generator [FileDraft]
-genExternalCodeDir = sequence . mapMaybe genExternalFile
-
-genExternalFile :: EF.CodeFile -> Maybe (Generator FileDraft)
-genExternalFile file
-  | fileName == "tsconfig.json" = Nothing
-  | otherwise = Just . return . createCopyFileDraft destFile . EF.fileAbsPath $ file
-  where
-    fileName = FP.takeFileName . fromRelFile $ externalFilePath
-    destFile =
-      C.sdkRootDirInGeneratedCodeDir
-        </> C.extSrcDirInSdkRootDir
-        </> castRel externalFilePath
-
-    externalFilePath = EF.filePathInExtCodeDir file
-
 genUniversalDir :: Generator [FileDraft]
 genUniversalDir =
   sequence
@@ -354,18 +333,23 @@ genServerMiddleware =
       C.genFileCopy [relfile|server/middleware/globalMiddleware.ts|]
     ]
 
-genServerDbClient :: AppSpec -> Generator FileDraft
+genServerDbClient :: AppSpec -> Generator [FileDraft]
 genServerDbClient spec = do
   areThereAnyEntitiesDefined <- not . null <$> getEntitiesForPrismaSchema spec
-  let tmplData =
+  let prismaSetupFnJson = GJI.virtualExtImportToImportJson userPrismaSetupVF maybePrismaSetupFn
+  let dbClientTmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+            "prismaSetupFn" .= prismaSetupFnJson
           ]
-
-  return $
-    C.mkTmplFdWithData
-      [relfile|server/dbClient.ts|]
-      tmplData
+  let dbClientFd = C.mkTmplFdWithData [relfile|server/dbClient.ts|] dbClientTmplData
+  let prismaSetupDeclFds =
+        [ C.mkTmplFdWithData
+            [relfile|server/userPrismaSetup.d.ts|]
+            (object ["prismaSetupFn" .= prismaSetupFnJson])
+          | isJust maybePrismaSetupFn
+        ]
+  return $ dbClientFd : prismaSetupDeclFds
   where
-    maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
+    app = snd $ getApp spec
+    maybePrismaSetupFn = AS.Db.prismaSetupFn =<< AS.App.db app

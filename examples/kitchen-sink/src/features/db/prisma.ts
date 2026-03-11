@@ -16,6 +16,16 @@ export const setUpPrisma = () => {
         },
       },
     },
+    result: {
+      $allModels: {
+        _extraField: {
+          needs: {},
+          compute() {
+            return "Some string!" as const;
+          },
+        },
+      },
+    },
   });
 
   return prisma;
