@@ -22,7 +22,6 @@ function testPackage(packageDir: string): void {
   const packageJson = getPackageJson(packageDir);
 
   if (!packageJson.scripts?.test) {
-    console.log(`Skipping ${packageJson.name} (no test script)`);
     return;
   }
 
