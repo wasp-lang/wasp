@@ -6,7 +6,7 @@ import * as z from "zod"
 const userClientEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
-export const userClientEnvSchema = z.object({});
+const userClientEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
 const serverUrlSchema = z
@@ -29,7 +29,11 @@ const waspProdClientEnvSchema = z.object({
 });
 
 // PRIVATE API (sdk, Vite config)
-export const clientEnvSchema = z.discriminatedUnion("MODE", [
-  waspDevClientEnvSchema.merge(userClientEnvSchema),
-  waspProdClientEnvSchema.merge(userClientEnvSchema),
-]);
+// TODO(franjo): Remove passing mode as param when this is no longer a plugin.
+//               See: https://github.com/wasp-lang/wasp/issues/3875.
+export function getClientEnvSchema(mode: string) {
+  const waspClientEnvSchema = mode === 'production' 
+    ? waspProdClientEnvSchema
+    : waspDevClientEnvSchema;
+  return userClientEnvSchema.merge(waspClientEnvSchema);
+}
