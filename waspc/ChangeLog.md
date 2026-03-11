@@ -1,6 +1,10 @@
 # Changelog
 
-## 0.21.2
+## 0.22.0
+
+### ⚠️ Breaking Changes
+
+- Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
 
 ### 🎉 New Features
 
