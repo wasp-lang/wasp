@@ -109,6 +109,28 @@ async function startPostgresContainerForApp({
   };
 }
 
+function getExtraInfoOnPostgresStartError({
+  originalErrorText,
+  containerName,
+  port,
+}: {
+  originalErrorText: string;
+  containerName: DbContainerName;
+  port: number;
+}): string | null {
+  const errorText = originalErrorText.toLowerCase();
+
+  if (errorText.includes("is already in use by container")) {
+    return `It looks like the cleanup failed, try running: "docker rm -f ${containerName}" and then try again.`;
+  }
+
+  if (errorText.includes("port is already allocated")) {
+    return `It seems the port ${port} is already in use. Stop any other process using this port and try again.`;
+  }
+
+  return null;
+}
+
 async function waitForPostgresReady(
   containerName: DbContainerName,
 ): Promise<void> {
@@ -153,28 +175,6 @@ async function ensureDockerIsRunning(): Promise<void> {
   }
 
   logger.fatal("Docker is not running. Please start Docker and try again.");
-}
-
-function getExtraInfoOnPostgresStartError({
-  originalErrorText,
-  containerName,
-  port,
-}: {
-  originalErrorText: string;
-  containerName: DbContainerName;
-  port: number;
-}): string | null {
-  const errorText = originalErrorText.toLowerCase();
-
-  if (errorText.includes("is already in use by container")) {
-    return `It looks like the cleanup failed, try running: "docker rm -f ${containerName}" and then try again.`;
-  }
-
-  if (errorText.includes("port is already allocated")) {
-    return `It seems the port ${port} is already in use. Stop any other process using this port and try again.`;
-  }
-
-  return null;
 }
 
 async function checkIfDockerIsRunning(): Promise<boolean> {
