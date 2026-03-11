@@ -21,7 +21,7 @@ export async function startServer<T>(
   },
   checkFn: (proc: Process) => Promise<T>,
 ): Promise<Server<T>> {
-  const proc = new Process({ logger, cmd, args, cwd, env }).print();
+  const proc = new Process({ logger, cmd, args, cwd, env, print: true });
 
   try {
     const value = await Promise.race([

@@ -33,9 +33,8 @@ export function waspMigrateDb({
     args: [...waspCliCmd.args, "db", "migrate-dev", "--name", "auto-migration"],
     cwd: pathToApp,
     env: extraEnv,
-  })
-    .print()
-    .wait();
+    print: true,
+  }).wait();
 }
 
 export function waspStart({
@@ -75,9 +74,8 @@ export function waspBuild({
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "build"],
     cwd: pathToApp,
-  })
-    .print()
-    .wait();
+    print: true,
+  }).wait();
 }
 
 export function waspBuildStart({

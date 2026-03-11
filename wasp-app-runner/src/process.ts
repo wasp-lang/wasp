@@ -11,6 +11,7 @@ export type SpawnOptions = {
   args: string[];
   cwd?: string;
   env?: EnvVars;
+  print?: boolean;
 };
 
 export interface ProcessExit {
@@ -45,7 +46,21 @@ export class Process {
 
     shutdownSignal.addEventListener("abort", () => this.kill());
 
-    this.#closePromise = this.#proc.then((resultOrError) => {
+    const awaitables = [
+      this.#proc,
+      ...(options.print
+        ? [
+            asyncIterable.forEach(this.stdoutLines, (line) =>
+              this.#logger.info(line),
+            ),
+            asyncIterable.forEach(this.stderrLines, (line) =>
+              this.#logger.error(line),
+            ),
+          ]
+        : []),
+    ] as const;
+
+    this.#closePromise = Promise.all(awaitables).then(([resultOrError]) => {
       if (resultOrError.exitCode !== undefined) {
         return { exitCode: resultOrError.exitCode };
       } else if (resultOrError.isTerminated) {
@@ -62,12 +77,6 @@ export class Process {
 
   get stderrLines(): AsyncIterable<string> {
     return this.#proc.iterable({ from: "stderr" });
-  }
-
-  print(): this {
-    asyncIterable.forEach(this.stdoutLines, (line) => this.#logger.info(line));
-    asyncIterable.forEach(this.stderrLines, (line) => this.#logger.error(line));
-    return this;
   }
 
   async collect(): Promise<ProcessResult> {
