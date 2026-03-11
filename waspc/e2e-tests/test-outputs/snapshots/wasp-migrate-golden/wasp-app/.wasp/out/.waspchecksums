@@ -305,7 +305,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "e21f628cd253db6aae912d4e155d0ec6e4ae30afa160c2e39accd96a2752a224"
+        "856e68da8905039c95f585018de3166c0b937b1724dafc03ad07c523ea29954b"
     ],
     [
         [
@@ -410,7 +410,7 @@
             "file",
             "sdk/wasp/env/validation.ts"
         ],
-        "acbc036ea26fb1133d994cdc7cc648e4e62e5920f98b137f20c99c9d9a34de06"
+        "abd221c5a0fd88db76bbdd0029bcf0564beee4000ae216749b569f553d4a5c58"
     ],
     [
         [
@@ -592,7 +592,7 @@
             "file",
             "sdk/wasp/universal/ansiColors.ts"
         ],
-        "1b38c60fcd141712bc5a253467b46263af0ee1d64cd9d9c9a774f61dd4949a1c"
+        "91181a38fb8c73c90d59ebb38981776cffe34d8242ba82480866ca1a57bea278"
     ],
     [
         [

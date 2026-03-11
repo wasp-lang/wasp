@@ -1,8 +1,6 @@
 import * as z from "zod";
 
-import { getColorizedConsoleFormatString } from "wasp/universal/ansiColors";
-
-const redColorFormatString = getColorizedConsoleFormatString("red");
+import { colorize } from "wasp/universal/ansiColors";
 
 // PRIVATE API (SDK)
 export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
@@ -13,8 +11,13 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   if (result.success) {
     return result.data;
   } else {
-    console.error(`${redColorFormatString}${formatZodEnvErrors(result.error.issues)}`);
-    throw new Error('Error parsing environment variables');
+    const errorMessage = formatZodEnvErrors(result.error.issues);
+    if (globalThis.window) {
+      console.error(errorMessage);
+    } else {
+      console.error(colorize("red", errorMessage));
+    }
+    throw new Error("Error parsing environment variables");
   }
 }
 
