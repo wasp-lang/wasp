@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveAnyClass #-}
-{-# LANGUAGE TypeApplications #-}
 
 module Wasp.NodePackageFFI
   ( -- * Node Package FFI
@@ -7,23 +6,28 @@ module Wasp.NodePackageFFI
     -- Provides utilities for setting up and running node processes from the
     -- @packages/@ directory.
     RunnablePackage (..),
-    InstallablePackage (..),
     getPackageProcessOptions,
-    getPackageInstallationPath,
+    InstallablePackage (..),
+    getInstallablePackageName,
+    getPackageJsonSpecifierForPackage,
+    getPackagePathInNodeModules,
+    ensurePackageIsAtInstallationPathInProject,
   )
 where
 
 import Control.Monad.Extra (unlessM)
-import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, reldir, relfile, (</>))
-import System.Directory (doesDirectoryExist)
+import Data.Maybe (fromJust)
+import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parseRelDir, reldir, relfile, (</>))
 import System.Exit (ExitCode (ExitFailure, ExitSuccess), exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
 import qualified Wasp.Node.Version as NodeVersion
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
+import qualified Wasp.Util.IO as IOUtil
 
--- | This are the globally installed packages waspc runs directly from
+-- | These are the globally installed packages waspc runs directly from
 -- their global installation path.
 data RunnablePackage
   = DeployPackage
@@ -38,9 +42,9 @@ data RunnablePackage
     PrismaPackage
   | WaspStudioPackage
 
--- | This are the globally installed packages waspc installs into
--- the user's project using `npm`. They are used/run from inside the project's
--- node_modules.
+-- | These are globally installed packages waspc copies into a location inside
+-- the user's project and then installs using `npm`'s file specifiers. They are
+-- used/run from inside the project's node_modules.
 data InstallablePackage = WaspConfigPackage
 
 data PackagesDir
@@ -60,8 +64,8 @@ runnablePackageDirInPackagesDir = \case
   WaspStudioPackage -> [reldir|studio|]
 
 installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
-installablePackageDirInPackagesDir = \case
-  WaspConfigPackage -> [reldir|wasp-config|]
+installablePackageDirInPackagesDir package =
+  fromJust $ parseRelDir $ getInstallablePackageName package
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]
@@ -87,11 +91,31 @@ getPackageProcessOptions package args = do
   ensurePackageDependenciesAreInstalled packageDir
   return $ packageCreateProcess packageDir "node" (fromAbsFile scriptFile : args)
 
-getPackageInstallationPath :: InstallablePackage -> IO String
-getPackageInstallationPath package = do
+getPackageJsonSpecifierForPackage :: InstallablePackage -> String
+getPackageJsonSpecifierForPackage package =
+  "file:" ++ fromRelDir (getPackageInstallationPathInProject package)
+
+getInstallablePackageName :: InstallablePackage -> String
+getInstallablePackageName = \case
+  -- NOTE: These names must match the 'name' fields in packages' package.json files.
+  WaspConfigPackage -> "wasp-config"
+
+ensurePackageIsAtInstallationPathInProject :: Path' Abs (Dir WaspProjectDir) -> InstallablePackage -> IO ()
+ensurePackageIsAtInstallationPathInProject projectDir package = do
+  let dstPackageDirInProject = projectDir </> getPackageInstallationPathInProject package
   waspDataDir <- Data.getAbsDataDirPath
-  let absPackagePath = waspDataDir </> packagesDirInDataDir </> installablePackageDirInPackagesDir package
-  return $ fromAbsDir absPackagePath
+  let srcPackageDir = waspDataDir </> packagesDirInDataDir </> installablePackageDirInPackagesDir package
+  IOUtil.copyDirectory srcPackageDir dstPackageDirInProject
+
+getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
+getPackageInstallationPathInProject package =
+  dotWaspDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
+
+-- todo: probably remove
+getPackagePathInNodeModules :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
+getPackagePathInNodeModules package =
+  nodeModulesDirInWaspProjectDir </> case package of
+    WaspConfigPackage -> fromJust $ parseRelDir $ getInstallablePackageName package
 
 getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
 getRunnablePackageDir package = do
@@ -112,7 +136,7 @@ ensurePackageDependenciesAreInstalled packageDir =
         exitFailure
       ExitSuccess -> pure ()
   where
-    nodeModulesDirExists = doesDirectoryExist $ fromAbsDir nodeModulesDir
+    nodeModulesDirExists = IOUtil.doesDirectoryExist nodeModulesDir
     nodeModulesDir = packageDir </> [reldir|node_modules|]
 
 -- | Like 'P.proc', but sets up the cwd to the given package directory.

@@ -1,5 +1,7 @@
 module Wasp.Generator.NpmInstall
   ( installNpmDependenciesWithInstallRecord,
+    installProjectNpmDependencies,
+    areThereUserNpmDepsToInstall,
   )
 where
 
@@ -17,6 +19,7 @@ import UnliftIO (race)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorError (..))
+import Wasp.Generator.NpmDependencies (NpmDepsFromUser)
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import Wasp.Job (Job, JobMessage, JobType)
@@ -129,6 +132,13 @@ areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir ProjectRootDir) -> IO B
 areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir
   return $ installedNpmDeps /= Just allNpmDeps
+
+areThereUserNpmDepsToInstall :: NpmDepsFromUser -> Path' Abs (Dir ProjectRootDir) -> IO Bool
+areThereUserNpmDepsToInstall currentUserDeps dstDir = do
+  installedNpmDeps <- loadInstalledNpmDepsLog dstDir
+  return $ case installedNpmDeps of
+    Nothing -> True
+    Just allDeps -> _userNpmDeps allDeps /= currentUserDeps
 
 doesNodeModulesDirExist :: Path' Abs (Dir WaspProjectDir) -> IO Bool
 doesNodeModulesDirExist waspProjectDirPath = IOUitl.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
