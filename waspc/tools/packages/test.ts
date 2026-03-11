@@ -28,5 +28,10 @@ function testPackage(packageDir: string): void {
   console.log(`Testing ${packageJson.name} (${packageDir})`);
 
   runCmd("npm", ["install"], { cwd: packageDir, stdio: "inherit" });
-  runCmd("npm", ["run", "test"], { cwd: packageDir, stdio: "inherit" });
+  // CI=true ensures vitest runs in non-watch mode even locally.
+  runCmd("npm", ["run", "test"], {
+    cwd: packageDir,
+    stdio: "inherit",
+    env: { ...process.env, CI: "true" },
+  });
 }
