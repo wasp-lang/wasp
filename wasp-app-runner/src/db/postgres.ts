@@ -4,11 +4,11 @@ import {
   DbContainerName,
   createAppSpecificDbContainerName,
 } from "../docker.js";
-import * as iterable from "../iterable.js";
 import { createLogger } from "../logging.js";
 import { Process } from "../process.js";
 import { startServer } from "../server.js";
 import { Branded } from "../types.js";
+import * as asyncIterable from "../util/async-iterable.js";
 import type { AppName } from "../waspCli.js";
 import type { SetupDbResult } from "./types.js";
 
@@ -89,7 +89,7 @@ async function startPostgresContainerForApp({
     async (proc) =>
       Promise.race([
         waitForPostgresReady(containerName),
-        iterable.forEach(proc.stderrLines, (line) => {
+        asyncIterable.forEach(proc.stderrLines, (line) => {
           const extraInfo = getExtraInfoOnPostgresStartError({
             originalErrorText: line,
             containerName,

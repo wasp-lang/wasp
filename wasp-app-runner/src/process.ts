@@ -1,9 +1,9 @@
 import { $ } from "execa";
 import { text } from "node:stream/consumers";
-import * as iterable from "./iterable.js";
 import { createLogger, type Logger } from "./logging.js";
 import { shutdownSignal } from "./shutdown.js";
 import type { EnvVars } from "./types.js";
+import * as asyncIterable from "./util/async-iterable.js";
 
 export type SpawnOptions = {
   logger?: Logger;
@@ -65,8 +65,8 @@ export class Process {
   }
 
   print(): this {
-    iterable.forEach(this.stdoutLines, (line) => this.#logger.info(line));
-    iterable.forEach(this.stderrLines, (line) => this.#logger.error(line));
+    asyncIterable.forEach(this.stdoutLines, (line) => this.#logger.info(line));
+    asyncIterable.forEach(this.stderrLines, (line) => this.#logger.error(line));
     return this;
   }
 
