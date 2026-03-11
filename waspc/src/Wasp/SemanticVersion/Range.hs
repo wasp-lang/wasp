@@ -11,8 +11,7 @@ import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import Data.Maybe (isJust)
 import qualified Text.Parsec as P
-import Wasp.SemanticVersion.Comparator (Comparator (..))
-import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), comparatorSetParser)
+import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), Simple (..), comparatorSetParser)
 import Wasp.SemanticVersion.PartialVersion (PartialVersion (..))
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
@@ -77,7 +76,7 @@ rangeParser =
   where
     -- `node-semver` allows parsing of an empty string into the x-range any comparator (*).
     emptyRangeParser :: P.Parsec String () Range
-    emptyRangeParser = Range [ComparatorSet (pure (XRange Any))] <$ P.eof
+    emptyRangeParser = Range [SimpleComparatorSet (pure (XRange Any))] <$ P.eof
 
     logicalOrParser :: P.Parsec String () ()
     logicalOrParser = P.spaces *> P.string "||" *> P.spaces

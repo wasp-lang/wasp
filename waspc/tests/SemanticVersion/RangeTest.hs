@@ -31,7 +31,7 @@ spec_SemanticVersion_Range = do
       strictParseRange ""
         `shouldBe` Right
           ( Range
-              [ ComparatorSet $
+              [ SimpleComparatorSet $
                   NE.fromList
                     [ XRange Any
                     ]
@@ -42,45 +42,45 @@ spec_SemanticVersion_Range = do
       strictParseRange ">=1.0 <2.0.0"
         `shouldBe` Right
           ( Range
-              [ ComparatorSet $
+              [ SimpleComparatorSet $
                   NE.fromList
-                    [ PrimitiveComparator GreaterThanOrEqual (MajorMinor 1 0),
-                      PrimitiveComparator LessThan (Full 2 0 0)
+                    [ Primitive (PrimitiveComparator GreaterThanOrEqual (MajorMinor 1 0)),
+                      Primitive (PrimitiveComparator LessThan (MajorMinorPatch 2 0 0))
                     ]
               ]
           )
       strictParseRange "^1.2.3"
         `shouldBe` Right
           ( Range
-              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3)
+              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3)
               ]
           )
     it "parses ranges with multiple comparator sets" $ do
       strictParseRange ">=1  <2   || >=3.0.0    || *"
         `shouldBe` Right
           ( Range
-              [ ComparatorSet $
+              [ SimpleComparatorSet $
                   NE.fromList
-                    [ PrimitiveComparator GreaterThanOrEqual (Major 1),
-                      PrimitiveComparator LessThan (Major 2)
+                    [ Primitive (PrimitiveComparator GreaterThanOrEqual (Major 1)),
+                      Primitive (PrimitiveComparator LessThan (Major 2))
                     ],
-                ComparatorSet $ pure $ PrimitiveComparator GreaterThanOrEqual (Full 3 0 0),
-                ComparatorSet $ pure $ XRange Any
+                SimpleComparatorSet $ pure $ Primitive (PrimitiveComparator GreaterThanOrEqual (MajorMinorPatch 3 0 0)),
+                SimpleComparatorSet $ pure $ XRange Any
               ]
           )
       strictParseRange "^1.2.3 ||   ^2.0"
         `shouldBe` Right
           ( Range
-              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
-                ComparatorSet $ pure $ BackwardsCompatibleWith (MajorMinor 2 0)
+              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3),
+                SimpleComparatorSet $ pure $ Caret (MajorMinor 2 0)
               ]
           )
       -- Allow 0 spaces around the OR operator
       strictParseRange "^1.2.3||^2.0"
         `shouldBe` Right
           ( Range
-              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
-                ComparatorSet $ pure $ BackwardsCompatibleWith (MajorMinor 2 0)
+              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3),
+                SimpleComparatorSet $ pure $ Caret (MajorMinor 2 0)
               ]
           )
 
@@ -88,15 +88,15 @@ spec_SemanticVersion_Range = do
       parseRange "^1.2.3 || ^2.0 "
         `shouldBe` Right
           ( Range
-              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
-                ComparatorSet $ pure $ BackwardsCompatibleWith (MajorMinor 2 0)
+              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3),
+                SimpleComparatorSet $ pure $ Caret (MajorMinor 2 0)
               ]
           )
       parseRange "^1.2.3 || ^2.0 abc"
         `shouldBe` Right
           ( Range
-              [ ComparatorSet $ pure $ BackwardsCompatibleWith (Full 1 2 3),
-                ComparatorSet $ pure $ BackwardsCompatibleWith (MajorMinor 2 0)
+              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3),
+                SimpleComparatorSet $ pure $ Caret (MajorMinor 2 0)
               ]
           )
 

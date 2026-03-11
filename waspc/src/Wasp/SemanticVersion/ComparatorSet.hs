@@ -1,13 +1,20 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Use <$>" #-}
+
 module Wasp.SemanticVersion.ComparatorSet
   ( ComparatorSet (..),
+    Simple (..),
     comparatorSetParser,
+    simpleParser,
+    hyphenRangeParser,
     lt,
     lte,
     gt,
     gte,
     eq,
     backwardsCompatibleWith,
-    approximatelyEquvivalentTo,
+    approximatelyEquivalentTo,
     xRange,
     hyphenRange,
   )
@@ -18,36 +25,93 @@ import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
   ( Comparator (..),
     PrimitiveOperator (..),
-    hyphenRangeComparatorParser,
-    simpleComparatorParser,
+    primitiveComparatorParser,
+    toXRangeLowerBound,
+    toXRangeUpperBound,
   )
-import Wasp.SemanticVersion.PartialVersion (fromVersion)
-import Wasp.SemanticVersion.Version (Version)
+import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), fromVersion, partialVersionParser)
+import Wasp.SemanticVersion.Version (Version (..))
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
+    VersionBound (..),
     intervalIntersection,
   )
 
--- | Comparators can be joined together to form a comparator set,
--- A comparator set is satisfied by the intersection of all comparators it includes.
--- See: https://github.com/npm/node-semver#ranges
-data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
+-- | A comparator set is either a sequence of simple comparators (AND logic)
+-- or a hyphen range.
+-- See `range` definition here: https://github.com/npm/node-semver#range-grammar
+-- NOTE: Grammar's `range` is our comparator set. And grammar's `range-set` is our range.
+data ComparatorSet
+  = SimpleComparatorSet (NE.NonEmpty Simple)
+  | HyphenRange PartialVersion PartialVersion
+  deriving (Eq)
+
+-- | A simple: primitive, tilde, caret, or x-range.
+-- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
+data Simple
+  = -- | 1.2.3 (=1.2.3), >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
+    Primitive Comparator
+  | -- | X, 1.X, 1.2.X (can use x, X or *)
+    XRange PartialVersion
+  | -- | ~1.2.3
+    Tilde PartialVersion
+  | -- | ^1.2.3
+    Caret PartialVersion
   deriving (Eq)
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator set.
 instance Show ComparatorSet where
-  show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
+  show (SimpleComparatorSet simples) = unwords $ show <$> NE.toList simples
+  show (HyphenRange pv1 pv2) = show pv1 ++ " - " ++ show pv2
 
--- | We define concatenation of two comparator sets as a union of their comparators.
+-- | We rely on this 'show' implementation to produce valid `node-semver` simple comparator.
+instance Show Simple where
+  show (Primitive comp) = show comp
+  show (Tilde pv) = "~" ++ show pv
+  show (Caret pv) = "^" ++ show pv
+  show (XRange pv) = show pv
+
+-- | We define concatenation of two comparator sets as a union of their simples.
+-- Only valid for SimpleComparatorSets.
 instance Semigroup ComparatorSet where
-  (ComparatorSet leftComps) <> (ComparatorSet rightComps) = ComparatorSet $ NE.nub $ leftComps <> rightComps
+  (SimpleComparatorSet left) <> (SimpleComparatorSet right) = SimpleComparatorSet $ NE.nub $ left <> right
+  _ <> _ = error "Cannot combine HyphenRange with other comparator sets"
 
 instance HasVersionBounds ComparatorSet where
-  versionBounds (ComparatorSet comps) = foldr1 intervalIntersection $ versionBounds <$> comps
+  versionBounds (SimpleComparatorSet simples) = foldr1 intervalIntersection $ versionBounds <$> simples
+  versionBounds (HyphenRange lower upper) = (toXRangeLowerBound lower, toXRangeUpperBound upper)
+
+instance HasVersionBounds Simple where
+  versionBounds (Primitive comp) = versionBounds comp
+  versionBounds (XRange pv) =
+    (toXRangeLowerBound pv, toXRangeUpperBound pv)
+  versionBounds (Caret pv) =
+    (toXRangeLowerBound pv, toCaretUpperBound pv)
+    where
+      -- Caret allows changes that don't modify the leftmost non-zero digit.
+      toCaretUpperBound :: PartialVersion -> VersionBound
+      toCaretUpperBound Any = Inf
+      toCaretUpperBound (Major 0) = Exclusive (Version 1 0 0)
+      toCaretUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
+      toCaretUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
+      toCaretUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
+      toCaretUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
+      toCaretUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
+      toCaretUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
+      toCaretUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
+  versionBounds (Tilde pv) =
+    (toXRangeLowerBound pv, toTildeUpperBound pv)
+    where
+      -- Tilde allows patch-level changes if minor is specified.
+      toTildeUpperBound :: PartialVersion -> VersionBound
+      toTildeUpperBound Any = Inf
+      toTildeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
+      toTildeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
+      toTildeUpperBound (MajorMinorPatch mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
 
 -- Helper methods for constructing a 'ComparatorSet'.
 -- While 'Comparator' works with 'PartialVersion' internally, we only use it through 'Version' in our code.
--- To create 'PartialVersion' comparator sets, please use the 'ComparatorSet' constructor directly.
+-- To create 'PartialVersion' comparator sets, please use the 'ComparatorSet' constructors directly.
 
 lt :: Version -> ComparatorSet
 lt = mkPrimCompSet LessThan
@@ -65,39 +129,68 @@ eq :: Version -> ComparatorSet
 eq = mkPrimCompSet Equal
 
 backwardsCompatibleWith :: Version -> ComparatorSet
-backwardsCompatibleWith = ComparatorSet . pure . BackwardsCompatibleWith . fromVersion
+backwardsCompatibleWith = SimpleComparatorSet . pure . Caret . fromVersion
 
-approximatelyEquvivalentTo :: Version -> ComparatorSet
-approximatelyEquvivalentTo = ComparatorSet . pure . ApproximatelyEquivalentTo . fromVersion
+approximatelyEquivalentTo :: Version -> ComparatorSet
+approximatelyEquivalentTo = SimpleComparatorSet . pure . Tilde . fromVersion
 
 xRange :: Version -> ComparatorSet
-xRange = ComparatorSet . pure . XRange . fromVersion
+xRange = SimpleComparatorSet . pure . XRange . fromVersion
 
 hyphenRange :: Version -> Version -> ComparatorSet
-hyphenRange rv1 rv2 = ComparatorSet . pure $ HyphenRange (fromVersion rv1) (fromVersion rv2)
+hyphenRange v1 v2 = HyphenRange (fromVersion v1) (fromVersion v2)
 
 mkPrimCompSet :: PrimitiveOperator -> Version -> ComparatorSet
-mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op . fromVersion
+mkPrimCompSet op = SimpleComparatorSet . pure . Primitive . PrimitiveComparator op . fromVersion
 
--- | Parses a comparator set: either a single hyphen range comparator or
+-- | Parses a single non-hyphen comparator (primitive, tilde, caret, or x-range).
+-- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
+simpleParser :: P.Parsec String () Simple
+simpleParser =
+  P.choice
+    [ tildeParser,
+      caretParser,
+      xRangeParser,
+      primitiveParser
+    ]
+  where
+    tildeParser :: P.Parsec String () Simple
+    tildeParser = Tilde <$> (P.char '~' *> partialVersionParser)
+
+    caretParser :: P.Parsec String () Simple
+    caretParser = Caret <$> (P.char '^' *> partialVersionParser)
+
+    xRangeParser :: P.Parsec String () Simple
+    xRangeParser = XRange <$> partialVersionParser
+
+    primitiveParser :: P.Parsec String () Simple
+    primitiveParser = Primitive <$> primitiveComparatorParser
+
+-- | Parses a hyphen range: two partial versions separated by " - ".
+-- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
+hyphenRangeParser :: P.Parsec String () ComparatorSet
+hyphenRangeParser = do
+  lowerVersion <- partialVersionParser
+  _ <- P.space *> P.char '-' <* P.space
+  upperVersion <- partialVersionParser
+  pure $ HyphenRange lowerVersion upperVersion
+
+-- | Parses a comparator set: either a single hyphen range or
 -- one or more simple comparators separated by spaces.
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
 -- NOTE: Grammar's `range` is our comparator set. And grammar's `range-set` is our range.
 comparatorSetParser :: P.Parsec String () ComparatorSet
 comparatorSetParser =
   P.choice
-    [ hyphenRangeComparatorSetParser,
+    [ P.try hyphenRangeParser,
       simpleComparatorSetParser
     ]
   where
-    hyphenRangeComparatorSetParser :: P.Parsec String () ComparatorSet
-    hyphenRangeComparatorSetParser = ComparatorSet . pure <$> P.try hyphenRangeComparatorParser
-
     simpleComparatorSetParser :: P.Parsec String () ComparatorSet
     simpleComparatorSetParser = do
-      first <- simpleComparatorParser
-      rest <- P.many $ P.try (spacesBetweenComparatorsParser *> simpleComparatorParser)
-      pure $ ComparatorSet (NE.fromList (first : rest))
+      first <- simpleParser
+      rest <- P.many $ P.try (spacesBetweenComparatorsParser *> simpleParser)
+      pure $ SimpleComparatorSet (NE.fromList (first : rest))
 
     -- Consumes whitespace only when it separates comparators.
     spacesBetweenComparatorsParser :: P.Parsec String () ()
