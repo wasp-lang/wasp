@@ -58,15 +58,15 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
         [ Interactive.Option
             "gpt-5-mini (planning + coding)"
             (Just "Good results. Cheap and fast. Best cost/benefit ratio.")
-            (ChatGPT.GPT_5_mini, ChatGPT.GPT_5_mini),
+            (ChatGPT.Model "gpt-5-mini", ChatGPT.Model "gpt-5-mini"),
           Interactive.Option
             "gpt-5 (planning) + gpt-5-mini (coding)"
             (Just "Better planning results. Good cost/benefit ratio.")
-            (ChatGPT.GPT_5, ChatGPT.GPT_5_mini),
+            (ChatGPT.Model "gpt-5", ChatGPT.Model "gpt-5-mini"),
           Interactive.Option
             "gpt-5 (planning + coding)"
             (Just "Best results, but slower and more expensive.")
-            (ChatGPT.GPT_5, ChatGPT.GPT_5)
+            (ChatGPT.Model "gpt-5", ChatGPT.Model "gpt-5")
         ]
   let projectConfig =
         emptyNewProjectConfig

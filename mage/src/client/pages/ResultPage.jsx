@@ -199,8 +199,7 @@ export const ResultPage = () => {
       !project.name ||
       !project.description ||
       !project.primaryColor ||
-      !project.authMethod ||
-      !project.creativityLevel
+      !project.authMethod
     ) {
       alert("Missing project data");
       return;
@@ -211,7 +210,6 @@ export const ResultPage = () => {
         appDesc: project.description,
         appPrimaryColor: project.primaryColor,
         appAuthMethod: project.authMethod,
-        appCreativityLevel: project.creativityLevel,
       });
       alert("Okay, redirecting to the new attempt");
       navigate(`/result/${appId}`);
@@ -704,7 +702,7 @@ function WarningAboutAI() {
                 Discord
               </a>
               ! You can also try generating the app again to get different
-              results (try playing with the creativity level).
+              results.
             </p>
           </div>
         </div>

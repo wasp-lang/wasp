@@ -43,34 +43,6 @@ const MainPage = () => {
     { enabled: !!user },
   );
 
-  const availableCreativityLevels = useMemo(
-    () => [
-      {
-        value: "conventional",
-        name: "Conventional",
-        description: "Generates sensible code with minimal amount of mistakes.",
-        disabled: false,
-      },
-      {
-        value: "balanced",
-        name: "Balanced",
-        description:
-          "Optimal trade-off between creativity and possible mistakes.",
-        disabled: false,
-      },
-      {
-        value: "creative",
-        name: "Creative",
-        description:
-          "Generates more creative code, but mistakes are more likely.",
-        disabled: false,
-      },
-    ],
-    [],
-  );
-  const [creativityLevel, setCreativityLevel] = useState(
-    availableCreativityLevels.find((lvl) => lvl.value === "balanced"),
-  );
   const availableAuthMethods = useMemo(
     () => [
       {
@@ -115,11 +87,6 @@ const MainPage = () => {
             (method) => method.value === appDetails.appAuthMethod,
           ),
         );
-        setCreativityLevel(
-          availableCreativityLevels.find(
-            (level) => level.value === appDetails.appCreativityLevel,
-          ),
-        );
         localStorage.removeItem("appDetails");
       }
     } catch (error) {
@@ -137,7 +104,7 @@ const MainPage = () => {
           appDesc,
           appPrimaryColor: appPrimaryColor.name,
           appAuthMethod: appAuthMethod.value,
-          appCreativityLevel: creativityLevel.value,
+
         }),
       );
     } catch (error) {
@@ -231,7 +198,7 @@ The simpler and more specific the app is, the better the generated app will be."
               disabled={currentStatus.status === "inProgress"}
             />
           </div>
-          <div className="grid gap-3 md:grid-cols-3">
+          <div className="grid gap-3 md:grid-cols-2">
             <div>
               <label
                 htmlFor="appPrimaryColor"
@@ -243,19 +210,6 @@ The simpler and more specific the app is, the better the generated app will be."
                 value={appPrimaryColor}
                 onChange={setAppPrimaryColor}
                 options={validProjectBrandColors}
-              />
-            </div>
-            <div>
-              <label
-                htmlFor="creativityLevel"
-                className="mb-2 block text-slate-700"
-              >
-                Creativity level
-              </label>
-              <MyDropdown
-                value={creativityLevel}
-                onChange={setCreativityLevel}
-                options={availableCreativityLevels}
               />
             </div>
             <div>

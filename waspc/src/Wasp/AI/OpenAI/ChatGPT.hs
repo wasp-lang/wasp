@@ -18,9 +18,7 @@ where
 import Data.Aeson (FromJSON, ToJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
-import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.List (find)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
@@ -39,7 +37,7 @@ queryChatGPT apiKey params requestMessages = do
           [ "model" .= show (_model params),
             "messages" .= requestMessages
           ]
-            <> ["temperature" .= t | Just t <- pure $ _temperature params, not (isReasoningModel (_model params))]
+            <> ["temperature" .= t | Just t <- pure $ _temperature params]
       request =
         -- 90 seconds should be more than enough for ChatGPT to generate an answer, or reach its own timeout.
         -- If it proves in the future that it might need more time, we can increase this number.
@@ -78,56 +76,16 @@ data ChatGPTParams = ChatGPTParams
   }
   deriving (Show)
 
-data Model
-  = -- GPT-5 flagship model.
-    GPT_5
-  | -- Faster & cheaper version of GPT-5.
-    GPT_5_mini
-  | -- Cheapest & fastest GPT-5 variant.
-    GPT_5_nano
-  | -- Legacy models kept for backward compatibility.
-    GPT_4o
-  | GPT_4o_2024_08_06
-  | GPT_4o_mini
-  | GPT_4o_mini_2024_07_18
-  | GPT_4
-  | GPT_4_0613
-  | GPT_4_turbo
-  | GPT_4_turbo_2024_04_09
-  deriving (Eq, Bounded, Enum)
+-- | Accepts any model name string, letting the OpenAI API validate it.
+newtype Model = Model String
+  deriving (Eq)
 
 instance Show Model where
-  show = modelOpenAiId
-
-modelOpenAiId :: Model -> String
-modelOpenAiId = \case
-  GPT_5 -> "gpt-5"
-  GPT_5_mini -> "gpt-5-mini"
-  GPT_5_nano -> "gpt-5-nano"
-  GPT_4o -> "gpt-4o"
-  GPT_4o_2024_08_06 -> "gpt-4o-2024-08-06"
-  GPT_4o_mini -> "gpt-4o-mini"
-  GPT_4o_mini_2024_07_18 -> "gpt-4o-mini-2024-07-18"
-  GPT_4 -> "gpt-4"
-  GPT_4_0613 -> "gpt-4-0613"
-  GPT_4_turbo -> "gpt-4-turbo"
-  GPT_4_turbo_2024_04_09 -> "gpt-4-turbo-2024-04-09"
-
--- | Reasoning models (GPT-5 family) only support the default temperature (1).
--- Sending any other temperature value results in a 400 Bad Request from OpenAI.
-isReasoningModel :: Model -> Bool
-isReasoningModel = \case
-  GPT_5 -> True
-  GPT_5_mini -> True
-  GPT_5_nano -> True
-  _ -> False
+  show (Model name) = name
 
 instance FromJSON Model where
   parseJSON = Aeson.withText "Model" $ \t ->
-    let t' = T.unpack t
-        models = [minBound .. maxBound]
-     in find ((== t') . modelOpenAiId) models
-          & maybe (fail $ "Invalid GPT model: " <> t') pure
+    pure $ Model (T.unpack t)
 
 data ChatResponse = ChatResponse
   { id :: !String,

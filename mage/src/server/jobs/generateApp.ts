@@ -37,25 +37,8 @@ export const generateApp: GenerateAppJob<
     unconsumedStdout: "",
   };
 
-  let defaultGptTemperature;
-  switch (project.creativityLevel) {
-    case "conventional":
-      defaultGptTemperature = 0.4;
-      break;
-    case "balanced":
-      defaultGptTemperature = 0.7;
-      break;
-    case "creative":
-      defaultGptTemperature = 1.0;
-      break;
-    default:
-      throw new Error(`Unknown creativity level: ${project.creativityLevel}`);
-  }
-
-  // { auth: 'UsernameAndPassword', primaryColor: string, defaultGptTemperature: number }
   const projectConfig = {
     primaryColor: project.primaryColor,
-    defaultGptTemperature,
   };
 
   const stdoutMutex = new Mutex();

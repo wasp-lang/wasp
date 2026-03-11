@@ -85,9 +85,6 @@ function UserProjectsTable({ projects }) {
           <th scope="col" className="px-6 py-3">
             Created At
           </th>
-          <th scope="col" className="px-6 py-3">
-            Creativity lvl
-          </th>
           <th scope="col" className="px-6 py-3"></th>
         </tr>
       </thead>
@@ -134,9 +131,6 @@ function UserProjectsTable({ projects }) {
                 title={`${project.createdAt.toLocaleDateString()} ${project.createdAt.toLocaleTimeString()}`}
               >
                 {format(project.createdAt)}
-              </td>
-              <td className={`px-6 py-4 creativity-${project.creativityLevel}`}>
-                {project.creativityLevel}
               </td>
               <td className="px-6 py-4">
                 <Link
