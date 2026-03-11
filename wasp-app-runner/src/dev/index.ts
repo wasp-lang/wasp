@@ -15,24 +15,24 @@ export async function startAppInDevMode({
   dbType: DbType;
   dbImage: DockerImageName;
 }): Promise<void> {
-  await using db = await setupDb({
+  using db = await setupDb({
     appName,
     dbType,
     pathToApp,
     dbImage,
   });
 
-  const { dbEnvVars } = await db.waitUntilReady();
-
   await waspMigrateDb({
     waspCliCmd,
     pathToApp,
-    extraEnv: dbEnvVars,
+    extraEnv: db.dbEnvVars,
   });
 
-  await waspStart({
+  using wasp = await waspStart({
     waspCliCmd,
     pathToApp,
-    extraEnv: dbEnvVars,
+    extraEnv: db.dbEnvVars,
   });
+
+  await wasp.proc.wait();
 }

@@ -24,29 +24,30 @@ export async function startAppInBuildMode({
     pathToApp,
   });
 
-  await using db = await setupDb({
+  using db = await setupDb({
     appName,
     dbType,
     pathToApp,
     dbImage,
   });
-  const { dbEnvVars } = await db.waitUntilReady();
 
-  await using _smtp = startLocalSmtpServer();
+  using _smtp = await startLocalSmtpServer();
 
   const serverEnvVars: EnvVars = {
     JWT_SECRET: "some-jwt-secret",
-    ...dbEnvVars,
+    ...db.dbEnvVars,
   };
 
   const serverEnvFile = path.resolve(pathToApp, ".env.server");
   const clientEnvFile = path.resolve(pathToApp, ".env.client");
 
-  await waspBuildStart({
+  using wasp = await waspBuildStart({
     waspCliCmd,
     pathToApp,
     serverEnvVars,
     serverEnvFile: doesFileExist(serverEnvFile) ? serverEnvFile : undefined,
     clientEnvFile: doesFileExist(clientEnvFile) ? clientEnvFile : undefined,
   });
+
+  await wasp.proc.wait();
 }
