@@ -734,6 +734,7 @@ test-suite waspc-tests
     Node.InternalTest
     Paths_waspc
     Project.DbTest
+    Project.ExternalConfigTest
     Project.WaspignoreTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
