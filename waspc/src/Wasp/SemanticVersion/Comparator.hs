@@ -47,13 +47,13 @@ instance HasVersionBounds Comparator where
       Any -> noVersionsInterval
       (Major mjr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr 0 0)
       (MajorMinor mjr mnr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr 0)
-      (Full mjr mnr ptc) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr ptc)
+      (MajorMinorPatch mjr mnr ptc) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr ptc)
     LessThanOrEqual -> (Inclusive $ Version 0 0 0, toXRangeUpperBound pv)
     GreaterThan -> case pv of
       Any -> noVersionsInterval
       (Major mjr) -> (Inclusive $ Version (mjr + 1) 0 0, Inf)
       (MajorMinor mjr mnr) -> (Inclusive $ Version mjr (mnr + 1) 0, Inf)
-      (Full mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
+      (MajorMinorPatch mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
     GreaterThanOrEqual -> (toXRangeLowerBound pv, Inf)
   versionBounds (XRange pv) =
     (toXRangeLowerBound pv, toXRangeUpperBound pv)
@@ -70,9 +70,9 @@ instance HasVersionBounds Comparator where
       toCaretUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
       toCaretUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
       toCaretUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
-      toCaretUpperBound (Full 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
-      toCaretUpperBound (Full 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
-      toCaretUpperBound (Full mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
+      toCaretUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
+      toCaretUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
+      toCaretUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
   versionBounds (ApproximatelyEquivalentTo pv) =
     (toXRangeLowerBound pv, toTildeUpperBound pv)
     where
@@ -81,19 +81,19 @@ instance HasVersionBounds Comparator where
       toTildeUpperBound Any = Inf
       toTildeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
       toTildeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
-      toTildeUpperBound (Full mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
+      toTildeUpperBound (MajorMinorPatch mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
 
 toXRangeUpperBound :: PartialVersion -> VersionBound
 toXRangeUpperBound Any = Inf
 toXRangeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
 toXRangeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
-toXRangeUpperBound (Full mjr mnr ptc) = Inclusive (Version mjr mnr ptc)
+toXRangeUpperBound (MajorMinorPatch mjr mnr ptc) = Inclusive (Version mjr mnr ptc)
 
 toXRangeLowerBound :: PartialVersion -> VersionBound
 toXRangeLowerBound Any = Inclusive $ Version 0 0 0
 toXRangeLowerBound (Major mjr) = Inclusive $ Version mjr 0 0
 toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr mnr 0
-toXRangeLowerBound (Full mjr mnr ptc) = Inclusive $ Version mjr mnr ptc
+toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr ptc
 
 data PrimitiveOperator
   = Equal

@@ -26,7 +26,7 @@ import Wasp.Util.TH (quasiQuoterFromParser)
 -- 'PartialVersion' can represent partial/wildcard versions as they appear in a range.
 data PartialVersion
   = -- | Major, minor and patch version (e.g. 1.2.3).
-    Full !Natural !Natural !Natural
+    MajorMinorPatch !Natural !Natural !Natural
   | -- | Major and minor version only (e.g. 1.2).
     MajorMinor !Natural !Natural
   | -- | Major version only (e.g. 1).
@@ -37,13 +37,13 @@ data PartialVersion
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` partial version.
 instance Show PartialVersion where
-  show (Full mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
+  show (MajorMinorPatch mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
   show (MajorMinor mjr mnr) = printf "%d.%d" mjr mnr
   show (Major mjr) = printf "%d" mjr
   show Any = "*"
 
 fromVersion :: Version -> PartialVersion
-fromVersion (Version mjr mnr ptc) = Full mjr mnr ptc
+fromVersion (Version mjr mnr ptc) = MajorMinorPatch mjr mnr ptc
 
 pv :: TH.QuasiQuoter
 pv = quasiQuoterFromParser parsePartialVersion
@@ -65,7 +65,7 @@ partialVersionParser = do
     [Just mjr, Nothing, Nothing] -> pure (Major mjr) -- "1.x.x"
     [Just mjr, Just mnr] -> pure (MajorMinor mjr mnr) -- "1.2"
     [Just mjr, Just mnr, Nothing] -> pure (MajorMinor mjr mnr) -- "1.2.x"
-    [Just mjr, Just mnr, Just ptc] -> pure (Full mjr mnr ptc) -- "1.2.3"
+    [Just mjr, Just mnr, Just ptc] -> pure (MajorMinorPatch mjr mnr ptc) -- "1.2.3"
     [Nothing, _, _] -> fail "wildcard must be the only component"
     [_, Nothing, Just _] -> fail "patch cannot be specified if minor is wildcard"
     _ -> fail "invalid version form"
