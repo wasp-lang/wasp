@@ -2,8 +2,7 @@ import * as path from "path";
 import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
 import { doesFileExist } from "../files.js";
-import { createLogger } from "../logging.js";
-import { Process } from "../process.js";
+import { handleRunAndExit } from "../server.js";
 import { startLocalSmtpServer } from "../smtp.js";
 import { EnvVars } from "../types.js";
 import { type AppName, waspBuild, waspBuildStart } from "../waspCli.js";
@@ -55,23 +54,5 @@ export async function startAppInBuildMode({
     clientEnvFile: doesFileExist(clientEnvFile) ? clientEnvFile : undefined,
   });
 
-  if (run) {
-    await new Process({
-      logger: createLogger("run"),
-      cmd: process.env.SHELL ?? "sh",
-      args: ["-c", run],
-      env: {
-        client_url: "http://localhost:3000",
-        server_url: "http://localhost:3001",
-      },
-    })
-      .print()
-      .wait();
-  }
-
-  if (exit) {
-    return;
-  } else {
-    await wasp.proc.wait();
-  }
+  await handleRunAndExit(wasp, { run, exit });
 }

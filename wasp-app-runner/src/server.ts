@@ -1,4 +1,4 @@
-import { Logger } from "./logging.js";
+import { createLogger, Logger } from "./logging.js";
 import { Process } from "./process.js";
 
 export interface Server<T = unknown> extends Disposable {
@@ -43,5 +43,28 @@ export async function startServer<T>(
   } catch (error) {
     proc.kill();
     throw error;
+  }
+}
+
+export async function handleRunAndExit(
+  server: Server,
+  { run, exit }: { run?: string; exit: boolean },
+): Promise<void> {
+  if (run) {
+    await new Process({
+      logger: createLogger("run"),
+      cmd: process.env.SHELL ?? "sh",
+      args: ["-c", run],
+      env: {
+        client_url: "http://localhost:3000",
+        server_url: "http://localhost:3001",
+      },
+    })
+      .print()
+      .wait();
+  }
+
+  if (!exit) {
+    await server.proc.wait();
   }
 }
