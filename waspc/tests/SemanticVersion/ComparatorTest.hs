@@ -111,6 +111,8 @@ spec_SemanticVersion_Comparator = do
       isLeft (strictParseHyphenRangeComp "1.2") `shouldBe` True
       isLeft (strictParseHyphenRangeComp "1.2 - ") `shouldBe` True
       isLeft (strictParseHyphenRangeComp "1.2 - a") `shouldBe` True
+      isLeft (strictParseHyphenRangeComp "1.2 -  3.4") `shouldBe` True
+      isLeft (strictParseHyphenRangeComp "1.2  - 3.4") `shouldBe` True
       isLeft (strictParseHyphenRangeComp "1.2-3.4") `shouldBe` True
 
   describe "versionBounds" $ do
