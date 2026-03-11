@@ -70,7 +70,7 @@ import Wasp.Project.DepVersions
     superjsonVersion,
     typescriptVersion,
   )
-import Wasp.Project.NpmWorkspaces (serverPackageName)
+import Wasp.Generator.NpmWorkspaces (serverPackageName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
 

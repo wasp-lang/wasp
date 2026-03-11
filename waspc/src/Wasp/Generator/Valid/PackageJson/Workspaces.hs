@@ -7,7 +7,7 @@ import Data.Bool (bool)
 import Data.List (intercalate)
 import qualified Data.Set as S
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import qualified Wasp.Project.NpmWorkspaces as NW
+import qualified Wasp.Generator.NpmWorkspaces as NW
 import qualified Wasp.Validator as V
 
 type WorkspaceName = String

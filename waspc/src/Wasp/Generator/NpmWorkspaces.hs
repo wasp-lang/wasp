@@ -1,4 +1,4 @@
-module Wasp.Project.NpmWorkspaces
+module Wasp.Generator.NpmWorkspaces
   ( serverPackageName,
     webAppPackageName,
     requiredWorkspaceGlobs,
@@ -10,7 +10,6 @@ import Data.Set (Set, fromList)
 import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
--- TODO: This import is a problem
 import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir)
 import Wasp.Project.Common
   ( WaspProjectDir,
