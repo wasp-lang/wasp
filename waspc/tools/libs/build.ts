@@ -5,7 +5,7 @@
 import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { discoverLibDirs, getLibPackageJson, runCmd } from "./utils.ts";
+import { discoverSubDirs, getPackageJson, runCmd } from "../utils.ts";
 
 const waspcDirPath = fileURLToPath(new URL("../..", import.meta.url));
 const dataLibsDirPath = join(waspcDirPath, "data", "Generator", "libs");
@@ -14,7 +14,7 @@ const waspcVersion = getWaspcVersion();
 buildLibs();
 
 function buildLibs(): void {
-  const libDirs = discoverLibDirs(dataLibsDirPath);
+  const libDirs = discoverSubDirs(dataLibsDirPath);
 
   for (const libDir of libDirs) {
     buildLib(libDir);
@@ -22,7 +22,7 @@ function buildLibs(): void {
 }
 
 function buildLib(libDir: string): void {
-  const { name: libName, version: libVersion } = getLibPackageJson(libDir);
+  const { name: libName, version: libVersion } = getPackageJson(libDir);
 
   assertLibVersionValid(libName, libVersion);
 

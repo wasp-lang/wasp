@@ -51,6 +51,10 @@ jobs:
     uses: ./.github/workflows/ci-libs-test.yaml
     secrets: inherit
 
+  packages-test:
+    uses: ./.github/workflows/ci-packages-test.yaml
+    secrets: inherit
+
   waspc-build:
     uses: ./.github/workflows/ci-waspc-build.yaml
     secrets: inherit
