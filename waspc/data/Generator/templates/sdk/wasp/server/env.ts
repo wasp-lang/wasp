@@ -93,13 +93,15 @@ const waspServerCommonSchema = z.object({
   KEYCLOAK_CLIENT_SECRET: z.string({
     error: getRequiredEnvVarErrorMessage('Keycloak auth provider', 'KEYCLOAK_CLIENT_SECRET'),
   }),
-  KEYCLOAK_REALM_URL: z
-    .string({
+  KEYCLOAK_REALM_URL:
+    z.string({
       error: getRequiredEnvVarErrorMessage('Keycloak auth provider', 'KEYCLOAK_REALM_URL'),
     })
-    .url({
-      error: 'KEYCLOAK_REALM_URL must be a valid URL',
-    }),
+    .pipe(
+      z.url({
+        error: 'KEYCLOAK_REALM_URL must be a valid URL',
+      })
+    ),
   {=/ enabledAuthProviders.isKeycloakAuthEnabled =}
   {=# enabledAuthProviders.isMicrosoftAuthEnabled =}
   MICROSOFT_TENANT_ID: z.string({
@@ -115,21 +117,25 @@ const waspServerCommonSchema = z.object({
   {=/ isAuthEnabled =}
 })
 
-const serverUrlSchema = z
-  .string({
+const serverUrlSchema =
+  z.string({
     error: '{= serverUrlEnvVarName =} is required',
   })
-  .url({
-    error: '{= serverUrlEnvVarName =} must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: '{= serverUrlEnvVarName =} must be a valid URL',
+    })
+  )
 
-const clientUrlSchema = z
-  .string({
+const clientUrlSchema =
+  z.string({
     error: '{= clientUrlEnvVarName =} is required',
   })
-  .url({
-    error: '{= clientUrlEnvVarName =} must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: '{= clientUrlEnvVarName =} must be a valid URL',
+    })
+  )
 
 {=# isAuthEnabled =}
 const jwtTokenSchema = z

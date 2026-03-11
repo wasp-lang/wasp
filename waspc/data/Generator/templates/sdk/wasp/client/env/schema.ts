@@ -9,13 +9,15 @@ const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
 const userClientEnvSchema = z.object({})
 {=/ envValidationSchema.isDefined =}
 
-const serverUrlSchema = z
-  .string({
+const serverUrlSchema =
+  z.string({
     error: '{= serverUrlEnvVarName =} is required',
   })
-  .url({
-    error: '{= serverUrlEnvVarName =} must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: '{= serverUrlEnvVarName =} must be a valid URL',
+    })
+  )
 
 const waspClientDevSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema
