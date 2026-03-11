@@ -37,6 +37,14 @@ data Comparator
     HyphenRange PartialVersion PartialVersion
   deriving (Eq)
 
+data PrimitiveOperator
+  = Equal
+  | LessThan
+  | LessThanOrEqual
+  | GreaterThan
+  | GreaterThanOrEqual
+  deriving (Eq)
+
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
 instance Show Comparator where
   show (PrimitiveComparator op pv) = show op ++ show pv
@@ -44,6 +52,16 @@ instance Show Comparator where
   show (ApproximatelyEquivalentTo pv) = "~" ++ show pv
   show (XRange pv) = show pv
   show (HyphenRange pv1 pv2) = show pv1 ++ " - " ++ show pv2
+
+-- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
+instance Show PrimitiveOperator where
+  -- Equal shows as "" because both "=1.2.3" and "1.2.3" are valid,
+  -- and the canonical form omits the "=".
+  show Equal = ""
+  show LessThan = "<"
+  show LessThanOrEqual = "<="
+  show GreaterThan = ">"
+  show GreaterThanOrEqual = ">="
 
 instance HasVersionBounds Comparator where
   versionBounds (PrimitiveComparator primOp pv) = case primOp of
@@ -99,24 +117,6 @@ toXRangeLowerBound Any = Inclusive $ Version 0 0 0
 toXRangeLowerBound (Major mjr) = Inclusive $ Version mjr 0 0
 toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr mnr 0
 toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr ptc
-
-data PrimitiveOperator
-  = Equal
-  | LessThan
-  | LessThanOrEqual
-  | GreaterThan
-  | GreaterThanOrEqual
-  deriving (Eq)
-
--- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
-instance Show PrimitiveOperator where
-  -- Equal shows as "" because both "=1.2.3" and "1.2.3" are valid,
-  -- and the canonical form omits the "=".
-  show Equal = ""
-  show LessThan = "<"
-  show LessThanOrEqual = "<="
-  show GreaterThan = ">"
-  show GreaterThanOrEqual = ">="
 
 -- | Parses a single hyphen range comparator.
 -- Separated from 'simpleComparatorParser' because hyphen ranges cannot be
