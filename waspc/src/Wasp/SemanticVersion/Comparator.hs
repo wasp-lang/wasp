@@ -25,11 +25,16 @@ import Wasp.SemanticVersion.VersionBound
 -- It represents a single version constraint in a range.
 -- See: https://github.com/npm/node-semver#ranges
 data Comparator
-  = PrimitiveComparator PrimitiveOperator PartialVersion
-  | BackwardsCompatibleWith PartialVersion
-  | ApproximatelyEquivalentTo PartialVersion
-  | XRange PartialVersion
-  | HyphenRange PartialVersion PartialVersion
+  = -- | =1.2.3, >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
+    PrimitiveComparator PrimitiveOperator PartialVersion
+  | -- | ^1.2.3
+    BackwardsCompatibleWith PartialVersion
+  | -- | ~1.2.3
+    ApproximatelyEquivalentTo PartialVersion
+  | -- | X, 1.X, 1.2.X (can use x/X/*)
+    XRange PartialVersion
+  | -- | 1.2.3 - 1.2.3
+    HyphenRange PartialVersion PartialVersion
   deriving (Eq)
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
