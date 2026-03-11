@@ -1,5 +1,5 @@
 import { $ } from "execa";
-import { text } from "node:stream/consumers";
+import * as streamConsumers from "node:stream/consumers";
 import { createLogger, type Logger } from "./logging.js";
 import { shutdownSignal } from "./shutdown.js";
 import type { EnvVars } from "./types.js";
@@ -72,8 +72,12 @@ export class Process {
 
   async collect(): Promise<ProcessResult> {
     const [stdout, stderr, { exitCode }] = await Promise.all([
-      this.#proc.stdout ? text(this.#proc.stdout) : Promise.resolve(""),
-      this.#proc.stderr ? text(this.#proc.stderr) : Promise.resolve(""),
+      this.#proc.stdout
+        ? streamConsumers.text(this.#proc.stdout)
+        : Promise.resolve(""),
+      this.#proc.stderr
+        ? streamConsumers.text(this.#proc.stderr)
+        : Promise.resolve(""),
       this.#closePromise,
     ]);
 

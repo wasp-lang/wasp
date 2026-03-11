@@ -29,7 +29,7 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@types/node": "^22.15.12",
+    "@types/node": "^22.19.15",
     "@types/semver": "^7.7.1",
     "typescript": "^5.8.3"
   }
