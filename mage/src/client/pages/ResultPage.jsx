@@ -21,6 +21,10 @@ import {
   useQuery,
 } from "wasp/client/operations";
 
+import {
+  USD_PER_MILLION_INPUT_TOKENS,
+  USD_PER_MILLION_OUTPUT_TOKENS,
+} from "../../config/aiModels";
 import { CodeHighlight } from "../components/CodeHighlight";
 import { MyDialog } from "../components/Dialog";
 import { Faq } from "../components/Faq";
@@ -474,15 +478,13 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
     );
   }
 
-  function calcCostForGpt_4o(numTokensSpent) {
+  function estimateGenerationCost(numTokensSpent) {
     const estimatedInputTokenShare = 0.8;
     const estimatedOutputTokenShare = 1 - estimatedInputTokenShare;
-    const costInUsdForMillionInputTokens = 5.0; // This is price for gpt-4o-2024-05-13.
-    const costInUsdForMillionOutputTokens = 15.0; // This is price for gpt-4o-2024-05-13.
-    const costInUsdForMillionTokens =
-      costInUsdForMillionInputTokens * estimatedInputTokenShare +
-      costInUsdForMillionOutputTokens * estimatedOutputTokenShare;
-    return ((numTokensSpent / 1e6) * costInUsdForMillionTokens).toFixed(2);
+    const costPerMillionTokens =
+      USD_PER_MILLION_INPUT_TOKENS * estimatedInputTokenShare +
+      USD_PER_MILLION_OUTPUT_TOKENS * estimatedOutputTokenShare;
+    return ((numTokensSpent / 1e6) * costPerMillionTokens).toFixed(2);
   }
 
   return (
@@ -518,7 +520,7 @@ export function OnSuccessModal({ isOpen, setIsOpen, appGenerationResult }) {
                 </td>
                 <td className="p-2 text-gray-600">
                   {" "}
-                  <FormattedText>{`~$${calcCostForGpt_4o(Number(numTokensSpent))}`}</FormattedText>{" "}
+                  <FormattedText>{`~$${estimateGenerationCost(Number(numTokensSpent))}`}</FormattedText>{" "}
                 </td>
               </tr>
               {numTotalProjects && (

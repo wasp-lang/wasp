@@ -127,7 +127,6 @@ const MainPage = () => {
         appDesc,
         appPrimaryColor: appPrimaryColor.name,
         appAuthMethod: appAuthMethod.value,
-        appCreativityLevel: creativityLevel.value,
       });
       navigate(`/result/${appId}`);
     } catch (e) {

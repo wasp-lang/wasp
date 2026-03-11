@@ -3,6 +3,7 @@ import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 import { GenerateAppJob } from "wasp/server/jobs";
 
+import { CODING_MODEL, PLANNING_MODEL } from "../../config/aiModels.js";
 import { log } from "./utils.js";
 
 const appGenerationResults: Record<string, any> = {};
@@ -39,6 +40,8 @@ export const generateApp: GenerateAppJob<
 
   const projectConfig = {
     primaryColor: project.primaryColor,
+    planningGptModel: PLANNING_MODEL,
+    codingGptModel: CODING_MODEL,
   };
 
   const stdoutMutex = new Mutex();
