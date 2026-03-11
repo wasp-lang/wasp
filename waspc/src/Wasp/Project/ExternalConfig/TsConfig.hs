@@ -1,45 +1,30 @@
 module Wasp.Project.ExternalConfig.TsConfig
-  ( readSrcTsConfigFile,
+  ( findAndParseTsConfigFile,
     validateSrcTsConfig,
+    validateRootTsConfig,
+    validateWaspTsConfig,
   )
 where
 
-import Control.Arrow (left)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
-import qualified Data.ByteString.Lazy.UTF8 as BS
 import Data.Either.Extra (maybeToEither)
-import StrongPath (Abs, Dir, File, Path', Rel, basename, fromRelFile, toFilePath)
+import StrongPath (Abs, Dir, File, Path', Rel, fromRelFile, toFilePath)
+import Wasp.ExternalConfig.TsConfig (TsConfigFile, parseTsConfigFile)
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Project.Common
-  ( CompileError,
-    SrcTsConfigFile,
-    WaspProjectDir,
-    findFileInWaspProjectDir,
-  )
-import Wasp.Util (indent)
-import qualified Wasp.Util.IO as IOUtil
-import Wasp.Util.Json (parseJsonWithComments)
+import Wasp.Project.Common (CompileError, WaspProjectDir, findFileInWaspProjectDir)
 import qualified Wasp.Validator as V
 
-readSrcTsConfigFile ::
+findAndParseTsConfigFile ::
+  (TsConfigFile f) =>
   Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
+  Path' (Rel WaspProjectDir) (File f) ->
   IO (Either String T.TsConfig)
-readSrcTsConfigFile waspDir srcTsConfigPath = runExceptT $ do
-  tsConfigFileContents <- ExceptT findTsConfigOrError
-  ExceptT $ readTsConfigFile tsConfigFileContents
+findAndParseTsConfigFile waspDir srcTsConfigPath = runExceptT $ do
+  tsConfigFile <- ExceptT findTsConfigOrError
+  ExceptT $ parseTsConfigFile tsConfigFile
   where
     findTsConfigOrError = maybeToEither fileNotFoundMessage <$> findFileInWaspProjectDir waspDir srcTsConfigPath
-    fileNotFoundMessage = "Couldn't find the tsconfig.json file in the " ++ toFilePath waspDir ++ " directory"
-
-readTsConfigFile :: Path' Abs (File SrcTsConfigFile) -> IO (Either String T.TsConfig)
-readTsConfigFile tsConfigFile = do
-  tsConfigContent <- IOUtil.readFileBytes tsConfigFile
-  parseResult <- parseJsonWithComments . BS.toString $ tsConfigContent
-  return $ left ((errorMessagePrefix ++) . indent 2) parseResult
-  where
-    errorMessagePrefix = "Failed to parse '" ++ baseTsConfigFilePath ++ "':\n"
-    baseTsConfigFilePath = fromRelFile (basename tsConfigFile)
+    fileNotFoundMessage = "Couldn't find " ++ fromRelFile srcTsConfigPath ++ " in the " ++ toFilePath waspDir ++ " directory"
 
 validateSrcTsConfig :: T.TsConfig -> [CompileError]
 validateSrcTsConfig config =
@@ -56,7 +41,7 @@ validateSrcTsConfig config =
       V.withFileName "tsconfig.json" $
         V.all
           [ V.inField ("include", T.include) $ V.eqJust ["src"],
-            V.inField ("compilerOptions", T.compilerOptions) compilerOptionsValidator
+            V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
           ]
 
     compilerOptionsValidator :: V.Validator T.CompilerOptions
@@ -85,4 +70,46 @@ validateSrcTsConfig config =
           -- (i.e., web app and server reference user code as a subproject)
           V.inField ("composite", T.composite) $ V.eqJust True,
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True
+        ]
+
+-- TODO: remove hardcoded and duplicated paths paths
+validateRootTsConfig :: T.TsConfig -> [CompileError]
+validateRootTsConfig config =
+  show <$> V.execValidator rootTsConfigValidator config
+  where
+    rootTsConfigValidator :: V.Validator T.TsConfig
+    rootTsConfigValidator =
+      V.withFileName "tsconfig.json" $
+        V.all
+          [ V.inField ("files", T.files) $ V.eqJust [],
+            V.inField ("references", T.references) $
+              V.eqJust
+                [ T.TsConfigReference {T.path = "./tsconfig.src.json"},
+                  T.TsConfigReference {T.path = "./tsconfig.wasp.json"}
+                ]
+          ]
+
+validateWaspTsConfig :: T.TsConfig -> [CompileError]
+validateWaspTsConfig config =
+  show <$> V.execValidator waspTsConfigValidator config
+  where
+    waspTsConfigValidator :: V.Validator T.TsConfig
+    waspTsConfigValidator =
+      V.withFileName "tsconfig.wasp.json" $
+        V.all
+          [ V.inField ("include", T.include) $ V.eqJust ["main.wasp.ts"],
+            V.inField ("compilerOptions", T.compilerOptions) $ V.required waspCompilerOptionsValidator
+          ]
+
+    waspCompilerOptionsValidator :: V.Validator T.CompilerOptions
+    waspCompilerOptionsValidator =
+      V.all
+        [ V.inField ("target", T.target) $ V.eqJust "ES2022",
+          V.inField ("module", T._module) $ V.eqJust "NodeNext",
+          V.inField ("strict", T.strict) $ V.eqJust True,
+          V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
+          V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
+          V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
+          V.inField ("noEmit", T.noEmit) $ V.eqJust True,
+          V.inField ("lib", T.lib) $ V.eqJust ["ES2023"]
         ]

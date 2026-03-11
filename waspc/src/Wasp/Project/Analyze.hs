@@ -27,7 +27,8 @@ import Wasp.Project.Common
     WaspFilePath (..),
     WaspProjectDir,
     findFileInWaspProjectDir,
-    getSrcTsConfigInWaspProjectDir,
+    getTsConfigStructureForWaspProject,
+    srcTsConfig,
     prismaSchemaFileInWaspProjectDir,
   )
 import Wasp.Project.Db (makeDevDatabaseUrl)
@@ -59,8 +60,8 @@ analyzeWaspProject waspDir compileOptions = do
         (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
         -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
         (Right prismaSchemaAst, _) -> do
-          let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
-          EC.parseExternalConfigs waspDir srcTsConfigPath >>= \case
+          let tsConfigStructure =  getTsConfigStructureForWaspProject waspFilePath
+          EC.parseExternalConfigs waspDir tsConfigStructure >>= \case
             Left externalConfigErrors -> return (Left externalConfigErrors, [])
             Right externalConfigs ->
               analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
@@ -72,7 +73,7 @@ analyzeWaspProject waspDir compileOptions = do
                     externalConfigs
                     prismaSchemaAst
                     declarations
-                    srcTsConfigPath
+                    (srcTsConfig tsConfigStructure)
 
 constructAppSpec ::
   Path' Abs (Dir WaspProjectDir) ->
