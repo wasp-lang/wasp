@@ -7,16 +7,16 @@ import Wasp.SemanticVersion.PartialVersion
 spec_SemanticVersion_PartialVersion :: Spec
 spec_SemanticVersion_PartialVersion = do
   it "show" $ do
-    show (Full 1 2 3) `shouldBe` "1.2.3"
+    show (MajorMinorPatch 1 2 3) `shouldBe` "1.2.3"
     show (MajorMinor 1 2) `shouldBe` "1.2"
     show (Major 1) `shouldBe` "1"
     show Any `shouldBe` "*"
 
   describe "parsePartialVersion" $ do
     it "parses major.minor.patch versions" $ do
-      parsePartialVersion "1.2.3" `shouldBe` Right (Full 1 2 3)
-      parsePartialVersion "0.0.0" `shouldBe` Right (Full 0 0 0)
-      parsePartialVersion "103.20.35" `shouldBe` Right (Full 103 20 35)
+      parsePartialVersion "1.2.3" `shouldBe` Right (MajorMinorPatch 1 2 3)
+      parsePartialVersion "0.0.0" `shouldBe` Right (MajorMinorPatch 0 0 0)
+      parsePartialVersion "103.20.35" `shouldBe` Right (MajorMinorPatch 103 20 35)
 
     it "parses major.minor versions" $ do
       parsePartialVersion "1.2" `shouldBe` Right (MajorMinor 1 2)
@@ -64,8 +64,8 @@ spec_SemanticVersion_PartialVersion = do
 
   describe "pv quasi quoter" $ do
     it "creates major.minor.patch versions" $ do
-      [pv|1.2.3|] `shouldBe` Full 1 2 3
-      [pv|0.0.0|] `shouldBe` Full 0 0 0
+      [pv|1.2.3|] `shouldBe` MajorMinorPatch 1 2 3
+      [pv|0.0.0|] `shouldBe` MajorMinorPatch 0 0 0
 
     it "creates major.minor versions" $ do
       [pv|1.2|] `shouldBe` MajorMinor 1 2

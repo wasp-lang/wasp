@@ -26,7 +26,7 @@ import Wasp.Util.TH (quasiQuoterFromParser)
 -- 'PartialVersion' can represent partial/wildcard versions as they appear in a range.
 data PartialVersion
   = -- | Major, minor and patch version (e.g. 1.2.3).
-    Full !Natural !Natural !Natural
+    MajorMinorPatch !Natural !Natural !Natural
   | -- | Major and minor version only (e.g. 1.2).
     MajorMinor !Natural !Natural
   | -- | Major version only (e.g. 1).
@@ -37,13 +37,13 @@ data PartialVersion
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` partial version.
 instance Show PartialVersion where
-  show (Full mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
+  show (MajorMinorPatch mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
   show (MajorMinor mjr mnr) = printf "%d.%d" mjr mnr
   show (Major mjr) = printf "%d" mjr
   show Any = "*"
 
 fromVersion :: Version -> PartialVersion
-fromVersion (Version mjr mnr ptc) = Full mjr mnr ptc
+fromVersion (Version mjr mnr ptc) = MajorMinorPatch mjr mnr ptc
 
 pv :: TH.QuasiQuoter
 pv = quasiQuoterFromParser parsePartialVersion
@@ -59,19 +59,21 @@ partialVersionParser = do
   maybeMaybePatch <- P.optionMaybe $ P.try (P.char '.' *> versionComponentParser)
   let versionComponents = maybeMajor : catMaybes [maybeMaybeMinor, maybeMaybePatch]
   case versionComponents of
-    [Nothing] -> pure Any -- "*" / "x" / "X"
-    [Just mjr] -> pure (Major mjr) -- "1"
-    [Just mjr, Nothing] -> pure (Major mjr) -- "1.x"
-    [Just mjr, Nothing, Nothing] -> pure (Major mjr) -- "1.x.x"
-    [Just mjr, Just mnr] -> pure (MajorMinor mjr mnr) -- "1.2"
-    [Just mjr, Just mnr, Nothing] -> pure (MajorMinor mjr mnr) -- "1.2.x"
-    [Just mjr, Just mnr, Just ptc] -> pure (Full mjr mnr ptc) -- "1.2.3"
-    [Nothing, _, _] -> fail "wildcard must be the only component"
-    [_, Nothing, Just _] -> fail "patch cannot be specified if minor is wildcard"
+    [Wildcard] -> pure Any -- "*" / "x" / "X"
+    [Number mjr] -> pure (Major mjr) -- "1"
+    [Number mjr, Wildcard] -> pure (Major mjr) -- "1.x"
+    [Number mjr, Wildcard, Wildcard] -> pure (Major mjr) -- "1.x.x"
+    [Number mjr, Number mnr] -> pure (MajorMinor mjr mnr) -- "1.2"
+    [Number mjr, Number mnr, Wildcard] -> pure (MajorMinor mjr mnr) -- "1.2.x"
+    [Number mjr, Number mnr, Number ptc] -> pure (MajorMinorPatch mjr mnr ptc) -- "1.2.3"
+    [Wildcard, _, _] -> fail "wildcard must be the only component"
+    [_, Wildcard, Number _] -> fail "patch cannot be specified if minor is wildcard"
     _ -> fail "invalid version form"
   where
-    versionComponentParser :: P.Parsec String () (Maybe Natural)
-    versionComponentParser = (Nothing <$ wildcardParser) <|> (Just <$> naturalNumberParser)
+    versionComponentParser :: P.Parsec String () VersionComponent
+    versionComponentParser = (Wildcard <$ wildcardParser) <|> (Number <$> naturalNumberParser)
 
     wildcardParser :: P.Parsec String () ()
     wildcardParser = void (P.oneOf "xX*")
+
+data VersionComponent = Wildcard | Number Natural
