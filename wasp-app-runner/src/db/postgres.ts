@@ -6,7 +6,7 @@ import {
 } from "../docker.js";
 import { createLogger } from "../logging.js";
 import { Process } from "../process.js";
-import { startServer } from "../server.js";
+import { startServer } from "../server-starter.js";
 import { Branded } from "../types.js";
 import * as asyncIterable from "../util/async-iterable.js";
 import type { AppName } from "../waspCli.js";

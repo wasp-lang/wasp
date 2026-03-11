@@ -5,7 +5,7 @@ import { DbType } from "./db/index.js";
 import { waitUntilHttp } from "./http.js";
 import { createLogger } from "./logging.js";
 import { Process, ProcessExit } from "./process.js";
-import { Server, startServer } from "./server.js";
+import { Server, startServer } from "./server-starter.js";
 import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;

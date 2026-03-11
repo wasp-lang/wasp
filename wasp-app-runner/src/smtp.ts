@@ -1,5 +1,5 @@
 import { createLogger } from "./logging.js";
-import { startServer } from "./server.js";
+import { startServer } from "./server-starter.js";
 
 export async function startLocalSmtpServer(): Promise<Disposable> {
   return await startServer(

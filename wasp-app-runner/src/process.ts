@@ -1,7 +1,7 @@
 import { $ } from "execa";
 import * as streamConsumers from "node:stream/consumers";
 import { createLogger, type Logger } from "./logging.js";
-import { shutdownSignal } from "./shutdown.js";
+import { shutdownSignal } from "./shutdown-controller.js";
 import type { EnvVars } from "./types.js";
 import * as asyncIterable from "./util/async-iterable.js";
 
