@@ -59,19 +59,21 @@ partialVersionParser = do
   maybeMaybePatch <- P.optionMaybe $ P.try (P.char '.' *> versionComponentParser)
   let versionComponents = maybeMajor : catMaybes [maybeMaybeMinor, maybeMaybePatch]
   case versionComponents of
-    [Nothing] -> pure Any -- "*" / "x" / "X"
-    [Just mjr] -> pure (Major mjr) -- "1"
-    [Just mjr, Nothing] -> pure (Major mjr) -- "1.x"
-    [Just mjr, Nothing, Nothing] -> pure (Major mjr) -- "1.x.x"
-    [Just mjr, Just mnr] -> pure (MajorMinor mjr mnr) -- "1.2"
-    [Just mjr, Just mnr, Nothing] -> pure (MajorMinor mjr mnr) -- "1.2.x"
-    [Just mjr, Just mnr, Just ptc] -> pure (MajorMinorPatch mjr mnr ptc) -- "1.2.3"
-    [Nothing, _, _] -> fail "wildcard must be the only component"
-    [_, Nothing, Just _] -> fail "patch cannot be specified if minor is wildcard"
+    [Wildcard] -> pure Any -- "*" / "x" / "X"
+    [Number mjr] -> pure (Major mjr) -- "1"
+    [Number mjr, Wildcard] -> pure (Major mjr) -- "1.x"
+    [Number mjr, Wildcard, Wildcard] -> pure (Major mjr) -- "1.x.x"
+    [Number mjr, Number mnr] -> pure (MajorMinor mjr mnr) -- "1.2"
+    [Number mjr, Number mnr, Wildcard] -> pure (MajorMinor mjr mnr) -- "1.2.x"
+    [Number mjr, Number mnr, Number ptc] -> pure (MajorMinorPatch mjr mnr ptc) -- "1.2.3"
+    [Wildcard, _, _] -> fail "wildcard must be the only component"
+    [_, Wildcard, Number _] -> fail "patch cannot be specified if minor is wildcard"
     _ -> fail "invalid version form"
   where
-    versionComponentParser :: P.Parsec String () (Maybe Natural)
-    versionComponentParser = (Nothing <$ wildcardParser) <|> (Just <$> naturalNumberParser)
+    versionComponentParser :: P.Parsec String () VersionComponent
+    versionComponentParser = (Wildcard <$ wildcardParser) <|> (Number <$> naturalNumberParser)
 
     wildcardParser :: P.Parsec String () ()
     wildcardParser = void (P.oneOf "xX*")
+
+data VersionComponent = Wildcard | Number Natural
