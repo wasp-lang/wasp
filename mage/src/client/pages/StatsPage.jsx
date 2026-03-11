@@ -241,8 +241,10 @@ export function Stats() {
                         {getWaitingInQueueDuration(project, logsByProjectId)}{" "}
                         &rarr; {getDuration(project, logsByProjectId)}
                       </td>
-                      <td className="px-6 py-4">
-                        {project.creativityLevel}
+                      <td
+                        className={`px-6 py-4 creativity-${project.creativityLevel}`}
+                      >
+                        {project.creativityLevel ?? "-"}
                       </td>
                       <td className="px-6 py-4">
                         <Link
