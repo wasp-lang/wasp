@@ -66,7 +66,7 @@ import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
-import Wasp.Project.DepVersions
+import Wasp.Generator.DepVersions
   ( axiosVersion,
     dotenvVersion,
     expressTypesVersion,

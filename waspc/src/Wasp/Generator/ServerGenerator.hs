@@ -63,7 +63,7 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
-import Wasp.Project.DepVersions
+import Wasp.Generator.DepVersions
   ( dotenvVersion,
     expressTypesVersion,
     expressVersionStr,
