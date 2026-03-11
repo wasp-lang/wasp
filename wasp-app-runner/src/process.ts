@@ -83,8 +83,21 @@ export class Process {
   }
 
   kill(): void {
+    // Wasp is somewhat badly behaved in that it doesn't always kill its child
+    // processes when it receives a shutdown signal. To work around this, we
+    // attempt to kill the process in three different ways, ignoring "process
+    // not found" errors.
+
+    // We always use SIGINT as it's the same signal sent from the terminal when
+    // pressing Ctrl+C.
+
+    // A negative PID kills the entire process group.
     this.#ignoreKillError(() => process.kill(-this.#proc.pid!, "SIGINT"));
+
+    // We kill the main process directly.
     this.#ignoreKillError(() => process.kill(this.#proc.pid!, "SIGINT"));
+
+    // And finally we let execa attempt to kill the process for bookkeeping.
     this.#ignoreKillError(() => this.#proc.kill("SIGINT"));
   }
 
