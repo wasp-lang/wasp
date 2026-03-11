@@ -18,21 +18,25 @@ const waspServerCommonSchema = z.object({
     .transform((value) => value === 'true'),
 })
 
-const serverUrlSchema = z
-  .string({
+const serverUrlSchema =
+  z.string({
     error: 'WASP_SERVER_URL is required',
   })
-  .url({
-    error: 'WASP_SERVER_URL must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: 'WASP_SERVER_URL must be a valid URL',
+    })
+  )
 
-const clientUrlSchema = z
-  .string({
+const clientUrlSchema =
+  z.string({
     error: 'WASP_WEB_CLIENT_URL is required',
   })
-  .url({
-    error: 'WASP_WEB_CLIENT_URL must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: 'WASP_WEB_CLIENT_URL must be a valid URL',
+    })
+  )
 
 
 // In development, we provide default values for some environment variables

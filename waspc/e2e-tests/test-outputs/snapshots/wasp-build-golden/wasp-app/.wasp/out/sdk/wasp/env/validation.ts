@@ -1,6 +1,6 @@
-import * as z from "zod";
+import * as z from "zod"
 
-import { getColorizedConsoleFormatString } from "wasp/universal/ansiColors";
+import { getColorizedConsoleFormatString } from "wasp/universal/ansiColors"
 
 const redColorFormatString = getColorizedConsoleFormatString("red");
 
@@ -13,7 +13,7 @@ export function ensureEnvSchema<Schema extends z.ZodType>(
   if (result.success) {
     return result.data;
   } else {
-    console.error(`${redColorFormatString}${formatZodEnvErrors(result.error.issues)}`);
+    console.error(`${redColorFormatString}${formatZodEnvError(result.error)}`);
     throw new Error('Error parsing environment variables');
   }
 }
@@ -27,11 +27,20 @@ export function getValidatedEnvOrError<Schema extends z.ZodType>(
 }
 
 // PRIVATE API (SDK, Vite config)
-export function formatZodEnvErrors(issues: z.core.$ZodIssue[]): string {
-  const errorOutput = ["══ Env vars validation failed ══", ""];
-  for (const error of issues) {
-    errorOutput.push(`${error.path} - ${error.message}`);
-  }
-  errorOutput.push("", "════════════════════════════════");
-  return errorOutput.join("\n");
+export function formatZodEnvError(error: z.ZodError): string {
+  const flattenedIssues = z.flattenError(error);
+
+  return [
+    "══ Env vars validation failed ══",
+    "",
+    // Top-level errors
+    ...flattenedIssues.formErrors,
+    "",
+    // Errors per field
+    ...Object.entries(flattenedIssues.fieldErrors).map(
+      ([prop, error]) => `${prop} - ${error}`,
+    ),
+    "",
+    "════════════════════════════════",
+  ].join("\n");
 }

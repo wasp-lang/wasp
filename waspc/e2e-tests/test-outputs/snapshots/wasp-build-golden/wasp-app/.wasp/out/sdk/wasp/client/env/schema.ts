@@ -2,13 +2,15 @@ import * as z from 'zod'
 
 const userClientEnvSchema = z.object({})
 
-const serverUrlSchema = z
-  .string({
+const serverUrlSchema =
+  z.string({
     error: 'REACT_APP_API_URL is required',
   })
-  .url({
-    error: 'REACT_APP_API_URL must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: 'REACT_APP_API_URL must be a valid URL',
+    })
+  )
 
 const waspClientDevSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema
