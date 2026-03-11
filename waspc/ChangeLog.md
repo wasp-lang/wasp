@@ -5,6 +5,7 @@
 ### 🎉 New Features
 
 - The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
+- Wasp AI (`wasp new:ai`) now accepts any model name string, letting the OpenAI API validate it. The interactive CLI still offers curated GPT-5 options for convenience. ([#3904](https://github.com/wasp-lang/wasp/pull/3904))
 
 ### 🔧 Small improvements
 
