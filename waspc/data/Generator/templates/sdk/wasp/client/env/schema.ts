@@ -18,13 +18,11 @@ const serverUrlSchema = z
   });
 
 const waspDevClientEnvSchema = z.object({
-  MODE: z.literal("development"),
   "{= serverUrlEnvVarName =}": serverUrlSchema
     .default("{= defaultServerUrl =}"),
 });
 
 const waspProdClientEnvSchema = z.object({
-  MODE: z.literal("production"),
   "{= serverUrlEnvVarName =}": serverUrlSchema,
 });
 
