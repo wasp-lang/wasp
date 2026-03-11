@@ -26,6 +26,8 @@ import qualified Wasp.AI.GenerateNewProject as GNP
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectConfig,
     NewProjectDetails (..),
+    defaultCodingModel,
+    defaultPlanningModel,
     emptyNewProjectConfig,
   )
 import qualified Wasp.AI.GenerateNewProject.Common as GNP.C
@@ -49,10 +51,10 @@ createNewProjectInteractiveOnDisk :: Path' Abs (Dir WaspProjectDir) -> NewProjec
 createNewProjectInteractiveOnDisk waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
   appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences"
-  planningModelInput <- liftIO $ Interactive.askForInput "Enter planning model (default: gpt-5): "
-  codingModelInput <- liftIO $ Interactive.askForInput "Enter coding model (default: gpt-5-mini): "
-  let planningGptModel = ChatGPT.Model $ if null planningModelInput then "gpt-5" else planningModelInput
-      codingGptModel = ChatGPT.Model $ if null codingModelInput then "gpt-5-mini" else codingModelInput
+  planningModelInput <- liftIO $ Interactive.askForInput $ "Enter planning model (default: " ++ show defaultPlanningModel ++ "): "
+  codingModelInput <- liftIO $ Interactive.askForInput $ "Enter coding model (default: " ++ show defaultCodingModel ++ "): "
+  let planningGptModel = if null planningModelInput then defaultPlanningModel else ChatGPT.Model planningModelInput
+      codingGptModel = if null codingModelInput then defaultCodingModel else ChatGPT.Model codingModelInput
   let projectConfig =
         emptyNewProjectConfig
           { GNP.C.projectPlanningGptModel = Just planningGptModel,
