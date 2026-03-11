@@ -141,10 +141,10 @@ export async function getWaspVersion({
     args: [...waspCliCmd.args, "version"],
     cwd: pathToApp,
   }).collect();
-  const stdoutClean = stripVTControlCharacters(stdout);
+  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdout);
 
   if (exitCode !== 0) {
-    logger.fatal(`Failed to get wasp version: ${stdoutClean}`);
+    logger.fatal(`Failed to get wasp version: ${stdoutDataWithoutAnsiChars}`);
   }
 
   const [firstLine] = stdout.split("\n");
