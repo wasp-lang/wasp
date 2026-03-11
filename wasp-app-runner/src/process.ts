@@ -33,8 +33,14 @@ export class Process {
     this.#proc = $(options.cmd, options.args, {
       cwd: options.cwd,
       env: options.env,
-      detached: true,
+
+      // We don't want execa to throw an error when the process exits with a
+      // non-zero code, as we'll handle that ourselves in the wait() method.
       reject: false,
+
+      // We're using detached mode to spawn a process group. See the kill()
+      // method below for details.
+      detached: true,
     });
 
     shutdownSignal.addEventListener("abort", () => this.kill());
