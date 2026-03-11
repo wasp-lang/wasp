@@ -1,10 +1,11 @@
 import { stripVTControlCharacters } from "node:util";
 import semver, { type SemVer } from "semver";
-
 import type { PathToApp, WaspCliCmd } from "./args.js";
 import { DbType } from "./db/index.js";
+import { waitUntilHttp } from "./http.js";
 import { createLogger } from "./logging.js";
-import { Process } from "./process.js";
+import { Process, ProcessExit } from "./process.js";
+import { Server, startServer } from "./server.js";
 import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;
@@ -18,8 +19,9 @@ export function waspMigrateDb({
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   extraEnv: EnvVars;
-}): Promise<{ exitCode: number | null }> {
+}): Promise<ProcessExit> {
   return new Process({
+    logger: createLogger("wasp-migrate-db"),
     cmd: waspCliCmd.cmd,
     /**
      * We use the --name flag because sometimes we run apps without a migrations directory,
@@ -32,7 +34,7 @@ export function waspMigrateDb({
     cwd: pathToApp,
     env: extraEnv,
   })
-    .log("wasp-migrate-db")
+    .print()
     .wait();
 }
 
@@ -44,13 +46,21 @@ export function waspStart({
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   extraEnv: EnvVars;
-}): Process {
-  return new Process({
-    cmd: waspCliCmd.cmd,
-    args: [...waspCliCmd.args, "start"],
-    cwd: pathToApp,
-    env: extraEnv,
-  }).log("wasp-start");
+}): Promise<Server> {
+  return startServer(
+    createLogger("wasp-start"),
+    {
+      cmd: waspCliCmd.cmd,
+      args: [...waspCliCmd.args, "start"],
+      cwd: pathToApp,
+      env: extraEnv,
+    },
+    () =>
+      Promise.all([
+        waitUntilHttp({ port: 3000 }),
+        waitUntilHttp({ port: 3001 }),
+      ]),
+  );
 }
 
 export function waspBuild({
@@ -59,13 +69,14 @@ export function waspBuild({
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
-}): Promise<{ exitCode: number | null }> {
+}): Promise<ProcessExit> {
   return new Process({
+    logger: createLogger("wasp-build"),
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "build"],
     cwd: pathToApp,
   })
-    .log("wasp-build")
+    .print()
     .wait();
 }
 
@@ -83,7 +94,7 @@ export function waspBuildStart({
   clientEnvVars?: EnvVars;
   serverEnvFile?: string;
   clientEnvFile?: string;
-}): Process {
+}): Promise<Server> {
   const args = [
     "build",
     "start",
@@ -103,11 +114,19 @@ export function waspBuildStart({
     ...(clientEnvFile ? ["--client-env-file", clientEnvFile] : []),
   ];
 
-  return new Process({
-    cmd: waspCliCmd.cmd,
-    args: [...waspCliCmd.args, ...args],
-    cwd: pathToApp,
-  }).log("wasp-build-start");
+  return startServer(
+    createLogger("wasp-build-start"),
+    {
+      cmd: waspCliCmd.cmd,
+      args: [...waspCliCmd.args, ...args],
+      cwd: pathToApp,
+    },
+    () =>
+      Promise.all([
+        waitUntilHttp({ port: 3000 }),
+        waitUntilHttp({ port: 3001 }),
+      ]),
+  );
 }
 
 export async function getWaspVersion({
@@ -119,6 +138,7 @@ export async function getWaspVersion({
 }): Promise<{ waspVersion: WaspVersion }> {
   const logger = createLogger("wasp-version");
   const { stdout, exitCode } = await new Process({
+    logger,
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "version"],
     cwd: pathToApp,
@@ -153,6 +173,7 @@ export async function waspInfo({
 }> {
   const logger = createLogger("wasp-info");
   const { stdout, exitCode } = await new Process({
+    logger,
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "info"],
     cwd: pathToApp,
@@ -192,6 +213,7 @@ export async function waspTsSetup({
 }): Promise<void> {
   const logger = createLogger("wasp-ts-setup");
   const { stderr, exitCode } = await new Process({
+    logger,
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "ts-setup"],
     cwd: pathToApp,

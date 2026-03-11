@@ -1,5 +1,3 @@
-export type SetupDbResult = {
-  waitUntilReady: () => Promise<{
-    dbEnvVars: { [envVarName: string]: string };
-  }>;
-} & AsyncDisposable;
+export interface SetupDbResult extends Disposable {
+  dbEnvVars: { [envVarName: string]: string };
+}

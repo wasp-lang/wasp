@@ -1,94 +1,102 @@
-import { spawn } from "child_process";
+import { $ } from "execa";
 import { text } from "node:stream/consumers";
-import readline from "readline";
-import { CLIError, createLogger, type Logger } from "./logging.js";
+import * as iterable from "./iterable.js";
+import { createLogger, type Logger } from "./logging.js";
 import { shutdownSignal } from "./shutdown.js";
 import type { EnvVars } from "./types.js";
 
 export type SpawnOptions = {
+  logger?: Logger;
   cmd: string;
   args: string[];
   cwd?: string;
   env?: EnvVars;
 };
 
-export type ProcessResult = {
+export interface ProcessExit {
   exitCode: number | null;
+}
+
+export interface ProcessResult extends ProcessExit {
   stdout: string;
   stderr: string;
-};
+}
 
 export class Process {
-  #proc: ReturnType<typeof spawn>;
-  #logger?: Logger;
-  #closePromise: Promise<number | null>;
+  #proc;
+  #logger;
+  #closePromise;
 
   constructor(options: SpawnOptions) {
-    this.#proc = spawn(options.cmd, options.args, {
+    this.#logger = options.logger ?? createLogger("process");
+
+    this.#proc = $(options.cmd, options.args, {
       cwd: options.cwd,
-      env: options.env ? { ...process.env, ...options.env } : undefined,
-      signal: shutdownSignal,
-      stdio: ["ignore", "pipe", "pipe"],
+      env: options.env,
+      detached: true,
+      reject: false,
     });
 
-    this.#closePromise = new Promise<number | null>((resolve, reject) => {
-      this.#proc.on("close", (code) => resolve(code));
-      this.#proc.on("error", (err) => {
-        if (err.name === "AbortError") return;
-        reject(err);
-      });
+    shutdownSignal.addEventListener("abort", () => this.kill());
+
+    this.#closePromise = this.#proc.then((resultOrError) => {
+      if (resultOrError.exitCode !== undefined) {
+        return { exitCode: resultOrError.exitCode };
+      } else if (resultOrError.isTerminated) {
+        return { exitCode: null };
+      } else {
+        throw resultOrError;
+      }
     });
   }
 
-  log(name: string): this {
-    this.#logger = createLogger(name);
-    const logger = this.#logger;
+  get stdoutLines(): AsyncIterable<string> {
+    return this.#proc.iterable({ from: "stdout" });
+  }
 
-    if (this.#proc.stdout) {
-      const stdoutRl = readline.createInterface({ input: this.#proc.stdout });
-      stdoutRl.on("line", (line) => logger.info(line));
-    }
+  get stderrLines(): AsyncIterable<string> {
+    return this.#proc.iterable({ from: "stderr" });
+  }
 
-    if (this.#proc.stderr) {
-      const stderrRl = readline.createInterface({ input: this.#proc.stderr });
-      stderrRl.on("line", (line) => logger.error(line));
-    }
-
+  print(): this {
+    iterable.forEach(this.stdoutLines, (line) => this.#logger.info(line));
+    iterable.forEach(this.stderrLines, (line) => this.#logger.error(line));
     return this;
   }
 
   async collect(): Promise<ProcessResult> {
-    const [stdout, stderr, exitCode] = await Promise.all([
+    const [stdout, stderr, { exitCode }] = await Promise.all([
       this.#proc.stdout ? text(this.#proc.stdout) : Promise.resolve(""),
       this.#proc.stderr ? text(this.#proc.stderr) : Promise.resolve(""),
       this.#closePromise,
     ]);
+
     return { exitCode, stdout, stderr };
   }
 
-  async wait(): Promise<{ exitCode: number | null }> {
-    const exitCode = await this.#closePromise;
+  async wait(): Promise<ProcessExit> {
+    const { exitCode } = await this.#closePromise;
     if (exitCode !== 0) {
-      const logger = this.#logger ?? createLogger("process");
-      throw new CLIError(logger, `Process exited with code ${exitCode}`);
+      this.#logger.fatal(`Process exited with code ${exitCode}`);
     }
     return { exitCode };
   }
 
-  async kill(): Promise<void> {
-    if (!this.#proc.killed) {
-      this.#proc.kill();
-    }
-    try {
-      await this.#closePromise;
-    } catch {
-      // ignore errors, since we know we're killing the process anyway
-    }
+  kill(): void {
+    this.#ignoreKillError(() => process.kill(-this.#proc.pid!, "SIGINT"));
+    this.#ignoreKillError(() => process.kill(this.#proc.pid!, "SIGINT"));
+    this.#ignoreKillError(() => this.#proc.kill("SIGINT"));
   }
 
-  disposable(): AsyncDisposable {
-    return {
-      [Symbol.asyncDispose]: () => this.kill(),
-    };
+  #ignoreKillError(fn: () => void) {
+    try {
+      fn();
+    } catch (error: any) {
+      if (error.syscall === "kill" && error.code === "ESRCH") {
+        return;
+      } else {
+        throw error;
+      }
+    }
   }
 }

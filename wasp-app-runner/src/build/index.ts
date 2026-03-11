@@ -2,9 +2,8 @@ import * as path from "path";
 import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
 import { doesFileExist } from "../files.js";
-import { waitUntilAppReady } from "../http.js";
+import { createLogger } from "../logging.js";
 import { Process } from "../process.js";
-import { shutdownPromise } from "../shutdown.js";
 import { startLocalSmtpServer } from "../smtp.js";
 import { EnvVars } from "../types.js";
 import { type AppName, waspBuild, waspBuildStart } from "../waspCli.js";
@@ -31,40 +30,34 @@ export async function startAppInBuildMode({
     pathToApp,
   });
 
-  await using db = await setupDb({
+  using db = await setupDb({
     appName,
     dbType,
     pathToApp,
     dbImage,
   });
-  const { dbEnvVars } = await db.waitUntilReady();
 
-  await using _smtp = startLocalSmtpServer();
+  using _smtp = await startLocalSmtpServer();
 
   const serverEnvVars: EnvVars = {
     JWT_SECRET: "some-jwt-secret",
-    ...dbEnvVars,
+    ...db.dbEnvVars,
   };
 
   const serverEnvFile = path.resolve(pathToApp, ".env.server");
   const clientEnvFile = path.resolve(pathToApp, ".env.client");
 
-  const wasp = waspBuildStart({
+  using wasp = await waspBuildStart({
     waspCliCmd,
     pathToApp,
     serverEnvVars,
     serverEnvFile: doesFileExist(serverEnvFile) ? serverEnvFile : undefined,
     clientEnvFile: doesFileExist(clientEnvFile) ? clientEnvFile : undefined,
   });
-  await using _wasp = wasp.disposable();
-
-  await Promise.all([
-    waitUntilAppReady({ port: 3000 }),
-    waitUntilAppReady({ port: 3001 }),
-  ]);
 
   if (run) {
     await new Process({
+      logger: createLogger("run"),
       cmd: process.env.SHELL ?? "sh",
       args: ["-c", run],
       env: {
@@ -72,11 +65,13 @@ export async function startAppInBuildMode({
         server_url: "http://localhost:3001",
       },
     })
-      .log("run")
+      .print()
       .wait();
   }
 
-  if (exit) return;
-
-  await Promise.race([wasp.wait(), shutdownPromise]);
+  if (exit) {
+    return;
+  } else {
+    await wasp.proc.wait();
+  }
 }

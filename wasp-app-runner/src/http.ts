@@ -1,7 +1,7 @@
 import pRetry from "p-retry";
 import { createLogger } from "./logging.js";
 
-export async function waitUntilAppReady({
+export async function waitUntilHttp({
   port,
   checkIntervalMs = 500,
   timeoutMs = 60_000,

@@ -4,9 +4,10 @@ import {
   DbContainerName,
   createAppSpecificDbContainerName,
 } from "../docker.js";
+import * as iterable from "../iterable.js";
 import { createLogger } from "../logging.js";
 import { Process } from "../process.js";
-import { shutdownSignal } from "../shutdown.js";
+import { startServer } from "../server.js";
 import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
 import type { SetupDbResult } from "./types.js";
@@ -28,21 +29,17 @@ export const setupPostgres = async ({
 }): Promise<SetupDbResult> => {
   await ensureDockerIsRunning();
 
-  const { databaseUrl, disposable, containerName } =
-    await startPostgresContainerForApp({
-      appName,
-      pathToApp,
-      dbImage,
-    });
+  const postgres = await startPostgresContainerForApp({
+    appName,
+    pathToApp,
+    dbImage,
+  });
 
-  logger.info(`Using DATABASE_URL: ${databaseUrl}`);
+  logger.info(`Using DATABASE_URL: ${postgres.databaseUrl}`);
 
   return {
-    waitUntilReady: async () => {
-      await waitForPostgresReady(containerName);
-      return { dbEnvVars: { DATABASE_URL: databaseUrl } };
-    },
-    [Symbol.asyncDispose]: disposable[Symbol.asyncDispose],
+    [Symbol.dispose]: postgres[Symbol.dispose],
+    dbEnvVars: { DATABASE_URL: postgres.databaseUrl },
   };
 };
 
@@ -54,11 +51,11 @@ async function startPostgresContainerForApp({
   appName: AppName;
   pathToApp: PathToApp;
   dbImage: DockerImageName;
-}): Promise<{
-  containerName: DbContainerName;
-  databaseUrl: DatabaseConnectionUrl;
-  disposable: AsyncDisposable;
-}> {
+}): Promise<
+  Disposable & {
+    databaseUrl: DatabaseConnectionUrl;
+  }
+> {
   const containerName = createAppSpecificDbContainerName({
     appName,
     pathToApp,
@@ -71,42 +68,42 @@ async function startPostgresContainerForApp({
 
   logger.info(`Starting the PostgreSQL container with image: ${dbImage}...`);
 
-  const postgresProcess = new Process({
-    cmd: "docker",
-    args: [
-      "run",
-      "--name",
-      containerName,
-      "-p",
-      `${port}:5432`,
-      "-e",
-      `POSTGRES_PASSWORD=${password}`,
-      `--rm`,
-      dbImage,
-    ],
-  });
-
-  // Fire-and-forget: log stderr and diagnostics if container exits with error
   const processLogger = createLogger("postgres-container");
-  postgresProcess.collect().then(({ exitCode, stderr }) => {
-    if (exitCode !== 0 && exitCode !== null) {
-      for (const line of stderr.split("\n").filter(Boolean)) {
-        processLogger.error(line);
-      }
-      const extraInfo = getExtraInfoOnPostgresStartError({
-        originalErrorText: stderr,
+
+  const postgres = await startServer(
+    processLogger,
+    {
+      cmd: "docker",
+      args: [
+        "run",
+        "--name",
         containerName,
-        port,
-      });
-      if (extraInfo !== null) {
-        processLogger.info(extraInfo);
-      }
-    }
-  });
+        "-p",
+        `${port}:5432`,
+        "-e",
+        `POSTGRES_PASSWORD=${password}`,
+        `--rm`,
+        dbImage,
+      ],
+    },
+    async (proc) =>
+      Promise.race([
+        waitForPostgresReady(containerName),
+        iterable.forEach(proc.stderrLines, (line) => {
+          const extraInfo = getExtraInfoOnPostgresStartError({
+            originalErrorText: line,
+            containerName,
+            port,
+          });
+          if (extraInfo !== null) {
+            processLogger.fatal(extraInfo);
+          }
+        }),
+      ]),
+  );
 
   return {
-    containerName,
-    disposable: postgresProcess.disposable(),
+    [Symbol.dispose]: postgres[Symbol.dispose],
     databaseUrl:
       `postgresql://postgres:${password}@localhost:${port}/postgres` as DatabaseConnectionUrl,
   };
@@ -130,7 +127,7 @@ async function waitForPostgresReady(
       return;
     }
 
-    await delay(healthCheckDelay, undefined, { signal: shutdownSignal });
+    await delay(healthCheckDelay);
   }
 
   logger.fatal("PostgreSQL did not become ready in time");

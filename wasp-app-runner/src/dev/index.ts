@@ -1,8 +1,7 @@
 import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
-import { waitUntilAppReady } from "../http.js";
+import { createLogger } from "../logging.js";
 import { Process } from "../process.js";
-import { shutdownPromise } from "../shutdown.js";
 import { type AppName, waspMigrateDb, waspStart } from "../waspCli.js";
 
 export async function startAppInDevMode({
@@ -22,35 +21,28 @@ export async function startAppInDevMode({
   run?: string;
   exit: boolean;
 }): Promise<void> {
-  await using db = await setupDb({
+  using db = await setupDb({
     appName,
     dbType,
     pathToApp,
     dbImage,
   });
 
-  const { dbEnvVars } = await db.waitUntilReady();
-
   await waspMigrateDb({
     waspCliCmd,
     pathToApp,
-    extraEnv: dbEnvVars,
+    extraEnv: db.dbEnvVars,
   });
 
-  const wasp = waspStart({
+  using wasp = await waspStart({
     waspCliCmd,
     pathToApp,
-    extraEnv: dbEnvVars,
+    extraEnv: db.dbEnvVars,
   });
-  await using _wasp = wasp.disposable();
-
-  await Promise.all([
-    waitUntilAppReady({ port: 3000 }),
-    waitUntilAppReady({ port: 3001 }),
-  ]);
 
   if (run) {
     await new Process({
+      logger: createLogger("run"),
       cmd: process.env.SHELL ?? "sh",
       args: ["-c", run],
       env: {
@@ -58,11 +50,13 @@ export async function startAppInDevMode({
         server_url: "http://localhost:3001",
       },
     })
-      .log("run")
+      .print()
       .wait();
   }
 
-  if (exit) return;
-
-  await Promise.race([wasp.wait(), shutdownPromise]);
+  if (exit) {
+    return;
+  } else {
+    await wasp.proc.wait();
+  }
 }

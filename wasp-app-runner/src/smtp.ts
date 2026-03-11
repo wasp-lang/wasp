@@ -1,18 +1,21 @@
-import { Process } from "./process.js";
+import { createLogger } from "./logging.js";
+import { startServer } from "./server.js";
 
-export function startLocalSmtpServer(): AsyncDisposable {
-  return new Process({
-    cmd: "docker",
-    args: [
-      "run",
-      "--rm",
-      "-p",
-      "1080:1080",
-      "-p",
-      "1025:1025",
-      "marlonb/mailcrab:latest",
-    ],
-  })
-    .log("smtp-server")
-    .disposable();
+export async function startLocalSmtpServer(): Promise<Disposable> {
+  return await startServer(
+    createLogger("smtp-server"),
+    {
+      cmd: "docker",
+      args: [
+        "run",
+        "--rm",
+        "-p",
+        "1080:1080",
+        "-p",
+        "1025:1025",
+        "marlonb/mailcrab:latest",
+      ],
+    },
+    () => Promise.resolve(),
+  );
 }
