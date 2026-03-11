@@ -34,8 +34,8 @@ parseExternalConfigs waspDir srcTsConfigPath = do
     Left readError -> return $ Left [readError]
     Right externalConfigs ->
       case validateExternalConfigs externalConfigs of
-        errors@(_ : _) -> return $ Left errors
         [] -> return $ Right externalConfigs
+        errors -> return $ Left errors
 
 readExternalConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
