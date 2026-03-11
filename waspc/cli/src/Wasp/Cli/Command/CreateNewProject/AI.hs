@@ -12,7 +12,6 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.List (intercalate)
-import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Path', basename, fromAbsDir, fromRelDir)
@@ -50,24 +49,10 @@ createNewProjectInteractiveOnDisk :: Path' Abs (Dir WaspProjectDir) -> NewProjec
 createNewProjectInteractiveOnDisk waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
   appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences"
-  (planningGptModel, codingGptModel) <-
-    liftIO
-      $ Interactive.askToChoose'
-        "Choose GPT model(s) you want to use:"
-      $ NE.fromList
-        [ Interactive.Option
-            "gpt-5-mini (planning + coding)"
-            (Just "Good results. Cheap and fast. Best cost/benefit ratio.")
-            (ChatGPT.Model "gpt-5-mini", ChatGPT.Model "gpt-5-mini"),
-          Interactive.Option
-            "gpt-5 (planning) + gpt-5-mini (coding)"
-            (Just "Better planning results. Good cost/benefit ratio.")
-            (ChatGPT.Model "gpt-5", ChatGPT.Model "gpt-5-mini"),
-          Interactive.Option
-            "gpt-5 (planning + coding)"
-            (Just "Best results, but slower and more expensive.")
-            (ChatGPT.Model "gpt-5", ChatGPT.Model "gpt-5")
-        ]
+  planningModelInput <- liftIO $ Interactive.askForInput "Enter planning model (default: gpt-5): "
+  codingModelInput <- liftIO $ Interactive.askForInput "Enter coding model (default: gpt-5-mini): "
+  let planningGptModel = ChatGPT.Model $ if null planningModelInput then "gpt-5" else planningModelInput
+      codingGptModel = ChatGPT.Model $ if null codingModelInput then "gpt-5-mini" else codingModelInput
   let projectConfig =
         emptyNewProjectConfig
           { GNP.C.projectPlanningGptModel = Just planningGptModel,
@@ -86,7 +71,7 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
           "Since this is a GPT generated app, it will likely contain some mistakes, proportional to how",
           "complex the app is. If there are some in your app, check out Wasp docs for help while",
           "fixing them, and also feel free to reach out to us on Discord! You can also try",
-          "generating the app again to get different results (try playing with the creativity level).",
+          "generating the app again to get different results (try using a different model).",
           " - Wasp docs: https://wasp.sh/docs",
           " - Our Discord: https://discord.gg/rzdnErX",
           "",

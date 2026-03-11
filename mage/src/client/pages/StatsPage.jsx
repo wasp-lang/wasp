@@ -8,6 +8,7 @@ import { getProjects, getStats, useQuery } from "wasp/client/operations";
 
 import { BarChart } from "../components/BarChart";
 import { Color } from "../components/Color";
+import { CreativityLevelCell } from "../components/CreativityLevelCell";
 import { MyDropdown } from "../components/Dropdown";
 import { Header, HomeButton } from "../components/Header";
 import { StatusPill } from "../components/StatusPill";
@@ -241,11 +242,7 @@ export function Stats() {
                         {getWaitingInQueueDuration(project, logsByProjectId)}{" "}
                         &rarr; {getDuration(project, logsByProjectId)}
                       </td>
-                      <td
-                        className={`px-6 py-4 creativity-${project.creativityLevel}`}
-                      >
-                        {project.creativityLevel ?? "-"}
-                      </td>
+                      <CreativityLevelCell level={project.creativityLevel} />
                       <td className="px-6 py-4">
                         <Link
                           to={`/result/${project.id}`}

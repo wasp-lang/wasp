@@ -12,6 +12,7 @@ import {
 import { Link } from "wasp/client/router";
 
 import { Color } from "../components/Color";
+import { CreativityLevelCell } from "../components/CreativityLevelCell";
 import { MyDialog } from "../components/Dialog";
 import { Header, HomeButton } from "../components/Header";
 import { StatusPill } from "../components/StatusPill";
@@ -85,6 +86,9 @@ function UserProjectsTable({ projects }) {
           <th scope="col" className="px-6 py-3">
             Created At
           </th>
+          <th scope="col" className="px-6 py-3">
+            Creativity lvl
+          </th>
           <th scope="col" className="px-6 py-3"></th>
         </tr>
       </thead>
@@ -132,6 +136,7 @@ function UserProjectsTable({ projects }) {
               >
                 {format(project.createdAt)}
               </td>
+              <CreativityLevelCell level={project.creativityLevel} />
               <td className="px-6 py-4">
                 <Link
                   to={`/result/${project.id}`}
@@ -144,7 +149,7 @@ function UserProjectsTable({ projects }) {
           ))
         ) : (
           <tr className="border-t bg-white">
-            <td colSpan={5} className="py-4 text-center">
+            <td colSpan={6} className="py-4 text-center">
               you have not generated any apps yet.
             </td>
           </tr>

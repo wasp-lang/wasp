@@ -104,7 +104,6 @@ const MainPage = () => {
           appDesc,
           appPrimaryColor: appPrimaryColor.name,
           appAuthMethod: appAuthMethod.value,
-
         }),
       );
     } catch (error) {
