@@ -32,6 +32,21 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
+import Wasp.Generator.DepVersions
+  ( axiosVersion,
+    dotenvVersion,
+    expressTypesVersion,
+    expressVersionStr,
+    prismaVersion,
+    reactDomTypesVersion,
+    reactDomVersion,
+    reactQueryVersion,
+    reactRouterVersion,
+    reactTypesVersion,
+    reactVersion,
+    superjsonVersion,
+    typescriptVersion,
+  )
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
@@ -66,21 +81,6 @@ import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
 import qualified Wasp.Project.Db as Db
-import Wasp.Generator.DepVersions
-  ( axiosVersion,
-    dotenvVersion,
-    expressTypesVersion,
-    expressVersionStr,
-    prismaVersion,
-    reactDomTypesVersion,
-    reactDomVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactTypesVersion,
-    reactVersion,
-    superjsonVersion,
-    typescriptVersion,
-  )
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
   )

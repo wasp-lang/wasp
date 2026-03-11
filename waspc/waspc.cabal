@@ -299,6 +299,7 @@ library
     Wasp.Generator.DbGenerator.Common
     Wasp.Generator.DbGenerator.Jobs
     Wasp.Generator.DbGenerator.Operations
+    Wasp.Generator.DepVersions
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
     Wasp.Generator.ExternalCodeGenerator.Common
@@ -403,7 +404,6 @@ library
     Wasp.Project.Db.Dev.Postgres
     Wasp.Project.Db.Dev.Sqlite
     Wasp.Project.Db.Migrations
-    Wasp.Project.DepVersions
     Wasp.Project.Deployment
     Wasp.Project.Env
     Wasp.Project.ExternalConfig

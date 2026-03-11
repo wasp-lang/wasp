@@ -5,9 +5,9 @@ import qualified Data.Map as M
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
+import qualified Wasp.Generator.DepVersions as DepVersions
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as Server
-import qualified Wasp.Generator.DepVersions as DepVersions
 
 type DependencySpecification = (P.PackageName, P.PackageVersion)
 
