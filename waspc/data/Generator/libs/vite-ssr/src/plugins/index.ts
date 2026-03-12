@@ -7,7 +7,7 @@ import { ssrPreview } from "./preview";
 import { ssrSetEnvironments } from "./set-environments";
 
 export function ssr(options: Options): PluginOption {
-  const routes = new Routes(options.ssrPaths, options.ssrFallbackPath);
+  const routes = new Routes(options.ssrPaths, options.ssrFallbackFile);
 
   return [
     ssrSetEnvironments(),

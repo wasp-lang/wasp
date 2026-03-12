@@ -36,7 +36,7 @@ export default defineConfig({
       clientEntrySrc: path.join(import.meta.dirname, "client-entry.tsx"),
       ssrEntrySrc: path.join(import.meta.dirname, "ssr-entry.tsx"),
       ssrPaths: ["/", "/about"],
-      ssrFallbackPath: "/_fallback",
+      ssrFallbackFile: "/_fallback",
     }),
   ],
 });
@@ -49,7 +49,7 @@ export default defineConfig({
 | `clientEntrySrc`  | Absolute path to the client entry file                 |
 | `ssrEntrySrc`     | Absolute path to the SSR entry file                    |
 | `ssrPaths`        | Array of route paths to prerender                      |
-| `ssrFallbackPath` | Path used internally to generate the SPA fallback HTML |
+| `ssrFallbackFile` | Path used internally to generate the SPA fallback HTML |
 
 ### 3. Write an SSR entry
 

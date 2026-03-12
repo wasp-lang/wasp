@@ -16,13 +16,13 @@ export class Routes {
   public readonly byPath: ReadonlyMap<string, Readonly<Route>>;
   public readonly fallback: Readonly<Route>;
 
-  constructor(paths: readonly string[], fallbackPath: string) {
-    // Fallback gets a flat file (e.g. "_fallback.html") instead of the
+  constructor(paths: readonly string[], fallbackFile: string) {
+    // Fallback gets a flat file (e.g. "/_fallback.html") instead of the
     // directory-style "dir/index.html" used for real routes, since it's
     // never accessed by path — only served as the SPA catch-all.
     this.fallback = {
-      path: fallbackPath,
-      id: removeLeadingSlash(fallbackPath) + ".html",
+      path: fallbackFile,
+      id: removeLeadingSlash(fallbackFile),
     };
 
     const routes = [

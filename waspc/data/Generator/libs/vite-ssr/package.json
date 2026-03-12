@@ -20,7 +20,8 @@
   "scripts": {
     "build": "tsdown",
     "dev": "tsdown --watch",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "test": "exit 0"
   },
   "peerDependencies": {
     "vite": "^7"
