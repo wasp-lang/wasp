@@ -15,10 +15,10 @@ import Wasp.Project.Common
   )
 import qualified Wasp.Util.IO as IOUtil
 
-validateViteConfig :: Path' Abs (Dir WaspProjectDir) -> IO (Either CompileError ())
+validateViteConfig :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] ())
 validateViteConfig waspDir =
   findExistingFile viteConfigCandidates >>= \case
-    Nothing -> return $ Left fileNotFoundMessage
+    Nothing -> return $ Left [fileNotFoundMessage]
     Just path -> validatePluginImport path
   where
     viteConfigCandidates :: [Path' Abs File']
@@ -33,13 +33,13 @@ validateViteConfig waspDir =
       exists <- doesFileExist $ toFilePath f
       if exists then return (Just f) else findExistingFile fs
 
-    validatePluginImport :: Path' Abs File' -> IO (Either CompileError ())
+    validatePluginImport :: Path' Abs File' -> IO (Either [CompileError] ())
     validatePluginImport viteConfigFile = do
       content <- IOUtil.readFileStrict viteConfigFile
       return $
         if waspPluginImportModule `T.isInfixOf` content
           then Right ()
-          else Left missingPluginImportMessage
+          else Left [missingPluginImportMessage]
 
     fileNotFoundMessage :: CompileError
     fileNotFoundMessage =
