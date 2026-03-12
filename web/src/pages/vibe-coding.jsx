@@ -19,6 +19,7 @@ import waspCoverPhoto from "../../static/img/wasp_twitter_cover.png";
 import "./index.css";
 import "./preflight.css";
 import styles from "./styles.module.css";
+import VCCodeComparison from "../components/vibeCoding/VCCodeComparison";
 
 const Background = () => {
   return (
@@ -74,18 +75,19 @@ const VibeCoding = () => {
       <Nav />
       <div className="min-h-screen">
         <main>
-          <Background />
+          {/* <Background /> */}
           <div>
             <VCHero />
+            <VCCodeComparison />
+            <VCBenchmark />
+            <VCFeatures />
             <VCProblem />
             <VCWhyWasp />
-            <VCFeatures />
-            <VCBenchmark />
-            <LightsTwo />
             <VCWorkflow />
             <VCTestimonials />
             <VCFAQ />
             <VCFinalCTA />
+            <LightsTwo />
           </div>
         </main>
       </div>

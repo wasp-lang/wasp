@@ -1,42 +1,13 @@
+import { useState } from "react";
 import Link from "@docusaurus/Link";
-import { ArrowUpRight, Terminal, ChevronDown } from "react-feather";
+import { Terminal, ChevronDown } from "react-feather";
 import CodeHighlight from "../CodeHighlight";
-import SectionContainer from "../Layouts/SectionContainer";
-
-const waspConfigSource = `// main.wasp.ts — your app's high-level blueprint
-import { App } from 'wasp-config'
-
-const app = new App('vibeSaaS', {
-  title: 'My SaaS',
-  auth: {
-    userEntity: 'User',
-    methods: { google: {}, email: {} }
-  }
-})
-
-app.route('DashboardRoute', {
-  path: '/dashboard', to: 'Dashboard'
-})
-app.page('Dashboard', {
-  authRequired: true,
-  component: {
-    importDefault: 'Dashboard',
-    from: '@src/Dashboard'
-  }
-})
-
-app.query('getProjects', {
-  fn: { import: 'getProjects', from: '@src/projects' },
-  entities: ['Project']
-})
-
-export default app`;
 
 const ActionButtons = () => (
-  <div className="flex items-center gap-2">
+  <div className="flex items-center justify-center gap-4">
     <Link to="/docs/quick-start">
       <button
-        className="inline-flex items-center space-x-2 rounded border border-yellow-500 bg-yellow-500 px-3 py-2 text-sm leading-4 text-white transition duration-200 ease-out hover:border-yellow-400 hover:bg-yellow-400"
+        className="inline-flex items-center space-x-2 rounded-lg border border-yellow-500 bg-yellow-500 px-5 py-3 text-base font-medium text-white transition duration-200 ease-out hover:border-yellow-400 hover:bg-yellow-400"
       >
         <Terminal size={16} />
         <span>Get Started</span>
@@ -44,7 +15,7 @@ const ActionButtons = () => (
     </Link>
     <a href="#how-wasp-works">
       <button
-        className="inline-flex items-center space-x-2 rounded border border-neutral-500 px-3 py-2 text-sm leading-4 text-neutral-700 transition duration-200 ease-out hover:border-neutral-400 hover:text-neutral-400"
+        className="inline-flex items-center space-x-2 rounded-lg border border-neutral-300 px-5 py-3 text-base font-medium text-neutral-700 transition duration-200 ease-out hover:border-neutral-400 hover:text-neutral-900"
       >
         <ChevronDown size={16} />
         <span>See How It Works</span>
@@ -54,16 +25,16 @@ const ActionButtons = () => (
 );
 
 const AIToolLogos = () => (
-  <div className="flex flex-col gap-4">
-    <small className="text-xs text-neutral-500">Works with</small>
+  <div className="flex flex-col items-center gap-4">
+    <small className="text-xs text-neutral-400">Works with</small>
     <div className="flex items-center gap-6">
       <span className="text-sm text-neutral-400">Claude Code</span>
       <span className="text-sm text-neutral-400">Cursor</span>
       <span className="text-sm text-neutral-400">GitHub Copilot</span>
       <span className="text-sm text-neutral-400">Windsurf</span>
     </div>
-    <span className="mt-6 flex items-center">
-      <small className="text-xs text-neutral-500">Backed by</small>
+    <span className="mt-4 flex items-center">
+      <small className="text-xs text-neutral-400">Backed by</small>
       <img
         className="ml-2 w-24"
         src="img/lp/yc-logo-rounded.webp"
@@ -73,60 +44,56 @@ const AIToolLogos = () => (
   </div>
 );
 
-function FileViewer({ fileName, fileExplanation, children }) {
-  return (
-    <div className="relative flex flex-col items-center justify-center">
-      <div className="flex h-6 w-full items-center justify-between rounded-t-md bg-[#F3EDE0] px-2">
-        <span className="flex items-center space-x-1 text-sm text-neutral-500">
-          <span>{fileName}</span>
-          <span className="text-neutral-400">· {fileExplanation}</span>
-        </span>
-        <div className="flex space-x-2">
-          <div className="h-2 w-2 rounded-full bg-yellow-500" />
-          <div className="h-2 w-2 rounded-full bg-yellow-500" />
-          <div className="h-2 w-2 rounded-full bg-yellow-500" />
-        </div>
-      </div>
-      <div className="w-full rounded-b-md text-sm shadow-2xl">{children}</div>
-    </div>
-  );
-}
+const GridBackground = () => (
+  <div className="pointer-events-none absolute inset-0 overflow-hidden" style={{ maskImage: "linear-gradient(to bottom, black 40%, transparent 100%)", WebkitMaskImage: "linear-gradient(to bottom, black 40%, transparent 100%)" }}>
+    <div
+      className="absolute inset-0 opacity-[0.07]"
+      style={{
+        backgroundImage:
+          "linear-gradient(to right, #000 1px, transparent 1px), linear-gradient(to bottom, #000 1px, transparent 1px)",
+        backgroundSize: "200px 200px",
+      }}
+    />
+    <div className="absolute left-[10%] top-[10%] h-24 w-24 rounded-full border border-neutral-300 opacity-50" />
+    <div className="absolute right-[15%] top-[8%] h-20 w-20 rounded-full border border-neutral-300 opacity-40" />
+    <div className="absolute bottom-[15%] right-[10%] h-28 w-28 rounded-full border border-neutral-300 opacity-45" />
+    <div className="absolute bottom-[20%] left-[5%] h-16 w-16 rounded-full border border-neutral-300 opacity-40" />
+  </div>
+);
 
 const VCHero = () => {
   return (
-    <SectionContainer className="pb-5 pt-24">
-      <div className="lg:grid lg:grid-cols-12 lg:gap-16">
-        <div className="z-10 space-y-12 lg:col-span-6">
-          <div>
-            <h1 className="text-4xl font-extrabold text-neutral-700 lg:text-5xl lg:leading-tight">
-              The full-stack framework where AI builds{" "}
-              <span className="underline decoration-yellow-500">features</span>,
-              not boilerplate.
-            </h1>
-            <p className="mt-4 text-xl text-neutral-500 sm:mt-5 lg:text-xl">
-              Wasp gives your AI assistant a high-level blueprint of your entire
-              app. Architecture decisions are already made. Auth, CRUD, and
-              deployment are declared in config. Your AI just writes business
-              logic.
-            </p>
-          </div>
+    <div className="relative">
+      <GridBackground />
+      <div className="relative mx-auto max-w-4xl px-6 py-28 text-center lg:py-40">
+        <h1 className="text-5xl font-extrabold tracking-tight text-neutral-800 sm:text-6xl lg:text-7xl">
+          The{" "}
+          <span className="underline decoration-yellow-500 underline-offset-4">
+            higher-level
+          </span>{" "}
+          full-stack framework for AI.
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-500 sm:text-xl">
+          Auth, CRUD, routes, and deployment are just config — making Wasp the
+          most{" "}
+          <strong className="text-neutral-700">
+            context-efficient framework
+          </strong>{" "}
+          for AI-assisted development.
+        </p>
+        <div className="mt-10">
           <ActionButtons />
+        </div>
+        <div className="mt-8 flex justify-center">
+          <code className="rounded bg-neutral-100 px-4 py-2 text-sm text-neutral-500">
+            <span className="text-yellow-500">%</span> npm i -g @wasp.sh/wasp-cli
+          </code>
+        </div>
+        <div className="mt-12">
           <AIToolLogos />
         </div>
-        <div className="mt-16 flex flex-col gap-4 lg:col-span-6 lg:mt-0">
-          <FileViewer
-            fileName="main.wasp.ts"
-            fileExplanation="TypeScript config"
-          >
-            <CodeHighlight language="typescript" source={waspConfigSource} />
-          </FileViewer>
-          <p className="text-center text-sm italic text-neutral-400">
-            TypeScript config your AI (and your IDE) already understands.
-            Split across multiple files as your app grows.
-          </p>
-        </div>
       </div>
-    </SectionContainer>
+    </div>
   );
 };
 
