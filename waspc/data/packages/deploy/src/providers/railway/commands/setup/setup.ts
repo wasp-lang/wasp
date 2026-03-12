@@ -18,6 +18,7 @@ import {
   createDeploymentInstructions,
   DeploymentInstructions,
 } from "../../DeploymentInstructions.js";
+import { getRailwayEnvVarValueReference } from "../../envVarReference.js";
 import { clientAppPort, serverAppPort } from "../../ports.js";
 import {
   initRailwayProject,
@@ -231,23 +232,4 @@ async function setupClient({
   );
 
   waspSays("Client setup complete!");
-}
-
-function getRailwayEnvVarValueReference(
-  name: string,
-  { serviceName }: { serviceName?: string } = {},
-): string {
-  // Railway variable references have the format ${{VARIABLE}} for local variables
-  // or ${{serviceName.VARIABLE}} for cross-service references.
-  // When the service name contains special characters (like hyphens with numbers),
-  // Railway requires it to be quoted: ${{"service-name".VARIABLE}}
-
-  const parts = [name];
-
-  if (serviceName) {
-    // JSON.stringify wraps the string in quotes and escapes any special characters.
-    parts.unshift(JSON.stringify(serviceName));
-  }
-
-  return "${{" + parts.join(".") + "}}";
 }
