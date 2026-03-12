@@ -1,5 +1,5 @@
 module Wasp.Project.ExternalConfig
-  ( parseExternalConfigs,
+  ( parseAndValidateExternalConfigs,
     ExternalConfigs (..),
 
     -- * Exported for testing only
@@ -26,11 +26,11 @@ data ExternalConfigs = ExternalConfigs
   }
   deriving (Show)
 
-parseExternalConfigs ::
+parseAndValidateExternalConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
   IO (Either [CompileError] ExternalConfigs)
-parseExternalConfigs waspDir srcTsConfigPath = do
+parseAndValidateExternalConfigs waspDir srcTsConfigPath = do
   readExternalConfigs waspDir srcTsConfigPath >>= \case
     Left readError -> return $ Left [readError]
     Right externalConfigs ->
