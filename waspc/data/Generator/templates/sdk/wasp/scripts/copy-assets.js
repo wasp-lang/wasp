@@ -10,12 +10,9 @@ await copyAssets([
 ])
 
 async function copyAssets(globs) {
-  console.log(`[copy-assets] Starting`)
   const sourceFiles = await Array.fromAsync(fs.glob(globs, { cwd: base }))
-  console.log(`[copy-assets] Received files from glob`)
   const { copied, skipped } = await copyChangedFiles(sourceFiles)
   console.log(`[copy-assets] ${copied} copied, ${skipped} skipped`)
-  process.exit(0)
 }
 
 async function copyChangedFiles(sourceFiles) {
@@ -23,26 +20,19 @@ async function copyChangedFiles(sourceFiles) {
   let skipped = 0
 
   for (const file of sourceFiles) {
-    console.group(`[copy-assets] Processing ${file}...`)
     const sourcePath = getSourcePath(file)
     const destPath = getDestinationPath(file)
-    console.log(`Calculated paths`)
     try {
       if (await shouldCopyFile(sourcePath, destPath)) {
-        console.log(`Path should be copied`)
         await copyFile(sourcePath, destPath)
-        console.log(`Copied`)
         copied++
       } else {
-        console.log(`Skipped`)
         skipped++
       }
     } catch (error) {
-
       console.error(`[copy-assets] Error processing ${file}:`, error.message)
       throw error
     }
-    finally{console.groupEnd()}
   }
 
   return { copied, skipped }
