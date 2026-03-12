@@ -16,7 +16,7 @@ import Wasp.Project.Common
     SrcTsConfigFile,
     WaspProjectDir,
   )
-import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
+import Wasp.Project.ExternalConfig.PackageJson (readUserPackageJsonFile)
 import Wasp.Project.ExternalConfig.TsConfig (readSrcTsConfigFile, validateSrcTsConfig)
 import Wasp.Project.ExternalConfig.ViteConfig (validateViteConfig)
 
@@ -43,7 +43,7 @@ readExternalConfigs ::
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
   IO (Either CompileError ExternalConfigs)
 readExternalConfigs waspDir srcTsConfigPath = runExceptT $ do
-  packageJsonContent <- ExceptT $ readPackageJsonFile waspDir
+  packageJsonContent <- ExceptT $ readUserPackageJsonFile waspDir
   srcTsConfigContent <- ExceptT $ readSrcTsConfigFile waspDir srcTsConfigPath
   ExceptT $ validateViteConfig waspDir
 
