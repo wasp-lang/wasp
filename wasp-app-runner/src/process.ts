@@ -1,4 +1,4 @@
-import { $ } from "execa";
+import { execa } from "execa";
 import * as streamConsumers from "node:stream/consumers";
 import { createLogger, type Logger } from "./logging.js";
 import { shutdownSignal } from "./shutdown-controller.js";
@@ -31,7 +31,7 @@ export class Process {
   constructor(options: SpawnOptions) {
     this.#logger = options.logger ?? createLogger("process");
 
-    this.#proc = $(options.cmd, options.args, {
+    this.#proc = execa(options.cmd, options.args, {
       cwd: options.cwd,
       env: options.env,
 
