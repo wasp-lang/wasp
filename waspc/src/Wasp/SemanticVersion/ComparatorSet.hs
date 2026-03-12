@@ -1,6 +1,5 @@
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
-
 {-# HLINT ignore "Use <$>" #-}
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Wasp.SemanticVersion.ComparatorSet
   ( ComparatorSet (..),
