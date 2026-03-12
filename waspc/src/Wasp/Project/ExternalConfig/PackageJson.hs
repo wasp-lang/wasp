@@ -24,8 +24,7 @@ parseAndValidateUserPackageJson waspDir = fmap (V.eitherToValidation . first (: 
   packageJsonFile <- ExceptT userPackageJsonFileOrError
   ExceptT $ parsePackageJsonFile packageJsonFile
   where
-    userPackageJsonFileOrError =
-      maybeToEither fileNotFoundMessage <$> findUserPackageJsonFile waspDir
+    userPackageJsonFileOrError = maybeToEither fileNotFoundMessage <$> findUserPackageJsonFile waspDir
     fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspDir ++ " directory"
 
 findUserPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File UserPackageJsonFile)))
