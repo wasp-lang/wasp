@@ -176,14 +176,16 @@ export async function waspInfo({
     args: [...waspCliCmd.args, "info"],
     cwd: pathToApp,
   }).collect();
-  const stdoutClean = stripVTControlCharacters(stdout);
+  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdout);
 
   if (exitCode !== 0) {
-    logger.fatal(`Failed to get app info: ${stdoutClean}`);
+    logger.fatal(`Failed to get app info: ${stdoutDataWithoutAnsiChars}`);
   }
 
-  const appNameMatch = stdoutClean.match(/Name: (.*)$/m);
-  const dbTypeMatch = stdoutClean.match(/Database system: (.*)$/m);
+  const appNameMatch = stdoutDataWithoutAnsiChars.match(/Name: (.*)$/m);
+  const dbTypeMatch = stdoutDataWithoutAnsiChars.match(
+    /Database system: (.*)$/m,
+  );
 
   if (appNameMatch === null) {
     logger.fatal("Failed to get app name");
