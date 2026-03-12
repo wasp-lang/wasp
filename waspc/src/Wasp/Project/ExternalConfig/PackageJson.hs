@@ -6,6 +6,7 @@ where
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', toFilePath)
+import Validation (Validation (..))
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson, parsePackageJsonFile)
 import Wasp.Project.Common
   ( CompileError,
@@ -15,11 +16,11 @@ import Wasp.Project.Common
     packageJsonInWaspProjectDir,
   )
 
-parseAndValidateUserPackageJson :: Path' Abs (Dir WaspProjectDir) -> IO (Either [CompileError] PackageJson)
+parseAndValidateUserPackageJson :: Path' Abs (Dir WaspProjectDir) -> IO (Validation [CompileError] PackageJson)
 parseAndValidateUserPackageJson waspDir =
   readUserPackageJsonFile waspDir >>= \case
-    Left err -> return $ Left [err]
-    Right packageJson -> return $ Right packageJson
+    Left err -> return $ Failure [err]
+    Right packageJson -> return $ Success packageJson
 
 readUserPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String PackageJson)
 readUserPackageJsonFile waspDir = runExceptT $ do

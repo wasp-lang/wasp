@@ -10,7 +10,7 @@ module Wasp.Project.ExternalConfig
 where
 
 import StrongPath (Abs, Dir, Path')
-import qualified Validation as V
+import Validation (validationToEither)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
 import Wasp.Project.Common
   ( CompileError,
@@ -38,10 +38,10 @@ parseAndValidateExternalConfigs waspDir TsConfigPaths {srcTsConfig, waspTsConfig
   unitOrViteConfigErrors <- validateViteConfig waspDir
 
   return $
-    V.validationToEither $
+    validationToEither $
       ExternalConfigs
-        <$> V.eitherToValidation packageJsonOrErrors
-        <* V.eitherToValidation srcTsConfigOrErrors
-        <* V.eitherToValidation (sequence maybeWaspTsConfigOrErrors)
-        <* V.eitherToValidation (sequence maybeRootTsConfigOrErrors)
-        <* V.eitherToValidation unitOrViteConfigErrors
+        <$> packageJsonOrErrors
+        <* srcTsConfigOrErrors
+        <* sequence maybeWaspTsConfigOrErrors
+        <* sequence maybeRootTsConfigOrErrors
+        <* unitOrViteConfigErrors

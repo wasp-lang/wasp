@@ -13,6 +13,7 @@ where
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', Rel, fromRelFile, toFilePath)
+import Validation (Validation (..))
 import Wasp.ExternalConfig.TsConfig (TsConfigFile, parseTsConfigFile)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common (CompileError, RootTsConfigFile, SrcTsConfigFile, WaspProjectDir, WaspTsConfigFile, findFileInWaspProjectDir)
@@ -21,19 +22,19 @@ import qualified Wasp.Validator as V
 parseAndValidateSrcTsConfig ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
-  IO (Either [CompileError] T.TsConfig)
+  IO (Validation [CompileError] T.TsConfig)
 parseAndValidateSrcTsConfig = parseAndValidateTsConfigFile validateSrcTsConfig
 
 parseAndValidateRootTsConfig ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File RootTsConfigFile) ->
-  IO (Either [CompileError] T.TsConfig)
+  IO (Validation [CompileError] T.TsConfig)
 parseAndValidateRootTsConfig = parseAndValidateTsConfigFile validateRootTsConfig
 
 parseAndValidateWaspTsConfig ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
-  IO (Either [CompileError] T.TsConfig)
+  IO (Validation [CompileError] T.TsConfig)
 parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile validateWaspTsConfig
 
 parseAndValidateTsConfigFile ::
@@ -41,14 +42,14 @@ parseAndValidateTsConfigFile ::
   (T.TsConfig -> [CompileError]) ->
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File f) ->
-  IO (Either [CompileError] T.TsConfig)
+  IO (Validation [CompileError] T.TsConfig)
 parseAndValidateTsConfigFile validate waspDir tsConfigPath =
   findAndParseTsConfigFile waspDir tsConfigPath >>= \case
-    Left err -> return $ Left [err]
+    Left err -> return $ Failure [err]
     Right tsConfig ->
       case validate tsConfig of
-        [] -> return $ Right tsConfig
-        errors -> return $ Left errors
+        [] -> return $ Success tsConfig
+        errors -> return $ Failure errors
 
 findAndParseTsConfigFile ::
   (TsConfigFile f) =>
