@@ -42,6 +42,6 @@ parseAndValidateExternalConfigs waspDir TsConfigPaths {srcTsConfig, waspTsConfig
       ExternalConfigs
         <$> packageJsonOrErrors
         <* srcTsConfigOrErrors
-        <* sequence maybeWaspTsConfigOrErrors
-        <* sequence maybeRootTsConfigOrErrors
+        <* sequenceA maybeWaspTsConfigOrErrors
+        <* sequenceA maybeRootTsConfigOrErrors
         <* unitOrViteConfigErrors

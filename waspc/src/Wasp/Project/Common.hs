@@ -15,7 +15,7 @@ module Wasp.Project.Common
     waspProjectDirFromProjectRootDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
-    packageJsonInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
@@ -34,8 +34,8 @@ import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
-import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile (..))
-import Wasp.ExternalConfig.TsConfig (TsConfigFile (..))
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
+import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
 
@@ -113,8 +113,8 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel G.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
-packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
-packageJsonInWaspProjectDir = [relfile|package.json|]
+userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
+userPackageJsonInWaspProjectDir = [relfile|package.json|]
 
 getTsConfigStructureForWaspProject :: WaspFilePath -> TsConfigPaths
 getTsConfigStructureForWaspProject = \case

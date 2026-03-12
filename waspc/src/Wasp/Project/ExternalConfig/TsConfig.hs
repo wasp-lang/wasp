@@ -10,10 +10,10 @@ module Wasp.Project.ExternalConfig.TsConfig
   )
 where
 
-import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
+import Control.Monad.Except (ExceptT (..), liftEither, runExceptT, withExceptT)
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', Rel, fromRelFile, toFilePath)
-import Validation (Validation (..))
+import Validation (Validation (..), eitherToValidation)
 import Wasp.ExternalConfig.TsConfig (TsConfigFile, parseTsConfigFile)
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common (CompileError, RootTsConfigFile, SrcTsConfigFile, WaspProjectDir, WaspTsConfigFile, findFileInWaspProjectDir)
@@ -43,25 +43,16 @@ parseAndValidateTsConfigFile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File f) ->
   IO (Validation [CompileError] T.TsConfig)
-parseAndValidateTsConfigFile validate waspDir tsConfigPath =
-  findAndParseTsConfigFile waspDir tsConfigPath >>= \case
-    Left err -> return $ Failure [err]
-    Right tsConfig ->
-      case validate tsConfig of
-        [] -> return $ Success tsConfig
-        errors -> return $ Failure errors
-
-findAndParseTsConfigFile ::
-  (TsConfigFile f) =>
-  Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) (File f) ->
-  IO (Either String T.TsConfig)
-findAndParseTsConfigFile waspDir srcTsConfigPath = runExceptT $ do
-  tsConfigFile <- ExceptT findTsConfigOrError
-  ExceptT $ parseTsConfigFile tsConfigFile
+parseAndValidateTsConfigFile validateTsConfig waspDir someTsConfigInProjectDir =
+  fmap eitherToValidation . runExceptT $ do
+    tsConfigFile <- withExceptT (: []) $ ExceptT tsConfigOrError
+    tsConfigContents <- withExceptT (: []) $ ExceptT $ parseTsConfigFile tsConfigFile
+    case validateTsConfig tsConfigContents of
+      [] -> return tsConfigContents
+      errors -> liftEither $ Left errors
   where
-    findTsConfigOrError = maybeToEither fileNotFoundMessage <$> findFileInWaspProjectDir waspDir srcTsConfigPath
-    fileNotFoundMessage = "Couldn't find " ++ fromRelFile srcTsConfigPath ++ " in the " ++ toFilePath waspDir ++ " directory"
+    tsConfigOrError = maybeToEither fileNotFoundMessage <$> findFileInWaspProjectDir waspDir someTsConfigInProjectDir
+    fileNotFoundMessage = "Couldn't find " ++ fromRelFile someTsConfigInProjectDir ++ " in the " ++ toFilePath waspDir ++ " directory"
 
 validateSrcTsConfig :: T.TsConfig -> [CompileError]
 validateSrcTsConfig config =
