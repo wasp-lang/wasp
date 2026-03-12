@@ -9,11 +9,7 @@ import Data.Aeson (Value, object, (.=))
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Client as AS.App.Client
-import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, ssrEntryPointPath, ssrFallbackPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
@@ -58,12 +54,12 @@ getVirtualModulesTs =
           "ssrEntryPointPath" .= ssrEntryPointPath
         ]
 
-routesMappingImportJson :: Value
-routesMappingImportJson =
+routeObjectsImportJson :: Value
+routeObjectsImportJson =
   object
     [ "isDefined" .= True,
-      "importStatement" .= ("import { routesMapping } from \"" ++ routesEntryPointPath ++ "\""),
-      "importIdentifier" .= ("routesMapping" :: String)
+      "importStatement" .= ("import { routeObjects } from \"" ++ routesEntryPointPath ++ "\""),
+      "importIdentifier" .= ("routeObjects" :: String)
     ]
 
 genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
@@ -74,13 +70,9 @@ genVirtualClientEntryTsx spec =
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|client-entry.tsx|]
     tmplData =
       object
-        [ "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
-          "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
-          "routesMapping" .= routesMappingImportJson,
+        [ "routeObjects" .= routeObjectsImportJson,
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
-    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
 genVirtualSsrEntryTsx :: AppSpec -> Generator FileDraft
 genVirtualSsrEntryTsx spec =
@@ -90,9 +82,7 @@ genVirtualSsrEntryTsx spec =
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|ssr-entry.tsx|]
     tmplData =
       object
-        [ "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent),
-          "routesMapping" .= routesMappingImportJson,
+        [ "routeObjects" .= routeObjectsImportJson,
           "ssrFallbackPath" .= ssrFallbackPath,
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)

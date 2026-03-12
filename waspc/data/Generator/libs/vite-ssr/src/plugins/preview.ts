@@ -1,12 +1,12 @@
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
 import type { Plugin } from "vite";
-import { PLUGIN_NAME } from "./common";
-import type { Routes } from "./routes";
+import { PACKAGE_NAME } from "./common/constants";
+import type { Routes } from "./common/routes";
 
 export const ssrPreview = (routes: Routes): Plugin => {
   return {
-    name: `${PLUGIN_NAME}:preview`,
+    name: `${PACKAGE_NAME}:preview`,
 
     configurePreviewServer: (server) => () => {
       const clientOutDir = server.config.build.outDir;

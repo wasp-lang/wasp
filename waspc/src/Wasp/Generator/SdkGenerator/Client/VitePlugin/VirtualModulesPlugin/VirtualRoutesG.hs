@@ -10,9 +10,11 @@ import Data.Maybe (fromMaybe)
 import StrongPath (relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
-import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
@@ -33,8 +35,12 @@ genVirtualRoutesTsx spec =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
           "pagesToImport" .= map createPageTemplateData (AS.getPages spec),
-          "isAuthEnabled" .= isAuthEnabled spec
+          "isAuthEnabled" .= isAuthEnabled spec,
+          "setupFn" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeSetupJsFunction),
+          "rootComponent" .= GJI.jsImportToImportJson (GJI.extImportToRelativeSrcImportFromViteExecution <$> maybeRootComponent)
         ]
+    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
 
 getRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
 getRouteTargetComponent spec (_, route) =

@@ -1,7 +1,7 @@
 export type PrerenderFn = (
   route: string,
   ctx: PrerenderContext,
-) => Promise<Response | null>;
+) => Promise<string | null>;
 
 export interface PrerenderContext {
   transformIndexHtml: (html: string) => Promise<string>;

@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import * as path from "node:path";
 import type { Plugin } from "vite";
-import { PLUGIN_NAME, type Options } from "./common";
-import type { Routes } from "./routes";
-import type { PrerenderFn } from "./types";
+import type { PrerenderFn } from "../types";
+import { ENVIRONMENT_NAMES, PACKAGE_NAME } from "./common/constants";
+import type { Options } from "./common/options";
+import type { Routes } from "./common/routes";
 
 export const ssrBuild = (
   routes: Routes,
@@ -12,20 +13,20 @@ export const ssrBuild = (
   let prerenderApp: PrerenderFn | null = null;
 
   return {
-    name: `${PLUGIN_NAME}:build`,
+    name: `${PACKAGE_NAME}:build`,
     apply: "build",
     sharedDuringBuild: true,
 
     config() {
       return {
         environments: {
-          ssr: {
+          [ENVIRONMENT_NAMES.SSR]: {
             build: {
               ssr: true,
               rollupOptions: { input: ssrEntrySrc },
             },
           },
-          client: {
+          [ENVIRONMENT_NAMES.CLIENT]: {
             build: {
               rollupOptions: {
                 input: Array.from(routes.byId.keys()),
@@ -36,8 +37,10 @@ export const ssrBuild = (
 
         builder: {
           async buildApp(builder) {
-            const ssrEnv = builder.environments.ssr;
-            const clientEnv = builder.environments.client;
+            const {
+              [ENVIRONMENT_NAMES.SSR]: ssrEnv,
+              [ENVIRONMENT_NAMES.CLIENT]: clientEnv,
+            } = builder.environments;
 
             const ssrOutput = await builder.build(ssrEnv);
             assert(
@@ -101,23 +104,14 @@ export const ssrBuild = (
         const route = routes.byId.get(id);
         assert(route, `Unexpected id ${id} not found in ssrRoutes`);
 
-        const prerenderedAppResponse = await prerenderApp(route.path, {
+        const html = await prerenderApp(route.path, {
           clientEntrySrc,
           transformIndexHtml: async (html) => html,
         });
 
-        if (!prerenderedAppResponse) return;
+        if (!html) return;
 
-        assert(
-          prerenderedAppResponse.ok &&
-            prerenderedAppResponse.body &&
-            prerenderedAppResponse.headers
-              .get("Content-Type")
-              ?.startsWith("text/html"),
-          "Expected prerenderApp to return a successful response with an HTML body",
-        );
-
-        return await prerenderedAppResponse.text();
+        return html;
       },
     },
   };
