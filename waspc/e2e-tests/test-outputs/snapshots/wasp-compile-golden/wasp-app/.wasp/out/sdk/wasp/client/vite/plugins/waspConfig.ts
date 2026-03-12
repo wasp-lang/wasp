@@ -36,7 +36,6 @@ export function waspConfig(): PluginOption {
         server: {
           port: useUserValue(config.server?.port, 3000),
           host: useUserValue(config.server?.host, "0.0.0.0"),
-          open: useUserValue(config.server?.open, true),
         },
         envPrefix: forcedOptions['envPrefix'],
         build: {

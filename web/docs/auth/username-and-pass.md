@@ -10,6 +10,7 @@ import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
 import UserFieldsExplainer from './\_user-fields.md';
 import UsernameData from './entities/\_username-data.md';
 import AccessingUserDataNote from './\_accessing-user-data-note.md';
+import TailwindNote from './\_tailwind-note.md';
 
 Wasp supports username & password authentication out of the box with login and signup flows. It provides you with the server-side implementation and the UI components for the client side.
 
@@ -156,9 +157,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 ### 4. Create the Client Pages
 
-:::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../project/css-frameworks).
-:::
+<TailwindNote />
 
 Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 

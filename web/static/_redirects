@@ -1,19 +1,20 @@
 # Cloudflare Pages server redirects
 
-/docs/guides/auth-ui                /docs/auth/ui                            301
-/docs/guides/username-password      /docs/auth/username-and-pass             301
-/docs/guides/email-auth            /docs/auth/email                          301
-/docs/integrations/google          /docs/auth/social-auth/google            301
-/docs/integrations/github          /docs/auth/social-auth/github            301
-/docs/deploying                    /docs/deployment/intro                    301
-/docs/advanced/deployment/overview /docs/deployment/intro                    301
-/docs/integrations/css-frameworks  /docs/project/css-frameworks             301
-/docs/data-model/backends          /docs/data-model/databases               301
-/docs/guides/websockets            /docs/advanced/web-sockets               301
-/docs/guides/testing               /docs/project/testing                    301
-/docs/guides/middleware-customization /docs/advanced/middleware-config       301
-/docs/guides/crud                  /docs/data-model/crud                    301
-/docs/tutorials/todo-app           /docs/tutorial/create                    301
+/docs/guides/auth-ui                     /docs/auth/ui                       301
+/docs/guides/username-password           /docs/auth/username-and-pass        301
+/docs/guides/email-auth                  /docs/auth/email                    301
+/docs/integrations/google                /docs/auth/social-auth/google       301
+/docs/integrations/github                /docs/auth/social-auth/github       301
+/docs/deploying                          /docs/deployment/intro              301
+/docs/advanced/deployment/overview       /docs/deployment/intro              301
+/docs/integrations/css-frameworks        /docs/project/css-frameworks        301
+/docs/data-model/backends                /docs/data-model/databases          301
+/docs/guides/websockets                  /docs/advanced/web-sockets          301
+/docs/guides/testing                     /docs/project/testing               301
+/docs/guides/middleware-customization    /docs/advanced/middleware-config    301
+/docs/guides/crud                        /docs/data-model/crud               301
+/docs/tutorials/todo-app                 /docs/tutorial/create               301
+/docs/project/css-frameworks             /docs/guides/libraries/tailwind     301
 
 /docs/migrate-from-0-11-to-0-12    /docs/migration-guides/migrate-from-0-11-to-0-12    301
 /docs/migrate-from-0-12-to-0-13    /docs/migration-guides/migrate-from-0-12-to-0-13    301
