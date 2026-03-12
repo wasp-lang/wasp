@@ -2,6 +2,11 @@ name: "Test - Wasp npm packages"
 
 on:
   workflow_call:
+    inputs:
+      data-files-list:
+        description: "Expected data files list with per-file SHA-256 hashes."
+        required: true
+        type: string
 
 jobs:
   test:
@@ -31,11 +36,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: actions/download-artifact@v6
-        with:
-          name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
-          path: packages/
-
       - name: Install dependencies
         if: matrix.runner.install-deps
         run: ${{ matrix.runner.install-deps }}
@@ -45,43 +45,58 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Publish and run Wasp npm packages
+      - name: Install Wasp CLI from pkg.pr.new
         env:
-          TEST_REGISTRY_URL: http://localhost:4873
-          TEST_REGISTRY_CONFIG: |
-            storage: "$HOME/.verdaccio/storage"
-            log: { type: stdout, format: pretty, level: info }
-            max_body_size: 1000mb # Needed because Wasp packages are large
-            packages: { '**': { access: $all, publish: $all } }
+          COMMIT_SHA: ${{ github.sha }}
         run: |
           set -eux
 
-          # Install global packages
-          npm install -g npm-cli-login@1 verdaccio@6
+          # Create a test project to install into
+          mkdir install-test && cd install-test
+          npm init -y
 
-          # Create registry config
-          mkdir -p "$HOME/.config/verdaccio"
-          echo "$TEST_REGISTRY_CONFIG" > "$HOME/.config/verdaccio/config.yaml"
+          # Install the CLI package (its optional deps pull in the
+          # platform-specific sub-package for this runner).
+          npm install "https://pkg.pr.new/@wasp.sh/wasp-cli@$COMMIT_SHA"
 
-          # Start local registry
-          verdaccio &
+      - name: Run Wasp CLI
+        run: |
+          set -eux
+          cd install-test
 
-          # Wait for registry to be ready
-          until curl -sSf "$TEST_REGISTRY_URL/-/ping" >/dev/null; do
-            sleep 1
-          done
+          # Test that the Wasp CLI can find and run the binary.
+          NODE_DEBUG=wasp-bin-wrapper npx wasp version
 
-          # Set registry and login
-          npm-cli-login -u fake-user -p fake-password -e fake@email.com -r "$TEST_REGISTRY_URL"
-          npm config set registry "$TEST_REGISTRY_URL"
+      - name: Generate list of installed data files
+        run: |
+          set -eux
 
-          # Publish all packages to the test registry
-          for pkg_dir in ./packages/*; do
-            npm publish "$pkg_dir"
-          done
+          # Find the installed platform sub-package (there should be exactly
+          # one matching the runner's os/cpu/libc).
+          pkg_dir=$(ls -d install-test/node_modules/@wasp.sh/wasp-cli-*/data 2>/dev/null | head -1)
 
-          # Test installing and using the Wasp CLI from the test registry
-          # We'll enable debug logging in the wrapper to see if it can find and run the Wasp binary.
-          NODE_DEBUG=wasp-bin-wrapper npx -y @wasp.sh/wasp-cli version
+          if [ -z "$pkg_dir" ]; then
+            echo "::error::No platform sub-package with data directory found"
+            exit 1
+          fi
 
-          exit 0 # Done, do not wait for registry to exit
+          # Strip the trailing /data to get the package root, then walk the
+          # data directory and produce a tab-separated manifest of relative
+          # paths and their SHA-256 hashes.
+          pkg_root="${pkg_dir%/data}"
+          (cd "$pkg_root" && find ./data -type f | while IFS= read -r file; do
+            hash=$(sha256sum "$file" | cut -d' ' -f1)
+            printf '%s\t%s\n' "$file" "$hash"
+          done) > actual-data-files.txt
+
+      - name: Verify data files match
+        env:
+          EXPECTED_DATA_FILES: ${{ inputs.data-files-list }}
+        run: |
+          set -eux
+
+          echo "$EXPECTED_DATA_FILES" > expected-data-files.txt
+
+          # Both lists are sorted before comparison so file discovery order
+          # doesn't cause spurious failures.
+          diff <(sort expected-data-files.txt) <(sort actual-data-files.txt)
