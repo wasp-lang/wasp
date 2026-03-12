@@ -20,8 +20,9 @@
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {
-    "@playwright/test": "1.51.1",
+    "@playwright/test": "1.55.1",
     "@tailwindcss/vite": "^4.1.18",
+    "@types/node": "^22.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@wasp.sh/wasp-app-runner": "^0.0.13",
