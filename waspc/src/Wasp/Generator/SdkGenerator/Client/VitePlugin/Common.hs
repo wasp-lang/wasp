@@ -31,4 +31,4 @@ ssrEntryPointPath :: String
 ssrEntryPointPath = "/@wasp/ssr-entry.tsx"
 
 ssrFallbackPath :: String
-ssrFallbackPath = "/"
+ssrFallbackPath = "/_fallback"
