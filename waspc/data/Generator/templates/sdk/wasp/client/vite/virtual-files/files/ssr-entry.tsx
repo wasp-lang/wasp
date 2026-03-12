@@ -10,12 +10,21 @@ import {
   RouterProvider,
 } from "react-router";
 import { Layout } from "wasp/client/app/layout";
+import { WaspApp } from "wasp/client/app";
 import { getRouteObjects } from "wasp/client/app/router";
+import { initializeQueryClient } from "wasp/client/operations";
+
 {=& routesMapping.importStatement =}
 
 {=# rootComponent.isDefined =}
 {=& rootComponent.importStatement =}
 {=/ rootComponent.isDefined =}
+
+{=# setupFn.isDefined =}
+await {= setupFn.importIdentifier =}()
+{=/ setupFn.isDefined =}
+
+initializeQueryClient()
 
 const rootElement =
   {=# rootComponent.isDefined =}
@@ -39,7 +48,9 @@ const prerenderApp = async (
 ) => {
   const app = (
     <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
-      {children}
+      <WaspApp>
+        {children}
+      </WaspApp>
     </Layout>
   );
 

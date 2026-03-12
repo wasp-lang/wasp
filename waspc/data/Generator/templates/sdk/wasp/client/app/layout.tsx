@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { Suspense } from "@suspensive/react";
+import { Suspense, useIsClient } from "@suspensive/react";
 import { StrictMode, type ReactNode } from "react";
 
 export function Layout({
@@ -11,6 +11,9 @@ export function Layout({
   isFallbackPage?: boolean;
   clientEntrySrc?: string;
 }) {
+  const isClient = useIsClient()
+  const shouldRenderChildren = isFallbackPage ? isClient : true
+
   return (
     <StrictMode>
       <html lang="en">
@@ -20,7 +23,9 @@ export function Layout({
             name="viewport"
             content="minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no"
           />
+
           {=& head =}
+
           <title>{= title =}</title>
         </head>
         <body>
@@ -32,12 +37,7 @@ export function Layout({
             // versions.
           }
           <div id="root">
-            <Suspense
-              clientOnly={isFallbackPage}
-              fallback={<p>Loading...</p>}
-            >
-              {children}
-            </Suspense>
+              {shouldRenderChildren ? children : null}
           </div>
 
           {

@@ -23,6 +23,22 @@ describe("analyzeApp", () => {
     });
   });
 
+  test("should parse app from async default export", async () => {
+    const { app } = Fixtures.createApp("minimal");
+    const entities = Fixtures.getEntities("minimal");
+    const mockMainWaspTs = "main.wasp.ts";
+    vi.doMock(mockMainWaspTs, () => ({ default: Promise.resolve(app) }));
+
+    const result = await analyzeApp(mockMainWaspTs, entities);
+    const tsAppSpec = app[GET_TS_APP_SPEC]();
+    const appSpecDecls = mapTsAppSpecToAppSpecDecls(tsAppSpec, entities);
+
+    expect(result).toMatchObject({
+      status: "ok",
+      value: appSpecDecls,
+    });
+  });
+
   test("should return an error if the default export is not defined", async () => {
     await testAnalyzeApp({
       app: undefined as unknown as App,
