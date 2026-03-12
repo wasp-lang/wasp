@@ -1,8 +1,11 @@
 {-# LANGUAGE NamedFieldPuns #-}
 
 module Wasp.Project.ExternalConfig
-  ( parseExternalConfigs,
+  ( parseAndValidateExternalConfigs,
     ExternalConfigs (..),
+
+    -- * Exported for testing only
+    validateSrcTsConfig,
   )
 where
 
@@ -16,7 +19,7 @@ import Wasp.Project.Common
     TsConfigPaths (..),
     WaspProjectDir,
   )
-import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
+import Wasp.Project.ExternalConfig.PackageJson (readUserPackageJsonFile)
 import Wasp.Project.ExternalConfig.TsConfig (findAndParseTsConfigFile, validateRootTsConfig, validateSrcTsConfig, validateWaspTsConfig)
 import Wasp.Project.ExternalConfig.ViteConfig (validateViteConfig)
 
@@ -28,11 +31,11 @@ data ExternalConfigs = ExternalConfigs
   }
   deriving (Show)
 
-parseExternalConfigs ::
+parseAndValidateExternalConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
   TsConfigPaths ->
   IO (Either [CompileError] ExternalConfigs)
-parseExternalConfigs waspDir tsConfigStructure = do
+parseAndValidateExternalConfigs waspDir tsConfigStructure = do
   readExternalConfigs waspDir tsConfigStructure >>= \case
     Left readError -> return $ Left [readError]
     Right externalConfigs ->
@@ -45,7 +48,7 @@ readExternalConfigs ::
   TsConfigPaths ->
   IO (Either CompileError ExternalConfigs)
 readExternalConfigs waspDir TsConfigPaths {srcTsConfig, waspTsConfig, rootTsConfig} = runExceptT $ do
-  packageJsonContent <- ExceptT $ readPackageJsonFile waspDir
+  packageJsonContent <- ExceptT $ readUserPackageJsonFile waspDir
   srcTsConfigContent <- ExceptT $ findAndParseTsConfigFile waspDir srcTsConfig
   waspTsConfigContent <- traverse (ExceptT . findAndParseTsConfigFile waspDir) waspTsConfig
   rootTsConfigContent <- traverse (ExceptT . findAndParseTsConfigFile waspDir) rootTsConfig

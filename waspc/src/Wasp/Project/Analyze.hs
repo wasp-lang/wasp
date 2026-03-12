@@ -60,8 +60,8 @@ analyzeWaspProject waspDir compileOptions = do
         (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
         -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
         (Right prismaSchemaAst, _) -> do
-          let tsConfigStructure =  getTsConfigStructureForWaspProject waspFilePath
-          EC.parseExternalConfigs waspDir tsConfigStructure >>= \case
+          let tsConfigStructure = getTsConfigStructureForWaspProject waspFilePath
+          EC.parseAndValidateExternalConfigs waspDir tsConfigStructure >>= \case
             Left externalConfigErrors -> return (Left externalConfigErrors, [])
             Right externalConfigs ->
               analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
