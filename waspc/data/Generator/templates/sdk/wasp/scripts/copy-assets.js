@@ -15,6 +15,7 @@ async function copyAssets(globs) {
   console.log(`[copy-assets] Received files from glob`)
   const { copied, skipped } = await copyChangedFiles(sourceFiles)
   console.log(`[copy-assets] ${copied} copied, ${skipped} skipped`)
+  process.exit(0)
 }
 
 async function copyChangedFiles(sourceFiles) {
