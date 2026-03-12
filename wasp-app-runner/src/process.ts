@@ -12,6 +12,7 @@ export type SpawnOptions = {
   cwd?: string;
   env?: EnvVars;
   print?: boolean;
+  detached?: boolean;
 };
 
 export interface ProcessExit {
@@ -26,10 +27,12 @@ export interface ProcessResult extends ProcessExit {
 export class Process {
   #proc;
   #logger;
+  #detached;
   #closePromise;
 
   constructor(options: SpawnOptions) {
     this.#logger = options.logger ?? createLogger("process");
+    this.#detached = options.detached ?? false;
 
     this.#proc = execa(options.cmd, options.args, {
       cwd: options.cwd,
@@ -39,9 +42,9 @@ export class Process {
       // non-zero code, as we'll handle that ourselves in the wait() method.
       reject: false,
 
-      // We're using detached mode to spawn a process group. See the kill()
-      // method below for details.
-      detached: true,
+      // Detached mode spawns a process group, allowing us to kill the entire
+      // group at once. See the kill() method below for details.
+      detached: options.detached ?? false,
     });
 
     shutdownSignal.addEventListener("abort", () => this.kill());
@@ -110,8 +113,10 @@ export class Process {
     // We always use SIGINT as it's the same signal sent from the terminal when
     // pressing Ctrl+C.
 
-    // A negative PID kills the entire process group.
-    this.#ignoreKillError(() => process.kill(-this.#proc.pid!, "SIGINT"));
+    if (this.#detached) {
+      // A negative PID kills the entire process group.
+      this.#ignoreKillError(() => process.kill(-this.#proc.pid!, "SIGINT"));
+    }
 
     // We kill the main process directly.
     this.#ignoreKillError(() => process.kill(this.#proc.pid!, "SIGINT"));
