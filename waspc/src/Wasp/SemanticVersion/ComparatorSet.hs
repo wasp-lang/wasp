@@ -14,7 +14,6 @@ module Wasp.SemanticVersion.ComparatorSet
     eq,
     backwardsCompatibleWith,
     approximatelyEquivalentTo,
-    xRange,
     hyphenRange,
   )
 where
@@ -39,7 +38,6 @@ import Wasp.SemanticVersion.VersionBound
 -- | A comparator set is either a sequence of simple comparators (AND logic)
 -- or a hyphen range.
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
--- NOTE: Grammar's `range` is our comparator set. And grammar's `range-set` is our range.
 data ComparatorSet
   = SimpleComparatorSet (NE.NonEmpty Simple)
   | HyphenRange PartialVersion PartialVersion
@@ -50,8 +48,6 @@ data ComparatorSet
 data Simple
   = -- | 1.2.3 (=1.2.3), >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
     Primitive Comparator
-  | -- | X, 1.X, 1.2.X (can use x, X or *)
-    XRange PartialVersion
   | -- | ~1.2.3
     Tilde PartialVersion
   | -- | ^1.2.3
@@ -68,7 +64,6 @@ instance Show Simple where
   show (Primitive comp) = show comp
   show (Tilde pv) = "~" ++ show pv
   show (Caret pv) = "^" ++ show pv
-  show (XRange pv) = show pv
 
 -- | We define concatenation of two comparator sets as a union of their simples.
 -- Only valid for SimpleComparatorSets.
@@ -82,8 +77,6 @@ instance HasVersionBounds ComparatorSet where
 
 instance HasVersionBounds Simple where
   versionBounds (Primitive comp) = versionBounds comp
-  versionBounds (XRange pv) =
-    (toXRangeLowerBound pv, toXRangeUpperBound pv)
   versionBounds (Caret pv) =
     (toXRangeLowerBound pv, toCaretUpperBound pv)
     where
@@ -133,14 +126,11 @@ backwardsCompatibleWith = SimpleComparatorSet . pure . Caret . fromVersion
 approximatelyEquivalentTo :: Version -> ComparatorSet
 approximatelyEquivalentTo = SimpleComparatorSet . pure . Tilde . fromVersion
 
-xRange :: Version -> ComparatorSet
-xRange = SimpleComparatorSet . pure . XRange . fromVersion
-
 hyphenRange :: Version -> Version -> ComparatorSet
 hyphenRange v1 v2 = HyphenRange (fromVersion v1) (fromVersion v2)
 
 mkPrimCompSet :: PrimitiveOperator -> Version -> ComparatorSet
-mkPrimCompSet op = SimpleComparatorSet . pure . Primitive . PrimitiveComparator op . fromVersion
+mkPrimCompSet op = SimpleComparatorSet . pure . Primitive . Comparator op . fromVersion
 
 -- | Parses a single non-hyphen comparator (primitive, tilde, caret, or x-range).
 -- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
@@ -149,7 +139,6 @@ simpleParser =
   P.choice
     [ tildeParser,
       caretParser,
-      xRangeParser,
       primitiveParser
     ]
   where
@@ -158,9 +147,6 @@ simpleParser =
 
     caretParser :: P.Parsec String () Simple
     caretParser = Caret <$> (P.char '^' *> partialVersionParser)
-
-    xRangeParser :: P.Parsec String () Simple
-    xRangeParser = XRange <$> partialVersionParser
 
     primitiveParser :: P.Parsec String () Simple
     primitiveParser = Primitive <$> primitiveComparatorParser

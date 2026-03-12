@@ -1,6 +1,5 @@
 module Wasp.SemanticVersion
-  ( module Wasp.SemanticVersion.Comparator,
-    module Wasp.SemanticVersion.ComparatorSet,
+  ( module Wasp.SemanticVersion.ComparatorSet,
     module Wasp.SemanticVersion.PartialVersion,
     module Wasp.SemanticVersion.Range,
     module Wasp.SemanticVersion.Version,
@@ -8,7 +7,6 @@ module Wasp.SemanticVersion
   )
 where
 
-import Wasp.SemanticVersion.Comparator
 import Wasp.SemanticVersion.ComparatorSet
 import Wasp.SemanticVersion.PartialVersion
 import Wasp.SemanticVersion.Range

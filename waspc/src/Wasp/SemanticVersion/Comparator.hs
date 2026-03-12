@@ -19,14 +19,13 @@ import Wasp.SemanticVersion.Version (Version (..))
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (..),
     VersionBound (..),
-    noVersionsInterval,
+    noVersionInterval,
   )
 
--- | A comparator is composed of an operator and a partial version.
+-- | A comparator composed of an operator and a partial version.
 -- It represents a single version constraint in a range.
--- See: https://github.com/npm/node-semver#ranges
 data Comparator
-  = PrimitiveComparator PrimitiveOperator PartialVersion
+  = Comparator PrimitiveOperator PartialVersion
   deriving (Eq)
 
 data PrimitiveOperator
@@ -39,7 +38,7 @@ data PrimitiveOperator
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
 instance Show Comparator where
-  show (PrimitiveComparator op pv) = show op ++ show pv
+  show (Comparator op pv) = show op ++ show pv
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
 instance Show PrimitiveOperator where
@@ -52,16 +51,16 @@ instance Show PrimitiveOperator where
   show GreaterThanOrEqual = ">="
 
 instance HasVersionBounds Comparator where
-  versionBounds (PrimitiveComparator primOp pv) = case primOp of
+  versionBounds (Comparator primOp pv) = case primOp of
     Equal -> (toXRangeLowerBound pv, toXRangeUpperBound pv)
     LessThan -> case pv of
-      Any -> noVersionsInterval
+      Any -> noVersionInterval
       (Major mjr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr 0 0)
       (MajorMinor mjr mnr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr 0)
       (MajorMinorPatch mjr mnr ptc) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr ptc)
     LessThanOrEqual -> (Inclusive $ Version 0 0 0, toXRangeUpperBound pv)
     GreaterThan -> case pv of
-      Any -> noVersionsInterval
+      Any -> noVersionInterval
       (Major mjr) -> (Inclusive $ Version (mjr + 1) 0 0, Inf)
       (MajorMinor mjr mnr) -> (Inclusive $ Version mjr (mnr + 1) 0, Inf)
       (MajorMinorPatch mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
@@ -82,7 +81,7 @@ toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr p
 -- | Parses a single primitive comparator.
 -- See `primitive` definition here: https://github.com/npm/node-semver#range-grammar
 primitiveComparatorParser :: P.Parsec String () Comparator
-primitiveComparatorParser = PrimitiveComparator <$> primitiveOperatorParser <*> partialVersionParser
+primitiveComparatorParser = Comparator <$> primitiveOperatorParser <*> partialVersionParser
   where
     primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
     primitiveOperatorParser =

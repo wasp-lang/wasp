@@ -15,7 +15,7 @@ module Wasp.SemanticVersion.VersionBound
     intervalParser,
     vi,
     allVersionsInterval,
-    noVersionsInterval,
+    noVersionInterval,
   )
 where
 
@@ -39,17 +39,16 @@ versionFromBound (Exclusive v) = Just v
 type VersionInterval = (VersionBound, VersionBound)
 
 -- | Version interval which satisfies any possible SemVer version.
--- As SemVer is defined on natural numbers, I picked the [0.0.0, inf) interval.
--- NOTE: `node-semver` uses the `SemVer ANY` to represent this state.
+-- As SemVer is defined on natural numbers,
+-- the [0.0.0, inf) interval satisfies any possible version.
 allVersionsInterval :: VersionInterval
 allVersionsInterval = (Inclusive $ Version 0 0 0, Inf)
 
--- | Any empty interval can be a no version interval.
--- For our implementation, I picked the (0.0.0, 0.0.0) interval.
--- NOTE: `node-semver` uses the `<0.0.0-0` to represent this state,
--- where `0.0.0-0` is the smallest possible verison.
-noVersionsInterval :: VersionInterval
-noVersionsInterval = (Exclusive $ Version 0 0 0, Exclusive $ Version 0 0 0)
+-- | Version interval which satisfies no SemVer version.
+-- Any empty interval can be a no version interval.
+-- For our implementation we picked the (0.0.0, 0.0.0) interval.
+noVersionInterval :: VersionInterval
+noVersionInterval = (Exclusive $ Version 0 0 0, Exclusive $ Version 0 0 0)
 
 showInterval :: VersionInterval -> String
 showInterval (lowerBound, upperBound) =

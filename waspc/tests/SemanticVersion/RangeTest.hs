@@ -33,7 +33,7 @@ spec_SemanticVersion_Range = do
           ( Range
               [ SimpleComparatorSet $
                   NE.fromList
-                    [ XRange Any
+                    [ Primitive (Comparator Equal Any)
                     ]
               ]
           )
@@ -44,8 +44,8 @@ spec_SemanticVersion_Range = do
           ( Range
               [ SimpleComparatorSet $
                   NE.fromList
-                    [ Primitive (PrimitiveComparator GreaterThanOrEqual (MajorMinor 1 0)),
-                      Primitive (PrimitiveComparator LessThan (MajorMinorPatch 2 0 0))
+                    [ Primitive (Comparator GreaterThanOrEqual (MajorMinor 1 0)),
+                      Primitive (Comparator LessThan (MajorMinorPatch 2 0 0))
                     ]
               ]
           )
@@ -61,11 +61,11 @@ spec_SemanticVersion_Range = do
           ( Range
               [ SimpleComparatorSet $
                   NE.fromList
-                    [ Primitive (PrimitiveComparator GreaterThanOrEqual (Major 1)),
-                      Primitive (PrimitiveComparator LessThan (Major 2))
+                    [ Primitive (Comparator GreaterThanOrEqual (Major 1)),
+                      Primitive (Comparator LessThan (Major 2))
                     ],
-                SimpleComparatorSet $ pure $ Primitive (PrimitiveComparator GreaterThanOrEqual (MajorMinorPatch 3 0 0)),
-                SimpleComparatorSet $ pure $ XRange Any
+                SimpleComparatorSet $ pure $ Primitive (Comparator GreaterThanOrEqual (MajorMinorPatch 3 0 0)),
+                SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)
               ]
           )
       strictParseRange "^1.2.3 ||   ^2.0"
