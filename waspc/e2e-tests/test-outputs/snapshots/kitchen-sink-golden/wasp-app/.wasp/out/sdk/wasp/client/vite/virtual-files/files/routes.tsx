@@ -1,4 +1,7 @@
 // @ts-nocheck
+import { getRouteObjects } from "wasp/client/app/router";
+import { initializeQueryClient } from "wasp/client/operations";
+
 import { createAuthRequiredPage } from "wasp/client/app"
 
 // These files are used from user-land and the import paths below are relative to the
@@ -23,7 +26,7 @@ import { DetailPage as CrudDetail } from './src/features/crud/pages/DetailPage'
 import { StreamingTestPage as StreamingPage } from './src/features/streaming/pages/StreamingTestPage'
 import { ChatPage } from './src/features/chat/pages/ChatPage'
 
-export const routesMapping = {
+const routesMapping = {
   HomeRoute: HomePage,
   CatchAllRoute: CatchAllPage,
   SignupRoute: SignupPage,
@@ -44,3 +47,19 @@ export const routesMapping = {
   StreamingRoute: StreamingPage,
   ChatRoute: createAuthRequiredPage(ChatPage),
 } as const;
+
+import { App as App_ext } from './src/App'
+
+import { setup as setup_ext } from './src/clientSetup'
+
+await setup_ext()
+
+initializeQueryClient()
+
+const rootElement =
+  <App_ext />
+
+export const routeObjects = getRouteObjects({
+  routesMapping,
+  rootElement,
+})
