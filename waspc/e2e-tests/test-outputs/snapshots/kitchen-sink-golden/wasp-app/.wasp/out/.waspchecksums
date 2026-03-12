@@ -39,7 +39,7 @@
             "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.21.2.tgz"
         ],
-        "e071d2397aa2883b2b9e3eb5c9d0d6ee0f6360620ecf121dfa5525187eb09d12"
+        "18ae8499128de9255628d6ac4c54b8f42ae754cedb83b7d7cf179f2afc40bcc9"
     ],
     [
         [
@@ -753,7 +753,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "b5da967d3c5dd2bedc7cef4f9f04bcdbd31825d2310f4e4f9362d78482c308e6"
+        "14acf699cbea1957b9b192ce3ed6c215071ff96914f384491e8b4ae8ebc5c895"
     ],
     [
         [
@@ -781,7 +781,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "57f4ba239f1bfae38d14da3155761ab3c949c407637009c4962cace476ae78de"
+        "a70190455f02e55e188349ce86f4854bfa6434def4e47b6bfb7c99061360497e"
     ],
     [
         [

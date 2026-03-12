@@ -33,7 +33,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       clientEntrySrc: "/@wasp/client-entry.tsx",
       ssrEntrySrc: "/@wasp/ssr-entry.tsx",
       ssrPaths: [],
-      ssrFallbackPath: "/",
+      ssrFallbackFile: "/index.html",
     }),
   ];
 }
