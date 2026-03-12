@@ -15,10 +15,10 @@ import { WaspApp } from "wasp/client/app";
 
 {=& routeObjects.importStatement =}
 
-const FALLBACK_PATH = "{= ssrFallbackPath =}";
+const FALLBACK_FILE = "{= ssrFallbackFile =}";
 
 export default ((async (route, ctx) => {
-  const isFallbackPage = route === FALLBACK_PATH;
+  const isFallbackPage = route === FALLBACK_FILE;
 
   if (isFallbackPage) {
      return await prerenderApp({ isFallbackPage: true, children: null }, ctx);
