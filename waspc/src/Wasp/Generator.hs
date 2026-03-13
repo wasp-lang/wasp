@@ -29,7 +29,7 @@ import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
-import Wasp.Generator.Valid (validateAppSpec)
+import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
@@ -46,7 +46,7 @@ import Wasp.Util ((<++>))
 --     from user's machine. Maybe we just overwrite and we are good?
 writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir sendMessage = do
-  case validateAppSpec spec of
+  case validateExternalConfigsWithAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
       let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
