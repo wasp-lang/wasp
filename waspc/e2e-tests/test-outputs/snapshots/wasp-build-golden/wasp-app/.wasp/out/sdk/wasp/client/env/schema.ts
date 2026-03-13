@@ -2,13 +2,15 @@ import * as z from 'zod'
 
 const userClientEnvSchema = z.object({})
 
-const serverUrlSchema = z
-  .string({
-    required_error: 'REACT_APP_API_URL is required',
+const serverUrlSchema =
+  z.string({
+    error: 'REACT_APP_API_URL is required',
   })
-  .url({
-    message: 'REACT_APP_API_URL must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: 'REACT_APP_API_URL must be a valid URL',
+    })
+  )
 
 const waspClientDevSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema
@@ -22,5 +24,5 @@ const waspClientProdSchema = z.object({
 // PRIVATE API (sdk, Vite config)
 export function getClientEnvSchema(mode: string) {
   const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return userClientEnvSchema.merge(waspSchema)
+  return z.object({ ...userClientEnvSchema.shape, ...waspSchema.shape })
 }
