@@ -374,8 +374,6 @@ library
     Wasp.Generator.Valid.PackageJson.Dependencies
     Wasp.Generator.Valid.PackageJson.WaspConfig
     Wasp.Generator.Valid.PackageJson.Workspaces
-    Wasp.Generator.Valid.TsConfig
-    Wasp.Generator.Valid.Validator
     Wasp.Generator.WaspInfo
     Wasp.Generator.WaspLibs
     Wasp.Generator.WaspLibs.AvailableLibs
@@ -479,6 +477,7 @@ library
     Wasp.Util.Terminal
     Wasp.Util.WebRouterPath
     Wasp.Valid
+    Wasp.Validator
     Wasp.Version
 
 library waspls
@@ -735,12 +734,12 @@ test-suite waspc-tests
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.Valid.PackageJsonTest
-    Generator.Valid.ValidatorTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
     Project.DbTest
+    Project.ExternalConfigTest
     Project.WaspignoreTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
@@ -771,6 +770,7 @@ test-suite waspc-tests
     Util.IO.RetryTest
     Util.Prisma
     UtilTest
+    ValidatorTest
 
 test-suite waspls-tests
   import: common-all, common-exe

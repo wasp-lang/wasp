@@ -48,7 +48,6 @@ import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
-import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
@@ -86,8 +85,7 @@ data AppSpec = AppSpec
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
-    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
-    srcTsConfig :: TsConfig
+    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
   }
 
 -- TODO: Make this return "Named" declarations?
