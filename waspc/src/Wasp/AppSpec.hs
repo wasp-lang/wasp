@@ -155,7 +155,7 @@ asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file
 --   `engines` field in package.json.
 --   In the meantime, we determine it based on the oldest node version that Wasp supports.
 userNodeVersionRange :: AppSpec -> SV.Range
-userNodeVersionRange _ = SV.Range [SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion]
+userNodeVersionRange _ = SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion
 
 isProduction :: AppSpec -> Bool
 isProduction spec = buildType spec == BuildType.Production
