@@ -73,7 +73,7 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
           "Since this is a GPT generated app, it will likely contain some mistakes, proportional to how",
           "complex the app is. If there are some in your app, check out Wasp docs for help while",
           "fixing them, and also feel free to reach out to us on Discord! You can also try",
-          "generating the app again to get different results (try using a different model).",
+          "generating the app again to get different results, for example with a different model.",
           " - Wasp docs: https://wasp.sh/docs",
           " - Our Discord: https://discord.gg/rzdnErX",
           "",
