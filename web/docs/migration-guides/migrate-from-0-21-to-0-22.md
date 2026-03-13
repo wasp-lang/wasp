@@ -29,17 +29,8 @@ app MyApp {
 }
 ```
 
-If you're using the TypeScript config:
+### 2. Update your env validation schemas
 
-```ts title="main.wasp.ts"
-import { App } from 'wasp-config'
+**If you don't have `app.client. envValidationSchema` or `app.server. envValidationSchema` defined in your Wasp file, you can skip this step.**
 
-const app = new App('MyApp', {
-  wasp: { version: '^0.22.0' },
-  // ...
-})
-```
-
-### 2. Update your env validation schemas (if needed)
-
-If you have custom Zod schemas for env validation, review them for compatibility with Zod v4. Most schemas will work without changes, but some deprecated APIs have been removed. Refer to the [Zod v4 migration guide](https://zod.dev/v4/changelog) for details.
+Review your schemas for compatibility with Zod v4. Most schemas will work without changes, but some deprecated APIs have been removed. Refer to the [Zod v4 migration guide](https://zod.dev/v4/changelog) for details.
