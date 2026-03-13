@@ -255,7 +255,7 @@ export const routes = {
         options?.hash
       ),
   },
-  LazyNoRoute: {
+  EagerRoute: {
     to: "/lazy/no",
     build: (
       options?:
@@ -268,7 +268,7 @@ export const routes = {
         options?.hash
       ),
   },
-  LazyYesRoute: {
+  LazyRoute: {
     to: "/lazy/yes",
     build: (
       options?:

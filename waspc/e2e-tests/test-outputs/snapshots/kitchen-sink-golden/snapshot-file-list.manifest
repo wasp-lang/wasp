@@ -941,6 +941,14 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/features/jobs/uppercaseText.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/jobs/uppercaseText.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/jobs/uppercaseText.js
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/jobs/uppercaseText.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/EagerPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/EagerPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/EagerPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/EagerPage.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/LazyPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/LazyPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/LazyPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/LazyPage.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.js
@@ -993,14 +1001,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyNoPage.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyNoPage.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyNoPage.jsx
-wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyNoPage.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyYesPage.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyYesPage.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyYesPage.jsx
-wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyYesPage.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/rpcTests/helpers.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/rpcTests/helpers.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/rpcTests/helpers.js
@@ -1146,6 +1146,8 @@ wasp-app/.wasp/out/sdk/wasp/src/features/jobs/bar.js
 wasp-app/.wasp/out/sdk/wasp/src/features/jobs/pages/JobsPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/jobs/sleep.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/jobs/uppercaseText.ts
+wasp-app/.wasp/out/sdk/wasp/src/features/lazy-loading/pages/EagerPage.tsx
+wasp-app/.wasp/out/sdk/wasp/src/features/lazy-loading/pages/LazyPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/actions.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/components/Todo.test.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/components/Todo.tsx
@@ -1159,8 +1161,6 @@ wasp-app/.wasp/out/sdk/wasp/src/features/streaming/api.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/pages/CatchAllPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/pages/HomePage.tsx
-wasp-app/.wasp/out/sdk/wasp/src/pages/LazyNoPage.tsx
-wasp-app/.wasp/out/sdk/wasp/src/pages/LazyYesPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/helpers.ts
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/operations/client.ts
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/operations/definitions.ts
@@ -1370,6 +1370,8 @@ wasp-app/src/features/jobs/bar.js
 wasp-app/src/features/jobs/pages/JobsPage.tsx
 wasp-app/src/features/jobs/sleep.ts
 wasp-app/src/features/jobs/uppercaseText.ts
+wasp-app/src/features/lazy-loading/pages/EagerPage.tsx
+wasp-app/src/features/lazy-loading/pages/LazyPage.tsx
 wasp-app/src/features/operations/actions.ts
 wasp-app/src/features/operations/components/Todo.test.tsx
 wasp-app/src/features/operations/components/Todo.tsx
@@ -1383,8 +1385,6 @@ wasp-app/src/features/streaming/api.ts
 wasp-app/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/src/pages/CatchAllPage.tsx
 wasp-app/src/pages/HomePage.tsx
-wasp-app/src/pages/LazyNoPage.tsx
-wasp-app/src/pages/LazyYesPage.tsx
 wasp-app/src/rpcTests/helpers.ts
 wasp-app/src/rpcTests/operations/client.ts
 wasp-app/src/rpcTests/operations/definitions.ts

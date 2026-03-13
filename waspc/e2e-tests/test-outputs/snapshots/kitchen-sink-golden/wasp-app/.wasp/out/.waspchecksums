@@ -655,7 +655,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "367a8232ee0857b26a55fafab01b4187b440fefe2e3a3543dbb28cb051af158e"
+        "bbf1f9c1525631bea169b63c985fc22aaa4a15daaeb862716d7bdafbc4081b1c"
     ],
     [
         [
@@ -781,7 +781,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "a0ea1bbfcbe5f083a303168ebc76235fcf808cbcb974d1e96a862a60a7e487ed"
+        "90f546d1de9dfaef340a56a099116b2ce242a4a0b00a867ce8de6fa56239ab3e"
     ],
     [
         [
@@ -1521,6 +1521,20 @@
     [
         [
             "file",
+            "sdk/wasp/src/features/lazy-loading/pages/EagerPage.tsx"
+        ],
+        "ce0ed779cc6258325240c90342f29a7fe791c1a3f384fd4141b1d8b79587b8c4"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/lazy-loading/pages/LazyPage.tsx"
+        ],
+        "d431e4c675416b2bfa45a6afdd37af2c8143f5e3e2668dc9e9f54dc7a89d1bf2"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/src/features/operations/actions.ts"
         ],
         "dd76d5efd0800f087ff9a7aa60d49d8c04cc0c0e8b441d07b350d51d74ad8ad0"
@@ -1608,20 +1622,6 @@
             "sdk/wasp/src/pages/HomePage.tsx"
         ],
         "3b477ee3d36e6ac0999b1ff06772cd9f4533c5fe7e544bdfba6876391888f561"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/src/pages/LazyNoPage.tsx"
-        ],
-        "ef8b57fa0932edb5c38a5886e64e513e62d77261c2051d025d79fe1dbb2868f9"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/src/pages/LazyYesPage.tsx"
-        ],
-        "b2e0f5a23e9aeba34dd56b4d61b2f7ef41c7a759af01ddb06f55c1292e7ff7f7"
     ],
     [
         [

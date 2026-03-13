@@ -351,14 +351,14 @@ page ChatPage {
 
 // --------- Lazy Loading --------- //
 
-route LazyNoRoute { path: "/lazy/no", to: LazyNoPage, lazy: false }
-page LazyNoPage {
-  component: import { LazyNoPage } from "@src/pages/LazyNoPage"
+route EagerRoute { path: "/lazy/no", to: EagerPage, lazy: false }
+page EagerPage {
+  component: import { EagerPage } from "@src/features/lazy-loading/pages/EagerPage"
 }
 
-route LazyYesRoute { path: "/lazy/yes", to: LazyYesPage, lazy: true }
-page LazyYesPage {
-  component: import { LazyYesPage } from "@src/pages/LazyYesPage"
+route LazyRoute { path: "/lazy/yes", to: LazyPage, lazy: true }
+page LazyPage {
+  component: import { LazyPage } from "@src/features/lazy-loading/pages/LazyPage"
 }
 
 // --------- Operations Type Testing --------- //
