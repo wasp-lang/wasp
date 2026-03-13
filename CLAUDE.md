@@ -8,13 +8,14 @@ Wasp is a full-stack web framework that compiles `.wasp` configuration files int
   - `src/` — Main compiler library (Analyzer, Generator, AppSpec, Psl)
   - `cli/src/` — CLI commands (start, build, new, deploy, etc.)
   - `waspls/` — Language Server Protocol implementation
-  - `data/packages/` — TypeScript packages embedded in the compiler
+  - `data/packages/` — TypeScript packages called by the CLI when compiling projects as FFI
+  - `data/Generator/libs/` — TypeScript libraries embedded into generated project code
   - `data/Generator/templates/` — Mustache templates for code generation
   - `e2e-tests/` — Golden file snapshot tests
   - `run` — **Main development script** (run `./run` with no args to see all commands)
 - `wasp-app-runner/` — Node.js CLI for running Wasp apps in e2e tests
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
-- `mage/` — Example Wasp showcase app (Vite + React)
+- `mage/` — Web frontend for `wasp new:ai`, which generates Wasp apps from a description
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
 
@@ -24,7 +25,7 @@ All waspc development commands run from the `waspc/` directory via the `./run` s
 
 Key things to know:
 
-- Two-phase build: TS packages in `data/packages/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
+- Two-phase build: TS packages in `data/packages/` and libs in `data/Generator/libs/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
 - Toolchain versions (GHC, HLS) are specified in `waspc/cabal.project` and `waspc/dev-tool.project`. Use `./run ghcup-set` to set the correct versions.
 - Node.js minimum version is in `.nvmrc`.
@@ -47,7 +48,7 @@ Key things to know:
 
 ### Architecture
 
-- **Analyzer** parses `.wasp` files → **AppSpec** (AST) → **Generator** produces React/Node.js code.
+- **Analyzer** parses `.wasp` files → **AppSpec** (IR) → **Generator** produces React/Node.js code.
 - Code generation uses a file draft system and Mustache templates in `data/Generator/templates/`.
 
 ## Important Rules
