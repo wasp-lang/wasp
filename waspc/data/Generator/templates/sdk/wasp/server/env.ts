@@ -166,14 +166,6 @@ const waspProdServerEnvSchema = z.object({
   {=/ isAuthEnabled =}
 });
 
-const serverCommonSchema = z.object({
-  ...userServerEnvSchema.shape,
-  ...waspServerCommonSchema.shape,
-})
-const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
-  z.object({ ...serverDevSchema.shape, ...serverCommonSchema.shape }),
-  z.object({ ...serverProdSchema.shape, ...serverCommonSchema.shape }),
-])
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
   waspDevServerEnvSchema.merge(waspCommonServerEnvSchema),
   waspProdServerEnvSchema.merge(waspCommonServerEnvSchema),

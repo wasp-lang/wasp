@@ -1,13 +1,12 @@
 import { type Plugin } from "vite";
 
 import {
-  getValidatedEnvOrError,
   formatZodEnvError,
+  getValidatedEnvOrError,
 } from "../../../env/validation.js";
 import { getColorizedConsoleFormatString } from "../../../universal/ansiColors.js";
 import { getClientEnvSchema } from "../../env/schema.js";
 import { loadEnvVars } from "./envFile.js";
-import { loadEnvVars } from './envFile.js'
 
 const redColorFormatString = getColorizedConsoleFormatString("red");
 
