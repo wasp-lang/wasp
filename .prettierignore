@@ -1,5 +1,4 @@
 .wasp/
-.claude
 dist/
 dist-newstyle/
 waspc/data/*/templates/
