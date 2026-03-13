@@ -34,3 +34,8 @@ app MyApp {
 **If you don't have `app.client. envValidationSchema` or `app.server. envValidationSchema` defined in your Wasp file, you can skip this step.**
 
 Review your schemas for compatibility with Zod v4. Most schemas will work without changes, but some deprecated APIs have been removed. Refer to the [Zod v4 migration guide](https://zod.dev/v4/changelog) for details.
+### 3. Update your `head` tags to valid JSX
+
+**If you don't have `app.head` defined in your Wasp file, you can skip this step.**
+
+Make sure all tags in `app.head` are valid React JSX — every tag must either be self-closing (e.g. `<meta ... />`) or have a matching closing tag (e.g. `<script>...</script>`). In JSX, even void HTML elements (like `<link>`, `<meta>`, and `<base>`) need a trailing `/>`.
