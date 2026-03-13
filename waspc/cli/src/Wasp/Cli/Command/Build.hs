@@ -31,9 +31,9 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     getSrcTsConfigInWaspProjectDir,
-    userPackageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
