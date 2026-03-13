@@ -408,8 +408,11 @@ library
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
     Wasp.Project.ExternalConfig.PackageJson
+    Wasp.Project.ExternalConfig.RootTsConfig
+    Wasp.Project.ExternalConfig.SrcTsConfig
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalConfig.ViteConfig
+    Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile

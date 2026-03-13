@@ -15,7 +15,9 @@ import Wasp.Project.Common
     WaspProjectDir,
   )
 import Wasp.Project.ExternalConfig.PackageJson (parseAndValidateUserPackageJson)
-import Wasp.Project.ExternalConfig.TsConfig (parseAndValidateRootTsConfig, parseAndValidateSrcTsConfig, parseAndValidateWaspTsConfig, validateSrcTsConfig)
+import Wasp.Project.ExternalConfig.RootTsConfig (parseAndValidateRootTsConfig)
+import Wasp.Project.ExternalConfig.SrcTsConfig (parseAndValidateSrcTsConfig)
+import Wasp.Project.ExternalConfig.WaspTsConfig (parseAndValidateWaspTsConfig)
 import Wasp.Project.ExternalConfig.ViteConfig (validateViteConfig)
 
 data ExternalConfigs = ExternalConfigs

@@ -3,7 +3,7 @@ module Project.ExternalConfigTest (spec_ExternalConfig) where
 import Data.Maybe (fromJust)
 import Test.Hspec
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Project.ExternalConfig.TsConfig (validateSrcTsConfig)
+import Wasp.Project.ExternalConfig.SrcTsConfig (validateSrcTsConfig)
 
 spec_ExternalConfig :: Spec
 spec_ExternalConfig = do
