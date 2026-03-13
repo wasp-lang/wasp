@@ -53,6 +53,8 @@ data UserPackageJsonFile
 
 instance PackageJsonFile UserPackageJsonFile
 
+instance TsConfigFile SrcTsConfigFile
+
 data WaspFilePath
   = WaspLang !(Path' Abs (File WaspLangFile))
   | WaspTs !(Path' Abs (File WaspTsFile))
