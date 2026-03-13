@@ -1,5 +1,4 @@
-import { Suspense, useIsClient } from "@suspensive/react";
-import { StrictMode, type ReactNode } from "react";
+import { StrictMode, type ReactNode, useSyncExternalStore } from "react";
 
 export function Layout({
   children,
@@ -11,7 +10,7 @@ export function Layout({
   clientEntrySrc?: string;
 }) {
   const isClient = useIsClient()
-  const shouldRenderChildren = isFallbackPage ? isClient : true
+  const shouldRenderChildren = isClient || !isFallbackPage
 
   return (
     <StrictMode>
@@ -66,3 +65,17 @@ export function Layout({
     </StrictMode>
   );
 }
+
+function useIsClient() {
+  // We use `useSyncExternalStore` to get a value that is `true` on the client
+  // and `false` on the server, while avoiding hydration mismatches. It looks
+  // like a hack, but it conforms to the semantics of `useSyncExternalStore`,
+  // with *the environment* being the "external store" in this case. We just
+  // don't have any real subscription logic, since the value is static.
+  return useSyncExternalStore(emptySubscribe, getClientValue, getServerValue)
+}
+
+function emptySubscribe() { return emptyUnsubscribe }
+function emptyUnsubscribe() {}
+function getClientValue() { return true }
+function getServerValue() { return false }

@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/lib-vite-ssr",
-  "version": "0.21.2",
+  "version": "0.22.0",
   "type": "module",
   "private": true,
   "exports": {
