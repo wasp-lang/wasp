@@ -9,13 +9,15 @@ const userClientEnvSchema = {= envValidationSchema.importIdentifier =};
 const userClientEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
-const serverUrlSchema = z
-  .string({
-    required_error: "{= serverUrlEnvVarName =} is required",
+const serverUrlSchema =
+  z.string({
+    error: '{= serverUrlEnvVarName =} is required',
   })
-  .url({
-    message: "{= serverUrlEnvVarName =} must be a valid URL",
-  });
+  .pipe(
+    z.url({
+      error: '{= serverUrlEnvVarName =} must be a valid URL',
+    })
+  )
 
 const waspDevClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema
@@ -33,5 +35,5 @@ export function getClientEnvSchema(mode: string) {
   const waspClientEnvSchema = mode === "production"
     ? waspProdClientEnvSchema
     : waspDevClientEnvSchema;
-  return userClientEnvSchema.merge(waspClientEnvSchema);
+  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape })
 }
