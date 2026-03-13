@@ -12,7 +12,7 @@ import Data.List (intercalate, nub)
 import Data.Maybe (isJust)
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator (Comparator (..), PrimitiveOperator (Equal))
-import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), Simple (..), comparatorSetParser)
+import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), SimpleRangeExpression (..), comparatorSetParser)
 import Wasp.SemanticVersion.PartialVersion (PartialVersion (..))
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
@@ -27,7 +27,6 @@ import Wasp.SemanticVersion.VersionBound
 
 -- | Comparator sets can be joined by "||" to form a range,
 -- which is satisfied by satisfying any of the comparator sets it includes.
--- See: https://github.com/npm/node-semver#ranges
 data Range = Range [ComparatorSet]
   deriving (Eq)
 

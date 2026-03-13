@@ -81,7 +81,7 @@ toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr p
 -- | Parses a single primitive comparator.
 -- See `primitive` definition here: https://github.com/npm/node-semver#range-grammar
 primitiveComparatorParser :: P.Parsec String () Comparator
-primitiveComparatorParser = Comparator <$> primitiveOperatorParser <*> partialVersionParser
+primitiveComparatorParser = Comparator <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
   where
     primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
     primitiveOperatorParser =

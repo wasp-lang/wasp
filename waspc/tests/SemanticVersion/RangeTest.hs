@@ -52,11 +52,25 @@ spec_SemanticVersion_Range = do
       strictParseRange "^1.2.3"
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3)
+              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3)
               ]
           )
     it "parses ranges with multiple comparator sets" $ do
-      strictParseRange ">=1  <2   || >=3.0.0    || *"
+      strictParseRange "^1.2.3 ||   ^2.0"
+        `shouldBe` Right
+          ( Range
+              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+              ]
+          )
+      strictParseRange "^1.2.3||^2.0"
+        `shouldBe` Right
+          ( Range
+              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+              ]
+          )
+      strictParseRange ">=1  <2|| >=3.0.0    || *"
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $
@@ -68,35 +82,19 @@ spec_SemanticVersion_Range = do
                 SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)
               ]
           )
-      strictParseRange "^1.2.3 ||   ^2.0"
-        `shouldBe` Right
-          ( Range
-              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3),
-                SimpleComparatorSet $ pure $ Caret (MajorMinor 2 0)
-              ]
-          )
-      -- Allow 0 spaces around the OR operator
-      strictParseRange "^1.2.3||^2.0"
-        `shouldBe` Right
-          ( Range
-              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3),
-                SimpleComparatorSet $ pure $ Caret (MajorMinor 2 0)
-              ]
-          )
-
     it "parses range with trailing content" $ do
       parseRange "^1.2.3 || ^2.0 "
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3),
-                SimpleComparatorSet $ pure $ Caret (MajorMinor 2 0)
+              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
               ]
           )
       parseRange "^1.2.3 || ^2.0 abc"
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $ pure $ Caret (MajorMinorPatch 1 2 3),
-                SimpleComparatorSet $ pure $ Caret (MajorMinor 2 0)
+              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
               ]
           )
 

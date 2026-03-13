@@ -1,9 +1,10 @@
+{-# LANGUAGE InstanceSigs #-}
 {-# HLINT ignore "Use <$>" #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Wasp.SemanticVersion.ComparatorSet
   ( ComparatorSet (..),
-    Simple (..),
+    SimpleRangeExpression (..),
     comparatorSetParser,
     simpleParser,
     hyphenRangeParser,
@@ -35,23 +36,28 @@ import Wasp.SemanticVersion.VersionBound
     intervalIntersection,
   )
 
--- | A comparator set is either a sequence of simple comparators (AND logic)
--- or a hyphen range.
--- See `range` definition here: https://github.com/npm/node-semver#range-grammar
+-- | A comparator set is either:
+--  - a sequence of simple range expressions (AND logic)
+--  - a hyphen range
+--
+-- The name comparator set comes from the fact that all items of comparator set
+-- can be desguared into comparators.
 data ComparatorSet
-  = SimpleComparatorSet (NE.NonEmpty Simple)
+  = SimpleComparatorSet (NE.NonEmpty SimpleRangeExpression)
   | HyphenRange PartialVersion PartialVersion
   deriving (Eq)
 
--- | A simple: primitive, tilde, caret, or x-range.
--- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
-data Simple
+-- | Anything that is either a comparator, or can be desugared into comparators.
+-- Simple because all operators here require only a single partial version.
+--
+-- X-Range is already supported on all operators through the 'Partial Version' implementation.
+data SimpleRangeExpression
   = -- | 1.2.3 (=1.2.3), >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
     Primitive Comparator
   | -- | ~1.2.3
-    Tilde PartialVersion
+    TildeRange PartialVersion
   | -- | ^1.2.3
-    Caret PartialVersion
+    CaretRange PartialVersion
   deriving (Eq)
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator set.
@@ -60,46 +66,45 @@ instance Show ComparatorSet where
   show (HyphenRange pv1 pv2) = show pv1 ++ " - " ++ show pv2
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` simple comparator.
-instance Show Simple where
-  show (Primitive comp) = show comp
-  show (Tilde pv) = "~" ++ show pv
-  show (Caret pv) = "^" ++ show pv
+instance Show SimpleRangeExpression where
+  show (Primitive comparator) = show comparator
+  show (TildeRange pv) = "~" ++ show pv
+  show (CaretRange pv) = "^" ++ show pv
 
--- | We define concatenation of two comparator sets as a union of their simples.
--- Only valid for SimpleComparatorSets.
+-- | We define concatenation of two comparator sets as a union of their range expressions.
+-- Hyphen Ranges can't be combined with other comparator sets.
 instance Semigroup ComparatorSet where
   (SimpleComparatorSet left) <> (SimpleComparatorSet right) = SimpleComparatorSet $ NE.nub $ left <> right
-  _ <> _ = error "Cannot combine HyphenRange with other comparator sets"
+  (HyphenRange _ _) <> _ = error "Cannot combine Hyphen Range with other comparator sets"
+  _ <> (HyphenRange _ _) = error "Cannot combine Hyphen Range with other comparator sets"
 
 instance HasVersionBounds ComparatorSet where
   versionBounds (SimpleComparatorSet simples) = foldr1 intervalIntersection $ versionBounds <$> simples
   versionBounds (HyphenRange lower upper) = (toXRangeLowerBound lower, toXRangeUpperBound upper)
 
-instance HasVersionBounds Simple where
+instance HasVersionBounds SimpleRangeExpression where
   versionBounds (Primitive comp) = versionBounds comp
-  versionBounds (Caret pv) =
-    (toXRangeLowerBound pv, toCaretUpperBound pv)
-    where
-      -- Caret allows changes that don't modify the leftmost non-zero digit.
-      toCaretUpperBound :: PartialVersion -> VersionBound
-      toCaretUpperBound Any = Inf
-      toCaretUpperBound (Major 0) = Exclusive (Version 1 0 0)
-      toCaretUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-      toCaretUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
-      toCaretUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
-      toCaretUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
-      toCaretUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
-      toCaretUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
-      toCaretUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
-  versionBounds (Tilde pv) =
-    (toXRangeLowerBound pv, toTildeUpperBound pv)
-    where
-      -- Tilde allows patch-level changes if minor is specified.
-      toTildeUpperBound :: PartialVersion -> VersionBound
-      toTildeUpperBound Any = Inf
-      toTildeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-      toTildeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
-      toTildeUpperBound (MajorMinorPatch mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
+  versionBounds (TildeRange pv) = (toXRangeLowerBound pv, toTildeRangeUpperBound pv)
+  versionBounds (CaretRange pv) = (toXRangeLowerBound pv, toCareRangetUpperBound pv)
+
+-- | Tilde range allows patch-level changes if minor is specified.
+toTildeRangeUpperBound :: PartialVersion -> VersionBound
+toTildeRangeUpperBound Any = Inf
+toTildeRangeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
+toTildeRangeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
+toTildeRangeUpperBound (MajorMinorPatch mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
+
+-- | Caret range allows changes that don't modify the leftmost non-zero digit.
+toCareRangetUpperBound :: PartialVersion -> VersionBound
+toCareRangetUpperBound Any = Inf
+toCareRangetUpperBound (Major 0) = Exclusive (Version 1 0 0)
+toCareRangetUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
+toCareRangetUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
+toCareRangetUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
+toCareRangetUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
+toCareRangetUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
+toCareRangetUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
+toCareRangetUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
 
 -- Helper methods for constructing a 'ComparatorSet'.
 -- While 'Comparator' works with 'PartialVersion' internally, we only use it through 'Version' in our code.
@@ -121,10 +126,10 @@ eq :: Version -> ComparatorSet
 eq = mkPrimCompSet Equal
 
 backwardsCompatibleWith :: Version -> ComparatorSet
-backwardsCompatibleWith = SimpleComparatorSet . pure . Caret . fromVersion
+backwardsCompatibleWith = SimpleComparatorSet . pure . CaretRange . fromVersion
 
 approximatelyEquivalentTo :: Version -> ComparatorSet
-approximatelyEquivalentTo = SimpleComparatorSet . pure . Tilde . fromVersion
+approximatelyEquivalentTo = SimpleComparatorSet . pure . TildeRange . fromVersion
 
 hyphenRange :: Version -> Version -> ComparatorSet
 hyphenRange v1 v2 = HyphenRange (fromVersion v1) (fromVersion v2)
@@ -132,38 +137,9 @@ hyphenRange v1 v2 = HyphenRange (fromVersion v1) (fromVersion v2)
 mkPrimCompSet :: PrimitiveOperator -> Version -> ComparatorSet
 mkPrimCompSet op = SimpleComparatorSet . pure . Primitive . Comparator op . fromVersion
 
--- | Parses a single non-hyphen comparator (primitive, tilde, caret, or x-range).
--- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
-simpleParser :: P.Parsec String () Simple
-simpleParser =
-  P.choice
-    [ tildeParser,
-      caretParser,
-      primitiveParser
-    ]
-  where
-    tildeParser :: P.Parsec String () Simple
-    tildeParser = Tilde <$> (P.char '~' *> partialVersionParser)
-
-    caretParser :: P.Parsec String () Simple
-    caretParser = Caret <$> (P.char '^' *> partialVersionParser)
-
-    primitiveParser :: P.Parsec String () Simple
-    primitiveParser = Primitive <$> primitiveComparatorParser
-
--- | Parses a hyphen range: two partial versions separated by " - ".
--- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
-hyphenRangeParser :: P.Parsec String () ComparatorSet
-hyphenRangeParser = do
-  lowerVersion <- partialVersionParser
-  _ <- P.space *> P.char '-' <* P.space
-  upperVersion <- partialVersionParser
-  pure $ HyphenRange lowerVersion upperVersion
-
 -- | Parses a comparator set: either a single hyphen range or
 -- one or more simple comparators separated by spaces.
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
--- NOTE: Grammar's `range` is our comparator set. And grammar's `range-set` is our range.
 comparatorSetParser :: P.Parsec String () ComparatorSet
 comparatorSetParser =
   P.choice
@@ -183,3 +159,35 @@ comparatorSetParser =
       _ <- P.many1 P.space
       P.notFollowedBy (P.string "||")
       P.notFollowedBy P.eof
+
+-- | Parses a single non-hyphen comparator (primitive, tilde or caret).
+-- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
+simpleParser :: P.Parsec String () SimpleRangeExpression
+simpleParser =
+  P.choice
+    [ tildeRangeParser,
+      caretRangeParser,
+      primitiveParser
+    ]
+  where
+    tildeRangeParser :: P.Parsec String () SimpleRangeExpression
+    tildeRangeParser = TildeRange <$> (P.char '~' *> P.spaces *> partialVersionParser)
+
+    caretRangeParser :: P.Parsec String () SimpleRangeExpression
+    caretRangeParser = CaretRange <$> (P.char '^' *> P.spaces *> partialVersionParser)
+
+    primitiveParser :: P.Parsec String () SimpleRangeExpression
+    primitiveParser = Primitive <$> primitiveComparatorParser
+
+-- | Parses a hyphen range: two partial versions separated by " - ".
+-- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
+hyphenRangeParser :: P.Parsec String () ComparatorSet
+hyphenRangeParser = do
+  lower <- partialVersionParser
+  _ <- hyphenRangeSeparatorParser
+  upper <- partialVersionParser
+  pure $ HyphenRange lower upper
+  where
+    -- Must must exactly 1 white space character around the hyphen.
+    hyphenRangeSeparatorParser :: P.Parsec String () Char
+    hyphenRangeSeparatorParser = P.space *> P.char '-' <* P.space
