@@ -7,6 +7,6 @@
 import "@testing-library/jest-dom";
 
 interface Window {
-  __EAGER_PAGE_LOADED__?: boolean
-  __LAZY_PAGE_LOADED__?: boolean
+  __EAGER_PAGE_LOADED__?: boolean;
+  __LAZY_PAGE_LOADED__?: boolean;
 }

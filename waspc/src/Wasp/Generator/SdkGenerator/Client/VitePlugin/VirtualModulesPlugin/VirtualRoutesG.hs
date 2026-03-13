@@ -60,8 +60,7 @@ createRouteTemplateData spec (name, route) =
             "isDefaultExport" .= isDefaultExport,
             "dynamicImportExpression" .= getJsDynamicImportExpression jsImport
           ]
-        else
-          ["importIdentifier" .= importIdentifier]
+        else ["importIdentifier" .= importIdentifier]
   where
     isLazy = isRouteLazy route
     isAuthRequired = fromMaybe False $ AS.Page.authRequired $ snd targetPage
