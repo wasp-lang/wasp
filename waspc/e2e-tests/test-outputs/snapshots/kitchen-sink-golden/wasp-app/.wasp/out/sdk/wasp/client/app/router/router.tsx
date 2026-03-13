@@ -11,7 +11,7 @@ export function getRouter({
   routesMapping,
   rootElement,
 }: {
-  routesMapping: Record<string, () => Promise<{ Component: React.ComponentType }>>,
+  routesMapping: Record<string, { lazy: () => Promise<{ Component: React.ComponentType }> } | { Component: React.ComponentType }>,
   rootElement: React.ReactNode,
 }) {
   const waspDefinedRoutes = [
@@ -23,7 +23,7 @@ export function getRouter({
   const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
     return {
       path: route.to,
-      lazy: routesMapping[routeKey],
+      ...routesMapping[routeKey],
     }
   })
 

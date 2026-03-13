@@ -1,8 +1,8 @@
 // @ts-nocheck
 
 export const routesMapping = {
-  RootRoute: async () => {
+  RootRoute: { lazy: async () => {
     const { MainPage: Component } = await import('./src/MainPage')
     return { Component }
-  },
+  }},
 } as const;

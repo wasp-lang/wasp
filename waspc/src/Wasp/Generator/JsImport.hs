@@ -1,6 +1,7 @@
 module Wasp.Generator.JsImport
   ( extImportToJsImport,
     jsImportToImportJson,
+    jsImportToDynamicImportJson,
     extImportNameToJsImportName,
     getAliasedExtImportIdentifier,
     extImportToRelativeSrcImportFromViteExecution,
@@ -19,6 +20,9 @@ import Wasp.JsImport
   ( JsImport (..),
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (RelativeImportPath),
+    getImportIdentifier,
+    getJsDynamicImportExpression,
+    getJsImportPathString,
     getJsImportStmtAndIdentifier,
     makeJsImport,
   )
@@ -53,6 +57,19 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
               "importStatement" .= jsImportStmt,
               "importIdentifier" .= jsImportIdentifier
             ]
+
+jsImportToDynamicImportJson :: JsImport -> Aeson.Value
+jsImportToDynamicImportJson jsImport =
+  object
+    [ "importPath" .= getJsImportPathString jsImport,
+      "importIdentifier" .= getImportIdentifier jsImport,
+      "isDefaultExport" .= isDefault,
+      "dynamicImportExpression" .= getJsDynamicImportExpression jsImport
+    ]
+  where
+    isDefault = case _name jsImport of
+      JsImportModule _ -> True
+      JsImportField _ -> False
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
 extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath) =

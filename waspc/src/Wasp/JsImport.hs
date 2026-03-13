@@ -12,6 +12,7 @@ module Wasp.JsImport
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
+    getJsDynamicImportExpression,
   )
 where
 
@@ -84,6 +85,17 @@ getJsImportPathString (JsImport importPath _ _) = case importPath of
     normalizePath path
       | ".." `isPrefixOf` path = path
       | otherwise = "./" ++ path
+
+-- | Returns a dynamic import expression, e.g.:
+--   For default export: @import('./path').then(m => m.default)@
+--   For named export: @import('./path').then(m => m.Name)@
+getJsDynamicImportExpression :: JsImport -> String
+getJsDynamicImportExpression jsImport =
+  "import('" ++ getJsImportPathString jsImport ++ "').then(m => m." ++ memberName ++ ")"
+  where
+    memberName = case _name jsImport of
+      JsImportModule _ -> "default"
+      JsImportField name -> name
 
 -- First part of import statement based on type of import and alias
 -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")

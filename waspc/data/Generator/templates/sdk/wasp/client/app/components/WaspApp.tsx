@@ -11,7 +11,7 @@ import { WebSocketProvider } from '../../webSocket/WebSocketProvider'
 
 export type WaspAppProps = {
   rootElement?: React.ReactNode;
-  routesMapping: Record<string, () => Promise<{ Component: React.ComponentType }>>;
+  routesMapping: Record<string, { lazy: () => Promise<{ Component: React.ComponentType }> } | { Component: React.ComponentType }>;
 }
 
 export function WaspApp({ rootElement, routesMapping }: Required<WaspAppProps>) {

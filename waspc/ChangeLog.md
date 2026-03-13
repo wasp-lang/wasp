@@ -7,6 +7,7 @@
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-21-to-0-22) for step-by-step documentation on how to upgrade.
 
 - Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
+- Page routes are now loaded lazily by default. You can set `lazy: false` per-route to disable this behavior. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🎉 New Features
 

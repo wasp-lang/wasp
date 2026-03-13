@@ -626,7 +626,7 @@ spec_AppSpecValid = do
     makeBasicRouteDecl name pageName =
       AS.Decl.makeDecl
         name
-        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test"}
+        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing}
 
     makeBasicActionDecl name =
       AS.Decl.makeDecl
