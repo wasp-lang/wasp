@@ -10,15 +10,21 @@ module Wasp.ExternalConfig.Npm.PackageJson
     getDependencies,
     getDevDependencies,
     getOverriddenDeps,
+    PackageJsonFile,
+    parsePackageJsonFile,
   )
 where
 
 import Data.Aeson (FromJSON)
+import qualified Data.Aeson as Aeson
+import Data.Either.Extra (maybeToEither)
 import Data.Map (Map)
 import qualified Data.Map as M
 import GHC.Generics (Generic)
+import StrongPath (Abs, File, Path')
 import Wasp.ExternalConfig.Npm.Dependency (Dependency)
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
+import qualified Wasp.Util.IO as IOUtil
 
 data PackageJson = PackageJson
   { name :: !String,
@@ -56,3 +62,10 @@ getDevDependencies packageJson = D.fromList . M.toList $ devDependencies package
 getOverriddenDeps :: PackageJson -> [Dependency]
 getOverriddenDeps pkgJson =
   maybe [] (D.fromList . M.toList) $ overriddenDeps =<< wasp pkgJson
+
+class PackageJsonFile f
+
+parsePackageJsonFile :: (PackageJsonFile f) => Path' Abs (File f) -> IO (Either String PackageJson)
+parsePackageJsonFile packageJsonFile = do
+  byteString <- IOUtil.readFileBytes packageJsonFile
+  return $ maybeToEither "Error parsing the package.json file" $ Aeson.decode byteString
