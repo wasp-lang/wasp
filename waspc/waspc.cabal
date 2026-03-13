@@ -4,7 +4,7 @@ cabal-version: 2.4
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
 --    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.21.2
+version: 0.22.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -35,9 +35,9 @@ data-files:
   Cli/starters/**/*.wasp
   Cli/starters/basic/.prettierignore
   Cli/starters/basic/.prettierrc
-  Cli/starters/skeleton/.gitignore
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
+  Cli/starters/skeleton/gitignore
   Cli/starters/skeleton/public/.gitkeep
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
@@ -411,6 +411,7 @@ library
     Wasp.Project.ExternalConfig
     Wasp.Project.ExternalConfig.PackageJson
     Wasp.Project.ExternalConfig.TsConfig
+    Wasp.Project.ExternalConfig.ViteConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile
@@ -867,6 +868,7 @@ test-suite waspc-e2e-tests
     Tests.SnapshotTests.WaspMigrateSnapshotTest
     Tests.SnapshotTests.WaspNewSnapshotTest
     Tests.ViteBuildTest
+    Tests.ViteConfigTest
     Tests.WaspBuildStartTest
     Tests.WaspBuildTest
     Tests.WaspCleanTest
