@@ -1,9 +1,6 @@
 module Wasp.Project.ExternalConfig
   ( parseAndValidateExternalConfigs,
     ExternalConfigs (..),
-
-    -- * Exported for testing only
-    validateSrcTsConfig,
   )
 where
 
