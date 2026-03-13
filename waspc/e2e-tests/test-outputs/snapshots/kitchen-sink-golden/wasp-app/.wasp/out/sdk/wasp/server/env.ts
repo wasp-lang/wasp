@@ -113,10 +113,12 @@ const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
 
 const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
+// Vitest sets NODE_ENV to 'test', which isn't a valid discriminator value. Treat it as 'development'.
+const nodeEnvValue = inputNodeEnvValue === 'test' ? 'development' : inputNodeEnvValue;
 // PUBLIC API
 export const env = ensureEnvSchema(
   {
-    NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
+    NODE_ENV: nodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,
   },
   serverEnvSchema,

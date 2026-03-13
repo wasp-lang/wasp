@@ -3,13 +3,19 @@ import path from 'path'
 
 export function detectServerImports(): Plugin {
   let parsePathToUserCode!: ParsePathToUserCodeFn
+  let isTest = false
   return {
     name: 'wasp:detect-server-imports',
     enforce: 'pre',
     configResolved(config) {
       parsePathToUserCode = createPathToUserCodeParser(config.root)
+      isTest = config.mode === 'test'
     },
     resolveId(source, importer) {
+      if (isTest) {
+        return
+      }
+
       if (!importer) {
         return
       }

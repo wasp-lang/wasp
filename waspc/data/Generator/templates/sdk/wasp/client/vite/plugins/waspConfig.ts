@@ -1,7 +1,5 @@
 {{={= =}=}}
-/// <reference types="vitest/config" />
 import { type PluginOption } from "vite";
-import { defaultExclude } from "vitest/config"
 
 // Vite merges `userConfig` and our `waspConfig` returned from the plugin.
 // In that merge, primitive values from waspConfig take precedence, and
@@ -61,15 +59,6 @@ export function waspConfig(): PluginOption {
               replacement: "node_modules/.prisma/client",
             },
           ],
-        },
-        test: {
-          globals: useUserValue(config.test?.globals, true),
-          environment: useUserValue(config.test?.environment, "jsdom"),
-          setupFiles: {=& vitest.setupFilesArray =},
-          exclude: [
-            ...defaultExclude,
-            "{= vitest.excludeWaspArtefactsPattern =}",
-          ]
         },
       };
     }

@@ -1,10 +1,8 @@
 module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromJust)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
-import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -18,8 +16,7 @@ import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
-  ( dotWaspDirInWaspProjectDir,
-    srcDirInWaspProjectDir,
+  ( srcDirInWaspProjectDir,
   )
 import Wasp.Project.Env (dotEnvClient)
 import Wasp.Util ((<++>))
@@ -54,12 +51,7 @@ genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
         [ "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec),
           "defaultClientPort" .= WebApp.defaultClientPort,
           "clientBuildDirPath" .= SP.fromRelDir viteBuildDirPath,
-          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization,
-          "vitest"
-            .= object
-              [ "setupFilesArray" .= makeJsArrayFromHaskellList ["wasp/client/test/setup"],
-                "excludeWaspArtefactsPattern" .= (SP.fromRelDirP (fromJust $ SP.relDirToPosix dotWaspDirInWaspProjectDir) FP.Posix.</> "**" FP.Posix.</> "*")
-              ]
+          "depsExcludedFromOptimization" .= makeJsArrayFromHaskellList depsExcludedFromOptimization
         ]
 
     depsExcludedFromOptimization =
