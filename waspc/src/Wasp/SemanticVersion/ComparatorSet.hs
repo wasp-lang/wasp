@@ -6,7 +6,7 @@ module Wasp.SemanticVersion.ComparatorSet
   ( ComparatorSet (..),
     SimpleRangeExpression (..),
     comparatorSetParser,
-    simpleParser,
+    simpleRangeExpressionParser,
     hyphenRangeParser,
   )
 where
@@ -16,7 +16,7 @@ import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
   ( Comparator (..),
-    primitiveComparatorParser,
+    comparatorParser,
     toXRangeLowerBound,
     toXRangeUpperBound,
   )
@@ -106,26 +106,19 @@ comparatorSetParser :: P.Parsec String () ComparatorSet
 comparatorSetParser =
   P.choice
     [ P.try hyphenRangeParser,
-      simpleComparatorSetParser
+      P.try simpleComparatorSetParser
     ]
   where
     simpleComparatorSetParser :: P.Parsec String () ComparatorSet
     simpleComparatorSetParser = do
-      first <- simpleParser
-      rest <- P.many $ P.try (spacesBetweenComparatorsParser *> simpleParser)
+      first <- simpleRangeExpressionParser
+      rest <- P.many $ P.try (P.many1 P.space *> simpleRangeExpressionParser)
       pure $ SimpleComparatorSet (NE.fromList (first : rest))
-
-    -- Consumes whitespace only when it separates comparators.
-    spacesBetweenComparatorsParser :: P.Parsec String () ()
-    spacesBetweenComparatorsParser = do
-      _ <- P.many1 P.space
-      P.notFollowedBy (P.string "||")
-      P.notFollowedBy P.eof
 
 -- | Parses a single non-hyphen comparator (primitive, tilde or caret).
 -- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
-simpleParser :: P.Parsec String () SimpleRangeExpression
-simpleParser =
+simpleRangeExpressionParser :: P.Parsec String () SimpleRangeExpression
+simpleRangeExpressionParser =
   P.choice
     [ tildeRangeParser,
       caretRangeParser,
@@ -139,7 +132,7 @@ simpleParser =
     caretRangeParser = CaretRange <$> (P.char '^' *> P.spaces *> partialVersionParser)
 
     primitiveParser :: P.Parsec String () SimpleRangeExpression
-    primitiveParser = Primitive <$> primitiveComparatorParser
+    primitiveParser = Primitive <$> comparatorParser
 
 -- | Parses a hyphen range: two partial versions separated by " - ".
 -- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar

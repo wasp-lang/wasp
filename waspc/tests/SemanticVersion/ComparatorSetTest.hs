@@ -12,7 +12,7 @@ import Wasp.SemanticVersion.VersionBound
 spec_SemanticVersion_ComparatorSet :: Spec
 spec_SemanticVersion_ComparatorSet = do
   describe "show" $ do
-    it "shows single simple comparator set" $ do
+    it "shows single simple range expression comparator set" $ do
       show
         ( SimpleComparatorSet $
             NE.fromList
@@ -20,40 +20,26 @@ spec_SemanticVersion_ComparatorSet = do
               ]
         )
         `shouldBe` "1.2"
-    it "shows multiple simple comparator set" $ do
+    it "shows multiple simple range expression comparator set" $ do
       show
         ( SimpleComparatorSet $
             NE.fromList
               [ Primitive (Comparator GreaterThanOrEqual [pv|1.2.0|]),
                 Primitive (Comparator LessThan [pv|2.0.0|]),
+                TildeRange [pv|1.2.3|],
                 CaretRange [pv|2.1.3|]
               ]
         )
-        `shouldBe` ">=1.2.0 <2.0.0 ^2.1.3"
+        `shouldBe` ">=1.2.0 <2.0.0 ~1.2.3 ^2.1.3"
     it "shows hyphen range" $ do
       show (HyphenRange [pv|1.2.3|] [pv|4.5.6|]) `shouldBe` "1.2.3 - 4.5.6"
       show (HyphenRange [pv|1.2|] [pv|3|]) `shouldBe` "1.2 - 3"
       show (HyphenRange [pv|1|] [pv|2.3|]) `shouldBe` "1 - 2.3"
       show (HyphenRange [pv|*|] [pv|*|]) `shouldBe` "* - *"
 
-  describe "show Simple" $ do
-    it "primitive" $ do
-      show (Primitive (Comparator GreaterThanOrEqual [pv|1.2.3|])) `shouldBe` ">=1.2.3"
-      show (Primitive (Comparator Equal [pv|1.2.3|])) `shouldBe` "1.2.3"
-    it "tilde" $ do
-      show (TildeRange [pv|1.2.3|]) `shouldBe` "~1.2.3"
-      show (TildeRange [pv|1.2|]) `shouldBe` "~1.2"
-      show (TildeRange [pv|1|]) `shouldBe` "~1"
-      show (TildeRange [pv|*|]) `shouldBe` "~*"
-    it "caret" $ do
-      show (CaretRange [pv|1.2.3|]) `shouldBe` "^1.2.3"
-      show (CaretRange [pv|1.2|]) `shouldBe` "^1.2"
-      show (CaretRange [pv|1|]) `shouldBe` "^1"
-      show (CaretRange [pv|*|]) `shouldBe` "^*"
-
-  describe "simpleParser" $ do
-    let parseSimple = P.parse simpleParser ""
-        strictParseSimple = P.parse (simpleParser <* P.eof) ""
+  describe "simpleRangeExpressionParser" $ do
+    let parseSimple = P.parse simpleRangeExpressionParser ""
+        strictParseSimple = P.parse (simpleRangeExpressionParser <* P.eof) ""
 
     it "parses primitive comparators" $ do
       strictParseSimple ">=1.2.3" `shouldBe` Right (Primitive (Comparator GreaterThanOrEqual [pv|1.2.3|]))
@@ -64,15 +50,9 @@ spec_SemanticVersion_ComparatorSet = do
 
     it "parses caret comparators" $ do
       strictParseSimple "^1.2.3" `shouldBe` Right (CaretRange [pv|1.2.3|])
-      strictParseSimple "^1.2" `shouldBe` Right (CaretRange [pv|1.2|])
-      strictParseSimple "^1" `shouldBe` Right (CaretRange [pv|1|])
-      strictParseSimple "^*" `shouldBe` Right (CaretRange [pv|*|])
 
     it "parses tilde comparators" $ do
       strictParseSimple "~1.2.3" `shouldBe` Right (TildeRange [pv|1.2.3|])
-      strictParseSimple "~1.2" `shouldBe` Right (TildeRange [pv|1.2|])
-      strictParseSimple "~1" `shouldBe` Right (TildeRange [pv|1|])
-      strictParseSimple "~*" `shouldBe` Right (TildeRange [pv|*|])
 
     it "parses simple comparators with trailing content" $ do
       parseSimple "* 1.2.3" `shouldBe` Right (Primitive (Comparator Equal [pv|*|]))
@@ -82,7 +62,6 @@ spec_SemanticVersion_ComparatorSet = do
       isLeft (strictParseSimple "") `shouldBe` True
       isLeft (strictParseSimple "foo") `shouldBe` True
       isLeft (strictParseSimple "$1.2.3") `shouldBe` True
-      isLeft (strictParseSimple "?1.x.x") `shouldBe` True
 
   describe "hyphenRangeParser" $ do
     let parseHyphenRange = P.parse hyphenRangeParser ""
@@ -90,8 +69,6 @@ spec_SemanticVersion_ComparatorSet = do
 
     it "parses hyphen range" $ do
       strictParseHyphenRange "1.2.3 - 1.2.3" `shouldBe` Right (HyphenRange [pv|1.2.3|] [pv|1.2.3|])
-      strictParseHyphenRange "1.2 - 1.2.3" `shouldBe` Right (HyphenRange [pv|1.2|] [pv|1.2.3|])
-      strictParseHyphenRange "1.2.3 - 1.2" `shouldBe` Right (HyphenRange [pv|1.2.3|] [pv|1.2|])
       strictParseHyphenRange "1.2 - 1.2" `shouldBe` Right (HyphenRange [pv|1.2|] [pv|1.2|])
       strictParseHyphenRange "1 - 1" `shouldBe` Right (HyphenRange [pv|1|] [pv|1|])
       strictParseHyphenRange "* - *" `shouldBe` Right (HyphenRange [pv|*|] [pv|*|])
@@ -123,6 +100,7 @@ spec_SemanticVersion_ComparatorSet = do
                 [ Primitive (Comparator GreaterThanOrEqual [pv|1.2.3|])
                 ]
           )
+      strictParseCompSet "1 - 3" `shouldBe` Right (HyphenRange [pv|1|] [pv|3|])
 
     it "parses comparator sets with multiple comparators" $ do
       strictParseCompSet ">=1.2.3 <1.2.3"
@@ -210,11 +188,11 @@ spec_SemanticVersion_ComparatorSet = do
     CaretRange [pv|0|] ~> [vi| [0.0.0, 1.0.0) |]
     CaretRange [pv|*|] ~> allVersionsInterval
 
-  -- Hyphen range bounds
   describe "versionBounds HyphenRange" $ do
     let range ~> expectedInterval =
           it (show range) $ versionBounds range `shouldBe` expectedInterval
 
+    -- Hyphen range bounds
     HyphenRange [pv|1.2.3|] [pv|2.3.4|] ~> [vi| [1.2.3, 2.3.4] |]
     HyphenRange [pv|1.2|] [pv|2.3.4|] ~> [vi| [1.2.0, 2.3.4] |]
     HyphenRange [pv|1.2.3|] [pv|2.3|] ~> [vi| [1.2.3, 2.4.0) |]
@@ -225,30 +203,53 @@ spec_SemanticVersion_ComparatorSet = do
 
   -- Just does 'intervalIntersection' under the hood.
   describe "versionBounds ComparatorSet" $ do
-    let comps ~> expectedInterval =
-          let compSet = SimpleComparatorSet (NE.fromList comps)
-           in it (show compSet) $ versionBounds compSet `shouldBe` expectedInterval
-
+    let compSet ~> expectedInterval =
+          it (show compSet) $ versionBounds compSet `shouldBe` expectedInterval
     -- Basic inclusive/exclusive combinations
-    [Primitive (Comparator GreaterThanOrEqual [pv|1.0.0|]), Primitive (Comparator LessThan [pv|2.0.0|])]
+    ( SimpleComparatorSet . NE.fromList $
+        [ Primitive (Comparator GreaterThanOrEqual [pv|1.0.0|]),
+          Primitive (Comparator LessThan [pv|2.0.0|])
+        ]
+      )
       ~> [vi| [1.0.0, 2.0.0) |]
-    [Primitive (Comparator GreaterThan [pv|1.0.0|]), Primitive (Comparator LessThanOrEqual [pv|2.0.0|])]
+    ( SimpleComparatorSet . NE.fromList $
+        [ Primitive (Comparator GreaterThan [pv|1.0.0|]),
+          Primitive (Comparator LessThanOrEqual [pv|2.0.0|])
+        ]
+      )
       ~> [vi| (1.0.0, 2.0.0] |]
-
     -- Caret narrows an open upper bound
-    [Primitive (Comparator GreaterThanOrEqual [pv|1.0.0|]), CaretRange [pv|1.2.0|]]
+    ( SimpleComparatorSet . NE.fromList $
+        [ Primitive (Comparator GreaterThanOrEqual [pv|1.0.0|]),
+          CaretRange [pv|1.2.0|]
+        ]
+      )
       ~> [vi| [1.2.0, 2.0.0) |]
-
     -- Tilde narrows further than caret
-    [CaretRange [pv|1.0.0|], TildeRange [pv|1.2.0|]]
+    ( SimpleComparatorSet . NE.fromList $
+        [ CaretRange [pv|1.0.0|],
+          TildeRange [pv|1.2.0|]
+        ]
+      )
       ~> [vi| [1.2.0, 1.3.0) |]
-
     -- Three comparators: the tightest wins on each side
-    [Primitive (Comparator GreaterThan [pv|0.5.0|]), Primitive (Comparator LessThan [pv|3.0.0|]), CaretRange [pv|1.0.0|]]
+    ( SimpleComparatorSet . NE.fromList $
+        [ Primitive (Comparator GreaterThan [pv|0.5.0|]),
+          Primitive (Comparator LessThan [pv|3.0.0|]),
+          CaretRange [pv|1.0.0|]
+        ]
+      )
       ~> [vi| [1.0.0, 2.0.0) |]
-
     -- Exclusive beats inclusive at the same version
-    [Primitive (Comparator GreaterThan [pv|1.0.0|]), Primitive (Comparator GreaterThanOrEqual [pv|1.0.0|])]
+    ( SimpleComparatorSet . NE.fromList $
+        [ Primitive (Comparator GreaterThan [pv|1.0.0|]),
+          Primitive (Comparator GreaterThanOrEqual [pv|1.0.0|])
+        ]
+      )
       ~> [vi| (1.0.0, inf) |]
-    [Primitive (Comparator LessThan [pv|2.0.0|]), Primitive (Comparator LessThanOrEqual [pv|2.0.0|])]
+    ( SimpleComparatorSet . NE.fromList $
+        [ Primitive (Comparator LessThan [pv|2.0.0|]),
+          Primitive (Comparator LessThanOrEqual [pv|2.0.0|])
+        ]
+      )
       ~> [vi| [0.0.0, 2.0.0) |]

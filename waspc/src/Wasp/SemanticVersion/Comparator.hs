@@ -5,7 +5,7 @@
 module Wasp.SemanticVersion.Comparator
   ( Comparator (..),
     PrimitiveOperator (..),
-    primitiveComparatorParser,
+    comparatorParser,
     toXRangeUpperBound,
     toXRangeLowerBound,
   )
@@ -80,11 +80,15 @@ toXRangeLowerBound (Major mjr) = Inclusive $ Version mjr 0 0
 toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr mnr 0
 toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr ptc
 
--- | Parses a single primitive comparator.
--- See `primitive` definition here: https://github.com/npm/node-semver#range-grammar
-primitiveComparatorParser :: P.Parsec String () Comparator
-primitiveComparatorParser = Comparator <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
+-- | Parses a single comparator.
+-- See `primitive` definition here: https://github.com/npm/node-semver#ran`ge-grammar
+comparatorParser :: P.Parsec String () Comparator
+comparatorParser = primitiveComparatorParser
   where
+    primitiveComparatorParser :: P.Parsec String () Comparator
+    primitiveComparatorParser =
+      Comparator <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
+
     primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
     primitiveOperatorParser =
       P.choice

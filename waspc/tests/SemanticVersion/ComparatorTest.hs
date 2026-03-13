@@ -18,8 +18,8 @@ spec_SemanticVersion_Comparator = do
       show (Comparator Equal [pv|1.2.3|]) `shouldBe` "1.2.3"
 
   describe "comparatorParser" $ do
-    let parseComp = P.parse primitiveComparatorParser ""
-        strictParseComp = P.parse (primitiveComparatorParser <* P.eof) ""
+    let parseComp = P.parse comparatorParser ""
+        strictParseComp = P.parse (comparatorParser <* P.eof) ""
 
     it "parses comparators" $ do
       strictParseComp "=1.2.3" `shouldBe` Right (Comparator Equal [pv|1.2.3|])
