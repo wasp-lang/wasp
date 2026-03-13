@@ -349,6 +349,18 @@ page ChatPage {
   component: import { ChatPage } from "@src/features/chat/pages/ChatPage"
 }
 
+// --------- Lazy Loading --------- //
+
+route LazyNoRoute { path: "/lazy/no", to: LazyNoPage, lazy: false }
+page LazyNoPage {
+  component: import { LazyNoPage } from "@src/pages/LazyNoPage"
+}
+
+route LazyYesRoute { path: "/lazy/yes", to: LazyYesPage, lazy: true }
+page LazyYesPage {
+  component: import { LazyYesPage } from "@src/pages/LazyYesPage"
+}
+
 // --------- Operations Type Testing --------- //
 
 action testingAction {

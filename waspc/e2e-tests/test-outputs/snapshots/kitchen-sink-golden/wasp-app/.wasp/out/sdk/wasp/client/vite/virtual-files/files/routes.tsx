@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { createAuthRequiredPage } from "wasp/client/app"
+import { LazyNoPage } from './src/pages/LazyNoPage'
 
 export const routesMapping = {
   HomeRoute: { lazy: async () => {
@@ -77,5 +78,12 @@ export const routesMapping = {
   ChatRoute: { lazy: async () => {
     const { ChatPage: Component } = await import('./src/features/chat/pages/ChatPage')
     return { Component: createAuthRequiredPage(Component) }
+  }},
+  LazyNoRoute: {
+    Component: LazyNoPage,
+  },
+  LazyYesRoute: { lazy: async () => {
+    const { LazyYesPage: Component } = await import('./src/pages/LazyYesPage')
+    return { Component }
   }},
 } as const;

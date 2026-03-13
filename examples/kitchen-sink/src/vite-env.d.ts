@@ -5,3 +5,8 @@
 // about missing types e.g. when using `toBeInTheDocument` and other matchers.
 // Reference: https://github.com/testing-library/jest-dom/issues/546#issuecomment-1889884843
 import "@testing-library/jest-dom";
+
+interface Window {
+  __EAGER_PAGE_LOADED__?: boolean
+  __LAZY_PAGE_LOADED__?: boolean
+}

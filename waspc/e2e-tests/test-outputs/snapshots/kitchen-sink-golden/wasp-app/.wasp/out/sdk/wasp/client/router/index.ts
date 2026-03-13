@@ -255,6 +255,32 @@ export const routes = {
         options?.hash
       ),
   },
+  LazyNoRoute: {
+    to: "/lazy/no",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/lazy/no",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  LazyYesRoute: {
+    to: "/lazy/yes",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/lazy/yes",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
 } as const;
 
 // PRIVATE API
