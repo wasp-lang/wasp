@@ -450,6 +450,7 @@ library
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
+    Wasp.SemanticVersion.Parsers
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.TypeScript.Inspect.Exports
@@ -750,6 +751,7 @@ test-suite waspc-tests
     Psl.Parser.ViewTest
     Psl.Parser.WithCtxTest
     Psl.ValidTest
+    SemanticVersion.ParsersTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
     SemanticVersionTest

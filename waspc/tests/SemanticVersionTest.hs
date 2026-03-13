@@ -111,11 +111,11 @@ spec_SemanticVersion = do
             versionBounds range `shouldBe` expectedInterval
     Range [] ~> [vi| (inf, inf) |]
     Range [gt [v|0.1.2|]] ~> [vi| (0.1.2, inf) |]
-    Range [gt [v|0.1.2|] <> lt [v|0.2|]] ~> [vi| (0.1.2, 0.2) |]
+    Range [gt [v|0.1.2|] <> lt [v|0.2.0|]] ~> [vi| (0.1.2, 0.2.0) |]
     Range [lte [v|1.2.3|]] ~> [vi| (inf, 1.2.3] |]
     Range [backwardsCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.3.0) |]
     Range [backwardsCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 2.0.0) |]
-    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1|], eq [v|0.5.6|]] ~> [vi| [0.5.6, 1.2.3] |]
+    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1.0|], eq [v|0.5.6|]] ~> [vi| [0.5.6, 1.2.3] |]
 
   describe "doesVersionRangeAllowMajorChanges" $ do
     let range ~> expected =
@@ -123,13 +123,13 @@ spec_SemanticVersion = do
             doesVersionRangeAllowMajorChanges range `shouldBe` expected
     Range [] ~> True
     Range [gt [v|1.1.2|]] ~> True
-    Range [gt [v|0.1.2|] <> lt [v|0.2|]] ~> False
-    Range [gt [v|0.1.2|] <> lte [v|0.2|]] ~> True
-    Range [gt [v|2|] <> lte [v|3|]] ~> True
-    Range [gt [v|2|] <> lt [v|3|]] ~> False
+    Range [gt [v|0.1.2|] <> lt [v|0.2.0|]] ~> False
+    Range [gt [v|0.1.2|] <> lte [v|0.2.0|]] ~> True
+    Range [gt [v|2.0.0|] <> lte [v|3.0.0|]] ~> True
+    Range [gt [v|2.0.0|] <> lt [v|3.0.0|]] ~> False
     Range [lte [v|2.9.99|]] ~> True
     Range [backwardsCompatibleWith [v|0.2.3|]] ~> False
-    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1|], eq [v|0.5.6|]] ~> True
+    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1.0|], eq [v|0.5.6|]] ~> True
   where
     testRange :: Range -> [((Natural, Natural, Natural), Bool)] -> Expectation
     testRange range versionsWithResults =
