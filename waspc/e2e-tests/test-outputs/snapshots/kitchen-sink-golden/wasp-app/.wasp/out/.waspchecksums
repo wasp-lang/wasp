@@ -802,7 +802,7 @@
             "file",
             "sdk/wasp/client/webSocket/WebSocketProvider.tsx"
         ],
-        "1898aea06682511a9cb126258664d28763632105acbbbe976de58dd4e010d2fc"
+        "6aa22cc567ce38e34322b9775922eeaca9de08869ec3af60479180ffabaf0a46"
     ],
     [
         [
@@ -844,7 +844,7 @@
             "file",
             "sdk/wasp/core/storage.ts"
         ],
-        "e9e2a4a02d48bea1597fcdc00592e3d975eea7fa6e0545cf087da9429c5f4979"
+        "7e5dde19f3a6759289fb09100fc2ad186b8b89dba85f32356b7463770afbbce6"
     ],
     [
         [
@@ -1250,7 +1250,7 @@
             "file",
             "sdk/wasp/src/clientSetup.js"
         ],
-        "9357079e48edc16bf9a89c89342d30bd581b8f1d55317d290893420dc4c809d1"
+        "cc870ecfbaba6c3244cf4936843f2dc2255d52dafc86b2e4c7b2c1b36b51ad90"
     ],
     [
         [
