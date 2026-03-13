@@ -1,15 +1,20 @@
+{-# LANGUAGE DeriveLift #-}
+
 module Wasp.SemanticVersion.Range
   ( Range (..),
     parseRange,
     rangeParser,
     isVersionInRange,
     doesVersionRangeAllowMajorChanges,
+    r,
   )
 where
 
 import Control.Monad (guard)
 import Data.List (intercalate, nub)
 import Data.Maybe (isJust)
+import qualified Language.Haskell.TH.Quote as TH
+import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator (Comparator (..), PrimitiveOperator (Equal))
 import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), SimpleRangeExpression (..), comparatorSetParser)
@@ -24,11 +29,12 @@ import Wasp.SemanticVersion.VersionBound
     isVersionInInterval,
     versionFromBound,
   )
+import Wasp.Util.TH (quasiQuoterFromParser)
 
 -- | Comparator sets can be joined by "||" to form a range,
 -- which is satisfied by satisfying any of the comparator sets it includes.
 data Range = Range [ComparatorSet]
-  deriving (Eq)
+  deriving (Eq, TH.Lift)
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` range.
 instance Show Range where
@@ -63,6 +69,9 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
             (lowerBound, Exclusive $ nextBreakingChangeVersion lowerBoundVersion)
       guard $ versionInterval `isSubintervalOf` noMajorChangesInterval
 
+r :: TH.QuasiQuoter
+r = quasiQuoterFromParser parseRange
+
 parseRange :: String -> Either P.ParseError Range
 parseRange = P.parse rangeParser ""
 
@@ -70,13 +79,16 @@ parseRange = P.parse rangeParser ""
 rangeParser :: P.Parsec String () Range
 rangeParser =
   P.choice
-    [ P.try emptyRangeParser,
-      Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrParser)
+    [ nonEmptyRangeParser,
+      emptyRangeParser
     ]
   where
     -- `node-semver` allows parsing of an empty string into the any comparator (*).
     emptyRangeParser :: P.Parsec String () Range
     emptyRangeParser = Range [SimpleComparatorSet (pure (Primitive $ Comparator Equal Any))] <$ P.eof
+
+    nonEmptyRangeParser :: P.Parsec String () Range
+    nonEmptyRangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrParser)
 
     logicalOrParser :: P.Parsec String () ()
     logicalOrParser = P.spaces *> P.string "||" *> P.spaces

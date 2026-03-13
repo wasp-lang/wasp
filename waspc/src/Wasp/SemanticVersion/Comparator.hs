@@ -1,6 +1,7 @@
+{-# LANGUAGE DeriveLift #-}
+{-# HLINT ignore "Use <$>" #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-{-# HLINT ignore "Use <$>" #-}
 module Wasp.SemanticVersion.Comparator
   ( Comparator (..),
     PrimitiveOperator (..),
@@ -10,6 +11,7 @@ module Wasp.SemanticVersion.Comparator
   )
 where
 
+import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.PartialVersion
   ( PartialVersion (..),
@@ -26,7 +28,7 @@ import Wasp.SemanticVersion.VersionBound
 -- It represents a single version constraint in a range.
 data Comparator
   = Comparator PrimitiveOperator PartialVersion
-  deriving (Eq)
+  deriving (Eq, TH.Lift)
 
 data PrimitiveOperator
   = Equal
@@ -34,7 +36,7 @@ data PrimitiveOperator
   | LessThanOrEqual
   | GreaterThan
   | GreaterThanOrEqual
-  deriving (Eq)
+  deriving (Eq, TH.Lift)
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
 instance Show Comparator where

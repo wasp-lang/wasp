@@ -14,20 +14,17 @@ import Wasp.SemanticVersion.VersionBound
 spec_SemanticVersion_Range :: Spec
 spec_SemanticVersion_Range = do
   describe "show" $ do
-    it "show empty range" $ do
-      show (mempty :: Range)
-        `shouldBe` ""
-    it "show simple range" $ do
-      show (Range [lte [v|1.3.6|]])
-        `shouldBe` "<=1.3.6"
-    it "show complex range" $ do
-      show (Range [lte [v|1.3.6|] <> backwardsCompatibleWith [v|1.2.0|]] <> Range [eq [v|1.2.3|]])
-        `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
+    it "show empty range" $
+      show (mempty :: Range) `shouldBe` ""
+    it "show simple range" $
+      show [r|<=1.3.6|] `shouldBe` "<=1.3.6"
+    it "show complex range" $
+      show [r|<=1.3.6 ^1.2.0 || 1.2.3|] `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
 
   describe "rangeParser" $ do
     let strictParseRange = P.parse (rangeParser <* P.eof) ""
 
-    it "parses empty input correctly" $ do
+    it "parses empty input correctly" $
       strictParseRange ""
         `shouldBe` Right
           ( Range
@@ -55,6 +52,7 @@ spec_SemanticVersion_Range = do
               [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3)
               ]
           )
+
     it "parses ranges with multiple comparator sets" $ do
       strictParseRange "^1.2.3 ||   ^2.0"
         `shouldBe` Right
@@ -82,6 +80,7 @@ spec_SemanticVersion_Range = do
                 SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)
               ]
           )
+
     it "parses range with trailing content" $ do
       parseRange "^1.2.3 || ^2.0 "
         `shouldBe` Right
@@ -103,6 +102,28 @@ spec_SemanticVersion_Range = do
       isLeft (strictParseRange "|| 1.23 || 2.0") `shouldBe` True
       isLeft (strictParseRange "1.23 || $2.0") `shouldBe` True
 
+  it "r quasi quoter" $ do
+    [r|^1.2.3 ||   ^2.0|]
+      `shouldBe` Range
+        [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+          SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+        ]
+    [r|^1.2.3||^2.0|]
+      `shouldBe` Range
+        [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+          SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+        ]
+    [r|>=1  <2|| >=3.0.0    || *|]
+      `shouldBe` Range
+        [ SimpleComparatorSet $
+            NE.fromList
+              [ Primitive (Comparator GreaterThanOrEqual (Major 1)),
+                Primitive (Comparator LessThan (Major 2))
+              ],
+          SimpleComparatorSet $ pure $ Primitive (Comparator GreaterThanOrEqual (MajorMinorPatch 3 0 0)),
+          SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)
+        ]
+
   it "concatenating version ranges produces union of their comparator sets" $ do
     let v1 = [v|1.0.0|]
     let v2 = [v|2.0.0|]
@@ -115,7 +136,7 @@ spec_SemanticVersion_Range = do
           map (\(ver, _) -> isVersionInRange ver range) versionsWithResults
             `shouldBe` map snd versionsWithResults
 
-    it "No version is in empty range" $
+    it "no version is in empty range" $
       testRange
         mempty
         [ ([v|0.5.5|], False),
@@ -123,9 +144,9 @@ spec_SemanticVersion_Range = do
           ([v|1.2.3|], False),
           ([v|2.0.0|], False)
         ]
-    it "Complex range" $
+    it "complex range" $
       testRange
-        (Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1.0|], eq [v|0.5.6|]])
+        [r|<=1.2.3 ^1.1.0 || 0.5.6|]
         [ ([v|0.5.5|], False),
           ([v|0.5.6|], True),
           ([v|0.5.7|], False),
@@ -142,24 +163,24 @@ spec_SemanticVersion_Range = do
     let range ~> expectedInterval =
           it (show range) $ versionBounds range `shouldBe` expectedInterval
 
-    Range [] ~> allVersionsInterval
-    Range [gt [v|0.1.2|]] ~> [vi| (0.1.2, inf) |]
-    Range [gt [v|0.1.2|] <> lt [v|0.2.0|]] ~> [vi| (0.1.2, 0.2.0) |]
-    Range [lte [v|1.2.3|]] ~> [vi| [0.0.0, 1.2.3] |]
-    Range [backwardsCompatibleWith [v|0.2.3|]] ~> [vi| [0.2.3, 0.3.0) |]
-    Range [backwardsCompatibleWith [v|1.2.3|]] ~> [vi| [1.2.3, 2.0.0) |]
-    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1.0|], eq [v|0.5.6|]] ~> [vi| [0.5.6, 1.2.3] |]
+    [r||] ~> allVersionsInterval
+    [r|>0.1.2|] ~> [vi| (0.1.2, inf) |]
+    [r|>0.1.2 <0.2.0|] ~> [vi| (0.1.2, 0.2.0) |]
+    [r|<=1.2.3|] ~> [vi| [0.0.0, 1.2.3] |]
+    [r|^0.2.3|] ~> [vi| [0.2.3, 0.3.0) |]
+    [r|^1.2.3|] ~> [vi| [1.2.3, 2.0.0) |]
+    [r|<=1.2.3 ^1.1.0 || 0.5.6|] ~> [vi| [0.5.6, 1.2.3] |]
 
   describe "doesVersionRangeAllowMajorChanges" $ do
     let range ~> expected =
           it (show range) $
             doesVersionRangeAllowMajorChanges range `shouldBe` expected
-    Range [] ~> True
-    Range [gt [v|1.1.2|]] ~> True
-    Range [gt [v|0.1.2|] <> lt [v|0.2.0|]] ~> False
-    Range [gt [v|0.1.2|] <> lte [v|0.2.0|]] ~> True
-    Range [gt [v|2.0.0|] <> lte [v|3.0.0|]] ~> True
-    Range [gt [v|2.0.0|] <> lt [v|3.0.0|]] ~> False
-    Range [lte [v|2.9.99|]] ~> True
-    Range [backwardsCompatibleWith [v|0.2.3|]] ~> False
-    Range [lte [v|1.2.3|] <> backwardsCompatibleWith [v|1.1.0|], eq [v|0.5.6|]] ~> True
+    [r||] ~> True
+    [r|>1.1.2|] ~> True
+    [r|>0.1.2 <0.2.0|] ~> False
+    [r|>0.1.2 <=0.2.0|] ~> True
+    [r|>2.0.0 <= 3.0.0|] ~> True
+    [r|>2.0.0 <3.0.0|] ~> False
+    [r|<=2.9.99|] ~> True
+    [r|^0.2.3|] ~> False
+    [r|<=1.2.3 ^1.10 || 0.5.6|] ~> True

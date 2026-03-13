@@ -1,6 +1,6 @@
+{-- This module describes the SemanticVersion public API --}
 module Wasp.SemanticVersion
   ( module Wasp.SemanticVersion.ComparatorSet,
-    module Wasp.SemanticVersion.PartialVersion,
     module Wasp.SemanticVersion.Range,
     module Wasp.SemanticVersion.Version,
     module Wasp.SemanticVersion.VersionBound,
@@ -8,10 +8,44 @@ module Wasp.SemanticVersion
 where
 
 import Wasp.SemanticVersion.ComparatorSet
-import Wasp.SemanticVersion.PartialVersion
+  ( approximatelyEquivalentTo,
+    backwardsCompatibleWith,
+    eq,
+    gt,
+    gte,
+    hyphenRange,
+    lt,
+    lte,
+  )
 import Wasp.SemanticVersion.Range
+  ( Range (..),
+    doesVersionRangeAllowMajorChanges,
+    isVersionInRange,
+    parseRange,
+    r,
+    rangeParser,
+  )
 import Wasp.SemanticVersion.Version
+  ( Version (..),
+    nextBreakingChangeVersion,
+    parseVersion,
+    v,
+    versionParser,
+  )
 import Wasp.SemanticVersion.VersionBound
+  ( HasVersionBounds,
+    VersionBound,
+    VersionInterval,
+    allVersionsInterval,
+    intervalIntersection,
+    intervalUnion,
+    isSubintervalOf,
+    isVersionInInterval,
+    noVersionInterval,
+    versionBounds,
+    versionFromBound,
+    vi,
+  )
 
 {--
 # The `node-semver` implementation

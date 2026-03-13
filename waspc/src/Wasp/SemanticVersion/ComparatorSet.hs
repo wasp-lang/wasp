@@ -1,3 +1,4 @@
+{-# LANGUAGE DeriveLift #-}
 {-# HLINT ignore "Use <$>" #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
@@ -19,6 +20,7 @@ module Wasp.SemanticVersion.ComparatorSet
 where
 
 import qualified Data.List.NonEmpty as NE
+import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
   ( Comparator (..),
@@ -44,7 +46,7 @@ import Wasp.SemanticVersion.VersionBound
 data ComparatorSet
   = SimpleComparatorSet (NE.NonEmpty SimpleRangeExpression)
   | HyphenRange PartialVersion PartialVersion
-  deriving (Eq)
+  deriving (Eq, TH.Lift)
 
 -- | Anything that is either a comparator, or can be desugared into comparators.
 -- Simple because all operators here require only a single partial version.
@@ -57,7 +59,7 @@ data SimpleRangeExpression
     TildeRange PartialVersion
   | -- | ^1.2.3
     CaretRange PartialVersion
-  deriving (Eq)
+  deriving (Eq, TH.Lift)
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator set.
 instance Show ComparatorSet where
