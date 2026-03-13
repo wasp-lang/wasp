@@ -3,13 +3,12 @@
     "@lucia-auth/adapter-prisma": "^4.0.0",
     "@prisma/client": "5.19.1",
     "@socket.io/component-emitter": "^4.0.0",
-    "@suspensive/react": "^3.19.0",
     "@tanstack/react-query": "~4.42.0",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.0.16",
-    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.21.2.tgz",
-    "@wasp.sh/lib-vite-ssr": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.21.2.tgz",
+    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.22.0.tgz",
+    "@wasp.sh/lib-vite-ssr": "file:../../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz",
     "arctic": "^1.2.1",
     "axios": "^1.4.0",
     "dotenv": "^16.6.1",
@@ -30,7 +29,7 @@
     "socket.io-client": "^4.6.1",
     "superjson": "^2.2.1",
     "vitest": "^4.0.16",
-    "zod": "^3.23.8"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tsconfig/vite-react": "^7.0.0",
