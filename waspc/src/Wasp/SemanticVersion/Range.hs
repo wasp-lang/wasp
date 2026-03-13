@@ -117,6 +117,7 @@ strictParseRange = P.parse (rangeParser <* P.eof) ""
 parseRange :: String -> Either P.ParseError Range
 parseRange = P.parse rangeParser ""
 
+-- | Parses a version range.
 -- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
 rangeParser :: P.Parsec String () Range
 rangeParser = Range <$> rangeSetParser

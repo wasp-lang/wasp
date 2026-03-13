@@ -99,8 +99,7 @@ toCareRangetUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc +
 toCareRangetUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
 toCareRangetUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
 
--- | Parses a comparator set: either a single hyphen range or
--- one or more simple comparators separated by spaces.
+-- | Parses a comparator set.
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
 comparatorSetParser :: P.Parsec String () ComparatorSet
 comparatorSetParser =
@@ -115,7 +114,7 @@ comparatorSetParser =
       rest <- P.many $ P.try (P.many1 P.space *> simpleRangeExpressionParser)
       pure $ SimpleComparatorSet (NE.fromList (first : rest))
 
--- | Parses a single non-hyphen comparator (primitive, tilde or caret).
+-- | Parses a simple range expression.
 -- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
 simpleRangeExpressionParser :: P.Parsec String () SimpleRangeExpression
 simpleRangeExpressionParser =
@@ -134,7 +133,7 @@ simpleRangeExpressionParser =
     primitiveParser :: P.Parsec String () SimpleRangeExpression
     primitiveParser = Primitive <$> comparatorParser
 
--- | Parses a hyphen range: two partial versions separated by " - ".
+-- | Parses a hyphen range.
 -- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
 hyphenRangeParser :: P.Parsec String () ComparatorSet
 hyphenRangeParser = do
