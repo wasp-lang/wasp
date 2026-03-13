@@ -3,15 +3,37 @@
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
 {=/ isAuthEnabled =}
-
-// These files are used from user-land and the import paths below are relative to the
-// user's project dir, and not the SDK:
-{=# pagesToImport =}
+{=# eagerImports =}
 {=& importStatement =}
-{=/ pagesToImport =}
+{=/ eagerImports =}
 
 export const routesMapping = {
   {=# routes =}
-  {= name =}: {= targetComponent =},
+  {=# isLazy =}
+  {= name =}: { lazy: async () => {
+    {=# isDefaultExport =}
+    const { default: Component } = await import('{=& importPath =}')
+    {=/ isDefaultExport =}
+    {=^ isDefaultExport =}
+    const { {= importIdentifier =}: Component } = await import('{=& importPath =}')
+    {=/ isDefaultExport =}
+    {=# isAuthRequired =}
+    return { Component: createAuthRequiredPage(Component) }
+    {=/ isAuthRequired =}
+    {=^ isAuthRequired =}
+    return { Component }
+    {=/ isAuthRequired =}
+  }},
+  {=/ isLazy =}
+  {=^ isLazy =}
+  {= name =}: {
+    {=# isAuthRequired =}
+    Component: createAuthRequiredPage({= importIdentifier =}),
+    {=/ isAuthRequired =}
+    {=^ isAuthRequired =}
+    Component: {= importIdentifier =},
+    {=/ isAuthRequired =}
+  },
+  {=/ isLazy =}
   {=/ routes =}
 } as const;

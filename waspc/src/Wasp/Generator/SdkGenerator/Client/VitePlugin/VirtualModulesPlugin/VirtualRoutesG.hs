@@ -19,7 +19,12 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (virtualFilesFilesDirInViteDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport
-  ( applyJsImportAlias,
+  ( JsImport (..),
+    JsImportName (..),
+    applyJsImportAlias,
+    getImportIdentifier,
+    getJsDynamicImportExpression,
+    getJsImportPathString,
     getJsImportStmtAndIdentifier,
   )
 
@@ -29,51 +34,69 @@ genVirtualRoutesTsx spec =
     C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|routes.tsx|]
+    routes = AS.getRoutes spec
+    eagerRoutes = filter (not . isRouteLazy . snd) routes
     tmplData =
       object
-        [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
-          "pagesToImport" .= map createPageTemplateData (AS.getPages spec),
+        [ "routes" .= map (createRouteTemplateData spec) routes,
+          "eagerImports" .= map (createEagerImportData spec) eagerRoutes,
           "isAuthEnabled" .= isAuthEnabled spec
         ]
 
-getRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
-getRouteTargetComponent spec (_, route) =
-  if isAuthRequired
-    then -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
-      "createAuthRequiredPage(" ++ targetPageName ++ ")"
-    else targetPageName
-  where
-    isAuthRequired = fromMaybe False $ AS.Page.authRequired $ snd targetPage
-    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
-    targetPage =
-      fromMaybe
-        -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
-        ( error $
-            "Can't find page with name '"
-              ++ targetPageName
-              ++ "', pointed to by route '"
-              ++ AS.Route.path route
-              ++ "'"
-        )
-        (find ((==) targetPageName . fst) (AS.getPages spec))
+isRouteLazy :: AS.Route.Route -> Bool
+isRouteLazy = fromMaybe True . AS.Route.lazy
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> Aeson.Value
-createRouteTemplateData spec namedRoute@(name, _) =
-  object
+createRouteTemplateData spec (name, route) =
+  object $
     [ "name" .= name,
-      "targetComponent" .= getRouteTargetComponent spec namedRoute
+      "isLazy" .= isLazy,
+      "isAuthRequired" .= isAuthRequired
     ]
-
-createPageTemplateData :: (String, AS.Page.Page) -> Aeson.Value
-createPageTemplateData (pageName, page) =
-  object
-    [ "importStatement" .= importStmt
-    ]
+      ++ if isLazy
+        then
+          [ "importPath" .= getJsImportPathString jsImport,
+            "importIdentifier" .= getImportIdentifier jsImport,
+            "isDefaultExport" .= isDefaultExport,
+            "dynamicImportExpression" .= getJsDynamicImportExpression jsImport
+          ]
+        else ["importIdentifier" .= importIdentifier]
   where
-    importStmt :: String
-    (importStmt, _) =
-      getJsImportStmtAndIdentifier $
-        applyJsImportAlias (Just pageName) $
-          GJI.extImportToRelativeSrcImportFromViteExecution pageComponent
+    isLazy = isRouteLazy route
+    isAuthRequired = fromMaybe False $ AS.Page.authRequired $ snd targetPage
 
-    pageComponent = AS.Page.component page
+    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
+    targetPage = findTargetPage spec targetPageName (AS.Route.path route)
+    jsImport = GJI.extImportToRelativeSrcImportFromViteExecution $ AS.Page.component (snd targetPage)
+
+    isDefaultExport = case _name jsImport of
+      JsImportModule _ -> True
+      JsImportField _ -> False
+
+    -- For eager routes, we alias the import to the page name
+    importIdentifier =
+      let aliasedImport = applyJsImportAlias (Just targetPageName) jsImport
+          (_, ident) = getJsImportStmtAndIdentifier aliasedImport
+       in ident
+
+createEagerImportData :: AppSpec -> (String, AS.Route.Route) -> Aeson.Value
+createEagerImportData spec (_, route) =
+  object ["importStatement" .= importStmt]
+  where
+    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
+    targetPage = findTargetPage spec targetPageName (AS.Route.path route)
+    jsImport = GJI.extImportToRelativeSrcImportFromViteExecution $ AS.Page.component (snd targetPage)
+    aliasedImport = applyJsImportAlias (Just targetPageName) jsImport
+    (importStmt, _) = getJsImportStmtAndIdentifier aliasedImport
+
+findTargetPage :: AppSpec -> String -> String -> (String, AS.Page.Page)
+findTargetPage spec targetPageName routePath =
+  fromMaybe
+    ( error $
+        "Can't find page with name '"
+          ++ targetPageName
+          ++ "', pointed to by route '"
+          ++ routePath
+          ++ "'"
+    )
+    (find ((==) targetPageName . fst) (AS.getPages spec))

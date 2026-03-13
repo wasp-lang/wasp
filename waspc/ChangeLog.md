@@ -7,10 +7,12 @@
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-21-to-0-22) for step-by-step documentation on how to upgrade.
 
 - Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
+- Page routes are now loaded lazily by default. You can set `lazy: false` per-route to disable this behavior. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🎉 New Features
 
 - The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
+- Page routes are now lazy-loaded using React Router's `lazy` property, greatly reducing the initial download size for apps with many routes. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🐞 Bug fixes
 

@@ -1,9 +1,8 @@
 // @ts-nocheck
 
-// These files are used from user-land and the import paths below are relative to the
-// user's project dir, and not the SDK:
-import { MainPage } from './src/MainPage'
-
 export const routesMapping = {
-  RootRoute: MainPage,
+  RootRoute: { lazy: async () => {
+    const { MainPage: Component } = await import('./src/MainPage')
+    return { Component }
+  }},
 } as const;

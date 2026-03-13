@@ -175,6 +175,7 @@ const sidebars: SidebarsConfig = {
         "advanced/apis",
         "advanced/middleware-config",
         "advanced/links",
+        "advanced/routing",
       ],
     },
     {
