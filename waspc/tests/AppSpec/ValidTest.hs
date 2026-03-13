@@ -86,10 +86,11 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
 
         it "returns an error if 'waspVersion' has an incorrect format" $ do
-          ASV.validateAppSpec (basicAppSpecWithVersionRange "0.5;2")
-            `shouldBe` [ Valid.GenericValidationError
-                           "Wasp version should be in the format ^major.minor.patch"
-                       ]
+          let validationErrors = ASV.validateAppSpec (basicAppSpecWithVersionRange "$0.5;2")
+          length validationErrors `shouldBe` 1
+
+          let validationError = head validationErrors
+          show validationError `shouldStartWith` "Failed to parse the Wasp version range."
 
         it "returns an error if 'waspVersion' is not compatible" $ do
           let incompatibleWaspVersion = WV.waspVersion {SV.major = SV.major WV.waspVersion + 1}

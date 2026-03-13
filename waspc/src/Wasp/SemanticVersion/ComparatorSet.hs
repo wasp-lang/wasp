@@ -8,14 +8,6 @@ module Wasp.SemanticVersion.ComparatorSet
     comparatorSetParser,
     simpleParser,
     hyphenRangeParser,
-    lt,
-    lte,
-    gt,
-    gte,
-    eq,
-    backwardsCompatibleWith,
-    approximatelyEquivalentTo,
-    hyphenRange,
   )
 where
 
@@ -24,12 +16,11 @@ import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
   ( Comparator (..),
-    PrimitiveOperator (..),
     primitiveComparatorParser,
     toXRangeLowerBound,
     toXRangeUpperBound,
   )
-import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), fromVersion, partialVersionParser)
+import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), partialVersionParser)
 import Wasp.SemanticVersion.Version (Version (..))
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
@@ -107,37 +98,6 @@ toCareRangetUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
 toCareRangetUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
 toCareRangetUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
 toCareRangetUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
-
--- Helper methods for constructing a 'ComparatorSet'.
--- While 'Comparator' works with 'PartialVersion' internally, we only use it through 'Version' in our code.
--- To create 'PartialVersion' comparator sets, please use the 'ComparatorSet' constructors directly.
-
-lt :: Version -> ComparatorSet
-lt = mkPrimCompSet LessThan
-
-lte :: Version -> ComparatorSet
-lte = mkPrimCompSet LessThanOrEqual
-
-gt :: Version -> ComparatorSet
-gt = mkPrimCompSet GreaterThan
-
-gte :: Version -> ComparatorSet
-gte = mkPrimCompSet GreaterThanOrEqual
-
-eq :: Version -> ComparatorSet
-eq = mkPrimCompSet Equal
-
-backwardsCompatibleWith :: Version -> ComparatorSet
-backwardsCompatibleWith = SimpleComparatorSet . pure . CaretRange . fromVersion
-
-approximatelyEquivalentTo :: Version -> ComparatorSet
-approximatelyEquivalentTo = SimpleComparatorSet . pure . TildeRange . fromVersion
-
-hyphenRange :: Version -> Version -> ComparatorSet
-hyphenRange v1 v2 = HyphenRange (fromVersion v1) (fromVersion v2)
-
-mkPrimCompSet :: PrimitiveOperator -> Version -> ComparatorSet
-mkPrimCompSet op = SimpleComparatorSet . pure . Primitive . Comparator op . fromVersion
 
 -- | Parses a comparator set: either a single hyphen range or
 -- one or more simple comparators separated by spaces.

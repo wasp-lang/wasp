@@ -3,6 +3,7 @@
 module Wasp.SemanticVersion.Version
   ( Version (..),
     parseVersion,
+    strictParseVersion,
     versionParser,
     v,
     nextBreakingChangeVersion,
@@ -31,6 +32,12 @@ data Version = Version
 instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
+v :: TH.QuasiQuoter
+v = quasiQuoterFromParser strictParseVersion
+
+strictParseVersion :: String -> Either P.ParseError Version
+strictParseVersion = P.parse (versionParser <* P.eof) ""
+
 parseVersion :: String -> Either P.ParseError Version
 parseVersion = P.parse versionParser ""
 
@@ -50,9 +57,6 @@ versionParser = do
       _ <- P.char '.'
       ptc <- naturalNumberParser
       pure (mjr, mnr, ptc)
-
-v :: TH.QuasiQuoter
-v = quasiQuoterFromParser parseVersion
 
 nextBreakingChangeVersion :: Version -> Version
 nextBreakingChangeVersion = \case

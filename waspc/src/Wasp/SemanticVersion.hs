@@ -1,34 +1,33 @@
 {-- This module describes the SemanticVersion public API --}
 module Wasp.SemanticVersion
-  ( module Wasp.SemanticVersion.ComparatorSet,
-    module Wasp.SemanticVersion.Range,
+  ( module Wasp.SemanticVersion.Range,
     module Wasp.SemanticVersion.Version,
     module Wasp.SemanticVersion.VersionBound,
   )
 where
 
-import Wasp.SemanticVersion.ComparatorSet
-  ( approximatelyEquivalentTo,
+import Wasp.SemanticVersion.Range
+  ( Range (..),
+    approximatelyEquivalentTo,
     backwardsCompatibleWith,
+    doesVersionRangeAllowMajorChanges,
     eq,
     gt,
     gte,
     hyphenRange,
+    isVersionInRange,
     lt,
     lte,
-  )
-import Wasp.SemanticVersion.Range
-  ( Range (..),
-    doesVersionRangeAllowMajorChanges,
-    isVersionInRange,
     parseRange,
     r,
     rangeParser,
+    strictParseRange,
   )
 import Wasp.SemanticVersion.Version
   ( Version (..),
     nextBreakingChangeVersion,
     parseVersion,
+    strictParseVersion,
     v,
     versionParser,
   )

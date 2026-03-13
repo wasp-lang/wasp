@@ -12,10 +12,10 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
+import Data.Bifunctor
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
-import Text.Read (readMaybe)
-import Text.Regex.TDFA ((=~))
+import qualified Text.Parsec as P
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -90,26 +90,19 @@ validateWasp = validateWaspVersion . Wasp.version . App.wasp . snd . getApp
 
 validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
-  specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
+  specWaspVersionRange <- first parseErrorToValidationError $ SV.parseRange specWaspVersionStr
   unless (SV.isVersionInRange WV.waspVersion specWaspVersionRange) $
-    Left $
-      incompatibleVersionError WV.waspVersion specWaspVersionRange
+    Left (incompatibleVersionError WV.waspVersion specWaspVersionRange)
   where
-    -- TODO: Use version range parser from SemanticVersion when it is fully implemented.
-
-    parseWaspVersionRange :: String -> Either ValidationError SV.Range
-    parseWaspVersionRange waspVersionRangeStr = do
-      -- Only ^x.y.z is allowed here because it was the easiest solution to start
-      -- with at the moment. In the future, we plan to allow any SemVer
-      -- definition.
-      let (_ :: String, _ :: String, _ :: String, waspVersionRangeDigits :: [String]) =
-            waspVersionRangeStr =~ ("\\`\\^([0-9]+)\\.([0-9]+)\\.([0-9]+)\\'" :: String)
-
-      waspSpecVersion <- case mapM readMaybe waspVersionRangeDigits of
-        Just [major, minor, patch] -> Right $ SV.Version major minor patch
-        __ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch"
-
-      Right $ SV.Range [SV.backwardsCompatibleWith waspSpecVersion]
+    -- Currently the 'ParseError' does not give user-friendly information.
+    -- So we discard it.
+    parseErrorToValidationError :: P.ParseError -> ValidationError
+    parseErrorToValidationError _err =
+      GenericValidationError $
+        unlines
+          [ "Failed to parse the Wasp version range.",
+            "Make sure to follow the `node-semver` range format."
+          ]
 
     incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
     incompatibleVersionError actualVersion expectedVersionRange =

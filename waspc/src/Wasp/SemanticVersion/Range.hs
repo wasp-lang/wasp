@@ -4,21 +4,31 @@ module Wasp.SemanticVersion.Range
   ( Range (..),
     parseRange,
     rangeParser,
+    strictParseRange,
     isVersionInRange,
     doesVersionRangeAllowMajorChanges,
+    lt,
+    lte,
+    gt,
+    gte,
+    eq,
+    backwardsCompatibleWith,
+    approximatelyEquivalentTo,
+    hyphenRange,
     r,
   )
 where
 
-import Control.Monad (guard)
+import Control.Monad (guard, void)
 import Data.List (intercalate, nub)
+import qualified Data.List.NonEmpty as NE
 import Data.Maybe (isJust)
 import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
-import Wasp.SemanticVersion.Comparator (Comparator (..), PrimitiveOperator (Equal))
+import Wasp.SemanticVersion.Comparator (Comparator (..), PrimitiveOperator (..))
 import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), SimpleRangeExpression (..), comparatorSetParser)
-import Wasp.SemanticVersion.PartialVersion (PartialVersion (..))
+import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), fromVersion)
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
@@ -69,26 +79,60 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
             (lowerBound, Exclusive $ nextBreakingChangeVersion lowerBoundVersion)
       guard $ versionInterval `isSubintervalOf` noMajorChangesInterval
 
+-- Helper methods for constructing a 'Range'.
+
+backwardsCompatibleWith :: Version -> Range
+backwardsCompatibleWith = Range . pure . SimpleComparatorSet . NE.fromList . pure . CaretRange . fromVersion
+
+approximatelyEquivalentTo :: Version -> Range
+approximatelyEquivalentTo = Range . pure . SimpleComparatorSet . NE.fromList . pure . TildeRange . fromVersion
+
+hyphenRange :: Version -> Version -> Range
+hyphenRange v1 v2 = Range [HyphenRange (fromVersion v1) (fromVersion v2)]
+
+lt :: Version -> Range
+lt = mkComparatorRange LessThan
+
+lte :: Version -> Range
+lte = mkComparatorRange LessThanOrEqual
+
+gt :: Version -> Range
+gt = mkComparatorRange GreaterThan
+
+gte :: Version -> Range
+gte = mkComparatorRange GreaterThanOrEqual
+
+eq :: Version -> Range
+eq = mkComparatorRange Equal
+
+mkComparatorRange :: PrimitiveOperator -> Version -> Range
+mkComparatorRange op = Range . pure . SimpleComparatorSet . NE.fromList . pure . Primitive . Comparator op . fromVersion
+
 r :: TH.QuasiQuoter
-r = quasiQuoterFromParser parseRange
+r = quasiQuoterFromParser strictParseRange
+
+strictParseRange :: String -> Either P.ParseError Range
+strictParseRange = P.parse (rangeParser <* P.eof) ""
 
 parseRange :: String -> Either P.ParseError Range
 parseRange = P.parse rangeParser ""
 
 -- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
 rangeParser :: P.Parsec String () Range
-rangeParser =
-  P.choice
-    [ nonEmptyRangeParser,
-      emptyRangeParser
-    ]
+rangeParser = Range <$> rangeSetParser
   where
-    -- `node-semver` allows parsing of an empty string into the any comparator (*).
-    emptyRangeParser :: P.Parsec String () Range
-    emptyRangeParser = Range [SimpleComparatorSet (pure (Primitive $ Comparator Equal Any))] <$ P.eof
+    rangeSetParser :: P.Parsec String () [ComparatorSet]
+    rangeSetParser = do
+      first <- rangeExpressionParser
+      rest <- P.many $ P.try (logicalOrParser *> rangeExpressionParser)
+      pure (first : rest)
 
-    nonEmptyRangeParser :: P.Parsec String () Range
-    nonEmptyRangeParser = Range <$> (comparatorSetParser `P.sepBy1` P.try logicalOrParser)
+    rangeExpressionParser :: P.Parsec String () ComparatorSet
+    rangeExpressionParser = P.spaces *> (comparatorSetParser P.<|> emptyRangeParser) <* P.spaces
+
+    -- `node-semver` parses empty input as the equals any comparator (*).
+    emptyRangeParser :: P.Parsec String () ComparatorSet
+    emptyRangeParser = (SimpleComparatorSet . pure . Primitive $ Comparator Equal Any) <$ P.eof
 
     logicalOrParser :: P.Parsec String () ()
-    logicalOrParser = P.spaces *> P.string "||" *> P.spaces
+    logicalOrParser = void (P.spaces *> P.string "||" <* P.spaces)

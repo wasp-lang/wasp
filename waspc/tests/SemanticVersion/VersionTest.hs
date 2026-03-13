@@ -2,7 +2,6 @@ module SemanticVersion.VersionTest where
 
 import Data.Either (isLeft, isRight)
 import Test.Hspec
-import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Version
 
 spec_SemanticVersion_Version :: Spec
@@ -13,20 +12,13 @@ spec_SemanticVersion_Version = do
     show (Version 0 0 3) `shouldBe` "0.0.3"
     show (Version 0 0 0) `shouldBe` "0.0.0"
 
-  describe "parserVersion" $ do
-    let strictParseVersion = P.parse (versionParser <* P.eof) ""
-
+  describe "strictParseVersion" $ do
     it "parses full versions" $ do
       strictParseVersion "1.2.3" `shouldBe` Right (Version 1 2 3)
       strictParseVersion "103.20.35" `shouldBe` Right (Version 103 20 35)
       strictParseVersion "0.1.33" `shouldBe` Right (Version 0 1 33)
       strictParseVersion "0.0.0" `shouldBe` Right (Version 0 0 0)
       strictParseVersion "1.0.1" `shouldBe` Right (Version 1 0 1)
-
-    it "parses full versions with trailing content" $ do
-      isRight (parseVersion "1.2.3.4.5.6.7.8.9.0") `shouldBe` True
-      isRight (parseVersion "1.2.3foobar") `shouldBe` True
-      isRight (parseVersion "1.2.3 some other stuff") `shouldBe` True
 
     it "rejects partial versions" $ do
       isLeft (strictParseVersion "1") `shouldBe` True
@@ -43,6 +35,12 @@ spec_SemanticVersion_Version = do
       isLeft (strictParseVersion ".2.3") `shouldBe` True
       isLeft (strictParseVersion "foo") `shouldBe` True
       isLeft (strictParseVersion "") `shouldBe` True
+
+  describe "parseVersion" $ do
+    it "parses full versions with trailing content" $ do
+      isRight (parseVersion "1.2.3.4.5.6.7.8.9.0") `shouldBe` True
+      isRight (parseVersion "1.2.3foobar") `shouldBe` True
+      isRight (parseVersion "1.2.3 some other stuff") `shouldBe` True
 
   it "v quasi quoter" $ do
     [v|1.2.3|] `shouldBe` Version 1 2 3
