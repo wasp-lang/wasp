@@ -121,8 +121,8 @@ getTsConfigStructureForWaspProject = \case
   WaspTs _ ->
     TsConfigPaths
       { srcTsConfig = [relfile|tsconfig.src.json|],
-        rootTsConfig = Just [relfile|tsconfig.wasp.json|],
-        waspTsConfig = Just [relfile|tsconfig.json|]
+        rootTsConfig = Just [relfile|tsconfig.json|],
+        waspTsConfig = Just [relfile|tsconfig.wasp.json|]
       }
   WaspLang _ ->
     TsConfigPaths
