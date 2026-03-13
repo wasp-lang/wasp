@@ -1,8 +1,8 @@
-module Generator.Valid.ValidatorTest (spec_Validator) where
+module ValidatorTest (spec_Validator) where
 
 import qualified Data.Map as Map
 import Test.Hspec
-import qualified Wasp.Generator.Valid.Validator as V
+import qualified Wasp.Validator as V
 import Prelude hiding (fail)
 
 spec_Validator :: Spec
