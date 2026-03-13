@@ -28,9 +28,7 @@ import Wasp.SemanticVersion.VersionBound
     intervalIntersection,
   )
 
--- | A comparator set is either:
---  - a sequence of simple range expressions (AND logic)
---  - a hyphen range
+-- | A comparator set is either a sequence of simple range expressions or a hyphen range.
 --
 -- The name comparator set comes from the fact that all items of comparator set
 -- can be desguared into comparators.
@@ -42,7 +40,7 @@ data ComparatorSet
 -- | Anything that is either a comparator, or can be desugared into comparators.
 -- Simple because all operators here require only a single partial version.
 --
--- X-Range is already supported on all operators through the 'Partial Version' implementation.
+-- X-Range is already supported on all operators through the 'PartialVersion' implementation.
 data SimpleRangeExpression
   = -- | 1.2.3 (=1.2.3), >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
     Primitive Comparator
