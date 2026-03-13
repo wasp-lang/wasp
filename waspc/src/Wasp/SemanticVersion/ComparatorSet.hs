@@ -1,4 +1,3 @@
-{-# LANGUAGE InstanceSigs #-}
 {-# HLINT ignore "Use <$>" #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
@@ -62,8 +61,8 @@ data SimpleRangeExpression
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator set.
 instance Show ComparatorSet where
-  show (SimpleComparatorSet simples) = unwords $ show <$> NE.toList simples
-  show (HyphenRange pv1 pv2) = show pv1 ++ " - " ++ show pv2
+  show (SimpleComparatorSet simpleRangeExpressions) = unwords $ show <$> NE.toList simpleRangeExpressions
+  show (HyphenRange lower upper) = show lower ++ " - " ++ show upper
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` simple comparator.
 instance Show SimpleRangeExpression where
@@ -79,7 +78,8 @@ instance Semigroup ComparatorSet where
   _ <> (HyphenRange _ _) = error "Cannot combine Hyphen Range with other comparator sets"
 
 instance HasVersionBounds ComparatorSet where
-  versionBounds (SimpleComparatorSet simples) = foldr1 intervalIntersection $ versionBounds <$> simples
+  versionBounds (SimpleComparatorSet simpleRangeExpressions) =
+    foldr1 intervalIntersection $ versionBounds <$> simpleRangeExpressions
   versionBounds (HyphenRange lower upper) = (toXRangeLowerBound lower, toXRangeUpperBound upper)
 
 instance HasVersionBounds SimpleRangeExpression where
