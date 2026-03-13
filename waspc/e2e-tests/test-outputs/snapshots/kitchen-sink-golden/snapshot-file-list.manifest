@@ -993,6 +993,14 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/src/pages/HomePage.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyNoPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyNoPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyNoPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyNoPage.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyYesPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyYesPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyYesPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/pages/LazyYesPage.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/rpcTests/helpers.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/rpcTests/helpers.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/rpcTests/helpers.js
@@ -1151,6 +1159,8 @@ wasp-app/.wasp/out/sdk/wasp/src/features/streaming/api.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/pages/CatchAllPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/pages/HomePage.tsx
+wasp-app/.wasp/out/sdk/wasp/src/pages/LazyNoPage.tsx
+wasp-app/.wasp/out/sdk/wasp/src/pages/LazyYesPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/helpers.ts
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/operations/client.ts
 wasp-app/.wasp/out/sdk/wasp/src/rpcTests/operations/definitions.ts
@@ -1288,6 +1298,7 @@ wasp-app/e2e-tests/tests/crud.spec.ts
 wasp-app/e2e-tests/tests/custom-apis.spec.ts
 wasp-app/e2e-tests/tests/custom-signup.spec.ts
 wasp-app/e2e-tests/tests/helpers.ts
+wasp-app/e2e-tests/tests/lazy-loading.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
 wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
@@ -1372,6 +1383,8 @@ wasp-app/src/features/streaming/api.ts
 wasp-app/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/src/pages/CatchAllPage.tsx
 wasp-app/src/pages/HomePage.tsx
+wasp-app/src/pages/LazyNoPage.tsx
+wasp-app/src/pages/LazyYesPage.tsx
 wasp-app/src/rpcTests/helpers.ts
 wasp-app/src/rpcTests/operations/client.ts
 wasp-app/src/rpcTests/operations/definitions.ts

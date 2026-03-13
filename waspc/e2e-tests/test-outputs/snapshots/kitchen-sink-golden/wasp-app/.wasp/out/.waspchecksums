@@ -1612,6 +1612,20 @@
     [
         [
             "file",
+            "sdk/wasp/src/pages/LazyNoPage.tsx"
+        ],
+        "ef8b57fa0932edb5c38a5886e64e513e62d77261c2051d025d79fe1dbb2868f9"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/pages/LazyYesPage.tsx"
+        ],
+        "b2e0f5a23e9aeba34dd56b4d61b2f7ef41c7a759af01ddb06f55c1292e7ff7f7"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/src/rpcTests/helpers.ts"
         ],
         "4b7f101aa6380789cb3086099572a905931f71346957e263468f9c331d3c8a0f"
@@ -1663,7 +1677,7 @@
             "file",
             "sdk/wasp/src/vite-env.d.ts"
         ],
-        "1519c7fbe3fa3bbdfd563107da5f23989ac1c22de16639c292946744fd6c0984"
+        "7ed6a5aae2db6666937b6b8ce6f941d5ab477f25734e39f310cefde82a634838"
     ],
     [
         [
