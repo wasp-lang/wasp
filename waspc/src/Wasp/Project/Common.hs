@@ -15,7 +15,7 @@ module Wasp.Project.Common
     waspProjectDirFromProjectRootDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
-    packageJsonInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
@@ -97,8 +97,8 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel G.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
-packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
-packageJsonInWaspProjectDir = [relfile|package.json|]
+userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
+userPackageJsonInWaspProjectDir = [relfile|package.json|]
 
 getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
 getSrcTsConfigInWaspProjectDir = \case
