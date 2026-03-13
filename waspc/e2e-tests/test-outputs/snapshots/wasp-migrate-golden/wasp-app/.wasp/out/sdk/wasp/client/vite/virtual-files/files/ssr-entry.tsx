@@ -14,7 +14,7 @@ import { WaspApp } from "wasp/client/app";
 
 import { routeObjects } from "/@wasp/routes.tsx"
 
-const FALLBACK_FILE = "/index.html";
+const FALLBACK_FILE = "/_fallback.html";
 
 export default ((async (route, ctx) => {
   const isFallbackPage = route === FALLBACK_FILE;

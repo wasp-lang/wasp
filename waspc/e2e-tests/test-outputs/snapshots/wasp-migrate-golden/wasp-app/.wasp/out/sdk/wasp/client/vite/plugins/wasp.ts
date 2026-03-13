@@ -32,8 +32,8 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     ssr({
       clientEntrySrc: "/@wasp/client-entry.tsx",
       ssrEntrySrc: "/@wasp/ssr-entry.tsx",
-      ssrPaths: [],
-      ssrFallbackFile: "/index.html",
+      ssrPaths: ["/"],
+      ssrFallbackFile: "/_fallback.html",
     }),
   ];
 }
