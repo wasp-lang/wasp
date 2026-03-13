@@ -2,22 +2,25 @@
 
 module Wasp.SemanticVersion.Version
   ( Version (..),
-    nextBreakingChangeVersion,
     parseVersion,
+    strictParseVersion,
     versionParser,
     v,
+    nextBreakingChangeVersion,
   )
 where
 
 import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import Numeric.Natural (Natural)
-import Text.Parsec (ParseError, Parsec, char, parse, sepBy)
-import Text.Parsec.Language (emptyDef)
-import Text.Parsec.Token (makeTokenParser, natural)
+import qualified Text.Parsec as P
 import Text.Printf (printf)
+import Wasp.SemanticVersion.Parsers (naturalNumberParser)
 import Wasp.Util.TH (quasiQuoterFromParser)
 
+-- | Follows SemVer specification.
+-- See: https://semver.org/
+-- TODO: Add pre-release (-) and build (+) support.
 data Version = Version
   { major :: !Natural,
     minor :: !Natural,
@@ -25,26 +28,35 @@ data Version = Version
   }
   deriving (Eq, Ord, TH.Lift)
 
--- | We rely on this `show` implementation to produce valid semver representation of version.
+-- | We rely on this 'show' implementation to produce a valid SemVer version.
 instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
-parseVersion :: String -> Either ParseError Version
-parseVersion = parse versionParser ""
-
-versionParser :: Parsec String () Version
-versionParser = do
-  naturalP `sepBy` char '.' >>= \case
-    [a] -> return $ Version a 0 0
-    [a, b] -> return $ Version a b 0
-    [a, b, c] -> return $ Version a b c
-    _invalidFormat -> fail "Invalid version format"
-  where
-    naturalP = fromIntegral <$> natural lexer
-    lexer = makeTokenParser emptyDef
-
 v :: TH.QuasiQuoter
-v = quasiQuoterFromParser parseVersion
+v = quasiQuoterFromParser strictParseVersion
+
+strictParseVersion :: String -> Either P.ParseError Version
+strictParseVersion = P.parse (versionParser <* P.eof) ""
+
+parseVersion :: String -> Either P.ParseError Version
+parseVersion = P.parse versionParser ""
+
+-- | Follows SemVer specification.
+-- See: https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
+-- TODO: Add pre-release (-) and build (+) support.
+versionParser :: P.Parsec String () Version
+versionParser = do
+  (mjr, mnr, ptc) <- versionCoreParser
+  pure (Version mjr mnr ptc)
+  where
+    versionCoreParser :: P.Parsec String () (Natural, Natural, Natural)
+    versionCoreParser = do
+      mjr <- naturalNumberParser
+      _ <- P.char '.'
+      mnr <- naturalNumberParser
+      _ <- P.char '.'
+      ptc <- naturalNumberParser
+      pure (mjr, mnr, ptc)
 
 nextBreakingChangeVersion :: Version -> Version
 nextBreakingChangeVersion = \case
