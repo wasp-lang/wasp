@@ -109,7 +109,7 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
         Just [major, minor, patch] -> Right $ SV.Version major minor patch
         __ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch"
 
-      Right $ SV.Range [SV.backwardsCompatibleWith waspSpecVersion]
+      Right $ SV.backwardsCompatibleWith waspSpecVersion
 
     incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
     incompatibleVersionError actualVersion expectedVersionRange =
