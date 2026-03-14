@@ -1,134 +1,139 @@
-import { ChildProcess, spawn } from "child_process";
-import readline from "readline";
-import { createLogger } from "./logging.js";
+import { execa } from "execa";
+import * as streamConsumers from "node:stream/consumers";
+import { createLogger, type Logger } from "./logging.js";
+import { shutdownSignal } from "./shutdown-controller.js";
 import type { EnvVars } from "./types.js";
+import * as asyncIterable from "./util/async-iterable.js";
 
-type SpawnOptions = {
-  name: string;
+export type SpawnOptions = {
+  logger?: Logger;
   cmd: string;
   args: string[];
   cwd?: string;
+  env?: EnvVars;
+  print?: boolean;
+  detached?: boolean;
 };
 
-class ChildProcessManager {
-  private children: ChildProcess[] = [];
-  private logger = createLogger("child-process-manager");
-
-  constructor() {
-    process.on("SIGINT", () => this.cleanExit("SIGINT"));
-    process.on("SIGTERM", () => this.cleanExit("SIGTERM"));
-    process.on("exit", (exitCode) => this.cleanExit(`exit code ${exitCode}`));
-  }
-
-  addChild(child: ChildProcess) {
-    this.children.push(child);
-  }
-
-  removeChild(proc: ChildProcess) {
-    const index = this.children.indexOf(proc);
-    if (index !== -1) {
-      this.children.splice(index, 1);
-    }
-  }
-
-  private cleanExit(reason: string) {
-    if (this.children.length === 0) {
-      return;
-    }
-    this.logger.warn(`Received ${reason}. Cleaning up...`);
-    this.children.forEach((child) => {
-      if (!child.killed) {
-        child.kill();
-      }
-    });
-    process.exit();
-  }
-}
-
-const childProcessManager = new ChildProcessManager();
-
-export function spawnWithLog({
-  name,
-  cmd,
-  args,
-  cwd,
-  extraEnv = {},
-}: SpawnOptions & {
-  extraEnv?: EnvVars;
-}): Promise<{ exitCode: number | null }> {
-  return new Promise((resolve, reject) => {
-    const logger = createLogger(name);
-    const proc = spawn(cmd, args, {
-      cwd,
-      env: { ...process.env, ...extraEnv },
-      stdio: ["ignore", "pipe", "pipe"],
-    });
-    childProcessManager.addChild(proc);
-
-    readStreamLines(proc.stdout, (line) => logger.info(line));
-    readStreamLines(proc.stderr, (line) => logger.error(line));
-
-    proc.on("error", (err) => {
-      logger.error(`Process error: ${err.message}`);
-      reject(err);
-    });
-
-    proc.on("close", (exitCode) => {
-      childProcessManager.removeChild(proc);
-      if (exitCode === 0) {
-        logger.success("Process completed successfully");
-        resolve({
-          exitCode,
-        });
-      } else {
-        logger.error(`Process exited with code ${exitCode}`);
-        reject({
-          exitCode,
-        });
-      }
-    });
-  });
-}
-
-export function spawnAndCollectOutput({
-  cmd,
-  args,
-  cwd,
-}: SpawnOptions): Promise<{
+export interface ProcessExit {
   exitCode: number | null;
-  stdoutData: string;
-  stderrData: string;
-}> {
-  let stdoutData = "";
-  let stderrData = "";
-  return new Promise((resolve) => {
-    const proc = spawn(cmd, args, {
-      cwd,
-    });
-    childProcessManager.addChild(proc);
-
-    readStreamLines(proc.stdout, (line) => (stdoutData += line + "\n"));
-    readStreamLines(proc.stderr, (line) => (stderrData += line + "\n"));
-
-    proc.on("close", (exitCode) => {
-      childProcessManager.removeChild(proc);
-      resolve({
-        exitCode,
-        stdoutData,
-        stderrData,
-      });
-    });
-  });
 }
 
-function readStreamLines(
-  stream: NodeJS.ReadableStream,
-  callback: (line: string) => void,
-) {
-  const rl = readline.createInterface({
-    input: stream,
-    crlfDelay: Infinity,
-  });
+export interface ProcessResult extends ProcessExit {
+  stdout: string;
+  stderr: string;
+}
 
-  rl.on("line", callback);
+export class Process {
+  #proc;
+  #logger;
+  #detached;
+  #closePromise;
+
+  constructor(options: SpawnOptions) {
+    this.#logger = options.logger ?? createLogger("process");
+    this.#detached = options.detached ?? false;
+
+    this.#proc = execa(options.cmd, options.args, {
+      cwd: options.cwd,
+      env: options.env,
+
+      // We don't want execa to throw an error when the process exits with a
+      // non-zero code, as we'll handle that ourselves in the wait() method.
+      reject: false,
+
+      // Detached mode spawns a process group, allowing us to kill the entire
+      // group at once. See the kill() method below for details.
+      detached: options.detached ?? false,
+    });
+
+    shutdownSignal.addEventListener("abort", () => this.kill());
+
+    const awaitables = [
+      this.#proc,
+      ...(options.print
+        ? [
+            asyncIterable.forEach(this.stdoutLines, (line) =>
+              this.#logger.info(line),
+            ),
+            asyncIterable.forEach(this.stderrLines, (line) =>
+              this.#logger.error(line),
+            ),
+          ]
+        : []),
+    ] as const;
+
+    this.#closePromise = Promise.all(awaitables).then(([resultOrError]) => {
+      if (resultOrError.exitCode !== undefined) {
+        return { exitCode: resultOrError.exitCode };
+      } else if (resultOrError.isTerminated) {
+        return { exitCode: null };
+      } else {
+        throw resultOrError;
+      }
+    });
+  }
+
+  get stdoutLines(): AsyncIterable<string> {
+    return this.#proc.iterable({ from: "stdout" });
+  }
+
+  get stderrLines(): AsyncIterable<string> {
+    return this.#proc.iterable({ from: "stderr" });
+  }
+
+  async collect(): Promise<ProcessResult> {
+    const [stdout, stderr, { exitCode }] = await Promise.all([
+      this.#proc.stdout
+        ? streamConsumers.text(this.#proc.stdout)
+        : Promise.resolve(""),
+      this.#proc.stderr
+        ? streamConsumers.text(this.#proc.stderr)
+        : Promise.resolve(""),
+      this.#closePromise,
+    ]);
+
+    return { exitCode, stdout, stderr };
+  }
+
+  async wait(): Promise<ProcessExit> {
+    const { exitCode } = await this.#closePromise;
+    if (exitCode !== 0) {
+      this.#logger.fatal(`Process exited with code ${exitCode}`);
+    }
+    return { exitCode };
+  }
+
+  kill(): void {
+    // Wasp is somewhat badly behaved in that it doesn't always kill its child
+    // processes when it receives a shutdown signal. To work around this, we
+    // attempt to kill the process in three different ways, ignoring "process
+    // not found" errors.
+
+    // We always use SIGINT as it's the same signal sent from the terminal when
+    // pressing Ctrl+C.
+
+    if (this.#detached) {
+      // A negative PID kills the entire process group.
+      this.#ignoreKillError(() => process.kill(-this.#proc.pid!, "SIGINT"));
+    }
+
+    // We kill the main process directly.
+    this.#ignoreKillError(() => process.kill(this.#proc.pid!, "SIGINT"));
+
+    // And finally we let execa attempt to kill the process for bookkeeping.
+    this.#ignoreKillError(() => this.#proc.kill("SIGINT"));
+  }
+
+  #ignoreKillError(fn: () => void) {
+    try {
+      fn();
+    } catch (error: any) {
+      if (error.syscall === "kill" && error.code === "ESRCH") {
+        return;
+      } else {
+        throw error;
+      }
+    }
+  }
 }

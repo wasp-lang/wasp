@@ -1,10 +1,11 @@
 import { stripVTControlCharacters } from "node:util";
 import semver, { type SemVer } from "semver";
-
 import type { PathToApp, WaspCliCmd } from "./args.js";
 import { DbType } from "./db/index.js";
+import { waitUntilHttp } from "./http.js";
 import { createLogger } from "./logging.js";
-import { spawnAndCollectOutput, spawnWithLog } from "./process.js";
+import { Process, ProcessExit } from "./process.js";
+import { Server, startServer } from "./server-starter.js";
 import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;
@@ -18,9 +19,9 @@ export function waspMigrateDb({
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   extraEnv: EnvVars;
-}): Promise<{ exitCode: number | null }> {
-  return spawnWithLog({
-    name: "wasp-migrate-db",
+}): Promise<ProcessExit> {
+  return new Process({
+    logger: createLogger("wasp-migrate-db"),
     cmd: waspCliCmd.cmd,
     /**
      * We use the --name flag because sometimes we run apps without a migrations directory,
@@ -31,8 +32,9 @@ export function waspMigrateDb({
      */
     args: [...waspCliCmd.args, "db", "migrate-dev", "--name", "auto-migration"],
     cwd: pathToApp,
-    extraEnv,
-  });
+    env: extraEnv,
+    print: true,
+  }).wait();
 }
 
 export function waspStart({
@@ -43,14 +45,21 @@ export function waspStart({
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   extraEnv: EnvVars;
-}): Promise<{ exitCode: number | null }> {
-  return spawnWithLog({
-    name: "wasp-start",
-    cmd: waspCliCmd.cmd,
-    args: [...waspCliCmd.args, "start"],
-    cwd: pathToApp,
-    extraEnv,
-  });
+}): Promise<Server> {
+  return startServer(
+    createLogger("wasp-start"),
+    {
+      cmd: waspCliCmd.cmd,
+      args: [...waspCliCmd.args, "start"],
+      cwd: pathToApp,
+      env: extraEnv,
+    },
+    () =>
+      Promise.all([
+        waitUntilHttp({ port: 3000 }),
+        waitUntilHttp({ port: 3001 }),
+      ]),
+  );
 }
 
 export function waspBuild({
@@ -59,13 +68,14 @@ export function waspBuild({
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
-}): Promise<{ exitCode: number | null }> {
-  return spawnWithLog({
-    name: "wasp-build",
+}): Promise<ProcessExit> {
+  return new Process({
+    logger: createLogger("wasp-build"),
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "build"],
     cwd: pathToApp,
-  });
+    print: true,
+  }).wait();
 }
 
 export function waspBuildStart({
@@ -82,7 +92,7 @@ export function waspBuildStart({
   clientEnvVars?: EnvVars;
   serverEnvFile?: string;
   clientEnvFile?: string;
-}): Promise<{ exitCode: number | null }> {
+}): Promise<Server> {
   const args = [
     "build",
     "start",
@@ -102,12 +112,19 @@ export function waspBuildStart({
     ...(clientEnvFile ? ["--client-env-file", clientEnvFile] : []),
   ];
 
-  return spawnWithLog({
-    name: "wasp-build-start",
-    cmd: waspCliCmd.cmd,
-    args: [...waspCliCmd.args, ...args],
-    cwd: pathToApp,
-  });
+  return startServer(
+    createLogger("wasp-build-start"),
+    {
+      cmd: waspCliCmd.cmd,
+      args: [...waspCliCmd.args, ...args],
+      cwd: pathToApp,
+    },
+    () =>
+      Promise.all([
+        waitUntilHttp({ port: 3000 }),
+        waitUntilHttp({ port: 3001 }),
+      ]),
+  );
 }
 
 export async function getWaspVersion({
@@ -117,26 +134,24 @@ export async function getWaspVersion({
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
 }): Promise<{ waspVersion: WaspVersion }> {
-  const logger = createLogger("wasp-info");
-  const { stdoutData, exitCode } = await spawnAndCollectOutput({
-    name: "wasp-version",
+  const logger = createLogger("wasp-version");
+  const { stdout, exitCode } = await new Process({
+    logger,
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "version"],
     cwd: pathToApp,
-  });
-  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
+  }).collect();
+  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdout);
 
   if (exitCode !== 0) {
-    logger.error(`Failed to get wasp version: ${stdoutDataWithoutAnsiChars}`);
-    process.exit(1);
+    logger.fatal(`Failed to get wasp version: ${stdoutDataWithoutAnsiChars}`);
   }
 
-  const [firstLine] = stdoutData.split("\n");
+  const [firstLine] = stdout.split("\n");
   const waspVersion = semver.parse(firstLine);
 
   if (!waspVersion) {
-    logger.error("Failed to get wasp version");
-    process.exit(1);
+    logger.fatal("Failed to get wasp version");
   }
 
   return {
@@ -155,17 +170,16 @@ export async function waspInfo({
   dbType: DbType;
 }> {
   const logger = createLogger("wasp-info");
-  const { stdoutData, exitCode } = await spawnAndCollectOutput({
-    name: "wasp-info",
+  const { stdout, exitCode } = await new Process({
+    logger,
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "info"],
     cwd: pathToApp,
-  });
-  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
+  }).collect();
+  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdout);
 
   if (exitCode !== 0) {
-    logger.error(`Failed to get app info: ${stdoutDataWithoutAnsiChars}`);
-    process.exit(1);
+    logger.fatal(`Failed to get app info: ${stdoutDataWithoutAnsiChars}`);
   }
 
   const appNameMatch = stdoutDataWithoutAnsiChars.match(/Name: (.*)$/m);
@@ -174,13 +188,11 @@ export async function waspInfo({
   );
 
   if (appNameMatch === null) {
-    logger.error("Failed to get app name");
-    process.exit(1);
+    logger.fatal("Failed to get app name");
   }
 
   if (dbTypeMatch === null) {
-    logger.error("Failed to get database type");
-    process.exit(1);
+    logger.fatal("Failed to get database type");
   }
 
   return {
@@ -200,16 +212,15 @@ export async function waspTsSetup({
   pathToApp: PathToApp;
 }): Promise<void> {
   const logger = createLogger("wasp-ts-setup");
-  const { stderrData, exitCode } = await spawnAndCollectOutput({
-    name: "wasp-ts-setup",
+  const { stderr, exitCode } = await new Process({
+    logger,
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "ts-setup"],
     cwd: pathToApp,
-  });
+  }).collect();
 
   if (exitCode !== 0) {
-    logger.error(`Failed to set up Wasp TypeScript config: ${stderrData}`);
-    process.exit(1);
+    logger.fatal(`Failed to set up Wasp TypeScript config: ${stderr}`);
   }
 }
 
@@ -219,13 +230,11 @@ function ensureRegexMatch(
 ): string {
   const logger = createLogger("ensure-regex-match");
   if (match === null) {
-    logger.error(`Failed to get ${name}`);
-    process.exit(1);
+    return logger.fatal(`Failed to get ${name}`);
   }
 
   if (match.length !== 2) {
-    logger.error(`Got more than one ${name}`);
-    process.exit(1);
+    return logger.fatal(`Got more than one ${name}`);
   }
 
   return match[1]!;

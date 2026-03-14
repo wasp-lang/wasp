@@ -5,5 +5,6 @@ export const setupSqlite = async (): Promise<SetupDbResult> => {
   // an empty object for the env vars.
   return {
     dbEnvVars: {},
+    [Symbol.dispose]: () => {},
   };
 };

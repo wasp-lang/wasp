@@ -8,8 +8,7 @@ export async function checkDependencies() {
 
   for (const cmd of requiredCommands) {
     if (!(await commandExists(cmd))) {
-      logger.error(`Required command '${cmd}' not found. Please install it.`);
-      process.exit(1);
+      logger.fatal(`Required command '${cmd}' not found. Please install it.`);
     }
   }
 }
