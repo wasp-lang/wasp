@@ -762,7 +762,6 @@ test-suite waspc-tests
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    SemanticVersionTest
     Test.Util
     Util.Control.MonadTest
     Util.Diff

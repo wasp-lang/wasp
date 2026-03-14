@@ -1,146 +1,145 @@
+{-- This module describes the SemanticVersion public API --}
 module Wasp.SemanticVersion
-  ( Version (..),
-    Range (..),
-    ComparatorSet,
-    isVersionInRange,
-    lt,
-    lte,
-    gt,
-    gte,
-    eq,
-    backwardsCompatibleWith,
-    doesVersionRangeAllowMajorChanges,
+  ( module Wasp.SemanticVersion.Range,
+    module Wasp.SemanticVersion.Version,
+    module Wasp.SemanticVersion.VersionBound,
   )
 where
 
-import Control.Monad (guard)
-import Data.List (intercalate, nub)
-import qualified Data.List.NonEmpty as NE
-import Data.Maybe (isJust)
-import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
+import Wasp.SemanticVersion.Range
+  ( Range (..),
+    approximatelyEquivalentTo,
+    backwardsCompatibleWith,
+    doesVersionRangeAllowMajorChanges,
+    eq,
+    gt,
+    gte,
+    hyphenRange,
+    isVersionInRange,
+    lt,
+    lte,
+    parseRange,
+    r,
+    rangeParser,
+    strictParseRange,
+  )
+import Wasp.SemanticVersion.Version
+  ( Version (..),
+    nextBreakingChangeVersion,
+    parseVersion,
+    strictParseVersion,
+    v,
+    versionParser,
+  )
 import Wasp.SemanticVersion.VersionBound
-  ( HasVersionBounds (versionBounds),
-    VersionBound (Exclusive, Inclusive, Inf),
+  ( HasVersionBounds,
+    VersionBound,
+    VersionInterval,
+    allVersionsInterval,
     intervalIntersection,
     intervalUnion,
     isSubintervalOf,
     isVersionInInterval,
+    noVersionInterval,
+    versionBounds,
     versionFromBound,
+    vi,
   )
 
--- Implements SemVer (semantic versioning) by following spec from https://github.com/npm/node-semver .
+{--
+# The `node-semver` implementation
 
-data Operator
-  = Equal
-  | LessThan
-  | LessThanOrEqual
-  | GreaterThan
-  | GreaterThanOrEqual
-  deriving (Eq)
+We implement the `node-semver` package differently from the original implementation.
+This comment explains:
+- How does the `node-semver` behave?
+- How can we implement this?
+- Which one did we pick and why?.
 
--- | We rely on this `show` implementation to produce valid semver representation of version.
-instance Show Operator where
-  show Equal = ""
-  show LessThan = "<"
-  show LessThanOrEqual = "<="
-  show GreaterThan = ">"
-  show GreaterThanOrEqual = ">="
+## How does the `node-semver` behave?
 
--- TODO: implement the rest of the Advanced Range Syntax (i.e. tilde): https://github.com/npm/node-semver?tab=readme-ov-file#advanced-range-syntax
-data Comparator
-  = PrimitiveComparator Operator Version
-  | BackwardsCompatibleWith Version
-  deriving (Eq)
+The `node-semver` package implements 3 classes: `SemVer`, `Comparator`, and `Range`:
+- `SemvVer` class is an implementation of the semantic version.
+- `Comparator` class is composed of primitive operator (=, >, <, >=, <=) and a `SemVer`.
+  Comparators allow us to compare two semantic versions.
+- `Range` class is composed of one or more comparator sets,
+  where each comparator set is composed of one or more 'Comparator'.
+  'Range' is satisfied by the union of comparator sets it holds (logical OR),
+  while the comparator set is satisfied by the intersection of all comparators it holds (logical AND).
 
--- | We rely on this `show` implementation to produce valid semver representation of comparator.
-instance Show Comparator where
-  show (PrimitiveComparator op v) = show op ++ show v
-  show (BackwardsCompatibleWith v) = "^" ++ show v
+This is the core domain of `node-semver`.
+However, you may notice it's missing functionality that we often rely on,
+like caret ranges (^1.2.3), tilde ranges (~1.2.3),
+X-ranges (partial versions, e.g., 1.2), or hyphen ranges (1.2.3 - 1.2.3).
 
-data ComparatorSet = ComparatorSet (NE.NonEmpty Comparator)
-  deriving (Eq)
+This is because the rest of the business logic is hidden in the parsing layer,
+which desugars it into the three classes above.
+E.g. "~1.2" ~~> ">=1.2.0 <1.3.0", desugars both the x-range and the tilde range.
 
--- | We rely on this `show` implementation to produce valid semver representation of comparator set.
-instance Show ComparatorSet where
-  show (ComparatorSet comps) = unwords $ show <$> NE.toList comps
+All of this happens in the `Range` class parser.
+It transforms the advanced range syntax (caret range, tilde range, X-range, hyphen range)
+into primitive comparators parsable by the `Comparator` class.
+(Advanced range syntax: https://github.com/npm/node-semver#advanced-range-syntax)
 
--- | We define concatenation of two comparator sets as a union of their comparators.
-instance Semigroup ComparatorSet where
-  (ComparatorSet compsl) <> (ComparatorSet compsr) = ComparatorSet $ NE.nub $ compsl <> compsr
+But the bigger problem is not that the parsing layer adds the syntax sugar,
+but it also adds some additional restrictions to the valid `Range` format.
+One restriction is that a hyphen range can't be combined with any other comparator in a comparator set.
+So a range is either a hyphen range or a set of primitive, tilde, and caret ranges.
+Even worse, this behavior is only recorded in the source code and the grammar.
+(Grammar: https://github.com/npm/node-semver#range-grammar)
 
-data Range = Range [ComparatorSet]
-  deriving (Eq)
+## How can we implement this?
 
--- | We rely on this `show` implementation to produce valid semver representation of version range.
-instance Show Range where
-  show (Range compSets) = intercalate " || " $ show <$> compSets
+We have the following choices for implementation:
 
--- | We define concatenation of two version ranges as a union of their comparator sets.
-instance Semigroup Range where
-  (Range csets1) <> (Range csets2) = Range $ nub $ csets1 <> csets2
+1) Copy the `node-semver` implementation fully.
+   We have two separate domains:
+   1. The core domain - `SemVer`, `Comparator`, and `Range`.
+   2. The parsing/syntax/grammar domain - allows advanced range syntax, follows grammar restrictions.
 
-instance Monoid Range where
-  mempty = Range []
+   Good:
+   - Our API is identical to the `node-semver` API.
+   Bad:
+   - We have to bridge the gap between the two domains.
+     E.g., how do we save that the pre-desugared form of range syntax?
+   - We can access advanced range syntax only through parsing or helper functions.
 
-instance HasVersionBounds Comparator where
-  versionBounds (PrimitiveComparator operator version) =
-    case operator of
-      Equal -> (Inclusive version, Inclusive version)
-      LessThan -> (Inf, Exclusive version)
-      LessThanOrEqual -> (Inf, Inclusive version)
-      GreaterThan -> (Exclusive version, Inf)
-      GreaterThanOrEqual -> (Inclusive version, Inf)
-  versionBounds (BackwardsCompatibleWith version) =
-    (Inclusive version, Exclusive $ nextBreakingChangeVersion version)
+2) Merge the parsing/syntax/grammar domain into the core domain.
+   Parsing follows the core domain and implements no business logic.
 
-instance HasVersionBounds ComparatorSet where
-  versionBounds (ComparatorSet comps) = foldr1 intervalIntersection $ versionBounds <$> comps
+   Good:
+   - The domain constraints are expressed in the models.
+   - Advanced range syntax is directly available in the API.
+   - The original input is more or less preserved (except whitespaces, wildcard character...).
+   Bad:
+   - We partially deviate from the `node-semver` API.
+     - `SemVer` and `Range` would behave the same.
+     - The middle layer between the 'SemVer' and 'Range' would behave differently.
+     - `SemVer` and `Range` should cover 99% of expected use cases.
 
-instance HasVersionBounds Range where
-  versionBounds (Range []) = (Inf, Inf)
-  versionBounds (Range compSets) = foldr1 intervalUnion $ versionBounds <$> compSets
+## Which one did we pick and why?
 
-isVersionInRange :: Version -> Range -> Bool
-isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
+We picked option the second option.
 
-doesVersionSatisfyComparatorSet :: Version -> ComparatorSet -> Bool
-doesVersionSatisfyComparatorSet version (ComparatorSet comps) =
-  all (doesVersionSatisfyComparator version) comps
+The main reason is that separating domains forces us to either lose the original
+syntax (e.g. showing ">=1.2.0 <1.3.0" instead of "~1.2") or store redundant
+representations.
 
-doesVersionSatisfyComparator :: Version -> Comparator -> Bool
-doesVersionSatisfyComparator version comparator =
-  isVersionInInterval (versionBounds comparator) version
+With a merged model, the types carry enough information for both:
+- Preserving the original syntax for `show` (grammar concern).
+- Computing version intervals on demand via `versionBounds` (core concern).
 
--- Helper methods.
+The `versionBounds` function effectively acts as the desugaring step,
+translating grammar constructs (tilde, caret, x-range, hyphen range)
+into version intervals.
 
-lt :: Version -> ComparatorSet
-lt = mkPrimCompSet LessThan
+In practice, this only affects the middle layer.
+`Version` and `Range` behave the same as their `node-semver` counterparts on the outside.
 
-lte :: Version -> ComparatorSet
-lte = mkPrimCompSet LessThanOrEqual
-
-gt :: Version -> ComparatorSet
-gt = mkPrimCompSet GreaterThan
-
-gte :: Version -> ComparatorSet
-gte = mkPrimCompSet GreaterThanOrEqual
-
-eq :: Version -> ComparatorSet
-eq = mkPrimCompSet Equal
-
-backwardsCompatibleWith :: Version -> ComparatorSet
-backwardsCompatibleWith = ComparatorSet . pure . BackwardsCompatibleWith
-
-mkPrimCompSet :: Operator -> Version -> ComparatorSet
-mkPrimCompSet op = ComparatorSet . pure . PrimitiveComparator op
-
-doesVersionRangeAllowMajorChanges :: Range -> Bool
-doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
-  where
-    doesVersionRangeAllowOnlyMinorChanges versionRange = isJust $ do
-      let versionInterval = versionBounds versionRange
-      let lowerBound = fst versionInterval
-      lowerBoundVersion <- versionFromBound lowerBound
-      let noMajorChangesInterval =
-            (lowerBound, Exclusive $ nextBreakingChangeVersion lowerBoundVersion)
-      guard $ versionInterval `isSubintervalOf` noMajorChangesInterval
+Note(Franjo): The range grammar provided by the `node-semver` docs is NOT a correct
+              implementation of the grammar that `node-semver` actually parses.
+              It's missing:
+               - Numerous whitespaces allowed by the `node-semver`.
+               - Restriction to the maximum length of the version component (16 chars).
+                 - E.g. `new SemVer("1.2.33333333333333333")` throws an error due to having 17 characters in patch component.
+              Grammar: https://github.com/npm/node-semver#range-grammar
+--}
