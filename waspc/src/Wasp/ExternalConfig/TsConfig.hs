@@ -5,6 +5,7 @@
 module Wasp.ExternalConfig.TsConfig
   ( TsConfig (..),
     CompilerOptions (..),
+    TsConfigReference (..),
     TsConfigFile,
     parseTsConfigFile,
   )
@@ -25,8 +26,10 @@ import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.Json (parseJsonWithComments)
 
 data TsConfig = TsConfig
-  { compilerOptions :: !CompilerOptions,
-    include :: !(Maybe [String])
+  { compilerOptions :: !(Maybe CompilerOptions),
+    include :: !(Maybe [String]),
+    files :: !(Maybe [String]),
+    references :: !(Maybe [TsConfigReference])
   }
   deriving (Show, Generic, FromJSON)
 
@@ -43,7 +46,8 @@ data CompilerOptions = CompilerOptions
     esModuleInterop :: !(Maybe Bool),
     lib :: !(Maybe [String]),
     allowJs :: !(Maybe Bool),
-    outDir :: !(Maybe String)
+    outDir :: !(Maybe String),
+    noEmit :: !(Maybe Bool)
   }
   deriving (Show, Generic)
 
@@ -55,6 +59,11 @@ instance FromJSON CompilerOptions where
       -- "module" is a reserved keyword in Haskell, so we use "_module" instead.
       modifyFieldLabel "_module" = "module"
       modifyFieldLabel other = other
+
+newtype TsConfigReference = TsConfigReference
+  { path :: String
+  }
+  deriving (Show, Eq, Generic, FromJSON)
 
 class TsConfigFile f
 

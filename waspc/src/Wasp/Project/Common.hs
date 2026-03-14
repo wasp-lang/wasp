@@ -20,9 +20,11 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
-    getSrcTsConfigInWaspProjectDir,
+    getTsConfigStructureForWaspProject,
     srcTsConfigInWaspLangProject,
-    srcTsConfigInWaspTsProject,
+    TsConfigPaths (..),
+    WaspTsConfigFile,
+    RootTsConfigFile,
     waspProjectDirFromAppComponentDir,
     makeAppUniqueId,
   )
@@ -32,8 +34,8 @@ import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
-import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile (..))
-import Wasp.ExternalConfig.TsConfig (TsConfigFile (..))
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
+import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
 
@@ -51,8 +53,6 @@ data UserPackageJsonFile
 
 instance PackageJsonFile UserPackageJsonFile
 
-data SrcTsConfigFile
-
 instance TsConfigFile SrcTsConfigFile
 
 data WaspFilePath
@@ -62,6 +62,24 @@ data WaspFilePath
 data WaspLangFile
 
 data WaspTsFile
+
+data SrcTsConfigFile
+
+instance TsConfigFile SrcTsConfigFile
+
+data WaspTsConfigFile
+
+instance TsConfigFile WaspTsConfigFile
+
+data RootTsConfigFile
+
+instance TsConfigFile RootTsConfigFile
+
+data TsConfigPaths = TsConfigPaths
+  { srcTsConfig :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
+    waspTsConfig :: Maybe (Path' (Rel WaspProjectDir) (File WaspTsConfigFile)),
+    rootTsConfig :: Maybe (Path' (Rel WaspProjectDir) (File RootTsConfigFile))
+  }
 
 -- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
@@ -100,16 +118,23 @@ dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
 userPackageJsonInWaspProjectDir = [relfile|package.json|]
 
-getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
-getSrcTsConfigInWaspProjectDir = \case
-  WaspTs _ -> srcTsConfigInWaspTsProject
-  WaspLang _ -> srcTsConfigInWaspLangProject
+getTsConfigStructureForWaspProject :: WaspFilePath -> TsConfigPaths
+getTsConfigStructureForWaspProject = \case
+  WaspTs _ ->
+    TsConfigPaths
+      { srcTsConfig = [relfile|tsconfig.src.json|],
+        rootTsConfig = Just [relfile|tsconfig.json|],
+        waspTsConfig = Just [relfile|tsconfig.wasp.json|]
+      }
+  WaspLang _ ->
+    TsConfigPaths
+      { srcTsConfig = srcTsConfigInWaspLangProject,
+        rootTsConfig = Nothing,
+        waspTsConfig = Nothing
+      }
 
 srcTsConfigInWaspLangProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
 srcTsConfigInWaspLangProject = [relfile|tsconfig.json|]
-
-srcTsConfigInWaspTsProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
-srcTsConfigInWaspTsProject = [relfile|tsconfig.src.json|]
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]

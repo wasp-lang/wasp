@@ -90,6 +90,12 @@ eqJust expected Nothing =
 ifJust :: Validator a -> Validator (Maybe a)
 ifJust = maybe success
 
+-- | Requires the value to be Just, then runs the inner validator on the
+-- unwrapped value. If the value is Nothing, the validation fails.
+required :: Validator a -> Validator (Maybe a)
+required _ Nothing = failure "Missing required value."
+required innerValidator (Just value) = innerValidator value
+
 instance Show ValidationError where
   show
     ( ValidationError
