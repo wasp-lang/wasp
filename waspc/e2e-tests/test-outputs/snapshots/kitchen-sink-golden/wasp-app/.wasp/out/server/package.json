@@ -3,6 +3,7 @@
   "dependencies": {
     "@socket.io/component-emitter": "^4.0.0",
     "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.22.0.tgz",
+    "@wasp.sh/lib-vite-ssr": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",

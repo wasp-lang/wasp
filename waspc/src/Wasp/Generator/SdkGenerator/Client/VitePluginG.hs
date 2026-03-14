@@ -9,7 +9,7 @@ import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG (genHtmlPlugin)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, ssrEntryPointPath, ssrFallbackFile)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG (getVirtualModulesPlugin)
 import Wasp.Generator.SdkGenerator.Common (sdkPackageName)
 import qualified Wasp.Generator.SdkGenerator.Common as C
@@ -28,7 +28,7 @@ genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
   sequence
     [ genViteIndex,
-      genFileCopy [relfile|wasp.ts|],
+      genWaspPlugin spec,
       genWaspConfigPlugin spec,
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
@@ -36,7 +36,6 @@ genVitePlugins spec =
       genFileCopy [relfile|typescriptCheck.ts|]
     ]
     <++> getVirtualModulesPlugin spec
-    <++> genHtmlPlugin spec
   where
     genFileCopy = return . C.mkTmplFd . (C.vitePluginsDirInSdkTemplatesDir </>)
 
@@ -44,6 +43,17 @@ genViteIndex :: Generator FileDraft
 genViteIndex = return $ C.mkTmplFd tmplPath
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|index.ts|]
+
+genWaspPlugin :: AppSpec -> Generator FileDraft
+genWaspPlugin _spec = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|wasp.ts|]
+    tmplData =
+      object
+        [ "clientEntryPointPath" .= clientEntryPointPath,
+          "ssrEntryPointPath" .= ssrEntryPointPath,
+          "ssrFallbackFile" .= ssrFallbackFile
+        ]
 
 genWaspConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData

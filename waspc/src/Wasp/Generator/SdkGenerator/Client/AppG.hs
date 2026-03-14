@@ -4,6 +4,7 @@ module Wasp.Generator.SdkGenerator.Client.AppG
 where
 
 import Data.Aeson (object, (.=))
+import Data.List (intercalate)
 import StrongPath (File', Path', Rel, relfile)
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
@@ -24,7 +25,8 @@ genClientApp :: AppSpec -> Generator [FileDraft]
 genClientApp spec =
   sequence
     [ genAppIndex spec,
-      genWaspAppComponent spec
+      genWaspAppComponent spec,
+      genLayout spec
     ]
     <++> genAppComponents
     <++> genRouter spec
@@ -61,7 +63,7 @@ genRouter spec =
   sequence
     [ return $
         C.mkTmplFdWithData
-          [relfile|client/app/router/router.tsx|]
+          [relfile|client/app/router.tsx|]
           ( object
               [ "isExternalAuthEnabled" .= isExternalAuthEnabled,
                 "oAuthCallbackPath" .= clientOAuthCallbackPath,
@@ -97,6 +99,17 @@ genOAuthCallbackPage auth =
     C.mkTmplFdWithData
       [relfile|client/app/pages/OAuthCallback.tsx|]
       (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
+
+genLayout :: AppSpec -> Generator FileDraft
+genLayout spec =
+  return $
+    C.mkTmplFdWithData
+      [relfile|client/app/layout.tsx|]
+      ( object
+          [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
+            "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
+          ]
+      )
 
 genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
 genFileCopy = C.mkTmplFd
