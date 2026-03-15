@@ -9,7 +9,9 @@
   "scripts": {
     "build": "npx tsc",
     "dev": "npx tsc --watch",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.5.3",
@@ -24,6 +26,7 @@
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.31.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.8"
   }
 }
