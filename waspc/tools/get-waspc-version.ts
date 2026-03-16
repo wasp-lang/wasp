@@ -3,9 +3,9 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
+import { getWaspcDirPath } from "./utils.ts";
 
-const waspcDir = fileURLToPath(new URL("..", import.meta.url));
+const waspcDir = getWaspcDirPath();
 const cabalFile = readFileSync(join(waspcDir, "waspc.cabal"), "utf-8");
 
 // NOTE: It would be more precise to use something like:

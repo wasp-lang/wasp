@@ -3,6 +3,11 @@
 import { execFileSync, type ExecFileSyncOptions } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+
+export function getWaspcDirPath(): string {
+  return fileURLToPath(new URL("..", import.meta.url));
+}
 
 export function discoverSubDirs(baseDirPath: string): string[] {
   return readdirSync(baseDirPath, { withFileTypes: true })

@@ -2,10 +2,9 @@
 // Helper to test the waspc/data/packages/* locally and in CI.
 
 import { join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { discoverSubDirs, getPackageJson, runCmd } from "../utils.ts";
+import { discoverSubDirs, getPackageJson, getWaspcDirPath, runCmd } from "../utils.ts";
 
-const waspcDirPath = fileURLToPath(new URL("../..", import.meta.url));
+const waspcDirPath = getWaspcDirPath();
 const dataPackagesDirPath = join(waspcDirPath, "data", "packages");
 
 testPackages();
