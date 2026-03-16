@@ -21,7 +21,6 @@ import Wasp.SemanticVersion.Range
     parseRange,
     r,
     rangeParser,
-    strictParseRange,
   )
 import Wasp.SemanticVersion.Version
   ( Version (..),
