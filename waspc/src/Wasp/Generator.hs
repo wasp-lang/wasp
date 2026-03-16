@@ -9,6 +9,7 @@ where
 import Control.Monad (forM_)
 import Data.List.NonEmpty (toList)
 import StrongPath (Abs, Dir, Path')
+import System.IO (hFlush, hPutStrLn, stderr)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
@@ -46,17 +47,25 @@ import Wasp.Util ((<++>))
 --     from user's machine. Maybe we just overwrite and we are good?
 writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir sendMessage = do
+  let debugLog msg = hPutStrLn stderr ("[DEBUG Generator] " ++ msg) >> hFlush stderr
+  debugLog "Starting writeWebAppCode"
   case validateExternalConfigsWithAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
+      debugLog "Validation passed, running generator..."
       let (generatorWarnings, generatorResult) = runGenerator $ genApp spec
 
       case generatorResult of
         Left generatorErrors -> return (generatorWarnings, toList generatorErrors)
         Right fileDrafts -> do
+          debugLog $ "Generator produced " ++ show (length fileDrafts) ++ " file drafts"
+          debugLog "Synchronizing file drafts with disk..."
           synchronizeFileDraftsWithDisk dstDir fileDrafts
+          debugLog "File drafts synchronized. Persisting build info..."
           WaspInfo.persist dstDir $ AS.buildType spec
+          debugLog "Build info persisted. Starting runSetup..."
           (setupGeneratorWarnings, setupGeneratorErrors) <- runSetup spec dstDir sendMessage
+          debugLog "runSetup finished. writeWebAppCode done."
           return (generatorWarnings ++ setupGeneratorWarnings, setupGeneratorErrors)
 
 genApp :: AppSpec -> Generator [FileDraft]
