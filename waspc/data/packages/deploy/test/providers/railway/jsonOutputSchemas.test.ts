@@ -7,9 +7,13 @@ import {
 
 describe("RailwayCliDomainSchema", () => {
   test("parses new format with domains array", () => {
-    const input = { domains: ["my-app.up.railway.app"] };
+    const input = {
+      domains: ["my-app.up.railway.app", "custom.example.com"],
+    };
     const result = RailwayCliDomainSchema.parse(input);
-    expect(result).toEqual({ domains: ["my-app.up.railway.app"] });
+    expect(result).toEqual({
+      domains: ["my-app.up.railway.app", "custom.example.com"],
+    });
   });
 
   test("parses legacy format with single domain and normalizes", () => {
@@ -36,8 +40,8 @@ describe("RailwayCliProjectSchema", () => {
       },
     };
     const result = RailwayCliProjectSchema.parse(input);
-    expect(result.id).toBe("proj-1");
-    expect(result.name).toBe("my-project");
+    expect(result.id).toBe(input.id);
+    expect(result.name).toBe(input.name);
     expect(result.services.edges).toHaveLength(2);
   });
 

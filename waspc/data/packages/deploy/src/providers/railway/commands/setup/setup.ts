@@ -18,7 +18,7 @@ import {
   createDeploymentInstructions,
   DeploymentInstructions,
 } from "../../DeploymentInstructions.js";
-import { getRailwayEnvVarValueReference } from "../../envVarReference.js";
+import { getRailwayEnvVarValueReference } from "../../env.js";
 import { clientAppPort, serverAppPort } from "../../ports.js";
 import {
   initRailwayProject,

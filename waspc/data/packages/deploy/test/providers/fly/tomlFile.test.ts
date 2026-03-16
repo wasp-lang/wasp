@@ -1,33 +1,37 @@
 import { describe, expect, test } from "vitest";
 import {
-  stripClientSuffix,
-  stripServerSuffix,
+  inferClientBasename,
+  inferServerBasename,
 } from "../../../src/providers/fly/tomlFile.js";
 
-describe("stripServerSuffix", () => {
+describe("inferServerBasename", () => {
   test("strips -server suffix", () => {
-    expect(stripServerSuffix("my-app-server")).toBe("my-app");
+    const baseName = "my-app";
+    expect(inferServerBasename(`${baseName}-server`)).toBe(baseName);
   });
 
   test("only strips the first occurrence (String.replace behavior)", () => {
-    expect(stripServerSuffix("my-server-app-server")).toBe("my-app-server");
+    expect(inferServerBasename("my-server-app-server")).toBe("my-app-server");
   });
 
   test("returns unchanged if no -server suffix", () => {
-    expect(stripServerSuffix("my-app")).toBe("my-app");
+    const baseName = "my-app";
+    expect(inferServerBasename(baseName)).toBe(baseName);
   });
 });
 
-describe("stripClientSuffix", () => {
+describe("inferClientBasename", () => {
   test("strips -client suffix", () => {
-    expect(stripClientSuffix("my-app-client")).toBe("my-app");
+    const baseName = "my-app";
+    expect(inferClientBasename(`${baseName}-client`)).toBe(baseName);
   });
 
   test("only strips the first occurrence (String.replace behavior)", () => {
-    expect(stripClientSuffix("my-client-app-client")).toBe("my-app-client");
+    expect(inferClientBasename("my-client-app-client")).toBe("my-app-client");
   });
 
   test("returns unchanged if no -client suffix", () => {
-    expect(stripClientSuffix("my-app")).toBe("my-app");
+    const baseName = "my-app";
+    expect(inferClientBasename(baseName)).toBe(baseName);
   });
 });

@@ -21,7 +21,7 @@ describe("createRailwayServerServiceName", () => {
 });
 
 describe("createRailwayDbServiceName", () => {
-  test("returns Postgres", () => {
+  test("always returns Postgres", () => {
     expect(createRailwayDbServiceName()).toBe("Postgres");
   });
 });

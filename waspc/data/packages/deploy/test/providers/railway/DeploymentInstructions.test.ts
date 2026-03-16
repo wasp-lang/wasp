@@ -11,16 +11,17 @@ import type {
 
 describe("createDeploymentInstructions", () => {
   test("generates correct service names from project name", () => {
+    const baseName = "my-app";
     const result = createDeploymentInstructions(
-      "my-app" as RailwayProjectName,
+      baseName as RailwayProjectName,
       {
         waspExe: "wasp" as WaspCliExe,
         railwayExe: "railway" as RailwayCliExe,
         waspProjectDir: "/path/to/project" as WaspProjectDir,
       },
     );
-    expect(result.clientServiceName).toBe("my-app-client");
-    expect(result.serverServiceName).toBe("my-app-server");
+    expect(result.clientServiceName).toBe(`${baseName}-client`);
+    expect(result.serverServiceName).toBe(`${baseName}-server`);
     expect(result.dbServiceName).toBe("Postgres");
   });
 });

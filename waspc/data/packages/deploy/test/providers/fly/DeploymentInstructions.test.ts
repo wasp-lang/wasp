@@ -7,8 +7,9 @@ import { createDeploymentInstructions } from "../../../src/providers/fly/Deploym
 
 describe("createDeploymentInstructions", () => {
   test("generates correct app names from baseName", () => {
+    const baseName = "my-app";
     const result = createDeploymentInstructions({
-      baseName: "my-app",
+      baseName,
       cmdOptions: {
         waspExe: "wasp" as WaspCliExe,
         waspProjectDir: "/path/to/project" as WaspProjectDir,
@@ -18,8 +19,8 @@ describe("createDeploymentInstructions", () => {
         clientTomlPath: "/path/fly-client.toml",
       },
     });
-    expect(result.clientFlyAppName).toBe("my-app-client");
-    expect(result.serverFlyAppName).toBe("my-app-server");
-    expect(result.dbName).toBe("my-app-db");
+    expect(result.clientFlyAppName).toBe(`${baseName}-client`);
+    expect(result.serverFlyAppName).toBe(`${baseName}-server`);
+    expect(result.dbName).toBe(`${baseName}-db`);
   });
 });

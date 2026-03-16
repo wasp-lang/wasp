@@ -43,13 +43,13 @@ describe("FlyRegionListSchema", () => {
 });
 
 describe("FlySecretListSchema", () => {
-  test("parses uppercase Name format and normalizes to lowercase", () => {
+  test("parses legacy format with uppercase Name and normalizes to lowercase", () => {
     const input = [{ Name: "DATABASE_URL" }, { Name: "SECRET_KEY" }];
     const result = FlySecretListSchema.parse(input);
     expect(result).toEqual([{ name: "DATABASE_URL" }, { name: "SECRET_KEY" }]);
   });
 
-  test("parses lowercase name format", () => {
+  test("parses current format with lowercase name", () => {
     const input = [{ name: "DATABASE_URL" }, { name: "SECRET_KEY" }];
     const result = FlySecretListSchema.parse(input);
     expect(result).toEqual(input);

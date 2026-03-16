@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getRailwayEnvVarValueReference } from "../../../src/providers/railway/envVarReference.js";
+import { getRailwayEnvVarValueReference } from "../../../src/providers/railway/env.js";
 
 describe("getRailwayEnvVarValueReference", () => {
   test("creates a local variable reference", () => {
