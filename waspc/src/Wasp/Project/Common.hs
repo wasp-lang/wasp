@@ -30,6 +30,7 @@ where
 
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
+import Wasp.Util.StrongPath (invertRelDir)
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile (..))
@@ -63,7 +64,6 @@ data WaspLangFile
 
 data WaspTsFile
 
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = [reldir|.wasp|]
@@ -71,7 +71,6 @@ dotWaspDirInWaspProjectDir = [reldir|.wasp|]
 nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
 nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
 
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRootDir)
 -- TODO: We sometimes call this directory "ProjectRootDir" and sometimes
 -- "GeneratedCodeDir". We should unify the naming (the latter is the beter
@@ -84,12 +83,8 @@ generatedCodeDirInDotWaspDir = [reldir|out|]
 waspProjectDirFromAppComponentDir :: (G.Common.AppComponentRootDir d) => Path' (Rel d) (Dir WaspProjectDir)
 waspProjectDirFromAppComponentDir = [reldir|../../../|]
 
--- | NOTE: This path is calculated from the values of @dotWaspDirInWaspProjectDir@,
--- @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@., which are the three functions just above.
--- Also, it assumes @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@ have same depth.
--- If any of those change significantly (their depth), this path should be adjusted.
 waspProjectDirFromProjectRootDir :: Path' (Rel G.Common.ProjectRootDir) (Dir WaspProjectDir)
-waspProjectDirFromProjectRootDir = [reldir|../../|]
+waspProjectDirFromProjectRootDir = invertRelDir $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
