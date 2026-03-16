@@ -1,34 +1,27 @@
 module Wasp.Project.ExternalConfig.PackageJson
-  ( readPackageJsonFile,
+  ( readUserPackageJsonFile,
     findPackageJsonFile,
   )
 where
 
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT)
-import qualified Data.Aeson as Aeson
 import Data.Either.Extra (maybeToEither)
 import StrongPath (Abs, Dir, File, Path', toFilePath)
-import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJson, parsePackageJsonFile)
 import Wasp.Project.Common
-  ( PackageJsonFile,
+  ( UserPackageJsonFile,
     WaspProjectDir,
     findFileInWaspProjectDir,
-    packageJsonInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
   )
-import qualified Wasp.Util.IO as IOUtil
 
-readPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String PackageJson)
-readPackageJsonFile waspDir = runExceptT $ do
+readUserPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String PackageJson)
+readUserPackageJsonFile waspDir = runExceptT $ do
   packageJsonFile <- ExceptT findPackageJsonFileOrError
-  ExceptT $ decodePackageJsonFromDisk packageJsonFile
+  ExceptT $ parsePackageJsonFile packageJsonFile
   where
     findPackageJsonFileOrError = maybeToEither fileNotFoundMessage <$> findPackageJsonFile waspDir
     fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspDir ++ " directory"
 
-findPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File PackageJsonFile)))
-findPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir packageJsonInWaspProjectDir
-
-decodePackageJsonFromDisk :: Path' Abs (File PackageJsonFile) -> IO (Either String PackageJson)
-decodePackageJsonFromDisk packageJsonFile = do
-  byteString <- IOUtil.readFileBytes packageJsonFile
-  return $ maybeToEither "Error parsing the package.json file" $ Aeson.decode byteString
+findPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File UserPackageJsonFile)))
+findPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir userPackageJsonInWaspProjectDir

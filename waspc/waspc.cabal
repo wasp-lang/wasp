@@ -4,7 +4,7 @@ cabal-version: 2.4
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
 --    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.21.2
+version: 0.22.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -35,9 +35,9 @@ data-files:
   Cli/starters/**/*.wasp
   Cli/starters/basic/.prettierignore
   Cli/starters/basic/.prettierrc
-  Cli/starters/skeleton/.gitignore
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
+  Cli/starters/skeleton/gitignore
   Cli/starters/skeleton/public/.gitkeep
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
@@ -374,8 +374,6 @@ library
     Wasp.Generator.Valid.PackageJson.Dependencies
     Wasp.Generator.Valid.PackageJson.WaspConfig
     Wasp.Generator.Valid.PackageJson.Workspaces
-    Wasp.Generator.Valid.TsConfig
-    Wasp.Generator.Valid.Validator
     Wasp.Generator.WaspInfo
     Wasp.Generator.WaspLibs
     Wasp.Generator.WaspLibs.AvailableLibs
@@ -474,6 +472,7 @@ library
     Wasp.Util.Terminal
     Wasp.Util.WebRouterPath
     Wasp.Valid
+    Wasp.Validator
     Wasp.Version
 
 library waspls
@@ -730,12 +729,12 @@ test-suite waspc-tests
     Generator.JsImportTest
     Generator.MockWriteableMonad
     Generator.Valid.PackageJsonTest
-    Generator.Valid.ValidatorTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
     Project.DbTest
+    Project.ExternalConfigTest
     Project.WaspignoreTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
@@ -762,6 +761,7 @@ test-suite waspc-tests
     Util.IO.RetryTest
     Util.Prisma
     UtilTest
+    ValidatorTest
 
 test-suite waspls-tests
   import: common-all, common-exe

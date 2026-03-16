@@ -32,9 +32,9 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     getSrcTsConfigInWaspProjectDir,
-    packageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
@@ -99,13 +99,13 @@ build = do
           (waspProjectDir </> srcDirInWaspProjectDir)
           (buildDir </> castRel srcDirInWaspProjectDir)
 
-      let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
+      let packageJsonInBuildDir = buildDir </> castRel userPackageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
       let tsconfigJsonInBuildDir = buildDir </> castRel srcTsConfigPath
 
       liftIO $
         copyFile
-          (waspProjectDir </> packageJsonInWaspProjectDir)
+          (waspProjectDir </> userPackageJsonInWaspProjectDir)
           packageJsonInBuildDir
 
       liftIO $
