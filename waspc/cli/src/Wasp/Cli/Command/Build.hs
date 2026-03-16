@@ -16,8 +16,9 @@ import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
@@ -50,6 +51,8 @@ import Wasp.Util.Json (updateJsonFile)
 build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
+  installIfNeeded
+  WaspConfigAvailable <- require
 
   let buildDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
       buildDir = waspProjectDir </> buildDirInWaspProjectDir

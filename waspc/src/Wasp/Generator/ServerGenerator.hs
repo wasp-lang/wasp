@@ -151,7 +151,7 @@ genPackageJson spec waspDependencies =
             ]
       )
   where
-    serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage spec
+    serverDeps = N.mergeWaspAndUserDeps waspDependencies $ N.getUserNpmDepsForPackage (AS.packageJson spec)
 
     hasEntities = AS.Util.hasEntities spec
 
