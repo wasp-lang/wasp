@@ -756,9 +756,9 @@ test-suite waspc-tests
     Util.Diff
     Util.FibTest
     Util.FilePathTest
-    Util.StrongPathTest
     Util.IO.RetryTest
     Util.Prisma
+    Util.StrongPathTest
     UtilTest
     ValidatorTest
 
