@@ -29,7 +29,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (generatedCodeDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Same like 'compileWithOptions', but with default compile options.
@@ -51,7 +51,7 @@ compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   InWaspProject waspProjectDir <- require
 
-  let relOutDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+  let relOutDir = generatedCodeDirInWaspProjectDir
       outDir = waspProjectDir </> relOutDir
 
   generatedCodeIsCompatible <-

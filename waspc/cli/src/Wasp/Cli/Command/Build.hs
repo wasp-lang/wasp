@@ -29,8 +29,7 @@ import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
-    dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
+    generatedCodeDirInWaspProjectDir,
     getSrcTsConfigInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
@@ -51,7 +50,7 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
 
-  let buildDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+  let buildDirInWaspProjectDir = generatedCodeDirInWaspProjectDir
       buildDir = waspProjectDir </> buildDirInWaspProjectDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir

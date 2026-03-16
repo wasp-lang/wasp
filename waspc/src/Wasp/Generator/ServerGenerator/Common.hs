@@ -21,6 +21,7 @@ module Wasp.Generator.ServerGenerator.Common
     defaultServerPort,
     clientUrlEnvVarName,
     serverUrlEnvVarName,
+    libsRootDirFromServerDir,
   )
 where
 
@@ -37,6 +38,8 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
+import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
+import Wasp.Util.StrongPath (invertRelDir)
 
 data ServerSrcDir
 
@@ -140,3 +143,6 @@ defaultServerPort = 3001
 
 defaultDevServerUrl :: String
 defaultDevServerUrl = "http://localhost:" ++ show defaultServerPort
+
+libsRootDirFromServerDir :: Path' (Rel ServerRootDir) (Dir WaspLibsC.LibsRootDir)
+libsRootDirFromServerDir = invertRelDir serverRootDirInProjectRootDir </> WaspLibsC.libsRootDirInGeneratedCodeDir

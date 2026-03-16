@@ -12,7 +12,7 @@ module Wasp.Project.Common
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
-    waspProjectDirFromProjectRootDir,
+    waspProjectDirFromGeneratedCodeDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
     userPackageJsonInWaspProjectDir,
@@ -24,19 +24,20 @@ module Wasp.Project.Common
     srcTsConfigInWaspLangProject,
     srcTsConfigInWaspTsProject,
     waspProjectDirFromAppComponentDir,
+    generatedCodeDirInWaspProjectDir,
     makeAppUniqueId,
   )
 where
 
 import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
-import Wasp.Util.StrongPath (invertRelDir)
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
-import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile (..))
-import Wasp.ExternalConfig.TsConfig (TsConfigFile (..))
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
+import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
+import Wasp.Util.StrongPath (invertRelDir)
 
 type CompileError = String
 
@@ -77,14 +78,17 @@ generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRoot
 -- name).
 generatedCodeDirInDotWaspDir = [reldir|out|]
 
+generatedCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir G.Common.ProjectRootDir)
+generatedCodeDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+
 -- TODO: This backwards relative path relies on multiple forward relative path
 -- definitions. We should find a better way to express it (e.g., by somehow
 -- calculating it from existing definitions)
 waspProjectDirFromAppComponentDir :: (G.Common.AppComponentRootDir d) => Path' (Rel d) (Dir WaspProjectDir)
-waspProjectDirFromAppComponentDir = [reldir|../../../|]
+waspProjectDirFromAppComponentDir = [reldir|../|] </> waspProjectDirFromGeneratedCodeDir
 
-waspProjectDirFromProjectRootDir :: Path' (Rel G.Common.ProjectRootDir) (Dir WaspProjectDir)
-waspProjectDirFromProjectRootDir = invertRelDir $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+waspProjectDirFromGeneratedCodeDir :: Path' (Rel G.Common.ProjectRootDir) (Dir WaspProjectDir)
+waspProjectDirFromGeneratedCodeDir = invertRelDir generatedCodeDirInWaspProjectDir
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]

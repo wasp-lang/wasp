@@ -53,6 +53,7 @@ findAllFilesWithSuffix extension = filter ((extension `isSuffixOf`) . SP.toFileP
 -- >>> invertRelDir [reldir|.wasp/out|] -- "../../"
 invertRelDir :: SP.Path' (SP.Rel a) (SP.Dir b) -> SP.Path' (SP.Rel b) (SP.Dir a)
 invertRelDir relDir
+  | null pathSegments = fromJust $ SP.parseRelDir "."
   | ".." `elem` pathSegments = error $ "invertRelDir: path contains '..' segment: " ++ SP.fromRelDir relDir
   | otherwise = fromJust . SP.parseRelDir $ FP.joinPath $ replicate (length pathSegments) ".."
   where

@@ -22,7 +22,7 @@ import Wasp.Generator.ServerGenerator.Common (serverRootDirInProjectRootDir)
 import Wasp.Generator.ServerGenerator.Db.Seed (dbSeedNameEnvVarName)
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromProjectRootDir)
+import Wasp.Project.Common (WaspProjectDir, waspProjectDirFromGeneratedCodeDir)
 
 migrateDev :: Path' Abs (Dir ProjectRootDir) -> MigrateArgs -> J.Job
 migrateDev projectRootDir migrateArgs =
@@ -177,7 +177,7 @@ runPrismaCommandAsJobWithExtraEnv ::
 runPrismaCommandAsJobWithExtraEnv fromDir envVars projectRootDir cmdArgs =
   runNodeCommandAsJobWithExtraEnv envVars fromDir (absPrismaExecutableFp waspProjectDir) cmdArgs J.Db
   where
-    waspProjectDir = projectRootDir </> waspProjectDirFromProjectRootDir
+    waspProjectDir = projectRootDir </> waspProjectDirFromGeneratedCodeDir
 
 -- | NOTE: The expectation is that `npm install` was already executed
 -- such that we can use the locally installed package.
