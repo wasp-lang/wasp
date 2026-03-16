@@ -32,8 +32,8 @@ import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
-import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile (..))
-import Wasp.ExternalConfig.TsConfig (TsConfigFile (..))
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
+import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
 
