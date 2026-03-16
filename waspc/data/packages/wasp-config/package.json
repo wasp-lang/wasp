@@ -17,10 +17,10 @@
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
     "test": "vitest run --reporter=verbose",
-    "test:watch": "vitest --reporter=verbose",
     "test:integration": "vitest run --reporter=verbose --project integration",
     "test:type": "vitest run --reporter=verbose --project type",
-    "test:unit": "vitest run --reporter=verbose --project unit"
+    "test:unit": "vitest run --reporter=verbose --project unit",
+    "test:watch": "vitest --reporter=verbose"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",
