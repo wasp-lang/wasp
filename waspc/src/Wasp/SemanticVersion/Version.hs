@@ -3,7 +3,6 @@
 module Wasp.SemanticVersion.Version
   ( Version (..),
     parseVersion,
-    strictParseVersion,
     versionParser,
     v,
     nextBreakingChangeVersion,
@@ -33,13 +32,10 @@ instance Show Version where
   show (Version mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
 
 v :: TH.QuasiQuoter
-v = quasiQuoterFromParser strictParseVersion
-
-strictParseVersion :: String -> Either P.ParseError Version
-strictParseVersion = P.parse (versionParser <* P.eof) ""
+v = quasiQuoterFromParser parseVersion
 
 parseVersion :: String -> Either P.ParseError Version
-parseVersion = P.parse versionParser ""
+parseVersion = P.parse (versionParser <* P.eof) ""
 
 -- | Follows SemVer specification.
 -- See: https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
