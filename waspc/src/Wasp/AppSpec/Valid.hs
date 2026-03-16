@@ -100,8 +100,8 @@ validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
     parseErrorToValidationError _err =
       GenericValidationError $
         unlines
-          [ "Invalid Wasp version requrement: " ++ specWaspVersionStr,
-            "Make sure to use `node-semver` range format.",
+          [ "Invalid Wasp version requirement: " ++ specWaspVersionStr,
+            "Make sure to use a npm-compatible version range.",
             "For example: "
               ++ show (SV.backwardsCompatibleWith WV.waspVersion)
               ++ ", "

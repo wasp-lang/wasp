@@ -90,8 +90,8 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (basicAppSpecWithVersionRange invalidWaspVerison)
             `shouldBe` [ Valid.GenericValidationError $
                            unlines
-                             [ "Invalid Wasp version requrement: " ++ invalidWaspVerison,
-                               "Make sure to use `node-semver` range format.",
+                             [ "Invalid Wasp version requirement: " ++ invalidWaspVerison,
+                               "Make sure to use a npm-compatible version range.",
                                "For example: "
                                  ++ show (SV.backwardsCompatibleWith WV.waspVersion)
                                  ++ ", "
