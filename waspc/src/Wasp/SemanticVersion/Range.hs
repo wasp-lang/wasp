@@ -4,7 +4,6 @@ module Wasp.SemanticVersion.Range
   ( Range (..),
     parseRange,
     rangeParser,
-    strictParseRange,
     isVersionInRange,
     doesVersionRangeAllowMajorChanges,
     lt,
@@ -117,13 +116,10 @@ mkComparatorRange :: PrimitiveOperator -> Version -> Range
 mkComparatorRange op = Range . pure . SimpleComparatorSet . NE.fromList . pure . Primitive . Comparator op . fromVersion
 
 r :: TH.QuasiQuoter
-r = quasiQuoterFromParser strictParseRange
-
-strictParseRange :: String -> Either P.ParseError Range
-strictParseRange = P.parse (rangeParser <* P.eof) ""
+r = quasiQuoterFromParser parseRange
 
 parseRange :: String -> Either P.ParseError Range
-parseRange = P.parse rangeParser ""
+parseRange = P.parse (rangeParser <* P.eof) ""
 
 -- | Parses a version range.
 -- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
