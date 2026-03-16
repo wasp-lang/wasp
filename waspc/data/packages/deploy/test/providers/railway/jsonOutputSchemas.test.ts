@@ -4,6 +4,10 @@ import {
   RailwayCliProjectSchema,
   RailwayProjectListSchema,
 } from "../../../src/providers/railway/jsonOutputSchemas.js";
+import {
+  cliProjectWithServices,
+  cliProjectWithoutServices,
+} from "./fixtures/railwayCliProject.js";
 
 describe("RailwayCliDomainSchema", () => {
   test("parses new format with domains array", () => {
@@ -29,49 +33,21 @@ describe("RailwayCliDomainSchema", () => {
 
 describe("RailwayCliProjectSchema", () => {
   test("parses a project with services", () => {
-    const input = {
-      id: "proj-1",
-      name: "my-project",
-      services: {
-        edges: [
-          { node: { id: "svc-1", name: "web" } },
-          { node: { id: "svc-2", name: "db" } },
-        ],
-      },
-    };
-    const result = RailwayCliProjectSchema.parse(input);
-    expect(result.id).toBe(input.id);
-    expect(result.name).toBe(input.name);
+    const result = RailwayCliProjectSchema.parse(cliProjectWithServices);
+    expect(result.id).toBe(cliProjectWithServices.id);
+    expect(result.name).toBe(cliProjectWithServices.name);
     expect(result.services.edges).toHaveLength(2);
   });
 
   test("parses a project with no services", () => {
-    const input = {
-      id: "proj-1",
-      name: "my-project",
-      services: { edges: [] },
-    };
-    const result = RailwayCliProjectSchema.parse(input);
+    const result = RailwayCliProjectSchema.parse(cliProjectWithoutServices);
     expect(result.services.edges).toEqual([]);
   });
 });
 
 describe("RailwayProjectListSchema", () => {
   test("parses a list of projects", () => {
-    const input = [
-      {
-        id: "proj-1",
-        name: "project-a",
-        services: { edges: [] },
-      },
-      {
-        id: "proj-2",
-        name: "project-b",
-        services: {
-          edges: [{ node: { id: "svc-1", name: "web" } }],
-        },
-      },
-    ];
+    const input = [cliProjectWithServices, cliProjectWithoutServices];
     const result = RailwayProjectListSchema.parse(input);
     expect(result).toHaveLength(2);
   });
