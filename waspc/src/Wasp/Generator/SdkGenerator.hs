@@ -16,7 +16,6 @@ import Data.Maybe (isJust, mapMaybe, maybeToList)
 import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
-import System.IO (hFlush, hPutStrLn, stderr)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -89,24 +88,11 @@ import Wasp.Util ((<++>))
 
 buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
 buildSdk projectRootDir = do
-  let debugLog msg = hPutStrLn stderr ("[DEBUG SdkGenerator.buildSdk] " ++ msg) >> hFlush stderr
-  debugLog $ "Starting SDK build in: " ++ show sdkRootDir
   chan <- newChan
-  debugLog "Channel created, launching concurrently: readJobMessages + runNodeCommand"
   (_, exitCode) <-
     concurrently
-      ( do
-          debugLog "readJobMessagesAndPrintThemPrefixed: starting"
-          readJobMessagesAndPrintThemPrefixed chan
-          debugLog "readJobMessagesAndPrintThemPrefixed: finished"
-      )
-      ( do
-          debugLog "runNodeCommandAsJob (npm run build): starting"
-          ec <- runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan
-          debugLog $ "runNodeCommandAsJob (npm run build): finished with exit code " ++ show ec
-          return ec
-      )
-  debugLog $ "concurrently finished. Exit code: " ++ show exitCode
+      (readJobMessagesAndPrintThemPrefixed chan)
+      (runNodeCommandAsJob sdkRootDir "npm" ["run", "build"] J.Wasp chan)
   return $ case exitCode of
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
