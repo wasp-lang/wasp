@@ -12,6 +12,8 @@ module Wasp.SemanticVersion.Range
     gt,
     gte,
     eq,
+    caretRange,
+    tildeRange,
     backwardsCompatibleWith,
     approximatelyEquivalentTo,
     hyphenRange,
@@ -81,11 +83,17 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
 
 -- Helper methods for constructing a 'Range'.
 
+caretRange :: Version -> Range
+caretRange = Range . pure . SimpleComparatorSet . NE.fromList . pure . CaretRange . fromVersion
+
 backwardsCompatibleWith :: Version -> Range
-backwardsCompatibleWith = Range . pure . SimpleComparatorSet . NE.fromList . pure . CaretRange . fromVersion
+backwardsCompatibleWith = caretRange
+
+tildeRange :: Version -> Range
+tildeRange = Range . pure . SimpleComparatorSet . NE.fromList . pure . TildeRange . fromVersion
 
 approximatelyEquivalentTo :: Version -> Range
-approximatelyEquivalentTo = Range . pure . SimpleComparatorSet . NE.fromList . pure . TildeRange . fromVersion
+approximatelyEquivalentTo = tildeRange
 
 hyphenRange :: Version -> Version -> Range
 hyphenRange v1 v2 = Range [HyphenRange (fromVersion v1) (fromVersion v2)]
