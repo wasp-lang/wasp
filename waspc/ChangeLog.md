@@ -2,10 +2,23 @@
 
 ## 0.22.0
 
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-21-to-0-22) for step-by-step documentation on how to upgrade.
+
+- Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
+
+### 🎉 New Features
+
+- The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
+
+### 🐞 Bug fixes
+
+- Projects created with `wasp new` were missing their `.gitignore` file. ([#3870](https://github.com/wasp-lang/wasp/pull/3870))
+
 ### 🔧 Small improvements
 
 - The `wasp-config` package is now installed from a local copy inside the project (`.wasp/wasp-config/`) instead of directly from the global Wasp data directory. This makes projects more self-contained and avoids issues with npm resolving paths outside the project. ([#3861](https://github.com/wasp-lang/wasp/pull/3861))
-
 - Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
 - The `wasp-config` package is now installed from a local copy inside the project (`.wasp/wasp-config/`) instead of directly from the global Wasp data directory. This makes projects more self-contained and avoids issues with npm resolving paths outside the project. ([#3861](https://github.com/wasp-lang/wasp/pull/3861))
 
