@@ -33,7 +33,7 @@ jobs:
         with:
           build-name: all
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           path: "./download/"
           pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
@@ -89,7 +89,7 @@ jobs:
       - name: Run packager script
         run: node --experimental-strip-types ./scripts/make-npm-packages/src/index.ts --input-dir ./input/ --output-dir ./output/
 
-      - uses: actions/upload-artifact@v5
+      - uses: actions/upload-artifact@v7
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           include-hidden-files: true
