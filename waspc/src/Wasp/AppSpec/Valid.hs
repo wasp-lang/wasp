@@ -12,7 +12,7 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
-import Data.Bifunctor
+import Data.Bifunctor (first)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
