@@ -2,11 +2,20 @@
 
 ## 0.22.0
 
-### 🔧 Small improvements
+### ⚠️ Breaking Changes
 
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-21-to-0-22) for step-by-step documentation on how to upgrade.
+
+- Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
 - The `wasp-config` package is now installed from a local copy inside the project (`.wasp/wasp-config/`) instead of directly from the global Wasp data directory. This makes projects more self-contained and avoids issues with npm resolving paths outside the project. ([#3861](https://github.com/wasp-lang/wasp/pull/3861))
 
-## 0.21.2
+### 🎉 New Features
+
+- The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
+
+### 🐞 Bug fixes
+
+- Projects created with `wasp new` were missing their `.gitignore` file. ([#3870](https://github.com/wasp-lang/wasp/pull/3870))
 
 ### 🔧 Small improvements
 
@@ -15,6 +24,8 @@
 - Upgraded our internal `nodemailer` dependency to v8.0.1 to address [a possible security issue](https://github.com/advisories/GHSA-rcmh-qjqh-p98v). ([#3756](https://github.com/wasp-lang/wasp/pull/3756))
 - In the Vite config, removing the `server.open` field will no longer open the browser on `wasp start`. ([3831](https://github.com/wasp-lang/wasp/pull/3831))
 - Wasp now validates that `vite.config.ts` (or `vite.config.js`) exists in your project at compile time, and warns if it's missing the `wasp` plugin import. ([#3863](https://github.com/wasp-lang/wasp/pull/3863))
+- Wasp now prefixes env validation errors with the name of the field that failed the validation ([#3876](https://github.com/wasp-lang/wasp/pull/3876))
+- Wasp now validates your `tsconfig.json` before analyzing the rest of the code. If something is off, you'll get a clear error message as soon as possible ([#3907](https://github.com/wasp-lang/wasp/issues/3907))
 
 ## 0.21.1
 

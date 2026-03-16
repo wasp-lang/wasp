@@ -2,7 +2,7 @@ import * as fs from "fs/promises";
 import JSON5 from "json5";
 import * as path from "path";
 import ts from "typescript";
-import { z } from "zod";
+import * as z from "zod";
 
 export const ExportsRequest = z.object({
   tsconfig: z.string().optional(),
