@@ -6,10 +6,12 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates
     findTemplateByString,
     readWaspProjectSkeletonFiles,
     getTemplateStartingInstructions,
+    skeletonDotfiles,
   )
 where
 
 import Data.Foldable (find)
+import Data.Maybe (fromJust)
 import Data.Text (Text)
 import StrongPath (Dir', File', Path, Path', Rel, Rel', System, reldir, (</>))
 import qualified StrongPath as SP
@@ -87,6 +89,17 @@ readWaspProjectSkeletonFiles = do
   -- have favicons until we properly fix this.
   -- See the issue for details: https://github.com/wasp-lang/wasp/issues/2951
   skeletonFilePaths <- filter (not . isFavicon) <$> listDirectoryDeep skeletonFilesDir
-  mapM (\path -> (path,) <$> readFileStrict (skeletonFilesDir </> path)) skeletonFilePaths
+  mapM (\path -> (restoreDotfileName path,) <$> readFileStrict (skeletonFilesDir </> path)) skeletonFilePaths
   where
     isFavicon path = SP.fromRelFile (SP.basename path) == "favicon.ico"
+
+    restoreDotfileName path
+      | SP.fromRelFile path `elem` skeletonDotfiles = fromJust $ SP.parseRelFile ("." <> SP.fromRelFile path)
+      | otherwise = path
+
+-- | Files stored without their leading dot in the skeleton template directory.
+-- They are stored this way to prevent tools (e.g. npm) from stripping them
+-- during packaging. Both bundled and AI template paths use this list to
+-- restore the leading dot.
+skeletonDotfiles :: [String]
+skeletonDotfiles = ["gitignore"]

@@ -1,33 +1,39 @@
 {{={= =}=}}
-import * as z from 'zod'
+import * as z from "zod"
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-const userClientEnvSchema = {= envValidationSchema.importIdentifier =}
+const userClientEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
-const userClientEnvSchema = z.object({})
+const userClientEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
-const serverUrlSchema = z
-  .string({
-    required_error: '{= serverUrlEnvVarName =} is required',
+const serverUrlSchema =
+  z.string({
+    error: '{= serverUrlEnvVarName =} is required',
   })
-  .url({
-    message: '{= serverUrlEnvVarName =} must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: '{= serverUrlEnvVarName =} must be a valid URL',
+    })
+  )
 
-const waspClientDevSchema = z.object({
+const waspDevClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema
-    .default('{= defaultServerUrl =}'),
-})
+    .default("{= defaultServerUrl =}"),
+});
 
-const waspClientProdSchema = z.object({
+const waspProdClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema,
-})
+});
 
 // PRIVATE API (sdk, Vite config)
+// TODO(franjo): Remove passing mode as param when this is no longer a plugin.
+//               See: https://github.com/wasp-lang/wasp/issues/3875.
 export function getClientEnvSchema(mode: string) {
-  const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return userClientEnvSchema.merge(waspSchema)
+  const waspClientEnvSchema = mode === "production"
+    ? waspProdClientEnvSchema
+    : waspDevClientEnvSchema;
+  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape })
 }
