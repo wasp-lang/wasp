@@ -19,19 +19,6 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🔧 Small improvements
 
 - The `wasp-config` package is now installed from a local copy inside the project (`.wasp/wasp-config/`) instead of directly from the global Wasp data directory. This makes projects more self-contained and avoids issues with npm resolving paths outside the project. ([#3861](https://github.com/wasp-lang/wasp/pull/3861))
-- Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
-- The `wasp-config` package is now installed from a local copy inside the project (`.wasp/wasp-config/`) instead of directly from the global Wasp data directory. This makes projects more self-contained and avoids issues with npm resolving paths outside the project. ([#3861](https://github.com/wasp-lang/wasp/pull/3861))
-
-### 🎉 New Features
-
-- The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
-
-### 🐞 Bug fixes
-
-- Projects created with `wasp new` were missing their `.gitignore` file. ([#3870](https://github.com/wasp-lang/wasp/pull/3870))
-
-### 🔧 Small improvements
-
 - `REACT_APP_API_URL` is now **required** when building the client for production (it no longer defaults to any value). In development mode, it still defaults to the local server URL. This prevents silently broken production deployments where the client can't reach the server. ([#3740](https://github.com/wasp-lang/wasp/pull/3740))
 - The `wasp()` Vite plugin now enforces certain Vite config options that Wasp requires (e.g. `base`, `envPrefix`, `build.outDir`) and throws an error if the user tries to override them. ([#3771](https://github.com/wasp-lang/wasp/pull/3771))
 - Upgraded our internal `nodemailer` dependency to v8.0.1 to address [a possible security issue](https://github.com/advisories/GHSA-rcmh-qjqh-p98v). ([#3756](https://github.com/wasp-lang/wasp/pull/3756))
