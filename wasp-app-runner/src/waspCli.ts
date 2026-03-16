@@ -2,7 +2,7 @@ import { stripVTControlCharacters } from "node:util";
 import semver, { type SemVer } from "semver";
 import type { PathToApp, WaspCliCmd } from "./args.js";
 import { DbType } from "./db/index.js";
-import { waitUntilHttp } from "./http.js";
+import { waitUntilHttpOnPort } from "./http.js";
 import { createLogger } from "./logging.js";
 import { Process, ProcessExit } from "./process.js";
 import { Server, startServer } from "./server-starter.js";
@@ -54,11 +54,7 @@ export function waspStart({
       cwd: pathToApp,
       env: extraEnv,
     },
-    () =>
-      Promise.all([
-        waitUntilHttp({ port: 3000 }),
-        waitUntilHttp({ port: 3001 }),
-      ]),
+    () => Promise.all([waitUntilHttpOnPort(3000), waitUntilHttpOnPort(3001)]),
   );
 }
 
@@ -119,11 +115,7 @@ export function waspBuildStart({
       args: [...waspCliCmd.args, ...args],
       cwd: pathToApp,
     },
-    () =>
-      Promise.all([
-        waitUntilHttp({ port: 3000 }),
-        waitUntilHttp({ port: 3001 }),
-      ]),
+    () => Promise.all([waitUntilHttpOnPort(3000), waitUntilHttpOnPort(3001)]),
   );
 }
 

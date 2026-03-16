@@ -1,15 +1,16 @@
 import pRetry from "p-retry";
 import { createLogger } from "./logging.js";
 
-export async function waitUntilHttp({
-  port,
-  checkIntervalMs = 500,
-  timeoutMs = 60_000,
-}: {
-  port: number;
-  checkIntervalMs?: number;
-  timeoutMs?: number;
-}): Promise<void> {
+export async function waitUntilHttpOnPort(
+  port: number,
+  {
+    checkIntervalMs = 500,
+    timeoutMs = 60_000,
+  }: {
+    checkIntervalMs?: number;
+    timeoutMs?: number;
+  } = {},
+): Promise<void> {
   const logger = createLogger("wait-until-http");
 
   const maxAttempts = Math.floor(timeoutMs / checkIntervalMs);
