@@ -47,7 +47,7 @@ jobs:
 
       - name: Install Wasp CLI from pkg.pr.new
         env:
-          COMMIT_SHA: ${{ github.sha }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
         run: |
           set -eux
 
