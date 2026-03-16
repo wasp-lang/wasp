@@ -104,6 +104,8 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
   let dstPackageDirInProject = projectDir </> getPackageInstallationPathInProject package
   waspDataDir <- Data.getAbsDataDirPath
   let srcPackageDir = waspDataDir </> packagesDirInDataDir </> installablePackageDirInPackagesDir package
+  -- We remove the destination directory first to ensure a clean state
+  IOUtil.deleteDirectoryIfExists dstPackageDirInProject
   IOUtil.copyDirectory srcPackageDir dstPackageDirInProject
 
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
