@@ -27,7 +27,6 @@ import Wasp.SemanticVersion.Version
   ( Version (..),
     nextBreakingChangeVersion,
     parseVersion,
-    strictParseVersion,
     v,
     versionParser,
   )
