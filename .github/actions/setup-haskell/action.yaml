@@ -47,7 +47,7 @@ runs:
         cabal --version
 
     # Based on the official recipe for Cabal caching:
-    # https://github.com/actions/cache/blob/v5.0.3/examples.md#haskell---cabal
+    # https://github.com/actions/cache/blob/v4.2.3/examples.md#haskell---cabal
     - name: Cache Cabal dependencies
       uses: actions/cache@v5
       with:
