@@ -564,7 +564,7 @@
             "file",
             "sdk/wasp/client/index.ts"
         ],
-        "b55e5c34c2fdb50e608bcb4331fa2e67724f1fbfb21e1b93680b0f5fe2b7005a"
+        "91ecfb92a4e945a52ec405e524383236912a772dd0abdf2701f4369ad984464d"
     ],
     [
         [
@@ -788,7 +788,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/index.ts"
         ],
-        "7f90d7c7578abce2405f27601b2005296ca37c40157ab9fa83d1cb93380c1e1f"
+        "4dad24788f1183c1777c2f84e96a8781d84102ec7f91eaca257e84fe0c12344c"
     ],
     [
         [
@@ -872,7 +872,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "2a9000f2c8049e9c1a22a24120cbe0c52bcc4e0f6b8f65ce04208f2899afea2d"
+        "4349029509f312de9c0b12525c2424cd1fa9653cd37e63decde8321c49be1108"
     ],
     [
         [
@@ -880,13 +880,6 @@
             "sdk/wasp/prisma-runtime-library.d.ts"
         ],
         "063a149e73066606948a7be815239e2446048dd066b28d542efb405c78bb3b35"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/scripts/copy-assets.js"
-        ],
-        "0b7e3d7a0238faae3d97c43c50dfcbcfb088b769632046048ff78f8970e1d55b"
     ],
     [
         [
@@ -1089,7 +1082,7 @@
             "file",
             "sdk/wasp/server/index.ts"
         ],
-        "8c8ad2b3979c6940d2ab90b789ff847c1af1c1bc8d8541438cd9d210f6ff6e25"
+        "a0d0ff1c97a4bc52f78d0fac37d1470690984b5dc2284f37b65244e633608cd8"
     ],
     [
         [
@@ -1668,9 +1661,23 @@
     [
         [
             "file",
+            "sdk/wasp/tsconfig.build.json"
+        ],
+        "325dcb622458e488c5fe4d14521a32c4545497c71f3d02c576f8c57bcdc9d37f"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/tsconfig.json"
         ],
         "c8af1903f502f7ea1850203d1f9b5d31f8f4878a51bad9a4cc0c65155bb100e0"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/tsdown.config.ts"
+        ],
+        "80d58e691256a602d490d6311e971f5469ba714017cc9a6b48fb65c1f137e45c"
     ],
     [
         [

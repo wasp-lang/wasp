@@ -5,7 +5,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-      "build": "tsc && node ./scripts/copy-assets.js",
+      "build": "tsdown",
       "test": "echo \"Error: no test specified\" && exit 1",
       "types": "tsc --declaration --emitDeclarationOnly --stripInternal --declarationDir dist"
     },
@@ -39,7 +39,7 @@
       {=!  Used by user, documented. =}
       "./auth/validation": "./dist/auth/validation.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.jsx",
+      "./auth/pages/createAuthRequiredPage": "./dist/auth/pages/createAuthRequiredPage.js",
       {=!  Used by our framework code (Websockets), undocumented (but accessible) for users. =}
       "./api/events": "./dist/api/events.js",
       {=!  Used by users, documented. =}
@@ -76,7 +76,7 @@
       "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
 
       {=! Used by the framework client code, reconsider during refactoring. =}
-      "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
+      "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.js",
       {=! Still needed, reconsider during refactoring. =}
       "./server/types": "./dist/server/types/index.js",
       {=! Used by the framework server code, reconsider during refactoring. =}
@@ -120,7 +120,7 @@
       {=! Private: [client, sdk] =}
       "./client/env/schema": "./dist/client/env/schema.js",
       {=! Private: [client] =}
-      "./client/app": "./dist/client/app/index.jsx",
+      "./client/app": "./dist/client/app/index.js",
       {=! Private: [client] =}
       "./client/vite": "./dist/client/vite/index.js",
 

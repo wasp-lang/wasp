@@ -104,7 +104,8 @@ genSdk spec =
   sequence
     [ C.genFileCopy [relfile|vite-env.d.ts|],
       C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
-      C.genFileCopy [relfile|scripts/copy-assets.js|],
+      C.genFileCopy [relfile|tsdown.config.ts|],
+      C.genFileCopy [relfile|tsconfig.build.json|],
       C.genFileCopy [relfile|api/index.ts|],
       C.genFileCopy [relfile|api/events.ts|],
       C.genFileCopy [relfile|core/storage.ts|],
@@ -237,7 +238,8 @@ npmDepsForSdk spec =
             ("@types/react-dom", show reactDomTypesVersion),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
-            ("@tsconfig/vite-react", "^7.0.0")
+            ("@tsconfig/vite-react", "^7.0.0"),
+            ("tsdown", "^0.21.3")
           ],
       N.peerDependencies = Npm.Dependency.fromList []
     }

@@ -1,20 +1,22 @@
 import fs from "node:fs";
 
 export function getIndexTsxContent(): string {
-  return getFileContentFromRelativePath("./files/index.tsx");
+  return fs.readFileSync(
+    new URL("./files/index.tsx", import.meta.url),
+    "utf-8"
+  );
 }
 
 export function getRoutesTsxContent(): string {
-  return getFileContentFromRelativePath("./files/routes.tsx");
+  return fs.readFileSync(
+    new URL("./files/routes.tsx", import.meta.url),
+    "utf-8"
+  );
 }
 
 export function getIndexHtmlContent(): string {
-  return getFileContentFromRelativePath("./files/index.html");
-}
-
-function getFileContentFromRelativePath(relativePath: string): string {
   return fs.readFileSync(
-    new URL(relativePath, import.meta.url),
+    new URL("./files/index.html", import.meta.url),
     "utf-8"
   );
 }
