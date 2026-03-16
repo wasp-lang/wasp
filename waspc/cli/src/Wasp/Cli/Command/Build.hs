@@ -23,6 +23,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -31,9 +32,9 @@ import Wasp.Project.Common
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
     getSrcTsConfigInWaspProjectDir,
-    packageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
@@ -98,13 +99,13 @@ build = do
           (waspProjectDir </> srcDirInWaspProjectDir)
           (buildDir </> castRel srcDirInWaspProjectDir)
 
-      let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
+      let packageJsonInBuildDir = buildDir </> castRel userPackageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
       let tsconfigJsonInBuildDir = buildDir </> castRel srcTsConfigPath
 
       liftIO $
         copyFile
-          (waspProjectDir </> packageJsonInWaspProjectDir)
+          (waspProjectDir </> userPackageJsonInWaspProjectDir)
           packageJsonInBuildDir
 
       liftIO $
@@ -143,11 +144,14 @@ build = do
 
     isWaspConfigPackageLocation :: String -> Bool
     isWaspConfigPackageLocation packageLocation =
-      (FP.pathSeparator : "wasp-config") `isSuffixOf` packageLocation
+      (FP.pathSeparator : waspConfigPackageName) `isSuffixOf` packageLocation
 
     removeWaspConfigFromDevDependenciesArray :: Value -> Value
     removeWaspConfigFromDevDependenciesArray original =
-      original & key "devDependencies" . _Object . at "wasp-config" .~ Nothing
+      original & key "devDependencies" . _Object . at (Key.fromString waspConfigPackageName) .~ Nothing
+
+    waspConfigPackageName :: String
+    waspConfigPackageName = getInstallablePackageName WaspConfigPackage
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
