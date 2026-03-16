@@ -8,7 +8,7 @@ import Numeric.Natural (Natural)
 import qualified Text.Parsec as P
 
 -- | Parses natural numbers without leading zeroes.
--- See `<numeric identifier>` here: https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
+-- See `<numeric identifier>` definition here: https://semver.org/#backusnaur-form-grammar-for-valid-semver-versions
 naturalNumberParser :: P.Parsec String () Natural
 naturalNumberParser =
   read <$> (zeroParser <|> noLeadingZeroNaturalNumberParser)
