@@ -3,6 +3,7 @@ module SemanticVersion.RangeTest where
 import Data.Either (isLeft)
 import qualified Data.List.NonEmpty as NE
 import Test.Hspec
+import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator
 import Wasp.SemanticVersion.ComparatorSet
 import Wasp.SemanticVersion.PartialVersion
@@ -20,11 +21,11 @@ spec_SemanticVersion_Range = do
     it "show complex range" $
       show [r|<=1.3.6 ^1.2.0 || 1.2.3|] `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
 
-  describe "strictParseVersion" $ do
+  describe "parseRange" $ do
     it "parses empty input correctly" $
-      strictParseRange "" `shouldBe` Right (Range [SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)])
+      parseRange "" `shouldBe` Right (Range [SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)])
     it "parses ranges with single comparator set" $ do
-      strictParseRange "  >=1.0 <2.0.0  "
+      parseRange "  >=1.0 <2.0.0  "
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $
@@ -34,14 +35,14 @@ spec_SemanticVersion_Range = do
                     ]
               ]
           )
-      strictParseRange " ^1.2.3  "
+      parseRange " ^1.2.3  "
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3)
               ]
           )
     it "parses ranges with multiple comparator sets" $ do
-      strictParseRange "   ^1.2.3 ||   ^2.0 ||"
+      parseRange "   ^1.2.3 ||   ^2.0 ||"
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
@@ -49,14 +50,14 @@ spec_SemanticVersion_Range = do
                 SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)
               ]
           )
-      strictParseRange "^1.2.3||^2.0     "
+      parseRange "^1.2.3||^2.0     "
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
                 SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
               ]
           )
-      strictParseRange ">=1  <2|| >=3.0.0    || *  "
+      parseRange ">=1  <2|| >=3.0.0    || *  "
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $
@@ -69,21 +70,23 @@ spec_SemanticVersion_Range = do
               ]
           )
     it "rejects invalid formats" $ do
-      isLeft (strictParseRange "foo") `shouldBe` True
-      isLeft (strictParseRange "|| 1.23 || 2.0") `shouldBe` True
-      isLeft (strictParseRange "1.23 || $2.0") `shouldBe` True
-      isLeft (strictParseRange "1.23 || 1.0 ||a") `shouldBe` True
+      isLeft (parseRange "foo") `shouldBe` True
+      isLeft (parseRange "|| 1.23 || 2.0") `shouldBe` True
+      isLeft (parseRange "1.23 || $2.0") `shouldBe` True
+      isLeft (parseRange "1.23 || 1.0 ||a") `shouldBe` True
 
-  describe "parseRange" $ do
+  describe "rangeParser" $ do
+    let looseParseRange = P.parse rangeParser ""
+
     it "parses range with trailing content" $ do
-      parseRange "^1.2.3 || ^2.0 ||a"
+      looseParseRange "^1.2.3 || ^2.0 ||a"
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
                 SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
               ]
           )
-      parseRange "^1.2.3 || ^2.0 abc"
+      looseParseRange "^1.2.3 || ^2.0 abc"
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
