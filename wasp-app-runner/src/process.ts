@@ -38,6 +38,12 @@ export class Process {
       cwd: options.cwd,
       env: options.env,
 
+      // Close stdin immediately. The Wasp CLI inherits this handle, and some
+      // of its child processes (e.g. `prisma db execute --stdin`) read from
+      // stdin until EOF. Leaving stdin as the default "pipe" would cause
+      // those processes to hang forever waiting for input.
+      stdin: "ignore",
+
       // We don't want execa to throw an error when the process exits with a
       // non-zero code, as we'll handle that ourselves in the wait() method.
       reject: false,
