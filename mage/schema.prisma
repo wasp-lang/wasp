@@ -22,7 +22,7 @@ model Project {
   description     String
   primaryColor    String     @default("sky")
   authMethod      String     @default("usernameAndPassword")
-  creativityLevel String     @default("balanced")
+  creativityLevel String?
   createdAt       DateTime   @default(now())
   status          String     @default("pending")
   referrer        String     @default("unknown")

@@ -18,9 +18,7 @@ where
 import Data.Aeson (FromJSON, ToJSON, (.=))
 import qualified Data.Aeson as Aeson
 import Data.ByteString.UTF8 as BSU
-import Data.Function ((&))
 import Data.Functor ((<&>))
-import Data.List (find)
 import Data.Text (Text)
 import qualified Data.Text as T
 import GHC.Generics (Generic)
@@ -78,41 +76,16 @@ data ChatGPTParams = ChatGPTParams
   }
   deriving (Show)
 
-data Model
-  = -- New flagship model.
-    GPT_4o -- Alias model
-  | GPT_4o_2024_08_06
-  | -- Faster & cheaper version of the new flagship model.
-    GPT_4o_mini -- Alias model
-  | GPT_4o_mini_2024_07_18
-  | -- Old flagship model.
-    GPT_4 -- Alias model
-  | GPT_4_0613
-  | -- Faster & cheaper version of the old flagship model.
-    GPT_4_turbo -- Alias model
-  | GPT_4_turbo_2024_04_09
-  deriving (Eq, Bounded, Enum)
+-- | Accepts any model name string, letting the OpenAI API validate it.
+newtype Model = Model String
+  deriving (Eq)
 
 instance Show Model where
-  show = modelOpenAiId
-
-modelOpenAiId :: Model -> String
-modelOpenAiId = \case
-  GPT_4o -> "gpt-4o"
-  GPT_4o_2024_08_06 -> "gpt-4o-2024-08-06"
-  GPT_4o_mini -> "gpt-4o-mini"
-  GPT_4o_mini_2024_07_18 -> "gpt-4o-mini-2024-07-18"
-  GPT_4 -> "gpt-4"
-  GPT_4_0613 -> "gpt-4-0613"
-  GPT_4_turbo -> "gpt-4-turbo"
-  GPT_4_turbo_2024_04_09 -> "gpt-4-turbo-2024-04-09"
+  show (Model name) = name
 
 instance FromJSON Model where
   parseJSON = Aeson.withText "Model" $ \t ->
-    let t' = T.unpack t
-        models = [minBound .. maxBound]
-     in find ((== t') . modelOpenAiId) models
-          & maybe (fail $ "Invalid GPT model: " <> t') pure
+    pure $ Model (T.unpack t)
 
 data ChatResponse = ChatResponse
   { id :: !String,

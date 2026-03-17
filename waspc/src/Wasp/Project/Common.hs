@@ -4,7 +4,7 @@ module Wasp.Project.Common
     NodeModulesDir,
     CompileError,
     CompileWarning,
-    PackageJsonFile,
+    UserPackageJsonFile,
     SrcTsConfigFile,
     WaspFilePath (..),
     WaspLangFile,
@@ -15,7 +15,7 @@ module Wasp.Project.Common
     waspProjectDirFromProjectRootDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
-    packageJsonInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
@@ -32,6 +32,8 @@ import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
+import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
 
@@ -45,9 +47,13 @@ data NodeModulesDir
 
 data DotWaspDir -- Here we put everything that wasp generates.
 
-data PackageJsonFile
+data UserPackageJsonFile
+
+instance PackageJsonFile UserPackageJsonFile
 
 data SrcTsConfigFile
+
+instance TsConfigFile SrcTsConfigFile
 
 data WaspFilePath
   = WaspLang !(Path' Abs (File WaspLangFile))
@@ -91,8 +97,8 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel G.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
-packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
-packageJsonInWaspProjectDir = [relfile|package.json|]
+userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
+userPackageJsonInWaspProjectDir = [relfile|package.json|]
 
 getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
 getSrcTsConfigInWaspProjectDir = \case
