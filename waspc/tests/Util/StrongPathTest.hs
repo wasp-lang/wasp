@@ -8,23 +8,19 @@ import Wasp.Util.StrongPath (invertRelDir)
 spec_invertRelDir :: Spec
 spec_invertRelDir = do
   describe "invertRelDir" $ do
-    it "throws on single dotdot segment" $ do
+    it "throws on dotdot at start of path" $ do
       evaluate (invertRelDir [reldir|../|]) `shouldThrow` anyErrorCall
-
-    it "throws on two dotdot segments" $ do
-      evaluate (invertRelDir [reldir|../../|]) `shouldThrow` anyErrorCall
-
-    it "throws on three dotdot segments" $ do
-      evaluate (invertRelDir [reldir|../../../|]) `shouldThrow` anyErrorCall
+      evaluate (invertRelDir [reldir|../../a|]) `shouldThrow` anyErrorCall
 
     it "returns current dir for current dir input" $ do
       fromRelDir (invertRelDir [reldir|.|]) `shouldBe` "./"
+      fromRelDir (invertRelDir [reldir|././././././././././|]) `shouldBe` "./"
 
-    it "returns one parent for single-segment path" $ do
+    it "converts path segments into dotdots" $ do
       fromRelDir (invertRelDir [reldir|types|]) `shouldBe` "../"
-
-    it "returns two parents for two-segment path" $ do
       fromRelDir (invertRelDir [reldir|.wasp/out|]) `shouldBe` "../../"
-
-    it "returns three parents for three-segment path" $ do
       fromRelDir (invertRelDir [reldir|a/b/c|]) `shouldBe` "../../../"
+
+    it "ignores current dir in path" $ do
+      fromRelDir (invertRelDir [reldir|./././middle/./././|]) `shouldBe` "../"
+      fromRelDir (invertRelDir [reldir|./.wasp/./out/./|]) `shouldBe` "../../"

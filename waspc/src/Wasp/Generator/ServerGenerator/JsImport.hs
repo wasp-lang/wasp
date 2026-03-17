@@ -2,7 +2,7 @@ module Wasp.Generator.ServerGenerator.JsImport where
 
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir, Path, Posix, Rel, castDir, relDirToPosix, reldir, (</>))
+import StrongPath (Dir, Path, Posix, Rel, castDir, relDirToPosix, (</>))
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.ServerGenerator.Common (ServerSrcDir, serverSrcDirInProjectRootDir)
