@@ -165,7 +165,7 @@ jobs:
             echo 'EOF'
           } >> $GITHUB_OUTPUT
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           path: ./waspc/artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
