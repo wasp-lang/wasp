@@ -2,7 +2,7 @@ module Wasp.Generator.ServerGenerator.JsImport where
 
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (Dir, Path, Posix, Rel, castDir, relDirToPosix, reldir, reldirP, (</>))
+import StrongPath (Dir, Path, Posix, Rel, relDirToPosix, reldir, (</>))
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.ServerGenerator.Common (ServerSrcDir, serverSrcDirInProjectRootDir)
@@ -48,7 +48,6 @@ getAliasedJsImportStmtAndIdentifier ::
 getAliasedJsImportStmtAndIdentifier importAlias pathFromImportLocationToExtCodeDir =
   JI.getJsImportStmtAndIdentifier . JI.applyJsImportAlias (Just importAlias) . extImportToJsImport pathFromImportLocationToExtCodeDir
 
--- Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
 extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
