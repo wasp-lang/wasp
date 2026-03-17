@@ -1,9 +1,7 @@
 import * as posixPath from "node:path/posix";
+import { removeLeadingSlash } from "../util/path";
 
-/**
- * This are all different ways of referring to the same underlying route.
- */
-export interface Route {
+export interface SsrRoute {
   /** The pathname visible in the browser's address bar. */
   path: string;
 
@@ -11,16 +9,21 @@ export interface Route {
   id: string;
 }
 
-export class Routes {
-  public readonly byId: ReadonlyMap<string, Readonly<Route>>;
-  public readonly byPath: ReadonlyMap<string, Readonly<Route>>;
-  public readonly fallback: Readonly<Route>;
+/**
+ * This class holds the collection of routes to be SSR'd, and precomputes lookup
+ * maps for them to quickly find a route while in the middle of a request or a
+ * build.
+ */
+export class SsrRoutes {
+  public readonly byId: ReadonlyMap<string, Readonly<SsrRoute>>;
+  public readonly byPath: ReadonlyMap<string, Readonly<SsrRoute>>;
+  public readonly fallbackFile: Readonly<SsrRoute>;
 
   constructor(paths: readonly string[], fallbackFile: string) {
     // Fallback gets a flat file (e.g. "/_fallback.html") instead of the
     // directory-style "dir/index.html" used for real routes, since it's
     // never accessed by path — only served as the SPA catch-all.
-    this.fallback = {
+    this.fallbackFile = {
       path: fallbackFile,
       id: removeLeadingSlash(fallbackFile),
     };
@@ -31,14 +34,14 @@ export class Routes {
         // Note: for "/" this produces "index.html" (posixPath.join("", "index.html")).
         id: posixPath.join(removeLeadingSlash(path), "index.html"),
       })),
-      this.fallback,
+      this.fallbackFile,
     ];
 
     this.byId = new Map(routes.map((route) => [route.id, route]));
     this.byPath = new Map(routes.map((route) => [route.path, route]));
   }
-}
 
-function removeLeadingSlash(path: string) {
-  return path.replace(/^\//, "");
+  getAllIds() {
+    return Array.from(this.byId.keys());
+  }
 }

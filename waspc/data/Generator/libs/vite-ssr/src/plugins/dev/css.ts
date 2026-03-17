@@ -13,7 +13,7 @@ declare module "vite/types/customEvent.d.ts" {
   }
 }
 
-const registerCssCode = (id: string) =>
+const makeRegisterCssCode = (id: string) =>
   // We use the HMR event bus (as instructed by Vite
   // https://vite.dev/guide/api-environment-plugins#application-plugin-communication)
   // to register the CSS file path with the plugin once it is imported. We also
@@ -29,11 +29,11 @@ const registerCssCode = (id: string) =>
   `;
 
 export const addRegisterCss = (id: string, code: string) =>
-  [code, registerCssCode(id)].join(";\n");
+  [code, makeRegisterCssCode(id)].join(";\n");
 
-export const collectRegisteredCss = async <T>(
+export const withCollectingRegisteredCss = async <T>(
   hot: NormalizedHotChannel,
-  fn: () => Promise<T>,
+  fnRegistersCss: () => Promise<T>,
 ) => {
   const cssFiles = new Set<string>();
 
@@ -41,7 +41,7 @@ export const collectRegisteredCss = async <T>(
   hot.on(REGISTER_CSS_EVENT_NAME, listener);
 
   try {
-    const result = await fn();
+    const result = await fnRegistersCss();
     return { result, cssFiles };
   } finally {
     hot.off(REGISTER_CSS_EVENT_NAME, listener);

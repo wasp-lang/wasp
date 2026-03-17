@@ -1,11 +1,18 @@
 {{={= =}=}}
-// @ts-nocheck
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
 
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
 {=/ isAuthEnabled =}
+
+{=# rootComponent.isDefined =}
+{=& rootComponent.importStatement =}
+{=/ rootComponent.isDefined =}
+
+{=# setupFn.isDefined =}
+{=& setupFn.importStatement =}
+{=/ setupFn.isDefined =}
 
 // These files are used from user-land and the import paths below are relative to the
 // user's project dir, and not the SDK:
@@ -18,14 +25,6 @@ const routesMapping = {
   {= name =}: {= targetComponent =},
   {=/ routes =}
 } as const;
-
-{=# rootComponent.isDefined =}
-{=& rootComponent.importStatement =}
-{=/ rootComponent.isDefined =}
-
-{=# setupFn.isDefined =}
-{=& setupFn.importStatement =}
-{=/ setupFn.isDefined =}
 
 {=# setupFn.isDefined =}
 await {= setupFn.importIdentifier =}()

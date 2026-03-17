@@ -1,5 +1,6 @@
 {{={= =}=}}
-import { StrictMode, type ReactNode, useSyncExternalStore } from "react";
+import { StrictMode, type ReactNode } from "react";
+import { useIsClient } from "./util.js"
 
 export function Layout({
   children,
@@ -11,6 +12,29 @@ export function Layout({
   clientEntrySrc?: string;
 }) {
   const isClient = useIsClient()
+
+  /*
+    From the Vite SSR plugin, we inherit the concept of a "prerendered page" vs.
+    a "fallback page".
+    - A prerendered page is a page that is rendered on the server, and then
+      hydrated on the client.
+    - A fallback page is a page which only prerenders the common HTML structure
+      on the server, and then renders the actual page content on the client.
+
+    To use an analogy, a fallback page is a pluripotent stem cell that can turn
+    into any page in the client; while a prerendered page is already specialized
+    and can only render its specific content.
+
+    So, if we are prerendering a fallback page, we want to avoid rendering the
+    actual page content, so that it can turn into anything. If we're
+    prerendering a non-fallback page, we'll give it its content.
+
+    But, if we're already in the client, we always want to render the page
+    content. Whether prerendered as a fallback or not, now it's showtime, so we
+    must show the user the content.
+
+    Thus, we end up with the line below:
+  */
   const shouldRenderChildren = isClient || !isFallbackPage
 
   return (
@@ -31,7 +55,7 @@ export function Layout({
           <noscript>You need to enable JavaScript to run this app.</noscript>
 
           {
-            // We don't really need to wrap the app a div nor name it "root",
+            // We don't really need to wrap the app in a div nor name it "root",
             // but we keep it for backwards compatibility with older Wasp
             // versions.
           }
@@ -66,17 +90,3 @@ export function Layout({
     </StrictMode>
   );
 }
-
-function useIsClient() {
-  // We use `useSyncExternalStore` to get a value that is `true` on the client
-  // and `false` on the server, while avoiding hydration mismatches. It looks
-  // like a hack, but it conforms to the semantics of `useSyncExternalStore`,
-  // with *the environment* being the "external store" in this case. We just
-  // don't have any real subscription logic, since the value is static.
-  return useSyncExternalStore(emptySubscribe, getClientValue, getServerValue)
-}
-
-function emptySubscribe() { return emptyUnsubscribe }
-function emptyUnsubscribe() {}
-function getClientValue() { return true }
-function getServerValue() { return false }

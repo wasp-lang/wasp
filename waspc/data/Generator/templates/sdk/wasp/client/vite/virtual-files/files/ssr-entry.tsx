@@ -1,5 +1,4 @@
 {{={= =}=}}
-// @ts-nocheck
 import type { PrerenderContext, PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
 import * as streamConsumers from "node:stream/consumers";
 import assert from "node:assert/strict";
@@ -17,13 +16,12 @@ import { WaspApp } from "wasp/client/app";
 
 const FALLBACK_FILE = "{= ssrFallbackFile =}";
 
-export default ((async (route, ctx) => {
+const prerenderApp: PrerenderFn = async (route, ctx) => {
   const isFallbackPage = route === FALLBACK_FILE;
 
   if (isFallbackPage) {
-     return await prerenderApp({ isFallbackPage: true, children: null }, ctx);
+     return await appToHtml({ isFallbackPage: true, children: null }, ctx);
   } else {
-
     const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
       basename: "{= baseDir =}",
     });
@@ -35,14 +33,16 @@ export default ((async (route, ctx) => {
 
     const router = createStaticRouter(dataRoutes, context);
 
-    return await prerenderApp(
+    return await appToHtml(
       { isFallbackPage: false, children: <RouterProvider router={router} /> },
       ctx,
     );
   }
-}) as PrerenderFn);
+}
 
-async function prerenderApp(
+export default prerenderApp;
+
+async function appToHtml(
   {
     isFallbackPage,
     children,

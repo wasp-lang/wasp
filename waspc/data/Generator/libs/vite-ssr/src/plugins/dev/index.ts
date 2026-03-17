@@ -3,12 +3,12 @@ import { isRunnableDevEnvironment, type Plugin } from "vite";
 import type { PrerenderFn } from "../../types";
 import { ENVIRONMENT_NAMES, PACKAGE_NAME } from "../common/constants";
 import type { Options } from "../common/options";
-import type { Routes } from "../common/routes";
+import type { SsrRoutes } from "../common/routes";
 import { appendToHead } from "../util/html";
-import { addRegisterCss, collectRegisteredCss } from "./css";
+import { addRegisterCss, withCollectingRegisteredCss } from "./css";
 
 export const ssrDev = (
-  routes: Routes,
+  routes: SsrRoutes,
   { ssrEntrySrc, clientEntrySrc }: Options,
 ): Plugin => {
   return {
@@ -30,11 +30,10 @@ export const ssrDev = (
       },
     },
 
-    configureServer:
-      (server) =>
+    configureServer(server) {
       // Returning a function here means that we want our middlewares to run
       // _after_ Vite's own middlewares.
-      () => {
+      return () => {
         const ssrEnv = server.environments[ENVIRONMENT_NAMES.SSR];
         assert(
           isRunnableDevEnvironment(ssrEnv),
@@ -46,25 +45,28 @@ export const ssrDev = (
             This middleware will run after Vite's own middlewares, so they have
             already handled requests for static assets or virtual helpers.
 
-            Only the requests for the SPA handler should reach this middleware,
-            and we can identify them by checking if `req.url === "/index.html"`.
+            By this point, if the request was for any built-in path or static
+            asset, Vite has already handled it. Now Vite is looking for the
+            `index.html`, which is the SPA page it serves for all non-asset
+            requests.
 
-            `req.originalUrl` has the original URL before Vite's middlewares
-            potentially rewrite it, so we can prerender the correct route.
+            So, even if the user requested `/some-page`, Vite has already
+            rewritten it to `/index.html`. With `req.url` we get `/index.html`
+            so we know we're looking for the HTML file; but `req.originalUrl` is
+            still `/some-page`, and we can pass that to our prerendering logic.
           */
-
           if (!url || url !== "/index.html" || !originalUrl) {
             return next();
           }
 
           const route = routes.byPath.has(originalUrl)
             ? originalUrl
-            : routes.fallback.path;
+            : routes.fallbackFile.path;
 
           // Clear the SSR module cache on every request, so that we always run the latest code.
           ssrEnv.runner.clearCache();
 
-          const { result: html, cssFiles } = await collectRegisteredCss(
+          const { result: html, cssFiles } = await withCollectingRegisteredCss(
             ssrEnv.hot,
             async () => {
               const { default: prerenderApp }: { default: PrerenderFn } =
@@ -93,6 +95,7 @@ export const ssrDev = (
           res.setHeader("Content-Type", "text/html");
           res.end(newHtml);
         });
-      },
+      };
+    },
   };
 };

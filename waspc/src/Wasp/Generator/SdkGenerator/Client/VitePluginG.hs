@@ -28,7 +28,7 @@ genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
   sequence
     [ genViteIndex,
-      genWaspPlugin spec,
+      genWaspPlugin,
       genWaspConfigPlugin spec,
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
@@ -44,8 +44,8 @@ genViteIndex = return $ C.mkTmplFd tmplPath
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|index.ts|]
 
-genWaspPlugin :: AppSpec -> Generator FileDraft
-genWaspPlugin _spec = return $ C.mkTmplFdWithData tmplPath tmplData
+genWaspPlugin :: Generator FileDraft
+genWaspPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|wasp.ts|]
     tmplData =
