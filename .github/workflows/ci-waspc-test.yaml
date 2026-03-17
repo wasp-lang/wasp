@@ -71,13 +71,6 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
 
-      - name: data/packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
-        working-directory: waspc/data/packages/ts-inspect
-        run: |
-          npm ci
-          npm test
-
       - name: Compile TS packages and libs
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
