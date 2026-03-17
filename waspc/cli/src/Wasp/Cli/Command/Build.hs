@@ -50,18 +50,17 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
 
-  let buildDirInWaspProjectDir = generatedCodeDirInWaspProjectDir
-      buildDir = waspProjectDir </> buildDirInWaspProjectDir
+  let buildDir = waspProjectDir </> generatedCodeDirInWaspProjectDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
     cliSendMessageC $
       Msg.Start $
-        "Clearing the content of the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory..."
+        "Clearing the content of the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
     cliSendMessageC $
       Msg.Success $
-        "Successfully cleared the contents of the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
+        "Successfully cleared the contents of the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
@@ -78,7 +77,7 @@ build = do
 
   cliSendMessageC $
     Msg.Success $
-      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
+      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
