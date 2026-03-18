@@ -100,7 +100,6 @@ function dev_tool_path() {
 }
 STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
 HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
-PRUNE_JUICE_CMD="$(install_dev_tool prune-juice) && $(dev_tool_path prune-juice) ${ARGS[@]}"
 PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
 PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
@@ -192,8 +191,6 @@ print_usage() {
     "Runs static code analysis on the code, generating stan.html. Builds the project first if needed."
   print_usage_cmd "hlint <args>" \
     "Runs linter on the codebase."
-  print_usage_cmd "prune-juice <args>" \
-    "Runs prune-juice on the codebase, which detects unused dependencies."
   print_usage_cmd "format" \
     "Runs all code formatters (ormolu, cabal-gild, prettier) and formats the code in place."
   print_usage_cmd "check" \
@@ -306,9 +303,6 @@ case $COMMAND in
     ;;
   hlint)
     echo_and_eval "$HLINT_CMD"
-    ;;
-  prune-juice)
-    echo_and_eval "$PRUNE_JUICE_CMD"
     ;;
   format)
     echo_and_eval "$ORMOLU_FORMAT_CMD"
