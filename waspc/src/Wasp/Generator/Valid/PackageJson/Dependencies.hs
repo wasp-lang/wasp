@@ -20,7 +20,7 @@ import Wasp.Generator.Valid.PackageJson.Common
     requiredUserDevelopmentDeps,
     requiredUserRuntimeDeps,
   )
-import qualified Wasp.Generator.Valid.Validator as V
+import qualified Wasp.Validator as V
 
 data DependencyType = Runtime | Development deriving (Show)
 

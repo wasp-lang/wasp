@@ -1,17 +1,16 @@
 {{={= =}=}}
-import * as z from 'zod'
+import * as z from "zod"
 
-import { ensureEnvSchema } from '../env/validation.js'
-
+import { ensureEnvSchema } from "../env/validation.js"
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-const userServerEnvSchema = {= envValidationSchema.importIdentifier =}
+const userServerEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
-const userServerEnvSchema = z.object({})
+const userServerEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
-const waspServerCommonSchema = z.object({
+const waspCommonServerEnvSchema = z.object({
   PORT: z.coerce.number().default({= defaultServerPort =}),
   {= databaseUrlEnvVarName =}: z.string({
     error: '{= databaseUrlEnvVarName =} is required',
@@ -115,7 +114,7 @@ const waspServerCommonSchema = z.object({
   }),
   {=/ enabledAuthProviders.isMicrosoftAuthEnabled =}
   {=/ isAuthEnabled =}
-})
+});
 
 const serverUrlSchema =
   z.string({
@@ -146,38 +145,36 @@ const jwtTokenSchema = z
 
 // In development, we provide default values for some environment variables
 // to make the development process easier.
-const serverDevSchema = z.object({
-  NODE_ENV: z.literal('development'),
+const waspDevServerEnvSchema = z.object({
+  NODE_ENV: z.literal("development"),
   "{= serverUrlEnvVarName =}": serverUrlSchema
-    .default('{= defaultServerUrl =}'),
+    .default("{= defaultServerUrl =}"),
   "{= clientUrlEnvVarName =}": clientUrlSchema
-    .default('{= defaultClientUrl =}'),
+    .default("{= defaultClientUrl =}"),
   {=# isAuthEnabled =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema
-    .default('DEVJWTSECRET'),
+    .default("DEVJWTSECRET"),
   {=/ isAuthEnabled =}
-})
+});
 
-const serverProdSchema = z.object({
-  NODE_ENV: z.literal('production'),
+const waspProdServerEnvSchema = z.object({
+  NODE_ENV: z.literal("production"),
   "{= serverUrlEnvVarName =}": serverUrlSchema,
   "{= clientUrlEnvVarName =}": clientUrlSchema,
   {=# isAuthEnabled =}
   "{= jwtSecretEnvVarName =}": jwtTokenSchema,
   {=/ isAuthEnabled =}
-})
+});
 
-const serverCommonSchema = z.object({
-  ...userServerEnvSchema.shape,
-  ...waspServerCommonSchema.shape,
-})
-const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
-  z.object({ ...serverDevSchema.shape, ...serverCommonSchema.shape }),
-  z.object({ ...serverProdSchema.shape, ...serverCommonSchema.shape }),
-])
+const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
+  waspDevServerEnvSchema.merge(waspCommonServerEnvSchema),
+  waspProdServerEnvSchema.merge(waspCommonServerEnvSchema),
+]);
+const serverEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
 
-const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
+const defaultNodeEnvValue = waspDevServerEnvSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
+
 // PUBLIC API
 export const env = ensureEnvSchema(
   {
@@ -185,7 +182,7 @@ export const env = ensureEnvSchema(
     ...restEnv,
   },
   serverEnvSchema,
-)
+);
 
 function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
   return `${envVarName} is required when using ${featureName}`

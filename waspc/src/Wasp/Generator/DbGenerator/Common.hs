@@ -14,8 +14,6 @@ module Wasp.Generator.DbGenerator.Common
     DbSchemaChecksumOnLastDbConcurrenceFile,
     DbSchemaChecksumOnLastGenerateFile,
     PrismaDbSchema,
-    serverRootDirFromDbRootDir,
-    webAppRootDirFromDbRootDir,
     dbSchemaFileInProjectRootDir,
     DbSchemaChecksumFile,
     dbSchemaFileInNodeModulesDir,
@@ -23,8 +21,9 @@ module Wasp.Generator.DbGenerator.Common
 where
 
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
-import Wasp.Generator.Common (AppComponentRootDir, DbRootDir, ProjectRootDir, ServerRootDir)
+import Wasp.Generator.Common (AppComponentRootDir, DbRootDir, ProjectRootDir)
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.Project.Common (waspProjectDirFromGeneratedCodeDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 
 data DbTemplatesDir
@@ -48,12 +47,6 @@ data DbSchemaChecksumOnLastGenerateFile
 
 instance DbSchemaChecksumFile DbSchemaChecksumOnLastGenerateFile
 
-serverRootDirFromDbRootDir :: Path' (Rel DbRootDir) (Dir ServerRootDir)
-serverRootDirFromDbRootDir = [reldir|../server|]
-
-webAppRootDirFromDbRootDir :: Path' (Rel DbRootDir) (Dir ServerRootDir)
-webAppRootDirFromDbRootDir = [reldir|../web-app|]
-
 dbRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir DbRootDir)
 dbRootDirInProjectRootDir = [reldir|db|]
 
@@ -76,7 +69,7 @@ dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
 dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
 
 dbSchemaFileInNodeModulesDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
-dbSchemaFileInNodeModulesDir = [relfile|../../node_modules/.prisma/client/schema.prisma|]
+dbSchemaFileInNodeModulesDir = waspProjectDirFromGeneratedCodeDir </> [relfile|node_modules/.prisma/client/schema.prisma|]
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]

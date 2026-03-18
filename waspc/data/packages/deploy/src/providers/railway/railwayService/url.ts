@@ -56,7 +56,7 @@ export async function generateServiceUrl(
   }
 }
 
-function extractServiceUrlFromString(text: string): string {
+export function extractServiceUrlFromString(text: string): string {
   const match = text.match(/https:\/\/[^\s]*/);
   if (match === null) {
     throw new Error("Failed to get service domain");
