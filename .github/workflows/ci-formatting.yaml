@@ -48,8 +48,7 @@ jobs:
         id: get-ormolu-version
         run: echo "ORMOLU_VERSION=$(mise tool ormolu --requested)" >> $GITHUB_OUTPUT
 
-      # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
-      - uses: haskell-actions/run-ormolu@v15
+      - uses: haskell-actions/run-ormolu@v17
         with:
           version: ${{ steps.get-ormolu-version.outputs.ORMOLU_VERSION }}
 
