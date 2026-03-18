@@ -90,6 +90,7 @@ common common-all
     -- -fwrite-ide-info and -hiedir=.hie tell GHC to write compile-time information about the code
     -- to .hie directory. This information can then be used by other tools, e.g. stan (static analyzer).
     -Wall
+    -Wunused-packages
     -optP-Wno-nonportable-include-path
     -fwrite-ide-info
     -hiedir=.hie
