@@ -1,9 +1,9 @@
-import * as z from "zod";
+import * as z from "zod"
 
-import { colorize } from "wasp/universal/ansiColors";
+import { colorize } from "wasp/universal/ansiColors"
 
 // PRIVATE API (SDK)
-export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
+export function ensureEnvSchema<Schema extends z.ZodType>(
   data: unknown,
   schema: Schema,
 ): z.infer<Schema> {
@@ -11,7 +11,7 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
   if (result.success) {
     return result.data;
   } else {
-    const errorMessage = formatZodEnvErrors(result.error.issues);
+    const errorMessage = formatZodEnvError(result.error);
     if (globalThis.window) {
       console.error(errorMessage);
     } else {
@@ -22,19 +22,28 @@ export function ensureEnvSchema<Schema extends z.ZodTypeAny>(
 }
 
 // PRIVATE API (SDK, Vite config)
-export function getValidatedEnvOrError<Schema extends z.ZodTypeAny>(
+export function getValidatedEnvOrError<Schema extends z.ZodType>(
   env: unknown,
   schema: Schema,
-): z.SafeParseReturnType<unknown, z.infer<Schema>> {
+): z.ZodSafeParseResult<z.infer<Schema>> {
   return schema.safeParse(env);
 }
 
 // PRIVATE API (SDK, Vite config)
-export function formatZodEnvErrors(issues: z.ZodIssue[]): string {
-  const errorOutput = ["══ Env vars validation failed ══", ""];
-  for (const error of issues) {
-    errorOutput.push(`${error.path} - ${error.message}`);
-  }
-  errorOutput.push("", "════════════════════════════════");
-  return errorOutput.join("\n");
+export function formatZodEnvError(error: z.ZodError): string {
+  const flattenedIssues = z.flattenError(error);
+
+  return [
+    "══ Env vars validation failed ══",
+    "",
+    // Top-level errors
+    ...flattenedIssues.formErrors,
+    "",
+    // Errors per field
+    ...Object.entries(flattenedIssues.fieldErrors).map(
+      ([prop, error]) => `${prop} - ${error}`,
+    ),
+    "",
+    "════════════════════════════════",
+  ].join("\n");
 }

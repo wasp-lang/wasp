@@ -1,6 +1,20 @@
 # Changelog
 
-## 0.21.2
+## 0.22.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-21-to-0-22) for step-by-step documentation on how to upgrade.
+
+- Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
+
+### 🎉 New Features
+
+- The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
+
+### 🐞 Bug fixes
+
+- Projects created with `wasp new` were missing their `.gitignore` file. ([#3870](https://github.com/wasp-lang/wasp/pull/3870))
 
 ### 🔧 Small improvements
 
@@ -10,6 +24,7 @@
 - In the Vite config, removing the `server.open` field will no longer open the browser on `wasp start`. ([3831](https://github.com/wasp-lang/wasp/pull/3831))
 - Wasp now validates that `vite.config.ts` (or `vite.config.js`) exists in your project at compile time, and warns if it's missing the `wasp` plugin import. ([#3863](https://github.com/wasp-lang/wasp/pull/3863))
 - Wasp now prefixes env validation errors with the name of the field that failed the validation ([#3876](https://github.com/wasp-lang/wasp/pull/3876))
+- Wasp now validates your `tsconfig.json` before analyzing the rest of the code. If something is off, you'll get a clear error message as soon as possible ([#3907](https://github.com/wasp-lang/wasp/issues/3907))
 - Wasp now properly uses ANSI formatting in env validation errors ([#3877](https://github.com/wasp-lang/wasp/pull/3877))
 
 ## 0.21.1

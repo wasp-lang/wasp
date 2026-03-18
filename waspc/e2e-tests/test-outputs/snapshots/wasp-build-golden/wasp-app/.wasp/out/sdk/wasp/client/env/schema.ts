@@ -1,26 +1,32 @@
-import * as z from 'zod'
+import * as z from "zod"
 
-const userClientEnvSchema = z.object({})
+const userClientEnvSchema = z.object({});
 
-const serverUrlSchema = z
-  .string({
-    required_error: 'REACT_APP_API_URL is required',
+const serverUrlSchema =
+  z.string({
+    error: 'REACT_APP_API_URL is required',
   })
-  .url({
-    message: 'REACT_APP_API_URL must be a valid URL',
-  })
+  .pipe(
+    z.url({
+      error: 'REACT_APP_API_URL must be a valid URL',
+    })
+  )
 
-const waspClientDevSchema = z.object({
+const waspDevClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema
-    .default('http://localhost:3001'),
-})
+    .default("http://localhost:3001"),
+});
 
-const waspClientProdSchema = z.object({
+const waspProdClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema,
-})
+});
 
 // PRIVATE API (sdk, Vite config)
+// TODO(franjo): Remove passing mode as param when this is no longer a plugin.
+//               See: https://github.com/wasp-lang/wasp/issues/3875.
 export function getClientEnvSchema(mode: string) {
-  const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return userClientEnvSchema.merge(waspSchema)
+  const waspClientEnvSchema = mode === "production"
+    ? waspProdClientEnvSchema
+    : waspDevClientEnvSchema;
+  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape })
 }

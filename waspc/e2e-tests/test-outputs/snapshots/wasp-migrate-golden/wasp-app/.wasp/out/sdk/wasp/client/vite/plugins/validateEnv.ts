@@ -1,12 +1,14 @@
 import { type Plugin } from "vite";
 
 import {
-  formatZodEnvErrors,
+  formatZodEnvError,
   getValidatedEnvOrError,
 } from "../../../env/validation.js";
-import { colorize } from "../../../universal/ansiColors.js";
+import { getColorizedConsoleFormatString } from "../../../universal/ansiColors.js";
 import { getClientEnvSchema } from "../../env/schema.js";
 import { loadEnvVars } from "./envFile.js";
+
+const redColorFormatString = getColorizedConsoleFormatString("red");
 
 export function validateEnv(): Plugin {
   let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null;
@@ -28,8 +30,8 @@ export function validateEnv(): Plugin {
 
       // Exit if we are in build mode, because we can't show the error in the browser.
       if (config.command === "build" && !validationResult.success) {
-        const errorMessage = formatZodEnvErrors(validationResult.error.issues);
-        console.error(colorize("red", errorMessage));
+        const message = formatZodEnvError(validationResult.error);
+        console.error(`${redColorFormatString}${message}`);
         process.exit(1);
       }
     },
@@ -39,12 +41,12 @@ export function validateEnv(): Plugin {
       }
 
       // Send the error to the browser.
-      const errorMessage = formatZodEnvErrors(validationResult.error.issues);
+      const message = formatZodEnvError(validationResult.error);
       server.ws.on("connection", () => {
         server.ws.send({
           type: "error",
           err: {
-            message: errorMessage,
+            message,
             stack: "",
           },
         });
