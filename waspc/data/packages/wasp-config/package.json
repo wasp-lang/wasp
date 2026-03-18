@@ -5,7 +5,7 @@
   "description": "Wasp TS SDK",
   "author": "wasp",
   "license": "MIT",
-  "bin": "./dist/src/run.js",
+  "bin": "./bin.js",
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",
