@@ -1,7 +1,7 @@
 module Util.StrongPathTest where
 
 import Control.Exception (evaluate)
-import StrongPath (fromRelDir, reldir)
+import StrongPath (reldir)
 import Test.Hspec (Spec, anyErrorCall, describe, it, shouldBe, shouldThrow)
 import Wasp.Util.StrongPath (invertRelDir)
 
@@ -13,14 +13,14 @@ spec_invertRelDir = do
       evaluate (invertRelDir [reldir|../../a|]) `shouldThrow` anyErrorCall
 
     it "returns current dir for current dir input" $ do
-      fromRelDir (invertRelDir [reldir|.|]) `shouldBe` fromRelDir [reldir|./|]
-      fromRelDir (invertRelDir [reldir|././././././././././|]) `shouldBe` fromRelDir [reldir|./|]
+      invertRelDir [reldir|.|] `shouldBe` [reldir|./|]
+      invertRelDir [reldir|././././././././././|] `shouldBe` [reldir|./|]
 
     it "converts path segments into dotdots" $ do
-      fromRelDir (invertRelDir [reldir|types|]) `shouldBe` fromRelDir [reldir|../|]
-      fromRelDir (invertRelDir [reldir|.wasp/out|]) `shouldBe` fromRelDir [reldir|../../|]
-      fromRelDir (invertRelDir [reldir|a/b/c|]) `shouldBe` fromRelDir [reldir|../../../|]
+      invertRelDir [reldir|types|] `shouldBe` [reldir|../|]
+      invertRelDir [reldir|.wasp/out|] `shouldBe` [reldir|../../|]
+      invertRelDir [reldir|a/b/c|] `shouldBe` [reldir|../../../|]
 
     it "ignores current dir in path" $ do
-      fromRelDir (invertRelDir [reldir|./././middle/./././|]) `shouldBe` fromRelDir [reldir|../|]
-      fromRelDir (invertRelDir [reldir|./.wasp/./out/./|]) `shouldBe` fromRelDir [reldir|../../|]
+      invertRelDir [reldir|./././middle/./././|] `shouldBe` [reldir|../|]
+      invertRelDir [reldir|./.wasp/./out/./|] `shouldBe` [reldir|../../|]
