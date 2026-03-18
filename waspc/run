@@ -102,10 +102,10 @@ STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan
 HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
 PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
 PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"
-ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
+ORMOLU_BASE_CMD="mise x ormolu -- ormolu --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
-CABAL_GILD_BASE_CMD="$(install_dev_tool cabal-gild) && $(dev_tool_path cabal-gild)"
+CABAL_GILD_BASE_CMD="mise x cabal-gild -- cabal-gild"
 CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check --input waspc.cabal"
 CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format --io waspc.cabal"
 

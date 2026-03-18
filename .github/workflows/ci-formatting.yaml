@@ -35,15 +35,23 @@ jobs:
 
       - uses: actions/checkout@v6
 
-      - name: Parse oromolu version
-        working-directory: waspc
-        run: |
-          echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+      - name: Set up mise
+        uses: jdx/mise-action@v3
+        with:
+          # We only need to install mise itself so it can give us the correct
+          # ormolu version. For better GH Actions support, we will run ormolu
+          # separately using their official action below.
+          install: false
+          cache: false
+
+      - name: Get ormolu version
+        id: get-ormolu-version
+        run: echo "ORMOLU_VERSION=$(mise tool ormolu --requested)" >> $GITHUB_OUTPUT
 
       # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
       - uses: haskell-actions/run-ormolu@v15
         with:
-          version: ${{ env.ORMOLU_VERSION }}
+          version: ${{ steps.get-ormolu-version.outputs.ORMOLU_VERSION }}
 
   cabal-gild:
     runs-on: ubuntu-latest
@@ -51,18 +59,13 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - name: Parse cabal-gild version
-        working-directory: waspc
-        run: |
-          echo "CABAL_GILD_VERSION=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
-
-      - uses: tfausak/cabal-gild-setup-action@v2
+      - name: Set up cabal-gild
+        uses: jdx/mise-action@v3
         with:
-          version: ${{ env.CABAL_GILD_VERSION }}
+          # We only need to install cabal-gild.
+          install_args: "cabal-gild"
+          cache_key_prefix: "mise-cabal-gild"
 
       - name: Run cabal-gild
         working-directory: waspc
-        run: |
-          for f in $(git ls-files '*.cabal'); do
-            cabal-gild --mode check --input "$f"
-          done
+        run: ./run check:cabal-gild

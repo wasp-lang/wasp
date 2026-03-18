@@ -1,0 +1,10 @@
+[tools]
+cabal-gild = "1.5.0.1"
+ormolu = "0.7.2.0"
+
+[tool_alias]
+cabal-gild = "github:tfausak/cabal-gild"
+ormolu = "github:tweag/ormolu"
+
+[settings]
+lockfile = true
