@@ -1,6 +1,6 @@
-import * as z from "zod"
+import * as z from "zod";
 
-import { colorize } from "wasp/universal/ansiColors"
+import { colorize } from "wasp/universal/ansiColors";
 
 // PRIVATE API (SDK)
 export function ensureEnvSchema<Schema extends z.ZodType>(
@@ -12,11 +12,7 @@ export function ensureEnvSchema<Schema extends z.ZodType>(
     return result.data;
   } else {
     const errorMessage = formatZodEnvError(result.error);
-    if (globalThis.window) {
-      console.error(errorMessage);
-    } else {
-      console.error(colorize("red", errorMessage));
-    }
+    console.error(colorize("red", errorMessage));
     throw new Error("Error parsing environment variables");
   }
 }
