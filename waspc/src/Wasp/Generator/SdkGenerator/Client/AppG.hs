@@ -25,9 +25,9 @@ genClientApp :: AppSpec -> Generator [FileDraft]
 genClientApp spec =
   sequence
     [ genAppIndex spec,
-      genWaspAppComponent spec,
-      genLayout spec
+      genWaspAppComponent spec
     ]
+    <++> genLayout spec
     <++> genAppComponents
     <++> genRouter spec
     <++> genAuthPages spec
@@ -100,16 +100,25 @@ genOAuthCallbackPage auth =
       [relfile|client/app/pages/OAuthCallback.tsx|]
       (object ["onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth])
 
-genLayout :: AppSpec -> Generator FileDraft
+genLayout :: AppSpec -> Generator [FileDraft]
 genLayout spec =
-  return $
-    C.mkTmplFdWithData
-      [relfile|client/app/layout.tsx|]
-      ( object
-          [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
-            "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
-          ]
-      )
+  sequence
+    [ genLayoutFile,
+      genUtilsFile
+    ]
+  where
+    genLayoutFile =
+      return $
+        C.mkTmplFdWithData
+          [relfile|client/app/layout.tsx|]
+          ( object
+              [ "title" .= (AS.App.title (snd $ getApp spec) :: String),
+                "head" .= (maybe "" (intercalate "\n") (AS.App.head $ snd $ getApp spec) :: String)
+              ]
+          )
+
+    genUtilsFile =
+      return $ genFileCopy [relfile|client/app/util.ts|]
 
 genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
 genFileCopy = C.mkTmplFd

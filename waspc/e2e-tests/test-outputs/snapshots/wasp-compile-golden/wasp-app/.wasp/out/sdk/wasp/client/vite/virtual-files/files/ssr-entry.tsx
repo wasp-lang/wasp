@@ -1,4 +1,3 @@
-// @ts-nocheck
 import type { PrerenderContext, PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
 import * as streamConsumers from "node:stream/consumers";
 import assert from "node:assert/strict";
@@ -12,17 +11,16 @@ import {
 import { Layout } from "wasp/client/app/layout";
 import { WaspApp } from "wasp/client/app";
 
-import { routeObjects } from "/@wasp/routes.tsx"
+import { routeObjects } from '/@wasp/routes.tsx'
 
 const FALLBACK_FILE = "/_fallback.html";
 
-export default ((async (route, ctx) => {
+const prerenderApp: PrerenderFn = async (route, ctx) => {
   const isFallbackPage = route === FALLBACK_FILE;
 
   if (isFallbackPage) {
-     return await prerenderApp({ isFallbackPage: true, children: null }, ctx);
+     return await appToHtml({ isFallbackPage: true, children: null }, ctx);
   } else {
-
     const { query, dataRoutes } = createStaticHandler(routeObjects, {
       basename: "/",
     });
@@ -34,14 +32,16 @@ export default ((async (route, ctx) => {
 
     const router = createStaticRouter(dataRoutes, context);
 
-    return await prerenderApp(
+    return await appToHtml(
       { isFallbackPage: false, children: <RouterProvider router={router} /> },
       ctx,
     );
   }
-}) as PrerenderFn);
+}
 
-async function prerenderApp(
+export default prerenderApp;
+
+async function appToHtml(
   {
     isFallbackPage,
     children,

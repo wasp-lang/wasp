@@ -1,8 +1,11 @@
-// @ts-nocheck
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
 
 import { createAuthRequiredPage } from "wasp/client/app"
+
+import { App as App_ext } from './src/App'
+
+import { setup as setup_ext } from './src/clientSetup'
 
 // These files are used from user-land and the import paths below are relative to the
 // user's project dir, and not the SDK:
@@ -47,10 +50,6 @@ const routesMapping = {
   StreamingRoute: StreamingPage,
   ChatRoute: createAuthRequiredPage(ChatPage),
 } as const;
-
-import { App as App_ext } from './src/App'
-
-import { setup as setup_ext } from './src/clientSetup'
 
 await setup_ext()
 

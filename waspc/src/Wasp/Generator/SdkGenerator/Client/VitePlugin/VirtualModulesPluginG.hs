@@ -10,11 +10,13 @@ import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, ssrEntryPointPath, ssrFallbackFile, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ExternalImportName), makeJsImport)
 
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getVirtualModulesPlugin spec =
@@ -56,11 +58,9 @@ getVirtualModulesTs =
 
 routeObjectsImportJson :: Value
 routeObjectsImportJson =
-  object
-    [ "isDefined" .= True,
-      "importStatement" .= ("import { routeObjects } from \"" ++ routesEntryPointPath ++ "\""),
-      "importIdentifier" .= ("routeObjects" :: String)
-    ]
+  jsImportToImportJson $
+    Just $
+      makeJsImport (ExternalImportName routesEntryPointPath) (JsImportField "routeObjects")
 
 genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
 genVirtualClientEntryTsx spec =

@@ -4,10 +4,10 @@ import type { Plugin } from "vite";
 import type { PrerenderFn } from "../types";
 import { ENVIRONMENT_NAMES, PACKAGE_NAME } from "./common/constants";
 import type { Options } from "./common/options";
-import type { Routes } from "./common/routes";
+import type { SsrRoutes } from "./common/routes";
 
 export const ssrBuild = (
-  routes: Routes,
+  routes: SsrRoutes,
   { ssrEntrySrc, clientEntrySrc }: Options,
 ): Plugin => {
   let prerenderApp: PrerenderFn | null = null;
@@ -29,7 +29,7 @@ export const ssrBuild = (
           [ENVIRONMENT_NAMES.CLIENT]: {
             build: {
               rollupOptions: {
-                input: Array.from(routes.byId.keys()),
+                input: routes.getAllIds(),
               },
             },
           },
@@ -59,7 +59,7 @@ export const ssrBuild = (
             );
             assert(
               entryChunk.exports.includes("default"),
-              "Expected ssr build output chunk to export a default export",
+              "Expected ssr build output chunk to export `default`",
             );
 
             const ssrPath = path.resolve(
@@ -78,7 +78,9 @@ export const ssrBuild = (
     resolveId: {
       filter: { id: /\.html$/ },
       handler(id, _, { ssr }) {
-        if (ssr) return;
+        if (ssr) {
+          return;
+        }
 
         assert(
           prerenderApp,
@@ -94,7 +96,9 @@ export const ssrBuild = (
     load: {
       filter: { id: /\.html$/ },
       async handler(id, { ssr = false } = {}) {
-        if (ssr) return;
+        if (ssr) {
+          return;
+        }
 
         assert(
           prerenderApp,
@@ -102,14 +106,16 @@ export const ssrBuild = (
         );
 
         const route = routes.byId.get(id);
-        assert(route, `Unexpected id ${id} not found in ssrRoutes`);
+        assert(route, `Epected id ${id} to exist in ssrRoutes`);
 
         const html = await prerenderApp(route.path, {
           clientEntrySrc,
           transformIndexHtml: async (html) => html,
         });
 
-        if (!html) return;
+        if (!html) {
+          return;
+        }
 
         return html;
       },

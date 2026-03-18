@@ -1,19 +1,19 @@
-import { type Plugin } from 'vite'
+import { type Plugin } from "vite";
 
 import {
   formatZodEnvError,
   getValidatedEnvOrError,
-} from '../../../env/validation.js'
-import { getColorizedConsoleFormatString } from '../../../universal/ansiColors.js'
-import { getClientEnvSchema } from '../../env/schema.js'
-import { loadEnvVars } from './envFile.js'
+} from "../../../env/validation.js";
+import { getColorizedConsoleFormatString } from "../../../universal/ansiColors.js";
+import { getClientEnvSchema } from "../../env/schema.js";
+import { loadEnvVars } from "./envFile.js";
 
-const redColorFormatString = getColorizedConsoleFormatString('red');
+const redColorFormatString = getColorizedConsoleFormatString("red");
 
 export function validateEnv(): Plugin {
-  let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null
+  let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null;
   return {
-    name: 'wasp:validate-env',
+    name: "wasp:validate-env",
     async configResolved(config) {
       const env = await loadEnvVars({
         rootDir: config.root,
@@ -23,34 +23,34 @@ export function validateEnv(): Plugin {
         // We load the env file variables only in development,
         // when building for production, users are expected to
         // provide the environment variables inline.
-        loadDotEnvFile: config.command === 'serve',
-      })
-      const schema = getClientEnvSchema(config.mode)
-      validationResult = getValidatedEnvOrError(env, schema)
+        loadDotEnvFile: config.command === "serve",
+      });
+      const schema = getClientEnvSchema(config.mode);
+      validationResult = getValidatedEnvOrError(env, schema);
 
       // Exit if we are in build mode, because we can't show the error in the browser.
-      if (config.command === 'build' && !validationResult.success) {
-        const message = formatZodEnvError(validationResult.error)
-        console.error(`${redColorFormatString}${message}`)
-        process.exit(1)
+      if (config.command === "build" && !validationResult.success) {
+        const message = formatZodEnvError(validationResult.error);
+        console.error(`${redColorFormatString}${message}`);
+        process.exit(1);
       }
     },
     configureServer: (server) => {
       if (validationResult === null || validationResult.success) {
-        return
+        return;
       }
 
       // Send the error to the browser.
-      const message = formatZodEnvError(validationResult.error)
-      server.ws.on('connection', () => {
+      const message = formatZodEnvError(validationResult.error);
+      server.ws.on("connection", () => {
         server.ws.send({
-          type: 'error',
+          type: "error",
           err: {
             message,
-            stack: '',
+            stack: "",
           },
-        })
-      })
+        });
+      });
     },
-  }
+  };
 }

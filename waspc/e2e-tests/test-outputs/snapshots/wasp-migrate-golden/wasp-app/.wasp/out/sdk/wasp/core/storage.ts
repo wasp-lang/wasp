@@ -6,11 +6,12 @@ export type DataStore = {
   clear(): void;
 };
 
-export const storage = (
+const createStorage =
   typeof window === "undefined" || !window.localStorage
     ? createMemoryDataStore
     : createLocalStorageDataStore
-)("wasp");
+
+export const storage = createStorage("wasp");
 
 function createMemoryDataStore(prefix: string): DataStore {
   const store: Map<string, unknown> = new Map();

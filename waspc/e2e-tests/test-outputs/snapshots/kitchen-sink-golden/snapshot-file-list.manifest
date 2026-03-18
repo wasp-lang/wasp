@@ -83,6 +83,7 @@ wasp-app/.wasp/out/sdk/wasp/client/app/layout.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/pages/OAuthCallback.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/pages/createAuthRequiredPage.jsx
 wasp-app/.wasp/out/sdk/wasp/client/app/router.tsx
+wasp-app/.wasp/out/sdk/wasp/client/app/util.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/discord.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/email.ts
 wasp-app/.wasp/out/sdk/wasp/client/auth/github.ts
@@ -357,6 +358,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/app/router.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/router.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/router.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/router.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/util.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/util.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/util.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/util.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/discord.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/discord.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/auth/discord.js

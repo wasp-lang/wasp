@@ -19,7 +19,7 @@ export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   config.apiUrl,
   {
     transports: ['websocket'],
-    autoConnect: import.meta.env.SSR ? false : true,
+    autoConnect: true && !import.meta.env.SSR,
   }
 )
 

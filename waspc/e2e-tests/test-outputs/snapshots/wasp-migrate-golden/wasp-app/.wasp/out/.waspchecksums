@@ -32,7 +32,7 @@
             "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz"
         ],
-        "48ceaefef9a456fc63f4fdb3666e5eb300f4f4ba699e924f8bc385c04034ba43"
+        "82ca9758cd8efa620b9ef70886016a20cbb620ae3d4e2d18bbeada4b7182f574"
     ],
     [
         [
@@ -46,7 +46,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "c03e72c092efdabbac244bb1b01077c78fb5e2ae3d4c5bd65df7b827e72a3652"
+        "0e37f424b8630ee07312c80dda19d18ec68aed460fd5280f801c97bb3c42ad32"
     ],
     [
         [
@@ -102,7 +102,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "2cfd4590369902d96a5bac674e31d97e393490913e9589ea692d31f536990b1a"
+        "252d3ee4db957829ac0b4082e3d95ad2d37c1a08870197fdaef6bebc910539f2"
     ],
     [
         [
@@ -110,6 +110,13 @@
             "sdk/wasp/client/app/router.tsx"
         ],
         "7dbd608e6b02119547408c9a149623c026cd02f80aec114cd55f7aa9f30520ec"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/app/util.ts"
+        ],
+        "8b7b892d6cc33b2f2569ff852bd018aa4b236a4313d9a18eaf8281f1359cbd5a"
     ],
     [
         [
@@ -123,14 +130,14 @@
             "file",
             "sdk/wasp/client/env.ts"
         ],
-        "5fe8057a1d26540c02ff7f7ca17ef87f6b92c6a0132620a78ae6f7525abf17ec"
+        "7fafed5cbdcc62100df36625e40ea26db68a3d3be5b7951c84cbd7bec2ce3aeb"
     ],
     [
         [
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "9ee165ce468013efa927ac6b7f192e56b4dcc5d7db7c470f977753eb8405bc54"
+        "2adf02a3838673b1a3641758b09ff49725b4c29a5cefaa0f47a42ad4a35a7a53"
     ],
     [
         [
@@ -305,7 +312,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "dc47562e333621fc859386a9422674c11295d786fda1b57561b0b0b7b9b57313"
+        "d17f10ce7f243d703670a49d3bdc6bf74edba24a9b43596cec82aea6f8689bc8"
     ],
     [
         [
@@ -333,21 +340,21 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "e52dea3d184ba2a6b46d9f0ab09d4d6478538463086d08a559b34a31d687e775"
+        "0c171a9124ff599f456714c61e072b0175eaa889b1bae5532fe2d920e16af28a"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "514d7c53f8e601f1ce62768cf24035b6dc0e80386fe20f37b518305d5e1ebd5d"
+        "d39a45fc5738e857429688555faf2992e9d87935c36cc3197c327ab6b4600aef"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "29c84b383713a2b9ac1700d4599d804ea1e4856708518ee518e4a6331b67c869"
+        "a1b2340cf275bc569b5e8f0a715002cb146f756c095665e68a7638d3c0cdaefa"
     ],
     [
         [
@@ -389,7 +396,7 @@
             "file",
             "sdk/wasp/core/storage.ts"
         ],
-        "7e5dde19f3a6759289fb09100fc2ad186b8b89dba85f32356b7463770afbbce6"
+        "f94fa2c6090a41621a2c45ed156001ad1e85893f134561e459cd206a2532a5ec"
     ],
     [
         [
@@ -473,7 +480,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "0c877fc99e467d30799946146927c3f0ee1627feed61db481a1384eab050aace"
+        "0b68563f1d205dc39889aa8169ac7203b511fadaefc10949c5034c3fde5da06b"
     ],
     [
         [

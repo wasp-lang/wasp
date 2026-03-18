@@ -36,6 +36,7 @@ data JsImport = JsImport
 data JsImportPath
   = RelativeImportPath (Path Posix (Rel Dir') File')
   | ModuleImportPath (Path Posix (Rel Dir') File')
+  | ExternalImportName String
   deriving (Show, Eq, Data)
 
 -- Note (filip): not a fan of so many aliases for regular types
@@ -73,10 +74,14 @@ getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
   (importStatement, importIdentifier)
   where
     importStatement = "import " ++ importClause ++ " from '" ++ pathString ++ "'"
+
     (importIdentifier, importClause) = getJsImportIdentifierAndClause importName maybeImportAlias
+
     pathString = case importPath of
       RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
       ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+      ExternalImportName moduleName -> moduleName
+
     normalizePath path
       | ".." `isPrefixOf` path = path
       | otherwise = "./" ++ path
