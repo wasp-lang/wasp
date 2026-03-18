@@ -175,25 +175,25 @@ studio = do
                      --   Best to use TH here to generate this object from AuthMethods?
                      concat
                        [ [ "usernameAndPassword"
-                           | isJust $ AS.App.Auth.usernameAndPassword methods
+                         | isJust $ AS.App.Auth.usernameAndPassword methods
                          ],
                          [ "slack"
-                           | isJust $ AS.App.Auth.slack methods
+                         | isJust $ AS.App.Auth.slack methods
                          ],
                          [ "discord"
-                           | isJust $ AS.App.Auth.discord methods
+                         | isJust $ AS.App.Auth.discord methods
                          ],
                          [ "google"
-                           | isJust $ AS.App.Auth.google methods
+                         | isJust $ AS.App.Auth.google methods
                          ],
                          [ "keycloak"
-                           | isJust $ AS.App.Auth.keycloak methods
+                         | isJust $ AS.App.Auth.keycloak methods
                          ],
                          [ "gitHub"
-                           | isJust $ AS.App.Auth.gitHub methods
+                         | isJust $ AS.App.Auth.gitHub methods
                          ],
                          [ "email"
-                           | isJust $ AS.App.Auth.email methods
+                         | isJust $ AS.App.Auth.email methods
                          ]
                        ] ::
                        [String]

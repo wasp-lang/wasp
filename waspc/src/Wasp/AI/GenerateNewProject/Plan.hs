@@ -301,7 +301,7 @@ checkPlanForLogoutAndLoginActions plan = checkForAction "login" ++ checkForActio
   where
     checkForAction name =
       [ "You included the '" <> name <> "' action in the plan, but it's already included in Wasp. Remove it."
-        | name `elem` actionNames
+      | name `elem` actionNames
       ]
     actionNames = map (map toLower . opName) $ actions plan
 

@@ -38,13 +38,11 @@ depsMessage appSpec =
     ]
       ++ printDeps
         "Server dependencies:"
-        ( N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
-        )
+        (N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
       ++ [""]
       ++ printDeps
         "Server devDependencies:"
-        ( N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
-        )
+        (N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec)
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =

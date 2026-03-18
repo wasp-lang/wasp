@@ -18,8 +18,7 @@ validateNoEntityDeclInWaspFile ast@(P.AST stmts) = case findEntityStmt stmts of
     findEntityStmt :: [P.WithCtx P.Stmt] -> Maybe (P.WithCtx P.Stmt)
     findEntityStmt =
       find
-        ( \(P.WithCtx _ (P.Decl declTypeName _ _)) -> declTypeName == entityDeclTypeName
-        )
+        (\(P.WithCtx _ (P.Decl declTypeName _ _)) -> declTypeName == entityDeclTypeName)
 
     entitiesNoLongerSupportedError :: String
     entitiesNoLongerSupportedError =
