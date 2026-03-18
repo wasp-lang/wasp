@@ -23,17 +23,17 @@ import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
-    dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
+    generatedCodeDirInWaspProjectDir,
     getSrcTsConfigInWaspProjectDir,
-    packageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
@@ -50,18 +50,17 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
 
-  let buildDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
-      buildDir = waspProjectDir </> buildDirInWaspProjectDir
+  let buildDir = waspProjectDir </> generatedCodeDirInWaspProjectDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
     cliSendMessageC $
       Msg.Start $
-        "Clearing the content of the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory..."
+        "Clearing the content of the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
     cliSendMessageC $
       Msg.Success $
-        "Successfully cleared the contents of the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
+        "Successfully cleared the contents of the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
@@ -78,7 +77,7 @@ build = do
 
   cliSendMessageC $
     Msg.Success $
-      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
+      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
@@ -98,13 +97,13 @@ build = do
           (waspProjectDir </> srcDirInWaspProjectDir)
           (buildDir </> castRel srcDirInWaspProjectDir)
 
-      let packageJsonInBuildDir = buildDir </> castRel packageJsonInWaspProjectDir
+      let packageJsonInBuildDir = buildDir </> castRel userPackageJsonInWaspProjectDir
       let packageLockJsonInBuildDir = buildDir </> castRel packageLockJsonInWaspProjectDir
       let tsconfigJsonInBuildDir = buildDir </> castRel srcTsConfigPath
 
       liftIO $
         copyFile
-          (waspProjectDir </> packageJsonInWaspProjectDir)
+          (waspProjectDir </> userPackageJsonInWaspProjectDir)
           packageJsonInBuildDir
 
       liftIO $
@@ -143,11 +142,14 @@ build = do
 
     isWaspConfigPackageLocation :: String -> Bool
     isWaspConfigPackageLocation packageLocation =
-      (FP.pathSeparator : "wasp-config") `isSuffixOf` packageLocation
+      (FP.pathSeparator : waspConfigPackageName) `isSuffixOf` packageLocation
 
     removeWaspConfigFromDevDependenciesArray :: Value -> Value
     removeWaspConfigFromDevDependenciesArray original =
-      original & key "devDependencies" . _Object . at "wasp-config" .~ Nothing
+      original & key "devDependencies" . _Object . at (Key.fromString waspConfigPackageName) .~ Nothing
+
+    waspConfigPackageName :: String
+    waspConfigPackageName = getInstallablePackageName WaspConfigPackage
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->

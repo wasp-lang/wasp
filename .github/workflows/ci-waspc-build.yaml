@@ -17,6 +17,9 @@ on:
       waspc_version:
         value: ${{ jobs.build.outputs.waspc_version }}
         description: "The Wasp version built in this workflow."
+      data_files_list:
+        value: ${{ jobs.build.outputs.data_files_list }}
+        description: "List of data files with per-file SHA-256 hashes."
       output_linux-x86_64:
         value: ${{ jobs.build.outputs.output_linux-x86_64 }}
         description: "The build output metadata for linux-x86_64."
@@ -37,6 +40,7 @@ jobs:
   build:
     outputs:
       waspc_version: ${{ steps.set-outputs.outputs.waspc_version }}
+      data_files_list: ${{ steps.data-files.outputs.list }}
       output_linux-x86_64: ${{ steps.set-outputs.outputs.output_linux-x86_64 }}
       output_linux-x86_64-static: ${{ steps.set-outputs.outputs.output_linux-x86_64-static }}
       output_macos-x86_64: ${{ steps.set-outputs.outputs.output_macos-x86_64 }}
@@ -141,7 +145,27 @@ jobs:
           mkdir -p artifacts
           ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
 
-      - uses: actions/upload-artifact@v4
+      - name: Compute data files list
+        id: data-files
+        working-directory: waspc
+        run: |
+          if command -v sha256sum >/dev/null 2>&1; then
+            HASH_CMD="sha256sum"
+          else
+            HASH_CMD="shasum -a 256"
+          fi
+          {
+            echo 'list<<EOF'
+            cabal sdist --list-only \
+              | grep '^\./data/' \
+              | while IFS= read -r file; do
+                  hash=$($HASH_CMD "$file" | cut -d' ' -f1)
+                  printf '%s\t%s\n' "$file" "$hash"
+                done
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v7
         with:
           path: ./waspc/artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}

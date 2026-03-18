@@ -38,7 +38,7 @@ makeWaspLib waspLibPackageName libDirName' =
   where
     waspVersionStr = show waspVersion
 
-makeLocalNpmDepFromWaspLib :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
+makeLocalNpmDepFromWaspLib :: Path' (Rel packageJsonDir) (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
 makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
   where
     npmDepFilePath = "file:" <> fromRelFile (tarballSrcDir </> getTarballPathInLibsRootDir waspLib)

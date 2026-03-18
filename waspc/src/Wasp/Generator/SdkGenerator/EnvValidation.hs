@@ -120,5 +120,5 @@ genUserServerEnvSchemaModuleDecl spec
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =
   Npm.Dependency.fromList
-    [ ("zod", "^3.23.8")
+    [ ("zod", "^4.3.6")
     ]

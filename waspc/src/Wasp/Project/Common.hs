@@ -4,7 +4,7 @@ module Wasp.Project.Common
     NodeModulesDir,
     CompileError,
     CompileWarning,
-    PackageJsonFile,
+    UserPackageJsonFile,
     SrcTsConfigFile,
     WaspFilePath (..),
     WaspLangFile,
@@ -12,10 +12,10 @@ module Wasp.Project.Common
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
-    waspProjectDirFromProjectRootDir,
+    waspProjectDirFromGeneratedCodeDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
-    packageJsonInWaspProjectDir,
+    userPackageJsonInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
@@ -24,6 +24,7 @@ module Wasp.Project.Common
     srcTsConfigInWaspLangProject,
     srcTsConfigInWaspTsProject,
     waspProjectDirFromAppComponentDir,
+    generatedCodeDirInWaspProjectDir,
     makeAppUniqueId,
   )
 where
@@ -32,8 +33,11 @@ import Data.Char (isAsciiLower, isAsciiUpper, isDigit)
 import StrongPath (Abs, Dir, File, File', Path', Rel, fromAbsDir, reldir, relfile, toFilePath, (</>))
 import System.Directory (doesFileExist)
 import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
+import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
+import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
+import Wasp.Util.StrongPath (invertRelDir)
 
 type CompileError = String
 
@@ -45,9 +49,13 @@ data NodeModulesDir
 
 data DotWaspDir -- Here we put everything that wasp generates.
 
-data PackageJsonFile
+data UserPackageJsonFile
+
+instance PackageJsonFile UserPackageJsonFile
 
 data SrcTsConfigFile
+
+instance TsConfigFile SrcTsConfigFile
 
 data WaspFilePath
   = WaspLang !(Path' Abs (File WaspLangFile))
@@ -57,7 +65,6 @@ data WaspLangFile
 
 data WaspTsFile
 
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = [reldir|.wasp|]
@@ -65,25 +72,23 @@ dotWaspDirInWaspProjectDir = [reldir|.wasp|]
 nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
 nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
 
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRootDir)
 -- TODO: We sometimes call this directory "ProjectRootDir" and sometimes
 -- "GeneratedCodeDir". We should unify the naming (the latter is the beter
 -- name).
 generatedCodeDirInDotWaspDir = [reldir|out|]
 
+generatedCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir G.Common.ProjectRootDir)
+generatedCodeDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+
 -- TODO: This backwards relative path relies on multiple forward relative path
 -- definitions. We should find a better way to express it (e.g., by somehow
 -- calculating it from existing definitions)
 waspProjectDirFromAppComponentDir :: (G.Common.AppComponentRootDir d) => Path' (Rel d) (Dir WaspProjectDir)
-waspProjectDirFromAppComponentDir = [reldir|../../../|]
+waspProjectDirFromAppComponentDir = [reldir|../|] </> waspProjectDirFromGeneratedCodeDir
 
--- | NOTE: This path is calculated from the values of @dotWaspDirInWaspProjectDir@,
--- @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@., which are the three functions just above.
--- Also, it assumes @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@ have same depth.
--- If any of those change significantly (their depth), this path should be adjusted.
-waspProjectDirFromProjectRootDir :: Path' (Rel G.Common.ProjectRootDir) (Dir WaspProjectDir)
-waspProjectDirFromProjectRootDir = [reldir|../../|]
+waspProjectDirFromGeneratedCodeDir :: Path' (Rel G.Common.ProjectRootDir) (Dir WaspProjectDir)
+waspProjectDirFromGeneratedCodeDir = invertRelDir generatedCodeDirInWaspProjectDir
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
@@ -91,8 +96,8 @@ dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]
 dotWaspInfoFileInGeneratedCodeDir :: Path' (Rel G.Common.ProjectRootDir) File'
 dotWaspInfoFileInGeneratedCodeDir = [relfile|.waspinfo|]
 
-packageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File PackageJsonFile)
-packageJsonInWaspProjectDir = [relfile|package.json|]
+userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
+userPackageJsonInWaspProjectDir = [relfile|package.json|]
 
 getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
 getSrcTsConfigInWaspProjectDir = \case
