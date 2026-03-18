@@ -2,7 +2,6 @@ module Util.StrongPathTest where
 
 import Control.Exception (evaluate)
 import StrongPath (fromRelDir, reldir)
-import qualified System.FilePath as FP
 import Test.Hspec (Spec, anyErrorCall, describe, it, shouldBe, shouldThrow)
 import Wasp.Util.StrongPath (invertRelDir)
 
