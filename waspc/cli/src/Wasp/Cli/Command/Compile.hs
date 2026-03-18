@@ -29,7 +29,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (generatedCodeDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Same like 'compileWithOptions', but with default compile options.
@@ -51,8 +51,7 @@ compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   InWaspProject waspProjectDir <- require
 
-  let relOutDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
-      outDir = waspProjectDir </> relOutDir
+  let outDir = waspProjectDir </> generatedCodeDirInWaspProjectDir
 
   generatedCodeIsCompatible <-
     liftIO $ buildType options `WaspInfo.isCompatibleWithExistingBuildAt` outDir
@@ -62,11 +61,11 @@ compileWithOptions options = do
   when (outDirExists && not generatedCodeIsCompatible) $ do
     cliSendMessageC $
       Msg.Start $
-        "Clearing the content of the " ++ SP.fromRelDir relOutDir ++ " directory..."
+        "Clearing the content of the " ++ SP.fromRelDir generatedCodeDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory outDir
     cliSendMessageC $
       Msg.Success $
-        "Successfully cleared the contents of the " ++ SP.fromRelDir relOutDir ++ " directory."
+        "Successfully cleared the contents of the " ++ SP.fromRelDir generatedCodeDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   (warnings, errors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir

@@ -172,7 +172,6 @@ library
 
   other-modules: Paths_waspc
   exposed-modules:
-    FilePath.Extra
     Wasp.AI.CodeAgent
     Wasp.AI.GenerateNewProject
     Wasp.AI.GenerateNewProject.Common
@@ -716,7 +715,6 @@ test-suite waspc-tests
     ErrorTest
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.TarballTest
-    FilePath.ExtraTest
     Fixtures
     Generator.AuthInjectionTest
     Generator.CommonTest
@@ -760,6 +758,7 @@ test-suite waspc-tests
     Util.FilePathTest
     Util.IO.RetryTest
     Util.Prisma
+    Util.StrongPathTest
     UtilTest
     ValidatorTest
 

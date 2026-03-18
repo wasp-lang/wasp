@@ -12,7 +12,7 @@ module Wasp.Project.Common
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedCodeDirInDotWaspDir,
-    waspProjectDirFromProjectRootDir,
+    waspProjectDirFromGeneratedCodeDir,
     dotWaspRootFileInWaspProjectDir,
     dotWaspInfoFileInGeneratedCodeDir,
     userPackageJsonInWaspProjectDir,
@@ -24,6 +24,7 @@ module Wasp.Project.Common
     srcTsConfigInWaspLangProject,
     srcTsConfigInWaspTsProject,
     waspProjectDirFromAppComponentDir,
+    generatedCodeDirInWaspProjectDir,
     makeAppUniqueId,
   )
 where
@@ -36,6 +37,7 @@ import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile)
 import Wasp.ExternalConfig.TsConfig (TsConfigFile)
 import qualified Wasp.Generator.Common as G.Common
 import qualified Wasp.Util as U
+import Wasp.Util.StrongPath (invertRelDir)
 
 type CompileError = String
 
@@ -63,7 +65,6 @@ data WaspLangFile
 
 data WaspTsFile
 
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = [reldir|.wasp|]
@@ -71,25 +72,23 @@ dotWaspDirInWaspProjectDir = [reldir|.wasp|]
 nodeModulesDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir NodeModulesDir)
 nodeModulesDirInWaspProjectDir = [reldir|node_modules|]
 
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 generatedCodeDirInDotWaspDir :: Path' (Rel DotWaspDir) (Dir G.Common.ProjectRootDir)
 -- TODO: We sometimes call this directory "ProjectRootDir" and sometimes
 -- "GeneratedCodeDir". We should unify the naming (the latter is the beter
 -- name).
 generatedCodeDirInDotWaspDir = [reldir|out|]
 
+generatedCodeDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir G.Common.ProjectRootDir)
+generatedCodeDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+
 -- TODO: This backwards relative path relies on multiple forward relative path
 -- definitions. We should find a better way to express it (e.g., by somehow
 -- calculating it from existing definitions)
 waspProjectDirFromAppComponentDir :: (G.Common.AppComponentRootDir d) => Path' (Rel d) (Dir WaspProjectDir)
-waspProjectDirFromAppComponentDir = [reldir|../../../|]
+waspProjectDirFromAppComponentDir = [reldir|../|] </> waspProjectDirFromGeneratedCodeDir
 
--- | NOTE: This path is calculated from the values of @dotWaspDirInWaspProjectDir@,
--- @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@., which are the three functions just above.
--- Also, it assumes @generatedCodeDirInDotWaspDir@ and @buildDirInDotWaspDir@ have same depth.
--- If any of those change significantly (their depth), this path should be adjusted.
-waspProjectDirFromProjectRootDir :: Path' (Rel G.Common.ProjectRootDir) (Dir WaspProjectDir)
-waspProjectDirFromProjectRootDir = [reldir|../../|]
+waspProjectDirFromGeneratedCodeDir :: Path' (Rel G.Common.ProjectRootDir) (Dir WaspProjectDir)
+waspProjectDirFromGeneratedCodeDir = invertRelDir generatedCodeDirInWaspProjectDir
 
 dotWaspRootFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 dotWaspRootFileInWaspProjectDir = [relfile|.wasproot|]

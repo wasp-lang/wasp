@@ -17,7 +17,7 @@ import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (generatedCodeDirInWaspProjectDir)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -35,7 +35,7 @@ start = do
   -- interrupt (LLMs, CIs, people...).
   liftIO fetchAndListMustSeeNewsIfDue
   InWaspProject waspProjectDir <- require
-  let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+  let outDir = waspProjectDir </> generatedCodeDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
