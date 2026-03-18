@@ -33,33 +33,30 @@ url = "https://github.com/tfausak/cabal-gild/releases/download/1.5.0.1/cabal-gil
 url_api = "https://api.github.com/repos/tfausak/cabal-gild/releases/assets/177007971"
 
 [[tools.ormolu]]
-version = "0.7.2.0"
+version = "0.8.0.2"
 backend = "github:tweag/ormolu"
 
-[tools.ormolu."platforms.linux-arm64"]
-url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-Linux.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848989"
-
-[tools.ormolu."platforms.linux-arm64-musl"]
-url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-Linux.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848989"
-
 [tools.ormolu."platforms.linux-x64"]
-url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-Linux.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848989"
+checksum = "sha256:f737b11835537d020d83a497903a392f19d4943aea03b75f76f1c5719d70f9f8"
+url = "https://github.com/tweag/ormolu/releases/download/0.8.0.2/ormolu-x86_64-linux.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/296728814"
 
 [tools.ormolu."platforms.linux-x64-musl"]
-url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-Linux.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848989"
+checksum = "sha256:f737b11835537d020d83a497903a392f19d4943aea03b75f76f1c5719d70f9f8"
+url = "https://github.com/tweag/ormolu/releases/download/0.8.0.2/ormolu-x86_64-linux.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/296728814"
 
 [tools.ormolu."platforms.macos-arm64"]
-url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-macOS.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848990"
+checksum = "sha256:942bc1cf11a0589f262a3306062f4eee59b7bcccacb5ade3851bfc3c448115a0"
+url = "https://github.com/tweag/ormolu/releases/download/0.8.0.2/ormolu-aarch64-darwin.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/296731103"
 
 [tools.ormolu."platforms.macos-x64"]
-url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-macOS.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124848990"
+checksum = "sha256:e94fa4253dcb9b58075c7550f6f43e908a0761b3df6bde7513222705f0c63167"
+url = "https://github.com/tweag/ormolu/releases/download/0.8.0.2/ormolu-x86_64-darwin.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/296735879"
 
 [tools.ormolu."platforms.windows-x64"]
-url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-Windows.zip"
-url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124853921"
+checksum = "sha256:3e484422d68260083fcb7841433a9fa172ff01131f8610d750c1902fba4f2b7e"
+url = "https://github.com/tweag/ormolu/releases/download/0.8.0.2/ormolu-x86_64-windows.zip"
+url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/296728843"
