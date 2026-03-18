@@ -70,6 +70,12 @@ You need to have the correct version of `node` (and `npm`) installed and set.
 
 Check [.nvmrc](.nvmrc) file to learn which version of `node` that should be.
 
+#### mise
+
+We use [mise](https://mise.jdx.dev/) to manage some of our development tools (e.g. code formatters).
+
+Install it by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
+
 ### Build
 
 ```sh
