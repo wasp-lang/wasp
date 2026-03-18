@@ -14,17 +14,17 @@
  *
  * @internal This is a private API for: SDK, client.
  */
-export function colorize(colorKey: keyof typeof colors, text: string): string {
-  const color = colors[colorKey];
+export function colorize(color: keyof typeof ansiColorCodes, text: string): string {
+  const ansiColorCode = ansiColorCodes[color];
   return text
     .split("\n")
-    .map((line) => `${color}${line}${resetColor}`)
+    .map((line) => `${ansiColorCode}${line}${ansiResetCode}`)
     .join("\n");
 }
 
-const colors = {
+const ansiColorCodes = {
   red: "\x1b[31m",
   yellow: "\x1b[33m",
 } as const;
 
-const resetColor = "\x1b[0m";
+const ansiResetCode = "\x1b[0m";
