@@ -1,5 +1,5 @@
 [tools]
-cabal-gild = "1.5.0.1"
+cabal-gild = "latest"
 ormolu = "0.7.2.0"
 
 [tool_alias]
