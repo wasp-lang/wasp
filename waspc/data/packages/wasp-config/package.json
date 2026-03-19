@@ -12,6 +12,7 @@
       "default": "./dist/src/index.js"
     }
   },
+  "files": ["./dist/**"],
   "scripts": {
     "build": "tsc",
     "coverage": "vitest run --coverage",
