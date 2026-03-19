@@ -7,7 +7,7 @@ runs:
   using: composite
 
   steps:
-    - uses: jdx/mise-action@v3
+    - uses: jdx/mise-action@v4
       with:
         install: true
         cache: true
