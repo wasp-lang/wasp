@@ -24,6 +24,11 @@ runs:
       run: |
         set -euxo pipefail
 
+        # Sometimes the first run of this command starts logging how it is
+        # creating configuration files, so we run it once and discard the output
+        # to make sure that the second run is clean and machine-readable.
+        cabal path --store-dir
+
         echo "GHC_VERSION=$(mise tool ghc --active)" >> $GITHUB_OUTPUT
         echo "CABAL_VERSION=$(mise tool cabal --active)" >> $GITHUB_OUTPUT
         echo "CABAL_STORE=$(cabal path --store-dir)" >> $GITHUB_OUTPUT
