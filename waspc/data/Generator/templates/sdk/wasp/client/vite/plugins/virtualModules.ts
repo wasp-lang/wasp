@@ -12,13 +12,11 @@ const resolveVirtualFiles = makeVirtualFilesResolver([
   { id: "{= routesEntryPointPath =}", load: getRoutesTsxContent },
 ]);
 
-{=# hasDirectVirtualModules =}
 const directVirtualModuleMap: Record<string, string> = {
   {=# directVirtualModules =}
   '{= virtualPath =}': '{=& importJson.importPath =}',
   {=/ directVirtualModules =}
 };
-{=/ hasDirectVirtualModules =}
 
 export function waspVirtualModules(): Plugin {
   let virtualFiles!: VirtualFiles;
@@ -32,12 +30,10 @@ export function waspVirtualModules(): Plugin {
       rootDir = config.root;
     },
     async resolveId(id, importer, options) {
-      {=# hasDirectVirtualModules =}
       if (id in directVirtualModuleMap) {
         const absPath = path.resolve(rootDir, directVirtualModuleMap[id]);
         return this.resolve(absPath, importer, { ...options, skipSelf: true });
       }
-      {=/ hasDirectVirtualModules =}
       return virtualFiles.ids.get(id);
     },
     load(id) {

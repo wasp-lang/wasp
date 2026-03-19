@@ -58,8 +58,7 @@ getVirtualModulesTs spec =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
           "routesEntryPointPath" .= routesEntryPointPath,
-          "directVirtualModules" .= directVirtualModules,
-          "hasDirectVirtualModules" .= (not . null $ directVirtualModules)
+          "directVirtualModules" .= directVirtualModules
         ]
 
     directVirtualModules :: [Aeson.Value]
