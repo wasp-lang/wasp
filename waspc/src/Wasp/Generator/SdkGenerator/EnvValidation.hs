@@ -20,9 +20,9 @@ import Wasp.Generator.JsImport (virtualExtImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (userClientEnvSchemaVF)
 import Wasp.Generator.SdkGenerator.Common (genFileCopy, mkTmplFdWithData)
-import Wasp.Generator.ServerGenerator (userServerEnvSchemaVF)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.ServerGenerator.VirtualFiles (userServerEnvSchemaVF)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Project.Db as Db
 import Wasp.Util ((<++>))

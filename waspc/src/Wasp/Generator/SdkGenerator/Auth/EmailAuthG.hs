@@ -24,7 +24,6 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 

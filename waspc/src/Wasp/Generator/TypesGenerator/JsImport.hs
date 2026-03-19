@@ -15,7 +15,7 @@ import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.TypesGenerator.Common (TypesRootDir, typesRootDirInGeneratedCodeDir)
 import Wasp.JsImport (JsImport (..), JsImportPath (..))
-import Wasp.Project.Common (srcDirInWaspProjectDir, waspProjectDirFromProjectRootDir)
+import Wasp.Project.Common (srcDirInWaspProjectDir, waspProjectDirFromGeneratedCodeDir)
 import Wasp.Util.StrongPath (invertRelDir)
 
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
@@ -44,6 +44,6 @@ extSrcDirFromTypesRootDir =
   SP.castRel $
     fromJust $
       relDirToPosix $
-        generatedCodeDirFromTypesRootDir </> waspProjectDirFromProjectRootDir </> srcDirInWaspProjectDir
+        generatedCodeDirFromTypesRootDir </> waspProjectDirFromGeneratedCodeDir </> srcDirInWaspProjectDir
   where
     generatedCodeDirFromTypesRootDir = invertRelDir typesRootDirInGeneratedCodeDir

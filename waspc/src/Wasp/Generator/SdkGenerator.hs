@@ -66,10 +66,10 @@ import Wasp.Generator.SdkGenerator.Server.OAuthG (depsRequiredByOAuth)
 import qualified Wasp.Generator.SdkGenerator.Server.OperationsGenerator as ServerOpsGen
 import Wasp.Generator.SdkGenerator.ServerApiG (genServerApi)
 import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets, genWebSockets)
-import Wasp.Generator.ServerGenerator (userPrismaSetupVF)
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.ServerGenerator.VirtualFiles (userPrismaSetupVF)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp

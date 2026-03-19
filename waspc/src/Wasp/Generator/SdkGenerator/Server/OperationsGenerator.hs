@@ -29,7 +29,7 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkImportPath,
     mkTmplFdWithData,
   )
-import Wasp.Generator.ServerGenerator (operationVF)
+import Wasp.Generator.ServerGenerator.VirtualFiles (userOperationVF)
 import Wasp.Util (toUpperFirst, (<++>))
 
 -- | This function should match the `exports` path from the SDK's package.json.
@@ -166,13 +166,11 @@ getOperationTmplData isAuthEnabledGlobally operation =
     [ "operationName" .= AS.Operation.getName operation,
       "operationTypeName" .= getOperationTypeName operation,
       "typeName" .= toUpperFirst (AS.Operation.getName operation),
-      "jsFn" .= virtualExtImportToImportJson (operationVF operationName) (Just $ AS.Operation.getFn operation),
+      "jsFn" .= virtualExtImportToImportJson (userOperationVF operation) (Just $ AS.Operation.getFn operation),
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
-  where
-    operationName = AS.Operation.getName operation
 
 genOperationVirtualModuleDecls :: AppSpec -> Generator [FileDraft]
 genOperationVirtualModuleDecls spec
@@ -192,7 +190,7 @@ genOperationVirtualModuleDecls spec
     mkVirtualModuleData :: AS.Operation.Operation -> Aeson.Types.Value
     mkVirtualModuleData operation =
       object
-        [ "virtualModulePath" .= toFilePath (operationVF operationName),
+        [ "virtualModulePath" .= toFilePath (userOperationVF operation),
           "operationName" .= operationName,
           "typeName" .= toUpperFirst operationName,
           "exportName" .= EI.importIdentifier (AS.Operation.getFn operation),

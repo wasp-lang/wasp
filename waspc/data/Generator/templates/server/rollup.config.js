@@ -1,33 +1,31 @@
 {{={= =}=}}
-import { fileURLToPath } from 'node:url'
-import path from 'node:path'
-import esbuild from 'rollup-plugin-esbuild'
-import resolve from '@rollup/plugin-node-resolve';
+import { fileURLToPath } from "node:url";
+import path from "node:path";
+import esbuild from "rollup-plugin-esbuild";
+import resolve from "@rollup/plugin-node-resolve";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default [
-  createBundle('src/server.ts', 'bundle/server.js'),
+  createBundle("src/server.ts", "bundle/server.js"),
   {=# areDbSeedsDefined =}
-  createBundle('src/dbSeed.ts', 'bundle/dbSeed.js'),
+  createBundle("src/dbSeed.ts", "bundle/dbSeed.js"),
   {=/ areDbSeedsDefined =}
-]
+];
 
 function createBundle(inputFilePath, outputFilePath) {
   return {
     input: inputFilePath,
     output: {
       file: outputFilePath,
-      format: 'es',
+      format: "es",
       sourcemap: true,
     },
     plugins: [
-      {=# hasVirtualModules =}
-      waspVirtualModules(),
-      {=/ hasVirtualModules =}
-      resolve({ extensions: ['.mjs', '.js', '.ts', '.json', '.node'] }),
+      waspUserVirtualModules(),
+      resolve({ extensions: [".mjs", ".js", ".ts", ".json", ".node"] }),
       esbuild({
-        target: 'esnext',
+        target: "esnext",
       }),
     ],
     // We don't want to bundle any of the node_module deps because we want to
@@ -50,24 +48,25 @@ function createBundle(inputFilePath, outputFilePath) {
   }
 }
 
-{=# hasVirtualModules =}
-function waspVirtualModules() {
-  const virtualModuleMap = {
-    {=# virtualModules =}
-    '{= virtualPath =}': '{=& importJson.importPath =}',
-    {=/ virtualModules =}
-  }
+/**
+ * Handles resolving virtual files which point back to user's files.
+ * These virtual files are used when Wasp code has to depend on user code in the runtime.
+ */
+function waspUserVirtualModules() {
+  const userVirtualFileToRelativeImportPath = {
+    {=# userVirtualModules =}
+    "{= virtualPath =}": "{=& importJson.importPath =}",
+    {=/ userVirtualModules =}
+  };
 
   return {
-    name: 'wasp:virtual-modules',
+    name: "wasp:user-virtual-modules",
     async resolveId(id) {
-      if (id in virtualModuleMap) {
-        const absPath = path.resolve(__dirname, virtualModuleMap[id])
-        const resolved = await this.resolve(absPath, undefined, { skipSelf: true })
-        return resolved
+      if (id in userVirtualFileToRelativeImportPath) {
+        const absUserFilePath = path.resolve(__dirname, userVirtualFileToRelativeImportPath[id])
+        return await this.resolve(absUserFilePath, undefined, { skipSelf: true })
       }
       return null
     },
-  }
+  };
 }
-{=/ hasVirtualModules =}
