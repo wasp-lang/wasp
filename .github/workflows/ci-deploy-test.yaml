@@ -31,8 +31,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-env
 
-      - uses: ./.github/actions/prepare-deploy-test
+      - name: Install Wasp CLI
+        working-directory: waspc
+        run: ./run install
 
       - name: Install Fly CLI
         # NOTE: We tell users to install the latest version of Fly CLI,
@@ -100,8 +103,11 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-env
 
-      - uses: ./.github/actions/prepare-deploy-test
+      - name: Install Wasp CLI
+        working-directory: waspc
+        run: ./run install
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli@4.11.1

@@ -1,9 +1,31 @@
 [tools]
+cabal = "3.12.1.0"
 cabal-gild = "1.5.0.1"
 ormolu = "0.7.2.0"
 
+[tools.ghc]
+# Keep in sync with:
+# - /waspc/cabal.project
+# - /waspc/dev-tool.project
+version = "9.6.7"
+
+[tools.hls]
+# Make sure that this version of HLS has a pre-built binary for the GHC version
+# we use above.
+version = "2.12.0.0"
+
+[tools.node]
+# Keep in sync with:
+# - The compiler (Wasp.Node.Version).
+# - The docs: /docs/introduction/quick-start.md ("Requirements" section).
+# - The docs plugin: /web/src/remark/search-and-replace.ts
+version = "22.12"
+
 [tool_alias]
+cabal = "asdf:mise-plugins/mise-ghcup"
 cabal-gild = "github:tfausak/cabal-gild"
+ghc = "asdf:mise-plugins/mise-ghcup"
+hls = "asdf:mise-plugins/mise-ghcup"
 ormolu = "github:tweag/ormolu"
 
 [settings]

@@ -9,7 +9,7 @@ const replacer = createReplacer({
   latestWaspVersion: `^${latestWaspVersion}`,
   pinnedLatestWaspVersion: latestWaspVersion,
   // NOTE: Don't change Wasp's lowest supported Node version without updating it
-  // in all required places. Check /.nvmrc for the full list.
+  // in all required places. Check /mise.toml for the full list.
   minimumNodeJsVersion: "22.12",
 });
 

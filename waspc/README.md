@@ -50,29 +50,9 @@ Running `./run` without any arguments will print help/usage, which is a good way
 
 ### Setup
 
-#### Haskell toolchain
-
-The best way to install the Haskell toolchain is via [ghcup](https://www.haskell.org/ghcup/).
-
-Once you have `ghcup` installed, run the `ghcup tui` command to install and select the correct versions of `cabal` (package manager), `hls` (language server), and `ghc` (compiler).
-
-To find out what the correct versions of these tools are for the `waspc`:
-
-- Run `./run ghcup-set` to determine the specific versions of `ghc` and `hls` you should use. While the primary purpose of this command is to set them to the correct versions, it will also print those versions as a side effect.
-- As for `cabal`, just go with the latest one.
-
-> [!NOTE]
-> On Mac, we recommend using the official [ghcup](https://www.haskell.org/ghcup/) installer over Homebrew, as it works out of the box.
-
-#### Javascript / TypeScript toolchain
-
-You need to have the correct version of `node` (and `npm`) installed and set.
-
-Check [.nvmrc](.nvmrc) file to learn which version of `node` that should be.
-
 #### mise
 
-We use [mise](https://mise.jdx.dev/) to manage some of our development tools (e.g. code formatters).
+We use [mise](https://mise.jdx.dev/) to manage our development tools (e.g. code formatters).
 
 Install it by following the [official instructions](https://mise.jdx.dev/getting-started.html), then run `mise install` from the repo root to install the required tools.
 

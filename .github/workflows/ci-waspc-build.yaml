@@ -4,15 +4,6 @@ name: "Build - Wasp CLI binaries"
 # We can call it manually (workflow_dispatch) or from other workflows (workflow_call).
 on:
   workflow_call:
-    inputs:
-      node-version:
-        # NOTE: This should be equal to Wasp's lowest supported Node version.
-        # Don't change this version without updating it in all required
-        # places (full list in /.nvmrc).
-        description: "Node.js version to use for building"
-        default: "22.12.0"
-        type: string
-        required: false
     outputs:
       waspc_version:
         value: ${{ jobs.build.outputs.waspc_version }}
@@ -80,14 +71,7 @@ jobs:
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
-            # actions/setup-node does not work in alpine.
-            # https://github.com/actions/setup-node/issues/1293 To work around
-            # this, we use the alpine variant of the official node image, which
-            # already has a working Node.js version installed.
-            # We also pin the `alpine` version to a specific one we have tested,
-            # since newer releases might have different versions of the
-            # libraries we depend on.
-            container: node:${{ inputs.node-version }}-alpine3.21
+            container: alpine:3.21
             skip-node-install: true
             static: true
             install-deps: |
@@ -115,6 +99,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-env
 
       - name: Compute artifact names
         uses: ./.github/actions/compute-artifact-names
@@ -125,15 +110,6 @@ jobs:
       - name: Install dependencies
         if: ${{ matrix.env.install-deps }}
         run: ${{ matrix.env.install-deps }}
-
-      - uses: ./.github/actions/setup-haskell
-        with:
-          extra-cache-key-segment: ${{ matrix.env.static && 'static' || 'default' }}
-
-      - uses: actions/setup-node@v6
-        if: ${{ !matrix.env.skip-node-install }}
-        with:
-          node-version: ${{ inputs.node-version }}
 
       - name: Build and package
         working-directory: waspc

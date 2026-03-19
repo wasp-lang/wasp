@@ -1,0 +1,56 @@
+name: Setup env
+description: |
+  This action sets our common environment for working on the repo, installing
+  tools and setting up caching.
+
+runs:
+  using: composite
+
+  steps:
+    - uses: jdx/mise-action@v3
+      with:
+        install: true
+        cache: true
+
+    # We don't install Node through this action (mise just installed it), we
+    # just use it for setting up caching.
+    - uses: actions/setup-node@v6
+      with:
+        cache: npm
+
+    - name: Probe system and tools for cache key
+      shell: bash
+      id: probe-system
+      run: |
+        echo "GHC_VERSION=$(mise tool ghc --active)" >> $GITHUB_OUTPUT
+        echo "CABAL_VERSION=$(mise tool cabal --active)" >> $GITHUB_OUTPUT
+        echo "CABAL_STORE=$(cabal path --store-dir)" >> $GITHUB_OUTPUT
+        echo "IS_MUSL=$(ldd --version 2>&1 | grep -q musl && echo 'musl' || echo 'glibc')" >> $GITHUB_OUTPUT
+
+    # Based on the official recipe for Cabal caching:
+    # https://github.com/actions/cache/blob/v4.2.3/examples.md#haskell---cabal
+    - name: Cache Cabal dependencies
+      uses: actions/cache@v5
+      with:
+        # There are two extra directories that are commonly cache, that we've
+        # decided not to cache:
+        #
+        # - `./dist-newstyle`: Our internal code builds quite fast, and changes
+        # often enough that a cache would need to be invalidated on every run, and
+        # make our caching story much more complex.
+        #
+        # - `~/.cabal/packages`: This is a local cache of the package index. While
+        # it could be useful, we build in heterogeneous environments and it is
+        # not always in the same paths. From testing, in packages with a frozen
+        # `index-state` like ours, the build will just download a single ~4kb file.
+        # So it is not worth the complexity of caching.
+        #
+        # We do cache the Cabal store, which is where the actual built packages
+        # are stored, as it is the most expensive part of the build, and easily
+        # reusable.
+        path: |
+          ${{ steps.probe-system.outputs.CABAL_STORE }}
+        key: |
+          cabal-waspc-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe-system.outputs.IS_MUSL }}-${{ steps.probe-system.outputs.GHC_VERSION }}-${{ steps.probe-system.outputs.CABAL_VERSION }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project') }}
+        restore-keys: |
+          cabal-waspc-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe-system.outputs.IS_MUSL }}-${{ steps.probe-system.outputs.GHC_VERSION }}-${{ steps.probe-system.outputs.CABAL_VERSION }}-
