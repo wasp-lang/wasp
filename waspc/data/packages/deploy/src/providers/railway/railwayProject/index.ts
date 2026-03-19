@@ -4,18 +4,17 @@ import {
   RailwayProjectId,
   RailwayProjectName,
 } from "../brandedTypes.js";
-import { RailwayProject } from "./RailwayProject.js";
 import {
-  getRailwayProjectById,
-  getRailwayProjectByName,
-  getRailwayProjectForDirectory,
+  createDraftRailwayProject,
+  LinkedRailwayProject,
+  RailwayProject,
+  UnlinkedRailwayProject,
+} from "./RailwayProject.js";
+import {
+  getLinkedRailwayProjectForDirectory,
+  getUnlinkedRailwayProjectById,
+  getUnlinkedRailwayProjectByName,
 } from "./cli.js";
-
-export enum ProjectStatus {
-  EXISTING_PROJECT_ALREADY_LINKED = "EXISTING_PROJECT_ALREADY_LINKED",
-  EXISTING_PROJECT_SHOULD_BE_LINKED = "EXISTING_PROJECT_SHOULD_BE_LINKED",
-  MISSING_PROJECT = "MISSING_PROJECT",
-}
 
 export async function getRailwayProjectStatus({
   projectName,
@@ -27,21 +26,8 @@ export async function getRailwayProjectStatus({
   existingProjectId?: RailwayProjectId;
   waspProjectDir: WaspProjectDir;
   railwayExe: RailwayCliExe;
-}): Promise<
-  | {
-      status: ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED;
-      project: RailwayProject;
-    }
-  | {
-      status: ProjectStatus.EXISTING_PROJECT_SHOULD_BE_LINKED;
-      project: RailwayProject;
-    }
-  | {
-      status: ProjectStatus.MISSING_PROJECT;
-      project: null;
-    }
-> {
-  const projectLinkedToDir = await getRailwayProjectForDirectory(
+}): Promise<RailwayProject> {
+  const projectLinkedToDir = await getLinkedRailwayProjectForDirectory(
     railwayExe,
     waspProjectDir,
   );
@@ -52,10 +38,7 @@ export async function getRailwayProjectStatus({
       projectName,
     );
 
-    return {
-      status: ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED,
-      project: projectLinkedToDir,
-    };
+    return projectLinkedToDir;
   }
 
   if (existingProjectId) {
@@ -64,24 +47,18 @@ export async function getRailwayProjectStatus({
       existingProjectId,
     );
 
-    return {
-      status: ProjectStatus.EXISTING_PROJECT_SHOULD_BE_LINKED,
-      project: existingProject,
-    };
+    return existingProject;
   }
 
   await assertUniqueProjectName(railwayExe, projectName);
-  return {
-    status: ProjectStatus.MISSING_PROJECT,
-    project: null,
-  };
+  return createDraftRailwayProject();
 }
 
 async function getExistingProjectById(
   railwayExe: RailwayCliExe,
   existingProjectId: RailwayProjectId,
-): Promise<RailwayProject> {
-  const projectById = await getRailwayProjectById(
+): Promise<UnlinkedRailwayProject> {
+  const projectById = await getUnlinkedRailwayProjectById(
     railwayExe,
     existingProjectId,
   );
@@ -93,7 +70,7 @@ async function getExistingProjectById(
 }
 
 async function assertProvidedProjectNameSameAsExistingProjectName(
-  project: RailwayProject,
+  project: LinkedRailwayProject,
   projectName: RailwayProjectName,
 ): Promise<void> {
   if (project.name !== projectName) {
@@ -107,7 +84,10 @@ async function assertUniqueProjectName(
   railwayExe: RailwayCliExe,
   projectName: RailwayProjectName,
 ): Promise<void> {
-  const project = await getRailwayProjectByName(railwayExe, projectName);
+  const project = await getUnlinkedRailwayProjectByName(
+    railwayExe,
+    projectName,
+  );
   if (project !== null) {
     throw new Error(
       `Project with name "${project.name}" already exists. Add "--existing-project-id ${project.id}" option to this command to link it or use a different name.`,

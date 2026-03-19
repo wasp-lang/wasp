@@ -24,11 +24,8 @@ import {
   initRailwayProject,
   linkRailwayProjectToWaspProjectDir,
 } from "../../railwayProject/cli.js";
-import {
-  getRailwayProjectStatus,
-  ProjectStatus,
-} from "../../railwayProject/index.js";
-import { RailwayProject } from "../../railwayProject/RailwayProject.js";
+import { getRailwayProjectStatus } from "../../railwayProject/index.js";
+import { LinkedRailwayProject } from "../../railwayProject/RailwayProject.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
 import { SetupCmdOptions } from "./SetupCmdOptions.js";
 
@@ -84,29 +81,31 @@ async function setupRailwayProjectForDirectory({
   waspProjectDir: WaspProjectDir;
   existingProjectId?: RailwayProjectId;
   workspace?: string;
-}): Promise<RailwayProject> {
-  const { status, project } = await getRailwayProjectStatus({
+}): Promise<LinkedRailwayProject> {
+  const railwayProject = await getRailwayProjectStatus({
     projectName,
     waspProjectDir,
     railwayExe,
     existingProjectId,
   });
 
-  switch (status) {
-    case ProjectStatus.EXISTING_PROJECT_ALREADY_LINKED:
+  switch (railwayProject.status) {
+    case "linked":
       waspSays(
         `Project with name "${projectName}" already linked. Skipping project creation.`,
       );
-      return project;
+      return railwayProject;
 
-    case ProjectStatus.EXISTING_PROJECT_SHOULD_BE_LINKED:
-      waspSays(`Linking project with name "${project.name}" to this directory`);
-      return linkRailwayProjectToWaspProjectDir(project, {
+    case "unlinked":
+      waspSays(
+        `Linking project with name "${railwayProject.name}" to this directory`,
+      );
+      return linkRailwayProjectToWaspProjectDir(railwayProject, {
         railwayExe,
         waspProjectDir,
       });
 
-    case ProjectStatus.MISSING_PROJECT:
+    case "draft":
       waspSays(`Setting up Railway project with name "${projectName}"`);
       return initRailwayProject({
         projectName,
@@ -116,8 +115,10 @@ async function setupRailwayProjectForDirectory({
       });
 
     default:
-      status satisfies never;
-      throw new Error(`Unhandled status: ${status}`);
+      railwayProject satisfies never;
+      throw new Error(
+        `Unhandled project status: ${(railwayProject as { status: string }).status}`,
+      );
   }
 }
 

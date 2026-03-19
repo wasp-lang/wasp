@@ -8,7 +8,12 @@ import {
   RailwayCliProjectSchema,
   RailwayProjectListSchema,
 } from "../jsonOutputSchemas.js";
-import { createRailwayProject, RailwayProject } from "./RailwayProject.js";
+import {
+  createLinkedRailwayProject,
+  createUnlinkedRailwayProject,
+  LinkedRailwayProject,
+  UnlinkedRailwayProject,
+} from "./RailwayProject.js";
 
 /**
  * Initializing a Railway project means creating a new project
@@ -25,7 +30,7 @@ export async function initRailwayProject({
   railwayExe: RailwayCliExe;
   waspProjectDir: WaspProjectDir;
   workspace?: string;
-}): Promise<RailwayProject> {
+}): Promise<LinkedRailwayProject> {
   const railwayCli = createCommandWithCwd(railwayExe, waspProjectDir);
 
   const workspaceArgs = workspace ? ["--workspace", workspace] : [];
@@ -38,7 +43,7 @@ export async function initRailwayProject({
   });
 
   // Check if the project was created successfully...
-  const newRailwayProject = await getRailwayProjectForDirectory(
+  const newRailwayProject = await getLinkedRailwayProjectForDirectory(
     railwayExe,
     waspProjectDir,
   );
@@ -55,7 +60,7 @@ export async function initRailwayProject({
  * Railway project with the current Wasp project directory.
  */
 export async function linkRailwayProjectToWaspProjectDir(
-  project: RailwayProject,
+  project: UnlinkedRailwayProject,
   {
     railwayExe,
     waspProjectDir,
@@ -63,7 +68,7 @@ export async function linkRailwayProjectToWaspProjectDir(
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
   },
-): Promise<RailwayProject> {
+): Promise<LinkedRailwayProject> {
   const railwayCli = createCommandWithCwd(railwayExe, waspProjectDir);
 
   // Railway CLI quirk, if the project has services, we need to specify one of them,
@@ -75,7 +80,7 @@ export async function linkRailwayProjectToWaspProjectDir(
 
   // Sometimes linking fails silently, so we need to check if the project
   // was linked successfully.
-  const linkedRailwayProject = await getRailwayProjectForDirectory(
+  const linkedRailwayProject = await getLinkedRailwayProjectForDirectory(
     railwayExe,
     waspProjectDir,
   );
@@ -87,43 +92,45 @@ export async function linkRailwayProjectToWaspProjectDir(
   return linkedRailwayProject;
 }
 
-export async function getRailwayProjectForDirectory(
+export async function getLinkedRailwayProjectForDirectory(
   railwayExe: RailwayCliExe,
   directoryPath: string,
-): Promise<RailwayProject | null> {
+): Promise<LinkedRailwayProject | null> {
   const railwayCli = createCommandWithCwd(railwayExe, directoryPath);
   const result = await railwayCli(["status", "--json"], {
     verbose: false,
     nothrow: true,
   });
   if (result.exitCode === 0) {
-    return createRailwayProject(RailwayCliProjectSchema.parse(result.json()));
+    return createLinkedRailwayProject(
+      RailwayCliProjectSchema.parse(result.json()),
+    );
   } else {
     return null;
   }
 }
 
-export async function getRailwayProjectById(
+export async function getUnlinkedRailwayProjectById(
   railwayExe: RailwayCliExe,
   id: string,
-): Promise<RailwayProject | null> {
-  const projects = await getRailwayProjects(railwayExe);
+): Promise<UnlinkedRailwayProject | null> {
+  const projects = await getUnlinkedRailwayProjects(railwayExe);
   return projects.find((project) => project.id === id) ?? null;
 }
 
-export async function getRailwayProjectByName(
+export async function getUnlinkedRailwayProjectByName(
   railwayExe: RailwayCliExe,
   name: string,
-): Promise<RailwayProject | null> {
-  const projects = await getRailwayProjects(railwayExe);
+): Promise<UnlinkedRailwayProject | null> {
+  const projects = await getUnlinkedRailwayProjects(railwayExe);
   return projects.find((project) => project.name === name) ?? null;
 }
 
 // TODO: Figure out how to specify the workspace when listing projects.
 // This command lists all projects in all the workspaces the user has access to.
-async function getRailwayProjects(
+async function getUnlinkedRailwayProjects(
   railwayExe: RailwayCliExe,
-): Promise<RailwayProject[]> {
+): Promise<UnlinkedRailwayProject[]> {
   const result = await $({
     verbose: false,
   })`${railwayExe} list --json`;
@@ -131,6 +138,6 @@ async function getRailwayProjects(
   const projects = RailwayProjectListSchema.parse(JSON.parse(result.stdout));
 
   return projects.map((cliProject) => {
-    return createRailwayProject(cliProject);
+    return createUnlinkedRailwayProject(cliProject);
   });
 }
