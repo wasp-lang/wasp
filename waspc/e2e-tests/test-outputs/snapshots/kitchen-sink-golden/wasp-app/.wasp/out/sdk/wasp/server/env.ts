@@ -108,8 +108,8 @@ const waspProdServerEnvSchema = z.object({
 });
 
 const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
-  waspDevServerEnvSchema.merge(waspCommonServerEnvSchema),
-  waspProdServerEnvSchema.merge(waspCommonServerEnvSchema),
+  z.object({...waspCommonServerEnvSchema.shape, ...waspDevServerEnvSchema.shape}),
+  z.object({...waspCommonServerEnvSchema.shape, ...waspProdServerEnvSchema.shape}),
 ]);
 const serverEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
 
