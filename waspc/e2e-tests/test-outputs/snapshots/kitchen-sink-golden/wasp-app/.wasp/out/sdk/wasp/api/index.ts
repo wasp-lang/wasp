@@ -114,7 +114,8 @@ export function handleApiError<T extends AxiosError<{ message?: string, data?: u
   }
 }
 
-class WaspHttpError extends Error {
+// PUBLIC API
+export class WaspHttpError extends Error {
   statusCode: number
 
   data: unknown

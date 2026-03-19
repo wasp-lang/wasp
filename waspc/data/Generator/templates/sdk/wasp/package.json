@@ -89,7 +89,7 @@
       {=! Public: { type MyApiRoute1, type MyApiRoute2, ... }  =}
       {=! Private: [] =}
       "./server/api": "./dist/server/api/index.js",
-      {=! Public: { api }  =}
+      {=! Public: { api, WaspHttpError }  =}
       {=! Private: [sdk] =}
       "./client/api": "./dist/api/index.js",
       {=! Public: { type ServerToClientPayload, type ClientToServerPayload, useSocket, useSocketListener } =}
