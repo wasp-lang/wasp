@@ -98,6 +98,10 @@ jobs:
     name: Build Wasp (${{ matrix.env.name }})
 
     steps:
+      - name: Install dependencies
+        if: ${{ matrix.env.install-deps }}
+        run: ${{ matrix.env.install-deps }}
+
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-env
 
@@ -106,10 +110,6 @@ jobs:
         id: compute-artifact-names
         with:
           build-name: ${{ matrix.env.name }}
-
-      - name: Install dependencies
-        if: ${{ matrix.env.install-deps }}
-        run: ${{ matrix.env.install-deps }}
 
       - name: Build and package
         working-directory: waspc

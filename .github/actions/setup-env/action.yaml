@@ -22,6 +22,8 @@ runs:
       shell: bash
       id: probe-system
       run: |
+        set -euxo pipefail
+
         echo "GHC_VERSION=$(mise tool ghc --active)" >> $GITHUB_OUTPUT
         echo "CABAL_VERSION=$(mise tool cabal --active)" >> $GITHUB_OUTPUT
         echo "CABAL_STORE=$(cabal path --store-dir)" >> $GITHUB_OUTPUT
