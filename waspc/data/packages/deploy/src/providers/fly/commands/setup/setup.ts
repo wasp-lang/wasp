@@ -15,14 +15,14 @@ import {
 import { getFlyAppUrl } from "../../flyAppUrl.js";
 import { createFlyDbCommand } from "../../index.js";
 import {
-  clientTomlExistsInProject,
+  doesClientTomlExistInProject,
   copyLocalClientTomlToProject,
   copyLocalServerTomlToProject,
   deleteLocalToml,
   doesLocalTomlContainLine,
   getTomlFilePaths,
   replaceLineInLocalToml,
-  serverTomlExistsInProject,
+  doesServerTomlExistInProject,
 } from "../../tomlFile.js";
 import { SetupCmdOptions } from "./SetupCmdOptions.js";
 
@@ -47,13 +47,13 @@ export async function setup(
     tomlFilePaths,
   });
 
-  if (serverTomlExistsInProject(tomlFilePaths)) {
+  if (doesServerTomlExistInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.serverTomlPath} exists. Skipping server setup.`);
   } else {
     await setupServer(deploymentInstructions);
   }
 
-  if (clientTomlExistsInProject(tomlFilePaths)) {
+  if (doesClientTomlExistInProject(tomlFilePaths)) {
     waspSays(`${tomlFilePaths.clientTomlPath} exists. Skipping client setup.`);
   } else {
     await setupClient(deploymentInstructions);

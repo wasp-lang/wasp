@@ -32,7 +32,7 @@ export function assertWaspProjectDirIsAbsoluteAndPresent(
   assertDirExists(waspProjectDir, dirNameInError);
 }
 
-export function buildDirExists(waspProjectDir: WaspProjectDir): boolean {
+export function doesBuildDirExist(waspProjectDir: WaspProjectDir): boolean {
   return fs.existsSync(getWaspBuildDir(waspProjectDir));
 }
 

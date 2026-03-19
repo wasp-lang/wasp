@@ -5,12 +5,12 @@ import {
   getServerDeploymentDir,
 } from "../../common/waspProject.js";
 import {
-  clientTomlExistsInProject,
+  doesClientTomlExistInProject,
   copyLocalClientTomlToProject,
   copyLocalServerTomlToProject,
   copyProjectClientTomlLocally,
   copyProjectServerTomlLocally,
-  serverTomlExistsInProject,
+  doesServerTomlExistInProject,
   TomlFilePaths,
 } from "./tomlFile.js";
 
@@ -48,7 +48,7 @@ function createClientCommonOps(
     waspProjectDir,
     paths,
     cdToDeploymentDir: () => cd(getClientDeploymentDir(waspProjectDir)),
-    tomlExistsInProject: () => clientTomlExistsInProject(paths),
+    tomlExistsInProject: () => doesClientTomlExistInProject(paths),
     copyLocalTomlToProject: () => copyLocalClientTomlToProject(paths),
     copyProjectTomlLocally: () => copyProjectClientTomlLocally(paths),
   };
@@ -62,7 +62,7 @@ function createServerCommonOps(
     waspProjectDir,
     paths,
     cdToDeploymentDir: () => cd(getServerDeploymentDir(waspProjectDir)),
-    tomlExistsInProject: () => serverTomlExistsInProject(paths),
+    tomlExistsInProject: () => doesServerTomlExistInProject(paths),
     copyLocalTomlToProject: () => copyLocalServerTomlToProject(paths),
     copyProjectTomlLocally: () => copyProjectServerTomlLocally(paths),
   };

@@ -7,7 +7,7 @@ import {
   FlySecretListSchema,
 } from "./jsonOutputSchemas.js";
 
-export async function flyctlExists(): Promise<boolean> {
+export async function doesFlyctlExist(): Promise<boolean> {
   try {
     await $`flyctl version`;
     return true;
@@ -48,8 +48,8 @@ async function ensureUserLoggedIn(): Promise<void> {
 }
 
 export async function ensureFlyReady(): Promise<void> {
-  const doesFlyctlExist = await flyctlExists();
-  if (!doesFlyctlExist) {
+  const flyctlExists = await doesFlyctlExist();
+  if (!flyctlExists) {
     throw new Error(
       `The Fly.io CLI is not available on this system.\nPlease install the flyctl here: https://fly.io/docs/hands-on/install-flyctl`,
     );
@@ -79,7 +79,7 @@ async function regionExists(regionCode: string): Promise<boolean> {
   });
 }
 
-export async function secretExists(secretName: string): Promise<boolean> {
+export async function doesSecretExist(secretName: string): Promise<boolean> {
   const proc = await $`flyctl secrets list -j`;
   const secrets = FlySecretListSchema.parse(proc.json());
   return secrets.some((s) => s.name === secretName);

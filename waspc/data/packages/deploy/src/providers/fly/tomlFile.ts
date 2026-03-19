@@ -20,7 +20,7 @@ export function getTomlFilePaths(cmdOptions: CommonCmdOptions): TomlFilePaths {
   };
 }
 
-export function serverTomlExistsInProject(paths: TomlFilePaths): boolean {
+export function doesServerTomlExistInProject(paths: TomlFilePaths): boolean {
   return fs.existsSync(paths.serverTomlPath);
 }
 
@@ -32,7 +32,7 @@ export function copyProjectServerTomlLocally(paths: TomlFilePaths): void {
   fs.copyFileSync(paths.serverTomlPath, "fly.toml");
 }
 
-export function clientTomlExistsInProject(paths: TomlFilePaths): boolean {
+export function doesClientTomlExistInProject(paths: TomlFilePaths): boolean {
   return fs.existsSync(paths.clientTomlPath);
 }
 
@@ -44,12 +44,12 @@ export function copyProjectClientTomlLocally(paths: TomlFilePaths): void {
   fs.copyFileSync(paths.clientTomlPath, "fly.toml");
 }
 
-export function localTomlExists(): boolean {
+export function doesLocalTomlExist(): boolean {
   return fs.existsSync("fly.toml");
 }
 
 export function deleteLocalToml(): void {
-  if (localTomlExists()) {
+  if (doesLocalTomlExist()) {
     fs.unlinkSync("fly.toml");
   }
 }

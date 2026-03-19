@@ -7,7 +7,7 @@ import { flyDeployCommand, flySetupCommand } from "../../index.js";
 import {
   getInferredBasenameFromServerToml,
   getTomlFilePaths,
-  serverTomlExistsInProject,
+  doesServerTomlExistInProject,
 } from "../../tomlFile.js";
 import { CreateDbCmdOptions } from "./CreateDbCmdOptions.js";
 
@@ -19,7 +19,7 @@ export async function createDb(
 
   const tomlFilePaths = getTomlFilePaths(cmdOptions);
 
-  if (!serverTomlExistsInProject(tomlFilePaths)) {
+  if (!doesServerTomlExistInProject(tomlFilePaths)) {
     throw new Error(
       `${
         tomlFilePaths.serverTomlPath

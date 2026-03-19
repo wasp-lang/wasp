@@ -6,7 +6,7 @@ import { CommonOps, getCommonOps } from "../../CommonOps.js";
 import {
   deleteLocalToml,
   getTomlFilePaths,
-  localTomlExists,
+  doesLocalTomlExist,
 } from "../../tomlFile.js";
 import { CmdCmdOptions } from "./CmdCmdOptions.js";
 
@@ -48,7 +48,7 @@ async function runFlyctlCommand(
 
   await $`flyctl ${flyctlArgs}`;
 
-  if (localTomlExists()) {
+  if (doesLocalTomlExist()) {
     commonOps.copyLocalTomlToProject();
   }
 }

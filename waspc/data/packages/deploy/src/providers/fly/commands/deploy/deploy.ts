@@ -16,10 +16,10 @@ import {
   DeploymentInstructions,
 } from "../../DeploymentInstructions.js";
 import { getFlyAppUrl } from "../../flyAppUrl.js";
-import { secretExists } from "../../flyCli.js";
+import { doesSecretExist } from "../../flyCli.js";
 import { flySetupCommand } from "../../index.js";
 import {
-  clientTomlExistsInProject,
+  doesClientTomlExistInProject,
   copyLocalClientTomlToProject,
   copyLocalServerTomlToProject,
   copyProjectClientTomlLocally,
@@ -27,7 +27,7 @@ import {
   getInferredBasenameFromClientToml,
   getInferredBasenameFromServerToml,
   getTomlFilePaths,
-  serverTomlExistsInProject,
+  doesServerTomlExistInProject,
 } from "../../tomlFile.js";
 import { DeployCmdOptions } from "./DeployCmdOptions.js";
 
@@ -40,7 +40,7 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
 
   // NOTE: Below, it would be nice if we could store the client, server, and DB names somewhere.
   // For now we just rely on the suffix naming convention and infer from toml files.
-  if (!serverTomlExistsInProject(tomlFilePaths)) {
+  if (!doesServerTomlExistInProject(tomlFilePaths)) {
     waspSays(
       `${
         tomlFilePaths.serverTomlPath
@@ -60,7 +60,7 @@ export async function deploy(cmdOptions: DeployCmdOptions): Promise<void> {
     await deployServer(deploymentInstructions, cmdOptions);
   }
 
-  if (!clientTomlExistsInProject(tomlFilePaths)) {
+  if (!doesClientTomlExistInProject(tomlFilePaths)) {
     waspSays(
       `${
         tomlFilePaths.clientTomlPath
@@ -91,7 +91,7 @@ async function deployServer(
   copyProjectServerTomlLocally(deploymentInstructions.tomlFilePaths);
 
   // Make sure we have a DATABASE_URL present. If not, they need to create/attach their DB first.
-  const databaseUrlSet = await secretExists("DATABASE_URL");
+  const databaseUrlSet = await doesSecretExist("DATABASE_URL");
   if (!databaseUrlSet) {
     throw new Error(
       "Your server app does not have a DATABASE_URL secret set. Perhaps you need to create or attach your database?",

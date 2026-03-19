@@ -1,8 +1,8 @@
 import { waspSays } from "../../../../common/terminal.js";
 import {
-  clientTomlExistsInProject,
+  doesClientTomlExistInProject,
   getTomlFilePaths,
-  serverTomlExistsInProject,
+  doesServerTomlExistInProject,
 } from "../../tomlFile.js";
 import { createDb } from "../createDb/createDb.js";
 import { deploy } from "../deploy/deploy.js";
@@ -18,8 +18,8 @@ export async function launch(
 
   const tomlFilePaths = getTomlFilePaths(cmdOptions);
   if (
-    serverTomlExistsInProject(tomlFilePaths) ||
-    clientTomlExistsInProject(tomlFilePaths)
+    doesServerTomlExistInProject(tomlFilePaths) ||
+    doesClientTomlExistInProject(tomlFilePaths)
   ) {
     throw new Error(
       "You already have Fly toml files. The launch command is intended to be run one time on a new Fly project. Please try a different command.",
