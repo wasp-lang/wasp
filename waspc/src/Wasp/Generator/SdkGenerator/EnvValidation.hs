@@ -114,8 +114,7 @@ genUserServerEnvSchemaModuleDecl spec
   | otherwise = return []
   where
     userServerEnvSchemaImportJson = virtualExtImportToImportJson userServerEnvSchemaVF maybeUserServerEnvSchema
-    maybeUserServerEnvSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
-    app = snd $ getApp spec
+    maybeUserServerEnvSchema = AS.App.server (snd $ getApp spec) >>= AS.App.Server.envValidationSchema
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =

@@ -33,7 +33,7 @@ routesEntryPointPath :: String
 routesEntryPointPath = "/@wasp/routes.tsx"
 
 userClientEnvSchemaVF :: VirtualFile
-userClientEnvSchemaVF = [relfileP|virtual:wasp/user-client-env|]
+userClientEnvSchemaVF = [relfileP|virtual:wasp/user-client-env-schema|]
 
 userSetupFnVF :: VirtualFile
 userSetupFnVF = [relfileP|virtual:wasp/user-setup-fn|]

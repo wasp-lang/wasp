@@ -5,7 +5,7 @@ import {
   getValidatedEnvOrError,
 } from "../../../env/validation.js";
 import { colorize } from "../../../universal/ansiColors.js";
-import { getClientEnvSchema } from "../../env/schema.js";
+import { clientEnvSchema } from "../../env/schema.js";
 import { loadEnvVars } from "./envFile.js";
 
 export function validateEnv(): Plugin {
@@ -23,7 +23,7 @@ export function validateEnv(): Plugin {
         // provide the environment variables inline.
         loadDotEnvFile: config.command === "serve",
       });
-      const schema = getClientEnvSchema(config.mode);
+      const schema = clientEnvSchema;
       validationResult = getValidatedEnvOrError(env, schema);
 
       // Exit if we are in build mode, because we can't show the error in the browser.
