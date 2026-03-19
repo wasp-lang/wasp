@@ -93,6 +93,18 @@ function assertUsingMinimumSupportedRailwayCliVersion(
   }
 }
 
+export function assertRailwayProjectNameIsPresent(
+  projectName: RailwayProjectName | undefined,
+  commandName: string,
+): asserts projectName is RailwayProjectName {
+  if (!projectName) {
+    throw new Error(
+      `Missing required argument: project name.\n` +
+        `Usage: wasp deploy railway ${commandName} <project-name>`,
+    );
+  }
+}
+
 export function assertRailwayProjectNameIsValid(
   projectName: RailwayProjectName,
 ): void {

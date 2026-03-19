@@ -9,13 +9,14 @@ import { deploy as deployFn } from "./commands/deploy/index.js";
 import { launch as launchFn } from "./commands/launch/launch.js";
 import { setup as setupFn } from "./commands/setup/setup.js";
 import {
+  assertRailwayProjectNameIsPresent,
   assertRailwayProjectNameIsValid,
   ensureRailwayCliReady,
 } from "./railwayCli.js";
 
 class RailwayCommand extends Command {
   addProjectNameArgument(): this {
-    return this.argument("<project-name>", "project name to use on Railway");
+    return this.argument("[project-name]", "project name to use on Railway");
   }
   addSecretsOptions(): this {
     function collect(value: string, previous: string[]) {
@@ -91,7 +92,11 @@ export function createRailwayCommand(): Command {
           waspExe: WaspCliExe;
           railwayExe: RailwayCliExe;
         }>();
-        const railwayProjectName = cmd.args[0] as RailwayProjectName;
+        const railwayProjectName = cmd.args[0] as
+          | RailwayProjectName
+          | undefined;
+
+        assertRailwayProjectNameIsPresent(railwayProjectName, cmd.name());
 
         await ensureRailwayCliReady(railwayExe);
 
