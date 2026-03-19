@@ -67,6 +67,41 @@ jobs:
         working-directory: wasp-app-runner
         run: npm install && npm run build
 
+      - name: Diagnose wasp-config bin issue
+        run: |
+          echo "=== npm version ==="
+          npm --version
+
+          echo "=== node version ==="
+          node --version
+
+          echo "=== .bin entry ==="
+          ls -la node_modules/.bin/wasp-config || echo "no .bin entry"
+
+          echo "=== .bin entry type (symlink target) ==="
+          readlink -f node_modules/.bin/wasp-config || echo "not a symlink or missing"
+
+          echo "=== bin file exists? ==="
+          ls -la node_modules/wasp-config/dist/src/run.js || echo "file missing"
+
+          echo "=== bin file permissions ==="
+          stat node_modules/wasp-config/dist/src/run.js || echo "stat failed"
+
+          echo "=== is wasp-config a symlink? ==="
+          ls -la node_modules/wasp-config
+
+          echo "=== symlink target ==="
+          readlink -f node_modules/wasp-config
+
+          echo "=== package.json bin field ==="
+          cat node_modules/wasp-config/package.json | grep -A2 '"bin"'
+
+          echo "=== npx which ==="
+          npx which wasp-config || echo "which failed"
+
+          echo "=== npx --no-install ==="
+          npx --no-install wasp-config 2>&1 || echo "failed"
+
       - name: Run DEV e2e tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         env:
