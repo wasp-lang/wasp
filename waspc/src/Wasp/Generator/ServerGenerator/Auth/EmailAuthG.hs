@@ -23,8 +23,6 @@ import qualified Wasp.AppSpec.App.Auth.EmailVerification as AS.Auth.EmailVerific
 import qualified Wasp.AppSpec.App.Auth.PasswordReset as AS.Auth.PasswordReset
 import qualified Wasp.AppSpec.App.EmailSender as AS.EmailSender
 import Wasp.AppSpec.Util (getRoutePathFromRef)
-import Wasp.Generator.AuthProviders (emailAuthProvider)
-import qualified Wasp.Generator.AuthProviders.Email as Email
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -50,8 +48,8 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
 
     tmplData =
       object
-        [ "providerId" .= Email.providerId emailAuthProvider,
-          "displayName" .= Email.displayName emailAuthProvider,
+        [ "providerId" .= ("email" :: String),
+          "displayName" .= ("Email and password" :: String),
           "fromField" .= fromFieldJson,
           "emailVerificationClientRoute" .= emailVerificationClientRoute,
           "passwordResetClientRoute" .= passwordResetClientRoute,

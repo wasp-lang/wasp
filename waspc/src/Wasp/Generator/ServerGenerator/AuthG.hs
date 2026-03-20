@@ -24,19 +24,13 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.AuthProviders
-  ( discordAuthProvider,
-    emailAuthProvider,
-    gitHubAuthProvider,
-    googleAuthProvider,
-    keycloakAuthProvider,
-    localAuthProvider,
-    microsoftAuthProvider,
-    slackAuthProvider,
+import Wasp.Generator.Auth.Provider
+  ( OAuthProviderSpec (..),
+    enabledOAuthProviders,
+    isEmailEnabled,
+    isOAuthEnabled,
+    isUsernameAndPasswordEnabled,
   )
-import qualified Wasp.Generator.AuthProviders.Email as EmailProvider
-import qualified Wasp.Generator.AuthProviders.Local as LocalProvider
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuthProvider
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
@@ -72,7 +66,7 @@ genAuthRoutesIndex auth = return $ C.mkTmplFdWithDstAndData tmplFile dstFile (Ju
     tmplFile = C.srcDirInServerTemplatesDir </> SP.castRel authIndexFileInSrcDir
     dstFile = C.serverSrcDirInServerRootDir </> authIndexFileInSrcDir
     tmplData =
-      object ["isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth]
+      object ["isExternalAuthEnabled" .= isOAuthEnabled auth]
 
     authIndexFileInSrcDir :: Path' (Rel C.ServerSrcDir) File'
     authIndexFileInSrcDir = [relfile|routes/auth/index.js|]
@@ -83,20 +77,15 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
     tmplData =
       object
         [ "providers" .= providers,
-          "isExternalAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth
+          "isExternalAuthEnabled" .= isOAuthEnabled auth
         ]
 
     providers =
       makeConfigImportJson
         <$> concat
-          [ [OAuthProvider.providerId slackAuthProvider | AS.Auth.isSlackAuthEnabled auth],
-            [OAuthProvider.providerId discordAuthProvider | AS.Auth.isDiscordAuthEnabled auth],
-            [OAuthProvider.providerId gitHubAuthProvider | AS.Auth.isGitHubAuthEnabled auth],
-            [OAuthProvider.providerId googleAuthProvider | AS.Auth.isGoogleAuthEnabled auth],
-            [OAuthProvider.providerId keycloakAuthProvider | AS.Auth.isKeycloakAuthEnabled auth],
-            [OAuthProvider.providerId microsoftAuthProvider | AS.Auth.isMicrosoftAuthEnabled auth],
-            [LocalProvider.providerId localAuthProvider | AS.Auth.isUsernameAndPasswordAuthEnabled auth],
-            [EmailProvider.providerId emailAuthProvider | AS.Auth.isEmailAuthEnabled auth]
+          [ [slug spec | (spec, _) <- enabledOAuthProviders auth],
+            ["username" | isUsernameAndPasswordEnabled auth],
+            ["email" | isEmailEnabled auth]
           ]
 
     makeConfigImportJson providerId =
