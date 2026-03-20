@@ -1,0 +1,10 @@
+# There are no official prebuilt versions of Node.js for musl-based distros
+# (like Alpine). In such cases, we don't install it at all, and expect it to be
+# provided from the environment.
+
+# Tip: The usual workaround is to run on the `node:$VERSION-alpine` Docker
+# image, which _is_ officially built by the Node.js team, and includes a working
+# Node.js installation.
+
+[settings]
+disable_tools = ["node"]

@@ -35,10 +35,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-haskell
-      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-env
         with:
-          skip-install: ${{ contains(matrix.runner.container, 'alpine') && '1' || '' }}
+          mise-env: ${{ contains(matrix.runner.container, 'alpine') && 'musl' || '' }}
 
       - name: Install dependencies
         if: matrix.runner.install-deps

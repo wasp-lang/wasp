@@ -14,7 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-env
 
       - name: Run Prettier
         run: |
@@ -30,11 +30,7 @@ jobs:
           git config --global core.eol lf
 
       - uses: actions/checkout@v6
-
-      - name: Set up ormolu
-        uses: jdx/mise-action@v4
-        with:
-          install_args: ormolu
+      - uses: ./.github/actions/setup-env
 
       - name: Run ormolu
         working-directory: waspc
@@ -45,11 +41,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-
-      - name: Set up cabal-gild
-        uses: jdx/mise-action@v4
-        with:
-          install_args: cabal-gild
+      - uses: ./.github/actions/setup-env
 
       - name: Run cabal-gild
         working-directory: waspc

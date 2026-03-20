@@ -10,7 +10,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-node
+      - uses: ./.github/actions/setup-env
 
       - uses: actions/download-artifact@v8
         with:

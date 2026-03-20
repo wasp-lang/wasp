@@ -1,0 +1,72 @@
+name: Setup environment and dev tools
+description: |
+  This action sets up our Mise-defined dev tools and environment for use in
+  actions. It also sets up caches for package manager dependencies.
+
+inputs:
+  mise-env:
+    description: |
+      The `mise` environment to use. This is used to tweak the tool installation
+      for specific context. Check `/.config/mise.*.toml` files for the available
+      environments.
+      If empty (the default), no specific environment is used.
+    required: false
+
+  cabal-project-dir:
+    description: |
+      The working directory for the action.
+      The default is /waspc.
+    required: false
+    default: "waspc"
+
+runs:
+  using: composite
+
+  steps:
+    - name: Setup Mise environment
+      if: ${{ inputs.mise-env }}
+      shell: bash
+      run: |
+        echo "MISE_ENV=${{ inputs.mise-env }}" >> $GITHUB_ENV
+
+    - name: Install Mise tools
+      uses: jdx/mise-action@v4
+
+    - name: Cache npm dependencies
+      uses: actions/setup-node@v6
+      with:
+        cache: npm
+        package-manager-cache: true
+
+    - name: Probe system and requested tools
+      id: probe
+      shell: bash
+      run: |
+        set -euxo pipefail
+
+        echo "GHC_VERSION=$(mise tool ghc --requested)" >> $GITHUB_OUTPUT
+        echo "LIBC=$(ldd --version 2>&1 | grep -q musl && echo 'musl' || echo 'default')" >> $GITHUB_OUTPUT
+
+        # The first run of `cabal path` has some extra messages telling you that
+        # it's creating the store, so we run the command once to get rid of it.
+        cabal path 2>&1 >/dev/null
+        echo "CABAL_STORE=$(cabal path --store-dir)" >> $GITHUB_OUTPUT
+        echo "CABAL_INDEX=$(cabal path --remote-repo-cache)" >> $GITHUB_OUTPUT
+
+    # Based on the official recipe for Cabal caching:
+    # https://github.com/actions/cache/blob/v5.0.4/examples.md#haskell---cabal
+    - name: Cache Cabal dependencies
+      uses: actions/cache@v5
+      with:
+        path: |
+          ${{ steps.probe.outputs.CABAL_STORE }}
+          ${{ steps.probe.outputs.CABAL_INDEX }}
+          ${{ format('{0}/dist-newstyle', inputs.cabal-project-dir) }}
+        key: |
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
+        restore-keys: |
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-
+
+    - name: Update Cabal package index
+      shell: bash
+      run: cabal update
