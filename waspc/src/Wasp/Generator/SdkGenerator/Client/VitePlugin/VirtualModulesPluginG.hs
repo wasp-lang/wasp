@@ -27,7 +27,8 @@ import Wasp.JsImport (VirtualFile)
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getVirtualModulesPlugin spec =
   sequence
-    [ getVirtualModulesTs spec,
+    [ getWaspVirtualModulesTs,
+      genUserVirtualModulesTs spec,
       genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualIndexTsx spec,
@@ -48,32 +49,42 @@ genVirtualFilesResolverTs =
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
 
-getVirtualModulesTs :: AppSpec -> Generator FileDraft
-getVirtualModulesTs spec =
+getWaspVirtualModulesTs :: Generator FileDraft
+getWaspVirtualModulesTs =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualModules.ts|]
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspVirtualModules.ts|]
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
-          "routesEntryPointPath" .= routesEntryPointPath,
-          "directVirtualModules" .= directVirtualModules
+          "routesEntryPointPath" .= routesEntryPointPath
         ]
 
-    directVirtualModules :: [Aeson.Value]
-    directVirtualModules =
-      maybeToList (mkDirectVirtualModule userClientEnvSchemaVF <$> maybeClientEnvSchema)
-        ++ maybeToList (mkDirectVirtualModule userSetupFnVF <$> maybeSetupFn)
-        ++ maybeToList (mkDirectVirtualModule userRootComponentVF <$> maybeRootComponent)
-        ++ map mkPageVirtualModule (AS.getPages spec)
+genUserVirtualModulesTs :: AppSpec -> Generator FileDraft
+genUserVirtualModulesTs spec =
+  return $
+    C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|userVirtualModules.ts|]
+    tmplData =
+      object
+        [ "userVirtualModules" .= getUserVFData spec
+        ]
 
-    maybeClientEnvSchema = AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
-    maybeSetupFn = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
+getUserVFData :: AppSpec -> [Aeson.Value]
+getUserVFData spec =
+  maybeToList (mkUserVFFromExtImport userClientEnvSchemaVF <$> maybeClientEnvSchema)
+    ++ maybeToList (mkUserVFFromExtImport userSetupFnVF <$> maybeSetupFn)
+    ++ maybeToList (mkUserVFFromExtImport userRootComponentVF <$> maybeRootComponent)
+    ++ map mkPageVF (AS.getPages spec)
+  where
+    mkPageVF :: (String, AS.Page.Page) -> Aeson.Value
+    mkPageVF (pageName, page) =
+      mkUserVFFromExtImport (pageVF pageName) (AS.Page.component page)
 
-    mkDirectVirtualModule :: VirtualFile -> EI.ExtImport -> Aeson.Value
-    mkDirectVirtualModule vf extImport =
+    mkUserVFFromExtImport :: VirtualFile -> EI.ExtImport -> Aeson.Value
+    mkUserVFFromExtImport vf extImport =
       let jsImport = GJI.extImportToRelativeSrcImportFromViteExecution extImport
           importJson = GJI.jsImportToImportJson (Just jsImport)
        in object
@@ -81,9 +92,10 @@ getVirtualModulesTs spec =
               "importJson" .= importJson
             ]
 
-    mkPageVirtualModule :: (String, AS.Page.Page) -> Aeson.Value
-    mkPageVirtualModule (pageName, page) =
-      mkDirectVirtualModule (pageVF pageName) (AS.Page.component page)
+    maybeClientEnvSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
+    maybeSetupFn = AS.App.Client.setupFn =<< AS.App.client app
+    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client app
+    app = snd $ getApp spec
 
 genVirtualIndexTsx :: AppSpec -> Generator FileDraft
 genVirtualIndexTsx spec =
@@ -105,4 +117,3 @@ genVirtualIndexTsx spec =
           "importStatement" .= ("import { routesMapping } from \"" ++ routesEntryPointPath ++ "\""),
           "importIdentifier" .= ("routesMapping" :: String)
         ]
-

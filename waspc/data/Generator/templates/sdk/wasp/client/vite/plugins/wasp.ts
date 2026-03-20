@@ -6,8 +6,9 @@ import { envFile } from "./envFile.js";
 import { waspHtmlBuild } from "./html/build.js";
 import { waspHtmlDev } from "./html/dev.js";
 import { typescriptCheck } from "./typescriptCheck.js";
-import { waspVirtualModules } from "./virtualModules.js";
+import { userVirtualModules } from "./userVirtualModules.js";
 import { waspConfig } from "./waspConfig.js";
+import { waspVirtualModules } from "./waspVirtualModules.js";
 
 export interface WaspPluginOptions {
   reactOptions?: ReactOptions;
@@ -21,6 +22,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     // The `wasp:config` plugin must come first because
     // other plugins may depend on its configuration.
     waspConfig(),
+    userVirtualModules(),
     waspVirtualModules(),
     envFile(),
     detectServerImports(),

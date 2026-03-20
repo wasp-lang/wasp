@@ -1,10 +1,7 @@
 {{={= =}=}}
-import { fileURLToPath } from "node:url";
-import path from "node:path";
 import esbuild from "rollup-plugin-esbuild";
 import resolve from "@rollup/plugin-node-resolve";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { userVirtualModules } from "./src/plugins/userVirtualModules.js";
 
 export default [
   createBundle("src/server.ts", "bundle/server.js"),
@@ -22,7 +19,7 @@ function createBundle(inputFilePath, outputFilePath) {
       sourcemap: true,
     },
     plugins: [
-      waspUserVirtualModules(),
+      userVirtualModules(),
       resolve({ extensions: [".mjs", ".js", ".ts", ".json", ".node"] }),
       esbuild({
         target: "esnext",
@@ -46,27 +43,4 @@ function createBundle(inputFilePath, outputFilePath) {
     // Source: https://rollupjs.org/configuration-options/#preservesymlinks
     preserveSymlinks: false,
   }
-}
-
-/**
- * Handles resolving virtual files which point back to user's files.
- * These virtual files are used when Wasp code has to depend on user code in the runtime.
- */
-function waspUserVirtualModules() {
-  const userVirtualFileToRelativeImportPath = {
-    {=# userVirtualModules =}
-    "{= virtualPath =}": "{=& importJson.importPath =}",
-    {=/ userVirtualModules =}
-  };
-
-  return {
-    name: "wasp:user-virtual-modules",
-    async resolveId(id) {
-      if (id in userVirtualFileToRelativeImportPath) {
-        const absUserFilePath = path.resolve(__dirname, userVirtualFileToRelativeImportPath[id])
-        return await this.resolve(absUserFilePath, undefined, { skipSelf: true })
-      }
-      return null
-    },
-  };
 }

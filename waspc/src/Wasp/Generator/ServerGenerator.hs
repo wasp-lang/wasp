@@ -79,6 +79,7 @@ genServer spec =
   sequence
     [ genFileCopy [relfile|README.md|],
       genRollupConfigJs spec,
+      genUserVirtualModulesPlugin spec,
       genTsConfigJson spec,
       genPackageJson spec npmDeps,
       genGitignore,
@@ -355,3 +356,10 @@ genRollupConfigJs spec =
           "userVirtualModules" .= getUserVFData spec
         ]
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
+
+genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
+genUserVirtualModulesPlugin spec =
+  return $
+    C.mkTmplFdWithData [relfile|src/plugins/userVirtualModules.js|] (Just tmplData)
+  where
+    tmplData = object ["userVirtualModules" .= getUserVFData spec]
