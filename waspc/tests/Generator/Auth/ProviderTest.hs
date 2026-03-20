@@ -96,6 +96,11 @@ spec_AuthProvider = do
       KM.lookup "isUsernameAndPasswordAuthEnabled" jsonObj `shouldBe` Just (Bool False)
       KM.lookup "isEmailAuthEnabled" jsonObj `shouldBe` Just (Bool False)
 
+    it "uses displayName for JSON keys (GitHub has capital H)" $ do
+      let methods = emptyMethods {AS.Auth.gitHub = Just dummyExternalConfig}
+      let Object jsonObj = enabledAuthMethodsJson (makeAuth methods)
+      KM.lookup "isGitHubAuthEnabled" jsonObj `shouldBe` Just (Bool True)
+
   describe "serverOAuthLoginUrl" $ do
     it "constructs URL from slug" $ do
       let spec = head allOAuthProviders -- google
@@ -103,7 +108,7 @@ spec_AuthProvider = do
 
 -- Helpers
 
-unique :: Eq a => [a] -> [a]
+unique :: (Eq a) => [a] -> [a]
 unique [] = []
 unique (x : xs) = x : unique (filter (/= x) xs)
 

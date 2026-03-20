@@ -20,7 +20,6 @@ where
 import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Key as AesonKey
-import Data.Char (toUpper)
 import Data.Maybe (isJust, mapMaybe)
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
@@ -102,11 +101,7 @@ enabledAuthMethodsJson auth =
   where
     methods = AS.Auth.methods auth
     isProviderEnabled spec = isJust $ extractConfig spec methods
-    providerJsonKey spec = AesonKey.fromString $ "is" ++ capitalize (slug spec) ++ "AuthEnabled"
-
-capitalize :: String -> String
-capitalize [] = []
-capitalize (c : cs) = toUpper c : cs
+    providerJsonKey spec = AesonKey.fromString $ "is" ++ displayName spec ++ "AuthEnabled"
 
 serverOAuthLoginUrl :: OAuthProviderSpec -> String
 serverOAuthLoginUrl spec = "/auth/" ++ slug spec ++ "/login"
