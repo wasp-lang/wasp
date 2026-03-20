@@ -12,7 +12,8 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-env
+      - uses: ./.github/actions/setup-haskell
+      - uses: ./.github/actions/setup-node
 
       - name: Install `wasp-cli`
         working-directory: waspc

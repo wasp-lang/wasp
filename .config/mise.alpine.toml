@@ -1,9 +1,0 @@
-# This file will get used when calling `mise` with the `MISE_ENV=alpine`
-# environment variable.
-
-[settings.node]
-# Node doesn't have official musl-based builds, but there are unofficial builds
-# that we can use. They are done by Node.js too, but they do not offer support
-# for them. Good enough for us, though.
-# mirror_url = "https://unofficial-builds.nodejs.org/download/release/"
-flavor = "musl"

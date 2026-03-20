@@ -1,0 +1,48 @@
+name: Setup Node
+description: |
+  This action sets up a Node environment for use in actions by adding the Node
+  binary to the PATH. It also caches the Node installations to speed up
+  subsequent runs.
+
+inputs:
+  only-cache:
+    description: |
+      A non-empty value for this input will make the action skip installing
+      Node.js, and only set up the cache for npm packages.
+
+      In Alpine, Node.js can't be installed through the `actions/setup-node`
+      action and has to be installed through other means. However, we can still
+      benefit from caching npm packages.
+    required: false
+
+runs:
+  using: composite
+
+  steps:
+    # We'll only use `mise` to know which versions to install, as the actual
+    # installation is done by the official Node action, which is a better fit
+    # for CI.
+    - uses: jdx/mise-action@v4
+      if: ${{ !inputs.only-cache }}
+      with:
+        install: false
+        cache: false
+
+    - name: Probe system and requested tools
+      id: probe
+      if: ${{ !inputs.only-cache }}
+      shell: bash
+      run: |
+        echo "NODE_VERSION=$(mise tool node --requested)" >> $GITHUB_OUTPUT
+
+    - name: Install Node
+      uses: actions/setup-node@v6
+      if: ${{ !inputs.only-cache }}
+      with:
+        node-version: ${{ steps.probe.outputs.NODE_VERSION }}
+
+    - name: Cache npm dependencies
+      uses: actions/setup-node@v6
+      with:
+        cache: npm
+        package-manager-cache: true

@@ -71,7 +71,14 @@ jobs:
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
-            container: alpine:3.21
+            # actions/setup-node does not work in alpine.
+            # https://github.com/actions/setup-node/issues/1293 To work around
+            # this, we use the alpine variant of the official node image, which
+            # already has a working Node.js version installed.
+            # We also pin the `alpine` version to a specific one we have tested,
+            # since newer releases might have different versions of the
+            # libraries we depend on.
+            container: node:22-alpine3.21
             skip-node-install: true
             static: true
             install-deps: |
@@ -103,9 +110,10 @@ jobs:
         run: ${{ matrix.env.install-deps }}
 
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-env
+      - uses: ./.github/actions/setup-haskell
+      - uses: ./.github/actions/setup-node
         with:
-          mise-env: ${{ matrix.env.container == 'alpine' && 'alpine' || '' }}
+          skip-install: ${{ contains(matrix.env.container, 'alpine') && '1' || '' }}
 
       - name: Compute artifact names
         uses: ./.github/actions/compute-artifact-names

@@ -19,7 +19,7 @@ jobs:
 
           - # Linux with Musl
             os: ubuntu-latest
-            container: alpine
+            container: node:22-alpine
             install-deps: apk add curl
 
           - # Apple Silicon
@@ -35,9 +35,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-env
+      - uses: ./.github/actions/setup-haskell
+      - uses: ./.github/actions/setup-node
         with:
-          mise-env: ${{ matrix.runner.container == 'alpine' && 'alpine' || '' }}
+          skip-install: ${{ contains(matrix.runner.container, 'alpine') && '1' || '' }}
 
       - name: Install dependencies
         if: matrix.runner.install-deps

@@ -50,7 +50,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-env
+      - uses: ./.github/actions/setup-node
 
       - name: Install Wasp
         run: npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"
