@@ -4,13 +4,18 @@ module Wasp.Generator.SdkGenerator.Auth.AuthFormsG
 where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson.Key as AesonKey
+import Data.Char (toLower)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.Auth.Provider
-  ( enabledAuthMethodsJson,
+  ( OAuthProviderSpec (..),
+    allOAuthProviders,
+    enabledAuthMethodsJson,
     isEmailEnabled,
     isOAuthEnabled,
     isUsernameAndPasswordEnabled,
+    serverOAuthLoginUrl,
   )
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -138,22 +143,20 @@ genLoginSignupForm auth =
           (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
           loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
-      object
+      object $
         [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
           "isSocialAuthEnabled" .= isOAuthEnabled auth,
-          "slackSignInPath" .= providerLoginUrlBySlug "slack",
-          "discordSignInPath" .= providerLoginUrlBySlug "discord",
-          "googleSignInPath" .= providerLoginUrlBySlug "google",
-          "keycloakSignInPath" .= providerLoginUrlBySlug "keycloak",
-          "gitHubSignInPath" .= providerLoginUrlBySlug "github",
-          "microsoftSignInPath" .= providerLoginUrlBySlug "microsoft",
           "enabledProviders" .= enabledAuthMethodsJson auth
         ]
+          ++ [ AesonKey.fromString (lowerFirst (displayName spec) ++ "SignInPath") .= serverOAuthLoginUrl spec
+               | spec <- allOAuthProviders
+             ]
     areBothSocialAndPasswordBasedAuthEnabled = isOAuthEnabled auth && isAnyPasswordBasedAuthEnabled
     isAnyPasswordBasedAuthEnabled = isUsernameAndPasswordEnabled auth || isEmailEnabled auth
-    providerLoginUrlBySlug s = "/auth/" ++ s ++ "/login" :: String
+    lowerFirst (c : cs) = toLower c : cs
+    lowerFirst [] = []
 
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
