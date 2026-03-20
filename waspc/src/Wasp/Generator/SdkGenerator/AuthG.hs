@@ -10,6 +10,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.Auth.Provider as AP (isEmailEnabled, isUsernameAndPasswordEnabled)
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
@@ -146,8 +147,8 @@ genIndexTs auth =
         [ "isEmailAuthEnabled" .= isEmailAuthEnabled,
           "isLocalAuthEnabled" .= isLocalAuthEnabled
         ]
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-    isLocalAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
+    isEmailAuthEnabled = AP.isEmailEnabled auth
+    isLocalAuthEnabled = AP.isUsernameAndPasswordEnabled auth
 
 genProvdersIndex :: AS.Auth.Auth -> Generator FileDraft
 genProvdersIndex auth =

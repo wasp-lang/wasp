@@ -4,18 +4,19 @@ module Wasp.Generator.SdkGenerator.Auth.AuthFormsG
 where
 
 import Data.Aeson (object, (.=))
+import qualified Data.Aeson.Key as AesonKey
+import Data.Char (toLower)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders
-  ( discordAuthProvider,
-    gitHubAuthProvider,
-    googleAuthProvider,
-    keycloakAuthProvider,
-    microsoftAuthProvider,
-    slackAuthProvider,
+import Wasp.Generator.Auth.Provider
+  ( OAuthProviderSpec (..),
+    allOAuthProviders,
+    enabledAuthMethodsJson,
+    isEmailEnabled,
+    isOAuthEnabled,
+    isUsernameAndPasswordEnabled,
+    serverOAuthLoginUrl,
   )
-import qualified Wasp.Generator.AuthProviders as AuthProviders
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 -- todo(filip) -- Should I put this under something like Wasp.Generator.Auth (doesn't exist) or Wasp.Generator.Common?
@@ -46,7 +47,7 @@ genAuthComponent auth =
       (authFormsDirInSdkTemplatesDir </> [relfile|Auth.tsx|])
       tmplData
   where
-    tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
+    tmplData = object ["isEmailAuthEnabled" .= isEmailEnabled auth]
 
 genTypes :: AS.Auth.Auth -> Generator FileDraft
 genTypes auth =
@@ -55,7 +56,7 @@ genTypes auth =
       (authFormsDirInSdkTemplatesDir </> [relfile|types.ts|])
       tmplData
   where
-    tmplData = object ["isEmailAuthEnabled" .= AS.Auth.isEmailAuthEnabled auth]
+    tmplData = object ["isEmailAuthEnabled" .= isEmailEnabled auth]
 
 genEmailForms :: AS.Auth.Auth -> Generator [FileDraft]
 genEmailForms auth =
@@ -66,7 +67,7 @@ genEmailForms auth =
         genFileCopyInAuthForms [relfile|VerifyEmail.tsx|]
       ]
   where
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
+    isEmailAuthEnabled = isEmailEnabled auth
 
 genInternalAuthComponents :: AS.Auth.Auth -> Generator [FileDraft]
 genInternalAuthComponents auth =
@@ -125,9 +126,9 @@ genInternalAuthComponents auth =
           genFileCopyInAuthFormsInternal [relfile|social/SocialIcons.module.css|]
         ]
 
-    isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
-    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
+    isEmailAuthEnabled = isEmailEnabled auth
+    isUsernameAndPasswordAuthEnabled = isUsernameAndPasswordEnabled auth
+    isExternalAuthEnabled = isOAuthEnabled auth
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]
 genLoginSignupForm auth =
@@ -142,21 +143,20 @@ genLoginSignupForm auth =
           (authFormsInternalDirInSdkTemplatesDir </> [relfile|common/LoginSignupForm.tsx|])
           loginSignupFormComponentTmplData
     loginSignupFormComponentTmplData =
-      object
+      object $
         [ "onAuthSucceededRedirectTo" .= getOnAuthSucceededRedirectToOrDefault auth,
           "areBothSocialAndPasswordBasedAuthEnabled" .= areBothSocialAndPasswordBasedAuthEnabled,
           "isAnyPasswordBasedAuthEnabled" .= isAnyPasswordBasedAuthEnabled,
-          "isSocialAuthEnabled" .= AS.Auth.isExternalAuthEnabled auth,
-          "slackSignInPath" .= OAuth.serverLoginUrl slackAuthProvider,
-          "discordSignInPath" .= OAuth.serverLoginUrl discordAuthProvider,
-          "googleSignInPath" .= OAuth.serverLoginUrl googleAuthProvider,
-          "keycloakSignInPath" .= OAuth.serverLoginUrl keycloakAuthProvider,
-          "gitHubSignInPath" .= OAuth.serverLoginUrl gitHubAuthProvider,
-          "microsoftSignInPath" .= OAuth.serverLoginUrl microsoftAuthProvider,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+          "isSocialAuthEnabled" .= isOAuthEnabled auth,
+          "enabledProviders" .= enabledAuthMethodsJson auth
         ]
-    areBothSocialAndPasswordBasedAuthEnabled = AS.Auth.isExternalAuthEnabled auth && isAnyPasswordBasedAuthEnabled
-    isAnyPasswordBasedAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth || AS.Auth.isEmailAuthEnabled auth
+          ++ [ AesonKey.fromString (lowerFirst (displayName spec) ++ "SignInPath") .= serverOAuthLoginUrl spec
+               | spec <- allOAuthProviders
+             ]
+    areBothSocialAndPasswordBasedAuthEnabled = isOAuthEnabled auth && isAnyPasswordBasedAuthEnabled
+    isAnyPasswordBasedAuthEnabled = isUsernameAndPasswordEnabled auth || isEmailEnabled auth
+    lowerFirst (c : cs) = toLower c : cs
+    lowerFirst [] = []
 
 genConditionally :: Bool -> Generator [FileDraft] -> Generator [FileDraft]
 genConditionally isEnabled gen = if isEnabled then gen else return []
