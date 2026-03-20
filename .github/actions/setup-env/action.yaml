@@ -3,10 +3,24 @@ description: |
   This action sets our common environment for working on the repo, installing
   tools and setting up caching.
 
+inputs:
+  mise-env:
+    description: |
+      The `MISE_ENV` to use when running `mise`. This can be used to select
+      config tweaks for different environments. Check them at
+      `/.config/mise.*.toml`.
+    required: false
+
 runs:
   using: composite
 
   steps:
+    - name: Set Mise environment
+      shell: bash
+      if: ${{ inputs.mise-env }}
+      run: |
+        echo "MISE_ENV=${{ inputs.mise-env }}" >> $GITHUB_ENV
+
     - uses: jdx/mise-action@v4
       with:
         install: true

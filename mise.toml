@@ -1,3 +1,5 @@
+min_version = "2026.3.9"
+
 [tools]
 cabal = "3.12.1.0"
 cabal-gild = "1.5.0.1"
