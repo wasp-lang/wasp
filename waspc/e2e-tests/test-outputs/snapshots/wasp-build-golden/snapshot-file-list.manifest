@@ -431,5 +431,5 @@ wasp-app/src/MainPage.tsx
 wasp-app/src/assets/logo.svg
 wasp-app/src/vite-env.d.ts
 wasp-app/tsconfig.json
-wasp-app/vite.config.original.ts
 wasp-app/vite.config.ts
+wasp-app/vite.config.wrapper.ts
