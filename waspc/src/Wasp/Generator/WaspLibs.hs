@@ -8,8 +8,8 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.WaspLib
   ( WaspLib,
-    getTarballPathInLibsSourceDir,
     getTarballPathInGeneratedAppDir,
+    getTarballPathInLibsSourceDir,
   )
 
 genWaspLibs :: Generator [FileDraft]
