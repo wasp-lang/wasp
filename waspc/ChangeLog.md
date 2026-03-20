@@ -28,6 +28,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now validates that `vite.config.ts` (or `vite.config.js`) exists in your project at compile time, and warns if it's missing the `wasp` plugin import. ([#3863](https://github.com/wasp-lang/wasp/pull/3863))
 - Wasp now prefixes env validation errors with the name of the field that failed the validation ([#3876](https://github.com/wasp-lang/wasp/pull/3876))
 - Wasp now validates your `tsconfig.json` before analyzing the rest of the code. If something is off, you'll get a clear error message as soon as possible ([#3907](https://github.com/wasp-lang/wasp/issues/3907))
+- Wasp now properly uses ANSI formatting in env validation errors ([#3877](https://github.com/wasp-lang/wasp/pull/3877))
 
 ## 0.21.1
 
