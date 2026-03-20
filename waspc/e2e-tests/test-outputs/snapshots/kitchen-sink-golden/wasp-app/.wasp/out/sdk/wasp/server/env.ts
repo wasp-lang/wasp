@@ -1,11 +1,10 @@
-import * as z from 'zod'
+import * as z from "zod"
 
-import { ensureEnvSchema } from '../env/validation.js'
-
+import { ensureEnvSchema } from "../env/validation.js"
 import { serverEnvValidationSchema as serverEnvValidationSchema_ext } from 'wasp/src/env'
-const userServerEnvSchema = serverEnvValidationSchema_ext
+const userServerEnvSchema = serverEnvValidationSchema_ext;
 
-const waspServerCommonSchema = z.object({
+const waspCommonServerEnvSchema = z.object({
   PORT: z.coerce.number().default(3001),
   DATABASE_URL: z.string({
     error: 'DATABASE_URL is required',
@@ -62,7 +61,7 @@ const waspServerCommonSchema = z.object({
   MICROSOFT_CLIENT_SECRET: z.string({
     error: getRequiredEnvVarErrorMessage('Microsoft auth provider', 'MICROSOFT_CLIENT_SECRET'),
   }),
-})
+});
 
 const serverUrlSchema =
   z.string({
@@ -91,34 +90,32 @@ const jwtTokenSchema = z
 
 // In development, we provide default values for some environment variables
 // to make the development process easier.
-const serverDevSchema = z.object({
-  NODE_ENV: z.literal('development'),
+const waspDevServerEnvSchema = z.object({
+  NODE_ENV: z.literal("development"),
   "WASP_SERVER_URL": serverUrlSchema
-    .default('http://localhost:3001'),
+    .default("http://localhost:3001"),
   "WASP_WEB_CLIENT_URL": clientUrlSchema
-    .default('http://localhost:3000/'),
+    .default("http://localhost:3000/"),
   "JWT_SECRET": jwtTokenSchema
-    .default('DEVJWTSECRET'),
-})
+    .default("DEVJWTSECRET"),
+});
 
-const serverProdSchema = z.object({
-  NODE_ENV: z.literal('production'),
+const waspProdServerEnvSchema = z.object({
+  NODE_ENV: z.literal("production"),
   "WASP_SERVER_URL": serverUrlSchema,
   "WASP_WEB_CLIENT_URL": clientUrlSchema,
   "JWT_SECRET": jwtTokenSchema,
-})
+});
 
-const serverCommonSchema = z.object({
-  ...userServerEnvSchema.shape,
-  ...waspServerCommonSchema.shape,
-})
-const serverEnvSchema = z.discriminatedUnion('NODE_ENV', [
-  z.object({ ...serverDevSchema.shape, ...serverCommonSchema.shape }),
-  z.object({ ...serverProdSchema.shape, ...serverCommonSchema.shape }),
-])
+const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
+  z.object({...waspCommonServerEnvSchema.shape, ...waspDevServerEnvSchema.shape}),
+  z.object({...waspCommonServerEnvSchema.shape, ...waspProdServerEnvSchema.shape}),
+]);
+const serverEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
 
-const defaultNodeEnvValue = serverDevSchema.shape.NODE_ENV.value;
+const defaultNodeEnvValue = waspDevServerEnvSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
+
 // PUBLIC API
 export const env = ensureEnvSchema(
   {
@@ -126,7 +123,7 @@ export const env = ensureEnvSchema(
     ...restEnv,
   },
   serverEnvSchema,
-)
+);
 
 function getRequiredEnvVarErrorMessage(featureName: string, envVarName: string) {
   return `${envVarName} is required when using ${featureName}`

@@ -12,7 +12,6 @@ import Control.Monad.IO.Class (MonadIO (liftIO))
 import Data.Function ((&))
 import Data.Functor ((<&>))
 import Data.List (intercalate)
-import qualified Data.List.NonEmpty as NE
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, Dir, Path', basename, fromAbsDir, fromRelDir)
@@ -27,6 +26,8 @@ import qualified Wasp.AI.GenerateNewProject as GNP
 import Wasp.AI.GenerateNewProject.Common
   ( NewProjectConfig,
     NewProjectDetails (..),
+    defaultCodingModel,
+    defaultPlanningModel,
     emptyNewProjectConfig,
   )
 import qualified Wasp.AI.GenerateNewProject.Common as GNP.C
@@ -50,47 +51,14 @@ createNewProjectInteractiveOnDisk :: Path' Abs (Dir WaspProjectDir) -> NewProjec
 createNewProjectInteractiveOnDisk waspProjectDir appName = do
   openAIApiKey <- getOpenAIApiKey
   appDescription <- liftIO $ Interactive.askForRequiredInput "Describe your app in a couple of sentences"
-  (planningGptModel, codingGptModel) <-
-    liftIO
-      $ Interactive.askToChoose'
-        "Choose GPT model(s) you want to use:"
-      $ NE.fromList
-        [ Interactive.Option
-            "gpt-4o (planning + coding)"
-            (Just "Good results. Cheap and fast. Best cost/benefit ratio.")
-            (ChatGPT.GPT_4o, ChatGPT.GPT_4o),
-          Interactive.Option
-            "gpt-4 (planning) + gpt-4o (coding)"
-            (Just "Possibly better results, but somewhat slower and somewhat more expensive.")
-            (ChatGPT.GPT_4, ChatGPT.GPT_4o),
-          Interactive.Option
-            "gpt-4 (planning + coding)"
-            (Just "Possibly best results, but quite slower and quite more expensive.")
-            (ChatGPT.GPT_4, ChatGPT.GPT_4)
-        ]
-  temperature <-
-    liftIO
-      $ Interactive.askToChoose'
-        "Choose the creativity level (temperature):"
-      $ NE.fromList
-        [ Interactive.Option
-            "Balanced (0.7)"
-            (Just "Optimal trade-off between creativity and possible mistakes.")
-            0.7,
-          Interactive.Option
-            "Conventional (0.4)"
-            (Just "Generates sensible code with minimal amount of mistakes.")
-            0.4,
-          Interactive.Option
-            "Creative (1.0)"
-            (Just "Generates more creative code, but mistakes are more likely.")
-            1.0
-        ]
+  planningModelInput <- liftIO $ Interactive.askForInput $ "Enter planning model (default: " ++ show defaultPlanningModel ++ "): "
+  codingModelInput <- liftIO $ Interactive.askForInput $ "Enter coding model (default: " ++ show defaultCodingModel ++ "): "
+  let planningGptModel = if null planningModelInput then defaultPlanningModel else ChatGPT.Model planningModelInput
+      codingGptModel = if null codingModelInput then defaultCodingModel else ChatGPT.Model codingModelInput
   let projectConfig =
         emptyNewProjectConfig
           { GNP.C.projectPlanningGptModel = Just planningGptModel,
-            GNP.C.projectCodingGptModel = Just codingGptModel,
-            GNP.C.projectDefaultGptTemperature = Just temperature
+            GNP.C.projectCodingGptModel = Just codingGptModel
           }
 
   liftIO $ createNewProjectOnDisk openAIApiKey waspProjectDir appName appDescription projectConfig
@@ -105,7 +73,7 @@ createNewProjectInteractiveOnDisk waspProjectDir appName = do
           "Since this is a GPT generated app, it will likely contain some mistakes, proportional to how",
           "complex the app is. If there are some in your app, check out Wasp docs for help while",
           "fixing them, and also feel free to reach out to us on Discord! You can also try",
-          "generating the app again to get different results (try playing with the creativity level).",
+          "generating the app again to get different results, for example with a different model.",
           " - Wasp docs: https://wasp.sh/docs",
           " - Our Discord: https://discord.gg/rzdnErX",
           "",
