@@ -34,7 +34,7 @@ So, if you're using AI coding tools daily, your framework choice might be your s
 
 ## What Wasp Actually Is
 
-[Wasp](https://wasp.sh) is a full-stack framework for React, Node.js, and Prisma with batteries-included. Think Laravel-like productivity for the JS ecosystem but where authentication, routing, server functions, database, and cron jobs are defined declaratively as config. 
+[Wasp](https://wasp.sh) is a full-stack framework for React, Node.js, and Prisma with batteries-included. Think Laravel-like productivity for the JS ecosystem but where authentication, routing, operations, database, and cron jobs are defined declaratively as config. 
 
 You write business logic and Wasp handles the boilerplate and glue code for you.
 
@@ -271,7 +271,7 @@ The main differences comes from the Next.js codebase being bigger, meaning more 
 
 ## Proportionality -- The Core Insight
 
-The savings mirror what Wasp abstracts: authentication, routing, database management, server functions, and jobs are defined in the config, so AI doesn't need to read, navigate, or generate layers of glue code.
+The savings mirror what Wasp abstracts: authentication, routing, database management, operations, and jobs are defined in the config, so AI doesn't need to read, navigate, or generate layers of glue code.
 
 And while this is a new approach in the framework space, Wasp is just following a general principle here: **tools that make coding easier for humans make it easier for AI, too.** They offload structural work and let the AI focus on business logic, giving a clearer path to generating complex code more accurately.
 
@@ -281,7 +281,7 @@ Think of it as a new evaluation axis for any framework: **"context efficiency"**
 
 <ImgWithCaption alt="Wasp vs Next.js token efficiency" source="img/framework-token-comparison/saas-wasp.webp" caption="We compared the two frameworks on the same feature prompt in the same app: Vercel's SaaS Starter." justifyContent="flex-start" margin="0 0 1rem 0" width="650px" />
 
-We made sure to use the same models (Opus for planning and implementation, Haiku for exploring), same framework-agnostic prompt, and same plan-then-implement flow, outlined in the [test protocol](https://github.com/vincanger/token-compare-nextjs-wasp/blob/main/code-generation-test.md). Measurement scripts were used to pull metrics from Claude Code's detailedJSONL session transcripts.
+We made sure to use the same models (Opus for planning and implementation, Haiku for exploring), same framework-agnostic prompt, and same plan-then-implement flow, outlined in the [test protocol](https://github.com/vincanger/token-compare-nextjs-wasp/blob/main/code-generation-test.md). Measurement scripts were used to pull metrics from Claude Code's detailed JSONL session transcripts.
 
 We used [Anthropic's API pricing](https://www.anthropic.com/pricing) as of March 2026 (per 1M tokens), e.g.:
 
