@@ -3,7 +3,7 @@ module Wasp.Generator.Common
     UniversalTemplatesDir,
     universalTemplatesDirInTemplatesDir,
     ServerRootDir,
-    GeneratedAppComponentRootDir,
+    GeneratedAppComponentDir,
     DbRootDir,
     makeJsonWithEntityData,
     GeneratedAppComponentSrcDir,
@@ -27,18 +27,18 @@ import Wasp.Util (toLowerFirst)
 data GeneratedAppDir
 
 -- | Directory of a single web app project component in 'GeneratedAppDir'.
-class GeneratedAppComponentRootDir d
+class GeneratedAppComponentDir d
 
--- | Directory of top-level @src/@ dir in 'GeneratedAppComponentRootDir'.
+-- | Directory of top-level @src/@ dir in 'GeneratedAppComponentDir'.
 class GeneratedAppComponentSrcDir d
 
 data ServerRootDir
 
-instance GeneratedAppComponentRootDir ServerRootDir
+instance GeneratedAppComponentDir ServerRootDir
 
 data DbRootDir
 
-instance GeneratedAppComponentRootDir DbRootDir
+instance GeneratedAppComponentDir DbRootDir
 
 data UniversalTemplatesDir
 

@@ -68,7 +68,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentRootDir)
+import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -128,7 +128,7 @@ genTsConfigJson spec = do
       )
   where
     srcTsConfigPath :: Path' (Rel C.ServerRootDir) (File SrcTsConfigFile) =
-      waspProjectDirFromGeneratedAppComponentRootDir </> AS.srcTsConfigPath spec
+      waspProjectDirFromGeneratedAppComponentDir </> AS.srcTsConfigPath spec
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies =
@@ -232,7 +232,7 @@ genNodemon =
       (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
-      waspProjectDirFromGeneratedAppComponentRootDir </> srcDirInWaspProjectDir
+      waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =

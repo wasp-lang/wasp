@@ -23,7 +23,7 @@ module Wasp.Project.Common
     getSrcTsConfigInWaspProjectDir,
     srcTsConfigInWaspLangProject,
     srcTsConfigInWaspTsProject,
-    waspProjectDirFromGeneratedAppComponentRootDir,
+    waspProjectDirFromGeneratedAppComponentDir,
     generatedAppDirInWaspProjectDir,
     makeAppUniqueId,
   )
@@ -81,8 +81,8 @@ generatedAppDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedAppDir
 -- TODO: This backwards relative path relies on multiple forward relative path
 -- definitions. We should find a better way to express it (e.g., by somehow
 -- calculating it from existing definitions)
-waspProjectDirFromGeneratedAppComponentRootDir :: (G.Common.GeneratedAppComponentRootDir d) => Path' (Rel d) (Dir WaspProjectDir)
-waspProjectDirFromGeneratedAppComponentRootDir = [reldir|../|] </> waspProjectDirFromGeneratedAppDir
+waspProjectDirFromGeneratedAppComponentDir :: (G.Common.GeneratedAppComponentDir d) => Path' (Rel d) (Dir WaspProjectDir)
+waspProjectDirFromGeneratedAppComponentDir = [reldir|../|] </> waspProjectDirFromGeneratedAppDir
 
 waspProjectDirFromGeneratedAppDir :: Path' (Rel G.Common.GeneratedAppDir) (Dir WaspProjectDir)
 waspProjectDirFromGeneratedAppDir = invertRelDir generatedAppDirInWaspProjectDir

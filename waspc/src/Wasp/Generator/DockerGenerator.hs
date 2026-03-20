@@ -23,7 +23,7 @@ import Wasp.Generator.Common
   )
 import Wasp.Generator.DbGenerator.Common
   ( PrismaDbSchema,
-    dbSchemaFileFromGeneratedAppComponentRootDir,
+    dbSchemaFileFromGeneratedAppComponentDir,
   )
 import Wasp.Generator.FileDraft (FileDraft (..), createTemplateFileDraft)
 import qualified Wasp.Generator.FileDraft.TemplateFileDraft as TmplFD
@@ -36,7 +36,7 @@ genDockerFiles spec = sequence [genDockerfile spec, genDockerignore spec]
 -- TODO: Inject paths to server and db files/dirs, right now they are hardcoded in the templates.
 genDockerfile :: AppSpec -> Generator FileDraft
 genDockerfile spec = do
-  let dbSchemaFileFromServerDir :: Path' (Rel ServerRootDir) (File PrismaDbSchema) = dbSchemaFileFromGeneratedAppComponentRootDir
+  let dbSchemaFileFromServerDir :: Path' (Rel ServerRootDir) (File PrismaDbSchema) = dbSchemaFileFromGeneratedAppComponentDir
   return $
     createTemplateFileDraft
       ([relfile|Dockerfile|] :: Path' (Rel GeneratedAppDir) File')
