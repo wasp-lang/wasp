@@ -5,23 +5,20 @@ module Wasp.Generator.SdkGenerator.Server.OAuthG
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
-import Data.Maybe (fromJust, isJust)
+import Data.Maybe (fromJust)
 import StrongPath (Dir', File', Path', Rel, Rel', parseRelFile, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec.App as AS.App
-import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import Wasp.Generator.AuthProviders (discordAuthProvider, getEnabledAuthProvidersJson, gitHubAuthProvider, googleAuthProvider, keycloakAuthProvider, microsoftAuthProvider, slackAuthProvider)
-import Wasp.Generator.AuthProviders.OAuth
-  ( OAuthAuthProvider,
+import Wasp.Generator.Auth.Provider
+  ( OAuthProviderSpec (..),
     clientOAuthCallbackPath,
-    serverExchangeCodeForTokenHandlerPath,
-    serverOAuthCallbackHandlerPath,
-    serverOAuthLoginHandlerPath,
+    enabledAuthMethodsJson,
+    enabledOAuthProviders,
+    isOAuthEnabled,
   )
-import qualified Wasp.Generator.AuthProviders.OAuth as OAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -33,19 +30,14 @@ import Wasp.Util ((<++>))
 
 genOAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genOAuth auth
-  | AS.Auth.isExternalAuthEnabled auth =
+  | isOAuthEnabled auth =
       sequence
         [ genIndexTs auth,
           genRedirectHelper,
           genFileCopyInServerOAuth [relfile|oneTimeCode.ts|],
           genFileCopyInServerOAuth [relfile|provider.ts|]
         ]
-        <++> genOAuthProvider slackAuthProvider (AS.Auth.slack . AS.Auth.methods $ auth)
-        <++> genOAuthProvider discordAuthProvider (AS.Auth.discord . AS.Auth.methods $ auth)
-        <++> genOAuthProvider googleAuthProvider (AS.Auth.google . AS.Auth.methods $ auth)
-        <++> genOAuthProvider keycloakAuthProvider (AS.Auth.keycloak . AS.Auth.methods $ auth)
-        <++> genOAuthProvider gitHubAuthProvider (AS.Auth.gitHub . AS.Auth.methods $ auth)
-        <++> genOAuthProvider microsoftAuthProvider (AS.Auth.microsoft . AS.Auth.methods $ auth)
+        <++> concatMapM genSingleProvider (enabledOAuthProviders auth)
   | otherwise = return []
 
 genIndexTs :: AS.Auth.Auth -> Generator FileDraft
@@ -57,7 +49,7 @@ genIndexTs auth =
   where
     tmplData =
       object
-        [ "enabledProviders" .= getEnabledAuthProvidersJson auth
+        [ "enabledProviders" .= enabledAuthMethodsJson auth
         ]
 
 genRedirectHelper :: Generator FileDraft
@@ -69,24 +61,17 @@ genRedirectHelper =
   where
     tmplData =
       object
-        [ "serverOAuthCallbackHandlerPath" .= serverOAuthCallbackHandlerPath,
+        [ "serverOAuthCallbackHandlerPath" .= ("callback" :: String),
           "clientOAuthCallbackPath" .= clientOAuthCallbackPath,
-          "serverOAuthLoginHandlerPath" .= serverOAuthLoginHandlerPath,
-          "serverExchangeCodeForTokenHandlerPath" .= serverExchangeCodeForTokenHandlerPath
+          "serverOAuthLoginHandlerPath" .= ("login" :: String),
+          "serverExchangeCodeForTokenHandlerPath" .= ("exchange-code" :: String)
         ]
 
-genOAuthProvider ::
-  OAuthAuthProvider ->
-  Maybe AS.Auth.ExternalAuthConfig ->
-  Generator [FileDraft]
-genOAuthProvider provider maybeUserConfig
-  | isJust maybeUserConfig = sequence [genOAuthConfig provider]
-  | otherwise = return []
+genSingleProvider :: (OAuthProviderSpec, AS.Auth.ExternalAuthConfig) -> Generator [FileDraft]
+genSingleProvider (spec, _config) = sequence [genOAuthConfig spec]
 
-genOAuthConfig ::
-  OAuthAuthProvider ->
-  Generator FileDraft
-genOAuthConfig provider =
+genOAuthConfig :: OAuthProviderSpec -> Generator FileDraft
+genOAuthConfig spec =
   return $
     mkTmplFdWithData
       (serverOAuthDirInSdkTemplatesDir </> [reldir|providers|] </> providerTsFile)
@@ -94,15 +79,15 @@ genOAuthConfig provider =
   where
     tmplData =
       object
-        [ "providerId" .= OAuth.providerId provider,
-          "displayName" .= OAuth.displayName provider
+        [ "providerId" .= slug spec,
+          "displayName" .= displayName spec
         ]
 
-    providerTsFile = fromJust $ parseRelFile $ OAuth.providerId provider ++ ".ts"
+    providerTsFile = fromJust $ parseRelFile $ slug spec ++ ".ts"
 
 depsRequiredByOAuth :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByOAuth spec =
-  [Npm.Dependency.make ("arctic", "^1.2.1") | (AS.App.Auth.isExternalAuthEnabled <$> maybeAuth) == Just True]
+  [Npm.Dependency.make ("arctic", "^1.2.1") | (isOAuthEnabled <$> maybeAuth) == Just True]
   where
     maybeAuth = AS.App.auth $ snd $ AS.Valid.getApp spec
 
@@ -111,3 +96,6 @@ serverOAuthDirInSdkTemplatesDir = [reldir|server/auth/oauth|]
 
 genFileCopyInServerOAuth :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerOAuth = genFileCopy . (serverOAuthDirInSdkTemplatesDir </>)
+
+concatMapM :: (Monad m) => (a -> m [b]) -> [a] -> m [b]
+concatMapM f xs = concat <$> mapM f xs

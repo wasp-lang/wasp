@@ -10,7 +10,7 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp)
-import qualified Wasp.Generator.AuthProviders as AuthProviders
+import Wasp.Generator.Auth.Provider (enabledAuthMethodsJson, isEmailEnabled, isOAuthEnabled, isUsernameAndPasswordEnabled)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -45,10 +45,10 @@ genAuthIndex auth =
   where
     tmplData =
       object
-        [ "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth,
+        [ "enabledProviders" .= enabledAuthMethodsJson auth,
           "isExternalAuthEnabled" .= isExternalAuthEnabled
         ]
-    isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
+    isExternalAuthEnabled = isOAuthEnabled auth
 
 genAuthUser :: AS.Auth.Auth -> Generator FileDraft
 genAuthUser auth =
@@ -64,7 +64,7 @@ genAuthUser auth =
           "authFieldOnUserEntityName" .= DbAuth.authFieldOnUserEntityName,
           "authIdentityEntityName" .= DbAuth.authIdentityEntityName,
           "identitiesFieldOnAuthEntityName" .= DbAuth.identitiesFieldOnAuthEntityName,
-          "enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth
+          "enabledProviders" .= enabledAuthMethodsJson auth
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
 
@@ -75,17 +75,17 @@ genHooks auth =
       (serverAuthDirInSdkTemplatesDir </> [relfile|hooks.ts|])
       tmplData
   where
-    tmplData = object ["enabledProviders" .= AuthProviders.getEnabledAuthProvidersJson auth]
+    tmplData = object ["enabledProviders" .= enabledAuthMethodsJson auth]
 
 genAuthEmail :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthEmail auth =
-  if AS.Auth.isEmailAuthEnabled auth
+  if isEmailEnabled auth
     then sequence [genFileCopyInServerAuth [relfile|email/index.ts|]]
     else return []
 
 genAuthUsername :: AS.Auth.Auth -> Generator [FileDraft]
 genAuthUsername auth =
-  if AS.Auth.isUsernameAndPasswordAuthEnabled auth
+  if isUsernameAndPasswordEnabled auth
     then sequence [genFileCopyInServerAuth [relfile|username.ts|]]
     else return []
 
