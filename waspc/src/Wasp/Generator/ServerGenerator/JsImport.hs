@@ -5,7 +5,7 @@ import Data.Maybe (fromJust)
 import StrongPath (Dir, Path, Posix, Rel, castDir, relDirToPosix, (</>))
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.ServerGenerator.Common (ServerSrcDir, serverSrcDirInProjectRootDir)
+import Wasp.Generator.ServerGenerator.Common (ServerSrcDir, serverSrcDirInGeneratedAppDir)
 import Wasp.JsImport
   ( JsImport,
     JsImportAlias,
@@ -13,7 +13,7 @@ import Wasp.JsImport
     JsImportStatement,
   )
 import qualified Wasp.JsImport as JI
-import Wasp.Project.Common (generatedCodeDirInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir, srcDirInWaspProjectDir)
 import Wasp.Util.StrongPath (invertRelDir)
 
 extImportToImportJson ::
@@ -61,4 +61,4 @@ extImportToJsImport = GJI.extImportToJsImport $ fromJust . relDirToPosix $ castD
     -- with Vite (Vite outputs absolute file paths), but less great on the
     -- server (TS outputs relative paths, resulting in ../../src/something).
     waspProjectSrcDirFromServerSrcDir = waspProjectDirFromServerSrcDir </> srcDirInWaspProjectDir
-    waspProjectDirFromServerSrcDir = invertRelDir (generatedCodeDirInWaspProjectDir </> serverSrcDirInProjectRootDir)
+    waspProjectDirFromServerSrcDir = invertRelDir (generatedAppDirInWaspProjectDir </> serverSrcDirInGeneratedAppDir)
