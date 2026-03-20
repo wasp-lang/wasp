@@ -281,6 +281,8 @@ library
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
+    Wasp.Generator.Auth.OAuthGen
+    Wasp.Generator.Auth.Provider
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.Email
