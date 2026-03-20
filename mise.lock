@@ -2,7 +2,7 @@
 
 [[tools.cabal]]
 version = "3.12.1.0"
-backend = "asdf:mise-plugins/mise-ghcup"
+backend = "aqua:haskell/cabal/cabal-install"
 
 [tools.cabal."platforms.linux-arm64"]
 checksum = "sha256:7642f4bfb4eb88ed82b4022940ad53206012ab116a19a367579ca6a7c2adb6d2"
@@ -66,11 +66,11 @@ url_api = "https://api.github.com/repos/tfausak/cabal-gild/releases/assets/17700
 
 [[tools.ghc]]
 version = "9.6.7"
-backend = "asdf:mise-plugins/mise-ghcup"
+backend = "asdf:ghc"
 
 [[tools.hls]]
 version = "2.12.0.0"
-backend = "asdf:mise-plugins/mise-ghcup"
+backend = "asdf:hls"
 
 [[tools.node]]
 version = "22.12.0"
