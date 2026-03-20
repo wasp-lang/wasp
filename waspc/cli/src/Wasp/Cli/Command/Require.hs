@@ -24,6 +24,7 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
+    WaspConfigAvailable (WaspConfigAvailable),
     GeneratedCodeIsProduction (GeneratedCodeIsProduction),
     GeneratedCodeIsDevelopment (GeneratedCodeIsDevelopment),
     DbConnectionEstablished (DbConnectionEstablished),
@@ -36,7 +37,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Bool (bool)
 import Data.Data (Typeable)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
@@ -44,9 +45,12 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (check
 import Wasp.Generator.Common (ProjectRootDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackagePathInNodeModules)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
+import Wasp.Project.WaspFile (isWaspTsProject)
+import qualified Wasp.Util.IO as IOUtil
 
 -- | Require a Wasp project to exist near the current directory. Get the
 -- project directory by pattern matching on the result of 'require':
@@ -83,6 +87,24 @@ instance Requirable InWaspProject where
           ( "Couldn't find wasp project root - make sure"
               ++ " you are running this command from a Wasp project."
           )
+
+-- | Require that the wasp-config package is available in node_modules (for TS projects).
+-- For DSL projects, this check always passes.
+data WaspConfigAvailable = WaspConfigAvailable deriving (Typeable)
+
+instance Requirable WaspConfigAvailable where
+  checkRequirement = do
+    InWaspProject waspProjectDir <- require
+    isTsProject <- liftIO $ isWaspTsProject waspProjectDir
+    when isTsProject $ do
+      let waspConfigInNodeModules = waspProjectDir </> getPackagePathInNodeModules WaspConfigPackage
+      exists <- liftIO $ IOUtil.doesDirectoryExist waspConfigInNodeModules
+      unless exists $
+        throwError $
+          CommandError
+            "Missing dependencies in project"
+            "Your project is missing some dependencies. Run `wasp install` to install them."
+    return WaspConfigAvailable
 
 data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 
