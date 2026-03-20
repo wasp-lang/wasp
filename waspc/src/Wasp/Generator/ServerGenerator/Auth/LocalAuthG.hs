@@ -19,8 +19,6 @@ import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders (localAuthProvider)
-import qualified Wasp.Generator.AuthProviders.Local as Local
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
@@ -47,8 +45,8 @@ genLocalAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData
 
     tmplData =
       object
-        [ "providerId" .= Local.providerId localAuthProvider,
-          "displayName" .= Local.displayName localAuthProvider,
+        [ "providerId" .= ("username" :: String),
+          "displayName" .= ("Username and password" :: String),
           "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
         ]
 
