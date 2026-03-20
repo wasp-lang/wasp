@@ -31,7 +31,8 @@ jobs:
 
       - uses: actions/checkout@v6
 
-      - uses: jdx/mise-action@v4
+      - name: Set up ormolu
+        uses: jdx/mise-action@v4
         with:
           install_args: ormolu
 
@@ -45,7 +46,8 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: jdx/mise-action@v4
+      - name: Set up cabal-gild
+        uses: jdx/mise-action@v4
         with:
           install_args: cabal-gild
 

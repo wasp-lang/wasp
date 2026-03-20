@@ -4,6 +4,13 @@ description: |
   adding the GHC and Cabal binaries to the PATH. It also caches
   the GHC and Cabal installations to speed up subsequent runs.
 
+inputs:
+  cabal-project-dir:
+    description: |
+      The working directory for the action.
+    required: false
+    default: "waspc"
+
 runs:
   using: composite
 
@@ -58,6 +65,6 @@ runs:
         path: |
           ${{ steps.setup-haskell.outputs.cabal-store }}
         key: |
-          cabal-waspc-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.setup-haskell.outputs.ghc-version }}-${{ hashFiles('waspc/*.cabal', 'waspc/*.project') }}
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.setup-haskell.outputs.ghc-version }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
         restore-keys: |
-          cabal-waspc-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.setup-haskell.outputs.ghc-version }}-
+          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.setup-haskell.outputs.ghc-version }}-
