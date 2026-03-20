@@ -27,7 +27,7 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
-  ( ProjectRootDir,
+  ( GeneratedAppDir,
     makeJsonWithEntityData,
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
@@ -85,8 +85,8 @@ import qualified Wasp.SemanticVersion.Version as SV
   )
 import Wasp.Util ((<++>))
 
-buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-buildSdk projectRootDir = do
+buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+buildSdk generatedAppDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
@@ -96,7 +96,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
   where
-    sdkRootDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
+    sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -321,7 +321,7 @@ genExternalFile file
   where
     fileName = FP.takeFileName . fromRelFile $ externalFilePath
     destFile =
-      C.sdkRootDirInGeneratedCodeDir
+      C.sdkRootDirInGeneratedAppDir
         </> C.extSrcDirInSdkRootDir
         </> castRel externalFilePath
 

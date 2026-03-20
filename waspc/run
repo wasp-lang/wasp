@@ -164,7 +164,7 @@ print_usage() {
   print_usage_cmd "test:waspc:e2e" \
     "Executes only cli e2e tests. Builds the project first if needed."
   print_usage_cmd "test:waspc:e2e:accept-all" \
-    "Accepts any diffs in the generated code in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+    "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:waspls" \

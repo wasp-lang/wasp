@@ -1,12 +1,12 @@
 module Wasp.Generator.Common
-  ( ProjectRootDir,
+  ( GeneratedAppDir,
     UniversalTemplatesDir,
     universalTemplatesDirInTemplatesDir,
     ServerRootDir,
-    AppComponentRootDir,
+    GeneratedAppComponentRootDir,
     DbRootDir,
     makeJsonWithEntityData,
-    GeneratedSrcDir,
+    GeneratedAppComponentSrcDir,
     makeJsArrayFromHaskellList,
     dropExtensionFromImportPath,
   )
@@ -23,27 +23,27 @@ import System.FilePath (splitExtension)
 import Wasp.Generator.Templates (TemplatesDir)
 import Wasp.Util (toLowerFirst)
 
--- | Directory where the whole web app project (client, server, ...) is generated.
-data ProjectRootDir
+-- | Directory where the whole web app project is generated.
+data GeneratedAppDir
+
+-- | Directory of a single web app project component in 'GeneratedAppDir'.
+class GeneratedAppComponentRootDir d
+
+-- | Directory of top-level @src/@ dir in 'GeneratedAppComponentRootDir'.
+class GeneratedAppComponentSrcDir d
+
+data ServerRootDir
+
+instance GeneratedAppComponentRootDir ServerRootDir
+
+data DbRootDir
+
+instance GeneratedAppComponentRootDir DbRootDir
 
 data UniversalTemplatesDir
 
 universalTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir UniversalTemplatesDir)
 universalTemplatesDirInTemplatesDir = [reldir|universal|]
-
--- | Type representing top-level src/ dir in an app component (e.g. in web app or in server).
---   Examples: web-app/src/, server/src/, ... .
-class GeneratedSrcDir d
-
-class AppComponentRootDir d
-
-data ServerRootDir
-
-instance AppComponentRootDir ServerRootDir
-
-data DbRootDir
-
-instance AppComponentRootDir DbRootDir
 
 makeJsonWithEntityData :: String -> Aeson.Value
 makeJsonWithEntityData name =

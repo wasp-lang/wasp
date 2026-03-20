@@ -9,7 +9,7 @@ import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import Wasp.Generator.WaspLibs.WaspLib
   ( WaspLib,
     getTarballPathInLibsSourceDir,
-    getTarballPathInProjectRootDir,
+    getTarballPathInGeneratedAppDir,
   )
 
 genWaspLibs :: Generator [FileDraft]
@@ -18,5 +18,5 @@ genWaspLibs = return $ mkLibCopyDraft <$> waspLibs
     mkLibCopyDraft :: WaspLib -> FileDraft
     mkLibCopyDraft waspLib =
       createCopyLibFileDraft
-        (getTarballPathInProjectRootDir waspLib)
+        (getTarballPathInGeneratedAppDir waspLib)
         (getTarballPathInLibsSourceDir waspLib)

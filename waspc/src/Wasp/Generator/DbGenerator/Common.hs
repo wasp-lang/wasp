@@ -1,9 +1,9 @@
 module Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
-    dbSchemaFileFromAppComponentDir,
-    dbRootDirInProjectRootDir,
-    dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir,
-    dbSchemaChecksumOnLastGenerateFileProjectRootDir,
+    dbSchemaFileFromGeneratedAppComponentRootDir,
+    dbRootDirInGeneratedAppDir,
+    dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir,
+    dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir,
     dbSchemaFileInDbTemplatesDir,
     dbTemplatesDirInTemplatesDir,
     defaultMigrateArgs,
@@ -14,16 +14,16 @@ module Wasp.Generator.DbGenerator.Common
     DbSchemaChecksumOnLastDbConcurrenceFile,
     DbSchemaChecksumOnLastGenerateFile,
     PrismaDbSchema,
-    dbSchemaFileInProjectRootDir,
+    dbSchemaFileInGeneratedAppDir,
     DbSchemaChecksumFile,
     dbSchemaFileInNodeModulesDir,
   )
 where
 
 import StrongPath (Dir, File, File', Path', Rel, reldir, relfile, (</>))
-import Wasp.Generator.Common (AppComponentRootDir, DbRootDir, ProjectRootDir)
+import Wasp.Generator.Common (DbRootDir, GeneratedAppComponentRootDir, GeneratedAppDir)
 import Wasp.Generator.Templates (TemplatesDir)
-import Wasp.Project.Common (waspProjectDirFromGeneratedCodeDir)
+import Wasp.Project.Common (waspProjectDirFromGeneratedAppDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir)
 
 data DbTemplatesDir
@@ -47,8 +47,8 @@ data DbSchemaChecksumOnLastGenerateFile
 
 instance DbSchemaChecksumFile DbSchemaChecksumOnLastGenerateFile
 
-dbRootDirInProjectRootDir :: Path' (Rel ProjectRootDir) (Dir DbRootDir)
-dbRootDirInProjectRootDir = [reldir|db|]
+dbRootDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir DbRootDir)
+dbRootDirInGeneratedAppDir = [reldir|db|]
 
 dbTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir DbTemplatesDir)
 dbTemplatesDirInTemplatesDir = [reldir|db|]
@@ -59,17 +59,17 @@ dbSchemaFileInDbTemplatesDir = [relfile|schema.prisma|]
 dbSchemaFileInDbRootDir :: Path' (Rel DbRootDir) (File PrismaDbSchema)
 dbSchemaFileInDbRootDir = [relfile|schema.prisma|]
 
-dbRootDirFromAppComponentDir :: (AppComponentRootDir d) => Path' (Rel d) (Dir DbRootDir)
-dbRootDirFromAppComponentDir = [reldir|../db|]
+dbRootDirFromGeneratedAppComponentRootDir :: (GeneratedAppComponentRootDir d) => Path' (Rel d) (Dir DbRootDir)
+dbRootDirFromGeneratedAppComponentRootDir = [reldir|../db|]
 
-dbSchemaFileFromAppComponentDir :: (AppComponentRootDir d) => Path' (Rel d) (File PrismaDbSchema)
-dbSchemaFileFromAppComponentDir = dbRootDirFromAppComponentDir </> dbSchemaFileInDbRootDir
+dbSchemaFileFromGeneratedAppComponentRootDir :: (GeneratedAppComponentRootDir d) => Path' (Rel d) (File PrismaDbSchema)
+dbSchemaFileFromGeneratedAppComponentRootDir = dbRootDirFromGeneratedAppComponentRootDir </> dbSchemaFileInDbRootDir
 
-dbSchemaFileInProjectRootDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
-dbSchemaFileInProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaFileInDbRootDir
+dbSchemaFileInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File PrismaDbSchema)
+dbSchemaFileInGeneratedAppDir = dbRootDirInGeneratedAppDir </> dbSchemaFileInDbRootDir
 
-dbSchemaFileInNodeModulesDir :: Path' (Rel ProjectRootDir) (File PrismaDbSchema)
-dbSchemaFileInNodeModulesDir = waspProjectDirFromGeneratedCodeDir </> [relfile|node_modules/.prisma/client/schema.prisma|]
+dbSchemaFileInNodeModulesDir :: Path' (Rel GeneratedAppDir) (File PrismaDbSchema)
+dbSchemaFileInNodeModulesDir = waspProjectDirFromGeneratedAppDir </> [relfile|node_modules/.prisma/client/schema.prisma|]
 
 dbMigrationsDirInDbRootDir :: Path' (Rel DbRootDir) (Dir DbMigrationsDir)
 dbMigrationsDirInDbRootDir = [reldir|migrations|]
@@ -77,14 +77,14 @@ dbMigrationsDirInDbRootDir = [reldir|migrations|]
 dbSchemaChecksumOnLastDbConcurrenceFileInDbRootDir :: Path' (Rel DbRootDir) (File DbSchemaChecksumOnLastDbConcurrenceFile)
 dbSchemaChecksumOnLastDbConcurrenceFileInDbRootDir = [relfile|schema.prisma.wasp-last-db-concurrence-checksum|]
 
-dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumOnLastDbConcurrenceFile)
-dbSchemaChecksumOnLastDbConcurrenceFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumOnLastDbConcurrenceFileInDbRootDir
+dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File DbSchemaChecksumOnLastDbConcurrenceFile)
+dbSchemaChecksumOnLastDbConcurrenceFileInGeneratedAppDir = dbRootDirInGeneratedAppDir </> dbSchemaChecksumOnLastDbConcurrenceFileInDbRootDir
 
 dbSchemaChecksumOnLastGenerateFileInDbRootDir :: Path' (Rel DbRootDir) (File DbSchemaChecksumOnLastGenerateFile)
 dbSchemaChecksumOnLastGenerateFileInDbRootDir = [relfile|schema.prisma.wasp-generate-checksum|]
 
-dbSchemaChecksumOnLastGenerateFileProjectRootDir :: Path' (Rel ProjectRootDir) (File DbSchemaChecksumOnLastGenerateFile)
-dbSchemaChecksumOnLastGenerateFileProjectRootDir = dbRootDirInProjectRootDir </> dbSchemaChecksumOnLastGenerateFileInDbRootDir
+dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File DbSchemaChecksumOnLastGenerateFile)
+dbSchemaChecksumOnLastGenerateFileInGeneratedAppDir = dbRootDirInGeneratedAppDir </> dbSchemaChecksumOnLastGenerateFileInDbRootDir
 
 data MigrateArgs = MigrateArgs
   { _migrationName :: Maybe String,
