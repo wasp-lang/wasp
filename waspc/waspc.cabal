@@ -283,11 +283,6 @@ library
     Wasp.Generator
     Wasp.Generator.Auth.OAuthGen
     Wasp.Generator.Auth.Provider
-    Wasp.Generator.AuthProviders
-    Wasp.Generator.AuthProviders.Common
-    Wasp.Generator.AuthProviders.Email
-    Wasp.Generator.AuthProviders.Local
-    Wasp.Generator.AuthProviders.OAuth
     Wasp.Generator.Common
     Wasp.Generator.Crud
     Wasp.Generator.Crud.Routes

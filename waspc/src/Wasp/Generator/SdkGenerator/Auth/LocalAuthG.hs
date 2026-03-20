@@ -6,8 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
-import Wasp.Generator.AuthProviders (localAuthProvider)
-import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
+import Wasp.Generator.Auth.Provider (isUsernameAndPasswordEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
@@ -20,7 +19,7 @@ import Wasp.Util ((<++>))
 
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
 genLocalAuth auth
-  | AS.Auth.isUsernameAndPasswordAuthEnabled auth =
+  | isUsernameAndPasswordEnabled auth =
       sequence
         [ genFileCopyInLocalAuthDir [relfile|index.ts|]
         ]
@@ -41,7 +40,7 @@ genLoginAction =
       (localAuthDirInSdkTemplatesDir </> [relfile|actions/login.ts|])
       tmplData
   where
-    tmplData = object ["loginPath" .= serverLoginUrl localAuthProvider]
+    tmplData = object ["loginPath" .= ("/auth/username/login" :: String)]
 
 genSignupAction :: AS.Auth.Auth -> Generator FileDraft
 genSignupAction auth =
@@ -52,7 +51,7 @@ genSignupAction auth =
   where
     tmplData =
       object
-        [ "signupPath" .= serverSignupUrl localAuthProvider,
+        [ "signupPath" .= ("/auth/username/signup" :: String),
           "usernameAndPasswordUserSignupFields" .= extImportToImportJson userUsernameAndPassowrdSignupFields
         ]
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth

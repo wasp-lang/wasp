@@ -10,15 +10,6 @@ module Wasp.AppSpec.App.Auth
     ExternalAuthConfig (..),
     EmailAuthConfig (..),
     UsernameAndPasswordConfig (..),
-    isUsernameAndPasswordAuthEnabled,
-    isExternalAuthEnabled,
-    isSlackAuthEnabled,
-    isDiscordAuthEnabled,
-    isGoogleAuthEnabled,
-    isKeycloakAuthEnabled,
-    isGitHubAuthEnabled,
-    isMicrosoftAuthEnabled,
-    isEmailAuthEnabled,
     userSignupFieldsForEmailAuth,
     userSignupFieldsForUsernameAuth,
     userSignupFieldsForExternalAuth,
@@ -27,7 +18,6 @@ where
 
 import Data.Aeson (FromJSON)
 import Data.Data (Data)
-import Data.Maybe (isJust)
 import GHC.Generics (Generic)
 import Wasp.AppSpec.App.Auth.EmailVerification (EmailVerificationConfig)
 import Wasp.AppSpec.App.Auth.PasswordReset (PasswordResetConfig)
@@ -81,43 +71,6 @@ data EmailAuthConfig = EmailAuthConfig
     passwordReset :: PasswordResetConfig
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
-
-isUsernameAndPasswordAuthEnabled :: Auth -> Bool
-isUsernameAndPasswordAuthEnabled = isJust . usernameAndPassword . methods
-
-isExternalAuthEnabled :: Auth -> Bool
-isExternalAuthEnabled auth =
-  any
-    ($ auth)
-    -- NOTE: Make sure to add new external auth methods here.
-    [ isSlackAuthEnabled,
-      isDiscordAuthEnabled,
-      isGoogleAuthEnabled,
-      isGitHubAuthEnabled,
-      isKeycloakAuthEnabled,
-      isMicrosoftAuthEnabled
-    ]
-
-isSlackAuthEnabled :: Auth -> Bool
-isSlackAuthEnabled = isJust . slack . methods
-
-isDiscordAuthEnabled :: Auth -> Bool
-isDiscordAuthEnabled = isJust . discord . methods
-
-isGoogleAuthEnabled :: Auth -> Bool
-isGoogleAuthEnabled = isJust . google . methods
-
-isKeycloakAuthEnabled :: Auth -> Bool
-isKeycloakAuthEnabled = isJust . keycloak . methods
-
-isGitHubAuthEnabled :: Auth -> Bool
-isGitHubAuthEnabled = isJust . gitHub . methods
-
-isMicrosoftAuthEnabled :: Auth -> Bool
-isMicrosoftAuthEnabled = isJust . microsoft . methods
-
-isEmailAuthEnabled :: Auth -> Bool
-isEmailAuthEnabled = isJust . email . methods
 
 -- These helper functions are used to avoid ambiguity when using the
 -- `userSignupFields` function (otherwise we need to use DuplicateRecordFields

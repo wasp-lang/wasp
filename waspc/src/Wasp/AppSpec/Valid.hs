@@ -164,7 +164,7 @@ validateOnlyEmailOrUsernameAndPasswordAuthIsUsed spec =
         | areBothAuthMethodsUsed
       ]
       where
-        areBothAuthMethodsUsed = Auth.isEmailAuthEnabled auth && Auth.isUsernameAndPasswordAuthEnabled auth
+        areBothAuthMethodsUsed = isJust (Auth.email (Auth.methods auth)) && isJust (Auth.usernameAndPassword (Auth.methods auth))
 
 validateDbIsPostgresIfPgBossUsed :: AppSpec -> [ValidationError]
 validateDbIsPostgresIfPgBossUsed spec =
@@ -177,7 +177,7 @@ validateEmailSenderIsDefinedIfEmailAuthIsUsed :: AppSpec -> [ValidationError]
 validateEmailSenderIsDefinedIfEmailAuthIsUsed spec = case App.auth app of
   Nothing -> []
   Just auth ->
-    if Auth.isEmailAuthEnabled auth && isNothing (App.emailSender app)
+    if isJust (Auth.email (Auth.methods auth)) && isNothing (App.emailSender app)
       then [GenericValidationError "app.emailSender must be specified when using email auth. You can use the Dummy email sender for development purposes."]
       else []
   where

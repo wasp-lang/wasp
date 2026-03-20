@@ -13,7 +13,7 @@ import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Valid (getApp)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
-import qualified Wasp.Generator.AuthProviders as AuthProviders
+import qualified Wasp.Generator.Auth.Provider as AuthProvider
 import qualified Wasp.Generator.EmailSenders as EmailSenders
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -61,7 +61,7 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
           "defaultClientUrl" .= WebApp.getDefaultDevClientUrl spec,
           "defaultServerUrl" .= Server.defaultDevServerUrl,
           "defaultServerPort" .= Server.defaultServerPort,
-          "enabledAuthProviders" .= (AuthProviders.getEnabledAuthProvidersJson <$> maybeAuth),
+          "enabledAuthProviders" .= (AuthProvider.enabledAuthMethodsJson <$> maybeAuth),
           "isEmailSenderEnabled" .= isJust maybeEmailSender,
           "enabledEmailSenders" .= (EmailSenders.getEnabledEmailProvidersJson <$> maybeEmailSender),
           "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
