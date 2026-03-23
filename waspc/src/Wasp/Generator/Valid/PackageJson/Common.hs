@@ -17,27 +17,27 @@ requiredUserRuntimeDeps :: [DependencySpecification]
 requiredUserRuntimeDeps =
   [ -- Installing the wrong version of "react-router" can make users believe that they
     -- can use features that are not available in the version that Wasp supports.
-    ("react-router", show DepVersions.reactRouterVersion),
-    ("react", show DepVersions.reactVersion),
-    ("react-dom", show DepVersions.reactDomVersion)
+    ("react-router", show DepVersions.reactRouterVersionRange),
+    ("react", show DepVersions.reactVersionRange),
+    ("react-dom", show DepVersions.reactDomVersionRange)
   ]
 
 -- | List of dependencies that are required to be present in the user's
 -- package.json#devDependencies.
 requiredUserDevelopmentDeps :: [DependencySpecification]
 requiredUserDevelopmentDeps =
-  [ ("vite", show DepVersions.viteVersion),
-    ("prisma", show DepVersions.prismaVersion)
+  [ ("vite", show DepVersions.viteVersionRange),
+    ("prisma", show DepVersions.prismaVersionRange)
   ]
 
 -- | List of dependencies that the user can optionally include in either
 -- package.json#dependencies or package.json#devDependencies.
 optionalUserDeps :: [DependencySpecification]
 optionalUserDeps =
-  [ ("typescript", show DepVersions.typescriptVersion),
-    ("@types/react", show DepVersions.reactTypesVersion),
-    ("@types/react-dom", show DepVersions.reactDomTypesVersion),
-    ("@types/express", show DepVersions.expressTypesVersion)
+  [ ("typescript", show DepVersions.typescriptVersionRange),
+    ("@types/react", show DepVersions.reactTypesVersionRange),
+    ("@types/react-dom", show DepVersions.reactDomTypesVersionRange),
+    ("@types/express", show DepVersions.expressTypesVersionRange)
   ]
 
 -- | List of dependencies that the user should NOT include in their package.json.
