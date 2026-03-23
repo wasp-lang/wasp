@@ -16,7 +16,7 @@ import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Generator.DbGenerator.Common (ResetArgs (..))
 import Wasp.Generator.DbGenerator.Operations (dbReset)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 
 reset :: Arguments -> Command ()
 reset = withArguments "wasp db reset" resetArgsParser $ \resetArgs -> do
@@ -24,7 +24,7 @@ reset = withArguments "wasp db reset" resetArgsParser $ \resetArgs -> do
   let genProjectDir =
         waspProjectDir
           </> dotWaspDirInWaspProjectDir
-          </> generatedCodeDirInDotWaspDir
+          </> generatedAppDirInDotWaspDir
 
   cliSendMessageC $ Msg.Start "Resetting the database..."
   liftIO (dbReset genProjectDir resetArgs) >>= \case

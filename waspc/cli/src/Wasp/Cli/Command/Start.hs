@@ -17,7 +17,7 @@ import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning)
-import Wasp.Project.Common (generatedCodeDirInWaspProjectDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.
@@ -35,7 +35,7 @@ start = do
   -- interrupt (LLMs, CIs, people...).
   liftIO fetchAndListMustSeeNewsIfDue
   InWaspProject waspProjectDir <- require
-  let outDir = waspProjectDir </> generatedCodeDirInWaspProjectDir
+  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 
@@ -57,7 +57,7 @@ start = do
     let startGeneratedWebApp = Wasp.Generator.start waspProjectDir outDir (onJobsQuietDown ongoingCompilationResultMVar)
     -- In parallel:
     -- 1. watch for any changes in the Wasp project, be it users wasp code or users JS/HTML/...
-    --    code. On any change, Wasp is recompiled (and generated code is re-generated).
+    --    code. On any change, Wasp is recompiled (and generated app is re-generated).
     -- 2. start web app in dev mode, which will then also watch for changes but in the generated
     --    code, and will also react to them by restarting the web app.
     -- Both of these should run forever, unless some super serious error happens.

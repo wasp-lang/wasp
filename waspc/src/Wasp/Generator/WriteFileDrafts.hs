@@ -22,7 +22,7 @@ import qualified StrongPath as SP
 import System.Directory (removeDirectoryRecursive, removeFile)
 import System.IO.Error (isDoesNotExistError)
 import UnliftIO.Exception (catch, throwIO)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, write)
 import Wasp.Generator.FileDraft.Writeable (FileOrDirPathRelativeTo, Writeable (getChecksum, getDstPath))
 import Wasp.Util (Checksum)
@@ -30,7 +30,7 @@ import Wasp.Util (Checksum)
 -- | Writes given file drafts to disk, in the provided destination directory.
 -- Also makes sure to remove any redundant file drafts that have been left on the disk from before.
 -- It is smart when writing, so it doesn't write file drafts that are already written on the disk from before.
-synchronizeFileDraftsWithDisk :: Path' Abs (Dir ProjectRootDir) -> [FileDraft] -> IO ()
+synchronizeFileDraftsWithDisk :: Path' Abs (Dir GeneratedAppDir) -> [FileDraft] -> IO ()
 synchronizeFileDraftsWithDisk dstDir fileDrafts = do
   return $! assertDstPathsAreUnique fileDrafts
 
@@ -59,9 +59,9 @@ synchronizeFileDraftsWithDisk dstDir fileDrafts = do
   let relativePathsToChecksums = map (first getDstPath) fileDraftsWithChecksums
   writeChecksumFile dstDir relativePathsToChecksums
 
-type RelPathsToChecksums = [(FileOrDirPathRelativeTo ProjectRootDir, Checksum)]
+type RelPathsToChecksums = [(FileOrDirPathRelativeTo GeneratedAppDir, Checksum)]
 
-type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo ProjectRootDir) Checksum
+type RelPathsToChecksumsMap = Map.HashMap (FileOrDirPathRelativeTo GeneratedAppDir) Checksum
 
 -- | Takes file drafts and verifies if the destination paths are unique.
 assertDstPathsAreUnique :: [FileDraft] -> ()
@@ -73,7 +73,7 @@ assertDstPathsAreUnique fileDrafts =
 
 -- | This file stores all checksums for files and directories that were written to disk
 -- on the last project generation.
-checksumFileInProjectRoot :: Path' (Rel ProjectRootDir) File'
+checksumFileInProjectRoot :: Path' (Rel GeneratedAppDir) File'
 checksumFileInProjectRoot = [relfile|.waspchecksums|]
 
 -- | Takes (possibly) existing written file paths and their checksums, and the current
@@ -82,7 +82,7 @@ checksumFileInProjectRoot = [relfile|.waspchecksums|]
 fileDraftsToWriteAndFilesToDelete ::
   Maybe RelPathsToChecksums ->
   [(FileDraft, Checksum)] ->
-  ([FileDraft], [FileOrDirPathRelativeTo ProjectRootDir])
+  ([FileDraft], [FileOrDirPathRelativeTo GeneratedAppDir])
 fileDraftsToWriteAndFilesToDelete Nothing fileDraftsWithChecksums =
   (fst <$> fileDraftsWithChecksums, [])
 fileDraftsToWriteAndFilesToDelete (Just existingFilePathsToChecksums) fileDraftsWithChecksums =
@@ -109,7 +109,7 @@ getChangedFileDrafts existingFilePathsToChecksumsMap fileDraftsWithChecksums =
             Nothing -> False
             Just oldChecksum -> oldChecksum /= newChecksum
 
-getRedundantGeneratedFiles :: RelPathsToChecksums -> [FileDraft] -> [FileOrDirPathRelativeTo ProjectRootDir]
+getRedundantGeneratedFiles :: RelPathsToChecksums -> [FileDraft] -> [FileOrDirPathRelativeTo GeneratedAppDir]
 getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts =
   let fileDraftPathsSet = Set.fromList $ getDstPath <$> fileDrafts
    in filter (not . (`Set.member` fileDraftPathsSet)) (fst <$> existingFilePathsToChecksums)
@@ -118,7 +118,7 @@ getRedundantGeneratedFiles existingFilePathsToChecksums fileDrafts =
 --  1) The checksum file does not exist, or
 --  2) The checksum file was not parsable by Aeson.
 -- TODO: Extract the readFile and leave mostly pure function to add tests for.
-readChecksumFile :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe RelPathsToChecksums)
+readChecksumFile :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe RelPathsToChecksums)
 readChecksumFile dstDir = do
   maybeContents <-
     (Just <$> BSL.readFile checksumFP)
@@ -130,7 +130,7 @@ readChecksumFile dstDir = do
   where
     checksumFP = SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot
 
-    fromTypeAndPathToSp :: (String, FilePath) -> Maybe (FileOrDirPathRelativeTo ProjectRootDir)
+    fromTypeAndPathToSp :: (String, FilePath) -> Maybe (FileOrDirPathRelativeTo GeneratedAppDir)
     fromTypeAndPathToSp (label, fp)
       | label == fileFsEntityLabel = Left <$> SP.parseRelFile fp
       | label == dirFsEntityLabel = Right <$> SP.parseRelDir fp
@@ -142,18 +142,18 @@ readChecksumFile dstDir = do
               ++ dirFsEntityLabel
               ++ "]. This should never happen!"
 
-writeChecksumFile :: Path' Abs (Dir ProjectRootDir) -> RelPathsToChecksums -> IO ()
+writeChecksumFile :: Path' Abs (Dir GeneratedAppDir) -> RelPathsToChecksums -> IO ()
 writeChecksumFile dstDir relativePathsToChecksums = do
   let typeAndPathAndChecksums = first fromSpToTypeAndPath <$> relativePathsToChecksums
   let sortedTypeAndPathAndChecksums = sortBy (\((_, p1), _) ((_, p2), _) -> compare p1 p2) typeAndPathAndChecksums
   let json = AesonPretty.encodePretty sortedTypeAndPathAndChecksums
   BSL.writeFile (SP.fromAbsFile $ dstDir </> checksumFileInProjectRoot) json
   where
-    fromSpToTypeAndPath :: FileOrDirPathRelativeTo ProjectRootDir -> (String, FilePath)
+    fromSpToTypeAndPath :: FileOrDirPathRelativeTo GeneratedAppDir -> (String, FilePath)
     fromSpToTypeAndPath (Left fileSP) = (fileFsEntityLabel, SP.fromRelFile fileSP)
     fromSpToTypeAndPath (Right dirSP) = (dirFsEntityLabel, SP.fromRelDir dirSP)
 
-removeFromChecksumFile :: Path' Abs (Dir ProjectRootDir) -> [FileOrDirPathRelativeTo ProjectRootDir] -> IO ()
+removeFromChecksumFile :: Path' Abs (Dir GeneratedAppDir) -> [FileOrDirPathRelativeTo GeneratedAppDir] -> IO ()
 removeFromChecksumFile dstDir pathsToRemove = do
   maybePathsToChecksums <- readChecksumFile dstDir
   case maybePathsToChecksums of
@@ -167,7 +167,7 @@ fileFsEntityLabel = "file"
 dirFsEntityLabel :: String
 dirFsEntityLabel = "dir"
 
-deleteFilesAndDirs :: Path' Abs (Dir ProjectRootDir) -> [FileOrDirPathRelativeTo ProjectRootDir] -> IO ()
+deleteFilesAndDirs :: Path' Abs (Dir GeneratedAppDir) -> [FileOrDirPathRelativeTo GeneratedAppDir] -> IO ()
 deleteFilesAndDirs dstDir filesAndDirs = do
   let absFileFPs = map (\relSP -> SP.fromAbsFile $ dstDir </> relSP) (lefts filesAndDirs)
   mapM_ removeFile absFileFPs

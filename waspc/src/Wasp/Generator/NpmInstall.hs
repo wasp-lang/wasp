@@ -16,7 +16,7 @@ import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import UnliftIO (race)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
@@ -32,7 +32,7 @@ import qualified Wasp.Util.IO as IOUitl
 -- the generated server and web app deps, and the Wasp SDK.
 installNpmDependenciesWithInstallRecord ::
   AppSpec ->
-  Path' Abs (Dir ProjectRootDir) ->
+  Path' Abs (Dir GeneratedAppDir) ->
   IO (Either GeneratorError ())
 installNpmDependenciesWithInstallRecord spec dstDir = runExceptT $ do
   messagesChan <- liftIO newChan
@@ -126,7 +126,7 @@ reportInstallationProgress chan jobType = reportPeriodically allPossibleMessages
 -- Note: Here, we do a single check for all the deps, as the npm workspace ensures `npm install`
 -- takes care of the user project, server, and web-app, all at once. The SDK is also installed as
 -- part of our installation logic, so we don't need to check it separately.
-areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir ProjectRootDir) -> IO Bool
+areThereNpmDepsToInstall :: AllNpmDeps -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir
   return $ installedNpmDeps /= Just allNpmDeps
