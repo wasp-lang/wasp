@@ -22,7 +22,7 @@ import StrongPath (Dir', File', Path, Posix, Rel)
 import qualified StrongPath as SP
 
 -- | Represents a JS import data type that can be used to generate import statements
---   in generated code. It doesn't fully support all types of JS imports (multiple imports)
+--   in generated app. It doesn't fully support all types of JS imports (multiple imports)
 --   but this is enough for our current use case.
 data JsImport = JsImport
   { -- | Path from which we are importing.

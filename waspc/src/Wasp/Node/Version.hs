@@ -12,7 +12,6 @@ import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.Process (readProcessWithExitCode)
 import Wasp.Node.Internal (parseVersionFromCommandOutput)
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.SemanticVersion.VersionBound as SV
 import Wasp.Util (indent)
 
 -- | Wasp supports any node version equal or greater to this version.

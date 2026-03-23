@@ -8,7 +8,7 @@ import qualified Data.ByteString as BS
 import Data.Text
 import StrongPath (Abs, File', Path', Rel, (</>))
 import qualified StrongPath as SP
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.Templates (TemplatesDir)
@@ -17,7 +17,7 @@ import Wasp.Util (checksumFromByteString, checksumFromText)
 -- | File draft based on template file that gets combined with data.
 data TemplateFileDraft = TemplateFileDraft
   { -- | Path where file will be generated.
-    _dstPath :: !(Path' (Rel ProjectRootDir) File'),
+    _dstPath :: !(Path' (Rel GeneratedAppDir) File'),
     -- | Path of template source file.
     _srcPathInTmplDir :: !(Path' (Rel TemplatesDir) File'),
     -- | Data to be fed to the template while rendering it.

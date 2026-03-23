@@ -6,7 +6,7 @@ where
 import qualified Data.ByteString as BS
 import StrongPath (Abs, File', Path', Rel, (</>))
 import qualified StrongPath as SP
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Generator.WaspLibs.Common (LibsSourceDir, getAbsLibsSourceDirPath)
@@ -15,7 +15,7 @@ import Wasp.Util (checksumFromByteString)
 -- | File draft based on a library file that is copied to the generated project.
 data CopyLibDraft = CopyLibDraft
   { -- | Path where the file will be copied to.
-    _dstPath :: !(Path' (Rel ProjectRootDir) File'),
+    _dstPath :: !(Path' (Rel GeneratedAppDir) File'),
     -- | Path of source file relative to the libs source directory.
     _srcPathInLibsSourceDir :: !(Path' (Rel LibsSourceDir) File')
   }

@@ -13,6 +13,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
 - Wasp AI (`wasp new:ai`) now accepts any model name string, letting the OpenAI API validate it. The interactive CLI still offers curated GPT-5 options for convenience. ([#3904](https://github.com/wasp-lang/wasp/pull/3904))
+- The `wasp.version` field now accepts any valid npm-compatible version range (e.g. `>=0.15.0 <0.22.0`, `~0.21.0`, `0.21.x`) instead of only `^x.y.z`. ([#3921](https://github.com/wasp-lang/wasp/pull/3921))
 - Page routes are now lazy-loaded using React Router's `lazy` property, greatly reducing the initial download size for apps with many routes. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🐞 Bug fixes
