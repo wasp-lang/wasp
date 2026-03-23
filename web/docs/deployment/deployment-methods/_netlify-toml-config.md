@@ -6,6 +6,6 @@
 
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/_fallback.html"
   status = 200
 ```

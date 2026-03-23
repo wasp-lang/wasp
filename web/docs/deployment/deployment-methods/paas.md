@@ -326,7 +326,11 @@ You'll deploy the server first:
 
     Select `client` when prompted to select a service.
 
-    Railway will detect the `index.html` file and deploy the client as a static site.
+    Railway will detect the static files and deploy the client as a static site.
+
+    :::note SPA Fallback
+    After deploying, go to the `client` service **Settings** and set the **Custom SPA Fallback** to `/_fallback.html` so that routes without a matching static file are handled by the client-side router.
+    :::
 
 
 And now your Wasp should be deployed!
@@ -596,9 +600,17 @@ That is it! Your client should be live at `https://<app-name>.pages.dev`.
 Make sure you set the `https://<app-name>.pages.dev` URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
 :::
 
-:::info Redirecting URLs toward `index.html`
+:::info Setting up the SPA fallback
 
-Cloudflare will automatically redirect all paths toward `index.html`, which is important since Wasp's client app is a Single Page Application (SPA) and needs to handle routing on the client side.
+Cloudflare Pages serves static files and directory index files (e.g., `/about` → `/about/index.html`) automatically. For all other routes, you need to set up a fallback to `_fallback.html` so the client-side router can handle them.
+
+Create a `_redirects` file in `.wasp/out/web-app/build` with the following content:
+
+```
+/* /_fallback.html 200
+```
+
+This tells Cloudflare to serve `_fallback.html` for any route that doesn't match a static file.
 :::
 
 ### Deploying through Github Actions
@@ -640,6 +652,9 @@ Here’s an example configuration file to help you get started. This example wor
 
         - name: Build the client
           run: cd ./app && REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build
+
+        - name: Set up SPA fallback
+          run: echo '/* /_fallback.html 200' > ./app/.wasp/out/web-app/build/_redirects
 
         - name: Deploy to Cloudflare Pages
           uses: cloudflare/wrangler-action@v3
