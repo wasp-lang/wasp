@@ -42,7 +42,7 @@ export type UnauthenticatedOperationFor<
  * @template OperationDefinition The type of the unauthenticated operation's definition.
  * @param getUserOperation A getter that returns the unauthenticated operation's
  * definition. Using a getter defers the module binding read, avoiding TDZ
- * errors when Rollup merges virtual module chunks.
+ * (used before defined) errors when Rollup merges virtual module chunks.
  * @param entities The unauthenticated operation's entity map .
  * @returns The server-side API for the provided unauthenticated operation.
  */
@@ -99,7 +99,7 @@ export type AuthenticatedOperationContext = { user: AuthUser }
  * @template OperationDefinition The type of the authenticated operation's definition.
  * @param getUserOperation A getter that returns the authenticated operation's
  * definition. Using a getter defers the module binding read, avoiding TDZ
- * errors when Rollup merges virtual module chunks.
+ * (used before defined) errors when Rollup merges virtual module chunks.
  * @param entities The authenticated operation's entity map .
  * @returns The server-side API for the provided authenticated operation.
  */
