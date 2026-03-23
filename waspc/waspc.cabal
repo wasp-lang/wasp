@@ -670,6 +670,7 @@ test-suite waspc-tests
     deepseq,
     filepath,
     hspec >=2.11,
+    parsec,
     megaparsec,
     mtl,
     neat-interpolation,
