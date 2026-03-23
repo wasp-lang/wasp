@@ -5,7 +5,6 @@ where
 
 import qualified Text.Parsec as P
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.SemanticVersion.Version as SV
 
 type ErrorMessage = String
 

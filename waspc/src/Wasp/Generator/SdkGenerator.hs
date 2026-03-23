@@ -33,19 +33,19 @@ import Wasp.Generator.Common
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
-  ( axiosVersion,
-    dotenvVersion,
-    expressTypesVersion,
-    expressVersionStr,
-    prismaVersion,
-    reactDomTypesVersion,
-    reactDomVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactTypesVersion,
-    reactVersion,
-    superjsonVersion,
-    typescriptVersion,
+  ( axiosVersionRange,
+    dotenvVersionRange,
+    expressTypesVersionRange,
+    expressVersionRange,
+    prismaVersionRange,
+    reactDomTypesVersionRange,
+    reactDomVersionRange,
+    reactQueryVersionRange,
+    reactRouterVersionRange,
+    reactTypesVersionRange,
+    reactVersionRange,
+    superjsonVersionRange,
+    typescriptVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -197,19 +197,19 @@ npmDepsForSdk spec =
   N.NpmDepsForPackage
     { N.dependencies =
         Npm.Dependency.fromList
-          [ ("@prisma/client", show prismaVersion),
-            ("prisma", show prismaVersion),
-            ("axios", show axiosVersion),
-            ("dotenv", show dotenvVersion),
+          [ ("@prisma/client", show prismaVersionRange),
+            ("prisma", show prismaVersionRange),
+            ("axios", show axiosVersionRange),
+            ("dotenv", show dotenvVersionRange),
             ("dotenv-expand", "^12.0.3"),
-            ("express", expressVersionStr),
+            ("express", show expressVersionRange),
             ("mitt", "3.0.0"),
-            ("react", show reactVersion),
-            ("react-dom", show reactDomVersion),
-            ("@tanstack/react-query", reactQueryVersion),
-            ("react-router", show reactRouterVersion),
+            ("react", show reactVersionRange),
+            ("react-dom", show reactDomVersionRange),
+            ("@tanstack/react-query", show reactQueryVersionRange),
+            ("react-router", show reactRouterVersionRange),
             ("react-hook-form", "^7.45.4"),
-            ("superjson", show superjsonVersion)
+            ("superjson", show superjsonVersionRange)
           ]
           ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
@@ -229,12 +229,12 @@ npmDepsForSdk spec =
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
-            ("typescript", show typescriptVersion),
+            ("typescript", show typescriptVersionRange),
             ("@vitejs/plugin-react", "^4.7.0"),
-            ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion),
-            ("@types/react", show reactTypesVersion),
-            ("@types/react-dom", show reactDomTypesVersion),
+            ("@types/express", show expressTypesVersionRange),
+            ("@types/express-serve-static-core", show expressTypesVersionRange),
+            ("@types/react", show reactTypesVersionRange),
+            ("@types/react-dom", show reactDomTypesVersionRange),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^7.0.0")
