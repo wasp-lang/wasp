@@ -51,7 +51,7 @@ forbiddenUserDeps =
 -- | Given an AppSpec, returns a Map of all dependencies used across the
 -- top-level projects (user, webapp, and server -- not the SDK since that can
 -- use its own dependencies). This ensures no package version conflicts occur
--- between different parts of the generated code.
+-- between different parts of the generated app.
 getAllWaspDependencies :: AS.AppSpec -> Map P.PackageName P.PackageVersion
 getAllWaspDependencies spec =
   M.fromListWithKey dedupeVersions $

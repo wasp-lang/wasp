@@ -1,7 +1,7 @@
-import * as z from 'zod'
+import * as z from "zod"
 
 import { clientEnvValidationSchema as clientEnvValidationSchema_ext } from 'wasp/src/env'
-const userClientEnvSchema = clientEnvValidationSchema_ext
+const userClientEnvSchema = clientEnvValidationSchema_ext;
 
 const serverUrlSchema =
   z.string({
@@ -13,17 +13,21 @@ const serverUrlSchema =
     })
   )
 
-const waspClientDevSchema = z.object({
+const waspDevClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema
-    .default('http://localhost:3001'),
-})
+    .default("http://localhost:3001"),
+});
 
-const waspClientProdSchema = z.object({
+const waspProdClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema,
-})
+});
 
 // PRIVATE API (sdk, Vite config)
+// TODO(franjo): Remove passing mode as param when this is no longer a plugin.
+//               See: https://github.com/wasp-lang/wasp/issues/3875.
 export function getClientEnvSchema(mode: string) {
-  const waspSchema = mode === 'production' ? waspClientProdSchema : waspClientDevSchema
-  return z.object({ ...userClientEnvSchema.shape, ...waspSchema.shape })
+  const waspClientEnvSchema = mode === "production"
+    ? waspProdClientEnvSchema
+    : waspDevClientEnvSchema;
+  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape })
 }

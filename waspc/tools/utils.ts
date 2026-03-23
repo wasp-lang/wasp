@@ -3,18 +3,24 @@
 import { execFileSync, type ExecFileSyncOptions } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
-export function discoverLibDirs(dataLibsDirPath: string): string[] {
-  return readdirSync(dataLibsDirPath, { withFileTypes: true })
-    .filter((dirEntry) => dirEntry.isDirectory())
-    .map((dir) => join(dataLibsDirPath, dir.name));
+export function getWaspcDirPath(): string {
+  return fileURLToPath(new URL("..", import.meta.url));
 }
 
-export function getLibPackageJson(libDir: string): {
+export function discoverSubDirs(baseDirPath: string): string[] {
+  return readdirSync(baseDirPath, { withFileTypes: true })
+    .filter((dirEntry) => dirEntry.isDirectory())
+    .map((dir) => join(baseDirPath, dir.name));
+}
+
+export function getPackageJson(dir: string): {
   name: string;
   version: string;
+  scripts?: Record<string, string>;
 } {
-  const packageJsonPath = join(libDir, "package.json");
+  const packageJsonPath = join(dir, "package.json");
   return JSON.parse(readFileSync(packageJsonPath, "utf-8"));
 }
 

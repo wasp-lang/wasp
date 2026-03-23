@@ -66,10 +66,9 @@ import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
-import Wasp.Generator.WaspLibs.Common (libsRootDirFromServerDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
+import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -101,7 +100,7 @@ genDotEnv spec | AS.isProduction spec = return []
 genDotEnv spec =
   return
     [ createTextFileDraft
-        (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+        (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
         (envVarsToDotEnvContent envVars)
     ]
   where
@@ -129,7 +128,7 @@ genTsConfigJson spec = do
       )
   where
     srcTsConfigPath :: Path' (Rel C.ServerRootDir) (File SrcTsConfigFile) =
-      waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
+      waspProjectDirFromGeneratedAppComponentDir </> AS.srcTsConfigPath spec
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies =
@@ -196,7 +195,7 @@ npmDepsFromWasp spec =
   where
     majorNodeVersionStr = show (SV.major $ getLowestNodeVersionUserAllows spec)
 
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromServerDir) waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromServerDir) waspLibs
 
 genNpmrc :: AppSpec -> Generator [FileDraft]
 genNpmrc spec
@@ -233,7 +232,7 @@ genNodemon =
       (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
-      waspProjectDirFromAppComponentDir </> srcDirInWaspProjectDir
+      waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =

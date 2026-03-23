@@ -14,6 +14,8 @@ module Wasp.AI.GenerateNewProject.Common
     planningChatGPTParams,
     codingChatGPTParams,
     fixingChatGPTParams,
+    defaultPlanningModel,
+    defaultCodingModel,
     CodeAgent,
   )
 where
@@ -150,23 +152,25 @@ queryChatGPTForJSON chatGPTParams initChatMsgs = doQueryForJSON 0 0 initChatMsgs
     maxNumFailuresPerRunBeforeGivingUpOnARun = 2
     maxNumFailedRunsBeforeGivingUpCompletely = 2
 
+defaultPlanningModel :: GPT.Model
+defaultPlanningModel = GPT.Model "gpt-5"
+
+defaultCodingModel :: GPT.Model
+defaultCodingModel = GPT.Model "gpt-5-mini"
+
 codingChatGPTParams :: NewProjectDetails -> ChatGPTParams
 codingChatGPTParams projectDetails =
   GPT.ChatGPTParams
-    { GPT._model = fromMaybe defaultCodingGptModel (projectCodingGptModel $ _projectConfig projectDetails),
-      GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
+    { GPT._model = fromMaybe defaultCodingModel (projectCodingGptModel $ _projectConfig projectDetails),
+      GPT._temperature = projectDefaultGptTemperature $ _projectConfig projectDetails
     }
-  where
-    defaultCodingGptModel = GPT.GPT_4o
 
 planningChatGPTParams :: NewProjectDetails -> ChatGPTParams
 planningChatGPTParams projectDetails =
   GPT.ChatGPTParams
-    { GPT._model = fromMaybe defaultPlanningGptModel (projectPlanningGptModel $ _projectConfig projectDetails),
-      GPT._temperature = Just $ fromMaybe 0.7 (projectDefaultGptTemperature $ _projectConfig projectDetails)
+    { GPT._model = fromMaybe defaultPlanningModel (projectPlanningGptModel $ _projectConfig projectDetails),
+      GPT._temperature = projectDefaultGptTemperature $ _projectConfig projectDetails
     }
-  where
-    defaultPlanningGptModel = GPT.GPT_4o
 
 fixingChatGPTParams :: ChatGPTParams -> ChatGPTParams
 fixingChatGPTParams params = params {GPT._temperature = subtract 0.2 <$> GPT._temperature params}

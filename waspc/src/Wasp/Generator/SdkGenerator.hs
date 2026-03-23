@@ -27,7 +27,7 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
-  ( ProjectRootDir,
+  ( GeneratedAppDir,
     makeJsonWithEntityData,
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
@@ -73,7 +73,6 @@ import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
-import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
@@ -86,8 +85,8 @@ import qualified Wasp.SemanticVersion.Version as SV
   )
 import Wasp.Util ((<++>))
 
-buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-buildSdk projectRootDir = do
+buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+buildSdk generatedAppDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
@@ -97,7 +96,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
   where
-    sdkRootDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
+    sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -242,7 +241,7 @@ npmDepsForSdk spec =
       N.peerDependencies = Npm.Dependency.fromList []
     }
   where
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
@@ -322,7 +321,7 @@ genExternalFile file
   where
     fileName = FP.takeFileName . fromRelFile $ externalFilePath
     destFile =
-      C.sdkRootDirInGeneratedCodeDir
+      C.sdkRootDirInGeneratedAppDir
         </> C.extSrcDirInSdkRootDir
         </> castRel externalFilePath
 

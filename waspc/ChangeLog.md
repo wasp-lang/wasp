@@ -11,6 +11,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🎉 New Features
 
 - The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
+- Wasp AI (`wasp new:ai`) now accepts any model name string, letting the OpenAI API validate it. The interactive CLI still offers curated GPT-5 options for convenience. ([#3904](https://github.com/wasp-lang/wasp/pull/3904))
 - The `wasp.version` field now accepts any valid npm-compatible version range (e.g. `>=0.15.0 <0.22.0`, `~0.21.0`, `0.21.x`) instead of only `^x.y.z`. ([#3921](https://github.com/wasp-lang/wasp/pull/3921))
 
 ### 🐞 Bug fixes
@@ -19,6 +20,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🔧 Small improvements
 
+- The `wasp-config` package is now installed from a local copy inside the project (`.wasp/wasp-config/`) instead of directly from the global Wasp data directory. This makes projects more self-contained and avoids issues with npm resolving paths outside the project. ([#3861](https://github.com/wasp-lang/wasp/pull/3861))
 - `REACT_APP_API_URL` is now **required** when building the client for production (it no longer defaults to any value). In development mode, it still defaults to the local server URL. This prevents silently broken production deployments where the client can't reach the server. ([#3740](https://github.com/wasp-lang/wasp/pull/3740))
 - The `wasp()` Vite plugin now enforces certain Vite config options that Wasp requires (e.g. `base`, `envPrefix`, `build.outDir`) and throws an error if the user tries to override them. ([#3771](https://github.com/wasp-lang/wasp/pull/3771))
 - Upgraded our internal `nodemailer` dependency to v8.0.1 to address [a possible security issue](https://github.com/advisories/GHSA-rcmh-qjqh-p98v). ([#3756](https://github.com/wasp-lang/wasp/pull/3756))
@@ -26,6 +28,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now validates that `vite.config.ts` (or `vite.config.js`) exists in your project at compile time, and warns if it's missing the `wasp` plugin import. ([#3863](https://github.com/wasp-lang/wasp/pull/3863))
 - Wasp now prefixes env validation errors with the name of the field that failed the validation ([#3876](https://github.com/wasp-lang/wasp/pull/3876))
 - Wasp now validates your `tsconfig.json` before analyzing the rest of the code. If something is off, you'll get a clear error message as soon as possible ([#3907](https://github.com/wasp-lang/wasp/issues/3907))
+- Wasp now properly uses ANSI formatting in env validation errors ([#3877](https://github.com/wasp-lang/wasp/pull/3877))
 
 ## 0.21.1
 
