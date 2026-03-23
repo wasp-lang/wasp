@@ -46,7 +46,7 @@ async function appToHtml(
     isFallbackPage,
     children,
   }: { isFallbackPage: boolean; children?: ReactNode },
-  { clientEntrySrc, transformIndexHtml }: PrerenderContext,
+  { clientEntrySrc }: PrerenderContext,
 ) {
   const app = (
     <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
@@ -58,7 +58,6 @@ async function appToHtml(
 
   const html = await reactPrerender(app)
     .then((result) => streamConsumers.text(result.prelude))
-    .then((html) => transformIndexHtml(html));
 
   return html;
 };
