@@ -342,10 +342,7 @@ const __vitePreload = function preload(baseModule, deps, importerUrl) {
 };
 const routesMapping = {
   RootRoute: { lazy: async () => {
-    const { MainPage: Component } = await __vitePreload(async () => {
-      const { MainPage: Component2 } = await import("./MainPage.js");
-      return { MainPage: Component2 };
-    }, true ? __vite__mapDeps([0,1]) : void 0);
+    const Component = await __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage);
     return { Component };
   } }
 };

@@ -81,7 +81,7 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "394281ef851bdd52cc5a2d56f0025a2118524581c535e79a4c443fd3be4c1ed9"
+        "253526fbf6ed1d187ba20b3e7c7afe031c0e1fde581a911d2024a179f202a277"
     ],
     [
         [
@@ -95,7 +95,7 @@
             "file",
             "sdk/wasp/client/app/router/router.tsx"
         ],
-        "99f163e88d3859ec21cae36b46cf86323bc56e6719a93720e4c4b538c802142f"
+        "64fb640433deda6df6e4db600f0ecb98865f0cd5114df58fcbd03e6d7ab7cc8c"
     ],
     [
         [
@@ -347,7 +347,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "fed63be84edcdb04f3971da8d8c5990a837f62e295a9704becc38d943175f012"
+        "1298f33ddcf8c039a9ce5d885c5b7a9bb711ad6eab90a30d735975bed59d6b56"
     ],
     [
         [

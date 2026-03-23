@@ -6,9 +6,15 @@ import { queryClientInitialized } from '../../operations/index'
 
 import { WebSocketProvider } from '../../webSocket/WebSocketProvider'
 
+export type RouteMapping = Record<
+  string,
+  | { lazy: () => Promise<{ Component: React.ComponentType }> }
+  | { Component: React.ComponentType }
+>;
+
 export type WaspAppProps = {
   rootElement?: React.ReactNode;
-  routesMapping: Record<string, { lazy: () => Promise<{ Component: React.ComponentType }> } | { Component: React.ComponentType }>;
+  routesMapping: RouteMapping;
 }
 
 export function WaspApp({ rootElement, routesMapping }: Required<WaspAppProps>) {

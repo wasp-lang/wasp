@@ -3,20 +3,17 @@
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
 {=/ isAuthEnabled =}
-{=# eagerImports =}
-{=& importStatement =}
-{=/ eagerImports =}
+{=# routes =}
+{=^ isLazy =}
+{=& import.importStatement =}
+{=/ isLazy =}
+{=/ routes =}
 
 export const routesMapping = {
   {=# routes =}
   {=# isLazy =}
   {= name =}: { lazy: async () => {
-    {=# isDefaultExport =}
-    const { default: Component } = await import('{=& importPath =}')
-    {=/ isDefaultExport =}
-    {=^ isDefaultExport =}
-    const { {= importIdentifier =}: Component } = await import('{=& importPath =}')
-    {=/ isDefaultExport =}
+    const Component = await {=& import.dynamicImportExpression =}
     {=# isAuthRequired =}
     return { Component: createAuthRequiredPage(Component) }
     {=/ isAuthRequired =}
@@ -28,10 +25,10 @@ export const routesMapping = {
   {=^ isLazy =}
   {= name =}: {
     {=# isAuthRequired =}
-    Component: createAuthRequiredPage({= importIdentifier =}),
+    Component: createAuthRequiredPage({= import.importIdentifier =}),
     {=/ isAuthRequired =}
     {=^ isAuthRequired =}
-    Component: {= importIdentifier =},
+    Component: {= import.importIdentifier =},
     {=/ isAuthRequired =}
   },
   {=/ isLazy =}

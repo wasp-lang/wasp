@@ -2,7 +2,7 @@
 
 export const routesMapping = {
   RootRoute: { lazy: async () => {
-    const { MainPage: Component } = await import('./src/MainPage')
+    const Component = await import('./src/MainPage').then(m => m.MainPage)
     return { Component }
   }},
 } as const;

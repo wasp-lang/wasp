@@ -4,13 +4,14 @@ import { createBrowserRouter, RouterProvider } from 'react-router'
 
 import { DefaultRootErrorBoundary } from '../components/DefaultRootErrorBoundary'
 
+import type { RouteMapping } from '../components/WaspApp'
 import { routes } from '../../router/index'
 
 export function getRouter({
   routesMapping,
   rootElement,
 }: {
-  routesMapping: Record<string, { lazy: () => Promise<{ Component: React.ComponentType }> } | { Component: React.ComponentType }>,
+  routesMapping: RouteMapping,
   rootElement: React.ReactNode,
 }) {
   const waspDefinedRoutes = [
