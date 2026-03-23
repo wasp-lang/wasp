@@ -75,7 +75,7 @@ Read more in the [React Router docs on splats](https://reactrouter.com/7.12.0/st
 
 ## Lazy-Loaded Routes
 
-By default, Wasp lazy-loads all page routes using React Router's [`lazy`](https://reactrouter.com/how-to/code-splitting) property. This means each page's code is only downloaded when the user navigates to it, resulting in smaller initial bundle sizes -- especially useful for apps with many routes.
+By default, Wasp lazy-loads all page routes using React Router's [`lazy`](https://reactrouter.com/how-to/code-splitting) property. This means each page's code is only downloaded when the user navigates to it, resulting in smaller initial bundle sizes. This is especially useful for apps with many routes.
 
 If you need a specific route to be eagerly loaded (included in the main bundle), you can set `lazy: false` on the route declaration:
 
