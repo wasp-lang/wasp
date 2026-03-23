@@ -4,8 +4,7 @@ import type { PrerenderFn } from "../../types";
 import { ENVIRONMENT_NAMES, PACKAGE_NAME } from "../common/constants";
 import type { Options } from "../common/options";
 import type { SsrRoutes } from "../common/routes";
-import { appendToHead } from "../util/html";
-import { addRegisterCss, withCollectingRegisteredCss } from "./css";
+import { addRegisterCss, withRegisteredCss } from "./css";
 
 export const ssrDev = (
   routes: SsrRoutes,
@@ -66,30 +65,17 @@ export const ssrDev = (
           // Clear the SSR module cache on every request, so that we always run the latest code.
           ssrEnv.runner.clearCache();
 
-          const { result: html, cssFiles } = await withCollectingRegisteredCss(
-            ssrEnv.hot,
-            async () => {
-              const { default: prerenderApp }: { default: PrerenderFn } =
-                await ssrEnv.runner.import(ssrEntrySrc);
-
-              return await prerenderApp(route, {
-                clientEntrySrc,
-                transformIndexHtml: (html) =>
-                  server.transformIndexHtml(originalUrl, html),
-              });
-            },
-          );
+          const html = await withRegisteredCss(ssrEnv.hot, async () => {
+            const { default: prerenderApp }: { default: PrerenderFn } =
+              await ssrEnv.runner.import(ssrEntrySrc);
+            return await prerenderApp(route, { clientEntrySrc });
+          });
 
           if (!html) {
             return next();
           }
 
-          const newHtml = appendToHead(
-            html,
-            Array.from(cssFiles)
-              .map((id) => `<link rel="stylesheet" href="${id}">\n`)
-              .join(""),
-          );
+          const newHtml = server.transformIndexHtml(originalUrl, html);
 
           res.statusCode = 200;
           res.setHeader("Content-Type", "text/html");

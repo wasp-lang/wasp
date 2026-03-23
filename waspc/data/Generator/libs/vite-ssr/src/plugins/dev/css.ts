@@ -1,5 +1,6 @@
 import type { NormalizedHotChannel } from "vite";
 import { PACKAGE_NAME } from "../common/constants";
+import { appendToHead } from "../util/html";
 
 export const REGISTER_CSS_EVENT_NAME = `${PACKAGE_NAME}:register-css` as const;
 
@@ -31,9 +32,9 @@ const makeRegisterCssCode = (id: string) =>
 export const addRegisterCss = (id: string, code: string) =>
   [code, makeRegisterCssCode(id)].join(";\n");
 
-export const withCollectingRegisteredCss = async <T>(
+export const withRegisteredCss = async (
   hot: NormalizedHotChannel,
-  fnRegistersCss: () => Promise<T>,
+  makeHtml: () => Promise<string | null>,
 ) => {
   const cssFiles = new Set<string>();
 
@@ -41,8 +42,19 @@ export const withCollectingRegisteredCss = async <T>(
   hot.on(REGISTER_CSS_EVENT_NAME, listener);
 
   try {
-    const result = await fnRegistersCss();
-    return { result, cssFiles };
+    const html = await makeHtml();
+    if (!html) {
+      return html;
+    }
+
+    const htmlWithCss = appendToHead(
+      html,
+      Array.from(cssFiles)
+        .map((id) => `<link rel="stylesheet" href="${id}">\n`)
+        .join(""),
+    );
+
+    return htmlWithCss;
   } finally {
     hot.off(REGISTER_CSS_EVENT_NAME, listener);
   }

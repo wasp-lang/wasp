@@ -106,12 +106,9 @@ export const ssrBuild = (
         );
 
         const route = routes.byId.get(id);
-        assert(route, `Epected id ${id} to exist in ssrRoutes`);
+        assert(route, `Expected id ${id} to exist in ssrRoutes`);
 
-        const html = await prerenderApp(route.path, {
-          clientEntrySrc,
-          transformIndexHtml: async (html) => html,
-        });
+        const html = await prerenderApp(route.path, { clientEntrySrc });
 
         if (!html) {
           return;

@@ -71,7 +71,7 @@ import * as streamConsumers from "node:stream/consumers";
 const prerender: PrerenderFn = async (route, ctx) => {
   const isFallback = route === "/_fallback.html";
 
-  const rawHtml = await streamConsumers.text(
+  const html = await streamConsumers.text(
     prerenderToNodeStream(
       <App
         scriptSrc={ctx.clientEntrySrc}
@@ -82,8 +82,7 @@ const prerender: PrerenderFn = async (route, ctx) => {
     ),
   );
 
-  const finalHtml = await ctx.transformIndexHtml(rawHtml);
-  return finalHtml;
+  return html;
 };
 
 export default prerender;
