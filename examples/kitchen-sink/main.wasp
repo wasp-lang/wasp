@@ -356,7 +356,7 @@ page EagerPage {
   component: import { EagerPage } from "@src/features/lazy-loading/pages/EagerPage"
 }
 
-route LazyRoute { path: "/lazy/yes", to: LazyPage, lazy: true }
+route LazyRoute { path: "/lazy/yes", to: LazyPage }
 page LazyPage {
   component: import { LazyPage } from "@src/features/lazy-loading/pages/LazyPage"
 }
