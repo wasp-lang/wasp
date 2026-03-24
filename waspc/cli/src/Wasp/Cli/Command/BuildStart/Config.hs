@@ -29,12 +29,12 @@ import Wasp.Cli.Util.Parser (getParserHelpMessage)
 import Wasp.Cli.Util.PathArgument (FilePathArgument)
 import qualified Wasp.Cli.Util.PathArgument as PathArgument
 import Wasp.Env (EnvVar, nubEnvVars, overrideEnvVars, parseDotEnvFile)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ServerGenerator.Common (defaultDevServerUrl)
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WebAppGenerator.Common (defaultClientPort, getDefaultDevClientUrl)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.Project.Common (WaspProjectDir, generatedCodeDirInWaspProjectDir, makeAppUniqueId)
+import Wasp.Project.Common (WaspProjectDir, generatedAppDirInWaspProjectDir, makeAppUniqueId)
 import Wasp.Util.Terminal (styleCode)
 
 data BuildStartConfig = BuildStartConfig
@@ -44,7 +44,7 @@ data BuildStartConfig = BuildStartConfig
     clientUrl :: String,
     serverEnvVars :: [EnvVar],
     clientEnvVars :: [EnvVar],
-    buildDir :: SP.Path' SP.Abs (SP.Dir ProjectRootDir),
+    buildDir :: SP.Path' SP.Abs (SP.Dir GeneratedAppDir),
     projectDir :: SP.Path' SP.Abs (SP.Dir WaspProjectDir)
   }
 
@@ -83,7 +83,7 @@ makeBuildStartConfig appSpec args projectDir' = do
     appUniqueId' = makeAppUniqueId projectDir' appName
     (appName, _) = ASV.getApp appSpec
 
-    buildDir' = projectDir' </> generatedCodeDirInWaspProjectDir
+    buildDir' = projectDir' </> generatedAppDirInWaspProjectDir
 
     -- NOTE(carlos): For now, creating these URLs and ports below uses the default
     -- values we've hardcoded in the generator. In the future, we might want to make

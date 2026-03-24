@@ -1,5 +1,5 @@
 module Wasp.Generator.WaspLibs.Common
-  ( libsRootDirInGeneratedCodeDir,
+  ( libsRootDirInGeneratedAppDir,
     libsSrcDirPathInDataDir,
     getAbsLibsSourceDirPath,
     LibsSourceDir,
@@ -9,7 +9,7 @@ where
 
 import StrongPath (Abs, Dir, Path', Rel, reldir, (</>))
 import qualified Wasp.Data as Data
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 
 data LibsSourceDir
 
@@ -22,8 +22,8 @@ data LibsSourceDir
 --   └── wasp.sh-lib-other-<wasp-version>.tgz
 data LibsRootDir
 
-libsRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir LibsRootDir)
-libsRootDirInGeneratedCodeDir = [reldir|libs|]
+libsRootDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir LibsRootDir)
+libsRootDirInGeneratedAppDir = [reldir|libs|]
 
 libsSrcDirPathInDataDir :: Path' (Rel Data.DataDir) (Dir LibsSourceDir)
 libsSrcDirPathInDataDir = [reldir|Generator/libs|]

@@ -21,12 +21,12 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Generator.DbGenerator.Operations (dbSeed)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (generatedCodeDirInWaspProjectDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 seed :: Maybe String -> Command ()
 seed maybeUserProvidedSeedName = do
   InWaspProject waspProjectDir <- require
-  let genProjectDir = waspProjectDir </> generatedCodeDirInWaspProjectDir
+  let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   appSpec <- analyze waspProjectDir
 

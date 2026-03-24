@@ -35,7 +35,7 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 -- happens. If there is already something in the MVar, it will get overwritten.
 watch ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
+  Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   MVar ([CompileWarning], [CompileError]) ->
   IO ()
 watch waspProjectDir outDir ongoingCompilationResultMVar = FSN.withManager $ \mgr -> do

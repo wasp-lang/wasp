@@ -29,7 +29,7 @@ import qualified Wasp.Message as Msg
 import Wasp.Project (CompileError, CompileWarning, WaspProjectDir)
 import qualified Wasp.Project
 import qualified Wasp.Project.BuildType as BuildType
-import Wasp.Project.Common (generatedCodeDirInWaspProjectDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
 -- | Same like 'compileWithOptions', but with default compile options.
@@ -51,21 +51,21 @@ compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   InWaspProject waspProjectDir <- require
 
-  let outDir = waspProjectDir </> generatedCodeDirInWaspProjectDir
+  let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
-  generatedCodeIsCompatible <-
+  generatedAppIsCompatible <-
     liftIO $ buildType options `WaspInfo.isCompatibleWithExistingBuildAt` outDir
 
   outDirExists <- liftIO $ doesDirectoryExist outDir
 
-  when (outDirExists && not generatedCodeIsCompatible) $ do
+  when (outDirExists && not generatedAppIsCompatible) $ do
     cliSendMessageC $
       Msg.Start $
-        "Clearing the content of the " ++ SP.fromRelDir generatedCodeDirInWaspProjectDir ++ " directory..."
+        "Clearing the content of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory outDir
     cliSendMessageC $
       Msg.Success $
-        "Successfully cleared the contents of the " ++ SP.fromRelDir generatedCodeDirInWaspProjectDir ++ " directory."
+        "Successfully cleared the contents of the " ++ SP.fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Compiling wasp project..."
   (warnings, errors) <- liftIO $ compileIOWithOptions options waspProjectDir outDir
@@ -116,7 +116,7 @@ formatErrorOrWarningMessages = intercalate "\n" . map ("- " ++)
 --   in given outDir directory.
 compileIO ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
+  Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
 compileIO waspProjectDir outDir =
   compileIOWithOptions (defaultCompileOptions waspProjectDir) waspProjectDir outDir
@@ -124,7 +124,7 @@ compileIO waspProjectDir outDir =
 compileIOWithOptions ::
   CompileOptions ->
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir Wasp.Generator.ProjectRootDir) ->
+  Path' Abs (Dir Wasp.Generator.GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
 compileIOWithOptions options waspProjectDir outDir =
   Wasp.Project.compile waspProjectDir outDir options
