@@ -11,7 +11,12 @@ interface ImgWithCaptionProps {
 
 export function ImgWithCaption(props: ImgWithCaptionProps) {
   return (
-    <div style={{ display: "flex", justifyContent: props.justifyContent || "center" }}>
+    <div
+      style={{
+        display: "flex",
+        justifyContent: props.justifyContent || "center",
+      }}
+    >
       <figure style={props.margin ? { margin: props.margin } : undefined}>
         <img
           style={{ width: props.width }}
