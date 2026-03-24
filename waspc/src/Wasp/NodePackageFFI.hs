@@ -17,7 +17,7 @@ where
 import Control.Monad.Extra (unlessM)
 import Data.Maybe (fromJust)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parseRelDir, reldir, relfile, (</>))
-import System.Directory (setPermissions, getPermissions, setOwnerExecutable)
+import System.Directory (getPermissions, setOwnerExecutable, setPermissions)
 import System.Exit (ExitCode (ExitFailure, ExitSuccess), exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
