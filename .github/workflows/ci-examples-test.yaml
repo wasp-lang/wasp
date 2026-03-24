@@ -68,6 +68,7 @@ jobs:
         run: npm install && npm run build
 
       - name: Diagnose wasp-config bin issue
+        working-directory: examples/${{ matrix.example }}
         run: |
           echo "=== npm version ==="
           npm --version
@@ -88,10 +89,10 @@ jobs:
           stat node_modules/wasp-config/dist/src/run.js || echo "stat failed"
 
           echo "=== is wasp-config a symlink? ==="
-          ls -la node_modules/wasp-config
+          ls -la node_modules/wasp-config || echo "not found"
 
           echo "=== symlink target ==="
-          readlink -f node_modules/wasp-config
+          readlink -f node_modules/wasp-config || echo "not a symlink or missing"
 
           echo "=== package.json bin field ==="
           cat node_modules/wasp-config/package.json | grep -A2 '"bin"'
