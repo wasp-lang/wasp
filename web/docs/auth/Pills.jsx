@@ -15,9 +15,7 @@ export function EmailPill() {
 
 export function UsernameAndPasswordPill() {
   return (
-    <Pill linkToPage="/docs/auth/username-and-pass">
-      Username & Password
-    </Pill>
+    <Pill linkToPage="/docs/auth/username-and-pass">Username & Password</Pill>
   );
 }
 
