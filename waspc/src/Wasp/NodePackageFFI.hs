@@ -17,6 +17,7 @@ where
 import Control.Monad.Extra (unlessM)
 import Data.Maybe (fromJust)
 import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parseRelDir, reldir, relfile, (</>))
+import System.Directory (setPermissions, getPermissions, setOwnerExecutable)
 import System.Exit (ExitCode (ExitFailure, ExitSuccess), exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
@@ -107,6 +108,12 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
   -- We remove the destination directory first to ensure a clean state
   IOUtil.deleteDirectoryIfExists dstPackageDirInProject
   IOUtil.copyDirectory srcPackageDir dstPackageDirInProject
+  -- copyDirRecur does not preserve file permissions, so the bin entry point
+  -- (produced by tsc with 0644) won't be executable after copying.
+  -- We must explicitly set the executable permission so that npx can run it.
+  let binFile = fromAbsFile $ dstPackageDirInProject </> [relfile|dist/src/run.js|]
+  perms <- getPermissions binFile
+  setPermissions binFile (setOwnerExecutable True perms)
 
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =

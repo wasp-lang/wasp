@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && chmod +x dist/src/run.js",
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
     "test": "vitest run --reporter=verbose",

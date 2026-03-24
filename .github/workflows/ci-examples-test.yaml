@@ -67,34 +67,6 @@ jobs:
         working-directory: wasp-app-runner
         run: npm install && npm run build
 
-      - name: Pre-test wasp-config diagnostics
-        working-directory: examples/${{ matrix.example }}
-        run: |
-          echo "=== Permissions of .wasp/wasp-config/dist/src/run.js ==="
-          stat .wasp/wasp-config/dist/src/run.js 2>/dev/null | grep "Access:" || echo "file missing"
-
-          echo "=== node_modules/.bin/wasp-config symlink ==="
-          ls -la node_modules/.bin/wasp-config || echo "no .bin entry"
-
-          echo "=== node_modules/wasp-config symlink ==="
-          ls -la node_modules/wasp-config || echo "not found"
-
-          echo "=== Try running wasp-config directly via node ==="
-          node node_modules/wasp-config/dist/src/run.js 2>&1 || echo "(expected to fail with usage error)"
-
-          echo "=== Try running via npx ==="
-          npx wasp-config 2>&1 || echo "(expected to fail with usage error)"
-
-          echo "=== Try running via sh (how npx does it) ==="
-          sh -c 'node_modules/.bin/wasp-config' 2>&1 || echo "sh execution failed"
-
-          echo "=== which npx and which node ==="
-          which npx && npx --version
-          which node && node --version
-
-          echo "=== PATH ==="
-          echo "$PATH"
-
       - name: Run DEV e2e tests for ${{ matrix.example }}
         working-directory: examples/${{ matrix.example }}
         env:
@@ -102,27 +74,6 @@ jobs:
           WASP_CLI_CMD: wasp-cli
           WASP_RUN_MODE: dev
         run: npm run test
-
-      - name: Post-failure wasp-config diagnostics
-        if: failure()
-        working-directory: examples/${{ matrix.example }}
-        run: |
-          echo "=== Permissions AFTER test failure ==="
-          stat .wasp/wasp-config/dist/src/run.js 2>/dev/null | grep "Access:" || echo "file missing"
-          ls -la node_modules/.bin/wasp-config || echo "no .bin entry"
-          ls -la node_modules/wasp-config || echo "not found"
-
-          echo "=== Check if .wasp/wasp-config was re-copied (modification time) ==="
-          stat .wasp/wasp-config/dist/src/run.js 2>/dev/null | grep "Modify:" || echo "file missing"
-
-          echo "=== Check wasp-cli's npx resolution ==="
-          wasp-cli version 2>&1 || echo "wasp-cli not found"
-
-          echo "=== Check if wasp-config is in PATH when called from wasp-cli context ==="
-          env -i HOME=$HOME PATH=$PATH sh -c 'wasp-config --help' 2>&1 || echo "failed"
-
-          echo "=== Check node_modules/.bin is in PATH ==="
-          ls -la node_modules/.bin/ | head -5
 
       - name: Run BUILD e2e tests for ${{ matrix.example }}
         # Skip BUILD tests for SQLite projects, as it is not supported by Wasp
