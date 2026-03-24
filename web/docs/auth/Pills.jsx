@@ -1,9 +1,9 @@
 import Link from "@docusaurus/Link";
-import "./Pills.css";
+import styles from "./Pills.module.css";
 
 export function Pill({ children, linkToPage }) {
   return (
-    <Link to={linkToPage} className="pills">
+    <Link to={linkToPage} className={styles.pills}>
       {children}
     </Link>
   );
