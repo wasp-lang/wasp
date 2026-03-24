@@ -109,8 +109,10 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
   IOUtil.deleteDirectoryIfExists dstPackageDirInProject
   IOUtil.copyDirectory srcPackageDir dstPackageDirInProject
   -- copyDirRecur does not preserve file permissions, so the bin entry point
-  -- (produced by tsc with 0644) won't be executable after copying.
+  -- won't be executable after copying.
+  --
   -- We must explicitly set the executable permission so that npx can run it.
+  -- `npm install` sets the executable bit but doesn't always run after this.
   let binFile = fromAbsFile $ dstPackageDirInProject </> [relfile|dist/src/run.js|]
   perms <- getPermissions binFile
   setPermissions binFile (setOwnerExecutable True perms)
