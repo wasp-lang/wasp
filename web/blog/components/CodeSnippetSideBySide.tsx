@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 interface PanelProps {
   /** Filename displayed in the panel title bar */
@@ -24,7 +24,7 @@ function Panel({ title, children }: PanelProps) {
           <span />
         </div>
         <span className="code-snippet__title">{title}</span>
-        <div className="code-snippet__dots" style={{ visibility: 'hidden' }}>
+        <div className="code-snippet__dots" style={{ visibility: "hidden" }}>
           <span />
           <span />
           <span />
@@ -35,9 +35,13 @@ function Panel({ title, children }: PanelProps) {
   );
 }
 
-export function CodeSnippetSideBySide({ children }: CodeSnippetSideBySideProps) {
+export function CodeSnippetSideBySide({
+  children,
+}: CodeSnippetSideBySideProps) {
   const [activeTab, setActiveTab] = useState(0);
-  const panels = React.Children.toArray(children) as React.ReactElement<PanelProps>[];
+  const panels = React.Children.toArray(
+    children,
+  ) as React.ReactElement<PanelProps>[];
   const labels = panels.map((p) => p.props.tabLabel || p.props.title);
 
   return (
@@ -47,7 +51,7 @@ export function CodeSnippetSideBySide({ children }: CodeSnippetSideBySideProps) 
         {labels.map((label, i) => (
           <button
             key={label}
-            className={`code-sbs__tab ${i === activeTab ? 'code-sbs__tab--active' : ''}`}
+            className={`code-sbs__tab ${i === activeTab ? "code-sbs__tab--active" : ""}`}
             onClick={() => setActiveTab(i)}
           >
             {label}
@@ -60,7 +64,7 @@ export function CodeSnippetSideBySide({ children }: CodeSnippetSideBySideProps) 
         {panels.map((panel, i) => (
           <div
             key={i}
-            className={`code-sbs__cell ${i === activeTab ? 'code-sbs__cell--active' : ''}`}
+            className={`code-sbs__cell ${i === activeTab ? "code-sbs__cell--active" : ""}`}
           >
             {panel}
           </div>

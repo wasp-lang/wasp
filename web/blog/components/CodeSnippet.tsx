@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 interface CodeSnippetProps {
   /** Filename displayed in the title bar */
@@ -18,7 +18,7 @@ export function CodeSnippet({ title, children }: CodeSnippetProps) {
         </div>
         <span className="code-snippet__title">{title}</span>
         {/* Spacer to keep title centered */}
-        <div className="code-snippet__dots" style={{ visibility: 'hidden' }}>
+        <div className="code-snippet__dots" style={{ visibility: "hidden" }}>
           <span />
           <span />
           <span />

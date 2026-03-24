@@ -233,7 +233,9 @@
   font-size: 0.85rem;
   font-family: var(--ifm-font-family-monospace);
   cursor: pointer;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .code-sbs__tab:first-child {
