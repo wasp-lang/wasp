@@ -1,17 +1,21 @@
 min_version = "2026.3.9"
 
 [tools]
-cabal = "3.12.1.0"
-cabal-gild = "1.5.0.1"
-ormolu = "0.7.2.0"
+"ghcup:cabal" = "3.12.1.0"
+"github:tfausak/cabal-gild" = "1.5.0.1"
+"github:tweag/ormolu" = "0.7.2.0"
 
-[tools.ghc]
+[tools."github:haskell/ghcup-hs"]
+version = "latest"
+bin = "ghcup"
+
+[tools."ghcup:ghc"]
 # Keep in sync with:
 # - /waspc/cabal.project
 # - /waspc/dev-tool.project
 version = "9.6.7"
 
-[tools.hls]
+[tools."ghcup:hls"]
 # Make sure that this version of HLS has a pre-built binary for the GHC version
 # we use above.
 version = "2.12.0.0"
@@ -24,9 +28,9 @@ version = "2.12.0.0"
 # - CI files that use Alpine (search for `alpine` in /.github).
 version = "22.12.0"
 
-[tool_alias]
-cabal-gild = "github:tfausak/cabal-gild"
-ormolu = "github:tweag/ormolu"
+[plugins]
+ghcup = "https://github.com/cprecioso/mise-ghcup"
 
 [settings]
 lockfile = true
+experimental = true
