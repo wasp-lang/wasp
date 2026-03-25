@@ -26,8 +26,4 @@ The extension enables:
 
 and more!
 
-## Coding Agents
-
-If you use a coding agent like Claude Code, Cursor, Codex, OpenCode, GitHub Copilot, etc., check out the [Wasp Coding Agent Plugin](../wasp-ai/coding-agent-plugin.md) to give your agent full Wasp framework knowledge.
-
 <TypescriptServerNote />
