@@ -53,19 +53,26 @@ export async function deployClient({
 }
 
 /**
- * Railway serves static sites with Caddy that falls back to index.html for unknown routes.
- * Since Wasp uses `_fallback.html` as the SPA shell and reserves `index.html` for
- * the prerendered `/` route, we generate a custom Caddyfile into the build
- * directory so Railway picks it up instead.
+ * Railway serves static sites with Caddy that by default
+ * falls back to `index.html` for unknown routes.
  *
- * The only diff is for the `try_files` directive.
+ * Since Wasp uses `_fallback.html` as the fallback route,
+ * and reserves `index.html` for * the prerendered `/` route,
+ * we generate a custom Caddyfile into the build directory
+ * so Railway picks it up instead.
  *
- * Ref: https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template
+ * @see https://railpack.com/languages/staticfile#custom-caddyfile
  */
 function overrideRailwayCaddyfile(buildDir: string): void {
   fs.writeFileSync(path.join(buildDir, "Caddyfile"), caddyfileContents);
 }
 
+/**
+ * Closely follows the Railway's original Caddyfile.
+ * The only diff is in the `try_files` directive.
+ *
+ * @see https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template
+ */
 const caddyfileContents = `{
   admin off
   persist_config off
