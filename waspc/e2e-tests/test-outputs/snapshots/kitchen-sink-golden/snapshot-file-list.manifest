@@ -941,6 +941,14 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/features/jobs/uppercaseText.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/jobs/uppercaseText.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/jobs/uppercaseText.js
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/jobs/uppercaseText.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/EagerPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/EagerPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/EagerPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/EagerPage.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/LazyPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/LazyPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/LazyPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/lazy-loading/pages/LazyPage.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/actions.js
@@ -1138,6 +1146,8 @@ wasp-app/.wasp/out/sdk/wasp/src/features/jobs/bar.js
 wasp-app/.wasp/out/sdk/wasp/src/features/jobs/pages/JobsPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/jobs/sleep.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/jobs/uppercaseText.ts
+wasp-app/.wasp/out/sdk/wasp/src/features/lazy-loading/pages/EagerPage.tsx
+wasp-app/.wasp/out/sdk/wasp/src/features/lazy-loading/pages/LazyPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/actions.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/components/Todo.test.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/components/Todo.tsx
@@ -1288,6 +1298,7 @@ wasp-app/e2e-tests/tests/crud.spec.ts
 wasp-app/e2e-tests/tests/custom-apis.spec.ts
 wasp-app/e2e-tests/tests/custom-signup.spec.ts
 wasp-app/e2e-tests/tests/helpers.ts
+wasp-app/e2e-tests/tests/lazy-loading.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
 wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
@@ -1359,6 +1370,8 @@ wasp-app/src/features/jobs/bar.js
 wasp-app/src/features/jobs/pages/JobsPage.tsx
 wasp-app/src/features/jobs/sleep.ts
 wasp-app/src/features/jobs/uppercaseText.ts
+wasp-app/src/features/lazy-loading/pages/EagerPage.tsx
+wasp-app/src/features/lazy-loading/pages/LazyPage.tsx
 wasp-app/src/features/operations/actions.ts
 wasp-app/src/features/operations/components/Todo.test.tsx
 wasp-app/src/features/operations/components/Todo.tsx

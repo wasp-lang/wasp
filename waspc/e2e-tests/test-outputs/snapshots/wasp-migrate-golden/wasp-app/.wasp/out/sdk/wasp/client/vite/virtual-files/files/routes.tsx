@@ -9,7 +9,10 @@ import { initializeQueryClient } from "wasp/client/operations";
 import { MainPage } from './src/MainPage'
 
 const routesMapping = {
-  RootRoute: MainPage,
+  RootRoute: { lazy: async () => {
+    const Component = await import('./src/MainPage').then(m => m.MainPage)
+    return { Component }
+  }},
 } as const;
 
 
