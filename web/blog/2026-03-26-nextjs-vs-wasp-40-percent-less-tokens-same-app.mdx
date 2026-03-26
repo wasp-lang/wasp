@@ -11,6 +11,8 @@ import { ImgWithCaption } from './components/ImgWithCaption';
 import { CodeSnippet } from './components/CodeSnippet';
 import { CodeSnippetSideBySide } from './components/CodeSnippetSideBySide';
 
+<img src="/img/nextjs-wasp-tokens/nextjs-vs-wasp-tokens.webp" />
+
 ## TL;DR
 
 We gave Claude Code the exact same feature prompt for two identical apps - one built with Next.js, the other built with Wasp - and measured everything that Claude Code did to implement the feature. 
@@ -221,9 +223,9 @@ As you can see, Wasp's config is much more concise and readable than Next.js's.
 
 Now that you can see the abstraction gap, here's why it compounds for AI:
 
-1. **Context window is a hard ceiling**
+1. **Performance degrades as context window fills up**
 
-   AI tools are stateless and have a finite context window. A larger codebase fills it faster, which means earlier message compression, less room for reasoning, and degraded output. Developers also have to maintain detailed memory and skill files to help AI understand the app structure and implementation expectations.
+   AI tools are stateless and have a finite context window and [performance degrades long before it's completely full](https://www.trychroma.com/research/context-rot). A larger codebase fills it faster, which means earlier message compression, less room for reasoning, and degraded output. Developers also have to maintain detailed memory and skill files to help AI understand the app structure and implementation expectations.
 
 2. **Signal-to-noise ratio**
 
@@ -264,9 +266,9 @@ Now that you can see the abstraction gap, here's why it compounds for AI:
 - **Cache creation** (what the AI first loaded): Next.js 113% more — $2.82 vs $1.32
 - **Cache read** (what the AI re-read each turn): Next.js 57% more — $1.71 vs $1.09
 
-**Cache creation cost.** Next.js had 2.2x more cache creation tokens (343K vs 155K), at $6.25/M that's $2.15 vs $0.97 — a $1.18 difference that accounts for most of the gap. The bigger codebase means more new content being loaded into cache.
+**Cache creation cost.** By [caching your prompts](https://platform.claude.com/docs/en/build-with-claude/prompt-caching), Claude optimizes your API usage by reusing prompts. But while reading from cache is cheap, creating new cache entries is still expensive. Next.js had 2.2x more cache creation tokens (343K vs 155K), at $6.25/M that's $2.15 vs $0.97. The bigger codebase means more new content being loaded into cache.
 
-**Cache read cost.** Each LLM call to the API re-reads the growing context. The Next.js codebase is bigger so each read costs more — $1.14 vs $0.67. Output tokens were nearly identical (~5,400), meaning the AI wrote roughly the same amount of code but had to read far more to do it.
+**Cache read cost.** Each LLM call to the API re-reads the growing context. The Next.js codebase is bigger so each read costs more: $1.14 vs $0.67. Output tokens were nearly identical (~5,400), meaning the AI wrote roughly the same amount of code but had to read far more to do it.
 
 The main differences comes from the Next.js codebase being bigger, meaning more tokens to load and re-read across every single API call to get the same output.
 
