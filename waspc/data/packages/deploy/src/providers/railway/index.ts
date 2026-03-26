@@ -126,6 +126,7 @@ function makeRailwaySetupCommand(): Command {
     .action((...args: Parameters<typeof setupFn>) =>
       retryOnTransientError(() => setupFn(...args), {
         isRetryable: isRailwayTransientError,
+        retryDescription: "a Railway API issue",
       }),
     );
 }
@@ -144,6 +145,7 @@ function makeRailwayDeployCommand(): Command {
     .action((...args: Parameters<typeof deployFn>) =>
       retryOnTransientError(() => deployFn(...args), {
         isRetryable: isRailwayTransientError,
+        retryDescription: "a Railway API issue",
       }),
     );
 }

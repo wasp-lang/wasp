@@ -13,11 +13,11 @@ const permanentError = new Error("Unauthorized");
 const isRetryable = (error: unknown) =>
   error instanceof Error && error.message.includes("Failed to fetch");
 
-afterEach(() => {
-  vi.clearAllMocks();
-});
-
 describe("retryOnTransientError", () => {
+  afterEach(() => {
+    vi.clearAllMocks();
+  });
+
   test("returns result on first attempt success", async () => {
     const fn = vi.fn().mockResolvedValue("ok");
 
@@ -39,16 +39,32 @@ describe("retryOnTransientError", () => {
     expect(result).toBe("ok");
     expect(fn).toHaveBeenCalledTimes(2);
     expect(waspSays).toHaveBeenCalledWith(
-      "Command failed due to a network issue, retrying (attempt 2/3)...",
+      "Command failed due to a transient error, retrying (attempt 2/3)...",
+    );
+  });
+
+  test("uses custom retryDescription in warning message", async () => {
+    const fn = vi
+      .fn()
+      .mockRejectedValueOnce(transientError)
+      .mockResolvedValue("ok");
+
+    await retryOnTransientError(fn, {
+      isRetryable,
+      retryDescription: "a Railway API issue",
+    });
+
+    expect(waspSays).toHaveBeenCalledWith(
+      "Command failed due to a Railway API issue, retrying (attempt 2/3)...",
     );
   });
 
   test("throws last error when all attempts are exhausted", async () => {
     const fn = vi.fn().mockRejectedValue(transientError);
 
-    await expect(
-      retryOnTransientError(fn, { isRetryable }),
-    ).rejects.toThrow(transientError);
+    await expect(retryOnTransientError(fn, { isRetryable })).rejects.toThrow(
+      transientError,
+    );
 
     expect(fn).toHaveBeenCalledTimes(3);
     expect(waspSays).toHaveBeenCalledTimes(2);
@@ -57,9 +73,9 @@ describe("retryOnTransientError", () => {
   test("throws immediately on non-retryable error", async () => {
     const fn = vi.fn().mockRejectedValue(permanentError);
 
-    await expect(
-      retryOnTransientError(fn, { isRetryable }),
-    ).rejects.toThrow(permanentError);
+    await expect(retryOnTransientError(fn, { isRetryable })).rejects.toThrow(
+      permanentError,
+    );
 
     expect(fn).toHaveBeenCalledTimes(1);
     expect(waspSays).not.toHaveBeenCalled();
@@ -74,5 +90,15 @@ describe("retryOnTransientError", () => {
 
     expect(fn).toHaveBeenCalledTimes(5);
     expect(waspSays).toHaveBeenCalledTimes(4);
+  });
+
+  test("rejects maxAttempts less than 1", async () => {
+    const fn = vi.fn().mockResolvedValue("ok");
+
+    await expect(
+      retryOnTransientError(fn, { maxAttempts: 0, isRetryable }),
+    ).rejects.toThrow("maxAttempts must be at least 1");
+
+    expect(fn).not.toHaveBeenCalled();
   });
 });

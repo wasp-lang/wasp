@@ -54,7 +54,7 @@ describe("isRailwayTransientError", () => {
 
     test("project not found", () => {
       const error = makeProcessOutput(
-        'Project not found. Run `railway link` to connect to a project.',
+        "Project not found. Run `railway link` to connect to a project.",
       );
       expect(isRailwayTransientError(error)).toBe(false);
     });
@@ -72,9 +72,7 @@ describe("isRailwayTransientError", () => {
     });
 
     test("fetch error without transient cause", () => {
-      const error = makeProcessOutput(
-        "Failed to fetch: some unknown error",
-      );
+      const error = makeProcessOutput("Failed to fetch: some unknown error");
       expect(isRailwayTransientError(error)).toBe(false);
     });
   });
@@ -85,9 +83,7 @@ describe("isRailwayTransientError", () => {
     });
 
     test("string", () => {
-      expect(isRailwayTransientError("Failed to fetch: timed out")).toBe(
-        false,
-      );
+      expect(isRailwayTransientError("Failed to fetch: timed out")).toBe(false);
     });
   });
 });

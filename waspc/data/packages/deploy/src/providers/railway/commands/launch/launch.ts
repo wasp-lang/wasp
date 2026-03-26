@@ -15,9 +15,11 @@ export async function launch(
 
   await retryOnTransientError(() => setup(projectName, options), {
     isRetryable: isRailwayTransientError,
+    retryDescription: "a Railway API issue",
   });
 
   await retryOnTransientError(() => deploy(projectName, options), {
     isRetryable: isRailwayTransientError,
+    retryDescription: "a Railway API issue",
   });
 }
