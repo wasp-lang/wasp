@@ -172,6 +172,7 @@ export type QueryConfig = {
 export type RouteConfig = {
   path: string;
   to: PageName;
+  lazy?: boolean;
 };
 
 export type PageName = Branded<string, "PageName">;
