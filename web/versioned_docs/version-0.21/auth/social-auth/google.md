@@ -13,6 +13,7 @@ import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
 import GoogleData from '../entities/\_google-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
+import SocialLoginClientPages from './\_social-login-client-pages.md';
 
 Wasp supports Google Authentication out of the box.
 Google Auth is arguably the best external auth option, as most users on the web already have Google accounts.
@@ -175,42 +176,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 ### 6. Create the Client Pages
 
-:::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../../project/css-frameworks).
-:::
-
-Let's now create a `auth.{jsx,tsx}` file in the `src/pages`.
-It should have the following code:
-
-```tsx title="src/pages/auth.tsx" auto-js
-import type { ReactNode } from 'react'
-import { LoginForm } from 'wasp/client/auth'
-
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }: { children: ReactNode }) {
-  return (
-    <div className="h-full w-full bg-white">
-      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-        <div className="h-full w-full max-w-sm bg-white p-5">
-          <div>{children}</div>
-        </div>
-      </div>
-    </div>
-  )
-}
-```
-
-:::info Auth UI
-Our pages use an automatically-generated Auth UI component. Read more about Auth UI components [here](../../auth/ui).
-:::
+<SocialLoginClientPages />
 
 ### Conclusion
 

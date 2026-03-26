@@ -13,6 +13,7 @@ import ApiReferenceIntro from './\_api-reference-intro.md';
 import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
 import SlackData from '../entities/\_slack-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
+import SocialLoginClientPages from './\_social-login-client-pages.md';
 import Collapse from '@site/src/components/Collapse';
 
 Wasp supports Slack Authentication out of the box.
@@ -84,7 +85,7 @@ To use Slack as an authentication method, you'll first need to create a Slack Ap
 
 <img alt="Slack Applications Screenshot" src={useBaseUrl('img/integrations-slack-1.png')} width="400px" />
 
-4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**. 
+4. Go to the **OAuth & Permissions** tab on the sidebar and click **Add New Redirect URL**.
     - Enter the value `https://<subdomain>.local.lt/auth/slack/callback`, where `<subdomain>` is your selected localtunnel subdomain.
     - Slack requires us to use HTTPS even when developing, [read below](#slack-https) how to set it up.
 
@@ -127,39 +128,7 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 
 ### 6. Creating the Client Pages
 
-:::info
-We are using [Tailwind CSS](https://tailwindcss.com/) to style the pages. Read more about how to add it [here](../../project/css-frameworks).
-:::
-
-Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
-
-```tsx title="src/pages/auth.tsx" auto-js
-import type { ReactNode } from 'react'
-import { LoginForm } from 'wasp/client/auth'
-
-export function Login() {
-  return (
-    <Layout>
-      <LoginForm />
-    </Layout>
-  )
-}
-
-// A layout component to center the content
-export function Layout({ children }: { children: ReactNode }) {
-  return (
-    <div className="h-full w-full bg-white">
-      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-        <div className="h-full w-full max-w-sm bg-white p-5">
-          <div>{children}</div>
-        </div>
-      </div>
-    </div>
-  )
-}
-```
-
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../../auth/ui).
+<SocialLoginClientPages />
 
 ### Conclusion
 
@@ -182,7 +151,7 @@ but free tier is limited).
 
 <Collapse title="Using localtunnel">
 
-Install localtunnel globally with `npm install -g localtunnel`. 
+Install localtunnel globally with `npm install -g localtunnel`.
 
 Start a tunnel with `lt --port 3001 -s <subdomain>`, where `<subdomain>` is a unique subdomain you would like to have.
 
