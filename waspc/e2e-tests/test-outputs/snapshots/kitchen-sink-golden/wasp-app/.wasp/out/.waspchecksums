@@ -466,7 +466,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "6e24dd22f9aae74d2d8fab8f8ff74c77b03b35107d8afdf735ee846464a878b9"
+        "37a80bda278ea617d33aaa7c77c9db8f84d5c7ff72f15852939f9cb49fd64d07"
     ],
     [
         [
@@ -676,7 +676,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "80d9cde2b1f82c7517211c801bad795ba7c0b0544582e251904c4ef0758ed034"
+        "bbf1f9c1525631bea169b63c985fc22aaa4a15daaeb862716d7bdafbc4081b1c"
     ],
     [
         [
@@ -781,7 +781,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "89dcd5ef862ebbdc42d9889b1c2a569f6711a0441b91bc6cf822689ccbe695ad"
+        "4c977c5235a9a5d0d838e34425f0f24eb310a822fc2534a78c82e23dcd2ea326"
     ],
     [
         [
@@ -1285,7 +1285,7 @@
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "af0eef1a1252b16c0744b2f1252f9ed1f433192362fe9219ad91950603b22f38"
+        "5944ee2f2b3a3012f07f04de80ae9af3a348a687e7725954caea35b85b349ddc"
     ],
     [
         [
@@ -1524,6 +1524,20 @@
             "sdk/wasp/src/features/jobs/uppercaseText.ts"
         ],
         "2b32695d8eb7eef6448b35eea80bbc39bb8218c81fa1886b608439ba6eeef165"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/lazy-loading/pages/EagerPage.tsx"
+        ],
+        "ce0ed779cc6258325240c90342f29a7fe791c1a3f384fd4141b1d8b79587b8c4"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/lazy-loading/pages/LazyPage.tsx"
+        ],
+        "d431e4c675416b2bfa45a6afdd37af2c8143f5e3e2668dc9e9f54dc7a89d1bf2"
     ],
     [
         [
