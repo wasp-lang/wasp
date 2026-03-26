@@ -1,5 +1,6 @@
 import { Command, Option } from "commander";
 import { WaspCliExe, WaspProjectDir } from "../../common/brandedTypes.js";
+import { retryOnTransientError } from "../../common/retry.js";
 import {
   assertValidWaspProject,
   assertWaspProjectDirIsAbsoluteAndPresent,
@@ -12,6 +13,7 @@ import {
   assertRailwayProjectNameIsValid,
   ensureRailwayCliReady,
 } from "./railwayCli.js";
+import { isRailwayTransientError } from "./transientErrors.js";
 
 class RailwayCommand extends Command {
   addProjectNameArgument(): this {
@@ -121,7 +123,11 @@ function makeRailwaySetupCommand(): Command {
       "--db-image <dbImage>",
       "custom Docker image for the PostgreSQL database",
     )
-    .action(setupFn);
+    .action((...args: Parameters<typeof setupFn>) =>
+      retryOnTransientError(() => setupFn(...args), {
+        isRetryable: isRailwayTransientError,
+      }),
+    );
 }
 
 function makeRailwayDeployCommand(): Command {
@@ -135,7 +141,11 @@ function makeRailwayDeployCommand(): Command {
       "use existing project for deployment",
     )
     .addCustomServerUrlOption()
-    .action(deployFn);
+    .action((...args: Parameters<typeof deployFn>) =>
+      retryOnTransientError(() => deployFn(...args), {
+        isRetryable: isRailwayTransientError,
+      }),
+    );
 }
 
 function makeRailwayLaunchCommand(): Command {
