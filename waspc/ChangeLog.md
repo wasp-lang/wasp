@@ -19,6 +19,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🐞 Bug fixes
 
+- `wasp deploy fly` now correctly computes Fly app basenames when the app name contains `-client` or `-server`. ([#3983](https://github.com/wasp-lang/wasp/pull/3983))
 - Projects created with `wasp new` were missing their `.gitignore` file. ([#3870](https://github.com/wasp-lang/wasp/pull/3870))
 
 ### 🔧 Small improvements
