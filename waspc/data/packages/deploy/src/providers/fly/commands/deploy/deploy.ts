@@ -129,7 +129,7 @@ async function deployClient(
   // Ref: https://fly.io/docs/languages-and-frameworks/static/
   const dockerfileContents = `
 		FROM pierrezemb/gostatic
-		CMD [ "-fallback", "index.html" ]
+		CMD [ "-fallback", "_fallback.html" ]
 		COPY ./build/ /srv/http/
 	`;
   fs.writeFileSync("Dockerfile", dockerfileContents);

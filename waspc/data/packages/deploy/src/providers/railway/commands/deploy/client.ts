@@ -1,3 +1,6 @@
+import fs from "fs";
+import path from "node:path";
+
 import { buildClient } from "../../../../common/clientApp.js";
 import {
   displayWaspRocketImage,
@@ -25,6 +28,8 @@ export async function deployClient({
 
   const clientBuildArtefactsDir = await buildClient(serverServiceUrl, options);
 
+  overrideRailwayCaddyfile(clientBuildArtefactsDir);
+
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {
       name: clientServiceName,
@@ -46,3 +51,77 @@ export async function deployClient({
   };
   waspSays(messages[deploymentStatus]);
 }
+
+/**
+ * Railway serves static sites with Caddy that falls back to index.html for unknown routes.
+ * Since Wasp uses `_fallback.html` as the SPA shell and reserves `index.html` for
+ * the prerendered `/` route, we generate a custom Caddyfile into the build
+ * directory so Railway picks it up instead.
+ *
+ * The only diff is for the `try_files` directive.
+ *
+ * Ref: https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template
+ */
+function overrideRailwayCaddyfile(buildDir: string): void {
+  fs.writeFileSync(path.join(buildDir, "Caddyfile"), caddyfileContents);
+}
+
+const caddyfileContents = `{
+  admin off
+  persist_config off
+  auto_https off
+
+  log {
+    format json
+  }
+
+  servers {
+    trusted_proxies static private_ranges
+  }
+}
+
+:{$PORT:80} {
+  log {
+    format json
+  }
+
+  respond /health 200
+
+	# Security headers
+	header {
+		# Enable cross-site filter (XSS) and tell browsers to block detected attacks
+		X-XSS-Protection "1; mode=block"
+		# Prevent some browsers from MIME-sniffing a response away from the declared Content-Type
+		X-Content-Type-Options "nosniff"
+		# Keep referrer data off of HTTP connections
+		Referrer-Policy "strict-origin-when-cross-origin"
+		# Enable strict Content Security Policy
+		Content-Security-Policy "default-src 'self'; img-src 'self' data: https: *; style-src 'self' 'unsafe-inline' https: *; script-src 'self' 'unsafe-inline' https: *; font-src 'self' data: https: *; connect-src 'self' https: *; media-src 'self' https: *; object-src 'none'; frame-src 'self' https: *;"
+		# Remove Server header
+		-Server
+	}
+
+  root * .
+
+	# Handle static files
+  file_server {
+    hide .git
+    hide .env*
+  }
+
+	# Compression with more formats
+  encode {
+    gzip
+    zstd
+  }
+
+	# Try files with HTML extension and handle SPA routing
+  try_files {path} {path}/index.html /_fallback.html
+
+	# Handle 404 errors
+  handle_errors {
+    rewrite * /{err.status_code}.html
+    file_server
+  }
+}
+`;
