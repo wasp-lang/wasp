@@ -1,7 +1,9 @@
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
-(window as any).__EAGER_PAGE_LOADED__ = true;
-console.log("Eager page loaded");
+if (typeof window !== "undefined") {
+  (window as any).__EAGER_PAGE_LOADED__ = true;
+  console.log("Eager page loaded");
+}
 
 export function EagerPage() {
   return (
