@@ -6,19 +6,19 @@ where
 import Data.Aeson (object, (.=))
 import Data.List (intercalate)
 import StrongPath (File', Path', Rel, relfile)
-import StrongPath qualified as SP
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
-import Wasp.AppSpec.App qualified as AS.App
-import Wasp.AppSpec.App.Auth qualified as AS.Auth
+import qualified Wasp.AppSpec.App as AS.App
+import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import Wasp.Generator.AuthProviders.OAuth (clientOAuthCallbackPath)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Auth.Common (getOnAuthSucceededRedirectToOrDefault)
 import Wasp.Generator.SdkGenerator.Common (SdkTemplatesDir)
-import Wasp.Generator.SdkGenerator.Common qualified as C
-import Wasp.Generator.WebAppGenerator.Common qualified as WebApp
-import Wasp.Generator.WebSocket qualified as WS
+import qualified Wasp.Generator.SdkGenerator.Common as C
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import qualified Wasp.Generator.WebSocket as WS
 import Wasp.Util ((<++>))
 
 genClientApp :: AppSpec -> Generator [FileDraft]

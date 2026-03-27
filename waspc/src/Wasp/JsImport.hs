@@ -19,7 +19,7 @@ where
 import Data.Data (Data)
 import Data.List (isPrefixOf)
 import StrongPath (Dir', File', Path, Posix, Rel)
-import StrongPath qualified as SP
+import qualified StrongPath as SP
 
 -- | Represents a JS import data type that can be used to generate import statements
 --   in generated app. It doesn't fully support all types of JS imports (multiple imports)

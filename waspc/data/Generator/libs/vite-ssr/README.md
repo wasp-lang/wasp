@@ -134,7 +134,7 @@ Let's see how this works for an app that has only one prerendered route (`/about
   <html>
     <head>
       <title>About | My Corporation LLC</title>
-      <link rel="favicon" href="/favicon.ico">
+      <link rel="favicon" href="/favicon.ico" />
     </head>
     <body>
       <div id="app">
@@ -155,7 +155,7 @@ Let's see how this works for an app that has only one prerendered route (`/about
   <html>
     <head>
       <title>Loading... | My Corporation LLC</title>
-      <link rel="favicon" href="/favicon.ico">
+      <link rel="favicon" href="/favicon.ico" />
     </head>
     <body>
       <div id="app">

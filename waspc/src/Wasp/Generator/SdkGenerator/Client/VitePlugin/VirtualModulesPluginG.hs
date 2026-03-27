@@ -7,15 +7,15 @@ where
 
 import Data.Aeson (Value, object, (.=))
 import StrongPath (relfile, (</>))
-import StrongPath qualified as SP
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, ssrEntryPointPath, ssrFallbackFile, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
-import Wasp.Generator.SdkGenerator.Common qualified as C
-import Wasp.Generator.WebAppGenerator.Common qualified as WebApp
+import qualified Wasp.Generator.SdkGenerator.Common as C
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeJsImport)
 
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
