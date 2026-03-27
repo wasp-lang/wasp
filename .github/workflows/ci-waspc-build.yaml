@@ -87,7 +87,7 @@ jobs:
             # We also pin the `alpine` version to a specific one we have tested,
             # since newer releases might have different versions of the
             # libraries we depend on.
-            container: node:${{ inputs.node-version }}-alpine3.21
+            container: node:${{ inputs.node-version }}-alpine3.23
             skip-node-install: true
             static: true
             install-deps: |
