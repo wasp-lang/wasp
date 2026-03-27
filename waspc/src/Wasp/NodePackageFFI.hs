@@ -11,22 +11,33 @@ module Wasp.NodePackageFFI
     getInstallablePackageName,
     getPackageJsonSpecifierForPackage,
     ensurePackageIsAtInstallationPathInProject,
+    getInstallablePackageScriptInProject,
   )
 where
 
-import Control.Monad (forM_)
 import Control.Monad.Extra (unlessM)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parseRelDir, reldir, relfile, (</>))
-import System.Directory (getPermissions, setOwnerExecutable, setPermissions)
+import StrongPath
+  ( Abs,
+    Dir,
+    File,
+    File',
+    Path',
+    Rel,
+    castFile,
+    fromAbsDir,
+    fromAbsFile,
+    fromRelDir,
+    parseRelDir,
+    reldir,
+    relfile,
+    (</>),
+  )
 import System.Exit (ExitCode (ExitFailure, ExitSuccess), exitFailure)
-import qualified System.FilePath as FP
 import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
-import Wasp.ExternalConfig.Npm.PackageJson (PackageJsonFile, parsePackageJsonFile)
-import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
@@ -56,10 +67,6 @@ data PackagesDir
 data PackageDir
 
 data PackageScript
-
-data InstalledPackageJsonFile
-
-instance PackageJsonFile InstalledPackageJsonFile
 
 packagesDirInDataDir :: Path' (Rel DataDir) (Dir PackagesDir)
 packagesDirInDataDir = [reldir|packages|]
@@ -116,11 +123,21 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
   -- We remove the destination directory first to ensure a clean state
   IOUtil.deleteDirectoryIfExists dstPackageDirInProject
   IOUtil.copyDirectory srcPackageDir dstPackageDirInProject
-  ensureBinFilesAreExecutable dstPackageDirInProject
 
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =
   dotWaspDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
+
+-- | Returns the path to the main script of an installable package, relative
+-- to the project root. This can be passed to @node@ directly, avoiding the
+-- need for @npx@ and its requirement that bin files are executable.
+getInstallablePackageScriptInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) File'
+getInstallablePackageScriptInProject package =
+  castFile $ getPackageInstallationPathInProject package </> installablePackageScript package
+
+installablePackageScript :: InstallablePackage -> Path' (Rel d) File'
+installablePackageScript = \case
+  WaspConfigPackage -> [relfile|dist/src/run.js|]
 
 getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
 getRunnablePackageDir package = do
@@ -143,30 +160,6 @@ ensurePackageDependenciesAreInstalled packageDir =
   where
     nodeModulesDirExists = IOUtil.doesDirectoryExist nodeModulesDir
     nodeModulesDir = packageDir </> [reldir|node_modules|]
-
--- | Reads the "bin" field from a package's package.json and ensures all
--- referenced files are executable.
---
--- `cabal install` copies data files with 0644 regardless of source
--- permissions, and npm only chmod's bin files when it first creates
--- the .bin/ symlink (not on subsequent installs). Since this function's
--- caller deletes and re-copies the package dir while node_modules/.bin/
--- survives, npm will skip the chmod. We fix it here by reading the bin
--- paths from package.json and setting the executable bit on each one.
-ensureBinFilesAreExecutable :: Path' Abs (Dir d) -> IO ()
-ensureBinFilesAreExecutable packageDir = do
-  let packageJsonFile = packageDir </> packageJsonInPackageDir
-  result <- parsePackageJsonFile packageJsonFile
-  case result of
-    Right pkgJson ->
-      forM_ (PJ.getBinPaths pkgJson) $ \binPath -> do
-        let fullPath = fromAbsDir packageDir FP.</> binPath
-        perms <- getPermissions fullPath
-        setPermissions fullPath (setOwnerExecutable True perms)
-    Left _ -> pure ()
-
-packageJsonInPackageDir :: Path' (Rel d) (File InstalledPackageJsonFile)
-packageJsonInPackageDir = [relfile|package.json|]
 
 -- | Like 'P.proc', but sets up the cwd to the given package directory.
 --

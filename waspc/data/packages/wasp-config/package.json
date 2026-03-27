@@ -13,7 +13,7 @@
     }
   },
   "scripts": {
-    "build": "tsc && chmod +x dist/src/run.js",
+    "build": "tsc",
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
     "test": "vitest run --reporter=verbose",
@@ -33,15 +33,7 @@
     "typescript-eslint": "^8.1.0",
     "vitest": "3.1.2"
   },
-  "//build": [
-    "tsc outputs files without executable permissions. run.js is a bin entry",
-    "and must be executable. npm only chmod's bin files when it creates the",
-    ".bin/ symlink, not on subsequent installs. In our case, waspc's ts-setup",
-    "deletes and re-copies .wasp/wasp-config/ but the node_modules/.bin/",
-    "symlink survives, so npm skips the chmod. The chmod +x here ensures the",
-    "source in data/packages/ is executable, which copyDirRecur preserves."
-  ],
-  "//vitest": [
+  "//": [
     "We pin `vitest` version because type tests are an experimental feature,",
     "and changes to API are not breaking changes."
   ]
