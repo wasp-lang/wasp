@@ -19,6 +19,7 @@ import Wasp.JsImport
   ( JsImport (..),
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (RelativeImportPath),
+    getJsDynamicImportExpression,
     getJsImportStmtAndIdentifier,
     makeJsImport,
   )
@@ -51,7 +52,8 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
        in object
             [ "isDefined" .= True,
               "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier
+              "importIdentifier" .= jsImportIdentifier,
+              "dynamicImportExpression" .= getJsDynamicImportExpression jsImport
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
