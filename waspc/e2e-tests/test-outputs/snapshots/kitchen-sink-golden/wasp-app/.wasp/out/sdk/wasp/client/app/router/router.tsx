@@ -5,13 +5,14 @@ import { OAuthCallbackPage } from "../pages/OAuthCallback"
 
 import { DefaultRootErrorBoundary } from '../components/DefaultRootErrorBoundary'
 
+import type { RouteMapping } from '../components/WaspApp'
 import { routes } from '../../router/index'
 
 export function getRouter({
   routesMapping,
   rootElement,
 }: {
-  routesMapping: Record<string, React.ComponentType>,
+  routesMapping: RouteMapping,
   rootElement: React.ReactNode,
 }) {
   const waspDefinedRoutes = [
@@ -23,7 +24,7 @@ export function getRouter({
   const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
     return {
       path: route.to,
-      Component: routesMapping[routeKey],
+      ...routesMapping[routeKey],
     }
   })
 
