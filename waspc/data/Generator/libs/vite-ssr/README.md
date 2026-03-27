@@ -12,7 +12,7 @@ At runtime, the plugin serves these prerendered HTML files linking to the **Clie
 
 You pass it a list of **SSR paths** to prerender, and a **fallback path** used internally to generate the SPA fallback HTML. Visitors hitting an SSR path get the prerendered HTML, while all other routes serve the SPA fallback.
 
-See a more in-depth explanation of the plugin's architecture and how it works [in the FAQ section](#FAQ) of this README.
+See a more in-depth explanation of the plugin's architecture and how it works [in the FAQ section](#faq) of this README.
 
 ## Example setup
 
@@ -113,7 +113,7 @@ if (window.__staticRouterHydrationData) {
 
 #### Explanation
 
-When start prerendering pages in an app, you implicitly create two kinds of HTML files that the server sends to the client.
+When you start prerendering pages in an app, you implicitly create two kinds of HTML files that the server sends to the client.
 
 Let's do an analogy. In your body, all the cells have the same DNA, that gets expressed differently. When you need a new red blood cell, you might have an already specialized cell available in your body's storage; or otherwise you might have to send a stem cell that has the ability to turn into anything. But regardless, when either cell reaches the bloodstream, they both have to be able to act like a red blood cell!
 
@@ -124,7 +124,7 @@ In the same way, with prerendering, we can create different kinds of outputs fro
 The Vite SSR plugin can output two different kinds of pages:
 
 - A **prerendered** page that is specialized to the requested route, and then hydrated in the client
-- A **fallback** page that is mostly blank wiht just the "shell", and then fully rendered on the client
+- A **fallback** page that is mostly blank with just the "shell", and then fully rendered on the client
 
 Let's see how this works for an app that has only one prerendered route (`/about`):
 
@@ -138,8 +138,8 @@ Let's see how this works for an app that has only one prerendered route (`/about
     </head>
     <body>
       <div id="app">
-        <h1>About My Corporation<h1>
-        <p>Lorem ipsum dolor sit amet<p>
+        <h1>About My Corporation</h1>
+        <p>Lorem ipsum dolor sit amet</p>
       </div>
       <script>
         window.__hydration_data__ = { route: "/about" };
@@ -154,7 +154,7 @@ Let's see how this works for an app that has only one prerendered route (`/about
   ```html
   <html>
     <head>
-      <title>Loading... | My Corporation LLC<title>
+      <title>Loading... | My Corporation LLC</title>
       <link rel="favicon" href="/favicon.ico">
     </head>
     <body>

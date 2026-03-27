@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { StrictMode, type ReactNode } from "react";
-import { useIsClient } from "./util.js"
+import { useIsClient } from "./hooks/useIsClient.js"
 
 export function Layout({
   children,

@@ -19,7 +19,7 @@ where
 import Data.Data (Data)
 import Data.List (isPrefixOf)
 import StrongPath (Dir', File', Path, Posix, Rel)
-import qualified StrongPath as SP
+import StrongPath qualified as SP
 
 -- | Represents a JS import data type that can be used to generate import statements
 --   in generated app. It doesn't fully support all types of JS imports (multiple imports)
@@ -38,7 +38,7 @@ data JsImport = JsImport
 data JsImportPath
   = RelativeImportPath (Path Posix (Rel Dir') File')
   | ModuleImportPath (Path Posix (Rel Dir') File')
-  | ExternalImportName String
+  | RawImportName String
   deriving (Show, Eq, Data)
 
 -- Note (filip): not a fan of so many aliases for regular types
@@ -82,7 +82,7 @@ getJsImportPathString :: JsImport -> String
 getJsImportPathString (JsImport importPath _ _) = case importPath of
   RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
   ModuleImportPath modulePath -> SP.fromRelFileP modulePath
-  ExternalImportName moduleName -> moduleName
+  RawImportName moduleName -> moduleName
   where
     normalizePath path
       | ".." `isPrefixOf` path = path

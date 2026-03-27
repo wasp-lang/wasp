@@ -4,7 +4,7 @@ import type { PrerenderFn } from "../../types";
 import { ENVIRONMENT_NAMES, PACKAGE_NAME } from "../common/constants";
 import type { Options } from "../common/options";
 import type { SsrRoutes } from "../common/routes";
-import { addRegisterCss, withRegisteredCss } from "./css";
+import { appendCssRegistrationCode, withRegisteredCss } from "./css";
 
 export const ssrDev = (
   routes: SsrRoutes,
@@ -24,7 +24,7 @@ export const ssrDev = (
 
       handler(code, id, opts) {
         if (opts?.ssr) {
-          return addRegisterCss(id, code);
+          return appendCssRegistrationCode(id, code);
         }
       },
     },

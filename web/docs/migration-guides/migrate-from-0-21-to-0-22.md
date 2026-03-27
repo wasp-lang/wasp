@@ -41,4 +41,6 @@ Review your schemas for compatibility with Zod v4. Most schemas will work withou
 
 We now use React to output the base `index.html` for your client app, as we set the groundwork for SSR support in the future. This means that the contents of `app.head` are now rendered as React JSX instead of raw HTML.
 
-Make sure all tags in `app.head` are valid React JSX — every tag must either be self-closing (e.g. `<meta ... />`) or have a matching closing tag (e.g. `<script>...</script>`). In JSX, even void HTML elements (like `<link>`, `<meta>`, and `<base>`) need a trailing `/>`.
+To make sure all tags in `app.head` are valid React JSX, check that every tag is either self-closing (e.g. `<meta ... />`) or has a matching closing tag (e.g. `<script>...</script>`). In JSX, even void HTML elements (like `<link>`, `<meta>`, and `<base>`) need a trailing `/>`.
+
+Wasp will print an error on compilation if it encounters any invalid JSX in `app.head`, so you can use that as a guide to fix any issues.
