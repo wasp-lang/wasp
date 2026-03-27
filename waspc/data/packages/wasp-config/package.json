@@ -36,10 +36,10 @@
   "//build": [
     "tsc outputs don't have executable permissions. run.js is a bin entry and",
     "must be executable. The chmod ensures the source copy in data/packages/",
-    "has the executable bit set before it gets copied into projects by waspc."
-    "NPM sets the executable bit for `bin` files during `npm install` but we"
-    "can't rely on that because `npm install` doesn't necessarily run after"
-    "each copy.",
+    "has the executable bit set before it gets copied into projects by waspc.",
+    "NPM sets the executable bit for `bin` files during `npm install` but we",
+    "can't rely on that because `npm install` doesn't necessarily run after",
+    "each copy."
   ],
   "//vitest": [
     "We pin `vitest` version because type tests are an experimental feature,",
