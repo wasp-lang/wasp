@@ -33,7 +33,12 @@
     "typescript-eslint": "^8.1.0",
     "vitest": "3.1.2"
   },
-  "//": [
+  "//build": [
+    "tsc outputs files with 0644 permissions, but run.js is a bin entry and",
+    "must be executable. The chmod ensures the source copy in data/packages/",
+    "is already 0755 before it gets copied into projects by NodePackageFFI.hs."
+  ],
+  "//vitest": [
     "We pin `vitest` version because type tests are an experimental feature,",
     "and changes to API are not breaking changes."
   ]
