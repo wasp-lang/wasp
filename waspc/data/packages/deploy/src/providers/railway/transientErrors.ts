@@ -14,9 +14,7 @@ export function isRailwayTransientError(error: unknown): boolean {
   const stderr = error.stderr.toLowerCase();
 
   if (stderr.includes("failed to fetch:")) {
-    return TRANSIENT_FETCH_PATTERNS.some((pattern) =>
-      stderr.includes(pattern),
-    );
+    return TRANSIENT_FETCH_PATTERNS.some((pattern) => stderr.includes(pattern));
   }
 
   if (stderr.includes("ratelimited")) {
