@@ -10,13 +10,31 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 ## What's new in 0.22.X?
 
+### Node.js minimum version bumped to 22.22.2
+
+Wasp now requires **Node.js 22.22.2 or higher** due to the [March 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/march-2026-security-releases). If you're on an older Node.js 22.x version, upgrade before updating Wasp.
+
 ### Upgraded Zod to v4
 
 Wasp now uses Zod v4 for environment variable validation. If you have custom env validation schemas, you may need to update them to be compatible with the latest Zod API. Check the [Zod v4 announcement](https://zod.dev/v4) for details on what changed.
 
 ## How to migrate?
 
-### 1. Bump the Wasp version
+### 1. Upgrade Node.js to 22.22.2 or higher
+
+Make sure you have Node.js 22.22.2 or higher installed. You can check your current version with:
+
+```bash
+node -v
+```
+
+If you need to upgrade, we recommend using [nvm](https://github.com/nvm-sh/nvm):
+
+```bash
+nvm install 22
+```
+
+### 2. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.22.0`:
 
@@ -29,7 +47,7 @@ app MyApp {
 }
 ```
 
-### 2. Update your env validation schemas
+### 3. Update your env validation schemas
 
 **If you don't have `app.client.envValidationSchema` or `app.server.envValidationSchema` defined in your Wasp file, you can skip this step.**
 

@@ -24,17 +24,14 @@ switch ($Command) {
     "build:packages" {
         Invoke-Expression $WASP_PACKAGES_COMPILE
     }
-    # NOTE: --experimental-strip-types allows Node to run TypeScript directly.
-    # This flag became the default in Node v22.18+, but we need it explicitly
-    # for our minimum supported version (v22.12.0).
     "build:libs" {
-        node --experimental-strip-types "$PROJECT_ROOT/tools/libs/build.ts"
+        node "$PROJECT_ROOT/tools/libs/build.ts"
     }
     "test:libs" {
-        node --experimental-strip-types "$PROJECT_ROOT/tools/libs/test.ts"
+        node "$PROJECT_ROOT/tools/libs/test.ts"
     }
     "get-waspc-version" {
-        node --experimental-strip-types "$PROJECT_ROOT/tools/get-waspc-version.ts"
+        node "$PROJECT_ROOT/tools/get-waspc-version.ts"
     }
     "wasp-cli" {
         Invoke-Expression $RUN_CMD

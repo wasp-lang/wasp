@@ -53,7 +53,7 @@ function assertLibVersionValid(libName: string, libVersion: string): void {
 function getWaspcVersion(): string {
   return runCmd(
     "node",
-    ["--experimental-strip-types", join("tools", "get-waspc-version.ts")],
+    [join("tools", "get-waspc-version.ts")],
     { cwd: waspcDirPath },
   ).trim();
 }
