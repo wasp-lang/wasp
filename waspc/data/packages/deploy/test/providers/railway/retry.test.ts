@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { ProcessOutput } from "zx";
-import { isRailwayTransientError } from "../../../src/providers/railway/transientErrors.js";
+import { isRailwayTransientError } from "../../../src/providers/railway/retry.js";
 
 function makeProcessOutput(stderr: string): ProcessOutput {
   return new ProcessOutput(1, null, "", stderr, stderr, stderr);
@@ -35,8 +35,7 @@ describe("isRailwayTransientError", () => {
       );
       expect(isRailwayTransientError(error)).toBe(true);
     });
-
-});
+  });
 
   describe("returns false for permanent errors", () => {
     test("unauthorized", () => {

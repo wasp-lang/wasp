@@ -1,10 +1,12 @@
 import { ProcessOutput } from "zx";
+import { retryOnTransientError } from "../../common/retry.js";
 
-const TRANSIENT_FETCH_PATTERNS = [
-  "timed out",
-  "connection refused",
-  "dns error",
-];
+export function retryOnRailwayAPIError<T>(fn: () => Promise<T>): Promise<T> {
+  return retryOnTransientError(fn, {
+    isRetryable: isRailwayTransientError,
+    retryDescription: "a Railway API issue",
+  });
+}
 
 export function isRailwayTransientError(error: unknown): boolean {
   if (!(error instanceof ProcessOutput)) {
@@ -23,3 +25,9 @@ export function isRailwayTransientError(error: unknown): boolean {
 
   return false;
 }
+
+const TRANSIENT_FETCH_PATTERNS = [
+  "timed out",
+  "connection refused",
+  "dns error",
+];

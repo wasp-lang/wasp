@@ -1,7 +1,6 @@
-import { retryOnTransientError } from "../../../../common/retry.js";
 import { waspSays } from "../../../../common/terminal.js";
 import { RailwayProjectName } from "../../brandedTypes.js";
-import { isRailwayTransientError } from "../../transientErrors.js";
+import { retryOnRailwayAPIError } from "../../retry.js";
 
 import { deploy } from "../deploy/index.js";
 import { setup } from "../setup/setup.js";
@@ -13,13 +12,7 @@ export async function launch(
 ): Promise<void> {
   waspSays("Launching your Wasp app to Railway!");
 
-  await retryOnTransientError(() => setup(projectName, options), {
-    isRetryable: isRailwayTransientError,
-    retryDescription: "a Railway API issue",
-  });
+  await retryOnRailwayAPIError(() => setup(projectName, options));
 
-  await retryOnTransientError(() => deploy(projectName, options), {
-    isRetryable: isRailwayTransientError,
-    retryDescription: "a Railway API issue",
-  });
+  await retryOnRailwayAPIError(() => deploy(projectName, options));
 }
