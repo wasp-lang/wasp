@@ -31,8 +31,7 @@ node -v
 If you need to upgrade, we recommend using [nvm](https://github.com/nvm-sh/nvm):
 
 ```bash
-nvm install 22
-```
+nvm install 22.22.2
 
 ### 2. Bump the Wasp version
 
