@@ -10,11 +10,11 @@ import StrongPath (fromAbsDir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
-    dbRootDirInProjectRootDir,
+    dbRootDirInGeneratedAppDir,
   )
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
+    generatedAppDirInDotWaspDir,
   )
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
@@ -68,8 +68,8 @@ assertMigrationDirsExist migrationName = do
       waspOutMigrationsDir =
         waspProjectContext.waspProjectDir
           </> dotWaspDirInWaspProjectDir
-          </> generatedCodeDirInDotWaspDir
-          </> dbRootDirInProjectRootDir
+          </> generatedAppDirInDotWaspDir
+          </> dbRootDirInGeneratedAppDir
           </> dbMigrationsDirInDbRootDir
   return $
     ("cd " ++ fromAbsDir waspMigrationsDir)

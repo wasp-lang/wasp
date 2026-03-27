@@ -81,7 +81,7 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "10234711f24b3718b1a12ed1ec1700121fdd396823379e3c0ecb541e3a9c44a7"
+        "253526fbf6ed1d187ba20b3e7c7afe031c0e1fde581a911d2024a179f202a277"
     ],
     [
         [
@@ -95,7 +95,7 @@
             "file",
             "sdk/wasp/client/app/router/router.tsx"
         ],
-        "43f1813007978a68b9a4f4fc3c0817802173d66c1286d277c877b88271752d08"
+        "64fb640433deda6df6e4db600f0ecb98865f0cd5114df58fcbd03e6d7ab7cc8c"
     ],
     [
         [
@@ -109,14 +109,14 @@
             "file",
             "sdk/wasp/client/env.ts"
         ],
-        "5fe8057a1d26540c02ff7f7ca17ef87f6b92c6a0132620a78ae6f7525abf17ec"
+        "7fafed5cbdcc62100df36625e40ea26db68a3d3be5b7951c84cbd7bec2ce3aeb"
     ],
     [
         [
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "9ee165ce468013efa927ac6b7f192e56b4dcc5d7db7c470f977753eb8405bc54"
+        "2adf02a3838673b1a3641758b09ff49725b4c29a5cefaa0f47a42ad4a35a7a53"
     ],
     [
         [
@@ -305,7 +305,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "dc47562e333621fc859386a9422674c11295d786fda1b57561b0b0b7b9b57313"
+        "72f3444a4831313c266de00c418b62df44bb64a05548825a4ccc118e28ee75ca"
     ],
     [
         [
@@ -347,7 +347,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "0ead25c5f37895afa471357c298fab3a0593fe4e12b1b7e9b404f7f7fe375d1a"
+        "1298f33ddcf8c039a9ce5d885c5b7a9bb711ad6eab90a30d735975bed59d6b56"
     ],
     [
         [
@@ -403,7 +403,7 @@
             "file",
             "sdk/wasp/env/validation.ts"
         ],
-        "f50891896c9bfe331c6f59a5b844fa821a6e3f959d69acfdbc8f592aa6d346da"
+        "46889a74ff4b17a27dc1a086ec97f25aecd9b174a71bb35ebf65f1b0ca697a69"
     ],
     [
         [
@@ -466,7 +466,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "0c877fc99e467d30799946146927c3f0ee1627feed61db481a1384eab050aace"
+        "0c979e96500977cc13fa2f66bc27564d53ce302d5d36fb4d75446919533eb57e"
     ],
     [
         [
@@ -585,7 +585,7 @@
             "file",
             "sdk/wasp/universal/ansiColors.ts"
         ],
-        "1b38c60fcd141712bc5a253467b46263af0ee1d64cd9d9c9a774f61dd4949a1c"
+        "cfc47c3c2b75be169c4e7e8fba94b769544a5004085f7bd54fc0d9ab79c37b70"
     ],
     [
         [

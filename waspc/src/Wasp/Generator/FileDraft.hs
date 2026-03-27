@@ -15,7 +15,7 @@ import qualified Data.Aeson as Aeson
 import Data.Text (Text)
 import StrongPath (Abs, Dir, File, Path', Rel)
 import qualified StrongPath as SP
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft as CMTextFD
 import Wasp.Generator.FileDraft.CopyDirFileDraft (CopyDirFileDraftDstDirStrategy)
 import qualified Wasp.Generator.FileDraft.CopyDirFileDraft as CopyDirFD
@@ -65,7 +65,7 @@ instance Writeable FileDraft where
   getDstPath (FileDraftCopyLibFd draft) = getDstPath draft
 
 createTemplateFileDraft ::
-  Path' (Rel ProjectRootDir) (File a) ->
+  Path' (Rel GeneratedAppDir) (File a) ->
   Path' (Rel TemplatesDir) (File b) ->
   Maybe Aeson.Value ->
   FileDraft
@@ -77,7 +77,7 @@ createTemplateFileDraft dstPath tmplSrcPath tmplData =
         TmplFD._tmplData = tmplData
       }
 
-createCopyFileDraft :: Path' (Rel ProjectRootDir) (File a) -> Path' Abs (File b) -> FileDraft
+createCopyFileDraft :: Path' (Rel GeneratedAppDir) (File a) -> Path' Abs (File b) -> FileDraft
 createCopyFileDraft dstPath srcPath =
   FileDraftCopyFd $
     CopyFD.CopyFileDraft
@@ -87,7 +87,7 @@ createCopyFileDraft dstPath srcPath =
       }
 
 createCopyAndModifyTextFileDraft ::
-  Path' (Rel ProjectRootDir) (File a) -> Path' Abs (File b) -> (Text -> Text) -> FileDraft
+  Path' (Rel GeneratedAppDir) (File a) -> Path' Abs (File b) -> (Text -> Text) -> FileDraft
 createCopyAndModifyTextFileDraft dstPath srcPath modify =
   FileDraftCopyAndModifyTextFd $
     CMTextFD.CopyAndModifyTextFileDraft
@@ -97,7 +97,7 @@ createCopyAndModifyTextFileDraft dstPath srcPath modify =
         CMTextFD._failIfSrcDoesNotExist = True
       }
 
-createCopyFileDraftIfExists :: Path' (Rel ProjectRootDir) (File a) -> Path' Abs (File b) -> FileDraft
+createCopyFileDraftIfExists :: Path' (Rel GeneratedAppDir) (File a) -> Path' Abs (File b) -> FileDraft
 createCopyFileDraftIfExists dstPath srcPath =
   FileDraftCopyFd $
     CopyFD.CopyFileDraft
@@ -108,7 +108,7 @@ createCopyFileDraftIfExists dstPath srcPath =
 
 createCopyDirFileDraft ::
   CopyDirFileDraftDstDirStrategy ->
-  Path' (Rel ProjectRootDir) (Dir a) ->
+  Path' (Rel GeneratedAppDir) (Dir a) ->
   Path' Abs (Dir b) ->
   FileDraft
 createCopyDirFileDraft dstDirStrategy dstPath srcPath =
@@ -119,12 +119,12 @@ createCopyDirFileDraft dstDirStrategy dstPath srcPath =
         CopyDirFD._dstDirStrategy = dstDirStrategy
       }
 
-createTextFileDraft :: Path' (Rel ProjectRootDir) (File a) -> Text -> FileDraft
+createTextFileDraft :: Path' (Rel GeneratedAppDir) (File a) -> Text -> FileDraft
 createTextFileDraft dstPath content =
   FileDraftTextFd $ TextFD.TextFileDraft {TextFD._dstPath = SP.castFile dstPath, TextFD._content = content}
 
 createCopyLibFileDraft ::
-  Path' (Rel ProjectRootDir) (File a) ->
+  Path' (Rel GeneratedAppDir) (File a) ->
   Path' (Rel LibsSourceDir) (File b) ->
   FileDraft
 createCopyLibFileDraft dstPath srcPathInLibsSourceDir =

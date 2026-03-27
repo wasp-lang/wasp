@@ -64,14 +64,22 @@ export function getInferredBasenameFromServerToml(
   paths: TomlFilePaths,
 ): string {
   const serverFlyAppName = getAppNameFromToml(paths.serverTomlPath);
-  return serverFlyAppName.replace("-server", "");
+  return inferServerBasename(serverFlyAppName);
 }
 
 export function getInferredBasenameFromClientToml(
   paths: TomlFilePaths,
 ): string {
   const clientFlyAppName = getAppNameFromToml(paths.clientTomlPath);
-  return clientFlyAppName.replace("-client", "");
+  return inferClientBasename(clientFlyAppName);
+}
+
+export function inferServerBasename(name: string): string {
+  return name.replace(/-server$/, "");
+}
+
+export function inferClientBasename(name: string): string {
+  return name.replace(/-client$/, "");
 }
 
 export function replaceLineInLocalToml(

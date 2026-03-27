@@ -82,8 +82,5 @@ async function regionExists(regionCode: string): Promise<boolean> {
 export async function secretExists(secretName: string): Promise<boolean> {
   const proc = await $`flyctl secrets list -j`;
   const secrets = FlySecretListSchema.parse(proc.json());
-  return secrets.some((s) => {
-    const name = "name" in s ? s.name : s.Name;
-    return name === secretName;
-  });
+  return secrets.some((s) => s.name === secretName);
 }
