@@ -14,6 +14,10 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 Wasp now requires **Node.js 22.22.2 or higher** due to the [March 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/march-2026-security-releases). If you're on an older Node.js 22.x version, upgrade before updating Wasp.
 
+### Docker base image upgraded to Alpine 3.23
+
+The generated Dockerfile now uses Alpine 3.23 (previously 3.20). If you have a custom Dockerfile that extends the generated one or depends on Alpine-specific packages, verify compatibility after upgrading.
+
 ### Upgraded Zod to v4
 
 Wasp now uses Zod v4 for environment variable validation. If you have custom env validation schemas, you may need to update them to be compatible with the latest Zod API. Check the [Zod v4 announcement](https://zod.dev/v4) for details on what changed.
