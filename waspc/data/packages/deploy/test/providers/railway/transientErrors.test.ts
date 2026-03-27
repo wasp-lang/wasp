@@ -36,13 +36,7 @@ describe("isRailwayTransientError", () => {
       expect(isRailwayTransientError(error)).toBe(true);
     });
 
-    test("upload 5xx", () => {
-      const error = makeProcessOutput(
-        "Failed to upload code with status code 500",
-      );
-      expect(isRailwayTransientError(error)).toBe(true);
-    });
-  });
+});
 
   describe("returns false for permanent errors", () => {
     test("unauthorized", () => {

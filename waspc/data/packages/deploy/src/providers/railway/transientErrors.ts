@@ -21,9 +21,5 @@ export function isRailwayTransientError(error: unknown): boolean {
     return true;
   }
 
-  if (stderr.includes("failed to upload code with status code 5")) {
-    return true;
-  }
-
   return false;
 }
