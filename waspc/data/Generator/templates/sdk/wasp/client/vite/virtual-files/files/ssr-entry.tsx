@@ -14,13 +14,13 @@ import { WaspApp } from "wasp/client/app";
 
 {=& routeObjects.importStatement =}
 
-const FALLBACK_FILE = "{= ssrFallbackFile =}";
+const SSR_FALLBACK_FILES = {=& ssrFallbackFiles =};
 
 const prerenderApp: PrerenderFn = async (route, ctx) => {
-  const isFallbackPage = route === FALLBACK_FILE;
+  const isFallbackPage = SSR_FALLBACK_FILES.includes(route);
 
   if (isFallbackPage) {
-     return await appToHtml({ isFallbackPage: true, children: null }, ctx);
+    return await appToHtml({ isFallbackPage: true, children: null }, ctx);
   } else {
     const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
       basename: "{= baseDir =}",

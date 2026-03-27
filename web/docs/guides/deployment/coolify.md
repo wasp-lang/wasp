@@ -161,7 +161,7 @@ jobs:
         run: |
           cd ./.wasp/out/web-app
           echo "FROM pierrezemb/gostatic" > Dockerfile
-          echo "CMD [\"-fallback\", \"_fallback.html\", \"-enable-logging\"]" >> Dockerfile
+          echo "CMD [\"-fallback\", \"200.html\", \"-enable-logging\"]" >> Dockerfile
           echo "COPY ./build /srv/http" >> Dockerfile
 
       - name: (server) Build and push Docker image

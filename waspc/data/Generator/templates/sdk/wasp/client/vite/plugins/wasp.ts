@@ -33,8 +33,8 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     ssr({
       clientEntrySrc: "{= clientEntryPointPath =}",
       ssrEntrySrc: "{= ssrEntryPointPath =}",
-      ssrPaths: [],
-      ssrFallbackFile: "{= ssrFallbackFile =}",
+      ssrPaths: ["/", "/test-page"],
+      ssrFallbackFiles: {=& ssrFallbackFiles =},
     }),
   ];
 }

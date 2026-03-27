@@ -10,7 +10,7 @@ You set this plugin up in your Vite config with your **SSR entry** that `export 
 
 At runtime, the plugin serves these prerendered HTML files linking to the **Client entry** for their respective routes. For any routes not prerendered, it serves a minimal SPA shell that mounts the React app client-side.
 
-You pass it a list of **SSR paths** to prerender, and a **fallback path** used internally to generate the SPA fallback HTML. Visitors hitting an SSR path get the prerendered HTML, while all other routes serve the SPA fallback.
+You pass it a list of **SSR paths** to prerender, and a list of **fallback paths** used internally to generate the SPA fallback HTML files. Visitors hitting an SSR path get the prerendered HTML, while all other routes serve the SPA fallback.
 
 See a more in-depth explanation of the plugin's architecture and how it works [in the FAQ section](#FAQ) of this README.
 
@@ -42,7 +42,7 @@ export default defineConfig({
       clientEntrySrc: path.join(import.meta.dirname, "client-entry.tsx"),
       ssrEntrySrc: path.join(import.meta.dirname, "ssr-entry.tsx"),
       ssrPaths: ["/", "/about"],
-      ssrFallbackFile: "/_fallback.html",
+      ssrFallbackFiles: ["200.html", "404.html"],
     }),
   ],
 });
@@ -50,12 +50,12 @@ export default defineConfig({
 
 **Options:**
 
-| Option            | Description                               |
-| ----------------- | ----------------------------------------- |
-| `clientEntrySrc`  | Absolute path to the client entry file    |
-| `ssrEntrySrc`     | Absolute path to the SSR entry file       |
-| `ssrPaths`        | Array of route paths to prerender         |
-| `ssrFallbackFile` | Where the fallback HTML will be generated |
+| Option             | Description                              |
+| ------------------ | ---------------------------------------- |
+| `clientEntrySrc`   | Absolute path to the client entry file   |
+| `ssrEntrySrc`      | Absolute path to the SSR entry file      |
+| `ssrPaths`         | Array of route paths to prerender        |
+| `ssrFallbackFiles` | Array of fallback HTML files to generate |
 
 ### 3. Write an SSR entry
 
@@ -68,8 +68,10 @@ import { prerenderToNodeStream } from "react-dom/static";
 import App from "./app";
 import * as streamConsumers from "node:stream/consumers";
 
+const SSR_FALLBACK_FILES = ["200.html", "404.html"];
+
 const prerender: PrerenderFn = async (route, ctx) => {
-  const isFallback = route === "/_fallback.html";
+  const isFallback = SSR_FALLBACK_FILES.includes(route);
 
   const html = await streamConsumers.text(
     prerenderToNodeStream(
@@ -149,7 +151,7 @@ Let's see how this works for an app that has only one prerendered route (`/about
   </html>
   ```
 
-- At build time, we also tell the app to give us a blank page that can turn into anything. We store that as `_fallback.html`. This file just has the most common parts of the app:
+- At build time, we also tell the app to give us a blank page that can turn into anything. We store them as our fallback files (`200.html` and `404.html`). This file just has the most common parts of the app:
 
   ```html
   <html>
@@ -167,7 +169,7 @@ Let's see how this works for an app that has only one prerendered route (`/about
   ```
 
 - Then, in the server, when we receive a request for `/about`, we can just find the `about.html` file and send it directly to the client. The `app.js` script will hydrate it.
-- But if we have to serve e.g. `/faq`, we send the `_fallback.html` file, which is just blank, and in the client it will get the correct bundle and render it, we'll just have to wait a bit until it does.
+- But if we have to serve e.g. `/faq`, we send the fallback file, which is just blank, and in the client it will get the correct bundle and render it, we'll just have to wait a bit until it does.
 
 In both cases, the `app.js` content is the same:
 

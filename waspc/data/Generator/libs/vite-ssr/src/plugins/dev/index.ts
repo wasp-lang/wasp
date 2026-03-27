@@ -60,7 +60,7 @@ export const ssrDev = (
 
           const route = routes.byPath.has(originalUrl)
             ? originalUrl
-            : routes.fallbackFile.path;
+            : routes.fallbackFiles[0].path;
 
           // Clear the SSR module cache on every request, so that we always run the latest code.
           ssrEnv.runner.clearCache();

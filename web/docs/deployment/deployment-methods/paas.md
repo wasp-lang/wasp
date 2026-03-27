@@ -362,7 +362,7 @@ You'll deploy the server first:
       }
 
       # Try files with HTML extension and handle SPA routing
-      try_files {path} {path}/index.html /_fallback.html
+      try_files {path} {path}/index.html /200.html
 
       # Handle 404 errors
       handle_errors {
@@ -372,7 +372,7 @@ You'll deploy the server first:
     }
     ```
 
-    This overrides [Railway's default Caddyfile](https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template) so that prerendered pages are served correctly and non-prerendered routes fall back to the SPA shell (`_fallback.html`).
+    This overrides [Railway's default Caddyfile](https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template) so that prerendered pages are served correctly and non-prerendered routes fall back to the SPA shell (`200.html`).
 
 3. Link the client build directory to the `client` service:
 
@@ -663,15 +663,28 @@ Make sure you set the `https://<app-name>.pages.dev` URL as the `WASP_WEB_CLIENT
 
 :::info Setting up the SPA fallback
 
-Cloudflare Pages serves static files and directory index files (e.g., `/about` → `/about/index.html`) automatically. For all other routes, you need to set up a fallback to `_fallback.html` so the client-side router can handle them.
+Cloudflare Pages needs a `_worker.js` file to correctly route requests. For prerendered pages it serves the matching HTML file, and for everything else it falls back to the SPA shell (`200.html`).
 
-Create a `_redirects` file in `.wasp/out/web-app/build` with the following content:
+Create a `_worker.js` file in `.wasp/out/web-app/build` with the following content:
 
+```js title=".wasp/out/web-app/build/_worker.js"
+export default {
+  async fetch(request, env) {
+    const res = await env.ASSETS.fetch(request);
+
+    if (res.status !== 404) {
+      return res;
+    }
+
+    const url = new URL(request.url);
+    url.pathname = "/200";
+
+    return env.ASSETS.fetch(new Request(url, request));
+  },
+};
 ```
-/* /_fallback.html 200
-```
 
-This tells Cloudflare to serve `_fallback.html` for any route that doesn't match a static file.
+This worker tries to serve the requested path as a static file first. If the file doesn't exist, it serves `200.html` so the client-side router can handle the route.
 :::
 
 ### Deploying through Github Actions
@@ -715,7 +728,20 @@ Here’s an example configuration file to help you get started. This example wor
           run: cd ./app && REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build
 
         - name: Set up SPA fallback
-          run: echo '/* /_fallback.html 200' > ./app/.wasp/out/web-app/build/_redirects
+          run: |
+            cat > ./app/.wasp/out/web-app/build/_worker.js << 'WORKER'
+            export default {
+              async fetch(request, env) {
+                const res = await env.ASSETS.fetch(request);
+                if (res.status !== 404) {
+                  return res;
+                }
+                const url = new URL(request.url);
+                url.pathname = "/200";
+                return env.ASSETS.fetch(new Request(url, request));
+              },
+            };
+            WORKER
 
         - name: Deploy to Cloudflare Pages
           uses: cloudflare/wrangler-action@v3

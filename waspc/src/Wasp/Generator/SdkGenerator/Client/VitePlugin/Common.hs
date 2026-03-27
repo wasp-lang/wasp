@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
     clientEntryPointPath,
     routesEntryPointPath,
     ssrEntryPointPath,
-    ssrFallbackFile,
+    ssrFallbackFiles,
   )
 where
 
@@ -30,5 +30,8 @@ routesEntryPointPath = "/@wasp/routes.tsx"
 ssrEntryPointPath :: String
 ssrEntryPointPath = "/@wasp/ssr-entry.tsx"
 
-ssrFallbackFile :: String
-ssrFallbackFile = "/_fallback.html"
+-- | Inspired by Nuxt, which also generates the both files.
+-- Different hosting platforms use different conventions,
+-- and having both options solves a lot of deploy DX issues.
+ssrFallbackFiles :: [String]
+ssrFallbackFiles = ["200.html", "404.html"]

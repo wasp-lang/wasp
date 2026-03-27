@@ -7,7 +7,7 @@ import { ssrPreview } from "./preview";
 import { ssrSetEnvironments } from "./set-environments";
 
 export function ssr(options: Options): PluginOption {
-  const routes = new SsrRoutes(options.ssrPaths, options.ssrFallbackFile);
+  const routes = new SsrRoutes(options.ssrPaths, options.ssrFallbackFiles);
 
   return [
     // We declare the Vite Environments we're using (ssr and client) in a

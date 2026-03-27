@@ -56,7 +56,7 @@ export async function deployClient({
  * Railway serves static sites with Caddy that by default
  * falls back to `index.html` for unknown routes.
  *
- * Since Wasp uses `_fallback.html` as the fallback route,
+ * Since Wasp uses `200.html` as the fallback route by default,
  * and reserves `index.html` for * the prerendered `/` route,
  * we generate a custom Caddyfile into the build directory
  * so Railway picks it up instead.
@@ -123,7 +123,7 @@ const caddyfileContents = `{
   }
 
 	# Try files with HTML extension and handle SPA routing
-  try_files {path} {path}/index.html /_fallback.html
+  try_files {path} {path}/index.html /200.html
 
 	# Handle 404 errors
   handle_errors {
