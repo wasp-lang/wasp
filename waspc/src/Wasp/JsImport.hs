@@ -11,6 +11,8 @@ module Wasp.JsImport
     applyJsImportAlias,
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
+    getJsImportPathString,
+    getJsDynamicImportExpression,
   )
 where
 
@@ -69,17 +71,31 @@ applyJsImportAlias :: Maybe JsImportAlias -> JsImport -> JsImport
 applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier (JsImport importPath importName maybeImportAlias) =
+getJsImportStmtAndIdentifier jsImport@(JsImport _ importName maybeImportAlias) =
   (importStatement, importIdentifier)
   where
-    importStatement = "import " ++ importClause ++ " from '" ++ pathString ++ "'"
+    importStatement = "import " ++ importClause ++ " from '" ++ getJsImportPathString jsImport ++ "'"
     (importIdentifier, importClause) = getJsImportIdentifierAndClause importName maybeImportAlias
-    pathString = case importPath of
-      RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
-      ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+
+getJsImportPathString :: JsImport -> String
+getJsImportPathString (JsImport importPath _ _) = case importPath of
+  RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
+  ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+  where
     normalizePath path
       | ".." `isPrefixOf` path = path
       | otherwise = "./" ++ path
+
+-- | Returns a dynamic import expression, e.g.:
+--   For default export: @import('./path').then(m => m.default)@
+--   For named export: @import('./path').then(m => m.Name)@
+getJsDynamicImportExpression :: JsImport -> String
+getJsDynamicImportExpression jsImport =
+  "import('" ++ getJsImportPathString jsImport ++ "').then(m => m." ++ memberName ++ ")"
+  where
+    memberName = case _name jsImport of
+      JsImportModule _ -> "default"
+      JsImportField name -> name
 
 -- First part of import statement based on type of import and alias
 -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
