@@ -74,10 +74,7 @@
           "type": "category",
           "label": "Email",
           "collapsed": true,
-          "items": [
-            "auth/email",
-            "auth/email/create-your-own-ui"
-          ]
+          "items": ["auth/email", "auth/email/create-your-own-ui"]
         },
         {
           "type": "category",
@@ -100,9 +97,7 @@
           "type": "category",
           "label": "Advanced",
           "collapsed": true,
-          "items": [
-            "auth/advanced/custom-auth-actions"
-          ]
+          "items": ["auth/advanced/custom-auth-actions"]
         }
       ]
     },
@@ -163,9 +158,7 @@
       "label": "AI & Coding Agents",
       "collapsed": false,
       "collapsible": true,
-      "items": [
-        "wasp-ai/coding-agent-plugin"
-      ]
+      "items": ["wasp-ai/coding-agent-plugin"]
     },
     {
       "type": "category",
@@ -222,12 +215,7 @@
       "label": "Miscellaneous",
       "collapsed": true,
       "collapsible": true,
-      "items": [
-        "contributing",
-        "telemetry",
-        "vision",
-        "contact"
-      ]
+      "items": ["contributing", "telemetry", "vision", "contact"]
     }
   ],
   "guides": [
