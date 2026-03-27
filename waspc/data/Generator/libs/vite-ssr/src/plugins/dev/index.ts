@@ -75,7 +75,7 @@ export const ssrDev = (
             return next();
           }
 
-          const newHtml = server.transformIndexHtml(originalUrl, html);
+          const newHtml = await server.transformIndexHtml(originalUrl, html);
 
           res.statusCode = 200;
           res.setHeader("Content-Type", "text/html");
