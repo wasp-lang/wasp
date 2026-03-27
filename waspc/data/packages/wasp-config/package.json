@@ -34,9 +34,12 @@
     "vitest": "3.1.2"
   },
   "//build": [
-    "tsc outputs files with 0644 permissions, but run.js is a bin entry and",
+    "tsc outputs without executable permissions, but run.js is a bin entry and",
     "must be executable. The chmod ensures the source copy in data/packages/",
-    "is already 0755 before it gets copied into projects by NodePackageFFI.hs."
+    "has the executable bit set before it gets copied into projects by waspc."
+    "NPM sets the executable bit for `bin` files during `npm install` but we"
+    "can't rely on that because `npm install` doesn't necessarily run after"
+    "each copy.",
   ],
   "//vitest": [
     "We pin `vitest` version because type tests are an experimental feature,",
