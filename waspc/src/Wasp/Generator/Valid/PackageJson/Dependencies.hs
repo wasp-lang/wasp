@@ -11,6 +11,7 @@ module Wasp.Generator.Valid.PackageJson.Dependencies
 where
 
 import qualified Data.Map as M
+import Data.Maybe (fromMaybe)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import Wasp.Generator.Valid.PackageJson.Common
@@ -165,5 +166,5 @@ inDependency depType pkgName versionValidator =
     V.inField (pkgName, M.lookup pkgName) versionValidator
 
 fieldForDepType :: DependencyType -> (String, P.PackageJson -> P.DependenciesMap)
-fieldForDepType Runtime = ("dependencies", P.dependencies)
-fieldForDepType Development = ("devDependencies", P.devDependencies)
+fieldForDepType Runtime = ("dependencies", fromMaybe mempty . P.dependencies)
+fieldForDepType Development = ("devDependencies", fromMaybe mempty . P.devDependencies)
