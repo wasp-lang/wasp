@@ -34,12 +34,12 @@
     "vitest": "3.1.2"
   },
   "//build": [
-    "tsc outputs don't have executable permissions. run.js is a bin entry and",
-    "must be executable. The chmod ensures the source copy in data/packages/",
-    "has the executable bit set before it gets copied into projects by waspc.",
-    "NPM sets the executable bit for `bin` files during `npm install` but we",
-    "can't rely on that because `npm install` doesn't necessarily run after",
-    "each copy."
+    "tsc outputs files without executable permissions. run.js is a bin entry",
+    "and must be executable. npm only chmod's bin files when it creates the",
+    ".bin/ symlink, not on subsequent installs. In our case, waspc's ts-setup",
+    "deletes and re-copies .wasp/wasp-config/ but the node_modules/.bin/",
+    "symlink survives, so npm skips the chmod. The chmod +x here ensures the",
+    "source in data/packages/ is executable, which copyDirRecur preserves."
   ],
   "//vitest": [
     "We pin `vitest` version because type tests are an experimental feature,",
