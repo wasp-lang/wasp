@@ -83,11 +83,8 @@ jobs:
         working-directory: ./scripts/make-npm-packages
         run: npm ci
 
-        # NOTE: --experimental-strip-types allows Node to run TypeScript
-        # directly. This flag became the default in Node v22.18+, but we need
-        # it explicitly for our minimum supported version (v22.12.0).
       - name: Run packager script
-        run: node --experimental-strip-types ./scripts/make-npm-packages/src/index.ts --input-dir ./input/ --output-dir ./output/
+        run: node ./scripts/make-npm-packages/src/index.ts --input-dir ./input/ --output-dir ./output/
 
       - uses: actions/upload-artifact@v7
         with:
