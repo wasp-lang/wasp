@@ -93,11 +93,13 @@ jobs:
             install-deps: |
               apk update
               # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
-              apk add binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
+              apk add binutils-gold curl gcc g++ gmp-dev gmp-static libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
               # `./run` script dependencies
               apk add bash
               # Cabal dependencies
               apk add zlib-dev zlib-static
+              # Prisma dependencies
+              apk add openssl
 
           - name: macos-x86_64
             runner: macos-15-intel
