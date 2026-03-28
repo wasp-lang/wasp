@@ -19,6 +19,7 @@ import StrongPath
     castFile,
     fromAbsDir,
     fromAbsFile,
+    fromRelFile,
     relfile,
     (</>),
   )
@@ -29,7 +30,7 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageScriptInProject)
 import Wasp.Project.Common
   ( CompileError,
     WaspProjectDir,
@@ -124,10 +125,13 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
   (_, runExitCode) <- do
     concurrently
       (readJobMessagesAndPrintThemPrefixed chan)
+      -- We invoke the script directly via `node` instead of `npx` because
+      -- `npx` requires the bin file to be executable, and `cabal install`
+      -- strips executable permissions from data files.
       ( runNodeCommandAsJob
           waspProjectDir
-          "npx"
-          [ getInstallablePackageName WaspConfigPackage,
+          "node"
+          [ fromRelFile $ getInstallablePackageScriptInProject WaspConfigPackage,
             fromAbsFile absCompiledMainWaspJsFile,
             fromAbsFile absDeclsOutputFile,
             -- When the user is coding main.wasp.ts, TypeScript must know about
