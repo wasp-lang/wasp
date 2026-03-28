@@ -31,7 +31,7 @@ app MyApp {
 
 ### 2. Update your env validation schemas
 
-**If you don't have `app.client. envValidationSchema` or `app.server. envValidationSchema` defined in your Wasp file, you can skip this step.**
+**If you don't have `app.client.envValidationSchema` or `app.server.envValidationSchema` defined in your Wasp file, you can skip this step.**
 
 Review your schemas for compatibility with Zod v4. Most schemas will work without changes, but some deprecated APIs have been removed. Refer to the [Zod v4 migration guide](https://zod.dev/v4/changelog) for details.
 
