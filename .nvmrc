@@ -4,6 +4,7 @@ v22.22.2
 # If you change Wasp's lowest official supported Node version here, you must
 # also change it in:
 #   - The compiler (Wasp.Node.Version).
-#   - The docs: /web/docs/introduction/getting-started.md -> The "Requirements" section.
+#   - The docs: /web/docs/introduction/quick-start.md -> The "Requirements" section.
 #   - The docs plugin: /web/src/remark/search-and-replace.ts
 #   - CI files that don't read this file (search for the version string and setup-node).
+#   - NPM package templates: /scripts/make-npm-packages/templates/*/package.json (engines.node).
