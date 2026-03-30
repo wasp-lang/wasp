@@ -126,7 +126,7 @@ In the same way, with prerendering, we can create different kinds of outputs fro
 The Vite SSR plugin can output two different kinds of pages:
 
 - A **prerendered** page that is specialized to the requested route, and then hydrated in the client
-- A **fallback** page that is mostly blank wiht just the "shell", and then fully rendered on the client
+- A **fallback** page that is mostly blank with just the "shell", and then fully rendered on the client
 
 Let's see how this works for an app that has only one prerendered route (`/about`):
 
