@@ -672,7 +672,7 @@ export default {
     }
 
     const url = new URL(request.url);
-    url.pathname = "/200";
+    url.pathname = "/200.html";
 
     return env.ASSETS.fetch(new URL(url, request.url));
   },
@@ -689,6 +689,14 @@ That is it! Your client should be live at `https://my-wasp-app-client.<your-acco
 
 :::note
 Make sure you set your Workers URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
+:::
+
+:::info Redirecting URLs toward `/200.html`
+
+In `single-page-application` mode, Cloudflare automatically routes all non-asset requests to `/index.html`.
+This behavior conflicts with Wasp, which reserves `/index.html` for the pre-rendered root (`/`) route.
+
+To avoid this, routing is handled explicitly via `worker.js`.
 :::
 
 ### Deploying through Github Actions
