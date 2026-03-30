@@ -14,10 +14,10 @@ import { WaspApp } from "wasp/client/app";
 
 {=& routeObjects.importStatement =}
 
-const SSR_FALLBACK_FILES = {=& ssrFallbackFiles =};
+const SPA_FALLBACK_FILE = "{= spaFallbackFile =}";
 
 const prerenderApp: PrerenderFn = async (route, ctx) => {
-  const isFallbackPage = SSR_FALLBACK_FILES.includes(route);
+  const isFallbackPage = route === SPA_FALLBACK_FILE;
 
   if (isFallbackPage) {
     return await appToHtml({ isFallbackPage: true, children: null }, ctx);

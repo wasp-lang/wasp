@@ -34,7 +34,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
       clientEntrySrc: "{= clientEntryPointPath =}",
       ssrEntrySrc: "{= ssrEntryPointPath =}",
       ssrPaths: ["/", "/test-page"],
-      ssrFallbackFiles: {=& ssrFallbackFiles =},
+      spaFallbackFile: "{= spaFallbackFile =}",
     }),
   ];
 }

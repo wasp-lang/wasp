@@ -60,7 +60,7 @@ export const ssrDev = (
 
           const route = routes.byPath.has(originalUrl)
             ? originalUrl
-            : routes.fallbackFiles[0].path;
+            : routes.spaFallbackFile.path;
 
           // Clear the SSR module cache on every request, so that we always run the latest code.
           ssrEnv.runner.clearCache();
@@ -75,7 +75,7 @@ export const ssrDev = (
             return next();
           }
 
-          const newHtml = server.transformIndexHtml(originalUrl, html);
+          const newHtml = await server.transformIndexHtml(originalUrl, html);
 
           res.statusCode = 200;
           res.setHeader("Content-Type", "text/html");

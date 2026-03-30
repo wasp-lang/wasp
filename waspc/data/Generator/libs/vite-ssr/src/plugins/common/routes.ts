@@ -17,16 +17,16 @@ export interface SsrRoute {
 export class SsrRoutes {
   public readonly byId: ReadonlyMap<string, Readonly<SsrRoute>>;
   public readonly byPath: ReadonlyMap<string, Readonly<SsrRoute>>;
-  public readonly fallbackFiles: Readonly<SsrRoute[]>;
+  public readonly spaFallbackFile: Readonly<SsrRoute>;
 
-  constructor(paths: readonly string[], fallbackFiles: string[]) {
-    // Fallback gets a flat file (e.g. "/200.html") instead of the
+  constructor(paths: readonly string[], fallbackFile: string) {
+    // SPA fallback gets a flat file (e.g. "/200.html") instead of the
     // directory-style "dir/index.html" used for real routes, since it's
     // never accessed by path — only served as the SPA catch-all.
-    this.fallbackFiles = fallbackFiles.map((fallbackFile) => ({
+    this.spaFallbackFile = {
       path: fallbackFile,
       id: removeLeadingSlash(fallbackFile),
-    }));
+    };
 
     const routes = [
       ...paths.map((path) => ({
@@ -34,7 +34,7 @@ export class SsrRoutes {
         // Note: for "/" this produces "index.html" (posixPath.join("", "index.html")).
         id: posixPath.join(removeLeadingSlash(path), "index.html"),
       })),
-      ...this.fallbackFiles,
+      this.spaFallbackFile,
     ];
 
     this.byId = new Map(routes.map((route) => [route.id, route]));

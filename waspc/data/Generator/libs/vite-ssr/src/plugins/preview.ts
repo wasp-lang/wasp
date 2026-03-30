@@ -35,7 +35,7 @@ export const ssrPreview = (routes: SsrRoutes): Plugin => {
           }
 
           const route =
-            routes.byPath.get(originalUrl) ?? routes.fallbackFiles[0];
+            routes.byPath.get(originalUrl) ?? routes.spaFallbackFile;
 
           const htmlPath = path.resolve(clientOutDir, route.id);
           if (!(await pathExists(htmlPath))) {
