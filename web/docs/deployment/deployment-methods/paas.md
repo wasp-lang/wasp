@@ -746,9 +746,6 @@ Here's an example configuration file to help you get started. This example workf
             accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
             workingDirectory: ./app
             command: deploy
-
-      env:
-        CLIENT_CLOUDFLARE_APP_NAME: my-wasp-app-client
   ```
 </details>
 
@@ -756,8 +753,6 @@ Here's an example configuration file to help you get started. This example workf
   <summary>How do I get the Environment Variables?</summary>
 
   - **`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`**: You can get these from your [Cloudflare dashboard](https://dash.cloudflare.com/profile/api-tokens). Make sure to give the token `Cloudflare Workers: Edit` permissions.
-
-  - **`CLIENT_CLOUDFLARE_APP_NAME`**: The name for your Cloudflare Worker.
 
   - **`WASP_SERVER_URL`**: This is your server's URL and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 
