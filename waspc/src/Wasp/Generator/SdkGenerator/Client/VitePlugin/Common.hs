@@ -30,8 +30,5 @@ routesEntryPointPath = "/@wasp/routes.tsx"
 ssrEntryPointPath :: String
 ssrEntryPointPath = "/@wasp/ssr-entry.tsx"
 
--- | Inspired by Nuxt, which also generates the both files.
--- Different hosting platforms use different conventions,
--- and having both options solves a lot of deploy DX issues.
 spaFallbackFile :: String
 spaFallbackFile = "200.html"

@@ -10,7 +10,7 @@ You set this plugin up in your Vite config with your **SSR entry** that `export 
 
 At runtime, the plugin serves these prerendered HTML files linking to the **Client entry** for their respective routes. For any routes not prerendered, it serves a minimal SPA shell that mounts the React app client-side.
 
-You pass it a list of **SSR paths** to prerender, and a **SPA fallback filename** used internally to generate the SPA fallback HTML file. Visitors hitting an SSR path get the prerendered HTML, while all other routes serve the SPA fallback.
+You pass it a list of **SSR paths** to prerender, and a **SPA fallback path** used internally to generate the SPA fallback HTML. Visitors hitting an SSR path get the prerendered HTML, while all other routes serve the SPA fallback.
 
 See a more in-depth explanation of the plugin's architecture and how it works [in the FAQ section](#FAQ) of this README.
 
