@@ -16,7 +16,7 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPat
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ExternalImportName), makeJsImport)
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeJsImport)
 
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getVirtualModulesPlugin spec =
@@ -60,7 +60,7 @@ routeObjectsImportJson :: Value
 routeObjectsImportJson =
   jsImportToImportJson $
     Just $
-      makeJsImport (ExternalImportName routesEntryPointPath) (JsImportField "routeObjects")
+      makeJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")
 
 genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
 genVirtualClientEntryTsx spec =
