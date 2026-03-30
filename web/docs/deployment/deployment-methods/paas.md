@@ -652,7 +652,7 @@ To deploy the client to Cloudflare Workers, create two files in the root of your
 
 ```toml title="wrangler.toml"
 name = "my-wasp-app-client"
-main = "./.wasp/out/web-app/build/worker.js"
+main = "./worker.js"
 compatibility_date = "2026-03-30"
 
 [assets]
