@@ -647,7 +647,7 @@ Before you continue, make sure you have [built the Wasp app](#1-generating-deplo
 
 To deploy the client to Cloudflare Workers, create two files:
 
-1. A `wrangler.toml` that configures the Worker with static assets:
+1. A `wrangler.toml` in project root that configures the Worker with static assets:
 
 ```toml title="wrangler.toml"
 name = "my-wasp-app-client"
@@ -660,9 +660,7 @@ binding = "ASSETS"
 not_found_handling = "none"
 ```
 
-Setting `not_found_handling` to `"none"` ensures the Worker handles missing routes instead of Cloudflare's default fallback. The `binding` makes the assets available as `env.ASSETS` in the worker code.
-
-2. A `worker.js` in `.wasp/out/web-app/build` that serves static files and falls back to the SPA shell for unknown routes:
+2. And a `worker.js` in `.wasp/out/web-app/build` that serves static files and falls back to the SPA shell for unknown routes:
 
 ```js title=".wasp/out/web-app/build/worker.js"
 export default {
