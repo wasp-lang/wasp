@@ -645,9 +645,9 @@ Before you continue, make sure you have [built the Wasp app](#1-generating-deplo
 
 <BuildingTheWebClient />
 
-To deploy the client to Cloudflare Workers, create two files:
+To deploy the client to Cloudflare Workers, create two files in the root of your project:
 
-1. A `wrangler.toml` in project root that configures the Worker with static assets:
+1. A `wrangler.toml` that configures the Worker with static assets:
 
 ```toml title="wrangler.toml"
 name = "my-wasp-app-client"
@@ -660,32 +660,38 @@ binding = "ASSETS"
 not_found_handling = "none"
 ```
 
-2. And a `worker.js` in `.wasp/out/web-app/build` that serves static files and falls back to the SPA shell for unknown routes:
+2. And a `worker.js` that serves static files and falls back to the SPA shell for unknown routes:
 
 ```js title=".wasp/out/web-app/build/worker.js"
 export default {
   async fetch(request, env) {
     const res = await env.ASSETS.fetch(request);
-
     if (res.status !== 404) {
+      return res;
+    }
+
+    // Only serve SPA fallback on navigation 404.
+    const mode = request.headers.get("sec-fetch-mode");
+    if (mode !== "navigate") {
       return res;
     }
 
     const url = new URL(request.url);
     url.pathname = "/200.html";
 
-    return env.ASSETS.fetch(new URL(url, request.url));
-  },
+    return env.ASSETS.fetch(new Request(url, request));
+  }
 };
 ```
 
-Then deploy from your project root:
+Creating them in root allows them to become the part of your git repository.
+Finnaly, deploy from your project root:
 
 ```shell
 npx wrangler deploy --commit-dirty=true --branch=main
 ```
 
-That is it! Your client should be live at `https://my-wasp-app-client.<your-account>.workers.dev`.
+That is it! Your client should be live at `https://my-wasp-app-client.<subdomain>.workers.dev`.
 
 :::note
 Make sure you set your Workers URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
