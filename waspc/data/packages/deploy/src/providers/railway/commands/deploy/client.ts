@@ -67,6 +67,7 @@ function overrideRailwayCaddyfile(buildDir: string): void {
   fs.writeFileSync(path.join(buildDir, "Caddyfile"), caddyfileContents);
 }
 
+// NOTE: When updating this caddyfile, make sure to also update it in the railway deployment docs.
 /**
  * Closely follows the Railway's original Caddyfile.
  * The only diff is in the `try_files` directive.

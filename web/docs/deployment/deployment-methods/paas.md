@@ -311,6 +311,7 @@ You'll deploy the server first:
 
 2. Create a `Caddyfile` in `.wasp/out/web-app/build` to configure how Railway serves your static files:
 
+    <!-- NOTE: When updating this caddyfile, make sure to also update it in the deployment package.  -->
     ```caddyfile title=".wasp/out/web-app/build/Caddyfile"
     {
       admin off
