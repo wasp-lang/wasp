@@ -573,7 +573,7 @@ Make sure you set the `https://<app-name>.netlify.app` URL as the `WASP_WEB_CLIE
 
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
-Here’s an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
+Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
 
 <details>
   <summary>Example Github Action</summary>
@@ -633,7 +633,7 @@ Here’s an example configuration file to help you get started. This example wor
 
 ## Cloudflare <Client /> {#cloudflare}
 
-[Cloudflare](https://www.cloudflare.com/) is a cloud services provider that offers a variety of services, including free static hosting with Cloudflare Pages. You will need a Cloudflare account to follow these instructions.
+[Cloudflare](https://www.cloudflare.com/) is a cloud services provider that offers a variety of services, including free hosting with Cloudflare Workers. You will need a Cloudflare account to follow these instructions.
 
 Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can log in by running:
 
@@ -645,29 +645,26 @@ Before you continue, make sure you have [built the Wasp app](#1-generating-deplo
 
 <BuildingTheWebClient />
 
-To deploy the client, make sure you are positioned in the `.wasp/buld/web-app` folder and then run the following:
+To deploy the client to Cloudflare Workers, create two files:
 
-```shell
-npx wrangler pages deploy ./build --commit-dirty=true --branch=main
+1. A `wrangler.toml` that configures the Worker with static assets:
+
+```toml title="wrangler.toml"
+name = "my-wasp-app-client"
+main = "./.wasp/out/web-app/build/worker.js"
+compatibility_date = "2026-03-30"
+
+[assets]
+directory = "./.wasp/out/web-app/build"
+binding = "ASSETS"
+not_found_handling = "none"
 ```
 
-<small>
-  Carefully follow the instructions i.e. do you want to create a new app or use an existing one.
-</small>
+Setting `not_found_handling` to `"none"` ensures the Worker handles missing routes instead of Cloudflare's default fallback. The `binding` makes the assets available as `env.ASSETS` in the worker code.
 
-That is it! Your client should be live at `https://<app-name>.pages.dev`.
+2. A `worker.js` in `.wasp/out/web-app/build` that serves static files and falls back to the SPA shell for unknown routes:
 
-:::note
-Make sure you set the `https://<app-name>.pages.dev` URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
-:::
-
-:::info Setting up the SPA fallback
-
-Cloudflare Pages needs a `_worker.js` file to correctly route requests. For prerendered pages it serves the matching HTML file, and for everything else it falls back to the SPA shell (`200.html`).
-
-Create a `_worker.js` file in `.wasp/out/web-app/build` with the following content:
-
-```js title=".wasp/out/web-app/build/_worker.js"
+```js title=".wasp/out/web-app/build/worker.js"
 export default {
   async fetch(request, env) {
     const res = await env.ASSETS.fetch(request);
@@ -679,19 +676,28 @@ export default {
     const url = new URL(request.url);
     url.pathname = "/200";
 
-    return env.ASSETS.fetch(new Request(url, request));
+    return env.ASSETS.fetch(new URL(url, request.url));
   },
 };
 ```
 
-This worker tries to serve the requested path as a static file first. If the file doesn't exist, it serves `200.html` so the client-side router can handle the route.
+Then deploy from your project root:
+
+```shell
+npx wrangler deploy --commit-dirty=true --branch=main
+```
+
+That is it! Your client should be live at `https://my-wasp-app-client.<your-account>.workers.dev`.
+
+:::note
+Make sure you set your Workers URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
 :::
 
 ### Deploying through Github Actions
 
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
-Here’s an example configuration file to help you get started. This example workflow will trigger a deployment to Cloudflare Pages whenever changes are pushed to the main branch.
+Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Cloudflare Workers whenever changes are pushed to the main branch.
 
 <details>
   <summary>Example Github Action</summary>
@@ -727,40 +733,25 @@ Here’s an example configuration file to help you get started. This example wor
         - name: Build the client
           run: cd ./app && REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build
 
-        - name: Set up SPA fallback
-          run: |
-            cat > ./app/.wasp/out/web-app/build/_worker.js << 'WORKER'
-            export default {
-              async fetch(request, env) {
-                const res = await env.ASSETS.fetch(request);
-                if (res.status !== 404) {
-                  return res;
-                }
-                const url = new URL(request.url);
-                url.pathname = "/200";
-                return env.ASSETS.fetch(new Request(url, request));
-              },
-            };
-            WORKER
-
-        - name: Deploy to Cloudflare Pages
+        - name: Deploy to Cloudflare Workers
           uses: cloudflare/wrangler-action@v3
           with:
             apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
             accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-            command: pages deploy ./app/.wasp/out/web-app/build --project-name=${{ env.CLIENT_CLOUDFLARE_APP_NAME }} --commit-dirty=true --branch=main
+            workingDirectory: ./app
+            command: deploy
 
       env:
-        CLIENT_CLOUDFLARE_APP_NAME: cloudflare-pages-app-name
+        CLIENT_CLOUDFLARE_APP_NAME: my-wasp-app-client
   ```
 </details>
 
 <details>
   <summary>How do I get the Environment Variables?</summary>
 
-  - **`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`**: You can get these from your [Cloudflare dashboard](https://dash.cloudflare.com/profile/api-tokens). Make sure to give the token `Cloudflare Pages: Read` and `Cloudflare Pages: Edit` permissions.
+  - **`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`**: You can get these from your [Cloudflare dashboard](https://dash.cloudflare.com/profile/api-tokens). Make sure to give the token `Cloudflare Workers: Edit` permissions.
 
-  - **`CLIENT_CLOUDFLARE_APP_NAME`**: This is the name of your Cloudflare Pages app. You can create a new Cloudflare Pages app with `npx wrangler pages project create <app-name>`.
+  - **`CLIENT_CLOUDFLARE_APP_NAME`**: The name for your Cloudflare Worker.
 
   - **`WASP_SERVER_URL`**: This is your server's URL and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 
