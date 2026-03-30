@@ -10,7 +10,7 @@ const replacer = createReplacer({
   pinnedLatestWaspVersion: latestWaspVersion,
   // NOTE: Don't change Wasp's lowest supported Node version without updating it
   // in all required places. Check /.nvmrc for the full list.
-  minimumNodeJsVersion: "22.12",
+  minimumNodeJsVersion: "22.22.2",
 });
 
 const plugin: Plugin<[], Root> = () => (tree) => {

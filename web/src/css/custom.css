@@ -163,3 +163,176 @@
   border: 1px solid #ccc;
   border-radius: var(--custom-border-radius);
 }
+
+/******* CODE SNIPPET COMPONENTS ********/
+
+.code-snippet {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #333;
+  background: #1e1e1e;
+  margin: 1rem 0;
+}
+
+.code-snippet__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  background: #2a2a2a;
+  border-bottom: 1px solid #333;
+}
+
+.code-snippet__dots {
+  display: flex;
+  gap: 7px;
+}
+
+.code-snippet__dots span {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #555;
+}
+
+.code-snippet__title {
+  font-size: 0.82rem;
+  color: #999;
+  font-family: var(--ifm-font-family-monospace);
+}
+
+.code-snippet__body pre {
+  margin: 0 !important;
+  border-radius: 0 !important;
+  border: none !important;
+  background: #1e1e1e !important;
+  white-space: pre-wrap !important;
+  word-break: break-word !important;
+}
+
+.code-snippet__body .prism-code {
+  background: #1e1e1e !important;
+}
+
+/* Tabbed code snippets wrapper */
+.code-sbs {
+  margin: 1rem 0;
+}
+
+.code-sbs__tabs {
+  display: flex;
+}
+
+.code-sbs__tab {
+  flex: 1;
+  padding: 8px 16px;
+  border: 1px solid #333;
+  border-bottom: none;
+  background: #2a2a2a;
+  color: #777;
+  font-size: 0.85rem;
+  font-family: var(--ifm-font-family-monospace);
+  cursor: pointer;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.code-sbs__tab:first-child {
+  border-radius: 10px 0 0 0;
+}
+
+.code-sbs__tab:last-child {
+  border-radius: 0 10px 0 0;
+}
+
+.code-sbs__tab--active {
+  background: #8f8f8f;
+  color: #343434;
+  border: 1px solid rgba(221, 221, 221, 0.715);
+}
+
+.code-sbs__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.code-sbs__grid .code-snippet {
+  margin: 0;
+}
+
+.code-sbs__cell {
+  display: none;
+}
+
+.code-sbs__cell--active {
+  display: block;
+}
+
+.code-sbs__cell .code-snippet {
+  border-radius: 0 0 10px 10px;
+}
+
+/* Dark syntax highlighting inside code-snippet components */
+.code-snippet code[class*="language-"],
+.code-snippet pre[class*="language-"],
+.code-snippet pre > code[class*="language-"] {
+  color: #e0e0e0 !important;
+}
+
+.code-snippet .token.comment,
+.code-snippet .token.prolog,
+.code-snippet .token.doctype,
+.code-snippet .token.cdata {
+  color: #6a9955 !important;
+}
+
+.code-snippet .token.punctuation {
+  color: #c8c8c8 !important;
+}
+
+.code-snippet .token.property,
+.code-snippet .token.tag,
+.code-snippet .token.boolean,
+.code-snippet .token.number,
+.code-snippet .token.constant,
+.code-snippet .token.symbol {
+  color: #b5cea8 !important;
+}
+
+.code-snippet .token.selector,
+.code-snippet .token.attr-name,
+.code-snippet .token.string,
+.code-snippet .token.char,
+.code-snippet .token.builtin {
+  color: #ce9178 !important;
+}
+
+.code-snippet .token.operator,
+.code-snippet .token.entity,
+.code-snippet .token.url,
+.code-snippet .language-css .token.string,
+.code-snippet .style .token.string {
+  color: #c8c8c8 !important;
+}
+
+.code-snippet .token.atrule,
+.code-snippet .token.attr-value,
+.code-snippet .token.keyword {
+  color: #569cd6 !important;
+}
+
+.code-snippet .token.function,
+.code-snippet .token.class-name {
+  color: #dcdcaa !important;
+}
+
+.code-snippet .token.regex,
+.code-snippet .token.important,
+.code-snippet .token.variable {
+  color: #d16969 !important;
+}
+
+.code-snippet .token.plain {
+  color: #b0b0b0 !important;
+}

@@ -10,7 +10,7 @@ on:
         # Don't change this version without updating it in all required
         # places (full list in /.nvmrc).
         description: "Node.js version to use for building"
-        default: "22.12.0"
+        default: "22.22.2"
         type: string
         required: false
     outputs:
@@ -87,17 +87,19 @@ jobs:
             # We also pin the `alpine` version to a specific one we have tested,
             # since newer releases might have different versions of the
             # libraries we depend on.
-            container: node:${{ inputs.node-version }}-alpine3.21
+            container: node:${{ inputs.node-version }}-alpine3.23
             skip-node-install: true
             static: true
             install-deps: |
               apk update
               # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
-              apk add binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
+              apk add binutils-gold curl gcc g++ gmp-dev gmp-static libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
               # `./run` script dependencies
               apk add bash
               # Cabal dependencies
               apk add zlib-dev zlib-static
+              # Prisma dependencies
+              apk add openssl
 
           - name: macos-x86_64
             runner: macos-15-intel

@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "ff8141dd75c0841e5eeffa9f2ebe8b247da05da8b6f4ba417e6433d617190361"
+        "f64b371838e224c8de57805a36ec1c1a5493c7c1996f7491fe7f54cfadaaa915"
     ],
     [
         [
@@ -39,7 +39,7 @@
             "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz"
         ],
-        "cd8d663011b55bcf2147e9938a8d0be42d71f73135144becaeb4971c5cbcf572"
+        "71d84564cb3379897c7189393a606d214f55396eba5e696ac17d1a4ed42b4688"
     ],
     [
         [
@@ -436,6 +436,13 @@
     [
         [
             "file",
+            "sdk/wasp/client/app/hooks/useIsClient.ts"
+        ],
+        "8b7b892d6cc33b2f2569ff852bd018aa4b236a4313d9a18eaf8281f1359cbd5a"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/app/index.tsx"
         ],
         "461f35b62fc05d0060aa9dcffb5b31ec0b1c4988399bb802f9c8dd453892c5b2"
@@ -445,7 +452,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "242f9b40ebf4c8d37004265cd387c887d191f62fa50e41b8f362208fa9099cf6"
+        "2e0183cc2604a05991c483f21a3ef74377d21e410f734949cce23e3bdcd5277f"
     ],
     [
         [
@@ -466,14 +473,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "6e24dd22f9aae74d2d8fab8f8ff74c77b03b35107d8afdf735ee846464a878b9"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/app/util.ts"
-        ],
-        "8b7b892d6cc33b2f2569ff852bd018aa4b236a4313d9a18eaf8281f1359cbd5a"
+        "37a80bda278ea617d33aaa7c77c9db8f84d5c7ff72f15852939f9cb49fd64d07"
     ],
     [
         [
@@ -676,7 +676,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "80d9cde2b1f82c7517211c801bad795ba7c0b0544582e251904c4ef0758ed034"
+        "bbf1f9c1525631bea169b63c985fc22aaa4a15daaeb862716d7bdafbc4081b1c"
     ],
     [
         [
@@ -781,7 +781,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "89dcd5ef862ebbdc42d9889b1c2a569f6711a0441b91bc6cf822689ccbe695ad"
+        "4c977c5235a9a5d0d838e34425f0f24eb310a822fc2534a78c82e23dcd2ea326"
     ],
     [
         [
@@ -1285,7 +1285,7 @@
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "af0eef1a1252b16c0744b2f1252f9ed1f433192362fe9219ad91950603b22f38"
+        "5944ee2f2b3a3012f07f04de80ae9af3a348a687e7725954caea35b85b349ddc"
     ],
     [
         [
@@ -1528,6 +1528,20 @@
     [
         [
             "file",
+            "sdk/wasp/src/features/lazy-loading/pages/EagerPage.tsx"
+        ],
+        "340313414462eb5dc90f925990ec299e3d6179d9b7b8ceabe9531878464b58ae"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/lazy-loading/pages/LazyPage.tsx"
+        ],
+        "4223b90e09bb38c1a9a931f4d96776df7e691b5362886e074c09193560a50123"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/src/features/operations/actions.ts"
         ],
         "dd76d5efd0800f087ff9a7aa60d49d8c04cc0c0e8b441d07b350d51d74ad8ad0"
@@ -1754,7 +1768,7 @@
             "file",
             "server/package.json"
         ],
-        "1fc36d4be6674808fe7a3a5af91c9ebcd9e0365b8ec847078ff4325ce5bbc972"
+        "da79c776f9a029050155b37803cd3e53b798c5e7bea65fd03887c6242816e030"
     ],
     [
         [

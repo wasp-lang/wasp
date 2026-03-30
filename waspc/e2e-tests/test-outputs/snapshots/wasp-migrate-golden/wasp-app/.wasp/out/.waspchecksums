@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "cc2d4052df4876668c7e37527c7566d5454bb88c361b7fc5e99f7853ca234552"
+        "531b891bf436f6d47fa105f643da3236c26440f508418e8644a0eba9992aa334"
     ],
     [
         [
@@ -32,7 +32,7 @@
             "file",
             "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz"
         ],
-        "cd8d663011b55bcf2147e9938a8d0be42d71f73135144becaeb4971c5cbcf572"
+        "71d84564cb3379897c7189393a606d214f55396eba5e696ac17d1a4ed42b4688"
     ],
     [
         [
@@ -93,6 +93,13 @@
     [
         [
             "file",
+            "sdk/wasp/client/app/hooks/useIsClient.ts"
+        ],
+        "8b7b892d6cc33b2f2569ff852bd018aa4b236a4313d9a18eaf8281f1359cbd5a"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/app/index.tsx"
         ],
         "6bcaf8f893b0c1e55ee09411ddb6e36871ebae371fab829aa3046c48054c8bfb"
@@ -102,21 +109,14 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "252d3ee4db957829ac0b4082e3d95ad2d37c1a08870197fdaef6bebc910539f2"
+        "41d376823d51bcbc38267f1f6050ccafc0c5a0bd1cfb76125bf1456f4655e796"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "7dbd608e6b02119547408c9a149623c026cd02f80aec114cd55f7aa9f30520ec"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/app/util.ts"
-        ],
-        "8b7b892d6cc33b2f2569ff852bd018aa4b236a4313d9a18eaf8281f1359cbd5a"
+        "27a04237768e1dba1e1c44a7ee1b77f8375aebf9d156a24798f084a7aa4d0c67"
     ],
     [
         [
@@ -347,7 +347,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "d39a45fc5738e857429688555faf2992e9d87935c36cc3197c327ab6b4600aef"
+        "4a440078f86add6d389dd0e36b9a8a9f1b31b6918e44fd67149b18b6df89154d"
     ],
     [
         [
@@ -669,7 +669,7 @@
             "file",
             "server/package.json"
         ],
-        "38e406d16c6cae24284de231a1941c6145222586cf4188b81a38ae03a42da8e0"
+        "0f29fdd18ca1da46d62fbbf4a0d991a736aa0889be63469d1aeec865c0e56570"
     ],
     [
         [

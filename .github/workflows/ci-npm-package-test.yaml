@@ -19,7 +19,7 @@ jobs:
 
           - # Linux with Musl
             os: ubuntu-latest
-            container: node:22-alpine
+            container: node:22-alpine3.23
             install-deps: apk add curl
 
           - # Apple Silicon
