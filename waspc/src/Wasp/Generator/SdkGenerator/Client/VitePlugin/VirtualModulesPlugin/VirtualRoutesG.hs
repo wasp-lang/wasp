@@ -14,14 +14,11 @@ import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.FileDraft (FileDraft)
-import qualified Wasp.Generator.JsImport as GJI
+import Wasp.Generator.JsImport (extImportToRelativeSrcImportFromViteExecution, jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (virtualFilesFilesDirInViteDir)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.JsImport
-  ( applyJsImportAlias,
-    getJsImportStmtAndIdentifier,
-  )
+import Wasp.JsImport (applyJsImportAlias)
 
 genVirtualRoutesTsx :: AppSpec -> Generator FileDraft
 genVirtualRoutesTsx spec =
@@ -32,48 +29,36 @@ genVirtualRoutesTsx spec =
     tmplData =
       object
         [ "routes" .= map (createRouteTemplateData spec) (AS.getRoutes spec),
-          "pagesToImport" .= map createPageTemplateData (AS.getPages spec),
           "isAuthEnabled" .= isAuthEnabled spec
         ]
 
-getRouteTargetComponent :: AppSpec -> (String, AS.Route.Route) -> String
-getRouteTargetComponent spec (_, route) =
-  if isAuthRequired
-    then -- TODO(matija): would be nicer if this function name wasn't hardcoded here.
-      "createAuthRequiredPage(" ++ targetPageName ++ ")"
-    else targetPageName
-  where
-    isAuthRequired = fromMaybe False $ AS.Page.authRequired $ snd targetPage
-    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
-    targetPage =
-      fromMaybe
-        -- NOTE: This should be prevented by Analyzer, so use error since it should not be possible
-        ( error $
-            "Can't find page with name '"
-              ++ targetPageName
-              ++ "', pointed to by route '"
-              ++ AS.Route.path route
-              ++ "'"
-        )
-        (find ((==) targetPageName . fst) (AS.getPages spec))
+isRouteLazy :: AS.Route.Route -> Bool
+isRouteLazy = fromMaybe True . AS.Route.lazy
 
 createRouteTemplateData :: AppSpec -> (String, AS.Route.Route) -> Aeson.Value
-createRouteTemplateData spec namedRoute@(name, _) =
+createRouteTemplateData spec (name, route) =
   object
     [ "name" .= name,
-      "targetComponent" .= getRouteTargetComponent spec namedRoute
-    ]
-
-createPageTemplateData :: (String, AS.Page.Page) -> Aeson.Value
-createPageTemplateData (pageName, page) =
-  object
-    [ "importStatement" .= importStmt
+      "isLazy" .= isRouteLazy route,
+      "isAuthRequired" .= isAuthRequired,
+      "import" .= jsImportToImportJson (Just aliasedImport)
     ]
   where
-    importStmt :: String
-    (importStmt, _) =
-      getJsImportStmtAndIdentifier $
-        applyJsImportAlias (Just pageName) $
-          GJI.extImportToRelativeSrcImportFromViteExecution pageComponent
+    isAuthRequired = fromMaybe False $ AS.Page.authRequired $ snd targetPage
 
-    pageComponent = AS.Page.component page
+    targetPageName = AS.refName (AS.Route.to route :: AS.Ref AS.Page.Page)
+    targetPage = findTargetPage spec targetPageName (AS.Route.path route)
+    jsImport = extImportToRelativeSrcImportFromViteExecution $ AS.Page.component (snd targetPage)
+    aliasedImport = applyJsImportAlias (Just targetPageName) jsImport
+
+findTargetPage :: AppSpec -> String -> String -> (String, AS.Page.Page)
+findTargetPage spec targetPageName routePath =
+  fromMaybe
+    ( error $
+        "Can't find page with name '"
+          ++ targetPageName
+          ++ "', pointed to by route '"
+          ++ routePath
+          ++ "'"
+    )
+    (find ((==) targetPageName . fst) (AS.getPages spec))

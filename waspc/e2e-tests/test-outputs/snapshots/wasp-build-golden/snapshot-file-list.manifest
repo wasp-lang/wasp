@@ -412,6 +412,13 @@ wasp-app/.wasp/out/src/MainPage.tsx
 wasp-app/.wasp/out/src/assets/logo.svg
 wasp-app/.wasp/out/src/vite-env.d.ts
 wasp-app/.wasp/out/tsconfig.json
+wasp-app/.wasp/out/user/tsconfig.tsbuildinfo
+wasp-app/.wasp/out/web-app/build/.gitkeep
+wasp-app/.wasp/out/web-app/build/assets/MainPage.css
+wasp-app/.wasp/out/web-app/build/assets/MainPage.js
+wasp-app/.wasp/out/web-app/build/assets/index.js
+wasp-app/.wasp/out/web-app/build/favicon.ico
+wasp-app/.wasp/out/web-app/build/index.html
 wasp-app/.waspignore
 wasp-app/.wasproot
 wasp-app/main.wasp
@@ -426,3 +433,4 @@ wasp-app/src/assets/logo.svg
 wasp-app/src/vite-env.d.ts
 wasp-app/tsconfig.json
 wasp-app/vite.config.ts
+wasp-app/vite.config.wrapper.ts

@@ -7,7 +7,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.1",
     "@vitest/ui": "^4.0.16",
-    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.21.1.tgz",
+    "@wasp.sh/lib-auth": "file:../../libs/auth/wasp.sh-lib-auth-0.22.0.tgz",
     "arctic": "^1.2.1",
     "axios": "^1.4.0",
     "dotenv": "^16.6.1",
@@ -17,7 +17,7 @@
     "lucia": "^3.0.1",
     "mitt": "3.0.0",
     "msw": "^2.12.7",
-    "nodemailer": "^6.9.1",
+    "nodemailer": "^8.0.1",
     "pg-boss": "^8.4.2",
     "prisma": "5.19.1",
     "react": "^19.2.1",
@@ -28,7 +28,7 @@
     "socket.io-client": "^4.6.1",
     "superjson": "^2.2.1",
     "vitest": "^4.0.16",
-    "zod": "^3.23.8"
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@tsconfig/vite-react": "^7.0.0",

@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "6e694e2399b3ae10649312530dfdfd57b7bc9e40591da89f58543be1b613fb2a"
+        "7770f6356d83b3a6d03131fbb355d5ae84d398cb8696eeaf5c229bf01c87e2a8"
     ],
     [
         [
@@ -23,9 +23,9 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.21.1.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.22.0.tgz"
         ],
-        "f4739294e77ecec0604280788581e46160d11e6b0bded5c10c780c86e98876f5"
+        "78e9b53939d123bcfa191024dfeb038a0c3f84a867a67fce8fe14cb1989d7427"
     ],
     [
         [
@@ -81,7 +81,7 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "10234711f24b3718b1a12ed1ec1700121fdd396823379e3c0ecb541e3a9c44a7"
+        "253526fbf6ed1d187ba20b3e7c7afe031c0e1fde581a911d2024a179f202a277"
     ],
     [
         [
@@ -95,7 +95,7 @@
             "file",
             "sdk/wasp/client/app/router/router.tsx"
         ],
-        "43f1813007978a68b9a4f4fc3c0817802173d66c1286d277c877b88271752d08"
+        "64fb640433deda6df6e4db600f0ecb98865f0cd5114df58fcbd03e6d7ab7cc8c"
     ],
     [
         [
@@ -109,14 +109,14 @@
             "file",
             "sdk/wasp/client/env.ts"
         ],
-        "533337ff26b1df5f3c5c4eeb0b21830b97cbf2eabd5c76fc85d064893ecc2d86"
+        "7fafed5cbdcc62100df36625e40ea26db68a3d3be5b7951c84cbd7bec2ce3aeb"
     ],
     [
         [
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "e6b18533680d55102a4dbffd5360a0b7fb7cd53c85033d0ef6bcf650f7eb44bd"
+        "2adf02a3838673b1a3641758b09ff49725b4c29a5cefaa0f47a42ad4a35a7a53"
     ],
     [
         [
@@ -305,7 +305,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "4a0cb5654eb2040dbc15ce586ed588043ce54aa6dad847a068596568dbc5934a"
+        "72f3444a4831313c266de00c418b62df44bb64a05548825a4ccc118e28ee75ca"
     ],
     [
         [
@@ -326,7 +326,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "37682805e490ada71b3f7b10105bb3f9e96674c5b0639593b0a1b6f8c5e7ec60"
+        "0c077ff79fa63e1caa37f82ab29646413b6129ef7d5ab58dbdb2eacd979c8685"
     ],
     [
         [
@@ -347,7 +347,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "0ead25c5f37895afa471357c298fab3a0593fe4e12b1b7e9b404f7f7fe375d1a"
+        "1298f33ddcf8c039a9ce5d885c5b7a9bb711ad6eab90a30d735975bed59d6b56"
     ],
     [
         [
@@ -396,21 +396,21 @@
             "file",
             "sdk/wasp/env/index.ts"
         ],
-        "5d6193abc56eec5a8c98d2c95fa53dff6d2baabe6f5d8c2516b2d51e2a3727c6"
+        "ad6a57cdd8c6f7fe338b4f8d73f21cf6774e5f9cf0d2959ec82428d5469a3089"
     ],
     [
         [
             "file",
             "sdk/wasp/env/validation.ts"
         ],
-        "885deaa7f922a54cfd5c196ba96f2b53e10e084529687f24090bbf61ad4b4d48"
+        "46889a74ff4b17a27dc1a086ec97f25aecd9b174a71bb35ebf65f1b0ca697a69"
     ],
     [
         [
             "file",
             "sdk/wasp/package.json"
         ],
-        "0f1dbf94b0b98f22536d17b0c76f55fee4be81d7bb9297ef928e78dac98794d5"
+        "9b99d41491f7b5dd91913bf1ce205f10c23cf871b05d19244b0304c9d8ff21e9"
     ],
     [
         [
@@ -466,7 +466,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "c36941c745b8ee8829a794a33d065abd04249da2fd58fb1369fedc19d30602ec"
+        "0c979e96500977cc13fa2f66bc27564d53ce302d5d36fb4d75446919533eb57e"
     ],
     [
         [
@@ -585,7 +585,7 @@
             "file",
             "sdk/wasp/universal/ansiColors.ts"
         ],
-        "1b38c60fcd141712bc5a253467b46263af0ee1d64cd9d9c9a774f61dd4949a1c"
+        "cfc47c3c2b75be169c4e7e8fba94b769544a5004085f7bd54fc0d9ab79c37b70"
     ],
     [
         [
@@ -655,7 +655,7 @@
             "file",
             "server/package.json"
         ],
-        "759fc4226fc392f8ca4104e5fc0bb45a9fd336ea734bc9392f2532c72ed63d4f"
+        "b2be2b2b948fffc5029cce693eb48d4142ec876eef30a4e569db299da5e3f41e"
     ],
     [
         [

@@ -18,6 +18,7 @@ availableStarterTemplates :: [StarterTemplate]
 availableStarterTemplates =
   [ basicStarterTemplate,
     minimalStarterTemplate,
+    tsMinimalStarterTemplate,
     openSaasStarterTemplate,
     AiGeneratedStarterTemplate
   ]
@@ -35,6 +36,25 @@ minimalStarterTemplate =
         TemplateMetadata
           { _name = "minimal",
             _description = "A minimal starter template that features just a single page.",
+            _buildStartingInstructions = \projectDirName ->
+              unlines
+                [ styleText $ "To run your new app, do:",
+                  styleCode $ "    cd " <> projectDirName,
+                  styleCode $ "    wasp start"
+                ]
+          }
+    }
+
+{- HLINT ignore tsMinimalStarterTemplate "Redundant $" -}
+
+tsMinimalStarterTemplate :: StarterTemplate
+tsMinimalStarterTemplate =
+  BundledStarterTemplate
+    { bundledPath = [reldir|ts-minimal|],
+      metadata =
+        TemplateMetadata
+          { _name = "ts-minimal",
+            _description = "Like minimal, but uses TypeScript config (.wasp.ts) instead of the Wasp DSL.",
             _buildStartingInstructions = \projectDirName ->
               unlines
                 [ styleText $ "To run your new app, do:",

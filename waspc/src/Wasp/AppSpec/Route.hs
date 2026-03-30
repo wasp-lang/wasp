@@ -18,7 +18,8 @@ data Route = Route
   { path :: String,
     -- TODO: In the future we might want to add other types of targets, for example another Route.
     --   For that the best solution is probably to implement sum types (https://github.com/wasp-lang/wasp/issues/381).
-    to :: Ref Page
+    to :: Ref Page,
+    lazy :: Maybe Bool
   }
   deriving (Show, Eq, Data, Generic, FromJSON)
 
