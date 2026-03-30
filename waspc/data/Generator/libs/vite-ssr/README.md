@@ -12,7 +12,7 @@ At runtime, the plugin serves these prerendered HTML files linking to the **Clie
 
 You pass it a list of **SSR paths** to prerender, and a **SPA fallback path** used internally to generate the SPA fallback HTML. Visitors hitting an SSR path get the prerendered HTML, while all other routes serve the SPA fallback.
 
-See a more in-depth explanation of the plugin's architecture and how it works [in the FAQ section](#FAQ) of this README.
+See a more in-depth explanation of the plugin's architecture and how it works [in the FAQ section](#faq) of this README.
 
 ## Example setup
 
@@ -151,13 +151,13 @@ Let's see how this works for an app that has only one prerendered route (`/about
   </html>
   ```
 
-- At build time, we also tell the app to give us a blank page that can turn into anything. We store that as the SPA fallback file (`200.html`). This file has just the most common parts of the app:
+- At build time, we also tell the app to give us a blank page that can turn into anything. We store that as the SPA fallback file (`200.html`). This file just has the most common parts of the app:
 
   ```html
   <html>
     <head>
-      <title>Loading... | My Corporation LLC<title>
-      <link rel="favicon" href="/favicon.ico">
+      <title>Loading... | My Corporation LLC</title>
+      <link rel="favicon" href="/favicon.ico" />
     </head>
     <body>
       <div id="app">
