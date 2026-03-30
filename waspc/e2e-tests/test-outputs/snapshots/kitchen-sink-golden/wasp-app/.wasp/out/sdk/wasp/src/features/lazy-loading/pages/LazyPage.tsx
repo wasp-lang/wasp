@@ -1,7 +1,9 @@
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
-(window as any).__LAZY_PAGE_LOADED__ = true;
-console.log("Lazy page loaded");
+if (typeof window !== "undefined") {
+  (window as any).__LAZY_PAGE_LOADED__ = true;
+  console.log("Lazy page loaded");
+}
 
 export function LazyPage() {
   return (

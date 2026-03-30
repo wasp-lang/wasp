@@ -9,6 +9,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now requires Node.js version >=v22.22.2 (previously >=v22.12.0) due to the [March 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/march-2026-security-releases). ([#3989](https://github.com/wasp-lang/wasp/pull/3989))
 - In the `wasp build` output, the generated Docker image has been upgraded from Alpine 3.20 to Alpine 3.23. ([#3989](https://github.com/wasp-lang/wasp/pull/3989))
 - Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
+- HTML head tags specified in `app.head` must now be valid React JSX. ([#3855](https://github.com/wasp-lang/wasp/pull/3855))
 - Page routes are now loaded lazily by default. You can set `lazy: false` per-route to disable this behavior. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🎉 New Features

@@ -1,0 +1,121 @@
+import assert from "node:assert/strict";
+import * as path from "node:path";
+import type { Plugin } from "vite";
+import type { PrerenderFn } from "../types";
+import { ENVIRONMENT_NAMES, PACKAGE_NAME } from "./common/constants";
+import type { Options } from "./common/options";
+import type { SsrRoutes } from "./common/routes";
+
+export const ssrBuild = (
+  routes: SsrRoutes,
+  { ssrEntrySrc, clientEntrySrc }: Options,
+): Plugin => {
+  let prerenderApp: PrerenderFn | null = null;
+
+  return {
+    name: `${PACKAGE_NAME}:build`,
+    apply: "build",
+    sharedDuringBuild: true,
+
+    config() {
+      return {
+        environments: {
+          [ENVIRONMENT_NAMES.SSR]: {
+            build: {
+              ssr: true,
+              rollupOptions: { input: ssrEntrySrc },
+            },
+          },
+          [ENVIRONMENT_NAMES.CLIENT]: {
+            build: {
+              rollupOptions: {
+                input: routes.getAllIds(),
+              },
+            },
+          },
+        },
+
+        builder: {
+          async buildApp(builder) {
+            const {
+              [ENVIRONMENT_NAMES.SSR]: ssrEnv,
+              [ENVIRONMENT_NAMES.CLIENT]: clientEnv,
+            } = builder.environments;
+
+            const ssrOutput = await builder.build(ssrEnv);
+            assert(
+              !Array.isArray(ssrOutput),
+              "Expected ssr build output to be a single chunk",
+            );
+            assert(
+              "output" in ssrOutput,
+              "Watch mode is not supported for ssr production builds",
+            );
+
+            const entryChunk = ssrOutput.output[0];
+            assert(
+              entryChunk,
+              "Expected ssr build output to have at least one chunk",
+            );
+            assert(
+              entryChunk.exports.includes("default"),
+              "Expected ssr build output chunk to export `default`",
+            );
+
+            const ssrPath = path.resolve(
+              ssrEnv.config.build.outDir,
+              entryChunk.fileName,
+            );
+
+            prerenderApp = (await import(ssrPath)).default;
+
+            await builder.build(clientEnv);
+          },
+        },
+      };
+    },
+
+    resolveId: {
+      filter: { id: /\.html$/ },
+      handler(id, _, { ssr }) {
+        if (ssr) {
+          return;
+        }
+
+        assert(
+          prerenderApp,
+          "Expected ssr build to have completed before resolving ids in client build",
+        );
+
+        if (routes.byId.has(id)) {
+          return id;
+        }
+      },
+    },
+
+    load: {
+      filter: { id: /\.html$/ },
+      async handler(id, { ssr = false } = {}) {
+        if (ssr) {
+          return;
+        }
+
+        assert(
+          prerenderApp,
+          "Expected ssr build to have completed before resolving ids in client build",
+        );
+
+        const route = routes.byId.get(id);
+        assert(route, `Expected id ${id} to exist in ssrRoutes`);
+
+        const html = await prerenderApp(route.path, { clientEntrySrc });
+
+        if (!html) {
+          return;
+        }
+
+        return html;
+      },
+    },
+  };
+};
