@@ -255,32 +255,6 @@ export const routes = {
         options?.hash
       ),
   },
-  EagerRoute: {
-    to: "/lazy/no",
-    build: (
-      options?:
-      OptionalRouteOptions
-    ) => interpolatePath(
-        
-        "/lazy/no",
-        undefined,
-        options?.search,
-        options?.hash
-      ),
-  },
-  LazyRoute: {
-    to: "/lazy/yes",
-    build: (
-      options?:
-      OptionalRouteOptions
-    ) => interpolatePath(
-        
-        "/lazy/yes",
-        undefined,
-        options?.search,
-        options?.hash
-      ),
-  },
 } as const;
 
 // PRIVATE API

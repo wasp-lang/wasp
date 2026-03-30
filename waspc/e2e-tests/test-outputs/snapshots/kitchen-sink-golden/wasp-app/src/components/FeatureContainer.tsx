@@ -142,16 +142,6 @@ const features: Feature[] = [
     to: "/profile",
     title: "User Profile",
   },
-  {
-    to: "/lazy/no",
-    title: "Eager Route",
-    isPublic: true,
-  },
-  {
-    to: "/lazy/yes",
-    title: "Lazy Route",
-    isPublic: true,
-  },
 ];
 
 function FeatureCard({ title, isPublic, ...routeProps }: Feature) {

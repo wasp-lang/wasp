@@ -1,15 +1,15 @@
 import fs from "node:fs";
 
-export function getClientEntryTsxContent(): string {
-  return getFileContentFromRelativePath("./files/client-entry.tsx");
+export function getIndexTsxContent(): string {
+  return getFileContentFromRelativePath("./files/index.tsx");
 }
 
 export function getRoutesTsxContent(): string {
   return getFileContentFromRelativePath("./files/routes.tsx");
 }
 
-export function getSsrEntryTsxContent(): string {
-  return getFileContentFromRelativePath("./files/ssr-entry.tsx");
+export function getIndexHtmlContent(): string {
+  return getFileContentFromRelativePath("./files/index.html");
 }
 
 function getFileContentFromRelativePath(relativePath: string): string {
