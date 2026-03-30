@@ -115,7 +115,7 @@ if (window.__staticRouterHydrationData) {
 
 #### Explanation
 
-When start prerendering pages in an app, you implicitly create two kinds of HTML files that the server sends to the client.
+When you start prerendering pages in an app, you implicitly create two kinds of HTML files that the server sends to the client.
 
 Let's do an analogy. In your body, all the cells have the same DNA, that gets expressed differently. When you need a new red blood cell, you might have an already specialized cell available in your body's storage; or otherwise you might have to send a stem cell that has the ability to turn into anything. But regardless, when either cell reaches the bloodstream, they both have to be able to act like a red blood cell!
 
@@ -136,12 +136,12 @@ Let's see how this works for an app that has only one prerendered route (`/about
   <html>
     <head>
       <title>About | My Corporation LLC</title>
-      <link rel="favicon" href="/favicon.ico">
+      <link rel="favicon" href="/favicon.ico" />
     </head>
     <body>
       <div id="app">
-        <h1>About My Corporation<h1>
-        <p>Lorem ipsum dolor sit amet<p>
+        <h1>About My Corporation</h1>
+        <p>Lorem ipsum dolor sit amet</p>
       </div>
       <script>
         window.__hydration_data__ = { route: "/about" };

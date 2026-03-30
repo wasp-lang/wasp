@@ -20,7 +20,7 @@ export class SsrRoutes {
   public readonly spaFallbackFile: Readonly<SsrRoute>;
 
   constructor(paths: readonly string[], spaFallbackFile: string) {
-    // SPA fallback gets a flat file (e.g. "/200.html") instead of the
+    // SPA fallback gets a flat file (e.g. "200.html") instead of the
     // directory-style "dir/index.html" used for real routes, since it's
     // never accessed by path — only served as the SPA catch-all.
     this.spaFallbackFile = {
