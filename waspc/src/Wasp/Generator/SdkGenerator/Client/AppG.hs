@@ -118,7 +118,7 @@ genLayout spec =
           )
 
     genUtilsFile =
-      return $ genFileCopy [relfile|client/app/util.ts|]
+      return $ genFileCopy [relfile|client/app/hooks/useIsClient.ts|]
 
 genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> FileDraft
 genFileCopy = C.mkTmplFd
