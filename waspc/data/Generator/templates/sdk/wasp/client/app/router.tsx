@@ -10,11 +10,17 @@ import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
 
 import { routes } from '../router/index'
 
+type RouteMapping = Record<
+  string,
+  | { lazy: () => Promise<{ Component: ComponentType }> }
+  | { Component: ComponentType }
+>;
+
 export function getRouteObjects({
   routesMapping,
   rootElement,
 }: {
-  routesMapping: Record<string, ComponentType>,
+  routesMapping: RouteMapping,
   rootElement: ReactNode,
 }): RouteObject[] {
   const waspDefinedRoutes = [
@@ -28,7 +34,7 @@ export function getRouteObjects({
   const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
     return {
       path: route.to,
-      Component: routesMapping[routeKey],
+      ...routesMapping[routeKey],
     }
   })
 
@@ -47,7 +53,7 @@ export function getRouter({
   routesMapping,
   rootElement,
 }: {
-  routesMapping: Record<string, ComponentType>,
+  routesMapping: RouteMapping,
   rootElement: ReactNode,
 }) {
   const routeObjects = getRouteObjects({ routesMapping, rootElement })
