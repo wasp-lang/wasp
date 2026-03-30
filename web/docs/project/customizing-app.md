@@ -104,7 +104,11 @@ The `app` declaration has the following fields:
 
 - `head: [string]`
 
-  List of additional lines (e.g. `<link>` or `<script>` tags) to be included in the `<head>` of your HTML document.
+  List of additional lines (e.g. `<link>` or `<script>` tags) to be included in the `<head>` of your HTML document. These need to be valid React JSX, so every tag should either be self-closing (e.g. `<meta ... />`) or have a matching closing tag (e.g. `<script>...</script>`).
+
+  :::caution Script defer attribute
+  Due to a [bug in React](https://github.com/facebook/react/issues/36169), the `defer` attribute on `<script>` tags causes hydration warnings. The workaround is to use `async` instead of `defer` for any `<script>` tags.
+  :::
 
 The rest of the fields are covered in dedicated sections of the docs:
 
