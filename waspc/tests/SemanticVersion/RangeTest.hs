@@ -13,8 +13,6 @@ import Wasp.SemanticVersion.VersionBound
 spec_SemanticVersion_Range :: Spec
 spec_SemanticVersion_Range = do
   describe "show" $ do
-    it "show empty range" $
-      show (mempty :: Range) `shouldBe` ""
     it "show simple range" $
       show [r|<=1.3.6|] `shouldBe` "<=1.3.6"
     it "show complex range" $
@@ -22,51 +20,56 @@ spec_SemanticVersion_Range = do
 
   describe "parseRange" $ do
     it "parses empty input correctly" $
-      parseRange "" `shouldBe` Right (Range [Simple $ pure $ Primitive Equal Any])
+      parseRange "" `shouldBe` Right (Range $ NE.fromList [Simple $ pure $ Primitive Equal Any])
     it "parses ranges with single comparator set" $ do
       parseRange "  >=1.0 <2.0.0  "
         `shouldBe` Right
-          ( Range
-              [ Simple $
-                  NE.fromList
-                    [ Primitive GreaterThanOrEqual (MajorMinor 1 0),
-                      Primitive LessThan (MajorMinorPatch 2 0 0)
-                    ]
-              ]
+          ( Range $
+              NE.fromList
+                [ Simple $
+                    NE.fromList
+                      [ Primitive GreaterThanOrEqual (MajorMinor 1 0),
+                        Primitive LessThan (MajorMinorPatch 2 0 0)
+                      ]
+                ]
           )
       parseRange " ^1.2.3  "
         `shouldBe` Right
-          ( Range
-              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3)
-              ]
+          ( Range $
+              NE.fromList
+                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3)
+                ]
           )
     it "parses ranges with multiple comparator sets" $ do
       parseRange "   ^1.2.3 ||   ^2.0 ||"
         `shouldBe` Right
-          ( Range
-              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                Simple $ pure $ CaretRange (MajorMinor 2 0),
-                Simple $ pure $ Primitive Equal Any
-              ]
+          ( Range $
+              NE.fromList
+                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                  Simple $ pure $ CaretRange (MajorMinor 2 0),
+                  Simple $ pure $ Primitive Equal Any
+                ]
           )
       parseRange "^1.2.3||^2.0     "
         `shouldBe` Right
-          ( Range
-              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                Simple $ pure $ CaretRange (MajorMinor 2 0)
-              ]
+          ( Range $
+              NE.fromList
+                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                  Simple $ pure $ CaretRange (MajorMinor 2 0)
+                ]
           )
       parseRange ">=1  <2|| >=3.0.0    || *  "
         `shouldBe` Right
-          ( Range
-              [ Simple $
-                  NE.fromList
-                    [ Primitive GreaterThanOrEqual (Major 1),
-                      Primitive LessThan (Major 2)
-                    ],
-                Simple $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
-                Simple $ pure $ Primitive Equal Any
-              ]
+          ( Range $
+              NE.fromList
+                [ Simple $
+                    NE.fromList
+                      [ Primitive GreaterThanOrEqual (Major 1),
+                        Primitive LessThan (Major 2)
+                      ],
+                  Simple $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
+                  Simple $ pure $ Primitive Equal Any
+                ]
           )
     it "rejects invalid formats" $ do
       isLeft (parseRange "foo") `shouldBe` True
@@ -80,40 +83,48 @@ spec_SemanticVersion_Range = do
     it "parses range with trailing content" $ do
       looseParseRange "^1.2.3 || ^2.0 ||a"
         `shouldBe` Right
-          ( Range
-              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                Simple $ pure $ CaretRange (MajorMinor 2 0)
-              ]
+          ( Range $
+              NE.fromList
+                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                  Simple $ pure $ CaretRange (MajorMinor 2 0)
+                ]
           )
       looseParseRange "^1.2.3 || ^2.0 abc"
         `shouldBe` Right
-          ( Range
-              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                Simple $ pure $ CaretRange (MajorMinor 2 0)
-              ]
+          ( Range $
+              NE.fromList
+                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                  Simple $ pure $ CaretRange (MajorMinor 2 0)
+                ]
           )
 
   it "r quasi quoter" $ do
     [r|^1.2.3 ||   ^2.0|]
       `shouldBe` Range
-        [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-          Simple $ pure $ CaretRange (MajorMinor 2 0)
-        ]
+        ( NE.fromList
+            [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+              Simple $ pure $ CaretRange (MajorMinor 2 0)
+            ]
+        )
     [r|^1.2.3||^2.0|]
       `shouldBe` Range
-        [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-          Simple $ pure $ CaretRange (MajorMinor 2 0)
-        ]
+        ( NE.fromList
+            [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+              Simple $ pure $ CaretRange (MajorMinor 2 0)
+            ]
+        )
     [r|>=1  <2|| >=3.0.0    || *|]
       `shouldBe` Range
-        [ Simple $
-            NE.fromList
-              [ Primitive GreaterThanOrEqual (Major 1),
-                Primitive LessThan (Major 2)
-              ],
-          Simple $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
-          Simple $ pure $ Primitive Equal Any
-        ]
+        ( NE.fromList
+            [ Simple $
+                NE.fromList
+                  [ Primitive GreaterThanOrEqual (Major 1),
+                    Primitive LessThan (Major 2)
+                  ],
+              Simple $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
+              Simple $ pure $ Primitive Equal Any
+            ]
+        )
 
   it "concatenating version ranges produces union of their comparator sets" $ do
     let r1 = [r|>1.0.0 || <2.0.0|]
@@ -125,14 +136,6 @@ spec_SemanticVersion_Range = do
           map (\(ver, _) -> isVersionInRange ver range) versionsWithResults
             `shouldBe` map snd versionsWithResults
 
-    it "no version is in empty range" $
-      testRange
-        mempty
-        [ ([v|0.5.5|], False),
-          ([v|1.0.0|], False),
-          ([v|1.2.3|], False),
-          ([v|2.0.0|], False)
-        ]
     it "complex range" $
       testRange
         [r|<=1.2.3 ^1.1.0 || 0.5.6|]
