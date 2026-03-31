@@ -43,7 +43,7 @@ export async function api(input: RequestInfo | URL, init?: RequestInit): Promise
   const request = new Request(toAbsoluteUrl(input), init)
 
   const sessionId = getSessionId()
-  if (sessionId !== null) {
+  if (sessionId !== null && !request.headers.has('Authorization')) {
     request.headers.set('Authorization', `Bearer ${sessionId}`)
   }
 
@@ -119,7 +119,7 @@ export class WaspHttpError extends Error {
   }
 }
 
-function getSessionIdFromAuthorizationHeader(header: string | null | undefined): string | null {
+function getSessionIdFromAuthorizationHeader(header: string | null): string | null {
   const prefix = 'Bearer '
   if (header && header.startsWith(prefix)) {
     return header.substring(prefix.length)
@@ -131,14 +131,6 @@ function getSessionIdFromAuthorizationHeader(header: string | null | undefined):
 function toAbsoluteUrl(input: RequestInfo | URL): RequestInfo | URL {
   if (typeof input === 'string' && input.startsWith('/')) {
     return config.apiUrl + input
-  }
-  if (input instanceof URL) {
-    return input
-  }
-  if (input instanceof Request) {
-    if (input.url.startsWith('/')) {
-      return new Request(config.apiUrl + input.url, input)
-    }
   }
   return input
 }
