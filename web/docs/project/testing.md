@@ -259,8 +259,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     const Todo = (_props) => {
       const [tasks, setTasks] = useState([]);
       useEffect(() => {
-        api
-          .get("/tasks")
+        api("/tasks")
           .then((res) => res.json())
           .then((tasks) => setTasks(tasks))
           .catch((err) => window.alert(err));
@@ -320,8 +319,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     const Todo = (_props: {}) => {
       const [tasks, setTasks] = useState<Task>([]);
       useEffect(() => {
-        api
-          .get("/tasks")
+        api("/tasks")
           .then((res) => res.json() as Task[])
           .then((tasks) => setTasks(tasks))
           .catch((err) => window.alert(err));

@@ -16,7 +16,7 @@ To create a Wasp API, you must:
 1. Declare the API in Wasp using the `api` declaration
 2. Define the API's NodeJS implementation
 
-After completing these two steps, you'll be able to call the API from the client code (via our `Axios` wrapper), or from the outside world.
+After completing these two steps, you'll be able to call the API from the client code (via the `api` function), or from the outside world.
 
 ### Declaring the API in Wasp
 
@@ -102,15 +102,16 @@ For example, if your app is running at `https://example.com` then from the above
 
 ### Using the API from the Client
 
-To use the API from your client, including with auth support, you can import the Axios wrapper from `wasp/client/api` and invoke a call. For example:
+To use the API from your client, including with auth support, you can import the `api` function from `wasp/client/api`. It works as a thin wrapper on top of [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch) that takes care of Wasp-specific authentication and error handling. For example:
 
 ```tsx title="src/pages/SomePage.tsx" auto-js with-hole
 import React, { useEffect } from "react";
 import { api } from "wasp/client/api";
 
 async function fetchCustomRoute() {
-  const res = await api.get("/foo/bar");
-  console.log(res.data);
+  const res = await api("/foo/bar");
+  const data = await res.json();
+  console.log(data);
 }
 
 export const Foo = () => {
@@ -237,21 +238,11 @@ export const getStreamingText: StreamingText<
 
 ### Consuming Streaming Responses
 
-There are two ways you can consume streaming responses on the client side: using the Fetch API or using Axios.
-
-We recommend using the Fetch API becuase it supports streaming natively. You'll need to handle auth manually by adding the `Authorization` header.
-
-Axios doesn't natively support streaming responses and you have use the `onDownloadProgress` callback to simulate it.
-Wasp internally uses Axios and exposes an Axios wrapper via `wasp/client/api` which handles auth automatically.
-
-#### Using the Fetch API
-
-Here's an example showing how to consume streaming responses using the Fetch API:
+You can consume streaming responses on the client using the `api` function from `wasp/client/api`. Since `api` wraps `fetch`, you get native streaming support via the `Response.body` readable stream. The `api` function handles authentication automatically.
 
 ```tsx title="src/StreamingPage.tsx" auto-js
 import { useEffect, useState } from "react";
-import { config } from "wasp/client";
-import { getSessionId } from "wasp/client/api";
+import { api } from "wasp/client/api";
 
 export function StreamingPage() {
   const { response } = useTextStream("/api/streaming-example", {
@@ -295,22 +286,13 @@ async function fetchStream(
   onData: (data: string) => void,
   signal: AbortSignal
 ) {
-  const sessionId = getSessionId();
-
   try {
-    const response = await fetch(config.apiUrl + path, {
+    const response = await api(path, {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        ...(sessionId && { Authorization: `Bearer ${sessionId}` }),
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
       signal,
     });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
 
     if (response.body === null) {
       throw new Error("Stream body is null");
@@ -337,80 +319,6 @@ async function fetchStream(
     }
   }
 }
-```
-
-#### Using Axios
-
-Here's an example showing how to consume streaming responses using the Axios wrapper from `wasp/client/api`:
-
-```tsx title="src/AxiosStreamingPage.tsx" auto-js
-import { useEffect, useState } from "react";
-import { api } from "wasp/client/api";
-
-export function StreamingPage() {
-  const { response } = useAxiosTextStream("/api/streaming-example", {
-    message: "Best Office episode?",
-  });
-
-  return (
-    <div>
-      <h1>Axios Streaming</h1>
-      <pre>{response}</pre>
-    </div>
-  );
-}
-
-function useAxiosTextStream(path: string, payload: { message: string }) {
-  const [response, setResponse] = useState("");
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    fetchAxiosStream(
-      path,
-      payload,
-      (data) => {
-        setResponse(data);
-      },
-      controller.signal
-    );
-
-    return () => {
-      controller.abort();
-    };
-  }, [path]);
-
-  return { response };
-}
-
-async function fetchAxiosStream(
-  path: string,
-  payload: { message: string },
-  onData: (data: string) => void,
-  signal: AbortSignal
-) {
-  try {
-    return await api.post(path, payload, {
-      responseType: "stream",
-      signal,
-      onDownloadProgress: (progressEvent) => {
-        const xhr = progressEvent.event.target;
-        onData(xhr.responseText);
-      },
-    });
-  } catch (error: unknown) {
-    if (error instanceof Error) {
-      if (error.name === "CanceledError") {
-        // Request was cancelled, no action needed
-      } else {
-        console.error("Fetch error:", error);
-      }
-    } else {
-      throw error;
-    }
-  }
-}
-```
 
 ## API Reference
 
