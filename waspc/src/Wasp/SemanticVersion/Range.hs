@@ -97,7 +97,7 @@ eq :: Version -> Range
 eq = mkComparatorRange Equal
 
 mkComparatorRange :: PrimitiveOperator -> Version -> Range
-mkComparatorRange op = Range . pure . SimpleComparatorSet . NE.fromList . pure . Primitive . Comparator op . versionToPartialVersion
+mkComparatorRange op = Range . pure . SimpleComparatorSet . NE.fromList . pure . Primitive op . versionToPartialVersion
 
 r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
@@ -121,7 +121,7 @@ rangeParser = Range <$> rangeSetParser
 
     -- `node-semver` parses empty input as the equals any comparator (*).
     emptyRangeParser :: P.Parsec String () ComparatorSet
-    emptyRangeParser = (SimpleComparatorSet . pure . Primitive $ Comparator Equal Any) <$ P.eof
+    emptyRangeParser = (SimpleComparatorSet . pure $ Primitive Equal Any) <$ P.eof
 
     logicalOrParser :: P.Parsec String () ()
     logicalOrParser = void (P.spaces *> P.string "||" <* P.spaces)
@@ -141,7 +141,7 @@ data ComparatorSet
 -- X-Range is already supported on all operators through the 'PartialVersion' implementation.
 data SimpleRangeExpression
   = -- | 1.2.3 (=1.2.3), >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
-    Primitive Comparator
+    Primitive PrimitiveOperator PartialVersion
   | -- | ~1.2.3
     TildeRange PartialVersion
   | -- | ^1.2.3
@@ -155,7 +155,7 @@ instance Show ComparatorSet where
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` simple comparator.
 instance Show SimpleRangeExpression where
-  show (Primitive comparator) = show comparator
+  show (Primitive primOp pv) = show primOp ++ show pv
   show (TildeRange pv) = "~" ++ show pv
   show (CaretRange pv) = "^" ++ show pv
 
@@ -172,7 +172,20 @@ instance HasVersionBounds ComparatorSet where
   versionBounds (HyphenRange lower upper) = (toXRangeLowerBound lower, toXRangeUpperBound upper)
 
 instance HasVersionBounds SimpleRangeExpression where
-  versionBounds (Primitive comp) = versionBounds comp
+  versionBounds (Primitive primOp pv) = case primOp of
+    Equal -> (toXRangeLowerBound pv, toXRangeUpperBound pv)
+    LessThan -> case pv of
+      Any -> noVersionInterval
+      (Major mjr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr 0 0)
+      (MajorMinor mjr mnr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr 0)
+      (MajorMinorPatch mjr mnr ptc) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr ptc)
+    LessThanOrEqual -> (Inclusive $ Version 0 0 0, toXRangeUpperBound pv)
+    GreaterThan -> case pv of
+      Any -> noVersionInterval
+      (Major mjr) -> (Inclusive $ Version (mjr + 1) 0 0, Inf)
+      (MajorMinor mjr mnr) -> (Inclusive $ Version mjr (mnr + 1) 0, Inf)
+      (MajorMinorPatch mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
+    GreaterThanOrEqual -> (toXRangeLowerBound pv, Inf)
   versionBounds (TildeRange pv) = (toXRangeLowerBound pv, toTildeRangeUpperBound pv)
   versionBounds (CaretRange pv) = (toXRangeLowerBound pv, toCareRangetUpperBound pv)
 
@@ -226,8 +239,21 @@ simpleRangeExpressionParser =
     caretRangeParser :: P.Parsec String () SimpleRangeExpression
     caretRangeParser = CaretRange <$> (P.char '^' *> P.spaces *> partialVersionParser)
 
+    -- See `primitive` definition here: https://github.com/npm/node-semver#ran`ge-grammar
     primitiveParser :: P.Parsec String () SimpleRangeExpression
-    primitiveParser = Primitive <$> comparatorParser
+    primitiveParser =
+      Primitive <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
+
+    primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
+    primitiveOperatorParser =
+      P.choice
+        [ LessThanOrEqual <$ P.try (P.string "<="),
+          GreaterThanOrEqual <$ P.try (P.string ">="),
+          LessThan <$ P.char '<',
+          GreaterThan <$ P.char '>',
+          Equal <$ P.char '=',
+          Equal <$ P.string ""
+        ]
 
 -- | Parses a hyphen range.
 -- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
@@ -242,12 +268,6 @@ hyphenRangeParser = do
     hyphenRangeSeparatorParser :: P.Parsec String () Char
     hyphenRangeSeparatorParser = P.space *> P.char '-' <* P.space
 
--- | A comparator composed of an operator and a partial version.
--- It represents a single version constraint in a range.
-data Comparator
-  = Comparator PrimitiveOperator PartialVersion
-  deriving (Eq, TH.Lift)
-
 data PrimitiveOperator
   = Equal
   | LessThan
@@ -255,10 +275,6 @@ data PrimitiveOperator
   | GreaterThan
   | GreaterThanOrEqual
   deriving (Eq, TH.Lift)
-
--- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
-instance Show Comparator where
-  show (Comparator op pv) = show op ++ show pv
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
 instance Show PrimitiveOperator where
@@ -269,22 +285,6 @@ instance Show PrimitiveOperator where
   show LessThanOrEqual = "<="
   show GreaterThan = ">"
   show GreaterThanOrEqual = ">="
-
-instance HasVersionBounds Comparator where
-  versionBounds (Comparator primOp pv) = case primOp of
-    Equal -> (toXRangeLowerBound pv, toXRangeUpperBound pv)
-    LessThan -> case pv of
-      Any -> noVersionInterval
-      (Major mjr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr 0 0)
-      (MajorMinor mjr mnr) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr 0)
-      (MajorMinorPatch mjr mnr ptc) -> (Inclusive $ Version 0 0 0, Exclusive $ Version mjr mnr ptc)
-    LessThanOrEqual -> (Inclusive $ Version 0 0 0, toXRangeUpperBound pv)
-    GreaterThan -> case pv of
-      Any -> noVersionInterval
-      (Major mjr) -> (Inclusive $ Version (mjr + 1) 0 0, Inf)
-      (MajorMinor mjr mnr) -> (Inclusive $ Version mjr (mnr + 1) 0, Inf)
-      (MajorMinorPatch mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
-    GreaterThanOrEqual -> (toXRangeLowerBound pv, Inf)
 
 toXRangeUpperBound :: PartialVersion -> VersionBound
 toXRangeUpperBound Any = Inf
@@ -300,20 +300,20 @@ toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr p
 
 -- | Parses a single comparator.
 -- See `primitive` definition here: https://github.com/npm/node-semver#ran`ge-grammar
-comparatorParser :: P.Parsec String () Comparator
-comparatorParser = primitiveComparatorParser
-  where
-    primitiveComparatorParser :: P.Parsec String () Comparator
-    primitiveComparatorParser =
-      Comparator <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
+-- comparatorParser :: P.Parsec String () Comparator
+-- comparatorParser = primitiveComparatorParser
+--   where
+--     primitiveComparatorParser :: P.Parsec String () Comparator
+--     primitiveComparatorParser =
+--       Comparator <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
 
-    primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
-    primitiveOperatorParser =
-      P.choice
-        [ LessThanOrEqual <$ P.try (P.string "<="),
-          GreaterThanOrEqual <$ P.try (P.string ">="),
-          LessThan <$ P.char '<',
-          GreaterThan <$ P.char '>',
-          Equal <$ P.char '=',
-          Equal <$ P.string ""
-        ]
+--     primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
+--     primitiveOperatorParser =
+--       P.choice
+--         [ LessThanOrEqual <$ P.try (P.string "<="),
+--           GreaterThanOrEqual <$ P.try (P.string ">="),
+--           LessThan <$ P.char '<',
+--           GreaterThan <$ P.char '>',
+--           Equal <$ P.char '=',
+--           Equal <$ P.string ""
+--         ]

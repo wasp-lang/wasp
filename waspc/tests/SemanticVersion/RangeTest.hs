@@ -21,15 +21,15 @@ spec_SemanticVersion_Range = do
 
   describe "parseRange" $ do
     it "parses empty input correctly" $
-      parseRange "" `shouldBe` Right (Range [SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)])
+      parseRange "" `shouldBe` Right (Range [SimpleComparatorSet $ pure $ Primitive Equal Any])
     it "parses ranges with single comparator set" $ do
       parseRange "  >=1.0 <2.0.0  "
         `shouldBe` Right
           ( Range
               [ SimpleComparatorSet $
                   NE.fromList
-                    [ Primitive (Comparator GreaterThanOrEqual (MajorMinor 1 0)),
-                      Primitive (Comparator LessThan (MajorMinorPatch 2 0 0))
+                    [ Primitive GreaterThanOrEqual (MajorMinor 1 0),
+                      Primitive LessThan (MajorMinorPatch 2 0 0)
                     ]
               ]
           )
@@ -45,7 +45,7 @@ spec_SemanticVersion_Range = do
           ( Range
               [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
                 SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0),
-                SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)
+                SimpleComparatorSet $ pure $ Primitive Equal Any
               ]
           )
       parseRange "^1.2.3||^2.0     "
@@ -60,11 +60,11 @@ spec_SemanticVersion_Range = do
           ( Range
               [ SimpleComparatorSet $
                   NE.fromList
-                    [ Primitive (Comparator GreaterThanOrEqual (Major 1)),
-                      Primitive (Comparator LessThan (Major 2))
+                    [ Primitive GreaterThanOrEqual (Major 1),
+                      Primitive LessThan (Major 2)
                     ],
-                SimpleComparatorSet $ pure $ Primitive (Comparator GreaterThanOrEqual (MajorMinorPatch 3 0 0)),
-                SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)
+                SimpleComparatorSet $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
+                SimpleComparatorSet $ pure $ Primitive Equal Any
               ]
           )
     it "rejects invalid formats" $ do
@@ -107,11 +107,11 @@ spec_SemanticVersion_Range = do
       `shouldBe` Range
         [ SimpleComparatorSet $
             NE.fromList
-              [ Primitive (Comparator GreaterThanOrEqual (Major 1)),
-                Primitive (Comparator LessThan (Major 2))
+              [ Primitive GreaterThanOrEqual (Major 1),
+                Primitive LessThan (Major 2)
               ],
-          SimpleComparatorSet $ pure $ Primitive (Comparator GreaterThanOrEqual (MajorMinorPatch 3 0 0)),
-          SimpleComparatorSet $ pure $ Primitive (Comparator Equal Any)
+          SimpleComparatorSet $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
+          SimpleComparatorSet $ pure $ Primitive Equal Any
         ]
 
   it "concatenating version ranges produces union of their comparator sets" $ do
