@@ -760,7 +760,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "c1a0fa1571dda3967274cf57ef9a7ac7ffe95cf9af05afcc44b9f75b67475266"
+        "e627b4a4c16582a01c60ab5e93c0890c8564982c5e838cf1a7a8e2a87c55df67"
     ],
     [
         [
@@ -788,7 +788,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "9bdee53ad97f2440c88ac8efbf008b2e5db904263327bb7fa814fbd17856aa9d"
+        "df376586dc0981c2061d861729e5dc0a839412ea09bc4e3df2a57d3fc47647dd"
     ],
     [
         [
