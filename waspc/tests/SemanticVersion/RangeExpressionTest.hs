@@ -1,4 +1,4 @@
-module SemanticVersion.ComparatorSetTest where
+module SemanticVersion.RangeExpressionTest where
 
 import Data.Either (isLeft, isRight)
 import qualified Data.List.NonEmpty as NE
