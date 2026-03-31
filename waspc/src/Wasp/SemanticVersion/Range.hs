@@ -1,6 +1,24 @@
 {-# LANGUAGE DeriveLift #-}
 
-module Wasp.SemanticVersion.Range where
+module Wasp.SemanticVersion.Range
+  ( Range (..),
+    isVersionInRange,
+    doesVersionRangeAllowMajorChanges,
+    lt,
+    lte,
+    gt,
+    gte,
+    eq,
+    caretRange,
+    tildeRange,
+    backwardsCompatibleWith,
+    approximatelyEquivalentTo,
+    hyphenRange,
+    r,
+    parseRange,
+    rangeSetParser,
+  )
+where
 
 import Control.Monad (guard, void)
 import Data.List (intercalate)

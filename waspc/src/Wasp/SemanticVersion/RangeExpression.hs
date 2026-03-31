@@ -2,7 +2,15 @@
 {-# HLINT ignore "Use <$>" #-}
 {-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
-module Wasp.SemanticVersion.RangeExpression where
+module Wasp.SemanticVersion.RangeExpression
+  ( PrimitiveOperator (..),
+    RangeExpression (..),
+    SimpleRangeExpression (..),
+    rangeParser,
+    simpleRangeParser,
+    hyphenRangeParser,
+  )
+where
 
 import qualified Data.List.NonEmpty as NE
 import qualified Language.Haskell.TH.Syntax as TH
