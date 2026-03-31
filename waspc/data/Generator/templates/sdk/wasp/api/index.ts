@@ -43,7 +43,7 @@ export async function api(input: RequestInfo | URL, init?: RequestInit): Promise
   const request = new Request(toAbsoluteUrl(input), init)
 
   const sessionId = getSessionId()
-  if (sessionId !== null && !request.headers.has('Authorization')) {
+  if (sessionId !== null) {
     request.headers.set('Authorization', `Bearer ${sessionId}`)
   }
 
