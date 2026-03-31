@@ -1,13 +1,6 @@
-import axios, { type AxiosError, type AxiosInstance } from 'axios'
-
 import { config } from 'wasp/client'
 import { storage } from 'wasp/core/storage'
 import { apiEventsEmitter } from './events.js'
-
-// PUBLIC API
-export const api: AxiosInstance = axios.create({
-  baseURL: config.apiUrl,
-})
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
@@ -36,44 +29,63 @@ export function removeLocalUserData(): void {
   apiEventsEmitter.emit('sessionId.clear')
 }
 
+// PUBLIC API
 /**
- * Axios interceptors for handling authentication
+ * Makes an HTTP request to the Wasp API server.
  *
- * (1) Request Interceptor:
- * If a session ID exists, it is added to the request as an `Authorization`
- * header for the server to use.
+ * Takes the same parameters as the `Request` constructor (input, init?),
+ * prepends the API base URL for relative paths, adds authentication headers,
+ * and handles session invalidation on 401 responses.
  *
- * (2) Response Interceptor:
- * - Catches 401 errors from the server.
- * - Before clearing the session ID from local storage due to a 401 error,
- *   it compares the session ID stored in the *failed request's config*
- *   with the *current* session ID in local storage.
- * - It only clears the local session ID if the two session IDs match.
- *
- * This prevents a race condition like this:
- * 1. Request A is sent with old session ID X.
- * 2. User logs out and logs back in, obtaining new session ID Y.
- * 3. Request A finally fails with a 401 (because ID X is invalid).
- * Without the check, the interceptor would clear the *current* valid session ID Y.
- * The check ensures we only clear the session if the *request that failed* used
- * the *same session ID that's currently stored*.
+ * Throws `WaspHttpError` for non-2xx responses.
  */
-api.interceptors.request.use((config) => {
+export async function api(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
+  const request = new Request(toAbsoluteUrl(input), init)
+
   const sessionId = getSessionId()
   if (sessionId !== null) {
-    config.headers['Authorization'] = `Bearer ${sessionId}`
+    request.headers.set('Authorization', `Bearer ${sessionId}`)
   }
-  return config
-})
 
-api.interceptors.response.use(undefined, (error) => {
-  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers['Authorization'])
-  const currentSessionId = getSessionId()
-  if (error.response?.status === 401 && failingSessionId === currentSessionId) {
-    clearSessionId()
+  const response = await fetch(request)
+
+  if (response.status === 401) {
+    // Before clearing the session ID from local storage due to a 401 error,
+    // compare the session ID stored in the *failed request's* headers
+    // with the *current* session ID in local storage.
+    // Only clear the local session ID if the two session IDs match.
+    //
+    // This prevents a race condition like this:
+    // 1. Request A is sent with old session ID X.
+    // 2. User logs out and logs back in, obtaining new session ID Y.
+    // 3. Request A finally fails with a 401 (because ID X is invalid).
+    // Without the check, we would clear the *current* valid session ID Y.
+    // The check ensures we only clear the session if the *request that failed*
+    // used the *same session ID that's currently stored*.
+    const failingSessionId = getSessionIdFromAuthorizationHeader(
+      request.headers.get('Authorization')
+    )
+    const currentSessionId = getSessionId()
+    if (failingSessionId === currentSessionId) {
+      clearSessionId()
+    }
   }
-  return Promise.reject(error)
-})
+
+  if (!response.ok) {
+    let message = response.statusText
+    let data: unknown
+    try {
+      const responseJson = await response.json()
+      message = responseJson?.message ?? message
+      data = responseJson
+    } catch {
+      // Response body is not JSON, use statusText as message
+    }
+    throw new WaspHttpError(response.status, message, data)
+  }
+
+  return response
+}
 
 // This makes sure that the following handler won't try to run in a non-browser
 // environment (e.g. during SSR), where `window` is not defined.
@@ -95,30 +107,7 @@ if (typeof window !== 'undefined') {
 }
 
 // PRIVATE API (sdk)
-/**
- * Takes an error returned by the app's API (as returned by axios), and transforms into a more
- * standard format to be further used by the client. It is also assumed that given API
- * error has been formatted as implemented by HttpError on the server.
- */
-export function handleApiError<T extends AxiosError<{ message?: string, data?: unknown }>>(error: T): T | WaspHttpError {
-  if (error?.response) {
-    // If error came from HTTP response, we capture most informative message
-    // and also add .statusCode information to it.
-    // If error had JSON response, we assume it is of format { message, data } and
-    // add that info to the error.
-    // TODO: We might want to use HttpError here instead of just Error, since
-    //   HttpError is also used on server to throw errors like these.
-    //   That would require copying HttpError code to web-app also and using it here.
-    const responseJson = error.response?.data
-    const responseStatusCode = error.response.status
-    return new WaspHttpError(responseStatusCode, responseJson?.message ?? error.message, responseJson)
-  } else {
-    // If any other error, we just propagate it.
-    return error
-  }
-}
-
-class WaspHttpError extends Error {
+export class WaspHttpError extends Error {
   statusCode: number
 
   data: unknown
@@ -130,11 +119,26 @@ class WaspHttpError extends Error {
   }
 }
 
-function getSessionIdFromAuthorizationHeader(header: string | undefined): string | null {
+function getSessionIdFromAuthorizationHeader(header: string | null | undefined): string | null {
   const prefix = 'Bearer '
   if (header && header.startsWith(prefix)) {
     return header.substring(prefix.length)
   } else {
     return null
   }
+}
+
+function toAbsoluteUrl(input: RequestInfo | URL): RequestInfo | URL {
+  if (typeof input === 'string' && input.startsWith('/')) {
+    return config.apiUrl + input
+  }
+  if (input instanceof URL) {
+    return input
+  }
+  if (input instanceof Request) {
+    if (input.url.startsWith('/')) {
+      return new Request(config.apiUrl + input.url, input)
+    }
+  }
+  return input
 }

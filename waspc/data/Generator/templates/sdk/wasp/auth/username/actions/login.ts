@@ -1,13 +1,14 @@
 {{={= =}=}}
-import { api, handleApiError } from 'wasp/client/api'
+import { api } from 'wasp/client/api'
 import { initSession } from '../../helpers/user'
 
 export async function login(data: { username: string, password: string }): Promise<void> {
-  try {
-    const response = await api.post('{= loginPath =}', data)
+  const response = await api('{= loginPath =}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
 
-    await initSession(response.data.sessionId)
-  } catch (error) {
-    throw handleApiError(error)
-  }
+  const json = await response.json()
+  await initSession(json.sessionId)
 }

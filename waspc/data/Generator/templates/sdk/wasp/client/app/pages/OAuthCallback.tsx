@@ -1,6 +1,5 @@
 {{={= =}=}}
 import { useState } from "react";
-import { type AxiosResponse } from "axios";
 import { Navigate, useLocation } from 'react-router'
 import { useAuth } from "../../auth";
 import { api } from "../../../api";
@@ -54,12 +53,12 @@ function useOAuthCallbackHandler() {
       }
 
       const code = location.hash.slice(1);
-      const response = await exchangeOAuthCodeForToken({ code });
-      if (!isResponseWithSessionId(response)) {
+      const data = await exchangeOAuthCodeForToken({ code });
+      if (!isDataWithSessionId(data)) {
         setError("Unable to login with the OAuth provider.");
         return;
       }
-      await initSession(response.data.sessionId);
+      await initSession(data.sessionId);
     } catch (e: unknown) {
       console.error(e);
       setError("Unable to login with the OAuth provider.");
@@ -82,13 +81,18 @@ function useOAuthCallbackHandler() {
 
 async function exchangeOAuthCodeForToken(data: {
   code: string
-}): Promise<AxiosResponse<unknown>> {
-  return api.post('/auth/exchange-code', data)
+}): Promise<unknown> {
+  const response = await api('/auth/exchange-code', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return response.json()
 }
 
-function isResponseWithSessionId(
-  response: AxiosResponse<unknown>
-): response is AxiosResponse<{ sessionId: string }> {
-  const data = response.data as any;
-  return !!data && typeof data.sessionId === 'string'
+function isDataWithSessionId(
+  data: unknown
+): data is { sessionId: string } {
+  const obj = data as any;
+  return !!obj && typeof obj.sessionId === 'string'
 }

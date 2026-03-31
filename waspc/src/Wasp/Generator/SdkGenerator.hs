@@ -33,8 +33,7 @@ import Wasp.Generator.Common
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
-  ( axiosVersionRange,
-    dotenvVersionRange,
+  ( dotenvVersionRange,
     expressTypesVersionRange,
     expressVersionRange,
     prismaVersionRange,
@@ -198,7 +197,6 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersionRange),
             ("prisma", show prismaVersionRange),
-            ("axios", show axiosVersionRange),
             ("dotenv", show dotenvVersionRange),
             ("dotenv-expand", "^12.0.3"),
             ("express", show expressVersionRange),

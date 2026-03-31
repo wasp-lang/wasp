@@ -1,14 +1,14 @@
 {{={= =}=}}
-import { api, handleApiError } from 'wasp/client/api'
+import { api } from 'wasp/client/api'
 
 // PUBLIC API
 export async function verifyEmail(data: {
   token: string
 }): Promise<{ success: boolean; reason?: string }> {
-  try {
-    const response = await api.post('{= verifyEmailPath =}', data)
-    return response.data
-  } catch (e) {
-    throw handleApiError(e)
-  }
+  const response = await api('{= verifyEmailPath =}', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  })
+  return response.json()
 }

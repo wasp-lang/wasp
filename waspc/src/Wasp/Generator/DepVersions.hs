@@ -10,7 +10,6 @@ module Wasp.Generator.DepVersions
     reactQueryVersionRange,
     expressVersionRange,
     expressTypesVersionRange,
-    axiosVersionRange,
     viteVersionRange,
     dotenvVersionRange,
   )
@@ -57,9 +56,6 @@ expressVersionRange = [SV.r|~5.1.0|]
 
 expressTypesVersionRange :: SV.Range
 expressTypesVersionRange = [SV.r|^5.0.0|]
-
-axiosVersionRange :: SV.Range
-axiosVersionRange = [SV.r|^1.4.0|]
 
 viteVersionRange :: SV.Range
 viteVersionRange = [SV.r|^7.0.6|]
