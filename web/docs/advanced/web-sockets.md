@@ -52,73 +52,49 @@ You can use this `io` object to register callbacks for all the regular [Socket.I
 
 This is how we can define our `webSocketFn` function:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="src/webSocket.js"
-    import { v4 as uuidv4 } from 'uuid'
+```ts title="src/webSocket.ts" auto-js
+import { v4 as uuidv4 } from 'uuid'
+import { type WebSocketDefinition, type WaspSocketData } from 'wasp/server/webSocket'
 
-    export const webSocketFn = (io, context) => {
-      io.on('connection', (socket) => {
-        const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
-        console.log('a user connected: ', username)
+export const webSocketFn: WebSocketFn = (io, context) => {
+  io.on('connection', (socket) => {
+    const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
+    console.log('a user connected: ', username)
 
-        socket.on('chatMessage', async (msg) => {
-          console.log('message: ', msg)
-          io.emit('chatMessage', { id: uuidv4(), username, text: msg })
-          // You can also use your entities here:
-          // await context.entities.SomeEntity.create({ someField: msg })
-        })
-      })
-    }
-    ```
-  </TabItem>
+    socket.on('chatMessage', async (msg) => {
+      console.log('message: ', msg)
+      io.emit('chatMessage', { id: uuidv4(), username, text: msg })
+      // You can also use your entities here:
+      // await context.entities.SomeEntity.create({ someField: msg })
+    })
+  })
+}
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/webSocket.ts"
-    import { v4 as uuidv4 } from 'uuid'
-    import { type WebSocketDefinition, type WaspSocketData } from 'wasp/server/webSocket'
+// Typing our WebSocket function with the events and payloads
+// allows us to get type safety on the client as well
 
-    export const webSocketFn: WebSocketFn = (io, context) => {
-      io.on('connection', (socket) => {
-        const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
-        console.log('a user connected: ', username)
+type WebSocketFn = WebSocketDefinition<
+  ClientToServerEvents,
+  ServerToClientEvents,
+  InterServerEvents,
+  SocketData
+>
 
-        socket.on('chatMessage', async (msg) => {
-          console.log('message: ', msg)
-          io.emit('chatMessage', { id: uuidv4(), username, text: msg })
-          // You can also use your entities here:
-          // await context.entities.SomeEntity.create({ someField: msg })
-        })
-      })
-    }
+interface ServerToClientEvents {
+  chatMessage: (msg: { id: string, username: string, text: string }) => void;
+}
 
-    // Typing our WebSocket function with the events and payloads
-    // allows us to get type safety on the client as well
+interface ClientToServerEvents {
+  chatMessage: (msg: string) => void;
+}
 
-    type WebSocketFn = WebSocketDefinition<
-      ClientToServerEvents,
-      ServerToClientEvents,
-      InterServerEvents,
-      SocketData
-    >
+interface InterServerEvents {}
 
-    interface ServerToClientEvents {
-      chatMessage: (msg: { id: string, username: string, text: string }) => void;
-    }
-
-    interface ClientToServerEvents {
-      chatMessage: (msg: string) => void;
-    }
-
-    interface InterServerEvents {}
-
-    // Data that is attached to the socket.
-    // NOTE: Wasp automatically injects the JWT into the connection,
-    // and if present/valid, the server adds a user to the socket.
-    interface SocketData extends WaspSocketData {}
-    ```
-  </TabItem>
-</Tabs>
+// Data that is attached to the socket.
+// NOTE: Wasp automatically injects the JWT into the connection,
+// and if present/valid, the server adds a user to the socket.
+interface SocketData extends WaspSocketData {}
+```
 
 ## Using the WebSocket On The Client
 

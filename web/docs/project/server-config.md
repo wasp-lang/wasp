@@ -52,62 +52,32 @@ In case you want to store some values for later use, or to be accessed by the [O
 
 Dummy example of such function and its usage:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/myServerSetupCode.js"
-    let someResource = undefined
+```ts title="src/myServerSetupCode.ts" auto-js
+import { type ServerSetupFn } from 'wasp/server'
 
-    export const mySetupFunction = async () => {
-      // Let's pretend functions setUpSomeResource and startSomeCronJob
-      // are implemented below or imported from another file.
-      someResource = await setUpSomeResource()
-      startSomeCronJob()
-    }
+let someResource = undefined
 
-    export const getSomeResource = () => someResource
-    ```
+export const mySetupFunction: ServerSetupFn = async () => {
+  // Let's pretend functions setUpSomeResource and startSomeCronJob
+  // are implemented below or imported from another file.
+  someResource = await setUpSomeResource()
+  startSomeCronJob()
+}
 
-    ```js title="src/queries.js"
-    import { getSomeResource } from './myServerSetupCode.js'
+export const getSomeResource = () => someResource
+```
 
-    ...
+```ts title="src/queries.ts" auto-js
+import { type SomeQuery } from 'wasp/server/operations'
+import { getSomeResource } from './myServerSetupCode.js'
 
-    export const someQuery = async (args, context) => {
-      const someResource = getSomeResource()
-      return queryDataFromSomeResource(args, someResource)
-    }
-    ```
-  </TabItem>
+...
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/myServerSetupCode.ts"
-    import { type ServerSetupFn } from 'wasp/server'
-
-    let someResource = undefined
-
-    export const mySetupFunction: ServerSetupFn = async () => {
-      // Let's pretend functions setUpSomeResource and startSomeCronJob
-      // are implemented below or imported from another file.
-      someResource = await setUpSomeResource()
-      startSomeCronJob()  
-    }
-
-    export const getSomeResource = () => someResource
-    ```
-
-    ```ts title="src/queries.ts"
-    import { type SomeQuery } from 'wasp/server/operations'
-    import { getSomeResource } from './myServerSetupCode.js'
-
-    ...
-
-    export const someQuery: SomeQuery<...> = async (args, context) => {
-      const someResource = getSomeResource()
-      return queryDataFromSomeResource(args, someResource)
-    }
-    ```
-  </TabItem>
-</Tabs>
+export const someQuery: SomeQuery<...> = async (args, context) => {
+  const someResource = getSomeResource()
+  return queryDataFromSomeResource(args, someResource)
+}
+```
 
 :::note
 The recommended way is to put the variable in the same module where you defined the setup function and then expose additional functions for reading those values, which you can then import directly from Operations and use.

@@ -5,6 +5,7 @@ title: Env Variables
 import ClientEnvVarsNote from './\_clientEnvVarsNote.md'
 import { EnvVarsTable, EnvVar } from './EnvVarsTable'
 import { SecretGeneratorBlock } from './SecretGeneratorBlock'
+import { ShowForTs } from '@site/src/components/TsJsHelpers'
 
 **Environment variables** are used to configure projects based on the context in which they run. This allows them to exhibit different behaviors in different environments, such as development, staging, or production.
 
@@ -249,53 +250,31 @@ If your code requires some environment variables, you usually want to ensure tha
 
 Take a look at an example of defining env vars validation:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/env.js"
-    import * as z from 'zod'
+```ts title="src/env.ts" auto-js
+import * as z from 'zod'
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+import { defineEnvValidationSchema } from 'wasp/env'
 
-    export const serverEnvValidationSchema = defineEnvValidationSchema(
-      z.object({
-        STRIPE_API_KEY: z.string({
-          required_error: 'STRIPE_API_KEY is required.',
-        }),
-      })
-    )
+export const serverEnvValidationSchema = defineEnvValidationSchema(
+  z.object({
+    STRIPE_API_KEY: z.string({
+      required_error: 'STRIPE_API_KEY is required.',
+    }),
+  })
+)
 
-    export const clientEnvValidationSchema = defineEnvValidationSchema(
-      z.object({
-        REACT_APP_NAME: z.string().default('TODO App'),
-      })
-    )
-    ```
-  </TabItem>
+export const clientEnvValidationSchema = defineEnvValidationSchema(
+  z.object({
+    REACT_APP_NAME: z.string().default('TODO App'),
+  })
+)
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/env.ts"
-    import * as z from 'zod'
+<ShowForTs>
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
-    export const serverEnvValidationSchema = defineEnvValidationSchema(
-      z.object({
-        STRIPE_API_KEY: z.string({
-          required_error: 'STRIPE_API_KEY is required.',
-        }),
-      })
-    )
-
-    export const clientEnvValidationSchema = defineEnvValidationSchema(
-      z.object({
-        REACT_APP_NAME: z.string().default('TODO App'),
-      })
-    )
-    ```
-
-    The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-  </TabItem>
-</Tabs>
+</ShowForTs>
 
 ```wasp title="main.wasp"
 app myApp {
@@ -331,41 +310,25 @@ There are **Wasp-defined** and **user-defined** env vars. Wasp already comes wit
 
 You can define your client env vars validation like this:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/env.js"
-    import * as z from 'zod'
+```ts title="src/env.ts" auto-js
+import * as z from 'zod'
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+import { defineEnvValidationSchema } from 'wasp/env'
 
-    export const envValidationSchema = defineEnvValidationSchema(
-      z.object({
-        REACT_APP_ANALYTICS_ID: z.string({
-          required_error: 'REACT_APP_ANALYTICS_ID is required.',
-        }),
-      })
-    )
-    ```
-  </TabItem>
+export const envValidationSchema = defineEnvValidationSchema(
+  z.object({
+    REACT_APP_ANALYTICS_ID: z.string({
+      required_error: 'REACT_APP_ANALYTICS_ID is required.',
+    }),
+  })
+)
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/env.ts"
-    import * as z from 'zod'
+<ShowForTs>
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
-    export const envValidationSchema = defineEnvValidationSchema(
-      z.object({
-        REACT_APP_ANALYTICS_ID: z.string({
-          required_error: 'REACT_APP_ANALYTICS_ID is required.',
-        }),
-      })
-    )
-    ```
-
-    The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-  </TabItem>
-</Tabs>
+</ShowForTs>
 
 ```wasp title="main.wasp"
 app myApp {
@@ -400,41 +363,25 @@ You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We 
 
 You can define your env vars validation like this:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/env.js"
-    import * as z from 'zod'
+```ts title="src/env.ts" auto-js
+import * as z from 'zod'
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+import { defineEnvValidationSchema } from 'wasp/env'
 
-    export const envValidationSchema = defineEnvValidationSchema(
-      z.object({
-        STRIPE_API_KEY: z.string({
-          required_error: 'STRIPE_API_KEY is required.',
-        }),
-      })
-    )
-    ```
-  </TabItem>
+export const envValidationSchema = defineEnvValidationSchema(
+  z.object({
+    STRIPE_API_KEY: z.string({
+      required_error: 'STRIPE_API_KEY is required.',
+    }),
+  })
+)
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/env.ts"
-    import * as z from 'zod'
+<ShowForTs>
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
 
-    export const envValidationSchema = defineEnvValidationSchema(
-      z.object({
-        STRIPE_API_KEY: z.string({
-          required_error: 'STRIPE_API_KEY is required.',
-        }),
-      })
-    )
-    ```
-
-    The `defineEnvValidationSchema` function ensures your Zod schema is type-checked.
-  </TabItem>
-</Tabs>
+</ShowForTs>
 
 ```wasp title="main.wasp"
 app myApp {

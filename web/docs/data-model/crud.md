@@ -155,186 +155,101 @@ Read more about the default implementations [here](#declaring-a-crud-with-defaul
 
 Here's the `src/tasks.{js,ts}` file:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/tasks.js"
-    import { HttpError } from 'wasp/server'
+```ts title="src/tasks.ts" auto-js
+import { type Tasks } from 'wasp/server/crud'
+import { type Task } from 'wasp/entities'
+import { HttpError } from 'wasp/server'
 
-    export const createTask = async (args, context) => {
-      if (!context.user) {
-        throw new HttpError(401, 'User not authenticated.')
-      }
+type CreateTaskInput = { description: string; isDone: boolean }
 
-      const { description, isDone } = args
-      const { Task } = context.entities
+export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
+  args,
+  context
+) => {
+  if (!context.user) {
+    throw new HttpError(401, 'User not authenticated.')
+  }
 
-      return await Task.create({
-        data: {
-          description,
-          isDone,
-          // highlight-start
-          // Connect the task to the user that is creating it
-          user: {
-            connect: {
-              id: context.user.id,
-            },
-          },
-          // highlight-end
+  const { description, isDone } = args
+  const { Task } = context.entities
+
+  return await Task.create({
+    data: {
+      description,
+      isDone,
+      // highlight-start
+      // Connect the task to the user that is creating it
+      user: {
+        connect: {
+          id: context.user.id,
         },
-      })
-    }
-    ```
-  </TabItem>
+      },
+      // highlight-end
+    },
+  })
+}
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/tasks.ts"
-    import { type Tasks } from 'wasp/server/crud'
-    import { type Task } from 'wasp/entities'
-    import { HttpError } from 'wasp/server'
+<ShowForTs>
 
-    type CreateTaskInput = { description: string; isDone: boolean }
+Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD declaration in your Wasp file.
+Use it to type the CRUD action's implementation.
 
-    export const createTask: Tasks.CreateAction<CreateTaskInput, Task> = async (
-      args,
-      context
-    ) => {
-      if (!context.user) {
-        throw new HttpError(401, 'User not authenticated.')
-      }
+The `Tasks.CreateAction` type works exactly like the types Wasp generates for [Queries](../data-model/operations/queries#type-support-for-queries) and [Actions](../data-model/operations/actions#type-support-for-actions).
+In other words, annotating the action with `Tasks.CreateAction` tells TypeScript about the type of the Action's `context` object, while the two type arguments allow you to specify the Action's inputs and outputs.
 
-      const { description, isDone } = args
-      const { Task } = context.entities
+Read more about type support for CRUD overrides in the [API reference](#defining-the-overrides).
 
-      return await Task.create({
-        data: {
-          description,
-          isDone,
-          // highlight-start
-          // Connect the task to the user that is creating it
-          user: {
-            connect: {
-              id: context.user.id,
-            },
-          },
-          // highlight-end
-        },
-      })
-    }
-    ```
-
-    Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD declaration in your Wasp file.
-    Use it to type the CRUD action's implementation.
-
-    The `Tasks.CreateAction` type works exactly like the types Wasp generates for [Queries](../data-model/operations/queries#type-support-for-queries) and [Actions](../data-model/operations/actions#type-support-for-actions).
-    In other words, annotating the action with `Tasks.CreateAction` tells TypeScript about the type of the Action's `context` object, while the two type arguments allow you to specify the Action's inputs and outputs.
-
-    Read more about type support for CRUD overrides in the [API reference](#defining-the-overrides).
-  </TabItem>
-</Tabs>
+</ShowForTs>
 
 ### Using the Generated CRUD Operations on the Client
 
 And let's use the generated operations in our client code:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/MainPage.jsx"
-    // highlight-next-line
-    import { Tasks } from 'wasp/client/crud'
-    import { useState } from 'react'
+```tsx title="src/MainPage.tsx" auto-js
+// highlight-next-line
+import { Tasks } from 'wasp/client/crud'
+import { useState } from 'react'
 
-    export const MainPage = () => {
-      // highlight-next-line
-      const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
-      // highlight-next-line
-      const createTask = Tasks.create.useAction()
-      const [taskDescription, setTaskDescription] = useState('')
+export const MainPage = () => {
+  // highlight-next-line
+  const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
+  // highlight-next-line
+  const createTask = Tasks.create.useAction()
+  const [taskDescription, setTaskDescription] = useState('')
 
-      function handleCreateTask() {
-        createTask({ description: taskDescription, isDone: false })
-        setTaskDescription('')
-      }
+  function handleCreateTask() {
+    createTask({ description: taskDescription, isDone: false })
+    setTaskDescription('')
+  }
 
-      if (isLoading) return <div>Loading...</div>
-      if (error) return <div>Error: {error.message}</div>
-      return (
-        <div
-          style={{
-            fontSize: '1.5rem',
-            display: 'grid',
-            placeContent: 'center',
-            height: '100vh',
-          }}
-        >
-          <div>
-            <input
-              value={taskDescription}
-              onChange={(e) => setTaskDescription(e.target.value)}
-            />
-            <button onClick={handleCreateTask}>Create task</button>
-          </div>
-          <ul>
-            {tasks.map((task) => (
-              <li key={task.id}>{task.description}</li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/MainPage.tsx"
-    // highlight-next-line
-    import { Tasks } from 'wasp/client/crud'
-    import { useState } from 'react'
-
-    export const MainPage = () => {
-      // highlight-next-line
-      // Thanks to full-stack type safety, all payload types are inferred
-      // highlight-next-line
-      // automatically
-      // highlight-next-line
-      const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
-      // highlight-next-line
-      const createTask = Tasks.create.useAction()
-      const [taskDescription, setTaskDescription] = useState('')
-
-      function handleCreateTask() {
-        createTask({ description: taskDescription, isDone: false })
-        setTaskDescription('')
-      }
-
-      if (isLoading) return <div>Loading...</div>
-      if (error) return <div>Error: {error.message}</div>
-      return (
-        <div
-          style={{
-            fontSize: '1.5rem',
-            display: 'grid',
-            placeContent: 'center',
-            height: '100vh',
-          }}
-        >
-          <div>
-            <input
-              value={taskDescription}
-              onChange={(e) => setTaskDescription(e.target.value)}
-            />
-            <button onClick={handleCreateTask}>Create task</button>
-          </div>
-          <ul>
-            {tasks.map((task) => (
-              <li key={task.id}>{task.description}</li>
-            ))}
-          </ul>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
+  if (isLoading) return <div>Loading...</div>
+  if (error) return <div>Error: {error.message}</div>
+  return (
+    <div
+      style={{
+        fontSize: '1.5rem',
+        display: 'grid',
+        placeContent: 'center',
+        height: '100vh',
+      }}
+    >
+      <div>
+        <input
+          value={taskDescription}
+          onChange={(e) => setTaskDescription(e.target.value)}
+        />
+        <button onClick={handleCreateTask}>Create task</button>
+      </div>
+      <ul>
+        {tasks.map((task) => (
+          <li key={task.id}>{task.description}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+```
 
 And here are the login and signup pages, where we are using Wasp's [Auth UI](../auth/ui) components:
 
@@ -403,125 +318,62 @@ CRUD declaration works on top of an existing entity declaration. We'll fully exp
 
 If we create CRUD operations for an entity named `Task`, like this:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    crud Tasks { // crud name here is "Tasks"
-      entity: Task,
-      operations: {
-        get: {},
-        getAll: {},
-        create: {},
-        update: {},
-        delete: {},
-      },
-    }
-    ```
+```wasp title="main.wasp"
+crud Tasks { // crud name here is "Tasks"
+  entity: Task,
+  operations: {
+    get: {},
+    getAll: {},
+    create: {},
+    update: {},
+    delete: {},
+  },
+}
+```
 
-    Wasp will give you the following default implementations:
+Wasp will give you the following default implementations:
 
-    **get** - returns one entity based on the `id` field
+**get** - returns one entity based on the `id` field
 
-    ```js
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.findUnique({ where: { id: args.id } })
-    ```
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.findUnique({ where: { id: args.id } })
+```
 
-    **getAll** - returns all entities
+**getAll** - returns all entities
 
-    ```js
-    // ...
+```ts
+// ...
 
-    // If the operation is not public, Wasp checks if an authenticated user
-    // is making the request.
+// If the operation is not public, Wasp checks if an authenticated user
+// is making the request.
 
-    return Task.findMany()
-    ```
+return Task.findMany()
+```
 
-    **create** - creates a new entity
+**create** - creates a new entity
 
-    ```js
-    // ...
-    return Task.create({ data: args.data })
-    ```
+```ts
+// ...
+return Task.create({ data: args.data })
+```
 
-    **update** - updates an existing entity
+**update** - updates an existing entity
 
-    ```js
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.update({ where: { id: args.id }, data: args.data })
-    ```
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.update({ where: { id: args.id }, data: args.data })
+```
 
-    **delete** - deletes an existing entity
+**delete** - deletes an existing entity
 
-    ```js
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.delete({ where: { id: args.id } })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    crud Tasks { // crud name here is "Tasks"
-      entity: Task,
-      operations: {
-        get: {},
-        getAll: {},
-        create: {},
-        update: {},
-        delete: {},
-      },
-    }
-    ```
-
-    Wasp will give you the following default implementations:
-
-    **get** - returns one entity based on the `id` field
-
-    ```ts
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.findUnique({ where: { id: args.id } })
-    ```
-
-    **getAll** - returns all entities
-
-    ```ts
-    // ...
-
-    // If the operation is not public, Wasp checks if an authenticated user
-    // is making the request.
-
-    return Task.findMany()
-    ```
-
-    **create** - creates a new entity
-
-    ```ts
-    // ...
-    return Task.create({ data: args.data })
-    ```
-
-    **update** - updates an existing entity
-
-    ```ts
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.update({ where: { id: args.id }, data: args.data })
-    ```
-
-    **delete** - deletes an existing entity
-
-    ```ts
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.delete({ where: { id: args.id } })
-    ```
-  </TabItem>
-</Tabs>
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.delete({ where: { id: args.id } })
+```
 
 :::info Current Limitations
 In the default `create` and `update` implementations, we are saving all of the data that the client sends to the server. This is not always desirable, i.e. in the case when the client should not be able to modify all of the data in the entity.

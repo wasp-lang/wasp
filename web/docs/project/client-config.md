@@ -171,34 +171,17 @@ router will work correctly, and all the assets will be served from
 
 ## API Reference
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      client: {
-        rootComponent: import Root from "@src/Root",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode"
-      }
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      client: {
-        rootComponent: import Root from "@src/Root",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode",
-        baseDir: "/my-app",
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
+```wasp title="main.wasp"
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@src/Root",
+    setupFn: import mySetupFunction from "@src/myClientSetupCode",
+    baseDir: "/my-app",
+  }
+}
+```
 
 Client has the following options:
 

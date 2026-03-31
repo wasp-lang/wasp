@@ -219,34 +219,24 @@ The Job declaration has the following fields:
 
     Here's an example of a `perform.fn` function:
 
-    <Tabs groupId="js-ts">
-      <TabItem value="js" label="JavaScript">
-        ```js title="src/workers/bar.js"
-        export const foo = async ({ name }, context) => {
-          console.log(`Hello ${name}!`)
-          const tasks = await context.entities.Task.findMany({})
-          return { tasks }
-        }
-        ```
-      </TabItem>
+    ```ts title="src/workers/bar.ts" auto-js
+    import { type MySpecialJob } from 'wasp/server/jobs'
 
-      <TabItem value="ts" label="TypeScript">
-        ```ts title="src/workers/bar.ts"
-        import { type MySpecialJob } from 'wasp/server/jobs'
+    type Input = { name: string; }
+    type Output = { tasks: Task[]; }
 
-        type Input = { name: string; }
-        type Output = { tasks: Task[]; }
+    export const foo: MySpecialJob<Input, Output> = async ({ name }, context) => {
+      console.log(`Hello ${name}!`)
+      const tasks = await context.entities.Task.findMany({})
+      return { tasks }
+    }
+    ```
 
-        export const foo: MySpecialJob<Input, Output> = async ({ name }, context) => {
-          console.log(`Hello ${name}!`)
-          const tasks = await context.entities.Task.findMany({})
-          return { tasks }
-        }
-        ```
+    <ShowForTs>
 
-        Read more about type-safe jobs in the [Javascript API section](#javascript-api).
-      </TabItem>
-    </Tabs>
+    Read more about type-safe jobs in the [Javascript API section](#javascript-api).
+
+    </ShowForTs>
 
   - `executorOptions: dict`
 
@@ -284,28 +274,30 @@ The Job declaration has the following fields:
 
 - Importing a Job:
 
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```js title="someAction.js"
-      import { mySpecialJob } from 'wasp/server/jobs'
-      ```
-    </TabItem>
+  <ShowForJs>
 
-    <TabItem value="ts" label="TypeScript">
-      ```ts title="someAction.ts"
-      import { mySpecialJob, type MySpecialJob } from 'wasp/server/jobs'
-      ```
+  ```js title="someAction.js"
+  import { mySpecialJob } from 'wasp/server/jobs'
+  ```
 
-      :::info Type-safe jobs
-      Wasp generates a generic type for each Job declaration, which you can use to type your `perform.fn` function. The type is named after the job declaration, and is available in the `wasp/server/jobs` module. In the example above, the type is `MySpecialJob`.
+  </ShowForJs>
 
-      The type takes two type arguments:
+  <ShowForTs>
 
-      - `Input`: The type of the `args` argument of the `perform.fn` function.
-      - `Output`: The type of the return value of the `perform.fn` function.
-        :::
-    </TabItem>
-  </Tabs>
+  ```ts title="someAction.ts"
+  import { mySpecialJob, type MySpecialJob } from 'wasp/server/jobs'
+  ```
+
+  :::info Type-safe jobs
+  Wasp generates a generic type for each Job declaration, which you can use to type your `perform.fn` function. The type is named after the job declaration, and is available in the `wasp/server/jobs` module. In the example above, the type is `MySpecialJob`.
+
+  The type takes two type arguments:
+
+  - `Input`: The type of the `args` argument of the `perform.fn` function.
+  - `Output`: The type of the return value of the `perform.fn` function.
+    :::
+
+  </ShowForTs>
 
 - `submit(jobArgs, executorOptions)`
 

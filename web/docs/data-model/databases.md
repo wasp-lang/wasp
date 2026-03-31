@@ -3,6 +3,7 @@ title: Databases
 ---
 
 import { Required } from '@site/src/components/Tag'
+import { ShowForTs } from '@site/src/components/TsJsHelpers'
 
 [Entities](../data-model/entities.md), [Operations](../data-model/operations/overview) and [Automatic CRUD](../data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 
@@ -214,109 +215,66 @@ Since a seed function falls under server-side code, it can import other server-s
 
 Here's an example of a seed function that imports an Action:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js
-    import { createTask } from './actions.js'
-    import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
+```ts auto-js
+import { createTask } from './actions.js'
+import type { DbSeedFn } from 'wasp/server'
+import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
+import type { AuthUser } from 'wasp/auth'
+import type { PrismaClient } from 'wasp/server'
 
-    export const devSeedSimple = async (prisma) => {
-      const user = await createUser(prisma, {
-        username: 'RiuTheDog',
-        password: 'bark1234',
-      })
+export const devSeedSimple: DbSeedFn = async (prisma) => {
+  const user = await createUser(prisma, {
+    username: 'RiuTheDog',
+    password: 'bark1234',
+  })
 
-      await createTask(
-        { description: 'Chase the cat' },
-        { user, entities: { Task: prisma.task } }
-      )
-    }
+  await createTask(
+    { description: 'Chase the cat', isDone: false },
+    { user, entities: { Task: prisma.task } }
+  )
+};
 
-    async function createUser(prisma, data) {
-      const newUser = await prisma.user.create({
-        data: {
-          auth: {
+async function createUser(
+  prisma: PrismaClient,
+  data: { username: string, password: string }
+): Promise<AuthUser> {
+  const newUser = await prisma.user.create({
+    data: {
+      auth: {
+        create: {
+          identities: {
             create: {
-              identities: {
-                create: {
-                  providerName: 'username',
-                  providerUserId: data.username,
-                  providerData: await sanitizeAndSerializeProviderData({
-                    hashedPassword: data.password
-                  }),
-                },
-              },
+              providerName: 'username',
+              providerUserId: data.username,
+              providerData: await sanitizeAndSerializeProviderData<'username'>({
+                hashedPassword: data.password
+              }),
             },
           },
         },
-      })
+      },
+    },
+  })
 
-      return newUser
-    }
-    ```
+  return newUser
+}
+```
 
-  </TabItem>
+<ShowForTs>
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts
-    import { createTask } from './actions.js'
-    import type { DbSeedFn } from 'wasp/server'
-    import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
-    import type { AuthUser } from 'wasp/auth'
-    import type { PrismaClient } from 'wasp/server'
+Wasp exports a type called `DbSeedFn` which you can use to easily type your seeding function.
+Wasp defines `DbSeedFn` like this:
 
-    export const devSeedSimple: DbSeedFn = async (prisma) => {
-      const user = await createUser(prisma, {
-        username: 'RiuTheDog',
-        password: 'bark1234',
-      })
+```typescript
+type DbSeedFn = (prisma: PrismaClient) => Promise<void>
+```
 
-      await createTask(
-        { description: 'Chase the cat', isDone: false },
-        { user, entities: { Task: prisma.task } }
-      )
-    };
+Annotating the function `devSeedSimple` with this type tells TypeScript:
 
-    async function createUser(
-      prisma: PrismaClient,
-      data: { username: string, password: string }
-    ): Promise<AuthUser> {
-      const newUser = await prisma.user.create({
-        data: {
-          auth: {
-            create: {
-              identities: {
-                create: {
-                  providerName: 'username',
-                  providerUserId: data.username,
-                  providerData: await sanitizeAndSerializeProviderData<'username'>({
-                    hashedPassword: data.password
-                  }),
-                },
-              },
-            },
-          },
-        },
-      })
+- The seeding function's argument (`prisma`) is of type `PrismaClient`.
+- The seeding function's return value is `Promise<void>`.
 
-      return newUser
-    }
-    ```
-
-    Wasp exports a type called `DbSeedFn` which you can use to easily type your seeding function.
-    Wasp defines `DbSeedFn` like this:
-
-    ```typescript
-    type DbSeedFn = (prisma: PrismaClient) => Promise<void>
-    ```
-
-    Annotating the function `devSeedSimple` with this type tells TypeScript:
-
-    - The seeding function's argument (`prisma`) is of type `PrismaClient`.
-    - The seeding function's return value is `Promise<void>`.
-
-  </TabItem>
-</Tabs>
+</ShowForTs>
 
 ### Running seed functions
 

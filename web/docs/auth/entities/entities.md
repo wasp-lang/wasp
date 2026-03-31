@@ -133,41 +133,21 @@ The `getFirstProviderUserId` method returns the first user ID that it finds for 
 
 This can be useful if you support multiple authentication methods and you need _any_ ID that identifies the user in your app.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/MainPage.jsx"
-    const MainPage = ({ user }) => {
-      const userId = user.getFirstProviderUserId()
-      // ...
-    }
-    ```
+```tsx title="src/MainPage.tsx" auto-js
+import { type AuthUser } from 'wasp/auth'
 
-    ```js title="src/tasks.js"
-    export const createTask = async (args, context) => {
-      const userId = context.user.getFirstProviderUserId()
-      // ...
-    }
-    ```
-  </TabItem>
+const MainPage = ({ user }: { user: AuthUser }) => {
+  const userId = user.getFirstProviderUserId()
+  // ...
+}
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/MainPage.tsx"
-    import { type AuthUser } from 'wasp/auth'
-
-    const MainPage = ({ user }: { user: AuthUser }) => {
-      const userId = user.getFirstProviderUserId()
-      // ...
-    }
-    ```
-
-    ```ts title="src/tasks.ts"
-    export const createTask: CreateTask<...>  = async (args, context) => {
-      const userId = context.user.getFirstProviderUserId()
-      // ...
-    }
-    ```
-  </TabItem>
-</Tabs>
+```ts title="src/tasks.ts" auto-js
+export const createTask: CreateTask<...>  = async (args, context) => {
+  const userId = context.user.getFirstProviderUserId()
+  // ...
+}
+```
 
 <small>
   \* Multiple identities per user will be possible in the future and then the `getFirstProviderUserId` method will return the ID of the first identity that it finds without any guarantees about which one it will be.

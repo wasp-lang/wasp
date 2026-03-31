@@ -46,38 +46,21 @@ You have three places where you can customize middleware:
 
 Below is the actual definitions of default middleware which you can override.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js
-    const defaultGlobalMiddleware = new Map([
-      ['helmet', helmet()],
-      ['cors', cors({ origin: config.allowedCORSOrigins })],
-      ['logger', logger('dev')],
-      ['express.json', express.json()],
-      ['express.urlencoded', express.urlencoded()],
-      ['cookieParser', cookieParser()]
-    ])
-    ```
-  </TabItem>
+```ts auto-js
+export type MiddlewareConfig = Map<string, express.RequestHandler>
 
-  <TabItem value="ts" label="TypeScript">
-    ```ts
-    export type MiddlewareConfig = Map<string, express.RequestHandler>
+// Used in the examples below 👇
+export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
 
-    // Used in the examples below 👇
-    export type MiddlewareConfigFn = (middlewareConfig: MiddlewareConfig) => MiddlewareConfig
-
-    const defaultGlobalMiddleware: MiddlewareConfig = new Map([
-      ['helmet', helmet()],
-      ['cors', cors({ origin: config.allowedCORSOrigins })],
-      ['logger', logger('dev')],
-      ['express.json', express.json()],
-      ['express.urlencoded', express.urlencoded()],
-      ['cookieParser', cookieParser()]
-    ])
-    ```
-  </TabItem>
-</Tabs>
+const defaultGlobalMiddleware: MiddlewareConfig = new Map([
+  ['helmet', helmet()],
+  ['cors', cors({ origin: config.allowedCORSOrigins })],
+  ['logger', logger('dev')],
+  ['express.json', express.json()],
+  ['express.urlencoded', express.urlencoded()],
+  ['cookieParser', cookieParser()]
+])
+```
 
 ## 1. Customize Global Middleware
 
