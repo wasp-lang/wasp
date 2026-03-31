@@ -48,35 +48,35 @@ page SignupPage { ... }
 Let's start with adding the following to our `main.wasp` file:
 
 ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        // 1. Specify the user entity (we'll define it next)
-        userEntity: User,
-        methods: {
-          // 2. Enable email authentication
-          email: {
-            // 3. Specify the email from field
-            fromField: {
-              name: "My App Postman",
-              email: "hello@itsme.com"
-            },
-            // 4. Specify the email verification and password reset options (we'll talk about them later)
-            emailVerification: {
-              clientRoute: EmailVerificationRoute,
-            },
-            passwordReset: {
-              clientRoute: PasswordResetRoute,
-            },
-          },
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    // 1. Specify the user entity (we'll define it next)
+    userEntity: User,
+    methods: {
+      // 2. Enable email authentication
+      email: {
+        // 3. Specify the email from field
+        fromField: {
+          name: "My App Postman",
+          email: "hello@itsme.com"
         },
-        onAuthFailedRedirectTo: "/login",
-        onAuthSucceededRedirectTo: "/"
+        // 4. Specify the email verification and password reset options (we'll talk about them later)
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute,
+        },
       },
-    }
+    },
+    onAuthFailedRedirectTo: "/login",
+    onAuthSucceededRedirectTo: "/"
+  },
+}
 ```
 
 Read more about the `email` auth method options [here](#fields-in-the-email-dict).
@@ -86,13 +86,13 @@ Read more about the `email` auth method options [here](#fields-in-the-email-dict
 The `User` entity can be as simple as including only the `id` field:
 
 ```prisma title="schema.prisma"
-    // 5. Define the user entity
-    model User {
-      // highlight-next-line
-      id Int @id @default(autoincrement())
-      // Add your own fields below
-      // ...
-    }
+// 5. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 
 <ReadMoreAboutAuthEntities />
@@ -104,32 +104,32 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp` file:
 
 ```wasp title="main.wasp"
-    // ...
+// ...
 
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import { Login } from "@src/pages/auth"
-    }
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { Login } from "@src/pages/auth"
+}
 
-    route SignupRoute { path: "/signup", to: SignupPage }
-    page SignupPage {
-      component: import { Signup } from "@src/pages/auth"
-    }
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import { Signup } from "@src/pages/auth"
+}
 
-    route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
-    page RequestPasswordResetPage {
-      component: import { RequestPasswordReset } from "@src/pages/auth",
-    }
+route RequestPasswordResetRoute { path: "/request-password-reset", to: RequestPasswordResetPage }
+page RequestPasswordResetPage {
+  component: import { RequestPasswordReset } from "@src/pages/auth",
+}
 
-    route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
-    page PasswordResetPage {
-      component: import { PasswordReset } from "@src/pages/auth",
-    }
+route PasswordResetRoute { path: "/password-reset", to: PasswordResetPage }
+page PasswordResetPage {
+  component: import { PasswordReset } from "@src/pages/auth",
+}
 
-    route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
-    page EmailVerificationPage {
-      component: import { EmailVerification } from "@src/pages/auth",
-    }
+route EmailVerificationRoute { path: "/email-verification", to: EmailVerificationPage }
+page EmailVerificationPage {
+  component: import { EmailVerification } from "@src/pages/auth",
+}
 ```
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
@@ -141,87 +141,87 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 
 ```tsx title="src/pages/auth.tsx" auto-js
-    import {
-      LoginForm,
-      SignupForm,
-      VerifyEmailForm,
-      ForgotPasswordForm,
-      ResetPasswordForm,
-    } from 'wasp/client/auth'
-    import { Link } from 'react-router'
+import {
+  LoginForm,
+  SignupForm,
+  VerifyEmailForm,
+  ForgotPasswordForm,
+  ResetPasswordForm,
+} from 'wasp/client/auth'
+import { Link } from 'react-router'
 
-    export function Login() {
-      return (
-        <Layout>
-          <LoginForm />
-          <br />
-          <span className="text-sm font-medium text-gray-900">
-            Don't have an account yet? <Link to="/signup">go to signup</Link>.
-          </span>
-          <br />
-          <span className="text-sm font-medium text-gray-900">
-            Forgot your password? <Link to="/request-password-reset">reset it</Link>.
-          </span>
-        </Layout>
-      )
-    }
+export function Login() {
+  return (
+    <Layout>
+      <LoginForm />
+      <br />
+      <span className="text-sm font-medium text-gray-900">
+        Don't have an account yet? <Link to="/signup">go to signup</Link>.
+      </span>
+      <br />
+      <span className="text-sm font-medium text-gray-900">
+        Forgot your password? <Link to="/request-password-reset">reset it</Link>.
+      </span>
+    </Layout>
+  )
+}
 
-    export function Signup() {
-      return (
-        <Layout>
-          <SignupForm />
-          <br />
-          <span className="text-sm font-medium text-gray-900">
-            I already have an account (<Link to="/login">go to login</Link>).
-          </span>
-        </Layout>
-      )
-    }
+export function Signup() {
+  return (
+    <Layout>
+      <SignupForm />
+      <br />
+      <span className="text-sm font-medium text-gray-900">
+        I already have an account (<Link to="/login">go to login</Link>).
+      </span>
+    </Layout>
+  )
+}
 
-    export function EmailVerification() {
-      return (
-        <Layout>
-          <VerifyEmailForm />
-          <br />
-          <span className="text-sm font-medium text-gray-900">
-            If everything is okay, <Link to="/login">go to login</Link>
-          </span>
-        </Layout>
-      )
-    }
+export function EmailVerification() {
+  return (
+    <Layout>
+      <VerifyEmailForm />
+      <br />
+      <span className="text-sm font-medium text-gray-900">
+        If everything is okay, <Link to="/login">go to login</Link>
+      </span>
+    </Layout>
+  )
+}
 
-    export function RequestPasswordReset() {
-      return (
-        <Layout>
-          <ForgotPasswordForm />
-        </Layout>
-      )
-    }
+export function RequestPasswordReset() {
+  return (
+    <Layout>
+      <ForgotPasswordForm />
+    </Layout>
+  )
+}
 
-    export function PasswordReset() {
-      return (
-        <Layout>
-          <ResetPasswordForm />
-          <br />
-          <span className="text-sm font-medium text-gray-900">
-            If everything is okay, <Link to="/login">go to login</Link>
-          </span>
-        </Layout>
-      )
-    }
+export function PasswordReset() {
+  return (
+    <Layout>
+      <ResetPasswordForm />
+      <br />
+      <span className="text-sm font-medium text-gray-900">
+        If everything is okay, <Link to="/login">go to login</Link>
+      </span>
+    </Layout>
+  )
+}
 
-    // A layout component to center the content
-    export function Layout({ children }: { children: React.ReactNode }) {
-      return (
-        <div className="h-full w-full bg-white">
-          <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-            <div className="h-full w-full max-w-sm bg-white p-5">
-              <div>{children}</div>
-            </div>
-          </div>
+// A layout component to center the content
+export function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
+          <div>{children}</div>
         </div>
-      )
-    }
+      </div>
+    </div>
+  )
+}
 ```
 
 We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../auth/ui).
@@ -235,13 +235,13 @@ We'll use the `Dummy` provider to speed up the setup. It just logs the emails to
 To set up the `Dummy` provider to send emails, add the following to the `main.wasp` file:
 
 ```wasp title="main.wasp"
-    app myApp {
-      // ...
-      // 7. Set up the email sender
-      emailSender: {
-        provider: Dummy,
-      }
-    }
+app myApp {
+  // ...
+  // 7. Set up the email sender
+  emailSender: {
+    provider: Dummy,
+  }
+}
 ```
 
 ### Conclusion
@@ -296,11 +296,11 @@ By default, Wasp requires the e-mail to be verified before allowing the user to 
 Our setup looks like this:
 
 ```wasp title="main.wasp"
-    // ...
+// ...
 
-    emailVerification: {
-        clientRoute: EmailVerificationRoute,
-    }
+emailVerification: {
+    clientRoute: EmailVerificationRoute,
+}
 ```
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp` file.
@@ -330,11 +330,11 @@ If somebody requests a password reset with an unknown email address, we'll give 
 Our setup in `main.wasp` looks like this:
 
 ```wasp title="main.wasp"
-    // ...
+// ...
 
-    passwordReset: {
-        clientRoute: PasswordResetRoute,
-    }
+passwordReset: {
+    clientRoute: PasswordResetRoute,
+}
 ```
 
 ### Request Password Reset Page
@@ -380,27 +380,27 @@ Let's go over the options we can specify when using email authentication.
 ### `userEntity` fields
 
 ```wasp title="main.wasp"
-    app myApp {
-      title: "My app",
-      // ...
+app myApp {
+  title: "My app",
+  // ...
 
-      auth: {
-        userEntity: User,
-        methods: {
-          email: {
-            // We'll explain these options below
-          },
-        },
-        onAuthFailedRedirectTo: "/someRoute"
+  auth: {
+    userEntity: User,
+    methods: {
+      email: {
+        // We'll explain these options below
       },
-      // ...
-    }
+    },
+    onAuthFailedRedirectTo: "/someRoute"
+  },
+  // ...
+}
 ```
 
 ```prisma title="schema.prisma"
-    model User {
-      id Int @id @default(autoincrement())
-    }
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 
 <UserFields />
@@ -408,33 +408,33 @@ Let's go over the options we can specify when using email authentication.
 ### Fields in the `email` dict
 
 ```wasp title="main.wasp"
-    app myApp {
-      title: "My app",
-      // ...
+app myApp {
+  title: "My app",
+  // ...
 
-      auth: {
-        userEntity: User,
-        methods: {
-          email: {
-            userSignupFields: import { userSignupFields } from "@src/auth",
-            fromField: {
-              name: "My App",
-              email: "hello@itsme.com"
-            },
-            emailVerification: {
-              clientRoute: EmailVerificationRoute,
-              getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email",
-            },
-            passwordReset: {
-              clientRoute: PasswordResetRoute,
-              getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email",
-            },
-          },
+  auth: {
+    userEntity: User,
+    methods: {
+      email: {
+        userSignupFields: import { userSignupFields } from "@src/auth",
+        fromField: {
+          name: "My App",
+          email: "hello@itsme.com"
         },
-        onAuthFailedRedirectTo: "/someRoute"
+        emailVerification: {
+          clientRoute: EmailVerificationRoute,
+          getEmailContentFn: import { getVerificationEmailContent } from "@src/auth/email",
+        },
+        passwordReset: {
+          clientRoute: PasswordResetRoute,
+          getEmailContentFn: import { getPasswordResetEmailContent } from "@src/auth/email",
+        },
       },
-      // ...
-    }
+    },
+    onAuthFailedRedirectTo: "/someRoute"
+  },
+  // ...
+}
 ```
 
 #### `userSignupFields: ExtImport`
@@ -463,9 +463,9 @@ It has the following fields:
   Client route should handle the process of taking a token from the URL and sending it to the server to verify the e-mail address. You can use our `verifyEmail` action for that.
 
   ```ts title="src/pages/EmailVerificationPage.tsx" auto-js
-      import { verifyEmail } from 'wasp/client/auth'
-      ...
-      await verifyEmail({ token });
+import { verifyEmail } from 'wasp/client/auth'
+...
+await verifyEmail({ token });
   ```
 
   :::note
@@ -477,18 +477,18 @@ It has the following fields:
   Defining `getEmailContentFn` can be done by defining a file in the `src` directory.
 
   ```ts title="src/email.ts" auto-js
-      import type { GetVerificationEmailContentFn } from 'wasp/server/auth'
+import type { GetVerificationEmailContentFn } from 'wasp/server/auth'
 
-      export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
-        verificationLink,
-      }) => ({
-        subject: 'Verify your email',
-        text: `Click the link below to verify your email: ${verificationLink}`,
-        html: `
-              <p>Click the link below to verify your email</p>
-              <a href="${verificationLink}">Verify email</a>
-          `,
-      })
+export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
+  verificationLink,
+}) => ({
+  subject: 'Verify your email',
+  text: `Click the link below to verify your email: ${verificationLink}`,
+  html: `
+        <p>Click the link below to verify your email</p>
+        <a href="${verificationLink}">Verify email</a>
+    `,
+})
   ```
 
   <small>This is the default content of the e-mail, you can customize it to your liking.</small>
@@ -504,15 +504,15 @@ It has the following fields:
   Client route should handle the process of taking a token from the URL and a new password from the user and sending it to the server. You can use our `requestPasswordReset` and `resetPassword` actions to do that.
 
   ```ts title="src/pages/ForgotPasswordPage.tsx" auto-js
-      import { requestPasswordReset } from 'wasp/client/auth'
-      ...
-      await requestPasswordReset({ email });
+import { requestPasswordReset } from 'wasp/client/auth'
+...
+await requestPasswordReset({ email });
   ```
 
   ```ts title="src/pages/PasswordResetPage.tsx" auto-js
-      import { resetPassword } from 'wasp/client/auth'
-      ...
-      await resetPassword({ password, token })
+import { resetPassword } from 'wasp/client/auth'
+...
+await resetPassword({ password, token })
   ```
 
   :::note
@@ -524,18 +524,18 @@ It has the following fields:
   Defining `getEmailContentFn` is done by defining a function that looks like this:
 
   ```ts title="src/email.ts" auto-js
-      import type { GetPasswordResetEmailContentFn } from 'wasp/server/auth'
+import type { GetPasswordResetEmailContentFn } from 'wasp/server/auth'
 
-      export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
-        passwordResetLink,
-      }) => ({
-        subject: 'Password reset',
-        text: `Click the link below to reset your password: ${passwordResetLink}`,
-        html: `
-              <p>Click the link below to reset your password</p>
-              <a href="${passwordResetLink}">Reset password</a>
-          `,
-      })
+export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
+  passwordResetLink,
+}) => ({
+  subject: 'Password reset',
+  text: `Click the link below to reset your password: ${passwordResetLink}`,
+  html: `
+        <p>Click the link below to reset your password</p>
+        <a href="${passwordResetLink}">Reset password</a>
+    `,
+})
   ```
 
   <small>This is the default content of the e-mail, you can customize it to your liking.</small>

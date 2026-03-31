@@ -25,29 +25,29 @@ Let's write an example Job that will print a message to the console and return a
 1. Start by creating a Job declaration in your `.wasp` file:
 
 ```wasp title="main.wasp"
-    job mySpecialJob {
-      executor: PgBoss,
-      perform: {
-        fn: import { foo } from "@src/workers/bar"
-      },
-      entities: [Task],
-    }
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@src/workers/bar"
+  },
+  entities: [Task],
+}
 ```
 
 2. After declaring the Job, implement its worker function:
 
 ```ts title="src/workers/bar.ts" auto-js
-    import { type MySpecialJob } from 'wasp/server/jobs'
-    import { type Task } from 'wasp/entities'
+import { type MySpecialJob } from 'wasp/server/jobs'
+import { type Task } from 'wasp/entities'
 
-    type Input = { name: string; }
-    type Output = { tasks: Task[]; }
+type Input = { name: string; }
+type Output = { tasks: Task[]; }
 
-    export const foo: MySpecialJob<Input, Output> = async ({ name }, context) => {
-      console.log(`Hello ${name}!`)
-      const tasks = await context.entities.Task.findMany({})
-      return { tasks }
-    }
+export const foo: MySpecialJob<Input, Output> = async ({ name }, context) => {
+  console.log(`Hello ${name}!`)
+  const tasks = await context.entities.Task.findMany({})
+  return { tasks }
+}
 ```
 
 :::info The worker function
@@ -66,15 +66,15 @@ The worker function accepts two arguments:
 3. After successfully defining the job, you can submit work to be done in your [Operations](../data-model/operations/overview) or [setupFn](../project/server-config#setup-function) (or any other NodeJS code):
 
 ```ts title="someAction.ts" auto-js
-    import { mySpecialJob } from 'wasp/server/jobs'
+import { mySpecialJob } from 'wasp/server/jobs'
 
-    const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
+const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
 
-    // Or, if you'd prefer it to execute in the future, just add a .delay().
-    // It takes a number of seconds, Date, or ISO date string.
-    await mySpecialJob
-      .delay(10)
-      .submit({ name: "Johnny" })
+// Or, if you'd prefer it to execute in the future, just add a .delay().
+// It takes a number of seconds, Date, or ISO date string.
+await mySpecialJob
+  .delay(10)
+  .submit({ name: "Johnny" })
 ```
 
 And that's it. Your job will be executed by `PgBoss` as if you called `foo({ name: "Johnny" })`.
@@ -86,16 +86,16 @@ In our example, `foo` takes an argument, but passing arguments to jobs is not a 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
 
 ```wasp {6-9} title="main.wasp"
-    job mySpecialJob {
-      executor: PgBoss,
-      perform: {
-        fn: import { foo } from "@src/workers/bar"
-      },
-      schedule: {
-        cron: "0 * * * *",
-        args: {=json { "job": "args" } json=} // optional
-      }
-    }
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@src/workers/bar"
+  },
+  schedule: {
+    cron: "0 * * * *",
+    args: {=json { "job": "args" } json=} // optional
+  }
+}
 ```
 
 In this example, you _don't_ need to invoke anything in <ShowForJs>JavaScript</ShowForJs><ShowForTs>Typescript</ShowForTs>. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
@@ -183,23 +183,23 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your postgress connection url...","a
 ### Declaring Jobs
 
 ```wasp title="main.wasp"
-    job mySpecialJob {
-      executor: PgBoss,
-      perform: {
-        fn: import { foo } from "@src/workers/bar",
-        executorOptions: {
-          pgBoss: {=json { "retryLimit": 1 } json=}
-        }
-      },
-      schedule: {
-        cron: "*/5 * * * *",
-        args: {=json { "foo": "bar" } json=},
-        executorOptions: {
-          pgBoss: {=json { "retryLimit": 0 } json=}
-        }
-      },
-      entities: [Task],
+job mySpecialJob {
+  executor: PgBoss,
+  perform: {
+    fn: import { foo } from "@src/workers/bar",
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 1 } json=}
     }
+  },
+  schedule: {
+    cron: "*/5 * * * *",
+    args: {=json { "foo": "bar" } json=},
+    executorOptions: {
+      pgBoss: {=json { "retryLimit": 0 } json=}
+    }
+  },
+  entities: [Task],
+}
 ```
 
 The Job declaration has the following fields:
@@ -315,7 +315,7 @@ The Job declaration has the following fields:
   Submits a Job to be executed by an executor, optionally passing in a JSON job argument your job handler function receives, and executor-specific submit options.
 
 ```ts title="someAction.ts" auto-js
-    const submittedJob = await mySpecialJob.submit({ job: "args" })
+const submittedJob = await mySpecialJob.submit({ job: "args" })
 ```
 
 - `delay(startAfter)`
@@ -329,9 +329,9 @@ The Job declaration has the following fields:
   - Date: Date to run at.
 
 ```ts title="someAction.ts" auto-js
-    const submittedJob = await mySpecialJob
-      .delay(10)
-      .submit({ job: "args" }, { "retryLimit": 2 })
+const submittedJob = await mySpecialJob
+  .delay(10)
+  .submit({ job: "args" }, { "retryLimit": 2 })
 ```
 
 #### Tracking

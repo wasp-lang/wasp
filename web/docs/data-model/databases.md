@@ -196,15 +196,15 @@ Seeding is most commonly used for:
 You can define as many **seed functions** as you want in an array under the `app.db.seeds` field:
 
 ```wasp title="main.wasp"
-    app MyApp {
-      // ...
-      db: {
-        seeds: [
-          import { devSeedSimple } from "@src/dbSeeds",
-          import { prodSeed } from "@src/dbSeeds"
-        ]
-      }
-    }
+app MyApp {
+  // ...
+  db: {
+    seeds: [
+      import { devSeedSimple } from "@src/dbSeeds",
+      import { prodSeed } from "@src/dbSeeds"
+    ]
+  }
+}
 ```
 
 Each seed function must be an async function that takes one argument, `prisma`, which is a [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud) instance used to interact with the database.
@@ -341,52 +341,52 @@ To customize the client, define a function in the `app.db.prismaSetupFn` field t
 This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
 ```wasp title=main.wasp
-    app MyApp {
-      title: "My app",
-      // ...
-      db: {
-        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
-      }
-    }
+app MyApp {
+  title: "My app",
+  // ...
+  db: {
+    prismaSetupFn: import { setUpPrisma } from "@src/prisma"
+  }
+}
 ```
 
 ```ts title="src/prisma.ts" auto-js
-    import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from '@prisma/client'
 
-    export const setUpPrisma = () => {
-      const prisma = new PrismaClient({
-        log: ['query'],
-      }).$extends({
-        query: {
-          task: {
-            async findMany({ args, query }) {
-              args.where = {
-                ...args.where,
-                description: { not: { contains: 'hidden by setUpPrisma' } },
-              }
-              return query(args)
-            },
-          },
+export const setUpPrisma = () => {
+  const prisma = new PrismaClient({
+    log: ['query'],
+  }).$extends({
+    query: {
+      task: {
+        async findMany({ args, query }) {
+          args.where = {
+            ...args.where,
+            description: { not: { contains: 'hidden by setUpPrisma' } },
+          }
+          return query(args)
         },
-      })
+      },
+    },
+  })
 
-      return prisma
-    }
+  return prisma
+}
 ```
 
 ## API Reference
 
 ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      db: {
-        seeds: [
-          import devSeed from "@src/dbSeeds"
-        ],
-        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
-      }
-    }
+app MyApp {
+  title: "My app",
+  // ...
+  db: {
+    seeds: [
+      import devSeed from "@src/dbSeeds"
+    ],
+    prismaSetupFn: import { setUpPrisma } from "@src/prisma"
+  }
+}
 ```
 
 `app.db` is a dictionary with the following fields (all fields are optional):
@@ -427,15 +427,15 @@ Use one of the following commands to run the seed functions:
   For example, to run the seed function `devSeedSimple` which was defined like this:
 
   ```wasp title="main.wasp"
-      app MyApp {
-        // ...
-        db: {
-          seeds: [
-            // ...
-            import { devSeedSimple } from "@src/dbSeeds",
-          ]
-        }
-      }
+app MyApp {
+  // ...
+  db: {
+    seeds: [
+      // ...
+      import { devSeedSimple } from "@src/dbSeeds",
+    ]
+  }
+}
   ```
 
   Use the following command:

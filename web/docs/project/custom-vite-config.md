@@ -19,12 +19,12 @@ You have **full control** over your `vite.config.ts` file. Wasp doesn't manage t
 Here's the minimal required configuration:
 
 ```ts title="vite.config.ts" auto-js
-    import { wasp } from 'wasp/client/vite'
-    import { defineConfig } from 'vite'
+import { wasp } from 'wasp/client/vite'
+import { defineConfig } from 'vite'
 
-    export default defineConfig({
-      plugins: [wasp()],
-    })
+export default defineConfig({
+  plugins: [wasp()],
+})
 ```
 
 :::warning Plugin order

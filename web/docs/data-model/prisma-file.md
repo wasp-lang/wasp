@@ -181,36 +181,36 @@ If it works with Prisma, it will work with Wasp.
 If you need to access your `enum` cases and their values from your server, you can import them directly from `@prisma/client`:
 
 ```ts title="src/queries.ts" auto-js
-    import { TaskState } from "@prisma/client";
-    import { Task } from "wasp/entities";
-    import { type GetTasks } from "wasp/server/operations";
+import { TaskState } from "@prisma/client";
+import { Task } from "wasp/entities";
+import { type GetTasks } from "wasp/server/operations";
 
-    export const getOpenTasks: GetTasks<void, Task[]> = async (args, context) => {
-      return context.entities.Task.findMany({
-        orderBy: { id: "asc" },
-        where: { NOT: { state: TaskState.Done } },
-      });
-    };
+export const getOpenTasks: GetTasks<void, Task[]> = async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: "asc" },
+    where: { NOT: { state: TaskState.Done } },
+  });
+};
 ```
 
 You can also access them from your client code:
 
 ```ts title="src/views/TaskList.tsx" auto-js
-    import { TaskState } from "@prisma/client";
-    import type { Task } from "wasp/entities"
+import { TaskState } from "@prisma/client";
+import type { Task } from "wasp/entities"
 
-    const TaskRow = ({ task }: { task: Task }) => {
-      return (
-        <div>
-          <input
-            type="checkbox"
-            id={String(task.id)}
-            checked={task.state === TaskState.Done}
-          />
-          {task.description}
-        </div>
-      );
-    };
+const TaskRow = ({ task }: { task: Task }) => {
+  return (
+    <div>
+      <input
+        type="checkbox"
+        id={String(task.id)}
+        checked={task.state === TaskState.Done}
+      />
+      {task.description}
+    </div>
+  );
+};
 ```
 
 :::note Triple slash comments

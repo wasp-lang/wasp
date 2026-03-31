@@ -42,21 +42,21 @@ page SignupPage { ... }
 Let's start with adding the following to our `main.wasp` file:
 
 ```wasp title="main.wasp"  {11}
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        // 1. Specify the user entity (we'll define it next)
-        userEntity: User,
-        methods: {
-          // 2. Enable username authentication
-          usernameAndPassword: {},
-        },
-        onAuthFailedRedirectTo: "/login"
-      }
-    }
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    // 1. Specify the user entity (we'll define it next)
+    userEntity: User,
+    methods: {
+      // 2. Enable username authentication
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login"
+  }
+}
 ```
 
 Read more about the `usernameAndPassword` auth method options [here](#fields-in-the-usernameandpassword-dict).
@@ -66,13 +66,13 @@ Read more about the `usernameAndPassword` auth method options [here](#fields-in-
 The `User` entity can be as simple as including only the `id` field:
 
 ```prisma title="schema.prisma"
-    // 3. Define the user entity
-    model User {
-      // highlight-next-line
-      id Int @id @default(autoincrement())
-      // Add your own fields below
-      // ...
-    }
+// 3. Define the user entity
+model User {
+  // highlight-next-line
+  id Int @id @default(autoincrement())
+  // Add your own fields below
+  // ...
+}
 ```
 
 <ReadMoreAboutAuthEntities />
@@ -84,15 +84,15 @@ Next, we need to define the routes and pages for the authentication pages.
 Add the following to the `main.wasp` file:
 
 ```wasp title="main.wasp"
-    // ...
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import { Login } from "@src/pages/auth"
-    }
-    route SignupRoute { path: "/signup", to: SignupPage }
-    page SignupPage {
-      component: import { Signup } from "@src/pages/auth"
-    }
+// ...
+route LoginRoute { path: "/login", to: LoginPage }
+page LoginPage {
+  component: import { Login } from "@src/pages/auth"
+}
+route SignupRoute { path: "/signup", to: SignupPage }
+page SignupPage {
+  component: import { Signup } from "@src/pages/auth"
+}
 ```
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
@@ -104,45 +104,45 @@ We'll define the React components for these pages in the `src/pages/auth.{jsx,ts
 Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the following to it:
 
 ```tsx title="src/pages/auth.tsx" auto-js
-    import { LoginForm, SignupForm } from 'wasp/client/auth'
-    import { Link } from 'react-router'
+import { LoginForm, SignupForm } from 'wasp/client/auth'
+import { Link } from 'react-router'
 
-    export function Login() {
-      return (
-        <Layout>
-          <LoginForm />
-          <br />
-          <span className="text-sm font-medium text-gray-900">
-            Don't have an account yet? <Link to="/signup">go to signup</Link>.
-          </span>
-        </Layout>
-      )
-    }
+export function Login() {
+  return (
+    <Layout>
+      <LoginForm />
+      <br />
+      <span className="text-sm font-medium text-gray-900">
+        Don't have an account yet? <Link to="/signup">go to signup</Link>.
+      </span>
+    </Layout>
+  )
+}
 
-    export function Signup() {
-      return (
-        <Layout>
-          <SignupForm />
-          <br />
-          <span className="text-sm font-medium text-gray-900">
-            I already have an account (<Link to="/login">go to login</Link>).
-          </span>
-        </Layout>
-      )
-    }
+export function Signup() {
+  return (
+    <Layout>
+      <SignupForm />
+      <br />
+      <span className="text-sm font-medium text-gray-900">
+        I already have an account (<Link to="/login">go to login</Link>).
+      </span>
+    </Layout>
+  )
+}
 
-    // A layout component to center the content
-    export function Layout({ children }: { children: React.ReactNode }) {
-      return (
-        <div className="h-full w-full bg-white">
-          <div className="flex min-h-[75vh] min-w-full items-center justify-center">
-            <div className="h-full w-full max-w-sm bg-white p-5">
-              <div>{children}</div>
-            </div>
-          </div>
+// A layout component to center the content
+export function Layout({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="h-full w-full bg-white">
+      <div className="flex min-h-[75vh] min-w-full items-center justify-center">
+        <div className="h-full w-full max-w-sm bg-white p-5">
+          <div>{children}</div>
         </div>
-      )
-    }
+      </div>
+    </div>
+  )
+}
 ```
 
 We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../auth/ui).
@@ -170,25 +170,25 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 ### `userEntity` fields
 
 ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          usernameAndPassword: {},
-        },
-        onAuthFailedRedirectTo: "/login"
-      }
-    }
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {},
+    },
+    onAuthFailedRedirectTo: "/login"
+  }
+}
 ```
 
 ```prisma title="schema.prisma"
-    model User {
-      id Int @id @default(autoincrement())
-    }
+model User {
+  id Int @id @default(autoincrement())
+}
 ```
 
 <UserFieldsExplainer />
@@ -196,22 +196,22 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 ### Fields in the `usernameAndPassword` dict
 
 ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  title: "My App",
+  auth: {
+    userEntity: User,
+    methods: {
+      usernameAndPassword: {
+        userSignupFields: import { userSignupFields } from "@src/auth/email",
       },
-      title: "My App",
-      auth: {
-        userEntity: User,
-        methods: {
-          usernameAndPassword: {
-            userSignupFields: import { userSignupFields } from "@src/auth/email",
-          },
-        },
-        onAuthFailedRedirectTo: "/login"
-      }
-    }
-    // ...
+    },
+    onAuthFailedRedirectTo: "/login"
+  }
+}
+// ...
 ```
 
 #### `userSignupFields: ExtImport`

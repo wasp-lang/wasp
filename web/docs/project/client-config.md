@@ -9,14 +9,14 @@ import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 You can configure the client using the `client` field inside the `app` declaration:
 
 ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      client: {
-        rootComponent: import Root from "@src/Root",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode"
-      }
-    }
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@src/Root",
+    setupFn: import mySetupFunction from "@src/myClientSetupCode"
+  }
+}
 ```
 
 ## Root Component
@@ -33,32 +33,32 @@ It can be used for a variety of purposes, but the most common ones are:
 Let's define a common layout for your application:
 
 ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      client: {
-        rootComponent: import Root from "@src/Root",
-      }
-    }
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@src/Root",
+  }
+}
 ```
 
 ```tsx title="src/Root.tsx" auto-js
-    import { Outlet } from 'react-router'
+import { Outlet } from 'react-router'
 
-    export default function Root() {
-      return (
-        <div>
-          <header>
-            <h1>My App</h1>
-          </header>
-          // highlight-next-line
-          <Outlet />
-          <footer>
-            <p>My App footer</p>
-          </footer>
-        </div>
-      )
-    }
+export default function Root() {
+  return (
+    <div>
+      <header>
+        <h1>My App</h1>
+      </header>
+      // highlight-next-line
+      <Outlet />
+      <footer>
+        <p>My App footer</p>
+      </footer>
+    </div>
+  )
+}
 ```
 
 You need to import the [`Outlet`](https://reactrouter.com/7.12.0/api/components/Outlet) component from `react-router` and put it where you want the current page to be rendered.
@@ -68,27 +68,27 @@ You need to import the [`Outlet`](https://reactrouter.com/7.12.0/api/components/
 This is how to set up various providers that your application needs:
 
 ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      client: {
-        rootComponent: import Root from "@src/Root",
-      }
-    }
+app MyApp {
+  title: "My app",
+  // ...
+  client: {
+    rootComponent: import Root from "@src/Root",
+  }
+}
 ```
 
 ```tsx title="src/Root.tsx" auto-js
-    import { Outlet } from 'react-router'
-    import store from './store'
-    import { Provider } from 'react-redux'
+import { Outlet } from 'react-router'
+import store from './store'
+import { Provider } from 'react-redux'
 
-    export default function Root() {
-      return (
-        <Provider store={store}>
-          <Outlet />
-        </Provider>
-      )
-    }
+export default function Root() {
+  return (
+    <Provider store={store}>
+      <Outlet />
+    </Provider>
+  )
+}
 ```
 
 As long as you render the `Outlet` component, you can put what ever you want in the root component.
@@ -106,13 +106,13 @@ We can run any code we want in the setup function.
 For example, here's a setup function that logs a message every hour:
 
 ```ts title="src/myClientSetupCode.ts" auto-js
-    export default async function mySetupFunction(): Promise<void> {
-      let count = 1
-      setInterval(
-        () => console.log(`You have been online for ${count++} hours.`),
-        1000 * 60 * 60
-      )
-    }
+export default async function mySetupFunction(): Promise<void> {
+  let count = 1
+  setInterval(
+    () => console.log(`You have been online for ${count++} hours.`),
+    1000 * 60 * 60
+  )
+}
 ```
 
 ### Overriding Default Behaviour for Queries
@@ -128,19 +128,19 @@ If you do need to change the global defaults, you can do so inside the client se
 Wasp exposes a `configureQueryClient` hook that lets you configure _react-query_'s `QueryClient` object:
 
 ```ts title="src/myClientSetupCode.ts" auto-js
-    import { configureQueryClient } from 'wasp/client/operations'
+import { configureQueryClient } from 'wasp/client/operations'
 
-    export default async function mySetupFunction(): Promise<void> {
-      // ... some setup
-      configureQueryClient({
-        defaultOptions: {
-          queries: {
-            staleTime: Infinity,
-          },
-        },
-      })
-      // ... some more setup
-    }
+export default async function mySetupFunction(): Promise<void> {
+  // ... some setup
+  configureQueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: Infinity,
+      },
+    },
+  })
+  // ... some more setup
+}
 ```
 
 Make sure to pass in an object expected by the `QueryClient`'s constructor, as
@@ -214,32 +214,32 @@ Client has the following options:
   renders a custom layout:
 
   ```tsx title="src/Root.tsx" auto-js
-      import { Outlet } from 'react-router'
-      import store from './store'
-      import { Provider } from 'react-redux'
+import { Outlet } from 'react-router'
+import store from './store'
+import { Provider } from 'react-redux'
 
-      export default function Root() {
-        return (
-          <Provider store={store}>
-            <Layout />
-          </Provider>
-        )
-      }
+export default function Root() {
+  return (
+    <Provider store={store}>
+      <Layout />
+    </Provider>
+  )
+}
 
-      function Layout() {
-        return (
-          <div>
-            <header>
-              <h1>My App</h1>
-            </header>
-            // highlight-next-line
-            <Outlet />
-            <footer>
-              <p>My App footer</p>
-            </footer>
-          </div>
-        )
-      }
+function Layout() {
+  return (
+    <div>
+      <header>
+        <h1>My App</h1>
+      </header>
+      // highlight-next-line
+      <Outlet />
+      <footer>
+        <p>My App footer</p>
+      </footer>
+    </div>
+  )
+}
   ```
 
 - #### `setupFn: ExtImport`
@@ -262,9 +262,9 @@ Client has the following options:
   client-side periodic jobs).
 
   ```ts title="src/myClientSetupCode.ts" auto-js
-      export default async function mySetupFunction(): Promise<void> {
-        // Run some code
-      }
+export default async function mySetupFunction(): Promise<void> {
+  // Run some code
+}
   ```
 
 - #### `baseDir: String`

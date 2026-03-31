@@ -188,33 +188,33 @@ You'll need to include the `auth` and the `identities` relations to get the full
 You can include the full user's data with other entities using the `include` option in the Prisma queries:
 
 ```ts title="src/tasks.ts" auto-js
-    export const getAllTasks = (async (args, context) => {
-      return context.entities.Task.findMany({
-        orderBy: { id: 'desc' },
-        select: {
-          id: true,
-          title: true,
+export const getAllTasks = (async (args, context) => {
+  return context.entities.Task.findMany({
+    orderBy: { id: 'desc' },
+    select: {
+      id: true,
+      title: true,
+      // highlight-next-line
+      user: {
+        include: {
           // highlight-next-line
-          user: {
+          auth: {
             include: {
               // highlight-next-line
-              auth: {
-                include: {
-                  // highlight-next-line
-                  identities: {
-                    // Including only the `providerName` and `providerUserId` fields
-                    select: {
-                      providerName: true,
-                      providerUserId: true,
-                    },
-                  },
+              identities: {
+                // Including only the `providerName` and `providerUserId` fields
+                select: {
+                  providerName: true,
+                  providerUserId: true,
                 },
               },
             },
           },
         },
-      })
-    }) satisfies tasks.GetAllQuery<{}, {}>
+      },
+    },
+  })
+}) satisfies tasks.GetAllQuery<{}, {}>
 ```
 
 If you have some **piece of the auth data that you want to access frequently** (for example the `username`), it's best to store it at the top level of the `User` entity.
@@ -226,18 +226,18 @@ For example, save the `username` or `email` as a property on the `User` and you'
 When you have the `user` object with the `auth` and `identities` fields, it can be a bit tedious to obtain the auth data (like username or Google ID) from it:
 
 ```tsx title="src/MainPage.tsx" auto-js
-    function MainPage() {
-      // ...
-      return (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <div key={task.id} className="task">
-              {task.title} by {task.user.auth?.identities[0].providerUserId}
-            </div>
-          ))}
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {task.user.auth?.identities[0].providerUserId}
         </div>
-      )
-    }
+      ))}
+    </div>
+  )
+}
 ```
 
 Wasp offers a few helper methods to access the user's auth data when you retrieve the `user` like this. They are `getUsername`, `getEmail` and `getFirstProviderUserId`. They can be used both on the client and the server.
@@ -247,20 +247,20 @@ Wasp offers a few helper methods to access the user's auth data when you retriev
 It accepts the `user` object and if the user signed up with the [Username & password](./username-and-pass) auth method, it returns the username or `null` otherwise. The `user` object needs to have the `auth` and the `identities` relations included.
 
 ```tsx title="src/MainPage.tsx" auto-js
-    import { getUsername } from 'wasp/auth'
+import { getUsername } from 'wasp/auth'
 
-    function MainPage() {
-      // ...
-      return (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <div key={task.id} className="task">
-              {task.title} by {getUsername(task.user)}
-            </div>
-          ))}
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getUsername(task.user)}
         </div>
-      )
-    }
+      ))}
+    </div>
+  )
+}
 ```
 
 #### `getEmail`
@@ -268,20 +268,20 @@ It accepts the `user` object and if the user signed up with the [Username & pass
 It accepts the `user` object and if the user signed up with the [Email](./email) auth method, it returns the email or `null` otherwise. The `user` object needs to have the `auth` and the `identities` relations included.
 
 ```tsx title="src/MainPage.tsx" auto-js
-    import { getEmail } from 'wasp/auth'
+import { getEmail } from 'wasp/auth'
 
-    function MainPage() {
-      // ...
-      return (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <div key={task.id} className="task">
-              {task.title} by {getEmail(task.user)}
-            </div>
-          ))}
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getEmail(task.user)}
         </div>
-      )
-    }
+      ))}
+    </div>
+  )
+}
 ```
 
 #### `getFirstProviderUserId`
@@ -289,20 +289,20 @@ It accepts the `user` object and if the user signed up with the [Email](./email)
 It returns the first user ID that it finds for the user. For example if the user has signed up with email, it will return the email. If the user has signed up with Google, it will return the Google ID. The `user` object needs to have the `auth` and the `identities` relations included.
 
 ```tsx title="src/MainPage.tsx" auto-js
-    import { getFirstProviderUserId } from 'wasp/auth'
+import { getFirstProviderUserId } from 'wasp/auth'
 
-    function MainPage() {
-      // ...
-      return (
-        <div className="tasks">
-          {tasks.map((task) => (
-            <div key={task.id} className="task">
-              {task.title} by {getFirstProviderUserId(task.user)}
-            </div>
-          ))}
+function MainPage() {
+  // ...
+  return (
+    <div className="tasks">
+      {tasks.map((task) => (
+        <div key={task.id} className="task">
+          {task.title} by {getFirstProviderUserId(task.user)}
         </div>
-      )
-    }
+      ))}
+    </div>
+  )
+}
 ```
 
 ## Entities Explained
@@ -467,82 +467,82 @@ In the Advanced section you can see an example for [Email](../advanced/custom-au
 Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.
 
 ```wasp title="main.wasp"
-    // ...
+// ...
 
-    action customSignup {
-      fn: import { signup } from "@src/auth/signup",
-      entities: [User]
-    }
+action customSignup {
+  fn: import { signup } from "@src/auth/signup",
+  entities: [User]
+}
 ```
 
 ```ts title="src/auth/signup.ts" auto-js
-    import {
-      createProviderId,
-      sanitizeAndSerializeProviderData,
-      createUser,
-    } from 'wasp/server/auth'
-    import type { CustomSignup } from 'wasp/server/operations'
+import {
+  createProviderId,
+  sanitizeAndSerializeProviderData,
+  createUser,
+} from 'wasp/server/auth'
+import type { CustomSignup } from 'wasp/server/operations'
 
-    type CustomSignupInput = {
-      username: string
-      password: string
+type CustomSignupInput = {
+  username: string
+  password: string
+}
+type CustomSignupOutput = {
+  success: boolean
+  message: string
+}
+
+export const signup: CustomSignup<
+  CustomSignupInput,
+  CustomSignupOutput
+> = async (args, { entities: { User } }) => {
+  try {
+    // Provider ID is a combination of the provider name and the provider user ID
+    // And it is used to uniquely identify the user in your app
+    const providerId = createProviderId('username', args.username)
+    // sanitizeAndSerializeProviderData hashes the password and returns a JSON string
+    const providerData = await sanitizeAndSerializeProviderData<'username'>({
+      hashedPassword: args.password,
+    })
+
+    await createUser(
+      providerId,
+      providerData,
+      // Any additional data you want to store on the User entity
+      {}
+    )
+
+    // This is equivalent to:
+    // await User.create({
+    //   data: {
+    //     auth: {
+    //       create: {
+    //         identities: {
+    //             create: {
+    //                 providerName: 'username',
+    //                 providerUserId: args.username
+    //                 providerData,
+    //             },
+    //         },
+    //       }
+    //     },
+    //   }
+    // })
+  } catch (e) {
+    return {
+      success: false,
+      message: e.message,
     }
-    type CustomSignupOutput = {
-      success: boolean
-      message: string
-    }
+  }
 
-    export const signup: CustomSignup<
-      CustomSignupInput,
-      CustomSignupOutput
-    > = async (args, { entities: { User } }) => {
-      try {
-        // Provider ID is a combination of the provider name and the provider user ID
-        // And it is used to uniquely identify the user in your app
-        const providerId = createProviderId('username', args.username)
-        // sanitizeAndSerializeProviderData hashes the password and returns a JSON string
-        const providerData = await sanitizeAndSerializeProviderData<'username'>({
-          hashedPassword: args.password,
-        })
+  // Your custom code after sign-up.
+  // ...
 
-        await createUser(
-          providerId,
-          providerData,
-          // Any additional data you want to store on the User entity
-          {}
-        )
-
-        // This is equivalent to:
-        // await User.create({
-        //   data: {
-        //     auth: {
-        //       create: {
-        //         identities: {
-        //             create: {
-        //                 providerName: 'username',
-        //                 providerUserId: args.username
-        //                 providerData,
-        //             },
-        //         },
-        //       }
-        //     },
-        //   }
-        // })
-      } catch (e) {
-        return {
-          success: false,
-          message: e.message,
-        }
-      }
-
-      // Your custom code after sign-up.
-      // ...
-
-      return {
-        success: true,
-        message: 'User created successfully',
-      }
-    }
+  return {
+    success: true,
+    message: 'User created successfully',
+  }
+}
 ```
 
 You can use whichever method suits your needs better: either the `createUser` function or Prisma's `User.create` method. The `createUser` function is a bit more convenient to use because it hides some of the complexity. On the other hand, the `User.create` method gives you more control over the data that is stored in the `Auth` and `AuthIdentity` entities.

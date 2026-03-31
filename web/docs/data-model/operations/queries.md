@@ -39,15 +39,15 @@ To create a Query in Wasp, we begin with a `query` declaration.
 Let's declare two Queries - one to fetch all tasks, and another to fetch tasks based on a filter, such as whether a task is done:
 
 ```wasp title="main.wasp"
-    // ...
+// ...
 
-    query getAllTasks {
-      fn: import { getAllTasks } from "@src/queries"
-    }
+query getAllTasks {
+  fn: import { getAllTasks } from "@src/queries"
+}
 
-    query getFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/queries"
-    }
+query getFilteredTasks {
+  fn: import { getFilteredTasks } from "@src/queries"
+}
 ```
 
 <small>
@@ -408,16 +408,16 @@ Hiding error details by default helps against accidentally leaking possibly sens
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
 
 ```ts title="src/queries.ts" auto-js
-    import { type GetAllTasks } from 'wasp/server/operations'
-    import { HttpError } from 'wasp/server'
+import { type GetAllTasks } from 'wasp/server/operations'
+import { HttpError } from 'wasp/server'
 
-    export const getAllTasks: GetAllTasks = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: 'bar' } // data
-      )
-    }
+export const getAllTasks: GetAllTasks = async (args, context) => {
+  throw new HttpError(
+    403, // status code
+    "You can't do this!", // message
+    { foo: 'bar' } // data
+  )
+}
 ```
 
 If the status code is `4xx`, the client will receive a response object with the corresponding `message` and `data` fields, and it will rethrow the error (including these fields).
@@ -430,15 +430,15 @@ To use an Entity in your Query, add it to the `query` declaration in Wasp:
 
 ```wasp {4,9} title="main.wasp"
 
-    query getAllTasks {
-      fn: import { getAllTasks } from "@src/queries",
-      entities: [Task]
-    }
+query getAllTasks {
+  fn: import { getAllTasks } from "@src/queries",
+  entities: [Task]
+}
 
-    query getFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/queries",
-      entities: [Task]
-    }
+query getFilteredTasks {
+  fn: import { getFilteredTasks } from "@src/queries",
+  entities: [Task]
+}
 ```
 
 Wasp will inject the specified Entity into the Query's `context` argument, giving you access to the Entity's Prisma API:

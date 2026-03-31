@@ -23,9 +23,9 @@ Client environment variables are injected into the client Javascript code during
 You can read them from the client code like this:
 
 ```ts title="src/App.ts" auto-js
-    import { env } from 'wasp/client'
+import { env } from 'wasp/client'
 
-    console.log(env.REACT_APP_SOME_VAR_NAME)
+console.log(env.REACT_APP_SOME_VAR_NAME)
 ```
 
 Read more about the `env` object in the [API reference](#client-env-vars-api).
@@ -51,9 +51,9 @@ You can store secret values (e.g. secret API keys) in the server env variables s
 You can read the env vars from server code like this:
 
 ```ts  auto-js
-    import { env } from 'wasp/server'
+import { env } from 'wasp/server'
 
-    console.log(env.SOME_VAR_NAME)
+console.log(env.SOME_VAR_NAME)
 ```
 
 Read more about the `env` object in the [API reference](#server-env-vars-1).
@@ -383,13 +383,13 @@ Wasp merges your env validation schemas with the built-in env vars validation sc
 You can access both **Wasp-defined** and **user-defined** client env vars in your client code using the `env` object:
 
 ```ts title="src/App.ts" auto-js
-    import { env } from 'wasp/client'
+import { env } from 'wasp/client'
 
-    // Wasp-defined
-    const apiUrl = env.REACT_APP_API_URL
+// Wasp-defined
+const apiUrl = env.REACT_APP_API_URL
 
-    // User-defined
-    const analyticsId = env.REACT_APP_ANALYTICS_ID
+// User-defined
+const analyticsId = env.REACT_APP_ANALYTICS_ID
 ```
 
 You can use `import.meta.env.REACT_APP_SOME_VAR_NAME` directly in your code. We don't recommend this since `import.meta.env` isn't validated and missing env vars can cause runtime errors.
@@ -452,13 +452,13 @@ Wasp merges your env validation schemas with the built-in env vars validation sc
 You can access both **Wasp-defined** and **user-defined** client env vars in your client code using the `env` object:
 
 ```ts title="src/stripe.ts" auto-js
-    import { env } from 'wasp/server'
+import { env } from 'wasp/server'
 
-    // Wasp-defined
-    const serverUrl = env.WASP_SERVER_URL
+// Wasp-defined
+const serverUrl = env.WASP_SERVER_URL
 
-    // User-defined
-    const stripeApiKey = env.STRIPE_API_KEY
+// User-defined
+const stripeApiKey = env.STRIPE_API_KEY
 ```
 
 You can use `process.env.SOME_SECRET` directly in your code. We don't recommend this since `process.env` isn't validated and missing env vars can cause runtime errors.

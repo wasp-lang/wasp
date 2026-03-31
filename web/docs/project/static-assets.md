@@ -9,11 +9,11 @@ import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'
 Importing a static asset (e.g. an image) will return its URL. For example:
 
 ```tsx title="src/App.tsx" auto-js
-    import imgUrl from './img.png'
+import imgUrl from './img.png'
 
-    function App() {
-      return <img src={imgUrl} alt="img" />
-    }
+function App() {
+  return <img src={imgUrl} alt="img" />
+}
 ```
 
 For example, `imgUrl` will be `/img.png` during development, and become `/assets/img.2d8efhg.png` in the production build.

@@ -46,23 +46,23 @@ Users signing in with [OAuth](./social-auth/overview.md) must authorize access b
 To use auth hooks, you must first declare them in the Wasp file:
 
 ```wasp 
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      auth: {
-        userEntity: User,
-        methods: {
-          ...
-        },
-        onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
-        onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
-        onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
-        onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
-        onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
-        onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
-      },
-    }
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  auth: {
+    userEntity: User,
+    methods: {
+      ...
+    },
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
+    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
+  },
+}
 ```
 
 If the hooks are defined as async functions, Wasp _awaits_ them. This means the auth process waits for the hooks to finish before continuing.
@@ -80,40 +80,40 @@ The `onBeforeSignup` hook can be useful if you want to reject a user based on so
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```wasp title="main.wasp"
-    app myApp {
-      ...
-      auth: {
-        ...
-        onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
-      },
-    }
+app myApp {
+  ...
+  auth: {
+    ...
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+  },
+}
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import { HttpError } from 'wasp/server'
-    import type { OnBeforeSignupHook } from 'wasp/server/auth'
+import { HttpError } from 'wasp/server'
+import type { OnBeforeSignupHook } from 'wasp/server/auth'
 
-    export const onBeforeSignup: OnBeforeSignupHook = async ({
-      providerId,
-      prisma,
-      req,
-    }) => {
-      const count = await prisma.user.count()
-      console.log('number of users before', count)
-      console.log('provider name', providerId.providerName)
-      console.log('provider user ID', providerId.providerUserId)
+export const onBeforeSignup: OnBeforeSignupHook = async ({
+  providerId,
+  prisma,
+  req,
+}) => {
+  const count = await prisma.user.count()
+  console.log('number of users before', count)
+  console.log('provider name', providerId.providerName)
+  console.log('provider user ID', providerId.providerUserId)
 
-      if (count > 100) {
-        throw new HttpError(403, 'Too many users')
-      }
+  if (count > 100) {
+    throw new HttpError(403, 'Too many users')
+  }
 
-      if (
-        providerId.providerName === 'email' &&
-        providerId.providerUserId === 'some@email.com'
-      ) {
-        throw new HttpError(403, 'This email is not allowed')
-      }
-    }
+  if (
+    providerId.providerName === 'email' &&
+    providerId.providerUserId === 'some@email.com'
+  ) {
+    throw new HttpError(403, 'This email is not allowed')
+  }
+}
 ```
 
 Read more about the data the `onBeforeSignup` hook receives in the [API Reference](#the-onbeforesignup-hook).
@@ -129,42 +129,42 @@ Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```wasp title="main.wasp"
-    app myApp {
-      ...
-      auth: {
-        ...
-        onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
-      },
-    }
+app myApp {
+  ...
+  auth: {
+    ...
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
+  },
+}
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnAfterSignupHook } from 'wasp/server/auth'
+import type { OnAfterSignupHook } from 'wasp/server/auth'
 
-    export const onAfterSignup: OnAfterSignupHook = async ({
-      providerId,
-      user,
-      oauth,
-      prisma,
-      req,
-    }) => {
-      const count = await prisma.user.count()
-      console.log('number of users after', count)
-      console.log('user object', user)
+export const onAfterSignup: OnAfterSignupHook = async ({
+  providerId,
+  user,
+  oauth,
+  prisma,
+  req,
+}) => {
+  const count = await prisma.user.count()
+  console.log('number of users after', count)
+  console.log('user object', user)
 
-      // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
-      if (oauth) {
-        console.log('accessToken', oauth.tokens.accessToken)
-        console.log('uniqueRequestId', oauth.uniqueRequestId)
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
+  if (oauth) {
+    console.log('accessToken', oauth.tokens.accessToken)
+    console.log('uniqueRequestId', oauth.uniqueRequestId)
 
-        const id = oauth.uniqueRequestId
-        const data = someKindOfStore.get(id)
-        if (data) {
-          console.log('saved data for the ID', data)
-        }
-        someKindOfStore.delete(id)
-      }
+    const id = oauth.uniqueRequestId
+    const data = someKindOfStore.get(id)
+    if (data) {
+      console.log('saved data for the ID', data)
     }
+    someKindOfStore.delete(id)
+  }
+}
 ```
 
 Read more about the data the `onAfterSignup` hook receives in the [API Reference](#the-onaftersignup-hook).
@@ -220,32 +220,32 @@ The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.
 Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```wasp title="main.wasp"
-    app myApp {
-      ...
-      auth: {
-        ...
-        onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
-      },
-    }
+app myApp {
+  ...
+  auth: {
+    ...
+    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
+  },
+}
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
+import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
 
-    export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
-      url,
-      oauth,
-      prisma,
-      req,
-    }) => {
-      console.log('query params before oAuth redirect', req.query)
+export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
+  url,
+  oauth,
+  prisma,
+  req,
+}) => {
+  console.log('query params before oAuth redirect', req.query)
 
-      // Saving query params for later use in onAfterSignup or onAfterLogin hooks
-      const id = oauth.uniqueRequestId
-      someKindOfStore.set(id, req.query)
+  // Saving query params for later use in onAfterSignup or onAfterLogin hooks
+  const id = oauth.uniqueRequestId
+  someKindOfStore.set(id, req.query)
 
-      return { url }
-    }
+  return { url }
+}
 ```
 
 This hook's return value must be an object that looks like this: `{ url: URL }`. Wasp uses the URL to redirect the user to the OAuth provider.
@@ -261,32 +261,32 @@ The `onBeforeLogin` hook can be useful if you want to reject a user based on som
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```wasp title="main.wasp"
-    app myApp {
-      ...
-      auth: {
-        ...
-        onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
-      },
-    }
+app myApp {
+  ...
+  auth: {
+    ...
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+  },
+}
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import { HttpError } from 'wasp/server'
-    import type { OnBeforeLoginHook } from 'wasp/server/auth'
+import { HttpError } from 'wasp/server'
+import type { OnBeforeLoginHook } from 'wasp/server/auth'
 
-    export const onBeforeLogin: OnBeforeLoginHook = async ({
-      providerId,
-      user,
-      prisma,
-      req,
-    }) => {
-      if (
-        providerId.providerName === 'email' &&
-        providerId.providerUserId === 'some@email.com'
-      ) {
-        throw new HttpError(403, 'You cannot log in with this email')
-      }
-    }
+export const onBeforeLogin: OnBeforeLoginHook = async ({
+  providerId,
+  user,
+  prisma,
+  req,
+}) => {
+  if (
+    providerId.providerName === 'email' &&
+    providerId.providerUserId === 'some@email.com'
+  ) {
+    throw new HttpError(403, 'You cannot log in with this email')
+  }
+}
 ```
 
 Read more about the data the `onBeforeLogin` hook receives in the [API Reference](#the-onbeforelogin-hook).
@@ -302,40 +302,40 @@ Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to updat
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
 ```wasp title="main.wasp"
-    app myApp {
-      ...
-      auth: {
-        ...
-        onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
-      },
-    }
+app myApp {
+  ...
+  auth: {
+    ...
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
+  },
+}
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnAfterLoginHook } from 'wasp/server/auth'
+import type { OnAfterLoginHook } from 'wasp/server/auth'
 
-    export const onAfterLogin: OnAfterLoginHook = async ({
-      providerId,
-      user,
-      oauth,
-      prisma,
-      req,
-    }) => {
-      console.log('user object', user)
+export const onAfterLogin: OnAfterLoginHook = async ({
+  providerId,
+  user,
+  oauth,
+  prisma,
+  req,
+}) => {
+  console.log('user object', user)
 
-      // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
-      if (oauth) {
-        console.log('accessToken', oauth.tokens.accessToken)
-        console.log('uniqueRequestId', oauth.uniqueRequestId)
+  // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
+  if (oauth) {
+    console.log('accessToken', oauth.tokens.accessToken)
+    console.log('uniqueRequestId', oauth.uniqueRequestId)
 
-        const id = oauth.uniqueRequestId
-        const data = someKindOfStore.get(id)
-        if (data) {
-          console.log('saved data for the ID', data)
-        }
-        someKindOfStore.delete(id)
-      }
+    const id = oauth.uniqueRequestId
+    const data = someKindOfStore.get(id)
+    if (data) {
+      console.log('saved data for the ID', data)
     }
+    someKindOfStore.delete(id)
+  }
+}
 ```
 
 Read more about the data the `onAfterLogin` hook receives in the [API Reference](#the-onafterlogin-hook).
@@ -351,17 +351,17 @@ Import the provider object with the OAuth client from the `wasp/server/auth` mod
 Here's an example of how you can refresh the access token for Google OAuth:
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnAfterLoginHook } from 'wasp/server/auth'
-    import { google } from 'wasp/server/auth'
+import type { OnAfterLoginHook } from 'wasp/server/auth'
+import { google } from 'wasp/server/auth'
 
-    export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-      if (oauth.provider === 'google' && oauth.tokens.refreshToken !== null) {
-        const newTokens = await google.oAuthClient.refreshAccessToken(
-          oauth.tokens.refreshToken
-        )
-        log('new tokens', newTokens)
-      }
-    }
+export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
+  if (oauth.provider === 'google' && oauth.tokens.refreshToken !== null) {
+    const newTokens = await google.oAuthClient.refreshAccessToken(
+      oauth.tokens.refreshToken
+    )
+    log('new tokens', newTokens)
+  }
+}
 ```
 
 Google exposes the `accessTokenExpiresAt` field in the `oauth.tokens` object. You can use this field to determine when the access token expires.
@@ -371,23 +371,23 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
 ## API Reference
 
 ```wasp 
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
-      auth: {
-        userEntity: User,
-        methods: {
-          ...
-        },
-        onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
-        onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
-        onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
-        onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
-        onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
-        onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
-      },
-    }
+app myApp {
+  wasp: {
+    version: "{latestWaspVersion}"
+  },
+  auth: {
+    userEntity: User,
+    methods: {
+      ...
+    },
+    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+    onAfterSignup: import { onAfterSignup } from "@src/auth/hooks",
+    onAfterEmailVerified: import { onAfterEmailVerified } from "@src/auth/hooks",
+    onBeforeOAuthRedirect: import { onBeforeOAuthRedirect } from "@src/auth/hooks",
+    onBeforeLogin: import { onBeforeLogin } from "@src/auth/hooks",
+    onAfterLogin: import { onAfterLogin } from "@src/auth/hooks",
+  },
+}
 ```
 
 ### Common hook input
@@ -405,15 +405,15 @@ The following properties are available in all auth hooks:
 ### The `onBeforeSignup` hook
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnBeforeSignupHook } from 'wasp/server/auth'
+import type { OnBeforeSignupHook } from 'wasp/server/auth'
 
-    export const onBeforeSignup: OnBeforeSignupHook = async ({
-      providerId,
-      prisma,
-      req,
-    }) => {
-      // Hook code goes here
-    }
+export const onBeforeSignup: OnBeforeSignupHook = async ({
+  providerId,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
 ```
 
 The hook receives an object as **input** with the following properties:
@@ -427,17 +427,17 @@ Wasp ignores this hook's **return value**.
 ### The `onAfterSignup` hook
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnAfterSignupHook } from 'wasp/server/auth'
+import type { OnAfterSignupHook } from 'wasp/server/auth'
 
-    export const onAfterSignup: OnAfterSignupHook = async ({
-      providerId,
-      user,
-      oauth,
-      prisma,
-      req,
-    }) => {
-      // Hook code goes here
-    }
+export const onAfterSignup: OnAfterSignupHook = async ({
+  providerId,
+  user,
+  oauth,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
 ```
 
 The hook receives an object as **input** with the following properties:
@@ -486,18 +486,18 @@ Wasp ignores this hook's **return value**.
 ### The `onBeforeOAuthRedirect` hook
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
+import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
 
-    export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
-      url,
-      oauth,
-      prisma,
-      req,
-    }) => {
-      // Hook code goes here
+export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
+  url,
+  oauth,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
 
-      return { url }
-    }
+  return { url }
+}
 ```
 
 The hook receives an object as **input** with the following properties:
@@ -523,15 +523,15 @@ This hook's return value must be an object that looks like this: `{ url: URL }`.
 ### The `onBeforeLogin` hook
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnBeforeLoginHook } from 'wasp/server/auth'
+import type { OnBeforeLoginHook } from 'wasp/server/auth'
 
-    export const onBeforeLogin: OnBeforeLoginHook = async ({
-      providerId,
-      prisma,
-      req,
-    }) => {
-      // Hook code goes here
-    }
+export const onBeforeLogin: OnBeforeLoginHook = async ({
+  providerId,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
 ```
 
 The hook receives an object as **input** with the following properties:
@@ -549,17 +549,17 @@ Wasp ignores this hook's **return value**.
 ### The `onAfterLogin` hook
 
 ```ts title="src/auth/hooks.ts" auto-js
-    import type { OnAfterLoginHook } from 'wasp/server/auth'
+import type { OnAfterLoginHook } from 'wasp/server/auth'
 
-    export const onAfterLogin: OnAfterLoginHook = async ({
-      providerId,
-      user,
-      oauth,
-      prisma,
-      req,
-    }) => {
-      // Hook code goes here
-    }
+export const onAfterLogin: OnAfterLoginHook = async ({
+  providerId,
+  user,
+  oauth,
+  prisma,
+  req,
+}) => {
+  // Hook code goes here
+}
 ```
 
 The hook receives an object as **input** with the following properties:

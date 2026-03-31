@@ -24,14 +24,14 @@ Let's go through setting up WebSockets step by step, starting with enabling WebS
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
 ```wasp title="todoApp.wasp"
-    app todoApp {
-      // ...
+app todoApp {
+  // ...
 
-      webSocket: {
-        fn: import { webSocketFn } from "@src/webSocket",
-        autoConnect: true, // optional, default: true
-      },
-    }
+  webSocket: {
+    fn: import { webSocketFn } from "@src/webSocket",
+    autoConnect: true, // optional, default: true
+  },
+}
 ```
 
 ## Defining the Events Handler
@@ -279,14 +279,14 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 ## API Reference
 
 ```wasp title="todoApp.wasp"
-    app todoApp {
-      // ...
+app todoApp {
+  // ...
 
-      webSocket: {
-        fn: import { webSocketFn } from "@src/webSocket",
-        autoConnect: true, // optional, default: true
-      },
-    }
+  webSocket: {
+    fn: import { webSocketFn } from "@src/webSocket",
+    autoConnect: true, // optional, default: true
+  },
+}
 ```
 
 The `webSocket` dict has the following fields:

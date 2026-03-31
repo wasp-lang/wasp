@@ -99,21 +99,21 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
 ### Client Unit Tests
 
 ```ts title="src/helpers.ts" auto-js
-    import { type Task } from "wasp/entities";
+import { type Task } from "wasp/entities";
 
-    export function areThereAnyTasks(tasks: Task[]): boolean {
-      return tasks.length !== 0;
-    }
+export function areThereAnyTasks(tasks: Task[]): boolean {
+  return tasks.length !== 0;
+}
 ```
 
 ```ts title="src/helpers.test.ts" auto-js
-    import { test, expect } from "vitest";
+import { test, expect } from "vitest";
 
-    import { areThereAnyTasks } from "./helpers";
+import { areThereAnyTasks } from "./helpers";
 
-    test("areThereAnyTasks", () => {
-      expect(areThereAnyTasks([])).toBe(false);
-    });
+test("areThereAnyTasks", () => {
+  expect(areThereAnyTasks([])).toBe(false);
+});
 ```
 
 ### React Component Tests

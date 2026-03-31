@@ -20,98 +20,98 @@ Below you can find a starting point for making your own UI in the client code. Y
 ### Sign-up
 
 ```tsx title="src/pages/auth.tsx" auto-js
-    import { login, signup } from 'wasp/client/auth'
+import { login, signup } from 'wasp/client/auth'
 
-    import { useState } from 'react'
-    import { useNavigate } from 'react-router'
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
 
-    export function Signup() {
-      const [username, setUsername] = useState('')
-      const [password, setPassword] = useState('')
-      const [error, setError] = useState<Error | null>(null)
-      const navigate = useNavigate()
+export function Signup() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<Error | null>(null)
+  const navigate = useNavigate()
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault()
-        setError(null)
-        try {
-          await signup({ username, password })
-          await login({ username, password })
-          navigate('/')
-        } catch (error: unknown) {
-          setError(error as Error)
-        }
-      }
-
-      return (
-        <form onSubmit={handleSubmit}>
-          {error && <p>Error: {error.message}</p>}
-
-          <input
-            type="text"
-            autoComplete="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-          />
-          <button type="submit">Sign Up</button>
-        </form>
-      )
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setError(null)
+    try {
+      await signup({ username, password })
+      await login({ username, password })
+      navigate('/')
+    } catch (error: unknown) {
+      setError(error as Error)
     }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p>Error: {error.message}</p>}
+
+      <input
+        type="text"
+        autoComplete="username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button type="submit">Sign Up</button>
+    </form>
+  )
+}
 ```
 
 ### Login
 
 ```tsx title="src/pages/auth.tsx" auto-js
-    import { login } from 'wasp/client/auth'
+import { login } from 'wasp/client/auth'
 
-    import { useState } from 'react'
-    import { useNavigate } from 'react-router'
+import { useState } from 'react'
+import { useNavigate } from 'react-router'
 
-    export function Login() {
-      const [username, setUsername] = useState('')
-      const [password, setPassword] = useState('')
-      const [error, setError] = useState<Error | null>(null)
-      const navigate = useNavigate()
+export function Login() {
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState<Error | null>(null)
+  const navigate = useNavigate()
 
-      async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault()
-        setError(null)
-        try {
-          await login({ username, password })
-          navigate('/')
-        } catch (error: unknown) {
-          setError(error as Error)
-        }
-      }
-
-      return (
-        <form onSubmit={handleSubmit}>
-          {error && <p>Error: {error.message}</p>}
-
-          <input
-            type="text"
-            autoComplete="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Username"
-          />
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-          />
-          <button type="submit">Sign Up</button>
-        </form>
-      )
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setError(null)
+    try {
+      await login({ username, password })
+      navigate('/')
+    } catch (error: unknown) {
+      setError(error as Error)
     }
+  }
+
+  return (
+    <form onSubmit={handleSubmit}>
+      {error && <p>Error: {error.message}</p>}
+
+      <input
+        type="text"
+        autoComplete="username"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
+        placeholder="Username"
+      />
+      <input
+        type="password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        placeholder="Password"
+      />
+      <button type="submit">Sign Up</button>
+    </form>
+  )
+}
 ```
 
 ## API Reference

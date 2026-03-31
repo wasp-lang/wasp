@@ -45,11 +45,11 @@ A Prisma `model` declaration in the `schema.prisma` file represents a Wasp Entit
 Here's how you could define an Entity that represents a Task:
 
 ```prisma title="schema.prisma"
-    model Task {
-      id          String  @id @default(uuid())
-      description String
-      isDone      Boolean @default(false)
-    }
+model Task {
+  id          String  @id @default(uuid())
+  description String
+  isDone      Boolean @default(false)
+}
 ```
 
 The above Prisma `model` definition tells Wasp to create a table for storing Tasks where each task has three fields (i.e., the `tasks` table has three columns):
@@ -117,12 +117,12 @@ If you need more control, you can directly interact with Entities by importing a
 You can only use the Prisma Client in your Wasp server code. You can import it like this:
 
 ```ts  auto-js
-    import { prisma } from 'wasp/server'
+import { prisma } from 'wasp/server'
 
-    prisma.task.create({
-        description: "Read the Entities doc",
-        isDone: true // almost :)
-    })
+prisma.task.create({
+    description: "Read the Entities doc",
+    isDone: true // almost :)
+})
 ```
 
 :::note Available Prisma features in the client

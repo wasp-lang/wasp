@@ -7,14 +7,14 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 You can configure the behavior of the server via the `server` field of `app` declaration:
 
 ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+app MyApp {
+  title: "My app",
+  // ...
+  server: {
+    setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
+    middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
+  }
+}
 ```
 
 ## Setup Function
@@ -32,18 +32,18 @@ You can configure the behavior of the server via the `server` field of `app` dec
 As an example, adding a custom route would look something like:
 
 ```ts title="src/myServerSetupCode.ts" auto-js
-    import type { ServerSetupFn } from 'wasp/server'
-    import type { Application } from 'express'
+import type { ServerSetupFn } from 'wasp/server'
+import type { Application } from 'express'
 
-    export const mySetupFunction: ServerSetupFn = async ({ app }) => {
-      addCustomRoute(app)
-    }
+export const mySetupFunction: ServerSetupFn = async ({ app }) => {
+  addCustomRoute(app)
+}
 
-    function addCustomRoute(app: Application) {
-      app.get('/customRoute', (_req, res) => {
-        res.send('I am a custom route')
-      })
-    }
+function addCustomRoute(app: Application) {
+  app.get('/customRoute', (_req, res) => {
+    res.send('I am a custom route')
+  })
+}
 ```
 
 ### Storing Some Values for Later Use
@@ -126,14 +126,14 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
 ## API Reference
 
 ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+app MyApp {
+  title: "My app",
+  // ...
+  server: {
+    setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
+    middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
+  }
+}
 ```
 
 `app.server` is a dictionary with the following fields:

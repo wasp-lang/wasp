@@ -84,24 +84,24 @@ Below is the actual definitions of default middleware which you can override.
 If you would like to modify the middleware for _all_ operations and APIs, you can do something like:
 
 ```wasp {5} title="main.wasp"
-    app todoApp {
-      // ...
+app todoApp {
+  // ...
 
-      server: {
-        middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup"
-      },
-    }
+  server: {
+    middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup"
+  },
+}
 ```
 
 ```ts title="src/serverSetup.ts" auto-js
-    import cors from 'cors'
-    import { config, type MiddlewareConfigFn } from 'wasp/server'
+import cors from 'cors'
+import { config, type MiddlewareConfigFn } from 'wasp/server'
 
-    export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
-      // Example of adding extra domains to CORS.
-      middlewareConfig.set('cors', cors({ origin: [...config.allowedCORSOrigins, 'https://example1.com', 'https://example2.com'] }))
-      return middlewareConfig
-    }
+export const serverMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
+  // Example of adding extra domains to CORS.
+  middlewareConfig.set('cors', cors({ origin: [...config.allowedCORSOrigins, 'https://example1.com', 'https://example2.com'] }))
+  return middlewareConfig
+}
 ```
 
 ## 2. Customize `api`-specific Middleware
@@ -109,33 +109,33 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
 If you would like to modify the middleware for a single API, you can do something like:
 
 ```wasp {5} title="main.wasp"
-    // ...
+// ...
 
-    api webhookCallback {
-      fn: import { webhookCallback } from "@src/apis",
-      middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@src/apis",
-      httpRoute: (POST, "/webhook/callback"),
-      auth: false
-    }
+api webhookCallback {
+  fn: import { webhookCallback } from "@src/apis",
+  middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@src/apis",
+  httpRoute: (POST, "/webhook/callback"),
+  auth: false
+}
 ```
 
 ```ts title="src/apis.ts" auto-js
-    import express from 'express'
-    import { type WebhookCallback } from 'wasp/server/api'
-    import { type MiddlewareConfigFn } from 'wasp/server'
+import express from 'express'
+import { type WebhookCallback } from 'wasp/server/api'
+import { type MiddlewareConfigFn } from 'wasp/server'
 
-    export const webhookCallback: WebhookCallback = (req, res, _context) => {
-      res.json({ msg: req.body.length })
-    }
+export const webhookCallback: WebhookCallback = (req, res, _context) => {
+  res.json({ msg: req.body.length })
+}
 
-    export const webhookCallbackMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
-      console.log('webhookCallbackMiddlewareFn: Swap express.json for express.raw')
+export const webhookCallbackMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
+  console.log('webhookCallbackMiddlewareFn: Swap express.json for express.raw')
 
-      middlewareConfig.delete('express.json')
-      middlewareConfig.set('express.raw', express.raw({ type: '*/*' }))
+  middlewareConfig.delete('express.json')
+  middlewareConfig.set('express.raw', express.raw({ type: '*/*' }))
 
-      return middlewareConfig
-    }
+  return middlewareConfig
+}
 ```
 
 :::note
@@ -152,28 +152,28 @@ router.post('/webhook/callback', webhookCallbackMiddleware, ...)
 If you would like to modify the middleware for all API routes under some common path, you can define a `middlewareConfigFn` on an `apiNamespace`:
 
 ```wasp {4} title="main.wasp"
-    // ...
+// ...
 
-    apiNamespace fooBar {
-      middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@src/apis",
-      path: "/foo/bar"
-    }
+apiNamespace fooBar {
+  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@src/apis",
+  path: "/foo/bar"
+}
 ```
 
 ```ts title="src/apis.ts" auto-js
-    import type express from 'express'
-    import { type MiddlewareConfigFn } from 'wasp/server'
+import type express from 'express'
+import { type MiddlewareConfigFn } from 'wasp/server'
 
-    export const fooBarNamespaceMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
-      const customMiddleware: express.RequestHandler = (_req, _res, next) => {
-        console.log('fooBarNamespaceMiddlewareFn: custom middleware')
-        next()
-      }
+export const fooBarNamespaceMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
+  const customMiddleware: express.RequestHandler = (_req, _res, next) => {
+    console.log('fooBarNamespaceMiddlewareFn: custom middleware')
+    next()
+  }
 
-      middlewareConfig.set('custom.middleware', customMiddleware)
+  middlewareConfig.set('custom.middleware', customMiddleware)
 
-      return middlewareConfig
-    }
+  return middlewareConfig
+}
 ```
 
 :::note
