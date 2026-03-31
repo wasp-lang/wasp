@@ -443,8 +443,6 @@ library
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
-    Wasp.SemanticVersion.Comparator
-    Wasp.SemanticVersion.ComparatorSet
     Wasp.SemanticVersion.Parsers
     Wasp.SemanticVersion.PartialVersion
     Wasp.SemanticVersion.Range

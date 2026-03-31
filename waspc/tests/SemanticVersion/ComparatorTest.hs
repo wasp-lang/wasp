@@ -3,8 +3,8 @@ module SemanticVersion.ComparatorTest where
 import Data.Either (isLeft)
 import Test.Hspec
 import qualified Text.Parsec as P
-import Wasp.SemanticVersion.Comparator
 import Wasp.SemanticVersion.PartialVersion
+import Wasp.SemanticVersion.Range
 import Wasp.SemanticVersion.VersionBound
 
 spec_SemanticVersion_Comparator :: Spec

@@ -4,9 +4,8 @@ import Data.Either (isLeft, isRight)
 import qualified Data.List.NonEmpty as NE
 import Test.Hspec
 import qualified Text.Parsec as P
-import Wasp.SemanticVersion.Comparator
-import Wasp.SemanticVersion.ComparatorSet
 import Wasp.SemanticVersion.PartialVersion
+import Wasp.SemanticVersion.Range
 import Wasp.SemanticVersion.VersionBound
 
 spec_SemanticVersion_ComparatorSet :: Spec
