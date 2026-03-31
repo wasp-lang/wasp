@@ -43,45 +43,45 @@ spec_SemanticVersion_RangeExpression = do
       show (HyphenRange [pv|1|] [pv|2.3|]) `shouldBe` "1 - 2.3"
       show (HyphenRange [pv|*|] [pv|*|]) `shouldBe` "* - *"
 
-  describe "simpleRangeExpressionParser" $ do
-    let looseParseSimple = P.parse simpleRangeExpressionParser ""
-        strictParseSimple = P.parse (simpleRangeExpressionParser <* P.eof) ""
+  describe "simpleRangeParser" $ do
+    let looseParseSimpleRange = P.parse simpleRangeParser ""
+        strictParseSimpleRange = P.parse (simpleRangeParser <* P.eof) ""
 
     it "parses primitive range expression" $ do
-      strictParseSimple ">=1.2.3" `shouldBe` Right (Primitive GreaterThanOrEqual [pv|1.2.3|])
-      strictParseSimple "<=1.2.3" `shouldBe` Right (Primitive LessThanOrEqual [pv|1.2.3|])
-      strictParseSimple ">1.2.3" `shouldBe` Right (Primitive GreaterThan [pv|1.2.3|])
-      strictParseSimple "<1.2.3" `shouldBe` Right (Primitive LessThan [pv|1.2.3|])
-      strictParseSimple "=1.2.3" `shouldBe` Right (Primitive Equal [pv|1.2.3|])
+      strictParseSimpleRange ">=1.2.3" `shouldBe` Right (Primitive GreaterThanOrEqual [pv|1.2.3|])
+      strictParseSimpleRange "<=1.2.3" `shouldBe` Right (Primitive LessThanOrEqual [pv|1.2.3|])
+      strictParseSimpleRange ">1.2.3" `shouldBe` Right (Primitive GreaterThan [pv|1.2.3|])
+      strictParseSimpleRange "<1.2.3" `shouldBe` Right (Primitive LessThan [pv|1.2.3|])
+      strictParseSimpleRange "=1.2.3" `shouldBe` Right (Primitive Equal [pv|1.2.3|])
 
     it "parses implicit equal (no \"=\" operator)" $ do
-      strictParseSimple "1.2.3" `shouldBe` Right (Primitive Equal [pv|1.2.3|])
+      strictParseSimpleRange "1.2.3" `shouldBe` Right (Primitive Equal [pv|1.2.3|])
 
     it "parses caret range expression" $ do
-      strictParseSimple "^1.2.3" `shouldBe` Right (CaretRange [pv|1.2.3|])
+      strictParseSimpleRange "^1.2.3" `shouldBe` Right (CaretRange [pv|1.2.3|])
 
     it "parses tilde range expression" $ do
-      strictParseSimple "~1.2.3" `shouldBe` Right (TildeRange [pv|1.2.3|])
+      strictParseSimpleRange "~1.2.3" `shouldBe` Right (TildeRange [pv|1.2.3|])
 
     it "parses simple range expressions with whitespace between the partial version and operator" $ do
-      strictParseSimple ">=  1.2.3" `shouldBe` Right (Primitive GreaterThanOrEqual [pv|1.2.3|])
-      strictParseSimple "<= 1.2.3" `shouldBe` Right (Primitive LessThanOrEqual [pv|1.2.3|])
-      strictParseSimple ">  1.2.3" `shouldBe` Right (Primitive GreaterThan [pv|1.2.3|])
-      strictParseSimple "<    1.2.3" `shouldBe` Right (Primitive LessThan [pv|1.2.3|])
-      strictParseSimple "=  1.2.3" `shouldBe` Right (Primitive Equal [pv|1.2.3|])
-      strictParseSimple "^  1.2.3" `shouldBe` Right (CaretRange [pv|1.2.3|])
-      strictParseSimple "~ 1.2.3" `shouldBe` Right (TildeRange [pv|1.2.3|])
+      strictParseSimpleRange ">=  1.2.3" `shouldBe` Right (Primitive GreaterThanOrEqual [pv|1.2.3|])
+      strictParseSimpleRange "<= 1.2.3" `shouldBe` Right (Primitive LessThanOrEqual [pv|1.2.3|])
+      strictParseSimpleRange ">  1.2.3" `shouldBe` Right (Primitive GreaterThan [pv|1.2.3|])
+      strictParseSimpleRange "<    1.2.3" `shouldBe` Right (Primitive LessThan [pv|1.2.3|])
+      strictParseSimpleRange "=  1.2.3" `shouldBe` Right (Primitive Equal [pv|1.2.3|])
+      strictParseSimpleRange "^  1.2.3" `shouldBe` Right (CaretRange [pv|1.2.3|])
+      strictParseSimpleRange "~ 1.2.3" `shouldBe` Right (TildeRange [pv|1.2.3|])
 
     it "parses simple range expression with trailing content" $ do
-      looseParseSimple "* 1.2.3" `shouldBe` Right (Primitive Equal [pv|*|])
-      looseParseSimple "<1.2.3 || 5" `shouldBe` Right (Primitive LessThan [pv|1.2.3|])
-      looseParseSimple "<1.2.3 a 5" `shouldBe` Right (Primitive LessThan [pv|1.2.3|])
+      looseParseSimpleRange "* 1.2.3" `shouldBe` Right (Primitive Equal [pv|*|])
+      looseParseSimpleRange "<1.2.3 || 5" `shouldBe` Right (Primitive LessThan [pv|1.2.3|])
+      looseParseSimpleRange "<1.2.3 a 5" `shouldBe` Right (Primitive LessThan [pv|1.2.3|])
 
     it "rejects invalid formats" $ do
-      isLeft (strictParseSimple "") `shouldBe` True
-      isLeft (strictParseSimple "foo") `shouldBe` True
-      isLeft (strictParseSimple "$1.2.3") `shouldBe` True
-      isLeft (strictParseSimple "?1.x.x") `shouldBe` True
+      isLeft (strictParseSimpleRange "") `shouldBe` True
+      isLeft (strictParseSimpleRange "foo") `shouldBe` True
+      isLeft (strictParseSimpleRange "$1.2.3") `shouldBe` True
+      isLeft (strictParseSimpleRange "?1.x.x") `shouldBe` True
 
   describe "hyphenRangeParser" $ do
     let looseParseHyphenRange = P.parse hyphenRangeParser ""
@@ -109,25 +109,25 @@ spec_SemanticVersion_RangeExpression = do
       isLeft (strictParseHyphenRange "1.2 - ") `shouldBe` True
       isLeft (strictParseHyphenRange "1.2 - a") `shouldBe` True
 
-  describe "rangeExpressionParser" $ do
-    let looseParseRangeExpression = P.parse rangeExpressionParser ""
-        strictParseRangeExpression = P.parse (rangeExpressionParser <* P.eof) ""
+  describe "rangeParser" $ do
+    let looseRangeParser = P.parse rangeParser ""
+        strictRangeParser = P.parse (rangeParser <* P.eof) ""
 
     it "parses empty input correctly" $
-      strictParseRangeExpression "" `shouldBe` Right (Simple $ pure $ Primitive Equal Any)
+      strictRangeParser "" `shouldBe` Right (Simple $ pure $ Primitive Equal Any)
 
-    it "parses range expression with single simple range expression range" $ do
-      strictParseRangeExpression ">=1.2.3"
+    it "parses range with single simple range expression range" $ do
+      strictRangeParser ">=1.2.3"
         `shouldBe` Right
           ( Simple $
               NE.fromList
                 [ Primitive GreaterThanOrEqual [pv|1.2.3|]
                 ]
           )
-      strictParseRangeExpression "1 - 3" `shouldBe` Right (HyphenRange [pv|1|] [pv|3|])
+      strictRangeParser "1 - 3" `shouldBe` Right (HyphenRange [pv|1|] [pv|3|])
 
-    it "parses range expression with multiple simple range expression range" $ do
-      strictParseRangeExpression ">=1.2.3 <1.2.3"
+    it "parses range with multiple simple range expression range" $ do
+      strictRangeParser ">=1.2.3 <1.2.3"
         `shouldBe` Right
           ( Simple $
               NE.fromList
@@ -135,7 +135,7 @@ spec_SemanticVersion_RangeExpression = do
                   Primitive LessThan [pv|1.2.3|]
                 ]
           )
-      strictParseRangeExpression ">1.2.3    <=1.2.3      ^1.2  * ~0.1.X"
+      strictRangeParser ">1.2.3    <=1.2.3      ^1.2  * ~0.1.X"
         `shouldBe` Right
           ( Simple $
               NE.fromList
@@ -147,8 +147,8 @@ spec_SemanticVersion_RangeExpression = do
                 ]
           )
 
-    it "parses range expression with trailing content" $ do
-      looseParseRangeExpression ">=1.2.3 <1.2.3 || 1"
+    it "parses range with trailing content" $ do
+      looseRangeParser ">=1.2.3 <1.2.3 || 1"
         `shouldBe` Right
           ( Simple $
               NE.fromList
@@ -156,7 +156,7 @@ spec_SemanticVersion_RangeExpression = do
                   Primitive LessThan [pv|1.2.3|]
                 ]
           )
-      looseParseRangeExpression ">1.0.0 <=2.0.0 ^1.2 * ~0.1.X abc"
+      looseRangeParser ">1.0.0 <=2.0.0 ^1.2 * ~0.1.X abc"
         `shouldBe` Right
           ( Simple $
               NE.fromList
@@ -168,22 +168,22 @@ spec_SemanticVersion_RangeExpression = do
                 ]
           )
 
-    it "rejects range expressions that mix a hyphen range with simple range expressions" $ do
-      isLeft (strictParseRangeExpression ">=1.2.3 1.2.3 - 2.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression ">1.0.0 1.2.3 - 2.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression "<2.0.0 1.2.3 - 2.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression "1.2.3 - 2.0.0 >=3.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression "1.2.3 - 2.0.0 <3.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression "^1.0.0 1.2.3 - 2.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression "~1.0.0 1.2.3 - 2.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression "1.2.3 - 2.0.0 ^3.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression "1.x 1.2.3 - 2.0.0") `shouldBe` True
-      isLeft (strictParseRangeExpression "1.2.3 - 2.0.0 3.x") `shouldBe` True
-      isLeft (strictParseRangeExpression "1.2.3 - 2.0.0 1.2.3 - 2.0.0") `shouldBe` True
+    it "rejects ranges that mix a hyphen range with simple range expressions" $ do
+      isLeft (strictRangeParser ">=1.2.3 1.2.3 - 2.0.0") `shouldBe` True
+      isLeft (strictRangeParser ">1.0.0 1.2.3 - 2.0.0") `shouldBe` True
+      isLeft (strictRangeParser "<2.0.0 1.2.3 - 2.0.0") `shouldBe` True
+      isLeft (strictRangeParser "1.2.3 - 2.0.0 >=3.0.0") `shouldBe` True
+      isLeft (strictRangeParser "1.2.3 - 2.0.0 <3.0.0") `shouldBe` True
+      isLeft (strictRangeParser "^1.0.0 1.2.3 - 2.0.0") `shouldBe` True
+      isLeft (strictRangeParser "~1.0.0 1.2.3 - 2.0.0") `shouldBe` True
+      isLeft (strictRangeParser "1.2.3 - 2.0.0 ^3.0.0") `shouldBe` True
+      isLeft (strictRangeParser "1.x 1.2.3 - 2.0.0") `shouldBe` True
+      isLeft (strictRangeParser "1.2.3 - 2.0.0 3.x") `shouldBe` True
+      isLeft (strictRangeParser "1.2.3 - 2.0.0 1.2.3 - 2.0.0") `shouldBe` True
 
     it "rejects invalid formats" $ do
-      isLeft (strictParseRangeExpression "foo") `shouldBe` True
-      isLeft (strictParseRangeExpression ">1<2") `shouldBe` True
+      isLeft (strictRangeParser "foo") `shouldBe` True
+      isLeft (strictRangeParser ">1<2") `shouldBe` True
 
   describe "versionBounds" $ do
     let simple ~> expectedInterval =

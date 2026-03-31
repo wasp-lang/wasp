@@ -1,6 +1,4 @@
 {-# LANGUAGE DeriveLift #-}
-{-# HLINT ignore "Use <$>" #-}
-{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
 
 module Wasp.SemanticVersion.Range where
 
@@ -12,7 +10,7 @@ import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.PartialVersion (versionToPartialVersion)
-import Wasp.SemanticVersion.RangeExpression (PrimitiveOperator (..), RangeExpression (..), SimpleRangeExpression (..), rangeExpressionParser)
+import Wasp.SemanticVersion.RangeExpression (PrimitiveOperator (..), RangeExpression (..), SimpleRangeExpression (..), rangeParser)
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
@@ -29,7 +27,7 @@ import Wasp.Util.TH (quasiQuoterFromParser)
 data Range = Range (NE.NonEmpty RangeExpression)
   deriving (Eq, TH.Lift)
 
--- | We rely on this 'show' implementation to produce valid `node-semver` range.
+-- | We rely on this 'show' implementation to produce valid a `node-semver` output.
 instance Show Range where
   show (Range rangeExpressions) = intercalate " || " (show <$> NE.toList rangeExpressions)
 
@@ -97,21 +95,18 @@ r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
 
 parseRange :: String -> Either P.ParseError Range
-parseRange = P.parse (rangeParser <* P.eof) ""
+parseRange = P.parse (rangeSetParser <* P.eof) ""
 
 -- | Parses a version range.
 -- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
-rangeParser :: P.Parsec String () Range
-rangeParser = Range <$> rangeSetParser
+rangeSetParser :: P.Parsec String () Range
+rangeSetParser = do
+  first <- rangeSetItemParser
+  rest <- P.many $ P.try (logicalOrParser *> rangeSetItemParser)
+  pure $ Range $ NE.fromList (first : rest)
   where
-    rangeSetParser :: P.Parsec String () (NE.NonEmpty RangeExpression)
-    rangeSetParser = do
-      first <- rangeSetItemParser
-      rest <- P.many $ P.try (logicalOrParser *> rangeSetItemParser)
-      pure $ NE.fromList (first : rest)
-
     rangeSetItemParser :: P.Parsec String () RangeExpression
-    rangeSetItemParser = P.spaces *> rangeExpressionParser <* P.spaces
+    rangeSetItemParser = P.spaces *> rangeParser <* P.spaces
 
     logicalOrParser :: P.Parsec String () ()
     logicalOrParser = void (P.spaces *> P.string "||" <* P.spaces)

@@ -17,7 +17,6 @@ import Wasp.SemanticVersion.VersionBound
   )
 
 -- | A range expression is either a set of simple range expressions or a hyphen range.
--- See `range` definition here: https://github.com/npm/node-semver#range-grammar
 data RangeExpression
   = Simple (NE.NonEmpty SimpleRangeExpression)
   | HyphenRange PartialVersion PartialVersion
@@ -25,8 +24,6 @@ data RangeExpression
 
 -- | A simple range expression is composed of an operator and a partial version.
 -- Simple because all operators here require only a single partial version.
---
--- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
 -- NOTE: X-Range is already supported on all operators through the 'PartialVersion' implementation.
 data SimpleRangeExpression
   = -- | 1.2.3 (=1.2.3), >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
@@ -37,19 +34,37 @@ data SimpleRangeExpression
     CaretRange PartialVersion
   deriving (Eq, TH.Lift)
 
--- | We rely on this 'show' implementation to produce valid `node-semver` output.
+data PrimitiveOperator
+  = Equal
+  | LessThan
+  | LessThanOrEqual
+  | GreaterThan
+  | GreaterThanOrEqual
+  deriving (Eq, TH.Lift)
+
+-- | We rely on this 'show' implementation to produce a valid `node-semver` output.
 instance Show RangeExpression where
   show (Simple simpleRangeExpressions) = unwords $ show <$> NE.toList simpleRangeExpressions
   show (HyphenRange lower upper) = show lower ++ " - " ++ show upper
 
--- | We rely on this 'show' implementation to produce valid `node-semver` output.
+-- | We rely on this 'show' implementation to produce a valid `node-semver` output.
 instance Show SimpleRangeExpression where
   show (Primitive primOp pv) = show primOp ++ show pv
   show (TildeRange pv) = "~" ++ show pv
   show (CaretRange pv) = "^" ++ show pv
 
--- | We define concatenation of two comparator sets as a union of their range expressions.
--- Hyphen Ranges can't be combined with other comparator sets.
+-- | We rely on this 'show' implementation to produce a valid `node-semver` output.
+instance Show PrimitiveOperator where
+  -- Equal shows as "" because both "=1.2.3" and "1.2.3" are valid,
+  -- and the canonical form omits the "=".
+  show Equal = ""
+  show LessThan = "<"
+  show LessThanOrEqual = "<="
+  show GreaterThan = ">"
+  show GreaterThanOrEqual = ">="
+
+-- | We define concatenation of two range expressions as their union.
+-- 'HyphenRange' can't be combined with other range expressions.
 instance Semigroup RangeExpression where
   (Simple left) <> (Simple right) = Simple $ NE.nub $ left <> right
   (HyphenRange _ _) <> _ = error "Cannot combine Hyphen Range with other comparator sets"
@@ -97,28 +112,40 @@ toCareRangetUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc +
 toCareRangetUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
 toCareRangetUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
 
+toXRangeUpperBound :: PartialVersion -> VersionBound
+toXRangeUpperBound Any = Inf
+toXRangeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
+toXRangeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
+toXRangeUpperBound (MajorMinorPatch mjr mnr ptc) = Inclusive (Version mjr mnr ptc)
+
+toXRangeLowerBound :: PartialVersion -> VersionBound
+toXRangeLowerBound Any = Inclusive $ Version 0 0 0
+toXRangeLowerBound (Major mjr) = Inclusive $ Version mjr 0 0
+toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr mnr 0
+toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr ptc
+
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
-rangeExpressionParser :: P.Parsec String () RangeExpression
-rangeExpressionParser =
+rangeParser :: P.Parsec String () RangeExpression
+rangeParser =
   P.choice
     [ P.try hyphenRangeParser,
-      P.try simpleSetParser,
+      P.try simpleRangeSetParser,
       emptyRangeParser
     ]
   where
-    simpleSetParser :: P.Parsec String () RangeExpression
-    simpleSetParser = do
-      first <- simpleRangeExpressionParser
-      rest <- P.many $ P.try (P.many1 P.space *> simpleRangeExpressionParser)
-      pure $ Simple (NE.fromList (first : rest))
+    simpleRangeSetParser :: P.Parsec String () RangeExpression
+    simpleRangeSetParser = do
+      first <- simpleRangeParser
+      rest <- P.many $ P.try (P.many1 P.space *> simpleRangeParser)
+      pure $ Simple $ NE.fromList (first : rest)
 
     -- `node-semver` parses empty input as the equals any comparator (*).
     emptyRangeParser :: P.Parsec String () RangeExpression
     emptyRangeParser = (Simple . pure $ Primitive Equal Any) <$ P.eof
 
 -- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
-simpleRangeExpressionParser :: P.Parsec String () SimpleRangeExpression
-simpleRangeExpressionParser =
+simpleRangeParser :: P.Parsec String () SimpleRangeExpression
+simpleRangeParser =
   P.choice
     [ tildeRangeParser,
       caretRangeParser,
@@ -147,7 +174,6 @@ simpleRangeExpressionParser =
           Equal <$ P.string ""
         ]
 
--- | Parses a hyphen range.
 -- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
 hyphenRangeParser :: P.Parsec String () RangeExpression
 hyphenRangeParser = do
@@ -159,33 +185,3 @@ hyphenRangeParser = do
     -- Must must exactly 1 white space character around the hyphen.
     hyphenRangeSeparatorParser :: P.Parsec String () Char
     hyphenRangeSeparatorParser = P.space *> P.char '-' <* P.space
-
-data PrimitiveOperator
-  = Equal
-  | LessThan
-  | LessThanOrEqual
-  | GreaterThan
-  | GreaterThanOrEqual
-  deriving (Eq, TH.Lift)
-
--- | We rely on this 'show' implementation to produce valid `node-semver` comparator.
-instance Show PrimitiveOperator where
-  -- Equal shows as "" because both "=1.2.3" and "1.2.3" are valid,
-  -- and the canonical form omits the "=".
-  show Equal = ""
-  show LessThan = "<"
-  show LessThanOrEqual = "<="
-  show GreaterThan = ">"
-  show GreaterThanOrEqual = ">="
-
-toXRangeUpperBound :: PartialVersion -> VersionBound
-toXRangeUpperBound Any = Inf
-toXRangeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toXRangeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0)
-toXRangeUpperBound (MajorMinorPatch mjr mnr ptc) = Inclusive (Version mjr mnr ptc)
-
-toXRangeLowerBound :: PartialVersion -> VersionBound
-toXRangeLowerBound Any = Inclusive $ Version 0 0 0
-toXRangeLowerBound (Major mjr) = Inclusive $ Version mjr 0 0
-toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr mnr 0
-toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr ptc

@@ -35,7 +35,7 @@ data PartialVersion
     Any
   deriving (Eq, TH.Lift)
 
--- | We rely on this 'show' implementation to produce valid `node-semver` partial version.
+-- | We rely on this 'show' implementation to produce a valid `node-semver` output.
 instance Show PartialVersion where
   show (MajorMinorPatch mjr mnr ptc) = printf "%d.%d.%d" mjr mnr ptc
   show (MajorMinor mjr mnr) = printf "%d.%d" mjr mnr

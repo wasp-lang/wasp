@@ -20,7 +20,6 @@ import Wasp.SemanticVersion.Range
     lte,
     parseRange,
     r,
-    rangeParser,
   )
 import Wasp.SemanticVersion.Version
   ( Version (..),
