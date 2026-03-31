@@ -51,7 +51,7 @@ app MyApp {
 }
 ```
 
-### 3. Update your `app.head` tags to be valid JSX
+### 3. Update your `app.head` tags to be valid React
 
 **If you don't have `app.head` defined in your Wasp file, you can skip this step.**
 
@@ -60,6 +60,40 @@ We now use React to output the base `index.html` for your client app, as we set 
 To make sure all tags in `app.head` are valid React JSX, check that every tag is either self-closing (e.g. `<meta ... />`) or has a matching closing tag (e.g. `<script>...</script>`). In JSX, even void HTML elements (like `<link>`, `<meta>`, and `<base>`) need a trailing `/>`.
 
 Wasp will print an error on compilation if it encounters any invalid JSX in `app.head`, so you can use that as a guide to fix any issues.
+
+Also, if you have any `<script defer>` tags in `app.head`, you should replace `defer` with `async`, due to a [bug in React](https://github.com/facebook/react/issues/36169), or you will get hydration warnings.
+
+For example, if your `app.head` looked like this before:
+
+```wasp title="main.wasp"
+app MyApp {
+  // ...
+  head: [
+    // highlight-next-line
+    "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto\">",
+    // highlight-next-line
+    "<meta name=\"description\" content=\"My App\">",
+    // highlight-next-line
+    "<script defer src=\"https://example.com/script.js\"></script>"
+  ]
+}
+```
+
+You should update it to:
+
+```wasp title="main.wasp"
+app MyApp {
+  // ...
+  head: [
+    // highlight-next-line
+    "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto\" />",
+    // highlight-next-line
+    "<meta name=\"description\" content=\"My App\" />",
+    // highlight-next-line
+    "<script async src=\"https://example.com/script.js\"></script>"
+  ]
+}
+```
 
 ### 4. Update your env validation schemas
 
