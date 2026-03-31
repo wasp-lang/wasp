@@ -11,6 +11,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
 - HTML head tags specified in `app.head` must now be valid React JSX. ([#3855](https://github.com/wasp-lang/wasp/pull/3855))
 - Page routes are now loaded lazily by default. You can set `lazy: false` per-route to disable this behavior. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
+- The `api` export from `wasp/client/api` now wraps native `fetch` instead of Axios. If you use `api` directly, update your calls to match the `fetch` API (e.g. `api('/path')` instead of `api.get('/path')`). ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
 
 ### 🎉 New Features
 
