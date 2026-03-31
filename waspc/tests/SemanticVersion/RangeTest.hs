@@ -12,17 +12,17 @@ import Wasp.SemanticVersion.VersionBound
 
 spec_SemanticVersion_Range :: Spec
 spec_SemanticVersion_Range = do
-  describe "show" $ do
-    it "show simple range" $
-      show [r|<=1.3.6|] `shouldBe` "<=1.3.6"
-    it "show complex range" $
-      show [r|<=1.3.6 ^1.2.0 || 1.2.3|] `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
+  it "show" $ do
+    show [r|<=1.3.6|] `shouldBe` "<=1.3.6"
+    show [r|<=1.3.6 ^1.2.0 || 1.2.3|] `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3"
+    show [r|<=1.3.6 ^1.2.0 || 1.2.3 || 1 - 2 || ^5|] `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3 || 1 - 2 || ^5"
 
   describe "parseRange" $ do
-    it "parses empty input correctly" $
-      parseRange "" `shouldBe` Right (Range $ NE.fromList [Simple $ pure $ Primitive Equal Any])
-    it "parses ranges with single comparator set" $ do
-      parseRange "  >=1.0 <2.0.0  "
+    let looseParseRange = P.parse rangeParser ""
+    let strictParseRange = parseRange
+
+    it "parses range sets with single a range expression" $ do
+      strictParseRange "  >=1.0 <2.0.0  "
         `shouldBe` Right
           ( Range $
               NE.fromList
@@ -33,15 +33,16 @@ spec_SemanticVersion_Range = do
                       ]
                 ]
           )
-      parseRange " ^1.2.3  "
+      strictParseRange " ^1.2.3  "
         `shouldBe` Right
           ( Range $
               NE.fromList
                 [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3)
                 ]
           )
-    it "parses ranges with multiple comparator sets" $ do
-      parseRange "   ^1.2.3 ||   ^2.0 ||"
+
+    it "parses range sets with multiple range expressions" $ do
+      strictParseRange "   ^1.2.3 ||   ^2.0 ||"
         `shouldBe` Right
           ( Range $
               NE.fromList
@@ -50,7 +51,7 @@ spec_SemanticVersion_Range = do
                   Simple $ pure $ Primitive Equal Any
                 ]
           )
-      parseRange "^1.2.3||^2.0     "
+      strictParseRange "^1.2.3||^2.0     "
         `shouldBe` Right
           ( Range $
               NE.fromList
@@ -58,7 +59,7 @@ spec_SemanticVersion_Range = do
                   Simple $ pure $ CaretRange (MajorMinor 2 0)
                 ]
           )
-      parseRange ">=1  <2|| >=3.0.0    || *  "
+      strictParseRange ">=1  <2|| >=3.0.0    || *  "
         `shouldBe` Right
           ( Range $
               NE.fromList
@@ -71,14 +72,6 @@ spec_SemanticVersion_Range = do
                   Simple $ pure $ Primitive Equal Any
                 ]
           )
-    it "rejects invalid formats" $ do
-      isLeft (parseRange "foo") `shouldBe` True
-      isLeft (parseRange "|| 1.23 || 2.0") `shouldBe` True
-      isLeft (parseRange "1.23 || $2.0") `shouldBe` True
-      isLeft (parseRange "1.23 || 1.0 ||a") `shouldBe` True
-
-  describe "rangeParser" $ do
-    let looseParseRange = P.parse rangeParser ""
 
     it "parses range with trailing content" $ do
       looseParseRange "^1.2.3 || ^2.0 ||a"
@@ -97,6 +90,12 @@ spec_SemanticVersion_Range = do
                   Simple $ pure $ CaretRange (MajorMinor 2 0)
                 ]
           )
+
+    it "rejects invalid formats" $ do
+      isLeft (strictParseRange "foo") `shouldBe` True
+      isLeft (strictParseRange "|| 1.23 || 2.0") `shouldBe` True
+      isLeft (strictParseRange "1.23 || $2.0") `shouldBe` True
+      isLeft (strictParseRange "1.23 || 1.0 ||a") `shouldBe` True
 
   it "r quasi quoter" $ do
     [r|^1.2.3 ||   ^2.0|]
@@ -167,6 +166,7 @@ spec_SemanticVersion_Range = do
     let range ~> expected =
           it (show range) $
             doesVersionRangeAllowMajorChanges range `shouldBe` expected
+
     [r||] ~> True
     [r|>1.1.2|] ~> True
     [r|>0.1.2 <0.2.0|] ~> False

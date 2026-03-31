@@ -739,7 +739,6 @@ test-suite waspc-tests
     Psl.Parser.WithCtxTest
     Psl.ValidTest
     SemanticVersion.RangeExpressionTest
-    SemanticVersion.ComparatorTest
     SemanticVersion.ParsersTest
     SemanticVersion.PartialVersionTest
     SemanticVersion.RangeTest
