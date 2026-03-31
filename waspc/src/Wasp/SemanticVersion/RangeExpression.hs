@@ -63,12 +63,12 @@ instance Show PrimitiveOperator where
   show GreaterThan = ">"
   show GreaterThanOrEqual = ">="
 
--- | We define concatenation of two range expressions as their union.
+-- | We define concatenation of two range expressions as their intersection.
 -- 'HyphenRange' can't be combined with other range expressions.
 instance Semigroup RangeExpression where
   (Simple left) <> (Simple right) = Simple $ NE.nub $ left <> right
-  (HyphenRange _ _) <> _ = error "Cannot combine Hyphen Range with other comparator sets"
-  _ <> (HyphenRange _ _) = error "Cannot combine Hyphen Range with other comparator sets"
+  (HyphenRange _ _) <> _ = error "Cannot intersect Hyphen Range with other range expressions"
+  _ <> (HyphenRange _ _) = error "Cannot intersect Hyphen Range with other range expressions"
 
 instance HasVersionBounds RangeExpression where
   versionBounds (Simple simpleRangeExpressions) =
@@ -91,7 +91,7 @@ instance HasVersionBounds SimpleRangeExpression where
       (MajorMinorPatch mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
     GreaterThanOrEqual -> (toXRangeLowerBound pv, Inf)
   versionBounds (TildeRange pv) = (toXRangeLowerBound pv, toTildeRangeUpperBound pv)
-  versionBounds (CaretRange pv) = (toXRangeLowerBound pv, toCareRangetUpperBound pv)
+  versionBounds (CaretRange pv) = (toXRangeLowerBound pv, toCaretRangetUpperBound pv)
 
 -- | Tilde range allows patch-level changes if minor is specified.
 toTildeRangeUpperBound :: PartialVersion -> VersionBound
@@ -101,16 +101,16 @@ toTildeRangeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0
 toTildeRangeUpperBound (MajorMinorPatch mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
 
 -- | Caret range allows changes that don't modify the leftmost non-zero digit.
-toCareRangetUpperBound :: PartialVersion -> VersionBound
-toCareRangetUpperBound Any = Inf
-toCareRangetUpperBound (Major 0) = Exclusive (Version 1 0 0)
-toCareRangetUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toCareRangetUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
-toCareRangetUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
-toCareRangetUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
-toCareRangetUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
-toCareRangetUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
-toCareRangetUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
+toCaretRangetUpperBound :: PartialVersion -> VersionBound
+toCaretRangetUpperBound Any = Inf
+toCaretRangetUpperBound (Major 0) = Exclusive (Version 1 0 0)
+toCaretRangetUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
+toCaretRangetUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
+toCaretRangetUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
+toCaretRangetUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
+toCaretRangetUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
+toCaretRangetUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
+toCaretRangetUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
 
 toXRangeUpperBound :: PartialVersion -> VersionBound
 toXRangeUpperBound Any = Inf
@@ -139,7 +139,7 @@ rangeParser =
       rest <- P.many $ P.try (P.many1 P.space *> simpleRangeParser)
       pure $ Simple $ NE.fromList (first : rest)
 
-    -- `node-semver` parses empty input as the equals any comparator (*).
+    -- `node-semver` parses empty input as the equals any range (*).
     emptyRangeParser :: P.Parsec String () RangeExpression
     emptyRangeParser = (Simple . pure $ Primitive Equal Any) <$ P.eof
 
@@ -158,7 +158,7 @@ simpleRangeParser =
     caretRangeParser :: P.Parsec String () SimpleRangeExpression
     caretRangeParser = CaretRange <$> (P.char '^' *> P.spaces *> partialVersionParser)
 
-    -- See `primitive` definition here: https://github.com/npm/node-semver#ran`ge-grammar
+    -- See `primitive` definition here: https://github.com/npm/node-semver#range-grammar
     primitiveParser :: P.Parsec String () SimpleRangeExpression
     primitiveParser =
       Primitive <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
@@ -182,6 +182,6 @@ hyphenRangeParser = do
   upper <- partialVersionParser
   pure $ HyphenRange lower upper
   where
-    -- Must must exactly 1 white space character around the hyphen.
+    -- Must have exactly 1 white space character around the hyphen.
     hyphenRangeSeparatorParser :: P.Parsec String () Char
     hyphenRangeSeparatorParser = P.space *> P.char '-' <* P.space

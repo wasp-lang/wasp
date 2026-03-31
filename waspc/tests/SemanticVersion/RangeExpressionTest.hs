@@ -275,7 +275,7 @@ spec_SemanticVersion_RangeExpression = do
         ]
       )
       ~> [vi| [1.2.0, 1.3.0) |]
-    -- Three comparators: the tightest wins on each side
+    -- Three range expressions: the tightest wins on each side
     ( Simple . NE.fromList $
         [ Primitive GreaterThan [pv|0.5.0|],
           Primitive LessThan [pv|3.0.0|],

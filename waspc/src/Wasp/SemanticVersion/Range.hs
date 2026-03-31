@@ -22,8 +22,7 @@ import Wasp.SemanticVersion.VersionBound
   )
 import Wasp.Util.TH (quasiQuoterFromParser)
 
--- | Comparator sets can be joined by "||" to form a range,
--- which is satisfied by satisfying any of the comparator sets it includes.
+-- | A range is composed of one or more range expressions.
 data Range = Range (NE.NonEmpty RangeExpression)
   deriving (Eq, TH.Lift)
 
@@ -31,7 +30,7 @@ data Range = Range (NE.NonEmpty RangeExpression)
 instance Show Range where
   show (Range rangeExpressions) = intercalate " || " (show <$> NE.toList rangeExpressions)
 
--- | We define concatenation of two version ranges as a union of their comparator sets.
+-- | We define concatenation of two version ranges as a union of their range expressions.
 instance Semigroup Range where
   (Range csets1) <> (Range csets2) = Range $ NE.nub $ csets1 <> csets2
 

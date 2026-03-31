@@ -125,7 +125,7 @@ spec_SemanticVersion_Range = do
             ]
         )
 
-  it "concatenating version ranges produces union of their comparator sets" $ do
+  it "concatenating ranges should produce union of their range expressions" $ do
     let r1 = [r|>1.0.0 || <2.0.0|]
     let r2 = [r|<2.0.0|]
     r1 <> r2 `shouldBe` r1
