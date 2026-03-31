@@ -319,6 +319,7 @@ async function fetchStream(
     }
   }
 }
+```
 
 ## API Reference
 
