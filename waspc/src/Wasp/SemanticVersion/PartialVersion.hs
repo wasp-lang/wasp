@@ -2,7 +2,7 @@
 
 module Wasp.SemanticVersion.PartialVersion
   ( PartialVersion (..),
-    fromVersion,
+    versionToPartialVersion,
     parsePartialVersion,
     partialVersionParser,
     pv,
@@ -42,8 +42,8 @@ instance Show PartialVersion where
   show (Major mjr) = printf "%d" mjr
   show Any = "*"
 
-fromVersion :: Version -> PartialVersion
-fromVersion (Version mjr mnr ptc) = MajorMinorPatch mjr mnr ptc
+versionToPartialVersion :: Version -> PartialVersion
+versionToPartialVersion (Version mjr mnr ptc) = MajorMinorPatch mjr mnr ptc
 
 pv :: TH.QuasiQuoter
 pv = quasiQuoterFromParser parsePartialVersion

@@ -29,7 +29,7 @@ import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.Comparator (Comparator (..), PrimitiveOperator (..))
 import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), SimpleRangeExpression (..), comparatorSetParser)
-import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), fromVersion)
+import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), versionToPartialVersion)
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
@@ -83,19 +83,19 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
 -- Helper methods for constructing a 'Range'.
 
 caretRange :: Version -> Range
-caretRange = Range . pure . SimpleComparatorSet . NE.fromList . pure . CaretRange . fromVersion
+caretRange = Range . pure . SimpleComparatorSet . NE.fromList . pure . CaretRange . versionToPartialVersion
 
 backwardsCompatibleWith :: Version -> Range
 backwardsCompatibleWith = caretRange
 
 tildeRange :: Version -> Range
-tildeRange = Range . pure . SimpleComparatorSet . NE.fromList . pure . TildeRange . fromVersion
+tildeRange = Range . pure . SimpleComparatorSet . NE.fromList . pure . TildeRange . versionToPartialVersion
 
 approximatelyEquivalentTo :: Version -> Range
 approximatelyEquivalentTo = tildeRange
 
 hyphenRange :: Version -> Version -> Range
-hyphenRange v1 v2 = Range [HyphenRange (fromVersion v1) (fromVersion v2)]
+hyphenRange v1 v2 = Range [HyphenRange (versionToPartialVersion v1) (versionToPartialVersion v2)]
 
 lt :: Version -> Range
 lt = mkComparatorRange LessThan
@@ -113,7 +113,7 @@ eq :: Version -> Range
 eq = mkComparatorRange Equal
 
 mkComparatorRange :: PrimitiveOperator -> Version -> Range
-mkComparatorRange op = Range . pure . SimpleComparatorSet . NE.fromList . pure . Primitive . Comparator op . fromVersion
+mkComparatorRange op = Range . pure . SimpleComparatorSet . NE.fromList . pure . Primitive . Comparator op . versionToPartialVersion
 
 r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
