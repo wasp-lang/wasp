@@ -59,19 +59,19 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
 -- Helper methods for constructing a 'Range'.
 
 caretRange :: Version -> Range
-caretRange = Range . pure . Simple . NE.fromList . pure . CaretRange . versionToPartialVersion
+caretRange = Range . pure . Simple . pure . CaretRange . versionToPartialVersion
 
 backwardsCompatibleWith :: Version -> Range
 backwardsCompatibleWith = caretRange
 
 tildeRange :: Version -> Range
-tildeRange = Range . pure . Simple . NE.fromList . pure . TildeRange . versionToPartialVersion
+tildeRange = Range . pure . Simple . pure . TildeRange . versionToPartialVersion
 
 approximatelyEquivalentTo :: Version -> Range
 approximatelyEquivalentTo = tildeRange
 
 hyphenRange :: Version -> Version -> Range
-hyphenRange v1 v2 = Range $ NE.fromList [HyphenRange (versionToPartialVersion v1) (versionToPartialVersion v2)]
+hyphenRange v1 v2 = Range $ pure $ HyphenRange (versionToPartialVersion v1) (versionToPartialVersion v2)
 
 lt :: Version -> Range
 lt = mkSimpleRange LessThan
@@ -89,7 +89,7 @@ eq :: Version -> Range
 eq = mkSimpleRange Equal
 
 mkSimpleRange :: PrimitiveOperator -> Version -> Range
-mkSimpleRange op = Range . pure . Simple . NE.fromList . pure . Primitive op . versionToPartialVersion
+mkSimpleRange op = Range . pure . Simple . pure . Primitive op . versionToPartialVersion
 
 r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
