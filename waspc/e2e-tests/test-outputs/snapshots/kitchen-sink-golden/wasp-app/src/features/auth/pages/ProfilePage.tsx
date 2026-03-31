@@ -5,8 +5,9 @@ import { cn } from "../../../cn";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 async function fetchCustomRoute() {
-  const res = await api.get("/foo/bar");
-  console.log(res.data);
+  const res = await api("/foo/bar");
+  const data = await res.json();
+  console.log(data);
 }
 
 export const ProfilePage = ({ user }: { user: AuthUser }) => {

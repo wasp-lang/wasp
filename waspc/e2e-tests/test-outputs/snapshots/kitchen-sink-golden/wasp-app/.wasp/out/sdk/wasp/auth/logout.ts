@@ -4,7 +4,7 @@ import { invalidateAndRemoveQueries } from '../client/operations/internal/resour
 // PUBLIC API
 export default async function logout(): Promise<void> {
   try {
-    await api.post('/auth/logout')
+    await api('/auth/logout', { method: 'POST' })
   } finally {
     // Even if the logout request fails, we still want to remove the local user data
     // in case the logout failed because of a network error and the user walked away

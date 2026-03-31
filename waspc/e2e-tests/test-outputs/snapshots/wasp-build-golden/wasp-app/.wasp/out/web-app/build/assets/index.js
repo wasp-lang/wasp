@@ -5,7 +5,6 @@ import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import axios from "axios";
 import * as z from "zod";
 import mitt from "mitt";
 import "superjson";
@@ -162,10 +161,7 @@ function getClientEnvSchema(mode) {
 }
 const __vite_import_meta_env__ = { "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "REACT_APP_API_URL": "http://localhost:3001", "SSR": false };
 const env = ensureEnvSchema(__vite_import_meta_env__, getClientEnvSchema());
-const apiUrl = stripTrailingSlash(env["REACT_APP_API_URL"]);
-const config = {
-  apiUrl
-};
+stripTrailingSlash(env["REACT_APP_API_URL"]);
 var HttpMethod;
 (function(HttpMethod2) {
   HttpMethod2["Get"] = "GET";
@@ -229,33 +225,7 @@ function createLocalStorageDataStore(prefix) {
   };
 }
 const apiEventsEmitter = mitt();
-const api = axios.create({
-  baseURL: config.apiUrl
-});
 const WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
-function getSessionId() {
-  const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
-  return sessionId ?? null;
-}
-function clearSessionId() {
-  storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
-  apiEventsEmitter.emit("sessionId.clear");
-}
-api.interceptors.request.use((config2) => {
-  const sessionId = getSessionId();
-  if (sessionId !== null) {
-    config2.headers["Authorization"] = `Bearer ${sessionId}`;
-  }
-  return config2;
-});
-api.interceptors.response.use(void 0, (error) => {
-  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers["Authorization"]);
-  const currentSessionId = getSessionId();
-  if (error.response?.status === 401 && failingSessionId === currentSessionId) {
-    clearSessionId();
-  }
-  return Promise.reject(error);
-});
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
     if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
@@ -266,14 +236,6 @@ if (typeof window !== "undefined") {
       }
     }
   });
-}
-function getSessionIdFromAuthorizationHeader(header) {
-  const prefix = "Bearer ";
-  if (header && header.startsWith(prefix)) {
-    return header.substring(prefix.length);
-  } else {
-    return null;
-  }
 }
 const defaultQueryClientConfig = {};
 let resolveQueryClientInitialized;

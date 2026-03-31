@@ -1,12 +1,13 @@
-import { api, handleApiError } from 'wasp/client/api';
+import { api } from 'wasp/client/api';
 import { initSession } from '../../helpers/user';
 
 // PUBLIC API
 export async function login(data: { email: string; password: string }): Promise<void> {
-    try {
-        const response = await api.post('/auth/email/login', data);
-        await initSession(response.data.sessionId);
-    } catch (e) {
-        throw handleApiError(e);
-    }
+    const response = await api('/auth/email/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+    });
+    const json = await response.json();
+    await initSession(json.sessionId);
 }
