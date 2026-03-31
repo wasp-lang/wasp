@@ -28,7 +28,7 @@ import Wasp.Util.TH (quasiQuoterFromParser)
 
 -- | Comparator sets can be joined by "||" to form a range,
 -- which is satisfied by satisfying any of the comparator sets it includes.
-data Range = Range [ComparatorSet]
+data Range = Range [RangeExpression]
   deriving (Eq, TH.Lift)
 
 -- | We rely on this 'show' implementation to produce valid `node-semver` range.
@@ -49,7 +49,7 @@ instance HasVersionBounds Range where
 isVersionInRange :: Version -> Range -> Bool
 isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
 
-doesVersionSatisfyComparatorSet :: Version -> ComparatorSet -> Bool
+doesVersionSatisfyComparatorSet :: Version -> RangeExpression -> Bool
 doesVersionSatisfyComparatorSet version compSet =
   isVersionInInterval (versionBounds compSet) version
 
@@ -67,13 +67,13 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
 -- Helper methods for constructing a 'Range'.
 
 caretRange :: Version -> Range
-caretRange = Range . pure . SimpleComparatorSet . NE.fromList . pure . CaretRange . versionToPartialVersion
+caretRange = Range . pure . Simple . NE.fromList . pure . CaretRange . versionToPartialVersion
 
 backwardsCompatibleWith :: Version -> Range
 backwardsCompatibleWith = caretRange
 
 tildeRange :: Version -> Range
-tildeRange = Range . pure . SimpleComparatorSet . NE.fromList . pure . TildeRange . versionToPartialVersion
+tildeRange = Range . pure . Simple . NE.fromList . pure . TildeRange . versionToPartialVersion
 
 approximatelyEquivalentTo :: Version -> Range
 approximatelyEquivalentTo = tildeRange
@@ -97,7 +97,7 @@ eq :: Version -> Range
 eq = mkComparatorRange Equal
 
 mkComparatorRange :: PrimitiveOperator -> Version -> Range
-mkComparatorRange op = Range . pure . SimpleComparatorSet . NE.fromList . pure . Primitive op . versionToPartialVersion
+mkComparatorRange op = Range . pure . Simple . NE.fromList . pure . Primitive op . versionToPartialVersion
 
 r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
@@ -110,35 +110,30 @@ parseRange = P.parse (rangeParser <* P.eof) ""
 rangeParser :: P.Parsec String () Range
 rangeParser = Range <$> rangeSetParser
   where
-    rangeSetParser :: P.Parsec String () [ComparatorSet]
+    rangeSetParser :: P.Parsec String () [RangeExpression]
     rangeSetParser = do
-      first <- rangeExpressionParser
-      rest <- P.many $ P.try (logicalOrParser *> rangeExpressionParser)
+      first <- rangeSetItemParser
+      rest <- P.many $ P.try (logicalOrParser *> rangeSetItemParser)
       pure (first : rest)
 
-    rangeExpressionParser :: P.Parsec String () ComparatorSet
-    rangeExpressionParser = P.spaces *> (comparatorSetParser P.<|> emptyRangeParser) <* P.spaces
-
-    -- `node-semver` parses empty input as the equals any comparator (*).
-    emptyRangeParser :: P.Parsec String () ComparatorSet
-    emptyRangeParser = (SimpleComparatorSet . pure $ Primitive Equal Any) <$ P.eof
+    rangeSetItemParser :: P.Parsec String () RangeExpression
+    rangeSetItemParser = P.spaces *> rangeExpressionParser <* P.spaces
 
     logicalOrParser :: P.Parsec String () ()
     logicalOrParser = void (P.spaces *> P.string "||" <* P.spaces)
 
--- | A comparator set is either a sequence of simple range expressions or a hyphen range.
---
--- The name comparator set comes from the fact that all items of comparator set
--- can be desguared into comparators.
-data ComparatorSet
-  = SimpleComparatorSet (NE.NonEmpty SimpleRangeExpression)
+-- | A range expression is either a set of simple range expressions or a hyphen range.
+-- See `range` definition here: https://github.com/npm/node-semver#range-grammar
+data RangeExpression
+  = Simple (NE.NonEmpty SimpleRangeExpression)
   | HyphenRange PartialVersion PartialVersion
   deriving (Eq, TH.Lift)
 
--- | Anything that is either a comparator, or can be desugared into comparators.
+-- | A simple range expression is composed of an operator and a partial version.
 -- Simple because all operators here require only a single partial version.
 --
--- X-Range is already supported on all operators through the 'PartialVersion' implementation.
+-- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
+-- NOTE: X-Range is already supported on all operators through the 'PartialVersion' implementation.
 data SimpleRangeExpression
   = -- | 1.2.3 (=1.2.3), >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
     Primitive PrimitiveOperator PartialVersion
@@ -148,12 +143,12 @@ data SimpleRangeExpression
     CaretRange PartialVersion
   deriving (Eq, TH.Lift)
 
--- | We rely on this 'show' implementation to produce valid `node-semver` comparator set.
-instance Show ComparatorSet where
-  show (SimpleComparatorSet simpleRangeExpressions) = unwords $ show <$> NE.toList simpleRangeExpressions
+-- | We rely on this 'show' implementation to produce valid `node-semver` output.
+instance Show RangeExpression where
+  show (Simple simpleRangeExpressions) = unwords $ show <$> NE.toList simpleRangeExpressions
   show (HyphenRange lower upper) = show lower ++ " - " ++ show upper
 
--- | We rely on this 'show' implementation to produce valid `node-semver` simple comparator.
+-- | We rely on this 'show' implementation to produce valid `node-semver` output.
 instance Show SimpleRangeExpression where
   show (Primitive primOp pv) = show primOp ++ show pv
   show (TildeRange pv) = "~" ++ show pv
@@ -161,13 +156,13 @@ instance Show SimpleRangeExpression where
 
 -- | We define concatenation of two comparator sets as a union of their range expressions.
 -- Hyphen Ranges can't be combined with other comparator sets.
-instance Semigroup ComparatorSet where
-  (SimpleComparatorSet left) <> (SimpleComparatorSet right) = SimpleComparatorSet $ NE.nub $ left <> right
+instance Semigroup RangeExpression where
+  (Simple left) <> (Simple right) = Simple $ NE.nub $ left <> right
   (HyphenRange _ _) <> _ = error "Cannot combine Hyphen Range with other comparator sets"
   _ <> (HyphenRange _ _) = error "Cannot combine Hyphen Range with other comparator sets"
 
-instance HasVersionBounds ComparatorSet where
-  versionBounds (SimpleComparatorSet simpleRangeExpressions) =
+instance HasVersionBounds RangeExpression where
+  versionBounds (Simple simpleRangeExpressions) =
     foldr1 intervalIntersection $ versionBounds <$> simpleRangeExpressions
   versionBounds (HyphenRange lower upper) = (toXRangeLowerBound lower, toXRangeUpperBound upper)
 
@@ -208,22 +203,25 @@ toCareRangetUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc +
 toCareRangetUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
 toCareRangetUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
 
--- | Parses a comparator set.
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
-comparatorSetParser :: P.Parsec String () ComparatorSet
-comparatorSetParser =
+rangeExpressionParser :: P.Parsec String () RangeExpression
+rangeExpressionParser =
   P.choice
     [ P.try hyphenRangeParser,
-      P.try simpleComparatorSetParser
+      P.try simpleSetParser,
+      emptyRangeParser
     ]
   where
-    simpleComparatorSetParser :: P.Parsec String () ComparatorSet
-    simpleComparatorSetParser = do
+    simpleSetParser :: P.Parsec String () RangeExpression
+    simpleSetParser = do
       first <- simpleRangeExpressionParser
       rest <- P.many $ P.try (P.many1 P.space *> simpleRangeExpressionParser)
-      pure $ SimpleComparatorSet (NE.fromList (first : rest))
+      pure $ Simple (NE.fromList (first : rest))
 
--- | Parses a simple range expression.
+    -- `node-semver` parses empty input as the equals any comparator (*).
+    emptyRangeParser :: P.Parsec String () RangeExpression
+    emptyRangeParser = (Simple . pure $ Primitive Equal Any) <$ P.eof
+
 -- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
 simpleRangeExpressionParser :: P.Parsec String () SimpleRangeExpression
 simpleRangeExpressionParser =
@@ -257,7 +255,7 @@ simpleRangeExpressionParser =
 
 -- | Parses a hyphen range.
 -- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
-hyphenRangeParser :: P.Parsec String () ComparatorSet
+hyphenRangeParser :: P.Parsec String () RangeExpression
 hyphenRangeParser = do
   lower <- partialVersionParser
   _ <- hyphenRangeSeparatorParser
@@ -297,23 +295,3 @@ toXRangeLowerBound Any = Inclusive $ Version 0 0 0
 toXRangeLowerBound (Major mjr) = Inclusive $ Version mjr 0 0
 toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr mnr 0
 toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr ptc
-
--- | Parses a single comparator.
--- See `primitive` definition here: https://github.com/npm/node-semver#ran`ge-grammar
--- comparatorParser :: P.Parsec String () Comparator
--- comparatorParser = primitiveComparatorParser
---   where
---     primitiveComparatorParser :: P.Parsec String () Comparator
---     primitiveComparatorParser =
---       Comparator <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
-
---     primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
---     primitiveOperatorParser =
---       P.choice
---         [ LessThanOrEqual <$ P.try (P.string "<="),
---           GreaterThanOrEqual <$ P.try (P.string ">="),
---           LessThan <$ P.char '<',
---           GreaterThan <$ P.char '>',
---           Equal <$ P.char '=',
---           Equal <$ P.string ""
---         ]

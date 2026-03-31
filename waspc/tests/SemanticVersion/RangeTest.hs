@@ -21,12 +21,12 @@ spec_SemanticVersion_Range = do
 
   describe "parseRange" $ do
     it "parses empty input correctly" $
-      parseRange "" `shouldBe` Right (Range [SimpleComparatorSet $ pure $ Primitive Equal Any])
+      parseRange "" `shouldBe` Right (Range [Simple $ pure $ Primitive Equal Any])
     it "parses ranges with single comparator set" $ do
       parseRange "  >=1.0 <2.0.0  "
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $
+              [ Simple $
                   NE.fromList
                     [ Primitive GreaterThanOrEqual (MajorMinor 1 0),
                       Primitive LessThan (MajorMinorPatch 2 0 0)
@@ -36,35 +36,35 @@ spec_SemanticVersion_Range = do
       parseRange " ^1.2.3  "
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3)
+              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3)
               ]
           )
     it "parses ranges with multiple comparator sets" $ do
       parseRange "   ^1.2.3 ||   ^2.0 ||"
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0),
-                SimpleComparatorSet $ pure $ Primitive Equal Any
+              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                Simple $ pure $ CaretRange (MajorMinor 2 0),
+                Simple $ pure $ Primitive Equal Any
               ]
           )
       parseRange "^1.2.3||^2.0     "
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                Simple $ pure $ CaretRange (MajorMinor 2 0)
               ]
           )
       parseRange ">=1  <2|| >=3.0.0    || *  "
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $
+              [ Simple $
                   NE.fromList
                     [ Primitive GreaterThanOrEqual (Major 1),
                       Primitive LessThan (Major 2)
                     ],
-                SimpleComparatorSet $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
-                SimpleComparatorSet $ pure $ Primitive Equal Any
+                Simple $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
+                Simple $ pure $ Primitive Equal Any
               ]
           )
     it "rejects invalid formats" $ do
@@ -80,38 +80,38 @@ spec_SemanticVersion_Range = do
       looseParseRange "^1.2.3 || ^2.0 ||a"
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                Simple $ pure $ CaretRange (MajorMinor 2 0)
               ]
           )
       looseParseRange "^1.2.3 || ^2.0 abc"
         `shouldBe` Right
           ( Range
-              [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+              [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+                Simple $ pure $ CaretRange (MajorMinor 2 0)
               ]
           )
 
   it "r quasi quoter" $ do
     [r|^1.2.3 ||   ^2.0|]
       `shouldBe` Range
-        [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-          SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+        [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+          Simple $ pure $ CaretRange (MajorMinor 2 0)
         ]
     [r|^1.2.3||^2.0|]
       `shouldBe` Range
-        [ SimpleComparatorSet $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-          SimpleComparatorSet $ pure $ CaretRange (MajorMinor 2 0)
+        [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
+          Simple $ pure $ CaretRange (MajorMinor 2 0)
         ]
     [r|>=1  <2|| >=3.0.0    || *|]
       `shouldBe` Range
-        [ SimpleComparatorSet $
+        [ Simple $
             NE.fromList
               [ Primitive GreaterThanOrEqual (Major 1),
                 Primitive LessThan (Major 2)
               ],
-          SimpleComparatorSet $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
-          SimpleComparatorSet $ pure $ Primitive Equal Any
+          Simple $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
+          Simple $ pure $ Primitive Equal Any
         ]
 
   it "concatenating version ranges produces union of their comparator sets" $ do
