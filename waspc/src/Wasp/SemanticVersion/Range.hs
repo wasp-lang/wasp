@@ -36,14 +36,14 @@ instance Semigroup Range where
   (Range csets1) <> (Range csets2) = Range $ NE.nub $ csets1 <> csets2
 
 instance HasVersionBounds Range where
-  versionBounds (Range compSets) = foldr1 intervalUnion $ versionBounds <$> compSets
+  versionBounds (Range rangeExpressions) = foldr1 intervalUnion $ versionBounds <$> rangeExpressions
 
 isVersionInRange :: Version -> Range -> Bool
-isVersionInRange version (Range compSets) = any (doesVersionSatisfyComparatorSet version) compSets
-
-doesVersionSatisfyComparatorSet :: Version -> RangeExpression -> Bool
-doesVersionSatisfyComparatorSet version compSet =
-  isVersionInInterval (versionBounds compSet) version
+isVersionInRange version (Range rangeExpressions) = any isVersionInRangeExpression rangeExpressions
+  where
+    isVersionInRangeExpression :: RangeExpression -> Bool
+    isVersionInRangeExpression rangeExpression =
+      isVersionInInterval (versionBounds rangeExpression) version
 
 doesVersionRangeAllowMajorChanges :: Range -> Bool
 doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
@@ -74,22 +74,22 @@ hyphenRange :: Version -> Version -> Range
 hyphenRange v1 v2 = Range $ NE.fromList [HyphenRange (versionToPartialVersion v1) (versionToPartialVersion v2)]
 
 lt :: Version -> Range
-lt = mkComparatorRange LessThan
+lt = mkSimpleRange LessThan
 
 lte :: Version -> Range
-lte = mkComparatorRange LessThanOrEqual
+lte = mkSimpleRange LessThanOrEqual
 
 gt :: Version -> Range
-gt = mkComparatorRange GreaterThan
+gt = mkSimpleRange GreaterThan
 
 gte :: Version -> Range
-gte = mkComparatorRange GreaterThanOrEqual
+gte = mkSimpleRange GreaterThanOrEqual
 
 eq :: Version -> Range
-eq = mkComparatorRange Equal
+eq = mkSimpleRange Equal
 
-mkComparatorRange :: PrimitiveOperator -> Version -> Range
-mkComparatorRange op = Range . pure . Simple . NE.fromList . pure . Primitive op . versionToPartialVersion
+mkSimpleRange :: PrimitiveOperator -> Version -> Range
+mkSimpleRange op = Range . pure . Simple . NE.fromList . pure . Primitive op . versionToPartialVersion
 
 r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
