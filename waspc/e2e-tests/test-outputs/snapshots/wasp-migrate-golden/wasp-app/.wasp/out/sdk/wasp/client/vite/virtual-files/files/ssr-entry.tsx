@@ -13,7 +13,7 @@ import { WaspApp } from "wasp/client/app";
 
 import { routeObjects } from '/@wasp/routes.tsx'
 
-const FALLBACK_FILE = "/index.html";
+const FALLBACK_FILE = "/_fallback.html";
 
 const prerenderApp: PrerenderFn = async (route, ctx) => {
   const isFallbackPage = route === FALLBACK_FILE;

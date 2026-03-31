@@ -1,11 +1,13 @@
 module Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins) where
 
 import Data.Aeson (object, (.=))
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, fromMaybe)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP.Posix
 import Wasp.AppSpec (AppSpec)
+import qualified Wasp.AppSpec as AS
+import qualified Wasp.AppSpec.Route as AS.Route
 import Wasp.Generator.Common (makeJsArrayFromHaskellList)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -28,7 +30,7 @@ genVitePlugins :: AppSpec -> Generator [FileDraft]
 genVitePlugins spec =
   sequence
     [ genViteIndex,
-      genWaspPlugin,
+      genWaspPlugin spec,
       genWaspConfigPlugin spec,
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
@@ -44,16 +46,20 @@ genViteIndex = return $ C.mkTmplFd tmplPath
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> [relfile|index.ts|]
 
-genWaspPlugin :: Generator FileDraft
-genWaspPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
+genWaspPlugin :: AppSpec -> Generator FileDraft
+genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|wasp.ts|]
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
           "ssrEntryPointPath" .= ssrEntryPointPath,
-          "ssrFallbackFile" .= ssrFallbackFile
+          "ssrFallbackFile" .= ssrFallbackFile,
+          "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths
         ]
+    prerenderPaths =
+      map (AS.Route.path . snd) $
+        filter (fromMaybe False . AS.Route.prerender . snd) (AS.getRoutes spec)
 
 genWaspConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData

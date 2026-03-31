@@ -239,7 +239,7 @@ spec_Analyzer = do
 
       let expectedRoutes =
             [ ( "HomeRoute",
-                Route.Route {Route.path = "/", Route.to = Ref "HomePage", Route.lazy = Nothing}
+                Route.Route {Route.path = "/", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = Nothing}
               )
             ]
       takeDecls <$> decls `shouldBe` Right expectedRoutes
