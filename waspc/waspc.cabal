@@ -446,6 +446,7 @@ library
     Wasp.SemanticVersion.Parsers
     Wasp.SemanticVersion.PartialVersion
     Wasp.SemanticVersion.Range
+    Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.TypeScript.Inspect.Exports
