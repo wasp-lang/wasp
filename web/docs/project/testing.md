@@ -98,35 +98,15 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
 
 ### Client Unit Tests
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/helpers.js"
-    export function areThereAnyTasks(tasks) {
-      return tasks.length !== 0;
-    }
-    ```
-
-    ```js title="src/helpers.test.js"
-    import { test, expect } from "vitest";
-
-    import { areThereAnyTasks } from "./helpers";
-
-    test("areThereAnyTasks", () => {
-      expect(areThereAnyTasks([])).toBe(false);
-    });
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/helpers.ts"
+```ts title="src/helpers.ts" auto-js
     import { type Task } from "wasp/entities";
 
     export function areThereAnyTasks(tasks: Task[]): boolean {
       return tasks.length !== 0;
     }
-    ```
+```
 
-    ```ts title="src/helpers.test.ts"
+```ts title="src/helpers.test.ts" auto-js
     import { test, expect } from "vitest";
 
     import { areThereAnyTasks } from "./helpers";
@@ -134,9 +114,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     test("areThereAnyTasks", () => {
       expect(areThereAnyTasks([])).toBe(false);
     });
-    ```
-  </TabItem>
-</Tabs>
+```
 
 ### React Component Tests
 

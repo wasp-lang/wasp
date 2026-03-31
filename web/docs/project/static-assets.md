@@ -8,27 +8,13 @@ import { ShowForJs, ShowForTs } from '@site/src/components/TsJsHelpers'
 
 Importing a static asset (e.g. an image) will return its URL. For example:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/App.jsx"
+```tsx title="src/App.tsx" auto-js
     import imgUrl from './img.png'
 
     function App() {
       return <img src={imgUrl} alt="img" />
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```jsx title="src/App.tsx"
-    import imgUrl from './img.png'
-
-    function App() {
-      return <img src={imgUrl} alt="img" />
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 For example, `imgUrl` will be `/img.png` during development, and become `/assets/img.2d8efhg.png` in the production build.
 

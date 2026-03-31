@@ -6,9 +6,7 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 
 You can configure the behavior of the server via the `server` field of `app` declaration:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
+```wasp title="main.wasp"
     app MyApp {
       title: "My app",
       // ...
@@ -17,22 +15,7 @@ You can configure the behavior of the server via the `server` field of `app` dec
         middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
       }
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 ## Setup Function
 
@@ -48,25 +31,9 @@ You can configure the behavior of the server via the `server` field of `app` dec
 
 As an example, adding a custom route would look something like:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/myServerSetupCode.ts"
-    export const mySetupFunction = async ({ app }) => {
-      addCustomRoute(app)
-    }
-
-    function addCustomRoute(app) {
-      app.get('/customRoute', (_req, res) => {
-        res.send('I am a custom route')
-      })
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/myServerSetupCode.ts"
-    import { ServerSetupFn } from 'wasp/server'
-    import { Application } from 'express'
+```ts title="src/myServerSetupCode.ts" auto-js
+    import type { ServerSetupFn } from 'wasp/server'
+    import type { Application } from 'express'
 
     export const mySetupFunction: ServerSetupFn = async ({ app }) => {
       addCustomRoute(app)
@@ -77,9 +44,7 @@ As an example, adding a custom route would look something like:
         res.send('I am a custom route')
       })
     }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 ### Storing Some Values for Later Use
 
@@ -160,9 +125,7 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
 
 ## API Reference
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
+```wasp title="main.wasp"
     app MyApp {
       title: "My app",
       // ...
@@ -171,22 +134,7 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
         middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
       }
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 `app.server` is a dictionary with the following fields:
 

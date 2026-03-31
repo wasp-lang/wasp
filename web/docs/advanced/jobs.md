@@ -24,9 +24,7 @@ Let's write an example Job that will print a message to the console and return a
 
 1. Start by creating a Job declaration in your `.wasp` file:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
+```wasp title="main.wasp"
     job mySpecialJob {
       executor: PgBoss,
       perform: {
@@ -34,37 +32,11 @@ Let's write an example Job that will print a message to the console and return a
       },
       entities: [Task],
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    job mySpecialJob {
-      executor: PgBoss,
-      perform: {
-        fn: import { foo } from "@src/workers/bar"
-      },
-      entities: [Task],
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 2. After declaring the Job, implement its worker function:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/workers/bar.js"
-    export const foo = async ({ name }, context) => {
-      console.log(`Hello ${name}!`)
-      const tasks = await context.entities.Task.findMany({})
-      return { tasks }
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/workers/bar.ts"
+```ts title="src/workers/bar.ts" auto-js
     import { type MySpecialJob } from 'wasp/server/jobs'
     import { type Task } from 'wasp/entities'
 
@@ -76,9 +48,7 @@ Let's write an example Job that will print a message to the console and return a
       const tasks = await context.entities.Task.findMany({})
       return { tasks }
     }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 :::info The worker function
 The worker function must be an `async` function. The function's return value represents the Job's result.
@@ -95,9 +65,7 @@ The worker function accepts two arguments:
 
 3. After successfully defining the job, you can submit work to be done in your [Operations](../data-model/operations/overview) or [setupFn](../project/server-config#setup-function) (or any other NodeJS code):
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="someAction.js"
+```ts title="someAction.ts" auto-js
     import { mySpecialJob } from 'wasp/server/jobs'
 
     const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
@@ -107,23 +75,7 @@ The worker function accepts two arguments:
     await mySpecialJob
       .delay(10)
       .submit({ name: "Johnny" })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="someAction.ts"
-    import { mySpecialJob } from 'wasp/server/jobs'
-
-    const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
-
-    // Or, if you'd prefer it to execute in the future, just add a .delay().
-    // It takes a number of seconds, Date, or ISO date string.
-    await mySpecialJob
-      .delay(10)
-      .submit({ name: "Johnny" })
-    ```
-  </TabItem>
-</Tabs>
+```
 
 And that's it. Your job will be executed by `PgBoss` as if you called `foo({ name: "Johnny" })`.
 
@@ -133,9 +85,7 @@ In our example, `foo` takes an argument, but passing arguments to jobs is not a 
 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp {6-9} title="main.wasp"
+```wasp {6-9} title="main.wasp"
     job mySpecialJob {
       executor: PgBoss,
       perform: {
@@ -146,24 +96,7 @@ If you have work that needs to be done on some recurring basis, you can add a `s
         args: {=json { "job": "args" } json=} // optional
       }
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp {6-9} title="main.wasp"
-    job mySpecialJob {
-      executor: PgBoss,
-      perform: {
-        fn: import { foo } from "@src/workers/bar"
-      },
-      schedule: {
-        cron: "0 * * * *",
-        args: {=json { "job": "args" } json=} // optional
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 In this example, you _don't_ need to invoke anything in <ShowForJs>JavaScript</ShowForJs><ShowForTs>Typescript</ShowForTs>. You can imagine `foo({ job: "args" })` getting automatically scheduled and invoked for you every hour.
 
@@ -249,9 +182,7 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your postgress connection url...","a
 
 ### Declaring Jobs
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
+```wasp title="main.wasp"
     job mySpecialJob {
       executor: PgBoss,
       perform: {
@@ -269,31 +200,7 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your postgress connection url...","a
       },
       entities: [Task],
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    job mySpecialJob {
-      executor: PgBoss,
-      perform: {
-        fn: import { foo } from "@src/workers/bar",
-        executorOptions: {
-          pgBoss: {=json { "retryLimit": 1 } json=}
-        }
-      },
-      schedule: {
-        cron: "*/5 * * * *",
-        args: {=json { "foo": "bar" } json=},
-        executorOptions: {
-          pgBoss: {=json { "retryLimit": 0 } json=}
-        }
-      },
-      entities: [Task],
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 The Job declaration has the following fields:
 
@@ -407,19 +314,9 @@ The Job declaration has the following fields:
 
   Submits a Job to be executed by an executor, optionally passing in a JSON job argument your job handler function receives, and executor-specific submit options.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="someAction.js"
+```ts title="someAction.ts" auto-js
     const submittedJob = await mySpecialJob.submit({ job: "args" })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```js title="someAction.ts"
-    const submittedJob = await mySpecialJob.submit({ job: "args" })
-    ```
-  </TabItem>
-</Tabs>
+```
 
 - `delay(startAfter)`
 
@@ -431,23 +328,11 @@ The Job declaration has the following fields:
   - String: ISO date string to run at.
   - Date: Date to run at.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="someAction.js"
+```ts title="someAction.ts" auto-js
     const submittedJob = await mySpecialJob
       .delay(10)
       .submit({ job: "args" }, { "retryLimit": 2 })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="someAction.ts"
-    const submittedJob = await mySpecialJob
-      .delay(10)
-      .submit({ job: "args" }, { "retryLimit": 2 })
-    ```
-  </TabItem>
-</Tabs>
+```
 
 #### Tracking
 

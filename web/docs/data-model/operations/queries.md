@@ -38,9 +38,7 @@ To create a Query in Wasp, we begin with a `query` declaration.
 
 Let's declare two Queries - one to fetch all tasks, and another to fetch tasks based on a filter, such as whether a task is done:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
+```wasp title="main.wasp"
     // ...
 
     query getAllTasks {
@@ -50,23 +48,7 @@ Let's declare two Queries - one to fetch all tasks, and another to fetch tasks b
     query getFilteredTasks {
       fn: import { getFilteredTasks } from "@src/queries"
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    // ...
-
-    query getAllTasks {
-      fn: import { getAllTasks } from "@src/queries"
-    }
-
-    query getFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/queries"
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 <small>
   If you want to know about all supported options for the `query` declaration, take a look at the [API Reference](#api-reference).
@@ -425,23 +407,7 @@ Hiding error details by default helps against accidentally leaking possibly sens
 
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/queries.js"
-    import { HttpError } from 'wasp/server'
-
-    export const getAllTasks = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: 'bar' } // data
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/queries.ts"
+```ts title="src/queries.ts" auto-js
     import { type GetAllTasks } from 'wasp/server/operations'
     import { HttpError } from 'wasp/server'
 
@@ -452,9 +418,7 @@ If you do want to pass additional error information to the client, you can const
         { foo: 'bar' } // data
       )
     }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 If the status code is `4xx`, the client will receive a response object with the corresponding `message` and `data` fields, and it will rethrow the error (including these fields).
 To prevent information leakage, the server won't forward these fields for any other HTTP status codes.
@@ -464,9 +428,7 @@ To prevent information leakage, the server won't forward these fields for any ot
 In most cases, resources used in Queries will be [Entities](../../data-model/entities.md).
 To use an Entity in your Query, add it to the `query` declaration in Wasp:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp {4,9} title="main.wasp"
+```wasp {4,9} title="main.wasp"
 
     query getAllTasks {
       fn: import { getAllTasks } from "@src/queries",
@@ -477,24 +439,7 @@ To use an Entity in your Query, add it to the `query` declaration in Wasp:
       fn: import { getFilteredTasks } from "@src/queries",
       entities: [Task]
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp {4,9} title="main.wasp"
-
-    query getAllTasks {
-      fn: import { getAllTasks } from "@src/queries",
-      entities: [Task]
-    }
-
-    query getFilteredTasks {
-      fn: import { getFilteredTasks } from "@src/queries",
-      entities: [Task]
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 Wasp will inject the specified Entity into the Query's `context` argument, giving you access to the Entity's Prisma API:
 

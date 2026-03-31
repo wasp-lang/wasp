@@ -37,9 +37,7 @@ Once these two steps are completed, you can use the Action from anywhere in your
 
 To create an Action in Wasp, we begin with an `action` declaration. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
+```wasp title="main.wasp"
     // ...
 
     action createTask {
@@ -49,24 +47,7 @@ To create an Action in Wasp, we begin with an `action` declaration. Let's declar
     action markTaskAsDone {
       fn: import { markTaskAsDone } from "@src/actions"
     }
-
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    // ...
-
-    action createTask {
-      fn: import { createTask } from "@src/actions"
-    }
-
-    action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions"
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 <small>
   If you want to know about all supported options for the `action` declaration, take a look at the [API Reference](#api-reference).
@@ -291,43 +272,7 @@ Wasp authenticates the logged-in user in the background.
 
 When using Actions on the client, you'll most likely want to use them inside a component:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/pages/Task.jsx"
-    import React from 'react'
-    // highlight-next-line
-    import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
-
-    export const TaskPage = ({ id }) => {
-      const { data: task } = useQuery(getTask, { id })
-
-      if (!task) {
-        return <h1>"Loading"</h1>
-      }
-
-      const { description, isDone } = task
-      return (
-        <div>
-          <p>
-            <strong>Description: </strong>
-            {description}
-          </p>
-          <p>
-            <strong>Is done: </strong>
-            {isDone ? 'Yes' : 'No'}
-          </p>
-          {isDone || (
-            // highlight-next-line
-            <button onClick={() => markTaskAsDone({ id })}>Mark as done.</button>
-          )}
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/pages/Task.tsx"
+```tsx title="src/pages/Task.tsx" auto-js
     import React from 'react'
     // highlight-next-line
     import { useQuery, getTask, markTaskAsDone } from 'wasp/client/operations'
@@ -357,9 +302,7 @@ When using Actions on the client, you'll most likely want to use them inside a c
         </div>
       )
     }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 Since Actions don't require reactivity, they are safe to use inside components without a hook. Still, Wasp provides comes with the `useAction` hook you can use to enhance actions. Read all about it in the [API Reference](#api-reference).
 
@@ -411,23 +354,7 @@ Hiding error details by default helps against accidentally leaking possibly sens
 
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/actions.js"
-    import { HttpError } from 'wasp/server'
-
-    export const createTask = async (args, context) => {
-      throw new HttpError(
-        403, // status code
-        "You can't do this!", // message
-        { foo: 'bar' } // data
-      )
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/actions.ts"
+```ts title="src/actions.ts" auto-js
     import { type CreateTask } from 'wasp/server/operations'
     import { HttpError } from 'wasp/server'
 
@@ -438,18 +365,14 @@ If you do want to pass additional error information to the client, you can const
         { foo: 'bar' } // data
       )
     }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 ### Using Entities in Actions
 
 In most cases, resources used in Actions will be [Entities](../../data-model/entities.md).
 To use an Entity in your Action, add it to the `action` declaration in Wasp:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp {4,9} title="main.wasp"
+```wasp {4,9} title="main.wasp"
 
     action createTask {
       fn: import { createTask } from "@src/actions",
@@ -460,24 +383,7 @@ To use an Entity in your Action, add it to the `action` declaration in Wasp:
       fn: import { markTaskAsDone } from "@src/actions",
       entities: [Task]
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp {4,9} title="main.wasp"
-
-    action createTask {
-      fn: import { createTask } from "@src/actions",
-      entities: [Task]
-    }
-
-    action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions",
-      entities: [Task]
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API.
 Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
@@ -878,20 +784,8 @@ Wasp's optimistic update API is deliberately small and focuses exclusively on up
 
 If you decide to use _react-query_'s API directly, you will need access to Query cache key. Wasp internally uses this key but abstracts it from the programmer. Still, you can easily obtain it by accessing the `queryCacheKey` property on any Query:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js
+```ts  auto-js
     import { getTasks } from 'wasp/client/operations'
 
     const queryKey = getTasks.queryCacheKey
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts
-    import { getTasks } from 'wasp/client/operations'
-
-    const queryKey = getTasks.queryCacheKey
-    ```
-  </TabItem>
-</Tabs>
+```

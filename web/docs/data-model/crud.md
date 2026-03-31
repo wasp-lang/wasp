@@ -338,9 +338,7 @@ And let's use the generated operations in our client code:
 
 And here are the login and signup pages, where we are using Wasp's [Auth UI](../auth/ui) components:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/LoginPage.jsx"
+```tsx title="src/LoginPage.tsx" auto-js
     import { LoginForm } from 'wasp/client/auth'
     import { Link } from 'react-router'
 
@@ -359,36 +357,9 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
         </div>
       )
     }
-    ```
-  </TabItem>
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/LoginPage.tsx"
-    import { LoginForm } from 'wasp/client/auth'
-    import { Link } from 'react-router'
-
-    export function LoginPage() {
-      return (
-        <div
-          style={{
-            display: 'grid',
-            placeContent: 'center',
-          }}
-        >
-          <LoginForm />
-          <div>
-            <Link to="/signup">Create an account</Link>
-          </div>
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="src/SignupPage.jsx"
+```tsx title="src/SignupPage.tsx" auto-js
     import { SignupForm } from 'wasp/client/auth'
 
     export function SignupPage() {
@@ -403,28 +374,7 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
         </div>
       )
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="src/SignupPage.tsx"
-    import { SignupForm } from 'wasp/client/auth'
-
-    export function SignupPage() {
-      return (
-        <div
-          style={{
-            display: 'grid',
-            placeContent: 'center',
-          }}
-        >
-          <SignupForm />
-        </div>
-      )
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 That's it. You can now run `wasp start` and see the app in action. ⚡️
 
@@ -586,9 +536,7 @@ For now, the solution is to provide an override function. You can override the d
 
 Here's an example of a more complex CRUD declaration:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
+```wasp title="main.wasp"
     crud Tasks { // crud name here is "Tasks"
       entity: Task,
       operations: {
@@ -602,27 +550,7 @@ Here's an example of a more complex CRUD declaration:
         update: {},
       },
     }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    crud Tasks { // crud name here is "Tasks"
-      entity: Task,
-      operations: {
-        getAll: {
-          isPublic: true, // optional, defaults to false
-        },
-        get: {},
-        create: {
-          overrideFn: import { createTask } from "@src/tasks", // optional
-        },
-        update: {},
-      },
-    }
-    ```
-  </TabItem>
-</Tabs>
+```
 
 The CRUD declaration features the following fields:
 
@@ -686,43 +614,19 @@ For a usage example, check the [example guide](../data-model/crud#adding-crud-to
 
 On the client, you import the CRUD operations from `wasp/client/crud` by import the `{crud name}` object. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="SomePage.jsx"
+```tsx title="SomePage.tsx" auto-js
     import { Tasks } from 'wasp/client/crud'
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="SomePage.tsx"
-    import { Tasks } from 'wasp/client/crud'
-    ```
-  </TabItem>
-</Tabs>
+```
 
 You can then access the operations like this:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```jsx title="SomePage.jsx"
+```tsx title="SomePage.tsx" auto-js
     const { data } = Tasks.getAll.useQuery()
     const { data } = Tasks.get.useQuery({ id: 1 })
     const createAction = Tasks.create.useAction()
     const updateAction = Tasks.update.useAction()
     const deleteAction = Tasks.delete.useAction()
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```tsx title="SomePage.tsx"
-    const { data } = Tasks.getAll.useQuery()
-    const { data } = Tasks.get.useQuery({ id: 1 })
-    const createAction = Tasks.create.useAction()
-    const updateAction = Tasks.update.useAction()
-    const deleteAction = Tasks.delete.useAction()
-    ```
-  </TabItem>
-</Tabs>
+```
 
 All CRUD operations are implemented with [Queries and Actions](../data-model/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
 

@@ -180,23 +180,7 @@ If it works with Prisma, it will work with Wasp.
 
 If you need to access your `enum` cases and their values from your server, you can import them directly from `@prisma/client`:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/queries.js"
-    import { TaskState } from "@prisma/client";
-    import { Task } from "wasp/entities";
-
-    export const getOpenTasks  = async (args, context) => {
-      return context.entities.Task.findMany({
-        orderBy: { id: "asc" },
-        where: { NOT: { state: TaskState.Done } },
-      });
-    };
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/queries.ts"
+```ts title="src/queries.ts" auto-js
     import { TaskState } from "@prisma/client";
     import { Task } from "wasp/entities";
     import { type GetTasks } from "wasp/server/operations";
@@ -207,36 +191,13 @@ If you need to access your `enum` cases and their values from your server, you c
         where: { NOT: { state: TaskState.Done } },
       });
     };
-    ```
-  </TabItem>
-</Tabs>
+```
 
 You can also access them from your client code:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```js title="src/views/TaskList.jsx"
+```ts title="src/views/TaskList.tsx" auto-js
     import { TaskState } from "@prisma/client";
-
-    const TaskRow = ({ task }) => {
-      return (
-        <div>
-          <input
-            type="checkbox"
-            id={String(task.id)}
-            checked={task.state === TaskState.Done}
-          />
-          {task.description}
-        </div>
-      );
-    };
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="src/views/TaskList.tsx"
-    import { TaskState } from "@prisma/client";
-    import { Task } from "wasp/entities";
+    import type { Task } from "wasp/entities"
 
     const TaskRow = ({ task }: { task: Task }) => {
       return (
@@ -250,9 +211,7 @@ You can also access them from your client code:
         </div>
       );
     };
-    ```
-  </TabItem>
-</Tabs>
+```
 
 :::note Triple slash comments
 Wasp only supports `///` in the _leading_ position:
