@@ -6,7 +6,7 @@ module Wasp.SemanticVersion.RangeExpression
   ( PrimitiveOperator (..),
     RangeExpression (..),
     SimpleRangeExpression (..),
-    rangeParser,
+    rangeExpressionParser,
     simpleRangeParser,
     hyphenRangeParser,
   )
@@ -99,7 +99,7 @@ instance HasVersionBounds SimpleRangeExpression where
       (MajorMinorPatch mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
     GreaterThanOrEqual -> (toXRangeLowerBound pv, Inf)
   versionBounds (TildeRange pv) = (toXRangeLowerBound pv, toTildeRangeUpperBound pv)
-  versionBounds (CaretRange pv) = (toXRangeLowerBound pv, toCaretRangetUpperBound pv)
+  versionBounds (CaretRange pv) = (toXRangeLowerBound pv, toCaretRangeUpperBound pv)
 
 -- | Tilde range allows patch-level changes if minor is specified.
 toTildeRangeUpperBound :: PartialVersion -> VersionBound
@@ -109,16 +109,16 @@ toTildeRangeUpperBound (MajorMinor mjr mnr) = Exclusive (Version mjr (mnr + 1) 0
 toTildeRangeUpperBound (MajorMinorPatch mjr mnr _) = Exclusive (Version mjr (mnr + 1) 0)
 
 -- | Caret range allows changes that don't modify the leftmost non-zero digit.
-toCaretRangetUpperBound :: PartialVersion -> VersionBound
-toCaretRangetUpperBound Any = Inf
-toCaretRangetUpperBound (Major 0) = Exclusive (Version 1 0 0)
-toCaretRangetUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
-toCaretRangetUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
-toCaretRangetUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
-toCaretRangetUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
-toCaretRangetUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
-toCaretRangetUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
-toCaretRangetUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
+toCaretRangeUpperBound :: PartialVersion -> VersionBound
+toCaretRangeUpperBound Any = Inf
+toCaretRangeUpperBound (Major 0) = Exclusive (Version 1 0 0)
+toCaretRangeUpperBound (Major mjr) = Exclusive (Version (mjr + 1) 0 0)
+toCaretRangeUpperBound (MajorMinor 0 0) = Exclusive (Version 0 1 0)
+toCaretRangeUpperBound (MajorMinor 0 mnr) = Exclusive (Version 0 (mnr + 1) 0)
+toCaretRangeUpperBound (MajorMinor mjr _) = Exclusive (Version (mjr + 1) 0 0)
+toCaretRangeUpperBound (MajorMinorPatch 0 0 ptc) = Exclusive (Version 0 0 (ptc + 1))
+toCaretRangeUpperBound (MajorMinorPatch 0 mnr _) = Exclusive (Version 0 (mnr + 1) 0)
+toCaretRangeUpperBound (MajorMinorPatch mjr _ _) = Exclusive (Version (mjr + 1) 0 0)
 
 toXRangeUpperBound :: PartialVersion -> VersionBound
 toXRangeUpperBound Any = Inf
@@ -133,8 +133,8 @@ toXRangeLowerBound (MajorMinor mjr mnr) = Inclusive $ Version mjr mnr 0
 toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr ptc
 
 -- See `range` definition here: https://github.com/npm/node-semver#range-grammar
-rangeParser :: P.Parsec String () RangeExpression
-rangeParser =
+rangeExpressionParser :: P.Parsec String () RangeExpression
+rangeExpressionParser =
   P.choice
     [ P.try hyphenRangeParser,
       P.try simpleRangeSetParser,

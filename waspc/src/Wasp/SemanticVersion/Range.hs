@@ -28,7 +28,7 @@ import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
 import Wasp.SemanticVersion.PartialVersion (versionToPartialVersion)
-import Wasp.SemanticVersion.RangeExpression (PrimitiveOperator (..), RangeExpression (..), SimpleRangeExpression (..), rangeParser)
+import Wasp.SemanticVersion.RangeExpression (PrimitiveOperator (..), RangeExpression (..), SimpleRangeExpression (..), rangeExpressionParser)
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
   ( HasVersionBounds (versionBounds),
@@ -50,7 +50,7 @@ instance Show Range where
 
 -- | We define concatenation of two version ranges as a union of their range expressions.
 instance Semigroup Range where
-  (Range csets1) <> (Range csets2) = Range $ NE.nub $ csets1 <> csets2
+  (Range left) <> (Range right) = Range $ NE.nub $ left <> right
 
 instance HasVersionBounds Range where
   versionBounds (Range rangeExpressions) = foldr1 intervalUnion $ versionBounds <$> rangeExpressions
@@ -91,22 +91,22 @@ hyphenRange :: Version -> Version -> Range
 hyphenRange v1 v2 = Range $ pure $ HyphenRange (versionToPartialVersion v1) (versionToPartialVersion v2)
 
 lt :: Version -> Range
-lt = mkSimpleRange LessThan
+lt = mkPrimitiveRange LessThan
 
 lte :: Version -> Range
-lte = mkSimpleRange LessThanOrEqual
+lte = mkPrimitiveRange LessThanOrEqual
 
 gt :: Version -> Range
-gt = mkSimpleRange GreaterThan
+gt = mkPrimitiveRange GreaterThan
 
 gte :: Version -> Range
-gte = mkSimpleRange GreaterThanOrEqual
+gte = mkPrimitiveRange GreaterThanOrEqual
 
 eq :: Version -> Range
-eq = mkSimpleRange Equal
+eq = mkPrimitiveRange Equal
 
-mkSimpleRange :: PrimitiveOperator -> Version -> Range
-mkSimpleRange op = Range . pure . Simple . pure . Primitive op . versionToPartialVersion
+mkPrimitiveRange :: PrimitiveOperator -> Version -> Range
+mkPrimitiveRange op = Range . pure . Simple . pure . Primitive op . versionToPartialVersion
 
 r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
@@ -123,7 +123,7 @@ rangeSetParser = do
   pure $ Range $ NE.fromList (first : rest)
   where
     rangeSetItemParser :: P.Parsec String () RangeExpression
-    rangeSetItemParser = P.spaces *> rangeParser <* P.spaces
+    rangeSetItemParser = P.spaces *> rangeExpressionParser <* P.spaces
 
     logicalOrParser :: P.Parsec String () ()
     logicalOrParser = void (P.spaces *> P.string "||" <* P.spaces)
