@@ -2,8 +2,6 @@
 title: Migration from 0.21.X to 0.22.X
 ---
 
-import Tabs from '@theme/Tabs'
-import TabItem from '@theme/TabItem'
 import InstallInstructions from './_install-instructions.md'
 import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
