@@ -1,4 +1,5 @@
 import { deserialize } from 'wasp/core/serialization'
+import type { SuperJSONResult } from 'superjson'
 import { useQuery, buildAndRegisterQuery } from 'wasp/client/operations'
 import type { QueryFunction, Query  } from 'wasp/client/operations/rpc'
 import { api } from 'wasp/client/api'
@@ -17,10 +18,10 @@ export default function useAuth(): UseQueryResult<AuthUser | null> {
 
 function createUserGetter(): Query<void, AuthUser | null> {
   const getMeRelativePath = 'auth/me'
-  const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
+  const getMeRoute = { method: HttpMethod.Get, path: getMeRelativePath }
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
-    const response = await api(getMeRoute.path)
-    const userData = deserialize<AuthUserData | null>(await response.json())
+    const json = await api.get(getMeRelativePath).json<SuperJSONResult>()
+    const userData = deserialize<AuthUserData | null>(json)
     return makeAuthUserIfPossible(userData)
   }
 

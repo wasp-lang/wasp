@@ -8,10 +8,7 @@ type EmailSignupData = {
 
 // PUBLIC API
 export async function signup(data: EmailSignupData): Promise<{ success: boolean }> {
-  const response = await api('/auth/email/signup', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  });
-  return response.json();
+  return api.post('/auth/email/signup'.slice(1), {
+    json: data,
+  }).json();
 }

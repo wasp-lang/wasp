@@ -81,12 +81,9 @@ function useOAuthCallbackHandler() {
 async function exchangeOAuthCodeForToken(data: {
   code: string
 }): Promise<unknown> {
-  const response = await api('/auth/exchange-code', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-  return response.json()
+  return api.post('auth/exchange-code', {
+    json: data,
+  }).json()
 }
 
 function isDataWithSessionId(

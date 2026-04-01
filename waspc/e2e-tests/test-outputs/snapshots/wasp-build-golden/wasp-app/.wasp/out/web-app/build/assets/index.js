@@ -5,6 +5,7 @@ import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ky from "ky";
 import * as z from "zod";
 import mitt from "mitt";
 import "superjson";
@@ -161,7 +162,10 @@ function getClientEnvSchema(mode) {
 }
 const __vite_import_meta_env__ = { "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "REACT_APP_API_URL": "http://localhost:3001", "SSR": false };
 const env = ensureEnvSchema(__vite_import_meta_env__, getClientEnvSchema());
-stripTrailingSlash(env["REACT_APP_API_URL"]);
+const apiUrl = stripTrailingSlash(env["REACT_APP_API_URL"]);
+const config = {
+  apiUrl
+};
 var HttpMethod;
 (function(HttpMethod2) {
   HttpMethod2["Get"] = "GET";
@@ -226,6 +230,38 @@ function createLocalStorageDataStore(prefix) {
 }
 const apiEventsEmitter = mitt();
 const WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
+function getSessionId() {
+  const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
+  return sessionId ?? null;
+}
+function clearSessionId() {
+  storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
+  apiEventsEmitter.emit("sessionId.clear");
+}
+ky.create({
+  prefixUrl: config.apiUrl,
+  hooks: {
+    beforeRequest: [
+      (request) => {
+        const sessionId = getSessionId();
+        if (sessionId !== null) {
+          request.headers.set("Authorization", `Bearer ${sessionId}`);
+        }
+      }
+    ],
+    afterResponse: [
+      (request, _options, response) => {
+        if (response.status === 401) {
+          const failingSessionId = getSessionIdFromAuthorizationHeader(request.headers.get("Authorization"));
+          const currentSessionId = getSessionId();
+          if (failingSessionId === currentSessionId) {
+            clearSessionId();
+          }
+        }
+      }
+    ]
+  }
+});
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
     if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
@@ -236,6 +272,14 @@ if (typeof window !== "undefined") {
       }
     }
   });
+}
+function getSessionIdFromAuthorizationHeader(header) {
+  const prefix = "Bearer ";
+  if (header && header.startsWith(prefix)) {
+    return header.substring(prefix.length);
+  } else {
+    return null;
+  }
 }
 const defaultQueryClientConfig = {};
 let resolveQueryClientInitialized;
