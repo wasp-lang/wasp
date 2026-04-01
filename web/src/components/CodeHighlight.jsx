@@ -19,6 +19,8 @@ export default function CodeHighlight({ language, source }) {
             borderBottomLeftRadius: "10px",
             borderBottomRightRadius: "10px",
             paddingLeft: "15px",
+            margin: 0,
+            height: "100%",
             ...style,
           }}
         >

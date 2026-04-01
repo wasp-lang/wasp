@@ -1,13 +1,18 @@
 import { useState } from "react";
+import Link from "@docusaurus/Link";
+import { ArrowRight } from "react-feather";
 import CodeHighlight from "../CodeHighlight";
+import { vc } from "./vcVariant";
 
 const tabs = [
   {
     label: "Auth Setup",
     without: {
       language: "javascript",
-      source: `// auth.js — Google OAuth with Passport.js
-import passport from 'passport';
+      files: [
+        {
+          name: "auth.js",
+          source: `import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import session from 'express-session';
 import RedisStore from 'connect-redis';
@@ -61,24 +66,33 @@ app.get('/auth/google/callback',
   }),
   (req, res) => res.redirect('/')
 );`,
+        },
+      ],
     },
     with: {
       language: "javascript",
-      source: `app.auth({
+      files: [
+        {
+          name: "main.wasp.ts",
+          source: `app.auth({
   userEntity: User,
   methods: {
     google: {},
   },
   onAuthFailedRedirectTo: '/login',
 })`,
+        },
+      ],
     },
   },
   {
     label: "Type-Safe RPC",
     without: {
       language: "typescript",
-      source: `// --- Server: trpc/context.ts ---
-import { prisma } from '../db';
+      files: [
+        {
+          name: "trpc/context.ts",
+          source: `import { prisma } from '../db';
 import { getSession } from 'next-auth/react';
 import type { inferAsyncReturnType } from '@trpc/server';
 
@@ -86,10 +100,11 @@ export const createContext = async ({ req, res }) => {
   const session = await getSession({ req });
   return { prisma, user: session?.user ?? null };
 };
-export type Context = inferAsyncReturnType<typeof createContext>;
-
-// --- Server: trpc/router.ts ---
-import { initTRPC, TRPCError } from '@trpc/server';
+export type Context = inferAsyncReturnType<typeof createContext>;`,
+        },
+        {
+          name: "trpc/router.ts",
+          source: `import { initTRPC, TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import type { Context } from './context';
 
@@ -109,27 +124,30 @@ export const appRouter = t.router({
     })
   ),
 });
-export type AppRouter = typeof appRouter;
-
-// --- Server: pages/api/trpc/[trpc].ts ---
-import { createNextApiHandler } from '@trpc/server/adapters/next';
+export type AppRouter = typeof appRouter;`,
+        },
+        {
+          name: "pages/api/trpc/[trpc].ts",
+          source: `import { createNextApiHandler } from '@trpc/server/adapters/next';
 import { appRouter } from '../../../trpc/router';
 import { createContext } from '../../../trpc/context';
 
 export default createNextApiHandler({
   router: appRouter,
   createContext,
-});
-
-// --- Client: utils/trpc.ts ---
-import { createTRPCReact } from '@trpc/react-query';
+});`,
+        },
+        {
+          name: "utils/trpc.ts",
+          source: `import { createTRPCReact } from '@trpc/react-query';
 import { httpBatchLink } from '@trpc/client';
 import type { AppRouter } from '../../server/trpc/router';
 
-export const trpc = createTRPCReact<AppRouter>();
-
-// --- Client: _app.tsx ---
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+export const trpc = createTRPCReact<AppRouter>();`,
+        },
+        {
+          name: "_app.tsx",
+          source: `import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { trpc } from '../utils/trpc';
 
 const queryClient = new QueryClient();
@@ -145,25 +163,31 @@ export default function App({ Component, pageProps }) {
       </QueryClientProvider>
     </trpc.Provider>
   );
-}
-
-// --- Client: TasksPage.tsx ---
-import { trpc } from '../utils/trpc';
+}`,
+        },
+        {
+          name: "TasksPage.tsx",
+          source: `import { trpc } from '../utils/trpc';
 
 export const TasksPage = () => {
   const { data: tasks } = trpc.getTasks.useQuery();
 }`,
+        },
+      ],
     },
     with: {
       language: "typescript",
-      source: `// --- Config: main.wasp.ts ---
-app.query('getTasks', {
+      files: [
+        {
+          name: "main.wasp.ts",
+          source: `app.query('getTasks', {
   fn: { import: 'getTasks', from: '@src/queries' },
   entities: ['Task']
-});
-
-// --- Server: operations.ts ---
-import type { GetTasks } from 'wasp/server/operations'
+});`,
+        },
+        {
+          name: "operations.ts",
+          source: `import type { GetTasks } from 'wasp/server/operations'
 import type { Task } from 'wasp/entities'
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
@@ -171,23 +195,28 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
     where: { userId: context.user.id },
     orderBy: { createdAt: 'desc' },
   })
-}
-
-// --- Client: TasksPage.tsx ---
-import { useQuery, getTasks } from 'wasp/client/operations'
+}`,
+        },
+        {
+          name: "TasksPage.tsx",
+          source: `import { useQuery, getTasks } from 'wasp/client/operations'
 
 export const TasksPage = () => {
   const { data: tasks } = useQuery(getTasks)
   //     ^? Task[]  — auto-typed, auto-cached
 }`,
+        },
+      ],
     },
   },
   {
     label: "Cron Jobs",
     without: {
       language: "javascript",
-      source: `// --- Server: lib/pgboss.ts ---
-import PgBoss from 'pg-boss';
+      files: [
+        {
+          name: "lib/pgboss.ts",
+          source: `import PgBoss from 'pg-boss';
 
 let boss: PgBoss | null = null;
 
@@ -202,10 +231,11 @@ export async function getBoss() {
     boss.on('error', console.error);
   }
   return boss;
-}
-
-// --- Server: index.ts (Express boot) ---
-import express from 'express';
+}`,
+        },
+        {
+          name: "index.ts",
+          source: `import express from 'express';
 import { getBoss } from './lib/pgboss';
 import { registerWorkers } from './jobs';
 
@@ -223,21 +253,26 @@ async function start() {
 
   app.listen(3000);
 }
-start();
-
-// --- Server: jobs/index.ts ---
-import type PgBoss from 'pg-boss';
+start();`,
+        },
+        {
+          name: "jobs/index.ts",
+          source: `import type PgBoss from 'pg-boss';
 import { sendDigest } from './email';
 
 export async function registerWorkers(boss: PgBoss) {
   await boss.schedule('email-digest', '0 7 * * *');
   await boss.work('email-digest', sendDigest);
 }`,
+        },
+      ],
     },
     with: {
       language: "javascript",
-      source: `// --- Config ---
-app.job(emailDigest, {
+      files: [
+        {
+          name: "main.wasp.ts",
+          source: `app.job(emailDigest, {
   executor: PgBoss,
   perform: {
     fn: import { sendDigest } from '@src/jobs/email',
@@ -247,75 +282,134 @@ app.job(emailDigest, {
   },
   entities: [User, Task],
 })`,
+        },
+      ],
     },
   },
 ];
 
-const CodeComparison = () => {
+const CodeWindow = ({ filename, label, language, source, theme, variant }) => {
+  const isYellow = theme === "yellow";
+  return (
+    <div className={vc(variant, {
+      base: `overflow-hidden ${isYellow ? "rounded-lg border border-yellow-300" : "rounded-lg border border-neutral-200"}`,
+      v1: `overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`,
+      v2: `overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`,
+      v3: `overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`,
+    })}>
+      <div className={`relative flex items-center px-4 py-1.5 ${isYellow ? "bg-yellow-50" : "bg-neutral-100"}`}>
+        <div className="flex items-center space-x-1.5">
+          <div className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`} />
+          <div className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`} />
+          <div className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`} />
+          {label && (
+            <span className={`ml-2 text-xs ${isYellow ? "text-yellow-500" : "text-neutral-300"}`}>
+              {label}
+            </span>
+          )}
+        </div>
+        {filename && (
+          <span className={`absolute inset-0 flex items-center justify-center text-xs font-medium ${isYellow ? "text-yellow-600" : "text-neutral-400"} pointer-events-none`}>
+            {filename}
+          </span>
+        )}
+      </div>
+      <div className="overflow-x-auto text-sm">
+        <CodeHighlight language={language} source={source} />
+      </div>
+    </div>
+  );
+};
+
+const CodeComparison = ({ variant } = {}) => {
   const [activeTab, setActiveTab] = useState(0);
   const current = tabs[activeTab];
 
   return (
-    <div className="mx-auto max-w-6xl px-6 pb-20">
+    <div className="mx-auto max-w-6xl px-6 py-16 sm:py-18 md:py-24 lg:py-24">
+      <div className="mx-auto mb-10 max-w-3xl text-center">
+        <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
+          The Wasp{" "}
+          <span className="underline decoration-yellow-500">
+            Difference
+          </span>
+        </h2>
+      </div>
       {/* Tab bar */}
       <div className="mb-6 flex justify-center gap-2">
         {tabs.map((tab, i) => (
           <button
             key={tab.label}
             onClick={() => setActiveTab(i)}
-            className={`rounded-full px-4 py-1.5 text-sm font-medium transition-colors ${
+            className={`${vc(variant, { base: "rounded-full", v1: "rounded-none", v2: "rounded-none", v3: "rounded-none" })} px-4 py-1.5 text-sm font-medium transition-colors ${
               i === activeTab
-                ? "bg-yellow-500 text-white"
-                : "bg-neutral-100 text-neutral-500 hover:bg-neutral-200"
+                ? "bg-neutral-200 text-neutral-700"
+                : "bg-neutral-100 text-neutral-500 hover:bg-yellow-500 hover:text-white"
             }`}
           >
             {tab.label}
           </button>
         ))}
+        <button
+          onClick={() => setActiveTab("more")}
+          className={`${vc(variant, { base: "rounded-full", v1: "rounded-none", v2: "rounded-none", v3: "rounded-none" })} px-4 py-1.5 text-sm font-medium transition-colors ${
+            activeTab === "more"
+              ? "bg-neutral-200 text-neutral-700"
+              : "bg-neutral-100 text-neutral-500 hover:bg-yellow-500 hover:text-white"
+          }`}
+        >
+          and more...
+        </button>
       </div>
 
-      {/* Panels */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Without Wasp */}
-        <div className="overflow-hidden rounded-lg border border-neutral-200 shadow-sm">
-          <div className="flex items-center justify-between bg-neutral-100 px-4 py-2">
-            <span className="text-sm font-medium text-neutral-500">
-              Without Wasp
+      {activeTab === "more" ? (
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <h3 className="mb-3 text-xl font-semibold text-neutral-700">
+            Email sending, background jobs, CRUD, full-stack auth, and more
+          </h3>
+          <p className="mb-6 max-w-lg text-neutral-500">
+            Wasp handles the full-stack plumbing so your AI writes features, not infrastructure. See everything that's built in.
+          </p>
+          <Link to="/docs">
+            <span className="group inline-flex items-center gap-1.5 text-sm font-medium text-yellow-600 hover:text-yellow-500">
+              Explore the docs
+              <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
             </span>
-            <div className="flex space-x-1.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-              <div className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-              <div className="h-2.5 w-2.5 rounded-full bg-neutral-300" />
-            </div>
-          </div>
-          <div className="overflow-x-auto text-sm">
-            <CodeHighlight
-              language={current.without.language}
-              source={current.without.source}
-            />
-          </div>
+          </Link>
         </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          {/* Without Wasp */}
+          <div className="flex flex-col gap-1">
+            {current.without.files.map((file, idx) => (
+              <CodeWindow
+                key={idx}
+                filename={file.name}
+                label={idx === 0 ? "Without Wasp" : undefined}
+                language={current.without.language}
+                source={file.source}
+                theme="neutral"
+                variant={variant}
+              />
+            ))}
+          </div>
 
-        {/* With Wasp */}
-        <div className="overflow-hidden rounded-lg border border-yellow-300 shadow-sm">
-          <div className="flex items-center justify-between bg-yellow-50 px-4 py-2">
-            <span className="text-sm font-medium text-yellow-700">
-              With Wasp
-            </span>
-            <div className="flex space-x-1.5">
-              <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
-              <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
-              <div className="h-2.5 w-2.5 rounded-full bg-yellow-400" />
-            </div>
-          </div>
-          <div className="overflow-x-auto text-sm">
-            <CodeHighlight
-              language={current.with.language}
-              source={current.with.source}
-            />
+          {/* With Wasp */}
+          <div className="flex flex-col gap-1">
+            {current.with.files.map((file, idx) => (
+              <CodeWindow
+                key={idx}
+                filename={file.name}
+                label={idx === 0 ? "With Wasp" : undefined}
+                language={current.with.language}
+                source={file.source}
+                theme="yellow"
+                variant={variant}
+              />
+            ))}
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

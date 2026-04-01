@@ -10,8 +10,8 @@ import VCFAQ from "../components/vibeCoding/VCFAQ";
 import VCFeatures from "../components/vibeCoding/VCFeatures";
 import VCFinalCTA from "../components/vibeCoding/VCFinalCTA";
 import VCHero from "../components/vibeCoding/VCHero";
-import VCProblem from "../components/vibeCoding/VCProblem";
 import VCTestimonials from "../components/vibeCoding/VCTestimonials";
+import VCExamples from "../components/vibeCoding/VCExamples";
 import VCWhyWasp from "../components/vibeCoding/VCWhyWasp";
 import VCWorkflow from "../components/vibeCoding/VCWorkflow";
 
@@ -76,18 +76,20 @@ const VibeCoding = () => {
       <div className="min-h-screen">
         <main>
           {/* <Background /> */}
-          <div>
-            <VCHero />
-            <VCCodeComparison />
-            <VCBenchmark />
-            <VCFeatures />
-            <VCProblem />
-            <VCWhyWasp />
-            <VCWorkflow />
-            <VCTestimonials />
-            <VCFAQ />
-            <VCFinalCTA />
+          <div className="relative">
             <LightsTwo />
+            <div className="relative z-10">
+              <VCHero />
+              <VCCodeComparison />
+              <VCBenchmark />
+              <VCFeatures />
+              <VCWhyWasp />
+              <VCWorkflow />
+              <VCExamples />
+              <VCTestimonials />
+              <VCFAQ />
+              <VCFinalCTA />
+            </div>
           </div>
         </main>
       </div>

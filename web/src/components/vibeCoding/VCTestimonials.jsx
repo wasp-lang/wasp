@@ -1,5 +1,5 @@
 import Link from "@docusaurus/Link";
-import SectionContainer from "../Layouts/SectionContainer";
+import { vc, VCSection } from "./vcVariant";
 
 const PH = "ph";
 
@@ -38,33 +38,42 @@ const testimonials = [
   },
 ];
 
-const TestimonialCard = ({ url, text, name, handle, img }) => (
-  <Link to={url}>
-    <div className="rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6 shadow-sm drop-shadow-sm">
-      <div className="flex">
-        <img className="rounded-full" src={img} width={45} height={45} />
-        <div className="flex w-full justify-between pl-3">
-          <div>
-            <h6 className="text-md font-semibold text-neutral-700">{name}</h6>
-            <p className="text-sm text-neutral-500">{handle}</p>
-          </div>
-          <div>
-            <img
-              className="h-5 w-5 rounded-full"
-              src="img/lp/ph-logo.webp"
-              alt="Product Hunt"
-            />
+const TestimonialCard = ({ url, text, name, handle, img, variant }) => {
+  const cardClass = vc(variant, {
+    base: "rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6 shadow-sm drop-shadow-sm",
+    v1: "rounded-none border border-yellow-500/25 bg-yellow-500/5 p-6",
+    v2: "rounded-none border border-neutral-300 bg-yellow-500/5 p-6",
+    v3: "rounded-none border-l-2 border-yellow-500 bg-white p-6",
+  });
+
+  return (
+    <Link to={url}>
+      <div className={cardClass}>
+        <div className="flex">
+          <img className="rounded-full" src={img} width={45} height={45} />
+          <div className="flex w-full justify-between pl-3">
+            <div>
+              <h6 className="text-md font-semibold text-neutral-700">{name}</h6>
+              <p className="text-sm text-neutral-500">{handle}</p>
+            </div>
+            <div>
+              <img
+                className="h-5 w-5 rounded-full"
+                src="img/lp/ph-logo.webp"
+                alt="Product Hunt"
+              />
+            </div>
           </div>
         </div>
+        <div className="mt-2 whitespace-pre-wrap text-neutral-700">{text}</div>
       </div>
-      <div className="mt-2 whitespace-pre-wrap text-neutral-700">{text}</div>
-    </div>
-  </Link>
-);
+    </Link>
+  );
+};
 
-const VCTestimonials = () => {
+const VCTestimonials = ({ variant }) => {
   return (
-    <SectionContainer className="space-y-16">
+    <VCSection variant={variant} className="space-y-16">
       <div className="grid grid-cols-12">
         <div className="col-span-12 text-center">
           <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
@@ -85,7 +94,7 @@ const VCTestimonials = () => {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {testimonials.map((t, idx) => (
-          <TestimonialCard key={idx} {...t} />
+          <TestimonialCard key={idx} {...t} variant={variant} />
         ))}
       </div>
 
@@ -117,7 +126,7 @@ const VCTestimonials = () => {
           Active Discord Community
         </a>
       </div>
-    </SectionContainer>
+    </VCSection>
   );
 };
 

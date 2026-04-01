@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import { ArrowRight } from "react-feather";
-import SectionContainer from "../Layouts/SectionContainer";
+import { vc, CrosshairCard, VCSection } from "./vcVariant";
 
 const stats = [
   {
@@ -9,75 +9,78 @@ const stats = [
     detail: "$2.87 vs $5.17 per feature",
   },
   {
-    value: "43%",
+    value: "40%",
     label: "fewer tokens",
-    detail: "in the codebase for AI to read",
+    detail: "in the codebase for AI to read, understand, and write",
   },
   {
-    value: "30%",
-    label: "faster",
-    detail: "2.6 min vs 3.7 min to implement",
-  },
-  {
-    value: "Same",
-    label: "output",
-    detail: "AI wrote the same amount of code",
+    value: "31%",
+    label: "fewer API calls",
+    detail: "66 vs 96",
   },
 ];
 
-const VCBenchmark = () => {
+const VCBenchmark = ({ variant }) => {
+  const useCrosshair = variant === "v2" || variant === "v3";
+
   return (
-    <SectionContainer>
+    <VCSection variant={variant}>
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
-          Don't take our word for it.{" "}
+          Get more done for{" "}
           <span className="underline decoration-yellow-500">
-            We benchmarked it.
+            less money.
           </span>
         </h2>
         <p className="text-neutral-500">
-          Same SaaS app. Same features. Same AI. One built with Next.js, one
-          with Wasp.
+          Next.js vs. Wasp: same app, same prompt, same model. Big difference.
         </p>
       </div>
 
-      <div className="mt-16 grid grid-cols-2 gap-6 md:grid-cols-4">
-        {stats.map((stat, idx) => (
-          <div
-            key={idx}
-            className="rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6 text-center"
-          >
-            <div className="text-3xl font-extrabold text-neutral-700">
-              {stat.value}
+      <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3">
+        {stats.map((stat, idx) => {
+          const card = (
+            <div
+              key={idx}
+              className={vc(variant, {
+                base: "h-full rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6 text-center",
+                v1: "h-full rounded-none border border-yellow-500/25 bg-yellow-500/5 p-6 text-center",
+                v2: "h-full rounded-none border border-neutral-300 bg-yellow-500/5 p-6 text-center",
+                v3: "h-full rounded-none border border-neutral-300 bg-yellow-500/5 p-6 text-center border-t-2 border-t-yellow-500",
+              })}
+            >
+              <div className={vc(variant, {
+                base: "text-3xl font-extrabold text-neutral-700",
+                v1: "text-3xl font-extrabold text-neutral-700",
+                v2: "font-mono text-3xl font-extrabold text-neutral-700",
+                v3: "font-mono text-3xl font-extrabold text-neutral-700",
+              })}>
+                {stat.value}
+              </div>
+              <div className="mt-1 text-sm font-semibold text-neutral-700">
+                {stat.label}
+              </div>
+              <div className="mt-2 text-sm text-neutral-500">{stat.detail}</div>
             </div>
-            <div className="mt-1 text-sm font-semibold text-neutral-700">
-              {stat.label}
-            </div>
-            <div className="mt-2 text-sm text-neutral-500">{stat.detail}</div>
-          </div>
-        ))}
-      </div>
+          );
 
-      <div className="mx-auto mt-12 max-w-2xl rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6">
-        <p className="text-neutral-700">
-          The AI wrote nearly identical code for both frameworks. The entire cost
-          and speed difference comes from what the AI had to{" "}
-          <em>read and understand</em> — not what it wrote. Fewer boilerplate
-          files = faster, cheaper AI-assisted development.
-        </p>
+          return useCrosshair ? (
+            <CrosshairCard key={idx} className="h-full">{card}</CrosshairCard>
+          ) : card;
+        })}
       </div>
 
       <div className="mt-8 text-center">
-        <Link to="/blog">
+        <Link to="/blog/2026/03/26/nextjs-vs-wasp-40-percent-less-tokens-same-app" target="_blank">
           <span className="group inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-400">
-            <span>Read the full benchmark</span>
+            <span>Read the full article</span>
             <span className="text-yellow-600 transition-all group-hover:ml-0.5">
               <ArrowRight size={14} strokeWidth={2} />
             </span>
           </span>
         </Link>
       </div>
-    </SectionContainer>
+    </VCSection>
   );
 };
 
