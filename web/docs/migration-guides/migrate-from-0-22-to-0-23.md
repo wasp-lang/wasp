@@ -12,7 +12,17 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 ## How to migrate?
 
-### 1. Bump the Wasp version
+### 1. Upgrade Node.js to v24.14.1 or later
+
+Wasp 0.23 requires Node.js >= v24.14.1 (previously >= v22.22.2). Make sure to upgrade before continuing:
+
+```shell
+node -v
+# If below v24.14.1, upgrade:
+nvm install 24
+```
+
+### 2. Bump the Wasp version
 
 Update the version field in your Wasp config to `^0.23.0`:
 

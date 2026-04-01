@@ -6,6 +6,8 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-22-to-0-23) for step-by-step documentation on how to upgrade.
 
+- Wasp now requires Node.js version >=v24.14.1 (previously >=v22.22.2).
+
 ## 0.22.0
 
 ### ⚠️ Breaking Changes
