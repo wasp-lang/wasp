@@ -1,7 +1,7 @@
 import Link from "@docusaurus/Link";
 import { useRef, useState } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "react-feather";
-import { VCSection } from "./vcVariant";
+import { VCSection } from "./vcWrappers";
 
 const examples = [
   {

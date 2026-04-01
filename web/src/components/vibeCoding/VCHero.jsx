@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import { ChevronDown, Terminal } from "react-feather";
-import { InstallBlock } from "./vcVariant";
+import { InstallBlock } from "./vcWrappers";
 
 const ActionButtons = () => (
   <div className="flex items-center justify-center gap-4">

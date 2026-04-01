@@ -10,7 +10,7 @@ import {
   Settings,
   Unlock,
 } from "react-feather";
-import { VCSection } from "./vcVariant";
+import { VCSection } from "./vcWrappers";
 
 const TextLink = ({ url, label }) => (
   <Link to={url}>

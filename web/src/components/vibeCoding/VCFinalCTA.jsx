@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import { Star, Terminal } from "react-feather";
-import { InstallBlock, VCSection } from "./vcVariant";
+import { InstallBlock, VCSection } from "./vcWrappers";
 
 const VCFinalCTA = () => {
   const wrapperClass =

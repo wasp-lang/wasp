@@ -1,5 +1,5 @@
 import Link from "@docusaurus/Link";
-import { VCSection } from "./vcVariant";
+import { VCSection } from "./vcWrappers";
 
 const PH = "ph";
 

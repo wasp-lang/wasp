@@ -11,7 +11,7 @@ import {
   RotateCcw,
 } from "react-feather";
 import CodeHighlight from "../CodeHighlight";
-import { VCSection } from "./vcVariant";
+import { VCSection } from "./vcWrappers";
 
 const benefits = [
   {

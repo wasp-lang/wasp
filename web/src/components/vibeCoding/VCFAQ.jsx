@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "react-feather";
-import { VCSection } from "./vcVariant";
+import { VCSection } from "./vcWrappers";
 
 const FaqItem = ({ faq }) => {
   const [isExpanded, setIsExpanded] = useState(false);

@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import { ArrowRight } from "react-feather";
-import { VCSection } from "./vcVariant";
+import { VCSection } from "./vcWrappers";
 
 const stats = [
   {
