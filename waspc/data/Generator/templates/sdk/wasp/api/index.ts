@@ -74,6 +74,25 @@ export const api = ky.extend({
         }
       },
     ],
+    beforeError: [
+      async (error) => {
+        const errorWithExtra = error as typeof error & {
+          statusCode: number
+          data: unknown
+        }
+        errorWithExtra.statusCode = error.response.status
+        try {
+          const body = await error.response.json()
+          if (body?.message) {
+            error.message = body.message
+          }
+          errorWithExtra.data = body
+        } catch {
+          // Response body is not JSON, keep the default error message
+        }
+        return error
+      },
+    ],
   },
 })
 
