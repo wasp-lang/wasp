@@ -45,12 +45,12 @@ const VCBlueprint = ({ variant }) => {
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
           A central place for your{" "}
-          <span className="underline decoration-yellow-500">
-            entire app
-          </span>
+          <span className="underline decoration-yellow-500">entire app</span>
         </h2>
         <p className="text-neutral-500">
-          Your main.wasp.ts is like a blueprint of your app. Features defined here get handled by Wasp, so you and your agent can focus on what makes your app unique.
+          Your main.wasp.ts is like a blueprint of your app. Features defined
+          here get handled by Wasp, so you and your agent can focus on what
+          makes your app unique.
         </p>
       </div>
 
