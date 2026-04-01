@@ -11,7 +11,7 @@ export async function callOperation(operationRoute: OperationRoute, args: any) {
   const json = await api.post(operationRoute.path, {
     json: serializedArgs,
   }).json()
-  return deserialize(json)
+  return deserialize(json as any)
 }
 
 // PRIVATE API

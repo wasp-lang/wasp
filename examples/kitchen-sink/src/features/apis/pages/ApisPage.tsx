@@ -57,10 +57,8 @@ function useCustomApi<Data = unknown>(
 } {
   const { isLoading, data, error } = useQuery<Data, HTTPError>(
     [endpoint],
-    () => api.get(endpoint).json(),
-    {
-      retry: false,
-    },
+    async () => (await api.get(endpoint).json()) as Data,
+    { retry: false },
   );
 
   return { isLoading, data, error };

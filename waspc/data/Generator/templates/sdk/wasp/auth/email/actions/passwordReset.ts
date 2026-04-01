@@ -1,16 +1,21 @@
 {{={= =}=}}
 import { api } from 'wasp/client/api';
+import { SuccessResponseSchema } from '../../responseSchemas';
 
 // PUBLIC API
 export async function requestPasswordReset(data: { email: string; }): Promise<{ success: boolean }> {
-    return api.post('{= requestPasswordResetPath =}', {
+    const json = await api.post('{= requestPasswordResetPath =}', {
         json: data,
     }).json();
+    const { success } = SuccessResponseSchema.parse(json);
+    return { success };
 }
 
 // PUBLIC API
 export async function resetPassword(data: { token: string; password: string; }): Promise<{ success: boolean }> {
-    return api.post('{= resetPasswordPath =}', {
+    const json = await api.post('{= resetPasswordPath =}', {
         json: data,
     }).json();
+    const { success } = SuccessResponseSchema.parse(json);
+    return { success };
 }
