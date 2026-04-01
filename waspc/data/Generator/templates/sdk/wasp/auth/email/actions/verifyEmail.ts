@@ -5,7 +5,7 @@ import { api } from 'wasp/client/api'
 export async function verifyEmail(data: {
   token: string
 }): Promise<{ success: boolean; reason?: string }> {
-  return api.post('{= verifyEmailPath =}'.slice(1), {
+  return api.post('{= verifyEmailPath =}', {
     json: data,
   }).json()
 }

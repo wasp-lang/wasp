@@ -11,7 +11,7 @@ type EmailSignupData = {
 
 // PUBLIC API
 export async function signup(data: EmailSignupData): Promise<{ success: boolean }> {
-  return api.post('{= signupPath =}'.slice(1), {
+  return api.post('{= signupPath =}', {
     json: data,
   }).json();
 }

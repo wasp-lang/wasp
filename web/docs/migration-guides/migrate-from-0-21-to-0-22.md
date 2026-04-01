@@ -105,15 +105,15 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
     import { api } from 'wasp/client/api'
     import { isHTTPError } from 'ky'
 
-    // Making requests (paths are relative, no leading slash)
-    const data = await api.get('foo/bar').json()
+    // Making requests
+    const data = await api.get('/foo/bar').json()
 
-    // POST with body (automatic JSON serialization)
-    await api.post('foo/bar', { json: { key: 'value' } })
+    // POST with body
+    await api.post('/foo/bar', { json: { key: 'value' } })
 
     // Error handling
     try {
-      await api.get('foo/bar').json()
+      await api.get('/foo/bar').json()
     } catch (e) {
       if (isHTTPError(e)) {
         console.log(e.response.status)
@@ -122,8 +122,6 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
     ```
   </TabItem>
 </Tabs>
-
-Note that paths no longer need a leading `/` since the API base URL is configured as `prefixUrl` on the ky instance.
 
 You can also remove `axios` from your project's dependencies if you added it only for use with the Wasp `api` wrapper.
 

@@ -16,7 +16,7 @@ To create a Wasp API, you must:
 1. Declare the API in Wasp using the `api` declaration
 2. Define the API's NodeJS implementation
 
-After completing these two steps, you'll be able to call the API from the client code (via the `api` function), or from the outside world.
+After completing these two steps, you'll be able to call the API from the client code (via our `ky` wrapper), or from the outside world.
 
 ### Declaring the API in Wasp
 
@@ -109,7 +109,7 @@ import React, { useEffect } from "react";
 import { api } from "wasp/client/api";
 
 async function fetchCustomRoute() {
-  const data = await api.get("foo/bar").json();
+  const data = await api.get("/foo/bar").json();
   console.log(data);
 }
 
@@ -244,7 +244,7 @@ import { useEffect, useState } from "react";
 import { api } from "wasp/client/api";
 
 export function StreamingPage() {
-  const { response } = useTextStream("api/streaming-example", {
+  const { response } = useTextStream("/api/streaming-example", {
     message: "Best Office episode?",
   });
 

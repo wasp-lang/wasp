@@ -11,7 +11,7 @@ type UsernameSignupData = {
 
 // PUBLIC API
 export async function signup(data: UsernameSignupData): Promise<void> {
-  await api.post('{= signupPath =}'.slice(1), {
+  await api.post('{= signupPath =}', {
     json: data,
   })
 }

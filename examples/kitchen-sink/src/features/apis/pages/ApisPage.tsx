@@ -1,11 +1,12 @@
 import { useQuery } from "@tanstack/react-query";
+import { HTTPError } from "ky";
 import { api } from "wasp/client/api";
 import { Alert } from "../../../components/Alert";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export function ApisPage() {
-  const authenticatedApi = useCustomApi<{ msg: string }>("foo/bar");
-  const unauthenticatedApi = useCustomApi<{ msg: string }>("bar/baz");
+  const authenticatedApi = useCustomApi<{ msg: string }>("/foo/bar");
+  const unauthenticatedApi = useCustomApi<{ msg: string }>("/bar/baz");
   return (
     <FeatureContainer>
       <div className="space-y-4">
@@ -52,9 +53,9 @@ function useCustomApi<Data = unknown>(
 ): {
   isLoading: boolean;
   data: Data | undefined;
-  error: Error | null;
+  error: HTTPError | null;
 } {
-  const { isLoading, data, error } = useQuery<Data, Error>(
+  const { isLoading, data, error } = useQuery<Data, HTTPError>(
     [endpoint],
     () => api.get(endpoint).json(),
     {

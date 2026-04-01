@@ -82,7 +82,7 @@ function useOAuthCallbackHandler() {
 async function exchangeOAuthCodeForToken(data: {
   code: string
 }): Promise<unknown> {
-  return api.post('auth/exchange-code', {
+  return api.post('/auth/exchange-code', {
     json: data,
   }).json()
 }
