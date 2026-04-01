@@ -34,3 +34,15 @@ app MyApp {
   // ...
 }
 ```
+
+### 3. Update TypeScript to 5.9.3
+
+Wasp 0.23 requires TypeScript 5.9.3 (previously 5.8.2). Update it in your `package.json`:
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
+```

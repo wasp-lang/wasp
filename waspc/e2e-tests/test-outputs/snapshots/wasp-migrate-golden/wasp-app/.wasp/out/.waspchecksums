@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "531b891bf436f6d47fa105f643da3236c26440f508418e8644a0eba9992aa334"
+        "11dd70eef0b1da245dd9263d40a63b4057b0e972ffb0d98dc0a832a5505d0c60"
     ],
     [
         [
@@ -23,16 +23,16 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.22.0.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.23.0.tgz"
         ],
-        "78e9b53939d123bcfa191024dfeb038a0c3f84a867a67fce8fe14cb1989d7427"
+        "1eaab6b4d7830b7cb597771b415fe08824c262e3c32de9838f8fa4392b38453a"
     ],
     [
         [
             "file",
-            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz"
+            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.23.0.tgz"
         ],
-        "71d84564cb3379897c7189393a606d214f55396eba5e696ac17d1a4ed42b4688"
+        "7053902efdb01cc8b71c83a7df32852fc7826c5189ca2ba9fc8b513382e7e5c4"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "7dbba0728db2d6274c7178ca05c72e5bbba3213e8e4bc80873417e39680929bc"
+        "8daac8bc76d93f343ccf744be20d53bd304bfa297c4a3955a34e1feba2563ce4"
     ],
     [
         [
@@ -669,7 +669,7 @@
             "file",
             "server/package.json"
         ],
-        "0f29fdd18ca1da46d62fbbf4a0d991a736aa0889be63469d1aeec865c0e56570"
+        "5fede8ff68d7f79aa398908ca2703ff20e2f21810fcdb42a9a47c951034c78f4"
     ],
     [
         [
@@ -739,6 +739,6 @@
             "file",
             "server/tsconfig.json"
         ],
-        "949371883586daa391e4c740deab221a2c96fa2be1f159e82eb5a129d4a5134a"
+        "41bd85355b03c53e6a036aadc42ce4f1e6ed20e45215d4f2036747b2c7d181e1"
     ]
 ]
