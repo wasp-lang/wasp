@@ -8,7 +8,7 @@ import qualified Data.ByteString as BS
 import StrongPath (Abs, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.IO.Error (doesNotExistErrorType, mkIOError)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Util (checksumFromByteString)
@@ -16,7 +16,7 @@ import Wasp.Util (checksumFromByteString)
 -- | File draft based purely on another file, that is just copied.
 data CopyFileDraft = CopyFileDraft
   { -- | Path where the file will be copied to.
-    _dstPath :: !(Path' (Rel ProjectRootDir) File'),
+    _dstPath :: !(Path' (Rel GeneratedAppDir) File'),
     -- | Absolute path of source file to copy.
     _srcPath :: !(Path' Abs File'),
     _failIfSrcDoesNotExist :: !Bool

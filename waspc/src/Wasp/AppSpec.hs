@@ -48,7 +48,6 @@ import Wasp.AppSpec.Query (Query)
 import Wasp.AppSpec.Route (Route)
 import Wasp.Env (EnvVar)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson)
-import Wasp.ExternalConfig.TsConfig (TsConfig)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (SrcTsConfigFile, WaspProjectDir)
@@ -86,8 +85,7 @@ data AppSpec = AppSpec
     -- | Connection URL for a database used during development. If provided, generated app will
     -- make sure to use it when run in development mode.
     devDatabaseUrl :: Maybe String,
-    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
-    srcTsConfig :: TsConfig
+    srcTsConfigPath :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
   }
 
 -- TODO: Make this return "Named" declarations?
@@ -155,7 +153,7 @@ asAbsWaspProjectDirFile spec file = waspProjectDir spec </> file
 --   `engines` field in package.json.
 --   In the meantime, we determine it based on the oldest node version that Wasp supports.
 userNodeVersionRange :: AppSpec -> SV.Range
-userNodeVersionRange _ = SV.Range [SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion]
+userNodeVersionRange _ = SV.backwardsCompatibleWith oldestWaspSupportedNodeVersion
 
 isProduction :: AppSpec -> Bool
 isProduction spec = buildType spec == BuildType.Production

@@ -9,7 +9,7 @@ import qualified Data.Text.IO as T.IO
 import StrongPath (Abs, File', Path', Rel, (</>))
 import qualified StrongPath as SP
 import System.IO.Error (doesNotExistErrorType, mkIOError)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Util (checksumFromText)
@@ -17,7 +17,7 @@ import Wasp.Util (checksumFromText)
 -- | File draft based on existing text file + some modifications.
 data CopyAndModifyTextFileDraft = CopyAndModifyTextFileDraft
   { -- | Path where the file will be copied to.
-    _dstPath :: !(Path' (Rel ProjectRootDir) File'),
+    _dstPath :: !(Path' (Rel GeneratedAppDir) File'),
     -- | Absolute path of source file to copy.
     _srcPath :: !(Path' Abs File'),
     _failIfSrcDoesNotExist :: !Bool,

@@ -18,8 +18,7 @@ import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common
   ( WaspProjectDir,
-    dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
+    generatedAppDirInWaspProjectDir,
   )
 
 test :: [String] -> Command ()
@@ -31,7 +30,7 @@ test _ = throwError $ CommandError "Invalid arguments" "Expected: wasp test clie
 watchAndTest :: (Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = do
   InWaspProject waspRoot <- require
-  let outDir = waspRoot </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+  let outDir = waspRoot </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Starting compilation and setup phase. Hold tight..."
 

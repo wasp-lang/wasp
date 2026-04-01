@@ -9,14 +9,16 @@
   "scripts": {
     "build": "npx tsc",
     "dev": "npx tsc --watch",
-    "start": "node ./dist/index.js"
+    "start": "node ./dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@inquirer/prompts": "^7.5.3",
     "commander": "^13.1.0",
     "semver": "^7.7.2",
     "toml": "^3.0.0",
-    "zod": "^3.24.4",
+    "zod": "^4.3.6",
     "zx": "^8.3.2"
   },
   "devDependencies": {
@@ -24,6 +26,7 @@
     "@typescript-eslint/eslint-plugin": "^5.48.0",
     "@typescript-eslint/parser": "^5.48.0",
     "eslint": "^8.31.0",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.18"
   }
 }

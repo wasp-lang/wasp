@@ -13,19 +13,20 @@ import Data.Maybe (fromJust)
 import StrongPath (Dir, File', Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.Common (GeneratedSrcDir, dropExtensionFromImportPath)
+import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport (..),
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (RelativeImportPath),
+    getJsDynamicImportExpression,
     getJsImportStmtAndIdentifier,
     makeJsImport,
   )
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 extImportToJsImport ::
-  (GeneratedSrcDir d) =>
+  (GeneratedAppComponentSrcDir d) =>
   Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
@@ -51,7 +52,8 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
        in object
             [ "isDefined" .= True,
               "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier
+              "importIdentifier" .= jsImportIdentifier,
+              "dynamicImportExpression" .= getJsDynamicImportExpression jsImport
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport

@@ -1,0 +1,64 @@
+{{={= =}=}}
+import type { PrerenderContext, PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
+import * as streamConsumers from "node:stream/consumers";
+import assert from "node:assert/strict";
+import type { ReactNode } from "react";
+import { prerenderToNodeStream as reactPrerender } from "react-dom/static";
+import {
+  createStaticHandler,
+  createStaticRouter,
+  RouterProvider,
+} from "react-router";
+import { Layout } from "wasp/client/app/layout";
+import { WaspApp } from "wasp/client/app";
+
+{=& routeObjects.importStatement =}
+
+const FALLBACK_FILE = "{= ssrFallbackFile =}";
+
+const prerenderApp: PrerenderFn = async (route, ctx) => {
+  const isFallbackPage = route === FALLBACK_FILE;
+
+  if (isFallbackPage) {
+     return await appToHtml({ isFallbackPage: true, children: null }, ctx);
+  } else {
+    const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
+      basename: "{= baseDir =}",
+    });
+
+    const req = new Request(new URL(route, "http://localhost"));
+
+    const context = await query(req);
+    assert (!(context instanceof Response), "Expected no redirect responses from static handler");
+
+    const router = createStaticRouter(dataRoutes, context);
+
+    return await appToHtml(
+      { isFallbackPage: false, children: <RouterProvider router={router} /> },
+      ctx,
+    );
+  }
+}
+
+export default prerenderApp;
+
+async function appToHtml(
+  {
+    isFallbackPage,
+    children,
+  }: { isFallbackPage: boolean; children?: ReactNode },
+  { clientEntrySrc }: PrerenderContext,
+) {
+  const app = (
+    <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
+      <WaspApp>
+        {children}
+      </WaspApp>
+    </Layout>
+  );
+
+  const html = await reactPrerender(app)
+    .then((result) => streamConsumers.text(result.prelude))
+
+  return html;
+};

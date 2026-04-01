@@ -10,12 +10,12 @@ import qualified Data.ByteString.Lazy as B
 import StrongPath (Abs, Dir, File', Path', Rel, relfile, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps)
 import Wasp.Util.IO (deleteFileIfExists)
 
 -- Load the log of the npm dependencies we installed, from disk.
-loadInstalledNpmDepsLog :: Path' Abs (Dir ProjectRootDir) -> IO (Maybe AllNpmDeps)
+loadInstalledNpmDepsLog :: Path' Abs (Dir GeneratedAppDir) -> IO (Maybe AllNpmDeps)
 loadInstalledNpmDepsLog dstDir = do
   fileExists <- doesFileExist $ SP.fromAbsFile logFilePath
   if fileExists
@@ -27,16 +27,16 @@ loadInstalledNpmDepsLog dstDir = do
     logFilePath = getInstalledNpmDepsLogFilePath dstDir
 
 -- Save the record of the Wasp's (webapp + server) npm dependencies we installed, to disk.
-saveInstalledNpmDepsLog :: AllNpmDeps -> Path' Abs (Dir ProjectRootDir) -> IO ()
+saveInstalledNpmDepsLog :: AllNpmDeps -> Path' Abs (Dir GeneratedAppDir) -> IO ()
 saveInstalledNpmDepsLog deps dstDir =
   B.writeFile (SP.fromAbsFile $ getInstalledNpmDepsLogFilePath dstDir) (Aeson.encode deps)
 
-forgetInstalledNpmDepsLog :: Path' Abs (Dir ProjectRootDir) -> IO ()
+forgetInstalledNpmDepsLog :: Path' Abs (Dir GeneratedAppDir) -> IO ()
 forgetInstalledNpmDepsLog dstDir =
   deleteFileIfExists $ getInstalledNpmDepsLogFilePath dstDir
 
-getInstalledNpmDepsLogFilePath :: Path' Abs (Dir ProjectRootDir) -> Path' Abs File'
-getInstalledNpmDepsLogFilePath dstDir = dstDir </> installedNpmDepsLogFileInProjectRootDir
+getInstalledNpmDepsLogFilePath :: Path' Abs (Dir GeneratedAppDir) -> Path' Abs File'
+getInstalledNpmDepsLogFilePath dstDir = dstDir </> installedNpmDepsLogFileInGeneratedAppDir
 
-installedNpmDepsLogFileInProjectRootDir :: Path' (Rel ProjectRootDir) File'
-installedNpmDepsLogFileInProjectRootDir = [relfile|installedNpmDepsLog.json|]
+installedNpmDepsLogFileInGeneratedAppDir :: Path' (Rel GeneratedAppDir) File'
+installedNpmDepsLogFileInGeneratedAppDir = [relfile|installedNpmDepsLog.json|]

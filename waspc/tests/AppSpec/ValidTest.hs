@@ -34,7 +34,6 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import qualified Wasp.ExternalConfig.Npm.PackageJson as Npm.PackageJson
-import qualified Wasp.ExternalConfig.TsConfig as T
 import qualified Wasp.Generator.NpmWorkspaces as NW
 import qualified Wasp.Project.BuildType as BuildType
 import qualified Wasp.Psl.Ast.Argument as Psl.Argument
@@ -86,9 +85,20 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
 
         it "returns an error if 'waspVersion' has an incorrect format" $ do
-          ASV.validateAppSpec (basicAppSpecWithVersionRange "0.5;2")
-            `shouldBe` [ Valid.GenericValidationError
-                           "Wasp version should be in the format ^major.minor.patch"
+          let invalidWaspVerison = "$0.5;2"
+
+          ASV.validateAppSpec (basicAppSpecWithVersionRange invalidWaspVerison)
+            `shouldBe` [ Valid.GenericValidationError $
+                           unlines
+                             [ "Invalid Wasp version requirement: " ++ invalidWaspVerison,
+                               "Make sure to use a npm-compatible version range.",
+                               "For example: "
+                                 ++ show (SV.backwardsCompatibleWith WV.waspVersion)
+                                 ++ ", "
+                                 ++ show (SV.approximatelyEquivalentTo WV.waspVersion)
+                                 ++ " or "
+                                 ++ show (SV.eq WV.waspVersion)
+                             ]
                        ]
 
         it "returns an error if 'waspVersion' is not compatible" $ do
@@ -562,27 +572,7 @@ spec_AppSpecValid = do
           AS.devEnvVarsServer = [],
           AS.userDockerfileContents = Nothing,
           AS.devDatabaseUrl = Nothing,
-          AS.srcTsConfigPath = [relfile|tsconfig.json|],
-          AS.srcTsConfig =
-            T.TsConfig
-              { T.compilerOptions =
-                  T.CompilerOptions
-                    { T._module = Just "esnext",
-                      T.composite = Just True,
-                      T.target = Just "esnext",
-                      T.moduleResolution = Just "bundler",
-                      T.jsx = Just "preserve",
-                      T.strict = Just True,
-                      T.esModuleInterop = Just True,
-                      T.isolatedModules = Just True,
-                      T.moduleDetection = Just "force",
-                      T.lib = Just ["dom", "dom.iterable", "esnext"],
-                      T.skipLibCheck = Just True,
-                      T.allowJs = Just True,
-                      T.outDir = Just ".wasp/out/user"
-                    },
-                T.include = Just ["src"]
-              }
+          AS.srcTsConfigPath = [relfile|tsconfig.json|]
         }
 
     getPrismaSchemaWithConfig restOfPrismaSource =
@@ -626,7 +616,7 @@ spec_AppSpecValid = do
     makeBasicRouteDecl name pageName =
       AS.Decl.makeDecl
         name
-        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test"}
+        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing}
 
     makeBasicActionDecl name =
       AS.Decl.makeDecl

@@ -1,10 +1,10 @@
 app KitchenSink {
   wasp: {
-    version: "^0.21.0"
+    version: "^0.22.0"
   },
   title: "Wasp Kitchen Sink",
   head: [
-    "<link rel='manifest' href='/manifest.json'>",
+    "<link rel='manifest' href='/manifest.json' />",
     "<link rel='icon' href='/favicon.ico' />",
   ],
   webSocket: {
@@ -347,6 +347,18 @@ route ChatRoute { path: "/chat", to: ChatPage }
 page ChatPage {
   authRequired: true,
   component: import { ChatPage } from "@src/features/chat/pages/ChatPage"
+}
+
+// --------- Lazy Loading --------- //
+
+route EagerRoute { path: "/lazy/no", to: EagerPage, lazy: false }
+page EagerPage {
+  component: import { EagerPage } from "@src/features/lazy-loading/pages/EagerPage"
+}
+
+route LazyRoute { path: "/lazy/yes", to: LazyPage }
+page LazyPage {
+  component: import { LazyPage } from "@src/features/lazy-loading/pages/LazyPage"
 }
 
 // --------- Operations Type Testing --------- //
