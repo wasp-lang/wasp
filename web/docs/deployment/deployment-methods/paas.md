@@ -66,7 +66,7 @@ While these are the general instructions on deploying the server anywhere, we al
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `.wasp/out/web-app/build` directory.
+The command above will build the web client and put it in the `.wasp/out/web-app/build` directory, including the `200.html` file at the root that acts as the SPA fallback.
 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
 
@@ -690,7 +690,7 @@ Keeping these files in the project root ensures they are tracked in your reposit
 Finally, deploy from your project root:
 
 ```shell
-npx wrangler deploy --commit-dirty=true --branch=main
+npx wrangler deploy
 ```
 
 That is it! Your client should be live at `https://my-wasp-app-client.<subdomain>.workers.dev`.
