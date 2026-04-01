@@ -687,14 +687,6 @@ That is it! Your client should be live at `https://my-wasp-app-client.<subdomain
 Make sure you set your Workers URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
 :::
 
-:::info Redirecting URLs toward `/200.html`
-
-In `single-page-application` mode, Cloudflare automatically routes all non-asset requests to `/index.html`.
-This behavior conflicts with Wasp, which reserves `/index.html` for the pre-rendered root (`/`) route.
-
-To avoid this, routing is handled explicitly via `worker.js`.
-:::
-
 ### Deploying through Github Actions
 
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
