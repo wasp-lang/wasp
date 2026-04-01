@@ -4,8 +4,8 @@ import { Alert } from "../../../components/Alert";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export function ApisPage() {
-  const authenticatedApi = useCustomApi<{ msg: string }>("/foo/bar");
-  const unauthenticatedApi = useCustomApi<{ msg: string }>("/bar/baz");
+  const authenticatedApi = useCustomApi<{ msg: string }>("foo/bar");
+  const unauthenticatedApi = useCustomApi<{ msg: string }>("bar/baz");
   return (
     <FeatureContainer>
       <div className="space-y-4">
@@ -56,7 +56,7 @@ function useCustomApi<Data = unknown>(
 } {
   const { isLoading, data, error } = useQuery<Data, Error>(
     [endpoint],
-    () => api(endpoint).then((response) => response.json()),
+    () => api.get(endpoint).json(),
     {
       retry: false,
     },

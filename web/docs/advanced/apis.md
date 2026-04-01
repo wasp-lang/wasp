@@ -102,15 +102,14 @@ For example, if your app is running at `https://example.com` then from the above
 
 ### Using the API from the Client
 
-To use the API from your client, including with auth support, you can import the `api` function from `wasp/client/api`. It works as a thin wrapper on top of [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch) that takes care of Wasp-specific authentication and error handling. For example:
+To use the API from your client, including with auth support, you can import the `api` instance from `wasp/client/api`. It is a [ky](https://github.com/sindresorhus/ky) instance pre-configured with the API base URL, authentication, and error handling. For example:
 
 ```tsx title="src/pages/SomePage.tsx" auto-js with-hole
 import React, { useEffect } from "react";
 import { api } from "wasp/client/api";
 
 async function fetchCustomRoute() {
-  const res = await api("/foo/bar");
-  const data = await res.json();
+  const data = await api.get("foo/bar").json();
   console.log(data);
 }
 
@@ -238,14 +237,14 @@ export const getStreamingText: StreamingText<
 
 ### Consuming Streaming Responses
 
-You can consume streaming responses on the client using the `api` function from `wasp/client/api`. Since `api` wraps `fetch`, you get native streaming support via the `Response.body` readable stream. The `api` function handles authentication automatically.
+You can consume streaming responses on the client using the `api` instance from `wasp/client/api`. Since ky is built on `fetch`, you get native streaming support via the `Response.body` readable stream. The `api` instance handles authentication automatically.
 
 ```tsx title="src/StreamingPage.tsx" auto-js
 import { useEffect, useState } from "react";
 import { api } from "wasp/client/api";
 
 export function StreamingPage() {
-  const { response } = useTextStream("/api/streaming-example", {
+  const { response } = useTextStream("api/streaming-example", {
     message: "Best Office episode?",
   });
 
@@ -287,10 +286,8 @@ async function fetchStream(
   signal: AbortSignal
 ) {
   try {
-    const response = await api(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+    const response = await api.post(path, {
+      json: payload,
       signal,
     });
 

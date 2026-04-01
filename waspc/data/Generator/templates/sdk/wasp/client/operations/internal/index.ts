@@ -8,15 +8,13 @@ export type OperationRoute = { method: HttpMethod.Post, path: string }
 // PRIVATE API
 export async function callOperation(operationRoute: OperationRoute, args: any) {
   const serializedArgs = serialize(args)
-  const response = await api(operationRoute.path, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(serializedArgs),
-  })
-  return deserialize(await response.json())
+  const json = await api.post(operationRoute.path, {
+    json: serializedArgs,
+  }).json()
+  return deserialize(json)
 }
 
 // PRIVATE API
 export function makeOperationRoute(relativeOperationRoute: string): OperationRoute {
-  return { method: HttpMethod.Post, path: `/${relativeOperationRoute}` }
+  return { method: HttpMethod.Post, path: relativeOperationRoute }
 }

@@ -5,8 +5,7 @@ import { cn } from "../../../cn";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 async function fetchCustomRoute() {
-  const res = await api("/foo/bar");
-  const data = await res.json();
+  const data = await api.get("foo/bar").json();
   console.log(data);
 }
 
