@@ -45,35 +45,35 @@ const features = [
     Icon: Unlock,
     title: "Full-stack Auth",
     description:
-      "Google login, email login — just say which ones you want. Wasp sets it all up.",
+      "Google, Slack, email login, etc. Just say which ones you want. Wasp sets it all up and even handles the UI for you.",
     url: "/docs/auth/overview",
   },
   {
     Icon: Grid,
     title: "Automatic CRUD",
     description:
-      "Describe your data and Wasp creates all the basic operations — create, read, update, delete — automatically.",
+    "Describe your data and Wasp creates all the basic create, read, update, delete operations automatically.",
     url: "/docs/data-model/crud",
   },
   {
     Icon: Link2,
     title: "Typesafe Operations",
     description:
-      "Your frontend and backend talk to each other automatically. No wiring API endpoints by hand.",
+      "Your frontend and backend safely talk to each other automatically. No need to wire API endpoints and full-stack type safety by hand.",
     url: "/docs/data-model/operations/overview",
   },
   {
     Icon: FileText,
     title: "TypeScript Config",
     description:
-      "Your app config is written in TypeScript — your AI already speaks it fluently.",
+      "Your app config is written in TypeScript, a safe choice your AI already speaks fluently.",
     url: "/docs/general/wasp-ts-config",
   },
   {
     Icon: Settings,
     title: "Background Jobs",
     description:
-      "Need something to run on a schedule? Just describe when and what. Wasp handles the rest.",
+      "Need something to run on a schedule? Just describe when and what. Wasp handles the rest without relying on expensive third-party services.",
     url: "/docs/advanced/jobs",
   },
   {
@@ -81,20 +81,20 @@ const features = [
     title: "LLM-friendly Docs",
     description:
       "Wasp provides special documentation files optimized for AI, so your agent always has the best context.",
-    url: "pathname:///llms.txt",
+    url: "/llms.txt",
   },
   {
     Icon: Send,
     title: "One-command Deploy",
     description:
-      "When you're ready to go live, one command gets your app deployed. No DevOps degree needed.",
+      "When you're ready to go live, one command gets your app deployed to your favorite platform. No DevOps degree needed.",
     url: "/docs/deployment/intro",
   },
   {
     Icon: Eye,
     title: "Human-reviewable Output",
     description:
-      "Because Wasp enforces consistent patterns, the code your AI generates is easy to read and review.",
+      "Because Wasp uses consistent patterns, the code your AI generates is easy to read and review (for humans and AI).",
       url: "/docs"
   },
 ];

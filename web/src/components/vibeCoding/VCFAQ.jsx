@@ -34,7 +34,7 @@ const faqs = [
       <p>
         No. Wasp is designed for AI to do the heavy lifting. You describe what you
         want, your AI builds it. The main.wasp.ts config lets you see what your
-        app does in plain English — even if you've never written code before.
+        app does in plain English even if you've never written code before.
       </p>
     ),
   },
@@ -42,7 +42,7 @@ const faqs = [
     question: "Is this just for AI coding?",
     answer: (
       <p>
-        No. Wasp is a great framework on its own — it's Rails-like productivity
+        No. Wasp is a great framework on its own. It's Laravel / Rails-like productivity
         for React and Node.js. The AI advantages are a natural byproduct of its
         declarative, low-boilerplate architecture. You get a better framework{" "}
         <em>and</em> a better AI coding experience.
@@ -65,7 +65,7 @@ const faqs = [
     answer: (
       <p>
         Wasp's config can be split across multiple files as your app grows. The
-        declarative architecture keeps your codebase coherent — every new feature
+        declarative architecture keeps your codebase coherent and every new feature
         follows the same patterns, whether it's the 5th or the 50th. This makes
         AI-generated code consistent and easy for you to review.
       </p>
@@ -86,9 +86,8 @@ const faqs = [
     answer: (
       <p>
         Beyond the benchmark numbers, the key difference is architectural. Wasp
-        makes architecture decisions for AI so it doesn't have to. Other
-        frameworks leave hundreds of decisions open, which means more AI turns,
-        more errors, and more boilerplate generated.
+        is opinionated and covers the entire stack, from client to database and even deployments.
+        Something no other framework does. It's focus on higher-level abstractions also make it the most context-efficient framework out there.
       </p>
     ),
   },
@@ -96,7 +95,7 @@ const faqs = [
     question: "Is Wasp production-ready?",
     answer: (
       <p>
-        Yes. YC-backed, 13k+ GitHub stars, used in production by companies and
+        Yes. YC-backed, 13k+ GitHub stars, used in production by Fortune 500companies and
         solo developers. Free and open-source.
       </p>
     ),
