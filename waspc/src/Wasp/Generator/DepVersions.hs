@@ -1,72 +1,68 @@
 module Wasp.Generator.DepVersions
-  ( prismaVersion,
-    superjsonVersion,
-    typescriptVersion,
-    reactVersion,
-    reactDomVersion,
-    reactTypesVersion,
-    reactDomTypesVersion,
-    reactRouterVersion,
-    reactQueryVersion,
-    expressVersionStr,
-    expressTypesVersion,
-    axiosVersion,
-    viteVersion,
-    dotenvVersion,
+  ( prismaVersionRange,
+    superjsonVersionRange,
+    typescriptVersionRange,
+    reactVersionRange,
+    reactDomVersionRange,
+    reactTypesVersionRange,
+    reactDomTypesVersionRange,
+    reactRouterVersionRange,
+    reactQueryVersionRange,
+    expressVersionRange,
+    expressTypesVersionRange,
+    axiosVersionRange,
+    viteVersionRange,
+    dotenvVersionRange,
   )
 where
 
 import qualified Wasp.SemanticVersion as SV
 
--- NOTE: If changing prisma version here, also change it in
--- waspc/packages/prisma/package.json. Then ensure
--- `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to
--- date.
-prismaVersion :: SV.Version
-prismaVersion = SV.Version 5 19 1
+-- When updating the value, also update it in `waspc/packages/prisma/package.json`.
+-- Also ensure `data/Generator/templates/sdk/wasp/prisma-runtime-library.d.ts` is up to date.
+prismaVersionRange :: SV.Range
+prismaVersionRange = [SV.r|5.19.1|]
 
-superjsonVersion :: SV.ComparatorSet
-superjsonVersion = SV.backwardsCompatibleWith $ SV.Version 2 2 1
+superjsonVersionRange :: SV.Range
+superjsonVersionRange = [SV.r|^2.2.1|]
 
-typescriptVersion :: SV.Version
-typescriptVersion = SV.Version 5 8 2
+typescriptVersionRange :: SV.Range
+typescriptVersionRange = [SV.r|5.8.2|]
 
--- When updating the React version, also update it in `peerDependencies` in `waspc/libs/auth/package.json`.
-reactVersion :: SV.ComparatorSet
-reactVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 1
+-- When updating the React version,
+-- also update it in `peerDependencies` in `waspc/libs/auth/package.json`.
+reactVersionRange :: SV.Range
+reactVersionRange = [SV.r|^19.2.1|]
 
 -- React and ReactDOM versions should always match.
-reactDomVersion :: SV.ComparatorSet
-reactDomVersion = reactVersion
+reactDomVersionRange :: SV.Range
+reactDomVersionRange = reactVersionRange
 
--- Follows React major version
--- When updating the React types version, also update it in `devDependencies` in `waspc/libs/auth/package.json`.
-reactTypesVersion :: SV.ComparatorSet
-reactTypesVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 7
+-- Follows React major version.
+-- When updating the value, also update it in `devDependencies` in `waspc/libs/auth/package.json`.
+reactTypesVersionRange :: SV.Range
+reactTypesVersionRange = [SV.r|^19.2.7|]
 
-reactDomTypesVersion :: SV.ComparatorSet
-reactDomTypesVersion = SV.backwardsCompatibleWith $ SV.Version 19 2 3
+reactDomTypesVersionRange :: SV.Range
+reactDomTypesVersionRange = [SV.r|^19.2.3|]
 
-reactRouterVersion :: SV.ComparatorSet
-reactRouterVersion = SV.backwardsCompatibleWith $ SV.Version 7 12 0
+reactRouterVersionRange :: SV.Range
+reactRouterVersionRange = [SV.r|^7.12.0|]
 
--- TODO: Update react query and express to use Wasp.SemanticVersion when we'll
--- have support for patch versions https://github.com/wasp-lang/wasp/issues/2941
+reactQueryVersionRange :: SV.Range
+reactQueryVersionRange = [SV.r|~4.42.0|]
 
-reactQueryVersion :: String
-reactQueryVersion = "~4.42.0"
+expressVersionRange :: SV.Range
+expressVersionRange = [SV.r|~5.1.0|]
 
-expressVersionStr :: String
-expressVersionStr = "~5.1.0"
+expressTypesVersionRange :: SV.Range
+expressTypesVersionRange = [SV.r|^5.0.0|]
 
-expressTypesVersion :: SV.ComparatorSet
-expressTypesVersion = SV.backwardsCompatibleWith $ SV.Version 5 0 0
+axiosVersionRange :: SV.Range
+axiosVersionRange = [SV.r|^1.4.0|]
 
-axiosVersion :: SV.ComparatorSet
-axiosVersion = SV.backwardsCompatibleWith $ SV.Version 1 4 0
+viteVersionRange :: SV.Range
+viteVersionRange = [SV.r|^7.0.6|]
 
-viteVersion :: SV.ComparatorSet
-viteVersion = SV.backwardsCompatibleWith $ SV.Version 7 0 6
-
-dotenvVersion :: SV.ComparatorSet
-dotenvVersion = SV.backwardsCompatibleWith $ SV.Version 16 6 1
+dotenvVersionRange :: SV.Range
+dotenvVersionRange = [SV.r|^16.6.1|]

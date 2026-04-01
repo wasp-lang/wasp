@@ -45,7 +45,7 @@ jobs:
             # NOTE: This should be equal to Wasp's lowest supported Node
             # version. Don't change this version without updating it in all
             # required places (full list in /.nvmrc).
-            node-version: "22.12.0"
+            node-version: "22.22.2"
           - os: ubuntu-22.04
             node-version: 24
 
@@ -70,13 +70,6 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node-version }}
-
-      - name: data/packages/ts-inspect - Run tests
-        if: matrix.os == 'ubuntu-22.04' || matrix.os == 'macos-15-intel' || matrix.os == 'macos-15'
-        working-directory: waspc/data/packages/ts-inspect
-        run: |
-          npm ci
-          npm test
 
       - name: Compile TS packages and libs
         if: runner.os == 'Linux' || runner.os == 'macOS'

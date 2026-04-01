@@ -41,6 +41,7 @@ export type Page = {
 export type Route = {
   path: string;
   to: Ref<"Page">;
+  lazy: Optional<boolean>;
 };
 
 export type Action = {
