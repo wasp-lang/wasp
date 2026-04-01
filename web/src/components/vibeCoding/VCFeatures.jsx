@@ -81,7 +81,7 @@ const features = [
     title: "LLM-friendly Docs",
     description:
       "Wasp provides special documentation files optimized for AI, so your agent always has the best context.",
-    url: "/llms.txt",
+    url: "pathname:///llms.txt",
   },
   {
     Icon: Send,
