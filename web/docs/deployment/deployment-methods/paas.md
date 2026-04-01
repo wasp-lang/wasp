@@ -659,7 +659,6 @@ compatibility_date = "2026-03-30"
 [assets]
 directory = "./.wasp/out/web-app/build"
 binding = "ASSETS"
-not_found_handling = "none"
 ```
 
 2. And a `worker.js` that serves static files and falls back to the SPA shell for unknown routes:
@@ -667,22 +666,11 @@ not_found_handling = "none"
 ```js title="worker.js"
 export default {
   async fetch(request, env) {
-    const res = await env.ASSETS.fetch(request);
-    if (res.status !== 404) {
-      return res;
-    }
-
-    // Only fall back to the SPA shell for navigation requests.
-    const mode = request.headers.get("sec-fetch-mode");
-    if (mode !== "navigate") {
-      return res;
-    }
-
-    const url = new URL(request.url);
-    url.pathname = "/200.html";
-
-    return env.ASSETS.fetch(new Request(url, request));
-  }
+    // If the static asset is not found, return the SPA fallback.
+    const spaFallbackUrl = new URL("/200", request.url);
+    const spaFallbackRequest = new Request(spaFallbackUrl, request);
+    return await env.ASSETS.fetch(spaFallbackRequest);
+  },
 };
 ```
 Keeping these files in the project root ensures they are tracked in your repository.
