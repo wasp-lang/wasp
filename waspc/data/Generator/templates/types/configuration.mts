@@ -2,7 +2,7 @@
 declare module 'wasp/types' {
   interface Registry {
 {=# prismaSetupFn.isDefined =}
-    userPrismaClient: typeof ReturnType<{=& prismaSetupFn.dynamicImportExpr =}>
+    prismaSetupFn: typeof {=& prismaSetupFn.dynamicImportExpr =}
 {=/ prismaSetupFn.isDefined =}
 {=# serverEnvSchema.isDefined =}
     serverEnvSchema: typeof {=& serverEnvSchema.dynamicImportExpr =}

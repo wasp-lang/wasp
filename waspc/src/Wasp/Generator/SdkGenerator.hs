@@ -344,7 +344,7 @@ genServerDbClient spec = do
   let dbClientFd = C.mkTmplFdWithData [relfile|server/dbClient.ts|] dbClientTmplData
   let prismaSetupDeclFds =
         [ C.mkTmplFdWithData
-            [relfile|server/userPrismaSetup.d.ts|]
+            [relfile|server/userPrismaSetupFn.d.ts|]
             (object ["prismaSetupFn" .= prismaSetupFnJson])
           | isJust maybePrismaSetupFn
         ]
