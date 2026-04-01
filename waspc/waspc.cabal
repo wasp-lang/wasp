@@ -42,7 +42,6 @@ data-files:
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
   Generator/templates/**/*.css
-  Generator/templates/**/*.html
   Generator/templates/**/*.js
   Generator/templates/**/*.json
   Generator/templates/**/*.jsx
@@ -327,7 +326,6 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG

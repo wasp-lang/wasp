@@ -1,13 +1,14 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
-import { jsx } from "react/jsx-runtime";
-import * as React from "react";
-import * as ReactDOM from "react-dom/client";
-import { useRouteError, createBrowserRouter, RouterProvider, Outlet } from "react-router";
+import { jsx, jsxs } from "react/jsx-runtime";
+import { useSyncExternalStore, StrictMode, use, startTransition } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { useRouteError, createBrowserRouter } from "react-router";
+import { RouterProvider } from "react-router/dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import axios from "axios";
 import * as z from "zod";
 import mitt from "mitt";
 import "superjson";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) return;
@@ -37,6 +38,56 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
     fetch(link.href, fetchOpts);
   }
 })();
+function useIsClient() {
+  return useSyncExternalStore(emptySubscribe, getClientValue, getServerValue);
+}
+function emptySubscribe() {
+  return emptyUnsubscribe;
+}
+function emptyUnsubscribe() {
+}
+function getClientValue() {
+  return true;
+}
+function getServerValue() {
+  return false;
+}
+function Layout({ children, isFallbackPage = false, clientEntrySrc }) {
+  const isClient = useIsClient();
+  const shouldRenderChildren = isClient || !isFallbackPage;
+  return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", { lang: "en", children: [
+    /* @__PURE__ */ jsxs("head", { children: [
+      /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
+      /* @__PURE__ */ jsx("meta", { name: "viewport", content: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" }),
+      /* @__PURE__ */ jsx("link", { rel: "icon", href: "/favicon.ico" }),
+      /* @__PURE__ */ jsx("title", { children: "wasp-app" })
+    ] }),
+    /* @__PURE__ */ jsxs("body", { children: [
+      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
+      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null }),
+      // We pass that argument in SSR builds and not in client builds.
+      // This would usually cause a hydration mismatch, but React has an
+      // exception for `<script>` tags, for this specific usecase, so it
+      // will work fine.
+      clientEntrySrc ? (
+        // We'd usually use React prerender's `bootstrapModules` options for
+        // injecting this script, but it would also add a `<link
+        // rel="modulepreload">` tag that Vite doesn't handle correctly. So
+        // we just add the script ourselves in the regular way.
+        //
+        // https://react.dev/reference/react-dom/static/prerenderToNodeStream
+        /* @__PURE__ */ jsx(
+          "script",
+          {
+            type: "module",
+            src: clientEntrySrc,
+            async: true
+          }
+        )
+      ) : null
+    ] })
+  ] }) });
+}
 function stripTrailingSlash(url) {
   return url?.replace(/\/$/, "");
 }
@@ -122,18 +173,42 @@ var HttpMethod;
   HttpMethod2["Put"] = "PUT";
   HttpMethod2["Delete"] = "DELETE";
 })(HttpMethod || (HttpMethod = {}));
-function createLocalStorageDataStore(prefix) {
+const createStorage = typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore;
+const storage = createStorage("wasp");
+function createMemoryDataStore(prefix) {
+  const store = /* @__PURE__ */ new Map();
   function getPrefixedKey(key) {
     return `${prefix}:${key}`;
   }
   return {
     getPrefixedKey,
     set(key, value) {
-      ensureLocalStorageIsAvailable();
+      store.set(getPrefixedKey(key), value);
+    },
+    get(key) {
+      return store.get(getPrefixedKey(key));
+    },
+    remove(key) {
+      store.delete(getPrefixedKey(key));
+    },
+    clear() {
+      store.clear();
+    }
+  };
+}
+function createLocalStorageDataStore(prefix) {
+  if (!window.localStorage) {
+    throw new Error("Local storage is not available.");
+  }
+  function getPrefixedKey(key) {
+    return `${prefix}:${key}`;
+  }
+  return {
+    getPrefixedKey,
+    set(key, value) {
       localStorage.setItem(getPrefixedKey(key), JSON.stringify(value));
     },
     get(key) {
-      ensureLocalStorageIsAvailable();
       const value = localStorage.getItem(getPrefixedKey(key));
       try {
         return value ? JSON.parse(value) : void 0;
@@ -142,11 +217,9 @@ function createLocalStorageDataStore(prefix) {
       }
     },
     remove(key) {
-      ensureLocalStorageIsAvailable();
       localStorage.removeItem(getPrefixedKey(key));
     },
     clear() {
-      ensureLocalStorageIsAvailable();
       Object.keys(localStorage).forEach((key) => {
         if (key.startsWith(prefix)) {
           localStorage.removeItem(key);
@@ -154,12 +227,6 @@ function createLocalStorageDataStore(prefix) {
       });
     }
   };
-}
-const storage = createLocalStorageDataStore("wasp");
-function ensureLocalStorageIsAvailable() {
-  if (!window.localStorage) {
-    throw new Error("Local storage is not available.");
-  }
 }
 const apiEventsEmitter = mitt();
 const api = axios.create({
@@ -189,15 +256,17 @@ api.interceptors.response.use(void 0, (error) => {
   }
   return Promise.reject(error);
 });
-window.addEventListener("storage", (event) => {
-  if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
-    if (!!event.newValue) {
-      apiEventsEmitter.emit("sessionId.set");
-    } else {
-      apiEventsEmitter.emit("sessionId.clear");
+if (typeof window !== "undefined") {
+  window.addEventListener("storage", (event) => {
+    if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+      if (!!event.newValue) {
+        apiEventsEmitter.emit("sessionId.set");
+      } else {
+        apiEventsEmitter.emit("sessionId.clear");
+      }
     }
-  }
-});
+  });
+}
 function getSessionIdFromAuthorizationHeader(header) {
   const prefix = "Bearer ";
   if (header && header.startsWith(prefix)) {
@@ -215,76 +284,9 @@ function initializeQueryClient() {
   const queryClient = new QueryClient(defaultQueryClientConfig);
   resolveQueryClientInitialized(queryClient);
 }
-const wrapperStyles = {
-  display: "flex",
-  minHeight: "80vh",
-  justifyContent: "center",
-  alignItems: "center"
-};
-function FullPageWrapper({ children, className }) {
-  const classNameWithDefaults = ["wasp-full-page-wrapper", className].filter(Boolean).join(" ");
-  return /* @__PURE__ */ jsx("div", { className: classNameWithDefaults, style: wrapperStyles, children });
-}
-function DefaultRootErrorBoundary() {
-  const error = useRouteError();
-  console.error(error);
-  return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
-}
-function interpolatePath(path, params, search, hash) {
-  const interpolatedPath = path;
-  const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
-  const interpolatedHash = hash ? `#${hash}` : "";
-  return interpolatedPath + interpolatedSearch + interpolatedHash;
-}
-const routes = {
-  RootRoute: {
-    to: "/",
-    build: (options) => interpolatePath("/", void 0, options?.search, options?.hash)
-  }
-};
-function getRouter({ routesMapping: routesMapping2, rootElement }) {
-  const waspDefinedRoutes = [];
-  const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
-    return {
-      path: route.to,
-      ...routesMapping2[routeKey]
-    };
-  });
-  const browserRouter = createBrowserRouter([{
-    path: "/",
-    element: rootElement,
-    ErrorBoundary: DefaultRootErrorBoundary,
-    children: [
-      ...waspDefinedRoutes,
-      ...userDefinedRoutes
-    ]
-  }], {
-    basename: "/"
-  });
-  return /* @__PURE__ */ jsx(RouterProvider, { router: browserRouter });
-}
-function WaspApp({ rootElement, routesMapping: routesMapping2 }) {
-  const [queryClient, setQueryClient] = React.useState(null);
-  React.useEffect(() => {
-    queryClientInitialized.then(setQueryClient);
-  }, []);
-  if (!queryClient) {
-    return null;
-  }
-  const router = getRouter({
-    rootElement,
-    routesMapping: routesMapping2
-  });
-  return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children: router });
-}
-const DefaultRootComponent = () => /* @__PURE__ */ jsx(Outlet, {});
-let isAppInitialized = false;
-function getWaspApp({ rootElement = /* @__PURE__ */ jsx(DefaultRootComponent, {}), routesMapping: routesMapping2 }) {
-  if (!isAppInitialized) {
-    initializeQueryClient();
-    isAppInitialized = true;
-  }
-  return /* @__PURE__ */ jsx(WaspApp, { rootElement, routesMapping: routesMapping2 });
+function WaspApp({ children }) {
+  const queryClient = use(queryClientInitialized);
+  return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children });
 }
 const scriptRel = "modulepreload";
 const assetsURL = function(dep) {
@@ -340,15 +342,72 @@ const __vitePreload = function preload(baseModule, deps, importerUrl) {
     return baseModule().catch(handlePreloadError);
   });
 };
+const wrapperStyles = {
+  display: "flex",
+  minHeight: "80vh",
+  justifyContent: "center",
+  alignItems: "center"
+};
+function FullPageWrapper({ children, className }) {
+  const classNameWithDefaults = ["wasp-full-page-wrapper", className].filter(Boolean).join(" ");
+  return /* @__PURE__ */ jsx("div", { className: classNameWithDefaults, style: wrapperStyles, children });
+}
+function DefaultRootErrorBoundary() {
+  const error = useRouteError();
+  console.error(error);
+  return /* @__PURE__ */ jsx(FullPageWrapper, { children: /* @__PURE__ */ jsx("div", { children: "There was an error rendering this page. Check the browser console for more information." }) });
+}
+function interpolatePath(path, params, search, hash) {
+  const interpolatedPath = path;
+  const interpolatedSearch = search ? `?${new URLSearchParams(search).toString()}` : "";
+  const interpolatedHash = hash ? `#${hash}` : "";
+  return interpolatedPath + interpolatedSearch + interpolatedHash;
+}
+const routes = {
+  RootRoute: {
+    to: "/",
+    build: (options) => interpolatePath("/", void 0, options?.search, options?.hash)
+  }
+};
+function getRouteObjects({ routesMapping: routesMapping2, rootElement: rootElement2 }) {
+  const waspDefinedRoutes = [];
+  const userDefinedRoutes = Object.entries(routes).map(([routeKey, route]) => {
+    return {
+      path: route.to,
+      ...routesMapping2[routeKey]
+    };
+  });
+  return [{
+    path: "/",
+    element: rootElement2,
+    ErrorBoundary: DefaultRootErrorBoundary,
+    children: [
+      ...waspDefinedRoutes,
+      ...userDefinedRoutes
+    ]
+  }];
+}
 const routesMapping = {
   RootRoute: { lazy: async () => {
     const Component = await __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage);
     return { Component };
   } }
 };
-const app = getWaspApp({
-  routesMapping
+initializeQueryClient();
+const rootElement = void 0;
+const routeObjects = getRouteObjects({
+  routesMapping,
+  rootElement
 });
-ReactDOM.createRoot(document.getElementById("root")).render(
-  /* @__PURE__ */ jsx(React.StrictMode, { children: app })
-);
+const hydrationData = window.__staticRouterHydrationData;
+const router = createBrowserRouter(routeObjects, {
+  basename: "/",
+  hydrationData
+});
+function App({ isFallbackPage }) {
+  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
+}
+startTransition(() => {
+  const isFallbackpage = hydrationData == null;
+  hydrateRoot(document, /* @__PURE__ */ jsx(App, { isFallbackPage: isFallbackpage }));
+});

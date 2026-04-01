@@ -1,8 +1,15 @@
-// @ts-nocheck
+import { getRouteObjects } from "wasp/client/app/router";
+import { initializeQueryClient } from "wasp/client/operations";
+
 import { createAuthRequiredPage } from "wasp/client/app"
+
+import { App as App_ext } from './src/App'
+
+import { setup as setup_ext } from './src/clientSetup'
+
 import { EagerPage } from './src/features/lazy-loading/pages/EagerPage'
 
-export const routesMapping = {
+const routesMapping = {
   HomeRoute: { lazy: async () => {
     const Component = await import('./src/pages/HomePage').then(m => m.HomePage)
     return { Component }
@@ -87,3 +94,15 @@ export const routesMapping = {
     return { Component }
   }},
 } as const;
+
+await setup_ext()
+
+initializeQueryClient()
+
+const rootElement =
+  <App_ext />
+
+export const routeObjects = getRouteObjects({
+  routesMapping,
+  rootElement,
+})
