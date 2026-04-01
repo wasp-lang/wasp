@@ -32,9 +32,9 @@ const faqs = [
     question: "Do I need to know how to code?",
     answer: (
       <p>
-        No. Wasp is designed for AI to do the heavy lifting. You describe what you
-        want, your AI builds it. The main.wasp.ts config lets you see what your
-        app does in plain English even if you've never written code before.
+        No. Wasp is designed for AI to do the heavy lifting. You describe what
+        you want, your AI builds it. The main.wasp.ts config lets you see what
+        your app does in plain English even if you've never written code before.
       </p>
     ),
   },
@@ -42,10 +42,10 @@ const faqs = [
     question: "Is this just for AI coding?",
     answer: (
       <p>
-        No. Wasp is a great framework on its own. It's Laravel / Rails-like productivity
-        for React and Node.js. The AI advantages are a natural byproduct of its
-        declarative, low-boilerplate architecture. You get a better framework{" "}
-        <em>and</em> a better AI coding experience.
+        No. Wasp is a great framework on its own. It's Laravel / Rails-like
+        productivity for React and Node.js. The AI advantages are a natural
+        byproduct of its declarative, low-boilerplate architecture. You get a
+        better framework <em>and</em> a better AI coding experience.
       </p>
     ),
   },
@@ -53,10 +53,10 @@ const faqs = [
     question: "Do I have to learn a new language?",
     answer: (
       <p>
-        Nope. Wasp config is written in TypeScript (
-        <code>main.wasp.ts</code>) with full IDE support and autocomplete. It
-        takes about 30 minutes to learn. 90% of your code is still React and
-        Node.js. Your AI already understands it.
+        Nope. Wasp config is written in TypeScript (<code>main.wasp.ts</code>)
+        with full IDE support and autocomplete. It takes about 30 minutes to
+        learn. 90% of your code is still React and Node.js. Your AI already
+        understands it.
       </p>
     ),
   },
@@ -65,9 +65,9 @@ const faqs = [
     answer: (
       <p>
         Wasp's config can be split across multiple files as your app grows. The
-        declarative architecture keeps your codebase coherent and every new feature
-        follows the same patterns, whether it's the 5th or the 50th. This makes
-        AI-generated code consistent and easy for you to review.
+        declarative architecture keeps your codebase coherent and every new
+        feature follows the same patterns, whether it's the 5th or the 50th.
+        This makes AI-generated code consistent and easy for you to review.
       </p>
     ),
   },
@@ -86,8 +86,10 @@ const faqs = [
     answer: (
       <p>
         Beyond the benchmark numbers, the key difference is architectural. Wasp
-        is opinionated and covers the entire stack, from client to database and even deployments.
-        Something no other framework does. It's focus on higher-level abstractions also make it the most context-efficient framework out there.
+        is opinionated and covers the entire stack, from client to database and
+        even deployments. Something no other framework does. It's focus on
+        higher-level abstractions also make it the most context-efficient
+        framework out there.
       </p>
     ),
   },
@@ -95,15 +97,16 @@ const faqs = [
     question: "Is Wasp production-ready?",
     answer: (
       <p>
-        Yes. YC-backed, 13k+ GitHub stars, used in production by Fortune 500companies and
-        solo developers. Free and open-source.
+        Yes. YC-backed, 13k+ GitHub stars, used in production by Fortune
+        500companies and solo developers. Free and open-source.
       </p>
     ),
   },
 ];
 
 const VCFAQ = () => {
-  const dividerClass = "mx-auto mt-6 max-w-3xl divide-y divide-dotted divide-neutral-300";
+  const dividerClass =
+    "mx-auto mt-6 max-w-3xl divide-y divide-dotted divide-neutral-300";
 
   return (
     <VCSection>

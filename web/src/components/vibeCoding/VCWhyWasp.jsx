@@ -1,8 +1,17 @@
-import { useState, useEffect, useRef } from "react";
 import Link from "@docusaurus/Link";
-import { Layout, Code, RotateCcw, DollarSign, Globe, ArrowRight, Cpu, Grid } from "react-feather";
-import { VCSection } from "./vcVariant";
+import { useEffect, useRef, useState } from "react";
+import {
+  ArrowRight,
+  Code,
+  Cpu,
+  DollarSign,
+  Globe,
+  Grid,
+  Layout,
+  RotateCcw,
+} from "react-feather";
 import CodeHighlight from "../CodeHighlight";
+import { VCSection } from "./vcVariant";
 
 const benefits = [
   {
@@ -62,9 +71,24 @@ const HIGHLIGHT_DURATION = 2500;
 
 const conversation = [
   { prompt: "claude", response: ["\u23FA How can I help?"] },
-  { prompt: "I want to build a SaaS app", response: ["\u23FA Bash(wasp new -t saas)", "\u23FA Your SaaS app template is ready."], event: "showFullCode" },
-  { prompt: "Now add Slack login", response: ["\u23FA Done. Slack auth added!"], event: "addSlack" },
-  { prompt: "Help me deploy my app to Railway", response: ["\u23FA Bash(wasp deploy railway launch)"], deploy: true },
+  {
+    prompt: "I want to build a SaaS app",
+    response: [
+      "\u23FA Bash(wasp new -t saas)",
+      "\u23FA Your SaaS app template is ready.",
+    ],
+    event: "showFullCode",
+  },
+  {
+    prompt: "Now add Slack login",
+    response: ["\u23FA Done. Slack auth added!"],
+    event: "addSlack",
+  },
+  {
+    prompt: "Help me deploy my app to Railway",
+    response: ["\u23FA Bash(wasp deploy railway launch)"],
+    deploy: true,
+  },
 ];
 
 const codeEmpty = `const app = new App()`;
@@ -148,7 +172,7 @@ const useInteractiveDemo = () => {
           observer.disconnect();
         }
       },
-      { threshold: 0.95 }
+      { threshold: 0.95 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -256,120 +280,150 @@ const useInteractiveDemo = () => {
     }
 
     return () => clearTimeout(timeoutRef.current);
-  }, [phase, charIndex, stepIndex, dotCount, responseLineIndex, responseCharIndex]);
+  }, [
+    phase,
+    charIndex,
+    stepIndex,
+    dotCount,
+    responseLineIndex,
+    responseCharIndex,
+  ]);
 
   const terminal = (
-      <div ref={containerRef} className="relative flex flex-col overflow-hidden border border-neutral-300">
-        <div className="flex items-center gap-2 bg-neutral-800 px-3 py-1.5">
-          <div className="h-2 w-2 rounded-full bg-red-400" />
-          <div className="h-2 w-2 rounded-full bg-yellow-400" />
-          <div className="h-2 w-2 rounded-full bg-green-400" />
-          <span className="ml-2 text-xs text-neutral-500">terminal</span>
-        </div>
-        <div className="h-[400px] overflow-hidden bg-neutral-900 px-4 py-3 font-mono text-md leading-relaxed text-neutral-100">
-          {/* History */}
-          {history.map((h, i) => (
-            <div key={i} className="mb-2">
-              <div>
-                <span className="text-yellow-400">{i === 0 ? "$" : ">"}</span>{" "}
-                {h.prompt}
-              </div>
-              {h.response && h.response.map((line, j) => (
-                <div key={j} className="text-neutral-400">{line}</div>
+    <div
+      ref={containerRef}
+      className="relative flex flex-col overflow-hidden border border-neutral-300"
+    >
+      <div className="flex items-center gap-2 bg-neutral-800 px-3 py-1.5">
+        <div className="h-2 w-2 rounded-full bg-red-400" />
+        <div className="h-2 w-2 rounded-full bg-yellow-400" />
+        <div className="h-2 w-2 rounded-full bg-green-400" />
+        <span className="ml-2 text-xs text-neutral-500">terminal</span>
+      </div>
+      <div className="text-md h-[400px] overflow-hidden bg-neutral-900 px-4 py-3 font-mono leading-relaxed text-neutral-100">
+        {/* History */}
+        {history.map((h, i) => (
+          <div key={i} className="mb-2">
+            <div>
+              <span className="text-yellow-400">{i === 0 ? "$" : ">"}</span>{" "}
+              {h.prompt}
+            </div>
+            {h.response &&
+              h.response.map((line, j) => (
+                <div key={j} className="text-neutral-400">
+                  {line}
+                </div>
               ))}
+          </div>
+        ))}
+        {/* Current */}
+        {step && (
+          <div className="mb-2">
+            <div>
+              <span className="text-yellow-400">
+                {stepIndex === 0 ? "$" : ">"}
+              </span>{" "}
+              {step.prompt.slice(0, charIndex)}
+              {phase === "typing" && (
+                <span className="animate-pulse text-yellow-400">|</span>
+              )}
             </div>
-          ))}
-          {/* Current */}
-          {step && (
-            <div className="mb-2">
-              <div>
-                <span className="text-yellow-400">
-                  {stepIndex === 0 ? "$" : ">"}
-                </span>{" "}
-                {step.prompt.slice(0, charIndex)}
-                {phase === "typing" && (
-                  <span className="animate-pulse text-yellow-400">|</span>
-                )}
+            {(phase === "responding" ||
+              phase === "responded" ||
+              phase === "deploying" ||
+              phase === "live" ||
+              phase === "done") &&
+              step.response &&
+              step.response.map((line, j) => {
+                if (phase === "responding") {
+                  if (j < responseLineIndex)
+                    return (
+                      <div key={j} className="text-neutral-400">
+                        {line}
+                      </div>
+                    );
+                  if (j === responseLineIndex)
+                    return (
+                      <div key={j} className="text-neutral-400">
+                        {line.slice(0, responseCharIndex)}
+                      </div>
+                    );
+                  return null;
+                }
+                return (
+                  <div key={j} className="text-neutral-400">
+                    {line}
+                  </div>
+                );
+              })}
+            {(phase === "deploying" ||
+              phase === "live" ||
+              phase === "done") && (
+              <div className="text-neutral-400">
+                {"\u23FA Deploying" +
+                  ".".repeat(phase === "deploying" ? dotCount : 3)}
               </div>
-              {(phase === "responding" ||
-                phase === "responded" ||
-                phase === "deploying" ||
-                phase === "live" ||
-                phase === "done") &&
-                step.response && step.response.map((line, j) => {
-                  if (phase === "responding") {
-                    if (j < responseLineIndex) return <div key={j} className="text-neutral-400">{line}</div>;
-                    if (j === responseLineIndex) return <div key={j} className="text-neutral-400">{line.slice(0, responseCharIndex)}</div>;
-                    return null;
-                  }
-                  return <div key={j} className="text-neutral-400">{line}</div>;
-                })}
-              {(phase === "deploying" || phase === "live" || phase === "done") && (
-                <div className="text-neutral-400">
-                  {"\u23FA Deploying" + ".".repeat(phase === "deploying" ? dotCount : 3)}
-                </div>
-              )}
-              {(phase === "live" || phase === "done") && (
-                <div>
-                  <br/>
-                  {"\u23FA \u{1F680} Your app is live at "}
-                  <a
-                    href="https://opensaas.sh"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-yellow-400 underline hover:text-yellow-300"
-                  >
-                    OpenSaaS.sh
-                  </a>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-        {showReplay && (
-          <button
-            onClick={handleReplay}
-            className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-neutral-700 px-3 py-1 text-xs text-neutral-300 transition-colors hover:bg-neutral-600 hover:text-white"
-          >
-            <RotateCcw size={10} />
-            Replay
-          </button>
+            )}
+            {(phase === "live" || phase === "done") && (
+              <div>
+                <br />
+                {"\u23FA \u{1F680} Your app is live at "}
+                <a
+                  href="https://opensaas.sh"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-yellow-400 underline hover:text-yellow-300"
+                >
+                  OpenSaaS.sh
+                </a>
+              </div>
+            )}
+          </div>
         )}
       </div>
-
+      {showReplay && (
+        <button
+          onClick={handleReplay}
+          className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 bg-neutral-700 px-3 py-1 text-xs text-neutral-300 transition-colors hover:bg-neutral-600 hover:text-white"
+        >
+          <RotateCcw size={10} />
+          Replay
+        </button>
+      )}
+    </div>
   );
 
   const blueprint = (
-      <div className="flex flex-col overflow-hidden border border-neutral-200">
-        <div className="flex items-center gap-2 bg-neutral-50 px-3 py-1.5">
-          <div className="h-2 w-2 rounded-full bg-red-400" />
-          <div className="h-2 w-2 rounded-full bg-yellow-400" />
-          <div className="h-2 w-2 rounded-full bg-green-400" />
-          <span className="ml-2 text-xs font-medium text-neutral-400">
-            main.wasp.ts
-          </span>
-        </div>
-        <div className="relative h-[400px] overflow-hidden text-sm">
-          {fullCodeFlash && (
-            <div
-              className="pointer-events-none absolute left-0 right-0 bg-yellow-200/30 transition-opacity duration-1000"
-              style={{ top: "1.4em", bottom: 0 }}
-            />
-          )}
-          {slackFlash && (
-            <div
-              className="pointer-events-none absolute left-0 right-0 bg-yellow-200/30 transition-opacity duration-1000"
-              style={{ top: "8.2em", height: "1.4em" }}
-            />
-          )}
-          <CodeHighlight
-            language="typescript"
-            source={
-              showSlack ? codeWithSlack : showFullCode ? codeBase : codeEmpty
-            }
-          />
-        </div>
+    <div className="flex flex-col overflow-hidden border border-neutral-200">
+      <div className="flex items-center gap-2 bg-neutral-50 px-3 py-1.5">
+        <div className="h-2 w-2 rounded-full bg-red-400" />
+        <div className="h-2 w-2 rounded-full bg-yellow-400" />
+        <div className="h-2 w-2 rounded-full bg-green-400" />
+        <span className="ml-2 text-xs font-medium text-neutral-400">
+          main.wasp.ts
+        </span>
       </div>
+      <div className="relative h-[400px] overflow-hidden text-sm">
+        {fullCodeFlash && (
+          <div
+            className="pointer-events-none absolute left-0 right-0 bg-yellow-200/30 transition-opacity duration-1000"
+            style={{ top: "1.4em", bottom: 0 }}
+          />
+        )}
+        {slackFlash && (
+          <div
+            className="pointer-events-none absolute left-0 right-0 bg-yellow-200/30 transition-opacity duration-1000"
+            style={{ top: "8.2em", height: "1.4em" }}
+          />
+        )}
+        <CodeHighlight
+          language="typescript"
+          source={
+            showSlack ? codeWithSlack : showFullCode ? codeBase : codeEmpty
+          }
+        />
+      </div>
+    </div>
   );
 
   return { terminal, blueprint };
@@ -385,9 +439,7 @@ const VCWhyWasp = () => {
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
           The Framework for the{" "}
-          <span className="underline decoration-yellow-500">
-            Agentic Era
-          </span>
+          <span className="underline decoration-yellow-500">Agentic Era</span>
         </h2>
       </div>
 
@@ -400,7 +452,10 @@ const VCWhyWasp = () => {
       {/* Bottom: benefit cards */}
       <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {benefits.map((benefit, idx) => (
-          <div key={idx} className="border border-neutral-300 bg-yellow-500/5 p-4">
+          <div
+            key={idx}
+            className="border border-neutral-300 bg-yellow-500/5 p-4"
+          >
             <div className="flex items-start gap-3">
               <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-none border border-neutral-600 bg-neutral-700 text-yellow-500">
                 <benefit.Icon size={16} />
@@ -416,7 +471,10 @@ const VCWhyWasp = () => {
                   <Link to={benefit.url}>
                     <span className="group mt-2 inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-600">
                       Learn more
-                      <ArrowRight size={10} className="transition-transform group-hover:translate-x-0.5" />
+                      <ArrowRight
+                        size={10}
+                        className="transition-transform group-hover:translate-x-0.5"
+                      />
                     </span>
                   </Link>
                 )}

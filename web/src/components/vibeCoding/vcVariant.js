@@ -4,7 +4,7 @@
 export const VCSection = ({ children, className = "", id }) => {
   return (
     <div
-      className={`mx-auto max-w-6xl px-6 py-16 sm:py-18 md:py-24 lg:py-24 ${className}`}
+      className={`sm:py-18 mx-auto max-w-6xl px-6 py-16 md:py-24 lg:py-24 ${className}`}
       id={id}
     >
       {children}
@@ -16,9 +16,12 @@ export const VCSection = ({ children, className = "", id }) => {
  * Reusable install command code block with copy button.
  */
 import { useState } from "react";
-import { Copy, Check } from "react-feather";
+import { Check, Copy } from "react-feather";
 
-export const InstallBlock = ({ command = "npm i -g @wasp.sh/wasp-cli", className = "" }) => {
+export const InstallBlock = ({
+  command = "npm i -g @wasp.sh/wasp-cli",
+  className = "",
+}) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -29,7 +32,7 @@ export const InstallBlock = ({ command = "npm i -g @wasp.sh/wasp-cli", className
 
   return (
     <code
-      className={`rounded-none border-0 bg-neutral-100 text-neutral-500 px-4 py-2 text-sm inline-flex items-center gap-2 ${className}`}
+      className={`inline-flex items-center gap-2 rounded-none border-0 bg-neutral-100 px-4 py-2 text-sm text-neutral-500 ${className}`}
     >
       <span>
         <span className="text-yellow-400">%</span> {command}

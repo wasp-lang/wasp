@@ -1,6 +1,6 @@
-import { useRef, useState } from "react";
 import Link from "@docusaurus/Link";
-import { ChevronLeft, ChevronRight, ArrowRight } from "react-feather";
+import { useRef, useState } from "react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "react-feather";
 import { VCSection } from "./vcVariant";
 
 const examples = [
@@ -55,9 +55,7 @@ const ExampleCard = ({ example }) => (
     rel="noopener noreferrer"
     className="shrink-0"
   >
-    <div
-      className="w-[280px] overflow-hidden border border-yellow-500/25 bg-yellow-500/5 transition-all duration-200 hover:scale-105 hover:border-yellow-500/50 hover:shadow-md sm:w-[320px] md:w-[350px] rounded-none"
-    >
+    <div className="w-[280px] overflow-hidden rounded-none border border-yellow-500/25 bg-yellow-500/5 transition-all duration-200 hover:scale-105 hover:border-yellow-500/50 hover:shadow-md sm:w-[320px] md:w-[350px]">
       <img
         src={example.imageSrc}
         alt={example.name}
@@ -88,7 +86,10 @@ const VCExamples = () => {
     const el = scrollRef.current;
     if (!el) return;
     const amount = 370;
-    el.scrollBy({ left: direction === "left" ? -amount : amount, behavior: "smooth" });
+    el.scrollBy({
+      left: direction === "left" ? -amount : amount,
+      behavior: "smooth",
+    });
     setTimeout(updateScrollState, 350);
   };
 
@@ -100,7 +101,8 @@ const VCExamples = () => {
           <span className="underline decoration-yellow-500">SaaS.</span>{" "}
         </h2>
         <p className="text-neutral-500">
-          Real businesses shipped by the community on top of Wasp's free, built-in SaaS template.
+          Real businesses shipped by the community on top of Wasp's free,
+          built-in SaaS template.
         </p>
       </div>
 

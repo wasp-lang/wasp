@@ -5,16 +5,16 @@ import classNames from "classnames";
 
 import Footer from "../components/Footer";
 import Nav from "../components/Nav/index";
-import VCHero from "../components/vibeCoding/VCHero";
-import VCWhyWasp from "../components/vibeCoding/VCWhyWasp";
 import VCBenchmark from "../components/vibeCoding/VCBenchmark";
-import VCTestimonials from "../components/vibeCoding/VCTestimonials";
-import VCWorkflow from "../components/vibeCoding/VCWorkflow";
-import VCExamples from "../components/vibeCoding/VCExamples";
-import VCFeatures from "../components/vibeCoding/VCFeatures";
 import VCCodeComparison from "../components/vibeCoding/VCCodeComparison";
+import VCExamples from "../components/vibeCoding/VCExamples";
 import VCFAQ from "../components/vibeCoding/VCFAQ";
+import VCFeatures from "../components/vibeCoding/VCFeatures";
 import VCFinalCTA from "../components/vibeCoding/VCFinalCTA";
+import VCHero from "../components/vibeCoding/VCHero";
+import VCTestimonials from "../components/vibeCoding/VCTestimonials";
+import VCWhyWasp from "../components/vibeCoding/VCWhyWasp";
+import VCWorkflow from "../components/vibeCoding/VCWorkflow";
 
 import waspCoverPhoto from "../../static/img/wasp_twitter_cover.png";
 import "./index.css";
@@ -28,7 +28,9 @@ const LightsTwo = () => (
 );
 
 const Divider = () => (
-  <div className="mx-auto max-w-6xl px-6"><div className="border-t border-neutral-200" /></div>
+  <div className="mx-auto max-w-6xl px-6">
+    <div className="border-t border-neutral-200" />
+  </div>
 );
 
 const VibeCoding = () => {
@@ -44,13 +46,25 @@ const VibeCoding = () => {
         <title>Wasp: The Framework Built for Vibe Coding</title>
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://wasp.sh/vibe-coding" />
-        <meta property="og:title" content="Wasp: The Framework Built for Vibe Coding" />
-        <meta property="og:description" content="The full-stack framework where AI writes business logic, not boilerplate." />
+        <meta
+          property="og:title"
+          content="Wasp: The Framework Built for Vibe Coding"
+        />
+        <meta
+          property="og:description"
+          content="The full-stack framework where AI writes business logic, not boilerplate."
+        />
         <meta property="og:image" content={coverPhotoAbsoluteUrl} />
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://wasp.sh/vibe-coding" />
-        <meta property="twitter:title" content="Wasp: The Framework Built for Vibe Coding" />
-        <meta property="twitter:description" content="The full-stack framework where AI writes business logic, not boilerplate." />
+        <meta
+          property="twitter:title"
+          content="Wasp: The Framework Built for Vibe Coding"
+        />
+        <meta
+          property="twitter:description"
+          content="The full-stack framework where AI writes business logic, not boilerplate."
+        />
         <meta property="twitter:image" content={coverPhotoAbsoluteUrl} />
       </Head>
       <Nav />

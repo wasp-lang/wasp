@@ -52,7 +52,7 @@ const features = [
     Icon: Grid,
     title: "Automatic CRUD",
     description:
-    "Describe your data and Wasp creates all the basic create, read, update, delete operations automatically.",
+      "Describe your data and Wasp creates all the basic create, read, update, delete operations automatically.",
     url: "/docs/data-model/crud",
   },
   {
@@ -95,7 +95,7 @@ const features = [
     title: "Human-reviewable Output",
     description:
       "Because Wasp uses consistent patterns, the code your AI generates is easy to read and review (for humans and AI).",
-      url: "/docs"
+    url: "/docs",
   },
 ];
 
@@ -105,9 +105,7 @@ const VCFeatures = () => {
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
           Everything your app needs,{" "}
-          <span className="underline decoration-yellow-500">
-            built in
-          </span>
+          <span className="underline decoration-yellow-500">built in</span>
         </h2>
       </div>
       <dl className="grid grid-cols-1 md:gap-16 lg:grid-cols-4 lg:gap-x-8 xl:gap-x-16">

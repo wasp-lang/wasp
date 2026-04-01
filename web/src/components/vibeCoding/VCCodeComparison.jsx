@@ -1,5 +1,5 @@
-import { useState } from "react";
 import Link from "@docusaurus/Link";
+import { useState } from "react";
 import { ArrowRight } from "react-feather";
 import CodeHighlight from "../CodeHighlight";
 
@@ -290,20 +290,34 @@ export async function registerWorkers(boss: PgBoss) {
 const CodeWindow = ({ filename, label, language, source, theme }) => {
   const isYellow = theme === "yellow";
   return (
-    <div className={`overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`}>
-      <div className={`relative flex items-center px-4 py-1.5 ${isYellow ? "bg-yellow-50" : "bg-neutral-100"}`}>
+    <div
+      className={`overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`}
+    >
+      <div
+        className={`relative flex items-center px-4 py-1.5 ${isYellow ? "bg-yellow-50" : "bg-neutral-100"}`}
+      >
         <div className="flex items-center space-x-1.5">
-          <div className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`} />
-          <div className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`} />
-          <div className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`} />
+          <div
+            className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`}
+          />
+          <div
+            className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`}
+          />
+          <div
+            className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`}
+          />
           {label && (
-            <span className={`ml-2 text-xs ${isYellow ? "text-yellow-500" : "text-neutral-300"}`}>
+            <span
+              className={`ml-2 text-xs ${isYellow ? "text-yellow-500" : "text-neutral-300"}`}
+            >
               {label}
             </span>
           )}
         </div>
         {filename && (
-          <span className={`absolute inset-0 flex items-center justify-center text-xs font-medium ${isYellow ? "text-yellow-600" : "text-neutral-400"} pointer-events-none`}>
+          <span
+            className={`absolute inset-0 flex items-center justify-center text-xs font-medium ${isYellow ? "text-yellow-600" : "text-neutral-400"} pointer-events-none`}
+          >
             {filename}
           </span>
         )}
@@ -320,13 +334,11 @@ const CodeComparison = () => {
   const current = tabs[activeTab];
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-16 sm:py-18 md:py-24 lg:py-24">
+    <div className="sm:py-18 mx-auto max-w-6xl px-6 py-16 md:py-24 lg:py-24">
       <div className="mx-auto mb-10 max-w-3xl text-center">
         <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
           The Wasp{" "}
-          <span className="underline decoration-yellow-500">
-            Difference
-          </span>
+          <span className="underline decoration-yellow-500">Difference</span>
         </h2>
       </div>
       {/* Tab bar */}
@@ -362,12 +374,16 @@ const CodeComparison = () => {
             Email sending, background jobs, CRUD, full-stack auth, and more
           </h3>
           <p className="mb-6 max-w-lg text-neutral-500">
-            Wasp handles the full-stack plumbing so your AI writes features, not infrastructure. See everything that's built in.
+            Wasp handles the full-stack plumbing so your AI writes features, not
+            infrastructure. See everything that's built in.
           </p>
           <Link to="/docs">
             <span className="group inline-flex items-center gap-1.5 text-sm font-medium text-yellow-600 hover:text-yellow-500">
               Explore the docs
-              <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
+              <ArrowRight
+                size={14}
+                className="transition-transform group-hover:translate-x-0.5"
+              />
             </span>
           </Link>
         </div>
