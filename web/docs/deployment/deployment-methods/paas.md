@@ -363,7 +363,8 @@ You'll deploy the server first:
       }
 
       # Try files with HTML extension and handle SPA routing
-      try_files {path} {path}/index.html /200.html
+      # This is where we diverge from the railway's original caddyfile
+      try_files {path} {path}/index.html /200.html 
 
       # Handle 404 errors
       handle_errors {

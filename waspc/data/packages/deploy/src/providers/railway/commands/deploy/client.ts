@@ -124,6 +124,7 @@ const caddyfileContents = `{
   }
 
 	# Try files with HTML extension and handle SPA routing
+  # This is where we diverge from the railway's original caddyfile
   try_files {path} {path}/index.html /200.html
 
 	# Handle 404 errors
