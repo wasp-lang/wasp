@@ -15,8 +15,11 @@ export function isRailwayTransientError(error: unknown): boolean {
 
   const stderr = error.stderr.toLowerCase();
 
+  // Railway CLI prefixes network-level fetch failures with "failed to fetch:".
   if (stderr.includes("failed to fetch:")) {
-    return TRANSIENT_FETCH_PATTERNS.some((pattern) => stderr.includes(pattern));
+    return TRANSIENT_FETCH_ERROR_PATTERNS.some((pattern) =>
+      stderr.includes(pattern),
+    );
   }
 
   if (stderr.includes("ratelimited")) {
@@ -26,7 +29,7 @@ export function isRailwayTransientError(error: unknown): boolean {
   return false;
 }
 
-const TRANSIENT_FETCH_PATTERNS = [
+const TRANSIENT_FETCH_ERROR_PATTERNS = [
   "timed out",
   "connection refused",
   "dns error",
