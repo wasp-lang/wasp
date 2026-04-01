@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { ChevronDown, ChevronRight } from "react-feather";
-import { vc, VCSection } from "./vcVariant";
+import { VCSection } from "./vcVariant";
 
 const FaqItem = ({ faq }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -28,6 +28,16 @@ const FaqItem = ({ faq }) => {
 };
 
 const faqs = [
+  {
+    question: "Do I need to know how to code?",
+    answer: (
+      <p>
+        No. Wasp is designed for AI to do the heavy lifting. You describe what you
+        want, your AI builds it. The main.wasp.ts config lets you see what your
+        app does in plain English — even if you've never written code before.
+      </p>
+    ),
+  },
   {
     question: "Is this just for AI coding?",
     answer: (
@@ -93,28 +103,11 @@ const faqs = [
   },
 ];
 
-const v3Faq = {
-  question: "Do I need to know how to code?",
-  answer: (
-    <p>
-      No. Wasp is designed for AI to do the heavy lifting. You describe what you
-      want, your AI builds it. The main.wasp.ts config lets you see what your
-      app does in plain English — even if you've never written code before.
-    </p>
-  ),
-};
-
-const VCFAQ = ({ variant }) => {
-  const allFaqs = variant === "v3" ? [v3Faq, ...faqs] : faqs;
-  const dividerClass = vc(variant, {
-    base: "mx-auto mt-6 max-w-3xl divide-y divide-neutral-300",
-    v1: "mx-auto mt-6 max-w-3xl divide-y divide-neutral-300",
-    v2: "mx-auto mt-6 max-w-3xl divide-y divide-neutral-300",
-    v3: "mx-auto mt-6 max-w-3xl divide-y divide-dotted divide-neutral-300",
-  });
+const VCFAQ = () => {
+  const dividerClass = "mx-auto mt-6 max-w-3xl divide-y divide-dotted divide-neutral-300";
 
   return (
-    <VCSection variant={variant}>
+    <VCSection>
       <div className="grid grid-cols-12">
         <div className="col-span-12 text-center">
           <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
@@ -124,7 +117,7 @@ const VCFAQ = ({ variant }) => {
       </div>
 
       <dl className={dividerClass}>
-        {allFaqs.map((faq, idx) => (
+        {faqs.map((faq, idx) => (
           <FaqItem key={idx} faq={faq} />
         ))}
       </dl>

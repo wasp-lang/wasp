@@ -5,29 +5,21 @@ import classNames from "classnames";
 
 import Footer from "../components/Footer";
 import Nav from "../components/Nav/index";
-import VCBenchmark from "../components/vibeCoding/VCBenchmark";
-import VCFAQ from "../components/vibeCoding/VCFAQ";
-import VCFeatures from "../components/vibeCoding/VCFeatures";
-import VCFinalCTA from "../components/vibeCoding/VCFinalCTA";
 import VCHero from "../components/vibeCoding/VCHero";
-import VCTestimonials from "../components/vibeCoding/VCTestimonials";
-import VCExamples from "../components/vibeCoding/VCExamples";
 import VCWhyWasp from "../components/vibeCoding/VCWhyWasp";
+import VCBenchmark from "../components/vibeCoding/VCBenchmark";
+import VCTestimonials from "../components/vibeCoding/VCTestimonials";
 import VCWorkflow from "../components/vibeCoding/VCWorkflow";
+import VCExamples from "../components/vibeCoding/VCExamples";
+import VCFeatures from "../components/vibeCoding/VCFeatures";
+import VCCodeComparison from "../components/vibeCoding/VCCodeComparison";
+import VCFAQ from "../components/vibeCoding/VCFAQ";
+import VCFinalCTA from "../components/vibeCoding/VCFinalCTA";
 
 import waspCoverPhoto from "../../static/img/wasp_twitter_cover.png";
 import "./index.css";
 import "./preflight.css";
 import styles from "./styles.module.css";
-import VCCodeComparison from "../components/vibeCoding/VCCodeComparison";
-
-const Background = () => {
-  return (
-    <div className="pointer-events-none absolute left-0 top-0 h-full w-full overflow-hidden">
-      <span className={classNames(styles.leftLights, "opacity-100")} />
-    </div>
-  );
-};
 
 const LightsTwo = () => (
   <div className="pointer-events-none absolute left-0 top-[1800px] h-full w-full overflow-hidden lg:top-[1000px]">
@@ -35,11 +27,14 @@ const LightsTwo = () => (
   </div>
 );
 
+const Divider = () => (
+  <div className="mx-auto max-w-6xl px-6"><div className="border-t border-neutral-200" /></div>
+);
+
 const VibeCoding = () => {
   const { siteConfig } = useDocusaurusContext();
   const coverPhotoAbsoluteUrl = `${siteConfig.url}${waspCoverPhoto}`;
 
-  // Register anchors referenced by the shared Nav component
   useBrokenLinks().collectAnchor("faq");
   useBrokenLinks().collectAnchor("signup");
 
@@ -47,47 +42,43 @@ const VibeCoding = () => {
     <div className="twLandingPage">
       <Head>
         <title>Wasp: The Framework Built for Vibe Coding</title>
-        {/* opengraph / facebook */}
         <meta property="og:type" content="website" />
         <meta property="og:url" content="https://wasp.sh/vibe-coding" />
-        <meta
-          property="og:title"
-          content="Wasp: The Framework Built for Vibe Coding"
-        />
-        <meta
-          property="og:description"
-          content="The full-stack framework where AI writes business logic, not boilerplate."
-        />
+        <meta property="og:title" content="Wasp: The Framework Built for Vibe Coding" />
+        <meta property="og:description" content="The full-stack framework where AI writes business logic, not boilerplate." />
         <meta property="og:image" content={coverPhotoAbsoluteUrl} />
-        {/* twitter */}
         <meta property="twitter:card" content="summary_large_image" />
         <meta property="twitter:url" content="https://wasp.sh/vibe-coding" />
-        <meta
-          property="twitter:title"
-          content="Wasp: The Framework Built for Vibe Coding"
-        />
-        <meta
-          property="twitter:description"
-          content="The full-stack framework where AI writes business logic, not boilerplate."
-        />
+        <meta property="twitter:title" content="Wasp: The Framework Built for Vibe Coding" />
+        <meta property="twitter:description" content="The full-stack framework where AI writes business logic, not boilerplate." />
         <meta property="twitter:image" content={coverPhotoAbsoluteUrl} />
       </Head>
       <Nav />
       <div className="min-h-screen">
         <main>
-          {/* <Background /> */}
           <div className="relative">
-            <LightsTwo />
+            <div className="pointer-events-none absolute inset-0 overflow-hidden">
+              <LightsTwo />
+            </div>
             <div className="relative z-10">
               <VCHero />
-              <VCCodeComparison />
-              <VCBenchmark />
-              <VCFeatures />
+              <Divider />
               <VCWhyWasp />
-              <VCWorkflow />
+              <Divider />
+              <VCBenchmark />
+              <Divider />
               <VCExamples />
+              <Divider />
               <VCTestimonials />
+              <Divider />
+              <VCFeatures />
+              <Divider />
+              <VCCodeComparison />
+              <Divider />
+              <VCWorkflow />
+              <Divider />
               <VCFAQ />
+              <Divider />
               <VCFinalCTA />
             </div>
           </div>

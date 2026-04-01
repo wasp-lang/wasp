@@ -1,7 +1,7 @@
 import { useRef, useState } from "react";
 import Link from "@docusaurus/Link";
 import { ChevronLeft, ChevronRight, ArrowRight } from "react-feather";
-import { vc, VCSection } from "./vcVariant";
+import { VCSection } from "./vcVariant";
 
 const examples = [
   {
@@ -48,7 +48,7 @@ const examples = [
   },
 ];
 
-const ExampleCard = ({ example, variant }) => (
+const ExampleCard = ({ example }) => (
   <a
     href={example.href}
     target="_blank"
@@ -56,12 +56,7 @@ const ExampleCard = ({ example, variant }) => (
     className="shrink-0"
   >
     <div
-      className={`w-[280px] overflow-hidden border border-yellow-500/25 bg-yellow-500/5 transition-all duration-200 hover:scale-105 hover:border-yellow-500/50 hover:shadow-md sm:w-[320px] md:w-[350px] ${vc(variant, {
-        base: "rounded-md",
-        v1: "rounded-none",
-        v2: "rounded-none",
-        v3: "rounded-none",
-      })}`}
+      className="w-[280px] overflow-hidden border border-yellow-500/25 bg-yellow-500/5 transition-all duration-200 hover:scale-105 hover:border-yellow-500/50 hover:shadow-md sm:w-[320px] md:w-[350px] rounded-none"
     >
       <img
         src={example.imageSrc}
@@ -76,7 +71,7 @@ const ExampleCard = ({ example, variant }) => (
   </a>
 );
 
-const VCExamples = ({ variant }) => {
+const VCExamples = () => {
   const scrollRef = useRef(null);
   const [isHovering, setIsHovering] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
@@ -98,7 +93,7 @@ const VCExamples = ({ variant }) => {
   };
 
   return (
-    <VCSection variant={variant} className="space-y-6">
+    <VCSection className="space-y-6">
       <div className="text-center">
         <h2 className="mb-2 text-xl text-neutral-700 lg:text-2xl">
           Vibe. Ship.{" "}
@@ -144,7 +139,7 @@ const VCExamples = ({ variant }) => {
             onScroll={updateScrollState}
           >
             {examples.map((example, index) => (
-              <ExampleCard key={index} example={example} variant={variant} />
+              <ExampleCard key={index} example={example} />
             ))}
           </div>
         </div>

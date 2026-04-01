@@ -1,74 +1,55 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "@docusaurus/Link";
-import { Layout, Eye, Code, RotateCcw, DollarSign, Globe, ArrowRight, Briefcase, Cpu } from "react-feather";
-import { vc, CrosshairCard, VCSection } from "./vcVariant";
+import { Layout, Code, RotateCcw, DollarSign, Globe, ArrowRight, Cpu, Grid } from "react-feather";
+import { VCSection } from "./vcVariant";
 import CodeHighlight from "../CodeHighlight";
 
 const benefits = [
   {
     Icon: Layout,
-    title: "Smart decisions made upfront",
-    v3Title: "Your AI has a plan",
+    title: "Your AI has a plan",
     description:
-      "Wasp is a full-stack, opinionated framework. When your AI needs to add a feature, it doesn't negotiate patterns or debate file structure. It already knows where client code goes, how server operations work, and how data flows. It just writes the logic.",
-    v3Description:
       "Wasp gives your agent a clear structure to follow: where code goes, how things connect, and what patterns to use. No guessing, no decision fatigue.",
     url: "/docs",
   },
   {
     Icon: Cpu,
     title: "It's got skills",
-    v3Title: "It's got skills",
     description:
       "Plugins and Agent Skills for your coding tool of choice turn your agent into a Wasp expert.",
-    v3Description:
-      "Plugins and Agent Skills for your coding tool of choice turn your agent into a Wasp expert.",
-
     url: "docs/wasp-ai/coding-agent-plugin",
   },
   {
     Icon: Code,
-    title: "AI writes features, not plumbing",
-    v3Title: "Focus on the fun stuff",
+    title: "Focus on the fun stuff",
     description:
-      "Auth? Declared in config, not coded. CRUD operations? Auto-generated from your data model. Email? Configured, not built. Deployment? One CLI command. Your AI spends its time on what makes your app unique — the actual business logic.",
-    v3Description:
       "Login, database, email, background jobs, etc. Wasp handles it all so your agents can focus on you app's unique features.",
     url: "/docs/auth/overview",
   },
   {
     Icon: DollarSign,
-    title: "Save Tokens",
-    v3Title: "Save Tokens and Money",
+    title: "Save Tokens and Money",
     description:
-      "Wasp reduces the amount of code your AI needs to read and write, so you spend less on LLM tokens.",
-    v3Description:
       "Wasp reduces the amount of code you and your agent need to read and write, so you spend less on LLM tokens.",
     url: "/blog/2026/03/26/nextjs-vs-wasp-40-percent-less-tokens-same-app",
   },
   {
     Icon: Globe,
     title: "Deploy to any platform",
-    v3Title: "Deploy to any platform",
     description:
-      "Deploy to Railway, Fly.io, or self-host on your own server. No vendor lock-in.",
-    v3Description:
       "Other frameworks tie you to their expensive platforms and pricing. Wasp lets you deploy anywhere easily.",
     url: "/docs/deployment/intro",
   },
   {
-    Icon: Globe,
+    Icon: Grid,
     title: "Everything. Integrated.",
-    v3Title: "Everything. Integrated.",
     description:
-      "Wasp is truly full-stack, from front-end to database and deployments.",
-    v3Description:
       "Wasp is truly full-stack, from front-end to database and deployments. No fumbling through multiple tools and services.",
     url: "/docs",
   },
 ];
 
-// --- Interactive demo for v3 ---
+// --- Interactive demo ---
 
 const TYPING_SPEED = 50;
 const RESPONSE_TYPING_SPEED = 20;
@@ -331,7 +312,7 @@ const useInteractiveDemo = () => {
               {(phase === "live" || phase === "done") && (
                 <div>
                   <br/>
-                  {"\u23FA 🚀 Your app is live at "}
+                  {"\u23FA \u{1F680} Your app is live at "}
                   <a
                     href="https://opensaas.sh"
                     target="_blank"
@@ -396,99 +377,52 @@ const useInteractiveDemo = () => {
 
 // --- Main component ---
 
-const VCWhyWasp = ({ variant }) => {
-  const cardClass = vc(variant, {
-    base: "h-full rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6",
-    v1: "h-full rounded-none border border-yellow-500/25 bg-yellow-500/5 p-6",
-    v2: "h-full rounded-none border border-neutral-300 bg-yellow-500/5 p-6",
-    v3: "h-full rounded-none border border-neutral-300 bg-yellow-500/5 p-6",
-  });
-
-  const iconClass = vc(variant, {
-    base: "mb-4 inline-flex h-10 w-10 items-center justify-center rounded-md bg-neutral-700 text-yellow-500",
-    v1: "mb-4 inline-flex h-10 w-10 items-center justify-center rounded-none bg-neutral-700 text-yellow-500",
-    v2: "mb-4 inline-flex h-10 w-10 items-center justify-center rounded-none bg-neutral-700 text-yellow-500",
-    v3: "mb-4 inline-flex h-10 w-10 items-center justify-center rounded-none border border-neutral-600 bg-neutral-700 text-yellow-500",
-  });
-
-  const Wrapper = variant === "v2" || variant === "v3" ? CrosshairCard : ({ children }) => <>{children}</>;
-
+const VCWhyWasp = () => {
   const { terminal, blueprint } = useInteractiveDemo();
 
-  if (variant === "v3") {
-    return (
-      <VCSection variant={variant} id="how-wasp-works">
-        <div className="mx-auto max-w-3xl text-center">
-          <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
-            The Framework for the{" "}
-            <span className="underline decoration-yellow-500">
-              Agentic Era
-            </span>
-          </h2>
-        </div>
-
-        {/* Top: terminal left, blueprint right */}
-        <div className="mt-10 grid grid-cols-1 gap-3 lg:grid-cols-2">
-          {terminal}
-          {blueprint}
-        </div>
-
-        {/* Bottom: benefit cards */}
-        <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
-          {benefits.map((benefit, idx) => (
-            <div key={idx} className="border border-neutral-300 bg-yellow-500/5 p-4">
-              <div className="flex items-start gap-3">
-                <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-none border border-neutral-600 bg-neutral-700 text-yellow-500">
-                  <benefit.Icon size={16} />
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-neutral-700">
-                    {benefit.v3Title}
-                  </h3>
-                  <p className="mt-1 text-sm text-neutral-500">
-                    {benefit.v3Description}
-                  </p>
-                  {benefit.url && (
-                    <Link to={benefit.url}>
-                      <span className="group mt-2 inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-600">
-                        Learn more
-                        <ArrowRight size={10} className="transition-transform group-hover:translate-x-0.5" />
-                      </span>
-                    </Link>
-                  )}
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </VCSection>
-    );
-  }
-
   return (
-    <VCSection variant={variant} id="how-wasp-works">
+    <VCSection id="how-wasp-works">
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
-          Declarative config. Zero architectural debates.{" "}
+          The Framework for the{" "}
           <span className="underline decoration-yellow-500">
-            All business logic.
+            Agentic Era
           </span>
         </h2>
       </div>
 
-      <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2">
+      {/* Top: terminal left, blueprint right */}
+      <div className="mt-10 grid grid-cols-1 gap-3 lg:grid-cols-2">
+        {terminal}
+        {blueprint}
+      </div>
+
+      {/* Bottom: benefit cards */}
+      <div className="mt-8 grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
         {benefits.map((benefit, idx) => (
-          <Wrapper key={idx} className="h-full">
-            <div className={cardClass}>
-              <div className={iconClass}>
-                <benefit.Icon size={24} />
+          <div key={idx} className="border border-neutral-300 bg-yellow-500/5 p-4">
+            <div className="flex items-start gap-3">
+              <div className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-none border border-neutral-600 bg-neutral-700 text-yellow-500">
+                <benefit.Icon size={16} />
               </div>
-              <h3 className="mb-2 text-lg font-semibold text-neutral-700">
-                {benefit.title}
-              </h3>
-              <p className="text-neutral-500">{benefit.description}</p>
+              <div>
+                <h3 className="text-sm font-semibold text-neutral-700">
+                  {benefit.title}
+                </h3>
+                <p className="mt-1 text-sm text-neutral-500">
+                  {benefit.description}
+                </p>
+                {benefit.url && (
+                  <Link to={benefit.url}>
+                    <span className="group mt-2 inline-flex items-center gap-1 text-xs text-neutral-400 hover:text-neutral-600">
+                      Learn more
+                      <ArrowRight size={10} className="transition-transform group-hover:translate-x-0.5" />
+                    </span>
+                  </Link>
+                )}
+              </div>
             </div>
-          </Wrapper>
+          </div>
         ))}
       </div>
     </VCSection>

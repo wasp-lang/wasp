@@ -2,7 +2,6 @@ import { useState } from "react";
 import Link from "@docusaurus/Link";
 import { ArrowRight } from "react-feather";
 import CodeHighlight from "../CodeHighlight";
-import { vc } from "./vcVariant";
 
 const tabs = [
   {
@@ -288,15 +287,10 @@ export async function registerWorkers(boss: PgBoss) {
   },
 ];
 
-const CodeWindow = ({ filename, label, language, source, theme, variant }) => {
+const CodeWindow = ({ filename, label, language, source, theme }) => {
   const isYellow = theme === "yellow";
   return (
-    <div className={vc(variant, {
-      base: `overflow-hidden ${isYellow ? "rounded-lg border border-yellow-300" : "rounded-lg border border-neutral-200"}`,
-      v1: `overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`,
-      v2: `overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`,
-      v3: `overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`,
-    })}>
+    <div className={`overflow-hidden ${isYellow ? "rounded-none border border-yellow-300" : "rounded-none border border-neutral-200"}`}>
       <div className={`relative flex items-center px-4 py-1.5 ${isYellow ? "bg-yellow-50" : "bg-neutral-100"}`}>
         <div className="flex items-center space-x-1.5">
           <div className={`h-2.5 w-2.5 rounded-full ${isYellow ? "bg-yellow-400" : "bg-neutral-300"}`} />
@@ -321,7 +315,7 @@ const CodeWindow = ({ filename, label, language, source, theme, variant }) => {
   );
 };
 
-const CodeComparison = ({ variant } = {}) => {
+const CodeComparison = () => {
   const [activeTab, setActiveTab] = useState(0);
   const current = tabs[activeTab];
 
@@ -341,7 +335,7 @@ const CodeComparison = ({ variant } = {}) => {
           <button
             key={tab.label}
             onClick={() => setActiveTab(i)}
-            className={`${vc(variant, { base: "rounded-full", v1: "rounded-none", v2: "rounded-none", v3: "rounded-none" })} px-4 py-1.5 text-sm font-medium transition-colors ${
+            className={`rounded-none px-4 py-1.5 text-sm font-medium transition-colors ${
               i === activeTab
                 ? "bg-neutral-200 text-neutral-700"
                 : "bg-neutral-100 text-neutral-500 hover:bg-yellow-500 hover:text-white"
@@ -352,7 +346,7 @@ const CodeComparison = ({ variant } = {}) => {
         ))}
         <button
           onClick={() => setActiveTab("more")}
-          className={`${vc(variant, { base: "rounded-full", v1: "rounded-none", v2: "rounded-none", v3: "rounded-none" })} px-4 py-1.5 text-sm font-medium transition-colors ${
+          className={`rounded-none px-4 py-1.5 text-sm font-medium transition-colors ${
             activeTab === "more"
               ? "bg-neutral-200 text-neutral-700"
               : "bg-neutral-100 text-neutral-500 hover:bg-yellow-500 hover:text-white"
@@ -389,7 +383,6 @@ const CodeComparison = ({ variant } = {}) => {
                 language={current.without.language}
                 source={file.source}
                 theme="neutral"
-                variant={variant}
               />
             ))}
           </div>
@@ -404,7 +397,6 @@ const CodeComparison = ({ variant } = {}) => {
                 language={current.with.language}
                 source={file.source}
                 theme="yellow"
-                variant={variant}
               />
             ))}
           </div>

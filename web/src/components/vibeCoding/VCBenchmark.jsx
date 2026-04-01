@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import { ArrowRight } from "react-feather";
-import { vc, CrosshairCard, VCSection } from "./vcVariant";
+import { VCSection } from "./vcVariant";
 
 const stats = [
   {
@@ -20,11 +20,9 @@ const stats = [
   },
 ];
 
-const VCBenchmark = ({ variant }) => {
-  const useCrosshair = variant === "v2" || variant === "v3";
-
+const VCBenchmark = () => {
   return (
-    <VCSection variant={variant}>
+    <VCSection>
       <div className="mx-auto max-w-3xl text-center">
         <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
           Get more done for{" "}
@@ -38,36 +36,20 @@ const VCBenchmark = ({ variant }) => {
       </div>
 
       <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {stats.map((stat, idx) => {
-          const card = (
-            <div
-              key={idx}
-              className={vc(variant, {
-                base: "h-full rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6 text-center",
-                v1: "h-full rounded-none border border-yellow-500/25 bg-yellow-500/5 p-6 text-center",
-                v2: "h-full rounded-none border border-neutral-300 bg-yellow-500/5 p-6 text-center",
-                v3: "h-full rounded-none border border-neutral-300 bg-yellow-500/5 p-6 text-center border-t-2 border-t-yellow-500",
-              })}
-            >
-              <div className={vc(variant, {
-                base: "text-3xl font-extrabold text-neutral-700",
-                v1: "text-3xl font-extrabold text-neutral-700",
-                v2: "font-mono text-3xl font-extrabold text-neutral-700",
-                v3: "font-mono text-3xl font-extrabold text-neutral-700",
-              })}>
-                {stat.value}
-              </div>
-              <div className="mt-1 text-sm font-semibold text-neutral-700">
-                {stat.label}
-              </div>
-              <div className="mt-2 text-sm text-neutral-500">{stat.detail}</div>
+        {stats.map((stat, idx) => (
+          <div
+            key={idx}
+            className="h-full rounded-none border border-neutral-300 bg-yellow-500/5 p-6 text-center border-t-2 border-t-yellow-500"
+          >
+            <div className="font-mono text-3xl font-extrabold text-neutral-700">
+              {stat.value}
             </div>
-          );
-
-          return useCrosshair ? (
-            <CrosshairCard key={idx} className="h-full">{card}</CrosshairCard>
-          ) : card;
-        })}
+            <div className="mt-1 text-sm font-semibold text-neutral-700">
+              {stat.label}
+            </div>
+            <div className="mt-2 text-sm text-neutral-500">{stat.detail}</div>
+          </div>
+        ))}
       </div>
 
       <div className="mt-8 text-center">

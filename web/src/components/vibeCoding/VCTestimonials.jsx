@@ -1,5 +1,5 @@
 import Link from "@docusaurus/Link";
-import { vc, VCSection } from "./vcVariant";
+import { VCSection } from "./vcVariant";
 
 const PH = "ph";
 
@@ -38,13 +38,8 @@ const testimonials = [
   },
 ];
 
-const TestimonialCard = ({ url, text, name, handle, img, variant }) => {
-  const cardClass = vc(variant, {
-    base: "rounded-md border border-yellow-500/25 bg-yellow-500/5 p-6 shadow-sm drop-shadow-sm",
-    v1: "rounded-none border border-yellow-500/25 bg-yellow-500/5 p-6",
-    v2: "rounded-none border border-neutral-300 bg-yellow-500/5 p-6",
-    v3: "rounded-none border-l-2 border-yellow-500 bg-white p-6",
-  });
+const TestimonialCard = ({ url, text, name, handle, img }) => {
+  const cardClass = "rounded-none border-l-2 border-yellow-500 bg-white p-6";
 
   return (
     <Link to={url}>
@@ -71,9 +66,9 @@ const TestimonialCard = ({ url, text, name, handle, img, variant }) => {
   );
 };
 
-const VCTestimonials = ({ variant }) => {
+const VCTestimonials = () => {
   return (
-    <VCSection variant={variant} className="space-y-16">
+    <VCSection className="space-y-16">
       <div className="grid grid-cols-12">
         <div className="col-span-12 text-center">
           <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
@@ -94,7 +89,7 @@ const VCTestimonials = ({ variant }) => {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         {testimonials.map((t, idx) => (
-          <TestimonialCard key={idx} {...t} variant={variant} />
+          <TestimonialCard key={idx} {...t} />
         ))}
       </div>
 
