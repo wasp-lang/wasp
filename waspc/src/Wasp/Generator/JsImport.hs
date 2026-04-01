@@ -26,8 +26,8 @@ import Wasp.JsImport
     VirtualFile,
     getImportIdentifier,
     getImportPathString,
+    getJsDynamicImportExpr,
     getJsImportStmtAndIdentifier,
-    getJsTypeofImportExpr,
     makeJsImport,
   )
 import Wasp.Project.Common (srcDirInWaspProjectDir)
@@ -58,14 +58,14 @@ jsImportToImportJson = maybe notDefinedValue mkTmplData
     mkTmplData jsImport =
       let (importStatement, importIdentifier) = getJsImportStmtAndIdentifier jsImport
           importPath = getImportPathString jsImport._path
-          typeofImportExpression = getJsTypeofImportExpr jsImport
+          dynamicImportExpr = getJsDynamicImportExpr jsImport
           exportName = getImportIdentifier jsImport
        in object
             [ "isDefined" .= True,
               "importStatement" .= importStatement,
               "importIdentifier" .= importIdentifier,
               "importPath" .= importPath,
-              "typeofImportExpression" .= typeofImportExpression,
+              "dynamicImportExpr" .= dynamicImportExpr,
               "exportName" .= exportName
             ]
 

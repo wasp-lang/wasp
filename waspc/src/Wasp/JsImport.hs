@@ -12,7 +12,7 @@ module Wasp.JsImport
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
     getImportPathString,
-    getJsTypeofImportExpr,
+    getJsDynamicImportExpr,
     VirtualFile,
   )
 where
@@ -73,9 +73,9 @@ makeJsImport importPath importName = JsImport importPath importName Nothing
 applyJsImportAlias :: Maybe JsImportAlias -> JsImport -> JsImport
 applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
-getJsTypeofImportExpr :: JsImport -> String
-getJsTypeofImportExpr (JsImport importPath importName _) =
-  "typeof import('" ++ pathString ++ "')." ++ memberName
+getJsDynamicImportExpr :: JsImport -> String
+getJsDynamicImportExpr (JsImport importPath importName _) =
+  "import('" ++ pathString ++ "')." ++ memberName
   where
     pathString = getImportPathString importPath
     memberName = case importName of
