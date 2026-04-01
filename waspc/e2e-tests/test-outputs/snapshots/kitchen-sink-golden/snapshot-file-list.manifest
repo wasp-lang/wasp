@@ -66,6 +66,7 @@ wasp-app/.wasp/out/sdk/wasp/auth/lucia.ts
 wasp-app/.wasp/out/sdk/wasp/auth/password.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/types.ts
+wasp-app/.wasp/out/sdk/wasp/auth/responseSchemas.ts
 wasp-app/.wasp/out/sdk/wasp/auth/session.ts
 wasp-app/.wasp/out/sdk/wasp/auth/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/useAuth.ts
@@ -293,6 +294,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.js
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.js
+wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/session.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/session.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/session.js

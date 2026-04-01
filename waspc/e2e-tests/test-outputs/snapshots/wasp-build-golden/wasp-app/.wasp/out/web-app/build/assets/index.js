@@ -238,11 +238,11 @@ function clearSessionId() {
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
   apiEventsEmitter.emit("sessionId.clear");
 }
-ky.create({
-  prefixUrl: config.apiUrl,
+ky.extend({
+  prefix: config.apiUrl,
   hooks: {
     beforeRequest: [
-      (request) => {
+      ({ request }) => {
         const sessionId = getSessionId();
         if (sessionId !== null) {
           request.headers.set("Authorization", `Bearer ${sessionId}`);
@@ -250,7 +250,7 @@ ky.create({
       }
     ],
     afterResponse: [
-      (request, _options, response) => {
+      ({ request, response }) => {
         if (response.status === 401) {
           const failingSessionId = getSessionIdFromAuthorizationHeader(request.headers.get("Authorization"));
           const currentSessionId = getSessionId();
