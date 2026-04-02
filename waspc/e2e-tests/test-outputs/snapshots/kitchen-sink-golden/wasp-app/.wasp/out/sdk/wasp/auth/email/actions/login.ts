@@ -4,9 +4,8 @@ import { SessionResponseSchema } from '../../responseSchemas';
 
 // PUBLIC API
 export async function login(data: { email: string; password: string }): Promise<void> {
-    const json = await api.post('/auth/email/login', {
+    const { sessionId } = await api.post('/auth/email/login', {
         json: data,
-    }).json();
-    const { sessionId } = SessionResponseSchema.parse(json);
+    }).json(SessionResponseSchema);
     await initSession(sessionId);
 }

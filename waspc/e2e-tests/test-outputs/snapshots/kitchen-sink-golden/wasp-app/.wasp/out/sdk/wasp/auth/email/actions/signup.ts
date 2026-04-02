@@ -9,9 +9,8 @@ type EmailSignupData = {
 
 // PUBLIC API
 export async function signup(data: EmailSignupData): Promise<{ success: boolean }> {
-  const json = await api.post('/auth/email/signup', {
+  const { success } = await api.post('/auth/email/signup', {
     json: data,
-  }).json();
-  const { success } = SuccessResponseSchema.parse(json);
+  }).json(SuccessResponseSchema);
   return { success };
 }

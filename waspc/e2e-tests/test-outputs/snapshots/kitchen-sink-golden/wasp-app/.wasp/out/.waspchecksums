@@ -60,28 +60,28 @@
             "file",
             "sdk/wasp/auth/email/actions/login.ts"
         ],
-        "dc4564a23adc70d7a046eed1a3fc49ceae6ff3aebe289fc799ec27133863815b"
+        "e2b9367846abfcfd849ffe42c548dc8c4af0e2811e8b067045727fc70aa03cce"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/passwordReset.ts"
         ],
-        "75d16eeda248e7b377e7361ea88e128b5c030568168be88bb010be8e640d19a3"
+        "0bbdf5644314ad03b5b31863bf350e62a5e81a6192919b63f9781b9249d6937c"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/signup.ts"
         ],
-        "51bd323f2651f9e1ca86c50bfd503b216d94c36a1e825e024f69ce1d76eed9fa"
+        "ca2feae729b7e6c9a581bdded55092717eefa9419048d7ee655a00d574724552"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/verifyEmail.ts"
         ],
-        "0fd7efc368a4acd504346a7c9ca536c17e95b89d93ac17638c38d7d2f6e56200"
+        "310bfb2ee1d605c39c97908780c051e3a8011b6bdac8ff6eea4590ab0f94ab97"
     ],
     [
         [

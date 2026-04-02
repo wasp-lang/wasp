@@ -95,7 +95,7 @@ if (typeof window !== 'undefined') {
   // This handler will run on other tabs (not the active one calling API functions),
   // and will ensure they know about auth session ID changes.
   // Ref: https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event
-  // "Note: This won't work on the same page that is making the changes - it is really a way
+  // "Note: This won't work on the same page that is making the changes — it is really a way
   // for other pages on the domain using the storage to sync any changes that are made."
   window.addEventListener('storage', (event) => {
     if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {

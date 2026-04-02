@@ -6,9 +6,8 @@ import { SuccessResponseSchema } from '../../responseSchemas'
 export async function verifyEmail(data: {
   token: string
 }): Promise<{ success: boolean; reason?: string }> {
-  const json = await api.post('{= verifyEmailPath =}', {
+  const { success, reason } = await api.post('{= verifyEmailPath =}', {
     json: data,
-  }).json()
-  const { success, reason } = SuccessResponseSchema.parse(json)
+  }).json(SuccessResponseSchema)
   return { success, reason }
 }
