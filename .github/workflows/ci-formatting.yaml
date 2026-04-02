@@ -7,7 +7,7 @@ env:
   WASP_TELEMETRY_DISABLE: 1
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   formatting:
@@ -53,4 +53,25 @@ jobs:
             cabal-gild --mode format --io "$f"
           done
 
-      - uses: autofix-ci/action@7a166d7532b277f34e16238930461bf77f9d7ed8
+      - name: Check for changes
+        id: check-for-changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "CHANGES_DETECTED=1" >> $GITHUB_OUTPUT
+          else
+            echo "CHANGES_DETECTED=0" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit and push changes
+        if: ${{ steps.check-for-changes.outputs.CHANGES_DETECTED == '1' && github.event_name == 'pull_request' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git commit -am "Auto-fix formatting issues"
+          git push
+
+      - name: Fail if changes were detected
+        if: ${{ steps.check-for-changes.outputs.CHANGES_DETECTED == '1' && github.event_name != 'pull_request' }}
+        run: |
+          echo "Formatting issues were detected. Please review the changes and ensure they are correct."
+          exit 1
