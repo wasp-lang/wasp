@@ -261,16 +261,12 @@ ky.extend({
       }
     ],
     beforeError: [
-      async ({ error }) => {
+      ({ error }) => {
         if (isHTTPError(error)) {
           error.statusCode = error.response.status;
-          try {
-            const body = await error.response.json();
-            if (typeof body?.message === "string") {
-              error.message = body.message;
-            }
-            error.data = body;
-          } catch {
+          const body = error.data;
+          if (body && typeof body.message === "string") {
+            error.message = body.message;
           }
         }
         return error;

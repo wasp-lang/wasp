@@ -75,20 +75,12 @@ export const api = ky.extend({
       },
     ],
     beforeError: [
-      async ({ error }) => {
+      ({ error }) => {
         if (isHTTPError(error)) {
           ;(error as any).statusCode = error.response.status
-          try {
-            const body = (await error.response.json()) as Record<
-              string,
-              unknown
-            >
-            if (typeof body?.message === 'string') {
-              error.message = body.message
-            }
-            error.data = body
-          } catch {
-            // Response body is not JSON, keep the default error message
+          const body = error.data as Record<string, unknown> | undefined
+          if (body && typeof body.message === 'string') {
+            error.message = body.message
           }
         }
         return error
