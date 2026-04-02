@@ -8,6 +8,8 @@ declare module '{= virtualModulePath =}' {
   {=^ isQuery =}
   import type { {= typeName =} } from './actions/types.js'
   {=/ isQuery =}
-  export const {= exportName =}: FromOperationsRegistry<'{= operationName =}', {= typeName =}>
+
+  type UserOperation = FromOperationsRegistry<'{= operationName =}', {= typeName =}>;
+  export const {= exportName =}: UserOperation;
 }
 {=/ operations =}
