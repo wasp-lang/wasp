@@ -67,15 +67,20 @@ jobs:
           fi
 
       - name: Commit and push changes
-        if: ${{ steps.check-for-changes.outputs.CHANGES_DETECTED == '1' && github.event_name == 'pull_request' }}
+        id: commit-and-push
+        if: >-
+          ${{
+            steps.check-for-changes.outputs.CHANGES_DETECTED == '1' &&
+            github.event_name == 'pull_request' &&
+            github.event.pull_request.head.repo.full_name == github.repository
+          }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Auto-fix formatting issues"
           git push
 
-      - name: Fail if changes were detected
-        if: ${{ steps.check-for-changes.outputs.CHANGES_DETECTED == '1' && github.event_name != 'pull_request' }}
+      - name: Report check status
+        if: ${{ steps.commit-and-push.outcome == 'skipped' }}
         run: |
-          echo "Formatting issues were detected. Please review the changes and ensure they are correct."
-          exit 1
+          exit ${{ steps.check-for-changes.outputs.CHANGES_DETECTED }}
