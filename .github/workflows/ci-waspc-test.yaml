@@ -46,8 +46,6 @@ jobs:
             # version. Don't change this version without updating it in all
             # required places (full list in /.nvmrc).
             node-version: "24.14.1"
-          - os: ubuntu-22.04
-            node-version: 26
 
     steps:
       - name: Configure git
