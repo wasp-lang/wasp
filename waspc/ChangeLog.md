@@ -6,15 +6,22 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-21-to-0-22) for step-by-step documentation on how to upgrade.
 
+- Wasp now requires Node.js version >=v22.22.2 (previously >=v22.12.0) due to the [March 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/march-2026-security-releases). ([#3989](https://github.com/wasp-lang/wasp/pull/3989))
+- In the `wasp build` output, the generated Docker image has been upgraded from Alpine 3.20 to Alpine 3.23. ([#3989](https://github.com/wasp-lang/wasp/pull/3989))
 - Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
+- HTML head tags specified in `app.head` must now be valid React JSX. ([#3855](https://github.com/wasp-lang/wasp/pull/3855))
+- Page routes are now loaded lazily by default. You can set `lazy: false` per-route to disable this behavior. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🎉 New Features
 
 - The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
 - Wasp AI (`wasp new:ai`) now accepts any model name string, letting the OpenAI API validate it. The interactive CLI still offers curated GPT-5 options for convenience. ([#3904](https://github.com/wasp-lang/wasp/pull/3904))
+- The `wasp.version` field now accepts any valid npm-compatible version range (e.g. `>=0.15.0 <0.22.0`, `~0.21.0`, `0.21.x`) instead of only `^x.y.z`. ([#3921](https://github.com/wasp-lang/wasp/pull/3921))
+- Page routes are now lazy-loaded using React Router's `lazy` property, greatly reducing the initial download size for apps with many routes. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🐞 Bug fixes
 
+- `wasp deploy fly` now correctly computes Fly app basenames when the app name contains `-client` or `-server`. ([#3983](https://github.com/wasp-lang/wasp/pull/3983))
 - Projects created with `wasp new` were missing their `.gitignore` file. ([#3870](https://github.com/wasp-lang/wasp/pull/3870))
 
 ### 🔧 Small improvements

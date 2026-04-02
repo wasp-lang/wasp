@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
@@ -7,7 +8,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
 REPOSITORY_ROOT=$(cd "$PROJECT_ROOT"/.. && pwd)
 COMMAND=${1:-watch}
-shift
+[ $# -gt 0 ] && shift
 ARGS=("$@") # NOTE: This is a bash array!
 
 BOLD="\033[1m"
@@ -22,10 +23,7 @@ DEFAULT_COLOR="\033[39m"
 WASP_PACKAGES_COMPILE="for pkg in ${SCRIPT_DIR}/data/packages/*/package.json; do \
   (cd \$(dirname \$pkg) && npm install && npm run build); \
 done"
-# NOTE: --experimental-strip-types allows Node to run TypeScript directly.
-# This flag became the default in Node v22.18+, but we need it explicitly
-# for our minimum supported version (v22.12.0).
-WASP_LIBS_COMPILE="node --experimental-strip-types ${SCRIPT_DIR}/tools/libs/build.ts"
+WASP_LIBS_COMPILE="node ${SCRIPT_DIR}/tools/libs/build.ts"
 WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
 BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
@@ -44,9 +42,9 @@ WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests --test-options='--hide-successes'"
 
 WASPLS_TESTS_CMD="cabal test waspls-tests --test-options='--hide-successes'"
 
-LIBS_TESTS_CMD="node --experimental-strip-types ${SCRIPT_DIR}/tools/libs/test.ts"
+LIBS_TESTS_CMD="node ${SCRIPT_DIR}/tools/libs/test.ts"
 
-PACKAGES_TESTS_CMD="node --experimental-strip-types ${SCRIPT_DIR}/tools/packages/test.ts"
+PACKAGES_TESTS_CMD="node ${SCRIPT_DIR}/tools/packages/test.ts"
 
 KITCHEN_SINK_E2E_TESTS_CMD="cd $REPOSITORY_ROOT/examples/kitchen-sink && npm i && npm run test"
 
@@ -64,11 +62,9 @@ function run_examples_e2e_tests() {
   )
 
   for path in "${paths[@]}"; do
-    eval "(cd $REPOSITORY_ROOT/$path && npm i && npm run test)"
-    local status=$?
-    if [ $status -ne 0 ]; then
+    if ! eval "(cd $REPOSITORY_ROOT/$path && npm i && npm run test)"; then
       echo -e "${RED}E2E tests failed in $path${RESET}"
-      return $status
+      return 1
     fi
   done
 }
@@ -123,6 +119,12 @@ echo_and_eval() {
   eval "$1"
 }
 
+# Like echo_and_eval, but stores the exit code in the named variable
+# instead of failing the script.
+echo_and_eval_capturing_exit_code() {
+  echo_and_eval "$2" && eval "$1=0" || eval "$1=$?"
+}
+
 echo_bold() { echo -e $"${BOLD}${1}${RESET}"; }
 
 print_usage() {
@@ -164,7 +166,7 @@ print_usage() {
   print_usage_cmd "test:waspc:e2e" \
     "Executes only cli e2e tests. Builds the project first if needed."
   print_usage_cmd "test:waspc:e2e:accept-all" \
-    "Accepts any diffs in the generated code in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+    "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:waspls" \
@@ -290,7 +292,7 @@ case $COMMAND in
     echo_and_eval "$RUN_CMD"
     ;;
   bust-libs-cache)
-    remove_wasp_libs_from_package_lock || exit 1
+    remove_wasp_libs_from_package_lock
 
     # Compiling the project copies the new lib tarball to the out dir.
     eval "$RUN_CMD compile"
@@ -333,20 +335,11 @@ case $COMMAND in
     echo_and_eval "$PRETTIER_CHECK_CMD"
     ;;
   code-check)
-    echo_and_eval "$PRETTIER_CHECK_CMD"
-    PRETTIER_RESULT=$?
-
-    echo_and_eval "$ORMOLU_CHECK_CMD"
-    ORMOLU_RESULT=$?
-
-    echo_and_eval "$CABAL_GILD_CHECK_CMD"
-    CABAL_GILD_RESULT=$?
-
-    echo_and_eval "$HLINT_CMD"
-    HLINT_RESULT=$?
-
-    echo_and_eval "$STAN_CMD"
-    STAN_RESULT=$?
+    echo_and_eval_capturing_exit_code PRETTIER_RESULT "$PRETTIER_CHECK_CMD"
+    echo_and_eval_capturing_exit_code ORMOLU_RESULT "$ORMOLU_CHECK_CMD"
+    echo_and_eval_capturing_exit_code CABAL_GILD_RESULT "$CABAL_GILD_CHECK_CMD"
+    echo_and_eval_capturing_exit_code HLINT_RESULT "$HLINT_CMD"
+    echo_and_eval_capturing_exit_code STAN_RESULT "$STAN_CMD"
 
     TOTAL_RESULT=$((PRETTIER_RESULT || ORMOLU_RESULT || CABAL_GILD_RESULT || HLINT_RESULT || STAN_RESULT))
 
@@ -373,10 +366,7 @@ case $COMMAND in
     echo_and_eval "$GHCUP_SET"
     ;;
   get-waspc-version)
-    # NOTE: --experimental-strip-types allows Node to run TypeScript directly.
-    # This flag became the default in Node v22.18+, but we need it explicitly
-    # for our minimum supported version (v22.12.0).
-    node --experimental-strip-types "$SCRIPT_DIR/tools/get-waspc-version.ts"
+    node "$SCRIPT_DIR/tools/get-waspc-version.ts"
     ;;
   *)
     print_usage

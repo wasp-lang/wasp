@@ -20,7 +20,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
@@ -29,7 +29,7 @@ import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
-    generatedCodeDirInWaspProjectDir,
+    generatedAppDirInWaspProjectDir,
     getSrcTsConfigInWaspProjectDir,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
@@ -50,17 +50,17 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
 
-  let buildDir = waspProjectDir </> generatedCodeDirInWaspProjectDir
+  let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
     cliSendMessageC $
       Msg.Start $
-        "Clearing the content of the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory..."
+        "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
     cliSendMessageC $
       Msg.Success $
-        "Successfully cleared the contents of the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory."
+        "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
@@ -77,7 +77,7 @@ build = do
 
   cliSendMessageC $
     Msg.Success $
-      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedCodeDirInWaspProjectDir ++ " directory."
+      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
@@ -153,7 +153,7 @@ build = do
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir ProjectRootDir) ->
+  Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where

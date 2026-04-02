@@ -157,10 +157,10 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Wasp AI",
+      label: "AI & Coding Agents",
       collapsed: false,
       collapsible: true,
-      items: ["wasp-ai/creating-new-app", "wasp-ai/developing-existing-app"],
+      items: ["wasp-ai/coding-agent-plugin"],
     },
     {
       type: "category",
@@ -175,6 +175,7 @@ const sidebars: SidebarsConfig = {
         "advanced/apis",
         "advanced/middleware-config",
         "advanced/links",
+        "advanced/routing",
       ],
     },
     {

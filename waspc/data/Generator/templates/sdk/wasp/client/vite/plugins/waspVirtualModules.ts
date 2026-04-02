@@ -1,14 +1,16 @@
 {{={= =}=}}
 import { type Plugin } from "vite";
 import {
-  getIndexTsxContent,
+  getClientEntryTsxContent,
   getRoutesTsxContent,
+  getSsrEntryTsxContent,
 } from "../virtual-files/index.js";
 import { makeVirtualFilesResolver, type VirtualFiles } from "../virtual-files/resolver.js";
 
 const resolveVirtualFiles = makeVirtualFilesResolver([
-  { id: "{= clientEntryPointPath =}", load: getIndexTsxContent },
+  { id: "{= clientEntryPointPath =}", load: getClientEntryTsxContent },
   { id: "{= routesEntryPointPath =}", load: getRoutesTsxContent },
+  { id: "{= ssrEntryPointPath =}", load: getSsrEntryTsxContent },
 ]);
 
 export function waspVirtualModules(): Plugin {

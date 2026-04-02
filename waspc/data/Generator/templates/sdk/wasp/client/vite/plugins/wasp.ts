@@ -1,10 +1,10 @@
-import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
+{{={= =}=}}
 import { type PluginOption } from "vite";
+import react, { type Options as ReactOptions } from "@vitejs/plugin-react";
+import ssr from "@wasp.sh/lib-vite-ssr";
+import { envFile } from "./envFile.js";
 // import { validateEnv } from "./validateEnv.js";
 import { detectServerImports } from "./detectServerImports.js";
-import { envFile } from "./envFile.js";
-import { waspHtmlBuild } from "./html/build.js";
-import { waspHtmlDev } from "./html/dev.js";
 import { typescriptCheck } from "./typescriptCheck.js";
 import { userVirtualModules } from "./userVirtualModules.js";
 import { waspConfig } from "./waspConfig.js";
@@ -30,10 +30,14 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
      * Plugins running after core Vite plugins.
      */
     typescriptCheck(),
-    waspHtmlDev(),
-    waspHtmlBuild(),
     // NOTE: temporary, untill we resolve https://github.com/wasp-lang/wasp/issues/3875
     // validateEnv(),
     react(options?.reactOptions),
+    ssr({
+      clientEntrySrc: "{= clientEntryPointPath =}",
+      ssrEntrySrc: "{= ssrEntryPointPath =}",
+      ssrPaths: [],
+      ssrFallbackFile: "{= ssrFallbackFile =}",
+    }),
   ];
 }

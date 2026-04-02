@@ -17,23 +17,24 @@ import Data.Maybe (fromJust)
 import StrongPath (Dir, File', Path, Posix, Rel, (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.Common (GeneratedSrcDir, dropExtensionFromImportPath)
+import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport (..),
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (..),
     VirtualFile,
-    getImportIdentifier,
-    getImportPathString,
-    getJsDynamicImportExpr,
+    getJsImportIdentifier,
+    getJsImportPathString,
     getJsImportStmtAndIdentifier,
+    getJsRuntimeDynamicImportExpression,
+    getJsTypeDynamicImportExpression,
     makeJsImport,
   )
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 extImportToJsImport ::
-  (GeneratedSrcDir d) =>
+  (GeneratedAppComponentSrcDir d) =>
   Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
@@ -57,16 +58,14 @@ jsImportToImportJson = maybe notDefinedValue mkTmplData
     mkTmplData :: JsImport -> Aeson.Value
     mkTmplData jsImport =
       let (importStatement, importIdentifier) = getJsImportStmtAndIdentifier jsImport
-          importPath = getImportPathString jsImport._path
-          dynamicImportExpr = getJsDynamicImportExpr jsImport
-          exportName = getImportIdentifier jsImport
        in object
             [ "isDefined" .= True,
               "importStatement" .= importStatement,
               "importIdentifier" .= importIdentifier,
-              "importPath" .= importPath,
-              "dynamicImportExpr" .= dynamicImportExpr,
-              "exportName" .= exportName
+              "runtimeDynamicImportExpression" .= getJsRuntimeDynamicImportExpression jsImport,
+              "typeDynamicImportExpression" .= getJsTypeDynamicImportExpression jsImport,
+              "importPath" .= getJsImportPathString jsImport,
+              "exportName" .= getJsImportIdentifier jsImport
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport

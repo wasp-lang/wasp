@@ -42,7 +42,6 @@ data-files:
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
   Generator/templates/**/*.css
-  Generator/templates/**/*.html
   Generator/templates/**/*.js
   Generator/templates/**/*.json
   Generator/templates/**/*.jsx
@@ -327,7 +326,6 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG
@@ -449,6 +447,11 @@ library
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
+    Wasp.SemanticVersion.Comparator
+    Wasp.SemanticVersion.ComparatorSet
+    Wasp.SemanticVersion.Parsers
+    Wasp.SemanticVersion.PartialVersion
+    Wasp.SemanticVersion.Range
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.TypeScript.Inspect.Exports
@@ -672,6 +675,7 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
+    parsec,
     path,
     split,
     strong-path,
@@ -739,9 +743,13 @@ test-suite waspc-tests
     Psl.Parser.ViewTest
     Psl.Parser.WithCtxTest
     Psl.ValidTest
+    SemanticVersion.ComparatorSetTest
+    SemanticVersion.ComparatorTest
+    SemanticVersion.ParsersTest
+    SemanticVersion.PartialVersionTest
+    SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    SemanticVersionTest
     Test.Util
     Util.Control.MonadTest
     Util.Diff

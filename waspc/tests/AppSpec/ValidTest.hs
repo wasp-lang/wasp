@@ -85,9 +85,20 @@ spec_AppSpecValid = do
           ASV.validateAppSpec (basicAppSpec {AS.decls = [basicAppDecl, basicRouteDecl]}) `shouldBe` []
 
         it "returns an error if 'waspVersion' has an incorrect format" $ do
-          ASV.validateAppSpec (basicAppSpecWithVersionRange "0.5;2")
-            `shouldBe` [ Valid.GenericValidationError
-                           "Wasp version should be in the format ^major.minor.patch"
+          let invalidWaspVerison = "$0.5;2"
+
+          ASV.validateAppSpec (basicAppSpecWithVersionRange invalidWaspVerison)
+            `shouldBe` [ Valid.GenericValidationError $
+                           unlines
+                             [ "Invalid Wasp version requirement: " ++ invalidWaspVerison,
+                               "Make sure to use a npm-compatible version range.",
+                               "For example: "
+                                 ++ show (SV.backwardsCompatibleWith WV.waspVersion)
+                                 ++ ", "
+                                 ++ show (SV.approximatelyEquivalentTo WV.waspVersion)
+                                 ++ " or "
+                                 ++ show (SV.eq WV.waspVersion)
+                             ]
                        ]
 
         it "returns an error if 'waspVersion' is not compatible" $ do
@@ -605,7 +616,7 @@ spec_AppSpecValid = do
     makeBasicRouteDecl name pageName =
       AS.Decl.makeDecl
         name
-        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test"}
+        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing}
 
     makeBasicActionDecl name =
       AS.Decl.makeDecl

@@ -5,10 +5,11 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
   )
 where
 
-import Data.Aeson (object, (.=))
+import Data.Aeson (Value, object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.Maybe (maybeToList)
 import StrongPath (relfile, toFilePath, (</>))
+import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
@@ -17,12 +18,14 @@ import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.AppSpec.Page as AS.Page
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (jsImportToImportJson)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, pageVF, routesEntryPointPath, userClientEnvSchemaVF, userRootComponentVF, userSetupFnVF, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, pageVF, routesEntryPointPath, ssrEntryPointPath, ssrFallbackFile, userClientEnvSchemaVF, userRootComponentVF, userSetupFnVF, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.JsImport (VirtualFile)
+import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), VirtualFile, makeJsImport)
 
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getVirtualModulesPlugin spec =
@@ -31,7 +34,8 @@ getVirtualModulesPlugin spec =
       genUserVirtualModulesTs spec,
       genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
-      genVirtualIndexTsx spec,
+      genVirtualClientEntryTsx spec,
+      genVirtualSsrEntryTsx spec,
       genVirtualRoutesTsx spec
     ]
 
@@ -58,7 +62,26 @@ getWaspVirtualModulesTs =
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
-          "routesEntryPointPath" .= routesEntryPointPath
+          "routesEntryPointPath" .= routesEntryPointPath,
+          "ssrEntryPointPath" .= ssrEntryPointPath
+        ]
+
+routeObjectsImportJson :: Value
+routeObjectsImportJson =
+  jsImportToImportJson $
+    Just $
+      makeJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")
+
+genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
+genVirtualClientEntryTsx spec =
+  return $
+    C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|client-entry.tsx|]
+    tmplData =
+      object
+        [ "routeObjects" .= routeObjectsImportJson,
+          "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
 
 genUserVirtualModulesTs :: AppSpec -> Generator FileDraft
@@ -97,23 +120,15 @@ getUserVFData spec =
     maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client app
     app = snd $ getApp spec
 
-genVirtualIndexTsx :: AppSpec -> Generator FileDraft
-genVirtualIndexTsx spec =
+genVirtualSsrEntryTsx :: AppSpec -> Generator FileDraft
+genVirtualSsrEntryTsx spec =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|index.tsx|]
+    tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesFilesDirInViteDir </> [relfile|ssr-entry.tsx|]
     tmplData =
       object
-        [ "setupFn" .= GJI.virtualExtImportToImportJson userSetupFnVF maybeSetupJsFunction,
-          "rootComponent" .= GJI.virtualExtImportToImportJson userRootComponentVF maybeRootComponent,
-          "routesMapping" .= routesMappingImportJson
-        ]
-    maybeSetupJsFunction = AS.App.Client.setupFn =<< AS.App.client (snd $ getApp spec)
-    maybeRootComponent = AS.App.Client.rootComponent =<< AS.App.client (snd $ getApp spec)
-    routesMappingImportJson =
-      object
-        [ "isDefined" .= True,
-          "importStatement" .= ("import { routesMapping } from \"" ++ routesEntryPointPath ++ "\""),
-          "importIdentifier" .= ("routesMapping" :: String)
+        [ "routeObjects" .= routeObjectsImportJson,
+          "ssrFallbackFile" .= ssrFallbackFile,
+          "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]

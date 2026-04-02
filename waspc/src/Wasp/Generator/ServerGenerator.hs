@@ -44,11 +44,11 @@ import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common (ServerRootDir)
 import qualified Wasp.Generator.Crud.Routes as CrudRoutes
 import Wasp.Generator.DepVersions
-  ( dotenvVersion,
-    expressTypesVersion,
-    expressVersionStr,
-    superjsonVersion,
-    typescriptVersion,
+  ( dotenvVersionRange,
+    expressTypesVersionRange,
+    expressVersionRange,
+    superjsonVersionRange,
+    typescriptVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft, createTextFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -69,7 +69,7 @@ import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genW
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromAppComponentDir)
+import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util ((<++>))
@@ -102,7 +102,7 @@ genDotEnv spec | AS.isProduction spec = return []
 genDotEnv spec =
   return
     [ createTextFileDraft
-        (C.serverRootDirInProjectRootDir </> dotEnvInServerRootDir)
+        (C.serverRootDirInGeneratedAppDir </> dotEnvInServerRootDir)
         (envVarsToDotEnvContent envVars)
     ]
   where
@@ -130,7 +130,7 @@ genTsConfigJson spec = do
       )
   where
     srcTsConfigPath :: Path' (Rel C.ServerRootDir) (File SrcTsConfigFile) =
-      waspProjectDirFromAppComponentDir </> AS.srcTsConfigPath spec
+      waspProjectDirFromGeneratedAppComponentDir </> AS.srcTsConfigPath spec
 
 genPackageJson :: AppSpec -> N.NpmDepsFromWasp -> Generator FileDraft
 genPackageJson spec waspDependencies =
@@ -169,11 +169,11 @@ npmDepsFromWasp spec =
           Npm.Dependency.fromList
             [ ("cookie-parser", "~1.4.6"),
               ("cors", "^2.8.5"),
-              ("express", expressVersionStr),
+              ("express", show expressVersionRange),
               ("morgan", "~1.10.0"),
-              ("dotenv", show dotenvVersion),
+              ("dotenv", show dotenvVersionRange),
               ("helmet", "^6.0.0"),
-              ("superjson", show superjsonVersion)
+              ("superjson", show superjsonVersionRange)
             ]
             ++ depsRequiredByWebSockets spec
             ++ waspLibsNpmDeps,
@@ -182,9 +182,9 @@ npmDepsFromWasp spec =
             [ ("nodemon", "^2.0.19"),
               -- TODO: Allow users to choose whether they want to use TypeScript
               -- in their projects and install these dependencies accordingly.
-              ("typescript", show typescriptVersion),
-              ("@types/express", show expressTypesVersion),
-              ("@types/express-serve-static-core", show expressTypesVersion),
+              ("typescript", show typescriptVersionRange),
+              ("@types/express", show expressTypesVersionRange),
+              ("@types/express-serve-static-core", show expressTypesVersionRange),
               ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
               ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
               ("@types/cors", "^2.8.5"),
@@ -234,7 +234,7 @@ genNodemon =
       (Just $ object ["relativeUserSrcDirPath" .= fromRelDir relativeUserSrcDirPath])
   where
     relativeUserSrcDirPath :: Path' (Rel C.ServerRootDir) (Dir SourceExternalCodeDir) =
-      waspProjectDirFromAppComponentDir </> srcDirInWaspProjectDir
+      waspProjectDirFromGeneratedAppComponentDir </> srcDirInWaspProjectDir
 
 genSrcDir :: AppSpec -> Generator [FileDraft]
 genSrcDir spec =

@@ -3,19 +3,19 @@ declare module 'wasp/types' {
   interface CrudOverridesRegistry {
     '{= crud.name =}': {
 {=# overrides.GetAll.isDefined =}
-      GetAll: typeof {=& overrides.GetAll.dynamicImportExpr =}
+      GetAll: typeof {=& overrides.GetAll.typeDynamicImportExpression =}
 {=/ overrides.GetAll.isDefined =}
 {=# overrides.Get.isDefined =}
-      Get: typeof {=& overrides.Get.dynamicImportExpr =}
+      Get: typeof {=& overrides.Get.typeDynamicImportExpression =}
 {=/ overrides.Get.isDefined =}
 {=# overrides.Create.isDefined =}
-      Create: typeof {=& overrides.Create.dynamicImportExpr =}
+      Create: typeof {=& overrides.Create.typeDynamicImportExpression =}
 {=/ overrides.Create.isDefined =}
 {=# overrides.Update.isDefined =}
-      Update: typeof {=& overrides.Update.dynamicImportExpr =}
+      Update: typeof {=& overrides.Update.typeDynamicImportExpression =}
 {=/ overrides.Update.isDefined =}
 {=# overrides.Delete.isDefined =}
-      Delete: typeof {=& overrides.Delete.dynamicImportExpr =}
+      Delete: typeof {=& overrides.Delete.typeDynamicImportExpression =}
 {=/ overrides.Delete.isDefined =}
     }
   }

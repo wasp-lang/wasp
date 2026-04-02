@@ -54,9 +54,9 @@ import qualified Data.Text as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, mainWaspFileInWaspProjectDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
 import System.FilePath (joinPath)
-import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInProjectRootDir)
+import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Project (WaspProjectDir)
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
 -- NOTE: Using `wasp-cli` herein so we can assume using latest `cabal install` in CI and locally.
@@ -193,8 +193,8 @@ waspCliDbMigrateDev migrationName = do
       waspOutMigrationsDir =
         context.waspProjectDir
           </> dotWaspDirInWaspProjectDir
-          </> generatedCodeDirInDotWaspDir
-          </> dbRootDirInProjectRootDir
+          </> generatedAppDirInDotWaspDir
+          </> dbRootDirInGeneratedAppDir
           </> dbMigrationsDirInDbRootDir
    in return $
         unwords ["wasp-cli db migrate-dev --name", migrationName]
@@ -264,7 +264,7 @@ buildAndRemoveWaspProjectDockerImage = do
   let dockerImageTag = "waspc-e2e-tests-" ++ context.waspProjectName
    in return $
         "[ -z \"$WASP_E2E_TESTS_SKIP_DOCKER\" ]"
-          ~? unwords ["cd", fromAbsDir (context.waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir)]
+          ~? unwords ["cd", fromAbsDir (context.waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir)]
           ~&& unwords ["docker build --build-arg \"BUILDKIT_DOCKERFILE_CHECK=error=true\" -t", dockerImageTag, "."]
           ~&& unwords ["docker image rm", dockerImageTag]
           ~&& unwords ["cd", fromAbsDir context.waspProjectDir]

@@ -12,7 +12,6 @@ import System.IO.Error (catchIOError, isDoesNotExistError)
 import System.Process (readProcessWithExitCode)
 import Wasp.Node.Internal (parseVersionFromCommandOutput)
 import qualified Wasp.SemanticVersion as SV
-import qualified Wasp.SemanticVersion.VersionBound as SV
 import Wasp.Util (indent)
 
 -- | Wasp supports any node version equal or greater to this version.
@@ -20,7 +19,7 @@ import Wasp.Util (indent)
 -- NOTE: Don't change Wasp's lowest supported Node version without updating it
 -- in all required places. Check /.nvmrc for the full list.
 oldestWaspSupportedNodeVersion :: SV.Version
-oldestWaspSupportedNodeVersion = SV.Version 22 12 0
+oldestWaspSupportedNodeVersion = SV.Version 22 22 2
 
 oldestWaspSupportedNpmVersion :: SV.Version
 oldestWaspSupportedNpmVersion = SV.Version 10 9 0

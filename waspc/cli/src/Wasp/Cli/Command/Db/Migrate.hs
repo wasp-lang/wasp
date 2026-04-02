@@ -10,11 +10,11 @@ import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
 import qualified Wasp.Generator.DbGenerator.Operations as DbOps
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import Wasp.Project.Db.Migrations (DbMigrationsDir, dbMigrationsDirInWaspProjectDir)
 
 -- | NOTE(shayne): Performs database schema migration (based on current schema) in the generated project.
@@ -24,15 +24,15 @@ migrateDev :: [String] -> Command ()
 migrateDev optionalMigrateArgs = do
   InWaspProject waspProjectDir <- require
   let waspDbMigrationsDir = waspProjectDir </> dbMigrationsDirInWaspProjectDir
-  let projectRootDir =
+  let generatedAppDir =
         waspProjectDir
           </> dotWaspDirInWaspProjectDir
-          </> generatedCodeDirInDotWaspDir
+          </> generatedAppDirInDotWaspDir
 
-  migrateDatabase optionalMigrateArgs projectRootDir waspDbMigrationsDir
+  migrateDatabase optionalMigrateArgs generatedAppDir waspDbMigrationsDir
 
-migrateDatabase :: [String] -> Path' Abs (Dir ProjectRootDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
-migrateDatabase optionalMigrateArgs projectRootDir dbMigrationsDir = do
+migrateDatabase :: [String] -> Path' Abs (Dir GeneratedAppDir) -> Path' Abs (Dir DbMigrationsDir) -> Command ()
+migrateDatabase optionalMigrateArgs generatedAppDir dbMigrationsDir = do
   cliSendMessageC $ Msg.Start "Starting database migration..."
   liftIO tryMigrate >>= \case
     Left err -> throwError $ CommandError "Migrate dev failed" err
@@ -40,7 +40,7 @@ migrateDatabase optionalMigrateArgs projectRootDir dbMigrationsDir = do
   where
     tryMigrate = runExceptT $ do
       migrateArgs <- liftEither $ parseMigrateArgs optionalMigrateArgs
-      ExceptT $ DbOps.migrateDevAndCopyToSource dbMigrationsDir projectRootDir migrateArgs
+      ExceptT $ DbOps.migrateDevAndCopyToSource dbMigrationsDir generatedAppDir migrateArgs
 
 -- | Basic parsing of db-migrate args. In the future, we could use a smarter parser
 -- for this (and all other CLI arg parsing).

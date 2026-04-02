@@ -223,7 +223,7 @@ Database is abstracted via Prisma.
 
 We can run Wasp project with `wasp start`.
 This will first compile the app, generate JS code in the `.wasp/out/` dir, and then run `npm start` for the client, `npm start` for the server, and also run the database.
-On any changes you do to the source code of Wasp, Wasp project gets recompiled, and then changes in the generated code are picked up by the `npm start` of the client/server, therefore updating the web app.
+On any changes you do to the source code of Wasp, Wasp project gets recompiled, and then changes in the generated app are picked up by the `npm start` of the client/server, therefore updating the web app.
 
 ## Important directories (in waspc/)
 
@@ -292,14 +292,14 @@ To run tests:
 
 ### Waspc e2e tests
 
-Inside of `waspc` e2e tests we have snapshot tests that run the `wasp-cli` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
+Inside of `waspc` e2e tests we have snapshot tests that run the `wasp-cli` on a couple of prepared projects, check that they successfully run, and also compare generated app with the expected generated app (golden output).
 
-This means that when you make a change in your code that modifies the generated code, snapshot tests will fail while showing a diff between the new generated code and the previous (golden) one.
+This means that when you make a change in your code that modifies the generated app, snapshot tests will fail while showing a diff between the new generated app and the previous (golden) one.
 This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them.
 **It is the PR author's (or the reviewers for outside contributions) responsibility to carefully review these diffs.**
 Do not blindly accept changes, ensure they align with your intended modifications.
 If you notice something unexpected or weird, you have an opportunity to fix it.
-Once you are indeed happy with the changes in the generated code, you will want to update the golden output to the new (current) output, so that tests pass.
+Once you are indeed happy with the changes in the generated app, you will want to update the golden output to the new (current) output, so that tests pass.
 Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
 Easiest way to do this is to use the convenient command from the `./run` script:
 
