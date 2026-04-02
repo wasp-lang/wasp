@@ -1,4 +1,4 @@
-import ky from 'ky'
+import ky, { isHTTPError } from 'ky'
 import { config } from 'wasp/client'
 import { storage } from 'wasp/core/storage'
 import { apiEventsEmitter } from './events.js'
@@ -75,20 +75,21 @@ export const api = ky.extend({
       },
     ],
     beforeError: [
-      async (error) => {
-        const errorWithExtra = error as typeof error & {
-          statusCode: number
-          data: unknown
-        }
-        errorWithExtra.statusCode = error.response.status
-        try {
-          const body = await error.response.json()
-          if (body?.message) {
-            error.message = body.message
+      async ({ error }) => {
+        if (isHTTPError(error)) {
+          ;(error as any).statusCode = error.response.status
+          try {
+            const body = (await error.response.json()) as Record<
+              string,
+              unknown
+            >
+            if (typeof body?.message === 'string') {
+              error.message = body.message
+            }
+            error.data = body
+          } catch {
+            // Response body is not JSON, keep the default error message
           }
-          errorWithExtra.data = body
-        } catch {
-          // Response body is not JSON, keep the default error message
         }
         return error
       },

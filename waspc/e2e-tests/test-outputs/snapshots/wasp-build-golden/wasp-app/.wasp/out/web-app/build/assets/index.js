@@ -5,7 +5,7 @@ import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import ky from "ky";
+import ky, { isHTTPError } from "ky";
 import * as z from "zod";
 import mitt from "mitt";
 import "superjson";
@@ -258,6 +258,22 @@ ky.extend({
             clearSessionId();
           }
         }
+      }
+    ],
+    beforeError: [
+      async ({ error }) => {
+        if (isHTTPError(error)) {
+          error.statusCode = error.response.status;
+          try {
+            const body = await error.response.json();
+            if (typeof body?.message === "string") {
+              error.message = body.message;
+            }
+            error.data = body;
+          } catch {
+          }
+        }
+        return error;
       }
     ]
   }
