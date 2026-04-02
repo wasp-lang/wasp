@@ -20,6 +20,8 @@ jobs:
           git config --global core.eol lf
 
       - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
 
       - uses: actions/setup-node@v6
         with:
@@ -68,7 +70,7 @@ jobs:
         if: ${{ steps.check-for-changes.outputs.CHANGES_DETECTED == '1' && github.event_name == 'pull_request' }}
         run: |
           git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -am "Auto-fix formatting issues"
           git push
 
