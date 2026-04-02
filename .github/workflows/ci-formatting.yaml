@@ -1,4 +1,4 @@
-name: "Check - Formatting"
+name: "Check - Autofix formatting"
 
 on:
   workflow_call:
@@ -10,24 +10,8 @@ permissions:
   contents: read
 
 jobs:
-  prettier:
+  formatting:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          cache: "npm"
-          node-version-file: .nvmrc
-
-      - name: Run Prettier
-        run: |
-          npm ci
-          npm run check:prettier
-
-  ormolu:
-    runs-on: ubuntu-latest
-
     steps:
       - run: |
           git config --global core.autocrlf input
@@ -35,34 +19,38 @@ jobs:
 
       - uses: actions/checkout@v6
 
-      - name: Parse oromolu version
+      - uses: actions/setup-node@v6
+        with:
+          cache: "npm"
+          node-version-file: .nvmrc
+
+      - name: Parse tool versions
+        id: parse-tool-versions
         working-directory: waspc
         run: |
-          echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+          echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_OUTPUT
+          echo "CABAL_GILD_VERSION=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_OUTPUT
+
+      - name: Run Prettier
+        run: |
+          npm ci
+          npm run format:prettier
 
       # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
       - uses: haskell-actions/run-ormolu@v15
         with:
-          version: ${{ env.ORMOLU_VERSION }}
-
-  cabal-gild:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Parse cabal-gild version
-        working-directory: waspc
-        run: |
-          echo "CABAL_GILD_VERSION=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+          version: ${{ steps.parse-tool-versions.outputs.ORMOLU_VERSION }}
+          mode: inplace
 
       - uses: tfausak/cabal-gild-setup-action@v2
         with:
-          version: ${{ env.CABAL_GILD_VERSION }}
+          version: ${{ steps.parse-tool-versions.outputs.CABAL_GILD_VERSION }}
 
       - name: Run cabal-gild
         working-directory: waspc
         run: |
           for f in $(git ls-files '*.cabal'); do
-            cabal-gild --mode check --input "$f"
+            cabal-gild --mode format --io "$f"
           done
+
+      - uses: autofix-ci/action@7a166d7532b277f34e16238930461bf77f9d7ed8
