@@ -68,7 +68,13 @@ const TestimonialCard = ({ url, text, name, role, img, aiTools }) => {
       <div className={`${cardClass} flex h-full w-full flex-col`}>
         <div className="flex">
           {img ? (
-            <img className="h-[45px] w-[45px] rounded-full object-cover" src={img} width={45} height={45} alt={name} />
+            <img
+              className="h-[45px] w-[45px] rounded-full object-cover"
+              src={img}
+              width={45}
+              height={45}
+              alt={name}
+            />
           ) : (
             <div className="flex h-[45px] w-[45px] items-center justify-center rounded-full bg-yellow-100 text-lg font-semibold text-yellow-600">
               {name.charAt(0)}
@@ -119,10 +125,7 @@ const VCTestimonials = () => {
         {testimonials.map((t, idx) => (
           <TestimonialCard key={idx} {...t} />
         ))}
-        <Link
-          to="https://discord.gg/rzdnErX"
-          className="flex h-full"
-        >
+        <Link to="https://discord.gg/rzdnErX" className="flex h-full">
           <div className="flex h-full flex-1 flex-col items-center justify-center rounded-none border-l-2 border-yellow-500 bg-white p-6">
             <img
               src="img/discord-logo.webp"

@@ -149,9 +149,7 @@ const VCExamples = () => {
       <div className="mt-8 text-center">
         <Link to="https://opensaas.sh" target="_blank">
           <span className="group inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-400">
-            <span>
-              Learn more about Wasp's built-in SaaS starter template.
-            </span>
+            <span>Learn more about Wasp's built-in SaaS starter template.</span>
             <span className="text-yellow-600 transition-all group-hover:ml-0.5">
               <ArrowRight size={14} strokeWidth={2} />
             </span>

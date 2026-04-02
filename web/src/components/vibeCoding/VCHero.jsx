@@ -81,8 +81,8 @@ const VCHero = () => {
           with AI
         </h1>
         <p className="mx-auto mt-8 max-w-2xl text-lg text-neutral-500 sm:text-xl">
-          Whether you're a pro or a first-time builder, Wasp keeps your agents on track, handles
-          complex features, and lowers token usage and cost.
+          Whether you're a pro or a first-time builder, Wasp keeps your agents
+          on track, handles complex features, and lowers token usage and cost.
         </p>
         <div className="mt-10">
           <ActionButtons />
