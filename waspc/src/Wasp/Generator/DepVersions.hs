@@ -27,7 +27,7 @@ superjsonVersionRange :: SV.Range
 superjsonVersionRange = [SV.r|^2.2.1|]
 
 typescriptVersionRange :: SV.Range
-typescriptVersionRange = [SV.r|5.8.2|]
+typescriptVersionRange = [SV.r|5.9.3|]
 
 -- When updating the React version,
 -- also update it in `peerDependencies` in `waspc/libs/auth/package.json`.

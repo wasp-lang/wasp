@@ -81,7 +81,7 @@ You must have Node.js (and NPM) installed on your machine and available in `PATH
   NOTE: Don't change Wasp's lowest supported Node version without updating it in
   all required places. Check /.nvmrc for the full list.
 -->
-A version of Node.js must be >= 22.22.2.
+A version of Node.js must be >= 24.14.1.
 
 If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for managing your Node.js installation version(s).
 
@@ -96,13 +96,13 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
     Then, install a version of Node.js that you need:
 
     ```shell
-    nvm install 22
+    nvm install 24
     ```
 
     Finally, whenever you need to ensure a specific version of Node.js is used, run:
 
     ```shell
-    nvm use 22
+    nvm use 24
     ```
 
     to set the Node.js version for the current shell session.

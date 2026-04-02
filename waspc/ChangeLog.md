@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.23.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-22-to-0-23) for step-by-step documentation on how to upgrade.
+
+- Wasp now requires Node.js version >=v24.14.1 (previously >=v22.22.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- Upgraded the pinned TypeScript version from 5.8.2 to 5.9.3 (required by `@tsconfig/node24`). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+
 ## 0.22.0
 
 ### ⚠️ Breaking Changes
