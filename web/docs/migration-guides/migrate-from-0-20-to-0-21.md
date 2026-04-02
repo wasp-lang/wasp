@@ -2,7 +2,6 @@
 title: Migration from 0.20.X to 0.21.X
 ---
 
-import NetlifyTomlConfig from '../deployment/\_netlify-toml-config.md'
 import InstallInstructions from './_install-instructions.md'
 import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
@@ -457,10 +456,6 @@ Wasp no longer generates `manifest.json` automatically. If you want to enable PW
 **If you're not deploying to Netlify, you can skip this step.**
 
 Wasp no longer generates a `netlify.toml` file in your project. If you're deploying to Netlify, you'll need to create this file manually in your project root.
-
-Create a `netlify.toml` file with the following content:
-
-<NetlifyTomlConfig />
 
 For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
 
