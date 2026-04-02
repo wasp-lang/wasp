@@ -53,7 +53,7 @@ const VibeCoding = () => {
         />
         <meta
           property="og:description"
-          content="The full-stack framework where AI writes business logic, not boilerplate."
+          content="The full-stack framework that AI just gets, allowing your agents to focus on writing business logic, not boilerplate."
         />
         <meta property="og:image" content={coverPhotoAbsoluteUrl} />
         <meta property="twitter:card" content="summary_large_image" />
@@ -64,7 +64,7 @@ const VibeCoding = () => {
         />
         <meta
           property="twitter:description"
-          content="The full-stack framework where AI writes business logic, not boilerplate."
+          content="The full-stack framework that AI just gets, allowing your agents to focus on writing business logic, not boilerplate."
         />
         <meta property="twitter:image" content={coverPhotoAbsoluteUrl} />
       </Head>
