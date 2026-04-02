@@ -442,7 +442,8 @@ const VCWhyWasp = () => {
           <span className="underline decoration-yellow-500">Agentic Era</span>
         </h2>
         <p className="text-neutral-500">
-          Works with Claude Code, Cursor, Codex, OpenCode, Gemini CLI, Copilot, etc.
+          Works with Claude Code, Cursor, Codex, OpenCode, Gemini CLI, Copilot,
+          etc.
         </p>
       </div>
 
