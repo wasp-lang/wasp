@@ -11,6 +11,8 @@ permissions:
 
 jobs:
   formatting:
+    name: "Check and auto-fix formatting issues"
+
     runs-on: ubuntu-latest
     steps:
       - run: |
