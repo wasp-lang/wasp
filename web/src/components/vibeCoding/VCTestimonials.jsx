@@ -19,14 +19,6 @@ const testimonials = [
     aiTools: ["Claude Code"],
   },
   {
-    text: "Wasp is very LLM friendly.",
-    name: "Anshula Chowdhury",
-    role: "Founder @ SREDwise \u2014 Built with Wasp and acquired for $100k",
-    img: "https://media.licdn.com/dms/image/v2/C5603AQG7DLgxpU-CBg/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1594820855370?e=1776902400&v=beta&t=ISYFy4Oib6f6Bb_aL89yihKb-Ebx5HAnXIdafNLDdXY",
-    url: "https://www.linkedin.com/in/anchowdhury/",
-    aiTools: ["Claude Code"],
-  },
-  {
     text: "With Next.js App Router, I was constantly fighting the LLM to get the syntax right. With Wasp, you can ask Claude... and it actually knows.",
     name: "TK Garrett",
     role: "Founder @ PlotTree",
@@ -146,7 +138,7 @@ const VCTestimonials = () => {
           rel="noreferrer"
           className="text-sm text-neutral-500 hover:text-neutral-400"
         >
-          13k+ GitHub Stars
+          18k+ GitHub Stars
         </a>
         <span className="h-4 border-l border-neutral-300" />
         <span className="flex items-center text-sm text-neutral-500">
