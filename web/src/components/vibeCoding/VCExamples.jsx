@@ -5,16 +5,10 @@ import { VCSection } from "./vcWrappers";
 
 const examples = [
   {
-    name: "Microinfluencers",
-    description: "microinfluencer.club",
-    imageSrc: "img/lp/examples/microinfluencers.webp",
-    href: "https://microinfluencer.club",
-  },
-  {
-    name: "Kivo",
-    description: "kivo.dev",
-    imageSrc: "img/lp/examples/kivo.webp",
-    href: "https://kivo.dev",
+    name: "Messync",
+    description: "messync.com",
+    imageSrc: "img/lp/examples/messync.webp",
+    href: "https://messync.com",
   },
   {
     name: "Searchcraft",
@@ -29,10 +23,16 @@ const examples = [
     href: "https://scribeist.com",
   },
   {
-    name: "Messync",
-    description: "messync.com",
-    imageSrc: "img/lp/examples/messync.webp",
-    href: "https://messync.com",
+    name: "Kivo",
+    description: "kivo.dev",
+    imageSrc: "img/lp/examples/kivo.webp",
+    href: "https://kivo.dev",
+  },
+  {
+    name: "Microinfluencers",
+    description: "microinfluencer.club",
+    imageSrc: "img/lp/examples/microinfluencers.webp",
+    href: "https://microinfluencer.club",
   },
   {
     name: "Prompt Panda",
@@ -101,8 +101,7 @@ const VCExamples = () => {
           <span className="underline decoration-yellow-500">SaaS.</span>{" "}
         </h2>
         <p className="text-neutral-500">
-          Real businesses shipped by the community on top of Wasp's free,
-          built-in SaaS template.
+          Real businesses shipped by the community on top of Wasp.
         </p>
       </div>
 
@@ -150,7 +149,9 @@ const VCExamples = () => {
       <div className="mt-8 text-center">
         <Link to="https://opensaas.sh" target="_blank">
           <span className="group inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-400">
-            <span>Learn more about Open SaaS</span>
+            <span>
+              Learn more about Wasp's built-in SaaS starter template.
+            </span>
             <span className="text-yellow-600 transition-all group-hover:ml-0.5">
               <ArrowRight size={14} strokeWidth={2} />
             </span>

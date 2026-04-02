@@ -461,7 +461,7 @@ const VCWhyWasp = () => {
                 <benefit.Icon size={16} />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-neutral-700">
+                <h3 className="text-lg font-semibold text-neutral-700">
                   {benefit.title}
                 </h3>
                 <p className="mt-1 text-sm text-neutral-500">

@@ -12,6 +12,7 @@ import VCFAQ from "../components/vibeCoding/VCFAQ";
 import VCFeatures from "../components/vibeCoding/VCFeatures";
 import VCFinalCTA from "../components/vibeCoding/VCFinalCTA";
 import VCHero from "../components/vibeCoding/VCHero";
+import VCIncludedStrip from "../components/vibeCoding/VCIncludedStrip";
 import VCTestimonials from "../components/vibeCoding/VCTestimonials";
 import VCWhyWasp from "../components/vibeCoding/VCWhyWasp";
 import VCWorkflow from "../components/vibeCoding/VCWorkflow";
@@ -76,20 +77,21 @@ const VibeCoding = () => {
             </div>
             <div className="relative z-10">
               <VCHero />
+              <VCIncludedStrip />
               <Divider />
               <VCWhyWasp />
-              <Divider />
-              <VCBenchmark />
               <Divider />
               <VCExamples />
               <Divider />
               <VCTestimonials />
               <Divider />
+              <Divider />
+              <VCWorkflow />
+              <VCBenchmark />
+              <Divider />
               <VCFeatures />
               <Divider />
               <VCCodeComparison />
-              <Divider />
-              <VCWorkflow />
               <Divider />
               <VCFAQ />
               <Divider />

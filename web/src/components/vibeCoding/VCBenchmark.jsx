@@ -6,17 +6,25 @@ const stats = [
   {
     value: "45%",
     label: "lower cost",
-    detail: "$2.87 vs $5.17 per feature",
+    detail: "per feature",
+    wasp: 2.87,
+    other: 5.17,
+    prefix: "$",
   },
   {
     value: "40%",
     label: "fewer tokens",
-    detail: "in the codebase for AI to read, understand, and write",
+    detail: "for AI to read & write",
+    wasp: 2.5,
+    other: 4.0,
+    suffix: "M",
   },
   {
     value: "31%",
     label: "fewer API calls",
-    detail: "66 vs 96",
+    detail: "to build the same feature",
+    wasp: 66,
+    other: 96,
   },
 ];
 
@@ -34,20 +42,64 @@ const VCBenchmark = () => {
       </div>
 
       <div className="mt-16 grid grid-cols-1 gap-6 md:grid-cols-3">
-        {stats.map((stat, idx) => (
-          <div
-            key={idx}
-            className="h-full rounded-none border border-t-2 border-neutral-300 border-t-yellow-500 bg-yellow-500/5 p-6 text-center"
-          >
-            <div className="font-mono text-3xl font-extrabold text-neutral-700">
-              {stat.value}
+        {stats.map((stat, idx) => {
+          const maxVal = Math.max(stat.wasp, stat.other);
+          const otherPct = (stat.other / maxVal) * 100;
+          const waspPct = (stat.wasp / maxVal) * 100;
+          const formatVal = (v) =>
+            `${stat.prefix || ""}${v}${stat.suffix || ""}`;
+
+          return (
+            <div
+              key={idx}
+              className="h-full rounded-none border border-t-2 border-neutral-300 border-t-yellow-500 bg-white p-6"
+            >
+              <div className="text-center">
+                <div className="font-mono text-6xl font-extrabold text-neutral-700">
+                  {stat.value}
+                </div>
+                <div className="mt-1 text-lg font-semibold text-neutral-700">
+                  {stat.label}
+                </div>
+                <div className="mt-1 text-xs text-neutral-400">
+                  {stat.detail}
+                </div>
+              </div>
+
+              <div>
+                <div className="mb-1 flex items-center justify-between text-xs">
+                  <span className="font-medium text-neutral-700">Wasp</span>
+                  <span className="font-mono font-medium text-neutral-700">
+                    {formatVal(stat.wasp)}
+                  </span>
+                </div>
+                <div className="h-2.5 w-full rounded-full bg-neutral-100">
+                  <div
+                    className="h-2.5 rounded-full bg-yellow-400"
+                    style={{ width: `${waspPct}%` }}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-2.5">
+                <div>
+                  <div className="mb-1 flex items-center justify-between text-xs">
+                    <span className="text-neutral-400">Next.js</span>
+                    <span className="font-mono text-neutral-400">
+                      {formatVal(stat.other)}
+                    </span>
+                  </div>
+                  <div className="h-2.5 w-full rounded-full bg-neutral-100">
+                    <div
+                      className="h-2.5 rounded-full bg-neutral-300"
+                      style={{ width: `${otherPct}%` }}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="mt-1 text-sm font-semibold text-neutral-700">
-              {stat.label}
-            </div>
-            <div className="mt-2 text-sm text-neutral-500">{stat.detail}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="mt-8 text-center">

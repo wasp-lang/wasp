@@ -50,6 +50,27 @@ const faqs = [
     ),
   },
   {
+    question: "Why not just use Lovable, Bolt, or Replit?",
+    answer: (
+      <>
+        <p>
+          Those tools are great for quick prototypes. But if you want something
+          that stays manageable and affordable as it grows, you'll eventually want to own your
+          code, control your infrastructure, and customize beyond what a hosted
+          builder allows.
+        </p>
+        <p className="mt-2">
+          With Wasp, you get the same ability to describe what you want and AI
+          builds it, but the code lives on your machine, deploys wherever you
+          choose, and uses standard React + Node.js you can always modify by
+          hand. Auth, database, email sending, cron jobs, and deployment are all built
+          in and production-hardened, so you're not stitching together
+          third-party services which can get expensive and complex.
+        </p>
+      </>
+    ),
+  },
+  {
     question: "Do I have to learn a new language?",
     answer: (
       <p>
