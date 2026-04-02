@@ -1,11 +1,11 @@
 module Wasp.Generator.ServerGenerator.JsImport where
 
 import qualified Data.Aeson as Aeson
-import StrongPath (Dir, Path, Posix, Rel)
-import StrongPath.TH (reldirP)
+import Data.Maybe (fromJust)
+import StrongPath (Dir, Path, Posix, Rel, castDir, relDirToPosix, (</>))
 import qualified Wasp.AppSpec.ExtImport as EI
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.ServerGenerator.Common (ServerSrcDir)
+import Wasp.Generator.ServerGenerator.Common (ServerSrcDir, serverSrcDirInGeneratedAppDir)
 import Wasp.JsImport
   ( JsImport,
     JsImportAlias,
@@ -13,6 +13,8 @@ import Wasp.JsImport
     JsImportStatement,
   )
 import qualified Wasp.JsImport as JI
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Util.StrongPath (invertRelDir)
 
 extImportToImportJson ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
@@ -46,17 +48,17 @@ getAliasedJsImportStmtAndIdentifier ::
 getAliasedJsImportStmtAndIdentifier importAlias pathFromImportLocationToExtCodeDir =
   JI.getJsImportStmtAndIdentifier . JI.applyJsImportAlias (Just importAlias) . extImportToJsImport pathFromImportLocationToExtCodeDir
 
+-- NOTE: We have to cast dir because the 'GJI' expects path to the `sdk/wasp/src` dir.
 extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport = GJI.extImportToJsImport serverExtDir
+extImportToJsImport = GJI.extImportToJsImport $ fromJust . relDirToPosix $ castDir waspProjectSrcDirFromServerSrcDir
   where
     -- NOTE: Instead of generating the `src` folder with the user's code and
     -- referencing that, we reference user code directly. This gives us proper
     -- error messages (with user's file names and line numbers). It works great
     -- with Vite (Vite outputs absolute file paths), but less great on the
     -- server (TS outputs relative paths, resulting in ../../src/something).
-    -- NOTE: When changing this, also update WebAppGenerator/JsImport.hs
-    -- TODO: Calculate this dynamically (by using stuff from Project.Common).
-    serverExtDir = [reldirP|../../../../src|]
+    waspProjectSrcDirFromServerSrcDir = waspProjectDirFromServerSrcDir </> srcDirInWaspProjectDir
+    waspProjectDirFromServerSrcDir = invertRelDir (generatedAppDirInWaspProjectDir </> serverSrcDirInGeneratedAppDir)

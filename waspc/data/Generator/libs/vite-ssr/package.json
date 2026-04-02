@@ -1,0 +1,37 @@
+{
+  "name": "@wasp.sh/lib-vite-ssr",
+  "version": "0.22.0",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "default": "./dist/types.mjs"
+    }
+  },
+  "files": [
+    "dist/**/*"
+  ],
+  "scripts": {
+    "build": "tsdown",
+    "dev": "tsdown --watch",
+    "prepare": "npm run build",
+    "test": "exit 0"
+  },
+  "peerDependencies": {
+    "vite": "^7"
+  },
+  "devDependencies": {
+    "@tsconfig/node-ts": "^23.6.4",
+    "@tsconfig/node22": "^22.0.5",
+    "@types/node": "~22.12",
+    "tsdown": "^0.20.3",
+    "typescript": "~5.9.3",
+    "vite": "^7.3.1"
+  }
+}

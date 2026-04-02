@@ -10,13 +10,16 @@ on:
         # Don't change this version without updating it in all required
         # places (full list in /.nvmrc).
         description: "Node.js version to use for building"
-        default: "22.12.0"
+        default: "22.22.2"
         type: string
         required: false
     outputs:
       waspc_version:
         value: ${{ jobs.build.outputs.waspc_version }}
         description: "The Wasp version built in this workflow."
+      data_files_list:
+        value: ${{ jobs.build.outputs.data_files_list }}
+        description: "List of data files with per-file SHA-256 hashes."
       output_linux-x86_64:
         value: ${{ jobs.build.outputs.output_linux-x86_64 }}
         description: "The build output metadata for linux-x86_64."
@@ -37,6 +40,7 @@ jobs:
   build:
     outputs:
       waspc_version: ${{ steps.set-outputs.outputs.waspc_version }}
+      data_files_list: ${{ steps.data-files.outputs.list }}
       output_linux-x86_64: ${{ steps.set-outputs.outputs.output_linux-x86_64 }}
       output_linux-x86_64-static: ${{ steps.set-outputs.outputs.output_linux-x86_64-static }}
       output_macos-x86_64: ${{ steps.set-outputs.outputs.output_macos-x86_64 }}
@@ -83,17 +87,19 @@ jobs:
             # We also pin the `alpine` version to a specific one we have tested,
             # since newer releases might have different versions of the
             # libraries we depend on.
-            container: node:${{ inputs.node-version }}-alpine3.21
+            container: node:${{ inputs.node-version }}-alpine3.23
             skip-node-install: true
             static: true
             install-deps: |
               apk update
               # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
-              apk add binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
+              apk add binutils-gold curl gcc g++ gmp-dev gmp-static libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
               # `./run` script dependencies
               apk add bash
               # Cabal dependencies
               apk add zlib-dev zlib-static
+              # Prisma dependencies
+              apk add openssl
 
           - name: macos-x86_64
             runner: macos-15-intel
@@ -141,7 +147,27 @@ jobs:
           mkdir -p artifacts
           ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
 
-      - uses: actions/upload-artifact@v4
+      - name: Compute data files list
+        id: data-files
+        working-directory: waspc
+        run: |
+          if command -v sha256sum >/dev/null 2>&1; then
+            HASH_CMD="sha256sum"
+          else
+            HASH_CMD="shasum -a 256"
+          fi
+          {
+            echo 'list<<EOF'
+            cabal sdist --list-only \
+              | grep '^\./data/' \
+              | while IFS= read -r file; do
+                  hash=$($HASH_CMD "$file" | cut -d' ' -f1)
+                  printf '%s\t%s\n' "$file" "$hash"
+                done
+            echo 'EOF'
+          } >> $GITHUB_OUTPUT
+
+      - uses: actions/upload-artifact@v7
         with:
           path: ./waspc/artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}
           name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
@@ -158,59 +184,3 @@ jobs:
             echo 'EOF'
           } >> $GITHUB_OUTPUT
           echo "waspc_version=$(cd waspc && ./run get-waspc-version)" >> $GITHUB_OUTPUT
-
-  build-universal:
-    name: Build Wasp (universal)
-    needs: build
-    runs-on: macos-15
-
-    env:
-      X86_64_TARBALL_NAME: ${{ fromJson(needs.build.outputs.output_macos-x86_64).tarball-name }}
-      X86_64_ARTIFACT_NAME: ${{ fromJson(needs.build.outputs.output_macos-x86_64).artifact-name }}
-      AARCH64_TARBALL_NAME: ${{ fromJson(needs.build.outputs.output_macos-aarch64).tarball-name }}
-      AARCH64_ARTIFACT_NAME: ${{ fromJson(needs.build.outputs.output_macos-aarch64).artifact-name }}
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Compute artifact names
-        uses: ./.github/actions/compute-artifact-names
-        id: compute-artifact-names
-        with:
-          build-name: macos-universal
-
-      - name: Download macOS Intel binaries
-        uses: actions/download-artifact@v5
-        with:
-          name: "${{ env.X86_64_ARTIFACT_NAME }}"
-
-      - name: Download macOS ARM binaries
-        uses: actions/download-artifact@v5
-        with:
-          name: "${{ env.AARCH64_ARTIFACT_NAME }}"
-
-      - name: Unpack, create universal binary and pack
-        run: |
-          set -eux # Fail on error and print each command
-
-          mkdir x86_64 aarch64 universal
-
-          # Unpack both architectures
-          tar -xzf "$X86_64_TARBALL_NAME" -C x86_64
-          tar -xzf "$AARCH64_TARBALL_NAME" -C aarch64
-
-          # Create the universal binary
-          lipo \
-            -create "x86_64/wasp-bin" "aarch64/wasp-bin" \
-            -output "universal/wasp-bin"
-
-          # Copy the data folder too (we take the first one, should be identical in both)
-          cp -R "x86_64/data/" "universal/"
-
-          # Pack back up
-          tar -czf ${{ steps.compute-artifact-names.outputs.tarball-name }} -C universal .
-
-      - uses: actions/upload-artifact@v4
-        with:
-          name: ${{ steps.compute-artifact-names.outputs.artifact-name }}
-          path: ./${{ steps.compute-artifact-names.outputs.tarball-name }}

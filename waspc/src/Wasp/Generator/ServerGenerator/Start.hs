@@ -4,12 +4,12 @@ module Wasp.Generator.ServerGenerator.Start
 where
 
 import StrongPath (Abs, Dir, Path', (</>))
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import qualified Wasp.Generator.ServerGenerator.Common as Common
 import qualified Wasp.Job as J
 import Wasp.Job.Process (runNodeCommandAsJob)
 
-startServer :: Path' Abs (Dir ProjectRootDir) -> J.Job
-startServer projectDir = do
-  let serverDir = projectDir </> Common.serverRootDirInProjectRootDir
+startServer :: Path' Abs (Dir GeneratedAppDir) -> J.Job
+startServer generatedAppDir = do
+  let serverDir = generatedAppDir </> Common.serverRootDirInGeneratedAppDir
   runNodeCommandAsJob serverDir "npm" ["run", "watch"] J.Server
