@@ -2,7 +2,7 @@
 comments: true
 ---
 
-import BuildingTheWebClient from '../../deployment/deployment-methods/_building-the-web-client.md'
+import BuildingTheWebClient from '../../deployment/_building-the-web-client.md'
 
 # Cloudflare
 

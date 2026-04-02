@@ -2,7 +2,7 @@
 title: Cloud Providers
 ---
 
-import BuildingTheWebClient from './\_building-the-web-client.md'
+import BuildingTheWebClient from '../\_building-the-web-client.md'
 import { Server, Client, Database } from './DeploymentTag'
 import { GuideLink } from '@site/src/components/GuideLink'
 

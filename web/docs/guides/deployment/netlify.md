@@ -2,8 +2,8 @@
 comments: true
 ---
 
-import BuildingTheWebClient from '../../deployment/deployment-methods/_building-the-web-client.md'
-import NetlifyTomlConfig from '../../deployment/deployment-methods/_netlify-toml-config.md'
+import BuildingTheWebClient from '../../deployment/_building-the-web-client.md'
+import NetlifyTomlConfig from '../../deployment/_netlify-toml-config.md'
 
 # Netlify
 

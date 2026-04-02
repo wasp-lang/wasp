@@ -2,7 +2,7 @@
 title: Migration from 0.20.X to 0.21.X
 ---
 
-import NetlifyTomlConfig from '../deployment/deployment-methods/\_netlify-toml-config.md'
+import NetlifyTomlConfig from '../deployment/\_netlify-toml-config.md'
 import InstallInstructions from './_install-instructions.md'
 import LegacyInstallerMigration from './_legacy_installer_migration.md'
 

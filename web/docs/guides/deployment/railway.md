@@ -2,7 +2,7 @@
 comments: true
 ---
 
-import AddExternalAuthEnvVarsReminder from '../../deployment/deployment-methods/_addExternalAuthEnvVarsReminder.md'
+import AddExternalAuthEnvVarsReminder from '../../deployment/_addExternalAuthEnvVarsReminder.md'
 import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
 
 # Railway
