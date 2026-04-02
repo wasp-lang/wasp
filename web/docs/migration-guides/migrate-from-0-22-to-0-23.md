@@ -8,8 +8,6 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 <LegacyInstallerMigration />
 <InstallInstructions version="0.23" />
 
-## What's new in 0.23.X?
-
 ## How to migrate?
 
 ### 1. Upgrade Node.js to v24.14.1 or later
