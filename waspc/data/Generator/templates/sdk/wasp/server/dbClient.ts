@@ -3,7 +3,7 @@
 {=# prismaSetupFn.isDefined =}
 {=& prismaSetupFn.importStatement =}
 const userPrismaSetupFn: typeof {= prismaSetupFn.importIdentifier =} = {= prismaSetupFn.importIdentifier =};
-const dbClient: ReturnType<typeof userPrismaSetupFn> = userPrismaSetupFn();
+const dbClient = userPrismaSetupFn();
 {=/ prismaSetupFn.isDefined =}
 {=^ prismaSetupFn.isDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
