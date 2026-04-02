@@ -1,5 +1,5 @@
 module Wasp.Psl.Db
-  ( dbProviderPostgresqlStringLiteral,
+  (  dbProviderPostgresqlStringLiteral,
     dbProviderSqliteStringLiteral,
   )
 where
