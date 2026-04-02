@@ -9,6 +9,7 @@
       "DOM.Iterable"
     ],
     "skipLibCheck": true,
+    "types": ["node", "react"],
     "allowJs": true,
     "rootDir": ".",
     "outDir": "dist",

@@ -21,6 +21,7 @@
     "moduleDetection": "force",
     "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
+    "types": ["node", "react"],
     "allowJs": true,
     "outDir": ".wasp/out/user"
   },

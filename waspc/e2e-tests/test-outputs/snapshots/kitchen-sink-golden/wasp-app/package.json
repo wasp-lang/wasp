@@ -23,7 +23,7 @@
     "@types/uuid": "^9.0.8",
     "@wasp.sh/wasp-app-runner": "^0.0.13",
     "prisma": "5.19.1",
-    "typescript": "5.9.3",
+    "typescript": "6.0.2",
     "vite": "^7.0.6"
   },
   "name": "kitchen-sink",

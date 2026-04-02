@@ -1,4 +1,4 @@
-import { type RailwayCliProject } from "../jsonOutputSchemas";
+import { type RailwayCliProject } from "../jsonOutputSchemas.js";
 
 export type RailwayProject = {
   id: string;

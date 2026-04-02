@@ -26,6 +26,7 @@
     "moduleDetection": "force",
     "lib": ["dom", "dom.iterable", "esnext"],
     "skipLibCheck": true,
+    "types": ["node", "react"],
     "allowJs": true,
     "typeRoots": [
       // This is needed to properly support Vitest testing with jest-dom matchers.

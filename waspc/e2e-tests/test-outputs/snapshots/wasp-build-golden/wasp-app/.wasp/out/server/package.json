@@ -21,7 +21,7 @@
     "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
-    "typescript": "5.9.3"
+    "typescript": "6.0.2"
   },
   "engineStrict": true,
   "engines": {

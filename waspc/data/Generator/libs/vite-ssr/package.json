@@ -30,8 +30,8 @@
     "@tsconfig/node-ts": "^23.6.4",
     "@tsconfig/node22": "^22.0.5",
     "@types/node": "~22.12",
-    "tsdown": "^0.20.3",
-    "typescript": "~5.9.3",
+    "tsdown": "^0.21.7",
+    "typescript": "~6.0.2",
     "vite": "^7.3.1"
   }
 }

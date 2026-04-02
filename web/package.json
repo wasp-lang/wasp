@@ -62,7 +62,7 @@
     "remark-cli": "^11.0.0",
     "remark-validate-links": "^12.1.1",
     "tsx": "^4.20.3",
-    "typescript": "^5.8.3",
+    "typescript": "^6.0.2",
     "unified": "^11.0.5"
   },
   "browserslist": {

@@ -161,7 +161,7 @@ generatePackageJson newProjectDetails =
         },
         "devDependencies": {
           "@tailwindcss/vite": "^4.1.18",
-          "typescript": "5.8.2",
+          "typescript": "6.0.2",
           "vite": "^7.0.6",
           "@types/react": "^19.2.7",
           "@types/react-dom": "^19.2.3",

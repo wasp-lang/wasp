@@ -29,7 +29,7 @@
     "eslint": "^9.9.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
-    "typescript": "^5.8.3",
+    "typescript": "^6.0.2",
     "typescript-eslint": "^8.1.0",
     "vitest": "3.1.2"
   },

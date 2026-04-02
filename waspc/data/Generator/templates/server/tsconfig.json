@@ -28,6 +28,7 @@
     // them here to be explicit.
     "esModuleInterop": true,
     "skipLibCheck": true,
+    "types": ["node"],
     "outDir": "dist",
     "target": "es2022",
     "lib" : ["es2023"]
