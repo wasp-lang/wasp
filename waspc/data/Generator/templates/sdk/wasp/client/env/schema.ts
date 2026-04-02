@@ -2,8 +2,10 @@
 import * as z from "zod";
 
 {=# userClientEnvSchema.isDefined =}
+import { FromRegistry } from "../../types";
+// @ts-expect-error
 {=& userClientEnvSchema.importStatement =}
-export const userClientEnvSchema: typeof {= userClientEnvSchema.importIdentifier =} = {= userClientEnvSchema.importIdentifier =};
+export const userClientEnvSchema: FromRegistry<'clientEnvSchema', z.ZodObject> = {= userClientEnvSchema.importIdentifier =};
 {=/ userClientEnvSchema.isDefined =}
 {=^ userClientEnvSchema.isDefined =}
 export const userClientEnvSchema = z.object({});

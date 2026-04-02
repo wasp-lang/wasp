@@ -45,7 +45,6 @@ genServerEnvFiles spec =
   sequence
     [ genServerEnv spec
     ]
-    <++> genUserServerEnvSchemaModuleDecl spec
 
 genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =
@@ -53,7 +52,6 @@ genClientEnvFiles spec =
     [ genClientEnvSchema spec,
       genFileCopy [relfile|client/env.ts|]
     ]
-    <++> genUserClientEnvSchemaModuleDecl spec
 
 genServerEnv :: AppSpec -> Generator FileDraft
 genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
@@ -89,32 +87,6 @@ genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
           "userClientEnvSchema" .= virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvValidationSchema
         ]
     maybeClientEnvValidationSchema = AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
-
-genUserClientEnvSchemaModuleDecl :: AppSpec -> Generator [FileDraft]
-genUserClientEnvSchemaModuleDecl spec
-  | isJust maybeClientEnvSchema =
-      return
-        [ mkTmplFdWithData
-            [relfile|client/env/userClientEnvSchema.d.ts|]
-            (object ["userClientEnvSchema" .= userClientEnvSchemaImportJson])
-        ]
-  | otherwise = return []
-  where
-    userClientEnvSchemaImportJson = virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvSchema
-    maybeClientEnvSchema = AS.App.client (snd $ getApp spec) >>= AS.App.Client.envValidationSchema
-
-genUserServerEnvSchemaModuleDecl :: AppSpec -> Generator [FileDraft]
-genUserServerEnvSchemaModuleDecl spec
-  | isJust maybeUserServerEnvSchema =
-      return
-        [ mkTmplFdWithData
-            [relfile|server/userServerEnvSchema.d.ts|]
-            (object ["userServerEnvSchema" .= userServerEnvSchemaImportJson])
-        ]
-  | otherwise = return []
-  where
-    userServerEnvSchemaImportJson = virtualExtImportToImportJson userServerEnvSchemaVF maybeUserServerEnvSchema
-    maybeUserServerEnvSchema = AS.App.server (snd $ getApp spec) >>= AS.App.Server.envValidationSchema
 
 depsRequiredByEnvValidation :: [Npm.Dependency.Dependency]
 depsRequiredByEnvValidation =

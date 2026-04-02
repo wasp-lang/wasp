@@ -1,6 +1,7 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
 {=# prismaSetupFn.isDefined =}
+// @ts-expect-error
 {=& prismaSetupFn.importStatement =}
 import type { PrismaClient as InternalPrismaClient } from '@prisma/client'
 import type { FromRegistry } from 'wasp/types'

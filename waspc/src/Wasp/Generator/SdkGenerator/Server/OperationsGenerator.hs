@@ -50,7 +50,6 @@ genOperations spec =
       genWrappers spec,
       genIndexTs spec
     ]
-    <++> genOperationVirtualModuleDecls spec
 
 genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
@@ -171,35 +170,6 @@ getOperationTmplData isAuthEnabledGlobally operation =
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
     ]
-
-genOperationVirtualModuleDecls :: AppSpec -> Generator [FileDraft]
-genOperationVirtualModuleDecls spec
-  | null allOperations = return []
-  | otherwise =
-      return
-        [ mkTmplFdWithData
-            (serverOpsDirInSdkTemplatesDir </> [relfile|userOperations.d.ts|])
-            tmplData
-        ]
-  where
-    allOperations = AS.getOperations spec
-    tmplData =
-      object
-        [ "operations" .= map mkVirtualModuleData allOperations
-        ]
-    mkVirtualModuleData :: AS.Operation.Operation -> Aeson.Types.Value
-    mkVirtualModuleData operation =
-      object
-        [ "virtualModulePath" .= toFilePath (userOperationVF operation),
-          "operationName" .= operationName,
-          "typeName" .= toUpperFirst operationName,
-          "exportName" .= EI.importIdentifier (AS.Operation.getFn operation),
-          "isQuery" .= isQuery operation
-        ]
-      where
-        operationName = AS.Operation.getName operation
-        isQuery (AS.Operation.QueryOp _ _) = True
-        isQuery (AS.Operation.ActionOp _ _) = False
 
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
 serverOpsDirInSdkTemplatesDir = [reldir|server/operations|]

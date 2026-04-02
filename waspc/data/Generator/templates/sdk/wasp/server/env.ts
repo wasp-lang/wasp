@@ -3,8 +3,10 @@ import * as z from "zod"
 
 import { ensureEnvSchema } from "../env/validation.js"
 {=# userServerEnvSchema.isDefined =}
+import { FromRegistry } from "../types/index.js"
+// @ts-expect-error
 {=& userServerEnvSchema.importStatement =}
-const userServerEnvSchema: typeof {= userServerEnvSchema.importIdentifier =} = {= userServerEnvSchema.importIdentifier =};
+const userServerEnvSchema: FromRegistry<'serverEnvSchema', z.ZodObject> = {= userServerEnvSchema.importIdentifier =};
 {=/ userServerEnvSchema.isDefined =}
 {=^ userServerEnvSchema.isDefined =}
 const userServerEnvSchema = z.object({});

@@ -342,13 +342,7 @@ genServerDbClient spec = do
             "prismaSetupFn" .= prismaSetupFnJson
           ]
   let dbClientFd = C.mkTmplFdWithData [relfile|server/dbClient.ts|] dbClientTmplData
-  let prismaSetupDeclFds =
-        [ C.mkTmplFdWithData
-            [relfile|server/userPrismaSetupFn.d.ts|]
-            (object ["prismaSetupFn" .= prismaSetupFnJson])
-          | isJust maybePrismaSetupFn
-        ]
-  return $ dbClientFd : prismaSetupDeclFds
+  return [dbClientFd]
   where
     app = snd $ getApp spec
     maybePrismaSetupFn = AS.Db.prismaSetupFn =<< AS.App.db app

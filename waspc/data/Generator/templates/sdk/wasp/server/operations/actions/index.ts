@@ -21,6 +21,7 @@ import type {
   {=/ operations =}
 } from './types.js'
 {=# operations =}
+// @ts-expect-error
 {=& jsFn.importStatement =}
 {=/ operations =}
 {=# operations =}
