@@ -105,7 +105,11 @@ const VCTestimonials = () => {
       <div className="grid grid-cols-12">
         <div className="col-span-12 text-center">
           <h2 className="mb-4 text-xl text-neutral-700 lg:text-2xl">
-            What Vibe Coders Are Saying
+            What{" "}
+            <span className="underline decoration-yellow-500 underline-offset-4">
+              Vibe Coders
+            </span>{" "}
+            Are Saying
           </h2>
           <p className="text-neutral-500">
             Real users building real products with Wasp + AI coding tools.{" "}

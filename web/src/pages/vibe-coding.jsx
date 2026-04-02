@@ -85,8 +85,8 @@ const VibeCoding = () => {
               <Divider />
               <VCTestimonials />
               <Divider />
-              <Divider />
               <VCWorkflow />
+              <Divider />
               <VCBenchmark />
               <Divider />
               <VCFeatures />

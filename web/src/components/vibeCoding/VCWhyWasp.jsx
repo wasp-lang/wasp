@@ -441,10 +441,13 @@ const VCWhyWasp = () => {
           The Framework for the{" "}
           <span className="underline decoration-yellow-500">Agentic Era</span>
         </h2>
+        <p className="text-neutral-500">
+          Works with Claude Code, Cursor, Codex, OpenCode, Gemini CLI, Copilot, etc.
+        </p>
       </div>
 
       {/* Top: terminal left, blueprint right */}
-      <div className="mt-10 grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <div className="mt-16 grid grid-cols-1 gap-3 lg:grid-cols-2">
         {terminal}
         {blueprint}
       </div>

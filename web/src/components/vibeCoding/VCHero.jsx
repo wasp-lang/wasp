@@ -19,26 +19,6 @@ const ActionButtons = () => (
   </div>
 );
 
-const AIToolLogos = () => (
-  <div className="flex flex-col items-center gap-4">
-    {/* <small className="text-xs text-neutral-400">Works with</small>
-    <div className="flex items-center gap-6">
-      <span className="text-sm text-neutral-400">Claude Code</span>
-      <span className="text-sm text-neutral-400">Cursor</span>
-      <span className="text-sm text-neutral-400">GitHub Copilot</span>
-      <span className="text-sm text-neutral-400">Windsurf</span>
-    </div> */}
-    {/* <span className="mt-4 flex items-center">
-      <small className="text-xs text-neutral-400">Backed by</small>
-      <img
-        className="ml-2 w-24"
-        src="img/lp/yc-logo-rounded.webp"
-        alt="Y Combinator"
-      />
-    </span> */}
-  </div>
-);
-
 const GridBackground = () => {
   return (
     <div
@@ -72,7 +52,7 @@ const VCHero = () => {
             "radial-gradient(ellipse 50% 60% at 50% 50%, #f5f5f5 40%, transparent 100%)",
         }}
       />
-      <div className="lg:py-30 relative z-[2] mx-auto max-w-4xl px-6 py-28 text-center lg:py-40">
+      <div className="relative z-[2] mx-auto max-w-4xl px-6 pb-36 pt-28 text-center lg:pb-52 lg:pt-40">
         <h1 className="text-5xl font-extrabold tracking-tight text-neutral-800 sm:text-6xl lg:text-7xl">
           The framework for building{" "}
           <span className="underline decoration-yellow-500 underline-offset-4">
@@ -89,9 +69,6 @@ const VCHero = () => {
         </div>
         <div className="mt-6 flex justify-center">
           <InstallBlock />
-        </div>
-        <div className="mt-12">
-          <AIToolLogos />
         </div>
       </div>
     </div>
