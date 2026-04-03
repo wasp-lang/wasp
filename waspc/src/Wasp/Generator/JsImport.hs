@@ -18,9 +18,10 @@ import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport (..),
     JsImportName (JsImportField, JsImportModule),
-    JsImportPath (RelativeImportPath),
-    getJsDynamicImportExpression,
+    JsImportPath (..),
     getJsImportStmtAndIdentifier,
+    getJsRuntimeDynamicImportExpression,
+    getJsTypeDynamicImportExpression,
     makeJsImport,
   )
 import Wasp.Project.Common (srcDirInWaspProjectDir)
@@ -42,18 +43,20 @@ extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
 extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
 
 jsImportToImportJson :: Maybe JsImport -> Aeson.Value
-jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImport
+jsImportToImportJson = maybe notDefinedValue mkTmplData
   where
+    notDefinedValue :: Aeson.Value
     notDefinedValue = object ["isDefined" .= False]
 
     mkTmplData :: JsImport -> Aeson.Value
     mkTmplData jsImport =
-      let (jsImportStmt, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
+      let (importStatement, importIdentifier) = getJsImportStmtAndIdentifier jsImport
        in object
             [ "isDefined" .= True,
-              "importStatement" .= jsImportStmt,
-              "importIdentifier" .= jsImportIdentifier,
-              "dynamicImportExpression" .= getJsDynamicImportExpression jsImport
+              "importStatement" .= importStatement,
+              "importIdentifier" .= importIdentifier,
+              "runtimeDynamicImportExpression" .= getJsRuntimeDynamicImportExpression jsImport,
+              "typeDynamicImportExpression" .= getJsTypeDynamicImportExpression jsImport
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport

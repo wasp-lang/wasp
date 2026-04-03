@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.JsImport
   ( JsImport (..),
@@ -9,10 +10,11 @@ module Wasp.JsImport
     JsImportStatement,
     makeJsImport,
     applyJsImportAlias,
-    getImportIdentifier,
+    getJsImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
-    getJsDynamicImportExpression,
+    getJsRuntimeDynamicImportExpression,
+    getJsTypeDynamicImportExpression,
   )
 where
 
@@ -60,8 +62,8 @@ type JsImportClause = String
 -- | Represents the full import statement e.g. @import { Name } from "file.js"@
 type JsImportStatement = String
 
-getImportIdentifier :: JsImport -> JsImportIdentifier
-getImportIdentifier JsImport {_name = name} = case name of
+getJsImportIdentifier :: JsImport -> JsImportIdentifier
+getJsImportIdentifier JsImport {_name = name} = case name of
   JsImportModule identifier -> identifier
   JsImportField identifier -> identifier
 
@@ -78,26 +80,39 @@ getJsImportStmtAndIdentifier jsImport@(JsImport _ importName maybeImportAlias) =
     importStatement = "import " ++ importClause ++ " from '" ++ getJsImportPathString jsImport ++ "'"
     (importIdentifier, importClause) = getJsImportIdentifierAndClause importName maybeImportAlias
 
-getJsImportPathString :: JsImport -> String
-getJsImportPathString (JsImport importPath _ _) = case importPath of
-  RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
-  ModuleImportPath modulePath -> SP.fromRelFileP modulePath
-  RawImportName moduleName -> moduleName
+-- | Returns a type dynamic import expression, e.g.:
+--   For default export: @import('./path').default@
+--   For named export: @import('./path').Name@
+getJsTypeDynamicImportExpression :: JsImport -> String
+getJsTypeDynamicImportExpression jsImport =
+  "import('" ++ importPath ++ "')." ++ importName
   where
-    normalizePath path
-      | ".." `isPrefixOf` path = path
-      | otherwise = "./" ++ path
+    importPath = getJsImportPathString jsImport
+    importName = getJsImportNameString jsImport._name
 
--- | Returns a dynamic import expression, e.g.:
+-- | Returns a runtime dynamic import expression, e.g.:
 --   For default export: @import('./path').then(m => m.default)@
 --   For named export: @import('./path').then(m => m.Name)@
-getJsDynamicImportExpression :: JsImport -> String
-getJsDynamicImportExpression jsImport =
-  "import('" ++ getJsImportPathString jsImport ++ "').then(m => m." ++ memberName ++ ")"
+getJsRuntimeDynamicImportExpression :: JsImport -> String
+getJsRuntimeDynamicImportExpression jsImport =
+  "import('" ++ importPath ++ "').then(m => m." ++ importName ++ ")"
   where
-    memberName = case _name jsImport of
-      JsImportModule _ -> "default"
-      JsImportField name -> name
+    importPath = getJsImportPathString jsImport
+    importName = getJsImportNameString jsImport._name
+
+getJsImportNameString :: JsImportName -> String
+getJsImportNameString (JsImportModule _) = "default"
+getJsImportNameString (JsImportField name) = name
+
+getJsImportPathString :: JsImport -> String
+getJsImportPathString (JsImport importPath _ _) = case importPath of
+  RawImportName moduleName -> moduleName
+  ModuleImportPath modulePath -> SP.fromRelFileP modulePath
+  RelativeImportPath relPath -> normalizeRelImportPath $ SP.fromRelFileP relPath
+  where
+    normalizeRelImportPath path
+      | ".." `isPrefixOf` path = path
+      | otherwise = "./" ++ path
 
 -- First part of import statement based on type of import and alias
 -- e.g. for import { Name as Alias } from "file.js" it returns ("Alias", "{ Name as Alias }")
