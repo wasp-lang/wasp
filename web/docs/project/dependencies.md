@@ -89,3 +89,15 @@ When Wasp updates its requirements in a new release, you'll need to update your 
 If you need the override to apply to transitive dependencies as well (dependencies of your dependencies), you can use npm's built-in [`overrides`](https://docs.npmjs.com/cli/v11/configuring-npm/package-json#overrides) feature alongside `wasp.overriddenDeps`.
 
 :::
+
+### Supply Chain Protection
+
+New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to `7` days. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against supply chain attacks -- malicious packages are typically detected and removed within hours of publication.
+
+If you need to install a recently published package, you can temporarily override this by passing the flag directly:
+
+```bash
+npm install some-package --min-release-age=0
+```
+
+Or you can adjust the value in your project's `.npmrc` file.
