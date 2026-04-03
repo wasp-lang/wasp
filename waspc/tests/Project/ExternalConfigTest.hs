@@ -39,6 +39,7 @@ validTsConfig =
             T.esModuleInterop = Just True,
             T.lib = Just ["dom", "dom.iterable", "esnext"],
             T.allowJs = Just True,
+            T.types = Just ["node", "react"],
             T.outDir = Just ".wasp/out/user"
           },
       T.include = Just ["src"]

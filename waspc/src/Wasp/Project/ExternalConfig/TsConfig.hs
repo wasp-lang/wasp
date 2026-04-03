@@ -64,6 +64,9 @@ validateSrcTsConfig config =
           V.inField ("esModuleInterop", T.esModuleInterop) $ V.eqJust True,
           V.inField ("lib", T.lib) $ V.eqJust ["dom", "dom.iterable", "esnext"],
           V.inField ("allowJs", T.allowJs) $ V.eqJust True,
+          -- TypeScript 6.0 defaults `types` to `[]`, so we must explicitly
+          -- include the type packages needed for compilation.
+          V.inField ("types", T.types) $ V.eqJust ["node", "react"],
           -- Wasp internally uses TypeScript's project references to compile the
           -- code. Referenced projects may not disable emit, so we must specify an
           -- `outDir`.
