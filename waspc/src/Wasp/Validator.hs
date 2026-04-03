@@ -85,6 +85,16 @@ eqJust expected (Just actual)
 eqJust expected Nothing =
   failure $ "Missing value, expected " ++ show expected ++ "."
 
+-- | Validates that the value exists and contains all of the expected elements (order-independent).
+-- Additional elements beyond the expected ones are allowed.
+containsAllJust :: (Eq a, Show a) => [a] -> Validator (Maybe [a])
+containsAllJust expected (Just actual)
+  | Prelude.all (`elem` actual) expected = success
+  | otherwise =
+      failure $ "Expected to contain " ++ show expected ++ " but got " ++ show actual ++ "."
+containsAllJust expected Nothing =
+  failure $ "Missing value, expected to contain " ++ show expected ++ "."
+
 -- | Runs the inner validator only if the value is Just. If the value is
 -- Nothing, no validation is needed and the validation succeeds.
 ifJust :: Validator a -> Validator (Maybe a)
