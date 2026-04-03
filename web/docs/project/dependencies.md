@@ -92,7 +92,7 @@ If you need the override to apply to transitive dependencies as well (dependenci
 
 ### Supply Chain Protection
 
-New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to `7` days. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against supply chain attacks -- malicious packages are typically detected and removed within hours of publication.
+New Wasp projects include an `.npmrc` file with [`min-release-age`](https://docs.npmjs.com/cli/v11/using-npm/config#min-release-age) set to **7 days** by default. This prevents npm from installing any package version that was published less than 7 days ago, which helps protect against [supply chain attacks](https://en.wikipedia.org/wiki/Supply_chain_attack). Malicious packages are typically detected and removed within hours of publication, so by adding a short delay there's a much smaller chance of being targeted by these attacks.
 
 If you need to install a recently published package, you can temporarily override this by passing the flag directly:
 

@@ -11,7 +11,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 🔧 Small improvements
 
-- New Wasp projects now include an `.npmrc` with `min-release-age=7`, which prevents npm from installing packages published less than 7 days ago. This is a supply chain protection that helps guard against malicious packages, which are typically detected and removed within hours of publication. ([#4016](https://github.com/wasp-lang/wasp/pull/4016))
+- New Wasp projects now include an `.npmrc` with `min-release-age=7` for supply chain protection. ([#4016](https://github.com/wasp-lang/wasp/pull/4016))
 
 ## 0.22.0
 
