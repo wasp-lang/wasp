@@ -16,7 +16,7 @@ module Wasp.SemanticVersion.Range
     hyphenRange,
     r,
     parseRange,
-    rangeSetParser,
+    rangeParser,
   )
 where
 
@@ -112,18 +112,17 @@ r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
 
 parseRange :: String -> Either P.ParseError Range
-parseRange = P.parse (rangeSetParser <* P.eof) ""
+parseRange = P.parse (rangeParser <* P.eof) ""
 
--- | Parses a version range.
 -- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
-rangeSetParser :: P.Parsec String () Range
-rangeSetParser = do
-  first <- rangeSetItemParser
-  rest <- P.many $ P.try (logicalOrParser *> rangeSetItemParser)
+rangeParser :: P.Parsec String () Range
+rangeParser = do
+  first <- subrangeParser
+  rest <- P.many $ P.try (logicalOrParser *> subrangeParser)
   pure $ Range $ NE.fromList (first : rest)
   where
-    rangeSetItemParser :: P.Parsec String () RangeExpression
-    rangeSetItemParser = P.spaces *> rangeExpressionParser <* P.spaces
+    subrangeParser :: P.Parsec String () RangeExpression
+    subrangeParser = P.spaces *> rangeExpressionParser <* P.spaces
 
     logicalOrParser :: P.Parsec String () ()
     logicalOrParser = void (P.spaces *> P.string "||" <* P.spaces)

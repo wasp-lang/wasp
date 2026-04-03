@@ -18,7 +18,7 @@ spec_SemanticVersion_Range = do
     show [r|<=1.3.6 ^1.2.0 || 1.2.3 || 1 - 2 || ^5|] `shouldBe` "<=1.3.6 ^1.2.0 || 1.2.3 || 1 - 2 || ^5"
 
   describe "parseRange" $ do
-    let looseParseRange = P.parse rangeSetParser ""
+    let looseParseRange = P.parse rangeParser ""
     let strictParseRange = parseRange
 
     it "parses range sets with single a range expression" $ do
