@@ -118,8 +118,8 @@ const faqs = [
     question: "Is Wasp production-ready?",
     answer: (
       <p>
-        Yes. YC-backed, 13k+ GitHub stars, used in production by Fortune
-        500 companies and solo developers. Free and open-source.
+        Yes. YC-backed, 13k+ GitHub stars, used in production by Fortune 500
+        companies and solo developers. Free and open-source.
       </p>
     ),
   },
