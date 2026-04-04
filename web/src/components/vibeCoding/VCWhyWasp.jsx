@@ -32,7 +32,7 @@ const benefits = [
     Icon: Code,
     title: "Focus on the fun stuff",
     description:
-      "Login, database, email, background jobs, etc. Wasp handles it all so your agents can focus on you app's unique features.",
+      "Login, database, email, background jobs, etc. Wasp handles it all so your agents can focus on your app's unique features.",
     url: "/docs/auth/overview",
   },
   {
@@ -279,7 +279,10 @@ const useInteractiveDemo = () => {
         break;
     }
 
-    return () => clearTimeout(timeoutRef.current);
+    return () => {
+      clearTimeout(timeoutRef.current);
+      clearTimeout(deployTimerRef.current);
+    };
   }, [
     phase,
     charIndex,

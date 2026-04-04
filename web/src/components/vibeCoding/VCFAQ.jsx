@@ -119,7 +119,7 @@ const faqs = [
     answer: (
       <p>
         Yes. YC-backed, 13k+ GitHub stars, used in production by Fortune
-        500companies and solo developers. Free and open-source.
+        500 companies and solo developers. Free and open-source.
       </p>
     ),
   },
