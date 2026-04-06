@@ -2,7 +2,7 @@
 title: Cloud Providers
 ---
 
-import BuildingTheWebClient from '../\_building-the-web-client.md'
+import BuildingTheWebClient from './_building-the-web-client.md'
 import { GuideLink } from '@site/src/components/GuideLink'
 
 You can deploy the built Wasp app wherever and however you want, as long as your provider/server supports running a Node.js server, serving static files, and running a PostgreSQL database.

@@ -5,7 +5,7 @@ last_checked_with_versions:
   "Cloudflare Workers": 2026-04-06
 ---
 
-import BuildingTheWebClient from '../../../deployment/_building-the-web-client.md'
+import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
 import { Client } from '../DeploymentTag'
 
 # Cloudflare
