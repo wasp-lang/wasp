@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "7770f6356d83b3a6d03131fbb355d5ae84d398cb8696eeaf5c229bf01c87e2a8"
+        "fca785fd9822233e596b29e63b9c05a76929e226f173b6faf655547ca3bc3525"
     ],
     [
         [
@@ -23,16 +23,16 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.22.0.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.23.0.tgz"
         ],
-        "78e9b53939d123bcfa191024dfeb038a0c3f84a867a67fce8fe14cb1989d7427"
+        "1eaab6b4d7830b7cb597771b415fe08824c262e3c32de9838f8fa4392b38453a"
     ],
     [
         [
             "file",
-            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz"
+            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.23.0.tgz"
         ],
-        "71d84564cb3379897c7189393a606d214f55396eba5e696ac17d1a4ed42b4688"
+        "b5dd374e08919d057e023dd0ce872c1e0a5e644351a5a2396a948ae5dfc77019"
     ],
     [
         [
@@ -326,7 +326,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "e627b4a4c16582a01c60ab5e93c0890c8564982c5e838cf1a7a8e2a87c55df67"
+        "356176e14b791e4d2bf5896dda26d1758cc80500533888990db0ba2b265a1361"
     ],
     [
         [
@@ -354,7 +354,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "df376586dc0981c2061d861729e5dc0a839412ea09bc4e3df2a57d3fc47647dd"
+        "01aea87961a2d7a79d20000dd927ba70724aab0df368f425923c103efd49c0a9"
     ],
     [
         [
@@ -417,7 +417,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "7dbba0728db2d6274c7178ca05c72e5bbba3213e8e4bc80873417e39680929bc"
+        "8daac8bc76d93f343ccf744be20d53bd304bfa297c4a3955a34e1feba2563ce4"
     ],
     [
         [
@@ -662,7 +662,7 @@
             "file",
             "server/package.json"
         ],
-        "0de629f0e74894aced2fff3596d703ac2cc5cc0515c1acd96c7f049cf792c9b6"
+        "153edcad806dd8048815cc213eee51ebb3203f3359e9ad482dc9b22cdd700601"
     ],
     [
         [
@@ -732,6 +732,6 @@
             "file",
             "server/tsconfig.json"
         ],
-        "949371883586daa391e4c740deab221a2c96fa2be1f159e82eb5a129d4a5134a"
+        "41bd85355b03c53e6a036aadc42ce4f1e6ed20e45215d4f2036747b2c7d181e1"
     ]
 ]

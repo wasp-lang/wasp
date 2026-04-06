@@ -13,13 +13,13 @@ import { WaspApp } from "wasp/client/app";
 
 import { routeObjects } from '/@wasp/routes.tsx'
 
-const FALLBACK_FILE = "/200.html";
+const SPA_FALLBACK_FILE = "200.html";
 
 const prerenderApp: PrerenderFn = async (route, ctx) => {
-  const isFallbackPage = route === FALLBACK_FILE;
+  const isFallbackPage = route === SPA_FALLBACK_FILE;
 
   if (isFallbackPage) {
-     return await appToHtml({ isFallbackPage: true, children: null }, ctx);
+    return await appToHtml({ isFallbackPage: true, children: null }, ctx);
   } else {
     const { query, dataRoutes } = createStaticHandler(routeObjects, {
       basename: "/",

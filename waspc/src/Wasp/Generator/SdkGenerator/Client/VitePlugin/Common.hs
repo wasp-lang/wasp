@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
     clientEntryPointPath,
     routesEntryPointPath,
     ssrEntryPointPath,
-    ssrFallbackFile,
+    spaFallbackFile,
   )
 where
 
@@ -30,5 +30,5 @@ routesEntryPointPath = "/@wasp/routes.tsx"
 ssrEntryPointPath :: String
 ssrEntryPointPath = "/@wasp/ssr-entry.tsx"
 
-ssrFallbackFile :: String
-ssrFallbackFile = "/200.html"
+spaFallbackFile :: String
+spaFallbackFile = "200.html"
