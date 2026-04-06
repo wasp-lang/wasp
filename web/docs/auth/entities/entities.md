@@ -142,7 +142,7 @@ const MainPage = ({ user }: { user: AuthUser }) => {
 }
 ```
 
-```ts title="src/tasks.ts" auto-js
+```ts title="src/tasks.ts"
 export const createTask: CreateTask<...>  = async (args, context) => {
   const userId = context.user.getFirstProviderUserId()
   // ...

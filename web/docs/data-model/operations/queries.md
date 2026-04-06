@@ -221,7 +221,7 @@ Here's what you have to do differently:
 - Make sure you pass in a `context` object with the `user` field to authenticated Queries.
   - Note that you don't have to pass other parts of the `context` object, like Entities, those will get injected automatically.
 
-```ts auto-js
+```ts
 import { getAllTasks, getFilteredTasks } from 'wasp/server/operations'
 
 const user = // Get an AuthUser object, e.g., from context.user in an operation.

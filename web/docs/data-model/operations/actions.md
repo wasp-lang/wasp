@@ -268,7 +268,7 @@ Here's what you have to do differently:
 - Import Actions from `wasp/server/operations` instead of `wasp/client/operations`.
 - Make sure you pass in a context object with the user to authenticated Actions.
 
-```ts auto-js
+```ts
 import { createTask, markTaskAsDone } from 'wasp/server/operations'
 
 const user = // Get an AuthUser object, e.g., from context.user

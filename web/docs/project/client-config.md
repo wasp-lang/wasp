@@ -197,32 +197,32 @@ Client has the following options:
   renders a custom layout:
 
   ```tsx title="src/Root.tsx" auto-js
-import { Outlet } from 'react-router'
-import store from './store'
-import { Provider } from 'react-redux'
+  import { Outlet } from 'react-router'
+  import store from './store'
+  import { Provider } from 'react-redux'
 
-export default function Root() {
-  return (
-    <Provider store={store}>
-      <Layout />
-    </Provider>
-  )
-}
+  export default function Root() {
+    return (
+      <Provider store={store}>
+        <Layout />
+      </Provider>
+    )
+  }
 
-function Layout() {
-  return (
-    <div>
-      <header>
-        <h1>My App</h1>
-      </header>
-      // highlight-next-line
-      <Outlet />
-      <footer>
-        <p>My App footer</p>
-      </footer>
-    </div>
-  )
-}
+  function Layout() {
+    return (
+      <div>
+        <header>
+          <h1>My App</h1>
+        </header>
+        // highlight-next-line
+        <Outlet />
+        <footer>
+          <p>My App footer</p>
+        </footer>
+      </div>
+    )
+  }
   ```
 
 - #### `setupFn: ExtImport`
@@ -245,9 +245,9 @@ function Layout() {
   client-side periodic jobs).
 
   ```ts title="src/myClientSetupCode.ts" auto-js
-export default async function mySetupFunction(): Promise<void> {
-  // Run some code
-}
+  export default async function mySetupFunction(): Promise<void> {
+    // Run some code
+  }
   ```
 
 - #### `baseDir: String`

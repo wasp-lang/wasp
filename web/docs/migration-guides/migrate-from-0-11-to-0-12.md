@@ -890,151 +890,151 @@ To successfully migrate the users using the Username & Password auth method, you
   2. Then you'll need to create a new page in your app where users can migrate their password. You can use the following code as a starting point:
 
   ```wasp title="main.wasp"
-route MigratePasswordRoute { path: "/migrate-password", to: MigratePassword }
-page MigratePassword {
-  component: import { MigratePasswordPage } from "@src/pages/MigratePassword"
-}
+  route MigratePasswordRoute { path: "/migrate-password", to: MigratePassword }
+  page MigratePassword {
+    component: import { MigratePasswordPage } from "@src/pages/MigratePassword"
+  }
   ```
 
   ```tsx title="src/pages/MigratePassword.tsx" auto-js
-import {
-  FormItemGroup,
-  FormLabel,
-  FormInput,
-  FormError,
-} from "wasp/client/auth";
-import { useForm } from "react-hook-form";
-import { migratePassword } from "wasp/client/operations";
-import { useState } from "react";
+  import {
+    FormItemGroup,
+    FormLabel,
+    FormInput,
+    FormError,
+  } from "wasp/client/auth";
+  import { useForm } from "react-hook-form";
+  import { migratePassword } from "wasp/client/operations";
+  import { useState } from "react";
 
-export function MigratePasswordPage() {
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const form = useForm<{
-    username: string;
-    password: string;
-  }>();
+  export function MigratePasswordPage() {
+    const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const form = useForm<{
+      username: string;
+      password: string;
+    }>();
 
-  const onSubmit = form.handleSubmit(async (data) => {
-    try {
-      const result = await migratePassword(data);
-      setSuccessMessage(result.message);
-    } catch (e: unknown) {
-      console.error(e);
-      if (e instanceof Error) {
-        setErrorMessage(e.message);
+    const onSubmit = form.handleSubmit(async (data) => {
+      try {
+        const result = await migratePassword(data);
+        setSuccessMessage(result.message);
+      } catch (e: unknown) {
+        console.error(e);
+        if (e instanceof Error) {
+          setErrorMessage(e.message);
+        }
       }
-    }
-  });
+    });
 
-  return (
-    <div style={{
-      maxWidth: "400px",
-      margin: "auto",
-    }}>
-      <h1>Migrate your password</h1>
-      <p>
-        If you have an account on the old version of the website, you can
-        migrate your password to the new version.
-      </p>
-      {successMessage && <div>{successMessage}</div>}
-      {errorMessage && <FormError>{errorMessage}</FormError>}
-      <form onSubmit={onSubmit}>
-        <FormItemGroup>
-          <FormLabel>Username</FormLabel>
-          <FormInput
-            {...form.register("username", {
-              required: "Username is required",
-            })}
-          />
-          <FormError>{form.formState.errors.username?.message}</FormError>
-        </FormItemGroup>
-        <FormItemGroup>
-          <FormLabel>Password</FormLabel>
-          <FormInput
-            {...form.register("password", {
-              required: "Password is required",
-            })}
-            type="password"
-          />
-          <FormError>{form.formState.errors.password?.message}</FormError>
-        </FormItemGroup>
-        <button type="submit">Migrate password</button>
-      </form>
-    </div>
-  );
-}
+    return (
+      <div style={{
+        maxWidth: "400px",
+        margin: "auto",
+      }}>
+        <h1>Migrate your password</h1>
+        <p>
+          If you have an account on the old version of the website, you can
+          migrate your password to the new version.
+        </p>
+        {successMessage && <div>{successMessage}</div>}
+        {errorMessage && <FormError>{errorMessage}</FormError>}
+        <form onSubmit={onSubmit}>
+          <FormItemGroup>
+            <FormLabel>Username</FormLabel>
+            <FormInput
+              {...form.register("username", {
+                required: "Username is required",
+              })}
+            />
+            <FormError>{form.formState.errors.username?.message}</FormError>
+          </FormItemGroup>
+          <FormItemGroup>
+            <FormLabel>Password</FormLabel>
+            <FormInput
+              {...form.register("password", {
+                required: "Password is required",
+              })}
+              type="password"
+            />
+            <FormError>{form.formState.errors.password?.message}</FormError>
+          </FormItemGroup>
+          <button type="submit">Migrate password</button>
+        </form>
+      </div>
+    );
+  }
   ```
 
   3. Finally, you will need to create a new operation in your app to handle the password migration. You can use the following code as a starting point:
 
   ```wasp title="main.wasp"
-action migratePassword {
-  fn: import { migratePassword } from "@src/auth",
-  entities: []
-}
+  action migratePassword {
+    fn: import { migratePassword } from "@src/auth",
+    entities: []
+  }
   ```
 
   ```ts title="src/auth.ts" auto-js
-import SecurePassword from "secure-password";
-import { HttpError } from "wasp/server";
-import {
-  createProviderId,
-  deserializeAndSanitizeProviderData,
-  findAuthIdentity,
-  updateAuthIdentityProviderData,
-} from "wasp/server/auth";
-import type { MigratePassword } from "wasp/server/operations"
+  import SecurePassword from "secure-password";
+  import { HttpError } from "wasp/server";
+  import {
+    createProviderId,
+    deserializeAndSanitizeProviderData,
+    findAuthIdentity,
+    updateAuthIdentityProviderData,
+  } from "wasp/server/auth";
+  import type { MigratePassword } from "wasp/server/operations"
 
-type MigratePasswordInput = {
-  username: string;
-  password: string;
-};
-type MigratePasswordOutput = {
-  message: string;
-};
+  type MigratePasswordInput = {
+    username: string;
+    password: string;
+  };
+  type MigratePasswordOutput = {
+    message: string;
+  };
 
-export const migratePassword: MigratePassword<
-  MigratePasswordInput,
-  MigratePasswordOutput
-> = async ({ password, username }, _context) => {
-  const providerId = createProviderId("username", username);
-  const authIdentity = await findAuthIdentity(providerId);
+  export const migratePassword: MigratePassword<
+    MigratePasswordInput,
+    MigratePasswordOutput
+  > = async ({ password, username }, _context) => {
+    const providerId = createProviderId("username", username);
+    const authIdentity = await findAuthIdentity(providerId);
 
-  if (!authIdentity) {
-    throw new HttpError(400, "Something went wrong");
-  }
-
-  const providerData = deserializeAndSanitizeProviderData<"username">(
-    authIdentity.providerData
-  );
-
-  try {
-    const SP = new SecurePassword();
-
-    // This will verify the password using the old algorithm
-    const result = await SP.verify(
-      Buffer.from(password),
-      Buffer.from(providerData.hashedPassword, "base64")
-    );
-
-    if (result !== SecurePassword.VALID) {
+    if (!authIdentity) {
       throw new HttpError(400, "Something went wrong");
     }
 
-    // This will hash the password using the new algorithm and update the
-    // provider data in the database.
-    await updateAuthIdentityProviderData<"username">(providerId, providerData, {
-      hashedPassword: password,
-    });
-  } catch (e) {
-    throw new HttpError(400, "Something went wrong");
-  }
+    const providerData = deserializeAndSanitizeProviderData<"username">(
+      authIdentity.providerData
+    );
 
-  return {
-    message: "Password migrated successfully.",
+    try {
+      const SP = new SecurePassword();
+
+      // This will verify the password using the old algorithm
+      const result = await SP.verify(
+        Buffer.from(password),
+        Buffer.from(providerData.hashedPassword, "base64")
+      );
+
+      if (result !== SecurePassword.VALID) {
+        throw new HttpError(400, "Something went wrong");
+      }
+
+      // This will hash the password using the new algorithm and update the
+      // provider data in the database.
+      await updateAuthIdentityProviderData<"username">(providerId, providerData, {
+        hashedPassword: password,
+      });
+    } catch (e) {
+      throw new HttpError(400, "Something went wrong");
+    }
+
+    return {
+      message: "Password migrated successfully.",
+    };
   };
-};
   ```
 </details>
 

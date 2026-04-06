@@ -67,7 +67,7 @@ export const mySetupFunction: ServerSetupFn = async () => {
 export const getSomeResource = () => someResource
 ```
 
-```ts title="src/queries.ts" auto-js
+```ts title="src/queries.ts"
 import { type SomeQuery } from 'wasp/server/operations'
 import { getSomeResource } from './myServerSetupCode.js'
 

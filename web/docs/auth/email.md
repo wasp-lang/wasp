@@ -462,10 +462,10 @@ It has the following fields:
 
   Client route should handle the process of taking a token from the URL and sending it to the server to verify the e-mail address. You can use our `verifyEmail` action for that.
 
-  ```ts title="src/pages/EmailVerificationPage.tsx" auto-js
-import { verifyEmail } from 'wasp/client/auth'
-...
-await verifyEmail({ token });
+  ```ts title="src/pages/EmailVerificationPage.tsx"
+  import { verifyEmail } from 'wasp/client/auth'
+  ...
+  await verifyEmail({ token });
   ```
 
   :::note
@@ -477,18 +477,18 @@ await verifyEmail({ token });
   Defining `getEmailContentFn` can be done by defining a file in the `src` directory.
 
   ```ts title="src/email.ts" auto-js
-import type { GetVerificationEmailContentFn } from 'wasp/server/auth'
+  import type { GetVerificationEmailContentFn } from 'wasp/server/auth'
 
-export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
-  verificationLink,
-}) => ({
-  subject: 'Verify your email',
-  text: `Click the link below to verify your email: ${verificationLink}`,
-  html: `
-        <p>Click the link below to verify your email</p>
-        <a href="${verificationLink}">Verify email</a>
-    `,
-})
+  export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
+    verificationLink,
+  }) => ({
+    subject: 'Verify your email',
+    text: `Click the link below to verify your email: ${verificationLink}`,
+    html: `
+          <p>Click the link below to verify your email</p>
+          <a href="${verificationLink}">Verify email</a>
+      `,
+  })
   ```
 
   <small>This is the default content of the e-mail, you can customize it to your liking.</small>
@@ -503,16 +503,16 @@ It has the following fields:
 
   Client route should handle the process of taking a token from the URL and a new password from the user and sending it to the server. You can use our `requestPasswordReset` and `resetPassword` actions to do that.
 
-  ```ts title="src/pages/ForgotPasswordPage.tsx" auto-js
-import { requestPasswordReset } from 'wasp/client/auth'
-...
-await requestPasswordReset({ email });
+  ```ts title="src/pages/ForgotPasswordPage.tsx"
+  import { requestPasswordReset } from 'wasp/client/auth'
+  ...
+  await requestPasswordReset({ email });
   ```
 
-  ```ts title="src/pages/PasswordResetPage.tsx" auto-js
-import { resetPassword } from 'wasp/client/auth'
-...
-await resetPassword({ password, token })
+  ```ts title="src/pages/PasswordResetPage.tsx"
+  import { resetPassword } from 'wasp/client/auth'
+  ...
+  await resetPassword({ password, token })
   ```
 
   :::note
@@ -524,18 +524,18 @@ await resetPassword({ password, token })
   Defining `getEmailContentFn` is done by defining a function that looks like this:
 
   ```ts title="src/email.ts" auto-js
-import type { GetPasswordResetEmailContentFn } from 'wasp/server/auth'
+  import type { GetPasswordResetEmailContentFn } from 'wasp/server/auth'
 
-export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
-  passwordResetLink,
-}) => ({
-  subject: 'Password reset',
-  text: `Click the link below to reset your password: ${passwordResetLink}`,
-  html: `
-        <p>Click the link below to reset your password</p>
-        <a href="${passwordResetLink}">Reset password</a>
-    `,
-})
+  export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
+    passwordResetLink,
+  }) => ({
+    subject: 'Password reset',
+    text: `Click the link below to reset your password: ${passwordResetLink}`,
+    html: `
+          <p>Click the link below to reset your password</p>
+          <a href="${passwordResetLink}">Reset password</a>
+      `,
+  })
   ```
 
   <small>This is the default content of the e-mail, you can customize it to your liking.</small>

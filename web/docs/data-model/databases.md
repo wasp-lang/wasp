@@ -385,15 +385,15 @@ Use one of the following commands to run the seed functions:
   For example, to run the seed function `devSeedSimple` which was defined like this:
 
   ```wasp title="main.wasp"
-app MyApp {
-  // ...
-  db: {
-    seeds: [
-      // ...
-      import { devSeedSimple } from "@src/dbSeeds",
-    ]
+  app MyApp {
+    // ...
+    db: {
+      seeds: [
+        // ...
+        import { devSeedSimple } from "@src/dbSeeds",
+      ]
+    }
   }
-}
   ```
 
   Use the following command:
