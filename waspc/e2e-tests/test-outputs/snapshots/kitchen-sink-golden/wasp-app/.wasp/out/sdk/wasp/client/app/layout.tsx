@@ -1,5 +1,6 @@
 import { StrictMode, type ReactNode } from "react";
 import { useIsClient } from "./hooks/useIsClient.js"
+import { Fallback } from "./fallback.js"
 
 export function Layout({
   children,
@@ -60,7 +61,7 @@ export function Layout({
             // versions.
           }
           <div id="root">
-              {shouldRenderChildren ? children : null}
+              {shouldRenderChildren ? children : <Fallback />}
           </div>
 
           {

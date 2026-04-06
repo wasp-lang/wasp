@@ -436,6 +436,13 @@
     [
         [
             "file",
+            "sdk/wasp/client/app/fallback.ts"
+        ],
+        "03081e3dd6b0f957f6f68cd94e6cbd57c2a5c8245f63b98e55b9dc68fe9aacbd"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/app/hooks/useIsClient.ts"
         ],
         "8b7b892d6cc33b2f2569ff852bd018aa4b236a4313d9a18eaf8281f1359cbd5a"
@@ -452,7 +459,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "2e0183cc2604a05991c483f21a3ef74377d21e410f734949cce23e3bdcd5277f"
+        "c8949c08177fb3a22dec832435ddb81a6bcc37d75991c8aef1f289bc1e09323d"
     ],
     [
         [
@@ -473,7 +480,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "37a80bda278ea617d33aaa7c77c9db8f84d5c7ff72f15852939f9cb49fd64d07"
+        "fb7a11bf256a8123708fc999383d2977371551a4ac1279c92898d724332cae70"
     ],
     [
         [

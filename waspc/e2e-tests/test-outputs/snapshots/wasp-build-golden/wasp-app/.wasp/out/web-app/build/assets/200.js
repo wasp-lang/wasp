@@ -52,6 +52,9 @@ function getClientValue() {
 function getServerValue() {
   return false;
 }
+function Fallback() {
+  return null;
+}
 function Layout({ children, isFallbackPage = false, clientEntrySrc }) {
   const isClient = useIsClient();
   const shouldRenderChildren = isClient || !isFallbackPage;
@@ -64,7 +67,7 @@ function Layout({ children, isFallbackPage = false, clientEntrySrc }) {
     ] }),
     /* @__PURE__ */ jsxs("body", { children: [
       /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
-      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null }),
+      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : /* @__PURE__ */ jsx(Fallback, {}) }),
       // We pass that argument in SSR builds and not in client builds.
       // This would usually cause a hydration mismatch, but React has an
       // exception for `<script>` tags, for this specific usecase, so it
@@ -381,6 +384,7 @@ function getRouteObjects({ routesMapping: routesMapping2, rootElement: rootEleme
     path: "/",
     element: rootElement2,
     ErrorBoundary: DefaultRootErrorBoundary,
+    HydrateFallback: Fallback,
     children: [
       ...waspDefinedRoutes,
       ...userDefinedRoutes

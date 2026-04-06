@@ -71,7 +71,7 @@ genRouter spec =
               ]
           ),
 
-      return $ genFileCopy [relfile|client/app/fallback.tsx|]
+      return $ genFileCopy [relfile|client/app/fallback.ts|]
     ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
