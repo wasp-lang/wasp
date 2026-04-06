@@ -1,21 +1,23 @@
 ---
 comments: true
+last_checked_with_versions:
+  Wasp: "0.23"
+  Railway: 2026-04-06
 ---
 
-import AddExternalAuthEnvVarsReminder from '../../deployment/_addExternalAuthEnvVarsReminder.md'
-import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
+import AddExternalAuthEnvVarsReminder from '../../../deployment/_addExternalAuthEnvVarsReminder.md'
+import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { Server, Client, Database } from '../DeploymentTag'
 
 # Railway
 
-## Deploy Wasp to Railway
+## Automatic Deployment <Server /> <Client /> <Database />
+
+We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
+
+## Manual Deployment <Server /> <Client /> <Database />
 
 This guide shows you how to deploy the client, the server, and provision a database on Railway.
-
-:::info One command deploy
-
-We recommend that you use [Wasp Deploy](../../deployment/deployment-methods/wasp-deploy/railway.md) to deploy your Wasp app to Railway. Wasp CLI automates deploying the client, the server and the database with one command.
-
-:::
 
 ### Prerequisites
 

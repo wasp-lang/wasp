@@ -1,21 +1,23 @@
 ---
 comments: true
+last_checked_with_versions:
+  Wasp: "0.23"
+  "Fly.io": 2026-04-06
 ---
 
-import AddExternalAuthEnvVarsReminder from '../../deployment/_addExternalAuthEnvVarsReminder.md'
-import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
+import AddExternalAuthEnvVarsReminder from '../../../deployment/_addExternalAuthEnvVarsReminder.md'
+import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { Server, Client, Database } from '../DeploymentTag'
 
 # Fly.io
 
-## Deploy Wasp to Fly.io
-
-This guide shows you how to deploy your Wasp app's server and provision a database on Fly.io.
-
-:::info One command deploy
+## Automatic Deployment <Server /> <Client /> <Database />
 
 We recommend that you use [Wasp Deploy](../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
-:::
+## Manual Deployment <Server /> <Database />
+
+This guide shows you how to deploy your Wasp app's server and provision a database on Fly.io.
 
 ### Prerequisites
 

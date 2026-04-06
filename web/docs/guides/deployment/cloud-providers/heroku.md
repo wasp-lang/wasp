@@ -1,12 +1,16 @@
 ---
 comments: true
+last_checked_with_versions:
+  Wasp: "0.23"
+  Heroku: 2026-04-06
 ---
 
-import { SecretGeneratorBlock } from '../../project/SecretGeneratorBlock'
+import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { Server, Database } from '../DeploymentTag'
 
 # Heroku
 
-## Deploy Wasp to Heroku
+## Deploy Wasp to Heroku <Server /> <Database />
 
 This guide shows you how to deploy the server and provision a database for it on Heroku. You can check their [pricing page](https://www.heroku.com/pricing) for more information on their plans.
 

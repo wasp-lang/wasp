@@ -1,14 +1,17 @@
 ---
 comments: true
+last_checked_with_versions:
+  Wasp: "0.23"
+  Netlify: 2026-04-06
 ---
 
-import BuildingTheWebClient from '../../deployment/_building-the-web-client.md'
-import NetlifyTomlConfig from '../../deployment/_netlify-toml-config.md'
+import BuildingTheWebClient from '../../../deployment/_building-the-web-client.md'
+import NetlifyTomlConfig from '../../../deployment/_netlify-toml-config.md'
+import { Client } from '../DeploymentTag'
 
 # Netlify
 
-## Deploy Wasp to Netlify
-
+## Deploy Wasp to Netlify <Client />
 This guide shows you how to deploy your Wasp app's client to Netlify. Netlify is a static hosting solution that is free for many use cases. You will need a Netlify account to follow these instructions.
 
 Make sure you are logged in with Netlify CLI. You can check if you are logged in with `npx netlify-cli status`, and if you are not, you can log in with `npx netlify-cli login`.

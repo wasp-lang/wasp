@@ -1,12 +1,16 @@
 ---
 comments: true
+last_checked_with_versions:
+  Wasp: "0.23"
+  "Cloudflare Workers": 2026-04-06
 ---
 
-import BuildingTheWebClient from '../../deployment/_building-the-web-client.md'
+import BuildingTheWebClient from '../../../deployment/_building-the-web-client.md'
+import { Client } from '../DeploymentTag'
 
 # Cloudflare
 
-## Deploy Wasp to Cloudflare Workers
+## Deploy Wasp to Cloudflare Workers <Client />
 
 This guide shows you how to deploy your Wasp app's client to [Cloudflare](https://www.cloudflare.com/) Workers, a free hosting service. You will need a Cloudflare account to follow these instructions.
 
