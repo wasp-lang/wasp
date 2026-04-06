@@ -1,4 +1,5 @@
 wasp-app/.gitignore
+wasp-app/.npmrc
 wasp-app/.wasp/out/.dockerignore
 wasp-app/.wasp/out/.waspchecksums
 wasp-app/.wasp/out/.waspinfo

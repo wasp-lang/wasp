@@ -38,6 +38,7 @@ data-files:
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/gitignore
+  Cli/starters/skeleton/npmrc
   Cli/starters/skeleton/public/.gitkeep
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
