@@ -6,7 +6,6 @@ last_checked_with_versions:
 ---
 
 import BuildingTheWebClient from '../../../deployment/_building-the-web-client.md'
-import NetlifyTomlConfig from '../../../deployment/_netlify-toml-config.md'
 import { Client } from '../DeploymentTag'
 
 # Netlify
@@ -24,7 +23,19 @@ Before deploying, you need to create a `netlify.toml` file in your project root 
 
 Create the `netlify.toml` file with the following content:
 
-<NetlifyTomlConfig />
+```toml title="netlify.toml"
+[build]
+  base = "./.wasp/out/web-app"
+  publish = "./build"
+  command = "exit 0"
+
+# By default, Netlify only redirects when a path doesn't match an existing file.
+# See: https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/#shadowing
+[[redirects]]
+  from = "/*"
+  to = "/200.html"
+  status = 200
+```
 
 The `build.base` path should point from your Git repository root to the `web-app` directory. Adjust the path if your Wasp project is in a subdirectory (e.g., `base = "./my-app/.wasp/out/web-app"`).
 
