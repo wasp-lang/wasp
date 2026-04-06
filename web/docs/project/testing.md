@@ -99,7 +99,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
 ### Client Unit Tests
 
 ```ts title="src/helpers.ts" auto-js
-import { type Task } from "wasp/entities";
+import type { Task } from "wasp/entities";
 
 export function areThereAnyTasks(tasks: Task[]): boolean {
   return tasks.length !== 0;
@@ -173,7 +173,7 @@ test("handles mock data", async () => {
 ### Testing With Mocked APIs
 
 ```tsx title="src/Todo.tsx" auto-js
-import { type Task } from "wasp/entities";
+import type { Task } from "wasp/entities";
 import { api } from "wasp/client/api";
 
 const Todo = (_props: {}) => {

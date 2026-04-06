@@ -104,8 +104,8 @@ api webhookCallback {
 
 ```ts title="src/apis.ts" auto-js
 import express from 'express'
-import { type WebhookCallback } from 'wasp/server/api'
-import { type MiddlewareConfigFn } from 'wasp/server'
+import type { WebhookCallback } from 'wasp/server/api'
+import type { MiddlewareConfigFn } from 'wasp/server'
 
 export const webhookCallback: WebhookCallback = (req, res, _context) => {
   res.json({ msg: req.body.length })
@@ -145,7 +145,7 @@ apiNamespace fooBar {
 
 ```ts title="src/apis.ts" auto-js
 import type express from 'express'
-import { type MiddlewareConfigFn } from 'wasp/server'
+import type { MiddlewareConfigFn } from 'wasp/server'
 
 export const fooBarNamespaceMiddlewareFn: MiddlewareConfigFn = (middlewareConfig) => {
   const customMiddleware: express.RequestHandler = (_req, _res, next) => {

@@ -183,7 +183,7 @@ If you need to access your `enum` cases and their values from your server, you c
 ```ts title="src/queries.ts" auto-js
 import { TaskState } from "@prisma/client";
 import { Task } from "wasp/entities";
-import { type GetTasks } from "wasp/server/operations";
+import type { GetTasks } from "wasp/server/operations";
 
 export const getOpenTasks: GetTasks<void, Task[]> = async (args, context) => {
   return context.entities.Task.findMany({

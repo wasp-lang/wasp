@@ -134,7 +134,7 @@ The `getFirstProviderUserId` method returns the first user ID that it finds for 
 This can be useful if you support multiple authentication methods and you need _any_ ID that identifies the user in your app.
 
 ```tsx title="src/MainPage.tsx" auto-js
-import { type AuthUser } from 'wasp/auth'
+import type { AuthUser } from 'wasp/auth'
 
 const MainPage = ({ user }: { user: AuthUser }) => {
   const userId = user.getFirstProviderUserId()

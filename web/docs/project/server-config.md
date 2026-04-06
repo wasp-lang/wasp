@@ -53,7 +53,7 @@ In case you want to store some values for later use, or to be accessed by the [O
 Dummy example of such function and its usage:
 
 ```ts title="src/myServerSetupCode.ts" auto-js
-import { type ServerSetupFn } from 'wasp/server'
+import type { ServerSetupFn } from 'wasp/server'
 
 let someResource = undefined
 

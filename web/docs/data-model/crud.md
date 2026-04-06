@@ -156,8 +156,8 @@ Read more about the default implementations [here](#declaring-a-crud-with-defaul
 Here's the `src/tasks.{js,ts}` file:
 
 ```ts title="src/tasks.ts" auto-js
-import { type Tasks } from 'wasp/server/crud'
-import { type Task } from 'wasp/entities'
+import type { Tasks } from 'wasp/server/crud'
+import type { Task } from 'wasp/entities'
 import { HttpError } from 'wasp/server'
 
 type CreateTaskInput = { description: string; isDone: boolean }

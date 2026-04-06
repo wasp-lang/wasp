@@ -81,7 +81,7 @@ We've instructed Wasp to look for the Queries' implementations in the file `src/
 Here's how you might implement the previously declared Queries `getAllTasks` and `getFilteredTasks`:
 
 ```ts title="src/queries.ts" auto-js
-import { type GetAllTasks, type GetFilteredTasks } from 'wasp/server/operations'
+import type { GetAllTasks, GetFilteredTasks } from 'wasp/server/operations'
 
 type Task = {
   id: number
@@ -241,7 +241,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
 ```tsx title="src/MainPage.tsx" auto-js
 import React from 'react'
-import { type Task } from 'wasp/entities'
+import type { Task } from 'wasp/entities'
 import { useQuery, getAllTasks, getFilteredTasks } from 'wasp/client/operations'
 
 const MainPage = () => {
@@ -305,7 +305,7 @@ Hiding error details by default helps against accidentally leaking possibly sens
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
 
 ```ts title="src/queries.ts" auto-js
-import { type GetAllTasks } from 'wasp/server/operations'
+import type { GetAllTasks } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
 
 export const getAllTasks: GetAllTasks = async (args, context) => {
@@ -341,8 +341,8 @@ query getFilteredTasks {
 Wasp will inject the specified Entity into the Query's `context` argument, giving you access to the Entity's Prisma API:
 
 ```ts title="src/queries.ts" auto-js
-import { type Task } from 'wasp/entities'
-import { type GetAllTasks, type GetFilteredTasks } from 'wasp/server/operations'
+import type { Task } from 'wasp/entities'
+import type { GetAllTasks, GetFilteredTasks } from 'wasp/server/operations'
 
 export const getAllTasks: GetAllTasks<void, Task[]> = async (args, context) => {
   return context.entities.Task.findMany({})

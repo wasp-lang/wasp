@@ -54,7 +54,7 @@ This is how we can define our `webSocketFn` function:
 
 ```ts title="src/webSocket.ts" auto-js
 import { v4 as uuidv4 } from 'uuid'
-import { type WebSocketDefinition, type WaspSocketData } from 'wasp/server/webSocket'
+import type { WebSocketDefinition, WaspSocketData } from 'wasp/server/webSocket'
 
 export const webSocketFn: WebSocketFn = (io, context) => {
   io.on('connection', (socket) => {

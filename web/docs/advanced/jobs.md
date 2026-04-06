@@ -37,8 +37,8 @@ job mySpecialJob {
 2. After declaring the Job, implement its worker function:
 
 ```ts title="src/workers/bar.ts" auto-js
-import { type MySpecialJob } from 'wasp/server/jobs'
-import { type Task } from 'wasp/entities'
+import type { MySpecialJob } from 'wasp/server/jobs'
+import type { Task } from 'wasp/entities'
 
 type Input = { name: string; }
 type Output = { tasks: Task[]; }
@@ -220,7 +220,7 @@ The Job declaration has the following fields:
     Here's an example of a `perform.fn` function:
 
     ```ts title="src/workers/bar.ts" auto-js
-    import { type MySpecialJob } from 'wasp/server/jobs'
+    import type { MySpecialJob } from 'wasp/server/jobs'
 
     type Input = { name: string; }
     type Output = { tasks: Task[]; }

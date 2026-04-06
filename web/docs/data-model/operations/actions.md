@@ -79,7 +79,7 @@ Now that we've declared the Action, what remains is to implement it. We've instr
 Here's how you might implement the previously declared Actions `createTask` and `markTaskAsDone`:
 
 ```ts title="src/actions.ts" auto-js
-import { type CreateTask, type MarkTaskAsDone } from 'wasp/server/operations'
+import type { CreateTask, MarkTaskAsDone } from 'wasp/server/operations'
 
 type Task = {
   id: number
@@ -290,7 +290,7 @@ Hiding error details by default helps against accidentally leaking possibly sens
 If you do want to pass additional error information to the client, you can construct and throw an appropriate `HttpError` in your implementation:
 
 ```ts title="src/actions.ts" auto-js
-import { type CreateTask } from 'wasp/server/operations'
+import type { CreateTask } from 'wasp/server/operations'
 import { HttpError } from 'wasp/server'
 
 export const createTask: CreateTask = async (args, context) => {
@@ -324,8 +324,8 @@ Wasp will inject the specified Entity into the Action's `context` argument, givi
 Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
 
 ```ts title="src/actions.ts" auto-js
-import { type CreateTask, type MarkTaskAsDone } from 'wasp/server/operations'
-import { type Task } from 'wasp/entities'
+import type { CreateTask, MarkTaskAsDone } from 'wasp/server/operations'
+import type { Task } from 'wasp/entities'
 
 // The 'args' object is the payload sent by the caller (most often from the client)
 export const createTask: CreateTask<Pick<Task, 'description'>, Task> = async (
