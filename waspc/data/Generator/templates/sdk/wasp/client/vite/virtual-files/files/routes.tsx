@@ -24,7 +24,7 @@ const routesMapping = {
   {=# routes =}
   {=# isLazy =}
   {= name =}: { lazy: async () => {
-    const Component = await {=& import.dynamicImportExpression =}
+    const Component = await {=& import.runtimeDynamicImportExpression =}
     {=# isAuthRequired =}
     return { Component: createAuthRequiredPage(Component) }
     {=/ isAuthRequired =}

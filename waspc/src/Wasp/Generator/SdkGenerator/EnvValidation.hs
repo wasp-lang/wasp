@@ -44,7 +44,8 @@ genServerEnvFiles spec = sequence [genServerEnv spec]
 genClientEnvFiles :: AppSpec -> Generator [FileDraft]
 genClientEnvFiles spec =
   sequence
-    [ genClientEnvSchema spec,
+    [ genClientEnvSchema,
+      genClientEnvUserSchema spec,
       genFileCopy [relfile|client/env.ts|]
     ]
 
@@ -71,15 +72,23 @@ genServerEnv spec = return $ mkTmplFdWithData [relfile|server/env.ts|] tmplData
     maybeEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     app = snd $ getApp spec
 
-genClientEnvSchema :: AppSpec -> Generator FileDraft
-genClientEnvSchema spec = return $ mkTmplFdWithData tmplPath tmplData
+genClientEnvSchema :: Generator FileDraft
+genClientEnvSchema = return $ mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|client/env/schema.ts|]
     tmplData =
       object
         [ "serverUrlEnvVarName" .= WebApp.serverUrlEnvVarName,
-          "defaultServerUrl" .= Server.defaultDevServerUrl,
-          "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
+          "defaultServerUrl" .= Server.defaultDevServerUrl
+        ]
+
+genClientEnvUserSchema :: AppSpec -> Generator FileDraft
+genClientEnvUserSchema spec = return $ mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = [relfile|client/env/userSchema.ts|]
+    tmplData =
+      object
+        [ "envValidationSchema" .= extImportToImportJson maybeEnvValidationSchema
         ]
     maybeEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     app = snd $ getApp spec

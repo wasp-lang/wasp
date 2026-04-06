@@ -1,8 +1,9 @@
+import * as z from "zod";
 import { ensureEnvSchema } from "../env/validation.js";
-import { getClientEnvSchema } from "./env/schema.js";
+import { ClientEnvSchema, clientEnvSchema } from "./env/schema.js";
 
 // PUBLIC API
-export const env = ensureEnvSchema(
+export const env: z.infer<ClientEnvSchema> = ensureEnvSchema(
   import.meta.env,
-  getClientEnvSchema(import.meta.env.MODE),
+  clientEnvSchema,
 );

@@ -1,13 +1,6 @@
 {{={= =}=}}
 import * as z from "zod"
-
-{=# envValidationSchema.isDefined =}
-{=& envValidationSchema.importStatement =}
-const userClientEnvSchema = {= envValidationSchema.importIdentifier =};
-{=/ envValidationSchema.isDefined =}
-{=^ envValidationSchema.isDefined =}
-const userClientEnvSchema = z.object({});
-{=/ envValidationSchema.isDefined =}
+import { UserClientEnvSchema, userClientEnvSchema } from "./userSchema";
 
 const serverUrlSchema =
   z.string({
@@ -28,12 +21,11 @@ const waspProdClientEnvSchema = z.object({
   "{= serverUrlEnvVarName =}": serverUrlSchema,
 });
 
+const waspClientEnvSchema = import.meta.env.MODE === "production"
+  ? waspProdClientEnvSchema
+  : waspDevClientEnvSchema;
+
+export type ClientEnvSchema = z.ZodObject<typeof waspClientEnvSchema["shape"] & UserClientEnvSchema["shape"]>;
+
 // PRIVATE API (sdk, Vite config)
-// TODO(franjo): Remove passing mode as param when this is no longer a plugin.
-//               See: https://github.com/wasp-lang/wasp/issues/3875.
-export function getClientEnvSchema(mode: string) {
-  const waspClientEnvSchema = mode === "production"
-    ? waspProdClientEnvSchema
-    : waspDevClientEnvSchema;
-  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape })
-}
+export const clientEnvSchema: ClientEnvSchema = z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape });
