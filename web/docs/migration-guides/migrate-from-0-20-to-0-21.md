@@ -457,6 +457,20 @@ Wasp no longer generates `manifest.json` automatically. If you want to enable PW
 
 Wasp no longer generates a `netlify.toml` file in your project. If you're deploying to Netlify, you'll need to create this file manually in your project root.
 
+Create a `netlify.toml` file with the following content:
+
+```toml title="netlify.toml"
+[build]
+  base = "./.wasp/out/web-app"
+  publish = "./build"
+  command = "exit 0"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
 For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
 
 ### 12. Enjoy your updated Wasp app
