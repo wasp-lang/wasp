@@ -12,15 +12,17 @@ export function defineUserSignupFields<T extends UserSignupFields>(
 }
 
 {=# emailUserSignupFields.isDefined =}
-{=& emailUserSignupFields.importStatement =}
+import type { FromRegistry } from 'wasp/types'
+
 // PUBLIC API
-export type UserEmailSignupFields = InferUserSignupFields<typeof {= emailUserSignupFields.importIdentifier =}>;
+export type UserEmailSignupFields = InferUserSignupFields<FromRegistry<"emailUserSignupFields", {}>>;
 {=/ emailUserSignupFields.isDefined =}
 
 {=# usernameAndPasswordUserSignupFields.isDefined =}
-{=& usernameAndPasswordUserSignupFields.importStatement =}
+import type { FromRegistry } from 'wasp/types'
+
 // PUBLIC API
-export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<typeof {= usernameAndPasswordUserSignupFields.importIdentifier =}>;
+export type UserUsernameAndPasswordSignupFields = InferUserSignupFields<FromRegistry<"usernameAndPasswordUserSignupFields", {}>>;
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
 
 /**

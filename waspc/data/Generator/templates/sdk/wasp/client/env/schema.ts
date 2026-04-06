@@ -2,15 +2,14 @@
 import * as z from "zod"
 import { FromRegistry } from "../../types";
 
-type AnyUserClientEnvSchema = z.ZodObject<{}>;
-export type UserClientEnvSchema = FromRegistry<"clientEnvSchema", AnyUserClientEnvSchema>
+type UserClientEnvSchema = FromRegistry<"clientEnvSchema", z.ZodObject<{}>>;
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
-export const userClientEnvSchema: UserClientEnvSchema = {= envValidationSchema.importIdentifier =};
+const userClientEnvSchema: UserClientEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
 {=^ envValidationSchema.isDefined =}
-export const userClientEnvSchema: UserClientEnvSchema = z.object({});
+const userClientEnvSchema: UserClientEnvSchema = z.object({});
 {=/ envValidationSchema.isDefined =}
 
 const serverUrlSchema =
