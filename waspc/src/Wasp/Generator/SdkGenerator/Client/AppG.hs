@@ -69,7 +69,9 @@ genRouter spec =
                 "oAuthCallbackPath" .= clientOAuthCallbackPath,
                 "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
               ]
-          )
+          ),
+
+      return $ genFileCopy [relfile|client/app/fallback.tsx|]
     ]
   where
     maybeAuth = AS.App.auth $ snd $ getApp spec
