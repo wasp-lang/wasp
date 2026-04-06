@@ -1,14 +1,14 @@
 import {
   QueryClient,
   QueryKey,
+  useQuery as rqUseQuery,
   useMutation,
   UseMutationOptions,
   useQueryClient,
-  useQuery as rqUseQuery,
   UseQueryResult,
 } from "@tanstack/react-query";
-import { Action, Query } from "./rpc";
 import { makeQueryCacheKey } from "./queries/core";
+import { Action, Query } from "./rpc";
 export { configureQueryClient } from "./queryClient";
 
 // PUBLIC API
@@ -99,10 +99,11 @@ export type OptimisticUpdateDefinition<ActionInput, CachedData> = {
  * action with extra options.
  *
  */
-type ActionOptions<ActionInput> = {
+export type ActionOptions<ActionInput> = {
   optimisticUpdates: OptimisticUpdateDefinition<ActionInput, any>[];
 };
 
+// PRIVATE API
 /**
  * A function that takes an item and returns a Wasp Query specifier.
  */

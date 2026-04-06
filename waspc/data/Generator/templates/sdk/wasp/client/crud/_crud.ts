@@ -2,7 +2,7 @@
 import { createAction, type ActionFor } from "../operations/actions/core.js";
 import { createQuery, type QueryFor } from "../operations/queries/core.js";
 import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "./operationsHelpers.js";
-import { 
+import {
   {=# operations.Get =}
   GetQueryResolved,
   {=/ operations.Get =}
@@ -22,32 +22,26 @@ import {
 
 type Crud = {
   get: {
-    query: GetQuery,
-    useQuery: UseQueryFor<GetQuery>
+    query: QueryFor<GetQueryResolved>,
+    useQuery: UseQueryFor<GetQueryResolved>
   },
   getAll: {
-    query: GetAllQuery,
-    useQuery: UseQueryFor<GetAllQuery>
+    query: QueryFor<GetAllQueryResolved>,
+    useQuery: UseQueryFor<GetAllQueryResolved>
   },
   create: {
-    action: CreateAction,
-    useAction: UseActionFor<CreateAction>,
+    action: ActionFor<CreateActionResolved>,
+    useAction: UseActionFor<CreateActionResolved>,
   },
   update: {
-    action: UpdateAction,
-    useAction: UseActionFor<UpdateAction>,
+    action: ActionFor<UpdateActionResolved>,
+    useAction: UseActionFor<UpdateActionResolved>,
   },
   delete: {
-    action: DeleteAction,
-    useAction: UseActionFor<DeleteAction>,
+    action: ActionFor<DeleteActionResolved>,
+    useAction: UseActionFor<DeleteActionResolved>,
   }
 };
-
-type GetQuery = QueryFor<GetQueryResolved>;
-type GetAllQuery = QueryFor<GetAllQueryResolved>;
-type CreateAction = ActionFor<CreateActionResolved>;
-type UpdateAction = ActionFor<UpdateActionResolved>;
-type DeleteAction = ActionFor<DeleteActionResolved>;
 
 // PUBLIC API
 export const {= name =}: Crud = createCrud();
