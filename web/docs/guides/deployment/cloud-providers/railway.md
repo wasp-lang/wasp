@@ -5,7 +5,7 @@ last_checked_with_versions:
   Railway: 2026-04-06
 ---
 
-import AddExternalAuthEnvVarsReminder from '../../../deployment/_addExternalAuthEnvVarsReminder.md'
+import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
 import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
