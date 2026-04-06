@@ -1,8 +1,8 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
-  Caprover: "1.14.1"
+  Wasp: 0.21.0
+  Caprover: 2026-01-30
 ---
 
 import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";

@@ -1,9 +1,9 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
-  Caddy: "2.11.2"
-  "Ubuntu LTS": "24.04"
+  Wasp: 0.21.0
+  Caddy: 2026-01-30
+  Ubuntu: 2026-01-30
 ---
 
 import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
