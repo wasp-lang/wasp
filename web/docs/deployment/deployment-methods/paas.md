@@ -66,7 +66,7 @@ While these are the general instructions on deploying the server anywhere, we al
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `.wasp/out/web-app/build` directory.
+The command above will build the web client and put it in the `.wasp/out/web-app/build` directory, including the `200.html` file at the root that acts as the SPA fallback.
 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
 
@@ -309,7 +309,74 @@ You'll deploy the server first:
     REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
     ```
 
-2. Next, we want to link the client build directory to the `client` service:
+2. Create a `Caddyfile` in `.wasp/out/web-app/build` to configure how Railway serves your static files:
+
+    <!-- NOTE: When updating this caddyfile, make sure to also update it in the deployment package.  -->
+    ```caddyfile title=".wasp/out/web-app/build/Caddyfile"
+    {
+      admin off
+      persist_config off
+      auto_https off
+
+      log {
+        format json
+      }
+
+      servers {
+        trusted_proxies static private_ranges
+      }
+    }
+
+    :{$PORT:80} {
+      log {
+        format json
+      }
+
+      respond /health 200
+
+      # Security headers
+      header {
+        # Enable cross-site filter (XSS) and tell browsers to block detected attacks
+        X-XSS-Protection "1; mode=block"
+        # Prevent some browsers from MIME-sniffing a response away from the declared Content-Type
+        X-Content-Type-Options "nosniff"
+        # Keep referrer data off of HTTP connections
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Enable strict Content Security Policy
+        Content-Security-Policy "default-src 'self'; img-src 'self' data: https: *; style-src 'self' 'unsafe-inline' https: *; script-src 'self' 'unsafe-inline' https: *; font-src 'self' data: https: *; connect-src 'self' https: *; media-src 'self' https: *; object-src 'none'; frame-src 'self' https: *;"
+        # Remove Server header
+        -Server
+      }
+
+      root * .
+
+      # Handle static files
+      file_server {
+        hide .git
+        hide .env*
+      }
+
+      # Compression with more formats
+      encode {
+        gzip
+        zstd
+      }
+
+      # Try files with HTML extension and handle SPA routing
+      # This is where we diverge from the railway's original caddyfile
+      try_files {path} {path}/index.html /200.html 
+
+      # Handle 404 errors
+      handle_errors {
+        rewrite * /{err.status_code}.html
+        file_server
+      }
+    }
+    ```
+
+    This overrides [Railway's default Caddyfile](https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template) so that prerendered pages are served correctly and non-prerendered routes fall back to the SPA shell (`200.html`).
+
+3. Link the client build directory to the `client` service:
 
     ```shell
     cd .wasp/out/web-app/build
@@ -318,7 +385,7 @@ You'll deploy the server first:
 
 <!-- TOPIC: client deployment -->
 
-4. Next, deploy the client build to Railway:
+4. Deploy the client build to Railway:
 
     ```shell
     railway up --ci
@@ -326,7 +393,7 @@ You'll deploy the server first:
 
     Select `client` when prompted to select a service.
 
-    Railway will detect the `index.html` file and deploy the client as a static site.
+    Railway will detect the static files and deploy the client as a static site.
 
 
 And now your Wasp should be deployed!
@@ -508,7 +575,7 @@ Make sure you set the `https://<app-name>.netlify.app` URL as the `WASP_WEB_CLIE
 
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
-Here’s an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
+Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
 
 <details>
   <summary>Example Github Action</summary>
@@ -568,7 +635,7 @@ Here’s an example configuration file to help you get started. This example wor
 
 ## Cloudflare <Client /> {#cloudflare}
 
-[Cloudflare](https://www.cloudflare.com/) is a cloud services provider that offers a variety of services, including free static hosting with Cloudflare Pages. You will need a Cloudflare account to follow these instructions.
+[Cloudflare](https://www.cloudflare.com/) is a cloud services provider that offers a variety of services, including free hosting with Cloudflare Workers. You will need a Cloudflare account to follow these instructions.
 
 Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can log in by running:
 
@@ -580,32 +647,51 @@ Before you continue, make sure you have [built the Wasp app](#1-generating-deplo
 
 <BuildingTheWebClient />
 
-To deploy the client, make sure you are positioned in the `.wasp/buld/web-app` folder and then run the following:
+To deploy the client to Cloudflare Workers, create these two files in the root of your project:
 
-```shell
-npx wrangler pages deploy ./build --commit-dirty=true --branch=main
+1. A `wrangler.toml` that configures the Worker with static assets:
+
+```toml title="wrangler.toml"
+name = "my-wasp-app-client"
+main = "./worker.js"
+compatibility_date = "2026-03-30"
+
+[assets]
+directory = "./.wasp/out/web-app/build"
+binding = "ASSETS"
 ```
 
-<small>
-  Carefully follow the instructions i.e. do you want to create a new app or use an existing one.
-</small>
+2. And a `worker.js` that serves static files and falls back to the SPA shell for unknown routes:
 
-That is it! Your client should be live at `https://<app-name>.pages.dev`.
+```js title="worker.js"
+export default {
+  async fetch(request, env) {
+    // If the static asset is not found, return the SPA fallback.
+    const spaFallbackUrl = new URL("/200", request.url);
+    const spaFallbackRequest = new Request(spaFallbackUrl, request);
+    return await env.ASSETS.fetch(spaFallbackRequest);
+  },
+};
+```
+Keeping these files in the project root ensures they are tracked in your repository.
+
+Finally, deploy from your project root:
+
+```shell
+npx wrangler deploy
+```
+
+That is it! Your client should be live at `https://my-wasp-app-client.<subdomain>.workers.dev`.
 
 :::note
-Make sure you set the `https://<app-name>.pages.dev` URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
-:::
-
-:::info Redirecting URLs toward `index.html`
-
-Cloudflare will automatically redirect all paths toward `index.html`, which is important since Wasp's client app is a Single Page Application (SPA) and needs to handle routing on the client side.
+Make sure you set your Workers URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
 :::
 
 ### Deploying through Github Actions
 
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
-Here’s an example configuration file to help you get started. This example workflow will trigger a deployment to Cloudflare Pages whenever changes are pushed to the main branch.
+Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Cloudflare Workers whenever changes are pushed to the main branch.
 
 <details>
   <summary>Example Github Action</summary>
@@ -641,24 +727,20 @@ Here’s an example configuration file to help you get started. This example wor
         - name: Build the client
           run: cd ./app && REACT_APP_API_URL=${{ secrets.WASP_SERVER_URL }} npx vite build
 
-        - name: Deploy to Cloudflare Pages
+        - name: Deploy to Cloudflare Workers
           uses: cloudflare/wrangler-action@v3
           with:
             apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
             accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-            command: pages deploy ./app/.wasp/out/web-app/build --project-name=${{ env.CLIENT_CLOUDFLARE_APP_NAME }} --commit-dirty=true --branch=main
-
-      env:
-        CLIENT_CLOUDFLARE_APP_NAME: cloudflare-pages-app-name
+            workingDirectory: ./app
+            command: deploy
   ```
 </details>
 
 <details>
   <summary>How do I get the Environment Variables?</summary>
 
-  - **`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`**: You can get these from your [Cloudflare dashboard](https://dash.cloudflare.com/profile/api-tokens). Make sure to give the token `Cloudflare Pages: Read` and `Cloudflare Pages: Edit` permissions.
-
-  - **`CLIENT_CLOUDFLARE_APP_NAME`**: This is the name of your Cloudflare Pages app. You can create a new Cloudflare Pages app with `npx wrangler pages project create <app-name>`.
+  - **`CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`**: You can get these from your [Cloudflare dashboard](https://dash.cloudflare.com/profile/api-tokens). Make sure to give the token `Cloudflare Workers: Edit` permissions.
 
   - **`WASP_SERVER_URL`**: This is your server's URL and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 

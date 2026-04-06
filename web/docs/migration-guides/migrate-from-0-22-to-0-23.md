@@ -44,3 +44,13 @@ Wasp 0.23 requires TypeScript 5.9.3 (previously 5.8.2). Update it in your `packa
   }
 }
 ```
+
+### 4. Update your deployment configuration for the new SPA fallback file
+
+**If you use `wasp deploy` to deploy your app, you can skip this step**
+
+Wasp 0.23 changed the SPA fallback file from `index.html` to `200.html`. This is in preparation for future support for prerendering routes.
+
+If you use `wasp deploy` for Fly.io or Railway, this is handled automatically. If you have a custom deployment setup, update your configuration, according to [our updated documentation](https://wasp.sh/docs/deployment/deployment-methods/overview).
+
+In general, you'll have to update any fallback/rewrite rules that point to `index.html` to use `200.html` instead.
