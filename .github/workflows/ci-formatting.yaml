@@ -39,7 +39,7 @@ jobs:
           findCabalDevTool() {
             grep "$1 ==" dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/'
           }
-          
+
           echo "ORMOLU_VERSION=$(findCabalDevTool ormolu)" >> $GITHUB_OUTPUT
           echo "CABAL_GILD_VERSION=$(findCabalDevTool cabal-gild)" >> $GITHUB_OUTPUT
 
