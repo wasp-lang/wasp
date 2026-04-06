@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: 0.21.0
+  Wasp: "0.23"
   Coolify: 2026-01-30
 ---
 
