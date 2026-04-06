@@ -15,12 +15,16 @@ jobs:
 
     runs-on: ubuntu-latest
     steps:
+      # Ormolu is newline-sensitive and Windows might change newlines
+      # if this is not set.
       - run: |
           git config --global core.autocrlf input
           git config --global core.eol lf
 
       - uses: actions/checkout@v6
         with:
+          # Check out the PR branch so `git push` later pushes to the
+          # correct ref.
           ref: ${{ github.head_ref }}
 
       - uses: actions/setup-node@v6
@@ -32,8 +36,12 @@ jobs:
         id: parse-tool-versions
         working-directory: waspc
         run: |
-          echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_OUTPUT
-          echo "CABAL_GILD_VERSION=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_OUTPUT
+          findCabalDevTool() {
+            grep "$1 ==" dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/'
+          }
+          
+          echo "ORMOLU_VERSION=$(findCabalDevTool ormolu)" >> $GITHUB_OUTPUT
+          echo "CABAL_GILD_VERSION=$(findCabalDevTool cabal-gild)" >> $GITHUB_OUTPUT
 
       - name: Run Prettier
         run: |
@@ -66,6 +74,7 @@ jobs:
             echo "CHANGES_DETECTED=0" >> $GITHUB_OUTPUT
           fi
 
+      # If this is an internal PR, commit and push the changes.
       - name: Commit and push changes
         id: commit-and-push
         if: >-
@@ -80,7 +89,16 @@ jobs:
           git commit -am "Auto-fix formatting issues"
           git push
 
+      # If we didn't push, just report.
       - name: Report check status
         if: ${{ steps.commit-and-push.outcome == 'skipped' }}
+        env:
+          CHANGES_DETECTED: ${{ steps.check-for-changes.outputs.CHANGES_DETECTED }}
         run: |
-          exit ${{ steps.check-for-changes.outputs.CHANGES_DETECTED }}
+          if [[ "$CHANGES_DETECTED" == "0" ]]; then
+            exit 0
+          else
+            echo "Formatting issues detected. Please run the formatters locally."
+            git diff
+            exit 1
+          fi
