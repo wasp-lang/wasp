@@ -253,7 +253,7 @@ Edit the Caddyfile at `/etc/caddy/Caddyfile`:
 myapp.com {
     root * /var/www
     encode gzip
-    try_files {path} /index.html
+    try_files {path} {path}/index.html /200.html
     file_server
 }
 
