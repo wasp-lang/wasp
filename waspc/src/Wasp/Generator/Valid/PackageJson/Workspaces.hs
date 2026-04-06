@@ -23,14 +23,10 @@ workspacesValidator =
   V.inField ("workspaces", P.workspaces) $
     maybe noWorkspacesDefinedError $
       V.all
-        [ requiredWorkspaceValidator,
+        [ V.containsAll requiredWorkspaces,
           forbiddenWorkspaceValidator
         ]
   where
-    requiredWorkspaceValidator :: V.Validator [WorkspaceName]
-    requiredWorkspaceValidator =
-      V.all $ makeWorkspaceIncludedValidator <$> requiredWorkspaces
-
     forbiddenWorkspaceValidator :: V.Validator [WorkspaceName]
     forbiddenWorkspaceValidator =
       V.all $ makeWorkspaceNotIncludedValidator <$> forbiddenWorkspaces
@@ -40,17 +36,6 @@ workspacesValidator =
         "Wasp requires \"workspaces\" to have the value: ["
           ++ intercalate ", " (show <$> requiredWorkspaces)
           ++ "]."
-
-makeWorkspaceIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
-makeWorkspaceIncludedValidator expectedWorkspace =
-  bool missingWorkspaceError V.success
-    . elem expectedWorkspace
-  where
-    missingWorkspaceError =
-      V.failure $
-        "Wasp requires workspace"
-          ++ show expectedWorkspace
-          ++ " to be included."
 
 makeWorkspaceNotIncludedValidator :: WorkspaceName -> V.Validator [WorkspaceName]
 makeWorkspaceNotIncludedValidator forbiddenWorkspace =
