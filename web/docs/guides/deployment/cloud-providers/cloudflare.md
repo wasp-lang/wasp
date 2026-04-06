@@ -20,7 +20,7 @@ Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can l
 npx wrangler login
 ```
 
-Before you continue, make sure you have [built the Wasp app](../../deployment/deployment-methods/paas.md#1-generating-deployable-code). We'll build the client web app next.
+Before you continue, make sure you have [built the Wasp app](../../../deployment/deployment-methods/paas.md#1-generating-deployable-code). We'll build the client web app next.
 
 <BuildingTheWebClient />
 

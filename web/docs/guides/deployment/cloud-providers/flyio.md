@@ -13,7 +13,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 ## Automatic Deployment <Server /> <Client /> <Database />
 
-We recommend that you use [Wasp Deploy](../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
+We recommend that you use [Wasp Deploy](../../../deployment/deployment-methods/wasp-deploy/fly.md) to deploy your Wasp app to Fly.io. Wasp CLI automates deploying the client, the server and the database with one command.
 
 ## Manual Deployment <Server /> <Database />
 
@@ -37,7 +37,7 @@ You need to do this only once per Wasp app.
 
 Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
-After you have [built the app](../../deployment/deployment-methods/paas.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](../../../deployment/deployment-methods/paas.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out
@@ -108,7 +108,7 @@ fly deploy --remote-only --config ../../fly.toml
 
 This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
 
-Now, if you haven't, you can deploy your client and add the client URL by running `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](../../deployment/deployment-methods/paas.md#netlify) for your client, but you can use any static hosting provider.
+Now, if you haven't, you can deploy your client and add the client URL by running `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](../../../deployment/deployment-methods/paas.md#netlify) for your client, but you can use any static hosting provider.
 
 Additionally, some useful `fly` commands:
 
