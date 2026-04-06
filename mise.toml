@@ -1,24 +1,31 @@
-min_version = "2026.3.9"
+min_version = "2026.4.4"
 
-[tools]
-"ghcup:cabal" = "3.12.1.0"
-"github:tfausak/cabal-gild" = "1.5.0.1"
-"github:tweag/ormolu" = "0.7.2.0"
+[tools."github:tfausak/cabal-gild"]
+version = "1.5.0.1"
+
+[tools."github:tweag/ormolu"]
+version = "0.7.2.0"
 
 [tools."github:haskell/ghcup-hs"]
 version = "latest"
 bin = "ghcup"
+
+[tools."ghcup:cabal"]
+version = "3.12.1.0"
+depends = "github:haskell/ghcup-hs"
 
 [tools."ghcup:ghc"]
 # Keep in sync with:
 # - /waspc/cabal.project
 # - /waspc/dev-tool.project
 version = "9.6.7"
+depends = "github:haskell/ghcup-hs"
 
 [tools."ghcup:hls"]
 # Make sure that this version of HLS has a pre-built binary for the GHC version
 # we use above.
 version = "2.12.0.0"
+depends = "github:haskell/ghcup-hs"
 
 [tools.node]
 # Keep in sync with:
