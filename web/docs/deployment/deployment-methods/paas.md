@@ -62,7 +62,7 @@ While these are the general instructions on deploying the server anywhere, we al
 
 <BuildingTheWebClient />
 
-The command above will build the web client and put it in the `.wasp/out/web-app/build` directory.
+The command above will build the web client and put it in the `.wasp/out/web-app/build` directory, including the `200.html` file at the root that acts as the SPA fallback.
 
 Since the result of building is just a bunch of static files, you can now deploy your web client to any static hosting provider (e.g. Netlify, Cloudflare, ...) by deploying the contents of `.wasp/out/web-app/build/`.
 
@@ -143,7 +143,7 @@ Deploy your client to Netlify, a free static hosting provider.
 
 ## Cloudflare <Client /> {#cloudflare}
 
-Deploy your client to Cloudflare Pages, a free static hosting service.
+Deploy your client to Cloudflare Workers, a free hosting service.
 
 #### Overview of the steps
 
@@ -152,4 +152,4 @@ Deploy your client to Cloudflare Pages, a free static hosting service.
 1. [Build the client](#3-deploying-the-web-client-) with `npx vite build`.
 1. Deploy with `npx wrangler pages deploy`.
 
-<GuideLink linkToGuide="../../guides/deployment/cloudflare" title="Deploying Wasp to Cloudflare Pages" description="Uses Cloudflare Pages, Wrangler CLI" />
+<GuideLink linkToGuide="../../guides/deployment/cloudflare" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
