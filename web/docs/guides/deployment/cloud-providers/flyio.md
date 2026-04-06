@@ -108,7 +108,7 @@ fly deploy --remote-only --config ../../fly.toml
 
 This will build and deploy the backend of your Wasp app on Fly.io to `https://<app-name>.fly.dev` 🤘🎸
 
-Now, if you haven't, you can deploy your client and add the client URL by running `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](../../../deployment/deployment-methods/paas.md#netlify) for your client, but you can use any static hosting provider.
+Now, if you haven't, you can deploy your client and add the client URL by running `fly secrets set WASP_WEB_CLIENT_URL=<url_of_deployed_client>`. We suggest using [Netlify](../netlify.md) for your client, but you can use any static hosting provider.
 
 Additionally, some useful `fly` commands:
 

@@ -471,7 +471,7 @@ Create a `netlify.toml` file with the following content:
   status = 200
 ```
 
-For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
+For more details, see the [Netlify deployment documentation](../guides/deployment/cloud-providers/netlify.md).
 
 ### 12. Enjoy your updated Wasp app
 
