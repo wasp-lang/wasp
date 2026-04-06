@@ -9,6 +9,7 @@ import { OAuthCallbackPage } from "./pages/OAuthCallback"
 import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
 
 import { routes } from '../router/index'
+import { Fallback } from './fallback'
 
 type RouteMapping = Record<
   string,
@@ -42,6 +43,7 @@ export function getRouteObjects({
     path: '/',
     element: rootElement,
     ErrorBoundary: DefaultRootErrorBoundary,
+    HydrateFallback: Fallback,
     children: [
       ...waspDefinedRoutes,
       ...userDefinedRoutes,
