@@ -676,7 +676,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "bbf1f9c1525631bea169b63c985fc22aaa4a15daaeb862716d7bdafbc4081b1c"
+        "62dfce9cbc152dbfb71987725899df556f60753003b9b63e7fff519f2977a089"
     ],
     [
         [
@@ -760,7 +760,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "356176e14b791e4d2bf5896dda26d1758cc80500533888990db0ba2b265a1361"
+        "1f62634a64b6c4c2042bdb7507bc330743bdb0ac63af9dcf3fceb37f3ec0a3da"
     ],
     [
         [
@@ -781,7 +781,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "4c977c5235a9a5d0d838e34425f0f24eb310a822fc2534a78c82e23dcd2ea326"
+        "06e056a31a93a54aca337d4261d4fc67b98bdf11981e46a10485a44587b2ab35"
     ],
     [
         [
@@ -1601,6 +1601,13 @@
             "sdk/wasp/src/features/operations/queries.ts"
         ],
         "249a9aa9ca3ea59c9041acc04cea7261a9b5d754b0d0cccddb61234168fbc666"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/prerender/pages/PrerenderPage.tsx"
+        ],
+        "893231a27edf6c89a8d9e72871a3ea47b293eb4e29f8bcf6789160bd112de7d4"
     ],
     [
         [

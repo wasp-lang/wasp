@@ -986,6 +986,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/queries.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/queries.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/queries.js
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/queries.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/streaming/api.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/streaming/api.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/streaming/api.js
@@ -1158,6 +1162,7 @@ wasp-app/.wasp/out/sdk/wasp/src/features/operations/pages/SerializationPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/pages/TaskDetailPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/pages/TasksPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/queries.ts
+wasp-app/.wasp/out/sdk/wasp/src/features/prerender/pages/PrerenderPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/api.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/pages/CatchAllPage.tsx
@@ -1382,6 +1387,7 @@ wasp-app/src/features/operations/pages/SerializationPage.tsx
 wasp-app/src/features/operations/pages/TaskDetailPage.tsx
 wasp-app/src/features/operations/pages/TasksPage.tsx
 wasp-app/src/features/operations/queries.ts
+wasp-app/src/features/prerender/pages/PrerenderPage.tsx
 wasp-app/src/features/streaming/api.ts
 wasp-app/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/src/pages/CatchAllPage.tsx

@@ -93,6 +93,10 @@ const routesMapping = {
     const Component = await import('./src/features/lazy-loading/pages/LazyPage').then(m => m.LazyPage)
     return { Component }
   }},
+  PrerenderRoute: { lazy: async () => {
+    const Component = await import('./src/features/prerender/pages/PrerenderPage').then(m => m.PrerenderPage)
+    return { Component }
+  }},
 } as const;
 
 await setup_ext()

@@ -131,6 +131,38 @@ spec_AppSpecFromJSON = do
                 Route.prerender = Nothing
               }
           )
+    it "parses a valid Route JSON with prerender: true" $ do
+      [trimming|
+          {
+            "path": "/foo",
+            "to": ${pageRef},
+            "prerender": true
+          }
+        |]
+        `shouldDecodeTo` Just
+          ( Route.Route
+              { Route.path = "/foo",
+                Route.to = fromJust $ decodeJson pageRef,
+                Route.lazy = Nothing,
+                Route.prerender = Just True
+              }
+          )
+    it "parses a valid Route JSON with prerender: false" $ do
+      [trimming|
+          {
+            "path": "/foo",
+            "to": ${pageRef},
+            "prerender": false
+          }
+        |]
+        `shouldDecodeTo` Just
+          ( Route.Route
+              { Route.path = "/foo",
+                Route.to = fromJust $ decodeJson pageRef,
+                Route.lazy = Nothing,
+                Route.prerender = Just False
+              }
+          )
 
   describe "Ref" $ do
     it "parses a valid Entity Ref JSON" $ do

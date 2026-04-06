@@ -361,6 +361,13 @@ page LazyPage {
   component: import { LazyPage } from "@src/features/lazy-loading/pages/LazyPage"
 }
 
+// --------- Prerendering --------- //
+
+route PrerenderRoute { path: "/prerender", to: PrerenderPage, prerender: true }
+page PrerenderPage {
+  component: import { PrerenderPage } from "@src/features/prerender/pages/PrerenderPage"
+}
+
 // --------- Operations Type Testing --------- //
 
 action testingAction {

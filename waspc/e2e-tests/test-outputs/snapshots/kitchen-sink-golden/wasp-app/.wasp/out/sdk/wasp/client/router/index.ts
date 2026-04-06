@@ -281,6 +281,19 @@ export const routes = {
         options?.hash
       ),
   },
+  PrerenderRoute: {
+    to: "/prerender",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/prerender",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
 } as const;
 
 // PRIVATE API
