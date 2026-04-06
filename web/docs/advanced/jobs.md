@@ -24,58 +24,58 @@ Let's write an example Job that will print a message to the console and return a
 
 1. Start by creating a Job declaration in your `.wasp` file:
 
-```wasp title="main.wasp"
-job mySpecialJob {
-  executor: PgBoss,
-  perform: {
-    fn: import { foo } from "@src/workers/bar"
-  },
-  entities: [Task],
-}
-```
+    ```wasp title="main.wasp"
+    job mySpecialJob {
+      executor: PgBoss,
+      perform: {
+        fn: import { foo } from "@src/workers/bar"
+      },
+      entities: [Task],
+    }
+    ```
 
 2. After declaring the Job, implement its worker function:
 
-```ts title="src/workers/bar.ts" auto-js
-import type { MySpecialJob } from 'wasp/server/jobs'
-import type { Task } from 'wasp/entities'
+    ```ts title="src/workers/bar.ts" auto-js
+    import type { MySpecialJob } from 'wasp/server/jobs'
+    import type { Task } from 'wasp/entities'
 
-type Input = { name: string; }
-type Output = { tasks: Task[]; }
+    type Input = { name: string; }
+    type Output = { tasks: Task[]; }
 
-export const foo: MySpecialJob<Input, Output> = async ({ name }, context) => {
-  console.log(`Hello ${name}!`)
-  const tasks = await context.entities.Task.findMany({})
-  return { tasks }
-}
-```
+    export const foo: MySpecialJob<Input, Output> = async ({ name }, context) => {
+      console.log(`Hello ${name}!`)
+      const tasks = await context.entities.Task.findMany({})
+      return { tasks }
+    }
+    ```
 
-:::info The worker function
-The worker function must be an `async` function. The function's return value represents the Job's result.
+    :::info The worker function
+    The worker function must be an `async` function. The function's return value represents the Job's result.
 
-The worker function accepts two arguments:
+    The worker function accepts two arguments:
 
-- `args`: The data passed into the job when it's submitted.
-- `context: { entities }`: The context object containing entities you put in the Job declaration.
-  :::
+    - `args`: The data passed into the job when it's submitted.
+    - `context: { entities }`: The context object containing entities you put in the Job declaration.
+      :::
 
-<ShowForTs>
-  `MySpecialJob`  is a generic type Wasp generates to help you  correctly type the Job's worker function, ensuring type information about the function's arguments and return value. Read more about type-safe jobs in the [Javascript API section](#javascript-api).
-</ShowForTs>
+    <ShowForTs>
+      `MySpecialJob`  is a generic type Wasp generates to help you  correctly type the Job's worker function, ensuring type information about the function's arguments and return value. Read more about type-safe jobs in the [Javascript API section](#javascript-api).
+    </ShowForTs>
 
 3. After successfully defining the job, you can submit work to be done in your [Operations](../data-model/operations/overview) or [setupFn](../project/server-config#setup-function) (or any other NodeJS code):
 
-```ts title="someAction.ts" auto-js
-import { mySpecialJob } from 'wasp/server/jobs'
+    ```ts title="someAction.ts" auto-js
+    import { mySpecialJob } from 'wasp/server/jobs'
 
-const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
+    const submittedJob = await mySpecialJob.submit({ job: "Johnny" })
 
-// Or, if you'd prefer it to execute in the future, just add a .delay().
-// It takes a number of seconds, Date, or ISO date string.
-await mySpecialJob
-  .delay(10)
-  .submit({ name: "Johnny" })
-```
+    // Or, if you'd prefer it to execute in the future, just add a .delay().
+    // It takes a number of seconds, Date, or ISO date string.
+    await mySpecialJob
+      .delay(10)
+      .submit({ name: "Johnny" })
+    ```
 
 And that's it. Your job will be executed by `PgBoss` as if you called `foo({ name: "Johnny" })`.
 
@@ -274,19 +274,11 @@ The Job declaration has the following fields:
 
 - Importing a Job:
 
-  <ShowForJs>
-
-  ```js title="someAction.js"
-  import { mySpecialJob } from 'wasp/server/jobs'
-  ```
-
-  </ShowForJs>
-
-  <ShowForTs>
-
-  ```ts title="someAction.ts"
+  ```ts title="someAction.ts" auto-js
   import { mySpecialJob, type MySpecialJob } from 'wasp/server/jobs'
   ```
+
+  <ShowForTs>
 
   :::info Type-safe jobs
   Wasp generates a generic type for each Job declaration, which you can use to type your `perform.fn` function. The type is named after the job declaration, and is available in the `wasp/server/jobs` module. In the example above, the type is `MySpecialJob`.
@@ -306,9 +298,9 @@ The Job declaration has the following fields:
 
   Submits a Job to be executed by an executor, optionally passing in a JSON job argument your job handler function receives, and executor-specific submit options.
 
-```ts title="someAction.ts" auto-js
-const submittedJob = await mySpecialJob.submit({ job: "args" })
-```
+  ```ts title="someAction.ts" auto-js
+  const submittedJob = await mySpecialJob.submit({ job: "args" })
+  ```
 
 - `delay(startAfter)`
 
@@ -320,11 +312,11 @@ const submittedJob = await mySpecialJob.submit({ job: "args" })
   - String: ISO date string to run at.
   - Date: Date to run at.
 
-```ts title="someAction.ts" auto-js
-const submittedJob = await mySpecialJob
-  .delay(10)
-  .submit({ job: "args" }, { "retryLimit": 2 })
-```
+  ```ts title="someAction.ts" auto-js
+  const submittedJob = await mySpecialJob
+    .delay(10)
+    .submit({ job: "args" }, { "retryLimit": 2 })
+  ```
 
 #### Tracking
 
