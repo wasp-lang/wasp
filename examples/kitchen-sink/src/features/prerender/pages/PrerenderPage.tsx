@@ -1,24 +1,35 @@
-import { createElement } from "react";
+import { useSyncExternalStore } from "react";
 import { FeatureContainer } from "../../../components/FeatureContainer";
-
-const IS_BROWSER = typeof window !== "undefined";
 
 export function PrerenderPage() {
   return (
     <FeatureContainer>
-      <div data-testid="prerender-page">
-        This page is prerendered at build time (prerender: true)
-      </div>
+      <p data-testid="prerender-route">
+        This route has <code>prerender: true</code>.
+      </p>
 
-      {createElement(
-        "div",
-        { suppressHydrationWarning: true },
-        ...(IS_BROWSER
-          ? []
-          : [
-              "You should only see this message if the page was prerendered at build time.",
-            ]),
-      )}
+      <p data-testid="prerender-with-useisclient">
+        This content is rendered on the {useIsClient() ? "client" : "server"}.
+      </p>
+
+      {typeof window === "undefined" ? (
+        <script>{`window.WAS_PRERENDERED = true`}</script>
+      ) : null}
     </FeatureContainer>
   );
+}
+
+function useIsClient() {
+  return useSyncExternalStore(
+    isClientSubscribe,
+    () => true,
+    () => false,
+  );
+}
+
+// This is a no-op subscribe function that doesn't actually subscribe to
+// anything, but it satisfies the requirements of useSyncExternalStore. It has
+// to be on the top-level so that it doesn't change between renders.
+function isClientSubscribe() {
+  return () => {};
 }

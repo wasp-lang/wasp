@@ -89,7 +89,7 @@ app KitchenSink {
 
 // --------- General --------- //
 
-route HomeRoute { path: "/", to: HomePage }
+route HomeRoute { path: "/", to: HomePage, prerender: true }
 page HomePage {
   component: import { HomePage } from "@src/pages/HomePage"
 }
