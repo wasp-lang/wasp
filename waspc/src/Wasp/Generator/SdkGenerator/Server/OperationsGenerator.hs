@@ -11,10 +11,8 @@ import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
 import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
-import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
-import Wasp.AppSpec.Operation (getName)
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
@@ -38,7 +36,7 @@ getServerOperationsImportPath = \operation ->
       (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
       (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
 
-genOperations :: AppSpec -> Generator [FileDraft]
+genOperations :: AS.AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
     [ genQueryTypesFile spec,
@@ -49,7 +47,7 @@ genOperations spec =
       genIndexTs spec
     ]
 
-genIndexTs :: AppSpec -> Generator FileDraft
+genIndexTs :: AS.AppSpec -> Generator FileDraft
 genIndexTs spec =
   return $
     mkTmplFdWithData
@@ -63,7 +61,7 @@ genIndexTs spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genWrappers :: AppSpec -> Generator FileDraft
+genWrappers :: AS.AppSpec -> Generator FileDraft
 genWrappers spec =
   return $
     mkTmplFdWithData
@@ -72,7 +70,7 @@ genWrappers spec =
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
-genQueriesIndex :: AppSpec -> Generator FileDraft
+genQueriesIndex :: AS.AppSpec -> Generator FileDraft
 genQueriesIndex spec =
   return $
     mkTmplFdWithData
@@ -86,7 +84,7 @@ genQueriesIndex spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genActionsIndex :: AppSpec -> Generator FileDraft
+genActionsIndex :: AS.AppSpec -> Generator FileDraft
 genActionsIndex spec =
   return $
     mkTmplFdWithData
@@ -100,7 +98,7 @@ genActionsIndex spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genQueryTypesFile :: AppSpec -> Generator FileDraft
+genQueryTypesFile :: AS.AppSpec -> Generator FileDraft
 genQueryTypesFile spec =
   genOperationTypesFile
     (serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|])
@@ -110,7 +108,7 @@ genQueryTypesFile spec =
     operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genActionTypesFile :: AppSpec -> Generator FileDraft
+genActionTypesFile :: AS.AppSpec -> Generator FileDraft
 genActionTypesFile spec =
   genOperationTypesFile
     (serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|])
@@ -150,7 +148,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
         ]
     operationTypeData operation =
       object
-        [ "typeName" .= toUpperFirst (getName operation),
+        [ "typeName" .= toUpperFirst (AS.Operation.getName operation),
           "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
@@ -161,8 +159,9 @@ getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
-      "operationName" .= getName operation,
-      "operationTypeName" .= getOperationTypeName operation,
+      "operationName" .= AS.Operation.getName operation,
+      "operationTypeName" .= toUpperFirst (AS.Operation.getName operation),
+      "operationResolvedTypeName" .= getOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
