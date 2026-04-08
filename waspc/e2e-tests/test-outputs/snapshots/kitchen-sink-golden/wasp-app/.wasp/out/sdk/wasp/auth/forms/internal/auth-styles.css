@@ -1,0 +1,30 @@
+:root {
+  /* ATTENTION: Keep this list in sync with the one at ../types.ts */
+  /*
+    This is the list of CSS variables that are used in the auth forms, and that
+    the user can override.
+  */
+
+  /* Colors */
+  --color-waspYellow: #ffcc00;
+  --color-gray700: #a1a5ab;
+  --color-gray600: #d1d5db;
+  --color-gray500: gainsboro;
+  --color-gray400: #f0f0f0;
+  --color-red: #FED7D7;
+  --color-darkRed: #fa3838;
+  --color-green: #C6F6D5;
+
+  /* Semantic colors */
+  --color-brand: var(--color-waspYellow);
+  --color-brandAccent: #ffdb46;
+  --color-errorBackground: var(--color-red);
+  --color-errorText: #2D3748;
+  --color-successBackground: var(--color-green);
+  --color-successText: #2D3748;
+  --color-submitButtonText: black;
+  --color-formErrorText: var(--color-darkRed);
+
+  /* Font sizes */
+  --font-size-sm: 1rem;
+}
