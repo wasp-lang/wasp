@@ -26,6 +26,10 @@ const routesMapping = {
   {=# isLazy =}
   {= name =}: {
     Component:
+      // We use React's `lazy()` instead of defining a Lazy Route on React
+      // Router's side because there's a bug where it will ask for a
+      // HydrationFallback and commit it immediately even when working with
+      // prerendered pages.
       lazy(() =>
         {=& import.dynamicImportExpression =}
         {=# isAuthRequired =}
