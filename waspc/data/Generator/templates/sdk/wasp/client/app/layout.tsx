@@ -1,6 +1,5 @@
 {{={= =}=}}
 import { StrictMode, type ReactNode } from "react";
-
 import { useIsClient } from "./hooks/useIsClient.js"
 
 export function Layout({
@@ -61,7 +60,7 @@ export function Layout({
             // versions.
           }
           <div id="root">
-            {shouldRenderChildren ? children : null}
+              {shouldRenderChildren ? children : null}
           </div>
 
           {
