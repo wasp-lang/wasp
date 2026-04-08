@@ -30,6 +30,7 @@ const routesMapping = {
       // Router's side because there's a bug where it will ask for a
       // HydrationFallback and commit it immediately even when working with
       // prerendered pages.
+      // https://github.com/remix-run/react-router/issues/14955
       lazy(() =>
         {=& import.dynamicImportExpression =}
         {=# isAuthRequired =}
