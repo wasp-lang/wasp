@@ -70,7 +70,6 @@ genRouter spec =
                 "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
               ]
           ),
-
       return $ genFileCopy [relfile|client/app/fallback.tsx|]
     ]
   where
