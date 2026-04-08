@@ -368,6 +368,11 @@ page PrerenderPage {
   component: import { PrerenderPage } from "@src/features/prerender/pages/PrerenderPage"
 }
 
+route HydrationMismatchRoute { path: "/hydration-mismatch", to: HydrationMismatchPage, prerender: true }
+page HydrationMismatchPage {
+  component: import { HydrationMismatchPage } from "@src/features/prerender/pages/HydrationMismatchPage"
+}
+
 // --------- Operations Type Testing --------- //
 
 action testingAction {
