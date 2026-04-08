@@ -26,7 +26,10 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   const req = new Request(new URL(route, "http://localhost"));
 
   const context = await query(req);
-  assert (!(context instanceof Response), "Expected no redirect responses from static handler");
+  assert(
+    !(context instanceof Response),
+    "Redirects from React Router's `loader`s are not supported",
+  );
 
   const router = createStaticRouter(dataRoutes, context);
 
