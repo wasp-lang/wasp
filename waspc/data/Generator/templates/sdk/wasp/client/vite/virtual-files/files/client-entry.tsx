@@ -3,7 +3,9 @@ import { startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
+
 import { Layout } from "wasp/client/app/layout";
+import { WaspApp } from "wasp/client/app";
 
 {=& routeObjects.importStatement =}
 
@@ -20,7 +22,9 @@ const router = createBrowserRouter({= routeObjects.importIdentifier =}, {
 function App() {
   return (
     <Layout isFallbackPage={isFallbackPage}>
-      <RouterProvider router={router} />
+      <WaspApp>
+        <RouterProvider router={router} />
+      </WaspApp>
     </Layout>
   );
 }

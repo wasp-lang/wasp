@@ -8,7 +8,9 @@ import {
   createStaticRouter,
   RouterProvider,
 } from "react-router";
+
 import { Layout } from "wasp/client/app/layout";
+import { WaspApp } from "wasp/client/app";
 
 {=& routeObjects.importStatement =}
 
@@ -33,7 +35,9 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   function App() {
     return (
       <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
-        <RouterProvider router={router} />
+        <WaspApp>
+          <RouterProvider router={router} />
+        </WaspApp>
       </Layout>
     )
   }

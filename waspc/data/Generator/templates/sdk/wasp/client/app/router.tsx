@@ -1,6 +1,6 @@
 {{={= =}=}}
 import type { ReactNode, ComponentType } from 'react'
-import { type RouteObject } from 'react-router'
+import type { RouteObject } from 'react-router'
 
 {=# isExternalAuthEnabled =}
 import { OAuthCallbackPage } from "./pages/OAuthCallback"
