@@ -1313,6 +1313,7 @@ wasp-app/e2e-tests/tests/lazy-loading.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
 wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
+wasp-app/e2e-tests/tests/prerender.spec.ts
 wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts
 wasp-app/e2e-tests/tests/serialization.spec.ts
 wasp-app/e2e-tests/tests/streaming.spec.ts
