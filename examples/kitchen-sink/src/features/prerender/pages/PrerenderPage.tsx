@@ -1,7 +1,10 @@
-import { useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export function PrerenderPage() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+
   return (
     <FeatureContainer>
       <p data-testid="prerender-route">
@@ -9,27 +12,8 @@ export function PrerenderPage() {
       </p>
 
       <p data-testid="prerender-with-useisclient">
-        This content is rendered on the {useIsClient() ? "client" : "server"}.
+        This content is rendered on the {isClient ? "client" : "server"}.
       </p>
-
-      {typeof window === "undefined" ? (
-        <script>{`window.WAS_PRERENDERED = true`}</script>
-      ) : null}
     </FeatureContainer>
   );
-}
-
-function useIsClient() {
-  return useSyncExternalStore(
-    isClientSubscribe,
-    () => true,
-    () => false,
-  );
-}
-
-// This is a no-op subscribe function that doesn't actually subscribe to
-// anything, but it satisfies the requirements of useSyncExternalStore. It has
-// to be on the top-level so that it doesn't change between renders.
-function isClientSubscribe() {
-  return () => {};
 }
