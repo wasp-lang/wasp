@@ -10,13 +10,13 @@ import { WaspApp } from "wasp/client/app";
 {=& routeObjects.importStatement =}
 
 // We embed this data at prerendering time
-const { isFallbackPage } = (window as any).__WASP_SSR_DATA__ ?? {}
+const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {}
 
 const router = createBrowserRouter({= routeObjects.importIdentifier =}, {
   basename: "{= baseDir =}",
   // React Router will put hydration data on this property of the `window` object.
   // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
-  hydrationData: (window as any).__staticRouterHydrationData,
+  hydrationData: window.__staticRouterHydrationData,
 })
 
 function App() {

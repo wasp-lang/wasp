@@ -33,7 +33,7 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
 
   const router = createStaticRouter(dataRoutes, context);
 
-  const WASP_SSR_DATA = { isFallbackPage}
+  const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
 
   function App() {
     return (
