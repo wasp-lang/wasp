@@ -1,6 +1,6 @@
 {{={= =}=}}
 import type { ReactNode, ComponentType } from 'react'
-import { createBrowserRouter, RouterProvider, type RouteObject } from 'react-router'
+import { type RouteObject } from 'react-router'
 
 {=# isExternalAuthEnabled =}
 import { OAuthCallbackPage } from "./pages/OAuthCallback"
@@ -9,12 +9,10 @@ import { OAuthCallbackPage } from "./pages/OAuthCallback"
 import { DefaultRootErrorBoundary } from './components/DefaultRootErrorBoundary'
 
 import { routes } from '../router/index'
-import { Fallback } from './fallback'
 
 type RouteMapping = Record<
   string,
-  | { lazy: () => Promise<{ Component: ComponentType }> }
-  | { Component: ComponentType }
+  { Component: ComponentType }
 >;
 
 export function getRouteObjects({
@@ -43,24 +41,9 @@ export function getRouteObjects({
     path: '/',
     element: rootElement,
     ErrorBoundary: DefaultRootErrorBoundary,
-    HydrateFallback: Fallback,
     children: [
       ...waspDefinedRoutes,
       ...userDefinedRoutes,
     ],
   }]
-}
-
-export function getRouter({
-  routesMapping,
-  rootElement,
-}: {
-  routesMapping: RouteMapping,
-  rootElement: ReactNode,
-}) {
-  const routeObjects = getRouteObjects({ routesMapping, rootElement })
-  const browserRouter = createBrowserRouter(routeObjects, {
-    basename: '{= baseDir =}',
-  })
-  return <RouterProvider router={browserRouter} />;
 }

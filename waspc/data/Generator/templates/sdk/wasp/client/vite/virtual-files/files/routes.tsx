@@ -1,6 +1,7 @@
 {{={= =}=}}
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
+import { lazy } from "react"
 
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
@@ -23,15 +24,16 @@ import { createAuthRequiredPage } from "wasp/client/app"
 const routesMapping = {
   {=# routes =}
   {=# isLazy =}
-  {= name =}: { lazy: { Component: async () => {
-    const Component = await {=& import.dynamicImportExpression =}
-    {=# isAuthRequired =}
-    return createAuthRequiredPage(Component)
-    {=/ isAuthRequired =}
-    {=^ isAuthRequired =}
-    return Component
-    {=/ isAuthRequired =}
-  }}},
+  {= name =}: {
+    Component:
+      lazy(() =>
+        {=& import.dynamicImportExpression =}
+        {=# isAuthRequired =}
+        .then(component => createAuthRequiredPage(component))
+        {=/ isAuthRequired =}
+        .then(component => ({ default: component }))
+      ),
+  },
   {=/ isLazy =}
   {=^ isLazy =}
   {= name =}: {
