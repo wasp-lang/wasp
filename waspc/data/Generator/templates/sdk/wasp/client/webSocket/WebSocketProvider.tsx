@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { createContext, useSyncExternalStore, Context, ReactNode } from 'react'
+import { createContext, useState, useEffect, Context, ReactNode } from 'react'
 import { io, Socket } from 'socket.io-client'
 
 import { getSessionId } from 'wasp/client/api'
@@ -49,25 +49,34 @@ export const WebSocketContext: Context<WebSocketContextValue> = createContext<We
 
 // PRIVATE API
 export function WebSocketProvider({ children }: { children: ReactNode }) {
-  const isConnected = useSyncExternalStore(
-    subscribeToSocketConnectionStatus,
-    () => socket.connected,
-    () => false
+  const [isConnected, setIsConnected] = useState(
+    // In the first render this should be false so we avoid hydration mismatches.
+    false
   )
+
+  useEffect(() => {
+    setIsConnected(socket.connected)
+
+    function onConnect() {
+      setIsConnected(true)
+    }
+
+    function onDisconnect() {
+      setIsConnected(false)
+    }
+
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+
+    return () => {
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+    }
+  }, [])
 
   return (
     <WebSocketContext.Provider value={{ socket, isConnected }}>
       {children}
     </WebSocketContext.Provider>
   );
-}
-
-function subscribeToSocketConnectionStatus(onChange: () => void) {
-  socket.on('connect', onChange)
-  socket.on('disconnect', onChange)
-
-  return () => {
-    socket.off('connect', onChange)
-    socket.off('disconnect', onChange)
-  }
 }
