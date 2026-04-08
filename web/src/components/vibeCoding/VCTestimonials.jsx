@@ -7,7 +7,7 @@ const testimonials = [
     name: "Marcel Coetzee",
     role: "Data Analyst & Founder @ MoonCoon & Hireveld",
     img: "https://github.com/Pipboyguy.png",
-    url: "/blog/2026/03/23/hireveld-from-10-stacks-to-production-with-wasp",
+    url: "/blog/2026/03/29/hireveld-from-10-stacks-to-production-with-wasp",
     aiTools: ["Claude Code"],
   },
   {
