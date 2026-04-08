@@ -396,7 +396,7 @@ const routeObjects = getRouteObjects({
   routesMapping,
   rootElement
 });
-const { isFallbackPage } = window.__WASP_SSR_DATA__;
+const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
 const router = createBrowserRouter(routeObjects, {
   basename: "/",
   // React Router will put hydration data on this property of the `window` object.

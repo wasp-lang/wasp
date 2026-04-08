@@ -8,7 +8,7 @@ import { Layout } from "wasp/client/app/layout";
 {=& routeObjects.importStatement =}
 
 // We embed this data at prerendering time
-const { isFallbackPage } = (window as any).__WASP_SSR_DATA__
+const { isFallbackPage } = (window as any).__WASP_SSR_DATA__ ?? {}
 
 const router = createBrowserRouter({= routeObjects.importIdentifier =}, {
   basename: "{= baseDir =}",
