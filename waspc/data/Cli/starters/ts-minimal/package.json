@@ -11,7 +11,7 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "prisma": "5.19.1",
-    "typescript": "5.8.2",
+    "typescript": "5.9.3",
     "vite": "^7.0.6",
     "wasp-config": "__waspConfigPackageSpecifier__"
   }

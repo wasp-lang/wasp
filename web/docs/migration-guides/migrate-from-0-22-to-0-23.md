@@ -1,0 +1,56 @@
+---
+title: Migration from 0.22.X to 0.23.X
+---
+
+import InstallInstructions from './_install-instructions.md'
+import LegacyInstallerMigration from './_legacy_installer_migration.md'
+
+<LegacyInstallerMigration />
+<InstallInstructions version="0.23" />
+
+## How to migrate?
+
+### 1. Upgrade Node.js to v24.14.1 or later
+
+Wasp 0.23 requires Node.js >= v24.14.1 (previously >= v22.22.2). Make sure to upgrade before continuing:
+
+```shell
+node -v
+# If below v24.14.1, upgrade:
+nvm install 24
+```
+
+### 2. Bump the Wasp version
+
+Update the version field in your Wasp config to `^0.23.0`:
+
+```wasp title="main.wasp"
+app MyApp {
+  wasp: {
+    version: "^0.23.0"
+  },
+  // ...
+}
+```
+
+### 3. Update TypeScript to 5.9.3
+
+Wasp 0.23 requires TypeScript 5.9.3 (previously 5.8.2). Update it in your `package.json`:
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "typescript": "5.9.3"
+  }
+}
+```
+
+### 4. Update your deployment configuration for the new SPA fallback file
+
+**If you use `wasp deploy` to deploy your app, you can skip this step**
+
+Wasp 0.23 changed the SPA fallback file from `index.html` to `200.html`. This is in preparation for future support for prerendering routes.
+
+If you use `wasp deploy` for Fly.io or Railway, this is handled automatically. If you have a custom deployment setup, update your configuration, according to [our updated documentation](https://wasp.sh/docs/deployment/deployment-methods/overview).
+
+In general, you'll have to update any fallback/rewrite rules that point to `index.html` to use `200.html` instead.

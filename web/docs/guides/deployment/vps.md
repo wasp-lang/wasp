@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: 0.21.0
+  Wasp: "0.23"
   Caddy: 2026-01-30
   Ubuntu: 2026-01-30
 ---
@@ -253,7 +253,7 @@ Edit the Caddyfile at `/etc/caddy/Caddyfile`:
 myapp.com {
     root * /var/www
     encode gzip
-    try_files {path} /index.html
+    try_files {path} {path}/index.html /200.html
     file_server
 }
 

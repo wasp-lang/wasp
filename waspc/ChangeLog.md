@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.23.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-22-to-0-23) for step-by-step documentation on how to upgrade.
+
+- Wasp now requires Node.js version >=v24.14.1 (previously >=v22.22.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- Upgraded the pinned TypeScript version from 5.8.2 to 5.9.3 (required by `@tsconfig/node24`). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- The HTML file for the final built web app has changed from `index.html` to `200.html`. This is in preparation for prerendering support. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
+### 🔧 Small improvements
+
+- Updated our `wasp deploy` tool to support the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
+### 📖 Documentation
+
+- Updated deployment guides for Fly.io, Railway, Netlify, and Cloudflare to work with the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
+### 🔧 Small improvements
+
+- New Wasp projects now include an `.npmrc` with `min-release-age=7` for supply chain protection. ([#4016](https://github.com/wasp-lang/wasp/pull/4016))
+
 ## 0.22.0
 
 ### ⚠️ Breaking Changes

@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: 0.21.0
+  Wasp: "0.23"
   Caprover: 2026-01-30
 ---
 
@@ -172,7 +172,7 @@ jobs:
         run: |
           cd ./.wasp/out/web-app
           echo "FROM pierrezemb/gostatic" > Dockerfile
-          echo "CMD [\"-fallback\", \"index.html\", \"-enable-logging\"]" >> Dockerfile
+          echo "CMD [\"-fallback\", \"200.html\", \"-enable-logging\"]" >> Dockerfile
           echo "COPY ./build /srv/http" >> Dockerfile
 
       - name: (server) Build and push Docker image
