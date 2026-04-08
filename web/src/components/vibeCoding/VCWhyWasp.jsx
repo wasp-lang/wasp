@@ -281,7 +281,6 @@ const useInteractiveDemo = () => {
 
     return () => {
       clearTimeout(timeoutRef.current);
-      clearTimeout(deployTimerRef.current);
     };
   }, [
     phase,
