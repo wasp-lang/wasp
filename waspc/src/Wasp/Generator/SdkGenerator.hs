@@ -200,7 +200,7 @@ npmDepsForSdk spec =
             ("dotenv", show dotenvVersionRange),
             ("dotenv-expand", "^12.0.3"),
             ("express", show expressVersionRange),
-            ("ky", "^2.0.0"),
+            ("ky", "^2.0.0-0"),
             ("mitt", "3.0.0"),
             ("react", show reactVersionRange),
             ("react-dom", show reactDomVersionRange),
