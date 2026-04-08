@@ -1,11 +1,19 @@
+import { useEffect, useState } from "react";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
 export function PrerenderPage() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+
   return (
     <FeatureContainer>
-      <div data-testid="prerender-page">
-        This page is prerendered at build time (prerender: true)
-      </div>
+      <p data-testid="prerender-route">
+        This route has <code>prerender: true</code>.
+      </p>
+
+      <p data-testid="prerender-with-useisclient">
+        This content is rendered on the {isClient ? "client" : "server"}.
+      </p>
     </FeatureContainer>
   );
 }

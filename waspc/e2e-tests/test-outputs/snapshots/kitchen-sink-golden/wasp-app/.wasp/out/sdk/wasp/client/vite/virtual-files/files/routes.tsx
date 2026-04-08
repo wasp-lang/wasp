@@ -1,5 +1,6 @@
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
+import { lazy } from "react"
 
 import { createAuthRequiredPage } from "wasp/client/app"
 
@@ -10,93 +11,163 @@ import { setup as setup_ext } from './src/clientSetup'
 import { EagerPage } from './src/features/lazy-loading/pages/EagerPage'
 
 const routesMapping = {
-  HomeRoute: { lazy: async () => {
-    const Component = await import('./src/pages/HomePage').then(m => m.HomePage)
-    return { Component }
-  }},
-  CatchAllRoute: { lazy: async () => {
-    const Component = await import('./src/pages/CatchAllPage').then(m => m.CatchAllPage)
-    return { Component }
-  }},
-  SignupRoute: { lazy: async () => {
-    const Component = await import('./src/features/auth/pages/Signup').then(m => m.default)
-    return { Component }
-  }},
-  LoginRoute: { lazy: async () => {
-    const Component = await import('./src/features/auth/pages/Login').then(m => m.default)
-    return { Component }
-  }},
-  PasswordResetRoute: { lazy: async () => {
-    const Component = await import('./src/features/auth/pages/PasswordReset').then(m => m.PasswordReset)
-    return { Component }
-  }},
-  EmailVerificationRoute: { lazy: async () => {
-    const Component = await import('./src/features/auth/pages/EmailVerification').then(m => m.EmailVerification)
-    return { Component }
-  }},
-  RequestPasswordResetRoute: { lazy: async () => {
-    const Component = await import('./src/features/auth/pages/RequestPasswordReset').then(m => m.RequestPasswordReset)
-    return { Component }
-  }},
-  ProfileRoute: { lazy: async () => {
-    const Component = await import('./src/features/auth/pages/ProfilePage').then(m => m.ProfilePage)
-    return { Component: createAuthRequiredPage(Component) }
-  }},
-  ManualSignupRoute: { lazy: async () => {
-    const Component = await import('./src/features/auth/pages/ManualSignupPage').then(m => m.ManualSignupPage)
-    return { Component }
-  }},
-  CustomSignupRoute: { lazy: async () => {
-    const Component = await import('./src/features/auth/pages/CustomSignupPage').then(m => m.CustomSignupPage)
-    return { Component }
-  }},
-  TasksRoute: { lazy: async () => {
-    const Component = await import('./src/features/operations/pages/TasksPage').then(m => m.TasksPage)
-    return { Component: createAuthRequiredPage(Component) }
-  }},
-  TaskRoute: { lazy: async () => {
-    const Component = await import('./src/features/operations/pages/TaskDetailPage').then(m => m.TaskDetailPage)
-    return { Component: createAuthRequiredPage(Component) }
-  }},
-  SerializationRoute: { lazy: async () => {
-    const Component = await import('./src/features/operations/pages/SerializationPage').then(m => m.SerializationPage)
-    return { Component }
-  }},
-  JobsRoute: { lazy: async () => {
-    const Component = await import('./src/features/jobs/pages/JobsPage').then(m => m.JobsPage)
-    return { Component: createAuthRequiredPage(Component) }
-  }},
-  ApisRoute: { lazy: async () => {
-    const Component = await import('./src/features/apis/pages/ApisPage').then(m => m.ApisPage)
-    return { Component }
-  }},
-  CrudListRoute: { lazy: async () => {
-    const Component = await import('./src/features/crud/pages/ListPage').then(m => m.ListPage)
-    return { Component: createAuthRequiredPage(Component) }
-  }},
-  CrudDetailRoute: { lazy: async () => {
-    const Component = await import('./src/features/crud/pages/DetailPage').then(m => m.DetailPage)
-    return { Component: createAuthRequiredPage(Component) }
-  }},
-  StreamingRoute: { lazy: async () => {
-    const Component = await import('./src/features/streaming/pages/StreamingTestPage').then(m => m.StreamingTestPage)
-    return { Component }
-  }},
-  ChatRoute: { lazy: async () => {
-    const Component = await import('./src/features/chat/pages/ChatPage').then(m => m.ChatPage)
-    return { Component: createAuthRequiredPage(Component) }
-  }},
+  HomeRoute: {
+    Component:
+      lazy(() =>
+        import('./src/pages/HomePage').then(m => m.HomePage)
+        .then(component => ({ default: component }))
+      ),
+  },
+  CatchAllRoute: {
+    Component:
+      lazy(() =>
+        import('./src/pages/CatchAllPage').then(m => m.CatchAllPage)
+        .then(component => ({ default: component }))
+      ),
+  },
+  SignupRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/auth/pages/Signup').then(m => m.default)
+        .then(component => ({ default: component }))
+      ),
+  },
+  LoginRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/auth/pages/Login').then(m => m.default)
+        .then(component => ({ default: component }))
+      ),
+  },
+  PasswordResetRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/auth/pages/PasswordReset').then(m => m.PasswordReset)
+        .then(component => ({ default: component }))
+      ),
+  },
+  EmailVerificationRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/auth/pages/EmailVerification').then(m => m.EmailVerification)
+        .then(component => ({ default: component }))
+      ),
+  },
+  RequestPasswordResetRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/auth/pages/RequestPasswordReset').then(m => m.RequestPasswordReset)
+        .then(component => ({ default: component }))
+      ),
+  },
+  ProfileRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/auth/pages/ProfilePage').then(m => m.ProfilePage)
+        .then(component => createAuthRequiredPage(component))
+        .then(component => ({ default: component }))
+      ),
+  },
+  ManualSignupRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/auth/pages/ManualSignupPage').then(m => m.ManualSignupPage)
+        .then(component => ({ default: component }))
+      ),
+  },
+  CustomSignupRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/auth/pages/CustomSignupPage').then(m => m.CustomSignupPage)
+        .then(component => ({ default: component }))
+      ),
+  },
+  TasksRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/operations/pages/TasksPage').then(m => m.TasksPage)
+        .then(component => createAuthRequiredPage(component))
+        .then(component => ({ default: component }))
+      ),
+  },
+  TaskRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/operations/pages/TaskDetailPage').then(m => m.TaskDetailPage)
+        .then(component => createAuthRequiredPage(component))
+        .then(component => ({ default: component }))
+      ),
+  },
+  SerializationRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/operations/pages/SerializationPage').then(m => m.SerializationPage)
+        .then(component => ({ default: component }))
+      ),
+  },
+  JobsRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/jobs/pages/JobsPage').then(m => m.JobsPage)
+        .then(component => createAuthRequiredPage(component))
+        .then(component => ({ default: component }))
+      ),
+  },
+  ApisRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/apis/pages/ApisPage').then(m => m.ApisPage)
+        .then(component => ({ default: component }))
+      ),
+  },
+  CrudListRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/crud/pages/ListPage').then(m => m.ListPage)
+        .then(component => createAuthRequiredPage(component))
+        .then(component => ({ default: component }))
+      ),
+  },
+  CrudDetailRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/crud/pages/DetailPage').then(m => m.DetailPage)
+        .then(component => createAuthRequiredPage(component))
+        .then(component => ({ default: component }))
+      ),
+  },
+  StreamingRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/streaming/pages/StreamingTestPage').then(m => m.StreamingTestPage)
+        .then(component => ({ default: component }))
+      ),
+  },
+  ChatRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/chat/pages/ChatPage').then(m => m.ChatPage)
+        .then(component => createAuthRequiredPage(component))
+        .then(component => ({ default: component }))
+      ),
+  },
   EagerRoute: {
     Component: EagerPage,
   },
-  LazyRoute: { lazy: async () => {
-    const Component = await import('./src/features/lazy-loading/pages/LazyPage').then(m => m.LazyPage)
-    return { Component }
-  }},
-  PrerenderRoute: { lazy: async () => {
-    const Component = await import('./src/features/prerender/pages/PrerenderPage').then(m => m.PrerenderPage)
-    return { Component }
-  }},
+  LazyRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/lazy-loading/pages/LazyPage').then(m => m.LazyPage)
+        .then(component => ({ default: component }))
+      ),
+  },
+  PrerenderRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/prerender/pages/PrerenderPage').then(m => m.PrerenderPage)
+        .then(component => ({ default: component }))
+      ),
+  },
 } as const;
 
 await setup_ext()

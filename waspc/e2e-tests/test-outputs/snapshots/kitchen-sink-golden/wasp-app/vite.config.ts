@@ -10,4 +10,10 @@ export default defineConfig({
   test: {
     exclude: ["./e2e-tests/**"],
   },
+  build: { minify: false },
+  resolve: {
+    alias: {
+      "react-dom/client": "react-dom/profiling",
+    },
+  },
 });

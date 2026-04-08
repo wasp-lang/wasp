@@ -16,6 +16,7 @@ wasp-app/.wasp/out/sdk/wasp/client/app/components/Loader.module.css
 wasp-app/.wasp/out/sdk/wasp/client/app/components/Loader.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/Message.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/components/WaspApp.tsx
+wasp-app/.wasp/out/sdk/wasp/client/app/fallback.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/hooks/useIsClient.ts
 wasp-app/.wasp/out/sdk/wasp/client/app/index.tsx
 wasp-app/.wasp/out/sdk/wasp/client/app/layout.tsx
@@ -88,6 +89,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/WaspApp.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/WaspApp.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/WaspApp.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/components/WaspApp.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/fallback.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/fallback.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/fallback.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/client/app/fallback.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/hooks/useIsClient.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/hooks/useIsClient.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/app/hooks/useIsClient.js

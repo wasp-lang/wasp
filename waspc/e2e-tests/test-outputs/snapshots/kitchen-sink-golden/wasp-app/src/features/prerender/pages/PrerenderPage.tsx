@@ -1,24 +1,19 @@
-import { createElement } from "react";
+import { useEffect, useState } from "react";
 import { FeatureContainer } from "../../../components/FeatureContainer";
 
-const IS_BROWSER = typeof window !== "undefined";
-
 export function PrerenderPage() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => setIsClient(true), []);
+
   return (
     <FeatureContainer>
-      <div data-testid="prerender-page">
-        This page is prerendered at build time (prerender: true)
-      </div>
+      <p data-testid="prerender-route">
+        This route has <code>prerender: true</code>.
+      </p>
 
-      {createElement(
-        "div",
-        { suppressHydrationWarning: true },
-        ...(IS_BROWSER
-          ? []
-          : [
-              "You should only see this message if the page was prerendered at build time.",
-            ]),
-      )}
+      <p data-testid="prerender-with-useisclient">
+        This content is rendered on the {isClient ? "client" : "server"}.
+      </p>
     </FeatureContainer>
   );
 }

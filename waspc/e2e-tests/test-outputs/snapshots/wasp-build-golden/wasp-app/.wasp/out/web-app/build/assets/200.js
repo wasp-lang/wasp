@@ -1,6 +1,6 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
 import { jsx, jsxs } from "react/jsx-runtime";
-import { useSyncExternalStore, StrictMode, use, startTransition } from "react";
+import { useState, useEffect, use, StrictMode, lazy, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -39,54 +39,14 @@ import "superjson";
   }
 })();
 function useIsClient() {
-  return useSyncExternalStore(emptySubscribe, getClientValue, getServerValue);
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  return isClient;
 }
-function emptySubscribe() {
-  return emptyUnsubscribe;
-}
-function emptyUnsubscribe() {
-}
-function getClientValue() {
-  return true;
-}
-function getServerValue() {
-  return false;
-}
-function Layout({ children, isFallbackPage = false, clientEntrySrc }) {
-  const isClient = useIsClient();
-  const shouldRenderChildren = isClient || !isFallbackPage;
-  return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", { lang: "en", children: [
-    /* @__PURE__ */ jsxs("head", { children: [
-      /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
-      /* @__PURE__ */ jsx("meta", { name: "viewport", content: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" }),
-      /* @__PURE__ */ jsx("link", { rel: "icon", href: "/favicon.ico" }),
-      /* @__PURE__ */ jsx("title", { children: "wasp-app" })
-    ] }),
-    /* @__PURE__ */ jsxs("body", { children: [
-      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
-      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null }),
-      // We pass that argument in SSR builds and not in client builds.
-      // This would usually cause a hydration mismatch, but React has an
-      // exception for `<script>` tags, for this specific usecase, so it
-      // will work fine.
-      clientEntrySrc ? (
-        // We'd usually use React prerender's `bootstrapModules` options for
-        // injecting this script, but it would also add a `<link
-        // rel="modulepreload">` tag that Vite doesn't handle correctly. So
-        // we just add the script ourselves in the regular way.
-        //
-        // https://react.dev/reference/react-dom/static/prerenderToNodeStream
-        /* @__PURE__ */ jsx(
-          "script",
-          {
-            type: "module",
-            src: clientEntrySrc,
-            async: true
-          }
-        )
-      ) : null
-    ] })
-  ] }) });
+function Fallback() {
+  return null;
 }
 function stripTrailingSlash(url) {
   return url?.replace(/\/$/, "");
@@ -288,6 +248,42 @@ function WaspApp({ children }) {
   const queryClient = use(queryClientInitialized);
   return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children });
 }
+function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntrySrc }) {
+  const isClient = useIsClient();
+  const shouldRenderChildren = isClient || !isFallbackPage2;
+  return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", { lang: "en", children: [
+    /* @__PURE__ */ jsxs("head", { children: [
+      /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
+      /* @__PURE__ */ jsx("meta", { name: "viewport", content: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" }),
+      /* @__PURE__ */ jsx("link", { rel: "icon", href: "/favicon.ico" }),
+      /* @__PURE__ */ jsx("title", { children: "wasp-app" })
+    ] }),
+    /* @__PURE__ */ jsxs("body", { children: [
+      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
+      /* @__PURE__ */ jsx("div", { id: "root", children: /* @__PURE__ */ jsx(WaspApp, { children: shouldRenderChildren ? children : /* @__PURE__ */ jsx(Fallback, {}) }) }),
+      // We pass that argument in SSR builds and not in client builds.
+      // This would usually cause a hydration mismatch, but React has an
+      // exception for `<script>` tags, for this specific usecase, so it
+      // will work fine.
+      clientEntrySrc ? (
+        // We'd usually use React prerender's `bootstrapModules` options for
+        // injecting this script, but it would also add a `<link
+        // rel="modulepreload">` tag that Vite doesn't handle correctly. So
+        // we just add the script ourselves in the regular way.
+        //
+        // https://react.dev/reference/react-dom/static/prerenderToNodeStream
+        /* @__PURE__ */ jsx(
+          "script",
+          {
+            type: "module",
+            src: clientEntrySrc,
+            async: true
+          }
+        )
+      ) : null
+    ] })
+  ] }) });
+}
 const scriptRel = "modulepreload";
 const assetsURL = function(dep) {
   return "/" + dep;
@@ -388,10 +384,11 @@ function getRouteObjects({ routesMapping: routesMapping2, rootElement: rootEleme
   }];
 }
 const routesMapping = {
-  RootRoute: { lazy: async () => {
-    const Component = await __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage);
-    return { Component };
-  } }
+  RootRoute: {
+    Component: lazy(
+      () => __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage).then((component) => ({ default: component }))
+    )
+  }
 };
 initializeQueryClient();
 const rootElement = void 0;
@@ -399,15 +396,16 @@ const routeObjects = getRouteObjects({
   routesMapping,
   rootElement
 });
-const hydrationData = window.__staticRouterHydrationData;
+const { isFallbackPage } = window.__WASP_SSR_DATA__;
 const router = createBrowserRouter(routeObjects, {
   basename: "/",
-  hydrationData
+  // React Router will put hydration data on this property of the `window` object.
+  // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
+  hydrationData: window.__staticRouterHydrationData
 });
-function App({ isFallbackPage }) {
-  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
+function App() {
+  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(RouterProvider, { router }) });
 }
 startTransition(() => {
-  const isFallbackpage = hydrationData == null;
-  hydrateRoot(document, /* @__PURE__ */ jsx(App, { isFallbackPage: isFallbackpage }));
+  hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
 });

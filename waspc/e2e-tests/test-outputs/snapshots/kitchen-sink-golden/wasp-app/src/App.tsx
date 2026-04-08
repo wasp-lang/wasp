@@ -13,6 +13,7 @@ import { Button, ButtonLink } from "./components/Button";
 import { getName } from "./features/auth/user";
 
 // Necessary to trigger type tests.
+import { useMemo, useSyncExternalStore } from "react";
 import "./rpcTests/operations/client";
 
 export function App() {
@@ -166,6 +167,20 @@ function StatusInfo({
   date: Date | undefined;
   isConnected: boolean;
 }) {
+  const isClient = useIsClient();
+
+  const dateStr = useMemo(() => {
+    const { locale, timeZone } = isClient
+      ? {}
+      : { locale: "en-US", timeZone: "UTC" };
+
+    return `${new Intl.DateTimeFormat(locale, {
+      timeZone,
+      dateStyle: "medium",
+      timeStyle: "medium",
+    }).format(date)} ${timeZone ?? ""}`;
+  }, [isClient, date]);
+
   return (
     <div className="flex items-center space-x-4 text-sm">
       <div className="flex items-center space-x-2">
@@ -181,9 +196,20 @@ function StatusInfo({
         </span>
       </div>
 
-      {date && (
-        <div className="text-gray-500">Loaded {date.toLocaleString()}</div>
-      )}
+      {date && <div className="text-gray-500">Loaded {dateStr}</div>}
     </div>
   );
 }
+
+function useIsClient() {
+  return useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false,
+  );
+}
+
+function emptySubscribe() {
+  return emptyUnsubscribe;
+}
+function emptyUnsubscribe() {}

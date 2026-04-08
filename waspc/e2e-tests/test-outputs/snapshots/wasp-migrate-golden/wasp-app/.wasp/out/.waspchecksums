@@ -93,30 +93,37 @@
     [
         [
             "file",
+            "sdk/wasp/client/app/fallback.tsx"
+        ],
+        "03081e3dd6b0f957f6f68cd94e6cbd57c2a5c8245f63b98e55b9dc68fe9aacbd"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/app/hooks/useIsClient.ts"
         ],
-        "8b7b892d6cc33b2f2569ff852bd018aa4b236a4313d9a18eaf8281f1359cbd5a"
+        "d6912c04aaee762cc62a3d811d6253fc8b31732ea80d1e757e2480d6c37e3931"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "6bcaf8f893b0c1e55ee09411ddb6e36871ebae371fab829aa3046c48054c8bfb"
+        "8573f57fa1b6087edbf717b1f637711d24db7b4ed22c006f9694c171c20451bd"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "41d376823d51bcbc38267f1f6050ccafc0c5a0bd1cfb76125bf1456f4655e796"
+        "f83f7177856a31d5f6c5fa43f3fe8084e32943662bebd95af4677876bcf29212"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "27a04237768e1dba1e1c44a7ee1b77f8375aebf9d156a24798f084a7aa4d0c67"
+        "1b2f8e350bdfa5869fae40c34affcb7619ea135ebddc175a39aa65040d0d3c94"
     ],
     [
         [
@@ -340,21 +347,21 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "0c171a9124ff599f456714c61e072b0175eaa889b1bae5532fe2d920e16af28a"
+        "407692ff27493ce824a596a7cab219e392e9dfa47ea9a024fca02cfcd3259a7a"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "4a440078f86add6d389dd0e36b9a8a9f1b31b6918e44fd67149b18b6df89154d"
+        "f61fadf421a8c1fb21eb0a2e2fa9a3823e82442dde46dd710b80c616ef434c35"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "01aea87961a2d7a79d20000dd927ba70724aab0df368f425923c103efd49c0a9"
+        "efe748ace67d12ca6f55a9c95be6c77d05dae5c704cda324528bad19b3ba81ed"
     ],
     [
         [

@@ -1,5 +1,8 @@
 import { StrictMode, type ReactNode } from "react";
+
 import { useIsClient } from "./hooks/useIsClient.js"
+import { Fallback } from "./fallback.jsx"
+import { WaspApp } from "./components/WaspApp.jsx";
 
 export function Layout({
   children,
@@ -60,7 +63,9 @@ export function Layout({
             // versions.
           }
           <div id="root">
-              {shouldRenderChildren ? children : null}
+            <WaspApp>
+              {shouldRenderChildren ? children : <Fallback />}
+            </WaspApp>
           </div>
 
           {
