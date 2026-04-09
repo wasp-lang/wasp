@@ -1,4 +1,5 @@
 // PRIVATE API (web-app)
-export { createAuthRequiredPage } from './pages/createAuthRequiredPage'
+export { WaspApp } from './components/WaspApp'
 
-export {}
+// PRIVATE API (web-app)
+export { createAuthRequiredPage } from './pages/createAuthRequiredPage'

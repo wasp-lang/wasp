@@ -7,7 +7,9 @@ import {
   createStaticRouter,
   RouterProvider,
 } from "react-router";
+
 import { Layout } from "wasp/client/app/layout";
+import { WaspApp } from "wasp/client/app";
 
 import { routeObjects } from '/@wasp/routes.tsx'
 
@@ -23,16 +25,21 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   const req = new Request(new URL(route, "http://localhost"));
 
   const context = await query(req);
-  assert (!(context instanceof Response), "Expected no redirect responses from static handler");
+  assert(
+    !(context instanceof Response),
+    "Redirects from React Router's `loader`s are not supported",
+  );
 
   const router = createStaticRouter(dataRoutes, context);
 
-  const WASP_SSR_DATA = { isFallbackPage}
+  const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
 
   function App() {
     return (
       <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
-        <RouterProvider router={router} />
+        <WaspApp>
+          <RouterProvider router={router} />
+        </WaspApp>
       </Layout>
     )
   }

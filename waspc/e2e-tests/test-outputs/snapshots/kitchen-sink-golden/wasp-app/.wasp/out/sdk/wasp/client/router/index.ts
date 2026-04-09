@@ -294,6 +294,19 @@ export const routes = {
         options?.hash
       ),
   },
+  HydrationMismatchRoute: {
+    to: "/hydration-mismatch",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/hydration-mismatch",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
 } as const;
 
 // PRIVATE API

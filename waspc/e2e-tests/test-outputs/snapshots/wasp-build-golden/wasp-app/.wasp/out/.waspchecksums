@@ -93,13 +93,6 @@
     [
         [
             "file",
-            "sdk/wasp/client/app/fallback.tsx"
-        ],
-        "03081e3dd6b0f957f6f68cd94e6cbd57c2a5c8245f63b98e55b9dc68fe9aacbd"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/client/app/hooks/useIsClient.ts"
         ],
         "d6912c04aaee762cc62a3d811d6253fc8b31732ea80d1e757e2480d6c37e3931"
@@ -109,21 +102,21 @@
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "8573f57fa1b6087edbf717b1f637711d24db7b4ed22c006f9694c171c20451bd"
+        "6bcaf8f893b0c1e55ee09411ddb6e36871ebae371fab829aa3046c48054c8bfb"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "f83f7177856a31d5f6c5fa43f3fe8084e32943662bebd95af4677876bcf29212"
+        "41d376823d51bcbc38267f1f6050ccafc0c5a0bd1cfb76125bf1456f4655e796"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "1b2f8e350bdfa5869fae40c34affcb7619ea135ebddc175a39aa65040d0d3c94"
+        "2b5dc997d1f01dfb8121e415a2d41ea035ce18ae877403036eec61009967f92b"
     ],
     [
         [
@@ -347,21 +340,21 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "e59c0d13f18c5875c8805bdfb09947cd506b612465384f9c9e5b5ffba7674f09"
+        "68fe20555b791e60ae23b17d882f4a9d97451296fe81024adb1b6a258da8dd94"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "f61fadf421a8c1fb21eb0a2e2fa9a3823e82442dde46dd710b80c616ef434c35"
+        "a07b97ff61fd3f3c289cc17718336c9086152e8e56faaaf9a2ecf40b1db8335a"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "efe748ace67d12ca6f55a9c95be6c77d05dae5c704cda324528bad19b3ba81ed"
+        "1748df7494ea3036e2d3e13f1bde97514ad752bcd10893b95cb7f6079c594dcf"
     ],
     [
         [
@@ -634,7 +627,7 @@
             "file",
             "sdk/wasp/vite-env.d.ts"
         ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+        "665f3198e423071ad1101003d223d09386605ddd32bcf8efba857619dd6dbb9f"
     ],
     [
         [

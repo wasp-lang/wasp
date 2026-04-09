@@ -1,6 +1,6 @@
 const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/MainPage.js","assets/MainPage.css"])))=>i.map(i=>d[i]);
 import { jsx, jsxs } from "react/jsx-runtime";
-import { useState, useEffect, use, StrictMode, lazy, startTransition } from "react";
+import { useState, useEffect, StrictMode, use, lazy, startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
@@ -45,8 +45,41 @@ function useIsClient() {
   }, []);
   return isClient;
 }
-function Fallback() {
-  return null;
+function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntrySrc }) {
+  const isClient = useIsClient();
+  const shouldRenderChildren = isClient || !isFallbackPage2;
+  return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", { lang: "en", children: [
+    /* @__PURE__ */ jsxs("head", { children: [
+      /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
+      /* @__PURE__ */ jsx("meta", { name: "viewport", content: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" }),
+      /* @__PURE__ */ jsx("link", { rel: "icon", href: "/favicon.ico" }),
+      /* @__PURE__ */ jsx("title", { children: "wasp-app" })
+    ] }),
+    /* @__PURE__ */ jsxs("body", { children: [
+      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
+      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null }),
+      // We pass that argument in SSR builds and not in client builds.
+      // This would usually cause a hydration mismatch, but React has an
+      // exception for `<script>` tags, for this specific usecase, so it
+      // will work fine.
+      clientEntrySrc ? (
+        // We'd usually use React prerender's `bootstrapModules` options for
+        // injecting this script, but it would also add a `<link
+        // rel="modulepreload">` tag that Vite doesn't handle correctly. So
+        // we just add the script ourselves in the regular way.
+        //
+        // https://react.dev/reference/react-dom/static/prerenderToNodeStream
+        /* @__PURE__ */ jsx(
+          "script",
+          {
+            type: "module",
+            src: clientEntrySrc,
+            async: true
+          }
+        )
+      ) : null
+    ] })
+  ] }) });
 }
 function stripTrailingSlash(url) {
   return url?.replace(/\/$/, "");
@@ -248,42 +281,6 @@ function WaspApp({ children }) {
   const queryClient = use(queryClientInitialized);
   return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children });
 }
-function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntrySrc }) {
-  const isClient = useIsClient();
-  const shouldRenderChildren = isClient || !isFallbackPage2;
-  return /* @__PURE__ */ jsx(StrictMode, { children: /* @__PURE__ */ jsxs("html", { lang: "en", children: [
-    /* @__PURE__ */ jsxs("head", { children: [
-      /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
-      /* @__PURE__ */ jsx("meta", { name: "viewport", content: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" }),
-      /* @__PURE__ */ jsx("link", { rel: "icon", href: "/favicon.ico" }),
-      /* @__PURE__ */ jsx("title", { children: "wasp-app" })
-    ] }),
-    /* @__PURE__ */ jsxs("body", { children: [
-      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
-      /* @__PURE__ */ jsx("div", { id: "root", children: /* @__PURE__ */ jsx(WaspApp, { children: shouldRenderChildren ? children : /* @__PURE__ */ jsx(Fallback, {}) }) }),
-      // We pass that argument in SSR builds and not in client builds.
-      // This would usually cause a hydration mismatch, but React has an
-      // exception for `<script>` tags, for this specific usecase, so it
-      // will work fine.
-      clientEntrySrc ? (
-        // We'd usually use React prerender's `bootstrapModules` options for
-        // injecting this script, but it would also add a `<link
-        // rel="modulepreload">` tag that Vite doesn't handle correctly. So
-        // we just add the script ourselves in the regular way.
-        //
-        // https://react.dev/reference/react-dom/static/prerenderToNodeStream
-        /* @__PURE__ */ jsx(
-          "script",
-          {
-            type: "module",
-            src: clientEntrySrc,
-            async: true
-          }
-        )
-      ) : null
-    ] })
-  ] }) });
-}
 const scriptRel = "modulepreload";
 const assetsURL = function(dep) {
   return "/" + dep;
@@ -385,8 +382,15 @@ function getRouteObjects({ routesMapping: routesMapping2, rootElement: rootEleme
 }
 const routesMapping = {
   RootRoute: {
-    Component: lazy(
-      () => __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage).then((component) => ({ default: component }))
+    Component: (
+      // We use React's `lazy()` instead of defining a Lazy Route on React
+      // Router's side because there's a bug where it will ask for a
+      // HydrationFallback and commit it immediately even when working with
+      // prerendered pages.
+      // https://github.com/remix-run/react-router/issues/14955
+      lazy(
+        () => __vitePreload(() => import("./MainPage.js"), true ? __vite__mapDeps([0,1]) : void 0).then((m) => m.MainPage).then((component) => ({ default: component }))
+      )
     )
   }
 };
@@ -404,7 +408,7 @@ const router = createBrowserRouter(routeObjects, {
   hydrationData: window.__staticRouterHydrationData
 });
 function App() {
-  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(RouterProvider, { router }) });
+  return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
 }
 startTransition(() => {
   hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));

@@ -53,7 +53,11 @@ test.describe("prerender", () => {
     const messages = collectConsoleMessages(page);
 
     await page.goto("/hydration-mismatch");
-    await expect(page.getByTestId("hydration-mismatch-content")).toBeVisible();
+    // Wait for React to hydrate and re-render (the text changes from
+    // "server" to "client" once hydration completes).
+    await expect(page.getByTestId("hydration-mismatch-content")).toContainText(
+      "client",
+    );
 
     expect(hasHydrationWarning(messages)).toBe(true);
   });
