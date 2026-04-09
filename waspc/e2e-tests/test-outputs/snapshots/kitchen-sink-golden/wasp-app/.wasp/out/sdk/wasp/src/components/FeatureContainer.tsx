@@ -157,6 +157,11 @@ const features: Feature[] = [
     title: "Prerendering",
     isPublic: true,
   },
+  {
+    to: "/hydration-mismatch",
+    title: "Hydration Mismatch",
+    isPublic: true,
+  },
 ];
 
 function FeatureCard({ title, isPublic, ...routeProps }: Feature) {

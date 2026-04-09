@@ -1285,7 +1285,7 @@
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "ae233816ac8004f90ae9e18b3ecaf9198bcb139a356f9fcbf0479c977b3ca26a"
+        "784c2953dde91c6eeebfdff1d89def2d5de221109c9dc7c0546ed897174cc27c"
     ],
     [
         [
@@ -1607,14 +1607,14 @@
             "file",
             "sdk/wasp/src/features/prerender/pages/HydrationMismatchPage.tsx"
         ],
-        "c48905a4f26131659f997502ede9c5966bb760cd380bbdb615cba86d87b3a25f"
+        "13d64854ec5bd5546532b4425f7fa09647a4618de1c0e8883ca11825b28eb696"
     ],
     [
         [
             "file",
             "sdk/wasp/src/features/prerender/pages/PrerenderPage.tsx"
         ],
-        "b78b91dad658e56dd8998fca7bcbc0d0cd5e4e64b4a47ed0f36b6a428ca61ad5"
+        "5119eac47197facb0095d5d830756e7820d39cbf0c40aa804a38b8b62dc9af0b"
     ],
     [
         [

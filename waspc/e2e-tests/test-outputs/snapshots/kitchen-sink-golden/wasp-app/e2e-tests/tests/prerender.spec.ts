@@ -1,64 +1,65 @@
-import { expect, test, type ConsoleMessage, type Page } from "@playwright/test";
-
-function collectConsoleMessages(page: Page): ConsoleMessage[] {
-  const messages: ConsoleMessage[] = [];
-  page.on("console", (msg) => {
-    if (msg.type() === "error" || msg.type() === "warning") {
-      messages.push(msg);
-    }
-  });
-  return messages;
-}
-
-function hasHydrationWarning(messages: ConsoleMessage[]): boolean {
-  return messages.some(
-    (msg) =>
-      msg.text().includes("Hydration") ||
-      msg.text().includes("did not match") ||
-      msg.text().includes("hydrat"),
-  );
-}
+import { expect, Page, test } from "@playwright/test";
 
 test.describe("prerender", () => {
-  test("prerender page renders with correct content", async ({ page }) => {
+  test("prerender page content is visible with no javascript", async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+
     await page.goto("/prerender");
 
-    await expect(page.getByTestId("prerender-route")).toContainText(
-      "prerender: true",
-    );
+    await expect(page.getByTestId("render-location")).toHaveText("server");
   });
 
   test("prerender page hydrates on the client", async ({ page }) => {
     await page.goto("/prerender");
 
-    await expect(page.getByTestId("prerender-with-useisclient")).toHaveText(
-      "This content is rendered on the client.",
-    );
+    await expect(page.getByTestId("render-location")).toHaveText("client");
   });
 
   test("prerender page has no hydration warnings", async ({ page }) => {
-    const messages = collectConsoleMessages(page);
-
+    using hydrationWarning = checkHydrationWarning(page);
     await page.goto("/prerender");
-    await expect(page.getByTestId("prerender-with-useisclient")).toHaveText(
-      "This content is rendered on the client.",
-    );
 
-    expect(hasHydrationWarning(messages)).toBe(false);
+    await expect(page.getByTestId("render-location")).toHaveText("client");
+
+    expect(hydrationWarning.hasHappened()).toBe(false);
   });
 
   test("hydration mismatch page triggers a hydration warning", async ({
     page,
   }) => {
-    const messages = collectConsoleMessages(page);
+    using hydrationWarning = checkHydrationWarning(page);
 
     await page.goto("/hydration-mismatch");
+
     // Wait for React to hydrate and re-render (the text changes from
     // "server" to "client" once hydration completes).
-    await expect(page.getByTestId("hydration-mismatch-content")).toContainText(
-      "client",
-    );
+    await expect(page.getByTestId("render-location")).toHaveText("client");
 
-    expect(hasHydrationWarning(messages)).toBe(true);
+    expect(hydrationWarning.hasHappened()).toBe(true);
   });
 });
+
+function checkHydrationWarning(page: Page) {
+  let hasHappened = false;
+
+  function listener(msg: Error) {
+    hasHappened ||= msg.message.includes(
+      "https://react.dev/link/hydration-mismatch",
+    );
+  }
+
+  page.on("pageerror", listener);
+
+  return {
+    hasHappened() {
+      return hasHappened;
+    },
+    [// @ts-expect-error Symbol.dispose is not yet in the TypeScript lib
+    Symbol.dispose]() {
+      page.off("pageerror", listener);
+    },
+  };
+}
