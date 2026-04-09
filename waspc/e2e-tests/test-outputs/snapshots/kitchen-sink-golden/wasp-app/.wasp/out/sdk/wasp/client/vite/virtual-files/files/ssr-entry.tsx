@@ -45,7 +45,7 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   }
 
   const html = await reactPrerender(<App/>, {
-    bootstrapScriptContent : `window.__WASP_SSR_DATA__ = ${JSON.stringify(WASP_SSR_DATA)};`,
+    bootstrapScriptContent: `window.__WASP_SSR_DATA__=${JSON.stringify(WASP_SSR_DATA)};`,
   })
     .then((result) => streamConsumers.text(result.prelude))
 

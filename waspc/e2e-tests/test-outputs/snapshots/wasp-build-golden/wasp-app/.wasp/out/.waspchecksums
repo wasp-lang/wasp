@@ -347,14 +347,14 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "a07b97ff61fd3f3c289cc17718336c9086152e8e56faaaf9a2ecf40b1db8335a"
+        "f61fadf421a8c1fb21eb0a2e2fa9a3823e82442dde46dd710b80c616ef434c35"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "1748df7494ea3036e2d3e13f1bde97514ad752bcd10893b95cb7f6079c594dcf"
+        "d710055fd2df2ca7f7e796269b005855c3448ba314661e808a6f6e2f2d710108"
     ],
     [
         [
