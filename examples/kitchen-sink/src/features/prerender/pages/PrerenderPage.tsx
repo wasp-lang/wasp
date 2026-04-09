@@ -7,12 +7,16 @@ export function PrerenderPage() {
 
   return (
     <FeatureContainer>
-      <p data-testid="prerender-route">
+      <p>
         This route has <code>prerender: true</code>.
       </p>
 
-      <p data-testid="prerender-with-useisclient">
-        This content is rendered on the {isClient ? "client" : "server"}.
+      <p>
+        This content has been rendered on the{" "}
+        <span data-testid="render-location">
+          {isClient ? "client" : "server"}
+        </span>
+        .
       </p>
     </FeatureContainer>
   );
