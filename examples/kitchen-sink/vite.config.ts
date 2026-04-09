@@ -10,12 +10,4 @@ export default defineConfig({
   test: {
     exclude: ["./e2e-tests/**"],
   },
-
-  // This makes debugging and profiling easier
-  build: { minify: false },
-  resolve: {
-    alias: {
-      "react-dom/client": "react-dom/profiling",
-    },
-  },
 });

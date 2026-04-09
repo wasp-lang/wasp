@@ -17,9 +17,12 @@ test.describe("prerender", () => {
 
     await expect(page.getByTestId("render-location")).toHaveText("client");
   });
+});
 
+test.describe("hydration warnings", () => {
   test("prerender page has no hydration warnings", async ({ page }) => {
     using hydrationWarning = checkHydrationWarning(page);
+
     await page.goto("/prerender");
 
     await expect(page.getByTestId("render-location")).toHaveText("client");
@@ -34,8 +37,6 @@ test.describe("prerender", () => {
 
     await page.goto("/hydration-mismatch");
 
-    // Wait for React to hydrate and re-render (the text changes from
-    // "server" to "client" once hydration completes).
     await expect(page.getByTestId("render-location")).toHaveText("client");
 
     expect(hydrationWarning.hasHappened()).toBe(true);
@@ -46,9 +47,11 @@ function checkHydrationWarning(page: Page) {
   let hasHappened = false;
 
   function listener(msg: Error) {
-    hasHappened ||= msg.message.includes(
-      "https://react.dev/link/hydration-mismatch",
-    );
+    hasHappened ||=
+      // Unminified error message
+      msg.message.includes("https://react.dev/link/hydration-mismatch") ||
+      // Minified error message
+      msg.message.includes("https://react.dev/errors/418");
   }
 
   page.on("pageerror", listener);
@@ -57,8 +60,7 @@ function checkHydrationWarning(page: Page) {
     hasHappened() {
       return hasHappened;
     },
-    [// @ts-expect-error Symbol.dispose is not yet in the TypeScript lib
-    Symbol.dispose]() {
+    [Symbol.dispose]() {
       page.off("pageerror", listener);
     },
   };
