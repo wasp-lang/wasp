@@ -10,6 +10,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Upgraded the pinned TypeScript version from 5.8.2 to 5.9.3 (required by `@tsconfig/node24`). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
 - The HTML file for the final built web app has changed from `index.html` to `200.html`. This is in preparation for prerendering support. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
 
+### 🎉 New Features
+
+- Routes can now be prerendered at build time by setting `prerender: true`. Prerendered routes are served as static HTML for faster load times and better SEO. ([#3982](https://github.com/wasp-lang/wasp/pull/3982))
+
 ### 🐞 Bug fixes
 
 - Updated `wasp deploy railway` to work with the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
