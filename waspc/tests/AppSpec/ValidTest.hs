@@ -468,6 +468,68 @@ spec_AppSpecValid = do
                          "You must have at least one route in your app. You can add it using the 'route' declaration."
                      ]
 
+    describe "prerender route validation" $ do
+      let makePrerenderRouteDecl name pageName routePath prerenderVal =
+            AS.Decl.makeDecl
+              name
+              AS.Route.Route
+                { AS.Route.to = AS.Core.Ref.Ref pageName,
+                  AS.Route.path = routePath,
+                  AS.Route.lazy = Nothing,
+                  AS.Route.prerender = prerenderVal
+                }
+
+      let makePageDeclWithAuth name authReq =
+            AS.Decl.makeDecl
+              name
+              AS.Page.Page
+                { AS.Page.component = dummyExtImport,
+                  AS.Page.authRequired = authReq
+                }
+
+      let makeSpec routePath prerenderVal pageAuthRequired =
+            basicAppSpec
+              { AS.decls =
+                  [ basicAppDecl,
+                    makePageDeclWithAuth "PrerenderPage" pageAuthRequired,
+                    makePrerenderRouteDecl "PrerenderRoute" "PrerenderPage" routePath prerenderVal,
+                    -- Need a basic route too so other validations pass if this is the only route
+                    basicRouteDecl
+                  ]
+              }
+
+      it "returns no error for prerendered route with static path and no auth" $ do
+        ASV.validateAppSpec (makeSpec "/about" (Just True) Nothing) `shouldBe` []
+
+      it "returns an error for prerendered route with dynamic segment" $ do
+        let errors = ASV.validateAppSpec (makeSpec "/photo/:photoId" (Just True) Nothing)
+        length errors `shouldBe` 1
+        show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
+
+      it "returns an error for prerendered route with splat" $ do
+        let errors = ASV.validateAppSpec (makeSpec "/files/*" (Just True) Nothing)
+        length errors `shouldBe` 1
+        show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
+
+      it "returns an error for prerendered route with optional segment" $ do
+        let errors = ASV.validateAppSpec (makeSpec "/photo/:id/edit?" (Just True) Nothing)
+        length errors `shouldBe` 1
+        -- Has both : and ?, but we just check at least one error about dynamic segments
+        show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
+
+      it "returns an error for prerendered route pointing to authRequired page" $ do
+        let errors = ASV.validateAppSpec (makeSpec "/dashboard" (Just True) (Just True))
+        -- One error from validateAppAuthIsSetIfAnyPageRequiresAuth (app.auth not set)
+        -- and one from validatePrerenderRoutes (prerender + authRequired)
+        any (("authRequired" `isInfixOf`) . show) errors `shouldBe` True
+        any (("Prerendered routes cannot require authentication" `isInfixOf`) . show) errors `shouldBe` True
+
+      it "returns no error when prerender is not set on dynamic route" $ do
+        ASV.validateAppSpec (makeSpec "/photo/:photoId" Nothing Nothing) `shouldBe` []
+
+      it "returns no error when prerender is False on dynamic route" $ do
+        ASV.validateAppSpec (makeSpec "/photo/:photoId" (Just False) Nothing) `shouldBe` []
+
     describe "declaration names validation" $ do
       let testInvalidDeclName makeDecl invalidName = it invalidName $ do
             let decl = makeDecl invalidName
