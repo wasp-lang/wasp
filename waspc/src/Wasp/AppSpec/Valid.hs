@@ -464,7 +464,7 @@ validatePrerenderRoutes spec =
         (_, page) = AS.resolveRef spec (Route.to route)
         pageRequiresAuth = Page.authRequired page == Just True
 
-    hasDynamicSegments path = any (`elem` path) [':' , '*', '?']
+    hasDynamicSegments path = any (`elem` path) [':', '*', '?']
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
