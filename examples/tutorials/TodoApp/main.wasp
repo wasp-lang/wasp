@@ -18,7 +18,7 @@ app TodoApp {
   }
 }
 
-route RootRoute { path: "/", to: MainPage, prerender: true }
+route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
   // We specify that the React implementation of the page is exported from

@@ -32,7 +32,7 @@ const mainPage = app.page("Main", {
   },
 });
 
-app.route("MainRoute", { path: "/", to: mainPage, prerender: true });
+app.route("MainRoute", { path: "/", to: mainPage });
 
 const signupPage = app.page("Signup", {
   component: {

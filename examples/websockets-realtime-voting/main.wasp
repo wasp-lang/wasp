@@ -18,7 +18,7 @@ app whereDoWeEat {
   }
 }
 
-route RootRoute { path: "/", to: MainPage, prerender: true }
+route RootRoute { path: "/", to: MainPage }
 page MainPage {
   component: import Main from "@src/pages/MainPage",
   authRequired: true
