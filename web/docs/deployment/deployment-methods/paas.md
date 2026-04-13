@@ -309,7 +309,86 @@ You'll deploy the server first:
     REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
     ```
 
-2. Next, we want to link the client build directory to the `client` service:
+2. Create a `railway.toml` file in `.wasp/out/web-app/build` to ensure Railway uses the correct builder for the static files:
+
+    <!--
+      NOTE: When updating this caddyfile, make sure to also update it in the deployment package at:
+      waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts
+    -->
+    ```toml title=".wasp/out/web-app/build/railway.toml"
+    [build]
+    builder = "railpack"
+    ```
+
+3. Create a `Caddyfile` in `.wasp/out/web-app/build` to configure how Railway serves your static files:
+
+    <!--
+      NOTE: When updating this caddyfile, make sure to also update it in the deployment package at:
+      waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts
+    -->
+    ```caddyfile title=".wasp/out/web-app/build/Caddyfile"
+    {
+      admin off
+      persist_config off
+      auto_https off
+
+      log {
+        format json
+      }
+
+      servers {
+        trusted_proxies static private_ranges
+      }
+    }
+
+    :{$PORT:80} {
+      log {
+        format json
+      }
+
+      respond /health 200
+
+      # Security headers
+      header {
+        # Enable cross-site filter (XSS) and tell browsers to block detected attacks
+        X-XSS-Protection "1; mode=block"
+        # Prevent some browsers from MIME-sniffing a response away from the declared Content-Type
+        X-Content-Type-Options "nosniff"
+        # Keep referrer data off of HTTP connections
+        Referrer-Policy "strict-origin-when-cross-origin"
+        # Enable strict Content Security Policy
+        Content-Security-Policy "default-src 'self'; img-src 'self' data: https: *; style-src 'self' 'unsafe-inline' https: *; script-src 'self' 'unsafe-inline' https: *; font-src 'self' data: https: *; connect-src 'self' https: *; media-src 'self' https: *; object-src 'none'; frame-src 'self' https: *;"
+        # Remove Server header
+        -Server
+      }
+
+      root * .
+
+      # Handle static files
+      file_server {
+        hide .git
+        hide .env*
+      }
+
+      # Compression with more formats
+      encode {
+        gzip
+        zstd
+      }
+
+      # Try files with HTML extension and handle SPA routing
+      try_files {path} {path}.html {path}/index.html /index.html
+
+      handle_errors {
+        rewrite * /{err.status_code}.html
+        file_server
+      }
+    }
+    ```
+
+    This adapts [Railway's default Caddyfile](https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template) so that all routes fall back to the Wasp client SPA (`index.html`).
+
+4. Link the client build directory to the `client` service:
 
     ```shell
     cd .wasp/out/web-app/build
@@ -318,15 +397,13 @@ You'll deploy the server first:
 
 <!-- TOPIC: client deployment -->
 
-4. Next, deploy the client build to Railway:
+5. Deploy the client build to Railway:
 
     ```shell
     railway up --ci
     ```
 
     Select `client` when prompted to select a service.
-
-    Railway will detect the `index.html` file and deploy the client as a static site.
 
 
 And now your Wasp should be deployed!
