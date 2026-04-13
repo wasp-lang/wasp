@@ -126,6 +126,10 @@ export function LandingPage() {
 }
 ```
 
+#### Further reading
+
+React has some documentation on [hydration](https://react.dev/reference/react-dom/client/hydrateRoot), which is relevant to Wasp prerendering. In particular, you may find useful the section on [suppressing unavoidable errors](https://react.dev/reference/react-dom/client/hydrateRoot#suppressing-unavoidable-hydration-mismatch-errors), or the one on [handling legitimately differences between client and server content](https://react.dev/reference/react-dom/client/hydrateRoot#handling-different-client-and-server-content).
+
 ## API reference
 
 ### `prerender` field on `route`
