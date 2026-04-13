@@ -1,11 +1,11 @@
-import { expect, test } from "@playwright/test"
-import { WASP_SERVER_URL } from "../playwright.config"
-import { performEmailVerification, performLogin, performSignup } from "./auth"
+import { expect, test } from "@playwright/test";
+import { WASP_SERVER_URL } from "../playwright.config";
+import { performEmailVerification, performLogin, performSignup } from "./auth";
 import {
   generateRandomEmail,
   isRunningInDeployedMode,
   isRunningInDevMode,
-} from "./helpers"
+} from "./helpers";
 
 test.describe("auth", () => {
   test("social button renders on signup page", async ({ page }) => {
