@@ -133,19 +133,19 @@ jobs:
           # Run smoke test
           ../../scripts/deploy-test/smoke-test-deployed-test-app.sh "https://$SERVER_HOSTNAME" "https://$CLIENT_HOSTNAME"
 
-  # cleanup_railway_deploy_test:
-  #   name: Clean up Railway deployment project
-  #   runs-on: ubuntu-latest
-  #   needs: test_railway_deployment
-  #   # NOTE: Railway deployments can sometimes "fail" but still deploy the apps. We
-  #   # want to always clean them up.
-  #   if: always()
-  #   steps:
-  #     - name: Install Railway CLI
-  #       # NOTE: We pinned the Railway version because we don't want the changes in the
-  #       # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
-  #       # of Wasp, we're just incidentally using the same tool Wasp uses.
-  #       run: npm install -g @railway/cli@4.23.0
+  cleanup_railway_deploy_test:
+    name: Clean up Railway deployment project
+    runs-on: ubuntu-latest
+    needs: test_railway_deployment
+    # NOTE: Railway deployments can sometimes "fail" but still deploy the apps. We
+    # want to always clean them up.
+    if: always()
+    steps:
+      - name: Install Railway CLI
+        # NOTE: We pinned the Railway version because we don't want the changes in the
+        # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
+        # of Wasp, we're just incidentally using the same tool Wasp uses.
+        run: npm install -g @railway/cli@4.23.0
 
-  #     - name: Clean up test project
-  #       run: railway delete --yes --project "$APP_PREFIX" || true
+      - name: Clean up test project
+        run: railway delete --yes --project "$APP_PREFIX" || true
