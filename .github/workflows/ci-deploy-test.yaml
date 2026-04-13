@@ -68,13 +68,6 @@ jobs:
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
-      - name: Install dependencies
-        working-directory: ${{ env.APP_TO_DEPLOY }}
-        # NOTE: --ignore-workspaces is needed because the workspaces
-        # reference .wasp/out/*, which doesn't exist in the CI checkout
-        # (the app was compiled remotely during deploy, not locally).
-        run: npm install --ignore-workspaces
-
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         env:
@@ -153,13 +146,6 @@ jobs:
           CLIENT_HOSTNAME=$(get_railway_service_hostname "$client_service_name")
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
-
-      - name: Install dependencies
-        working-directory: ${{ env.APP_TO_DEPLOY }}
-        # NOTE: --ignore-workspaces is needed because the workspaces
-        # reference .wasp/out/*, which doesn't exist in the CI checkout
-        # (the app was compiled remotely during deploy, not locally).
-        run: npm install --ignore-workspaces
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
