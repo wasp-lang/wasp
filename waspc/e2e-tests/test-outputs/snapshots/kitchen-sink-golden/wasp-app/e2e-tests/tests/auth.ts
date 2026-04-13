@@ -1,5 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
-import { generateRandomEmail, isRunningInDevMode } from "./helpers";
+import {
+  generateRandomEmail,
+  isRunningInDeployedMode,
+  isRunningInDevMode,
+} from "./helpers";
 import { getMailCrabEmailVerificationLink } from "./mailcrab";
 
 interface BaseEmailCredentials {
@@ -22,12 +26,20 @@ export function setupTestUser(): Credentials {
 
   test.beforeAll(async ({ browser }) => {
     const page = await browser.newPage();
-    await performSignup(page, credentials);
-    await expect(page.locator("body")).toContainText(
-      `You've signed up successfully! Check your email for the confirmation link.`,
-    );
 
-    await performEmailVerification(page, credentials.email);
+    if (isRunningInDeployedMode()) {
+      // In deployed mode, there's no Mailcrab SMTP server for email verification.
+      // Use the custom-signup page which auto-verifies emails.
+      await performSignup(page, credentials, "custom-signup");
+      await expect(page.locator("body")).toContainText(`Signup successful`);
+    } else {
+      await performSignup(page, credentials);
+      await expect(page.locator("body")).toContainText(
+        `You've signed up successfully! Check your email for the confirmation link.`,
+      );
+      await performEmailVerification(page, credentials.email);
+    }
+
     await page.close();
   });
 
