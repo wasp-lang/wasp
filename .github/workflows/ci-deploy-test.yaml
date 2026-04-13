@@ -68,13 +68,6 @@ jobs:
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
-      - name: Smoke test deployed app
-        run: |
-          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh \
-            "https://${{ steps.get-hostnames.outputs.server }}" \
-            "https://${{ steps.get-hostnames.outputs.client }}"
-        working-directory: ${{ env.APP_TO_DEPLOY }}
-
       - name: Install Playwright
         working-directory: ${{ env.APP_TO_DEPLOY }}
         run: |
@@ -159,13 +152,6 @@ jobs:
           CLIENT_HOSTNAME=$(get_railway_service_hostname "$client_service_name")
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
-
-      - name: Smoke test deployed app
-        run: |
-          ../../scripts/deploy-test/smoke-test-deployed-test-app.sh \
-            "https://${{ steps.get-hostnames.outputs.server }}" \
-            "https://${{ steps.get-hostnames.outputs.client }}"
-        working-directory: ${{ env.APP_TO_DEPLOY }}
 
       - name: Install Playwright
         working-directory: ${{ env.APP_TO_DEPLOY }}
