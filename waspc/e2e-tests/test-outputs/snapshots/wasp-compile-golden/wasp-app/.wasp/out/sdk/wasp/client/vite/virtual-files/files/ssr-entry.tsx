@@ -16,8 +16,6 @@ import { routeObjects } from '/@wasp/routes.tsx'
 const SPA_FALLBACK_FILE = "200.html";
 
 const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
-  const isFallbackPage = route === SPA_FALLBACK_FILE;
-
   const { query, dataRoutes } = createStaticHandler(routeObjects, {
     basename: "/",
   });
@@ -31,8 +29,7 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   );
 
   const router = createStaticRouter(dataRoutes, context);
-
-  const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
+  const isFallbackPage = route === SPA_FALLBACK_FILE;
 
   function App() {
     return (
@@ -43,6 +40,8 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
       </Layout>
     )
   }
+
+  const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
 
   const html = await reactPrerender(<App/>, {
     bootstrapScriptContent: `window.__WASP_SSR_DATA__=${JSON.stringify(WASP_SSR_DATA)};`,

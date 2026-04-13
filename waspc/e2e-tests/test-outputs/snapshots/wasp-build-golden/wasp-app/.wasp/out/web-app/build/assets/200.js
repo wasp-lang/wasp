@@ -393,13 +393,13 @@ const routeObjects = getRouteObjects({
   routesMapping,
   rootElement
 });
-const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
 const router = createBrowserRouter(routeObjects, {
   basename: "/",
   // React Router will put hydration data on this property of the `window` object.
   // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
   hydrationData: window.__staticRouterHydrationData
 });
+const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
 function App() {
   return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
 }

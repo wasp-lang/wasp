@@ -774,7 +774,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "68fe20555b791e60ae23b17d882f4a9d97451296fe81024adb1b6a258da8dd94"
+        "413c3dc30af130acc68fb319915348aab647f0b6d73bddacfcc5b5c3b7dbb766"
     ],
     [
         [
@@ -788,7 +788,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "d710055fd2df2ca7f7e796269b005855c3448ba314661e808a6f6e2f2d710108"
+        "f1b19e131b16c7dc39254a841ad836ba5ea7200cb7e11d06999c3b276bca30f6"
     ],
     [
         [
@@ -809,7 +809,7 @@
             "file",
             "sdk/wasp/client/webSocket/WebSocketProvider.tsx"
         ],
-        "2f406ded300754279dc96a5138cd9e98cec952840706a7269371f976e3d2a6a1"
+        "958e73a71c2d764f7a46e93bf3c0f8790826dd0a2526e69aeb12a2a954ba33c3"
     ],
     [
         [
