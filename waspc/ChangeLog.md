@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.22.1
+
+### 🐞 Bug fixes
+
+- `wasp deploy railway` now correctly configures the client service for SPA routing by providing a custom Caddyfile and pinning the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
 ## 0.22.0
 
 ### ⚠️ Breaking Changes
