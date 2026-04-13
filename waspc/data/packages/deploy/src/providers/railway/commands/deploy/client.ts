@@ -89,7 +89,7 @@ const railwayJsonContents = `{
 // static sites at:
 // https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template
 //
-// NOTE: When updating this caddyfile, make sure to also update it in the
+// NOTE: When updating this Caddyfile, make sure to also update it in the
 // railway deployment docs at:
 // web/docs/deployment/deployment-methods/paas.md
 const caddyfileContents = `{
