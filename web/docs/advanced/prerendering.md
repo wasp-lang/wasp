@@ -90,7 +90,7 @@ When React hydrates a prerendered page, it expects the prerendered HTML to match
 
 - **Checking for `window` or `document`:** code like `typeof window !== 'undefined'` or `import.meta.env.SSR` returns different values on the prerender vs. the client, and might change everything that depends on it.
 - **Non-deterministic values during render:** functions like `Date.now()`, or `Math.random()` produces different results on each render.
-- **Browser-only APIs:** accessing `window.innerWidth`, `navigator.userAgent`, `localStorage`, or similar APIs during render will fail while prerendering. This also applies to some third-party libraries that access these APIs, or less obvious JS APIs like `Intl.DateTimeFormat` that can use different timezones and locales on the prerender vs. client.
+- **Browser-only APIs:** accessing `window.innerWidth`, `navigator.userAgent`, `localStorage`, or similar APIs during render will fail while prerendering. This also applies to some third-party libraries that access these APIs, or less obvious JS APIs like `Intl.DateTimeFormat`, which can use different timezones and locales on the prerender vs. client.
 
 #### How to fix: the `useIsClient` pattern
 
