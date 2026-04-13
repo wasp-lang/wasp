@@ -9,7 +9,7 @@ Wasp can **prerender** specific routes at build time, producing static HTML file
 This gives you:
 
 - **Better SEO:** search engines index real HTML content instead of an empty shell.
-- **LLM and AI readability:** AI crawlers (ChatGPT, Perplexity, etc.) can read your content directly.
+- **LLM and AI readability:** AI crawlers (ChatGPT, Perplexity, Claude, etc.) can read your content directly.
 - **Faster performance on user experience:** users see content immediately (better [Largest Contentful Paint](https://developer.chrome.com/docs/lighthouse/performance/lighthouse-largest-contentful-paint)), with no layout shift from content loading in (better [Cumulative Layout Shift](https://web.dev/articles/cls)).
 - **Works without JavaScript:** content is visible even before the browser loads your JS bundle.
 
