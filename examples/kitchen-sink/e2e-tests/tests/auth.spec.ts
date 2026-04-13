@@ -12,15 +12,16 @@ test.describe("auth", () => {
     await page.goto("/signup");
 
     await expect(
-      page.locator(
-        `a[href='${WASP_SERVER_URL}/auth/google/login']`,
-      ),
+      page.locator(`a[href='${WASP_SERVER_URL}/auth/google/login']`),
     ).toBeVisible();
   });
 
   test.describe("signup and login", () => {
     // These tests require Mailcrab for email verification.
-    test.skip(isRunningInDeployedMode, "Skipped in deployed mode (no Mailcrab)");
+    test.skip(
+      isRunningInDeployedMode,
+      "Skipped in deployed mode (no Mailcrab)",
+    );
 
     // We need the login test to run after the signup test.
     test.describe.configure({ mode: "serial" });

@@ -31,9 +31,7 @@ export function setupTestUser(): Credentials {
       // In deployed mode, there's no Mailcrab SMTP server for email verification.
       // Use the custom-signup page which auto-verifies emails.
       await performSignup(page, credentials, "custom-signup");
-      await expect(page.locator("body")).toContainText(
-        `Signup successful`,
-      );
+      await expect(page.locator("body")).toContainText(`Signup successful`);
     } else {
       await performSignup(page, credentials);
       await expect(page.locator("body")).toContainText(
