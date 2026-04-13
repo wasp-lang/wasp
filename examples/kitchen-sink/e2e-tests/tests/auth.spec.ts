@@ -19,7 +19,7 @@ test.describe("auth", () => {
   test.describe("signup and login", () => {
     // These tests require Mailcrab for email verification.
     test.skip(
-      isRunningInDeployedMode,
+      isRunningInDeployedMode(),
       "Skipped in deployed mode (no Mailcrab)",
     );
 

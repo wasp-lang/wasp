@@ -1,11 +1,11 @@
-import { expect, test } from "@playwright/test";
-import { WASP_SERVER_URL } from "../playwright.config";
-import { performEmailVerification, performLogin, performSignup } from "./auth";
+import { expect, test } from "@playwright/test"
+import { WASP_SERVER_URL } from "../playwright.config"
+import { performEmailVerification, performLogin, performSignup } from "./auth"
 import {
   generateRandomEmail,
   isRunningInDeployedMode,
   isRunningInDevMode,
-} from "./helpers";
+} from "./helpers"
 
 test.describe("auth", () => {
   test("social button renders on signup page", async ({ page }) => {
@@ -19,7 +19,7 @@ test.describe("auth", () => {
   test.describe("signup and login", () => {
     // These tests require Mailcrab for email verification.
     test.skip(
-      isRunningInDeployedMode,
+      isRunningInDeployedMode(),
       "Skipped in deployed mode (no Mailcrab)",
     );
 
