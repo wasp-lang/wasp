@@ -1,7 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { WASP_SERVER_PORT } from "../playwright.config";
+import { WASP_SERVER_URL } from "../playwright.config";
 import { performEmailVerification, performLogin, performSignup } from "./auth";
-import { generateRandomEmail, isRunningInDevMode } from "./helpers";
+import {
+  generateRandomEmail,
+  isRunningInDeployedMode,
+  isRunningInDevMode,
+} from "./helpers";
 
 test.describe("auth", () => {
   test("social button renders on signup page", async ({ page }) => {
@@ -9,12 +13,15 @@ test.describe("auth", () => {
 
     await expect(
       page.locator(
-        `a[href='http://localhost:${WASP_SERVER_PORT}/auth/google/login']`,
+        `a[href='${WASP_SERVER_URL}/auth/google/login']`,
       ),
     ).toBeVisible();
   });
 
   test.describe("signup and login", () => {
+    // These tests require Mailcrab for email verification.
+    test.skip(isRunningInDeployedMode, "Skipped in deployed mode (no Mailcrab)");
+
     // We need the login test to run after the signup test.
     test.describe.configure({ mode: "serial" });
 
