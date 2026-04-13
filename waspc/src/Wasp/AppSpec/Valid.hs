@@ -450,21 +450,21 @@ validatePrerenderRoutes spec =
                 ++ "' has prerender enabled but its path ("
                 ++ Route.path route
                 ++ ") contains dynamic segments. Prerendered routes must have static paths."
-            | hasDynamicSegments (Route.path route)
+            | pathHasDynamicSegments (Route.path route)
           ],
           [ GenericValidationError $
               "Route '"
                 ++ routeName
                 ++ "' has prerender enabled but its page has authRequired set to true."
                 ++ " Prerendered routes cannot require authentication."
-            | pageRequiresAuth
+            | pageRequiresAuth (getPage route)
           ]
         ]
-      where
-        (_, page) = AS.resolveRef spec (Route.to route)
-        pageRequiresAuth = Page.authRequired page == Just True
 
-    hasDynamicSegments path = any (`elem` path) [':', '*', '?']
+    pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
+    pageRequiresAuth page = Page.authRequired page == Just True
+
+    getPage route = snd $ AS.resolveRef spec (Route.to route)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
