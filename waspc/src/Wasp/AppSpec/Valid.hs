@@ -438,11 +438,11 @@ validateAtLeastOneRoute spec =
 
 validatePrerenderRoutes :: AppSpec -> [ValidationError]
 validatePrerenderRoutes spec =
-  concatMap validateRoute prerenderRoutes
+  concatMap validatePrerenderRoute prerenderRoutes
   where
     prerenderRoutes = filter ((== Just True) . Route.prerender . snd) (AS.getRoutes spec)
 
-    validateRoute (routeName, route) =
+    validatePrerenderRoute (routeName, route) =
       concat
         [ [ GenericValidationError $
               "Route '"
