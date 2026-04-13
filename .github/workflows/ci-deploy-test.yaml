@@ -68,11 +68,12 @@ jobs:
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
-      - name: Install Playwright
+      - name: Install dependencies
         working-directory: ${{ env.APP_TO_DEPLOY }}
-        run: |
-          npm install @playwright/test@1.55.1
-          npx playwright install --with-deps chromium
+        # NOTE: --ignore-workspaces is needed because the workspaces
+        # reference .wasp/out/*, which doesn't exist in the CI checkout
+        # (the app was compiled remotely during deploy, not locally).
+        run: npm install --ignore-workspaces
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -80,7 +81,7 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npx playwright test --config e2e-tests/
+        run: npm test
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
@@ -153,11 +154,12 @@ jobs:
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
-      - name: Install Playwright
+      - name: Install dependencies
         working-directory: ${{ env.APP_TO_DEPLOY }}
-        run: |
-          npm install @playwright/test@1.55.1
-          npx playwright install --with-deps chromium
+        # NOTE: --ignore-workspaces is needed because the workspaces
+        # reference .wasp/out/*, which doesn't exist in the CI checkout
+        # (the app was compiled remotely during deploy, not locally).
+        run: npm install --ignore-workspaces
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
@@ -165,7 +167,7 @@ jobs:
           WASP_RUN_MODE: deployed
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
-        run: npx playwright test --config e2e-tests/
+        run: npm test
 
       - name: Upload Playwright report
         uses: actions/upload-artifact@v4
