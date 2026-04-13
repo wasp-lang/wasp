@@ -171,9 +171,6 @@ jobs:
     # want to always clean them up.
     if: always()
     steps:
-      - name: Wait 10 minutes before cleanup
-        run: sleep 600
-
       - name: Install Railway CLI
         # NOTE: We pinned the Railway version because we don't want the changes in the
         # Railway CLI to affect our cleanup procedure. `railway delete` isn't a part
