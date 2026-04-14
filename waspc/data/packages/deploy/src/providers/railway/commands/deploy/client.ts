@@ -28,7 +28,7 @@ export async function deployClient({
 
   const clientBuildArtefactsDir = await buildClient(serverServiceUrl, options);
 
-  overrideRailwayCaddyfile(clientBuildArtefactsDir);
+  addRailwayBuildConfig(clientBuildArtefactsDir);
 
   const deploymentStatus = await deployServiceWithStreamingLogs(
     {
@@ -52,48 +52,64 @@ export async function deployClient({
   waspSays(messages[deploymentStatus]);
 }
 
-/**
- * Railway serves static sites with Caddy that by default
- * falls back to `index.html` for unknown routes.
- *
- * Since Wasp uses `200.html` as the fallback route by default,
- * and reserves `index.html` for * the prerendered `/` route,
- * we generate a custom Caddyfile into the build directory
- * so Railway picks it up instead.
- *
- * @see https://railpack.com/languages/staticfile#custom-caddyfile
- */
-function overrideRailwayCaddyfile(buildDir: string): void {
+function addRailwayBuildConfig(buildDir: string): void {
+  /*
+    Our build configuration assumes we're using the Railpack builder. It is the
+    default builder, but we'll add a minimal `railway.json` with the builder
+    explicitly set to avoid any issues if Railway changes their defaults in the
+    future.
+    https://docs.railway.com/config-as-code/reference#specify-the-builder
+  */
+  fs.writeFileSync(path.join(buildDir, "railway.json"), railwayJsonContents);
+
+  /*
+    We'll provide our own Caddyfile to override the default behavior (MPA
+    routing) and enable SPA routing to the `200.html` file, which is required
+    for Wasp apps to work correctly.
+    https://railpack.com/languages/staticfile#custom-caddyfile
+  */
   fs.writeFileSync(path.join(buildDir, "Caddyfile"), caddyfileContents);
 }
 
-// NOTE: When updating this caddyfile, make sure to also update it in the railway deployment docs.
-/**
- * Closely follows the Railway's original Caddyfile.
- * The only diff is in the `try_files` directive.
- *
- * @see https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template
- */
+// NOTE: When updating this railway.json, make sure to also update it in the
+// railway deployment docs at:
+// web/docs/deployment/deployment-methods/paas.md
+const railwayJsonContents = `{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "RAILPACK"
+  }
+}`;
+
+// This Caddyfile is based on the default configuration provided by Railpack for
+// static sites at:
+// https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template
+//
+// The only diff is in the `try_files` directive.
+//
+// NOTE: When updating this Caddyfile, make sure to also update it in the
+// railway deployment docs at:
+// web/docs/deployment/deployment-methods/paas.md
 const caddyfileContents = `{
-  admin off
-  persist_config off
-  auto_https off
+	admin off
+	persist_config off
+	auto_https off
 
-  log {
-    format json
-  }
+	log {
+		format json
+	}
 
-  servers {
-    trusted_proxies static private_ranges
-  }
+	servers {
+		trusted_proxies static private_ranges
+	}
 }
 
 :{$PORT:80} {
-  log {
-    format json
-  }
+	log {
+		format json
+	}
 
-  respond /health 200
+	respond /health 200
 
 	# Security headers
 	header {
@@ -109,28 +125,27 @@ const caddyfileContents = `{
 		-Server
 	}
 
-  root * .
+	root * .
 
 	# Handle static files
-  file_server {
-    hide .git
-    hide .env*
-  }
+	file_server {
+		hide .git
+		hide .env*
+	}
 
 	# Compression with more formats
-  encode {
-    gzip
-    zstd
-  }
+	encode {
+		gzip
+		zstd
+	}
 
 	# Try files with HTML extension and handle SPA routing
-  # This is where we diverge from the railway's original caddyfile
-  try_files {path} {path}/index.html /200.html
+	# This is where we diverge from the Railpacks's original Caddyfile
+	try_files {path} {path}/index.html /200.html
 
-	# Handle 404 errors
-  handle_errors {
-    rewrite * /{err.status_code}.html
-    file_server
-  }
+	handle_errors {
+		rewrite * /{err.status_code}.html
+		file_server
+	}
 }
 `;

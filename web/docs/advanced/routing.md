@@ -87,3 +87,13 @@ route DashboardRoute { path: "/dashboard", to: DashboardPage, lazy: false }
 :::note
 Most apps won't need to change this. Disabling lazy loading is useful when you want to avoid the brief loading delay for a page that users navigate to very frequently, at the cost of a larger initial download.
 :::
+
+## Prerendered routes
+
+You can prerender specific routes at build time by setting `prerender: true`. This generates static HTML that is served immediately, giving faster load times and better SEO.
+
+```wasp title="main.wasp"
+route LandingRoute { path: "/", to: LandingPage, prerender: true }
+```
+
+Prerendering works on static paths only and cannot be used with `authRequired` pages. See the [Prerendering](./prerendering.md) page for the full documentation.

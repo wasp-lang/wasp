@@ -181,9 +181,7 @@ function StatusInfo({
         </span>
       </div>
 
-      {date && (
-        <div className="text-gray-500">Loaded {date.toLocaleString()}</div>
-      )}
+      {date && <div className="text-gray-500">Loaded {date.toISOString()}</div>}
     </div>
   );
 }
