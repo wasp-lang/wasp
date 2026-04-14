@@ -31,7 +31,6 @@ export function validateEnv(): Plugin {
       resolvedConfig = config;
     },
 
-    // Both dev and prod, but we only handle the prod branch here.
     async buildStart() {
       if (process.env[SKIP_FLAG] || resolvedConfig.command !== "build") {
         return;
@@ -40,7 +39,7 @@ export function validateEnv(): Plugin {
       const envVars = await loadEnvVars({
         rootDir: resolvedConfig.root,
         envPrefix: resolvedConfig.envPrefix!,
-        loadDotEnvFile: resolvedConfig.command === "serve",
+        loadDotEnvFile: false, // We expect users to provide env vars inline.
       });
 
       await runWithoutClientEnvValidation(async () => {
@@ -59,7 +58,6 @@ export function validateEnv(): Plugin {
       });
     },
 
-    // Dev server only.
     async configureServer(server) {
       if (process.env[SKIP_FLAG]) {
         return;
@@ -68,18 +66,25 @@ export function validateEnv(): Plugin {
       const envVars = await loadEnvVars({
         rootDir: resolvedConfig.root,
         envPrefix: resolvedConfig.envPrefix!,
-        loadDotEnvFile: resolvedConfig.command === "serve",
+        loadDotEnvFile: true,
       });
 
-      const validationErrorMessage = validateClientEnvSchema(server, envVars);
+      const validationErrorMessage = await validateClientEnvSchema(server, envVars);
+      if (!validationErrorMessage) {
+        return;
+      }
+
       const sendError = () => {
         server.ws.send({
           type: "error",
           err: { message: validationErrorMessage, stack: "" },
         });
       };
+
       server.ws.on("connection", sendError);
-      sendError();
+      server.httpServer?.once("close", () => {
+        server.ws.off("connection", sendError);
+      });
     },
   };
 }
@@ -94,7 +99,7 @@ async function runWithoutClientEnvValidation<T>(fn: () => Promise<T>): Promise<T
 }
 
 async function createModuleLoaderViteDevServer(rootDir: string, mode: string): Promise<ViteDevServer> {
-  return await createViteServer({
+  return createViteServer({
     root: rootDir,
     mode,
     server: { middlewareMode: true },
