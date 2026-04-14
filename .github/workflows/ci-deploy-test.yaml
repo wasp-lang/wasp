@@ -76,14 +76,6 @@ jobs:
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
         run: npm test
 
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: playwright-report-fly
-          path: ${{ env.APP_TO_DEPLOY }}/e2e-tests/test-results/
-          retention-days: 7
-
   cleanup_fly_deploy_test:
     name: Clean up Fly deployment test apps
     runs-on: ubuntu-latest
@@ -154,14 +146,6 @@ jobs:
           PLAYWRIGHT_BASE_URL: "https://${{ steps.get-hostnames.outputs.client }}"
           PLAYWRIGHT_SERVER_URL: "https://${{ steps.get-hostnames.outputs.server }}"
         run: npm test
-
-      - name: Upload Playwright report
-        uses: actions/upload-artifact@v7
-        if: always()
-        with:
-          name: playwright-report-railway
-          path: ${{ env.APP_TO_DEPLOY }}/e2e-tests/test-results/
-          retention-days: 7
 
   cleanup_railway_deploy_test:
     name: Clean up Railway deployment project
