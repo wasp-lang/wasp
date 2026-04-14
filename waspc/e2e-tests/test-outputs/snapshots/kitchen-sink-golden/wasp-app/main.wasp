@@ -89,7 +89,7 @@ app KitchenSink {
 
 // --------- General --------- //
 
-route HomeRoute { path: "/", to: HomePage }
+route HomeRoute { path: "/", to: HomePage, prerender: true }
 page HomePage {
   component: import { HomePage } from "@src/pages/HomePage"
 }
@@ -359,6 +359,18 @@ page EagerPage {
 route LazyRoute { path: "/lazy/yes", to: LazyPage }
 page LazyPage {
   component: import { LazyPage } from "@src/features/lazy-loading/pages/LazyPage"
+}
+
+// --------- Prerendering --------- //
+
+route PrerenderRoute { path: "/prerender", to: PrerenderPage, prerender: true }
+page PrerenderPage {
+  component: import { PrerenderPage } from "@src/features/prerender/pages/PrerenderPage"
+}
+
+route HydrationMismatchRoute { path: "/hydration-mismatch", to: HydrationMismatchPage, prerender: true }
+page HydrationMismatchPage {
+  component: import { HydrationMismatchPage } from "@src/features/prerender/pages/HydrationMismatchPage"
 }
 
 // --------- Operations Type Testing --------- //

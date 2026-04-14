@@ -176,6 +176,7 @@ const sidebars: SidebarsConfig = {
         "advanced/middleware-config",
         "advanced/links",
         "advanced/routing",
+        "advanced/prerendering",
       ],
     },
     {

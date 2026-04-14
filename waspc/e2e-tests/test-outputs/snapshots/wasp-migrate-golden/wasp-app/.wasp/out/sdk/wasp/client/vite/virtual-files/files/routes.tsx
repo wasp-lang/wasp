@@ -1,15 +1,19 @@
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
+import { lazy } from "react"
 
 
 
 
 
 const routesMapping = {
-  RootRoute: { lazy: async () => {
-    const Component = await import('./src/MainPage').then(m => m.MainPage)
-    return { Component }
-  }},
+  RootRoute: {
+    Component:
+      lazy(() =>
+        import('./src/MainPage').then(m => m.MainPage)
+        .then(component => ({ default: component }))
+      ),
+  },
 } as const;
 
 
