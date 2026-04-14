@@ -50,11 +50,11 @@ jsImportToImportJson = maybe notDefinedValue mkTmplData
 
     mkTmplData :: JsImport -> Aeson.Value
     mkTmplData jsImport =
-      let (importStatement, importIdentifier) = getJsImportStmtAndIdentifier jsImport
+      let (jsImportStatement, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
        in object
             [ "isDefined" .= True,
-              "importStatement" .= importStatement,
-              "importIdentifier" .= importIdentifier,
+              "importStatement" .= jsImportStatement,
+              "importIdentifier" .= jsImportIdentifier,
               "runtimeDynamicImportExpression" .= getJsRuntimeDynamicImportExpression jsImport,
               "typeDynamicImportExpression" .= getJsTypeDynamicImportExpression jsImport
             ]

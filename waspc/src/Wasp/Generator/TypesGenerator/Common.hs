@@ -1,4 +1,13 @@
-module Wasp.Generator.TypesGenerator.Common where
+module Wasp.Generator.TypesGenerator.Common
+  ( TypesRootDir,
+    TypesTemplatesDir,
+    mkTmplFdWithDstAndData,
+    mkTmplFdWithData,
+    mkTmplFd,
+    typesRootDirInGeneratedCodeDir,
+    typesTemplatesDirInTemplatesDir,
+  )
+where
 
 import qualified Data.Aeson as Aeson
 import StrongPath
@@ -11,16 +20,12 @@ data TypesRootDir
 
 data TypesTemplatesDir
 
-mkTmplFdWithDstAndData ::
-  Path' (Rel TypesTemplatesDir) File' ->
-  Path' (Rel TypesRootDir) File' ->
-  Maybe Aeson.Value ->
-  FileDraft
-mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
-  createTemplateFileDraft
-    (typesRootDirInGeneratedCodeDir </> relDstPath)
-    (typesTemplatesDirInTemplatesDir </> relSrcPath)
-    tmplData
+mkTmplFd :: Path' (Rel TypesTemplatesDir) File' -> FileDraft
+mkTmplFd relSrcPath =
+  mkTmplFdWithDstAndData
+    relSrcPath
+    (SP.castRel relSrcPath)
+    Nothing
 
 mkTmplFdWithData ::
   Path' (Rel TypesTemplatesDir) File' ->
@@ -32,12 +37,16 @@ mkTmplFdWithData relSrcPath tmplData =
     (castRel relSrcPath)
     (Just tmplData)
 
-mkTmplFd :: Path' (Rel TypesTemplatesDir) File' -> FileDraft
-mkTmplFd relSrcPath =
-  mkTmplFdWithDstAndData
-    relSrcPath
-    (SP.castRel relSrcPath)
-    Nothing
+mkTmplFdWithDstAndData ::
+  Path' (Rel TypesTemplatesDir) File' ->
+  Path' (Rel TypesRootDir) File' ->
+  Maybe Aeson.Value ->
+  FileDraft
+mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
+  createTemplateFileDraft
+    (typesRootDirInGeneratedCodeDir </> relDstPath)
+    (typesTemplatesDirInTemplatesDir </> relSrcPath)
+    tmplData
 
 typesRootDirInGeneratedCodeDir :: Path' (Rel GeneratedAppDir) (Dir TypesRootDir)
 typesRootDirInGeneratedCodeDir = [reldir|types|]

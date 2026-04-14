@@ -94,6 +94,7 @@ export type OptimisticUpdateDefinition<ActionInput, CachedData> = {
   updateQuery: UpdateQuery<ActionInput, CachedData>;
 };
 
+// PRIVATE API
 /**
  * An options object passed into the `useAction` hook and used to enhance the
  * action with extra options.
@@ -103,7 +104,6 @@ export type ActionOptions<ActionInput> = {
   optimisticUpdates: OptimisticUpdateDefinition<ActionInput, any>[];
 };
 
-// PRIVATE API
 /**
  * A function that takes an item and returns a Wasp Query specifier.
  */
