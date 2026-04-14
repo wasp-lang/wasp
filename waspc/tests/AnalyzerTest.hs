@@ -94,6 +94,8 @@ spec_Analyzer = do
                 "",
                 "route HomeRoute { path: \"/\", to: HomePage }",
                 "",
+                "route PrerenderRoute { path: \"/prerender\", to: HomePage, prerender: true }",
+                "",
                 "query getUsers {",
                 "  fn: import { getAllUsers } from \"@src/foo\",",
                 "  entities: [User]",
@@ -239,7 +241,10 @@ spec_Analyzer = do
 
       let expectedRoutes =
             [ ( "HomeRoute",
-                Route.Route {Route.path = "/", Route.to = Ref "HomePage", Route.lazy = Nothing}
+                Route.Route {Route.path = "/", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = Nothing}
+              ),
+              ( "PrerenderRoute",
+                Route.Route {Route.path = "/prerender", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = Just True}
               )
             ]
       takeDecls <$> decls `shouldBe` Right expectedRoutes

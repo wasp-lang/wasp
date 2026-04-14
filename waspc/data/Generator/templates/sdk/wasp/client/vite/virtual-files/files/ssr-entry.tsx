@@ -1,14 +1,14 @@
 {{={= =}=}}
-import type { PrerenderContext, PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
+import type { PrerenderFn } from "@wasp.sh/lib-vite-ssr/types";
 import * as streamConsumers from "node:stream/consumers";
 import assert from "node:assert/strict";
-import type { ReactNode } from "react";
 import { prerenderToNodeStream as reactPrerender } from "react-dom/static";
 import {
   createStaticHandler,
   createStaticRouter,
   RouterProvider,
 } from "react-router";
+
 import { Layout } from "wasp/client/app/layout";
 import { WaspApp } from "wasp/client/app";
 
@@ -16,49 +16,40 @@ import { WaspApp } from "wasp/client/app";
 
 const SPA_FALLBACK_FILE = "{= spaFallbackFile =}";
 
-const prerenderApp: PrerenderFn = async (route, ctx) => {
-  const isFallbackPage = route === SPA_FALLBACK_FILE;
+const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
+  const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
+    basename: "{= baseDir =}",
+  });
 
-  if (isFallbackPage) {
-    return await appToHtml({ isFallbackPage: true, children: null }, ctx);
-  } else {
-    const { query, dataRoutes } = createStaticHandler({= routeObjects.importIdentifier =}, {
-      basename: "{= baseDir =}",
-    });
+  const req = new Request(new URL(route, "http://localhost"));
 
-    const req = new Request(new URL(route, "http://localhost"));
-
-    const context = await query(req);
-    assert (!(context instanceof Response), "Expected no redirect responses from static handler");
-
-    const router = createStaticRouter(dataRoutes, context);
-
-    return await appToHtml(
-      { isFallbackPage: false, children: <RouterProvider router={router} /> },
-      ctx,
-    );
-  }
-}
-
-export default prerenderApp;
-
-async function appToHtml(
-  {
-    isFallbackPage,
-    children,
-  }: { isFallbackPage: boolean; children?: ReactNode },
-  { clientEntrySrc }: PrerenderContext,
-) {
-  const app = (
-    <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
-      <WaspApp>
-        {children}
-      </WaspApp>
-    </Layout>
+  const context = await query(req);
+  assert(
+    !(context instanceof Response),
+    "Redirects from React Router's `loader`s are not supported",
   );
 
-  const html = await reactPrerender(app)
+  const router = createStaticRouter(dataRoutes, context);
+  const isFallbackPage = route === SPA_FALLBACK_FILE;
+
+  function App() {
+    return (
+      <Layout isFallbackPage={isFallbackPage} clientEntrySrc={clientEntrySrc}>
+        <WaspApp>
+          <RouterProvider router={router} />
+        </WaspApp>
+      </Layout>
+    )
+  }
+
+  const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
+
+  const html = await reactPrerender(<App/>, {
+    bootstrapScriptContent: `window.__WASP_SSR_DATA__=${JSON.stringify(WASP_SSR_DATA)};`,
+  })
     .then((result) => streamConsumers.text(result.prelude))
 
   return html;
-};
+}
+
+export default prerenderApp;
