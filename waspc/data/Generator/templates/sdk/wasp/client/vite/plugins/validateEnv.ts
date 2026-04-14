@@ -13,18 +13,22 @@ import {
 import { colorize } from "../../../universal/ansiColors.js";
 import { loadEnvVars } from "./envFile.js";
 
+const VALIDATE_ENV_PLUGIN_NAME = "wasp:validate-env";
 const CLIENT_ENV_SCHEMA_MODULE = "wasp/client/env/schema";
 
 // When loading the client env schema for validation, we spin up a temporary
-// Vite server so that bundler features (virtual modules, plugin resolution)
-// work. That inner server reuses the user's full plugin pipeline, which
-// includes this plugin, so we use a process-level flag to prevent the inner
-// server from recursively running its own validation.
-const SKIP_FLAG = "__WASP_SKIP_CLIENT_ENV_VALIDATION__";
+// Vite server so that bundler features (e.g., virtual modules) work.
+// That inner server reuses the user's full plugin pipeline, which
+// includes this plugin too. To stop recursion, we manually filter it out,
+// plus any plugins that are unnecessary for schema loading.
+const PLUGINS_TO_SKIP_IN_TEMP_VITE_SERVER = new Set([
+  "wasp:validate-env",    // would cause recursion
+  "wasp:typescript-check" // unnecessary
+]);
 
 export function validateEnv(): Plugin {
   let resolvedConfig: ResolvedConfig;
-  
+
   return {
     name: "wasp:validate-env",
 
@@ -33,7 +37,7 @@ export function validateEnv(): Plugin {
     },
 
     async buildStart() {
-      if (process.env[SKIP_FLAG] || resolvedConfig.command !== "build") {
+      if (resolvedConfig.command !== "build") {
         return;
       }
 
@@ -43,27 +47,29 @@ export function validateEnv(): Plugin {
         loadDotEnvFile: false, // We expect users to provide env vars inline.
       });
 
-      await runWithoutClientEnvValidation(async () => {
-        const server = await createModuleLoaderViteDevServer(
-          resolvedConfig.root,
-          resolvedConfig.mode,
-        );
-        try {
-          const validationErrorMessage = await validateClientEnvSchema(server, envVars);
-          if (validationErrorMessage) {
-            this.error(colorize("red", validationErrorMessage));
-          }
-        } finally {
-          await server.close();
-        }
+      const tempServer = await createViteServer({
+        root: resolvedConfig.root,
+        mode: resolvedConfig.mode,
+        configFile: false,
+        plugins: resolvedConfig.plugins.filter(
+          (plugin) => !PLUGINS_TO_SKIP_IN_TEMP_VITE_SERVER.has(plugin.name),
+        ),
+        server: { middlewareMode: true },
+        logLevel: "silent",
+        optimizeDeps: { noDiscovery: true, include: [] },
       });
+
+      try {
+        const validationErrorMessage = await validateClientEnvSchema(tempServer, envVars);
+        if (validationErrorMessage) {
+          this.error(colorize("red", validationErrorMessage));
+        }
+      } finally {
+        await tempServer.close();
+      }
     },
 
     async configureServer(server) {
-      if (process.env[SKIP_FLAG]) {
-        return;
-      }
-
       const envVars = await loadEnvVars({
         rootDir: resolvedConfig.root,
         envPrefix: resolvedConfig.envPrefix!,
@@ -90,27 +96,8 @@ export function validateEnv(): Plugin {
   };
 }
 
-async function runWithoutClientEnvValidation<T>(fn: () => Promise<T>): Promise<T> {
-  process.env[SKIP_FLAG] = "1";
-  try {
-    return await fn();
-  } finally {
-    delete process.env[SKIP_FLAG];
-  }
-}
-
-async function createModuleLoaderViteDevServer(rootDir: string, mode: string): Promise<ViteDevServer> {
-  return createViteServer({
-    root: rootDir,
-    mode,
-    server: { middlewareMode: true },
-    logLevel: "silent",
-    optimizeDeps: { noDiscovery: true, include: [] },
-  });
-}
-
 async function validateClientEnvSchema(
-  server: ViteDevServer, 
+  server: ViteDevServer,
   envVars: {[key: string]: string }
 ): Promise<string | null> {
   const clientEnvSchema = await loadClientEnvSchema(server);
