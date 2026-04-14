@@ -1,54 +1,103 @@
-import { type Plugin } from "vite";
+import {
+  type Plugin,
+  type ViteDevServer,
+  createServer as createViteServer,
+} from "vite";
+import * as z from "zod";
 
 import {
   formatZodEnvError,
   getValidatedEnvOrError,
 } from "../../../env/validation.js";
 import { colorize } from "../../../universal/ansiColors.js";
-import { getClientEnvSchema } from "../../env/schema.js";
 import { loadEnvVars } from "./envFile.js";
 
+// When loading the client env schema for validation, 
+// we spin up a temporary Vite server so that bundler features work. 
+// This flag prevents the temporary server from recursively running its own validation.
+const SKIP_FLAG = "__WASP_SKIP_CLIENT_ENV_VALIDATION__";
+
 export function validateEnv(): Plugin {
-  let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null;
+  let envVars: {[key: string]: string };
+  
   return {
     name: "wasp:validate-env",
     async configResolved(config) {
-      const env = await loadEnvVars({
-        rootDir: config.root,
-        // We are sure that `envPrefix` is defined because
-        // we defined it in an earlier plugin.
-        envPrefix: config.envPrefix!,
-        // We load the env file variables only in development,
-        // when building for production, users are expected to
-        // provide the environment variables inline.
-        loadDotEnvFile: config.command === "serve",
-      });
-      const schema = getClientEnvSchema(config.mode);
-      validationResult = getValidatedEnvOrError(env, schema);
-
-      // Exit if we are in build mode, because we can't show the error in the browser.
-      if (config.command === "build" && !validationResult.success) {
-        const validationErrorMessage = formatZodEnvError(validationResult.error);
-        console.error(colorize("red", validationErrorMessage));
-        process.exit(1);
-      }
-    },
-    configureServer: (server) => {
-      if (validationResult === null || validationResult.success) {
+      if (process.env[SKIP_FLAG]) {
         return;
       }
 
-      // Send the error to the browser.
-      const validationErrorMessage = formatZodEnvError(validationResult.error);
-      server.ws.on("connection", () => {
-        server.ws.send({
-          type: "error",
-          err: {
-            message: validationErrorMessage,
-            stack: "",
-          },
-        });
+      envVars = await loadEnvVars({
+        rootDir: config.root,
+        envPrefix: config.envPrefix!,
+        loadDotEnvFile: config.command === "serve",
+      });
+
+      if (config.command === "build") {
+        await withModuleLoaderGuard(async () => {
+          const server = await createModuleLoaderViteDevServer(config.root, config.mode);
+          try {
+            await validateClientEnvSchema(server, envVars, (validationErrorMessage) => {
+              console.error(colorize("red", validationErrorMessage));
+              process.exit(1);
+            })
+          } finally {
+            await server.close();
+          }
+        })
+      }
+    },
+    configureServer(server) {
+      if (process.env[SKIP_FLAG]) {
+        return;
+      }
+
+      validateClientEnvSchema(server, envVars, (validationErrorMessage) => {
+        const sendError = () => {
+          server.ws.send({
+            type: "error",
+            err: { message: validationErrorMessage, stack: "" },
+          });
+        };
+        server.ws.on("connection", sendError);
+        sendError();
       });
     },
   };
+}
+
+async function withModuleLoaderGuard<T>(fn: () => Promise<T>): Promise<T> {
+  process.env[SKIP_FLAG] = "1";
+  try {
+    return await fn();
+  } finally {
+    delete process.env[SKIP_FLAG];
+  }
+}
+
+async function createModuleLoaderViteDevServer(rootDir: string, mode: string): Promise<ViteDevServer> {
+  return await createViteServer({
+    root: rootDir,
+    mode,
+    server: { middlewareMode: true },
+    logLevel: "silent",
+    optimizeDeps: { noDiscovery: true, include: [] },
+  });
+}
+
+async function validateClientEnvSchema(
+  server: ViteDevServer, 
+  envVars: {[key: string]: string }, 
+  onValidationFailure: (validationErrorMessage: string) => void) {
+  const clientEnvSchema = await loadClientEnvSchema(server);
+  const validationResult = getValidatedEnvOrError(envVars, clientEnvSchema);
+  if (!validationResult.success) {
+    const validationErrorMessage = formatZodEnvError(validationResult.error);
+    onValidationFailure(validationErrorMessage);
+  }
+}
+
+async function loadClientEnvSchema(server: ViteDevServer): Promise<z.ZodType> {
+  const clientEnvSchemaModule = await server.ssrLoadModule("wasp/client/env/schema");
+  return clientEnvSchemaModule.clientEnvSchema;
 }
