@@ -10,6 +10,7 @@ import {
   formatZodEnvError,
   getValidatedEnvOrError,
 } from "../../../env/validation.js";
+import { colorize } from "../../../universal/ansiColors.js";
 import { loadEnvVars } from "./envFile.js";
 
 const CLIENT_ENV_SCHEMA_MODULE = "wasp/client/env/schema";
@@ -50,7 +51,7 @@ export function validateEnv(): Plugin {
         try {
           const validationErrorMessage = await validateClientEnvSchema(server, envVars);
           if (validationErrorMessage) {
-            this.error(validationErrorMessage);
+            this.error(colorize("red", validationErrorMessage));
           }
         } finally {
           await server.close();
