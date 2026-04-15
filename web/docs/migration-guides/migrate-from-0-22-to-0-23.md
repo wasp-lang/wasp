@@ -10,13 +10,13 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 ## How to migrate?
 
-### 1. Upgrade Node.js to v24.14.1 or later
+### 1. Upgrade Node.js to 24.14.1 or later
 
-Wasp 0.23 requires Node.js >= v24.14.1 (previously >= v22.22.2). Make sure to upgrade before continuing:
+Wasp 0.23 requires Node.js >= 24.14.1 (previously >= 22.22.2). Make sure to upgrade before continuing:
 
 ```shell
 node -v
-# If below v24.14.1, upgrade:
+# If below 24.14.1, upgrade:
 nvm install 24
 ```
 
@@ -35,7 +35,21 @@ app MyApp {
 
 ### 3. Update TypeScript to 5.9.3
 
-Wasp 0.23 requires TypeScript 5.9.3 (previously 5.8.2). Update it in your `package.json`:
+Wasp 0.23 requires TypeScript 5.9.3. Update it in your `package.json`:
+
+<Tabs>
+<TabItem value="before" label="Before">
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "typescript": "5.8.2"
+  }
+}
+```
+
+</TabItem>
+<TabItem value="after" label="After">
 
 ```json title="package.json"
 {
@@ -45,12 +59,19 @@ Wasp 0.23 requires TypeScript 5.9.3 (previously 5.8.2). Update it in your `packa
 }
 ```
 
-### 4. Update your deployment configuration for the new SPA fallback file
+</TabItem>
+</Tabs>
+
+### 4. Update your deployment configuration for the new HTML file names
 
 **If you use `wasp deploy` to deploy your app, you can skip this step**
 
-Wasp 0.23 changed the SPA fallback file from `index.html` to `200.html`. This is in preparation for future support for prerendering routes.
+Wasp 0.23 changed the SPA fallback file from `index.html` to `200.html`, in order to support [prerendering](../advanced/prerendering.md).
 
-If you use `wasp deploy` for Fly.io or Railway, this is handled automatically. If you have a custom deployment setup, update your configuration, according to [our updated documentation](https://wasp.sh/docs/deployment/deployment-methods/overview).
+If you use `wasp deploy` for Fly.io or Railway, this is handled automatically. If you have a custom deployment setup, update your configuration, according to [our updated documentation](../deployment/deployment-methods/overview.md).
 
-In general, you'll have to update any fallback/rewrite rules that point to `index.html` to use `200.html` instead.
+In general, you'll have to update any fallback/rewrite rules that point to `index.html`, and point them to `200.html` instead.
+
+### 5. Enjoy your updated Wasp app
+
+That's it!
