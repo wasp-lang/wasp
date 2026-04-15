@@ -1,7 +1,8 @@
 {{={= =}=}}
 declare module 'wasp/types' {
   interface CrudOverridesRegistry {
-    '{= crud.name =}': {
+{=# cruds =}
+    '{= name =}': {
 {=# overrides.GetAll.isDefined =}
       GetAll: typeof {=& overrides.GetAll.typeDynamicImportExpression =}
 {=/ overrides.GetAll.isDefined =}
@@ -18,5 +19,6 @@ declare module 'wasp/types' {
       Delete: typeof {=& overrides.Delete.typeDynamicImportExpression =}
 {=/ overrides.Delete.isDefined =}
     }
+{=/ cruds =}
   }
 }

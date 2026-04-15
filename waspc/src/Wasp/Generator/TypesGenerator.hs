@@ -15,11 +15,11 @@ import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.App.WebSocket as AS.App.WS
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import qualified Wasp.AppSpec.Operation as AS.Operation
-import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity)
-import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
+import Wasp.AppSpec.Valid (getApp)
+import Wasp.Generator.Crud (crudDeclarationToOperationsList, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.TypesGenerator.Common (mkTmplFdWithData, mkTmplFdWithDstAndData)
+import Wasp.Generator.TypesGenerator.Common (mkTmplFdWithData)
 import Wasp.Generator.TypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
 import Wasp.Util ((<++>))
 
@@ -51,67 +51,41 @@ genConfigTypes spec =
     app = snd $ getApp spec
 
 genCrudTypes :: AppSpec -> Generator [FileDraft]
-genCrudTypes spec = return $ map genCrudType $ getCruds spec
+genCrudTypes spec
+  | null cruds = return []
+  | otherwise =
+      return
+        [ mkTmplFdWithData
+            [relfile|crud.mts|]
+            (object ["cruds" .= map mkCrudData cruds])
+        ]
   where
-    genCrudType :: (String, AS.Crud.Crud) -> FileDraft
-    genCrudType (name, crud) =
-      mkTmplFdWithDstAndData
-        [relfile|_crudTypes.mts|]
-        (getCrudFilePath ("crud" ++ name) "mts")
-        (Just tmplData)
-      where
-        tmplData =
-          object
-            [ "crud" .= getCrudOperationJson name crud idField,
-              "overrides" .= object overrides
-            ]
-        idField = getIdFieldFromCrudEntity spec crud
+    cruds = getCruds spec
 
-        overrides :: [Aeson.Types.Pair]
-        overrides = map operationToOverrideImport crudOperations
+    mkCrudData :: (String, AS.Crud.Crud) -> Aeson.Types.Value
+    mkCrudData (name, crud) =
+      object
+        [ "name" .= name,
+          "overrides" .= object (map operationToOverrideImport (crudDeclarationToOperationsList crud))
+        ]
 
-        crudOperations = crudDeclarationToOperationsList crud
-
-        operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
-        operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
-          where
-            importJson = extImportToImportJson $ AS.Crud.overrideFn options
+    operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
+    operationToOverrideImport (operation, options) =
+      makeCrudOperationKeyAndJsonPair operation (extImportToImportJson (AS.Crud.overrideFn options))
 
 genOperationTypes :: AppSpec -> Generator [FileDraft]
-genOperationTypes spec =
-  return $ genQueryTypes ++ genActionTypes
+genOperationTypes spec
+  | null operations = return []
+  | otherwise =
+      return
+        [ mkTmplFdWithData
+            [relfile|operations.mts|]
+            (object ["operations" .= map mkOperationData operations])
+        ]
   where
-    genQueryTypes :: [FileDraft]
-    genQueryTypes
-      | null queries = []
-      | otherwise =
-          [ mkTmplFdWithDstAndData
-              [relfile|_operationTypes.mts|]
-              [relfile|operationQueries.mts|]
-              (Just tmplData)
-          ]
-      where
-        tmplData =
-          object
-            [ "operations" .= map (mkOperationData . uncurry AS.Operation.QueryOp) queries
-            ]
-        queries = getQueries spec
-
-    genActionTypes :: [FileDraft]
-    genActionTypes
-      | null actions = []
-      | otherwise =
-          [ mkTmplFdWithDstAndData
-              [relfile|_operationTypes.mts|]
-              [relfile|operationActions.mts|]
-              (Just tmplData)
-          ]
-      where
-        tmplData =
-          object
-            [ "operations" .= map (mkOperationData . uncurry AS.Operation.ActionOp) actions
-            ]
-        actions = getActions spec
+    operations =
+      map (uncurry AS.Operation.QueryOp) (getQueries spec)
+        ++ map (uncurry AS.Operation.ActionOp) (getActions spec)
 
     mkOperationData :: AS.Operation.Operation -> Aeson.Types.Value
     mkOperationData operation =

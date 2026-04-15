@@ -15,5 +15,4 @@ export { ClientConfig, config } from './config.js';
 
 // PUBLIC API
 export { env } from './env.js';
-export { clientEnvSchema } from "./env/schema.js";
 
