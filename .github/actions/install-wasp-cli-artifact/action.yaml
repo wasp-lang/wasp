@@ -47,6 +47,6 @@ runs:
         echo "$INSTALL_DIR" >> "$GITHUB_PATH"
         echo "waspc_datadir=$INSTALL_DIR/data" >> "$GITHUB_ENV"
 
-    - name: Verify installation
-      shell: bash
-      run: wasp-cli version
+    # NOTE: We skip `wasp-cli version` verification here because it checks
+    # the Node.js version, which may not be set up yet at this point.
+    # The calling workflow is responsible for setting up Node.js afterwards.
