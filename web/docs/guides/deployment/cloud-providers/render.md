@@ -76,13 +76,13 @@ services:
     routes:
       - type: rewrite
         source: /*
-        destination: /index.html
+        destination: /200.html
 
 databases:
   - name: <app-name>-db
     plan: free
     region: oregon # must match the server region
-    postgresMajorVersion: "16"
+    postgresMajorVersion: "18"
 ```
 
 :::caution
