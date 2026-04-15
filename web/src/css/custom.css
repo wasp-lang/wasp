@@ -119,11 +119,20 @@
 
 /* Smaller base font for docs/blog — monospace needs it to read well.
    These are Docusaurus's stable, theme-agnostic class names:
-   https://docusaurus.io/docs/styling-layout */
-.docs-wrapper,
-.blog-wrapper {
+   https://docusaurus.io/docs/styling-layout
+   NOTE(matija): `html.` prefix needed to beat Infima's :root specificity. */
+html.docs-wrapper,
+html.blog-wrapper {
   --ifm-font-size-base: 87.5%;
   --ifm-heading-font-weight: 500;
+}
+
+/* Override Prism's 0.9em scaling on code blocks. */
+.docs-wrapper code[class*="language-"],
+.docs-wrapper pre[class*="language-"],
+.blog-wrapper code[class*="language-"],
+.blog-wrapper pre[class*="language-"] {
+  font-size: 1em;
 }
 
 .docs-wrapper .table-of-contents,
@@ -205,7 +214,7 @@
   --ifm-color-primary-light: rgb(70, 203, 174);
   --ifm-color-primary-lighter: rgb(102, 212, 189);
   --ifm-color-primary-lightest: rgb(146, 224, 208);
-  --ifm-code-font-size: 95%;
+  --ifm-code-font-size: 100%;
   --ifm-code-background-dark: #292d3e;
   /* NOTE(matija): used this because setting --ifm-code-border-radius did nothing, not sure why. */
   --ifm-global-radius: 0;
