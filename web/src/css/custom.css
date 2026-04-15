@@ -27,25 +27,25 @@
    ═══════════════════════════════════════════ */
 
 :root {
-  --wasp-y: #F5C842;
-  --wasp-yl: #FFF3CC;
-  --wasp-yd: #D4A930;
+  --wasp-y: #f5c842;
+  --wasp-yl: #fff3cc;
+  --wasp-yd: #d4a930;
   --wasp-k: #111;
   --wasp-g7: #333;
   --wasp-g6: #555;
   --wasp-g5: #777;
   --wasp-g4: #999;
-  --wasp-g3: #BBB;
-  --wasp-g2: #DDD;
-  --wasp-g1: #EEE;
-  --wasp-w: #FAFAFA;
-  --wasp-bg: #F7F5F0;
+  --wasp-g3: #bbb;
+  --wasp-g2: #ddd;
+  --wasp-g1: #eee;
+  --wasp-w: #fafafa;
+  --wasp-bg: #f7f5f0;
   --wasp-handle: 7px;
 }
 
 /* Noise texture overlay for landing page */
 .twLandingPage::after {
-  content: '';
+  content: "";
   position: fixed;
   inset: 0;
   opacity: 0.018;
@@ -59,8 +59,9 @@
 .sh {
   position: relative;
 }
-.sh::before, .sh::after {
-  content: '';
+.sh::before,
+.sh::after {
+  content: "";
   position: absolute;
   width: var(--wasp-handle);
   height: var(--wasp-handle);
@@ -68,9 +69,16 @@
   background: var(--wasp-bg);
   z-index: 2;
 }
-.sh::before { top: calc(var(--wasp-handle) / -2); left: calc(var(--wasp-handle) / -2); }
-.sh::after  { top: calc(var(--wasp-handle) / -2); right: calc(var(--wasp-handle) / -2); }
-.sh .hbl, .sh .hbr {
+.sh::before {
+  top: calc(var(--wasp-handle) / -2);
+  left: calc(var(--wasp-handle) / -2);
+}
+.sh::after {
+  top: calc(var(--wasp-handle) / -2);
+  right: calc(var(--wasp-handle) / -2);
+}
+.sh .hbl,
+.sh .hbr {
   position: absolute;
   width: var(--wasp-handle);
   height: var(--wasp-handle);
@@ -78,14 +86,34 @@
   background: var(--wasp-bg);
   z-index: 2;
 }
-.hbl { bottom: calc(var(--wasp-handle) / -2); left: calc(var(--wasp-handle) / -2); }
-.hbr { bottom: calc(var(--wasp-handle) / -2); right: calc(var(--wasp-handle) / -2); }
+.hbl {
+  bottom: calc(var(--wasp-handle) / -2);
+  left: calc(var(--wasp-handle) / -2);
+}
+.hbr {
+  bottom: calc(var(--wasp-handle) / -2);
+  right: calc(var(--wasp-handle) / -2);
+}
 
 /* Selection handle variants */
-.sh-dark::before, .sh-dark::after { background: var(--wasp-k); border-color: var(--wasp-g6); }
-.sh-dark .hbl, .sh-dark .hbr { background: var(--wasp-k); border-color: var(--wasp-g6); }
-.sh-y::before, .sh-y::after { background: var(--wasp-y); }
-.sh-y .hbl, .sh-y .hbr { background: var(--wasp-y); }
+.sh-dark::before,
+.sh-dark::after {
+  background: var(--wasp-k);
+  border-color: var(--wasp-g6);
+}
+.sh-dark .hbl,
+.sh-dark .hbr {
+  background: var(--wasp-k);
+  border-color: var(--wasp-g6);
+}
+.sh-y::before,
+.sh-y::after {
+  background: var(--wasp-y);
+}
+.sh-y .hbl,
+.sh-y .hbr {
+  background: var(--wasp-y);
+}
 
 /* Docusaurus stuff */
 
@@ -111,7 +139,7 @@
   --custom-border-radius: 3px;
   --custom-border-radius-md: 6px;
   --custom-discord-color: #8a9cff;
-  --custom-wasp-color: #F5C842;
+  --custom-wasp-color: #f5c842;
   --ifm-h3-font-size: 1.3rem;
 
   /* Blog */
@@ -130,8 +158,8 @@
      Body text is controlled separately by Tailwind's fontFamily.sans in tailwind.config.js
      (via preflight.css's `html` rule) — update both when changing fonts. */
   --ifm-container-width-xl: 1280px;
-  --ifm-font-family-base: 'IBM Plex Mono', monospace;
-  --ifm-heading-font-family: 'JetBrains Mono', monospace;
+  --ifm-font-family-base: "IBM Plex Mono", monospace;
+  --ifm-heading-font-family: "JetBrains Mono", monospace;
   --ifm-color-primary: #bf9900;
   /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;
