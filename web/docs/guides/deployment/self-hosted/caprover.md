@@ -2,30 +2,30 @@
 comments: true
 last_checked_with_versions:
   Wasp: "0.23"
-  Coolify: 2026-01-30
+  Caprover: 2026-01-30
 ---
 
-import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";
+import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
 
-# Coolify
+# Caprover
 
-## Deploy Wasp with Coolify
+## Deploy Wasp with Caprover
 
-This guide shows you how to deploy a Wasp application to [Coolify](https://coolify.io/), a self-hosted deployment platform that makes managing your infrastructure easy.
+This guide shows you how to deploy a Wasp application to [Caprover](https://caprover.com/), a self-hosted PaaS (Platform as a Service) for managing your deployments.
 
 ### Prerequisites
 
-- A server with [Coolify installed](https://coolify.io/self-hosted)
+- A server with [Caprover installed](https://caprover.com/docs/get-started.html#prerequisites)
 - A domain name
 - A GitHub repository with your Wasp application
 
 ### Overview
 
-Deploying to Coolify involves:
+Deploying to Caprover involves:
 
-1. Creating Coolify apps (client, server, and database)
+1. Creating Caprover apps (client, server, and database)
 2. Building Docker images using GitHub Actions
-3. Triggering Coolify to pull and deploy the images
+3. Triggering Caprover to deploy the images
 
 ### Step 1: Set Up Your Domain
 
@@ -34,53 +34,64 @@ Point your DNS A records to your server IP:
 - `@` (root) → server IP (for `myapp.com` - client)
 - `api` → server IP (for `api.myapp.com` - server)
 
-### Step 2: Create Coolify Resources
+:::tip
+If you followed Caprover's install instructions with `*.apps` subdomain setup, you can use `https://myapp-client.apps.mydomain.com` and `https://myapp-server.apps.mydomain.com` for quick testing.
+:::
+
+### Step 2: Create Caprover Apps
 
 #### Create the Database
 
-1. Create a new resource and select **PostgreSQL**
-2. Use the default PostgreSQL variant
-3. Name it `myapp-db`
-4. Click **Start** to set up the database
-5. Copy the **Postgres URL (internal)** - you'll need this later
+1. Go to **One-Click Apps** and select **PostgreSQL**
+2. Name it `myapp-db`
+3. Set version to `18` (or whichever version is latest)
+4. Deploy it
+5. Note the connection string: `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres`
 
 #### Create the Server App
 
-1. Create a new resource and select **Docker Image**
-2. Set the image name to `ghcr.io/<your-github-username>/myapp-server`
-3. Name it `myapp-server`
-4. Configure:
-   - **Domains**: `https://api.<your-domain>`
-   - **Docker Image Tag**: `main`
-   - **Port Exposes**: `3001`
-5. Click **Save**
+1. Create a new app named `myapp-server`
+2. Go to **HTTP Settings**:
+   - Connect domain `https://api.<your-domain>`
+   - Click **Enable HTTPS**
+   - Set **Container HTTP Port** to `3001`
+   - Enable **Force HTTPS** and **Websocket Support**
+3. Click **Save & Restart**
 
 #### Create the Client App
 
-1. Create a new resource and select **Docker Image**
-2. Set the image name to `ghcr.io/<your-github-username>/myapp-client`
-3. Name it `myapp-client`
-4. Configure:
-   - **Domains**: `https://<your-domain>`
-   - **Docker Image Tag**: `main`
-   - **Port Exposes**: `8043`
-5. Click **Save**
+1. Create a new app named `myapp-client`
+2. Go to **HTTP Settings**:
+   - Connect domain `https://<your-domain>`
+   - Click **Enable HTTPS**
+   - Set **Container HTTP Port** to `8043`
+   - Enable **Force HTTPS** and **Websocket Support**
+3. Click **Save & Restart**
 
 ### Step 3: Configure Server Environment Variables
 
-In the server app, go to **Environment Variables** and add:
+In the server app, go to **App Configs > Environment Variables** and add:
 
-| Variable              | Value                                               |
-| --------------------- | --------------------------------------------------- |
-| `DATABASE_URL`        | The Postgres URL (internal) from step 2             |
+| Variable              | Value                                                                  |
+| --------------------- | ---------------------------------------------------------------------- |
+| `DATABASE_URL`        | `postgresql://postgres:<password>@srv-captain--myapp-db:5432/postgres` |
 | `JWT_SECRET`          | Random string at least 32 characters long: <SecretGeneratorBlock />    |
-| `PORT`                | `3001`                                              |
-| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                             |
-| `WASP_SERVER_URL`     | `https://api.<your-domain>`                         |
+| `PORT`                | `3001`                                                                 |
+| `WASP_WEB_CLIENT_URL` | `https://<your-domain>`                                                |
+| `WASP_SERVER_URL`     | `https://api.<your-domain>`                                            |
 
 Add any other environment variables your app needs (from `.env.server`).
 
-### Step 4: Create GitHub Action
+### Step 4: Enable GitHub Container Registry Access
+
+1. In Caprover, go to **Cluster**
+2. Add a new **Remote Registry**:
+   - **Username**: Your GitHub username
+   - **Password**: Your GitHub personal access token
+   - **Domain**: `ghcr.io`
+   - **Image Prefix**: Your GitHub username
+
+### Step 5: Create GitHub Action
 
 Create `.github/workflows/deploy.yml` in your repository:
 
@@ -184,44 +195,50 @@ jobs:
           tags: ${{ steps.meta-client.outputs.tags }}
           labels: ${{ steps.meta-client.outputs.labels }}
 
-      - name: Trigger Deploy Webhooks
-        env:
-          CLIENT_COOLIFY_WEBHOOK: ${{ secrets.CLIENT_COOLIFY_WEBHOOK }}
-          SERVER_COOLIFY_WEBHOOK: ${{ secrets.SERVER_COOLIFY_WEBHOOK }}
-          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
-        run: |
-          curl "${{ env.CLIENT_COOLIFY_WEBHOOK }}" --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
-          curl "${{ env.SERVER_COOLIFY_WEBHOOK }}" --header 'Authorization: Bearer ${{ env.COOLIFY_TOKEN }}'
+      - name: (server) Deploy to Caprover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: ${{ secrets.CAPROVER_SERVER }}
+          app: ${{ env.SERVER_APP_NAME }}
+          token: ${{ secrets.SERVER_APP_TOKEN }}
+          image: ${{ steps.meta-server.outputs.tags }}
+
+      - name: (client) Deploy to Caprover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: ${{ secrets.CAPROVER_SERVER }}
+          app: ${{ env.CLIENT_APP_NAME }}
+          token: ${{ secrets.CLIENT_APP_TOKEN }}
+          image: ${{ steps.meta-client.outputs.tags }}
 ```
 
-### Step 5: Configure GitHub Secrets
+### Step 6: Configure GitHub Secrets
 
 In your GitHub repository, go to **Settings > Secrets and variables > Actions** and add:
 
-#### `SERVER_COOLIFY_WEBHOOK`
+#### `CAPROVER_SERVER`
 
-1. Go to your server app in Coolify
-2. Click **Webhooks**
-3. Copy the **Deploy Webhook** URL
+Your Caprover dashboard URL, e.g., `https://captain.apps.mydomain.com`
 
-#### `CLIENT_COOLIFY_WEBHOOK`
+#### `SERVER_APP_TOKEN`
 
-1. Go to your client app in Coolify
-2. Click **Webhooks**
-3. Copy the **Deploy Webhook** URL
-
-#### `COOLIFY_TOKEN`
-
-1. In Coolify, go to **Settings** and under **Advanced** enable API Access
-2. Go to **Keys & Tokens** > **API tokens**
-3. Create a new API token with **Deploy** permissions
+1. Go to your server app in Caprover
+2. Under **Deployment**, find **Method 1: Official CLI**
+3. Click **Enable App Token**
 4. Copy the token
 
-### Step 6: Deploy
+#### `CLIENT_APP_TOKEN`
+
+1. Go to your client app in Caprover
+2. Under **Deployment**, find **Method 1: Official CLI**
+3. Click **Enable App Token**
+4. Copy the token
+
+### Step 7: Deploy
 
 Push to the `main` branch and the GitHub Action will:
 
 1. Build your Wasp application
 2. Create Docker images for server and client
 3. Push images to GitHub Container Registry
-4. Trigger Coolify to deploy the new images
+4. Deploy both apps to Caprover

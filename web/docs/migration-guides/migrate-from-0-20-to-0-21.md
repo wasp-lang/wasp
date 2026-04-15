@@ -2,7 +2,6 @@
 title: Migration from 0.20.X to 0.21.X
 ---
 
-import NetlifyTomlConfig from '../deployment/deployment-methods/\_netlify-toml-config.md'
 import InstallInstructions from './_install-instructions.md'
 import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
@@ -460,9 +459,19 @@ Wasp no longer generates a `netlify.toml` file in your project. If you're deploy
 
 Create a `netlify.toml` file with the following content:
 
-<NetlifyTomlConfig />
+```toml title="netlify.toml"
+[build]
+  base = "./.wasp/out/web-app"
+  publish = "./build"
+  command = "exit 0"
 
-For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
+For more details, see the [Netlify deployment documentation](../guides/deployment/cloud-providers/netlify.md).
 
 ### 12. Enjoy your updated Wasp app
 

@@ -6,7 +6,7 @@ last_checked_with_versions:
   Ubuntu: 2026-01-30
 ---
 
-import { SecretGeneratorBlock } from "../../project/SecretGeneratorBlock";
+import { SecretGeneratorBlock } from "../../../project/SecretGeneratorBlock";
 
 # Simple VPS
 
