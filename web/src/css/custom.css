@@ -117,6 +117,43 @@
 
 /* Docusaurus stuff */
 
+/* Smaller base font for docs/blog — monospace needs it to read well.
+   These are Docusaurus's stable, theme-agnostic class names:
+   https://docusaurus.io/docs/styling-layout */
+.docs-wrapper,
+.blog-wrapper {
+  --ifm-font-size-base: 87.5%;
+  --ifm-heading-font-weight: 500;
+}
+
+.docs-wrapper .table-of-contents,
+.blog-wrapper .table-of-contents {
+  font-size: 0.925rem; /* ~13px, compensates for reduced base */
+}
+
+.docs-wrapper .breadcrumbs {
+  --ifm-breadcrumb-size-multiplier: 0.925;
+}
+
+.docs-wrapper .theme-doc-version-badge {
+  font-size: 0.925rem;
+}
+
+.docs-wrapper .markdown h1:first-child,
+.blog-wrapper .markdown h1:first-child {
+  --ifm-h1-font-size: 1.625rem;
+}
+
+.docs-wrapper .markdown h2,
+.blog-wrapper .markdown h2 {
+  --ifm-h2-font-size: 1.375rem;
+}
+
+.docs-wrapper .markdown h3,
+.blog-wrapper .markdown h3 {
+  --ifm-h3-font-size: 1.125rem;
+}
+
 .blog-list-page {
   background-color: var(--custom-blog-list-background-color);
 }
