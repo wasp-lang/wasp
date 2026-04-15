@@ -1,4 +1,4 @@
-name: "Check - Formatting"
+name: "Check - Autofix formatting"
 
 on:
   workflow_call:
@@ -7,62 +7,98 @@ env:
   WASP_TELEMETRY_DISABLE: 1
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  prettier:
+  formatting:
+    name: "Check and auto-fix formatting issues"
+
     runs-on: ubuntu-latest
     steps:
+      # Ormolu is newline-sensitive and Windows might change newlines
+      # if this is not set.
+      - run: |
+          git config --global core.autocrlf input
+          git config --global core.eol lf
+
       - uses: actions/checkout@v6
+        with:
+          # Check out the PR branch so `git push` later pushes to the
+          # correct ref.
+          ref: ${{ github.head_ref }}
 
       - uses: actions/setup-node@v6
         with:
           cache: "npm"
           node-version-file: .nvmrc
 
+      - name: Parse tool versions
+        id: parse-tool-versions
+        working-directory: waspc
+        run: |
+          findCabalDevTool() {
+            grep "$1 ==" dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/'
+          }
+
+          echo "ORMOLU_VERSION=$(findCabalDevTool ormolu)" >> $GITHUB_OUTPUT
+          echo "CABAL_GILD_VERSION=$(findCabalDevTool cabal-gild)" >> $GITHUB_OUTPUT
+
       - name: Run Prettier
         run: |
           npm ci
-          npm run check:prettier
-
-  ormolu:
-    runs-on: ubuntu-latest
-
-    steps:
-      - run: |
-          git config --global core.autocrlf input
-          git config --global core.eol lf
-
-      - uses: actions/checkout@v6
-
-      - name: Parse oromolu version
-        working-directory: waspc
-        run: |
-          echo "ORMOLU_VERSION=$(grep 'ormolu ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+          npm run format:prettier
 
       # `run-ormolu` versions > 15 require ormolu version >= 0.7.5.0
       - uses: haskell-actions/run-ormolu@v15
         with:
-          version: ${{ env.ORMOLU_VERSION }}
-
-  cabal-gild:
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v6
-
-      - name: Parse cabal-gild version
-        working-directory: waspc
-        run: |
-          echo "CABAL_GILD_VERSION=$(grep 'cabal-gild ==' dev-tool.project | sed 's/.*==\s*\([0-9.]*\).*/\1/')" >> $GITHUB_ENV
+          version: ${{ steps.parse-tool-versions.outputs.ORMOLU_VERSION }}
+          mode: inplace
 
       - uses: tfausak/cabal-gild-setup-action@v2
         with:
-          version: ${{ env.CABAL_GILD_VERSION }}
+          version: ${{ steps.parse-tool-versions.outputs.CABAL_GILD_VERSION }}
 
       - name: Run cabal-gild
         working-directory: waspc
         run: |
           for f in $(git ls-files '*.cabal'); do
-            cabal-gild --mode check --input "$f"
+            cabal-gild --mode format --io "$f"
           done
+
+      - name: Check for changes
+        id: check-for-changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "CHANGES_DETECTED=1" >> $GITHUB_OUTPUT
+          else
+            echo "CHANGES_DETECTED=0" >> $GITHUB_OUTPUT
+          fi
+
+      # If this is an internal PR, commit and push the changes.
+      - name: Commit and push changes
+        id: commit-and-push
+        if: >-
+          ${{
+            steps.check-for-changes.outputs.CHANGES_DETECTED == '1' &&
+            github.event_name == 'pull_request' &&
+            github.event.pull_request.head.repo.full_name == github.repository
+          }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Auto-fix formatting issues"
+          git push
+
+      # If we didn't push, just report.
+      - name: Report check status
+        if: ${{ steps.commit-and-push.outcome == 'skipped' }}
+        env:
+          CHANGES_DETECTED: ${{ steps.check-for-changes.outputs.CHANGES_DETECTED }}
+        run: |
+          if [[ "$CHANGES_DETECTED" == "0" ]]; then
+            exit 0
+          else
+            echo "Formatting issues detected. Please run the formatters locally."
+            git diff
+            exit 1
+          fi

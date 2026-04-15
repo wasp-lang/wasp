@@ -101,9 +101,27 @@ You'll deploy the server first:
     REACT_APP_API_URL=<url_to_wasp_backend> npx vite build
     ```
 
-2. Create a `Caddyfile` in `.wasp/out/web-app/build` to configure how Railway serves your static files:
+2. Create a `railway.json` file in `.wasp/out/web-app/build` to ensure Railway uses the correct builder for the static files:
 
-    <!-- NOTE: When updating this caddyfile, make sure to also update it in the deployment package.  -->
+    <!--
+      NOTE: When updating this railway.json, make sure to also update it in the deployment package at:
+      waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts
+    -->
+    ```json title=".wasp/out/web-app/build/railway.json"
+    {
+      "$schema": "https://railway.com/railway.schema.json",
+      "build": {
+        "builder": "RAILPACK"
+      }
+    }
+    ```
+
+3. Create a `Caddyfile` in `.wasp/out/web-app/build` to configure how Railway serves your static files:
+
+    <!--
+      NOTE: When updating this Caddyfile, make sure to also update it in the deployment package at:
+      waspc/data/packages/deploy/src/providers/railway/commands/deploy/client.ts
+    -->
     ```caddyfile title=".wasp/out/web-app/build/Caddyfile"
     {
       admin off
@@ -155,10 +173,9 @@ You'll deploy the server first:
       }
 
       # Try files with HTML extension and handle SPA routing
-      # This is where we diverge from the railway's original caddyfile
+      # This is where we diverge from the Railpacks's original Caddyfile
       try_files {path} {path}/index.html /200.html
 
-      # Handle 404 errors
       handle_errors {
         rewrite * /{err.status_code}.html
         file_server
@@ -168,22 +185,20 @@ You'll deploy the server first:
 
     This overrides [Railway's default Caddyfile](https://github.com/railwayapp/railpack/blob/main/core/providers/staticfile/Caddyfile.template) so that prerendered pages are served correctly and non-prerendered routes fall back to the SPA shell (`200.html`).
 
-3. Link the client build directory to the `client` service:
+4. Link the client build directory to the `client` service:
 
     ```shell
     cd .wasp/out/web-app/build
     railway link
     ```
 
-4. Deploy the client build to Railway:
+5. Deploy the client build to Railway:
 
     ```shell
     railway up --ci
     ```
 
     Select `client` when prompted to select a service.
-
-    Railway will detect the static files and deploy the client as a static site.
 
 
 And now your Wasp should be deployed!
