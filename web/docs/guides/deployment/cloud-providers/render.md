@@ -57,6 +57,8 @@ services:
         sync: false # you'll fill this in after the first deploy
       - key: WASP_WEB_CLIENT_URL
         sync: false # you'll fill this in after the first deploy
+      - key: NODE_VERSION
+        value: "24"
 
   # React client -- static site built with Vite
   - type: web
@@ -72,6 +74,8 @@ services:
     envVars:
       - key: REACT_APP_API_URL
         sync: false # you'll fill this in after the first deploy
+      - key: NODE_VERSION
+        value: "24"
     routes:
       - type: rewrite
         source: /*
