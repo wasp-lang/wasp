@@ -97,7 +97,7 @@ Docker Registry is a place where you can store your Docker images and then your 
 
 #### Example deployment
 
-We'll take a look at our Coolify deployment example in the [deployment](./deployment-methods/self-hosted.md#coolify) section. We are using Github Actions to build the Docker images and their Github Container Registry (GHCR) to store them.
+We'll take a look at our Coolify deployment example in the [deployment](/docs/0.22/deployment/deployment-methods/self-hosted#coolify) section. We are using Github Actions to build the Docker images and their Github Container Registry (GHCR) to store them.
 
 Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade7396498ae32a931ca563a4524#file-deploy-yml) file in the Coolify guide:
 
@@ -137,4 +137,4 @@ Wasp's client app is a single page application (SPA) which you build into static
 
 <!-- TOOD: update links below -->
 
-Check out our instructions for deploying the client app to [Netlify](./deployment-methods/paas.md#netlify) or [Cloudflare](./deployment-methods/paas.md#cloudflare) where you can check out the example deployment using Github Actions.
+Check out our instructions for deploying the client app to [Netlify](/docs/0.22/deployment/deployment-methods/paas#netlify) or [Cloudflare](/docs/0.22/deployment/deployment-methods/paas#cloudflare) where you can check out the example deployment using Github Actions.
