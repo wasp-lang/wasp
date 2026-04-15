@@ -41,9 +41,6 @@ You should also consider enabling the `min-release-age` feature in npm, which wi
 ```shell
 # Will prevent packages newer than 7 days from being installed in this project:
 npm config set min-release-age 7
-
-# If you want this to be the default for any project in this machine:
-npm config set --global min-release-age 7
 ```
 
 ### 2. Bump the Wasp version
