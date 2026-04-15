@@ -1,0 +1,13 @@
+diff --git a/main.wasp b/main.wasp
+index 9b3c9d8..eed193e 100644
+--- a/main.wasp
++++ b/main.wasp
+@@ -24,3 +24,8 @@ action createTask {
+   fn: import { createTask } from "@src/actions",
+   entities: [Task]
+ }
++
++action updateTask {
++  fn: import { updateTask } from "@src/actions",
++  entities: [Task]
++}
