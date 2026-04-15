@@ -1,54 +1,62 @@
-import { type Plugin } from "vite";
-
+import assert from "node:assert/strict";
 import {
-  formatZodEnvError,
-  getValidatedEnvOrError,
-} from "../../../env/validation.js";
-import { colorize } from "../../../universal/ansiColors.js";
-import { getClientEnvSchema } from "../../env/schema.js";
-import { loadEnvVars } from "./envFile.js";
+  type Plugin,
+  type PluginOption,
+  type ResolvedConfig,
+  createServer as createViteServer,
+  isRunnableDevEnvironment
+} from "vite";
 
-export function validateEnv(): Plugin {
-  let validationResult: ReturnType<typeof getValidatedEnvOrError> | null = null;
+const CLIENT_ENV_SCHEMA_VALIDATION_MODULE = "wasp/client";
+
+export function validateEnv(): PluginOption {
+  return [validateEnvDev(), validateEnvBuild()];
+}
+
+function validateEnvDev(): Plugin {
   return {
-    name: "wasp:validate-env",
-    async configResolved(config) {
-      const env = await loadEnvVars({
-        rootDir: config.root,
-        // We are sure that `envPrefix` is defined because
-        // we defined it in an earlier plugin.
-        envPrefix: config.envPrefix!,
-        // We load the env file variables only in development,
-        // when building for production, users are expected to
-        // provide the environment variables inline.
-        loadDotEnvFile: config.command === "serve",
-      });
-      const schema = getClientEnvSchema(config.mode);
-      validationResult = getValidatedEnvOrError(env, schema);
+    name: "wasp:validate-env:dev",
+    apply: "serve",
 
-      // Exit if we are in build mode, because we can't show the error in the browser.
-      if (config.command === "build" && !validationResult.success) {
-        const validationErrorMessage = formatZodEnvError(validationResult.error);
-        console.error(colorize("red", validationErrorMessage));
-        process.exit(1);
-      }
+    async configureServer(server) {
+      assert(
+        isRunnableDevEnvironment(server.environments.ssr),
+        "Expected ssr to be a runnable dev environment",
+      );
+      await server.environments.ssr.runner.import(CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
     },
-    configureServer: (server) => {
-      if (validationResult === null || validationResult.success) {
-        return;
-      }
+  };
+}
 
-      // Send the error to the browser.
-      const validationErrorMessage = formatZodEnvError(validationResult.error);
-      server.ws.on("connection", () => {
-        server.ws.send({
-          type: "error",
-          err: {
-            message: validationErrorMessage,
-            stack: "",
-          },
-        });
+function validateEnvBuild(): Plugin {
+  let resolvedConfig: ResolvedConfig;
+
+  return {
+    name: "wasp:validate-env:build",
+    apply: "build",
+
+    configResolved(config) {
+      resolvedConfig = config; 
+    },
+
+    async buildStart() {
+      const tempServer = await createViteServer({
+        root: resolvedConfig.root,
+        mode: resolvedConfig.mode,
+        configFile: false,
+        plugins: resolvedConfig.plugins.filter(
+          (plugin) => plugin.name !== "wasp:validate-env:build", // would cause recursion
+        ),
+        server: { middlewareMode: true },
+        logLevel: "silent",
+        optimizeDeps: { noDiscovery: true, include: [] },
       });
+
+      try {
+        await tempServer.ssrLoadModule(CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
+      } finally {
+        await tempServer.close();
+      }
     },
   };
 }
