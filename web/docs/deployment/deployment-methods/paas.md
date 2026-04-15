@@ -11,15 +11,15 @@ You can deploy the built Wasp app wherever and however you want, as long as your
 
 We have step-by-step guides for deploying your Wasp app to some of the most popular providers you can follow:
 
-<GuideLink linkToGuide="../../guides/deployment/flyio" title="Deploying Wasp to Fly.io" description="Uses Fly.io, fly CLI, Docker" />
+<GuideLink linkToGuide="../../guides/deployment/cloudflare" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
 
-<GuideLink linkToGuide="../../guides/deployment/railway" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
+<GuideLink linkToGuide="../../guides/deployment/flyio" title="Deploying Wasp to Fly.io" description="Uses Fly.io, fly CLI, Docker" />
 
 <GuideLink linkToGuide="../../guides/deployment/heroku" title="Deploying Wasp to Heroku" description="Uses Heroku, heroku CLI, Docker" />
 
 <GuideLink linkToGuide="../../guides/deployment/netlify" title="Deploying Wasp to Netlify" description="Uses Netlify, Netlify CLI" />
 
-<GuideLink linkToGuide="../../guides/deployment/cloudflare" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
+<GuideLink linkToGuide="../../guides/deployment/railway" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
 
 If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
 Feel free to [open a PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/deployment/deployment-methods/paas.md) if you'd like to write one yourself :)
