@@ -22,7 +22,7 @@ Unlike the other providers listed here, Render builds your Wasp app from source 
 To get started, follow these steps:
 
 1. Create a [Render](https://render.com/) account.
-1. Push your Wasp project to a Git repository (GitHub or GitLab).
+1. Push your Wasp project to a Git repository (GitHub, GitLab, or Bitbucket).
 1. Generate your initial database migrations locally by running `wasp db migrate-dev` and commit the `migrations/` directory. Render needs these migration files in the repo to set up your database.
 
 ### Create the render.yaml Blueprint
@@ -86,7 +86,7 @@ databases:
 ```
 
 :::caution
-The Render free-tier PostgreSQL database expires after 90 days. Use the Starter plan or an external provider for production.
+The Render free-tier PostgreSQL database [expires after 30 days](https://render.com/docs/free#30-day-limit). Use the Starter plan or an external provider for production.
 :::
 
 Commit this file and push to your repository:
@@ -133,7 +133,7 @@ On the **client** Static Site, go to **Settings > Environment** and set:
 After setting all the variables, trigger a manual redeploy for both services so they pick up the new values.
 
 :::tip Using a Render Environment Group
-Rather than setting variables on each service separately, you can create an [Environment Group](https://docs.render.com/configure-environment-variables#environment-groups) and link it to both services to manage shared variables in one place.
+Rather than setting variables on each service separately, you can create an [Environment Group](https://docs.render.com/configure-environment-variables#environment-groups) and link it to both services to manage shared variables in one place. This is a best practice on the Render platform.
 :::
 
 ### Redeploying After Changes
