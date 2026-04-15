@@ -6,7 +6,6 @@ last_checked_with_versions:
 ---
 
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
-import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
 import { Server, Client, Database } from '../DeploymentTag'
 
 # Render
@@ -29,17 +28,17 @@ To get started, follow these steps:
 
 Create a `render.yaml` file in the root of your repository. This defines all three services (database, server, and client):
 
-```yaml
+```yaml title="render.yaml"
 services:
   # Node.js server -- Render installs Wasp and builds from source
   - type: web
     name: <app-name>-server
     runtime: node
-    plan: free
-    region: oregon # pick the region closest to your users
+    plan: <plan>
+    region: <region>
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli &&
+      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp build &&
       cd .wasp/out/server &&
@@ -65,7 +64,7 @@ services:
     runtime: static
     branch: main
     buildCommand: >-
-      npm install -g @wasp.sh/wasp-cli &&
+      npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
       wasp build &&
       npx vite build
@@ -80,10 +79,19 @@ services:
 
 databases:
   - name: <app-name>-db
-    plan: free
-    region: oregon # must match the server region
+    plan: <plan>
+    region: <region>
     postgresMajorVersion: "18"
 ```
+
+You should replace the following values for your app:
+
+| Variable | Value | Example |
+|---|---|---|
+| `<app-name>` | A unique name for your app | `my-wasp-app` |
+| `<wasp-version>` | The Wasp CLI version you're using | `0.23` |
+| `<plan>` | The Render plan for your services | `free` |
+| `<region>` | The Render region closest to your users | `oregon` |
 
 :::caution
 The Render free-tier PostgreSQL database [expires after 30 days](https://render.com/docs/free#30-day-limit). Use the Starter plan or an external provider for production.
@@ -99,28 +107,26 @@ git push origin main
 
 ### Deploy with the Blueprint
 
-1. In the Render Dashboard, click **New > Blueprint**
-2. Connect your Git repository and select the branch with the `render.yaml`
-3. Render will parse the Blueprint and show the resources it will create. Review them and click **Apply**
+1. In the Render Dashboard, click **New > Blueprint**.
+2. Connect your Git repository and select the branch with the `render.yaml`.
+3. Render will parse the Blueprint and show the resources it will create. Do not fill out the environment variables form yet. Click **Apply**.
 
-This creates all three services and the database at once. Once they're provisioned, you need to set a few environment variables that couldn't be determined ahead of time.
+This will try to create all three services. It will fail initially, as some environment variables are missing.
 
 #### Set the Environment Variables
 
-Go to each service in the Render Dashboard and note its URL (e.g., `https://<app-name>-server.onrender.com` and `https://<app-name>-client.onrender.com`).
+Wait until all services are created. Go to each one in the Render Dashboard and note its URL (usually `https://<app-name>-server.onrender.com` and `https://<app-name>-client.onrender.com`).
 
-On the **server** Web Service, go to **Settings > Environment** and set:
+On the **server** Web Service, go to **Settings > Environment** and set the following variables. When you're done, click **Save and rebuild**:
 
 | Variable | Value |
 |---|---|
 | `WASP_SERVER_URL` | `https://<app-name>-server.onrender.com` |
 | `WASP_WEB_CLIENT_URL` | `https://<app-name>-client.onrender.com` |
 
-We can help you generate a `JWT_SECRET` if you didn't use the `generateValue: true` option in the Blueprint:<br/><SecretGeneratorBlock />
-
 <AddExternalAuthEnvVarsReminder />
 
-On the **client** Static Site, go to **Settings > Environment** and set:
+On the **client** Static Site, go to **Settings > Environment** and set the following variables. When you're done, click **Save and rebuild**:
 
 | Variable | Value |
 |---|---|
@@ -129,8 +135,6 @@ On the **client** Static Site, go to **Settings > Environment** and set:
 :::caution
 `REACT_APP_API_URL` must be set **before** the client build runs. Vite embeds it into the compiled JavaScript at build time. If it's missing, all API calls from the client will fail.
 :::
-
-After setting all the variables, trigger a manual redeploy for both services so they pick up the new values.
 
 :::tip Using a Render Environment Group
 Rather than setting variables on each service separately, you can create an [Environment Group](https://docs.render.com/configure-environment-variables#environment-groups) and link it to both services to manage shared variables in one place. This is a best practice on the Render platform.
