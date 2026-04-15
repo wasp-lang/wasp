@@ -6,6 +6,7 @@
  */
 
 @import url("./fonts/inter.css");
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -20,6 +21,71 @@
     -webkit-font-smoothing: auto;
   }
 }
+
+/* ═══════════════════════════════════════════
+   WASP REBRAND — Design tokens & utilities
+   ═══════════════════════════════════════════ */
+
+:root {
+  --wasp-y: #F5C842;
+  --wasp-yl: #FFF3CC;
+  --wasp-yd: #D4A930;
+  --wasp-k: #111;
+  --wasp-g7: #333;
+  --wasp-g6: #555;
+  --wasp-g5: #777;
+  --wasp-g4: #999;
+  --wasp-g3: #BBB;
+  --wasp-g2: #DDD;
+  --wasp-g1: #EEE;
+  --wasp-w: #FAFAFA;
+  --wasp-bg: #F7F5F0;
+  --wasp-handle: 7px;
+}
+
+/* Noise texture overlay for landing page */
+.twLandingPage::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.018;
+  pointer-events: none;
+  z-index: 9999;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px;
+}
+
+/* Selection handles — schematic UI element */
+.sh {
+  position: relative;
+}
+.sh::before, .sh::after {
+  content: '';
+  position: absolute;
+  width: var(--wasp-handle);
+  height: var(--wasp-handle);
+  border: 1.5px solid var(--wasp-g4);
+  background: var(--wasp-bg);
+  z-index: 2;
+}
+.sh::before { top: calc(var(--wasp-handle) / -2); left: calc(var(--wasp-handle) / -2); }
+.sh::after  { top: calc(var(--wasp-handle) / -2); right: calc(var(--wasp-handle) / -2); }
+.sh .hbl, .sh .hbr {
+  position: absolute;
+  width: var(--wasp-handle);
+  height: var(--wasp-handle);
+  border: 1.5px solid var(--wasp-g4);
+  background: var(--wasp-bg);
+  z-index: 2;
+}
+.hbl { bottom: calc(var(--wasp-handle) / -2); left: calc(var(--wasp-handle) / -2); }
+.hbr { bottom: calc(var(--wasp-handle) / -2); right: calc(var(--wasp-handle) / -2); }
+
+/* Selection handle variants */
+.sh-dark::before, .sh-dark::after { background: var(--wasp-k); border-color: var(--wasp-g6); }
+.sh-dark .hbl, .sh-dark .hbr { background: var(--wasp-k); border-color: var(--wasp-g6); }
+.sh-y::before, .sh-y::after { background: var(--wasp-y); }
+.sh-y .hbl, .sh-y .hbr { background: var(--wasp-y); }
 
 /* Docusaurus stuff */
 
@@ -45,7 +111,7 @@
   --custom-border-radius: 3px;
   --custom-border-radius-md: 6px;
   --custom-discord-color: #8a9cff;
-  --custom-wasp-color: #ffcc00;
+  --custom-wasp-color: #F5C842;
   --ifm-h3-font-size: 1.3rem;
 
   /* Blog */
@@ -58,8 +124,14 @@
   --custom-blog-card-background-color: white;
 
   /* Infima overrides */
+  /* NOTE(matija): Fonts are defined in two places due to Tailwind + Infima coexisting.
+     These variables control heading fonts in docs/blog and Infima-styled elements.
+
+     Body text is controlled separately by Tailwind's fontFamily.sans in tailwind.config.js
+     (via preflight.css's `html` rule) — update both when changing fonts. */
   --ifm-container-width-xl: 1280px;
-  --ifm-font-family-base: "Inter", sans-serif;
+  --ifm-font-family-base: 'IBM Plex Mono', monospace;
+  --ifm-heading-font-family: 'JetBrains Mono', monospace;
   --ifm-color-primary: #bf9900;
   /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;
