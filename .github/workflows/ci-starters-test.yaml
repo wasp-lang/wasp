@@ -13,17 +13,11 @@ jobs:
     steps:
       - uses: "actions/checkout@v6"
 
-      - uses: ./.github/actions/setup-haskell
-        with:
-          cabal-project-dir: waspc
+      - uses: ./.github/actions/install-wasp-cli-artifact
 
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
-
-      - name: Install `wasp-cli`
-        working-directory: waspc
-        run: ./run install
 
       - name: Install node dependencies
         working-directory: waspc/starters-e2e-tests

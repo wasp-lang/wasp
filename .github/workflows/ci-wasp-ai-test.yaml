@@ -6,7 +6,6 @@ on:
 env:
   WASP_TELEMETRY_DISABLE: 1
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_TESTING_KEY }}
-  PROJECT_DIR: ${{ github.workspace }}/waspc
 
 jobs:
   test-wasp-ai:
@@ -15,24 +14,18 @@ jobs:
     steps:
       - uses: "actions/checkout@v6"
 
-      - uses: ./.github/actions/setup-haskell
-        with:
-          cabal-project-dir: waspc
+      - uses: ./.github/actions/install-wasp-cli-artifact
 
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
-
-      - name: Install `wasp-cli`
-        working-directory: waspc
-        run: ./run install
 
       - name: Run `wasp new:ai` smoke test
         working-directory: ${{ runner.temp }}
         # NOTE: This is just a smoke test, we aren't trying to run or compile
         # the generated app. We are only trying to avoid late discovery of bugs
         # such as this one: https://github.com/wasp-lang/wasp/issues/2951
-        run: cabal --project-dir=${{ env.PROJECT_DIR }} run wasp-cli -- new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
+        run: wasp-cli new:ai "$APP_TITLE" "$APP_DESCRIPTION" "$CONFIG_JSON"
         env:
           APP_TITLE: todoApp
           APP_DESCRIPTION: >

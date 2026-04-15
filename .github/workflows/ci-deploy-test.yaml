@@ -6,7 +6,6 @@ on:
       FLY_GITHUB_TESTING_TOKEN:
         description: "Fly API token for deploying testing apps"
         required: true
-  workflow_dispatch:
 
 env:
   WASP_TELEMETRY_DISABLE: 1
@@ -32,7 +31,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: ./.github/actions/prepare-deploy-test
+      - uses: ./.github/actions/install-wasp-cli-artifact
+
+      - uses: actions/setup-node@v6
+        with:
+          cache: "npm"
+          node-version-file: .nvmrc
 
       - name: Install Fly CLI
         # NOTE: We tell users to install the latest version of Fly CLI,
@@ -101,7 +105,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
 
-      - uses: ./.github/actions/prepare-deploy-test
+      - uses: ./.github/actions/install-wasp-cli-artifact
+
+      - uses: actions/setup-node@v6
+        with:
+          cache: "npm"
+          node-version-file: .nvmrc
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli@4.11.1
