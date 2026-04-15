@@ -2,7 +2,7 @@
 comments: true
 last_checked_with_versions:
   Wasp: "0.23"
-  Render: 2026-04-06
+  Render: 2026-04-15
 ---
 
 import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
