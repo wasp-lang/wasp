@@ -51,7 +51,7 @@ function assertLibVersionValid(libName: string, libVersion: string): void {
 }
 
 function getWaspcVersion(): string {
-  return runCmd("node", [join("tools", "get-waspc-version.ts")], {
+  return runCmd("npx", ["tsx", join("tools", "get-waspc-version.ts")], {
     cwd: waspcDirPath,
   }).trim();
 }
