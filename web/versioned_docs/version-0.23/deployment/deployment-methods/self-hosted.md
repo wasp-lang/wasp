@@ -11,11 +11,11 @@ If you have your server or rent out a server, you can self-host your Wasp apps. 
 
 We have step-by-step guides for deploying your Wasp app on your server with different methods. Check out the guides below:
 
-<GuideLink linkToGuide="../../guides/deployment/vps" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
+<GuideLink linkToGuide="../../guides/deployment/caprover" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
 
 <GuideLink linkToGuide="../../guides/deployment/coolify" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
 
-<GuideLink linkToGuide="../../guides/deployment/caprover" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
+<GuideLink linkToGuide="../../guides/deployment/vps" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
 
 ## Manual deployment
 
