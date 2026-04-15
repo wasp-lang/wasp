@@ -52,7 +52,11 @@ function validateEnvBuild(): Plugin {
         optimizeDeps: { noDiscovery: true, include: [] },
       });
 
-      await tempServer.ssrLoadModule(CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
+      try {
+        await tempServer.ssrLoadModule(CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
+      } finally {
+        await tempServer.close();
+      }
     },
   };
 }
