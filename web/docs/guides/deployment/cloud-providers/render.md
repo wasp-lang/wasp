@@ -1,33 +1,19 @@
-<!--
-  NOTE: This is a proposed Render deployment section for inclusion in the Wasp docs.
+---
+comments: true
+last_checked_with_versions:
+  Wasp: "0.23"
+  Render: 2026-04-06
+---
 
-  It is a rewrite of https://github.com/Ho1yShif/open-saas/blob/main/render_deployment_guide.md
-  adapted to match the style and conventions of:
-  https://github.com/wasp-lang/wasp/blob/main/web/docs/deployment/deployment-methods/paas.md
+import AddExternalAuthEnvVarsReminder from './_addExternalAuthEnvVarsReminder.md'
+import { SecretGeneratorBlock } from '../../../project/SecretGeneratorBlock'
+import { Server, Client, Database } from '../DeploymentTag'
 
-  The original guide is Open SaaS-specific and includes a render.yaml Blueprint file
-  (https://github.com/Ho1yShif/open-saas/blob/main/render.yaml) that automates the setup.
-  This rewrite is for generic Wasp apps.
+# Render
 
-  Key technical difference from other providers: Render builds the app from source on its
-  servers. You don't need to run `wasp build` locally at all. Both the server and client
-  services install Wasp and run `wasp build` as part of their build commands, configured
-  via a `render.yaml` Blueprint file.
+## Deploy Wasp to Render <Server /> <Client /> <Database />
 
-  This section would be added to paas.md alongside Fly.io, Railway, Heroku, etc.
-  It references components that are imported at the top of paas.md:
-    - <Server />, <Client />, <Database /> - deployment scope tags from ./DeploymentTag
-    - <SecretGeneratorBlock /> - interactive JWT_SECRET generator
-    - <AddExternalAuthEnvVarsReminder /> - reminder for OAuth env vars (./_addExternalAuthEnvVarsReminder.md)
-
-  Render would also need to be added to the provider list at the top of paas.md:
-    - [Render](#render) in the bullet list
-    - Render <Server /> <Client /> <Database /> in the "Different Providers" section
--->
-
-## Render <Server /> <Client /> <Database /> {#render}
-
-In this section, we'll show how to deploy the server, client, and provision a database on Render.
+This guide shows you how to deploy the server, client, and provision a database on Render.
 
 Unlike the other providers listed here, Render builds your Wasp app from source on its servers, so you don't need to run `wasp build` locally before deploying. You'll define your entire deployment setup in a `render.yaml` file that Render uses as a [Blueprint](https://docs.render.com/infrastructure-as-code) to create and configure all services.
 
@@ -118,8 +104,6 @@ git push origin main
 3. Render will parse the Blueprint and show the resources it will create. Review them and click **Apply**
 
 This creates all three services and the database at once. Once they're provisioned, you need to set a few environment variables that couldn't be determined ahead of time.
-
-<!-- TOPIC: env vars -->
 
 #### Set the Environment Variables
 
