@@ -14,11 +14,11 @@ jobs:
     steps:
       - uses: "actions/checkout@v6"
 
-      - uses: ./.github/actions/install-wasp-cli-artifact
-
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
+
+      - uses: ./.github/actions/install-wasp-cli-artifact
 
       - name: Run `wasp new:ai` smoke test
         working-directory: ${{ runner.temp }}

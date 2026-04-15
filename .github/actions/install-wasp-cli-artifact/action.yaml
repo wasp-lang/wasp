@@ -2,31 +2,17 @@ name: Install Wasp CLI from artifact
 description: |
   Downloads a pre-built Wasp CLI artifact from the current workflow run
   and installs it to PATH. The calling job must have a `needs` dependency
-  on the job that produces the artifact (waspc-build).
+  on the job that produces the artifact (waspc-build), and must set up
+  Node.js before calling this action.
 
 runs:
   using: composite
   steps:
-    - name: Detect platform build name
-      id: detect-platform
-      shell: bash
-      run: |
-        case "${{ runner.os }}-${{ runner.arch }}" in
-          Linux-X64)    build_name="linux-x86_64" ;;
-          macOS-X64)    build_name="macos-x86_64" ;;
-          macOS-ARM64)  build_name="macos-aarch64" ;;
-          *)
-            echo "::error::Unsupported platform: ${{ runner.os }}-${{ runner.arch }}"
-            exit 1
-            ;;
-        esac
-        echo "build-name=$build_name" >> "$GITHUB_OUTPUT"
-
     - name: Compute artifact names
       uses: ./.github/actions/compute-artifact-names
       id: artifact-names
       with:
-        build-name: ${{ steps.detect-platform.outputs.build-name }}
+        build-name: current
 
     - name: Download Wasp CLI artifact
       uses: actions/download-artifact@v8
@@ -47,6 +33,6 @@ runs:
         echo "$INSTALL_DIR" >> "$GITHUB_PATH"
         echo "waspc_datadir=$INSTALL_DIR/data" >> "$GITHUB_ENV"
 
-    # NOTE: We skip `wasp-cli version` verification here because it checks
-    # the Node.js version, which may not be set up yet at this point.
-    # The calling workflow is responsible for setting up Node.js afterwards.
+    - name: Verify installation
+      shell: bash
+      run: wasp-cli version

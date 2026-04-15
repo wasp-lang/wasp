@@ -6,16 +6,33 @@ inputs:
     description: >
       The build name (e.g., linux-x86_64, macos-aarch64, etc.). The special
       value "all" can be used to receive a glob that matches all of the build
-      names.
+      names. The special value "current" auto-detects the build name from the
+      current runner's OS and architecture.
     required: true
 
 runs:
   using: composite
 
   steps:
+    - name: Detect platform build name
+      if: inputs.build-name == 'current'
+      id: detect-platform
+      shell: bash
+      run: |
+        case "${{ runner.os }}-${{ runner.arch }}" in
+          Linux-X64)    build_name="linux-x86_64" ;;
+          macOS-X64)    build_name="macos-x86_64" ;;
+          macOS-ARM64)  build_name="macos-aarch64" ;;
+          *)
+            echo "::error::Unsupported platform: ${{ runner.os }}-${{ runner.arch }}"
+            exit 1
+            ;;
+        esac
+        echo "build-name=$build_name" >> "$GITHUB_OUTPUT"
+
     - name: Check valid build name
       if: >
-        ! contains(
+        inputs.build-name != 'current' && ! contains(
           fromJson('[
             "all",
             "linux-x86_64",
@@ -34,14 +51,14 @@ runs:
       id: set-artifact-names
       shell: sh
       env:
-        BUILD_NAME: ${{ inputs.build-name == 'all' && '*' || inputs.build-name }}
+        BUILD_NAME: ${{ inputs.build-name == 'all' && '*' || inputs.build-name == 'current' && steps.detect-platform.outputs.build-name || inputs.build-name }}
       run: |
         echo "artifact-name=wasp-cli-${BUILD_NAME}" >> $GITHUB_OUTPUT
         echo "tarball-name=wasp-${BUILD_NAME}.tar.gz" >> $GITHUB_OUTPUT
 
     - name: Set npm target
       id: set-npm-target
-      if: inputs.build-name != 'all'
+      if: inputs.build-name != 'all' && inputs.build-name != 'current'
       shell: sh
       run: |
         case '${{ inputs.build-name }}' in
