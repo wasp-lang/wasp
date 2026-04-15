@@ -483,6 +483,7 @@ If doing this, steps are the following:
    The script will throw some warnings which you should accept.
 
 3. Once the draft release is created on Github:
+
    - Use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
    - Push the `rc-<version>` branch to remote.
 
