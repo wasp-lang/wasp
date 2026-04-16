@@ -7,6 +7,7 @@
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-23-to-0-24) for step-by-step documentation on how to upgrade.
 
 ### 🎉 New Features
+
 - The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
 
 ## 0.23.0
