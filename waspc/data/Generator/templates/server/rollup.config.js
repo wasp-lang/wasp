@@ -1,26 +1,28 @@
 {{={= =}=}}
-import esbuild from 'rollup-plugin-esbuild'
-import resolve from '@rollup/plugin-node-resolve';
+import esbuild from "rollup-plugin-esbuild";
+import resolve from "@rollup/plugin-node-resolve";
+import { userVirtualModules } from "./src/plugins/userVirtualModules.js";
 
 export default [
-  createBundle('src/server.ts', 'bundle/server.js'),
+  createBundle("src/server.ts", "bundle/server.js"),
   {=# areDbSeedsDefined =}
-  createBundle('src/dbSeed.ts', 'bundle/dbSeed.js'),
+  createBundle("src/dbSeed.ts", "bundle/dbSeed.js"),
   {=/ areDbSeedsDefined =}
-]
+];
 
 function createBundle(inputFilePath, outputFilePath) {
   return {
     input: inputFilePath,
     output: {
       file: outputFilePath,
-      format: 'es',
+      format: "es",
       sourcemap: true,
     },
     plugins: [
-      resolve(),
+      userVirtualModules(),
+      resolve({ extensions: [".mjs", ".js", ".ts", ".json", ".node"] }),
       esbuild({
-        target: 'esnext',
+        target: "esnext",
       }),
     ],
     // We don't want to bundle any of the node_module deps because we want to

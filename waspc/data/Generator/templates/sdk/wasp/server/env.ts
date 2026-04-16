@@ -7,6 +7,7 @@ import { FromRegistry } from "../types/index.js";
 type UserServerEnvSchema = FromRegistry<"serverEnvSchema", z.ZodObject<{}>>;
 
 {=# envValidationSchema.isDefined =}
+// @ts-expect-error
 {=& envValidationSchema.importStatement =}
 const userServerEnvSchema: UserServerEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}

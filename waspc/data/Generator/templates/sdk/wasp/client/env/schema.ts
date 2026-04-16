@@ -5,6 +5,7 @@ import { FromRegistry } from "../../types";
 type UserClientEnvSchema = FromRegistry<"clientEnvSchema", z.ZodObject<{}>>;
 
 {=# envValidationSchema.isDefined =}
+// @ts-expect-error
 {=& envValidationSchema.importStatement =}
 const userClientEnvSchema: UserClientEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
