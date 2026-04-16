@@ -26,7 +26,6 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkImportPath,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Generator.ServerGenerator.VirtualFiles (userOperationVF)
 import Wasp.Util (toUpperFirst)
 
