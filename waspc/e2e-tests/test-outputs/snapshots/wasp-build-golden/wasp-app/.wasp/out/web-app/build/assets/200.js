@@ -272,7 +272,7 @@ const defaultQueryClientConfig = {};
 function initializeQueryClient() {
   return new QueryClient(defaultQueryClientConfig);
 }
-const queryClientPromise = Promise.resolve(initializeQueryClient());
+const queryClientPromise = Promise.resolve().then(() => initializeQueryClient());
 function WaspApp({ children }) {
   const queryClient = use(queryClientPromise);
   return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children });
