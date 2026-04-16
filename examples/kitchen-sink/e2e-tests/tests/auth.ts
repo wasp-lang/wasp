@@ -1,5 +1,9 @@
 import { expect, test, type Page } from "@playwright/test";
-import { generateRandomEmail, isRunningInDevMode } from "./helpers";
+import {
+  generateRandomEmail,
+  isRunningInDeployedMode,
+  isRunningInDevMode,
+} from "./helpers";
 import { getMailCrabEmailVerificationLink } from "./mailcrab";
 
 interface BaseEmailCredentials {
@@ -21,6 +25,11 @@ export function setupTestUser(): Credentials {
   };
 
   test.beforeAll(async ({ browser }) => {
+    test.skip(
+      isRunningInDeployedMode(),
+      "Skipped in deployed mode (no Mailcrab)",
+    );
+
     const page = await browser.newPage();
     await performSignup(page, credentials);
     await expect(page.locator("body")).toContainText(
@@ -65,7 +74,7 @@ async function submitSignupForm(page: Page, credentials: Credentials) {
  When running the tests in **build** mode, the email verification is required:
     * We rely on a Mailcrab SMTP dev server to receive emails locally when running the tests.
     * This is a local SMTP server that receives emails on port 1025 and exposes a REST API
-    to fetch the emails. 
+    to fetch the emails.
     * `wasp-app-runner` starts a Mailcrab server on port 1080 by default.
 */
 export async function performEmailVerification(page: Page, email: string) {

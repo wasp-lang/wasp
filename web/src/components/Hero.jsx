@@ -66,7 +66,7 @@ const Hero = () => {
   const waspFileSourceCode = `app todoApp {
   title: "ToDo App",  // visible in the browser tab
   auth: { // full-stack auth out-of-the-box
-    userEntity: User, 
+    userEntity: User,
     methods: { google: {}, gitHub: {}, email: {...} }
   }
 }
@@ -90,14 +90,23 @@ query getTasks {
         <div className="z-10 space-y-12 lg:col-span-6">
           {/* Hero title and subtitle */}
           <div>
+            <div className="mb-7 inline-block border border-wasp-g3 px-3 py-1 text-[11px] uppercase tracking-[3px] text-wasp-g7">
+              Full-Stack Framework for the AI Era
+            </div>
             <h1
-              className={`text-4xl font-extrabold text-neutral-700 lg:text-5xl lg:leading-tight`}
+              className={`text-4xl font-extrabold uppercase leading-[1.2] tracking-[-2px] text-wasp-black lg:text-[52px]`}
             >
-              Develop full-stack web apps{" "}
-              <span className="underline decoration-yellow-500">faster</span>.
+              Develop your full-stack app{" "}
+              <span className="inline-block border-[2.5px] border-wasp-black bg-wasp-yellow px-2 leading-[1.1]">
+                fast
+              </span>{" "}
+              and{" "}
+              <span className="inline-block border-[2.5px] border-wasp-black bg-wasp-yellow px-2 leading-[1.1]">
+                keep control.
+              </span>
             </h1>
 
-            <p className="mt-4 text-xl text-neutral-500 sm:mt-5 lg:text-xl">
+            <p className="mt-6 max-w-[460px] text-base leading-[1.75] text-wasp-g6">
               Rails-like framework for React, Node.js and Prisma. Build your app
               in a day and deploy it with a single CLI command.
             </p>
