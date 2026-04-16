@@ -43,6 +43,7 @@ genAuth spec =
           [ genFileCopyInAuth [relfile|helpers/user.ts|],
             genFileCopyInAuth [relfile|types.ts|],
             genFileCopyInAuth [relfile|logout.ts|],
+            genFileCopyInAuth [relfile|responseSchemas.ts|],
             genUseAuth auth
           ]
         <++> genAuthForms auth

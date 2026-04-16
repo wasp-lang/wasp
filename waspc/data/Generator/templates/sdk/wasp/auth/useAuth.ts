@@ -21,8 +21,8 @@ function createUserGetter(): Query<void, AuthUser | null> {
   const getMeRoute = { method: HttpMethod.Get, path: `/${getMeRelativePath}` }
   const getMe: QueryFunction<void, AuthUser | null> = async () =>  {
     try {
-      const response = await api.get(getMeRoute.path)
-      const userData = deserialize<AuthUserData | null>(response.data)
+      const json = await api.get(getMeRoute.path).json()
+      const userData = deserialize<AuthUserData | null>(json as any)
       return makeAuthUserIfPossible(userData)
     } catch (error) {
       throw handleApiError(error)

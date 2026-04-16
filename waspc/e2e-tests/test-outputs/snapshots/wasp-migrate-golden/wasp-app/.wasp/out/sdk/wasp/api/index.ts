@@ -1,13 +1,7 @@
-import axios, { type AxiosError, type AxiosInstance } from 'axios'
-
+import ky, { isHTTPError } from 'ky'
 import { config } from 'wasp/client'
 import { storage } from 'wasp/core/storage'
 import { apiEventsEmitter } from './events.js'
-
-// PUBLIC API
-export const api: AxiosInstance = axios.create({
-  baseURL: config.apiUrl,
-})
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'
 
@@ -36,43 +30,53 @@ export function removeLocalUserData(): void {
   apiEventsEmitter.emit('sessionId.clear')
 }
 
+// PUBLIC API
 /**
- * Axios interceptors for handling authentication
+ * A ky instance configured for the Wasp API server.
  *
- * (1) Request Interceptor:
- * If a session ID exists, it is added to the request as an `Authorization`
- * header for the server to use.
- *
- * (2) Response Interceptor:
- * - Catches 401 errors from the server.
- * - Before clearing the session ID from local storage due to a 401 error,
- *   it compares the session ID stored in the *failed request's config*
- *   with the *current* session ID in local storage.
- * - It only clears the local session ID if the two session IDs match.
- *
- * This prevents a race condition like this:
- * 1. Request A is sent with old session ID X.
- * 2. User logs out and logs back in, obtaining new session ID Y.
- * 3. Request A finally fails with a 401 (because ID X is invalid).
- * Without the check, the interceptor would clear the *current* valid session ID Y.
- * The check ensures we only clear the session if the *request that failed* used
- * the *same session ID that's currently stored*.
+ * Automatically prepends the API base URL, adds authentication headers,
+ * and handles session invalidation on 401 responses. Non-2xx responses
+ * cause ky to throw an `HTTPError`; pass it through `handleApiError` to
+ * get a `WaspHttpError` carrying the server's status code, message, and
+ * response body.
  */
-api.interceptors.request.use((config) => {
-  const sessionId = getSessionId()
-  if (sessionId !== null) {
-    config.headers['Authorization'] = `Bearer ${sessionId}`
-  }
-  return config
-})
-
-api.interceptors.response.use(undefined, (error) => {
-  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers['Authorization'])
-  const currentSessionId = getSessionId()
-  if (error.response?.status === 401 && failingSessionId === currentSessionId) {
-    clearSessionId()
-  }
-  return Promise.reject(error)
+export const api = ky.extend({
+  prefix: config.apiUrl,
+  hooks: {
+    beforeRequest: [
+      ({ request }) => {
+        const sessionId = getSessionId()
+        if (sessionId !== null) {
+          request.headers.set('Authorization', `Bearer ${sessionId}`)
+        }
+      },
+    ],
+    afterResponse: [
+      ({ request, response }) => {
+        if (response.status === 401) {
+          // Before clearing the session ID from local storage due to a 401 error,
+          // compare the session ID stored in the *failed request's* headers
+          // with the *current* session ID in local storage.
+          // Only clear the local session ID if the two session IDs match.
+          //
+          // This prevents a race condition like this:
+          // 1. Request A is sent with old session ID X.
+          // 2. User logs out and logs back in, obtaining new session ID Y.
+          // 3. Request A finally fails with a 401 (because ID X is invalid).
+          // Without the check, we would clear the *current* valid session ID Y.
+          // The check ensures we only clear the session if the *request that failed*
+          // used the *same session ID that's currently stored*.
+          const failingSessionId = getSessionIdFromAuthorizationHeader(
+            request.headers.get('Authorization')
+          )
+          const currentSessionId = getSessionId()
+          if (failingSessionId === currentSessionId) {
+            clearSessionId()
+          }
+        }
+      },
+    ],
+  },
 })
 
 // This makes sure that the following handler won't try to run in a non-browser
@@ -96,12 +100,12 @@ if (typeof window !== 'undefined') {
 
 // PRIVATE API (sdk)
 /**
- * Takes an error returned by the app's API (as returned by axios), and transforms into a more
+ * Takes an error returned by the app's API (as thrown by ky), and transforms it into a more
  * standard format to be further used by the client. It is also assumed that given API
  * error has been formatted as implemented by HttpError on the server.
  */
-export function handleApiError<T extends AxiosError<{ message?: string, data?: unknown }>>(error: T): T | WaspHttpError {
-  if (error?.response) {
+export function handleApiError(error: unknown): unknown {
+  if (isHTTPError(error)) {
     // If error came from HTTP response, we capture most informative message
     // and also add .statusCode information to it.
     // If error had JSON response, we assume it is of format { message, data } and
@@ -109,7 +113,7 @@ export function handleApiError<T extends AxiosError<{ message?: string, data?: u
     // TODO: We might want to use HttpError here instead of just Error, since
     //   HttpError is also used on server to throw errors like these.
     //   That would require copying HttpError code to web-app also and using it here.
-    const responseJson = error.response?.data
+    const responseJson = error.data as { message?: string; data?: unknown } | undefined
     const responseStatusCode = error.response.status
     return new WaspHttpError(responseStatusCode, responseJson?.message ?? error.message, responseJson)
   } else {
@@ -123,14 +127,14 @@ class WaspHttpError extends Error {
 
   data: unknown
 
-  constructor (statusCode: number, message: string, data: unknown) {
+  constructor(statusCode: number, message: string, data: unknown) {
     super(message)
     this.statusCode = statusCode
     this.data = data
   }
 }
 
-function getSessionIdFromAuthorizationHeader(header: string | undefined): string | null {
+function getSessionIdFromAuthorizationHeader(header: string | null): string | null {
   const prefix = 'Bearer '
   if (header && header.startsWith(prefix)) {
     return header.substring(prefix.length)
