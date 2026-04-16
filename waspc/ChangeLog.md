@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.24.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-23-to-0-24) for step-by-step documentation on how to upgrade.
+
 ## 0.23.0
 
 ### ⚠️ Breaking Changes
