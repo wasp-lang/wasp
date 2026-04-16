@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { api } from 'wasp/client/api'
+import { api, handleApiError } from 'wasp/client/api'
 {=# usernameAndPasswordUserSignupFields.isDefined =}
 import { type UserUsernameAndPasswordSignupFields } from '../../providers'
 {=/ usernameAndPasswordUserSignupFields.isDefined =}
@@ -11,7 +11,11 @@ type UsernameSignupData = {
 
 // PUBLIC API
 export async function signup(data: UsernameSignupData): Promise<void> {
-  await api.post('{= signupPath =}', {
-    json: data,
-  })
+  try {
+    await api.post('{= signupPath =}', {
+      json: data,
+    })
+  } catch (error) {
+    throw handleApiError(error)
+  }
 }

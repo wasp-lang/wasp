@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { api } from 'wasp/client/api';
+import { api, handleApiError } from 'wasp/client/api';
 import { SuccessResponseSchema } from '../../responseSchemas';
 {=# emailUserSignupFields.isDefined =}
 import { type UserEmailSignupFields } from '../../providers'
@@ -12,8 +12,12 @@ type EmailSignupData = {
 
 // PUBLIC API
 export async function signup(data: EmailSignupData): Promise<{ success: boolean }> {
-  const { success } = await api.post('{= signupPath =}', {
-    json: data,
-  }).json(SuccessResponseSchema);
-  return { success };
+  try {
+    const { success } = await api.post('{= signupPath =}', {
+      json: data,
+    }).json(SuccessResponseSchema);
+    return { success };
+  } catch (e) {
+    throw handleApiError(e);
+  }
 }

@@ -1,13 +1,17 @@
 {{={= =}=}}
-import { api } from 'wasp/client/api'
+import { api, handleApiError } from 'wasp/client/api'
 import { SuccessResponseSchema } from '../../responseSchemas'
 
 // PUBLIC API
 export async function verifyEmail(data: {
   token: string
 }): Promise<{ success: boolean; reason?: string }> {
-  const { success, reason } = await api.post('{= verifyEmailPath =}', {
-    json: data,
-  }).json(SuccessResponseSchema)
-  return { success, reason }
+  try {
+    const { success, reason } = await api.post('{= verifyEmailPath =}', {
+      json: data,
+    }).json(SuccessResponseSchema)
+    return { success, reason }
+  } catch (e) {
+    throw handleApiError(e)
+  }
 }

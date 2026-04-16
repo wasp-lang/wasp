@@ -1,12 +1,16 @@
 {{={= =}=}}
-import { api } from 'wasp/client/api';
+import { api, handleApiError } from 'wasp/client/api';
 import { initSession } from '../../helpers/user';
 import { SessionResponseSchema } from '../../responseSchemas';
 
 // PUBLIC API
 export async function login(data: { email: string; password: string }): Promise<void> {
-    const { sessionId } = await api.post('{= loginPath =}', {
-        json: data,
-    }).json(SessionResponseSchema);
-    await initSession(sessionId);
+    try {
+        const { sessionId } = await api.post('{= loginPath =}', {
+            json: data,
+        }).json(SessionResponseSchema);
+        await initSession(sessionId);
+    } catch (e) {
+        throw handleApiError(e);
+    }
 }

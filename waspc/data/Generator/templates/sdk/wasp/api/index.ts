@@ -35,8 +35,10 @@ export function removeLocalUserData(): void {
  * A ky instance configured for the Wasp API server.
  *
  * Automatically prepends the API base URL, adds authentication headers,
- * handles session invalidation on 401 responses, and throws
- * ky's `HTTPError` for non-2xx responses.
+ * and handles session invalidation on 401 responses. Non-2xx responses
+ * cause ky to throw an `HTTPError`; pass it through `handleApiError` to
+ * get a `WaspHttpError` carrying the server's status code, message, and
+ * response body.
  */
 export const api = ky.extend({
   prefix: config.apiUrl,
@@ -74,21 +76,6 @@ export const api = ky.extend({
         }
       },
     ],
-    beforeError: [
-      ({ error }) => {
-        if (isHTTPError(error)) {
-          // Transform ky's HTTPError into a WaspHttpError that mirrors the shape
-          // we used with axios (via the old `handleApiError` helper): it carries
-          // the response's status code, the server-provided message (if any),
-          // and the full response body as `data`.
-          const body = error.data as Record<string, unknown> | undefined
-          const message =
-            typeof body?.message === 'string' ? body.message : error.message
-          return new WaspHttpError(error.response.status, message, body)
-        }
-        return error
-      },
-    ],
   },
 })
 
@@ -111,12 +98,27 @@ if (typeof window !== 'undefined') {
   })
 }
 
-function getSessionIdFromAuthorizationHeader(header: string | null): string | null {
-  const prefix = 'Bearer '
-  if (header && header.startsWith(prefix)) {
-    return header.substring(prefix.length)
+// PRIVATE API (sdk)
+/**
+ * Takes an error returned by the app's API (as thrown by ky), and transforms it into a more
+ * standard format to be further used by the client. It is also assumed that given API
+ * error has been formatted as implemented by HttpError on the server.
+ */
+export function handleApiError(error: unknown): unknown {
+  if (isHTTPError(error)) {
+    // If error came from HTTP response, we capture most informative message
+    // and also add .statusCode information to it.
+    // If error had JSON response, we assume it is of format { message, data } and
+    // add that info to the error.
+    // TODO: We might want to use HttpError here instead of just Error, since
+    //   HttpError is also used on server to throw errors like these.
+    //   That would require copying HttpError code to web-app also and using it here.
+    const responseJson = error.data as { message?: string; data?: unknown } | undefined
+    const responseStatusCode = error.response.status
+    return new WaspHttpError(responseStatusCode, responseJson?.message ?? error.message, responseJson)
   } else {
-    return null
+    // If any other error, we just propagate it.
+    return error
   }
 }
 
@@ -129,5 +131,14 @@ class WaspHttpError extends Error {
     super(message)
     this.statusCode = statusCode
     this.data = data
+  }
+}
+
+function getSessionIdFromAuthorizationHeader(header: string | null): string | null {
+  const prefix = 'Bearer '
+  if (header && header.startsWith(prefix)) {
+    return header.substring(prefix.length)
+  } else {
+    return null
   }
 }

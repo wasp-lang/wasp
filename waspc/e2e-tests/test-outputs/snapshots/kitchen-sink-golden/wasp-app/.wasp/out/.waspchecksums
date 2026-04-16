@@ -53,35 +53,35 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "69e20ec04ab5eab8975db3671ea610f81f6ebaae1d533341b5fdd52b25a7bb16"
+        "2c6a32dff4ef5d8284e5f99cda26df93577edf5034245d7f7b13f64034c9e277"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/login.ts"
         ],
-        "e2b9367846abfcfd849ffe42c548dc8c4af0e2811e8b067045727fc70aa03cce"
+        "dfb46a1065daddb51dc9b216f68c613b76fedd7a0ec285635222c81e68a65f9e"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/passwordReset.ts"
         ],
-        "0bbdf5644314ad03b5b31863bf350e62a5e81a6192919b63f9781b9249d6937c"
+        "0b37742cd8796d6baddd22ca0dc90dc359214a5692a5cc1e5663c9201bfa1f84"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/signup.ts"
         ],
-        "ca2feae729b7e6c9a581bdded55092717eefa9419048d7ee655a00d574724552"
+        "b9689685f9b51b07e43cb342abe801a1d4912ccac799802a19a8a4b1f2298f87"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/verifyEmail.ts"
         ],
-        "310bfb2ee1d605c39c97908780c051e3a8011b6bdac8ff6eea4590ab0f94ab97"
+        "55a1a4bf28e8e82670e2a6413aa1a5d8f86a815c6be7a17c66b2ce13fb3384f8"
     ],
     [
         [
@@ -375,7 +375,7 @@
             "file",
             "sdk/wasp/auth/useAuth.ts"
         ],
-        "cf6e73b3caeb3b53f925da3ac233047da19c8bab65785108a5c112c634db54da"
+        "185fe6eddec17273904097164567385bdc3cd12b33545395660f3508ae513aac"
     ],
     [
         [
@@ -627,7 +627,7 @@
             "file",
             "sdk/wasp/client/operations/internal/index.ts"
         ],
-        "6b7a584ec8635679e72047e9d4c8dc2d0e4a4780a8884d2bba1bda4cd6afca1a"
+        "c37958916c49908e3379f281e1722aa58b44349d46f627e15ee73460bc801f71"
     ],
     [
         [

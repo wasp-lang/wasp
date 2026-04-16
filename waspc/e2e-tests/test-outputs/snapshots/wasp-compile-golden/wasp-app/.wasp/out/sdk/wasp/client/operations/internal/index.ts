@@ -1,4 +1,4 @@
-import { api } from 'wasp/client/api'
+import { api, handleApiError } from 'wasp/client/api'
 import { HttpMethod } from 'wasp/client'
 import { serialize, deserialize } from 'wasp/core/serialization'
 
@@ -7,11 +7,15 @@ export type OperationRoute = { method: HttpMethod.Post, path: string }
 
 // PRIVATE API
 export async function callOperation(operationRoute: OperationRoute, args: any) {
-  const serializedArgs = serialize(args)
-  const json = await api.post(operationRoute.path, {
-    json: serializedArgs,
-  }).json()
-  return deserialize(json as any)
+  try {
+    const serializedArgs = serialize(args)
+    const json = await api.post(operationRoute.path, {
+      json: serializedArgs,
+    }).json()
+    return deserialize(json as any)
+  } catch (error) {
+    throw handleApiError(error)
+  }
 }
 
 // PRIVATE API

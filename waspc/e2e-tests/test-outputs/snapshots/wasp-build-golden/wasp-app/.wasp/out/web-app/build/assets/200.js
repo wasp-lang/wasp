@@ -5,7 +5,7 @@ import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import ky, { isHTTPError } from "ky";
+import ky from "ky";
 import * as z from "zod";
 import mitt from "mitt";
 import "superjson";
@@ -252,16 +252,6 @@ ky.extend({
           }
         }
       }
-    ],
-    beforeError: [
-      ({ error }) => {
-        if (isHTTPError(error)) {
-          const body = error.data;
-          const message = typeof body?.message === "string" ? body.message : error.message;
-          return new WaspHttpError(error.response.status, message, body);
-        }
-        return error;
-      }
     ]
   }
 });
@@ -282,15 +272,6 @@ function getSessionIdFromAuthorizationHeader(header) {
     return header.substring(prefix.length);
   } else {
     return null;
-  }
-}
-class WaspHttpError extends Error {
-  statusCode;
-  data;
-  constructor(statusCode, message, data) {
-    super(message);
-    this.statusCode = statusCode;
-    this.data = data;
   }
 }
 const defaultQueryClientConfig = {};
