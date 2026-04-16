@@ -2,7 +2,7 @@
 import { use, type ReactNode } from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 
-import { queryClientPromise } from '../../operations/index'
+import { queryClientPromise } from '../../operations/bootstrap'
 
 {=# areWebSocketsUsed =}
 import { WebSocketProvider } from '../../webSocket/WebSocketProvider'

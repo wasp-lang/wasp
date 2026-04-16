@@ -16,8 +16,3 @@ export {
     // PUBLIC API
     configureQueryClient,
 } from './queryClient'
-
-export {
-    // PRIVATE API (framework code)
-    queryClientPromise,
-} from './bootstrap'

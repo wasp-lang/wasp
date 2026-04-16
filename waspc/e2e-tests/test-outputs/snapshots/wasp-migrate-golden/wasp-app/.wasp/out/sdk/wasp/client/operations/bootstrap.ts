@@ -5,11 +5,12 @@ import { initializeQueryClient } from "./queryClient";
 // PRIVATE API (framework code)
 // Composes the user's client setup (which may call `configureQueryClient`)
 // with the QueryClient creation. Consumers `await` or `React.use()` this.
-// We defer the first step to a microtask so that module graph evaluation
-// fully completes before the user's `setupFn` runs. This avoids circular
-// import issues: user code may `import { configureQueryClient } from
-// "wasp/client/operations"`, which re-exports us, and calling into user
-// code synchronously during module eval would leave those bindings
-// temporarily unresolved.
-export const queryClientPromise: Promise<QueryClient> = Promise.resolve()
-  .then(() => initializeQueryClient());
+//
+// NOTE: this module MUST NOT be re-exported through `./index.ts`. User code
+// imports `configureQueryClient` from `wasp/client/operations`, and since
+// this module imports user code (via `setupFn`), re-exporting it would form
+// a cycle whose partially-initialized barrel namespace is snapshotted by
+// Vite SSR, causing `configureQueryClient` to appear undefined at call
+// time. Consumers should import this module directly instead.
+export const queryClientPromise: Promise<QueryClient> =
+  Promise.resolve(initializeQueryClient());

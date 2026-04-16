@@ -1,7 +1,7 @@
 import { use, type ReactNode } from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 
-import { queryClientPromise } from '../../operations/index'
+import { queryClientPromise } from '../../operations/bootstrap'
 
 
 export function WaspApp({ children }: { children: ReactNode }) {

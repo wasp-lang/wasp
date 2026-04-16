@@ -11,7 +11,7 @@ import {
 
 import { Layout } from "wasp/client/app/layout";
 import { WaspApp } from "wasp/client/app";
-import { queryClientPromise } from "wasp/client/operations";
+import { queryClientPromise } from "wasp/client/operations/bootstrap";
 
 {=& routeObjects.importStatement =}
 
