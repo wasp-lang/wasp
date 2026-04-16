@@ -77,11 +77,14 @@ export const api = ky.extend({
     beforeError: [
       ({ error }) => {
         if (isHTTPError(error)) {
-          ;(error as any).statusCode = error.response.status
+          // Transform ky's HTTPError into a WaspHttpError that mirrors the shape
+          // we used with axios (via the old `handleApiError` helper): it carries
+          // the response's status code, the server-provided message (if any),
+          // and the full response body as `data`.
           const body = error.data as Record<string, unknown> | undefined
-          if (body && typeof body.message === 'string') {
-            error.message = body.message
-          }
+          const message =
+            typeof body?.message === 'string' ? body.message : error.message
+          return new WaspHttpError(error.response.status, message, body)
         }
         return error
       },
@@ -114,5 +117,17 @@ function getSessionIdFromAuthorizationHeader(header: string | null): string | nu
     return header.substring(prefix.length)
   } else {
     return null
+  }
+}
+
+class WaspHttpError extends Error {
+  statusCode: number
+
+  data: unknown
+
+  constructor(statusCode: number, message: string, data: unknown) {
+    super(message)
+    this.statusCode = statusCode
+    this.data = data
   }
 }

@@ -256,11 +256,9 @@ ky.extend({
     beforeError: [
       ({ error }) => {
         if (isHTTPError(error)) {
-          error.statusCode = error.response.status;
           const body = error.data;
-          if (body && typeof body.message === "string") {
-            error.message = body.message;
-          }
+          const message = typeof body?.message === "string" ? body.message : error.message;
+          return new WaspHttpError(error.response.status, message, body);
         }
         return error;
       }
@@ -284,6 +282,15 @@ function getSessionIdFromAuthorizationHeader(header) {
     return header.substring(prefix.length);
   } else {
     return null;
+  }
+}
+class WaspHttpError extends Error {
+  statusCode;
+  data;
+  constructor(statusCode, message, data) {
+    super(message);
+    this.statusCode = statusCode;
+    this.data = data;
   }
 }
 const defaultQueryClientConfig = {};
