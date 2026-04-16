@@ -8,12 +8,10 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
     userClientEnvSchemaVF,
     userClientSetupFnVF,
     userClientRootComponentVF,
-    userPageVF,
   )
 where
 
-import Data.Maybe (fromJust)
-import StrongPath (Dir, Path', Rel, parseRelFileP, reldir, relfileP, (</>))
+import StrongPath (Dir, Path', Rel, reldir, relfileP, (</>))
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.JsImport (VirtualFile)
 
@@ -47,6 +45,3 @@ userClientSetupFnVF = [relfileP|virtual:wasp/user/client-setup-fn|]
 
 userClientRootComponentVF :: VirtualFile
 userClientRootComponentVF = [relfileP|virtual:wasp/user/client-root-component|]
-
-userPageVF :: String -> VirtualFile
-userPageVF pageName = fromJust $ parseRelFileP $ "virtual:wasp/user/page/" ++ pageName

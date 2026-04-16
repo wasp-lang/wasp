@@ -11,17 +11,15 @@ import Data.Maybe (maybeToList)
 import StrongPath (relfile, toFilePath, (</>))
 import qualified StrongPath as SP
 import Wasp.AppSpec (AppSpec)
-import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.ExtImport as EI
-import qualified Wasp.AppSpec.Page as AS.Page
 import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, userClientEnvSchemaVF, userClientRootComponentVF, userClientSetupFnVF, userPageVF, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, userClientEnvSchemaVF, userClientRootComponentVF, userClientSetupFnVF, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -113,12 +111,7 @@ getUserVFData spec =
   maybeToList (mkUserVFFromExtImport userClientEnvSchemaVF <$> maybeClientEnvSchema)
     ++ maybeToList (mkUserVFFromExtImport userClientSetupFnVF <$> maybeSetupFn)
     ++ maybeToList (mkUserVFFromExtImport userClientRootComponentVF <$> maybeRootComponent)
-    ++ map mkPageVF (AS.getPages spec)
   where
-    mkPageVF :: (String, AS.Page.Page) -> Aeson.Value
-    mkPageVF (pageName, page) =
-      mkUserVFFromExtImport (userPageVF pageName) (AS.Page.component page)
-
     mkUserVFFromExtImport :: VirtualFile -> EI.ExtImport -> Aeson.Value
     mkUserVFFromExtImport vf extImport =
       let jsImport = GJI.extImportToRelativeSrcImportFromViteExecution extImport
