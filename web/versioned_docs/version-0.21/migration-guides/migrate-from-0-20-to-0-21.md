@@ -462,7 +462,7 @@ Create a `netlify.toml` file with the following content:
 
 <NetlifyTomlConfig />
 
-For more details, see the [Netlify deployment documentation](../deployment/deployment-methods/paas.md#netlify).
+For more details, see the [Netlify deployment documentation](/docs/0.21/deployment/deployment-methods/paas#netlify).
 
 ### 12. Enjoy your updated Wasp app
 
