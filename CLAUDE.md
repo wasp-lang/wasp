@@ -27,8 +27,7 @@ Key things to know:
 
 - Two-phase build: TS packages in `data/packages/` and libs in `data/Generator/libs/` compile first, then Haskell (which embeds them). Use `./run build` for the full build.
 - Run the dev CLI with `./run wasp-cli <args>`.
-- Toolchain versions (GHC, HLS) are specified in `waspc/cabal.project` and `waspc/dev-tool.project`. Use `./run ghcup-set` to set the correct versions.
-- Node.js minimum version is in `.nvmrc`.
+- Toolchain versions are specified in `mise.toml`.
 
 ## Code Conventions
 

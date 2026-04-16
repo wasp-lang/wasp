@@ -35,15 +35,13 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-env
+        with:
+          mise-env: ${{ contains(matrix.runner.container, 'alpine') && 'musl' || '' }}
 
       - name: Install dependencies
         if: matrix.runner.install-deps
         run: ${{ matrix.runner.install-deps }}
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version-file: .nvmrc
 
       - name: Install Wasp CLI from pkg.pr.new
         env:

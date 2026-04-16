@@ -88,9 +88,6 @@ RUN_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli -- ${ARGS[@]}"
 
 # Utility
 GHCID_CMD="ghcid --command=cabal repl"
-# HLS version below should be one that works with the GHC version from the
-# `with-compiler` field in `cabal.project`
-GHCUP_SET="ghcup set hls 2.10.0.0"
 DEV_TOOLS_BIN="$PROJECT_ROOT/.bin"
 function install_dev_tool() {
   echo "cabal --project-file=$PROJECT_ROOT/dev-tool.project install $1 --installdir=$DEV_TOOLS_BIN --install-method=copy --overwrite-policy=always"
@@ -102,10 +99,10 @@ STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan
 HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
 PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
 PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"
-ORMOLU_BASE_CMD="mise x -- ormolu --color always --check-idempotence"
+ORMOLU_BASE_CMD="ormolu --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
-CABAL_GILD_BASE_CMD="mise x -- cabal-gild"
+CABAL_GILD_BASE_CMD="cabal-gild"
 CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check --input waspc.cabal"
 CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format --io waspc.cabal"
 
@@ -210,8 +207,6 @@ print_usage() {
   print_usage_cmd "module-graph" \
     "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
   echo ""
-  print_usage_cmd "ghcup-set" \
-    "Sets the correct version of GHC and Cabal for this project (via GHCup)."
   print_usage_cmd "get-waspc-version" \
     "Gets the current version of waspc from the Haskell project."
 }
@@ -368,9 +363,6 @@ case $COMMAND in
     ;;
   module-graph)
     echo_and_eval "graphmod --quiet --prune-edges $PROJECT_ROOT/src/**/*.hs | dot -Gsize=60,60! -Tpng -o module-graph.png" && echo "Printed module graph to module-graph.png."
-    ;;
-  ghcup-set)
-    echo_and_eval "$GHCUP_SET"
     ;;
   get-waspc-version)
     # NOTE: --experimental-strip-types allows Node to run TypeScript directly.

@@ -49,13 +49,8 @@ jobs:
       url: ${{ steps.app-info.outputs.url }}
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          cache: "npm"
-          node-version-file: .nvmrc
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-env
 
       - name: Install Wasp
         run: npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"

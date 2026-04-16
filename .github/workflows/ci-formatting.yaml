@@ -14,11 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
-
-      - uses: actions/setup-node@v6
-        with:
-          cache: "npm"
-          node-version-file: .nvmrc
+      - uses: ./.github/actions/setup-env
 
       - name: Run Prettier
         run: |
@@ -34,13 +30,7 @@ jobs:
           git config --global core.eol lf
 
       - uses: actions/checkout@v6
-
-      - name: Set up ormolu
-        uses: jdx/mise-action@v3
-        with:
-          # We only need to install ormolu.
-          install_args: "ormolu"
-          cache_key_prefix: "mise-ormolu"
+      - uses: ./.github/actions/setup-env
 
       - name: Run ormolu
         working-directory: waspc
@@ -51,13 +41,7 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
-
-      - name: Set up cabal-gild
-        uses: jdx/mise-action@v3
-        with:
-          # We only need to install cabal-gild.
-          install_args: "cabal-gild"
-          cache_key_prefix: "mise-cabal-gild"
+      - uses: ./.github/actions/setup-env
 
       - name: Run cabal-gild
         working-directory: waspc
