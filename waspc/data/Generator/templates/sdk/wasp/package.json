@@ -12,6 +12,10 @@
   {=! IMPORTANT: If you modify this list, remember to update the spreadsheet at =}
   {=! https://docs.google.com/spreadsheets/d/1QW-_16KRGTOaKXx9NYUtjk6m2TQ0nUMOA74hBthTH3g/edit =}
   "exports": {
+      {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
+      {=!  expose it here (which leaks it to our users). We could avoid this by =}
+      {=!  using relative imports inside SDK code (instead of library imports), =}
+      {=!  but I didn't have time to implement it. =}
       {=! todo(filip): Check all exports when done with SDK generation =}
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
@@ -46,11 +50,6 @@
       "./api/events": "./dist/api/events.js",
       {=!  Used by users, documented. =}
       "./operations": "./dist/operations/index.js",
-      {=!  If we import a symbol like "import something form 'wasp/something'", we must =}
-      {=!  expose it here (which leaks it to our users). We could avoid this by =}
-      {=!  using relative imports inside SDK code (instead of library imports), =}
-      {=!  but I didn't have time to implement it. =}
-      "./src/*": "./dist/src/*.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./operations/*": "./dist/operations/*",
       {=!  Used by our code, undocumented (but accessible) for users. =}
@@ -76,7 +75,6 @@
       {=!  Used by our code, undocumented (but accessible) for users. =}
       {=!  Todo(filip): This export becomes problematic once we start supporting different executors =}
       "./server/jobs/core/pgBoss": "./dist/server/jobs/core/pgBoss/index.js",
-
       {=! Used by the framework client code, reconsider during refactoring. =}
       "./client/webSocket/WebSocketProvider": "./dist/client/webSocket/WebSocketProvider.jsx",
       {=! Still needed, reconsider during refactoring. =}

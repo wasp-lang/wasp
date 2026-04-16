@@ -350,6 +350,7 @@ library
     Wasp.Generator.ServerGenerator.Auth.OAuthAuthG
     Wasp.Generator.ServerGenerator.AuthG
     Wasp.Generator.ServerGenerator.Common
+    Wasp.Generator.ServerGenerator.VirtualFiles
     Wasp.Generator.ServerGenerator.CrudG
     Wasp.Generator.ServerGenerator.Db.Seed
     Wasp.Generator.ServerGenerator.JobGenerator

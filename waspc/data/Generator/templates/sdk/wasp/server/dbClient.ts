@@ -7,6 +7,7 @@ type UserPrismaSetupFn = FromRegistry<'prismaSetupFn', () => InternalPrismaClien
 type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
 
 {=# prismaSetupFn.isDefined =}
+// @ts-expect-error
 {=& prismaSetupFn.importStatement =}
 const dbClient: PrismaClientResolved =  {= prismaSetupFn.importIdentifier =}();
 {=/ prismaSetupFn.isDefined =}

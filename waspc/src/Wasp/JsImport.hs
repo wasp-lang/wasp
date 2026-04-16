@@ -15,6 +15,7 @@ module Wasp.JsImport
     getJsImportPathString,
     getJsRuntimeDynamicImportExpression,
     getJsTypeDynamicImportExpression,
+    VirtualFile,
   )
 where
 
@@ -22,6 +23,8 @@ import Data.Data (Data)
 import Data.List (isPrefixOf)
 import StrongPath (Dir', File', Path, Posix, Rel)
 import qualified StrongPath as SP
+
+type VirtualFile = Path Posix (Rel Dir') File'
 
 -- | Represents a JS import data type that can be used to generate import statements
 --   in generated app. It doesn't fully support all types of JS imports (multiple imports)
