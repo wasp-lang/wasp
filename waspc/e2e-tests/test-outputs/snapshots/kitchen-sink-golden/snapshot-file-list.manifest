@@ -103,6 +103,7 @@ wasp-app/.wasp/out/sdk/wasp/client/hooks.ts
 wasp-app/.wasp/out/sdk/wasp/client/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/core.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/actions/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/operations/bootstrap.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/hooks.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/index.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/internal/index.ts
@@ -435,6 +436,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/operations/actions/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/actions/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/actions/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/actions/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/bootstrap.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/bootstrap.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/bootstrap.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/bootstrap.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/hooks.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/hooks.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/hooks.js

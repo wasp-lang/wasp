@@ -5,10 +5,6 @@ import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import axios from "axios";
-import * as z from "zod";
-import mitt from "mitt";
-import "superjson";
 (function polyfill() {
   const relList = document.createElement("link").relList;
   if (relList && relList.supports && relList.supports("modulepreload")) return;
@@ -81,204 +77,13 @@ function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntry
     ] })
   ] }) });
 }
-function stripTrailingSlash(url) {
-  return url?.replace(/\/$/, "");
-}
-var define_process_env_default = {};
-function colorize(color, text) {
-  if (!supportsAnsiFormatting()) {
-    return text;
-  }
-  const ansiColorCode = ansiColorCodes[color];
-  return text.split("\n").map((line) => `${ansiColorCode}${line}${ansiResetCode}`).join("\n");
-}
-function supportsAnsiFormatting() {
-  const isBrowser = !!globalThis.window;
-  const isNode = !!globalThis.process;
-  if (isBrowser && "chrome" in window) {
-    return true;
-  }
-  if (isNode) {
-    if ("NO_COLOR" in define_process_env_default) {
-      return false;
-    }
-    return true;
-  }
-  return false;
-}
-const ansiColorCodes = {
-  red: "\x1B[31m",
-  yellow: "\x1B[33m"
-};
-const ansiResetCode = "\x1B[0m";
-function ensureEnvSchema(data, schema) {
-  const result = getValidatedEnvOrError(data, schema);
-  if (result.success) {
-    return result.data;
-  } else {
-    console.error(colorize("red", formatZodEnvError(result.error)));
-    throw new Error("Error parsing environment variables");
-  }
-}
-function getValidatedEnvOrError(env2, schema) {
-  return schema.safeParse(env2);
-}
-function formatZodEnvError(error) {
-  const flattenedIssues = z.flattenError(error);
-  return [
-    "══ Env vars validation failed ══",
-    "",
-    // Top-level errors
-    ...flattenedIssues.formErrors,
-    "",
-    // Errors per field
-    ...Object.entries(flattenedIssues.fieldErrors).map(([prop, error2]) => `${prop} - ${error2}`),
-    "",
-    "════════════════════════════════"
-  ].join("\n");
-}
-const userClientEnvSchema = z.object({});
-const serverUrlSchema = z.string({
-  error: "REACT_APP_API_URL is required"
-}).pipe(z.url({
-  error: "REACT_APP_API_URL must be a valid URL"
-}));
-z.object({
-  "REACT_APP_API_URL": serverUrlSchema.default("http://localhost:3001")
-});
-const waspProdClientEnvSchema = z.object({
-  "REACT_APP_API_URL": serverUrlSchema
-});
-function getClientEnvSchema(mode) {
-  const waspClientEnvSchema = waspProdClientEnvSchema;
-  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape });
-}
-const __vite_import_meta_env__ = { "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "REACT_APP_API_URL": "http://localhost:3001", "SSR": false };
-const env = ensureEnvSchema(__vite_import_meta_env__, getClientEnvSchema());
-const apiUrl = stripTrailingSlash(env["REACT_APP_API_URL"]);
-const config = {
-  apiUrl
-};
-var HttpMethod;
-(function(HttpMethod2) {
-  HttpMethod2["Get"] = "GET";
-  HttpMethod2["Post"] = "POST";
-  HttpMethod2["Put"] = "PUT";
-  HttpMethod2["Delete"] = "DELETE";
-})(HttpMethod || (HttpMethod = {}));
-const createStorage = typeof window === "undefined" || !window.localStorage ? createMemoryDataStore : createLocalStorageDataStore;
-const storage = createStorage("wasp");
-function createMemoryDataStore(prefix) {
-  const store = /* @__PURE__ */ new Map();
-  function getPrefixedKey(key) {
-    return `${prefix}:${key}`;
-  }
-  return {
-    getPrefixedKey,
-    set(key, value) {
-      store.set(getPrefixedKey(key), value);
-    },
-    get(key) {
-      return store.get(getPrefixedKey(key));
-    },
-    remove(key) {
-      store.delete(getPrefixedKey(key));
-    },
-    clear() {
-      store.clear();
-    }
-  };
-}
-function createLocalStorageDataStore(prefix) {
-  if (!window.localStorage) {
-    throw new Error("Local storage is not available.");
-  }
-  function getPrefixedKey(key) {
-    return `${prefix}:${key}`;
-  }
-  return {
-    getPrefixedKey,
-    set(key, value) {
-      localStorage.setItem(getPrefixedKey(key), JSON.stringify(value));
-    },
-    get(key) {
-      const value = localStorage.getItem(getPrefixedKey(key));
-      try {
-        return value ? JSON.parse(value) : void 0;
-      } catch (e) {
-        return void 0;
-      }
-    },
-    remove(key) {
-      localStorage.removeItem(getPrefixedKey(key));
-    },
-    clear() {
-      Object.keys(localStorage).forEach((key) => {
-        if (key.startsWith(prefix)) {
-          localStorage.removeItem(key);
-        }
-      });
-    }
-  };
-}
-const apiEventsEmitter = mitt();
-const api = axios.create({
-  baseURL: config.apiUrl
-});
-const WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
-function getSessionId() {
-  const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
-  return sessionId ?? null;
-}
-function clearSessionId() {
-  storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
-  apiEventsEmitter.emit("sessionId.clear");
-}
-api.interceptors.request.use((config2) => {
-  const sessionId = getSessionId();
-  if (sessionId !== null) {
-    config2.headers["Authorization"] = `Bearer ${sessionId}`;
-  }
-  return config2;
-});
-api.interceptors.response.use(void 0, (error) => {
-  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers["Authorization"]);
-  const currentSessionId = getSessionId();
-  if (error.response?.status === 401 && failingSessionId === currentSessionId) {
-    clearSessionId();
-  }
-  return Promise.reject(error);
-});
-if (typeof window !== "undefined") {
-  window.addEventListener("storage", (event) => {
-    if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
-      if (!!event.newValue) {
-        apiEventsEmitter.emit("sessionId.set");
-      } else {
-        apiEventsEmitter.emit("sessionId.clear");
-      }
-    }
-  });
-}
-function getSessionIdFromAuthorizationHeader(header) {
-  const prefix = "Bearer ";
-  if (header && header.startsWith(prefix)) {
-    return header.substring(prefix.length);
-  } else {
-    return null;
-  }
-}
 const defaultQueryClientConfig = {};
-let resolveQueryClientInitialized;
-const queryClientInitialized = new Promise((resolve) => {
-  resolveQueryClientInitialized = resolve;
-});
 function initializeQueryClient() {
-  const queryClient = new QueryClient(defaultQueryClientConfig);
-  resolveQueryClientInitialized(queryClient);
+  return new QueryClient(defaultQueryClientConfig);
 }
+const queryClientPromise = Promise.resolve(initializeQueryClient());
 function WaspApp({ children }) {
-  const queryClient = use(queryClientInitialized);
+  const queryClient = use(queryClientPromise);
   return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children });
 }
 const scriptRel = "modulepreload";
@@ -387,7 +192,6 @@ const routesMapping = {
     )
   }
 };
-initializeQueryClient();
 const rootElement = void 0;
 const routeObjects = getRouteObjects({
   routesMapping,
@@ -403,6 +207,7 @@ const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
 function App() {
   return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
 }
+await queryClientPromise;
 startTransition(() => {
   hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
 });

@@ -10,6 +10,7 @@ import {
 
 import { Layout } from "wasp/client/app/layout";
 import { WaspApp } from "wasp/client/app";
+import { queryClientPromise } from "wasp/client/operations/bootstrap";
 
 import { routeObjects } from '/@wasp/routes.tsx'
 
@@ -42,6 +43,8 @@ const prerenderApp: PrerenderFn = async (route, { clientEntrySrc }) => {
   }
 
   const WASP_SSR_DATA: WaspSSRData = { isFallbackPage }
+
+  await queryClientPromise;
 
   const html = await reactPrerender(<App/>, {
     bootstrapScriptContent: `window.__WASP_SSR_DATA__=${JSON.stringify(WASP_SSR_DATA)};`,

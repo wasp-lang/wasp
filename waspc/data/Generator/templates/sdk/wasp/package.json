@@ -103,6 +103,12 @@
       "./auth/providers": "./dist/auth/providers/index.js",
       "./client/auth": "./dist/client/auth/index.js",
       "./client/operations": "./dist/client/operations/index.js",
+      {=! Private: [sdk, framework client code]. Consumers must NOT import this through =}
+      {=! the "wasp/client/operations" barrel: the user's client setup imports =}
+      {=! `configureQueryClient` from the barrel, and if the barrel also re-exports =}
+      {=! this module (which triggers user code), Vite SSR snapshots the partially =}
+      {=! initialized barrel namespace, leaving `configureQueryClient` undefined. =}
+      "./client/operations/bootstrap": "./dist/client/operations/bootstrap.js",
       "./server/auth": "./dist/server/auth/index.js",
       "./server/crud": "./dist/server/crud/index.js",
       "./client/crud": "./dist/client/crud/index.js",
