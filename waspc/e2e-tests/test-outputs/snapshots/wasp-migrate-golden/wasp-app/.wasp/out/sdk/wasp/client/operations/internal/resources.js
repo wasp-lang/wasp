@@ -1,4 +1,4 @@
-import { queryClientInitialized } from '../queryClient.js'
+import { queryClientPromise } from '../bootstrap'
 import { makeUpdateHandlersMap } from './updateHandlersMap'
 import { hashQueryKey } from '@tanstack/react-query'
 
@@ -43,7 +43,7 @@ export function getActiveOptimisticUpdates(queryKey) {
 }
 
 export async function invalidateAndRemoveQueries() {
-  const queryClient = await queryClientInitialized
+  const queryClient = await queryClientPromise
   // If we don't reset the queries before removing them, Wasp will stay on
   // the same page. The user would have to manually refresh the page to "finish"
   // logging out.
@@ -62,7 +62,7 @@ export async function invalidateAndRemoveQueries() {
  * @param {string[]} resources - Names of resources.
  */
 async function invalidateQueriesUsing(resources) {
-  const queryClient = await queryClientInitialized
+  const queryClient = await queryClientPromise
 
   const queryCacheKeysToInvalidate = getQueriesUsingResources(resources)
   queryCacheKeysToInvalidate.forEach(

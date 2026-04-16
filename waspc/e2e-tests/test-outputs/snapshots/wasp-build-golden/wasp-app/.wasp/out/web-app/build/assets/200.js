@@ -269,16 +269,12 @@ function getSessionIdFromAuthorizationHeader(header) {
   }
 }
 const defaultQueryClientConfig = {};
-let resolveQueryClientInitialized;
-const queryClientInitialized = new Promise((resolve) => {
-  resolveQueryClientInitialized = resolve;
-});
 function initializeQueryClient() {
-  const queryClient = new QueryClient(defaultQueryClientConfig);
-  resolveQueryClientInitialized(queryClient);
+  return new QueryClient(defaultQueryClientConfig);
 }
+const queryClientPromise = Promise.resolve(initializeQueryClient());
 function WaspApp({ children }) {
-  const queryClient = use(queryClientInitialized);
+  const queryClient = use(queryClientPromise);
   return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children });
 }
 const scriptRel = "modulepreload";
@@ -387,7 +383,6 @@ const routesMapping = {
     )
   }
 };
-initializeQueryClient();
 const rootElement = void 0;
 const routeObjects = getRouteObjects({
   routesMapping,
@@ -403,6 +398,7 @@ const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {};
 function App() {
   return /* @__PURE__ */ jsx(Layout, { isFallbackPage, children: /* @__PURE__ */ jsx(WaspApp, { children: /* @__PURE__ */ jsx(RouterProvider, { router }) }) });
 }
+await queryClientPromise;
 startTransition(() => {
   hydrateRoot(document, /* @__PURE__ */ jsx(App, {}));
 });

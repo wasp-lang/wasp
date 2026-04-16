@@ -88,7 +88,7 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "e70518ff937c59c28d85782e1ccc86aa4e088f491130d31a8a8d9f43a86308c6"
+        "7d55e63e7ec898fa1c9a94c479c3730b21fda64db546b108912ca2218d4f743e"
     ],
     [
         [
@@ -170,6 +170,13 @@
     [
         [
             "file",
+            "sdk/wasp/client/operations/bootstrap.ts"
+        ],
+        "913daa781f3eb3d375804931bae0ac4140aa1652858166cee70ba874e149b695"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
         "afb77720c5d690911c13a752996b93a8b0f5c8a02568ed59c45c1c401bb2b3fd"
@@ -179,7 +186,7 @@
             "file",
             "sdk/wasp/client/operations/index.ts"
         ],
-        "edcdc3798590e62b778115b3818df8cc69fa5a8bb3a7fe9fa6d6d5ea706d14c4"
+        "b1f2dad47ccc08474d58a3f8008cad666d4508d616b855a73c7d60c1649eac6e"
     ],
     [
         [
@@ -193,7 +200,7 @@
             "file",
             "sdk/wasp/client/operations/internal/resources.js"
         ],
-        "0f3a0e4d19ceff419a6343ab5162d8b0985673f9d3d7d76bd4471fae0076fe17"
+        "1c89d6d7de38a625cf96dbcd50ec7b46bd1c83a096fdcbdc1180d4e77f3ba03f"
     ],
     [
         [
@@ -221,7 +228,7 @@
             "file",
             "sdk/wasp/client/operations/queryClient.ts"
         ],
-        "5c1d87ac10513788bcde7ebc7c10601b9ad0854cddff355e8fb7e2d4685ecdef"
+        "dbf9e8400dab068018e8f2e937ed807ec0c1808d397ab58ccfa02efb050265d4"
     ],
     [
         [
@@ -340,21 +347,21 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "413c3dc30af130acc68fb319915348aab647f0b6d73bddacfcc5b5c3b7dbb766"
+        "36a4b798c56892cc51ef0319ff07ad61006134fc8e8c648b9d967a1534462b8e"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "f61fadf421a8c1fb21eb0a2e2fa9a3823e82442dde46dd710b80c616ef434c35"
+        "1da18649210169b8383b876b5c5fe708528e28e47f3acec333b7bb84304a8e8b"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "f1b19e131b16c7dc39254a841ad836ba5ea7200cb7e11d06999c3b276bca30f6"
+        "8ef78da9dd0cbbb3d68ade74b1071fedd82f275ffd2a253e47b3bb913a264a3c"
     ],
     [
         [

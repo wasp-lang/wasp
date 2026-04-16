@@ -6,6 +6,7 @@ import { RouterProvider } from "react-router/dom";
 
 import { Layout } from "wasp/client/app/layout";
 import { WaspApp } from "wasp/client/app";
+import { queryClientPromise } from "wasp/client/operations";
 
 {=& routeObjects.importStatement =}
 
@@ -28,6 +29,8 @@ function App() {
     </Layout>
   );
 }
+
+await queryClientPromise;
 
 startTransition(() => {
   hydrateRoot(document, <App />);
