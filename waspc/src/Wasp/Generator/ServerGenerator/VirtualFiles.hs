@@ -1,7 +1,7 @@
 module Wasp.Generator.ServerGenerator.VirtualFiles
   ( getUserVFData,
     userServerEnvSchemaVF,
-    userPrismaSetupVF,
+    userPrismaSetupFnVF,
     userOperationVF,
   )
 where
@@ -38,7 +38,7 @@ import Wasp.JsImport (VirtualFile)
 getUserVFData :: AppSpec -> [Aeson.Value]
 getUserVFData spec =
   maybeToList (mkUserVFFromExtImport userServerEnvSchemaVF <$> maybeServerEnvSchema)
-    ++ maybeToList (mkUserVFFromExtImport userPrismaSetupVF <$> maybePrismaSetupFn)
+    ++ maybeToList (mkUserVFFromExtImport userPrismaSetupFnVF <$> maybePrismaSetupFn)
     ++ map mkOperationVFData allOperations
   where
     mkOperationVFData :: AS.Operation.Operation -> Aeson.Value
@@ -62,14 +62,14 @@ getUserVFData spec =
     app = snd $ getApp spec
 
 userServerEnvSchemaVF :: VirtualFile
-userServerEnvSchemaVF = [relfileP|virtual:wasp/user-server-env-schema|]
+userServerEnvSchemaVF = [relfileP|virtual:wasp/user/server-env-schema|]
 
-userPrismaSetupVF :: VirtualFile
-userPrismaSetupVF = [relfileP|virtual:wasp/user-prisma-setup|]
+userPrismaSetupFnVF :: VirtualFile
+userPrismaSetupFnVF = [relfileP|virtual:wasp/user/prisma-setup-fn|]
 
 userOperationVF :: AS.Operation.Operation -> VirtualFile
 userOperationVF operation =
-  fromJust . SP.parseRelFileP $ "virtual:wasp/" ++ operationType ++ "/" ++ oprationName
+  fromJust . SP.parseRelFileP $ "virtual:wasp/user/" ++ operationType ++ "/" ++ oprationName
   where
     oprationName = AS.Operation.getName operation
     operationType = case operation of

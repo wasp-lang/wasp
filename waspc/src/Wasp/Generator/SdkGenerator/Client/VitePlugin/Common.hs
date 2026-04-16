@@ -6,8 +6,8 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
     ssrEntryPointPath,
     spaFallbackFile,
     userClientEnvSchemaVF,
-    userSetupFnVF,
-    userRootComponentVF,
+    userClientSetupFnVF,
+    userClientRootComponentVF,
     userPageVF,
   )
 where
@@ -40,13 +40,13 @@ spaFallbackFile :: String
 spaFallbackFile = "200.html"
 
 userClientEnvSchemaVF :: VirtualFile
-userClientEnvSchemaVF = [relfileP|virtual:wasp/user-client-env-schema|]
+userClientEnvSchemaVF = [relfileP|virtual:wasp/user/client-env-schema|]
 
-userSetupFnVF :: VirtualFile
-userSetupFnVF = [relfileP|virtual:wasp/user-setup-fn|]
+userClientSetupFnVF :: VirtualFile
+userClientSetupFnVF = [relfileP|virtual:wasp/user/client-setup-fn|]
 
-userRootComponentVF :: VirtualFile
-userRootComponentVF = [relfileP|virtual:wasp/user-root-component|]
+userClientRootComponentVF :: VirtualFile
+userClientRootComponentVF = [relfileP|virtual:wasp/user/client-root-component|]
 
 userPageVF :: String -> VirtualFile
-userPageVF pageName = fromJust $ parseRelFileP $ "virtual:wasp/page/" ++ pageName
+userPageVF pageName = fromJust $ parseRelFileP $ "virtual:wasp/user/page/" ++ pageName

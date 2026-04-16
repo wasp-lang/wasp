@@ -69,7 +69,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.VirtualFiles (userPrismaSetupVF)
+import Wasp.Generator.ServerGenerator.VirtualFiles (userPrismaSetupFnVF)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -338,7 +338,7 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupVF maybePrismaSetupFn
+            "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVF maybePrismaSetupFn
           ]
 
   return $

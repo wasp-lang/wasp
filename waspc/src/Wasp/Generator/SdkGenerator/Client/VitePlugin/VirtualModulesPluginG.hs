@@ -21,7 +21,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, userClientEnvSchemaVF, userPageVF, userRootComponentVF, userSetupFnVF, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, userClientEnvSchemaVF, userClientRootComponentVF, userClientSetupFnVF, userPageVF, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -111,8 +111,8 @@ genUserVirtualModulesTs spec =
 getUserVFData :: AppSpec -> [Aeson.Value]
 getUserVFData spec =
   maybeToList (mkUserVFFromExtImport userClientEnvSchemaVF <$> maybeClientEnvSchema)
-    ++ maybeToList (mkUserVFFromExtImport userSetupFnVF <$> maybeSetupFn)
-    ++ maybeToList (mkUserVFFromExtImport userRootComponentVF <$> maybeRootComponent)
+    ++ maybeToList (mkUserVFFromExtImport userClientSetupFnVF <$> maybeSetupFn)
+    ++ maybeToList (mkUserVFFromExtImport userClientRootComponentVF <$> maybeRootComponent)
     ++ map mkPageVF (AS.getPages spec)
   where
     mkPageVF :: (String, AS.Page.Page) -> Aeson.Value
