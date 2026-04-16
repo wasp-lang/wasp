@@ -20,7 +20,6 @@ import Wasp.Generator.SdkGenerator.Common
   ( genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
 
 genWebSockets :: AppSpec -> Generator [FileDraft]
@@ -40,11 +39,8 @@ genServerWebSocketIndex spec =
     tmplData =
       object
         [ "isAuthEnabled" .= isAuthEnabled spec,
-          "userWebSocketFn" .= extImportToImportJson mayebWebSocketFn,
           "allEntities" .= map (makeJsonWithEntityData . fst) (AS.getEntities spec)
         ]
-    maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
-    mayebWebSocketFn = AS.App.WS.fn <$> maybeWebSocket
 
 genClientWebSocketProvider :: AppSpec -> Generator FileDraft
 genClientWebSocketProvider spec =
