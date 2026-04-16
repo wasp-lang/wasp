@@ -23,7 +23,7 @@ module.exports = {
       // Heading fonts for docs/blog are controlled separately by Infima's --ifm-heading-font-family
       // in src/css/custom.css — update both when changing fonts.
       fontFamily: {
-        sans: ["'IBM Plex Mono'", "monospace"],
+        sans: ["Inter"],
         mono: ["'JetBrains Mono'", "monospace"],
         body: ["'IBM Plex Mono'", "monospace"],
       },

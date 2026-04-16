@@ -6,6 +6,7 @@ body {
 
 div.twLandingPage {
   background-color: #f7f5f0;
+  font-family: "IBM Plex Mono", monospace;
   -webkit-font-smoothing: antialiased;
 }
 

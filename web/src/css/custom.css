@@ -158,7 +158,7 @@
      Body text is controlled separately by Tailwind's fontFamily.sans in tailwind.config.js
      (via preflight.css's `html` rule) — update both when changing fonts. */
   --ifm-container-width-xl: 1280px;
-  --ifm-font-family-base: "IBM Plex Mono", monospace;
+  --ifm-font-family-base: "Inter", sans-serif;
   --ifm-heading-font-family: "JetBrains Mono", monospace;
   --ifm-color-primary: #bf9900;
   /* wasp color (ffcc00) darkened by 25% */
