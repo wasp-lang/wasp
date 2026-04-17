@@ -44,7 +44,7 @@ import Wasp.Util.TH (quasiQuoterFromParser)
 data Range = Range (NE.NonEmpty RangeExpression)
   deriving (Eq, TH.Lift)
 
--- | We rely on this 'show' implementation to produce valid a `node-semver` output.
+-- | We rely on this 'show' implementation to produce a valid `node-semver` output.
 instance Show Range where
   show (Range rangeExpressions) = intercalate " || " (show <$> NE.toList rangeExpressions)
 
