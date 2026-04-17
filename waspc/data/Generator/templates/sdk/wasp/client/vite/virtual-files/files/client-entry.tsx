@@ -1,23 +1,25 @@
 {{={= =}=}}
 import { startTransition } from "react";
 import { hydrateRoot } from "react-dom/client";
-import { createBrowserRouter, type HydrationState } from "react-router";
+import { createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
+
 import { Layout } from "wasp/client/app/layout";
 import { WaspApp } from "wasp/client/app";
 
 {=& routeObjects.importStatement =}
 
-// React Router will put hydration data on this property of the `window` object.
-// https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
-const hydrationData = (window as any).__staticRouterHydrationData as HydrationState | undefined;
-
 const router = createBrowserRouter({= routeObjects.importIdentifier =}, {
   basename: "{= baseDir =}",
-  hydrationData,
+  // React Router will put hydration data on this property of the `window` object.
+  // https://reactrouter.com/7.13.1/start/data/custom#4-hydrate-in-the-browser
+  hydrationData: window.__staticRouterHydrationData,
 })
 
-function App({ isFallbackPage }: { isFallbackPage: boolean }) {
+// We embed this data at prerendering time.
+const { isFallbackPage } = window.__WASP_SSR_DATA__ ?? {}
+
+function App() {
   return (
     <Layout isFallbackPage={isFallbackPage}>
       <WaspApp>
@@ -28,6 +30,5 @@ function App({ isFallbackPage }: { isFallbackPage: boolean }) {
 }
 
 startTransition(() => {
-  const isFallbackpage = hydrationData == null;
-  hydrateRoot(document, <App isFallbackPage={isFallbackpage} />);
+  hydrateRoot(document, <App />);
 });

@@ -5,6 +5,7 @@
   border: 1px solid var(--ifm-color-emphasis-300);
   border-radius: var(--ifm-global-radius);
   padding: 1rem;
+  margin-bottom: var(--ifm-leading);
   transition: all 0.1s ease-in-out;
 }
 

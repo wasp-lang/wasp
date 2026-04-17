@@ -1,0 +1,18 @@
+diff --git a/main.wasp b/main.wasp
+index a5f1899..c3df1d1 100644
+--- a/main.wasp
++++ b/main.wasp
+@@ -9,3 +9,13 @@ route RootRoute { path: "/", to: MainPage }
+ page MainPage {
+   component: import { MainPage } from "@src/MainPage"
+ }
++
++query getTasks {
++  // Specifies where the implementation for the query function is.
++  // The path `@src/queries` resolves to `src/queries.ts`.
++  // No need to specify an extension.
++  fn: import { getTasks } from "@src/queries",
++  // Tell Wasp that this query reads from the `Task` entity. Wasp will
++  // automatically update the results of this query when tasks are modified.
++  entities: [Task]
++}

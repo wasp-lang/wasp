@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "531b891bf436f6d47fa105f643da3236c26440f508418e8644a0eba9992aa334"
+        "11dd70eef0b1da245dd9263d40a63b4057b0e972ffb0d98dc0a832a5505d0c60"
     ],
     [
         [
@@ -23,16 +23,16 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.22.0.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.24.0.tgz"
         ],
-        "78e9b53939d123bcfa191024dfeb038a0c3f84a867a67fce8fe14cb1989d7427"
+        "ebff18b870fff9120dcc52aa42d9aab6f9f074f94230783811f6d7e19b08048c"
     ],
     [
         [
             "file",
-            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz"
+            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.24.0.tgz"
         ],
-        "71d84564cb3379897c7189393a606d214f55396eba5e696ac17d1a4ed42b4688"
+        "3cd2675d328494840796e1f619327d743acfbe899b6ea5e4db4677bd913fcdc5"
     ],
     [
         [
@@ -46,7 +46,7 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "0e37f424b8630ee07312c80dda19d18ec68aed460fd5280f801c97bb3c42ad32"
+        "2c6a32dff4ef5d8284e5f99cda26df93577edf5034245d7f7b13f64034c9e277"
     ],
     [
         [
@@ -95,7 +95,7 @@
             "file",
             "sdk/wasp/client/app/hooks/useIsClient.ts"
         ],
-        "8b7b892d6cc33b2f2569ff852bd018aa4b236a4313d9a18eaf8281f1359cbd5a"
+        "d6912c04aaee762cc62a3d811d6253fc8b31732ea80d1e757e2480d6c37e3931"
     ],
     [
         [
@@ -116,7 +116,7 @@
             "file",
             "sdk/wasp/client/app/router.tsx"
         ],
-        "27a04237768e1dba1e1c44a7ee1b77f8375aebf9d156a24798f084a7aa4d0c67"
+        "2b5dc997d1f01dfb8121e415a2d41ea035ce18ae877403036eec61009967f92b"
     ],
     [
         [
@@ -186,7 +186,7 @@
             "file",
             "sdk/wasp/client/operations/internal/index.ts"
         ],
-        "dbd92e9ee31068abb13a88dc0ed497f0e1f1e6660b39b16ffd6821b5a5c3d8c2"
+        "c37958916c49908e3379f281e1722aa58b44349d46f627e15ee73460bc801f71"
     ],
     [
         [
@@ -326,7 +326,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "14acf699cbea1957b9b192ce3ed6c215071ff96914f384491e8b4ae8ebc5c895"
+        "356176e14b791e4d2bf5896dda26d1758cc80500533888990db0ba2b265a1361"
     ],
     [
         [
@@ -340,21 +340,21 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "0c171a9124ff599f456714c61e072b0175eaa889b1bae5532fe2d920e16af28a"
+        "413c3dc30af130acc68fb319915348aab647f0b6d73bddacfcc5b5c3b7dbb766"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "4a440078f86add6d389dd0e36b9a8a9f1b31b6918e44fd67149b18b6df89154d"
+        "f61fadf421a8c1fb21eb0a2e2fa9a3823e82442dde46dd710b80c616ef434c35"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
         ],
-        "466e7e10c4170e098c85a02316b7df09c598638d53703e291b38229a82165d3b"
+        "f1b19e131b16c7dc39254a841ad836ba5ea7200cb7e11d06999c3b276bca30f6"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "7dbba0728db2d6274c7178ca05c72e5bbba3213e8e4bc80873417e39680929bc"
+        "af53827f8ee7852083d1a73e172b4c59d0ea5816a3d63eb5efed4f5b3344486a"
     ],
     [
         [
@@ -634,7 +634,7 @@
             "file",
             "sdk/wasp/vite-env.d.ts"
         ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+        "665f3198e423071ad1101003d223d09386605ddd32bcf8efba857619dd6dbb9f"
     ],
     [
         [
@@ -669,7 +669,7 @@
             "file",
             "server/package.json"
         ],
-        "0f29fdd18ca1da46d62fbbf4a0d991a736aa0889be63469d1aeec865c0e56570"
+        "297ac290160106b2b7662f5ad61d471a64e1d74c2468e52cdf623ca1bb6d68df"
     ],
     [
         [
@@ -739,6 +739,6 @@
             "file",
             "server/tsconfig.json"
         ],
-        "949371883586daa391e4c740deab221a2c96fa2be1f159e82eb5a129d4a5134a"
+        "41bd85355b03c53e6a036aadc42ce4f1e6ed20e45215d4f2036747b2c7d181e1"
     ]
 ]

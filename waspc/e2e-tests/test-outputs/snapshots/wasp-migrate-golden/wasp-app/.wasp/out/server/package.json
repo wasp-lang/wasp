@@ -1,8 +1,8 @@
 {
   "comment-filip": "The server.js location changed because we have now included client source files above .wasp/out/server/src.",
   "dependencies": {
-    "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.22.0.tgz",
-    "@wasp.sh/lib-vite-ssr": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.22.0.tgz",
+    "@wasp.sh/lib-auth": "file:../libs/auth/wasp.sh-lib-auth-0.24.0.tgz",
+    "@wasp.sh/lib-vite-ssr": "file:../libs/vite-ssr/wasp.sh-lib-vite-ssr-0.24.0.tgz",
     "cookie-parser": "~1.4.6",
     "cors": "^2.8.5",
     "dotenv": "^16.6.1",
@@ -13,19 +13,19 @@
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.0",
-    "@tsconfig/node22": "latest",
+    "@tsconfig/node24": "latest",
     "@types/cors": "^2.8.5",
     "@types/express": "^5.0.0",
     "@types/express-serve-static-core": "^5.0.0",
-    "@types/node": "^22.0.0",
+    "@types/node": "^24.0.0",
     "nodemon": "^2.0.19",
     "rollup": "^4.9.6",
     "rollup-plugin-esbuild": "^6.1.1",
-    "typescript": "5.8.2"
+    "typescript": "5.9.3"
   },
   "engineStrict": true,
   "engines": {
-    "node": ">=22.22.2"
+    "node": ">=24.14.1"
   },
   "name": "@wasp.sh/generated-server",
   "nodemonConfig": {

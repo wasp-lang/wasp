@@ -2,6 +2,7 @@ wasp-app/.env.server
 wasp-app/.env.server.example
 wasp-app/.env.vault
 wasp-app/.gitignore
+wasp-app/.npmrc
 wasp-app/.wasp/out/.dockerignore
 wasp-app/.wasp/out/.waspchecksums
 wasp-app/.wasp/out/.waspinfo
@@ -66,6 +67,7 @@ wasp-app/.wasp/out/sdk/wasp/auth/lucia.ts
 wasp-app/.wasp/out/sdk/wasp/auth/password.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/index.ts
 wasp-app/.wasp/out/sdk/wasp/auth/providers/types.ts
+wasp-app/.wasp/out/sdk/wasp/auth/responseSchemas.ts
 wasp-app/.wasp/out/sdk/wasp/auth/session.ts
 wasp-app/.wasp/out/sdk/wasp/auth/types.ts
 wasp-app/.wasp/out/sdk/wasp/auth/useAuth.ts
@@ -293,6 +295,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.js
 wasp-app/.wasp/out/sdk/wasp/dist/auth/providers/types.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.js
+wasp-app/.wasp/out/sdk/wasp/dist/auth/responseSchemas.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/session.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/session.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/session.js
@@ -985,6 +991,14 @@ wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/queries.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/queries.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/queries.js
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/operations/queries.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/HydrationMismatchPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/HydrationMismatchPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/HydrationMismatchPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/HydrationMismatchPage.jsx.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.jsx
+wasp-app/.wasp/out/sdk/wasp/dist/src/features/prerender/pages/PrerenderPage.jsx.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/streaming/api.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/streaming/api.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/src/features/streaming/api.js
@@ -1157,6 +1171,8 @@ wasp-app/.wasp/out/sdk/wasp/src/features/operations/pages/SerializationPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/pages/TaskDetailPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/pages/TasksPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/operations/queries.ts
+wasp-app/.wasp/out/sdk/wasp/src/features/prerender/pages/HydrationMismatchPage.tsx
+wasp-app/.wasp/out/sdk/wasp/src/features/prerender/pages/PrerenderPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/api.ts
 wasp-app/.wasp/out/sdk/wasp/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/.wasp/out/sdk/wasp/src/pages/CatchAllPage.tsx
@@ -1302,6 +1318,7 @@ wasp-app/e2e-tests/tests/lazy-loading.spec.ts
 wasp-app/e2e-tests/tests/mailcrab.ts
 wasp-app/e2e-tests/tests/manual-signup.spec.ts
 wasp-app/e2e-tests/tests/operations.spec.ts
+wasp-app/e2e-tests/tests/prerender.spec.ts
 wasp-app/e2e-tests/tests/prisma-setup-fn.spec.ts
 wasp-app/e2e-tests/tests/serialization.spec.ts
 wasp-app/e2e-tests/tests/streaming.spec.ts
@@ -1381,6 +1398,8 @@ wasp-app/src/features/operations/pages/SerializationPage.tsx
 wasp-app/src/features/operations/pages/TaskDetailPage.tsx
 wasp-app/src/features/operations/pages/TasksPage.tsx
 wasp-app/src/features/operations/queries.ts
+wasp-app/src/features/prerender/pages/HydrationMismatchPage.tsx
+wasp-app/src/features/prerender/pages/PrerenderPage.tsx
 wasp-app/src/features/streaming/api.ts
 wasp-app/src/features/streaming/pages/StreamingTestPage.tsx
 wasp-app/src/pages/CatchAllPage.tsx
