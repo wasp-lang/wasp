@@ -139,12 +139,11 @@ spec_SemanticVersion_RangeExpression = do
         isLeft (strictParseHyphenRange "1.2 - a") `shouldBe` True
 
     describe "versionBounds" $ do
-      let simple ~> expectedInterval =
-            it (show simple) $ versionBounds simple `shouldBe` expectedInterval
+      let rangeExpression ~> expectedInterval =
+            it (show rangeExpression) $ versionBounds rangeExpression `shouldBe` expectedInterval
 
       -- Simple bounds
-      -- Just does 'intervalIntersection' under the hood.
-
+      -- NOTE: Just does 'intervalIntersection' under the hood.
       -- Basic inclusive/exclusive combinations
       ( Simple . NE.fromList $
           [ Primitive GreaterThanOrEqual [pv|1.0.0|],
