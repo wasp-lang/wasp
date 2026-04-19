@@ -56,14 +56,12 @@ printBashCompletionInstruction =
     unlines
       [ "Setting up Bash auto-completion for Wasp:",
         "",
-        "1. Add the following line at the end of your shell configuration file:",
+        "1. Add the following line at the end of your " ++ styleCode "~/.bashrc" ++ " file:",
         styleCode "     complete -o default -o nospace -C 'wasp completion:list' wasp",
-        "",
-        "   Default shell configuration file locations:",
-        "   - Bash: " ++ styleCode "~/.bashrc",
-        "   - Zsh: " ++ styleCode "~/.zshrc",
         "",
         "2. Save the file and restart your terminal.",
         "",
-        "Done! Now you can use the TAB key to auto-complete Wasp commands in your shell."
+        "Note: Bash auto-completion is currently only supported for Bash, not Zsh or other shells.",
+        "",
+        "Done! Now you can use the TAB key to auto-complete Wasp commands."
       ]
