@@ -17,17 +17,24 @@ export function validateEnv(): Plugin {
     configResolved(config) {
       resolvedConfig = config; 
     },
+    // We validate just before any artifacts are built.
     async buildStart() {
+      // We use need to import the client env schema validation module
+      // through a Vite server, because the user part of the schema
+      // lives in the user code which may use bundler features.
+      //
+      // The imported module runs env schema validation as an import
+      // side-effect and throws on failure. 
       const tempServer = await createViteServer({
         root: resolvedConfig.root,
         mode: resolvedConfig.mode,
-        // To ensure we pick up all user-defined plugins, while avoiding recursion.
-        // This includes the `wasp` plugin which resolves virtual modules.
+        // To ensure we pick up all user-defined plugins (resolution matches the main build)
+        // while avoiding recursion. This includes the `wasp` plugin.
         configFile: false,
         plugins: resolvedConfig.plugins.filter(
           (plugin) => plugin.name !== PLUGIN_NAME
         ),
-        // Minimize the possible side-effects.
+        // Minimize the possible server side-effects.
         appType: 'custom',
         server: { middlewareMode: true, watch: null, hmr: false },
         logLevel: "silent",
