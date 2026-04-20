@@ -7,8 +7,8 @@ export async function analyzeApp(
   entityNames: string[],
 ): Promise<Result<AppSpec.Decl[], string>> {
   const specResult = await getSpec(waspTsSpecPath);
-  if (specResult.status === "error") { 
-    return specResult; 
+  if (specResult.status === "error") {
+    return specResult;
   }
 
   return {

@@ -31,7 +31,7 @@ export function getApp(scope: ConfigType): Config<TsAppSpec.TsAppSpec> {
         title: "Mock App",
         head: ['<link rel="icon" href="/favicon.ico" />'],
         // TODO: should we fill the parts here? The old approach didn't have this problem
-        // Because this test only cared about the initial object passed to `new App`. The 
+        // Because this test only cared about the initial object passed to `new App`. The
         // whole system was tested in integration tests.
         parts: [],
       });
