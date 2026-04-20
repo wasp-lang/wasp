@@ -1,12 +1,12 @@
 /**
  * Sample data for testing the spec pipeline.
  * Modeled on __tests__/legacy/testFixtures.ts; scoped to what the spec
- * surface currently supports (`page`, `route`, `query`).
+ * surface currently supports (`page`, `query`).
  */
 
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
-import { page, query, route } from "../../src/spec/publicApi/index.js";
+import { page, query } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 const CONFIG_TYPES = ["minimal", "full"] as const;
@@ -21,20 +21,6 @@ export function getPage(scope: ConfigType): Config<TsAppSpec.Page> {
       return page(getExtImport("minimal", "named"));
     case "full":
       return page(getExtImport("full", "named"), { authRequired: true });
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getRoute(scope: "minimal"): MinimalConfig<TsAppSpec.Route>;
-export function getRoute(scope: "full"): FullConfig<TsAppSpec.Route>;
-export function getRoute(scope: ConfigType): Config<TsAppSpec.Route>;
-export function getRoute(scope: ConfigType): Config<TsAppSpec.Route> {
-  switch (scope) {
-    case "minimal":
-      return route("/foo/bar", getExtImport("minimal", "named"));
-    case "full":
-      return route("/foo/bar", getPage("full"));
     default:
       assertUnreachable(scope);
   }

@@ -8,12 +8,6 @@ export type Page = {
   authRequired?: boolean;
 };
 
-export type Route = {
-  part: "route";
-  path: string;
-  page: Page | ExtImport;
-};
-
 export type Query = {
   part: "query";
   fn: ExtImport;
@@ -21,4 +15,4 @@ export type Query = {
   auth?: boolean;
 };
 
-export type Part = Page | Route | Query;
+export type Part = Page | Query;

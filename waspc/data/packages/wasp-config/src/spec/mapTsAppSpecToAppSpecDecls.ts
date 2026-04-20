@@ -21,30 +21,6 @@ export function mapExtImport(
   };
 }
 
-export function mapRoute(route: TsAppSpec.Route): {
-  route: AppSpec.Route;
-  page: AppSpec.Page;
-} {
-  const normalizedPage = normalizeRoutePage(route.page);
-  const pageName = deriveExtImportName(normalizedPage.component);
-  return {
-    route: {
-      path: route.path,
-      to: { name: pageName, declType: "Page" },
-      prerender: undefined,
-      lazy: undefined,
-    },
-    page: mapPage(normalizedPage),
-  };
-}
-
-export function normalizeRoutePage(
-  routePage: TsAppSpec.Route["page"],
-): TsAppSpec.Page {
-  if ("part" in routePage) return routePage;
-  return { part: "page", component: routePage };
-}
-
 export function mapQuery(
   query: TsAppSpec.Query,
   entityRefParser: RefParser<"Entity">,

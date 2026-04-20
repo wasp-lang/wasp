@@ -1,13 +1,10 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
 import {
-  deriveExtImportName,
   makeRefParser,
   mapExtImport,
   mapPage,
   mapQuery,
-  mapRoute,
-  normalizeRoutePage,
 } from "../../src/spec/mapTsAppSpecToAppSpecDecls.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
@@ -64,32 +61,6 @@ describe("mapExtImport", () => {
         path: extImport.from,
       } satisfies AppSpec.ExtImport);
     }
-  }
-});
-
-describe("mapRoute", () => {
-  test("should map minimal config correctly", () => {
-    testMapRoute(Fixtures.getRoute("minimal"));
-  });
-
-  test("should map full config correctly", () => {
-    testMapRoute(Fixtures.getRoute("full"));
-  });
-
-  function testMapRoute(route: TsAppSpec.Route): void {
-    const result = mapRoute(route);
-
-    const expectedPage = normalizeRoutePage(route.page);
-    const expectedPageName = deriveExtImportName(expectedPage.component);
-
-    expect(result.route).toStrictEqual({
-      path: route.path,
-      to: { name: expectedPageName, declType: "Page" },
-      prerender: undefined,
-      lazy: undefined,
-    } satisfies AppSpec.Route);
-
-    expect(result.page).toStrictEqual(mapPage(expectedPage));
   }
 });
 

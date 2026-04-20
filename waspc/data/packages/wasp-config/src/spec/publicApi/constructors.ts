@@ -1,14 +1,10 @@
-import type { Page, Query, Route } from "./tsAppSpec.js";
+import type { Page, Query } from "./tsAppSpec.js";
 
 export function page(
   component: Page["component"],
   config?: Pick<Page, "authRequired">,
 ): Page {
   return { part: "page", component, ...config };
-}
-
-export function route(path: Route["path"], page: Route["page"]): Route {
-  return { part: "route", path, page };
 }
 
 export function query(

@@ -1,2 +1,2 @@
-export { page, query, route } from "./constructors.js";
-export type { ExtImport, Page, Part, Query, Route } from "./tsAppSpec.js";
+export { page, query } from "./constructors.js";
+export type { ExtImport, Page, Part, Query } from "./tsAppSpec.js";
