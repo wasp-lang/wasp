@@ -102,6 +102,17 @@ export function getExtImport(
   }
 }
 
+export function getEntities(scope: ConfigType): string[] {
+  switch (scope) {
+    case "minimal":
+      return [];
+    case "full":
+      return ["Task"];
+    default:
+      assertUnreachable(scope);
+  }
+}
+
 function assertUnreachable(value: never): never {
   throw new Error(`Unhandled case: ${value}`);
 }
