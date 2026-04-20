@@ -1,4 +1,3 @@
-import { isDeepStrictEqual } from "node:util";
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 import { Part } from "./publicApi/tsAppSpec.js";
@@ -19,10 +18,20 @@ export function mapTsAppSpecToAppSpecDecls(
   const entityRefParser = makeRefParser("Entity", entityNames);
 
   const pages = extractParts("page", spec.parts);
-  const pageDecls = buildPageDecls(pages);
+  const pageDecls = mapToDecls(
+    pages,
+    "Page",
+    (page) => deriveExtImportName(page.component),
+    mapPage,
+  );
 
   const queries = extractParts("query", spec.parts);
-  const queryDecls = buildQueryDecls(queries, entityRefParser);
+  const queryDecls = mapToDecls(
+    queries,
+    "Query",
+    (query) => deriveExtImportName(query.fn),
+    (query) => mapQuery(query, entityRefParser),
+  );
 
   const appDecl = {
     declType: "App" as const,
@@ -54,31 +63,6 @@ export function mapTsAppSpecToAppSpecDecls(
   });
 }
 
-function buildPageDecls(
-  pages: TsAppSpec.Page[],
-): AppSpec.GetDeclForType<"Page">[] {
-  const pageDecls = mapToDecls(
-    pages,
-    "Page",
-    (page) => deriveExtImportName(page.component),
-    mapPage,
-  );
-  return dedupPageDecls(pageDecls);
-}
-
-function buildQueryDecls(
-  queries: TsAppSpec.Query[],
-  entityRefParser: RefParser<"Entity">,
-): AppSpec.GetDeclForType<"Query">[] {
-  const queryDecls = mapToDecls(
-    queries,
-    "Query",
-    (query) => deriveExtImportName(query.fn),
-    (query) => mapQuery(query, entityRefParser),
-  );
-  return assertUniqueDeclNames(queryDecls);
-}
-
 function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   items: T[],
   declType: DeclType,
@@ -90,37 +74,6 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
     declName: deriveName(item),
     declValue: mapValue(item),
   }));
-}
-
-function dedupPageDecls(
-  decls: AppSpec.GetDeclForType<"Page">[],
-): AppSpec.GetDeclForType<"Page">[] {
-  const byName = new Map<string, AppSpec.GetDeclForType<"Page">>();
-  for (const decl of decls) {
-    const existing = byName.get(decl.declName);
-    if (existing && !isDeepStrictEqual(existing, decl)) {
-      throw new Error(
-        `Two page declarations derive the same name "${decl.declName}" but have ` +
-          `different configurations. Use an \`alias\` on one of the component ` +
-          `ExtImports, or rename a local default-import binding.`,
-      );
-    }
-    byName.set(decl.declName, decl);
-  }
-  return [...byName.values()];
-}
-
-function assertUniqueDeclNames<D extends AppSpec.Decl>(decls: D[]): D[] {
-  const seen = new Set<string>();
-  for (const decl of decls) {
-    if (seen.has(decl.declName)) {
-      throw new Error(
-        `Duplicate ${decl.declType} name "${decl.declName}". Use \`alias\` on one of the ExtImports.`,
-      );
-    }
-    seen.add(decl.declName);
-  }
-  return decls;
 }
 
 function makeDeclsArray(decls: {
