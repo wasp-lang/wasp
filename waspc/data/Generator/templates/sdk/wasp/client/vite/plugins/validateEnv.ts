@@ -20,8 +20,9 @@ export function validateEnv(): Plugin {
     // We validate just before any artifacts are built.
     async buildStart() {
       // We need to import the client env schema validation module
-      // through a Vite server, because the user part of the schema
-      // lives in the user code, which may use bundler features.
+      // through a Vite server, because both the user and the Wasp schema
+      // modules may depend on bundler features.
+      // Because of that we spin up a tepomrary Vite server.
       //
       // Alternatively, for `serve`, we could use the Vite server provided
       // through the `configureServer` hook, but that would complicate
