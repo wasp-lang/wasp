@@ -1,6 +1,20 @@
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
+export function mapApp(spec: TsAppSpec.TsAppSpec): AppSpec.App {
+  return {
+    wasp: spec.wasp,
+    title: spec.title,
+    head: spec.head,
+    auth: undefined,
+    server: undefined,
+    client: undefined,
+    db: undefined,
+    emailSender: undefined,
+    webSocket: undefined,
+  };
+}
+
 export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
   return {
     component: mapExtImport(page.component),

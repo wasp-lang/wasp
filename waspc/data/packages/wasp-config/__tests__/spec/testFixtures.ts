@@ -6,11 +6,39 @@
 
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
-import { page, query } from "../../src/spec/publicApi/index.js";
+import { app, page, query } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 const CONFIG_TYPES = ["minimal", "full"] as const;
 type ConfigType = (typeof CONFIG_TYPES)[number];
+
+export function getApp(scope: "minimal"): MinimalConfig<TsAppSpec.TsAppSpec>;
+export function getApp(scope: "full"): FullConfig<TsAppSpec.TsAppSpec>;
+export function getApp(scope: ConfigType): Config<TsAppSpec.TsAppSpec>;
+export function getApp(scope: ConfigType): Config<TsAppSpec.TsAppSpec> {
+  switch (scope) {
+    case "minimal":
+      return app({
+        name: "MinimalApp",
+        wasp: { version: "^0.16.3" },
+        title: "Mock App",
+        parts: [],
+      });
+    case "full":
+      return app({
+        name: "FullApp",
+        wasp: { version: "^0.16.3" },
+        title: "Mock App",
+        head: ['<link rel="icon" href="/favicon.ico" />'],
+        // TODO: should we fill the parts here? The old approach didn't have this problem
+        // Because this test only cared about the initial object passed to `new App`. The 
+        // whole system was tested in integration tests.
+        parts: [],
+      });
+    default:
+      assertUnreachable(scope);
+  }
+}
 
 export function getPage(scope: "minimal"): MinimalConfig<TsAppSpec.Page>;
 export function getPage(scope: "full"): FullConfig<TsAppSpec.Page>;

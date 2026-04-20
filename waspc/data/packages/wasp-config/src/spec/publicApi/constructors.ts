@@ -1,4 +1,8 @@
-import type { Page, Query } from "./tsAppSpec.js";
+import type { Page, Query, TsAppSpec } from "./tsAppSpec.js";
+
+export function app(input: Omit<TsAppSpec, "part">): TsAppSpec {
+  return { part: "app", ...input };
+}
 
 export function page(
   component: Page["component"],
