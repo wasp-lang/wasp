@@ -1,5 +1,5 @@
-import { GET_TS_APP_SPEC } from "./_private.js";
 import * as AppSpec from "../appSpec.js";
+import { GET_TS_APP_SPEC } from "./_private.js";
 import { mapTsAppSpecToAppSpecDecls } from "./mapTsAppSpecToAppSpecDecls.js";
 import { App } from "./publicApi/App.js";
 
