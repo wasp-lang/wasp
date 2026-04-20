@@ -125,14 +125,46 @@ html.docs-wrapper,
 html.blog-wrapper {
   --ifm-font-size-base: 87.5%;
   --ifm-heading-font-weight: 500;
+  --ifm-font-color-base: #4a4a4a;
+  --ifm-heading-color: var(--wasp-k);
+  line-height: 1.6875;
 }
 
-/* Override Prism's 0.9em scaling on code blocks. */
+/* Breathing room on content area, like OpenCode.
+   Container left-aligned so empty space flows to the right on wide screens. */
+.docs-wrapper [class*="docMainContainer"] .container {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+.docs-wrapper [class*="docItemCol"],
+.blog-wrapper [class*="docItemCol"] {
+  padding-left: 48px;
+  padding-right: 48px;
+}
+
+@media (max-width: 996px) {
+  .docs-wrapper [class*="docItemCol"],
+  .blog-wrapper [class*="docItemCol"] {
+    padding-left: 16px;
+    padding-right: 16px;
+    max-width: none;
+  }
+}
+
+html.docs-wrapper[data-theme="dark"],
+html.blog-wrapper[data-theme="dark"] {
+  --ifm-font-color-base: #b0b0b0;
+  --ifm-heading-color: #e0e0e0;
+}
+
+/* Override Prism's 0.9em scaling and tight line-height on code blocks. */
 .docs-wrapper code[class*="language-"],
 .docs-wrapper pre[class*="language-"],
 .blog-wrapper code[class*="language-"],
 .blog-wrapper pre[class*="language-"] {
   font-size: 1em;
+  line-height: 1.6875;
 }
 
 .docs-wrapper .table-of-contents,
@@ -146,21 +178,30 @@ html.blog-wrapper {
 
 .docs-wrapper .theme-doc-version-badge {
   font-size: 0.925rem;
+  margin-bottom: 1rem;
 }
 
 .docs-wrapper .markdown h1:first-child,
 .blog-wrapper .markdown h1:first-child {
   --ifm-h1-font-size: 1.625rem;
+  letter-spacing: -0.5px;
 }
 
 .docs-wrapper .markdown h2,
 .blog-wrapper .markdown h2 {
   --ifm-h2-font-size: 1.375rem;
+  letter-spacing: -0.5px;
+  margin-top: 54px;
+  margin-bottom: 22px;
+  border-top: 1px solid var(--wasp-g2);
+  padding-top: 54px;
 }
 
 .docs-wrapper .markdown h3,
 .blog-wrapper .markdown h3 {
   --ifm-h3-font-size: 1.125rem;
+  margin-top: 54px;
+  margin-bottom: 22px;
 }
 
 .blog-list-page {
