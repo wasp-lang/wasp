@@ -19,9 +19,13 @@ export function validateEnv(): Plugin {
     },
     // We validate just before any artifacts are built.
     async buildStart() {
-      // We use need to import the client env schema validation module
+      // We need to import the client env schema validation module
       // through a Vite server, because the user part of the schema
-      // lives in the user code which may use bundler features.
+      // lives in the user code, which may use bundler features.
+      //
+      // Alternatively, for `serve`, we could use the Vite server provided
+      // through the `configureServer` hook, but that would complicate
+      // the solution for negligible performance benefits. 
       const tempServer = await createViteServer({
         root: resolvedConfig.root,
         mode: resolvedConfig.mode,
