@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, test } from "vitest";
-import { Branded } from "../src/branded.js";
+import { Branded } from "../../src/branded.js";
 import { FullConfig, MinimalConfig } from "./testFixtures.js";
 
 describe("MinimalConfig<T>", () => {

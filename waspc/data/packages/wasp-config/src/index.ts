@@ -1,4 +1,4 @@
-export { App } from "./publicApi/legacy/App.js";
+export { App } from "./legacy/publicApi/App.js";
 export type {
   ActionConfig,
   ApiConfig,
@@ -35,4 +35,4 @@ export type {
   // TsAppSpec,
   UsernameAndPasswordConfig,
   WebsocketConfig,
-} from "./publicApi/legacy/tsAppSpec.js";
+} from "./legacy/publicApi/tsAppSpec.js";

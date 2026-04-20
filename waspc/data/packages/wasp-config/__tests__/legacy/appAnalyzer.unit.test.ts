@@ -1,9 +1,9 @@
 import { afterEach } from "node:test";
 import { describe, expect, test, vi } from "vitest";
-import { GET_TS_APP_SPEC } from "../src/_private.js";
-import { analyzeApp } from "../src/appAnalyzer.js";
-import { mapTsAppSpecToAppSpecDecls } from "../src/mapTsAppSpecToAppSpecDecls.js";
-import { App } from "../src/publicApi/legacy/App.js";
+import { GET_TS_APP_SPEC } from "../../src/legacy/_private.js";
+import { analyzeApp } from "../../src/legacy/appAnalyzer.js";
+import { mapTsAppSpecToAppSpecDecls } from "../../src/legacy/mapTsAppSpecToAppSpecDecls.js";
+import { App } from "../../src/legacy/publicApi/App.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("analyzeApp", () => {

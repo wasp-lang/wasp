@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { writeFileSync } from "fs";
-import { analyzeApp } from "./appAnalyzer.js";
+import { analyzeApp } from "./legacy/appAnalyzer.js";
 import { parseProcessArgsOrThrow } from "./cli.js";
 
 main(process.argv);

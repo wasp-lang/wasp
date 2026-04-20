@@ -3,8 +3,8 @@
  * All of the mapping functions are exported so that they can be individually tested.
  */
 
-import * as AppSpec from "./appSpec.js";
-import * as TsAppSpec from "./publicApi/legacy/tsAppSpec.js";
+import * as AppSpec from "../appSpec.js";
+import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapTsAppSpecToAppSpecDecls(
   tsAppSpec: TsAppSpec.TsAppSpec,
