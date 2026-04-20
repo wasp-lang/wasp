@@ -22,9 +22,6 @@ export function validateEnv(): Plugin {
       // We use need to import the client env schema validation module
       // through a Vite server, because the user part of the schema
       // lives in the user code which may use bundler features.
-      //
-      // The imported module runs env schema validation as an import
-      // side-effect and throws on failure. 
       const tempServer = await createViteServer({
         root: resolvedConfig.root,
         mode: resolvedConfig.mode,
@@ -46,6 +43,8 @@ export function validateEnv(): Plugin {
         if (!isRunnableDevEnvironment(tempServer.environments.ssr)) {
           throw new Error(`Expected ssr to be a runnable dev environment`)
         }
+        // The imported module runs env schema validation as an import
+        // side-effect and throws on failure. 
         const moduleAbsPath = path.resolve(resolvedConfig.root, CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
         await tempServer.environments.ssr.runner.import(moduleAbsPath);
       } finally {
