@@ -4,7 +4,7 @@
  */
 
 import * as AppSpec from "./appSpec.js";
-import * as TsAppSpec from "./publicApi/tsAppSpec.js";
+import * as TsAppSpec from "./publicApi/legacy/tsAppSpec.js";
 
 export function mapTsAppSpecToAppSpecDecls(
   tsAppSpec: TsAppSpec.TsAppSpec,

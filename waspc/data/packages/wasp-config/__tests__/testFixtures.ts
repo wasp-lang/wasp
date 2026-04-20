@@ -5,8 +5,8 @@
 
 import * as AppSpec from "../src/appSpec.js";
 import { Branded } from "../src/branded.js";
-import { App } from "../src/publicApi/App.js";
-import * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
+import { App } from "../src/publicApi/legacy/App.js";
+import * as TsAppSpec from "../src/publicApi/legacy/tsAppSpec.js";
 
 export function createApp(scope: ConfigType): {
   appConfigName: string;

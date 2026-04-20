@@ -31,8 +31,8 @@ import {
   mapUsernameAndPassword,
   mapWebSocket,
 } from "../src/mapTsAppSpecToAppSpecDecls.js";
-import { App } from "../src/publicApi/App.js";
-import * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
+import { App } from "../src/publicApi/legacy/App.js";
+import * as TsAppSpec from "../src/publicApi/legacy/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("mapApp", () => {

@@ -20,5 +20,6 @@
     "declaration": true,
     "lib": ["es2022"]
   },
-  "include": ["src", "__tests__"]
+  "include": ["src", "__tests__"],
+  "exclude": ["**/__snapshots__/**"]
 }

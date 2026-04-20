@@ -1,6 +1,6 @@
 /** This module defines the user-facing API for defining a Wasp app.
  */
-import { GET_TS_APP_SPEC } from "../_private.js";
+import { GET_TS_APP_SPEC } from "../../_private.js";
 import * as TsAppSpec from "./tsAppSpec.js";
 
 export class App {

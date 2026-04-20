@@ -3,7 +3,7 @@ import { describe, expect, test, vi } from "vitest";
 import { GET_TS_APP_SPEC } from "../src/_private.js";
 import { analyzeApp } from "../src/appAnalyzer.js";
 import { mapTsAppSpecToAppSpecDecls } from "../src/mapTsAppSpecToAppSpecDecls.js";
-import { App } from "../src/publicApi/App.js";
+import { App } from "../src/publicApi/legacy/App.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("analyzeApp", () => {

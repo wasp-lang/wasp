@@ -1,5 +1,5 @@
-import * as AppSpec from "../appSpec.js";
-import { Branded } from "../branded.js";
+import * as AppSpec from "../../appSpec.js";
+import { Branded } from "../../branded.js";
 
 export type TsAppSpec = {
   app: { name: string; config: AppConfig };

@@ -1,7 +1,7 @@
 import { GET_TS_APP_SPEC } from "./_private.js";
 import * as AppSpec from "./appSpec.js";
 import { mapTsAppSpecToAppSpecDecls } from "./mapTsAppSpecToAppSpecDecls.js";
-import { App } from "./publicApi/App.js";
+import { App } from "./publicApi/legacy/App.js";
 
 export async function analyzeApp(
   waspTsSpecPath: string,
