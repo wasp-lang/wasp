@@ -133,6 +133,7 @@ html.blog-wrapper {
 /* Breathing room on content area, like OpenCode.
    Container left-aligned so empty space flows to the right on wide screens. */
 .docs-wrapper [class*="docMainContainer"] .container {
+  max-width: 88%;
   margin-left: 0;
   margin-right: auto;
 }
@@ -144,6 +145,10 @@ html.blog-wrapper {
 }
 
 @media (max-width: 996px) {
+  .docs-wrapper [class*="docMainContainer"] .container {
+    max-width: 100%;
+  }
+
   .docs-wrapper [class*="docItemCol"],
   .blog-wrapper [class*="docItemCol"] {
     padding-left: 16px;
