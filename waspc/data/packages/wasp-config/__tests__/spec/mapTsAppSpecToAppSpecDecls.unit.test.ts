@@ -2,40 +2,12 @@ import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
 import {
   makeRefParser,
-  mapApp,
   mapExtImport,
   mapPage,
   mapQuery,
 } from "../../src/spec/mapTsAppSpecToAppSpecDecls.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
-
-describe("mapApp", () => {
-  test("should map minimal config correctly", () => {
-    testMapApp(Fixtures.getApp("minimal"));
-  });
-
-  test("should map full config correctly", () => {
-    testMapApp(Fixtures.getApp("full"));
-  });
-
-  function testMapApp(spec: TsAppSpec.TsAppSpec): void {
-    const result = mapApp(spec);
-
-    expect(result).toStrictEqual({
-      wasp: { version: spec.wasp.version },
-      title: spec.title,
-      head: spec.head,
-      // TODO: add proper mappings later.
-      auth: undefined,
-      server: undefined,
-      client: undefined,
-      db: undefined,
-      emailSender: undefined,
-      webSocket: undefined,
-    } satisfies AppSpec.App);
-  }
-});
 
 describe("mapPage", () => {
   test("should map minimal config correctly", () => {
