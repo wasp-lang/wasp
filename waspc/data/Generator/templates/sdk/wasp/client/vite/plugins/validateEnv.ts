@@ -1,3 +1,4 @@
+{{={= =}=}}
 import path from "node:path";
 import {
   type Plugin,
@@ -7,7 +8,7 @@ import {
 } from "vite";
 
 const PLUGIN_NAME = "wasp:validate-env";
-const CLIENT_ENV_SCHEMA_VALIDATION_MODULE = ".wasp/out/sdk/wasp/client/env.ts"
+const CLIENT_ENV_SCHEMA_VALIDATION_MODULE = "{= clientEnvSchemaValidationModulePath =}"
 
 export function validateEnv(): Plugin {
   let resolvedConfig: ResolvedConfig;
