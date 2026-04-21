@@ -2,7 +2,7 @@
 
 import { writeFileSync } from "fs";
 import { parseProcessArgsOrThrow } from "./cli.js";
-import { analyzeApp } from "./legacy/appAnalyzer.js";
+import { analyzeApp } from "./spec/appAnalyzer.js";
 
 main(process.argv);
 
