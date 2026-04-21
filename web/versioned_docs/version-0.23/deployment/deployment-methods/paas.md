@@ -21,7 +21,7 @@ We have step-by-step guides for deploying your Wasp app to some of the most popu
 
 <GuideLink linkToGuide="../../guides/deployment/railway" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
 
-<GuideLink linkToGuide="../../guides/deployment/render" title="Deploying Wasp to Render" description="Uses Render, Blueprint (IaC)" />
+<GuideLink linkToGuide="../../guides/deployment/render" title="Deploying Wasp on Render" description="Uses Render, Blueprint (IaC)" />
 
 If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
 Feel free to [open a PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/deployment/deployment-methods/paas.md) if you'd like to write one yourself :)

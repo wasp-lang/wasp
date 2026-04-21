@@ -27,7 +27,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 📖 Documentation
 
 - Updated deployment guides for Fly.io, Railway, Netlify, and Cloudflare to work with the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
-- Added guide for deploying to Render. ([#4055](https://github.com/wasp-lang/wasp/pull/4055))
+- Added guide for deploying on Render. ([#4055](https://github.com/wasp-lang/wasp/pull/4055))
 
 ## 0.22.0
 

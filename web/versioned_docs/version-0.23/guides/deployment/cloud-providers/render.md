@@ -10,7 +10,7 @@ import { Server, Client, Database } from '../DeploymentTag'
 
 # Render
 
-## Deploy Wasp to Render <Server /> <Client /> <Database />
+## Deploy Wasp on Render <Server /> <Client /> <Database />
 
 This guide shows you how to deploy the server, client, and provision a database on Render.
 
