@@ -6,16 +6,16 @@
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
-type GetPartForKind<Id extends TsAppSpec.Part["part"]> = Extract<
+type GetPartForKind<Id extends TsAppSpec.Part["kind"]> = Extract<
   TsAppSpec.Part,
-  { part: Id }
+  { kind: Id }
 >;
 
-function extractParts<Id extends TsAppSpec.Part["part"]>(
+function extractParts<Id extends TsAppSpec.Part["kind"]>(
   id: Id,
   parts: TsAppSpec.Part[],
 ): GetPartForKind<Id>[] {
-  return parts.filter((p): p is GetPartForKind<Id> => p.part === id);
+  return parts.filter((p): p is GetPartForKind<Id> => p.kind === id);
 }
 
 export function mapTsAppSpecToAppSpecDecls(

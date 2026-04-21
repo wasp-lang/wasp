@@ -1,5 +1,5 @@
 export type TsAppSpec = {
-  part: "app";
+  kind: "app";
   name: string;
   wasp: { version: string };
   title: string;
@@ -12,13 +12,13 @@ export type ExtImport =
   | { importDefault: string; from: `@src/${string}` };
 
 export type Page = {
-  part: "page";
+  kind: "page";
   component: ExtImport;
   authRequired?: boolean;
 };
 
 export type Query = {
-  part: "query";
+  kind: "query";
   fn: ExtImport;
   entities?: string[];
   auth?: boolean;

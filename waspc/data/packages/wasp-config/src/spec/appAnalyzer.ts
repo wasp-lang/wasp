@@ -49,12 +49,12 @@ async function getSpec(
 
 // TODO: This should probably live elsewhere
 function isTsAppSpec(value: unknown): value is TsAppSpec.TsAppSpec {
-  // TODO: Make this more robust, I'm not a fan of the hardcoded "part" - neigher here nor in other places
+  // TODO: Make this more robust, I'm not a fan of the hardcoded "kind" - neither here nor in other places
   return (
     typeof value === "object" &&
     value !== null &&
-    "part" in value &&
-    value.part === "app"
+    "kind" in value &&
+    value.kind === "app"
   );
 }
 
