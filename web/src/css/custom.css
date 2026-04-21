@@ -6,7 +6,7 @@
  */
 
 @import url("./fonts/inter.css");
-@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -127,7 +127,7 @@ html.blog-wrapper {
   --ifm-heading-font-weight: 500;
   --ifm-font-color-base: #4a4a4a;
   --ifm-heading-color: var(--wasp-k);
-  line-height: 1.6875;
+  line-height: 1.8;
 }
 
 /* Breathing room on content area, like OpenCode.
@@ -168,8 +168,14 @@ html.blog-wrapper[data-theme="dark"] {
 .docs-wrapper pre[class*="language-"],
 .blog-wrapper code[class*="language-"],
 .blog-wrapper pre[class*="language-"] {
-  font-size: 1em;
-  line-height: 1.6875;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.docs-wrapper [class*="codeBlockTitle"],
+.blog-wrapper [class*="codeBlockTitle"] {
+  font-size: 14px;
+  font-weight: 400;
 }
 
 .docs-wrapper .table-of-contents,
@@ -184,6 +190,11 @@ html.blog-wrapper[data-theme="dark"] {
 .docs-wrapper .theme-doc-version-badge {
   font-size: 0.925rem;
   margin-bottom: 1rem;
+}
+
+.docs-wrapper .markdown,
+.blog-wrapper .markdown {
+  font-size: 16px;
 }
 
 .docs-wrapper .markdown h1:first-child,
@@ -250,7 +261,7 @@ html.blog-wrapper[data-theme="dark"] {
      Body text is controlled separately by Tailwind's fontFamily.sans in tailwind.config.js
      (via preflight.css's `html` rule) — update both when changing fonts. */
   --ifm-container-width-xl: 1280px;
-  --ifm-font-family-base: "IBM Plex Mono", monospace;
+  --ifm-font-family-base: "IBM Plex Sans", sans-serif;
   --ifm-heading-font-family: "JetBrains Mono", monospace;
   --ifm-color-primary: #bf9900;
   /* wasp color (ffcc00) darkened by 25% */
