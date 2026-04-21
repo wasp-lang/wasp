@@ -6,7 +6,7 @@
 
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
-import { app, page, query } from "../../src/spec/publicApi/index.js";
+import { action, app, page, query } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 const CONFIG_TYPES = ["minimal", "full"] as const;
@@ -44,6 +44,23 @@ export function getQuery(scope: ConfigType): Config<TsAppSpec.Query> {
       return query(getExtImport("minimal", "named"));
     case "full":
       return query(getExtImport("full", "named"), {
+        entities: ["Task"],
+        auth: true,
+      });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getAction(scope: "minimal"): MinimalConfig<TsAppSpec.Action>;
+export function getAction(scope: "full"): FullConfig<TsAppSpec.Action>;
+export function getAction(scope: ConfigType): Config<TsAppSpec.Action>;
+export function getAction(scope: ConfigType): Config<TsAppSpec.Action> {
+  switch (scope) {
+    case "minimal":
+      return action(getExtImport("minimal", "named"));
+    case "full":
+      return action(getExtImport("full", "named"), {
         entities: ["Task"],
         auth: true,
       });

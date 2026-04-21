@@ -6,7 +6,7 @@ export type App = {
   parts: Part[];
 };
 
-export type Part = Page | Query;
+export type Part = Page | Query | Action;
 
 export type Page = MakePart<
   "page",
@@ -18,6 +18,15 @@ export type Page = MakePart<
 
 export type Query = MakePart<
   "query",
+  {
+    fn: ExtImport;
+    entities?: string[];
+    auth?: boolean;
+  }
+>;
+
+export type Action = MakePart<
+  "action",
   {
     fn: ExtImport;
     entities?: string[];
