@@ -188,13 +188,13 @@ html.blog-wrapper[data-theme="dark"] {
 
 .docs-wrapper .markdown h1:first-child,
 .blog-wrapper .markdown h1:first-child {
-  --ifm-h1-font-size: 1.625rem;
+  font-size: 26px;
   letter-spacing: -0.5px;
 }
 
 .docs-wrapper .markdown h2,
 .blog-wrapper .markdown h2 {
-  --ifm-h2-font-size: 1.375rem;
+  font-size: 22px;
   letter-spacing: -0.5px;
   margin-top: 54px;
   margin-bottom: 22px;
@@ -204,7 +204,7 @@ html.blog-wrapper[data-theme="dark"] {
 
 .docs-wrapper .markdown h3,
 .blog-wrapper .markdown h3 {
-  --ifm-h3-font-size: 1.125rem;
+  font-size: 18px;
   margin-top: 54px;
   margin-bottom: 22px;
 }
