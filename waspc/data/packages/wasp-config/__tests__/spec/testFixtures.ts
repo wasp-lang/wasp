@@ -71,6 +71,17 @@ export function getQuery(scope: ConfigType): Config<TsAppSpec.Query> {
   }
 }
 
+export function getEntities(scope: ConfigType): string[] {
+  switch (scope) {
+    case "minimal":
+      return [];
+    case "full":
+      return ["Task"];
+    default:
+      assertUnreachable(scope);
+  }
+}
+
 export function getExtImport(
   scope: "minimal",
   importKind: AppSpec.ExtImportKind,
@@ -99,17 +110,6 @@ export function getExtImport(
       return { importDefault: "defaultExport", from: "@src/external" };
     default:
       assertUnreachable(importKind);
-  }
-}
-
-export function getEntities(scope: ConfigType): string[] {
-  switch (scope) {
-    case "minimal":
-      return [];
-    case "full":
-      return ["Task"];
-    default:
-      assertUnreachable(scope);
   }
 }
 

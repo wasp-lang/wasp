@@ -7,9 +7,7 @@ export type TsAppSpec = {
   parts: Part[];
 };
 
-export type ExtImport =
-  | { import: string; alias?: string; from: `@src/${string}` }
-  | { importDefault: string; from: `@src/${string}` };
+export type Part = Page | Query;
 
 export type Page = {
   kind: "page";
@@ -24,4 +22,6 @@ export type Query = {
   auth?: boolean;
 };
 
-export type Part = Page | Query;
+export type ExtImport =
+  | { import: string; alias?: string; from: `@src/${string}` }
+  | { importDefault: string; from: `@src/${string}` };

@@ -6,18 +6,6 @@
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
-type GetPartForKind<Id extends TsAppSpec.Part["kind"]> = Extract<
-  TsAppSpec.Part,
-  { kind: Id }
->;
-
-function extractParts<Id extends TsAppSpec.Part["kind"]>(
-  id: Id,
-  parts: TsAppSpec.Part[],
-): GetPartForKind<Id>[] {
-  return parts.filter((p): p is GetPartForKind<Id> => p.kind === id);
-}
-
 export function mapTsAppSpecToAppSpecDecls(
   tsAppSpec: TsAppSpec.TsAppSpec,
   entityNames: string[],
@@ -72,6 +60,57 @@ export function mapTsAppSpecToAppSpecDecls(
   });
 }
 
+export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
+  const { component, authRequired } = page;
+  return {
+    component: mapExtImport(component),
+    authRequired,
+  };
+}
+
+export function mapQuery(
+  query: TsAppSpec.Query,
+  entityRefParser: RefParser<"Entity">,
+): AppSpec.Query {
+  const { fn, entities, auth } = query;
+  return {
+    fn: mapExtImport(fn),
+    entities: entities?.map(entityRefParser),
+    auth,
+  };
+}
+
+export type RefParser<T extends AppSpec.DeclType> = (
+  name: string,
+) => AppSpec.Ref<T>;
+
+export function makeRefParser<T extends AppSpec.DeclType>(
+  declType: T,
+  declNames: string[],
+): RefParser<T> {
+  return function parseRef(potentialRef: string): AppSpec.Ref<T> {
+    if (!declNames.includes(potentialRef)) {
+      throw new Error(`Invalid ${declType} reference: ${potentialRef}`);
+    }
+    return {
+      name: potentialRef,
+      declType,
+    };
+  };
+}
+
+type GetPartForKind<Id extends TsAppSpec.Part["kind"]> = Extract<
+  TsAppSpec.Part,
+  { kind: Id }
+>;
+
+function extractParts<Id extends TsAppSpec.Part["kind"]>(
+  id: Id,
+  parts: TsAppSpec.Part[],
+): GetPartForKind<Id>[] {
+  return parts.filter((p): p is GetPartForKind<Id> => p.kind === id);
+}
+
 function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   items: T[],
   declType: DeclType,
@@ -85,18 +124,17 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   }));
 }
 
+export function deriveExtImportName(extImport: TsAppSpec.ExtImport): string {
+  if ("import" in extImport) {
+    return extImport.alias ?? extImport.import;
+  }
+  return extImport.importDefault;
+}
+
 function makeDeclsArray(decls: {
   [Type in AppSpec.Decl["declType"]]: AppSpec.GetDeclForType<Type>[];
 }): AppSpec.Decl[] {
   return Object.values(decls).flatMap((decl) => [...decl]);
-}
-
-export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
-  const { component, authRequired } = page;
-  return {
-    component: mapExtImport(component),
-    authRequired,
-  };
 }
 
 export function mapExtImport(
@@ -119,42 +157,4 @@ export function mapExtImport(
       "Invalid ExtImport: neither `import` nor `importDefault` is defined",
     );
   }
-}
-
-export function mapQuery(
-  query: TsAppSpec.Query,
-  entityRefParser: RefParser<"Entity">,
-): AppSpec.Query {
-  const { fn, entities, auth } = query;
-  return {
-    fn: mapExtImport(fn),
-    entities: entities?.map(entityRefParser),
-    auth,
-  };
-}
-
-export function deriveExtImportName(extImport: TsAppSpec.ExtImport): string {
-  if ("import" in extImport) {
-    return extImport.alias ?? extImport.import;
-  }
-  return extImport.importDefault;
-}
-
-export type RefParser<T extends AppSpec.DeclType> = (
-  name: string,
-) => AppSpec.Ref<T>;
-
-export function makeRefParser<T extends AppSpec.DeclType>(
-  declType: T,
-  declNames: string[],
-): RefParser<T> {
-  return function parseRef(potentialRef: string): AppSpec.Ref<T> {
-    if (!declNames.includes(potentialRef)) {
-      throw new Error(`Invalid ${declType} reference: ${potentialRef}`);
-    }
-    return {
-      name: potentialRef,
-      declType,
-    };
-  };
 }
