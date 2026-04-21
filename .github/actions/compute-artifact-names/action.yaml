@@ -14,7 +14,7 @@ runs:
   steps:
     - name: Resolve build name
       id: resolve-build-name
-      shell: bash
+      shell: sh
       run: |
         input='${{ inputs.build-name }}'
 
