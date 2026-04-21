@@ -1,23 +1,32 @@
+/**
+ * This module maps the TsAppSpec-facing API to the internal representation of the app (AppSpec Decl).
+ * All of the mapping functions are exported so that they can be individually tested.
+ */
+
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
-import { Part } from "./publicApi/tsAppSpec.js";
 
-type GetPartForKind<Id extends Part["part"]> = Extract<Part, { part: Id }>;
+type GetPartForKind<Id extends TsAppSpec.Part["part"]> = Extract<
+  TsAppSpec.Part,
+  { part: Id }
+>;
 
-function extractParts<Id extends Part["part"]>(
+function extractParts<Id extends TsAppSpec.Part["part"]>(
   id: Id,
-  parts: Part[],
+  parts: TsAppSpec.Part[],
 ): GetPartForKind<Id>[] {
   return parts.filter((p): p is GetPartForKind<Id> => p.part === id);
 }
 
 export function mapTsAppSpecToAppSpecDecls(
-  spec: TsAppSpec.TsAppSpec,
+  tsAppSpec: TsAppSpec.TsAppSpec,
   entityNames: string[],
 ): AppSpec.Decl[] {
+  const { name, wasp, title, head, parts } = tsAppSpec;
+
   const entityRefParser = makeRefParser("Entity", entityNames);
 
-  const pages = extractParts("page", spec.parts);
+  const pages = extractParts("page", parts);
   const pageDecls = mapToDecls(
     pages,
     "Page",
@@ -25,7 +34,7 @@ export function mapTsAppSpecToAppSpecDecls(
     mapPage,
   );
 
-  const queries = extractParts("query", spec.parts);
+  const queries = extractParts("query", parts);
   const queryDecls = mapToDecls(
     queries,
     "Query",
@@ -35,11 +44,11 @@ export function mapTsAppSpecToAppSpecDecls(
 
   const appDecl = {
     declType: "App" as const,
-    declName: spec.name,
+    declName: name,
     declValue: {
-      wasp: spec.wasp,
-      title: spec.title,
-      head: spec.head,
+      wasp,
+      title,
+      head,
       auth: undefined,
       server: undefined,
       client: undefined,
@@ -83,9 +92,10 @@ function makeDeclsArray(decls: {
 }
 
 export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
+  const { component, authRequired } = page;
   return {
-    component: mapExtImport(page.component),
-    authRequired: page.authRequired,
+    component: mapExtImport(component),
+    authRequired,
   };
 }
 
@@ -93,23 +103,33 @@ export function mapExtImport(
   extImport: TsAppSpec.ExtImport,
 ): AppSpec.ExtImport {
   if ("import" in extImport) {
-    return { kind: "named", name: extImport.import, path: extImport.from };
+    return {
+      kind: "named",
+      name: extImport.import,
+      path: extImport.from,
+    };
+  } else if ("importDefault" in extImport) {
+    return {
+      kind: "default",
+      name: extImport.importDefault,
+      path: extImport.from,
+    };
+  } else {
+    throw new Error(
+      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
+    );
   }
-  return {
-    kind: "default",
-    name: extImport.importDefault,
-    path: extImport.from,
-  };
 }
 
 export function mapQuery(
   query: TsAppSpec.Query,
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Query {
+  const { fn, entities, auth } = query;
   return {
-    fn: mapExtImport(query.fn),
-    entities: query.entities?.map(entityRefParser),
-    auth: query.auth,
+    fn: mapExtImport(fn),
+    entities: entities?.map(entityRefParser),
+    auth,
   };
 }
 
@@ -126,12 +146,15 @@ export type RefParser<T extends AppSpec.DeclType> = (
 
 export function makeRefParser<T extends AppSpec.DeclType>(
   declType: T,
-  validNames: string[],
+  declNames: string[],
 ): RefParser<T> {
-  return (name: string): AppSpec.Ref<T> => {
-    if (!validNames.includes(name)) {
-      throw new Error(`Unknown ${declType} reference: "${name}".`);
+  return function parseRef(potentialRef: string): AppSpec.Ref<T> {
+    if (!declNames.includes(potentialRef)) {
+      throw new Error(`Invalid ${declType} reference: ${potentialRef}`);
     }
-    return { name, declType };
+    return {
+      name: potentialRef,
+      declType,
+    };
   };
 }

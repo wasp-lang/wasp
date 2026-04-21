@@ -7,13 +7,17 @@ export async function analyzeApp(
   entityNames: string[],
 ): Promise<Result<AppSpec.Decl[], string>> {
   const specResult = await getSpec(waspTsSpecPath);
+
   if (specResult.status === "error") {
     return specResult;
   }
 
+  const tsAppSpec = specResult.value;
+  const appSpecDecls = mapTsAppSpecToAppSpecDecls(tsAppSpec, entityNames);
+
   return {
     status: "ok",
-    value: mapTsAppSpecToAppSpecDecls(specResult.value, entityNames),
+    value: appSpecDecls,
   };
 }
 
