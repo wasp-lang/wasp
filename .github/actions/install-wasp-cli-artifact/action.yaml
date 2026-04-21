@@ -1,0 +1,38 @@
+name: Install Wasp CLI from artifact
+description: |
+  Downloads a pre-built Wasp CLI artifact from the current workflow run
+  and installs it to PATH. The calling job must have a `needs` dependency
+  on the job that produces the artifact (waspc-build), and must set up
+  Node.js before calling this action.
+
+runs:
+  using: composite
+  steps:
+    - name: Compute artifact names
+      uses: ./.github/actions/compute-artifact-names
+      id: artifact-names
+      with:
+        build-name: current
+
+    - name: Download Wasp CLI artifact
+      uses: actions/download-artifact@v8
+      with:
+        name: ${{ steps.artifact-names.outputs.artifact-name }}
+        path: ${{ runner.temp }}/wasp-cli-download
+
+    - name: Install Wasp CLI to PATH
+      shell: bash
+      env:
+        TARBALL_PATH: ${{ runner.temp }}/wasp-cli-download/${{ steps.artifact-names.outputs.tarball-name }}
+        INSTALL_DIR: ${{ runner.temp }}/wasp-cli-install
+      run: |
+        mkdir -p "$INSTALL_DIR"
+        tar -xzf "$TARBALL_PATH" -C "$INSTALL_DIR"
+        mv "$INSTALL_DIR/wasp-bin" "$INSTALL_DIR/wasp-cli"
+        chmod +x "$INSTALL_DIR/wasp-cli"
+        echo "$INSTALL_DIR" >> "$GITHUB_PATH"
+        echo "waspc_datadir=$INSTALL_DIR/data" >> "$GITHUB_ENV"
+
+    - name: Verify installation
+      shell: bash
+      run: wasp-cli version
