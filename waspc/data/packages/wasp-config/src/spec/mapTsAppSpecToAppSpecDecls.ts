@@ -80,6 +80,28 @@ export function mapQuery(
   };
 }
 
+export function mapExtImport(
+  extImport: TsAppSpec.ExtImport,
+): AppSpec.ExtImport {
+  if ("import" in extImport) {
+    return {
+      kind: "named",
+      name: extImport.import,
+      path: extImport.from,
+    };
+  } else if ("importDefault" in extImport) {
+    return {
+      kind: "default",
+      name: extImport.importDefault,
+      path: extImport.from,
+    };
+  } else {
+    throw new Error(
+      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
+    );
+  }
+}
+
 export type RefParser<T extends AppSpec.DeclType> = (
   name: string,
 ) => AppSpec.Ref<T>;
@@ -135,26 +157,4 @@ function makeDeclsArray(decls: {
   [Type in AppSpec.Decl["declType"]]: AppSpec.GetDeclForType<Type>[];
 }): AppSpec.Decl[] {
   return Object.values(decls).flatMap((decl) => [...decl]);
-}
-
-export function mapExtImport(
-  extImport: TsAppSpec.ExtImport,
-): AppSpec.ExtImport {
-  if ("import" in extImport) {
-    return {
-      kind: "named",
-      name: extImport.import,
-      path: extImport.from,
-    };
-  } else if ("importDefault" in extImport) {
-    return {
-      kind: "default",
-      name: extImport.importDefault,
-      path: extImport.from,
-    };
-  } else {
-    throw new Error(
-      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
-    );
-  }
 }
