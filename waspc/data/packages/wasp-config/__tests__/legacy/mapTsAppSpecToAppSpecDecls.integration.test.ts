@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, test } from "vitest";
-import { GET_TS_APP_SPEC } from "../src/_private.js";
-import * as AppSpec from "../src/appSpec.js";
+import * as AppSpec from "../../src/appSpec.js";
+import { GET_TS_APP_SPEC } from "../../src/legacy/_private.js";
 import {
   makeRefParser,
   mapApi,
@@ -13,7 +13,7 @@ import {
   mapPage,
   mapRoute,
   mapTsAppSpecToAppSpecDecls,
-} from "../src/mapTsAppSpecToAppSpecDecls.js";
+} from "../../src/legacy/mapTsAppSpecToAppSpecDecls.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("mapTsAppSpecToAppSpecDecls", () => {
