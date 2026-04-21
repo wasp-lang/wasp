@@ -18,7 +18,9 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import Wasp.AppSpec.Util (hasEntities)
 import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
@@ -54,6 +56,7 @@ import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (userClientEnvSchemaVF)
 import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
@@ -69,7 +72,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.VirtualFiles (userPrismaSetupFnVF)
+import Wasp.Generator.ServerGenerator.VirtualFiles (userPrismaSetupFnVF, userServerEnvSchemaVF)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -99,7 +102,8 @@ buildSdk generatedAppDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ C.genFileCopy [relfile|vite-env.d.ts|],
+    [ C.genFileCopy [relfile|wasp-ssr.d.ts|],
+      C.genFileCopy [relfile|vite-env.d.ts|],
       C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
       C.genFileCopy [relfile|scripts/copy-assets.js|],
       C.genFileCopy [relfile|types/index.ts|],
@@ -119,7 +123,8 @@ genSdk spec =
       genServerUtils spec,
       genServerExportedTypesDir,
       genPackageJson spec,
-      genServerDbClient spec
+      genServerDbClient spec,
+      genWaspDeclaration spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -346,5 +351,20 @@ genServerDbClient spec = do
       [relfile|server/dbClient.ts|]
       tmplData
   where
+    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    app = snd $ getApp spec
+
+genWaspDeclaration :: AppSpec -> Generator FileDraft
+genWaspDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = [relfile|wasp-virtual-user-modules.d.ts|]
+    tmplData =
+      object
+        [ "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvValidationSchema,
+          "serverEnvValidationSchema" .= GJI.virtualExtImportToImportJson userServerEnvSchemaVF maybeServerEnvValidationSchema,
+          "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVF maybePrismaSetupFn
+        ]
+    maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
+    maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     app = snd $ getApp spec

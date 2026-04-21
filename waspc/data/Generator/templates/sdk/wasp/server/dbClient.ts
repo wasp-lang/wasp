@@ -1,17 +1,13 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
-import { PrismaClient as InternalPrismaClient } from '@prisma/client'
-import type { FromRegistry } from 'wasp/types'
-
-type UserPrismaSetupFn = FromRegistry<'prismaSetupFn', () => InternalPrismaClient>;
-type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
+import type { PrismaClientResolved } from "{= prismaSetupFn.importPath =}";
 
 {=# prismaSetupFn.isDefined =}
-// @ts-expect-error
 {=& prismaSetupFn.importStatement =}
 const dbClient: PrismaClientResolved =  {= prismaSetupFn.importIdentifier =}();
 {=/ prismaSetupFn.isDefined =}
 {=^ prismaSetupFn.isDefined =}
+import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 const dbClient: PrismaClientResolved = InternalPrismaClient();
 {=/ prismaSetupFn.isDefined =}
 {=/ areThereAnyEntitiesDefined =}

@@ -19,13 +19,14 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.TypesGenerator.Common (mkTmplFdWithData)
+import Wasp.Generator.TypesGenerator.Common (mkTmplFd, mkTmplFdWithData)
 import Wasp.Generator.TypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
 import Wasp.Util ((<++>))
 
 genTypes :: AppSpec -> Generator [FileDraft]
 genTypes spec =
-  genConfigTypes spec
+  return [mkTmplFd [relfile|wasp-virtual-user-modules.d.ts|]]
+    <++> genConfigTypes spec
     <++> genCrudTypes spec
     <++> genOperationTypes spec
 

@@ -2,12 +2,9 @@
 import * as z from "zod"
 
 import { ensureEnvSchema } from "../env/validation.js"
-import { FromRegistry } from "../types/index.js";
-
-type UserServerEnvSchema = FromRegistry<"serverEnvSchema", z.ZodObject<{}>>;
+import type { UserServerEnvSchema } from "{= envValidationSchema.importPath =}";
 
 {=# envValidationSchema.isDefined =}
-// @ts-expect-error
 {=& envValidationSchema.importStatement =}
 const userServerEnvSchema: UserServerEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}

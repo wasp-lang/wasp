@@ -1,11 +1,8 @@
 {{={= =}=}}
 import * as z from "zod"
-import { FromRegistry } from "../../types";
-
-type UserClientEnvSchema = FromRegistry<"clientEnvSchema", z.ZodObject<{}>>;
+import type { UserClientEnvSchema } from "{= envValidationSchema.importPath =}";
 
 {=# envValidationSchema.isDefined =}
-// @ts-expect-error
 {=& envValidationSchema.importStatement =}
 const userClientEnvSchema: UserClientEnvSchema = {= envValidationSchema.importIdentifier =};
 {=/ envValidationSchema.isDefined =}
