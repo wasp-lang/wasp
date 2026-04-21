@@ -25,6 +25,24 @@ export function mapApp(
     mapPage,
   );
 
+  const routes = extractParts("route", parts);
+  const mappedRoutes = routes.map(mapRoute);
+  // TODO: derive a real route name (collision-aware); add invariant for route
+  // name uniqueness.
+  const routeDecls = mappedRoutes.map(({ route }) => ({
+    declType: "Route" as const,
+    declName: `${route.to.name}Route`,
+    declValue: route,
+  }));
+  // TODO: dedup with explicit page decls when a route uses a shorthand page
+  // whose derived name matches an existing page; add invariant for duplicate
+  // pages with differing configs.
+  const routePageDecls = mappedRoutes.map(({ route, page }) => ({
+    declType: "Page" as const,
+    declName: route.to.name,
+    declValue: page,
+  }));
+
   const queries = extractParts("query", parts);
   const queryDecls = mapToDecls(
     queries,
@@ -60,11 +78,11 @@ export function mapApp(
 
   return makeDeclsArray({
     App: [appDecl],
-    Page: pageDecls,
+    Page: [...pageDecls, ...routePageDecls],
+    Route: routeDecls,
     Query: queryDecls,
     Action: actionDecls,
     // TODO: add these guys
-    Route: [],
     Job: [],
     Api: [],
     ApiNamespace: [],
@@ -78,6 +96,30 @@ export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
     component: mapExtImport(component),
     authRequired,
   };
+}
+
+export function mapRoute(route: TsAppSpec.Route): {
+  route: AppSpec.Route;
+  page: AppSpec.Page;
+} {
+  const normalizedPage = normalizeRoutePage(route.page);
+  const pageName = deriveExtImportName(normalizedPage.component);
+  return {
+    route: {
+      path: route.path,
+      to: { name: pageName, declType: "Page" },
+      prerender: undefined,
+      lazy: undefined,
+    },
+    page: mapPage(normalizedPage),
+  };
+}
+
+export function normalizeRoutePage(
+  routePage: TsAppSpec.Route["page"],
+): TsAppSpec.Page {
+  if ("kind" in routePage) return routePage;
+  return { kind: "page", component: routePage };
 }
 
 export function mapQuery(

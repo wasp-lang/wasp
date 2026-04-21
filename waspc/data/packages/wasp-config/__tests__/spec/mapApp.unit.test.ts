@@ -8,6 +8,8 @@ import {
   mapExtImport,
   mapPage,
   mapQuery,
+  mapRoute,
+  normalizeRoutePage,
 } from "../../src/spec/mapApp.js";
 import { app } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
@@ -111,6 +113,32 @@ describe("mapPage", () => {
       component: mapExtImport(page.component),
       authRequired: page.authRequired,
     } satisfies AppSpec.Page);
+  }
+});
+
+describe("mapRoute", () => {
+  test("should map minimal config correctly", () => {
+    testMapRoute(Fixtures.getRoute("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapRoute(Fixtures.getRoute("full"));
+  });
+
+  function testMapRoute(route: TsAppSpec.Route): void {
+    const result = mapRoute(route);
+
+    const expectedPage = normalizeRoutePage(route.page);
+    const expectedPageName = deriveExtImportName(expectedPage.component);
+
+    expect(result.route).toStrictEqual({
+      path: route.path,
+      to: { name: expectedPageName, declType: "Page" },
+      prerender: undefined,
+      lazy: undefined,
+    } satisfies AppSpec.Route);
+
+    expect(result.page).toStrictEqual(mapPage(expectedPage));
   }
 });
 
