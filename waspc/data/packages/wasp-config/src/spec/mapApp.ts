@@ -27,16 +27,13 @@ export function mapApp(
 
   const routes = extractParts("route", parts);
   const mappedRoutes = routes.map(mapRoute);
-  // TODO: derive a real route name (collision-aware); add invariant for route
-  // name uniqueness.
+  // TODO: add invariant for route name uniqueness (distinct paths can still
+  // derive the same name).
   const routeDecls = mappedRoutes.map(({ route }) => ({
     declType: "Route" as const,
-    declName: `${route.to.name}Route`,
+    declName: deriveRouteName(route.path),
     declValue: route,
   }));
-  // TODO: dedup with explicit page decls when a route uses a shorthand page
-  // whose derived name matches an existing page; add invariant for duplicate
-  // pages with differing configs.
   const routePageDecls = mappedRoutes.map(({ route, page }) => ({
     declType: "Page" as const,
     declName: route.to.name,
@@ -78,7 +75,7 @@ export function mapApp(
 
   return makeDeclsArray({
     App: [appDecl],
-    Page: [...pageDecls, ...routePageDecls],
+    Page: dedupePageDecls([...pageDecls, ...routePageDecls]),
     Route: routeDecls,
     Query: queryDecls,
     Action: actionDecls,
@@ -120,6 +117,36 @@ export function normalizeRoutePage(
 ): TsAppSpec.Page {
   if ("kind" in routePage) return routePage;
   return { kind: "page", component: routePage };
+}
+
+export function deriveRouteName(path: string): string {
+  const base = path
+    .split("/")
+    .flatMap((s) => s.split("-"))
+    .filter((s) => s.length > 0)
+    .map((s) => (s.startsWith(":") ? s.slice(1) : s))
+    .map(capitalize)
+    .join("");
+  return `${base || "Root"}Route`;
+}
+
+export function dedupePageDecls(
+  decls: AppSpec.GetDeclForType<"Page">[],
+): AppSpec.GetDeclForType<"Page">[] {
+  const groups = groupBy(decls, (d) => d.declName);
+  return Array.from(groups.values()).map((group) =>
+    group.reduce((first, current) => {
+      if (!deepEqual(current, first)) {
+        throw new Error(
+          `Conflicting configs for page "${first.declName}". ` +
+            "A page can be derived from an explicit `page(...)` part or from " +
+            "an inline route page; all derivations that share a name must " +
+            "produce the same config.",
+        );
+      }
+      return first;
+    }),
+  );
 }
 
 export function mapQuery(
@@ -238,4 +265,34 @@ function makeDeclsArray(decls: {
   [Type in AppSpec.Decl["declType"]]: AppSpec.GetDeclForType<Type>[];
 }): AppSpec.Decl[] {
   return Object.values(decls).flatMap((decl) => [...decl]);
+}
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+function groupBy<T, K>(items: readonly T[], key: (item: T) => K): Map<K, T[]> {
+  return items.reduce<Map<K, T[]>>((map, item) => {
+    const k = key(item);
+    return map.set(k, [...(map.get(k) ?? []), item]);
+  }, new Map());
+}
+
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  if (typeof a !== "object" || typeof b !== "object") return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+  }
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((k) =>
+    deepEqual(
+      (a as Record<string, unknown>)[k],
+      (b as Record<string, unknown>)[k],
+    ),
+  );
 }
