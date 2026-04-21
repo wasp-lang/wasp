@@ -4,70 +4,75 @@ description: Central place for computing the artifact names in the CI builds.
 inputs:
   build-name:
     description: >
-      The build name (e.g., linux-x86_64, macos-aarch64, etc.). The special
-      value "all" can be used to receive a glob that matches all of the build
-      names. The special value "current" auto-detects the build name from the
-      current runner's OS and architecture.
+      The build name (e.g., linux-x86_64, macos-aarch64, etc.).
+      The special value "all" can be used to receive a glob that matches all of the build names.
+      The special value "current" auto-detects the build name from the current runner's OS and architecture.
     required: true
 
 runs:
   using: composite
-
   steps:
-    - name: Detect platform build name
-      if: inputs.build-name == 'current'
-      id: detect-platform
+    - name: Resolve build name
+      id: resolve-build-name
       shell: bash
       run: |
-        case "${{ runner.os }}-${{ runner.arch }}" in
-          Linux-X64)    build_name="linux-x86_64" ;;
-          macOS-X64)    build_name="macos-x86_64" ;;
-          macOS-ARM64)  build_name="macos-aarch64" ;;
-          *)
-            echo "::error::Unsupported platform: ${{ runner.os }}-${{ runner.arch }}"
-            exit 1
-            ;;
-        esac
+        input='${{ inputs.build-name }}'
+
+        if [ "$input" = "all" ]; then
+          build_name="*"
+        elif [ "$input" = "current" ]; then
+          case "${{ runner.os }}-${{ runner.arch }}" in
+            Linux-X64)   build_name="linux-x86_64" ;;
+            macOS-X64)   build_name="macos-x86_64" ;;
+            macOS-ARM64) build_name="macos-aarch64" ;;
+            *)
+              echo "::error::Unsupported platform: ${{ runner.os }}-${{ runner.arch }}"
+              exit 1
+              ;;
+          esac
+        else
+          build_name="$input"
+        fi
+
         echo "build-name=$build_name" >> "$GITHUB_OUTPUT"
 
     - name: Check valid build name
       if: >
-        inputs.build-name != 'current' && ! contains(
+        ! contains(
           fromJson('[
-            "all",
+            "*",
             "linux-x86_64",
             "linux-x86_64-static",
             "macos-x86_64",
             "macos-aarch64"
           ]'),
-          inputs.build-name
+          steps.resolve-build-name.outputs.build-name
         )
       shell: sh
       run: |
-        echo '::error::Invalid build name provided: ${{ inputs.build-name }}.'
+        echo '::error::Invalid build name provided: ${{ steps.resolve-build-name.outputs.build-name }}.'
         exit 1
 
     - name: Set artifact names
       id: set-artifact-names
       shell: sh
       env:
-        BUILD_NAME: ${{ inputs.build-name == 'all' && '*' || inputs.build-name == 'current' && steps.detect-platform.outputs.build-name || inputs.build-name }}
+        BUILD_NAME: ${{ steps.resolve-build-name.outputs.build-name }}
       run: |
         echo "artifact-name=wasp-cli-${BUILD_NAME}" >> $GITHUB_OUTPUT
         echo "tarball-name=wasp-${BUILD_NAME}.tar.gz" >> $GITHUB_OUTPUT
 
     - name: Set npm target
       id: set-npm-target
-      if: inputs.build-name != 'all' && inputs.build-name != 'current'
+      if: steps.resolve-build-name.outputs.build-name != '*'
       shell: sh
       run: |
-        case '${{ inputs.build-name }}' in
-            linux-x86_64) npm_target='{"os":"linux","cpu":"x64","libc":"glibc"}' ;;
-            linux-x86_64-static) npm_target='{"os":"linux","cpu":"x64","libc":"musl"}' ;;
-            macos-x86_64) npm_target='{"os":"darwin","cpu":"x64"}' ;;
-            macos-aarch64) npm_target='{"os":"darwin","cpu":"arm64"}' ;;
+        case '${{ steps.resolve-build-name.outputs.build-name }}' in
+          linux-x86_64)        npm_target='{"os":"linux","cpu":"x64","libc":"glibc"}' ;;
+          linux-x86_64-static) npm_target='{"os":"linux","cpu":"x64","libc":"musl"}' ;;
+          macos-x86_64)        npm_target='{"os":"darwin","cpu":"x64"}' ;;
+          macos-aarch64)       npm_target='{"os":"darwin","cpu":"arm64"}' ;;
         esac
-
         echo "npm-target=$npm_target" >>"$GITHUB_OUTPUT"
 
 outputs:
