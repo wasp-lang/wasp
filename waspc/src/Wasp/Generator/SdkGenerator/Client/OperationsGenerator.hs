@@ -19,9 +19,9 @@ import Wasp.Generator.SdkGenerator.Common
     getOperationTypeName,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (getServerOperationsImportPath)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
+import Wasp.Generator.ServerGenerator.VirtualFiles (userOperationVF)
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)
 import Wasp.Util ((<++>))
 
@@ -127,8 +127,7 @@ getOperationTypeData operation = tmplData
 
     (operationTypeImportStmt, operationTypeImportIdentifier) =
       getJsImportStmtAndIdentifier $
-        makeJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ getOperationTypeName operation)
-    serverOpsImportPath = getServerOperationsImportPath operation
+        makeJsImport (ModuleImportPath (userOperationVF operation)) (JsImportField $ getOperationTypeName operation)
 
 data ClientOpsTemplatesDir
 

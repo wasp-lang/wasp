@@ -362,9 +362,12 @@ genWaspDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
       object
         [ "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvValidationSchema,
           "serverEnvValidationSchema" .= GJI.virtualExtImportToImportJson userServerEnvSchemaVF maybeServerEnvValidationSchema,
-          "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVF maybePrismaSetupFn
+          "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVF maybePrismaSetupFn,
+          "actions" .= map (ServerOpsGen.getActionData isAuthEnabledGlobally) (AS.getActions spec),
+          "queries" .= map (ServerOpsGen.getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]
     maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
     maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    isAuthEnabledGlobally = isAuthEnabled spec
     app = snd $ getApp spec

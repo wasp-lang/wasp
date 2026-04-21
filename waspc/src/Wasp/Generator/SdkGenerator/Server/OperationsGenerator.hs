@@ -1,8 +1,9 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( getServerOperationsImportPath,
-    genOperations,
+  ( genOperations,
+    getQueryData,
+    getActionData,
   )
 where
 
@@ -10,7 +11,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
+import StrongPath (Dir', File', Path', Rel, reldir, relfile, (</>))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -23,19 +24,10 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     getOperationTypeName,
-    makeSdkImportPath,
     mkTmplFdWithData,
   )
 import Wasp.Generator.ServerGenerator.VirtualFiles (userOperationVF)
 import Wasp.Util (toUpperFirst)
-
--- | This function should match the `exports` path from the SDK's package.json.
-getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
-getServerOperationsImportPath = \operation ->
-  makeSdkImportPath $
-    [reldirP|server/operations|] </> case operation of
-      (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
-      (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
 
 genOperations :: AS.AppSpec -> Generator [FileDraft]
 genOperations spec =
