@@ -1,4 +1,4 @@
-import type { Page, Query, App } from "./tsAppSpec.js";
+import type { App, Page, Query } from "./tsAppSpec.js";
 
 export function app(input: Omit<App, "kind">): App {
   return input;

@@ -5,7 +5,6 @@
 
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
-import { Part } from "./publicApi/tsAppSpec.js";
 
 export function mapApp(
   app: TsAppSpec.App,
