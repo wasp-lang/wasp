@@ -281,7 +281,6 @@ library
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
-    Wasp.Generator.UserVirtualModules
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.Email
@@ -328,9 +327,9 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.UserVirtualModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPlugin.VirtualRoutesG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPluginG
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.UserVirtualModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
@@ -368,6 +367,7 @@ library
     Wasp.Generator.TypesGenerator
     Wasp.Generator.TypesGenerator.Common
     Wasp.Generator.TypesGenerator.JsImport
+    Wasp.Generator.UserVirtualModules
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common
