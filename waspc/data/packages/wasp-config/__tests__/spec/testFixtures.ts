@@ -12,29 +12,13 @@ import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 const CONFIG_TYPES = ["minimal", "full"] as const;
 type ConfigType = (typeof CONFIG_TYPES)[number];
 
-export function getApp(scope: "minimal"): MinimalConfig<TsAppSpec.App>;
-export function getApp(scope: "full"): FullConfig<TsAppSpec.App>;
-export function getApp(scope: ConfigType): Config<TsAppSpec.App>;
-export function getApp(scope: ConfigType): Config<TsAppSpec.App> {
-  switch (scope) {
-    case "minimal":
-      return app({
-        name: "MinimalApp",
-        wasp: { version: "^0.16.3" },
-        title: "Mock App",
-        parts: [],
-      });
-    case "full":
-      return app({
-        name: "FullApp",
-        wasp: { version: "^0.16.3" },
-        title: "Mock App",
-        head: ['<link rel="icon" href="/favicon.ico" />'],
-        parts: [getPage("full"), getQuery("full")],
-      });
-    default:
-      assertUnreachable(scope);
-  }
+export function getMinimalApp(): TsAppSpec.App {
+  return app({
+    name: "MinimalApp",
+    wasp: { version: "^0.16.3" },
+    title: "Mock App",
+    parts: [],
+  });
 }
 
 export function getPage(scope: "minimal"): MinimalConfig<TsAppSpec.Page>;

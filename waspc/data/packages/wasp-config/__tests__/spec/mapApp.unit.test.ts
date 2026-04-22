@@ -3,29 +3,30 @@ import * as AppSpec from "../../src/appSpec.js";
 import {
   deriveExtImportName,
   makeRefParser,
+  mapApp,
   mapExtImport,
   mapPage,
   mapQuery,
-  mapApp,
 } from "../../src/spec/mapApp.js";
+import { app } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("mapApp", () => {
   test("should map minimal app correctly", () => {
-    const spec: TsAppSpec.App = Fixtures.getApp("minimal");
     const entityNames = Fixtures.getEntities("minimal");
+    const app = Fixtures.getMinimalApp();
 
-    const result = mapApp(spec, entityNames);
+    const decls = mapApp(app, entityNames);
 
-    expect(result).toStrictEqual([
+    expect(decls).toStrictEqual([
       {
         declType: "App",
-        declName: spec.name,
+        declName: app.name,
         declValue: {
-          wasp: spec.wasp,
-          title: spec.title,
-          head: spec.head,
+          wasp: app.wasp,
+          title: app.title,
+          head: app.head,
           auth: undefined,
           server: undefined,
           client: undefined,
@@ -38,13 +39,20 @@ describe("mapApp", () => {
   });
 
   test("should map full app correctly", () => {
-    const spec: TsAppSpec.App = Fixtures.getApp("full");
+    const page = Fixtures.getPage("full");
+    const query = Fixtures.getQuery("full");
     const entityNames = Fixtures.getEntities("full");
-    const page: TsAppSpec.Page = Fixtures.getPage("full");
-    const query: TsAppSpec.Query = Fixtures.getQuery("full");
     const entityRefParser = makeRefParser("Entity", entityNames);
 
-    const result = mapApp(spec, entityNames);
+    const inputApp = app({
+      name: "FullApp",
+      wasp: { version: "^0.16.3" },
+      title: "Mock App",
+      head: ['<link rel="icon" href="/favicon.ico" />'],
+      parts: [page, query],
+    });
+
+    const result = mapApp(inputApp, entityNames);
 
     // TODO: Reaching into `deriveExtImportName` here is not ideal — it leaks
     // an orchestrator-internal helper into the test. Revisit once we have a
@@ -55,11 +63,11 @@ describe("mapApp", () => {
     expect(result).toStrictEqual([
       {
         declType: "App",
-        declName: spec.name,
+        declName: inputApp.name,
         declValue: {
-          wasp: spec.wasp,
-          title: spec.title,
-          head: spec.head,
+          wasp: inputApp.wasp,
+          title: inputApp.title,
+          head: inputApp.head,
           auth: undefined,
           server: undefined,
           client: undefined,

@@ -8,28 +8,21 @@ import * as Fixtures from "./testFixtures.js";
 describe("analyzeApp", () => {
   afterEach(() => vi.clearAllMocks());
 
-  test("should parse minimal app successfully", async () => {
+  test("should parse an app successfully", async () => {
     await testAnalyzeApp({
-      spec: Fixtures.getApp("minimal"),
+      app: Fixtures.getMinimalApp(),
       entities: Fixtures.getEntities("minimal"),
     });
   });
 
-  test("should parse full app successfully", async () => {
-    await testAnalyzeApp({
-      spec: Fixtures.getApp("full"),
-      entities: Fixtures.getEntities("full"),
-    });
-  });
-
-  test("should parse spec from async default export", async () => {
-    const spec = Fixtures.getApp("minimal");
+  test("should parse app from async default export", async () => {
+    const app = Fixtures.getMinimalApp();
     const entities = Fixtures.getEntities("minimal");
     const mockMainWaspTs = "main.wasp.ts";
-    vi.doMock(mockMainWaspTs, () => ({ default: Promise.resolve(spec) }));
+    vi.doMock(mockMainWaspTs, () => ({ default: Promise.resolve(app) }));
 
     const result = await analyzeApp(mockMainWaspTs, entities);
-    const expected = mapApp(spec, entities);
+    const expected = mapApp(app, entities);
 
     expect(result).toMatchObject({
       status: "ok",
@@ -39,7 +32,7 @@ describe("analyzeApp", () => {
 
   test("should return an error if the default export is not defined", async () => {
     await testAnalyzeApp({
-      spec: undefined as unknown as TsAppSpec.App,
+      app: undefined as unknown as TsAppSpec.App,
       entities: Fixtures.getEntities("minimal"),
       options: {
         shouldReturnError: true,
@@ -49,7 +42,7 @@ describe("analyzeApp", () => {
 
   test("should return an error if the default export is not an App", async () => {
     await testAnalyzeApp({
-      spec: "not an App" as unknown as TsAppSpec.App,
+      app: "not an App" as unknown as TsAppSpec.App,
       entities: Fixtures.getEntities("minimal"),
       options: {
         shouldReturnError: true,
@@ -58,19 +51,19 @@ describe("analyzeApp", () => {
   });
 
   async function testAnalyzeApp(input: {
-    spec: TsAppSpec.App;
+    app: TsAppSpec.App;
     entities: string[];
     options?: {
       shouldReturnError: boolean;
     };
   }): Promise<void> {
     const {
-      spec,
+      app,
       entities,
       options: { shouldReturnError } = { shouldReturnError: false },
     } = input;
     const mockMainWaspTs = "main.wasp.ts";
-    vi.doMock(mockMainWaspTs, () => ({ default: spec }));
+    vi.doMock(mockMainWaspTs, () => ({ default: app }));
 
     const result = await analyzeApp(mockMainWaspTs, entities);
 
@@ -80,7 +73,7 @@ describe("analyzeApp", () => {
         error: expect.anything(),
       });
     } else {
-      const expected = mapApp(spec, entities);
+      const expected = mapApp(app, entities);
       expect(result).toMatchObject({
         status: "ok",
         value: expected,
