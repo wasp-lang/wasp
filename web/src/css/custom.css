@@ -176,15 +176,28 @@ html.blog-wrapper[data-theme="dark"] {
 .blog-wrapper [class*="codeBlockTitle"] {
   font-size: 14px;
   font-weight: 400;
-  border: 1px solid var(--wasp-g2);
+  border: 1px solid var(--wasp-g3);
   border-bottom: none;
   border-radius: 0;
 }
 
 .docs-wrapper [class*="codeBlockContent"],
 .blog-wrapper [class*="codeBlockContent"] {
-  border: 1px solid var(--wasp-g2);
+  border: 1px solid var(--wasp-g3);
   border-radius: 0;
+}
+
+/* Schematic admonitions */
+.docs-wrapper .alert,
+.blog-wrapper .alert {
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.docs-wrapper .alert--secondary,
+.blog-wrapper .alert--secondary {
+  --ifm-alert-background-color: var(--wasp-g1);
 }
 
 .docs-wrapper .table-of-contents,
@@ -251,7 +264,7 @@ html.blog-wrapper[data-theme="dark"] {
 /* You can override the default Infima variables here. */
 :root {
   /* Our custom values */
-  --custom-background-color: #fdfdfd;
+  --custom-background-color: var(--wasp-bg);
   --custom-background-color-diff: #f4f4f4;
   --custom-shadow-lw: 0 3px 5px 0px rgba(0, 0, 0, 0.1);
   --custom-border-radius: 3px;
@@ -291,6 +304,8 @@ html.blog-wrapper[data-theme="dark"] {
   /* NOTE(matija): used this because setting --ifm-code-border-radius did nothing, not sure why. */
   --ifm-global-radius: 0;
   --ifm-global-shadow-lw: none;
+  --ifm-background-color: var(--wasp-bg);
+  --ifm-navbar-background-color: var(--wasp-bg);
 
   /* TODO(matija): this doesn't seem to override the default value. */
   --ifm-button-background-color: var(--custom-background-color);
