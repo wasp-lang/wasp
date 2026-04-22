@@ -332,7 +332,11 @@ html.blog-wrapper[data-theme="dark"] {
   > .menu__link,
 .theme-doc-sidebar-item-link-level-1 > .menu__link {
   color: var(--sidebar-item-level-1-color);
-  font-weight: bold;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /******** DOCS NAVBAR *********/
