@@ -8,7 +8,10 @@ import codeWithHole from "./src/remark/code-with-hole";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
 import searchAndReplace from "./src/remark/search-and-replace";
 
-const lightCodeTheme = themes.github;
+const lightCodeTheme = {
+  ...themes.github,
+  plain: { ...themes.github.plain, backgroundColor: "#f0ede6" },
+};
 
 const includeCurrentVersion =
   process.env.DOCS_INCLUDE_CURRENT_VERSION === "true";
