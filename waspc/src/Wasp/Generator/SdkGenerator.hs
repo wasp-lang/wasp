@@ -56,7 +56,6 @@ import Wasp.Generator.SdkGenerator.Client.AuthG (genNewClientAuth)
 import Wasp.Generator.SdkGenerator.Client.CrudG (genNewClientCrudApi)
 import qualified Wasp.Generator.SdkGenerator.Client.OperationsGenerator as ClientOpsGen
 import Wasp.Generator.SdkGenerator.Client.RouterGenerator (genNewClientRouterApi)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (userClientEnvSchemaVF)
 import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
@@ -72,7 +71,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.ServerGenerator.VirtualFiles (userPrismaSetupFnVF, userServerEnvSchemaVF)
+import Wasp.Generator.UserVirtualModules (userClientEnvSchemaVF, userPrismaSetupFnVF, userServerEnvSchemaVF)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -124,7 +123,7 @@ genSdk spec =
       genServerExportedTypesDir,
       genPackageJson spec,
       genServerDbClient spec,
-      genWaspDeclaration spec
+      genWaspUserVirtualModulesDeclaration spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
@@ -354,8 +353,8 @@ genServerDbClient spec = do
     maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
     app = snd $ getApp spec
 
-genWaspDeclaration :: AppSpec -> Generator FileDraft
-genWaspDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
+genWaspUserVirtualModulesDeclaration :: AppSpec -> Generator FileDraft
+genWaspUserVirtualModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
     tmplData =

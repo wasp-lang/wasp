@@ -64,7 +64,7 @@ import Wasp.Generator.ServerGenerator.JobGenerator (genJobs)
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson, getAliasedJsImportStmtAndIdentifier)
 import Wasp.Generator.ServerGenerator.OperationsG (genOperations)
 import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
-import Wasp.Generator.ServerGenerator.VirtualFiles (getUserVFData)
+import Wasp.Generator.ServerGenerator.UserVirtualModulesPluginG (genUserVirtualModulesPlugin)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
@@ -353,10 +353,3 @@ genRollupConfigJs spec =
     tmplData = object ["areDbSeedsDefined" .= areDbSeedsDefined]
 
     areDbSeedsDefined = maybe False (not . null) $ getDbSeeds spec
-
-genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
-genUserVirtualModulesPlugin spec =
-  return $
-    C.mkTmplFdWithData [relfile|src/plugins/userVirtualModules.js|] (Just tmplData)
-  where
-    tmplData = object ["userVirtualModules" .= getUserVFData spec]

@@ -26,7 +26,7 @@ import Wasp.Generator.SdkGenerator.Common
     getOperationTypeName,
     mkTmplFdWithData,
   )
-import Wasp.Generator.ServerGenerator.VirtualFiles (userOperationVF)
+import Wasp.Generator.UserVirtualModules (userOperationVF)
 import Wasp.Util (toUpperFirst)
 
 genOperations :: AS.AppSpec -> Generator [FileDraft]

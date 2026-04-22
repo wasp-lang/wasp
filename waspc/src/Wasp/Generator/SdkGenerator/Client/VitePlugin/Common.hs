@@ -5,9 +5,6 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
     routesEntryPointPath,
     ssrEntryPointPath,
     spaFallbackFile,
-    userClientEnvSchemaVF,
-    userClientSetupFnVF,
-    userClientRootComponentVF,
   )
 where
 
@@ -36,12 +33,3 @@ ssrEntryPointPath = "/@wasp/ssr-entry.tsx"
 
 spaFallbackFile :: String
 spaFallbackFile = "200.html"
-
-userClientEnvSchemaVF :: VirtualFile
-userClientEnvSchemaVF = [relfileP|virtual:wasp/user/client-env-schema|]
-
-userClientSetupFnVF :: VirtualFile
-userClientSetupFnVF = [relfileP|virtual:wasp/user/client-setup-fn|]
-
-userClientRootComponentVF :: VirtualFile
-userClientRootComponentVF = [relfileP|virtual:wasp/user/client-root-component|]

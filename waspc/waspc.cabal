@@ -281,6 +281,7 @@ library
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
+    Wasp.Generator.UserVirtualModules
     Wasp.Generator.AuthProviders
     Wasp.Generator.AuthProviders.Common
     Wasp.Generator.AuthProviders.Email
@@ -327,8 +328,9 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPlugin.VirtualRoutesG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPluginG
+    Wasp.Generator.SdkGenerator.Client.VitePlugin.UserVirtualModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG
     Wasp.Generator.SdkGenerator.Common
     Wasp.Generator.SdkGenerator.CrudG
@@ -357,7 +359,7 @@ library
     Wasp.Generator.ServerGenerator.OperationsG
     Wasp.Generator.ServerGenerator.OperationsRoutesG
     Wasp.Generator.ServerGenerator.Start
-    Wasp.Generator.ServerGenerator.VirtualFiles
+    Wasp.Generator.ServerGenerator.UserVirtualModulesPluginG
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
     Wasp.Generator.Start

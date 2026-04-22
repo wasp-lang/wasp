@@ -21,7 +21,7 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
-import Wasp.Generator.ServerGenerator.VirtualFiles (userOperationVF)
+import Wasp.Generator.UserVirtualModules (userOperationVF)
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)
 import Wasp.Util ((<++>))
 
