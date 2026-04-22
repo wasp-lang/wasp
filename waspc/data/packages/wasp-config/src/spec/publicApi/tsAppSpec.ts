@@ -8,16 +8,22 @@ export type App = {
 
 export type Part = Page | Query;
 
-export type Page = MakePart<"page", {
-  component: ExtImport;
-  authRequired?: boolean;
-}>;
+export type Page = MakePart<
+  "page",
+  {
+    component: ExtImport;
+    authRequired?: boolean;
+  }
+>;
 
-export type Query = MakePart<"query", {
-  fn: ExtImport;
-  entities?: string[];
-  auth?: boolean;
-}>;
+export type Query = MakePart<
+  "query",
+  {
+    fn: ExtImport;
+    entities?: string[];
+    auth?: boolean;
+  }
+>;
 
 export type ExtImport =
   | { import: string; alias?: string; from: `@src/${string}` }
@@ -36,5 +42,5 @@ export type ExtImport =
  * optional fields makes two parts structurally identical.
  */
 export type MakePart<Kind extends string, PartConfig> = {
-  kind: Kind,
-} & PartConfig
+  kind: Kind;
+} & PartConfig;
