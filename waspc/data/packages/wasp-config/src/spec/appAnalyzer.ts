@@ -1,19 +1,19 @@
 import * as AppSpec from "../appSpec.js";
-import { mapTsAppSpecToAppSpecDecls } from "./mapTsAppSpecToAppSpecDecls.js";
+import { mapApp } from "./mapApp.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export async function analyzeApp(
   waspTsSpecPath: string,
   entityNames: string[],
 ): Promise<Result<AppSpec.Decl[], string>> {
-  const specResult = await getSpec(waspTsSpecPath);
+  const appResult = await getApp(waspTsSpecPath);
 
-  if (specResult.status === "error") {
-    return specResult;
+  if (appResult.status === "error") {
+    return appResult;
   }
 
-  const tsAppSpec = specResult.value;
-  const appSpecDecls = mapTsAppSpecToAppSpecDecls(tsAppSpec, entityNames);
+  const app = appResult.value;
+  const appSpecDecls = mapApp(app, entityNames);
 
   return {
     status: "ok",
@@ -21,7 +21,7 @@ export async function analyzeApp(
   };
 }
 
-async function getSpec(
+async function getApp(
   mainWaspJs: string,
 ): Promise<Result<TsAppSpec.App, string>> {
   const usersDefaultExport: unknown = await (await import(mainWaspJs)).default;
@@ -35,7 +35,7 @@ async function getSpec(
     };
   }
 
-  if (!isTsAppSpec(usersDefaultExport)) {
+  if (!isApp(usersDefaultExport)) {
     return {
       status: "error",
       error:
@@ -47,15 +47,18 @@ async function getSpec(
   return { status: "ok", value: usersDefaultExport };
 }
 
-// TODO: This should probably live elsewhere
-function isTsAppSpec(value: unknown): value is TsAppSpec.App {
-  // TODO: Make this more robust
-  // App used to be branded with a kind but we gave that up.
+// TODO: This should probably live elsewhere.
+// TODO: Make this more robust — structural duck-typing accepts any object with
+// these keys. Consider branding the return value of `app()` with a
+// non-enumerable symbol and checking for it here.
+function isApp(value: unknown): value is TsAppSpec.App {
   return (
     typeof value === "object" &&
     value !== null &&
-    "kind" in value &&
-    value.kind === "app"
+    "name" in value &&
+    "wasp" in value &&
+    "title" in value &&
+    "parts" in value
   );
 }
 

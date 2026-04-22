@@ -7,11 +7,11 @@ import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 import { Part } from "./publicApi/tsAppSpec.js";
 
-export function mapTsAppSpecToAppSpecDecls(
-  tsAppSpec: TsAppSpec.App,
+export function mapApp(
+  app: TsAppSpec.App,
   entityNames: string[],
 ): AppSpec.Decl[] {
-  const { name, wasp, title, head, parts } = tsAppSpec;
+  const { name, wasp, title, head, parts } = app;
 
   const entityRefParser = makeRefParser("Entity", entityNames);
 

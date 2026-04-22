@@ -1,7 +1,7 @@
 import { afterEach } from "node:test";
 import { describe, expect, test, vi } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
-import { mapTsAppSpecToAppSpecDecls } from "../../src/spec/mapTsAppSpecToAppSpecDecls.js";
+import { mapApp } from "../../src/spec/mapApp.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -29,7 +29,7 @@ describe("analyzeApp", () => {
     vi.doMock(mockMainWaspTs, () => ({ default: Promise.resolve(spec) }));
 
     const result = await analyzeApp(mockMainWaspTs, entities);
-    const expected = mapTsAppSpecToAppSpecDecls(spec, entities);
+    const expected = mapApp(spec, entities);
 
     expect(result).toMatchObject({
       status: "ok",
@@ -47,9 +47,9 @@ describe("analyzeApp", () => {
     });
   });
 
-  test("should return an error if the default export is not a TsAppSpec", async () => {
+  test("should return an error if the default export is not an App", async () => {
     await testAnalyzeApp({
-      spec: "not a TsAppSpec" as unknown as TsAppSpec.App,
+      spec: "not an App" as unknown as TsAppSpec.App,
       entities: Fixtures.getEntities("minimal"),
       options: {
         shouldReturnError: true,
@@ -80,7 +80,7 @@ describe("analyzeApp", () => {
         error: expect.anything(),
       });
     } else {
-      const expected = mapTsAppSpecToAppSpecDecls(spec, entities);
+      const expected = mapApp(spec, entities);
       expect(result).toMatchObject({
         status: "ok",
         value: expected,
