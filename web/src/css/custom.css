@@ -176,6 +176,15 @@ html.blog-wrapper[data-theme="dark"] {
 .blog-wrapper [class*="codeBlockTitle"] {
   font-size: 14px;
   font-weight: 400;
+  border: 1px solid var(--wasp-g2);
+  border-bottom: none;
+  border-radius: 0;
+}
+
+.docs-wrapper [class*="codeBlockContent"],
+.blog-wrapper [class*="codeBlockContent"] {
+  border: 1px solid var(--wasp-g2);
+  border-radius: 0;
 }
 
 .docs-wrapper .table-of-contents,
@@ -281,6 +290,7 @@ html.blog-wrapper[data-theme="dark"] {
   --ifm-code-background-dark: #292d3e;
   /* NOTE(matija): used this because setting --ifm-code-border-radius did nothing, not sure why. */
   --ifm-global-radius: 0;
+  --ifm-global-shadow-lw: none;
 
   /* TODO(matija): this doesn't seem to override the default value. */
   --ifm-button-background-color: var(--custom-background-color);
