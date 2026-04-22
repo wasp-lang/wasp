@@ -3,10 +3,10 @@ import * as AppSpec from "../../src/appSpec.js";
 import {
   deriveExtImportName,
   makeRefParser,
+  mapApp,
   mapExtImport,
   mapPage,
   mapQuery,
-  mapApp,
 } from "../../src/spec/mapApp.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
