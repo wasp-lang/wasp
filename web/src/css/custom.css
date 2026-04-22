@@ -201,9 +201,8 @@ html.blog-wrapper[data-theme="dark"] {
 .blog-wrapper .markdown h1:first-child {
   font-size: 26px;
   letter-spacing: -0.5px;
-  width: fit-content;
-  background: var(--wasp-yl);
-  padding: 2px 6px;
+  text-decoration: underline var(--wasp-y) 3px;
+  text-underline-offset: 8px;
 }
 
 .docs-wrapper .markdown h2,
@@ -214,9 +213,8 @@ html.blog-wrapper[data-theme="dark"] {
   margin-bottom: 22px;
   border-top: 1px solid var(--wasp-g2);
   padding-top: 54px;
-  width: fit-content;
-  background: var(--wasp-yl);
-  background-clip: content-box;
+  text-decoration: underline var(--wasp-y) 3px;
+  text-underline-offset: 8px;
 }
 
 .docs-wrapper .markdown h3,
