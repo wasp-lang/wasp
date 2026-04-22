@@ -8,9 +8,8 @@ module Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
   )
 where
 
-import StrongPath (Dir, Path', Rel, reldir, relfileP, (</>))
+import StrongPath (Dir, Path', Rel, reldir, (</>))
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.JsImport (VirtualFile)
 
 data VirtualFilesDir
 
