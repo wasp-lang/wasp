@@ -39,7 +39,7 @@ describe("analyzeApp", () => {
 
   test("should return an error if the default export is not defined", async () => {
     await testAnalyzeApp({
-      spec: undefined as unknown as TsAppSpec.TsAppSpec,
+      spec: undefined as unknown as TsAppSpec.App,
       entities: Fixtures.getEntities("minimal"),
       options: {
         shouldReturnError: true,
@@ -49,7 +49,7 @@ describe("analyzeApp", () => {
 
   test("should return an error if the default export is not a TsAppSpec", async () => {
     await testAnalyzeApp({
-      spec: "not a TsAppSpec" as unknown as TsAppSpec.TsAppSpec,
+      spec: "not a TsAppSpec" as unknown as TsAppSpec.App,
       entities: Fixtures.getEntities("minimal"),
       options: {
         shouldReturnError: true,
@@ -58,7 +58,7 @@ describe("analyzeApp", () => {
   });
 
   async function testAnalyzeApp(input: {
-    spec: TsAppSpec.TsAppSpec;
+    spec: TsAppSpec.App;
     entities: string[];
     options?: {
       shouldReturnError: boolean;

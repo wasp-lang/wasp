@@ -12,10 +12,10 @@ import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 const CONFIG_TYPES = ["minimal", "full"] as const;
 type ConfigType = (typeof CONFIG_TYPES)[number];
 
-export function getApp(scope: "minimal"): MinimalConfig<TsAppSpec.TsAppSpec>;
-export function getApp(scope: "full"): FullConfig<TsAppSpec.TsAppSpec>;
-export function getApp(scope: ConfigType): Config<TsAppSpec.TsAppSpec>;
-export function getApp(scope: ConfigType): Config<TsAppSpec.TsAppSpec> {
+export function getApp(scope: "minimal"): MinimalConfig<TsAppSpec.App>;
+export function getApp(scope: "full"): FullConfig<TsAppSpec.App>;
+export function getApp(scope: ConfigType): Config<TsAppSpec.App>;
+export function getApp(scope: ConfigType): Config<TsAppSpec.App> {
   switch (scope) {
     case "minimal":
       return app({

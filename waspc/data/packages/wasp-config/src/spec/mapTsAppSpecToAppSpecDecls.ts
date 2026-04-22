@@ -5,15 +5,19 @@
 
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
+import { Part } from "./publicApi/tsAppSpec.js";
 
 export function mapTsAppSpecToAppSpecDecls(
-  tsAppSpec: TsAppSpec.TsAppSpec,
+  tsAppSpec: TsAppSpec.App,
   entityNames: string[],
 ): AppSpec.Decl[] {
   const { name, wasp, title, head, parts } = tsAppSpec;
 
   const entityRefParser = makeRefParser("Entity", entityNames);
 
+  // TODO: When you add all declarations, see if you can generalize better
+  // (e.g., maybe named parameters, maybe putting extractParts inside
+  // mapToDecls)
   const pages = extractParts("page", parts);
   const pageDecls = mapToDecls(
     pages,
@@ -37,6 +41,7 @@ export function mapTsAppSpecToAppSpecDecls(
       wasp,
       title,
       head,
+      // TODO: add these guys
       auth: undefined,
       server: undefined,
       client: undefined,
@@ -121,17 +126,17 @@ export function makeRefParser<T extends AppSpec.DeclType>(
   };
 }
 
-type GetPartForKind<Id extends TsAppSpec.Part["kind"]> = Extract<
-  TsAppSpec.Part,
-  { kind: Id }
->;
-
-function extractParts<Id extends TsAppSpec.Part["kind"]>(
-  id: Id,
+function extractParts<Kind extends TsAppSpec.Part["kind"]>(
+  id: Kind,
   parts: TsAppSpec.Part[],
-): GetPartForKind<Id>[] {
-  return parts.filter((p): p is GetPartForKind<Id> => p.kind === id);
+): GetPartForKind<Kind>[] {
+  return parts.filter((p): p is GetPartForKind<Kind> => p.kind === id);
 }
+
+type GetPartForKind<Kind extends TsAppSpec.Part["kind"]> = Extract<
+  TsAppSpec.Part,
+  { kind: Kind }
+>;
 
 function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   items: T[],
@@ -153,6 +158,21 @@ export function deriveExtImportName(extImport: TsAppSpec.ExtImport): string {
   return extImport.importDefault;
 }
 
+/**
+ * The point of this function is to enforce exhaustivness over all declaration
+ * types, ensuring we don't forget to include anything.
+ * Check the original comment for details: https://github.com/wasp-lang/wasp/pull/2393#discussion_r1866620833
+ *
+ * TODO: The new spec bundles all parts (queries, actions...) together in the parts array, so
+ * there's no need to go through them one by one.
+ * We'd likely be better of by:
+ *   1. Mapping the entire array with a dispatcher that calls the correct
+ *   mapper depending on the part's kind
+ *   2. Passing this mapped array into the app spec (which expects them all on
+ *   the same level anyway).
+ * We'll likely lose some mapping type safety in the process though. Explore
+ * when we're done with the port from legacy to the new spec.
+ */
 function makeDeclsArray(decls: {
   [Type in AppSpec.Decl["declType"]]: AppSpec.GetDeclForType<Type>[];
 }): AppSpec.Decl[] {

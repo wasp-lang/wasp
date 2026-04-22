@@ -23,7 +23,7 @@ export async function analyzeApp(
 
 async function getSpec(
   mainWaspJs: string,
-): Promise<Result<TsAppSpec.TsAppSpec, string>> {
+): Promise<Result<TsAppSpec.App, string>> {
   const usersDefaultExport: unknown = await (await import(mainWaspJs)).default;
 
   if (!usersDefaultExport) {
@@ -48,8 +48,9 @@ async function getSpec(
 }
 
 // TODO: This should probably live elsewhere
-function isTsAppSpec(value: unknown): value is TsAppSpec.TsAppSpec {
-  // TODO: Make this more robust, I'm not a fan of the hardcoded "kind" - neither here nor in other places
+function isTsAppSpec(value: unknown): value is TsAppSpec.App {
+  // TODO: Make this more robust
+  // App used to be branded with a kind but we gave that up.
   return (
     typeof value === "object" &&
     value !== null &&
