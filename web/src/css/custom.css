@@ -108,11 +108,11 @@
 }
 .sh-y::before,
 .sh-y::after {
-  background: var(--wasp-y);
+  background: var(--wasp-yl);
 }
 .sh-y .hbl,
 .sh-y .hbr {
-  background: var(--wasp-y);
+  background: var(--wasp-yl);
 }
 
 /* Docusaurus stuff */
@@ -201,8 +201,10 @@ html.blog-wrapper[data-theme="dark"] {
 .blog-wrapper .markdown h1:first-child {
   font-size: 26px;
   letter-spacing: -0.5px;
-  text-decoration: underline var(--wasp-y) 3px;
-  text-underline-offset: 8px;
+  width: fit-content;
+  background: var(--wasp-yl);
+  padding: 2px 6px;
+  border: 1px solid var(--wasp-g3);
 }
 
 .docs-wrapper .markdown h2,
@@ -211,10 +213,10 @@ html.blog-wrapper[data-theme="dark"] {
   letter-spacing: -0.5px;
   margin-top: 54px;
   margin-bottom: 22px;
-  border-top: 1px solid var(--wasp-g2);
-  padding-top: 54px;
-  text-decoration: underline var(--wasp-y) 3px;
-  text-underline-offset: 8px;
+  width: fit-content;
+  background: var(--wasp-yl);
+  padding: 2px 6px;
+  border: 1px solid var(--wasp-g3);
 }
 
 .docs-wrapper .markdown h3,
