@@ -25,7 +25,7 @@ import Wasp.Util ((<++>))
 
 genTypes :: AppSpec -> Generator [FileDraft]
 genTypes spec =
-  return [mkTmplFd [relfile|wasp-virtual-user-modules.d.ts|]]
+  return [mkTmplFd [relfile|wasp-user-virtual-modules.d.ts|]]
     <++> genConfigTypes spec
     <++> genCrudTypes spec
     <++> genOperationTypes spec

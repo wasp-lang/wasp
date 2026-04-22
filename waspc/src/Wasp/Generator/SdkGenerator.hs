@@ -357,7 +357,7 @@ genServerDbClient spec = do
 genWaspDeclaration :: AppSpec -> Generator FileDraft
 genWaspDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = [relfile|wasp-virtual-user-modules.d.ts|]
+    tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
     tmplData =
       object
         [ "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvValidationSchema,

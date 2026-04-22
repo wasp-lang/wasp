@@ -3,4 +3,4 @@
 // This is necessary to properly resolve the conditional types (e.g. `UserClientEnvSchema`) in the user project.
 // Otherwise they will default to the `any` type.
 
-/// <reference types="wasp/virtual-user-modules" />
+/// <reference types="wasp/user-virtual-modules" />
