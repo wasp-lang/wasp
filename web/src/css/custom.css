@@ -405,6 +405,23 @@ html.blog-wrapper[data-theme="dark"] {
   letter-spacing: 0.5px;
 }
 
+/* Schematic sidebar collapse indicators.
+   !important needed to override Infima's inline background-image SVG and transform on pseudo-elements. */
+.menu__link--sublist-caret::after,
+.menu__caret::before {
+  background: none !important;
+  content: "−";
+  font: 300 20px "IBM Plex Mono", monospace;
+  transform: none !important;
+  display: flex;
+  align-items: center;
+}
+
+.menu__list-item--collapsed .menu__link--sublist-caret::after,
+.menu__list-item--collapsed .menu__caret::before {
+  content: "+";
+}
+
 /******** DOCS NAVBAR *********/
 
 /* This hides Docs version dropdown when not on docs (i.e. when we are on blog). */
