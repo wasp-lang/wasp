@@ -204,15 +204,52 @@ html.blog-wrapper[data-theme="dark"] {
 .docs-wrapper .table-of-contents,
 .blog-wrapper .table-of-contents {
   font-size: 0.925rem; /* ~13px, compensates for reduced base */
+  border-left: none;
 }
 
 .docs-wrapper .breadcrumbs {
   --ifm-breadcrumb-size-multiplier: 0.925;
+  font-family: "IBM Plex Mono", monospace;
+}
+
+.docs-wrapper .breadcrumbs__link {
+  background: none;
+  padding: 0;
+  border-radius: 0;
+}
+
+.docs-wrapper .breadcrumbs__link:hover {
+  background: none;
+}
+
+.docs-wrapper .breadcrumbs__item--active .breadcrumbs__link {
+  background: none;
+  color: inherit;
+}
+
+.docs-wrapper .breadcrumbs__item:not(:last-child)::after {
+  content: "/";
+  background: none;
+  transform: none;
+  width: auto;
+  height: auto;
+  border: none;
+  margin: 0 0.4em;
+  opacity: 0.5;
 }
 
 .docs-wrapper .theme-doc-version-badge {
-  font-size: 0.925rem;
-  margin-bottom: 1rem;
+  display: none;
+}
+
+.navbar {
+  border-bottom: 1px solid var(--wasp-g3);
+}
+
+.docs-wrapper .col.col--3 {
+  border-left: 1px solid var(--wasp-g3);
+  margin-top: calc(-1 * var(--ifm-spacing-vertical));
+  padding-top: var(--ifm-spacing-vertical);
 }
 
 .docs-wrapper .markdown,
@@ -236,10 +273,6 @@ html.blog-wrapper[data-theme="dark"] {
   letter-spacing: -0.5px;
   margin-top: 54px;
   margin-bottom: 22px;
-  width: fit-content;
-  background: var(--wasp-yl);
-  padding: 2px 6px;
-  border: 1px solid var(--wasp-g3);
 }
 
 .docs-wrapper .markdown h3,
@@ -305,6 +338,7 @@ html.blog-wrapper[data-theme="dark"] {
   /* NOTE(matija): used this because setting --ifm-code-border-radius did nothing, not sure why. */
   --ifm-global-radius: 0;
   --ifm-global-shadow-lw: none;
+  --ifm-toc-border-color: var(--wasp-g3);
   --ifm-background-color: var(--wasp-bg);
   --ifm-navbar-background-color: var(--wasp-bg);
 
