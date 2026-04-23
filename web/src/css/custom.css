@@ -161,6 +161,11 @@ html.docs-wrapper[data-theme="dark"],
 html.blog-wrapper[data-theme="dark"] {
   --ifm-font-color-base: #b0b0b0;
   --ifm-heading-color: #e0e0e0;
+  --wasp-yl: #3d3520;
+  --wasp-g3: #444;
+  --wasp-g2: #333;
+  --wasp-g1: #2a2a2a;
+  --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
 /* Override Prism's 0.9em scaling and tight line-height on code blocks. */
@@ -353,7 +358,7 @@ html.blog-wrapper[data-theme="dark"] {
   --ifm-h2-font-size: 2rem;
 
   --ifm-col-spacing-vertical: 0.5rem;
-  --docusaurus-highlighted-code-line-bg: #e8edf2;
+  --docusaurus-highlighted-code-line-bg: rgba(245, 200, 66, 0.15);
 
   /* Docs */
   --ifm-menu-color: var(--ifm-color-gray-800);
@@ -368,7 +373,7 @@ html.blog-wrapper[data-theme="dark"] {
   --custom-blog-list-background-color: var(--ifm-background-color);
   --custom-blog-card-timestamp-color: #a3a3a3;
   --custom-blog-card-background-color: black;
-  --docusaurus-highlighted-code-line-bg: #dee6ed;
+  --docusaurus-highlighted-code-line-bg: rgba(255, 255, 255, 0.1);
 
   /* Docs */
   --ifm-menu-color: var(--ifm-color-gray-200);

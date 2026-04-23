@@ -13,6 +13,11 @@ const lightCodeTheme = {
   plain: { ...themes.github.plain, backgroundColor: "#f0ede6" },
 };
 
+const darkCodeTheme = {
+  ...themes.dracula,
+  plain: { ...themes.dracula.plain, backgroundColor: "#1e1e1e" },
+};
+
 const includeCurrentVersion =
   process.env.DOCS_INCLUDE_CURRENT_VERSION === "true";
 const isProduction = process.env.NODE_ENV === "production";
@@ -115,6 +120,7 @@ const config: Config = {
         "bash",
       ],
       theme: lightCodeTheme,
+      darkTheme: darkCodeTheme,
     },
     footer: {
       style: "dark",
