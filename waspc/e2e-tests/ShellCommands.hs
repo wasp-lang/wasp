@@ -33,8 +33,10 @@ module ShellCommands
     waspCliDbStudio,
     waspCliInfo,
     waspCliDeps,
+    waspCliTsSetup,
     createSeedFile,
     replaceMainWaspFile,
+    replaceMainWaspTsFile,
     waspCliDockerfile,
     buildAndRemoveWaspProjectDockerImage,
     TestContext (..),
@@ -51,7 +53,7 @@ import Control.Monad.Reader (MonadReader (ask), Reader, runReader)
 import qualified Data.ByteString.Base64 as B64
 import qualified Data.ByteString.Char8 as C8
 import qualified Data.Text as T
-import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, mainWaspFileInWaspProjectDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
+import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, mainWaspFileInWaspProjectDir, mainWaspTsFileInWaspProjectDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
 import System.FilePath (joinPath)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
@@ -132,7 +134,7 @@ replaceLineInFile fileName lineNumber line =
 
     tempFileName = fileName ++ ".tmp"
 
-data WaspNewTemplate = Minimal | Basic | SaaS
+data WaspNewTemplate = Minimal | Basic | TsMinimal | SaaS
 
 waspCliNewInteractive :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNewInteractive appName template =
@@ -142,7 +144,8 @@ waspCliNewInteractive appName template =
     templateNumber = case template of
       Basic -> "1"
       Minimal -> "2"
-      SaaS -> "3"
+      TsMinimal -> "3"
+      SaaS -> "4"
 
 waspCliNew :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
 waspCliNew appName template = return $ unwords ["wasp-cli", "new", appName, "-t", templateName]
@@ -150,6 +153,7 @@ waspCliNew appName template = return $ unwords ["wasp-cli", "new", appName, "-t"
     templateName = case template of
       Basic -> "basic"
       Minimal -> "minimal"
+      TsMinimal -> "ts-minimal"
       SaaS -> "saas"
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
@@ -234,6 +238,9 @@ waspCliDockerfile = return "wasp-cli dockerfile"
 waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStudio = return "wasp-cli studio"
 
+waspCliTsSetup :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliTsSetup = return "wasp-cli ts-setup"
+
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
 setWaspDbToPSQL = replaceLineInFile "schema.prisma" 2 "  provider = \"postgresql\""
@@ -255,6 +262,13 @@ replaceMainWaspFile content = do
   let mainWaspFile = context.waspProjectDir </> mainWaspFileInWaspProjectDir
 
   createFile mainWaspFile content
+
+replaceMainWaspTsFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
+replaceMainWaspTsFile content = do
+  context <- ask
+  let mainWaspTsFile = context.waspProjectDir </> mainWaspTsFileInWaspProjectDir
+
+  createFile mainWaspTsFile content
 
 -- | Builds and deletes the Docker image for a Wasp app.
 -- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
