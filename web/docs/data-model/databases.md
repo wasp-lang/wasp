@@ -81,10 +81,11 @@ Your Wasp app will automatically connect to it, just keep `wasp start db` runnin
 Also, make sure that:
 
 - You have [Docker installed](https://www.docker.com/get-started/) and it's available in your `PATH`.
-- The port `5432` isn't taken.
+
+Wasp picks a project-unique host port for the dev database (derived from your project path), so it won't clash with a PostgreSQL you may already be running on the default port `5432`, and you can run `wasp start db` concurrently for multiple Wasp projects.
 
 :::tip
-In case you might want to connect to the dev database through the external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials are printed in the console when you run `wasp db start`, at the very beginning.
+In case you might want to connect to the dev database through an external tool like `psql` or [pgAdmin](https://www.pgadmin.org/), the credentials and the host port are printed in the console when you run `wasp start db`, at the very beginning.
 :::
 
 ##### Customising the dev database {#custom-database}

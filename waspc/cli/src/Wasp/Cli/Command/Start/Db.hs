@@ -130,6 +130,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
         "Additional info:",
         " ℹ Using Docker image: " <> dbDockerImage,
         "   with the data volume mounted at: " <> dbDockerVolumeMountPath,
+        " ℹ Exposed on host port: " <> show devDbPort,
         " ℹ Connection URL, in case you might want to connect with external tools:",
         "     " <> connectionUrl,
         " ℹ Database data is persisted in a Docker volume with the following name"
@@ -147,7 +148,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
           [ "docker run",
             printf "--name %s" dockerContainerName,
             "--rm",
-            printf "--publish %d:5432" Dev.Postgres.defaultDevPort,
+            printf "--publish %d:5432" devDbPort,
             printf "-v %s:%s" dockerVolumeName dbDockerVolumeMountPath,
             printf "--env POSTGRES_PASSWORD=%s" Dev.Postgres.defaultDevPass,
             printf "--env POSTGRES_USER=%s" Dev.Postgres.defaultDevUser,
@@ -159,6 +160,7 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
     dockerVolumeName = makeWaspDevDbDockerVolumeName waspProjectDir appName
     dockerContainerName = makeWaspDevDbDockerContainerName waspProjectDir appName
     dbName = Dev.Postgres.makeDevDbName waspProjectDir appName
+    devDbPort = Dev.Postgres.makeDevPort waspProjectDir appName
     connectionUrl = Dev.Postgres.makeDevConnectionUrl waspProjectDir appName
 
     throwIfDevDbPortIsAlreadyInUse :: Command ()
@@ -169,14 +171,18 @@ startPostgresDevDb waspProjectDir appName dbDockerImage dbDockerVolumeMountPath 
       whenM (liftIO $ Socket.checkIfPortIsInUse devDbSocketAddress) throwPortAlreadyInUseError
       whenM (liftIO $ Socket.checkIfPortIsAcceptingConnections devDbSocketAddress) throwPortAlreadyInUseError
       where
-        devDbSocketAddress = Socket.makeLocalHostSocketAddress $ fromIntegral Dev.Postgres.defaultDevPort
+        devDbSocketAddress = Socket.makeLocalHostSocketAddress $ fromIntegral devDbPort
         throwPortAlreadyInUseError =
           E.throwError $
             CommandError
               "Port already in use"
               ( printf
-                  "Wasp can't run PostgreSQL dev database for you since port %d is already in use."
-                  Dev.Postgres.defaultDevPort
+                  ( "Wasp can't run PostgreSQL dev database for you since port %d is already in use.\n"
+                      <> "This port is derived from your project path, so it is likely that another "
+                      <> "`wasp start db` for this same project is already running, or another process "
+                      <> "has grabbed the port."
+                  )
+                  devDbPort
               )
 
 -- | Docker volume name unique for the Wasp project with specified path and name.

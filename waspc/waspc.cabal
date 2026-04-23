@@ -723,6 +723,7 @@ test-suite waspc-tests
     JsImportTest
     Node.InternalTest
     Paths_waspc
+    Project.Db.Dev.PostgresTest
     Project.DbTest
     Project.ExternalConfigTest
     Project.WaspignoreTest

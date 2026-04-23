@@ -10,6 +10,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
 
+### 🐞 Bug fixes
+
+- `wasp start db` no longer requires host port `5432` to be free: it now picks a project-unique host port (derived from the project path and app name) for the PostgreSQL dev database. This lets Wasp coexist with a locally-installed PostgreSQL and lets multiple Wasp projects run their dev databases concurrently. The generated server `.env` automatically uses the same port, so no user configuration is needed. ([#1858](https://github.com/wasp-lang/wasp/issues/1858))
+
 ## 0.23.0
 
 ### ⚠️ Breaking Changes
