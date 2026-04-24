@@ -12,7 +12,7 @@ const serverRootDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)),
  */
 const userVirtualModuleMap = {
   {=# userVirtualModules =}
-  "{= virtualPath =}": "{=& importJson.importPath =}",
+  "{= virtualModuleId =}": "{=& importJson.importPath =}",
   {=/ userVirtualModules =}
 };
 

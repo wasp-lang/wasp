@@ -43,18 +43,18 @@ genUserVirtualModulesPlugin spec =
 
 getServerUserVirtualModulesData :: AppSpec -> [Aeson.Value]
 getServerUserVirtualModulesData spec =
-  maybeToList (mkImportData userServerEnvSchemaVMId <$> maybeServerEnvSchema)
-    ++ maybeToList (mkImportData userPrismaSetupFnVMId <$> maybePrismaSetupFn)
-    ++ map mkOperationImportData allOperations
+  maybeToList (mkVMImportData userServerEnvSchemaVMId <$> maybeServerEnvSchema)
+    ++ maybeToList (mkVMImportData userPrismaSetupFnVMId <$> maybePrismaSetupFn)
+    ++ map mkOperationVMImportData allOperations
   where
-    mkOperationImportData :: AS.Operation.Operation -> Aeson.Value
-    mkOperationImportData operation =
-      mkImportData (userOperationVMId operation) (AS.Operation.getFn operation)
+    mkOperationVMImportData :: AS.Operation.Operation -> Aeson.Value
+    mkOperationVMImportData operation =
+      mkVMImportData (userOperationVMId operation) (AS.Operation.getFn operation)
 
-    mkImportData :: VirtualModuleId -> EI.ExtImport -> Aeson.Value
-    mkImportData vf extImport =
+    mkVMImportData :: VirtualModuleId -> EI.ExtImport -> Aeson.Value
+    mkVMImportData virtualModuleId extImport =
       object
-        [ "virtualPath" .= toFilePath vf,
+        [ "virtualModuleId" .= toFilePath virtualModuleId,
           "importJson" .= importJson
         ]
       where

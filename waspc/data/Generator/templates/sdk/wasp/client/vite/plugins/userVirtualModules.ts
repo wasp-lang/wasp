@@ -10,7 +10,7 @@ import { type Plugin } from "vite";
  */
 const userVirtualModuleMap: { [userVirtualModule: string]: string } = {
   {=# userVirtualModules =}
-  '{= virtualPath =}': '{=& importJson.importPath =}',
+  '{= virtualModuleId =}': '{=& importJson.importPath =}',
   {=/ userVirtualModules =}
 };
 

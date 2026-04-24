@@ -32,14 +32,14 @@ genUserVirtualModulesPlugin spec =
 
 getClientUserVirtualModulesData :: AppSpec -> [Aeson.Value]
 getClientUserVirtualModulesData spec =
-  maybeToList (mkImportData userClientEnvSchemaVMId <$> maybeClientEnvSchema)
-    ++ maybeToList (mkImportData userClientSetupFnVMId <$> maybeSetupFn)
-    ++ maybeToList (mkImportData userClientRootComponentVMId <$> maybeRootComponent)
+  maybeToList (mkVMImportData userClientEnvSchemaVMId <$> maybeClientEnvSchema)
+    ++ maybeToList (mkVMImportData userClientSetupFnVMId <$> maybeSetupFn)
+    ++ maybeToList (mkVMImportData userClientRootComponentVMId <$> maybeRootComponent)
   where
-    mkImportData :: VirtualModuleId -> EI.ExtImport -> Aeson.Value
-    mkImportData vf extImport =
+    mkVMImportData :: VirtualModuleId -> EI.ExtImport -> Aeson.Value
+    mkVMImportData virtualModuleId extImport =
       object
-        [ "virtualPath" .= toFilePath vf,
+        [ "virtualModuleId" .= toFilePath virtualModuleId,
           "importJson" .= importJson
         ]
       where

@@ -44,18 +44,29 @@ jsImportToImportJson = maybe notDefinedValue mkTmplData
     notDefinedValue :: Aeson.Value
     notDefinedValue = object ["isDefined" .= False]
 
+    -- Builds the template data for a JS import.
+    -- Given JsImport { _path = "module", _name = "App", _importAlias = "App_ext" },
+    -- the resolved fields are:
+    --   isDefined                      = true
+    --   importPath                     = module
+    --   exportName                     = App
+    --   importIdentifier               = App_ext
+    --   importStatement                = import { App as App_ext } from 'module'
+    --   runtimeDynamicImportExpression = import('module').then(m => m.App)
+    --   typeDynamicImportExpression    = import('module').App
     mkTmplData :: JsImport -> Aeson.Value
     mkTmplData jsImport =
-      let (jsImportStatement, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
-       in object
-            [ "isDefined" .= True,
-              "importStatement" .= jsImportStatement,
-              "importIdentifier" .= jsImportIdentifier,
-              "runtimeDynamicImportExpression" .= getJsRuntimeDynamicImportExpression jsImport,
-              "typeDynamicImportExpression" .= getJsTypeDynamicImportExpression jsImport,
-              "importPath" .= getJsImportPathString jsImport,
-              "exportName" .= getJsImportIdentifier jsImport
-            ]
+      object
+        [ "isDefined" .= True,
+          "importPath" .= getJsImportPathString jsImport,
+          "exportName" .= getJsImportIdentifier jsImport,
+          "importIdentifier" .= jsImportIdentifier,
+          "importStatement" .= jsImportStatement,
+          "runtimeDynamicImportExpression" .= getJsRuntimeDynamicImportExpression jsImport,
+          "typeDynamicImportExpression" .= getJsTypeDynamicImportExpression jsImport
+        ]
+      where
+        (jsImportStatement, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
 extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath) =
