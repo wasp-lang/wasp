@@ -17,10 +17,10 @@ import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.UserVirtualModules
-  ( VirtualFile,
-    userClientEnvSchemaVF,
-    userClientRootComponentVF,
-    userClientSetupFnVF,
+  ( VirtualModuleId,
+    userClientEnvSchemaVMId,
+    userClientRootComponentVMId,
+    userClientSetupFnVMId,
   )
 
 genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
@@ -32,11 +32,11 @@ genUserVirtualModulesPlugin spec =
 
 getClientUserVirtualModulesData :: AppSpec -> [Aeson.Value]
 getClientUserVirtualModulesData spec =
-  maybeToList (mkImportData userClientEnvSchemaVF <$> maybeClientEnvSchema)
-    ++ maybeToList (mkImportData userClientSetupFnVF <$> maybeSetupFn)
-    ++ maybeToList (mkImportData userClientRootComponentVF <$> maybeRootComponent)
+  maybeToList (mkImportData userClientEnvSchemaVMId <$> maybeClientEnvSchema)
+    ++ maybeToList (mkImportData userClientSetupFnVMId <$> maybeSetupFn)
+    ++ maybeToList (mkImportData userClientRootComponentVMId <$> maybeRootComponent)
   where
-    mkImportData :: VirtualFile -> EI.ExtImport -> Aeson.Value
+    mkImportData :: VirtualModuleId -> EI.ExtImport -> Aeson.Value
     mkImportData vf extImport =
       object
         [ "virtualPath" .= toFilePath vf,

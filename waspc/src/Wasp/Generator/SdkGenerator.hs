@@ -71,7 +71,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.UserVirtualModules (userClientEnvSchemaVF, userPrismaSetupFnVF, userServerEnvSchemaVF)
+import Wasp.Generator.UserVirtualModules (userClientEnvSchemaVMId, userPrismaSetupFnVMId, userServerEnvSchemaVMId)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -342,7 +342,7 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVF maybePrismaSetupFn
+            "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn
           ]
 
   return $
@@ -359,9 +359,9 @@ genWaspUserVirtualModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath
     tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
     tmplData =
       object
-        [ "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson userClientEnvSchemaVF maybeClientEnvValidationSchema,
-          "serverEnvValidationSchema" .= GJI.virtualExtImportToImportJson userServerEnvSchemaVF maybeServerEnvValidationSchema,
-          "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVF maybePrismaSetupFn,
+        [ "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson userClientEnvSchemaVMId maybeClientEnvValidationSchema,
+          "serverEnvValidationSchema" .= GJI.virtualExtImportToImportJson userServerEnvSchemaVMId maybeServerEnvValidationSchema,
+          "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn,
           "actions" .= map (ServerOpsGen.getActionData isAuthEnabledGlobally) (AS.getActions spec),
           "queries" .= map (ServerOpsGen.getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
         ]

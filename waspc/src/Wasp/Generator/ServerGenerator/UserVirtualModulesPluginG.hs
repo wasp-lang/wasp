@@ -28,10 +28,10 @@ import Wasp.Generator.ServerGenerator.Common (serverSrcDirInServerRootDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.UserVirtualModules
-  ( VirtualFile,
-    userOperationVF,
-    userPrismaSetupFnVF,
-    userServerEnvSchemaVF,
+  ( VirtualModuleId,
+    userOperationVMId,
+    userPrismaSetupFnVMId,
+    userServerEnvSchemaVMId,
   )
 
 genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
@@ -43,15 +43,15 @@ genUserVirtualModulesPlugin spec =
 
 getServerUserVirtualModulesData :: AppSpec -> [Aeson.Value]
 getServerUserVirtualModulesData spec =
-  maybeToList (mkImportData userServerEnvSchemaVF <$> maybeServerEnvSchema)
-    ++ maybeToList (mkImportData userPrismaSetupFnVF <$> maybePrismaSetupFn)
+  maybeToList (mkImportData userServerEnvSchemaVMId <$> maybeServerEnvSchema)
+    ++ maybeToList (mkImportData userPrismaSetupFnVMId <$> maybePrismaSetupFn)
     ++ map mkOperationImportData allOperations
   where
     mkOperationImportData :: AS.Operation.Operation -> Aeson.Value
     mkOperationImportData operation =
-      mkImportData (userOperationVF operation) (AS.Operation.getFn operation)
+      mkImportData (userOperationVMId operation) (AS.Operation.getFn operation)
 
-    mkImportData :: VirtualFile -> EI.ExtImport -> Aeson.Value
+    mkImportData :: VirtualModuleId -> EI.ExtImport -> Aeson.Value
     mkImportData vf extImport =
       object
         [ "virtualPath" .= toFilePath vf,

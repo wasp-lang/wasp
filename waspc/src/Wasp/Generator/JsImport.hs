@@ -18,7 +18,7 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import Wasp.Generator.UserVirtualModules (VirtualFile)
+import Wasp.Generator.UserVirtualModules (VirtualModuleId)
 import Wasp.JsImport (JsImport (..), JsImportName (JsImportField, JsImportModule), JsImportPath (..), getJsImportIdentifier, getJsImportPathString, getJsImportStmtAndIdentifier, getJsRuntimeDynamicImportExpression, getJsTypeDynamicImportExpression, makeJsImport)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
@@ -69,19 +69,21 @@ extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportN
     projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
     importName = extImportNameToJsImportName extImportName
 
-getAliasedExtImportIdentifier :: EI.ExtImport -> String
-getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"
-
-virtualExtImportToImportJson :: VirtualFile -> Maybe EI.ExtImport -> Aeson.Value
-virtualExtImportToImportJson virtualFileId maybeExtImport =
+virtualExtImportToImportJson :: VirtualModuleId -> Maybe EI.ExtImport -> Aeson.Value
+virtualExtImportToImportJson virtualModuleId maybeExtImport =
   jsImportToImportJson jsImport
   where
-    jsImport = virtualExtImportToJsImport virtualFileId <$> maybeExtImport
+    jsImport = virtualExtImportToJsImport virtualModuleId <$> maybeExtImport
 
-virtualExtImportToJsImport :: VirtualFile -> EI.ExtImport -> JsImport
-virtualExtImportToJsImport virtualFileId extImport =
+-- Creates a JS import for an external file which is resolved
+-- through a virtual module.
+virtualExtImportToJsImport :: VirtualModuleId -> EI.ExtImport -> JsImport
+virtualExtImportToJsImport virtualModuleId extImport =
   JsImport
-    { _path = ModuleImportPath virtualFileId,
+    { _path = ModuleImportPath virtualModuleId,
       _name = extImportNameToJsImportName extImport.name,
-      _importAlias = Just $ EI.importIdentifier extImport ++ "_vf"
+      _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
+
+getAliasedExtImportIdentifier :: EI.ExtImport -> String
+getAliasedExtImportIdentifier extImport = EI.importIdentifier extImport ++ "_ext"

@@ -26,7 +26,7 @@ import Wasp.Generator.SdkGenerator.Common
     getOperationTypeName,
     mkTmplFdWithData,
   )
-import Wasp.Generator.UserVirtualModules (userOperationVF)
+import Wasp.Generator.UserVirtualModules (userOperationVMId)
 import Wasp.Util (toUpperFirst)
 
 genOperations :: AS.AppSpec -> Generator [FileDraft]
@@ -151,7 +151,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= virtualExtImportToImportJson (userOperationVF operation) (Just $ AS.Operation.getFn operation),
+    [ "jsFn" .= virtualExtImportToImportJson (userOperationVMId operation) (Just $ AS.Operation.getFn operation),
       "operationName" .= AS.Operation.getName operation,
       "operationTypeName" .= toUpperFirst (AS.Operation.getName operation),
       "operationResolvedTypeName" .= getOperationTypeName operation,
