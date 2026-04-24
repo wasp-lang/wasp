@@ -5,14 +5,16 @@ module Wasp.Generator.UserVirtualModules
     userClientEnvSchemaVF,
     userClientSetupFnVF,
     userClientRootComponentVF,
+    VirtualFile,
   )
 where
 
 import Data.Maybe (fromJust)
-import StrongPath (parseRelFileP, relfileP)
+import StrongPath (Dir', File', Path, Posix, Rel, parseRelFileP, relfileP)
 import Wasp.AppSpec.Operation (Operation (..))
 import qualified Wasp.AppSpec.Operation as AS.Operation
-import Wasp.JsImport (VirtualFile)
+
+type VirtualFile = Path Posix (Rel Dir') File'
 
 userServerEnvSchemaVF :: VirtualFile
 userServerEnvSchemaVF = [relfileP|virtual:wasp/user/server-env-schema|]

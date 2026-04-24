@@ -16,8 +16,12 @@ import Wasp.Generator.FileDraft (FileDraft)
 import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
-import Wasp.Generator.UserVirtualModules (userClientEnvSchemaVF, userClientRootComponentVF, userClientSetupFnVF)
-import Wasp.JsImport (VirtualFile)
+import Wasp.Generator.UserVirtualModules
+  ( VirtualFile,
+    userClientEnvSchemaVF,
+    userClientRootComponentVF,
+    userClientSetupFnVF,
+  )
 
 genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
 genUserVirtualModulesPlugin spec =

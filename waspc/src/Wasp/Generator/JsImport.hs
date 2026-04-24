@@ -18,7 +18,8 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
-import Wasp.JsImport (JsImport (..), JsImportName (JsImportField, JsImportModule), JsImportPath (..), VirtualFile, getJsImportIdentifier, getJsImportPathString, getJsImportStmtAndIdentifier, getJsRuntimeDynamicImportExpression, getJsTypeDynamicImportExpression, makeJsImport)
+import Wasp.Generator.UserVirtualModules (VirtualFile)
+import Wasp.JsImport (JsImport (..), JsImportName (JsImportField, JsImportModule), JsImportPath (..), getJsImportIdentifier, getJsImportPathString, getJsImportStmtAndIdentifier, getJsRuntimeDynamicImportExpression, getJsTypeDynamicImportExpression, makeJsImport)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 extImportToJsImport ::

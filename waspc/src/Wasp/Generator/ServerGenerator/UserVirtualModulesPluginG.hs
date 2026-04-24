@@ -27,8 +27,12 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (serverSrcDirInServerRootDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
-import Wasp.Generator.UserVirtualModules (userOperationVF, userPrismaSetupFnVF, userServerEnvSchemaVF)
-import Wasp.JsImport (VirtualFile)
+import Wasp.Generator.UserVirtualModules
+  ( VirtualFile,
+    userOperationVF,
+    userPrismaSetupFnVF,
+    userServerEnvSchemaVF,
+  )
 
 genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
 genUserVirtualModulesPlugin spec =
