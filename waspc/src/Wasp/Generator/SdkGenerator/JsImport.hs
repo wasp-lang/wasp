@@ -7,36 +7,36 @@ where
 
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
-import StrongPath (castRel, relDirToPosix, (</>))
+import StrongPath (Dir, Path, Posix, Rel, relDirToPosix, (</>))
 import qualified Wasp.AppSpec.ExtImport as EI
-import Wasp.Generator.Common (dropExtensionFromImportPath)
-import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.SdkGenerator.Common
-  ( extSrcDirInSdkRootDir,
-    makeSdkImportPath,
-  )
-import Wasp.JsImport (JsImport (..), JsImportPath (..))
+import Wasp.Generator.SdkGenerator.Common (SdkSrcDir, sdkRootDirInGeneratedAppDir, sdkSrcDirInSdkRootDir)
+import Wasp.JsImport (JsImport (..))
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir, srcDirInWaspProjectDir)
+import Wasp.Util.StrongPath (invertRelDir)
 
-extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
-extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
+extImportToImportJson ::
+  Path Posix (Rel importLocation) (Dir SdkSrcDir) ->
+  Maybe EI.ExtImport ->
+  Aeson.Value
+extImportToImportJson pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson jsImport
   where
-    jsImport = extImportToJsImport <$> maybeExtImport
+    jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
 
-extOperationImportToImportJson :: EI.ExtImport -> Aeson.Value
-extOperationImportToImportJson =
+extOperationImportToImportJson ::
+  Path Posix (Rel importLocation) (Dir SdkSrcDir) ->
+  EI.ExtImport ->
+  Aeson.Value
+extOperationImportToImportJson pathFromImportLocationToSrcDir =
   GJI.jsImportToImportJson
     . Just
-    . extImportToJsImport
+    . extImportToJsImport pathFromImportLocationToSrcDir
 
-extImportToJsImport :: EI.ExtImport -> JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
+extImportToJsImport ::
+  Path Posix (Rel importLocation) (Dir SdkSrcDir) ->
+  EI.ExtImport ->
   JsImport
-    { _path = ModuleImportPath importPath,
-      _name = importName,
-      _importAlias = Just $ getAliasedExtImportIdentifier extImport
-    }
+extImportToJsImport = GJI.extImportToJsImport $ fromJust . relDirToPosix $ waspProjectSrcDirFromSdkSrcDir
   where
-    importPath = makeSdkImportPath $ dropExtensionFromImportPath $ extCodeDirP </> castRel extImportPath
-    extCodeDirP = fromJust $ relDirToPosix extSrcDirInSdkRootDir
-    importName = GJI.extImportNameToJsImportName extImportName
+    waspProjectSrcDirFromSdkSrcDir = waspProjectDirFromSdkSrcDir </> srcDirInWaspProjectDir
+    waspProjectDirFromSdkSrcDir = invertRelDir (generatedAppDirInWaspProjectDir </> sdkRootDirInGeneratedAppDir </> sdkSrcDirInSdkRootDir)

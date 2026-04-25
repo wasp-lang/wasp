@@ -1,12 +1,12 @@
 module Wasp.Generator.Common
   ( GeneratedAppDir,
+    GeneratedAppComponentDir,
+    GeneratedAppComponentSrcDir,
+    ServerRootDir,
+    DbRootDir,
     UniversalTemplatesDir,
     universalTemplatesDirInTemplatesDir,
-    ServerRootDir,
-    GeneratedAppComponentDir,
-    DbRootDir,
     makeJsonWithEntityData,
-    GeneratedAppComponentSrcDir,
     makeJsArrayFromHaskellList,
     dropExtensionFromImportPath,
   )
