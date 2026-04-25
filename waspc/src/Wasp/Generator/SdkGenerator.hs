@@ -132,7 +132,7 @@ genSdk spec =
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
     <++> genUniversalDir
-    <++> genExternalCodeDir (AS.externalCodeFiles spec)
+    -- <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec

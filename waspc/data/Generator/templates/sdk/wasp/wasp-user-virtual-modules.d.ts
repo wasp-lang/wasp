@@ -4,7 +4,9 @@ declare module "{= clientEnvValidationSchema.importPath =}" {
   import type z from "zod"
 
   export type UserClientEnvSchema = FromRegistry<"clientEnvSchema", z.ZodObject<{}>>;
+  {=# clientEnvValidationSchema.isDefined =}
   export const {= clientEnvValidationSchema.exportName =}: UserClientEnvSchema;
+  {=/ clientEnvValidationSchema.isDefined =}
 }
 
 declare module "{= serverEnvValidationSchema.importPath =}" {
@@ -12,7 +14,9 @@ declare module "{= serverEnvValidationSchema.importPath =}" {
   import type z from "zod"
 
   export type UserServerEnvSchema = FromRegistry<"serverEnvSchema", z.ZodObject<{}>>;
+  {=# serverEnvValidationSchema.isDefined =}
   export const {= serverEnvValidationSchema.exportName =}: UserServerEnvSchema;
+  {=/ serverEnvValidationSchema.isDefined =}
 }
 
 declare module "{= prismaSetupFn.importPath =}" {
@@ -21,7 +25,9 @@ declare module "{= prismaSetupFn.importPath =}" {
 
   export type UserPrismaSetupFn = FromRegistry<"prismaSetupFn", () => InternalPrismaClient>;
   export type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
+  {=# prismaSetupFn.isDefined =}
   export const {= prismaSetupFn.exportName =}: UserPrismaSetupFn;
+  {=/ prismaSetupFn.isDefined =}
 }
 {=# actions =}
 
