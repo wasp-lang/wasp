@@ -37,8 +37,8 @@ genVitePlugins spec =
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
       genFileCopy [relfile|typescriptCheck.ts|],
-      genUserVirtualModulesPlugin spec
       genValidateEnvPlugin,
+      genUserVirtualModulesPlugin spec
     ]
     <++> getWaspVirtualModulesPlugin spec
   where
