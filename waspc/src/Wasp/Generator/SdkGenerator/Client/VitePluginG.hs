@@ -22,6 +22,7 @@ import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.Project.Common
   ( dotWaspDirInWaspProjectDir,
+    generatedAppDirInWaspProjectDir,
     srcDirInWaspProjectDir,
   )
 import Wasp.Project.Env (dotEnvClient)
@@ -35,9 +36,9 @@ genVitePlugins spec =
       genWaspConfigPlugin spec,
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
-      genFileCopy [relfile|validateEnv.ts|],
       genFileCopy [relfile|typescriptCheck.ts|],
       genUserVirtualModulesPlugin spec
+      genValidateEnvPlugin,
     ]
     <++> getWaspVirtualModulesPlugin spec
   where
@@ -106,3 +107,12 @@ genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|detectServerImports.ts|]
     tmplData = object ["srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir]
+
+genValidateEnvPlugin :: Generator FileDraft
+genValidateEnvPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnv.ts|]
+    tmplData = object ["clientEnvSchemaValidationModulePath" .= clientEnvSchemaValidationModulePath]
+
+    clientEnvSchemaValidationModulePath = SP.fromRelFileP . fromJust . SP.relFileToPosix $ clientEnvSchemaValidationModuleDir
+    clientEnvSchemaValidationModuleDir = generatedAppDirInWaspProjectDir </> C.sdkRootDirInGeneratedAppDir </> [relfile|client/env.ts|]

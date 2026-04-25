@@ -1,14 +1,24 @@
 # Changelog
 
+## 0.24.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-23-to-0-24) for step-by-step documentation on how to upgrade.
+
+### 🎉 New Features
+
+- The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
+
 ## 0.23.0
 
 ### ⚠️ Breaking Changes
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-22-to-0-23) for step-by-step documentation on how to upgrade.
 
-- Wasp now requires Node.js version >=v24.14.1 (previously >=v22.22.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
-- Upgraded the pinned TypeScript version from 5.8.2 to 5.9.3 (required by `@tsconfig/node24`). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
-- The HTML file for the final built web app has changed from `index.html` to `200.html`. This is in preparation for prerendering support. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- Wasp now requires Node.js >=24.14.1 (previously >=22.22.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- Wasp now requires TypeScript version 5.9.3 (previously 5.8.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- The HTML file for the final built web app has changed from `index.html` to `200.html`. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
 
 ### 🎉 New Features
 
@@ -19,6 +29,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Updated `wasp deploy railway` to work with the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
 - Client env validation plugin no longer crashes when the user's client env schema file uses bundler features. ([#4054](https://github.com/wasp-lang/wasp/pull/4054))
 
+- `wasp deploy railway` now correctly configures the client service for SPA routing by providing a custom Caddyfile and pinning the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
 ### 🔧 Small improvements
 
 - Updated our `wasp deploy` tool to support the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
@@ -27,12 +39,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 📖 Documentation
 
 - Updated deployment guides for Fly.io, Railway, Netlify, and Cloudflare to work with the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
-
-## 0.22.1
-
-### 🐞 Bug fixes
-
-- `wasp deploy railway` now correctly configures the client service for SPA routing by providing a custom Caddyfile and pinning the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- Added guide for deploying on Render. ([#4055](https://github.com/wasp-lang/wasp/pull/4055))
 
 ## 0.22.0
 

@@ -1,4 +1,5 @@
 import { api, handleApiError } from 'wasp/client/api';
+import { SuccessResponseSchema } from '../../responseSchemas';
 import { type UserEmailSignupFields } from '../../providers'
 
 type EmailSignupData = {
@@ -9,8 +10,10 @@ type EmailSignupData = {
 // PUBLIC API
 export async function signup(data: EmailSignupData): Promise<{ success: boolean }> {
   try {
-    const response = await api.post('/auth/email/signup', data);
-    return response.data;
+    const { success } = await api.post('/auth/email/signup', {
+      json: data,
+    }).json(SuccessResponseSchema);
+    return { success };
   } catch (e) {
     throw handleApiError(e);
   }

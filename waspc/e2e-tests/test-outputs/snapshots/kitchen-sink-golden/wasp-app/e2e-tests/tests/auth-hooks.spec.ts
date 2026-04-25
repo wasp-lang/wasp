@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 import { performEmailVerification, performLogin, performSignup } from "./auth";
-import { generateRandomEmail, isRunningInDevMode } from "./helpers";
+import {
+  generateRandomEmail,
+  isRunningInDeployedMode,
+  isRunningInDevMode,
+} from "./helpers";
 
 test.describe("auth hooks", () => {
   /*
@@ -26,6 +30,11 @@ test.describe("auth hooks", () => {
     We also set up the "after login hook" to set a value in the user object.
   */
   test("after signup and after login hooks work", async ({ page }) => {
+    test.skip(
+      isRunningInDeployedMode(),
+      "Skipped in deployed mode (no Mailcrab)",
+    );
+
     const email = generateRandomEmail();
     const password = "12345678";
 
@@ -78,6 +87,11 @@ test.describe("auth hooks", () => {
     We set up the "before login hook" to throw an error for a specific email address.
   */
   test("before login hook works", async ({ page }) => {
+    test.skip(
+      isRunningInDeployedMode(),
+      "Skipped in deployed mode (no Mailcrab)",
+    );
+
     const emailThatThrowsError = "cantlogin@email.com";
     const password = "12345678";
 
