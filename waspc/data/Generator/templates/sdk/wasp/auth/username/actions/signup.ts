@@ -12,9 +12,10 @@ type UsernameSignupData = {
 // PUBLIC API
 export async function signup(data: UsernameSignupData): Promise<void> {
   try {
-    await api.post('{= signupPath =}', data)
+    await api.post('{= signupPath =}', {
+      json: data,
+    })
   } catch (error) {
     throw handleApiError(error)
   }
 }
-

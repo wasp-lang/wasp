@@ -5,7 +5,7 @@ import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import axios from "axios";
+import ky from "ky";
 import * as z from "zod";
 import mitt from "mitt";
 import "superjson";
@@ -222,9 +222,6 @@ function createLocalStorageDataStore(prefix) {
   };
 }
 const apiEventsEmitter = mitt();
-const api = axios.create({
-  baseURL: config.apiUrl
-});
 const WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
   const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
@@ -234,20 +231,29 @@ function clearSessionId() {
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
   apiEventsEmitter.emit("sessionId.clear");
 }
-api.interceptors.request.use((config2) => {
-  const sessionId = getSessionId();
-  if (sessionId !== null) {
-    config2.headers["Authorization"] = `Bearer ${sessionId}`;
+ky.extend({
+  prefix: config.apiUrl,
+  hooks: {
+    beforeRequest: [
+      ({ request }) => {
+        const sessionId = getSessionId();
+        if (sessionId !== null) {
+          request.headers.set("Authorization", `Bearer ${sessionId}`);
+        }
+      }
+    ],
+    afterResponse: [
+      ({ request, response }) => {
+        if (response.status === 401) {
+          const failingSessionId = getSessionIdFromAuthorizationHeader(request.headers.get("Authorization"));
+          const currentSessionId = getSessionId();
+          if (failingSessionId === currentSessionId) {
+            clearSessionId();
+          }
+        }
+      }
+    ]
   }
-  return config2;
-});
-api.interceptors.response.use(void 0, (error) => {
-  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers["Authorization"]);
-  const currentSessionId = getSessionId();
-  if (error.response?.status === 401 && failingSessionId === currentSessionId) {
-    clearSessionId();
-  }
-  return Promise.reject(error);
 });
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {
