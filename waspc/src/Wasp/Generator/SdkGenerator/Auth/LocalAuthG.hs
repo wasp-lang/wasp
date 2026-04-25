@@ -5,7 +5,7 @@ where
 
 import Data.Aeson (object, (.=))
 import Data.Maybe (isJust)
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, reldirP, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (localAuthProvider)
 import Wasp.Generator.AuthProviders.Local (serverLoginUrl, serverSignupUrl)
@@ -16,7 +16,6 @@ import Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Util ((<++>))
 
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
