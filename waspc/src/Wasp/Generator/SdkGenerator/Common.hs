@@ -1,6 +1,5 @@
 module Wasp.Generator.SdkGenerator.Common
   ( SdkRootDir,
-    SdkSrcDir,
     SdkTemplatesDir,
     ClientTemplatesDir,
     ServerTemplatesDir,
@@ -12,7 +11,6 @@ module Wasp.Generator.SdkGenerator.Common
     genFileCopy,
     sdkRootDirInGeneratedAppDir,
     sdkTemplatesDirInTemplatesDir,
-    sdkSrcDirInSdkRootDir,
     clientTemplatesDirInSdkTemplatesDir,
     serverTemplatesDirInSdkTemplatesDir,
     getOperationTypeName,
@@ -29,7 +27,7 @@ import Data.Maybe (fromJust)
 import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.Operation as AS.Operation
-import Wasp.Generator.Common (GeneratedAppComponentDir, GeneratedAppComponentSrcDir, GeneratedAppDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
@@ -38,12 +36,6 @@ import Wasp.Util (toUpperFirst)
 import Wasp.Util.StrongPath (invertRelDir)
 
 data SdkRootDir
-
-instance GeneratedAppComponentDir SdkRootDir
-
-data SdkSrcDir
-
-instance GeneratedAppComponentSrcDir SdkSrcDir
 
 data SdkTemplatesDir
 
@@ -91,9 +83,6 @@ sdkRootDirInGeneratedAppDir = [reldir|sdk/wasp|]
 
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
-
-sdkSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir SdkSrcDir)
-sdkSrcDirInSdkRootDir = [reldir|.|]
 
 makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
 makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path
