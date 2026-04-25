@@ -4,6 +4,7 @@ module Wasp.Generator.SdkGenerator.AuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, reldirP, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -158,8 +159,8 @@ genProvdersIndex auth =
   where
     tmplData =
       object
-        [ "emailUserSignupFields" .= extImportToImportJson [reldirP|../../..|] userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson [reldirP|../../..|] userUsernameAndPassowrdSignupFields
+        [ "hasEmailUserSignupFields" .= isJust userEmailSignupFields,
+          "hasUsernameAndPasswordUserSignupFields" .= isJust userUsernameAndPassowrdSignupFields
         ]
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
@@ -175,8 +176,8 @@ genProvidersTypes auth =
     tmplData =
       object
         [ "userEntityUpper" .= (userEntityName :: String),
-          "emailUserSignupFields" .= extImportToImportJson [reldirP|../../..|] userEmailSignupFields,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson [reldirP|../../..|] userUsernameAndPassowrdSignupFields
+          "hasEmailUserSignupFields" .= isJust userEmailSignupFields,
+          "hasUsernameAndPasswordUserSignupFields" .= isJust userUsernameAndPassowrdSignupFields
         ]
     userEntityName = AS.refName $ AS.Auth.userEntity auth
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
