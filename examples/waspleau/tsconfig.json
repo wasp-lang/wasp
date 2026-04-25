@@ -40,5 +40,5 @@
     ],
     "outDir": ".wasp/out/user"
   },
-  "include": ["src"]
+  "include": ["src", ".wasp/out/types"]
 }
