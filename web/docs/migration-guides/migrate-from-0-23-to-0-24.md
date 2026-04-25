@@ -83,6 +83,24 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
 
 You can also remove `axios` from your project's dependencies if you added it only for use with the Wasp `api` wrapper.
 
-### 3. Enjoy your updated Wasp app
+### 3. Update your `tsconfig.json` / `tsconfig.src.json` file
+
+Due to internal `wasp/sdk` package changes, we require a simple change to your `tsconfig.json` or `tsconfig.src.json` if you are using the Wasp TS configuration.
+
+Update the `include` field of the TypeScript configuration:
+
+```json title="tsconfig.json"
+{
+  "compilerOptions": {
+    // ...
+    "outDir": ".wasp/out/user"
+  },
+  // highlight-next-line
+  "include": ["src", ".wasp/out/types"]
+}
+
+```
+
+### 4. Enjoy your updated Wasp app
 
 That's it!
