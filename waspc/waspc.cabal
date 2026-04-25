@@ -297,7 +297,6 @@ library
     Wasp.Generator.DepVersions
     Wasp.Generator.DockerGenerator
     Wasp.Generator.EmailSenders
-    Wasp.Generator.ExternalCodeGenerator.Common
     Wasp.Generator.FileDraft
     Wasp.Generator.FileDraft.CopyAndModifyTextFileDraft
     Wasp.Generator.FileDraft.CopyDirFileDraft
