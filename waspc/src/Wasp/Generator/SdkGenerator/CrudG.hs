@@ -4,10 +4,8 @@ module Wasp.Generator.SdkGenerator.CrudG
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
-import qualified Data.Aeson.Types as Aeson.Types
 import StrongPath
   ( reldir,
-    reldirP,
     relfile,
     (</>),
   )
@@ -17,11 +15,10 @@ import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity, isAuthEnabled)
-import Wasp.Generator.Crud (crudDeclarationToOperationsList, getCrudFilePath, getCrudOperationJson, makeCrudOperationKeyAndJsonPair)
+import Wasp.Generator.Crud (getCrudFilePath, getCrudOperationJson)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common (mkTmplFdWithDstAndData)
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 
 genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =
@@ -47,7 +44,6 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
             [ "crud" .= getCrudOperationJson name crud idField,
               "isAuthEnabled" .= isAuthEnabled spec,
               "userEntityUpper" .= maybeUserEntity,
-              "overrides" .= object overrides,
               "queryType" .= queryTsType,
               "actionType" .= actionTsType
             ]
@@ -60,14 +56,3 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
 
         actionTsType :: String
         actionTsType = if isAuthEnabled spec then "AuthenticatedActionDefinition" else "UnauthenticatedActionDefinition"
-
-        overrides :: [Aeson.Types.Pair]
-        overrides = map operationToOverrideImport crudOperations
-
-        crudOperations = crudDeclarationToOperationsList crud
-
-        operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
-        operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
-          where
-            -- TODO: wtf?
-            importJson = extImportToImportJson [reldirP|../../|] $ AS.Crud.overrideFn options
