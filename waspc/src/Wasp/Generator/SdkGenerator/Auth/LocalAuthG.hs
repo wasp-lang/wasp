@@ -4,6 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.LocalAuthG
 where
 
 import Data.Aeson (object, (.=))
+import Data.Maybe (isJust)
 import StrongPath (Dir', File', Path', Rel, Rel', reldir, reldirP, relfile, (</>))
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (localAuthProvider)
@@ -53,7 +54,7 @@ genSignupAction auth =
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl localAuthProvider,
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson [reldirP|../../../|] userUsernameAndPassowrdSignupFields
+          "hasUsernameAndPasswordUserSignupFields" .= isJust userUsernameAndPassowrdSignupFields
         ]
     userUsernameAndPassowrdSignupFields = AS.Auth.usernameAndPassword authMethods >>= AS.Auth.userSignupFieldsForUsernameAuth
     authMethods = AS.Auth.methods auth

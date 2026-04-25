@@ -1,13 +1,13 @@
 {{={= =}=}}
 import { api, handleApiError } from 'wasp/client/api'
-{=# usernameAndPasswordUserSignupFields.isDefined =}
+{=# hasUsernameAndPasswordUserSignupFields =}
 import { type UserUsernameAndPasswordSignupFields } from '../../providers'
-{=/ usernameAndPasswordUserSignupFields.isDefined =}
+{=/ hasUsernameAndPasswordUserSignupFields =}
 
 type UsernameSignupData = {
   username: string
   password: string
-}{=# usernameAndPasswordUserSignupFields.isDefined =} & UserUsernameAndPasswordSignupFields{=/ usernameAndPasswordUserSignupFields.isDefined =}
+}{=# hasUsernameAndPasswordUserSignupFields =} & UserUsernameAndPasswordSignupFields{=/ hasUsernameAndPasswordUserSignupFields =}
 
 // PUBLIC API
 export async function signup(data: UsernameSignupData): Promise<void> {
