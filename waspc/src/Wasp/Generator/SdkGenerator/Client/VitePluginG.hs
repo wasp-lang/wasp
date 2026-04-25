@@ -35,7 +35,7 @@ genVitePlugins spec =
       genWaspConfigPlugin spec,
       genEnvFilePlugin,
       genDetectServerImportsPlugin,
-      gebValidateEnvPlugin,
+      genValidateEnvPlugin,
       genFileCopy [relfile|typescriptCheck.ts|]
     ]
     <++> getVirtualModulesPlugin spec
@@ -106,8 +106,8 @@ genDetectServerImportsPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|detectServerImports.ts|]
     tmplData = object ["srcDirInWaspProjectDir" .= SP.fromRelDir srcDirInWaspProjectDir]
 
-gebValidateEnvPlugin :: Generator FileDraft
-gebValidateEnvPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
+genValidateEnvPlugin :: Generator FileDraft
+genValidateEnvPlugin = return $ C.mkTmplFdWithData tmplPath tmplData
   where
     tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|validateEnv.ts|]
     tmplData = object ["clientEnvSchemaValidationModulePath" .= clientEnvSchemaValidationModulePath]
