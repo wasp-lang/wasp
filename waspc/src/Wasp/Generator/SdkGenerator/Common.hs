@@ -20,10 +20,12 @@ module Wasp.Generator.SdkGenerator.Common
     vitePluginsDirInSdkTemplatesDir,
     sdkPackageName,
     libsRootDirFromSdkDir,
+    makeSdkImportPath,
   )
 where
 
 import qualified Data.Aeson as Aeson
+import Data.Maybe (fromJust)
 import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -91,7 +93,10 @@ sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
 
 sdkSrcDirInSdkRootDir :: Path' (Rel SdkRootDir) (Dir SdkSrcDir)
-sdkSrcDirInSdkRootDir = [reldir|src|]
+sdkSrcDirInSdkRootDir = [reldir|.|]
+
+makeSdkImportPath :: Path Posix (Rel SdkRootDir) File' -> Path Posix (Rel s) File'
+makeSdkImportPath path = (fromJust . parseRelDirP $ sdkPackageName) </> path
 
 clientTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ClientTemplatesDir)
 clientTemplatesDirInSdkTemplatesDir = [reldir|client|]

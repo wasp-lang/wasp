@@ -7,6 +7,7 @@ import Data.Aeson (KeyValue ((.=)), object)
 import qualified Data.Aeson.Types as Aeson.Types
 import StrongPath
   ( reldir,
+    reldirP,
     relfile,
     (</>),
   )
@@ -68,4 +69,5 @@ genCrudServerOperations spec cruds = return $ map genCrudOperation cruds
         operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
         operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
           where
-            importJson = extImportToImportJson $ AS.Crud.overrideFn options
+            -- TODO: wtf?
+            importJson = extImportToImportJson [reldirP|../../|] $ AS.Crud.overrideFn options

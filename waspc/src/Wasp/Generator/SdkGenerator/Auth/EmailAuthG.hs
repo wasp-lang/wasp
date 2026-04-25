@@ -4,7 +4,7 @@ module Wasp.Generator.SdkGenerator.Auth.EmailAuthG
 where
 
 import Data.Aeson (object, (.=))
-import StrongPath (Dir', File', Path', Rel, Rel', reldir, relfile, (</>))
+import StrongPath (Dir', File', Path', Rel, Rel', reldir, reldirP, relfile, (</>))
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import Wasp.Generator.AuthProviders (emailAuthProvider)
@@ -82,7 +82,7 @@ genSignupAction auth =
     tmplData =
       object
         [ "signupPath" .= serverSignupUrl emailAuthProvider,
-          "emailUserSignupFields" .= extImportToImportJson userEmailSignupFields
+          "emailUserSignupFields" .= extImportToImportJson [reldirP|../../..|] userEmailSignupFields
         ]
     userEmailSignupFields = AS.Auth.email authMethods >>= AS.Auth.userSignupFieldsForEmailAuth
     authMethods = AS.Auth.methods auth
