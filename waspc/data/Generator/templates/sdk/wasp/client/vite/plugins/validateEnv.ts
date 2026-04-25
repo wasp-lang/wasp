@@ -1,59 +1,58 @@
-import assert from "node:assert/strict";
+{{={= =}=}}
+import path from "node:path";
 import {
   type Plugin,
-  type PluginOption,
   type ResolvedConfig,
   createServer as createViteServer,
   isRunnableDevEnvironment
 } from "vite";
 
-const CLIENT_ENV_SCHEMA_VALIDATION_MODULE = "wasp/client";
+const PLUGIN_NAME = "wasp:validate-env";
+const CLIENT_ENV_SCHEMA_VALIDATION_MODULE = "{= clientEnvSchemaValidationModulePath =}"
 
-export function validateEnv(): PluginOption {
-  return [validateEnvDev(), validateEnvBuild()];
-}
-
-function validateEnvDev(): Plugin {
-  return {
-    name: "wasp:validate-env:dev",
-    apply: "serve",
-
-    async configureServer(server) {
-      assert(
-        isRunnableDevEnvironment(server.environments.ssr),
-        "Expected ssr to be a runnable dev environment",
-      );
-      await server.environments.ssr.runner.import(CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
-    },
-  };
-}
-
-function validateEnvBuild(): Plugin {
+export function validateEnv(): Plugin {
   let resolvedConfig: ResolvedConfig;
 
   return {
-    name: "wasp:validate-env:build",
-    apply: "build",
-
+    name: PLUGIN_NAME,
     configResolved(config) {
       resolvedConfig = config; 
     },
-
+    // We validate just before any artifacts are built.
     async buildStart() {
+      // We need to import the client env schema validation module
+      // through a Vite server, because both the user and the Wasp schema
+      // modules may depend on bundler features.
+      // Because of that we spin up a tepomrary Vite server.
+      //
+      // Alternatively, for `serve`, we could use the Vite server provided
+      // through the `configureServer` hook, but that would complicate
+      // the solution for negligible performance benefits. 
       const tempServer = await createViteServer({
         root: resolvedConfig.root,
         mode: resolvedConfig.mode,
+        // To ensure we pick up all user-defined plugins (resolution matches the main build)
+        // while avoiding recursion. This includes the `wasp` plugin.
         configFile: false,
         plugins: resolvedConfig.plugins.filter(
-          (plugin) => plugin.name !== "wasp:validate-env:build", // would cause recursion
+          (plugin) => plugin.name !== PLUGIN_NAME
         ),
-        server: { middlewareMode: true },
+        // Minimize the possible server side-effects.
+        appType: 'custom',
+        server: { middlewareMode: true, watch: null, hmr: false },
         logLevel: "silent",
         optimizeDeps: { noDiscovery: true, include: [] },
+        clearScreen: false,
       });
 
       try {
-        await tempServer.ssrLoadModule(CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
+        if (!isRunnableDevEnvironment(tempServer.environments.ssr)) {
+          throw new Error(`Expected ssr to be a runnable dev environment`)
+        }
+        // The imported module runs env schema validation as an import
+        // side-effect and throws on failure. 
+        const moduleAbsPath = path.resolve(resolvedConfig.root, CLIENT_ENV_SCHEMA_VALIDATION_MODULE);
+        await tempServer.environments.ssr.runner.import(moduleAbsPath);
       } finally {
         await tempServer.close();
       }

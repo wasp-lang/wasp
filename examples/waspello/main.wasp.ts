@@ -5,7 +5,7 @@ const title = (await readFile("appTitle.txt", "utf-8")).trim();
 
 const app = new App("waspello", {
   title,
-  wasp: { version: "^0.23.0" },
+  wasp: { version: "^0.24.0" },
 });
 
 app.client({

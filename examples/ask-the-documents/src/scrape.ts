@@ -1,5 +1,5 @@
-import axios from "axios";
 import * as Cheerio from "cheerio";
+import ky from "ky";
 import { NodeHtmlMarkdown } from "node-html-markdown";
 
 export const getContent = createContentGetterWithCache();
@@ -9,7 +9,7 @@ export async function getLinksToScrape(startingUrl: string): Promise<{
 }> {
   const startingUrlOrigin = new URL(startingUrl).origin;
   const links: Set<string> = new Set([startingUrl]);
-  const { data } = await axios.get(startingUrl);
+  const data = await ky.get(startingUrl).text();
   const $ = Cheerio.load(data);
   $("a").each((_, element) => {
     const href = $(element).attr("href");
@@ -86,7 +86,7 @@ async function scrapeUrl(
   content: string;
   markdownContent: string;
 }> {
-  const { data } = await axios.get(url);
+  const data = await ky.get(url).text();
   const $ = Cheerio.load(data);
   return {
     title: $("title").text(),
