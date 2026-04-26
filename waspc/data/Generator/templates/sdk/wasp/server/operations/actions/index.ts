@@ -14,11 +14,18 @@ import {
   createAuthenticatedOperation,
   {=/ isAuthEnabled =}
 } from '../wrappers.js'
+import type { FromOperationsRegistry } from 'wasp/types'
+import type {
+  {=# operations =}
+  {= operationTypeName =},
+  {=/ operations =}
+} from './types.js'
 {=# operations =}
 {=& jsFn.importStatement =}
-import type { {= operationResolvedTypeName =} } from '{= jsFn.importPath =}'
 {=/ operations =}
 {=# operations =}
+
+export type {= operationResolvedTypeName =} = FromOperationsRegistry<'{= operationName =}', {= operationTypeName =}>
 
 // PUBLIC API
 {=# usesAuth =}

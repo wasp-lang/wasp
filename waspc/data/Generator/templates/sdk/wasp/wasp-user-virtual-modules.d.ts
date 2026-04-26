@@ -26,20 +26,16 @@ declare module "{= prismaSetupFn.importPath =}" {
 {=# actions =}
 
 declare module "{= jsFn.importPath =}" {
-  import type { FromOperationsRegistry } from "wasp/types";
-  import type { {= operationTypeName =} } from "wasp/server/operations";
+  import { {= operationResolvedTypeName =} } from "./server/operations/actions/index";
 
-  export type {= operationResolvedTypeName =} = FromOperationsRegistry<'{= operationName =}', {= operationTypeName =}>;
   export const {= jsFn.exportName =}: {= operationResolvedTypeName =};
 }
 {=/ actions =}
 {=# queries =}
 
 declare module "{= jsFn.importPath =}" {
-  import type { FromOperationsRegistry } from "wasp/types";
-  import type { {= operationTypeName =} } from "wasp/server/operations";
+  import { {= operationResolvedTypeName =} } from "./server/operations/queries/index";
 
-  export type {= operationResolvedTypeName =} = FromOperationsRegistry<'{= operationName =}', {= operationTypeName =}>;
   export const {= jsFn.exportName =}: {= operationResolvedTypeName =};
 }
 {=/ queries =}
