@@ -13,7 +13,7 @@ import Control.Concurrent.Async (concurrently)
 import Data.Aeson (object)
 import Data.Aeson.Types ((.=))
 import Data.Maybe (isJust, mapMaybe, maybeToList)
-import StrongPath (Abs, Dir, Path', castRel, fromRelFile, relfile, (</>))
+import StrongPath (Abs, Dir, Path', castRel, fromRelFile, fromRelFileP, relfile, (</>))
 import System.Exit (ExitCode (..))
 import qualified System.FilePath as FP
 import Wasp.AppSpec (AppSpec)
@@ -74,7 +74,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
-import Wasp.Generator.UserVirtualModules (userClientEnvSchemaVMId, userPrismaSetupFnVMId, userServerEnvSchemaVMId)
+import Wasp.Generator.UserVirtualModules (clientEnvValidationSchemaVMId, serverEnvValidationSchemaVMId, userPrismaSetupFnVMId)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -382,8 +382,11 @@ genWaspUserVirtualModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath
     tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
     tmplData =
       object
-        [ "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson userClientEnvSchemaVMId maybeClientEnvValidationSchema,
-          "serverEnvValidationSchema" .= GJI.virtualExtImportToImportJson userServerEnvSchemaVMId maybeServerEnvValidationSchema,
+        [ "clientEnvValidationSchemaVMId" .= fromRelFileP clientEnvValidationSchemaVMId,
+          "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson clientEnvValidationSchemaVMId maybeClientEnvValidationSchema,
+          "serverEnvValidationSchemaVMId" .= fromRelFileP serverEnvValidationSchemaVMId,
+          "serverEnvValidationSchema" .= GJI.virtualExtImportToImportJson serverEnvValidationSchemaVMId maybeServerEnvValidationSchema,
+          "prismaSetupFnVMId" .= fromRelFileP userPrismaSetupFnVMId,
           "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn,
           "actions" .= map (ServerOpsGen.getActionData isAuthEnabledGlobally) (AS.getActions spec),
           "queries" .= map (ServerOpsGen.getQueryData isAuthEnabledGlobally) (AS.getQueries spec)

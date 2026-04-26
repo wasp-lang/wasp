@@ -18,7 +18,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.UserVirtualModules
   ( VirtualModuleId,
-    userClientEnvSchemaVMId,
+    clientEnvValidationSchemaVMId,
     userClientRootComponentVMId,
     userClientSetupFnVMId,
   )
@@ -32,7 +32,7 @@ genUserVirtualModulesPlugin spec =
 
 getClientUserVirtualModulesData :: AppSpec -> [Aeson.Value]
 getClientUserVirtualModulesData spec =
-  maybeToList (mkVMImportData userClientEnvSchemaVMId <$> maybeClientEnvSchema)
+  maybeToList (mkVMImportData clientEnvValidationSchemaVMId <$> maybeClientEnvSchema)
     ++ maybeToList (mkVMImportData userClientSetupFnVMId <$> maybeSetupFn)
     ++ maybeToList (mkVMImportData userClientRootComponentVMId <$> maybeRootComponent)
   where

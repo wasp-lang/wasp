@@ -1,5 +1,5 @@
 {{={= =}=}}
-declare module "{= clientEnvValidationSchema.importPath =}" {
+declare module "{= clientEnvValidationSchemaVMId =}" {
   import type { FromRegistry } from "wasp/types";
   import type z from "zod"
 
@@ -9,7 +9,7 @@ declare module "{= clientEnvValidationSchema.importPath =}" {
   {=/ clientEnvValidationSchema.isDefined =}
 }
 
-declare module "{= serverEnvValidationSchema.importPath =}" {
+declare module "{= serverEnvValidationSchemaVMId =}" {
   import type { FromRegistry } from "wasp/types";
   import type z from "zod"
 
@@ -19,7 +19,7 @@ declare module "{= serverEnvValidationSchema.importPath =}" {
   {=/ serverEnvValidationSchema.isDefined =}
 }
 
-declare module "{= prismaSetupFn.importPath =}" {
+declare module "{= prismaSetupFnVMId =}" {
   import type { FromRegistry } from "wasp/types"
   import type { PrismaClient as InternalPrismaClient } from "@prisma/client"
 

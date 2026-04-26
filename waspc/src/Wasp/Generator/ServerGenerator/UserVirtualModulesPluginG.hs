@@ -29,9 +29,9 @@ import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.UserVirtualModules
   ( VirtualModuleId,
+    serverEnvValidationSchemaVMId,
     userOperationVMId,
     userPrismaSetupFnVMId,
-    userServerEnvSchemaVMId,
   )
 
 genUserVirtualModulesPlugin :: AppSpec -> Generator FileDraft
@@ -43,7 +43,7 @@ genUserVirtualModulesPlugin spec =
 
 getServerUserVirtualModulesData :: AppSpec -> [Aeson.Value]
 getServerUserVirtualModulesData spec =
-  maybeToList (mkVMImportData userServerEnvSchemaVMId <$> maybeServerEnvSchema)
+  maybeToList (mkVMImportData serverEnvValidationSchemaVMId <$> maybeServerEnvSchema)
     ++ maybeToList (mkVMImportData userPrismaSetupFnVMId <$> maybePrismaSetupFn)
     ++ map mkOperationVMImportData allOperations
   where
