@@ -25,6 +25,7 @@ import type {
 {=/ operations =}
 {=# operations =}
 
+// PRIVATE API
 export type {= operationResolvedTypeName =} = FromOperationsRegistry<'{= operationName =}', {= operationTypeName =}>
 
 // PUBLIC API
