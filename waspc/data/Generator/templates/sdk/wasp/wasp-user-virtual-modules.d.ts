@@ -1,34 +1,28 @@
 {{={= =}=}}
-declare module "{= clientEnvValidationSchemaVMId =}" {
-  import type { FromRegistry } from "wasp/types";
-  import type z from "zod"
+{=# clientEnvValidationSchema.isDefined =}
 
-  export type UserClientEnvSchema = FromRegistry<"clientEnvSchema", z.ZodObject<{}>>;
-  {=# clientEnvValidationSchema.isDefined =}
+declare module "{= clientEnvValidationSchema.importPath =}" {
+  import type { UserServerEnvSchema } from "./client/env/schema";
+
   export const {= clientEnvValidationSchema.exportName =}: UserClientEnvSchema;
-  {=/ clientEnvValidationSchema.isDefined =}
 }
+{=/ clientEnvValidationSchema.isDefined =}
+{=# serverEnvValidationSchema.isDefined =}
 
-declare module "{= serverEnvValidationSchemaVMId =}" {
-  import type { FromRegistry } from "wasp/types";
-  import type z from "zod"
+declare module "{= serverEnvValidationSchema.importPath =}" {
+  import type { UserServerEnvSchema } from "./server/env";
 
-  export type UserServerEnvSchema = FromRegistry<"serverEnvSchema", z.ZodObject<{}>>;
-  {=# serverEnvValidationSchema.isDefined =}
   export const {= serverEnvValidationSchema.exportName =}: UserServerEnvSchema;
-  {=/ serverEnvValidationSchema.isDefined =}
 }
+{=/ serverEnvValidationSchema.isDefined =}
+{=# prismaSetupFn.isDefined =}
 
-declare module "{= prismaSetupFnVMId =}" {
-  import type { FromRegistry } from "wasp/types"
-  import type { PrismaClient as InternalPrismaClient } from "@prisma/client"
+declare module "{= prismaSetupFn.importPath =}" {
+  import type { PrismaClientResolved } from "./server/dbClient"
 
-  export type UserPrismaSetupFn = FromRegistry<"prismaSetupFn", () => InternalPrismaClient>;
-  export type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
-  {=# prismaSetupFn.isDefined =}
   export const {= prismaSetupFn.exportName =}: UserPrismaSetupFn;
-  {=/ prismaSetupFn.isDefined =}
 }
+{=/ prismaSetupFn.isDefined =}
 {=# actions =}
 
 declare module "{= jsFn.importPath =}" {
