@@ -47,9 +47,9 @@ data-files:
   Generator/templates/**/*.json
   Generator/templates/**/*.jsx
   Generator/templates/**/*.md
+  Generator/templates/**/*.mts
   Generator/templates/**/*.prisma
   Generator/templates/**/*.ts
-  Generator/templates/**/*.mts
   Generator/templates/**/*.tsx
   Generator/templates/Dockerfile
   Generator/templates/dockerignore
