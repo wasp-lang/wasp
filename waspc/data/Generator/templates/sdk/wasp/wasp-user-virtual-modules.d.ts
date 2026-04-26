@@ -1,45 +1,41 @@
 {{={= =}=}}
-declare module "{= clientEnvValidationSchema.importPath =}" {
-  import type { FromRegistry } from "wasp/types";
-  import type z from "zod"
+{=# clientEnvValidationSchema.isDefined =}
 
-  export type UserClientEnvSchema = FromRegistry<"clientEnvSchema", z.ZodObject<{}>>;
+declare module "{= clientEnvValidationSchema.importPath =}" {
+  import type { UserServerEnvSchema } from "./client/env/schema";
+
   export const {= clientEnvValidationSchema.exportName =}: UserClientEnvSchema;
 }
+{=/ clientEnvValidationSchema.isDefined =}
+{=# serverEnvValidationSchema.isDefined =}
 
 declare module "{= serverEnvValidationSchema.importPath =}" {
-  import type { FromRegistry } from "wasp/types";
-  import type z from "zod"
+  import type { UserServerEnvSchema } from "./server/env";
 
-  export type UserServerEnvSchema = FromRegistry<"serverEnvSchema", z.ZodObject<{}>>;
   export const {= serverEnvValidationSchema.exportName =}: UserServerEnvSchema;
 }
+{=/ serverEnvValidationSchema.isDefined =}
+{=# prismaSetupFn.isDefined =}
 
 declare module "{= prismaSetupFn.importPath =}" {
-  import type { FromRegistry } from "wasp/types"
-  import type { PrismaClient as InternalPrismaClient } from "@prisma/client"
+  import type { PrismaClientResolved } from "./server/dbClient"
 
-  export type UserPrismaSetupFn = FromRegistry<"prismaSetupFn", () => InternalPrismaClient>;
-  export type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
   export const {= prismaSetupFn.exportName =}: UserPrismaSetupFn;
 }
+{=/ prismaSetupFn.isDefined =}
 {=# actions =}
 
 declare module "{= jsFn.importPath =}" {
-  import type { FromOperationsRegistry } from "wasp/types";
-  import type { {= operationTypeName =} } from "wasp/server/operations";
+  import { {= operationResolvedTypeName =} } from "./server/operations/actions/index";
 
-  export type {= operationResolvedTypeName =} = FromOperationsRegistry<'{= operationName =}', {= operationTypeName =}>;
   export const {= jsFn.exportName =}: {= operationResolvedTypeName =};
 }
 {=/ actions =}
 {=# queries =}
 
 declare module "{= jsFn.importPath =}" {
-  import type { FromOperationsRegistry } from "wasp/types";
-  import type { {= operationTypeName =} } from "wasp/server/operations";
+  import { {= operationResolvedTypeName =} } from "./server/operations/queries/index";
 
-  export type {= operationResolvedTypeName =} = FromOperationsRegistry<'{= operationName =}', {= operationTypeName =}>;
   export const {= jsFn.exportName =}: {= operationResolvedTypeName =};
 }
 {=/ queries =}

@@ -5,27 +5,32 @@ where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson
+import qualified Data.Aeson.Types as Aeson.Types
 import Data.Maybe (fromJust)
-import StrongPath (reldir, relfile, (</>))
+import StrongPath (reldir, reldirP, relfile, (</>))
 import qualified StrongPath as SP
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.Crud as AS.Crud
 import Wasp.AppSpec.Valid (getApp, getIdFieldFromCrudEntity, isAuthEnabled)
 import Wasp.Generator.Crud
-  ( getCrudFilePath,
+  ( crudDeclarationToOperationsList,
+    getCrudFilePath,
     getCrudOperationJson,
+    makeCrudOperationKeyAndJsonPair,
   )
 import qualified Wasp.Generator.Crud.Routes as Routes
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
+import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import Wasp.JsImport (JsImportPath (RelativeImportPath))
 import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 
-genCrud :: AS.AppSpec -> Generator [FileDraft]
+genCrud :: AppSpec -> Generator [FileDraft]
 genCrud spec =
   if areThereAnyCruds
     then
@@ -59,7 +64,7 @@ genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
                 JI._importAlias = Nothing
               }
 
-genCrudRoutes :: AS.AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
+genCrudRoutes :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
 genCrudRoutes spec cruds = return $ map genCrudRoute cruds
   where
     genCrudRoute :: (String, AS.Crud.Crud) -> FileDraft
@@ -75,7 +80,7 @@ genCrudRoutes spec cruds = return $ map genCrudRoute cruds
         -- We validated in analyzer that entity field exists, so we can safely use fromJust here.
         idField = getIdFieldFromCrudEntity spec crud
 
-genCrudOperations :: AS.AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
+genCrudOperations :: AppSpec -> [(String, AS.Crud.Crud)] -> Generator [FileDraft]
 genCrudOperations spec cruds = return $ map genCrudOperation cruds
   where
     genCrudOperation :: (String, AS.Crud.Crud) -> FileDraft
@@ -88,6 +93,7 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
             [ "crud" .= getCrudOperationJson name crud idField,
               "isAuthEnabled" .= isAuthEnabled spec,
               "userEntityUpper" .= maybeUserEntity,
+              "overrides" .= object overrides,
               "queryType" .= queryTsType,
               "actionType" .= actionTsType
             ]
@@ -100,3 +106,13 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
 
         actionTsType :: String
         actionTsType = if isAuthEnabled spec then "AuthenticatedActionDefinition" else "UnauthenticatedActionDefinition"
+
+        overrides :: [Aeson.Types.Pair]
+        overrides = map operationToOverrideImport crudOperations
+
+        crudOperations = crudDeclarationToOperationsList crud
+
+        operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
+        operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
+          where
+            importJson = extImportToImportJson [reldirP|../|] (AS.Crud.overrideFn options)

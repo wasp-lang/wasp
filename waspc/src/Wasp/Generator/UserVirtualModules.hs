@@ -1,8 +1,8 @@
 module Wasp.Generator.UserVirtualModules
-  ( userServerEnvSchemaVMId,
+  ( serverEnvValidationSchemaVMId,
     userPrismaSetupFnVMId,
     userOperationVMId,
-    userClientEnvSchemaVMId,
+    clientEnvValidationSchemaVMId,
     userClientSetupFnVMId,
     userClientRootComponentVMId,
     VirtualModuleId,
@@ -16,8 +16,8 @@ import qualified Wasp.AppSpec.Operation as AS.Operation
 
 type VirtualModuleId = Path Posix (Rel Dir') File'
 
-userServerEnvSchemaVMId :: VirtualModuleId
-userServerEnvSchemaVMId = [relfileP|virtual:wasp/user/server-env-schema|]
+serverEnvValidationSchemaVMId :: VirtualModuleId
+serverEnvValidationSchemaVMId = [relfileP|virtual:wasp/user/server-env-validation-schema|]
 
 userPrismaSetupFnVMId :: VirtualModuleId
 userPrismaSetupFnVMId = [relfileP|virtual:wasp/user/prisma-setup-fn|]
@@ -31,8 +31,8 @@ userOperationVMId operation =
       QueryOp _ _ -> "query"
       ActionOp _ _ -> "action"
 
-userClientEnvSchemaVMId :: VirtualModuleId
-userClientEnvSchemaVMId = [relfileP|virtual:wasp/user/client-env-schema|]
+clientEnvValidationSchemaVMId :: VirtualModuleId
+clientEnvValidationSchemaVMId = [relfileP|virtual:wasp/user/client-env-validation-schema|]
 
 userClientSetupFnVMId :: VirtualModuleId
 userClientSetupFnVMId = [relfileP|virtual:wasp/user/client-setup-fn|]
