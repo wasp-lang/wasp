@@ -31,7 +31,7 @@ import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.UserVirtualModules (userOperationVMId)
 import Wasp.Util (toUpperFirst)
 
--- | This function should match the `exports` path from the SDK's package.json.Add a comment on  line L31Add diff commentMarkdown input:  edit mode selected.WritePreviewHeadingBoldItalicQuoteCodeLinkUnordered listNumbered listTask listMentionReferenceAdd a tableSaved repliesAdd FilesPaste, drop, or click to add filesCancelCommentStart a review
+-- | This function should match the `exports` path from the SDK's package.json.
 getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
 getServerOperationsImportPath = \operation ->
   makeSdkImportPath $

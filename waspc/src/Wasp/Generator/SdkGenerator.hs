@@ -132,6 +132,8 @@ genSdk spec =
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
     <++> genUniversalDir
+    -- TODO: Temporary comment out so the project compile successfully,
+    --       cleanup in the next PR!
     -- <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
