@@ -11,7 +11,7 @@ type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
 const dbClient: PrismaClientResolved =  {= prismaSetupFn.importIdentifier =}();
 {=/ prismaSetupFn.isDefined =}
 {=^ prismaSetupFn.isDefined =}
-const dbClient: PrismaClientResolved = InternalPrismaClient();
+const dbClient: PrismaClientResolved = new InternalPrismaClient();
 {=/ prismaSetupFn.isDefined =}
 {=/ areThereAnyEntitiesDefined =}
 {=^ areThereAnyEntitiesDefined =}
