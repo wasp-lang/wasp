@@ -1,7 +1,7 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
-import { FromRegistry } from "../types";
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
+import { FromRegistry } from "../types";
 
 type UserPrismaSetupFn = FromRegistry<"prismaSetupFn", () => InternalPrismaClient>;
 export type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
