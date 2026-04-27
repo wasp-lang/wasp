@@ -5,7 +5,7 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export function getRepoRootDirPath(): string {
+export function getRepoRootPath(): string {
   return fileURLToPath(new URL("../..", import.meta.url));
 }
 

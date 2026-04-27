@@ -7,13 +7,12 @@ import { join } from "node:path";
 import {
   discoverSubDirs,
   getPackageJson,
-  getWaspcDirPath,
   getWaspcVersion,
   runCmd,
 } from "../utils.ts";
+import { getDataLibsDirPath } from "./utils.ts";
 
-const waspcDirPath = getWaspcDirPath();
-const dataLibsDirPath = join(waspcDirPath, "data", "Generator", "libs");
+const dataLibsDirPath = getDataLibsDirPath();
 const waspcVersion = getWaspcVersion();
 
 buildLibs();

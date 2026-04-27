@@ -3,6 +3,7 @@
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { getDataLibsDirPath } from "./libs/utils.ts";
 import {
   discoverSubDirs,
   getRepoRootDirPath,
@@ -58,8 +59,8 @@ function bumpWaspcCabalVersion(nextVersion: string): void {
 }
 
 function bumpLibsVersion(nextVersion: string): void {
-  const libsDir = join(waspcDir, "data", "Generator", "libs");
-  for (const libDir of discoverSubDirs(libsDir)) {
+  const dataLibsDir = getDataLibsDirPath();
+  for (const libDir of discoverSubDirs(dataLibsDir)) {
     bumpPackageJsonVersion(libDir, nextVersion);
   }
 }
@@ -84,12 +85,10 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
 function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   const waspFilePath = findWaspFilePath(projectDir);
   const waspFileContent = readFileSync(waspFilePath, "utf-8");
-  // Matches the version string inside the `wasp: { ... }` block. The same
-  // pattern works for both `main.wasp` (multi-line) and `main.wasp.ts`
-  // (inline), since both express it as `wasp: { version: "^X.Y.Z" }`.
+  // A bit unstable, but it should be good enough for our "controlled environment".
   const updatedWaspFileContent = waspFileContent.replace(
-    /(wasp:\s*\{[^}]*version:\s*)"[^"]+"/,
-    `$1"^${nextVersion}"`,
+    /(wasp:\s*\{[^}]*version:\s*)["'`][^"'`]+["'`]/,
+    `$1"${nextVersion}"`,
   );
   writeFileSync(waspFilePath, updatedWaspFileContent);
 }
