@@ -6,14 +6,14 @@ import { join } from "node:path";
 import { getDataLibsDirPath } from "./libs/utils.ts";
 import {
   discoverSubDirs,
-  getRepoRootDirPath,
+  getRepoRootPath,
   getWaspcDirPath,
   getWaspcVersion,
   runCmd,
 } from "./utils.ts";
 
 const waspcDir = getWaspcDirPath();
-const repoRootDir = getRepoRootDirPath();
+const repoRootDir = getRepoRootPath();
 const runScriptFile = join(waspcDir, "run");
 const waspProjectDirsFromRepoRoot = [
   "examples/tutorials/TodoApp",
