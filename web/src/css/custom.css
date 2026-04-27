@@ -257,9 +257,28 @@ html.blog-wrapper[data-theme="dark"] {
   padding-top: var(--ifm-spacing-vertical);
 }
 
-.docs-wrapper .markdown,
-.blog-wrapper .markdown {
+.docs-wrapper .markdown {
   font-size: 16px;
+}
+
+.blog-wrapper .markdown {
+  font-size: 18px;
+  --ifm-blockquote-font-size: 16px;
+  --ifm-blockquote-border-color: var(--wasp-y);
+  --ifm-blockquote-border-left-width: 3px;
+}
+
+.blog-wrapper .markdown blockquote {
+  background: #f0ede6;
+  padding: 1em 1.5em;
+  border-radius: 0;
+  font-family: "IBM Plex Mono", monospace;
+  color: #1a1a1a;
+}
+
+html.blog-wrapper[data-theme="dark"] .markdown blockquote {
+  background: var(--wasp-g1);
+  color: #ccc;
 }
 
 .docs-wrapper .markdown h1:first-child,
