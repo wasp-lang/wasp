@@ -8,6 +8,7 @@ import {
   discoverSubDirs,
   getPackageJson,
   getWaspcDirPath,
+  getWaspcVersion,
   runCmd,
 } from "../utils.ts";
 
@@ -48,12 +49,6 @@ function assertLibVersionValid(libName: string, libVersion: string): void {
     );
     throw new Error();
   }
-}
-
-function getWaspcVersion(): string {
-  return runCmd("node", [join("tools", "get-waspc-version.ts")], {
-    cwd: waspcDirPath,
-  }).trim();
 }
 
 function rmExistingTarballsInDir(dir: string): void {

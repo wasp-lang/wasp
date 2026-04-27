@@ -5,8 +5,18 @@ import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
+export function getRepoRootDirPath(): string {
+  return fileURLToPath(new URL("../..", import.meta.url));
+}
+
 export function getWaspcDirPath(): string {
   return fileURLToPath(new URL("..", import.meta.url));
+}
+
+export function getWaspcVersion(): string {
+  return runCmd("node", [join("tools", "get-waspc-version.ts")], {
+    cwd: getWaspcDirPath(),
+  }).trim();
 }
 
 export function discoverSubDirs(baseDirPath: string): string[] {
