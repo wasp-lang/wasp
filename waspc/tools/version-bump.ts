@@ -113,6 +113,7 @@ function bustWaspProjectsLibsCache(): void {
   for (const projectDirFromRepoRoot of waspProjectDirsFromRepoRoot) {
     runCmd(runScriptFile, ["bust-libs-cache"], {
       cwd: join(repoRootDir, projectDirFromRepoRoot),
+      stdio: "inherit",
     });
   }
 }
