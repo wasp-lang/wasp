@@ -1,5 +1,3 @@
-export type SetupDbResult = {
-  dbEnvVars: {
-    [envVarName: string]: string;
-  };
-};
+export interface SetupDbResult extends Disposable {
+  dbEnvVars: { [envVarName: string]: string };
+}

@@ -24,11 +24,12 @@
     "chalk": "^5.4.1",
     "commander": "^13.1.0",
     "dotenv": "^16.5.0",
+    "execa": "^9.6.1",
     "p-retry": "^7.1.1",
     "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@types/node": "^22.15.12",
+    "@types/node": "^22.19.15",
     "@types/semver": "^7.7.1",
     "typescript": "^5.8.3"
   }

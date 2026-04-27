@@ -1,6 +1,17 @@
 import chalk, { type ChalkInstance } from "chalk";
 
+export class CLIError extends Error {
+  constructor(
+    public readonly logger: Logger,
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
 type LogType = "error" | "warn" | "info" | "success" | "debug";
+
+export type Logger = ReturnType<typeof createLogger>;
 
 export function createLogger(processName: string) {
   const logTypeToColorFn: Record<LogType, ChalkInstance> = {
@@ -33,6 +44,9 @@ export function createLogger(processName: string) {
     },
     debug(message: string): void {
       log("debug", message);
+    },
+    fatal(message: string): never {
+      throw new CLIError(this, message);
     },
   };
 }
