@@ -1,5 +1,5 @@
 import { join } from "node:path";
-import { getWaspcDirPath } from "../utils";
+import { getWaspcDirPath } from "../utils.ts";
 
 export function getDataLibsDirPath(): string {
   const waspcDirPath = getWaspcDirPath();
