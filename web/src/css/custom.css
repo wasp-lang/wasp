@@ -269,11 +269,26 @@ html.blog-wrapper[data-theme="dark"] {
 }
 
 .blog-wrapper .markdown blockquote {
-  background: #f0ede6;
+  background: var(--wasp-yl);
+  border: 1px solid var(--wasp-g3);
   padding: 1em 1.5em;
   border-radius: 0;
   font-family: "IBM Plex Mono", monospace;
   color: #1a1a1a;
+  position: relative;
+  padding-left: 2.5em;
+}
+
+.blog-wrapper .markdown blockquote::before {
+  content: ">";
+  position: absolute;
+  left: 1em;
+  top: 1em;
+  line-height: inherit;
+  font-family: "IBM Plex Mono", monospace;
+  font-weight: 600;
+  color: var(--wasp-g5);
+  font-size: inherit;
 }
 
 html.blog-wrapper[data-theme="dark"] .markdown blockquote {
