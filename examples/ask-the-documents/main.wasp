@@ -1,6 +1,6 @@
 app askTheDocuments {
   wasp: {
-    version: "^0.22.0"
+    version: "^0.23.0"
   },
   title: "PG Vector Example",
   auth: {
@@ -21,7 +21,7 @@ app askTheDocuments {
   },
 }
 
-route RootRoute { path: "/", to: MainPage }
+route RootRoute { path: "/", to: MainPage, prerender: true }
 page MainPage {
   component: import { Main } from "@src/pages/MainPage"
 }

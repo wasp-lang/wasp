@@ -19,10 +19,10 @@ import Wasp.Util (indent)
 -- NOTE: Don't change Wasp's lowest supported Node version without updating it
 -- in all required places. Check /.nvmrc for the full list.
 oldestWaspSupportedNodeVersion :: SV.Version
-oldestWaspSupportedNodeVersion = SV.Version 22 22 2
+oldestWaspSupportedNodeVersion = SV.Version 24 14 1
 
 oldestWaspSupportedNpmVersion :: SV.Version
-oldestWaspSupportedNpmVersion = SV.Version 10 9 0
+oldestWaspSupportedNpmVersion = SV.Version 11 11 0
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =

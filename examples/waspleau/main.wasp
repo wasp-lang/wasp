@@ -1,6 +1,6 @@
 app waspleau {
   wasp: {
-    version: "^0.22.0"
+    version: "^0.23.0"
   },
 
   title: "Waspleau",
@@ -36,7 +36,7 @@ job loadTime {
   entities: [Datum]
 }
 
-route RootsRoute { path: "/", to: MainPage }
+route RootsRoute { path: "/", to: MainPage, prerender: true }
 page MainPage {
   component: import Main from "@src/MainPage"
 }

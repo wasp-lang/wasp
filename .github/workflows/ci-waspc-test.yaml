@@ -45,9 +45,7 @@ jobs:
             # NOTE: This should be equal to Wasp's lowest supported Node
             # version. Don't change this version without updating it in all
             # required places (full list in /.nvmrc).
-            node-version: "22.22.2"
-          - os: ubuntu-22.04
-            node-version: 24
+            node-version: "24.14.1"
 
     steps:
       - name: Configure git

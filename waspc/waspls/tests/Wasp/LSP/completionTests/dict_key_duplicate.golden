@@ -1,4 +1,5 @@
 Completion items:
   label={"lazy"} kind={CiField} detail={":: bool"} insertText={"lazy: "}
   label={"path"} kind={CiField} detail={":: string"} insertText={"path: "}
+  label={"prerender"} kind={CiField} detail={":: bool"} insertText={"prerender: "}
   label={"to"} kind={CiField} detail={":: page (declaration type)"} insertText={"to: "}

@@ -48,9 +48,15 @@ export const WebSocketContext: Context<WebSocketContextValue> = createContext<We
 
 // PRIVATE API
 export function WebSocketProvider({ children }: { children: ReactNode }) {
-  const [isConnected, setIsConnected] = useState(socket.connected)
+  const [isConnected, setIsConnected] = useState(
+    // Our hooks need to be SSR-safe, and WebSockets don't work on the server,
+    // so we should start with `false` and then update it on the client.
+    false
+  )
 
   useEffect(() => {
+    setIsConnected(socket.connected)
+
     function onConnect() {
       setIsConnected(true)
     }

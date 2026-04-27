@@ -1,5 +1,34 @@
 # Changelog
 
+## 0.23.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-22-to-0-23) for step-by-step documentation on how to upgrade.
+
+- Wasp now requires Node.js >=24.14.1 (previously >=22.22.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- Wasp now requires TypeScript version 5.9.3 (previously 5.8.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- The HTML file for the final built web app has changed from `index.html` to `200.html`. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
+### 🎉 New Features
+
+- Routes can now be prerendered at build time by setting `prerender: true`. Prerendered routes are served as static HTML for faster load times and better SEO. ([#3982](https://github.com/wasp-lang/wasp/pull/3982))
+
+### 🐞 Bug fixes
+
+- Updated `wasp deploy railway` to work with the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- `wasp deploy railway` now correctly configures the client service for SPA routing by providing a custom Caddyfile and pinning the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
+### 🔧 Small improvements
+
+- Updated our `wasp deploy` tool to support the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- New Wasp projects now include an `.npmrc` with `min-release-age=7` for supply chain protection. ([#4016](https://github.com/wasp-lang/wasp/pull/4016))
+
+### 📖 Documentation
+
+- Updated deployment guides for Fly.io, Railway, Netlify, and Cloudflare to work with the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- Added guide for deploying on Render. ([#4055](https://github.com/wasp-lang/wasp/pull/4055))
+
 ## 0.22.0
 
 ### ⚠️ Breaking Changes

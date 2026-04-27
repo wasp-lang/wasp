@@ -10,7 +10,7 @@ on:
         # Don't change this version without updating it in all required
         # places (full list in /.nvmrc).
         description: "Node.js version to use for building"
-        default: "22.22.2"
+        default: "24.14.1"
         type: string
         required: false
     outputs:
