@@ -22,8 +22,6 @@
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./types": "./dist/types/index.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
-      "./user-virtual-modules": "./wasp-user-virtual-modules.d.ts",
-      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./core/serialization": "./dist/core/serialization/index.js",
