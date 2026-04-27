@@ -118,6 +118,9 @@ function bustWaspProjectsLibsCache(): void {
   }
 }
 
+// TODO: Consider using `semver` package in future.
+// So far the `tools` project only has dev dependencies.
+// Adding runtime dependencies would change the workflow.
 function bumpVersion(version: string, bumpType: BumpType): string {
   const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
   if (!match) {
