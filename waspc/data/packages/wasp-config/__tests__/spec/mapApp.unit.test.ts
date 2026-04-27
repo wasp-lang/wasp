@@ -3,6 +3,7 @@ import * as AppSpec from "../../src/appSpec.js";
 import {
   deriveExtImportName,
   makeRefParser,
+  mapAction,
   mapApp,
   mapExtImport,
   mapPage,
@@ -132,6 +133,28 @@ describe("mapQuery", () => {
       entities: query.entities?.map(entityRefParser),
       auth: query.auth,
     } satisfies AppSpec.Query);
+  }
+});
+
+describe("mapAction", () => {
+  test("should map minimal config correctly", () => {
+    testMapAction(Fixtures.getAction("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapAction(Fixtures.getAction("full"));
+  });
+
+  function testMapAction(action: TsAppSpec.Action): void {
+    const entityRefParser = makeRefParser("Entity", action.entities ?? []);
+
+    const result = mapAction(action, entityRefParser);
+
+    expect(result).toStrictEqual({
+      fn: mapExtImport(action.fn),
+      entities: action.entities?.map(entityRefParser),
+      auth: action.auth,
+    } satisfies AppSpec.Action);
   }
 });
 
