@@ -1,15 +1,19 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
 import {
+  dedupePageDecls,
   deriveExtImportName,
+  deriveRouteName,
   makeRefParser,
   mapAction,
   mapApp,
   mapExtImport,
   mapPage,
   mapQuery,
+  mapRoute,
+  normalizeRoutePage,
 } from "../../src/spec/mapApp.js";
-import { app } from "../../src/spec/publicApi/index.js";
+import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -90,9 +94,44 @@ describe("mapApp", () => {
     ] satisfies AppSpec.Decl[]);
   });
 
-  // TODO: dedup pages referenced multiple times in parts → one Page decl.
-  // TODO: two pages deriving the same name with different configs → throw.
+  test("dedups a page referenced both explicitly and via a route shorthand", () => {
+    const aboutPage = page({ import: "AboutPage", from: "@src/About" });
+    const spec = app({
+      name: "TodoApp",
+      wasp: { version: "^0.16.3" },
+      title: "Todo",
+      parts: [aboutPage, route("/about", aboutPage)],
+    });
+
+    const decls = mapApp(spec, []);
+
+    const pageNames = decls
+      .filter((d) => d.declType === "Page")
+      .map((d) => d.declName);
+    expect(pageNames).toEqual(["AboutPage"]);
+  });
+
+  test("throws when the same page name is produced with differing configs", () => {
+    const spec = app({
+      name: "TodoApp",
+      wasp: { version: "^0.16.3" },
+      title: "Todo",
+      parts: [
+        page(
+          { import: "AboutPage", from: "@src/About" },
+          { authRequired: true },
+        ),
+        route("/about", { import: "AboutPage", from: "@src/About" }),
+      ],
+    });
+
+    expect(() => mapApp(spec, [])).toThrow(
+      /Conflicting configs for page "AboutPage"/,
+    );
+  });
+
   // TODO: duplicate query name → throw.
+  // TODO: duplicate route name → throw (distinct paths can still derive the same name).
 });
 
 describe("mapPage", () => {
@@ -112,6 +151,92 @@ describe("mapPage", () => {
       authRequired: page.authRequired,
     } satisfies AppSpec.Page);
   }
+});
+
+describe("mapRoute", () => {
+  test("should map minimal config correctly", () => {
+    testMapRoute(Fixtures.getRoute("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapRoute(Fixtures.getRoute("full"));
+  });
+
+  function testMapRoute(route: TsAppSpec.Route): void {
+    const result = mapRoute(route);
+
+    const expectedPage = normalizeRoutePage(route.page);
+    const expectedPageName = deriveExtImportName(expectedPage.component);
+
+    expect(result.route).toStrictEqual({
+      path: route.path,
+      to: { name: expectedPageName, declType: "Page" },
+      prerender: undefined,
+      lazy: undefined,
+    } satisfies AppSpec.Route);
+
+    expect(result.page).toStrictEqual(mapPage(expectedPage));
+  }
+});
+
+describe("deriveRouteName", () => {
+  const cases: ReadonlyArray<readonly [string, string]> = [
+    ["/", "RootRoute"],
+    ["", "RootRoute"],
+    ["/about", "AboutRoute"],
+    ["/foo/bar", "FooBarRoute"],
+    ["/users/:id", "UsersIdRoute"],
+    ["/users/:userId/posts/:postId", "UsersUserIdPostsPostIdRoute"],
+    ["/sign-up", "SignUpRoute"],
+    ["/password-reset/:token", "PasswordResetTokenRoute"],
+  ];
+
+  test.each(cases)("derives %s → %s", (path, expected) => {
+    expect(deriveRouteName(path)).toBe(expected);
+  });
+});
+
+describe("dedupePageDecls", () => {
+  const homePage: AppSpec.GetDeclForType<"Page"> = {
+    declType: "Page",
+    declName: "HomePage",
+    declValue: {
+      component: { kind: "default", name: "HomePage", path: "@src/Home" },
+      authRequired: undefined,
+    },
+  };
+  const homePageAuth: AppSpec.GetDeclForType<"Page"> = {
+    ...homePage,
+    declValue: { ...homePage.declValue, authRequired: true },
+  };
+  const aboutPage: AppSpec.GetDeclForType<"Page"> = {
+    declType: "Page",
+    declName: "AboutPage",
+    declValue: {
+      component: { kind: "named", name: "AboutPage", path: "@src/About" },
+      authRequired: undefined,
+    },
+  };
+
+  test("returns distinct decls unchanged", () => {
+    expect(dedupePageDecls([homePage, aboutPage])).toStrictEqual([
+      homePage,
+      aboutPage,
+    ]);
+  });
+
+  test("collapses duplicate decls with matching configs into one", () => {
+    expect(dedupePageDecls([homePage, aboutPage, homePage])).toStrictEqual([
+      homePage,
+      aboutPage,
+    ]);
+  });
+
+  test("throws when decls share a name but differ in config", () => {
+    expect(() => dedupePageDecls([homePage, homePageAuth])).toThrow(
+      /Conflicting configs for page "HomePage"/,
+    );
+  });
 });
 
 describe("mapQuery", () => {
