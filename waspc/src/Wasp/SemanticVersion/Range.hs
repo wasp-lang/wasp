@@ -76,19 +76,19 @@ doesVersionRangeAllowMajorChanges = not . doesVersionRangeAllowOnlyMinorChanges
 -- Helper methods for constructing a 'Range'.
 
 caretRange :: Version -> Range
-caretRange = Range . pure . Simple . pure . CaretRange . versionToPartialVersion
+caretRange = Range . pure . SimpleRangeExpressionSet . pure . CaretRangeExpression . versionToPartialVersion
 
 backwardsCompatibleWith :: Version -> Range
 backwardsCompatibleWith = caretRange
 
 tildeRange :: Version -> Range
-tildeRange = Range . pure . Simple . pure . TildeRange . versionToPartialVersion
+tildeRange = Range . pure . SimpleRangeExpressionSet . pure . TildeRangeExpression . versionToPartialVersion
 
 approximatelyEquivalentTo :: Version -> Range
 approximatelyEquivalentTo = tildeRange
 
 hyphenRange :: Version -> Version -> Range
-hyphenRange v1 v2 = Range $ pure $ HyphenRange (versionToPartialVersion v1) (versionToPartialVersion v2)
+hyphenRange v1 v2 = Range $ pure $ HyphenRangeExpression (versionToPartialVersion v1) (versionToPartialVersion v2)
 
 lt :: Version -> Range
 lt = mkPrimitiveRange LessThan
@@ -106,7 +106,7 @@ eq :: Version -> Range
 eq = mkPrimitiveRange Equal
 
 mkPrimitiveRange :: PrimitiveOperator -> Version -> Range
-mkPrimitiveRange op = Range . pure . Simple . pure . Primitive op . versionToPartialVersion
+mkPrimitiveRange op = Range . pure . SimpleRangeExpressionSet . pure . PrimitiveRangeExpression op . versionToPartialVersion
 
 r :: TH.QuasiQuoter
 r = quasiQuoterFromParser parseRange
@@ -117,12 +117,12 @@ parseRange = P.parse (rangeParser <* P.eof) ""
 -- See `range-set` definition here: https://github.com/npm/node-semver#range-grammar
 rangeParser :: P.Parsec String () Range
 rangeParser = do
-  first <- subrangeParser
-  rest <- P.many $ P.try (logicalOrParser *> subrangeParser)
+  first <- whitespaceInsensitiveRangeExpressionParser
+  rest <- P.many $ P.try (logicalOrParser *> whitespaceInsensitiveRangeExpressionParser)
   pure $ Range $ NE.fromList (first : rest)
   where
-    subrangeParser :: P.Parsec String () RangeExpression
-    subrangeParser = P.spaces *> rangeExpressionParser <* P.spaces
+    whitespaceInsensitiveRangeExpressionParser :: P.Parsec String () RangeExpression
+    whitespaceInsensitiveRangeExpressionParser = P.spaces *> rangeExpressionParser <* P.spaces
 
     logicalOrParser :: P.Parsec String () ()
     logicalOrParser = void (P.spaces *> P.string "||" <* P.spaces)

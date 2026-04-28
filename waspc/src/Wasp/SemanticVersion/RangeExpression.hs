@@ -7,8 +7,8 @@ module Wasp.SemanticVersion.RangeExpression
     RangeExpression (..),
     SimpleRangeExpression (..),
     rangeExpressionParser,
-    simpleRangeParser,
-    hyphenRangeParser,
+    simpleRangeExpressionParser,
+    hyphenRangeExpressionParser,
   )
 where
 
@@ -24,10 +24,10 @@ import Wasp.SemanticVersion.VersionBound
     noVersionInterval,
   )
 
--- | A range expression is either a set of simple range expressions or a hyphen range.
+-- | A range expression is either a set of simple range expressions or a hyphen range expression.
 data RangeExpression
-  = Simple (NE.NonEmpty SimpleRangeExpression)
-  | HyphenRange PartialVersion PartialVersion
+  = SimpleRangeExpressionSet (NE.NonEmpty SimpleRangeExpression)
+  | HyphenRangeExpression PartialVersion PartialVersion
   deriving (Eq, TH.Lift)
 
 -- | A simple range expression is composed of an operator and a partial version.
@@ -35,11 +35,11 @@ data RangeExpression
 -- NOTE: X-Range is already supported on all operators through the 'PartialVersion' implementation.
 data SimpleRangeExpression
   = -- | 1.2.3 (=1.2.3), >1.2.3, <1.2.3, >=1.2.3, <=1.2.3
-    Primitive PrimitiveOperator PartialVersion
+    PrimitiveRangeExpression PrimitiveOperator PartialVersion
   | -- | ~1.2.3
-    TildeRange PartialVersion
+    TildeRangeExpression PartialVersion
   | -- | ^1.2.3
-    CaretRange PartialVersion
+    CaretRangeExpression PartialVersion
   deriving (Eq, TH.Lift)
 
 data PrimitiveOperator
@@ -52,14 +52,14 @@ data PrimitiveOperator
 
 -- | We rely on this 'show' implementation to produce a valid `node-semver` output.
 instance Show RangeExpression where
-  show (Simple simpleRangeExpressions) = unwords $ show <$> NE.toList simpleRangeExpressions
-  show (HyphenRange lower upper) = show lower ++ " - " ++ show upper
+  show (SimpleRangeExpressionSet simpleRangeExpressions) = unwords $ show <$> NE.toList simpleRangeExpressions
+  show (HyphenRangeExpression lower upper) = show lower ++ " - " ++ show upper
 
 -- | We rely on this 'show' implementation to produce a valid `node-semver` output.
 instance Show SimpleRangeExpression where
-  show (Primitive primOp pv) = show primOp ++ show pv
-  show (TildeRange pv) = "~" ++ show pv
-  show (CaretRange pv) = "^" ++ show pv
+  show (PrimitiveRangeExpression primitiveOperator pv) = show primitiveOperator ++ show pv
+  show (TildeRangeExpression pv) = "~" ++ show pv
+  show (CaretRangeExpression pv) = "^" ++ show pv
 
 -- | We rely on this 'show' implementation to produce a valid `node-semver` output.
 instance Show PrimitiveOperator where
@@ -72,19 +72,19 @@ instance Show PrimitiveOperator where
   show GreaterThanOrEqual = ">="
 
 -- | We define concatenation of two range expressions as their intersection.
--- 'HyphenRange' can't be combined with other range expressions.
+-- 'HyphenRangeExpression' can't be combined with other range expressions.
 instance Semigroup RangeExpression where
-  (Simple left) <> (Simple right) = Simple $ NE.nub $ left <> right
-  (HyphenRange _ _) <> _ = error "Cannot intersect Hyphen Range with other range expressions"
-  _ <> (HyphenRange _ _) = error "Cannot intersect Hyphen Range with other range expressions"
+  (SimpleRangeExpressionSet left) <> (SimpleRangeExpressionSet right) = SimpleRangeExpressionSet $ NE.nub $ left <> right
+  (HyphenRangeExpression _ _) <> _ = error "Cannot intersect HyphenRangeExpression with other range expressions"
+  _ <> (HyphenRangeExpression _ _) = error "Cannot intersect HyphenRangeExpression with other range expressions"
 
 instance HasVersionBounds RangeExpression where
-  versionBounds (Simple simpleRangeExpressions) =
+  versionBounds (SimpleRangeExpressionSet simpleRangeExpressions) =
     foldr1 intervalIntersection $ versionBounds <$> simpleRangeExpressions
-  versionBounds (HyphenRange lower upper) = (toXRangeLowerBound lower, toXRangeUpperBound upper)
+  versionBounds (HyphenRangeExpression lower upper) = (toXRangeLowerBound lower, toXRangeUpperBound upper)
 
 instance HasVersionBounds SimpleRangeExpression where
-  versionBounds (Primitive primOp pv) = case primOp of
+  versionBounds (PrimitiveRangeExpression primitiveOperator pv) = case primitiveOperator of
     Equal -> (toXRangeLowerBound pv, toXRangeUpperBound pv)
     LessThan -> case pv of
       Any -> noVersionInterval
@@ -98,8 +98,8 @@ instance HasVersionBounds SimpleRangeExpression where
       (MajorMinor mjr mnr) -> (Inclusive $ Version mjr (mnr + 1) 0, Inf)
       (MajorMinorPatch mjr mnr ptc) -> (Exclusive $ Version mjr mnr ptc, Inf)
     GreaterThanOrEqual -> (toXRangeLowerBound pv, Inf)
-  versionBounds (TildeRange pv) = (toXRangeLowerBound pv, toTildeRangeUpperBound pv)
-  versionBounds (CaretRange pv) = (toXRangeLowerBound pv, toCaretRangeUpperBound pv)
+  versionBounds (TildeRangeExpression pv) = (toXRangeLowerBound pv, toTildeRangeUpperBound pv)
+  versionBounds (CaretRangeExpression pv) = (toXRangeLowerBound pv, toCaretRangeUpperBound pv)
 
 -- | Tilde range allows patch-level changes if minor is specified.
 toTildeRangeUpperBound :: PartialVersion -> VersionBound
@@ -136,40 +136,40 @@ toXRangeLowerBound (MajorMinorPatch mjr mnr ptc) = Inclusive $ Version mjr mnr p
 rangeExpressionParser :: P.Parsec String () RangeExpression
 rangeExpressionParser =
   P.choice
-    [ P.try hyphenRangeParser,
-      P.try simpleRangeSetParser,
+    [ P.try hyphenRangeExpressionParser,
+      P.try simpleRangeExpressionSetParser,
       emptyRangeParser
     ]
   where
-    simpleRangeSetParser :: P.Parsec String () RangeExpression
-    simpleRangeSetParser = do
-      first <- simpleRangeParser
-      rest <- P.many $ P.try (P.many1 P.space *> simpleRangeParser)
-      pure $ Simple $ NE.fromList (first : rest)
+    simpleRangeExpressionSetParser :: P.Parsec String () RangeExpression
+    simpleRangeExpressionSetParser = do
+      first <- simpleRangeExpressionParser
+      rest <- P.many $ P.try (P.many1 P.space *> simpleRangeExpressionParser)
+      pure $ SimpleRangeExpressionSet $ NE.fromList (first : rest)
 
     -- `node-semver` parses empty input as the equals any range (*).
     emptyRangeParser :: P.Parsec String () RangeExpression
-    emptyRangeParser = (Simple . pure $ Primitive Equal Any) <$ P.eof
+    emptyRangeParser = (SimpleRangeExpressionSet . pure $ PrimitiveRangeExpression Equal Any) <$ P.eof
 
 -- See `simple` definition here: https://github.com/npm/node-semver#range-grammar
-simpleRangeParser :: P.Parsec String () SimpleRangeExpression
-simpleRangeParser =
+simpleRangeExpressionParser :: P.Parsec String () SimpleRangeExpression
+simpleRangeExpressionParser =
   P.choice
-    [ tildeRangeParser,
-      caretRangeParser,
-      primitiveParser
+    [ tildeRangeExpressionParser,
+      caretRangeExpressionParser,
+      primitiveRangeExpressionParser
     ]
   where
-    tildeRangeParser :: P.Parsec String () SimpleRangeExpression
-    tildeRangeParser = TildeRange <$> (P.char '~' *> P.spaces *> partialVersionParser)
+    tildeRangeExpressionParser :: P.Parsec String () SimpleRangeExpression
+    tildeRangeExpressionParser = TildeRangeExpression <$> (P.char '~' *> P.spaces *> partialVersionParser)
 
-    caretRangeParser :: P.Parsec String () SimpleRangeExpression
-    caretRangeParser = CaretRange <$> (P.char '^' *> P.spaces *> partialVersionParser)
+    caretRangeExpressionParser :: P.Parsec String () SimpleRangeExpression
+    caretRangeExpressionParser = CaretRangeExpression <$> (P.char '^' *> P.spaces *> partialVersionParser)
 
     -- See `primitive` definition here: https://github.com/npm/node-semver#range-grammar
-    primitiveParser :: P.Parsec String () SimpleRangeExpression
-    primitiveParser =
-      Primitive <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
+    primitiveRangeExpressionParser :: P.Parsec String () SimpleRangeExpression
+    primitiveRangeExpressionParser =
+      PrimitiveRangeExpression <$> primitiveOperatorParser <* P.spaces <*> partialVersionParser
 
     primitiveOperatorParser :: P.Parsec String () PrimitiveOperator
     primitiveOperatorParser =
@@ -183,12 +183,12 @@ simpleRangeParser =
         ]
 
 -- See `hyphen` definition here: https://github.com/npm/node-semver#range-grammar
-hyphenRangeParser :: P.Parsec String () RangeExpression
-hyphenRangeParser = do
+hyphenRangeExpressionParser :: P.Parsec String () RangeExpression
+hyphenRangeExpressionParser = do
   lower <- partialVersionParser
   _ <- hyphenRangeSeparatorParser
   upper <- partialVersionParser
-  pure $ HyphenRange lower upper
+  pure $ HyphenRangeExpression lower upper
   where
     -- Must have exactly 1 white space character around the hyphen.
     hyphenRangeSeparatorParser :: P.Parsec String () Char

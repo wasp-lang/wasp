@@ -21,15 +21,15 @@ spec_SemanticVersion_Range = do
     let looseParseRange = P.parse rangeParser ""
     let strictParseRange = parseRange
 
-    it "parses range sets with single a range expression" $ do
+    it "parses range with single a range expression" $ do
       strictParseRange "  >=1.0 <2.0.0  "
         `shouldBe` Right
           ( Range $
               NE.fromList
-                [ Simple $
+                [ SimpleRangeExpressionSet $
                     NE.fromList
-                      [ Primitive GreaterThanOrEqual (MajorMinor 1 0),
-                        Primitive LessThan (MajorMinorPatch 2 0 0)
+                      [ PrimitiveRangeExpression GreaterThanOrEqual (MajorMinor 1 0),
+                        PrimitiveRangeExpression LessThan (MajorMinorPatch 2 0 0)
                       ]
                 ]
           )
@@ -37,39 +37,39 @@ spec_SemanticVersion_Range = do
         `shouldBe` Right
           ( Range $
               NE.fromList
-                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3)
+                [ SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinorPatch 1 2 3)
                 ]
           )
 
-    it "parses range sets with multiple range expressions" $ do
+    it "parses range with multiple range expressions" $ do
       strictParseRange "   ^1.2.3 ||   ^2.0 ||"
         `shouldBe` Right
           ( Range $
               NE.fromList
-                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                  Simple $ pure $ CaretRange (MajorMinor 2 0),
-                  Simple $ pure $ Primitive Equal Any
+                [ SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinorPatch 1 2 3),
+                  SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinor 2 0),
+                  SimpleRangeExpressionSet $ pure $ PrimitiveRangeExpression Equal Any
                 ]
           )
       strictParseRange "^1.2.3||^2.0     "
         `shouldBe` Right
           ( Range $
               NE.fromList
-                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                  Simple $ pure $ CaretRange (MajorMinor 2 0)
+                [ SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinorPatch 1 2 3),
+                  SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinor 2 0)
                 ]
           )
       strictParseRange ">=1  <2|| >=3.0.0    || *  "
         `shouldBe` Right
           ( Range $
               NE.fromList
-                [ Simple $
+                [ SimpleRangeExpressionSet $
                     NE.fromList
-                      [ Primitive GreaterThanOrEqual (Major 1),
-                        Primitive LessThan (Major 2)
+                      [ PrimitiveRangeExpression GreaterThanOrEqual (Major 1),
+                        PrimitiveRangeExpression LessThan (Major 2)
                       ],
-                  Simple $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
-                  Simple $ pure $ Primitive Equal Any
+                  SimpleRangeExpressionSet $ pure $ PrimitiveRangeExpression GreaterThanOrEqual (MajorMinorPatch 3 0 0),
+                  SimpleRangeExpressionSet $ pure $ PrimitiveRangeExpression Equal Any
                 ]
           )
 
@@ -78,16 +78,16 @@ spec_SemanticVersion_Range = do
         `shouldBe` Right
           ( Range $
               NE.fromList
-                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                  Simple $ pure $ CaretRange (MajorMinor 2 0)
+                [ SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinorPatch 1 2 3),
+                  SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinor 2 0)
                 ]
           )
       looseParseRange "^1.2.3 || ^2.0 abc"
         `shouldBe` Right
           ( Range $
               NE.fromList
-                [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-                  Simple $ pure $ CaretRange (MajorMinor 2 0)
+                [ SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinorPatch 1 2 3),
+                  SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinor 2 0)
                 ]
           )
 
@@ -101,27 +101,27 @@ spec_SemanticVersion_Range = do
     [r|^1.2.3 ||   ^2.0|]
       `shouldBe` Range
         ( NE.fromList
-            [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-              Simple $ pure $ CaretRange (MajorMinor 2 0)
+            [ SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinorPatch 1 2 3),
+              SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinor 2 0)
             ]
         )
     [r|^1.2.3||^2.0|]
       `shouldBe` Range
         ( NE.fromList
-            [ Simple $ pure $ CaretRange (MajorMinorPatch 1 2 3),
-              Simple $ pure $ CaretRange (MajorMinor 2 0)
+            [ SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinorPatch 1 2 3),
+              SimpleRangeExpressionSet $ pure $ CaretRangeExpression (MajorMinor 2 0)
             ]
         )
     [r|>=1  <2|| >=3.0.0    || *|]
       `shouldBe` Range
         ( NE.fromList
-            [ Simple $
+            [ SimpleRangeExpressionSet $
                 NE.fromList
-                  [ Primitive GreaterThanOrEqual (Major 1),
-                    Primitive LessThan (Major 2)
+                  [ PrimitiveRangeExpression GreaterThanOrEqual (Major 1),
+                    PrimitiveRangeExpression LessThan (Major 2)
                   ],
-              Simple $ pure $ Primitive GreaterThanOrEqual (MajorMinorPatch 3 0 0),
-              Simple $ pure $ Primitive Equal Any
+              SimpleRangeExpressionSet $ pure $ PrimitiveRangeExpression GreaterThanOrEqual (MajorMinorPatch 3 0 0),
+              SimpleRangeExpressionSet $ pure $ PrimitiveRangeExpression Equal Any
             ]
         )
 
