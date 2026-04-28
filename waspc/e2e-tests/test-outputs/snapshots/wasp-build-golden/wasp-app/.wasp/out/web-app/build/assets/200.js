@@ -149,12 +149,13 @@ z.object({
 const waspProdClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema
 });
-function getClientEnvSchema(mode) {
-  const waspClientEnvSchema = waspProdClientEnvSchema;
-  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape });
-}
+const waspClientEnvSchema = waspProdClientEnvSchema;
+const clientEnvSchema = z.object({
+  ...userClientEnvSchema.shape,
+  ...waspClientEnvSchema.shape
+});
 const __vite_import_meta_env__ = { "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "REACT_APP_API_URL": "http://localhost:3001", "SSR": false };
-const env = ensureEnvSchema(__vite_import_meta_env__, getClientEnvSchema());
+const env = ensureEnvSchema(__vite_import_meta_env__, clientEnvSchema);
 const apiUrl = stripTrailingSlash(env["REACT_APP_API_URL"]);
 const config = {
   apiUrl

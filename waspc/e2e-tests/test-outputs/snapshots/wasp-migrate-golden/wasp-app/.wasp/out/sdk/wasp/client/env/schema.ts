@@ -21,12 +21,12 @@ const waspProdClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema,
 });
 
+const waspClientEnvSchema = import.meta.env.MODE === "production"
+  ? waspProdClientEnvSchema
+  : waspDevClientEnvSchema;
+
 // PRIVATE API (sdk, Vite config)
-// TODO(franjo): Remove passing mode as param when this is no longer a plugin.
-//               See: https://github.com/wasp-lang/wasp/issues/3875.
-export function getClientEnvSchema(mode: string) {
-  const waspClientEnvSchema = mode === "production"
-    ? waspProdClientEnvSchema
-    : waspDevClientEnvSchema;
-  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape })
-}
+export const clientEnvSchema = z.object({
+  ...userClientEnvSchema.shape,
+  ...waspClientEnvSchema.shape,
+});

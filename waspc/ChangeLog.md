@@ -27,6 +27,8 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Updated `wasp deploy railway` to work with the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- Client env validation plugin no longer crashes when the user's client env schema file uses bundler features. ([#4054](https://github.com/wasp-lang/wasp/pull/4054))
+
 - `wasp deploy railway` now correctly configures the client service for SPA routing by providing a custom Caddyfile and pinning the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
 
 ### 🔧 Small improvements
