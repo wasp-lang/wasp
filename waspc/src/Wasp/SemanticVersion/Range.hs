@@ -27,8 +27,7 @@ import Data.Maybe (isJust)
 import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
-import Wasp.SemanticVersion.Comparator (Comparator (..), PrimitiveOperator (..))
-import Wasp.SemanticVersion.ComparatorSet (ComparatorSet (..), SimpleRangeExpression (..), comparatorSetParser)
+import Wasp.SemanticVersion.ComparatorSet (Comparator (..), ComparatorSet (..), PrimitiveOperator (..), SimpleRangeExpression (..), comparatorSetParser)
 import Wasp.SemanticVersion.PartialVersion (PartialVersion (..), fromVersion)
 import Wasp.SemanticVersion.Version (Version (..), nextBreakingChangeVersion)
 import Wasp.SemanticVersion.VersionBound
