@@ -444,10 +444,10 @@ library
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
-    Wasp.SemanticVersion.ComparatorSet
     Wasp.SemanticVersion.Parsers
     Wasp.SemanticVersion.PartialVersion
     Wasp.SemanticVersion.Range
+    Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.TypeScript.Inspect.Exports
@@ -739,9 +739,9 @@ test-suite waspc-tests
     Psl.Parser.ViewTest
     Psl.Parser.WithCtxTest
     Psl.ValidTest
-    SemanticVersion.ComparatorSetTest
     SemanticVersion.ParsersTest
     SemanticVersion.PartialVersionTest
+    SemanticVersion.RangeExpressionTest
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
