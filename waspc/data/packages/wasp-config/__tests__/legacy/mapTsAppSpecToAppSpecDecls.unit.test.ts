@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { GET_TS_APP_SPEC } from "../src/_private.js";
-import * as AppSpec from "../src/appSpec.js";
+import * as AppSpec from "../../src/appSpec.js";
+import { GET_TS_APP_SPEC } from "../../src/legacy/_private.js";
 import {
   makeRefParser,
   mapApi,
@@ -30,9 +30,9 @@ import {
   mapServer,
   mapUsernameAndPassword,
   mapWebSocket,
-} from "../src/mapTsAppSpecToAppSpecDecls.js";
-import { App } from "../src/publicApi/App.js";
-import * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
+} from "../../src/legacy/mapTsAppSpecToAppSpecDecls.js";
+import { App } from "../../src/legacy/publicApi/App.js";
+import * as TsAppSpec from "../../src/legacy/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("mapApp", () => {

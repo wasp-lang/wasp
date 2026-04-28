@@ -3,10 +3,10 @@
  * In our case the sample data represents TsAppSpec data.
  */
 
-import * as AppSpec from "../src/appSpec.js";
-import { Branded } from "../src/branded.js";
-import { App } from "../src/publicApi/App.js";
-import * as TsAppSpec from "../src/publicApi/tsAppSpec.js";
+import * as AppSpec from "../../src/appSpec.js";
+import { Branded } from "../../src/branded.js";
+import { App } from "../../src/legacy/publicApi/App.js";
+import * as TsAppSpec from "../../src/legacy/publicApi/tsAppSpec.js";
 
 export function createApp(scope: ConfigType): {
   appConfigName: string;
