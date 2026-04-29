@@ -1,3 +1,4 @@
+// Only change from original: removed sidebar prop from BlogPostPageContent and BlogLayout.
 import React, { type ReactNode } from "react";
 import clsx from "clsx";
 import { HtmlClassNameProvider, ThemeClassNames } from "@docusaurus/theme-common";

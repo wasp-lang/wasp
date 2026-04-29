@@ -5,7 +5,6 @@
  * work well for content-centric websites.
  */
 
-@import url("./fonts/inter.css");
 @import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
@@ -117,12 +116,13 @@
 
 /* Docusaurus stuff */
 
-/* Smaller base font for docs/blog — monospace needs it to read well.
-   These are Docusaurus's stable, theme-agnostic class names:
+/* We are targeting Docusaurus's stable, theme-agnostic class names:
    https://docusaurus.io/docs/styling-layout
    NOTE(matija): `html.` prefix needed to beat Infima's :root specificity. */
 html.docs-wrapper,
 html.blog-wrapper {
+    /* Smaller base font for docs/blog - gives a more modern, sleek look.
+    Docs and blog body font size is set explicitly below, so this mostly affects ToC and left sidebar size. */
   --ifm-font-size-base: 87.5%;
   --ifm-heading-font-weight: 500;
   --ifm-font-color-base: #4a4a4a;
@@ -144,6 +144,7 @@ html.blog-wrapper {
   padding-right: 48px;
 }
 
+/* Make sure stuff looks good on mobile. */
 @media (max-width: 996px) {
   .docs-wrapper [class*="docMainContainer"] .container {
     max-width: 100%;
@@ -168,7 +169,7 @@ html.blog-wrapper[data-theme="dark"] {
   --ifm-navbar-background-color: var(--ifm-background-color);
 }
 
-/* Override Prism's 0.9em scaling and tight line-height on code blocks. */
+/* Override Prism's internal 0.9em scaling and tight line-height on code blocks. */
 .docs-wrapper code[class*="language-"],
 .docs-wrapper pre[class*="language-"],
 .blog-wrapper code[class*="language-"],
@@ -201,6 +202,8 @@ html.blog-wrapper[data-theme="dark"] {
   box-shadow: none;
 }
 
+/* Override via Infima's variable rather than setting `background` directly,
+   so any internal Infima logic (hover, opacity) that reads this variable still works. */
 .docs-wrapper .alert--secondary,
 .blog-wrapper .alert--secondary {
   --ifm-alert-background-color: var(--wasp-g1);
@@ -217,21 +220,27 @@ html.blog-wrapper[data-theme="dark"] {
   font-family: "IBM Plex Mono", monospace;
 }
 
+/* Strip default pill background and padding from breadcrumb links */
 .docs-wrapper .breadcrumbs__link {
   background: none;
   padding: 0;
   border-radius: 0;
 }
 
+/* No pill on hover either */
 .docs-wrapper .breadcrumbs__link:hover {
   background: none;
 }
 
+/* Active breadcrumb: plain text, no highlight */
 .docs-wrapper .breadcrumbs__item--active .breadcrumbs__link {
   background: none;
   color: inherit;
 }
 
+/* Replace Infima's chevron (separator between breadcrumb items) with a "/" character.
+     All the resets (background, transform, border, width/height) are needed
+     because Infima renders the arrow as a CSS triangle on the ::after pseudo-element. */
 .docs-wrapper .breadcrumbs__item:not(:last-child)::after {
   content: "/";
   background: none;
@@ -247,10 +256,12 @@ html.blog-wrapper[data-theme="dark"] {
   display: none;
 }
 
+/* Horizontal line below navbar, matching brandbook border color */
 .navbar {
   border-bottom: 1px solid var(--wasp-g3);
 }
 
+/* Vertical line left of right sidebar (TOC), pulled up to connect with navbar border */
 .docs-wrapper .col.col--3 {
   border-left: 1px solid var(--wasp-g3);
   margin-top: calc(-1 * var(--ifm-spacing-vertical));
@@ -263,11 +274,13 @@ html.blog-wrapper[data-theme="dark"] {
 
 .blog-wrapper .markdown {
   font-size: 18px;
+  /* NOTE(matija): we use Infima variables whenever they exist. */
   --ifm-blockquote-font-size: 16px;
   --ifm-blockquote-border-color: var(--wasp-y);
   --ifm-blockquote-border-left-width: 3px;
 }
 
+/* Blog blockquotes: yellow highlight box with monospace text. */
 .blog-wrapper .markdown blockquote {
   background: var(--wasp-yl);
   border: 1px solid var(--wasp-g3);
@@ -279,6 +292,7 @@ html.blog-wrapper[data-theme="dark"] {
   padding-left: 2.5em;
 }
 
+/* Schematic ">" quote marker, aligned with first line of text */
 .blog-wrapper .markdown blockquote::before {
   content: ">";
   position: absolute;
@@ -356,12 +370,12 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   --custom-blog-card-background-color: white;
 
   /* Infima overrides */
-  /* NOTE(matija): Fonts are defined in two places due to Tailwind + Infima coexisting.
-     These variables control heading fonts in docs/blog and Infima-styled elements.
-
-     Body text is controlled separately by Tailwind's fontFamily.sans in tailwind.config.js
-     (via preflight.css's `html` rule) — update both when changing fonts. */
   --ifm-container-width-xl: 1280px;
+  /* NOTE(matija): Tailwind's preflight sets font-family on `html`, which controls body text
+     via inheritance. But some Infima components (footer titles, blog author names, etc.) set
+     font-family explicitly using this variable, bypassing inheritance. So we need the font
+     defined in both places: tailwind.config.js for body text, and here for Infima components.
+     Update both when changing fonts. */
   --ifm-font-family-base: "IBM Plex Sans", sans-serif;
   --ifm-heading-font-family: "JetBrains Mono", monospace;
   --ifm-color-primary: #bf9900;
@@ -372,11 +386,14 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   --ifm-color-primary-light: rgb(70, 203, 174);
   --ifm-color-primary-lighter: rgb(102, 212, 189);
   --ifm-color-primary-lightest: rgb(146, 224, 208);
+  /* Controls inline code size. Is set to 95% by default. */
   --ifm-code-font-size: 100%;
   --ifm-code-background-dark: #292d3e;
   /* NOTE(matija): used this because setting --ifm-code-border-radius did nothing, not sure why. */
   --ifm-global-radius: 0;
+  /* Kill all Infima lightweight shadows globally — fits our flat/schematic look */
   --ifm-global-shadow-lw: none;
+  /* Sidebar vertical line color — same as other borders */
   --ifm-toc-border-color: var(--wasp-g3);
   --ifm-background-color: var(--wasp-bg);
   --ifm-navbar-background-color: var(--wasp-bg);
@@ -451,7 +468,11 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   background: none !important;
   content: "−";
   font: 300 20px "IBM Plex Mono", monospace;
-  transform: none !important;
+  /*
+   * NOTE(matija): I like how +/- get transformed with animation when clicked.
+   * It's a bit silly but fun. If you want to disable it, uncomment the line below.
+   */
+  /* transform: none !important; */
   display: flex;
   align-items: center;
 }
