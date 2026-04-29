@@ -12,10 +12,10 @@ import {
   runCmd,
 } from "./utils.ts";
 
-const waspcDir = getWaspcDirPath();
-const repoRootDir = getRepoRootPath();
-const runScriptFile = join(waspcDir, "run");
-const waspProjectDirsFromRepoRoot = [
+const waspcDirPath = getWaspcDirPath();
+const repoRootDirPath = getRepoRootPath();
+const runScriptFilePath = join(waspcDirPath, "run");
+const waspProjectDirsPathFromRepoRoot = [
   "examples/tutorials/TodoApp",
   "examples/tutorials/TodoAppTs",
   "examples/waspello",
@@ -31,9 +31,9 @@ type BumpType = "major" | "minor" | "patch";
 const [_node, _filename, bumpTypeArg] = process.argv;
 assert(isBumpType(bumpTypeArg), "Usage: version-bump <major | minor | patch>");
 
-versionBump(bumpTypeArg);
+bumpWaspVersion(bumpTypeArg);
 
-function versionBump(bumpType: BumpType): void {
+function bumpWaspVersion(bumpType: BumpType): void {
   const currentVersion = getWaspcVersion();
   const nextVersion = bumpVersion(currentVersion, bumpType);
   console.log(`Bumping Wasp version: ${currentVersion} -> ${nextVersion}`);
@@ -49,47 +49,60 @@ function versionBump(bumpType: BumpType): void {
 }
 
 function bumpWaspcCabalVersion(nextVersion: string): void {
-  const cabalFilePath = join(waspcDir, "waspc.cabal");
+  const cabalFilePath = join(waspcDirPath, "waspc.cabal");
   const cabalFileContent = readFileSync(cabalFilePath, "utf-8");
+
   const updatedCabalFileContent = cabalFileContent.replace(
     /^version:\s*.+$/m,
     `version: ${nextVersion}`,
   );
+  if (cabalFileContent === updatedCabalFileContent) {
+    throw new Error(`Failed to update the ${cabalFilePath} version`);
+  }
+
   writeFileSync(cabalFilePath, updatedCabalFileContent);
 }
 
 function bumpLibsVersion(nextVersion: string): void {
-  const dataLibsDir = getDataLibsDirPath();
-  for (const libDir of discoverSubDirs(dataLibsDir)) {
-    bumpPackageJsonVersion(libDir, nextVersion);
+  const dataLibsDirPath = getDataLibsDirPath();
+  for (const libDirPath of discoverSubDirs(dataLibsDirPath)) {
+    bumpPackageJsonVersion(libDirPath, nextVersion);
   }
 }
 
 function bumpWaspProjectsVersion(nextVersion: string): void {
-  for (const projectDirFromRepoRoot of waspProjectDirsFromRepoRoot) {
-    const projectDir = join(repoRootDir, projectDirFromRepoRoot);
-    bumpWaspProjectVersion(projectDir, nextVersion);
+  for (const projectDirPathFromRepoRoot of waspProjectDirsPathFromRepoRoot) {
+    const projectDirPath = join(repoRootDirPath, projectDirPathFromRepoRoot);
+    bumpWaspProjectVersion(projectDirPath, nextVersion);
   }
 }
 
 function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   const packageJsonPath = join(dir, "package.json");
-  const content = readFileSync(packageJsonPath, "utf-8");
-  const updated = content.replace(
-    /("version":\s*)"[^"]+"/,
-    `$1"${nextVersion}"`,
-  );
-  writeFileSync(packageJsonPath, updated);
+  const packageJsonContent = readFileSync(packageJsonPath, "utf-8");
+  const packageJson: { version?: string } = JSON.parse(packageJsonContent);
+
+  if (!packageJson.version) {
+    throw new Error(`Failed to update the ${packageJsonPath} version`);
+  }
+  packageJson.version = nextVersion;
+
+  writeFileSync(packageJsonPath, JSON.stringify(packageJson));
 }
 
 function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
   const waspFilePath = findWaspFilePath(projectDir);
   const waspFileContent = readFileSync(waspFilePath, "utf-8");
+
   // A bit unstable, but it should be good enough for our "controlled environment".
   const updatedWaspFileContent = waspFileContent.replace(
     /(wasp:\s*\{[^}]*version:\s*)["'`][^"'`]+["'`]/,
     `$1"${nextVersion}"`,
   );
+  if (waspFileContent === updatedWaspFileContent) {
+    throw new Error(`Failed to update the ${waspFilePath} Wasp version`);
+  }
+
   writeFileSync(waspFilePath, updatedWaspFileContent);
 }
 
@@ -105,14 +118,15 @@ function findWaspFilePath(projectDir: string): string {
 
 function rebuildLibs(): void {
   runCmd("node", [join("tools", "libs", "build.ts")], {
-    cwd: waspcDir,
+    cwd: waspcDirPath,
+    stdio: "inherit",
   });
 }
 
 function bustWaspProjectsLibsCache(): void {
-  for (const projectDirFromRepoRoot of waspProjectDirsFromRepoRoot) {
-    runCmd(runScriptFile, ["bust-libs-cache"], {
-      cwd: join(repoRootDir, projectDirFromRepoRoot),
+  for (const projectDirFromRepoRoot of waspProjectDirsPathFromRepoRoot) {
+    runCmd(runScriptFilePath, ["bust-libs-cache"], {
+      cwd: join(repoRootDirPath, projectDirFromRepoRoot),
       stdio: "inherit",
     });
   }

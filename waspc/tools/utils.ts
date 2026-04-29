@@ -16,7 +16,7 @@ export function getWaspcDirPath(): string {
 export function getWaspcVersion(): string {
   return runCmd("node", [join("tools", "get-waspc-version.ts")], {
     cwd: getWaspcDirPath(),
-  }).trim();
+  });
 }
 
 export function discoverSubDirs(baseDirPath: string): string[] {

@@ -18,4 +18,4 @@ if (!match) {
   throw new Error("Could not find version in waspc.cabal");
 }
 
-console.log(match[1].trim());
+process.stdout.write(match[1].trim());
