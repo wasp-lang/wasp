@@ -33,7 +33,7 @@ genConfigTypes :: AppSpec -> Generator [FileDraft]
 genConfigTypes spec =
   return
     [ mkTmplFdWithData
-        [relfile|configuration.mts|]
+        [relfile|configuration.ts|]
         tmplData
     ]
   where
@@ -56,7 +56,7 @@ genCrudTypes spec
   | otherwise =
       return
         [ mkTmplFdWithData
-            [relfile|crud.mts|]
+            [relfile|crud.ts|]
             (object ["cruds" .= map mkCrudData cruds])
         ]
   where
@@ -79,7 +79,7 @@ genOperationTypes spec
   | otherwise =
       return
         [ mkTmplFdWithData
-            [relfile|operations.mts|]
+            [relfile|operations.ts|]
             (object ["operations" .= map mkOperationData operations])
         ]
   where

@@ -47,7 +47,6 @@ data-files:
   Generator/templates/**/*.json
   Generator/templates/**/*.jsx
   Generator/templates/**/*.md
-  Generator/templates/**/*.mts
   Generator/templates/**/*.prisma
   Generator/templates/**/*.ts
   Generator/templates/**/*.tsx
