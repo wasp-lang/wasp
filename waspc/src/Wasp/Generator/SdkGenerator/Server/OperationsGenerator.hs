@@ -11,6 +11,7 @@ import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
 import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
+import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
 import qualified Wasp.AppSpec.Operation as AS.Operation
@@ -36,7 +37,7 @@ getServerOperationsImportPath = \operation ->
       (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
       (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
 
-genOperations :: AS.AppSpec -> Generator [FileDraft]
+genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
   sequence
     [ genQueryTypesFile spec,
@@ -47,7 +48,7 @@ genOperations spec =
       genIndexTs spec
     ]
 
-genIndexTs :: AS.AppSpec -> Generator FileDraft
+genIndexTs :: AppSpec -> Generator FileDraft
 genIndexTs spec =
   return $
     mkTmplFdWithData
@@ -61,7 +62,7 @@ genIndexTs spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genWrappers :: AS.AppSpec -> Generator FileDraft
+genWrappers :: AppSpec -> Generator FileDraft
 genWrappers spec =
   return $
     mkTmplFdWithData
@@ -70,7 +71,7 @@ genWrappers spec =
   where
     tmplData = object ["isAuthEnabled" .= isAuthEnabled spec]
 
-genQueriesIndex :: AS.AppSpec -> Generator FileDraft
+genQueriesIndex :: AppSpec -> Generator FileDraft
 genQueriesIndex spec =
   return $
     mkTmplFdWithData
@@ -84,7 +85,7 @@ genQueriesIndex spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genActionsIndex :: AS.AppSpec -> Generator FileDraft
+genActionsIndex :: AppSpec -> Generator FileDraft
 genActionsIndex spec =
   return $
     mkTmplFdWithData
@@ -98,7 +99,7 @@ genActionsIndex spec =
         ]
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genQueryTypesFile :: AS.AppSpec -> Generator FileDraft
+genQueryTypesFile :: AppSpec -> Generator FileDraft
 genQueryTypesFile spec =
   genOperationTypesFile
     (serverOpsDirInSdkTemplatesDir </> [relfile|queries/types.ts|])
@@ -108,7 +109,7 @@ genQueryTypesFile spec =
     operations = map (uncurry AS.Operation.QueryOp) $ AS.getQueries spec
     isAuthEnabledGlobally = isAuthEnabled spec
 
-genActionTypesFile :: AS.AppSpec -> Generator FileDraft
+genActionTypesFile :: AppSpec -> Generator FileDraft
 genActionTypesFile spec =
   genOperationTypesFile
     (serverOpsDirInSdkTemplatesDir </> [relfile|actions/types.ts|])

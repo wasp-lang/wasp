@@ -6,7 +6,7 @@ where
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson.Types as Aeson.Types
 import StrongPath (relfile)
-import Wasp.AppSpec (AppSpec, getActions, getCruds, getQueries)
+import Wasp.AppSpec (AppSpec, getActions, getCruds, getOperations, getQueries)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
@@ -83,9 +83,7 @@ genOperationTypes spec
             (object ["operations" .= map mkOperationData operations])
         ]
   where
-    operations =
-      map (uncurry AS.Operation.QueryOp) (getQueries spec)
-        ++ map (uncurry AS.Operation.ActionOp) (getActions spec)
+    operations = getOperations spec
 
     mkOperationData :: AS.Operation.Operation -> Aeson.Types.Value
     mkOperationData operation =
