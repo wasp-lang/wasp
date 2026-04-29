@@ -37,15 +37,21 @@ export function validateEnv(): Plugin {
         plugins: resolvedConfig.plugins.filter(
           (plugin) => plugin.name !== PLUGIN_NAME
         ),
-        // Minimize the possible server side-effects.
-        appType: 'custom',
-        server: { middlewareMode: true, watch: null, hmr: false },
+        // Minimize side effects from spinning up a temporary dev server.
+        appType: 'custom',      // avoid HTML handling
+        server: { 
+          middlewareMode: true, // do not start an actual HTTP server
+          watch: null, 
+          hmr: false 
+        },
         logLevel: "silent",
         optimizeDeps: { noDiscovery: true, include: [] },
         clearScreen: false,
       });
 
       try {
+        // Vite's `ssr` means bundled for "backend JS runtime", like Node.
+        // This envrionemnt is always runnable in vite dev server.
         if (!isRunnableDevEnvironment(tempServer.environments.ssr)) {
           throw new Error(`Expected ssr to be a runnable dev environment`)
         }
