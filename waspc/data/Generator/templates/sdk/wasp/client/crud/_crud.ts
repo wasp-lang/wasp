@@ -20,7 +20,12 @@ import {
   {=/ operations.Delete =}
 } from 'wasp/server/crud/{= name =}'
 
-type Crud = {
+
+// PUBLIC API
+export const {= name =}: {= entityUpper =}Crud = createCrud();
+
+// PUBLIC API
+export type {= entityUpper =}Crud = {
   get: {
     query: QueryFor<GetQueryResolved>,
     useQuery: UseQueryFor<GetQueryResolved>
@@ -43,10 +48,7 @@ type Crud = {
   }
 };
 
-// PUBLIC API
-export const {= name =}: Crud = createCrud();
-
-function createCrud(): Crud {
+function createCrud(): {= entityUpper =}Crud {
   {=# operations.Get =}
   const crudGetQuery = createQuery<GetQueryResolved>(
     '{= fullPath =}',
@@ -110,3 +112,4 @@ function createCrud(): Crud {
     {=/ operations.Delete =}
   }
 }
+
