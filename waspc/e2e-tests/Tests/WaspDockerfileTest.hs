@@ -1,7 +1,8 @@
 module Tests.WaspDockerfileTest (waspDockerfileTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliDockerfile)
+import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliDockerfile)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- TODO: Test `wasp dockerfile` content.
 waspDockerfileTest :: Test
@@ -14,7 +15,7 @@ waspDockerfileTest =
       TestCase
         "succeed-inside-project"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliDockerfile
                 ]

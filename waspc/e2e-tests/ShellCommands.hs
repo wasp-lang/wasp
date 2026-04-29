@@ -5,13 +5,12 @@
 module ShellCommands
   ( ShellCommand,
     ShellCommandBuilder (..),
-    WaspNewTemplate (..),
     buildShellCommand,
     (~|),
     (~&&),
     (~?),
     (~||),
-    createFile,
+    writeToFile,
     appendToFile,
     replaceLineInFile,
     waspCliNewInteractive,
@@ -56,6 +55,8 @@ import qualified Data.Text as T
 import FileSystem (GitRootDir, SnapshotDir, TestCaseDir, gitRootFromSnapshotDir, mainWaspFileInWaspProjectDir, mainWaspTsFileInWaspProjectDir, seedsDirInWaspProjectDir, seedsFileInSeedsDir)
 import StrongPath (Abs, Dir, File', Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parent, (</>))
 import System.FilePath (joinPath)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.StarterTemplates (StarterTemplate)
 import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirInGeneratedAppDir)
 import Wasp.Project (WaspProjectDir)
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
@@ -105,8 +106,8 @@ infixl 4 ~?
 
 -- General commands
 
-createFile :: Path' Abs File' -> T.Text -> ShellCommandBuilder context ShellCommand
-createFile file fileContent = return $ createParentDir ~&& writeContentsToFile
+writeToFile :: Path' Abs File' -> T.Text -> ShellCommandBuilder context ShellCommand
+writeToFile file fileContent = return $ createParentDir ~&& writeContentsToFile
   where
     createParentDir :: ShellCommand
     createParentDir = "mkdir -p " ++ fromAbsDir (parent file)
@@ -134,27 +135,13 @@ replaceLineInFile fileName lineNumber line =
 
     tempFileName = fileName ++ ".tmp"
 
-data WaspNewTemplate = Minimal | Basic | TsMinimal | SaaS
+waspCliNewInteractive :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNewInteractive appName starterTemplate =
+  return $ unwords ["printf", "\"" ++ appName ++ "\n" ++ show starterTemplate ++ "\n\""] ~| "wasp-cli new"
 
-waspCliNewInteractive :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNewInteractive appName template =
-  return $
-    unwords ["printf", "\"" ++ appName ++ "\n" ++ templateNumber ++ "\n\""] ~| "wasp-cli new"
-  where
-    templateNumber = case template of
-      Basic -> "1"
-      Minimal -> "2"
-      TsMinimal -> "3"
-      SaaS -> "4"
-
-waspCliNew :: String -> WaspNewTemplate -> ShellCommandBuilder context ShellCommand
-waspCliNew appName template = return $ unwords ["wasp-cli", "new", appName, "-t", templateName]
-  where
-    templateName = case template of
-      Basic -> "basic"
-      Minimal -> "minimal"
-      TsMinimal -> "ts-minimal"
-      SaaS -> "saas"
+waspCliNew :: String -> StarterTemplate -> ShellCommandBuilder context ShellCommand
+waspCliNew appName starterTemplate =
+  return $ unwords ["wasp-cli", "new", appName, "-t", show starterTemplate]
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
 waspCliCompletion = return "wasp-cli completion"
@@ -254,21 +241,21 @@ createSeedFile fileName content = do
   let seedDir = context.waspProjectDir </> seedsDirInWaspProjectDir
       seedFile = seedDir </> seedsFileInSeedsDir fileName
 
-  createFile seedFile content
+  writeToFile seedFile content
 
 replaceMainWaspFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 replaceMainWaspFile content = do
   context <- ask
   let mainWaspFile = context.waspProjectDir </> mainWaspFileInWaspProjectDir
 
-  createFile mainWaspFile content
+  writeToFile mainWaspFile content
 
 replaceMainWaspTsFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 replaceMainWaspTsFile content = do
   context <- ask
   let mainWaspTsFile = context.waspProjectDir </> mainWaspTsFileInWaspProjectDir
 
-  createFile mainWaspTsFile content
+  writeToFile mainWaspTsFile content
 
 -- | Builds and deletes the Docker image for a Wasp app.
 -- Can be disabled via the @WASP_E2E_TESTS_SKIP_DOCKER@ environment variable.
@@ -301,7 +288,7 @@ inTestWaspProjectDir waspProjectCommandBuilders = do
       ~&& foldr1 (~&&) (buildShellCommand context.waspProjectContext $ sequence waspProjectCommandBuilders)
       ~&& unwords ["cd", fromAbsDir context.testCaseDir]
 
-createTestWaspProject :: WaspNewTemplate -> ShellCommandBuilder TestContext ShellCommand
+createTestWaspProject :: StarterTemplate -> ShellCommandBuilder TestContext ShellCommand
 createTestWaspProject template = do
   context <- ask
   waspCliNew context.waspProjectContext.waspProjectName template
@@ -317,7 +304,7 @@ data SnapshotTestContext = SnapshotTestContext
 createSnapshotWaspProjectFromMinimalStarter :: ShellCommandBuilder SnapshotTestContext ShellCommand
 createSnapshotWaspProjectFromMinimalStarter = do
   context <- ask
-  waspCliNew context.waspProjectContext.waspProjectName Minimal
+  waspCliNew context.waspProjectContext.waspProjectName minimalStarterTemplate
 
 inSnapshotWaspProjectDir ::
   [ShellCommandBuilder WaspProjectContext ShellCommand] ->

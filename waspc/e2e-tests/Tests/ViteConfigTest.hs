@@ -7,15 +7,15 @@ import NeatInterpolation (trimming)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-    WaspNewTemplate (..),
     WaspProjectContext (..),
-    createFile,
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliCompile,
+    writeToFile,
   )
 import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 viteConfigTest :: Test
 viteConfigTest =
@@ -24,7 +24,7 @@ viteConfigTest =
     [ TestCase
         "fail-on-missing-vite-config"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ deleteViteConfig,
                   expectCommandFailure <$> waspCliCompile
@@ -34,7 +34,7 @@ viteConfigTest =
       TestCase
         "fail-on-missing-wasp-plugin-import"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ writeViteConfigWithoutPlugin,
                   expectCommandFailure <$> waspCliCompile
@@ -49,7 +49,7 @@ deleteViteConfig = return "rm vite.config.ts"
 writeViteConfigWithoutPlugin :: ShellCommandBuilder WaspProjectContext ShellCommand
 writeViteConfigWithoutPlugin = do
   context <- ask
-  createFile
+  writeToFile
     (context.waspProjectDir </> [relfile|vite.config.ts|])
     [trimming|
       import { defineConfig } from "vite";

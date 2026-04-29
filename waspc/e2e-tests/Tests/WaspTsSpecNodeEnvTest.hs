@@ -7,7 +7,6 @@ import NeatInterpolation (trimming)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-    WaspNewTemplate (..),
     WaspProjectContext,
     createTestWaspProject,
     inTestWaspProjectDir,
@@ -19,6 +18,7 @@ import ShellCommands
     (~&&),
   )
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (tsMinimalStarterTemplate)
 import Wasp.Version (waspVersion)
 
 waspTsSpecNodeEnvTest :: Test
@@ -28,7 +28,7 @@ waspTsSpecNodeEnvTest =
     [ TestCase
         "node-env-is-development-on-compile"
         ( sequence
-            [ createTestWaspProject TsMinimal,
+            [ createTestWaspProject tsMinimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliTsSetup,
                   replaceMainWaspTsFile nodeEnvMainWaspTs,
@@ -39,7 +39,7 @@ waspTsSpecNodeEnvTest =
       TestCase
         "node-env-is-production-on-build"
         ( sequence
-            [ createTestWaspProject TsMinimal,
+            [ createTestWaspProject tsMinimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliTsSetup,
                   setWaspDbToPSQL,
@@ -57,10 +57,10 @@ waspTsSpecNodeEnvTest =
     assertCommandOutputContains commandBuilder marker = do
       command <- commandBuilder
       let logFile = "main-wasp-ts.log"
-          logCommandOutputToAFile = command ++ " > " ++ logFile ++ " 2>&1"
+          logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
           searchMarkerInLogFile = "grep -qF '" ++ marker ++ "' " ++ logFile
 
-      return $ logCommandOutputToAFile ~&& searchMarkerInLogFile
+      return $ logCommandOutputToFile ~&& searchMarkerInLogFile
 
     nodeEnvMainWaspTs :: T.Text
     nodeEnvMainWaspTs =

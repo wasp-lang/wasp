@@ -14,7 +14,7 @@ import StrongPath
   )
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
-import qualified Wasp.CompileOptions as CompileOptions
+import Wasp.CompileOptions (CompileOptions)
 import Wasp.Project.Common
   ( CompileError,
     WaspFilePath (..),
@@ -53,7 +53,7 @@ findWaspFile projectDir = do
     makeInvalidFileNameMessage suffix = "Your Wasp file can't be called '" ++ suffix ++ "'. Please rename it to something like [name]" ++ suffix ++ "."
 
 analyzeWaspFile ::
-  CompileOptions.CompileOptions ->
+  CompileOptions ->
   Psl.Schema.Schema ->
   WaspFilePath ->
   IO (Either [CompileError] [AS.Decl])

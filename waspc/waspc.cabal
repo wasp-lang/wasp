@@ -825,6 +825,7 @@ test-suite waspc-e2e-tests
     base,
     base64-bytestring,
     bytestring,
+    cli-lib,
     dir-traverse ^>=0.2.3,
     directory,
     filepath,

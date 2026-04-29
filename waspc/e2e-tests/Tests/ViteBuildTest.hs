@@ -9,17 +9,17 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     TestContext,
-    WaspNewTemplate (..),
     WaspProjectContext (..),
-    createFile,
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
     waspCliBuild,
+    writeToFile,
   )
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
 
@@ -71,7 +71,7 @@ viteBuildTest =
     createViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
     createViteBuildTestCase commands =
       sequence
-        [ createTestWaspProject Minimal,
+        [ createTestWaspProject minimalStarterTemplate,
           inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
         ]
 
@@ -85,7 +85,7 @@ viteBuildTest =
     writeMainPageTsx = do
       waspProjectContext <- ask
       let testEnvVarKeyText = T.pack testEnvVarKey
-      createFile
+      writeToFile
         (waspProjectContext.waspProjectDir </> [relfile|src/MainPage.tsx|])
         [trimming|
           export function MainPage() {
@@ -96,7 +96,7 @@ viteBuildTest =
     writeDotEnvClientFile :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     writeDotEnvClientFile value = do
       waspProjectContext <- ask
-      createFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
+      writeToFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
         T.pack $
           testEnvVarKey ++ "=" ++ value
 

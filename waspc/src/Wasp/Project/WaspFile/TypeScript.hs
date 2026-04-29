@@ -29,6 +29,7 @@ import System.Exit (ExitCode (..))
 import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
+import Wasp.CompileOptions (CompileOptions)
 import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
@@ -54,7 +55,7 @@ data CompiledWaspJsFile
 data AppSpecDeclsJsonFile
 
 analyzeWaspTsFile ::
-  CompileOptions.CompileOptions ->
+  CompileOptions ->
   Psl.Schema.Schema ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
@@ -120,7 +121,7 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
           `orElse` error ("Couldn't calculate the compiled JS file path for " ++ fromAbsFile waspFilePath ++ ".")
 
 executeMainWaspJsFileAndGetDeclsFile ::
-  CompileOptions.CompileOptions ->
+  CompileOptions ->
   Psl.Schema.Schema ->
   Path' Abs (File CompiledWaspJsFile) ->
   IO (Either [CompileError] (Path' Abs (File AppSpecDeclsJsonFile)))
@@ -133,7 +134,14 @@ executeMainWaspJsFileAndGetDeclsFile compileOptions prismaSchemaAst absCompiledM
       -- `npx` requires the bin file to be executable, and `cabal install`
       -- strips executable permissions from data files.
       ( runNodeCommandAsJobWithExtraEnv
-          [("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)]
+          [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+            -- Not related to `node` itself, so we have to set it manually.
+            -- It enables users to write environment specific code in the TS config.
+            -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+            --       also provide the `NODE_ENV` values for the "configuration runtime".
+            --       Maybe consider using a different key, e.g. `WASP_MODE`?
+            ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+          ]
           compileOptions.waspProjectDir
           "node"
           [ fromRelFile $ getInstallablePackageScriptInProject WaspConfigPackage,

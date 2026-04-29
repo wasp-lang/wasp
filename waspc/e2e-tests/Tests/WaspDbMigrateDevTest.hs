@@ -5,9 +5,10 @@ module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 import Control.Monad.Reader (MonadReader (ask))
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspNewTemplate (..), WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, waspCliDbMigrateDev, (~&&))
+import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, waspCliDbMigrateDev, (~&&))
 import StrongPath (fromAbsDir, (</>))
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.DbGenerator.Common
   ( dbMigrationsDirInDbRootDir,
     dbRootDirInGeneratedAppDir,
@@ -29,7 +30,7 @@ waspDbMigrateDevTest =
       TestCase
         "succeed-migrations-up-to-date"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliDbMigrateDev "no_migration"
                 ]
@@ -38,7 +39,7 @@ waspDbMigrateDevTest =
       TestCase
         "succeed-create-new-migration"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ appendToPrismaFile taskPrismaModel,
                   waspCliDbMigrateDev "yes_migration",
