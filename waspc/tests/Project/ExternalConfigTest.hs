@@ -41,5 +41,5 @@ validTsConfig =
             T.allowJs = Just True,
             T.outDir = Just ".wasp/out/user"
           },
-      T.include = Just ["src"]
+      T.include = Just ["src", ".wasp/out/types"]
     }

@@ -16,6 +16,9 @@
       {=!  Some of the statements in the comments might become incorrect. =}
       {=!  "our code" means: "web-app", "server" or "SDK", or "some combination of the three". =}
       {=!  Used by our code, undocumented (but accessible) for users. =}
+      {=!  Must be public, so we can do module augmentation. =}
+      "./types": "./dist/types/index.js",
+      {=!  Used by our code, undocumented (but accessible) for users. =}
       "./core/storage": "./dist/core/storage.js",
       {=!  Used by our code, undocumented (but accessible) for users. =}
       "./core/serialization": "./dist/core/serialization/index.js",
