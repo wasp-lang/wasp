@@ -1,19 +1,22 @@
 // Only change from original: removed sidebar prop from BlogPostPageContent and BlogLayout.
-import React, { type ReactNode } from "react";
-import clsx from "clsx";
-import { HtmlClassNameProvider, ThemeClassNames } from "@docusaurus/theme-common";
 import {
   BlogPostProvider,
   useBlogPost,
 } from "@docusaurus/plugin-content-blog/client";
+import {
+  HtmlClassNameProvider,
+  ThemeClassNames,
+} from "@docusaurus/theme-common";
 import BlogLayout from "@theme/BlogLayout";
 import BlogPostItem from "@theme/BlogPostItem";
-import BlogPostPaginator from "@theme/BlogPostPaginator";
+import type { Props } from "@theme/BlogPostPage";
 import BlogPostPageMetadata from "@theme/BlogPostPage/Metadata";
 import BlogPostPageStructuredData from "@theme/BlogPostPage/StructuredData";
-import TOC from "@theme/TOC";
+import BlogPostPaginator from "@theme/BlogPostPaginator";
 import ContentVisibility from "@theme/ContentVisibility";
-import type { Props } from "@theme/BlogPostPage";
+import TOC from "@theme/TOC";
+import clsx from "clsx";
+import { type ReactNode } from "react";
 
 function BlogPostPageContent({ children }: { children: ReactNode }): ReactNode {
   const { metadata, toc } = useBlogPost();
@@ -51,7 +54,7 @@ export default function BlogPostPage(props: Props): ReactNode {
       <HtmlClassNameProvider
         className={clsx(
           ThemeClassNames.wrapper.blogPages,
-          ThemeClassNames.page.blogPostPage
+          ThemeClassNames.page.blogPostPage,
         )}
       >
         <BlogPostPageMetadata />

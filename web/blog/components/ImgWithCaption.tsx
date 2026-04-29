@@ -25,7 +25,12 @@ export function ImgWithCaption(props: ImgWithCaptionProps) {
         />
         <figcaption
           className="image-caption"
-          style={{ fontStyle: "italic", opacity: 0.8, fontSize: "1.1rem", marginTop: "0.2em" }}
+          style={{
+            fontStyle: "italic",
+            opacity: 0.8,
+            fontSize: "1.1rem",
+            marginTop: "0.2em",
+          }}
         >
           {props.caption}
         </figcaption>
