@@ -1,7 +1,8 @@
 module Tests.WaspCleanTest (waspCleanTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliClean, waspCliCompile)
+import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliClean, waspCliCompile)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspCleanTest :: Test
 waspCleanTest =
@@ -13,7 +14,7 @@ waspCleanTest =
       TestCase
         "succeed-uncompiled-project"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliClean,
                   return $ assertDirectoryDoesNotExist ".wasp",
@@ -24,7 +25,7 @@ waspCleanTest =
       TestCase
         "succeed-compiled-project"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliCompile,
                   waspCliClean,

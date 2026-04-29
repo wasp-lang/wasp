@@ -12,6 +12,7 @@
     "module": "NodeNext",
     "noEmit": true,
 
+    "types": ["node"],
     "lib": ["ES2023"]
   },
   "include": ["main.wasp.ts"]
