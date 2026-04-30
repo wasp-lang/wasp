@@ -15,7 +15,7 @@ import Wasp.NodePackageFFI
   )
 import Wasp.Project.Analyze (WaspFilePath (..))
 import Wasp.Project.Common (WaspProjectDir)
-import Wasp.Project.ExternalConfig.PackageJson (findPackageJsonFile)
+import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util (camelToKebabCase)
 import qualified Wasp.Util.IO as IOUtil
@@ -44,7 +44,7 @@ replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
 replaceTemplatePlaceholdersInPackageJsonFile ::
   NewProjectAppName -> NewProjectName -> Path' Abs (Dir WaspProjectDir) -> IO ()
 replaceTemplatePlaceholdersInPackageJsonFile appName projectName projectDir =
-  findPackageJsonFile projectDir >>= \case
+  findUserPackageJsonFile projectDir >>= \case
     Nothing -> return ()
     Just absPackageJsonFile -> do
       let kebabCaseAppName = NewProjectAppName . camelToKebabCase . show $ appName
