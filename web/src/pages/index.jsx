@@ -1,6 +1,5 @@
 import Head from "@docusaurus/Head";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
-import classNames from "classnames";
 
 import ExampleWaspApps from "../components/ExampleWaspApps";
 import Faq from "../components/Faq.jsx";
@@ -17,23 +16,9 @@ import Testimonials from "../components/Testimonials";
 import waspCoverPhoto from "../../static/img/wasp_twitter_cover.png";
 import "./index.css";
 import "./preflight.css";
-import styles from "./styles.module.css";
 
 import "../prism/prismCustomization";
 
-const Background = () => {
-  return (
-    <div className="pointer-events-none absolute left-0 top-0 h-full w-full overflow-hidden">
-      <span className={classNames(styles.leftLights, "opacity-100")} />
-    </div>
-  );
-};
-
-const LightsTwo = () => (
-  <div className="pointer-events-none absolute left-0 top-[1800px] h-full w-full overflow-hidden lg:top-[1000px]">
-    <span className={classNames(styles.lightsTwo, "opacity-100")} />
-  </div>
-);
 
 const Index = () => {
   const { siteConfig } = useDocusaurusContext();
@@ -61,7 +46,6 @@ const Index = () => {
       <Nav />
       <div className="min-h-screen">
         <main>
-          <Background />
           <div>
             {/* container */}
             <Hero />
@@ -69,7 +53,6 @@ const Index = () => {
             <HowItWorks />
             <ExampleWaspApps />
             <Testimonials />
-            <LightsTwo />
             <ShowcaseGallery />
             <Newsletter />
             <Roadmap />

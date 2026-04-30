@@ -1,71 +1,62 @@
+import { useState } from "react";
+import { BookOpen, Terminal } from "react-feather";
 import Link from "@docusaurus/Link";
 
 import CodeHighlight from "./CodeHighlight";
-
-import { ArrowUpRight, BookOpen, Terminal } from "react-feather";
-
-// Terminal, BookOpen, Grid, Layout, Trello, FileText
-
 import SectionContainer from "./Layouts/SectionContainer";
 
-const StartIcon = () => (
-  <svg
-    xmlns="http://www.w3.org/2000/svg"
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    opacity="0.5"
-  >
-    <polyline points="13 17 18 12 13 7"></polyline>
-    <polyline points="6 17 11 12 6 7"></polyline>
-  </svg>
-);
+const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
+
+const InstallCommand = () => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(installCmd);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  };
+
+  return (
+    <button
+      type="button"
+      onClick={handleCopy}
+      className="cursor-pointer border-0 bg-transparent p-0 text-left font-mono text-xs text-wasp-g5 transition-colors hover:text-wasp-g7"
+      title="Click to copy"
+      aria-label={`Copy install command: ${installCmd}`}
+    >
+      $ {installCmd} {copied ? "✓" : ""}
+    </button>
+  );
+};
 
 const ActionButtons = () => (
   <div className="flex items-center gap-2">
-    <Link to="/docs/quick-start">
-      <button
-        className={`inline-flex items-center space-x-2 rounded border border-yellow-500 bg-yellow-500 px-3 py-2 text-sm leading-4 text-white transition duration-200 ease-out hover:border-yellow-400 hover:bg-yellow-400`}
-      >
-        <Terminal size={16} />
-        <span>{"Get Started"}</span>
-      </button>
+    <Link
+      to="/docs/quick-start"
+      className="inline-flex items-center space-x-2 border-2 border-wasp-black bg-wasp-yellow px-3 py-2 text-sm font-semibold leading-4 text-wasp-black transition duration-200 ease-out hover:bg-wasp-yellow-dark hover:text-wasp-black"
+    >
+      <Terminal size={16} />
+      <span>Get Started</span>
     </Link>
 
-    <Link to="/docs">
-      <button
-        className={`inline-flex items-center space-x-2 rounded border border-neutral-500 px-3 py-2 text-sm leading-4 text-neutral-700 transition duration-200 ease-out hover:border-neutral-400 hover:text-neutral-400`}
-      >
-        <BookOpen size={16} />
-        <span>Documentation</span>
-      </button>
+    <Link
+      to="/docs"
+      className="inline-flex items-center space-x-2 border border-wasp-g3 px-3 py-2 text-sm leading-4 text-wasp-g6 transition duration-200 ease-out hover:border-wasp-g5 hover:text-wasp-g7"
+    >
+      <BookOpen size={16} />
+      <span>Documentation</span>
     </Link>
   </div>
 );
 
-const PHBadge = () => (
-  <a
-    href="https://www.producthunt.com/posts/wasp-lang-beta"
-    target="_blank"
-    rel="noreferrer"
-  >
-    <img
-      className="w-32 md:w-[180px]"
-      src="https://api.producthunt.com/widgets/embed-image/v1/top-post-badge.svg?post_id=277135&theme=light&period=daily"
-      alt="Wasp&#0045;lang&#0032;Alpha - Develop&#0032;web&#0032;apps&#0032;in&#0032;React&#0032;&#0038;&#0032;Node&#0046;js&#0032;with&#0032;no&#0032;boilerplate | Product Hunt"
-    />
-  </a>
-);
 
-const Hero = () => {
-  const waspFileSourceCode = `app todoApp {
-  title: "ToDo App",  // visible in the browser tab
-  auth: { // full-stack auth out-of-the-box
+const codeTabs = [
+  {
+    name: "main.wasp",
+    language: "wasp",
+    source: `app todoApp {
+  title: "ToDo App",
+  auth: {
     userEntity: User,
     methods: { google: {}, gitHub: {}, email: {...} }
   }
@@ -73,21 +64,118 @@ const Hero = () => {
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
-  authRequired: true, // Limit access to logged in users.
-  component: import Main from "@client/Main" // Your React code.
+  authRequired: true,
+  component: import Main from "@client/Main"
 }
 
 query getTasks {
-  fn: import { getTasks } from "@server/tasks", // Your Node.js code.
-  entities: [Task] // Automatic cache invalidation.
-}`;
+  fn: import { getTasks } from "@server/tasks",
+  entities: [Task]
+}`,
+  },
+  {
+    name: "schema.prisma",
+    language: "prisma",
+    source: `model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  tasks Task[]
+}
 
-  const prismaFileSourceCode = `model Task { ... } // Your Prisma data model`;
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+  user        User    @relation(fields: [userId], references: [id])
+  userId      Int
+}`,
+  },
+  {
+    name: "MainPage.tsx",
+    language: "tsx",
+    source: `import { getTasks } from "wasp/client/operations"
+import { useQuery } from "wasp/client/operations"
+
+export function MainPage() {
+  const { data: tasks } = useQuery(getTasks)
 
   return (
+    <div>
+      <h1>Tasks</h1>
+      {tasks?.map(task => (
+        <div key={task.id}>{task.description}</div>
+      ))}
+    </div>
+  )
+}`,
+  },
+  {
+    name: "tasks.ts",
+    language: "typescript",
+    source: `import { type GetTasks } from "wasp/server/operations"
+
+export const getTasks: GetTasks<void, Task[]> = async (
+  _args,
+  context
+) => {
+  return context.entities.Task.findMany({
+    where: { user: { id: context.user.id } },
+    orderBy: { id: "desc" },
+  })
+}`,
+  },
+];
+
+function TabbedCodeViewer() {
+  const [activeTab, setActiveTab] = useState(0);
+
+  return (
+    <div className="flex h-full w-full flex-col border border-wasp-g3">
+      {/* Tab bar */}
+      <div className="flex border-b border-wasp-g3">
+        {codeTabs.map((t, i) => (
+          <button
+            key={t.name}
+            onClick={() => setActiveTab(i)}
+            className={`px-4 py-2 font-mono text-xs transition-colors ${
+              i === activeTab
+                ? "font-semibold text-wasp-black"
+                : "text-wasp-g5 hover:text-wasp-g7"
+            }`}
+          >
+            {i === activeTab ? (
+              <>
+                [<span className="bg-wasp-yellow-light">{t.name}</span>]
+              </>
+            ) : (
+              t.name
+            )}
+          </button>
+        ))}
+      </div>
+      {/* Code block — all tabs rendered, inactive ones invisible, CSS grid
+          stacking ensures the container always matches the tallest tab. */}
+      <div className="grid flex-1 min-w-0">
+        {codeTabs.map((t, i) => (
+          <div
+            key={t.name}
+            className={`col-start-1 row-start-1 min-w-0 text-sm ${
+              i !== activeTab ? "invisible" : ""
+            }`}
+          >
+            <CodeHighlight language={t.language} source={t.source} />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const Hero = () => {
+  return (
     <SectionContainer className="pb-5 pt-24">
-      <div className="lg:grid lg:grid-cols-12 lg:gap-16">
-        <div className="z-10 space-y-12 lg:col-span-6">
+      <div className="xl:grid xl:grid-cols-12 xl:gap-16">
+        <div className="z-10 flex flex-col justify-between gap-12 xl:col-span-6 xl:min-w-0">
           {/* Hero title and subtitle */}
           <div>
             <div className="mb-7 inline-block border border-wasp-g3 px-3 py-1 text-[11px] uppercase tracking-[3px] text-wasp-g7">
@@ -112,53 +200,15 @@ query getTasks {
             </p>
           </div>{" "}
           {/* EOF Hero title and subtitle */}
-          <ActionButtons />
-          <div className="flex flex-col gap-4">
-            <small className="text-xs text-neutral-500">Works with</small>
-
-            <div className="flex">
-              <img
-                className="h-8 pr-5 md:h-10 md:pr-10"
-                src="img/lp/react-logo-gray.svg"
-                alt="React"
-              />
-              <img
-                className="h-8 pr-5 md:h-10 md:pr-10"
-                src="img/lp/nodejs-logo-gray.svg"
-                alt="Node"
-              />
-              <img
-                className="h-8 pr-5 md:h-10 md:pr-10"
-                src="img/lp/prisma-logo-gray.svg"
-                alt="Prisma"
-              />
+          <div>
+            <ActionButtons />
+            <div className="mt-4">
+              <InstallCommand />
             </div>
-
-            <span className="mt-6 flex items-center">
-              <small className="text-xs text-neutral-500">Backed by</small>
-              <img
-                className="ml-2 w-24"
-                src="img/lp/yc-logo-rounded.webp"
-                alt="YC"
-              />
-            </span>
           </div>
         </div>
-        <div className="mt-16 flex flex-col gap-4 lg:col-span-6 lg:mt-0">
-          <FileViewer
-            fileName="todoApp.wasp"
-            fileExplanation="Wasp config file"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/main.wasp"
-          >
-            <CodeHighlight language="wasp" source={waspFileSourceCode} />
-          </FileViewer>
-          <FileViewer
-            fileName="schema.prisma"
-            fileExplanation="Wasp entities schema"
-            link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/schema.prisma"
-          >
-            <CodeHighlight language="prisma" source={prismaFileSourceCode} />
-          </FileViewer>
+        <div className="mt-16 flex w-full xl:col-span-6 xl:mt-0 xl:min-w-0">
+          <TabbedCodeViewer />
         </div>
       </div>
 
@@ -203,31 +253,5 @@ query getTasks {
   );
 };
 
-function FileViewer({ fileName, fileExplanation, link, children }) {
-  return (
-    <div className="relative flex flex-col items-center justify-center">
-      {/* Editor header bar */}
-      <div className="flex h-6 w-full items-center justify-between rounded-t-md bg-[#F3EDE0] px-2">
-        <Link to={link}>
-          <span
-            className={`flex items-center space-x-1 text-sm text-neutral-500 transition duration-200 ease-out hover:text-neutral-400`}
-          >
-            <span>{fileName}</span>
-            <ArrowUpRight size={14} />
-            <span className="text-neutral-400">· {fileExplanation}</span>
-          </span>
-        </Link>
-        <div className="flex space-x-2">
-          <div className="h-2 w-2 rounded-full bg-yellow-500" />
-          <div className="h-2 w-2 rounded-full bg-yellow-500" />
-          <div className="h-2 w-2 rounded-full bg-yellow-500" />
-        </div>
-      </div>
-      {/* Editor body */}
-      <div className="w-full rounded-b-md text-sm shadow-2xl">{children}</div>
-      {/* EOF code block wrapper */}
-    </div>
-  );
-}
 
 export default Hero;

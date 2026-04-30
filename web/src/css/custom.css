@@ -54,65 +54,20 @@
   background-size: 200px;
 }
 
-/* Selection handles — schematic UI element */
-.sh {
-  position: relative;
-}
-.sh::before,
-.sh::after {
-  content: "";
-  position: absolute;
-  width: var(--wasp-handle);
-  height: var(--wasp-handle);
-  border: 1.5px solid var(--wasp-g4);
-  background: var(--wasp-bg);
-  z-index: 2;
-}
-.sh::before {
-  top: calc(var(--wasp-handle) / -2);
-  left: calc(var(--wasp-handle) / -2);
-}
-.sh::after {
-  top: calc(var(--wasp-handle) / -2);
-  right: calc(var(--wasp-handle) / -2);
-}
-.sh .hbl,
-.sh .hbr {
-  position: absolute;
-  width: var(--wasp-handle);
-  height: var(--wasp-handle);
-  border: 1.5px solid var(--wasp-g4);
-  background: var(--wasp-bg);
-  z-index: 2;
-}
-.hbl {
-  bottom: calc(var(--wasp-handle) / -2);
-  left: calc(var(--wasp-handle) / -2);
-}
-.hbr {
-  bottom: calc(var(--wasp-handle) / -2);
-  right: calc(var(--wasp-handle) / -2);
-}
-
-/* Selection handle variants */
-.sh-dark::before,
-.sh-dark::after {
-  background: var(--wasp-k);
-  border-color: var(--wasp-g6);
-}
-.sh-dark .hbl,
-.sh-dark .hbr {
-  background: var(--wasp-k);
-  border-color: var(--wasp-g6);
-}
-.sh-y::before,
-.sh-y::after {
-  background: var(--wasp-yl);
-}
-.sh-y .hbl,
-.sh-y .hbr {
-  background: var(--wasp-yl);
-}
+/* TODO: Selection handles — schematic UI element for landing page buttons.
+   Uncomment when applying brandbook to hero CTA buttons.
+.sh { position: relative; }
+.sh::before, .sh::after { content: ""; position: absolute; width: var(--wasp-handle); height: var(--wasp-handle); border: 1.5px solid var(--wasp-g4); background: var(--wasp-bg); z-index: 2; }
+.sh::before { top: calc(var(--wasp-handle) / -2); left: calc(var(--wasp-handle) / -2); }
+.sh::after { top: calc(var(--wasp-handle) / -2); right: calc(var(--wasp-handle) / -2); }
+.sh .hbl, .sh .hbr { position: absolute; width: var(--wasp-handle); height: var(--wasp-handle); border: 1.5px solid var(--wasp-g4); background: var(--wasp-bg); z-index: 2; }
+.hbl { bottom: calc(var(--wasp-handle) / -2); left: calc(var(--wasp-handle) / -2); }
+.hbr { bottom: calc(var(--wasp-handle) / -2); right: calc(var(--wasp-handle) / -2); }
+.sh-dark::before, .sh-dark::after { background: var(--wasp-k); border-color: var(--wasp-g6); }
+.sh-dark .hbl, .sh-dark .hbr { background: var(--wasp-k); border-color: var(--wasp-g6); }
+.sh-y::before, .sh-y::after { background: var(--wasp-yl); }
+.sh-y .hbl, .sh-y .hbr { background: var(--wasp-yl); }
+*/
 
 /* Docusaurus stuff */
 
