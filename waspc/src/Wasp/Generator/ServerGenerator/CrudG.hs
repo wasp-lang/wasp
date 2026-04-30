@@ -59,7 +59,8 @@ genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
         (importStatement, importIdentifier) =
           JI.getJsImportStmtAndIdentifier
             JI.JsImport
-              { JI._name = JI.JsImportField name,
+              { JI._kind = JI.ValueImport,
+                JI._name = JI.JsImportField name,
                 JI._path = RelativeImportPath (fromJust . SP.relFileToPosix $ getCrudFilePath name "js"),
                 JI._importAlias = Nothing
               }
@@ -115,4 +116,4 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
         operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
         operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
           where
-            importJson = extImportToImportJson [reldirP|../|] (AS.Crud.overrideFn options)
+            importJson = extImportToImportJson JI.ValueImport [reldirP|../|] (AS.Crud.overrideFn options)

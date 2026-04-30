@@ -17,6 +17,7 @@ import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImpo
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.JsImport
   ( JsImport (..),
+    JsImportKind (..),
     JsImportName (JsImportField, JsImportModule),
     JsImportPath (RelativeImportPath),
     getJsDynamicImportExpression,
@@ -27,11 +28,13 @@ import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 extImportToJsImport ::
   (GeneratedAppComponentSrcDir d) =>
+  JsImportKind ->
   Path Posix (Rel d) (Dir GeneratedExternalCodeDir) ->
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport = makeJsImport (RelativeImportPath importPath) importName
+extImportToJsImport importKind pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport =
+  makeJsImport importKind (RelativeImportPath importPath) importName
   where
     userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel GeneratedExternalCodeDir) File'
     importName = extImportNameToJsImportName $ EI.name extImport
@@ -59,7 +62,8 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
 extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath) =
   JsImport
-    { _path = RelativeImportPath relativePath,
+    { _kind = ValueImport,
+      _path = RelativeImportPath relativePath,
       _name = importName,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }

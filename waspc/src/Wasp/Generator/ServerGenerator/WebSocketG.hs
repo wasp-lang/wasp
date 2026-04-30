@@ -30,6 +30,7 @@ import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
 import qualified Wasp.Generator.WebSocket as AS.WS
+import qualified Wasp.JsImport as JI
 
 depsRequiredByWebSockets :: AppSpec -> [Npm.Dependency.Dependency]
 depsRequiredByWebSockets spec
@@ -61,6 +62,6 @@ genWebSocketInitialization spec =
     maybeWebSocket = AS.App.webSocket $ snd $ getApp spec
 
 mkWebSocketFnImport :: Maybe WebSocket -> Path Posix (Rel importLocation) (Dir C.ServerSrcDir) -> Aeson.Value
-mkWebSocketFnImport maybeWebSocket relPathToServerSrcDir = extImportToImportJson relPathToServerSrcDir maybeWebSocketFn
+mkWebSocketFnImport maybeWebSocket relPathToServerSrcDir = extImportToImportJson JI.ValueImport relPathToServerSrcDir maybeWebSocketFn
   where
     maybeWebSocketFn = AS.App.WS.fn <$> maybeWebSocket

@@ -25,6 +25,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.JsImport as JI
 import qualified Wasp.Util as Util
 
 genLocalAuth :: AS.Auth.Auth -> Generator [FileDraft]
@@ -49,7 +50,7 @@ genLocalAuthConfig usernameAndPasswordConfig = return $ C.mkTmplFdWithDstAndData
       object
         [ "providerId" .= Local.providerId localAuthProvider,
           "displayName" .= Local.displayName localAuthProvider,
-          "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields
+          "userSignupFields" .= extImportToImportJson JI.ValueImport relPathToServerSrcDir maybeUserSignupFields
         ]
 
     maybeUserSignupFields = AS.Auth.userSignupFieldsForUsernameAuth usernameAndPasswordConfig

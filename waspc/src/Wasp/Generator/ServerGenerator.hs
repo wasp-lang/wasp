@@ -67,6 +67,7 @@ import Wasp.Generator.ServerGenerator.OperationsRoutesG (genOperationsRoutes)
 import Wasp.Generator.ServerGenerator.WebSocketG (depsRequiredByWebSockets, genWebSockets, mkWebSocketFnImport)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
+import qualified Wasp.JsImport as JI
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (SrcTsConfigFile, srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppComponentDir)
 import Wasp.Project.Db (databaseUrlEnvVarName)
@@ -259,7 +260,7 @@ genServerJs spec =
       (C.asServerFile [relfile|src/server.ts|])
       ( Just $
           object
-            [ "setupFn" .= extImportToImportJson relPathToServerSrcDir maybeSetupJsFunction,
+            [ "setupFn" .= extImportToImportJson JI.ValueImport relPathToServerSrcDir maybeSetupJsFunction,
               "isPgBossJobExecutorUsed" .= isPgBossJobExecutorUsed spec,
               "userWebSocketFn" .= mkWebSocketFnImport maybeWebSocket [reldirP|./|]
             ]
@@ -326,7 +327,7 @@ genMiddleware spec =
     globalMiddlewareConfigFnTmplData =
       let maybeGlobalMiddlewareConfigFn = AS.App.server (snd $ getApp spec) >>= AS.App.Server.middlewareConfigFn
           globalMiddlewareConfigFnAlias = "_waspGlobalMiddlewareConfigFn"
-          maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
+          maybeGlobalMidlewareConfigFnImports = getAliasedJsImportStmtAndIdentifier JI.ValueImport globalMiddlewareConfigFnAlias [reldirP|../|] <$> maybeGlobalMiddlewareConfigFn
        in object
             [ "isDefined" .= isJust maybeGlobalMidlewareConfigFnImports,
               "importStatement" .= maybe "" fst maybeGlobalMidlewareConfigFnImports,

@@ -34,6 +34,7 @@ import Wasp.Generator.ServerGenerator.Common
   )
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import qualified Wasp.Generator.ServerGenerator.JsImport as SJI
+import qualified Wasp.JsImport as JI
 
 genJobs :: AppSpec -> Generator [FileDraft]
 genJobs spec = case getJobs spec of
@@ -57,7 +58,7 @@ genRegisterJob (jobName, job) =
     dstFile = jobsDirInServerRootDir </> fromJust (SP.parseRelFile $ jobName ++ ".ts")
 
     jobPerformFn =
-      SJI.extImportToImportJson relPathFromJobsDirToServerSrcDir $
+      SJI.extImportToImportJson JI.ValueImport relPathFromJobsDirToServerSrcDir $
         Just $
           (J.fn . J.perform) job
 

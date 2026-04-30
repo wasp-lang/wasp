@@ -21,6 +21,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (getAliasedJsImportStmtAndIdentifier)
+import qualified Wasp.JsImport as JI
 
 genApis :: AppSpec -> Generator [FileDraft]
 genApis spec =
@@ -57,7 +58,7 @@ genApiRoutes spec =
         ]
       where
         namespaceConfigFnAlias = "_wasp" ++ namespaceName ++ "namespaceMiddlewareConfigFn"
-        (middlewareConfigFnImport, middlewareConfigFnAlias) = getAliasedJsImportStmtAndIdentifier namespaceConfigFnAlias relPathFromApisRoutesToServerSrcDir (ApiNamespace.middlewareConfigFn namespace)
+        (middlewareConfigFnImport, middlewareConfigFnAlias) = getAliasedJsImportStmtAndIdentifier JI.ValueImport namespaceConfigFnAlias relPathFromApisRoutesToServerSrcDir (ApiNamespace.middlewareConfigFn namespace)
 
     getApiRoutesTmplData :: (String, Api.Api) -> Aeson.Value
     getApiRoutesTmplData (apiName, api) =
@@ -72,12 +73,12 @@ genApiRoutes spec =
           "apiName" .= apiName
         ]
       where
-        (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier ("_wasp" ++ apiName ++ "fn") relPathFromApisRoutesToServerSrcDir (Api.fn api)
+        (jsImportStmt, jsImportIdentifier) = getAliasedJsImportStmtAndIdentifier JI.ValueImport ("_wasp" ++ apiName ++ "fn") relPathFromApisRoutesToServerSrcDir (Api.fn api)
 
         middlewareConfigFnTmplData :: Aeson.Value
         middlewareConfigFnTmplData =
           let middlewareConfigFnAlias = "_wasp" ++ apiName ++ "middlewareConfigFn"
-              maybeMiddlewareConfigFnImport = getAliasedJsImportStmtAndIdentifier middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
+              maybeMiddlewareConfigFnImport = getAliasedJsImportStmtAndIdentifier JI.ValueImport middlewareConfigFnAlias relPathFromApisRoutesToServerSrcDir <$> Api.middlewareConfigFn api
            in object
                 [ "isDefined" .= isJust maybeMiddlewareConfigFnImport,
                   "importStatement" .= maybe "" fst maybeMiddlewareConfigFnImport,

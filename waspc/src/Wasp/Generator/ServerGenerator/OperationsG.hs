@@ -23,6 +23,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -75,7 +76,7 @@ operationFileInSrcDir (AS.Operation.ActionOp name _) = actionFileInSrcDir name
 operationTmplData :: AS.Operation.Operation -> Aeson.Value
 operationTmplData operation =
   object
-    [ "jsFn" .= extImportToImportJson relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation),
+    [ "jsFn" .= extImportToImportJson JI.ValueImport relPathFromOperationsDirToServerSrcDir (Just $ AS.Operation.getFn operation),
       "entities"
         .= maybe
           []

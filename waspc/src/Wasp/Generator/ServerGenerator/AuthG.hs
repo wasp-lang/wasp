@@ -103,7 +103,8 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
       jsImportToImportJson $
         Just $
           JI.JsImport
-            { JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
+            { JI._kind = JI.ValueImport,
+              JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
               JI._name = JI.JsImportModule providerId,
               JI._importAlias = Nothing
             }
@@ -120,12 +121,12 @@ genAuthHooks auth = return $ C.mkTmplFdWithData [relfile|src/auth/hooks.ts|] (Ju
           "onBeforeLoginHook" .= onBeforeLoginHook,
           "onAfterLoginHook" .= onAfterLoginHook
         ]
-    onBeforeSignupHook = extImportToAliasedImportJson "onBeforeSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeSignup auth
-    onAfterSignupHook = extImportToAliasedImportJson "onAfterSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterSignup auth
-    onAfterEmailVerifiedHook = extImportToAliasedImportJson "onAfterEmailVerifiedHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterEmailVerified auth
-    onBeforeOAuthRedirectHook = extImportToAliasedImportJson "onBeforeOAuthRedirectHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeOAuthRedirect auth
-    onBeforeLoginHook = extImportToAliasedImportJson "onBeforeLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeLogin auth
-    onAfterLoginHook = extImportToAliasedImportJson "onAfterLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterLogin auth
+    onBeforeSignupHook = extImportToAliasedImportJson JI.ValueImport "onBeforeSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeSignup auth
+    onAfterSignupHook = extImportToAliasedImportJson JI.ValueImport "onAfterSignupHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterSignup auth
+    onAfterEmailVerifiedHook = extImportToAliasedImportJson JI.ValueImport "onAfterEmailVerifiedHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterEmailVerified auth
+    onBeforeOAuthRedirectHook = extImportToAliasedImportJson JI.ValueImport "onBeforeOAuthRedirectHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeOAuthRedirect auth
+    onBeforeLoginHook = extImportToAliasedImportJson JI.ValueImport "onBeforeLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onBeforeLogin auth
+    onAfterLoginHook = extImportToAliasedImportJson JI.ValueImport "onAfterLoginHook_ext" relPathToServerSrcDir $ AS.Auth.onAfterLogin auth
 
     relPathToServerSrcDir :: Path Posix (Rel importLocation) (Dir C.ServerSrcDir)
     relPathToServerSrcDir = [reldirP|../|]
