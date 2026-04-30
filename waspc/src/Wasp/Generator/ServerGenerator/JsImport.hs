@@ -10,6 +10,7 @@ import Wasp.JsImport
   ( JsImport,
     JsImportAlias,
     JsImportIdentifier,
+    JsImportKind (ValueImport),
     JsImportStatement,
   )
 import qualified Wasp.JsImport as JI
@@ -53,7 +54,7 @@ extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport = GJI.extImportToJsImport $ fromJust . relDirToPosix $ castDir waspProjectSrcDirFromServerSrcDir
+extImportToJsImport = GJI.extImportToJsImport ValueImport $ fromJust . relDirToPosix $ castDir waspProjectSrcDirFromServerSrcDir
   where
     -- NOTE: Instead of generating the `src` folder with the user's code and
     -- referencing that, we reference user code directly. This gives us proper

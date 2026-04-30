@@ -20,9 +20,10 @@ spec_GeneratorJsImportTest = do
               path = [SP.relfileP|folder/test.js|]
             }
     it "makes a JsImport from ExtImport" $ do
-      extImportToJsImport pathToExtCodeDir pathFromImportLocationToExtCodeDir extImport
+      extImportToJsImport JI.ValueImport pathToExtCodeDir pathFromImportLocationToExtCodeDir extImport
         `shouldBe` JI.JsImport
-          { JI._path = JI.RelativeImportPath [SP.relfileP|../src/folder/test.js|],
+          { JI._kind = JI.ValueImport,
+            JI._path = JI.RelativeImportPath [SP.relfileP|../src/folder/test.js|],
             JI._name = JsImportModule "test",
             JI._importAlias = Nothing
           }

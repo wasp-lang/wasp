@@ -59,7 +59,8 @@ genCrudIndexRoute cruds = return $ C.mkTmplFdWithData tmplPath (Just tmplData)
         (importStatement, importIdentifier) =
           JI.getJsImportStmtAndIdentifier
             JI.JsImport
-              { JI._name = JI.JsImportField name,
+              { JI._kind = JI.ValueImport,
+                JI._name = JI.JsImportField name,
                 JI._path = RelativeImportPath (fromJust . SP.relFileToPosix $ getCrudFilePath name "js"),
                 JI._importAlias = Nothing
               }

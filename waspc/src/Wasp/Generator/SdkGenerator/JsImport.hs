@@ -16,7 +16,7 @@ import Wasp.Generator.SdkGenerator.Common
   ( extSrcDirInSdkRootDir,
     makeSdkImportPath,
   )
-import Wasp.JsImport (JsImport (..), JsImportPath (..))
+import Wasp.JsImport (JsImport (..), JsImportKind (ValueImport), JsImportPath (..))
 
 extImportToImportJson :: Maybe EI.ExtImport -> Aeson.Value
 extImportToImportJson maybeExtImport = GJI.jsImportToImportJson jsImport
@@ -32,7 +32,8 @@ extOperationImportToImportJson =
 extImportToJsImport :: EI.ExtImport -> JsImport
 extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
   JsImport
-    { _path = ModuleImportPath importPath,
+    { _kind = ValueImport,
+      _path = ModuleImportPath importPath,
       _name = importName,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
