@@ -107,7 +107,7 @@ export default defineConfig({
 
 ### Custom Dev Server Port
 
-You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the dev server port by setting the `port` option.
+You have access to all of the [Vite dev server options](https://vitejs.dev/config/server-options.html) in your custom Vite config. You can change the **client** dev server port by setting the `port` option. To change the Wasp **server** port, set the [`PORT` server env var](./env-vars.md#server-general-configuration), for example `PORT=4000 wasp start`.
 
 ```ts title="vite.config.ts" auto-js
 import { wasp } from 'wasp/client/vite'
@@ -125,8 +125,8 @@ export default defineConfig({
 WASP_WEB_CLIENT_URL=http://localhost:4000
 ```
 
-:::warning Changing the dev server port
-Be careful when changing the dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
+:::warning Changing the client dev server port
+Be careful when changing the client dev server port, you'll need to update the `WASP_WEB_CLIENT_URL` env var in your `.env.server` file.
 :::
 
 ### Editing from the Chrome DevTools {#devtools-workspace}
