@@ -109,12 +109,8 @@ getJsImportPathString jsImport = case jsImport._path of
       | otherwise = "./" ++ path
 
 -- | Returns a dynamic import expression. The shape depends on the import kind:
---   For type imports (used in `typeof` positions):
---     default export: @import('./path').default@
---     named export:   @import('./path').Name@
---   For value imports (loaded at runtime via Promise):
---     default export: @import('./path').then(m => m.default)@
---     named export:   @import('./path').then(m => m.Name)@
+--   * named type export: @import('./path').Name@
+--   * named value export: @import('./path').then(m => m.Name)@
 getJsDynamicImportExpression :: JsImport -> String
 getJsDynamicImportExpression jsImport = case jsImport._kind of
   TypeImport -> "import('" ++ importPath ++ "')." ++ memberName
