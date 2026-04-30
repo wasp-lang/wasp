@@ -624,8 +624,8 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.User
     Wasp.Cli.Command.Test
     Wasp.Cli.Command.Uninstall
-    Wasp.Cli.Command.Watch
     Wasp.Cli.Command.WaspLS
+    Wasp.Cli.Command.Watch
     Wasp.Cli.Common
     Wasp.Cli.FileSystem
     Wasp.Cli.GithubRepo
