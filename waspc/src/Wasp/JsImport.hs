@@ -39,7 +39,7 @@ data JsImport = JsImport
   }
   deriving (Show, Eq, Data)
 
--- | Distinguishes type-only imports (used in `typeof` positions and as `import type`)
+-- | Distinguishes type-only imports (used in @typeof@ positions and as @import type@)
 --   from value imports that bring runtime bindings into scope.
 data JsImportKind
   = TypeImport
