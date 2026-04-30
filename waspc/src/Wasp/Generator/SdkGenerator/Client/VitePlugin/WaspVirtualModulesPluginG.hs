@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
-module Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
-  ( getVirtualModulesPlugin,
+module Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPluginG
+  ( getWaspVirtualModulesPlugin,
   )
 where
 
@@ -13,15 +13,15 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.JsImport (jsImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPath, routesEntryPointPath, spaFallbackFile, ssrEntryPointPath, virtualFilesDirInViteDir, virtualFilesFilesDirInViteDir)
-import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
+import Wasp.Generator.SdkGenerator.Client.VitePlugin.WaspVirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeJsImport)
 
-getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
-getVirtualModulesPlugin spec =
+getWaspVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
+getWaspVirtualModulesPlugin spec =
   sequence
-    [ getVirtualModulesTs,
+    [ getWaspVirtualModulesTs,
       genVirtualFilesResolverTs,
       genVirtualFilesIndexTs,
       genVirtualClientEntryTsx spec,
@@ -43,12 +43,12 @@ genVirtualFilesResolverTs =
   where
     tmplPath = C.viteDirInSdkTemplatesDir </> virtualFilesDirInViteDir </> [relfile|resolver.ts|]
 
-getVirtualModulesTs :: Generator FileDraft
-getVirtualModulesTs =
+getWaspVirtualModulesTs :: Generator FileDraft
+getWaspVirtualModulesTs =
   return $
     C.mkTmplFdWithData tmplPath tmplData
   where
-    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|virtualModules.ts|]
+    tmplPath = C.vitePluginsDirInSdkTemplatesDir </> [relfile|waspVirtualModules.ts|]
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,

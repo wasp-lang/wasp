@@ -1,10 +1,10 @@
 {{={= =}=}}
 {=# areThereAnyEntitiesDefined =}
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
-import type { FromRegistry } from 'wasp/types'
+import { FromRegistry } from "../types";
 
-type UserPrismaSetupFn = FromRegistry<'prismaSetupFn', () => InternalPrismaClient>;
-type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
+type UserPrismaSetupFn = FromRegistry<"prismaSetupFn", () => InternalPrismaClient>;
+export type PrismaClientResolved = ReturnType<UserPrismaSetupFn>;
 
 {=# prismaSetupFn.isDefined =}
 {=& prismaSetupFn.importStatement =}

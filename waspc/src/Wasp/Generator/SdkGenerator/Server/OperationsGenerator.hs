@@ -3,6 +3,8 @@
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
   ( getServerOperationsImportPath,
     genOperations,
+    getQueryData,
+    getActionData,
   )
 where
 
@@ -19,6 +21,7 @@ import qualified Wasp.AppSpec.Query as AS.Query
 import Wasp.AppSpec.Valid (isAuthEnabled)
 import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
+import Wasp.Generator.JsImport (virtualExtImportToImportJson)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
@@ -26,7 +29,7 @@ import Wasp.Generator.SdkGenerator.Common
     makeSdkImportPath,
     mkTmplFdWithData,
   )
-import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
+import Wasp.Generator.UserVirtualModules (userOperationVMId)
 import Wasp.Util (toUpperFirst)
 
 -- | This function should match the `exports` path from the SDK's package.json.
@@ -159,7 +162,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
 getOperationTmplData :: Bool -> AS.Operation.Operation -> Aeson.Value
 getOperationTmplData isAuthEnabledGlobally operation =
   object
-    [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
+    [ "jsFn" .= virtualExtImportToImportJson (userOperationVMId operation) (Just $ AS.Operation.getFn operation),
       "operationName" .= AS.Operation.getName operation,
       "operationTypeName" .= toUpperFirst (AS.Operation.getName operation),
       "operationResolvedTypeName" .= getOperationTypeName operation,

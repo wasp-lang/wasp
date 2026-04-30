@@ -20,10 +20,12 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.App.Auth
+import qualified Wasp.AppSpec.App.Client as AS.App.Client
 import qualified Wasp.AppSpec.App.Db as AS.Db
+import qualified Wasp.AppSpec.App.Server as AS.App.Server
 import qualified Wasp.AppSpec.ExternalFiles as EF
 import Wasp.AppSpec.Util (hasEntities)
-import Wasp.AppSpec.Valid (isAuthEnabled)
+import Wasp.AppSpec.Valid (getApp, isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
@@ -48,6 +50,7 @@ import Wasp.Generator.DepVersions
     typescriptVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
+import qualified Wasp.Generator.JsImport as GJI
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.NpmDependencies as N
 import Wasp.Generator.SdkGenerator.AuthG (genAuth)
@@ -60,7 +63,6 @@ import Wasp.Generator.SdkGenerator.Client.VitePluginG (genVitePlugins)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import Wasp.Generator.SdkGenerator.CrudG (genCrud)
 import Wasp.Generator.SdkGenerator.EnvValidation (depsRequiredByEnvValidation, genEnvValidation)
-import Wasp.Generator.SdkGenerator.JsImport (extImportToImportJson)
 import Wasp.Generator.SdkGenerator.Server.AuthG (genNewServerApi)
 import Wasp.Generator.SdkGenerator.Server.CrudG (genNewServerCrudApi)
 import Wasp.Generator.SdkGenerator.Server.EmailSenderG (depsRequiredByEmail, genNewEmailSenderApi)
@@ -72,6 +74,7 @@ import Wasp.Generator.SdkGenerator.WebSocketGenerator (depsRequiredByWebSockets,
 import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
+import Wasp.Generator.UserVirtualModules (clientEnvValidationSchemaVMId, serverEnvValidationSchemaVMId, userPrismaSetupFnVMId)
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
@@ -101,7 +104,8 @@ buildSdk generatedAppDir = do
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
   sequence
-    [ C.genFileCopy [relfile|vite-env.d.ts|],
+    [ C.genFileCopy [relfile|wasp-ssr.d.ts|],
+      C.genFileCopy [relfile|vite-env.d.ts|],
       C.genFileCopy [relfile|prisma-runtime-library.d.ts|],
       C.genFileCopy [relfile|scripts/copy-assets.js|],
       C.genFileCopy [relfile|types/index.ts|],
@@ -121,13 +125,16 @@ genSdk spec =
       genServerUtils spec,
       genServerExportedTypesDir,
       genPackageJson spec,
-      genServerDbClient spec
+      genServerDbClient spec,
+      genWaspUserVirtualModulesDeclaration spec
     ]
     <++> ServerOpsGen.genOperations spec
     <++> ClientOpsGen.genOperations spec
     <++> genAuth spec
     <++> genUniversalDir
-    <++> genExternalCodeDir (AS.externalCodeFiles spec)
+    -- TODO: Temporary comment out so that the project compiles successfully,
+    --       cleanup in the next PR!
+    -- <++> genExternalCodeDir (AS.externalCodeFiles spec)
     <++> genEntitiesAndServerTypesDirs spec
     <++> genCoreSerializationDir spec
     <++> genCrud spec
@@ -360,7 +367,7 @@ genServerDbClient spec = do
   let tmplData =
         object
           [ "areThereAnyEntitiesDefined" .= areThereAnyEntitiesDefined,
-            "prismaSetupFn" .= extImportToImportJson maybePrismaSetupFn
+            "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn
           ]
 
   return $
@@ -368,4 +375,23 @@ genServerDbClient spec = do
       [relfile|server/dbClient.ts|]
       tmplData
   where
-    maybePrismaSetupFn = AS.App.db (snd $ AS.Valid.getApp spec) >>= AS.Db.prismaSetupFn
+    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    app = snd $ getApp spec
+
+genWaspUserVirtualModulesDeclaration :: AppSpec -> Generator FileDraft
+genWaspUserVirtualModulesDeclaration spec = return $ C.mkTmplFdWithData tmplPath tmplData
+  where
+    tmplPath = [relfile|wasp-user-virtual-modules.d.ts|]
+    tmplData =
+      object
+        [ "clientEnvValidationSchema" .= GJI.virtualExtImportToImportJson clientEnvValidationSchemaVMId maybeClientEnvValidationSchema,
+          "serverEnvValidationSchema" .= GJI.virtualExtImportToImportJson serverEnvValidationSchemaVMId maybeServerEnvValidationSchema,
+          "prismaSetupFn" .= GJI.virtualExtImportToImportJson userPrismaSetupFnVMId maybePrismaSetupFn,
+          "actions" .= map (ServerOpsGen.getActionData isAuthEnabledGlobally) (AS.getActions spec),
+          "queries" .= map (ServerOpsGen.getQueryData isAuthEnabledGlobally) (AS.getQueries spec)
+        ]
+    maybeClientEnvValidationSchema = AS.App.client app >>= AS.App.Client.envValidationSchema
+    maybeServerEnvValidationSchema = AS.App.server app >>= AS.App.Server.envValidationSchema
+    maybePrismaSetupFn = AS.App.db app >>= AS.Db.prismaSetupFn
+    isAuthEnabledGlobally = isAuthEnabled spec
+    app = snd $ getApp spec
