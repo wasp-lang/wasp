@@ -35,7 +35,9 @@ function SingleBlogPostLayout({ sidebar, toc, children }: BlogLayoutProps) {
     <div className="margin-vert--lg container">
       <div className="row" style={{ justifyContent: "center" }}>
         {sidebar && <BlogSidebar sidebar={sidebar} />}
-        <MainContent className="col" style={{ maxWidth: 750 }}>{children}</MainContent>
+        <MainContent className="col" style={{ maxWidth: 750 }}>
+          {children}
+        </MainContent>
         <div className="col col--2">{toc}</div>
       </div>
     </div>
@@ -46,9 +48,17 @@ function MainContent({
   children,
   className,
   style,
-}: React.PropsWithChildren<{ className?: string; style?: React.CSSProperties }>) {
+}: React.PropsWithChildren<{
+  className?: string;
+  style?: React.CSSProperties;
+}>) {
   return (
-    <main className={className} style={style} itemScope itemType="http://schema.org/Blog">
+    <main
+      className={className}
+      style={style}
+      itemScope
+      itemType="http://schema.org/Blog"
+    >
       {children}
     </main>
   );

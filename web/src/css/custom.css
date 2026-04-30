@@ -121,7 +121,7 @@
    NOTE(matija): `html.` prefix needed to beat Infima's :root specificity. */
 html.docs-wrapper,
 html.blog-wrapper {
-    /* Smaller base font for docs/blog - gives a more modern, sleek look.
+  /* Smaller base font for docs/blog - gives a more modern, sleek look.
     Docs and blog body font size is set explicitly below, so this mostly affects ToC and left sidebar size. */
   --ifm-font-size-base: 87.5%;
   --ifm-heading-font-weight: 500;
@@ -192,7 +192,6 @@ html.blog-wrapper[data-theme="dark"] {
   border: 1px solid var(--wasp-g3);
   border-radius: 0;
 }
-
 
 /* Schematic admonitions */
 .docs-wrapper .alert,
@@ -467,7 +466,9 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 .menu__caret::before {
   background: none !important;
   content: "−";
-  font: 300 20px "IBM Plex Mono", monospace;
+  font:
+    300 20px "IBM Plex Mono",
+    monospace;
   /*
    * NOTE(matija): I like how +/- get transformed with animation when clicked.
    * It's a bit silly but fun. If you want to disable it, uncomment the line below.
