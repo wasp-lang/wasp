@@ -152,6 +152,16 @@ const features: Feature[] = [
     title: "Lazy Route",
     isPublic: true,
   },
+  {
+    to: "/prerender",
+    title: "Prerendering",
+    isPublic: true,
+  },
+  {
+    to: "/hydration-mismatch",
+    title: "Hydration Mismatch",
+    isPublic: true,
+  },
 ];
 
 function FeatureCard({ title, isPublic, ...routeProps }: Feature) {

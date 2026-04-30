@@ -36,6 +36,7 @@ import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
+import qualified Wasp.AppSpec.Route as Route
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
@@ -72,7 +73,8 @@ validateAppSpec spec =
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
           validateUserNodeVersionRange spec,
-          validateAtLeastOneRoute spec
+          validateAtLeastOneRoute spec,
+          validatePrerenderRoutes spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -433,6 +435,36 @@ validateAtLeastOneRoute spec =
     else []
   where
     routes = AS.getRoutes spec
+
+validatePrerenderRoutes :: AppSpec -> [ValidationError]
+validatePrerenderRoutes spec =
+  concatMap validatePrerenderRoute prerenderRoutes
+  where
+    prerenderRoutes = filter ((== Just True) . Route.prerender . snd) (AS.getRoutes spec)
+
+    validatePrerenderRoute (routeName, route) =
+      concat
+        [ [ GenericValidationError $
+              "Route '"
+                ++ routeName
+                ++ "' has prerender enabled but its path ("
+                ++ Route.path route
+                ++ ") contains dynamic segments. Prerendered routes must have static paths."
+            | pathHasDynamicSegments (Route.path route)
+          ],
+          [ GenericValidationError $
+              "Route '"
+                ++ routeName
+                ++ "' has prerender enabled but its page has authRequired set to true."
+                ++ " Prerendered routes cannot require authentication."
+            | pageRequiresAuth (getPage route)
+          ]
+        ]
+
+    pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
+    pageRequiresAuth page = Page.authRequired page == Just True
+
+    getPage route = snd $ AS.resolveRef spec (Route.to route)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.
