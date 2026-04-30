@@ -3,7 +3,7 @@ module Wasp.Generator.WaspLibs.WaspLib
     makeWaspLib,
     makeLocalNpmDepFromWaspLib,
     getTarballPathInLibsSourceDir,
-    getTarballPathInProjectRootDir,
+    getTarballPathInGeneratedAppDir,
   )
 where
 
@@ -12,8 +12,8 @@ import qualified StrongPath as SP
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.ExternalConfig.Npm.Tarball (TarballFilename, tarballFilenameAsRelFile)
 import qualified Wasp.ExternalConfig.Npm.Tarball as Npm.Tarball
-import Wasp.Generator.Common (ProjectRootDir)
-import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir, libsRootDirInGeneratedCodeDir)
+import Wasp.Generator.Common (GeneratedAppDir)
+import Wasp.Generator.WaspLibs.Common (LibsRootDir, LibsSourceDir, libsRootDirInGeneratedAppDir)
 import Wasp.Version (waspVersion)
 
 {-
@@ -38,7 +38,7 @@ makeWaspLib waspLibPackageName libDirName' =
   where
     waspVersionStr = show waspVersion
 
-makeLocalNpmDepFromWaspLib :: Path' Rel' (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
+makeLocalNpmDepFromWaspLib :: Path' (Rel packageJsonDir) (Dir LibsRootDir) -> WaspLib -> Npm.Dependency.Dependency
 makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageName waspLib, npmDepFilePath)
   where
     npmDepFilePath = "file:" <> fromRelFile (tarballSrcDir </> getTarballPathInLibsRootDir waspLib)
@@ -47,8 +47,8 @@ makeLocalNpmDepFromWaspLib tarballSrcDir waspLib = Npm.Dependency.make (packageN
 getTarballPathInLibsSourceDir :: WaspLib -> Path' (Rel LibsSourceDir) File'
 getTarballPathInLibsSourceDir = getTarballPath
 
-getTarballPathInProjectRootDir :: WaspLib -> Path' (Rel ProjectRootDir) File'
-getTarballPathInProjectRootDir = (libsRootDirInGeneratedCodeDir </>) . getTarballPathInLibsRootDir
+getTarballPathInGeneratedAppDir :: WaspLib -> Path' (Rel GeneratedAppDir) File'
+getTarballPathInGeneratedAppDir = (libsRootDirInGeneratedAppDir </>) . getTarballPathInLibsRootDir
 
 -- | Tarballs are copied to subdirectories in the LibsRootDir in the generated Wasp app.
 getTarballPathInLibsRootDir :: WaspLib -> Path' (Rel LibsRootDir) File'

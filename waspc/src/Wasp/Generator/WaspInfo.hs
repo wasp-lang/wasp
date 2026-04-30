@@ -17,7 +17,7 @@ import Data.Version (showVersion)
 import GHC.Generics (Generic)
 import qualified Paths_waspc
 import StrongPath (Abs, Dir, File, Path', Rel, relfile, toFilePath, (</>))
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Project.BuildType (BuildType)
 import Wasp.Util.IO (doesFileExist)
 
@@ -34,11 +34,11 @@ instance ToJSON WaspInfo
 
 data WaspInfoFile
 
-waspInfoInProjectRootDir :: Path' (Rel ProjectRootDir) (File WaspInfoFile)
-waspInfoInProjectRootDir = [relfile|.waspinfo|]
+waspInfoInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (File WaspInfoFile)
+waspInfoInGeneratedAppDir = [relfile|.waspinfo|]
 
-persist :: Path' Abs (Dir ProjectRootDir) -> BuildType -> IO ()
-persist projectRootDir currentBuildType = do
+persist :: Path' Abs (Dir GeneratedAppDir) -> BuildType -> IO ()
+persist generatedAppDir currentBuildType = do
   encodeFile (toFilePath waspInfoFile) . generateWaspInfo =<< getCurrentTime
   where
     generateWaspInfo currentTime =
@@ -48,10 +48,10 @@ persist projectRootDir currentBuildType = do
           buildType = currentBuildType
         }
 
-    waspInfoFile = projectRootDir </> waspInfoInProjectRootDir
+    waspInfoFile = generatedAppDir </> waspInfoInGeneratedAppDir
     currentVersion = showVersion Paths_waspc.version
 
-isCompatibleWithExistingBuildAt :: BuildType -> Path' Abs (Dir ProjectRootDir) -> IO Bool
+isCompatibleWithExistingBuildAt :: BuildType -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 currentBuildType `isCompatibleWithExistingBuildAt` outDir =
   either (const False) isCompatible <$> safeRead outDir
   where
@@ -64,12 +64,12 @@ type ReadResult = Either ReadError WaspInfo
 
 data ReadError = NotFound | IncompatibleFormat
 
-safeRead :: Path' Abs (Dir ProjectRootDir) -> IO ReadResult
-safeRead projectRootDir =
+safeRead :: Path' Abs (Dir GeneratedAppDir) -> IO ReadResult
+safeRead generatedAppDir =
   doesFileExist waspInfoFile >>= \case
     False -> return $ Left NotFound
     True ->
       maybe (Left IncompatibleFormat) Right
         <$> decodeFileStrict (toFilePath waspInfoFile)
   where
-    waspInfoFile = projectRootDir </> waspInfoInProjectRootDir
+    waspInfoFile = generatedAppDir </> waspInfoInGeneratedAppDir

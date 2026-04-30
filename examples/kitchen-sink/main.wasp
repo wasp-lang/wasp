@@ -1,10 +1,10 @@
 app KitchenSink {
   wasp: {
-    version: "^0.22.0"
+    version: "^0.24.0"
   },
   title: "Wasp Kitchen Sink",
   head: [
-    "<link rel='manifest' href='/manifest.json'>",
+    "<link rel='manifest' href='/manifest.json' />",
     "<link rel='icon' href='/favicon.ico' />",
   ],
   webSocket: {
@@ -89,7 +89,7 @@ app KitchenSink {
 
 // --------- General --------- //
 
-route HomeRoute { path: "/", to: HomePage }
+route HomeRoute { path: "/", to: HomePage, prerender: true }
 page HomePage {
   component: import { HomePage } from "@src/pages/HomePage"
 }
@@ -347,6 +347,30 @@ route ChatRoute { path: "/chat", to: ChatPage }
 page ChatPage {
   authRequired: true,
   component: import { ChatPage } from "@src/features/chat/pages/ChatPage"
+}
+
+// --------- Lazy Loading --------- //
+
+route EagerRoute { path: "/lazy/no", to: EagerPage, lazy: false }
+page EagerPage {
+  component: import { EagerPage } from "@src/features/lazy-loading/pages/EagerPage"
+}
+
+route LazyRoute { path: "/lazy/yes", to: LazyPage }
+page LazyPage {
+  component: import { LazyPage } from "@src/features/lazy-loading/pages/LazyPage"
+}
+
+// --------- Prerendering --------- //
+
+route PrerenderRoute { path: "/prerender", to: PrerenderPage, prerender: true }
+page PrerenderPage {
+  component: import { PrerenderPage } from "@src/features/prerender/pages/PrerenderPage"
+}
+
+route HydrationMismatchRoute { path: "/hydration-mismatch", to: HydrationMismatchPage, prerender: true }
+page HydrationMismatchPage {
+  component: import { HydrationMismatchPage } from "@src/features/prerender/pages/HydrationMismatchPage"
 }
 
 // --------- Operations Type Testing --------- //

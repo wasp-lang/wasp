@@ -14,7 +14,7 @@ import StrongPath
     (</>),
   )
 import qualified StrongPath as SP
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
   ( WriteableMonad
@@ -34,7 +34,7 @@ import Wasp.Util.IO (listDirectoryDeep)
 -- a source of potential confusion and possibly tech debt to resolve later.
 data CopyDirFileDraft = CopyDirFileDraft
   { -- | Path where the dir will be copied to.
-    _dstPath :: !(Path' (Rel ProjectRootDir) Dir'),
+    _dstPath :: !(Path' (Rel GeneratedAppDir) Dir'),
     -- | Absolute path of source dir to copy.
     _srcPath :: !(Path' Abs Dir'),
     -- | What to do with the dst dir if it already exists.
@@ -50,7 +50,7 @@ data CopyDirFileDraftDstDirStrategy
   deriving (Show, Eq)
 
 instance Writeable CopyDirFileDraft where
-  write projectRootAbsPath draft = do
+  write generatedAppAbsPath draft = do
     srcDirExists <- doesDirectoryExist $ SP.fromAbsDir srcPathAbsDir
     dstDirExists <- doesDirectoryExist $ SP.fromAbsDir dstPathAbsDir
 
@@ -64,7 +64,7 @@ instance Writeable CopyDirFileDraft where
       copyDirectoryRecursive srcPathAbsDir dstPathAbsDir
     where
       srcPathAbsDir = _srcPath draft
-      dstPathAbsDir = projectRootAbsPath </> _dstPath draft
+      dstPathAbsDir = generatedAppAbsPath </> _dstPath draft
 
   getDstPath draft = Right $ _dstPath draft
 
