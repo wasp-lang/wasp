@@ -116,4 +116,4 @@ genCrudOperations spec cruds = return $ map genCrudOperation cruds
         operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
         operationToOverrideImport (operation, options) = makeCrudOperationKeyAndJsonPair operation importJson
           where
-            importJson = extImportToImportJson [reldirP|../|] (AS.Crud.overrideFn options)
+            importJson = extImportToImportJson JI.ValueImport [reldirP|../|] (AS.Crud.overrideFn options)

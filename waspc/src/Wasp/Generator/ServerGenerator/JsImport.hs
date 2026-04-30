@@ -10,7 +10,7 @@ import Wasp.JsImport
   ( JsImport,
     JsImportAlias,
     JsImportIdentifier,
-    JsImportKind (ValueImport),
+    JsImportKind,
     JsImportStatement,
   )
 import qualified Wasp.JsImport as JI
@@ -18,43 +18,49 @@ import Wasp.Project.Common (generatedAppDirInWaspProjectDir, srcDirInWaspProject
 import Wasp.Util.StrongPath (invertRelDir)
 
 extImportToImportJson ::
+  JsImportKind ->
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   Maybe EI.ExtImport ->
   Aeson.Value
-extImportToImportJson pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson jsImport
+extImportToImportJson importKind pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson jsImport
   where
-    jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
+    jsImport = extImportToJsImport importKind pathFromImportLocationToSrcDir <$> maybeExtImport
 
 extImportToAliasedImportJson ::
+  JsImportKind ->
   JsImportAlias ->
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   Maybe EI.ExtImport ->
   Aeson.Value
-extImportToAliasedImportJson importAlias pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson aliasedJsImport
+extImportToAliasedImportJson importKind importAlias pathFromImportLocationToSrcDir maybeExtImport = GJI.jsImportToImportJson aliasedJsImport
   where
-    jsImport = extImportToJsImport pathFromImportLocationToSrcDir <$> maybeExtImport
+    jsImport = extImportToJsImport importKind pathFromImportLocationToSrcDir <$> maybeExtImport
     aliasedJsImport = JI.applyJsImportAlias (Just importAlias) <$> jsImport
 
 getJsImportStmtAndIdentifier ::
+  JsImportKind ->
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier pathFromImportLocationToExtCodeDir = JI.getJsImportStmtAndIdentifier . extImportToJsImport pathFromImportLocationToExtCodeDir
+getJsImportStmtAndIdentifier importKind pathFromImportLocationToExtCodeDir =
+  JI.getJsImportStmtAndIdentifier . extImportToJsImport importKind pathFromImportLocationToExtCodeDir
 
 getAliasedJsImportStmtAndIdentifier ::
+  JsImportKind ->
   JsImportAlias ->
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   (JsImportStatement, JsImportIdentifier)
-getAliasedJsImportStmtAndIdentifier importAlias pathFromImportLocationToExtCodeDir =
-  JI.getJsImportStmtAndIdentifier . JI.applyJsImportAlias (Just importAlias) . extImportToJsImport pathFromImportLocationToExtCodeDir
+getAliasedJsImportStmtAndIdentifier importKind importAlias pathFromImportLocationToExtCodeDir =
+  JI.getJsImportStmtAndIdentifier . JI.applyJsImportAlias (Just importAlias) . extImportToJsImport importKind pathFromImportLocationToExtCodeDir
 
 -- NOTE: We have to cast dir because the 'GJI' expects path to the `sdk/wasp/src` dir.
 extImportToJsImport ::
+  JsImportKind ->
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport = GJI.extImportToJsImport ValueImport $ fromJust . relDirToPosix $ castDir waspProjectSrcDirFromServerSrcDir
+extImportToJsImport importKind = GJI.extImportToJsImport importKind $ fromJust . relDirToPosix $ castDir waspProjectSrcDirFromServerSrcDir
   where
     -- NOTE: Instead of generating the `src` folder with the user's code and
     -- referencing that, we reference user code directly. This gives us proper

@@ -29,6 +29,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
+import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 
 genEmailAuth :: AS.AppSpec -> AS.Auth.Auth -> Generator [FileDraft]
@@ -57,7 +58,7 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
           "passwordResetClientRoute" .= passwordResetClientRoute,
           "getPasswordResetEmailContent" .= getPasswordResetEmailContent,
           "getVerificationEmailContent" .= getVerificationEmailContent,
-          "userSignupFields" .= extImportToImportJson relPathToServerSrcDir maybeUserSignupFields,
+          "userSignupFields" .= extImportToImportJson JI.ValueImport relPathToServerSrcDir maybeUserSignupFields,
           "isDevelopment" .= isDevelopment
         ]
 
@@ -75,8 +76,8 @@ genEmailAuthConfig spec emailAuthConfig = return $ C.mkTmplFdWithDstAndData tmpl
 
     emailVerificationClientRoute = getRoutePathFromRef spec $ AS.Auth.EmailVerification.clientRoute emailVerification
     passwordResetClientRoute = getRoutePathFromRef spec $ AS.Auth.PasswordReset.clientRoute passwordReset
-    getPasswordResetEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
-    getVerificationEmailContent = extImportToImportJson relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerification
+    getPasswordResetEmailContent = extImportToImportJson JI.ValueImport relPathToServerSrcDir $ AS.Auth.PasswordReset.getEmailContentFn passwordReset
+    getVerificationEmailContent = extImportToImportJson JI.ValueImport relPathToServerSrcDir $ AS.Auth.EmailVerification.getEmailContentFn emailVerification
     maybeUserSignupFields = AS.Auth.userSignupFieldsForEmailAuth emailAuthConfig
 
     emailVerification = AS.Auth.emailVerification emailAuthConfig
