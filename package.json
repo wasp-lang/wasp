@@ -1,5 +1,6 @@
 {
   "name": "wasp-repo",
+  "type": "module",
   "scripts": {
     "check:prettier": "prettier --ignore-unknown --check --config prettier.config.mjs .",
     "format:prettier": "prettier --ignore-unknown --write --config prettier.config.mjs ."
