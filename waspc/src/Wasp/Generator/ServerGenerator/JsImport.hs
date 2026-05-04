@@ -38,8 +38,7 @@ getJsImportStmtAndIdentifier ::
   Path Posix (Rel importLocation) (Dir ServerSrcDir) ->
   EI.ExtImport ->
   (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier pathFromImportLocationToExtCodeDir =
-  JI.getJsImportStmtAndIdentifier . extImportToJsImport pathFromImportLocationToExtCodeDir
+getJsImportStmtAndIdentifier pathFromImportLocationToExtCodeDir = JI.getJsImportStmtAndIdentifier . extImportToJsImport pathFromImportLocationToExtCodeDir
 
 getAliasedJsImportStmtAndIdentifier ::
   JsImportAlias ->
