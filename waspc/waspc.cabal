@@ -25,10 +25,10 @@ data-files:
   --   and also files with no extension.
   --   Check https://github.com/haskell/cabal/issues/5883 for more details.
   Cli/starters/**/*.css
-  Cli/starters/**/*.mjs
   Cli/starters/**/*.js
   Cli/starters/**/*.json
   Cli/starters/**/*.md
+  Cli/starters/**/*.mjs
   Cli/starters/**/*.prisma
   Cli/starters/**/*.svg
   Cli/starters/**/*.ts
