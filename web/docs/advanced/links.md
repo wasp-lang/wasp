@@ -95,6 +95,31 @@ You can also pass `search` and `hash` props to the `Link` component:
 
 This will result in a link like this: `/task/1?sortBy=date#comments`. Check out the [API Reference](#link-component) for more details.
 
+## Using the `NavLink` Component
+
+Wasp also provides a type-safe `NavLink` component, a wrapper around [`react-router`'s `NavLink`](https://reactrouter.com/7.12.0/api/components/NavLink). It works just like `Link`, but additionally exposes the navigation state (`isActive`, `isPending`, `isTransitioning`) through the `className`, `style`, and `children` props. This is useful for styling navigation menus that highlight the current route.
+
+```tsx title="Navigation.tsx"
+import { NavLink } from 'wasp/client/router'
+
+export const Navigation = () => {
+  return (
+    <nav>
+      <NavLink
+        to="/tasks"
+        className={({ isActive }) =>
+          isActive ? 'font-bold text-blue-600' : 'text-gray-600'
+        }
+      >
+        Tasks
+      </NavLink>
+    </nav>
+  )
+}
+```
+
+`NavLink` accepts the same `to`, `params`, `search`, and `hash` props as `Link`, plus all of the props supported by `react-router`'s `NavLink` (e.g. `end`, `caseSensitive`).
+
 ## The `routes` Object
 
 You can also get all the pages in your app with the `routes` object:
@@ -150,6 +175,14 @@ The `Link` component accepts the following props:
 - `hash: string`
 
 - all other props that the `react-router`'s [Link](https://reactrouter.com/7.12.0/api/components/Link) component accepts
+
+### `NavLink` Component
+
+The `NavLink` component accepts the same props as the `Link` component, with one difference:
+
+- all other props that the `react-router`'s [NavLink](https://reactrouter.com/7.12.0/api/components/NavLink) component accepts (instead of `Link`'s props)
+
+This means `className`, `style`, and `children` can be either a value or a function that receives `{ isActive, isPending, isTransitioning }` and returns a value. Useful props like `end` and `caseSensitive` are also supported.
 
 ### `routes` Object
 
