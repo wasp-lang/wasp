@@ -1,12 +1,12 @@
-module Wasp.Generator.TypesGenerator
-  ( genTypes,
+module Wasp.Generator.UserTypesGenerator
+  ( genUserTypes,
   )
 where
 
 import Data.Aeson (object, (.=))
 import qualified Data.Aeson.Types as Aeson.Types
 import StrongPath (relfile)
-import Wasp.AppSpec (AppSpec, getActions, getCruds, getOperations, getQueries)
+import Wasp.AppSpec (AppSpec, getCruds, getOperations)
 import qualified Wasp.AppSpec.App as AS.App
 import qualified Wasp.AppSpec.App.Auth as AS.Auth
 import qualified Wasp.AppSpec.App.Client as AS.App.Client
@@ -19,21 +19,24 @@ import Wasp.AppSpec.Valid (getApp)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList, makeCrudOperationKeyAndJsonPair)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
-import Wasp.Generator.TypesGenerator.Common (mkTmplFdWithData)
-import Wasp.Generator.TypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
+import Wasp.Generator.UserTypesGenerator.Common (mkTmplFdWithData)
+import Wasp.Generator.UserTypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
 import Wasp.Util ((<++>))
 
-genTypes :: AppSpec -> Generator [FileDraft]
-genTypes spec =
-  genConfigTypes spec
-    <++> genCrudTypes spec
-    <++> genOperationTypes spec
+genUserTypes :: AppSpec -> Generator [FileDraft]
+genUserTypes spec = genUserModuleAugmentation spec
 
-genConfigTypes :: AppSpec -> Generator [FileDraft]
-genConfigTypes spec =
+genUserModuleAugmentation :: AppSpec -> Generator [FileDraft]
+genUserModuleAugmentation spec =
+  genRegister spec
+    <++> genCrudRegister spec
+    <++> genOperationRegister spec
+
+genRegister :: AppSpec -> Generator [FileDraft]
+genRegister spec =
   return
     [ mkTmplFdWithData
-        [relfile|configuration.ts|]
+        [relfile|register.ts|]
         tmplData
     ]
   where
@@ -50,13 +53,13 @@ genConfigTypes spec =
     maybeAuth = AS.App.auth app
     app = snd $ getApp spec
 
-genCrudTypes :: AppSpec -> Generator [FileDraft]
-genCrudTypes spec
+genCrudRegister :: AppSpec -> Generator [FileDraft]
+genCrudRegister spec
   | null cruds = return []
   | otherwise =
       return
         [ mkTmplFdWithData
-            [relfile|crud.ts|]
+            [relfile|crud-register.ts|]
             (object ["cruds" .= map mkCrudData cruds])
         ]
   where
@@ -73,13 +76,13 @@ genCrudTypes spec
     operationToOverrideImport (operation, options) =
       makeCrudOperationKeyAndJsonPair operation (extImportToImportJson (AS.Crud.overrideFn options))
 
-genOperationTypes :: AppSpec -> Generator [FileDraft]
-genOperationTypes spec
+genOperationRegister :: AppSpec -> Generator [FileDraft]
+genOperationRegister spec
   | null operations = return []
   | otherwise =
       return
         [ mkTmplFdWithData
-            [relfile|operations.ts|]
+            [relfile|operations-register.ts|]
             (object ["operations" .= map mkOperationData operations])
         ]
   where

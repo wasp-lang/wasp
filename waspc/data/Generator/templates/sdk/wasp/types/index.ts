@@ -5,11 +5,18 @@
  * E.g., a user defined prisma client.
  */
 
+/**
+ * For registring general types from user project.
+ * Types without a more specific register go here.
+ */
 export interface Register {}
 export type FromRegister<K extends string, Default> = K extends keyof Register
   ? Register[K]
   : Default;
 
+/**
+ * For registring operation types from user project.
+ */
 export interface OperationsRegister {}
 export type FromOperationsRegister<
   Operation extends string,
@@ -18,6 +25,9 @@ export type FromOperationsRegister<
   ? OperationsRegister[Operation]
   : Default;
 
+  /**
+ * For registring CRUD overrides types from user project.
+ */
 export interface CrudOverridesRegister {}
 export type FromCrudOverridesRegister<
   CrudName extends string,
