@@ -9,7 +9,7 @@ spec_JsImportTest :: Spec
 spec_JsImportTest = do
   describe "makeJsImport" $ do
     it "makes JsImport with a module import from a path" $ do
-      makeJsImport ValueImport testRelativeImportPath (JsImportModule "test")
+      makeValueJsImport testRelativeImportPath (JsImportModule "test")
         `shouldBe` JsImport
           { _kind = ValueImport,
             _path = testRelativeImportPath,
@@ -18,38 +18,38 @@ spec_JsImportTest = do
           }
   describe "applyJsImportAlias" $ do
     it "applies alias to JsImport" $ do
-      let jsImport = makeJsImport ValueImport testRelativeImportPath (JsImportModule "test")
+      let jsImport = makeValueJsImport testRelativeImportPath (JsImportModule "test")
       applyJsImportAlias (Just "alias") jsImport
         `shouldBe` jsImport {_importAlias = Just "alias"}
   describe "getJsImportStmtAndIdentifier" $ do
     describe "generates import statement and identifier from" $ do
       it "module import" $ do
         getJsImportStmtAndIdentifier
-          (makeJsImport ValueImport testRelativeImportPath (JsImportModule "test"))
+          (makeValueJsImport testRelativeImportPath (JsImportModule "test"))
           `shouldBe` ("import test from '" ++ generatedImportPathForRelativeImportPath ++ "'", "test")
       it "module import with alias" $ do
         getJsImportStmtAndIdentifier
           ( applyJsImportAlias
               (Just "alias")
-              (makeJsImport ValueImport testRelativeImportPath (JsImportModule "test"))
+              (makeValueJsImport testRelativeImportPath (JsImportModule "test"))
           )
           `shouldBe` ("import alias from '" ++ generatedImportPathForRelativeImportPath ++ "'", "alias")
       it "module import with homonymous alias" $ do
         getJsImportStmtAndIdentifier
           ( applyJsImportAlias
               (Just "test")
-              (makeJsImport ValueImport testRelativeImportPath (JsImportModule "test"))
+              (makeValueJsImport testRelativeImportPath (JsImportModule "test"))
           )
           `shouldBe` ("import test from '" ++ generatedImportPathForRelativeImportPath ++ "'", "test")
       it "named import" $ do
         getJsImportStmtAndIdentifier
-          (makeJsImport ValueImport testRelativeImportPath (JsImportField "test"))
+          (makeValueJsImport testRelativeImportPath (JsImportField "test"))
           `shouldBe` ("import { test } from '" ++ generatedImportPathForRelativeImportPath ++ "'", "test")
       it "named import with alias" $ do
         getJsImportStmtAndIdentifier
           ( applyJsImportAlias
               (Just "alias")
-              (makeJsImport ValueImport testRelativeImportPath (JsImportField "test"))
+              (makeValueJsImport testRelativeImportPath (JsImportField "test"))
           )
           `shouldBe` ("import { test as alias } from '" ++ generatedImportPathForRelativeImportPath ++ "'", "alias")
 
@@ -57,29 +57,29 @@ spec_JsImportTest = do
         getJsImportStmtAndIdentifier
           ( applyJsImportAlias
               (Just "test")
-              (makeJsImport ValueImport testRelativeImportPath (JsImportField "test"))
+              (makeValueJsImport testRelativeImportPath (JsImportField "test"))
           )
           `shouldBe` ("import { test } from '" ++ generatedImportPathForRelativeImportPath ++ "'", "test")
       it "import from module" $ do
         getJsImportStmtAndIdentifier
-          (makeJsImport ValueImport testModuleImportPath (JsImportModule "test"))
+          (makeValueJsImport testModuleImportPath (JsImportModule "test"))
           `shouldBe` ("import test from '" ++ generatedImportPathForModuleImportPath ++ "'", "test")
       it "type import" $ do
         getJsImportStmtAndIdentifier
-          (makeJsImport TypeImport testRelativeImportPath (JsImportField "test"))
+          (makeTypeJsImport testRelativeImportPath (JsImportField "test"))
           `shouldBe` ("import type { test } from '" ++ generatedImportPathForRelativeImportPath ++ "'", "test")
   describe "getJsDynamicImportExpression" $ do
     it "generates value (runtime) dynamic import expression for default export" $ do
-      getJsDynamicImportExpression (makeJsImport ValueImport testRelativeImportPath (JsImportModule "test"))
+      getJsDynamicImportExpression (makeValueJsImport testRelativeImportPath (JsImportModule "test"))
         `shouldBe` "import('" ++ generatedImportPathForRelativeImportPath ++ "').then(m => m.default)"
     it "generates value (runtime) dynamic import expression for named export" $ do
-      getJsDynamicImportExpression (makeJsImport ValueImport testRelativeImportPath (JsImportField "test"))
+      getJsDynamicImportExpression (makeValueJsImport testRelativeImportPath (JsImportField "test"))
         `shouldBe` "import('" ++ generatedImportPathForRelativeImportPath ++ "').then(m => m.test)"
     it "generates type dynamic import expression for default export" $ do
-      getJsDynamicImportExpression (makeJsImport TypeImport testRelativeImportPath (JsImportModule "test"))
+      getJsDynamicImportExpression (makeTypeJsImport testRelativeImportPath (JsImportModule "test"))
         `shouldBe` "import('" ++ generatedImportPathForRelativeImportPath ++ "').default"
     it "generates type dynamic import expression for named export" $ do
-      getJsDynamicImportExpression (makeJsImport TypeImport testRelativeImportPath (JsImportField "test"))
+      getJsDynamicImportExpression (makeTypeJsImport testRelativeImportPath (JsImportField "test"))
         `shouldBe` "import('" ++ generatedImportPathForRelativeImportPath ++ "').test"
   where
     testRelativeImportPath :: JsImportPath

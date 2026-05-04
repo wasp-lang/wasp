@@ -20,7 +20,6 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
-import qualified Wasp.JsImport as JI
 
 genDbSeed :: AppSpec -> Generator [FileDraft]
 genDbSeed spec =
@@ -59,7 +58,7 @@ dbSeedsToTemplateData (Just seeds) =
   where
     dbSeedToTemplateData :: ExtImport -> Aeson.Value
     dbSeedToTemplateData extImport =
-      extImportToImportJson JI.ValueImport pathFromDbSeedScriptToServerSrc (Just extImport)
+      extImportToImportJson pathFromDbSeedScriptToServerSrc (Just extImport)
 
 dbSeedNameEnvVarName :: String
 dbSeedNameEnvVarName = "WASP_DB_SEED_NAME"

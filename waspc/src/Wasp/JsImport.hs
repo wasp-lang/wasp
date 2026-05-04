@@ -9,7 +9,8 @@ module Wasp.JsImport
     JsImportAlias,
     JsImportIdentifier,
     JsImportStatement,
-    makeJsImport,
+    makeTypeJsImport,
+    makeValueJsImport,
     applyJsImportAlias,
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
@@ -76,10 +77,19 @@ getImportIdentifier JsImport {_name = name} = case name of
   JsImportModule identifier -> identifier
   JsImportField identifier -> identifier
 
-makeJsImport :: JsImportKind -> JsImportPath -> JsImportName -> JsImport
-makeJsImport importKind importPath importName =
+makeTypeJsImport :: JsImportPath -> JsImportName -> JsImport
+makeTypeJsImport importPath importName =
   JsImport
-    { _kind = importKind,
+    { _kind = TypeImport,
+      _path = importPath,
+      _name = importName,
+      _importAlias = Nothing
+    }
+
+makeValueJsImport :: JsImportPath -> JsImportName -> JsImport
+makeValueJsImport importPath importName =
+  JsImport
+    { _kind = ValueImport,
       _path = importPath,
       _name = importName,
       _importAlias = Nothing

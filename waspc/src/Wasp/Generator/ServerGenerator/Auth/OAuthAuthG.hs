@@ -36,7 +36,6 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.ServerGenerator.Common (ServerTemplatesSrcDir)
 import qualified Wasp.Generator.ServerGenerator.Common as C
 import Wasp.Generator.ServerGenerator.JsImport (extImportToImportJson)
-import qualified Wasp.JsImport as JI
 import Wasp.Util ((<++>))
 import qualified Wasp.Util as Util
 
@@ -115,8 +114,8 @@ genOAuthConfig provider maybeUserConfig pathToConfigTmpl = return $ C.mkTmplFdWi
         [ "providerId" .= OAuth.providerId provider,
           "displayName" .= OAuth.displayName provider,
           "requiredScopes" .= OAuth.scopeStr provider,
-          "configFn" .= extImportToImportJson JI.ValueImport relPathFromAuthConfigToServerSrcDir maybeConfigFn,
-          "userSignupFields" .= extImportToImportJson JI.ValueImport relPathFromAuthConfigToServerSrcDir maybeUserSignupFields
+          "configFn" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeConfigFn,
+          "userSignupFields" .= extImportToImportJson relPathFromAuthConfigToServerSrcDir maybeUserSignupFields
         ]
     maybeConfigFn = AS.Auth.configFn =<< maybeUserConfig
     maybeUserSignupFields = AS.Auth.userSignupFieldsForExternalAuth =<< maybeUserConfig
