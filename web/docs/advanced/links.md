@@ -97,7 +97,7 @@ This will result in a link like this: `/task/1?sortBy=date#comments`. Check out 
 
 ## Using the `NavLink` Component
 
-Wasp also provides a type-safe `NavLink` component, a wrapper around [`react-router`'s `NavLink`](https://reactrouter.com/7.12.0/api/components/NavLink). It works just like `Link`, but additionally exposes the navigation state (`isActive`, `isPending`, `isTransitioning`) through the `className`, `style`, and `children` props. This is useful for styling navigation menus that highlight the current route.
+Wasp also provides a type-safe `NavLink` component. It works just like `Link`, but additionally exposes the navigation state (`isActive`, `isPending`, `isTransitioning`) through the `className`, `style`, and `children` props. This is useful for styling navigation menus that highlight the current route.
 
 ```tsx title="Navigation.tsx"
 import { NavLink } from 'wasp/client/router'
@@ -117,8 +117,6 @@ export const Navigation = () => {
   )
 }
 ```
-
-`NavLink` accepts the same `to`, `params`, `search`, and `hash` props as `Link`, plus all of the props supported by `react-router`'s `NavLink` (e.g. `end`, `caseSensitive`).
 
 ## The `routes` Object
 
@@ -178,11 +176,29 @@ The `Link` component accepts the following props:
 
 ### `NavLink` Component
 
-The `NavLink` component accepts the same props as the `Link` component, with one difference:
+The `NavLink` component accepts the following props:
 
-- all other props that the `react-router`'s [NavLink](https://reactrouter.com/7.12.0/api/components/NavLink) component accepts (instead of `Link`'s props)
+- `to` <Required />
 
-This means `className`, `style`, and `children` can be either a value or a function that receives `{ isActive, isPending, isTransitioning }` and returns a value. Useful props like `end` and `caseSensitive` are also supported.
+  - A valid Wasp Route path from your `main.wasp` file.
+
+    In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
+
+- `params: { [name: string]: string | number }` <Required /> (if the path contains params)
+
+  - An object with keys and values for each param in the path.
+  - For example, if the path is `/task/:id`, then the `params` prop must be `{ id: 1 }`. Wasp supports required and optional params.
+
+- `search: string[][] | Record<string, string> | string | URLSearchParams`
+
+  - Any valid input for `URLSearchParams` constructor.
+  - For example, the object `{ sortBy: 'date' }` becomes `?sortBy=date`.
+
+- `hash: string`
+
+- all other props that the `react-router`'s [NavLink](https://reactrouter.com/7.12.0/api/components/NavLink) component accepts
+
+  - Notably, `className`, `style`, and `children` accept render-prop functions that receive `{ isActive, isPending, isTransitioning }`, and `end` and `caseSensitive` control how the active match is computed.
 
 ### `routes` Object
 

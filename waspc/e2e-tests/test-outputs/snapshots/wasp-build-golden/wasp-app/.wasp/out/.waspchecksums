@@ -240,9 +240,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/router/NavLink.tsx"
+        ],
+        "22f7b0a0000fc53091f7a281feb025ea80f8a279bf2d21a2be3531d0c5b202ab"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "ad12dae94c1c68a4f31f660dd942fc0b43d713b4ed37145faeb2f65d3e5bc392"
+        "fe6c41ea908c928b00df7778f790750ab207558a8eb3a2a594ba4ab56b527ebe"
     ],
     [
         [
