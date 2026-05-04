@@ -63,6 +63,11 @@ printBashCompletionInstruction =
         "   - Bash: " ++ styleCode "~/.bashrc",
         "   - Zsh: " ++ styleCode "~/.zshrc",
         "",
+        "   Note for Zsh users: the " ++ styleCode "complete" ++ " builtin is provided by Bash, so you need",
+        "   to enable Bash completion compatibility first by adding this line above it:",
+        styleCode "     autoload -Uz +X bashcompinit && bashcompinit",
+        "   Frameworks like Oh My Zsh enable this by default, so you can skip this step.",
+        "",
         "2. Save the file and restart your terminal.",
         "",
         "Done! Now you can use the TAB key to auto-complete Wasp commands in your shell."
