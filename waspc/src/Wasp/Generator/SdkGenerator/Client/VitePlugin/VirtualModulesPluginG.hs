@@ -56,12 +56,6 @@ getVirtualModulesTs =
           "ssrEntryPointPath" .= ssrEntryPointPath
         ]
 
-routeObjectsImportJson :: Value
-routeObjectsImportJson =
-  jsImportToImportJson $
-    Just $
-      makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")
-
 genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
 genVirtualClientEntryTsx spec =
   return $
@@ -86,3 +80,9 @@ genVirtualSsrEntryTsx spec =
           "spaFallbackFile" .= spaFallbackFile,
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
+
+routeObjectsImportJson :: Value
+routeObjectsImportJson =
+  jsImportToImportJson $
+    Just $
+      makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")
