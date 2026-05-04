@@ -9,7 +9,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🎉 New Features
 
 - The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
-- Added a type-safe `NavLink` component, mirroring `react-router`'s `NavLink` API (with `isActive`, `isPending`, `isTransitioning` render-prop helpers). ([#TODO](https://github.com/wasp-lang/wasp/pull/TODO))
+- Added a type-safe `NavLink` component, mirroring `react-router`'s `NavLink` API (with `isActive`, `isPending`, `isTransitioning` render-prop helpers). ([#4104](https://github.com/wasp-lang/wasp/pull/4104))
 
 ## 0.23.0
 
