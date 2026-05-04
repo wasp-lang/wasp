@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.21"
+  Wasp: "0.23"
   swagger-jsdoc: "6"
   swagger-ui-express: "5"
 ---

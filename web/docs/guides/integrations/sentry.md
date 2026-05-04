@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.21"
+  Wasp: "0.23"
   "@sentry/node": "8"
   "@sentry/react": "8"
 ---
