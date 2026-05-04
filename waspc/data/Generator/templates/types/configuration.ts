@@ -4,7 +4,7 @@
 import "wasp/types"
 
 declare module "wasp/types" {
-  interface Registry {
+  interface Register {
 {=# prismaSetupFn.isDefined =}
     prismaSetupFn: typeof {=& prismaSetupFn.typeDynamicImportExpression =}
 {=/ prismaSetupFn.isDefined =}

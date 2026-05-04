@@ -5,26 +5,26 @@
  * E.g., a user defined prisma client.
  */
 
-export interface Registry {}
-export type FromRegistry<K extends string, Default> = K extends keyof Registry
-  ? Registry[K]
+export interface Register {}
+export type FromRegister<K extends string, Default> = K extends keyof Register
+  ? Register[K]
   : Default;
 
-export interface OperationsRegistry {}
-export type FromOperationsRegistry<
+export interface OperationsRegister {}
+export type FromOperationsRegister<
   Operation extends string,
   Default,
-> = Operation extends keyof OperationsRegistry
-  ? OperationsRegistry[Operation]
+> = Operation extends keyof OperationsRegister
+  ? OperationsRegister[Operation]
   : Default;
 
-export interface CrudOverridesRegistry {}
-export type FromCrudOverridesRegistry<
+export interface CrudOverridesRegister {}
+export type FromCrudOverridesRegister<
   CrudName extends string,
   CrudOperation extends string,
   Default,
-> = CrudName extends keyof CrudOverridesRegistry
-  ? CrudOperation extends keyof CrudOverridesRegistry[CrudName]
-    ? CrudOverridesRegistry[CrudName][CrudOperation]
+> = CrudName extends keyof CrudOverridesRegister
+  ? CrudOperation extends keyof CrudOverridesRegister[CrudName]
+    ? CrudOverridesRegister[CrudName][CrudOperation]
     : Default
   : Default;
