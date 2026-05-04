@@ -1,0 +1,88 @@
+---
+title: "From 10 Failed Stacks to Production: How a Data Scientist Built a Job Board with Wasp, a Full-stack Framework for the Agentic Era"
+authors: [matijasos]
+tags: [wasp, ai, user-interview, fullstack]
+image: /img/hireveld/banner.webp
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+import { VideoWithCaption } from './components/VideoWithCaption';
+
+:::note
+Hireveld is currently down while Marcel works on a major refactor - but it's real, we swear! It'll be back up soon.
+:::
+
+*Marcel Coetzee is a data scientist and AI consultant based in South Africa. With a background in actuarial science and data science, he runs his own consultancy. He also builds SaaS products on the side. His latest project, [Hireveld](https://hireveld.co.za/), is a job board tackling South Africa's broken hiring market. He built it entirely with Wasp after trying nearly every other stack out there.*
+
+{/* truncate */}
+
+## Tell us about yourself. How did you end up building web apps as a Python developer?
+
+My path has been a bit unconventional. I started in actuarial science, which involves insurance, mathematical statistics and risk modeling. From there I moved into data science, then data engineering, and eventually into building products. Python has been my main language through all of that.
+
+Today I run my own consultancy doing data engineering and AI work. But I've always wanted to build my own things too, so I started learning the JavaScript ecosystem and working on SaaS products on the side. I'm not a JS native by any means, but with the rise of agentic coding tools, I realized I could finally turn my ideas into real full-stack applications without spending years mastering every corner of Node and React.
+
+## What's Hireveld, and what problem are you solving?
+
+<ImgWithCaption
+  source="/img/hireveld/hireveld-hero.png"
+  caption="Hireveld's landing page - hire without the markup"
+  alt="Hireveld homepage showing 'Hire without the markup' headline"
+/>
+
+Hiring in South Africa is expensive and opaque. Recruitment agencies take a massive cut of annual salary. The established job boards charge thousands of rands just to post a single listing. And too many roles still get filled through personal connections rather than merit.
+
+I built [**Hireveld**](https://hireveld.co.za/) to change that. Employers post for free, applicants get ranked anonymously, and employers pay a flat fee to reveal candidates. It's simple, it's cheap, and it puts merit first. The whole thing runs on Wasp - auth, background jobs for expiring old listings, transactional email, payment integration, the works.
+
+## You mentioned trying about 10 different stacks before landing on Wasp. What happened?
+
+Yeah, I went through quite the journey. I started with PocketBase because I liked the idea of owning my code and not being locked into a cloud platform. It's a solid tool, but I quickly realized I needed PostgreSQL for search, background jobs, and a frontend that wasn't stitched together by hand. It just didn't scale to what I was building.
+
+Then I tried Next.js, Nuxt, Svelte - they're decent, but those codebases can grow extremely quickly. As someone who's still relatively new to the JS ecosystem, I'd hit the limits of my knowledge fast. I even tried Django, thinking I'd stick with Python, but it's accumulated so much over the years. Too much magic, too much stuff.
+
+My philosophy is: the projects that succeed expose as few abstractions as possible to the user. I try to keep myself at the highest level of abstraction I can. When I found Wasp on GitHub, the config file clicked for me immediately. You declare what you want - auth, database, jobs, email - and it all works together. I was writing actual product code on day one instead of gluing infrastructure together.
+
+> *Don't prioritize the important over the urgent. With other stacks I was spending time on infrastructure decisions that felt important but weren't getting me closer to a product. Wasp let me focus on the urgent thing: shipping.*
+>
+
+## You're a big advocate for agentic coding. How does Wasp fit into that workflow?
+
+This is where Wasp really shines, and honestly I think more people need to know about it. I've been building Hireveld almost entirely through agentic coding - Claude Code in the terminal - and after trying 10 different things, Wasp is by far the best experience for AI-assisted development.
+
+Here's why: context is the precious commodity. Every line of code in your project takes a chunk of the model's context window. Wasp keeps the codebase tight and small.
+
+The .wasp config file means the AI can understand your entire app's architecture at a glance - your routes, your auth setup, your jobs, your entities. Instead of the agent crawling through hundreds of files trying to figure out how things connect, it's all declared in one place. And because Wasp is opinionated and constrained, the agent doesn't try to do 50 different things. When something is wrong, the compiler screams. That tight feedback loop is exactly what agentic coding needs.
+
+> *Wasp respects the model's context length. It keeps things tidy. The constraint is the feature - it's what **keeps both you and the AI from spiraling into a 20,000-line mess**.*
+>
+
+I should say - I'm not blindly vibe coding. I know where my files are, I know my routes, I hand-edit the main.wasp file when I need to. I take testing seriously, both e2e and unit tests. QA is the layer where you, the human, decide what you actually want to build. But Wasp gives me the structure to stay at a high level and be productive, even as someone whose main language is Python. Also bring my data science background to bear by simulating data to gauge how the system would react to real traffic.
+
+## You also contributed back to Wasp - tell us about the Microsoft Auth integration.
+
+<ImgWithCaption
+  source="/img/hireveld/hireveld-search.png"
+  caption="Hireveld's job search interface"
+  alt="Hireveld job search showing filters and a Junior Web Developer listing"
+/>
+
+Hireveld targets the South African enterprise market, and enterprises run on Microsoft. They need Entra ID (Azure AD) for single sign-on - it's non-negotiable. When I started building, Wasp didn't have a Microsoft OAuth provider. With most frameworks, that would mean either paying a fortune for a third-party service or building a fragile custom integration that becomes tech debt.
+
+But Wasp's codebase is approachable enough that I could build the provider myself and contribute it back. The PR process was great - Carlos and the team were welcoming and helpful. That's the sweet spot I was looking for: a framework that's batteries-included enough that I'm not rebuilding auth from scratch, but open enough that when I need something custom, I can add it without fighting the framework.
+
+The community in general has been one of the best parts. The developers are genuinely friendly, my contributions felt valued, and I can tell the team takes agentic coding seriously - they maintain a Claude Code skill, they keep their prompts updated, they engage with the tooling ecosystem. That's an unusual level of involvement for a framework team.
+
+## What would you say to a developer considering Wasp for their next project?
+
+If you're building a full-stack web app in 2026 and you're using AI tools to code - which you should be - try Wasp. Seriously. I went through PocketBase, Next.js, Nuxt, Svelte, Django, and more. Wasp is the only one where I felt like I was building my product from day one instead of fighting my tools.
+
+It gave me auth, type-safe full-stack operations, background jobs, and transactional email - all wired together from a single config file. Everything else - the ranking algorithm, payments, file storage - I built on top of what Wasp provided. That separation is what made it possible to ship as a solo developer.
+
+And if you're coming from Python or another ecosystem and you're intimidated by the JavaScript world - don't be. Wasp abstracts away enough of the complexity that you can stay at a high level and be productive. I'm proof of that.
+
+> *Wasp is the full-stack framework for the agentic era. It's the one that lets you focus on what you're building, not how you're building it.*
+>
+
+---
+
+*Marcel Coetzee is a data scientist, AI consultant, and SaaS builder based in South Africa. You can find him on [GitHub](https://github.com/Marcel-Coetzee) and reach out to him on coetzee.marcel2@gmail.com*

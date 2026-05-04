@@ -58,14 +58,14 @@ analyzeWaspProject waspDir compileOptions = do
       analyzePrismaSchema waspDir >>= \case
         (Left prismaSchemaErrors, prismaSchemaWarnings) -> return (Left prismaSchemaErrors, prismaSchemaWarnings)
         -- NOTE: we are ignoring prismaSchemaWarnings if the schema was parsed successfully
-        (Right prismaSchemaAst, _) ->
-          analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
-            Left errors -> return (Left errors, [])
-            Right declarations -> do
-              let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
-              EC.readExternalConfigs waspDir srcTsConfigPath >>= \case
-                Left externalConfigError -> return (Left [externalConfigError], [])
-                Right externalConfigs ->
+        (Right prismaSchemaAst, _) -> do
+          let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+          EC.parseAndValidateExternalConfigs waspDir srcTsConfigPath >>= \case
+            Left externalConfigErrors -> return (Left externalConfigErrors, [])
+            Right externalConfigs ->
+              analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
+                Left errors -> return (Left errors, [])
+                Right declarations ->
                   constructAppSpec
                     waspDir
                     compileOptions
@@ -105,8 +105,7 @@ constructAppSpec waspDir compileOptions externalConfigs parsedPrismaSchema decls
             AS.userDockerfileContents = maybeUserDockerfileContents,
             AS.devDatabaseUrl = devDbUrl,
             AS.packageJson = EC._packageJson externalConfigs,
-            AS.srcTsConfigPath = srcTsConfigPath,
-            AS.srcTsConfig = EC._srcTsConfig externalConfigs
+            AS.srcTsConfigPath = srcTsConfigPath
           }
 
   return $ runValidation ASV.validateAppSpec appSpec

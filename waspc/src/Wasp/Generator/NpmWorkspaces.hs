@@ -10,11 +10,11 @@ import Data.Set (Set, fromList)
 import StrongPath (Dir, Path', Rel, (</>))
 import qualified StrongPath as SP
 import qualified System.FilePath.Posix as FP
-import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedCodeDir)
+import Wasp.Generator.SdkGenerator.Common (sdkRootDirInGeneratedAppDir)
 import Wasp.Project.Common
   ( WaspProjectDir,
     dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
+    generatedAppDirInDotWaspDir,
   )
 
 -- | Returns the set of workspaces that should be included in the user's `package.json` file. Each
@@ -24,8 +24,8 @@ import Wasp.Project.Common
 requiredWorkspaceGlobs :: Set String
 requiredWorkspaceGlobs =
   fromList
-    [ makeGlobForAllSubdirs $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir,
-      makeGlobForDir $ dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir </> sdkRootDirInGeneratedCodeDir
+    [ makeGlobForAllSubdirs $ dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir,
+      makeGlobForDir $ dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir </> sdkRootDirInGeneratedAppDir
     ]
   where
     makeGlobForAllSubdirs :: Path' (Rel WaspProjectDir) (Dir a) -> String

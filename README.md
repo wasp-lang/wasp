@@ -42,6 +42,7 @@ Build your app in a day and deploy it with a single CLI command!
 - 🚀 **Quick start**: Due to its expressiveness, you can create and deploy a production-ready web app from scratch with very few lines of concise, consistent, declarative code.
 - 😌 **No boilerplate**: By abstracting away complex full-stack features, there is less boilerplate code. That means less code to maintain and understand! It also means easier upgrades.
 - 🔓 **No lock-in**: You can deploy the Wasp app anywhere you like. There is no lock-in into specific providers; you have complete control over the code (and can actually check it out in `.wasp/` directory if you are interested ).
+- 🤖 **Perfect for AI by design**: Thanks to its high-level spec of the whole app, opinionated approach, built-in full-stack features, and tight integration of all parts of the stack, Wasp gives AI (agents) clear guardrails and structure, less boilerplate to manage, and better context management.
 
 ### Features
 
@@ -123,9 +124,9 @@ For a quick start, check out [this docs page](https://wasp.sh/docs/quick-start).
 
 If you have a Wasp application running in production, we'd love to send some swag your way! Fill out [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi), and we'll make it happen.
 
-## Wasp AI / Mage
+## AI Agent Plugins
 
-Wasp comes with experimental AI code generator to help you kickstart your next Wasp project. You can use it via `wasp new` in the CLI (select the `ai-generated` option) if you provide your OpenAI keys. Alternatively, you can use our [Mage web app](https://usemage.ai), in which case our OpenAI keys are used in the background.
+Wasp has official AI agent plugins to help you kickstart your next Wasp project. You can use them with your favorite AI-assisted coding tool (Cursor, Claude Code, etc.) to get a better result and development experience. Check out the [Wasp Agent Plugins](https://wasp.sh/docs/wasp-ai/coding-agent-plugin) page for more details.
 
 ## Project status
 

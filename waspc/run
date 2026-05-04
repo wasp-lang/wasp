@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # This script defines common commands used during building / developing `waspc` project
 # and makes it easy to run them.
@@ -7,7 +8,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 PROJECT_ROOT=$SCRIPT_DIR
 REPOSITORY_ROOT=$(cd "$PROJECT_ROOT"/.. && pwd)
 COMMAND=${1:-watch}
-shift
+[ $# -gt 0 ] && shift
 ARGS=("$@") # NOTE: This is a bash array!
 
 BOLD="\033[1m"
@@ -22,10 +23,7 @@ DEFAULT_COLOR="\033[39m"
 WASP_PACKAGES_COMPILE="for pkg in ${SCRIPT_DIR}/data/packages/*/package.json; do \
   (cd \$(dirname \$pkg) && npm install && npm run build); \
 done"
-# NOTE: --experimental-strip-types allows Node to run TypeScript directly.
-# This flag became the default in Node v22.18+, but we need it explicitly
-# for our minimum supported version (v22.12.0).
-WASP_LIBS_COMPILE="node --experimental-strip-types ${SCRIPT_DIR}/tools/libs/build.ts"
+WASP_LIBS_COMPILE="node ${SCRIPT_DIR}/tools/libs/build.ts"
 WASP_ALL_DEPS_COMPILE="$WASP_PACKAGES_COMPILE && $WASP_LIBS_COMPILE"
 BUILD_HS_CMD="cabal build all ${BUILD_STATIC:+--enable-executable-static}"
 BUILD_HS_FULL_CMD="cabal build all --enable-tests --enable-benchmarks"
@@ -34,17 +32,19 @@ BUILD_ALL_CMD="$WASP_ALL_DEPS_COMPILE && $BUILD_HS_CMD"
 INSTALL_CMD="$WASP_ALL_DEPS_COMPILE && cabal install --overwrite-policy=always"
 
 # Testing
-WASPC_UNIT_TESTS_CMD="cabal test waspc-tests"
-WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests"
+WASPC_UNIT_TESTS_CMD="cabal test waspc-tests --test-options='--hide-successes'"
+WASPC_E2E_TESTS_CMD="cabal test waspc-e2e-tests --test-options='--hide-successes'"
 WASPC_E2E_TESTS_DELETE_GOLDEN="rm -rf $PROJECT_ROOT/e2e-tests/test-outputs/snapshots/*-golden"
 WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD="$WASPC_E2E_TESTS_DELETE_GOLDEN && $WASPC_E2E_TESTS_CMD"
 WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
-WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests"
+WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests --test-options='--hide-successes'"
 
-WASPLS_TESTS_CMD="cabal test waspls-tests"
+WASPLS_TESTS_CMD="cabal test waspls-tests --test-options='--hide-successes'"
 
-LIBS_TESTS_CMD="node --experimental-strip-types ${SCRIPT_DIR}/tools/libs/test.ts"
+LIBS_TESTS_CMD="node ${SCRIPT_DIR}/tools/libs/test.ts"
+
+PACKAGES_TESTS_CMD="node ${SCRIPT_DIR}/tools/packages/test.ts"
 
 KITCHEN_SINK_E2E_TESTS_CMD="cd $REPOSITORY_ROOT/examples/kitchen-sink && npm i && npm run test"
 
@@ -62,11 +62,9 @@ function run_examples_e2e_tests() {
   )
 
   for path in "${paths[@]}"; do
-    eval "(cd $REPOSITORY_ROOT/$path && npm i && npm run test)"
-    local status=$?
-    if [ $status -ne 0 ]; then
+    if ! eval "(cd $REPOSITORY_ROOT/$path && npm i && npm run test)"; then
       echo -e "${RED}E2E tests failed in $path${RESET}"
-      return $status
+      return 1
     fi
   done
 }
@@ -77,6 +75,7 @@ TEST_CMD="cabal test && \
   $STARTERS_E2E_TESTS_CMD && \
   $EXAMPLES_E2E_TESTS_CMD && \
   $LIBS_TESTS_CMD && \
+  $PACKAGES_TESTS_CMD && \
   echo 'ALL TESTS PASSED' || \
   { echo 'SOME TESTS FAILED'; exit 1; }"
 
@@ -97,12 +96,14 @@ function dev_tool_path() {
 }
 STAN_CMD="$BUILD_HS_FULL_CMD && $(install_dev_tool stan) && $(dev_tool_path stan) report ${ARGS[@]}"
 HLINT_CMD="$(install_dev_tool hlint) && $(dev_tool_path hlint) . ${ARGS[@]}"
-PRUNE_JUICE_CMD="$(install_dev_tool prune-juice) && $(dev_tool_path prune-juice) ${ARGS[@]}"
-PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run prettier:check)"
-PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run prettier:format)"
+PRETTIER_CHECK_CMD="(cd .. && npm ci && npm run check:prettier)"
+PRETTIER_FORMAT_CMD="(cd .. && npm ci && npm run format:prettier)"
 ORMOLU_BASE_CMD="$(install_dev_tool ormolu) && $(dev_tool_path ormolu) --color always --check-idempotence"
 ORMOLU_CHECK_CMD="$ORMOLU_BASE_CMD --mode check "'$'"(git ls-files '*.hs' '*.hs-boot')"
 ORMOLU_FORMAT_CMD="$ORMOLU_BASE_CMD --mode inplace "'$'"(git ls-files '*.hs' '*.hs-boot')"
+CABAL_GILD_BASE_CMD="$(install_dev_tool cabal-gild) && $(dev_tool_path cabal-gild)"
+CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check --input waspc.cabal"
+CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format --io waspc.cabal"
 
 function remove_wasp_libs_from_package_lock() {
   PACKAGE_LOCK_TMP=$(mktemp)
@@ -116,6 +117,12 @@ function remove_wasp_libs_from_package_lock() {
 echo_and_eval() {
   echo -e $"${LIGHT_CYAN}Running:${DEFAULT_COLOR}" "$1" "\n" 1>&2
   eval "$1"
+}
+
+# Like echo_and_eval, but stores the exit code in the named variable
+# instead of failing the script.
+echo_and_eval_capturing_exit_code() {
+  echo_and_eval "$2" && eval "$1=0" || eval "$1=$?"
 }
 
 echo_bold() { echo -e $"${BOLD}${1}${RESET}"; }
@@ -159,13 +166,15 @@ print_usage() {
   print_usage_cmd "test:waspc:e2e" \
     "Executes only cli e2e tests. Builds the project first if needed."
   print_usage_cmd "test:waspc:e2e:accept-all" \
-    "Accepts any diffs in the generated code in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
+    "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
   print_usage_cmd "test:waspls" \
     "Executes only waspls tests. Builds the project first if needed."
   print_usage_cmd "test:libs" \
     "Run tests on Wasp libs (types, unit, type-exports)."
+  print_usage_cmd "test:packages" \
+    "Run tests on Wasp packages (deploy, prisma, etc.)."
   print_usage_cmd "test:kitchen-sink" \
     "Executes only kitchen-sink e2e tests. Installs deps first if needed."
   print_usage_cmd "test:examples" \
@@ -184,16 +193,22 @@ print_usage() {
     "Runs static code analysis on the code, generating stan.html. Builds the project first if needed."
   print_usage_cmd "hlint <args>" \
     "Runs linter on the codebase."
-  print_usage_cmd "prune-juice <args>" \
-    "Runs prune-juice on the codebase, which detects unused dependencies."
-  print_usage_cmd "ormolu:check" \
-    "Runs the Haskell code formatter and reports if code is correctly formatted or not."
-  print_usage_cmd "ormolu:format" \
+  print_usage_cmd "format" \
+    "Runs all code formatters (ormolu, cabal-gild, prettier) and formats the code in place."
+  print_usage_cmd "check" \
+    "Runs all code formatters in check mode and reports if code is correctly formatted or not."
+  print_usage_cmd "format:ormolu" \
     "Runs the Haskell code formatter and formats the code in place."
-  print_usage_cmd "prettier:check" \
-    "Runs the repo-wide code formatter and reports if code is correctly formatted or not."
-  print_usage_cmd "prettier:format" \
+  print_usage_cmd "check:ormolu" \
+    "Runs the Haskell code formatter and reports if code is correctly formatted or not."
+  print_usage_cmd "format:cabal" \
+    "Runs the .cabal file formatter and formats the code in place."
+  print_usage_cmd "check:cabal" \
+    "Runs the .cabal file formatter and reports if code is correctly formatted or not."
+  print_usage_cmd "format:prettier" \
     "Runs the repo-wide code formatter and formats the code in place."
+  print_usage_cmd "check:prettier" \
+    "Runs the repo-wide code formatter and reports if code is correctly formatted or not."
   print_usage_cmd "module-graph" \
     "Creates graph of modules in the project. Needs graphmod (available on hackage) and graphviz (your os distribution) installed."
   echo ""
@@ -261,6 +276,9 @@ case $COMMAND in
   test:libs)
     echo_and_eval "$LIBS_TESTS_CMD"
     ;;
+  test:packages)
+    echo_and_eval "$PACKAGES_TESTS_CMD"
+    ;;
   test:kitchen-sink)
     echo_and_eval "$KITCHEN_SINK_E2E_TESTS_CMD"
     ;;
@@ -274,7 +292,7 @@ case $COMMAND in
     echo_and_eval "$RUN_CMD"
     ;;
   bust-libs-cache)
-    remove_wasp_libs_from_package_lock || exit 1
+    remove_wasp_libs_from_package_lock
 
     # Compiling the project copies the new lib tarball to the out dir.
     eval "$RUN_CMD compile"
@@ -288,35 +306,42 @@ case $COMMAND in
   hlint)
     echo_and_eval "$HLINT_CMD"
     ;;
-  prune-juice)
-    echo_and_eval "$PRUNE_JUICE_CMD"
-    ;;
-  ormolu:check)
-    echo_and_eval "$ORMOLU_CHECK_CMD"
-    ;;
-  ormolu:format)
+  format)
     echo_and_eval "$ORMOLU_FORMAT_CMD"
-    ;;
-  prettier:check)
-    echo_and_eval "$PRETTIER_CHECK_CMD"
-    ;;
-  prettier:format)
+    echo_and_eval "$CABAL_GILD_FORMAT_CMD"
     echo_and_eval "$PRETTIER_FORMAT_CMD"
     ;;
-  code-check)
-    echo_and_eval "$PRETTIER_CHECK_CMD"
-    PRETTIER_RESULT=$?
-
+  check)
     echo_and_eval "$ORMOLU_CHECK_CMD"
-    ORMOLU_RESULT=$?
+    echo_and_eval "$CABAL_GILD_CHECK_CMD"
+    echo_and_eval "$PRETTIER_CHECK_CMD"
+    ;;
+  format:ormolu)
+    echo_and_eval "$ORMOLU_FORMAT_CMD"
+    ;;
+  check:ormolu)
+    echo_and_eval "$ORMOLU_CHECK_CMD"
+    ;;
+  format:cabal)
+    echo_and_eval "$CABAL_GILD_FORMAT_CMD"
+    ;;
+  check:cabal)
+    echo_and_eval "$CABAL_GILD_CHECK_CMD"
+    ;;
+  format:prettier)
+    echo_and_eval "$PRETTIER_FORMAT_CMD"
+    ;;
+  check:prettier)
+    echo_and_eval "$PRETTIER_CHECK_CMD"
+    ;;
+  code-check)
+    echo_and_eval_capturing_exit_code PRETTIER_RESULT "$PRETTIER_CHECK_CMD"
+    echo_and_eval_capturing_exit_code ORMOLU_RESULT "$ORMOLU_CHECK_CMD"
+    echo_and_eval_capturing_exit_code CABAL_GILD_RESULT "$CABAL_GILD_CHECK_CMD"
+    echo_and_eval_capturing_exit_code HLINT_RESULT "$HLINT_CMD"
+    echo_and_eval_capturing_exit_code STAN_RESULT "$STAN_CMD"
 
-    echo_and_eval "$HLINT_CMD"
-    HLINT_RESULT=$?
-
-    echo_and_eval "$STAN_CMD"
-    STAN_RESULT=$?
-
-    TOTAL_RESULT=$((PRETTIER_RESULT || ORMOLU_RESULT || HLINT_RESULT || STAN_RESULT))
+    TOTAL_RESULT=$((PRETTIER_RESULT || ORMOLU_RESULT || CABAL_GILD_RESULT || HLINT_RESULT || STAN_RESULT))
 
     echo
     echo
@@ -326,6 +351,7 @@ case $COMMAND in
     echo
     echo -e "Formatter (prettier): $(exitStatusToString $PRETTIER_RESULT)"
     echo -e "Formatter (ormolu): $(exitStatusToString $ORMOLU_RESULT)"
+    echo -e "Formatter (cabal-gild): $(exitStatusToString $CABAL_GILD_RESULT)"
     echo -e "Linter (hlint): $(exitStatusToString $HLINT_RESULT)"
     echo -e "Static analysis (stan): $(exitStatusToString $STAN_RESULT)"
     echo "-----------------------"
@@ -340,10 +366,7 @@ case $COMMAND in
     echo_and_eval "$GHCUP_SET"
     ;;
   get-waspc-version)
-    # NOTE: --experimental-strip-types allows Node to run TypeScript directly.
-    # This flag became the default in Node v22.18+, but we need it explicitly
-    # for our minimum supported version (v22.12.0).
-    node --experimental-strip-types "$SCRIPT_DIR/tools/get-waspc-version.ts"
+    node "$SCRIPT_DIR/tools/get-waspc-version.ts"
     ;;
   *)
     print_usage

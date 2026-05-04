@@ -1,4 +1,4 @@
-import axios, { type AxiosInstance, type AxiosError } from 'axios'
+import axios, { type AxiosError, type AxiosInstance } from 'axios'
 
 import { config } from 'wasp/client'
 import { storage } from 'wasp/core/storage'
@@ -75,20 +75,24 @@ api.interceptors.response.use(undefined, (error) => {
   return Promise.reject(error)
 })
 
-// This handler will run on other tabs (not the active one calling API functions),
-// and will ensure they know about auth session ID changes.
-// Ref: https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event
-// "Note: This won't work on the same page that is making the changes — it is really a way
-// for other pages on the domain using the storage to sync any changes that are made."
-window.addEventListener('storage', (event) => {
-  if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
-    if (!!event.newValue) {
-      apiEventsEmitter.emit('sessionId.set')
-    } else {
-      apiEventsEmitter.emit('sessionId.clear')
+// This makes sure that the following handler won't try to run in a non-browser
+// environment (e.g. during SSR), where `window` is not defined.
+if (typeof window !== 'undefined') {
+  // This handler will run on other tabs (not the active one calling API functions),
+  // and will ensure they know about auth session ID changes.
+  // Ref: https://developer.mozilla.org/en-US/docs/Web/API/Window/storage_event
+  // "Note: This won't work on the same page that is making the changes — it is really a way
+  // for other pages on the domain using the storage to sync any changes that are made."
+  window.addEventListener('storage', (event) => {
+    if (event.key === storage.getPrefixedKey(WASP_APP_AUTH_SESSION_ID_NAME)) {
+      if (!!event.newValue) {
+        apiEventsEmitter.emit('sessionId.set')
+      } else {
+        apiEventsEmitter.emit('sessionId.clear')
+      }
     }
-  }
-})
+  })
+}
 
 // PRIVATE API (sdk)
 /**

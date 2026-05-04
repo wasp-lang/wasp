@@ -223,7 +223,7 @@ Database is abstracted via Prisma.
 
 We can run Wasp project with `wasp start`.
 This will first compile the app, generate JS code in the `.wasp/out/` dir, and then run `npm start` for the client, `npm start` for the server, and also run the database.
-On any changes you do to the source code of Wasp, Wasp project gets recompiled, and then changes in the generated code are picked up by the `npm start` of the client/server, therefore updating the web app.
+On any changes you do to the source code of Wasp, Wasp project gets recompiled, and then changes in the generated app are picked up by the `npm start` of the client/server, therefore updating the web app.
 
 ## Important directories (in waspc/)
 
@@ -292,14 +292,14 @@ To run tests:
 
 ### Waspc e2e tests
 
-Inside of `waspc` e2e tests we have snapshot tests that run the `wasp-cli` on a couple of prepared projects, check that they successfully run, and also compare generated code with the expected generated code (golden output).
+Inside of `waspc` e2e tests we have snapshot tests that run the `wasp-cli` on a couple of prepared projects, check that they successfully run, and also compare generated app with the expected generated app (golden output).
 
-This means that when you make a change in your code that modifies the generated code, snapshot tests will fail while showing a diff between the new generated code and the previous (golden) one.
+This means that when you make a change in your code that modifies the generated app, snapshot tests will fail while showing a diff between the new generated app and the previous (golden) one.
 This gives you an opportunity to observe these differences and ensure that they are intentional and that you are satisfied with them.
 **It is the PR author's (or the reviewers for outside contributions) responsibility to carefully review these diffs.**
 Do not blindly accept changes, ensure they align with your intended modifications.
 If you notice something unexpected or weird, you have an opportunity to fix it.
-Once you are indeed happy with the changes in the generated code, you will want to update the golden output to the new (current) output, so that tests pass.
+Once you are indeed happy with the changes in the generated app, you will want to update the golden output to the new (current) output, so that tests pass.
 Basically, you want to say "I am ok with the changes and I accept them as the new state of things.".
 Easiest way to do this is to use the convenient command from the `./run` script:
 
@@ -331,13 +331,13 @@ Normally we set it up in our editors to run on file save.
 You can also run it manually with
 
 ```sh
-./run ormolu:check
+./run check:ormolu
 ```
 
 to see if there is any formatting that needs to be fixed, or with
 
 ```sh
-./run ormolu:format
+./run format:ormolu
 ```
 
 to have Ormolu actually format (in-place) all files that need formatting.
@@ -437,27 +437,24 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 Do the steps marked with 👉 for every release of `waspc`.
 Do the non-bold steps when necessary (decide for each step depending on the changes, e.g. some can be skipped if there were no breaking changes).
 
-- Update the templates in Wasp AI if necessary
+- Update [the templates in Wasp AI](./src/Wasp/AI/GenerateNewProject/InitialFiles.hs) if necessary
 - Update Open Saas:
-  - Check and merge all Open Saas PRs with the label `merge-before-release`.
-  - Create and merge new PRs if necessary (i.e., if there are breaking changes or new features it should make use of but aren't in one of the `merge-before-release` PRs).
-- 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
-  - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
+  - Check and merge [all Open Saas PRs with the label `merge-before-release`](https://github.com/wasp-lang/open-saas/pulls?q=sort:updated-desc+is:pr+is:open+label:merge-before-release).
+  - Ensure that OpenSaaS is updated to the latest Wasp `main` (go to https://github.com/wasp-lang/open-saas/actions/workflows/e2e-tests.yml and manually run the workflow on the `main` branch).
 - 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
 - 👉 Update your local repository state to have all remote changes (`git fetch`) and ensure local `main` is up to date.
 - 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.19.1`) and do the rest of the steps from there.
-- 👉 Create an RC and do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
-- 👉 Consider enriching and polishing the `ChangeLog.md` a bit:
-  - If you modify `ChangeLog.md`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into main.
-- 👉 Update your local repository state to have all remote changes (`git fetch`).
-- 👉 Update the RC branch to contain changes from `release` by running `git merge release` while on the `rc-<version>` branch. Resolve any conflicts.
+- 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
+  - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into the RC branch.
+- 👉 Create an RC release do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
+- 👉 Check commits since the latest release, and consider enriching and polishing the `ChangeLog.md` and migration guides.
 - If this is a major version update, take a versioned "snapshot" of the current docs on the RC branch by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the [README in the `web` dir](https://github.com/wasp-lang/wasp/blob/main/web/README.md) for more details. Commit this change to the RC branch and push it.
-  - This will do some checks, tag it with new release version, and push it.
-- 👉 Fast-forward `release` to the RC branch by running `git merge rc-<version>` while on the `release` branch.
-- 👉 Make sure you are on `release` and then run `./new-release 0.x.y`.
+- 👉 Switch to the `release` branch and fast-forward it to the RC branch by running `git merge --ff rc-<version>`.
+- 👉 When you're ready to make the final release, make sure you are on `release` and then run `./new-release 0.x.y`.
+  - This script will do some checks, tag the commit with the new release version, and push the tag.
 - 👉 Wait for CI to finish & succeed for the new tag.
-  - This will automatically create a new draft release.
-- 👉 Find a new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes.
+  - This is triggered automatically on tag push. When it's done, it will create a new draft release.
+- 👉 Find the new draft release here: https://github.com/wasp-lang/wasp/releases and edit it with your release notes. This usually means copy-pasting the ChangeLog entries for the released version.
 - 👉 Publish the draft release when ready.
 - 👉 Run `npm dist-tag add @wasp.sh/wasp-cli@<version> latest` for users to get the newest version when they install through `npm`.
 - 👉 Push your local `release` branch to remote.
@@ -481,18 +478,22 @@ Making a test release, especially "Release Candidate" (RC) release is useful whe
 If doing this, steps are the following:
 
 1. Create a new branch called `rc-<version>` (e.g., `rc-0.19.0`) by branching out of the last commit you want to release (probably latest `main`).
-2. Locally execute the `new-release` script. Append `-rc` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc1`).
+
+2. Locally execute the `new-release` script. Append `-rc.N` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc.1`).
    The script will throw some warnings which you should accept.
+
 3. Once the draft release is created on Github:
+
    - Use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
    - Push the `rc-<version>` branch to remote.
+
 4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
 
-```sh
-npm i -g @wasp.sh/wasp-cli@0.19.0-rc
-```
+   ```sh
+   npm i -g @wasp.sh/wasp-cli@0.19.0-rc.1
+   ```
 
-5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc2`).
+5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc.2`, see step 2).
 
 ## Documentation
 

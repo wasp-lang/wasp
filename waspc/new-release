@@ -72,8 +72,8 @@ makeNewRelease newVersion = do
   when (confirmation /= "Y") $ die "Aborting"
 
   putStrLn $ "\nCreating tag " ++ tag ++ " and pushing it.\n"
-  ExitSuccess <- shell (T.pack $ "git tag " ++ tag) empty
-  ExitSuccess <- shell (T.pack $ "git push origin " ++ tag) empty
+  ExitSuccess <- shell (T.pack $ unwords ["git", "tag", "-m", tag, tag]) empty
+  ExitSuccess <- shell (T.pack $ unwords ["git", "push", "origin", tag]) empty
 
   putStrLn $ "Success! Check out Actions on Github to see how your new release is being built. Once it is built, draft release on Github will be created, with binaries attached. Then it is up to you to manually publish it from draft to proper release."
   return ()

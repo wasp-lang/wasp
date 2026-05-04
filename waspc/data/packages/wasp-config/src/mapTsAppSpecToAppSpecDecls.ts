@@ -421,10 +421,12 @@ export function mapRoute(
   route: TsAppSpec.RouteConfig,
   pageRefParser: RefParser<"Page">,
 ): AppSpec.Route {
-  const { path, to } = route;
+  const { path, to, prerender, lazy } = route;
   return {
     path,
     to: pageRefParser(to),
+    prerender,
+    lazy,
   };
 }
 

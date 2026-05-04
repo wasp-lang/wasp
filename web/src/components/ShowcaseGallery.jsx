@@ -24,25 +24,25 @@ const ShowcaseGallery = () => {
         className={`mx-auto grid max-w-lg gap-8 lg:max-w-none lg:grid-cols-3 lg:gap-12`}
       >
         <ShowcaseItem
-          url="/blog/2022/10/28/farnance-hackathon-winner"
-          thumb="img/lp/showcase/farnance-dashboard.webp"
-          title="Farnance: SaaS marketplace for farmers"
-          description="See how Julian won HackLBS 2021 among 250 participants and why Wasp was instrumental for the team's victory."
+          url="/blog/2026/03/29/hireveld-from-10-stacks-to-production-with-wasp"
+          thumb="img/hireveld/banner.webp"
+          title="Hireveld: Job board tackling South Africa's broken hiring market"
+          description="See how Marcel, a data scientist, tried 10 different stacks and built a full-stack job board with Wasp using agentic coding."
         >
           <Tag
-            text="hackathon"
-            className="border-yellow-600 bg-yellow-50 text-yellow-600"
+            text="startup"
+            className="border-fuchsia-600 bg-fuchsia-50 text-fuchsia-600"
           />
           <Tag
-            text="material-ui"
-            className="border-blue-500 bg-slate-50 text-blue-500"
+            text="agentic-coding"
+            className="border-yellow-600 bg-yellow-50 text-yellow-600"
           />
         </ShowcaseItem>
 
         <ShowcaseItem
           url="/blog/2022/11/26/michael-curry-usecase"
           thumb="img/lp/showcase/grabbit-hero.webp"
-          title="Grabbit: Easily manage dev environments"
+          title="Grabbit: Easily manage dev environments in your company"
           description="See how Michael built and deployed an internal tool for managing dev resources at StudentBeans."
         >
           <Tag
@@ -79,7 +79,7 @@ const ShowcaseItem = ({ url, thumb, title, description, children }) => (
           <div
             className={`relative mb-4 h-60 w-full overflow-auto overflow-y-hidden rounded-lg border border-neutral-300 shadow-lg`}
           >
-            <img src={thumb} className="object-cover" />
+            <img src={thumb} className="h-full w-full object-cover" />
           </div>
 
           <h3 className="text-xl text-neutral-700">{title}</h3>

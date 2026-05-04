@@ -8,6 +8,7 @@ import NeatInterpolation (trimming)
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
+    TestContext,
     WaspNewTemplate (..),
     WaspProjectContext (..),
     createFile,
@@ -25,64 +26,55 @@ import Wasp.Project.Env (dotEnvClient)
 viteBuildTest :: Test
 viteBuildTest =
   Test
-    "loading-env-vars-vite-build"
+    "vite-build-env-vars"
     [ TestCase
+        "fail-on-missing-required-env-vars"
+        ( createViteBuildTestCase [expectCommandFailure <$> viteBuild]
+        ),
+      TestCase
+        "success-with-required-env-vars"
+        ( createViteBuildTestCase [appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild]
+        ),
+      TestCase
         "fail-missing-inline-env-var"
-        ( sequence
-            [ createTestWaspProject Minimal,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  writeMainPageTsx,
-                  waspCliBuild,
-                  viteBuild,
-                  expectCommandFailure <$> assertBuildOutputContains inlineEnvVarValue
-                ]
+        ( createViteBuildTestCase
+            [ appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild,
+              expectCommandFailure <$> assertBuildOutputContains inlineEnvVarValue
             ]
         ),
       TestCase
         -- Based on https://github.com/wasp-lang/wasp/issues/3741
         "succeed-inline-env-var"
-        ( sequence
-            [ createTestWaspProject Minimal,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  writeMainPageTsx,
-                  waspCliBuild,
-                  appendInlineEnvVar testEnvVarKey inlineEnvVarValue <$> viteBuild,
-                  assertBuildOutputContains inlineEnvVarValue
-                ]
+        ( createViteBuildTestCase
+            [ appendInlineEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] <$> viteBuild,
+              assertBuildOutputContains inlineEnvVarValue
             ]
         ),
       TestCase
         "ignore-dotenv-client-file-in-build"
-        ( sequence
-            [ createTestWaspProject Minimal,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  writeMainPageTsx,
-                  writeDotEnvClientFile dotEnvFileValue,
-                  waspCliBuild,
-                  viteBuild,
-                  expectCommandFailure <$> assertBuildOutputContains dotEnvFileValue
-                ]
+        ( createViteBuildTestCase
+            [ writeDotEnvClientFile dotEnvFileValue,
+              appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild,
+              expectCommandFailure <$> assertBuildOutputContains dotEnvFileValue
             ]
         ),
       TestCase
         "inline-env-vars-work-with-env-file-present"
-        ( sequence
-            [ createTestWaspProject Minimal,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  writeMainPageTsx,
-                  writeDotEnvClientFile dotEnvFileValue,
-                  waspCliBuild,
-                  appendInlineEnvVar testEnvVarKey inlineEnvVarValue <$> viteBuild,
-                  assertBuildOutputContains inlineEnvVarValue
-                ]
+        ( createViteBuildTestCase
+            [ writeDotEnvClientFile dotEnvFileValue,
+              appendInlineEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] <$> viteBuild,
+              assertBuildOutputContains inlineEnvVarValue
             ]
         )
     ]
   where
+    createViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
+    createViteBuildTestCase commands =
+      sequence
+        [ createTestWaspProject Minimal,
+          inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
+        ]
+
     viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
     viteBuild = return "npx vite build"
 
@@ -108,8 +100,14 @@ viteBuildTest =
         T.pack $
           testEnvVarKey ++ "=" ++ value
 
-    appendInlineEnvVar :: String -> String -> ShellCommand -> ShellCommand
-    appendInlineEnvVar envVarName envVarValue command = envVarName ++ "=" ++ envVarValue ++ " " ++ command
+    appendInlineEnvVars :: [(String, String)] -> ShellCommand -> ShellCommand
+    appendInlineEnvVars envVars command = foldr appendInlineEnvVar command envVars
+
+    appendInlineEnvVar :: (String, String) -> ShellCommand -> ShellCommand
+    appendInlineEnvVar (key, value) command = key ++ "=" ++ value ++ " " ++ command
+
+    apiUrlEnvVar :: (String, String)
+    apiUrlEnvVar = ("REACT_APP_API_URL", "http://localhost:3001")
 
     testEnvVarKey :: String
     testEnvVarKey = "REACT_APP_NAME"

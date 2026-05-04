@@ -3,6 +3,7 @@ import { ChildProcessWithoutNullStreams, spawn } from "child_process";
 
 import { GenerateAppJob } from "wasp/server/jobs";
 
+import { CODING_MODEL, PLANNING_MODEL } from "../../config/aiModels.js";
 import { log } from "./utils.js";
 
 const appGenerationResults: Record<string, any> = {};
@@ -37,25 +38,10 @@ export const generateApp: GenerateAppJob<
     unconsumedStdout: "",
   };
 
-  let defaultGptTemperature;
-  switch (project.creativityLevel) {
-    case "conventional":
-      defaultGptTemperature = 0.4;
-      break;
-    case "balanced":
-      defaultGptTemperature = 0.7;
-      break;
-    case "creative":
-      defaultGptTemperature = 1.0;
-      break;
-    default:
-      throw new Error(`Unknown creativity level: ${project.creativityLevel}`);
-  }
-
-  // { auth: 'UsernameAndPassword', primaryColor: string, defaultGptTemperature: number }
   const projectConfig = {
     primaryColor: project.primaryColor,
-    defaultGptTemperature,
+    planningGptModel: PLANNING_MODEL,
+    codingGptModel: CODING_MODEL,
   };
 
   const stdoutMutex = new Mutex();

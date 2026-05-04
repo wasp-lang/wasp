@@ -626,6 +626,8 @@ describe("mapRoute", () => {
     expect(result).toStrictEqual({
       path: route.path,
       to: pageRefParser(route.to),
+      prerender: route.prerender,
+      lazy: route.lazy,
     } satisfies AppSpec.Route);
   }
 });

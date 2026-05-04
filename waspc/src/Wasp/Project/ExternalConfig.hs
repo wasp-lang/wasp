@@ -1,5 +1,5 @@
 module Wasp.Project.ExternalConfig
-  ( readExternalConfigs,
+  ( parseAndValidateExternalConfigs,
     ExternalConfigs (..),
   )
 where
@@ -13,8 +13,9 @@ import Wasp.Project.Common
     SrcTsConfigFile,
     WaspProjectDir,
   )
-import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
-import Wasp.Project.ExternalConfig.TsConfig (readSrcTsConfigFile)
+import Wasp.Project.ExternalConfig.PackageJson (readUserPackageJsonFile)
+import Wasp.Project.ExternalConfig.TsConfig (readSrcTsConfigFile, validateSrcTsConfig)
+import Wasp.Project.ExternalConfig.ViteConfig (validateViteConfig)
 
 data ExternalConfigs = ExternalConfigs
   { _packageJson :: PackageJson,
@@ -22,16 +23,33 @@ data ExternalConfigs = ExternalConfigs
   }
   deriving (Show)
 
+parseAndValidateExternalConfigs ::
+  Path' Abs (Dir WaspProjectDir) ->
+  Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
+  IO (Either [CompileError] ExternalConfigs)
+parseAndValidateExternalConfigs waspDir srcTsConfigPath = do
+  readExternalConfigs waspDir srcTsConfigPath >>= \case
+    Left readError -> return $ Left [readError]
+    Right externalConfigs ->
+      case validateExternalConfigs externalConfigs of
+        [] -> return $ Right externalConfigs
+        errors -> return $ Left errors
+
 readExternalConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
   IO (Either CompileError ExternalConfigs)
 readExternalConfigs waspDir srcTsConfigPath = runExceptT $ do
-  packageJsonContent <- ExceptT $ readPackageJsonFile waspDir
+  packageJsonContent <- ExceptT $ readUserPackageJsonFile waspDir
   srcTsConfigContent <- ExceptT $ readSrcTsConfigFile waspDir srcTsConfigPath
+  ExceptT $ validateViteConfig waspDir
 
   return $
     ExternalConfigs
       { _packageJson = packageJsonContent,
         _srcTsConfig = srcTsConfigContent
       }
+
+validateExternalConfigs :: ExternalConfigs -> [CompileError]
+validateExternalConfigs configs =
+  validateSrcTsConfig (_srcTsConfig configs)

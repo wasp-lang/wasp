@@ -21,8 +21,7 @@ runs:
             "linux-x86_64",
             "linux-x86_64-static",
             "macos-x86_64",
-            "macos-aarch64",
-            "macos-universal"
+            "macos-aarch64"
           ]'),
           inputs.build-name
         )
@@ -42,7 +41,7 @@ runs:
 
     - name: Set npm target
       id: set-npm-target
-      if: inputs.build-name != 'all' && inputs.build-name != 'macos-universal'
+      if: inputs.build-name != 'all'
       shell: sh
       run: |
         case '${{ inputs.build-name }}' in

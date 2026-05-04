@@ -24,7 +24,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/download-artifact@v5
+      - uses: actions/download-artifact@v8
         with:
           pattern: wasp-cli-*
 
@@ -57,7 +57,7 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - uses: actions/download-artifact@v6
+      - uses: actions/download-artifact@v8
         with:
           name: ${{ vars.WASP_NPM_ARTIFACT_NAME }}
           path: packages/

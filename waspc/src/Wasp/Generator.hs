@@ -2,7 +2,7 @@ module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
     Wasp.Generator.Test.testWebApp,
-    ProjectRootDir,
+    GeneratedAppDir,
   )
 where
 
@@ -13,7 +13,7 @@ import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.ExternalConfig.Npm.Dependency as D
 import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator (genDb)
 import Wasp.Generator.DockerGenerator (genDockerFiles)
 import Wasp.Generator.FileDraft (FileDraft)
@@ -29,7 +29,7 @@ import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
-import Wasp.Generator.Valid (validateAppSpec)
+import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
 import Wasp.Generator.WriteFileDrafts (synchronizeFileDraftsWithDisk)
@@ -44,9 +44,9 @@ import Wasp.Util ((<++>))
 --   NOTE(martin): What if there is already smth in the dstDir? It is probably best
 --     if we clean it up first? But we don't want this to end up with us deleting stuff
 --     from user's machine. Maybe we just overwrite and we are good?
-writeWebAppCode :: AppSpec -> Path' Abs (Dir ProjectRootDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
+writeWebAppCode :: AppSpec -> Path' Abs (Dir GeneratedAppDir) -> SendMessage -> IO ([GeneratorWarning], [GeneratorError])
 writeWebAppCode spec dstDir sendMessage = do
-  case validateAppSpec spec of
+  case validateExternalConfigsWithAppSpec spec of
     validationErrors@(_ : _) -> return ([], validationErrors)
     [] -> do
       let (generatorWarnings, generatorResult) = runGenerator $ genApp spec

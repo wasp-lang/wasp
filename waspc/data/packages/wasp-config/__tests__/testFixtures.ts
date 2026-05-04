@@ -534,6 +534,8 @@ export function getRouteConfig(
         config: {
           path: "/foo/bar",
           to: getPageConfig(routeType).name as TsAppSpec.PageName,
+          prerender: true,
+          lazy: false,
         },
       } satisfies FullNamedConfig<TsAppSpec.RouteConfig>;
     default:

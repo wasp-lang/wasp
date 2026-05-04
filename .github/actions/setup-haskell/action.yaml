@@ -49,7 +49,7 @@ runs:
     # Based on the official recipe for Cabal caching:
     # https://github.com/actions/cache/blob/v4.2.3/examples.md#haskell---cabal
     - name: Cache Cabal dependencies
-      uses: actions/cache@v4
+      uses: actions/cache@v5
       with:
         # There are two extra directories that are commonly cache, that we've
         # decided not to cache:

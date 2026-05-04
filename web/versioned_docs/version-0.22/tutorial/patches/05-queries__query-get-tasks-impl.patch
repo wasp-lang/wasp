@@ -1,0 +1,14 @@
+diff --git a/src/queries.ts b/src/queries.ts
+new file mode 100644
+index 0000000..4e4ba1b
+--- /dev/null
++++ b/src/queries.ts
+@@ -0,0 +1,8 @@
++import type { Task } from "wasp/entities";
++import type { GetTasks } from "wasp/server/operations";
++
++export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
++  return context.entities.Task.findMany({
++    orderBy: { id: "asc" },
++  });
++};

@@ -17,7 +17,6 @@ import Wasp.Generator.SdkGenerator.Common
     clientTemplatesDirInSdkTemplatesDir,
     genFileCopy,
     getOperationTypeName,
-    makeSdkImportPath,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (getServerOperationsImportPath)

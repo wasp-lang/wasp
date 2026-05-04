@@ -5,12 +5,14 @@ import Data.Maybe (fromJust)
 import StrongPath
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec.Operation as AS.Operation
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
+import qualified Wasp.Generator.WaspLibs.Common as WaspLibsC
 import Wasp.Util (toUpperFirst)
+import Wasp.Util.StrongPath (invertRelDir)
 
 data SdkRootDir
 
@@ -31,7 +33,7 @@ mkTmplFdWithDstAndData ::
   FileDraft
 mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
   createTemplateFileDraft
-    (sdkRootDirInGeneratedCodeDir </> relDstPath)
+    (sdkRootDirInGeneratedAppDir </> relDstPath)
     (sdkTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
@@ -55,8 +57,8 @@ mkTmplFd relSrcPath =
 genFileCopy :: Path' (Rel SdkTemplatesDir) File' -> Generator FileDraft
 genFileCopy = return . mkTmplFd
 
-sdkRootDirInGeneratedCodeDir :: Path' (Rel ProjectRootDir) (Dir SdkRootDir)
-sdkRootDirInGeneratedCodeDir = [reldir|sdk/wasp|]
+sdkRootDirInGeneratedAppDir :: Path' (Rel GeneratedAppDir) (Dir SdkRootDir)
+sdkRootDirInGeneratedAppDir = [reldir|sdk/wasp|]
 
 sdkTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SdkTemplatesDir)
 sdkTemplatesDirInTemplatesDir = [reldir|sdk/wasp|]
@@ -84,3 +86,6 @@ vitePluginsDirInSdkTemplatesDir = viteDirInSdkTemplatesDir </> [reldir|plugins|]
 
 sdkPackageName :: String
 sdkPackageName = "wasp"
+
+libsRootDirFromSdkDir :: Path' (Rel SdkRootDir) (Dir WaspLibsC.LibsRootDir)
+libsRootDirFromSdkDir = invertRelDir sdkRootDirInGeneratedAppDir </> WaspLibsC.libsRootDirInGeneratedAppDir

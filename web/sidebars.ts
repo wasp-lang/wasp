@@ -157,10 +157,10 @@ const sidebars: SidebarsConfig = {
     },
     {
       type: "category",
-      label: "Wasp AI",
+      label: "AI & Coding Agents",
       collapsed: false,
       collapsible: true,
-      items: ["wasp-ai/creating-new-app", "wasp-ai/developing-existing-app"],
+      items: ["wasp-ai/coding-agent-plugin"],
     },
     {
       type: "category",
@@ -175,6 +175,8 @@ const sidebars: SidebarsConfig = {
         "advanced/apis",
         "advanced/middleware-config",
         "advanced/links",
+        "advanced/routing",
+        "advanced/prerendering",
       ],
     },
     {
@@ -200,6 +202,8 @@ const sidebars: SidebarsConfig = {
       collapsed: true,
       collapsible: true,
       items: [
+        "migration-guides/migrate-from-0-22-to-0-23",
+        "migration-guides/migrate-from-0-21-to-0-22",
         "migration-guides/migrate-from-0-20-to-0-21",
         "migration-guides/migrate-from-0-19-to-0-20",
         "migration-guides/migrate-from-0-18-to-0-19",

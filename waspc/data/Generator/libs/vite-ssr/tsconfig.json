@@ -1,0 +1,12 @@
+{
+  "include": ["src/**/*"],
+  "extends": ["@tsconfig/node22", "@tsconfig/node-ts"],
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "bundler",
+
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true
+  }
+}

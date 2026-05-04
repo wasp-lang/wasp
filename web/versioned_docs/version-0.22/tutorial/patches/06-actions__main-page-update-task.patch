@@ -1,0 +1,44 @@
+diff --git a/src/MainPage.tsx b/src/MainPage.tsx
+index 44c52c8..ec559d7 100644
+--- a/src/MainPage.tsx
++++ b/src/MainPage.tsx
+@@ -1,5 +1,10 @@
+-import type { FormEvent } from "react";
+-import { createTask, getTasks, useQuery } from "wasp/client/operations";
++import type { ChangeEvent, FormEvent } from "react";
++import {
++  createTask,
++  getTasks,
++  updateTask,
++  useQuery,
++} from "wasp/client/operations";
+ import type { Task } from "wasp/entities";
+ 
+ export const MainPage = () => {
+@@ -17,9 +22,25 @@ export const MainPage = () => {
+ };
+ 
+ const TaskView = ({ task }: { task: Task }) => {
++  const handleIsDoneChange = async (event: ChangeEvent<HTMLInputElement>) => {
++    try {
++      await updateTask({
++        id: task.id,
++        isDone: event.target.checked,
++      });
++    } catch (error: any) {
++      window.alert("Error while updating task: " + error.message);
++    }
++  };
++
+   return (
+     <div>
+-      <input type="checkbox" id={String(task.id)} checked={task.isDone} />
++      <input
++        type="checkbox"
++        id={String(task.id)}
++        checked={task.isDone}
++        onChange={handleIsDoneChange}
++      />
+       {task.description}
+     </div>
+   );

@@ -25,7 +25,7 @@ import qualified Wasp.Project.Env as Project.Env
 
 compile ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir Generator.ProjectRootDir) ->
+  Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 compile waspDir outDir options = do
@@ -43,7 +43,7 @@ compile waspDir outDir options = do
 
 generateCode ::
   AS.AppSpec ->
-  Path' Abs (Dir Generator.ProjectRootDir) ->
+  Path' Abs (Dir Generator.GeneratedAppDir) ->
   CompileOptions ->
   IO ([CompileWarning], [CompileError])
 generateCode appSpec outDir options = do

@@ -24,7 +24,7 @@ export async function analyzeApp(
 }
 
 async function getApp(mainWaspJs: string): Promise<Result<App, string>> {
-  const usersDefaultExport: unknown = (await import(mainWaspJs)).default;
+  const usersDefaultExport: unknown = await (await import(mainWaspJs)).default;
 
   if (!usersDefaultExport) {
     return {

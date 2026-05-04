@@ -2,7 +2,6 @@
 
 module Wasp.Generator.SdkGenerator
   ( genSdk,
-    installNpmDependencies,
     genExternalCodeDir,
     buildSdk,
     npmDepsForSdk,
@@ -28,25 +27,25 @@ import Wasp.AppSpec.Valid (isAuthEnabled)
 import qualified Wasp.AppSpec.Valid as AS.Valid
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import Wasp.Generator.Common
-  ( ProjectRootDir,
+  ( GeneratedAppDir,
     makeJsonWithEntityData,
   )
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
-  ( axiosVersion,
-    dotenvVersion,
-    expressTypesVersion,
-    expressVersionStr,
-    prismaVersion,
-    reactDomTypesVersion,
-    reactDomVersion,
-    reactQueryVersion,
-    reactRouterVersion,
-    reactTypesVersion,
-    reactVersion,
-    superjsonVersion,
-    typescriptVersion,
+  ( axiosVersionRange,
+    dotenvVersionRange,
+    expressTypesVersionRange,
+    expressVersionRange,
+    prismaVersionRange,
+    reactDomTypesVersionRange,
+    reactDomVersionRange,
+    reactQueryVersionRange,
+    reactRouterVersionRange,
+    reactTypesVersionRange,
+    reactVersionRange,
+    superjsonVersionRange,
+    typescriptVersionRange,
   )
 import Wasp.Generator.FileDraft (FileDraft, createCopyFileDraft)
 import Wasp.Generator.Monad (Generator)
@@ -74,22 +73,20 @@ import qualified Wasp.Generator.ServerGenerator.AuthG as AuthG
 import qualified Wasp.Generator.ServerGenerator.AuthG as ServerAuthG
 import qualified Wasp.Generator.ServerGenerator.Common as Server
 import Wasp.Generator.WaspLibs.AvailableLibs (waspLibs)
-import Wasp.Generator.WaspLibs.Common (libsRootDirFromSdkDir)
 import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob)
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Db as Db
 import qualified Wasp.SemanticVersion.Version as SV
   ( Version (major),
   )
 import Wasp.Util ((<++>))
 
-buildSdk :: Path' Abs (Dir ProjectRootDir) -> IO (Either String ())
-buildSdk projectRootDir = do
+buildSdk :: Path' Abs (Dir GeneratedAppDir) -> IO (Either String ())
+buildSdk generatedAppDir = do
   chan <- newChan
   (_, exitCode) <-
     concurrently
@@ -99,7 +96,7 @@ buildSdk projectRootDir = do
     ExitSuccess -> Right ()
     ExitFailure code -> Left $ "SDK build failed with exit code: " ++ show code
   where
-    sdkRootDir = projectRootDir </> C.sdkRootDirInGeneratedCodeDir
+    sdkRootDir = generatedAppDir </> C.sdkRootDirInGeneratedAppDir
 
 genSdk :: AppSpec -> Generator [FileDraft]
 genSdk spec =
@@ -199,19 +196,19 @@ npmDepsForSdk spec =
   N.NpmDepsForPackage
     { N.dependencies =
         Npm.Dependency.fromList
-          [ ("@prisma/client", show prismaVersion),
-            ("prisma", show prismaVersion),
-            ("axios", show axiosVersion),
-            ("dotenv", show dotenvVersion),
+          [ ("@prisma/client", show prismaVersionRange),
+            ("prisma", show prismaVersionRange),
+            ("axios", show axiosVersionRange),
+            ("dotenv", show dotenvVersionRange),
             ("dotenv-expand", "^12.0.3"),
-            ("express", expressVersionStr),
+            ("express", show expressVersionRange),
             ("mitt", "3.0.0"),
-            ("react", show reactVersion),
-            ("react-dom", show reactDomVersion),
-            ("@tanstack/react-query", reactQueryVersion),
-            ("react-router", show reactRouterVersion),
+            ("react", show reactVersionRange),
+            ("react-dom", show reactDomVersionRange),
+            ("@tanstack/react-query", show reactQueryVersionRange),
+            ("react-router", show reactRouterVersionRange),
             ("react-hook-form", "^7.45.4"),
-            ("superjson", show superjsonVersion)
+            ("superjson", show superjsonVersionRange)
           ]
           ++ depsRequiredByOAuth spec
           -- Server auth deps must be installed in the SDK because "@lucia-auth/adapter-prisma"
@@ -231,12 +228,12 @@ npmDepsForSdk spec =
       N.devDependencies =
         Npm.Dependency.fromList
           [ -- Should @types/* go into their package.json?
-            ("typescript", show typescriptVersion),
+            ("typescript", show typescriptVersionRange),
             ("@vitejs/plugin-react", "^4.7.0"),
-            ("@types/express", show expressTypesVersion),
-            ("@types/express-serve-static-core", show expressTypesVersion),
-            ("@types/react", show reactTypesVersion),
-            ("@types/react-dom", show reactDomTypesVersion),
+            ("@types/express", show expressTypesVersionRange),
+            ("@types/express-serve-static-core", show expressTypesVersionRange),
+            ("@types/react", show reactTypesVersionRange),
+            ("@types/react-dom", show reactDomTypesVersionRange),
             -- NOTE: Make sure to bump the version of the tsconfig
             -- when updating Vite or React versions
             ("@tsconfig/vite-react", "^7.0.0")
@@ -244,7 +241,7 @@ npmDepsForSdk spec =
       N.peerDependencies = Npm.Dependency.fromList []
     }
   where
-    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib libsRootDirFromSdkDir) waspLibs
+    waspLibsNpmDeps = map (WaspLib.makeLocalNpmDepFromWaspLib C.libsRootDirFromSdkDir) waspLibs
 
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
@@ -309,13 +306,6 @@ genTsConfigJson = do
           ]
       )
 
--- TODO(filip): Figure out where this belongs.
--- Check https://github.com/wasp-lang/wasp/pull/1602#discussion_r1437144166 .
--- Also, fix imports for wasp project.
-installNpmDependencies :: Path' Abs (Dir WaspProjectDir) -> J.Job
-installNpmDependencies projectDir =
-  runNodeCommandAsJob projectDir "npm" ["install"] J.Wasp
-
 -- todo(filip): consider reorganizing/splitting the file.
 
 -- | Takes external code files from Wasp,
@@ -331,7 +321,7 @@ genExternalFile file
   where
     fileName = FP.takeFileName . fromRelFile $ externalFilePath
     destFile =
-      C.sdkRootDirInGeneratedCodeDir
+      C.sdkRootDirInGeneratedAppDir
         </> C.extSrcDirInSdkRootDir
         </> castRel externalFilePath
 
