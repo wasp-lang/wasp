@@ -12,12 +12,13 @@ interface ImgWithCaptionProps {
 export function ImgWithCaption(props: ImgWithCaptionProps) {
   return (
     <div
+      className="figure-container img-with-caption"
       style={{
         display: "flex",
         justifyContent: props.justifyContent || "center",
       }}
     >
-      <figure style={{ margin: props.margin || "0 0 1em 0" }}>
+      <figure style={{ margin: props.margin }}>
         <img
           style={{ width: props.width }}
           alt={props.alt}

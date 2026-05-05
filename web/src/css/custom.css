@@ -71,6 +71,10 @@
 
 /* Docusaurus stuff */
 
+:root {
+  --lh: 1.5; /* line height */
+}
+
 /* We are targeting Docusaurus's stable, theme-agnostic class names:
    https://docusaurus.io/docs/styling-layout
    NOTE(matija): `html.` prefix needed to beat Infima's :root specificity. */
@@ -82,7 +86,7 @@ html.blog-wrapper {
   --ifm-heading-font-weight: 500;
   --ifm-font-color-base: #4a4a4a;
   --ifm-heading-color: var(--wasp-k);
-  line-height: 1.8;
+  line-height: var(--lh);
 }
 
 /* Breathing room on content area, like OpenCode.
@@ -91,6 +95,30 @@ html.blog-wrapper {
   max-width: 88%;
   margin-left: 0;
   margin-right: auto;
+
+  h1 {
+    margin-top: 0;
+    margin-bottom: calc(0.6em * var(--lh));
+  }
+  h2 {
+    margin-top: calc(1.5em * var(--lh));
+    margin-bottom: calc(0.6em * var(--lh));
+  }
+  h3 {
+    margin-top: calc(1.2em * var(--lh));
+    margin-bottom: calc(0.4em * var(--lh));
+  }
+  h4, h5, h6 {
+    margin-top: calc(1em * var(--lh));
+    margin-bottom: calc(0.4em * var(--lh));
+  }
+
+  .figure-container {
+    margin: calc(1em * var(--lh)) 0;
+    figure {
+      margin: 0;
+    }
+  }
 }
 
 .docs-wrapper [class*="docItemCol"],
@@ -130,7 +158,7 @@ html.blog-wrapper[data-theme="dark"] {
 .blog-wrapper code[class*="language-"],
 .blog-wrapper pre[class*="language-"] {
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.4;
 }
 
 .docs-wrapper [class*="codeBlockTitle"],
