@@ -241,6 +241,12 @@ html.blog-wrapper[data-theme="dark"] {
 /* Horizontal line below navbar, matching brandbook border color */
 .navbar {
   border-bottom: 1px solid var(--wasp-g3);
+
+  /* Shrink Algolia's DocSearch pill to match the nav-link height (28px), as expected by Docusaurus'
+     navbar. Without this, search pill is too high, making a mess. */
+  .DocSearch-Button {
+    height: 28px;
+  }
 }
 
 /* Right sidebar (TOC) */
