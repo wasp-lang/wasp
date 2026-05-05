@@ -22,12 +22,12 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
+    getOperationRegisteredTypeName,
     getOperationTypeName,
     makeSdkImportPath,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
-import Wasp.Util (toUpperFirst)
 
 -- | This function should match the `exports` path from the SDK's package.json.
 getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
@@ -149,7 +149,7 @@ genOperationTypesFile relOperationTypesFilePath operations isAuthEnabledGlobally
         ]
     operationTypeData operation =
       object
-        [ "typeName" .= toUpperFirst (AS.Operation.getName operation),
+        [ "typeName" .= getOperationTypeName operation,
           "entities" .= getEntities operation,
           "usesAuth" .= usesAuth operation
         ]
@@ -161,8 +161,8 @@ getOperationTmplData isAuthEnabledGlobally operation =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
       "operationName" .= AS.Operation.getName operation,
-      "operationTypeName" .= toUpperFirst (AS.Operation.getName operation),
-      "operationResolvedTypeName" .= getOperationTypeName operation,
+      "operationTypeName" .= getOperationTypeName operation,
+      "operationRegisteredTypeName" .= getOperationRegisteredTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),
       "usesAuth" .= fromMaybe isAuthEnabledGlobally (AS.Operation.getAuth operation)
