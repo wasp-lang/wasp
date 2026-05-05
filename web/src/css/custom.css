@@ -387,7 +387,7 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
      defined in both places: tailwind.config.js for body text, and here for Infima components.
      Update both when changing fonts. */
   --ifm-font-family-base: "IBM Plex Sans", sans-serif;
-  --ifm-heading-font-family: "JetBrains Mono", monospace;
+  --ifm-heading-font-family: "IBM Plex Mono", monospace;
   --ifm-color-primary: #bf9900;
   /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;
