@@ -17,7 +17,7 @@ export function ImgWithCaption(props: ImgWithCaptionProps) {
         justifyContent: props.justifyContent || "center",
       }}
     >
-      <figure style={props.margin ? { margin: props.margin } : undefined}>
+      <figure style={{ margin: props.margin || "0 0 1em 0" }}>
         <img
           style={{ width: props.width }}
           alt={props.alt}
@@ -25,7 +25,12 @@ export function ImgWithCaption(props: ImgWithCaptionProps) {
         />
         <figcaption
           className="image-caption"
-          style={{ fontStyle: "italic", opacity: 0.6, fontSize: "0.9rem" }}
+          style={{
+            fontStyle: "italic",
+            opacity: 0.8,
+            fontSize: "1.1rem",
+            marginTop: "0.2em",
+          }}
         >
           {props.caption}
         </figcaption>

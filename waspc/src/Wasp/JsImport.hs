@@ -3,18 +3,19 @@
 
 module Wasp.JsImport
   ( JsImport (..),
+    JsImportKind (..),
     JsImportName (..),
     JsImportPath (..),
     JsImportAlias,
     JsImportIdentifier,
     JsImportStatement,
-    makeJsImport,
+    makeTypeJsImport,
+    makeValueJsImport,
     applyJsImportAlias,
     getJsImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
-    getJsRuntimeDynamicImportExpression,
-    getJsTypeDynamicImportExpression,
+    getJsDynamicImportExpression,
   )
 where
 
@@ -27,7 +28,9 @@ import qualified StrongPath as SP
 --   in generated app. It doesn't fully support all types of JS imports (multiple imports)
 --   but this is enough for our current use case.
 data JsImport = JsImport
-  { -- | Path from which we are importing.
+  { -- | Whether the import is a type-only import or a value (runtime) import.
+    _kind :: JsImportKind,
+    -- | Path from which we are importing.
     _path :: JsImportPath,
     -- | What is being imported. NOTE: We don't currenly support multiple names in one statement,
     --   that's why it's "name" and not "names".
@@ -35,6 +38,13 @@ data JsImport = JsImport
     -- | Alias for the imported name.
     _importAlias :: Maybe JsImportAlias
   }
+  deriving (Show, Eq, Data)
+
+-- | Distinguishes type-only imports (used in @typeof@ positions and as @import type@)
+--   from value imports that bring runtime bindings into scope.
+data JsImportKind
+  = TypeImport
+  | ValueImport
   deriving (Show, Eq, Data)
 
 data JsImportPath
@@ -67,45 +77,52 @@ getJsImportIdentifier JsImport {_name = name} = case name of
   JsImportModule identifier -> identifier
   JsImportField identifier -> identifier
 
-makeJsImport :: JsImportPath -> JsImportName -> JsImport
-makeJsImport importPath importName = JsImport importPath importName Nothing
+makeTypeJsImport :: JsImportPath -> JsImportName -> JsImport
+makeTypeJsImport importPath importName =
+  JsImport
+    { _kind = TypeImport,
+      _path = importPath,
+      _name = importName,
+      _importAlias = Nothing
+    }
+
+makeValueJsImport :: JsImportPath -> JsImportName -> JsImport
+makeValueJsImport importPath importName =
+  JsImport
+    { _kind = ValueImport,
+      _path = importPath,
+      _name = importName,
+      _importAlias = Nothing
+    }
 
 applyJsImportAlias :: Maybe JsImportAlias -> JsImport -> JsImport
 applyJsImportAlias importAlias jsImport = jsImport {_importAlias = importAlias}
 
 getJsImportStmtAndIdentifier :: JsImport -> (JsImportStatement, JsImportIdentifier)
-getJsImportStmtAndIdentifier jsImport@(JsImport _ importName maybeImportAlias) =
+getJsImportStmtAndIdentifier jsImport =
   (importStatement, importIdentifier)
   where
-    importStatement = "import " ++ importClause ++ " from '" ++ getJsImportPathString jsImport ++ "'"
-    (importIdentifier, importClause) = getJsImportIdentifierAndClause importName maybeImportAlias
+    importStatement = importKeyword ++ " " ++ importClause ++ " from '" ++ getJsImportPathString jsImport ++ "'"
+    importKeyword = case jsImport._kind of
+      TypeImport -> "import type"
+      ValueImport -> "import"
+    (importIdentifier, importClause) = getJsImportIdentifierAndClause jsImport._name jsImport._importAlias
 
--- | Returns a type dynamic import expression, e.g.:
---   For default export: @import('./path').default@
---   For named export: @import('./path').Name@
-getJsTypeDynamicImportExpression :: JsImport -> String
-getJsTypeDynamicImportExpression jsImport =
-  "import('" ++ importPath ++ "')." ++ importName
+-- | Returns a dynamic import expression. The shape depends on the import kind:
+--   * named type export: @import('./path').Name@
+--   * named value export: @import('./path').then(m => m.Name)@
+getJsDynamicImportExpression :: JsImport -> String
+getJsDynamicImportExpression jsImport = case jsImport._kind of
+  TypeImport -> "import('" ++ importPath ++ "')." ++ importName
+  ValueImport -> "import('" ++ importPath ++ "').then(m => m." ++ importName ++ ")"
   where
     importPath = getJsImportPathString jsImport
-    importName = getJsImportNameString jsImport._name
-
--- | Returns a runtime dynamic import expression, e.g.:
---   For default export: @import('./path').then(m => m.default)@
---   For named export: @import('./path').then(m => m.Name)@
-getJsRuntimeDynamicImportExpression :: JsImport -> String
-getJsRuntimeDynamicImportExpression jsImport =
-  "import('" ++ importPath ++ "').then(m => m." ++ importName ++ ")"
-  where
-    importPath = getJsImportPathString jsImport
-    importName = getJsImportNameString jsImport._name
-
-getJsImportNameString :: JsImportName -> String
-getJsImportNameString (JsImportModule _) = "default"
-getJsImportNameString (JsImportField name) = name
+    importName = case jsImport._name of
+      JsImportModule _ -> "default"
+      JsImportField name -> name
 
 getJsImportPathString :: JsImport -> String
-getJsImportPathString (JsImport importPath _ _) = case importPath of
+getJsImportPathString jsImport = case jsImport._path of
   RawImportName moduleName -> moduleName
   ModuleImportPath modulePath -> SP.fromRelFileP modulePath
   RelativeImportPath relPath -> normalizeRelImportPath $ SP.fromRelFileP relPath
