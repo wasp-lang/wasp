@@ -17,7 +17,7 @@ import {
 import type { OperationFromRegister } from 'wasp/types'
 import type {
   {=# operations =}
-  {= operationTypeName =},
+  {= generatedTypeForDefiningOperationName =},
   {=/ operations =}
 } from './types.js'
 {=# operations =}
@@ -26,16 +26,16 @@ import type {
 {=# operations =}
 
 // PRIVATE API
-export type {= operationRegisteredTypeName =} = OperationFromRegister<'{= operationName =}', {= operationTypeName =}>
+export type {= registeredOperationTypeName =} = OperationFromRegister<'{= operationName =}', {= generatedTypeForDefiningOperationName =}>
 
 // PUBLIC API
 {=# usesAuth =}
-export const {= operationName =}: AuthenticatedOperationFor<{= operationRegisteredTypeName =}> =
-  createAuthenticatedOperation<{= operationRegisteredTypeName =}>(
+export const {= operationName =}: AuthenticatedOperationFor<{= registeredOperationTypeName =}> =
+  createAuthenticatedOperation<{= registeredOperationTypeName =}>(
 {=/ usesAuth =}
 {=^ usesAuth =}
-export const {= operationName =}: UnauthenticatedOperationFor<{= operationRegisteredTypeName =}> =
-  createUnauthenticatedOperation<{= operationRegisteredTypeName =}>(
+export const {= operationName =}: UnauthenticatedOperationFor<{= registeredOperationTypeName =}> =
+  createUnauthenticatedOperation<{= registeredOperationTypeName =}>(
 {=/ usesAuth =}
     {= jsFn.importIdentifier =},
     {

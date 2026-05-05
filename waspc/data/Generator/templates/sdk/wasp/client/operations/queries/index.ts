@@ -1,12 +1,12 @@
 {{={= =}=}}
 import { type QueryFor, createQuery } from './core'
 {=# queries =}
-{=& operationTypeImportStmt =}
+{=& registeredOperationTypeImportStmt =}
 {=/ queries =}
 {=# queries =}
 
 // PUBLIC API
-export const {= operationName =}: QueryFor<{= operationTypeName =}> = createQuery<{= operationTypeName =}>(
+export const {= operationName =}: QueryFor<{= registeredOperationTypeName =}> = createQuery<{= registeredOperationTypeName =}>(
   '{= queryRoute =}',
   {=& entitiesArray =},
 )
