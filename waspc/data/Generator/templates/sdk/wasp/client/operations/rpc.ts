@@ -1,9 +1,9 @@
 import { type Route } from "wasp/client";
 import type {
-  IfAny,
-  _Awaited,
-  _ReturnType,
-} from "wasp/universal/types"
+  IfAny
+} from "wasp/universal/types";
+import { GenericOperationDefinition } from "../../server/_types";
+import { OperationInput, OperationOutput } from "../../server/operations/wrappers";
 
 // PRIVATE API (for SDK, should maybe be public, users define values of this
 // type).
@@ -54,20 +54,13 @@ export type QueryMetadata = {
  * Constructs the client RPC function type from the type of the operation's
  * definition on the backend.
  */
-export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
+export type OperationRpcFor<BackendOperation extends GenericOperationDefinition> =
   Parameters<BackendOperation> extends []
-  ? ClientOperation<void, _Awaited<_ReturnType<BackendOperation>>>
+  ? ClientOperation<void, OperationOutput<BackendOperation>>
   : ClientOperation<
-    Parameters<BackendOperation>[0],
-    _Awaited<_ReturnType<BackendOperation>>
+    OperationInput<BackendOperation>,
+    OperationOutput<BackendOperation>
   >
-
-// PRIVATE API (needed in SDK)
-/**
- * A supertype of all possible backend operation definitions (i.e., Queries and
- * Actions) 
- */
-export type GenericBackendOperation = (args: never, context: any) => unknown
 
 // PRIVATE API (needed in SDK)
 /**

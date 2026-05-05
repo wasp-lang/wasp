@@ -1,17 +1,16 @@
 import { Route } from 'wasp/client'
-import type { _Awaited, _ReturnType } from 'wasp/universal/types'
-import type {
-  GenericBackendOperation,
-  GenericOperationRpc,
-  OperationRpcFor,
-  Query,
-  QueryMetadata,
-} from '../rpc.js'
+import { GenericOperationDefinition } from '../../../server/_types/index.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
   getActiveOptimisticUpdates,
 } from '../internal/resources'
+import type {
+  GenericOperationRpc,
+  OperationRpcFor,
+  Query,
+  QueryMetadata,
+} from '../rpc.js'
 
 // PRIVATE API (used in the SDK)
 // todo: find ways to remove this duplication and make the type more precise.
@@ -26,7 +25,7 @@ export function makeQueryCacheKey<Input, Output>(
 }
 
 // PRIVATE API (unsed in SDK)
-export function createQuery<BackendQuery extends GenericBackendOperation>(
+export function createQuery<BackendQuery extends GenericOperationDefinition>(
   relativeQueryPath: string,
   entitiesUsed: string[]
 ): QueryFor<BackendQuery> {
@@ -74,14 +73,14 @@ export function buildAndRegisterQuery<QF extends GenericOperationRpc>(
  * Constructs the client Query object type from the type of the Query's definition
  * on the backend.
  */
-export type QueryFor<BackendQuery extends GenericBackendOperation> =
+export type QueryFor<BackendQuery extends GenericOperationDefinition> =
   QueryForFunction<QueryFunctionFor<BackendQuery>>
 
 /**
  * Constructs the client Query function type from the type of the Query's
  * definition on the backend.
  */
-type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
+type QueryFunctionFor<BackendQuery extends GenericOperationDefinition> =
   OperationRpcFor<BackendQuery>
 
 /**
