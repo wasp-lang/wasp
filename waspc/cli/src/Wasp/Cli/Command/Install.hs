@@ -17,8 +17,8 @@ import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Generator.NpmDependencies (NpmDepsFromUser, getUserNpmDepsForPackage)
 import Wasp.Generator.NpmInstall (areThereUserNpmDepsToInstall, installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageIsAtInstallationPathInProject, getPackagePathInNodeModules)
-import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
-import Wasp.Project.ExternalConfig.PackageJson (readPackageJsonFile)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
+import Wasp.Project.ExternalConfig.PackageJson (readUserPackageJsonFile)
 import qualified Wasp.Util.IO as IOUtil
 
 -- | Standalone `wasp install` command: copies wasp-config and runs npm install.
@@ -42,7 +42,7 @@ installIfNeeded :: Command ()
 installIfNeeded = do
   InWaspProject waspProjectDir <- require
   let waspConfigInNodeModules = waspProjectDir </> getPackagePathInNodeModules WaspConfigPackage
-  let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+  let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir
 
   waspConfigMissing <- liftIO $ not <$> IOUtil.doesDirectoryExist waspConfigInNodeModules
   userDepsChanged <-
@@ -55,7 +55,7 @@ installIfNeeded = do
 
 getUserDepsFromDisk :: Path' Abs (Dir WaspProjectDir) -> IO (Either String NpmDepsFromUser)
 getUserDepsFromDisk waspProjectDir =
-  fmap getUserNpmDepsForPackage <$> readPackageJsonFile waspProjectDir
+  fmap getUserNpmDepsForPackage <$> readUserPackageJsonFile waspProjectDir
 
 installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installIO waspProjectDir = do

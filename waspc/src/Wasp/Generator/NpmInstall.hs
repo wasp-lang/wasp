@@ -133,7 +133,7 @@ areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir
   return $ installedNpmDeps /= Just allNpmDeps
 
-areThereUserNpmDepsToInstall :: NpmDepsFromUser -> Path' Abs (Dir ProjectRootDir) -> IO Bool
+areThereUserNpmDepsToInstall :: NpmDepsFromUser -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 areThereUserNpmDepsToInstall currentUserDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir
   return $ case installedNpmDeps of
