@@ -243,11 +243,33 @@ html.blog-wrapper[data-theme="dark"] {
   border-bottom: 1px solid var(--wasp-g3);
 }
 
-/* Vertical line left of right sidebar (TOC), pulled up to connect with navbar border */
+/* Right sidebar (TOC) */
 .docs-wrapper .col.col--3 {
-  border-left: 1px solid var(--wasp-g3);
+  border-left: 1px solid var(--wasp-g3); /* Vertical line to the left, pulled up to connect with navbar border */
   margin-top: calc(-1 * var(--ifm-spacing-vertical));
   padding-top: var(--ifm-spacing-vertical);
+}
+
+/* Hide right sidebar (TOC) for smaller screens (<1280px: half a screen, laptop, ...).
+   We are doing this because while Docusarus hides both sidebars for mobile screens (<996px),
+   the content column becomes too narrow already on smaller screens, squished by sidebars.
+   Here we "hack" it via CSS: we hide sidebar and show its replacement dropdown, and let the
+   content column fully spread. */
+@media (max-width: 1280px) {
+  .docs-wrapper .col.col--3 {
+    display: none;
+  }
+  .docs-wrapper [class*="tocMobile"] {
+    display: block;
+  }
+  .docs-wrapper [class*="docItemCol"] {
+    max-width: 100% !important;
+  }
+  /* Drop the OpenCode-style "empty space on the right" breathing room once the TOC is gone —
+     without a TOC, content + empty space looks lopsided. */
+  .docs-wrapper [class*="docMainContainer"] .container {
+    max-width: 100%;
+  }
 }
 
 .docs-wrapper .markdown {
@@ -438,9 +460,15 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   color: var(--sidebar-item-level-1-color);
   font-family: "IBM Plex Mono", monospace;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.theme-doc-sidebar-menu {
+  .menu__link {
+    font-weight: 400;
+  }
 }
 
 /* Schematic sidebar collapse indicators.
