@@ -6,7 +6,7 @@ import "wasp/types"
 declare module 'wasp/types' {
   interface OperationsRegister {
 {=# operations =}
-    '{= operationName =}': typeof {=& jsFn.typeDynamicImportExpression =}
+    '{= operationName =}': typeof {=& jsFn.dynamicImportExpression =}
 {=/ operations =}
   }
 }

@@ -32,7 +32,7 @@ const routesMapping = {
       {=! prerendered pages. =}
       {=! https://github.com/remix-run/react-router/issues/14955 =}
       lazy(() =>
-        {=& import.runtimeDynamicImportExpression =}
+        {=& import.dynamicImportExpression =}
         {=# isAuthRequired =}
         .then(component => createAuthRequiredPage(component))
         {=/ isAuthRequired =}
