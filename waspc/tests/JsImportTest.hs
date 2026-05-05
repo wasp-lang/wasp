@@ -7,13 +7,22 @@ import Wasp.JsImport
 
 spec_JsImportTest :: Spec
 spec_JsImportTest = do
-  describe "makeJsImport" $ do
-    it "makes JsImport with a module import from a path" $ do
+  describe "makeValueJsImport" $ do
+    it "makes a value JsImport from a path and a name" $ do
       makeValueJsImport testRelativeImportPath (JsImportModule "test")
         `shouldBe` JsImport
           { _kind = ValueImport,
             _path = testRelativeImportPath,
             _name = JsImportModule "test",
+            _importAlias = Nothing
+          }
+  describe "makeTypeJsImport" $ do
+    it "makes a type JsImport from a path and a name" $ do
+      makeTypeJsImport testRelativeImportPath (JsImportField "test")
+        `shouldBe` JsImport
+          { _kind = TypeImport,
+            _path = testRelativeImportPath,
+            _name = JsImportField "test",
             _importAlias = Nothing
           }
   describe "applyJsImportAlias" $ do
