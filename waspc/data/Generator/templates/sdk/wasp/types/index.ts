@@ -14,36 +14,31 @@
  *  - Otherwise → a fallback type is used
  */
 
-/**
- * For registring types from the user project.
- * Types without a more specific register go here.
- */
 export interface Register {}
+
 export type FromRegister<Key extends string, Fallback> = Key extends keyof Register
   ? Register[Key]
   : Fallback;
 
-/**
- * For registring operation types from the user project.
- */
-export interface OperationsRegister {}
-export type FromOperationsRegister<
+export type OperationFromRegister<
   Operation extends string,
   Fallback,
-> = Operation extends keyof OperationsRegister
-  ? OperationsRegister[Operation]
+  Subregister = "operations",
+> = Subregister extends keyof Register
+  ? Operation extends keyof Register[Subregister]
+    ? Register[Subregister][Operation]
+    : Fallback
   : Fallback;
 
-  /**
- * For registring CRUD overrides types from the user project.
- */
-export interface CrudOverridesRegister {}
-export type FromCrudOverridesRegister<
+export type CrudOverrideFromRegister<
   CrudName extends string,
   CrudOperation extends string,
   Fallback,
-> = CrudName extends keyof CrudOverridesRegister
-  ? CrudOperation extends keyof CrudOverridesRegister[CrudName]
-    ? CrudOverridesRegister[CrudName][CrudOperation]
+  Subregister = "crudOverrides",
+>  = Subregister extends keyof Register
+  ? CrudName extends keyof Register[Subregister]
+    ? CrudOperation extends keyof Register[Subregister][CrudName]
+      ? Register[Subregister][CrudName][CrudOperation]
+      : Fallback
     : Fallback
   : Fallback;

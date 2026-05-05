@@ -21,19 +21,12 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.UserTypesGenerator.Common (mkTmplFdWithData)
 import Wasp.Generator.UserTypesGenerator.JsImport (extImportToImportJson, extOperationImportToImportJson)
-import Wasp.Util ((<++>))
 
 genUserTypes :: AppSpec -> Generator [FileDraft]
 genUserTypes spec = genUserModuleAugmentation spec
 
 genUserModuleAugmentation :: AppSpec -> Generator [FileDraft]
 genUserModuleAugmentation spec =
-  genRegister spec
-    <++> genCrudRegister spec
-    <++> genOperationRegister spec
-
-genRegister :: AppSpec -> Generator [FileDraft]
-genRegister spec =
   return
     [ mkTmplFdWithData
         [relfile|register.ts|]
@@ -47,23 +40,22 @@ genRegister spec =
           "webSocketFn" .= extImportToImportJson (AS.App.WS.fn <$> AS.App.webSocket app),
           "prismaSetupFn" .= extImportToImportJson (AS.App.db app >>= AS.Db.prismaSetupFn),
           "emailUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.email >>= AS.Auth.userSignupFieldsForEmailAuth),
-          "usernameAndPasswordUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.usernameAndPassword >>= AS.Auth.userSignupFieldsForUsernameAuth)
+          "usernameAndPasswordUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.usernameAndPassword >>= AS.Auth.userSignupFieldsForUsernameAuth),
+          "operations" .= map mkOperationData operations,
+          "cruds" .= map mkCrudData cruds
         ]
     authMethods = AS.Auth.methods <$> maybeAuth
     maybeAuth = AS.App.auth app
     app = snd $ getApp spec
-
-genCrudRegister :: AppSpec -> Generator [FileDraft]
-genCrudRegister spec
-  | null cruds = return []
-  | otherwise =
-      return
-        [ mkTmplFdWithData
-            [relfile|crud-register.ts|]
-            (object ["cruds" .= map mkCrudData cruds])
-        ]
-  where
     cruds = getCruds spec
+    operations = getOperations spec
+
+    mkOperationData :: AS.Operation.Operation -> Aeson.Types.Value
+    mkOperationData operation =
+      object
+        [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
+          "operationName" .= AS.Operation.getName operation
+        ]
 
     mkCrudData :: (String, AS.Crud.Crud) -> Aeson.Types.Value
     mkCrudData (name, crud) =
@@ -75,22 +67,3 @@ genCrudRegister spec
     operationToOverrideImport :: (AS.Crud.CrudOperation, AS.Crud.CrudOperationOptions) -> Aeson.Types.Pair
     operationToOverrideImport (operation, options) =
       makeCrudOperationKeyAndJsonPair operation (extImportToImportJson (AS.Crud.overrideFn options))
-
-genOperationRegister :: AppSpec -> Generator [FileDraft]
-genOperationRegister spec
-  | null operations = return []
-  | otherwise =
-      return
-        [ mkTmplFdWithData
-            [relfile|operations-register.ts|]
-            (object ["operations" .= map mkOperationData operations])
-        ]
-  where
-    operations = getOperations spec
-
-    mkOperationData :: AS.Operation.Operation -> Aeson.Types.Value
-    mkOperationData operation =
-      object
-        [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
-          "operationName" .= AS.Operation.getName operation
-        ]

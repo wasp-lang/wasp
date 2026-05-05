@@ -3,7 +3,7 @@
 import { PrismaClient as InternalPrismaClient } from '@prisma/client'
 import type { FromRegister } from 'wasp/types'
 
-type UserPrismaSetupFn = FromRegister<'prismaSetupFn', () => InternalPrismaClient>;
+type RegisteredPrismaSetupFn = FromRegister<'prismaSetupFn', () => InternalPrismaClient>;
 
 {=# prismaSetupFn.isDefined =}
 {=& prismaSetupFn.importStatement =}
@@ -23,7 +23,7 @@ const dbClient: null = null;
 {=/ areThereAnyEntitiesDefined =}
 
 // PUBLIC API
-export type PrismaClient = ReturnType<UserPrismaSetupFn>;
+export type PrismaClient = ReturnType<RegisteredPrismaSetupFn>;
 
 // PUBLIC API
 export default dbClient;
