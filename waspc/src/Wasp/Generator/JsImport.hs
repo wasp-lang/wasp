@@ -22,7 +22,6 @@ import Wasp.JsImport
     JsImportPath (RelativeImportPath),
     getJsDynamicImportExpression,
     getJsImportStmtAndIdentifier,
-    makeTypeJsImport,
     makeValueJsImport,
   )
 import Wasp.Project.Common (srcDirInWaspProjectDir)
@@ -33,15 +32,8 @@ extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport =
-  if isValueImport
-    then makeValueJsImport (RelativeImportPath importPath) importName
-    else makeTypeJsImport (RelativeImportPath importPath) importName
+extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport = makeValueJsImport (RelativeImportPath importPath) importName
   where
-    -- For now treat all external imports as value imports.
-    -- If external type imports are necessary in future,
-    -- add 'importKind' to 'ExtImport' and branch on it.
-    isValueImport = True
     importName = extImportNameToJsImportName $ EI.name extImport
     importPath = SP.castRel $ pathFromImportLocationToSrcDir </> pathFromSrcDirToExtCodeDir </> userDefinedPathInExtSrcDir
     userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel GeneratedExternalCodeDir) File'
