@@ -1,40 +1,49 @@
 /**
- * The interfaces in this module are augmented by types from `.wasp/out/types/`.
- * They are agumented with user declarations types.
+ * This module acts as a bridge between the SDK and user-defined types.
  *
- * E.g., a user defined prisma client.
+ * The SDK defines and exports empty "register" interfaces (e.g. {@link Register}). 
+ * During compliation, Wasp generate additional type declarations
+ * in `.wasp/out/types/` (which is part of user project) that extend 
+ * empty "register" interfaces via module augmentation.
+ *
+ * As a result, the SDK can "see" user-defined types without directly
+ * depending on user code. 
+ * 
+ * Types `FromXRegister` safely read values from these registers:
+ *  - If the user provided a type → it is used
+ *  - Otherwise → a fallback type is used
  */
 
 /**
- * For registring general types from user project.
+ * For registring types from the user project.
  * Types without a more specific register go here.
  */
 export interface Register {}
-export type FromRegister<K extends string, Default> = K extends keyof Register
-  ? Register[K]
-  : Default;
+export type FromRegister<Key extends string, Fallback> = Key extends keyof Register
+  ? Register[Key]
+  : Fallback;
 
 /**
- * For registring operation types from user project.
+ * For registring operation types from the user project.
  */
 export interface OperationsRegister {}
 export type FromOperationsRegister<
   Operation extends string,
-  Default,
+  Fallback,
 > = Operation extends keyof OperationsRegister
   ? OperationsRegister[Operation]
-  : Default;
+  : Fallback;
 
   /**
- * For registring CRUD overrides types from user project.
+ * For registring CRUD overrides types from the user project.
  */
 export interface CrudOverridesRegister {}
 export type FromCrudOverridesRegister<
   CrudName extends string,
   CrudOperation extends string,
-  Default,
+  Fallback,
 > = CrudName extends keyof CrudOverridesRegister
   ? CrudOperation extends keyof CrudOverridesRegister[CrudName]
     ? CrudOverridesRegister[CrudName][CrudOperation]
-    : Default
-  : Default;
+    : Fallback
+  : Fallback;
