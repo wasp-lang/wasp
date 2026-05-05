@@ -1,0 +1,277 @@
+---
+title: "RedwoodJS Alternatives in 2026: CedarJS, RedwoodSDK, or Wasp?"
+authors: [vinny]
+tags: [wasp, redwoodjs, frameworks, migration, web-development]
+image: /img/resources/redwoodjs-alternatives-2026/banner.webp
+keywords: ["RedwoodJS alternative", "RedwoodJS migration", "RedwoodJS dead", "CedarJS", "RedwoodSDK", "Wasp", "RedwoodJS vs Wasp", "full-stack JavaScript framework", "migrate from RedwoodJS", "AI coding framework"]
+description: "RedwoodJS is winding down. We compare your three real migration paths (CedarJS, RedwoodSDK, and Wasp) and explain which one actually preserves the original RedwoodJS philosophy."
+date: 2026-05-05
+---
+
+import Head from '@docusaurus/Head';
+
+export const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is RedwoodJS dead?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The original RedwoodJS framework has been wound down by its core team. The codebase still exists and apps built on it still run, but active development has moved elsewhere. The community has continued the original project as CedarJS, while the original team has launched a new framework called RedwoodSDK that targets Cloudflare and React Server Components."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between RedwoodJS, RedwoodSDK, and CedarJS?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "RedwoodJS is the original framework that has been wound down (now referred to as RedwoodGraphQL). CedarJS is a community fork that continues the original codebase with the same APIs, conventions, and philosophy. RedwoodSDK is a new framework from the original Redwood team; it shares the brand but is built on React Server Components and is Cloudflare-only, making it a different mental model entirely."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Should I migrate to CedarJS or switch frameworks entirely?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "If your existing RedwoodJS app is in production and you want minimum disruption, CedarJS is the lowest-effort path; Cedar v1.x is positioned as fully RedwoodJS-compatible, and migration is mostly a search-and-replace from `@redwoodjs` imports to `@cedarjs`. If you're starting a new project, or you want a more modern stack with better AI-coding compatibility and no GraphQL layer to maintain, switching to Wasp gives you the original RedwoodJS philosophy on a more modern foundation."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I reuse my Prisma schema when migrating from RedwoodJS to Wasp?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Both RedwoodJS and Wasp use Prisma for the database layer, so your schema.prisma file is portable. You'll need to rewrite Cells and Services as Wasp Operations and adjust your auth setup, but the database layer transfers cleanly with no rewrite required."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Wasp support GraphQL?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wasp doesn't ship a GraphQL layer by default. Instead, it gives you type-safe RPC: you call server functions directly from your React components, and types flow end-to-end automatically. If you need GraphQL specifically, you can still add Apollo or another GraphQL server inside your Wasp app, but most teams find they don't need it."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Wasp production-ready?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, with caveats. Wasp is currently in beta and approaching a 1.0 release, so API changes can occur between versions. That said, real companies and indie hackers are running production apps on Wasp today, and the underlying stack (React, Node.js, Prisma) is fully battle-tested. For SaaS products, MVPs, and internal tools, Wasp is production-viable."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the closest equivalent to Redwood Cells in Wasp?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Wasp Operations + React Query. RedwoodJS Cells bundle a GraphQL query, loading state, error state, and success render into one component. Wasp Operations are server functions you call directly from React with type-safe RPC, and React Query (used under the hood) handles the loading and error states. Same mental model, fewer layers."
+      }
+    }
+  ]
+};
+
+<Head>
+  <script type="application/ld+json">
+    {JSON.stringify(faqSchema)}
+  </script>
+</Head>
+
+## TL;DR
+
+- The original [RedwoodJS](https://docs.redwoodjs.com/) framework is being wound down (now branded **RedwoodGraphQL**), and developers are looking for somewhere to migrate.
+
+- [**CedarJS**](https://cedarjs.com/) is the community fork that continues the original codebase. [**RedwoodSDK**](https://rwsdk.com/) is a different framework from the same team: Cloudflare-only and built on React Server Components.
+
+- [**Wasp**](https://wasp.sh/) is the closest spiritual successor to original RedwoodJS for the JS/TS ecosystem: opinionated, batteries-included, React + Node.js + Prisma, deploy-anywhere.
+
+If you want **minimum disruption** to an existing RedwoodJS app, go with CedarJS.   
+If you want the **original RedwoodJS philosophy on a modern, AI-friendly stack**, go with Wasp.
+
+---
+
+## What Happened to RedwoodJS?
+
+The framework that pitched itself as "the full-stack framework for startups" has been wound down by its core team ([announcement on the Redwood community forum, April 2025](https://community.redwoodjs.com/t/the-future-of-redwood-launches-today/7938)), and the JavaScript framework landscape has shifted around it.
+
+Here's the short version:
+
+1. The original RedwoodJS framework (React, GraphQL, Prisma, all wired together) was renamed to **RedwoodGraphQL** and put into maintenance mode. If you visit [docs.redwoodjs.com](https://docs.redwoodjs.com/) today, the docs site asks you to choose between RedwoodGraphQL and RedwoodSDK; that split is the official framing from the team.
+2. The community then forked RedwoodGraphQL and continued active development under a new name: [**CedarJS**](https://github.com/cedarjs/cedar). It preserves the original APIs and conventions, with a documented [Redwood-to-Cedar upgrade path](https://github.com/cedarjs/cedar/blob/main/docs/docs/upgrade-guides/redwood-to-cedar.md).
+3. The original Redwood team's new direction is [**RedwoodSDK**](https://rwsdk.com/): a React Server Components framework [built specifically for Cloudflare Workers](https://developers.cloudflare.com/workers/framework-guides/web-apps/redwoodsdk/). It shares the brand, but it's a different framework, not a continuation of the original.
+
+{/* truncate */}
+
+The result: if you Google "RedwoodJS" today, you'll find three different things wearing similar names, plus a lot of confused Reddit threads. This post is the cheat sheet we wish existed: what the three options actually are, how they compare, and which one preserves the spirit of original RedwoodJS for your next project.
+
+---
+
+## Your Three Migration Paths
+
+There's no single "RedwoodJS replacement." There are three real options, and they're aimed at different developers.
+
+### CedarJS
+
+[**CedarJS**](https://cedarjs.com/) is the community-maintained fork of RedwoodGraphQL (i.e., the original RedwoodJS codebase). Cells, Services, the GraphQL layer, and dbAuth all work the same way; the config file and CLI have been rebranded (`redwood.toml` → `cedar.toml`, `yarn rw` → `yarn cedar`), but the mental model is identical. Migration is a search-and-replace from `@redwoodjs` imports to `@cedarjs`, and Cedar v1.x is positioned as fully RedwoodJS-compatible.
+
+The honest tradeoff: long-term resourcing is uncertain. Community continuations of large frameworks have a mixed track record: some thrive, some stall. CedarJS has momentum right now, but you're betting on a community to do what a funded core team previously did.
+
+### RedwoodSDK
+
+[**RedwoodSDK**](https://rwsdk.com/) is a different framework from the original Redwood team. It's [built on React Server Components](https://docs.rwsdk.com/core/react-server-components/), runs on Cloudflare Workers, and ships [Cloudflare Queues for background jobs](https://docs.rwsdk.com/core/queues/) plus a [first-party passkey auth addon](https://github.com/redwoodjs/passkey-addon). It's actively developed and the team behind it is serious.
+
+The catch: it's a new framework with a new mental model. If you liked RedwoodJS because of Cells, Services, and Prisma-as-the-source-of-truth, RedwoodSDK won't feel familiar. It's also Cloudflare-only; your hosting choice is made for you.
+
+### Wasp
+
+[**Wasp**](https://wasp.sh/) is the closest spiritual successor to original RedwoodJS for the JS/TS ecosystem. It's a batteries-included full-stack framework built on React, Node.js, and Prisma, with a declarative config file that describes your entire app (routes, pages, auth, database, jobs) at a high level.
+
+(Disclaimer: this is us!) We didn't build Wasp as a Redwood replacement, but if you valued the opinionated "framework, not library" philosophy that made original RedwoodJS distinct, Wasp lands closer to it than anything else in the JavaScript ecosystem right now. Same opinionated, generated-app model, but with type-safe RPC instead of GraphQL, and the added benefit of being able to deploy anywhere.
+
+### Head-to-Head Comparison
+
+| Feature | CedarJS | RedwoodSDK | Wasp |
+| --- | --- | --- | --- |
+| **Status** | Community fork | Active v0.x | Active beta, approaching 1.0 |
+| **Stack** | React + Node + Prisma + GraphQL | RSC + Cloudflare Workers | React + Node + Prisma |
+| **Hosting** | Anywhere | Cloudflare only | Anywhere (w/ one-command deploy to Railway.com and Fly.io) |
+| **Auth** | dbAuth (inherited) | First-party passkey addon | Built-in declarative |
+| **Background jobs** | Inherited from Redwood | Cloudflare Queues | Built-in (pg-boss) |
+| **Type safety** | GraphQL-mediated | RSC-native | End-to-end automatic |
+| **Mental model** | Original Redwood | Brand new | Config + generated app |
+| **AI-coding fit** | Good (strong conventions) | Too new to assess | Excellent (config as map) |
+| **Migration effort from RedwoodJS** | Lowest | High | Moderate |
+
+---
+
+## Why Wasp Lands Closest to Original RedwoodJS
+
+Here's the part where we make our case. RedwoodJS was distinctive because it took strong, opinionated bets when the rest of the JS ecosystem was still telling you to "pick your stack." Wasp makes a lot of the same bets, just without the GraphQL layer and with a much smaller surface area.
+
+The concrete parallels:
+
+- **Prisma → Prisma.** Both frameworks use Prisma as the database layer. Your `schema.prisma` is portable as-is. No rewrite, no translation.
+- **Cells & Services → Operations + type-safe RPC.** The mental model is the same: declare server logic, call it from React. Wasp drops the GraphQL middle layer in favor of typed RPC, so you get end-to-end types without writing a single SDL file.
+- **dbAuth → declarative auth.** RedwoodJS made auth scaffolding feel like a first-class feature. Wasp does the same with even fewer lines: declare your auth methods in `main.wasp.ts` and the providers (email/password, Google, GitHub, etc.) wire themselves up.
+- **`redwood.toml` → `main.wasp.ts`.** This is the philosophical core. Both frameworks treat config-as-architecture: a high-level file that describes your app, and the framework generates the plumbing. If this idea is what drew you to RedwoodJS, Wasp is the only other framework currently doubling down on it.
+- **Built-in deploy.** `wasp deploy` ships your app to Fly.io, Railway, or any VPS. No cloud lock-in, no platform-specific rewrites.
+- **No GraphQL required.** A lot of RedwoodJS users loved the framework but never loved maintaining the GraphQL layer for an app that didn't need it. Wasp uses type-safe RPC (with Postgres + Prisma underneath) instead of a GraphQL layer, so you skip the SDL files, resolvers, and Apollo wiring entirely.
+- **AI-coding compatibility.** This is where Wasp goes beyond what RedwoodJS offered. The `.wasp.ts` file gives Cursor, Claude Code, and other AI tools a single source of truth for your app's architecture: routes, pages, auth, and operations all declared together. RedwoodJS spreads the equivalent information across `Routes.tsx`, `redwood.toml`, `web/src/auth.ts`, the GraphQL handler, and the Prisma schema, so AI tools have to stitch the map together themselves.
+
+Concretely, here's what that single source of truth looks like (abridged from the [`main.wasp.ts` reference](https://wasp.sh/docs/general/wasp-ts-config)):
+
+```ts title="main.wasp.ts"
+import { App } from 'wasp-config'
+
+const app = new App('todoApp', {
+  title: 'ToDo App',
+  wasp: { version: '^0.18.0' },
+})
+
+app.auth({
+  userEntity: 'User',
+  methods: {
+    google: {
+      configFn: { import: 'config', from: '@src/auth/google' },
+      userSignupFields: { import: 'userSignupFields', from: '@src/auth/google' },
+    },
+    // gitHub, email/password, etc...
+  },
+  onAuthFailedRedirectTo: '/login',
+  onAuthSucceededRedirectTo: '/dashboard',
+})
+
+const dashboardPage = app.page('DashboardPage', {
+  component: { importDefault: 'Dashboard', from: '@src/pages/Dashboard' },
+})
+app.route('DashboardRoute', { path: '/dashboard', to: dashboardPage })
+
+app.query('getTasks', {
+  fn: { import: 'getTasks', from: '@src/queries' },
+  entities: ['Task'],
+})
+
+app.action('createTask', {
+  fn: { import: 'createTask', from: '@src/actions' },
+  entities: ['Task'],
+})
+
+app.job('sendDailyDigest', {
+  executor: 'PgBoss',
+  perform: { fn: { import: 'sendDigest', from: '@src/jobs/digest' } },
+  entities: ['User'],
+})
+
+export default app
+```
+
+Routes, auth, queries, actions, scheduled jobs: one file. That's what AI tools see when you point them at your project.
+
+---
+
+## Migration: What Transfers, What Doesn't
+
+If you're considering moving from RedwoodJS to Wasp, here's the practical breakdown. We'll keep this short; a full migration guide is its own post.
+
+| Transfers cleanly | Needs rewriting |
+| --- | --- |
+| `schema.prisma` | Cells → Operations + React Query |
+| React components | Services → Operations |
+| Auth providers (most) | GraphQL SDL → typed RPC functions |
+| Business logic in services | `redwood.toml` → `main.wasp.ts` |
+| TypeScript types | Generators / scaffolds |
+
+The net effect: less boilerplate, simpler deploys, and a stack that AI coding tools handle dramatically better. Most teams report that the rewrite is smaller than they expected, because the GraphQL layer was where a lot of the maintenance burden lived.
+
+---
+
+## Frequently Asked Questions
+
+### Is RedwoodJS dead?
+
+The original RedwoodJS framework has been wound down by its core team. The codebase still exists and apps built on it still run, but active development has moved elsewhere. The community has continued the original project as CedarJS, while the original team has launched a new framework called RedwoodSDK that targets Cloudflare and React Server Components.
+
+### What's the difference between RedwoodJS, RedwoodSDK, and CedarJS?
+
+**RedwoodJS** is the original framework that has been wound down (now referred to as **RedwoodGraphQL**). **CedarJS** is a community fork that continues the original codebase with the same APIs, conventions, and philosophy. **RedwoodSDK** is a new framework from the original Redwood team; it shares the brand but is built on React Server Components and is Cloudflare-only, making it a different mental model entirely.
+
+### Should I migrate to CedarJS or switch frameworks entirely?
+
+If your existing RedwoodJS app is in production and you want minimum disruption, **CedarJS** is the lowest-effort path; Cedar v1.x is positioned as fully RedwoodJS-compatible, and migration is mostly a search-and-replace from `@redwoodjs` imports to `@cedarjs`. If you're starting a new project, or you want a more modern stack with better AI-coding compatibility and no GraphQL layer to maintain, switching to **Wasp** gives you the original RedwoodJS philosophy on a more modern foundation.
+
+### Can I reuse my Prisma schema when migrating from RedwoodJS to Wasp?
+
+Yes. Both RedwoodJS and Wasp use Prisma for the database layer, so your `schema.prisma` file is portable. You'll need to rewrite Cells and Services as Wasp Operations and adjust your auth setup, but the database layer transfers cleanly with no rewrite required.
+
+### Does Wasp support GraphQL?
+
+Wasp doesn't ship a GraphQL layer by default. Instead, it gives you type-safe RPC: you call server functions directly from your React components, and types flow end-to-end automatically. If you need GraphQL specifically, you can still add Apollo or another GraphQL server inside your Wasp app, but most teams find they don't need it.
+
+### Is Wasp production-ready?
+
+Yes, with caveats. Wasp is currently in beta and approaching a 1.0 release, so API changes can occur between versions. That said, real companies and indie hackers are running production apps on Wasp today, and the underlying stack (React, Node.js, Prisma) is fully battle-tested. For SaaS products, MVPs, and internal tools, Wasp is production-viable.
+
+### What's the closest equivalent to Redwood Cells in Wasp?
+
+Wasp Operations + React Query. RedwoodJS Cells bundle a GraphQL query, loading state, error state, and success render into one component. Wasp Operations are server functions you call directly from React with type-safe RPC, and React Query (used under the hood) handles the loading and error states. Same mental model, fewer layers.
+
+---
+
+## Bottom Line
+
+There's no single "right" RedwoodJS replacement; the right choice depends on what you valued about RedwoodJS in the first place.
+
+| If you... | Choose | Why |
+| --- | --- | --- |
+| Want minimum disruption to your existing RedwoodJS app | **CedarJS** | Drop-in fork, same APIs, same conventions |
+| Are starting fresh and committing to Cloudflare + RSC | **RedwoodSDK** | Modern RSC stack, tight Cloudflare integration |
+| Want the original RedwoodJS philosophy on a modern, deploy-anywhere stack | **Wasp** | Opinionated, batteries-included, AI-coding-friendly |
+| Want maximum flexibility and don't mind assembling | **Next.js + your stack** | Largest ecosystem, no opinions |
+
+If RedwoodJS taught the JavaScript ecosystem anything, it was that strong opinions and a generated-app model can produce a developer experience that "pick your own stack" frameworks can't match. That idea didn't die with RedwoodJS; it just needs a new home.
+
+If you want to try Wasp, the fastest path is the [Open SaaS](https://opensaas.sh/) template: a free, open-source SaaS starter (14k+ GitHub stars) built on Wasp with auth, payments, admin, and analytics already wired up. Or jump straight into the [Wasp docs](https://wasp.sh/docs) to start a fresh project.
+
+Questions, war stories from your own RedwoodJS migration, or just want to compare notes? Come hang out in the [Wasp Discord](https://discord.gg/rzdnErX); we'd love to hear what you're building.
