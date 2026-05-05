@@ -108,7 +108,9 @@ html.blog-wrapper {
     margin-top: calc(1.2em * var(--lh));
     margin-bottom: calc(0.4em * var(--lh));
   }
-  h4, h5, h6 {
+  h4,
+  h5,
+  h6 {
     margin-top: calc(1em * var(--lh));
     margin-bottom: calc(0.4em * var(--lh));
   }

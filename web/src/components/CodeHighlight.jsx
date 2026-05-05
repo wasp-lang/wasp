@@ -25,7 +25,18 @@ const waspCodeTheme = {
       style: { color: "#555" },
     },
     {
-      types: ["entity", "url", "symbol", "number", "boolean", "variable", "constant", "property", "regex", "inserted"],
+      types: [
+        "entity",
+        "url",
+        "symbol",
+        "number",
+        "boolean",
+        "variable",
+        "constant",
+        "property",
+        "regex",
+        "inserted",
+      ],
       style: { color: "#333" },
     },
     {
@@ -33,7 +44,14 @@ const waspCodeTheme = {
       style: { color: "#B8941F", fontWeight: "600" },
     },
     {
-      types: ["function", "deleted", "class-name", "builtin", "type", "type-class-name"],
+      types: [
+        "function",
+        "deleted",
+        "class-name",
+        "builtin",
+        "type",
+        "type-class-name",
+      ],
       style: { color: "#333", fontWeight: "600" },
     },
     {

@@ -19,7 +19,6 @@ import "./preflight.css";
 
 import "../prism/prismCustomization";
 
-
 const Index = () => {
   const { siteConfig } = useDocusaurusContext();
   const coverPhotoAbsoluteUrl = `${siteConfig.url}${waspCoverPhoto}`;

@@ -49,7 +49,6 @@ const ActionButtons = () => (
   </div>
 );
 
-
 const codeTabs = [
   {
     name: "main.wasp",
@@ -252,6 +251,5 @@ const Hero = () => {
     </SectionContainer>
   );
 };
-
 
 export default Hero;

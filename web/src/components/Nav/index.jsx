@@ -20,12 +20,11 @@ const Nav = () => {
   const closeMenu = () => setOpen(false);
 
   const HamburgerButton = ({ toggleFlyOut }) => (
-    <div className="absolute inset-y-0 left-0 flex items-center px-2 lg:hidden">
-      <button
-        type="button"
-        onClick={toggleFlyOut}
-        className="inline-flex items-center p-2 hover:bg-wasp-g1 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-wasp-yellow"
-      >
+    <div
+      className="absolute inset-y-0 left-0 flex items-center px-2 lg:hidden"
+      onClick={toggleFlyOut}
+    >
+      <button className="inline-flex items-center p-2 hover:bg-wasp-g1 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-wasp-yellow">
         <span className="sr-only">Open menu</span>
         <svg
           className="block h-6 w-6"
