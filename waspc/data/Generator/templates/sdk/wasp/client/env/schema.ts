@@ -2,8 +2,8 @@
 import * as z from "zod"
 import { FromRegister } from "../../types";
 
-type RegisteredUserClientEnvSchema = FromRegister<"clientEnvSchema", z.ZodObject<{}>>;
-type UserClientEnvSchema = RegisteredUserClientEnvSchema;
+type RegisteredClientEnvValidationSchema = FromRegister<"clientEnvValidationSchema", z.ZodObject<{}>>;
+type UserClientEnvSchema = RegisteredClientEnvValidationSchema;
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}

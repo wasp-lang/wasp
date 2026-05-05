@@ -35,8 +35,8 @@ genUserModuleAugmentation spec =
   where
     tmplData =
       object
-        [ "serverEnvSchema" .= extImportToImportJson (AS.App.server app >>= AS.App.Server.envValidationSchema),
-          "clientEnvSchema" .= extImportToImportJson (AS.App.client app >>= AS.App.Client.envValidationSchema),
+        [ "serverEnvValidationSchema" .= extImportToImportJson (AS.App.server app >>= AS.App.Server.envValidationSchema),
+          "clientEnvValidationSchema" .= extImportToImportJson (AS.App.client app >>= AS.App.Client.envValidationSchema),
           "webSocketFn" .= extImportToImportJson (AS.App.WS.fn <$> AS.App.webSocket app),
           "prismaSetupFn" .= extImportToImportJson (AS.App.db app >>= AS.Db.prismaSetupFn),
           "emailUserSignupFields" .= extImportToImportJson (authMethods >>= AS.Auth.email >>= AS.Auth.userSignupFieldsForEmailAuth),

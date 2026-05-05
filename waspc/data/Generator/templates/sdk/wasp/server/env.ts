@@ -4,8 +4,8 @@ import * as z from "zod"
 import { ensureEnvSchema } from "../env/validation.js"
 import { FromRegister } from "../types/index.js";
 
-type RegisteredServerEnvSchema = FromRegister<"serverEnvSchema", z.ZodObject<{}>>;
-type UserServerEnvSchema = RegisteredServerEnvSchema;
+type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;
+type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}

@@ -8,12 +8,12 @@ declare module "wasp/types" {
 {=# prismaSetupFn.isDefined =}
     prismaSetupFn: typeof {=& prismaSetupFn.dynamicImportExpression =}
 {=/ prismaSetupFn.isDefined =}
-{=# serverEnvSchema.isDefined =}
-    serverEnvSchema: typeof {=& serverEnvSchema.dynamicImportExpression =}
-{=/ serverEnvSchema.isDefined =}
-{=# clientEnvSchema.isDefined =}
-    clientEnvSchema: typeof {=& clientEnvSchema.dynamicImportExpression =}
-{=/ clientEnvSchema.isDefined =}
+{=# serverEnvValidationSchema.isDefined =}
+    serverEnvValidationSchema: typeof {=& serverEnvValidationSchema.dynamicImportExpression =}
+{=/ serverEnvValidationSchema.isDefined =}
+{=# clientEnvValidationSchema.isDefined =}
+    clientEnvValidationSchema: typeof {=& clientEnvValidationSchema.dynamicImportExpression =}
+{=/ clientEnvValidationSchema.isDefined =}
 {=# webSocketFn.isDefined =}
     webSocketFn: typeof {=& webSocketFn.dynamicImportExpression =}
 {=/ webSocketFn.isDefined =}
