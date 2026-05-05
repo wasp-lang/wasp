@@ -9,7 +9,7 @@
  * As a result, the SDK can "see" user-defined types without directly
  * depending on user code. 
  * 
- * Types `FromXRegister` safely read values from these registers:
+ * Types `XFromRegister` safely read values from these registers:
  *  - If the user provided a type → it is used
  *  - Otherwise → a fallback type is used
  */
