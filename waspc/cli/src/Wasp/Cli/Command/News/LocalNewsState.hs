@@ -1,6 +1,5 @@
 {-# LANGUAGE DeriveAnyClass #-}
 {-# LANGUAGE DeriveGeneric #-}
-{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.Cli.Command.News.LocalNewsState
   ( LocalNewsState,

@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedRecordDot #-}
-
 module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 
 import Control.Monad.Reader (MonadReader (ask))
