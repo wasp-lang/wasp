@@ -8,13 +8,11 @@ import { getDataLibsDirPath } from "./libs/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
-  getRepoRootPath,
   getWaspcDirPath,
   runCmd,
 } from "./utils.ts";
 
 const waspcDirPath = getWaspcDirPath();
-const repoRootDirPath = getRepoRootPath();
 const waspProjectDirsPaths = findWaspProjectDirsPathsInRepo();
 
 type BumpType = "major" | "minor" | "patch";
