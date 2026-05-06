@@ -4,7 +4,7 @@ const Logo = () => (
   <div className="flex flex-shrink-0 items-center">
     <Link to="/">
       <img
-        src="/img/lp/wasp-logo-new.svg"
+        src="/img/wasp-logo.svg"
         alt="Wasp Logo"
         width="44"
         height="44"
