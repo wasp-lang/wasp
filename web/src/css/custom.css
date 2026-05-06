@@ -5,7 +5,7 @@
  * work well for content-centric websites.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700;800&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -73,6 +73,7 @@
 
 :root {
   --lh: 1.5; /* line height */
+  --logo-font-family: "JetBrains Mono"
 }
 
 /* We are targeting Docusaurus's stable, theme-agnostic class names:
@@ -502,11 +503,27 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   content: "+";
 }
 
+.wasp-logo-text {
+  font-family: var(--logo-font-family);
+}
+
 /******** DOCS NAVBAR *********/
 
 /* This hides Docs version dropdown when not on docs (i.e. when we are on blog). */
 .navbar__item:has(.navbar-item-docs-version-dropdown:not(.active)) {
   display: none;
+}
+.navbar__item {
+  font-family: "JetBrains Mono";
+}
+
+.navbar__brand {
+  .navbar__logo {
+    border: solid 1px black;
+  }
+  .navbar__title {
+    font-family: var(--logo-font-family);
+  }
 }
 
 /******************************/
