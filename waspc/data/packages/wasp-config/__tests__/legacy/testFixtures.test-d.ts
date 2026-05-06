@@ -1,5 +1,6 @@
 import { describe, expectTypeOf, test } from "vitest";
 import { Branded } from "../../src/branded.js";
+import * as TsAppSpec from "../../src/legacy/publicApi/tsAppSpec.js";
 import { FullConfig, MinimalConfig } from "./testFixtures.js";
 
 describe("MinimalConfig<T>", () => {
@@ -15,6 +16,10 @@ describe("MinimalConfig<T>", () => {
 
   test("should not affect branded types", async () => {
     expectTypeOf<MinimalConfig<BrandedType>>().toEqualTypeOf<BrandedType>();
+  });
+
+  test("should not affect function types", async () => {
+    expectTypeOf<MinimalConfig<FunctionType>>().toEqualTypeOf<FunctionType>();
   });
 
   test("should convert no props object to EmptyObject", async () => {
@@ -64,6 +69,10 @@ describe("FullConfig<T>", () => {
     expectTypeOf<FullConfig<BrandedType>>().toEqualTypeOf<BrandedType>();
   });
 
+  test("should not affect function types", async () => {
+    expectTypeOf<FullConfig<FunctionType>>().toEqualTypeOf<FunctionType>();
+  });
+
   test("should not affect required props", async () => {
     expectTypeOf<
       FullConfig<ObjectWithRequiredPrimitiveProperties>
@@ -91,6 +100,51 @@ describe("FullConfig<T>", () => {
   });
 });
 
+describe("import-form authored value types", () => {
+  test("should accept functions at callable ExtImport use sites", async () => {
+    const component = () => null;
+    const operation = async () => null;
+
+    const pageConfig = { component } satisfies TsAppSpec.PageConfig;
+    const actionConfig = { fn: operation } satisfies TsAppSpec.ActionConfig;
+
+    expectTypeOf(
+      pageConfig.component,
+    ).toMatchTypeOf<TsAppSpec.FunctionExtImport>();
+    expectTypeOf(actionConfig.fn).toMatchTypeOf<TsAppSpec.FunctionExtImport>();
+  });
+
+  test("should accept objects at object ExtImport use sites", async () => {
+    const envValidationSchema = { parse: (env: unknown) => env };
+
+    const serverConfig = {
+      envValidationSchema,
+    } satisfies TsAppSpec.ServerConfig;
+
+    expectTypeOf(
+      serverConfig.envValidationSchema,
+    ).toMatchTypeOf<TsAppSpec.ObjectExtImport>();
+  });
+
+  test("should reject functions at object ExtImport use sites", async () => {
+    const serverConfig: TsAppSpec.ServerConfig = {
+      // @ts-expect-error object ExtImport use sites must not accept callables.
+      envValidationSchema: () => null,
+    };
+
+    expectTypeOf(serverConfig).toMatchTypeOf<TsAppSpec.ServerConfig>();
+  });
+
+  test("should reject malformed descriptor-like objects", async () => {
+    const serverConfig: TsAppSpec.ServerConfig = {
+      // @ts-expect-error descriptor-like objects must still satisfy ExtImport.
+      envValidationSchema: { from: 42, importDefault: "X" },
+    };
+
+    expectTypeOf(serverConfig).toMatchTypeOf<TsAppSpec.ServerConfig>();
+  });
+});
+
 type ObjectWithRequiredPrimitiveProperties = {
   prop: unknown;
   anotherProp: unknown;
@@ -100,6 +154,8 @@ type ObjectWithOptionalPrimitiveProperties =
   Partial<ObjectWithRequiredPrimitiveProperties>;
 
 type BrandedType = Branded<string, "BrandedString">;
+
+type FunctionType = (value: string) => number;
 
 /**
  * Represents an empty object type in TypeScript.

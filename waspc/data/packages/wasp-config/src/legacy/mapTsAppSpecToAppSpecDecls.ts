@@ -130,25 +130,105 @@ export function mapOperation(
 }
 
 export function mapExtImport(
-  extImport: TsAppSpec.ExtImport,
+  extImport: TsAppSpec.AuthoredExtImport,
 ): AppSpec.ExtImport {
-  if ("import" in extImport) {
+  if (isNamedExtImport(extImport)) {
     return {
       kind: "named",
       name: extImport.import,
       path: extImport.from,
+      ...mapAlias(extImport),
     };
-  } else if ("importDefault" in extImport) {
+  } else if (isDefaultExtImport(extImport)) {
     return {
       kind: "default",
       name: extImport.importDefault,
       path: extImport.from,
+      ...mapAlias(extImport),
     };
   } else {
-    throw new Error(
-      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
+    throw new Error(getInvalidExtImportMessage(extImport));
+  }
+}
+
+type NamedExtImport = Extract<TsAppSpec.ExtImport, { import: string }>;
+type DefaultExtImport = Extract<TsAppSpec.ExtImport, { importDefault: string }>;
+
+function isNamedExtImport(
+  extImport: TsAppSpec.AuthoredExtImport,
+): extImport is NamedExtImport {
+  return (
+    typeof extImport === "object" &&
+    extImport !== null &&
+    "import" in extImport &&
+    "from" in extImport &&
+    typeof extImport.import === "string" &&
+    typeof extImport.from === "string" &&
+    hasValidAlias(extImport)
+  );
+}
+
+function isDefaultExtImport(
+  extImport: TsAppSpec.AuthoredExtImport,
+): extImport is DefaultExtImport {
+  return (
+    typeof extImport === "object" &&
+    extImport !== null &&
+    "importDefault" in extImport &&
+    "from" in extImport &&
+    typeof extImport.importDefault === "string" &&
+    typeof extImport.from === "string" &&
+    hasValidAlias(extImport)
+  );
+}
+
+function hasValidAlias(extImport: object): boolean {
+  return !("alias" in extImport) || typeof extImport.alias === "string";
+}
+
+function mapAlias(
+  extImport: TsAppSpec.ExtImport,
+): Partial<Pick<AppSpec.ExtImport, "alias">> {
+  return "alias" in extImport && extImport.alias !== undefined
+    ? { alias: extImport.alias }
+    : {};
+}
+
+function getInvalidExtImportMessage(
+  extImport: TsAppSpec.AuthoredExtImport,
+): string {
+  if (typeof extImport === "function") {
+    return (
+      "Invalid ExtImport value: got a function at runtime. " +
+      "Import-form values must come from a supported top-level ./src/* import so Wasp can rewrite them before execution. " +
+      'Alternatively, use descriptor form: { import: "name", from: "@src/file" }.'
     );
   }
+
+  if (isDescriptorLikeObject(extImport)) {
+    return (
+      'Invalid ExtImport descriptor: expected either { import: "name", from: "@src/file" } ' +
+      'or { importDefault: "name", from: "@src/file" }.'
+    );
+  }
+
+  return (
+    "Invalid ExtImport value: got an object at runtime. " +
+    "Import-form values must come from a supported top-level ./src/* import so Wasp can rewrite them before execution. " +
+    'Alternatively, use descriptor form: { import: "name", from: "@src/file" }.'
+  );
+}
+
+function isDescriptorLikeObject(
+  extImport: TsAppSpec.AuthoredExtImport,
+): boolean {
+  return (
+    typeof extImport === "object" &&
+    extImport !== null &&
+    ("import" in extImport ||
+      "importDefault" in extImport ||
+      "from" in extImport)
+  );
 }
 
 export function mapHttpRoute(

@@ -26,19 +26,19 @@ export type AppConfig = {
 };
 
 export type ActionConfig = {
-  fn: ExtImport;
+  fn: FunctionExtImport;
   entities?: string[];
   auth?: boolean;
 };
 
 export type ApiNamespaceConfig = {
-  middlewareConfigFn: ExtImport;
+  middlewareConfigFn: FunctionExtImport;
   path: string;
 };
 
 export type ApiConfig = {
-  fn: ExtImport;
-  middlewareConfigFn?: ExtImport;
+  fn: FunctionExtImport;
+  middlewareConfigFn?: FunctionExtImport;
   entities?: string[];
   httpRoute: HttpRoute;
   auth?: boolean;
@@ -55,12 +55,12 @@ export type AuthConfig = {
   externalAuthEntity?: string;
   onAuthFailedRedirectTo: string;
   onAuthSucceededRedirectTo?: string;
-  onBeforeSignup?: ExtImport;
-  onAfterSignup?: ExtImport;
-  onAfterEmailVerified?: ExtImport;
-  onBeforeOAuthRedirect?: ExtImport;
-  onBeforeLogin?: ExtImport;
-  onAfterLogin?: ExtImport;
+  onBeforeSignup?: FunctionExtImport;
+  onAfterSignup?: FunctionExtImport;
+  onAfterEmailVerified?: FunctionExtImport;
+  onBeforeOAuthRedirect?: FunctionExtImport;
+  onBeforeLogin?: FunctionExtImport;
+  onAfterLogin?: FunctionExtImport;
 };
 
 export type AuthMethods = {
@@ -74,36 +74,36 @@ export type AuthMethods = {
 };
 
 export type UsernameAndPasswordConfig = {
-  userSignupFields?: ExtImport;
+  userSignupFields?: ObjectExtImport;
 };
 
 export type EmailAuthConfig = {
-  userSignupFields?: ExtImport;
+  userSignupFields?: ObjectExtImport;
   fromField: EmailFromField;
   emailVerification: EmailVerificationConfig;
   passwordReset: PasswordResetConfig;
 };
 
 export type EmailVerificationConfig = {
-  getEmailContentFn?: ExtImport;
+  getEmailContentFn?: FunctionExtImport;
   clientRoute: string;
 };
 
 export type PasswordResetConfig = {
-  getEmailContentFn?: ExtImport;
+  getEmailContentFn?: FunctionExtImport;
   clientRoute: string;
 };
 
 export type ExternalAuthConfig = {
-  configFn?: ExtImport;
-  userSignupFields?: ExtImport;
+  configFn?: FunctionExtImport;
+  userSignupFields?: ObjectExtImport;
 };
 
 export type ClientConfig = {
-  rootComponent?: ExtImport;
-  setupFn?: ExtImport;
+  rootComponent?: FunctionExtImport;
+  setupFn?: FunctionExtImport;
   baseDir?: `/${string}`;
-  envValidationSchema?: ExtImport;
+  envValidationSchema?: ObjectExtImport;
 };
 
 export type CrudConfig = {
@@ -121,12 +121,12 @@ export type CrudOperations = {
 
 export type CrudOperationOptions = {
   isPublic?: boolean;
-  overrideFn?: ExtImport;
+  overrideFn?: FunctionExtImport;
 };
 
 export type DbConfig = {
-  seeds?: ExtImport[];
-  prismaSetupFn?: ExtImport;
+  seeds?: FunctionExtImport[];
+  prismaSetupFn?: FunctionExtImport;
 };
 
 export type EmailSenderConfig = {
@@ -142,7 +142,7 @@ export type JobConfig = {
 };
 
 export type Perform = {
-  fn: ExtImport;
+  fn: FunctionExtImport;
   executorOptions?: ExecutorOptions;
 };
 
@@ -159,12 +159,12 @@ export type ExecutorOptions = {
 };
 
 export type PageConfig = {
-  component: ExtImport;
+  component: FunctionExtImport;
   authRequired?: boolean;
 };
 
 export type QueryConfig = {
-  fn: ExtImport;
+  fn: FunctionExtImport;
   entities?: string[];
   auth?: boolean;
 };
@@ -179,13 +179,13 @@ export type RouteConfig = {
 export type PageName = Branded<string, "PageName">;
 
 export type ServerConfig = {
-  setupFn?: ExtImport;
-  middlewareConfigFn?: ExtImport;
-  envValidationSchema?: ExtImport;
+  setupFn?: FunctionExtImport;
+  middlewareConfigFn?: FunctionExtImport;
+  envValidationSchema?: ObjectExtImport;
 };
 
 export type WebsocketConfig = {
-  fn: ExtImport;
+  fn: FunctionExtImport;
   autoConnect?: boolean;
 };
 
@@ -193,11 +193,29 @@ export type ExtImport =
   | {
       import: string;
       from: AppSpec.ExtImport["path"];
+      alias?: string;
     }
   | {
       importDefault: string;
       from: AppSpec.ExtImport["path"];
+      alias?: string;
     };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type AnyFunction = (...args: any[]) => any;
+
+type NonDescriptorObject = object & {
+  import?: never;
+  importDefault?: never;
+  from?: never;
+  call?: never;
+  apply?: never;
+  bind?: never;
+};
+
+export type FunctionExtImport = ExtImport | AnyFunction;
+export type ObjectExtImport = ExtImport | NonDescriptorObject;
+export type AuthoredExtImport = FunctionExtImport | ObjectExtImport;
 
 export type EmailFromField = {
   name?: string;

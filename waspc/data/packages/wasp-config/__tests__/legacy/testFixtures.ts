@@ -1064,13 +1064,18 @@ type FullNamedConfig<T> = {
 export type MinimalConfig<T> =
   T extends Branded<unknown, unknown>
     ? T
-    : T extends Array<infer ArrayItem>
-      ? Array<MinimalConfig<ArrayItem>>
-      : T extends object
-        ? keyof T extends never
-          ? EmptyObject
-          : MinimalConfigObject<T>
-        : T;
+    : T extends TsAppSpec.ExtImport
+      ? T
+      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        T extends (...args: any[]) => any
+        ? T
+        : T extends Array<infer ArrayItem>
+          ? Array<MinimalConfig<ArrayItem>>
+          : T extends object
+            ? keyof T extends never
+              ? EmptyObject
+              : MinimalConfigObject<T>
+            : T;
 
 type MinimalConfigObject<T> = {
   [K in keyof T as EmptyObject extends Pick<T, K> ? never : K]: MinimalConfig<
@@ -1131,11 +1136,16 @@ type EmptyObject = Record<string, never>;
 export type FullConfig<T> =
   T extends Branded<unknown, unknown>
     ? T
-    : T extends Array<infer ArrayItem>
-      ? Array<FullConfig<ArrayItem>>
-      : T extends object
-        ? FullConfigObject<T>
-        : T;
+    : T extends TsAppSpec.ExtImport
+      ? T
+      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        T extends (...args: any[]) => any
+        ? T
+        : T extends Array<infer ArrayItem>
+          ? Array<FullConfig<ArrayItem>>
+          : T extends object
+            ? FullConfigObject<T>
+            : T;
 
 type FullConfigObject<T> = {
   [K in keyof T]-?: FullConfig<T[K]>;

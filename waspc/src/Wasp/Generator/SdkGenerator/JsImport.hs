@@ -30,7 +30,7 @@ extOperationImportToImportJson =
     . extImportToJsImport
 
 extImportToJsImport :: EI.ExtImport -> JsImport
-extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
+extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath _) =
   JsImport
     { _path = ModuleImportPath importPath,
       _name = importName,

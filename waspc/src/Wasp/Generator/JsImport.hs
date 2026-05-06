@@ -57,7 +57,7 @@ jsImportToImportJson maybeJsImport = maybe notDefinedValue mkTmplData maybeJsImp
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
-extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath) =
+extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath _) =
   JsImport
     { _path = RelativeImportPath relativePath,
       _name = importName,

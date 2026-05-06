@@ -1009,6 +1009,14 @@ describe("mapExtImport", () => {
     testMapExtImport(Fixtures.getExtImport("full", "default"));
   });
 
+  test("should map alias metadata when present", () => {
+    testMapExtImport({
+      import: "archive",
+      alias: "archiveTask",
+      from: "@src/operations",
+    });
+  });
+
   test("should throw for missing import kind", () => {
     const extImport: TsAppSpec.ExtImport = {
       from: "@src/myModule",
@@ -1016,6 +1024,38 @@ describe("mapExtImport", () => {
 
     testMapExtImport(extImport, {
       shouldError: true,
+      errorMessage: /Invalid ExtImport descriptor/,
+    });
+  });
+
+  test("should throw for invalid alias metadata", () => {
+    const extImport = {
+      import: "archive",
+      alias: 42,
+      from: "@src/operations",
+    } as unknown as TsAppSpec.ExtImport;
+
+    testMapExtImport(extImport, {
+      shouldError: true,
+      errorMessage: /Invalid ExtImport descriptor/,
+    });
+  });
+
+  test("should throw an actionable error for an unrewritten function value", () => {
+    const extImport = (() => null) as TsAppSpec.AuthoredExtImport;
+
+    testMapExtImport(extImport, {
+      shouldError: true,
+      errorMessage: /got a function at runtime/,
+    });
+  });
+
+  test("should throw an actionable error for an unrewritten object value", () => {
+    const extImport = { parse: () => ({}) } as TsAppSpec.AuthoredExtImport;
+
+    testMapExtImport(extImport, {
+      shouldError: true,
+      errorMessage: /got an object at runtime/,
     });
   });
 
@@ -1024,7 +1064,7 @@ describe("mapExtImport", () => {
     const extImport = {
       ...Fixtures.getExtImport("full", "named"),
       ...Fixtures.getExtImport("full", "default"),
-    };
+    } as unknown as TsAppSpec.ExtImport;
 
     testMapExtImport(extImport, {
       shouldError: true,
@@ -1044,10 +1084,11 @@ describe("mapExtImport", () => {
   });
 
   function testMapExtImport(
-    extImport: TsAppSpec.ExtImport,
+    extImport: TsAppSpec.AuthoredExtImport,
     options:
       | {
           shouldError: boolean | undefined;
+          errorMessage?: RegExp;
         }
       | undefined = {
       shouldError: false,
@@ -1056,23 +1097,26 @@ describe("mapExtImport", () => {
     const { shouldError } = options;
 
     if (shouldError) {
-      expect(() => mapExtImport(extImport)).toThrowError();
+      expect(() => mapExtImport(extImport)).toThrowError(options.errorMessage);
       return;
     }
 
-    const result = mapExtImport(extImport);
+    const descriptor = extImport as TsAppSpec.ExtImport;
+    const result = mapExtImport(descriptor);
 
-    if ("import" in extImport) {
+    if ("import" in descriptor) {
       expect(result).toStrictEqual({
         kind: "named",
-        name: extImport.import,
-        path: extImport.from,
+        name: descriptor.import,
+        path: descriptor.from,
+        ...(descriptor.alias ? { alias: descriptor.alias } : {}),
       } satisfies AppSpec.ExtImport);
-    } else if ("importDefault" in extImport) {
+    } else if ("importDefault" in descriptor) {
       expect(result).toStrictEqual({
         kind: "default",
-        name: extImport.importDefault,
-        path: extImport.from,
+        name: descriptor.importDefault,
+        path: descriptor.from,
+        ...(descriptor.alias ? { alias: descriptor.alias } : {}),
       } satisfies AppSpec.ExtImport);
     }
   }

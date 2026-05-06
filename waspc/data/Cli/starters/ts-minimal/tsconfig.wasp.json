@@ -7,9 +7,13 @@
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "module": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "esModuleInterop": true,
+    "jsx": "preserve",
     "noEmit": true,
-    "lib": ["ES2023"]
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "types": ["vite/client", "react"]
   },
   "include": ["main.wasp.ts"]
 }
