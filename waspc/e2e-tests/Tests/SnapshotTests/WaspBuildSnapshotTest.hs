@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedRecordDot #-}
-
 module Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
 import Control.Monad.Reader (asks)

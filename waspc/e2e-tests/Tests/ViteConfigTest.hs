@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedRecordDot #-}
-
 module Tests.ViteConfigTest (viteConfigTest) where
 
 import Control.Monad.Reader (ask)

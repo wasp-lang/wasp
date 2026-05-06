@@ -1,5 +1,4 @@
 {-# LANGUAGE DeriveDataTypeable #-}
-{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.JsImport
   ( JsImport (..),
