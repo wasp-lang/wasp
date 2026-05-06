@@ -13,12 +13,6 @@ export function getWaspcDirPath(): string {
   return fileURLToPath(new URL("..", import.meta.url));
 }
 
-export function getWaspcVersion(): string {
-  return runCmd("node", [join("tools", "get-waspc-version.ts")], {
-    cwd: getWaspcDirPath(),
-  });
-}
-
 export function discoverSubDirs(baseDirPath: string): string[] {
   return readdirSync(baseDirPath, { withFileTypes: true })
     .filter((dirEntry) => dirEntry.isDirectory())

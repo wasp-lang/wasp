@@ -4,20 +4,14 @@
 
 import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import {
-  discoverSubDirs,
-  getPackageJson,
-  getWaspcVersion,
-  runCmd,
-} from "../utils.ts";
+import { getWaspcVersion } from "../get-waspc-version.ts";
+import { discoverSubDirs, getPackageJson, runCmd } from "../utils.ts";
 import { getDataLibsDirPath } from "./utils.ts";
-
-const dataLibsDirPath = getDataLibsDirPath();
-const waspcVersion = getWaspcVersion();
 
 buildLibs();
 
 function buildLibs(): void {
+  const dataLibsDirPath = getDataLibsDirPath();
   const libDirs = discoverSubDirs(dataLibsDirPath);
 
   for (const libDir of libDirs) {
@@ -39,6 +33,8 @@ function buildLib(libDir: string): void {
 }
 
 function assertLibVersionValid(libName: string, libVersion: string): void {
+  const waspcVersion = getWaspcVersion();
+
   if (libVersion !== waspcVersion) {
     console.error(
       `ERROR: ${libName} lib version (${libVersion}) != current Wasp version (${waspcVersion}).`,

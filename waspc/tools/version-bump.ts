@@ -3,12 +3,12 @@
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
+import { getWaspcVersion } from "./get-waspc-version.ts";
 import { getDataLibsDirPath } from "./libs/utils.ts";
 import {
   discoverSubDirs,
   getRepoRootPath,
   getWaspcDirPath,
-  getWaspcVersion,
   runCmd,
 } from "./utils.ts";
 

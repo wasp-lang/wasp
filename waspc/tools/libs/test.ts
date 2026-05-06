@@ -4,11 +4,10 @@
 import { discoverSubDirs, getPackageJson, runCmd } from "../utils.ts";
 import { getDataLibsDirPath } from "./utils.ts";
 
-const dataLibsDirPath = getDataLibsDirPath();
-
 testLibs();
 
 function testLibs(): void {
+  const dataLibsDirPath = getDataLibsDirPath();
   const libDirs = discoverSubDirs(dataLibsDirPath);
 
   for (const libDir of libDirs) {
