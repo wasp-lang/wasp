@@ -33,6 +33,14 @@ export function mapApp(
     (query) => mapQuery(query, entityRefParser),
   );
 
+  const actions = extractParts("action", parts);
+  const actionDecls = mapToDecls(
+    actions,
+    "Action",
+    (action) => deriveExtImportName(action.fn),
+    (action) => mapAction(action, entityRefParser),
+  );
+
   const appDecl = {
     declType: "App" as const,
     declName: name,
@@ -54,9 +62,9 @@ export function mapApp(
     App: [appDecl],
     Page: pageDecls,
     Query: queryDecls,
+    Action: actionDecls,
     // TODO: add these guys
     Route: [],
-    Action: [],
     Job: [],
     Api: [],
     ApiNamespace: [],
@@ -77,6 +85,18 @@ export function mapQuery(
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Query {
   const { fn, entities, auth } = query;
+  return {
+    fn: mapExtImport(fn),
+    entities: entities?.map(entityRefParser),
+    auth,
+  };
+}
+
+export function mapAction(
+  action: TsAppSpec.Action,
+  entityRefParser: RefParser<"Entity">,
+): AppSpec.Action {
+  const { fn, entities, auth } = action;
   return {
     fn: mapExtImport(fn),
     entities: entities?.map(entityRefParser),
