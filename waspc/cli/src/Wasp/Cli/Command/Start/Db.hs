@@ -20,6 +20,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
 import Wasp.Cli.Util.Parser (withArguments)
@@ -40,6 +41,7 @@ import qualified Wasp.Util.Network.Socket as Socket
 start :: Arguments -> Command ()
 start = withArguments "wasp start db" startDbArgsParser $ \args -> do
   InWaspProject waspProjectDir <- require
+  installIfNeeded
   WaspConfigAvailable <- require
   appSpec <- analyze waspProjectDir
 

@@ -8,12 +8,14 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Data.Text.IO as T.IO
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
 import Wasp.Project (compileAndRenderDockerfile)
 
 printDockerfile :: Command ()
 printDockerfile = do
   InWaspProject waspProjectDir <- require
+  installIfNeeded
   WaspConfigAvailable <- require
   dockerfileContentOrCompileErrors <- liftIO $ compileAndRenderDockerfile waspProjectDir (defaultCompileOptions waspProjectDir)
   either

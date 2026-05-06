@@ -14,6 +14,7 @@ import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfi
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
 import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (GeneratedAppIsProduction (GeneratedAppIsProduction), InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable))
 import Wasp.Cli.Util.Parser (withArguments)
@@ -26,6 +27,7 @@ buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
   GeneratedAppIsProduction _ <- require
   InWaspProject waspProjectDir <- require
+  installIfNeeded
   WaspConfigAvailable <- require
 
   appSpec <- analyze waspProjectDir

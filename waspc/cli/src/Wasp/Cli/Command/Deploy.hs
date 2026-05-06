@@ -7,6 +7,7 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import System.Environment (getExecutablePath)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Require
   ( InWaspProject (InWaspProject),
     WaspConfigAvailable (WaspConfigAvailable),
@@ -17,6 +18,7 @@ import qualified Wasp.Project.Deployment
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
   InWaspProject waspProjectDir <- require
+  installIfNeeded
   WaspConfigAvailable <- require
   deployResult <- liftIO $ do
     -- `getExecutablePath` has some caveats:

@@ -26,6 +26,7 @@ import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Compile (analyze)
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
 import qualified Wasp.Message as Msg
@@ -35,6 +36,7 @@ import qualified Wasp.Project.Studio
 studio :: Command ()
 studio = do
   InWaspProject waspDir <- require
+  installIfNeeded
   WaspConfigAvailable <- require
 
   appSpec <- analyze waspDir

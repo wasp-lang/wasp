@@ -12,6 +12,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (readWaspCompileInfo)
 import Wasp.Cli.Command.Compile (analyze)
+import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
 import Wasp.Cli.Terminal (title)
@@ -23,6 +24,7 @@ import qualified Wasp.Util.Terminal as Term
 info :: Command ()
 info = do
   InWaspProject waspDir <- require
+  installIfNeeded
   WaspConfigAvailable <- require
 
   compileInfo <- liftIO $ readWaspCompileInfo waspDir
