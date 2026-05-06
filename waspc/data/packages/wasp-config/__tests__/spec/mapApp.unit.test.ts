@@ -8,8 +8,10 @@ import {
   mapExtImport,
   mapPage,
   mapQuery,
+  mapRoute,
+  normalizeRoutePage,
 } from "../../src/spec/mapApp.js";
-import { app } from "../../src/spec/publicApi/index.js";
+import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -90,8 +92,42 @@ describe("mapApp", () => {
     ] satisfies AppSpec.Decl[]);
   });
 
-  // TODO: dedup pages referenced multiple times in parts → one Page decl.
-  // TODO: two pages deriving the same name with different configs → throw.
+  test("dedups a page referenced both explicitly and via a route shorthand", () => {
+    const aboutPage = page({ import: "AboutPage", from: "@src/About" });
+    const spec = app({
+      name: "TodoApp",
+      wasp: { version: "^0.16.3" },
+      title: "Todo",
+      parts: [aboutPage, route("aboutRoute", "/about", { ...aboutPage })],
+    });
+
+    const decls = mapApp(spec, []);
+
+    const pageNames = decls
+      .filter((d) => d.declType === "Page")
+      .map((d) => d.declName);
+    expect(pageNames).toEqual(["AboutPage"]);
+  });
+
+  test("throws when the same page name is produced with differing configs", () => {
+    const aboutPage = page({ import: "AboutPage", from: "@src/About" });
+    const modifiedAboutPage: TsAppSpec.Page = {
+      ...aboutPage,
+      authRequired: true,
+    };
+
+    const spec = app({
+      name: "TodoApp",
+      wasp: { version: "^0.16.3" },
+      title: "Todo",
+      parts: [aboutPage, route("aboutRoute", "/about", modifiedAboutPage)],
+    });
+
+    expect(() => mapApp(spec, [])).toThrow(
+      /Conflicting configs for page "AboutPage"/,
+    );
+  });
+
   // TODO: duplicate query name → throw.
 });
 
@@ -111,6 +147,30 @@ describe("mapPage", () => {
       component: mapExtImport(page.component),
       authRequired: page.authRequired,
     } satisfies AppSpec.Page);
+  }
+});
+
+describe("mapRoute", () => {
+  test("should map minimal config correctly", () => {
+    testMapRoute(Fixtures.getRoute("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapRoute(Fixtures.getRoute("full"));
+  });
+
+  function testMapRoute(route: TsAppSpec.Route): void {
+    const result = mapRoute(route);
+
+    const expectedPage = normalizeRoutePage(route.page);
+    const expectedPageName = deriveExtImportName(expectedPage.component);
+
+    expect(result).toStrictEqual({
+      path: route.path,
+      to: { name: expectedPageName, declType: "Page" },
+      prerender: undefined,
+      lazy: undefined,
+    } satisfies AppSpec.Route);
   }
 });
 

@@ -6,7 +6,13 @@
 
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
-import { action, app, page, query } from "../../src/spec/publicApi/index.js";
+import {
+  action,
+  app,
+  page,
+  query,
+  route,
+} from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 const CONFIG_TYPES = ["minimal", "full"] as const;
@@ -30,6 +36,24 @@ export function getPage(scope: ConfigType): Config<TsAppSpec.Page> {
       return page(getExtImport("minimal", "named"));
     case "full":
       return page(getExtImport("full", "named"), { authRequired: true });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getRoute(scope: "minimal"): MinimalConfig<TsAppSpec.Route>;
+export function getRoute(scope: "full"): FullConfig<TsAppSpec.Route>;
+export function getRoute(scope: ConfigType): Config<TsAppSpec.Route>;
+export function getRoute(scope: ConfigType): Config<TsAppSpec.Route> {
+  switch (scope) {
+    case "minimal":
+      return route(
+        "minimalRoute",
+        "/foo/bar",
+        getExtImport("minimal", "named"),
+      );
+    case "full":
+      return route("fullRoute", "/foo/bar", getPage("full"));
     default:
       assertUnreachable(scope);
   }
