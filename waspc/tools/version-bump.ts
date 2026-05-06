@@ -77,7 +77,10 @@ function bumpPackageJsonVersion(dir: string, nextVersion: string): void {
   }
   packageJson.version = nextVersion;
 
-  writeFileSync(packageJsonPath, JSON.stringify(packageJson));
+  writeFileSync(
+    packageJsonPath,
+    JSON.stringify(packageJson, undefined, 2) + "\n",
+  );
 }
 
 function bumpWaspProjectVersion(projectDir: string, nextVersion: string): void {
