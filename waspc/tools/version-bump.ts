@@ -7,6 +7,7 @@ import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getDataLibsDirPath } from "./libs/utils.ts";
 import {
   discoverSubDirs,
+  findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
   getRepoRootPath,
   getWaspcDirPath,
   runCmd,
@@ -14,17 +15,7 @@ import {
 
 const waspcDirPath = getWaspcDirPath();
 const repoRootDirPath = getRepoRootPath();
-const runScriptFilePath = join(waspcDirPath, "run");
-const waspProjectDirsPathFromRepoRoot = [
-  "examples/tutorials/TodoApp",
-  "examples/tutorials/TodoAppTs",
-  "examples/waspello",
-  "examples/waspleau",
-  "examples/websockets-realtime-voting",
-  "examples/ask-the-documents",
-  "examples/kitchen-sink",
-  "mage",
-];
+const waspProjectDirsPaths = findWaspProjectDirsPathsInRepo();
 
 type BumpType = "major" | "minor" | "patch";
 
@@ -71,9 +62,8 @@ function bumpLibsVersion(nextVersion: string): void {
 }
 
 function bumpWaspProjectsVersion(nextVersion: string): void {
-  for (const projectDirPathFromRepoRoot of waspProjectDirsPathFromRepoRoot) {
-    const projectDirPath = join(repoRootDirPath, projectDirPathFromRepoRoot);
-    bumpWaspProjectVersion(projectDirPath, nextVersion);
+  for (const waspProjectDirAbsPath of waspProjectDirsPaths) {
+    bumpWaspProjectVersion(waspProjectDirAbsPath, nextVersion);
   }
 }
 
@@ -124,9 +114,11 @@ function rebuildLibs(): void {
 }
 
 function bustWaspProjectsLibsCache(): void {
-  for (const projectDirFromRepoRoot of waspProjectDirsPathFromRepoRoot) {
+  const runScriptFilePath = join(waspcDirPath, "run");
+
+  for (const waspProjectDirPath of waspProjectDirsPaths) {
     runCmd(runScriptFilePath, ["bust-libs-cache"], {
-      cwd: join(repoRootDirPath, projectDirFromRepoRoot),
+      cwd: waspProjectDirPath,
       stdio: "inherit",
     });
   }
