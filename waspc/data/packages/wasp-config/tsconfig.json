@@ -2,7 +2,7 @@
   "compilerOptions": {
     "esModuleInterop": true,
     "skipLibCheck": true,
-    "target": "es2022",
+    "target": "es2025",
     "allowJs": true,
     "resolveJsonModule": true,
     "moduleResolution": "nodenext",
@@ -18,7 +18,7 @@
     "declarationMap": true,
 
     "declaration": true,
-    "lib": ["es2022"]
+    "lib": ["es2025"]
   },
   "include": ["src", "__tests__"]
 }

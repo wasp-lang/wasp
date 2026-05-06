@@ -25,6 +25,21 @@ export function mapApp(
     mapPage,
   );
 
+  const routes = extractParts("route", parts);
+  const routeDecls = mapToDecls(
+    routes,
+    "Route",
+    (route) => route.name,
+    mapRoute,
+  );
+  const routePages = routes.map((route) => route.page).map(normalizeRoutePage);
+  const routePageDecls = mapToDecls(
+    routePages,
+    "Page",
+    (page) => deriveExtImportName(page.component),
+    mapPage,
+  );
+
   const queries = extractParts("query", parts);
   const queryDecls = mapToDecls(
     queries,
@@ -60,11 +75,11 @@ export function mapApp(
 
   return makeDeclsArray({
     App: [appDecl],
-    Page: pageDecls,
+    Page: dedupePageDecls([...pageDecls, ...routePageDecls]),
+    Route: routeDecls,
     Query: queryDecls,
     Action: actionDecls,
     // TODO: add these guys
-    Route: [],
     Job: [],
     Api: [],
     ApiNamespace: [],
@@ -78,6 +93,50 @@ export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
     component: mapExtImport(component),
     authRequired,
   };
+}
+
+export function mapRoute(route: TsAppSpec.Route): AppSpec.Route {
+  const normalizedPage = normalizeRoutePage(route.page);
+  const pageName = deriveExtImportName(normalizedPage.component);
+  return {
+    path: route.path,
+    to: { name: pageName, declType: "Page" },
+    prerender: undefined,
+    lazy: undefined,
+  };
+}
+
+export function normalizeRoutePage(
+  routePage: TsAppSpec.Route["page"],
+): TsAppSpec.Page {
+  if ("kind" in routePage) return routePage;
+  return { kind: "page", component: routePage };
+}
+
+/**
+ * Pages can be constructed:
+ * - Explicitly - through {@link TsAppSpec.Page} constructore.
+ * - Implicitly - through {@link TsAppSpec.Route} constructor.
+ *
+ * Here we make sure this does not produce any inconsistencies.
+ */
+export function dedupePageDecls(
+  decls: AppSpec.GetDeclForType<"Page">[],
+): AppSpec.GetDeclForType<"Page">[] {
+  const groups = Map.groupBy(decls, (decls) => decls.declName);
+  return Array.from(groups.values()).map((group) =>
+    group.reduce((first, current) => {
+      if (!deepEqual(current, first)) {
+        throw new Error(
+          `Conflicting configs for page "${first.declName}". ` +
+            "A page can be derived from an explicit `page(...)` part or from " +
+            "an inline route page; all derivations that share a name must " +
+            "produce the same config.",
+        );
+      }
+      return first;
+    }),
+  );
 }
 
 export function mapQuery(
@@ -196,4 +255,28 @@ function makeDeclsArray(decls: {
   [Type in AppSpec.Decl["declType"]]: AppSpec.GetDeclForType<Type>[];
 }): AppSpec.Decl[] {
   return Object.values(decls).flatMap((decl) => [...decl]);
+}
+
+/**
+ * This is not a proper deep equal implementation.
+ * It is made to be good enough for comparing TS spec values,
+ * and shouldn't be used outside of this purpose.
+ */
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  if (typeof a !== "object" || typeof b !== "object") return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+  }
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((k) =>
+    deepEqual(
+      (a as Record<string, unknown>)[k],
+      (b as Record<string, unknown>)[k],
+    ),
+  );
 }

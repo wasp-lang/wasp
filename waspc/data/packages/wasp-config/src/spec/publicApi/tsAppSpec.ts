@@ -6,13 +6,22 @@ export type App = {
   parts: Part[];
 };
 
-export type Part = Page | Query | Action;
+export type Part = Page | Route | Query | Action;
 
 export type Page = MakePart<
   "page",
   {
     component: ExtImport;
     authRequired?: boolean;
+  }
+>;
+
+export type Route = MakePart<
+  "route",
+  {
+    name: string;
+    path: string;
+    page: Page | ExtImport;
   }
 >;
 
