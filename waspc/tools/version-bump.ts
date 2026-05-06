@@ -27,13 +27,12 @@ function bumpWaspVersion(bumpType: BumpType): void {
   const nextVersion = bumpVersion(currentVersion, bumpType);
   console.log(`Bumping Wasp version: ${currentVersion} -> ${nextVersion}`);
 
-  // Bumping versions
   bumpWaspcCabalVersion(nextVersion);
-  bumpLibsVersion(nextVersion);
-  bumpWaspProjectsVersion(nextVersion);
 
-  // Busting old libs cache
+  bumpLibsVersion(nextVersion);
   rebuildLibs();
+
+  bumpWaspProjectsVersion(nextVersion);
   bustWaspProjectsLibsCache();
 }
 
