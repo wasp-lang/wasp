@@ -43,7 +43,6 @@ export function runCmd(
 
 const STARTING_SEARCH_LOCATIONS = ["examples", "mage"];
 const DIRS_TO_SKIP = new Set(["node_modules"]);
-
 export function findWaspProjectDirsAbsPathInRepo(): string[] {
   const repoRootRootPath = getRepoRootPath();
 
