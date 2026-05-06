@@ -1,7 +1,8 @@
 module Tests.WaspNewTest (waspNewTest) where
 
-import ShellCommands (WaspNewTemplate (..), waspCliNew, waspCliNewInteractive)
+import ShellCommands (waspCliNew, waspCliNewInteractive)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (basicStarterTemplate, minimalStarterTemplate)
 
 -- TODO: add "new ai" tests
 waspNewTest :: Test
@@ -10,16 +11,16 @@ waspNewTest =
     "wasp-new"
     [ TestCase
         "create-minimal"
-        (sequence [waspCliNew "wasp-app" Minimal]),
+        (sequence [waspCliNew "wasp-app" minimalStarterTemplate]),
       TestCase
         "create-minimal-interactive"
-        (sequence [waspCliNewInteractive "wasp-app" Minimal]),
+        (sequence [waspCliNewInteractive "wasp-app" minimalStarterTemplate]),
       TestCase
         "create-basic"
-        (sequence [waspCliNew "wasp-app" Basic]),
+        (sequence [waspCliNew "wasp-app" basicStarterTemplate]),
       TestCase
         "create-basic-interactive"
-        (sequence [waspCliNewInteractive "wasp-app" Basic])
+        (sequence [waspCliNewInteractive "wasp-app" basicStarterTemplate])
         -- FIXME(Franjo): These will fail because there "dev" opensaas template tag doesn't exist.
         -- We can't really test the `saas` template in `waspc` e2e tests.
         --   TestCase

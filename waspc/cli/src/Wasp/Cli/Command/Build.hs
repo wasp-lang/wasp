@@ -1,3 +1,5 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Wasp.Cli.Command.Build
   ( build,
   )
@@ -159,7 +161,7 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
   where
     options =
       CompileOptions
-        { waspProjectDirPath = waspProjectDir,
+        { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
           -- Ignore "DB needs migration warnings" during build, as that is not a required step.

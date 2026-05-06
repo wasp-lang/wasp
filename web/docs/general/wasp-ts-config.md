@@ -107,6 +107,23 @@ If you run `wasp clean` or remove `node_modules` on  your own, you will have to 
 
 Got stuck on any of these steps? Let us know in our <DiscordLink /> and we will help!
 
+## Detecting the current environment
+
+Wasp sets the `NODE_ENV` environment variable based on which command you use to run Wasp:
+- `"development"` during `wasp start` (and any other command which may compile the project like `wasp db migrate-dev`).
+- `"production"` during `wasp build`.
+
+You can read this variable to switch config values per environment:
+
+```ts title="main.wasp.ts"
+const isProd = process.env.NODE_ENV === 'production'
+
+app.emailSender({
+  provider: isProd ? 'SMTP' : 'Dummy',
+  defaultFrom: { email: 'hi@example.com' },
+})
+```
+
 ## What next?
 
 ### Experiment
