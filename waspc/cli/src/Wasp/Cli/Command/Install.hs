@@ -19,6 +19,7 @@ import Wasp.Generator.NpmInstall (areThereUserNpmDepsToInstall, installProjectNp
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageIsAtInstallationPathInProject, getPackagePathInNodeModules)
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import Wasp.Project.ExternalConfig.PackageJson (readUserPackageJsonFile)
+import Wasp.Project.WaspFile (isWaspTsProject)
 import qualified Wasp.Util.IO as IOUtil
 
 -- | Standalone `wasp install` command: copies wasp-config and runs npm install.
@@ -33,9 +34,10 @@ install = do
 reinstall :: Command ()
 reinstall = clean >> install
 
--- | Runs install when necessary. Checks two conditions:
---   1. The `wasp-config` package is missing from node_modules (e.g., first
---      compile, after clean, or if the user ran `npm install` on their own).
+-- | Runs install when necessary. Checks three conditions:
+--   1. This is Wasp TS spec project and the `wasp-config` package is missing
+--   from node_modules (e.g., first compile, after clean, or if the user ran
+--   `npm install` on their own).
 --   2. The user's dependencies in package.json have changed since the last
 --      recorded install (compared against the installedNpmDepsLog).
 installIfNeeded :: Command ()
@@ -44,6 +46,7 @@ installIfNeeded = do
   let waspConfigInNodeModules = waspProjectDir </> getPackagePathInNodeModules WaspConfigPackage
   let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir
 
+  isTsProject <- liftIO $ isWaspTsProject waspProjectDir
   waspConfigMissing <- liftIO $ not <$> IOUtil.doesDirectoryExist waspConfigInNodeModules
   userDepsChanged <-
     liftIO $
@@ -51,7 +54,7 @@ installIfNeeded = do
         Left _ -> pure True
         Right userDeps -> areThereUserNpmDepsToInstall userDeps outDir
 
-  when (waspConfigMissing || userDepsChanged) install
+  when ((isTsProject && waspConfigMissing) || userDepsChanged) install
 
 getUserDepsFromDisk :: Path' Abs (Dir WaspProjectDir) -> IO (Either String NpmDepsFromUser)
 getUserDepsFromDisk waspProjectDir =

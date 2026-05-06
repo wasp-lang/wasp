@@ -12,7 +12,6 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (readWaspCompileInfo)
 import Wasp.Cli.Command.Compile (analyze)
-import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
 import Wasp.Cli.Terminal (title)
