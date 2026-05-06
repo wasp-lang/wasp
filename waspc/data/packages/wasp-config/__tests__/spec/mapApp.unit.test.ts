@@ -165,12 +165,14 @@ describe("mapRoute", () => {
     const expectedPage = normalizeRoutePage(route.page);
     const expectedPageName = deriveExtImportName(expectedPage.component);
 
-    expect(result).toStrictEqual({
+    expect(result.routeName).toStrictEqual(route.name);
+    expect(result.route).toStrictEqual({
       path: route.path,
       to: { name: expectedPageName, declType: "Page" },
       prerender: undefined,
       lazy: undefined,
     } satisfies AppSpec.Route);
+    expect(result.page).toStrictEqual(mapPage(expectedPage));
   }
 });
 

@@ -26,19 +26,17 @@ export function mapApp(
   );
 
   const routes = extractParts("route", parts);
-  const routeDecls = mapToDecls(
-    routes,
-    "Route",
-    (route) => route.name,
-    mapRoute,
-  );
-  const routePages = routes.map((route) => route.page).map(normalizeRoutePage);
-  const routePageDecls = mapToDecls(
-    routePages,
-    "Page",
-    (page) => deriveExtImportName(page.component),
-    mapPage,
-  );
+  const mappedRoutes = routes.map(mapRoute);
+  const routeDecls = mappedRoutes.map(({ routeName, route }) => ({
+    declType: "Route" as const,
+    declName: routeName,
+    declValue: route,
+  }));
+  const routePageDecls = mappedRoutes.map(({ route, page }) => ({
+    declType: "Page" as const,
+    declName: route.to.name,
+    declValue: page,
+  }));
 
   const queries = extractParts("query", parts);
   const queryDecls = mapToDecls(
@@ -95,14 +93,25 @@ export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
   };
 }
 
-export function mapRoute(route: TsAppSpec.Route): AppSpec.Route {
+/**
+ * Route always has an accompanying page.
+ */
+export function mapRoute(route: TsAppSpec.Route): {
+  routeName: string;
+  route: AppSpec.Route;
+  page: AppSpec.Page;
+} {
   const normalizedPage = normalizeRoutePage(route.page);
   const pageName = deriveExtImportName(normalizedPage.component);
   return {
-    path: route.path,
-    to: { name: pageName, declType: "Page" },
-    prerender: undefined,
-    lazy: undefined,
+    routeName: route.name,
+    route: {
+      path: route.path,
+      to: { name: pageName, declType: "Page" },
+      prerender: undefined,
+      lazy: undefined,
+    },
+    page: mapPage(normalizedPage),
   };
 }
 
