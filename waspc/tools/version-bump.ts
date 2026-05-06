@@ -3,7 +3,7 @@
 import assert from "node:assert";
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { getWaspcVersion } from "./get-waspc-version.ts";
+import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getDataLibsDirPath } from "./libs/utils.ts";
 import {
   discoverSubDirs,
@@ -53,7 +53,7 @@ function bumpWaspcCabalVersion(nextVersion: string): void {
   const cabalFileContent = readFileSync(cabalFilePath, "utf-8");
 
   const updatedCabalFileContent = cabalFileContent.replace(
-    /^version:\s*.+$/m,
+    cabalVersionRegex,
     `version: ${nextVersion}`,
   );
   if (cabalFileContent === updatedCabalFileContent) {
