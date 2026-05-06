@@ -60,7 +60,7 @@
     "marked": "^17.0.3",
     "mdast": "^2.3.2",
     "mdast-util-mdx": "^3.0.0",
-    "prettier": "^3.0.3",
+    "prettier": "3.5.3",
     "remark-cli": "^11.0.0",
     "remark-validate-links": "^12.1.1",
     "tsx": "^4.20.3",

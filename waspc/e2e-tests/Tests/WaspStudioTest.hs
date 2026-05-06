@@ -1,7 +1,8 @@
 module Tests.WaspStudioTest (waspStudioTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliStudio)
+import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliStudio)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | NOTE: Once it evolves it will probably have it's own
 -- playwright tests inside of the TS package.
@@ -17,7 +18,7 @@ waspStudioTest =
       TestCase
         "succeed-uncompiled-project"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliStudio
                 ]

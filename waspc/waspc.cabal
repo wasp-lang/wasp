@@ -28,13 +28,13 @@ data-files:
   Cli/starters/**/*.js
   Cli/starters/**/*.json
   Cli/starters/**/*.md
+  Cli/starters/**/*.mjs
   Cli/starters/**/*.prisma
   Cli/starters/**/*.svg
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
   Cli/starters/**/*.wasp
   Cli/starters/basic/.prettierignore
-  Cli/starters/basic/.prettierrc
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/gitignore
@@ -100,6 +100,8 @@ common common-all
     FlexibleContexts
     LambdaCase
     MultiParamTypeClasses
+    NamedFieldPuns
+    OverloadedRecordDot
     OverloadedStrings
     QuasiQuotes
     ScopedTypeVariables
@@ -444,11 +446,10 @@ library
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
-    Wasp.SemanticVersion.Comparator
-    Wasp.SemanticVersion.ComparatorSet
     Wasp.SemanticVersion.Parsers
     Wasp.SemanticVersion.PartialVersion
     Wasp.SemanticVersion.Range
+    Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.TypeScript.Inspect.Exports
@@ -740,10 +741,9 @@ test-suite waspc-tests
     Psl.Parser.ViewTest
     Psl.Parser.WithCtxTest
     Psl.ValidTest
-    SemanticVersion.ComparatorSetTest
-    SemanticVersion.ComparatorTest
     SemanticVersion.ParsersTest
     SemanticVersion.PartialVersionTest
+    SemanticVersion.RangeExpressionTest
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
@@ -825,6 +825,7 @@ test-suite waspc-e2e-tests
     base,
     base64-bytestring,
     bytestring,
+    cli-lib,
     dir-traverse ^>=0.2.3,
     directory,
     filepath,
@@ -868,4 +869,5 @@ test-suite waspc-e2e-tests
     Tests.WaspStartTest
     Tests.WaspStudioTest
     Tests.WaspTelemetryTest
+    Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest
