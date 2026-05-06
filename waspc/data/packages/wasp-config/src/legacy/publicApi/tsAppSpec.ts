@@ -1,4 +1,10 @@
 import * as AppSpec from "../../appSpec.js";
+import type {
+  AuthoredExtImport,
+  ExtImportDescriptor,
+  FunctionExtImport,
+  ObjectExtImport,
+} from "../../appSpec/extImportDescriptor.js";
 import { Branded } from "../../branded.js";
 
 export type TsAppSpec = {
@@ -189,33 +195,8 @@ export type WebsocketConfig = {
   autoConnect?: boolean;
 };
 
-export type ExtImport =
-  | {
-      import: string;
-      from: AppSpec.ExtImport["path"];
-      alias?: string;
-    }
-  | {
-      importDefault: string;
-      from: AppSpec.ExtImport["path"];
-      alias?: string;
-    };
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type AnyFunction = (...args: any[]) => any;
-
-type NonDescriptorObject = object & {
-  import?: never;
-  importDefault?: never;
-  from?: never;
-  call?: never;
-  apply?: never;
-  bind?: never;
-};
-
-export type FunctionExtImport = ExtImport | AnyFunction;
-export type ObjectExtImport = ExtImport | NonDescriptorObject;
-export type AuthoredExtImport = FunctionExtImport | ObjectExtImport;
+export type ExtImport = ExtImportDescriptor;
+export type { AuthoredExtImport, FunctionExtImport, ObjectExtImport };
 
 export type EmailFromField = {
   name?: string;
