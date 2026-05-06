@@ -73,7 +73,7 @@
 
 :root {
   --lh: 1.5; /* line height */
-  --logo-font-family: "JetBrains Mono"
+  --logo-font-family: "JetBrains Mono";
 }
 
 /* We are targeting Docusaurus's stable, theme-agnostic class names:

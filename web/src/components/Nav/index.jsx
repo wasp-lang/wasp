@@ -11,7 +11,7 @@ const Nav = () => {
   const navSidebarRef = useRef(null);
 
   const Logo = () => (
-    <div className="flex flex-shrink-0 items-center wasp-logo">
+    <div className="wasp-logo flex flex-shrink-0 items-center">
       <Link to="/">
         <img
           src="/img/wasp-logo.svg"
@@ -21,7 +21,7 @@ const Nav = () => {
           height="44"
         />
       </Link>
-      <span className="ml-3 font-mono text-xl font-extrabold tracking-tight text-wasp-black wasp-logo-text">
+      <span className="wasp-logo-text ml-3 font-mono text-xl font-extrabold tracking-tight text-wasp-black">
         wasp
       </span>
     </div>
