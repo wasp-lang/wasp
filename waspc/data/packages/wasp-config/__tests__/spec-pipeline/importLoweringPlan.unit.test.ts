@@ -5,9 +5,9 @@ describe("planImportLowering", () => {
   test("plans descriptor declarations for supported import shapes", () => {
     const result = planImportLowering(
       [
-        `import MainPage from "./src/MainPage";`,
-        `import { getTasks, archive as archiveTask } from "./src/operations";`,
-        `import * as ops from "./src/operations";`,
+        `import MainPage from "@src/MainPage";`,
+        `import { getTasks, archive as archiveTask } from "@src/operations";`,
+        `import * as ops from "@src/operations";`,
         ``,
       ].join("\n"),
     );
@@ -54,41 +54,44 @@ describe("planImportLowering", () => {
     expect(result).toEqual({ status: "ok", plan: { replacements: [] } });
   });
 
+  test("leaves non-@src imports and re-exports out of the plan", () => {
+    const result = planImportLowering(
+      [
+        `import helper from "./helpers";`,
+        `import MainPage from "./src/MainPage";`,
+        `export { helper } from "./helpers";`,
+        ``,
+      ].join("\n"),
+    );
+
+    expect(result).toEqual({ status: "ok", plan: { replacements: [] } });
+  });
+
   test.each([
     {
-      source: `import "./src/setup";\n`,
+      source: `import "@src/setup";\n`,
       reason: "sideEffectImport",
-      specifier: "./src/setup",
+      specifier: "@src/setup",
     },
     {
-      source: `import type { Props } from "./src/MainPage";\n`,
+      source: `import type { Props } from "@src/MainPage";\n`,
       reason: "typeOnlyImport",
-      specifier: "./src/MainPage",
+      specifier: "@src/MainPage",
     },
     {
-      source: `import { type Props, MainPage } from "./src/MainPage";\n`,
+      source: `import { type Props, MainPage } from "@src/MainPage";\n`,
       reason: "mixedTypeAndValueImport",
-      specifier: "./src/MainPage",
+      specifier: "@src/MainPage",
     },
     {
-      source: `import {} from "./src/MainPage";\n`,
+      source: `import {} from "@src/MainPage";\n`,
       reason: "emptyNamedImport",
-      specifier: "./src/MainPage",
+      specifier: "@src/MainPage",
     },
     {
-      source: `export { MainPage } from "./src/MainPage";\n`,
+      source: `export { MainPage } from "@src/MainPage";\n`,
       reason: "srcReExport",
-      specifier: "./src/MainPage",
-    },
-    {
-      source: `import helper from "./helpers";\n`,
-      reason: "relativeImportOutsideSrc",
-      specifier: "./helpers",
-    },
-    {
-      source: `export { helper } from "./helpers";\n`,
-      reason: "relativeReExportOutsideSrc",
-      specifier: "./helpers",
+      specifier: "@src/MainPage",
     },
   ])("returns a diagnostic for $reason", ({ source, reason, specifier }) => {
     const result = planImportLowering(source);

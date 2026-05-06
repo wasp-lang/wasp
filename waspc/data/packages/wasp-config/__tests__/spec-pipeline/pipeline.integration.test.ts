@@ -22,11 +22,11 @@ const specSource = () =>
   [
     `// @ts-ignore: This test imports the local TS source through Vitest.`,
     `import { App } from ${JSON.stringify(waspConfigEntryUrl)};`,
-    `import MainPage from "./src/MainPage";`,
-    `import { getTasks } from "./src/operations";`,
-    `import { archive as archiveTask } from "./src/operations";`,
-    `import { archive as archiveLegacyTask } from "./src/legacyOperations";`,
-    `import * as ops from "./src/operations";`,
+    `import MainPage from "@src/MainPage";`,
+    `import { getTasks } from "@src/operations";`,
+    `import { archive as archiveTask } from "@src/operations";`,
+    `import { archive as archiveLegacyTask } from "@src/legacyOperations";`,
+    `import * as ops from "@src/operations";`,
     ``,
     `const app = new App("demo", {`,
     `  title: "Demo",`,
@@ -149,11 +149,11 @@ describe("end-to-end import-form pipeline", () => {
     const sourcePath = join(tempDir, "main.wasp.ts");
     const rewrittenPath = join(tempDir, "main.wasp.rewritten.ts");
 
-    writeFileSync(sourcePath, `import helper from "./helpers";\n`, "utf8");
+    writeFileSync(sourcePath, `import "@src/setup";\n`, "utf8");
 
     await expect(
       runWaspConfig(["node", "run.js", "rewrite", sourcePath, rewrittenPath]),
-    ).rejects.toThrowError(/Relative imports outside \.\/src/);
+    ).rejects.toThrowError(/Side-effect imports/);
   });
 
   test("type-checks the rewritten spec shape before execution", () => {
@@ -161,7 +161,7 @@ describe("end-to-end import-form pipeline", () => {
     mkdirSync(join(tempDir, "src"));
 
     const source = [
-      `import { appTitle } from "./src/title";`,
+      `import { appTitle } from "@src/title";`,
       ``,
       `declare function makeApp(config: { title: string }): void;`,
       `makeApp({ title: appTitle });`,
@@ -180,6 +180,25 @@ describe("end-to-end import-form pipeline", () => {
 
     expect(runTscExpectingError(tempDir, "tsconfig.rewritten.json")).toContain(
       "is not assignable to type 'string'",
+    );
+  });
+
+  test("type-checks @src imports against real source files", () => {
+    const tempDir = mkdtempSync(join(tmpdir(), "wasp-spec-src-import-"));
+    mkdirSync(join(tempDir, "src"));
+
+    writeFileSync(
+      join(tempDir, "main.wasp.ts"),
+      `import { typoedTitle } from "@src/title";\ntypoedTitle;\n`,
+    );
+    writeFileSync(
+      join(tempDir, "src", "title.ts"),
+      `export const appTitle = "Demo";\n`,
+    );
+    writeTsConfig(tempDir, "tsconfig.original.json", "main.wasp.ts");
+
+    expect(runTscExpectingError(tempDir, "tsconfig.original.json")).toContain(
+      "has no exported member 'typoedTitle'",
     );
   });
 });
@@ -218,7 +237,7 @@ async function runSpecThroughRunTs(
   await runWaspConfig(["node", "run.js", "rewrite", sourcePath, rewrittenPath]);
 
   const rewrittenSource = readFileSync(rewrittenPath, "utf8");
-  expect(rewrittenSource).not.toMatch(/from\s+"\.\/src\//);
+  expect(rewrittenSource).not.toMatch(/^import\s+(?:.+\s+from\s+)?["']@src\//m);
 
   const outDir = sourceFileName.replace(/\.ts$/, "-dist");
   const tsconfigFileName = sourceFileName.replace(/\.ts$/, ".tsconfig.json");
@@ -254,6 +273,10 @@ function writeTsConfig(
         moduleResolution: "bundler",
         strict: true,
         noEmit: options.noEmit ?? true,
+        baseUrl: ".",
+        paths: {
+          "@src/*": ["src/*"],
+        },
         ...(options.outDir ? { outDir: options.outDir } : {}),
       },
       include: [include],

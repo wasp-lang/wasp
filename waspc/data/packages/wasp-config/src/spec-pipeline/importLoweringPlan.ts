@@ -1,7 +1,7 @@
 import * as ts from "typescript";
 import type { ExtImportDescriptor } from "../appSpec/extImportDescriptor.js";
 
-const SRC_IMPORT_PREFIX = "./src/";
+const SRC_IMPORT_PREFIX = "@src/";
 const SRC_DESCRIPTOR_PREFIX = "@src/";
 
 export type ImportLoweringResult =
@@ -42,9 +42,7 @@ export type ImportDiagnosticReason =
   | "typeOnlyImport"
   | "mixedTypeAndValueImport"
   | "emptyNamedImport"
-  | "srcReExport"
-  | "relativeImportOutsideSrc"
-  | "relativeReExportOutsideSrc";
+  | "srcReExport";
 
 export type SourceLocation = {
   line: number;
@@ -75,8 +73,6 @@ export function planImportLowering(sourceText: string): ImportLoweringResult {
     if (!specifier) continue;
 
     if (!isSrcImportSpecifier(specifier)) {
-      const diagnostic = getNonSrcImportDiagnostic(sourceFile, stmt, specifier);
-      if (diagnostic) diagnostics.push(diagnostic);
       continue;
     }
 
@@ -114,25 +110,6 @@ function getStringModuleSpecifier(
 
 function isSrcImportSpecifier(specifier: string): boolean {
   return specifier.startsWith(SRC_IMPORT_PREFIX);
-}
-
-function isRelativeImportSpecifier(specifier: string): boolean {
-  return specifier.startsWith("./") || specifier.startsWith("../");
-}
-
-function getNonSrcImportDiagnostic(
-  sourceFile: ts.SourceFile,
-  stmt: ts.ImportDeclaration,
-  specifier: string,
-): ImportDiagnostic | undefined {
-  if (!isRelativeImportSpecifier(specifier)) return undefined;
-
-  return makeDiagnostic(
-    sourceFile,
-    stmt,
-    specifier,
-    "relativeImportOutsideSrc",
-  );
 }
 
 function getSrcImportDiagnostic(
@@ -178,14 +155,7 @@ function getExportDiagnostic(
 
   const specifier = stmt.moduleSpecifier.text;
   if (!isSrcImportSpecifier(specifier)) {
-    return isRelativeImportSpecifier(specifier)
-      ? makeDiagnostic(
-          sourceFile,
-          stmt,
-          specifier,
-          "relativeReExportOutsideSrc",
-        )
-      : undefined;
+    return undefined;
   }
 
   return makeDiagnostic(sourceFile, stmt, specifier, "srcReExport");

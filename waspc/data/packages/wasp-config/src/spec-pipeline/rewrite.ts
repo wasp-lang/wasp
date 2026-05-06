@@ -8,12 +8,10 @@ import type {
 import { planImportLowering } from "./importLoweringPlan.js";
 
 const ACCEPTED_IMPORT_SHAPES =
-  "Use default, named, aliased named, or namespace imports from ./src/*.";
-const SUPPORTED_IMPORTS =
-  "Use package imports for dependencies and ./src/* imports for external Wasp code references.";
+  "Use default, named, aliased named, or namespace imports from @src/*.";
 
 /**
- * Rewrites top-level imports of the form `./src/*` into inline ExtImport
+ * Rewrites top-level imports of the form `@src/*` into inline ExtImport
  * descriptor consts so the file no longer depends on user source modules at
  * runtime. The rewriter is purely textual: it parses a single SourceFile,
  * collects edit ranges for matching ImportDeclarations, and splices them.
@@ -70,15 +68,11 @@ function renderAlias(descriptor: ExtImportDescriptor): string {
 }
 
 function formatImportDiagnostic(diagnostic: ImportDiagnostic): string {
-  return `Unsupported ./src import in main.wasp.ts at ${diagnostic.location.line}:${diagnostic.location.column}: ${formatImportDiagnosticReason(diagnostic.reason)} Found ${JSON.stringify(diagnostic.specifier)}. ${ACCEPTED_IMPORT_SHAPES}`;
+  return `Unsupported @src import in main.wasp.ts at ${diagnostic.location.line}:${diagnostic.location.column}: ${formatImportDiagnosticReason(diagnostic.reason)} Found ${JSON.stringify(diagnostic.specifier)}. ${ACCEPTED_IMPORT_SHAPES}`;
 }
 
 function formatImportDiagnosticReason(reason: ImportDiagnosticReason): string {
   switch (reason) {
-    case "relativeImportOutsideSrc":
-      return `Relative imports outside ./src/* are not supported. ${SUPPORTED_IMPORTS}`;
-    case "relativeReExportOutsideSrc":
-      return `Relative re-exports are not supported. ${SUPPORTED_IMPORTS}`;
     case "sideEffectImport":
       return "Side-effect imports are not supported.";
     case "typeOnlyImport":

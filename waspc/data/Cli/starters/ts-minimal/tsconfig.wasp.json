@@ -12,7 +12,11 @@
     "esModuleInterop": true,
     "jsx": "preserve",
     "noEmit": true,
+    "baseUrl": ".",
     "lib": ["ES2023", "DOM", "DOM.Iterable"],
+    "paths": {
+      "@src/*": ["src/*"]
+    },
     "types": ["vite/client", "react"]
   },
   "include": ["main.wasp.ts"]

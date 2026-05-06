@@ -63,4 +63,13 @@ describe("mapAuthoredExtImport", () => {
     if (result.status !== "error") return;
     expect(formatExtImportDescriptorError(result.reason)).toMatch(message);
   });
+
+  test("formats unrewritten import-form value diagnostics with @src guidance", () => {
+    expect(formatExtImportDescriptorError("functionValue")).toContain(
+      "top-level @src/* import",
+    );
+    expect(formatExtImportDescriptorError("objectValue")).toContain(
+      "top-level @src/* import",
+    );
+  });
 });

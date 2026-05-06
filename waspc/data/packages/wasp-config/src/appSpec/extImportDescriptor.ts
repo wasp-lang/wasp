@@ -83,7 +83,7 @@ export function formatExtImportDescriptorError(
     case "functionValue":
       return (
         "Invalid ExtImport value: got a function at runtime. " +
-        "Import-form values must come from a supported top-level ./src/* import so Wasp can rewrite them before execution. " +
+        "Import-form values must come from a supported top-level @src/* import so Wasp can rewrite them before execution. " +
         'Alternatively, use descriptor form: { import: "name", from: "@src/file" }.'
       );
     case "descriptorLikeObject":
@@ -94,7 +94,7 @@ export function formatExtImportDescriptorError(
     case "objectValue":
       return (
         "Invalid ExtImport value: got an object at runtime. " +
-        "Import-form values must come from a supported top-level ./src/* import so Wasp can rewrite them before execution. " +
+        "Import-form values must come from a supported top-level @src/* import so Wasp can rewrite them before execution. " +
         'Alternatively, use descriptor form: { import: "name", from: "@src/file" }.'
       );
   }
