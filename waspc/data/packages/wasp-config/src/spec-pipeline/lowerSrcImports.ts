@@ -63,11 +63,17 @@ function renderNamespaceProxy(
 }
 
 function renderDescriptor(descriptor: ExtImportDescriptor): string {
+  const from = JSON.stringify(descriptor.from);
+
   if (isNamedExtImportDescriptor(descriptor)) {
-    return `{ import: ${JSON.stringify(descriptor.import)}, from: ${JSON.stringify(descriptor.from)}${renderAlias(descriptor)} }`;
+    const importName = JSON.stringify(descriptor.import);
+
+    return `{ import: ${importName}, from: ${from}${renderAlias(descriptor)} }`;
   }
 
-  return `{ importDefault: ${JSON.stringify(descriptor.importDefault)}, from: ${JSON.stringify(descriptor.from)}${renderAlias(descriptor)} }`;
+  const importDefault = JSON.stringify(descriptor.importDefault);
+
+  return `{ importDefault: ${importDefault}, from: ${from}${renderAlias(descriptor)} }`;
 }
 
 function renderAlias(descriptor: ExtImportDescriptor): string {
