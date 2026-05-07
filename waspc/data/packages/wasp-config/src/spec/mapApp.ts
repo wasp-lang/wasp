@@ -4,7 +4,11 @@
  */
 
 import * as AppSpec from "../appSpec.js";
-import { mapExtImport } from "./extImport.js";
+import {
+  formatExtImportInputError,
+  mapExtImport,
+  mapExtImportInput,
+} from "./extImport.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapApp(
@@ -214,11 +218,15 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   }));
 }
 
-export function deriveExtImportName(extImport: TsAppSpec.ExtImport): string {
-  if ("import" in extImport) {
-    return extImport.alias ?? extImport.import;
+export function deriveExtImportName(
+  extImport: TsAppSpec.CallableExtImportInput,
+): string {
+  const result = mapExtImportInput(extImport);
+  if (result.status === "error") {
+    throw new Error(formatExtImportInputError(result.reason));
   }
-  return extImport.importDefault;
+
+  return result.value.alias ?? result.value.name;
 }
 
 /**
