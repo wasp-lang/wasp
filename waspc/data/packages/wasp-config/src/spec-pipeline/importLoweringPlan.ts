@@ -9,6 +9,7 @@ export type ImportLoweringResult =
   | { status: "error"; diagnostics: ImportDiagnostic[] };
 
 export type ImportLoweringPlan = {
+  // Replacements are collected in source order so rendering can splice once.
   replacements: ImportReplacement[];
 };
 
@@ -49,6 +50,10 @@ export type SourceLocation = {
   column: number;
 };
 
+type StatementLowering =
+  | { kind: "replacement"; replacement: ImportReplacement }
+  | { kind: "diagnostic"; diagnostic: ImportDiagnostic };
+
 // Import lowering turns authored @src imports into ExtImport descriptors so
 // spec evaluation can reference user code without loading it at runtime.
 export function planImportLowering(sourceText: string): ImportLoweringResult {
@@ -64,37 +69,14 @@ export function planImportLowering(sourceText: string): ImportLoweringResult {
   const diagnostics: ImportDiagnostic[] = [];
 
   for (const stmt of sourceFile.statements) {
-    if (ts.isExportDeclaration(stmt)) {
-      const diagnostic = getExportDiagnostic(sourceFile, stmt);
-      if (diagnostic) diagnostics.push(diagnostic);
-      continue;
+    const lowering = planStatementLowering(sourceFile, stmt);
+    if (!lowering) continue;
+
+    if (lowering.kind === "diagnostic") {
+      diagnostics.push(lowering.diagnostic);
+    } else {
+      replacements.push(lowering.replacement);
     }
-
-    if (!ts.isImportDeclaration(stmt)) continue;
-    const specifier = getStringModuleSpecifier(stmt.moduleSpecifier);
-    if (!specifier) continue;
-
-    if (!isSrcImportSpecifier(specifier)) {
-      continue;
-    }
-
-    const diagnostic = getSrcImportDiagnostic(sourceFile, stmt, specifier);
-    if (diagnostic) {
-      diagnostics.push(diagnostic);
-      continue;
-    }
-
-    const clause = stmt.importClause;
-    if (!clause) continue;
-
-    replacements.push({
-      start: stmt.getStart(sourceFile),
-      end: stmt.getEnd(),
-      declarations: getDescriptorDeclarations(
-        clause,
-        toDescriptorPath(specifier),
-      ),
-    });
   }
 
   if (diagnostics.length > 0) {
@@ -102,6 +84,52 @@ export function planImportLowering(sourceText: string): ImportLoweringResult {
   }
 
   return { status: "ok", plan: { replacements } };
+}
+
+function planStatementLowering(
+  sourceFile: ts.SourceFile,
+  stmt: ts.Statement,
+): StatementLowering | undefined {
+  if (ts.isExportDeclaration(stmt)) {
+    const diagnostic = getSrcReExportDiagnostic(sourceFile, stmt);
+    return diagnostic && { kind: "diagnostic", diagnostic };
+  }
+
+  if (!ts.isImportDeclaration(stmt)) {
+    return undefined;
+  }
+
+  return planImportDeclarationLowering(sourceFile, stmt);
+}
+
+function planImportDeclarationLowering(
+  sourceFile: ts.SourceFile,
+  stmt: ts.ImportDeclaration,
+): StatementLowering | undefined {
+  const specifier = getStringModuleSpecifier(stmt.moduleSpecifier);
+  if (!specifier || !isSrcImportSpecifier(specifier)) {
+    return undefined;
+  }
+
+  const diagnostic = getSrcImportDiagnostic(sourceFile, stmt, specifier);
+  if (diagnostic) {
+    return { kind: "diagnostic", diagnostic };
+  }
+
+  const clause = stmt.importClause;
+  if (!clause) return undefined;
+
+  return {
+    kind: "replacement",
+    replacement: {
+      start: stmt.getStart(sourceFile),
+      end: stmt.getEnd(),
+      declarations: getDescriptorDeclarations(
+        clause,
+        toDescriptorPath(specifier),
+      ),
+    },
+  };
 }
 
 function getStringModuleSpecifier(
@@ -147,7 +175,7 @@ function getSrcImportDiagnostic(
   return undefined;
 }
 
-function getExportDiagnostic(
+function getSrcReExportDiagnostic(
   sourceFile: ts.SourceFile,
   stmt: ts.ExportDeclaration,
 ): ImportDiagnostic | undefined {
@@ -201,12 +229,12 @@ function getDescriptorDeclarations(
       kind: "namespace",
       localName: name,
       descriptorPath,
-      aliasPrefix: `${name}_`,
+      aliasPrefix: getNamespaceAliasPrefix(name),
     });
   } else if (bindings) {
     for (const spec of bindings.elements) {
       const localName = spec.name.text;
-      const importedName = spec.propertyName?.text ?? localName;
+      const importedName = getImportedName(spec);
       declarations.push({
         kind: "descriptor",
         localName,
@@ -220,6 +248,19 @@ function getDescriptorDeclarations(
   }
 
   return declarations;
+}
+
+function getNamespaceAliasPrefix(namespaceName: string): string {
+  // Namespace imports synthesize descriptors on property access. Prefix aliases
+  // with the namespace name so `ops.archive` and `legacyOps.archive` do not
+  // collide after lowering.
+  return `${namespaceName}_`;
+}
+
+function getImportedName(spec: ts.ImportSpecifier): string {
+  // In `import { exported as local }`, TS stores `exported` in `propertyName`
+  // and `local` in `name`. For `import { local }`, `propertyName` is undefined.
+  return spec.propertyName?.text ?? spec.name.text;
 }
 
 function toDescriptorPath(specifier: string): ExtImportDescriptor["from"] {

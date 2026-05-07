@@ -17,20 +17,19 @@ const ACCEPTED_IMPORT_SHAPES =
  * loading them at runtime.
  */
 export function lowerSrcImports(sourceText: string): string {
-  const result = planImportLowering(sourceText);
-  if (result.status === "error") {
-    throw new Error(formatImportDiagnostic(result.diagnostics[0]!));
+  const lowering = planImportLowering(sourceText);
+  if (lowering.status === "error") {
+    throw new Error(formatImportDiagnostic(lowering.diagnostics[0]!));
   }
 
-  return renderPlan(sourceText, result.plan);
+  return renderPlan(sourceText, lowering.plan);
 }
 
 function renderPlan(text: string, plan: ImportLoweringPlan): string {
-  const replacements = [...plan.replacements].sort((a, b) => a.start - b.start);
   let out = "";
   let cursor = 0;
 
-  for (const replacement of replacements) {
+  for (const replacement of plan.replacements) {
     out +=
       text.slice(cursor, replacement.start) +
       renderDeclarations(replacement.declarations);
@@ -64,22 +63,21 @@ function renderNamespaceProxy(
 
 function renderDescriptor(descriptor: ExtImportDescriptor): string {
   const from = JSON.stringify(descriptor.from);
+  const alias =
+    "alias" in descriptor && descriptor.alias !== undefined
+      ? JSON.stringify(descriptor.alias)
+      : undefined;
+  const aliasField = alias ? `, alias: ${alias}` : "";
 
   if (isNamedExtImportDescriptor(descriptor)) {
     const importName = JSON.stringify(descriptor.import);
 
-    return `{ import: ${importName}, from: ${from}${renderAlias(descriptor)} }`;
+    return `{ import: ${importName}, from: ${from}${aliasField} }`;
   }
 
   const importDefault = JSON.stringify(descriptor.importDefault);
 
-  return `{ importDefault: ${importDefault}, from: ${from}${renderAlias(descriptor)} }`;
-}
-
-function renderAlias(descriptor: ExtImportDescriptor): string {
-  return "alias" in descriptor && descriptor.alias !== undefined
-    ? `, alias: ${JSON.stringify(descriptor.alias)}`
-    : "";
+  return `{ importDefault: ${importDefault}, from: ${from}${aliasField} }`;
 }
 
 function formatImportDiagnostic(diagnostic: ImportDiagnostic): string {
