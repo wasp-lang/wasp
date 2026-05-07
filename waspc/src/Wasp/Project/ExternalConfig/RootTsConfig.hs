@@ -9,6 +9,7 @@ where
 import Data.Bool (bool)
 import Data.Maybe (fromJust)
 import StrongPath (Abs, Dir, File, Path', Rel, fromRelFile)
+import qualified System.FilePath as FP
 import Validation (Validation (..))
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.Common (CompileError, RootTsConfigFile, TsConfigPaths (..), WaspProjectDir, tsConfigPathsInWaspTsProjects)
@@ -45,8 +46,7 @@ validateRootTsConfig tsConfigFileName tsConfigContents =
     makeReferenceIncludedValidator :: String -> V.Validator [T.TsConfigReference]
     makeReferenceIncludedValidator expectedPath =
       bool missingReferenceError V.success
-        . elem expectedPath
-        . fmap T.path
+        . any (FP.equalFilePath expectedPath . T.path)
       where
         missingReferenceError =
           V.failure $
