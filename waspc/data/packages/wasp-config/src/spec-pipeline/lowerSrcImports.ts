@@ -1,5 +1,5 @@
-import type { ExtImportDescriptor } from "../appSpec/extImportDescriptor.js";
-import { isNamedExtImportDescriptor } from "../appSpec/extImportDescriptor.js";
+import type { ExtImportLiteral } from "../spec/extImport.js";
+import { isNamedExtImportLiteral } from "../spec/extImport.js";
 import type {
   DescriptorDeclaration,
   ImportDiagnostic,
@@ -63,7 +63,7 @@ function renderNamespaceProxy(
   return `const ${declaration.localName} = new Proxy({}, { get: (_t, k) => { const member = String(k); if (!${NAMESPACE_MEMBER_REGEX}.test(member)) { throw new Error("Unsupported namespace import member " + JSON.stringify(member) + " from " + ${from} + ". Use dot access with a JavaScript identifier."); } return { import: member, from: ${from}, alias: ${aliasPrefix} + member } as const; } }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
 }
 
-function renderDescriptor(descriptor: ExtImportDescriptor): string {
+function renderDescriptor(descriptor: ExtImportLiteral): string {
   const from = JSON.stringify(descriptor.from);
   const alias =
     "alias" in descriptor && descriptor.alias !== undefined
@@ -71,7 +71,7 @@ function renderDescriptor(descriptor: ExtImportDescriptor): string {
       : undefined;
   const aliasField = alias ? `, alias: ${alias}` : "";
 
-  if (isNamedExtImportDescriptor(descriptor)) {
+  if (isNamedExtImportLiteral(descriptor)) {
     const importName = JSON.stringify(descriptor.import);
 
     return `{ import: ${importName}, from: ${from}${aliasField} }`;
@@ -96,6 +96,8 @@ function formatImportDiagnosticReason(reason: ImportDiagnosticReason): string {
       return "Type-only imports are not supported.";
     case "mixedTypeAndValueImport":
       return "Mixed type/value imports are not supported.";
+    case "stringLiteralImport":
+      return "String-literal named imports are not supported.";
     case "emptyNamedImport":
       return "Empty named imports are not supported.";
     case "srcReExport":

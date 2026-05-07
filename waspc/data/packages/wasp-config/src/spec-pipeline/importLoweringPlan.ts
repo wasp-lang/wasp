@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import type { ExtImportDescriptor } from "../appSpec/extImportDescriptor.js";
+import type { ExtImportLiteral } from "../spec/extImport.js";
 
 const SRC_IMPORT_PREFIX = "@src/";
 const SRC_DESCRIPTOR_PREFIX = "@src/";
@@ -23,12 +23,12 @@ export type DescriptorDeclaration =
   | {
       kind: "descriptor";
       localName: string;
-      descriptor: ExtImportDescriptor;
+      descriptor: ExtImportLiteral;
     }
   | {
       kind: "namespace";
       localName: string;
-      descriptorPath: ExtImportDescriptor["from"];
+      descriptorPath: ExtImportLiteral["from"];
       aliasPrefix: string;
     };
 
@@ -43,6 +43,7 @@ export type ImportDiagnosticReason =
   | "importEqualsImport"
   | "typeOnlyImport"
   | "mixedTypeAndValueImport"
+  | "stringLiteralImport"
   | "emptyNamedImport"
   | "srcReExport";
 
@@ -176,9 +177,19 @@ function getSrcImportDiagnostic(
         "mixedTypeAndValueImport",
       );
     }
+
+    if (bindings.elements.some(hasStringLiteralImportedName)) {
+      return makeDiagnostic(sourceFile, stmt, specifier, "stringLiteralImport");
+    }
   }
 
   return undefined;
+}
+
+function hasStringLiteralImportedName(spec: ts.ImportSpecifier): boolean {
+  return (
+    spec.propertyName !== undefined && ts.isStringLiteral(spec.propertyName)
+  );
 }
 
 function getImportEqualsDiagnostic(
@@ -238,7 +249,7 @@ function makeDiagnostic(
 
 function getDescriptorDeclarations(
   clause: ts.ImportClause,
-  descriptorPath: ExtImportDescriptor["from"],
+  descriptorPath: ExtImportLiteral["from"],
 ): DescriptorDeclaration[] {
   const declarations: DescriptorDeclaration[] = [];
 
@@ -292,7 +303,7 @@ function getImportedName(spec: ts.ImportSpecifier): string {
   return spec.propertyName?.text ?? spec.name.text;
 }
 
-function toDescriptorPath(specifier: string): ExtImportDescriptor["from"] {
+function toDescriptorPath(specifier: string): ExtImportLiteral["from"] {
   return (SRC_DESCRIPTOR_PREFIX +
-    specifier.slice(SRC_IMPORT_PREFIX.length)) as ExtImportDescriptor["from"];
+    specifier.slice(SRC_IMPORT_PREFIX.length)) as ExtImportLiteral["from"];
 }
