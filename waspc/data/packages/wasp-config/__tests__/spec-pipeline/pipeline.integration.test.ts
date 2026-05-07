@@ -102,22 +102,26 @@ describe("end-to-end import-form pipeline", () => {
     ).toThrowError(/is not assignable to type 'string'/);
   });
 
-  test("type-checks @src imports against real source files", () => {
+  test("does not type-check imported @src source files before generation", () => {
     const tempDir = makeTempProject("wasp-spec-src-import-");
     mkdirSync(join(tempDir, "src"));
 
     writeFileSync(
-      join(tempDir, "src", "title.ts"),
-      `export const appTitle = "Demo";\n`,
+      join(tempDir, "src", "operations.ts"),
+      [
+        `import { HttpError } from "wasp/server";`,
+        `export async function getTasks() { throw new HttpError(500); }`,
+        ``,
+      ].join("\n"),
     );
 
     expect(() =>
       compileSpec({
         tempDir,
         sourceFileName: "main.wasp.ts",
-        sourceText: `import { typoedTitle } from "@src/title";\ntypoedTitle;\n`,
+        sourceText: `import { getTasks } from "@src/operations";\ngetTasks;\n`,
       }),
-    ).toThrowError(/has no exported member 'typoedTitle'/);
+    ).not.toThrow();
   });
 });
 
