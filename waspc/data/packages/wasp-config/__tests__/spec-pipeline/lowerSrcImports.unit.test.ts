@@ -191,6 +191,14 @@ describe("lowerSrcImports", () => {
     );
   });
 
+  test("rejects string-literal named imports from @src", () => {
+    const input = `import { "foo-bar" as fooBar } from "@src/operations";\n`;
+
+    expect(() => lowerSrcImports(input)).toThrowError(
+      /String-literal named imports/,
+    );
+  });
+
   test("rejects empty named imports from @src", () => {
     const input = `import {} from "@src/MainPage";\n`;
 
