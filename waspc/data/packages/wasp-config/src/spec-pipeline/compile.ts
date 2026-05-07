@@ -9,6 +9,10 @@ export type CompileWaspTsToJsInput = {
   outputPath: string;
 };
 
+// Keep the lowered Wasp TS source in memory instead of writing
+// `main.rewritten.ts` to disk. This avoids another generated intermediate file,
+// and we can always go back to writing it if the compiler-host machinery gets
+// too complex.
 type VirtualSource = {
   path: string;
   text: string;
