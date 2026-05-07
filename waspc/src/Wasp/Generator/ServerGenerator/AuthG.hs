@@ -103,7 +103,8 @@ genProvidersIndex auth = return $ C.mkTmplFdWithData [relfile|src/auth/providers
       jsImportToImportJson $
         Just $
           JI.JsImport
-            { JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
+            { JI._kind = JI.ValueImport,
+              JI._path = JI.RelativeImportPath $ [reldirP|./config|] </> (fromJust . SP.parseRelFileP $ providerId <> ".js"),
               JI._name = JI.JsImportModule providerId,
               JI._importAlias = Nothing
             }

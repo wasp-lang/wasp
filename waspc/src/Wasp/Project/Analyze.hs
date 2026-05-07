@@ -64,7 +64,7 @@ analyzeWaspProject waspDir compileOptions = do
           EC.parseAndValidateExternalConfigs waspDir tsConfigStructure >>= \case
             Left externalConfigErrors -> return (Left externalConfigErrors, [])
             Right externalConfigs ->
-              analyzeWaspFile waspDir prismaSchemaAst waspFilePath >>= \case
+              analyzeWaspFile compileOptions prismaSchemaAst waspFilePath >>= \case
                 Left errors -> return (Left errors, [])
                 Right declarations ->
                   constructAppSpec
