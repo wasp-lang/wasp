@@ -1,4 +1,5 @@
 import type { ExtImportDescriptor } from "../appSpec/extImportDescriptor.js";
+import { isNamedExtImportDescriptor } from "../appSpec/extImportDescriptor.js";
 import type {
   DescriptorDeclaration,
   ImportDiagnostic,
@@ -49,12 +50,21 @@ function renderDeclaration(declaration: DescriptorDeclaration): string {
     case "descriptor":
       return `const ${declaration.localName} = ${renderDescriptor(declaration.descriptor)} as const;`;
     case "namespace":
-      return `const ${declaration.localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${JSON.stringify(declaration.descriptorPath)}, alias: ${JSON.stringify(declaration.aliasPrefix)} + String(k) } as const) }) as Record<string, { import: string; from: ${JSON.stringify(declaration.descriptorPath)}; alias: string }>;`;
+      return renderNamespaceProxy(declaration);
   }
 }
 
+function renderNamespaceProxy(
+  declaration: Extract<DescriptorDeclaration, { kind: "namespace" }>,
+): string {
+  const from = JSON.stringify(declaration.descriptorPath);
+  const aliasPrefix = JSON.stringify(declaration.aliasPrefix);
+
+  return `const ${declaration.localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
+}
+
 function renderDescriptor(descriptor: ExtImportDescriptor): string {
-  if ("import" in descriptor) {
+  if (isNamedExtImportDescriptor(descriptor)) {
     return `{ import: ${JSON.stringify(descriptor.import)}, from: ${JSON.stringify(descriptor.from)}${renderAlias(descriptor)} }`;
   }
 

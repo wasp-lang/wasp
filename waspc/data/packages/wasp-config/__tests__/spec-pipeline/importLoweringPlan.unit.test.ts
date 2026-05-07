@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import type { ImportLoweringResult } from "../../src/spec-pipeline/importLoweringPlan.js";
 import { planImportLowering } from "../../src/spec-pipeline/importLoweringPlan.js";
 
 describe("planImportLowering", () => {
@@ -12,8 +13,7 @@ describe("planImportLowering", () => {
       ].join("\n"),
     );
 
-    expect(result.status).toBe("ok");
-    if (result.status !== "ok") return;
+    expectOkResult(result);
 
     expect(
       result.plan.replacements.flatMap(
@@ -96,8 +96,7 @@ describe("planImportLowering", () => {
   ])("returns a diagnostic for $reason", ({ source, reason, specifier }) => {
     const result = planImportLowering(source);
 
-    expect(result.status).toBe("error");
-    if (result.status !== "error") return;
+    expectErrorResult(result);
 
     expect(result.diagnostics).toEqual([
       {
@@ -108,3 +107,15 @@ describe("planImportLowering", () => {
     ]);
   });
 });
+
+function expectOkResult(
+  result: ImportLoweringResult,
+): asserts result is Extract<ImportLoweringResult, { status: "ok" }> {
+  expect(result.status).toBe("ok");
+}
+
+function expectErrorResult(
+  result: ImportLoweringResult,
+): asserts result is Extract<ImportLoweringResult, { status: "error" }> {
+  expect(result.status).toBe("error");
+}
