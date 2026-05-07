@@ -103,9 +103,7 @@ function emitVirtualSourceToJs(
   return js;
 }
 
-function getEmitOptions(
-  options: ts.CompilerOptions,
-): ts.CompilerOptions {
+function getEmitOptions(options: ts.CompilerOptions): ts.CompilerOptions {
   return {
     ...options,
     declaration: false,
@@ -207,7 +205,9 @@ function getVirtualSourcePath(inputPath: string, outputPath: string): string {
   );
 }
 
-function makePathPredicate(expectedPath: string): (fileName: string) => boolean {
+function makePathPredicate(
+  expectedPath: string,
+): (fileName: string) => boolean {
   const expectedCanonicalPath = canonicalizePath(expectedPath);
 
   return (fileName) => canonicalizePath(fileName) === expectedCanonicalPath;
