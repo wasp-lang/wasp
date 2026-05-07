@@ -174,7 +174,9 @@ describe("lowerSrcImports", () => {
   test("rejects mixed type and value imports from @src", () => {
     const input = `import { type MainPageProps, MainPage } from "@src/MainPage";\n`;
 
-    expect(() => lowerSrcImports(input)).toThrowError(/Mixed type\/value imports/);
+    expect(() => lowerSrcImports(input)).toThrowError(
+      /Mixed type\/value imports/,
+    );
   });
 
   test("rejects empty named imports from @src", () => {
