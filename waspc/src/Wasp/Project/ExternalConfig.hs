@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 module Wasp.Project.ExternalConfig
   ( parseAndValidateExternalConfigs,
     ExternalConfigs (..),
