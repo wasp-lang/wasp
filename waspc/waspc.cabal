@@ -608,6 +608,7 @@ library cli-lib
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Dockerfile
     Wasp.Cli.Command.Info
+    Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
     Wasp.Cli.Command.News
     Wasp.Cli.Command.News.Core
@@ -624,7 +625,6 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.Project
     Wasp.Cli.Command.Telemetry.User
     Wasp.Cli.Command.Test
-    Wasp.Cli.Command.TsConfigSetup
     Wasp.Cli.Command.Uninstall
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Command.Watch

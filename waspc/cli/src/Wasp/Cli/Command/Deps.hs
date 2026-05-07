@@ -8,7 +8,7 @@ import Control.Monad.IO.Class (liftIO)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
@@ -19,6 +19,7 @@ import qualified Wasp.Util.Terminal as Term
 deps :: Command ()
 deps = do
   InWaspProject waspProjectDir <- require
+  WaspConfigAvailable <- require
   (appSpecOrAnalyzerErrors, _analyzerWarnings) <-
     liftIO $ analyzeWaspProject waspProjectDir (defaultCompileOptions waspProjectDir)
   appSpec <-
