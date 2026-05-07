@@ -3,13 +3,14 @@ module Project.ExternalConfig.WaspTsConfigTest (spec_WaspTsConfig) where
 import Data.List (isInfixOf)
 import Test.Hspec
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Project.ExternalConfig.WaspTsConfig (validateWaspTsConfig)
+import Wasp.Project.ExternalConfig.TsConfig (validateTsConfig)
+import Wasp.Project.ExternalConfig.WaspTsConfig (waspTsConfigValidator)
 
 spec_WaspTsConfig :: Spec
 spec_WaspTsConfig = do
-  describe "validateWaspTsConfig" $ do
-    it "returns no errors for a valid tsconfig" $ do
-      validateWaspTsConfig "tsconfig.wasp.json" validTsConfig `shouldBe` []
+  describe "waspTsConfigValidator" $ do
+    it "returns no errors for a valid tsconfig" $
+      validate validTsConfig `shouldBe` []
 
     it "returns an error when a compilerOption has a wrong value" $
       assertReturnsValidationErrorMentioningField "strict" $
@@ -27,13 +28,12 @@ spec_WaspTsConfig = do
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["src"]}
 
-    it "mentions the given file name in error messages" $ do
-      let config = validTsConfig {T.include = Just ["src"]}
-      validateWaspTsConfig "custom-name.json" config `shouldSatisfy` any ("custom-name.json" `isInfixOf`)
+validate :: T.TsConfig -> [String]
+validate = validateTsConfig waspTsConfigValidator "tsconfig.wasp.json"
 
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
-  validateWaspTsConfig "tsconfig.wasp.json" config `shouldSatisfy` any (fieldName `isInfixOf`)
+  validate config `shouldSatisfy` any (fieldName `isInfixOf`)
 
 validTsConfig :: T.TsConfig
 validTsConfig =

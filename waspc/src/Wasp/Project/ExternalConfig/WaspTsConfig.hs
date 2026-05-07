@@ -2,7 +2,7 @@ module Wasp.Project.ExternalConfig.WaspTsConfig
   ( parseAndValidateWaspTsConfig,
 
     -- * Exported for testing only
-    validateWaspTsConfig,
+    waspTsConfigValidator,
   )
 where
 
@@ -17,20 +17,15 @@ parseAndValidateWaspTsConfig ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
   IO (Validation [CompileError] T.TsConfig)
-parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile validateWaspTsConfig
+parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile waspTsConfigValidator
 
-validateWaspTsConfig :: String -> T.TsConfig -> [CompileError]
-validateWaspTsConfig tsConfigFileName tsConfigContents =
-  show <$> V.execValidator tsConfigValidator tsConfigContents
+waspTsConfigValidator :: V.Validator T.TsConfig
+waspTsConfigValidator =
+  V.all
+    [ V.inField ("include", T.include) $ V.eqJust ["main.wasp.ts"],
+      V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
+    ]
   where
-    tsConfigValidator :: V.Validator T.TsConfig
-    tsConfigValidator =
-      V.withFileName tsConfigFileName $
-        V.all
-          [ V.inField ("include", T.include) $ V.eqJust ["main.wasp.ts"],
-            V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
-          ]
-
     compilerOptionsValidator :: V.Validator T.CompilerOptions
     compilerOptionsValidator =
       V.all

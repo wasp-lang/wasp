@@ -730,6 +730,7 @@ test-suite waspc-tests
     Project.DbTest
     Project.ExternalConfig.RootTsConfigTest
     Project.ExternalConfig.SrcTsConfigTest
+    Project.ExternalConfig.TsConfigTest
     Project.ExternalConfig.WaspTsConfigTest
     Project.WaspignoreTest
     Psl.Common.ModelTest

@@ -3,13 +3,14 @@ module Project.ExternalConfig.RootTsConfigTest (spec_RootTsConfig) where
 import Data.List (isInfixOf)
 import Test.Hspec
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Project.ExternalConfig.RootTsConfig (validateRootTsConfig)
+import Wasp.Project.ExternalConfig.RootTsConfig (rootTsConfigValidator)
+import Wasp.Project.ExternalConfig.TsConfig (validateTsConfig)
 
 spec_RootTsConfig :: Spec
 spec_RootTsConfig = do
-  describe "validateRootTsConfig" $ do
-    it "returns no errors for a valid tsconfig" $ do
-      validateRootTsConfig "tsconfig.json" validTsConfig `shouldBe` []
+  describe "rootTsConfigValidator" $ do
+    it "returns no errors for a valid tsconfig" $
+      validate validTsConfig `shouldBe` []
 
     it "doesn't care about the './' prefix for references" $ do
       let config =
@@ -20,7 +21,7 @@ spec_RootTsConfig = do
                       T.TsConfigReference {T.path = "./tsconfig.wasp.json"}
                     ]
               }
-      validateRootTsConfig "tsconfig.json" config `shouldBe` []
+      validate config `shouldBe` []
 
     it "returns an error when files is missing" $
       assertReturnsValidationErrorMentioningField "files" $
@@ -40,13 +41,12 @@ spec_RootTsConfig = do
           { T.references = Just [T.TsConfigReference {T.path = "tsconfig.src.json"}]
           }
 
-    it "mentions the given file name in error messages" $ do
-      let config = validTsConfig {T.files = Nothing}
-      validateRootTsConfig "custom-name.json" config `shouldSatisfy` any ("custom-name.json" `isInfixOf`)
+validate :: T.TsConfig -> [String]
+validate = validateTsConfig rootTsConfigValidator "tsconfig.json"
 
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
-  validateRootTsConfig "tsconfig.json" config `shouldSatisfy` any (fieldName `isInfixOf`)
+  validate config `shouldSatisfy` any (fieldName `isInfixOf`)
 
 validTsConfig :: T.TsConfig
 validTsConfig =

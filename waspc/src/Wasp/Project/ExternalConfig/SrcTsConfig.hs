@@ -2,7 +2,7 @@ module Wasp.Project.ExternalConfig.SrcTsConfig
   ( parseAndValidateSrcTsConfig,
 
     -- * Exported for testing only
-    validateSrcTsConfig,
+    srcTsConfigValidator,
   )
 where
 
@@ -17,26 +17,20 @@ parseAndValidateSrcTsConfig ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File SrcTsConfigFile) ->
   IO (Validation [CompileError] T.TsConfig)
-parseAndValidateSrcTsConfig = parseAndValidateTsConfigFile validateSrcTsConfig
+parseAndValidateSrcTsConfig = parseAndValidateTsConfigFile srcTsConfigValidator
 
-validateSrcTsConfig :: String -> T.TsConfig -> [CompileError]
-validateSrcTsConfig tsConfigFileName tsConfigContents =
-  show <$> V.execValidator tsConfigValidator tsConfigContents
+-- References for understanding the required compiler options:
+--   - The comments in templates/sdk/wasp/tsconfig.json
+--   - https://www.typescriptlang.org/docs/handbook/modules/introduction.html
+--   - https://www.totaltypescript.com/tsconfig-cheat-sheet
+--   - https://www.typescriptlang.org/tsconfig/
+srcTsConfigValidator :: V.Validator T.TsConfig
+srcTsConfigValidator =
+  V.all
+    [ V.inField ("include", T.include) $ V.eqJust ["src"],
+      V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
+    ]
   where
-    -- References for understanding the required compiler options:
-    --   - The comments in templates/sdk/wasp/tsconfig.json
-    --   - https://www.typescriptlang.org/docs/handbook/modules/introduction.html
-    --   - https://www.totaltypescript.com/tsconfig-cheat-sheet
-    --   - https://www.typescriptlang.org/tsconfig/
-
-    tsConfigValidator :: V.Validator T.TsConfig
-    tsConfigValidator =
-      V.withFileName tsConfigFileName $
-        V.all
-          [ V.inField ("include", T.include) $ V.eqJust ["src"],
-            V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
-          ]
-
     compilerOptionsValidator :: V.Validator T.CompilerOptions
     compilerOptionsValidator =
       V.all

@@ -2,7 +2,7 @@ module Wasp.Project.ExternalConfig.RootTsConfig
   ( parseAndValidateRootTsConfig,
 
     -- * Exported for testing only
-    validateRootTsConfig,
+    rootTsConfigValidator,
   )
 where
 
@@ -20,23 +20,18 @@ parseAndValidateRootTsConfig ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File RootTsConfigFile) ->
   IO (Validation [CompileError] T.TsConfig)
-parseAndValidateRootTsConfig = parseAndValidateTsConfigFile validateRootTsConfig
+parseAndValidateRootTsConfig = parseAndValidateTsConfigFile rootTsConfigValidator
 
-validateRootTsConfig :: String -> T.TsConfig -> [CompileError]
-validateRootTsConfig tsConfigFileName tsConfigContents =
-  show <$> V.execValidator tsConfigValidator tsConfigContents
+rootTsConfigValidator :: V.Validator T.TsConfig
+rootTsConfigValidator =
+  V.all
+    [ V.inField ("files", T.files) $ V.eqJust [],
+      V.inField ("references", T.references) $
+        V.required $
+          V.all $
+            makeReferenceIncludedValidator <$> requiredReferences
+    ]
   where
-    tsConfigValidator :: V.Validator T.TsConfig
-    tsConfigValidator =
-      V.withFileName tsConfigFileName $
-        V.all
-          [ V.inField ("files", T.files) $ V.eqJust [],
-            V.inField ("references", T.references) $
-              V.required $
-                V.all $
-                  makeReferenceIncludedValidator <$> requiredReferences
-          ]
-
     requiredReferences :: [String]
     requiredReferences =
       [ fromRelFile tsConfigPathsInWaspTsProjects.srcTsConfig,
