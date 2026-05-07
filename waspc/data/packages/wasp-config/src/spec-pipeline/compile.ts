@@ -1,7 +1,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "fs";
 import { basename, dirname, join, resolve } from "path";
 import * as ts from "typescript";
-import { rewrite } from "./rewrite.js";
+import { lowerSrcImports } from "./lowerSrcImports.js";
 
 export type CompileWaspTsToJsInput = {
   inputPath: string;
@@ -54,7 +54,7 @@ function makeRewrittenVirtualSource(
 
   return {
     path: getVirtualSourcePath(inputPath, outputPath),
-    text: rewrite(authoredSource),
+    text: lowerSrcImports(authoredSource),
   };
 }
 
