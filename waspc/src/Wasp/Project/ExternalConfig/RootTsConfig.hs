@@ -7,10 +7,11 @@ module Wasp.Project.ExternalConfig.RootTsConfig
 where
 
 import Data.Bool (bool)
-import StrongPath (Abs, Dir, File, Path', Rel)
+import Data.Maybe (fromJust)
+import StrongPath (Abs, Dir, File, Path', Rel, fromRelFile)
 import Validation (Validation (..))
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Project.Common (CompileError, RootTsConfigFile, WaspProjectDir)
+import Wasp.Project.Common (CompileError, RootTsConfigFile, TsConfigPaths (..), WaspProjectDir, tsConfigPathsInWaspTsProjects)
 import Wasp.Project.ExternalConfig.TsConfig (parseAndValidateTsConfigFile)
 import qualified Wasp.Validator as V
 
@@ -20,23 +21,26 @@ parseAndValidateRootTsConfig ::
   IO (Validation [CompileError] T.TsConfig)
 parseAndValidateRootTsConfig = parseAndValidateTsConfigFile validateRootTsConfig
 
--- TODO: remove hardcoded and duplicated paths paths
-validateRootTsConfig :: T.TsConfig -> [CompileError]
-validateRootTsConfig config =
-  show <$> V.execValidator rootTsConfigValidator config
+validateRootTsConfig :: String -> T.TsConfig -> [CompileError]
+validateRootTsConfig tsConfigFileName tsConfigContents =
+  show <$> V.execValidator tsConfigValidator tsConfigContents
   where
-    rootTsConfigValidator :: V.Validator T.TsConfig
-    rootTsConfigValidator =
-      V.withFileName "tsconfig.json" $
+    tsConfigValidator :: V.Validator T.TsConfig
+    tsConfigValidator =
+      V.withFileName tsConfigFileName $
         V.all
           [ V.inField ("files", T.files) $ V.eqJust [],
             V.inField ("references", T.references) $
               V.required $
-                V.all $ makeReferenceIncludedValidator <$> requiredReferences
+                V.all $
+                  makeReferenceIncludedValidator <$> requiredReferences
           ]
 
     requiredReferences :: [String]
-    requiredReferences = ["./tsconfig.src.json", "./tsconfig.wasp.json"]
+    requiredReferences =
+      [ fromRelFile tsConfigPathsInWaspTsProjects.srcTsConfig,
+        fromRelFile $ fromJust tsConfigPathsInWaspTsProjects.waspTsConfig
+      ]
 
     makeReferenceIncludedValidator :: String -> V.Validator [T.TsConfigReference]
     makeReferenceIncludedValidator expectedPath =

@@ -19,20 +19,20 @@ parseAndValidateWaspTsConfig ::
   IO (Validation [CompileError] T.TsConfig)
 parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile validateWaspTsConfig
 
-validateWaspTsConfig :: T.TsConfig -> [CompileError]
-validateWaspTsConfig config =
-  show <$> V.execValidator waspTsConfigValidator config
+validateWaspTsConfig :: String -> T.TsConfig -> [CompileError]
+validateWaspTsConfig tsConfigFileName tsConfigContents =
+  show <$> V.execValidator tsConfigValidator tsConfigContents
   where
-    waspTsConfigValidator :: V.Validator T.TsConfig
-    waspTsConfigValidator =
-      V.withFileName "tsconfig.wasp.json" $
+    tsConfigValidator :: V.Validator T.TsConfig
+    tsConfigValidator =
+      V.withFileName tsConfigFileName $
         V.all
           [ V.inField ("include", T.include) $ V.eqJust ["main.wasp.ts"],
-            V.inField ("compilerOptions", T.compilerOptions) $ V.required waspCompilerOptionsValidator
+            V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
           ]
 
-    waspCompilerOptionsValidator :: V.Validator T.CompilerOptions
-    waspCompilerOptionsValidator =
+    compilerOptionsValidator :: V.Validator T.CompilerOptions
+    compilerOptionsValidator =
       V.all
         [ V.inField ("target", T.target) $ V.eqJust "ES2022",
           V.inField ("module", T._module) $ V.eqJust "NodeNext",

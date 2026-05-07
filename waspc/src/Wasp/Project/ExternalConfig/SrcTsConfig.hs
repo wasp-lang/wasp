@@ -19,9 +19,9 @@ parseAndValidateSrcTsConfig ::
   IO (Validation [CompileError] T.TsConfig)
 parseAndValidateSrcTsConfig = parseAndValidateTsConfigFile validateSrcTsConfig
 
-validateSrcTsConfig :: T.TsConfig -> [CompileError]
-validateSrcTsConfig config =
-  show <$> V.execValidator tsConfigValidator config
+validateSrcTsConfig :: String -> T.TsConfig -> [CompileError]
+validateSrcTsConfig tsConfigFileName tsConfigContents =
+  show <$> V.execValidator tsConfigValidator tsConfigContents
   where
     -- References for understanding the required compiler options:
     --   - The comments in templates/sdk/wasp/tsconfig.json
@@ -31,7 +31,7 @@ validateSrcTsConfig config =
 
     tsConfigValidator :: V.Validator T.TsConfig
     tsConfigValidator =
-      V.withFileName "tsconfig.json" $
+      V.withFileName tsConfigFileName $
         V.all
           [ V.inField ("include", T.include) $ V.eqJust ["src"],
             V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator

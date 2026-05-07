@@ -20,8 +20,9 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
-    getTsConfigStructureForWaspProject,
-    srcTsConfigInWaspLangProject,
+    getTsConfigPathsForWaspProject,
+    tsConfigPahtsInWaspLangProjects,
+    tsConfigPathsInWaspTsProjects,
     TsConfigPaths (..),
     WaspTsConfigFile,
     RootTsConfigFile,
@@ -113,23 +114,26 @@ dotWaspInfoFileInGeneratedAppDir = [relfile|.waspinfo|]
 userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
 userPackageJsonInWaspProjectDir = [relfile|package.json|]
 
-getTsConfigStructureForWaspProject :: WaspFilePath -> TsConfigPaths
-getTsConfigStructureForWaspProject = \case
-  WaspTs _ ->
-    TsConfigPaths
-      { srcTsConfig = [relfile|tsconfig.src.json|],
-        rootTsConfig = Just [relfile|tsconfig.json|],
-        waspTsConfig = Just [relfile|tsconfig.wasp.json|]
-      }
-  WaspLang _ ->
-    TsConfigPaths
-      { srcTsConfig = srcTsConfigInWaspLangProject,
-        rootTsConfig = Nothing,
-        waspTsConfig = Nothing
-      }
+getTsConfigPathsForWaspProject :: WaspFilePath -> TsConfigPaths
+getTsConfigPathsForWaspProject = \case
+  WaspTs _ -> tsConfigPathsInWaspTsProjects
+  WaspLang _ -> tsConfigPahtsInWaspLangProjects
 
-srcTsConfigInWaspLangProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
-srcTsConfigInWaspLangProject = [relfile|tsconfig.json|]
+tsConfigPathsInWaspTsProjects :: TsConfigPaths
+tsConfigPathsInWaspTsProjects =
+  TsConfigPaths
+    { srcTsConfig = [relfile|tsconfig.src.json|],
+      rootTsConfig = Just [relfile|tsconfig.json|],
+      waspTsConfig = Just [relfile|tsconfig.wasp.json|]
+    }
+
+tsConfigPahtsInWaspLangProjects :: TsConfigPaths
+tsConfigPahtsInWaspLangProjects =
+  TsConfigPaths
+    { srcTsConfig = [relfile|tsconfig.json|],
+      rootTsConfig = Nothing,
+      waspTsConfig = Nothing
+    }
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]
