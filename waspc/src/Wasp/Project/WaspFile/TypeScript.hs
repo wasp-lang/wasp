@@ -9,6 +9,7 @@ import Control.Arrow (left)
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT)
+import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
@@ -19,7 +20,6 @@ import StrongPath
     Rel,
     basename,
     castFile,
-    fromAbsDir,
     fromAbsFile,
     fromRelFile,
     relfile,
@@ -34,7 +34,7 @@ import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageScriptInProject)
+import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageIsAtInstallationPathInProject, getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -63,6 +63,7 @@ analyzeWaspTsFile ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = runExceptT $ do
+  liftIO $ ensurePackageIsAtInstallationPathInProject compileOptions.waspProjectDir WaspConfigPackage
   compiledWaspJsFile <- ExceptT $ compileWaspTsFile compileOptions.waspProjectDir waspTsConfigFile waspFilePath
   declsJsonFile <- ExceptT $ executeMainWaspJsFileAndGetDeclsFile compileOptions prismaSchemaAst compiledWaspJsFile
   ExceptT $ readDecls prismaSchemaAst declsJsonFile
@@ -81,31 +82,12 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
       (readJobMessagesAndPrintThemPrefixed chan)
       ( runNodeCommandAsJob
           waspProjectDir
-          "npx"
-          -- We're using tsc to compile the *.wasp.ts file into a JS file.
-          --
-          -- The tsconfig.wasp.json is configured to give our users with the
-          -- best possible IDE support while coding the *.wasp.ts file.
-          --
-          -- When we actually want to compile the *.wasp.ts file, we must
-          -- override some of those rules.
-          --
-          -- Tehnically, some overrides could have been specified
-          -- in the tsconfig.wasp.json file, but we decided to keep them here
-          -- because it helps users avoid accidentally breaking things.
-          [ "tsc",
-            "-p",
+          "node"
+          [ fromRelFile $ getInstallablePackageScriptInProject WaspConfigPackage,
+            "compile",
+            fromAbsFile waspFilePath,
             fromAbsFile (waspProjectDir </> tsconfigNodeFileInWaspProjectDir),
-            -- The tsconfig.wasp.json file has the noEmit flag on.
-            -- The file only exists IDE support, and we don't want users to
-            -- accidentally chage the outDir.
-            --
-            -- Here, to actually generate the JS file in the desired location,
-            -- we must turn off the noEmit flag and specify the outDir.
-            "--noEmit",
-            "false",
-            "--outDir",
-            fromAbsDir outDir
+            fromAbsFile absCompiledWaspJsFile
           ]
           J.Wasp
           chan
@@ -114,10 +96,7 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
     ExitFailure _status -> Left ["Got TypeScript compiler errors for " ++ fromAbsFile waspFilePath ++ "."]
     ExitSuccess -> Right absCompiledWaspJsFile
   where
-    outDir = waspProjectDir </> dotWaspDirInWaspProjectDir
-    -- We know this will be the output JS file's location because it's how TSC
-    -- works (assuming we've specified the outDir, which we did).
-    absCompiledWaspJsFile = outDir </> compiledWaspJsFileInDotWaspDir
+    absCompiledWaspJsFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> compiledWaspJsFileInDotWaspDir
     compiledWaspJsFileInDotWaspDir =
       castFile $
         replaceRelExtension (basename waspFilePath) ".js"
