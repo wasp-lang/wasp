@@ -14,11 +14,9 @@ import StrongPath (Abs, Dir, Path', (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Generator.NpmDependencies (NpmDepsFromUser, getUserNpmDepsForPackage)
-import Wasp.Generator.NpmInstall (areThereUserNpmDepsToInstall, installProjectNpmDependencies)
+import Wasp.Generator.NpmInstall (hasUserUpdatedNpmDeps, installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageIsAtInstallationPathInProject, getPackagePathInNodeModules)
-import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
-import Wasp.Project.ExternalConfig.PackageJson (readUserPackageJsonFile)
+import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.WaspFile (isWaspTsProject)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -39,26 +37,22 @@ reinstall = clean >> install
 --   from node_modules (e.g., first compile, after clean, or if the user ran
 --   `npm install` on their own).
 --   2. The user's dependencies in package.json have changed since the last
---      recorded install (compared against the installedNpmDepsLog).
+--   recorded install (compared against the installedNpmDepsLog).
 installIfNeeded :: Command ()
 installIfNeeded = do
   InWaspProject waspProjectDir <- require
-  let waspConfigInNodeModules = waspProjectDir </> getPackagePathInNodeModules WaspConfigPackage
-  let outDir = waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir
 
   isTsProject <- liftIO $ isWaspTsProject waspProjectDir
+
+  let waspConfigInNodeModules = waspProjectDir </> getPackagePathInNodeModules WaspConfigPackage
   waspConfigMissing <- liftIO $ not <$> IOUtil.doesDirectoryExist waspConfigInNodeModules
+
   userDepsChanged <-
-    liftIO $
-      getUserDepsFromDisk waspProjectDir >>= \case
-        Left _ -> pure True
-        Right userDeps -> areThereUserNpmDepsToInstall userDeps outDir
+    liftIO (hasUserUpdatedNpmDeps waspProjectDir) >>= \case
+      Left err -> throwError $ CommandError "Couldn't read user npm dependencies" err
+      Right changed -> return changed
 
-  when ((isTsProject && waspConfigMissing) || userDepsChanged) install
-
-getUserDepsFromDisk :: Path' Abs (Dir WaspProjectDir) -> IO (Either String NpmDepsFromUser)
-getUserDepsFromDisk waspProjectDir =
-  fmap getUserNpmDepsForPackage <$> readUserPackageJsonFile waspProjectDir
+  when (isTsProject && (waspConfigMissing || userDepsChanged)) install
 
 installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installIO waspProjectDir = do

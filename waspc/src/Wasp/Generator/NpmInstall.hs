@@ -1,7 +1,9 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Wasp.Generator.NpmInstall
   ( installNpmDependenciesWithInstallRecord,
     installProjectNpmDependencies,
-    areThereUserNpmDepsToInstall,
+    hasUserUpdatedNpmDeps,
   )
 where
 
@@ -12,21 +14,22 @@ import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Data.Functor ((<&>))
 import qualified Data.Text as T
-import StrongPath (Abs, Dir, Path')
+import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (ExitCode (..))
 import UnliftIO (race)
 import Wasp.AppSpec (AppSpec (waspProjectDir))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorError (..))
-import Wasp.Generator.NpmDependencies (NpmDepsFromUser)
+import Wasp.Generator.NpmDependencies (getUserNpmDepsForPackage)
 import Wasp.Generator.NpmInstall.Common (AllNpmDeps (..), getAllNpmDeps)
 import Wasp.Generator.NpmInstall.InstalledNpmDepsLog (forgetInstalledNpmDepsLog, loadInstalledNpmDepsLog, saveInstalledNpmDepsLog)
 import Wasp.Job (Job, JobMessage, JobType)
 import qualified Wasp.Job as J
 import Wasp.Job.IO.PrefixedWriter (PrefixedWriter, printJobMessagePrefixed, runPrefixedWriter)
 import Wasp.Job.Process (runNodeCommandAsJob)
-import Wasp.Project.Common (WaspProjectDir, nodeModulesDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, nodeModulesDirInWaspProjectDir)
+import Wasp.Project.ExternalConfig.PackageJson (readUserPackageJsonFile)
 import qualified Wasp.Util.IO as IOUitl
 
 -- Runs `npm install` in the user's Wasp project directory.
@@ -133,14 +136,20 @@ areThereNpmDepsToInstall allNpmDeps dstDir = do
   installedNpmDeps <- loadInstalledNpmDepsLog dstDir
   return $ installedNpmDeps /= Just allNpmDeps
 
-areThereUserNpmDepsToInstall :: NpmDepsFromUser -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
-areThereUserNpmDepsToInstall currentUserDeps dstDir = do
-  installedNpmDeps <- loadInstalledNpmDepsLog dstDir
-  return $ case installedNpmDeps of
-    Nothing -> True
-    Just allDeps -> _userNpmDeps allDeps /= currentUserDeps
+hasUserUpdatedNpmDeps :: Path' Abs (Dir WaspProjectDir) -> IO (Either String Bool)
+hasUserUpdatedNpmDeps projectDir = do
+  currentUserDepsOrError <- fmap getUserNpmDepsForPackage <$> readUserPackageJsonFile projectDir
+  case currentUserDepsOrError of
+    Left err -> return $ Left err
+    Right currentUserDeps -> do
+      installedNpmDeps <- loadInstalledNpmDepsLog generatedAppDir
+      return $ Right $ case installedNpmDeps of
+        Nothing -> True
+        Just allInstalledDeps -> allInstalledDeps._userNpmDeps /= currentUserDeps
+  where
+    generatedAppDir = projectDir </> dotWaspDirInWaspProjectDir </> generatedAppDirInDotWaspDir
 
 doesNodeModulesDirExist :: Path' Abs (Dir WaspProjectDir) -> IO Bool
 doesNodeModulesDirExist waspProjectDirPath = IOUitl.doesDirectoryExist nodeModulesDirInWaspProjectDirAbs
   where
-    nodeModulesDirInWaspProjectDirAbs = waspProjectDirPath SP.</> nodeModulesDirInWaspProjectDir
+    nodeModulesDirInWaspProjectDirAbs = waspProjectDirPath </> nodeModulesDirInWaspProjectDir
