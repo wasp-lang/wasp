@@ -1,16 +1,11 @@
-import {
-  existsSync,
-  mkdirSync,
-  mkdtempSync,
-  readFileSync,
-  writeFileSync,
-} from "fs";
+import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { pathToFileURL } from "url";
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import { main as runWaspConfig } from "../../src/run.js";
+import { analyzeApp } from "../../src/legacy/appAnalyzer.js";
+import { compileWaspTsToJs } from "../../src/spec-pipeline/compile.js";
 
 // We use the absolute file:// URL of the local wasp-config source so the
 // rewritten spec file does not rely on node_modules resolution from a temp dir.
@@ -18,213 +13,218 @@ const waspConfigEntryUrl = pathToFileURL(
   join(__dirname, "..", "..", "src", "index.ts"),
 ).href;
 
-const specSource = () =>
-  [
-    `// @ts-ignore: This test imports the local TS source through Vitest.`,
-    `import { App } from ${JSON.stringify(waspConfigEntryUrl)};`,
-    `import MainPage from "@src/MainPage";`,
-    `import { getTasks } from "@src/operations";`,
-    `import { archive as archiveTask } from "@src/operations";`,
-    `import { archive as archiveLegacyTask } from "@src/legacyOperations";`,
-    `import * as ops from "@src/operations";`,
-    ``,
-    `const app = new App("demo", {`,
-    `  title: "Demo",`,
-    `  wasp: { version: "^0.16.0" },`,
-    `});`,
-    ``,
-    `const mainPage = app.page("MainPage", { component: MainPage });`,
-    `app.route("RootRoute", { path: "/", to: mainPage });`,
-    `app.query("getTasks", { fn: getTasks, entities: [] });`,
-    `app.action("archiveTask", { fn: archiveTask, entities: [] });`,
-    `app.action("archiveLegacyTask", { fn: archiveLegacyTask, entities: [] });`,
-    `app.action("logout", { fn: ops.logout, entities: [] });`,
-    ``,
-    `export default app;`,
-  ].join("\n");
+const importFormPrelude = [
+  `import MainPage from "@src/MainPage";`,
+  `import { getTasks } from "@src/operations";`,
+  `import { archive as archiveTask } from "@src/operations";`,
+  `import { archive as archiveLegacyTask } from "@src/legacyOperations";`,
+  `import * as ops from "@src/operations";`,
+];
 
-const descriptorSpecSource = () =>
-  [
-    `// @ts-ignore: This test imports the local TS source through Vitest.`,
-    `import { App } from ${JSON.stringify(waspConfigEntryUrl)};`,
-    `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
-    `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
-    `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;`,
-    `const archiveLegacyTask = { import: "archive", from: "@src/legacyOperations", alias: "archiveLegacyTask" } as const;`,
-    ``,
-    `const app = new App("demo", {`,
-    `  title: "Demo",`,
-    `  wasp: { version: "^0.16.0" },`,
-    `});`,
-    ``,
-    `const mainPage = app.page("MainPage", { component: MainPage });`,
-    `app.route("RootRoute", { path: "/", to: mainPage });`,
-    `app.query("getTasks", { fn: getTasks, entities: [] });`,
-    `app.action("archiveTask", { fn: archiveTask, entities: [] });`,
-    `app.action("archiveLegacyTask", { fn: archiveLegacyTask, entities: [] });`,
-    `app.action("logout", {`,
-    `  fn: { import: "logout", from: "@src/operations", alias: "ops_logout" } as const,`,
-    `  entities: [],`,
-    `});`,
-    ``,
-    `export default app;`,
-  ].join("\n");
+const descriptorFormPrelude = [
+  `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
+  `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
+  `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;`,
+  `const archiveLegacyTask = { import: "archive", from: "@src/legacyOperations", alias: "archiveLegacyTask" } as const;`,
+  `const ops = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: "@src/operations", alias: "ops_" + String(k) } as const) }) as Record<string, { import: string; from: "@src/operations"; alias: string }>;`,
+];
+
+const appSpecBody = [
+  `const app = new App("demo", {`,
+  `  title: "Demo",`,
+  `  wasp: { version: "^0.16.0" },`,
+  `});`,
+  ``,
+  `const mainPage = app.page("MainPage", { component: MainPage });`,
+  `app.route("RootRoute", { path: "/", to: mainPage });`,
+  `app.query("getTasks", { fn: getTasks, entities: [] });`,
+  `app.action("archiveTask", { fn: archiveTask, entities: [] });`,
+  `app.action("archiveLegacyTask", { fn: archiveLegacyTask, entities: [] });`,
+  `app.action("logout", { fn: ops.logout, entities: [] });`,
+  ``,
+  `export default app;`,
+];
 
 describe("end-to-end import-form pipeline", () => {
-  test("runs rewrite, type-check, and execute commands for every import shape", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "wasp-spec-pipeline-"));
-    writePackageJson(tempDir);
+  test("compiles import-form specs without writing rewritten TS", async () => {
+    const tempDir = makeTempProject("wasp-spec-pipeline-");
     writeSourceFiles(tempDir);
 
-    const importDecls = await runSpecThroughRunTs(
+    const importDecls = await compileAndAnalyzeSpec({
       tempDir,
-      "main.wasp.ts",
-      specSource(),
-      "import-decls.json",
-    );
-    const descriptorDecls = await runSpecThroughRunTs(
+      sourceFileName: "main.wasp.ts",
+      sourceText: specSource(importFormPrelude),
+    });
+    const descriptorDecls = await compileAndAnalyzeSpec({
       tempDir,
-      "main.wasp.descriptor.ts",
-      descriptorSpecSource(),
-      "descriptor-decls.json",
-    );
+      sourceFileName: "main.wasp.descriptor.ts",
+      sourceText: specSource(descriptorFormPrelude),
+    });
 
     expect(importDecls).toEqual(descriptorDecls);
-
-    const decls = importDecls;
-    const declsByType = groupByType(decls);
-
-    expect(declsByType["Page"]).toEqual([
-      {
-        declType: "Page",
-        declName: "MainPage",
-        declValue: {
-          component: {
-            kind: "default",
-            name: "MainPage",
-            path: "@src/MainPage",
-          },
-          authRequired: undefined,
-        },
-      },
-    ]);
-
-    const queryDecl = declsByType["Query"]?.[0];
-    expect(queryDecl?.declName).toBe("getTasks");
-    expect(queryDecl?.declValue.fn).toEqual({
-      kind: "named",
-      name: "getTasks",
-      path: "@src/operations",
-    });
-
-    const actionDecls = declsByType["Action"] ?? [];
-    const archiveAction = actionDecls.find((d) => d.declName === "archiveTask");
-    expect(archiveAction?.declValue.fn).toEqual({
-      kind: "named",
-      name: "archive",
-      alias: "archiveTask",
-      path: "@src/operations",
-    });
-
-    const archiveLegacyAction = actionDecls.find(
-      (d) => d.declName === "archiveLegacyTask",
-    );
-    expect(archiveLegacyAction?.declValue.fn).toEqual({
-      kind: "named",
-      name: "archive",
-      alias: "archiveLegacyTask",
-      path: "@src/legacyOperations",
-    });
-
-    const logoutAction = actionDecls.find((d) => d.declName === "logout");
-    expect(logoutAction?.declValue.fn).toEqual({
-      kind: "named",
-      name: "logout",
-      alias: "ops_logout",
-      path: "@src/operations",
-    });
+    expect(importDecls).toEqual(expectedDecls());
   });
 
-  test("rejects unsupported imports through the run.ts rewrite command", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "wasp-spec-pipeline-error-"));
-    const sourcePath = join(tempDir, "main.wasp.ts");
-    const rewrittenPath = join(tempDir, "main.wasp.rewritten.ts");
-
-    writeFileSync(sourcePath, `import "@src/setup";\n`, "utf8");
-
-    await expect(
-      runWaspConfig(["node", "run.js", "rewrite", sourcePath, rewrittenPath]),
-    ).rejects.toThrowError(/Side-effect imports/);
-  });
-
-  test("type-checks the rewritten spec shape before execution", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "wasp-spec-typecheck-"));
+  test("rejects unsupported imports during virtual compile", () => {
+    const tempDir = makeTempProject("wasp-spec-pipeline-error-");
     mkdirSync(join(tempDir, "src"));
+    writeFileSync(join(tempDir, "src", "setup.ts"), `export {};\n`);
 
-    const source = [
-      `import { appTitle } from "@src/title";`,
-      ``,
-      `declare function makeApp(config: { title: string }): void;`,
-      `makeApp({ title: appTitle });`,
-    ].join("\n");
+    expect(() =>
+      compileSpec({
+        tempDir,
+        sourceFileName: "main.wasp.ts",
+        sourceText: `import "@src/setup";\n`,
+      }),
+    ).toThrowError(/Side-effect imports/);
+  });
+
+  test("type-checks the rewritten spec shape before execution", () => {
+    const tempDir = makeTempProject("wasp-spec-typecheck-");
+    mkdirSync(join(tempDir, "src"));
 
     writeFileSync(
       join(tempDir, "src", "title.ts"),
       `export const appTitle = "Demo";\n`,
     );
-    writeFileSync(join(tempDir, "main.wasp.ts"), source);
-    writeTsConfig(tempDir, "tsconfig.wasp.json", "main.wasp.ts");
 
-    await expect(
-      runWaspConfig([
-        "node",
-        "run.js",
-        "compile",
-        join(tempDir, "main.wasp.ts"),
-        join(tempDir, "tsconfig.wasp.json"),
-        join(tempDir, ".wasp", "main.wasp.js"),
-      ]),
-    ).rejects.toThrowError(/is not assignable to type 'string'/);
+    expect(() =>
+      compileSpec({
+        tempDir,
+        sourceFileName: "main.wasp.ts",
+        sourceText: [
+          `import { appTitle } from "@src/title";`,
+          ``,
+          `declare function makeApp(config: { title: string }): void;`,
+          `makeApp({ title: appTitle });`,
+        ].join("\n"),
+      }),
+    ).toThrowError(/is not assignable to type 'string'/);
   });
 
-  test("type-checks @src imports against real source files", async () => {
-    const tempDir = mkdtempSync(join(tmpdir(), "wasp-spec-src-import-"));
+  test("type-checks @src imports against real source files", () => {
+    const tempDir = makeTempProject("wasp-spec-src-import-");
     mkdirSync(join(tempDir, "src"));
 
-    writeFileSync(
-      join(tempDir, "main.wasp.ts"),
-      `import { typoedTitle } from "@src/title";\ntypoedTitle;\n`,
-    );
     writeFileSync(
       join(tempDir, "src", "title.ts"),
       `export const appTitle = "Demo";\n`,
     );
-    writeTsConfig(tempDir, "tsconfig.wasp.json", "main.wasp.ts");
 
-    await expect(
-      runWaspConfig([
-        "node",
-        "run.js",
-        "compile",
-        join(tempDir, "main.wasp.ts"),
-        join(tempDir, "tsconfig.wasp.json"),
-        join(tempDir, ".wasp", "main.wasp.js"),
-      ]),
-    ).rejects.toThrowError(/has no exported member 'typoedTitle'/);
+    expect(() =>
+      compileSpec({
+        tempDir,
+        sourceFileName: "main.wasp.ts",
+        sourceText: `import { typoedTitle } from "@src/title";\ntypoedTitle;\n`,
+      }),
+    ).toThrowError(/has no exported member 'typoedTitle'/);
   });
 });
 
-type DeclWithValue = AppSpec.Decl & { declValue: { [k: string]: unknown } };
+function specSource(prelude: string[]): string {
+  return [
+    `// @ts-ignore: This test imports the local TS source through Vitest.`,
+    `import { App } from ${JSON.stringify(waspConfigEntryUrl)};`,
+    ...prelude,
+    ``,
+    ...appSpecBody,
+  ].join("\n");
+}
 
-function groupByType(
-  decls: AppSpec.Decl[],
-): Record<string, DeclWithValue[] | undefined> {
-  const out: Record<string, DeclWithValue[]> = {};
-  for (const decl of decls) {
-    const list = out[decl.declType] ?? (out[decl.declType] = []);
-    list.push(decl as DeclWithValue);
-  }
-  return out;
+function expectedDecls(): AppSpec.Decl[] {
+  return [
+    {
+      declType: "App",
+      declName: "demo",
+      declValue: expect.objectContaining({
+        title: "Demo",
+        wasp: { version: "^0.16.0" },
+      }),
+    },
+    {
+      declType: "Page",
+      declName: "MainPage",
+      declValue: {
+        component: {
+          kind: "default",
+          name: "MainPage",
+          path: "@src/MainPage",
+        },
+        authRequired: undefined,
+      },
+    },
+    {
+      declType: "Route",
+      declName: "RootRoute",
+      declValue: {
+        path: "/",
+        to: { declType: "Page", name: "MainPage" },
+        prerender: undefined,
+        lazy: undefined,
+      },
+    },
+    {
+      declType: "Action",
+      declName: "archiveTask",
+      declValue: {
+        fn: {
+          kind: "named",
+          name: "archive",
+          alias: "archiveTask",
+          path: "@src/operations",
+        },
+        entities: [],
+        auth: undefined,
+      },
+    },
+    {
+      declType: "Action",
+      declName: "archiveLegacyTask",
+      declValue: {
+        fn: {
+          kind: "named",
+          name: "archive",
+          alias: "archiveLegacyTask",
+          path: "@src/legacyOperations",
+        },
+        entities: [],
+        auth: undefined,
+      },
+    },
+    {
+      declType: "Action",
+      declName: "logout",
+      declValue: {
+        fn: {
+          kind: "named",
+          name: "logout",
+          alias: "ops_logout",
+          path: "@src/operations",
+        },
+        entities: [],
+        auth: undefined,
+      },
+    },
+    {
+      declType: "Query",
+      declName: "getTasks",
+      declValue: {
+        fn: {
+          kind: "named",
+          name: "getTasks",
+          path: "@src/operations",
+        },
+        entities: [],
+        auth: undefined,
+      },
+    },
+  ] as AppSpec.Decl[];
+}
+
+function makeTempProject(prefix: string): string {
+  const tempDir = mkdtempSync(join(tmpdir(), prefix));
+  writePackageJson(tempDir);
+  return tempDir;
 }
 
 function writePackageJson(tempDir: string): void {
@@ -255,61 +255,68 @@ function writeSourceFiles(tempDir: string): void {
   );
 }
 
-async function runSpecThroughRunTs(
-  tempDir: string,
-  sourceFileName: string,
-  sourceText: string,
-  outputFileName: string,
-): Promise<AppSpec.Decl[]> {
-  const sourcePath = join(tempDir, sourceFileName);
-  const rewrittenFileName = sourceFileName.replace(/\.ts$/, ".rewritten.ts");
-  const rewrittenPath = join(tempDir, rewrittenFileName);
+async function compileAndAnalyzeSpec({
+  tempDir,
+  sourceFileName,
+  sourceText,
+}: {
+  tempDir: string;
+  sourceFileName: string;
+  sourceText: string;
+}): Promise<AppSpec.Decl[]> {
+  const compiledPath = compileSpec({ tempDir, sourceFileName, sourceText });
+  const result = await analyzeApp(pathToFileURL(compiledPath).href, []);
+  if (result.status === "error") throw new Error(result.error);
 
-  writeFileSync(sourcePath, sourceText, "utf8");
-  const tsconfigFileName = sourceFileName.replace(/\.ts$/, ".tsconfig.json");
-  writeTsConfig(tempDir, tsconfigFileName, sourceFileName);
+  return result.value;
+}
+
+function compileSpec({
+  tempDir,
+  sourceFileName,
+  sourceText,
+}: {
+  tempDir: string;
+  sourceFileName: string;
+  sourceText: string;
+}): string {
+  const sourcePath = join(tempDir, sourceFileName);
+  const tsconfigPath = join(
+    tempDir,
+    sourceFileName.replace(/\.ts$/, ".tsconfig.json"),
+  );
   const compiledPath = join(
     tempDir,
     ".wasp",
     sourceFileName.replace(/\.ts$/, ".js"),
   );
 
-  await runWaspConfig([
-    "node",
-    "run.js",
-    "compile",
-    sourcePath,
-    join(tempDir, tsconfigFileName),
-    compiledPath,
-  ]);
-  expect(existsSync(rewrittenPath)).toBe(false);
+  writeFileSync(sourcePath, sourceText, "utf8");
+  writeTsConfig(tsconfigPath, sourceFileName);
+  compileWaspTsToJs({
+    inputPath: sourcePath,
+    tsconfigPath,
+    outputPath: compiledPath,
+  });
+  expect(existsSync(sourcePath.replace(/\.ts$/, ".rewritten.ts"))).toBe(false);
 
-  const outputPath = join(tempDir, outputFileName);
-  await runWaspConfig(["node", "run.js", compiledPath, outputPath, "[]"]);
-
-  return JSON.parse(readFileSync(outputPath, "utf8")) as AppSpec.Decl[];
+  return compiledPath;
 }
 
-function writeTsConfig(
-  tempDir: string,
-  filename: string,
-  include: string,
-  options: { noEmit?: boolean; outDir?: string } = {},
-): void {
+function writeTsConfig(tsconfigPath: string, include: string): void {
   writeFileSync(
-    join(tempDir, filename),
+    tsconfigPath,
     JSON.stringify({
       compilerOptions: {
         target: "ES2022",
         module: "ESNext",
         moduleResolution: "bundler",
         strict: true,
-        noEmit: options.noEmit ?? true,
+        noEmit: true,
         baseUrl: ".",
         paths: {
           "@src/*": ["src/*"],
         },
-        ...(options.outDir ? { outDir: options.outDir } : {}),
       },
       include: [include],
     }),
