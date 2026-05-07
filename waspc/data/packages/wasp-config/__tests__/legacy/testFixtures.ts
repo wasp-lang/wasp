@@ -954,6 +954,7 @@ export function getExtImport(
       return {
         ...importObject,
         from: "@src/external",
+        alias: "externalAlias",
       } satisfies FullConfig<TsAppSpec.ExtImport>;
     default:
       assertUnreachable(scope);
