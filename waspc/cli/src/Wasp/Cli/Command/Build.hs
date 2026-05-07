@@ -32,7 +32,6 @@ import Wasp.Project.Common
     CompileWarning,
     WaspProjectDir,
     dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
     getTsConfigStructureForWaspProject,
     srcTsConfig,
     userPackageJsonInWaspProjectDir,

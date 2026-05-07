@@ -26,7 +26,7 @@ module Wasp.Project.Common
     WaspTsConfigFile,
     RootTsConfigFile,
     waspProjectDirFromGeneratedAppComponentDir,
-    generatedAppDirInWaspProjectDir
+    generatedAppDirInWaspProjectDir,
     makeAppUniqueId,
   )
 where
@@ -54,8 +54,6 @@ data DotWaspDir -- Here we put everything that wasp generates.
 data UserPackageJsonFile
 
 instance PackageJsonFile UserPackageJsonFile
-
-instance TsConfigFile SrcTsConfigFile
 
 data WaspFilePath
   = WaspLang !(Path' Abs (File WaspLangFile))
