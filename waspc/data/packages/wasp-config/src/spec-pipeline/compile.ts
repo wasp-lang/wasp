@@ -21,7 +21,6 @@ export function compileWaspTsToJs({
 }: CompileWaspTsToJsInput): void {
   const tsConfig = readTsConfig(tsconfigPath);
 
-  typeCheckAuthoredSource(inputPath, tsConfig);
   const rewrittenSource = makeRewrittenVirtualSource(inputPath, outputPath);
   const js = emitVirtualSourceToJs(rewrittenSource, tsConfig);
 
@@ -45,19 +44,6 @@ function readTsConfig(tsconfigPath: string): ts.ParsedCommandLine {
   throwIfDiagnostics(parsedConfig.errors);
 
   return parsedConfig;
-}
-
-function typeCheckAuthoredSource(
-  inputPath: string,
-  tsConfig: ts.ParsedCommandLine,
-): void {
-  const program = ts.createProgram({
-    rootNames: [inputPath],
-    options: { ...tsConfig.options, noEmit: true },
-    projectReferences: tsConfig.projectReferences,
-  });
-
-  throwIfDiagnostics(ts.getPreEmitDiagnostics(program));
 }
 
 function makeRewrittenVirtualSource(
