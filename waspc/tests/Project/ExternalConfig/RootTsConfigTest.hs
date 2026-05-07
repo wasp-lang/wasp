@@ -40,6 +40,10 @@ spec_RootTsConfig = do
           { T.references = Just [T.TsConfigReference {T.path = "tsconfig.src.json"}]
           }
 
+    it "mentions the given file name in error messages" $ do
+      let config = validTsConfig {T.files = Nothing}
+      validateRootTsConfig "custom-name.json" config `shouldSatisfy` any ("custom-name.json" `isInfixOf`)
+
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
   validateRootTsConfig "tsconfig.json" config `shouldSatisfy` any (fieldName `isInfixOf`)

@@ -27,6 +27,10 @@ spec_WaspTsConfig = do
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["src"]}
 
+    it "mentions the given file name in error messages" $ do
+      let config = validTsConfig {T.include = Just ["src"]}
+      validateWaspTsConfig "custom-name.json" config `shouldSatisfy` any ("custom-name.json" `isInfixOf`)
+
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
   validateWaspTsConfig "tsconfig.wasp.json" config `shouldSatisfy` any (fieldName `isInfixOf`)

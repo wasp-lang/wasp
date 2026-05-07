@@ -21,10 +21,10 @@ parseAndValidateTsConfigFile validateTsConfig waspDir someTsConfigInProjectDir =
   fmap eitherToValidation . runExceptT $ do
     tsConfigFile <- withExceptT (: []) $ ExceptT tsConfigOrError
     tsConfigContents <- withExceptT (: []) $ ExceptT $ parseTsConfigFile tsConfigFile
-    let tsConfigFileName = fromRelFile $ basename tsConfigFile
     case validateTsConfig tsConfigFileName tsConfigContents of
       [] -> return tsConfigContents
       errors -> liftEither $ Left errors
   where
     tsConfigOrError = maybeToEither fileNotFoundMessage <$> findFileInWaspProjectDir waspDir someTsConfigInProjectDir
-    fileNotFoundMessage = "Couldn't find " ++ fromRelFile someTsConfigInProjectDir ++ " in the " ++ toFilePath waspDir ++ " directory"
+    fileNotFoundMessage = "Couldn't find " ++ tsConfigFileName ++ " in the " ++ toFilePath waspDir ++ " directory"
+    tsConfigFileName = fromRelFile someTsConfigInProjectDir

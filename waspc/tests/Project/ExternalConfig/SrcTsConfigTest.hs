@@ -23,6 +23,10 @@ spec_SrcTsConfig = do
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["lib"]}
 
+    it "mentions the given file name in error messages" $ do
+      let config = validTsConfig {T.include = Just ["lib"]}
+      validateSrcTsConfig "custom-name.json" config `shouldSatisfy` any ("custom-name.json" `isInfixOf`)
+
 assertReturnsValidationErrorMentioningField :: String -> T.TsConfig -> Expectation
 assertReturnsValidationErrorMentioningField fieldName config =
   validateSrcTsConfig "tsconfig.json" config `shouldSatisfy` any (fieldName `isInfixOf`)
