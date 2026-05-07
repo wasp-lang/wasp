@@ -31,12 +31,11 @@ import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
-    getTsConfigPathsForWaspProject,
-    srcTsConfig,
-    userPackageJsonInWaspProjectDir,
     generatedAppDirInWaspProjectDir,
+    getTsConfigPathsForWaspProject,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    srcTsConfig,
     userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
