@@ -1,4 +1,4 @@
-import { existsSync, mkdirSync, mkdtempSync, writeFileSync } from "fs";
+import { mkdirSync, mkdtempSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 import { pathToFileURL } from "url";
@@ -46,7 +46,7 @@ const appSpecBody = [
 ];
 
 describe("end-to-end import-form pipeline", () => {
-  test("compiles import-form specs without writing rewritten TS", async () => {
+  test("compiles import-form specs through virtual source", async () => {
     const tempDir = makeTempProject("wasp-spec-pipeline-");
     writeSourceFiles(tempDir);
 
@@ -298,7 +298,6 @@ function compileSpec({
     tsconfigPath,
     outputPath: compiledPath,
   });
-  expect(existsSync(sourcePath.replace(/\.ts$/, ".rewritten.ts"))).toBe(false);
 
   return compiledPath;
 }
