@@ -3,28 +3,29 @@ import { basename, dirname, join, resolve } from "path";
 import * as ts from "typescript";
 import { rewrite } from "./rewrite.js";
 
+export type CompileWaspTsToJsInput = {
+  inputPath: string;
+  tsconfigPath: string;
+  outputPath: string;
+};
+
+type VirtualSource = {
+  path: string;
+  text: string;
+};
+
 export function compileWaspTsToJs({
   inputPath,
   tsconfigPath,
   outputPath,
-}: {
-  inputPath: string;
-  tsconfigPath: string;
-  outputPath: string;
-}): void {
-  const parsedConfig = readTsConfig(tsconfigPath);
-  typeCheckAuthoredSource(inputPath, parsedConfig);
+}: CompileWaspTsToJsInput): void {
+  const tsConfig = readTsConfig(tsconfigPath);
 
-  const sourceText = readFileSync(inputPath, "utf8");
-  const rewrittenSource = rewrite(sourceText);
-  const js = emitVirtualWaspTsToJs({
-    rewrittenSource,
-    virtualSourcePath: getVirtualSourcePath(inputPath, outputPath),
-    parsedConfig,
-  });
+  typeCheckAuthoredSource(inputPath, tsConfig);
+  const rewrittenSource = makeRewrittenVirtualSource(inputPath, outputPath);
+  const js = emitVirtualSourceToJs(rewrittenSource, tsConfig);
 
-  mkdirSync(dirname(outputPath), { recursive: true });
-  writeFileSync(outputPath, js, "utf8");
+  writeJs(outputPath, js);
 }
 
 function readTsConfig(tsconfigPath: string): ts.ParsedCommandLine {
@@ -40,44 +41,73 @@ function readTsConfig(tsconfigPath: string): ts.ParsedCommandLine {
     {},
     tsconfigPath,
   );
-  if (parsedConfig.errors.length > 0) {
-    throw new Error(formatDiagnostics(parsedConfig.errors));
-  }
+
+  throwIfDiagnostics(parsedConfig.errors);
 
   return parsedConfig;
 }
 
 function typeCheckAuthoredSource(
   inputPath: string,
-  parsedConfig: ts.ParsedCommandLine,
+  tsConfig: ts.ParsedCommandLine,
 ): void {
-  const options: ts.CompilerOptions = {
-    ...parsedConfig.options,
-    noEmit: true,
-  };
   const program = ts.createProgram({
     rootNames: [inputPath],
-    options,
-    projectReferences: parsedConfig.projectReferences,
+    options: { ...tsConfig.options, noEmit: true },
+    projectReferences: tsConfig.projectReferences,
   });
-  const diagnostics = ts.getPreEmitDiagnostics(program);
 
-  if (diagnostics.length > 0) {
-    throw new Error(formatDiagnostics(diagnostics));
-  }
+  throwIfDiagnostics(ts.getPreEmitDiagnostics(program));
 }
 
-function emitVirtualWaspTsToJs({
-  rewrittenSource,
-  virtualSourcePath,
-  parsedConfig,
-}: {
-  rewrittenSource: string;
-  virtualSourcePath: string;
-  parsedConfig: ts.ParsedCommandLine;
-}): string {
-  const options: ts.CompilerOptions = {
-    ...parsedConfig.options,
+function makeRewrittenVirtualSource(
+  inputPath: string,
+  outputPath: string,
+): VirtualSource {
+  const authoredSource = readFileSync(inputPath, "utf8");
+
+  return {
+    path: getVirtualSourcePath(inputPath, outputPath),
+    text: rewrite(authoredSource),
+  };
+}
+
+function emitVirtualSourceToJs(
+  source: VirtualSource,
+  tsConfig: ts.ParsedCommandLine,
+): string {
+  const options = getEmitOptions(tsConfig.options);
+  const jsOutput = makeJsOutputCapture();
+  const host = makeVirtualSourceHost({
+    options,
+    source,
+    onJsOutput: jsOutput.set,
+  });
+  const program = ts.createProgram({
+    rootNames: [source.path],
+    options,
+    host,
+    projectReferences: tsConfig.projectReferences,
+  });
+
+  throwIfDiagnostics(ts.getPreEmitDiagnostics(program));
+
+  const emitResult = program.emit();
+  throwIfDiagnostics(emitResult.diagnostics);
+
+  const js = jsOutput.get();
+  if (!js || emitResult.emitSkipped) {
+    throw new Error("TypeScript did not emit executable JavaScript.");
+  }
+
+  return js;
+}
+
+function getEmitOptions(
+  options: ts.CompilerOptions,
+): ts.CompilerOptions {
+  return {
+    ...options,
     declaration: false,
     declarationMap: false,
     emitDeclarationOnly: false,
@@ -86,75 +116,42 @@ function emitVirtualWaspTsToJs({
     outFile: undefined,
     sourceMap: false,
   };
-  const { host, getEmittedJs } = makeVirtualCompilerHost({
-    options,
-    rewrittenSource,
-    virtualSourcePath,
-  });
-  const program = ts.createProgram({
-    rootNames: [virtualSourcePath],
-    options,
-    host,
-    projectReferences: parsedConfig.projectReferences,
-  });
-
-  const preEmitDiagnostics = ts.getPreEmitDiagnostics(program);
-  if (preEmitDiagnostics.length > 0) {
-    throw new Error(formatDiagnostics(preEmitDiagnostics));
-  }
-
-  const emitResult = program.emit();
-  if (emitResult.diagnostics.length > 0) {
-    throw new Error(formatDiagnostics(emitResult.diagnostics));
-  }
-
-  const emittedJs = getEmittedJs();
-  if (!emittedJs || emitResult.emitSkipped) {
-    throw new Error("TypeScript did not emit executable JavaScript.");
-  }
-
-  return emittedJs;
 }
 
-function makeVirtualCompilerHost({
+function makeVirtualSourceHost({
   options,
-  rewrittenSource,
-  virtualSourcePath,
+  source,
+  onJsOutput,
 }: {
   options: ts.CompilerOptions;
-  rewrittenSource: string;
-  virtualSourcePath: string;
-}): { host: ts.CompilerHost; getEmittedJs: () => string | undefined } {
+  source: VirtualSource;
+  onJsOutput: (js: string) => void;
+}): ts.CompilerHost {
   const host = ts.createCompilerHost(options);
-  const canonicalVirtualSourcePath = canonicalizePath(virtualSourcePath);
-  const originalGetSourceFile = host.getSourceFile.bind(host);
-  const originalReadFile = host.readFile?.bind(host) ?? ts.sys.readFile;
-  const originalFileExists = host.fileExists.bind(host);
-  let emittedJs: string | undefined;
+  const isVirtualSource = makePathPredicate(source.path);
+  const getSourceFileFromDisk = host.getSourceFile.bind(host);
+  const readFileFromDisk = host.readFile?.bind(host) ?? ts.sys.readFile;
+  const fileExistsOnDisk = host.fileExists.bind(host);
 
   host.getSourceFile = (fileName, languageVersion, onError) => {
-    if (isVirtualSourcePath(fileName, canonicalVirtualSourcePath)) {
+    if (isVirtualSource(fileName)) {
       return ts.createSourceFile(
-        virtualSourcePath,
-        rewrittenSource,
+        source.path,
+        source.text,
         languageVersion,
         true,
         ts.ScriptKind.TS,
       );
     }
 
-    return originalGetSourceFile(fileName, languageVersion, onError);
+    return getSourceFileFromDisk(fileName, languageVersion, onError);
   };
 
   host.readFile = (fileName) =>
-    isVirtualSourcePath(fileName, canonicalVirtualSourcePath)
-      ? rewrittenSource
-      : originalReadFile(fileName);
+    isVirtualSource(fileName) ? source.text : readFileFromDisk(fileName);
 
   host.fileExists = (fileName) =>
-    isVirtualSourcePath(fileName, canonicalVirtualSourcePath)
-      ? true
-      : originalFileExists(fileName);
+    isVirtualSource(fileName) || fileExistsOnDisk(fileName);
 
   host.writeFile = (
     fileName,
@@ -163,17 +160,43 @@ function makeVirtualCompilerHost({
     _onError,
     sourceFiles,
   ) => {
-    if (
-      fileName.endsWith(".js") &&
-      sourceFiles?.some((sourceFile) =>
-        isVirtualSourcePath(sourceFile.fileName, canonicalVirtualSourcePath),
-      )
-    ) {
-      emittedJs = text;
+    if (isEmittedJsFromVirtualSource(fileName, sourceFiles, isVirtualSource)) {
+      onJsOutput(text);
     }
   };
 
-  return { host, getEmittedJs: () => emittedJs };
+  return host;
+}
+
+function makeJsOutputCapture(): {
+  set: (js: string) => void;
+  get: () => string | undefined;
+} {
+  let js: string | undefined;
+
+  return {
+    set: (nextJs) => {
+      js = nextJs;
+    },
+    get: () => js,
+  };
+}
+
+function isEmittedJsFromVirtualSource(
+  fileName: string,
+  sourceFiles: readonly ts.SourceFile[] | undefined,
+  isVirtualSource: (fileName: string) => boolean,
+): boolean {
+  return (
+    fileName.endsWith(".js") &&
+    sourceFiles?.some((sourceFile) => isVirtualSource(sourceFile.fileName)) ===
+      true
+  );
+}
+
+function writeJs(outputPath: string, js: string): void {
+  mkdirSync(dirname(outputPath), { recursive: true });
+  writeFileSync(outputPath, js, "utf8");
 }
 
 function getVirtualSourcePath(inputPath: string, outputPath: string): string {
@@ -184,11 +207,10 @@ function getVirtualSourcePath(inputPath: string, outputPath: string): string {
   );
 }
 
-function isVirtualSourcePath(
-  fileName: string,
-  canonicalVirtualSourcePath: string,
-): boolean {
-  return canonicalizePath(fileName) === canonicalVirtualSourcePath;
+function makePathPredicate(expectedPath: string): (fileName: string) => boolean {
+  const expectedCanonicalPath = canonicalizePath(expectedPath);
+
+  return (fileName) => canonicalizePath(fileName) === expectedCanonicalPath;
 }
 
 function canonicalizePath(fileName: string): string {
@@ -196,6 +218,12 @@ function canonicalizePath(fileName: string): string {
   return ts.sys.useCaseSensitiveFileNames
     ? absolutePath
     : absolutePath.toLowerCase();
+}
+
+function throwIfDiagnostics(diagnostics: readonly ts.Diagnostic[]): void {
+  if (diagnostics.length > 0) {
+    throw new Error(formatDiagnostics(diagnostics));
+  }
 }
 
 function formatDiagnostics(diagnostics: readonly ts.Diagnostic[]): string {
