@@ -89,6 +89,11 @@ describe("planImportLowering", () => {
       specifier: "@src/MainPage",
     },
     {
+      source: `import { "foo-bar" as fooBar } from "@src/operations";\n`,
+      reason: "stringLiteralImport",
+      specifier: "@src/operations",
+    },
+    {
       source: `import {} from "@src/MainPage";\n`,
       reason: "emptyNamedImport",
       specifier: "@src/MainPage",
