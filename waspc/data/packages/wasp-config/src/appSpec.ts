@@ -109,6 +109,7 @@ export type ExtImport = {
   kind: ExtImportKind;
   name: string;
   path: `@src/${string}`;
+  alias?: string;
 };
 
 export type JobExecutor = "PgBoss";

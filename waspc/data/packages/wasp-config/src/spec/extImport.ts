@@ -11,6 +11,7 @@ export interface NamedExtImport {
 export interface DefaultExtImport {
   importDefault: string;
   from: AppSpec.ExtImport["path"];
+  alias?: string;
 }
 
 export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
@@ -19,12 +20,14 @@ export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
       kind: "named",
       name: extImport.import,
       path: extImport.from,
+      ...mapAlias(extImport),
     };
   } else if (isDefaultExtImport(extImport)) {
     return {
       kind: "default",
       name: extImport.importDefault,
       path: extImport.from,
+      ...mapAlias(extImport),
     };
   } else {
     throw new Error(
@@ -46,7 +49,8 @@ function isDefaultExtImport(value: unknown): value is DefaultExtImport {
   return (
     isObject(value) &&
     typeof value.importDefault === "string" &&
-    typeof value.from === "string"
+    typeof value.from === "string" &&
+    hasValidAlias(value)
   );
 }
 
@@ -56,4 +60,10 @@ function hasValidAlias(value: Record<string, unknown>): boolean {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Object.prototype.toString.call(value) === "[object Object]";
+}
+
+function mapAlias(
+  extImport: ExtImport,
+): Partial<Pick<AppSpec.ExtImport, "alias">> {
+  return extImport.alias !== undefined ? { alias: extImport.alias } : {};
 }
