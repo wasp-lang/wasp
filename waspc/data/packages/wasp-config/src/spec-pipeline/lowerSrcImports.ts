@@ -12,12 +12,11 @@ const ACCEPTED_IMPORT_SHAPES =
   "Use default, named, aliased named, or namespace imports from @src/*.";
 
 /**
- * Rewrites top-level imports of the form `@src/*` into inline ExtImport
- * descriptor consts so the file no longer depends on user source modules at
- * runtime. The rewriter is purely textual: it parses a single SourceFile,
- * collects edit ranges for matching ImportDeclarations, and splices them.
+ * Lowers top-level imports of the form `@src/*` into inline ExtImport
+ * descriptor consts so the spec can reference user source modules without
+ * loading them at runtime.
  */
-export function rewrite(sourceText: string): string {
+export function lowerSrcImports(sourceText: string): string {
   const result = planImportLowering(sourceText);
   if (result.status === "error") {
     throw new Error(formatImportDiagnostic(result.diagnostics[0]!));
