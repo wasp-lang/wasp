@@ -74,6 +74,11 @@ describe("planImportLowering", () => {
       specifier: "@src/setup",
     },
     {
+      source: `import MainPage = require("@src/MainPage");\n`,
+      reason: "importEqualsImport",
+      specifier: "@src/MainPage",
+    },
+    {
       source: `import type { Props } from "@src/MainPage";\n`,
       reason: "typeOnlyImport",
       specifier: "@src/MainPage",

@@ -10,6 +10,8 @@ import { planImportLowering } from "./importLoweringPlan.js";
 
 const ACCEPTED_IMPORT_SHAPES =
   "Use default, named, aliased named, or namespace imports from @src/*.";
+const NAMESPACE_MEMBER_PATTERN = "[A-Za-z_$][A-Za-z0-9_$]*";
+const NAMESPACE_MEMBER_REGEX = `/^${NAMESPACE_MEMBER_PATTERN}$/`;
 
 /**
  * Lowers top-level imports of the form `@src/*` into inline ExtImport
@@ -58,7 +60,7 @@ function renderNamespaceProxy(
   const from = JSON.stringify(declaration.descriptorPath);
   const aliasPrefix = JSON.stringify(declaration.aliasPrefix);
 
-  return `const ${declaration.localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
+  return `const ${declaration.localName} = new Proxy({}, { get: (_t, k) => { const member = String(k); if (!${NAMESPACE_MEMBER_REGEX}.test(member)) { throw new Error("Unsupported namespace import member " + JSON.stringify(member) + " from " + ${from} + ". Use dot access with a JavaScript identifier."); } return { import: member, from: ${from}, alias: ${aliasPrefix} + member } as const; } }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
 }
 
 function renderDescriptor(descriptor: ExtImportDescriptor): string {
@@ -88,6 +90,8 @@ function formatImportDiagnosticReason(reason: ImportDiagnosticReason): string {
   switch (reason) {
     case "sideEffectImport":
       return "Side-effect imports are not supported.";
+    case "importEqualsImport":
+      return "Import equals declarations are not supported.";
     case "typeOnlyImport":
       return "Type-only imports are not supported.";
     case "mixedTypeAndValueImport":

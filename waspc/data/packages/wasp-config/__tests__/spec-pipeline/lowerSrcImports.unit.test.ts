@@ -62,7 +62,7 @@ describe("lowerSrcImports", () => {
     const input = `import * as ops from "@src/operations";\n`;
     const output = lowerSrcImports(input);
     expect(output).toBe(
-      `const ops = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: "@src/operations", alias: "ops_" + String(k) } as const) }) as Record<string, { import: string; from: "@src/operations"; alias: string }>;\n`,
+      `${expectedNamespaceProxy("ops", "@src/operations", "ops_")}\n`,
     );
   });
 
@@ -75,8 +75,12 @@ describe("lowerSrcImports", () => {
     const output = lowerSrcImports(input);
     expect(output).toBe(
       [
-        `const ops = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: "@src/operations", alias: "ops_" + String(k) } as const) }) as Record<string, { import: string; from: "@src/operations"; alias: string }>;`,
-        `const legacyOps = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: "@src/legacyOperations", alias: "legacyOps_" + String(k) } as const) }) as Record<string, { import: string; from: "@src/legacyOperations"; alias: string }>;`,
+        expectedNamespaceProxy("ops", "@src/operations", "ops_"),
+        expectedNamespaceProxy(
+          "legacyOps",
+          "@src/legacyOperations",
+          "legacyOps_",
+        ),
         ``,
       ].join("\n"),
     );
@@ -133,7 +137,7 @@ describe("lowerSrcImports", () => {
       `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
     );
     expect(output).toContain(
-      `const ops = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: "@src/operations", alias: "ops_" + String(k) } as const) }) as Record<string, { import: string; from: "@src/operations"; alias: string }>;`,
+      expectedNamespaceProxy("ops", "@src/operations", "ops_"),
     );
     expect(output).toContain(`import { App } from "wasp-config";`);
     expect(output).toContain(`import helper from "./helpers";`);
@@ -157,6 +161,14 @@ describe("lowerSrcImports", () => {
     const input = `import "@src/setup";\n`;
 
     expect(() => lowerSrcImports(input)).toThrowError(/Side-effect imports/);
+  });
+
+  test("rejects import equals declarations from @src", () => {
+    const input = `import MainPage = require("@src/MainPage");\n`;
+
+    expect(() => lowerSrcImports(input)).toThrowError(
+      /Import equals declarations/,
+    );
   });
 
   test("rejects re-exports from @src", () => {
@@ -185,3 +197,14 @@ describe("lowerSrcImports", () => {
     expect(() => lowerSrcImports(input)).toThrowError(/Empty named imports/);
   });
 });
+
+function expectedNamespaceProxy(
+  localName: string,
+  from: string,
+  aliasPrefix: string,
+): string {
+  const quotedFrom = JSON.stringify(from);
+  const quotedAliasPrefix = JSON.stringify(aliasPrefix);
+
+  return `const ${localName} = new Proxy({}, { get: (_t, k) => { const member = String(k); if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(member)) { throw new Error("Unsupported namespace import member " + JSON.stringify(member) + " from " + ${quotedFrom} + ". Use dot access with a JavaScript identifier."); } return { import: member, from: ${quotedFrom}, alias: ${quotedAliasPrefix} + member } as const; } }) as Record<string, { import: string; from: ${quotedFrom}; alias: string }>;`;
+}
