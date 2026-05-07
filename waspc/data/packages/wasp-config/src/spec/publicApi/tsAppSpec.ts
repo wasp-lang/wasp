@@ -1,5 +1,5 @@
 import * as AppSpec from "../../appSpec.js";
-import type { ExtImport } from "../extImport.js";
+import type { CallableExtImportInput, ExtImport } from "../extImport.js";
 
 export type App = {
   name: string;
@@ -106,7 +106,7 @@ export type Part = Page | Route | Query | Action | Api | ApiNamespace | Job;
 export type Page = MakePart<
   "page",
   {
-    component: ExtImport;
+    component: CallableExtImportInput;
     authRequired?: boolean;
   }
 >;
@@ -125,7 +125,7 @@ export type Route = MakePart<
 export type Query = MakePart<
   "query",
   {
-    fn: ExtImport;
+    fn: CallableExtImportInput;
     entities?: string[];
     auth?: boolean;
   }
@@ -134,7 +134,7 @@ export type Query = MakePart<
 export type Action = MakePart<
   "action",
   {
-    fn: ExtImport;
+    fn: CallableExtImportInput;
     entities?: string[];
     auth?: boolean;
   }
@@ -186,6 +186,7 @@ export type ExecutorOptions = {
 };
 
 export type {
+  CallableExtImportInput,
   DefaultExtImport,
   ExtImport,
   NamedExtImport,
