@@ -177,6 +177,7 @@ function makeVirtualCompilerHost({
 }
 
 function getVirtualSourcePath(inputPath: string, outputPath: string): string {
+  // Keep the old rewritten-file name in diagnostics without writing it to disk.
   return join(
     dirname(outputPath),
     basename(inputPath).replace(/\.ts$/, ".rewritten.ts"),
