@@ -1,6 +1,5 @@
 module Wasp.Project.ExternalConfig.TsConfig
   ( parseAndValidateTsConfigFile,
-
     -- Exported only for testing
     validateTsConfig,
   )
