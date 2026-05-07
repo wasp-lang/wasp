@@ -82,7 +82,6 @@ data TsConfigPaths = TsConfigPaths
     rootTsConfig :: Maybe (Path' (Rel WaspProjectDir) (File RootTsConfigFile))
   }
 
--- | NOTE: If you change the depth of this path, also update @waspProjectDirFromProjectRootDir@ below.
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
 dotWaspDirInWaspProjectDir = [reldir|.wasp|]
