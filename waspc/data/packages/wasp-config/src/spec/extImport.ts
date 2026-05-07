@@ -1,4 +1,5 @@
 import type * as AppSpec from "../appSpec.js";
+import type { Result } from "../result.js";
 
 export type ExtImport = NamedExtImport | DefaultExtImport;
 
@@ -13,24 +14,40 @@ export interface DefaultExtImport {
   from: AppSpec.ExtImport["path"];
 }
 
-export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
+export function mapExtImport(extImport: unknown): AppSpec.ExtImport {
+  const result = tryMapExtImport(extImport);
+  if (result.status === "ok") return result.value;
+
+  throw new Error(result.error);
+}
+
+export function tryMapExtImport(
+  extImport: unknown,
+): Result<AppSpec.ExtImport, string> {
   if (isNamedExtImport(extImport)) {
     return {
-      kind: "named",
-      name: extImport.import,
-      path: extImport.from,
-      alias: extImport.alias,
+      status: "ok",
+      value: {
+        kind: "named",
+        name: extImport.import,
+        path: extImport.from,
+        alias: extImport.alias,
+      },
     };
   } else if (isDefaultExtImport(extImport)) {
     return {
-      kind: "default",
-      name: extImport.importDefault,
-      path: extImport.from,
+      status: "ok",
+      value: {
+        kind: "default",
+        name: extImport.importDefault,
+        path: extImport.from,
+      },
     };
   } else {
-    throw new Error(
-      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
-    );
+    return {
+      status: "error",
+      error: invalidExtImportError,
+    };
   }
 }
 
@@ -50,6 +67,12 @@ function isDefaultExtImport(value: unknown): value is DefaultExtImport {
     typeof value.from === "string"
   );
 }
+
+const invalidExtImportError =
+  "Invalid ExtImport value: got a runtime value that is not a valid ExtImport. " +
+  "Import values from @src/* so Wasp can rewrite them automatically, " +
+  "or provide an ExtImport object directly: " +
+  "{ import, from, alias } or { importDefault, from } (alias is optional for named imports).";
 
 function hasValidAlias(value: Record<string, unknown>): boolean {
   return value.alias === undefined || typeof value.alias === "string";
