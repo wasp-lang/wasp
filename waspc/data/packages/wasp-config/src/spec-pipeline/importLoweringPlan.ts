@@ -49,6 +49,8 @@ export type SourceLocation = {
   column: number;
 };
 
+// Import lowering turns authored @src imports into ExtImport descriptors so
+// spec evaluation can reference user code without loading it at runtime.
 export function planImportLowering(sourceText: string): ImportLoweringResult {
   const sourceFile = ts.createSourceFile(
     "input.ts",
