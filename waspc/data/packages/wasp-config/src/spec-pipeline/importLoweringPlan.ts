@@ -40,6 +40,7 @@ export type ImportDiagnostic = {
 
 export type ImportDiagnosticReason =
   | "sideEffectImport"
+  | "importEqualsImport"
   | "typeOnlyImport"
   | "mixedTypeAndValueImport"
   | "emptyNamedImport"
@@ -90,6 +91,11 @@ function planStatementLowering(
   sourceFile: ts.SourceFile,
   stmt: ts.Statement,
 ): StatementLowering | undefined {
+  if (ts.isImportEqualsDeclaration(stmt)) {
+    const diagnostic = getImportEqualsDiagnostic(sourceFile, stmt);
+    return diagnostic && { kind: "diagnostic", diagnostic };
+  }
+
   if (ts.isExportDeclaration(stmt)) {
     const diagnostic = getSrcReExportDiagnostic(sourceFile, stmt);
     return diagnostic && { kind: "diagnostic", diagnostic };
@@ -173,6 +179,29 @@ function getSrcImportDiagnostic(
   }
 
   return undefined;
+}
+
+function getImportEqualsDiagnostic(
+  sourceFile: ts.SourceFile,
+  stmt: ts.ImportEqualsDeclaration,
+): ImportDiagnostic | undefined {
+  const specifier = getImportEqualsSpecifier(stmt);
+  if (!specifier || !isSrcImportSpecifier(specifier)) {
+    return undefined;
+  }
+
+  return makeDiagnostic(sourceFile, stmt, specifier, "importEqualsImport");
+}
+
+function getImportEqualsSpecifier(
+  stmt: ts.ImportEqualsDeclaration,
+): string | undefined {
+  const moduleReference = stmt.moduleReference;
+  if (!ts.isExternalModuleReference(moduleReference)) {
+    return undefined;
+  }
+
+  return getStringModuleSpecifier(moduleReference.expression);
 }
 
 function getSrcReExportDiagnostic(
