@@ -1,6 +1,6 @@
 {
   "name": "wasp-deploy",
-  "version": "0.0.1",
+  "version": "0.24.0",
   "type": "module",
   "author": "Wasp Team",
   "license": "MIT",
