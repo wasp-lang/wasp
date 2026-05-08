@@ -36,13 +36,10 @@ export function assertPackageVersionMatchesWaspc(
   const waspcVersion = getWaspcVersion();
 
   if (packageVersion !== waspcVersion) {
-    console.error(
-      `ERROR: ${packageName} package version (${packageVersion}) != current Wasp version (${waspcVersion}).`,
+    throw new Error(
+      `${packageName} package version (${packageVersion}) != current Wasp version (${waspcVersion}). ` +
+        `Update the package version in package.json to ${waspcVersion}.`,
     );
-    console.error(
-      `       Update the package version in package.json to ${waspcVersion}.`,
-    );
-    throw new Error();
   }
 }
 

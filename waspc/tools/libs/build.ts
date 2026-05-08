@@ -12,7 +12,12 @@ import {
 } from "../utils.ts";
 import { getDataLibsDirPath } from "./utils.ts";
 
-buildLibs();
+try {
+  buildLibs();
+} catch (e) {
+  console.error(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
+  process.exit(1);
+}
 
 function buildLibs(): void {
   const dataLibsDirPath = getDataLibsDirPath();

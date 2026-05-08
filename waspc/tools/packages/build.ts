@@ -9,7 +9,12 @@ import {
 } from "../utils.ts";
 import { getDataPackagesDirPath } from "./utils.ts";
 
-buildPackages();
+try {
+  buildPackages();
+} catch (e) {
+  console.error(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
+  process.exit(1);
+}
 
 function buildPackages(): void {
   const dataPackagesDirPath = getDataPackagesDirPath();
