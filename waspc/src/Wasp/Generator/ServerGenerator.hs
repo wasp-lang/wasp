@@ -183,7 +183,7 @@ npmDepsFromWasp spec =
               ("typescript", show typescriptVersionRange),
               ("@types/express", show expressTypesVersionRange),
               ("@types/express-serve-static-core", show expressTypesVersionRange),
-              ("@types/node", "^" <> majorNodeVersionStr <> ".0.0"),
+              ("@types/node", NodeVersion.nodeTypesPackageVersionRange $ getLowestNodeVersionUserAllows spec),
               ("@tsconfig/node" <> majorNodeVersionStr, "latest"),
               ("@types/cors", "^2.8.5"),
               ("rollup", "^4.9.6"),

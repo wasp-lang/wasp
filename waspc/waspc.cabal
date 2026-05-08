@@ -728,6 +728,7 @@ test-suite waspc-tests
     Node.InternalTest
     Paths_waspc
     Project.DbTest
+    Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest
     Project.ExternalConfig.SrcTsConfigTest
     Project.ExternalConfig.TsConfigTest
