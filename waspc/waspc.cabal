@@ -856,6 +856,7 @@ test-suite waspc-e2e-tests
     Tests.WaspBuildTest
     Tests.WaspCleanTest
     Tests.WaspCompileTest
+    Tests.WaspConfigAvailableTest
     Tests.WaspCompletionTest
     Tests.WaspDbMigrateDevTest
     Tests.WaspDbResetTest
@@ -865,6 +866,7 @@ test-suite waspc-e2e-tests
     Tests.WaspDepsTest
     Tests.WaspDockerfileTest
     Tests.WaspInfoTest
+    Tests.WaspInstallTest
     Tests.WaspNewTest
     Tests.WaspStartTest
     Tests.WaspStudioTest

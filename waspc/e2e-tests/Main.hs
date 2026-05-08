@@ -14,12 +14,14 @@ import Tests.WaspBuildTest (waspBuildTest)
 import Tests.WaspCleanTest (waspCleanTest)
 import Tests.WaspCompileTest (waspCompileTest)
 import Tests.WaspCompletionTest (waspCompletionTest)
+import Tests.WaspConfigAvailableTest (waspConfigAvailableTest)
 import Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest)
 import Tests.WaspDbResetTest (waspDbResetTest)
 import Tests.WaspDbSeedTest (waspDbSeedTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInfoTest (waspInfoTest)
+import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
@@ -65,7 +67,9 @@ e2eTests = do
         viteConfigTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
+        waspConfigAvailableTest,
         waspInfoTest,
+        waspInstallTest,
         waspDepsTest,
         waspDockerfileTest,
         -- FIXME: waspStudioTest,
