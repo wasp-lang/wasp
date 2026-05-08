@@ -239,27 +239,3 @@ function makeDeclsArray(decls: {
 }): AppSpec.Decl[] {
   return Object.values(decls).flatMap((decl) => [...decl]);
 }
-
-/**
- * This is not a proper deep equal implementation.
- * It is made to be good enough for comparing TS spec values,
- * and shouldn't be used outside of this purpose.
- */
-function deepEqual(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (a === null || b === null) return false;
-  if (typeof a !== "object" || typeof b !== "object") return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  if (Array.isArray(a) && Array.isArray(b)) {
-    return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
-  }
-  const aKeys = Object.keys(a);
-  const bKeys = Object.keys(b);
-  if (aKeys.length !== bKeys.length) return false;
-  return aKeys.every((k) =>
-    deepEqual(
-      (a as Record<string, unknown>)[k],
-      (b as Record<string, unknown>)[k],
-    ),
-  );
-}
