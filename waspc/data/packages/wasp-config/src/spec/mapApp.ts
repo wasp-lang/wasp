@@ -5,6 +5,7 @@
 
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
+import { TsSpecError } from "./tsSpecError.js";
 
 export function mapApp(
   app: TsAppSpec.App,
@@ -131,11 +132,10 @@ export function dedupePageDecls(
   return Array.from(groups.values()).map((group) =>
     group.reduce((first, current) => {
       if (!deepEqual(current, first)) {
-        throw new Error(
+        throw new TsSpecError(
           `Conflicting configs for page "${first.declName}". ` +
-            "A page can be derived from an explicit `page(...)` part or from " +
-            "an inline route page; all derivations that share a name must " +
-            "produce the same config.",
+            "All page instances pointing to the same component " +
+            "must produce the same configuration.",
         );
       }
       return first;
