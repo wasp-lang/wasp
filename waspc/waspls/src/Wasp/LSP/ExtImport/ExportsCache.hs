@@ -22,7 +22,7 @@ import Wasp.LSP.ExtImport.Path (WaspStyleExtFilePath, absPathToCachePath, cacheP
 import Wasp.LSP.ExtImport.Syntax (ExtImportNode (einName, einPath), getAllExtImports)
 import Wasp.LSP.ServerMonads (HandlerM, ServerM, getProjectRootDir, handler, modify)
 import qualified Wasp.LSP.ServerState as State
-import Wasp.Project.Common (TsConfigPaths (..), tsConfigPahtsInWaspLangProjects)
+import Wasp.Project.Common (TsConfigPaths (..), tsConfigPathsInWaspLangProjects)
 import qualified Wasp.TypeScript.Inspect.Exports as TS
 
 -- | Based on the files imported in the external imports of the current concrete
@@ -63,7 +63,7 @@ refreshExportsOfFiles files = do
     getExportRequestForFile projectRootDir file =
       TS.TsExportsRequest
         { TS.filepaths = [SP.fromAbsFile file],
-          TS.tsconfig = Just $ SP.fromAbsFile $ projectRootDir </> tsConfigPahtsInWaspLangProjects.srcTsConfig
+          TS.tsconfig = Just $ SP.fromAbsFile $ projectRootDir </> tsConfigPathsInWaspLangProjects.srcTsConfig
         }
 
     -- Replaces entries in the exports cache with the exports lists in the

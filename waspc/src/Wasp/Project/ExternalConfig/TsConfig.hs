@@ -20,17 +20,17 @@ parseAndValidateTsConfigFile ::
   Path' Abs (Dir WaspProjectDir) ->
   Path' (Rel WaspProjectDir) (File f) ->
   IO (Validation [CompileError] T.TsConfig)
-parseAndValidateTsConfigFile validator waspDir someTsConfigInProjectDir =
+parseAndValidateTsConfigFile validator waspDir tsConfigPathInProject =
   fmap eitherToValidation . runExceptT $ do
-    tsConfigFile <- withExceptT (: []) $ ExceptT tsConfigOrError
-    tsConfigContents <- withExceptT (: []) $ ExceptT $ parseTsConfigFile tsConfigFile
+    absTsConfigPath <- withExceptT (: []) $ ExceptT absTsConfigPathOrError
+    tsConfigContents <- withExceptT (: []) $ ExceptT $ parseTsConfigFile absTsConfigPath
     case validateTsConfig validator tsConfigFileName tsConfigContents of
       [] -> return tsConfigContents
       errors -> liftEither $ Left errors
   where
-    tsConfigOrError = maybeToEither fileNotFoundMessage <$> findFileInWaspProjectDir waspDir someTsConfigInProjectDir
+    absTsConfigPathOrError = maybeToEither fileNotFoundMessage <$> findFileInWaspProjectDir waspDir tsConfigPathInProject
     fileNotFoundMessage = "Couldn't find " ++ tsConfigFileName ++ " in the " ++ toFilePath waspDir ++ " directory"
-    tsConfigFileName = fromRelFile someTsConfigInProjectDir
+    tsConfigFileName = fromRelFile tsConfigPathInProject
 
 validateTsConfig :: V.Validator T.TsConfig -> String -> T.TsConfig -> [CompileError]
 validateTsConfig validator tsConfigFileName tsConfigContents =

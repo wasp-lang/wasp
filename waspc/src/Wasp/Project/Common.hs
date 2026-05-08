@@ -21,7 +21,7 @@ module Wasp.Project.Common
     srcDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
     getTsConfigPathsForWaspProject,
-    tsConfigPahtsInWaspLangProjects,
+    tsConfigPathsInWaspLangProjects,
     tsConfigPathsInWaspTsProjects,
     TsConfigPaths (..),
     WaspTsConfigFile,
@@ -116,7 +116,7 @@ userPackageJsonInWaspProjectDir = [relfile|package.json|]
 getTsConfigPathsForWaspProject :: WaspFilePath -> TsConfigPaths
 getTsConfigPathsForWaspProject = \case
   WaspTs _ -> tsConfigPathsInWaspTsProjects
-  WaspLang _ -> tsConfigPahtsInWaspLangProjects
+  WaspLang _ -> tsConfigPathsInWaspLangProjects
 
 tsConfigPathsInWaspTsProjects :: TsConfigPaths
 tsConfigPathsInWaspTsProjects =
@@ -126,8 +126,8 @@ tsConfigPathsInWaspTsProjects =
       waspTsConfig = Just [relfile|tsconfig.wasp.json|]
     }
 
-tsConfigPahtsInWaspLangProjects :: TsConfigPaths
-tsConfigPahtsInWaspLangProjects =
+tsConfigPathsInWaspLangProjects :: TsConfigPaths
+tsConfigPathsInWaspLangProjects =
   TsConfigPaths
     { srcTsConfig = [relfile|tsconfig.json|],
       rootTsConfig = Nothing,
