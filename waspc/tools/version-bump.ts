@@ -124,9 +124,6 @@ function rebuildLibs(): void {
   });
 }
 
-// Re-runs `npm install && npm run build` for every package under
-// `data/packages/`, picking up the version bump in `package.json` and
-// regenerating each `package-lock.json`.
 function rebuildPackages(): void {
   runCmd("node", [join("tools", "packages", "build.ts")], {
     cwd: waspcDirPath,
