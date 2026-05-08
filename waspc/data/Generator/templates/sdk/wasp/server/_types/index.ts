@@ -15,11 +15,6 @@ import { type Payload } from 'wasp/core/serialization'
 export * from "./taggedEntities"
 export * from "wasp/core/serialization"
 
-/**
- * A supertype of all possible operation definitions (i.e., Queries and Actions).
- */
-export type GenericOperationDefinition = (args: never, context: any) => unknown
-
 export type UnauthenticatedQueryDefinition<
   Entities extends _Entity[],
   Input extends Payload,

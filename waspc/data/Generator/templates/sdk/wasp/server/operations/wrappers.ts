@@ -1,6 +1,6 @@
 {{={= =}=}}
 import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
-import { GenericOperationDefinition } from '../_types'
+import { GenericBackendOperation } from '../_types'
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}
@@ -12,10 +12,6 @@ import {
   UnauthenticatedOperationDefinition,
   Payload,
 } from '../_types'
-
-// PRIVATE API (used in SDK)
-export type OperationInput<Operation extends GenericOperationDefinition> = Parameters<Operation>[0];
-export type OperationOutput<Operation extends GenericOperationDefinition> = _Awaited<_ReturnType<Operation>>
 
 // PRIVATE API (used in SDK)
 // Explanation:
@@ -33,10 +29,10 @@ export type OperationOutput<Operation extends GenericOperationDefinition> = _Awa
 export type UnauthenticatedOperationFor<
   OperationDefinition extends GenericUnauthenticatedOperationDefinition
 > = Parameters<OperationDefinition> extends []
-  ? UnauthenticatedOperation<void, OperationOutput<OperationDefinition>>
+  ? UnauthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
   : UnauthenticatedOperation<
-      OperationInput<OperationDefinition>,
-      OperationOutput<OperationDefinition>
+      Parameters<OperationDefinition>[0],
+      _Awaited<_ReturnType<OperationDefinition>>
     >
 
 // PRIVATE API (used in SDK)
@@ -54,7 +50,7 @@ export function createUnauthenticatedOperation<
   userOperation: OperationDefinition,
   entities: EntityMapFor<OperationDefinition>
 ): UnauthenticatedOperationFor<OperationDefinition> {
-  async function operation(payload: OperationInput<OperationDefinition>) {
+  async function operation(payload: Parameters<OperationDefinition>[0]) {
     return userOperation(payload, {
       entities,
     })
@@ -82,10 +78,10 @@ export function createUnauthenticatedOperation<
 export type AuthenticatedOperationFor<
   OperationDefinition extends GenericAuthenticatedOperationDefinition
 > = Parameters<OperationDefinition> extends []
-  ? AuthenticatedOperation<void, OperationOutput<OperationDefinition>>
+  ? AuthenticatedOperation<void, _Awaited<_ReturnType<OperationDefinition>>>
   : AuthenticatedOperation<
-      OperationInput<OperationDefinition>,
-      OperationOutput<OperationDefinition>
+      Parameters<OperationDefinition>[0],
+      _Awaited<_ReturnType<OperationDefinition>>
     >
 
 /**
@@ -123,14 +119,14 @@ export function createAuthenticatedOperation<
     } else if (includesPayload(args)) {
       // Two arguments sent -> the first argument is the payload, the second is the context.
       const [payload, context] = args
-      return userOperation(payload as OperationInput<OperationDefinition>, {
+      return userOperation(payload as Parameters<OperationDefinition>[0], {
         ...context,
         entities,
       })
     } else {
       // One argument sent -> the first and only argument is the user.
       const [context] = args
-      return userOperation(undefined as OperationInput<OperationDefinition>, {
+      return userOperation(undefined as Parameters<OperationDefinition>[0], {
         ...context,
         entities,
       })

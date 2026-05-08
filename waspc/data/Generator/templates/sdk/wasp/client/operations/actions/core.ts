@@ -1,4 +1,4 @@
-import { GenericOperationDefinition } from '../../../server/_types/index.js'
+import { GenericBackendOperation } from '../../../server/_types/index.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   registerActionDone,
@@ -7,7 +7,7 @@ import {
 import type { OperationRpcFor } from '../rpc.js'
 
 // PRIVATE API
-export function createAction<BackendAction extends GenericOperationDefinition>(
+export function createAction<BackendAction extends GenericBackendOperation>(
   relativeActionRoute: string,
   entitiesUsed: unknown[]
 ): ActionFor<BackendAction> {
@@ -45,5 +45,5 @@ export function createAction<BackendAction extends GenericOperationDefinition>(
 }
 
 // PRIVATE API
-export type ActionFor<BackendAction extends GenericOperationDefinition> =
+export type ActionFor<BackendAction extends GenericBackendOperation> =
   OperationRpcFor<BackendAction>

@@ -1,5 +1,5 @@
 import { Route } from 'wasp/client'
-import { GenericOperationDefinition } from '../../../server/_types/index.js'
+import { GenericBackendOperation } from '../../../server/_types/index.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
   addResourcesUsedByQuery,
@@ -25,7 +25,7 @@ export function makeQueryCacheKey<Input, Output>(
 }
 
 // PRIVATE API (unsed in SDK)
-export function createQuery<BackendQuery extends GenericOperationDefinition>(
+export function createQuery<BackendQuery extends GenericBackendOperation>(
   relativeQueryPath: string,
   entitiesUsed: string[]
 ): QueryFor<BackendQuery> {
@@ -73,14 +73,14 @@ export function buildAndRegisterQuery<QF extends GenericOperationRpc>(
  * Constructs the client Query object type from the type of the Query's definition
  * on the backend.
  */
-export type QueryFor<BackendQuery extends GenericOperationDefinition> =
+export type QueryFor<BackendQuery extends GenericBackendOperation> =
   QueryForFunction<QueryFunctionFor<BackendQuery>>
 
 /**
  * Constructs the client Query function type from the type of the Query's
  * definition on the backend.
  */
-type QueryFunctionFor<BackendQuery extends GenericOperationDefinition> =
+type QueryFunctionFor<BackendQuery extends GenericBackendOperation> =
   OperationRpcFor<BackendQuery>
 
 /**
