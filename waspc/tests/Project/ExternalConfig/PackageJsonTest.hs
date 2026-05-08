@@ -6,12 +6,11 @@ import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (TsConfigPaths, tsConfigPathsInWaspLangProjects, tsConfigPathsInWaspTsProjects)
-import Wasp.Project.ExternalConfig.PackageJson (packageJsonValidator)
-import qualified Wasp.Validator as V
+import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForProject)
 
 spec_PackageJson :: Spec
 spec_PackageJson = do
-  describe "packageJsonValidator" $ do
+  describe "validatePackageJsonForProject" $ do
     it "returns no errors for a valid Wasp TS project package.json" $
       validate tsConfigPathsInWaspTsProjects (validPackageJson `withDevDependency` requiredNodeTypesDependency)
         `shouldBe` []
@@ -33,7 +32,7 @@ spec_PackageJson = do
         `shouldBe` []
 
 validate :: TsConfigPaths -> P.PackageJson -> [String]
-validate tsConfigPaths = map show . V.execValidator (packageJsonValidator tsConfigPaths)
+validate = validatePackageJsonForProject
 
 validPackageJson :: P.PackageJson
 validPackageJson =
