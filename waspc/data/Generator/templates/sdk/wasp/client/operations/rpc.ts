@@ -1,8 +1,9 @@
 import { type Route } from "wasp/client";
 import type {
-  IfAny
+  IfAny,
+  _Awaited,
+  _ReturnType
 } from "wasp/universal/types";
-import { _Awaited, _ReturnType } from "../../universal/types";
 
 // PRIVATE API (for SDK, should maybe be public, users define values of this
 // type).
@@ -68,7 +69,7 @@ export type OperationRpcFor<BackendOperation extends GenericBackendOperation> =
  */
 export type GenericBackendOperation = (args: never, context: any) => unknown
 
-  // PRIVATE API (needed in SDK)
+// PRIVATE API (needed in SDK)
 /**
  * A supertype of all possible frontend RPC function types.
  */

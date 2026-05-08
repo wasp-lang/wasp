@@ -1,6 +1,5 @@
 {{={= =}=}}
 import { IfAny, _Awaited, _ReturnType, _Parameters } from '../../universal/types'
-import { GenericBackendOperation } from '../_types'
 {=# isAuthEnabled =}
 import { type AuthUser } from 'wasp/auth'
 {=/ isAuthEnabled =}

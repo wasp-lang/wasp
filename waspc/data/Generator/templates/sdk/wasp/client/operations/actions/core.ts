@@ -1,10 +1,10 @@
-import { GenericBackendOperation } from '../../../server/_types/index.js'
+import type { _Awaited, _ReturnType } from 'wasp/universal/types'
+import type { OperationRpcFor, GenericBackendOperation } from '../rpc.js'
 import { callOperation, makeOperationRoute } from '../internal/index.js'
 import {
-  registerActionDone,
   registerActionInProgress,
+  registerActionDone,
 } from '../internal/resources.js'
-import type { OperationRpcFor } from '../rpc.js'
 
 // PRIVATE API
 export function createAction<BackendAction extends GenericBackendOperation>(
