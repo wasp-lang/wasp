@@ -16,7 +16,7 @@ try {
   buildLibs();
 } catch (e) {
   console.error(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
-  process.exit(1);
+  process.exitCode = 1;
 }
 
 function buildLibs(): void {
