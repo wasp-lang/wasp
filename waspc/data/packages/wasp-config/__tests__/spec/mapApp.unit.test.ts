@@ -11,7 +11,7 @@ import {
   mapRoute,
   normalizeRoutePage,
 } from "../../src/spec/mapApp.js";
-import { app, page, route } from "../../src/spec/publicApi/index.js";
+import { app } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -91,44 +91,6 @@ describe("mapApp", () => {
       },
     ] satisfies AppSpec.Decl[]);
   });
-
-  test("dedups a page referenced both explicitly and via a route shorthand", () => {
-    const aboutPage = page({ import: "AboutPage", from: "@src/About" });
-    const spec = app({
-      name: "TodoApp",
-      wasp: { version: "^0.16.3" },
-      title: "Todo",
-      parts: [aboutPage, route("aboutRoute", "/about", { ...aboutPage })],
-    });
-
-    const decls = mapApp(spec, []);
-
-    const pageNames = decls
-      .filter((d) => d.declType === "Page")
-      .map((d) => d.declName);
-    expect(pageNames).toEqual(["AboutPage"]);
-  });
-
-  test("throws when the same page name is produced with differing configs", () => {
-    const aboutPage = page({ import: "AboutPage", from: "@src/About" });
-    const modifiedAboutPage: TsAppSpec.Page = {
-      ...aboutPage,
-      authRequired: true,
-    };
-
-    const spec = app({
-      name: "TodoApp",
-      wasp: { version: "^0.16.3" },
-      title: "Todo",
-      parts: [aboutPage, route("aboutRoute", "/about", modifiedAboutPage)],
-    });
-
-    expect(() => mapApp(spec, [])).toThrow(
-      /Conflicting configs for page "AboutPage"/,
-    );
-  });
-
-  // TODO: duplicate query name → throw.
 });
 
 describe("mapPage", () => {

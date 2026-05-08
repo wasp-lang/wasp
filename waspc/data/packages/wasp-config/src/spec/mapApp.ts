@@ -73,7 +73,7 @@ export function mapApp(
 
   return makeDeclsArray({
     App: [appDecl],
-    Page: dedupePageDecls([...pageDecls, ...routePageDecls]),
+    Page: [...pageDecls, ...routePageDecls],
     Route: routeDecls,
     Query: queryDecls,
     Action: actionDecls,
@@ -120,32 +120,6 @@ export function normalizeRoutePage(
 ): TsAppSpec.Page {
   if ("kind" in routePage) return routePage;
   return { kind: "page", component: routePage };
-}
-
-/**
- * Pages can be constructed:
- * - Explicitly - through {@link TsAppSpec.Page} constructore.
- * - Implicitly - through {@link TsAppSpec.Route} constructor.
- *
- * Here we make sure this does not produce any inconsistencies.
- */
-export function dedupePageDecls(
-  decls: AppSpec.GetDeclForType<"Page">[],
-): AppSpec.GetDeclForType<"Page">[] {
-  const groups = Map.groupBy(decls, (decls) => decls.declName);
-  return Array.from(groups.values()).map((group) =>
-    group.reduce((first, current) => {
-      if (!deepEqual(current, first)) {
-        throw new Error(
-          `Conflicting configs for page "${first.declName}". ` +
-            "A page can be derived from an explicit `page(...)` part or from " +
-            "an inline route page; all derivations that share a name must " +
-            "produce the same config.",
-        );
-      }
-      return first;
-    }),
-  );
 }
 
 export function mapQuery(
