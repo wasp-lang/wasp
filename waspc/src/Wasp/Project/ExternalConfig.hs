@@ -27,10 +27,10 @@ parseAndValidateExternalConfigs ::
   Path' Abs (Dir WaspProjectDir) ->
   TsConfigPaths ->
   IO (Either [CompileError] ExternalConfigs)
-parseAndValidateExternalConfigs waspDir TsConfigPaths {srcTsConfig, waspTsConfig, rootTsConfig} = do
+parseAndValidateExternalConfigs waspDir tsConfigPaths@TsConfigPaths {srcTsConfig, waspTsConfig, rootTsConfig} = do
   -- NOTE: We use Validation instead of Either because we don't want to fail
   -- early. We want to collect all validation errors.
-  packageJsonOrErrors <- parseAndValidateUserPackageJson waspDir
+  packageJsonOrErrors <- parseAndValidateUserPackageJson waspDir tsConfigPaths
   srcTsConfigOrErrors <- parseAndValidateSrcTsConfig waspDir srcTsConfig
   maybeWaspTsConfigOrErrors <- traverse (parseAndValidateWaspTsConfig waspDir) waspTsConfig
   maybeRootTsConfigOrErrors <- traverse (parseAndValidateRootTsConfig waspDir) rootTsConfig
