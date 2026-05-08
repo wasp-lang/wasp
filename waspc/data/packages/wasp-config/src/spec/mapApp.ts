@@ -73,7 +73,7 @@ export function mapApp(
 
   return makeDeclsArray({
     App: [appDecl],
-    Page: [...pageDecls, ...routePageDecls],
+    Page: dedupePageDecls([...pageDecls, ...routePageDecls]),
     Route: routeDecls,
     Query: queryDecls,
     Action: actionDecls,
@@ -94,32 +94,53 @@ export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
 }
 
 /**
- * Route always has an accompanying page.
+ * {@link TsAppSpec.Route} always has an accompanying {@link TsAppSpec.Page}.
  */
 export function mapRoute(route: TsAppSpec.Route): {
   routeName: string;
   route: AppSpec.Route;
   page: AppSpec.Page;
 } {
-  const normalizedPage = normalizeRoutePage(route.page);
-  const pageName = deriveExtImportName(normalizedPage.component);
   return {
     routeName: route.name,
     route: {
       path: route.path,
-      to: { name: pageName, declType: "Page" },
+      to: {
+        name: deriveExtImportName(route.page.component),
+        declType: "Page",
+      },
       prerender: undefined,
       lazy: undefined,
     },
-    page: mapPage(normalizedPage),
+    page: mapPage(route.page),
   };
 }
 
-export function normalizeRoutePage(
-  routePage: TsAppSpec.Route["page"],
-): TsAppSpec.Page {
-  if ("kind" in routePage) return routePage;
-  return { kind: "page", component: routePage };
+/**
+ * {@link TsAppSpec.Route} through it's constructor can either:
+ * - Create a new {@link TsAppSpec.Page}.
+ * - Reference an existing {@link TsAppSpec.Page}.
+ *
+ * In case when it references an existing page, we don't want to
+ * count the reference as a separate {@link AppSpec.Page} declaration.
+ */
+export function dedupePageDecls(
+  decls: AppSpec.GetDeclForType<"Page">[],
+): AppSpec.GetDeclForType<"Page">[] {
+  const groups = Map.groupBy(decls, (decls) => decls.declName);
+  return Array.from(groups.values()).map((group) =>
+    group.reduce((first, current) => {
+      if (!deepEqual(current, first)) {
+        throw new Error(
+          `Conflicting configs for page "${first.declName}". ` +
+            "A page can be derived from an explicit `page(...)` part or from " +
+            "an inline route page; all derivations that share a name must " +
+            "produce the same config.",
+        );
+      }
+      return first;
+    }),
+  );
 }
 
 export function mapQuery(
@@ -238,4 +259,28 @@ function makeDeclsArray(decls: {
   [Type in AppSpec.Decl["declType"]]: AppSpec.GetDeclForType<Type>[];
 }): AppSpec.Decl[] {
   return Object.values(decls).flatMap((decl) => [...decl]);
+}
+
+/**
+ * This is not a proper deep equal implementation.
+ * It is made to be good enough for comparing TS spec values,
+ * and shouldn't be used outside of this purpose.
+ */
+function deepEqual(a: unknown, b: unknown): boolean {
+  if (a === b) return true;
+  if (a === null || b === null) return false;
+  if (typeof a !== "object" || typeof b !== "object") return false;
+  if (Array.isArray(a) !== Array.isArray(b)) return false;
+  if (Array.isArray(a) && Array.isArray(b)) {
+    return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
+  }
+  const aKeys = Object.keys(a);
+  const bKeys = Object.keys(b);
+  if (aKeys.length !== bKeys.length) return false;
+  return aKeys.every((k) =>
+    deepEqual(
+      (a as Record<string, unknown>)[k],
+      (b as Record<string, unknown>)[k],
+    ),
+  );
 }

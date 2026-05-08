@@ -1,11 +1,4 @@
-import type {
-  Action,
-  App,
-  ExtImport,
-  Page,
-  Query,
-  Route,
-} from "./tsAppSpec.js";
+import type { Action, App, Page, Query, Route } from "./tsAppSpec.js";
 
 export function app(input: Omit<App, "kind">): App {
   return input;
@@ -21,7 +14,7 @@ export function page(
 export function route(
   name: Route["name"],
   path: Route["path"],
-  page: Route["page"] | ExtImport,
+  page: Route["page"],
 ): Route {
   return { kind: "route", name, path, page };
 }

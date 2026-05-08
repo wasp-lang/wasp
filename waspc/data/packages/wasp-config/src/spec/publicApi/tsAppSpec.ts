@@ -21,7 +21,7 @@ export type Route = MakePart<
   {
     name: string;
     path: string;
-    page: Page | ExtImport;
+    page: Page;
   }
 >;
 
