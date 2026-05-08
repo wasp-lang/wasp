@@ -36,10 +36,10 @@ const waspClientEnvSchema = import.meta.env.MODE === "production"
   ? waspProdClientEnvSchema
   : waspDevClientEnvSchema;
 
-export type ClientEnvSchema = z.ZodObject<typeof waspClientEnvSchema["shape"] & UserClientEnvSchema["shape"]>;
+export type CompleteClientEnvSchema = z.ZodObject<typeof waspClientEnvSchema["shape"] & UserClientEnvSchema["shape"]>;
 
 // PRIVATE API (sdk, Vite config)
-export const clientEnvSchema: ClientEnvSchema = z.object({
+export const clientEnvSchema: CompleteClientEnvSchema = z.object({
   ...userClientEnvSchema.shape,
   ...waspClientEnvSchema.shape
 });
