@@ -47,11 +47,7 @@ export function getRoute(scope: ConfigType): Config<TsAppSpec.Route>;
 export function getRoute(scope: ConfigType): Config<TsAppSpec.Route> {
   switch (scope) {
     case "minimal":
-      return route(
-        "minimalRoute",
-        "/foo/bar",
-        getExtImport("minimal", "named"),
-      );
+      return route("minimalRoute", "/foo/bar", getPage("minimal"));
     case "full":
       return route("fullRoute", "/foo/bar", getPage("full"));
     default:

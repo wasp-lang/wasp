@@ -9,7 +9,6 @@ import {
   mapPage,
   mapQuery,
   mapRoute,
-  normalizeRoutePage,
 } from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
@@ -162,17 +161,17 @@ describe("mapRoute", () => {
   function testMapRoute(route: TsAppSpec.Route): void {
     const result = mapRoute(route);
 
-    const expectedPage = normalizeRoutePage(route.page);
-    const expectedPageName = deriveExtImportName(expectedPage.component);
-
     expect(result.routeName).toStrictEqual(route.name);
     expect(result.route).toStrictEqual({
       path: route.path,
-      to: { name: expectedPageName, declType: "Page" },
+      to: {
+        name: deriveExtImportName(route.page.component),
+        declType: "Page",
+      },
       prerender: undefined,
       lazy: undefined,
     } satisfies AppSpec.Route);
-    expect(result.page).toStrictEqual(mapPage(expectedPage));
+    expect(result.page).toStrictEqual(mapPage(route.page));
   }
 });
 
