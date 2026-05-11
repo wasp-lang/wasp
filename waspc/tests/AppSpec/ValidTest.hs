@@ -623,6 +623,7 @@ spec_AppSpecValid = do
           AS.packageJson =
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
+                Npm.PackageJson.version = Nothing,
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
                 Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,

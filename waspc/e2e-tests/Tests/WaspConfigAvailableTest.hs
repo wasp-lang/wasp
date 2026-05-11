@@ -1,9 +1,14 @@
 module Tests.WaspConfigAvailableTest (waspConfigAvailableTest) where
 
+import Control.Monad.Reader (ask)
+import Data.Aeson ((.=))
+import qualified Data.Aeson as Aeson
+import qualified Data.ByteString.Lazy as LBS
+import qualified Data.Text.Encoding as TE
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
-    WaspProjectContext,
+    WaspProjectContext (..),
     assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
@@ -27,7 +32,9 @@ import ShellCommands
     waspCliTelemetry,
     waspCliTestClient,
     waspCliVersion,
+    writeToFile,
   )
+import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (tsMinimalStarterTemplate)
 
@@ -55,6 +62,16 @@ waspConfigAvailableTest =
                       waspCliStart,
                       waspCliTestClient []
                     ]
+            ]
+        ),
+      TestCase
+        "compile-fails-with-install-hint-when-wasp-config-version-mismatches-cli"
+        ( sequence
+            [ createTestWaspProject tsMinimalStarterTemplate,
+              inTestWaspProjectDir
+                [ corruptWaspConfigVersion,
+                  assertCommandFailsWithInstallHint waspCliCompile
+                ]
             ]
         ),
       TestCase
@@ -98,10 +115,23 @@ waspConfigAvailableTest =
     removeNodeModules :: ShellCommandBuilder WaspProjectContext ShellCommand
     removeNodeModules = return "rm -rf node_modules"
 
+    corruptWaspConfigVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
+    corruptWaspConfigVersion = do
+      context <- ask
+      let waspConfigPackageJson = context.waspProjectDir </> [relfile|.wasp/wasp-config/package.json|]
+      writeToFile waspConfigPackageJson corruptedPackageJsonContent
+      where
+        corruptedPackageJsonContent =
+          TE.decodeUtf8 . LBS.toStrict . Aeson.encode $
+            Aeson.object
+              [ "name" .= ("wasp-config" :: String),
+                "version" .= ("9.9.9" :: String)
+              ]
+
     -- Negate the wrapped command so the assertion holds when it fails (exit non-zero)
     -- AND the output contains the "Run `wasp install`" hint.
     assertCommandFailsWithInstallHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->
       ShellCommandBuilder WaspProjectContext ShellCommand
     assertCommandFailsWithInstallHint commandBuilder =
-      assertCommandOutputContains (("! " ++) <$> commandBuilder) "Run `wasp install`"
+      assertCommandOutputContains (("! " ++) <$> commandBuilder) "wasp install"

@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 module Wasp.NodePackageFFI
   ( -- * Node Package FFI
 
@@ -10,13 +8,16 @@ module Wasp.NodePackageFFI
     InstallablePackage (..),
     getInstallablePackageName,
     getPackageJsonSpecifierForPackage,
-    getPackagePathInNodeModules,
+    tryGettingInstalledPackageVersion,
     ensurePackageIsAtInstallationPathInProject,
     getInstallablePackageScriptInProject,
   )
 where
 
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.Extra (unlessM)
+import Control.Monad.IO.Class (liftIO)
+import Data.Bifunctor (first)
 import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
@@ -39,8 +40,10 @@ import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
+import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
+import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Util.IO as IOUtil
 
 -- | These are the globally installed packages waspc runs directly from
@@ -129,11 +132,30 @@ getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProj
 getPackageInstallationPathInProject package =
   dotWaspDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
 
--- todo: probably remove
-getPackagePathInNodeModules :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
-getPackagePathInNodeModules package =
-  nodeModulesDirInWaspProjectDir </> case package of
-    WaspConfigPackage -> fromJust $ parseRelDir $ getInstallablePackageName package
+tryGettingInstalledPackageVersion ::
+  Path' Abs (Dir WaspProjectDir) ->
+  InstallablePackage ->
+  IO (Either String SV.Version)
+tryGettingInstalledPackageVersion projectDir package = runExceptT $ do
+  unlessM (liftIO $ IOUtil.doesFileExist packageJsonPath) $
+    throwError $
+      "Couldn't find " ++ fromAbsFile packageJsonPath
+  packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
+  ExceptT $ return $ case PJ.version packageJson of
+    Just versionString -> first show $ SV.parseVersion versionString
+    Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
+  where
+    packageJsonPath :: Path' Abs (File InstalledPackageJsonFile)
+    packageJsonPath =
+      castFile $
+        projectDir
+          </> nodeModulesDirInWaspProjectDir
+          </> fromJust (parseRelDir $ getInstallablePackageName package)
+          </> [relfile|package.json|]
+
+data InstalledPackageJsonFile
+
+instance PJ.PackageJsonFile InstalledPackageJsonFile
 
 -- | Returns the path to the main script of an installable package, relative
 -- to the project root. This can be passed to @node@ directly, avoiding the
