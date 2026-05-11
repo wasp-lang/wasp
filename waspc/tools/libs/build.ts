@@ -5,19 +5,22 @@
 import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import {
+  assertPackageVersionMatchesWaspc,
   discoverSubDirs,
   getPackageJson,
-  getWaspcDirPath,
   runCmd,
 } from "../utils.ts";
+import { getDataLibsDirPath } from "./utils.ts";
 
-const waspcDirPath = getWaspcDirPath();
-const dataLibsDirPath = join(waspcDirPath, "data", "Generator", "libs");
-const waspcVersion = getWaspcVersion();
-
-buildLibs();
+try {
+  buildLibs();
+} catch (e) {
+  console.error(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
+  process.exitCode = 1;
+}
 
 function buildLibs(): void {
+  const dataLibsDirPath = getDataLibsDirPath();
   const libDirs = discoverSubDirs(dataLibsDirPath);
 
   for (const libDir of libDirs) {
@@ -28,7 +31,7 @@ function buildLibs(): void {
 function buildLib(libDir: string): void {
   const { name: libName, version: libVersion } = getPackageJson(libDir);
 
-  assertLibVersionValid(libName, libVersion);
+  assertPackageVersionMatchesWaspc(libName, libVersion);
 
   console.log(`Building ${libName} lib (${libDir})`);
 
@@ -36,24 +39,6 @@ function buildLib(libDir: string): void {
 
   runCmd("npm", ["install"], { cwd: libDir });
   runCmd("npm", ["pack"], { cwd: libDir });
-}
-
-function assertLibVersionValid(libName: string, libVersion: string): void {
-  if (libVersion !== waspcVersion) {
-    console.error(
-      `ERROR: ${libName} lib version (${libVersion}) != current Wasp version (${waspcVersion}).`,
-    );
-    console.error(
-      `       Update the lib version in package.json to ${waspcVersion}.`,
-    );
-    throw new Error();
-  }
-}
-
-function getWaspcVersion(): string {
-  return runCmd("node", [join("tools", "get-waspc-version.ts")], {
-    cwd: waspcDirPath,
-  }).trim();
 }
 
 function rmExistingTarballsInDir(dir: string): void {

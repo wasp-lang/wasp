@@ -1,3 +1,5 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Wasp.Cli.Command.Compile
   ( compileIO,
     compile,
@@ -132,7 +134,7 @@ compileIOWithOptions options waspProjectDir outDir =
 defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
 defaultCompileOptions waspProjectDir =
   CompileOptions
-    { waspProjectDirPath = waspProjectDir,
+    { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
       generatorWarningsFilter = id
