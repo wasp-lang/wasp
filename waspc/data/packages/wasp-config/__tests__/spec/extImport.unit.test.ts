@@ -35,14 +35,14 @@ describe("mapExtImport", () => {
         kind: "named",
         name: extImport.import,
         path: extImport.from,
-        ...(extImport.alias ? { alias: extImport.alias } : {}),
+        alias: extImport.alias,
       } satisfies AppSpec.ExtImport);
     } else {
       expect(result).toStrictEqual({
         kind: "default",
         name: extImport.importDefault,
         path: extImport.from,
-        ...(extImport.alias ? { alias: extImport.alias } : {}),
+        alias: extImport.alias,
       } satisfies AppSpec.ExtImport);
     }
   }
