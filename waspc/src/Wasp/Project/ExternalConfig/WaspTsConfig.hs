@@ -36,5 +36,9 @@ waspTsConfigValidator =
           V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
           V.inField ("noEmit", T.noEmit) $ V.eqJust True,
-          V.inField ("lib", T.lib) $ V.eqJust ["ES2023"]
+          V.inField ("lib", T.lib) $ V.eqJust ["ES2023"],
+          -- TypeScript 6 stopped auto-including `@types/*` from `node_modules`,
+          -- so we require Node's types here. main.wasp.ts is Node code and may
+          -- reference `process`, `console`, etc.
+          V.inField ("types", T.types) $ V.containsAllJust ["node"]
         ]

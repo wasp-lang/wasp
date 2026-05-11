@@ -6,6 +6,8 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-23-to-0-24) for step-by-step documentation on how to upgrade.
 
+- Wasp now requires TypeScript 6.0.3 (previously 5.9.3). TypeScript 6 no longer auto-includes `@types/*` packages from `node_modules`, so user projects must now list the React types explicitly in `tsconfig.src.json` (`"types": ["react", "react-dom"]`) and Node types in `tsconfig.wasp.json` (`"types": ["node"]`). ([#4011](https://github.com/wasp-lang/wasp/issues/4011))
+
 ### 🎉 New Features
 
 - The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))

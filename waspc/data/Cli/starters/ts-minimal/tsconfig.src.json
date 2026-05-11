@@ -20,6 +20,7 @@
     "isolatedModules": true,
     "moduleDetection": "force",
     "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["react", "react-dom"],
     "skipLibCheck": true,
     "allowJs": true,
     "outDir": ".wasp/out/user"

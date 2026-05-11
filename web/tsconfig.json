@@ -1,6 +1,7 @@
 {
   "extends": "@docusaurus/tsconfig",
   "compilerOptions": {
-    "baseUrl": "."
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0"
   }
 }

@@ -58,6 +58,7 @@ validCompilerOptions =
       T.strict = Just True,
       T.esModuleInterop = Nothing,
       T.lib = Just ["ES2023"],
+      T.types = Just ["node"],
       T.allowJs = Nothing,
       T.outDir = Nothing,
       T.noEmit = Just True

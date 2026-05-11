@@ -45,6 +45,7 @@ data CompilerOptions = CompilerOptions
     strict :: !(Maybe Bool),
     esModuleInterop :: !(Maybe Bool),
     lib :: !(Maybe [String]),
+    types :: !(Maybe [String]),
     allowJs :: !(Maybe Bool),
     outDir :: !(Maybe String),
     noEmit :: !(Maybe Bool)

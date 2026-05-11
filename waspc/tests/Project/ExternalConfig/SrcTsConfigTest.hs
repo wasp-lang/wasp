@@ -54,6 +54,7 @@ validCompilerOptions =
       T.strict = Just True,
       T.esModuleInterop = Just True,
       T.lib = Just ["dom", "dom.iterable", "esnext"],
+      T.types = Just ["react", "react-dom"],
       T.allowJs = Just True,
       T.outDir = Just ".wasp/out/user",
       T.noEmit = Nothing
