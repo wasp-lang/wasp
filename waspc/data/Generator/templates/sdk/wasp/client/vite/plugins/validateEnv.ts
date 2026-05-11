@@ -36,10 +36,21 @@ export function validateEnv(): Plugin {
         configFile: false,
         plugins: resolvedConfig.plugins
           .filter((plugin) => plugin.name !== PLUGIN_NAME)
+          // Vite's `configureServer`/`configurePreviewServer` hooks let plugins
+          // wire long-lived behavior into a dev or preview server: middleware,
+          // websocket handlers, file watchers, and similar background tasks.
+          //
+          // Plugins are supposed to clean these up by returning a teardown
+          // function from the hook, but some forget to, so resources they
+          // allocate end up outliving the server. This forces the original
+          // Vite process to be alive indefinitely.
+          //
+          // We don't need either hook to validate the client env schema.
+          // We only need module resolution and transforms.
           .map((plugin) => ({
-            ...plugin,                         // Strip hooks that are meant for long-lived dev/preview servers.
-            configureServer: undefined,        // Some plugins use them to start background tasks they never close.
-            configurePreviewServer: undefined, // This would keep our build hanging even after it's done.
+            ...plugin,
+            configureServer: undefined,
+            configurePreviewServer: undefined,
           })),
         // Minimize side effects from spinning up a temporary dev server.
         appType: 'custom',      // avoid HTML handling
