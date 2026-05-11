@@ -33,6 +33,7 @@ createNewProject = withArguments "wasp new" newProjectArgsParser $ \args -> do
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
   createProjectOnDisk newProjectDescription
+  -- TODO consider removing if we start doing `wasp install` automatically
   liftIO $ installDepsForNewProject (_absWaspProjectDir newProjectDescription)
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
 
@@ -53,8 +54,6 @@ createProjectOnDisk
       AiGeneratedStarterTemplate ->
         AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
 
--- | Runs install logic (copy wasp-config + npm install) for a newly created project.
--- If npm install fails, the project is still created — we just print a warning.
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO ()
 installDepsForNewProject absWaspProjectDir =
   installIO absWaspProjectDir >>= \case
