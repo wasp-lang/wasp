@@ -34,9 +34,13 @@ export function validateEnv(): Plugin {
         // To ensure we pick up all user-defined plugins (resolution matches the main build)
         // while avoiding recursion. This includes the `wasp` plugin.
         configFile: false,
-        plugins: resolvedConfig.plugins.filter(
-          (plugin) => plugin.name !== PLUGIN_NAME
-        ),
+        plugins: resolvedConfig.plugins
+          .filter((plugin) => plugin.name !== PLUGIN_NAME)
+          .map((plugin) => ({
+            ...plugin,                         // Strip hooks that are meant for long-lived dev/preview servers.
+            configureServer: undefined,        // Some plugins use them to start background tasks they never close.
+            configurePreviewServer: undefined, // This would keep our build hanging even after it's done.
+          })),
         // Minimize side effects from spinning up a temporary dev server.
         appType: 'custom',      // avoid HTML handling
         server: { 
