@@ -4,11 +4,20 @@
 
 import { readdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
-import { getWaspcVersion } from "../get-waspc-version.ts";
-import { discoverSubDirs, getPackageJson, runCmd } from "../utils.ts";
+import {
+  assertPackageVersionMatchesWaspc,
+  discoverSubDirs,
+  getPackageJson,
+  runCmd,
+} from "../utils.ts";
 import { getDataLibsDirPath } from "./utils.ts";
 
-buildLibs();
+try {
+  buildLibs();
+} catch (e) {
+  console.error(`ERROR: ${e instanceof Error ? e.message : String(e)}`);
+  process.exitCode = 1;
+}
 
 function buildLibs(): void {
   const dataLibsDirPath = getDataLibsDirPath();
@@ -22,7 +31,7 @@ function buildLibs(): void {
 function buildLib(libDir: string): void {
   const { name: libName, version: libVersion } = getPackageJson(libDir);
 
-  assertLibVersionValid(libName, libVersion);
+  assertPackageVersionMatchesWaspc(libName, libVersion);
 
   console.log(`Building ${libName} lib (${libDir})`);
 
@@ -30,20 +39,6 @@ function buildLib(libDir: string): void {
 
   runCmd("npm", ["install"], { cwd: libDir });
   runCmd("npm", ["pack"], { cwd: libDir });
-}
-
-function assertLibVersionValid(libName: string, libVersion: string): void {
-  const waspcVersion = getWaspcVersion();
-
-  if (libVersion !== waspcVersion) {
-    console.error(
-      `ERROR: ${libName} lib version (${libVersion}) != current Wasp version (${waspcVersion}).`,
-    );
-    console.error(
-      `       Update the lib version in package.json to ${waspcVersion}.`,
-    );
-    throw new Error();
-  }
 }
 
 function rmExistingTarballsInDir(dir: string): void {

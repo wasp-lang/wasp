@@ -5,6 +5,7 @@ import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { cabalVersionRegex, getWaspcVersion } from "./get-waspc-version.ts";
 import { getDataLibsDirPath } from "./libs/utils.ts";
+import { getDataPackagesDirPath } from "./packages/utils.ts";
 import {
   discoverSubDirs,
   findWaspProjectDirsAbsPathInRepo as findWaspProjectDirsPathsInRepo,
@@ -32,6 +33,9 @@ function bumpWaspVersion(bumpType: BumpType): void {
   bumpLibsVersion(nextVersion);
   rebuildLibs();
 
+  bumpPackagesVersion(nextVersion);
+  rebuildPackages();
+
   bumpWaspProjectsVersion(nextVersion);
   bustWaspProjectsLibsCache();
 }
@@ -55,6 +59,13 @@ function bumpLibsVersion(nextVersion: string): void {
   const dataLibsDirPath = getDataLibsDirPath();
   for (const libDirPath of discoverSubDirs(dataLibsDirPath)) {
     bumpPackageJsonVersion(libDirPath, nextVersion);
+  }
+}
+
+function bumpPackagesVersion(nextVersion: string): void {
+  const dataPackagesDirPath = getDataPackagesDirPath();
+  for (const packageDirPath of discoverSubDirs(dataPackagesDirPath)) {
+    bumpPackageJsonVersion(packageDirPath, nextVersion);
   }
 }
 
@@ -108,6 +119,13 @@ function findWaspFilePath(projectDir: string): string {
 
 function rebuildLibs(): void {
   runCmd("node", [join("tools", "libs", "build.ts")], {
+    cwd: waspcDirPath,
+    stdio: "inherit",
+  });
+}
+
+function rebuildPackages(): void {
+  runCmd("node", [join("tools", "packages", "build.ts")], {
     cwd: waspcDirPath,
     stdio: "inherit",
   });

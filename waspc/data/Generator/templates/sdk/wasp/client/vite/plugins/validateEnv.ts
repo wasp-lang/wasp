@@ -34,9 +34,24 @@ export function validateEnv(): Plugin {
         // To ensure we pick up all user-defined plugins (resolution matches the main build)
         // while avoiding recursion. This includes the `wasp` plugin.
         configFile: false,
-        plugins: resolvedConfig.plugins.filter(
-          (plugin) => plugin.name !== PLUGIN_NAME
-        ),
+        plugins: resolvedConfig.plugins
+          .filter((plugin) => plugin.name !== PLUGIN_NAME)
+          // Vite's `configureServer`/`configurePreviewServer` hooks let plugins
+          // wire long-lived behavior into a dev or preview server: middleware,
+          // websocket handlers, file watchers, and similar background tasks.
+          //
+          // Plugins are supposed to clean these up by returning a teardown
+          // function from the hook, but some forget to, so resources they
+          // allocate end up outliving the server. This forces the original
+          // Vite process to be alive indefinitely.
+          //
+          // We don't need either hook to validate the client env schema.
+          // We only need module resolution and transforms.
+          .map((plugin) => ({
+            ...plugin,
+            configureServer: undefined,
+            configurePreviewServer: undefined,
+          })),
         // Minimize side effects from spinning up a temporary dev server.
         appType: 'custom',      // avoid HTML handling
         server: { 

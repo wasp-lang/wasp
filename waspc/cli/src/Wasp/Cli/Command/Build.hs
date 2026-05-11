@@ -32,9 +32,10 @@ import Wasp.Project.Common
     CompileWarning,
     WaspProjectDir,
     generatedAppDirInWaspProjectDir,
-    getSrcTsConfigInWaspProjectDir,
+    getTsConfigPathsForWaspProject,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    srcTsConfig,
     userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
@@ -84,7 +85,7 @@ build = do
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
-      let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+      let srcTsConfigPath = srcTsConfig $ getTsConfigPathsForWaspProject waspFilePath
 
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
       -- we're copying all files and folders necessary for Docker build into the .wasp/out directory.
