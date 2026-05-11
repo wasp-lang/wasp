@@ -39,12 +39,19 @@ export type ImportDiagnostic = {
 };
 
 export type UnsupportedImportType =
+  // Example: `import "@src/setup";`
   | "sideEffect"
+  // Example: `import MainPage = require("@src/MainPage");`
   | "importEquals"
+  // Example: `import type { Props } from "@src/MainPage";`
   | "typeOnly"
+  // Example: `import { type Props, MainPage } from "@src/MainPage";`
   | "mixedTypeAndValue"
+  // Example: `import { "foo-bar" as fooBar } from "@src/operations";`
   | "stringLiteral"
+  // Example: `import {} from "@src/MainPage";`
   | "emptyNamed"
+  // Example: `export { MainPage } from "@src/MainPage";`
   | "reExport";
 
 export type SourceLocation = {
