@@ -1,9 +1,9 @@
-import { GenericBackendOperation } from "../../server/_types";
 import { _Awaited, _ReturnType } from "../../universal/types";
 import { useAction, useQuery } from "../operations";
 import type { ActionFor } from "../operations/actions/core";
 import type { ActionOptions } from "../operations/hooks";
 import type { QueryFor } from "../operations/queries/core";
+import { GenericBackendOperation } from "../operations/rpc";
 
 // PRIVATE API
 export type UseQueryFor<Operation extends GenericBackendOperation> = (

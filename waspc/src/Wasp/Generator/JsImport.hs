@@ -11,11 +11,11 @@ module Wasp.Generator.JsImport
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
-import Data.Aeson qualified as Aeson
+import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath (Dir, File', Path, Posix, Rel, (</>))
-import StrongPath qualified as SP
-import Wasp.AppSpec.ExtImport qualified as EI
+import qualified StrongPath as SP
+import qualified Wasp.AppSpec.ExtImport as EI
 import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.UserVirtualModules (VirtualModuleId)
@@ -81,7 +81,8 @@ virtualExtImportToImportJson virtualModuleId maybeExtImport =
 virtualExtImportToJsImport :: VirtualModuleId -> EI.ExtImport -> JsImport
 virtualExtImportToJsImport virtualModuleId extImport =
   JsImport
-    { _path = ModuleImportPath virtualModuleId,
+    { _kind = ValueImport,
+      _path = ModuleImportPath virtualModuleId,
       _name = extImportNameToJsImportName extImport.name,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }

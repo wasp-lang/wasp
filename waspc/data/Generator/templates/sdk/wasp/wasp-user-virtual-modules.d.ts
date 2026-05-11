@@ -26,16 +26,16 @@ declare module "{= prismaSetupFn.importPath =}" {
 {=# actions =}
 
 declare module "{= jsFn.importPath =}" {
-  import { {= operationResolvedTypeName =} } from "./server/operations/actions/index";
+  import { {= registeredOperationTypeName =} } from "./server/operations/actions/index";
 
-  export const {= jsFn.exportName =}: {= operationResolvedTypeName =};
+  export const {= jsFn.exportName =}: {= registeredOperationTypeName =};
 }
 {=/ actions =}
 {=# queries =}
 
 declare module "{= jsFn.importPath =}" {
-  import { {= operationResolvedTypeName =} } from "./server/operations/queries/index";
+  import { {= registeredOperationTypeName =} } from "./server/operations/queries/index";
 
-  export const {= jsFn.exportName =}: {= operationResolvedTypeName =};
+  export const {= jsFn.exportName =}: {= registeredOperationTypeName =};
 }
 {=/ queries =}
