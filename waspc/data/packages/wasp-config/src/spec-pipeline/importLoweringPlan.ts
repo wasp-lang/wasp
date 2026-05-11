@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import type { ExtImportLiteral } from "../spec/extImport.js";
+import type { ExtImport } from "../spec/extImport.js";
 
 const SRC_IMPORT_PREFIX = "@src/";
 const SRC_DESCRIPTOR_PREFIX = "@src/";
@@ -23,12 +23,12 @@ export type DescriptorDeclaration =
   | {
       kind: "descriptor";
       localName: string;
-      descriptor: ExtImportLiteral;
+      descriptor: ExtImport;
     }
   | {
       kind: "namespace";
       localName: string;
-      descriptorPath: ExtImportLiteral["from"];
+      descriptorPath: ExtImport["from"];
       aliasPrefix: string;
     };
 
@@ -249,7 +249,7 @@ function makeDiagnostic(
 
 function getDescriptorDeclarations(
   clause: ts.ImportClause,
-  descriptorPath: ExtImportLiteral["from"],
+  descriptorPath: ExtImport["from"],
 ): DescriptorDeclaration[] {
   const declarations: DescriptorDeclaration[] = [];
 
@@ -303,7 +303,7 @@ function getImportedName(spec: ts.ImportSpecifier): string {
   return spec.propertyName?.text ?? spec.name.text;
 }
 
-function toDescriptorPath(specifier: string): ExtImportLiteral["from"] {
+function toDescriptorPath(specifier: string): ExtImport["from"] {
   return (SRC_DESCRIPTOR_PREFIX +
-    specifier.slice(SRC_IMPORT_PREFIX.length)) as ExtImportLiteral["from"];
+    specifier.slice(SRC_IMPORT_PREFIX.length)) as ExtImport["from"];
 }
