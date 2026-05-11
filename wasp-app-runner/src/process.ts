@@ -122,24 +122,25 @@ export class Process {
   }
 
   kill(): void {
-    // Wasp is somewhat badly behaved in that it doesn't always kill its child
-    // processes when it receives a shutdown signal. To work around this, we
-    // attempt to kill the process in three different ways, ignoring "process
-    // not found" errors.
-
-    // We always use SIGINT as it's the same signal sent from the terminal when
-    // pressing Ctrl+C.
-
-    if (this.#detached) {
-      // A negative PID kills the entire process group.
-      this.#ignoreKillError(() => process.kill(-this.#proc.pid!, "SIGINT"));
+    const pid = this.#proc.pid;
+    if (pid === undefined) {
+      return;
     }
 
-    // We kill the main process directly.
-    this.#ignoreKillError(() => process.kill(this.#proc.pid!, "SIGINT"));
-
-    // And finally we let execa attempt to kill the process for bookkeeping.
-    this.#ignoreKillError(() => this.#proc.kill("SIGINT"));
+    // Send a single SIGINT, matching what the terminal sends on Ctrl+C.
+    // Sending the signal more than once breaks `docker run --rm`, which
+    // skips container cleanup once it receives 3 signals in quick
+    // succession ("got 3 SIGTERM/SIGINTs, forcefully exiting") and leaks
+    // the container. Some parents (e.g. the Wasp CLI) don't forward signals
+    // to their children, so for detached processes we signal the entire
+    // process group (negative PID).
+    this.#ignoreKillError(() => {
+      if (this.#detached) {
+        process.kill(-pid, "SIGINT");
+      } else {
+        process.kill(pid, "SIGINT");
+      }
+    });
   }
 
   #ignoreKillError(fn: () => void) {
