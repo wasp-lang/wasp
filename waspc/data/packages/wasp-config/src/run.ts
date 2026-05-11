@@ -17,21 +17,21 @@ main(process.argv).catch((error: unknown) => {
  * and writes the output to a file.
  */
 async function main(args: string[]): Promise<void> {
-  const { waspTsSpecPath, tsconfigPath, outputFilePath, entityNames } =
+  const { waspTsSpecPath, tsconfigPath, declsJsonPath, entityNames } =
     parseProcessArgsOrThrow(args);
-  const compiledWaspJsPath = getCompiledWaspJsPath({
+  const compiledTsSpecPath = getCompiledTsSpecPath({
     waspTsSpecPath,
-    outputFilePath,
+    declsJsonPath,
   });
 
   await compileWaspTsFileToJsFile({
     inputPath: waspTsSpecPath,
     tsconfigPath,
-    outputPath: compiledWaspJsPath,
+    outputPath: compiledTsSpecPath,
   });
 
   const declsResult = await analyzeApp(
-    pathToFileURL(compiledWaspJsPath).href,
+    pathToFileURL(compiledTsSpecPath).href,
     entityNames,
   );
 
@@ -39,18 +39,18 @@ async function main(args: string[]): Promise<void> {
     throw new Error(declsResult.error);
   }
 
-  writeFileSync(outputFilePath, JSON.stringify(declsResult.value));
+  writeFileSync(declsJsonPath, JSON.stringify(declsResult.value));
 }
 
-function getCompiledWaspJsPath({
+function getCompiledTsSpecPath({
   waspTsSpecPath,
-  outputFilePath,
+  declsJsonPath,
 }: {
   waspTsSpecPath: string;
-  outputFilePath: string;
+  declsJsonPath: string;
 }): string {
   return join(
-    dirname(outputFilePath),
+    dirname(declsJsonPath),
     basename(waspTsSpecPath).replace(/\.ts$/, ".js"),
   );
 }
