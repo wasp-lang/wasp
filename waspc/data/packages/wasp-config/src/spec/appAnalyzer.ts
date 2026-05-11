@@ -1,4 +1,5 @@
 import * as AppSpec from "../appSpec.js";
+import type { Result } from "../result.js";
 import { mapApp } from "./mapApp.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
@@ -61,12 +62,3 @@ function isApp(value: unknown): value is TsAppSpec.App {
     "parts" in value
   );
 }
-
-/**
- * Result type is used instead of exceptions for the normal control flow because:
- * - The error users see with the Result type is nicer (no stack trace).
- * - Exceptions can slip through the type system.
- */
-type Result<Value, Error> =
-  | { status: "ok"; value: Value }
-  | { status: "error"; error: Error };

@@ -545,7 +545,7 @@ export type MinimalConfig<T> =
     ? T
     : T extends TsAppSpec.ExtImport
       ? T
-      : T extends CallableValue
+      : T extends AnyFunction
         ? T
         : T extends Array<infer Item>
           ? Array<MinimalConfig<Item>>
@@ -579,7 +579,7 @@ export type FullConfig<T> =
     ? T
     : T extends TsAppSpec.ExtImport
       ? T
-      : T extends CallableValue
+      : T extends AnyFunction
         ? T
         : T extends Array<infer Item>
           ? Array<FullConfig<Item>>
@@ -606,5 +606,4 @@ function assertUnreachable(value: never): never {
   throw new Error(`Unhandled case: ${value}`);
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type CallableValue = (...args: any[]) => any;
+type AnyFunction = (...args: never[]) => unknown;
