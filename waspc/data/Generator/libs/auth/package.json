@@ -1,6 +1,6 @@
 {
   "name": "@wasp.sh/lib-auth",
-  "version": "0.22.0",
+  "version": "0.24.0",
   "type": "module",
   "license": "MIT",
   "exports": {

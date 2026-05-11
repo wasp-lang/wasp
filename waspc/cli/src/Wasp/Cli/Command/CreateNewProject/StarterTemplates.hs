@@ -102,4 +102,4 @@ readWaspProjectSkeletonFiles = do
 -- during packaging. Both bundled and AI template paths use this list to
 -- restore the leading dot.
 skeletonDotfiles :: [String]
-skeletonDotfiles = ["gitignore"]
+skeletonDotfiles = ["gitignore", "npmrc"]

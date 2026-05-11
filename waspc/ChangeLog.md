@@ -1,20 +1,73 @@
 # Changelog
 
+## 0.24.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-23-to-0-24) for step-by-step documentation on how to upgrade.
+
+### 🎉 New Features
+
+- The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
+- Wasp TS spec now properly sets the `NODE_ENV` environment variable depending on which command you use to run Wasp. ([#4087](https://github.com/wasp-lang/wasp/pull/4087))
+
+### 🔧 Small improvements
+
+- Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))
+
+## 0.23.0
+
+### ⚠️ Breaking Changes
+
+Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-22-to-0-23) for step-by-step documentation on how to upgrade.
+
+- Wasp now requires Node.js >=24.14.1 (previously >=22.22.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- Wasp now requires TypeScript version 5.9.3 (previously 5.8.2). ([#4010](https://github.com/wasp-lang/wasp/pull/4010))
+- The HTML file for the final built web app has changed from `index.html` to `200.html`. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
+### 🎉 New Features
+
+- Routes can now be prerendered at build time by setting `prerender: true`. Prerendered routes are served as static HTML for faster load times and better SEO. ([#3982](https://github.com/wasp-lang/wasp/pull/3982))
+
+### 🐞 Bug fixes
+
+- Updated `wasp deploy railway` to work with the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- Client env validation plugin no longer crashes when the user's client env schema file uses bundler features. ([#4054](https://github.com/wasp-lang/wasp/pull/4054))
+
+- `wasp deploy railway` now correctly configures the client service for SPA routing by providing a custom Caddyfile and pinning the Railpack builder. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+
+### 🔧 Small improvements
+
+- Updated our `wasp deploy` tool to support the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- New Wasp projects now include an `.npmrc` with `min-release-age=7` for supply chain protection. ([#4016](https://github.com/wasp-lang/wasp/pull/4016))
+
+### 📖 Documentation
+
+- Updated deployment guides for Fly.io, Railway, Netlify, and Cloudflare to work with the new `200.html` SPA fallback. ([#3981](https://github.com/wasp-lang/wasp/pull/3981))
+- Added guide for deploying on Render. ([#4055](https://github.com/wasp-lang/wasp/pull/4055))
+
 ## 0.22.0
 
 ### ⚠️ Breaking Changes
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-21-to-0-22) for step-by-step documentation on how to upgrade.
 
+- Wasp now requires Node.js version >=v22.22.2 (previously >=v22.12.0) due to the [March 2026 Node.js security releases](https://nodejs.org/en/blog/vulnerability/march-2026-security-releases). ([#3989](https://github.com/wasp-lang/wasp/pull/3989))
+- In the `wasp build` output, the generated Docker image has been upgraded from Alpine 3.20 to Alpine 3.23. ([#3989](https://github.com/wasp-lang/wasp/pull/3989))
 - Upgraded the Zod version used for env validation to Zod v4. If you use custom env validation schemas, you may need to update them to be compatible with the latest Zod API. ([#3879](https://github.com/wasp-lang/wasp/pull/3879))
+- HTML head tags specified in `app.head` must now be valid React JSX. ([#3855](https://github.com/wasp-lang/wasp/pull/3855))
+- Page routes are now loaded lazily by default. You can set `lazy: false` per-route to disable this behavior. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🎉 New Features
 
 - The Wasp TS config file (`*.wasp.ts`) now supports async logic in the default export, enabling use cases like file-based routing and dynamic configuration. ([#3900](https://github.com/wasp-lang/wasp/pull/3900))
 - Wasp AI (`wasp new:ai`) now accepts any model name string, letting the OpenAI API validate it. The interactive CLI still offers curated GPT-5 options for convenience. ([#3904](https://github.com/wasp-lang/wasp/pull/3904))
+- The `wasp.version` field now accepts any valid npm-compatible version range (e.g. `>=0.15.0 <0.22.0`, `~0.21.0`, `0.21.x`) instead of only `^x.y.z`. ([#3921](https://github.com/wasp-lang/wasp/pull/3921))
+- Page routes are now lazy-loaded using React Router's `lazy` property, greatly reducing the initial download size for apps with many routes. ([#3891](https://github.com/wasp-lang/wasp/pull/3891))
 
 ### 🐞 Bug fixes
 
+- `wasp deploy fly` now correctly computes Fly app basenames when the app name contains `-client` or `-server`. ([#3983](https://github.com/wasp-lang/wasp/pull/3983))
 - Projects created with `wasp new` were missing their `.gitignore` file. ([#3870](https://github.com/wasp-lang/wasp/pull/3870))
 
 ### 🔧 Small improvements
@@ -27,6 +80,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now validates that `vite.config.ts` (or `vite.config.js`) exists in your project at compile time, and warns if it's missing the `wasp` plugin import. ([#3863](https://github.com/wasp-lang/wasp/pull/3863))
 - Wasp now prefixes env validation errors with the name of the field that failed the validation ([#3876](https://github.com/wasp-lang/wasp/pull/3876))
 - Wasp now validates your `tsconfig.json` before analyzing the rest of the code. If something is off, you'll get a clear error message as soon as possible ([#3907](https://github.com/wasp-lang/wasp/issues/3907))
+- Wasp now properly uses ANSI formatting in env validation errors ([#3877](https://github.com/wasp-lang/wasp/pull/3877))
 
 ## 0.21.1
 

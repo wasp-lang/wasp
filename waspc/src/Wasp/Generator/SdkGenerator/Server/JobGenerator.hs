@@ -112,7 +112,8 @@ getImportJsonForJobDefinition jobName =
   GJI.jsImportToImportJson $
     Just $
       JI.JsImport
-        { JI._path = JI.ModuleImportPath $ makeSdkImportPath [relfileP|server/jobs|],
+        { JI._kind = JI.ValueImport,
+          JI._path = JI.ModuleImportPath $ makeSdkImportPath [relfileP|server/jobs|],
           JI._name = JI.JsImportField jobName,
           -- NOTE: We are using alias to avoid name conflicts with user defined imports.
           JI._importAlias = Just "_waspJobDefinition"
@@ -138,7 +139,7 @@ genJobExecutors spec = case getJobs spec of
 -- NOTE: Our pg-boss related documentation references this version in URLs.
 -- Please update the docs when this changes (until we solve: https://github.com/wasp-lang/wasp/issues/596).
 pgBossVersionRange :: SV.Range
-pgBossVersionRange = SV.Range [SV.backwardsCompatibleWith (SV.Version 8 4 2)]
+pgBossVersionRange = [SV.r|^8.4.2|]
 
 pgBossDependency :: Npm.Dependency.Dependency
 pgBossDependency = Npm.Dependency.make ("pg-boss", show pgBossVersionRange)

@@ -14,13 +14,15 @@ module Wasp.SemanticVersion.VersionBound
     parseInterval,
     intervalParser,
     vi,
+    allVersionsInterval,
+    noVersionInterval,
   )
 where
 
 import qualified Language.Haskell.TH.Quote as TH
 import qualified Language.Haskell.TH.Syntax as TH
 import qualified Text.Parsec as P
-import Wasp.SemanticVersion.Version (Version, versionParser)
+import Wasp.SemanticVersion.Version (Version (..), versionParser)
 import Wasp.Util.TH (quasiQuoterFromParser)
 
 data VersionBound = Inclusive !Version | Exclusive !Version | Inf
@@ -35,6 +37,18 @@ versionFromBound (Exclusive v) = Just v
 -- Interval might be continuous or discontinuous, we don't know,
 -- we know only its lower and upper bound.
 type VersionInterval = (VersionBound, VersionBound)
+
+-- | Version interval which satisfies any possible SemVer version.
+-- As SemVer is defined on natural numbers,
+-- the [0.0.0, inf) interval satisfies any possible version.
+allVersionsInterval :: VersionInterval
+allVersionsInterval = (Inclusive $ Version 0 0 0, Inf)
+
+-- | Version interval which satisfies no SemVer version.
+-- Any empty interval can be a no version interval.
+-- For our implementation we picked the (0.0.0, 0.0.0) interval.
+noVersionInterval :: VersionInterval
+noVersionInterval = (Exclusive $ Version 0 0 0, Exclusive $ Version 0 0 0)
 
 showInterval :: VersionInterval -> String
 showInterval (lowerBound, upperBound) =

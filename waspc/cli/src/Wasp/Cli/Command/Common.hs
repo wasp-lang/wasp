@@ -24,7 +24,7 @@ import qualified Wasp.Util.IO as IOUtil
 readWaspCompileInfo :: Path' Abs (Dir WaspProjectDir) -> IO String
 readWaspCompileInfo waspDir =
   either showError showWaspInfo
-    <$> WI.safeRead generatedCodeDir
+    <$> WI.safeRead generatedAppDir
   where
     showError WI.NotFound = "No compile information found"
     showError WI.IncompatibleFormat = "Incompatible compile information"
@@ -39,10 +39,10 @@ readWaspCompileInfo waspDir =
         generatedAt = T.pack $ show $ WI.generatedAt waspInfo
         waspVersion = T.pack $ WI.waspVersion waspInfo
 
-    generatedCodeDir =
+    generatedAppDir =
       waspDir
         </> Project.Common.dotWaspDirInWaspProjectDir
-        </> Project.Common.generatedCodeDirInDotWaspDir
+        </> Project.Common.generatedAppDirInDotWaspDir
 
 throwIfExeIsNotAvailable :: String -> String -> Command ()
 throwIfExeIsNotAvailable exeName explanationMsg = do

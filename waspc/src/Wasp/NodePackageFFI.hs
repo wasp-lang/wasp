@@ -11,12 +11,28 @@ module Wasp.NodePackageFFI
     getInstallablePackageName,
     getPackageJsonSpecifierForPackage,
     ensurePackageIsAtInstallationPathInProject,
+    getInstallablePackageScriptInProject,
   )
 where
 
 import Control.Monad.Extra (unlessM)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, File, Path', Rel, fromAbsDir, fromAbsFile, fromRelDir, parseRelDir, reldir, relfile, (</>))
+import StrongPath
+  ( Abs,
+    Dir,
+    File,
+    File',
+    Path',
+    Rel,
+    castFile,
+    fromAbsDir,
+    fromAbsFile,
+    fromRelDir,
+    parseRelDir,
+    reldir,
+    relfile,
+    (</>),
+  )
 import System.Exit (ExitCode (ExitFailure, ExitSuccess), exitFailure)
 import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
@@ -111,6 +127,17 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =
   dotWaspDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
+
+-- | Returns the path to the main script of an installable package, relative
+-- to the project root. This can be passed to @node@ directly, avoiding the
+-- need for @npx@ and its requirement that bin files are executable.
+getInstallablePackageScriptInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) File'
+getInstallablePackageScriptInProject package =
+  castFile $ getPackageInstallationPathInProject package </> installablePackageScript package
+
+installablePackageScript :: InstallablePackage -> Path' (Rel d) File'
+installablePackageScript = \case
+  WaspConfigPackage -> [relfile|dist/src/run.js|]
 
 getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
 getRunnablePackageDir package = do

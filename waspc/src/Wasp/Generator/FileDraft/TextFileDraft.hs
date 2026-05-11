@@ -6,7 +6,7 @@ where
 import Data.Text (Text)
 import StrongPath (File', Path', Rel, (</>))
 import qualified StrongPath as SP
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft.Writeable
 import Wasp.Generator.FileDraft.WriteableMonad
 import Wasp.Util (checksumFromText)
@@ -14,7 +14,7 @@ import Wasp.Util (checksumFromText)
 -- | File draft based on text, that is to be written to file when time comes.
 data TextFileDraft = TextFileDraft
   { -- | Path where file will be generated.
-    _dstPath :: !(Path' (Rel ProjectRootDir) File'),
+    _dstPath :: !(Path' (Rel GeneratedAppDir) File'),
     _content :: Text
   }
   deriving (Show, Eq)

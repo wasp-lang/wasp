@@ -13,13 +13,12 @@ import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Generator.DbGenerator.Jobs (runStudio)
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
-import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedCodeDirInDotWaspDir)
+import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 studio :: Command ()
 studio = do
   InWaspProject waspProjectDir <- require
-  let genProjectDir =
-        waspProjectDir </> dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
+  let genProjectDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   cliSendMessageC $ Msg.Start "Running studio..."
 

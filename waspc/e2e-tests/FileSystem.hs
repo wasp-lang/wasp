@@ -5,6 +5,7 @@ module FileSystem
     SeedsFile,
     seedsDirInWaspProjectDir,
     mainWaspFileInWaspProjectDir,
+    mainWaspTsFileInWaspProjectDir,
     seedsFileInSeedsDir,
     TestOutputsDir,
     TestCaseDir,
@@ -71,6 +72,9 @@ seedsFileInSeedsDir = fromJust . parseRelFile
 
 mainWaspFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 mainWaspFileInWaspProjectDir = [relfile|main.wasp|]
+
+mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
+mainWaspTsFileInWaspProjectDir = [relfile|main.wasp.ts|]
 
 -- 'Test' tests file system
 

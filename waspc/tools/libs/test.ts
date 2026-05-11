@@ -1,17 +1,14 @@
 /// <reference types="node" />
 // Helper to test the waspc/libs/* packages locally and in CI.
 
-import { join } from "node:path";
-import { fileURLToPath } from "node:url";
-import { discoverLibDirs, getLibPackageJson, runCmd } from "./utils.ts";
-
-const waspcDirPath = fileURLToPath(new URL("../..", import.meta.url));
-const dataLibsDirPath = join(waspcDirPath, "data", "Generator", "libs");
+import { discoverSubDirs, getPackageJson, runCmd } from "../utils.ts";
+import { getDataLibsDirPath } from "./utils.ts";
 
 testLibs();
 
 function testLibs(): void {
-  const libDirs = discoverLibDirs(dataLibsDirPath);
+  const dataLibsDirPath = getDataLibsDirPath();
+  const libDirs = discoverSubDirs(dataLibsDirPath);
 
   for (const libDir of libDirs) {
     testLib(libDir);
@@ -19,7 +16,7 @@ function testLibs(): void {
 }
 
 function testLib(libDir: string): void {
-  const { name: libName } = getLibPackageJson(libDir);
+  const { name: libName } = getPackageJson(libDir);
 
   console.log(`Testing ${libName} lib (${libDir})`);
 

@@ -1,5 +1,7 @@
-# For Mage we are using the Debian Node.js image
-FROM node:22 AS node
+# For Mage we are using the Debian Node.js image.
+# We don't have a ARM64 build of Wasp, so we ensure we're using the AMD64 image,
+# which can run on ARM64 machines using emulation.
+FROM --platform=linux/amd64 node:24 AS node
 
 # We split Dockerfile into base, server-builder and server-production.
 # This way we have separate situations -> in server-builder we build all
@@ -40,7 +42,7 @@ RUN mkdir -p /app/.wasp/out/server/node_modules
 # TODO: Use pm2?
 # TODO: Use non-root user (node).
 FROM base AS server-production
-RUN npm i -g @wasp.sh/wasp-cli@0.22.0
+RUN npm i -g @wasp.sh/wasp-cli@0.23
 ENV NODE_ENV production
 WORKDIR /app
 # Copying the top level 'node_modules' because it contains the Prisma packages

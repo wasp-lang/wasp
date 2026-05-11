@@ -2,8 +2,9 @@ module Tests.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, WaspNewTemplate (..), appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
+import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
 
 waspDbSeedTest :: Test
@@ -26,7 +27,7 @@ waspDbSeedTest =
       TestCase
         "succeed-seed-database"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliCompile,
                   appendToPrismaFile taskPrismaModel,

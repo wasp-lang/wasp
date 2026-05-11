@@ -12,6 +12,7 @@ import {
   assertRailwayProjectNameIsValid,
   ensureRailwayCliReady,
 } from "./railwayCli.js";
+import { retryOnRailwayAPIError } from "./retry.js";
 
 class RailwayCommand extends Command {
   addProjectNameArgument(): this {
@@ -121,7 +122,9 @@ function makeRailwaySetupCommand(): Command {
       "--db-image <dbImage>",
       "custom Docker image for the PostgreSQL database",
     )
-    .action(setupFn);
+    .action((...args: Parameters<typeof setupFn>) =>
+      retryOnRailwayAPIError(() => setupFn(...args)),
+    );
 }
 
 function makeRailwayDeployCommand(): Command {
@@ -135,7 +138,9 @@ function makeRailwayDeployCommand(): Command {
       "use existing project for deployment",
     )
     .addCustomServerUrlOption()
-    .action(deployFn);
+    .action((...args: Parameters<typeof deployFn>) =>
+      retryOnRailwayAPIError(() => deployFn(...args)),
+    );
 }
 
 function makeRailwayLaunchCommand(): Command {

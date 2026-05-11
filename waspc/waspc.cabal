@@ -4,7 +4,7 @@ cabal-version: 2.4
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
 --    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.22.0
+version: 0.24.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -28,21 +28,21 @@ data-files:
   Cli/starters/**/*.js
   Cli/starters/**/*.json
   Cli/starters/**/*.md
+  Cli/starters/**/*.mjs
   Cli/starters/**/*.prisma
   Cli/starters/**/*.svg
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
   Cli/starters/**/*.wasp
   Cli/starters/basic/.prettierignore
-  Cli/starters/basic/.prettierrc
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/gitignore
+  Cli/starters/skeleton/npmrc
   Cli/starters/skeleton/public/.gitkeep
   Cli/starters/skeleton/public/favicon.ico
   Generator/libs/**/*.tgz
   Generator/templates/**/*.css
-  Generator/templates/**/*.html
   Generator/templates/**/*.js
   Generator/templates/**/*.json
   Generator/templates/**/*.jsx
@@ -90,6 +90,7 @@ common common-all
     -- -fwrite-ide-info and -hiedir=.hie tell GHC to write compile-time information about the code
     -- to .hie directory. This information can then be used by other tools, e.g. stan (static analyzer).
     -Wall
+    -Wunused-packages
     -optP-Wno-nonportable-include-path
     -fwrite-ide-info
     -hiedir=.hie
@@ -99,6 +100,8 @@ common common-all
     FlexibleContexts
     LambdaCase
     MultiParamTypeClasses
+    NamedFieldPuns
+    OverloadedRecordDot
     OverloadedStrings
     QuasiQuotes
     ScopedTypeVariables
@@ -136,15 +139,12 @@ library
     conduit-extra ^>=1.3.7,
     containers ^>=0.6.7,
     cryptohash-sha256 ^>=0.11.102,
-    cryptonite ^>=0.30,
     deepseq ^>=1.4.8,
-    dir-traverse ^>=0.2.3,
     directory ^>=1.3.8,
     dotenv ^>=0.11.0,
     exceptions ^>=0.10.7,
     extra ^>=1.7.16,
     filepath ^>=1.4.301,
-    fsnotify ^>=0.4.2,
     http-conduit ^>=2.3.9,
     http-types ^>=0.12.4,
     megaparsec ^>=9.5.0,
@@ -158,7 +158,6 @@ library
     pretty-simple ^>=4.1.3,
     process ^>=1.6.19,
     regex-tdfa ^>=1.3.2,
-    selective ^>=0.7.0,
     split ^>=0.2.5,
     strong-path ^>=1.2.0,
     template-haskell ^>=2.20.0,
@@ -167,12 +166,10 @@ library
     unliftio ^>=0.2.25,
     unordered-containers ^>=0.2.20,
     utf8-string ^>=1.0.2,
-    uuid ^>=1.3.15,
     validation-selective ^>=0.2.0,
 
   other-modules: Paths_waspc
   exposed-modules:
-    FilePath.Extra
     Wasp.AI.CodeAgent
     Wasp.AI.GenerateNewProject
     Wasp.AI.GenerateNewProject.Common
@@ -332,7 +329,6 @@ library
     Wasp.Generator.SdkGenerator.Client.OperationsGenerator
     Wasp.Generator.SdkGenerator.Client.RouterGenerator
     Wasp.Generator.SdkGenerator.Client.VitePlugin.Common
-    Wasp.Generator.SdkGenerator.Client.VitePlugin.HtmlPluginG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG
     Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPluginG
     Wasp.Generator.SdkGenerator.Client.VitePluginG
@@ -408,8 +404,11 @@ library
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
     Wasp.Project.ExternalConfig.PackageJson
+    Wasp.Project.ExternalConfig.RootTsConfig
+    Wasp.Project.ExternalConfig.SrcTsConfig
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalConfig.ViteConfig
+    Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile
@@ -450,6 +449,10 @@ library
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
+    Wasp.SemanticVersion.Parsers
+    Wasp.SemanticVersion.PartialVersion
+    Wasp.SemanticVersion.Range
+    Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.TypeScript.Inspect.Exports
@@ -516,11 +519,9 @@ library waspls
     -- NOTE: We're not keeping lsp and lsp-types up to date since it's too much
     -- work and we plan to deprecate the DSL and Wasp LSP soon.
     aeson,
-    aeson-pretty,
     async,
     base,
     data-default ^>=0.7.1,
-    deepseq,
     directory,
     filepath,
     hashable ^>=1.4.7,
@@ -538,7 +539,6 @@ library waspls
     transformers ^>=0.6.1,
     unliftio-core,
     unordered-containers,
-    utf8-string,
     waspc,
 
 library cli-lib
@@ -551,31 +551,26 @@ library cli-lib
     base,
     bytestring,
     containers,
-    cryptonite,
+    cryptonite ^>=0.30,
     directory,
     exceptions,
     filepath,
-    fsnotify,
+    fsnotify ^>=0.4.2,
     http-conduit,
-    http-types,
     lens,
     lens-aeson ^>=1.2.3,
     mtl,
     neat-interpolation,
     optparse-applicative ^>=0.18.1,
-    path,
     path-io,
-    pretty-simple,
     process,
     strong-path,
     tar ^>=0.6.3,
     temporary ^>=1.3,
     text,
     time,
-    unliftio,
-    unordered-containers,
     utf8-string,
-    uuid,
+    uuid ^>=1.3.15,
     waspc,
     waspls,
     zlib ^>=0.7.1,
@@ -716,7 +711,6 @@ test-suite waspc-tests
     ErrorTest
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.TarballTest
-    FilePath.ExtraTest
     Fixtures
     Generator.AuthInjectionTest
     Generator.CommonTest
@@ -734,7 +728,10 @@ test-suite waspc-tests
     Node.InternalTest
     Paths_waspc
     Project.DbTest
-    Project.ExternalConfigTest
+    Project.ExternalConfig.RootTsConfigTest
+    Project.ExternalConfig.SrcTsConfigTest
+    Project.ExternalConfig.TsConfigTest
+    Project.ExternalConfig.WaspTsConfigTest
     Project.WaspignoreTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
@@ -750,9 +747,12 @@ test-suite waspc-tests
     Psl.Parser.ViewTest
     Psl.Parser.WithCtxTest
     Psl.ValidTest
+    SemanticVersion.ParsersTest
+    SemanticVersion.PartialVersionTest
+    SemanticVersion.RangeExpressionTest
+    SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
-    SemanticVersionTest
     Test.Util
     Util.Control.MonadTest
     Util.Diff
@@ -760,6 +760,7 @@ test-suite waspc-tests
     Util.FilePathTest
     Util.IO.RetryTest
     Util.Prisma
+    Util.StrongPathTest
     UtilTest
     ValidatorTest
 
@@ -778,7 +779,6 @@ test-suite waspls-tests
     filepath,
     hspec,
     lens,
-    lsp,
     lsp-types,
     mtl,
     tasty,
@@ -804,12 +804,9 @@ test-suite wasp-cli-tests
     QuickCheck,
     base,
     cli-lib,
-    containers,
-    generic-arbitrary,
     hspec,
     tasty,
     tasty-hspec,
-    tasty-quickcheck,
     time,
     waspc,
 
@@ -834,7 +831,8 @@ test-suite waspc-e2e-tests
     base,
     base64-bytestring,
     bytestring,
-    dir-traverse,
+    cli-lib,
+    dir-traverse ^>=0.2.3,
     directory,
     filepath,
     hspec,
@@ -877,4 +875,5 @@ test-suite waspc-e2e-tests
     Tests.WaspStartTest
     Tests.WaspStudioTest
     Tests.WaspTelemetryTest
+    Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest

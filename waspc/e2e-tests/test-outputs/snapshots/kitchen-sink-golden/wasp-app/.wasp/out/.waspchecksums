@@ -11,7 +11,7 @@
             "file",
             "Dockerfile"
         ],
-        "ff8141dd75c0841e5eeffa9f2ebe8b247da05da8b6f4ba417e6433d617190361"
+        "a8d391fb3ddfededa244adfd5880d2b42a8d2098e9c5711fba03577e2f8dee00"
     ],
     [
         [
@@ -30,9 +30,16 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.22.0.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.24.0.tgz"
         ],
-        "78e9b53939d123bcfa191024dfeb038a0c3f84a867a67fce8fe14cb1989d7427"
+        "ebff18b870fff9120dcc52aa42d9aab6f9f074f94230783811f6d7e19b08048c"
+    ],
+    [
+        [
+            "file",
+            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.24.0.tgz"
+        ],
+        "3cd2675d328494840796e1f619327d743acfbe899b6ea5e4db4677bd913fcdc5"
     ],
     [
         [
@@ -46,35 +53,35 @@
             "file",
             "sdk/wasp/api/index.ts"
         ],
-        "b0896350dd5899f8020c70dfb5c75224ae22b0fe525a0defacc6d9caed9dcec1"
+        "2c6a32dff4ef5d8284e5f99cda26df93577edf5034245d7f7b13f64034c9e277"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/login.ts"
         ],
-        "65d8420e656773e736e4975f6bd8ef9525adb2427b95269aece53f6b020575ef"
+        "dfb46a1065daddb51dc9b216f68c613b76fedd7a0ec285635222c81e68a65f9e"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/passwordReset.ts"
         ],
-        "6fe7cc26b22c6a6b2df387a9a19db6b7669c76d734947e12b3707d816fae84ea"
+        "0b37742cd8796d6baddd22ca0dc90dc359214a5692a5cc1e5663c9201bfa1f84"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/signup.ts"
         ],
-        "ed686aeb82183ab39c0d248fe1a73f1385a3c80bd9a964589e67478125b42108"
+        "b9689685f9b51b07e43cb342abe801a1d4912ccac799802a19a8a4b1f2298f87"
     ],
     [
         [
             "file",
             "sdk/wasp/auth/email/actions/verifyEmail.ts"
         ],
-        "518b55247416c27bd29cbc7938dbf94f74db1e14df5ff17f3b630fad5dc22ebb"
+        "55a1a4bf28e8e82670e2a6413aa1a5d8f86a815c6be7a17c66b2ce13fb3384f8"
     ],
     [
         [
@@ -345,6 +352,13 @@
     [
         [
             "file",
+            "sdk/wasp/auth/responseSchemas.ts"
+        ],
+        "bc3d6b4b31278babf07e9fff584a90cbb5d8aa8be9c66c5aecd239dfe43bd850"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/auth/session.ts"
         ],
         "21b17473562e8815c94292fb02d2f0a808bf35b6d1836514d5c833c8d4a195b2"
@@ -361,7 +375,7 @@
             "file",
             "sdk/wasp/auth/useAuth.ts"
         ],
-        "44c48ae98fd92113c293a5f5b82dc259c56fcd8d2290789c598c1451b0eeb871"
+        "185fe6eddec17273904097164567385bdc3cd12b33545395660f3508ae513aac"
     ],
     [
         [
@@ -424,21 +438,35 @@
             "file",
             "sdk/wasp/client/app/components/WaspApp.tsx"
         ],
-        "b1ed7eab1c41d50237b95ae944f3a9377218b58b5b8f80faf4b75924839389f6"
+        "3add5d6ad5a3290bb2a6ac13a463773e6a725fbc0383bd5c0cd4db5f8500662a"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/app/hooks/useIsClient.ts"
+        ],
+        "d6912c04aaee762cc62a3d811d6253fc8b31732ea80d1e757e2480d6c37e3931"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/index.tsx"
         ],
-        "c0d943e405bacb9d814c7945c3609e37d406876201f702280e527ac3384b5e72"
+        "461f35b62fc05d0060aa9dcffb5b31ec0b1c4988399bb802f9c8dd453892c5b2"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/app/layout.tsx"
+        ],
+        "2e0183cc2604a05991c483f21a3ef74377d21e410f734949cce23e3bdcd5277f"
     ],
     [
         [
             "file",
             "sdk/wasp/client/app/pages/OAuthCallback.tsx"
         ],
-        "6ab036bca05d3b6e6f73dfb58d9abdbcf01de110838cf1698a5de9c7f8af6d44"
+        "5eaded4c756d4cf8dcf261532db3d0994b5bb615aa56ab7ac371455be33a1f39"
     ],
     [
         [
@@ -450,9 +478,9 @@
     [
         [
             "file",
-            "sdk/wasp/client/app/router/router.tsx"
+            "sdk/wasp/client/app/router.tsx"
         ],
-        "523850b686a9dd4336f31ab0fc6e598fdbb9ae2cbd398786911d9d14b6806aca"
+        "6f47a064d242e0a6c952f619585669c990c08a8612cdf43f8419526153651293"
     ],
     [
         [
@@ -543,14 +571,14 @@
             "file",
             "sdk/wasp/client/env.ts"
         ],
-        "7fafed5cbdcc62100df36625e40ea26db68a3d3be5b7951c84cbd7bec2ce3aeb"
+        "911f5db4e486b274015f49d67dc807a0de0249d476476b5920342b79fe99650d"
     ],
     [
         [
             "file",
             "sdk/wasp/client/env/schema.ts"
         ],
-        "8e6b03ab18a51a7066be701f194dd23568c9f3da33de6012805672761c9ccb16"
+        "84e7d4f9012887bfb04ca09fc0145865d3b0a2c5576bb5482339733d6e69a127"
     ],
     [
         [
@@ -599,7 +627,7 @@
             "file",
             "sdk/wasp/client/operations/internal/index.ts"
         ],
-        "dbd92e9ee31068abb13a88dc0ed497f0e1f1e6660b39b16ffd6821b5a5c3d8c2"
+        "c37958916c49908e3379f281e1722aa58b44349d46f627e15ee73460bc801f71"
     ],
     [
         [
@@ -655,7 +683,7 @@
             "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "80d9cde2b1f82c7517211c801bad795ba7c0b0544582e251904c4ef0758ed034"
+        "78a81458a4ab5dd669e2c48c380b6a5645f3edaebd8b0493115de12d65730c02"
     ],
     [
         [
@@ -716,20 +744,6 @@
     [
         [
             "file",
-            "sdk/wasp/client/vite/plugins/html/build.ts"
-        ],
-        "5bb3e0b0f409df9e05a8504d163a5f127d9d9262d4cd359e3a02fb87a0d1ba87"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/plugins/html/dev.ts"
-        ],
-        "fe82474e278ebbbc8c2ec7c0dcd4e8a80d63d19e8e4abeb2e624686725f56036"
-    ],
-    [
-        [
-            "file",
             "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
         ],
         "737990d1ed27a0481690366da5a0c8cd7bd795a08e0984d35eac8f6a132fbd3c"
@@ -739,56 +753,56 @@
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "d17f10ce7f243d703670a49d3bdc6bf74edba24a9b43596cec82aea6f8689bc8"
+        "0fdf894207303eb8f9b072786a2fa3b69da84795db85631fdf32394686f3d863"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/virtualModules.ts"
         ],
-        "3ff5f866b24b410514ed13f4adad218fad88a677b2172e57a02be4a3642eafe1"
+        "64aba2d2b2135503606db815795b1e6b2f91fb68372188aeee11c29ca9a2d768"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "f681a58c39936f57eebd7894f2343719d14c386f225d4a29772efa7e7cd96ef3"
+        "7024075a1d16f094219ca1c8bc1dec4e8ed2cccafc4a9f716992a68ed05af2f3"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/waspConfig.ts"
         ],
-        "0c077ff79fa63e1caa37f82ab29646413b6129ef7d5ab58dbdb2eacd979c8685"
+        "b5db741e0d7b953cd7f6f70ace2172c35c8123bd4ff60c9d43a14bbb7a5bd03c"
     ],
     [
         [
             "file",
-            "sdk/wasp/client/vite/virtual-files/files/index.html"
+            "sdk/wasp/client/vite/virtual-files/files/client-entry.tsx"
         ],
-        "b0e016c159dfb8ab9a7026aa4cf40e010f34b1ab83aa78562900d47ea6e58688"
-    ],
-    [
-        [
-            "file",
-            "sdk/wasp/client/vite/virtual-files/files/index.tsx"
-        ],
-        "3757d217053f495819bca253cf994bb0283877e4865b59954a348549a2b00711"
+        "413c3dc30af130acc68fb319915348aab647f0b6d73bddacfcc5b5c3b7dbb766"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "06a37b6c3c21000add6ceae5228249c836473582870465d56735237c708d93d5"
+        "8a0c3b2d8606092106bbc604fc7d3052b3f5c4801871fc1622e26eff738f7062"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/client/vite/virtual-files/files/ssr-entry.tsx"
+        ],
+        "f1b19e131b16c7dc39254a841ad836ba5ea7200cb7e11d06999c3b276bca30f6"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/virtual-files/index.ts"
         ],
-        "7f90d7c7578abce2405f27601b2005296ca37c40157ab9fa83d1cb93380c1e1f"
+        "9156d597969303910044a116be7ccdc43ad102be6bc3eac93b9c4d091c589c55"
     ],
     [
         [
@@ -802,7 +816,7 @@
             "file",
             "sdk/wasp/client/webSocket/WebSocketProvider.tsx"
         ],
-        "1898aea06682511a9cb126258664d28763632105acbbbe976de58dd4e010d2fc"
+        "958e73a71c2d764f7a46e93bf3c0f8790826dd0a2526e69aeb12a2a954ba33c3"
     ],
     [
         [
@@ -844,7 +858,7 @@
             "file",
             "sdk/wasp/core/storage.ts"
         ],
-        "e9e2a4a02d48bea1597fcdc00592e3d975eea7fa6e0545cf087da9429c5f4979"
+        "f94fa2c6090a41621a2c45ed156001ad1e85893f134561e459cd206a2532a5ec"
     ],
     [
         [
@@ -865,14 +879,14 @@
             "file",
             "sdk/wasp/env/validation.ts"
         ],
-        "f50891896c9bfe331c6f59a5b844fa821a6e3f959d69acfdbc8f592aa6d346da"
+        "46889a74ff4b17a27dc1a086ec97f25aecd9b174a71bb35ebf65f1b0ca697a69"
     ],
     [
         [
             "file",
             "sdk/wasp/package.json"
         ],
-        "2a9000f2c8049e9c1a22a24120cbe0c52bcc4e0f6b8f65ce04208f2899afea2d"
+        "18830ed0aa9cc19f17e3f57dec78afa6dc680425b5072c04a9b001c73508dbe4"
     ],
     [
         [
@@ -1082,7 +1096,7 @@
             "file",
             "sdk/wasp/server/env.ts"
         ],
-        "0bd47211b754bdba3df3dd3a61152267ec9ad0baf5a6c8363ca5501807f488b3"
+        "141565f4e150143ad201eb9c44c7acd58ac380319b21a694ef20cf3309e24729"
     ],
     [
         [
@@ -1236,7 +1250,7 @@
             "file",
             "sdk/wasp/src/App.tsx"
         ],
-        "35424c2c86c4b235dac11100e8493acfa015f07502fbdf5bd44b2df437169378"
+        "60831287f34320b06de5e591c9d941585fdf4813eede193fdf0ebc4afd04b571"
     ],
     [
         [
@@ -1250,7 +1264,7 @@
             "file",
             "sdk/wasp/src/clientSetup.js"
         ],
-        "9357079e48edc16bf9a89c89342d30bd581b8f1d55317d290893420dc4c809d1"
+        "cc870ecfbaba6c3244cf4936843f2dc2255d52dafc86b2e4c7b2c1b36b51ad90"
     ],
     [
         [
@@ -1278,7 +1292,7 @@
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "af0eef1a1252b16c0744b2f1252f9ed1f433192362fe9219ad91950603b22f38"
+        "784c2953dde91c6eeebfdff1d89def2d5de221109c9dc7c0546ed897174cc27c"
     ],
     [
         [
@@ -1313,7 +1327,7 @@
             "file",
             "sdk/wasp/src/features/apis/pages/ApisPage.tsx"
         ],
-        "6a5bb4ab7d318452a59b0664cc3737281d4f326cfc39d4ea4f354f14ec7682f0"
+        "0c4493eb7990a4f8d6c38d0447360e0c95a973fadb0c61abae51a9d66f4b06ad"
     ],
     [
         [
@@ -1369,7 +1383,7 @@
             "file",
             "sdk/wasp/src/features/auth/pages/ProfilePage.tsx"
         ],
-        "2579275c41127028e339bbe2d470031f37e3bfd45d080c21d061b793d9f63fa6"
+        "e9e0a7b87fc36e83358ebe20d1fad36be371663473b996ce7336876cf5f005db"
     ],
     [
         [
@@ -1502,7 +1516,7 @@
             "file",
             "sdk/wasp/src/features/jobs/pages/JobsPage.tsx"
         ],
-        "1de498f7806722b117411c46342edd88aa35391ff467f2ba769308bb6c617f62"
+        "ea8082f799afdd517a4228474d9f965dc633577e5c4af42b1d291756d520a943"
     ],
     [
         [
@@ -1517,6 +1531,20 @@
             "sdk/wasp/src/features/jobs/uppercaseText.ts"
         ],
         "2b32695d8eb7eef6448b35eea80bbc39bb8218c81fa1886b608439ba6eeef165"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/lazy-loading/pages/EagerPage.tsx"
+        ],
+        "340313414462eb5dc90f925990ec299e3d6179d9b7b8ceabe9531878464b58ae"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/lazy-loading/pages/LazyPage.tsx"
+        ],
+        "4223b90e09bb38c1a9a931f4d96776df7e691b5362886e074c09193560a50123"
     ],
     [
         [
@@ -1580,6 +1608,20 @@
             "sdk/wasp/src/features/operations/queries.ts"
         ],
         "249a9aa9ca3ea59c9041acc04cea7261a9b5d754b0d0cccddb61234168fbc666"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/prerender/pages/HydrationMismatchPage.tsx"
+        ],
+        "13d64854ec5bd5546532b4425f7fa09647a4618de1c0e8883ca11825b28eb696"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/src/features/prerender/pages/PrerenderPage.tsx"
+        ],
+        "5119eac47197facb0095d5d830756e7820d39cbf0c40aa804a38b8b62dc9af0b"
     ],
     [
         [
@@ -1677,7 +1719,7 @@
             "file",
             "sdk/wasp/universal/ansiColors.ts"
         ],
-        "1b38c60fcd141712bc5a253467b46263af0ee1d64cd9d9c9a774f61dd4949a1c"
+        "cfc47c3c2b75be169c4e7e8fba94b769544a5004085f7bd54fc0d9ab79c37b70"
     ],
     [
         [
@@ -1712,7 +1754,7 @@
             "file",
             "sdk/wasp/vite-env.d.ts"
         ],
-        "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
+        "665f3198e423071ad1101003d223d09386605ddd32bcf8efba857619dd6dbb9f"
     ],
     [
         [
@@ -1747,7 +1789,7 @@
             "file",
             "server/package.json"
         ],
-        "b789013ef8e77059046c0453433c46280e5501271139f81a456cbbdd83b32e42"
+        "d56038350fa8e5553dec8727d94da1ff5dfa2391ca1b58008bbc816d5a965997"
     ],
     [
         [
@@ -2468,6 +2510,6 @@
             "file",
             "server/tsconfig.json"
         ],
-        "949371883586daa391e4c740deab221a2c96fa2be1f159e82eb5a129d4a5134a"
+        "41bd85355b03c53e6a036aadc42ce4f1e6ed20e45215d4f2036747b2c7d181e1"
     ]
 ]
