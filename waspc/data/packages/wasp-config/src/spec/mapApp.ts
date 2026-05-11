@@ -7,7 +7,7 @@ import * as AppSpec from "../appSpec.js";
 import {
   formatExtImportInputError,
   mapExtImport,
-  mapExtImportInput,
+  tryMapExtImport,
 } from "./extImport.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
@@ -221,9 +221,9 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
 export function deriveExtImportName(
   extImport: TsAppSpec.CallableExtImportInput,
 ): string {
-  const result = mapExtImportInput(extImport);
+  const result = tryMapExtImport(extImport);
   if (result.status === "error") {
-    throw new Error(formatExtImportInputError(result.reason));
+    throw new Error(formatExtImportInputError(result.error));
   }
 
   return result.value.alias ?? result.value.name;

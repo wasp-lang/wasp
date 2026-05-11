@@ -14,10 +14,20 @@ describe("ExtImport input types", () => {
 
     expectTypeOf(
       pageConfig.component,
-    ).toMatchTypeOf<TsAppSpec.CallableExtImportInput>();
-    expectTypeOf(
-      actionConfig.fn,
-    ).toMatchTypeOf<TsAppSpec.CallableExtImportInput>();
+    ).toExtend<TsAppSpec.CallableExtImportInput>();
+    expectTypeOf(actionConfig.fn).toExtend<TsAppSpec.CallableExtImportInput>();
+  });
+
+  test("should reject objects at callable ExtImport use sites", async () => {
+    const component = { render: () => null };
+
+    const pageConfig: TsAppSpec.Page = {
+      kind: "page",
+      // @ts-expect-error callable ExtImport sites accept descriptors or functions.
+      component,
+    };
+
+    expectTypeOf(pageConfig).toExtend<TsAppSpec.Page>();
   });
 
   test("should reject malformed descriptor-like objects", async () => {
@@ -27,6 +37,6 @@ describe("ExtImport input types", () => {
       component: { from: 42, importDefault: "X" },
     };
 
-    expectTypeOf(pageConfig).toMatchTypeOf<TsAppSpec.Page>();
+    expectTypeOf(pageConfig).toExtend<TsAppSpec.Page>();
   });
 });
