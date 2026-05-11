@@ -94,11 +94,8 @@ instance Requirable InWaspProject where
 -- this check always passes.
 data WaspConfigAvailable = WaspConfigAvailable deriving (Typeable)
 
--- TODO: rename to singnal up to date.
 instance Requirable WaspConfigAvailable where
   checkRequirement = do
-    -- TODO: If this condition requires a different condition, how do we handle
-    -- that?
     InWaspProject waspProjectDir <- require
     isTsProject <- liftIO $ isWaspTsProject waspProjectDir
     when isTsProject $ ensureInstalledWaspConfigMatchesCliVersion waspProjectDir
