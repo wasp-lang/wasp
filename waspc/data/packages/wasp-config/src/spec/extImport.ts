@@ -14,21 +14,34 @@ export interface DefaultExtImport {
 }
 
 export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
-  if ("import" in extImport) {
+  if (isNamedExtImport(extImport)) {
     return {
       kind: "named",
       name: extImport.import,
       path: extImport.from,
     };
-  } else if ("importDefault" in extImport) {
-    return {
-      kind: "default",
-      name: extImport.importDefault,
-      path: extImport.from,
-    };
-  } else {
-    throw new Error(
-      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
-    );
   }
+
+  return {
+    kind: "default",
+    name: extImport.importDefault,
+    path: extImport.from,
+  };
+}
+
+export function isNamedExtImport(value: unknown): value is NamedExtImport {
+  return (
+    isObject(value) &&
+    typeof value.import === "string" &&
+    typeof value.from === "string" &&
+    hasValidAlias(value)
+  );
+}
+
+function hasValidAlias(value: Record<string, unknown>): boolean {
+  return value.alias === undefined || typeof value.alias === "string";
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+  return Object.prototype.toString.call(value) === "[object Object]";
 }
