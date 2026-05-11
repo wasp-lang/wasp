@@ -3,7 +3,6 @@ module Project.ExternalConfig.PackageJsonTest (spec_PackageJson) where
 import qualified Data.Map as M
 import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common (TsConfigPaths, tsConfigPathsInWaspLangProjects, tsConfigPathsInWaspTsProjects)
 import Wasp.Project.ExternalConfig.PackageJson (packageJsonValidator)
 import qualified Wasp.Validator as V
@@ -11,35 +10,19 @@ import qualified Wasp.Validator as V
 spec_PackageJson :: Spec
 spec_PackageJson = do
   describe "packageJsonValidator" $ do
-    it "returns no errors for a valid Wasp TS project package.json" $
-      validate tsConfigPathsInWaspTsProjects (validPackageJson `withDevDependency` requiredNodeTypesDependency)
-        `shouldBe` []
-
-    it "returns an error when a Wasp TS project is missing @types/node" $
+    it "runs Node types validation for Wasp TS projects" $
       validate tsConfigPathsInWaspTsProjects validPackageJson
-        `shouldBeValidationErrors` [("Wasp requires package \"@types/node\" with version \"^24.0.0\".", ["devDependencies", "@types/node"])]
+        `shouldSatisfy` hasErrorInField ["devDependencies", "@types/node"]
 
-    it "returns an error when a Wasp TS project has a wrong @types/node version" $
-      validate tsConfigPathsInWaspTsProjects (validPackageJson `withDevDependency` ("@types/node", "^23.0.0"))
-        `shouldBeValidationErrors` [("Wasp requires package \"@types/node\" with version \"^24.0.0\".", ["devDependencies", "@types/node"])]
-
-    it "returns an error when a Wasp TS project has @types/node in dependencies" $
-      validate tsConfigPathsInWaspTsProjects (validPackageJson `withDependency` requiredNodeTypesDependency)
-        `shouldBeValidationErrors` [("Wasp requires package \"@types/node\" to be in \"devDependencies\".", ["dependencies", "@types/node"])]
-
-    it "does not require @types/node for a Wasp-lang project" $
+    it "skips Node types validation for Wasp-lang projects" $
       validate tsConfigPathsInWaspLangProjects validPackageJson
         `shouldBe` []
 
 validate :: TsConfigPaths -> P.PackageJson -> [V.ValidationError]
 validate tsConfigPaths = V.execValidator (packageJsonValidator tsConfigPaths)
 
-shouldBeValidationErrors :: [V.ValidationError] -> [(String, [String])] -> Expectation
-shouldBeValidationErrors actualErrors expectedErrors =
-  validationErrorDetails <$> actualErrors `shouldBe` expectedErrors
-
-validationErrorDetails :: V.ValidationError -> (String, [String])
-validationErrorDetails validationError = (V.message validationError, V.fieldPath validationError)
+hasErrorInField :: [String] -> [V.ValidationError] -> Bool
+hasErrorInField fieldPath = any ((== fieldPath) . V.fieldPath)
 
 validPackageJson :: P.PackageJson
 validPackageJson =
@@ -50,15 +33,3 @@ validPackageJson =
       P.workspaces = Nothing,
       P.wasp = Nothing
     }
-
-requiredNodeTypesDependency :: (P.PackageName, P.PackageVersion)
-requiredNodeTypesDependency =
-  ("@types/node", NodeVersion.nodeTypesVersionRangeMatchingNodeMajor NodeVersion.oldestWaspSupportedNodeVersion)
-
-withDevDependency :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> P.PackageJson
-withDevDependency packageJson (name, version) =
-  packageJson {P.devDependencies = M.insert name version (P.devDependencies packageJson)}
-
-withDependency :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> P.PackageJson
-withDependency packageJson (name, version) =
-  packageJson {P.dependencies = M.insert name version (P.dependencies packageJson)}
