@@ -613,14 +613,14 @@
             "file",
             "sdk/wasp/client/operations/hooks.ts"
         ],
-        "afb77720c5d690911c13a752996b93a8b0f5c8a02568ed59c45c1c401bb2b3fd"
+        "aa38f51bc28318b54e46669ad59028a4246e835ab7439d647608f0d5e067d3e5"
     ],
     [
         [
             "file",
             "sdk/wasp/client/operations/index.ts"
         ],
-        "edcdc3798590e62b778115b3818df8cc69fa5a8bb3a7fe9fa6d6d5ea706d14c4"
+        "18055fc92d894ad5698840d99bb65f9d5a21bd96ba1e11d1e2e3433629df669d"
     ],
     [
         [
@@ -660,9 +660,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/operations/queryClient.config.ts"
+        ],
+        "d8b3d21f56cdcc240f80b8a8421610a990d10f02dfc1a1f5d33db92b001a292c"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/operations/queryClient.ts"
         ],
-        "5c1d87ac10513788bcde7ebc7c10601b9ad0854cddff355e8fb7e2d4685ecdef"
+        "eedd0207c95b08b814b96b4c3337e995d83d8d52daf015db5bf35368f690f063"
     ],
     [
         [
@@ -788,7 +795,7 @@
             "file",
             "sdk/wasp/client/vite/virtual-files/files/routes.tsx"
         ],
-        "8a0c3b2d8606092106bbc604fc7d3052b3f5c4801871fc1622e26eff738f7062"
+        "71c2cd1f1f43cff9c3c843ab52833adb3a05a122b2b85ad6ff18dfff3282b78f"
     ],
     [
         [

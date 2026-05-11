@@ -1,7 +1,5 @@
 import { getRouteObjects } from "wasp/client/app/router";
-import { initializeQueryClient } from "wasp/client/operations";
 import { lazy } from "react"
-
 
 
 
@@ -15,9 +13,6 @@ const routesMapping = {
       ),
   },
 } as const;
-
-
-initializeQueryClient()
 
 const rootElement =
   undefined

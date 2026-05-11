@@ -276,17 +276,11 @@ function getSessionIdFromAuthorizationHeader(header) {
   }
 }
 const defaultQueryClientConfig = {};
-let resolveQueryClientInitialized;
-const queryClientInitialized = new Promise((resolve) => {
-  resolveQueryClientInitialized = resolve;
-});
-function initializeQueryClient() {
-  const queryClient = new QueryClient(defaultQueryClientConfig);
-  resolveQueryClientInitialized(queryClient);
-}
+const queryClient = new QueryClient(defaultQueryClientConfig);
+const queryClientInitialized = Promise.resolve(queryClient);
 function WaspApp({ children }) {
-  const queryClient = use(queryClientInitialized);
-  return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient, children });
+  const queryClient2 = use(queryClientInitialized);
+  return /* @__PURE__ */ jsx(QueryClientProvider, { client: queryClient2, children });
 }
 const scriptRel = "modulepreload";
 const assetsURL = function(dep) {
@@ -394,7 +388,6 @@ const routesMapping = {
     )
   }
 };
-initializeQueryClient();
 const rootElement = void 0;
 const routeObjects = getRouteObjects({
   routesMapping,

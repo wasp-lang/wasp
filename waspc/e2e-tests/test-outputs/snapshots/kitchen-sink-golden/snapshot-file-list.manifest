@@ -111,6 +111,7 @@ wasp-app/.wasp/out/sdk/wasp/client/operations/internal/resources.js
 wasp-app/.wasp/out/sdk/wasp/client/operations/internal/updateHandlersMap.js
 wasp-app/.wasp/out/sdk/wasp/client/operations/queries/core.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/queries/index.ts
+wasp-app/.wasp/out/sdk/wasp/client/operations/queryClient.config.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/queryClient.ts
 wasp-app/.wasp/out/sdk/wasp/client/operations/rpc.ts
 wasp-app/.wasp/out/sdk/wasp/client/router/Link.tsx
@@ -468,6 +469,10 @@ wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queries/index.js.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.config.d.ts
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.config.d.ts.map
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.config.js
+wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.config.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/client/operations/queryClient.js
