@@ -1,12 +1,12 @@
 export function parseProcessArgsOrThrow(args: string[]): {
   waspTsSpecPath: string;
   tsconfigPath: string;
-  outputFilePath: string;
+  declsJsonPath: string;
   entityNames: string[];
 } {
   if (args.length !== 7 || args[2] !== "analyze") {
     throw new Error(
-      "Usage: node run.js analyze <path to main.wasp.ts> <path to tsconfig.wasp.json> <path to output file> <entity names json>",
+      "Usage: node run.js analyze <path to main.wasp.ts> <path to tsconfig.wasp.json> <path to declarations JSON file> <entity names json>",
     );
   }
 
@@ -16,17 +16,17 @@ export function parseProcessArgsOrThrow(args: string[]): {
     _command,
     waspTsSpecPath,
     tsconfigPath,
-    outputFilePath,
+    declsJsonPath,
     entityNamesJson,
   ] = args;
   if (
     typeof waspTsSpecPath !== "string" ||
     typeof tsconfigPath !== "string" ||
-    typeof outputFilePath !== "string" ||
+    typeof declsJsonPath !== "string" ||
     typeof entityNamesJson !== "string"
   ) {
     throw new Error(
-      "All arguments must be strings: <path to main.wasp.ts> <path to tsconfig.wasp.json> <path to output file> <entity names json>",
+      "All arguments must be strings: <path to main.wasp.ts> <path to tsconfig.wasp.json> <path to declarations JSON file> <entity names json>",
     );
   }
 
@@ -35,7 +35,7 @@ export function parseProcessArgsOrThrow(args: string[]): {
   return {
     waspTsSpecPath,
     tsconfigPath,
-    outputFilePath,
+    declsJsonPath,
     entityNames,
   };
 }
