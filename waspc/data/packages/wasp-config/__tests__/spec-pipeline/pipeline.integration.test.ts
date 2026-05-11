@@ -4,8 +4,8 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 import { compileWaspTsToJs } from "../../src/spec-pipeline/compile.js";
+import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
 // We use the absolute file:// URL of the local wasp-config source so the
 // rewritten spec file does not rely on node_modules resolution from a temp dir.
