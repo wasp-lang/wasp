@@ -2,17 +2,22 @@ module Wasp.Project.ExternalConfig.PackageJson
   ( parseAndValidateUserPackageJson,
     findUserPackageJsonFile,
     validatePackageJsonForProject,
+
+    -- * Exported for testing only
+    packageJsonValidator,
   )
 where
 
 import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT, withExceptT)
 import Data.Either.Extra (maybeToEither)
-import qualified Data.Map as M
 import Data.Maybe (isJust)
 import StrongPath (Abs, Dir, File, Path', toFilePath)
 import Validation (Validation, eitherToValidation)
 import Wasp.ExternalConfig.Npm.PackageJson (PackageJson, parsePackageJsonFile)
-import qualified Wasp.ExternalConfig.Npm.PackageJson as P
+import Wasp.ExternalConfig.Npm.PackageJson.DepValidators
+  ( DependencyType (Development),
+    makeRequiredDepValidator,
+  )
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Project.Common
   ( CompileError,
@@ -62,27 +67,6 @@ waspTsPackageJsonValidator tsConfigPaths
     isWaspTsProject = isJust . waspTsConfig
 
 nodeTypesInDevDependenciesValidator :: WaspV.Validator PackageJson
-nodeTypesInDevDependenciesValidator =
-  nodeTypesNotInDependenciesValidator
-    `WaspV.and` requiredNodeTypesDevDependencyValidator
-
-nodeTypesNotInDependenciesValidator :: WaspV.Validator PackageJson
-nodeTypesNotInDependenciesValidator =
-  WaspV.inField ("dependencies", P.dependencies) $
-    WaspV.inField (nodeTypesPackageName, M.lookup nodeTypesPackageName) nodeTypesMissingValidator
-
-requiredNodeTypesDevDependencyValidator :: WaspV.Validator PackageJson
-requiredNodeTypesDevDependencyValidator =
-  WaspV.inField ("devDependencies", P.devDependencies) $
-    WaspV.inField (nodeTypesPackageName, M.lookup nodeTypesPackageName) $
-      WaspV.eqJust requiredNodeTypesVersion
-
-nodeTypesMissingValidator :: WaspV.Validator (Maybe P.PackageVersion)
-nodeTypesMissingValidator Nothing = WaspV.success
-nodeTypesMissingValidator _ = WaspV.failure $ "Wasp requires package " ++ show nodeTypesPackageName ++ " to be in \"devDependencies\"."
-
-nodeTypesPackageName :: P.PackageName
-nodeTypesPackageName = "@types/node"
-
-requiredNodeTypesVersion :: P.PackageVersion
-requiredNodeTypesVersion = NodeVersion.nodeTypesPackageVersionRange NodeVersion.oldestWaspSupportedNodeVersion
+nodeTypesInDevDependenciesValidator = makeRequiredDepValidator Development ("@types/node", requiredNodeTypesVersion)
+  where
+    requiredNodeTypesVersion = NodeVersion.nodeTypesVersionRangeMatchingNodeMajor NodeVersion.oldestWaspSupportedNodeVersion
