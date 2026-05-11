@@ -50,10 +50,16 @@ export class Process {
 
       // Detached mode spawns a process group, allowing us to kill the entire
       // group at once. See the kill() method below for details.
-      detached: options.detached ?? false,
+      detached: this.#detached,
     });
 
-    shutdownSignal.addEventListener("abort", () => this.kill());
+    // Scope the shutdown listener to this process's lifetime so it's removed
+    // automatically when the child exits. Otherwise the listener would keep
+    // calling kill() on a stale PID, which the OS may have reused.
+    const lifetimeController = new AbortController();
+    shutdownSignal.addEventListener("abort", () => this.kill(), {
+      signal: lifetimeController.signal,
+    });
 
     const awaitables = [
       this.#proc,
@@ -69,15 +75,17 @@ export class Process {
         : []),
     ] as const;
 
-    this.#closePromise = Promise.all(awaitables).then(([resultOrError]) => {
-      if (resultOrError.exitCode !== undefined) {
-        return { exitCode: resultOrError.exitCode };
-      } else if (resultOrError.isTerminated) {
-        return { exitCode: null };
-      } else {
-        throw resultOrError;
-      }
-    });
+    this.#closePromise = Promise.all(awaitables)
+      .then(([resultOrError]) => {
+        if (resultOrError.exitCode !== undefined) {
+          return { exitCode: resultOrError.exitCode };
+        } else if (resultOrError.isTerminated) {
+          return { exitCode: null };
+        } else {
+          throw resultOrError;
+        }
+      })
+      .finally(() => lifetimeController.abort());
   }
 
   get stdoutLines(): AsyncIterable<string> {
@@ -104,7 +112,10 @@ export class Process {
 
   async wait(): Promise<ProcessExit> {
     const { exitCode } = await this.#closePromise;
-    if (exitCode !== 0) {
+    // A null exitCode means the process was terminated by a signal, which
+    // happens during graceful shutdown (e.g. Ctrl+C). Don't treat that as an
+    // error, since the termination was requested.
+    if (exitCode !== 0 && exitCode !== null) {
       this.#logger.fatal(`Process exited with code ${exitCode}`);
     }
     return { exitCode };
@@ -134,12 +145,21 @@ export class Process {
   #ignoreKillError(fn: () => void) {
     try {
       fn();
-    } catch (error: any) {
-      if (error.syscall === "kill" && error.code === "ESRCH") {
+    } catch (error: unknown) {
+      if (isNoSuchProcessError(error)) {
         return;
-      } else {
-        throw error;
       }
+      throw error;
     }
   }
+}
+
+function isNoSuchProcessError(error: unknown): boolean {
+  return (
+    error instanceof Error &&
+    "syscall" in error &&
+    error.syscall === "kill" &&
+    "code" in error &&
+    error.code === "ESRCH"
+  );
 }

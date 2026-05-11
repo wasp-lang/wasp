@@ -1,5 +1,9 @@
+import { waitUntilHttpOnPort } from "./http.js";
 import { createLogger } from "./logging.js";
 import { startServer } from "./server-starter.js";
+
+const MAILCRAB_WEB_UI_PORT = 1080;
+const MAILCRAB_SMTP_PORT = 1025;
 
 export async function startLocalSmtpServer(): Promise<Disposable> {
   return await startServer(
@@ -10,12 +14,12 @@ export async function startLocalSmtpServer(): Promise<Disposable> {
         "run",
         "--rm",
         "-p",
-        "1080:1080",
+        `${MAILCRAB_WEB_UI_PORT}:1080`,
         "-p",
-        "1025:1025",
+        `${MAILCRAB_SMTP_PORT}:1025`,
         "marlonb/mailcrab:latest",
       ],
     },
-    () => Promise.resolve(),
+    () => waitUntilHttpOnPort(MAILCRAB_WEB_UI_PORT),
   );
 }

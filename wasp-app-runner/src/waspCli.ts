@@ -3,13 +3,23 @@ import semver, { type SemVer } from "semver";
 import type { PathToApp, WaspCliCmd } from "./args.js";
 import { DbType } from "./db/index.js";
 import { waitUntilHttpOnPort } from "./http.js";
-import { createLogger } from "./logging.js";
+import { createLogger, type Logger } from "./logging.js";
 import { Process, ProcessExit } from "./process.js";
 import { Server, startServer } from "./server-starter.js";
 import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;
 export type WaspVersion = Branded<SemVer, "WaspVersion">;
+
+const WASP_CLIENT_PORT = 3000;
+const WASP_SERVER_PORT = 3001;
+
+async function waitForWaspAppReady(): Promise<void> {
+  await Promise.all([
+    waitUntilHttpOnPort(WASP_CLIENT_PORT),
+    waitUntilHttpOnPort(WASP_SERVER_PORT),
+  ]);
+}
 
 export function waspMigrateDb({
   waspCliCmd,
@@ -54,7 +64,7 @@ export function waspStart({
       cwd: pathToApp,
       env: extraEnv,
     },
-    () => Promise.all([waitUntilHttpOnPort(3000), waitUntilHttpOnPort(3001)]),
+    waitForWaspAppReady,
   );
 }
 
@@ -115,7 +125,7 @@ export function waspBuildStart({
       args: [...waspCliCmd.args, ...args],
       cwd: pathToApp,
     },
-    () => Promise.all([waitUntilHttpOnPort(3000), waitUntilHttpOnPort(3001)]),
+    waitForWaspAppReady,
   );
 }
 
@@ -179,18 +189,10 @@ export async function waspInfo({
     /Database system: (.*)$/m,
   );
 
-  if (appNameMatch === null) {
-    logger.fatal("Failed to get app name");
-  }
-
-  if (dbTypeMatch === null) {
-    logger.fatal("Failed to get database type");
-  }
-
   return {
-    appName: ensureRegexMatch(appNameMatch, "app name") as AppName,
+    appName: ensureRegexMatch(logger, appNameMatch, "app name") as AppName,
     dbType:
-      ensureRegexMatch(dbTypeMatch, "db type") === "PostgreSQL"
+      ensureRegexMatch(logger, dbTypeMatch, "db type") === "PostgreSQL"
         ? DbType.Postgres
         : DbType.Sqlite,
   };
@@ -217,10 +219,10 @@ export async function waspTsSetup({
 }
 
 function ensureRegexMatch(
+  logger: Logger,
   match: RegExpMatchArray | null,
   name: string,
 ): string {
-  const logger = createLogger("ensure-regex-match");
   if (match === null) {
     return logger.fatal(`Failed to get ${name}`);
   }

@@ -1,12 +1,11 @@
 import { Logger } from "./logging.js";
 import { Process } from "./process.js";
 
-export interface Server<T = unknown> extends Disposable {
+export interface Server extends Disposable {
   proc: Process;
-  value: T;
 }
 
-export async function startServer<T>(
+export async function startServer(
   logger: Logger,
   {
     cmd,
@@ -19,8 +18,8 @@ export async function startServer<T>(
     cwd?: string;
     env?: Record<string, string>;
   },
-  checkFn: (proc: Process) => Promise<T>,
-): Promise<Server<T>> {
+  checkFn: (proc: Process) => Promise<void>,
+): Promise<Server> {
   const proc = new Process({
     logger,
     cmd,
@@ -32,7 +31,7 @@ export async function startServer<T>(
   });
 
   try {
-    const value = await Promise.race([
+    await Promise.race([
       checkFn(proc),
       proc
         .wait()
@@ -45,7 +44,6 @@ export async function startServer<T>(
 
     return {
       proc,
-      value,
       [Symbol.dispose]: () => proc.kill(),
     };
   } catch (error) {
