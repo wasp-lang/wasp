@@ -17,6 +17,7 @@ import {
   route,
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import type { AnyFunction } from "../../src/typeUtils.js";
 
 export function getApp(scope: ConfigScope): TsAppSpec.App {
   switch (scope) {
@@ -605,5 +606,3 @@ type ConfigScope = (typeof CONFIG_SCOPES)[number];
 function assertUnreachable(value: never): never {
   throw new Error(`Unhandled case: ${value}`);
 }
-
-type AnyFunction = (...args: never[]) => unknown;
