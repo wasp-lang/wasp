@@ -1,17 +1,15 @@
 import type { ExtImport } from "../spec/extImport.js";
 import { isNamedExtImport } from "../spec/extImport.js";
 import type {
-  DescriptorDeclaration,
   ImportDiagnostic,
-  ImportDiagnosticReason,
   ImportLoweringPlan,
+  LoweredImportBinding,
+  UnsupportedImportType,
 } from "./importLoweringPlan.js";
 import { planImportLowering } from "./importLoweringPlan.js";
 
 const ACCEPTED_IMPORT_SHAPES =
   "Use default, named, aliased named, or namespace imports from @src/*.";
-const NAMESPACE_MEMBER_PATTERN = "[A-Za-z_$][A-Za-z0-9_$]*";
-const NAMESPACE_MEMBER_REGEX = `/^${NAMESPACE_MEMBER_PATTERN}$/`;
 
 /**
  * Lowers top-level imports of the form `@src/*` into inline ExtImport
@@ -21,10 +19,10 @@ const NAMESPACE_MEMBER_REGEX = `/^${NAMESPACE_MEMBER_PATTERN}$/`;
 export function lowerSrcImports(sourceText: string): string {
   const lowering = planImportLowering(sourceText);
   if (lowering.status === "error") {
-    throw new Error(formatImportDiagnostic(lowering.diagnostics[0]!));
+    throw new Error(formatImportDiagnostic(lowering.error[0]!));
   }
 
-  return renderPlan(sourceText, lowering.plan);
+  return renderPlan(sourceText, lowering.value);
 }
 
 function renderPlan(text: string, plan: ImportLoweringPlan): string {
@@ -34,33 +32,33 @@ function renderPlan(text: string, plan: ImportLoweringPlan): string {
   for (const replacement of plan.replacements) {
     out +=
       text.slice(cursor, replacement.start) +
-      renderDeclarations(replacement.declarations);
+      renderBindings(replacement.bindings);
     cursor = replacement.end;
   }
 
   return out + text.slice(cursor);
 }
 
-function renderDeclarations(declarations: DescriptorDeclaration[]): string {
-  return declarations.map(renderDeclaration).join("\n");
+function renderBindings(bindings: LoweredImportBinding[]): string {
+  return bindings.map(renderBinding).join("\n");
 }
 
-function renderDeclaration(declaration: DescriptorDeclaration): string {
-  switch (declaration.kind) {
-    case "descriptor":
-      return `const ${declaration.localName} = ${renderDescriptor(declaration.descriptor)} as const;`;
+function renderBinding(binding: LoweredImportBinding): string {
+  switch (binding.kind) {
+    case "extImport":
+      return `const ${binding.localName} = ${renderDescriptor(binding.extImport)} as const;`;
     case "namespace":
-      return renderNamespaceProxy(declaration);
+      return renderNamespaceProxy(binding);
   }
 }
 
 function renderNamespaceProxy(
-  declaration: Extract<DescriptorDeclaration, { kind: "namespace" }>,
+  binding: Extract<LoweredImportBinding, { kind: "namespace" }>,
 ): string {
-  const from = JSON.stringify(declaration.descriptorPath);
-  const aliasPrefix = JSON.stringify(declaration.aliasPrefix);
+  const from = JSON.stringify(binding.from);
+  const aliasPrefix = JSON.stringify(binding.aliasPrefix);
 
-  return `const ${declaration.localName} = new Proxy({}, { get: (_t, k) => { const member = String(k); if (!${NAMESPACE_MEMBER_REGEX}.test(member)) { throw new Error("Unsupported namespace import member " + JSON.stringify(member) + " from " + ${from} + ". Use dot access with a JavaScript identifier."); } return { import: member, from: ${from}, alias: ${aliasPrefix} + member } as const; } }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
+  return `const ${binding.localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
 }
 
 function renderDescriptor(descriptor: ExtImport): string {
@@ -83,24 +81,24 @@ function renderDescriptor(descriptor: ExtImport): string {
 }
 
 function formatImportDiagnostic(diagnostic: ImportDiagnostic): string {
-  return `Unsupported @src import in main.wasp.ts at ${diagnostic.location.line}:${diagnostic.location.column}: ${formatImportDiagnosticReason(diagnostic.reason)} Found ${JSON.stringify(diagnostic.specifier)}. ${ACCEPTED_IMPORT_SHAPES}`;
+  return `Unsupported @src import in main.wasp.ts at ${diagnostic.location.line}:${diagnostic.location.column}: ${formatUnsupportedImportType(diagnostic.unsupportedImportType)} Found ${JSON.stringify(diagnostic.specifier)}. ${ACCEPTED_IMPORT_SHAPES}`;
 }
 
-function formatImportDiagnosticReason(reason: ImportDiagnosticReason): string {
-  switch (reason) {
-    case "sideEffectImport":
+function formatUnsupportedImportType(type: UnsupportedImportType): string {
+  switch (type) {
+    case "sideEffect":
       return "Side-effect imports are not supported.";
-    case "importEqualsImport":
+    case "importEquals":
       return "Import equals declarations are not supported.";
-    case "typeOnlyImport":
+    case "typeOnly":
       return "Type-only imports are not supported.";
-    case "mixedTypeAndValueImport":
+    case "mixedTypeAndValue":
       return "Mixed type/value imports are not supported.";
-    case "stringLiteralImport":
+    case "stringLiteral":
       return "String-literal named imports are not supported.";
-    case "emptyNamedImport":
+    case "emptyNamed":
       return "Empty named imports are not supported.";
-    case "srcReExport":
+    case "reExport":
       return "Re-exports are not supported.";
   }
 }

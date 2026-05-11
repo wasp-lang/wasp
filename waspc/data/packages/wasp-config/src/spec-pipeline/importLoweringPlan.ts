@@ -1,63 +1,57 @@
 import * as ts from "typescript";
+import type { Result } from "../result.js";
 import type { ExtImport } from "../spec/extImport.js";
 
 const SRC_IMPORT_PREFIX = "@src/";
-const SRC_DESCRIPTOR_PREFIX = "@src/";
 
-export type ImportLoweringResult =
-  | { status: "ok"; plan: ImportLoweringPlan }
-  | { status: "error"; diagnostics: ImportDiagnostic[] };
+export type ImportLoweringResult = Result<
+  ImportLoweringPlan,
+  ImportDiagnostic[]
+>;
 
 export type ImportLoweringPlan = {
-  // Replacements are collected in source order so rendering can splice once.
   replacements: ImportReplacement[];
 };
 
 export type ImportReplacement = {
   start: number;
   end: number;
-  declarations: DescriptorDeclaration[];
+  bindings: LoweredImportBinding[];
 };
 
-export type DescriptorDeclaration =
+export type LoweredImportBinding =
   | {
-      kind: "descriptor";
+      kind: "extImport";
       localName: string;
-      descriptor: ExtImport;
+      extImport: ExtImport;
     }
   | {
       kind: "namespace";
       localName: string;
-      descriptorPath: ExtImport["from"];
+      from: ExtImport["from"];
       aliasPrefix: string;
     };
 
 export type ImportDiagnostic = {
-  reason: ImportDiagnosticReason;
+  unsupportedImportType: UnsupportedImportType;
   specifier: string;
   location: SourceLocation;
 };
 
-export type ImportDiagnosticReason =
-  | "sideEffectImport"
-  | "importEqualsImport"
-  | "typeOnlyImport"
-  | "mixedTypeAndValueImport"
-  | "stringLiteralImport"
-  | "emptyNamedImport"
-  | "srcReExport";
+export type UnsupportedImportType =
+  | "sideEffect"
+  | "importEquals"
+  | "typeOnly"
+  | "mixedTypeAndValue"
+  | "stringLiteral"
+  | "emptyNamed"
+  | "reExport";
 
 export type SourceLocation = {
   line: number;
   column: number;
 };
 
-type StatementLowering =
-  | { kind: "replacement"; replacement: ImportReplacement }
-  | { kind: "diagnostic"; diagnostic: ImportDiagnostic };
-
-// Import lowering turns authored @src imports into ExtImport descriptors so
-// spec evaluation can reference user code without loading it at runtime.
 export function planImportLowering(sourceText: string): ImportLoweringResult {
   const sourceFile = ts.createSourceFile(
     "input.ts",
@@ -71,125 +65,103 @@ export function planImportLowering(sourceText: string): ImportLoweringResult {
   const diagnostics: ImportDiagnostic[] = [];
 
   for (const stmt of sourceFile.statements) {
-    const lowering = planStatementLowering(sourceFile, stmt);
-    if (!lowering) continue;
+    const diagnostic = getUnsupportedSrcImportDiagnostic(sourceFile, stmt);
+    if (diagnostic) {
+      diagnostics.push(diagnostic);
+      continue;
+    }
 
-    if (lowering.kind === "diagnostic") {
-      diagnostics.push(lowering.diagnostic);
-    } else {
-      replacements.push(lowering.replacement);
+    const replacement = getImportReplacement(sourceFile, stmt);
+    if (replacement) {
+      replacements.push(replacement);
     }
   }
 
   if (diagnostics.length > 0) {
-    return { status: "error", diagnostics };
+    return { status: "error", error: diagnostics };
   }
 
-  return { status: "ok", plan: { replacements } };
+  return { status: "ok", value: { replacements } };
 }
 
-function planStatementLowering(
+function getUnsupportedSrcImportDiagnostic(
   sourceFile: ts.SourceFile,
   stmt: ts.Statement,
-): StatementLowering | undefined {
+): ImportDiagnostic | undefined {
   if (ts.isImportEqualsDeclaration(stmt)) {
-    const diagnostic = getImportEqualsDiagnostic(sourceFile, stmt);
-    return diagnostic && { kind: "diagnostic", diagnostic };
+    return getImportEqualsDiagnostic(sourceFile, stmt);
   }
 
   if (ts.isExportDeclaration(stmt)) {
-    const diagnostic = getSrcReExportDiagnostic(sourceFile, stmt);
-    return diagnostic && { kind: "diagnostic", diagnostic };
+    return getSrcReExportDiagnostic(sourceFile, stmt);
   }
 
-  if (!ts.isImportDeclaration(stmt)) {
-    return undefined;
-  }
-
-  return planImportDeclarationLowering(sourceFile, stmt);
-}
-
-function planImportDeclarationLowering(
-  sourceFile: ts.SourceFile,
-  stmt: ts.ImportDeclaration,
-): StatementLowering | undefined {
-  const specifier = getStringModuleSpecifier(stmt.moduleSpecifier);
-  if (!specifier || !isSrcImportSpecifier(specifier)) {
-    return undefined;
-  }
-
-  const diagnostic = getSrcImportDiagnostic(sourceFile, stmt, specifier);
-  if (diagnostic) {
-    return { kind: "diagnostic", diagnostic };
-  }
-
-  const clause = stmt.importClause;
-  if (!clause) return undefined;
-
-  return {
-    kind: "replacement",
-    replacement: {
-      start: stmt.getStart(sourceFile),
-      end: stmt.getEnd(),
-      declarations: getDescriptorDeclarations(
-        clause,
-        toDescriptorPath(specifier),
-      ),
-    },
-  };
-}
-
-function getStringModuleSpecifier(
-  moduleSpecifier: ts.Expression,
-): string | undefined {
-  return ts.isStringLiteral(moduleSpecifier) ? moduleSpecifier.text : undefined;
-}
-
-function isSrcImportSpecifier(specifier: string): boolean {
-  return specifier.startsWith(SRC_IMPORT_PREFIX);
-}
-
-function getSrcImportDiagnostic(
-  sourceFile: ts.SourceFile,
-  stmt: ts.ImportDeclaration,
-  specifier: string,
-): ImportDiagnostic | undefined {
-  const clause = stmt.importClause;
-  if (!clause) {
-    return makeDiagnostic(sourceFile, stmt, specifier, "sideEffectImport");
-  }
-
-  if (clause.isTypeOnly) {
-    return makeDiagnostic(sourceFile, stmt, specifier, "typeOnlyImport");
-  }
-
-  const bindings = clause.namedBindings;
-  if (bindings && ts.isNamedImports(bindings)) {
-    if (!clause.name && bindings.elements.length === 0) {
-      return makeDiagnostic(sourceFile, stmt, specifier, "emptyNamedImport");
-    }
-
-    if (bindings.elements.some((element) => element.isTypeOnly)) {
-      return makeDiagnostic(
-        sourceFile,
-        stmt,
-        specifier,
-        "mixedTypeAndValueImport",
-      );
-    }
-
-    if (bindings.elements.some(hasStringLiteralImportedName)) {
-      return makeDiagnostic(sourceFile, stmt, specifier, "stringLiteralImport");
-    }
+  if (ts.isImportDeclaration(stmt)) {
+    return getSrcImportDiagnostic(sourceFile, stmt);
   }
 
   return undefined;
 }
 
-function hasStringLiteralImportedName(spec: ts.ImportSpecifier): boolean {
-  return (
-    spec.propertyName !== undefined && ts.isStringLiteral(spec.propertyName)
-  );
+function getImportReplacement(
+  sourceFile: ts.SourceFile,
+  stmt: ts.Statement,
+): ImportReplacement | undefined {
+  if (!ts.isImportDeclaration(stmt)) {
+    return undefined;
+  }
+
+  const specifier = getSrcImportSpecifier(stmt.moduleSpecifier);
+  if (!specifier) {
+    return undefined;
+  }
+
+  const clause = stmt.importClause;
+  if (!clause) {
+    return undefined;
+  }
+
+  return {
+    start: stmt.getStart(sourceFile),
+    end: stmt.getEnd(),
+    bindings: getLoweredImportBindings(clause, toExtImportPath(specifier)),
+  };
+}
+
+function getSrcImportDiagnostic(
+  sourceFile: ts.SourceFile,
+  stmt: ts.ImportDeclaration,
+): ImportDiagnostic | undefined {
+  const specifier = getSrcImportSpecifier(stmt.moduleSpecifier);
+  if (!specifier) {
+    return undefined;
+  }
+
+  const clause = stmt.importClause;
+  if (!clause) {
+    return makeDiagnostic(sourceFile, stmt, specifier, "sideEffect");
+  }
+
+  if (clause.isTypeOnly) {
+    return makeDiagnostic(sourceFile, stmt, specifier, "typeOnly");
+  }
+
+  const bindings = clause.namedBindings;
+  if (bindings && ts.isNamedImports(bindings)) {
+    if (!clause.name && bindings.elements.length === 0) {
+      return makeDiagnostic(sourceFile, stmt, specifier, "emptyNamed");
+    }
+
+    if (bindings.elements.some((element) => element.isTypeOnly)) {
+      return makeDiagnostic(sourceFile, stmt, specifier, "mixedTypeAndValue");
+    }
+
+    if (bindings.elements.some(hasStringLiteralImportedName)) {
+      return makeDiagnostic(sourceFile, stmt, specifier, "stringLiteral");
+    }
+  }
+
+  return undefined;
 }
 
 function getImportEqualsDiagnostic(
@@ -201,7 +173,72 @@ function getImportEqualsDiagnostic(
     return undefined;
   }
 
-  return makeDiagnostic(sourceFile, stmt, specifier, "importEqualsImport");
+  return makeDiagnostic(sourceFile, stmt, specifier, "importEquals");
+}
+
+function getSrcReExportDiagnostic(
+  sourceFile: ts.SourceFile,
+  stmt: ts.ExportDeclaration,
+): ImportDiagnostic | undefined {
+  if (!stmt.moduleSpecifier) {
+    return undefined;
+  }
+
+  const specifier = getSrcImportSpecifier(stmt.moduleSpecifier);
+  if (!specifier) {
+    return undefined;
+  }
+
+  return makeDiagnostic(sourceFile, stmt, specifier, "reExport");
+}
+
+function getLoweredImportBindings(
+  clause: ts.ImportClause,
+  from: ExtImport["from"],
+): LoweredImportBinding[] {
+  const bindings: LoweredImportBinding[] = [];
+
+  if (clause.name) {
+    const name = clause.name.text;
+    bindings.push({
+      kind: "extImport",
+      localName: name,
+      extImport: { importDefault: name, from },
+    });
+  }
+
+  const namedBindings = clause.namedBindings;
+  if (namedBindings && ts.isNamespaceImport(namedBindings)) {
+    const name = namedBindings.name.text;
+    bindings.push({
+      kind: "namespace",
+      localName: name,
+      from,
+      aliasPrefix: getNamespaceAliasPrefix(name),
+    });
+  } else if (namedBindings) {
+    for (const spec of namedBindings.elements) {
+      const localName = spec.name.text;
+      const importedName = getImportedName(spec);
+      bindings.push({
+        kind: "extImport",
+        localName,
+        extImport: {
+          import: importedName,
+          from,
+          ...(importedName === localName ? {} : { alias: localName }),
+        },
+      });
+    }
+  }
+
+  return bindings;
+}
+
+function hasStringLiteralImportedName(spec: ts.ImportSpecifier): boolean {
+  return (
+    spec.propertyName !== undefined && ts.isStringLiteral(spec.propertyName)
+  );
 }
 
 function getImportEqualsSpecifier(
@@ -215,79 +252,41 @@ function getImportEqualsSpecifier(
   return getStringModuleSpecifier(moduleReference.expression);
 }
 
-function getSrcReExportDiagnostic(
-  sourceFile: ts.SourceFile,
-  stmt: ts.ExportDeclaration,
-): ImportDiagnostic | undefined {
-  if (!stmt.moduleSpecifier || !ts.isStringLiteral(stmt.moduleSpecifier)) {
+function getSrcImportSpecifier(
+  moduleSpecifier: ts.Expression,
+): string | undefined {
+  const specifier = getStringModuleSpecifier(moduleSpecifier);
+  if (!specifier || !isSrcImportSpecifier(specifier)) {
     return undefined;
   }
 
-  const specifier = stmt.moduleSpecifier.text;
-  if (!isSrcImportSpecifier(specifier)) {
-    return undefined;
-  }
+  return specifier;
+}
 
-  return makeDiagnostic(sourceFile, stmt, specifier, "srcReExport");
+function getStringModuleSpecifier(
+  moduleSpecifier: ts.Expression,
+): string | undefined {
+  return ts.isStringLiteral(moduleSpecifier) ? moduleSpecifier.text : undefined;
+}
+
+function isSrcImportSpecifier(specifier: string): boolean {
+  return specifier.startsWith(SRC_IMPORT_PREFIX);
 }
 
 function makeDiagnostic(
   sourceFile: ts.SourceFile,
   node: ts.Node,
   specifier: string,
-  reason: ImportDiagnosticReason,
+  unsupportedImportType: UnsupportedImportType,
 ): ImportDiagnostic {
   const { line, character } = sourceFile.getLineAndCharacterOfPosition(
     node.getStart(sourceFile),
   );
   return {
-    reason,
+    unsupportedImportType,
     specifier,
     location: { line: line + 1, column: character + 1 },
   };
-}
-
-function getDescriptorDeclarations(
-  clause: ts.ImportClause,
-  descriptorPath: ExtImport["from"],
-): DescriptorDeclaration[] {
-  const declarations: DescriptorDeclaration[] = [];
-
-  if (clause.name) {
-    const name = clause.name.text;
-    declarations.push({
-      kind: "descriptor",
-      localName: name,
-      descriptor: { importDefault: name, from: descriptorPath },
-    });
-  }
-
-  const bindings = clause.namedBindings;
-  if (bindings && ts.isNamespaceImport(bindings)) {
-    const name = bindings.name.text;
-    declarations.push({
-      kind: "namespace",
-      localName: name,
-      descriptorPath,
-      aliasPrefix: getNamespaceAliasPrefix(name),
-    });
-  } else if (bindings) {
-    for (const spec of bindings.elements) {
-      const localName = spec.name.text;
-      const importedName = getImportedName(spec);
-      declarations.push({
-        kind: "descriptor",
-        localName,
-        descriptor: {
-          import: importedName,
-          from: descriptorPath,
-          ...(importedName === localName ? {} : { alias: localName }),
-        },
-      });
-    }
-  }
-
-  return declarations;
 }
 
 function getNamespaceAliasPrefix(namespaceName: string): string {
@@ -303,7 +302,6 @@ function getImportedName(spec: ts.ImportSpecifier): string {
   return spec.propertyName?.text ?? spec.name.text;
 }
 
-function toDescriptorPath(specifier: string): ExtImport["from"] {
-  return (SRC_DESCRIPTOR_PREFIX +
-    specifier.slice(SRC_IMPORT_PREFIX.length)) as ExtImport["from"];
+function toExtImportPath(specifier: string): ExtImport["from"] {
+  return specifier as ExtImport["from"];
 }

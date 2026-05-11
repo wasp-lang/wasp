@@ -214,5 +214,5 @@ function expectedNamespaceProxy(
   const quotedFrom = JSON.stringify(from);
   const quotedAliasPrefix = JSON.stringify(aliasPrefix);
 
-  return `const ${localName} = new Proxy({}, { get: (_t, k) => { const member = String(k); if (!/^[A-Za-z_$][A-Za-z0-9_$]*$/.test(member)) { throw new Error("Unsupported namespace import member " + JSON.stringify(member) + " from " + ${quotedFrom} + ". Use dot access with a JavaScript identifier."); } return { import: member, from: ${quotedFrom}, alias: ${quotedAliasPrefix} + member } as const; } }) as Record<string, { import: string; from: ${quotedFrom}; alias: string }>;`;
+  return `const ${localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${quotedFrom}, alias: ${quotedAliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${quotedFrom}; alias: string }>;`;
 }
