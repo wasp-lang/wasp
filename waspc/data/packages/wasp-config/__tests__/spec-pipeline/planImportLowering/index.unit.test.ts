@@ -1,6 +1,6 @@
 import assert from "node:assert";
 import { describe, expect, test } from "vitest";
-import { planImportLowering } from "../../src/spec-pipeline/importLoweringPlan.js";
+import { planImportLowering } from "../../../src/spec-pipeline/planImportLowering/index.js";
 
 describe("planImportLowering", () => {
   test("plans lowered bindings for supported import shapes", () => {
