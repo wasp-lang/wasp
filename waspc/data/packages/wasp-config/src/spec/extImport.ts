@@ -20,13 +20,17 @@ export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
       name: extImport.import,
       path: extImport.from,
     };
+  } else if (isDefaultExtImport(extImport)) {
+    return {
+      kind: "default",
+      name: extImport.importDefault,
+      path: extImport.from,
+    };
+  } else {
+    throw new Error(
+      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
+    );
   }
-
-  return {
-    kind: "default",
-    name: extImport.importDefault,
-    path: extImport.from,
-  };
 }
 
 export function isNamedExtImport(value: unknown): value is NamedExtImport {
@@ -35,6 +39,14 @@ export function isNamedExtImport(value: unknown): value is NamedExtImport {
     typeof value.import === "string" &&
     typeof value.from === "string" &&
     hasValidAlias(value)
+  );
+}
+
+function isDefaultExtImport(value: unknown): value is DefaultExtImport {
+  return (
+    isObject(value) &&
+    typeof value.importDefault === "string" &&
+    typeof value.from === "string"
   );
 }
 

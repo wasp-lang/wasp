@@ -21,6 +21,12 @@ describe("mapExtImport", () => {
     testMapExtImport(Fixtures.getExtImport("full", "default"));
   });
 
+  test("should throw for invalid descriptors", () => {
+    expect(() =>
+      mapExtImport({ from: "@src/external" } as unknown as TsAppSpec.ExtImport),
+    ).toThrow("Invalid ExtImport");
+  });
+
   function testMapExtImport(extImport: TsAppSpec.ExtImport): void {
     const result = mapExtImport(extImport);
 
