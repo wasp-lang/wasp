@@ -4,11 +4,11 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import { compileWaspTsToJs } from "../../src/spec-pipeline/compile.js";
+import { compileWaspTsFileToJsFile } from "../../src/spec-pipeline/compile/index.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
 // We use the absolute file:// URL of the local wasp-config source so the
-// rewritten spec file does not rely on node_modules resolution from a temp dir.
+// compiled spec does not rely on node_modules resolution from a temp dir.
 const waspConfigEntryUrl = pathToFileURL(
   join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
 ).href;
@@ -17,15 +17,15 @@ const importFormPrelude = [
   `import MainPage from "@src/MainPage";`,
   `import { getTasks } from "@src/operations";`,
   `import { archive as archiveTask } from "@src/operations";`,
-  `import { archive as archiveLegacyTask } from "@src/legacyOperations";`,
+  `import { archive as archiveAdminTask } from "@src/adminOperations";`,
   `import * as ops from "@src/operations";`,
 ];
 
-const descriptorFormPrelude = [
+const extImportFormPrelude = [
   `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
   `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
   `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;`,
-  `const archiveLegacyTask = { import: "archive", from: "@src/legacyOperations", alias: "archiveLegacyTask" } as const;`,
+  `const archiveAdminTask = { import: "archive", from: "@src/adminOperations", alias: "archiveAdminTask" } as const;`,
   `const ops = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: "@src/operations", alias: "ops_" + String(k) } as const) }) as Record<string, { import: string; from: "@src/operations"; alias: string }>;`,
 ];
 
@@ -38,7 +38,7 @@ const appSpecBody = [
   `    page(MainPage),`,
   `    query(getTasks, { entities: [] }),`,
   `    action(archiveTask, { entities: [] }),`,
-  `    action(archiveLegacyTask, { entities: [] }),`,
+  `    action(archiveAdminTask, { entities: [] }),`,
   `    action(ops.logout, { entities: [] }),`,
   `  ],`,
   `});`,
@@ -56,31 +56,31 @@ describe("end-to-end import-form pipeline", () => {
       sourceFileName: "main.wasp.ts",
       sourceText: specSource(importFormPrelude),
     });
-    const descriptorDecls = await compileAndAnalyzeSpec({
+    const extImportDecls = await compileAndAnalyzeSpec({
       tempDir,
-      sourceFileName: "main.wasp.descriptor.ts",
-      sourceText: specSource(descriptorFormPrelude),
+      sourceFileName: "main.wasp.ext-import.ts",
+      sourceText: specSource(extImportFormPrelude),
     });
 
-    expect(importDecls).toEqual(descriptorDecls);
+    expect(importDecls).toEqual(extImportDecls);
     expect(importDecls).toEqual(expectedDecls());
   });
 
-  test("rejects unsupported imports during virtual compile", () => {
+  test("rejects unsupported imports during virtual compile", async () => {
     const tempDir = makeTempProject("wasp-spec-pipeline-error-");
     mkdirSync(join(tempDir, "src"));
     writeFileSync(join(tempDir, "src", "setup.ts"), `export {};\n`);
 
-    expect(() =>
+    await expect(
       compileSpec({
         tempDir,
         sourceFileName: "main.wasp.ts",
         sourceText: `import "@src/setup";\n`,
       }),
-    ).toThrowError(/Side-effect imports/);
+    ).rejects.toThrowError(/Side-effect imports/);
   });
 
-  test("type-checks the rewritten spec shape before execution", () => {
+  test("type-checks the lowered spec before execution", async () => {
     const tempDir = makeTempProject("wasp-spec-typecheck-");
     mkdirSync(join(tempDir, "src"));
 
@@ -89,7 +89,7 @@ describe("end-to-end import-form pipeline", () => {
       `export const appTitle = "Demo";\n`,
     );
 
-    expect(() =>
+    await expect(
       compileSpec({
         tempDir,
         sourceFileName: "main.wasp.ts",
@@ -100,10 +100,10 @@ describe("end-to-end import-form pipeline", () => {
           `makeApp({ title: appTitle });`,
         ].join("\n"),
       }),
-    ).toThrowError(/is not assignable to type 'string'/);
+    ).rejects.toThrowError(/is not assignable to type 'string'/);
   });
 
-  test("does not type-check imported @src source files before generation", () => {
+  test("does not type-check imported @src source files before generation", async () => {
     const tempDir = makeTempProject("wasp-spec-src-import-");
     mkdirSync(join(tempDir, "src"));
 
@@ -116,13 +116,13 @@ describe("end-to-end import-form pipeline", () => {
       ].join("\n"),
     );
 
-    expect(() =>
+    await expect(
       compileSpec({
         tempDir,
         sourceFileName: "main.wasp.ts",
         sourceText: `import { getTasks } from "@src/operations";\ngetTasks;\n`,
       }),
-    ).not.toThrow();
+    ).resolves.toBeDefined();
   });
 });
 
@@ -189,13 +189,13 @@ function expectedDecls(): AppSpec.Decl[] {
     },
     {
       declType: "Action",
-      declName: "archiveLegacyTask",
+      declName: "archiveAdminTask",
       declValue: {
         fn: {
           kind: "named",
           name: "archive",
-          alias: "archiveLegacyTask",
-          path: "@src/legacyOperations",
+          alias: "archiveAdminTask",
+          path: "@src/adminOperations",
         },
         entities: [],
         auth: undefined,
@@ -247,7 +247,7 @@ function writeSourceFiles(tempDir: string): void {
     ].join("\n"),
   );
   writeFileSync(
-    join(tempDir, "src", "legacyOperations.ts"),
+    join(tempDir, "src", "adminOperations.ts"),
     `export async function archive() { return null; }\n`,
   );
 }
@@ -261,14 +261,14 @@ async function compileAndAnalyzeSpec({
   sourceFileName: string;
   sourceText: string;
 }): Promise<AppSpec.Decl[]> {
-  const compiledPath = compileSpec({ tempDir, sourceFileName, sourceText });
+  const compiledPath = await compileSpec({ tempDir, sourceFileName, sourceText });
   const result = await analyzeApp(pathToFileURL(compiledPath).href, []);
   if (result.status === "error") throw new Error(result.error);
 
   return result.value;
 }
 
-function compileSpec({
+async function compileSpec({
   tempDir,
   sourceFileName,
   sourceText,
@@ -276,7 +276,7 @@ function compileSpec({
   tempDir: string;
   sourceFileName: string;
   sourceText: string;
-}): string {
+}): Promise<string> {
   const sourcePath = join(tempDir, sourceFileName);
   const tsconfigPath = join(
     tempDir,
@@ -290,7 +290,7 @@ function compileSpec({
 
   writeFileSync(sourcePath, sourceText, "utf8");
   writeTsConfig(tsconfigPath, sourceFileName);
-  compileWaspTsToJs({
+  await compileWaspTsFileToJsFile({
     inputPath: sourcePath,
     tsconfigPath,
     outputPath: compiledPath,
