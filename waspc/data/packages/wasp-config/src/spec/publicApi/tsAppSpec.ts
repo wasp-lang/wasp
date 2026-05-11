@@ -1,4 +1,5 @@
-import type { CallableExtImportInput } from "../extImport.js";
+import type { AnyFunction } from "../../typeUtils.js";
+import type { ExtImport } from "../extImport.js";
 
 export type App = {
   name: string;
@@ -13,7 +14,7 @@ export type Part = Page | Route | Query | Action;
 export type Page = MakePart<
   "page",
   {
-    component: CallableExtImportInput;
+    component: ExtImport | AnyFunction;
     authRequired?: boolean;
   }
 >;
@@ -32,7 +33,7 @@ export type Route = MakePart<
 export type Query = MakePart<
   "query",
   {
-    fn: CallableExtImportInput;
+    fn: ExtImport | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -41,14 +42,13 @@ export type Query = MakePart<
 export type Action = MakePart<
   "action",
   {
-    fn: CallableExtImportInput;
+    fn: ExtImport | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
 >;
 
 export type {
-  CallableExtImportInput,
   DefaultExtImport,
   ExtImport,
   NamedExtImport,
