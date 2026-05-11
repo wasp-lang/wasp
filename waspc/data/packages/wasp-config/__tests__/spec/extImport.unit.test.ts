@@ -26,16 +26,13 @@ describe("mapExtImport", () => {
     { extImport: () => null },
     { extImport: { parse: () => ({}) } },
     { extImport: { from: "@src/external" } },
-  ])(
-    "returns an error for invalid runtime values",
-    ({ extImport }) => {
-      const result = tryMapExtImport(extImport);
+  ])("returns an error for invalid runtime values", ({ extImport }) => {
+    const result = tryMapExtImport(extImport);
 
-      assert(result.status === "error");
-      expect(result.error).toContain("runtime value");
-      expect(() => mapExtImport(extImport)).toThrowError(result.error);
-    },
-  );
+    assert(result.status === "error");
+    expect(result.error).toContain("runtime value");
+    expect(() => mapExtImport(extImport)).toThrowError(result.error);
+  });
 
   test("formats invalid value diagnostics with import-form guidance", () => {
     const result = tryMapExtImport(() => null);
