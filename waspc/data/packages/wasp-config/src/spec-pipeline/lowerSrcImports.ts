@@ -1,28 +1,31 @@
 import type { ExtImport } from "../spec/extImport.js";
 import { isNamedExtImport } from "../spec/extImport.js";
+import type { ImportLoweringPlan } from "./planImportLowering/index.js";
+import { planImportLowering } from "./planImportLowering/index.js";
+import type {
+  LoweredImportBinding,
+  NamespaceImportBinding,
+} from "./planImportLowering/loweredImportBindings.js";
 import type {
   ImportDiagnostic,
-  ImportLoweringPlan,
-  LoweredImportBinding,
   UnsupportedImportType,
-} from "./importLoweringPlan.js";
-import { planImportLowering } from "./importLoweringPlan.js";
+} from "./planImportLowering/supportedImportTypes.js";
 
 const ACCEPTED_IMPORT_SHAPES =
   "Use default, named, aliased named, or namespace imports from @src/*.";
 
 /**
- * Lowers top-level imports of the form `@src/*` into inline ExtImport
- * descriptor consts so the spec can reference user source modules without
- * loading them at runtime.
+ * Lowers top-level imports of the form `@src/*` into inline ExtImport consts
+ * so the spec can reference user source modules without loading them at runtime.
  */
 export function lowerSrcImports(sourceText: string): string {
-  const lowering = planImportLowering(sourceText);
-  if (lowering.status === "error") {
-    throw new Error(formatImportDiagnostic(lowering.error[0]!));
+  const plan = planImportLowering(sourceText);
+  if (plan.status === "error") {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    throw new Error(formatImportDiagnostic(plan.error[0]!));
   }
 
-  return renderPlan(sourceText, lowering.value);
+  return renderPlan(sourceText, plan.value);
 }
 
 function renderPlan(text: string, plan: ImportLoweringPlan): string {
@@ -52,9 +55,12 @@ function renderBinding(binding: LoweredImportBinding): string {
   }
 }
 
-function renderNamespaceProxy(
-  binding: Extract<LoweredImportBinding, { kind: "namespace" }>,
-): string {
+/**
+ * Namespace imports are lowered to a Proxy so `import * as ops` can support any
+ * `ops.anything` access by returning `{ import: "anything", from: ... }`. This
+ * avoids enumerating every place where `ops` is used.
+ */
+function renderNamespaceProxy(binding: NamespaceImportBinding): string {
   const from = JSON.stringify(binding.from);
   const aliasPrefix = JSON.stringify(binding.aliasPrefix);
 
