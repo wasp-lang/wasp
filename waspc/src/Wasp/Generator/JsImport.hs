@@ -39,13 +39,13 @@ extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
 extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
 
 jsImportToImportJson :: Maybe JsImport -> Aeson.Value
-jsImportToImportJson = maybe notDefinedImportJsonData mkTmplData
+jsImportToImportJson = maybe notDefinedImportJsonData mkImportJsonData
   where
     notDefinedImportJsonData :: Aeson.Value
     notDefinedImportJsonData = object ["isDefined" .= False]
 
-    mkTmplData :: JsImport -> Aeson.Value
-    mkTmplData jsImport =
+    mkImportJsonData :: JsImport -> Aeson.Value
+    mkImportJsonData jsImport =
       object
         [ "isDefined" .= True,
           "importPath" .= getJsImportPathString jsImport,
