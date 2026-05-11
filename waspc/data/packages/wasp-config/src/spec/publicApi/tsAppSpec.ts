@@ -1,3 +1,5 @@
+import type { ExtImport as SpecExtImport } from "../extImport.js";
+
 export type App = {
   name: string;
   wasp: { version: string };
@@ -11,7 +13,7 @@ export type Part = Page | Route | Query | Action;
 export type Page = MakePart<
   "page",
   {
-    component: ExtImport;
+    component: SpecExtImport;
     authRequired?: boolean;
   }
 >;
@@ -30,7 +32,7 @@ export type Route = MakePart<
 export type Query = MakePart<
   "query",
   {
-    fn: ExtImport;
+    fn: SpecExtImport;
     entities?: string[];
     auth?: boolean;
   }
@@ -39,22 +41,17 @@ export type Query = MakePart<
 export type Action = MakePart<
   "action",
   {
-    fn: ExtImport;
+    fn: SpecExtImport;
     entities?: string[];
     auth?: boolean;
   }
 >;
 
-export type ExtImport = NamedExtImport | DefaultExtImport;
-export interface NamedExtImport {
-  import: string;
-  alias?: string;
-  from: `@src/${string}`;
-}
-export interface DefaultExtImport {
-  importDefault: string;
-  from: `@src/${string}`;
-}
+export type {
+  DefaultExtImport,
+  ExtImport,
+  NamedExtImport,
+} from "../extImport.js";
 
 /**
  * We need the kind to differentiate between parts with the same structure. One
