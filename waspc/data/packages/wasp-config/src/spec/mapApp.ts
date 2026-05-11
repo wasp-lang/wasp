@@ -5,11 +5,7 @@
 
 import * as AppSpec from "../appSpec.js";
 import type { AnyFunction } from "../typeUtils.js";
-import {
-  formatExtImportInputError,
-  mapExtImport,
-  tryMapExtImport,
-} from "./extImport.js";
+import { mapExtImport, tryMapExtImport } from "./extImport.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapApp(
@@ -488,7 +484,7 @@ export function deriveExtImportName(
 ): string {
   const result = tryMapExtImport(extImport);
   if (result.status === "error") {
-    throw new Error(formatExtImportInputError(result.error));
+    throw new Error(result.error);
   }
 
   return result.value.alias ?? result.value.name;
