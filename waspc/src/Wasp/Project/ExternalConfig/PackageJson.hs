@@ -33,15 +33,12 @@ parseAndValidateUserPackageJson :: Path' Abs (Dir WaspProjectDir) -> TsConfigPat
 parseAndValidateUserPackageJson waspDir tsConfigPaths = fmap eitherToValidation . runExceptT $ do
   packageJsonFile <- withExceptT (: []) $ ExceptT userPackageJsonFileOrError
   packageJson <- withExceptT (: []) $ ExceptT $ parsePackageJsonFile packageJsonFile
-  liftEither $ withProjectValidation packageJson
+  case validatePackageJsonForProject tsConfigPaths packageJson of
+    [] -> return packageJson
+    errors -> liftEither $ Left errors
   where
     userPackageJsonFileOrError = maybeToEither fileNotFoundMessage <$> findUserPackageJsonFile waspDir
     fileNotFoundMessage = "Couldn't find the package.json file in the " ++ toFilePath waspDir ++ " directory"
-
-    withProjectValidation packageJson =
-      case validatePackageJsonForProject tsConfigPaths packageJson of
-        [] -> Right packageJson
-        errors -> Left errors
 
 findUserPackageJsonFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File UserPackageJsonFile)))
 findUserPackageJsonFile waspProjectDir = findFileInWaspProjectDir waspProjectDir userPackageJsonInWaspProjectDir
@@ -53,14 +50,11 @@ validatePackageJsonForProject tsConfigPaths packageJson =
 packageJsonValidator :: TsConfigPaths -> WaspV.Validator PackageJson
 packageJsonValidator tsConfigPaths =
   WaspV.withFileName "package.json" $
-    WaspV.all
-      [ waspTsPackageJsonValidator tsConfigPaths
-      ]
+    WaspV.all [waspTsPackageJsonValidator tsConfigPaths]
 
--- Wasp TS specs are type-checked during analysis, before AppSpec exists, so
--- Node types have to be validated here instead of in generator validation.
 waspTsPackageJsonValidator :: TsConfigPaths -> WaspV.Validator PackageJson
 waspTsPackageJsonValidator tsConfigPaths
+  -- We require @types/node only for Wasp TS projects.
   | isWaspTsProject tsConfigPaths = nodeTypesInDevDependenciesValidator
   | otherwise = const WaspV.success
   where
