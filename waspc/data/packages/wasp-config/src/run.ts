@@ -5,7 +5,7 @@ import { basename, dirname, join } from "path";
 import { pathToFileURL } from "url";
 import { parseProcessArgsOrThrow } from "./cli.js";
 import { analyzeApp } from "./legacy/appAnalyzer.js";
-import { compileWaspTsToJs } from "./spec-pipeline/compile.js";
+import { compileWaspTsFileToJsFile } from "./spec-pipeline/compile/index.js";
 
 main(process.argv).catch((error: unknown) => {
   console.error(error instanceof Error ? error.message : error);
@@ -24,7 +24,7 @@ async function main(args: string[]): Promise<void> {
     outputFilePath,
   });
 
-  compileWaspTsToJs({
+  await compileWaspTsFileToJsFile({
     inputPath: waspTsSpecPath,
     tsconfigPath,
     outputPath: compiledWaspJsPath,
