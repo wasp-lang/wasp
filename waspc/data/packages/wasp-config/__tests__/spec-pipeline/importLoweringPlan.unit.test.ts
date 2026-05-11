@@ -1,9 +1,9 @@
+import assert from "node:assert";
 import { describe, expect, test } from "vitest";
-import type { ImportLoweringResult } from "../../src/spec-pipeline/importLoweringPlan.js";
 import { planImportLowering } from "../../src/spec-pipeline/importLoweringPlan.js";
 
 describe("planImportLowering", () => {
-  test("plans descriptor declarations for supported import shapes", () => {
+  test("plans lowered bindings for supported import shapes", () => {
     const result = planImportLowering(
       [
         `import MainPage from "@src/MainPage";`,
@@ -13,27 +13,25 @@ describe("planImportLowering", () => {
       ].join("\n"),
     );
 
-    expectOkResult(result);
+    assert(result.status === "ok");
 
     expect(
-      result.plan.replacements.flatMap(
-        (replacement) => replacement.declarations,
-      ),
+      result.value.replacements.flatMap((replacement) => replacement.bindings),
     ).toEqual([
       {
-        kind: "descriptor",
+        kind: "extImport",
         localName: "MainPage",
-        descriptor: { importDefault: "MainPage", from: "@src/MainPage" },
+        extImport: { importDefault: "MainPage", from: "@src/MainPage" },
       },
       {
-        kind: "descriptor",
+        kind: "extImport",
         localName: "getTasks",
-        descriptor: { import: "getTasks", from: "@src/operations" },
+        extImport: { import: "getTasks", from: "@src/operations" },
       },
       {
-        kind: "descriptor",
+        kind: "extImport",
         localName: "archiveTask",
-        descriptor: {
+        extImport: {
           import: "archive",
           from: "@src/operations",
           alias: "archiveTask",
@@ -42,7 +40,7 @@ describe("planImportLowering", () => {
       {
         kind: "namespace",
         localName: "ops",
-        descriptorPath: "@src/operations",
+        from: "@src/operations",
         aliasPrefix: "ops_",
       },
     ]);
@@ -51,7 +49,7 @@ describe("planImportLowering", () => {
   test("leaves package imports out of the plan", () => {
     const result = planImportLowering(`import { App } from "wasp-config";\n`);
 
-    expect(result).toEqual({ status: "ok", plan: { replacements: [] } });
+    expect(result).toEqual({ status: "ok", value: { replacements: [] } });
   });
 
   test("leaves non-@src imports and re-exports out of the plan", () => {
@@ -64,68 +62,59 @@ describe("planImportLowering", () => {
       ].join("\n"),
     );
 
-    expect(result).toEqual({ status: "ok", plan: { replacements: [] } });
+    expect(result).toEqual({ status: "ok", value: { replacements: [] } });
   });
 
   test.each([
     {
       source: `import "@src/setup";\n`,
-      reason: "sideEffectImport",
+      unsupportedImportType: "sideEffect",
       specifier: "@src/setup",
     },
     {
       source: `import MainPage = require("@src/MainPage");\n`,
-      reason: "importEqualsImport",
+      unsupportedImportType: "importEquals",
       specifier: "@src/MainPage",
     },
     {
       source: `import type { Props } from "@src/MainPage";\n`,
-      reason: "typeOnlyImport",
+      unsupportedImportType: "typeOnly",
       specifier: "@src/MainPage",
     },
     {
       source: `import { type Props, MainPage } from "@src/MainPage";\n`,
-      reason: "mixedTypeAndValueImport",
+      unsupportedImportType: "mixedTypeAndValue",
       specifier: "@src/MainPage",
     },
     {
       source: `import { "foo-bar" as fooBar } from "@src/operations";\n`,
-      reason: "stringLiteralImport",
+      unsupportedImportType: "stringLiteral",
       specifier: "@src/operations",
     },
     {
       source: `import {} from "@src/MainPage";\n`,
-      reason: "emptyNamedImport",
+      unsupportedImportType: "emptyNamed",
       specifier: "@src/MainPage",
     },
     {
       source: `export { MainPage } from "@src/MainPage";\n`,
-      reason: "srcReExport",
+      unsupportedImportType: "reExport",
       specifier: "@src/MainPage",
     },
-  ])("returns a diagnostic for $reason", ({ source, reason, specifier }) => {
-    const result = planImportLowering(source);
+  ])(
+    "returns a diagnostic for $unsupportedImportType",
+    ({ source, unsupportedImportType, specifier }) => {
+      const result = planImportLowering(source);
 
-    expectErrorResult(result);
+      assert(result.status === "error");
 
-    expect(result.diagnostics).toEqual([
-      {
-        reason,
-        specifier,
-        location: { line: 1, column: 1 },
-      },
-    ]);
-  });
+      expect(result.error).toEqual([
+        {
+          unsupportedImportType,
+          specifier,
+          location: { line: 1, column: 1 },
+        },
+      ]);
+    },
+  );
 });
-
-function expectOkResult(
-  result: ImportLoweringResult,
-): asserts result is Extract<ImportLoweringResult, { status: "ok" }> {
-  expect(result.status).toBe("ok");
-}
-
-function expectErrorResult(
-  result: ImportLoweringResult,
-): asserts result is Extract<ImportLoweringResult, { status: "error" }> {
-  expect(result.status).toBe("error");
-}
