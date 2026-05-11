@@ -15,6 +15,9 @@ export {
 export {
     // PUBLIC API
     configureQueryClient,
+} from './queryClient.config'
+
+export {
     // PRIVATE API (framework code)
     queryClientInitialized
 } from './queryClient'

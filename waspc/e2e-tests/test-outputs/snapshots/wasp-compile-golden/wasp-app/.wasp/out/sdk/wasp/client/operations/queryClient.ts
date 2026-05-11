@@ -10,6 +10,3 @@ const queryClient = new QueryClient(
 
 // PRIVATE API (framework code)
 export const queryClientInitialized: Promise<QueryClient> = Promise.resolve(queryClient);
-
-// PUBLIC API
-export { configureQueryClient } from './queryClient.config';
