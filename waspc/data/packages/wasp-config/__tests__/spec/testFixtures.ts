@@ -141,13 +141,17 @@ export type Config<T> = MinimalConfig<T> | FullConfig<T>;
 export type MinimalConfig<T> =
   T extends Branded<unknown, unknown>
     ? T
-    : T extends Array<infer Item>
-      ? Array<MinimalConfig<Item>>
-      : T extends object
-        ? keyof T extends never
-          ? EmptyObject
-          : MinimalConfigObject<T>
-        : T;
+    : T extends TsAppSpec.ExtImport
+      ? T
+      : T extends CallableValue
+        ? T
+        : T extends Array<infer Item>
+          ? Array<MinimalConfig<Item>>
+          : T extends object
+            ? keyof T extends never
+              ? EmptyObject
+              : MinimalConfigObject<T>
+            : T;
 
 type MinimalConfigObject<T> = {
   [K in keyof T as EmptyObject extends Pick<T, K> ? never : K]: MinimalConfig<
@@ -171,11 +175,15 @@ type EmptyObject = Record<string, never>;
 export type FullConfig<T> =
   T extends Branded<unknown, unknown>
     ? T
-    : T extends Array<infer Item>
-      ? Array<FullConfig<Item>>
-      : T extends object
-        ? FullConfigObject<T>
-        : T;
+    : T extends TsAppSpec.ExtImport
+      ? T
+      : T extends CallableValue
+        ? T
+        : T extends Array<infer Item>
+          ? Array<FullConfig<Item>>
+          : T extends object
+            ? FullConfigObject<T>
+            : T;
 
 type FullConfigObject<T> = {
   [K in keyof T]-?: FullConfig<T[K]>;
@@ -195,3 +203,6 @@ type ConfigScope = (typeof CONFIG_SCOPES)[number];
 function assertUnreachable(value: never): never {
   throw new Error(`Unhandled case: ${value}`);
 }
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type CallableValue = (...args: any[]) => any;
