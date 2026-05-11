@@ -24,7 +24,7 @@ type ImportReplacement = {
 
 /**
  * Given source code, detects supported @src import statements and returns a
- * plan for replacing them with ExtImport descriptors. We call this lowering
+ * plan for replacing them with inline ExtImport consts. We call this lowering
  * imports.
  */
 export function planImportLowering(

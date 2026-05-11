@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import { lowerSrcImports } from "../../src/spec-pipeline/lowerSrcImports.js";
 
 describe("lowerSrcImports", () => {
-  test("lowers a default import into an importDefault descriptor", () => {
+  test("lowers a default import into an importDefault ExtImport const", () => {
     const input = `import MainPage from "@src/MainPage";\n`;
     const output = lowerSrcImports(input);
     expect(output).toBe(
@@ -10,7 +10,7 @@ describe("lowerSrcImports", () => {
     );
   });
 
-  test("lowers a single named import into an import descriptor", () => {
+  test("lowers a single named import into an ExtImport const", () => {
     const input = `import { getTasks } from "@src/operations";\n`;
     const output = lowerSrcImports(input);
     expect(output).toBe(
@@ -42,7 +42,7 @@ describe("lowerSrcImports", () => {
     );
   });
 
-  test("lowers multiple named imports into separate descriptor consts", () => {
+  test("lowers multiple named imports into separate ExtImport consts", () => {
     const input = `import { getTasks, createTask } from "@src/operations";\n`;
     const output = lowerSrcImports(input);
     expect(output).toBe(
@@ -145,7 +145,7 @@ describe("lowerSrcImports", () => {
     expect(output).not.toMatch(/^import\s+(?:.+\s+from\s+)?["']@src\//m);
   });
 
-  test("is a no-op on a descriptor-form spec file", () => {
+  test("is a no-op on an ExtImport-form spec file", () => {
     const input = [
       `import { App } from "wasp-config";`,
       ``,
