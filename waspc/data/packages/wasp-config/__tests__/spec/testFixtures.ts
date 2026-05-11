@@ -18,12 +18,12 @@ import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 const CONFIG_TYPES = ["minimal", "full"] as const;
 type ConfigType = (typeof CONFIG_TYPES)[number];
 
-export function getMinimalApp(): TsAppSpec.App {
+export function getMinimalApp(parts?: TsAppSpec.Part[]): TsAppSpec.App {
   return app({
     name: "MinimalApp",
     wasp: { version: "^0.16.3" },
     title: "Mock App",
-    parts: [],
+    parts: parts ?? [],
   });
 }
 

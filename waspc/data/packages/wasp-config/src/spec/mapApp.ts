@@ -32,13 +32,13 @@ export function mapApp(
     mappedRoutes,
     "Route",
     (mappedRoute) => mappedRoute.routeName,
-    (mappedRoutes) => mappedRoutes.route,
+    (mappedRoute) => mappedRoute.route,
   );
   const routePageDecls = mapToDecls(
     mappedRoutes,
     "Page",
     (mappedRoute) => mappedRoute.route.to.name,
-    (mappedRoutes) => mappedRoutes.page,
+    (mappedRoute) => mappedRoute.page,
   );
 
   const queries = extractParts("query", parts);

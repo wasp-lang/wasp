@@ -10,7 +10,7 @@ import {
   mapQuery,
   mapRoute,
 } from "../../src/spec/mapApp.js";
-import { app, page, route } from "../../src/spec/publicApi/index.js";
+import { app } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -91,39 +91,90 @@ describe("mapApp", () => {
     ] satisfies AppSpec.Decl[]);
   });
 
-  test("dedups a page referenced both explicitly and via a route shorthand", () => {
-    const aboutPage = page({ import: "AboutPage", from: "@src/About" });
-    const spec = app({
-      name: "TodoApp",
-      wasp: { version: "^0.16.3" },
-      title: "Todo",
-      parts: [aboutPage, route("aboutRoute", "/about", { ...aboutPage })],
-    });
+  test("dedups a page referenced explicitly twice", () => {
+    const page = Fixtures.getPage("minimal");
+    const pageClone = Fixtures.getPage("minimal");
 
-    const decls = mapApp(spec, []);
+    const app = Fixtures.getMinimalApp([page, pageClone]);
+    const decls = mapApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
       .map((d) => d.declName);
-    expect(pageNames).toEqual(["AboutPage"]);
+    expect(pageNames).toEqual(["namedExport"]);
   });
 
-  test("throws when the same page name is produced with differing configs", () => {
-    const aboutPage = page({ import: "AboutPage", from: "@src/About" });
-    const modifiedAboutPage: TsAppSpec.Page = {
-      ...aboutPage,
+  test("dedups a page referenced via a route shorthand twice", () => {
+    const route = Fixtures.getRoute("minimal");
+    const routeClone = Fixtures.getRoute("minimal");
+
+    const app = Fixtures.getMinimalApp([route, routeClone]);
+    const decls = mapApp(app, []);
+
+    const pageNames = decls
+      .filter((d) => d.declType === "Page")
+      .map((d) => d.declName);
+    expect(pageNames).toEqual(["namedExport"]);
+  });
+
+  test("dedups a page referenced explicitly and via a route shorthand", () => {
+    const page = Fixtures.getPage("minimal");
+    const route = Fixtures.getRoute("minimal");
+
+    const app = Fixtures.getMinimalApp([page, route]);
+    const decls = mapApp(app, []);
+
+    const pageNames = decls
+      .filter((d) => d.declType === "Page")
+      .map((d) => d.declName);
+    expect(pageNames).toEqual(["namedExport"]);
+  });
+
+  test("throws when the same page name is produced with differing configs explicitly", () => {
+    const page = Fixtures.getPage("minimal");
+    const modifiedPage: TsAppSpec.Page = {
+      ...page,
       authRequired: true,
     };
 
-    const spec = app({
-      name: "TodoApp",
-      wasp: { version: "^0.16.3" },
-      title: "Todo",
-      parts: [aboutPage, route("aboutRoute", "/about", modifiedAboutPage)],
-    });
+    const app = Fixtures.getMinimalApp([page, modifiedPage]);
 
-    expect(() => mapApp(spec, [])).toThrow(
-      /Conflicting configs for page "AboutPage"/,
+    expect(() => mapApp(app, [])).toThrow(
+      /Conflicting configs for page "namedExport"/,
+    );
+  });
+
+  test("throws when the same page name is produced with differing configs via a route shorthand twice", () => {
+    const page = Fixtures.getPage("minimal");
+    const modifiedPage: TsAppSpec.Page = {
+      ...page,
+      authRequired: true,
+    };
+    const route = Fixtures.getRoute("minimal");
+    const routeWithModifiedPage: TsAppSpec.Route = {
+      ...route,
+      page: modifiedPage,
+    };
+
+    const app = Fixtures.getMinimalApp([route, routeWithModifiedPage]);
+
+    expect(() => mapApp(app, [])).toThrow(
+      /Conflicting configs for page "namedExport"/,
+    );
+  });
+
+  test("throws when the same page name is produced with differing configs explicitly and via a route shorthand", () => {
+    const page = Fixtures.getPage("minimal");
+    const modifiedPage: TsAppSpec.Page = {
+      ...page,
+      authRequired: true,
+    };
+    const route = Fixtures.getRoute("minimal");
+
+    const app = Fixtures.getMinimalApp([modifiedPage, route]);
+
+    expect(() => mapApp(app, [])).toThrow(
+      /Conflicting configs for page "namedExport"/,
     );
   });
 
