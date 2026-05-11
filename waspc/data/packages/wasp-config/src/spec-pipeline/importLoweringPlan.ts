@@ -72,15 +72,11 @@ export function planImportLowering(sourceText: string): ImportLoweringResult {
   const diagnostics: ImportDiagnostic[] = [];
 
   for (const stmt of sourceFile.statements) {
-    const diagnostic = getUnsupportedSrcImportDiagnostic(sourceFile, stmt);
-    if (diagnostic) {
-      diagnostics.push(diagnostic);
-      continue;
-    }
-
-    const replacement = getImportReplacement(sourceFile, stmt);
-    if (replacement) {
-      replacements.push(replacement);
+    const result = planStatementLowering(sourceFile, stmt);
+    if (result.status === "error") {
+      diagnostics.push(result.error);
+    } else {
+      replacements.push(...result.value);
     }
   }
 
@@ -91,64 +87,69 @@ export function planImportLowering(sourceText: string): ImportLoweringResult {
   return { status: "ok", value: { replacements } };
 }
 
-function getUnsupportedSrcImportDiagnostic(
+function planStatementLowering(
   sourceFile: ts.SourceFile,
   stmt: ts.Statement,
-): ImportDiagnostic | undefined {
+): Result<ImportReplacement[], ImportDiagnostic> {
   if (ts.isImportEqualsDeclaration(stmt)) {
-    return getImportEqualsDiagnostic(sourceFile, stmt);
+    const diagnostic = getImportEqualsDiagnostic(sourceFile, stmt);
+    return diagnostic
+      ? { status: "error", error: diagnostic }
+      : { status: "ok", value: [] };
   }
 
   if (ts.isExportDeclaration(stmt)) {
-    return getSrcReExportDiagnostic(sourceFile, stmt);
+    const diagnostic = getSrcReExportDiagnostic(sourceFile, stmt);
+    return diagnostic
+      ? { status: "error", error: diagnostic }
+      : { status: "ok", value: [] };
   }
 
-  if (ts.isImportDeclaration(stmt)) {
-    return getSrcImportDiagnostic(sourceFile, stmt);
-  }
-
-  return undefined;
-}
-
-function getImportReplacement(
-  sourceFile: ts.SourceFile,
-  stmt: ts.Statement,
-): ImportReplacement | undefined {
   if (!ts.isImportDeclaration(stmt)) {
-    return undefined;
+    return { status: "ok", value: [] };
   }
 
   const specifier = getSrcImportSpecifier(stmt.moduleSpecifier);
   if (!specifier) {
-    return undefined;
+    return { status: "ok", value: [] };
   }
 
   const clause = stmt.importClause;
   if (!clause) {
-    return undefined;
+    return {
+      status: "error",
+      error: makeDiagnostic(sourceFile, stmt, specifier, "sideEffect"),
+    };
+  }
+
+  const diagnostic = getSrcImportDiagnostic(
+    sourceFile,
+    stmt,
+    specifier,
+    clause,
+  );
+  if (diagnostic) {
+    return { status: "error", error: diagnostic };
   }
 
   return {
-    start: stmt.getStart(sourceFile),
-    end: stmt.getEnd(),
-    bindings: getLoweredImportBindings(clause, toExtImportPath(specifier)),
+    status: "ok",
+    value: [
+      {
+        start: stmt.getStart(sourceFile),
+        end: stmt.getEnd(),
+        bindings: getLoweredImportBindings(clause, toExtImportPath(specifier)),
+      },
+    ],
   };
 }
 
 function getSrcImportDiagnostic(
   sourceFile: ts.SourceFile,
   stmt: ts.ImportDeclaration,
+  specifier: string,
+  clause: ts.ImportClause,
 ): ImportDiagnostic | undefined {
-  const specifier = getSrcImportSpecifier(stmt.moduleSpecifier);
-  if (!specifier) {
-    return undefined;
-  }
-
-  const clause = stmt.importClause;
-  if (!clause) {
-    return makeDiagnostic(sourceFile, stmt, specifier, "sideEffect");
-  }
-
   if (clause.isTypeOnly) {
     return makeDiagnostic(sourceFile, stmt, specifier, "typeOnly");
   }
