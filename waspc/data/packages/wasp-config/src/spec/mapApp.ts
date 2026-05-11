@@ -196,7 +196,7 @@ export function mapExtImport(
       path: extImport.from,
     };
   } else {
-    throw new Error(
+    throw new TsSpecError(
       "Invalid ExtImport: neither `import` nor `importDefault` is defined",
     );
   }
@@ -212,7 +212,7 @@ export function makeRefParser<T extends AppSpec.DeclType>(
 ): RefParser<T> {
   return function parseRef(potentialRef: string): AppSpec.Ref<T> {
     if (!declNames.includes(potentialRef)) {
-      throw new Error(`Invalid ${declType} reference: ${potentialRef}`);
+      throw new TsSpecError(`Invalid ${declType} reference: ${potentialRef}`);
     }
     return {
       name: potentialRef,
