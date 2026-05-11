@@ -161,7 +161,7 @@ getOperationTmplData isAuthEnabledGlobally operation =
   object
     [ "jsFn" .= extOperationImportToImportJson (AS.Operation.getFn operation),
       "operationName" .= AS.Operation.getName operation,
-      "generatedTypeForDefiningOperationName" .= toUpperFirst (AS.Operation.getName operation),
+      "genericOperationDefinitionTypeName" .= toUpperFirst (AS.Operation.getName operation),
       "registeredOperationTypeName" .= getRegisteredOperationTypeName operation,
       "entities"
         .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (AS.Operation.getEntities operation),

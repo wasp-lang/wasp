@@ -17,7 +17,7 @@ import {
 import type { OperationFromRegister } from 'wasp/types'
 import type {
   {=# operations =}
-  {= generatedTypeForDefiningOperationName =},
+  {= genericOperationDefinitionTypeName =},
   {=/ operations =}
 } from './types.js'
 {=# operations =}
@@ -26,7 +26,7 @@ import type {
 {=# operations =}
 
 // PRIVATE API
-export type {= registeredOperationTypeName =} = OperationFromRegister<'{= operationName =}', {= generatedTypeForDefiningOperationName =}>
+export type {= registeredOperationTypeName =} = OperationFromRegister<'{= operationName =}', {= genericOperationDefinitionTypeName =}>
 
 // PUBLIC API
 {=# usesAuth =}
