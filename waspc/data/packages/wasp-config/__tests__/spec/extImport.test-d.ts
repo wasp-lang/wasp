@@ -1,10 +1,11 @@
 import { describe, expectTypeOf, test } from "vitest";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import type { AnyFunction } from "../../src/typeUtils.js";
 
 describe("ExtImport input types", () => {
-  test("should accept functions at callable ExtImport use sites", async () => {
+  test("should accept functions at ExtImport use sites", async () => {
     const component = () => null;
-    const operation = async () => null;
+    const operation = async (_args: { id: string }) => null;
 
     const pageConfig = { kind: "page", component } satisfies TsAppSpec.Page;
     const actionConfig = {
@@ -12,18 +13,18 @@ describe("ExtImport input types", () => {
       fn: operation,
     } satisfies TsAppSpec.Action;
 
-    expectTypeOf(
-      pageConfig.component,
-    ).toExtend<TsAppSpec.CallableExtImportInput>();
-    expectTypeOf(actionConfig.fn).toExtend<TsAppSpec.CallableExtImportInput>();
+    expectTypeOf(pageConfig.component).toExtend<
+      TsAppSpec.ExtImport | AnyFunction
+    >();
+    expectTypeOf(actionConfig.fn).toExtend<TsAppSpec.ExtImport | AnyFunction>();
   });
 
-  test("should reject objects at callable ExtImport use sites", async () => {
+  test("should reject objects at ExtImport use sites", async () => {
     const component = { render: () => null };
 
     const pageConfig: TsAppSpec.Page = {
       kind: "page",
-      // @ts-expect-error callable ExtImport sites accept descriptors or functions.
+      // @ts-expect-error ExtImport use sites accept descriptors or functions.
       component,
     };
 
