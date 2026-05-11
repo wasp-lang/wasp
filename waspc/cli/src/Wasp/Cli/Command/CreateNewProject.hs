@@ -61,7 +61,9 @@ installDepsForNewProject absWaspProjectDir =
       putStrLn $
         Term.applyStyles [Term.Yellow] $
           "Warning: Project created, but dependency installation failed.\n"
-            ++ "Run `wasp install` in the project directory to install dependencies."
+            ++ "Run "
+            ++ styleCode "wasp install"
+            ++ " in the project directory to install dependencies."
     Right () -> return ()
 
 -- | This function assumes that the project dir was created inside the current working directory.
