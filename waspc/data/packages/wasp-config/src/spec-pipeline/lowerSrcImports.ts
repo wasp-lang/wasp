@@ -1,5 +1,5 @@
-import type { ExtImportLiteral } from "../spec/extImport.js";
-import { isNamedExtImportLiteral } from "../spec/extImport.js";
+import type { ExtImport } from "../spec/extImport.js";
+import { isNamedExtImport } from "../spec/extImport.js";
 import type {
   DescriptorDeclaration,
   ImportDiagnostic,
@@ -63,7 +63,7 @@ function renderNamespaceProxy(
   return `const ${declaration.localName} = new Proxy({}, { get: (_t, k) => { const member = String(k); if (!${NAMESPACE_MEMBER_REGEX}.test(member)) { throw new Error("Unsupported namespace import member " + JSON.stringify(member) + " from " + ${from} + ". Use dot access with a JavaScript identifier."); } return { import: member, from: ${from}, alias: ${aliasPrefix} + member } as const; } }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
 }
 
-function renderDescriptor(descriptor: ExtImportLiteral): string {
+function renderDescriptor(descriptor: ExtImport): string {
   const from = JSON.stringify(descriptor.from);
   const alias =
     "alias" in descriptor && descriptor.alias !== undefined
@@ -71,7 +71,7 @@ function renderDescriptor(descriptor: ExtImportLiteral): string {
       : undefined;
   const aliasField = alias ? `, alias: ${alias}` : "";
 
-  if (isNamedExtImportLiteral(descriptor)) {
+  if (isNamedExtImport(descriptor)) {
     const importName = JSON.stringify(descriptor.import);
 
     return `{ import: ${importName}, from: ${from}${aliasField} }`;
