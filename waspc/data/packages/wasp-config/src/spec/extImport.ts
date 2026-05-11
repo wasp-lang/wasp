@@ -20,14 +20,14 @@ export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
       kind: "named",
       name: extImport.import,
       path: extImport.from,
-      ...mapAlias(extImport),
+      alias: extImport.alias,
     };
   } else if (isDefaultExtImport(extImport)) {
     return {
       kind: "default",
       name: extImport.importDefault,
       path: extImport.from,
-      ...mapAlias(extImport),
+      alias: extImport.alias,
     };
   } else {
     throw new Error(
@@ -60,10 +60,4 @@ function hasValidAlias(value: Record<string, unknown>): boolean {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return Object.prototype.toString.call(value) === "[object Object]";
-}
-
-function mapAlias(
-  extImport: ExtImport,
-): Partial<Pick<AppSpec.ExtImport, "alias">> {
-  return extImport.alias !== undefined ? { alias: extImport.alias } : {};
 }
