@@ -4,13 +4,13 @@ import { join } from "path";
 import { pathToFileURL } from "url";
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import { analyzeApp } from "../../src/legacy/appAnalyzer.js";
+import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 import { compileWaspTsToJs } from "../../src/spec-pipeline/compile.js";
 
 // We use the absolute file:// URL of the local wasp-config source so the
 // rewritten spec file does not rely on node_modules resolution from a temp dir.
 const waspConfigEntryUrl = pathToFileURL(
-  join(__dirname, "..", "..", "src", "index.ts"),
+  join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
 ).href;
 
 const importFormPrelude = [
@@ -30,19 +30,20 @@ const descriptorFormPrelude = [
 ];
 
 const appSpecBody = [
-  `const app = new App("demo", {`,
+  `const demoApp = app({`,
+  `  name: "demo",`,
   `  title: "Demo",`,
   `  wasp: { version: "^0.16.0" },`,
+  `  parts: [`,
+  `    page(MainPage),`,
+  `    query(getTasks, { entities: [] }),`,
+  `    action(archiveTask, { entities: [] }),`,
+  `    action(archiveLegacyTask, { entities: [] }),`,
+  `    action(ops.logout, { entities: [] }),`,
+  `  ],`,
   `});`,
   ``,
-  `const mainPage = app.page("MainPage", { component: MainPage });`,
-  `app.route("RootRoute", { path: "/", to: mainPage });`,
-  `app.query("getTasks", { fn: getTasks, entities: [] });`,
-  `app.action("archiveTask", { fn: archiveTask, entities: [] });`,
-  `app.action("archiveLegacyTask", { fn: archiveLegacyTask, entities: [] });`,
-  `app.action("logout", { fn: ops.logout, entities: [] });`,
-  ``,
-  `export default app;`,
+  `export default demoApp;`,
 ];
 
 describe("end-to-end import-form pipeline", () => {
@@ -128,7 +129,9 @@ describe("end-to-end import-form pipeline", () => {
 function specSource(prelude: string[]): string {
   return [
     `// @ts-ignore: This test imports the local TS source through Vitest.`,
-    `import { App } from ${JSON.stringify(waspConfigEntryUrl)};`,
+    `import { action, app, page, query } from ${JSON.stringify(
+      waspConfigEntryUrl,
+    )};`,
     ...prelude,
     ``,
     ...appSpecBody,
@@ -158,13 +161,16 @@ function expectedDecls(): AppSpec.Decl[] {
       },
     },
     {
-      declType: "Route",
-      declName: "RootRoute",
+      declType: "Query",
+      declName: "getTasks",
       declValue: {
-        path: "/",
-        to: { declType: "Page", name: "MainPage" },
-        prerender: undefined,
-        lazy: undefined,
+        fn: {
+          kind: "named",
+          name: "getTasks",
+          path: "@src/operations",
+        },
+        entities: [],
+        auth: undefined,
       },
     },
     {
@@ -197,25 +203,12 @@ function expectedDecls(): AppSpec.Decl[] {
     },
     {
       declType: "Action",
-      declName: "logout",
+      declName: "ops_logout",
       declValue: {
         fn: {
           kind: "named",
           name: "logout",
           alias: "ops_logout",
-          path: "@src/operations",
-        },
-        entities: [],
-        auth: undefined,
-      },
-    },
-    {
-      declType: "Query",
-      declName: "getTasks",
-      declValue: {
-        fn: {
-          kind: "named",
-          name: "getTasks",
           path: "@src/operations",
         },
         entities: [],
