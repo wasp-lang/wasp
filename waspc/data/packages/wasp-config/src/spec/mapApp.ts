@@ -28,16 +28,18 @@ export function mapApp(
 
   const routes = extractParts("route", parts);
   const mappedRoutes = routes.map(mapRoute);
-  const routeDecls = mappedRoutes.map(({ routeName, route }) => ({
-    declType: "Route" as const,
-    declName: routeName,
-    declValue: route,
-  }));
-  const routePageDecls = mappedRoutes.map(({ route, page }) => ({
-    declType: "Page" as const,
-    declName: route.to.name,
-    declValue: page,
-  }));
+  const routeDecls = mapToDecls(
+    mappedRoutes,
+    "Route",
+    (mappedRoute) => mappedRoute.routeName,
+    (mappedRoutes) => mappedRoutes.route,
+  );
+  const routePageDecls = mapToDecls(
+    mappedRoutes,
+    "Page",
+    (mappedRoute) => mappedRoute.route.to.name,
+    (mappedRoutes) => mappedRoutes.page,
+  );
 
   const queries = extractParts("query", parts);
   const queryDecls = mapToDecls(
@@ -128,18 +130,29 @@ export function mapRoute(route: TsAppSpec.Route): {
 export function dedupePageDecls(
   decls: AppSpec.GetDeclForType<"Page">[],
 ): AppSpec.GetDeclForType<"Page">[] {
-  const groups = Map.groupBy(decls, (decls) => decls.declName);
-  return Array.from(groups.values()).map((group) =>
-    group.reduce((first, current) => {
-      if (!deepEqual(current, first)) {
+  const pagesByDeclName = Map.groupBy(decls, (decls) => decls.declName);
+  return Array.from(pagesByDeclName.values()).map((pages) =>
+    pages.reduce((firstPage, currentPage) => {
+      if (!arePagesEqual(currentPage, firstPage)) {
         throw new TsSpecError(
-          `Conflicting configs for page "${first.declName}". ` +
-            "All page instances pointing to the same component " +
-            "must produce the same configuration.",
+          `Conflicting configs for page "${firstPage.declName}". ` +
+            "All page instances pointing to the same component must produce the same configuration.\n\n" +
+            `Page 1: ${JSON.stringify(firstPage.declValue)}\n` +
+            `Page 2: ${JSON.stringify(currentPage.declValue)}`,
         );
       }
-      return first;
+      return firstPage;
     }),
+  );
+}
+
+function arePagesEqual(
+  page1: AppSpec.GetDeclForType<"Page">,
+  page2: AppSpec.GetDeclForType<"Page">,
+): boolean {
+  return (
+    page1.declName === page2.declName &&
+    JSON.stringify(page1.declValue) === JSON.stringify(page2.declValue)
   );
 }
 
@@ -259,28 +272,4 @@ function makeDeclsArray(decls: {
   [Type in AppSpec.Decl["declType"]]: AppSpec.GetDeclForType<Type>[];
 }): AppSpec.Decl[] {
   return Object.values(decls).flatMap((decl) => [...decl]);
-}
-
-/**
- * This is not a proper deep equal implementation.
- * It is made to be good enough for comparing TS spec values,
- * and shouldn't be used outside of this purpose.
- */
-function deepEqual(a: unknown, b: unknown): boolean {
-  if (a === b) return true;
-  if (a === null || b === null) return false;
-  if (typeof a !== "object" || typeof b !== "object") return false;
-  if (Array.isArray(a) !== Array.isArray(b)) return false;
-  if (Array.isArray(a) && Array.isArray(b)) {
-    return a.length === b.length && a.every((v, i) => deepEqual(v, b[i]));
-  }
-  const aKeys = Object.keys(a);
-  const bKeys = Object.keys(b);
-  if (aKeys.length !== bKeys.length) return false;
-  return aKeys.every((k) =>
-    deepEqual(
-      (a as Record<string, unknown>)[k],
-      (b as Record<string, unknown>)[k],
-    ),
-  );
 }
