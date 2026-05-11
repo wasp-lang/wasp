@@ -133,7 +133,7 @@ export function dedupePageDecls(
   const pagesByDeclName = Map.groupBy(decls, (decls) => decls.declName);
   return Array.from(pagesByDeclName.values()).map((pages) =>
     pages.reduce((firstPage, currentPage) => {
-      if (!arePagesEqual(currentPage, firstPage)) {
+      if (!arePageDeclsEqual(currentPage, firstPage)) {
         throw new TsSpecError(
           `Conflicting configs for page "${firstPage.declName}". ` +
             "All page instances pointing to the same component must produce the same configuration.\n\n" +
@@ -146,7 +146,7 @@ export function dedupePageDecls(
   );
 }
 
-function arePagesEqual(
+function arePageDeclsEqual(
   page1: AppSpec.GetDeclForType<"Page">,
   page2: AppSpec.GetDeclForType<"Page">,
 ): boolean {
