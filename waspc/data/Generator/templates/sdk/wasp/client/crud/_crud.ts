@@ -4,75 +4,77 @@ import { createQuery, type QueryFor } from "../operations/queries/core.js";
 import { makeUseActionFor, makeUseQueryFor, type UseActionFor, type UseQueryFor } from "./operationsHelpers.js";
 import {
   {=# operations.Get =}
-  GetQueryResolved,
+  RegisteredGetQuery,
   {=/ operations.Get =}
   {=# operations.GetAll =}
-  GetAllQueryResolved,
+  RegisteredGetAllQuery,
   {=/ operations.GetAll =}
   {=# operations.Create =}
-  CreateActionResolved,
+  RegisteredCreateAction,
   {=/ operations.Create =}
   {=# operations.Update =}
-  UpdateActionResolved,
+  RegisteredUpdateAction,
   {=/ operations.Update =}
   {=# operations.Delete =}
-  DeleteActionResolved,
+  RegisteredDeleteAction,
   {=/ operations.Delete =}
 } from 'wasp/server/crud/{= name =}'
 
-type Crud = {
+
+// PUBLIC API
+export const {= name =}: {= entityUpper =}Crud = createCrud();
+
+// PUBLIC API
+export type {= entityUpper =}Crud = {
   get: {
-    query: QueryFor<GetQueryResolved>,
-    useQuery: UseQueryFor<GetQueryResolved>
+    query: QueryFor<RegisteredGetQuery>,
+    useQuery: UseQueryFor<RegisteredGetQuery>
   },
   getAll: {
-    query: QueryFor<GetAllQueryResolved>,
-    useQuery: UseQueryFor<GetAllQueryResolved>
+    query: QueryFor<RegisteredGetAllQuery>,
+    useQuery: UseQueryFor<RegisteredGetAllQuery>
   },
   create: {
-    action: ActionFor<CreateActionResolved>,
-    useAction: UseActionFor<CreateActionResolved>,
+    action: ActionFor<RegisteredCreateAction>,
+    useAction: UseActionFor<RegisteredCreateAction>,
   },
   update: {
-    action: ActionFor<UpdateActionResolved>,
-    useAction: UseActionFor<UpdateActionResolved>,
+    action: ActionFor<RegisteredUpdateAction>,
+    useAction: UseActionFor<RegisteredUpdateAction>,
   },
   delete: {
-    action: ActionFor<DeleteActionResolved>,
-    useAction: UseActionFor<DeleteActionResolved>,
+    action: ActionFor<RegisteredDeleteAction>,
+    useAction: UseActionFor<RegisteredDeleteAction>,
   }
 };
 
-// PUBLIC API
-export const {= name =}: Crud = createCrud();
-
-function createCrud(): Crud {
+function createCrud(): {= entityUpper =}Crud {
   {=# operations.Get =}
-  const crudGetQuery = createQuery<GetQueryResolved>(
+  const crudGetQuery = createQuery<RegisteredGetQuery>(
     '{= fullPath =}',
     {=& entitiesArray =}
   )
   {=/ operations.Get =}
   {=# operations.GetAll =}
-  const crudGetAllQuery = createQuery<GetAllQueryResolved>(
+  const crudGetAllQuery = createQuery<RegisteredGetAllQuery>(
     '{= fullPath =}',
     {=& entitiesArray =}
   )
   {=/ operations.GetAll =}
   {=# operations.Create =}
-  const crudCreateAction = createAction<CreateActionResolved>(
+  const crudCreateAction = createAction<RegisteredCreateAction>(
     '{= fullPath =}',
     {=& entitiesArray =}
   )
   {=/ operations.Create =}
   {=# operations.Update =}
-  const crudUpdateAction = createAction<UpdateActionResolved>(
+  const crudUpdateAction = createAction<RegisteredUpdateAction>(
     '{= fullPath =}',
     {=& entitiesArray =}
   )
   {=/ operations.Update =}
   {=# operations.Delete =}
-  const crudDeleteAction = createAction<DeleteActionResolved>(
+  const crudDeleteAction = createAction<RegisteredDeleteAction>(
     '{= fullPath =}',
     {=& entitiesArray =}
   )
@@ -110,3 +112,4 @@ function createCrud(): Crud {
     {=/ operations.Delete =}
   }
 }
+

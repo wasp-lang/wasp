@@ -1,6 +1,6 @@
 {
   "name": "wasp-config",
-  "version": "1.0.0",
+  "version": "0.24.0",
   "type": "module",
   "description": "Wasp TS SDK",
   "author": "wasp",

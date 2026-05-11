@@ -1,4 +1,4 @@
-module Wasp.Generator.TypesGenerator.Common
+module Wasp.Generator.UserTypesGenerator.Common
   ( TypesRootDir,
     TypesTemplatesDir,
     mkTmplFdWithDstAndData,

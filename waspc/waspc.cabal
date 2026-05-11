@@ -28,13 +28,13 @@ data-files:
   Cli/starters/**/*.js
   Cli/starters/**/*.json
   Cli/starters/**/*.md
+  Cli/starters/**/*.mjs
   Cli/starters/**/*.prisma
   Cli/starters/**/*.svg
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
   Cli/starters/**/*.wasp
   Cli/starters/basic/.prettierignore
-  Cli/starters/basic/.prettierrc
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/gitignore
@@ -47,7 +47,6 @@ data-files:
   Generator/templates/**/*.json
   Generator/templates/**/*.jsx
   Generator/templates/**/*.md
-  Generator/templates/**/*.mts
   Generator/templates/**/*.prisma
   Generator/templates/**/*.ts
   Generator/templates/**/*.tsx
@@ -101,6 +100,8 @@ common common-all
     FlexibleContexts
     LambdaCase
     MultiParamTypeClasses
+    NamedFieldPuns
+    OverloadedRecordDot
     OverloadedStrings
     QuasiQuotes
     ScopedTypeVariables
@@ -365,9 +366,9 @@ library
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
-    Wasp.Generator.TypesGenerator
-    Wasp.Generator.TypesGenerator.Common
-    Wasp.Generator.TypesGenerator.JsImport
+    Wasp.Generator.UserTypesGenerator
+    Wasp.Generator.UserTypesGenerator.Common
+    Wasp.Generator.UserTypesGenerator.JsImport
     Wasp.Generator.UserVirtualModules
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
@@ -409,8 +410,11 @@ library
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
     Wasp.Project.ExternalConfig.PackageJson
+    Wasp.Project.ExternalConfig.RootTsConfig
+    Wasp.Project.ExternalConfig.SrcTsConfig
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalConfig.ViteConfig
+    Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile
@@ -451,11 +455,10 @@ library
     Wasp.Psl.Util
     Wasp.Psl.Valid
     Wasp.SemanticVersion
-    Wasp.SemanticVersion.Comparator
-    Wasp.SemanticVersion.ComparatorSet
     Wasp.SemanticVersion.Parsers
     Wasp.SemanticVersion.PartialVersion
     Wasp.SemanticVersion.Range
+    Wasp.SemanticVersion.RangeExpression
     Wasp.SemanticVersion.Version
     Wasp.SemanticVersion.VersionBound
     Wasp.TypeScript.Inspect.Exports
@@ -731,7 +734,10 @@ test-suite waspc-tests
     Node.InternalTest
     Paths_waspc
     Project.DbTest
-    Project.ExternalConfigTest
+    Project.ExternalConfig.RootTsConfigTest
+    Project.ExternalConfig.SrcTsConfigTest
+    Project.ExternalConfig.TsConfigTest
+    Project.ExternalConfig.WaspTsConfigTest
     Project.WaspignoreTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
@@ -747,10 +753,9 @@ test-suite waspc-tests
     Psl.Parser.ViewTest
     Psl.Parser.WithCtxTest
     Psl.ValidTest
-    SemanticVersion.ComparatorSetTest
-    SemanticVersion.ComparatorTest
     SemanticVersion.ParsersTest
     SemanticVersion.PartialVersionTest
+    SemanticVersion.RangeExpressionTest
     SemanticVersion.RangeTest
     SemanticVersion.VersionBoundTest
     SemanticVersion.VersionTest
@@ -832,6 +837,7 @@ test-suite waspc-e2e-tests
     base,
     base64-bytestring,
     bytestring,
+    cli-lib,
     dir-traverse ^>=0.2.3,
     directory,
     filepath,
@@ -875,4 +881,5 @@ test-suite waspc-e2e-tests
     Tests.WaspStartTest
     Tests.WaspStudioTest
     Tests.WaspTelemetryTest
+    Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest

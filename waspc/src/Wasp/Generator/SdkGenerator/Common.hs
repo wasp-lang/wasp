@@ -75,8 +75,8 @@ clientTemplatesDirInSdkTemplatesDir = [reldir|client|]
 serverTemplatesDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ServerTemplatesDir)
 serverTemplatesDirInSdkTemplatesDir = [reldir|server|]
 
-getOperationTypeName :: AS.Operation.Operation -> String
-getOperationTypeName operation = toUpperFirst (AS.Operation.getName operation) ++ "Resolved"
+getRegisteredOperationTypeName :: AS.Operation.Operation -> String
+getRegisteredOperationTypeName operation = "Registered" ++ toUpperFirst (AS.Operation.getName operation)
 
 viteDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) (Dir ViteDir)
 viteDirInSdkTemplatesDir = [reldir|client/vite|]

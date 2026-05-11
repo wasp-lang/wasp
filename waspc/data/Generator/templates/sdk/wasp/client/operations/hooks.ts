@@ -49,7 +49,7 @@ export function useQuery<Input, Output>(
 export function useAction<Input = unknown, Output = unknown>(
   actionFn: Action<Input, Output>,
   actionOptions?: ActionOptions<Input>
-): typeof actionFn {
+): Action<Input, Output> {
   const queryClient = useQueryClient();
 
   let mutationFn = actionFn;

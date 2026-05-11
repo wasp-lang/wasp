@@ -2,8 +2,8 @@ import { type Route } from "wasp/client";
 import type {
   IfAny,
   _Awaited,
-  _ReturnType,
-} from "wasp/universal/types"
+  _ReturnType
+} from "wasp/universal/types";
 
 // PRIVATE API (for SDK, should maybe be public, users define values of this
 // type).

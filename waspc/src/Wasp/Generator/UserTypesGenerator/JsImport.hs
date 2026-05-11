@@ -1,4 +1,4 @@
-module Wasp.Generator.TypesGenerator.JsImport
+module Wasp.Generator.UserTypesGenerator.JsImport
   ( extOperationImportToImportJson,
     extImportToImportJson,
   )
@@ -13,8 +13,8 @@ import Wasp.AppSpec.ExternalFiles (SourceExternalCodeDir)
 import Wasp.Generator.Common (dropExtensionFromImportPath)
 import Wasp.Generator.JsImport (getAliasedExtImportIdentifier)
 import qualified Wasp.Generator.JsImport as GJI
-import Wasp.Generator.TypesGenerator.Common (TypesRootDir, typesRootDirInGeneratedCodeDir)
-import Wasp.JsImport (JsImport (..), JsImportPath (..))
+import Wasp.Generator.UserTypesGenerator.Common (TypesRootDir, typesRootDirInGeneratedCodeDir)
+import Wasp.JsImport (JsImport (..), JsImportKind (TypeImport), JsImportPath (..))
 import Wasp.Project.Common (srcDirInWaspProjectDir, waspProjectDirFromGeneratedAppDir)
 import Wasp.Util.StrongPath (invertRelDir)
 
@@ -32,7 +32,8 @@ extOperationImportToImportJson =
 extImportToJsImport :: EI.ExtImport -> JsImport
 extImportToJsImport extImport@(EI.ExtImport extImportName extImportPath) =
   JsImport
-    { _path = RelativeImportPath importPath,
+    { _kind = TypeImport,
+      _path = RelativeImportPath importPath,
       _name = GJI.extImportNameToJsImportName extImportName,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }

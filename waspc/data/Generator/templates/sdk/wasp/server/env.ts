@@ -2,9 +2,10 @@
 import * as z from "zod"
 
 import { ensureEnvSchema } from "../env/validation.js"
-import { FromRegistry } from "../types/index.js";
+import { FromRegister } from "../types/index.js";
 
-export type UserServerEnvSchema = FromRegistry<"serverEnvSchema", z.ZodObject<{}>>;
+export type RegisteredServerEnvValidationSchema = FromRegister<"serverEnvValidationSchema", z.ZodObject<{}>>;
+type UserServerEnvSchema = RegisteredServerEnvValidationSchema;
 
 {=# envValidationSchema.isDefined =}
 {=& envValidationSchema.importStatement =}
@@ -175,15 +176,15 @@ const waspServerEnvSchema = z.discriminatedUnion("NODE_ENV", [
   z.object({...waspCommonServerEnvSchema.shape, ...waspProdServerEnvSchema.shape}),
 ]);
 
-type ServerEnvSchema = z.ZodIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
+type CompleteServerEnvSchema = z.ZodIntersection<UserServerEnvSchema, typeof waspServerEnvSchema>;
 
-const serverEnvSchema: ServerEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
+const serverEnvSchema: CompleteServerEnvSchema = userServerEnvSchema.and(waspServerEnvSchema);
 
 const defaultNodeEnvValue = waspDevServerEnvSchema.shape.NODE_ENV.value;
 const { NODE_ENV: inputNodeEnvValue, ...restEnv } = process.env;
 
 // PUBLIC API
-export const env: z.infer<ServerEnvSchema> = ensureEnvSchema(
+export const env: z.infer<CompleteServerEnvSchema> = ensureEnvSchema(
   {
     NODE_ENV: inputNodeEnvValue ?? defaultNodeEnvValue,
     ...restEnv,

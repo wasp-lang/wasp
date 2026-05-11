@@ -1,30 +1,44 @@
 /**
- * The interfaces in this module are augmented by types from `.wasp/out/types/`.
- * They are agumented with user declarations types.
+ * This module acts as a bridge between the SDK and user-defined types.
  *
- * E.g., a user defined prisma client.
+ * The SDK defines and exports empty "register" interfaces (e.g. {@link Register}). 
+ * During compliation, Wasp generate additional type declarations
+ * in `.wasp/out/types/` (which is part of user project) that extend 
+ * empty "register" interfaces via module augmentation.
+ *
+ * As a result, the SDK can "see" user-defined types without directly
+ * depending on user code. 
+ * 
+ * Types `XFromRegister` safely read values from these registers:
+ *  - If the user provided a type → it is used
+ *  - Otherwise → a fallback type is used
  */
 
-export interface Registry {}
-export type FromRegistry<K extends string, Default> = K extends keyof Registry
-  ? Registry[K]
-  : Default;
+export interface Register {}
 
-export interface OperationsRegistry {}
-export type FromOperationsRegistry<
+export type FromRegister<Key extends string, Fallback> = Key extends keyof Register
+  ? Register[Key]
+  : Fallback;
+
+export type OperationFromRegister<
   Operation extends string,
-  Default,
-> = Operation extends keyof OperationsRegistry
-  ? OperationsRegistry[Operation]
-  : Default;
+  Fallback,
+  Subregister = "operations",
+> = Subregister extends keyof Register
+  ? Operation extends keyof Register[Subregister]
+    ? Register[Subregister][Operation]
+    : Fallback
+  : Fallback;
 
-export interface CrudOverridesRegistry {}
-export type FromCrudOverridesRegistry<
+export type CrudOverrideFromRegister<
   CrudName extends string,
   CrudOperation extends string,
-  Default,
-> = CrudName extends keyof CrudOverridesRegistry
-  ? CrudOperation extends keyof CrudOverridesRegistry[CrudName]
-    ? CrudOverridesRegistry[CrudName][CrudOperation]
-    : Default
-  : Default;
+  Fallback,
+  Subregister = "crudOverrides",
+>  = Subregister extends keyof Register
+  ? CrudName extends keyof Register[Subregister]
+    ? CrudOperation extends keyof Register[Subregister][CrudName]
+      ? Register[Subregister][CrudName][CrudOperation]
+      : Fallback
+    : Fallback
+  : Fallback;

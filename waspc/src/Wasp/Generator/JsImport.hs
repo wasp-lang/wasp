@@ -11,15 +11,15 @@ module Wasp.Generator.JsImport
 where
 
 import Data.Aeson (KeyValue ((.=)), object)
-import qualified Data.Aeson as Aeson
+import Data.Aeson qualified as Aeson
 import Data.Maybe (fromJust)
 import StrongPath (Dir, File', Path, Posix, Rel, (</>))
-import qualified StrongPath as SP
-import qualified Wasp.AppSpec.ExtImport as EI
+import StrongPath qualified as SP
+import Wasp.AppSpec.ExtImport qualified as EI
 import Wasp.Generator.Common (GeneratedAppComponentSrcDir, dropExtensionFromImportPath)
 import Wasp.Generator.ExternalCodeGenerator.Common (GeneratedExternalCodeDir)
 import Wasp.Generator.UserVirtualModules (VirtualModuleId)
-import Wasp.JsImport (JsImport (..), JsImportName (JsImportField, JsImportModule), JsImportPath (..), getJsImportIdentifier, getJsImportPathString, getJsImportStmtAndIdentifier, getJsRuntimeDynamicImportExpression, getJsTypeDynamicImportExpression, makeJsImport)
+import Wasp.JsImport (JsImport (..), JsImportKind (..), JsImportName (JsImportField, JsImportModule), JsImportPath (..), getJsDynamicImportExpression, getJsImportIdentifier, getJsImportPathString, getJsImportStmtAndIdentifier, makeValueJsImport)
 import Wasp.Project.Common (srcDirInWaspProjectDir)
 
 extImportToJsImport ::
@@ -28,32 +28,22 @@ extImportToJsImport ::
   Path Posix (Rel importLocation) (Dir d) ->
   EI.ExtImport ->
   JsImport
-extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport = makeJsImport (RelativeImportPath importPath) importName
+extImportToJsImport pathFromSrcDirToExtCodeDir pathFromImportLocationToSrcDir extImport = makeValueJsImport (RelativeImportPath importPath) importName
   where
-    userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel GeneratedExternalCodeDir) File'
     importName = extImportNameToJsImportName $ EI.name extImport
     importPath = SP.castRel $ pathFromImportLocationToSrcDir </> pathFromSrcDirToExtCodeDir </> userDefinedPathInExtSrcDir
+    userDefinedPathInExtSrcDir = SP.castRel $ EI.path extImport :: Path Posix (Rel GeneratedExternalCodeDir) File'
 
 extImportNameToJsImportName :: EI.ExtImportName -> JsImportName
 extImportNameToJsImportName (EI.ExtImportModule name) = JsImportModule name
 extImportNameToJsImportName (EI.ExtImportField name) = JsImportField name
 
 jsImportToImportJson :: Maybe JsImport -> Aeson.Value
-jsImportToImportJson = maybe notDefinedValue mkTmplData
+jsImportToImportJson = maybe notDefinedImportJsonData mkTmplData
   where
-    notDefinedValue :: Aeson.Value
-    notDefinedValue = object ["isDefined" .= False]
+    notDefinedImportJsonData :: Aeson.Value
+    notDefinedImportJsonData = object ["isDefined" .= False]
 
-    -- Builds the template data for a JS import.
-    -- Given JsImport { _path = "module", _name = "App", _importAlias = "App_ext" },
-    -- the resolved fields are:
-    --   isDefined                      = true
-    --   importPath                     = module
-    --   exportName                     = App
-    --   importIdentifier               = App_ext
-    --   importStatement                = import { App as App_ext } from 'module'
-    --   runtimeDynamicImportExpression = import('module').then(m => m.App)
-    --   typeDynamicImportExpression    = import('module').App
     mkTmplData :: JsImport -> Aeson.Value
     mkTmplData jsImport =
       object
@@ -62,8 +52,7 @@ jsImportToImportJson = maybe notDefinedValue mkTmplData
           "exportName" .= getJsImportIdentifier jsImport,
           "importIdentifier" .= jsImportIdentifier,
           "importStatement" .= jsImportStatement,
-          "runtimeDynamicImportExpression" .= getJsRuntimeDynamicImportExpression jsImport,
-          "typeDynamicImportExpression" .= getJsTypeDynamicImportExpression jsImport
+          "dynamicImportExpression" .= getJsDynamicImportExpression jsImport
         ]
       where
         (jsImportStatement, jsImportIdentifier) = getJsImportStmtAndIdentifier jsImport
@@ -71,14 +60,15 @@ jsImportToImportJson = maybe notDefinedValue mkTmplData
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
 extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath) =
   JsImport
-    { _path = RelativeImportPath relativePath,
+    { _kind = ValueImport,
+      _path = RelativeImportPath importPath,
       _name = importName,
       _importAlias = Just $ getAliasedExtImportIdentifier extImport
     }
   where
-    relativePath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
-    projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
     importName = extImportNameToJsImportName extImportName
+    importPath = SP.castRel $ dropExtensionFromImportPath $ projectSrcDir </> extImportPath
+    projectSrcDir = fromJust (SP.relDirToPosix srcDirInWaspProjectDir)
 
 virtualExtImportToImportJson :: VirtualModuleId -> Maybe EI.ExtImport -> Aeson.Value
 virtualExtImportToImportJson virtualModuleId maybeExtImport =
