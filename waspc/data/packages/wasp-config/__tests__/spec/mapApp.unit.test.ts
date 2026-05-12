@@ -1,6 +1,5 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import { ExtImport } from "../../src/index.js";
 import {
   deriveExtImportName,
   makeRefParser,
@@ -93,13 +92,10 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced explicitly twice", () => {
-    const referencedComponent: ExtImport = {
-      importDefault: "Page",
-      from: "@src/path",
-    };
-    const pageName = deriveExtImportName(referencedComponent);
-    const page1 = page(referencedComponent);
-    const page2 = page(referencedComponent);
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport);
 
     const app = Fixtures.getMinimalApp([page1, page2]);
     const decls = mapApp(app, []);
@@ -111,13 +107,10 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced via a route shorthand twice", () => {
-    const referencedComponent: ExtImport = {
-      importDefault: "Page",
-      from: "@src/path",
-    };
-    const pageName = deriveExtImportName(referencedComponent);
-    const page1 = page(referencedComponent);
-    const page2 = page(referencedComponent);
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport);
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
@@ -131,13 +124,10 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced explicitly and via a route shorthand", () => {
-    const referencedComponent: ExtImport = {
-      importDefault: "Page",
-      from: "@src/path",
-    };
-    const pageName = deriveExtImportName(referencedComponent);
-    const page1 = page(referencedComponent);
-    const page2 = page(referencedComponent);
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport);
     const route1 = route("Route1", "/", page2);
 
     const app = Fixtures.getMinimalApp([page1, route1]);
@@ -150,13 +140,10 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs explicitly", () => {
-    const referencedComponent: ExtImport = {
-      importDefault: "Page",
-      from: "@src/path",
-    };
-    const pageName = deriveExtImportName(referencedComponent);
-    const page1 = page(referencedComponent);
-    const page2 = page(referencedComponent, { authRequired: true });
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport, { authRequired: true });
 
     const app = Fixtures.getMinimalApp([page1, page2]);
 
@@ -166,13 +153,10 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs via a route shorthand twice", () => {
-    const referencedComponent: ExtImport = {
-      importDefault: "Page",
-      from: "@src/path",
-    };
-    const pageName = deriveExtImportName(referencedComponent);
-    const page1 = page(referencedComponent);
-    const page2 = page(referencedComponent, { authRequired: true });
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport, { authRequired: true });
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
@@ -184,13 +168,10 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs explicitly and via a route shorthand", () => {
-    const referencedComponent: ExtImport = {
-      importDefault: "Page",
-      from: "@src/path",
-    };
-    const pageName = deriveExtImportName(referencedComponent);
-    const page1 = page(referencedComponent);
-    const page2 = page(referencedComponent, { authRequired: true });
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport, { authRequired: true });
     const route1 = route("Route2", "/", page2);
 
     const app = Fixtures.getMinimalApp([page1, route1]);
