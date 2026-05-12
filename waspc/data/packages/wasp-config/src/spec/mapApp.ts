@@ -41,6 +41,14 @@ export function mapApp(
     (action) => mapAction(action, entityRefParser),
   );
 
+  const jobs = extractParts("job", parts);
+  const jobDecls = mapToDecls(
+    jobs,
+    "Job",
+    (job) => deriveExtImportName(job.fn),
+    (job) => mapJob(job, entityRefParser),
+  );
+
   const appDecl = {
     declType: "App" as const,
     declName: name,
@@ -63,9 +71,9 @@ export function mapApp(
     Page: pageDecls,
     Query: queryDecls,
     Action: actionDecls,
+    Job: jobDecls,
     // TODO: add these guys
     Route: [],
-    Job: [],
     Api: [],
     ApiNamespace: [],
     Crud: [],
@@ -101,6 +109,38 @@ export function mapAction(
     fn: mapExtImport(fn),
     entities: entities?.map(entityRefParser),
     auth,
+  };
+}
+
+export function mapJob(
+  job: TsAppSpec.Job,
+  entityRefParser: RefParser<"Entity">,
+): AppSpec.Job {
+  const { fn, executor, schedule, entities, performExecutorOptions } = job;
+  return {
+    executor,
+    perform: mapPerform(fn, performExecutorOptions),
+    schedule: schedule && mapSchedule(schedule),
+    entities: entities?.map(entityRefParser),
+  };
+}
+
+export function mapPerform(
+  fn: TsAppSpec.ExtImport,
+  performExecutorOptions: TsAppSpec.ExecutorOptions | undefined,
+): AppSpec.Perform {
+  return {
+    fn: mapExtImport(fn),
+    executorOptions: performExecutorOptions,
+  };
+}
+
+export function mapSchedule(schedule: TsAppSpec.Schedule): AppSpec.Schedule {
+  const { cron, args, executorOptions } = schedule;
+  return {
+    cron,
+    args,
+    executorOptions,
   };
 }
 
