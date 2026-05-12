@@ -15,8 +15,9 @@ export function route(
   name: Route["name"],
   path: Route["path"],
   page: Route["page"],
+  config?: Pick<Route, "lazy" | "prerender">,
 ): Route {
-  return { kind: "route", name, path, page };
+  return { kind: "route", name, path, page, ...config };
 }
 
 export function query(

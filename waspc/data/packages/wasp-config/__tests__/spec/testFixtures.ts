@@ -40,15 +40,18 @@ export function getPage(scope: ConfigScope): Config<TsAppSpec.Page> {
   }
 }
 
-export function getRoute(scope: "minimal"): MinimalConfig<TsAppSpec.Route>;
-export function getRoute(scope: "full"): FullConfig<TsAppSpec.Route>;
-export function getRoute(scope: ConfigType): Config<TsAppSpec.Route>;
-export function getRoute(scope: ConfigType): Config<TsAppSpec.Route> {
+export function getRoute<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Route>;
+export function getRoute(scope: ConfigScope): Config<TsAppSpec.Route> {
   switch (scope) {
     case "minimal":
       return route("minimalRoute", "/foo/bar", getPage("minimal"));
     case "full":
-      return route("fullRoute", "/foo/bar", getPage("full"));
+      return route("fullRoute", "/foo/bar", getPage("full"), {
+        lazy: true,
+        prerender: true,
+      });
     default:
       assertUnreachable(scope);
   }
