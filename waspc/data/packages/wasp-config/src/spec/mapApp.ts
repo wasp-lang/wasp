@@ -138,8 +138,9 @@ function arePageDeclsEqual(
   page1: AppSpec.GetDeclForType<"Page">,
   page2: AppSpec.GetDeclForType<"Page">,
 ): boolean {
+  const isSameCanonicalPage = page1.declName === page2.declName;
   return (
-    page1.declName === page2.declName &&
+    isSameCanonicalPage &&
     JSON.stringify(page1.declValue) === JSON.stringify(page2.declValue)
   );
 }
