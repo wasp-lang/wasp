@@ -15,13 +15,20 @@ import {
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
-export function getMinimalApp(parts?: TsAppSpec.Part[]): TsAppSpec.App {
+export function getMinimalApp(): TsAppSpec.App {
   return app({
     name: "MinimalApp",
     wasp: { version: "^0.16.3" },
     title: "Mock App",
-    parts: parts ?? [],
+    parts: [],
   });
+}
+
+export function getMinimalAppWithParts(parts: TsAppSpec.Part[]): TsAppSpec.App {
+  return {
+    ...getMinimalApp(),
+    parts,
+  };
 }
 
 export function getPage<Scope extends ConfigScope>(

@@ -97,7 +97,7 @@ describe("mapApp", () => {
     const page1 = page(extImport);
     const page2 = page(extImport);
 
-    const app = Fixtures.getMinimalApp([page1, page2]);
+    const app = Fixtures.getMinimalAppWithParts([page1, page2]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
@@ -114,7 +114,7 @@ describe("mapApp", () => {
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalApp([route1, route2]);
+    const app = Fixtures.getMinimalAppWithParts([route1, route2]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
@@ -130,7 +130,7 @@ describe("mapApp", () => {
     const page2 = page(extImport);
     const route1 = route("Route1", "/", page2);
 
-    const app = Fixtures.getMinimalApp([page1, route1]);
+    const app = Fixtures.getMinimalAppWithParts([page1, route1]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
@@ -145,7 +145,7 @@ describe("mapApp", () => {
     const page1 = page(extImport);
     const page2 = page(extImport, { authRequired: true });
 
-    const app = Fixtures.getMinimalApp([page1, page2]);
+    const app = Fixtures.getMinimalAppWithParts([page1, page2]);
 
     expect(() => mapApp(app, [])).toThrow(
       `Conflicting configs for page "${pageName}"`,
@@ -160,7 +160,7 @@ describe("mapApp", () => {
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalApp([route1, route2]);
+    const app = Fixtures.getMinimalAppWithParts([route1, route2]);
 
     expect(() => mapApp(app, [])).toThrow(
       `Conflicting configs for page "${pageName}"`,
@@ -174,7 +174,7 @@ describe("mapApp", () => {
     const page2 = page(extImport, { authRequired: true });
     const route1 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalApp([page1, route1]);
+    const app = Fixtures.getMinimalAppWithParts([page1, route1]);
 
     expect(() => mapApp(app, [])).toThrow(
       `Conflicting configs for page "${pageName}"`,
