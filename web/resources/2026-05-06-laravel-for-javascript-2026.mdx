@@ -1,0 +1,335 @@
+---
+title: "Is There a Laravel for JavaScript? AdonisJS, Next.js, and Wasp Compared (2026)"
+authors: [vinny]
+tags: [wasp, laravel, adonisjs, nextjs, frameworks]
+image: /img/resources/laravel-for-javascript-2026/banner.webp
+keywords: ["Laravel for JavaScript", "Laravel alternative JS", "AdonisJS vs Wasp", "JavaScript Laravel equivalent", "batteries-included Node framework", "Wasp vs AdonisJS", "AdonisJS vs Next.js", "Laravel for Node", "full-stack TypeScript framework", "NestJS vs Laravel", "t3 stack vs Laravel"]
+description: "Is there a Laravel for JavaScript? AdonisJS ports Laravel idioms to TypeScript; Wasp delivers Laravel's batteries-included DX on a modern AI-friendly JS stack."
+date: 2026-05-06
+---
+
+import Head from '@docusaurus/Head';
+
+export const faqSchema = {
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "Is there really a 'Laravel for JavaScript'?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not as a single framework, because 'Laravel for JS' is really two questions. If you mean Laravel idioms in TypeScript (service container, providers, ActiveRecord-style models, ace commands), AdonisJS is the closest 1:1 port. If you mean Laravel's batteries-included DX, where the framework owns the boilerplate, Wasp is built around that same goal on a modern React + Node.js + Prisma stack. Pick based on which half of the question you were actually asking."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is AdonisJS really 'Laravel for Node'?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, more directly than any other JS framework. AdonisJS ports the core Laravel idioms to TypeScript: a service container with providers, an ActiveRecord-style ORM (Lucid), social auth via Ally, ace commands, and Edge templates. If you want muscle-memory parity with Laravel in TypeScript, AdonisJS is the closest 1:1 mapping."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What's the difference between AdonisJS and Wasp?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "AdonisJS is a runtime framework that ports Laravel idioms (service container, providers, Lucid ORM) into TypeScript. Wasp is a compiler-driven framework where a single main.wasp.ts file declares your routes, pages, auth, database entities, and jobs, and the compiler generates a typed React + Node.js + Prisma app from it. AdonisJS is backend-first with the frontend wired up per page; Wasp treats client, server, and database as peers in one spec."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does Wasp use ActiveRecord like Lucid?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Wasp uses Prisma, which is a data-mapper / data-access ORM, not ActiveRecord. Lucid (and Eloquent in Laravel) put query and relationship logic on the model itself; Prisma keeps the model dumb and pushes business logic into services or operations. Both philosophies have serious defenders. If your instinct is logic-on-the-model, Lucid will feel right."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about NestJS, isn't that the JS Laravel?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "NestJS is closer to Spring Boot than Laravel. It optimizes for enterprise-style dependency injection, decorators, and modular architecture. Laravel and Wasp optimize for productivity and batteries-included DX. Different goals, so we left NestJS out of the main three-way comparison."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What about the t3-stack?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The t3-stack isn't a framework, it's a scaffolder (create-t3-app) that wires together Next.js, tRPC, Prisma, NextAuth, Tailwind, and TypeScript into a starting project. After it generates the app, you own and maintain every piece independently; nothing keeps the integration coherent over time. It's a great starting point if assembly is what you want, but it doesn't answer the 'framework that owns the boring parts' question that Laravel and Wasp answer."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does using Wasp actually save money on AI coding tools?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, measurably. We ran the same SaaS-feature prompt through Claude Code on identical Wasp and Next.js apps. Wasp used 38% fewer tokens and cost 44% less ($2.87 vs $5.17), with roughly 70% higher token efficiency. The reason is structural: AI tools re-read the codebase on every turn, so a smaller codebase compounds across a project's lifetime."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "I'm coming from Laravel, which framework should I try first?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Try AdonisJS first if you want your Laravel muscle memory to transfer (service container, Eloquent-style models, ace commands, Edge or Inertia for views). Try Wasp first if what you loved about Laravel was the productivity feeling (the framework owning the boilerplate) and you're open to a different mental model (a declarative config file, Prisma instead of ActiveRecord, React on the front)."
+      }
+    }
+  ]
+};
+
+<Head>
+  <script type="application/ld+json">
+    {JSON.stringify(faqSchema)}
+  </script>
+</Head>
+
+## TL;DR
+
+- "Laravel for JS" is really two questions: *Laravel idioms in TypeScript* (where [**AdonisJS**](https://adonisjs.com/) wins) or *Laravel's batteries-included DX* (where [**Wasp**](https://wasp.sh/) is built around the same goal).
+
+- **AdonisJS** is the closest 1:1 lineage: service container, providers, Lucid (ActiveRecord), Edge templates, and Ally for social auth. If you want Laravel muscle memory in TypeScript, this should be your pick.
+
+- **Wasp** treats client, server, and database as peers in one declarative `.wasp.ts` config file, reducing boilerplate for both humans and AI. AdonisJS and Laravel are backend-first frameworks where the frontend is a transport target you wire up per page.
+
+- On the same SaaS feature, Wasp used **38% fewer tokens** and cost **44% less** than Next.js when built with Claude Code ([benchmark](/blog/2026/03/26/nextjs-vs-wasp-40-percent-less-tokens-same-app)).
+
+- We benchmarked the same small feature (auth + Google OAuth + dashboard + a CRUD model + two operations + a daily job) across all three: roughly **7 files / ~85 lines of glue in Wasp** vs **17–18 files / ~300 lines in AdonisJS or Next.js**.
+
+- One-line decision: *want Laravel idioms in TS* → AdonisJS. *Want Laravel's productivity feeling on a modern, AI-coding-friendly stack* → Wasp.
+
+---
+
+## Why "Laravel for JavaScript" Keeps Coming Up
+
+It's a recurring search query, and not just from one camp. Laravel developers considering TypeScript want to know if there's a framework that won't make them give up the productivity they're used to. JavaScript developers who've watched Laravel from the outside want some of the same magic on their own stack. Founders comparing stacks for a new app just want to know what "the obvious choice" is in the JS world.
+
+What people are actually asking for, when you read between the lines, is the same: opinionated full-stack DX, batteries included, low boilerplate, *the framework owns the boring parts*. They want a framework that takes care of auth, jobs, scaffolding, deployments, etc. and doesn't lock them into unwanted or expensive service providers. 
+
+They're *not* asking for "another Express" or "another Next.js" where you're responsible for picking and wiring together dozens of libraries before even writing a feature.
+
+{/* truncate */}
+
+This is what makes Laravel so genuinely strong. It's got Eloquent, a service container, a great ecosystem, and an especially good deployment story (Forge, Cloud, Vapor). The JS frameworks in this post don't win on every axis, and we'll be specific about where they don't. There's no single "JS Laravel" but there are three real candidates depending on which part(s) of Laravel you actually wanted.
+
+---
+
+## Your Three Real Options
+
+The three serious candidates are AdonisJS, Next.js, and Wasp, and they're aimed at developers asking slightly different versions of the question.
+
+### AdonisJS
+
+[**AdonisJS**](https://adonisjs.com/) is the closest direct port of Laravel's architecture to TypeScript. The service container, providers, and IoC pattern come straight from the Laravel playbook. [Lucid](https://docs.adonisjs.com/guides/database/introduction) is an ActiveRecord-style ORM in the Eloquent tradition, [Ally](https://docs.adonisjs.com/guides/auth/social-authentication) handles social auth, [Edge](https://docs.adonisjs.com/guides/views-and-templates/introduction) is a server-rendered template engine, and the `node ace` CLI is the spiritual cousin of `php artisan`. If you're a Laravel developer who wants TypeScript without giving up your reflexes, AdonisJS is the framework most likely to feel like home.
+
+### Next.js
+
+[**Next.js**](https://nextjs.org/) isn't actually Laravel-like; it's a React meta-framework with no opinions about your backend, your auth, your database, or your jobs. But it's where many "Laravel for JavaScript" searches end up, partly because it's the loudest framework in the JS world and partly because people assume "full-stack JavaScript" means Next.js by default. We're including it in the comparison for completeness, and because many readers are comparing against it.
+
+### Wasp
+
+[**Wasp**](https://wasp.sh/) takes a different angle. Instead of porting Laravel's runtime patterns, it re-imagines the productivity story around a compiler. Features are defined in a `.wasp.ts` config file by declaring your routes, pages, auth methods, backend operations, and background jobs at a high level, and the Wasp compiler generates a typed React + Node.js + Prisma app from it.
+
+(disclaimer: this is us!) We didn't build Wasp as a Laravel port, we built it because we thought the Laravel-style productivity feeling deserved a fresh attempt on a modern JS stack. AdonisJS lands closer to Laravel-the-architecture, whereas Wasp aims at Laravel-the-feeling.
+
+### Head-to-Head Comparison
+
+| Feature | AdonisJS | Next.js | Wasp |
+| --- | --- | --- | --- |
+| **Pitch** | "Laravel for Node" (literal) | React meta-framework | Truly full-stack, AI-native framework |
+| **Architectural model** | Runtime framework, IoC + providers | Runtime + file-based routing | Compiler; `.wasp.ts` config file is the spec |
+| **High-level app map?** | No. Spread across `start/`, `config/`, `app/` | No. File system + route handlers | Yes. Features defined in  `.wasp.ts` config file(s) |
+| **Frontend** | Inertia (React/Vue) or Edge templates | React (native) | React (framework-owned) |
+| **ORM** | Lucid (ActiveRecord) | BYO (Prisma/Drizzle) | Prisma (integrated) |
+| **Auth** | `@adonisjs/auth` + Ally for social | BYO (NextAuth/Clerk) | Declarative in config |
+| **Background jobs** | `@adonisjs/queue` (first-party, experimental) | BYO (Inngest, Trigger.dev, Vercel Cron) | Built-in (pg-boss) |
+| **Type safety, DB → UI** | Lucid types + Inertia (manual plumbing per page) | Partial (Server Actions infer; NextAuth Session needs augmenting) | Automatic, generated |
+| **Files to ship the canonical feature** | ~18 | ~17 | **~7** |
+| **Glue/wiring LOC** | 280–340 | ~310 | **~80–95** |
+| **Deploy** | BYO (Docker is happy path) | Vercel-first | `wasp deploy` (Fly/Railway), Docker for self-host |
+| **AI-coding fit** | Multi-file mental model | Mixed (custom stack to map) | Single-file architecture map |
+| **Maturity** | 10+ years, v7.x | Industry standard | Beta, approaching 1.0 |
+
+---
+
+## Why Wasp Lands Closest to the Second Question
+
+The honest concession first: if you want Laravel idioms in TypeScript (service container, providers, Eloquent-style models, a Tinker-equivalent REPL), AdonisJS will feel more like home than Wasp. But "Laravel for JS" is two questions, and Wasp is built around the second one: *give me Laravel's batteries-included DX, where the framework, not me, owns the boilerplate.*
+
+The concrete differentiators:
+
+- **The config file gives one mental model.** Wasp's config-drive approach (e.g. `main.wasp.ts`) aggregates routes, pages, auth, jobs, operations, and APIs making it easier to read and write features. AdonisJS spreads the equivalent across `start/routes.ts`, `start/kernel.ts`, `config/auth.ts`, `config/ally.ts`, `app/models/`, and `adonisrc.ts`. Both produce running apps; only one of them produces a single architectural map.
+
+- **Client as a peer, not a transport target.** Inertia is a real, well-built bridge; we're not calling it bolted-on. But the architectural posture is different. In AdonisJS, the React app sits at the other end of a per-page Inertia contract you author. In Wasp, the React app is a first-class layer in the same spec that declares your routes, auth, and operations. One mental model spans the boundary instead of two. Scope of this claim: client + server + DB cohesion. We're not making the bigger claim about deploy, where Laravel's Forge/Cloud/Vapor are genuinely strong and Wasp is younger.
+
+- **End-to-end type safety, automatic.** Prisma → operations → React, with no manual plumbing. AdonisJS has Lucid types, but the Inertia client/server boundary is something you type per page.
+
+- **Less code to ship the same feature.** We benchmarked the canonical small app (auth + Google OAuth + dashboard + a CRUD model + two operations + a daily job). AdonisJS landed at roughly 18 files and 280–340 lines of glue/wiring; Next.js at 17 files and ~310 lines; **Wasp at 7 files and ~80–95 lines**. The savings come from not writing what the framework can derive.
+
+- **Boilerplate isn't just a developer cost, it's an AI cost.** We also ran the same SaaS-feature prompt through Claude Code on identical Wasp and Next.js apps. Wasp used **38% fewer tokens** and cost **44% less** ($2.87 vs $5.17), with roughly 70% higher token efficiency. ([Full benchmark.](/blog/2026/03/26/nextjs-vs-wasp-40-percent-less-tokens-same-app)) The reason is structural: AI tools re-read the codebase on every turn, so a smaller codebase compounds. The boilerplate number above and the token number here are the same lever measured two different ways.
+
+- **No cloud lock-in deploy.** `wasp deploy` ships to Fly or Railway in one command, and you can self-host on any VPS via Docker. AdonisJS deployment is BYO (Docker is the happy path); Next.js works best on Vercel, with caveats elsewhere.
+
+- **PostgreSQL-backed jobs by default.** No Redis required, and the scheduler runs in the same process as the server. AdonisJS's queue package needs a separate `node ace queue:work` process and is currently labeled experimental.
+
+Concretely, here's what the single architectural map looks like (abridged from the [`main.wasp.ts` reference](https://wasp.sh/docs/general/wasp-ts-config)):
+
+```ts title="main.wasp.ts"
+import { App } from 'wasp-config'
+
+const app = new App('todoApp', {
+  title: 'ToDo App',
+  wasp: { version: '^0.23.0' },
+})
+
+app.auth({
+  userEntity: 'User',
+  methods: {
+    google: {
+      configFn: { import: 'config', from: '@src/auth/google' },
+      userSignupFields: { import: 'userSignupFields', from: '@src/auth/google' },
+    },
+  },
+  onAuthFailedRedirectTo: '/login',
+  onAuthSucceededRedirectTo: '/dashboard',
+})
+
+const dashboardPage = app.page('DashboardPage', {
+  component: { importDefault: 'Dashboard', from: '@src/pages/Dashboard' },
+})
+app.route('DashboardRoute', { path: '/dashboard', to: dashboardPage })
+
+app.query('getTasks', {
+  fn: { import: 'getTasks', from: '@src/server/tasks' },
+  entities: ['Task'],
+})
+
+app.action('createTask', {
+  fn: { import: 'createTask', from: '@src/server/tasks' },
+  entities: ['Task'],
+})
+
+app.job('sendDailyDigest', {
+  executor: 'PgBoss',
+  perform: { fn: { import: 'sendDigest', from: '@src/server/jobs/digest' } },
+  entities: ['User'],
+  schedule: { cron: '0 9 * * *' },
+})
+
+export default app
+```
+
+Routes, auth, queries, actions, scheduled jobs all exist in the config file. That's also what AI tools see when you point them at your project, so it kind of acts like a spec or map of your entire app that AI can easily read, keep in context, and build upon.
+
+---
+
+## "Build It Three Ways": A Side-by-Side Snapshot
+
+We quickly tested the same feature in all three frameworks: signup/login + Google OAuth, a dashboard behind auth, a `Task` model, two operations (`getTasks`, `createTask`), and a daily digest job at 9am. 
+This is what it took to achieve that feature in each framework:
+
+```text
+AdonisJS (~18 files, ~310 LOC of wiring):
+  config/auth.ts • config/ally.ts • config/queue.ts • adonisrc.ts
+  start/routes.ts • start/kernel.ts • start/scheduler.ts
+  app/middleware/auth_middleware.ts • app/models/{user,task}.ts
+  app/controllers/{session,social,tasks,dashboard}_controller.ts
+  app/jobs/send_daily_digest.ts
+  database/migrations/*.ts
+  inertia/pages/{login,dashboard}.tsx
+
+Next.js (~17 files, ~310 LOC of wiring):
+  auth.config.ts • auth.ts • app/api/auth/[...nextauth]/route.ts
+  middleware.ts • lib/db.ts • prisma/schema.prisma
+  app/(auth)/{login,register}/page.tsx
+  app/dashboard/{layout,page}.tsx • app/actions/tasks.ts
+  inngest/{client,functions}.ts • app/api/inngest/route.ts
+  next-auth.d.ts (Session type augment)
+
+Wasp (~7 files, ~85 LOC of wiring):
+  main.wasp.ts • schema.prisma
+  src/auth/google.ts • src/pages/{Dashboard,auth}.tsx
+  src/server/tasks.ts • src/server/jobs/digest.ts
+```
+
+The difference here, and why it takes significantly less code in Wasp to achieve the same result, is that Wasp takes care of the boilerplate and glue code based on the simple definitions in the config file. The higher-level abstractions mean less boilerplate, which is a win for both humans and AI.
+
+---
+
+## Why This Matters More in 2026
+
+The "less boilerplate" pitch isn't new, and a few years ago you could honestly argue it was a matter of taste. In 2026 it isn't, because the second consumer of your codebase is now AI.
+
+AI tools have finite context windows, and performance degrades long before they fill up. They also re-read the codebase on every turn, so codebase size compounds across a project's lifetime. Every time you ask Cursor or Claude Code to make a change, it pays again for every file that exists. Less framework code in your repo means more room in the working memory for your business logic, which is the only code that's actually unique to your app.
+
+Quoting [our Wasp vs Next.js benchmark post](/blog/2026/03/26/nextjs-vs-wasp-40-percent-less-tokens-same-app): *"tools that make coding easier for humans make it easier for AI, too."* The takeaway: when you're picking a stack today, "context efficiency" is a new evaluation metric to add alongside DX, performance, and ecosystem. A framework that lets you describe a feature in 10 lines instead of 100 isn't just nicer to type, it's cheaper and faster to evolve.
+
+---
+
+## AdonisJS Is the Better Fit If...
+
+We genuinely like AdonisJS, and there are real cases where we'd recommend it over Wasp without hesitation.
+
+- **You're a Laravel developer migrating to TypeScript and you want muscle-memory parity.** Service container, providers, Lucid, ace commands, Tinker-equivalent REPL: AdonisJS is the closest 1:1 mapping of Laravel idioms in TypeScript. Wasp is not trying to be that.
+
+- **You need Vue (or server-rendered templates) on the frontend.** AdonisJS officially supports both via Inertia and first-party Edge templates. Wasp is React-only.
+
+- **You prefer ActiveRecord-style models with logic on the model.** This is a real philosophical fork, not a Wasp gap. Lucid (and Eloquent) encourages logic on the model; Prisma takes the opposite stance, treating the model as data-access only with business logic living in services. Both philosophies have credible defenders. If your instinct is logic-on-the-model, Lucid will feel right and Prisma will feel restrictive; pick AdonisJS.
+
+---
+
+## Frequently Asked Questions
+
+### Is there really a "Laravel for JavaScript"?
+
+Not as a single framework, because "Laravel for JS" is really two questions. If you mean *Laravel idioms in TypeScript* (service container, providers, ActiveRecord-style models, ace commands), **AdonisJS** is the closest 1:1 port. If you mean *Laravel's batteries-included DX*, where the framework owns the boilerplate, **Wasp** is built around that same goal on a modern React + Node.js + Prisma stack. Pick based on which half of the question you were actually asking.
+
+### Is AdonisJS really "Laravel for Node"?
+
+Yes, more directly than any other JS framework. AdonisJS ports the core Laravel idioms to TypeScript: a service container with providers, an ActiveRecord-style ORM (Lucid), social auth via Ally, ace commands, and Edge templates. If you want muscle-memory parity with Laravel in TypeScript, AdonisJS is the closest 1:1 mapping.
+
+### What's the difference between AdonisJS and Wasp?
+
+**AdonisJS** is a runtime framework that ports Laravel idioms (service container, providers, Lucid ORM) into TypeScript. **Wasp** is a compiler-driven framework where a single `main.wasp.ts` file declares your routes, pages, auth, database entities, and jobs, and the compiler generates a typed React + Node.js + Prisma app from it. AdonisJS is backend-first with the frontend wired up per page; Wasp treats client, server, and database as peers in one spec.
+
+### Does Wasp use ActiveRecord like Lucid?
+
+No. Wasp uses Prisma, which is a data-mapper / data-access ORM, not ActiveRecord. Lucid (and Eloquent in Laravel) put query and relationship logic on the model itself; Prisma keeps the model dumb and pushes business logic into services or operations. Both philosophies have serious defenders. If your instinct is logic-on-the-model, Lucid will feel right.
+
+### What about NestJS, isn't that the JS Laravel?
+
+NestJS is closer to Spring Boot than Laravel. It optimizes for enterprise-style dependency injection, decorators, and modular architecture. Laravel and Wasp optimize for productivity and batteries-included DX. Different goals, which is why we left NestJS out of the main three-way comparison.
+
+### What about the t3-stack?
+
+The t3-stack isn't a framework, it's a scaffolder (`create-t3-app`) that wires together Next.js, tRPC, Prisma, NextAuth, Tailwind, and TypeScript into a starting project. After it generates the app, you own and maintain every piece independently; nothing keeps the integration coherent over time. That's the opposite of what Laravel and Wasp do, and it's why t3 isn't a fourth lane in this post: it answers the "give me curated defaults" question, not the "give me a framework that owns the boring parts" question. Honest credit: it's a great starting point if assembly is what you want.
+
+### Does using Wasp actually save money on AI coding tools?
+
+Yes, measurably. We ran the same SaaS-feature prompt through Claude Code on identical Wasp and Next.js apps. Wasp used **38% fewer tokens** and cost **44% less** ($2.87 vs $5.17), with roughly 70% higher token efficiency. The reason is structural: AI tools re-read the codebase on every turn, so a smaller codebase compounds across a project's lifetime. ([Full benchmark.](/blog/2026/03/26/nextjs-vs-wasp-40-percent-less-tokens-same-app))
+
+### I'm coming from Laravel, which framework should I try first?
+
+Try **AdonisJS** first if you want your Laravel muscle memory to transfer (service container, Eloquent-style models, ace commands, Edge or Inertia for views). Try **Wasp** first if what you loved about Laravel was the productivity feeling (the framework owning the boilerplate) and you're open to a different mental model (a declarative config file, Prisma instead of ActiveRecord, React on the front).
+
+---
+
+## Bottom Line
+
+There's no single "Laravel for JavaScript"; the right answer depends on which part of Laravel you were actually asking about.
+
+| If you... | Choose | Why |
+| --- | --- | --- |
+| Want Laravel idioms ported to TypeScript | **AdonisJS** | Direct lineage: service container, Lucid, Ally |
+| Need maximum frontend flexibility (Vue, Edge templates) | **AdonisJS** | First-class Vue support via Inertia + server-rendered templates |
+| Want Laravel's productivity feeling on a modern, AI-coding-friendly stack | **Wasp** | Declarative config file drastically improves AI context efficiency, framework-owned client, automatic type safety, measurably less boilerplate |
+| Have a heavily React-focused team and don't mind assembling | **Next.js** | Largest ecosystem, no opinions, hire pool unmatched |
+
+Picking AdonisJS makes a lot of sense if you want the literal Laravel feel. Pick Wasp if you want to bet on DX and where full-stack frameworks are heading.
+
+If you do decide** **to try Wasp, a great path is the [Open SaaS](https://opensaas.sh/) template: a free, open-source SaaS starter (14k+ GitHub stars) built on Wasp with auth, payments, admin, and analytics already wired up. Or jump straight into the [Wasp docs](https://wasp.sh/docs) to start a fresh project.
+
+Coming from Laravel and want to compare notes with people who've made the jump? Come hang out in the [Wasp Discord](https://discord.gg/rzdnErX); we'd love to hear what you're building.

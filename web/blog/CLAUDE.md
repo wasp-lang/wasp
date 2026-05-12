@@ -47,6 +47,7 @@ This style guide is derived from patterns observed across 80+ blog posts spannin
 - **Casual, developer-peer-to-peer.** Friendly and approachable, not corporate.
 - **Paragraphs:** keep them short — 2-4 sentences. Break longer explanatory content into bullet points or numbered lists before it exceeds 5-6 lines.
 - **Contractions are standard:** "it's", "you'll", "we're", "don't" — always use them.
+- **Avoid overly punchy sentences that include em dashes:** Prefer more succint, conversational tones that don't require the use of em dashes.
 - **Second person ("you")** for tutorials: "Let's jump right in.", "Now you'll create..."
 - **First person plural ("we")** for Wasp team posts: announcements, roadmaps, year reviews.
 - **First person singular ("I")** for guest posts and personal opinion pieces.
