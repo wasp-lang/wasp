@@ -22,6 +22,8 @@ export type Route = MakePart<
     name: string;
     path: string;
     page: Page;
+    prerender?: boolean;
+    lazy?: boolean;
   }
 >;
 
@@ -43,9 +45,16 @@ export type Action = MakePart<
   }
 >;
 
-export type ExtImport =
-  | { import: string; alias?: string; from: `@src/${string}` }
-  | { importDefault: string; from: `@src/${string}` };
+export type ExtImport = NamedExtImport | DefaultExtImport;
+export interface NamedExtImport {
+  import: string;
+  alias?: string;
+  from: `@src/${string}`;
+}
+export interface DefaultExtImport {
+  importDefault: string;
+  from: `@src/${string}`;
+}
 
 /**
  * We need the kind to differentiate between parts with the same structure. One

@@ -101,7 +101,9 @@ describe("mapApp", () => {
     const pageNames = decls
       .filter((d) => d.declType === "Page")
       .map((d) => d.declName);
-    expect(pageNames).toEqual(["namedExport"]);
+    expect(pageNames).toEqual([
+      Fixtures.getExtImport("minimal", "named").import,
+    ]);
   });
 
   test("dedups a page referenced via a route shorthand twice", () => {
@@ -114,7 +116,9 @@ describe("mapApp", () => {
     const pageNames = decls
       .filter((d) => d.declType === "Page")
       .map((d) => d.declName);
-    expect(pageNames).toEqual(["namedExport"]);
+    expect(pageNames).toEqual([
+      Fixtures.getExtImport("minimal", "named").import,
+    ]);
   });
 
   test("dedups a page referenced explicitly and via a route shorthand", () => {
@@ -127,7 +131,9 @@ describe("mapApp", () => {
     const pageNames = decls
       .filter((d) => d.declType === "Page")
       .map((d) => d.declName);
-    expect(pageNames).toEqual(["namedExport"]);
+    expect(pageNames).toEqual([
+      Fixtures.getExtImport("minimal", "named").import,
+    ]);
   });
 
   test("throws when the same page name is produced with differing configs explicitly", () => {
