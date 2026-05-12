@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
+import { ExtImport } from "../../src/index.js";
 import {
   deriveExtImportName,
   makeRefParser,
@@ -10,7 +11,7 @@ import {
   mapQuery,
   mapRoute,
 } from "../../src/spec/mapApp.js";
-import { app } from "../../src/spec/publicApi/index.js";
+import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -92,95 +93,110 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced explicitly twice", () => {
-    const page = Fixtures.getPage("minimal");
-    const pageClone = Fixtures.getPage("minimal");
+    const referencedComponent: ExtImport = {
+      importDefault: "Page",
+      from: "@src/path",
+    };
+    const pageName = deriveExtImportName(referencedComponent);
+    const page1 = page(referencedComponent);
+    const page2 = page(referencedComponent);
 
-    const app = Fixtures.getMinimalApp([page, pageClone]);
+    const app = Fixtures.getMinimalApp([page1, page2]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
       .map((d) => d.declName);
-    expect(pageNames).toEqual([
-      Fixtures.getExtImport("minimal", "named").import,
-    ]);
+    expect(pageNames).toEqual([pageName]);
   });
 
   test("dedups a page referenced via a route shorthand twice", () => {
-    const route = Fixtures.getRoute("minimal");
-    const routeClone = Fixtures.getRoute("minimal");
+    const referencedComponent: ExtImport = {
+      importDefault: "Page",
+      from: "@src/path",
+    };
+    const pageName = deriveExtImportName(referencedComponent);
+    const page1 = page(referencedComponent);
+    const page2 = page(referencedComponent);
+    const route1 = route("Route1", "/", page1);
+    const route2 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalApp([route, routeClone]);
+    const app = Fixtures.getMinimalApp([route1, route2]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
       .map((d) => d.declName);
-    expect(pageNames).toEqual([
-      Fixtures.getExtImport("minimal", "named").import,
-    ]);
+    expect(pageNames).toEqual([pageName]);
   });
 
   test("dedups a page referenced explicitly and via a route shorthand", () => {
-    const page = Fixtures.getPage("minimal");
-    const route = Fixtures.getRoute("minimal");
+    const referencedComponent: ExtImport = {
+      importDefault: "Page",
+      from: "@src/path",
+    };
+    const pageName = deriveExtImportName(referencedComponent);
+    const page1 = page(referencedComponent);
+    const page2 = page(referencedComponent);
+    const route1 = route("Route1", "/", page2);
 
-    const app = Fixtures.getMinimalApp([page, route]);
+    const app = Fixtures.getMinimalApp([page1, route1]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
       .map((d) => d.declName);
-    expect(pageNames).toEqual([
-      Fixtures.getExtImport("minimal", "named").import,
-    ]);
+    expect(pageNames).toEqual([pageName]);
   });
 
   test("throws when the same page name is produced with differing configs explicitly", () => {
-    const page = Fixtures.getPage("minimal");
-    const modifiedPage: TsAppSpec.Page = {
-      ...page,
-      authRequired: true,
+    const referencedComponent: ExtImport = {
+      importDefault: "Page",
+      from: "@src/path",
     };
+    const pageName = deriveExtImportName(referencedComponent);
+    const page1 = page(referencedComponent);
+    const page2 = page(referencedComponent, { authRequired: true });
 
-    const app = Fixtures.getMinimalApp([page, modifiedPage]);
+    const app = Fixtures.getMinimalApp([page1, page2]);
 
     expect(() => mapApp(app, [])).toThrow(
-      /Conflicting configs for page "namedExport"/,
+      `Conflicting configs for page "${pageName}"`,
     );
   });
 
   test("throws when the same page name is produced with differing configs via a route shorthand twice", () => {
-    const page = Fixtures.getPage("minimal");
-    const modifiedPage: TsAppSpec.Page = {
-      ...page,
-      authRequired: true,
+    const referencedComponent: ExtImport = {
+      importDefault: "Page",
+      from: "@src/path",
     };
-    const route = Fixtures.getRoute("minimal");
-    const routeWithModifiedPage: TsAppSpec.Route = {
-      ...route,
-      page: modifiedPage,
-    };
+    const pageName = deriveExtImportName(referencedComponent);
+    const page1 = page(referencedComponent);
+    const page2 = page(referencedComponent, { authRequired: true });
+    const route1 = route("Route1", "/", page1);
+    const route2 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalApp([route, routeWithModifiedPage]);
+    const app = Fixtures.getMinimalApp([route1, route2]);
 
     expect(() => mapApp(app, [])).toThrow(
-      /Conflicting configs for page "namedExport"/,
+      `Conflicting configs for page "${pageName}"`,
     );
   });
 
   test("throws when the same page name is produced with differing configs explicitly and via a route shorthand", () => {
-    const page = Fixtures.getPage("minimal");
-    const modifiedPage: TsAppSpec.Page = {
-      ...page,
-      authRequired: true,
+    const referencedComponent: ExtImport = {
+      importDefault: "Page",
+      from: "@src/path",
     };
-    const route = Fixtures.getRoute("minimal");
+    const pageName = deriveExtImportName(referencedComponent);
+    const page1 = page(referencedComponent);
+    const page2 = page(referencedComponent, { authRequired: true });
+    const route1 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalApp([modifiedPage, route]);
+    const app = Fixtures.getMinimalApp([page1, route1]);
 
     expect(() => mapApp(app, [])).toThrow(
-      /Conflicting configs for page "namedExport"/,
+      `Conflicting configs for page "${pageName}"`,
     );
   });
 
