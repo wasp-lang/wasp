@@ -10,9 +10,10 @@ import {
   mapPage,
   mapPerform,
   mapQuery,
+  mapRoute,
   mapSchedule,
 } from "../../src/spec/mapApp.js";
-import { app } from "../../src/spec/publicApi/index.js";
+import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -99,8 +100,96 @@ describe("mapApp", () => {
     ] satisfies AppSpec.Decl[]);
   });
 
-  // TODO: dedup pages referenced multiple times in parts → one Page decl.
-  // TODO: two pages deriving the same name with different configs → throw.
+  test("dedups a page referenced explicitly twice", () => {
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport);
+
+    const app = Fixtures.getMinimalAppWithParts([page1, page2]);
+    const decls = mapApp(app, []);
+
+    const pageNames = decls
+      .filter((d) => d.declType === "Page")
+      .map((d) => d.declName);
+    expect(pageNames).toEqual([pageName]);
+  });
+
+  test("dedups a page referenced via a route shorthand twice", () => {
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport);
+    const route1 = route("Route1", "/", page1);
+    const route2 = route("Route2", "/", page2);
+
+    const app = Fixtures.getMinimalAppWithParts([route1, route2]);
+    const decls = mapApp(app, []);
+
+    const pageNames = decls
+      .filter((d) => d.declType === "Page")
+      .map((d) => d.declName);
+    expect(pageNames).toEqual([pageName]);
+  });
+
+  test("dedups a page referenced explicitly and via a route shorthand", () => {
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport);
+    const route1 = route("Route1", "/", page2);
+
+    const app = Fixtures.getMinimalAppWithParts([page1, route1]);
+    const decls = mapApp(app, []);
+
+    const pageNames = decls
+      .filter((d) => d.declType === "Page")
+      .map((d) => d.declName);
+    expect(pageNames).toEqual([pageName]);
+  });
+
+  test("throws when the same page name is produced with differing configs explicitly", () => {
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport, { authRequired: true });
+
+    const app = Fixtures.getMinimalAppWithParts([page1, page2]);
+
+    expect(() => mapApp(app, [])).toThrow(
+      `Conflicting configs for page "${pageName}"`,
+    );
+  });
+
+  test("throws when the same page name is produced with differing configs via a route shorthand twice", () => {
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport, { authRequired: true });
+    const route1 = route("Route1", "/", page1);
+    const route2 = route("Route2", "/", page2);
+
+    const app = Fixtures.getMinimalAppWithParts([route1, route2]);
+
+    expect(() => mapApp(app, [])).toThrow(
+      `Conflicting configs for page "${pageName}"`,
+    );
+  });
+
+  test("throws when the same page name is produced with differing configs explicitly and via a route shorthand", () => {
+    const extImport = Fixtures.getExtImport("minimal", "default");
+    const pageName = deriveExtImportName(extImport);
+    const page1 = page(extImport);
+    const page2 = page(extImport, { authRequired: true });
+    const route1 = route("Route2", "/", page2);
+
+    const app = Fixtures.getMinimalAppWithParts([page1, route1]);
+
+    expect(() => mapApp(app, [])).toThrow(
+      `Conflicting configs for page "${pageName}"`,
+    );
+  });
+
   // TODO: duplicate query name → throw.
 });
 
@@ -120,6 +209,30 @@ describe("mapPage", () => {
       component: mapExtImport(page.component),
       authRequired: page.authRequired,
     } satisfies AppSpec.Page);
+  }
+});
+
+describe("mapRoute", () => {
+  test("should map minimal config correctly", () => {
+    testMapRoute(Fixtures.getRoute("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapRoute(Fixtures.getRoute("full"));
+  });
+
+  function testMapRoute(route: TsAppSpec.Route): void {
+    const result = mapRoute(route);
+
+    expect(result).toStrictEqual({
+      path: route.path,
+      to: {
+        name: deriveExtImportName(route.page.component),
+        declType: "Page",
+      },
+      prerender: route.prerender,
+      lazy: route.lazy,
+    } satisfies AppSpec.Route);
   }
 });
 

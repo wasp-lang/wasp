@@ -1,4 +1,4 @@
-import type { Action, App, Job, Page, Query } from "./tsAppSpec.js";
+import type { Action, App, Job, Page, Query, Route } from "./tsAppSpec.js";
 
 export function app(input: Omit<App, "kind">): App {
   return input;
@@ -9,6 +9,15 @@ export function page(
   config?: Pick<Page, "authRequired">,
 ): Page {
   return { kind: "page", component, ...config };
+}
+
+export function route(
+  name: Route["name"],
+  path: Route["path"],
+  page: Route["page"],
+  config?: Pick<Route, "lazy" | "prerender">,
+): Route {
+  return { kind: "route", name, path, page, ...config };
 }
 
 export function query(

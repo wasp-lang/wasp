@@ -1,4 +1,4 @@
-export { action, app, job, page, query } from "./constructors.js";
+export { action, app, job, page, query, route } from "./constructors.js";
 export type {
   Action,
   App,
@@ -7,4 +7,5 @@ export type {
   Page,
   Part,
   Query,
+  Route,
 } from "./tsAppSpec.js";
