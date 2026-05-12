@@ -5,7 +5,6 @@
 
 import * as AppSpec from "../appSpec.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
-import { TsSpecError } from "./tsSpecError.js";
 
 export function mapApp(
   app: TsAppSpec.App,
@@ -122,7 +121,7 @@ export function dedupePageDecls(
   return Array.from(pagesByDeclName.values()).map((pages) =>
     pages.reduce((firstPage, currentPage) => {
       if (!arePageDeclsEqual(currentPage, firstPage)) {
-        throw new TsSpecError(
+        throw new Error(
           `Conflicting configs for page "${firstPage.declName}". ` +
             "All page instances pointing to the same component must produce the same configuration.\n\n" +
             `Page 1: ${JSON.stringify(firstPage.declValue)}\n` +
@@ -184,7 +183,7 @@ export function mapExtImport(
       path: extImport.from,
     };
   } else {
-    throw new TsSpecError(
+    throw new Error(
       "Invalid ExtImport: neither `import` nor `importDefault` is defined",
     );
   }
@@ -200,7 +199,7 @@ export function makeRefParser<T extends AppSpec.DeclType>(
 ): RefParser<T> {
   return function parseRef(potentialRef: string): AppSpec.Ref<T> {
     if (!declNames.includes(potentialRef)) {
-      throw new TsSpecError(`Invalid ${declType} reference: ${potentialRef}`);
+      throw new Error(`Invalid ${declType} reference: ${potentialRef}`);
     }
     return {
       name: potentialRef,
