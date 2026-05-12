@@ -40,6 +40,20 @@ export function mapApp(
     (route) => mapPage(route.page),
   );
 
+  const routes = extractParts("route", parts);
+  const routeDecls = mapToDecls(
+    routes,
+    "Route",
+    (route) => route.name,
+    (route) => mapRoute(route),
+  );
+  const routePageDecls = mapToDecls(
+    routes,
+    "Page",
+    (route) => deriveExtImportName(route.page.component),
+    (route) => mapPage(route.page),
+  );
+
   const queries = extractParts("query", parts);
   const queryDecls = mapToDecls(
     queries,
