@@ -95,14 +95,15 @@ export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
 }
 
 export function mapRoute(route: TsAppSpec.Route): AppSpec.Route {
+  const { path, prerender, lazy } = route;
   return {
-    path: route.path,
+    path,
     to: {
       name: deriveExtImportName(route.page.component),
       declType: "Page",
     },
-    prerender: route.prerender,
-    lazy: route.lazy,
+    prerender,
+    lazy,
   };
 }
 
