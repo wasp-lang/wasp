@@ -218,17 +218,15 @@ describe("mapRoute", () => {
   function testMapRoute(route: TsAppSpec.Route): void {
     const result = mapRoute(route);
 
-    expect(result.routeName).toStrictEqual(route.name);
-    expect(result.route).toStrictEqual({
+    expect(result).toStrictEqual({
       path: route.path,
       to: {
         name: deriveExtImportName(route.page.component),
         declType: "Page",
       },
-      prerender: undefined,
-      lazy: undefined,
+      prerender: route.prerender,
+      lazy: route.lazy,
     } satisfies AppSpec.Route);
-    expect(result.page).toStrictEqual(mapPage(route.page));
   }
 });
 
