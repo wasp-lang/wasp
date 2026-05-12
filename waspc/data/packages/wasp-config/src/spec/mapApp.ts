@@ -25,6 +25,20 @@ export function mapApp(
     mapPage,
   );
 
+  const routes = extractParts("route", parts);
+  const routeDecls = mapToDecls(
+    routes,
+    "Route",
+    (route) => route.name,
+    (route) => mapRoute(route),
+  );
+  const routePageDecls = mapToDecls(
+    routes,
+    "Page",
+    (route) => deriveExtImportName(route.page.component),
+    (route) => mapPage(route.page),
+  );
+
   const queries = extractParts("query", parts);
   const queryDecls = mapToDecls(
     queries,
@@ -60,11 +74,11 @@ export function mapApp(
 
   return makeDeclsArray({
     App: [appDecl],
-    Page: pageDecls,
+    Page: dedupePageDecls([...pageDecls, ...routePageDecls]),
+    Route: routeDecls,
     Query: queryDecls,
     Action: actionDecls,
     // TODO: add these guys
-    Route: [],
     Job: [],
     Api: [],
     ApiNamespace: [],
@@ -78,6 +92,57 @@ export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
     component: mapExtImport(component),
     authRequired,
   };
+}
+
+export function mapRoute(route: TsAppSpec.Route): AppSpec.Route {
+  const { path, prerender, lazy } = route;
+  return {
+    path,
+    to: {
+      name: deriveExtImportName(route.page.component),
+      declType: "Page",
+    },
+    prerender,
+    lazy,
+  };
+}
+
+/**
+ * {@link TsAppSpec.Route} through it's constructor can either:
+ * - Create a new {@link TsAppSpec.Page}.
+ * - Reference an existing {@link TsAppSpec.Page}.
+ *
+ * In case when it references an existing page, we don't want to
+ * count the reference as a separate {@link AppSpec.Page} declaration.
+ */
+export function dedupePageDecls(
+  decls: AppSpec.GetDeclForType<"Page">[],
+): AppSpec.GetDeclForType<"Page">[] {
+  const pagesByDeclName = Map.groupBy(decls, (decls) => decls.declName);
+  return Array.from(pagesByDeclName.values()).map((pages) =>
+    pages.reduce((firstPage, currentPage) => {
+      if (!arePageDeclsEqual(currentPage, firstPage)) {
+        throw new Error(
+          `Conflicting configs for page "${firstPage.declName}". ` +
+            "All page instances pointing to the same component must produce the same configuration.\n\n" +
+            `Page 1: ${JSON.stringify(firstPage.declValue)}\n` +
+            `Page 2: ${JSON.stringify(currentPage.declValue)}`,
+        );
+      }
+      return firstPage;
+    }),
+  );
+}
+
+function arePageDeclsEqual(
+  page1: AppSpec.GetDeclForType<"Page">,
+  page2: AppSpec.GetDeclForType<"Page">,
+): boolean {
+  const isSameCanonicalPage = page1.declName === page2.declName;
+  return (
+    isSameCanonicalPage &&
+    JSON.stringify(page1.declValue) === JSON.stringify(page2.declValue)
+  );
 }
 
 export function mapQuery(

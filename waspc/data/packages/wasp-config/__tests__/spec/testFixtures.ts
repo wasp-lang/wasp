@@ -6,7 +6,13 @@
 
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
-import { action, app, page, query } from "../../src/spec/publicApi/index.js";
+import {
+  action,
+  app,
+  page,
+  query,
+  route,
+} from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 export function getMinimalApp(): TsAppSpec.App {
@@ -16,6 +22,13 @@ export function getMinimalApp(): TsAppSpec.App {
     title: "Mock App",
     parts: [],
   });
+}
+
+export function getMinimalAppWithParts(parts: TsAppSpec.Part[]): TsAppSpec.App {
+  return {
+    ...getMinimalApp(),
+    parts,
+  };
 }
 
 export function getPage<Scope extends ConfigScope>(
@@ -28,6 +41,23 @@ export function getPage(scope: ConfigScope): Config<TsAppSpec.Page> {
     case "full":
       return page(getExtImport("full", "named"), {
         authRequired: true,
+      });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getRoute<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Route>;
+export function getRoute(scope: ConfigScope): Config<TsAppSpec.Route> {
+  switch (scope) {
+    case "minimal":
+      return route("minimalRoute", "/foo/bar", getPage("minimal"));
+    case "full":
+      return route("fullRoute", "/foo/bar", getPage("full"), {
+        lazy: true,
+        prerender: true,
       });
     default:
       assertUnreachable(scope);
