@@ -10,11 +10,11 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
+import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
     Dir,
     File,
-    File',
     Path',
     Rel,
     basename,
@@ -38,9 +38,12 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallab
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
+    TsConfigPaths (..),
     WaspProjectDir,
+    WaspTsConfigFile,
     WaspTsFile,
     dotWaspDirInWaspProjectDir,
+    tsConfigPathsInWaspTsProjects,
   )
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -60,15 +63,15 @@ analyzeWaspTsFile ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = runExceptT $ do
-  -- TODO: I'm not yet sure where tsconfig.wasp.json location should come from
-  -- because we also need that knowledge when generating a TS SDK project.
-  compiledWaspJsFile <- ExceptT $ compileWaspTsFile compileOptions.waspProjectDir [relfile|tsconfig.wasp.json|] waspFilePath
+  compiledWaspJsFile <- ExceptT $ compileWaspTsFile compileOptions.waspProjectDir waspTsConfigFile waspFilePath
   declsJsonFile <- ExceptT $ executeMainWaspJsFileAndGetDeclsFile compileOptions prismaSchemaAst compiledWaspJsFile
   ExceptT $ readDecls prismaSchemaAst declsJsonFile
+  where
+    waspTsConfigFile = fromJust tsConfigPathsInWaspTsProjects.waspTsConfig
 
 compileWaspTsFile ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) File' ->
+  Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
 compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath = do

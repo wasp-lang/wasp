@@ -15,9 +15,6 @@ import {
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
-const CONFIG_TYPES = ["minimal", "full"] as const;
-type ConfigType = (typeof CONFIG_TYPES)[number];
-
 export function getMinimalApp(parts?: TsAppSpec.Part[]): TsAppSpec.App {
   return app({
     name: "MinimalApp",
@@ -27,15 +24,17 @@ export function getMinimalApp(parts?: TsAppSpec.Part[]): TsAppSpec.App {
   });
 }
 
-export function getPage(scope: "minimal"): MinimalConfig<TsAppSpec.Page>;
-export function getPage(scope: "full"): FullConfig<TsAppSpec.Page>;
-export function getPage(scope: ConfigType): Config<TsAppSpec.Page>;
-export function getPage(scope: ConfigType): Config<TsAppSpec.Page> {
+export function getPage<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Page>;
+export function getPage(scope: ConfigScope): Config<TsAppSpec.Page> {
   switch (scope) {
     case "minimal":
       return page(getExtImport("minimal", "named"));
     case "full":
-      return page(getExtImport("full", "named"), { authRequired: true });
+      return page(getExtImport("full", "named"), {
+        authRequired: true,
+      });
     default:
       assertUnreachable(scope);
   }
@@ -55,10 +54,10 @@ export function getRoute(scope: ConfigType): Config<TsAppSpec.Route> {
   }
 }
 
-export function getQuery(scope: "minimal"): MinimalConfig<TsAppSpec.Query>;
-export function getQuery(scope: "full"): FullConfig<TsAppSpec.Query>;
-export function getQuery(scope: ConfigType): Config<TsAppSpec.Query>;
-export function getQuery(scope: ConfigType): Config<TsAppSpec.Query> {
+export function getQuery<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Query>;
+export function getQuery(scope: ConfigScope): Config<TsAppSpec.Query> {
   switch (scope) {
     case "minimal":
       return query(getExtImport("minimal", "named"));
@@ -72,10 +71,10 @@ export function getQuery(scope: ConfigType): Config<TsAppSpec.Query> {
   }
 }
 
-export function getAction(scope: "minimal"): MinimalConfig<TsAppSpec.Action>;
-export function getAction(scope: "full"): FullConfig<TsAppSpec.Action>;
-export function getAction(scope: ConfigType): Config<TsAppSpec.Action>;
-export function getAction(scope: ConfigType): Config<TsAppSpec.Action> {
+export function getAction<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Action>;
+export function getAction(scope: ConfigScope): Config<TsAppSpec.Action> {
   switch (scope) {
     case "minimal":
       return action(getExtImport("minimal", "named"));
@@ -89,7 +88,7 @@ export function getAction(scope: ConfigType): Config<TsAppSpec.Action> {
   }
 }
 
-export function getEntities(scope: ConfigType): string[] {
+export function getEntities(scope: ConfigScope): string[] {
   switch (scope) {
     case "minimal":
       return [];
@@ -100,39 +99,24 @@ export function getEntities(scope: ConfigType): string[] {
   }
 }
 
+export function getExtImport<
+  Scope extends ConfigScope,
+  Kind extends AppSpec.ExtImportKind,
+>(scope: Scope, importKind: Kind): ConfigFor<Scope, ExtImportFor<Kind>>;
 export function getExtImport(
-  scope: "minimal",
-  importKind: AppSpec.ExtImportKind,
-): MinimalConfig<TsAppSpec.ExtImport>;
-export function getExtImport(
-  scope: "full",
-  importKind: AppSpec.ExtImportKind,
-): FullConfig<TsAppSpec.ExtImport>;
-export function getExtImport(
-  scope: ConfigType,
-  importKind: AppSpec.ExtImportKind,
-): Config<TsAppSpec.ExtImport>;
-export function getExtImport(
-  scope: ConfigType,
+  scope: ConfigScope,
   importKind: AppSpec.ExtImportKind,
 ): Config<TsAppSpec.ExtImport> {
   switch (importKind) {
-    case "named": {
-      return {
-        import: "namedExport",
-        ...(scope == "full" && { alias: "namedAlias" }),
-        from: "@src/external",
-      };
-    }
+    case "named":
+      return scope === "full"
+        ? { import: "namedExport", alias: "namedAlias", from: "@src/external" }
+        : { import: "namedExport", from: "@src/external" };
     case "default":
       return { importDefault: "defaultExport", from: "@src/external" };
     default:
       assertUnreachable(importKind);
   }
-}
-
-function assertUnreachable(value: never): never {
-  throw new Error(`Unhandled case: ${value}`);
 }
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>;
@@ -186,3 +170,18 @@ export type FullConfig<T> =
 type FullConfigObject<T> = {
   [K in keyof T]-?: FullConfig<T[K]>;
 };
+
+type ExtImportFor<Kind extends AppSpec.ExtImportKind> = Kind extends "named"
+  ? TsAppSpec.NamedExtImport
+  : TsAppSpec.DefaultExtImport;
+
+type ConfigFor<Scope extends ConfigScope, Data> = Scope extends "full"
+  ? FullConfig<Data>
+  : MinimalConfig<Data>;
+
+const CONFIG_SCOPES = ["minimal", "full"] as const;
+type ConfigScope = (typeof CONFIG_SCOPES)[number];
+
+function assertUnreachable(value: never): never {
+  throw new Error(`Unhandled case: ${value}`);
+}

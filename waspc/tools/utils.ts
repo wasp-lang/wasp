@@ -4,6 +4,7 @@ import { execFileSync, type ExecFileSyncOptions } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { getWaspcVersion } from "./get-waspc-version.ts";
 
 export function getRepoRootPath(): string {
   return fileURLToPath(new URL("../..", import.meta.url));
@@ -26,6 +27,20 @@ export function getPackageJson(dir: string): {
 } {
   const packageJsonPath = join(dir, "package.json");
   return JSON.parse(readFileSync(packageJsonPath, "utf-8"));
+}
+
+export function assertPackageVersionMatchesWaspc(
+  packageName: string,
+  packageVersion: string,
+): void {
+  const waspcVersion = getWaspcVersion();
+
+  if (packageVersion !== waspcVersion) {
+    throw new Error(
+      `${packageName} package version (${packageVersion}) != current Wasp version (${waspcVersion}). ` +
+        `Update the package version in package.json to ${waspcVersion}.`,
+    );
+  }
 }
 
 export function runCmd(
