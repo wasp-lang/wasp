@@ -2,9 +2,6 @@ module Wasp.Project.ExternalConfig.PackageJson
   ( parseAndValidateUserPackageJson,
     findUserPackageJsonFile,
     validatePackageJsonForProject,
-
-    -- * Exported for testing only
-    packageJsonValidator,
   )
 where
 
