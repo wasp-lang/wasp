@@ -487,7 +487,9 @@ export function deriveExtImportName(
     throw new Error(result.error);
   }
 
-  return result.value.alias ?? result.value.name;
+  return "alias" in result.value
+    ? (result.value.alias ?? result.value.name)
+    : result.value.name;
 }
 
 /**
