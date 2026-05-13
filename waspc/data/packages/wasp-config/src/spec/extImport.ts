@@ -11,7 +11,6 @@ export interface NamedExtImport {
 export interface DefaultExtImport {
   importDefault: string;
   from: AppSpec.ExtImport["path"];
-  alias?: string;
 }
 
 export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
@@ -27,7 +26,6 @@ export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
       kind: "default",
       name: extImport.importDefault,
       path: extImport.from,
-      alias: extImport.alias,
     };
   } else {
     throw new Error(
@@ -49,8 +47,7 @@ function isDefaultExtImport(value: unknown): value is DefaultExtImport {
   return (
     isObject(value) &&
     typeof value.importDefault === "string" &&
-    typeof value.from === "string" &&
-    hasValidAlias(value)
+    typeof value.from === "string"
   );
 }
 
