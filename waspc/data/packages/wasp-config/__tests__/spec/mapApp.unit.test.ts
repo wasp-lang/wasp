@@ -11,6 +11,7 @@ import {
   mapPage,
   mapQuery,
   mapRoute,
+  slugify,
 } from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
@@ -100,12 +101,12 @@ describe("mapApp", () => {
       },
       {
         declType: "Api",
-        declName: deriveExtImportName(apiPart.fn),
+        declName: slugify(`${apiPart.method}_${apiPart.path}_api`),
         declValue: mapApi(apiPart, entityRefParser),
       },
       {
         declType: "ApiNamespace",
-        declName: deriveExtImportName(apiNamespacePart.middlewareConfigFn),
+        declName: slugify(`${apiNamespacePart.path}_apiNamespace`),
         declValue: mapApiNamespace(apiNamespacePart),
       },
     ] satisfies AppSpec.Decl[]);
@@ -333,6 +334,37 @@ describe("mapApiNamespace", () => {
       path: apiNamespace.path,
     } satisfies AppSpec.ApiNamespace);
   }
+});
+
+describe("slugify", () => {
+  test("lowercases and camelCases the method-path-suffix shape used for api parts", () => {
+    expect(slugify("GET_/foo/bar_api")).toBe("getFooBarApi");
+  });
+
+  test("camelCases the path-suffix shape used for apiNamespace parts", () => {
+    expect(slugify("/foo/bar_apiNamespace")).toBe("fooBarApinamespace");
+  });
+
+  test("strips leading non-alphanumeric characters", () => {
+    expect(slugify("///foo")).toBe("foo");
+  });
+
+  test("collapses runs of non-alphanumeric characters into one camelCase boundary", () => {
+    expect(slugify("foo___bar")).toBe("fooBar");
+  });
+
+  test("drops trailing non-alphanumeric characters", () => {
+    expect(slugify("foo_")).toBe("foo");
+  });
+
+  test("preserves digits", () => {
+    expect(slugify("/api/v1/users")).toBe("apiV1Users");
+  });
+
+  test("collapses path-param and literal segments to the same slug", () => {
+    expect(slugify("GET_/users/:id_api")).toBe("getUsersIdApi");
+    expect(slugify("GET_/users/id_api")).toBe("getUsersIdApi");
+  });
 });
 
 describe("mapExtImport", () => {
