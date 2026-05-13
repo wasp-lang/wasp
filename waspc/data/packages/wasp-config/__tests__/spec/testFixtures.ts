@@ -126,9 +126,13 @@ export function getApiNamespace(
 ): Config<TsAppSpec.ApiNamespace> {
   switch (scope) {
     case "minimal":
-      return apiNamespace(getExtImport("minimal", "named"), "/foo");
+      return apiNamespace("/foo", {
+        middlewareConfigFn: getExtImport("minimal", "named"),
+      });
     case "full":
-      return apiNamespace(getExtImport("full", "named"), "/foo");
+      return apiNamespace("/foo", {
+        middlewareConfigFn: getExtImport("full", "named"),
+      });
     default:
       assertUnreachable(scope);
   }

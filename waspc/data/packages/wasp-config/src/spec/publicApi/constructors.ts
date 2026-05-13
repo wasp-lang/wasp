@@ -52,8 +52,8 @@ export function api(
 }
 
 export function apiNamespace(
-  middlewareConfigFn: ApiNamespace["middlewareConfigFn"],
   path: ApiNamespace["path"],
+  config: Pick<ApiNamespace, "middlewareConfigFn">,
 ): ApiNamespace {
-  return { kind: "apiNamespace", middlewareConfigFn, path };
+  return { kind: "apiNamespace", path, ...config };
 }
