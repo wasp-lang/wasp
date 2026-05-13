@@ -42,7 +42,6 @@ describe("mapExtImport", () => {
         kind: "default",
         name: extImport.importDefault,
         path: extImport.from,
-        alias: extImport.alias,
       } satisfies AppSpec.ExtImport);
     }
   }
