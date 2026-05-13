@@ -106,9 +106,9 @@ export function getApi<Scope extends ConfigScope>(
 export function getApi(scope: ConfigScope): Config<TsAppSpec.Api> {
   switch (scope) {
     case "minimal":
-      return api(getExtImport("minimal", "named"), getHttpRoute("minimal"));
+      return api("GET", "/foo/bar", getExtImport("minimal", "named"));
     case "full":
-      return api(getExtImport("full", "named"), getHttpRoute("full"), {
+      return api("POST", "/foo/bar", getExtImport("full", "named"), {
         middlewareConfigFn: getExtImport("full", "named"),
         entities: ["Task"],
         auth: true,
@@ -129,20 +129,6 @@ export function getApiNamespace(
       return apiNamespace(getExtImport("minimal", "named"), "/foo");
     case "full":
       return apiNamespace(getExtImport("full", "named"), "/foo");
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export function getHttpRoute<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, TsAppSpec.HttpRoute>;
-export function getHttpRoute(scope: ConfigScope): Config<TsAppSpec.HttpRoute> {
-  switch (scope) {
-    case "minimal":
-      return { method: "GET", route: "/foo/bar" };
-    case "full":
-      return { method: "POST", route: "/foo/bar" };
     default:
       assertUnreachable(scope);
   }

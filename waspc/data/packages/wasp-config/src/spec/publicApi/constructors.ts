@@ -43,11 +43,12 @@ export function action(
 }
 
 export function api(
+  method: Api["method"],
+  path: Api["path"],
   fn: Api["fn"],
-  httpRoute: Api["httpRoute"],
   config?: Pick<Api, "middlewareConfigFn" | "entities" | "auth">,
 ): Api {
-  return { kind: "api", fn, httpRoute, ...config };
+  return { kind: "api", method, path, fn, ...config };
 }
 
 export function apiNamespace(

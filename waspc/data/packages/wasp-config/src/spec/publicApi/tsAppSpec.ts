@@ -48,8 +48,9 @@ export type Action = MakePart<
 export type Api = MakePart<
   "api",
   {
+    method: HttpMethod;
+    path: string;
     fn: ExtImport;
-    httpRoute: HttpRoute;
     middlewareConfigFn?: ExtImport;
     entities?: string[];
     auth?: boolean;
@@ -63,11 +64,6 @@ export type ApiNamespace = MakePart<
     path: string;
   }
 >;
-
-export type HttpRoute = {
-  method: HttpMethod;
-  route: string;
-};
 
 export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
 

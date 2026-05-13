@@ -8,7 +8,6 @@ import {
   mapApiNamespace,
   mapApp,
   mapExtImport,
-  mapHttpRoute,
   mapPage,
   mapQuery,
   mapRoute,
@@ -311,7 +310,7 @@ describe("mapApi", () => {
       middlewareConfigFn:
         api.middlewareConfigFn && mapExtImport(api.middlewareConfigFn),
       entities: api.entities?.map(entityRefParser),
-      httpRoute: mapHttpRoute(api.httpRoute),
+      httpRoute: [api.method, api.path],
       auth: api.auth,
     } satisfies AppSpec.Api);
   }
@@ -333,25 +332,6 @@ describe("mapApiNamespace", () => {
       middlewareConfigFn: mapExtImport(apiNamespace.middlewareConfigFn),
       path: apiNamespace.path,
     } satisfies AppSpec.ApiNamespace);
-  }
-});
-
-describe("mapHttpRoute", () => {
-  test("should map minimal config correctly", () => {
-    testMapHttpRoute(Fixtures.getHttpRoute("minimal"));
-  });
-
-  test("should map full config correctly", () => {
-    testMapHttpRoute(Fixtures.getHttpRoute("full"));
-  });
-
-  function testMapHttpRoute(httpRoute: TsAppSpec.HttpRoute): void {
-    const result = mapHttpRoute(httpRoute);
-
-    expect(result).toStrictEqual([
-      httpRoute.method,
-      httpRoute.route,
-    ] satisfies AppSpec.HttpRoute);
   }
 });
 

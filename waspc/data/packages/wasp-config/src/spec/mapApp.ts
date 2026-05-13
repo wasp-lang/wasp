@@ -189,12 +189,12 @@ export function mapApi(
   api: TsAppSpec.Api,
   entityRefParser: RefParser<"Entity">,
 ): AppSpec.Api {
-  const { fn, middlewareConfigFn, entities, httpRoute, auth } = api;
+  const { method, path, fn, middlewareConfigFn, entities, auth } = api;
   return {
     fn: mapExtImport(fn),
     middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
     entities: entities?.map(entityRefParser),
-    httpRoute: mapHttpRoute(httpRoute),
+    httpRoute: [method, path],
     auth,
   };
 }
@@ -207,12 +207,6 @@ export function mapApiNamespace(
     middlewareConfigFn: mapExtImport(middlewareConfigFn),
     path,
   };
-}
-
-export function mapHttpRoute(
-  httpRoute: TsAppSpec.HttpRoute,
-): AppSpec.HttpRoute {
-  return [httpRoute.method, httpRoute.route];
 }
 
 export function mapExtImport(

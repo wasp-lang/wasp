@@ -14,7 +14,6 @@ export type {
   App,
   ExtImport,
   HttpMethod,
-  HttpRoute,
   Page,
   Part,
   Query,
