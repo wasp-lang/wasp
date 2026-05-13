@@ -5,7 +5,7 @@
  * work well for content-centric websites.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -469,7 +469,7 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   color: var(--sidebar-item-level-1-color);
   font-family: "IBM Plex Mono", monospace;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
