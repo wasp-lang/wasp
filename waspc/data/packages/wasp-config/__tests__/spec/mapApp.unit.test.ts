@@ -4,8 +4,11 @@ import {
   deriveExtImportName,
   makeRefParser,
   mapAction,
+  mapApi,
+  mapApiNamespace,
   mapApp,
   mapExtImport,
+  mapHttpRoute,
   mapPage,
   mapQuery,
   mapRoute,
@@ -44,6 +47,8 @@ describe("mapApp", () => {
     const page = Fixtures.getPage("full");
     const route = Fixtures.getRoute("full");
     const query = Fixtures.getQuery("full");
+    const apiPart = Fixtures.getApi("full");
+    const apiNamespacePart = Fixtures.getApiNamespace("full");
     const entityNames = Fixtures.getEntities("full");
     const entityRefParser = makeRefParser("Entity", entityNames);
 
@@ -52,7 +57,7 @@ describe("mapApp", () => {
       wasp: { version: "^0.16.3" },
       title: "Mock App",
       head: ['<link rel="icon" href="/favicon.ico" />'],
-      parts: [page, route, query],
+      parts: [page, route, query, apiPart, apiNamespacePart],
     });
 
     const result = mapApp(inputApp, entityNames);
@@ -93,6 +98,16 @@ describe("mapApp", () => {
         declType: "Query",
         declName: deriveExtImportName(query.fn),
         declValue: mapQuery(query, entityRefParser),
+      },
+      {
+        declType: "Api",
+        declName: deriveExtImportName(apiPart.fn),
+        declValue: mapApi(apiPart, entityRefParser),
+      },
+      {
+        declType: "ApiNamespace",
+        declName: deriveExtImportName(apiNamespacePart.middlewareConfigFn),
+        declValue: mapApiNamespace(apiNamespacePart),
       },
     ] satisfies AppSpec.Decl[]);
   });
@@ -274,6 +289,69 @@ describe("mapAction", () => {
       entities: action.entities?.map(entityRefParser),
       auth: action.auth,
     } satisfies AppSpec.Action);
+  }
+});
+
+describe("mapApi", () => {
+  test("should map minimal config correctly", () => {
+    testMapApi(Fixtures.getApi("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapApi(Fixtures.getApi("full"));
+  });
+
+  function testMapApi(api: TsAppSpec.Api): void {
+    const entityRefParser = makeRefParser("Entity", api.entities ?? []);
+
+    const result = mapApi(api, entityRefParser);
+
+    expect(result).toStrictEqual({
+      fn: mapExtImport(api.fn),
+      middlewareConfigFn:
+        api.middlewareConfigFn && mapExtImport(api.middlewareConfigFn),
+      entities: api.entities?.map(entityRefParser),
+      httpRoute: mapHttpRoute(api.httpRoute),
+      auth: api.auth,
+    } satisfies AppSpec.Api);
+  }
+});
+
+describe("mapApiNamespace", () => {
+  test("should map minimal config correctly", () => {
+    testMapApiNamespace(Fixtures.getApiNamespace("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapApiNamespace(Fixtures.getApiNamespace("full"));
+  });
+
+  function testMapApiNamespace(apiNamespace: TsAppSpec.ApiNamespace): void {
+    const result = mapApiNamespace(apiNamespace);
+
+    expect(result).toStrictEqual({
+      middlewareConfigFn: mapExtImport(apiNamespace.middlewareConfigFn),
+      path: apiNamespace.path,
+    } satisfies AppSpec.ApiNamespace);
+  }
+});
+
+describe("mapHttpRoute", () => {
+  test("should map minimal config correctly", () => {
+    testMapHttpRoute(Fixtures.getHttpRoute("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapHttpRoute(Fixtures.getHttpRoute("full"));
+  });
+
+  function testMapHttpRoute(httpRoute: TsAppSpec.HttpRoute): void {
+    const result = mapHttpRoute(httpRoute);
+
+    expect(result).toStrictEqual([
+      httpRoute.method,
+      httpRoute.route,
+    ] satisfies AppSpec.HttpRoute);
   }
 });
 

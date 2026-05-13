@@ -8,6 +8,8 @@ import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
 import {
   action,
+  api,
+  apiNamespace,
   app,
   page,
   query,
@@ -93,6 +95,54 @@ export function getAction(scope: ConfigScope): Config<TsAppSpec.Action> {
         entities: ["Task"],
         auth: true,
       });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getApi<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Api>;
+export function getApi(scope: ConfigScope): Config<TsAppSpec.Api> {
+  switch (scope) {
+    case "minimal":
+      return api(getExtImport("minimal", "named"), getHttpRoute("minimal"));
+    case "full":
+      return api(getExtImport("full", "named"), getHttpRoute("full"), {
+        middlewareConfigFn: getExtImport("full", "named"),
+        entities: ["Task"],
+        auth: true,
+      });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getApiNamespace<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.ApiNamespace>;
+export function getApiNamespace(
+  scope: ConfigScope,
+): Config<TsAppSpec.ApiNamespace> {
+  switch (scope) {
+    case "minimal":
+      return apiNamespace(getExtImport("minimal", "named"), "/foo");
+    case "full":
+      return apiNamespace(getExtImport("full", "named"), "/foo");
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getHttpRoute<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.HttpRoute>;
+export function getHttpRoute(scope: ConfigScope): Config<TsAppSpec.HttpRoute> {
+  switch (scope) {
+    case "minimal":
+      return { method: "GET", route: "/foo/bar" };
+    case "full":
+      return { method: "POST", route: "/foo/bar" };
     default:
       assertUnreachable(scope);
   }

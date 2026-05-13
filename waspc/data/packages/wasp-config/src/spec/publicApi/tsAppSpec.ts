@@ -6,7 +6,7 @@ export type App = {
   parts: Part[];
 };
 
-export type Part = Page | Route | Query | Action;
+export type Part = Page | Route | Query | Action | Api | ApiNamespace;
 
 export type Page = MakePart<
   "page",
@@ -44,6 +44,32 @@ export type Action = MakePart<
     auth?: boolean;
   }
 >;
+
+export type Api = MakePart<
+  "api",
+  {
+    fn: ExtImport;
+    httpRoute: HttpRoute;
+    middlewareConfigFn?: ExtImport;
+    entities?: string[];
+    auth?: boolean;
+  }
+>;
+
+export type ApiNamespace = MakePart<
+  "apiNamespace",
+  {
+    middlewareConfigFn: ExtImport;
+    path: string;
+  }
+>;
+
+export type HttpRoute = {
+  method: HttpMethod;
+  route: string;
+};
+
+export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
 
 export type ExtImport = NamedExtImport | DefaultExtImport;
 export interface NamedExtImport {

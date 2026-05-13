@@ -1,4 +1,12 @@
-import type { Action, App, Page, Query, Route } from "./tsAppSpec.js";
+import type {
+  Action,
+  Api,
+  ApiNamespace,
+  App,
+  Page,
+  Query,
+  Route,
+} from "./tsAppSpec.js";
 
 export function app(input: Omit<App, "kind">): App {
   return input;
@@ -32,4 +40,19 @@ export function action(
   config?: Pick<Action, "entities" | "auth">,
 ): Action {
   return { kind: "action", fn, ...config };
+}
+
+export function api(
+  fn: Api["fn"],
+  httpRoute: Api["httpRoute"],
+  config?: Pick<Api, "middlewareConfigFn" | "entities" | "auth">,
+): Api {
+  return { kind: "api", fn, httpRoute, ...config };
+}
+
+export function apiNamespace(
+  middlewareConfigFn: ApiNamespace["middlewareConfigFn"],
+  path: ApiNamespace["path"],
+): ApiNamespace {
+  return { kind: "apiNamespace", middlewareConfigFn, path };
 }
