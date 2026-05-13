@@ -1,4 +1,4 @@
-import type { ExtImport as SpecExtImport } from "../extImport.js";
+import type { ExtImport } from "../extImport.js";
 
 export type App = {
   name: string;
@@ -13,7 +13,7 @@ export type Part = Page | Route | Query | Action;
 export type Page = MakePart<
   "page",
   {
-    component: SpecExtImport;
+    component: ExtImport;
     authRequired?: boolean;
   }
 >;
@@ -32,7 +32,7 @@ export type Route = MakePart<
 export type Query = MakePart<
   "query",
   {
-    fn: SpecExtImport;
+    fn: ExtImport;
     entities?: string[];
     auth?: boolean;
   }
@@ -41,7 +41,7 @@ export type Query = MakePart<
 export type Action = MakePart<
   "action",
   {
-    fn: SpecExtImport;
+    fn: ExtImport;
     entities?: string[];
     auth?: boolean;
   }
