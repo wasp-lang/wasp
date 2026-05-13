@@ -4,6 +4,7 @@
  */
 
 import * as AppSpec from "../appSpec.js";
+import { mapExtImport } from "./extImport.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapApp(
@@ -167,28 +168,6 @@ export function mapAction(
     entities: entities?.map(entityRefParser),
     auth,
   };
-}
-
-export function mapExtImport(
-  extImport: TsAppSpec.ExtImport,
-): AppSpec.ExtImport {
-  if ("import" in extImport) {
-    return {
-      kind: "named",
-      name: extImport.import,
-      path: extImport.from,
-    };
-  } else if ("importDefault" in extImport) {
-    return {
-      kind: "default",
-      name: extImport.importDefault,
-      path: extImport.from,
-    };
-  } else {
-    throw new Error(
-      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
-    );
-  }
 }
 
 export type RefParser<T extends AppSpec.DeclType> = (

@@ -1,3 +1,5 @@
+import type { ExtImport } from "../extImport.js";
+
 export type App = {
   name: string;
   wasp: { version: string };
@@ -45,16 +47,11 @@ export type Action = MakePart<
   }
 >;
 
-export type ExtImport = NamedExtImport | DefaultExtImport;
-export interface NamedExtImport {
-  import: string;
-  alias?: string;
-  from: `@src/${string}`;
-}
-export interface DefaultExtImport {
-  importDefault: string;
-  from: `@src/${string}`;
-}
+export type {
+  DefaultExtImport,
+  ExtImport,
+  NamedExtImport,
+} from "../extImport.js";
 
 /**
  * We need the kind to differentiate between parts with the same structure. One
