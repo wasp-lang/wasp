@@ -9,7 +9,12 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🎉 New Features
 
 - The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
+- Wasp TS spec now properly sets the `NODE_ENV` environment variable depending on which command you use to run Wasp. ([#4087](https://github.com/wasp-lang/wasp/pull/4087))
 - Added a type-safe `NavLink` component, mirroring `react-router`'s `NavLink` API (with `isActive`, `isPending`, `isTransitioning` render-prop helpers). ([#4104](https://github.com/wasp-lang/wasp/pull/4104))
+
+### 🔧 Small improvements
+
+- Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))
 
 ## 0.23.0
 

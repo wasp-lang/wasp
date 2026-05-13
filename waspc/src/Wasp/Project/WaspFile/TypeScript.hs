@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedRecordDot #-}
+
 module Wasp.Project.WaspFile.TypeScript
   ( analyzeWaspTsFile,
   )
@@ -8,11 +10,11 @@ import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
+import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
     Dir,
     File,
-    File',
     Path',
     Rel,
     basename,
@@ -27,15 +29,21 @@ import System.Exit (ExitCode (..))
 import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
+import Wasp.CompileOptions (CompileOptions)
+import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
-import Wasp.Job.Process (runNodeCommandAsJob)
+import Wasp.Job.Process (runNodeCommandAsJob, runNodeCommandAsJobWithExtraEnv)
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageScriptInProject)
+import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
+    TsConfigPaths (..),
     WaspProjectDir,
+    WaspTsConfigFile,
     WaspTsFile,
     dotWaspDirInWaspProjectDir,
+    tsConfigPathsInWaspTsProjects,
   )
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -50,20 +58,20 @@ data CompiledWaspJsFile
 data AppSpecDeclsJsonFile
 
 analyzeWaspTsFile ::
-  Path' Abs (Dir WaspProjectDir) ->
+  CompileOptions ->
   Psl.Schema.Schema ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
-analyzeWaspTsFile waspProjectDir prismaSchemaAst waspFilePath = runExceptT $ do
-  -- TODO: I'm not yet sure where tsconfig.wasp.json location should come from
-  -- because we also need that knowledge when generating a TS SDK project.
-  compiledWaspJsFile <- ExceptT $ compileWaspTsFile waspProjectDir [relfile|tsconfig.wasp.json|] waspFilePath
-  declsJsonFile <- ExceptT $ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst compiledWaspJsFile
+analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = runExceptT $ do
+  compiledWaspJsFile <- ExceptT $ compileWaspTsFile compileOptions.waspProjectDir waspTsConfigFile waspFilePath
+  declsJsonFile <- ExceptT $ executeMainWaspJsFileAndGetDeclsFile compileOptions prismaSchemaAst compiledWaspJsFile
   ExceptT $ readDecls prismaSchemaAst declsJsonFile
+  where
+    waspTsConfigFile = fromJust tsConfigPathsInWaspTsProjects.waspTsConfig
 
 compileWaspTsFile ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' (Rel WaspProjectDir) File' ->
+  Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] (Path' Abs (File CompiledWaspJsFile)))
 compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath = do
@@ -116,11 +124,11 @@ compileWaspTsFile waspProjectDir tsconfigNodeFileInWaspProjectDir waspFilePath =
           `orElse` error ("Couldn't calculate the compiled JS file path for " ++ fromAbsFile waspFilePath ++ ".")
 
 executeMainWaspJsFileAndGetDeclsFile ::
-  Path' Abs (Dir WaspProjectDir) ->
+  CompileOptions ->
   Psl.Schema.Schema ->
   Path' Abs (File CompiledWaspJsFile) ->
   IO (Either [CompileError] (Path' Abs (File AppSpecDeclsJsonFile)))
-executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledMainWaspJsFile = do
+executeMainWaspJsFileAndGetDeclsFile compileOptions prismaSchemaAst absCompiledMainWaspJsFile = do
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
@@ -128,8 +136,16 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
       -- We invoke the script directly via `node` instead of `npx` because
       -- `npx` requires the bin file to be executable, and `cabal install`
       -- strips executable permissions from data files.
-      ( runNodeCommandAsJob
-          waspProjectDir
+      ( runNodeCommandAsJobWithExtraEnv
+          [ -- `NODE_ENV` is a convention which allows code to assume what environment it's running in.
+            -- Not related to `node` itself, so we have to set it manually.
+            -- It enables users to write environment specific code in the TS config.
+            -- NOTE: Some consider it an antipattern, but other frameworks/tools (Next.js, Nuxt, Vite)
+            --       also provide the `NODE_ENV` values for the "configuration runtime".
+            --       Maybe consider using a different key, e.g. `WASP_MODE`?
+            ("NODE_ENV", nodeEnvForBuildType compileOptions.buildType)
+          ]
+          compileOptions.waspProjectDir
           "node"
           [ fromRelFile $ getInstallablePackageScriptInProject WaspConfigPackage,
             fromAbsFile absCompiledMainWaspJsFile,
@@ -146,8 +162,12 @@ executeMainWaspJsFileAndGetDeclsFile waspProjectDir prismaSchemaAst absCompiledM
     ExitFailure _status -> return $ Left ["Error while running the compiled *.wasp.ts file."]
     ExitSuccess -> return $ Right absDeclsOutputFile
   where
-    absDeclsOutputFile = waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
+    absDeclsOutputFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
+
+    nodeEnvForBuildType :: BuildType.BuildType -> String
+    nodeEnvForBuildType BuildType.Development = "development"
+    nodeEnvForBuildType BuildType.Production = "production"
 
 readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
 readDecls prismaSchemaAst declsJsonFile = runExceptT $ do

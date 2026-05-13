@@ -3,6 +3,10 @@
 module Wasp.Cli.Command.CreateNewProject.AvailableTemplates
   ( availableStarterTemplates,
     defaultStarterTemplate,
+    basicStarterTemplate,
+    minimalStarterTemplate,
+    tsMinimalStarterTemplate,
+    openSaasStarterTemplate,
   )
 where
 
