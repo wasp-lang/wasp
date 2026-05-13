@@ -44,7 +44,7 @@ export const TaskList = () => {
 }
 ```
 
-The `to` prop is autocompleted from the routes you defined in `main.wasp`, and `params` is typechecked against the path you picked. Rename a route or change a param, and any broken `Link` lights up at compile time.
+The `to` prop is autocompleted from the routes you defined in `main.wasp`, and `params` is typechecked against the path you picked. Rename a route or change a param, and any broken `Link` is pointed out by Typescript.
 
 ### Reacting to navigation state with `NavLink`
 
