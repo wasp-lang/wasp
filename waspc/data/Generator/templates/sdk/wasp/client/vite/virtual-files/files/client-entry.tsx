@@ -29,6 +29,18 @@ function App() {
   );
 }
 
+// We wait for React Router to initialize before hydrating, to avoid mismatches.
+// This includes loading the initial route's component and data.
+// More info at https://github.com/remix-run/react-router/issues/14955#issuecomment-4407850287.
+await new Promise<void>((resolve) => {
+  const unsubscribe = router.subscribe((state) => {
+    if (state.initialized) {
+     unsubscribe();
+     resolve()
+    }
+  });
+});
+
 startTransition(() => {
   hydrateRoot(document, <App />);
 });

@@ -1,7 +1,6 @@
 {{={= =}=}}
 import { getRouteObjects } from "wasp/client/app/router";
 import { initializeQueryClient } from "wasp/client/operations";
-import { lazy } from "react"
 
 {=# isAuthEnabled =}
 import { createAuthRequiredPage } from "wasp/client/app"
@@ -25,19 +24,13 @@ const routesMapping = {
   {=# routes =}
   {=# isLazy =}
   {= name =}: {
-    Component:
-      {=! We use React's `lazy()` instead of defining a Lazy Route on React =}
-      {=! Router's side because there's a bug where it will ask for a =}
-      {=! HydrationFallback and commit it immediately even when working with =}
-      {=! prerendered pages. =}
-      {=! https://github.com/remix-run/react-router/issues/14955 =}
-      lazy(() =>
+    lazy: {
+      Component: () =>
         {=& import.dynamicImportExpression =}
         {=# isAuthRequired =}
         .then(component => createAuthRequiredPage(component))
         {=/ isAuthRequired =}
-        .then(component => ({ default: component }))
-      ),
+    }
   },
   {=/ isLazy =}
   {=^ isLazy =}
