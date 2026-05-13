@@ -19,6 +19,7 @@ export function mapExtImport(extImport: ExtImport): AppSpec.ExtImport {
       kind: "named",
       name: extImport.import,
       path: extImport.from,
+      alias: extImport.alias,
     };
   } else if (isDefaultExtImport(extImport)) {
     return {

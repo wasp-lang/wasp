@@ -17,7 +17,8 @@ spec_GeneratorJsImportTest = do
         extImport =
           ExtImport
             { name = ExtImportModule "test",
-              path = [SP.relfileP|folder/test.js|]
+              path = [SP.relfileP|folder/test.js|],
+              alias = Nothing
             }
     it "makes a JsImport from ExtImport" $ do
       extImportToJsImport pathToExtCodeDir pathFromImportLocationToExtCodeDir extImport
@@ -27,3 +28,11 @@ spec_GeneratorJsImportTest = do
             JI._name = JsImportModule "test",
             JI._importAlias = Nothing
           }
+    it "uses alias metadata for generated ExtImport identifiers" $ do
+      getAliasedExtImportIdentifier extImport {alias = Just "testAlias"}
+        `shouldBe` "testAlias_ext"
+    it "avoids collisions for same exported name with different aliases" $ do
+      let firstImport = extImport {name = ExtImportField "handler", path = [SP.relfileP|one.js|], alias = Just "oneHandler"}
+          secondImport = extImport {name = ExtImportField "handler", path = [SP.relfileP|two.js|], alias = Just "twoHandler"}
+      getAliasedExtImportIdentifier <$> [firstImport, secondImport]
+        `shouldBe` ["oneHandler_ext", "twoHandler_ext"]
