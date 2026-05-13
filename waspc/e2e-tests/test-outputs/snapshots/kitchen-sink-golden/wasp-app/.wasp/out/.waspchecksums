@@ -681,9 +681,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/router/NavLink.tsx"
+        ],
+        "22f7b0a0000fc53091f7a281feb025ea80f8a279bf2d21a2be3531d0c5b202ab"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "78a81458a4ab5dd669e2c48c380b6a5645f3edaebd8b0493115de12d65730c02"
+        "1670e5fccdecc43dddb6ed1fdb1c9aa4d01e430dbb28f55d2d86be5411b8201c"
     ],
     [
         [
@@ -1292,7 +1299,7 @@
             "file",
             "sdk/wasp/src/components/FeatureContainer.tsx"
         ],
-        "784c2953dde91c6eeebfdff1d89def2d5de221109c9dc7c0546ed897174cc27c"
+        "b2a88f5eaf930f2daf2523b0206cad4398f7c77e2e478008af342c235b1ca765"
     ],
     [
         [
