@@ -429,20 +429,20 @@ export function getEmailAuthConfig(
 
 export function getEmailVerificationConfig<Scope extends ConfigScope>(
   scope: Scope,
-): ConfigFor<Scope, TsAppSpec.EmailVerificationConfig>;
+): ConfigFor<Scope, TsAppSpec.EmailFlowConfig>;
 export function getEmailVerificationConfig(
   scope: ConfigScope,
-): Config<TsAppSpec.EmailVerificationConfig> {
+): Config<TsAppSpec.EmailFlowConfig> {
   switch (scope) {
     case "minimal":
       return {
         clientRoute: EMAIL_VERIFY_ROUTE_NAME,
-      } satisfies MinimalConfig<TsAppSpec.EmailVerificationConfig>;
+      } satisfies MinimalConfig<TsAppSpec.EmailFlowConfig>;
     case "full":
       return {
         clientRoute: EMAIL_VERIFY_ROUTE_NAME,
         getEmailContentFn: getExtImport("full", "named"),
-      } satisfies FullConfig<TsAppSpec.EmailVerificationConfig>;
+      } satisfies FullConfig<TsAppSpec.EmailFlowConfig>;
     default:
       assertUnreachable(scope);
   }
@@ -450,20 +450,20 @@ export function getEmailVerificationConfig(
 
 export function getPasswordResetConfig<Scope extends ConfigScope>(
   scope: Scope,
-): ConfigFor<Scope, TsAppSpec.PasswordResetConfig>;
+): ConfigFor<Scope, TsAppSpec.EmailFlowConfig>;
 export function getPasswordResetConfig(
   scope: ConfigScope,
-): Config<TsAppSpec.PasswordResetConfig> {
+): Config<TsAppSpec.EmailFlowConfig> {
   switch (scope) {
     case "minimal":
       return {
         clientRoute: PASSWORD_RESET_ROUTE_NAME,
-      } satisfies MinimalConfig<TsAppSpec.PasswordResetConfig>;
+      } satisfies MinimalConfig<TsAppSpec.EmailFlowConfig>;
     case "full":
       return {
         clientRoute: PASSWORD_RESET_ROUTE_NAME,
         getEmailContentFn: getExtImport("full", "named"),
-      } satisfies FullConfig<TsAppSpec.PasswordResetConfig>;
+      } satisfies FullConfig<TsAppSpec.EmailFlowConfig>;
     default:
       assertUnreachable(scope);
   }

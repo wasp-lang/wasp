@@ -14,52 +14,55 @@ export type App = {
   parts: Part[];
 };
 
-export type Auth = {
+export type Auth = AuthHooks & {
   userEntity: string;
   externalAuthEntity?: string;
   methods: AuthMethods;
   onAuthFailedRedirectTo: string;
   onAuthSucceededRedirectTo?: string;
-  onBeforeSignup?: ExtImport;
-  onAfterSignup?: ExtImport;
-  onAfterEmailVerified?: ExtImport;
-  onBeforeOAuthRedirect?: ExtImport;
-  onBeforeLogin?: ExtImport;
-  onAfterLogin?: ExtImport;
 };
 
-export type AuthMethods = {
+export type AuthHooks = Partial<Record<AuthHookName, ExtImport>>;
+
+export type AuthHookName =
+  | "onBeforeSignup"
+  | "onAfterSignup"
+  | "onAfterEmailVerified"
+  | "onBeforeOAuthRedirect"
+  | "onBeforeLogin"
+  | "onAfterLogin";
+
+export type AuthMethods = Partial<
+  Record<SocialAuthMethodName, ExternalAuthConfig>
+> & {
   usernameAndPassword?: UsernameAndPasswordConfig;
-  discord?: ExternalAuthConfig;
-  google?: ExternalAuthConfig;
-  gitHub?: ExternalAuthConfig;
-  keycloak?: ExternalAuthConfig;
-  microsoft?: ExternalAuthConfig;
   email?: EmailAuthConfig;
 };
 
-export type UsernameAndPasswordConfig = {
-  userSignupFields?: ExtImport;
-};
+export type SocialAuthMethodName =
+  | "discord"
+  | "google"
+  | "gitHub"
+  | "keycloak"
+  | "microsoft";
 
-export type ExternalAuthConfig = {
+export type UsernameAndPasswordConfig = BaseAuthMethodConfig;
+
+export type ExternalAuthConfig = BaseAuthMethodConfig & {
   configFn?: ExtImport;
-  userSignupFields?: ExtImport;
 };
 
-export type EmailAuthConfig = {
-  userSignupFields?: ExtImport;
+export type EmailAuthConfig = BaseAuthMethodConfig & {
   fromField: EmailFromField;
-  emailVerification: EmailVerificationConfig;
-  passwordReset: PasswordResetConfig;
+  emailVerification: EmailFlowConfig;
+  passwordReset: EmailFlowConfig;
 };
 
-export type EmailVerificationConfig = {
-  getEmailContentFn?: ExtImport;
-  clientRoute: string;
+export type BaseAuthMethodConfig = {
+  userSignupFields?: ExtImport;
 };
 
-export type PasswordResetConfig = {
+export type EmailFlowConfig = {
   getEmailContentFn?: ExtImport;
   clientRoute: string;
 };

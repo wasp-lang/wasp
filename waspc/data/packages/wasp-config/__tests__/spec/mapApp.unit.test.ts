@@ -12,14 +12,13 @@ import {
   mapClient,
   mapDb,
   mapEmailAuth,
+  mapEmailFlow,
   mapEmailFromField,
   mapEmailSender,
-  mapEmailVerification,
   mapExternalAuth,
   mapExtImport,
   mapJob,
   mapPage,
-  mapPasswordReset,
   mapQuery,
   mapRoute,
   mapSchedule,
@@ -602,35 +601,43 @@ describe("mapEmailAuth", () => {
       userSignupFields:
         emailAuth.userSignupFields && mapExtImport(emailAuth.userSignupFields),
       fromField: mapEmailFromField(emailAuth.fromField),
-      emailVerification: mapEmailVerification(
+      emailVerification: mapEmailFlow(
         emailAuth.emailVerification,
         routeRefParser,
       ),
-      passwordReset: mapPasswordReset(emailAuth.passwordReset, routeRefParser),
+      passwordReset: mapEmailFlow(emailAuth.passwordReset, routeRefParser),
     } satisfies AppSpec.EmailAuthConfig);
   }
 });
 
-describe("mapEmailVerification", () => {
-  test("should map minimal config correctly", () => {
-    testMapEmailVerification(Fixtures.getEmailVerificationConfig("minimal"));
+describe("mapEmailFlow", () => {
+  test("should map minimal email verification config correctly", () => {
+    testMapEmailFlow(Fixtures.getEmailVerificationConfig("minimal"));
   });
 
-  test("should map full config correctly", () => {
-    testMapEmailVerification(Fixtures.getEmailVerificationConfig("full"));
+  test("should map full email verification config correctly", () => {
+    testMapEmailFlow(Fixtures.getEmailVerificationConfig("full"));
+  });
+
+  test("should map minimal password reset config correctly", () => {
+    testMapEmailFlow(Fixtures.getPasswordResetConfig("minimal"));
+  });
+
+  test("should map full password reset config correctly", () => {
+    testMapEmailFlow(Fixtures.getPasswordResetConfig("full"));
   });
 
   test("should throw if clientRoute ref is not provided when defined", () => {
-    const emailVerification = Fixtures.getEmailVerificationConfig("full");
-    expect(emailVerification.clientRoute).toBeDefined();
-    testMapEmailVerification(emailVerification, {
+    const emailFlow = Fixtures.getEmailVerificationConfig("full");
+    expect(emailFlow.clientRoute).toBeDefined();
+    testMapEmailFlow(emailFlow, {
       overrideRoutes: [],
       shouldError: true,
     });
   });
 
-  function testMapEmailVerification(
-    emailVerification: TsAppSpec.EmailVerificationConfig,
+  function testMapEmailFlow(
+    emailFlow: TsAppSpec.EmailFlowConfig,
     options:
       | {
           overrideRoutes?: string[];
@@ -641,75 +648,22 @@ describe("mapEmailVerification", () => {
     },
   ): void {
     const { overrideRoutes, shouldError } = options;
-    const routes = overrideRoutes ?? [emailVerification.clientRoute];
+    const routes = overrideRoutes ?? [emailFlow.clientRoute];
     const routeRefParser = makeRefParser("Route", routes);
 
     if (shouldError) {
-      expect(() =>
-        mapEmailVerification(emailVerification, routeRefParser),
-      ).toThrowError();
+      expect(() => mapEmailFlow(emailFlow, routeRefParser)).toThrowError();
       return;
     }
 
-    const result = mapEmailVerification(emailVerification, routeRefParser);
+    const result = mapEmailFlow(emailFlow, routeRefParser);
 
     expect(result).toStrictEqual({
-      clientRoute: routeRefParser(emailVerification.clientRoute),
+      clientRoute: routeRefParser(emailFlow.clientRoute),
       getEmailContentFn:
-        emailVerification.getEmailContentFn &&
-        mapExtImport(emailVerification.getEmailContentFn),
+        emailFlow.getEmailContentFn &&
+        mapExtImport(emailFlow.getEmailContentFn),
     } satisfies AppSpec.EmailVerificationConfig);
-  }
-});
-
-describe("mapPasswordReset", () => {
-  test("should map minimal config correctly", () => {
-    testMapPasswordReset(Fixtures.getPasswordResetConfig("minimal"));
-  });
-
-  test("should map full config correctly", () => {
-    testMapPasswordReset(Fixtures.getPasswordResetConfig("full"));
-  });
-
-  test("should throw if clientRoute ref is not provided when defined", () => {
-    const passwordReset = Fixtures.getPasswordResetConfig("full");
-    expect(passwordReset.clientRoute).toBeDefined();
-    testMapPasswordReset(passwordReset, {
-      overrideRoutes: [],
-      shouldError: true,
-    });
-  });
-
-  function testMapPasswordReset(
-    passwordReset: TsAppSpec.PasswordResetConfig,
-    options:
-      | {
-          overrideRoutes?: string[];
-          shouldError: boolean | undefined;
-        }
-      | undefined = {
-      shouldError: false,
-    },
-  ): void {
-    const { overrideRoutes, shouldError } = options;
-    const routes = overrideRoutes ?? [passwordReset.clientRoute];
-    const routeRefParser = makeRefParser("Route", routes);
-
-    if (shouldError) {
-      expect(() =>
-        mapPasswordReset(passwordReset, routeRefParser),
-      ).toThrowError();
-      return;
-    }
-
-    const result = mapPasswordReset(passwordReset, routeRefParser);
-
-    expect(result).toStrictEqual({
-      clientRoute: routeRefParser(passwordReset.clientRoute),
-      getEmailContentFn:
-        passwordReset.getEmailContentFn &&
-        mapExtImport(passwordReset.getEmailContentFn),
-    } satisfies AppSpec.PasswordResetConfig);
   }
 });
 

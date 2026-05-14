@@ -299,27 +299,16 @@ export function mapEmailAuth(
   return {
     userSignupFields: userSignupFields && mapExtImport(userSignupFields),
     fromField: mapEmailFromField(fromField),
-    emailVerification: mapEmailVerification(emailVerification, routeRefParser),
-    passwordReset: mapPasswordReset(passwordReset, routeRefParser),
+    emailVerification: mapEmailFlow(emailVerification, routeRefParser),
+    passwordReset: mapEmailFlow(passwordReset, routeRefParser),
   };
 }
 
-export function mapEmailVerification(
-  emailVerification: TsAppSpec.EmailVerificationConfig,
+export function mapEmailFlow(
+  emailFlow: TsAppSpec.EmailFlowConfig,
   routeRefParser: RefParser<"Route">,
 ): AppSpec.EmailVerificationConfig {
-  const { getEmailContentFn, clientRoute } = emailVerification;
-  return {
-    getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
-    clientRoute: routeRefParser(clientRoute),
-  };
-}
-
-export function mapPasswordReset(
-  passwordReset: TsAppSpec.PasswordResetConfig,
-  routeRefParser: RefParser<"Route">,
-): AppSpec.PasswordResetConfig {
-  const { getEmailContentFn, clientRoute } = passwordReset;
+  const { getEmailContentFn, clientRoute } = emailFlow;
   return {
     getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
     clientRoute: routeRefParser(clientRoute),
