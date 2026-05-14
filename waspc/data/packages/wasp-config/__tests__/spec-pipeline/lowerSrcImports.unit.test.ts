@@ -142,7 +142,7 @@ describe("lowerSrcImports", () => {
     expect(output).toContain(`import { App } from "wasp-config";`);
     expect(output).toContain(`import helper from "./helpers";`);
     expect(output).toContain(`export default app;`);
-    expect(output).not.toMatch(/^import\s+(?:.+\s+from\s+)?["']@src\//m);
+    expectNoSrcImportDeclarations(output);
   });
 
   test("is a no-op on an ExtImport-form spec file", () => {
@@ -215,4 +215,8 @@ function expectedNamespaceProxy(
   const quotedAliasPrefix = JSON.stringify(aliasPrefix);
 
   return `const ${localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${quotedFrom}, alias: ${quotedAliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${quotedFrom}; alias: string }>;`;
+}
+
+function expectNoSrcImportDeclarations(sourceText: string): void {
+  expect(sourceText).not.toMatch(/^import\s+(?:.+\s+from\s+)?["']@src\//m);
 }
