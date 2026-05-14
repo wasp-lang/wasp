@@ -5,12 +5,63 @@ export type App = {
   wasp: AppSpec.Wasp;
   title: string;
   head?: string[];
+  auth?: Auth;
   server?: Server;
   client?: Client;
   db?: Db;
   emailSender?: EmailSender;
   webSocket?: WebSocket;
   parts: Part[];
+};
+
+export type Auth = {
+  userEntity: string;
+  externalAuthEntity?: string;
+  methods: AuthMethods;
+  onAuthFailedRedirectTo: string;
+  onAuthSucceededRedirectTo?: string;
+  onBeforeSignup?: ExtImport;
+  onAfterSignup?: ExtImport;
+  onAfterEmailVerified?: ExtImport;
+  onBeforeOAuthRedirect?: ExtImport;
+  onBeforeLogin?: ExtImport;
+  onAfterLogin?: ExtImport;
+};
+
+export type AuthMethods = {
+  usernameAndPassword?: UsernameAndPasswordConfig;
+  discord?: ExternalAuthConfig;
+  google?: ExternalAuthConfig;
+  gitHub?: ExternalAuthConfig;
+  keycloak?: ExternalAuthConfig;
+  microsoft?: ExternalAuthConfig;
+  email?: EmailAuthConfig;
+};
+
+export type UsernameAndPasswordConfig = {
+  userSignupFields?: ExtImport;
+};
+
+export type ExternalAuthConfig = {
+  configFn?: ExtImport;
+  userSignupFields?: ExtImport;
+};
+
+export type EmailAuthConfig = {
+  userSignupFields?: ExtImport;
+  fromField: EmailFromField;
+  emailVerification: EmailVerificationConfig;
+  passwordReset: PasswordResetConfig;
+};
+
+export type EmailVerificationConfig = {
+  getEmailContentFn?: ExtImport;
+  clientRoute: string;
+};
+
+export type PasswordResetConfig = {
+  getEmailContentFn?: ExtImport;
+  clientRoute: string;
 };
 
 export type Server = {

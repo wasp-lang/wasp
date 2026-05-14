@@ -15,6 +15,7 @@ export function mapApp(
     wasp,
     title,
     head,
+    auth,
     server,
     client,
     db,
@@ -48,6 +49,10 @@ export function mapApp(
     "Page",
     (route) => deriveExtImportName(route.page.component),
     (route) => mapPage(route.page),
+  );
+  const routeRefParser = makeRefParser(
+    "Route",
+    routes.map((r) => r.name),
   );
 
   const queries = extractParts("query", parts);
@@ -97,8 +102,7 @@ export function mapApp(
       wasp,
       title,
       head,
-      // TODO: add these guys
-      auth: undefined,
+      auth: auth && mapAuth(auth, entityRefParser, routeRefParser),
       server: server && mapServer(server),
       client: client && mapClient(client),
       db: db && mapDb(db),
@@ -201,6 +205,124 @@ export function mapAction(
     fn: mapExtImport(fn),
     entities: entities?.map(entityRefParser),
     auth,
+  };
+}
+
+export function mapAuth(
+  auth: TsAppSpec.Auth,
+  entityRefParser: RefParser<"Entity">,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.Auth {
+  const {
+    userEntity,
+    externalAuthEntity,
+    methods,
+    onAuthFailedRedirectTo,
+    onAuthSucceededRedirectTo,
+    onBeforeSignup,
+    onAfterSignup,
+    onAfterEmailVerified,
+    onBeforeOAuthRedirect,
+    onBeforeLogin,
+    onAfterLogin,
+  } = auth;
+  return {
+    userEntity: entityRefParser(userEntity),
+    externalAuthEntity:
+      externalAuthEntity === undefined
+        ? undefined
+        : entityRefParser(externalAuthEntity),
+    methods: mapAuthMethods(methods, routeRefParser),
+    onAuthFailedRedirectTo,
+    onAuthSucceededRedirectTo,
+    onBeforeSignup: onBeforeSignup && mapExtImport(onBeforeSignup),
+    onAfterSignup: onAfterSignup && mapExtImport(onAfterSignup),
+    onAfterEmailVerified:
+      onAfterEmailVerified && mapExtImport(onAfterEmailVerified),
+    onBeforeOAuthRedirect:
+      onBeforeOAuthRedirect && mapExtImport(onBeforeOAuthRedirect),
+    onBeforeLogin: onBeforeLogin && mapExtImport(onBeforeLogin),
+    onAfterLogin: onAfterLogin && mapExtImport(onAfterLogin),
+  };
+}
+
+export function mapAuthMethods(
+  methods: TsAppSpec.AuthMethods,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.AuthMethods {
+  const {
+    usernameAndPassword,
+    discord,
+    google,
+    gitHub,
+    keycloak,
+    microsoft,
+    email,
+  } = methods;
+  return {
+    usernameAndPassword:
+      usernameAndPassword && mapUsernameAndPassword(usernameAndPassword),
+    discord: discord && mapExternalAuth(discord),
+    google: google && mapExternalAuth(google),
+    gitHub: gitHub && mapExternalAuth(gitHub),
+    keycloak: keycloak && mapExternalAuth(keycloak),
+    microsoft: microsoft && mapExternalAuth(microsoft),
+    email: email && mapEmailAuth(email, routeRefParser),
+  };
+}
+
+export function mapUsernameAndPassword(
+  usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig,
+): AppSpec.UsernameAndPasswordConfig {
+  const { userSignupFields } = usernameAndPassword;
+  return {
+    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+  };
+}
+
+export function mapExternalAuth(
+  externalAuth: TsAppSpec.ExternalAuthConfig,
+): AppSpec.ExternalAuthConfig {
+  const { configFn, userSignupFields } = externalAuth;
+  return {
+    configFn: configFn && mapExtImport(configFn),
+    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+  };
+}
+
+export function mapEmailAuth(
+  emailAuth: TsAppSpec.EmailAuthConfig,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.EmailAuthConfig {
+  const { userSignupFields, fromField, emailVerification, passwordReset } =
+    emailAuth;
+  return {
+    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+    fromField: mapEmailFromField(fromField),
+    emailVerification: mapEmailVerification(emailVerification, routeRefParser),
+    passwordReset: mapPasswordReset(passwordReset, routeRefParser),
+  };
+}
+
+export function mapEmailVerification(
+  emailVerification: TsAppSpec.EmailVerificationConfig,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.EmailVerificationConfig {
+  const { getEmailContentFn, clientRoute } = emailVerification;
+  return {
+    getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
+    clientRoute: routeRefParser(clientRoute),
+  };
+}
+
+export function mapPasswordReset(
+  passwordReset: TsAppSpec.PasswordResetConfig,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.PasswordResetConfig {
+  const { getEmailContentFn, clientRoute } = passwordReset;
+  return {
+    getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
+    clientRoute: routeRefParser(clientRoute),
   };
 }
 
