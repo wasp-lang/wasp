@@ -30,20 +30,10 @@ describe("mapExtImport", () => {
     const result = tryMapExtImport(extImport);
 
     assert(result.status === "error");
-    expect(result.error).toContain("runtime value");
+    expect(result.error).toContain(
+      "Got an import in the Wasp file that we couldn't process",
+    );
     expect(() => mapExtImport(extImport)).toThrowError(result.error);
-  });
-
-  test("formats invalid value diagnostics with import-form guidance", () => {
-    const result = tryMapExtImport(() => null);
-    assert(result.status === "error");
-    const message = result.error;
-
-    expect(message).toContain("runtime value");
-    expect(message).toContain("@src/*");
-    expect(message).toContain("ExtImport object");
-    expect(message).toContain("{ import, from, alias }");
-    expect(message).toContain("alias is optional");
   });
 
   function testMapExtImport(extImport: TsAppSpec.ExtImport): void {

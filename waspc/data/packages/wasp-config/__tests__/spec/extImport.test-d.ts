@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, test } from "vitest";
-import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
 
 describe("ExtImport input types", () => {
@@ -19,7 +19,7 @@ describe("ExtImport input types", () => {
     expectTypeOf(actionConfig.fn).toExtend<TsAppSpec.ExtImport | AnyFunction>();
   });
 
-  test("should reject objects at ExtImport use sites", async () => {
+  test("should reject objects that are not ExtImport objects at ExtImport use sites", async () => {
     const component = { render: () => null };
 
     const pageConfig: TsAppSpec.Page = {
