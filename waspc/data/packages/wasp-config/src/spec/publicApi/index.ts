@@ -13,6 +13,10 @@ export type {
   Api,
   ApiNamespace,
   App,
+  Client,
+  Db,
+  EmailFromField,
+  EmailSender,
   ExtImport,
   HttpMethod,
   Job,
@@ -20,4 +24,6 @@ export type {
   Part,
   Query,
   Route,
+  Server,
+  WebSocket,
 } from "./tsAppSpec.js";
