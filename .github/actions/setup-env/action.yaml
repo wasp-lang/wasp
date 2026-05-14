@@ -4,14 +4,6 @@ description: |
   actions. It also sets up caches for package manager dependencies.
 
 inputs:
-  mise-env:
-    description: |
-      The `mise` environment to use. This is used to tweak the tool installation
-      for specific context. Check `/.config/mise.*.toml` files for the available
-      environments.
-      If empty (the default), no specific environment is used.
-    required: false
-
   cabal-project-dir:
     description: |
       The working directory for the action.
@@ -23,12 +15,6 @@ runs:
   using: composite
 
   steps:
-    - name: Setup Mise environment
-      if: ${{ inputs.mise-env }}
-      shell: bash
-      run: |
-        echo "MISE_ENV=${{ inputs.mise-env }}" >> $GITHUB_ENV
-
     - name: Install Mise tools
       uses: jdx/mise-action@v4
 

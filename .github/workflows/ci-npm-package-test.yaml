@@ -36,8 +36,6 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-env
-        with:
-          mise-env: ${{ contains(matrix.runner.container, 'alpine') && 'musl' || '' }}
 
       - name: Install dependencies
         if: matrix.runner.install-deps
