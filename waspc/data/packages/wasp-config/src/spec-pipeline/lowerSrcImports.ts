@@ -25,18 +25,22 @@ export function lowerSrcImports(sourceText: string): string {
   return applyImportLoweringPlan(sourceText, plan.value);
 }
 
-function applyImportLoweringPlan(text: string, plan: ImportLoweringPlan): string {
-  let out = "";
-  let cursor = 0;
+function applyImportLoweringPlan(
+  sourceText: string,
+  plan: ImportLoweringPlan,
+): string {
+  let sourceCursor = 0;
+  let modifiedSource = "";
 
   for (const replacement of plan.replacements) {
-    out +=
-      text.slice(cursor, replacement.start) +
-      getImportReplacementSource(replacement.bindings);
-    cursor = replacement.end;
+    modifiedSource += sourceText.slice(sourceCursor, replacement.start);
+    modifiedSource += getImportReplacementSource(replacement.bindings);
+    sourceCursor = replacement.end;
   }
 
-  return out + text.slice(cursor);
+  modifiedSource += sourceText.slice(sourceCursor);
+
+  return modifiedSource;
 }
 
 function getImportReplacementSource(bindings: LoweredImportBinding[]): string {
@@ -57,7 +61,9 @@ function getLoweredImportBindingSource(binding: LoweredImportBinding): string {
  * `ops.anything` access by returning `{ import: "anything", from: ... }`. This
  * avoids enumerating every place where `ops` is used.
  */
-function getNamespaceImportProxySource(binding: NamespaceImportBinding): string {
+function getNamespaceImportProxySource(
+  binding: NamespaceImportBinding,
+): string {
   const from = JSON.stringify(binding.from);
   const aliasPrefix = JSON.stringify(binding.aliasPrefix);
 
@@ -65,22 +71,34 @@ function getNamespaceImportProxySource(binding: NamespaceImportBinding): string 
 }
 
 function getExtImportObjectLiteralSource(extImport: ExtImport): string {
-  const from = JSON.stringify(extImport.from);
-  const alias =
-    "alias" in extImport && extImport.alias !== undefined
-      ? JSON.stringify(extImport.alias)
-      : undefined;
-  const aliasField = alias ? `, alias: ${alias}` : "";
-
   if (isNamedExtImport(extImport)) {
-    const importName = JSON.stringify(extImport.import);
+    const fields: Field[] = [
+      ["import", extImport.import],
+      ["from", extImport.from],
+      ["alias", extImport.alias],
+    ];
 
-    return `{ import: ${importName}, from: ${from}${aliasField} }`;
+    return `{ ${getObjectFieldsSource(fields)} }`;
+  } else {
+    const fields: Field[] = [
+      ["importDefault", extImport.importDefault],
+      ["from", extImport.from],
+    ];
+
+    return `{ ${getObjectFieldsSource(fields)} }`;
   }
+}
 
-  const importDefault = JSON.stringify(extImport.importDefault);
+type Field = [string, string | undefined];
 
-  return `{ importDefault: ${importDefault}, from: ${from}${aliasField} }`;
+/**
+ * [["key", "value"], ["key2", "value2"]] => "key: "value", key2: "value2""
+ */
+function getObjectFieldsSource(fields: Field[]): string {
+  return fields
+    .filter(([_, value]) => value !== undefined)
+    .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
+    .join(", ");
 }
 
 function formatImportDiagnostic(diagnostic: ImportDiagnostic): string {

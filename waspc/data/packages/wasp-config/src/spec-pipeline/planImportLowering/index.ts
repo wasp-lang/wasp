@@ -5,8 +5,8 @@ import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
 import type { ImportDiagnostic } from "./supportedImportTypes.js";
 import {
-  assertSupportedImportEqualsDeclaration,
-  assertSupportedReExport,
+  assertNonSrcImportEqualsDeclaration,
+  assertNonSrcReExport,
   assertSupportedSrcImportDeclaration,
   DiagnosticError,
   getSrcImportSpecifier,
@@ -64,12 +64,12 @@ function planStatementLowering(
   stmt: ts.Statement,
 ): ImportReplacement[] {
   if (ts.isImportEqualsDeclaration(stmt)) {
-    assertSupportedImportEqualsDeclaration(sourceFile, stmt);
+    assertNonSrcImportEqualsDeclaration(sourceFile, stmt);
     return [];
   }
 
   if (ts.isExportDeclaration(stmt)) {
-    assertSupportedReExport(sourceFile, stmt);
+    assertNonSrcReExport(sourceFile, stmt);
     return [];
   }
 
@@ -83,7 +83,6 @@ function planStatementLowering(
   }
 
   assertSupportedSrcImportDeclaration(sourceFile, stmt, specifier);
-
   return [
     {
       start: stmt.getStart(sourceFile),
