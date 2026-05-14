@@ -408,7 +408,6 @@ export function mapWebSocket(
   };
 }
 
-
 export function mapJob(
   job: TsAppSpec.Job,
   entityRefParser: RefParser<"Entity">,
