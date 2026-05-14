@@ -46,7 +46,7 @@ export type WebSocket = {
   autoConnect?: boolean;
 };
 
-export type Part = Page | Route | Query | Action;
+export type Part = Page | Route | Query | Action | Job;
 
 export type Page = MakePart<
   "page",
@@ -84,6 +84,29 @@ export type Action = MakePart<
     auth?: boolean;
   }
 >;
+
+export type Job = MakePart<
+  "job",
+  {
+    fn: ExtImport;
+    executor: JobExecutor;
+    schedule?: Schedule;
+    entities?: string[];
+    performExecutorOptions?: ExecutorOptions;
+  }
+>;
+
+export type JobExecutor = "PgBoss";
+
+export type Schedule = {
+  cron: string;
+  args?: object;
+  executorOptions?: ExecutorOptions;
+};
+
+export type ExecutorOptions = {
+  pgBoss: object;
+};
 
 export type ExtImport = NamedExtImport | DefaultExtImport;
 export interface NamedExtImport {

@@ -32,6 +32,7 @@ describe("analyzeApp", () => {
           Fixtures.getPage("full"),
           Fixtures.getRoute("full"),
           Fixtures.getQuery("full"),
+          Fixtures.getJob("full"),
         ],
       }),
       entities: Fixtures.getEntities("full"),
