@@ -2,6 +2,7 @@ import { afterEach } from "node:test";
 import { describe, expect, test, vi } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 import { mapApp } from "../../src/spec/mapApp.js";
+import { app } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -12,6 +13,26 @@ describe("analyzeApp", () => {
     await testAnalyzeApp({
       app: Fixtures.getMinimalApp(),
       entities: Fixtures.getEntities("minimal"),
+    });
+  });
+
+  // TODO: Do we really need this?
+  test("should parse full app successfully", async () => {
+    await testAnalyzeApp({
+      app: app({
+        name: "FullApp",
+        wasp: { version: "^0.16.3" },
+        title: "Mock App",
+        head: ['<link rel="icon" href="/favicon.ico" />'],
+        auth: Fixtures.getAuthConfig("full"),
+        parts: [
+          Fixtures.getPage("full"),
+          Fixtures.getQuery("full"),
+          Fixtures.getEmailVerifyRoute(),
+          Fixtures.getPasswordResetRoute(),
+        ],
+      }),
+      entities: Fixtures.getEntities("full"),
     });
   });
 
