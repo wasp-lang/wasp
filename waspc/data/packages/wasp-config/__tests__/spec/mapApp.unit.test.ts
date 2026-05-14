@@ -8,7 +8,6 @@ import {
   mapExtImport,
   mapJob,
   mapPage,
-  mapPerform,
   mapQuery,
   mapRoute,
   mapSchedule,
@@ -317,7 +316,10 @@ describe("mapJob", () => {
 
     expect(result).toStrictEqual({
       executor: job.executor,
-      perform: mapPerform(job.fn, job.performExecutorOptions),
+      perform: {
+        fn: mapExtImport(job.fn),
+        executorOptions: job.performExecutorOptions,
+      },
       schedule: job.schedule && mapSchedule(job.schedule),
       entities: job.entities?.map(entityRefParser),
     } satisfies AppSpec.Job);
@@ -341,25 +343,6 @@ describe("mapSchedule", () => {
       args: schedule.args,
       executorOptions: schedule.executorOptions,
     } satisfies AppSpec.Schedule);
-  }
-});
-
-describe("mapPerform", () => {
-  test("should map minimal config correctly", () => {
-    testMapPerform(Fixtures.getPerform("minimal"));
-  });
-
-  test("should map full config correctly", () => {
-    testMapPerform(Fixtures.getPerform("full"));
-  });
-
-  function testMapPerform(perform: Fixtures.Perform): void {
-    const result = mapPerform(perform.fn, perform.performExecutorOptions);
-
-    expect(result).toStrictEqual({
-      fn: mapExtImport(perform.fn),
-      executorOptions: perform.performExecutorOptions,
-    } satisfies AppSpec.Perform);
   }
 });
 

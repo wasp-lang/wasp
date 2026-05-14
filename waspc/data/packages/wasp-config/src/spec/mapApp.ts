@@ -184,19 +184,12 @@ export function mapJob(
   const { fn, executor, schedule, entities, performExecutorOptions } = job;
   return {
     executor,
-    perform: mapPerform(fn, performExecutorOptions),
+    perform: {
+      fn: mapExtImport(fn),
+      executorOptions: performExecutorOptions,
+    },
     schedule: schedule && mapSchedule(schedule),
     entities: entities?.map(entityRefParser),
-  };
-}
-
-export function mapPerform(
-  fn: TsAppSpec.ExtImport,
-  performExecutorOptions: TsAppSpec.ExecutorOptions | undefined,
-): AppSpec.Perform {
-  return {
-    fn: mapExtImport(fn),
-    executorOptions: performExecutorOptions,
   };
 }
 

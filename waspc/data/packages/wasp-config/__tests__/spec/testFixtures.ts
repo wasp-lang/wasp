@@ -104,21 +104,17 @@ export function getJob<Scope extends ConfigScope>(
 ): ConfigFor<Scope, TsAppSpec.Job>;
 export function getJob(scope: ConfigScope): Config<TsAppSpec.Job> {
   switch (scope) {
-    case "minimal": {
-      const perform = getPerform("minimal");
-      return job(perform.fn, {
+    case "minimal":
+      return job(getExtImport("minimal", "named"), {
         executor: "PgBoss",
       });
-    }
-    case "full": {
-      const perform = getPerform("full");
-      return job(perform.fn, {
+    case "full":
+      return job(getExtImport("full", "named"), {
         executor: "PgBoss",
         schedule: getSchedule("full"),
         entities: ["Task"],
-        performExecutorOptions: perform.performExecutorOptions,
+        performExecutorOptions: { pgBoss: { jobOptions: { attempts: 3 } } },
       });
-    }
     default:
       assertUnreachable(scope);
   }
@@ -136,25 +132,6 @@ export function getSchedule(scope: ConfigScope): Config<TsAppSpec.Schedule> {
         cron: "0 0 * * *",
         args: { foo: "bar" },
         executorOptions: { pgBoss: { jobOptions: { attempts: 3 } } },
-      };
-    default:
-      assertUnreachable(scope);
-  }
-}
-
-export type Perform = Pick<TsAppSpec.Job, "fn" | "performExecutorOptions">;
-
-export function getPerform<Scope extends ConfigScope>(
-  scope: Scope,
-): ConfigFor<Scope, Perform>;
-export function getPerform(scope: ConfigScope): Config<Perform> {
-  switch (scope) {
-    case "minimal":
-      return { fn: getExtImport("minimal", "named") };
-    case "full":
-      return {
-        fn: getExtImport("full", "named"),
-        performExecutorOptions: { pgBoss: { jobOptions: { attempts: 3 } } },
       };
     default:
       assertUnreachable(scope);
