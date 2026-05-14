@@ -204,6 +204,24 @@ describe("lowerSrcImports", () => {
 
     expect(() => lowerSrcImports(input)).toThrowError(/Empty named imports/);
   });
+
+  test("reports all unsupported imports from @src", () => {
+    const input = [
+      `import "@src/setup";`,
+      `import type { MainPageProps } from "@src/MainPage";`,
+      ``,
+    ].join("\n");
+
+    expect(() => lowerSrcImports(input)).toThrowError(
+      [
+        `Unsupported @src imports in main.wasp.ts:`,
+        `- 1:1 "@src/setup": Side-effect imports are not supported.`,
+        `- 2:1 "@src/MainPage": Type-only imports are not supported.`,
+        ``,
+        `Supported @src imports are default, named, aliased named, or namespace imports from @src/*.`,
+      ].join("\n"),
+    );
+  });
 });
 
 function expectedNamespaceProxy(
