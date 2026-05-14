@@ -1,6 +1,7 @@
+import assert from "node:assert";
 import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
-import { mapExtImport } from "../../src/spec/extImport.js";
+import { mapExtImport, tryMapExtImport } from "../../src/spec/extImport.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
@@ -21,10 +22,18 @@ describe("mapExtImport", () => {
     testMapExtImport(Fixtures.getExtImport("full", "default"));
   });
 
-  test("should throw for invalid descriptors", () => {
-    expect(() =>
-      mapExtImport({ from: "@src/external" } as unknown as TsAppSpec.ExtImport),
-    ).toThrow("Invalid ExtImport");
+  test.each([
+    { extImport: () => null },
+    { extImport: { parse: () => ({}) } },
+    { extImport: { from: "@src/external" } },
+  ])("returns an error for invalid runtime values", ({ extImport }) => {
+    const result = tryMapExtImport(extImport);
+
+    assert(result.status === "error");
+    expect(result.error).toContain(
+      "Got an import in the Wasp file that we couldn't process",
+    );
+    expect(() => mapExtImport(extImport)).toThrowError(result.error);
   });
 
   function testMapExtImport(extImport: TsAppSpec.ExtImport): void {

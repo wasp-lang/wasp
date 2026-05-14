@@ -4,7 +4,8 @@
  */
 
 import * as AppSpec from "../appSpec.js";
-import { mapExtImport } from "./extImport.js";
+import type { AnyFunction } from "../typeUtils.js";
+import { mapExtImport, tryMapExtImport } from "./extImport.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapApp(
@@ -214,11 +215,17 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   }));
 }
 
-export function deriveExtImportName(extImport: TsAppSpec.ExtImport): string {
-  if ("import" in extImport) {
-    return extImport.alias ?? extImport.import;
+export function deriveExtImportName(
+  extImport: TsAppSpec.ExtImport | AnyFunction,
+): string {
+  const result = tryMapExtImport(extImport);
+  if (result.status === "error") {
+    throw new Error(result.error);
   }
-  return extImport.importDefault;
+
+  return "alias" in result.value
+    ? (result.value.alias ?? result.value.name)
+    : result.value.name;
 }
 
 /**

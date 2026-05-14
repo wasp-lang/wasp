@@ -1,3 +1,4 @@
+import type { AnyFunction } from "../../typeUtils.js";
 import type { ExtImport } from "../extImport.js";
 
 export type App = {
@@ -13,7 +14,7 @@ export type Part = Page | Route | Query | Action;
 export type Page = MakePart<
   "page",
   {
-    component: ExtImport;
+    component: ExtImport | AnyFunction;
     authRequired?: boolean;
   }
 >;
@@ -32,7 +33,7 @@ export type Route = MakePart<
 export type Query = MakePart<
   "query",
   {
-    fn: ExtImport;
+    fn: ExtImport | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -41,7 +42,7 @@ export type Query = MakePart<
 export type Action = MakePart<
   "action",
   {
-    fn: ExtImport;
+    fn: ExtImport | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }

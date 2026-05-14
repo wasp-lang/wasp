@@ -14,6 +14,7 @@ import {
   route,
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import type { AnyFunction } from "../../src/typeUtils.js";
 
 export function getMinimalApp(): TsAppSpec.App {
   return app({
@@ -137,17 +138,20 @@ export type Config<T> = MinimalConfig<T> | FullConfig<T>;
  * - Arrays recurse into element type.
  * - Objects keep only required keys (collapse to EmptyObject when none remain).
  * - Primitives pass through.
+ * - Functions pass through.
  */
 export type MinimalConfig<T> =
   T extends Branded<unknown, unknown>
     ? T
-    : T extends Array<infer Item>
-      ? Array<MinimalConfig<Item>>
-      : T extends object
-        ? keyof T extends never
-          ? EmptyObject
-          : MinimalConfigObject<T>
-        : T;
+    : T extends AnyFunction
+      ? T
+      : T extends Array<infer Item>
+        ? Array<MinimalConfig<Item>>
+        : T extends object
+          ? keyof T extends never
+            ? EmptyObject
+            : MinimalConfigObject<T>
+          : T;
 
 type MinimalConfigObject<T> = {
   [K in keyof T as EmptyObject extends Pick<T, K> ? never : K]: MinimalConfig<
@@ -167,15 +171,18 @@ type EmptyObject = Record<string, never>;
  * - Arrays recurse into element type.
  * - Objects strip every `?` and recurse.
  * - Primitives pass through.
+ * - Functions pass through.
  */
 export type FullConfig<T> =
   T extends Branded<unknown, unknown>
     ? T
-    : T extends Array<infer Item>
-      ? Array<FullConfig<Item>>
-      : T extends object
-        ? FullConfigObject<T>
-        : T;
+    : T extends AnyFunction
+      ? T
+      : T extends Array<infer Item>
+        ? Array<FullConfig<Item>>
+        : T extends object
+          ? FullConfigObject<T>
+          : T;
 
 type FullConfigObject<T> = {
   [K in keyof T]-?: FullConfig<T[K]>;
