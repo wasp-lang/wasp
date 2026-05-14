@@ -1,9 +1,49 @@
+import * as AppSpec from "../../appSpec.js";
+
 export type App = {
   name: string;
-  wasp: { version: string };
+  wasp: AppSpec.Wasp;
   title: string;
   head?: string[];
+  server?: Server;
+  client?: Client;
+  db?: Db;
+  emailSender?: EmailSender;
+  webSocket?: WebSocket;
   parts: Part[];
+};
+
+export type Server = {
+  setupFn?: ExtImport;
+  middlewareConfigFn?: ExtImport;
+  envValidationSchema?: ExtImport;
+};
+
+export type Client = {
+  rootComponent?: ExtImport;
+  setupFn?: ExtImport;
+  baseDir?: `/${string}`;
+  envValidationSchema?: ExtImport;
+};
+
+export type Db = {
+  seeds?: ExtImport[];
+  prismaSetupFn?: ExtImport;
+};
+
+export type EmailSender = {
+  provider: AppSpec.EmailProvider;
+  defaultFrom?: EmailFromField;
+};
+
+export type EmailFromField = {
+  name?: string;
+  email: string;
+};
+
+export type WebSocket = {
+  fn: ExtImport;
+  autoConnect?: boolean;
 };
 
 export type Part = Page | Route | Query | Action | Job;

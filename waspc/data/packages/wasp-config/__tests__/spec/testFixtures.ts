@@ -16,18 +16,41 @@ import {
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
-export function getMinimalApp(): TsAppSpec.App {
-  return app({
-    name: "MinimalApp",
-    wasp: { version: "^0.16.3" },
-    title: "Mock App",
-    parts: [],
-  });
+export function getApp(scope: ConfigScope): TsAppSpec.App {
+  switch (scope) {
+    case "minimal":
+      return app({
+        name: "MinimalApp",
+        wasp: { version: "^0.16.3" },
+        title: "Mock App",
+        parts: [],
+      });
+    case "full":
+      return app({
+        name: "FullApp",
+        wasp: { version: "^0.16.3" },
+        title: "Mock App",
+        head: ['<link rel="icon" href="/favicon.ico" />'],
+        server: getServerConfig("full"),
+        client: getClientConfig("full"),
+        db: getDbConfig("full"),
+        emailSender: getEmailSenderConfig("full"),
+        webSocket: getWebSocketConfig("full"),
+        parts: [
+          getPage("full"),
+          getRoute("full"),
+          getQuery("full"),
+          getJob("full"),
+        ],
+      });
+    default:
+      assertUnreachable(scope);
+  }
 }
 
 export function getMinimalAppWithParts(parts: TsAppSpec.Part[]): TsAppSpec.App {
   return {
-    ...getMinimalApp(),
+    ...getApp("minimal"),
     parts,
   };
 }
@@ -144,6 +167,123 @@ export function getEntities(scope: ConfigScope): string[] {
       return [];
     case "full":
       return ["Task"];
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getServerConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Server>;
+export function getServerConfig(scope: ConfigScope): Config<TsAppSpec.Server> {
+  switch (scope) {
+    case "minimal":
+      return {} satisfies MinimalConfig<TsAppSpec.Server>;
+    case "full":
+      return {
+        setupFn: getExtImport("full", "named"),
+        middlewareConfigFn: getExtImport("full", "named"),
+        envValidationSchema: getExtImport("full", "named"),
+      } satisfies FullConfig<TsAppSpec.Server>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getClientConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Client>;
+export function getClientConfig(scope: ConfigScope): Config<TsAppSpec.Client> {
+  switch (scope) {
+    case "minimal":
+      return {} satisfies MinimalConfig<TsAppSpec.Client>;
+    case "full":
+      return {
+        rootComponent: getExtImport("full", "named"),
+        setupFn: getExtImport("full", "named"),
+        baseDir: "/src",
+        envValidationSchema: getExtImport("full", "named"),
+      } satisfies FullConfig<TsAppSpec.Client>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getDbConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Db>;
+export function getDbConfig(scope: ConfigScope): Config<TsAppSpec.Db> {
+  switch (scope) {
+    case "minimal":
+      return {} satisfies MinimalConfig<TsAppSpec.Db>;
+    case "full":
+      return {
+        seeds: [getExtImport("full", "named"), getExtImport("full", "default")],
+        prismaSetupFn: getExtImport("full", "named"),
+      } satisfies FullConfig<TsAppSpec.Db>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getEmailSenderConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.EmailSender>;
+export function getEmailSenderConfig(
+  scope: ConfigScope,
+): Config<TsAppSpec.EmailSender> {
+  switch (scope) {
+    case "minimal":
+      return {
+        provider: "SMTP",
+      } satisfies MinimalConfig<TsAppSpec.EmailSender>;
+    case "full":
+      return {
+        provider: "SMTP",
+        defaultFrom: getEmailFromField("full"),
+      } satisfies FullConfig<TsAppSpec.EmailSender>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getEmailFromField<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.EmailFromField>;
+export function getEmailFromField(
+  scope: ConfigScope,
+): Config<TsAppSpec.EmailFromField> {
+  switch (scope) {
+    case "minimal":
+      return {
+        email: "noreply@example.com",
+      } satisfies MinimalConfig<TsAppSpec.EmailFromField>;
+    case "full":
+      return {
+        name: "Wasp",
+        email: "noreply@example.com",
+      } satisfies FullConfig<TsAppSpec.EmailFromField>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getWebSocketConfig<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.WebSocket>;
+export function getWebSocketConfig(
+  scope: ConfigScope,
+): Config<TsAppSpec.WebSocket> {
+  switch (scope) {
+    case "minimal":
+      return {
+        fn: getExtImport("minimal", "named"),
+      } satisfies MinimalConfig<TsAppSpec.WebSocket>;
+    case "full":
+      return {
+        fn: getExtImport("full", "named"),
+        autoConnect: true,
+      } satisfies FullConfig<TsAppSpec.WebSocket>;
     default:
       assertUnreachable(scope);
   }

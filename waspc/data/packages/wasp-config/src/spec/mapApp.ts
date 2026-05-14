@@ -10,7 +10,18 @@ export function mapApp(
   app: TsAppSpec.App,
   entityNames: string[],
 ): AppSpec.Decl[] {
-  const { name, wasp, title, head, parts } = app;
+  const {
+    name,
+    wasp,
+    title,
+    head,
+    server,
+    client,
+    db,
+    emailSender,
+    webSocket,
+    parts,
+  } = app;
 
   const entityRefParser = makeRefParser("Entity", entityNames);
 
@@ -72,11 +83,11 @@ export function mapApp(
       head,
       // TODO: add these guys
       auth: undefined,
-      server: undefined,
-      client: undefined,
-      db: undefined,
-      emailSender: undefined,
-      webSocket: undefined,
+      server: server && mapServer(server),
+      client: client && mapClient(client),
+      db: db && mapDb(db),
+      emailSender: emailSender && mapEmailSender(emailSender),
+      webSocket: webSocket && mapWebSocket(webSocket),
     },
   };
 
@@ -174,6 +185,64 @@ export function mapAction(
     fn: mapExtImport(fn),
     entities: entities?.map(entityRefParser),
     auth,
+  };
+}
+
+export function mapServer(server: TsAppSpec.Server): AppSpec.Server {
+  const { setupFn, middlewareConfigFn, envValidationSchema } = server;
+  return {
+    setupFn: setupFn && mapExtImport(setupFn),
+    middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
+    envValidationSchema:
+      envValidationSchema && mapExtImport(envValidationSchema),
+  };
+}
+
+export function mapClient(client: TsAppSpec.Client): AppSpec.Client {
+  const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
+  return {
+    rootComponent: rootComponent && mapExtImport(rootComponent),
+    setupFn: setupFn && mapExtImport(setupFn),
+    baseDir,
+    envValidationSchema:
+      envValidationSchema && mapExtImport(envValidationSchema),
+  };
+}
+
+export function mapDb(db: TsAppSpec.Db): AppSpec.Db {
+  const { seeds, prismaSetupFn } = db;
+  return {
+    seeds: seeds?.map(mapExtImport),
+    prismaSetupFn: prismaSetupFn && mapExtImport(prismaSetupFn),
+  };
+}
+
+export function mapEmailSender(
+  emailSender: TsAppSpec.EmailSender,
+): AppSpec.EmailSender {
+  const { provider, defaultFrom } = emailSender;
+  return {
+    provider,
+    defaultFrom: defaultFrom && mapEmailFromField(defaultFrom),
+  };
+}
+
+export function mapEmailFromField(
+  emailFromField: TsAppSpec.EmailFromField,
+): AppSpec.EmailFromField {
+  return {
+    name: emailFromField.name,
+    email: emailFromField.email,
+  };
+}
+
+export function mapWebSocket(
+  webSocket: TsAppSpec.WebSocket,
+): AppSpec.WebSocket {
+  const { fn, autoConnect } = webSocket;
+  return {
+    fn: mapExtImport(fn),
+    autoConnect,
   };
 }
 
