@@ -88,8 +88,6 @@ function getExtImportObjectLiteralSource(extImport: ExtImport): string {
   }
 }
 
-type Field = [string, string | undefined];
-
 /**
  * [["key", "value"], ["key2", "value2"]] => "key: "value", key2: "value2""
  */
@@ -99,6 +97,8 @@ function getObjectFieldsSource(fields: Field[]): string {
     .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)
     .join(", ");
 }
+
+type Field = [string, string | undefined];
 
 function formatImportDiagnostics(diagnostics: ImportDiagnostic[]): string {
   return [
