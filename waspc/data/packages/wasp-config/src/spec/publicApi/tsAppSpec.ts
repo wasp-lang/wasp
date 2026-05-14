@@ -6,7 +6,7 @@ export type App = {
   parts: Part[];
 };
 
-export type Part = Page | Route | Query | Action | Api | ApiNamespace;
+export type Part = Page | Route | Query | Action | Api | ApiNamespace | Job;
 
 export type Page = MakePart<
   "page",
@@ -66,6 +66,29 @@ export type ApiNamespace = MakePart<
 >;
 
 export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
+
+export type Job = MakePart<
+  "job",
+  {
+    fn: ExtImport;
+    executor: JobExecutor;
+    schedule?: Schedule;
+    entities?: string[];
+    performExecutorOptions?: ExecutorOptions;
+  }
+>;
+
+export type JobExecutor = "PgBoss";
+
+export type Schedule = {
+  cron: string;
+  args?: object;
+  executorOptions?: ExecutorOptions;
+};
+
+export type ExecutorOptions = {
+  pgBoss: object;
+};
 
 export type ExtImport = NamedExtImport | DefaultExtImport;
 export interface NamedExtImport {

@@ -3,6 +3,7 @@ import type {
   Api,
   ApiNamespace,
   App,
+  Job,
   Page,
   Query,
   Route,
@@ -56,4 +57,14 @@ export function apiNamespace(
   config: Pick<ApiNamespace, "middlewareConfigFn">,
 ): ApiNamespace {
   return { kind: "apiNamespace", path, ...config };
+}
+
+export function job(
+  fn: Job["fn"],
+  config: Pick<
+    Job,
+    "executor" | "schedule" | "entities" | "performExecutorOptions"
+  >,
+): Job {
+  return { kind: "job", fn, ...config };
 }

@@ -71,6 +71,14 @@ export function mapApp(
     mapApiNamespace,
   );
 
+  const jobs = extractParts("job", parts);
+  const jobDecls = mapToDecls(
+    jobs,
+    "Job",
+    (job) => deriveExtImportName(job.fn),
+    (job) => mapJob(job, entityRefParser),
+  );
+
   const appDecl = {
     declType: "App" as const,
     declName: name,
@@ -96,8 +104,8 @@ export function mapApp(
     Action: actionDecls,
     Api: apiDecls,
     ApiNamespace: apiNamespaceDecls,
+    Job: jobDecls,
     // TODO: add these guys
-    Job: [],
     Crud: [],
   });
 }
@@ -206,6 +214,31 @@ export function mapApiNamespace(
   return {
     middlewareConfigFn: mapExtImport(middlewareConfigFn),
     path,
+  };
+}
+
+export function mapJob(
+  job: TsAppSpec.Job,
+  entityRefParser: RefParser<"Entity">,
+): AppSpec.Job {
+  const { fn, executor, schedule, entities, performExecutorOptions } = job;
+  return {
+    executor,
+    perform: {
+      fn: mapExtImport(fn),
+      executorOptions: performExecutorOptions,
+    },
+    schedule: schedule && mapSchedule(schedule),
+    entities: entities?.map(entityRefParser),
+  };
+}
+
+export function mapSchedule(schedule: TsAppSpec.Schedule): AppSpec.Schedule {
+  const { cron, args, executorOptions } = schedule;
+  return {
+    cron,
+    args,
+    executorOptions,
   };
 }
 

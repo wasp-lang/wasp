@@ -11,6 +11,7 @@ import {
   api,
   apiNamespace,
   app,
+  job,
   page,
   query,
   route,
@@ -133,6 +134,45 @@ export function getApiNamespace(
       return apiNamespace("/foo", {
         middlewareConfigFn: getExtImport("full", "named"),
       });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getJob<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Job>;
+export function getJob(scope: ConfigScope): Config<TsAppSpec.Job> {
+  switch (scope) {
+    case "minimal":
+      return job(getExtImport("minimal", "named"), {
+        executor: "PgBoss",
+      });
+    case "full":
+      return job(getExtImport("full", "named"), {
+        executor: "PgBoss",
+        schedule: getSchedule("full"),
+        entities: ["Task"],
+        performExecutorOptions: { pgBoss: { jobOptions: { attempts: 3 } } },
+      });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getSchedule<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Schedule>;
+export function getSchedule(scope: ConfigScope): Config<TsAppSpec.Schedule> {
+  switch (scope) {
+    case "minimal":
+      return { cron: "0 0 * * *" };
+    case "full":
+      return {
+        cron: "0 0 * * *",
+        args: { foo: "bar" },
+        executorOptions: { pgBoss: { jobOptions: { attempts: 3 } } },
+      };
     default:
       assertUnreachable(scope);
   }

@@ -1,9 +1,27 @@
 import { createHash } from "crypto";
-import type { PathToApp } from "./args.js";
+import type { DockerImageName, PathToApp } from "./args.js";
+import { createLogger } from "./logging.js";
+import { spawnWithLog } from "./process.js";
 import { Branded } from "./types.js";
 import type { AppName } from "./waspCli.js";
 
 export type DbContainerName = Branded<string, "ContainerName">;
+
+const pullLogger = createLogger("docker-pull");
+
+export async function pullDockerImage(image: DockerImageName): Promise<void> {
+  pullLogger.info(`Pulling Docker image: ${image}...`);
+  try {
+    await spawnWithLog({
+      name: "docker-pull",
+      cmd: "docker",
+      args: ["pull", image],
+    });
+  } catch {
+    pullLogger.error(`Failed to pull Docker image: ${image}`);
+    process.exit(1);
+  }
+}
 
 export function createAppSpecificDbContainerName({
   appName,
