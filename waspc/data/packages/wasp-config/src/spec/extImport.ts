@@ -44,6 +44,10 @@ export function tryMapExtImport(
       },
     };
   } else {
+    const invalidExtImportError =
+      "Got an import in the Wasp file that we couldn't process: " +
+      JSON.stringify(extImport) +
+      "\nYou either used a value you imported from outside of @src/ or didn't write the ExtImport object correctly.";
     return {
       status: "error",
       error: invalidExtImportError,
@@ -67,12 +71,6 @@ function isDefaultExtImport(value: unknown): value is DefaultExtImport {
     typeof value.from === "string"
   );
 }
-
-const invalidExtImportError =
-  "Invalid ExtImport value: got a runtime value that is not a valid ExtImport. " +
-  "Import values from @src/* so Wasp can rewrite them automatically, " +
-  "or provide an ExtImport object directly: " +
-  "{ import, from, alias } or { importDefault, from } (alias is optional for named imports).";
 
 function hasValidAlias(value: Record<string, unknown>): boolean {
   return value.alias === undefined || typeof value.alias === "string";
