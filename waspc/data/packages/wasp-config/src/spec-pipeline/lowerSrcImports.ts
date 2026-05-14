@@ -18,8 +18,7 @@ import type {
 export function lowerSrcImports(sourceText: string): string {
   const plan = planImportLowering(sourceText);
   if (plan.status === "error") {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    throw new Error(formatImportDiagnostic(plan.error[0]!));
+    throw new Error(formatImportDiagnostics(plan.error));
   }
 
   return applyImportLoweringPlan(sourceText, plan.value);
@@ -101,8 +100,17 @@ function getObjectFieldsSource(fields: Field[]): string {
     .join(", ");
 }
 
-function formatImportDiagnostic(diagnostic: ImportDiagnostic): string {
-  return `Unsupported @src import in main.wasp.ts at ${diagnostic.location.line}:${diagnostic.location.column}: ${formatUnsupportedImportType(diagnostic.unsupportedImportType)} Found ${JSON.stringify(diagnostic.specifier)}. Use default, named, aliased named, or namespace imports from @src/*.`;
+function formatImportDiagnostics(diagnostics: ImportDiagnostic[]): string {
+  return [
+    "Unsupported @src imports in main.wasp.ts:",
+    ...diagnostics.map(formatImportDiagnosticLine),
+    "",
+    "Supported @src imports are default, named, aliased named, or namespace imports from @src/*.",
+  ].join("\n");
+}
+
+function formatImportDiagnosticLine(diagnostic: ImportDiagnostic): string {
+  return `- ${diagnostic.location.line}:${diagnostic.location.column} ${JSON.stringify(diagnostic.specifier)}: ${formatUnsupportedImportType(diagnostic.unsupportedImportType)}`;
 }
 
 function formatUnsupportedImportType(type: UnsupportedImportType): string {
