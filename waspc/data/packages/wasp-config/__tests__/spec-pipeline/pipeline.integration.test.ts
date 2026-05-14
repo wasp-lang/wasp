@@ -261,7 +261,11 @@ async function compileAndAnalyzeSpec({
   sourceFileName: string;
   sourceText: string;
 }): Promise<AppSpec.Decl[]> {
-  const compiledPath = await compileSpec({ tempDir, sourceFileName, sourceText });
+  const compiledPath = await compileSpec({
+    tempDir,
+    sourceFileName,
+    sourceText,
+  });
   const result = await analyzeApp(pathToFileURL(compiledPath).href, []);
   if (result.status === "error") throw new Error(result.error);
 
