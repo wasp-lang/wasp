@@ -66,6 +66,22 @@ export function mapApp(
     (action) => mapAction(action, entityRefParser),
   );
 
+  const apis = extractParts("api", parts);
+  const apiDecls = mapToDecls(
+    apis,
+    "Api",
+    (api) => deriveExtImportName(api.fn),
+    (api) => mapApi(api, entityRefParser),
+  );
+
+  const apiNamespaces = extractParts("apiNamespace", parts);
+  const apiNamespaceDecls = mapToDecls(
+    apiNamespaces,
+    "ApiNamespace",
+    (ns) => deriveExtImportName(ns.middlewareConfigFn),
+    mapApiNamespace,
+  );
+
   const jobs = extractParts("job", parts);
   const jobDecls = mapToDecls(
     jobs,
@@ -97,10 +113,10 @@ export function mapApp(
     Route: routeDecls,
     Query: queryDecls,
     Action: actionDecls,
+    Api: apiDecls,
+    ApiNamespace: apiNamespaceDecls,
     Job: jobDecls,
     // TODO: add these guys
-    Api: [],
-    ApiNamespace: [],
     Crud: [],
   });
 }
@@ -185,6 +201,30 @@ export function mapAction(
     fn: mapExtImport(fn),
     entities: entities?.map(entityRefParser),
     auth,
+  };
+}
+
+export function mapApi(
+  api: TsAppSpec.Api,
+  entityRefParser: RefParser<"Entity">,
+): AppSpec.Api {
+  const { method, path, fn, middlewareConfigFn, entities, auth } = api;
+  return {
+    fn: mapExtImport(fn),
+    middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
+    entities: entities?.map(entityRefParser),
+    httpRoute: [method, path],
+    auth,
+  };
+}
+
+export function mapApiNamespace(
+  apiNamespace: TsAppSpec.ApiNamespace,
+): AppSpec.ApiNamespace {
+  const { middlewareConfigFn, path } = apiNamespace;
+  return {
+    middlewareConfigFn: mapExtImport(middlewareConfigFn),
+    path,
   };
 }
 

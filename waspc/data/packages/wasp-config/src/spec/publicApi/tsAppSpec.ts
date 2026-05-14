@@ -46,7 +46,7 @@ export type WebSocket = {
   autoConnect?: boolean;
 };
 
-export type Part = Page | Route | Query | Action | Job;
+export type Part = Page | Route | Query | Action | Api | ApiNamespace | Job;
 
 export type Page = MakePart<
   "page",
@@ -84,6 +84,28 @@ export type Action = MakePart<
     auth?: boolean;
   }
 >;
+
+export type Api = MakePart<
+  "api",
+  {
+    method: HttpMethod;
+    path: string;
+    fn: ExtImport;
+    middlewareConfigFn?: ExtImport;
+    entities?: string[];
+    auth?: boolean;
+  }
+>;
+
+export type ApiNamespace = MakePart<
+  "apiNamespace",
+  {
+    middlewareConfigFn: ExtImport;
+    path: string;
+  }
+>;
+
+export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
 
 export type Job = MakePart<
   "job",

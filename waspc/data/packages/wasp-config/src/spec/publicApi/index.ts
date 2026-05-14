@@ -1,12 +1,24 @@
-export { action, app, job, page, query, route } from "./constructors.js";
+export {
+  action,
+  api,
+  apiNamespace,
+  app,
+  job,
+  page,
+  query,
+  route,
+} from "./constructors.js";
 export type {
   Action,
+  Api,
+  ApiNamespace,
   App,
   Client,
   Db,
   EmailFromField,
   EmailSender,
   ExtImport,
+  HttpMethod,
   Job,
   Page,
   Part,
