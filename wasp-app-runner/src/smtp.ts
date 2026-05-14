@@ -1,8 +1,15 @@
+import type { DockerImageName } from "./args.js";
+import { pullDockerImage } from "./docker.js";
 import { createLogger } from "./logging.js";
 import { spawnWithLog } from "./process.js";
 
+const mailcrabImage = "marlonb/mailcrab:latest" as DockerImageName;
+
 export async function startLocalSmtpServer(): Promise<void> {
   const logger = createLogger("smtp-server");
+
+  await pullDockerImage(mailcrabImage);
+
   spawnWithLog({
     name: "smtp-server",
     cmd: "docker",
@@ -13,7 +20,7 @@ export async function startLocalSmtpServer(): Promise<void> {
       "1080:1080",
       "-p",
       "1025:1025",
-      "marlonb/mailcrab:latest",
+      mailcrabImage,
     ],
   }).then(({ exitCode }) => {
     if (exitCode !== 0) {
