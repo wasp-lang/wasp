@@ -17,14 +17,18 @@ runs:
   steps:
     - name: Install Mise tools
       uses: jdx/mise-action@v4
+      with:
+        log_level: debug
 
     - name: Cache npm dependencies
       uses: actions/setup-node@v6
       with:
+        # We don't specify a Node version here, so it won't install any new one
+        # and just use the one from Mise.
         cache: npm
         package-manager-cache: true
 
-    - name: Probe system and requested tools
+    - name: Probe environment
       id: probe
       shell: bash
       run: |
@@ -47,7 +51,7 @@ runs:
         path: |
           ${{ steps.probe.outputs.CABAL_STORE }}
           ${{ steps.probe.outputs.CABAL_INDEX }}
-          ${{ format('{0}/dist-newstyle', inputs.cabal-project-dir) }}
+          ${{ inputs.cabal-project-dir }}/dist-newstyle
         key: |
           cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
         restore-keys: |
