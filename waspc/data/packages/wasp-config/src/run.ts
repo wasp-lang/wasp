@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import { writeFileSync } from "fs";
-import { basename, dirname, join } from "path";
 import { pathToFileURL } from "url";
 import { parseProcessArgsOrThrow } from "./cli.js";
 import { analyzeApp } from "./legacy/appAnalyzer.js";
@@ -17,21 +16,22 @@ main(process.argv).catch((error: unknown) => {
  * and writes the output to a file.
  */
 async function main(args: string[]): Promise<void> {
-  const { waspTsSpecPath, tsconfigPath, declsJsonPath, entityNames } =
-    parseProcessArgsOrThrow(args);
-  const compiledTsSpecPath = getCompiledTsSpecPath({
+  const {
     waspTsSpecPath,
+    tsconfigPath,
+    compiledWaspTsSpecPath,
     declsJsonPath,
-  });
+    entityNames,
+  } = parseProcessArgsOrThrow(args);
 
   await compileWaspTsFileToJsFile({
     inputPath: waspTsSpecPath,
     tsconfigPath,
-    outputPath: compiledTsSpecPath,
+    outputPath: compiledWaspTsSpecPath,
   });
 
   const declsResult = await analyzeApp(
-    pathToFileURL(compiledTsSpecPath).href,
+    pathToFileURL(compiledWaspTsSpecPath).href,
     entityNames,
   );
 
@@ -40,17 +40,4 @@ async function main(args: string[]): Promise<void> {
   }
 
   writeFileSync(declsJsonPath, JSON.stringify(declsResult.value));
-}
-
-function getCompiledTsSpecPath({
-  waspTsSpecPath,
-  declsJsonPath,
-}: {
-  waspTsSpecPath: string;
-  declsJsonPath: string;
-}): string {
-  return join(
-    dirname(declsJsonPath),
-    basename(waspTsSpecPath).replace(/\.ts$/, ".js"),
-  );
 }
