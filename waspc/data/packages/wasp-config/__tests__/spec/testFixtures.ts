@@ -16,18 +16,41 @@ import {
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
-export function getMinimalApp(): TsAppSpec.App {
-  return app({
-    name: "MinimalApp",
-    wasp: { version: "^0.16.3" },
-    title: "Mock App",
-    parts: [],
-  });
+export function getApp(scope: ConfigScope): TsAppSpec.App {
+  switch (scope) {
+    case "minimal":
+      return app({
+        name: "MinimalApp",
+        wasp: { version: "^0.16.3" },
+        title: "Mock App",
+        parts: [],
+      });
+    case "full":
+      return app({
+        name: "FullApp",
+        wasp: { version: "^0.16.3" },
+        title: "Mock App",
+        head: ['<link rel="icon" href="/favicon.ico" />'],
+        server: getServerConfig("full"),
+        client: getClientConfig("full"),
+        db: getDbConfig("full"),
+        emailSender: getEmailSenderConfig("full"),
+        webSocket: getWebSocketConfig("full"),
+        parts: [
+          getPage("full"),
+          getRoute("full"),
+          getQuery("full"),
+          getJob("full"),
+        ],
+      });
+    default:
+      assertUnreachable(scope);
+  }
 }
 
 export function getMinimalAppWithParts(parts: TsAppSpec.Part[]): TsAppSpec.App {
   return {
-    ...getMinimalApp(),
+    ...getApp("minimal"),
     parts,
   };
 }

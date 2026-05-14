@@ -25,7 +25,7 @@ import * as Fixtures from "./testFixtures.js";
 describe("mapApp", () => {
   test("should map minimal app correctly", () => {
     const entityNames = Fixtures.getEntities("minimal");
-    const app = Fixtures.getMinimalApp();
+    const app = Fixtures.getApp("minimal");
 
     const decls = mapApp(app, entityNames);
 
@@ -49,6 +49,8 @@ describe("mapApp", () => {
   });
 
   test("should map full app correctly", () => {
+    // Note: we build the full app inline (instead of using `Fixtures.getApp("full")`)
+    // so the assertions can name each part explicitly when computing expected decls.
     const page = Fixtures.getPage("full");
     const route = Fixtures.getRoute("full");
     const query = Fixtures.getQuery("full");
