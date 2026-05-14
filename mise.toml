@@ -22,7 +22,7 @@ min_version = "2026.5.7"
 node = "24.14.1"
 
 # Manually configuring `ghcup` to be taken from GitHub releases, as the built-in
-# tool doesn't support Windows (yet).
+# definition doesn't support Windows (yet).
 # https://github.com/cprecioso/aqua-registry/pull/1
 [tool_alias]
 ghcup = "github:haskell/ghcup-hs"
