@@ -74,10 +74,7 @@ export function mapApp(
       wasp,
       title,
       head,
-      auth:
-        auth === undefined
-          ? undefined
-          : mapAuth(auth, entityRefParser, routeRefParser),
+      auth: auth && mapAuth(auth, entityRefParser, routeRefParser),
       // TODO: add these guys
       server: undefined,
       client: undefined,
