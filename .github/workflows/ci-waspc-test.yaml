@@ -9,7 +9,6 @@ env:
 
 defaults:
   run:
-    shell: bash
     working-directory: waspc
 
 jobs:
@@ -51,12 +50,6 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-env
 
-      - name: Set up Node
-        uses: actions/setup-node@v6
-        if: ${{ matrix.node-version }}
-        with:
-          node-version: ${{ matrix.node-version }}
-
       - name: Compile TS packages and libs
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
@@ -68,7 +61,16 @@ jobs:
         run: |
           ./run.ps1 build:packages
           ./run.ps1 build:libs
-        shell: pwsh
+
+      - name: Debug
+        if: runner.os == 'Windows'
+        run: |
+          where.exe cabal
+          where.exe ghc
+          where.exe ghc-9.6.7
+
+          ghc --version
+          ghc-9.6.7 --version
 
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
@@ -83,3 +85,4 @@ jobs:
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
         run: ./run test:waspc:e2e
+        shell: bash
