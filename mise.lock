@@ -109,32 +109,33 @@ url = "https://github.com/tweag/ormolu/releases/download/0.7.2.0/ormolu-Windows.
 url_api = "https://api.github.com/repos/tweag/ormolu/releases/assets/124853921"
 
 [[tools.node]]
-version = "22.12.0"
+version = "24.14.1"
 backend = "core:node"
 
 [tools.node."platforms.linux-arm64"]
-checksum = "sha256:9e7905fdee722f9650a03ae644b51c4c6effd3b98ac93c588700072ab35c9ddb"
-url = "https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-arm64.tar.gz"
+checksum = "sha256:734ff04fa7f8ed2e8a78d40cacf5ac3fc4515dac2858757cbab313eb483ba8a2"
+url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-linux-arm64.tar.gz"
 
 [tools.node."platforms.linux-arm64-musl"]
-url = "https://unofficial-builds.nodejs.org/download/release/v22.12.0/node-v22.12.0-linux-arm64-musl.tar.gz"
+checksum = "sha256:e3ada28bcce0f440d8692372004a3338e96ff0b5cf8399bb38ae30a8adecdf08"
+url = "https://unofficial-builds.nodejs.org/download/release/v24.14.1/node-v24.14.1-linux-arm64-musl.tar.gz"
 
 [tools.node."platforms.linux-x64"]
-checksum = "sha256:e05a4d65232ae2b27b3d77da2e368522fb46b923335b8e0d5f77624c32484044"
-url = "https://nodejs.org/dist/v22.12.0/node-v22.12.0-linux-x64.tar.gz"
+checksum = "sha256:ace9fa104992ed0829642629c46ca7bd7fd6e76278cb96c958c4b387d29658ea"
+url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-linux-x64.tar.gz"
 
 [tools.node."platforms.linux-x64-musl"]
-checksum = "sha256:8d96de0293fc3978d09e2a3fee68c66bca4efcca90f52105e6f7463636e97308"
-url = "https://unofficial-builds.nodejs.org/download/release/v22.12.0/node-v22.12.0-linux-x64-musl.tar.gz"
+checksum = "sha256:4cdc6bf5891d1f51903c663b2f7f6a636c24dd5940a62a1785ea3d911284b008"
+url = "https://unofficial-builds.nodejs.org/download/release/v24.14.1/node-v24.14.1-linux-x64-musl.tar.gz"
 
 [tools.node."platforms.macos-arm64"]
-checksum = "sha256:293dcc6c2408da21562d135b0412525e381bb6fe150d688edb58fe850d0f3e13"
-url = "https://nodejs.org/dist/v22.12.0/node-v22.12.0-darwin-arm64.tar.gz"
+checksum = "sha256:25495ff85bd89e2d8a24d88566d7e2f827c6b0d3d872b2cebf75371f93fcb1fe"
+url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-darwin-arm64.tar.gz"
 
 [tools.node."platforms.macos-x64"]
-checksum = "sha256:52bc25dd026db7247c3c00439afdb83e95087248267f02d6c1a7250d1f896173"
-url = "https://nodejs.org/dist/v22.12.0/node-v22.12.0-darwin-x64.tar.gz"
+checksum = "sha256:2526230ad7d922be82d4fdb1e7ee1e84303e133e3b4b0ec4c2897ab31de0253d"
+url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-darwin-x64.tar.gz"
 
 [tools.node."platforms.windows-x64"]
-checksum = "sha256:2b8f2256382f97ad51e29ff71f702961af466c4616393f767455501e6aece9b8"
-url = "https://nodejs.org/dist/v22.12.0/node-v22.12.0-win-x64.zip"
+checksum = "sha256:6e50ce5498c0cebc20fd39ab3ff5df836ed2f8a31aa093cecad8497cff126d70"
+url = "https://nodejs.org/dist/v24.14.1/node-v24.14.1-win-x64.zip"

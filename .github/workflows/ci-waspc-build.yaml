@@ -71,18 +71,26 @@ jobs:
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
-            # Read the comment from /.config/mise.musl.toml for why we use
-            # Alpine here.
-            container: node:22-alpine3.21
+            # actions/setup-node does not work in alpine.
+            # https://github.com/actions/setup-node/issues/1293 To work around
+            # this, we use the alpine variant of the official node image, which
+            # already has a working Node.js version installed.
+            # We also pin the `alpine` version to a specific one we have tested,
+            # since newer releases might have different versions of the
+            # libraries we depend on.
+            # NOTE: Keep the node version in sync with `node` in /mise.toml.
+            container: node:24-alpine3.23
             skip-node-install: true
             static: true
             install-deps: |
               # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
-              apk add binutils-gold curl gcc g++ gmp-dev libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
+              apk add binutils-gold curl gcc g++ gmp-dev gmp-static libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
               # `./run` script dependencies
               apk add bash
               # Cabal dependencies
               apk add zlib-dev zlib-static
+              # Prisma dependencies
+              apk add openssl
 
           - name: macos-x86_64
             runner: macos-15-intel

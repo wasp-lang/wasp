@@ -16,9 +16,9 @@ export default function BlogPostItems({
   return (
     <>
       <section className={`bg-yellow-500 py-20 pb-20 md:py-36`}>
-        <div className={`container mx-auto`}>
+        <div className={`container mx-auto lg:px-8`}>
           <article
-            className={`relative grid-cols-2 items-stretch gap-5 md:px-20 lg:grid lg:px-24`}
+            className={`relative grid-cols-2 items-stretch gap-5 md:px-8 lg:grid lg:px-0`}
           >
             {/* Content - left col */}
             <div className="self-center lg:pr-16">
@@ -67,7 +67,7 @@ export default function BlogPostItems({
         </div>
       </section>
 
-      <section className="container mx-auto px-4 sm:px-6 md:px-20 lg:px-28">
+      <section className="container mx-auto px-4 sm:px-6 md:px-8 lg:px-8">
         <div className="mb-8 grid grid-cols-1 gap-5 md:-mt-12 md:grid-cols-2 xl:grid-cols-3">
           {items.slice(1).map((item) => {
             const BlogPostContent = item.content;

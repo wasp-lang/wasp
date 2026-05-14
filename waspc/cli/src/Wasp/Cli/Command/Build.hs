@@ -1,3 +1,5 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Wasp.Cli.Command.Build
   ( build,
   )
@@ -20,7 +22,7 @@ import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
-import Wasp.Generator.Common (ProjectRootDir)
+import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
 import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
@@ -29,11 +31,11 @@ import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
-    dotWaspDirInWaspProjectDir,
-    generatedCodeDirInDotWaspDir,
-    getSrcTsConfigInWaspProjectDir,
+    generatedAppDirInWaspProjectDir,
+    getTsConfigPathsForWaspProject,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    srcTsConfig,
     userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
@@ -51,18 +53,17 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
 
-  let buildDirInWaspProjectDir = dotWaspDirInWaspProjectDir </> generatedCodeDirInDotWaspDir
-      buildDir = waspProjectDir </> buildDirInWaspProjectDir
+  let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
   doesBuildDirExist <- liftIO $ doesDirectoryExist buildDir
   when doesBuildDirExist $ do
     cliSendMessageC $
       Msg.Start $
-        "Clearing the content of the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory..."
+        "Clearing the content of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory..."
     liftIO $ removeDirectory buildDir
     cliSendMessageC $
       Msg.Success $
-        "Successfully cleared the contents of the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
+        "Successfully cleared the contents of the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
 
   cliSendMessageC $ Msg.Start "Building wasp project..."
 
@@ -79,11 +80,11 @@ build = do
 
   cliSendMessageC $
     Msg.Success $
-      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir buildDirInWaspProjectDir ++ " directory."
+      "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
-      let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+      let srcTsConfigPath = srcTsConfig $ getTsConfigPathsForWaspProject waspFilePath
 
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
       -- we're copying all files and folders necessary for Docker build into the .wasp/out directory.
@@ -155,13 +156,13 @@ build = do
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
-  Path' Abs (Dir ProjectRootDir) ->
+  Path' Abs (Dir GeneratedAppDir) ->
   IO ([CompileWarning], [CompileError])
 buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir buildDir
   where
     options =
       CompileOptions
-        { waspProjectDirPath = waspProjectDir,
+        { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
           -- Ignore "DB needs migration warnings" during build, as that is not a required step.

@@ -42,7 +42,7 @@ Key things to know:
 
 ### TypeScript/JavaScript
 
-- Prettier-formatted (config in `.prettierrc`). Check/fix with `./run check:prettier` / `./run format:prettier`.
+- Prettier-formatted (config in `prettier.config.ts`). Check/fix with `./run check:prettier` / `./run format:prettier`.
 - camelCase for files/functions, PascalCase for components/types.
 
 ### Architecture

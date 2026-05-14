@@ -1,7 +1,8 @@
 module Tests.WaspDbStudioTest (waspDbStudioTest) where
 
-import ShellCommands (ShellCommand, WaspNewTemplate (..), createTestWaspProject, inTestWaspProjectDir, waspCliDbStudio)
+import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliDbStudio)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 -- | NOTE: We don't test feature content since it's prisma feature.
 -- FIXME: @waspCliDbStudio@ - figure out long lasting processes
@@ -15,7 +16,7 @@ waspDbStudioTest =
       TestCase
         "succeed-uncompiled-project"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliDbStudio
                 ]

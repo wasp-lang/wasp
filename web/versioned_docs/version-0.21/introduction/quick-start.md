@@ -32,14 +32,30 @@ Let's create and run our first Wasp app in 3 short steps:
    wasp start
    ```
 
-That's it 🎉 You have successfully created and served a new full-stack web app at [http://localhost:3000](http://localhost:3000) and Wasp is serving both frontend and backend for you.
+That's it 🎉 You have successfully created a new full-stack web app at [http://localhost:3000](http://localhost:3000) and Wasp is serving both frontend and backend for you.
+
+But don't stop there! Turn your coding agent into a Wasp framework expert in the next step.
+
+4. **Install Agent Plugin / Skills:**
+   
+   **Claude Code:**
+    ```bash
+    claude plugin marketplace add wasp-lang/wasp-agent-plugins
+    claude plugin install wasp@wasp-agent-plugins --scope project
+    ```
+   **Other Agents (Cursor, Codex, Gemini, Copilot, OpenCode, etc.):**
+    ```bash
+    npx skills add wasp-lang/wasp-agent-plugins
+    ```
+    **Initialize the plugin / skills:**
+    Invoke the `/wasp-plugin-init` skill to add Wasp knowledge to your agent's memory file (e.g. `CLAUDE.md`, `AGENTS.md`):
+    ```bash
+    Run the '/wasp-plugin-init' skill.
+    ```
+   For more info check out the [Wasp Agent Plugin / Skills](../wasp-ai/coding-agent-plugin.md) page.
 
 :::note Something Unclear?
 Check [More Details](#more-details) section below if anything went wrong with the installation, or if you have additional questions.
-:::
-
-:::tip Want an even faster start?
-Try out [Wasp AI](../wasp-ai/creating-new-app.md) 🤖 to generate a new Wasp app in minutes just from a title and short description!
 :::
 
 :::tip Having trouble running Wasp?

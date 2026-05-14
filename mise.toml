@@ -19,7 +19,7 @@ min_version = "2026.5.7"
 # - The docs: /docs/introduction/quick-start.md ("Requirements" section).
 # - The docs plugin: /web/src/remark/search-and-replace.ts
 # - CI files that use Alpine (search for `alpine` in /.github).
-node = "22.12.0"
+node = "24.14.1"
 
 [tools."ghcup"]
 version = "latest"

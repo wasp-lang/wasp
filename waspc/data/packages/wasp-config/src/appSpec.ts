@@ -41,6 +41,8 @@ export type Page = {
 export type Route = {
   path: string;
   to: Ref<"Page">;
+  prerender: Optional<boolean>;
+  lazy: Optional<boolean>;
 };
 
 export type Action = {

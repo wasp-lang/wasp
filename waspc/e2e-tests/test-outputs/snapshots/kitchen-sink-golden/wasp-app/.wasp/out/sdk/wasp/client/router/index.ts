@@ -255,6 +255,58 @@ export const routes = {
         options?.hash
       ),
   },
+  EagerRoute: {
+    to: "/lazy/no",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/lazy/no",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  LazyRoute: {
+    to: "/lazy/yes",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/lazy/yes",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  PrerenderRoute: {
+    to: "/prerender",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/prerender",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
+  HydrationMismatchRoute: {
+    to: "/hydration-mismatch",
+    build: (
+      options?:
+      OptionalRouteOptions
+    ) => interpolatePath(
+        
+        "/hydration-mismatch",
+        undefined,
+        options?.search,
+        options?.hash
+      ),
+  },
 } as const;
 
 // PRIVATE API
@@ -262,3 +314,5 @@ export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 // PUBLIC API
 export { Link } from './Link'
+// PUBLIC API
+export { NavLink } from './NavLink'

@@ -1,0 +1,18 @@
+diff --git a/main.wasp b/main.wasp
+index 5592563..f2aa7ca 100644
+--- a/main.wasp
++++ b/main.wasp
+@@ -39,3 +39,13 @@ action updateTask {
+   fn: import { updateTask } from "@src/actions",
+   entities: [Task]
+ }
++
++route SignupRoute { path: "/signup", to: SignupPage }
++page SignupPage {
++  component: import { SignupPage } from "@src/SignupPage"
++}
++
++route LoginRoute { path: "/login", to: LoginPage }
++page LoginPage {
++  component: import { LoginPage } from "@src/LoginPage"
++}

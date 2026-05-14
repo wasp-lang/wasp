@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { AxiosError } from "axios";
+import { HTTPError } from "ky";
 import { api } from "wasp/client/api";
 import { Alert } from "../../../components/Alert";
 import { FeatureContainer } from "../../../components/FeatureContainer";
@@ -53,14 +53,12 @@ function useCustomApi<Data = unknown>(
 ): {
   isLoading: boolean;
   data: Data | undefined;
-  error: AxiosError | null;
+  error: HTTPError | null;
 } {
-  const { isLoading, data, error } = useQuery<Data, AxiosError>(
+  const { isLoading, data, error } = useQuery<Data, HTTPError>(
     [endpoint],
-    () => api.get(endpoint).then((response) => response.data),
-    {
-      retry: false,
-    },
+    async () => await api.get(endpoint).json(),
+    { retry: false },
   );
 
   return { isLoading, data, error };

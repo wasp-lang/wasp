@@ -358,7 +358,7 @@ But it does mean that, with an opinionated full-stack framework, much less of yo
 
 ## This Approach, In a Plugin
 
-If you want to put this theoretical approach I discussed above to the practical test, then I suggest you try out the [Wasp plugin we created for Claude Code](https://github.com/wasp-lang/claude-plugins/tree/main/plugins/wasp).
+If you want to put this theoretical approach I discussed above to the practical test, then I suggest you try out the [Wasp plugin we created for Claude Code](https://github.com/wasp-lang/wasp-agent-plugins/tree/main/plugins/wasp).
 
 We, the Wasp framework creators, maintain the plugin, so we've battle tested it with Wasp. Plus we're a very responsive community and we're listening to feedback and improving it all the time.
 
@@ -374,10 +374,10 @@ npm i -g @wasp.sh/wasp-cli
 
 ```bash
 # add the Wasp marketplace to Claude
-claude plugin marketplace add wasp-lang/claude-plugins
+claude plugin marketplace add wasp-lang/wasp-agent-plugins
 
 # install the plugin from the marketplace
-claude plugin install wasp@wasp-plugins --scope project
+claude plugin install wasp@wasp-agent-plugins --scope project
 ```
 
 3. **Start a new Wasp project**

@@ -35,10 +35,8 @@ jobs:
         include:
           - os: ubuntu-22.04
             # Empty means to use the repo's default Node.js version, which is
-            # our minimum supported version.
+            # our minimum supported version (from /mise.toml).
             node-version: ""
-          - os: ubuntu-22.04
-            node-version: 24
 
     steps:
       - name: Configure git

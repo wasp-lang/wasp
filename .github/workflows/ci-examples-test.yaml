@@ -26,9 +26,7 @@ jobs:
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-env
 
-      - name: Install Wasp CLI
-        working-directory: waspc
-        run: ./run install
+      - uses: ./.github/actions/install-wasp-cli-artifact
 
       - name: Setup Wasp TS Config (if needed)
         working-directory: examples/${{ matrix.example }}

@@ -75,11 +75,11 @@ export function getInferredBasenameFromClientToml(
 }
 
 export function inferServerBasename(name: string): string {
-  return name.replace("-server", "");
+  return name.replace(/-server$/, "");
 }
 
 export function inferClientBasename(name: string): string {
-  return name.replace("-client", "");
+  return name.replace(/-client$/, "");
 }
 
 export function replaceLineInLocalToml(

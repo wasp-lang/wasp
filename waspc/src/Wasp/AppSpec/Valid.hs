@@ -12,10 +12,10 @@ module Wasp.AppSpec.Valid
 where
 
 import Control.Monad (unless)
+import Data.Bifunctor (first)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
-import Text.Read (readMaybe)
-import Text.Regex.TDFA ((=~))
+import qualified Text.Parsec as P
 import Wasp.Analyzer.Parser (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
@@ -36,6 +36,7 @@ import qualified Wasp.AppSpec.Entity as Entity
 import qualified Wasp.AppSpec.Entity.Field as Entity.Field
 import qualified Wasp.AppSpec.Operation as AS.Operation
 import qualified Wasp.AppSpec.Page as Page
+import qualified Wasp.AppSpec.Route as Route
 import Wasp.AppSpec.Util (isPgBossJobExecutorUsed)
 import Wasp.Generator.Crud (crudDeclarationToOperationsList)
 import Wasp.Node.Version (oldestWaspSupportedNodeVersion)
@@ -72,7 +73,8 @@ validateAppSpec spec =
           validateDeclarationNames spec,
           validateWebAppBaseDir spec,
           validateUserNodeVersionRange spec,
-          validateAtLeastOneRoute spec
+          validateAtLeastOneRoute spec,
+          validatePrerenderRoutes spec
         ]
 
 validateExactlyOneAppExists :: AppSpec -> Maybe ValidationError
@@ -90,26 +92,25 @@ validateWasp = validateWaspVersion . Wasp.version . App.wasp . snd . getApp
 
 validateWaspVersion :: String -> [ValidationError]
 validateWaspVersion specWaspVersionStr = eitherUnitToErrorList $ do
-  specWaspVersionRange <- parseWaspVersionRange specWaspVersionStr
+  specWaspVersionRange <- first parseErrorToValidationError $ SV.parseRange specWaspVersionStr
   unless (SV.isVersionInRange WV.waspVersion specWaspVersionRange) $
-    Left $
-      incompatibleVersionError WV.waspVersion specWaspVersionRange
+    Left (incompatibleVersionError WV.waspVersion specWaspVersionRange)
   where
-    -- TODO: Use version range parser from SemanticVersion when it is fully implemented.
-
-    parseWaspVersionRange :: String -> Either ValidationError SV.Range
-    parseWaspVersionRange waspVersionRangeStr = do
-      -- Only ^x.y.z is allowed here because it was the easiest solution to start
-      -- with at the moment. In the future, we plan to allow any SemVer
-      -- definition.
-      let (_ :: String, _ :: String, _ :: String, waspVersionRangeDigits :: [String]) =
-            waspVersionRangeStr =~ ("\\`\\^([0-9]+)\\.([0-9]+)\\.([0-9]+)\\'" :: String)
-
-      waspSpecVersion <- case mapM readMaybe waspVersionRangeDigits of
-        Just [major, minor, patch] -> Right $ SV.Version major minor patch
-        __ -> Left $ GenericValidationError "Wasp version should be in the format ^major.minor.patch"
-
-      Right $ SV.Range [SV.backwardsCompatibleWith waspSpecVersion]
+    -- Currently the 'ParseError' does not give user-friendly information,
+    -- so we discard it for a generic error.
+    parseErrorToValidationError :: P.ParseError -> ValidationError
+    parseErrorToValidationError _err =
+      GenericValidationError $
+        unlines
+          [ "Invalid Wasp version requirement: " ++ specWaspVersionStr,
+            "Make sure to use a npm-compatible version range.",
+            "For example: "
+              ++ show (SV.backwardsCompatibleWith WV.waspVersion)
+              ++ ", "
+              ++ show (SV.approximatelyEquivalentTo WV.waspVersion)
+              ++ " or "
+              ++ show (SV.eq WV.waspVersion)
+          ]
 
     incompatibleVersionError :: SV.Version -> SV.Range -> ValidationError
     incompatibleVersionError actualVersion expectedVersionRange =
@@ -434,6 +435,36 @@ validateAtLeastOneRoute spec =
     else []
   where
     routes = AS.getRoutes spec
+
+validatePrerenderRoutes :: AppSpec -> [ValidationError]
+validatePrerenderRoutes spec =
+  concatMap validatePrerenderRoute prerenderRoutes
+  where
+    prerenderRoutes = filter ((== Just True) . Route.prerender . snd) (AS.getRoutes spec)
+
+    validatePrerenderRoute (routeName, route) =
+      concat
+        [ [ GenericValidationError $
+              "Route '"
+                ++ routeName
+                ++ "' has prerender enabled but its path ("
+                ++ Route.path route
+                ++ ") contains dynamic segments. Prerendered routes must have static paths."
+            | pathHasDynamicSegments (Route.path route)
+          ],
+          [ GenericValidationError $
+              "Route '"
+                ++ routeName
+                ++ "' has prerender enabled but its page has authRequired set to true."
+                ++ " Prerendered routes cannot require authentication."
+            | pageRequiresAuth (getPage route)
+          ]
+        ]
+
+    pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
+    pageRequiresAuth page = Page.authRequired page == Just True
+
+    getPage route = snd $ AS.resolveRef spec (Route.to route)
 
 -- | This function assumes that @AppSpec@ it operates on was validated beforehand (with @validateAppSpec@ function).
 -- TODO: It would be great if we could ensure this at type level, but we decided that was too much work for now.

@@ -19,7 +19,7 @@ And now with Claude Code's plugin system, which bundles skills, commands, hooks,
 
 But configuring, testing, and maintaining all these Claude Code features for your specific projects and tools can be a lot of work. Almost as much as just writing the code yourself (ironic, isn't it?)!
 
-Luckily for you, the the Wasp Team has created the [Wasp Claude Code plugin](https://github.com/wasp-lang/claude-plugins/tree/main/plugins/wasp), curated with the help of community and their own experience, that ensures you are getting the most out of Claude Code and Wasp when using them together.
+Luckily for you, the the Wasp Team has created the [Wasp Claude Code plugin](https://github.com/wasp-lang/wasp-agent-plugins/tree/main/plugins/wasp), curated with the help of community and their own experience, that ensures you are getting the most out of Claude Code and Wasp when using them together.
 
 <div className="video-container">
   <iframe src="https://www.youtube.com/embed/beUTJYW65Bw?si=_CmEU1f3r1sTZW69" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
@@ -36,13 +36,13 @@ Here's how you can try it once you've got [Wasp](https://wasp.sh) and [Claude Co
 1. Add the Wasp x Claude Code Plugin Marketplace:
 
 ```bash
-claude plugin marketplace add wasp-lang/claude-plugins
+claude plugin marketplace add wasp-lang/wasp-agent-plugins
 ```
 
 2. Install the plugin:
 
 ```bash
-claude plugin install wasp@wasp-plugins --scope project
+claude plugin install wasp@wasp-agent-plugins --scope project
 ```
 
 3. Once installed, initialize the plugin in a Claude Code session and follow the instructions:
@@ -103,4 +103,4 @@ The focus for the first iteration of the plugin was to give Claude good fundamen
 
 For the future, we'll expand it with better guardrails and more skills and workflows to really speed up development. We'll also be adding a separate plugin for [Open SaaS](https://opensaas.sh), our open-source SaaS starter built on Wasp, to get you shipping SaaS apps easier and quicker.
 
-And if you have any feedback or ideas on how to improve the plugin, [let us know](https://github.com/wasp-lang/claude-plugins/issues).
+And if you have any feedback or ideas on how to improve the plugin, [let us know](https://github.com/wasp-lang/wasp-agent-plugins/issues).

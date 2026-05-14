@@ -1,0 +1,14 @@
+diff --git a/schema.prisma b/schema.prisma
+index 190e2a8..65d7d30 100644
+--- a/schema.prisma
++++ b/schema.prisma
+@@ -8,3 +8,9 @@ datasource db {
+ generator client {
+   provider = "prisma-client-js"
+ }
++
++model Task {
++  id          Int     @id @default(autoincrement())
++  description String
++  isDone      Boolean @default(false)
++}

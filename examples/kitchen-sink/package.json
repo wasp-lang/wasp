@@ -35,7 +35,7 @@
     "@types/uuid": "^9.0.8",
     "@wasp.sh/wasp-app-runner": "^0.0.13",
     "prisma": "5.19.1",
-    "typescript": "5.8.2",
+    "typescript": "5.9.3",
     "vite": "^7.0.6"
   }
 }

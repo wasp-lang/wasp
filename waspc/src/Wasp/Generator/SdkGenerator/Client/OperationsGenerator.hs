@@ -22,7 +22,7 @@ import Wasp.Generator.SdkGenerator.Common
 import Wasp.Generator.SdkGenerator.Server.OperationsGenerator (getServerOperationsImportPath)
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import qualified Wasp.Generator.ServerGenerator.OperationsRoutesG as ServerOperationsRoutesG
-import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeJsImport)
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (ModuleImportPath), getJsImportStmtAndIdentifier, makeValueJsImport)
 import Wasp.Util ((<++>))
 
 genOperations :: AppSpec -> Generator [FileDraft]
@@ -127,7 +127,7 @@ getOperationTypeData operation = tmplData
 
     (operationTypeImportStmt, operationTypeImportIdentifier) =
       getJsImportStmtAndIdentifier $
-        makeJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ getOperationTypeName operation)
+        makeValueJsImport (ModuleImportPath serverOpsImportPath) (JsImportField $ getOperationTypeName operation)
     serverOpsImportPath = getServerOperationsImportPath operation
 
 data ClientOpsTemplatesDir

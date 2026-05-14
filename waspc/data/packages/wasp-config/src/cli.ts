@@ -29,10 +29,10 @@ export function parseProcessArgsOrThrow(args: string[]): {
   };
 }
 
-function getValidEntityNamesOrThrow(entitiesJson: string): string[] {
-  const entities = JSON.parse(entitiesJson);
+function getValidEntityNamesOrThrow(entityNamesJson: string): string[] {
+  const entities = JSON.parse(entityNamesJson);
   if (!Array.isArray(entities)) {
-    throw new Error("The entities JSON must be an array of entity names.");
+    throw new Error("The entity names JSON must be an array of entity names.");
   }
   return entities;
 }

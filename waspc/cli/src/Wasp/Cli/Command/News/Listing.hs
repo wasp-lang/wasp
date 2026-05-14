@@ -1,5 +1,3 @@
-{-# LANGUAGE NamedFieldPuns #-}
-
 module Wasp.Cli.Command.News.Listing
   ( -- * News Listing
 

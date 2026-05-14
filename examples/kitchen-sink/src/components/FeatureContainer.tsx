@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { useLocation } from "react-router";
-import { Link, type Routes } from "wasp/client/router";
+import { NavLink, type Routes } from "wasp/client/router";
 import { cn } from "../cn";
 
 export function FeatureContainer({ children }: React.PropsWithChildren<{}>) {
@@ -142,21 +141,40 @@ const features: Feature[] = [
     to: "/profile",
     title: "User Profile",
   },
+  {
+    to: "/lazy/no",
+    title: "Eager Route",
+    isPublic: true,
+  },
+  {
+    to: "/lazy/yes",
+    title: "Lazy Route",
+    isPublic: true,
+  },
+  {
+    to: "/prerender",
+    title: "Prerendering",
+    isPublic: true,
+  },
+  {
+    to: "/hydration-mismatch",
+    title: "Hydration Mismatch",
+    isPublic: true,
+  },
 ];
 
 function FeatureCard({ title, isPublic, ...routeProps }: Feature) {
-  const location = useLocation();
-  const isActive = location.pathname.startsWith(routeProps.to);
-
   return (
-    <Link
+    <NavLink
       {...routeProps}
-      className={cn(
-        "group relative block rounded-lg border border-transparent p-3 transition-all duration-200 hover:bg-gray-50",
-        isActive
-          ? "border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-50"
-          : "text-gray-700 hover:text-gray-900",
-      )}
+      className={({ isActive }) =>
+        cn(
+          "group relative block rounded-lg border border-transparent p-3 transition-all duration-200 hover:bg-gray-50",
+          isActive
+            ? "border-gray-200 bg-gray-50 text-gray-900 hover:bg-gray-50"
+            : "text-gray-700 hover:text-gray-900",
+        )
+      }
     >
       <div className="flex items-center gap-2">
         <h3 className="text-sm leading-tight font-medium">{title}</h3>
@@ -166,6 +184,6 @@ function FeatureCard({ title, isPublic, ...routeProps }: Feature) {
           </span>
         )}
       </div>
-    </Link>
+    </NavLink>
   );
 }
