@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from "fs/promises";
 import { dirname } from "path";
 import { lowerSrcImports } from "../lowerSrcImports.js";
-import { compileTsSourceToJs } from "./tsCompiler.js";
+import { compileTsSourceToJs } from "./inMemoryTsCompiler.js";
 
 export async function compileWaspTsFileToJsFile({
   inputPath,

@@ -1,16 +1,6 @@
 import { dirname, resolve } from "path";
 import * as ts from "typescript";
 
-type TsSource = {
-  fileName: string;
-  text: string;
-};
-
-type EmittedJsFile = {
-  fileName: string;
-  text: string;
-};
-
 export function compileTsSourceToJs({
   source,
   sourcePath,
@@ -24,7 +14,7 @@ export function compileTsSourceToJs({
 }): string {
   const tsConfig = parseTsConfigOrThrow(tsconfigPath, tsConfigSource);
 
-  return compileTsSource(
+  return compileTsSourceWithConfigToJs(
     {
       fileName: sourcePath,
       text: source,
@@ -55,8 +45,8 @@ function parseTsConfigOrThrow(
   return parsedConfig;
 }
 
-function compileTsSource(
-  source: TsSource,
+function compileTsSourceWithConfigToJs(
+  source: InMemoryTsSource,
   tsConfig: ts.ParsedCommandLine,
 ): string {
   const options: ts.CompilerOptions = {
@@ -68,67 +58,81 @@ function compileTsSource(
     sourceMap: false,
     inlineSourceMap: false,
   };
-  const emittedJsFiles: EmittedJsFile[] = [];
-  const host = makeCompilerHostWithSource({
+
+  return emitInMemoryTsSourceToJs({
+    options,
+    projectReferences: tsConfig.projectReferences,
+    source,
+  });
+}
+
+type InMemoryTsSource = {
+  fileName: string;
+  text: string;
+};
+
+/**
+ * Compiles a single in-memory file while resolving all other files from disk.
+ */
+function emitInMemoryTsSourceToJs({
+  options,
+  projectReferences,
+  source,
+}: {
+  options: ts.CompilerOptions;
+  projectReferences?: readonly ts.ProjectReference[];
+  source: InMemoryTsSource;
+}): string {
+  const emittedJsTexts: string[] = [];
+
+  const host = createCompilerHostForInMemorySource({
     options,
     source,
-    onJsOutput: (output) => emittedJsFiles.push(output),
+    onJsEmit: (text) => emittedJsTexts.push(text),
   });
   const program = ts.createProgram({
     rootNames: [source.fileName],
     options,
     host,
-    projectReferences: tsConfig.projectReferences,
+    projectReferences,
   });
-
   throwIfDiagnostics(ts.getPreEmitDiagnostics(program));
 
   const emitResult = program.emit();
   throwIfDiagnostics(emitResult.diagnostics);
 
-  return getOnlyEmittedJsFile(emitResult, emittedJsFiles).text;
+  return getOnlyEmittedJsText(emitResult, emittedJsTexts);
 }
 
-function getOnlyEmittedJsFile(
-  emitResult: ts.EmitResult,
-  emittedJsFiles: EmittedJsFile[],
-): EmittedJsFile {
-  const [emittedJsFile, extraJsFile] = emittedJsFiles;
-
-  if (emitResult.emitSkipped || !emittedJsFile) {
-    throw new Error("TypeScript did not emit executable JavaScript.");
-  }
-
-  if (extraJsFile) {
-    throw new Error(
-      `TypeScript emitted multiple JavaScript files for the Wasp TS spec: ${emittedJsFiles
-        .map((file) => file.fileName)
-        .join(", ")}.`,
-    );
-  }
-
-  return emittedJsFile;
-}
-
-function makeCompilerHostWithSource({
+/**
+ * Creates a TypeScript compiler host that reads the input source from memory,
+ * reads dependencies from disk, and reports emitted JS through a callback.
+ */
+function createCompilerHostForInMemorySource({
   options,
   source,
-  onJsOutput,
+  onJsEmit,
 }: {
   options: ts.CompilerOptions;
-  source: TsSource;
-  onJsOutput: (output: EmittedJsFile) => void;
+  source: InMemoryTsSource;
+  onJsEmit: (text: string) => void;
 }): ts.CompilerHost {
   const host = ts.createCompilerHost(options);
-  const sourceFileName = canonicalizePath(source.fileName);
-  const isSource = (fileName: string) =>
-    canonicalizePath(fileName) === sourceFileName;
+
+  const isInputSourceFile = (() => {
+    const canonicalize = (fileName: string) =>
+      host.getCanonicalFileName(resolve(fileName));
+    const sourceFileName = canonicalize(source.fileName);
+
+    return (fileName: string) => canonicalize(fileName) === sourceFileName;
+  })();
+
   const getSourceFileFromDisk = host.getSourceFile.bind(host);
   const readFileFromDisk = host.readFile?.bind(host) ?? ts.sys.readFile;
   const fileExistsOnDisk = host.fileExists.bind(host);
 
   host.getSourceFile = (fileName, languageVersion, onError) => {
-    if (isSource(fileName)) {
+    if (isInputSourceFile(fileName)) {
       return ts.createSourceFile(
         source.fileName,
         source.text,
@@ -142,9 +146,10 @@ function makeCompilerHostWithSource({
   };
 
   host.readFile = (fileName) =>
-    isSource(fileName) ? source.text : readFileFromDisk(fileName);
+    isInputSourceFile(fileName) ? source.text : readFileFromDisk(fileName);
 
-  host.fileExists = (fileName) => isSource(fileName) || fileExistsOnDisk(fileName);
+  host.fileExists = (fileName) =>
+    isInputSourceFile(fileName) || fileExistsOnDisk(fileName);
 
   host.writeFile = (
     fileName,
@@ -155,20 +160,34 @@ function makeCompilerHostWithSource({
   ) => {
     if (
       fileName.endsWith(".js") &&
-      sourceFiles?.some((sourceFile) => isSource(sourceFile.fileName)) === true
+      sourceFiles?.some((sourceFile) =>
+        isInputSourceFile(sourceFile.fileName),
+      ) === true
     ) {
-      onJsOutput({ fileName, text });
+      onJsEmit(text);
     }
   };
 
   return host;
 }
 
-function canonicalizePath(fileName: string): string {
-  const absolutePath = resolve(fileName);
-  return ts.sys.useCaseSensitiveFileNames
-    ? absolutePath
-    : absolutePath.toLowerCase();
+function getOnlyEmittedJsText(
+  emitResult: ts.EmitResult,
+  emittedJsTexts: string[],
+): string {
+  const emittedJsText = emittedJsTexts.at(0);
+
+  if (emitResult.emitSkipped || !emittedJsText) {
+    throw new Error("TypeScript did not emit executable JavaScript.");
+  }
+
+  if (emittedJsTexts.length > 1) {
+    throw new Error(
+      "TypeScript emitted multiple JavaScript files for the Wasp TS spec.",
+    );
+  }
+
+  return emittedJsText;
 }
 
 function throwIfDiagnostics(diagnostics: readonly ts.Diagnostic[]): void {
