@@ -31,7 +31,7 @@ version = "latest"
 bin = "ghcup"
 
 [plugins]
-"mise-ghcup" = "https://github.com/cprecioso/mise-ghcup.git"
+"vfox:mise-ghcup" = "https://github.com/cprecioso/mise-ghcup.git"
 
 [settings]
 lockfile = true
