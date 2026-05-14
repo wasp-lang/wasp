@@ -52,7 +52,7 @@ export class DiagnosticError extends Error {
 }
 
 /**
- * Supported @src imports are value imports, e.g.
+ * Supported @src imports are value imports, e.g.:
  * `import MainPage from "@src/MainPage"`,
  * `import { getTasks } from "@src/operations"`, or
  * `import * as ops from "@src/operations"`.
@@ -93,10 +93,10 @@ export function assertSupportedSrcImportDeclaration(
 }
 
 /**
- * Supported import-equals declarations do not target @src, e.g.
+ * Import-equals declarations are supported unless they target @src, e.g.
  * `import path = require("node:path")`.
  */
-export function assertSupportedImportEqualsDeclaration(
+export function assertNonSrcImportEqualsDeclaration(
   sourceFile: ts.SourceFile,
   stmt: ts.ImportEqualsDeclaration,
 ): void {
@@ -109,10 +109,10 @@ export function assertSupportedImportEqualsDeclaration(
 }
 
 /**
- * Supported re-exports do not target @src, e.g.
+ * Re-exports are supported unless they target @src, e.g.
  * `export { helper } from "./helpers"`.
  */
-export function assertSupportedReExport(
+export function assertNonSrcReExport(
   sourceFile: ts.SourceFile,
   stmt: ts.ExportDeclaration,
 ): void {
