@@ -11,7 +11,6 @@ import {
   mapPage,
   mapQuery,
   mapRoute,
-  slugify,
 } from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
@@ -101,12 +100,12 @@ describe("mapApp", () => {
       },
       {
         declType: "Api",
-        declName: slugify(`${apiPart.method}_${apiPart.path}_api`),
+        declName: deriveExtImportName(apiPart.fn),
         declValue: mapApi(apiPart, entityRefParser),
       },
       {
         declType: "ApiNamespace",
-        declName: slugify(`${apiNamespacePart.path}_apiNamespace`),
+        declName: deriveExtImportName(apiNamespacePart.middlewareConfigFn),
         declValue: mapApiNamespace(apiNamespacePart),
       },
     ] satisfies AppSpec.Decl[]);
@@ -301,6 +300,13 @@ describe("mapApi", () => {
     testMapApi(Fixtures.getApi("full"));
   });
 
+  test("should throw if entity refs are not provided", () => {
+    const api = Fixtures.getApi("full");
+    const entityRefParser = makeRefParser("Entity", []);
+
+    expect(() => mapApi(api, entityRefParser)).toThrowError();
+  });
+
   function testMapApi(api: TsAppSpec.Api): void {
     const entityRefParser = makeRefParser("Entity", api.entities ?? []);
 
@@ -334,37 +340,6 @@ describe("mapApiNamespace", () => {
       path: apiNamespace.path,
     } satisfies AppSpec.ApiNamespace);
   }
-});
-
-describe("slugify", () => {
-  test("lowercases and camelCases the method-path-suffix shape used for api parts", () => {
-    expect(slugify("GET_/foo/bar_api")).toBe("getFooBarApi");
-  });
-
-  test("camelCases the path-suffix shape used for apiNamespace parts", () => {
-    expect(slugify("/foo/bar_apiNamespace")).toBe("fooBarApinamespace");
-  });
-
-  test("strips leading non-alphanumeric characters", () => {
-    expect(slugify("///foo")).toBe("foo");
-  });
-
-  test("collapses runs of non-alphanumeric characters into one camelCase boundary", () => {
-    expect(slugify("foo___bar")).toBe("fooBar");
-  });
-
-  test("drops trailing non-alphanumeric characters", () => {
-    expect(slugify("foo_")).toBe("foo");
-  });
-
-  test("preserves digits", () => {
-    expect(slugify("/api/v1/users")).toBe("apiV1Users");
-  });
-
-  test("collapses path-param and literal segments to the same slug", () => {
-    expect(slugify("GET_/users/:id_api")).toBe("getUsersIdApi");
-    expect(slugify("GET_/users/id_api")).toBe("getUsersIdApi");
-  });
 });
 
 describe("mapExtImport", () => {

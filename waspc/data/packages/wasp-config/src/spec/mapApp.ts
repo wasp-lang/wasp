@@ -59,7 +59,7 @@ export function mapApp(
   const apiDecls = mapToDecls(
     apis,
     "Api",
-    (api) => slugify(`${api.method}_${api.path}_api`),
+    (api) => deriveExtImportName(api.fn),
     (api) => mapApi(api, entityRefParser),
   );
 
@@ -67,7 +67,7 @@ export function mapApp(
   const apiNamespaceDecls = mapToDecls(
     apiNamespaces,
     "ApiNamespace",
-    (ns) => slugify(`${ns.path}_apiNamespace`),
+    (ns) => deriveExtImportName(ns.middlewareConfigFn),
     mapApiNamespace,
   );
 
@@ -273,13 +273,6 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
     declName: deriveName(item),
     declValue: mapValue(item),
   }));
-}
-
-export function slugify(str: string) {
-  return str
-    .toLowerCase()
-    .replace(/^[^a-z0-9]+/i, "")
-    .replaceAll(/[^a-z0-9]+([a-z]?)/gi, (_, c: string) => c.toUpperCase());
 }
 
 export function deriveExtImportName(extImport: TsAppSpec.ExtImport): string {
