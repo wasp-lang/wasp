@@ -58,6 +58,7 @@ describe("mapApp", () => {
 
   test("should map full app correctly", () => {
     const page = Fixtures.getPage("full");
+    const route = Fixtures.getRoute("full");
     const query = Fixtures.getQuery("full");
     const emailVerifyRoute = Fixtures.getEmailVerifyRoute();
     const passwordResetRoute = Fixtures.getPasswordResetRoute();
@@ -71,7 +72,7 @@ describe("mapApp", () => {
       title: "Mock App",
       head: ['<link rel="icon" href="/favicon.ico" />'],
       auth: authConfig,
-      parts: [page, query, emailVerifyRoute, passwordResetRoute],
+      parts: [page, route, query, emailVerifyRoute, passwordResetRoute],
     });
 
     const result = mapApp(inputApp, entityNames);
@@ -117,6 +118,11 @@ describe("mapApp", () => {
         declType: "Page",
         declName: deriveExtImportName(passwordResetRoute.page.component),
         declValue: mapPage(passwordResetRoute.page),
+      },
+      {
+        declType: "Route",
+        declName: route.name,
+        declValue: mapRoute(route),
       },
       {
         declType: "Route",
