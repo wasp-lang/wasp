@@ -5,10 +5,16 @@ import {
   makeRefParser,
   mapAction,
   mapApp,
+  mapClient,
+  mapDb,
+  mapEmailFromField,
+  mapEmailSender,
   mapExtImport,
   mapPage,
   mapQuery,
   mapRoute,
+  mapServer,
+  mapWebSocket,
 } from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
@@ -44,6 +50,11 @@ describe("mapApp", () => {
     const page = Fixtures.getPage("full");
     const route = Fixtures.getRoute("full");
     const query = Fixtures.getQuery("full");
+    const server = Fixtures.getServerConfig("full");
+    const client = Fixtures.getClientConfig("full");
+    const db = Fixtures.getDbConfig("full");
+    const emailSender = Fixtures.getEmailSenderConfig("full");
+    const webSocket = Fixtures.getWebSocketConfig("full");
     const entityNames = Fixtures.getEntities("full");
     const entityRefParser = makeRefParser("Entity", entityNames);
 
@@ -52,6 +63,11 @@ describe("mapApp", () => {
       wasp: { version: "^0.16.3" },
       title: "Mock App",
       head: ['<link rel="icon" href="/favicon.ico" />'],
+      server,
+      client,
+      db,
+      emailSender,
+      webSocket,
       parts: [page, route, query],
     });
 
@@ -72,11 +88,11 @@ describe("mapApp", () => {
           title: inputApp.title,
           head: inputApp.head,
           auth: undefined,
-          server: undefined,
-          client: undefined,
-          db: undefined,
-          emailSender: undefined,
-          webSocket: undefined,
+          server: mapServer(server),
+          client: mapClient(client),
+          db: mapDb(db),
+          emailSender: mapEmailSender(emailSender),
+          webSocket: mapWebSocket(webSocket),
         },
       },
       {
@@ -274,6 +290,129 @@ describe("mapAction", () => {
       entities: action.entities?.map(entityRefParser),
       auth: action.auth,
     } satisfies AppSpec.Action);
+  }
+});
+
+describe("mapServer", () => {
+  test("should map minimal config correctly", () => {
+    testMapServer(Fixtures.getServerConfig("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapServer(Fixtures.getServerConfig("full"));
+  });
+
+  function testMapServer(server: TsAppSpec.Server): void {
+    const result = mapServer(server);
+
+    expect(result).toStrictEqual({
+      setupFn: server.setupFn && mapExtImport(server.setupFn),
+      middlewareConfigFn:
+        server.middlewareConfigFn && mapExtImport(server.middlewareConfigFn),
+      envValidationSchema:
+        server.envValidationSchema && mapExtImport(server.envValidationSchema),
+    } satisfies AppSpec.Server);
+  }
+});
+
+describe("mapClient", () => {
+  test("should map minimal config correctly", () => {
+    testMapClient(Fixtures.getClientConfig("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapClient(Fixtures.getClientConfig("full"));
+  });
+
+  function testMapClient(client: TsAppSpec.Client): void {
+    const result = mapClient(client);
+
+    expect(result).toStrictEqual({
+      rootComponent: client.rootComponent && mapExtImport(client.rootComponent),
+      setupFn: client.setupFn && mapExtImport(client.setupFn),
+      baseDir: client.baseDir,
+      envValidationSchema:
+        client.envValidationSchema && mapExtImport(client.envValidationSchema),
+    } satisfies AppSpec.Client);
+  }
+});
+
+describe("mapDb", () => {
+  test("should map minimal config correctly", () => {
+    testMapDb(Fixtures.getDbConfig("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapDb(Fixtures.getDbConfig("full"));
+  });
+
+  function testMapDb(db: TsAppSpec.Db): void {
+    const result = mapDb(db);
+
+    expect(result).toStrictEqual({
+      seeds: db.seeds?.map((seed) => mapExtImport(seed)),
+      prismaSetupFn: db.prismaSetupFn && mapExtImport(db.prismaSetupFn),
+    } satisfies AppSpec.Db);
+  }
+});
+
+describe("mapEmailSender", () => {
+  test("should map minimal config correctly", () => {
+    testMapEmailSender(Fixtures.getEmailSenderConfig("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapEmailSender(Fixtures.getEmailSenderConfig("full"));
+  });
+
+  function testMapEmailSender(emailSender: TsAppSpec.EmailSender): void {
+    const result = mapEmailSender(emailSender);
+
+    expect(result).toStrictEqual({
+      provider: emailSender.provider,
+      defaultFrom:
+        emailSender.defaultFrom && mapEmailFromField(emailSender.defaultFrom),
+    } satisfies AppSpec.EmailSender);
+  }
+});
+
+describe("mapEmailFromField", () => {
+  test("should map minimal config correctly", () => {
+    testMapEmailFromField(Fixtures.getEmailFromField("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapEmailFromField(Fixtures.getEmailFromField("full"));
+  });
+
+  function testMapEmailFromField(
+    emailFromField: TsAppSpec.EmailFromField,
+  ): void {
+    const result = mapEmailFromField(emailFromField);
+
+    expect(result).toStrictEqual({
+      name: emailFromField.name,
+      email: emailFromField.email,
+    } satisfies AppSpec.EmailFromField);
+  }
+});
+
+describe("mapWebSocket", () => {
+  test("should map minimal config correctly", () => {
+    testMapWebSocket(Fixtures.getWebSocketConfig("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapWebSocket(Fixtures.getWebSocketConfig("full"));
+  });
+
+  function testMapWebSocket(webSocket: TsAppSpec.WebSocket): void {
+    const result = mapWebSocket(webSocket);
+
+    expect(result).toStrictEqual({
+      fn: mapExtImport(webSocket.fn),
+      autoConnect: webSocket.autoConnect,
+    } satisfies AppSpec.WebSocket);
   }
 });
 
