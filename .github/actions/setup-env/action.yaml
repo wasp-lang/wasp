@@ -17,8 +17,6 @@ runs:
   steps:
     - name: Install Mise tools
       uses: jdx/mise-action@v4
-      with:
-        log_level: debug
 
     - name: Cache npm dependencies
       uses: actions/setup-node@v6

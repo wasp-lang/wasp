@@ -37,4 +37,8 @@ bin = "ghcup"
 [settings]
 lockfile = true
 experimental = true
-node.compile = false # The Node backend has a knack for compiling on Alpine even when it has a pre-built binary available.
+
+[settings.node]
+# The Node backend has a knack for compiling from source on Alpine even when it
+# has a pre-built binary available. So we explicitly tell it not to.
+compile = false
