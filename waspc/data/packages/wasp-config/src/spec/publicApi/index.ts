@@ -1,4 +1,4 @@
-export { action, app, auth, page, query, route } from "./constructors.js";
+export { action, app, auth, job, page, query, route } from "./constructors.js";
 export type {
   Action,
   App,
@@ -9,6 +9,7 @@ export type {
   EmailVerificationConfig,
   ExtImport,
   ExternalAuthConfig,
+  Job,
   Page,
   Part,
   PasswordResetConfig,

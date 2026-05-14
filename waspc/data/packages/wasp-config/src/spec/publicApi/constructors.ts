@@ -1,4 +1,12 @@
-import type { Action, App, Auth, Page, Query, Route } from "./tsAppSpec.js";
+import type {
+  Action,
+  App,
+  Auth,
+  Job,
+  Page,
+  Query,
+  Route,
+} from "./tsAppSpec.js";
 
 export function app(input: Omit<App, "kind">): App {
   return input;
@@ -36,4 +44,14 @@ export function action(
 
 export function auth(config: Auth): Auth {
   return config;
+}
+
+export function job(
+  fn: Job["fn"],
+  config: Pick<
+    Job,
+    "executor" | "schedule" | "entities" | "performExecutorOptions"
+  >,
+): Job {
+  return { kind: "job", fn, ...config };
 }
