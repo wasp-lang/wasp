@@ -13,15 +13,7 @@ export async function startLocalSmtpServer(): Promise<void> {
   spawnWithLog({
     name: "smtp-server",
     cmd: "docker",
-    args: [
-      "run",
-      "--rm",
-      "-p",
-      "1080:1080",
-      "-p",
-      "1025:1025",
-      mailcrabImage,
-    ],
+    args: ["run", "--rm", "-p", "1080:1080", "-p", "1025:1025", mailcrabImage],
   }).then(({ exitCode }) => {
     if (exitCode !== 0) {
       logger.error(`SMTP server exited with code ${exitCode}`);
