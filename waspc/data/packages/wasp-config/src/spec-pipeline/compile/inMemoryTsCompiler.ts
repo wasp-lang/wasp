@@ -1,6 +1,12 @@
 import { dirname, resolve } from "path";
 import * as ts from "typescript";
 
+/**
+ * Compiles the provided TS source to JS.
+ *
+ * The source file and emitted JS stay in memory. Dependencies are resolved from
+ * disk according to the provided TS config.
+ */
 export function compileTsSourceToJs({
   source,
   sourcePath,
@@ -45,6 +51,10 @@ function parseTsConfigOrThrow(
   return parsedConfig;
 }
 
+/**
+ * Compiles an in-memory TS source with an already parsed TS config and returns
+ * the emitted JS captured in memory.
+ */
 function compileTsSourceWithConfigToJs(
   source: InMemoryTsSource,
   tsConfig: ts.ParsedCommandLine,
@@ -66,13 +76,9 @@ function compileTsSourceWithConfigToJs(
   });
 }
 
-type InMemoryTsSource = {
-  fileName: string;
-  text: string;
-};
-
 /**
- * Compiles a single in-memory file while resolving all other files from disk.
+ * Compiles a single in-memory TS source and captures emitted JS in memory
+ * instead of writing it to disk.
  */
 function emitInMemoryTsSourceToJs({
   options,
@@ -105,8 +111,12 @@ function emitInMemoryTsSourceToJs({
 }
 
 /**
- * Creates a TypeScript compiler host that reads the input source from memory,
- * reads dependencies from disk, and reports emitted JS through a callback.
+ * Creates a TypeScript compiler host from the default host, overriding only the
+ * in-memory source and JS output behavior.
+ *
+ * The host reads the input source from memory, falls back to disk for all other
+ * files, and captures JS emitted for the input source through `onJsEmit` instead
+ * of writing it to disk.
  */
 function createCompilerHostForInMemorySource({
   options,
@@ -170,6 +180,11 @@ function createCompilerHostForInMemorySource({
 
   return host;
 }
+
+type InMemoryTsSource = {
+  fileName: string;
+  text: string;
+};
 
 function getOnlyEmittedJsText(
   emitResult: ts.EmitResult,
