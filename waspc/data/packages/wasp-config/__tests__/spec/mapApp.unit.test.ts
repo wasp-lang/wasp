@@ -44,6 +44,7 @@ describe("mapApp", () => {
 
   test("should map full app correctly", () => {
     const page = Fixtures.getPage("full");
+    const route = Fixtures.getRoute("full");
     const query = Fixtures.getQuery("full");
     const job = Fixtures.getJob("full");
     const entityNames = Fixtures.getEntities("full");
@@ -54,7 +55,7 @@ describe("mapApp", () => {
       wasp: { version: "^0.16.3" },
       title: "Mock App",
       head: ['<link rel="icon" href="/favicon.ico" />'],
-      parts: [page, query, job],
+      parts: [page, route, query, job],
     });
 
     const result = mapApp(inputApp, entityNames);
@@ -85,6 +86,11 @@ describe("mapApp", () => {
         declType: "Page",
         declName: deriveExtImportName(page.component),
         declValue: mapPage(page),
+      },
+      {
+        declType: "Route",
+        declName: route.name,
+        declValue: mapRoute(route),
       },
       {
         declType: "Query",
