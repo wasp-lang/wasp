@@ -676,6 +676,7 @@ test-suite waspc-tests
     megaparsec,
     mtl,
     neat-interpolation,
+    parsec,
     path,
     split,
     strong-path,
