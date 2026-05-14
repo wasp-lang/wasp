@@ -21,6 +21,9 @@ min_version = "2026.5.7"
 # - CI files that use Alpine (search for `alpine` in /.github).
 node = "24.14.1"
 
+# Manually configuring `ghcup` to be taken from GitHub releases, as the built-in
+# tool doesn't support Windows (yet).
+# https://github.com/cprecioso/aqua-registry/pull/1
 [tool_alias]
 ghcup = "github:haskell/ghcup-hs"
 
@@ -34,3 +37,4 @@ bin = "ghcup"
 [settings]
 lockfile = true
 experimental = true
+node.compile = false # The Node backend has a knack for compiling on Alpine even when it has a pre-built binary available.
