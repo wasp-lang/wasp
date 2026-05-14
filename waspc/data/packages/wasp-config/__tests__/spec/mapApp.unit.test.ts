@@ -6,9 +6,11 @@ import {
   mapAction,
   mapApp,
   mapExtImport,
+  mapJob,
   mapPage,
   mapQuery,
   mapRoute,
+  mapSchedule,
 } from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
@@ -44,6 +46,7 @@ describe("mapApp", () => {
     const page = Fixtures.getPage("full");
     const route = Fixtures.getRoute("full");
     const query = Fixtures.getQuery("full");
+    const job = Fixtures.getJob("full");
     const entityNames = Fixtures.getEntities("full");
     const entityRefParser = makeRefParser("Entity", entityNames);
 
@@ -52,7 +55,7 @@ describe("mapApp", () => {
       wasp: { version: "^0.16.3" },
       title: "Mock App",
       head: ['<link rel="icon" href="/favicon.ico" />'],
-      parts: [page, route, query],
+      parts: [page, route, query, job],
     });
 
     const result = mapApp(inputApp, entityNames);
@@ -93,6 +96,11 @@ describe("mapApp", () => {
         declType: "Query",
         declName: deriveExtImportName(query.fn),
         declValue: mapQuery(query, entityRefParser),
+      },
+      {
+        declType: "Job",
+        declName: deriveExtImportName(job.fn),
+        declValue: mapJob(job, entityRefParser),
       },
     ] satisfies AppSpec.Decl[]);
   });
@@ -242,6 +250,13 @@ describe("mapQuery", () => {
     testMapQuery(Fixtures.getQuery("full"));
   });
 
+  test("should throw if entity ref is not provided", () => {
+    const query = Fixtures.getQuery("full");
+    const entityRefParser = makeRefParser("Entity", []);
+
+    expect(() => mapQuery(query, entityRefParser)).toThrowError();
+  });
+
   function testMapQuery(query: TsAppSpec.Query): void {
     const entityRefParser = makeRefParser("Entity", query.entities ?? []);
 
@@ -264,6 +279,13 @@ describe("mapAction", () => {
     testMapAction(Fixtures.getAction("full"));
   });
 
+  test("should throw if entity ref is not provided", () => {
+    const action = Fixtures.getAction("full");
+    const entityRefParser = makeRefParser("Entity", []);
+
+    expect(() => mapAction(action, entityRefParser)).toThrowError();
+  });
+
   function testMapAction(action: TsAppSpec.Action): void {
     const entityRefParser = makeRefParser("Entity", action.entities ?? []);
 
@@ -274,6 +296,59 @@ describe("mapAction", () => {
       entities: action.entities?.map(entityRefParser),
       auth: action.auth,
     } satisfies AppSpec.Action);
+  }
+});
+
+describe("mapJob", () => {
+  test("should map minimal config correctly", () => {
+    testMapJob(Fixtures.getJob("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapJob(Fixtures.getJob("full"));
+  });
+
+  test("should throw if entity ref is not provided", () => {
+    const job = Fixtures.getJob("full");
+    const entityRefParser = makeRefParser("Entity", []);
+
+    expect(() => mapJob(job, entityRefParser)).toThrowError();
+  });
+
+  function testMapJob(job: TsAppSpec.Job): void {
+    const entityRefParser = makeRefParser("Entity", job.entities ?? []);
+
+    const result = mapJob(job, entityRefParser);
+
+    expect(result).toStrictEqual({
+      executor: job.executor,
+      perform: {
+        fn: mapExtImport(job.fn),
+        executorOptions: job.performExecutorOptions,
+      },
+      schedule: job.schedule && mapSchedule(job.schedule),
+      entities: job.entities?.map(entityRefParser),
+    } satisfies AppSpec.Job);
+  }
+});
+
+describe("mapSchedule", () => {
+  test("should map minimal config correctly", () => {
+    testMapSchedule(Fixtures.getSchedule("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapSchedule(Fixtures.getSchedule("full"));
+  });
+
+  function testMapSchedule(schedule: TsAppSpec.Schedule): void {
+    const result = mapSchedule(schedule);
+
+    expect(result).toStrictEqual({
+      cron: schedule.cron,
+      args: schedule.args,
+      executorOptions: schedule.executorOptions,
+    } satisfies AppSpec.Schedule);
   }
 });
 
