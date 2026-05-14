@@ -18,7 +18,6 @@ min_version = "2026.5.7"
 # - The compiler (Wasp.Node.Version).
 # - The docs: /docs/introduction/quick-start.md ("Requirements" section).
 # - The docs plugin: /web/src/remark/search-and-replace.ts
-# - CI files that use Alpine (search for `alpine` in /.github).
 node = "24.14.1"
 
 # Manually configuring `ghcup` to be taken from GitHub releases, as the built-in

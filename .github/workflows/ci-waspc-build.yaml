@@ -71,15 +71,10 @@ jobs:
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
-            # actions/setup-node does not work in alpine.
-            # https://github.com/actions/setup-node/issues/1293 To work around
-            # this, we use the alpine variant of the official node image, which
-            # already has a working Node.js version installed.
-            # We also pin the `alpine` version to a specific one we have tested,
+            # We pin the `alpine` version to a specific one we have tested,
             # since newer releases might have different versions of the
             # libraries we depend on.
-            # NOTE: Keep the node version in sync with `node` in /mise.toml.
-            container: node:24-alpine3.23
+            container: alpine:3.23
             skip-node-install: true
             static: true
             install-deps: |
