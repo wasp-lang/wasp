@@ -1,6 +1,17 @@
-export { action, app, job, page, query, route } from "./constructors.js";
+export {
+  action,
+  api,
+  apiNamespace,
+  app,
+  job,
+  page,
+  query,
+  route,
+} from "./constructors.js";
 export type {
   Action,
+  Api,
+  ApiNamespace,
   App,
   Auth,
   AuthMethods,
@@ -12,6 +23,7 @@ export type {
   EmailVerificationConfig,
   ExtImport,
   ExternalAuthConfig,
+  HttpMethod,
   Job,
   Page,
   Part,

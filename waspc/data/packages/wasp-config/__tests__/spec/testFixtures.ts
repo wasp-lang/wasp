@@ -8,6 +8,8 @@ import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
 import {
   action,
+  api,
+  apiNamespace,
   app,
   job,
   page,
@@ -119,6 +121,44 @@ export function getAction(scope: ConfigScope): Config<TsAppSpec.Action> {
       return action(getExtImport("full", "named"), {
         entities: ["Task"],
         auth: true,
+      });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getApi<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Api>;
+export function getApi(scope: ConfigScope): Config<TsAppSpec.Api> {
+  switch (scope) {
+    case "minimal":
+      return api("GET", "/foo/bar", getExtImport("minimal", "named"));
+    case "full":
+      return api("POST", "/foo/bar", getExtImport("full", "named"), {
+        middlewareConfigFn: getExtImport("full", "named"),
+        entities: ["Task"],
+        auth: true,
+      });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getApiNamespace<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.ApiNamespace>;
+export function getApiNamespace(
+  scope: ConfigScope,
+): Config<TsAppSpec.ApiNamespace> {
+  switch (scope) {
+    case "minimal":
+      return apiNamespace("/foo", {
+        middlewareConfigFn: getExtImport("minimal", "named"),
+      });
+    case "full":
+      return apiNamespace("/foo", {
+        middlewareConfigFn: getExtImport("full", "named"),
       });
     default:
       assertUnreachable(scope);
