@@ -402,7 +402,7 @@ describe("mapAuth", () => {
 
   test("should throw if emailVerification clientRoute ref is not provided when defined", () => {
     const auth = Fixtures.getAuthConfig("full");
-    expect(auth.methods.email.emailVerification.clientRoute).toBeDefined();
+    assertDefined(auth.methods.email?.emailVerification.clientRoute);
     testMapAuth(auth, {
       overrideRoutes: [auth.methods.email.passwordReset.clientRoute],
       shouldError: true,
@@ -411,7 +411,7 @@ describe("mapAuth", () => {
 
   test("should throw if passwordReset clientRoute ref is not provided when defined", () => {
     const auth = Fixtures.getAuthConfig("full");
-    expect(auth.methods.email.passwordReset.clientRoute).toBeDefined();
+    assertDefined(auth.methods.email?.passwordReset.clientRoute);
     testMapAuth(auth, {
       overrideRoutes: [auth.methods.email.emailVerification.clientRoute],
       shouldError: true,
@@ -484,7 +484,7 @@ describe("mapAuthMethods", () => {
 
   test("should throw if emailVerification clientRoute ref is not provided when defined", () => {
     const authMethods = Fixtures.getAuthMethods("full");
-    expect(authMethods.email.emailVerification.clientRoute).toBeDefined();
+    assertDefined(authMethods.email?.emailVerification.clientRoute);
     testMapAuthMethods(authMethods, {
       overrideRoutes: [authMethods.email.passwordReset.clientRoute],
       shouldError: true,
@@ -493,7 +493,7 @@ describe("mapAuthMethods", () => {
 
   test("should throw if passwordReset clientRoute ref is not provided when defined", () => {
     const authMethods = Fixtures.getAuthMethods("full");
-    expect(authMethods.email.passwordReset.clientRoute).toBeDefined();
+    assertDefined(authMethods.email?.passwordReset.clientRoute);
     testMapAuthMethods(authMethods, {
       overrideRoutes: [authMethods.email.emailVerification.clientRoute],
       shouldError: true,
@@ -976,3 +976,11 @@ describe("mapExtImport", () => {
     }
   }
 });
+
+/**
+ * An `expect(value).toBeDefined()` assertion that also narrows the type of the
+ * variable.
+ */
+function assertDefined<T>(value: T | null | undefined): asserts value is T {
+  expect(value).toBeDefined();
+}
