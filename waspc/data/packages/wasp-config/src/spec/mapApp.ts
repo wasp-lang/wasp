@@ -233,8 +233,11 @@ export function mapAuth(
         ? undefined
         : entityRefParser(externalAuthEntity),
     methods: mapAuthMethods(methods, routeRefParser),
-    onAuthFailedRedirectTo,
-    onAuthSucceededRedirectTo,
+    onAuthFailedRedirectTo:
+      onAuthFailedRedirectTo && routeTargetToString(onAuthFailedRedirectTo),
+    onAuthSucceededRedirectTo:
+      onAuthSucceededRedirectTo &&
+      routeTargetToString(onAuthSucceededRedirectTo),
     onBeforeSignup: onBeforeSignup && mapExtImport(onBeforeSignup),
     onAfterSignup: onAfterSignup && mapExtImport(onAfterSignup),
     onAfterEmailVerified:
@@ -311,7 +314,7 @@ export function mapEmailFlow(
   const { getEmailContentFn, clientRoute } = emailFlow;
   return {
     getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
-    clientRoute: routeRefParser(clientRoute),
+    clientRoute: routeTargetToRef(clientRoute, routeRefParser),
   };
 }
 
@@ -474,6 +477,19 @@ type GetPartForKind<Kind extends TsAppSpec.Part["kind"]> = Extract<
   TsAppSpec.Part,
   { kind: Kind }
 >;
+
+function routeTargetToString(routeTarget: TsAppSpec.RouteTarget) {
+  return typeof routeTarget === "string" ? routeTarget : routeTarget.path;
+}
+
+export function routeTargetToRef(
+  routeTarget: TsAppSpec.RouteTarget,
+  routeRefParser: RefParser<"Route">,
+) {
+  const routePath =
+    typeof routeTarget === "string" ? routeTarget : routeTarget.path;
+  return routeRefParser(routePath);
+}
 
 function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   items: T[],

@@ -18,9 +18,11 @@ export type Auth = AuthHooks & {
   userEntity: string;
   externalAuthEntity?: string;
   methods: AuthMethods;
-  onAuthFailedRedirectTo: string;
-  onAuthSucceededRedirectTo?: string;
+  onAuthFailedRedirectTo: RouteTarget;
+  onAuthSucceededRedirectTo?: RouteTarget;
 };
+
+export type RouteTarget = Route | string;
 
 export type AuthHooks = Partial<Record<AuthHookName, ExtImport>>;
 
@@ -64,7 +66,7 @@ export type BaseAuthMethodConfig = {
 
 export type EmailFlowConfig = {
   getEmailContentFn?: ExtImport;
-  clientRoute: string;
+  clientRoute: RouteTarget;
 };
 
 export type Server = {
