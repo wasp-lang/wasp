@@ -95,6 +95,14 @@ export function mapApp(
     (job) => mapJob(job, entityRefParser),
   );
 
+  const cruds = extractParts("crud", parts);
+  const crudDecls = mapToDecls(
+    cruds,
+    "Crud",
+    (crud) => `${crud.entity}s`,
+    (crud) => mapCrud(crud, entityRefParser),
+  );
+
   const appDecl = {
     declType: "App" as const,
     declName: name,
@@ -120,8 +128,7 @@ export function mapApp(
     Api: apiDecls,
     ApiNamespace: apiNamespaceDecls,
     Job: jobDecls,
-    // TODO: add these guys
-    Crud: [],
+    Crud: crudDecls,
   });
 }
 
@@ -421,6 +428,40 @@ export function mapJob(
     },
     schedule: schedule && mapSchedule(schedule),
     entities: entities?.map(entityRefParser),
+  };
+}
+
+export function mapCrud(
+  crud: TsAppSpec.Crud,
+  entityRefParser: RefParser<"Entity">,
+): AppSpec.Crud {
+  const { entity, operations } = crud;
+  return {
+    entity: entityRefParser(entity),
+    operations: mapCrudOperations(operations),
+  };
+}
+
+export function mapCrudOperations(
+  operations: TsAppSpec.CrudOperations,
+): AppSpec.CrudOperations {
+  const { get, getAll, create, update, delete: del } = operations;
+  return {
+    get: get && mapCrudOperationOptions(get),
+    getAll: getAll && mapCrudOperationOptions(getAll),
+    create: create && mapCrudOperationOptions(create),
+    update: update && mapCrudOperationOptions(update),
+    delete: del && mapCrudOperationOptions(del),
+  };
+}
+
+export function mapCrudOperationOptions(
+  options: TsAppSpec.CrudOperationOptions,
+): AppSpec.CrudOperationOptions {
+  const { isPublic, overrideFn } = options;
+  return {
+    isPublic,
+    overrideFn: overrideFn && mapExtImport(overrideFn),
   };
 }
 

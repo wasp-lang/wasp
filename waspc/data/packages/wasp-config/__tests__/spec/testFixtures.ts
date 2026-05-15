@@ -44,6 +44,7 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
           getRoute("full"),
           getQuery("full"),
           getJob("full"),
+          getCrud("full"),
           getEmailVerifyRoute(),
           getPasswordResetRoute(),
         ],
@@ -181,6 +182,77 @@ export function getJob(scope: ConfigScope): Config<TsAppSpec.Job> {
         entities: ["Task"],
         performExecutorOptions: { pgBoss: { jobOptions: { attempts: 3 } } },
       });
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getCrud<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.Crud>;
+export function getCrud(scope: ConfigScope): Config<TsAppSpec.Crud> {
+  // NOTE: Unlike the other parts, this fixture builds the object literally
+  // instead of calling the `crud()` constructor. `crud()` returns the public
+  // `Crud` type, whose `operations: CrudOperations` (all fields optional)
+  // satisfies neither `MinimalConfig<Crud>` (operations collapse to an empty
+  // object) nor `FullConfig<Crud>` (operations become fully required). Building
+  // the literal lets us keep the public type narrow, which is simpler for
+  // consumers.
+
+  switch (scope) {
+    case "minimal":
+      return {
+        kind: "crud",
+        entity: "Task",
+        operations: getCrudOperations("minimal"),
+      } satisfies MinimalConfig<TsAppSpec.Crud>;
+    case "full":
+      return {
+        kind: "crud",
+        entity: "Task",
+        operations: getCrudOperations("full"),
+      } satisfies FullConfig<TsAppSpec.Crud>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getCrudOperations<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.CrudOperations>;
+export function getCrudOperations(
+  scope: ConfigScope,
+): Config<TsAppSpec.CrudOperations> {
+  switch (scope) {
+    case "minimal":
+      return {} satisfies MinimalConfig<TsAppSpec.CrudOperations>;
+    case "full":
+      return {
+        get: getCrudOperationOptions("full"),
+        getAll: getCrudOperationOptions("full"),
+        create: getCrudOperationOptions("full"),
+        update: getCrudOperationOptions("full"),
+        delete: getCrudOperationOptions("full"),
+      } satisfies FullConfig<TsAppSpec.CrudOperations>;
+    default:
+      assertUnreachable(scope);
+  }
+}
+
+export function getCrudOperationOptions<Scope extends ConfigScope>(
+  scope: Scope,
+): ConfigFor<Scope, TsAppSpec.CrudOperationOptions>;
+export function getCrudOperationOptions(
+  scope: ConfigScope,
+): Config<TsAppSpec.CrudOperationOptions> {
+  switch (scope) {
+    case "minimal":
+      return {} satisfies MinimalConfig<TsAppSpec.CrudOperationOptions>;
+    case "full":
+      return {
+        isPublic: true,
+        overrideFn: getExtImport("full", "named"),
+      } satisfies FullConfig<TsAppSpec.CrudOperationOptions>;
     default:
       assertUnreachable(scope);
   }
