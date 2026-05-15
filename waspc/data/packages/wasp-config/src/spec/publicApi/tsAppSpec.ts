@@ -1,25 +1,28 @@
 import * as AppSpec from "../../appSpec.js";
 
-export type App = {
+export type App<Parts extends readonly Part<string>[]> = {
   name: string;
   wasp: AppSpec.Wasp;
   title: string;
   head?: string[];
-  auth?: Auth;
+  auth?: Auth<RoutesFromParts<Parts>>;
   server?: Server;
   client?: Client;
   db?: Db;
   emailSender?: EmailSender;
   webSocket?: WebSocket;
-  parts: Part[];
+  parts: Parts;
 };
 
-export type Auth = AuthHooks & {
+type RoutesFromParts<Parts extends readonly Part<string>[]> =
+  Parts extends readonly Part<infer Routes>[] ? Routes : never;
+
+export type Auth<Routes extends string> = AuthHooks & {
   userEntity: string;
   externalAuthEntity?: string;
-  methods: AuthMethods;
-  onAuthFailedRedirectTo: string;
-  onAuthSucceededRedirectTo?: string;
+  methods: AuthMethods<Routes>;
+  onAuthFailedRedirectTo: Routes;
+  onAuthSucceededRedirectTo?: Routes;
 };
 
 export type AuthHooks = Partial<Record<AuthHookName, ExtImport>>;
@@ -32,11 +35,11 @@ export type AuthHookName =
   | "onBeforeLogin"
   | "onAfterLogin";
 
-export type AuthMethods = Partial<
+export type AuthMethods<Routes extends string> = Partial<
   Record<SocialAuthMethodName, ExternalAuthConfig>
 > & {
   usernameAndPassword?: UsernameAndPasswordConfig;
-  email?: EmailAuthConfig;
+  email?: EmailAuthConfig<Routes>;
 };
 
 export type SocialAuthMethodName =
@@ -52,19 +55,19 @@ export type ExternalAuthConfig = BaseAuthMethodConfig & {
   configFn?: ExtImport;
 };
 
-export type EmailAuthConfig = BaseAuthMethodConfig & {
+export type EmailAuthConfig<Routes extends string> = BaseAuthMethodConfig & {
   fromField: EmailFromField;
-  emailVerification: EmailFlowConfig;
-  passwordReset: EmailFlowConfig;
+  emailVerification: EmailFlowConfig<Routes>;
+  passwordReset: EmailFlowConfig<Routes>;
 };
 
 export type BaseAuthMethodConfig = {
   userSignupFields?: ExtImport;
 };
 
-export type EmailFlowConfig = {
+export type EmailFlowConfig<Routes extends string> = {
   getEmailContentFn?: ExtImport;
-  clientRoute: string;
+  clientRoute: Routes;
 };
 
 export type Server = {
@@ -100,7 +103,14 @@ export type WebSocket = {
   autoConnect?: boolean;
 };
 
-export type Part = Page | Route | Query | Action | Api | ApiNamespace | Job;
+export type Part<Path extends string> =
+  | Page
+  | Route<Path>
+  | Query
+  | Action
+  | Api<Path>
+  | ApiNamespace
+  | Job;
 
 export type Page = MakePart<
   "page",
@@ -110,11 +120,11 @@ export type Page = MakePart<
   }
 >;
 
-export type Route = MakePart<
+export type Route<Path extends string> = MakePart<
   "route",
   {
     name: string;
-    path: string;
+    path: Path;
     page: Page;
     prerender?: boolean;
     lazy?: boolean;
@@ -139,11 +149,11 @@ export type Action = MakePart<
   }
 >;
 
-export type Api = MakePart<
+export type Api<Path extends string> = MakePart<
   "api",
   {
     method: HttpMethod;
-    path: string;
+    path: Path;
     fn: ExtImport;
     middlewareConfigFn?: ExtImport;
     entities?: string[];

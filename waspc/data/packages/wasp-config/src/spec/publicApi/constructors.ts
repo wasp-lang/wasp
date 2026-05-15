@@ -5,11 +5,14 @@ import type {
   App,
   Job,
   Page,
+  Part,
   Query,
   Route,
 } from "./tsAppSpec.js";
 
-export function app(input: Omit<App, "kind">): App {
+export function app<const Parts extends readonly Part<string>[]>(
+  input: Omit<App<Parts>, "kind">,
+): App<Parts> {
   return input;
 }
 
@@ -20,12 +23,12 @@ export function page(
   return { kind: "page", component, ...config };
 }
 
-export function route(
-  name: Route["name"],
-  path: Route["path"],
-  page: Route["page"],
-  config?: Pick<Route, "lazy" | "prerender">,
-): Route {
+export function route<const Path extends string>(
+  name: Route<Path>["name"],
+  path: Route<Path>["path"],
+  page: Route<Path>["page"],
+  config?: Pick<Route<Path>, "lazy" | "prerender">,
+): Route<Path> {
   return { kind: "route", name, path, page, ...config };
 }
 
@@ -43,12 +46,12 @@ export function action(
   return { kind: "action", fn, ...config };
 }
 
-export function api(
-  method: Api["method"],
-  path: Api["path"],
-  fn: Api["fn"],
-  config?: Pick<Api, "middlewareConfigFn" | "entities" | "auth">,
-): Api {
+export function api<const Path extends string>(
+  method: Api<Path>["method"],
+  path: Api<Path>["path"],
+  fn: Api<Path>["fn"],
+  config?: Pick<Api<Path>, "middlewareConfigFn" | "entities" | "auth">,
+): Api<Path> {
   return { kind: "api", method, path, fn, ...config };
 }
 
