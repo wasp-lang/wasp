@@ -60,4 +60,4 @@ waspTsPackageJsonValidator tsConfigPaths
 nodeTypesInDevDependenciesValidator :: WaspV.Validator PackageJson
 nodeTypesInDevDependenciesValidator = makeRequiredDepValidator Development ("@types/node", requiredNodeTypesVersion)
   where
-    requiredNodeTypesVersion = NodeVersion.nodeTypesVersionRangeMatchingNodeMajor NodeVersion.oldestWaspSupportedNodeVersion
+    requiredNodeTypesVersion = show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor NodeVersion.oldestWaspSupportedNodeVersion
