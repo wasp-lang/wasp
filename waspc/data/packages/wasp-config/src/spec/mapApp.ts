@@ -164,7 +164,7 @@ export function dedupePageDecls(
       if (!arePageDeclsEqual(currentPage, firstPage)) {
         throw new SpecUserError(
           `Conflicting configs for page "${firstPage.declName}". ` +
-            "All page instances pointing to the same component must produce the same configuration.\n\n" +
+            "All page instances with the same name must produce the same configuration.\n" +
             `Page 1: ${JSON.stringify(firstPage.declValue)}\n` +
             `Page 2: ${JSON.stringify(currentPage.declValue)}`,
         );
@@ -451,7 +451,7 @@ export function mapExtImport(
     };
   } else {
     throw new SpecUserError(
-      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
+      "Invalid `ExtImport`: neither `import` nor `importDefault` is defined",
     );
   }
 }
@@ -466,7 +466,9 @@ export function makeRefParser<T extends AppSpec.DeclType>(
 ): RefParser<T> {
   return function parseRef(potentialRef: string): AppSpec.Ref<T> {
     if (!declNames.includes(potentialRef)) {
-      throw new SpecUserError(`Invalid ${declType} reference: ${potentialRef}`);
+      throw new SpecUserError(
+        `Invalid \`${declType}\` reference: \`${potentialRef}\``,
+      );
     }
     return {
       name: potentialRef,
