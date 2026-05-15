@@ -14,6 +14,14 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 The `api` export from `wasp/client/api` is now a [ky](https://github.com/sindresorhus/ky) instance instead of Axios. Ky is a tiny HTTP client built on `fetch` that provides a cleaner API with method shortcuts, automatic JSON handling, and hooks.
 
+### Real JS imports in Wasp TS spec
+
+In `main.wasp.ts`, you can now use real JS imports and pass imported values directly to Wasp declarations instead of using import objects like `{ import, from }`.
+
+### Stricter validation for Wasp TS projects
+
+Wasp now validates more of the TS spec support files. If your project uses `main.wasp.ts`, Wasp checks that `package.json` includes the required `@types/node` dev dependency and that `tsconfig.wasp.json` includes the required `@src/*` path mapping.
+
 ## How to migrate?
 
 ### 1. Bump the Wasp version
@@ -83,6 +91,33 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
 
 You can also remove `axios` from your project's dependencies if you added it only for use with the Wasp `api` wrapper.
 
-### 3. Enjoy your updated Wasp app
+### 3. Update Wasp TS spec support files
+
+Make sure your `package.json` includes `@types/node` in `devDependencies`:
+
+```json title="package.json"
+{
+  "devDependencies": {
+    // highlight-next-line
+    "@types/node": "^24.0.0"
+  }
+}
+```
+
+Make sure your `tsconfig.wasp.json` includes the `@src/*` path mapping:
+
+```json title="tsconfig.wasp.json"
+{
+  "compilerOptions": {
+    // ...
+    "paths": {
+      // highlight-next-line
+      "@src/*": ["./src/*"]
+    }
+  }
+}
+```
+
+### 4. Enjoy your updated Wasp app
 
 That's it!

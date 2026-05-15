@@ -104,9 +104,16 @@ export type App = {
   webSocket: Optional<WebSocket>;
 };
 
-export type ExtImportKind = "named" | "default";
-export type ExtImport = {
-  kind: ExtImportKind;
+export type ExtImport = NamedExtImport | DefaultExtImport;
+export type ExtImportKind = ExtImport["kind"];
+export type NamedExtImport = {
+  kind: "named";
+  name: string;
+  path: `@src/${string}`;
+  alias?: string;
+};
+export type DefaultExtImport = {
+  kind: "default";
   name: string;
   path: `@src/${string}`;
 };

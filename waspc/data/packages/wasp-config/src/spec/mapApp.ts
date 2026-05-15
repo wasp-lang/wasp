@@ -4,6 +4,8 @@
  */
 
 import * as AppSpec from "../appSpec.js";
+import type { AnyFunction } from "../typeUtils.js";
+import { mapExtImport, tryMapExtImport } from "./extImport.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapApp(
@@ -422,28 +424,6 @@ export function mapSchedule(schedule: TsAppSpec.Schedule): AppSpec.Schedule {
   };
 }
 
-export function mapExtImport(
-  extImport: TsAppSpec.ExtImport,
-): AppSpec.ExtImport {
-  if ("import" in extImport) {
-    return {
-      kind: "named",
-      name: extImport.import,
-      path: extImport.from,
-    };
-  } else if ("importDefault" in extImport) {
-    return {
-      kind: "default",
-      name: extImport.importDefault,
-      path: extImport.from,
-    };
-  } else {
-    throw new Error(
-      "Invalid ExtImport: neither `import` nor `importDefault` is defined",
-    );
-  }
-}
-
 export type RefParser<T extends AppSpec.DeclType> = (
   name: string,
 ) => AppSpec.Ref<T>;
@@ -488,11 +468,17 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   }));
 }
 
-export function deriveExtImportName(extImport: TsAppSpec.ExtImport): string {
-  if ("import" in extImport) {
-    return extImport.alias ?? extImport.import;
+export function deriveExtImportName(
+  extImport: TsAppSpec.ExtImport | AnyFunction,
+): string {
+  const result = tryMapExtImport(extImport);
+  if (result.status === "error") {
+    throw new Error(result.error);
   }
-  return extImport.importDefault;
+
+  return "alias" in result.value
+    ? (result.value.alias ?? result.value.name)
+    : result.value.name;
 }
 
 /**

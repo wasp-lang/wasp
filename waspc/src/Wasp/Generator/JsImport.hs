@@ -59,7 +59,7 @@ jsImportToImportJson = maybe notDefinedImportJsonData mkImportJsonData
             ]
 
 extImportToRelativeSrcImportFromViteExecution :: EI.ExtImport -> JsImport
-extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath) =
+extImportToRelativeSrcImportFromViteExecution extImport@(EI.ExtImport extImportName extImportPath _) =
   JsImport
     { _kind = ValueImport,
       _path = RelativeImportPath importPath,
