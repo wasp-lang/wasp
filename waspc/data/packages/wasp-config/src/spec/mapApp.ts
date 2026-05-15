@@ -11,7 +11,19 @@ export function mapApp(
   app: TsAppSpec.App,
   entityNames: string[],
 ): AppSpec.Decl[] {
-  const { name, wasp, title, head, parts } = app;
+  const {
+    name,
+    wasp,
+    title,
+    head,
+    auth,
+    server,
+    client,
+    db,
+    emailSender,
+    webSocket,
+    parts,
+  } = app;
 
   const entityRefParser = makeRefParser("Entity", entityNames);
 
@@ -53,6 +65,10 @@ export function mapApp(
     (route) => deriveExtImportName(route.page.component),
     (route) => mapPage(route.page),
   );
+  const routeRefParser = makeRefParser(
+    "Route",
+    routes.map((r) => r.name),
+  );
 
   const queries = extractParts("query", parts);
   const queryDecls = mapToDecls(
@@ -70,6 +86,30 @@ export function mapApp(
     (action) => mapAction(action, entityRefParser),
   );
 
+  const apis = extractParts("api", parts);
+  const apiDecls = mapToDecls(
+    apis,
+    "Api",
+    (api) => deriveExtImportName(api.fn),
+    (api) => mapApi(api, entityRefParser),
+  );
+
+  const apiNamespaces = extractParts("apiNamespace", parts);
+  const apiNamespaceDecls = mapToDecls(
+    apiNamespaces,
+    "ApiNamespace",
+    (ns) => deriveExtImportName(ns.middlewareConfigFn),
+    mapApiNamespace,
+  );
+
+  const jobs = extractParts("job", parts);
+  const jobDecls = mapToDecls(
+    jobs,
+    "Job",
+    (job) => deriveExtImportName(job.fn),
+    (job) => mapJob(job, entityRefParser),
+  );
+
   const appDecl = {
     declType: "App" as const,
     declName: name,
@@ -77,13 +117,12 @@ export function mapApp(
       wasp,
       title,
       head,
-      // TODO: add these guys
-      auth: undefined,
-      server: undefined,
-      client: undefined,
-      db: undefined,
-      emailSender: undefined,
-      webSocket: undefined,
+      auth: auth && mapAuth(auth, entityRefParser, routeRefParser),
+      server: server && mapServer(server),
+      client: client && mapClient(client),
+      db: db && mapDb(db),
+      emailSender: emailSender && mapEmailSender(emailSender),
+      webSocket: webSocket && mapWebSocket(webSocket),
     },
   };
 
@@ -93,10 +132,10 @@ export function mapApp(
     Route: routeDecls,
     Query: queryDecls,
     Action: actionDecls,
+    Api: apiDecls,
+    ApiNamespace: apiNamespaceDecls,
+    Job: jobDecls,
     // TODO: add these guys
-    Job: [],
-    Api: [],
-    ApiNamespace: [],
     Crud: [],
   });
 }
@@ -181,6 +220,231 @@ export function mapAction(
     fn: mapExtImport(fn),
     entities: entities?.map(entityRefParser),
     auth,
+  };
+}
+
+export function mapAuth(
+  auth: TsAppSpec.Auth,
+  entityRefParser: RefParser<"Entity">,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.Auth {
+  const {
+    userEntity,
+    externalAuthEntity,
+    methods,
+    onAuthFailedRedirectTo,
+    onAuthSucceededRedirectTo,
+    onBeforeSignup,
+    onAfterSignup,
+    onAfterEmailVerified,
+    onBeforeOAuthRedirect,
+    onBeforeLogin,
+    onAfterLogin,
+  } = auth;
+  return {
+    userEntity: entityRefParser(userEntity),
+    externalAuthEntity:
+      externalAuthEntity === undefined
+        ? undefined
+        : entityRefParser(externalAuthEntity),
+    methods: mapAuthMethods(methods, routeRefParser),
+    onAuthFailedRedirectTo,
+    onAuthSucceededRedirectTo,
+    onBeforeSignup: onBeforeSignup && mapExtImport(onBeforeSignup),
+    onAfterSignup: onAfterSignup && mapExtImport(onAfterSignup),
+    onAfterEmailVerified:
+      onAfterEmailVerified && mapExtImport(onAfterEmailVerified),
+    onBeforeOAuthRedirect:
+      onBeforeOAuthRedirect && mapExtImport(onBeforeOAuthRedirect),
+    onBeforeLogin: onBeforeLogin && mapExtImport(onBeforeLogin),
+    onAfterLogin: onAfterLogin && mapExtImport(onAfterLogin),
+  };
+}
+
+export function mapAuthMethods(
+  methods: TsAppSpec.AuthMethods,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.AuthMethods {
+  const {
+    usernameAndPassword,
+    discord,
+    google,
+    gitHub,
+    keycloak,
+    microsoft,
+    email,
+  } = methods;
+  return {
+    usernameAndPassword:
+      usernameAndPassword && mapUsernameAndPassword(usernameAndPassword),
+    discord: discord && mapExternalAuth(discord),
+    google: google && mapExternalAuth(google),
+    gitHub: gitHub && mapExternalAuth(gitHub),
+    keycloak: keycloak && mapExternalAuth(keycloak),
+    microsoft: microsoft && mapExternalAuth(microsoft),
+    email: email && mapEmailAuth(email, routeRefParser),
+  };
+}
+
+export function mapUsernameAndPassword(
+  usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig,
+): AppSpec.UsernameAndPasswordConfig {
+  const { userSignupFields } = usernameAndPassword;
+  return {
+    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+  };
+}
+
+export function mapExternalAuth(
+  externalAuth: TsAppSpec.ExternalAuthConfig,
+): AppSpec.ExternalAuthConfig {
+  const { configFn, userSignupFields } = externalAuth;
+  return {
+    configFn: configFn && mapExtImport(configFn),
+    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+  };
+}
+
+export function mapEmailAuth(
+  emailAuth: TsAppSpec.EmailAuthConfig,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.EmailAuthConfig {
+  const { userSignupFields, fromField, emailVerification, passwordReset } =
+    emailAuth;
+  return {
+    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+    fromField: mapEmailFromField(fromField),
+    emailVerification: mapEmailVerification(emailVerification, routeRefParser),
+    passwordReset: mapPasswordReset(passwordReset, routeRefParser),
+  };
+}
+
+export function mapEmailVerification(
+  emailVerification: TsAppSpec.EmailVerificationConfig,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.EmailVerificationConfig {
+  const { getEmailContentFn, clientRoute } = emailVerification;
+  return {
+    getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
+    clientRoute: routeRefParser(clientRoute),
+  };
+}
+
+export function mapPasswordReset(
+  passwordReset: TsAppSpec.PasswordResetConfig,
+  routeRefParser: RefParser<"Route">,
+): AppSpec.PasswordResetConfig {
+  const { getEmailContentFn, clientRoute } = passwordReset;
+  return {
+    getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
+    clientRoute: routeRefParser(clientRoute),
+  };
+}
+
+export function mapApi(
+  api: TsAppSpec.Api,
+  entityRefParser: RefParser<"Entity">,
+): AppSpec.Api {
+  const { method, path, fn, middlewareConfigFn, entities, auth } = api;
+  return {
+    fn: mapExtImport(fn),
+    middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
+    entities: entities?.map(entityRefParser),
+    httpRoute: [method, path],
+    auth,
+  };
+}
+
+export function mapApiNamespace(
+  apiNamespace: TsAppSpec.ApiNamespace,
+): AppSpec.ApiNamespace {
+  const { middlewareConfigFn, path } = apiNamespace;
+  return {
+    middlewareConfigFn: mapExtImport(middlewareConfigFn),
+    path,
+  };
+}
+
+export function mapServer(server: TsAppSpec.Server): AppSpec.Server {
+  const { setupFn, middlewareConfigFn, envValidationSchema } = server;
+  return {
+    setupFn: setupFn && mapExtImport(setupFn),
+    middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
+    envValidationSchema:
+      envValidationSchema && mapExtImport(envValidationSchema),
+  };
+}
+
+export function mapClient(client: TsAppSpec.Client): AppSpec.Client {
+  const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
+  return {
+    rootComponent: rootComponent && mapExtImport(rootComponent),
+    setupFn: setupFn && mapExtImport(setupFn),
+    baseDir,
+    envValidationSchema:
+      envValidationSchema && mapExtImport(envValidationSchema),
+  };
+}
+
+export function mapDb(db: TsAppSpec.Db): AppSpec.Db {
+  const { seeds, prismaSetupFn } = db;
+  return {
+    seeds: seeds?.map(mapExtImport),
+    prismaSetupFn: prismaSetupFn && mapExtImport(prismaSetupFn),
+  };
+}
+
+export function mapEmailSender(
+  emailSender: TsAppSpec.EmailSender,
+): AppSpec.EmailSender {
+  const { provider, defaultFrom } = emailSender;
+  return {
+    provider,
+    defaultFrom: defaultFrom && mapEmailFromField(defaultFrom),
+  };
+}
+
+export function mapEmailFromField(
+  emailFromField: TsAppSpec.EmailFromField,
+): AppSpec.EmailFromField {
+  return {
+    name: emailFromField.name,
+    email: emailFromField.email,
+  };
+}
+
+export function mapWebSocket(
+  webSocket: TsAppSpec.WebSocket,
+): AppSpec.WebSocket {
+  const { fn, autoConnect } = webSocket;
+  return {
+    fn: mapExtImport(fn),
+    autoConnect,
+  };
+}
+
+export function mapJob(
+  job: TsAppSpec.Job,
+  entityRefParser: RefParser<"Entity">,
+): AppSpec.Job {
+  const { fn, executor, schedule, entities, performExecutorOptions } = job;
+  return {
+    executor,
+    perform: {
+      fn: mapExtImport(fn),
+      executorOptions: performExecutorOptions,
+    },
+    schedule: schedule && mapSchedule(schedule),
+    entities: entities?.map(entityRefParser),
+  };
+}
+
+export function mapSchedule(schedule: TsAppSpec.Schedule): AppSpec.Schedule {
+  const { cron, args, executorOptions } = schedule;
+  return {
+    cron,
+    args,
+    executorOptions,
   };
 }
 

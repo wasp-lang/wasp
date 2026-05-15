@@ -1,12 +1,103 @@
+import * as AppSpec from "../../appSpec.js";
+
 export type App = {
   name: string;
-  wasp: { version: string };
+  wasp: AppSpec.Wasp;
   title: string;
   head?: string[];
+  auth?: Auth;
+  server?: Server;
+  client?: Client;
+  db?: Db;
+  emailSender?: EmailSender;
+  webSocket?: WebSocket;
   parts: Part[];
 };
 
-export type Part = Page | Route | Query | Action;
+export type Auth = {
+  userEntity: string;
+  externalAuthEntity?: string;
+  methods: AuthMethods;
+  onAuthFailedRedirectTo: string;
+  onAuthSucceededRedirectTo?: string;
+  onBeforeSignup?: ExtImport;
+  onAfterSignup?: ExtImport;
+  onAfterEmailVerified?: ExtImport;
+  onBeforeOAuthRedirect?: ExtImport;
+  onBeforeLogin?: ExtImport;
+  onAfterLogin?: ExtImport;
+};
+
+export type AuthMethods = {
+  usernameAndPassword?: UsernameAndPasswordConfig;
+  discord?: ExternalAuthConfig;
+  google?: ExternalAuthConfig;
+  gitHub?: ExternalAuthConfig;
+  keycloak?: ExternalAuthConfig;
+  microsoft?: ExternalAuthConfig;
+  email?: EmailAuthConfig;
+};
+
+export type UsernameAndPasswordConfig = {
+  userSignupFields?: ExtImport;
+};
+
+export type ExternalAuthConfig = {
+  configFn?: ExtImport;
+  userSignupFields?: ExtImport;
+};
+
+export type EmailAuthConfig = {
+  userSignupFields?: ExtImport;
+  fromField: EmailFromField;
+  emailVerification: EmailVerificationConfig;
+  passwordReset: PasswordResetConfig;
+};
+
+export type EmailVerificationConfig = {
+  getEmailContentFn?: ExtImport;
+  clientRoute: string;
+};
+
+export type PasswordResetConfig = {
+  getEmailContentFn?: ExtImport;
+  clientRoute: string;
+};
+
+export type Server = {
+  setupFn?: ExtImport;
+  middlewareConfigFn?: ExtImport;
+  envValidationSchema?: ExtImport;
+};
+
+export type Client = {
+  rootComponent?: ExtImport;
+  setupFn?: ExtImport;
+  baseDir?: `/${string}`;
+  envValidationSchema?: ExtImport;
+};
+
+export type Db = {
+  seeds?: ExtImport[];
+  prismaSetupFn?: ExtImport;
+};
+
+export type EmailSender = {
+  provider: AppSpec.EmailProvider;
+  defaultFrom?: EmailFromField;
+};
+
+export type EmailFromField = {
+  name?: string;
+  email: string;
+};
+
+export type WebSocket = {
+  fn: ExtImport;
+  autoConnect?: boolean;
+};
+
+export type Part = Page | Route | Query | Action | Api | ApiNamespace | Job;
 
 export type Page = MakePart<
   "page",
@@ -44,6 +135,51 @@ export type Action = MakePart<
     auth?: boolean;
   }
 >;
+
+export type Api = MakePart<
+  "api",
+  {
+    method: HttpMethod;
+    path: string;
+    fn: ExtImport;
+    middlewareConfigFn?: ExtImport;
+    entities?: string[];
+    auth?: boolean;
+  }
+>;
+
+export type ApiNamespace = MakePart<
+  "apiNamespace",
+  {
+    middlewareConfigFn: ExtImport;
+    path: string;
+  }
+>;
+
+export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
+
+export type Job = MakePart<
+  "job",
+  {
+    fn: ExtImport;
+    executor: JobExecutor;
+    schedule?: Schedule;
+    entities?: string[];
+    performExecutorOptions?: ExecutorOptions;
+  }
+>;
+
+export type JobExecutor = "PgBoss";
+
+export type Schedule = {
+  cron: string;
+  args?: object;
+  executorOptions?: ExecutorOptions;
+};
+
+export type ExecutorOptions = {
+  pgBoss: object;
+};
 
 export type ExtImport = NamedExtImport | DefaultExtImport;
 export interface NamedExtImport {

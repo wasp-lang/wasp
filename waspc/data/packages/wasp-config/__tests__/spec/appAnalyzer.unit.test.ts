@@ -10,13 +10,20 @@ describe("analyzeApp", () => {
 
   test("should parse an app successfully", async () => {
     await testAnalyzeApp({
-      app: Fixtures.getMinimalApp(),
+      app: Fixtures.getApp("minimal"),
       entities: Fixtures.getEntities("minimal"),
     });
   });
 
+  test("should parse full app successfully", async () => {
+    await testAnalyzeApp({
+      app: Fixtures.getApp("full"),
+      entities: Fixtures.getEntities("full"),
+    });
+  });
+
   test("should parse app from async default export", async () => {
-    const app = Fixtures.getMinimalApp();
+    const app = Fixtures.getApp("minimal");
     const entities = Fixtures.getEntities("minimal");
     const mockMainWaspTs = "main.wasp.ts";
     vi.doMock(mockMainWaspTs, () => ({ default: Promise.resolve(app) }));
