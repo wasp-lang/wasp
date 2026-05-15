@@ -2,6 +2,12 @@ import * as AppSpec from "../../appSpec.js";
 import type { AnyFunction } from "../../typeUtils.js";
 import type { ExtImport } from "../extImport.js";
 
+export type ZodObjectSchema = {
+  readonly shape: object;
+  safeParse: AnyFunction;
+  and: AnyFunction;
+};
+
 export type App = {
   name: string;
   wasp: AppSpec.Wasp;
@@ -72,14 +78,14 @@ export type EmailFlowConfig = {
 export type Server = {
   setupFn?: ExtImport | AnyFunction;
   middlewareConfigFn?: ExtImport | AnyFunction;
-  envValidationSchema?: ExtImport;
+  envValidationSchema?: ExtImport | ZodObjectSchema;
 };
 
 export type Client = {
   rootComponent?: ExtImport | AnyFunction;
   setupFn?: ExtImport | AnyFunction;
   baseDir?: `/${string}`;
-  envValidationSchema?: ExtImport;
+  envValidationSchema?: ExtImport | ZodObjectSchema;
 };
 
 export type Db = {
