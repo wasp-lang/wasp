@@ -1,142 +1,86 @@
-import { describe, expectTypeOf, test } from "vitest";
+import { assertType, describe, test } from "vitest";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
-import type { AnyFunction } from "../../src/typeUtils.js";
 
 describe("ExtImport input types", () => {
-  test("should accept functions at ExtImport use sites", async () => {
+  test("should accept functions at ExtImport use sites", () => {
     const component = () => null;
     const operation = async (_args: { id: string }) => null;
     const hook = async () => null;
     const setup = () => null;
     const middleware = () => null;
 
-    const pageConfig = { kind: "page", component } satisfies TsAppSpec.Page;
-    const queryConfig = {
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+    assertType<TsAppSpec.Query>({
       kind: "query",
       fn: operation,
-    } satisfies TsAppSpec.Query;
-    const actionConfig = {
+    });
+    assertType<TsAppSpec.Action>({
       kind: "action",
       fn: operation,
-    } satisfies TsAppSpec.Action;
-    const apiConfig = {
+    });
+    assertType<TsAppSpec.Api>({
       kind: "api",
       method: "GET",
       path: "/api",
       fn: operation,
       middlewareConfigFn: middleware,
-    } satisfies TsAppSpec.Api;
-    const apiNamespaceConfig = {
+    });
+    assertType<TsAppSpec.ApiNamespace>({
       kind: "apiNamespace",
       path: "/api",
       middlewareConfigFn: middleware,
-    } satisfies TsAppSpec.ApiNamespace;
-    const jobConfig = {
+    });
+    assertType<TsAppSpec.Job>({
       kind: "job",
       fn: operation,
       executor: "PgBoss",
-    } satisfies TsAppSpec.Job;
-    const webSocketConfig = { fn: operation } satisfies TsAppSpec.WebSocket;
-    const authConfig = {
+    });
+    assertType<TsAppSpec.WebSocket>({ fn: operation });
+    assertType<TsAppSpec.Auth>({
       userEntity: "User",
       methods: {},
       onAuthFailedRedirectTo: "/login",
       onBeforeSignup: hook,
-    } satisfies TsAppSpec.Auth;
-    const externalAuthConfig = {
+    });
+    assertType<TsAppSpec.ExternalAuthConfig>({
       configFn: hook,
       userSignupFields: hook,
-    } satisfies TsAppSpec.ExternalAuthConfig;
-    const emailFlowConfig = {
+    });
+    assertType<TsAppSpec.EmailFlowConfig>({
       getEmailContentFn: hook,
       clientRoute: "EmailRoute",
-    } satisfies TsAppSpec.EmailFlowConfig;
-    const serverConfig = {
+    });
+    assertType<TsAppSpec.Server>({
       setupFn: setup,
       middlewareConfigFn: middleware,
-    } satisfies TsAppSpec.Server;
-    const clientConfig = {
+    });
+    assertType<TsAppSpec.Client>({
       rootComponent: component,
       setupFn: setup,
-    } satisfies TsAppSpec.Client;
-    const dbConfig = {
+    });
+    assertType<TsAppSpec.Db>({
       seeds: [hook],
       prismaSetupFn: setup,
-    } satisfies TsAppSpec.Db;
-
-    expectTypeOf(pageConfig.component).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(queryConfig.fn).toExtend<TsAppSpec.ExtImport | AnyFunction>();
-    expectTypeOf(actionConfig.fn).toExtend<TsAppSpec.ExtImport | AnyFunction>();
-    expectTypeOf(apiConfig.fn).toExtend<TsAppSpec.ExtImport | AnyFunction>();
-    expectTypeOf(apiConfig.middlewareConfigFn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(apiNamespaceConfig.middlewareConfigFn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(jobConfig.fn).toExtend<TsAppSpec.ExtImport | AnyFunction>();
-    expectTypeOf(webSocketConfig.fn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(authConfig.onBeforeSignup).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(externalAuthConfig.configFn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(externalAuthConfig.userSignupFields).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(emailFlowConfig.getEmailContentFn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(serverConfig.setupFn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(serverConfig.middlewareConfigFn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(clientConfig.rootComponent).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(clientConfig.setupFn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
-    expectTypeOf(dbConfig.seeds).toExtend<
-      (TsAppSpec.ExtImport | AnyFunction)[]
-    >();
-    expectTypeOf(dbConfig.prismaSetupFn).toExtend<
-      TsAppSpec.ExtImport | AnyFunction
-    >();
+    });
   });
 
-  test("should reject objects that are not ExtImport objects at ExtImport use sites", async () => {
+  test("should reject objects that are not ExtImport objects at ExtImport use sites", () => {
     const component = { render: () => null };
 
-    const pageConfig: TsAppSpec.Page = {
-      kind: "page",
-      // @ts-expect-error ExtImport use sites accept descriptors or functions.
-      component,
-    };
-
-    expectTypeOf(pageConfig).toExtend<TsAppSpec.Page>();
+    // @ts-expect-error ExtImport use sites accept descriptors or functions.
+    assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 
-  test("should reject malformed descriptor-like objects", async () => {
-    const pageConfig: TsAppSpec.Page = {
-      kind: "page",
-      // @ts-expect-error descriptor-like objects must still satisfy ExtImport.
-      component: { from: 42, importDefault: "X" },
-    };
+  test("should reject malformed descriptor-like objects", () => {
+    const component = { from: 42, importDefault: "X" };
 
-    expectTypeOf(pageConfig).toExtend<TsAppSpec.Page>();
+    // @ts-expect-error Descriptor-like objects must still satisfy ExtImport.
+    assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 });
 
 describe("Env validation schema input types", () => {
-  test("should accept Zod schema-shaped values", async () => {
+  test("should accept Zod schema-shaped values", () => {
     const schema = {
       _zod: {
         def: {
@@ -145,53 +89,33 @@ describe("Env validation schema input types", () => {
       },
     } satisfies TsAppSpec.ZodSchema;
 
-    const serverConfig = {
-      envValidationSchema: schema,
-    } satisfies TsAppSpec.Server;
-    const clientConfig = {
-      envValidationSchema: schema,
-    } satisfies TsAppSpec.Client;
-
-    expectTypeOf(serverConfig.envValidationSchema).toExtend<
-      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
-    >();
-    expectTypeOf(clientConfig.envValidationSchema).toExtend<
-      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
-    >();
+    assertType<TsAppSpec.Server>({ envValidationSchema: schema });
+    assertType<TsAppSpec.Client>({ envValidationSchema: schema });
   });
 
-  test("should accept ExtImport env validation schemas", async () => {
+  test("should accept ExtImport env validation schemas", () => {
     const schemaImport = {
       importDefault: "schema",
       from: "@src/env",
     } satisfies TsAppSpec.ExtImport;
 
-    const serverConfig = {
-      envValidationSchema: schemaImport,
-    } satisfies TsAppSpec.Server;
-    const clientConfig = {
-      envValidationSchema: schemaImport,
-    } satisfies TsAppSpec.Client;
-
-    expectTypeOf(serverConfig.envValidationSchema).toExtend<
-      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
-    >();
-    expectTypeOf(clientConfig.envValidationSchema).toExtend<
-      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
-    >();
+    assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
+    assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
   });
 
-  test("should reject non-schema objects at env validation schema use sites", async () => {
-    const serverConfig: TsAppSpec.Server = {
-      // @ts-expect-error Env validation schema objects must be Zod object schema-shaped.
-      envValidationSchema: {},
-    };
-    const clientConfig: TsAppSpec.Client = {
-      // @ts-expect-error Env validation schema objects must be Zod object schema-shaped.
-      envValidationSchema: [],
-    };
+  test("should reject non-schema objects at env validation schema use sites", () => {
+    // @ts-expect-error Env validation schemas must be ExtImport or Zod schema-shaped.
+    assertType<TsAppSpec.Server>({ envValidationSchema: {} });
 
-    expectTypeOf(serverConfig).toExtend<TsAppSpec.Server>();
-    expectTypeOf(clientConfig).toExtend<TsAppSpec.Client>();
+    // @ts-expect-error Env validation schemas must be ExtImport or Zod schema-shaped.
+    assertType<TsAppSpec.Client>({ envValidationSchema: [] });
+  });
+
+  test("should reject malformed Zod schema-shaped objects", () => {
+    // @ts-expect-error Zod schema-shaped values must include a definition object.
+    assertType<TsAppSpec.Server>({ envValidationSchema: { _zod: true } });
+
+    // @ts-expect-error Zod schema-shaped values must include a definition object.
+    assertType<TsAppSpec.Client>({ envValidationSchema: { _zod: {} } });
   });
 });
