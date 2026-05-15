@@ -1,11 +1,11 @@
-module Generator.Valid.PackageJsonTest (spec_PackageJson) where
+module ExternalConfig.Npm.PackageJson.DepValidatorsTest (spec_PackageJson) where
 
 import qualified Data.Map as M
 import Data.Maybe (fromMaybe)
 import Test.Hspec
 import Text.Printf (printf)
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
-import Wasp.Generator.Valid.PackageJson.Dependencies
+import Wasp.ExternalConfig.Npm.PackageJson.DepValidators
   ( DependencyType (..),
     inDependency,
     makeForbiddenDepValidator,

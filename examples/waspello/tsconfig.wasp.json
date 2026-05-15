@@ -12,7 +12,11 @@
     "module": "NodeNext",
     "noEmit": true,
 
-    "lib": ["ES2023"]
+    "lib": ["ES2023"],
+
+    "paths": {
+      "@src/*": ["./src/*"]
+    }
   },
   "include": ["main.wasp.ts"]
 }
