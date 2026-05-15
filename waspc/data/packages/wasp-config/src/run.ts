@@ -5,7 +5,7 @@ import { parseProcessArgsOrThrow } from "./cli.js";
 import { analyzeApp } from "./legacy/appAnalyzer.js";
 
 process.on("uncaughtException", (err) => {
-  console.error(String(err));
+  console.error(err.stack ? err.stack : String(err));
   process.exit(1);
 });
 
