@@ -24,7 +24,7 @@ export type Auth = AuthHooks & {
   onAuthSucceededRedirectTo?: string;
 };
 
-export type AuthHooks = Partial<Record<AuthHookName, ExtImport>>;
+export type AuthHooks = Partial<Record<AuthHookName, ExtImport | AnyFunction>>;
 
 export type AuthHookName =
   | "onBeforeSignup"
@@ -51,7 +51,7 @@ export type SocialAuthMethodName =
 export type UsernameAndPasswordConfig = BaseAuthMethodConfig;
 
 export type ExternalAuthConfig = BaseAuthMethodConfig & {
-  configFn?: ExtImport;
+  configFn?: ExtImport | AnyFunction;
 };
 
 export type EmailAuthConfig = BaseAuthMethodConfig & {
@@ -61,30 +61,30 @@ export type EmailAuthConfig = BaseAuthMethodConfig & {
 };
 
 export type BaseAuthMethodConfig = {
-  userSignupFields?: ExtImport;
+  userSignupFields?: ExtImport | AnyFunction;
 };
 
 export type EmailFlowConfig = {
-  getEmailContentFn?: ExtImport;
+  getEmailContentFn?: ExtImport | AnyFunction;
   clientRoute: string;
 };
 
 export type Server = {
-  setupFn?: ExtImport;
-  middlewareConfigFn?: ExtImport;
+  setupFn?: ExtImport | AnyFunction;
+  middlewareConfigFn?: ExtImport | AnyFunction;
   envValidationSchema?: ExtImport;
 };
 
 export type Client = {
-  rootComponent?: ExtImport;
-  setupFn?: ExtImport;
+  rootComponent?: ExtImport | AnyFunction;
+  setupFn?: ExtImport | AnyFunction;
   baseDir?: `/${string}`;
   envValidationSchema?: ExtImport;
 };
 
 export type Db = {
-  seeds?: ExtImport[];
-  prismaSetupFn?: ExtImport;
+  seeds?: (ExtImport | AnyFunction)[];
+  prismaSetupFn?: ExtImport | AnyFunction;
 };
 
 export type EmailSender = {
@@ -98,7 +98,7 @@ export type EmailFromField = {
 };
 
 export type WebSocket = {
-  fn: ExtImport;
+  fn: ExtImport | AnyFunction;
   autoConnect?: boolean;
 };
 
@@ -146,8 +146,8 @@ export type Api = MakePart<
   {
     method: HttpMethod;
     path: string;
-    fn: ExtImport;
-    middlewareConfigFn?: ExtImport;
+    fn: ExtImport | AnyFunction;
+    middlewareConfigFn?: ExtImport | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -156,7 +156,7 @@ export type Api = MakePart<
 export type ApiNamespace = MakePart<
   "apiNamespace",
   {
-    middlewareConfigFn: ExtImport;
+    middlewareConfigFn: ExtImport | AnyFunction;
     path: string;
   }
 >;
@@ -166,7 +166,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
 export type Job = MakePart<
   "job",
   {
-    fn: ExtImport;
+    fn: ExtImport | AnyFunction;
     executor: JobExecutor;
     schedule?: Schedule;
     entities?: string[];
