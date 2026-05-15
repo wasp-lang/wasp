@@ -41,7 +41,7 @@ validPackageJson =
 
 requiredNodeTypesDependency :: (P.PackageName, P.PackageVersion)
 requiredNodeTypesDependency =
-  ("@types/node", NodeVersion.nodeTypesVersionRangeMatchingNodeMajor NodeVersion.oldestWaspSupportedNodeVersion)
+  ("@types/node", show $ NodeVersion.nodeTypesVersionRangeMatchingNodeMajor NodeVersion.oldestWaspSupportedNodeVersion)
 
 withDevDependency :: P.PackageJson -> (P.PackageName, P.PackageVersion) -> P.PackageJson
 withDevDependency packageJson (name, version) =
