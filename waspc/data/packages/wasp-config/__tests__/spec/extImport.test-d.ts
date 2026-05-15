@@ -134,3 +134,64 @@ describe("ExtImport input types", () => {
     expectTypeOf(pageConfig).toExtend<TsAppSpec.Page>();
   });
 });
+
+describe("Env validation schema input types", () => {
+  test("should accept Zod schema-shaped values", async () => {
+    const schema = {
+      _zod: {
+        def: {
+          type: "string",
+        },
+      },
+    } satisfies TsAppSpec.ZodSchema;
+
+    const serverConfig = {
+      envValidationSchema: schema,
+    } satisfies TsAppSpec.Server;
+    const clientConfig = {
+      envValidationSchema: schema,
+    } satisfies TsAppSpec.Client;
+
+    expectTypeOf(serverConfig.envValidationSchema).toExtend<
+      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
+    >();
+    expectTypeOf(clientConfig.envValidationSchema).toExtend<
+      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
+    >();
+  });
+
+  test("should accept ExtImport env validation schemas", async () => {
+    const schemaImport = {
+      importDefault: "schema",
+      from: "@src/env",
+    } satisfies TsAppSpec.ExtImport;
+
+    const serverConfig = {
+      envValidationSchema: schemaImport,
+    } satisfies TsAppSpec.Server;
+    const clientConfig = {
+      envValidationSchema: schemaImport,
+    } satisfies TsAppSpec.Client;
+
+    expectTypeOf(serverConfig.envValidationSchema).toExtend<
+      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
+    >();
+    expectTypeOf(clientConfig.envValidationSchema).toExtend<
+      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
+    >();
+  });
+
+  test("should reject non-schema objects at env validation schema use sites", async () => {
+    const serverConfig: TsAppSpec.Server = {
+      // @ts-expect-error Env validation schema objects must be Zod object schema-shaped.
+      envValidationSchema: {},
+    };
+    const clientConfig: TsAppSpec.Client = {
+      // @ts-expect-error Env validation schema objects must be Zod object schema-shaped.
+      envValidationSchema: [],
+    };
+
+    expectTypeOf(serverConfig).toExtend<TsAppSpec.Server>();
+    expectTypeOf(clientConfig).toExtend<TsAppSpec.Client>();
+  });
+});
