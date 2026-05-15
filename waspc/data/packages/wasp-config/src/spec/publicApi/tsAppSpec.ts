@@ -1,3 +1,4 @@
+import type { RequireOneOrNone } from "type-fest";
 import * as AppSpec from "../../appSpec.js";
 
 export type App = {
@@ -34,10 +35,11 @@ export type AuthHookName =
 
 export type AuthMethods = Partial<
   Record<SocialAuthMethodName, ExternalAuthConfig>
-> & {
-  usernameAndPassword?: UsernameAndPasswordConfig;
-  email?: EmailAuthConfig;
-};
+> &
+  RequireOneOrNone<{
+    usernameAndPassword: UsernameAndPasswordConfig;
+    email: EmailAuthConfig;
+  }>;
 
 export type SocialAuthMethodName =
   | "discord"
