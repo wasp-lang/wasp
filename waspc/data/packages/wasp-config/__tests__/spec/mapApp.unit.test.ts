@@ -63,8 +63,8 @@ describe("mapApp", () => {
     const page = Fixtures.getPage("full");
     const route = Fixtures.getRoute("full");
     const query = Fixtures.getQuery("full");
-    const apiPart = Fixtures.getApi("full");
-    const apiNamespacePart = Fixtures.getApiNamespace("full");
+    const api = Fixtures.getApi("full");
+    const apiNamespace = Fixtures.getApiNamespace("full");
     const job = Fixtures.getJob("full");
     const emailVerifyRoute = Fixtures.getEmailVerifyRoute();
     const passwordResetRoute = Fixtures.getPasswordResetRoute();
@@ -92,8 +92,8 @@ describe("mapApp", () => {
         page,
         route,
         query,
-        apiPart,
-        apiNamespacePart,
+        api,
+        apiNamespace,
         job,
         emailVerifyRoute,
         passwordResetRoute,
@@ -166,13 +166,13 @@ describe("mapApp", () => {
       },
       {
         declType: "Api",
-        declName: deriveExtImportName(apiPart.fn),
-        declValue: mapApi(apiPart, entityRefParser),
+        declName: deriveExtImportName(api.fn),
+        declValue: mapApi(api, entityRefParser),
       },
       {
         declType: "ApiNamespace",
-        declName: deriveExtImportName(apiNamespacePart.middlewareConfigFn),
-        declValue: mapApiNamespace(apiNamespacePart),
+        declName: deriveExtImportName(apiNamespace.middlewareConfigFn),
+        declValue: mapApiNamespace(apiNamespace),
       },
       {
         declType: "Job",
