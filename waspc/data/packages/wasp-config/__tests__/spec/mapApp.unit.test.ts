@@ -239,7 +239,7 @@ describe("mapApp", () => {
     const app = Fixtures.getMinimalAppWithParts([page1, page2]);
 
     expect(() => mapApp(app, [])).toThrow(
-      `Conflicting configs for page "${pageName}"`,
+      `Conflicting configurations for the page \`${pageName}\``,
     );
   });
 
@@ -254,7 +254,7 @@ describe("mapApp", () => {
     const app = Fixtures.getMinimalAppWithParts([route1, route2]);
 
     expect(() => mapApp(app, [])).toThrow(
-      `Conflicting configs for page "${pageName}"`,
+      `Conflicting configurations for the page \`${pageName}\``,
     );
   });
 
@@ -268,7 +268,7 @@ describe("mapApp", () => {
     const app = Fixtures.getMinimalAppWithParts([page1, route1]);
 
     expect(() => mapApp(app, [])).toThrow(
-      `Conflicting configs for page "${pageName}"`,
+      `Conflicting configurations for the page \`${pageName}\``,
     );
   });
 
