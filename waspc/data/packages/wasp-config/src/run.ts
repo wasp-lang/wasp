@@ -4,6 +4,11 @@ import { writeFileSync } from "fs";
 import { parseProcessArgsOrThrow } from "./cli.js";
 import { analyzeApp } from "./legacy/appAnalyzer.js";
 
+process.on("uncaughtException", (err) => {
+  console.error(String(err));
+  process.exit(1);
+});
+
 main(process.argv);
 
 /**
