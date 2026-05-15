@@ -9,8 +9,8 @@ export default app({
     methods: {
       email: {
         fromField: { email: "my@app.com" },
-        emailVerification: { clientRoute: "/sdafouijnsdu" },
-        passwordReset: { clientRoute: "/" },
+        emailVerification: { clientRoute: "/sdafouijnsdu" }, // <- this fails
+        passwordReset: { clientRoute: "/hola" }, // <- we get autocompletion
       },
     },
     onAuthFailedRedirectTo: "/hola",
