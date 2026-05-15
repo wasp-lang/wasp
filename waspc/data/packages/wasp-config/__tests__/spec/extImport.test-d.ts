@@ -136,12 +136,14 @@ describe("ExtImport input types", () => {
 });
 
 describe("Env validation schema input types", () => {
-  test("should accept Zod object schema-shaped values", async () => {
+  test("should accept Zod schema-shaped values", async () => {
     const schema = {
-      shape: {},
-      safeParse: (_data: unknown) => ({ success: true, data: {} }),
-      and: (_schema: unknown) => schema,
-    };
+      _zod: {
+        def: {
+          type: "string",
+        },
+      },
+    } satisfies TsAppSpec.ZodSchema;
 
     const serverConfig = {
       envValidationSchema: schema,
@@ -151,10 +153,10 @@ describe("Env validation schema input types", () => {
     } satisfies TsAppSpec.Client;
 
     expectTypeOf(serverConfig.envValidationSchema).toExtend<
-      TsAppSpec.ExtImport | TsAppSpec.ZodObjectSchema
+      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
     >();
     expectTypeOf(clientConfig.envValidationSchema).toExtend<
-      TsAppSpec.ExtImport | TsAppSpec.ZodObjectSchema
+      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
     >();
   });
 
@@ -172,10 +174,10 @@ describe("Env validation schema input types", () => {
     } satisfies TsAppSpec.Client;
 
     expectTypeOf(serverConfig.envValidationSchema).toExtend<
-      TsAppSpec.ExtImport | TsAppSpec.ZodObjectSchema
+      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
     >();
     expectTypeOf(clientConfig.envValidationSchema).toExtend<
-      TsAppSpec.ExtImport | TsAppSpec.ZodObjectSchema
+      TsAppSpec.ExtImport | TsAppSpec.ZodSchema
     >();
   });
 

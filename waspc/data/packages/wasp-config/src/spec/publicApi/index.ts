@@ -32,5 +32,5 @@ export type {
   Server,
   UsernameAndPasswordConfig,
   WebSocket,
-  ZodObjectSchema,
+  ZodSchema,
 } from "./tsAppSpec.js";

@@ -2,12 +2,6 @@ import * as AppSpec from "../../appSpec.js";
 import type { AnyFunction } from "../../typeUtils.js";
 import type { ExtImport } from "../extImport.js";
 
-export type ZodObjectSchema = {
-  readonly shape: object;
-  safeParse: AnyFunction;
-  and: AnyFunction;
-};
-
 export type App = {
   name: string;
   wasp: AppSpec.Wasp;
@@ -78,14 +72,14 @@ export type EmailFlowConfig = {
 export type Server = {
   setupFn?: ExtImport | AnyFunction;
   middlewareConfigFn?: ExtImport | AnyFunction;
-  envValidationSchema?: ExtImport | ZodObjectSchema;
+  envValidationSchema?: ExtImport | ZodSchema;
 };
 
 export type Client = {
   rootComponent?: ExtImport | AnyFunction;
   setupFn?: ExtImport | AnyFunction;
   baseDir?: `/${string}`;
-  envValidationSchema?: ExtImport | ZodObjectSchema;
+  envValidationSchema?: ExtImport | ZodSchema;
 };
 
 export type Db = {
@@ -213,3 +207,17 @@ export type {
 export type MakePart<Kind extends string, PartConfig> = {
   kind: Kind;
 } & PartConfig;
+
+/**
+ * Imported @src env schemas are lowered to ExtImport objects before mapping,
+ * but the user still sees the public API that allows the runtime Zod object
+ * (in `server.envValidationSchema` and `client.envValidationSchema`).
+ * To avoid needing to depend on `zod` package, we structurally recognize Zod 4
+ * schemas via their documented library-author marker.
+ * See https://zod.dev/library-authors.
+ */
+export type ZodSchema = {
+  readonly _zod: {
+    readonly def: object;
+  };
+};
