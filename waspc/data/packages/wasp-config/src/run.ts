@@ -3,7 +3,7 @@
 import { writeFileSync } from "fs";
 import { pathToFileURL } from "url";
 import { parseProcessArgsOrThrow } from "./cli.js";
-import { analyzeApp } from "./legacy/appAnalyzer.js";
+import { analyzeApp } from "./spec/appAnalyzer.js";
 import { compileWaspTsFileToJsFile } from "./spec-pipeline/compile/index.js";
 
 main(process.argv).catch((error: unknown) => {
