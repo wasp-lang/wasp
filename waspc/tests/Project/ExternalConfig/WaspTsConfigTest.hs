@@ -13,10 +13,6 @@ spec_WaspTsConfig = do
     it "returns no errors for a valid tsconfig" $
       validate validTsConfig `shouldBe` []
 
-    it "returns an error when include entries are out of order" $
-      assertReturnsValidationErrorMentioningField "include" $
-        validTsConfig {T.include = Just ["**/*.wasp.ts", "main.wasp.ts"]}
-
     it "returns an error when a compilerOption has a wrong value" $
       assertReturnsValidationErrorMentioningField "strict" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}

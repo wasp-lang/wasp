@@ -1,10 +1,10 @@
 import { describe, expect, test } from "vitest";
-import { lowerSrcImports as lowerSrcImportsRaw } from "../../src/spec-pipeline/lowerSrcImports.js";
+import { lowerSrcImports } from "../../src/spec-pipeline/lowerSrcImports.js";
 
 describe("lowerSrcImports", () => {
   test("lowers a default import into an importDefault ExtImport const", () => {
     const input = `import MainPage from "@src/MainPage";\n`;
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toBe(
       `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;\n`,
     );
@@ -12,7 +12,7 @@ describe("lowerSrcImports", () => {
 
   test("lowers a single named import into an ExtImport const", () => {
     const input = `import { getTasks } from "@src/operations";\n`;
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toBe(
       `const getTasks = { import: "getTasks", from: "@src/operations" } as const;\n`,
     );
@@ -20,7 +20,7 @@ describe("lowerSrcImports", () => {
 
   test("lowers an aliased named import with alias metadata", () => {
     const input = `import { archive as archiveTask } from "@src/operations";\n`;
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toBe(
       `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;\n`,
     );
@@ -32,7 +32,7 @@ describe("lowerSrcImports", () => {
       `import { archive as archiveLegacyTask } from "@src/legacyOperations";`,
       ``,
     ].join("\n");
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toBe(
       [
         `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;`,
@@ -44,7 +44,7 @@ describe("lowerSrcImports", () => {
 
   test("lowers multiple named imports into separate ExtImport consts", () => {
     const input = `import { getTasks, createTask } from "@src/operations";\n`;
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toBe(
       `const getTasks = { import: "getTasks", from: "@src/operations" } as const;\nconst createTask = { import: "createTask", from: "@src/operations" } as const;\n`,
     );
@@ -52,7 +52,7 @@ describe("lowerSrcImports", () => {
 
   test("lowers a default + named import together", () => {
     const input = `import MainPage, { Helper } from "@src/MainPage";\n`;
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toBe(
       `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;\nconst Helper = { import: "Helper", from: "@src/MainPage" } as const;\n`,
     );
@@ -60,7 +60,7 @@ describe("lowerSrcImports", () => {
 
   test("lowers a namespace import into a Proxy", () => {
     const input = `import * as ops from "@src/operations";\n`;
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toBe(
       `${expectedNamespaceProxy("ops", "@src/operations", "ops_")}\n`,
     );
@@ -72,7 +72,7 @@ describe("lowerSrcImports", () => {
       `import * as legacyOps from "@src/legacyOperations";`,
       ``,
     ].join("\n");
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toBe(
       [
         expectedNamespaceProxy("ops", "@src/operations", "ops_"),
@@ -88,30 +88,30 @@ describe("lowerSrcImports", () => {
 
   test("leaves wasp-config imports untouched", () => {
     const input = `import { App } from "wasp-config";\n`;
-    expect(lowerSrcImports(input)).toBe(input);
+    expect(lowerSrcImports({ sourceText: input })).toBe(input);
   });
 
   test("leaves package imports untouched", () => {
     const input = `import z from "zod";\nimport { App } from "wasp-config";\n`;
-    expect(lowerSrcImports(input)).toBe(input);
+    expect(lowerSrcImports({ sourceText: input })).toBe(input);
   });
 
   test("leaves relative imports untouched", () => {
     const input = `import helper from "./helpers";\n`;
 
-    expect(lowerSrcImports(input)).toBe(input);
+    expect(lowerSrcImports({ sourceText: input })).toBe(input);
   });
 
   test("leaves relative re-exports untouched", () => {
     const input = `export { helper } from "./helpers";\n`;
 
-    expect(lowerSrcImports(input)).toBe(input);
+    expect(lowerSrcImports({ sourceText: input })).toBe(input);
   });
 
   test("leaves ./src imports untouched", () => {
     const input = `import MainPage from "./src/MainPage";\n`;
 
-    expect(lowerSrcImports(input)).toBe(input);
+    expect(lowerSrcImports({ sourceText: input })).toBe(input);
   });
 
   test("lowers only the matching import in a mixed file", () => {
@@ -129,7 +129,7 @@ describe("lowerSrcImports", () => {
       `export default app;`,
       ``,
     ].join("\n");
-    const output = lowerSrcImports(input);
+    const output = lowerSrcImports({ sourceText: input });
     expect(output).toContain(
       `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
     );
@@ -154,19 +154,21 @@ describe("lowerSrcImports", () => {
       `export default app;`,
       ``,
     ].join("\n");
-    expect(lowerSrcImports(input)).toBe(input);
+    expect(lowerSrcImports({ sourceText: input })).toBe(input);
   });
 
   test("rejects side-effect imports from @src", () => {
     const input = `import "@src/setup";\n`;
 
-    expect(() => lowerSrcImports(input)).toThrowError(/Side-effect imports/);
+    expect(() => lowerSrcImports({ sourceText: input })).toThrowError(
+      /Side-effect imports/,
+    );
   });
 
   test("rejects import equals declarations from @src", () => {
     const input = `import MainPage = require("@src/MainPage");\n`;
 
-    expect(() => lowerSrcImports(input)).toThrowError(
+    expect(() => lowerSrcImports({ sourceText: input })).toThrowError(
       /Import equals declarations/,
     );
   });
@@ -174,19 +176,23 @@ describe("lowerSrcImports", () => {
   test("rejects re-exports from @src", () => {
     const input = `export { MainPage } from "@src/MainPage";\n`;
 
-    expect(() => lowerSrcImports(input)).toThrowError(/Re-exports/);
+    expect(() => lowerSrcImports({ sourceText: input })).toThrowError(
+      /Re-exports/,
+    );
   });
 
   test("rejects type-only imports from @src", () => {
     const input = `import type { MainPageProps } from "@src/MainPage";\n`;
 
-    expect(() => lowerSrcImports(input)).toThrowError(/Type-only imports/);
+    expect(() => lowerSrcImports({ sourceText: input })).toThrowError(
+      /Type-only imports/,
+    );
   });
 
   test("rejects mixed type and value imports from @src", () => {
     const input = `import { type MainPageProps, MainPage } from "@src/MainPage";\n`;
 
-    expect(() => lowerSrcImports(input)).toThrowError(
+    expect(() => lowerSrcImports({ sourceText: input })).toThrowError(
       /Mixed type\/value imports/,
     );
   });
@@ -194,7 +200,7 @@ describe("lowerSrcImports", () => {
   test("rejects string-literal named imports from @src", () => {
     const input = `import { "foo-bar" as fooBar } from "@src/operations";\n`;
 
-    expect(() => lowerSrcImports(input)).toThrowError(
+    expect(() => lowerSrcImports({ sourceText: input })).toThrowError(
       /String-literal named imports/,
     );
   });
@@ -202,7 +208,9 @@ describe("lowerSrcImports", () => {
   test("rejects empty named imports from @src", () => {
     const input = `import {} from "@src/MainPage";\n`;
 
-    expect(() => lowerSrcImports(input)).toThrowError(/Empty named imports/);
+    expect(() => lowerSrcImports({ sourceText: input })).toThrowError(
+      /Empty named imports/,
+    );
   });
 
   test("reports all unsupported imports from @src", () => {
@@ -212,7 +220,7 @@ describe("lowerSrcImports", () => {
       ``,
     ].join("\n");
 
-    expect(() => lowerSrcImports(input)).toThrowError(
+    expect(() => lowerSrcImports({ sourceText: input })).toThrowError(
       [
         `Unsupported @src imports in main.wasp.ts:`,
         `- 1:1 "@src/setup": Side-effect imports are not supported.`,
@@ -237,8 +245,4 @@ function expectedNamespaceProxy(
 
 function expectNoSrcImportDeclarations(sourceText: string): void {
   expect(sourceText).not.toMatch(/^import\s+(?:.+\s+from\s+)?["']@src\//m);
-}
-
-function lowerSrcImports(sourceText: string): string {
-  return lowerSrcImportsRaw({ sourceText });
 }
