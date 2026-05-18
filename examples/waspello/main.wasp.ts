@@ -1,19 +1,14 @@
-// @ts-ignore
 import LoginPage from "@src/auth/LoginPage";
-// @ts-ignore
 import SignupPage from "@src/auth/SignupPage";
-// @ts-ignore
 import { createCard, updateCard } from "@src/cards/cards";
 import {
   createList,
   createListCopy,
   deleteList,
   getListsAndCards,
-  updateList, // @ts-ignore
+  updateList,
 } from "@src/cards/lists";
-// @ts-ignore
 import MainPage from "@src/cards/MainPage";
-// @ts-ignore
 import Layout from "@src/Layout";
 import { readFile } from "fs/promises";
 import { action, app, page, query, route } from "wasp-config";
