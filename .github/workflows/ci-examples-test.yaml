@@ -31,7 +31,7 @@ jobs:
 
       - uses: ./.github/actions/install-wasp-cli-artifact
 
-      - name: Setup Wasp TS Config (if needed)
+      - name: Setup Wasp TS Spec (if needed)
         working-directory: examples/${{ matrix.example }}
         run: |
           if [ -f *.wasp.ts ]; then

@@ -56,7 +56,7 @@ Build your app in a day and deploy it with a single CLI command!
 
 ### Code example
 
-Simple Wasp config file in which you describe the high-level details of your web app:
+Simple Wasp spec file in which you describe the high-level details of your web app:
 
 ```js
 // file: main.wasp

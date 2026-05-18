@@ -147,8 +147,8 @@ jobs:
         shell: bash
         run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
 
-      # Uncomment if using Wasp TS Config
-      # - name: Initialize Wasp TS Config
+      # Uncomment if using Wasp TS Spec
+      # - name: Initialize Wasp TS Spec
       #   run: wasp ts-setup
 
       - name: Build Wasp app
