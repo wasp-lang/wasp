@@ -1,15 +1,15 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { loadWaspTsFileDefaultExport } from "../../src/spec-pipeline/index.js";
+import { loadWaspTsSpecDefaultExport } from "../../src/spec-pipeline/loadWaspTsSpec.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 import { mapApp } from "../../src/spec/mapApp.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
-vi.mock("../../src/spec-pipeline/index.js", () => ({
-  loadWaspTsFileDefaultExport: vi.fn(),
+vi.mock("../../src/spec-pipeline/loadWaspTsSpec.js", () => ({
+  loadWaspTsSpecDefaultExport: vi.fn(),
 }));
 
-const mockLoadWaspTsFileDefaultExport = vi.mocked(loadWaspTsFileDefaultExport);
+const mockLoadWaspTsSpecDefaultExport = vi.mocked(loadWaspTsSpecDefaultExport);
 
 describe("analyzeApp", () => {
   afterEach(() => vi.clearAllMocks());
@@ -60,7 +60,7 @@ describe("analyzeApp", () => {
       entities,
       options: { shouldReturnError } = { shouldReturnError: false },
     } = input;
-    mockLoadWaspTsFileDefaultExport.mockResolvedValue(app);
+    mockLoadWaspTsSpecDefaultExport.mockResolvedValue(app);
 
     const result = await analyzeApp({
       waspTsSpecPath: "main.wasp.ts",
@@ -68,8 +68,8 @@ describe("analyzeApp", () => {
       entityNames: entities,
     });
 
-    expect(mockLoadWaspTsFileDefaultExport).toHaveBeenCalledWith({
-      inputPath: "main.wasp.ts",
+    expect(mockLoadWaspTsSpecDefaultExport).toHaveBeenCalledWith({
+      specPath: "main.wasp.ts",
       tsconfigPath: "tsconfig.wasp.json",
     });
 

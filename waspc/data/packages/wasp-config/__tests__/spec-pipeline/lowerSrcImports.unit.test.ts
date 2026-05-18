@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { lowerSrcImports } from "../../src/spec-pipeline/lowerSrcImports.js";
+import { lowerSrcImports as lowerSrcImportsRaw } from "../../src/spec-pipeline/lowerSrcImports.js";
 
 describe("lowerSrcImports", () => {
   test("lowers a default import into an importDefault ExtImport const", () => {
@@ -237,4 +237,8 @@ function expectedNamespaceProxy(
 
 function expectNoSrcImportDeclarations(sourceText: string): void {
   expect(sourceText).not.toMatch(/^import\s+(?:.+\s+from\s+)?["']@src\//m);
+}
+
+function lowerSrcImports(sourceText: string): string {
+  return lowerSrcImportsRaw({ sourceText });
 }

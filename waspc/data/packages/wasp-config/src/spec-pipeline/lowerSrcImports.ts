@@ -15,10 +15,13 @@ import type {
  * Given source code, finds supported @src import statements and replaces them
  * with inline ExtImport consts. We call this lowering imports.
  */
-export function lowerSrcImports(
-  sourceText: string,
+export function lowerSrcImports({
+  sourceText,
   sourcePath = "main.wasp.ts",
-): string {
+}: {
+  sourceText: string;
+  sourcePath?: string;
+}): string {
   const plan = planImportLowering(sourceText);
   if (plan.status === "error") {
     throw new Error(formatImportDiagnostics(plan.error, sourcePath));

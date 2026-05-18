@@ -1,6 +1,6 @@
 import * as AppSpec from "../appSpec.js";
 import type { Result } from "../result.js";
-import { loadWaspTsFileDefaultExport } from "../spec-pipeline/index.js";
+import { loadWaspTsSpecDefaultExport } from "../spec-pipeline/loadWaspTsSpec.js";
 import { mapApp } from "./mapApp.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
@@ -13,8 +13,8 @@ export async function analyzeApp({
   tsconfigPath: string;
   entityNames: string[];
 }): Promise<Result<AppSpec.Decl[], string>> {
-  const waspTsDefaultExport = await loadWaspTsFileDefaultExport({
-    inputPath: waspTsSpecPath,
+  const waspTsDefaultExport = await loadWaspTsSpecDefaultExport({
+    specPath: waspTsSpecPath,
     tsconfigPath,
   });
 

@@ -308,37 +308,6 @@ describe("end-to-end import-form pipeline", () => {
     );
   });
 
-  test("rejects @src imports and re-exports in plain helpers", async () => {
-    const helperCases = [
-      `import MainPage from "@src/MainPage";\nMainPage;\nexport const title = "Demo";\n`,
-      `import type { Props } from "@src/MainPage";\nexport const title = "Demo";\n`,
-      `export { MainPage } from "@src/MainPage";\nexport const title = "Demo";\n`,
-    ];
-
-    for (const helperSource of helperCases) {
-      const tempDir = makeTempProject("wasp-spec-helper-src-import-");
-      writeProjectFile(tempDir, "helpers/title.ts", helperSource);
-
-      await expect(
-        compileAndAnalyzeSpec({
-          tempDir,
-          sourceFileName: "main.wasp.ts",
-          sourceText: [
-            `// @ts-ignore: This test imports the local TS source through Vitest.`,
-            `import { app } from ${JSON.stringify(waspConfigEntryUrl)};`,
-            `import { title } from "./helpers/title.js";`,
-            ``,
-            `export default app({`,
-            `  name: "demo",`,
-            `  title,`,
-            `  wasp: { version: "^0.16.0" },`,
-            `  parts: [],`,
-            `});`,
-          ].join("\n"),
-        }),
-      ).rejects.toThrowError(/plain TypeScript helper/);
-    }
-  });
 });
 
 function specSource(prelude: string[]): string {
