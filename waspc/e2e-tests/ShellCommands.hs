@@ -26,6 +26,7 @@ module ShellCommands
     waspCliBuild,
     waspCliBuildStart,
     waspCliStart,
+    waspCliInstall,
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
@@ -144,6 +145,11 @@ waspCliNew appName starterTemplate =
 
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
 waspCliCompletion = return "wasp-cli completion"
+
+-- TODO: replace with actual Wasp command once it is implemented:
+-- https://github.com/wasp-lang/wasp/pull/4119
+waspCliInstall :: ShellCommandBuilder context ShellCommand
+waspCliInstall = return "npm i"
 
 -- Wasp project commands
 
