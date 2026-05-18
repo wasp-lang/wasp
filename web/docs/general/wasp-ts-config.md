@@ -68,6 +68,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
         "module": "esnext",
         "moduleResolution": "bundler",
         "jsx": "preserve",
+        "allowJs": true,
         "noEmit": true,
 
         "lib": ["ES2023"],

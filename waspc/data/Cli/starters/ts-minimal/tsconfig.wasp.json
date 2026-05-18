@@ -10,6 +10,7 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "preserve",
+    "allowJs": true,
     "noEmit": true,
     "lib": ["ES2023"],
     "paths": {

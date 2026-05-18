@@ -113,6 +113,8 @@ Make sure your `tsconfig.wasp.json` includes the required TS spec compiler optio
     "module": "esnext",
     "moduleResolution": "bundler",
     "jsx": "preserve",
+    // highlight-next-line
+    "allowJs": true,
     "paths": {
       // highlight-next-line
       "@src/*": ["./src/*"]

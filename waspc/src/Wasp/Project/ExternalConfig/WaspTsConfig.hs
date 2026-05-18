@@ -38,6 +38,7 @@ waspTsConfigValidator =
           V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
           V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
+          V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           V.inField ("noEmit", T.noEmit) $ V.eqJust True,
           V.inField ("lib", T.lib) $ V.eqJust ["ES2023"],
           V.inField ("paths", T.paths) $ V.required $ requiredPathMapping "@src/*" ["./src/*"]

@@ -17,9 +17,17 @@ spec_WaspTsConfig = do
       assertReturnsValidationErrorMentioningField "strict" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}
 
+    it "returns an error when allowJs has a wrong value" $
+      assertReturnsValidationErrorMentioningField "allowJs" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Just False})}
+
     it "returns an error when a compilerOption is missing" $
       assertReturnsValidationErrorMentioningField "noEmit" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.noEmit = Nothing})}
+
+    it "returns an error when allowJs is missing" $
+      assertReturnsValidationErrorMentioningField "allowJs" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Nothing})}
 
     it "returns an error when compilerOptions is missing" $
       assertReturnsValidationErrorMentioningField "compilerOptions" $
@@ -69,7 +77,7 @@ validCompilerOptions =
       T.esModuleInterop = Nothing,
       T.lib = Just ["ES2023"],
       T.paths = Just $ Map.singleton "@src/*" ["./src/*"],
-      T.allowJs = Nothing,
+      T.allowJs = Just True,
       T.outDir = Nothing,
       T.noEmit = Just True
     }

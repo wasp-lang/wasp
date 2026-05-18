@@ -516,6 +516,7 @@ function writeTsConfig(tsconfigPath: string, include: string): void {
         moduleResolution: "bundler",
         jsx: "preserve",
         strict: true,
+        allowJs: true,
         noEmit: true,
         baseUrl: ".",
         paths: {
