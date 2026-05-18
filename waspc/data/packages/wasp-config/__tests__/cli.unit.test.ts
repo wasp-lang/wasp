@@ -105,13 +105,8 @@ describe("parseProcessArgsOrThrow", () => {
   function expectParseProcessArgsToSucceed(args: string[]) {
     const result = parseProcessArgsOrThrow(["node", "run.js", ...args]);
 
-    const [
-      _command,
-      waspTsSpecPath,
-      tsconfigPath,
-      declsJsonPath,
-      entityNames,
-    ] = args;
+    const [_command, waspTsSpecPath, tsconfigPath, declsJsonPath, entityNames] =
+      args;
     expect(result).toEqual({
       waspTsSpecPath,
       tsconfigPath,
