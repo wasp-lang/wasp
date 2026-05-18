@@ -1,4 +1,3 @@
-
 import { MainPage } from "@src/MainPage"
 import { app, page, route } from "@wasp.sh/spec"
 
