@@ -71,8 +71,9 @@ export function job(
 }
 
 export function crud(
+  name: Crud["name"],
   entity: Crud["entity"],
   operations: Crud["operations"],
 ): Crud {
-  return { kind: "crud", entity, operations };
+  return { kind: "crud", name, entity, operations };
 }

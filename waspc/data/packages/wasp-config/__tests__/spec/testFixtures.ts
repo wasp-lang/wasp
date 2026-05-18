@@ -203,12 +203,14 @@ export function getCrud(scope: ConfigScope): Config<TsAppSpec.Crud> {
     case "minimal":
       return {
         kind: "crud",
+        name: "minimalCrud",
         entity: "Task",
         operations: getCrudOperations("minimal"),
       } satisfies MinimalConfig<TsAppSpec.Crud>;
     case "full":
       return {
         kind: "crud",
+        name: "fullCrud",
         entity: "Task",
         operations: getCrudOperations("full"),
       } satisfies FullConfig<TsAppSpec.Crud>;

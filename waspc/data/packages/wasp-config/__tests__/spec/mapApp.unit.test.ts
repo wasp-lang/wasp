@@ -186,7 +186,7 @@ describe("mapApp", () => {
       },
       {
         declType: "Crud",
-        declName: `${crud.entity}s`,
+        declName: crud.name,
         declValue: mapCrud(crud, entityRefParser),
       },
     ] satisfies AppSpec.Decl[]);

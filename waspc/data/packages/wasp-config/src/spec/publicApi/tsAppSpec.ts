@@ -192,6 +192,7 @@ export type ExecutorOptions = {
 export type Crud = MakePart<
   "crud",
   {
+    name: string;
     entity: string;
     operations: CrudOperations;
   }

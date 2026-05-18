@@ -99,7 +99,7 @@ export function mapApp(
   const crudDecls = mapToDecls(
     cruds,
     "Crud",
-    (crud) => `${crud.entity}s`,
+    (crud) => crud.name,
     (crud) => mapCrud(crud, entityRefParser),
   );
 
