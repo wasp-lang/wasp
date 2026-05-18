@@ -65,22 +65,21 @@ waspTsSpecNodeEnvTest =
     nodeEnvMainWaspTs :: T.Text
     nodeEnvMainWaspTs =
       [trimming|
-        import { App } from "wasp-config";
+        import { app, page, route } from "wasp-config";
+        // @ts-ignore
+        import { MainPage } from "@src/MainPage"
 
         console.log(`E2E-NODE-ENV=$${process.env.NODE_ENV}`);
 
-        const app = new App("envprobe", {
-          title: "envprobe",
-          wasp: { version: "^$textWaspVersion" },
-        });
-
-        const mainPage = app.page("MainPage", {
-          component: { import: "MainPage", from: "@src/MainPage" },
-        });
-
-        app.route("RootRoute", { path: "/", to: mainPage });
-
-        export default app;
+        export default app({
+          name: "tsSpecNodeEnvTest",
+          title: "tsSpecNodeEnvTest",
+          wasp: { version: "$textWaspVersion" },
+          head: ["<link rel='icon' href='/favicon.ico' />"],
+          parts: [
+            route("RootRoute", "/", page(MainPage)),
+          ]
+        })
       |]
 
     textWaspVersion :: T.Text
