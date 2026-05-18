@@ -104,7 +104,15 @@ export type WebSocket = {
   autoConnect?: boolean;
 };
 
-export type Part = Page | Route | Query | Action | Api | ApiNamespace | Job;
+export type Part =
+  | Page
+  | Route
+  | Query
+  | Action
+  | Api
+  | ApiNamespace
+  | Job
+  | Crud;
 
 export type Page = MakePart<
   "page",
@@ -186,6 +194,26 @@ export type Schedule = {
 
 export type ExecutorOptions = {
   pgBoss: object;
+};
+
+export type Crud = MakePart<
+  "crud",
+  {
+    name: string;
+    entity: string;
+    operations: CrudOperations;
+  }
+>;
+
+export type CrudOperations = Partial<
+  Record<CrudOperation, CrudOperationOptions>
+>;
+
+export type CrudOperation = "get" | "getAll" | "create" | "update" | "delete";
+
+export type CrudOperationOptions = {
+  isPublic?: boolean;
+  overrideFn?: ExtImport;
 };
 
 export type {

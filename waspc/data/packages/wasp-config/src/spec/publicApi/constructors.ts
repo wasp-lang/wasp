@@ -3,6 +3,7 @@ import type {
   Api,
   ApiNamespace,
   App,
+  Crud,
   Job,
   Page,
   Query,
@@ -67,4 +68,12 @@ export function job(
   >,
 ): Job {
   return { kind: "job", fn, ...config };
+}
+
+export function crud(
+  name: Crud["name"],
+  entity: Crud["entity"],
+  operations: Crud["operations"],
+): Crud {
+  return { kind: "crud", name, entity, operations };
 }
