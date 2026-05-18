@@ -1,88 +1,48 @@
+// @ts-ignore
+import LoginPage from "@src/auth/LoginPage";
+// @ts-ignore
+import SignupPage from "@src/auth/SignupPage";
+// @ts-ignore
+import { createCard, updateCard } from "@src/cards/cards";
+import {
+  createList,
+  createListCopy,
+  deleteList,
+  getListsAndCards,
+  updateList, // @ts-ignore
+} from "@src/cards/lists";
+// @ts-ignore
+import MainPage from "@src/cards/MainPage";
+// @ts-ignore
+import Layout from "@src/Layout";
 import { readFile } from "fs/promises";
-import { ActionConfig, App, ExtImport } from "wasp-config";
+import { action, app, page, query, route } from "wasp-config";
 
-const title = (await readFile("appTitle.txt", "utf-8")).trim();
-
-const app = new App("waspello", {
-  title,
+export default app({
+  name: "waspello",
+  title: (await readFile("appTitle.txt", "utf-8")).trim(),
   wasp: { version: "^0.24.0" },
-});
-
-app.client({
-  rootComponent: { importDefault: "Layout", from: "@src/Layout" },
-});
-
-app.auth({
-  userEntity: "User",
-  methods: {
-    usernameAndPassword: {},
-    google: {},
-  },
-  onAuthFailedRedirectTo: "/login",
-});
-
-/* Pages */
-
-// You can define pages and routes separately...
-const mainPage = app.page("Main", {
-  authRequired: true,
-  component: {
-    importDefault: "Main",
-    from: "@src/cards/MainPage",
-  },
-});
-
-app.route("MainRoute", { path: "/", to: mainPage });
-
-const signupPage = app.page("Signup", {
-  component: {
-    importDefault: "Signup",
-    from: "@src/auth/SignupPage",
-  },
-});
-app.route("SignupRoute", { path: "/signup", to: signupPage });
-
-// ... Or define them together
-app.route("LoginRoute", {
-  path: "/login",
-  to: app.page("Login", {
-    component: {
-      importDefault: "Login",
-      from: "@src/auth/LoginPage",
+  auth: {
+    userEntity: "User",
+    methods: {
+      usernameAndPassword: {},
+      google: {},
     },
-  }),
+    onAuthFailedRedirectTo: "/login",
+  },
+  client: {
+    rootComponent: Layout,
+  },
+  parts: [
+    route("MainRoute", "/", page(MainPage)),
+    route("SignupRoute", "/signup", page(SignupPage)),
+    route("LoginRoute", "/login", page(LoginPage)),
+    query(getListsAndCards, { entities: ["List", "Card"] }),
+    action(createList, { entities: ["List"] }),
+    action(updateList, { entities: ["List"] }),
+    action(deleteList, { entities: ["List", "Card"] }),
+    action(createListCopy, { entities: ["List", "Card"] }),
+    action(createCard, { entities: ["Card"] }),
+    action(updateCard, { entities: ["Card"] }),
+  ],
 });
-
-/* Operations */
-
-// You can define them them one by one...
-app.query("getListsAndCards", {
-  fn: { import: "getListsAndCards", from: "@src/cards/lists" },
-  entities: ["List", "Card"],
-});
-
-app.action("createList", {
-  fn: { import: "createList", from: "@src/cards/lists" },
-  entities: ["List"],
-});
-
-// ...Or, if they're similar enough, create a helper function to reduce
-// duplication:
-function appAction(
-  name: string,
-  from: ExtImport["from"],
-  entities: ActionConfig["entities"],
-) {
-  app.action(name, {
-    fn: { import: name, from },
-    entities,
-  });
-}
-
-appAction("updateList", "@src/cards/lists", ["List"]);
-appAction("createCard", "@src/cards/cards", ["Card"]);
-appAction("updateCard", "@src/cards/cards", ["Card"]);
-appAction("deleteList", "@src/cards/lists", ["List", "Card"]);
-appAction("createListCopy", "@src/cards/lists", ["List", "Card"]);
-
-export default app;
