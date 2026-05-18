@@ -6,9 +6,11 @@ import { parseProcessArgsOrThrow } from "./cli.js";
 import { analyzeApp } from "./legacy/appAnalyzer.js";
 import { compileWaspTsFileToJsFile } from "./spec-pipeline/compile/index.js";
 
-process.on("uncaughtException", (err) => {
-  console.error(err.stack ? err.stack : String(err));
-  process.exit(1);
+main(process.argv).catch((error: unknown) => {
+  console.error(
+    error instanceof Error && error.stack ? error.stack : String(error),
+  );
+  process.exitCode = 1;
 });
 
 main(process.argv);
