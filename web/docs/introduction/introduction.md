@@ -27,7 +27,7 @@ Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on
 
 ### Wasp's secret sauce
 
-At the core is the Wasp compiler which takes the Wasp config and your Javascript code and outputs the client app, server app and deployment code.
+At the core is the Wasp compiler which takes the Wasp spec and your Javascript code and outputs the client app, server app and deployment code.
 
 <!-- ![Wasp compilation diagram](/img/lp/wasp-compilation-diagram.png) -->
 
@@ -35,7 +35,7 @@ At the core is the Wasp compiler which takes the Wasp config and your Javascript
 
 The cool thing about having a compiler that understands your code is that it can do a lot of things for you.
 
-Define your app in the Wasp config and get:
+Define your app in the Wasp spec file and get:
 
 - login and signup with Auth UI components,
 - full-stack type safety,

@@ -18,7 +18,7 @@ When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `us
 
 ### 1. Configure WebSocket in main.wasp
 
-Enable WebSocket in your Wasp configuration with `autoConnect: false` since you'll manage connections manually:
+Enable WebSocket in your Wasp spec with `autoConnect: false` since you'll manage connections manually:
 
 ```wasp title="main.wasp"
 app WebsocketTest {

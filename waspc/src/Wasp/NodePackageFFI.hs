@@ -60,7 +60,7 @@ data RunnablePackage
 -- | These are globally installed packages waspc copies into a location inside
 -- the user's project and then installs using `npm`'s file specifiers. They are
 -- used/run from inside the project's node_modules.
-data InstallablePackage = WaspConfigPackage
+data InstallablePackage = WaspSpecPackage
 
 data PackagesDir
 
@@ -113,7 +113,7 @@ getPackageJsonSpecifierForPackage package =
 getInstallablePackageName :: InstallablePackage -> String
 getInstallablePackageName = \case
   -- NOTE: These names must match the 'name' fields in packages' package.json files.
-  WaspConfigPackage -> "wasp-config"
+  WaspSpecPackage -> "@wasp.sh/spec"
 
 ensurePackageIsAtInstallationPathInProject :: Path' Abs (Dir WaspProjectDir) -> InstallablePackage -> IO ()
 ensurePackageIsAtInstallationPathInProject projectDir package = do
@@ -137,7 +137,7 @@ getInstallablePackageScriptInProject package =
 
 installablePackageScript :: InstallablePackage -> Path' (Rel d) File'
 installablePackageScript = \case
-  WaspConfigPackage -> [relfile|dist/src/run.js|]
+  WaspSpecPackage -> [relfile|dist/src/run.js|]
 
 getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
 getRunnablePackageDir package = do

@@ -7,9 +7,9 @@ import * as AppSpec from "../../src/appSpec.js";
 import { compileWaspTsFileToJsFile } from "../../src/spec-pipeline/compile/index.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
-// We use the absolute file:// URL of the local wasp-config source so the
+// We use the absolute file:// URL of the local @wasp.sh/spec source so the
 // compiled spec does not rely on node_modules resolution from a temp dir.
-const waspConfigEntryUrl = pathToFileURL(
+const waspSpecEntryUrl = pathToFileURL(
   join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
 ).href;
 
@@ -130,7 +130,7 @@ function specSource(prelude: string[]): string {
   return [
     `// @ts-ignore: This test imports the local TS source through Vitest.`,
     `import { action, app, page, query } from ${JSON.stringify(
-      waspConfigEntryUrl,
+      waspSpecEntryUrl,
     )};`,
     ...prelude,
     ``,

@@ -5,7 +5,7 @@ image: /img/year-review-2025/banner.png
 tags: [wasp, year-review, launch-week]
 ---
 
-import { ImgWithCaption } from './components/ImgWithCaption';
+import { ImgWithCaption } from './components/ImgWithCaption'
 
 2025 was both the biggest year for Wasp so far, but also one in which we were heads-down building the most. While we shipped consistently throughout the year (5 launch events, 20 blog posts & tutorials, and a steady stream of features) the real story is what happened beneath the surface: **clearing the path to 1.0**.
 
@@ -53,7 +53,7 @@ Let's now dive into the details of each category:
 - **React 19 & stack upgrades** - Updated to React 19, along with Node.js and Vite version bumps
 - **Public development roadmap** - Published our [transparent path to 1.0](/blog/2025/07/14/public-wasp-dev-roadmap), with epics and milestones [tracked on GitHub](https://github.com/orgs/wasp-lang/projects/5)
 - **Deployment docs rehaul** - New guides for [Coolify, CapRover](/docs/deployment/deployment-methods/self-hosted), and improved deployment story overall
-- **[TypeScript config](/docs/general/wasp-ts-config) (experimental)** - Define your app in `main.wasp.ts` instead of the DSL, with full editor support out of the box. Soon to become the default.
+- **[TypeScript config](/docs/general/wasp-ts-spec) (experimental)** - Define your app in `main.wasp.ts` instead of the DSL, with full editor support out of the box. Soon to become the default.
 - **Quality of life improvements** - Env variable validation with Zod, [`wasp build start`](/docs/deployment/local-testing) for testing production builds locally, better TSConfig behavior
 
 While some of these look like single bullet points, the roadmap and TypeScript config alone represent months of focused work. Behind the scenes, we also [overhauled our internal architecture](/blog/2025/07/18/faster-wasp-dev) - modernizing how we build, test, and release Wasp, so we can move faster and ship with more confidence.
@@ -114,7 +114,7 @@ We've heard this over and over again: developers want the productivity and porta
 
 ### Frameworks matter more in the age of AI, not less
 
-Here's something we've assumed for a while but haven't seen confirmed until recently: AI coding assistants work dramatically better with opinionated frameworks. When there's one right way to do something, AI can nail it. When there are fifteen ways to wire up authentication, it's another point of friction you or your LLM need to think about and make a decision. 
+Here's something we've assumed for a while but haven't seen confirmed until recently: AI coding assistants work dramatically better with opinionated frameworks. When there's one right way to do something, AI can nail it. When there are fifteen ways to wire up authentication, it's another point of friction you or your LLM need to think about and make a decision.
 
 We're literally seeing this as a choosing criteria now for Wasp - developers pick tools that make their AI assistants more effective. Good abstractions aren't just nice for humans anymore; they're essential for AI too. This has reinforced our belief that the right level of abstraction is one of the most valuable things a framework can provide.
 

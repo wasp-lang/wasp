@@ -1,5 +1,5 @@
-import { App } from "wasp-config";
-import { MainPage } from "@src/MainPage";
+import { MainPage } from "@src/MainPage"
+import { App } from "@wasp.sh/spec"
 
 const app = new App("__waspAppName__", {
   title: "__waspProjectName__",

@@ -47,7 +47,7 @@ describe("planImportLowering", () => {
   });
 
   test("leaves package imports out of the plan", () => {
-    const result = planImportLowering(`import { App } from "wasp-config";\n`);
+    const result = planImportLowering(`import { App } from "@wasp.sh/spec";\n`);
 
     expect(result).toEqual({ status: "ok", value: { replacements: [] } });
   });
