@@ -33,7 +33,6 @@ data-files:
   Cli/starters/**/*.svg
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
-  Cli/starters/**/*.wasp
   Cli/starters/basic/.prettierignore
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
