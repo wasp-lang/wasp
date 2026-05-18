@@ -1,4 +1,7 @@
+import type { RequireOneOrNone } from "type-fest";
 import * as AppSpec from "../../appSpec.js";
+import type { AnyFunction } from "../../typeUtils.js";
+import type { ExtImport } from "../extImport.js";
 
 export type App = {
   name: string;
@@ -14,72 +17,76 @@ export type App = {
   parts: Part[];
 };
 
-export type Auth = {
+export type Auth = AuthHooks & {
   userEntity: string;
   externalAuthEntity?: string;
   methods: AuthMethods;
   onAuthFailedRedirectTo: string;
   onAuthSucceededRedirectTo?: string;
-  onBeforeSignup?: ExtImport;
-  onAfterSignup?: ExtImport;
-  onAfterEmailVerified?: ExtImport;
-  onBeforeOAuthRedirect?: ExtImport;
-  onBeforeLogin?: ExtImport;
-  onAfterLogin?: ExtImport;
 };
 
-export type AuthMethods = {
-  usernameAndPassword?: UsernameAndPasswordConfig;
-  discord?: ExternalAuthConfig;
-  google?: ExternalAuthConfig;
-  gitHub?: ExternalAuthConfig;
-  keycloak?: ExternalAuthConfig;
-  microsoft?: ExternalAuthConfig;
-  email?: EmailAuthConfig;
+export type AuthHooks = Partial<Record<AuthHookName, ExtImport | AnyFunction>>;
+
+export type AuthHookName =
+  | "onBeforeSignup"
+  | "onAfterSignup"
+  | "onAfterEmailVerified"
+  | "onBeforeOAuthRedirect"
+  | "onBeforeLogin"
+  | "onAfterLogin";
+
+export type AuthMethods = Partial<
+  Record<SocialAuthMethodName, ExternalAuthConfig>
+> &
+  RequireOneOrNone<{
+    usernameAndPassword: UsernameAndPasswordConfig;
+    email: EmailAuthConfig;
+  }>;
+
+export type SocialAuthMethodName =
+  | "discord"
+  | "google"
+  | "gitHub"
+  | "keycloak"
+  | "microsoft";
+
+export type UsernameAndPasswordConfig = BaseAuthMethodConfig;
+
+export type ExternalAuthConfig = BaseAuthMethodConfig & {
+  configFn?: ExtImport | AnyFunction;
 };
 
-export type UsernameAndPasswordConfig = {
-  userSignupFields?: ExtImport;
-};
-
-export type ExternalAuthConfig = {
-  configFn?: ExtImport;
-  userSignupFields?: ExtImport;
-};
-
-export type EmailAuthConfig = {
-  userSignupFields?: ExtImport;
+export type EmailAuthConfig = BaseAuthMethodConfig & {
   fromField: EmailFromField;
-  emailVerification: EmailVerificationConfig;
-  passwordReset: PasswordResetConfig;
+  emailVerification: EmailFlowConfig;
+  passwordReset: EmailFlowConfig;
 };
 
-export type EmailVerificationConfig = {
-  getEmailContentFn?: ExtImport;
-  clientRoute: string;
+export type BaseAuthMethodConfig = {
+  userSignupFields?: ExtImport | AnyFunction;
 };
 
-export type PasswordResetConfig = {
-  getEmailContentFn?: ExtImport;
+export type EmailFlowConfig = {
+  getEmailContentFn?: ExtImport | AnyFunction;
   clientRoute: string;
 };
 
 export type Server = {
-  setupFn?: ExtImport;
-  middlewareConfigFn?: ExtImport;
-  envValidationSchema?: ExtImport;
+  setupFn?: ExtImport | AnyFunction;
+  middlewareConfigFn?: ExtImport | AnyFunction;
+  envValidationSchema?: ExtImport | ZodSchema;
 };
 
 export type Client = {
-  rootComponent?: ExtImport;
-  setupFn?: ExtImport;
+  rootComponent?: ExtImport | AnyFunction;
+  setupFn?: ExtImport | AnyFunction;
   baseDir?: `/${string}`;
-  envValidationSchema?: ExtImport;
+  envValidationSchema?: ExtImport | ZodSchema;
 };
 
 export type Db = {
-  seeds?: ExtImport[];
-  prismaSetupFn?: ExtImport;
+  seeds?: (ExtImport | AnyFunction)[];
+  prismaSetupFn?: ExtImport | AnyFunction;
 };
 
 export type EmailSender = {
@@ -93,7 +100,7 @@ export type EmailFromField = {
 };
 
 export type WebSocket = {
-  fn: ExtImport;
+  fn: ExtImport | AnyFunction;
   autoConnect?: boolean;
 };
 
@@ -110,7 +117,7 @@ export type Part =
 export type Page = MakePart<
   "page",
   {
-    component: ExtImport;
+    component: ExtImport | AnyFunction;
     authRequired?: boolean;
   }
 >;
@@ -129,7 +136,7 @@ export type Route = MakePart<
 export type Query = MakePart<
   "query",
   {
-    fn: ExtImport;
+    fn: ExtImport | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -138,7 +145,7 @@ export type Query = MakePart<
 export type Action = MakePart<
   "action",
   {
-    fn: ExtImport;
+    fn: ExtImport | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -149,8 +156,8 @@ export type Api = MakePart<
   {
     method: HttpMethod;
     path: string;
-    fn: ExtImport;
-    middlewareConfigFn?: ExtImport;
+    fn: ExtImport | AnyFunction;
+    middlewareConfigFn?: ExtImport | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -159,7 +166,7 @@ export type Api = MakePart<
 export type ApiNamespace = MakePart<
   "apiNamespace",
   {
-    middlewareConfigFn: ExtImport;
+    middlewareConfigFn: ExtImport | AnyFunction;
     path: string;
   }
 >;
@@ -169,7 +176,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
 export type Job = MakePart<
   "job",
   {
-    fn: ExtImport;
+    fn: ExtImport | AnyFunction;
     executor: JobExecutor;
     schedule?: Schedule;
     entities?: string[];
@@ -209,16 +216,11 @@ export type CrudOperationOptions = {
   overrideFn?: ExtImport;
 };
 
-export type ExtImport = NamedExtImport | DefaultExtImport;
-export interface NamedExtImport {
-  import: string;
-  alias?: string;
-  from: `@src/${string}`;
-}
-export interface DefaultExtImport {
-  importDefault: string;
-  from: `@src/${string}`;
-}
+export type {
+  DefaultExtImport,
+  ExtImport,
+  NamedExtImport,
+} from "../extImport.js";
 
 /**
  * We need the kind to differentiate between parts with the same structure. One
@@ -235,3 +237,17 @@ export interface DefaultExtImport {
 export type MakePart<Kind extends string, PartConfig> = {
   kind: Kind;
 } & PartConfig;
+
+/**
+ * Imported @src env schemas are lowered to ExtImport objects before mapping,
+ * but the user still sees the public API that allows the runtime Zod object
+ * (in `server.envValidationSchema` and `client.envValidationSchema`).
+ * To avoid needing to depend on `zod` package, we structurally recognize Zod 4
+ * schemas via their documented library-author marker.
+ * See https://zod.dev/library-authors.
+ */
+export type ZodSchema = {
+  readonly _zod: {
+    readonly def: object;
+  };
+};

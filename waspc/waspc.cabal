@@ -280,6 +280,7 @@ library
     Wasp.Error
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
+    Wasp.ExternalConfig.Npm.PackageJson.DepValidators
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
@@ -710,6 +711,7 @@ test-suite waspc-tests
     EnvTest
     ErrorTest
     ExternalConfig.Npm.NpmDependenciesTest
+    ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest
     Fixtures
     Generator.AuthInjectionTest
@@ -722,12 +724,12 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
-    Generator.Valid.PackageJsonTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
     Project.DbTest
+    Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest
     Project.ExternalConfig.SrcTsConfigTest
     Project.ExternalConfig.TsConfigTest

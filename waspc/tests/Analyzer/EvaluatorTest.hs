@@ -209,8 +209,8 @@ spec_Evaluator = do
           `shouldBe` Right
             [ ( "Test",
                 Special
-                  [ ExtImport (ExtImportField "field") (fromJust $ SP.parseRelFileP "main.js"),
-                    ExtImport (ExtImportModule "main") (fromJust $ SP.parseRelFileP "main.js")
+                  [ ExtImport (ExtImportField "field") (fromJust $ SP.parseRelFileP "main.js") Nothing,
+                    ExtImport (ExtImportModule "main") (fromJust $ SP.parseRelFileP "main.js") Nothing
                   ]
                   (JSON $ Aeson.object ["key" Aeson..= (1 :: Integer)])
               )

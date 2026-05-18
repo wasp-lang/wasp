@@ -11,7 +11,7 @@ module Wasp.AppSpec.ExtImport
 where
 
 import Control.Arrow (left)
-import Data.Aeson (FromJSON (parseJSON), withObject, (.:))
+import Data.Aeson (FromJSON (parseJSON), withObject, (.:), (.:?))
 import Data.Aeson.Types (ToJSON)
 import Data.Data (Data)
 import Data.List (stripPrefix)
@@ -24,7 +24,9 @@ data ExtImport = ExtImport
   { -- | What is being imported.
     name :: ExtImportName,
     -- | Path from which we are importing.
-    path :: ExtImportPath
+    path :: ExtImportPath,
+    -- | Local alias used in the Wasp config.
+    alias :: Maybe Identifier
   }
   deriving (Show, Eq, Data)
 
@@ -33,9 +35,10 @@ instance FromJSON ExtImport where
     kindStr <- o .: "kind"
     nameStr <- o .: "name"
     pathStr <- o .: "path"
+    aliasStr <- o .:? "alias"
     extImportName <- parseExtImportName kindStr nameStr
     extImportPath <- either fail pure $ parseExtImportPath pathStr
-    return $ ExtImport extImportName extImportPath
+    return $ ExtImport extImportName extImportPath aliasStr
     where
       parseExtImportName kindStr nameStr = case kindStr of
         "default" -> pure $ ExtImportModule nameStr
@@ -54,9 +57,11 @@ data ExtImportName
   deriving (Show, Eq, Data, Generic, FromJSON, ToJSON)
 
 importIdentifier :: ExtImport -> Identifier
-importIdentifier (ExtImport importName _) = case importName of
-  ExtImportModule n -> n
-  ExtImportField n -> n
+importIdentifier (ExtImport importName _ maybeAlias) = case maybeAlias of
+  Just aliasName -> aliasName
+  Nothing -> case importName of
+    ExtImportModule n -> n
+    ExtImportField n -> n
 
 parseExtImportPath :: String -> Either String ExtImportPath
 parseExtImportPath extImportPath = case stripImportPrefix extImportPath of
