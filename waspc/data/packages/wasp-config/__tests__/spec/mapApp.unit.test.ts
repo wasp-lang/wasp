@@ -11,6 +11,9 @@ import {
   mapAuth,
   mapAuthMethods,
   mapClient,
+  mapCrud,
+  mapCrudOperationOptions,
+  mapCrudOperations,
   mapDb,
   mapEmailAuth,
   mapEmailFlow,
@@ -65,6 +68,7 @@ describe("mapApp", () => {
     const api = Fixtures.getApi("full");
     const apiNamespace = Fixtures.getApiNamespace("full");
     const job = Fixtures.getJob("full");
+    const crud = Fixtures.getCrud("full");
     const emailVerifyRoute = Fixtures.getEmailVerifyRoute();
     const passwordResetRoute = Fixtures.getPasswordResetRoute();
     const authConfig = Fixtures.getAuthConfig("full");
@@ -94,6 +98,7 @@ describe("mapApp", () => {
         api,
         apiNamespace,
         job,
+        crud,
         emailVerifyRoute,
         passwordResetRoute,
       ],
@@ -177,6 +182,11 @@ describe("mapApp", () => {
         declType: "Job",
         declName: deriveExtImportName(job.fn),
         declValue: mapJob(job, entityRefParser),
+      },
+      {
+        declType: "Crud",
+        declName: crud.name,
+        declValue: mapCrud(crud, entityRefParser),
       },
     ] satisfies AppSpec.Decl[]);
   });
@@ -918,6 +928,85 @@ describe("mapJob", () => {
       schedule: job.schedule && mapSchedule(job.schedule),
       entities: job.entities?.map(entityRefParser),
     } satisfies AppSpec.Job);
+  }
+});
+
+describe("mapCrud", () => {
+  test("should map minimal config correctly", () => {
+    testMapCrud(Fixtures.getCrud("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapCrud(Fixtures.getCrud("full"));
+  });
+
+  test("should throw if entity ref is not provided", () => {
+    const crudPart = Fixtures.getCrud("full");
+    const entityRefParser = makeRefParser("Entity", []);
+
+    expect(() => mapCrud(crudPart, entityRefParser)).toThrowError();
+  });
+
+  function testMapCrud(crudPart: TsAppSpec.Crud): void {
+    const entityRefParser = makeRefParser("Entity", [crudPart.entity]);
+
+    const result = mapCrud(crudPart, entityRefParser);
+
+    expect(result).toStrictEqual({
+      entity: entityRefParser(crudPart.entity),
+      operations: mapCrudOperations(crudPart.operations),
+    } satisfies AppSpec.Crud);
+  }
+});
+
+describe("mapCrudOperations", () => {
+  test("should map minimal config correctly", () => {
+    testMapCrudOperations(Fixtures.getCrudOperations("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapCrudOperations(Fixtures.getCrudOperations("full"));
+  });
+
+  function testMapCrudOperations(
+    crudOperations: TsAppSpec.CrudOperations,
+  ): void {
+    const result = mapCrudOperations(crudOperations);
+
+    expect(result).toStrictEqual({
+      get: crudOperations.get && mapCrudOperationOptions(crudOperations.get),
+      getAll:
+        crudOperations.getAll && mapCrudOperationOptions(crudOperations.getAll),
+      create:
+        crudOperations.create && mapCrudOperationOptions(crudOperations.create),
+      update:
+        crudOperations.update && mapCrudOperationOptions(crudOperations.update),
+      delete:
+        crudOperations.delete && mapCrudOperationOptions(crudOperations.delete),
+    } satisfies AppSpec.CrudOperations);
+  }
+});
+
+describe("mapCrudOperationOptions", () => {
+  test("should map minimal config correctly", () => {
+    testMapCrudOperationOptions(Fixtures.getCrudOperationOptions("minimal"));
+  });
+
+  test("should map full config correctly", () => {
+    testMapCrudOperationOptions(Fixtures.getCrudOperationOptions("full"));
+  });
+
+  function testMapCrudOperationOptions(
+    crudOperationOptions: TsAppSpec.CrudOperationOptions,
+  ): void {
+    const result = mapCrudOperationOptions(crudOperationOptions);
+
+    expect(result).toStrictEqual({
+      isPublic: crudOperationOptions.isPublic,
+      overrideFn:
+        crudOperationOptions.overrideFn &&
+        mapExtImport(crudOperationOptions.overrideFn),
+    } satisfies AppSpec.CrudOperationOptions);
   }
 });
 
