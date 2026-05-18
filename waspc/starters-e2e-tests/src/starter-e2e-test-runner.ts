@@ -42,6 +42,7 @@ async function initializeTestEnvironment({
   await initializeServerEnvironment(waspProjectPath);
   await initializeClientEnvironment(waspProjectPath);
   await setupWaspMailCrabConfiguration(waspProjectPath);
+  await installNpmDependencies(waspProjectPath);
 
   return waspProjectPath;
 }
@@ -83,6 +84,13 @@ async function initializeClientEnvironment(
   if (await fs.pathExists(clientEnvFileExamplePath)) {
     await fs.copy(clientEnvFileExamplePath, clientEnvFilePath);
   }
+}
+
+async function installNpmDependencies(waspProjectPath: string): Promise<void> {
+  await $({
+    stdio: "inherit",
+    cwd: waspProjectPath,
+  })`npm i`;
 }
 
 async function runDevE2ETests(
