@@ -6,21 +6,23 @@ import { describe, expectTypeOf, test } from "vitest";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 describe("AuthMethods", () => {
-  const usernameAndPassword = {
+  const usernameAndPassword: Required<
+    Pick<TsAppSpec.AuthMethods, "usernameAndPassword">
+  > = {
     usernameAndPassword: {},
-  } satisfies Pick<TsAppSpec.AuthMethods, "usernameAndPassword">;
+  };
 
-  const email = {
+  const email: Required<Pick<TsAppSpec.AuthMethods, "email">> = {
     email: {
       fromField: { email: "noreply@example.com" },
       emailVerification: { clientRoute: "/verify" },
       passwordReset: { clientRoute: "/reset" },
     },
-  } satisfies Pick<TsAppSpec.AuthMethods, "email">;
+  };
 
-  const google = {
+  const google: Required<Pick<TsAppSpec.AuthMethods, "google">> = {
     google: {},
-  } satisfies Pick<TsAppSpec.AuthMethods, "google">;
+  };
 
   test("allows only usernameAndPassword", () => {
     expectTypeOf<
