@@ -23,6 +23,7 @@
     "test:watch": "vitest --reporter=verbose"
   },
   "dependencies": {
+    "type-fest": "^5.6.0",
     "typescript": "^5.8.3"
   },
   "devDependencies": {
