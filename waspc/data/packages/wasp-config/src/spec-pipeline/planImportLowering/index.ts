@@ -27,11 +27,15 @@ type ImportReplacement = {
  * plan for replacing them with inline ExtImport consts. We call this lowering
  * imports.
  */
-export function planImportLowering(
-  sourceText: string,
-): Result<ImportLoweringPlan, ImportDiagnostic[]> {
+export function planImportLowering({
+  sourceText,
+  sourcePath,
+}: {
+  sourceText: string;
+  sourcePath: string;
+}): Result<ImportLoweringPlan, ImportDiagnostic[]> {
   const sourceFile = ts.createSourceFile(
-    "input.ts",
+    sourcePath,
     sourceText,
     ts.ScriptTarget.ES2022,
     true,

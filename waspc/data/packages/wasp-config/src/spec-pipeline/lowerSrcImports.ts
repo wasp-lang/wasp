@@ -17,14 +17,14 @@ import type {
  */
 export function lowerSrcImports({
   sourceText,
-  sourcePath = "main.wasp.ts",
+  sourcePath,
 }: {
   sourceText: string;
-  sourcePath?: string;
+  sourcePath: string;
 }): string {
-  const plan = planImportLowering(sourceText);
+  const plan = planImportLowering({ sourceText, sourcePath });
   if (plan.status === "error") {
-    throw new Error(formatImportDiagnostics(plan.error, sourcePath));
+    throw new Error(formatImportDiagnostics(plan.error));
   }
 
   return applyImportLoweringPlan(sourceText, plan.value);
@@ -106,12 +106,8 @@ function getObjectFieldsSource(fields: Field[]): string {
 
 type Field = [string, string | undefined];
 
-function formatImportDiagnostics(
-  diagnostics: ImportDiagnostic[],
-  sourcePath: string,
-): string {
+function formatImportDiagnostics(diagnostics: ImportDiagnostic[]): string {
   return [
-    `Unsupported @src imports in ${sourcePath}:`,
     ...diagnostics.map(formatImportDiagnosticLine),
     "",
     "Supported @src imports are default, named, aliased named, or namespace imports from @src/*.",
@@ -119,7 +115,7 @@ function formatImportDiagnostics(
 }
 
 function formatImportDiagnosticLine(diagnostic: ImportDiagnostic): string {
-  return `- ${diagnostic.location.line}:${diagnostic.location.column} ${JSON.stringify(diagnostic.specifier)}: ${formatUnsupportedImportType(diagnostic.unsupportedImportType)}`;
+  return `${diagnostic.filePath}(${diagnostic.location.line},${diagnostic.location.column}): error: Unsupported @src import ${JSON.stringify(diagnostic.specifier)}. ${formatUnsupportedImportType(diagnostic.unsupportedImportType)}`;
 }
 
 function formatUnsupportedImportType(type: UnsupportedImportType): string {

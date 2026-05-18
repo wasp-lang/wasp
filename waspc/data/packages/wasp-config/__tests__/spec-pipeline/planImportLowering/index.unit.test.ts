@@ -3,15 +3,18 @@ import { describe, expect, test } from "vitest";
 import { planImportLowering } from "../../../src/spec-pipeline/planImportLowering/index.js";
 
 describe("planImportLowering", () => {
+  const sourcePath = "app/main.wasp.ts";
+
   test("plans lowered bindings for supported import shapes", () => {
-    const result = planImportLowering(
-      [
+    const result = planImportLowering({
+      sourcePath,
+      sourceText: [
         `import MainPage from "@src/MainPage";`,
         `import { getTasks, archive as archiveTask } from "@src/operations";`,
         `import * as ops from "@src/operations";`,
         ``,
       ].join("\n"),
-    );
+    });
 
     assert(result.status === "ok");
 
@@ -47,20 +50,24 @@ describe("planImportLowering", () => {
   });
 
   test("leaves package imports out of the plan", () => {
-    const result = planImportLowering(`import { App } from "wasp-config";\n`);
+    const result = planImportLowering({
+      sourcePath,
+      sourceText: `import { App } from "wasp-config";\n`,
+    });
 
     expect(result).toEqual({ status: "ok", value: { replacements: [] } });
   });
 
   test("leaves non-@src imports and re-exports out of the plan", () => {
-    const result = planImportLowering(
-      [
+    const result = planImportLowering({
+      sourcePath,
+      sourceText: [
         `import helper from "./helpers";`,
         `import MainPage from "./src/MainPage";`,
         `export { helper } from "./helpers";`,
         ``,
       ].join("\n"),
-    );
+    });
 
     expect(result).toEqual({ status: "ok", value: { replacements: [] } });
   });
@@ -104,7 +111,7 @@ describe("planImportLowering", () => {
   ])(
     "returns a diagnostic for $unsupportedImportType",
     ({ source, unsupportedImportType, specifier }) => {
-      const result = planImportLowering(source);
+      const result = planImportLowering({ sourceText: source, sourcePath });
 
       assert(result.status === "error");
 
@@ -112,6 +119,7 @@ describe("planImportLowering", () => {
         {
           unsupportedImportType,
           specifier,
+          filePath: sourcePath,
           location: { line: 1, column: 1 },
         },
       ]);
