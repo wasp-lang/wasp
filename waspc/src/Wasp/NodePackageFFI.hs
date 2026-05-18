@@ -16,7 +16,6 @@ module Wasp.NodePackageFFI
 where
 
 import Control.Monad.Extra (unlessM)
-import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
     Dir,
@@ -24,11 +23,12 @@ import StrongPath
     File',
     Path',
     Rel,
+    castDir,
     castFile,
+    castRel,
     fromAbsDir,
     fromAbsFile,
     fromRelDir,
-    parseRelDir,
     reldir,
     relfile,
     (</>),
@@ -79,8 +79,8 @@ runnablePackageDirInPackagesDir = \case
   WaspStudioPackage -> [reldir|studio|]
 
 installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
-installablePackageDirInPackagesDir package =
-  fromJust $ parseRelDir $ getInstallablePackageName package
+installablePackageDirInPackagesDir = \case
+  WaspSpecPackage -> [reldir|spec|]
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]
@@ -126,7 +126,7 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
 
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =
-  dotWaspDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
+  dotWaspDirInWaspProjectDir </> castRel (castDir $ installablePackageDirInPackagesDir package)
 
 -- | Returns the path to the main script of an installable package, relative
 -- to the project root. This can be passed to @node@ directly, avoiding the
