@@ -29,7 +29,7 @@ function createSpecJiti(entryUrl: string, tsconfigPath: string) {
 
   // Using a custom `transform` function replaces the default jiti
   // transform, so we need another jiti instance to call it after we
-  // have transformed the source.
+  // have lowered the imports in the source.
   const jitiWithoutCustomTransform = createJiti(entryUrl, jitiOptions);
 
   return createJiti(entryUrl, {
