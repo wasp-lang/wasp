@@ -34,7 +34,7 @@ export default app({
     rootComponent: Layout,
   },
   parts: [
-    route("MainRoute", "/", page(MainPage)),
+    route("MainRoute", "/", page(MainPage, { authRequired: true })),
     route("SignupRoute", "/signup", page(SignupPage)),
     route("LoginRoute", "/login", page(LoginPage)),
     query(getListsAndCards, { entities: ["List", "Card"] }),
