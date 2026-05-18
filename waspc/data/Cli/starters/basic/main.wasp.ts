@@ -14,7 +14,7 @@ import {
   updateTaskStatus,
 } from "@src/tasks/actions";
 import { getTasks } from "@src/tasks/queries";
-import { action, app, page, query, route } from "wasp-config";
+import { action, app, page, query, route } from "@wasp.sh/spec";
 
 export default app({
   name: "__waspAppName__",
