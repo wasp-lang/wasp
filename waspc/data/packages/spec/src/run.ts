@@ -1,0 +1,45 @@
+#!/usr/bin/env node
+
+import { writeFileSync } from "fs";
+import { pathToFileURL } from "url";
+import { parseProcessArgsOrThrow } from "./cli.js";
+import { analyzeApp } from "./legacy/appAnalyzer.js";
+import { compileWaspTsFileToJsFile } from "./spec-pipeline/compile/index.js";
+
+process.on("uncaughtException", (err) => {
+  console.error(err.stack ? err.stack : String(err));
+  process.exit(1);
+});
+
+main(process.argv);
+
+/**
+ * Main function that processes command line arguments, analyzes the user app,
+ * and writes the output to a file.
+ */
+async function main(args: string[]): Promise<void> {
+  const {
+    waspTsSpecPath,
+    tsconfigPath,
+    compiledWaspTsSpecPath,
+    declsJsonPath,
+    entityNames,
+  } = parseProcessArgsOrThrow(args);
+
+  await compileWaspTsFileToJsFile({
+    inputPath: waspTsSpecPath,
+    tsconfigPath,
+    outputPath: compiledWaspTsSpecPath,
+  });
+
+  const declsResult = await analyzeApp(
+    pathToFileURL(compiledWaspTsSpecPath).href,
+    entityNames,
+  );
+
+  if (declsResult.status === "error") {
+    throw new Error(declsResult.error);
+  }
+
+  writeFileSync(declsJsonPath, JSON.stringify(declsResult.value));
+}

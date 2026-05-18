@@ -1,5 +1,5 @@
+import { ActionConfig, App, ExtImport } from "@wasp.sh/spec";
 import { readFile } from "fs/promises";
-import { ActionConfig, App, ExtImport } from "wasp-config";
 
 const title = (await readFile("appTitle.txt", "utf-8")).trim();
 

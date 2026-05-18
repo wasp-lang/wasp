@@ -143,7 +143,7 @@ spec_Analyzer = do
                                 { Auth.usernameAndPassword =
                                     Just
                                       Auth.UsernameAndPasswordConfig
-                                        { Auth.userSignupFields = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup")
+                                        { Auth.userSignupFields = Just $ ExtImport (ExtImportField "getUserFields") (fromJust $ SP.parseRelFileP "auth/signup") Nothing
                                         },
                                   Auth.slack = Nothing,
                                   Auth.discord = Nothing,
@@ -169,7 +169,8 @@ spec_Analyzer = do
                               Just $
                                 ExtImport
                                   (ExtImportField "setupServer")
-                                  (fromJust $ SP.parseRelFileP "bar"),
+                                  (fromJust $ SP.parseRelFileP "bar")
+                                  Nothing,
                             Server.middlewareConfigFn = Nothing,
                             Server.envValidationSchema = Nothing
                           },
@@ -178,10 +179,10 @@ spec_Analyzer = do
                         Client.Client
                           { Client.setupFn =
                               Just $
-                                ExtImport (ExtImportField "setupClient") (fromJust $ SP.parseRelFileP "baz"),
+                                ExtImport (ExtImportField "setupClient") (fromJust $ SP.parseRelFileP "baz") Nothing,
                             Client.rootComponent =
                               Just $
-                                ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App"),
+                                ExtImport (ExtImportField "App") (fromJust $ SP.parseRelFileP "App") Nothing,
                             Client.baseDir = Just "/",
                             Client.envValidationSchema = Nothing
                           },
@@ -193,12 +194,14 @@ spec_Analyzer = do
                                 [ ExtImport
                                     (ExtImportField "devSeedSimple")
                                     (fromJust $ SP.parseRelFileP "dbSeeds")
+                                    Nothing
                                 ],
                             Db.prismaSetupFn =
                               Just $
                                 ExtImport
                                   (ExtImportField "setUpPrisma")
                                   (fromJust $ SP.parseRelFileP "setUpPrisma")
+                                  Nothing
                           },
                     App.emailSender =
                       Just
@@ -223,7 +226,8 @@ spec_Analyzer = do
                   { Page.component =
                       ExtImport
                         (ExtImportModule "Home")
-                        (fromJust $ SP.parseRelFileP "pages/Main"),
+                        (fromJust $ SP.parseRelFileP "pages/Main")
+                        Nothing,
                     Page.authRequired = Nothing
                   }
               ),
@@ -232,7 +236,8 @@ spec_Analyzer = do
                   { Page.component =
                       ExtImport
                         (ExtImportField "profilePage")
-                        (fromJust $ SP.parseRelFileP "pages/Profile"),
+                        (fromJust $ SP.parseRelFileP "pages/Profile")
+                        Nothing,
                     Page.authRequired = Just True
                   }
               )
@@ -255,7 +260,8 @@ spec_Analyzer = do
                   { Query.fn =
                       ExtImport
                         (ExtImportField "getAllUsers")
-                        (fromJust $ SP.parseRelFileP "foo"),
+                        (fromJust $ SP.parseRelFileP "foo")
+                        Nothing,
                     Query.entities = Just [Ref "User"],
                     Query.auth = Nothing
                   }
@@ -269,7 +275,8 @@ spec_Analyzer = do
                   { Action.fn =
                       ExtImport
                         (ExtImportField "updateUser")
-                        (fromJust $ SP.parseRelFileP "foo"),
+                        (fromJust $ SP.parseRelFileP "foo")
+                        Nothing,
                     Action.entities = Just [Ref "User"],
                     Action.auth = Just True
                   }
@@ -282,6 +289,7 @@ spec_Analyzer = do
               ( ExtImport
                   (ExtImportField "backgroundJob")
                   (fromJust $ SP.parseRelFileP "jobs/baz")
+                  Nothing
               )
               ( Just $
                   Job.ExecutorOptions

@@ -33,7 +33,7 @@ const faqs = [
     answer: (
       <p>
         No. Wasp is designed for AI to do the heavy lifting. You describe what
-        you want, your AI builds it. The main.wasp.ts config lets you see what
+        you want, your AI builds it. The main.wasp.ts spec lets you see what
         your app does in plain English even if you've never written code before.
       </p>
     ),
@@ -74,7 +74,7 @@ const faqs = [
     question: "Do I have to learn a new language?",
     answer: (
       <p>
-        Nope. Wasp config is written in TypeScript (<code>main.wasp.ts</code>)
+        Nope. The Wasp spec is written in TypeScript (<code>main.wasp.ts</code>)
         with full IDE support and autocomplete. It takes about 30 minutes to
         learn. 90% of your code is still React and Node.js. Your AI already
         understands it.
@@ -85,7 +85,7 @@ const faqs = [
     question: "What happens as my app gets more complex?",
     answer: (
       <p>
-        Wasp's config can be split across multiple files as your app grows. The
+        Wasp's spec can be split across multiple files as your app grows. The
         declarative architecture keeps your codebase coherent and every new
         feature follows the same patterns, whether it's the 5th or the 50th.
         This makes AI-generated code consistent and easy for you to review.
