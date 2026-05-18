@@ -3,7 +3,7 @@ import { fs, path } from "zx";
 /**
  * Configures the Wasp for MailCrab SMTP email server which is used by `wasp-app-runner`.
  *
- * Assumes the Wasp project uses the `main.wasp` as the Wasp configuration file.
+ * Assumes the Wasp project uses the `main.wasp` as the Wasp spec file.
  */
 export async function setupWaspMailCrabConfiguration(
   waspProjectPath: string,

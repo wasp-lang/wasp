@@ -1,6 +1,6 @@
-# Wasp Config
+# @wasp.sh/spec
 
-Wasp Config is a library for defining a Wasp application specification in Typescript. It provides type definitions and utilities that mirror the `AppSpec` declarations implemented in the `waspc` Haskell codebase.
+Wasp Spec is a library for defining a Wasp application specification in Typescript. It provides type definitions and utilities that mirror the `AppSpec` declarations implemented in the `waspc` Haskell codebase.
 
 ## Important Notes
 

@@ -65,7 +65,7 @@ waspTsSpecNodeEnvTest =
     nodeEnvMainWaspTs :: T.Text
     nodeEnvMainWaspTs =
       [trimming|
-        import { app, page, route } from "wasp-config";
+        import { app, page, route } from "@wasp.sh/spec";
         import { MainPage } from "@src/MainPage"
 
         console.log(`E2E-NODE-ENV=$${process.env.NODE_ENV}`);

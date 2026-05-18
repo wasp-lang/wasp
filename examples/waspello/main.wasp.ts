@@ -10,8 +10,8 @@ import {
 } from "@src/cards/lists";
 import MainPage from "@src/cards/MainPage";
 import Layout from "@src/Layout";
+import { action, app, page, query, route } from "@wasp.sh/spec";
 import { readFile } from "fs/promises";
-import { action, app, page, query, route } from "wasp-config";
 
 export default app({
   name: "waspello",

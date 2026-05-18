@@ -14,9 +14,9 @@ Whenever you run run `wasp clean` or remove `node_modules` on  your own, you mus
 
 In Wasp, you normally define/configure the high level of your app (pages, routes, queries, actions, auth, ...) in a `main.wasp` file in the root of your project. In `main.wasp` you write in Wasp's DSL (domain-specific language), which is a simple configuration language similar to JSON but smarter.
 
-Wasp recently introduced the **Wasp TS config**, an alternative way to define the high level of your app via `main.wasp.ts`! Although it looks similar to how you would do it in `main.wasp`, the difference is that you write in TypeScript, not in Wasp's DSL.
+Wasp recently introduced the **Wasp TS spec**, an alternative way to define the high level of your app via `main.wasp.ts`! Although it looks similar to how you would do it in `main.wasp`, the difference is that you write in TypeScript, not in Wasp's DSL.
 
-Wasp TS config is an **early preview** feature, meaning it is a little rough and not yet where it could be, but it does work. We think it's pretty cool already, and you can try it out now. If you do, please share your feedback and ideas with us on our [GitHub](https://github.com/wasp-lang/wasp) or <DiscordLink />. This is crucial for us to be able to shape this feature in the best possible way!
+Wasp TS spec is an **early preview** feature, meaning it is a little rough and not yet where it could be, but it does work. We think it's pretty cool already, and you can try it out now. If you do, please share your feedback and ideas with us on our [GitHub](https://github.com/wasp-lang/wasp) or <DiscordLink />. This is crucial for us to be able to shape this feature in the best possible way!
 
 ## Motivation
 
@@ -26,9 +26,9 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 - It will enable us to easily add support for multiple Wasp files in the future.
 - A great foundation for the Full Stack Modules (FSM) that are a part of our future plans.
 
-## How to switch from the Wasp DSL config to the Wasp TS config
+## How to switch from the Wasp DSL config to the Wasp TS spec
 
-1. Go into the Wasp project you want to switch to the Wasp TS config (or create a new Wasp project if you just want to try it out).
+1. Go into the Wasp project you want to switch to the Wasp TS spec (or create a new Wasp project if you just want to try it out).
 2. Rename `tsconfig.json` file to `tsconfig.src.json`
 3. Create a new `tsconfig.json` file with the following content:
 
@@ -99,7 +99,7 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
     Don't forget, during `wasp start`, to have the database running or do the db migrations if needed, as you would normally when running your app in development.
     :::
 
-11. That is it, you are now using Wasp TS config! You can delete `main.wasp.old` file now if you still have it around.
+11. That is it, you are now using Wasp TS spec! You can delete `main.wasp.old` file now if you still have it around.
 
 :::caution
 If you run `wasp clean` or remove `node_modules` on  your own, you will have to rerun `wasp ts-setup`! This is a temporary workaround, we will remove it in future versions.
@@ -128,7 +128,7 @@ app.emailSender({
 
 ### Experiment
 
-Play with the Wasp TS config, get the feel of it, and see if you can find ways to improve it. Here are some ideas you can experiment with:
+Play with the Wasp TS spec, get the feel of it, and see if you can find ways to improve it. Here are some ideas you can experiment with:
 
 - How would you reduce the boilerplate in `main.wasp.ts` file? Helper functions, loops?
 - Can you imagine a better API or better abstractions? If you can, what would that look like? Perhaps you can even implement it on top of our API?
