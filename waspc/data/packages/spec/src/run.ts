@@ -13,8 +13,6 @@ main(process.argv).catch((error: unknown) => {
   process.exitCode = 1;
 });
 
-main(process.argv);
-
 /**
  * Main function that processes command line arguments, analyzes the user app,
  * and writes the output to a file.
