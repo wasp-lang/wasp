@@ -94,5 +94,8 @@
     // web-app runtime via Vite virtual modules. That's why we don't want the
     // SDK to compile them.
     "client/vite/virtual-files/files",
+    // Wasp spec files don't belong to the SDK runtime, they just co-exist
+    // in the `src` directory with the user code.
+    "**/*.wasp.ts",
   ]
 }

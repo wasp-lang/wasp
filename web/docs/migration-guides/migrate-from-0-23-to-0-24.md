@@ -20,7 +20,7 @@ In `main.wasp.ts`, you can now use real JS imports and pass imported values dire
 
 ### Stricter validation for Wasp TS projects
 
-Wasp now validates more of the TS spec support files. If your project uses `main.wasp.ts`, Wasp checks that `package.json` includes the required `@types/node` dev dependency and that `tsconfig.wasp.json` includes the required `@src/*` path mapping.
+Wasp now validates more of the TS spec support files. If your project uses `main.wasp.ts`, Wasp checks that `package.json` includes the required `@types/node` dev dependency, that `tsconfig.wasp.json` includes the required TS spec options, and that `tsconfig.src.json` excludes Wasp TS spec files.
 
 ## How to migrate?
 
@@ -104,17 +104,31 @@ Make sure your `package.json` includes `@types/node` in `devDependencies`:
 }
 ```
 
-Make sure your `tsconfig.wasp.json` includes the `@src/*` path mapping:
+Make sure your `tsconfig.wasp.json` includes the required TS spec compiler options, include entries, and the `@src/*` path mapping:
 
 ```json title="tsconfig.wasp.json"
 {
   "compilerOptions": {
     // ...
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "jsx": "preserve",
     "paths": {
       // highlight-next-line
       "@src/*": ["./src/*"]
     }
-  }
+  },
+  "include": ["main.wasp.ts", "**/*.wasp.ts"]
+}
+```
+
+Make sure your `tsconfig.src.json` excludes Wasp TS spec files:
+
+```json title="tsconfig.src.json"
+{
+  // ...
+  "include": ["src"],
+  "exclude": ["**/*.wasp.ts"]
 }
 ```
 

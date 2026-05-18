@@ -29,7 +29,16 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
 ## How to switch from the Wasp DSL config to the Wasp TS config
 
 1. Go into the Wasp project you want to switch to the Wasp TS config (or create a new Wasp project if you just want to try it out).
-2. Rename `tsconfig.json` file to `tsconfig.src.json`
+2. Rename `tsconfig.json` file to `tsconfig.src.json` and make sure it excludes Wasp TS spec files:
+
+   ```json title="tsconfig.src.json"
+   {
+     // ...
+     "include": ["src"],
+     "exclude": ["**/*.wasp.ts"]
+   }
+   ```
+
 3. Create a new `tsconfig.json` file with the following content:
 
    ```json title="tsconfig.json"
@@ -56,14 +65,19 @@ Wasp TS config is an **early preview** feature, meaning it is a little rough and
        "noUnusedLocals": true,
        "noUnusedParameters": true,
 
-       "module": "NodeNext",
-       "noEmit": true,
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "noEmit": true,
 
-       "lib": ["ES2023"]
-     },
-     "include": ["main.wasp.ts"]
-   }
-   ```
+        "lib": ["ES2023"],
+        "paths": {
+          "@src/*": ["./src/*"]
+        }
+      },
+      "include": ["main.wasp.ts", "**/*.wasp.ts"]
+    }
+    ```
 
 5. Add `"type": "module"` to the top level of your `package.json`, if you don't have it yet:
 

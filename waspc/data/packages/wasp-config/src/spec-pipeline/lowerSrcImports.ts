@@ -15,10 +15,13 @@ import type {
  * Given source code, finds supported @src import statements and replaces them
  * with inline ExtImport consts. We call this lowering imports.
  */
-export function lowerSrcImports(sourceText: string): string {
+export function lowerSrcImports(
+  sourceText: string,
+  sourcePath = "main.wasp.ts",
+): string {
   const plan = planImportLowering(sourceText);
   if (plan.status === "error") {
-    throw new Error(formatImportDiagnostics(plan.error));
+    throw new Error(formatImportDiagnostics(plan.error, sourcePath));
   }
 
   return applyImportLoweringPlan(sourceText, plan.value);
@@ -100,9 +103,12 @@ function getObjectFieldsSource(fields: Field[]): string {
 
 type Field = [string, string | undefined];
 
-function formatImportDiagnostics(diagnostics: ImportDiagnostic[]): string {
+function formatImportDiagnostics(
+  diagnostics: ImportDiagnostic[],
+  sourcePath: string,
+): string {
   return [
-    "Unsupported @src imports in main.wasp.ts:",
+    `Unsupported @src imports in ${sourcePath}:`,
     ...diagnostics.map(formatImportDiagnosticLine),
     "",
     "Supported @src imports are default, named, aliased named, or namespace imports from @src/*.",

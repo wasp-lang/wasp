@@ -1,39 +1,30 @@
-import { afterEach } from "node:test";
-import { describe, expect, test, vi } from "vitest";
+import { afterEach, describe, expect, test, vi } from "vitest";
+import { loadWaspTsFileDefaultExport } from "../../src/spec-pipeline/index.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 import { mapApp } from "../../src/spec/mapApp.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
 
+vi.mock("../../src/spec-pipeline/index.js", () => ({
+  loadWaspTsFileDefaultExport: vi.fn(),
+}));
+
+const mockLoadWaspTsFileDefaultExport = vi.mocked(loadWaspTsFileDefaultExport);
+
 describe("analyzeApp", () => {
   afterEach(() => vi.clearAllMocks());
 
-  test("should parse an app successfully", async () => {
+  test("should load and parse an app successfully", async () => {
     await testAnalyzeApp({
       app: Fixtures.getApp("minimal"),
       entities: Fixtures.getEntities("minimal"),
     });
   });
 
-  test("should parse full app successfully", async () => {
+  test("should load and parse full app successfully", async () => {
     await testAnalyzeApp({
       app: Fixtures.getApp("full"),
       entities: Fixtures.getEntities("full"),
-    });
-  });
-
-  test("should parse app from async default export", async () => {
-    const app = Fixtures.getApp("minimal");
-    const entities = Fixtures.getEntities("minimal");
-    const mockMainWaspTs = "main.wasp.ts";
-    vi.doMock(mockMainWaspTs, () => ({ default: Promise.resolve(app) }));
-
-    const result = await analyzeApp(mockMainWaspTs, entities);
-    const expected = mapApp(app, entities);
-
-    expect(result).toMatchObject({
-      status: "ok",
-      value: expected,
     });
   });
 
@@ -69,10 +60,18 @@ describe("analyzeApp", () => {
       entities,
       options: { shouldReturnError } = { shouldReturnError: false },
     } = input;
-    const mockMainWaspTs = "main.wasp.ts";
-    vi.doMock(mockMainWaspTs, () => ({ default: app }));
+    mockLoadWaspTsFileDefaultExport.mockResolvedValue(app);
 
-    const result = await analyzeApp(mockMainWaspTs, entities);
+    const result = await analyzeApp({
+      waspTsSpecPath: "main.wasp.ts",
+      tsconfigPath: "tsconfig.wasp.json",
+      entityNames: entities,
+    });
+
+    expect(mockLoadWaspTsFileDefaultExport).toHaveBeenCalledWith({
+      inputPath: "main.wasp.ts",
+      tsconfigPath: "tsconfig.wasp.json",
+    });
 
     if (shouldReturnError) {
       expect(result).toMatchObject({

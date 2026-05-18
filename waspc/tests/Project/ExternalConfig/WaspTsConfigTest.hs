@@ -13,6 +13,10 @@ spec_WaspTsConfig = do
     it "returns no errors for a valid tsconfig" $
       validate validTsConfig `shouldBe` []
 
+    it "returns an error when include entries are out of order" $
+      assertReturnsValidationErrorMentioningField "include" $
+        validTsConfig {T.include = Just ["**/*.wasp.ts", "main.wasp.ts"]}
+
     it "returns an error when a compilerOption has a wrong value" $
       assertReturnsValidationErrorMentioningField "strict" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}
@@ -48,7 +52,8 @@ validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
     { T.compilerOptions = Just validCompilerOptions,
-      T.include = Just ["main.wasp.ts"],
+      T.include = Just ["main.wasp.ts", "**/*.wasp.ts"],
+      T.exclude = Nothing,
       T.files = Nothing,
       T.references = Nothing
     }
@@ -56,14 +61,14 @@ validTsConfig =
 validCompilerOptions :: T.CompilerOptions
 validCompilerOptions =
   T.CompilerOptions
-    { T._module = Just "NodeNext",
+    { T._module = Just "esnext",
       T.target = Just "ES2022",
       T.composite = Nothing,
       T.skipLibCheck = Just True,
-      T.moduleResolution = Nothing,
+      T.moduleResolution = Just "bundler",
       T.moduleDetection = Just "force",
       T.isolatedModules = Just True,
-      T.jsx = Nothing,
+      T.jsx = Just "preserve",
       T.strict = Just True,
       T.esModuleInterop = Nothing,
       T.lib = Just ["ES2023"],
