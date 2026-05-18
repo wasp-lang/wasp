@@ -34,7 +34,7 @@ import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageIsAtInstallationPathInProject, getInstallablePackageScriptInProject)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject, getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -61,20 +61,20 @@ analyzeWaspTsFile ::
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = runExceptT $ do
-  -- TODO: replace this with require WaspConfigAvailable
-  liftIO $ ensurePackageIsAtInstallationPathInProject compileOptions.waspProjectDir WaspConfigPackage
-  declsJsonFile <- ExceptT $ runWaspConfigAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
+  -- TODO: replace this with require WaspSpecAvailable
+  liftIO $ ensurePackageIsAtInstallationPathInProject compileOptions.waspProjectDir WaspSpecPackage
+  declsJsonFile <- ExceptT $ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   ExceptT $ readDecls prismaSchemaAst declsJsonFile
   where
     waspTsConfigFile = fromJust tsConfigPathsInWaspTsProjects.waspTsConfig
 
-runWaspConfigAnalyzerAndGetDeclsFile ::
+runWaspSpecAnalyzerAndGetDeclsFile ::
   CompileOptions ->
   Psl.Schema.Schema ->
   Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] (Path' Abs (File AppSpecDeclsJsonFile)))
-runWaspConfigAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
+runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
@@ -93,7 +93,7 @@ runWaspConfigAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfig
           ]
           compileOptions.waspProjectDir
           "node"
-          [ fromRelFile $ getInstallablePackageScriptInProject WaspConfigPackage,
+          [ fromRelFile $ getInstallablePackageScriptInProject WaspSpecPackage,
             "analyze",
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),

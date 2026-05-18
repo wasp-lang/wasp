@@ -1,5 +1,6 @@
-import { app, page, route } from "wasp-config";
-import { MainPage } from "@src/MainPage";
+
+import { MainPage } from "@src/MainPage"
+import { app, page, route } from "@wasp.sh/spec"
 
 export default app({
   name: "__waspAppName__",

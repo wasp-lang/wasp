@@ -11,7 +11,7 @@ import {
 import MainPage from "@src/cards/MainPage";
 import Layout from "@src/Layout";
 import { readFile } from "fs/promises";
-import { action, app, page, query, route } from "wasp-config";
+import { action, app, page, query, route } from "@wasp.sh/spec";
 
 export default app({
   name: "waspello",
