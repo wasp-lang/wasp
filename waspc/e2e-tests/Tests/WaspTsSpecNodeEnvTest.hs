@@ -18,7 +18,7 @@ import ShellCommands
     (~&&),
   )
 import Test (Test (..), TestCase (..))
-import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (tsMinimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
 
 waspTsSpecNodeEnvTest :: Test
@@ -28,7 +28,7 @@ waspTsSpecNodeEnvTest =
     [ TestCase
         "node-env-is-development-on-compile"
         ( sequence
-            [ createTestWaspProject tsMinimalStarterTemplate,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliTsSetup,
                   replaceMainWaspTsFile nodeEnvMainWaspTs,
@@ -39,7 +39,7 @@ waspTsSpecNodeEnvTest =
       TestCase
         "node-env-is-production-on-build"
         ( sequence
-            [ createTestWaspProject tsMinimalStarterTemplate,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliTsSetup,
                   setWaspDbToPSQL,
