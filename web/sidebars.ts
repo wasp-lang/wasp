@@ -188,7 +188,7 @@ const sidebars: SidebarsConfig = {
         "general/language",
         "general/cli",
         "general/typescript",
-        "general/wasp-ts-config",
+        "general/wasp-ts-spec",
       ],
     },
     {

@@ -54,7 +54,7 @@ app MyApp {
 
 #### 1.1 Additional step for Wasp TS Config users
 
-If you're using [Wasp's new TS config](./general/wasp-ts-config.md), you must
+If you're using [Wasp's new TS config](/docs/0.16/general/wasp-ts-config), you must
 also rerun the `wasp ts-setup` command in your project. This command updates
 the path for the `wasp-config` package in your `package.json`.
 

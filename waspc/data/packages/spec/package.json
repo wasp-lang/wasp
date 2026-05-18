@@ -1,11 +1,13 @@
 {
-  "name": "wasp-config",
+  "name": "@wasp.sh/spec",
   "version": "0.24.0",
   "type": "module",
   "description": "Wasp TS SDK",
   "author": "wasp",
   "license": "MIT",
-  "bin": "./dist/src/run.js",
+  "bin": {
+    "__internal_wasp_spec__": "./dist/src/run.js"
+  },
   "exports": {
     ".": {
       "types": "./dist/src/index.d.ts",

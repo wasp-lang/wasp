@@ -6,13 +6,13 @@ import Control.Monad.IO.Class (liftIO)
 import Wasp.Cli.Command (Command, CommandError (..), require)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject))
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageIsAtInstallationPathInProject)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 
 -- | Prepares the project for using Wasp's TypeScript SDK.
 tsConfigSetup :: Command ()
 tsConfigSetup = do
   InWaspProject waspProjectDir <- require
-  liftIO $ ensurePackageIsAtInstallationPathInProject waspProjectDir WaspConfigPackage
+  liftIO $ ensurePackageIsAtInstallationPathInProject waspProjectDir WaspSpecPackage
   messageChan <- liftIO newChan
   liftIO (installProjectNpmDependencies messageChan waspProjectDir)
     >>= onLeftThrowError

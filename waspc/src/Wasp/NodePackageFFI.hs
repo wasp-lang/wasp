@@ -16,7 +16,6 @@ module Wasp.NodePackageFFI
 where
 
 import Control.Monad.Extra (unlessM)
-import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
     Dir,
@@ -24,11 +23,12 @@ import StrongPath
     File',
     Path',
     Rel,
+    castDir,
     castFile,
+    castRel,
     fromAbsDir,
     fromAbsFile,
     fromRelDir,
-    parseRelDir,
     reldir,
     relfile,
     (</>),
@@ -60,7 +60,7 @@ data RunnablePackage
 -- | These are globally installed packages waspc copies into a location inside
 -- the user's project and then installs using `npm`'s file specifiers. They are
 -- used/run from inside the project's node_modules.
-data InstallablePackage = WaspConfigPackage
+data InstallablePackage = WaspSpecPackage
 
 data PackagesDir
 
@@ -79,8 +79,8 @@ runnablePackageDirInPackagesDir = \case
   WaspStudioPackage -> [reldir|studio|]
 
 installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
-installablePackageDirInPackagesDir package =
-  fromJust $ parseRelDir $ getInstallablePackageName package
+installablePackageDirInPackagesDir = \case
+  WaspSpecPackage -> [reldir|spec|]
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]
@@ -113,7 +113,7 @@ getPackageJsonSpecifierForPackage package =
 getInstallablePackageName :: InstallablePackage -> String
 getInstallablePackageName = \case
   -- NOTE: These names must match the 'name' fields in packages' package.json files.
-  WaspConfigPackage -> "wasp-config"
+  WaspSpecPackage -> "@wasp.sh/spec"
 
 ensurePackageIsAtInstallationPathInProject :: Path' Abs (Dir WaspProjectDir) -> InstallablePackage -> IO ()
 ensurePackageIsAtInstallationPathInProject projectDir package = do
@@ -126,7 +126,7 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
 
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =
-  dotWaspDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
+  dotWaspDirInWaspProjectDir </> castRel (castDir $ installablePackageDirInPackagesDir package)
 
 -- | Returns the path to the main script of an installable package, relative
 -- to the project root. This can be passed to @node@ directly, avoiding the
@@ -137,7 +137,7 @@ getInstallablePackageScriptInProject package =
 
 installablePackageScript :: InstallablePackage -> Path' (Rel d) File'
 installablePackageScript = \case
-  WaspConfigPackage -> [relfile|dist/src/run.js|]
+  WaspSpecPackage -> [relfile|dist/src/run.js|]
 
 getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
 getRunnablePackageDir package = do

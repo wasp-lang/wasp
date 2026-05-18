@@ -147,7 +147,7 @@ query getTasks {
         <div className="mt-16 flex flex-col gap-4 lg:col-span-6 lg:mt-0">
           <FileViewer
             fileName="todoApp.wasp"
-            fileExplanation="Wasp config file"
+            fileExplanation="Wasp spec file"
             link="https://github.com/wasp-lang/wasp/blob/release/examples/tutorials/TodoAppTs/main.wasp"
           >
             <CodeHighlight language="wasp" source={waspFileSourceCode} />
