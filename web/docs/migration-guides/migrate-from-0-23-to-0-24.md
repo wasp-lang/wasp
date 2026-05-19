@@ -14,6 +14,10 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 The `api` export from `wasp/client/api` is now a [ky](https://github.com/sindresorhus/ky) instance instead of Axios. Ky is a tiny HTTP client built on `fetch` that provides a cleaner API with method shortcuts, automatic JSON handling, and hooks.
 
+### The Wasp TS config is now called the Wasp Spec
+
+The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. This better reflects the purpose of this file as a place to configure and customize Wasp's behavior in your project.
+
 ### Real JS imports in Wasp TS spec
 
 In `main.wasp.ts`, you can now use real JS imports and pass imported values directly to Wasp declarations instead of using import objects like `{ import, from }`.
@@ -93,16 +97,33 @@ You can also remove `axios` from your project's dependencies if you added it onl
 
 ### 3. Update Wasp TS spec support files
 
-Make sure your `package.json` includes `@types/node` in `devDependencies`:
+Make sure your `package.json` includes `@types/node` in `devDependencies`, and update the `wasp-config` dependency:
 
-```json title="package.json"
-{
-  "devDependencies": {
-    // highlight-next-line
-    "@types/node": "^24.0.0"
-  }
-}
-```
+<Tabs>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "wasp-config": "file:.wasp/wasp-config"
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "@types/node": "^24.0.0",
+        // highlight-next-line
+        "@wasp.sh/spec": "file:.wasp/spec"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
 
 Make sure your `tsconfig.wasp.json` includes the required TS spec compiler options, include entries, and the `@src/*` path mapping:
 
@@ -133,6 +154,33 @@ Make sure your `tsconfig.src.json` excludes Wasp TS spec files:
   "exclude": ["**/*.wasp.ts"]
 }
 ```
+
+And finally, update your `main.wasp.ts` to import from `@wasp.sh/spec` instead of `wasp-config`:
+
+
+<Tabs>
+  <TabItem value="before" label="Before">
+    ```ts title="main.wasp.ts"
+    // highlight-next-line
+    import { ActionConfig, App, ExtImport } from "wasp-config";
+
+    const app = new App({
+      // ...
+    });
+    ```
+  </TabItem>
+
+  <TabItem value="after" label="After">
+    ```ts title="main.wasp.ts"
+    // highlight-next-line
+    import { ActionConfig, App, ExtImport } from "@wasp.sh/spec";
+
+    const app = new App({
+      // ...
+    });
+    ```
+  </TabItem>
+</Tabs>
 
 ### 4. Enjoy your updated Wasp app
 

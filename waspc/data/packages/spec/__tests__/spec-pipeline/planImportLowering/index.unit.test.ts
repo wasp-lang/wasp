@@ -52,7 +52,7 @@ describe("planImportLowering", () => {
   test("leaves package imports out of the plan", () => {
     const result = planImportLowering({
       sourcePath,
-      sourceText: `import { App } from "wasp-config";\n`,
+      sourceText: `import { App } from "@wasp.sh/spec";\n`,
     });
 
     expect(result).toEqual({ status: "ok", value: { replacements: [] } });

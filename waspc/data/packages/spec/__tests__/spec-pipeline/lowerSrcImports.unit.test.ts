@@ -88,13 +88,13 @@ describe("lowerSrcImports", () => {
     );
   });
 
-  test("leaves wasp-config imports untouched", () => {
-    const input = `import { App } from "wasp-config";\n`;
+  test("leaves @wasp.sh/spec imports untouched", () => {
+    const input = `import { App } from "@wasp.sh/spec";\n`;
     expect(lowerSrcImports({ sourceText: input, sourcePath })).toBe(input);
   });
 
   test("leaves package imports untouched", () => {
-    const input = `import z from "zod";\nimport { App } from "wasp-config";\n`;
+    const input = `import z from "zod";\nimport { App } from "@wasp.sh/spec";\n`;
     expect(lowerSrcImports({ sourceText: input, sourcePath })).toBe(input);
   });
 
@@ -118,7 +118,7 @@ describe("lowerSrcImports", () => {
 
   test("lowers only the matching import in a mixed file", () => {
     const input = [
-      `import { App } from "wasp-config";`,
+      `import { App } from "@wasp.sh/spec";`,
       `import MainPage from "@src/MainPage";`,
       `import { getTasks } from "@src/operations";`,
       `import * as ops from "@src/operations";`,
@@ -141,7 +141,7 @@ describe("lowerSrcImports", () => {
     expect(output).toContain(
       expectedNamespaceProxy("ops", "@src/operations", "ops_"),
     );
-    expect(output).toContain(`import { App } from "wasp-config";`);
+    expect(output).toContain(`import { App } from "@wasp.sh/spec";`);
     expect(output).toContain(`import helper from "./helpers";`);
     expect(output).toContain(`export default app;`);
     expectNoSrcImportDeclarations(output);
@@ -149,7 +149,7 @@ describe("lowerSrcImports", () => {
 
   test("is a no-op on an ExtImport-form spec file", () => {
     const input = [
-      `import { App } from "wasp-config";`,
+      `import { App } from "@wasp.sh/spec";`,
       ``,
       `const app = new App("demo", { title: "Demo", wasp: { version: "^0.16.0" } });`,
       `app.page("MainPage", { component: { import: "MainPage", from: "@src/MainPage" } });`,

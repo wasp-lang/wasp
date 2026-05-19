@@ -63,6 +63,11 @@ data-files:
   packages/prisma/dist/**/*.js
   packages/prisma/package-lock.json
   packages/prisma/package.json
+  packages/spec/dist/**/*.d.ts
+  packages/spec/dist/**/*.js
+  packages/spec/dist/**/*.map
+  packages/spec/package-lock.json
+  packages/spec/package.json
   packages/studio/dist/**/*.css
   packages/studio/dist/**/*.html
   packages/studio/dist/**/*.js
@@ -71,11 +76,6 @@ data-files:
   packages/ts-inspect/dist/**/*.js
   packages/ts-inspect/package-lock.json
   packages/ts-inspect/package.json
-  packages/wasp-config/dist/**/*.d.ts
-  packages/wasp-config/dist/**/*.js
-  packages/wasp-config/dist/**/*.map
-  packages/wasp-config/package-lock.json
-  packages/wasp-config/package.json
 
 data-dir: data/
 

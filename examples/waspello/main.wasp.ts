@@ -1,11 +1,10 @@
-import { app, page, route } from "wasp-config";
+import MainPage from "@src/cards/MainPage";
+import Layout from "@src/Layout";
+import { app, page, route } from "@wasp.sh/spec";
+import { readFile } from "fs/promises";
 
 import { auth } from "./src/auth/auth.wasp";
 import { cards } from "./src/cards/cards.wasp";
-
-import MainPage from "@src/cards/MainPage";
-import Layout from "@src/Layout";
-import { readFile } from "fs/promises";
 
 export default app({
   name: "waspello",

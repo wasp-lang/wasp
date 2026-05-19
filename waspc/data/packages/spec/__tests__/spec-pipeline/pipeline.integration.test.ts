@@ -6,9 +6,9 @@ import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
-// We use the absolute file:// URL of the local wasp-config source so the
-// loaded spec does not rely on node_modules resolution from a temp dir.
-const waspConfigEntryUrl = pathToFileURL(
+// We use the absolute file:// URL of the local @wasp.sh/spec source so the
+// compiled spec does not rely on node_modules resolution from a temp dir.
+const waspSpecEntryUrl = pathToFileURL(
   join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
 ).href;
 
@@ -99,7 +99,7 @@ describe("Wasp TS spec pipeline", () => {
           specFileName: "main.wasp.ts",
           sourceText: [
             `// @ts-ignore: This test imports the local TS source through Vitest.`,
-            `import { app } from ${JSON.stringify(waspConfigEntryUrl)};`,
+            `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
             `import { getTasks } from "@src/operations";`,
             `getTasks;`,
             ``,
@@ -129,7 +129,7 @@ describe("Wasp TS spec pipeline", () => {
         specFileName: "main.wasp.ts",
         sourceText: [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
-          `import { app } from ${JSON.stringify(waspConfigEntryUrl)};`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
           `import { appTitle } from "./appConfig";`,
           ``,
           `export default app({`,
@@ -157,7 +157,7 @@ describe("Wasp TS spec pipeline", () => {
         specFileName: "main.wasp.ts",
         sourceText: [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
-          `import { app } from ${JSON.stringify(waspConfigEntryUrl)};`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
           ``,
           `export default Promise.resolve(app({`,
           `  name: "demo",`,
@@ -189,7 +189,7 @@ describe("Wasp TS spec pipeline", () => {
         "src/features/home.wasp.ts",
         [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
-          `import { page } from ${JSON.stringify(waspConfigEntryUrl)};`,
+          `import { page } from ${JSON.stringify(waspSpecEntryUrl)};`,
           `import MainPage from "@src/MainPage";`,
           ``,
           `export const homePage = page(MainPage);`,
@@ -200,7 +200,7 @@ describe("Wasp TS spec pipeline", () => {
         "features/tasks.wasp.ts",
         [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
-          `import { action } from ${JSON.stringify(waspConfigEntryUrl)};`,
+          `import { action } from ${JSON.stringify(waspSpecEntryUrl)};`,
           `import { packageTitle } from "spec-helper-package";`,
           `import { archive as archiveTask } from "@src/adminOperations";`,
           ``,
@@ -214,7 +214,7 @@ describe("Wasp TS spec pipeline", () => {
         specFileName: "main.wasp.ts",
         sourceText: [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
-          `import { app } from ${JSON.stringify(waspConfigEntryUrl)};`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
           `import { homePage } from "./src/features/home.wasp.js";`,
           `import { archiveAction, splitTitle } from "./features/tasks.wasp.js";`,
           ``,
@@ -257,7 +257,7 @@ describe("Wasp TS spec pipeline", () => {
         specFileName: "main.wasp.ts",
         sourceText: [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
-          `import { app } from ${JSON.stringify(waspConfigEntryUrl)};`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
           ``,
           `export default app({`,
           `  name: "demo",`,
@@ -300,7 +300,7 @@ describe("Wasp TS spec pipeline", () => {
         specFileName: "main.wasp.ts",
         sourceText: [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
-          `import { app } from ${JSON.stringify(waspConfigEntryUrl)};`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
           `import { title } from "./helpers/index.js";`,
           ``,
           `export default app({`,
@@ -326,7 +326,7 @@ function appSpecWithImports(prelude: string[]): string {
   return [
     `// @ts-ignore: This test imports the local TS source through Vitest.`,
     `import { action, app, page, query } from ${JSON.stringify(
-      waspConfigEntryUrl,
+      waspSpecEntryUrl,
     )};`,
     ...prelude,
     ``,

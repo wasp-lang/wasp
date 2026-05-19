@@ -1,4 +1,4 @@
-import { action, query } from "wasp-config";
+import { action, query } from "@wasp.sh/spec";
 
 import { createCard, updateCard } from "@src/cards/cards";
 import {
