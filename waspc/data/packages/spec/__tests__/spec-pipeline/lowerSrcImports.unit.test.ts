@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { lowerSrcImports } from "../../src/spec-pipeline/lowerSrcImports.js";
+import { SpecUserError } from "../../src/spec/specUserError.js";
 
 describe("lowerSrcImports", () => {
   const sourcePath = "main.wasp.ts";
@@ -162,57 +163,43 @@ describe("lowerSrcImports", () => {
   test("rejects side-effect imports from @src", () => {
     const input = `import "@src/setup";\n`;
 
-    expect(() =>
-      lowerSrcImports({ sourceText: input, sourcePath }),
-    ).toThrowError(/Side-effect imports/);
+    expectSpecUserError(input, sourcePath, /Side-effect imports/);
   });
 
   test("rejects import equals declarations from @src", () => {
     const input = `import MainPage = require("@src/MainPage");\n`;
 
-    expect(() =>
-      lowerSrcImports({ sourceText: input, sourcePath }),
-    ).toThrowError(/Import equals declarations/);
+    expectSpecUserError(input, sourcePath, /Import equals declarations/);
   });
 
   test("rejects re-exports from @src", () => {
     const input = `export { MainPage } from "@src/MainPage";\n`;
 
-    expect(() =>
-      lowerSrcImports({ sourceText: input, sourcePath }),
-    ).toThrowError(/Re-exports/);
+    expectSpecUserError(input, sourcePath, /Re-exports/);
   });
 
   test("rejects type-only imports from @src", () => {
     const input = `import type { MainPageProps } from "@src/MainPage";\n`;
 
-    expect(() =>
-      lowerSrcImports({ sourceText: input, sourcePath }),
-    ).toThrowError(/Type-only imports/);
+    expectSpecUserError(input, sourcePath, /Type-only imports/);
   });
 
   test("rejects mixed type and value imports from @src", () => {
     const input = `import { type MainPageProps, MainPage } from "@src/MainPage";\n`;
 
-    expect(() =>
-      lowerSrcImports({ sourceText: input, sourcePath }),
-    ).toThrowError(/Mixed type\/value imports/);
+    expectSpecUserError(input, sourcePath, /Mixed type\/value imports/);
   });
 
   test("rejects string-literal named imports from @src", () => {
     const input = `import { "foo-bar" as fooBar } from "@src/operations";\n`;
 
-    expect(() =>
-      lowerSrcImports({ sourceText: input, sourcePath }),
-    ).toThrowError(/String-literal named imports/);
+    expectSpecUserError(input, sourcePath, /String-literal named imports/);
   });
 
   test("rejects empty named imports from @src", () => {
     const input = `import {} from "@src/MainPage";\n`;
 
-    expect(() =>
-      lowerSrcImports({ sourceText: input, sourcePath }),
-    ).toThrowError(/Empty named imports/);
+    expectSpecUserError(input, sourcePath, /Empty named imports/);
   });
 
   test("reports all unsupported imports from @src", () => {
@@ -222,9 +209,9 @@ describe("lowerSrcImports", () => {
       ``,
     ].join("\n");
 
-    expect(() =>
-      lowerSrcImports({ sourceText: input, sourcePath }),
-    ).toThrowError(
+    expectSpecUserError(
+      input,
+      sourcePath,
       [
         `main.wasp.ts(1,1): error: Unsupported @src import "@src/setup". Side-effect imports are not supported.`,
         `main.wasp.ts(2,1): error: Unsupported @src import "@src/MainPage". Type-only imports are not supported.`,
@@ -248,4 +235,15 @@ function expectedNamespaceProxy(
 
 function expectNoSrcImportDeclarations(sourceText: string): void {
   expect(sourceText).not.toMatch(/^import\s+(?:.+\s+from\s+)?["']@src\//m);
+}
+
+function expectSpecUserError(
+  sourceText: string,
+  sourcePath: string,
+  expectedMessage: string | RegExp,
+): void {
+  const getLoweredSource = () => lowerSrcImports({ sourceText, sourcePath });
+
+  expect(getLoweredSource).toThrowError(SpecUserError);
+  expect(getLoweredSource).toThrowError(expectedMessage);
 }

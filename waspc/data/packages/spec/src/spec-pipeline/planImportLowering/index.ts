@@ -1,9 +1,12 @@
 import * as ts from "typescript";
-import type { Result } from "../../result.js";
 import type { ExtImport } from "../../spec/extImport.js";
+import { SpecUserError } from "../../spec/specUserError.js";
 import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
-import type { ImportDiagnostic } from "./supportedImportTypes.js";
+import type {
+  ImportDiagnostic,
+  UnsupportedImportType,
+} from "./supportedImportTypes.js";
 import {
   assertNonSrcImportEqualsDeclaration,
   assertNonSrcReExport,
@@ -33,7 +36,7 @@ export function planImportLowering({
 }: {
   sourceText: string;
   sourcePath: string;
-}): Result<ImportLoweringPlan, ImportDiagnostic[]> {
+}): ImportLoweringPlan {
   const sourceFile = ts.createSourceFile(
     sourcePath,
     sourceText,
@@ -57,10 +60,10 @@ export function planImportLowering({
   }
 
   if (diagnostics.length > 0) {
-    return { status: "error", error: diagnostics };
+    throw new SpecUserError(formatImportDiagnostics(diagnostics));
   }
 
-  return { status: "ok", value: { replacements } };
+  return { replacements };
 }
 
 function planStatementLowering(
@@ -101,4 +104,35 @@ function planStatementLowering(
 
 function toExtImportPath(specifier: string): ExtImport["from"] {
   return specifier as ExtImport["from"];
+}
+
+function formatImportDiagnostics(diagnostics: ImportDiagnostic[]): string {
+  return [
+    ...diagnostics.map(formatImportDiagnosticLine),
+    "",
+    "Supported @src imports are default, named, aliased named, or namespace imports from @src/*.",
+  ].join("\n");
+}
+
+function formatImportDiagnosticLine(diagnostic: ImportDiagnostic): string {
+  return `${diagnostic.filePath}(${diagnostic.location.line},${diagnostic.location.column}): error: Unsupported @src import ${JSON.stringify(diagnostic.specifier)}. ${formatUnsupportedImportType(diagnostic.unsupportedImportType)}`;
+}
+
+function formatUnsupportedImportType(type: UnsupportedImportType): string {
+  switch (type) {
+    case "sideEffect":
+      return "Side-effect imports are not supported.";
+    case "importEquals":
+      return "Import equals declarations are not supported.";
+    case "typeOnly":
+      return "Type-only imports are not supported.";
+    case "mixedTypeAndValue":
+      return "Mixed type/value imports are not supported.";
+    case "stringLiteral":
+      return "String-literal named imports are not supported.";
+    case "emptyNamed":
+      return "Empty named imports are not supported.";
+    case "reExport":
+      return "Re-exports are not supported.";
+  }
 }
