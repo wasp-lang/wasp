@@ -1,8 +1,8 @@
-import assert from "node:assert";
 import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
-import { mapExtImport, tryMapExtImport } from "../../src/spec/extImport.js";
+import { mapExtImport } from "../../src/spec/extImport.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("mapExtImport", () => {
@@ -27,13 +27,10 @@ describe("mapExtImport", () => {
     { extImport: { parse: () => ({}) } },
     { extImport: { from: "@src/external" } },
   ])("returns an error for invalid runtime values", ({ extImport }) => {
-    const result = tryMapExtImport(extImport);
-
-    assert(result.status === "error");
-    expect(result.error).toContain(
+    expect(() => mapExtImport(extImport)).toThrowError(SpecUserError);
+    expect(() => mapExtImport(extImport)).toThrowError(
       "Got an import in the Wasp file that we couldn't process",
     );
-    expect(() => mapExtImport(extImport)).toThrowError(result.error);
   });
 
   function testMapExtImport(extImport: TsAppSpec.ExtImport): void {
