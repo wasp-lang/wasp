@@ -23,7 +23,7 @@ waspInstallTest =
         "reinstall-fails-outside-project"
         (return [waspCliReinstallFails]),
       TestCase
-        "install-restores-wasp-config-after-clean"
+        "install-restores-wasp-spec-after-clean"
         ( sequence
             [ createTestWaspProject tsMinimalStarterTemplate,
               inTestWaspProjectDir
@@ -36,7 +36,7 @@ waspInstallTest =
             ]
         ),
       TestCase
-        "reinstall-ensures-wasp-config"
+        "reinstall-ensures-wasp-spec"
         ( sequence
             [ createTestWaspProject tsMinimalStarterTemplate,
               inTestWaspProjectDir
