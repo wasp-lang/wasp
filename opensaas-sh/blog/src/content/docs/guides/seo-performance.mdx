@@ -1,13 +1,13 @@
 ---
-title: SEO
+title: SEO & Performance
 banner:
   content: |
     Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
 ---
 import { Image } from 'astro:assets';
-import openSaaSGoogle from '@assets/seo/open-saas-google.png';
+import { TabItem, Tabs } from '@astrojs/starlight/components';
 
-This guides explains how to improve SEO for of your app
+This guides explains how to improve the SEO and performance for of your app.
 
 ## Landing Page Meta Tags
 
@@ -32,13 +32,40 @@ app SaaSTemplate {
 
 Change the above highlighted meta tags to match your app. Wasp will inject these tags into the HTML of your `index.html` file, which is the Landing Page (`app/src/client/landing-page/LandingPage.tsx`), in this case.
 
-This means you **do not** need to rely on a separate app or framework to serve your landing page for SEO purposes.
+## Prerendering Routes
+
+By default, a Wasp app is a Single Page Application (SPA). When someone visits your site, their browser first downloads a mostly empty page and then runs JavaScript to fill it in with the actual content. This works well for pages behind a login, but it has two downsides for pages like your landing page:
+
+- Visitors wait longer before they see anything.
+- Search engines and AI crawlers sometimes struggle to see your real content, which hurts your ranking.
+
+Prerendering fixes both. You can turn it on for any route by adding `prerender: true` in your config file:
+
+<Tabs syncKey="wasp-config-language">
+  <TabItem label="main.wasp.ts">
+    ```ts
+    app.route('LandingPageRoute', { path: '/', to: landingPage, prerender: true });
+    ```
+  </TabItem>
+  <TabItem label="main.wasp">
+    ```c
+    route LandingPageRoute { path: "/", to: LandingPage, prerender: true }
+    ```
+  </TabItem>
+</Tabs>
+
+Now, when you run `wasp build`, Wasp builds a complete HTML version of that page ahead of time. Visitors (and Google) see your real content right away, and React still takes over in the background so buttons, links, and other interactions keep working as normal.
+
+For a content-heavy landing page, this typically makes the page feel several times faster to load.
+
+See the Wasp docs for the full reference and caveats: [Prerendering](https://wasp.sh/docs/advanced/prerendering).
 
 :::tip[Star our Repo on GitHub! 🌟]
 We've packed in a ton of features and love into this SaaS starter, and offer it all to you for free!
 
 If you're finding this template and its guides useful, consider giving us [a star on GitHub](https://github.com/wasp-lang/wasp)
 :::
+
 
 ## Docs & Blog Meta Tags
 
@@ -58,12 +85,3 @@ tags: ["astro", "blogging", "learning in public"]
 ```
 
 Improving your SEO is as simple as adding these properties to your docs and blog content!
-
-## A Word on SSR & SEO
-
-Open SaaS and Wasp do not currently have a SSR option (although it is coming soon!), but that does not mean that Open SaaS apps are at a disadvantage with regards to SEO.
-
-That's because the meta tags for the landing page (described above), plus the Astro docs/blog provided with Open SaaS are more than enough! Not to mention, Google is also able to crawl websites with JavaScript activated, making SSR unnecessary. 
-
-For example, try searching "Open SaaS" on Google and you'll see this App, which was built with this template, as the first result! 
-<Image src={openSaaSGoogle} alt="open-saas-google" loading="lazy" />

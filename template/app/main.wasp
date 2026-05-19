@@ -100,7 +100,9 @@ app OpenSaaS {
   },
 }
 
-route LandingPageRoute { path: "/", to: LandingPage }
+// Prerendering routes with static content creates HTML files at build time that are served immediately,
+// improving SEO, search engine/AI crawling, and performance: https://wasp.sh/docs/advanced/prerendering
+route LandingPageRoute { path: "/", to: LandingPage, prerender: true }
 page LandingPage {
   component: import { LandingPage } from "@src/landing-page/LandingPage"
 }
@@ -189,7 +191,7 @@ query getAllTasksByUser {
 //#endregion
 
 //#region Payment
-route PricingPageRoute { path: "/pricing", to: PricingPage }
+route PricingPageRoute { path: "/pricing", to: PricingPage, prerender: true }
 page PricingPage {
   component: import { PricingPage } from "@src/payment/PricingPage"
 }

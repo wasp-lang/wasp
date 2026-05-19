@@ -91,7 +91,7 @@
      },
      onAuthFailedRedirectTo: "/login",
      onAuthSucceededRedirectTo: "/demo-app",
-@@ -91,11 +88,11 @@
+@@ -91,22 +88,25 @@
      // NOTE: "Dummy" provider is just for local development purposes.
      //   Make sure to check the server logs for the email confirmation url (it will not be sent to an address)!
      //   Once you are ready for production, switch to e.g. "SendGrid" or "Mailgun" providers. Check out https://docs.opensaas.sh/guides/email-sending/ .
@@ -105,7 +105,11 @@
      },
    },
  }
-@@ -105,6 +102,11 @@
+ 
+-// Prerendering routes with static content creates HTML files at build time that are served immediately,
+-// improving SEO, search engine/AI crawling, and performance: https://wasp.sh/docs/advanced/prerendering
+ route LandingPageRoute { path: "/", to: LandingPage, prerender: true }
+ page LandingPage {
    component: import { LandingPage } from "@src/landing-page/LandingPage"
  }
  
@@ -117,7 +121,16 @@
  //#region Auth Pages
  route LoginRoute { path: "/login", to: LoginPage }
  page LoginPage {
-@@ -211,9 +213,9 @@
+@@ -191,7 +191,7 @@
+ //#endregion
+ 
+ //#region Payment
+-route PricingPageRoute { path: "/pricing", to: PricingPage, prerender: true }
++route PricingPageRoute { path: "/pricing", to: PricingPage }
+ page PricingPage {
+   component: import { PricingPage } from "@src/payment/PricingPage"
+ }
+@@ -213,9 +213,9 @@
  }
  
  api paymentsWebhook {
@@ -129,7 +142,7 @@
    httpRoute: (POST, "/payments-webhook")
  }
  //#endregion
-@@ -249,6 +251,17 @@
+@@ -251,6 +251,17 @@
    fn: import { deleteFile } from "@src/file-upload/operations",
    entities: [User, File]
  }
@@ -147,7 +160,7 @@
  //#endregion
  
  //#region Analytics
-@@ -295,7 +308,6 @@
+@@ -297,7 +308,6 @@
    component: import { CalendarPage } from "@src/admin/elements/calendar/CalendarPage"
  }
  

@@ -8,6 +8,9 @@ import tailwind from "@astrojs/tailwind";
 export default defineConfig({
   site: "https://docs.opensaas.sh",
   trailingSlash: "always",
+  redirects: {
+    "/guides/seo/": "/guides/seo-performance/",
+  },
   integrations: [
     starlight({
       title: "OpenSaaS.sh",
@@ -85,7 +88,7 @@ export default defineConfig({
               ],
             },
             { label: "Deploying", link: "/guides/deploying/" },
-            { label: "SEO", link: "/guides/seo/" },
+            { label: "SEO & Performance", link: "/guides/seo-performance/" },
             { label: "Email Sending", link: "/guides/email-sending/" },
             { label: "File Uploading", link: "/guides/file-uploading/" },
             { label: "Tests", link: "/guides/tests/" },
