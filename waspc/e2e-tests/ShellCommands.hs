@@ -148,6 +148,7 @@ waspCliCompletion = return "wasp-cli completion"
 
 -- TODO: replace with actual Wasp command once it is implemented:
 -- https://github.com/wasp-lang/wasp/pull/4119
+-- TODO: remove calls where unecessary once implmented (after wasp new)
 waspCliInstall :: ShellCommandBuilder context ShellCommand
 waspCliInstall = return "npm i"
 

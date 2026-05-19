@@ -86,6 +86,8 @@ async function initializeClientEnvironment(
   }
 }
 
+// TODO: remove once wasp install is implemented
+// https://github.com/wasp-lang/wasp/pull/4119
 async function installNpmDependencies(waspProjectPath: string): Promise<void> {
   await $({
     stdio: "inherit",
