@@ -5,6 +5,7 @@ const SRC_IMPORT_PREFIX = "@src/";
 export type ImportDiagnostic = {
   unsupportedImportType: UnsupportedImportType;
   specifier: string;
+  filePath: string;
   location: SourceLocation;
 };
 
@@ -46,6 +47,7 @@ export class DiagnosticError extends Error {
     this.diagnostic = {
       unsupportedImportType,
       specifier,
+      filePath: sourceFile.fileName,
       location: { line: line + 1, column: character + 1 },
     };
   }

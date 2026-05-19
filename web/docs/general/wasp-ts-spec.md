@@ -1,5 +1,5 @@
 ---
-title: Wasp TypeScript config (*.wasp.ts)
+title: Wasp TypeScript spec (*.wasp.ts)
 ---
 
 import { DiscordLink } from '@site/blog/components/DiscordLink';
@@ -29,7 +29,15 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
 ## How to switch from the Wasp DSL config to the Wasp TS spec
 
 1. Go into the Wasp project you want to switch to the Wasp TS spec (or create a new Wasp project if you just want to try it out).
-2. Rename `tsconfig.json` file to `tsconfig.src.json`
+2. Rename `tsconfig.json` file to `tsconfig.src.json` and make sure it excludes Wasp TS spec files:
+
+   ```json title="tsconfig.src.json"
+   {
+     // ...
+     "include": ["src"],
+     "exclude": ["**/*.wasp.ts"]
+   }
+   ```
 3. Create a new `tsconfig.json` file with the following content:
 
    ```json title="tsconfig.json"
@@ -56,14 +64,20 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
        "noUnusedLocals": true,
        "noUnusedParameters": true,
 
-       "module": "NodeNext",
-       "noEmit": true,
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "allowJs": true,
+        "noEmit": true,
 
-       "lib": ["ES2023"]
-     },
-     "include": ["main.wasp.ts"]
-   }
-   ```
+        "lib": ["ES2023"],
+        "paths": {
+          "@src/*": ["./src/*"]
+        }
+      },
+      "include": ["main.wasp.ts", "**/*.wasp.ts"]
+    }
+    ```
 
 5. Add `"type": "module"` to the top level of your `package.json`, if you don't have it yet:
 
@@ -78,7 +92,7 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
 
 7. Run `wasp clean` and `rm package-lock.json`. This ensures you start from a clean state.
 
-8. Run `wasp ts-setup`. This command will add the `wasp-config` package to your `package.json`'s `devDependencies`.
+8. Run `wasp ts-setup`. This command will add the `@wasp.sh/spec` package to your `package.json`'s `devDependencies`.
 
    **IMPORTANT:** Every time you run `wasp clean` or delete your `node_modules`, you _must_ follow it up with `wasp ts-setup`. This is a temporary meassure until we improve the feature.
 
@@ -87,10 +101,10 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
    Check out the [reference main.wasp.ts file](#reference-mainwaspts-file) below for details on what the TypeScript API for configuring Wasp looks like.
    In short, you'll have to:
 
-   1. Import `App` from `wasp-config`
-   2. Create a new `app` object with `new App()`.
-   3. Use the `app` object to define parts of your web app like `auth`, `pages`, `query`, `api`...
-   4. Export the `app` from your file using a default export.
+   1. Import Wasp constructors from `@wasp.sh/spec`.
+   2. Create your app with `app({ ... })`.
+   3. Define parts of your web app with constructors like `page`, `route`, `query`, `action`, and `api`.
+   4. Export the result from your file using a default export.
 
    You can manually do the rewrite using the reference file and TS types as guides (IDE support should work for you in `main.wasp.ts`), or you can (and we recommend it!) give the reference main.wasp.ts file to the LLM of your choice and tell it to rewrite your `main.wasp` while following the format in the reference file: we had great results with this!
 
@@ -118,9 +132,15 @@ You can read this variable to switch config values per environment:
 ```ts title="main.wasp.ts"
 const isProd = process.env.NODE_ENV === 'production'
 
-app.emailSender({
-  provider: isProd ? 'SMTP' : 'Dummy',
-  defaultFrom: { email: 'hi@example.com' },
+export default app({
+  name: 'todoApp',
+  title: 'ToDo App',
+  wasp: { version: '{latestWaspVersion}' },
+  emailSender: {
+    provider: isProd ? 'SMTP' : 'Dummy',
+    defaultFrom: { email: 'hi@example.com' },
+  },
+  parts: [],
 })
 ```
 
@@ -146,122 +166,100 @@ Let us know on our [GitHub](https://github.com/wasp-lang/wasp) or, even better, 
 ## Reference main.wasp.ts file
 
 ```ts title="main.wasp.ts"
-import { App } from 'wasp-config'
+import {
+  action,
+  api,
+  apiNamespace,
+  app,
+  job,
+  page,
+  query,
+  route,
+} from '@wasp.sh/spec'
 
-const app = new App('todoApp', {
+import App from '@src/App'
+import Login from '@src/pages/auth/Login'
+import MainPage from '@src/pages/MainPage'
+import setupClient from '@src/clientSetup'
+import setupServer, { serverMiddlewareFn } from '@src/serverSetup'
+import { config as discordConfig, userSignupFields as discordSignupFields } from '@src/auth/discord'
+import { config as googleConfig, userSignupFields as googleSignupFields } from '@src/auth/google'
+import {
+  onAfterEmailVerified,
+  onAfterLogin,
+  onAfterSignup,
+  onBeforeLogin,
+  onBeforeOAuthRedirect,
+  onBeforeSignup,
+} from '@src/auth/hooks'
+import { barBaz, barNamespaceMiddlewareFn } from '@src/apis'
+import { createTask, getTasks } from '@src/operations'
+import { devSeedSimple } from '@src/dbSeeds'
+import { foo } from '@src/jobs/bar'
+import { webSocketFn } from '@src/webSocket'
+
+export default app({
+  name: 'todoApp',
   title: 'ToDo App',
   wasp: { version: '{latestWaspVersion}' },
-  // head: []
-});
-
-app.webSocket({
-  fn: { import: 'webSocketFn', from: '@src/webSocket' },
-  // autoConnect: false
-});
-
-app.auth({
-  userEntity: 'User',
-  methods: {
-    discord: {
-      configFn: { import: 'config', from: '@src/auth/discord' },
-      userSignupFields: { import: 'userSignupFields', from: '@src/auth/discord' }
-    },
-    google: {
-      configFn: { import: 'config', from: '@src/auth/google' },
-      userSignupFields: { import: 'userSignupFields', from: '@src/auth/google' }
-    },
-    gitHub: {
-      configFn: { import: 'config', from: '@src/auth/github.js' },
-      userSignupFields: { import: 'userSignupFields', from: '@src/auth/github.js' }
-    },
-    // keycloak: {},
-    // email: {
-    //   userSignupFields: { import: 'userSignupFields', from: '@src/auth/email' },
-    //   fromField: {
-    //     name: 'ToDO App',
-    //     email: 'mihovil@ilakovac.com'
-    //   },
-    //   emailVerification: {
-    //     getEmailContentFn: { import: 'getVerificationEmailContent', from: '@src/auth/email' },
-    //     clientRoute: 'EmailVerificationRoute',
-    //   },
-    //   passwordReset: {
-    //     getEmailContentFn: { import: 'getPasswordResetEmailContent', from: '@src/auth/email' },
-    //     clientRoute: 'PasswordResetRoute'
-    //   }
-    // },
+  head: [],
+  webSocket: {
+    fn: webSocketFn,
+    autoConnect: false,
   },
-  onAuthFailedRedirectTo: '/login',
-  onAuthSucceededRedirectTo: '/profile',
-  onBeforeSignup: { import: 'onBeforeSignup', from: '@src/auth/hooks.js' },
-  onAfterSignup: { import: 'onAfterSignup', from: '@src/auth/hooks.js' },
-  onAfterEmailVerified: { import: 'onAfterEmailVerified', from: "@src/auth/hooks.ts" },
-  onBeforeOAuthRedirect: { import: 'onBeforeOAuthRedirect', from: '@src/auth/hooks.js' },
-  onBeforeLogin: { import: 'onBeforeLogin', from: '@src/auth/hooks.js' },
-  onAfterLogin: { import: 'onAfterLogin', from: '@src/auth/hooks.js' }
-});
-
-app.server({
-  setupFn: { importDefault: 'setup', from: '@src/serverSetup' },
-  middlewareConfigFn: { import: 'serverMiddlewareFn', from: '@src/serverSetup' },
-});
-
-app.client({
-  rootComponent: { import: 'App', from: '@src/App' },
-  setupFn: { importDefault: 'setup', from: '@src/clientSetup' }
-});
-
-app.db({
-  seeds: [
-    { import: 'devSeedSimple', from: '@src/dbSeeds' },
-  ]
-});
-
-app.emailSender({
-  provider: 'SMTP',
-  defaultFrom: { email: 'test@test.com' }
-});
-
-const loginPage = app.page('LoginPage', {
-  component: { importDefault: 'Login', from: '@src/pages/auth/Login' }
-});
-app.route('LoginRoute', { path: '/login', to: loginPage });
-
-app.query('getTasks', {
-  fn: { import: 'getTasks', from: '@src/queries' },
-  entities: ['Task']
-});
-
-app.action('createTask', {
-  fn: { import: 'createTask', from: '@src/actions' },
-  entities: ['Task']
-});
-
-app.apiNamespace('bar', {
-  middlewareConfigFn: { import: 'barNamespaceMiddlewareFn', from: '@src/apis' },
-  path: '/bar'
-});
-
-app.api('barBaz', {
-  fn: { import: 'barBaz', from: '@src/apis' },
-  auth: false,
-  entities: ['Task'],
-  httpRoute: {
-    method: 'GET',
-    route: '/bar/baz',
+  auth: {
+    userEntity: 'User',
+    methods: {
+      discord: {
+        configFn: discordConfig,
+        userSignupFields: discordSignupFields,
+      },
+      google: {
+        configFn: googleConfig,
+        userSignupFields: googleSignupFields,
+      },
+    },
+    onAuthFailedRedirectTo: '/login',
+    onAuthSucceededRedirectTo: '/profile',
+    onBeforeSignup,
+    onAfterSignup,
+    onAfterEmailVerified,
+    onBeforeOAuthRedirect,
+    onBeforeLogin,
+    onAfterLogin,
   },
-});
-
-app.job('mySpecialJob', {
-  executor: 'PgBoss',
-  perform: {
-    fn: { import: 'foo', from: '@src/jobs/bar' },
-    executorOptions: {
-      pgBoss: { retryLimit: 1 }
-    }
+  server: {
+    setupFn: setupServer,
+    middlewareConfigFn: serverMiddlewareFn,
   },
-  entities: ['Task']
-});
-
-export default app;
+  client: {
+    rootComponent: App,
+    setupFn: setupClient,
+  },
+  db: {
+    seeds: [devSeedSimple],
+  },
+  emailSender: {
+    provider: 'SMTP',
+    defaultFrom: { email: 'test@test.com' },
+  },
+  parts: [
+    route('LoginRoute', '/login', page(Login)),
+    route('MainRoute', '/', page(MainPage, { authRequired: true })),
+    query(getTasks, { entities: ['Task'] }),
+    action(createTask, { entities: ['Task'] }),
+    apiNamespace('/bar', { middlewareConfigFn: barNamespaceMiddlewareFn }),
+    api('GET', '/bar/baz', barBaz, {
+      auth: false,
+      entities: ['Task'],
+    }),
+    job(foo, {
+      executor: 'PgBoss',
+      performExecutorOptions: {
+        pgBoss: { retryLimit: 1 },
+      },
+      entities: ['Task'],
+    }),
+  ],
+})
 ```
