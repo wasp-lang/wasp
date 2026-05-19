@@ -9,7 +9,7 @@ This feature is currently in early preview and we are actively working on it.
 :::
 
 :::caution Running `wasp install`
-Whenever you run `wasp clean` or remove `node_modules` on your own, you must rerun `wasp install`! We will remove this requirement in future versions. Read more about it below.
+If you run `wasp clean` or remove `node_modules` on your own, Wasp will tell you to run `wasp install` next time you run a command that needs it. Read more about it below.
 :::
 
 In Wasp, you normally define/configure the high level of your app (pages, routes, queries, actions, auth, ...) in a `main.wasp` file in the root of your project. In `main.wasp` you write in Wasp's DSL (domain-specific language), which is a simple configuration language similar to JSON but smarter.
@@ -78,11 +78,7 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
 
 7. Run `wasp clean` and `rm package-lock.json`. This ensures you start from a clean state.
 
-8. Run `wasp install`. This command will add the `wasp-config` package to your `package.json`'s `devDependencies`.
-
-   **IMPORTANT:** Every time you run `wasp clean` or delete your `node_modules`, you _must_ follow it up with `wasp install`. This is a temporary measure until we improve the feature.
-
-9. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
+8. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
 
    Check out the [reference main.wasp.ts file](#reference-mainwaspts-file) below for details on what the TypeScript API for configuring Wasp looks like.
    In short, you'll have to:
@@ -94,15 +90,15 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
 
    You can manually do the rewrite using the reference file and TS types as guides (IDE support should work for you in `main.wasp.ts`), or you can (and we recommend it!) give the reference main.wasp.ts file to the LLM of your choice and tell it to rewrite your `main.wasp` while following the format in the reference file: we had great results with this!
 
-10. Run `wasp start` to run your app! If you got everything right, your app should work exactly like it did before. The only difference is that it's now reading the Wasp config from `main.wasp.ts` instead of `main.wasp`.
+9. Run `wasp start` to run your app! If you got everything right, your app should work exactly like it did before. The only difference is that it's now reading the Wasp config from `main.wasp.ts` instead of `main.wasp`.
     :::tip
     Don't forget, during `wasp start`, to have the database running or do the db migrations if needed, as you would normally when running your app in development.
     :::
 
-11. That is it, you are now using Wasp TS spec! You can delete `main.wasp.old` file now if you still have it around.
+10. That is it, you are now using Wasp TS spec! You can delete `main.wasp.old` file now if you still have it around.
 
 :::caution
-If you run `wasp clean` or remove `node_modules` on your own, you will have to rerun `wasp install`! This is a temporary workaround, we will remove it in future versions.
+If you run `wasp clean` or remove `node_modules` on your own, Wasp will tell you to run `wasp install` next time you run a command that needs it.
 :::
 
 Got stuck on any of these steps? Let us know in our <DiscordLink /> and we will help!
