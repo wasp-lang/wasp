@@ -1,10 +1,6 @@
 module Tests.WaspSpecAvailableTest (waspSpecAvailableTest) where
 
 import Control.Monad.Reader (ask)
-import Data.Aeson ((.=))
-import qualified Data.Aeson as Aeson
-import qualified Data.ByteString.Lazy as LBS
-import qualified Data.Text.Encoding as TE
 import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
@@ -25,18 +21,17 @@ import ShellCommands
     waspCliInfo,
     waspCliInstall,
     waspCliNews,
-    waspCliReinstall,
     waspCliStart,
     waspCliStartDb,
     waspCliStudio,
     waspCliTelemetry,
     waspCliTestClient,
     waspCliVersion,
-    writeToFile,
   )
-import StrongPath (relfile, (</>))
+import StrongPath (fromAbsDir, reldir, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (tsMinimalStarterTemplate)
+import Wasp.Util.Terminal (styleCode)
 
 waspSpecAvailableTest :: Test
 waspSpecAvailableTest =
@@ -96,10 +91,9 @@ waspSpecAvailableTest =
               inTestWaspProjectDir $
                 concatMap
                   (\command -> [removeNodeModules, command])
-                  -- Project-scoped commands that don't gate on wasp-spec.
+                  -- Project-scoped commands that don't require wasp-spec to be installed.
                   [ waspCliClean,
                     waspCliInstall,
-                    waspCliReinstall,
                     -- Project-agnostic commands. They don't read the project,
                     -- so they should be unaffected by wasp-spec presence.
                     waspCliVersion,
@@ -118,15 +112,8 @@ waspSpecAvailableTest =
     corruptWaspSpecVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
     corruptWaspSpecVersion = do
       context <- ask
-      let waspSpecPackageJson = context.waspProjectDir </> [relfile|.wasp/spec/package.json|]
-      writeToFile waspSpecPackageJson corruptedPackageJsonContent
-      where
-        corruptedPackageJsonContent =
-          TE.decodeUtf8 . LBS.toStrict . Aeson.encode $
-            Aeson.object
-              [ "name" .= ("@wasp.sh/spec" :: String),
-                "version" .= ("9.9.9" :: String)
-              ]
+      let waspSpecDir = context.waspProjectDir </> [reldir|.wasp/spec|]
+      return $ "(cd " ++ fromAbsDir waspSpecDir ++ " && npm pkg set version=9.9.9)"
 
     assertCommandFailsWithInstallHint ::
       ShellCommandBuilder WaspProjectContext ShellCommand ->
@@ -134,4 +121,4 @@ waspSpecAvailableTest =
     assertCommandFailsWithInstallHint commandBuilder =
       -- Negate the wrapped command so the assertion holds when it fails (exit non-zero)
       -- AND the output contains the "Run `wasp install`" hint.
-      assertCommandOutputContains (("! " ++) <$> commandBuilder) "wasp install"
+      assertCommandOutputContains (("! " ++) <$> commandBuilder) ("Run " ++ styleCode "wasp install")
