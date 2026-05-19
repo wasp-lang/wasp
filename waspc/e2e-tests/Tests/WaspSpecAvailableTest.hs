@@ -1,4 +1,4 @@
-module Tests.WaspConfigAvailableTest (waspConfigAvailableTest) where
+module Tests.WaspSpecAvailableTest (waspSpecAvailableTest) where
 
 import Control.Monad.Reader (ask)
 import Data.Aeson ((.=))
@@ -38,12 +38,12 @@ import StrongPath (relfile, (</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (tsMinimalStarterTemplate)
 
-waspConfigAvailableTest :: Test
-waspConfigAvailableTest =
+waspSpecAvailableTest :: Test
+waspSpecAvailableTest =
   Test
-    "wasp-config-available"
+    "wasp-spec-available"
     [ TestCase
-        "commands-requiring-wasp-config-fail-with-install-hint-when-missing"
+        "commands-requiring-wasp-spec-fail-with-install-hint-when-missing"
         ( sequence
             [ createTestWaspProject tsMinimalStarterTemplate,
               inTestWaspProjectDir $
@@ -65,19 +65,19 @@ waspConfigAvailableTest =
             ]
         ),
       TestCase
-        "compile-fails-with-install-hint-when-wasp-config-version-mismatches-cli"
+        "compile-fails-with-install-hint-when-wasp-spec-version-mismatches-cli"
         ( sequence
             [ createTestWaspProject tsMinimalStarterTemplate,
               inTestWaspProjectDir
-                [ corruptWaspConfigVersion,
+                [ corruptWaspSpecVersion,
                   assertCommandFailsWithInstallHint waspCliCompile
                 ]
             ]
         ),
       TestCase
-        "build-start-fails-with-install-hint-when-wasp-config-missing"
+        "build-start-fails-with-install-hint-when-wasp-spec-missing"
         -- `wasp build start` requires `.wasp/build` to exist before its
-        -- `WaspConfigAvailable` check fires, so we build first, then nuke
+        -- `WaspSpecAvailable` check fires, so we build first, then nuke
         -- node_modules to reach the install-hint failure path.
         ( sequence
             [ createTestWaspProject tsMinimalStarterTemplate,
@@ -90,18 +90,18 @@ waspConfigAvailableTest =
             ]
         ),
       TestCase
-        "commands-not-requiring-wasp-config-succeed-when-missing"
+        "commands-not-requiring-wasp-spec-succeed-when-missing"
         ( sequence
             [ createTestWaspProject tsMinimalStarterTemplate,
               inTestWaspProjectDir $
                 concatMap
                   (\command -> [removeNodeModules, command])
-                  -- Project-scoped commands that don't gate on wasp-config.
+                  -- Project-scoped commands that don't gate on wasp-spec.
                   [ waspCliClean,
                     waspCliInstall,
                     waspCliReinstall,
                     -- Project-agnostic commands. They don't read the project,
-                    -- so they should be unaffected by wasp-config presence.
+                    -- so they should be unaffected by wasp-spec presence.
                     waspCliVersion,
                     waspCliCompletion,
                     waspCliTelemetry,
@@ -111,15 +111,15 @@ waspConfigAvailableTest =
         )
     ]
   where
-    -- Putting the project in a "wasp-config missing" state without invoking any wasp command.
+    -- Putting the project in a "wasp-spec missing" state without invoking any wasp command.
     removeNodeModules :: ShellCommandBuilder WaspProjectContext ShellCommand
     removeNodeModules = return "rm -rf node_modules"
 
-    corruptWaspConfigVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
-    corruptWaspConfigVersion = do
+    corruptWaspSpecVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
+    corruptWaspSpecVersion = do
       context <- ask
-      let waspConfigPackageJson = context.waspProjectDir </> [relfile|.wasp/spec/package.json|]
-      writeToFile waspConfigPackageJson corruptedPackageJsonContent
+      let waspSpecPackageJson = context.waspProjectDir </> [relfile|.wasp/spec/package.json|]
+      writeToFile waspSpecPackageJson corruptedPackageJsonContent
       where
         corruptedPackageJsonContent =
           TE.decodeUtf8 . LBS.toStrict . Aeson.encode $

@@ -24,7 +24,7 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
-    WaspConfigAvailable (WaspConfigAvailable),
+    WaspSpecAvailable (WaspSpecAvailable),
     GeneratedAppIsProduction (GeneratedAppIsProduction),
     GeneratedAppIsDevelopment (GeneratedAppIsDevelopment),
     DbConnectionEstablished (DbConnectionEstablished),
@@ -92,20 +92,20 @@ instance Requirable InWaspProject where
 -- | Require that the @wasp.sh/spec package is available in node_modules and that
 -- its version matches this CLI's version (for TS projects). For DSL projects,
 -- this check always passes.
-data WaspConfigAvailable = WaspConfigAvailable deriving (Typeable)
+data WaspSpecAvailable = WaspSpecAvailable deriving (Typeable)
 
-instance Requirable WaspConfigAvailable where
+instance Requirable WaspSpecAvailable where
   checkRequirement = do
     InWaspProject waspProjectDir <- require
     isTsProject <- liftIO $ isWaspTsProject waspProjectDir
-    when isTsProject $ ensureInstalledWaspConfigMatchesCliVersion waspProjectDir
-    return WaspConfigAvailable
+    when isTsProject $ ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
+    return WaspSpecAvailable
     where
-      ensureInstalledWaspConfigMatchesCliVersion waspProjectDir =
+      ensureInstalledWaspSpecMatchesCliVersion waspProjectDir =
         liftIO (tryGettingInstalledPackageVersion waspProjectDir WaspSpecPackage) >>= \case
           Left _ -> throwError missingDepsError
-          Right installedWaspConfigVersion
-            | installedWaspConfigVersion == WV.waspVersion -> return ()
+          Right installedWaspSpecVersion
+            | installedWaspSpecVersion == WV.waspVersion -> return ()
             | otherwise -> throwError missingDepsError
       missingDepsError =
         CommandError

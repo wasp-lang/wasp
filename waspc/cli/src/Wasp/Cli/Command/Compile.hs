@@ -22,7 +22,7 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -41,7 +41,7 @@ compile = do
   -- here and in compileWithOptions. One option could be to add this to defaultCompileOptions
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
-  WaspConfigAvailable <- require
+  WaspSpecAvailable <- require
   compileWithOptions $ defaultCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.

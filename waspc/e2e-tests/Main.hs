@@ -14,7 +14,7 @@ import Tests.WaspBuildTest (waspBuildTest)
 import Tests.WaspCleanTest (waspCleanTest)
 import Tests.WaspCompileTest (waspCompileTest)
 import Tests.WaspCompletionTest (waspCompletionTest)
-import Tests.WaspConfigAvailableTest (waspConfigAvailableTest)
+import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
 import Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest)
 import Tests.WaspDbResetTest (waspDbResetTest)
 import Tests.WaspDbSeedTest (waspDbSeedTest)
@@ -67,7 +67,7 @@ e2eTests = do
         viteConfigTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
-        waspConfigAvailableTest,
+        waspSpecAvailableTest,
         waspInfoTest,
         waspInstallTest,
         waspDepsTest,

@@ -13,7 +13,7 @@ import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (readWaspCompileInfo)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Msg
 import Wasp.Project (WaspProjectDir)
@@ -23,7 +23,7 @@ import qualified Wasp.Util.Terminal as Term
 info :: Command ()
 info = do
   InWaspProject waspDir <- require
-  WaspConfigAvailable <- require
+  WaspSpecAvailable <- require
 
   compileInfo <- liftIO $ readWaspCompileInfo waspDir
   projectSize <- liftIO $ readDirectorySizeMB waspDir

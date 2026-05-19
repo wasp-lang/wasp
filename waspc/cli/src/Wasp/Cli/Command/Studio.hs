@@ -27,7 +27,7 @@ import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import qualified Wasp.Project.Studio
@@ -35,7 +35,7 @@ import qualified Wasp.Project.Studio
 studio :: Command ()
 studio = do
   InWaspProject waspDir <- require
-  WaspConfigAvailable <- require
+  WaspSpecAvailable <- require
 
   appSpec <- analyze waspDir
   let (appName, app) = ASV.getApp appSpec

@@ -19,7 +19,7 @@ import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -52,7 +52,7 @@ import Wasp.Util.Json (updateJsonFile)
 build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
-  WaspConfigAvailable <- require
+  WaspSpecAvailable <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
