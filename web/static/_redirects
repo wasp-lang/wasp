@@ -19,21 +19,22 @@
 /docs/tutorials/todo-app                   /docs/tutorial/create                                       301
 
 # Migration guides
-# Each docs version now ships only its own migration guide, at /docs/<version>/migration-guide
-# (the unversioned /docs/migration-guide is the latest one). Cloudflare _redirects only
-# supports a trailing splat, so we use a :v segment placeholder to match any version prefix.
-/*/migrate-from-0-11-to-0-12                         /docs/0.12/migration-guide   301
-/*/migrate-from-0-12-to-0-13                         /docs/0.13/migration-guide   301
-/*/migrate-from-0-13-to-0-14                         /docs/0.14/migration-guide   301
-/*/migrate-from-0-14-to-0-15                         /docs/0.15/migration-guide   301
-/*/migrate-from-0-15-to-0-16                         /docs/0.16/migration-guide   301
-/*/migrate-from-0-16-to-0-17                         /docs/0.17/migration-guide   301
-/*/migrate-from-0-17-to-0-18                         /docs/0.18/migration-guide   301
-/*/migrate-from-0-18-to-0-19                         /docs/0.19/migration-guide   301
-/*/migrate-from-0-19-to-0-20                         /docs/0.20/migration-guide   301
-/*/migrate-from-0-20-to-0-21                         /docs/0.21/migration-guide   301
-/*/migrate-from-0-21-to-0-22                         /docs/0.22/migration-guide   301
-/*/migrate-from-0-22-to-0-23                         /docs/0.23/migration-guide   301
+# We migrated from /docs/{version}/migration-guides/migrate-from-{version}-to-{version}
+# to /docs/{version}/migration-guide, so we want to redirect links going to the old
+# URLs.
+# You don't need to add new redirects for new versions.
+/*/migrate-from-0-11-to-0-12  /docs/0.12/migration-guide  301
+/*/migrate-from-0-12-to-0-13  /docs/0.13/migration-guide  301
+/*/migrate-from-0-13-to-0-14  /docs/0.14/migration-guide  301
+/*/migrate-from-0-14-to-0-15  /docs/0.15/migration-guide  301
+/*/migrate-from-0-15-to-0-16  /docs/0.16/migration-guide  301
+/*/migrate-from-0-16-to-0-17  /docs/0.17/migration-guide  301
+/*/migrate-from-0-17-to-0-18  /docs/0.18/migration-guide  301
+/*/migrate-from-0-18-to-0-19  /docs/0.19/migration-guide  301
+/*/migrate-from-0-19-to-0-20  /docs/0.20/migration-guide  301
+/*/migrate-from-0-20-to-0-21  /docs/0.21/migration-guide  301
+/*/migrate-from-0-21-to-0-22  /docs/0.22/migration-guide  301
+/*/migrate-from-0-22-to-0-23  /docs/0.23/migration-guide  301
 
 # Legacy version path redirects (0.X.0 -> 0.X)
 # These exist because docs versions used to be named 0.X.0 but were renamed to 0.X,
