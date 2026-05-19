@@ -176,7 +176,7 @@ describe("Wasp TS spec pipeline", () => {
       );
     });
 
-    test("loads split .wasp.ts specs and lowers nested @src imports", async () => {
+    test("loads split .wasp.ts specs imported through @src and lowers nested @src imports", async () => {
       const tempDir = makeTempProject("wasp-spec-split-");
       writeUserSourceFiles(tempDir);
       writeNodePackage(tempDir, "spec-helper-package", {
@@ -215,7 +215,7 @@ describe("Wasp TS spec pipeline", () => {
         sourceText: [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
           `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
-          `import { homePage } from "./src/features/home.wasp.js";`,
+          `import { homePage } from "@src/features/home.wasp.js";`,
           `import { archiveAction, splitTitle } from "./features/tasks.wasp.js";`,
           ``,
           `export default app({`,

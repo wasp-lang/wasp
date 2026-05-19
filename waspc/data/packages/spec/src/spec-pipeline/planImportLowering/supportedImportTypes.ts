@@ -103,7 +103,7 @@ export function assertNonSrcImportEqualsDeclaration(
   stmt: ts.ImportEqualsDeclaration,
 ): void {
   const specifier = getImportEqualsSpecifier(stmt);
-  if (!specifier || !isSrcImportSpecifier(specifier)) {
+  if (!isLowerableSrcImportSpecifier(specifier)) {
     return;
   }
 
@@ -122,8 +122,8 @@ export function assertNonSrcReExport(
     return;
   }
 
-  const specifier = getSrcImportSpecifier(stmt.moduleSpecifier);
-  if (!specifier) {
+  const specifier = getStringModuleSpecifier(stmt.moduleSpecifier);
+  if (!isLowerableSrcImportSpecifier(specifier)) {
     return;
   }
 
@@ -151,7 +151,7 @@ export function getSrcImportSpecifier(
   moduleSpecifier: ts.Expression,
 ): string | undefined {
   const specifier = getStringModuleSpecifier(moduleSpecifier);
-  if (!specifier || !isSrcImportSpecifier(specifier)) {
+  if (!isLowerableSrcImportSpecifier(specifier)) {
     return undefined;
   }
 
@@ -166,4 +166,22 @@ function getStringModuleSpecifier(
 
 function isSrcImportSpecifier(specifier: string): boolean {
   return specifier.startsWith(SRC_IMPORT_PREFIX);
+}
+
+function isLowerableSrcImportSpecifier(
+  specifier: string | undefined,
+): specifier is string {
+  return (
+    specifier !== undefined &&
+    isSrcImportSpecifier(specifier) &&
+    !isWaspTsSpecModuleSpecifier(specifier)
+  );
+}
+
+function isWaspTsSpecModuleSpecifier(specifier: string): boolean {
+  return (
+    specifier.endsWith(".wasp") ||
+    specifier.endsWith(".wasp.js") ||
+    specifier.endsWith(".wasp.ts")
+  );
 }

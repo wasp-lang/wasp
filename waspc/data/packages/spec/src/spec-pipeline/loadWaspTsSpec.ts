@@ -1,5 +1,6 @@
 import type { JitiOptions } from "jiti";
 import { createJiti } from "jiti";
+import { dirname, join } from "node:path";
 import { lowerSrcImports } from "./lowerSrcImports.js";
 
 export async function loadWaspTsSpecDefaultExport({
@@ -21,6 +22,9 @@ function createSpecJiti(entryPath: string, tsconfigPath: string) {
     interopDefault: false,
     jsx: true,
     moduleCache: false,
+    alias: {
+      "@src/": join(dirname(tsconfigPath), "src/"),
+    },
     tsconfigPaths: tsconfigPath,
   } satisfies JitiOptions;
 

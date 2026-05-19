@@ -117,6 +117,19 @@ describe("lowerSrcImports", () => {
     expect(lowerSrcImports({ sourceText: input, sourcePath })).toBe(input);
   });
 
+  test("leaves @src imports to .wasp.ts spec modules untouched", () => {
+    const input = [
+      `import "@src/features/register.wasp.js";`,
+      `import { homePage } from "@src/features/home.wasp.js";`,
+      `import { tasks } from "@src/features/tasks.wasp";`,
+      `import type { AdminPage } from "@src/features/admin.wasp.ts";`,
+      `export { dashboardPage } from "@src/features/dashboard.wasp.js";`,
+      ``,
+    ].join("\n");
+
+    expect(lowerSrcImports({ sourceText: input, sourcePath })).toBe(input);
+  });
+
   test("lowers only the matching import in a mixed file", () => {
     const input = [
       `import { App } from "@wasp.sh/spec";`,

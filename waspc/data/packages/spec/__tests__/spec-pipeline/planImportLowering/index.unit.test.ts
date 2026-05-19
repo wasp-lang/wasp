@@ -70,6 +70,22 @@ describe("planImportLowering", () => {
     ).toEqual({ replacements: [] });
   });
 
+  test("leaves @src imports to .wasp.ts spec modules out of the plan", () => {
+    expect(
+      planImportLowering({
+        sourcePath,
+        sourceText: [
+          `import "@src/features/register.wasp.js";`,
+          `import { homePage } from "@src/features/home.wasp.js";`,
+          `import { tasks } from "@src/features/tasks.wasp";`,
+          `import type { AdminPage } from "@src/features/admin.wasp.ts";`,
+          `export { dashboardPage } from "@src/features/dashboard.wasp.js";`,
+          ``,
+        ].join("\n"),
+      }),
+    ).toEqual({ replacements: [] });
+  });
+
   test.each([
     {
       source: `import "@src/setup";\n`,
