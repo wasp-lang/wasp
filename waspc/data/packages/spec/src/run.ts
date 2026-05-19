@@ -3,11 +3,18 @@
 import { writeFileSync } from "fs";
 import { parseProcessArgsOrThrow } from "./cli.js";
 import { analyzeApp } from "./spec/appAnalyzer.js";
+import { SpecUserError } from "./spec/specUserError.js";
 
-main(process.argv).catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : error);
-  process.exitCode = 1;
-});
+try {
+  await main(process.argv);
+} catch (error) {
+  if (error instanceof SpecUserError) {
+    console.error(error.message);
+    process.exitCode = 1;
+  } else {
+    throw error;
+  }
+}
 
 /**
  * Main function that processes command line arguments, analyzes the user app,
