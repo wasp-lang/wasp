@@ -7,7 +7,6 @@ import ShellCommands
     waspCliClean,
     waspCliCompile,
     waspCliInstall,
-    waspCliReinstall,
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (tsMinimalStarterTemplate)
@@ -20,9 +19,6 @@ waspInstallTest =
         "install-fails-outside-project"
         (return [waspCliInstallFails]),
       TestCase
-        "reinstall-fails-outside-project"
-        (return [waspCliReinstallFails]),
-      TestCase
         "install-restores-wasp-spec-after-clean"
         ( sequence
             [ createTestWaspProject tsMinimalStarterTemplate,
@@ -34,25 +30,11 @@ waspInstallTest =
                   waspCliCompile
                 ]
             ]
-        ),
-      TestCase
-        "reinstall-ensures-wasp-spec"
-        ( sequence
-            [ createTestWaspProject tsMinimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliReinstall,
-                  return $ assertSymlinkExists "node_modules/@wasp.sh/spec",
-                  waspCliCompile
-                ]
-            ]
         )
     ]
   where
     waspCliInstallFails :: ShellCommand
     waspCliInstallFails = "! wasp-cli install"
-
-    waspCliReinstallFails :: ShellCommand
-    waspCliReinstallFails = "! wasp-cli reinstall"
 
     assertDirectoryDoesNotExist :: FilePath -> ShellCommand
     assertDirectoryDoesNotExist dirFilePath = "[ ! -d '" ++ dirFilePath ++ "' ]"

@@ -38,7 +38,6 @@ module ShellCommands
     waspCliDeps,
     waspCliDeploy,
     waspCliInstall,
-    waspCliReinstall,
     assertCommandOutputContains,
     createSeedFile,
     replaceMainWaspFile,
@@ -252,9 +251,6 @@ waspCliStudio = return "wasp-cli studio"
 
 waspCliInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliInstall = return "wasp-cli install"
-
-waspCliReinstall :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliReinstall = return "wasp-cli reinstall"
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand

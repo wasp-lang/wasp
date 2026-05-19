@@ -1,7 +1,6 @@
 module Wasp.Cli.Command.Install
   ( install,
     installIO,
-    reinstall,
   )
 where
 
@@ -10,7 +9,6 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import StrongPath (Abs, Dir, Path')
 import Wasp.Cli.Command (Command, CommandError (..))
-import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
@@ -24,9 +22,6 @@ install = do
     >>= either
       (throwError . CommandError "Couldn't install npm dependencies")
       return
-
-reinstall :: Command ()
-reinstall = clean >> install
 
 installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installIO waspProjectDir = do
