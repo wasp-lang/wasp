@@ -61,7 +61,7 @@ import qualified Wasp.SemanticVersion as SV
 -- instead other parts are using it: Analyzer produces AppSpec while Generator consumes it.
 --
 -- IMPORTANT: Do not change this data structure without updating the AppSpec in
--- packages/wasp-config/src/appSpec.ts. That module is a TypeScript mirror
+-- packages/spec/src/appSpec.ts. That module is a TypeScript mirror
 -- implementation of AppSpec's FromJSON.
 data AppSpec = AppSpec
   { -- | List of declarations like App, Page, Route, ... that describe the web app.

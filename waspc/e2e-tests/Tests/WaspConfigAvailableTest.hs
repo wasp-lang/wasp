@@ -118,13 +118,13 @@ waspConfigAvailableTest =
     corruptWaspConfigVersion :: ShellCommandBuilder WaspProjectContext ShellCommand
     corruptWaspConfigVersion = do
       context <- ask
-      let waspConfigPackageJson = context.waspProjectDir </> [relfile|.wasp/wasp-config/package.json|]
+      let waspConfigPackageJson = context.waspProjectDir </> [relfile|.wasp/spec/package.json|]
       writeToFile waspConfigPackageJson corruptedPackageJsonContent
       where
         corruptedPackageJsonContent =
           TE.decodeUtf8 . LBS.toStrict . Aeson.encode $
             Aeson.object
-              [ "name" .= ("wasp-config" :: String),
+              [ "name" .= ("@wasp.sh/spec" :: String),
                 "version" .= ("9.9.9" :: String)
               ]
 

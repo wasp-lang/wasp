@@ -7,7 +7,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     By default, Wasp will create a TypeScript project. We recommend using TypeScript in new projects, and you can always mix-and-match TypeScript and JavaScript files.
-    
+
     To use JavaScript in the main page, you must manually rename the file
     `src/MainPage.tsx` to `src/MainPage.jsx`. Restart `wasp start` after you do this.
 
@@ -81,8 +81,8 @@ Let's take a closer look at `main.wasp`
 `main.wasp` is your app's definition file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
-:::tip Wasp TS config [Early-preview feature]
-If you wish, you can alternatively define your [Wasp config in TS](../general/wasp-ts-config.md) (`main.wasp.ts`) instead of `main.wasp`.
+:::tip Wasp TS spec [Early-preview feature]
+If you wish, you can alternatively define your [Wasp spec in TS](../general/wasp-ts-spec.md) (`main.wasp.ts`) instead of `main.wasp`.
 :::
 
 The file is a list of _declarations_. Each declaration defines a part of your app.

@@ -63,6 +63,11 @@ data-files:
   packages/prisma/dist/**/*.js
   packages/prisma/package-lock.json
   packages/prisma/package.json
+  packages/spec/dist/**/*.d.ts
+  packages/spec/dist/**/*.js
+  packages/spec/dist/**/*.map
+  packages/spec/package-lock.json
+  packages/spec/package.json
   packages/studio/dist/**/*.css
   packages/studio/dist/**/*.html
   packages/studio/dist/**/*.js
@@ -71,11 +76,6 @@ data-files:
   packages/ts-inspect/dist/**/*.js
   packages/ts-inspect/package-lock.json
   packages/ts-inspect/package.json
-  packages/wasp-config/dist/**/*.d.ts
-  packages/wasp-config/dist/**/*.js
-  packages/wasp-config/dist/**/*.map
-  packages/wasp-config/package-lock.json
-  packages/wasp-config/package.json
 
 data-dir: data/
 
@@ -280,6 +280,7 @@ library
     Wasp.Error
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
+    Wasp.ExternalConfig.Npm.PackageJson.DepValidators
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
@@ -710,6 +711,7 @@ test-suite waspc-tests
     EnvTest
     ErrorTest
     ExternalConfig.Npm.NpmDependenciesTest
+    ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest
     Fixtures
     Generator.AuthInjectionTest
@@ -722,12 +724,12 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
-    Generator.Valid.PackageJsonTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
     Project.DbTest
+    Project.ExternalConfig.PackageJsonTest
     Project.ExternalConfig.RootTsConfigTest
     Project.ExternalConfig.SrcTsConfigTest
     Project.ExternalConfig.TsConfigTest

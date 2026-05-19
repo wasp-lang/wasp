@@ -45,7 +45,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (check
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), tryGettingInstalledPackageVersion)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
@@ -89,7 +89,7 @@ instance Requirable InWaspProject where
               ++ " you are running this command from a Wasp project."
           )
 
--- | Require that the wasp-config package is available in node_modules and that
+-- | Require that the @wasp.sh/spec package is available in node_modules and that
 -- its version matches this CLI's version (for TS projects). For DSL projects,
 -- this check always passes.
 data WaspConfigAvailable = WaspConfigAvailable deriving (Typeable)
@@ -102,7 +102,7 @@ instance Requirable WaspConfigAvailable where
     return WaspConfigAvailable
     where
       ensureInstalledWaspConfigMatchesCliVersion waspProjectDir =
-        liftIO (tryGettingInstalledPackageVersion waspProjectDir WaspConfigPackage) >>= \case
+        liftIO (tryGettingInstalledPackageVersion waspProjectDir WaspSpecPackage) >>= \case
           Left _ -> throwError missingDepsError
           Right installedWaspConfigVersion
             | installedWaspConfigVersion == WV.waspVersion -> return ()

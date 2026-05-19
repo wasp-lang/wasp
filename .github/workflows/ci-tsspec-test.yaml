@@ -7,8 +7,8 @@ env:
   WASP_TELEMETRY_DISABLE: 1
 
 jobs:
-  test-wasp-config:
-    name: Test wasp-config
+  test-wasp-spec:
+    name: Test @wasp.sh/spec
     runs-on: ubuntu-22.04
     steps:
       - uses: "actions/checkout@v6"
@@ -17,10 +17,10 @@ jobs:
         with:
           node-version-file: .nvmrc
 
-      - name: Install wasp-config dependencies
-        working-directory: waspc/data/packages/wasp-config
+      - name: Install @wasp.sh/spec dependencies
+        working-directory: waspc/data/packages/spec
         run: npm ci
 
-      - name: Run wasp-config tests
-        working-directory: waspc/data/packages/wasp-config
+      - name: Run @wasp.sh/spec tests
+        working-directory: waspc/data/packages/spec
         run: npm run test

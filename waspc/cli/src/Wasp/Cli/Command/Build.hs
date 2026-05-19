@@ -25,7 +25,7 @@ import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -124,36 +124,36 @@ build = do
 
       -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
       -- We should remove this code once we implement a proper solution.
-      ExceptT $ updateJsonFile removeWaspConfigFromDevDependenciesArray packageJsonInBuildDir
-      ExceptT $ updateJsonFile removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonInBuildDir
+      ExceptT $ updateJsonFile removeWaspSpecFromDevDependenciesArray packageJsonInBuildDir
+      ExceptT $ updateJsonFile removeAllMentionsOfWaspSpecInPackageLockJson packageLockJsonInBuildDir
 
-    removeAllMentionsOfWaspConfigInPackageLockJson :: Value -> Value
-    removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonObject =
+    removeAllMentionsOfWaspSpecInPackageLockJson :: Value -> Value
+    removeAllMentionsOfWaspSpecInPackageLockJson packageLockJsonObject =
       -- We want to:
-      --   1. Remove the `wasp-config` dev dependency from the root package in package-lock.json.
-      --   This is at `packageLock["packages"][""]["wasp-config"]`.
-      --   2. Remove all package location entries for the `wasp-config` package
-      --   (i.e., entries whose location keys end in `/wasp-config`).
+      --   1. Remove the `@wasp.sh/spec` dev dependency from the root package in package-lock.json.
+      --   This is at `packageLock["packages"][""]["@wasp.sh/spec"]`.
+      --   2. Remove all package location entries for the `@wasp.sh/spec` package
+      --   (i.e., entries whose location keys end in `/@wasp.sh/spec`).
       --   Example locations include:
-      --      packageLock["packages"]["../../data/packages/wasp-config"]
-      --      packageLock["packages"]["node_modules/wasp-config"]
-      --      packageLock["packages"]["/home/filip/../wasp-config"]
+      --      packageLock["packages"]["../../data/packages/@wasp.sh/spec"]
+      --      packageLock["packages"]["node_modules/@wasp.sh/spec"]
+      --      packageLock["packages"]["/home/filip/../@wasp.sh/spec"]
       packageLockJsonObject
-        & key "packages" . key "" %~ removeWaspConfigFromDevDependenciesArray
+        & key "packages" . key "" %~ removeWaspSpecFromDevDependenciesArray
         & key "packages" . _Object
           %~ KM.filterWithKey
-            (\packageLocation _ -> not $ isWaspConfigPackageLocation (Key.toString packageLocation))
+            (\packageLocation _ -> not $ isWaspSpecPackageLocation (Key.toString packageLocation))
 
-    isWaspConfigPackageLocation :: String -> Bool
-    isWaspConfigPackageLocation packageLocation =
-      (FP.pathSeparator : waspConfigPackageName) `isSuffixOf` packageLocation
+    isWaspSpecPackageLocation :: String -> Bool
+    isWaspSpecPackageLocation packageLocation =
+      (FP.pathSeparator : waspSpecPackageName) `isSuffixOf` packageLocation
 
-    removeWaspConfigFromDevDependenciesArray :: Value -> Value
-    removeWaspConfigFromDevDependenciesArray original =
-      original & key "devDependencies" . _Object . at (Key.fromString waspConfigPackageName) .~ Nothing
+    removeWaspSpecFromDevDependenciesArray :: Value -> Value
+    removeWaspSpecFromDevDependenciesArray original =
+      original & key "devDependencies" . _Object . at (Key.fromString waspSpecPackageName) .~ Nothing
 
-    waspConfigPackageName :: String
-    waspConfigPackageName = getInstallablePackageName WaspConfigPackage
+    waspSpecPackageName :: String
+    waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->

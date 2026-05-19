@@ -28,3 +28,5 @@ export type Routes = RouteDefinitionsToRoutes<typeof routes>
 
 // PUBLIC API
 export { Link } from './Link'
+// PUBLIC API
+export { NavLink } from './NavLink'

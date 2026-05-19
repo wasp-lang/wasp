@@ -30,7 +30,7 @@ waspInstallTest =
                 [ waspCliClean,
                   return $ assertDirectoryDoesNotExist "node_modules",
                   waspCliInstall,
-                  return $ assertSymlinkExists "node_modules/wasp-config",
+                  return $ assertSymlinkExists "node_modules/@wasp.sh/spec",
                   waspCliCompile
                 ]
             ]
@@ -41,7 +41,7 @@ waspInstallTest =
             [ createTestWaspProject tsMinimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliReinstall,
-                  return $ assertSymlinkExists "node_modules/wasp-config",
+                  return $ assertSymlinkExists "node_modules/@wasp.sh/spec",
                   waspCliCompile
                 ]
             ]

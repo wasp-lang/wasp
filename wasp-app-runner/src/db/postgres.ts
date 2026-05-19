@@ -2,6 +2,7 @@ import type { DockerImageName, PathToApp } from "../args.js";
 import {
   DbContainerName,
   createAppSpecificDbContainerName,
+  pullDockerImage,
 } from "../docker.js";
 import { createLogger } from "../logging.js";
 import { spawnAndCollectOutput } from "../process.js";
@@ -69,6 +70,8 @@ async function startPostgresContainerAndWaitUntilReady(
 ): Promise<DatabaseConnectionUrl> {
   const port = 5432;
   const password = "devpass";
+
+  await pullDockerImage(dbImage);
 
   logger.info(`Starting the PostgreSQL container with image: ${dbImage}...`);
 

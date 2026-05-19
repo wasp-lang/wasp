@@ -13,10 +13,10 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), ensurePackageIsAtInstallationPathInProject)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 import Wasp.Project.Common (WaspProjectDir)
 
--- | Standalone `wasp install` command: copies wasp-config and runs npm install.
+-- | Standalone `wasp install` command: copies @wasp.sh/spec and runs npm install.
 install :: Command ()
 install = do
   InWaspProject waspProjectDir <- require
@@ -30,6 +30,6 @@ reinstall = clean >> install
 
 installIO :: Path' Abs (Dir WaspProjectDir) -> IO (Either String ())
 installIO waspProjectDir = do
-  ensurePackageIsAtInstallationPathInProject waspProjectDir WaspConfigPackage
+  ensurePackageIsAtInstallationPathInProject waspProjectDir WaspSpecPackage
   messageChan <- newChan
   installProjectNpmDependencies messageChan waspProjectDir
