@@ -22,10 +22,10 @@
     "write-translations": "docusaurus write-translations"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.10.1",
-    "@docusaurus/faster": "^3.10.1",
-    "@docusaurus/preset-classic": "^3.10.1",
-    "@docusaurus/theme-mermaid": "^3.10.1",
+    "@docusaurus/core": "~3.10.1",
+    "@docusaurus/faster": "~3.10.1",
+    "@docusaurus/preset-classic": "~3.10.1",
+    "@docusaurus/theme-mermaid": "~3.10.1",
     "@giscus/react": "^3.1.0",
     "@kodingdotninja/use-tailwind-breakpoint": "^0.0.5",
     "@mdx-js/react": "^3.1.0",
@@ -53,8 +53,8 @@
     "ts-blank-space": "^0.6.1"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.10.1",
-    "@docusaurus/tsconfig": "^3.10.1",
+    "@docusaurus/module-type-aliases": "~3.10.1",
+    "@docusaurus/tsconfig": "~3.10.1",
     "@types/marked": "^5.0.2",
     "@types/mdast": "^4.0.4",
     "@types/node": "~22.12",
