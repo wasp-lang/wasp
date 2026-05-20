@@ -15,6 +15,9 @@ module ShellCommands
     waspCliNewInteractive,
     waspCliNew,
     waspCliCompletion,
+    waspCliVersion,
+    waspCliTelemetry,
+    waspCliNews,
     WaspProjectContext (..),
     appendToPrismaFile,
     setWaspDbToPSQL,
@@ -26,13 +29,16 @@ module ShellCommands
     waspCliBuild,
     waspCliBuildStart,
     waspCliStart,
-    waspCliInstall,
+    waspCliStartDb,
+    waspCliTestClient,
     waspCliClean,
     waspCliStudio,
     waspCliDbStudio,
     waspCliInfo,
     waspCliDeps,
-    waspCliTsSetup,
+    waspCliDeploy,
+    waspCliInstall,
+    assertCommandOutputContains,
     createSeedFile,
     replaceMainWaspFile,
     replaceMainWaspTsFile,
@@ -146,11 +152,14 @@ waspCliNew appName starterTemplate =
 waspCliCompletion :: ShellCommandBuilder context ShellCommand
 waspCliCompletion = return "wasp-cli completion"
 
--- TODO: replace with actual Wasp command once it is implemented:
--- https://github.com/wasp-lang/wasp/pull/4119
--- TODO: remove calls where unecessary once implmented (after wasp new)
-waspCliInstall :: ShellCommandBuilder context ShellCommand
-waspCliInstall = return "npm i"
+waspCliVersion :: ShellCommandBuilder context ShellCommand
+waspCliVersion = return "wasp-cli version"
+
+waspCliTelemetry :: ShellCommandBuilder context ShellCommand
+waspCliTelemetry = return "wasp-cli telemetry"
+
+waspCliNews :: ShellCommandBuilder context ShellCommand
+waspCliNews = return "wasp-cli news"
 
 -- Wasp project commands
 
@@ -165,6 +174,12 @@ waspCliCompile = return "wasp-cli compile"
 
 waspCliStart :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStart = return "wasp-cli start"
+
+waspCliStartDb :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliStartDb = return "wasp-cli start db"
+
+waspCliTestClient :: [String] -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliTestClient testArgs = return $ unwords ("wasp-cli test client" : testArgs)
 
 waspCliBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliBuild = return "wasp-cli build"
@@ -225,14 +240,17 @@ waspCliInfo = return "wasp-cli info"
 waspCliDeps :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDeps = return "wasp-cli deps"
 
+waspCliDeploy :: [String] -> ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliDeploy deployArgs = return $ unwords ("wasp-cli deploy" : deployArgs)
+
 waspCliDockerfile :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliDockerfile = return "wasp-cli dockerfile"
 
 waspCliStudio :: ShellCommandBuilder WaspProjectContext ShellCommand
 waspCliStudio = return "wasp-cli studio"
 
-waspCliTsSetup :: ShellCommandBuilder WaspProjectContext ShellCommand
-waspCliTsSetup = return "wasp-cli ts-setup"
+waspCliInstall :: ShellCommandBuilder WaspProjectContext ShellCommand
+waspCliInstall = return "wasp-cli install"
 
 -- NOTE: Fragile, assumes line numbers do not change.
 setWaspDbToPSQL :: ShellCommandBuilder WaspProjectContext ShellCommand
@@ -298,6 +316,17 @@ createTestWaspProject :: StarterTemplate -> ShellCommandBuilder TestContext Shel
 createTestWaspProject template = do
   context <- ask
   waspCliNew context.waspProjectContext.waspProjectName template
+
+assertCommandOutputContains ::
+  ShellCommandBuilder context ShellCommand ->
+  String ->
+  ShellCommandBuilder context ShellCommand
+assertCommandOutputContains commandBuilder marker = do
+  command <- commandBuilder
+  let logFile = ".wasp-e2e-output.log"
+      logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
+      searchMarkerInLogFile = "grep -qF '" ++ marker ++ "' " ++ logFile
+  return $ logCommandOutputToFile ~&& searchMarkerInLogFile
 
 -- 'SnapshotTest' specific commands
 

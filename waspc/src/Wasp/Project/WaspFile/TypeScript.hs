@@ -9,7 +9,6 @@ import Control.Arrow (left)
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
 import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT)
-import Control.Monad.IO.Class (liftIO)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
@@ -17,15 +16,12 @@ import StrongPath
     File,
     Path',
     Rel,
-    basename,
     fromAbsFile,
     fromRelFile,
-    parseRelFile,
     relfile,
     (</>),
   )
 import System.Exit (ExitCode (..))
-import qualified System.FilePath as FP
 import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
@@ -34,7 +30,7 @@ import qualified Wasp.CompileOptions as CompileOptions
 import qualified Wasp.Job as J
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import Wasp.Job.Process (runNodeCommandAsJobWithExtraEnv)
-import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject, getInstallablePackageScriptInProject)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageScriptInProject)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
@@ -53,16 +49,12 @@ import qualified Wasp.Util.IO as IOUtil
 
 data AppSpecDeclsJsonFile
 
-data CompiledWaspTsSpecFile
-
 analyzeWaspTsFile ::
   CompileOptions ->
   Psl.Schema.Schema ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
 analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = runExceptT $ do
-  -- TODO: replace this with require WaspSpecAvailable
-  liftIO $ ensurePackageIsAtInstallationPathInProject compileOptions.waspProjectDir WaspSpecPackage
   declsJsonFile <- ExceptT $ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
   ExceptT $ readDecls prismaSchemaAst declsJsonFile
   where
@@ -97,7 +89,6 @@ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFi
             "analyze",
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
-            fromAbsFile absCompiledWaspTsSpecOutputFile,
             fromAbsFile absDeclsOutputFile,
             -- When the user is coding main.wasp.ts, TypeScript must know about
             -- all the available entities to warn the user if they use an
@@ -112,10 +103,6 @@ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFi
     ExitSuccess -> return $ Right absDeclsOutputFile
   where
     absDeclsOutputFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
-    absCompiledWaspTsSpecOutputFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> compiledWaspTsSpecOutputFile
-    compiledWaspTsSpecOutputFile :: Path' (Rel dotWaspDir) (File CompiledWaspTsSpecFile)
-    compiledWaspTsSpecOutputFile =
-      fromJust . parseRelFile . (`FP.replaceExtension` "js") . fromRelFile $ basename waspFilePath
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
 
     nodeEnvForBuildType :: BuildType.BuildType -> String

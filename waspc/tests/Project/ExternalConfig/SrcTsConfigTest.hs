@@ -24,6 +24,10 @@ spec_SrcTsConfig = do
       assertReturnsValidationErrorMentioningField "include" $
         validTsConfig {T.include = Just ["lib"]}
 
+    it "returns an error when exclude is wrong" $
+      assertReturnsValidationErrorMentioningField "exclude" $
+        validTsConfig {T.exclude = Nothing}
+
 validate :: T.TsConfig -> [String]
 validate = validateTsConfig srcTsConfigValidator "tsconfig.json"
 
@@ -36,6 +40,7 @@ validTsConfig =
   T.TsConfig
     { T.compilerOptions = Just validCompilerOptions,
       T.include = Just ["src"],
+      T.exclude = Just ["**/*.wasp.ts"],
       T.files = Nothing,
       T.references = Nothing
     }

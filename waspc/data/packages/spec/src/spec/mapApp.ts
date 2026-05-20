@@ -5,8 +5,9 @@
 
 import * as AppSpec from "../appSpec.js";
 import type { AnyFunction } from "../typeUtils.js";
-import { mapExtImport, tryMapExtImport } from "./extImport.js";
+import { mapExtImport } from "./extImport.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
+import { SpecUserError } from "./specUserError.js";
 
 export function mapApp(
   app: TsAppSpec.App,
@@ -170,11 +171,12 @@ export function dedupePageDecls(
   return Array.from(pagesByDeclName.values()).map((pages) =>
     pages.reduce((firstPage, currentPage) => {
       if (!arePageDeclsEqual(currentPage, firstPage)) {
-        throw new Error(
-          `Conflicting configs for page "${firstPage.declName}". ` +
-            "All page instances pointing to the same component must produce the same configuration.\n\n" +
-            `Page 1: ${JSON.stringify(firstPage.declValue)}\n` +
-            `Page 2: ${JSON.stringify(currentPage.declValue)}`,
+        throw new SpecUserError(
+          `Conflicting configurations for the page \`${firstPage.declName}\`:\n` +
+            `- Definition A: ${JSON.stringify(firstPage.declValue)}\n` +
+            `- Definition B: ${JSON.stringify(currentPage.declValue)}\n\n` +
+            "All page instances with the same import name must produce the same configuration.\n" +
+            "If the duplication was intentional, please use an alias to differentiate the pages.",
         );
       }
       return firstPage;
@@ -475,7 +477,10 @@ export function makeRefParser<T extends AppSpec.DeclType>(
 ): RefParser<T> {
   return function parseRef(potentialRef: string): AppSpec.Ref<T> {
     if (!declNames.includes(potentialRef)) {
-      throw new Error(`Invalid ${declType} reference: ${potentialRef}`);
+      throw new SpecUserError(
+        `Invalid \`${declType}\` reference: \`${potentialRef}\`\n` +
+          `Please make sure that \`${potentialRef}\` is actually defined.`,
+      );
     }
     return {
       name: potentialRef,
@@ -512,14 +517,11 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
 export function deriveExtImportName(
   extImport: TsAppSpec.ExtImport | AnyFunction,
 ): string {
-  const result = tryMapExtImport(extImport);
-  if (result.status === "error") {
-    throw new Error(result.error);
-  }
+  const mappedExtImport = mapExtImport(extImport);
 
-  return "alias" in result.value
-    ? (result.value.alias ?? result.value.name)
-    : result.value.name;
+  return "alias" in mappedExtImport
+    ? (mappedExtImport.alias ?? mappedExtImport.name)
+    : mappedExtImport.name;
 }
 
 /**

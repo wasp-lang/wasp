@@ -5,17 +5,13 @@ module Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest) where
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
 import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext,
+  ( assertCommandOutputContains,
     createTestWaspProject,
     inTestWaspProjectDir,
     replaceMainWaspTsFile,
     setWaspDbToPSQL,
     waspCliBuild,
     waspCliCompile,
-    waspCliTsSetup,
-    (~&&),
   )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
@@ -30,8 +26,7 @@ waspTsSpecNodeEnvTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ waspCliTsSetup,
-                  replaceMainWaspTsFile nodeEnvMainWaspTs,
+                [ replaceMainWaspTsFile nodeEnvMainWaspTs,
                   assertCommandOutputContains waspCliCompile "E2E-NODE-ENV=development"
                 ]
             ]
@@ -41,8 +36,7 @@ waspTsSpecNodeEnvTest =
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
-                [ waspCliTsSetup,
-                  setWaspDbToPSQL,
+                [ setWaspDbToPSQL,
                   replaceMainWaspTsFile nodeEnvMainWaspTs,
                   assertCommandOutputContains waspCliBuild "E2E-NODE-ENV=production"
                 ]
@@ -50,18 +44,6 @@ waspTsSpecNodeEnvTest =
         )
     ]
   where
-    assertCommandOutputContains ::
-      ShellCommandBuilder WaspProjectContext ShellCommand ->
-      String ->
-      ShellCommandBuilder WaspProjectContext ShellCommand
-    assertCommandOutputContains commandBuilder marker = do
-      command <- commandBuilder
-      let logFile = "main-wasp-ts.log"
-          logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
-          searchMarkerInLogFile = "grep -qF '" ++ marker ++ "' " ++ logFile
-
-      return $ logCommandOutputToFile ~&& searchMarkerInLogFile
-
     nodeEnvMainWaspTs :: T.Text
     nodeEnvMainWaspTs =
       [trimming|

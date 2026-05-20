@@ -6,22 +6,22 @@ import type {
   LoweredImportBinding,
   NamespaceImportBinding,
 } from "./planImportLowering/loweredImportBindings.js";
-import type {
-  ImportDiagnostic,
-  UnsupportedImportType,
-} from "./planImportLowering/supportedImportTypes.js";
 
 /**
  * Given source code, finds supported @src import statements and replaces them
  * with inline ExtImport consts. We call this lowering imports.
  */
-export function lowerSrcImports(sourceText: string): string {
-  const plan = planImportLowering(sourceText);
-  if (plan.status === "error") {
-    throw new Error(formatImportDiagnostics(plan.error));
-  }
-
-  return applyImportLoweringPlan(sourceText, plan.value);
+export function lowerSrcImports({
+  sourceText,
+  sourcePath,
+}: {
+  sourceText: string;
+  sourcePath: string;
+}): string {
+  return applyImportLoweringPlan(
+    sourceText,
+    planImportLowering({ sourceText, sourcePath }),
+  );
 }
 
 function applyImportLoweringPlan(
@@ -99,35 +99,3 @@ function getObjectFieldsSource(fields: Field[]): string {
 }
 
 type Field = [string, string | undefined];
-
-function formatImportDiagnostics(diagnostics: ImportDiagnostic[]): string {
-  return [
-    "Unsupported @src imports in main.wasp.ts:",
-    ...diagnostics.map(formatImportDiagnosticLine),
-    "",
-    "Supported @src imports are default, named, aliased named, or namespace imports from @src/*.",
-  ].join("\n");
-}
-
-function formatImportDiagnosticLine(diagnostic: ImportDiagnostic): string {
-  return `- ${diagnostic.location.line}:${diagnostic.location.column} ${JSON.stringify(diagnostic.specifier)}: ${formatUnsupportedImportType(diagnostic.unsupportedImportType)}`;
-}
-
-function formatUnsupportedImportType(type: UnsupportedImportType): string {
-  switch (type) {
-    case "sideEffect":
-      return "Side-effect imports are not supported.";
-    case "importEquals":
-      return "Import equals declarations are not supported.";
-    case "typeOnly":
-      return "Type-only imports are not supported.";
-    case "mixedTypeAndValue":
-      return "Mixed type/value imports are not supported.";
-    case "stringLiteral":
-      return "String-literal named imports are not supported.";
-    case "emptyNamed":
-      return "Empty named imports are not supported.";
-    case "reExport":
-      return "Re-exports are not supported.";
-  }
-}

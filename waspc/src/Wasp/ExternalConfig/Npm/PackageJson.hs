@@ -15,7 +15,7 @@ module Wasp.ExternalConfig.Npm.PackageJson
   )
 where
 
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON, (.!=), (.:), (.:?))
 import qualified Data.Aeson as Aeson
 import Data.Either.Extra (maybeToEither)
 import Data.Map (Map)
@@ -28,12 +28,26 @@ import qualified Wasp.Util.IO as IOUtil
 
 data PackageJson = PackageJson
   { name :: !String,
+    version :: !(Maybe String),
     dependencies :: !DependenciesMap,
     devDependencies :: !DependenciesMap,
     workspaces :: !(Maybe [String]),
     wasp :: !(Maybe WaspConfig)
   }
-  deriving (Show, Generic, FromJSON)
+  deriving (Show)
+
+instance FromJSON PackageJson where
+  parseJSON = Aeson.withObject "PackageJson" $ \v ->
+    PackageJson
+      <$> v .: "name"
+      <*> v .:? "version"
+      -- `dependencies` and `devDependencies` are both optional, so a missing
+      -- field is read as an empty map rather than a parse error. This saves us
+      -- from dealing with two "empty" states (Nothing + an empty map).
+      <*> v .:? "dependencies" .!= M.empty
+      <*> v .:? "devDependencies" .!= M.empty
+      <*> v .:? "workspaces"
+      <*> v .:? "wasp"
 
 -- | Configuration for Wasp-specific features in package.json.
 data WaspConfig = WaspConfig
