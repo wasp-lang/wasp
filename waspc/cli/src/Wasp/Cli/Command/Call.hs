@@ -6,8 +6,8 @@ data Call
   | Start
   | StartDb Arguments
   | Clean
+  | Install
   | Uninstall
-  | TsSetup
   | Compile
   | Db Arguments -- db args
   | Build

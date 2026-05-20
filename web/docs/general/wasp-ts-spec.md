@@ -8,8 +8,8 @@ import { DiscordLink } from '@site/blog/components/DiscordLink';
 This feature is currently in early preview and we are actively working on it.
 :::
 
-:::caution Running `wasp ts-setup`
-Whenever you run run `wasp clean` or remove `node_modules` on  your own, you must rerun `wasp ts-setup`! We will remove this requirement in future versions. Read more about it below.
+:::caution Running `wasp install`
+If you run `wasp clean` or remove `node_modules` on your own, Wasp will tell you to run `wasp install` next time you run a command that needs it. Read more about it below.
 :::
 
 In Wasp, you normally define/configure the high level of your app (pages, routes, queries, actions, auth, ...) in a `main.wasp` file in the root of your project. In `main.wasp` you write in Wasp's DSL (domain-specific language), which is a simple configuration language similar to JSON but smarter.
@@ -89,9 +89,7 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
 
 7. Run `wasp clean` and `rm package-lock.json`. This ensures you start from a clean state.
 
-8. Run `wasp ts-setup`. This command will add the `@wasp.sh/spec` package to your `package.json`'s `devDependencies`.
-
-   **IMPORTANT:** Every time you run `wasp clean` or delete your `node_modules`, you _must_ follow it up with `wasp ts-setup`. This is a temporary meassure until we improve the feature.
+8. Run `wasp install`. This command copies the `@wasp.sh/spec` package to `.wasp/spec` and installs your project's npm dependencies.
 
 9. Create an empty `main.wasp.ts` file and rewrite your `main.wasp.old` in it but in TypeScript.
 
@@ -121,7 +119,7 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
 11. That is it, you are now using Wasp TS spec! You can delete `main.wasp.old` file now if you still have it around.
 
 :::caution
-If you run `wasp clean` or remove `node_modules` on  your own, you will have to rerun `wasp ts-setup`! This is a temporary workaround, we will remove it in future versions.
+If you run `wasp clean` or remove `node_modules` on your own, Wasp will tell you to run `wasp install` next time you run a command that needs it.
 :::
 
 Got stuck on any of these steps? Let us know in our <DiscordLink /> and we will help!

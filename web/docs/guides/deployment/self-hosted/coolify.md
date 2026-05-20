@@ -149,7 +149,7 @@ jobs:
 
       # Uncomment if using Wasp TS Spec
       # - name: Initialize Wasp TS Spec
-      #   run: wasp ts-setup
+      #   run: wasp install
 
       - name: Build Wasp app
         run: wasp build
