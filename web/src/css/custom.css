@@ -5,7 +5,7 @@
  * work well for content-centric websites.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -72,7 +72,7 @@
 /* Docusaurus stuff */
 
 :root {
-  --lh: 1.5; /* line height */
+  --lh: 1.6; /* line height */
 }
 
 /* We are targeting Docusaurus's stable, theme-agnostic class names:
@@ -160,7 +160,7 @@ html.blog-wrapper[data-theme="dark"] {
 .blog-wrapper code[class*="language-"],
 .blog-wrapper pre[class*="language-"] {
   font-size: 14px;
-  line-height: 1.4;
+  line-height: 1.6;
 }
 
 .docs-wrapper [class*="codeBlockTitle"],
@@ -462,10 +462,10 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   margin-bottom: var(--sidebar-item-level-1-spacing);
 }
 
-.theme-doc-sidebar-item-category-level-1
+.theme-doc-sidebar-menu .theme-doc-sidebar-item-category-level-1
   > .menu__list-item-collapsible
   > .menu__link,
-.theme-doc-sidebar-item-link-level-1 > .menu__link {
+.theme-doc-sidebar-menu .theme-doc-sidebar-item-link-level-1 > .menu__link {
   color: var(--sidebar-item-level-1-color);
   font-family: "IBM Plex Mono", monospace;
   font-size: 13px;
