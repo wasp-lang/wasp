@@ -275,7 +275,7 @@ const config: Config = {
       },
     ],
 
-    async function myPlugin(context, options) {
+    async function tailwindPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -290,6 +290,14 @@ const config: Config = {
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {
     mermaid: true,
+    mdx1Compat: {
+      admonitions: true,
+      comments: true,
+      headingIds: true,
+    },
+  },
+  future: {
+    v4: true,
   },
 };
 
