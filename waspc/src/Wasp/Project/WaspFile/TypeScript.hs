@@ -16,15 +16,12 @@ import StrongPath
     File,
     Path',
     Rel,
-    basename,
     fromAbsFile,
     fromRelFile,
-    parseRelFile,
     relfile,
     (</>),
   )
 import System.Exit (ExitCode (..))
-import qualified System.FilePath as FP
 import qualified Wasp.Analyzer as Analyzer
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
@@ -51,8 +48,6 @@ import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
 
 data AppSpecDeclsJsonFile
-
-data CompiledWaspTsSpecFile
 
 analyzeWaspTsFile ::
   CompileOptions ->
@@ -94,7 +89,6 @@ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFi
             "analyze",
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
-            fromAbsFile absCompiledWaspTsSpecOutputFile,
             fromAbsFile absDeclsOutputFile,
             -- When the user is coding main.wasp.ts, TypeScript must know about
             -- all the available entities to warn the user if they use an
@@ -109,10 +103,6 @@ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFi
     ExitSuccess -> return $ Right absDeclsOutputFile
   where
     absDeclsOutputFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
-    absCompiledWaspTsSpecOutputFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> compiledWaspTsSpecOutputFile
-    compiledWaspTsSpecOutputFile :: Path' (Rel dotWaspDir) (File CompiledWaspTsSpecFile)
-    compiledWaspTsSpecOutputFile =
-      fromJust . parseRelFile . (`FP.replaceExtension` "js") . fromRelFile $ basename waspFilePath
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
 
     nodeEnvForBuildType :: BuildType.BuildType -> String

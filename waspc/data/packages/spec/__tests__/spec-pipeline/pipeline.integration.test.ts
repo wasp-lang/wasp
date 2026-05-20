@@ -1,10 +1,9 @@
 import { mkdirSync, mkdtempSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
-import { join } from "path";
+import { dirname, join } from "path";
 import { pathToFileURL } from "url";
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import { compileWaspTsFileToJsFile } from "../../src/spec-pipeline/compile/index.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
 // We use the absolute file:// URL of the local @wasp.sh/spec source so the
@@ -13,7 +12,7 @@ const waspSpecEntryUrl = pathToFileURL(
   join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
 ).href;
 
-const importFormPrelude = [
+const ergonomicImportPrelude = [
   `import MainPage from "@src/MainPage";`,
   `import { getTasks } from "@src/operations";`,
   `import { archive as archiveTask } from "@src/operations";`,
@@ -21,7 +20,7 @@ const importFormPrelude = [
   `import * as ops from "@src/operations";`,
 ];
 
-const extImportFormPrelude = [
+const extImportDescriptorPrelude = [
   `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
   `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
   `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;`,
@@ -46,87 +45,284 @@ const appSpecBody = [
   `export default demoApp;`,
 ];
 
-describe("end-to-end import-form pipeline", () => {
-  test("compiles import-form specs through virtual source", async () => {
-    const tempDir = makeTempProject("wasp-spec-pipeline-");
-    writeSourceFiles(tempDir);
+describe("Wasp TS spec pipeline", () => {
+  describe("ergonomic @src imports", () => {
+    test("lowers @src imports to the same declarations as explicit ExtImport descriptors", async () => {
+      const tempDir = makeTempProject("wasp-spec-pipeline-");
+      writeUserSourceFiles(tempDir);
 
-    const importDecls = await compileAndAnalyzeSpec({
-      tempDir,
-      sourceFileName: "main.wasp.ts",
-      sourceText: specSource(importFormPrelude),
-    });
-    const extImportDecls = await compileAndAnalyzeSpec({
-      tempDir,
-      sourceFileName: "main.wasp.ext-import.ts",
-      sourceText: specSource(extImportFormPrelude),
-    });
-
-    expect(importDecls).toEqual(extImportDecls);
-    expect(importDecls).toEqual(expectedDecls());
-  });
-
-  test("rejects unsupported imports during virtual compile", async () => {
-    const tempDir = makeTempProject("wasp-spec-pipeline-error-");
-    mkdirSync(join(tempDir, "src"));
-    writeFileSync(join(tempDir, "src", "setup.ts"), `export {};\n`);
-
-    await expect(
-      compileSpec({
+      const importDecls = await analyzeSpec({
         tempDir,
-        sourceFileName: "main.wasp.ts",
-        sourceText: `import "@src/setup";\n`,
-      }),
-    ).rejects.toThrowError(/Side-effect imports/);
-  });
-
-  test("type-checks the lowered spec before execution", async () => {
-    const tempDir = makeTempProject("wasp-spec-typecheck-");
-    mkdirSync(join(tempDir, "src"));
-
-    writeFileSync(
-      join(tempDir, "src", "title.ts"),
-      `export const appTitle = "Demo";\n`,
-    );
-
-    await expect(
-      compileSpec({
+        specFileName: "main.wasp.ts",
+        sourceText: appSpecWithImports(ergonomicImportPrelude),
+      });
+      const extImportDecls = await analyzeSpec({
         tempDir,
-        sourceFileName: "main.wasp.ts",
-        sourceText: [
-          `import { appTitle } from "@src/title";`,
+        specFileName: "main.wasp.ext-import.ts",
+        sourceText: appSpecWithImports(extImportDescriptorPrelude),
+      });
+
+      expect(importDecls).toEqual(extImportDecls);
+      expect(importDecls).toEqual(expectedDecls());
+    });
+
+    test("rejects unsupported @src import forms in .wasp.ts files", async () => {
+      const tempDir = makeTempProject("wasp-spec-pipeline-error-");
+      mkdirSync(join(tempDir, "src"));
+      writeFileSync(join(tempDir, "src", "setup.ts"), `export {};\n`);
+
+      await expect(
+        analyzeSpec({
+          tempDir,
+          specFileName: "main.wasp.ts",
+          sourceText: `import "@src/setup";\n`,
+        }),
+      ).rejects.toThrowError(/Side-effect imports/);
+    });
+
+    test("does not execute imported source files while lowering @src imports", async () => {
+      const tempDir = makeTempProject("wasp-spec-src-import-");
+      mkdirSync(join(tempDir, "src"));
+
+      writeFileSync(
+        join(tempDir, "src", "operations.ts"),
+        [
+          `import { HttpError } from "wasp/server";`,
+          `export async function getTasks() { throw new HttpError(500); }`,
           ``,
-          `declare function makeApp(config: { title: string }): void;`,
-          `makeApp({ title: appTitle });`,
         ].join("\n"),
-      }),
-    ).rejects.toThrowError(/is not assignable to type 'string'/);
+      );
+
+      await expect(
+        analyzeSpec({
+          tempDir,
+          specFileName: "main.wasp.ts",
+          sourceText: [
+            `// @ts-ignore: This test imports the local TS source through Vitest.`,
+            `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+            `import { getTasks } from "@src/operations";`,
+            `getTasks;`,
+            ``,
+            `export default app({`,
+            `  name: "demo",`,
+            `  title: "Demo",`,
+            `  wasp: { version: "^0.16.0" },`,
+            `  parts: [],`,
+            `});`,
+          ].join("\n"),
+        }),
+      ).resolves.toContainEqual(expect.objectContaining({ declType: "App" }));
+    });
   });
 
-  test("does not type-check imported @src source files before generation", async () => {
-    const tempDir = makeTempProject("wasp-spec-src-import-");
-    mkdirSync(join(tempDir, "src"));
+  describe("spec module loading", () => {
+    test("executes extensionless relative TS imports from the project root", async () => {
+      const tempDir = makeTempProject("wasp-spec-extensionless-import-");
 
-    writeFileSync(
-      join(tempDir, "src", "operations.ts"),
-      [
-        `import { HttpError } from "wasp/server";`,
-        `export async function getTasks() { throw new HttpError(500); }`,
-        ``,
-      ].join("\n"),
-    );
+      writeFileSync(
+        join(tempDir, "appConfig.ts"),
+        `export const appTitle = "Demo from helper";\n`,
+      );
 
-    await expect(
-      compileSpec({
+      const decls = await analyzeSpec({
         tempDir,
-        sourceFileName: "main.wasp.ts",
-        sourceText: `import { getTasks } from "@src/operations";\ngetTasks;\n`,
-      }),
-    ).resolves.toBeDefined();
+        specFileName: "main.wasp.ts",
+        sourceText: [
+          `// @ts-ignore: This test imports the local TS source through Vitest.`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+          `import { appTitle } from "./appConfig";`,
+          ``,
+          `export default app({`,
+          `  name: "demo",`,
+          `  title: appTitle,`,
+          `  wasp: { version: "^0.16.0" },`,
+          `  parts: [],`,
+          `});`,
+        ].join("\n"),
+      });
+
+      expect(decls).toContainEqual(
+        expect.objectContaining({
+          declType: "App",
+          declValue: expect.objectContaining({ title: "Demo from helper" }),
+        }),
+      );
+    });
+
+    test("loads app from async default export", async () => {
+      const tempDir = makeTempProject("wasp-spec-async-default-export-");
+
+      const decls = await analyzeSpec({
+        tempDir,
+        specFileName: "main.wasp.ts",
+        sourceText: [
+          `// @ts-ignore: This test imports the local TS source through Vitest.`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+          ``,
+          `export default Promise.resolve(app({`,
+          `  name: "demo",`,
+          `  title: "Async Demo",`,
+          `  wasp: { version: "^0.16.0" },`,
+          `  parts: [],`,
+          `}));`,
+        ].join("\n"),
+      });
+
+      expect(decls).toContainEqual(
+        expect.objectContaining({
+          declType: "App",
+          declValue: expect.objectContaining({ title: "Async Demo" }),
+        }),
+      );
+    });
+
+    test("loads split .wasp.ts specs and lowers nested @src imports", async () => {
+      const tempDir = makeTempProject("wasp-spec-split-");
+      writeUserSourceFiles(tempDir);
+      writeNodePackage(tempDir, "spec-helper-package", {
+        js: `export const packageTitle = "Split Demo";\n`,
+        dts: `export declare const packageTitle: string;\n`,
+      });
+
+      writeProjectFile(
+        tempDir,
+        "src/features/home.wasp.ts",
+        [
+          `// @ts-ignore: This test imports the local TS source through Vitest.`,
+          `import { page } from ${JSON.stringify(waspSpecEntryUrl)};`,
+          `import MainPage from "@src/MainPage";`,
+          ``,
+          `export const homePage = page(MainPage);`,
+        ].join("\n"),
+      );
+      writeProjectFile(
+        tempDir,
+        "features/tasks.wasp.ts",
+        [
+          `// @ts-ignore: This test imports the local TS source through Vitest.`,
+          `import { action } from ${JSON.stringify(waspSpecEntryUrl)};`,
+          `import { packageTitle } from "spec-helper-package";`,
+          `import { archive as archiveTask } from "@src/adminOperations";`,
+          ``,
+          `export const splitTitle = packageTitle;`,
+          `export const archiveAction = action(archiveTask, { entities: [] });`,
+        ].join("\n"),
+      );
+
+      const decls = await analyzeSpec({
+        tempDir,
+        specFileName: "main.wasp.ts",
+        sourceText: [
+          `// @ts-ignore: This test imports the local TS source through Vitest.`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+          `import { homePage } from "./src/features/home.wasp.js";`,
+          `import { archiveAction, splitTitle } from "./features/tasks.wasp.js";`,
+          ``,
+          `export default app({`,
+          `  name: "demo",`,
+          `  title: splitTitle,`,
+          `  wasp: { version: "^0.16.0" },`,
+          `  parts: [homePage, archiveAction],`,
+          `});`,
+        ].join("\n"),
+      });
+
+      expect(decls).toContainEqual(
+        expect.objectContaining({
+          declType: "App",
+          declValue: expect.objectContaining({ title: "Split Demo" }),
+        }),
+      );
+      expect(decls).toContainEqual(
+        expect.objectContaining({ declType: "Page" }),
+      );
+      expect(decls).toContainEqual(
+        expect.objectContaining({
+          declType: "Action",
+          declName: "archiveTask",
+        }),
+      );
+    });
+
+    test("ignores unimported .wasp.ts files", async () => {
+      const tempDir = makeTempProject("wasp-spec-ignored-");
+      writeProjectFile(
+        tempDir,
+        "src/ignored.wasp.ts",
+        `import "@src/setup";\nthrow new Error("should not load");\n`,
+      );
+
+      const decls = await analyzeSpec({
+        tempDir,
+        specFileName: "main.wasp.ts",
+        sourceText: [
+          `// @ts-ignore: This test imports the local TS source through Vitest.`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+          ``,
+          `export default app({`,
+          `  name: "demo",`,
+          `  title: "Demo",`,
+          `  wasp: { version: "^0.16.0" },`,
+          `  parts: [],`,
+          `});`,
+        ].join("\n"),
+      });
+
+      expect(decls).toContainEqual(
+        expect.objectContaining({ declType: "App" }),
+      );
+    });
+  });
+
+  describe("plain TypeScript helpers", () => {
+    test("allows npm imports and relative re-exports", async () => {
+      const tempDir = makeTempProject("wasp-spec-helper-imports-");
+      writeNodePackage(tempDir, "spec-helper-package", {
+        js: `export const packageTitle = "Helper Demo";\n`,
+        dts: `export declare const packageTitle: string;\n`,
+      });
+      writeProjectFile(
+        tempDir,
+        "helpers/title.ts",
+        [
+          `import { packageTitle } from "spec-helper-package";`,
+          `export const title = packageTitle;`,
+        ].join("\n"),
+      );
+      writeProjectFile(
+        tempDir,
+        "helpers/index.ts",
+        `export { title } from "./title.js";\n`,
+      );
+
+      const decls = await analyzeSpec({
+        tempDir,
+        specFileName: "main.wasp.ts",
+        sourceText: [
+          `// @ts-ignore: This test imports the local TS source through Vitest.`,
+          `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+          `import { title } from "./helpers/index.js";`,
+          ``,
+          `export default app({`,
+          `  name: "demo",`,
+          `  title,`,
+          `  wasp: { version: "^0.16.0" },`,
+          `  parts: [],`,
+          `});`,
+        ].join("\n"),
+      });
+
+      expect(decls).toContainEqual(
+        expect.objectContaining({
+          declType: "App",
+          declValue: expect.objectContaining({ title: "Helper Demo" }),
+        }),
+      );
+    });
   });
 });
 
-function specSource(prelude: string[]): string {
+function appSpecWithImports(prelude: string[]): string {
   return [
     `// @ts-ignore: This test imports the local TS source through Vitest.`,
     `import { action, app, page, query } from ${JSON.stringify(
@@ -231,7 +427,36 @@ function writePackageJson(tempDir: string): void {
   );
 }
 
-function writeSourceFiles(tempDir: string): void {
+function writeNodePackage(
+  tempDir: string,
+  packageName: string,
+  files: { js: string; dts: string },
+): void {
+  const packageDir = join(tempDir, "node_modules", packageName);
+  mkdirSync(packageDir, { recursive: true });
+  writeFileSync(
+    join(packageDir, "package.json"),
+    JSON.stringify({
+      type: "module",
+      exports: "./index.js",
+      types: "./index.d.ts",
+    }),
+  );
+  writeFileSync(join(packageDir, "index.js"), files.js);
+  writeFileSync(join(packageDir, "index.d.ts"), files.dts);
+}
+
+function writeProjectFile(
+  tempDir: string,
+  relativePath: string,
+  sourceText: string,
+): void {
+  const filePath = join(tempDir, relativePath);
+  mkdirSync(dirname(filePath), { recursive: true });
+  writeFileSync(filePath, sourceText, "utf8");
+}
+
+function writeUserSourceFiles(tempDir: string): void {
   mkdirSync(join(tempDir, "src"));
   writeFileSync(
     join(tempDir, "src", "MainPage.ts"),
@@ -252,55 +477,33 @@ function writeSourceFiles(tempDir: string): void {
   );
 }
 
-async function compileAndAnalyzeSpec({
+async function analyzeSpec({
   tempDir,
-  sourceFileName,
+  specFileName,
   sourceText,
 }: {
   tempDir: string;
-  sourceFileName: string;
+  specFileName: string;
   sourceText: string;
 }): Promise<AppSpec.Decl[]> {
-  const compiledPath = await compileSpec({
-    tempDir,
-    sourceFileName,
-    sourceText,
-  });
-  const result = await analyzeApp(pathToFileURL(compiledPath).href, []);
-  if (result.status === "error") throw new Error(result.error);
-
-  return result.value;
-}
-
-async function compileSpec({
-  tempDir,
-  sourceFileName,
-  sourceText,
-}: {
-  tempDir: string;
-  sourceFileName: string;
-  sourceText: string;
-}): Promise<string> {
-  const sourcePath = join(tempDir, sourceFileName);
+  const sourcePath = join(tempDir, specFileName);
   const tsconfigPath = join(
     tempDir,
-    sourceFileName.replace(/\.ts$/, ".tsconfig.json"),
-  );
-  const compiledPath = join(
-    tempDir,
-    ".wasp",
-    sourceFileName.replace(/\.ts$/, ".js"),
+    specFileName.replace(/\.ts$/, ".tsconfig.json"),
   );
 
   writeFileSync(sourcePath, sourceText, "utf8");
-  writeTsConfig(tsconfigPath, sourceFileName);
-  await compileWaspTsFileToJsFile({
-    inputPath: sourcePath,
+  writeTsConfig(tsconfigPath, specFileName);
+
+  const result = await analyzeApp({
+    waspTsSpecPath: sourcePath,
     tsconfigPath,
-    outputPath: compiledPath,
+    entityNames: [],
   });
 
-  return compiledPath;
+  if (result.status === "error") throw new Error(result.error);
+
+  return result.value;
 }
 
 function writeTsConfig(tsconfigPath: string, include: string): void {
@@ -311,14 +514,16 @@ function writeTsConfig(tsconfigPath: string, include: string): void {
         target: "ES2022",
         module: "ESNext",
         moduleResolution: "bundler",
+        jsx: "preserve",
         strict: true,
+        allowJs: true,
         noEmit: true,
         baseUrl: ".",
         paths: {
           "@src/*": ["src/*"],
         },
       },
-      include: [include],
+      include: [include, "**/*.wasp.ts"],
     }),
   );
 }

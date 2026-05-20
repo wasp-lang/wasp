@@ -1,10 +1,8 @@
 #!/usr/bin/env node
 
 import { writeFileSync } from "fs";
-import { pathToFileURL } from "url";
 import { parseProcessArgsOrThrow } from "./cli.js";
-import { analyzeApp } from "./legacy/appAnalyzer.js";
-import { compileWaspTsFileToJsFile } from "./spec-pipeline/compile/index.js";
+import { analyzeApp } from "./spec/appAnalyzer.js";
 import { SpecUserError } from "./spec/specUserError.js";
 
 try {
@@ -23,24 +21,14 @@ try {
  * and writes the output to a file.
  */
 async function main(args: string[]): Promise<void> {
-  const {
+  const { waspTsSpecPath, tsconfigPath, declsJsonPath, entityNames } =
+    parseProcessArgsOrThrow(args);
+
+  const declsResult = await analyzeApp({
     waspTsSpecPath,
     tsconfigPath,
-    compiledWaspTsSpecPath,
-    declsJsonPath,
     entityNames,
-  } = parseProcessArgsOrThrow(args);
-
-  await compileWaspTsFileToJsFile({
-    inputPath: waspTsSpecPath,
-    tsconfigPath,
-    outputPath: compiledWaspTsSpecPath,
   });
-
-  const declsResult = await analyzeApp(
-    pathToFileURL(compiledWaspTsSpecPath).href,
-    entityNames,
-  );
 
   if (declsResult.status === "error") {
     throw new Error(declsResult.error);

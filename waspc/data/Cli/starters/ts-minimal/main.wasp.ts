@@ -1,14 +1,12 @@
 import { MainPage } from "@src/MainPage"
-import { App } from "@wasp.sh/spec"
+import { app, page, route } from "@wasp.sh/spec"
 
-const app = new App("__waspAppName__", {
+export default app({
+  name: "__waspAppName__",
   title: "__waspProjectName__",
   wasp: { version: "__waspVersion__" },
   head: ["<link rel='icon' href='/favicon.ico' />"],
+  parts: [
+    route("RootRoute", "/", page(MainPage)),
+  ],
 });
-
-const mainPage = app.page("MainPage", { component: MainPage });
-
-app.route("RootRoute", { path: "/", to: mainPage });
-
-export default app;

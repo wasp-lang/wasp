@@ -1,13 +1,24 @@
 import * as AppSpec from "../appSpec.js";
 import type { Result } from "../result.js";
+import { loadWaspTsSpecDefaultExport } from "../spec-pipeline/loadWaspTsSpec.js";
 import { mapApp } from "./mapApp.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
-export async function analyzeApp(
-  waspTsSpecPath: string,
-  entityNames: string[],
-): Promise<Result<AppSpec.Decl[], string>> {
-  const appResult = await getApp(waspTsSpecPath);
+export async function analyzeApp({
+  waspTsSpecPath,
+  tsconfigPath,
+  entityNames,
+}: {
+  waspTsSpecPath: string;
+  tsconfigPath: string;
+  entityNames: string[];
+}): Promise<Result<AppSpec.Decl[], string>> {
+  const waspTsDefaultExport = await loadWaspTsSpecDefaultExport({
+    specPath: waspTsSpecPath,
+    tsconfigPath,
+  });
+
+  const appResult = getApp(waspTsDefaultExport);
 
   if (appResult.status === "error") {
     return appResult;
@@ -22,12 +33,8 @@ export async function analyzeApp(
   };
 }
 
-async function getApp(
-  mainWaspJs: string,
-): Promise<Result<TsAppSpec.App, string>> {
-  const usersDefaultExport: unknown = await (await import(mainWaspJs)).default;
-
-  if (!usersDefaultExport) {
+function getApp(waspTsDefaultExport: unknown): Result<TsAppSpec.App, string> {
+  if (!waspTsDefaultExport) {
     return {
       status: "error",
       error:
@@ -36,7 +43,7 @@ async function getApp(
     };
   }
 
-  if (!isApp(usersDefaultExport)) {
+  if (!isApp(waspTsDefaultExport)) {
     return {
       status: "error",
       error:
@@ -45,7 +52,7 @@ async function getApp(
     };
   }
 
-  return { status: "ok", value: usersDefaultExport };
+  return { status: "ok", value: waspTsDefaultExport };
 }
 
 // TODO: This should probably live elsewhere.

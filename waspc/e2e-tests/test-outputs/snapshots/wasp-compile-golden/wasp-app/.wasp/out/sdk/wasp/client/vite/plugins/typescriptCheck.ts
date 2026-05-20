@@ -1,21 +1,25 @@
 import { type Plugin } from 'vite'
 import { spawn } from 'node:child_process'
 
-export function typescriptCheck(): Plugin {
+interface TypeScriptCheckOptions {
+  srcTsConfigPath: string
+}
+
+export function typescriptCheck(options: TypeScriptCheckOptions): Plugin {
   return {
     name: 'wasp:typescript-check',
     apply: 'build',
     async buildStart() {
-      await runTsc()
+      await runTsc(options.srcTsConfigPath)
     },
   }
 }
 
-function runTsc(): Promise<void> {
+function runTsc(srcTsConfigPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn(
       'tsc',
-      ['--build', '--noEmit'],
+      ['--project', srcTsConfigPath, '--noEmit'],
       {
         stdio: 'inherit',
         shell: process.platform === 'win32',

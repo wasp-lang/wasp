@@ -29,6 +29,7 @@ import Wasp.Util.Json (parseJsonWithComments)
 data TsConfig = TsConfig
   { compilerOptions :: !(Maybe CompilerOptions),
     include :: !(Maybe [String]),
+    exclude :: !(Maybe [String]),
     files :: !(Maybe [String]),
     references :: !(Maybe [TsConfigReference])
   }
