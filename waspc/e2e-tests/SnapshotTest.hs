@@ -136,7 +136,7 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
             -- The @wasp.sh/spec package copied into .wasp/spec is identical to
             -- what we ship in waspc/data/packages/spec.
             -- It is only copied into .waspc because we need to reach it with `npm install`.
-            -- If there are errors in this package, they will surface either during package tests or 
+            -- If there are errors in this package, they will surface either during package tests or
             -- manifest in the project snapshot. We can therefore skip it.
             "spec"
           ]
