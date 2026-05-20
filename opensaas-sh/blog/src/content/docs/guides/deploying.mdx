@@ -23,6 +23,7 @@ These are the steps necessary for you to deploy your app. We recommend you follo
 - [ ] Set your [production environment variables](#other-vars) on your deployed apps.
 - [ ] Add the correct [redirect URL's to your social auth credentials](#adding-server-redirect-urls-to-social-auth).
 - [ ] Set your [production settings for your payment provider](#payment-providers-production-settings).
+- [ ] [Customize SEO and discoverability](#customizing-seo-and-discoverability) (meta tags, JSON-LD, `llms.txt`).
 - [ ] [Deploy your App](#deploying-your-app) through Wasp Deploy commands or [manually](#deploying-manually--to-other-providers) to any provider.
 - [ ] (Optional) [Deploy your blog](#deploying-your-blog).
 
@@ -192,6 +193,10 @@ With the webhook URL ready, in your [Polar Dashboard](https://polar.sh/dashboard
    - `subscription.updated`
 6. Click `Save`.
 7. Copy the generated webhook secret and set it as the `POLAR_WEBHOOK_SECRET` environment variable in production.
+
+## Customizing SEO and Discoverability
+
+Before deploying, make sure your app's meta tags, JSON-LD schema, and `llms.txt` reflect your production URL and content so search engines and AI/LLM tools can index and recommend your app correctly. See the [SEO guide](/guides/seo-performance/) for details.
 
 ## Deploying your App
 

@@ -270,6 +270,16 @@ job dailyStatsJob {
 
 For more info on integrating Plausible or Google Analytics, check out the [Analytics guide](/guides/analytics/).
 
+### SEO & Discoverability
+
+Open SaaS ships SEO-friendly out of the box. Three pieces work together so your app shows up in search results and AI answers:
+
+1. **Meta tags** in `main.wasp`'s `head` (title, description, Open Graph, Twitter cards) get injected into your landing page HTML.
+2. **JSON-LD structured data (Schema Markup)** in `src/landing-page/components/SchemaMarkup.tsx` tells search engines and LLMs what your app is, who makes it, and what it offers — feeding rich snippets and AI-generated answers.
+3. **Prerendering** turns your React marketing pages (e.g. landing page, pricing, FAQ, etc.) into static HTML at build time, so crawlers see your content (including the schema markup) without needing to execute JavaScript.
+
+Customize the meta tags in `main.wasp` and the schema object in `SchemaMarkup.tsx` to match your product. See the [SEO guide](/guides/seo-performance/) for details.
+
 ## App Customization Walkthrough
 
 ### General Considerations
@@ -321,6 +331,7 @@ But before you start setting up the main features, let's walk through the custom
 - [ ] Update your favicon at `public/favicon.ico`.
 - [ ] Update the banner image used when posting links to your site at `public/public-banner.webp`.
   - [ ] Update the URL for this banner at `og:image` and `twitter:image` in `app.head` of the `main.wasp` file.
+- [ ] Update the JSON-LD structured data in `src/landing-page/components/SchemaMarkup.tsx` with your app's name, description, URL, and other metadata. This helps search engines and LLMs understand your app for rich results and AI answers.
 - [ ] Make changes to your landing page, `landingPage.tsx`.
   - [ ] Customize the `navBar`, `features`, `testimonials`, and `faqs` in the `contentSections.ts` file.
   - [ ] Change/rename the `logo.webp` and main hero banner (`open-saas-banner.webp`) in the `static` folder.

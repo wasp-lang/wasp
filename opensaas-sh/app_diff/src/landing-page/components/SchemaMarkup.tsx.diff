@@ -1,0 +1,93 @@
+--- template/app/src/landing-page/components/SchemaMarkup.tsx
++++ opensaas-sh/app/src/landing-page/components/SchemaMarkup.tsx
+@@ -1,30 +1,77 @@
+-// JSON-LD structured data for SEO. Helps search engines and LLMs understand
+-// your app so it can appear in rich results and AI answers. Customize the
+-// placeholders below to match your product. See https://schema.org for types.
+ const schema = {
+   "@context": "https://schema.org",
+   "@graph": [
+     {
+       "@type": "SoftwareApplication",
+-      "@id": "https://your-saas-app.com/#software",
+-      name: "Your Open SaaS App",
+-      description: "Your apps main description and features.",
+-      url: "https://your-saas-app.com",
+-      applicationCategory: "BusinessApplication",
++      "@id": "https://opensaas.sh/#software",
++      name: "Open SaaS",
++      alternateName: "OpenSaaS",
++      description:
++        "Free, open-source, full-stack SaaS boilerplate starter kit for React, NodeJS, & Prisma. Built on the Wasp framework. Includes auth, Stripe/Lemon Squeezy/Polar payments, an OpenAI demo app, AWS S3 file uploads, an admin dashboard, and email sending.",
++      url: "https://opensaas.sh",
++      applicationCategory: "DeveloperApplication",
++      applicationSubCategory: "SaaS Starter Kit",
+       operatingSystem: "Cross-platform",
+-      image: "https://your-saas-app.com/public-banner.webp",
++      image: "https://opensaas.sh/public-banner.webp",
++      license: "https://github.com/wasp-lang/open-saas/blob/main/LICENSE",
++      codeRepository: "https://github.com/wasp-lang/open-saas",
++      programmingLanguage: ["TypeScript", "JavaScript"],
++      isAccessibleForFree: true,
+       offers: {
+         "@type": "Offer",
+         price: "0",
+         priceCurrency: "USD",
+       },
++      creator: { "@id": "https://wasp.sh/#org" },
++      publisher: { "@id": "https://wasp.sh/#org" },
++      maintainer: { "@id": "https://wasp.sh/#org" },
+     },
+     {
+       "@type": "WebSite",
+-      "@id": "https://your-saas-app.com/#website",
+-      url: "https://your-saas-app.com",
+-      name: "Your Open SaaS App",
+-      description: "Your apps main description and features.",
++      "@id": "https://opensaas.sh/#website",
++      url: "https://opensaas.sh",
++      name: "Open SaaS",
++      description:
++        "Free, open-source SaaS boilerplate starter for React, NodeJS & Prisma. Powered by Wasp.",
++      publisher: { "@id": "https://wasp.sh/#org" },
++      about: { "@id": "https://opensaas.sh/#software" },
++    },
++    {
++      "@type": "Organization",
++      "@id": "https://wasp.sh/#org",
++      name: "Wasp",
++      alternateName: "Wasp-lang",
++      description:
++        "Wasp is the fastest way to develop full-stack React, Node.js, and Prisma web applications.",
++      url: "https://wasp.sh",
++      logo: "https://wasp.sh/favicon.ico",
++      sameAs: [
++        "https://github.com/wasp-lang/wasp",
++        "https://twitter.com/wasplang",
++        "https://discord.gg/aCamt5wCpS",
++      ],
++    },
++    {
++      "@type": "FAQPage",
++      "@id": "https://opensaas.sh/#faq",
++      mainEntity: [
++        {
++          "@type": "Question",
++          name: "Why is this SaaS Template free and open-source?",
++          acceptedAnswer: {
++            "@type": "Answer",
++            text: "We believe the best product is made when the community puts their heads together. We also believe a quality starting point for a web app should be free and available to everyone. Our hope is that together we can create the best SaaS template out there and bring our ideas to customers quickly.",
++          },
++        },
++        {
++          "@type": "Question",
++          name: "What's Wasp?",
++          acceptedAnswer: {
++            "@type": "Answer",
++            text: "It's the fastest way to develop full-stack React + NodeJS + Prisma apps and it's what gives this template superpowers. Wasp relies on React, NodeJS, and Prisma to define web components and server queries and actions. Wasp's secret sauce is its compiler which takes the client, server code, and config file and outputs the client app, server app and deployment code, supercharging the development experience. Combined with this template, you can build a SaaS app in record time.",
++          },
++        },
++      ],
+     },
+   ],
+ };

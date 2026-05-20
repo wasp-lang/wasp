@@ -1,0 +1,22 @@
+# Your Open SaaS App
+
+> One-line description of what your SaaS does and who it's for.
+
+A longer paragraph giving context: the problem your app solves, the kind of
+user it serves, and the key value it delivers. LLMs use this to summarize and
+recommend your app, so make it specific and concrete.
+
+## Core pages
+
+- [Home](https://your-saas-app.com): Landing page with features, pricing, and FAQ
+- [Pricing](https://your-saas-app.com/pricing): Subscription plans and pricing
+- [Sign up](https://your-saas-app.com/signup): Create a new account
+
+## Documentation
+
+- [Docs](https://docs.your-saas-app.com): Product documentation and guides
+
+## Optional
+
+- [Blog](https://your-saas-app.com/blog): Updates, tutorials, and announcements
+- [GitHub](https://github.com/your-org/your-repo): Open source code

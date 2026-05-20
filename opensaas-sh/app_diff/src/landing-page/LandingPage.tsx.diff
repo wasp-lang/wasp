@@ -8,10 +8,10 @@
  import { Footer } from "./components/Footer";
  import { Hero } from "./components/Hero";
 +import { Roadmap } from "./components/Roadmap";
+ import { SchemaMarkup } from "./components/SchemaMarkup";
  import { Testimonials } from "./components/Testimonials";
  import {
-   examples,
-@@ -11,7 +13,6 @@
+@@ -12,7 +14,6 @@
    footerNavigation,
    testimonials,
  } from "./contentSections";
@@ -19,7 +19,7 @@
  
  export function LandingPage() {
    return (
-@@ -20,7 +21,11 @@
+@@ -22,7 +23,11 @@
          <Hero />
          <ExamplesCarousel examples={examples} />
          <AIReady />

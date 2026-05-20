@@ -16,6 +16,8 @@ export function DarkModeSwitcher() {
       >
         <input
           type="checkbox"
+          aria-label="Toggle dark mode"
+          checked={!isInLightMode}
           onChange={() => {
             if (typeof setColorMode === "function") {
               setColorMode(isInLightMode ? "dark" : "light");
