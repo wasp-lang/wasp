@@ -290,13 +290,14 @@ const config: Config = {
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {
     mermaid: true,
+    mdx1Compat: {
+      admonitions: true,
+      comments: true,
+      headingIds: true,
+    },
   },
   future: {
-    experimental_faster: true,
-    v4: {
-      useCssCascadeLayers: true,
-      removeLegacyPostBuildHeadAttribute: true,
-    },
+    v4: true,
   },
 };
 
