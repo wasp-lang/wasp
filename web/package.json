@@ -57,6 +57,7 @@
     "@types/marked": "^5.0.2",
     "@types/mdast": "^4.0.4",
     "@types/node": "~22.12",
+    "docusaurus-plugin-typedoc": "^1.4.2",
     "marked": "^17.0.3",
     "mdast": "^2.3.2",
     "mdast-util-mdx": "^3.0.0",
@@ -64,6 +65,8 @@
     "remark-cli": "^11.0.0",
     "remark-validate-links": "^12.1.1",
     "tsx": "^4.20.3",
+    "typedoc": "^0.28.19",
+    "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "^5.8.3",
     "unified": "^11.0.5"
   },

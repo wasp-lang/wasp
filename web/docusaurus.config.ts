@@ -81,6 +81,12 @@ const config: Config = {
         {
           type: "docSidebar",
           position: "left",
+          sidebarId: "api",
+          label: "API",
+        },
+        {
+          type: "docSidebar",
+          position: "left",
           sidebarId: "guides",
           label: "Guides",
         },
@@ -286,6 +292,17 @@ const config: Config = {
         },
       };
     },
+
+    [
+      "docusaurus-plugin-typedoc",
+      {
+        sidebar: { typescript: true },
+        readme: "none",
+        alwaysCreateEntryPointModule: true,
+        entryPointStrategy: "packages",
+        entryPoints: ["../waspc/data/packages/spec"],
+      },
+    ],
   ],
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {

@@ -1,4 +1,5 @@
 import type { SidebarsConfig } from "@docusaurus/plugin-content-docs";
+import typedocSidebar from "./docs/api/typedoc-sidebar";
 
 const sidebars: SidebarsConfig = {
   docs: [
@@ -231,6 +232,7 @@ const sidebars: SidebarsConfig = {
       dirName: "guides",
     },
   ],
+  api: typedocSidebar,
 };
 
 export default sidebars;
