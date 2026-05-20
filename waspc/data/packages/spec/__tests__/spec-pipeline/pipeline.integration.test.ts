@@ -1,4 +1,4 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from "fs";
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { dirname, join } from "path";
 import { pathToFileURL } from "url";
@@ -12,12 +12,12 @@ const waspSpecEntryUrl = pathToFileURL(
   join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
 ).href;
 
-const ergonomicImportPrelude = [
-  `import MainPage from "@src/MainPage";`,
-  `import { getTasks } from "@src/operations";`,
-  `import { archive as archiveTask } from "@src/operations";`,
-  `import { archive as archiveAdminTask } from "@src/adminOperations";`,
-  `import * as ops from "@src/operations";`,
+const refImportPrelude = [
+  `import MainPage from "./src/MainPage" with { type: "ref" };`,
+  `import { getTasks } from "./src/operations" with { type: "ref" };`,
+  `import { archive as archiveTask } from "./src/operations" with { type: "ref" };`,
+  `import { archive as archiveAdminTask } from "./src/adminOperations" with { type: "ref" };`,
+  `import * as ops from "./src/operations" with { type: "ref" };`,
 ];
 
 const extImportDescriptorPrelude = [
@@ -46,15 +46,15 @@ const appSpecBody = [
 ];
 
 describe("Wasp TS spec pipeline", () => {
-  describe("ergonomic @src imports", () => {
-    test("lowers @src imports to the same declarations as explicit ExtImport descriptors", async () => {
+  describe("ref imports", () => {
+    test("lowers ref imports to the same declarations as explicit ExtImport descriptors", async () => {
       const tempDir = makeTempProject("wasp-spec-pipeline-");
       writeUserSourceFiles(tempDir);
 
       const importDecls = await analyzeSpec({
         tempDir,
         specFileName: "main.wasp.ts",
-        sourceText: appSpecWithImports(ergonomicImportPrelude),
+        sourceText: appSpecWithImports(refImportPrelude),
       });
       const extImportDecls = await analyzeSpec({
         tempDir,
@@ -66,7 +66,7 @@ describe("Wasp TS spec pipeline", () => {
       expect(importDecls).toEqual(expectedDecls());
     });
 
-    test("rejects unsupported @src import forms in .wasp.ts files", async () => {
+    test("rejects unsupported ref import forms in .wasp.ts files", async () => {
       const tempDir = makeTempProject("wasp-spec-pipeline-error-");
       mkdirSync(join(tempDir, "src"));
       writeFileSync(join(tempDir, "src", "setup.ts"), `export {};\n`);
@@ -75,12 +75,12 @@ describe("Wasp TS spec pipeline", () => {
         analyzeSpec({
           tempDir,
           specFileName: "main.wasp.ts",
-          sourceText: `import "@src/setup";\n`,
+          sourceText: `import "./src/setup" with { type: "ref" };\n`,
         }),
       ).rejects.toThrowError(/Side-effect imports/);
     });
 
-    test("does not execute imported source files while lowering @src imports", async () => {
+    test("does not execute imported source files while lowering ref imports", async () => {
       const tempDir = makeTempProject("wasp-spec-src-import-");
       mkdirSync(join(tempDir, "src"));
 
@@ -100,7 +100,7 @@ describe("Wasp TS spec pipeline", () => {
           sourceText: [
             `// @ts-ignore: This test imports the local TS source through Vitest.`,
             `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
-            `import { getTasks } from "@src/operations";`,
+            `import { getTasks } from "./src/operations" with { type: "ref" };`,
             `getTasks;`,
             ``,
             `export default app({`,
@@ -176,7 +176,7 @@ describe("Wasp TS spec pipeline", () => {
       );
     });
 
-    test("loads split .wasp.ts specs and lowers nested @src imports", async () => {
+    test("loads split .wasp.ts specs and lowers nested ref imports", async () => {
       const tempDir = makeTempProject("wasp-spec-split-");
       writeUserSourceFiles(tempDir);
       writeNodePackage(tempDir, "spec-helper-package", {
@@ -190,7 +190,7 @@ describe("Wasp TS spec pipeline", () => {
         [
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
           `import { page } from ${JSON.stringify(waspSpecEntryUrl)};`,
-          `import MainPage from "@src/MainPage";`,
+          `import MainPage from "../MainPage" with { type: "ref" };`,
           ``,
           `export const homePage = page(MainPage);`,
         ].join("\n"),
@@ -202,7 +202,7 @@ describe("Wasp TS spec pipeline", () => {
           `// @ts-ignore: This test imports the local TS source through Vitest.`,
           `import { action } from ${JSON.stringify(waspSpecEntryUrl)};`,
           `import { packageTitle } from "spec-helper-package";`,
-          `import { archive as archiveTask } from "@src/adminOperations";`,
+          `import { archive as archiveTask } from "../src/adminOperations" with { type: "ref" };`,
           ``,
           `export const splitTitle = packageTitle;`,
           `export const archiveAction = action(archiveTask, { entities: [] });`,
@@ -249,7 +249,7 @@ describe("Wasp TS spec pipeline", () => {
       writeProjectFile(
         tempDir,
         "src/ignored.wasp.ts",
-        `import "@src/setup";\nthrow new Error("should not load");\n`,
+        `import "./setup" with { type: "ref" };\nthrow new Error("should not load");\n`,
       );
 
       const decls = await analyzeSpec({
@@ -415,7 +415,8 @@ function expectedDecls(): AppSpec.Decl[] {
 }
 
 function makeTempProject(prefix: string): string {
-  const tempDir = mkdtempSync(join(tmpdir(), prefix));
+  // Jiti reports loaded files using canonical paths, so use a canonical temp root too.
+  const tempDir = mkdtempSync(join(realpathSync(tmpdir()), prefix));
   writePackageJson(tempDir);
   return tempDir;
 }
@@ -498,6 +499,7 @@ async function analyzeSpec({
   const result = await analyzeApp({
     waspTsSpecPath: sourcePath,
     tsconfigPath,
+    projectRootDir: tempDir,
     entityNames: [],
   });
 
@@ -518,10 +520,6 @@ function writeTsConfig(tsconfigPath: string, include: string): void {
         strict: true,
         allowJs: true,
         noEmit: true,
-        baseUrl: ".",
-        paths: {
-          "@src/*": ["src/*"],
-        },
       },
       include: [include, "**/*.wasp.ts"],
     }),

@@ -70,10 +70,7 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
         "allowJs": true,
         "noEmit": true,
 
-        "lib": ["ES2023"],
-        "paths": {
-          "@src/*": ["./src/*"]
-        }
+        "lib": ["ES2023"]
       },
       "include": ["main.wasp.ts", "**/*.wasp.ts"]
     }
@@ -102,9 +99,17 @@ Wasp TS spec is an **early preview** feature, meaning it is a little rough and n
    In short, you'll have to:
 
    1. Import Wasp constructors from `@wasp.sh/spec`.
-   2. Create your app with `app({ ... })`.
-   3. Define parts of your web app with constructors like `page`, `route`, `query`, `action`, and `api`.
-   4. Export the result from your file using a default export.
+   2. Import app source references with `with { type: "ref" }`.
+   3. Create your app with `app({ ... })`.
+   4. Define parts of your web app with constructors like `page`, `route`, `query`, `action`, and `api`.
+   5. Export the result from your file using a default export.
+
+   Use ref imports for files from your app `src` directory that Wasp should treat as external app code instead of executing while loading the spec:
+
+   ```ts title="main.wasp.ts"
+   import MainPage from './src/MainPage' with { type: 'ref' }
+   import { getTasks } from './src/operations' with { type: 'ref' }
+   ```
 
    You can manually do the rewrite using the reference file and TS types as guides (IDE support should work for you in `main.wasp.ts`), or you can (and we recommend it!) give the reference main.wasp.ts file to the LLM of your choice and tell it to rewrite your `main.wasp` while following the format in the reference file: we had great results with this!
 
@@ -177,13 +182,13 @@ import {
   route,
 } from '@wasp.sh/spec'
 
-import App from '@src/App'
-import Login from '@src/pages/auth/Login'
-import MainPage from '@src/pages/MainPage'
-import setupClient from '@src/clientSetup'
-import setupServer, { serverMiddlewareFn } from '@src/serverSetup'
-import { config as discordConfig, userSignupFields as discordSignupFields } from '@src/auth/discord'
-import { config as googleConfig, userSignupFields as googleSignupFields } from '@src/auth/google'
+import App from './src/App' with { type: 'ref' }
+import Login from './src/pages/auth/Login' with { type: 'ref' }
+import MainPage from './src/pages/MainPage' with { type: 'ref' }
+import setupClient from './src/clientSetup' with { type: 'ref' }
+import setupServer, { serverMiddlewareFn } from './src/serverSetup' with { type: 'ref' }
+import { config as discordConfig, userSignupFields as discordSignupFields } from './src/auth/discord' with { type: 'ref' }
+import { config as googleConfig, userSignupFields as googleSignupFields } from './src/auth/google' with { type: 'ref' }
 import {
   onAfterEmailVerified,
   onAfterLogin,
@@ -191,12 +196,12 @@ import {
   onBeforeLogin,
   onBeforeOAuthRedirect,
   onBeforeSignup,
-} from '@src/auth/hooks'
-import { barBaz, barNamespaceMiddlewareFn } from '@src/apis'
-import { createTask, getTasks } from '@src/operations'
-import { devSeedSimple } from '@src/dbSeeds'
-import { foo } from '@src/jobs/bar'
-import { webSocketFn } from '@src/webSocket'
+} from './src/auth/hooks' with { type: 'ref' }
+import { barBaz, barNamespaceMiddlewareFn } from './src/apis' with { type: 'ref' }
+import { createTask, getTasks } from './src/operations' with { type: 'ref' }
+import { devSeedSimple } from './src/dbSeeds' with { type: 'ref' }
+import { foo } from './src/jobs/bar' with { type: 'ref' }
+import { webSocketFn } from './src/webSocket' with { type: 'ref' }
 
 export default app({
   name: 'todoApp',

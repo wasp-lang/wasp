@@ -65,12 +65,14 @@ describe("analyzeApp", () => {
     const result = await analyzeApp({
       waspTsSpecPath: "main.wasp.ts",
       tsconfigPath: "tsconfig.wasp.json",
+      projectRootDir: "/project",
       entityNames: entities,
     });
 
     expect(mockLoadWaspTsSpecDefaultExport).toHaveBeenCalledWith({
       specPath: "main.wasp.ts",
       tsconfigPath: "tsconfig.wasp.json",
+      projectRootDir: "/project",
     });
 
     if (shouldReturnError) {

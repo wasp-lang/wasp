@@ -7,6 +7,7 @@ describe("parseProcessArgsOrThrow", () => {
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
+      "/project",
       "output.json",
       JSON.stringify(["entity1"]),
     ]);
@@ -17,25 +18,28 @@ describe("parseProcessArgsOrThrow", () => {
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
+      "/project",
       "output.json",
       "[]",
     ]);
   });
 
-  test("should throw an error if less than 7 arguments", () => {
+  test("should throw an error if less than 8 arguments", () => {
     expectParseProcessArgsToError([
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
+      "/project",
       "output.json",
     ]);
   });
 
-  test("should throw an error if more than 7 arguments", () => {
+  test("should throw an error if more than 8 arguments", () => {
     expectParseProcessArgsToError([
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
+      "/project",
       "output.json",
       "[]",
       "extraArg",
@@ -47,6 +51,7 @@ describe("parseProcessArgsOrThrow", () => {
       "compile",
       "main.wasp.ts",
       "tsconfig.wasp.json",
+      "/project",
       "output.json",
       "[]",
     ]);
@@ -57,6 +62,7 @@ describe("parseProcessArgsOrThrow", () => {
       "analyze",
       undefined,
       "tsconfig.wasp.json",
+      "/project",
       "output.json",
       JSON.stringify(["entity1"]),
     ] as string[]);
@@ -66,6 +72,18 @@ describe("parseProcessArgsOrThrow", () => {
     expectParseProcessArgsToError([
       "analyze",
       "main.wasp.ts",
+      undefined,
+      "/project",
+      "output.json",
+      JSON.stringify(["entity1"]),
+    ] as string[]);
+  });
+
+  test("should throw an error if projectRootDir is not a string", () => {
+    expectParseProcessArgsToError([
+      "analyze",
+      "main.wasp.ts",
+      "tsconfig.wasp.json",
       undefined,
       "output.json",
       JSON.stringify(["entity1"]),
@@ -77,6 +95,7 @@ describe("parseProcessArgsOrThrow", () => {
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
+      "/project",
       undefined,
       JSON.stringify(["entity1"]),
     ] as string[]);
@@ -87,6 +106,7 @@ describe("parseProcessArgsOrThrow", () => {
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
+      "/project",
       "output.json",
       undefined,
     ] as string[]);
@@ -97,6 +117,7 @@ describe("parseProcessArgsOrThrow", () => {
       "analyze",
       "main.wasp.ts",
       "tsconfig.wasp.json",
+      "/project",
       "output.json",
       JSON.stringify({ entity1: "entity1" }),
     ]);
@@ -105,11 +126,18 @@ describe("parseProcessArgsOrThrow", () => {
   function expectParseProcessArgsToSucceed(args: string[]) {
     const result = parseProcessArgsOrThrow(["node", "run.js", ...args]);
 
-    const [_command, waspTsSpecPath, tsconfigPath, declsJsonPath, entityNames] =
-      args;
+    const [
+      _command,
+      waspTsSpecPath,
+      tsconfigPath,
+      projectRootDir,
+      declsJsonPath,
+      entityNames,
+    ] = args;
     expect(result).toEqual({
       waspTsSpecPath,
       tsconfigPath,
+      projectRootDir,
       declsJsonPath,
       entityNames: entityNames && JSON.parse(entityNames),
     });

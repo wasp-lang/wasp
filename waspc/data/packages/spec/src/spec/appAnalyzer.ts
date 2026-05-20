@@ -7,15 +7,18 @@ import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 export async function analyzeApp({
   waspTsSpecPath,
   tsconfigPath,
+  projectRootDir,
   entityNames,
 }: {
   waspTsSpecPath: string;
   tsconfigPath: string;
+  projectRootDir: string;
   entityNames: string[];
 }): Promise<Result<AppSpec.Decl[], string>> {
   const waspTsDefaultExport = await loadWaspTsSpecDefaultExport({
     specPath: waspTsSpecPath,
     tsconfigPath,
+    projectRootDir,
   });
 
   const appResult = getApp(waspTsDefaultExport);

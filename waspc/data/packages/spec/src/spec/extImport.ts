@@ -32,7 +32,7 @@ export function mapExtImport(extImport: unknown): AppSpec.ExtImport {
     throw new SpecUserError(
       "Got an import in the Wasp file that we couldn't process: " +
         JSON.stringify(extImport) +
-        '\nYou either used a value you imported from outside of "@src/" or didn\'t write the ExtImport object correctly.',
+        '\nYou either used a value imported without `with { type: "ref" }` or didn\'t write the ExtImport object correctly.',
     );
   }
 }

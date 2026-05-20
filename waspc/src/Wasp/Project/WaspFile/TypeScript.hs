@@ -17,6 +17,7 @@ import StrongPath
     File,
     Path',
     Rel,
+    fromAbsDir,
     fromAbsFile,
     fromRelFile,
     relfile,
@@ -92,6 +93,7 @@ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFi
             "analyze",
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
+            fromAbsDir compileOptions.waspProjectDir,
             fromAbsFile absDeclsOutputFile,
             -- When the user is coding main.wasp.ts, TypeScript must know about
             -- all the available entities to warn the user if they use an
