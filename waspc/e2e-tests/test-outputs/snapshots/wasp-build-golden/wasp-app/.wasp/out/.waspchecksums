@@ -312,7 +312,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
         ],
-        "ce47c280695bf45c631306320e25b936782fee5b4cf688130498d298b9140904"
+        "d039097bc563e8f51831f01b9f73549e7eda752d21480cf2cbe545520c0f8aea"
     ],
     [
         [
@@ -333,7 +333,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "e30a98587561c5904a15947239af393465cc5822cd2f34041aada30db9ccd2d0"
+        "89dcbfc6645d4c53faa393c3a448f5ded31081dc0178197c27df39ff98ca2add"
     ],
     [
         [

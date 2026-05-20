@@ -2,7 +2,7 @@ import { type Plugin } from 'vite'
 import { spawn } from 'node:child_process'
 
 interface TypeScriptCheckOptions {
-  tsConfigPath: string
+  srcTsConfigPath: string
 }
 
 export function typescriptCheck(options: TypeScriptCheckOptions): Plugin {
@@ -10,16 +10,16 @@ export function typescriptCheck(options: TypeScriptCheckOptions): Plugin {
     name: 'wasp:typescript-check',
     apply: 'build',
     async buildStart() {
-      await runTsc(options.tsConfigPath)
+      await runTsc(options.srcTsConfigPath)
     },
   }
 }
 
-function runTsc(tsConfigPath: string): Promise<void> {
+function runTsc(srcTsConfigPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     const child = spawn(
       'tsc',
-      ['--project', tsConfigPath, '--noEmit'],
+      ['--project', srcTsConfigPath, '--noEmit'],
       {
         stdio: 'inherit',
         shell: process.platform === 'win32',
