@@ -1,7 +1,7 @@
 import type { RequireOneOrNone } from "type-fest";
 import * as AppSpec from "../../appSpec.js";
 import type { AnyFunction } from "../../typeUtils.js";
-import type { ExtImport } from "../extImport.js";
+import type { ReferenceObject } from "../referenceObject.js";
 
 export type App = {
   name: string;
@@ -25,7 +25,9 @@ export type Auth = AuthHooks & {
   onAuthSucceededRedirectTo?: string;
 };
 
-export type AuthHooks = Partial<Record<AuthHookName, ExtImport | AnyFunction>>;
+export type AuthHooks = Partial<
+  Record<AuthHookName, ReferenceObject | AnyFunction>
+>;
 
 export type AuthHookName =
   | "onBeforeSignup"
@@ -53,7 +55,7 @@ export type SocialAuthMethodName =
 export type UsernameAndPasswordConfig = BaseAuthMethodConfig;
 
 export type ExternalAuthConfig = BaseAuthMethodConfig & {
-  configFn?: ExtImport | AnyFunction;
+  configFn?: ReferenceObject | AnyFunction;
 };
 
 export type EmailAuthConfig = BaseAuthMethodConfig & {
@@ -63,30 +65,30 @@ export type EmailAuthConfig = BaseAuthMethodConfig & {
 };
 
 export type BaseAuthMethodConfig = {
-  userSignupFields?: ExtImport | AnyFunction;
+  userSignupFields?: ReferenceObject | AnyFunction;
 };
 
 export type EmailFlowConfig = {
-  getEmailContentFn?: ExtImport | AnyFunction;
+  getEmailContentFn?: ReferenceObject | AnyFunction;
   clientRoute: string;
 };
 
 export type Server = {
-  setupFn?: ExtImport | AnyFunction;
-  middlewareConfigFn?: ExtImport | AnyFunction;
-  envValidationSchema?: ExtImport | ZodSchema;
+  setupFn?: ReferenceObject | AnyFunction;
+  middlewareConfigFn?: ReferenceObject | AnyFunction;
+  envValidationSchema?: ReferenceObject | ZodSchema;
 };
 
 export type Client = {
-  rootComponent?: ExtImport | AnyFunction;
-  setupFn?: ExtImport | AnyFunction;
+  rootComponent?: ReferenceObject | AnyFunction;
+  setupFn?: ReferenceObject | AnyFunction;
   baseDir?: `/${string}`;
-  envValidationSchema?: ExtImport | ZodSchema;
+  envValidationSchema?: ReferenceObject | ZodSchema;
 };
 
 export type Db = {
-  seeds?: (ExtImport | AnyFunction)[];
-  prismaSetupFn?: ExtImport | AnyFunction;
+  seeds?: (ReferenceObject | AnyFunction)[];
+  prismaSetupFn?: ReferenceObject | AnyFunction;
 };
 
 export type EmailSender = {
@@ -100,7 +102,7 @@ export type EmailFromField = {
 };
 
 export type WebSocket = {
-  fn: ExtImport | AnyFunction;
+  fn: ReferenceObject | AnyFunction;
   autoConnect?: boolean;
 };
 
@@ -117,7 +119,7 @@ export type Part =
 export type Page = MakePart<
   "page",
   {
-    component: ExtImport | AnyFunction;
+    component: ReferenceObject | AnyFunction;
     authRequired?: boolean;
   }
 >;
@@ -136,7 +138,7 @@ export type Route = MakePart<
 export type Query = MakePart<
   "query",
   {
-    fn: ExtImport | AnyFunction;
+    fn: ReferenceObject | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -145,7 +147,7 @@ export type Query = MakePart<
 export type Action = MakePart<
   "action",
   {
-    fn: ExtImport | AnyFunction;
+    fn: ReferenceObject | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -156,8 +158,8 @@ export type Api = MakePart<
   {
     method: HttpMethod;
     path: string;
-    fn: ExtImport | AnyFunction;
-    middlewareConfigFn?: ExtImport | AnyFunction;
+    fn: ReferenceObject | AnyFunction;
+    middlewareConfigFn?: ReferenceObject | AnyFunction;
     entities?: string[];
     auth?: boolean;
   }
@@ -166,7 +168,7 @@ export type Api = MakePart<
 export type ApiNamespace = MakePart<
   "apiNamespace",
   {
-    middlewareConfigFn: ExtImport | AnyFunction;
+    middlewareConfigFn: ReferenceObject | AnyFunction;
     path: string;
   }
 >;
@@ -176,7 +178,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
 export type Job = MakePart<
   "job",
   {
-    fn: ExtImport | AnyFunction;
+    fn: ReferenceObject | AnyFunction;
     executor: JobExecutor;
     schedule?: Schedule;
     entities?: string[];
@@ -213,14 +215,10 @@ export type CrudOperation = "get" | "getAll" | "create" | "update" | "delete";
 
 export type CrudOperationOptions = {
   isPublic?: boolean;
-  overrideFn?: ExtImport;
+  overrideFn?: ReferenceObject;
 };
 
-export type {
-  DefaultExtImport,
-  ExtImport,
-  NamedExtImport,
-} from "../extImport.js";
+export type { ReferenceObject } from "../referenceObject.js";
 
 /**
  * We need the kind to differentiate between parts with the same structure. One
@@ -239,7 +237,7 @@ export type MakePart<Kind extends string, PartConfig> = {
 } & PartConfig;
 
 /**
- * Imported @src env schemas are lowered to ExtImport objects before mapping,
+ * Imported @src env schemas are lowered to ReferenceObject objects before mapping,
  * but the user still sees the public API that allows the runtime Zod object
  * (in `server.envValidationSchema` and `client.envValidationSchema`).
  * To avoid needing to depend on `zod` package, we structurally recognize Zod 4

@@ -5,8 +5,8 @@
 
 import * as AppSpec from "../appSpec.js";
 import type { AnyFunction } from "../typeUtils.js";
-import { mapExtImport } from "./extImport.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
+import { mapReferenceObject } from "./referenceObject.js";
 import { SpecUserError } from "./specUserError.js";
 
 export function mapApp(
@@ -36,7 +36,7 @@ export function mapApp(
   const pageDecls = mapToDecls(
     pages,
     "Page",
-    (page) => deriveExtImportName(page.component),
+    (page) => deriveReferenceObjectName(page.component),
     mapPage,
   );
 
@@ -50,7 +50,7 @@ export function mapApp(
   const routePageDecls = mapToDecls(
     routes,
     "Page",
-    (route) => deriveExtImportName(route.page.component),
+    (route) => deriveReferenceObjectName(route.page.component),
     (route) => mapPage(route.page),
   );
   const routeRefParser = makeRefParser(
@@ -62,7 +62,7 @@ export function mapApp(
   const queryDecls = mapToDecls(
     queries,
     "Query",
-    (query) => deriveExtImportName(query.fn),
+    (query) => deriveReferenceObjectName(query.fn),
     (query) => mapQuery(query, entityRefParser),
   );
 
@@ -70,7 +70,7 @@ export function mapApp(
   const actionDecls = mapToDecls(
     actions,
     "Action",
-    (action) => deriveExtImportName(action.fn),
+    (action) => deriveReferenceObjectName(action.fn),
     (action) => mapAction(action, entityRefParser),
   );
 
@@ -78,7 +78,7 @@ export function mapApp(
   const apiDecls = mapToDecls(
     apis,
     "Api",
-    (api) => deriveExtImportName(api.fn),
+    (api) => deriveReferenceObjectName(api.fn),
     (api) => mapApi(api, entityRefParser),
   );
 
@@ -86,7 +86,7 @@ export function mapApp(
   const apiNamespaceDecls = mapToDecls(
     apiNamespaces,
     "ApiNamespace",
-    (ns) => deriveExtImportName(ns.middlewareConfigFn),
+    (ns) => deriveReferenceObjectName(ns.middlewareConfigFn),
     mapApiNamespace,
   );
 
@@ -94,7 +94,7 @@ export function mapApp(
   const jobDecls = mapToDecls(
     jobs,
     "Job",
-    (job) => deriveExtImportName(job.fn),
+    (job) => deriveReferenceObjectName(job.fn),
     (job) => mapJob(job, entityRefParser),
   );
 
@@ -138,7 +138,7 @@ export function mapApp(
 export function mapPage(page: TsAppSpec.Page): AppSpec.Page {
   const { component, authRequired } = page;
   return {
-    component: mapExtImport(component),
+    component: mapReferenceObject(component),
     authRequired,
   };
 }
@@ -148,7 +148,7 @@ export function mapRoute(route: TsAppSpec.Route): AppSpec.Route {
   return {
     path,
     to: {
-      name: deriveExtImportName(route.page.component),
+      name: deriveReferenceObjectName(route.page.component),
       declType: "Page",
     },
     prerender,
@@ -201,7 +201,7 @@ export function mapQuery(
 ): AppSpec.Query {
   const { fn, entities, auth } = query;
   return {
-    fn: mapExtImport(fn),
+    fn: mapReferenceObject(fn),
     entities: entities?.map(entityRefParser),
     auth,
   };
@@ -213,7 +213,7 @@ export function mapAction(
 ): AppSpec.Action {
   const { fn, entities, auth } = action;
   return {
-    fn: mapExtImport(fn),
+    fn: mapReferenceObject(fn),
     entities: entities?.map(entityRefParser),
     auth,
   };
@@ -246,14 +246,14 @@ export function mapAuth(
     methods: mapAuthMethods(methods, routeRefParser),
     onAuthFailedRedirectTo,
     onAuthSucceededRedirectTo,
-    onBeforeSignup: onBeforeSignup && mapExtImport(onBeforeSignup),
-    onAfterSignup: onAfterSignup && mapExtImport(onAfterSignup),
+    onBeforeSignup: onBeforeSignup && mapReferenceObject(onBeforeSignup),
+    onAfterSignup: onAfterSignup && mapReferenceObject(onAfterSignup),
     onAfterEmailVerified:
-      onAfterEmailVerified && mapExtImport(onAfterEmailVerified),
+      onAfterEmailVerified && mapReferenceObject(onAfterEmailVerified),
     onBeforeOAuthRedirect:
-      onBeforeOAuthRedirect && mapExtImport(onBeforeOAuthRedirect),
-    onBeforeLogin: onBeforeLogin && mapExtImport(onBeforeLogin),
-    onAfterLogin: onAfterLogin && mapExtImport(onAfterLogin),
+      onBeforeOAuthRedirect && mapReferenceObject(onBeforeOAuthRedirect),
+    onBeforeLogin: onBeforeLogin && mapReferenceObject(onBeforeLogin),
+    onAfterLogin: onAfterLogin && mapReferenceObject(onAfterLogin),
   };
 }
 
@@ -287,7 +287,7 @@ export function mapUsernameAndPassword(
 ): AppSpec.UsernameAndPasswordConfig {
   const { userSignupFields } = usernameAndPassword;
   return {
-    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+    userSignupFields: userSignupFields && mapReferenceObject(userSignupFields),
   };
 }
 
@@ -296,8 +296,8 @@ export function mapExternalAuth(
 ): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = externalAuth;
   return {
-    configFn: configFn && mapExtImport(configFn),
-    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+    configFn: configFn && mapReferenceObject(configFn),
+    userSignupFields: userSignupFields && mapReferenceObject(userSignupFields),
   };
 }
 
@@ -308,7 +308,7 @@ export function mapEmailAuth(
   const { userSignupFields, fromField, emailVerification, passwordReset } =
     emailAuth;
   return {
-    userSignupFields: userSignupFields && mapExtImport(userSignupFields),
+    userSignupFields: userSignupFields && mapReferenceObject(userSignupFields),
     fromField: mapEmailFromField(fromField),
     emailVerification: mapEmailFlow(emailVerification, routeRefParser),
     passwordReset: mapEmailFlow(passwordReset, routeRefParser),
@@ -321,7 +321,8 @@ export function mapEmailFlow(
 ): AppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailFlow;
   return {
-    getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
+    getEmailContentFn:
+      getEmailContentFn && mapReferenceObject(getEmailContentFn),
     clientRoute: routeRefParser(clientRoute),
   };
 }
@@ -332,8 +333,9 @@ export function mapApi(
 ): AppSpec.Api {
   const { method, path, fn, middlewareConfigFn, entities, auth } = api;
   return {
-    fn: mapExtImport(fn),
-    middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
+    fn: mapReferenceObject(fn),
+    middlewareConfigFn:
+      middlewareConfigFn && mapReferenceObject(middlewareConfigFn),
     entities: entities?.map(entityRefParser),
     httpRoute: [method, path],
     auth,
@@ -345,7 +347,7 @@ export function mapApiNamespace(
 ): AppSpec.ApiNamespace {
   const { middlewareConfigFn, path } = apiNamespace;
   return {
-    middlewareConfigFn: mapExtImport(middlewareConfigFn),
+    middlewareConfigFn: mapReferenceObject(middlewareConfigFn),
     path,
   };
 }
@@ -353,29 +355,30 @@ export function mapApiNamespace(
 export function mapServer(server: TsAppSpec.Server): AppSpec.Server {
   const { setupFn, middlewareConfigFn, envValidationSchema } = server;
   return {
-    setupFn: setupFn && mapExtImport(setupFn),
-    middlewareConfigFn: middlewareConfigFn && mapExtImport(middlewareConfigFn),
+    setupFn: setupFn && mapReferenceObject(setupFn),
+    middlewareConfigFn:
+      middlewareConfigFn && mapReferenceObject(middlewareConfigFn),
     envValidationSchema:
-      envValidationSchema && mapExtImport(envValidationSchema),
+      envValidationSchema && mapReferenceObject(envValidationSchema),
   };
 }
 
 export function mapClient(client: TsAppSpec.Client): AppSpec.Client {
   const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
   return {
-    rootComponent: rootComponent && mapExtImport(rootComponent),
-    setupFn: setupFn && mapExtImport(setupFn),
+    rootComponent: rootComponent && mapReferenceObject(rootComponent),
+    setupFn: setupFn && mapReferenceObject(setupFn),
     baseDir,
     envValidationSchema:
-      envValidationSchema && mapExtImport(envValidationSchema),
+      envValidationSchema && mapReferenceObject(envValidationSchema),
   };
 }
 
 export function mapDb(db: TsAppSpec.Db): AppSpec.Db {
   const { seeds, prismaSetupFn } = db;
   return {
-    seeds: seeds?.map(mapExtImport),
-    prismaSetupFn: prismaSetupFn && mapExtImport(prismaSetupFn),
+    seeds: seeds?.map(mapReferenceObject),
+    prismaSetupFn: prismaSetupFn && mapReferenceObject(prismaSetupFn),
   };
 }
 
@@ -403,7 +406,7 @@ export function mapWebSocket(
 ): AppSpec.WebSocket {
   const { fn, autoConnect } = webSocket;
   return {
-    fn: mapExtImport(fn),
+    fn: mapReferenceObject(fn),
     autoConnect,
   };
 }
@@ -416,7 +419,7 @@ export function mapJob(
   return {
     executor,
     perform: {
-      fn: mapExtImport(fn),
+      fn: mapReferenceObject(fn),
       executorOptions: performExecutorOptions,
     },
     schedule: schedule && mapSchedule(schedule),
@@ -454,7 +457,7 @@ export function mapCrudOperationOptions(
   const { isPublic, overrideFn } = options;
   return {
     isPublic,
-    overrideFn: overrideFn && mapExtImport(overrideFn),
+    overrideFn: overrideFn && mapReferenceObject(overrideFn),
   };
 }
 
@@ -514,14 +517,12 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
   }));
 }
 
-export function deriveExtImportName(
-  extImport: TsAppSpec.ExtImport | AnyFunction,
+export function deriveReferenceObjectName(
+  ref: TsAppSpec.ReferenceObject | AnyFunction,
 ): string {
-  const mappedExtImport = mapExtImport(extImport);
+  const mapped = mapReferenceObject(ref);
 
-  return "alias" in mappedExtImport
-    ? (mappedExtImport.alias ?? mappedExtImport.name)
-    : mappedExtImport.name;
+  return "alias" in mapped ? (mapped.alias ?? mapped.name) : mapped.name;
 }
 
 /**

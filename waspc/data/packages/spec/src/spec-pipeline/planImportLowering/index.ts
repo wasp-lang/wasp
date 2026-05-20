@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import type { ExtImport } from "../../spec/extImport.js";
+import type { ReferenceObject } from "../../spec/referenceObject.js";
 import { SpecUserError } from "../../spec/specUserError.js";
 import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
@@ -27,8 +27,8 @@ type ImportReplacement = {
 
 /**
  * Given source code, detects supported @src import statements and returns a
- * plan for replacing them with inline ExtImport consts. We call this lowering
- * imports.
+ * plan for replacing them with inline ReferenceObject consts. We call this
+ * lowering imports.
  */
 export function planImportLowering({
   sourceText,
@@ -96,14 +96,14 @@ function planStatementLowering(
       end: stmt.getEnd(),
       bindings: getLoweredImportBindings(
         stmt.importClause,
-        toExtImportPath(specifier),
+        toReferencePath(specifier),
       ),
     },
   ];
 }
 
-function toExtImportPath(specifier: string): ExtImport["from"] {
-  return specifier as ExtImport["from"];
+function toReferencePath(specifier: string): ReferenceObject["from"] {
+  return specifier as ReferenceObject["from"];
 }
 
 function formatImportDiagnostics(diagnostics: ImportDiagnostic[]): string {

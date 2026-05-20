@@ -1,33 +1,34 @@
 import * as ts from "typescript";
-import type { ExtImport } from "../../spec/extImport.js";
+import type { ReferenceObject } from "../../spec/referenceObject.js";
+import { DEFAULT_IMPORT_NAME } from "../../spec/referenceObject.js";
 
-export type LoweredImportBinding = ExtImportBinding | NamespaceImportBinding;
+export type LoweredImportBinding = ReferenceBinding | NamespaceImportBinding;
 
-type ExtImportBinding = {
-  kind: "extImport";
+type ReferenceBinding = {
+  kind: "reference";
   localName: string;
-  extImport: ExtImport;
+  reference: ReferenceObject;
 };
 
 export type NamespaceImportBinding = {
   kind: "namespace";
   localName: string;
-  from: ExtImport["from"];
+  from: ReferenceObject["from"];
   aliasPrefix: string;
 };
 
 export function getLoweredImportBindings(
   clause: ts.ImportClause,
-  from: ExtImport["from"],
+  from: ReferenceObject["from"],
 ): LoweredImportBinding[] {
   const bindings: LoweredImportBinding[] = [];
 
   if (clause.name) {
     const name = clause.name.text;
     bindings.push({
-      kind: "extImport",
+      kind: "reference",
       localName: name,
-      extImport: { importDefault: name, from },
+      reference: { import: DEFAULT_IMPORT_NAME, alias: name, from },
     });
   }
 
@@ -45,9 +46,9 @@ export function getLoweredImportBindings(
       const localName = spec.name.text;
       const importedName = getImportedName(spec);
       bindings.push({
-        kind: "extImport",
+        kind: "reference",
         localName,
-        extImport: {
+        reference: {
           import: importedName,
           from,
           ...(importedName === localName ? {} : { alias: localName }),

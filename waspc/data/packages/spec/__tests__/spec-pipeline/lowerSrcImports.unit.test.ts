@@ -5,15 +5,15 @@ import { SpecUserError } from "../../src/spec/specUserError.js";
 describe("lowerSrcImports", () => {
   const sourcePath = "main.wasp.ts";
 
-  test("lowers a default import into an importDefault ExtImport const", () => {
+  test("lowers a default import into a default ReferenceObject const", () => {
     const input = `import MainPage from "@src/MainPage";\n`;
     const output = lowerSrcImports({ sourceText: input, sourcePath });
     expect(output).toBe(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;\n`,
+      `const MainPage = { import: "default", from: "@src/MainPage", alias: "MainPage" } as const;\n`,
     );
   });
 
-  test("lowers a single named import into an ExtImport const", () => {
+  test("lowers a single named import into a ReferenceObject const", () => {
     const input = `import { getTasks } from "@src/operations";\n`;
     const output = lowerSrcImports({ sourceText: input, sourcePath });
     expect(output).toBe(
@@ -45,7 +45,7 @@ describe("lowerSrcImports", () => {
     );
   });
 
-  test("lowers multiple named imports into separate ExtImport consts", () => {
+  test("lowers multiple named imports into separate ReferenceObject consts", () => {
     const input = `import { getTasks, createTask } from "@src/operations";\n`;
     const output = lowerSrcImports({ sourceText: input, sourcePath });
     expect(output).toBe(
@@ -57,7 +57,7 @@ describe("lowerSrcImports", () => {
     const input = `import MainPage, { Helper } from "@src/MainPage";\n`;
     const output = lowerSrcImports({ sourceText: input, sourcePath });
     expect(output).toBe(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;\nconst Helper = { import: "Helper", from: "@src/MainPage" } as const;\n`,
+      `const MainPage = { import: "default", from: "@src/MainPage", alias: "MainPage" } as const;\nconst Helper = { import: "Helper", from: "@src/MainPage" } as const;\n`,
     );
   });
 
@@ -134,7 +134,7 @@ describe("lowerSrcImports", () => {
     ].join("\n");
     const output = lowerSrcImports({ sourceText: input, sourcePath });
     expect(output).toContain(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
+      `const MainPage = { import: "default", from: "@src/MainPage", alias: "MainPage" } as const;`,
     );
     expect(output).toContain(
       `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
@@ -148,7 +148,7 @@ describe("lowerSrcImports", () => {
     expectNoSrcImportDeclarations(output);
   });
 
-  test("is a no-op on an ExtImport-form spec file", () => {
+  test("is a no-op on a ReferenceObject-form spec file", () => {
     const input = [
       `import { App } from "@wasp.sh/spec";`,
       ``,

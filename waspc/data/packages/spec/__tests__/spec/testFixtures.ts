@@ -68,9 +68,9 @@ export function getPage<Scope extends ConfigScope>(
 export function getPage(scope: ConfigScope): Config<TsAppSpec.Page> {
   switch (scope) {
     case "minimal":
-      return page(getExtImport("minimal", "named"));
+      return page(getReferenceObject("minimal", "named"));
     case "full":
-      return page(getExtImport("full", "named"), {
+      return page(getReferenceObject("full", "named"), {
         authRequired: true,
       });
     default:
@@ -101,9 +101,9 @@ export function getQuery<Scope extends ConfigScope>(
 export function getQuery(scope: ConfigScope): Config<TsAppSpec.Query> {
   switch (scope) {
     case "minimal":
-      return query(getExtImport("minimal", "named"));
+      return query(getReferenceObject("minimal", "named"));
     case "full":
-      return query(getExtImport("full", "named"), {
+      return query(getReferenceObject("full", "named"), {
         entities: ["Task"],
         auth: true,
       });
@@ -118,9 +118,9 @@ export function getAction<Scope extends ConfigScope>(
 export function getAction(scope: ConfigScope): Config<TsAppSpec.Action> {
   switch (scope) {
     case "minimal":
-      return action(getExtImport("minimal", "named"));
+      return action(getReferenceObject("minimal", "named"));
     case "full":
-      return action(getExtImport("full", "named"), {
+      return action(getReferenceObject("full", "named"), {
         entities: ["Task"],
         auth: true,
       });
@@ -135,10 +135,10 @@ export function getApi<Scope extends ConfigScope>(
 export function getApi(scope: ConfigScope): Config<TsAppSpec.Api> {
   switch (scope) {
     case "minimal":
-      return api("GET", "/foo/bar", getExtImport("minimal", "named"));
+      return api("GET", "/foo/bar", getReferenceObject("minimal", "named"));
     case "full":
-      return api("POST", "/foo/bar", getExtImport("full", "named"), {
-        middlewareConfigFn: getExtImport("full", "named"),
+      return api("POST", "/foo/bar", getReferenceObject("full", "named"), {
+        middlewareConfigFn: getReferenceObject("full", "named"),
         entities: ["Task"],
         auth: true,
       });
@@ -156,11 +156,11 @@ export function getApiNamespace(
   switch (scope) {
     case "minimal":
       return apiNamespace("/foo", {
-        middlewareConfigFn: getExtImport("minimal", "named"),
+        middlewareConfigFn: getReferenceObject("minimal", "named"),
       });
     case "full":
       return apiNamespace("/foo", {
-        middlewareConfigFn: getExtImport("full", "named"),
+        middlewareConfigFn: getReferenceObject("full", "named"),
       });
     default:
       assertUnreachable(scope);
@@ -173,11 +173,11 @@ export function getJob<Scope extends ConfigScope>(
 export function getJob(scope: ConfigScope): Config<TsAppSpec.Job> {
   switch (scope) {
     case "minimal":
-      return job(getExtImport("minimal", "named"), {
+      return job(getReferenceObject("minimal", "named"), {
         executor: "PgBoss",
       });
     case "full":
-      return job(getExtImport("full", "named"), {
+      return job(getReferenceObject("full", "named"), {
         executor: "PgBoss",
         schedule: getSchedule("full"),
         entities: ["Task"],
@@ -254,7 +254,7 @@ export function getCrudOperationOptions(
     case "full":
       return {
         isPublic: true,
-        overrideFn: getExtImport("full", "named"),
+        overrideFn: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.CrudOperationOptions>;
     default:
       assertUnreachable(scope);
@@ -299,9 +299,9 @@ export function getServerConfig(scope: ConfigScope): Config<TsAppSpec.Server> {
       return {} satisfies MinimalConfig<TsAppSpec.Server>;
     case "full":
       return {
-        setupFn: getExtImport("full", "named"),
-        middlewareConfigFn: getExtImport("full", "named"),
-        envValidationSchema: getExtImport("full", "named"),
+        setupFn: getReferenceObject("full", "named"),
+        middlewareConfigFn: getReferenceObject("full", "named"),
+        envValidationSchema: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.Server>;
     default:
       assertUnreachable(scope);
@@ -317,10 +317,10 @@ export function getClientConfig(scope: ConfigScope): Config<TsAppSpec.Client> {
       return {} satisfies MinimalConfig<TsAppSpec.Client>;
     case "full":
       return {
-        rootComponent: getExtImport("full", "named"),
-        setupFn: getExtImport("full", "named"),
+        rootComponent: getReferenceObject("full", "named"),
+        setupFn: getReferenceObject("full", "named"),
         baseDir: "/src",
-        envValidationSchema: getExtImport("full", "named"),
+        envValidationSchema: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.Client>;
     default:
       assertUnreachable(scope);
@@ -336,8 +336,11 @@ export function getDbConfig(scope: ConfigScope): Config<TsAppSpec.Db> {
       return {} satisfies MinimalConfig<TsAppSpec.Db>;
     case "full":
       return {
-        seeds: [getExtImport("full", "named"), getExtImport("full", "default")],
-        prismaSetupFn: getExtImport("full", "named"),
+        seeds: [
+          getReferenceObject("full", "named"),
+          getReferenceObject("full", "default"),
+        ],
+        prismaSetupFn: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.Db>;
     default:
       assertUnreachable(scope);
@@ -374,11 +377,11 @@ export function getWebSocketConfig(
   switch (scope) {
     case "minimal":
       return {
-        fn: getExtImport("minimal", "named"),
+        fn: getReferenceObject("minimal", "named"),
       } satisfies MinimalConfig<TsAppSpec.WebSocket>;
     case "full":
       return {
-        fn: getExtImport("full", "named"),
+        fn: getReferenceObject("full", "named"),
         autoConnect: true,
       } satisfies FullConfig<TsAppSpec.WebSocket>;
     default:
@@ -404,12 +407,12 @@ export function getAuthConfig(scope: ConfigScope): Config<TsAppSpec.Auth> {
         methods: getAuthMethods("full"),
         onAuthFailedRedirectTo: "/login",
         onAuthSucceededRedirectTo: "/profile",
-        onBeforeSignup: getExtImport("full", "named"),
-        onAfterSignup: getExtImport("full", "named"),
-        onAfterEmailVerified: getExtImport("full", "named"),
-        onBeforeOAuthRedirect: getExtImport("full", "named"),
-        onBeforeLogin: getExtImport("full", "named"),
-        onAfterLogin: getExtImport("full", "named"),
+        onBeforeSignup: getReferenceObject("full", "named"),
+        onAfterSignup: getReferenceObject("full", "named"),
+        onAfterEmailVerified: getReferenceObject("full", "named"),
+        onBeforeOAuthRedirect: getReferenceObject("full", "named"),
+        onBeforeLogin: getReferenceObject("full", "named"),
+        onAfterLogin: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.Auth>;
     default:
       assertUnreachable(scope);
@@ -450,7 +453,7 @@ export function getUsernameAndPasswordConfig(
       return {} satisfies MinimalConfig<TsAppSpec.UsernameAndPasswordConfig>;
     case "full":
       return {
-        userSignupFields: getExtImport("full", "named"),
+        userSignupFields: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.UsernameAndPasswordConfig>;
     default:
       assertUnreachable(scope);
@@ -468,8 +471,8 @@ export function getExternalAuthConfig(
       return {} satisfies MinimalConfig<TsAppSpec.ExternalAuthConfig>;
     case "full":
       return {
-        configFn: getExtImport("full", "named"),
-        userSignupFields: getExtImport("full", "named"),
+        configFn: getReferenceObject("full", "named"),
+        userSignupFields: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.ExternalAuthConfig>;
     default:
       assertUnreachable(scope);
@@ -494,7 +497,7 @@ export function getEmailAuthConfig(
         fromField: getEmailFromField("full"),
         emailVerification: getEmailVerificationConfig("full"),
         passwordReset: getPasswordResetConfig("full"),
-        userSignupFields: getExtImport("full", "named"),
+        userSignupFields: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.EmailAuthConfig>;
     default:
       assertUnreachable(scope);
@@ -515,7 +518,7 @@ export function getEmailVerificationConfig(
     case "full":
       return {
         clientRoute: EMAIL_VERIFY_ROUTE_NAME,
-        getEmailContentFn: getExtImport("full", "named"),
+        getEmailContentFn: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.EmailFlowConfig>;
     default:
       assertUnreachable(scope);
@@ -536,7 +539,7 @@ export function getPasswordResetConfig(
     case "full":
       return {
         clientRoute: PASSWORD_RESET_ROUTE_NAME,
-        getEmailContentFn: getExtImport("full", "named"),
+        getEmailContentFn: getReferenceObject("full", "named"),
       } satisfies FullConfig<TsAppSpec.EmailFlowConfig>;
     default:
       assertUnreachable(scope);
@@ -585,21 +588,25 @@ export function getPasswordResetRoute(): TsAppSpec.Route {
   );
 }
 
-export function getExtImport<
-  Scope extends ConfigScope,
-  Kind extends AppSpec.ExtImportKind,
->(scope: Scope, importKind: Kind): ConfigFor<Scope, ExtImportFor<Kind>>;
-export function getExtImport(
+export function getReferenceObject<Scope extends ConfigScope>(
+  scope: Scope,
+  importKind: AppSpec.ExtImportKind,
+): ConfigFor<Scope, TsAppSpec.ReferenceObject>;
+export function getReferenceObject(
   scope: ConfigScope,
   importKind: AppSpec.ExtImportKind,
-): Config<TsAppSpec.ExtImport> {
+): Config<TsAppSpec.ReferenceObject> {
   switch (importKind) {
     case "named":
       return scope === "full"
         ? { import: "namedExport", alias: "namedAlias", from: "@src/external" }
         : { import: "namedExport", from: "@src/external" };
     case "default":
-      return { importDefault: "defaultExport", from: "@src/external" };
+      return {
+        import: "default",
+        alias: "defaultExport",
+        from: "@src/external",
+      };
     default:
       assertUnreachable(importKind);
   }
@@ -677,10 +684,6 @@ type FullConfigObject<T> = {
 type IsExclusionMarker<V> = [Exclude<V, undefined>] extends [never]
   ? true
   : false;
-
-type ExtImportFor<Kind extends AppSpec.ExtImportKind> = Kind extends "named"
-  ? TsAppSpec.NamedExtImport
-  : TsAppSpec.DefaultExtImport;
 
 type ConfigFor<Scope extends ConfigScope, Data> = Scope extends "full"
   ? FullConfig<Data>

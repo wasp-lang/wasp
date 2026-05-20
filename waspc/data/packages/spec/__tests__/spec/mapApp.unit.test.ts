@@ -1,8 +1,7 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import { mapExtImport } from "../../src/spec/extImport.js";
 import {
-  deriveExtImportName,
+  deriveReferenceObjectName,
   makeRefParser,
   mapAction,
   mapApi,
@@ -31,6 +30,7 @@ import {
 } from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import { mapReferenceObject } from "../../src/spec/referenceObject.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("mapApp", () => {
@@ -111,7 +111,7 @@ describe("mapApp", () => {
       passwordResetRoute.name,
     ]);
 
-    // TODO: Reaching into `deriveExtImportName` here is not ideal — it leaks
+    // TODO: Reaching into `deriveReferenceObjectName` here is not ideal — it leaks
     // an orchestrator-internal helper into the test. Revisit once we have a
     // higher-level name-derivation system: either a part-agnostic
     // `deriveDeclName(part)`, or a part-specific dispatch (mirroring how we
@@ -135,17 +135,17 @@ describe("mapApp", () => {
       },
       {
         declType: "Page",
-        declName: deriveExtImportName(page.component),
+        declName: deriveReferenceObjectName(page.component),
         declValue: mapPage(page),
       },
       {
         declType: "Page",
-        declName: deriveExtImportName(emailVerifyRoute.page.component),
+        declName: deriveReferenceObjectName(emailVerifyRoute.page.component),
         declValue: mapPage(emailVerifyRoute.page),
       },
       {
         declType: "Page",
-        declName: deriveExtImportName(passwordResetRoute.page.component),
+        declName: deriveReferenceObjectName(passwordResetRoute.page.component),
         declValue: mapPage(passwordResetRoute.page),
       },
       {
@@ -165,22 +165,22 @@ describe("mapApp", () => {
       },
       {
         declType: "Query",
-        declName: deriveExtImportName(query.fn),
+        declName: deriveReferenceObjectName(query.fn),
         declValue: mapQuery(query, entityRefParser),
       },
       {
         declType: "Api",
-        declName: deriveExtImportName(api.fn),
+        declName: deriveReferenceObjectName(api.fn),
         declValue: mapApi(api, entityRefParser),
       },
       {
         declType: "ApiNamespace",
-        declName: deriveExtImportName(apiNamespace.middlewareConfigFn),
+        declName: deriveReferenceObjectName(apiNamespace.middlewareConfigFn),
         declValue: mapApiNamespace(apiNamespace),
       },
       {
         declType: "Job",
-        declName: deriveExtImportName(job.fn),
+        declName: deriveReferenceObjectName(job.fn),
         declValue: mapJob(job, entityRefParser),
       },
       {
@@ -192,10 +192,10 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced explicitly twice", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
-    const page1 = page(extImport);
-    const page2 = page(extImport);
+    const ref = Fixtures.getReferenceObject("minimal", "default");
+    const pageName = deriveReferenceObjectName(ref);
+    const page1 = page(ref);
+    const page2 = page(ref);
 
     const app = Fixtures.getMinimalAppWithParts([page1, page2]);
     const decls = mapApp(app, []);
@@ -207,10 +207,10 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced via a route shorthand twice", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
-    const page1 = page(extImport);
-    const page2 = page(extImport);
+    const ref = Fixtures.getReferenceObject("minimal", "default");
+    const pageName = deriveReferenceObjectName(ref);
+    const page1 = page(ref);
+    const page2 = page(ref);
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
@@ -224,10 +224,10 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced explicitly and via a route shorthand", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
-    const page1 = page(extImport);
-    const page2 = page(extImport);
+    const ref = Fixtures.getReferenceObject("minimal", "default");
+    const pageName = deriveReferenceObjectName(ref);
+    const page1 = page(ref);
+    const page2 = page(ref);
     const route1 = route("Route1", "/", page2);
 
     const app = Fixtures.getMinimalAppWithParts([page1, route1]);
@@ -240,10 +240,10 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs explicitly", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
-    const page1 = page(extImport);
-    const page2 = page(extImport, { authRequired: true });
+    const ref = Fixtures.getReferenceObject("minimal", "default");
+    const pageName = deriveReferenceObjectName(ref);
+    const page1 = page(ref);
+    const page2 = page(ref, { authRequired: true });
 
     const app = Fixtures.getMinimalAppWithParts([page1, page2]);
 
@@ -253,10 +253,10 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs via a route shorthand twice", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
-    const page1 = page(extImport);
-    const page2 = page(extImport, { authRequired: true });
+    const ref = Fixtures.getReferenceObject("minimal", "default");
+    const pageName = deriveReferenceObjectName(ref);
+    const page1 = page(ref);
+    const page2 = page(ref, { authRequired: true });
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
@@ -268,10 +268,10 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs explicitly and via a route shorthand", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
-    const page1 = page(extImport);
-    const page2 = page(extImport, { authRequired: true });
+    const ref = Fixtures.getReferenceObject("minimal", "default");
+    const pageName = deriveReferenceObjectName(ref);
+    const page1 = page(ref);
+    const page2 = page(ref, { authRequired: true });
     const route1 = route("Route2", "/", page2);
 
     const app = Fixtures.getMinimalAppWithParts([page1, route1]);
@@ -297,7 +297,7 @@ describe("mapPage", () => {
     const result = mapPage(page);
 
     expect(result).toStrictEqual({
-      component: mapExtImport(page.component),
+      component: mapReferenceObject(page.component),
       authRequired: page.authRequired,
     } satisfies AppSpec.Page);
   }
@@ -318,7 +318,7 @@ describe("mapRoute", () => {
     expect(result).toStrictEqual({
       path: route.path,
       to: {
-        name: deriveExtImportName(route.page.component),
+        name: deriveReferenceObjectName(route.page.component),
         declType: "Page",
       },
       prerender: route.prerender,
@@ -349,7 +349,7 @@ describe("mapQuery", () => {
     const result = mapQuery(query, entityRefParser);
 
     expect(result).toStrictEqual({
-      fn: mapExtImport(query.fn),
+      fn: mapReferenceObject(query.fn),
       entities: query.entities?.map(entityRefParser),
       auth: query.auth,
     } satisfies AppSpec.Query);
@@ -378,7 +378,7 @@ describe("mapAction", () => {
     const result = mapAction(action, entityRefParser);
 
     expect(result).toStrictEqual({
-      fn: mapExtImport(action.fn),
+      fn: mapReferenceObject(action.fn),
       entities: action.entities?.map(entityRefParser),
       auth: action.auth,
     } satisfies AppSpec.Action);
@@ -471,14 +471,19 @@ describe("mapAuth", () => {
       methods: mapAuthMethods(auth.methods, routeRefParser),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
-      onBeforeSignup: auth.onBeforeSignup && mapExtImport(auth.onBeforeSignup),
-      onAfterSignup: auth.onAfterSignup && mapExtImport(auth.onAfterSignup),
+      onBeforeSignup:
+        auth.onBeforeSignup && mapReferenceObject(auth.onBeforeSignup),
+      onAfterSignup:
+        auth.onAfterSignup && mapReferenceObject(auth.onAfterSignup),
       onAfterEmailVerified:
-        auth.onAfterEmailVerified && mapExtImport(auth.onAfterEmailVerified),
+        auth.onAfterEmailVerified &&
+        mapReferenceObject(auth.onAfterEmailVerified),
       onBeforeOAuthRedirect:
-        auth.onBeforeOAuthRedirect && mapExtImport(auth.onBeforeOAuthRedirect),
-      onBeforeLogin: auth.onBeforeLogin && mapExtImport(auth.onBeforeLogin),
-      onAfterLogin: auth.onAfterLogin && mapExtImport(auth.onAfterLogin),
+        auth.onBeforeOAuthRedirect &&
+        mapReferenceObject(auth.onBeforeOAuthRedirect),
+      onBeforeLogin:
+        auth.onBeforeLogin && mapReferenceObject(auth.onBeforeLogin),
+      onAfterLogin: auth.onAfterLogin && mapReferenceObject(auth.onAfterLogin),
     } satisfies AppSpec.Auth);
   }
 });
@@ -609,7 +614,8 @@ describe("mapEmailAuth", () => {
 
     expect(result).toStrictEqual({
       userSignupFields:
-        emailAuth.userSignupFields && mapExtImport(emailAuth.userSignupFields),
+        emailAuth.userSignupFields &&
+        mapReferenceObject(emailAuth.userSignupFields),
       fromField: mapEmailFromField(emailAuth.fromField),
       emailVerification: mapEmailFlow(
         emailAuth.emailVerification,
@@ -672,7 +678,7 @@ describe("mapEmailFlow", () => {
       clientRoute: routeRefParser(emailFlow.clientRoute),
       getEmailContentFn:
         emailFlow.getEmailContentFn &&
-        mapExtImport(emailFlow.getEmailContentFn),
+        mapReferenceObject(emailFlow.getEmailContentFn),
     } satisfies AppSpec.EmailVerificationConfig);
   }
 });
@@ -696,7 +702,7 @@ describe("mapUsernameAndPassword", () => {
     expect(result).toStrictEqual({
       userSignupFields:
         usernameAndPassword.userSignupFields &&
-        mapExtImport(usernameAndPassword.userSignupFields),
+        mapReferenceObject(usernameAndPassword.userSignupFields),
     } satisfies AppSpec.UsernameAndPasswordConfig);
   }
 });
@@ -716,10 +722,11 @@ describe("mapExternalAuth", () => {
     const result = mapExternalAuth(externalAuth);
 
     expect(result).toStrictEqual({
-      configFn: externalAuth.configFn && mapExtImport(externalAuth.configFn),
+      configFn:
+        externalAuth.configFn && mapReferenceObject(externalAuth.configFn),
       userSignupFields:
         externalAuth.userSignupFields &&
-        mapExtImport(externalAuth.userSignupFields),
+        mapReferenceObject(externalAuth.userSignupFields),
     } satisfies AppSpec.ExternalAuthConfig);
   }
 });
@@ -746,9 +753,9 @@ describe("mapApi", () => {
     const result = mapApi(api, entityRefParser);
 
     expect(result).toStrictEqual({
-      fn: mapExtImport(api.fn),
+      fn: mapReferenceObject(api.fn),
       middlewareConfigFn:
-        api.middlewareConfigFn && mapExtImport(api.middlewareConfigFn),
+        api.middlewareConfigFn && mapReferenceObject(api.middlewareConfigFn),
       entities: api.entities?.map(entityRefParser),
       httpRoute: [api.method, api.path],
       auth: api.auth,
@@ -769,7 +776,7 @@ describe("mapApiNamespace", () => {
     const result = mapApiNamespace(apiNamespace);
 
     expect(result).toStrictEqual({
-      middlewareConfigFn: mapExtImport(apiNamespace.middlewareConfigFn),
+      middlewareConfigFn: mapReferenceObject(apiNamespace.middlewareConfigFn),
       path: apiNamespace.path,
     } satisfies AppSpec.ApiNamespace);
   }
@@ -788,11 +795,13 @@ describe("mapServer", () => {
     const result = mapServer(server);
 
     expect(result).toStrictEqual({
-      setupFn: server.setupFn && mapExtImport(server.setupFn),
+      setupFn: server.setupFn && mapReferenceObject(server.setupFn),
       middlewareConfigFn:
-        server.middlewareConfigFn && mapExtImport(server.middlewareConfigFn),
+        server.middlewareConfigFn &&
+        mapReferenceObject(server.middlewareConfigFn),
       envValidationSchema:
-        server.envValidationSchema && mapExtImport(server.envValidationSchema),
+        server.envValidationSchema &&
+        mapReferenceObject(server.envValidationSchema),
     } satisfies AppSpec.Server);
   }
 });
@@ -810,11 +819,13 @@ describe("mapClient", () => {
     const result = mapClient(client);
 
     expect(result).toStrictEqual({
-      rootComponent: client.rootComponent && mapExtImport(client.rootComponent),
-      setupFn: client.setupFn && mapExtImport(client.setupFn),
+      rootComponent:
+        client.rootComponent && mapReferenceObject(client.rootComponent),
+      setupFn: client.setupFn && mapReferenceObject(client.setupFn),
       baseDir: client.baseDir,
       envValidationSchema:
-        client.envValidationSchema && mapExtImport(client.envValidationSchema),
+        client.envValidationSchema &&
+        mapReferenceObject(client.envValidationSchema),
     } satisfies AppSpec.Client);
   }
 });
@@ -832,8 +843,8 @@ describe("mapDb", () => {
     const result = mapDb(db);
 
     expect(result).toStrictEqual({
-      seeds: db.seeds?.map((seed) => mapExtImport(seed)),
-      prismaSetupFn: db.prismaSetupFn && mapExtImport(db.prismaSetupFn),
+      seeds: db.seeds?.map((seed) => mapReferenceObject(seed)),
+      prismaSetupFn: db.prismaSetupFn && mapReferenceObject(db.prismaSetupFn),
     } satisfies AppSpec.Db);
   }
 });
@@ -892,7 +903,7 @@ describe("mapWebSocket", () => {
     const result = mapWebSocket(webSocket);
 
     expect(result).toStrictEqual({
-      fn: mapExtImport(webSocket.fn),
+      fn: mapReferenceObject(webSocket.fn),
       autoConnect: webSocket.autoConnect,
     } satisfies AppSpec.WebSocket);
   }
@@ -922,7 +933,7 @@ describe("mapJob", () => {
     expect(result).toStrictEqual({
       executor: job.executor,
       perform: {
-        fn: mapExtImport(job.fn),
+        fn: mapReferenceObject(job.fn),
         executorOptions: job.performExecutorOptions,
       },
       schedule: job.schedule && mapSchedule(job.schedule),
@@ -1005,7 +1016,7 @@ describe("mapCrudOperationOptions", () => {
       isPublic: crudOperationOptions.isPublic,
       overrideFn:
         crudOperationOptions.overrideFn &&
-        mapExtImport(crudOperationOptions.overrideFn),
+        mapReferenceObject(crudOperationOptions.overrideFn),
     } satisfies AppSpec.CrudOperationOptions);
   }
 });
