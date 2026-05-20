@@ -753,7 +753,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
         ],
-        "737990d1ed27a0481690366da5a0c8cd7bd795a08e0984d35eac8f6a132fbd3c"
+        "ce47c280695bf45c631306320e25b936782fee5b4cf688130498d298b9140904"
     ],
     [
         [
@@ -774,7 +774,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "7024075a1d16f094219ca1c8bc1dec4e8ed2cccafc4a9f716992a68ed05af2f3"
+        "5309ca5216d526747bef3521e961c98a942ea4b37ed0db3365cac4cab5e61c7a"
     ],
     [
         [

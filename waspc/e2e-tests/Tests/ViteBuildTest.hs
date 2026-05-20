@@ -17,7 +17,7 @@ import ShellCommands
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
-import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate, tsMinimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
 
@@ -62,6 +62,17 @@ viteBuildTest =
             [ writeDotEnvClientFile dotEnvFileValue,
               appendInlineEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] <$> viteBuild,
               assertBuildOutputContains inlineEnvVarValue
+            ]
+        ),
+      TestCase
+        "succeed-with-wasp-ts-project"
+        ( sequence
+            [ createTestWaspProject tsMinimalStarterTemplate,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  waspCliBuild,
+                  appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild
+                ]
             ]
         )
     ]
