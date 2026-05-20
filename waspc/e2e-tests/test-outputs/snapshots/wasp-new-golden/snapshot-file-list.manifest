@@ -3,6 +3,7 @@ wasp-app/.npmrc
 wasp-app/.waspignore
 wasp-app/.wasproot
 wasp-app/main.wasp
+wasp-app/package-lock.json
 wasp-app/package.json
 wasp-app/public/.gitkeep
 wasp-app/public/favicon.ico

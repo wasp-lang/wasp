@@ -1,5 +1,6 @@
 module Wasp.Project.WaspFile
   ( findWaspFile,
+    isWaspTsProject,
     analyzeWaspFile,
   )
 where
@@ -51,6 +52,12 @@ findWaspFile projectDir = do
         ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
     makeMultipleFilesMessage suffix files = "Found multiple " ++ suffix ++ " files in the project directory: " ++ show files ++ ". Please keep only one."
     makeInvalidFileNameMessage suffix = "Your Wasp file can't be called '" ++ suffix ++ "'. Please rename it to something like [name]" ++ suffix ++ "."
+
+isWaspTsProject :: Path' Abs (Dir WaspProjectDir) -> IO Bool
+isWaspTsProject projectDir =
+  findWaspFile projectDir >>= \case
+    Right (WaspTs _) -> return True
+    _ -> return False
 
 analyzeWaspFile ::
   CompileOptions ->
