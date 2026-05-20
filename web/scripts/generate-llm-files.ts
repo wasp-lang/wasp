@@ -18,6 +18,7 @@ const GITHUB_RAW_BASE_URL =
   "https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/"; // Use the release branch
 const WASP_BASE_URL = "https://wasp.sh/";
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
+const WASP_VERSIONS = new Set<string>(waspVersionsJson);
 
 const LLMS_TXT_INTRO = `# Wasp
 
@@ -51,9 +52,15 @@ type CategorizedDocs = {
   }>;
 };
 
+type DocRef = {
+  docId: string;
+  // The versioned_docs/version-<version> folder the doc is read from.
+  version: string;
+};
+
 type SidebarCategory = {
   label: string;
-  docIds: string[];
+  docRefs: DocRef[];
 };
 
 type BlogPost = {
@@ -91,9 +98,8 @@ async function generateFiles() {
   for (const version of waspVersionsJson) {
     console.log(`Processing version ${version}...`);
     const isLatest = version === latestWaspVersion;
-    const docsDir = path.join(VERSIONED_DOCS_DIR, `version-${version}`);
     const sidebarItems = await loadVersionedSidebar(version);
-    const categorizedDocs = await loadCategorizedDocs(sidebarItems, docsDir);
+    const categorizedDocs = await loadCategorizedDocs(sidebarItems, version);
     const versionedLlmsTxtContent = buildVersionedLlmsTxtContent(
       version,
       categorizedDocs,
@@ -173,37 +179,29 @@ Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}ll
 
 async function loadCategorizedDocs(
   sidebarItems: SidebarItemConfig[],
-  docsDir: string,
+  version: string,
 ): Promise<CategorizedDocs> {
-  const orderedDocIds = flattenSidebarItemsToDocIds(sidebarItems);
-  console.log(
-    `Found ${orderedDocIds.length} document IDs in sidebar order for processing.`,
-  );
+  const sidebarCategories = extractSidebarCategories(sidebarItems, version);
 
-  const sidebarCategories = extractSidebarCategories(sidebarItems);
-  const docIdToPathMap = buildDocIdToPathMap(docsDir);
-  const docInfoMap = await populateDocInfoMap(
-    orderedDocIds,
-    docIdToPathMap,
-    docsDir,
-  );
-
-  const categories = sidebarCategories.map((category) => ({
-    label: category.label,
-    docs: category.docIds
-      .filter((docId) => docInfoMap.has(docId))
-      .map((docId) => {
-        const info = docInfoMap.get(docId)!;
-        const relativeToSite = path
-          .relative(SITE_ROOT, info.absolutePath)
-          .replace(/\\/g, "/");
-        return {
-          title: info.title,
-          githubRawUrl: GITHUB_RAW_BASE_URL + relativeToSite,
-          processedBody: info.processedBody,
-        };
-      }),
-  }));
+  const categories: CategorizedDocs["categories"] = [];
+  for (const category of sidebarCategories) {
+    const docs: DocMapEntry[] = [];
+    for (const ref of category.docRefs) {
+      const info = await resolveDocRef(ref);
+      if (!info) {
+        continue;
+      }
+      const relativeToSite = path
+        .relative(SITE_ROOT, info.absolutePath)
+        .replace(/\\/g, "/");
+      docs.push({
+        title: info.title,
+        githubRawUrl: GITHUB_RAW_BASE_URL + relativeToSite,
+        processedBody: info.processedBody,
+      });
+    }
+    categories.push({ label: category.label, docs });
+  }
 
   return { categories };
 }
@@ -273,46 +271,68 @@ function buildDocIdToPathMap(directory: string): Map<string, string> {
   return docIdToPath;
 }
 
-async function populateDocInfoMap(
-  orderedDocIds: string[],
-  docIdToPathMap: Map<string, string>,
-  docsDir: string,
-): Promise<Map<string, SourceDoc>> {
-  const docInfoMap = new Map<string, SourceDoc>();
-  for (const docId of orderedDocIds) {
-    const relativePath = docIdToPathMap.get(docId);
+// versioned_docs/version-<version> doc-id -> relative-path maps, built lazily
+// and cached because a single version's sidebar can reference migration
+// guides that live in many other versions' folders.
+const docIdToPathMapCache = new Map<string, Map<string, string>>();
+// Resolved docs cached by absolute path: the same migration guide is
+// referenced by every later version's sidebar, so we only read it once.
+const sourceDocCache = new Map<string, SourceDoc | null>();
 
-    if (relativePath) {
-      const absolutePath = path.join(docsDir, relativePath);
-      try {
-        const rawContent = await fs.readFile(absolutePath, "utf8");
-        const { attributes, body } = fm(rawContent);
-        const title =
-          attributes["title-llm"] ||
-          attributes["title"] ||
-          path.basename(absolutePath, path.extname(absolutePath));
-        const processedBody = cleanDocContent(body);
-        docInfoMap.set(docId, {
-          title,
-          processedBody,
-          absolutePath,
-          relativePath,
-        });
-      } catch (fileReadError) {
-        // This is intentionally not re-thrown to allow the script to continue
-        // and generate a partial file, even if some source files have errors.
-        console.error(
-          `Error reading or processing file for docId '${docId}' at ${absolutePath}:`,
-          fileReadError,
-        );
-      }
-    } else {
-      console.warn(
-        `Document ID "${docId}" was not found in orderedDocIds or not processed because it is ignored.`,
-      );
-    }
+function getDocIdToPathMap(version: string): Map<string, string> {
+  let docIdToPath = docIdToPathMapCache.get(version);
+  if (!docIdToPath) {
+    docIdToPath = buildDocIdToPathMap(
+      path.join(VERSIONED_DOCS_DIR, `version-${version}`),
+    );
+    docIdToPathMapCache.set(version, docIdToPath);
   }
-  return docInfoMap;
+  return docIdToPath;
+}
+
+async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
+  const relativePath = getDocIdToPathMap(ref.version).get(ref.docId);
+  if (!relativePath) {
+    console.warn(
+      `Document ID "${ref.docId}" was not found in version ${ref.version} (or it is ignored).`,
+    );
+    return null;
+  }
+
+  const absolutePath = path.join(
+    VERSIONED_DOCS_DIR,
+    `version-${ref.version}`,
+    relativePath,
+  );
+  if (sourceDocCache.has(absolutePath)) {
+    return sourceDocCache.get(absolutePath)!;
+  }
+
+  try {
+    const rawContent = await fs.readFile(absolutePath, "utf8");
+    const { attributes, body } = fm(rawContent);
+    const title =
+      attributes["title-llm"] ||
+      attributes["title"] ||
+      path.basename(absolutePath, path.extname(absolutePath));
+    const sourceDoc: SourceDoc = {
+      title,
+      processedBody: cleanDocContent(body),
+      absolutePath,
+      relativePath,
+    };
+    sourceDocCache.set(absolutePath, sourceDoc);
+    return sourceDoc;
+  } catch (fileReadError) {
+    // This is intentionally not re-thrown to allow the script to continue
+    // and generate a partial file, even if some source files have errors.
+    console.error(
+      `Error reading or processing file for docId '${ref.docId}' (version ${ref.version}) at ${absolutePath}:`,
+      fileReadError,
+    );
+    sourceDocCache.set(absolutePath, null);
+    return null;
+  }
 }
 
 // e.g., 'tutorial/01-create.mdx' → 'tutorial/create'
@@ -335,6 +355,7 @@ function normalizePathToDocId(filePath: string): string {
 
 function extractSidebarCategories(
   sidebarItems: SidebarItemConfig[],
+  currentVersion: string,
 ): SidebarCategory[] {
   const categories: SidebarCategory[] = [];
 
@@ -346,11 +367,11 @@ function extractSidebarCategories(
       item.items &&
       !CATEGORIES_TO_IGNORE.includes(item.label)
     ) {
-      const docIds = flattenSidebarItemsToDocIds(item.items);
-      if (docIds.length > 0) {
+      const docRefs = flattenSidebarItemsToDocRefs(item.items, currentVersion);
+      if (docRefs.length > 0) {
         categories.push({
           label: item.label,
-          docIds,
+          docRefs,
         });
       }
     }
@@ -358,23 +379,51 @@ function extractSidebarCategories(
   return categories;
 }
 
-function flattenSidebarItemsToDocIds(sidebarItems: SidebarConfig): string[] {
-  let docIds: string[] = [];
+function flattenSidebarItemsToDocRefs(
+  sidebarItems: SidebarConfig,
+  currentVersion: string,
+): DocRef[] {
+  const docRefs: DocRef[] = [];
   if (!Array.isArray(sidebarItems)) {
-    return docIds;
+    return docRefs;
   }
   for (const item of sidebarItems) {
     if (typeof item === "string") {
-      docIds.push(item);
+      docRefs.push({ docId: item, version: currentVersion });
     } else if (item.type === "category" && item.items) {
-      docIds = docIds.concat(flattenSidebarItemsToDocIds(item.items));
+      docRefs.push(...flattenSidebarItemsToDocRefs(item.items, currentVersion));
+    } else if ((item.type === "doc" || item.type === "ref") && item.id) {
+      docRefs.push({ docId: item.id, version: currentVersion });
+    } else if (item.type === "link" && item.href) {
+      // Migration guides link to other versions' docs in their versioned
+      // form (e.g. /docs/0.22/migration-guide), so resolve those too.
+      const ref = parseInternalDocHref(item.href);
+      if (ref) {
+        docRefs.push(ref);
+      }
     } else if (item.type === "autogenerated") {
       console.warn(
         `Warning: 'autogenerated' sidebar type for dirName '${item.dirName}' might not be fully processed.`,
       );
     }
   }
-  return docIds;
+  return docRefs;
+}
+
+// Parses an internal versioned doc link like "/docs/0.22/migration-guide"
+// into a { docId, version } ref. Returns null for external links or
+// unversioned "/docs/<docId>" links (which point to the current docs, a
+// folder this script does not process).
+function parseInternalDocHref(href: string): DocRef | null {
+  const match = href.match(/^\/docs\/([^/]+)\/(.+?)\/?(?:#.*)?$/);
+  if (!match) {
+    return null;
+  }
+  const [, version, docId] = match;
+  if (!WASP_VERSIONS.has(version)) {
+    return null;
+  }
+  return { docId, version };
 }
 
 async function buildBlogPostsSection(): Promise<string> {
