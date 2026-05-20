@@ -27,7 +27,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     /**
      * Plugins running after core Vite plugins.
      */
-    typescriptCheck(),
+    typescriptCheck({ srcTsConfigPath: "{= srcTsConfigPath =}" }),
     validateEnv(),
     react(options?.reactOptions),
     ssr({
