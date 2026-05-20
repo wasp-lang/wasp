@@ -291,6 +291,9 @@ const config: Config = {
   markdown: {
     mermaid: true,
   },
+  future: {
+    experimental_faster: true,
+  },
 };
 
 type DocusaurusScript = DocusaurusConfig["scripts"][number];
