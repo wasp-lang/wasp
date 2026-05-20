@@ -67,7 +67,7 @@ jobs:
         working-directory: ${{ matrix.app-dir }}
         run: |
           if [ -f *.wasp.ts ]; then
-            wasp ts-setup
+            wasp install
           fi
 
       - name: Deploy

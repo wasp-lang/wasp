@@ -12,7 +12,7 @@ import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { createLogger } from "./logging.js";
-import { waspInfo, waspTsSetup } from "./waspCli.js";
+import { waspInfo, waspInstall } from "./waspCli.js";
 
 const logger = createLogger("main");
 
@@ -63,7 +63,7 @@ async function runWaspApp({
   const dbImage = dbImageArg ?? defaultPostgresDbImage;
 
   if (await isWaspTypescriptConfigProject(pathToApp)) {
-    await waspTsSetup({
+    await waspInstall({
       waspCliCmd,
       pathToApp,
     });

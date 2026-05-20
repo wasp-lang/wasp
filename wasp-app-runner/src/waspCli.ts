@@ -192,23 +192,23 @@ export async function waspInfo({
   };
 }
 
-export async function waspTsSetup({
+export async function waspInstall({
   waspCliCmd,
   pathToApp,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
 }): Promise<void> {
-  const logger = createLogger("wasp-ts-setup");
+  const logger = createLogger("wasp-install");
   const { stderrData, exitCode } = await spawnAndCollectOutput({
-    name: "wasp-ts-setup",
+    name: "wasp-install",
     cmd: waspCliCmd.cmd,
-    args: [...waspCliCmd.args, "ts-setup"],
+    args: [...waspCliCmd.args, "install"],
     cwd: pathToApp,
   });
 
   if (exitCode !== 0) {
-    logger.error(`Failed to set up Wasp TypeScript config: ${stderrData}`);
+    logger.error(`Failed to install Wasp project dependencies: ${stderrData}`);
     process.exit(1);
   }
 }
