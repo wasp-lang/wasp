@@ -22,6 +22,7 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProject
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
 import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
+import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
@@ -72,6 +73,5 @@ printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
 printGettingStartedInstructionsForProject projectDescription = do
   let projectDirName = init . SP.toFilePath . SP.basename $ _absWaspProjectDir projectDescription
   let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
-  putStrLn $ Term.applyStyles [Term.Green] $ "Created new Wasp app in ./" ++ projectDirName ++ " directory!"
-  putStrLn ""
+  cliSendMessage $ Msg.Success $ "Created a new Wasp app in ./" ++ projectDirName ++ " directory!"
   putStrLn instructions
