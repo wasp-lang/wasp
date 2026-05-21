@@ -1,8 +1,8 @@
 import * as AppSpec from "../appSpec.js";
-import type { Result } from "../result.js";
 import { loadWaspTsSpecDefaultExport } from "../spec-pipeline/loadWaspTsSpec.js";
 import { mapApp } from "./mapApp.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
+import { SpecUserError } from "./specUserError.js";
 
 export async function analyzeApp({
   waspTsSpecPath,
@@ -14,48 +14,34 @@ export async function analyzeApp({
   tsconfigPath: string;
   projectRootDir: string;
   entityNames: string[];
-}): Promise<Result<AppSpec.Decl[], string>> {
+}): Promise<AppSpec.Decl[]> {
   const waspTsDefaultExport = await loadWaspTsSpecDefaultExport({
     specPath: waspTsSpecPath,
     tsconfigPath,
     projectRootDir,
   });
 
-  const appResult = getApp(waspTsDefaultExport);
+  const app = getApp(waspTsDefaultExport);
 
-  if (appResult.status === "error") {
-    return appResult;
-  }
-
-  const app = appResult.value;
-  const appSpecDecls = mapApp(app, entityNames);
-
-  return {
-    status: "ok",
-    value: appSpecDecls,
-  };
+  return mapApp(app, entityNames);
 }
 
-function getApp(waspTsDefaultExport: unknown): Result<TsAppSpec.App, string> {
+function getApp(waspTsDefaultExport: unknown): TsAppSpec.App {
   if (!waspTsDefaultExport) {
-    return {
-      status: "error",
-      error:
-        "Could not load your app config. " +
+    throw new SpecUserError(
+      "Could not load your app config. " +
         "Make sure your *.wasp.ts file includes a default export of the app.",
-    };
+    );
   }
 
   if (!isApp(waspTsDefaultExport)) {
-    return {
-      status: "error",
-      error:
-        "The default export of your *.wasp.ts file must be the result of " +
+    throw new SpecUserError(
+      "The default export of your *.wasp.ts file must be the result of " +
         "calling `app({ ... })`. Make sure you export that value.",
-    };
+    );
   }
 
-  return { status: "ok", value: waspTsDefaultExport };
+  return waspTsDefaultExport;
 }
 
 // TODO: This should probably live elsewhere.
