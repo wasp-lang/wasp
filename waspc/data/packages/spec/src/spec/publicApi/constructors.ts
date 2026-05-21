@@ -22,17 +22,15 @@ import type {
  *
  * @example
  * ```ts
- * import { app, page, route, query } from '@wasp.sh/spec'
+ * import { app, page, route } from '@wasp.sh/spec'
  * import MainPage from '@src/MainPage'
- * import { getTasks } from '@src/queries'
  *
  * export default app({
  *   name: 'todoApp',
  *   title: 'ToDo App',
  *   wasp: { version: '^0.24.0' },
  *   parts: [
- *     route('MainRoute', '/', page(MainPage, { authRequired: true })),
- *     query(getTasks, { entities: ['Task'] }),
+ *     route('MainRoute', '/', page(MainPage)),
  *   ],
  * })
  * ```
@@ -58,6 +56,7 @@ export function app(input: App): App {
  *
  * @example
  * ```ts
+ * import { page } from '@wasp.sh/spec'
  * import MainPage from '@src/MainPage'
  *
  * page(MainPage, { authRequired: true })
@@ -88,6 +87,7 @@ export function page(
  *
  * @example
  * ```ts
+ * import { page, route } from '@wasp.sh/spec'
  * import MainPage from '@src/MainPage'
  *
  * route('MainRoute', '/', page(MainPage))
@@ -126,6 +126,7 @@ export function route(
  *
  * @example
  * ```ts
+ * import { query } from '@wasp.sh/spec'
  * import { getTasks } from '@src/queries'
  *
  * query(getTasks, { entities: ['Task'] })
@@ -154,6 +155,7 @@ export function query(
  *
  * @example
  * ```ts
+ * import { action } from '@wasp.sh/spec'
  * import { createTask } from '@src/actions'
  *
  * action(createTask, { entities: ['Task'] })
@@ -182,6 +184,7 @@ export function action(
  *
  * @example
  * ```ts
+ * import { api } from '@wasp.sh/spec'
  * import { barBaz } from '@src/apis'
  *
  * api('GET', '/bar/baz', barBaz, { entities: ['Task'], auth: false })
@@ -215,6 +218,7 @@ export function api(
  *
  * @example
  * ```ts
+ * import { apiNamespace } from '@wasp.sh/spec'
  * import { barMiddleware } from '@src/apis'
  *
  * apiNamespace('/bar', { middlewareConfigFn: barMiddleware })
@@ -244,6 +248,7 @@ export function apiNamespace(
  *
  * @example
  * ```ts
+ * import { job } from '@wasp.sh/spec'
  * import { foo } from '@src/jobs/bar'
  *
  * job(foo, {
@@ -280,6 +285,7 @@ export function job(
  *
  * @example
  * ```ts
+ * import { crud } from '@wasp.sh/spec'
  * import { createTaskOverride } from '@src/actions'
  *
  * crud('tasks', 'Task', {
