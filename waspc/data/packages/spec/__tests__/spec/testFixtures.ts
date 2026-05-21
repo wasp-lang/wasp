@@ -459,18 +459,18 @@ export function getUsernameAndPasswordConfig(
 
 export function getExternalAuthConfig<Scope extends ConfigScope>(
   scope: Scope,
-): ConfigFor<Scope, TsAppSpec.ExternalAuthConfig>;
+): ConfigFor<Scope, TsAppSpec.SocialAuthConfig>;
 export function getExternalAuthConfig(
   scope: ConfigScope,
-): Config<TsAppSpec.ExternalAuthConfig> {
+): Config<TsAppSpec.SocialAuthConfig> {
   switch (scope) {
     case "minimal":
-      return {} satisfies MinimalConfig<TsAppSpec.ExternalAuthConfig>;
+      return {} satisfies MinimalConfig<TsAppSpec.SocialAuthConfig>;
     case "full":
       return {
         configFn: getExtImport("full", "named"),
         userSignupFields: getExtImport("full", "named"),
-      } satisfies FullConfig<TsAppSpec.ExternalAuthConfig>;
+      } satisfies FullConfig<TsAppSpec.SocialAuthConfig>;
     default:
       assertUnreachable(scope);
   }

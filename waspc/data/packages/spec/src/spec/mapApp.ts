@@ -292,7 +292,7 @@ export function mapUsernameAndPassword(
 }
 
 export function mapExternalAuth(
-  externalAuth: TsAppSpec.ExternalAuthConfig,
+  externalAuth: TsAppSpec.SocialAuthConfig,
 ): AppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = externalAuth;
   return {

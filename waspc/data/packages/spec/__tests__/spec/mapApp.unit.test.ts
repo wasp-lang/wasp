@@ -710,9 +710,7 @@ describe("mapExternalAuth", () => {
     testMapExternalAuth(Fixtures.getExternalAuthConfig("full"));
   });
 
-  function testMapExternalAuth(
-    externalAuth: TsAppSpec.ExternalAuthConfig,
-  ): void {
+  function testMapExternalAuth(externalAuth: TsAppSpec.SocialAuthConfig): void {
     const result = mapExternalAuth(externalAuth);
 
     expect(result).toStrictEqual({
