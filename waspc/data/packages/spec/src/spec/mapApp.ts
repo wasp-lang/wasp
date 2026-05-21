@@ -274,12 +274,12 @@ export function mapAuthMethods(
   return {
     usernameAndPassword:
       usernameAndPassword && mapUsernameAndPassword(usernameAndPassword),
-    slack: slack && mapExternalAuth(slack),
-    discord: discord && mapExternalAuth(discord),
-    google: google && mapExternalAuth(google),
-    gitHub: gitHub && mapExternalAuth(gitHub),
-    keycloak: keycloak && mapExternalAuth(keycloak),
-    microsoft: microsoft && mapExternalAuth(microsoft),
+    slack: slack && mapSocialAuth(slack),
+    discord: discord && mapSocialAuth(discord),
+    google: google && mapSocialAuth(google),
+    gitHub: gitHub && mapSocialAuth(gitHub),
+    keycloak: keycloak && mapSocialAuth(keycloak),
+    microsoft: microsoft && mapSocialAuth(microsoft),
     email: email && mapEmailAuth(email, routeRefParser),
   };
 }
@@ -293,10 +293,10 @@ export function mapUsernameAndPassword(
   };
 }
 
-export function mapExternalAuth(
-  externalAuth: TsAppSpec.ExternalAuthConfig,
+export function mapSocialAuth(
+  socialAuth: TsAppSpec.SocialAuthConfig,
 ): AppSpec.ExternalAuthConfig {
-  const { configFn, userSignupFields } = externalAuth;
+  const { configFn, userSignupFields } = socialAuth;
   return {
     configFn: configFn && mapExtImport(configFn),
     userSignupFields: userSignupFields && mapExtImport(userSignupFields),
