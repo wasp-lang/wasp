@@ -67,7 +67,7 @@ export interface App {
   /** Configuration for the app's WebSocket support. */
   webSocket?: WebSocket;
   /**
-   * All pages, routes, queries, actions, APIs, jobs, and CRUDs in the app.
+   * All the {@link Part}s of the app.
    *
    * Build entries with the dedicated constructors ({@link page}, {@link route},
    * {@link query}, {@link action}, {@link api}, {@link apiNamespace},
@@ -602,8 +602,12 @@ export interface Job extends BasePart<"job"> {
    */
   entities?: EntityName[];
   /**
-   * Executor-specific options applied every time the job runs. For example,
-   * with PgBoss this can set retry limits, expiration, or priority.
+   * Executor-specific default options used when submitting the job.
+   *
+   * These options are passed through to the executor and can be overridden
+   * when submitting the job or by {@link Schedule.executorOptions} for
+   * scheduled runs. For example, with PgBoss this can set retry limits,
+   * expiration, or priority.
    *
    * @default {}
    */
