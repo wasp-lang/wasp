@@ -54,22 +54,24 @@ const codeTabs = [
     name: "main.wasp",
     language: "wasp",
     source: `app todoApp {
+  wasp: { version: "^0.23.0" },
   title: "ToDo App",
   auth: {
     userEntity: User,
-    methods: { google: {}, gitHub: {}, email: {...} }
+    methods: { google: {}, gitHub: {}, email: {} },
+    onAuthFailedRedirectTo: "/login"
   }
 }
 
 route RootRoute { path: "/", to: MainPage }
 page MainPage {
   authRequired: true,
-  component: import Main from "@client/Main"
+  component: import { MainPage } from "@src/MainPage" // <-- React
 }
 
 query getTasks {
-  fn: import { getTasks } from "@server/tasks",
-  entities: [Task]
+  fn: import { getTasks } from "@src/tasks", // <-- Node.js
+  entities: [Task] // <-- Automatic cache invalidation.
 }`,
   },
   {
@@ -92,8 +94,7 @@ model Task {
   {
     name: "MainPage.tsx",
     language: "tsx",
-    source: `import { getTasks } from "wasp/client/operations"
-import { useQuery } from "wasp/client/operations"
+    source: `import { getTasks, useQuery } from "wasp/client/operations"
 
 export function MainPage() {
   const { data: tasks } = useQuery(getTasks)
@@ -112,11 +113,12 @@ export function MainPage() {
     name: "tasks.ts",
     language: "typescript",
     source: `import { type GetTasks } from "wasp/server/operations"
+import { HttpError } from "wasp/server"
+import { Task } from "wasp/entities"
 
-export const getTasks: GetTasks<void, Task[]> = async (
-  _args,
-  context
-) => {
+export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
+  if (!context.user) throw new HttpError(401)
+
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },
     orderBy: { id: "desc" },
