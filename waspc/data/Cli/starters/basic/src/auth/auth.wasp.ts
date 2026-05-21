@@ -1,4 +1,4 @@
-import { type Auth, page, route } from "@wasp.sh/spec";
+import { type Auth, type Part, page, route } from "@wasp.sh/spec";
 import { EmailVerificationPage } from "./email/EmailVerificationPage" with { type: "ref " };
 import { LoginPage } from "./email/LoginPage" with { type: "ref " };
 import { PasswordResetPage } from "./email/PasswordResetPage" with { type: "ref " };

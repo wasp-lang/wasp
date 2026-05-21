@@ -1,4 +1,4 @@
-import { action, page, query, route } from "@wasp.sh/spec";
+import { type Part, action, page, query, route } from "@wasp.sh/spec";
 import {
   createTask,
   deleteCompletedTasks,
