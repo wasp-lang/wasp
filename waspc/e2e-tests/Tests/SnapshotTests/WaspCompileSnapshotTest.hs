@@ -13,6 +13,5 @@ waspCompileSnapshotTest =
     "wasp-compile"
     [ createSnapshotWaspProjectFromMinimalStarter,
       inSnapshotWaspProjectDir
-        [ waspCliCompile
-        ]
+        [waspCliCompile]
     ]
