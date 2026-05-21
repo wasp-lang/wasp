@@ -5,7 +5,7 @@
  * work well for content-centric websites.
  */
 
-@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -54,67 +54,26 @@
   background-size: 200px;
 }
 
-/* Selection handles — schematic UI element */
-.sh {
-  position: relative;
-}
-.sh::before,
-.sh::after {
-  content: "";
-  position: absolute;
-  width: var(--wasp-handle);
-  height: var(--wasp-handle);
-  border: 1.5px solid var(--wasp-g4);
-  background: var(--wasp-bg);
-  z-index: 2;
-}
-.sh::before {
-  top: calc(var(--wasp-handle) / -2);
-  left: calc(var(--wasp-handle) / -2);
-}
-.sh::after {
-  top: calc(var(--wasp-handle) / -2);
-  right: calc(var(--wasp-handle) / -2);
-}
-.sh .hbl,
-.sh .hbr {
-  position: absolute;
-  width: var(--wasp-handle);
-  height: var(--wasp-handle);
-  border: 1.5px solid var(--wasp-g4);
-  background: var(--wasp-bg);
-  z-index: 2;
-}
-.hbl {
-  bottom: calc(var(--wasp-handle) / -2);
-  left: calc(var(--wasp-handle) / -2);
-}
-.hbr {
-  bottom: calc(var(--wasp-handle) / -2);
-  right: calc(var(--wasp-handle) / -2);
-}
-
-/* Selection handle variants */
-.sh-dark::before,
-.sh-dark::after {
-  background: var(--wasp-k);
-  border-color: var(--wasp-g6);
-}
-.sh-dark .hbl,
-.sh-dark .hbr {
-  background: var(--wasp-k);
-  border-color: var(--wasp-g6);
-}
-.sh-y::before,
-.sh-y::after {
-  background: var(--wasp-yl);
-}
-.sh-y .hbl,
-.sh-y .hbr {
-  background: var(--wasp-yl);
-}
+/* TODO: Selection handles — schematic UI element for landing page buttons.
+   Uncomment when applying brandbook to hero CTA buttons.
+.sh { position: relative; }
+.sh::before, .sh::after { content: ""; position: absolute; width: var(--wasp-handle); height: var(--wasp-handle); border: 1.5px solid var(--wasp-g4); background: var(--wasp-bg); z-index: 2; }
+.sh::before { top: calc(var(--wasp-handle) / -2); left: calc(var(--wasp-handle) / -2); }
+.sh::after { top: calc(var(--wasp-handle) / -2); right: calc(var(--wasp-handle) / -2); }
+.sh .hbl, .sh .hbr { position: absolute; width: var(--wasp-handle); height: var(--wasp-handle); border: 1.5px solid var(--wasp-g4); background: var(--wasp-bg); z-index: 2; }
+.hbl { bottom: calc(var(--wasp-handle) / -2); left: calc(var(--wasp-handle) / -2); }
+.hbr { bottom: calc(var(--wasp-handle) / -2); right: calc(var(--wasp-handle) / -2); }
+.sh-dark::before, .sh-dark::after { background: var(--wasp-k); border-color: var(--wasp-g6); }
+.sh-dark .hbl, .sh-dark .hbr { background: var(--wasp-k); border-color: var(--wasp-g6); }
+.sh-y::before, .sh-y::after { background: var(--wasp-yl); }
+.sh-y .hbl, .sh-y .hbr { background: var(--wasp-yl); }
+*/
 
 /* Docusaurus stuff */
+
+:root {
+  --lh: 1.6; /* line height */
+}
 
 /* We are targeting Docusaurus's stable, theme-agnostic class names:
    https://docusaurus.io/docs/styling-layout
@@ -127,7 +86,7 @@ html.blog-wrapper {
   --ifm-heading-font-weight: 500;
   --ifm-font-color-base: #4a4a4a;
   --ifm-heading-color: var(--wasp-k);
-  line-height: 1.8;
+  line-height: var(--lh);
 }
 
 /* Breathing room on content area, like OpenCode.
@@ -175,7 +134,7 @@ html.blog-wrapper[data-theme="dark"] {
 .blog-wrapper code[class*="language-"],
 .blog-wrapper pre[class*="language-"] {
   font-size: 14px;
-  line-height: 1.8;
+  line-height: 1.6;
 }
 
 .docs-wrapper [class*="codeBlockTitle"],
@@ -258,13 +217,41 @@ html.blog-wrapper[data-theme="dark"] {
 /* Horizontal line below navbar, matching brandbook border color */
 .navbar {
   border-bottom: 1px solid var(--wasp-g3);
+
+  /* Shrink Algolia's DocSearch pill to match the nav-link height (28px), as expected by Docusaurus'
+     navbar. Without this, search pill is too high, making a mess. */
+  .DocSearch-Button {
+    height: 28px;
+  }
 }
 
-/* Vertical line left of right sidebar (TOC), pulled up to connect with navbar border */
+/* Right sidebar (TOC) */
 .docs-wrapper .col.col--3 {
-  border-left: 1px solid var(--wasp-g3);
+  border-left: 1px solid var(--wasp-g3); /* Vertical line to the left, pulled up to connect with navbar border */
   margin-top: calc(-1 * var(--ifm-spacing-vertical));
   padding-top: var(--ifm-spacing-vertical);
+}
+
+/* Hide right sidebar (TOC) for smaller screens (<1280px: half a screen, laptop, ...).
+   We are doing this because while Docusarus hides both sidebars for mobile screens (<996px),
+   the content column becomes too narrow already on smaller screens, squished by sidebars.
+   Here we "hack" it via CSS: we hide sidebar and show its replacement dropdown, and let the
+   content column fully spread. */
+@media (max-width: 1280px) {
+  .docs-wrapper .col.col--3 {
+    display: none;
+  }
+  .docs-wrapper [class*="tocMobile"] {
+    display: block;
+  }
+  .docs-wrapper [class*="docItemCol"] {
+    max-width: 100% !important;
+  }
+  /* Drop the OpenCode-style "empty space on the right" breathing room once the TOC is gone —
+     without a TOC, content + empty space looks lopsided. */
+  .docs-wrapper [class*="docMainContainer"] .container {
+    max-width: 100%;
+  }
 }
 
 .docs-wrapper .markdown {
@@ -311,6 +298,7 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 
 .docs-wrapper .markdown h1:first-child,
 .blog-wrapper .markdown h1:first-child {
+  font-family: "JetBrains Mono", monospace;
   font-size: 26px;
   letter-spacing: -0.5px;
   width: fit-content;
@@ -319,19 +307,44 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   border: 1px solid var(--wasp-g3);
 }
 
+.docs-wrapper .markdown h1,
+.blog-wrapper .markdown h1 {
+  margin-top: 0;
+  margin-bottom: calc(0.6em * var(--lh));
+}
+
 .docs-wrapper .markdown h2,
 .blog-wrapper .markdown h2 {
   font-size: 22px;
   letter-spacing: -0.5px;
-  margin-top: 54px;
-  margin-bottom: 22px;
+  margin-top: calc(1.5em * var(--lh));
+  margin-bottom: calc(0.6em * var(--lh));
 }
 
 .docs-wrapper .markdown h3,
 .blog-wrapper .markdown h3 {
   font-size: 18px;
-  margin-top: 54px;
-  margin-bottom: 22px;
+  margin-top: calc(1.2em * var(--lh));
+  margin-bottom: calc(0.4em * var(--lh));
+}
+
+.docs-wrapper .markdown h4,
+.docs-wrapper .markdown h5,
+.docs-wrapper .markdown h6,
+.blog-wrapper .markdown h4,
+.blog-wrapper .markdown h5,
+.blog-wrapper .markdown h6 {
+  margin-top: calc(1em * var(--lh));
+  margin-bottom: calc(0.4em * var(--lh));
+}
+
+.docs-wrapper .markdown .figure-container,
+.blog-wrapper .markdown .figure-container {
+  margin: calc(1em * var(--lh)) 0;
+}
+.docs-wrapper .markdown .figure-container figure,
+.blog-wrapper .markdown .figure-container figure {
+  margin: 0;
 }
 
 .blog-list-page {
@@ -376,7 +389,7 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
      defined in both places: tailwind.config.js for body text, and here for Infima components.
      Update both when changing fonts. */
   --ifm-font-family-base: "IBM Plex Sans", sans-serif;
-  --ifm-heading-font-family: "JetBrains Mono", monospace;
+  --ifm-heading-font-family: "IBM Plex Mono", monospace;
   --ifm-color-primary: #bf9900;
   /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;
@@ -448,16 +461,23 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   margin-bottom: var(--sidebar-item-level-1-spacing);
 }
 
-.theme-doc-sidebar-item-category-level-1
+.theme-doc-sidebar-menu
+  .theme-doc-sidebar-item-category-level-1
   > .menu__list-item-collapsible
   > .menu__link,
-.theme-doc-sidebar-item-link-level-1 > .menu__link {
+.theme-doc-sidebar-menu .theme-doc-sidebar-item-link-level-1 > .menu__link {
   color: var(--sidebar-item-level-1-color);
   font-family: "IBM Plex Mono", monospace;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.theme-doc-sidebar-menu {
+  .menu__link {
+    font-weight: 400;
+  }
 }
 
 /* Schematic sidebar collapse indicators.
@@ -488,6 +508,15 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 /* This hides Docs version dropdown when not on docs (i.e. when we are on blog). */
 .navbar__item:has(.navbar-item-docs-version-dropdown:not(.active)) {
   display: none;
+}
+
+.navbar__item,
+.navbar__brand .navbar__title {
+  font-family: "JetBrains Mono", monospace;
+}
+
+.navbar__brand .navbar__logo {
+  border: solid 1px black;
 }
 
 /******************************/

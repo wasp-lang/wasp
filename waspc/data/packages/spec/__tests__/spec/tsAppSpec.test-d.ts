@@ -24,6 +24,10 @@ describe("AuthMethods", () => {
     google: {},
   };
 
+  const slack: Required<Pick<TsAppSpec.AuthMethods, "slack">> = {
+    slack: {},
+  };
+
   test("allows only usernameAndPassword", () => {
     expectTypeOf<
       typeof usernameAndPassword
@@ -36,6 +40,7 @@ describe("AuthMethods", () => {
 
   test("allows no local auth method (e.g. only a social method)", () => {
     expectTypeOf<typeof google>().toExtend<TsAppSpec.AuthMethods>();
+    expectTypeOf<typeof slack>().toExtend<TsAppSpec.AuthMethods>();
     // eslint-disable-next-line @typescript-eslint/no-empty-object-type
     expectTypeOf<{}>().toExtend<TsAppSpec.AuthMethods>();
   });

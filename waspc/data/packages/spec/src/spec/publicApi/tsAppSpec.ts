@@ -185,7 +185,8 @@ type SocialAuthMethodName =
   | "google"
   | "gitHub"
   | "keycloak"
-  | "microsoft";
+  | "microsoft"
+  | "slack";
 
 /**
  * Username and password auth configuration.

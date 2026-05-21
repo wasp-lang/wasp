@@ -161,6 +161,7 @@ export type Auth = {
 
 export type AuthMethods = {
   usernameAndPassword: Optional<UsernameAndPasswordConfig>;
+  slack: Optional<ExternalAuthConfig>;
   discord: Optional<ExternalAuthConfig>;
   google: Optional<ExternalAuthConfig>;
   gitHub: Optional<ExternalAuthConfig>;
