@@ -22,6 +22,30 @@ describe("lowerRefImports", () => {
     );
   });
 
+  test("lowers same exported name aliases from different modules", () => {
+    const input = [
+      `import { archive as archiveTask } from "./src/operations" with { type: "ref" };`,
+      `import { archive as archiveLegacyTask } from "./src/legacyOperations" with { type: "ref" };`,
+      ``,
+    ].join("\n");
+
+    expect(lower(input)).toBe(
+      [
+        `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;`,
+        `const archiveLegacyTask = { import: "archive", from: "@src/legacyOperations", alias: "archiveLegacyTask" } as const;`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
+  test("lowers multiple named ref imports into separate ExtImport consts", () => {
+    const input = `import { getTasks, createTask } from "./src/operations" with { type: "ref" };\n`;
+
+    expect(lower(input)).toBe(
+      `const getTasks = { import: "getTasks", from: "@src/operations" } as const;\nconst createTask = { import: "createTask", from: "@src/operations" } as const;\n`,
+    );
+  });
+
   test("lowers a default + named ref import together", () => {
     const input = `import MainPage, { Helper } from "./src/MainPage" with { type: "ref" };\n`;
 
@@ -35,6 +59,26 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       `${expectedNamespaceProxy("ops", "@src/operations", "ops_")}\n`,
+    );
+  });
+
+  test("lowers same exported name through different namespaces", () => {
+    const input = [
+      `import * as ops from "./src/operations" with { type: "ref" };`,
+      `import * as legacyOps from "./src/legacyOperations" with { type: "ref" };`,
+      ``,
+    ].join("\n");
+
+    expect(lower(input)).toBe(
+      [
+        expectedNamespaceProxy("ops", "@src/operations", "ops_"),
+        expectedNamespaceProxy(
+          "legacyOps",
+          "@src/legacyOperations",
+          "legacyOps_",
+        ),
+        ``,
+      ].join("\n"),
     );
   });
 
