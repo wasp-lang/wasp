@@ -9,10 +9,20 @@ import { SpecUserError } from "./spec/specUserError.js";
 await main(process.argv);
 
 async function main(args: string[]): Promise<void> {
-  const { waspTsSpecPath, tsconfigPath, specResultPath, entityNames } =
-    parseProcessArgsOrThrow(args);
+  const {
+    waspTsSpecPath,
+    tsconfigPath,
+    projectRootDir,
+    specResultPath,
+    entityNames,
+  } = parseProcessArgsOrThrow(args);
 
-  const result = await analyze({ waspTsSpecPath, tsconfigPath, entityNames });
+  const result = await analyze({
+    waspTsSpecPath,
+    tsconfigPath,
+    projectRootDir,
+    entityNames,
+  });
 
   writeFileSync(specResultPath, JSON.stringify(result));
 }
@@ -20,6 +30,7 @@ async function main(args: string[]): Promise<void> {
 async function analyze(args: {
   waspTsSpecPath: string;
   tsconfigPath: string;
+  projectRootDir: string;
   entityNames: string[];
 }): Promise<SpecResult> {
   try {
@@ -42,4 +53,3 @@ async function analyze(args: {
 type SpecResult =
   | { status: "ok"; value: Decl[] }
   | { status: "error"; error: string };
-

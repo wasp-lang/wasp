@@ -255,6 +255,7 @@ describe("mapAuthMethods", () => {
       usernameAndPassword:
         authMethods.usernameAndPassword &&
         mapUsernameAndPassword(authMethods.usernameAndPassword),
+      slack: authMethods.slack && mapExternalAuth(authMethods.slack),
       discord: authMethods.discord && mapExternalAuth(authMethods.discord),
       google: authMethods.google && mapExternalAuth(authMethods.google),
       gitHub: authMethods.gitHub && mapExternalAuth(authMethods.gitHub),

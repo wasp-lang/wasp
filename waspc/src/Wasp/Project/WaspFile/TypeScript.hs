@@ -15,6 +15,7 @@ import StrongPath
     File,
     Path',
     Rel,
+    fromAbsDir,
     fromAbsFile,
     fromRelFile,
     relfile,
@@ -43,7 +44,6 @@ import Wasp.Project.Common
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
-import Wasp.Util (indent)
 import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
 
@@ -100,6 +100,7 @@ runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
             "analyze",
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
+            fromAbsDir compileOptions.waspProjectDir,
             fromAbsFile absSpecResultFile,
             -- When the user is coding main.wasp.ts, TypeScript must know about
             -- all the available entities to warn the user if they use an

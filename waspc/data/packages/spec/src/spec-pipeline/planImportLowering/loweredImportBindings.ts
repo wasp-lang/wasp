@@ -61,8 +61,8 @@ export function getLoweredImportBindings(
 
 /**
  * Users can avoid local collisions with namespace imports:
- * `import * as ops from "@src/operations"` and
- * `import * as legacyOps from "@src/legacyOperations"`.
+ * `import * as ops from "./src/operations" with { type: "ref" }` and
+ * `import * as legacyOps from "./src/legacyOperations" with { type: "ref" }`.
  * We preserve that in generated aliases: `ops.archive` becomes `ops_archive`,
  * while `legacyOps.archive` becomes `legacyOps_archive`.
  */

@@ -8,19 +8,21 @@ import type {
 } from "./planImportLowering/loweredImportBindings.js";
 
 /**
- * Given source code, finds supported @src import statements and replaces them
+ * Given source code, finds supported ref import statements and replaces them
  * with inline ExtImport consts. We call this lowering imports.
  */
-export function lowerSrcImports({
+export function lowerRefImports({
   sourceText,
   sourcePath,
+  projectRootDir,
 }: {
   sourceText: string;
   sourcePath: string;
+  projectRootDir: string;
 }): string {
   return applyImportLoweringPlan(
     sourceText,
-    planImportLowering({ sourceText, sourcePath }),
+    planImportLowering({ sourceText, sourcePath, projectRootDir }),
   );
 }
 

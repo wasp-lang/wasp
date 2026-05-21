@@ -67,6 +67,7 @@ describe("analyzeApp", () => {
       analyzeApp({
         waspTsSpecPath: "main.wasp.ts",
         tsconfigPath: "tsconfig.wasp.json",
+        projectRootDir: "/project",
         entityNames: entities,
       });
 
@@ -82,6 +83,7 @@ describe("analyzeApp", () => {
     expect(mockLoadWaspTsSpecDefaultExport).toHaveBeenCalledWith({
       specPath: "main.wasp.ts",
       tsconfigPath: "tsconfig.wasp.json",
+      projectRootDir: "/project",
     });
   }
 });

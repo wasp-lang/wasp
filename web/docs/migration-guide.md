@@ -18,9 +18,14 @@ The `api` export from `wasp/client/api` is now a [ky](https://github.com/sindres
 
 The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. This better reflects the purpose of this file as a place to configure and customize Wasp's behavior in your project.
 
-### Real JS imports in Wasp TS spec
+### Ref imports in Wasp TS spec
 
-In `main.wasp.ts`, you can now use real JS imports and pass imported values directly to Wasp declarations instead of using import objects like `{ import, from }`.
+In `main.wasp.ts`, you can now import app source references with `with { type: "ref" }` and pass imported values directly to Wasp declarations instead of using import objects like `{ import, from }`.
+
+```ts title="main.wasp.ts"
+import MainPage from './src/MainPage' with { type: 'ref' }
+import { getTasks } from './src/operations' with { type: 'ref' }
+```
 
 ### Stricter validation for Wasp TS projects
 
@@ -125,7 +130,7 @@ Make sure your `package.json` includes `@types/node` in `devDependencies`, and u
   </TabItem>
 </Tabs>
 
-Make sure your `tsconfig.wasp.json` includes the required TS spec compiler options, include entries, and the `@src/*` path mapping:
+Make sure your `tsconfig.wasp.json` includes the required TS spec compiler options and include entries:
 
 ```json title="tsconfig.wasp.json"
 {
@@ -135,11 +140,7 @@ Make sure your `tsconfig.wasp.json` includes the required TS spec compiler optio
     "moduleResolution": "bundler",
     "jsx": "preserve",
     // highlight-next-line
-    "allowJs": true,
-    "paths": {
-      // highlight-next-line
-      "@src/*": ["./src/*"]
-    }
+    "allowJs": true
   },
   "include": ["main.wasp.ts", "**/*.wasp.ts"]
 }
