@@ -3,9 +3,9 @@ import {
   createTask,
   deleteCompletedTasks,
   updateTaskStatus,
-} from "./actions" with { type: "ref " };
-import { getTasks } from "./queries" with { type: "ref " };
-import { TasksPage } from "./TasksPage" with { type: "ref " };
+} from "./actions" with { type: "ref" };
+import { getTasks } from "./queries" with { type: "ref" };
+import { TasksPage } from "./TasksPage" with { type: "ref" };
 
 export const tasksParts: Part[] = [
   route("TasksRoute", "/", page(TasksPage, { authRequired: true })),

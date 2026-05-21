@@ -1,5 +1,5 @@
 import { app } from "@wasp.sh/spec";
-import { App } from "./src/App" with { type: "ref " };
+import { App } from "./src/App" with { type: "ref" };
 import { auth, authParts } from "./src/auth/auth.wasp";
 import { tagsParts } from "./src/tags/tags.wasp";
 import { tasksParts } from "./src/tasks/task.wasp";

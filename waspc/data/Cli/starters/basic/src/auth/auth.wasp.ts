@@ -1,10 +1,10 @@
 import { type Auth, type Part, page, route } from "@wasp.sh/spec";
-import { EmailVerificationPage } from "./email/EmailVerificationPage" with { type: "ref " };
-import { LoginPage } from "./email/LoginPage" with { type: "ref " };
-import { PasswordResetPage } from "./email/PasswordResetPage" with { type: "ref " };
-import { RequestPasswordResetPage } from "./email/RequestPasswordResetPage" with { type: "ref " };
-import { SignupPage } from "./email/SignupPage" with { type: "ref " };
-import { userSignupFields } from "./email/userSignupFields" with { type: "ref " };
+import { EmailVerificationPage } from "./email/EmailVerificationPage" with { type: "ref" };
+import { LoginPage } from "./email/LoginPage" with { type: "ref" };
+import { PasswordResetPage } from "./email/PasswordResetPage" with { type: "ref" };
+import { RequestPasswordResetPage } from "./email/RequestPasswordResetPage" with { type: "ref" };
+import { SignupPage } from "./email/SignupPage" with { type: "ref" };
+import { userSignupFields } from "./email/userSignupFields" with { type: "ref" };
 
 export const auth: Auth = {
   userEntity: "User",
