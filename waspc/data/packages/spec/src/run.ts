@@ -1,34 +1,45 @@
 #!/usr/bin/env node
 
 import { writeFileSync } from "fs";
+import { Decl } from "./appSpec.js";
 import { parseProcessArgsOrThrow } from "./cli.js";
 import { analyzeApp } from "./spec/appAnalyzer.js";
 import { SpecUserError } from "./spec/specUserError.js";
 
-try {
-  await main(process.argv);
-} catch (error) {
-  if (error instanceof SpecUserError) {
-    console.error(error.message);
-    process.exitCode = 1;
-  } else {
+await main(process.argv);
+
+async function main(args: string[]): Promise<void> {
+  const { waspTsSpecPath, tsconfigPath, specResultPath, entityNames } =
+    parseProcessArgsOrThrow(args);
+
+  const result = await analyze({ waspTsSpecPath, tsconfigPath, entityNames });
+
+  writeFileSync(specResultPath, JSON.stringify(result));
+}
+
+async function analyze(args: {
+  waspTsSpecPath: string;
+  tsconfigPath: string;
+  entityNames: string[];
+}): Promise<SpecResult> {
+  try {
+    const decls = await analyzeApp(args);
+    return { status: "ok", value: decls };
+  } catch (error) {
+    if (error instanceof SpecUserError) {
+      return { status: "error", error: error.message };
+    }
     throw error;
   }
 }
 
 /**
- * Main function that processes command line arguments, analyzes the user app,
- * and writes the output to a file.
+ * Result handed off to waspc through the spec result JSON file.
+ *
+ * IMPORTANT: This shape is part of the protocol with waspc. The Haskell side
+ * decodes it in `Wasp.Project.WaspFile.TypeScript`. Keep them in sync.
  */
-async function main(args: string[]): Promise<void> {
-  const { waspTsSpecPath, tsconfigPath, declsJsonPath, entityNames } =
-    parseProcessArgsOrThrow(args);
+type SpecResult =
+  | { status: "ok"; value: Decl[] }
+  | { status: "error"; error: string };
 
-  const decls = await analyzeApp({
-    waspTsSpecPath,
-    tsconfigPath,
-    entityNames,
-  });
-
-  writeFileSync(declsJsonPath, JSON.stringify(decls));
-}
