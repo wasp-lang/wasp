@@ -61,11 +61,7 @@ export default function Logo(props) {
           imageClassName={imageClassName}
         />
       )}
-      {navbarTitle != null && (
-        <b className={titleClassName}>
-          Wasp <span className="text-base text-yellow-500">(beta)</span>
-        </b>
-      )}
+      {navbarTitle != null && <b className={titleClassName}>wasp</b>}
     </Link>
   );
 }

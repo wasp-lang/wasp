@@ -49,6 +49,9 @@ export interface App {
    * valid JSX: self-closing tags must end with `/>` (e.g. `<meta ... />`),
    * and attributes must be camelCased (e.g. `httpEquiv` instead of
    * `http-equiv`).
+   *
+   * Due to a React bug, avoid `defer` on `<script>` tags because it can cause
+   * hydration warnings. Use `async` instead.
    */
   head?: string[];
   /** Configuration for authentication. Enables auth when set. */
@@ -64,7 +67,7 @@ export interface App {
   /** Configuration for the app's WebSocket support. */
   webSocket?: WebSocket;
   /**
-   * All pages, routes, queries, actions, APIs, jobs, and CRUDs in the app.
+   * All the {@link Part}s of the app.
    *
    * Build entries with the dedicated constructors ({@link page}, {@link route},
    * {@link query}, {@link action}, {@link api}, {@link apiNamespace},
@@ -80,6 +83,8 @@ export interface Wasp {
   /**
    * The Wasp version this app is built for, as a semver range
    * (e.g. `"^0.24.0"`).
+   *
+   * Currently, Wasp supports caret ranges only (e.g. `"^0.24.0"`).
    */
   version: string;
 }
@@ -180,7 +185,8 @@ type SocialAuthMethodName =
   | "google"
   | "gitHub"
   | "keycloak"
-  | "microsoft";
+  | "microsoft"
+  | "slack";
 
 /**
  * Username and password auth configuration.
@@ -233,8 +239,11 @@ export interface EmailFlowConfig {
    */
   getEmailContentFn?: Reference<AnyFunction>;
   /**
-   * Route in the client app that handles the link sent in the email
-   * (e.g. `"/email-verification"` or `"/password-reset"`).
+   * Name of the route that handles the link sent in the email
+   * (e.g. `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
+   *
+   * The route must be defined in {@link App.parts} with the {@link route}
+   * constructor.
    */
   clientRoute: string;
 }
@@ -478,9 +487,9 @@ export interface Query extends BasePart<"query"> {
   entities?: EntityName[];
   /**
    * If `true`, the query receives `context.user`. Defaults to `true` when
-   * the app has auth enabled.
+   * the app has auth enabled, and `false` otherwise.
    *
-   * @default false
+   * You can only set this field when app-level auth is enabled.
    */
   auth?: boolean;
 }
@@ -505,9 +514,9 @@ export interface Action extends BasePart<"action"> {
   entities?: EntityName[];
   /**
    * If `true`, the action receives `context.user`. Defaults to `true` when
-   * the app has auth enabled.
+   * the app has auth enabled, and `false` otherwise.
    *
-   * @default false
+   * You can only set this field when app-level auth is enabled.
    */
   auth?: boolean;
 }
@@ -544,9 +553,8 @@ export interface Api extends BasePart<"api"> {
   entities?: EntityName[];
   /**
    * If `true`, the handler requires the request to come from an
-   * authenticated user. Defaults to `true` when the app has auth enabled.
-   *
-   * @default false
+   * authenticated user. Defaults to `true` when the app has auth enabled,
+   * and `false` otherwise.
    */
   auth?: boolean;
 }
@@ -595,8 +603,12 @@ export interface Job extends BasePart<"job"> {
    */
   entities?: EntityName[];
   /**
-   * Executor-specific options applied every time the job runs. For example,
-   * with PgBoss this can set retry limits, expiration, or priority.
+   * Executor-specific default options used when submitting the job.
+   *
+   * These options are passed through to the executor and can be overridden
+   * when submitting the job or by {@link Schedule.executorOptions} for
+   * scheduled runs. For example, with PgBoss this can set retry limits,
+   * expiration, or priority.
    *
    * @default {}
    */
@@ -614,7 +626,11 @@ export type JobExecutor = "PgBoss";
  * Cron schedule for a {@link Job}.
  */
 export interface Schedule {
-  /** Cron expression (e.g. `"0 * * * *"` for hourly). */
+  /**
+   * Five-field cron expression (e.g. `"0 * * * *"` for hourly).
+   *
+   * Wasp supports minute-level precision.
+   */
   cron: string;
   /** Arguments passed to the worker function on each scheduled run. */
   args?: object;
