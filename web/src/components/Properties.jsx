@@ -23,13 +23,13 @@ const badgeBase =
 
 const badgeStyles = [
   {
-    name: "Solid 2px black border (button-like)",
+    name: "Solid border",
     render: (text) => (
       <div className={`${badgeBase} border-2 border-wasp-black`}>{text}</div>
     ),
   },
   {
-    name: "Dashed 2px black border",
+    name: "Dashed border",
     render: (text) => (
       <div className={`${badgeBase} border-2 border-dashed border-wasp-black`}>
         {text}
@@ -37,7 +37,7 @@ const badgeStyles = [
     ),
   },
   {
-    name: "Corner marks (schematic ticks)",
+    name: "Corner marks",
     render: (text) => (
       <div className="relative inline-block">
         <div className={badgeBase}>{text}</div>
@@ -50,7 +50,7 @@ const badgeStyles = [
     ),
   },
   {
-    name: "Outline only (no fill)",
+    name: "Outline only",
     render: (text) => (
       <div
         className={`inline-block border-2 border-wasp-yellow-dark bg-transparent px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-widest text-wasp-yellow-dark`}
@@ -60,7 +60,7 @@ const badgeStyles = [
     ),
   },
   {
-    name: "Brackets only (no border, no fill)",
+    name: "Brackets only",
     render: (text) => (
       <div className="inline-block px-2 py-1.5 font-mono text-xs font-bold uppercase tracking-widest text-wasp-black">
         [ <span className="text-wasp-g5">{text}</span> ]
@@ -68,7 +68,7 @@ const badgeStyles = [
     ),
   },
   {
-    name: "Borderless (yellow fill only)",
+    name: "Borderless",
     render: (text) => <div className={badgeBase}>{text}</div>,
   },
 ];
@@ -136,7 +136,7 @@ const BadgePicker = ({ text, defaultIdx = 0 }) => {
       {badgeStyles[idx].render(text)}
 
       {menuOpen && (
-        <div className="absolute left-0 top-full z-50 mt-2 border border-wasp-g3 bg-wasp-bg p-2 shadow-md">
+        <div className="absolute left-0 top-full z-50 mt-2 grid w-[640px] grid-cols-3 gap-3 border border-wasp-g3 bg-wasp-bg p-4 shadow-md">
           {badgeStyles.map((s, i) => (
             <button
               key={s.name}
@@ -145,15 +145,16 @@ const BadgePicker = ({ text, defaultIdx = 0 }) => {
                 setIdx(i);
                 setMenuOpen(false);
               }}
-              className={`flex w-full items-center gap-3 border-0 bg-transparent px-2 py-1.5 text-left font-mono text-xs hover:bg-wasp-g1 ${
-                i === idx ? "text-wasp-black" : "text-wasp-g6"
+              className={`flex flex-col items-center justify-between gap-4 border bg-transparent px-3 py-5 text-center font-mono text-[10px] uppercase tracking-wider hover:bg-wasp-g1 ${
+                i === idx
+                  ? "border-wasp-black text-wasp-black"
+                  : "border-wasp-g2 text-wasp-g5"
               }`}
             >
-              <span className="inline-block w-4 text-center">{i === idx ? "▸" : ""}</span>
-              <span className="flex-shrink-0">{s.render(text)}</span>
-              <span className="text-[10px] uppercase tracking-wider text-wasp-g5">
-                {s.name}
-              </span>
+              <div className="flex min-h-[40px] items-center justify-center">
+                {s.render(text)}
+              </div>
+              <span>{s.name}</span>
             </button>
           ))}
         </div>
