@@ -8,7 +8,6 @@ import ShellCommands
     inSnapshotWaspProjectDir,
     waspCliCompile,
     waspCliDbMigrateDev,
-    waspCliInstall,
   )
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 
@@ -18,8 +17,7 @@ waspMigrateSnapshotTest =
     "wasp-migrate"
     [ createSnapshotWaspProjectFromMinimalStarter,
       inSnapshotWaspProjectDir
-        [ waspCliInstall,
-          waspCliCompile,
+        [ waspCliCompile,
           appendToPrismaFile taskPrismaModel,
           waspCliDbMigrateDev "foo"
         ]

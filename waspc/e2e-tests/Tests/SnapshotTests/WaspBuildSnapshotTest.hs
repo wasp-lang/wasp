@@ -12,7 +12,6 @@ import ShellCommands
     inSnapshotWaspProjectDir,
     setWaspDbToPSQL,
     waspCliBuild,
-    waspCliInstall,
     writeToFile,
   )
 import qualified ShellCommands as WaspProjectContext
@@ -29,7 +28,6 @@ waspBuildSnapshotTest =
     [ createSnapshotWaspProjectFromMinimalStarter,
       inSnapshotWaspProjectDir
         [ setWaspDbToPSQL,
-          waspCliInstall,
           waspCliBuild,
           buildAndRemoveWaspProjectDockerImage,
           wrapViteConfigForDeterministicBuild,

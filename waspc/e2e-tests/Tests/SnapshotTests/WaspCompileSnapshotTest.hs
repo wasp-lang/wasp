@@ -4,7 +4,6 @@ import ShellCommands
   ( createSnapshotWaspProjectFromMinimalStarter,
     inSnapshotWaspProjectDir,
     waspCliCompile,
-    waspCliInstall,
   )
 import SnapshotTest (SnapshotTest, makeSnapshotTest)
 
@@ -14,7 +13,6 @@ waspCompileSnapshotTest =
     "wasp-compile"
     [ createSnapshotWaspProjectFromMinimalStarter,
       inSnapshotWaspProjectDir
-        [ waspCliInstall,
-          waspCliCompile
+        [ waspCliCompile
         ]
     ]
