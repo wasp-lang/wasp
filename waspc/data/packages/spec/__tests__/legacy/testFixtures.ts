@@ -175,6 +175,7 @@ export function getAuthMethods(
       return {
         email: getEmailAuthConfig(scope),
         usernameAndPassword: getUsernameAndPasswordConfig(scope),
+        slack: getExternalAuthConfig(scope),
         discord: getExternalAuthConfig(scope),
         google: getExternalAuthConfig(scope),
         gitHub: getExternalAuthConfig(scope),

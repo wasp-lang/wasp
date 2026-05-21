@@ -3,6 +3,7 @@ import { loadWaspTsSpecDefaultExport } from "../../src/spec-pipeline/loadWaspTsS
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 import { mapApp } from "../../src/spec/mapApp.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";
 
 vi.mock("../../src/spec-pipeline/loadWaspTsSpec.js", () => ({
@@ -62,28 +63,27 @@ describe("analyzeApp", () => {
     } = input;
     mockLoadWaspTsSpecDefaultExport.mockResolvedValue(app);
 
-    const result = await analyzeApp({
-      waspTsSpecPath: "main.wasp.ts",
-      tsconfigPath: "tsconfig.wasp.json",
-      entityNames: entities,
-    });
+    const analyze = () =>
+      analyzeApp({
+        waspTsSpecPath: "main.wasp.ts",
+        tsconfigPath: "tsconfig.wasp.json",
+        projectRootDir: "/project",
+        entityNames: entities,
+      });
+
+    if (shouldReturnError) {
+      await expect(analyze()).rejects.toThrowError(SpecUserError);
+    } else {
+      const result = await analyze();
+      const expected = mapApp(app, entities);
+
+      expect(result).toEqual(expected);
+    }
 
     expect(mockLoadWaspTsSpecDefaultExport).toHaveBeenCalledWith({
       specPath: "main.wasp.ts",
       tsconfigPath: "tsconfig.wasp.json",
+      projectRootDir: "/project",
     });
-
-    if (shouldReturnError) {
-      expect(result).toMatchObject({
-        status: "error",
-        error: expect.anything(),
-      });
-    } else {
-      const expected = mapApp(app, entities);
-      expect(result).toMatchObject({
-        status: "ok",
-        value: expected,
-      });
-    }
   }
 });

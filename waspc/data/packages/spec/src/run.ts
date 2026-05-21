@@ -21,18 +21,20 @@ try {
  * and writes the output to a file.
  */
 async function main(args: string[]): Promise<void> {
-  const { waspTsSpecPath, tsconfigPath, declsJsonPath, entityNames } =
-    parseProcessArgsOrThrow(args);
-
-  const declsResult = await analyzeApp({
+  const {
     waspTsSpecPath,
     tsconfigPath,
+    projectRootDir,
+    declsJsonPath,
+    entityNames,
+  } = parseProcessArgsOrThrow(args);
+
+  const decls = await analyzeApp({
+    waspTsSpecPath,
+    tsconfigPath,
+    projectRootDir,
     entityNames,
   });
 
-  if (declsResult.status === "error") {
-    throw new Error(declsResult.error);
-  }
-
-  writeFileSync(declsJsonPath, JSON.stringify(declsResult.value));
+  writeFileSync(declsJsonPath, JSON.stringify(decls));
 }

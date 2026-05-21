@@ -253,6 +253,7 @@ export function mapAuthMethods(
   // TODO: check keyof danger, effective ts
   const {
     usernameAndPassword,
+    slack,
     discord,
     google,
     gitHub,
@@ -263,6 +264,7 @@ export function mapAuthMethods(
   return {
     usernameAndPassword:
       usernameAndPassword && mapUsernameAndPassword(usernameAndPassword),
+    slack: slack && mapExternalAuth(slack),
     discord: discord && mapExternalAuth(discord),
     google: google && mapExternalAuth(google),
     gitHub: gitHub && mapExternalAuth(gitHub),
