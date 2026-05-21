@@ -495,15 +495,11 @@ async function analyzeSpec({
   writeFileSync(sourcePath, sourceText, "utf8");
   writeTsConfig(tsconfigPath, specFileName);
 
-  const result = await analyzeApp({
+  return analyzeApp({
     waspTsSpecPath: sourcePath,
     tsconfigPath,
     entityNames: [],
   });
-
-  if (result.status === "error") throw new Error(result.error);
-
-  return result.value;
 }
 
 function writeTsConfig(tsconfigPath: string, include: string): void {

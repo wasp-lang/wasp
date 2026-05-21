@@ -24,15 +24,11 @@ async function main(args: string[]): Promise<void> {
   const { waspTsSpecPath, tsconfigPath, declsJsonPath, entityNames } =
     parseProcessArgsOrThrow(args);
 
-  const declsResult = await analyzeApp({
+  const decls = await analyzeApp({
     waspTsSpecPath,
     tsconfigPath,
     entityNames,
   });
 
-  if (declsResult.status === "error") {
-    throw new Error(declsResult.error);
-  }
-
-  writeFileSync(declsJsonPath, JSON.stringify(declsResult.value));
+  writeFileSync(declsJsonPath, JSON.stringify(decls));
 }
