@@ -1,20 +1,20 @@
-import { App } from "@src/App";
-import { EmailVerificationPage } from "@src/auth/email/EmailVerificationPage";
-import { LoginPage } from "@src/auth/email/LoginPage";
-import { PasswordResetPage } from "@src/auth/email/PasswordResetPage";
-import { RequestPasswordResetPage } from "@src/auth/email/RequestPasswordResetPage";
-import { SignupPage } from "@src/auth/email/SignupPage";
-import { userSignupFields } from "@src/auth/email/userSignupFields";
-import { createTag } from "@src/tags/actions";
-import { getTags } from "@src/tags/queries";
-import { TasksPage } from "@src/tasks/TasksPage";
+import { action, app, page, query, route } from "@wasp.sh/spec";
+import { App } from "./src/App" with { type: "ref " };
+import { EmailVerificationPage } from "./src/auth/email/EmailVerificationPage" with { type: "ref " };
+import { LoginPage } from "./src/auth/email/LoginPage" with { type: "ref " };
+import { PasswordResetPage } from "./src/auth/email/PasswordResetPage" with { type: "ref " };
+import { RequestPasswordResetPage } from "./src/auth/email/RequestPasswordResetPage" with { type: "ref " };
+import { SignupPage } from "./src/auth/email/SignupPage" with { type: "ref " };
+import { userSignupFields } from "./src/auth/email/userSignupFields" with { type: "ref " };
+import { createTag } from "./src/tags/actions" with { type: "ref " };
+import { getTags } from "./src/tags/queries" with { type: "ref " };
+import { TasksPage } from "./src/tasks/TasksPage" with { type: "ref " };
 import {
   createTask,
   deleteCompletedTasks,
   updateTaskStatus,
-} from "@src/tasks/actions";
-import { getTasks } from "@src/tasks/queries";
-import { action, app, page, query, route } from "@wasp.sh/spec";
+} from "./src/tasks/actions" with { type: "ref " };
+import { getTasks } from "./src/tasks/queries" with { type: "ref " };
 
 export default app({
   name: "__waspAppName__",

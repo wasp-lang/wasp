@@ -67,10 +67,10 @@ waspDbSeedTest =
     mainWaspTsWithSeeds =
       [trimming|
         import { app, page, route } from "@wasp.sh/spec";
-        import { MainPage } from "@src/MainPage"
-        import { $seedScriptThatPopulatesTasksTableName } from "@src/db/$seedScriptThatPopulatesTasksTableName"
-        import { $seedScriptThatAssertsTasksTableIsEmptyName } from "@src/db/$seedScriptThatAssertsTasksTableIsEmptyName"
-        import { $seedScriptThatAssertsTasksTableIsNotEmptyName } from "@src/db/$seedScriptThatAssertsTasksTableIsNotEmptyName"
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+        import { $seedScriptThatPopulatesTasksTableName } from "./src/db/$seedScriptThatPopulatesTasksTableName" with { type: "ref" };
+        import { $seedScriptThatAssertsTasksTableIsEmptyName } from "./src/db/$seedScriptThatAssertsTasksTableIsEmptyName" with { type: "ref" };
+        import { $seedScriptThatAssertsTasksTableIsNotEmptyName } from "./src/db/$seedScriptThatAssertsTasksTableIsNotEmptyName" with { type: "ref" };
 
         export default app({
           name: "waspDbSeedTest",
