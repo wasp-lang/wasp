@@ -8,6 +8,7 @@ import ShellCommands
     ShellCommandBuilder,
     TestContext,
     WaspProjectContext (..),
+    appendToFile,
     createTestWaspProject,
     inTestWaspProjectDir,
     setWaspDbToPSQL,
@@ -17,14 +18,14 @@ import ShellCommands
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
-import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate, tsMinimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
 
 viteBuildTest :: Test
 viteBuildTest =
   Test
-    "vite-build-env-vars"
+    "vite-build"
     [ TestCase
         "fail-on-missing-required-env-vars"
         ( createViteBuildTestCase [expectCommandFailure <$> viteBuild]
@@ -63,6 +64,20 @@ viteBuildTest =
               appendInlineEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] <$> viteBuild,
               assertBuildOutputContains inlineEnvVarValue
             ]
+        ),
+      TestCase
+        "fail-on-user-code-type-error"
+        ( createTsMinimalViteBuildTestCase
+            [ addTypeErrorToSrcFile,
+              expectCommandFailure <$> viteBuildWithApiUrl
+            ]
+        ),
+      TestCase
+        "ignore-wasp-ts-type-errors"
+        ( createTsMinimalViteBuildTestCase
+            [ addTypeErrorToWaspTsFile,
+              viteBuildWithApiUrl
+            ]
         )
     ]
   where
@@ -73,8 +88,18 @@ viteBuildTest =
           inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
         ]
 
+    createTsMinimalViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
+    createTsMinimalViteBuildTestCase commands =
+      sequence
+        [ createTestWaspProject tsMinimalStarterTemplate,
+          inTestWaspProjectDir $ [setWaspDbToPSQL, waspCliBuild] ++ commands
+        ]
+
     viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
     viteBuild = return "npx vite build"
+
+    viteBuildWithApiUrl :: ShellCommandBuilder WaspProjectContext ShellCommand
+    viteBuildWithApiUrl = appendInlineEnvVars [apiUrlEnvVar] <$> viteBuild
 
     assertBuildOutputContains :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
     assertBuildOutputContains value = return $ "grep -r '" ++ value ++ "' " ++ SP.fromRelDir viteBuildDirPath
@@ -97,6 +122,15 @@ viteBuildTest =
       writeToFile (waspProjectContext.waspProjectDir </> dotEnvClient) $
         T.pack $
           testEnvVarKey ++ "=" ++ value
+
+    addTypeErrorToSrcFile :: ShellCommandBuilder WaspProjectContext ShellCommand
+    addTypeErrorToSrcFile = appendToFile "src/MainPage.tsx" typeError
+
+    addTypeErrorToWaspTsFile :: ShellCommandBuilder WaspProjectContext ShellCommand
+    addTypeErrorToWaspTsFile = appendToFile "main.wasp.ts" typeError
+
+    typeError :: T.Text
+    typeError = "const shouldBeString: string = 123"
 
     appendInlineEnvVars :: [(String, String)] -> ShellCommand -> ShellCommand
     appendInlineEnvVars envVars command = foldr appendInlineEnvVar command envVars
