@@ -35,6 +35,6 @@
     "src"
   ],
   "references": [
-    { "path": "../../../tsconfig.json" }
+    { "path": "../../../tsconfig.src.json" }
   ]
 }

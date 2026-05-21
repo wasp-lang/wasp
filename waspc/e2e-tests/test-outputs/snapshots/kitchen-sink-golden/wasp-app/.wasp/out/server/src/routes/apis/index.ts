@@ -5,15 +5,15 @@ import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../midd
 import auth from 'wasp/core/auth'
 import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
 
-import { barNamespaceMiddlewareFn as _waspbarnamespaceMiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
-import { getMiddlewareConfig as _waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn } from '../../../../../../src/features/streaming/api'
+import { bar as _waspbarnamespaceMiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
+import { defaultMiddlewareForStreamingText as _waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn } from '../../../../../../src/features/streaming/api'
 
 import { fooBar as _waspfooBarfn } from '../../../../../../src/features/apis/apis'
 import { fooBarMiddlewareFn as _waspfooBarmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
 import { barBaz as _waspbarBazfn } from '../../../../../../src/features/apis/apis'
 import { webhookCallback as _waspwebhookCallbackfn } from '../../../../../../src/features/apis/apis'
 import { webhookCallbackMiddlewareFn as _waspwebhookCallbackmiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
-import { getText as _waspstreamingTextfn } from '../../../../../../src/features/streaming/api'
+import { streamingText as _waspstreamingTextfn } from '../../../../../../src/features/streaming/api'
 
 const idFn: MiddlewareConfigFn = x => x
 
