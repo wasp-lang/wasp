@@ -18,7 +18,7 @@ import ShellCommands
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
-import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate, tsMinimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
 import Wasp.Project.Env (dotEnvClient)
 
@@ -67,14 +67,14 @@ viteBuildTest =
         ),
       TestCase
         "fail-on-user-code-type-error"
-        ( createTsMinimalViteBuildTestCase
+        ( createViteBuildTestCase
             [ addTypeErrorToSrcFile,
               expectCommandFailure <$> viteBuildWithApiUrl
             ]
         ),
       TestCase
         "ignore-wasp-ts-type-errors"
-        ( createTsMinimalViteBuildTestCase
+        ( createViteBuildTestCase
             [ addTypeErrorToWaspTsFile,
               viteBuildWithApiUrl
             ]
@@ -86,13 +86,6 @@ viteBuildTest =
       sequence
         [ createTestWaspProject minimalStarterTemplate,
           inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, waspCliBuild] ++ commands
-        ]
-
-    createTsMinimalViteBuildTestCase :: [ShellCommandBuilder WaspProjectContext ShellCommand] -> ShellCommandBuilder TestContext [ShellCommand]
-    createTsMinimalViteBuildTestCase commands =
-      sequence
-        [ createTestWaspProject tsMinimalStarterTemplate,
-          inTestWaspProjectDir $ [setWaspDbToPSQL, waspCliBuild] ++ commands
         ]
 
     viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
