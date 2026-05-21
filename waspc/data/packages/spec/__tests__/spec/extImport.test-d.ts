@@ -43,7 +43,7 @@ describe("ExtImport input types", () => {
       onAuthFailedRedirectTo: "/login",
       onBeforeSignup: hook,
     });
-    assertType<TsAppSpec.ExternalAuthConfig>({
+    assertType<TsAppSpec.SocialAuthConfig>({
       configFn: hook,
       userSignupFields: object,
     });
