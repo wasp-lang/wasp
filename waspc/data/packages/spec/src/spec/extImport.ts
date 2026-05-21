@@ -1,16 +1,41 @@
 import type * as AppSpec from "../appSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
+/**
+ * A reference to code in your app's `src` directory.
+ *
+ * Use this when you can't use a direct TypeScript import from `@src/...`.
+ * The import path must start with `@src/` and be either a single named import
+ * ({@link NamedExtImport}) or a default import ({@link DefaultExtImport}).
+ */
 export type ExtImport = NamedExtImport | DefaultExtImport;
 
+/**
+ * Named import reference, equivalent to
+ * `import { SomeValue } from "@src/someModule"`.
+ */
 export interface NamedExtImport {
+  /** Exported name to import. */
   import: string;
+  /**
+   * Optional local alias.
+   *
+   * When Wasp derives a declaration name from this import, the alias takes
+   * precedence over the `import` field.
+   */
   alias?: string;
+  /** Module path. Must start with `@src/`. */
   from: AppSpec.ExtImport["path"];
 }
 
+/**
+ * Default import reference, equivalent to
+ * `import SomeValue from "@src/someModule"`.
+ */
 export interface DefaultExtImport {
+  /** Local name for the default import. */
   importDefault: string;
+  /** Module path. Must start with `@src/`. */
   from: AppSpec.ExtImport["path"];
 }
 
