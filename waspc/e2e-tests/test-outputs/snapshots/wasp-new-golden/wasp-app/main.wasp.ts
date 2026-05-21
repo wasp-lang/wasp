@@ -1,4 +1,4 @@
-import { MainPage } from "@src/MainPage"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { app, page, route } from "@wasp.sh/spec"
 
 export default app({
