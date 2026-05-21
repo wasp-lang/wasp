@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import SectionContainer from "./Layouts/SectionContainer";
 
 const properties = [
@@ -76,18 +76,33 @@ const badgeStyles = [
 const BadgePicker = ({ text, defaultIdx = 0 }) => {
   const [idx, setIdx] = useState(defaultIdx);
   const [hover, setHover] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const wrapperRef = useRef(null);
 
   const cycle = (delta) => setIdx((i) => (i + delta + badgeStyles.length) % badgeStyles.length);
 
+  // Close menu on click outside
+  useEffect(() => {
+    if (!menuOpen) return;
+    const onClick = (e) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
+  }, [menuOpen]);
+
   return (
     <div
+      ref={wrapperRef}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       className="relative mb-6 inline-block"
     >
       {/* Arrow buttons hug the badge (w-10 = 40px, touching left/right edges)
           so there's no gap that triggers mouseleave when moving toward them. */}
-      {hover && (
+      {(hover || menuOpen) && (
         <>
           <button
             type="button"
@@ -105,12 +120,44 @@ const BadgePicker = ({ text, defaultIdx = 0 }) => {
           >
             →
           </button>
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            className="absolute -top-7 left-1/2 flex h-7 w-10 -translate-x-1/2 items-end justify-center border-0 bg-transparent p-0 pb-0.5 font-mono text-sm text-wasp-g6 hover:text-wasp-black"
+            aria-label="Open badge style menu"
+          >
+            ↑
+          </button>
           <div className="absolute -bottom-5 left-0 whitespace-nowrap font-mono text-[10px] uppercase tracking-wider text-wasp-g5">
             {badgeStyles[idx].name}
           </div>
         </>
       )}
       {badgeStyles[idx].render(text)}
+
+      {menuOpen && (
+        <div className="absolute left-0 top-full z-50 mt-2 border border-wasp-g3 bg-wasp-bg p-2 shadow-md">
+          {badgeStyles.map((s, i) => (
+            <button
+              key={s.name}
+              type="button"
+              onClick={() => {
+                setIdx(i);
+                setMenuOpen(false);
+              }}
+              className={`flex w-full items-center gap-3 border-0 bg-transparent px-2 py-1.5 text-left font-mono text-xs hover:bg-wasp-g1 ${
+                i === idx ? "text-wasp-black" : "text-wasp-g6"
+              }`}
+            >
+              <span className="inline-block w-4 text-center">{i === idx ? "▸" : ""}</span>
+              <span className="flex-shrink-0">{s.render(text)}</span>
+              <span className="text-[10px] uppercase tracking-wider text-wasp-g5">
+                {s.name}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -136,7 +183,7 @@ const Variant1 = () => (
 /* ─────────── Variant 2 — Borderless cards (dividers) ─────────── */
 const Variant2 = () => (
   <SectionContainer className="pt-12 pb-12">
-    <BadgePicker text="// Properties" defaultIdx={5} />
+    <BadgePicker text="// Properties" defaultIdx={0} />
     <div className="grid grid-cols-1 gap-8 lg:grid-cols-3 lg:divide-x lg:divide-wasp-g3">
       {properties.map((p) => (
         <div key={p.title} className="lg:px-6 lg:first:pl-0 lg:last:pr-0">
