@@ -185,12 +185,7 @@ const sidebars: SidebarsConfig = {
       label: "General",
       collapsed: false,
       collapsible: true,
-      items: [
-        "general/language",
-        "general/cli",
-        "general/typescript",
-        "general/wasp-ts-spec",
-      ],
+      items: ["general/spec", "general/cli", "general/typescript"],
     },
     {
       type: "link",
