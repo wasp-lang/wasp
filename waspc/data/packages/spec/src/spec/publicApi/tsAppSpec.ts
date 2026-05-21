@@ -81,10 +81,8 @@ export interface App {
  */
 export interface Wasp {
   /**
-   * The Wasp version this app is built for, as a semver range
+   * The Wasp version this app is built for, as an npm-compatible version range
    * (e.g. `"^0.24.0"`).
-   *
-   * Currently, Wasp supports caret ranges only (e.g. `"^0.24.0"`).
    */
   version: string;
 }
@@ -94,6 +92,9 @@ export interface Wasp {
  *
  * See the [Auth overview](https://wasp.sh/docs/auth/overview) for the
  * supported auth methods and how the `User` entity is connected to auth.
+ * If hooks are async, Wasp awaits them. Hook return values are ignored except
+ * for {@link AuthHooks.onBeforeOAuthRedirect}, which can change the redirect
+ * URL.
  */
 export interface Auth extends AuthHooks {
   /**
@@ -257,8 +258,9 @@ export interface EmailFlowConfig {
 export interface Server {
   /**
    * Async function called once on server start, before the server accepts
-   * requests. Receives the Express `app` and the underlying `http.Server`,
-   * so you can register custom routes or kick off background work.
+   * requests. Receives a context containing the Express `app` and underlying
+   * `http.Server`, so you can register custom routes or kick off background
+   * work.
    */
   setupFn?: Reference<AnyFunction>;
   /**
@@ -270,8 +272,8 @@ export interface Server {
   middlewareConfigFn?: Reference<AnyFunction>;
   /**
    * Zod schema used to validate the server's environment variables on
-   * startup. The schema can be defined inline (a runtime Zod object) or
-   * imported with an {@link ExtImport}.
+   * startup. Import the schema from app code with a reference import or pass an
+   * {@link ExtImport} object.
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
@@ -293,8 +295,9 @@ export interface Client {
    */
   rootComponent?: Reference<AnyFunction>;
   /**
-   * Async function awaited on the client before any page renders. Use it
-   * for one-time client-side setup, e.g. configuring the React Query client.
+   * Async function awaited on the client before any page renders. It receives
+   * no arguments, and its return value is ignored. Use it for one-time
+   * client-side setup, e.g. starting client-side periodic jobs.
    */
   setupFn?: Reference<AnyFunction>;
   /**
@@ -306,7 +309,9 @@ export interface Client {
   baseDir?: `/${string}`;
   /**
    * Zod schema used to validate the client's environment variables at build
-   * time. Client env vars must be prefixed with `REACT_APP_`.
+   * time. Import the schema from app code with a reference import or pass an
+   * {@link ExtImport} object. Client env vars must be prefixed with
+   * `REACT_APP_`.
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
@@ -321,9 +326,10 @@ export interface Client {
  */
 export interface Db {
   /**
-   * Functions runnable with `wasp db seed [name]` to populate the database
-   * with initial data. The name passed to `wasp db seed` matches the
-   * function's identifier in the import.
+   * Async functions runnable with `wasp db seed [name]` to populate the
+   * database with initial data. Each function receives Wasp's Prisma Client;
+   * the name passed to `wasp db seed` matches the function's identifier in the
+   * import.
    */
   seeds?: Reference<AnyFunction>[];
   /**
@@ -375,7 +381,8 @@ export interface EmailFromField {
 export interface WebSocket {
   /**
    * Function that registers Socket.IO event handlers. Wasp calls it once on
-   * server start with the Socket.IO server instance.
+   * server start with the Socket.IO server instance and a context containing
+   * all app entities.
    */
   fn: Reference<AnyFunction>;
   /**
@@ -477,7 +484,7 @@ export interface Route extends BasePart<"route"> {
  * @category Parts
  */
 export interface Query extends BasePart<"query"> {
-  /** Implementation of the query. */
+  /** Reference to the Query's NodeJS implementation. */
   fn: Reference<AnyFunction>;
   /**
    * Entities the query reads from. Wasp injects a Prisma delegate for each
@@ -504,7 +511,7 @@ export interface Query extends BasePart<"query"> {
  * @category Parts
  */
 export interface Action extends BasePart<"action"> {
-  /** Implementation of the action. */
+  /** Reference to the Action's NodeJS implementation. */
   fn: Reference<AnyFunction>;
   /**
    * Entities the action operates on. Wasp injects a Prisma delegate for each
@@ -537,13 +544,12 @@ export interface Action extends BasePart<"action"> {
 export interface Api extends BasePart<"api"> {
   /** HTTP method this endpoint responds to. */
   method: HttpMethod;
-  /** URL path of the endpoint (e.g. `"/webhooks/stripe"`). */
+  /** Express path of the endpoint (e.g. `"/webhooks/stripe"`). */
   path: string;
-  /** Express handler that implements the endpoint. */
+  /** Reference to the API's NodeJS implementation. */
   fn: Reference<AnyFunction>;
   /**
-   * Function that customizes the Express middleware stack for this endpoint
-   * only.
+   * Reference to an Express middleware config function for this endpoint only.
    */
   middlewareConfigFn?: Reference<AnyFunction>;
   /**
@@ -554,7 +560,8 @@ export interface Api extends BasePart<"api"> {
   /**
    * If `true`, the handler requires the request to come from an
    * authenticated user. Defaults to `true` when the app has auth enabled,
-   * and `false` otherwise.
+   * and `false` otherwise. Set to `false` to skip parsing the JWT from the
+   * Authorization header.
    */
   auth?: boolean;
 }
@@ -568,7 +575,7 @@ export interface Api extends BasePart<"api"> {
  * @category Parts
  */
 export interface ApiNamespace extends BasePart<"apiNamespace"> {
-  /** Function that customizes the middleware stack for the namespace. */
+  /** Reference to an Express middleware config function for this namespace. */
   middlewareConfigFn: Reference<AnyFunction>;
   /** Path prefix the namespace applies to (e.g. `"/webhooks"`). */
   path: string;
@@ -591,7 +598,10 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  * @category Parts
  */
 export interface Job extends BasePart<"job"> {
-  /** Worker function the job runs. */
+  /**
+   * Reference to the async function that performs the job's work. It receives
+   * the submitted args and a context containing the declared entities.
+   */
   fn: Reference<AnyFunction>;
   /** Executor backing this job. */
   executor: JobExecutor;
@@ -693,9 +703,9 @@ export interface CrudOperationOptions {
    */
   isPublic?: boolean;
   /**
-   * Custom implementation that replaces Wasp's auto-generated one. Use this
-   * when you need custom business logic for an operation (e.g. attaching
-   * `userId` on `create`).
+   * Reference to a custom implementation that replaces Wasp's auto-generated
+   * one. Use this when you need custom business logic for an operation (e.g.
+   * attaching `userId` on `create`).
    */
   overrideFn?: Reference<AnyFunction>;
 }
@@ -706,9 +716,11 @@ export interface CrudOperationOptions {
 export type EntityName = string;
 
 /**
- * A reference to your app's code. You can use either a [Reference
- * import](https://wasp.sh/docs/general/spec#reference-imports) or a reference
- * object ({@link ExtImport}).
+ * A reference to your app's code. Prefer importing the value with
+ * `with { type: "ref" }`; use a reference object ({@link ExtImport}) when a
+ * direct reference import is not practical.
+ *
+ * See [Reference imports](https://wasp.sh/docs/general/spec#reference-imports).
  */
 export type Reference<T> = ExtImport | T;
 
@@ -742,8 +754,8 @@ interface BasePart<Kind extends string> {
 }
 
 /**
- * Structural type for a Zod schema, used where the spec accepts a runtime Zod
- * object (e.g. `server.envValidationSchema`).
+ * Structural type for a Zod schema imported from app code with a reference
+ * import.
  *
  * To avoid depending on the `zod` package, Wasp structurally recognizes Zod 4
  * schemas via their documented library-author marker. See

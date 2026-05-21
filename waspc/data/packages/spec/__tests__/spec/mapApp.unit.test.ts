@@ -19,13 +19,13 @@ import {
   mapEmailFlow,
   mapEmailFromField,
   mapEmailSender,
-  mapExternalAuth,
   mapJob,
   mapPage,
   mapQuery,
   mapRoute,
   mapSchedule,
   mapServer,
+  mapSocialAuth,
   mapUsernameAndPassword,
   mapWebSocket,
 } from "../../src/spec/mapApp.js";
@@ -541,13 +541,12 @@ describe("mapAuthMethods", () => {
       usernameAndPassword:
         authMethods.usernameAndPassword &&
         mapUsernameAndPassword(authMethods.usernameAndPassword),
-      slack: authMethods.slack && mapExternalAuth(authMethods.slack),
-      discord: authMethods.discord && mapExternalAuth(authMethods.discord),
-      google: authMethods.google && mapExternalAuth(authMethods.google),
-      gitHub: authMethods.gitHub && mapExternalAuth(authMethods.gitHub),
-      keycloak: authMethods.keycloak && mapExternalAuth(authMethods.keycloak),
-      microsoft:
-        authMethods.microsoft && mapExternalAuth(authMethods.microsoft),
+      slack: authMethods.slack && mapSocialAuth(authMethods.slack),
+      discord: authMethods.discord && mapSocialAuth(authMethods.discord),
+      google: authMethods.google && mapSocialAuth(authMethods.google),
+      gitHub: authMethods.gitHub && mapSocialAuth(authMethods.gitHub),
+      keycloak: authMethods.keycloak && mapSocialAuth(authMethods.keycloak),
+      microsoft: authMethods.microsoft && mapSocialAuth(authMethods.microsoft),
       email:
         authMethods.email && mapEmailAuth(authMethods.email, routeRefParser),
     } satisfies AppSpec.AuthMethods);
@@ -702,23 +701,23 @@ describe("mapUsernameAndPassword", () => {
   }
 });
 
-describe("mapExternalAuth", () => {
+describe("mapSocialAuth", () => {
   test("should map minimal config correctly", () => {
-    testMapExternalAuth(Fixtures.getExternalAuthConfig("minimal"));
+    testMapSocialAuth(Fixtures.getSocialAuthConfig("minimal"));
   });
 
   test("should map full config correctly", () => {
-    testMapExternalAuth(Fixtures.getExternalAuthConfig("full"));
+    testMapSocialAuth(Fixtures.getSocialAuthConfig("full"));
   });
 
-  function testMapExternalAuth(externalAuth: TsAppSpec.SocialAuthConfig): void {
-    const result = mapExternalAuth(externalAuth);
+  function testMapSocialAuth(socialAuth: TsAppSpec.SocialAuthConfig): void {
+    const result = mapSocialAuth(socialAuth);
 
     expect(result).toStrictEqual({
-      configFn: externalAuth.configFn && mapExtImport(externalAuth.configFn),
+      configFn: socialAuth.configFn && mapExtImport(socialAuth.configFn),
       userSignupFields:
-        externalAuth.userSignupFields &&
-        mapExtImport(externalAuth.userSignupFields),
+        socialAuth.userSignupFields &&
+        mapExtImport(socialAuth.userSignupFields),
     } satisfies AppSpec.ExternalAuthConfig);
   }
 });

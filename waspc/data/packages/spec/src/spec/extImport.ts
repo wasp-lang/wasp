@@ -4,7 +4,7 @@ import { SpecUserError } from "./specUserError.js";
 /**
  * A reference to code in your app's `src` directory.
  *
- * Use this when you can't use a direct TypeScript import from `@src/...`.
+ * Use this when you can't use a reference import.
  * The import path must start with `@src/` and be either a single named import
  * ({@link NamedExtImport}) or a default import ({@link DefaultExtImport}).
  */
@@ -12,7 +12,7 @@ export type ExtImport = NamedExtImport | DefaultExtImport;
 
 /**
  * Named import reference, equivalent to
- * `import { SomeValue } from "@src/someModule"`.
+ * `import { SomeValue } from "./src/someModule" with { type: "ref" }`.
  */
 export interface NamedExtImport {
   /** Exported name to import. */
@@ -30,7 +30,7 @@ export interface NamedExtImport {
 
 /**
  * Default import reference, equivalent to
- * `import SomeValue from "@src/someModule"`.
+ * `import SomeValue from "./src/someModule" with { type: "ref" }`.
  */
 export interface DefaultExtImport {
   /** Local name for the default import. */
