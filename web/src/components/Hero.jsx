@@ -4,6 +4,7 @@ import { BookOpen, Terminal } from "react-feather";
 
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
+import Properties from "./Properties";
 
 const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
 
@@ -20,11 +21,12 @@ const InstallCommand = () => {
     <button
       type="button"
       onClick={handleCopy}
-      className="cursor-pointer border-0 bg-transparent p-0 text-left font-mono text-xs text-wasp-g5 transition-colors hover:text-wasp-g7"
+      className="block w-full cursor-pointer border-0 bg-transparent p-0 text-left font-mono text-sm text-wasp-g7 transition-colors hover:text-wasp-black"
       title="Click to copy"
       aria-label={`Copy install command: ${installCmd}`}
     >
-      $ {installCmd} {copied ? "✓" : ""}
+      <span className="text-wasp-yellow-dark">$</span> {installCmd}{" "}
+      {copied ? "✓" : ""}
     </button>
   );
 };
@@ -174,7 +176,7 @@ function TabbedCodeViewer() {
 
 const Hero = () => {
   return (
-    <SectionContainer className="pb-5 pt-24">
+    <SectionContainer className="pt-24">
       <div className="xl:grid xl:grid-cols-12 xl:gap-16">
         <div className="z-10 flex flex-col justify-between gap-12 xl:col-span-6 xl:min-w-0">
           {/* Hero title and subtitle */}
@@ -185,23 +187,27 @@ const Hero = () => {
             <h1
               className={`text-4xl font-extrabold uppercase leading-[1.2] tracking-[-2px] text-wasp-black lg:text-[52px]`}
             >
-              Develop your full-stack app{" "}
-              <span className="inline-block border-[2.5px] border-wasp-black bg-wasp-yellow px-2 leading-[1.1]">
-                fast
+              A truly{" "}
+              <span className="inline-block bg-wasp-yellow px-2 leading-[1.1]">
+                full-stack
               </span>{" "}
-              and{" "}
-              <span className="inline-block border-[2.5px] border-wasp-black bg-wasp-yellow px-2 leading-[1.1]">
-                keep control.
+              TypeScript framework that{" "}
+              <span className="inline-block bg-wasp-yellow px-2 leading-[1.1]">
+                just works.
               </span>
             </h1>
 
             <p className="mt-6 max-w-[460px] text-base leading-[1.75] text-wasp-g6">
-              Rails-like framework for React, Node.js and Prisma. Build your app
-              in a day and deploy it with a single CLI command.
+              React, Node.js, and Prisma — wired together with auth, jobs, and
+              deployment built in. Ship in a day and own every line.
+              <span className="font-bold block mt-1">
+                Designed for humans, works beautifully with AI.
+              </span>
             </p>
           </div>{" "}
           {/* EOF Hero title and subtitle */}
-          <div>
+          {/* w-fit so the install bar below matches the buttons' combined width. */}
+          <div className="w-fit">
             <ActionButtons />
             <div className="mt-4">
               <InstallCommand />
@@ -212,6 +218,8 @@ const Hero = () => {
           <TabbedCodeViewer />
         </div>
       </div>
+
+      <Properties />
 
       {/* 1-min video */}
       {/*
