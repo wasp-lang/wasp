@@ -90,7 +90,7 @@ describe("parseProcessArgsOrThrow", () => {
     ] as string[]);
   });
 
-  test("should throw an error if declsJsonPath is not a string", () => {
+  test("should throw an error if specResultPath is not a string", () => {
     expectParseProcessArgsToError([
       "analyze",
       "main.wasp.ts",
@@ -131,14 +131,14 @@ describe("parseProcessArgsOrThrow", () => {
       waspTsSpecPath,
       tsconfigPath,
       projectRootDir,
-      declsJsonPath,
+      specResultPath,
       entityNames,
     ] = args;
     expect(result).toEqual({
       waspTsSpecPath,
       tsconfigPath,
       projectRootDir,
-      declsJsonPath,
+      specResultPath,
       entityNames: entityNames && JSON.parse(entityNames),
     });
   }
