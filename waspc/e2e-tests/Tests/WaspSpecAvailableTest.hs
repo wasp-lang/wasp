@@ -30,7 +30,7 @@ import ShellCommands
   )
 import StrongPath (fromAbsDir, reldir, (</>))
 import Test (Test (..), TestCase (..))
-import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (tsMinimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Util.Terminal (styleCode)
 
 waspSpecAvailableTest :: Test
@@ -40,7 +40,7 @@ waspSpecAvailableTest =
     [ TestCase
         "commands-requiring-wasp-spec-fail-with-install-hint-when-missing"
         ( sequence
-            [ createTestWaspProject tsMinimalStarterTemplate,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
                 removeNodeModules
                   : map
@@ -62,7 +62,7 @@ waspSpecAvailableTest =
       TestCase
         "compile-fails-with-install-hint-when-wasp-spec-version-mismatches-cli"
         ( sequence
-            [ createTestWaspProject tsMinimalStarterTemplate,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ corruptWaspSpecVersion,
                   assertCommandFailsWithInstallHint waspCliCompile
@@ -75,7 +75,7 @@ waspSpecAvailableTest =
         -- `WaspSpecAvailable` check fires, so we build first, then nuke
         -- node_modules to reach the install-hint failure path.
         ( sequence
-            [ createTestWaspProject tsMinimalStarterTemplate,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ setWaspDbToPSQL,
                   waspCliBuild,
@@ -87,7 +87,7 @@ waspSpecAvailableTest =
       TestCase
         "commands-not-requiring-wasp-spec-succeed-when-missing"
         ( sequence
-            [ createTestWaspProject tsMinimalStarterTemplate,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir $
                 concatMap
                   (\command -> [removeNodeModules, command])

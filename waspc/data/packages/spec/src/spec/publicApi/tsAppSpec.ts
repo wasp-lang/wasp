@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { RequireOneOrNone } from "type-fest";
-import type { AnyFunction } from "../../typeUtils.js";
+import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { ExtImport } from "../extImport.js";
 
 /**
@@ -222,12 +222,12 @@ export interface EmailAuthConfig extends BaseAuthMethodConfig {
 
 interface BaseAuthMethodConfig {
   /**
-   * Function that defines extra fields to save on the user during signup
+   * Object that defines extra fields to save on the user during signup
    * (e.g. `firstName`, `address`).
    *
    * See [Signup Fields Customization](https://wasp.sh/docs/auth/overview#signup-fields-customization).
    */
-  userSignupFields?: Reference<AnyFunction>;
+  userSignupFields?: Reference<AnyObject>;
 }
 
 /**
@@ -754,8 +754,11 @@ interface BasePart<Kind extends string> {
 }
 
 /**
- * Structural type for a Zod schema imported from app code with a reference
- * import.
+ * Structural type for a runtime Zod schema.
+ *
+ * Env schemas imported with reference imports are lowered to {@link ExtImport}
+ * objects before mapping, but the public API still accepts runtime Zod objects
+ * in `server.envValidationSchema` and `client.envValidationSchema`.
  *
  * To avoid depending on the `zod` package, Wasp structurally recognizes Zod 4
  * schemas via their documented library-author marker. See

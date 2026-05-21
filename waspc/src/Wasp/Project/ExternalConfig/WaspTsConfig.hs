@@ -6,7 +6,6 @@ module Wasp.Project.ExternalConfig.WaspTsConfig
   )
 where
 
-import qualified Data.Map.Strict as Map
 import StrongPath (Abs, Dir, File, Path', Rel)
 import Validation (Validation (..))
 import qualified Wasp.ExternalConfig.TsConfig as T
@@ -40,14 +39,5 @@ waspTsConfigValidator =
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
           V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           V.inField ("noEmit", T.noEmit) $ V.eqJust True,
-          V.inField ("lib", T.lib) $ V.eqJust ["ES2023"],
-          V.inField ("paths", T.paths) $ V.required $ requiredPathMapping "@src/*" ["./src/*"]
+          V.inField ("lib", T.lib) $ V.eqJust ["ES2023"]
         ]
-
-    requiredPathMapping :: String -> [String] -> V.Validator (Map.Map String [String])
-    requiredPathMapping alias expectedPaths paths =
-      case Map.lookup alias paths of
-        Just actualPaths
-          | actualPaths == expectedPaths -> V.success
-          | otherwise -> V.failure $ "Expected " ++ show alias ++ " to map to " ++ show expectedPaths ++ " but got " ++ show actualPaths ++ "."
-        Nothing -> V.failure $ "Missing required path mapping " ++ show alias ++ " to " ++ show expectedPaths ++ "."

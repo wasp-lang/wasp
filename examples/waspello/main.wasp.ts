@@ -1,7 +1,7 @@
-import MainPage from "@src/cards/MainPage";
-import Layout from "@src/Layout";
 import { app, page, route } from "@wasp.sh/spec";
 import { readFile } from "fs/promises";
+import MainPage from "./src/cards/MainPage" with { type: "ref" };
+import Layout from "./src/Layout" with { type: "ref" };
 
 import { auth } from "./src/auth/auth.wasp";
 import { cards } from "./src/cards/cards.wasp";

@@ -1,28 +1,24 @@
 import * as ts from "typescript";
 
-const SRC_IMPORT_PREFIX = "@src/";
-
 export type ImportDiagnostic = {
   unsupportedImportType: UnsupportedImportType;
-  specifier: string;
+  refImportPath: string;
   filePath: string;
   location: SourceLocation;
 };
 
 export type UnsupportedImportType =
-  // Example: `import "@src/setup";`
+  // Example: `import "./src/setup" with { type: "ref" };`
   | "sideEffect"
-  // Example: `import MainPage = require("@src/MainPage");`
-  | "importEquals"
-  // Example: `import type { Props } from "@src/MainPage";`
+  // Example: `import type { Props } from "./src/MainPage" with { type: "ref" };`
   | "typeOnly"
-  // Example: `import { type Props, MainPage } from "@src/MainPage";`
+  // Example: `import { type Props, MainPage } from "./src/MainPage" with { type: "ref" };`
   | "mixedTypeAndValue"
-  // Example: `import { "foo-bar" as fooBar } from "@src/operations";`
+  // Example: `import { "foo-bar" as fooBar } from "./src/operations" with { type: "ref" };`
   | "stringLiteral"
-  // Example: `import {} from "@src/MainPage";`
+  // Example: `import {} from "./src/MainPage" with { type: "ref" };`
   | "emptyNamed"
-  // Example: `export { MainPage } from "@src/MainPage";`
+  // Example: `export { MainPage } from "./src/MainPage" with { type: "ref" };`
   | "reExport";
 
 type SourceLocation = {
@@ -36,7 +32,7 @@ export class DiagnosticError extends Error {
   constructor(
     sourceFile: ts.SourceFile,
     node: ts.Node,
-    specifier: string,
+    refImportPath: string,
     unsupportedImportType: UnsupportedImportType,
   ) {
     super("Import diagnostic");
@@ -46,7 +42,7 @@ export class DiagnosticError extends Error {
     );
     this.diagnostic = {
       unsupportedImportType,
-      specifier,
+      refImportPath,
       filePath: sourceFile.fileName,
       location: { line: line + 1, column: character + 1 },
     };
@@ -54,80 +50,82 @@ export class DiagnosticError extends Error {
 }
 
 /**
- * Supported @src imports are value imports, e.g.:
- * `import MainPage from "@src/MainPage"`,
- * `import { getTasks } from "@src/operations"`, or
- * `import * as ops from "@src/operations"`.
+ * Supported ref imports are value imports, e.g.:
+ * `import MainPage from "./src/MainPage" with { type: "ref" }`,
+ * `import { getTasks } from "./src/operations" with { type: "ref" }`, or
+ * `import * as ops from "./src/operations" with { type: "ref" }`.
  */
-export function assertSupportedSrcImportDeclaration(
+export function assertSupportedRefImportDeclaration(
   sourceFile: ts.SourceFile,
   stmt: ts.ImportDeclaration,
-  specifier: string,
+  refImportPath: string,
 ): asserts stmt is ts.ImportDeclaration & { importClause: ts.ImportClause } {
   const clause = stmt.importClause;
   if (!clause) {
-    throw new DiagnosticError(sourceFile, stmt, specifier, "sideEffect");
+    throw new DiagnosticError(sourceFile, stmt, refImportPath, "sideEffect");
   }
 
   if (clause.isTypeOnly) {
-    throw new DiagnosticError(sourceFile, stmt, specifier, "typeOnly");
+    throw new DiagnosticError(sourceFile, stmt, refImportPath, "typeOnly");
   }
 
   const bindings = clause.namedBindings;
   if (bindings && ts.isNamedImports(bindings)) {
     if (!clause.name && bindings.elements.length === 0) {
-      throw new DiagnosticError(sourceFile, stmt, specifier, "emptyNamed");
+      throw new DiagnosticError(sourceFile, stmt, refImportPath, "emptyNamed");
     }
 
     if (bindings.elements.some((element) => element.isTypeOnly)) {
       throw new DiagnosticError(
         sourceFile,
         stmt,
-        specifier,
+        refImportPath,
         "mixedTypeAndValue",
       );
     }
 
     if (bindings.elements.some(hasStringLiteralImportedName)) {
-      throw new DiagnosticError(sourceFile, stmt, specifier, "stringLiteral");
+      throw new DiagnosticError(
+        sourceFile,
+        stmt,
+        refImportPath,
+        "stringLiteral",
+      );
     }
   }
 }
 
 /**
- * Import-equals declarations are supported unless they target @src, e.g.
- * `import path = require("node:path")`.
+ * Re-exports should not be marked as refs.
  */
-export function assertNonSrcImportEqualsDeclaration(
-  sourceFile: ts.SourceFile,
-  stmt: ts.ImportEqualsDeclaration,
-): void {
-  const specifier = getImportEqualsSpecifier(stmt);
-  if (!specifier || !isSrcImportSpecifier(specifier)) {
-    return;
-  }
-
-  throw new DiagnosticError(sourceFile, stmt, specifier, "importEquals");
-}
-
-/**
- * Re-exports are supported unless they target @src, e.g.
- * `export { helper } from "./helpers"`.
- */
-export function assertNonSrcReExport(
+export function assertNonRefReExport(
   sourceFile: ts.SourceFile,
   stmt: ts.ExportDeclaration,
 ): void {
-  if (!stmt.moduleSpecifier) {
+  const refImportPath = getRefExportSpecifier(stmt);
+  if (!refImportPath) {
     return;
   }
 
-  const specifier = getSrcImportSpecifier(stmt.moduleSpecifier);
-  if (!specifier) {
-    return;
+  throw new DiagnosticError(sourceFile, stmt, refImportPath, "reExport");
+}
+
+export function getRefImportSpecifier(
+  stmt: ts.ImportDeclaration,
+): string | undefined {
+  if (!hasOnlyRefImportAttribute(stmt.attributes)) {
+    return undefined;
   }
 
-  throw new DiagnosticError(sourceFile, stmt, specifier, "reExport");
+  return getStringModuleSpecifier(stmt.moduleSpecifier);
+}
+
+function getRefExportSpecifier(stmt: ts.ExportDeclaration): string | undefined {
+  if (!stmt.moduleSpecifier || !hasOnlyRefImportAttribute(stmt.attributes)) {
+    return undefined;
+  }
+
+  return getStringModuleSpecifier(stmt.moduleSpecifier);
 }
 
 function hasStringLiteralImportedName(spec: ts.ImportSpecifier): boolean {
@@ -136,34 +134,33 @@ function hasStringLiteralImportedName(spec: ts.ImportSpecifier): boolean {
   );
 }
 
-function getImportEqualsSpecifier(
-  stmt: ts.ImportEqualsDeclaration,
-): string | undefined {
-  const moduleReference = stmt.moduleReference;
-  if (!ts.isExternalModuleReference(moduleReference)) {
-    return undefined;
+/**
+ * Detects if the given attributes indicate a ref import e.g.
+ *
+ * import X from "..." with { type: "ref" };
+ */
+function hasOnlyRefImportAttribute(
+  attributes: ts.ImportAttributes | undefined,
+): boolean {
+  if (
+    !attributes ||
+    attributes.token !== ts.SyntaxKind.WithKeyword ||
+    attributes.elements.length !== 1
+  ) {
+    return false;
   }
 
-  return getStringModuleSpecifier(moduleReference.expression);
-}
-
-export function getSrcImportSpecifier(
-  moduleSpecifier: ts.Expression,
-): string | undefined {
-  const specifier = getStringModuleSpecifier(moduleSpecifier);
-  if (!specifier || !isSrcImportSpecifier(specifier)) {
-    return undefined;
-  }
-
-  return specifier;
+  const [attribute] = attributes.elements;
+  return (
+    attribute !== undefined &&
+    attribute.name.text === "type" &&
+    ts.isStringLiteral(attribute.value) &&
+    attribute.value.text === "ref"
+  );
 }
 
 function getStringModuleSpecifier(
   moduleSpecifier: ts.Expression,
 ): string | undefined {
   return ts.isStringLiteral(moduleSpecifier) ? moduleSpecifier.text : undefined;
-}
-
-function isSrcImportSpecifier(specifier: string): boolean {
-  return specifier.startsWith(SRC_IMPORT_PREFIX);
 }

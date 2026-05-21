@@ -7,15 +7,18 @@ import { SpecUserError } from "./specUserError.js";
 export async function analyzeApp({
   waspTsSpecPath,
   tsconfigPath,
+  projectRootDir,
   entityNames,
 }: {
   waspTsSpecPath: string;
   tsconfigPath: string;
+  projectRootDir: string;
   entityNames: string[];
 }): Promise<AppSpec.Decl[]> {
   const waspTsDefaultExport = await loadWaspTsSpecDefaultExport({
     specPath: waspTsSpecPath,
     tsconfigPath,
+    projectRootDir,
   });
 
   const app = getApp(waspTsDefaultExport);
