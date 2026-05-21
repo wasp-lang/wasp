@@ -74,9 +74,9 @@ describe("planImportLowering", () => {
         sourcePath,
         projectRootDir,
         sourceText: [
-          `import { App } from "@wasp.sh/spec";`,
+          `import { app } from "@wasp.sh/spec";`,
           `import helper from "./helpers";`,
-          `import MainPage from "@src/MainPage";`,
+          `import MainPage from "./src/MainPage";`,
           `export { helper } from "./helpers";`,
           ``,
         ].join("\n"),
