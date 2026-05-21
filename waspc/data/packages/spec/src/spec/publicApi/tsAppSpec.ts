@@ -1,6 +1,6 @@
 import type { RequireOneOrNone } from "type-fest";
 import * as AppSpec from "../../appSpec.js";
-import type { AnyFunction } from "../../typeUtils.js";
+import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { ExtImport } from "../extImport.js";
 
 export type App = {
@@ -63,7 +63,7 @@ export type EmailAuthConfig = BaseAuthMethodConfig & {
 };
 
 export type BaseAuthMethodConfig = {
-  userSignupFields?: ExtImport | AnyFunction;
+  userSignupFields?: ExtImport | AnyObject;
 };
 
 export type EmailFlowConfig = {

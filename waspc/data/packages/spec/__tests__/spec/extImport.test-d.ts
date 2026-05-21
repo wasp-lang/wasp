@@ -5,6 +5,7 @@ describe("ExtImport input types", () => {
   test("should accept functions at ExtImport use sites", () => {
     const component = () => null;
     const operation = async (_args: { id: string }) => null;
+    const object = { field: () => "" };
     const hook = async () => null;
     const setup = () => null;
     const middleware = () => null;
@@ -44,7 +45,7 @@ describe("ExtImport input types", () => {
     });
     assertType<TsAppSpec.ExternalAuthConfig>({
       configFn: hook,
-      userSignupFields: hook,
+      userSignupFields: object,
     });
     assertType<TsAppSpec.EmailFlowConfig>({
       getEmailContentFn: hook,
