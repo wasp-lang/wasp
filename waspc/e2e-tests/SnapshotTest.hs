@@ -170,7 +170,8 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
             ".gitignore",
             ".waspinfo",
             "package-lock.json",
-            "tsconfig.tsbuildinfo",
+            "tsconfig.wasp.tsbuildinfo",
+            "tsconfig.src.tsbuildinfo",
             "dist",
             -- The @wasp.sh/spec package copied into .wasp/spec is identical to
             -- what we ship in waspc/data/packages/spec, so we skip it.
