@@ -427,6 +427,7 @@ export function getAuthMethods(
       return {} satisfies MinimalConfig<TsAppSpec.AuthMethods>;
     case "full":
       return {
+        slack: getExternalAuthConfig("full"),
         discord: getExternalAuthConfig("full"),
         google: getExternalAuthConfig("full"),
         gitHub: getExternalAuthConfig("full"),

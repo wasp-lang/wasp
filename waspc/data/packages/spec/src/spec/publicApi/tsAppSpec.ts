@@ -48,7 +48,8 @@ export type SocialAuthMethodName =
   | "google"
   | "gitHub"
   | "keycloak"
-  | "microsoft";
+  | "microsoft"
+  | "slack";
 
 export type UsernameAndPasswordConfig = BaseAuthMethodConfig;
 
