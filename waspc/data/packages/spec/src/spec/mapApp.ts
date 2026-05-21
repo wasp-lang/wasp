@@ -226,7 +226,6 @@ export function mapAuth(
 ): AppSpec.Auth {
   const {
     userEntity,
-    externalAuthEntity,
     methods,
     onAuthFailedRedirectTo,
     onAuthSucceededRedirectTo,
@@ -239,10 +238,6 @@ export function mapAuth(
   } = auth;
   return {
     userEntity: entityRefParser(userEntity),
-    externalAuthEntity:
-      externalAuthEntity === undefined
-        ? undefined
-        : entityRefParser(externalAuthEntity),
     methods: mapAuthMethods(methods, routeRefParser),
     onAuthFailedRedirectTo,
     onAuthSucceededRedirectTo,

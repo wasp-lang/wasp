@@ -19,7 +19,6 @@ export type App = {
 
 export type Auth = AuthHooks & {
   userEntity: string;
-  externalAuthEntity?: string;
   methods: AuthMethods;
   onAuthFailedRedirectTo: string;
   onAuthSucceededRedirectTo?: string;
