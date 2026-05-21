@@ -103,13 +103,6 @@ export interface Auth extends AuthHooks {
    * The model must be defined in `schema.prisma`.
    */
   userEntity: EntityName;
-  /**
-   * Name of a Prisma model used to store external (social) auth data.
-   *
-   * Most apps don't need this. It is only required by some legacy
-   * configurations.
-   */
-  externalAuthEntity?: EntityName;
   /** Enabled authentication methods. */
   methods: AuthMethods;
   /**

@@ -52,7 +52,6 @@ export type HttpRoute = {
 export type AuthConfig = {
   userEntity: string;
   methods: AuthMethods;
-  externalAuthEntity?: string;
   onAuthFailedRedirectTo: string;
   onAuthSucceededRedirectTo?: string;
   onBeforeSignup?: ExtImport;

@@ -8,7 +8,6 @@ where
 import Control.Arrow (left)
 import Control.Concurrent (newChan)
 import Control.Concurrent.Async (concurrently)
-import Control.Monad.Except (ExceptT (ExceptT), liftEither, runExceptT)
 import qualified Data.Aeson as Aeson
 import Data.Maybe (fromJust)
 import StrongPath
@@ -48,26 +47,37 @@ import qualified Wasp.Psl.Ast.WithCtx as Psl.WithCtx
 import Wasp.Util.Aeson (encodeToString)
 import qualified Wasp.Util.IO as IOUtil
 
-data AppSpecDeclsJsonFile
-
 analyzeWaspTsFile ::
   CompileOptions ->
   Psl.Schema.Schema ->
   Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
-analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = runExceptT $ do
-  declsJsonFile <- ExceptT $ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
-  ExceptT $ readDecls prismaSchemaAst declsJsonFile
+analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
+  specResultOrErrors <- runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath
+  return $ case specResultOrErrors of
+    Left errs -> Left errs
+    Right (SpecAnalysisError specErrorMessage) ->
+      Left [formatSpecAnalysisError specErrorMessage]
+    Right (SpecAnalysisOk specDecls) ->
+      (++ specDecls) <$> entityDeclsOrErrors
   where
     waspTsConfigFile = fromJust tsConfigPathsInWaspTsProjects.waspTsConfig
 
-runWaspSpecAnalyzerAndGetDeclsFile ::
+    entityDeclsOrErrors =
+      left (map fst) $
+        left (map Analyzer.getErrorMessageAndCtx) $
+          Analyzer.getEntityDecls prismaSchemaAst
+
+    formatSpecAnalysisError specErrorMessage =
+      "Error while analyzing spec (*.wasp.ts) files: " ++ specErrorMessage
+
+runWaspSpecAnalyzer ::
   CompileOptions ->
   Psl.Schema.Schema ->
   Path' (Rel WaspProjectDir) (File WaspTsConfigFile) ->
   Path' Abs (File WaspTsFile) ->
-  IO (Either [CompileError] (Path' Abs (File AppSpecDeclsJsonFile)))
-runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
+  IO (Either [CompileError] SpecAnalysisResult)
+runWaspSpecAnalyzer compileOptions prismaSchemaAst waspTsConfigFile waspFilePath = do
   chan <- newChan
   (_, runExitCode) <- do
     concurrently
@@ -91,7 +101,7 @@ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFi
             fromAbsFile waspFilePath,
             fromAbsFile (compileOptions.waspProjectDir </> waspTsConfigFile),
             fromAbsDir compileOptions.waspProjectDir,
-            fromAbsFile absDeclsOutputFile,
+            fromAbsFile absSpecResultFile,
             -- When the user is coding main.wasp.ts, TypeScript must know about
             -- all the available entities to warn the user if they use an
             -- entity that doesn't exist.
@@ -102,28 +112,32 @@ runWaspSpecAnalyzerAndGetDeclsFile compileOptions prismaSchemaAst waspTsConfigFi
       )
   case runExitCode of
     ExitFailure _status -> return $ Left ["Error while analyzing the *.wasp.ts file."]
-    ExitSuccess -> return $ Right absDeclsOutputFile
+    ExitSuccess -> readSpecResultFile
   where
-    absDeclsOutputFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|decls.json|]
+    absSpecResultFile = compileOptions.waspProjectDir </> dotWaspDirInWaspProjectDir </> [relfile|spec-result.json|]
     allowedEntityNames = Psl.Schema.Model.getName . Psl.WithCtx.getNode <$> Psl.Schema.getModels prismaSchemaAst
 
     nodeEnvForBuildType :: BuildType.BuildType -> String
     nodeEnvForBuildType BuildType.Development = "development"
     nodeEnvForBuildType BuildType.Production = "production"
 
-readDecls :: Psl.Schema.Schema -> Path' Abs (File AppSpecDeclsJsonFile) -> IO (Either [CompileError] [AS.Decl])
-readDecls prismaSchemaAst declsJsonFile = runExceptT $ do
-  entityDecls <- liftEither entityDeclsOrErrors
-  remainingDecls <- ExceptT $ left (: []) <$> declsFromJsonOrError
-  return $ entityDecls ++ remainingDecls
-  where
-    entityDeclsOrErrors =
-      left (map fst) $
-        left (map Analyzer.getErrorMessageAndCtx) $
-          Analyzer.getEntityDecls prismaSchemaAst
-
-    declsFromJsonOrError = do
-      declsBytestring <- IOUtil.readFileBytes declsJsonFile
+    readSpecResultFile :: IO (Either [CompileError] SpecAnalysisResult)
+    readSpecResultFile = do
+      contents <- IOUtil.readFileBytes absSpecResultFile
       return $
-        left ("Error while reading the declarations from JSON: " ++) $
-          Aeson.eitherDecode declsBytestring
+        left (\err -> ["Error while reading the spec result from JSON: " ++ err]) $
+          Aeson.eitherDecode contents
+
+-- | The result handed back by the spec analyzer subprocess. Mirrors the
+-- @SpecResult@ type in @waspc.sh/spec; keep them in sync.
+data SpecAnalysisResult
+  = SpecAnalysisOk [AS.Decl]
+  | SpecAnalysisError String
+
+instance Aeson.FromJSON SpecAnalysisResult where
+  parseJSON = Aeson.withObject "SpecAnalysisResult" $ \o -> do
+    status <- o Aeson..: "status"
+    case status :: String of
+      "ok" -> SpecAnalysisOk <$> o Aeson..: "value"
+      "error" -> SpecAnalysisError <$> o Aeson..: "error"
+      _ -> fail $ "Unknown spec result status: " <> status

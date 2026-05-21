@@ -137,7 +137,6 @@ spec_Analyzer = do
                       Just
                         Auth.Auth
                           { Auth.userEntity = Ref "User" :: Ref Entity,
-                            Auth.externalAuthEntity = Nothing,
                             Auth.methods =
                               Auth.AuthMethods
                                 { Auth.usernameAndPassword =
