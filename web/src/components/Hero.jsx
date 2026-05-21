@@ -1,6 +1,6 @@
+import Link from "@docusaurus/Link";
 import { useState } from "react";
 import { BookOpen, Terminal } from "react-feather";
-import Link from "@docusaurus/Link";
 
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
@@ -156,7 +156,7 @@ function TabbedCodeViewer() {
       </div>
       {/* Code block — all tabs rendered, inactive ones invisible, CSS grid
           stacking ensures the container always matches the tallest tab. */}
-      <div className="grid flex-1 min-w-0">
+      <div className="grid min-w-0 flex-1">
         {codeTabs.map((t, i) => (
           <div
             key={t.name}
