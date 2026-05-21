@@ -15,11 +15,7 @@
     "allowJs": true,
     "noEmit": true,
 
-    "lib": ["ES2023"],
-
-    "paths": {
-      "@src/*": ["./src/*"]
-    }
+    "lib": ["ES2023"]
   },
   "include": ["main.wasp.ts", "**/*.wasp.ts"]
 }

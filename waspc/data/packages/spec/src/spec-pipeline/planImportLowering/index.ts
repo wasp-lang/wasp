@@ -1,6 +1,6 @@
 import * as ts from "typescript";
-import type { ExtImport } from "../../spec/extImport.js";
 import { SpecUserError } from "../../spec/specUserError.js";
+import { getExtImportPathForRefImport } from "./extImportPath.js";
 import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
 import type {
@@ -8,11 +8,10 @@ import type {
   UnsupportedImportType,
 } from "./supportedImportTypes.js";
 import {
-  assertNonSrcImportEqualsDeclaration,
-  assertNonSrcReExport,
-  assertSupportedSrcImportDeclaration,
+  assertNonRefReExport,
+  assertSupportedRefImportDeclaration,
   DiagnosticError,
-  getSrcImportSpecifier,
+  getRefImportSpecifier,
 } from "./supportedImportTypes.js";
 
 export type ImportLoweringPlan = {
@@ -26,16 +25,18 @@ type ImportReplacement = {
 };
 
 /**
- * Given source code, detects supported @src import statements and returns a
+ * Given source code, detects supported ref import statements and returns a
  * plan for replacing them with inline ExtImport consts. We call this lowering
  * imports.
  */
 export function planImportLowering({
   sourceText,
   sourcePath,
+  projectRootDir,
 }: {
   sourceText: string;
   sourcePath: string;
+  projectRootDir: string;
 }): ImportLoweringPlan {
   const sourceFile = ts.createSourceFile(
     sourcePath,
@@ -50,7 +51,9 @@ export function planImportLowering({
 
   for (const stmt of sourceFile.statements) {
     try {
-      replacements.push(...planStatementLowering(sourceFile, stmt));
+      replacements.push(
+        ...planStatementLowering({ sourceFile, stmt, projectRootDir }),
+      );
     } catch (error) {
       if (!(error instanceof DiagnosticError)) {
         throw error;
@@ -66,17 +69,17 @@ export function planImportLowering({
   return { replacements };
 }
 
-function planStatementLowering(
-  sourceFile: ts.SourceFile,
-  stmt: ts.Statement,
-): ImportReplacement[] {
-  if (ts.isImportEqualsDeclaration(stmt)) {
-    assertNonSrcImportEqualsDeclaration(sourceFile, stmt);
-    return [];
-  }
-
+function planStatementLowering({
+  sourceFile,
+  stmt,
+  projectRootDir,
+}: {
+  sourceFile: ts.SourceFile;
+  stmt: ts.Statement;
+  projectRootDir: string;
+}): ImportReplacement[] {
   if (ts.isExportDeclaration(stmt)) {
-    assertNonSrcReExport(sourceFile, stmt);
+    assertNonRefReExport(sourceFile, stmt);
     return [];
   }
 
@@ -84,46 +87,44 @@ function planStatementLowering(
     return [];
   }
 
-  const specifier = getSrcImportSpecifier(stmt.moduleSpecifier);
-  if (!specifier) {
+  const refImportPath = getRefImportSpecifier(stmt);
+  if (!refImportPath) {
     return [];
   }
 
-  assertSupportedSrcImportDeclaration(sourceFile, stmt, specifier);
+  assertSupportedRefImportDeclaration(sourceFile, stmt, refImportPath);
   return [
     {
       start: stmt.getStart(sourceFile),
       end: stmt.getEnd(),
       bindings: getLoweredImportBindings(
         stmt.importClause,
-        toExtImportPath(specifier),
+        getExtImportPathForRefImport({
+          refImportPath,
+          importingFilePath: sourceFile.fileName,
+          projectRootDir,
+        }),
       ),
     },
   ];
-}
-
-function toExtImportPath(specifier: string): ExtImport["from"] {
-  return specifier as ExtImport["from"];
 }
 
 function formatImportDiagnostics(diagnostics: ImportDiagnostic[]): string {
   return [
     ...diagnostics.map(formatImportDiagnosticLine),
     "",
-    "Supported @src imports are default, named, aliased named, or namespace imports from @src/*.",
+    'Supported ref imports are default, named, aliased named, or namespace imports marked with { type: "ref" }.',
   ].join("\n");
 }
 
 function formatImportDiagnosticLine(diagnostic: ImportDiagnostic): string {
-  return `${diagnostic.filePath}(${diagnostic.location.line},${diagnostic.location.column}): error: Unsupported @src import ${JSON.stringify(diagnostic.specifier)}. ${formatUnsupportedImportType(diagnostic.unsupportedImportType)}`;
+  return `${diagnostic.filePath}(${diagnostic.location.line},${diagnostic.location.column}): error: Unsupported ref import ${JSON.stringify(diagnostic.refImportPath)}. ${formatUnsupportedImportType(diagnostic.unsupportedImportType)}`;
 }
 
 function formatUnsupportedImportType(type: UnsupportedImportType): string {
   switch (type) {
     case "sideEffect":
       return "Side-effect imports are not supported.";
-    case "importEquals":
-      return "Import equals declarations are not supported.";
     case "typeOnly":
       return "Type-only imports are not supported.";
     case "mixedTypeAndValue":

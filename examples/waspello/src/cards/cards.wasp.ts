@@ -1,13 +1,13 @@
 import { action, query } from "@wasp.sh/spec";
 
-import { createCard, updateCard } from "@src/cards/cards";
+import { createCard, updateCard } from "./cards" with { type: "ref" };
 import {
   createList,
   createListCopy,
   deleteList,
   getListsAndCards,
   updateList,
-} from "@src/cards/lists";
+} from "./lists" with { type: "ref" };
 
 export const cards = [
   query(getListsAndCards, { entities: ["List", "Card"] }),

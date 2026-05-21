@@ -240,7 +240,7 @@ export type MakePart<Kind extends string, PartConfig> = {
 } & PartConfig;
 
 /**
- * Imported @src env schemas are lowered to ExtImport objects before mapping,
+ * Imported ref env schemas are lowered to ExtImport objects before mapping,
  * but the user still sees the public API that allows the runtime Zod object
  * (in `server.envValidationSchema` and `client.envValidationSchema`).
  * To avoid needing to depend on `zod` package, we structurally recognize Zod 4

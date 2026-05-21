@@ -1,7 +1,6 @@
 module Project.ExternalConfig.WaspTsConfigTest (spec_WaspTsConfig) where
 
 import Data.List (isInfixOf)
-import qualified Data.Map.Strict as Map
 import Test.Hspec
 import qualified Wasp.ExternalConfig.TsConfig as T
 import Wasp.Project.ExternalConfig.TsConfig (validateTsConfig)
@@ -32,14 +31,6 @@ spec_WaspTsConfig = do
     it "returns an error when compilerOptions is missing" $
       assertReturnsValidationErrorMentioningField "compilerOptions" $
         validTsConfig {T.compilerOptions = Nothing}
-
-    it "returns an error when the @src path mapping is missing" $
-      assertReturnsValidationErrorMentioningField "paths" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.paths = Just Map.empty})}
-
-    it "returns an error when the @src path mapping has a wrong value" $
-      assertReturnsValidationErrorMentioningField "paths" $
-        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.paths = Just $ Map.singleton "@src/*" ["src/*"]})}
 
     it "returns an error when include is wrong" $
       assertReturnsValidationErrorMentioningField "include" $
@@ -76,7 +67,7 @@ validCompilerOptions =
       T.strict = Just True,
       T.esModuleInterop = Nothing,
       T.lib = Just ["ES2023"],
-      T.paths = Just $ Map.singleton "@src/*" ["./src/*"],
+      T.paths = Nothing,
       T.allowJs = Just True,
       T.outDir = Nothing,
       T.noEmit = Just True
