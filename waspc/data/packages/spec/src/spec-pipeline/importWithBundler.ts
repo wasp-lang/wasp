@@ -6,18 +6,18 @@ export async function importWithBundler({
   specPath,
   tsconfigPath,
   projectRootDir,
-  overwriteTSFile,
+  onTransformedWaspFile,
 }: {
   specPath: string;
   tsconfigPath: string;
   projectRootDir: string;
-  overwriteTSFile: (path: string, code: string) => void;
+  onTransformedWaspFile: (path: string, code: string) => void;
 }): Promise<unknown> {
   const specJiti = createSpecJiti({
     specPath,
     tsconfigPath,
     projectRootDir,
-    overwriteTSFile,
+    onTransformedWaspFile,
   });
 
   return await specJiti.import(specPath);
@@ -27,12 +27,12 @@ function createSpecJiti({
   specPath,
   tsconfigPath,
   projectRootDir,
-  overwriteTSFile,
+  onTransformedWaspFile,
 }: {
   specPath: string;
   tsconfigPath: string;
   projectRootDir: string;
-  overwriteTSFile: (path: string, code: string) => void;
+  onTransformedWaspFile: (path: string, code: string) => void;
 }) {
   const jitiOptions = {
     fsCache: false,
@@ -58,7 +58,7 @@ function createSpecJiti({
           sourcePath: options.filename,
           projectRootDir,
         });
-        overwriteTSFile(options.filename, transformedSource);
+        onTransformedWaspFile(options.filename, transformedSource);
       }
 
       const code = jitiWithoutCustomTransform.transform({

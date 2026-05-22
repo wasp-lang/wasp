@@ -59,7 +59,7 @@ export async function loadWaspTsSpecDefaultExport({
         specPath,
         projectRootDir,
         tsconfigPath,
-        overwriteTSFile: addSourceFile,
+        onTransformedWaspFile: addSourceFile,
       }),
   );
 
