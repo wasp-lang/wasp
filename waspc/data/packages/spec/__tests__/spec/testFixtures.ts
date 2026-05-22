@@ -400,7 +400,6 @@ export function getAuthConfig(scope: ConfigScope): Config<TsAppSpec.Auth> {
     case "full":
       return {
         userEntity: "User",
-        externalAuthEntity: "SocialUser",
         methods: getAuthMethods("full"),
         onAuthFailedRedirectTo: "/login",
         onAuthSucceededRedirectTo: "/profile",

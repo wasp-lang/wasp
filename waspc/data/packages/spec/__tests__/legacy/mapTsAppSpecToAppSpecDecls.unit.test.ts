@@ -52,9 +52,6 @@ describe("mapApp", () => {
       if (tsAppSpec.auth.userEntity) {
         entities.push(tsAppSpec.auth.userEntity);
       }
-      if (tsAppSpec.auth.externalAuthEntity) {
-        entities.push(tsAppSpec.auth.externalAuthEntity);
-      }
     }
     const routes: string[] = [];
     if (tsAppSpec.auth) {
@@ -115,15 +112,6 @@ describe("mapAuth", () => {
     });
   });
 
-  test("should throw if externalAuthEntity ref is not provided when defined", () => {
-    const auth = Fixtures.getAuthConfig("full");
-    expect(auth.externalAuthEntity).toBeDefined();
-    testMapAuth(auth, {
-      overrideEntities: [auth.userEntity],
-      shouldError: true,
-    });
-  });
-
   test("should throw if emailVerification clientRoute ref is not provided when defined", () => {
     const auth = Fixtures.getAuthConfig("full");
     expect(auth.methods.email.emailVerification.clientRoute).toBeDefined();
@@ -155,9 +143,7 @@ describe("mapAuth", () => {
     },
   ): void {
     const { overrideEntities, overrideRoutes, shouldError } = options;
-    const entities =
-      overrideEntities ??
-      [auth.userEntity, auth.externalAuthEntity].filter((e) => e !== undefined);
+    const entities = overrideEntities ?? [auth.userEntity];
     const routes =
       overrideRoutes ??
       [
@@ -178,10 +164,6 @@ describe("mapAuth", () => {
 
     expect(result).toStrictEqual({
       userEntity: entityRefParser(auth.userEntity),
-      externalAuthEntity:
-        auth.externalAuthEntity === undefined
-          ? undefined
-          : entityRefParser(auth.externalAuthEntity),
       methods: mapAuthMethods(auth.methods, routeRefParser),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
