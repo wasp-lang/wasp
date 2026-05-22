@@ -34,7 +34,7 @@ export default [
       "object-shorthand": "warn",
       "no-empty-object-type": {
         allowInterfaces: "always",
-      }
+      },
     },
   },
 ];
