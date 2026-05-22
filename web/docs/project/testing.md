@@ -10,11 +10,21 @@ Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly 
 
 Wasp enables you to quickly and easily write both unit tests and React component tests for your frontend code. Because Wasp uses [Vite](https://vitejs.dev/), we support testing web apps through [Vitest](https://vitest.dev/).
 
+Wasp runs Vitest from your project's `devDependencies`. New Wasp projects include it by default. In existing projects, make sure your `package.json` includes:
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "vitest": "^4.0.16"
+  }
+}
+```
+
 <details>
-  <summary>Included Libraries</summary>
+  <summary>Testing Libraries</summary>
 
   <div>
-    [`vitest`](https://www.npmjs.com/package/vitest): Unit test framework with native Vite support.
+    [`vitest`](https://www.npmjs.com/package/vitest): Unit test framework with native Vite support. This must be listed in your app's `devDependencies`.
 
     [`@vitest/ui`](https://www.npmjs.com/package/@vitest/ui): A nice UI for seeing your test results.
 

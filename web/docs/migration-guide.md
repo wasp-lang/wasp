@@ -27,9 +27,13 @@ import MainPage from './src/MainPage' with { type: 'ref' }
 import { getTasks } from './src/operations' with { type: 'ref' }
 ```
 
-### Stricter validation for Wasp TS projects
+### Package.json requirements changed
 
-Wasp now validates more of the TS spec support files. If your project uses `main.wasp.ts`, Wasp checks that `package.json` includes the required `@types/node` dev dependency, that `tsconfig.wasp.json` includes the required TS spec options, and that `tsconfig.src.json` excludes Wasp TS spec files.
+Wasp now expects some project-level `package.json` dependencies to be explicit. `vitest` must be in `devDependencies` because Wasp runs client tests through your project-installed Vitest. `@types/node` must also be in `devDependencies`, and the local Wasp Spec package is now `@wasp.sh/spec` instead of `wasp-config`.
+
+### Stricter validation for Wasp Spec support files
+
+Wasp now validates more of the Wasp Spec support files. It checks that `package.json` includes the required `@types/node` dev dependency, that `tsconfig.wasp.json` includes the required Wasp Spec options, and that `tsconfig.src.json` excludes Wasp Spec files.
 
 ## How to migrate?
 
@@ -46,7 +50,57 @@ app MyApp {
 }
 ```
 
-### 2. Update client code that uses `api` from `wasp/client/api`
+### 2. Update `package.json` dependencies and fields
+
+Make the relevant `package.json` changes in one pass:
+
+<Tabs>
+  <TabItem value="before" label="Before">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "wasp-config": "file:.wasp/wasp-config"
+      }
+    }
+    ```
+  </TabItem>
+
+  <TabItem value="after" label="After">
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "@types/node": "^24.0.0",
+        // highlight-next-line
+        "@wasp.sh/spec": "file:.wasp/spec",
+        // highlight-next-line
+        "vitest": "^4.0.16"
+      }
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+Add `vitest` to `devDependencies` because `wasp test client` now runs the Vitest package installed in your project.
+
+Add `@types/node` to `devDependencies` because the Wasp Spec runs in a Node.js environment and Wasp now validates that the Node types are present.
+
+Replace `wasp-config` with `@wasp.sh/spec` because the Wasp TS config package was renamed to the Wasp Spec package.
+
+The final `devDependencies` field should include the dependencies relevant to your project, for example:
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@wasp.sh/spec": "file:.wasp/spec",
+    "vitest": "^4.0.16"
+  }
+}
+```
+
+### 3. Update client code that uses `api` from `wasp/client/api`
 
 **If you don't use the `api` function from `wasp/client/api` directly, you can skip this step.**
 
@@ -100,37 +154,9 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
 
 You can also remove `axios` from your project's dependencies if you added it only for use with the Wasp `api` wrapper.
 
-### 3. Update Wasp TS spec support files
+### 4. Update Wasp Spec support files
 
-Make sure your `package.json` includes `@types/node` in `devDependencies`, and update the `wasp-config` dependency:
-
-<Tabs>
-  <TabItem value="before" label="Before">
-    ```json title="package.json"
-    {
-      "devDependencies": {
-        // highlight-next-line
-        "wasp-config": "file:.wasp/wasp-config"
-      }
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="after" label="After">
-    ```json title="package.json"
-    {
-      "devDependencies": {
-        // highlight-next-line
-        "@types/node": "^24.0.0",
-        // highlight-next-line
-        "@wasp.sh/spec": "file:.wasp/spec"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-Make sure your `tsconfig.wasp.json` includes the required TS spec compiler options and include entries:
+Make sure your `tsconfig.wasp.json` includes the required Wasp Spec compiler options and include entries:
 
 ```json title="tsconfig.wasp.json"
 {
@@ -146,7 +172,7 @@ Make sure your `tsconfig.wasp.json` includes the required TS spec compiler optio
 }
 ```
 
-Make sure your `tsconfig.src.json` excludes Wasp TS spec files:
+Make sure your `tsconfig.src.json` excludes Wasp Spec files:
 
 ```json title="tsconfig.src.json"
 {
@@ -183,6 +209,6 @@ And finally, update your `main.wasp.ts` to import from `@wasp.sh/spec` instead o
   </TabItem>
 </Tabs>
 
-### 4. Enjoy your updated Wasp app
+### 5. Enjoy your updated Wasp app
 
 That's it!

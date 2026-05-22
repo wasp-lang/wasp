@@ -7,6 +7,7 @@
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-23-to-0-24) for step-by-step documentation on how to upgrade.
 
 - The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. ([#4153](https://github.com/wasp-lang/wasp/pull/4153))
+- Wasp now requires `vitest` to be listed in your project's `devDependencies`.
 
 ### 🎉 New Features
 
