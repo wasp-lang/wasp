@@ -178,6 +178,132 @@ const BadgePicker = ({ text, defaultIdx = 0 }) => {
   );
 };
 
+/* ─────────── Variant Yellow Border — main yellow border, paper bg ─────────── */
+const VariantYellowBorder = () => (
+  <SectionContainer className="pt-12 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={0} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {properties.map((p) => (
+        <div
+          key={p.title}
+          className="border-2 border-wasp-yellow bg-wasp-bg p-6"
+        >
+          <h3 className="mb-3 flex items-center gap-2 font-mono text-lg font-bold uppercase text-wasp-black">
+            <span className="inline-block h-3 w-3 border border-wasp-black bg-wasp-yellow" />
+            {p.title}
+          </h3>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g6">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
+/* ─────────── Variant Yellow — full brand-yellow bg ─────────── */
+const VariantYellow = () => (
+  <SectionContainer className="pt-12 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={0} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {properties.map((p) => (
+        <div
+          key={p.title}
+          className="border-2 border-wasp-black bg-wasp-yellow p-6"
+        >
+          <h3 className="mb-3 flex items-center gap-2 font-mono text-lg font-bold uppercase text-wasp-black">
+            <span className="inline-block h-3 w-3 border border-wasp-black bg-wasp-bg" />
+            {p.title}
+          </h3>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g7">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
+/* ─────────── Variant Bracket — {} replace the square glyphs ─────────── */
+const VariantBracket = () => (
+  <SectionContainer className="pt-12 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={0} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {properties.map((p, i) => (
+        <div key={p.title} className="border border-wasp-g3 bg-wasp-bg-2 p-6">
+          <h3 className="mb-3 font-mono text-lg font-bold uppercase text-wasp-black">
+            <span
+              className={`inline-flex items-center gap-2 ${
+                i === 1 ? "bg-wasp-yellow-light px-1.5" : ""
+              }`}
+            >
+              <span className={i === 1 ? "text-wasp-black" : "text-wasp-yellow-dark"}>
+                {"{}"}
+              </span>
+              {p.title}
+            </span>
+          </h3>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g6">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
+/* ─────────── Variant Asymmetric — 1 big + 2 small ─────────── */
+const VariantAsymmetric = () => (
+  <SectionContainer className="pt-12 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={0} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:grid-rows-2">
+      {properties.map((p, i) => (
+        <div
+          key={p.title}
+          className={`border border-wasp-g3 bg-wasp-bg-2 p-6 ${
+            i === 0 ? "lg:col-span-2 lg:row-span-2 flex flex-col justify-center" : ""
+          }`}
+        >
+          <h3
+            className={`mb-3 flex items-center gap-2 font-mono font-bold uppercase text-wasp-black ${
+              i === 0 ? "text-2xl" : "text-lg"
+            }`}
+          >
+            <span
+              className={`inline-block border border-wasp-black bg-wasp-yellow ${
+                i === 0 ? "h-4 w-4" : "h-3 w-3"
+              }`}
+            />
+            {p.title}
+          </h3>
+          <p
+            className={`font-mono leading-relaxed text-wasp-g6 ${
+              i === 0 ? "text-base" : "text-sm"
+            }`}
+          >
+            {p.body}
+          </p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
+/* ─────────── Variant 0 — Martin-ish: thick black border + yellow-light bg ─────────── */
+const Variant0 = () => (
+  <SectionContainer className="pt-12 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={0} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {properties.map((p) => (
+        <div
+          key={p.title}
+          className="border-2 border-wasp-black bg-wasp-yellow-light p-6"
+        >
+          <h3 className="mb-3 flex items-center gap-2 font-mono text-lg font-bold uppercase text-wasp-black">
+            <span className="inline-block h-3 w-3 border border-wasp-black bg-wasp-yellow" />
+            {p.title}
+          </h3>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g6">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
 /* ─────────── Variant 1 — Bordered cards (with bg) ─────────── */
 const Variant1 = () => (
   <SectionContainer className="pt-12 pb-12">
@@ -216,6 +342,36 @@ const Variant2 = () => (
 
 const Properties = () => (
   <>
+    <div className="border-t border-wasp-g2">
+      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
+        Variant Yellow Border — main yellow border, paper bg
+      </div>
+      <VariantYellowBorder />
+    </div>
+    <div className="border-t border-wasp-g2">
+      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
+        Variant Yellow — full brand-yellow bg
+      </div>
+      <VariantYellow />
+    </div>
+    <div className="border-t border-wasp-g2">
+      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
+        Variant Bracket — {"{}"} replace the square glyphs
+      </div>
+      <VariantBracket />
+    </div>
+    <div className="border-t border-wasp-g2">
+      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
+        Variant Asymmetric — 1 big + 2 small
+      </div>
+      <VariantAsymmetric />
+    </div>
+    <div className="border-t border-wasp-g2">
+      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
+        Variant 0 — Martin-ish: thick black border + yellow-light bg
+      </div>
+      <Variant0 />
+    </div>
     <div className="border-t border-wasp-g2">
       <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
         Variant 1 — Bordered cards
