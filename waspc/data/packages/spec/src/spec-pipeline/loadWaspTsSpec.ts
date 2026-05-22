@@ -1,6 +1,7 @@
 import type { JitiOptions } from "jiti";
 import { createJiti } from "jiti";
 import { lowerRefImports } from "./lowerRefImports.js";
+import { typecheck } from "./typechecking.js";
 
 export async function loadWaspTsSpecDefaultExport({
   specPath,
@@ -11,8 +12,18 @@ export async function loadWaspTsSpecDefaultExport({
   tsconfigPath: string;
   projectRootDir: string;
 }): Promise<unknown> {
-  const specJiti = createSpecJiti({ specPath, tsconfigPath, projectRootDir });
-  const specModule = await specJiti.import(specPath);
+  const specModule = await typecheck(
+    { tsconfigPath },
+    async ({ addSourceFile }) => {
+      const specJiti = createSpecJiti({
+        specPath,
+        tsconfigPath,
+        projectRootDir,
+        overwriteTSFile: addSourceFile,
+      });
+      return await specJiti.import(specPath);
+    },
+  );
 
   return getDefaultExport(specModule);
 }
@@ -21,10 +32,12 @@ function createSpecJiti({
   specPath,
   tsconfigPath,
   projectRootDir,
+  overwriteTSFile,
 }: {
   specPath: string;
   tsconfigPath: string;
   projectRootDir: string;
+  overwriteTSFile: (path: string, code: string) => void;
 }) {
   const jitiOptions = {
     fsCache: false,
@@ -42,14 +55,16 @@ function createSpecJiti({
   return createJiti(specPath, {
     ...jitiOptions,
     transform: (options) => {
-      const transformedSource =
-        options.filename && isWaspTsFile(options.filename)
-          ? lowerRefImports({
-              sourceText: options.source,
-              sourcePath: options.filename,
-              projectRootDir,
-            })
-          : options.source;
+      let transformedSource = options.source;
+
+      if (options.filename && isWaspTsFile(options.filename)) {
+        transformedSource = lowerRefImports({
+          sourceText: options.source,
+          sourcePath: options.filename,
+          projectRootDir,
+        });
+        overwriteTSFile(options.filename, transformedSource);
+      }
 
       const code = jitiWithoutCustomTransform.transform({
         ...options,
