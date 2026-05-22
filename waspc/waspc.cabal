@@ -366,7 +366,6 @@ library
     Wasp.Generator.Test
     Wasp.Generator.UserTypesGenerator
     Wasp.Generator.UserTypesGenerator.Common
-    Wasp.Generator.UserTypesGenerator.JsImport
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common

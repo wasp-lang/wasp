@@ -1,11 +1,11 @@
 module Wasp.Generator.UserTypesGenerator.Common
-  ( TypesRootDir,
-    TypesTemplatesDir,
+  ( UserTypesRootDir,
+    UserTypesTemplatesDir,
     mkTmplFdWithDstAndData,
     mkTmplFdWithData,
     mkTmplFd,
-    typesRootDirInGeneratedCodeDir,
-    typesTemplatesDirInTemplatesDir,
+    userTypesRootDirInGeneratedCodeDir,
+    userTypesTemplatesDirInTemplatesDir,
   )
 where
 
@@ -16,11 +16,11 @@ import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Templates (TemplatesDir)
 
-data TypesRootDir
+data UserTypesRootDir
 
-data TypesTemplatesDir
+data UserTypesTemplatesDir
 
-mkTmplFd :: Path' (Rel TypesTemplatesDir) File' -> FileDraft
+mkTmplFd :: Path' (Rel UserTypesTemplatesDir) File' -> FileDraft
 mkTmplFd relSrcPath =
   mkTmplFdWithDstAndData
     relSrcPath
@@ -28,7 +28,7 @@ mkTmplFd relSrcPath =
     Nothing
 
 mkTmplFdWithData ::
-  Path' (Rel TypesTemplatesDir) File' ->
+  Path' (Rel UserTypesTemplatesDir) File' ->
   Aeson.Value ->
   FileDraft
 mkTmplFdWithData relSrcPath tmplData =
@@ -38,18 +38,18 @@ mkTmplFdWithData relSrcPath tmplData =
     (Just tmplData)
 
 mkTmplFdWithDstAndData ::
-  Path' (Rel TypesTemplatesDir) File' ->
-  Path' (Rel TypesRootDir) File' ->
+  Path' (Rel UserTypesTemplatesDir) File' ->
+  Path' (Rel UserTypesRootDir) File' ->
   Maybe Aeson.Value ->
   FileDraft
 mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
   createTemplateFileDraft
-    (typesRootDirInGeneratedCodeDir </> relDstPath)
-    (typesTemplatesDirInTemplatesDir </> relSrcPath)
+    (userTypesRootDirInGeneratedCodeDir </> relDstPath)
+    (userTypesTemplatesDirInTemplatesDir </> relSrcPath)
     tmplData
 
-typesRootDirInGeneratedCodeDir :: Path' (Rel GeneratedAppDir) (Dir TypesRootDir)
-typesRootDirInGeneratedCodeDir = [reldir|types|]
+userTypesRootDirInGeneratedCodeDir :: Path' (Rel GeneratedAppDir) (Dir UserTypesRootDir)
+userTypesRootDirInGeneratedCodeDir = [reldir|types|]
 
-typesTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir TypesTemplatesDir)
-typesTemplatesDirInTemplatesDir = [reldir|types|]
+userTypesTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir UserTypesTemplatesDir)
+userTypesTemplatesDirInTemplatesDir = [reldir|types|]
