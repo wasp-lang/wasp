@@ -20,11 +20,12 @@ const InstallCommand = () => {
     <button
       type="button"
       onClick={handleCopy}
-      className="cursor-pointer border-0 bg-transparent p-0 text-left font-mono text-xs text-wasp-g5 transition-colors hover:text-wasp-g7"
+      className="block w-full cursor-pointer border border-wasp-black bg-wasp-black px-3 py-2 text-left font-mono text-xs text-wasp-g3 transition-colors hover:text-wasp-white"
       title="Click to copy"
       aria-label={`Copy install command: ${installCmd}`}
     >
-      $ {installCmd} {copied ? "✓" : ""}
+      <span className="text-wasp-yellow">$</span> {installCmd}{" "}
+      {copied ? "✓" : ""}
     </button>
   );
 };
@@ -203,9 +204,10 @@ const Hero = () => {
             </p>
           </div>{" "}
           {/* EOF Hero title and subtitle */}
-          <div>
+          {/* w-fit so the install bar below matches the buttons' combined width. */}
+          <div className="w-fit">
             <ActionButtons />
-            <div className="mt-4">
+            <div className="mt-2">
               <InstallCommand />
             </div>
           </div>
