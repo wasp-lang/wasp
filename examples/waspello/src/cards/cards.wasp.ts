@@ -1,15 +1,15 @@
-import { action, query } from "@wasp.sh/spec";
+import { action, query, type Part } from "@wasp.sh/spec";
 
-import { createCard, updateCard } from "@src/cards/cards";
+import { createCard, updateCard } from "./cards" with { type: "ref" };
 import {
   createList,
   createListCopy,
   deleteList,
   getListsAndCards,
   updateList,
-} from "@src/cards/lists";
+} from "./lists" with { type: "ref" };
 
-export const cards = [
+export const cards: Part[] = [
   query(getListsAndCards, { entities: ["List", "Card"] }),
   action(createList, { entities: ["List"] }),
   action(updateList, { entities: ["List"] }),

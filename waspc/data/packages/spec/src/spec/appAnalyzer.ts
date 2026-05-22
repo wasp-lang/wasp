@@ -1,3 +1,4 @@
+import { basename } from "path";
 import * as AppSpec from "../appSpec.js";
 import { loadWaspTsSpecDefaultExport } from "../spec-pipeline/loadWaspTsSpec.js";
 import { mapApp } from "./mapApp.js";
@@ -7,34 +8,40 @@ import { SpecUserError } from "./specUserError.js";
 export async function analyzeApp({
   waspTsSpecPath,
   tsconfigPath,
+  projectRootDir,
   entityNames,
 }: {
   waspTsSpecPath: string;
   tsconfigPath: string;
+  projectRootDir: string;
   entityNames: string[];
 }): Promise<AppSpec.Decl[]> {
   const waspTsDefaultExport = await loadWaspTsSpecDefaultExport({
     specPath: waspTsSpecPath,
     tsconfigPath,
+    projectRootDir,
   });
 
-  const app = getApp(waspTsDefaultExport);
+  const app = getApp(basename(waspTsSpecPath), waspTsDefaultExport);
 
   return mapApp(app, entityNames);
 }
 
-function getApp(waspTsDefaultExport: unknown): TsAppSpec.App {
+function getApp(
+  waspTsSpecFile: string,
+  waspTsDefaultExport: unknown,
+): TsAppSpec.App {
   if (!waspTsDefaultExport) {
     throw new SpecUserError(
       "Could not load your app config. " +
-        "Make sure your *.wasp.ts file includes a default export of the app.",
+        `Make sure '${waspTsSpecFile}' includes a default export of the app.`,
     );
   }
 
   if (!isApp(waspTsDefaultExport)) {
     throw new SpecUserError(
-      "The default export of your *.wasp.ts file must be the result of " +
-        "calling `app({ ... })`. Make sure you export that value.",
+      `The default export of '${waspTsSpecFile}' file must be of type 'App'` +
+        "Make sure you export the result of calling 'app({ ... })'",
     );
   }
 

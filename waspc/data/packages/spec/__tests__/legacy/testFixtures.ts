@@ -142,7 +142,6 @@ export function getAuthConfig(scope: ConfigType): Config<TsAppSpec.AuthConfig> {
         userEntity: getEntity("user"),
         onAuthFailedRedirectTo: "/login",
         methods: getAuthMethods(scope),
-        externalAuthEntity: getEntity("social-user"),
         onAuthSucceededRedirectTo: "/profile",
         onBeforeSignup: getExtImport(scope, "named"),
         onAfterSignup: getExtImport(scope, "named"),

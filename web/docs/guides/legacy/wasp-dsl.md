@@ -39,7 +39,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 | Creating an app | `app Name { ... }` | `app({ name, ..., parts: [] })` |
 | Configuring the app | <pre>app Name \{<br/>  auth: \{ ... },<br/>  server: \{ ... },<br/>}</pre> | <pre>app(\{<br/>  auth: ...,<br/>  server: ...,<br/>})</pre> |
 | Adding app declarations | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre> | <pre>app(\{<br/>  parts: [<br/>    route(...),<br/>    query(...),<br/>    action(...),<br/>  ]<br/>})</pre> |
-| Referencing code | `import { x } from "@src/..."` inside a declaration | `import { ... } from "@src/..."` at the top level |
+| Referencing code | `import { x } from "@src/..."` inside a declaration | `import { ... } from "./src/..." with { type: "ref" }` at the top level |
 | Entity references | `Task` (identifier) | `'Task'` (string) |
 
 ### App, routes, and pages
@@ -64,7 +64,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { app, page, route } from '@wasp.sh/spec'
-    import { MainPage } from '@src/MainPage'
+    import { MainPage } from './src/MainPage' with { type: "ref" }
 
     export default app({
       name: 'todoApp',
@@ -99,8 +99,8 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { action, app, query } from '@wasp.sh/spec'
-    import { getTasks } from '@src/queries'
-    import { createTask } from '@src/actions'
+    import { getTasks } from './src/queries' with { type: "ref" }
+    import { createTask } from './src/actions' with { type: "ref" }
 
     export default app({
       // ...
@@ -136,7 +136,7 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { api, apiNamespace, app } from '@wasp.sh/spec'
-    import { barBaz, barNamespaceMiddlewareFn } from '@src/apis'
+    import { barBaz, barNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
 
     export default app({
       // ...
@@ -171,7 +171,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { app, job } from '@wasp.sh/spec'
-    import { foo } from '@src/jobs/bar'
+    import { foo } from './src/jobs/bar' with { type: "ref" }
 
     export default app({
       // ...
@@ -204,7 +204,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { app, crud } from '@wasp.sh/spec'
-    import { createTask } from '@src/actions'
+    import { createTask } from './src/actions' with { type: "ref" }
 
     export default app({
       // ...
@@ -247,7 +247,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { app } from '@wasp.sh/spec'
-    import App from '@src/App'
+    import App from './src/App' with { type: "ref" }
 
     export default app({
       name: 'todoApp',
@@ -297,7 +297,7 @@ These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follo
    }
    ```
 
-3. Create a `tsconfig.wasp.json` with the required compiler options, the `@src/*` path mapping, and the Wasp Spec includes:
+3. Create a `tsconfig.wasp.json` with the required compiler options and the Wasp Spec includes:
 
     ```json title="tsconfig.wasp.json"
     {
@@ -312,10 +312,7 @@ These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follo
         "skipLibCheck": true,
         "allowJs": true,
         "noEmit": true,
-        "lib": ["ES2023"],
-        "paths": {
-          "@src/*": ["./src/*"]
-        }
+        "lib": ["ES2023"]
       },
       "include": ["main.wasp.ts", "**/*.wasp.ts"]
     }

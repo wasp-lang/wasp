@@ -147,7 +147,6 @@ export type Wasp = {
 
 export type Auth = {
   userEntity: Ref<"Entity">;
-  externalAuthEntity: Optional<Ref<"Entity">>;
   methods: AuthMethods;
   onAuthFailedRedirectTo: string;
   onAuthSucceededRedirectTo: Optional<string>;

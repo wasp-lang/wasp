@@ -17,8 +17,8 @@ The Wasp Spec replaces two older ways of configuring a Wasp app:
 
 ```ts title="main.wasp.ts"
 import { app, page, route, query } from '@wasp.sh/spec'
-import MainPage from '@src/MainPage'
-import { getTasks } from '@src/queries'
+import MainPage from './src/MainPage' with { type: "ref" }
+import { getTasks } from './src/queries' with { type: "ref" }
 
 export default app({
   name: 'todoApp',
@@ -34,7 +34,7 @@ export default app({
 You build your app by:
 
 1. Importing the building blocks (`app`, `page`, `route`, `query`, ...) from `@wasp.sh/spec`.
-2. Importing your own components and functions from `@src/...`.
+2. Importing your own components and functions adding the import attribute `with { type: "ref" }`.
 3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `parts` array.
 4. Exporting the result as the **default export** of the file.
 
@@ -55,8 +55,8 @@ Anywhere the Wasp Spec expects your app's function or component (like a page's `
 Import the value with the regular syntax, adding `with { type: "ref" }`. Then you can pass it directly.
 
 ```ts
-import MainPage from '@src/MainPage' with { type: "ref" }
-import { getTasks } from '@src/queries' with { type: "ref" }
+import MainPage from './src/MainPage' with { type: "ref" }
+import { getTasks } from './src/queries' with { type: "ref" }
 
 export default app({
   parts: [
@@ -91,7 +91,7 @@ Just pass an object with `import` (or `importDefault`) and `from`:
   })
   ```
 
-  The `from` path should always start with `@src` and is relative to your project's `src` directory.
+The `from` path should always start with `@src` and is relative to your project's `src` directory.
 
 ## Useful patterns
 
@@ -118,8 +118,8 @@ Then `main.wasp.ts` imports it and spreads it into `parts`:
 ```ts title="main.wasp.ts"
 import { app, page, route } from '@wasp.sh/spec'
 
-import MainPage from '@src/MainPage' with { type: "ref" }
-import { auth } from '@src/auth/auth.wasp'
+import MainPage from './src/MainPage' with { type: "ref" }
+import { auth } from './src/auth/auth.wasp'
 
 export default app({
   name: 'todoApp',

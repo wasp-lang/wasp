@@ -1,21 +1,31 @@
 import type { JitiOptions } from "jiti";
 import { createJiti } from "jiti";
-import { lowerSrcImports } from "./lowerSrcImports.js";
+import { lowerRefImports } from "./lowerRefImports.js";
 
 export async function loadWaspTsSpecDefaultExport({
   specPath,
   tsconfigPath,
+  projectRootDir,
 }: {
   specPath: string;
   tsconfigPath: string;
+  projectRootDir: string;
 }): Promise<unknown> {
-  const specJiti = createSpecJiti(specPath, tsconfigPath);
+  const specJiti = createSpecJiti({ specPath, tsconfigPath, projectRootDir });
   const specModule = await specJiti.import(specPath);
 
   return getDefaultExport(specModule);
 }
 
-function createSpecJiti(entryPath: string, tsconfigPath: string) {
+function createSpecJiti({
+  specPath,
+  tsconfigPath,
+  projectRootDir,
+}: {
+  specPath: string;
+  tsconfigPath: string;
+  projectRootDir: string;
+}) {
   const jitiOptions = {
     fsCache: false,
     interopDefault: false,
@@ -27,16 +37,17 @@ function createSpecJiti(entryPath: string, tsconfigPath: string) {
   // Using a custom `transform` function replaces the default jiti
   // transform, so we need another jiti instance to call it after we
   // have lowered the imports in the source.
-  const jitiWithoutCustomTransform = createJiti(entryPath, jitiOptions);
+  const jitiWithoutCustomTransform = createJiti(specPath, jitiOptions);
 
-  return createJiti(entryPath, {
+  return createJiti(specPath, {
     ...jitiOptions,
     transform: (options) => {
       const transformedSource =
         options.filename && isWaspTsFile(options.filename)
-          ? lowerSrcImports({
+          ? lowerRefImports({
               sourceText: options.source,
               sourcePath: options.filename,
+              projectRootDir,
             })
           : options.source;
 

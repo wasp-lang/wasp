@@ -10,6 +10,13 @@ import type {
   Route,
 } from "./tsAppSpec.js";
 
+// Throughout this file, in order for the constructor's input type to be
+// expanded in the docs, but not the resulting type; we do one bit of
+// indirection, by creating a {Type}Config file, and setting it with the
+// `@inline` and `@expandType {Type}` tags. This makes sure that the config
+// option appear right in the documentation of the so users don't have to move
+// to another page to see the fields.
+
 /**
  * Creates a Wasp {@link App}.
  *
@@ -22,17 +29,15 @@ import type {
  *
  * @example
  * ```ts
- * import { app, page, route, query } from '@wasp.sh/spec'
- * import MainPage from '@src/MainPage'
- * import { getTasks } from '@src/queries'
+ * import { app, page, route } from '@wasp.sh/spec'
+ * import MainPage from './src/MainPage' with { type: 'ref' }
  *
  * export default app({
  *   name: 'todoApp',
  *   title: 'ToDo App',
  *   wasp: { version: '^0.24.0' },
  *   parts: [
- *     route('MainRoute', '/', page(MainPage, { authRequired: true })),
- *     query(getTasks, { entities: ['Task'] }),
+ *     route('MainRoute', '/', page(MainPage)),
  *   ],
  * })
  * ```
@@ -41,15 +46,21 @@ import type {
  *
  * @category Constructors
  */
-export function app(input: App): App {
-  return input;
+export function app(config: AppConfig): App {
+  return config;
 }
+
+/**
+ * @inline
+ * @expandType App
+ */
+type AppConfig = Omit<App, "kind">;
 
 /**
  * Creates a {@link Page} definition.
  *
  * A page is a React component rendered by a {@link route}. Pass the
- * component as the first argument; either via a magical import
+ * component as the first argument, either via a reference import
  * (recommended) or an {@link ExtImport} object.
  *
  * See [Routing](https://wasp.sh/docs/advanced/routing) and the
@@ -58,7 +69,8 @@ export function app(input: App): App {
  *
  * @example
  * ```ts
- * import MainPage from '@src/MainPage'
+ * import { page } from '@wasp.sh/spec'
+ * import MainPage from './src/MainPage' with { type: 'ref' }
  *
  * page(MainPage, { authRequired: true })
  * ```
@@ -68,12 +80,15 @@ export function app(input: App): App {
  *
  * @category Constructors
  */
-export function page(
-  component: Page["component"],
-  config?: Pick<Page, "authRequired">,
-): Page {
+export function page(component: Page["component"], config?: PageConfig): Page {
   return { kind: "page", component, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Page
+ */
+type PageConfig = Omit<Page, "kind" | "component">;
 
 /**
  * Creates a {@link Route} definition.
@@ -88,7 +103,8 @@ export function page(
  *
  * @example
  * ```ts
- * import MainPage from '@src/MainPage'
+ * import { page, route } from '@wasp.sh/spec'
+ * import MainPage from './src/MainPage' with { type: 'ref' }
  *
  * route('MainRoute', '/', page(MainPage))
  * ```
@@ -108,10 +124,16 @@ export function route(
    * This should be the result of the `page()` function.
    */
   page: Route["page"],
-  config?: Pick<Route, "lazy" | "prerender">,
+  config?: RouteConfig,
 ): Route {
   return { kind: "route", name, path, page, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Route
+ */
+type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
 
 /**
  * Creates a {@link Query} definition.
@@ -126,22 +148,26 @@ export function route(
  *
  * @example
  * ```ts
- * import { getTasks } from '@src/queries'
+ * import { query } from '@wasp.sh/spec'
+ * import { getTasks } from './src/queries' with { type: 'ref' }
  *
  * query(getTasks, { entities: ['Task'] })
  * ```
  *
- * @param fn The query implementation.
+ * @param fn The Query's NodeJS implementation.
  * @param config Optional settings: `entities` and `auth`.
  *
  * @category Constructors
  */
-export function query(
-  fn: Query["fn"],
-  config?: Pick<Query, "entities" | "auth">,
-): Query {
+export function query(fn: Query["fn"], config?: QueryConfig): Query {
   return { kind: "query", fn, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Query
+ */
+type QueryConfig = Omit<Query, "kind" | "fn">;
 
 /**
  * Creates an {@link Action} definition.
@@ -154,22 +180,26 @@ export function query(
  *
  * @example
  * ```ts
- * import { createTask } from '@src/actions'
+ * import { action } from '@wasp.sh/spec'
+ * import { createTask } from './src/actions' with { type: 'ref' }
  *
  * action(createTask, { entities: ['Task'] })
  * ```
  *
- * @param fn The action implementation.
+ * @param fn The Action's NodeJS implementation.
  * @param config Optional settings: `entities` and `auth`.
  *
  * @category Constructors
  */
-export function action(
-  fn: Action["fn"],
-  config?: Pick<Action, "entities" | "auth">,
-): Action {
+export function action(fn: Action["fn"], config?: ActionConfig): Action {
   return { kind: "action", fn, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Action
+ */
+type ActionConfig = Omit<Action, "kind" | "fn">;
 
 /**
  * Creates an {@link Api} endpoint definition.
@@ -182,14 +212,15 @@ export function action(
  *
  * @example
  * ```ts
- * import { barBaz } from '@src/apis'
+ * import { api } from '@wasp.sh/spec'
+ * import { barBaz } from './src/apis' with { type: 'ref' }
  *
  * api('GET', '/bar/baz', barBaz, { entities: ['Task'], auth: false })
  * ```
  *
  * @param method HTTP method to listen on (or `"ALL"` for any).
- * @param path URL path the endpoint is mounted at.
- * @param fn The Express handler.
+ * @param path Express path the endpoint is mounted at.
+ * @param fn The API's NodeJS implementation.
  * @param config Optional settings: `middlewareConfigFn`, `entities`, `auth`.
  *
  * @category Constructors
@@ -198,10 +229,16 @@ export function api(
   method: Api["method"],
   path: Api["path"],
   fn: Api["fn"],
-  config?: Pick<Api, "middlewareConfigFn" | "entities" | "auth">,
+  config?: ApiConfig,
 ): Api {
   return { kind: "api", method, path, fn, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Api
+ */
+type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
 
 /**
  * Creates an {@link ApiNamespace} definition.
@@ -215,7 +252,8 @@ export function api(
  *
  * @example
  * ```ts
- * import { barMiddleware } from '@src/apis'
+ * import { apiNamespace } from '@wasp.sh/spec'
+ * import { barMiddleware } from './src/apis' with { type: 'ref' }
  *
  * apiNamespace('/bar', { middlewareConfigFn: barMiddleware })
  * ```
@@ -227,10 +265,16 @@ export function api(
  */
 export function apiNamespace(
   path: ApiNamespace["path"],
-  config: Pick<ApiNamespace, "middlewareConfigFn">,
+  config: ApiNamespaceConfig,
 ): ApiNamespace {
   return { kind: "apiNamespace", path, ...config };
 }
+
+/**
+ * @inline
+ * @expandType ApiNamespace
+ */
+type ApiNamespaceConfig = Omit<ApiNamespace, "kind" | "path">;
 
 /**
  * Creates a {@link Job} definition.
@@ -244,7 +288,8 @@ export function apiNamespace(
  *
  * @example
  * ```ts
- * import { foo } from '@src/jobs/bar'
+ * import { job } from '@wasp.sh/spec'
+ * import { foo } from './src/jobs/bar' with { type: 'ref' }
  *
  * job(foo, {
  *   executor: 'PgBoss',
@@ -253,21 +298,22 @@ export function apiNamespace(
  * })
  * ```
  *
- * @param fn The worker function.
+ * @param fn The async function that performs the job's work. It receives the
+ *   submitted args and a context containing the declared entities.
  * @param config Required `executor` and optional `schedule`, `entities`,
  *   and `performExecutorOptions`.
  *
  * @category Constructors
  */
-export function job(
-  fn: Job["fn"],
-  config: Pick<
-    Job,
-    "executor" | "schedule" | "entities" | "performExecutorOptions"
-  >,
-): Job {
+export function job(fn: Job["fn"], config: JobConfig): Job {
   return { kind: "job", fn, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Job
+ */
+type JobConfig = Omit<Job, "kind" | "fn">;
 
 /**
  * Creates a {@link Crud} definition.
@@ -280,7 +326,8 @@ export function job(
  *
  * @example
  * ```ts
- * import { createTaskOverride } from '@src/actions'
+ * import { crud } from '@wasp.sh/spec'
+ * import { createTaskOverride } from './src/actions' with { type: 'ref' }
  *
  * crud('tasks', 'Task', {
  *   getAll: {},

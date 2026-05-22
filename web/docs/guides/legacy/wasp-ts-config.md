@@ -17,9 +17,9 @@ The mapping below is mechanical. You can give the [Wasp Spec reference](../../ge
 
 ## New features
 
-### Magical JS imports
+### Reference imports
 
-In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **magical imports**: import the value with the regular `import` syntax and pass it directly to a constructor.
+In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a constructor.
 
 <Tabs>
   <TabItem value="before" label="TS Config">
@@ -35,8 +35,8 @@ In the TS Config you could only reference your code with import objects (`{ impo
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import MainPage from '@src/MainPage'
-    import { getTasks } from '@src/queries'
+    import MainPage from './src/MainPage' with { type: "ref" }
+    import { getTasks } from './src/queries' with { type: "ref" }
 
     export default app({
       // ...
@@ -49,7 +49,7 @@ In the TS Config you could only reference your code with import objects (`{ impo
   </TabItem>
 </Tabs>
 
-Import objects still work, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#magical-imports) for the supported patterns and their limitations.
+Import objects still work, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#reference-imports) for the supported patterns and their limitations.
 
 ### Multiple files
 
@@ -66,7 +66,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 | Creating an app | `new App(name, { ... })` | `app({ name, ..., parts: [] })` |
 | Configuring the app | `app.auth(...)` <br/> `app.server(...)` <br/> `app.client(...)` <br/> `app.db(...)` <br/> `app.emailSender(...)` <br/> `app.webSocket(...)` | <pre>app(\{<br/>  auth: ...,<br/>  server: ...,<br/>  client: ...,<br/>  db: ...,<br/>  emailSender: ...,<br/>  webSocket: ...,<br/>})</pre> |
 | Adding app declarations | `app.route(...)` <br/> `app.query(...)` <br/> `app.action(...)` <br/> etc | <pre>app(\{<br/>  parts: [<br/>    route(...),<br/>    query(...),<br/>    action(...),<br/>  ]<br/>})</pre> |
-| Imports | `{ import, from }` | `import { ... } from "@src/..."` |
+| Imports | `{ import, from }` | `import { ... } from "./src/..." with { type: "ref" }` |
 | Package name | `wasp-config` | `@wasp.sh/spec` |
 
 ### App and parts
@@ -97,8 +97,8 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { app, page, query, route } from '@wasp.sh/spec'
-    import MainPage from '@src/MainPage'
-    import { getTasks } from '@src/queries'
+    import MainPage from './src/MainPage' with { type: "ref" }
+    import { getTasks } from './src/queries' with { type: "ref" }
 
     export default app({
       name: 'todoApp',
@@ -134,7 +134,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { api, apiNamespace, app } from '@wasp.sh/spec'
-    import { barBaz, barNamespaceMiddlewareFn } from '@src/apis'
+    import { barBaz, barNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
 
     export default app({
       // ...
@@ -167,7 +167,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { app, job } from '@wasp.sh/spec'
-    import { foo } from '@src/jobs/bar'
+    import { foo } from './src/jobs/bar' with { type: "ref" }
 
     export default app({
       // ...
@@ -200,7 +200,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { app, crud } from '@wasp.sh/spec'
-    import { createTask } from '@src/actions'
+    import { createTask } from './src/actions' with { type: "ref" }
 
     export default app({
       // ...
@@ -248,7 +248,7 @@ These were configured with mutating method calls. They are now keys of the `app(
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
     import { app } from '@wasp.sh/spec'
-    import App from '@src/App'
+    import App from './src/App' with { type: "ref" }
 
     export default app({
       name: 'todoApp',
@@ -315,10 +315,7 @@ These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follo
         "skipLibCheck": true,
         "allowJs": true,
         "noEmit": true,
-        "lib": ["ES2023"],
-        "paths": {
-          "@src/*": ["./src/*"]
-        }
+        "lib": ["ES2023"]
       },
       "include": ["main.wasp.ts", "**/*.wasp.ts"]
     }

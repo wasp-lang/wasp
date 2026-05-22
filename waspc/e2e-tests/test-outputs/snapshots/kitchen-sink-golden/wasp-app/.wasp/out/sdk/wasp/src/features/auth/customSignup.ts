@@ -32,7 +32,7 @@ type CustomSignupOutput = {
   message: string;
 };
 
-export const signup: CustomSignup<
+export const customSignup: CustomSignup<
   CustomSignupInput,
   CustomSignupOutput
 > = async (args) => {

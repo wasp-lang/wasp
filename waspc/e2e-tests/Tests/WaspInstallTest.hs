@@ -9,7 +9,7 @@ import ShellCommands
     waspCliInstall,
   )
 import Test (Test (..), TestCase (..))
-import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (tsMinimalStarterTemplate)
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
 waspInstallTest :: Test
 waspInstallTest =
@@ -21,7 +21,7 @@ waspInstallTest =
       TestCase
         "install-restores-wasp-spec-after-clean"
         ( sequence
-            [ createTestWaspProject tsMinimalStarterTemplate,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliClean,
                   return $ assertDirectoryDoesNotExist "node_modules",
