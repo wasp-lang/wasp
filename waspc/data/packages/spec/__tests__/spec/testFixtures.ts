@@ -427,12 +427,12 @@ export function getAuthMethods(
       return {} satisfies MinimalConfig<TsAppSpec.AuthMethods>;
     case "full":
       return {
-        slack: getExternalAuthConfig("full"),
-        discord: getExternalAuthConfig("full"),
-        google: getExternalAuthConfig("full"),
-        gitHub: getExternalAuthConfig("full"),
-        keycloak: getExternalAuthConfig("full"),
-        microsoft: getExternalAuthConfig("full"),
+        slack: getSocialAuthConfig("full"),
+        discord: getSocialAuthConfig("full"),
+        google: getSocialAuthConfig("full"),
+        gitHub: getSocialAuthConfig("full"),
+        keycloak: getSocialAuthConfig("full"),
+        microsoft: getSocialAuthConfig("full"),
         email: getEmailAuthConfig("full"),
       } satisfies FullConfig<TsAppSpec.AuthMethods>;
     default:
@@ -458,10 +458,10 @@ export function getUsernameAndPasswordConfig(
   }
 }
 
-export function getExternalAuthConfig<Scope extends ConfigScope>(
+export function getSocialAuthConfig<Scope extends ConfigScope>(
   scope: Scope,
 ): ConfigFor<Scope, TsAppSpec.SocialAuthConfig>;
-export function getExternalAuthConfig(
+export function getSocialAuthConfig(
   scope: ConfigScope,
 ): Config<TsAppSpec.SocialAuthConfig> {
   switch (scope) {

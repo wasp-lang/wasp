@@ -1,5 +1,6 @@
 wasp-app/.gitignore
 wasp-app/.npmrc
+wasp-app/.wasp/decls.json
 wasp-app/.wasp/out/.dockerignore
 wasp-app/.wasp/out/.waspchecksums
 wasp-app/.wasp/out/.waspinfo
@@ -425,7 +426,7 @@ wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/tsconfig.json
 wasp-app/.waspignore
 wasp-app/.wasproot
-wasp-app/main.wasp
+wasp-app/main.wasp.ts
 wasp-app/migrations/migration_lock.toml
 wasp-app/migrations/no-date-foo/migration.sql
 wasp-app/package-lock.json
@@ -438,4 +439,6 @@ wasp-app/src/MainPage.tsx
 wasp-app/src/assets/logo.svg
 wasp-app/src/vite-env.d.ts
 wasp-app/tsconfig.json
+wasp-app/tsconfig.src.json
+wasp-app/tsconfig.wasp.json
 wasp-app/vite.config.ts

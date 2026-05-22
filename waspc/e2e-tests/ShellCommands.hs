@@ -40,7 +40,6 @@ module ShellCommands
     waspCliInstall,
     assertCommandOutputContains,
     createSeedFile,
-    replaceMainWaspFile,
     replaceMainWaspTsFile,
     waspCliDockerfile,
     buildAndRemoveWaspProjectDockerImage,
@@ -266,13 +265,6 @@ createSeedFile fileName content = do
       seedFile = seedDir </> seedsFileInSeedsDir fileName
 
   writeToFile seedFile content
-
-replaceMainWaspFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
-replaceMainWaspFile content = do
-  context <- ask
-  let mainWaspFile = context.waspProjectDir </> mainWaspFileInWaspProjectDir
-
-  writeToFile mainWaspFile content
 
 replaceMainWaspTsFile :: T.Text -> ShellCommandBuilder WaspProjectContext ShellCommand
 replaceMainWaspTsFile content = do
