@@ -22,7 +22,7 @@ parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile waspTsConfigValidato
 waspTsConfigValidator :: V.Validator T.TsConfig
 waspTsConfigValidator =
   V.all
-    [ V.inField ("include", T.include) $ V.eqJust ["main.wasp.ts", "**/*.wasp.ts"],
+    [ V.inField ("include", T.include) $ V.eqJust ["main.wasp.ts", "**/*.wasp.ts", ".wasp/out/types"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
   where

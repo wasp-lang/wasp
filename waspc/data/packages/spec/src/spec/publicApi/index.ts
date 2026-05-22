@@ -9,4 +9,5 @@ export {
   query,
   route,
 } from "./constructors.js";
+export type { Register } from "./register.js";
 export type * from "./tsAppSpec.js";
