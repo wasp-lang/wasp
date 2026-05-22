@@ -88,18 +88,6 @@ Add `@types/node` to `devDependencies` because the Wasp Spec runs in a Node.js e
 
 Replace `wasp-config` with `@wasp.sh/spec` because the Wasp TS config package was renamed to the Wasp Spec package.
 
-The final `devDependencies` field should include the dependencies relevant to your project, for example:
-
-```json title="package.json"
-{
-  "devDependencies": {
-    "@types/node": "^24.0.0",
-    "@wasp.sh/spec": "file:.wasp/spec",
-    "vitest": "^4.0.16"
-  }
-}
-```
-
 ### 3. Update client code that uses `api` from `wasp/client/api`
 
 **If you don't use the `api` function from `wasp/client/api` directly, you can skip this step.**
