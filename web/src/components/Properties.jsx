@@ -178,9 +178,79 @@ const BadgePicker = ({ text, defaultIdx = 0 }) => {
   );
 };
 
+/* ─────────── Variant Box Corners — corner marks at card corners ─────────── */
+const VariantBoxCorners = () => (
+  <SectionContainer className="pt-4 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={2} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {properties.map((p) => (
+        <div key={p.title} className="relative bg-wasp-bg-2 p-6">
+          {/* 4 corner L-marks at box edges */}
+          <span className="pointer-events-none absolute -left-1 -top-1 h-3 w-3 border-l-2 border-t-2 border-wasp-black" />
+          <span className="pointer-events-none absolute -right-1 -top-1 h-3 w-3 border-r-2 border-t-2 border-wasp-black" />
+          <span className="pointer-events-none absolute -bottom-1 -left-1 h-3 w-3 border-b-2 border-l-2 border-wasp-black" />
+          <span className="pointer-events-none absolute -bottom-1 -right-1 h-3 w-3 border-b-2 border-r-2 border-wasp-black" />
+          <h3 className="mb-3 flex items-center gap-2 font-mono text-lg font-bold uppercase text-wasp-black">
+            <span className="inline-block h-3 w-3 border border-wasp-black bg-wasp-yellow" />
+            {p.title}
+          </h3>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g6">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
+/* ─────────── Variant Title Corners — corner marks around the title ─────────── */
+const VariantTitleCorners = () => (
+  <SectionContainer className="pt-4 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={2} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {properties.map((p) => (
+        <div key={p.title} className="border border-wasp-g3 bg-wasp-bg-2 p-6">
+          <h3 className="mb-3 font-mono text-lg font-bold uppercase text-wasp-black">
+            <span className="relative inline-block px-2 py-0.5">
+              {p.title}
+              {/* 4 corner L-marks around the title */}
+              <span className="pointer-events-none absolute -left-1 -top-1 h-2 w-2 border-l-2 border-t-2 border-wasp-black" />
+              <span className="pointer-events-none absolute -right-1 -top-1 h-2 w-2 border-r-2 border-t-2 border-wasp-black" />
+              <span className="pointer-events-none absolute -bottom-1 -left-1 h-2 w-2 border-b-2 border-l-2 border-wasp-black" />
+              <span className="pointer-events-none absolute -bottom-1 -right-1 h-2 w-2 border-b-2 border-r-2 border-wasp-black" />
+            </span>
+          </h3>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g6">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
+/* ─────────── Variant Yellow + Paper Numbers — yellow bg, paper-bg numbers, codebox border ─────────── */
+const VariantYellowPaperNumbers = () => (
+  <SectionContainer className="pt-4 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={2} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {properties.map((p, i) => (
+        <div
+          key={p.title}
+          className="border border-wasp-g3 bg-wasp-yellow p-6"
+        >
+          <h3 className="mb-3 flex items-center gap-2 font-mono text-lg font-bold uppercase text-wasp-black">
+            <span className="bg-wasp-black px-1.5 text-wasp-yellow">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            {p.title}
+          </h3>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g7">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
 /* ─────────── Variant Numbers — 01/02/03 instead of glyphs ─────────── */
 const VariantNumbers = () => (
-  <SectionContainer className="pt-12 pb-12">
+  <SectionContainer className="pt-4 pb-12">
     <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p, i) => (
@@ -200,7 +270,7 @@ const VariantNumbers = () => (
 
 /* ─────────── Variant Yellow Border — main yellow border, paper bg ─────────── */
 const VariantYellowBorder = () => (
-  <SectionContainer className="pt-12 pb-12">
+  <SectionContainer className="pt-4 pb-12">
     <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
@@ -221,7 +291,7 @@ const VariantYellowBorder = () => (
 
 /* ─────────── Variant Yellow — full brand-yellow bg ─────────── */
 const VariantYellow = () => (
-  <SectionContainer className="pt-12 pb-12">
+  <SectionContainer className="pt-4 pb-12">
     <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
@@ -242,7 +312,7 @@ const VariantYellow = () => (
 
 /* ─────────── Variant Bracket — {} replace the square glyphs ─────────── */
 const VariantBracket = () => (
-  <SectionContainer className="pt-12 pb-12">
+  <SectionContainer className="pt-4 pb-12">
     <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p, i) => (
@@ -268,7 +338,7 @@ const VariantBracket = () => (
 
 /* ─────────── Variant Asymmetric — 1 big + 2 small ─────────── */
 const VariantAsymmetric = () => (
-  <SectionContainer className="pt-12 pb-12">
+  <SectionContainer className="pt-4 pb-12">
     <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:grid-rows-2">
       {properties.map((p, i) => (
@@ -305,16 +375,18 @@ const VariantAsymmetric = () => (
 
 /* ─────────── Variant 0 — Martin-ish: thick black border + yellow-light bg ─────────── */
 const Variant0 = () => (
-  <SectionContainer className="pt-12 pb-12">
+  <SectionContainer className="pt-4 pb-12">
     <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      {properties.map((p) => (
+      {properties.map((p, i) => (
         <div
           key={p.title}
           className="border-2 border-wasp-black bg-wasp-yellow-light p-6"
         >
           <h3 className="mb-3 flex items-center gap-2 font-mono text-lg font-bold uppercase text-wasp-black">
-            <span className="inline-block h-3 w-3 border border-wasp-black bg-wasp-yellow" />
+            <span className="bg-wasp-yellow px-1.5 text-wasp-black">
+              {String(i + 1).padStart(2, "0")}
+            </span>
             {p.title}
           </h3>
           <p className="font-mono text-sm leading-relaxed text-wasp-g6">{p.body}</p>
@@ -326,7 +398,7 @@ const Variant0 = () => (
 
 /* ─────────── Variant 1 — Bordered cards (with bg) ─────────── */
 const Variant1 = () => (
-  <SectionContainer className="pt-12 pb-12">
+  <SectionContainer className="pt-4 pb-12">
     <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
@@ -344,7 +416,7 @@ const Variant1 = () => (
 
 /* ─────────── Variant 2 — Filled cards, no border ─────────── */
 const Variant2 = () => (
-  <SectionContainer className="pt-12 pb-12">
+  <SectionContainer className="pt-4 pb-12">
     <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
@@ -361,14 +433,17 @@ const Variant2 = () => (
 );
 
 const variants = [
-  { num: 1, name: "Numbers — 01/02/03 instead of glyphs", component: VariantNumbers },
-  { num: 2, name: "Yellow Border — main yellow border, paper bg", component: VariantYellowBorder },
-  { num: 3, name: "Yellow — full brand-yellow bg", component: VariantYellow },
-  { num: 4, name: "Bracket — {} replace the square glyphs", component: VariantBracket },
-  { num: 5, name: "Asymmetric — 1 big + 2 small", component: VariantAsymmetric },
-  { num: 6, name: "Martin-ish — thick black border + yellow-light bg", component: Variant0 },
-  { num: 7, name: "Bordered cards — tan bg + gray border", component: Variant1 },
-  { num: 8, name: "Filled cards — tan bg, no border", component: Variant2 },
+  { num: 1, name: "Box Corners — corner marks at card corners", component: VariantBoxCorners },
+  { num: 2, name: "Title Corners — corner marks around the title", component: VariantTitleCorners },
+  { num: 3, name: "Yellow + Black Numbers — yellow bg, black pill + yellow numbers, codebox border", component: VariantYellowPaperNumbers },
+  { num: 4, name: "Numbers — 01/02/03 instead of glyphs", component: VariantNumbers },
+  { num: 5, name: "Yellow Border — main yellow border, paper bg", component: VariantYellowBorder },
+  { num: 6, name: "Yellow — full brand-yellow bg", component: VariantYellow },
+  { num: 7, name: "Bracket — {} replace the square glyphs", component: VariantBracket },
+  { num: 8, name: "Asymmetric — 1 big + 2 small", component: VariantAsymmetric },
+  { num: 9, name: "Martin-ish — thick black border + yellow-light bg", component: Variant0 },
+  { num: 10, name: "Bordered cards — tan bg + gray border", component: Variant1 },
+  { num: 11, name: "Filled cards — tan bg, no border", component: Variant2 },
 ];
 
 const Properties = () => {
@@ -378,7 +453,8 @@ const Properties = () => {
 
   return (
     <div>
-      <div className="sticky top-16 z-40 border-y border-wasp-g3 bg-wasp-bg">
+      <Active />
+      <div className="sticky bottom-0 z-40 border-y border-wasp-g3 bg-wasp-bg">
         <div className="relative mx-auto max-w-[1400px] px-6 py-2">
           <button
             type="button"
@@ -406,7 +482,6 @@ const Properties = () => {
           </button>
         </div>
       </div>
-      <Active />
     </div>
   );
 };
