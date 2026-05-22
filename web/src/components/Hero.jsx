@@ -49,6 +49,14 @@ const ActionButtons = () => (
   </div>
 );
 
+// Highlighter-style emphasis: a brand-yellow band across the lower part of the
+// text, leaving a small gap at the very bottom so it reads like a marker stroke.
+const Highlight = ({ children }) => (
+  <span className="bg-[linear-gradient(to_top,transparent_8%,theme(colors.wasp.yellow)_8%,theme(colors.wasp.yellow)_48%,transparent_48%)] -mx-1 px-1 leading-[1.1]">
+    {children}
+  </span>
+);
+
 const codeTabs = [
   {
     name: "main.wasp",
@@ -185,12 +193,8 @@ const Hero = () => {
             <h1
               className={`text-4xl font-extrabold uppercase leading-[1.2] tracking-[-2px] text-wasp-black lg:text-[52px]`}
             >
-              Develop your full-stack app{" "}
-              <span className="bg-[linear-gradient(to_top,transparent_8%,#F5C842_8%,#F5C842_48%,transparent_48%)] -mx-1 px-1 leading-[1.1]">fast</span> and{" "}
-              <span className="bg-[linear-gradient(to_top,transparent_8%,#F5C842_8%,#F5C842_48%,transparent_48%)] -mx-1 px-1 leading-[1.1]">
-                keep control
-              </span>
-              .
+              Develop your full-stack app <Highlight>fast</Highlight> and{" "}
+              <Highlight>keep control</Highlight>.
             </h1>
 
             <p className="mt-6 max-w-[460px] text-base leading-[1.75] text-wasp-g6">
@@ -206,6 +210,8 @@ const Hero = () => {
             </div>
           </div>
         </div>
+        {/* On xl, pull the code box 2rem further left into the column gap and
+            widen it by the same amount so its right edge stays aligned. */}
         <div className="mt-16 flex w-full xl:col-span-6 xl:-ml-8 xl:mt-0 xl:min-w-0 xl:w-[calc(100%+2rem)]">
           <TabbedCodeViewer />
         </div>
