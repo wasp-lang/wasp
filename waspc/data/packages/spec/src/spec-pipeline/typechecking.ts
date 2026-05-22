@@ -15,9 +15,10 @@ import { SpecUserError } from "../spec/specUserError.js";
   be able to do this. TypeScript will, by default, read and typecheck everything
   before transforming, and jiti will transform and execute on the fly in one go.
 
-  Therefore, we let the code run, capture the runtime errors if any, then
-  typecheck, and then report type errors if any, and otherwise re-throw the
-  captured runtime errors.
+  Therefore, we will let jiti transform and run the code, overwriting lowered
+  imports as we finde them, then capture the runtime errors if any, and
+  typecheck. We'll report type errors if any, and then either re-throw the
+  captured runtime errors or return the resulting value.
 
   The only other caveat is that if there are parse errors, we want to report
   those immediately before typechecking, because TypeScript won't have received
