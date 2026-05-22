@@ -53,7 +53,7 @@ export async function typecheck<T>(
 
   const diagnostics = project.getPreEmitDiagnostics();
 
-  if (diagnostics.length === 0) {
+  if (diagnostics.length > 0) {
     console.error(project.formatDiagnosticsWithColorAndContext(diagnostics));
   }
 
