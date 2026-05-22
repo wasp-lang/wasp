@@ -4,10 +4,10 @@ import { microsoft } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { userSignupFields } from '../../../../../../../src/features/auth/providers/microsoft'
-const _waspUserSignupFields = userSignupFields
-import { config } from '../../../../../../../src/features/auth/providers/microsoft'
-const _waspUserDefinedConfigFn = config
+import { microsoftUserSignupFields } from '../../../../../../../src/features/auth/providers/microsoft'
+const _waspUserSignupFields = microsoftUserSignupFields
+import { microsoftConfig } from '../../../../../../../src/features/auth/providers/microsoft'
+const _waspUserDefinedConfigFn = microsoftConfig
 
 const _waspConfig: ProviderConfig = {
     id: microsoft.id,
