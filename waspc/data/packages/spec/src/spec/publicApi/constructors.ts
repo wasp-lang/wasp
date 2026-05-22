@@ -95,7 +95,7 @@ export function page(
  *
  * @param name Unique name for the route.
  * @param path URL path the route matches.
- * @param page The result of `page()`.
+ * @param page The result of {@link page}.
  * @param config Optional route settings (`lazy`, `prerender`).
  *
  * @category Constructors
