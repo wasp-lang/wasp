@@ -59,10 +59,17 @@ export async function typecheck<T>(
     },
   });
 
+  const loadedWaspTsFiles = new Set<string>();
   const result = await promiseToResult(
     fn({
-      addSourceFile: (path, code) =>
-        project.createSourceFile(path, code, { overwrite: true }),
+      addSourceFile: (path, code) => {
+        const sourceFile = project.createSourceFile(path, code, {
+          overwrite: true,
+        });
+        if (isWaspTsPath(path)) {
+          loadedWaspTsFiles.add(sourceFile.getFilePath());
+        }
+      },
     }),
   );
 
@@ -78,6 +85,16 @@ export async function typecheck<T>(
   // file in the project and resolve their imports. Ref imports have been
   // lowered so the typechecker won't follow them.
   project.addSourceFilesFromTsConfig(tsconfigPath);
+  // Only `.wasp.ts` files reachable from the loaded spec have had their ref
+  // imports lowered; other `.wasp.ts` files matched by the tsconfig include
+  // patterns still contain unlowered ref imports and would produce spurious
+  // type errors, so drop them before resolving dependencies.
+  for (const sourceFile of project.getSourceFiles()) {
+    const path = sourceFile.getFilePath();
+    if (isWaspTsPath(path) && !loadedWaspTsFiles.has(path)) {
+      project.removeSourceFile(sourceFile);
+    }
+  }
   project.resolveSourceFileDependencies();
 
   const diagnostics = project.getPreEmitDiagnostics();
@@ -95,6 +112,10 @@ export async function typecheck<T>(
   } else {
     return result.value;
   }
+}
+
+function isWaspTsPath(path: string): boolean {
+  return path.endsWith(".wasp.ts");
 }
 
 function promiseToResult<T>(
