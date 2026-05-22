@@ -1,6 +1,6 @@
+import Link from "@docusaurus/Link";
 import { useState } from "react";
 import { BookOpen, Terminal } from "react-feather";
-import Link from "@docusaurus/Link";
 
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
@@ -53,7 +53,7 @@ const ActionButtons = () => (
 // Highlighter-style emphasis: a brand-yellow band across the lower part of the
 // text, leaving a small gap at the very bottom so it reads like a marker stroke.
 const Highlight = ({ children }) => (
-  <span className="bg-[linear-gradient(to_top,transparent_8%,theme(colors.wasp.yellow)_8%,theme(colors.wasp.yellow)_48%,transparent_48%)] -mx-1 px-1 leading-[1.1]">
+  <span className="-mx-1 bg-[linear-gradient(to_top,transparent_8%,theme(colors.wasp.yellow)_8%,theme(colors.wasp.yellow)_48%,transparent_48%)] px-1 leading-[1.1]">
     {children}
   </span>
 );
@@ -165,7 +165,7 @@ function TabbedCodeViewer() {
       </div>
       {/* Code block — all tabs rendered, inactive ones invisible, CSS grid
           stacking ensures the container always matches the tallest tab. */}
-      <div className="grid flex-1 min-w-0">
+      <div className="grid min-w-0 flex-1">
         {codeTabs.map((t, i) => (
           <div
             key={t.name}
@@ -214,7 +214,7 @@ const Hero = () => {
         </div>
         {/* On xl, pull the code box 2rem further left into the column gap and
             widen it by the same amount so its right edge stays aligned. */}
-        <div className="mt-16 flex w-full xl:col-span-6 xl:-ml-8 xl:mt-0 xl:min-w-0 xl:w-[calc(100%+2rem)]">
+        <div className="mt-16 flex w-full xl:col-span-6 xl:-ml-8 xl:mt-0 xl:w-[calc(100%+2rem)] xl:min-w-0">
           <TabbedCodeViewer />
         </div>
       </div>

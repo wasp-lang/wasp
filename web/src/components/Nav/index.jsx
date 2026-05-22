@@ -133,10 +133,18 @@ const Nav = () => {
               </div>
 
               <div className="mb-12 mt-6 space-y-6">
-                <Link to="/docs" onClick={closeMenu} className={mobileLinkClass}>
+                <Link
+                  to="/docs"
+                  onClick={closeMenu}
+                  className={mobileLinkClass}
+                >
                   Docs
                 </Link>
-                <Link to="/blog" onClick={closeMenu} className={mobileLinkClass}>
+                <Link
+                  to="/blog"
+                  onClick={closeMenu}
+                  className={mobileLinkClass}
+                >
                   Blog
                 </Link>
                 <a

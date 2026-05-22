@@ -22,7 +22,7 @@ const Badge = ({ text }) => (
 );
 
 const Properties = () => (
-  <SectionContainer className="pt-4 pb-12 lg:pt-16">
+  <SectionContainer className="pb-12 pt-4 lg:pt-16">
     <Badge text="properties" />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p, i) => (
@@ -36,7 +36,9 @@ const Properties = () => (
             </span>
             {p.title}
           </h3>
-          <p className="font-mono text-sm leading-relaxed text-wasp-g6">{p.body}</p>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g6">
+            {p.body}
+          </p>
         </div>
       ))}
     </div>
