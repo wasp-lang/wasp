@@ -33,15 +33,15 @@
   "devDependencies": {
     "@eslint/js": "^9.9.0",
     "@types/node": "^22.17.0",
-    "@vitest/coverage-v8": "^3.1.2",
+    "@vitest/coverage-v8": "^4.0.16",
     "eslint": "^9.9.0",
     "globals": "^15.9.0",
     "nodemon": "^3.1.4",
     "typescript-eslint": "^8.1.0",
-    "vitest": "3.1.2"
+    "vitest": "^4.0.16"
   },
   "//": [
-    "We pin `vitest` version because type tests are an experimental feature,",
-    "and changes to API are not breaking changes."
+    "Keep `vitest` and `@vitest/coverage-v8` compatible with the Vitest version at `src/Wasp/Generator/SdkGenerator.hs`.",
+    "Mismatched Vitest majors make npm install separate copies; production builds remove `@wasp.sh/spec`, so app test files can no longer resolve `vitest` during server typechecking."
   ]
 }

@@ -1,8 +1,8 @@
 import ky from "ky";
 import { upsertData } from "./utils.js";
 
-export async function workerFunction(args, context) {
-  console.log("loadTime.js workerFunction", args, context);
+export async function measureLoadTime(args, context) {
+  console.log("loadTime.js measureLoadTime", args, context);
 
   const start = Date.now();
   await ky.get(args.url);

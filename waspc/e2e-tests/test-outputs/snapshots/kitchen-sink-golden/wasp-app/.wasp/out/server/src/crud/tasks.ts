@@ -8,15 +8,15 @@ import type {
   UpdateActionResolved,
   DeleteActionResolved,
 } from 'wasp/server/crud/tasks'
-import { getAllTasks } from '../../../../../src/features/crud/crud'
-import { createTask } from '../../../../../src/features/crud/crud'
+import { crudGetAllTasks } from '../../../../../src/features/crud/crud'
+import { crudCreateTask } from '../../../../../src/features/crud/crud'
 
 const entities = {
   Task: prisma.task,
 }
 
 // Get All query
-const _waspGetAllQuery = getAllTasks
+const _waspGetAllQuery = crudGetAllTasks
 
 export async function getAllFn(args, context) {
   return (_waspGetAllQuery as any)(args, {
@@ -39,7 +39,7 @@ export async function getFn(args, context) {
 }
 
 // Create action
-const _waspCreateAction = createTask
+const _waspCreateAction = crudCreateTask
 
 export async function createFn(args, context) {
   return (_waspCreateAction as any)(args, {

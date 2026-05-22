@@ -14,7 +14,7 @@ export const getTask = (async (args, context) => {
   });
 }) satisfies tasks.GetQuery<{ id: Task["id"] }, {}>;
 
-export const getAllTasks = (async (args, context) => {
+export const crudGetAllTasks = (async (args, context) => {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to view tasks.");
   }
@@ -46,7 +46,7 @@ export const getAllTasks = (async (args, context) => {
   });
 }) satisfies tasks.GetAllQuery<{}, {}>;
 
-export const createTask = (async (args, context) => {
+export const crudCreateTask = (async (args, context) => {
   if (!context.user) {
     throw new HttpError(401, "You must be logged in to create a task.");
   }

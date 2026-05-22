@@ -6,7 +6,7 @@ import {
   type AuthenticatedOperationFor,
   createAuthenticatedOperation,
 } from '../wrappers.js'
-import { signup as signup_ext } from 'wasp/src/features/auth/customSignup'
+import { customSignup as customSignup_ext } from 'wasp/src/features/auth/customSignup'
 import { createTask as createTask_ext } from 'wasp/src/features/operations/actions'
 import { updateTaskIsDone as updateTaskIsDone_ext } from 'wasp/src/features/operations/actions'
 import { deleteCompletedTasks as deleteCompletedTasks_ext } from 'wasp/src/features/operations/actions'
@@ -26,12 +26,12 @@ import { boolToVoidAuth as boolToVoidAuth_ext } from 'wasp/src/rpcTests/operatio
 import { jsActionWithArgs as jsActionWithArgs_ext } from 'wasp/src/rpcTests/operations/jsDefinitions'
 
 // PRIVATE API
-export type CustomSignup_ext = typeof signup_ext
+export type CustomSignup_ext = typeof customSignup_ext
 
 // PUBLIC API
 export const customSignup: AuthenticatedOperationFor<CustomSignup_ext> =
   createAuthenticatedOperation(
-    signup_ext,
+    customSignup_ext,
     {
     },
   )

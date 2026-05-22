@@ -26,7 +26,7 @@ export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
     `,
 });
 
-export const userSignupFields = defineUserSignupFields({
+export const emailUserSignupFields = defineUserSignupFields({
   address: (data) => {
     if (typeof data.address !== "string") {
       throw new Error("Address is required.");
