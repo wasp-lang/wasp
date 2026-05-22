@@ -178,10 +178,30 @@ const BadgePicker = ({ text, defaultIdx = 0 }) => {
   );
 };
 
+/* ─────────── Variant Numbers — 01/02/03 instead of glyphs ─────────── */
+const VariantNumbers = () => (
+  <SectionContainer className="pt-12 pb-12">
+    <BadgePicker text="// Properties" defaultIdx={2} />
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      {properties.map((p, i) => (
+        <div key={p.title} className="border border-wasp-g3 bg-wasp-bg-2 p-6">
+          <h3 className="mb-3 flex items-center gap-2 font-mono text-lg font-bold uppercase text-wasp-black">
+            <span className="bg-wasp-yellow px-1.5 text-wasp-black">
+              {String(i + 1).padStart(2, "0")}
+            </span>
+            {p.title}
+          </h3>
+          <p className="font-mono text-sm leading-relaxed text-wasp-g6">{p.body}</p>
+        </div>
+      ))}
+    </div>
+  </SectionContainer>
+);
+
 /* ─────────── Variant Yellow Border — main yellow border, paper bg ─────────── */
 const VariantYellowBorder = () => (
   <SectionContainer className="pt-12 pb-12">
-    <BadgePicker text="// Properties" defaultIdx={0} />
+    <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
         <div
@@ -202,7 +222,7 @@ const VariantYellowBorder = () => (
 /* ─────────── Variant Yellow — full brand-yellow bg ─────────── */
 const VariantYellow = () => (
   <SectionContainer className="pt-12 pb-12">
-    <BadgePicker text="// Properties" defaultIdx={0} />
+    <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
         <div
@@ -223,7 +243,7 @@ const VariantYellow = () => (
 /* ─────────── Variant Bracket — {} replace the square glyphs ─────────── */
 const VariantBracket = () => (
   <SectionContainer className="pt-12 pb-12">
-    <BadgePicker text="// Properties" defaultIdx={0} />
+    <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p, i) => (
         <div key={p.title} className="border border-wasp-g3 bg-wasp-bg-2 p-6">
@@ -249,7 +269,7 @@ const VariantBracket = () => (
 /* ─────────── Variant Asymmetric — 1 big + 2 small ─────────── */
 const VariantAsymmetric = () => (
   <SectionContainer className="pt-12 pb-12">
-    <BadgePicker text="// Properties" defaultIdx={0} />
+    <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:grid-rows-2">
       {properties.map((p, i) => (
         <div
@@ -286,7 +306,7 @@ const VariantAsymmetric = () => (
 /* ─────────── Variant 0 — Martin-ish: thick black border + yellow-light bg ─────────── */
 const Variant0 = () => (
   <SectionContainer className="pt-12 pb-12">
-    <BadgePicker text="// Properties" defaultIdx={0} />
+    <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
         <div
@@ -307,7 +327,7 @@ const Variant0 = () => (
 /* ─────────── Variant 1 — Bordered cards (with bg) ─────────── */
 const Variant1 = () => (
   <SectionContainer className="pt-12 pb-12">
-    <BadgePicker text="// Properties" defaultIdx={6} />
+    <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
         <div key={p.title} className="border border-wasp-g3 bg-wasp-bg-2 p-6">
@@ -325,7 +345,7 @@ const Variant1 = () => (
 /* ─────────── Variant 2 — Filled cards, no border ─────────── */
 const Variant2 = () => (
   <SectionContainer className="pt-12 pb-12">
-    <BadgePicker text="// Properties" defaultIdx={0} />
+    <BadgePicker text="// Properties" defaultIdx={2} />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p) => (
         <div key={p.title} className="bg-wasp-bg-2 p-6">
@@ -340,51 +360,55 @@ const Variant2 = () => (
   </SectionContainer>
 );
 
-const Properties = () => (
-  <>
-    <div className="border-t border-wasp-g2">
-      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
-        Variant Yellow Border — main yellow border, paper bg
+const variants = [
+  { num: 1, name: "Numbers — 01/02/03 instead of glyphs", component: VariantNumbers },
+  { num: 2, name: "Yellow Border — main yellow border, paper bg", component: VariantYellowBorder },
+  { num: 3, name: "Yellow — full brand-yellow bg", component: VariantYellow },
+  { num: 4, name: "Bracket — {} replace the square glyphs", component: VariantBracket },
+  { num: 5, name: "Asymmetric — 1 big + 2 small", component: VariantAsymmetric },
+  { num: 6, name: "Martin-ish — thick black border + yellow-light bg", component: Variant0 },
+  { num: 7, name: "Bordered cards — tan bg + gray border", component: Variant1 },
+  { num: 8, name: "Filled cards — tan bg, no border", component: Variant2 },
+];
+
+const Properties = () => {
+  const [idx, setIdx] = useState(0);
+  const cycle = (d) => setIdx((i) => (i + d + variants.length) % variants.length);
+  const Active = variants[idx].component;
+
+  return (
+    <div>
+      <div className="sticky top-16 z-40 border-y border-wasp-g3 bg-wasp-bg">
+        <div className="relative mx-auto max-w-[1400px] px-6 py-2">
+          <button
+            type="button"
+            onClick={() => cycle(-1)}
+            className="absolute left-6 top-1/2 -translate-y-1/2 border-0 bg-transparent p-1 font-mono text-base text-wasp-g6 hover:text-wasp-black"
+            aria-label="Previous variant"
+          >
+            ←
+          </button>
+          <div className="text-center">
+            <span className="font-mono text-xs uppercase tracking-[2px] text-wasp-g7">
+              #{variants[idx].num} — {variants[idx].name}
+              <span className="ml-3 text-wasp-g5">
+                ({idx + 1}/{variants.length})
+              </span>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => cycle(1)}
+            className="absolute right-6 top-1/2 -translate-y-1/2 border-0 bg-transparent p-1 font-mono text-base text-wasp-g6 hover:text-wasp-black"
+            aria-label="Next variant"
+          >
+            →
+          </button>
+        </div>
       </div>
-      <VariantYellowBorder />
+      <Active />
     </div>
-    <div className="border-t border-wasp-g2">
-      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
-        Variant Yellow — full brand-yellow bg
-      </div>
-      <VariantYellow />
-    </div>
-    <div className="border-t border-wasp-g2">
-      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
-        Variant Bracket — {"{}"} replace the square glyphs
-      </div>
-      <VariantBracket />
-    </div>
-    <div className="border-t border-wasp-g2">
-      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
-        Variant Asymmetric — 1 big + 2 small
-      </div>
-      <VariantAsymmetric />
-    </div>
-    <div className="border-t border-wasp-g2">
-      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
-        Variant 0 — Martin-ish: thick black border + yellow-light bg
-      </div>
-      <Variant0 />
-    </div>
-    <div className="border-t border-wasp-g2">
-      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
-        Variant 1 — Bordered cards
-      </div>
-      <Variant1 />
-    </div>
-    <div className="border-t border-wasp-g2">
-      <div className="mx-auto max-w-[1400px] px-6 pt-6 font-mono text-xs uppercase tracking-[2px] text-wasp-g5">
-        Variant 2 — Borderless cards (dividers)
-      </div>
-      <Variant2 />
-    </div>
-  </>
-);
+  );
+};
 
 export default Properties;
