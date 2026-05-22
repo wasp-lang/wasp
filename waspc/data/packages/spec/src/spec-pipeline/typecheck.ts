@@ -52,6 +52,11 @@ export async function typecheck<T>(
   const project = new Project({
     tsConfigFilePath: tsconfigPath,
     skipAddingFilesFromTsConfig: true,
+    defaultCompilerOptions: {
+      // For some reason `ts-morph` doesn't pick up `@types/*` packages if we
+      // don't explicitly set this. (important for `@types/node` globals)
+      types: ["*"],
+    },
   });
 
   const result = await promiseToResult(
@@ -69,9 +74,10 @@ export async function typecheck<T>(
     throw result.error;
   }
 
-  // Now that all the files are added, we can let TypeScript resolve and add the
-  // imported files to the Project. Ref imports have been lowered so the
-  // typechecker won't follow them.
+  // Now that all the files are added, we can let TypeScript add every other
+  // file in the project and resolve their imports. Ref imports have been
+  // lowered so the typechecker won't follow them.
+  project.addSourceFilesFromTsConfig(tsconfigPath);
   project.resolveSourceFileDependencies();
 
   const diagnostics = project.getPreEmitDiagnostics();
