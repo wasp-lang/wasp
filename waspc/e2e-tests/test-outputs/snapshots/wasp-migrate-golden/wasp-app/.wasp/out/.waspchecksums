@@ -747,5 +747,12 @@
             "server/tsconfig.json"
         ],
         "ed0d16bf761ad18f0837ddaed868f149c70814903bd46cc0c841289bcb6b68df"
+    ],
+    [
+        [
+            "file",
+            "types/register-spec.ts"
+        ],
+        "e28d1f95358fd4414ab99fc255c0136c6c1d7d4fba55362092ed30f49497cdfd"
     ]
 ]
