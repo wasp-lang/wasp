@@ -47,6 +47,8 @@ waspTsSpecNodeEnvTest =
     nodeEnvMainWaspTs :: T.Text
     nodeEnvMainWaspTs =
       [trimming|
+        /// <reference types="node" />
+
         import { app, page, route } from "@wasp.sh/spec";
         import { MainPage } from "./src/MainPage" with { type: "ref" }
 
