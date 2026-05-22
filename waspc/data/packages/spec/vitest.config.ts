@@ -1,33 +1,27 @@
-import { configDefaults, defineConfig } from "vitest/config";
-
-const testExcludes = [...configDefaults.exclude, "**/dist/**"];
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
   test: {
-    dir: "__tests__",
-    exclude: testExcludes,
     projects: [
       {
         test: {
           name: "unit",
-          include: ["**/*.unit.test.ts"],
+          include: ["__tests__/**/*.unit.test.ts"],
         },
       },
       {
         test: {
           name: "integration",
-          include: ["**/*.integration.test.ts"],
+          include: ["__tests__/**/*.integration.test.ts"],
         },
       },
       {
         test: {
           name: "type",
-          include: ["**/*.test-d.ts"],
           typecheck: {
             enabled: true,
             only: true,
             include: ["__tests__/**/*.test-d.ts"],
-            exclude: testExcludes,
           },
         },
       },
