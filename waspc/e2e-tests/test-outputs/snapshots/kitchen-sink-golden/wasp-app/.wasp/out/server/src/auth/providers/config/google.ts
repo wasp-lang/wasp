@@ -4,10 +4,10 @@ import { google } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { userSignupFields } from '../../../../../../../src/features/auth/providers/google'
-const _waspUserSignupFields = userSignupFields
-import { config } from '../../../../../../../src/features/auth/providers/google'
-const _waspUserDefinedConfigFn = config
+import { googleUserSignupFields } from '../../../../../../../src/features/auth/providers/google'
+const _waspUserSignupFields = googleUserSignupFields
+import { googleConfig } from '../../../../../../../src/features/auth/providers/google'
+const _waspUserDefinedConfigFn = googleConfig
 
 const _waspConfig: ProviderConfig = {
     id: google.id,

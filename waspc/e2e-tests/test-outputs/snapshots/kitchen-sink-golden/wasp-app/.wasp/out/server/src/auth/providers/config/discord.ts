@@ -4,10 +4,10 @@ import { discord } from "wasp/server/auth";
 import { mergeDefaultAndUserConfig } from "../oauth/config.js";
 import { createOAuthProviderRouter } from "../oauth/handler.js";
 
-import { userSignupFields } from '../../../../../../../src/features/auth/providers/discord'
-const _waspUserSignupFields = userSignupFields
-import { config } from '../../../../../../../src/features/auth/providers/discord'
-const _waspUserDefinedConfigFn = config
+import { discordUserSignupFields } from '../../../../../../../src/features/auth/providers/discord'
+const _waspUserSignupFields = discordUserSignupFields
+import { discordConfig } from '../../../../../../../src/features/auth/providers/discord'
+const _waspUserDefinedConfigFn = discordConfig
 
 const _waspConfig: ProviderConfig = {
     id: discord.id,

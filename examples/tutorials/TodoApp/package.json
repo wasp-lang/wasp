@@ -16,8 +16,10 @@
   },
   "devDependencies": {
     "@playwright/test": "1.55.1",
+    "@types/node": "^24.0.0",
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
+    "@wasp.sh/spec": "file:.wasp/spec",
     "@wasp.sh/wasp-app-runner": "^0.0.13",
     "prisma": "5.19.1",
     "typescript": "5.9.3",
