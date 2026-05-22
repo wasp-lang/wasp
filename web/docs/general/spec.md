@@ -76,6 +76,17 @@ export const auth = [
 ]
 ```
 
+:::note Limitations
+
+Reference imports have some limitations:
+
+- They only work from `*.wasp.ts` files.
+- The referenced files must be inside the `src` directory.
+
+The vast majority of Wasp apps won't run into these limitations, so we recommend using reference imports by default.
+
+:::
+
 ### Reference objects {#reference-objects}
 
 Just pass an object with `import` (or `importDefault`) and `from`:
