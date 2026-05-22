@@ -1,10 +1,10 @@
 import { defineUserSignupFields } from "wasp/server/auth";
 
-export function config() {
+export function microsoftConfig() {
   console.log("Inside user-supplied Microsoft config");
   return {
     scopes: ["openid", "profile", "email"],
   };
 }
 
-export const userSignupFields = defineUserSignupFields({});
+export const microsoftUserSignupFields = defineUserSignupFields({});
