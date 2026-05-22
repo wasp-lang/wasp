@@ -11,14 +11,33 @@ import { SpecUserError } from "../spec/specUserError.js";
   4. Compile to JS
   5. Run
 
-  However, the typescript and jiti APIs don't directly expose the primitives to
+  However, the TypeScript and jiti APIs don't directly expose the primitives to
   be able to do this. TypeScript will, by default, read and typecheck everything
   before transforming, and jiti will transform and execute on the fly in one go.
 
-  Therefore, we will let jiti transform and run the code, overwriting lowered
-  imports as we finde them, then capture the runtime errors if any, and
-  typecheck. We'll report type errors if any, and then either re-throw the
-  captured runtime errors or return the resulting value.
+  Therefore, we will let jiti transform and run the code. In the `transform`
+  function, we will notify the typechecker of any changed source code as we go
+  (which will have its imports lowered), so we can overwrite them in the
+  TypeScript compiler memory.
+
+  Jiti will immediately run the transformed code. We let it do that. It might
+  throw runtime errors, but we capture them and store them for later. We
+  typecheck the source code, throw the type errors if any; and only then
+  re-throw the errors or re-return the value from the code we've ran.
+
+  The structure then looks like this:
+
+  1. Create the TypeScript project in memory, without any files.
+  2. Jiti reads source files
+  3. Jiti calls the transform function:
+    1. Lower imports
+    2. Add the lowered source code to the Typescript project
+    3. Pass it to the rest of the jiti pipeline
+  4. Jiti automatically runs the user's `wasp.ts` file. We capture the errors or
+     result.
+  5. We typecheck the files in memory.
+  6. Report typechecking result.
+  7. Then we return or rethrow the captured result from step 4.
 
   The only other caveat is that if there are parse errors, we want to report
   those immediately before typechecking, because TypeScript won't have received
@@ -50,6 +69,9 @@ export async function typecheck<T>(
     throw result.error;
   }
 
+  // Now that all the files are added, we can let TypeScript resolve and add the
+  // imported files to the Project. Ref imports have been lowered so the
+  // typechecker won't follow them.
   project.resolveSourceFileDependencies();
 
   const diagnostics = project.getPreEmitDiagnostics();
