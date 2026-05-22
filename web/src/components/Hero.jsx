@@ -174,7 +174,7 @@ function TabbedCodeViewer() {
 
 const Hero = () => {
   return (
-    <SectionContainer className="pb-5 pt-24">
+    <SectionContainer className="pb-5 pt-24 lg:pb-12">
       <div className="xl:grid xl:grid-cols-12 xl:gap-16">
         <div className="z-10 flex flex-col justify-between gap-12 xl:col-span-6 xl:min-w-0">
           {/* Hero title and subtitle */}
@@ -186,13 +186,11 @@ const Hero = () => {
               className={`text-4xl font-extrabold uppercase leading-[1.2] tracking-[-2px] text-wasp-black lg:text-[52px]`}
             >
               Develop your full-stack app{" "}
-              <span className="inline-block border-[2.5px] border-wasp-black bg-wasp-yellow px-2 leading-[1.1]">
-                fast
-              </span>{" "}
-              and{" "}
-              <span className="inline-block border-[2.5px] border-wasp-black bg-wasp-yellow px-2 leading-[1.1]">
-                keep control.
+              <span className="bg-[linear-gradient(to_top,transparent_8%,#F5C842_8%,#F5C842_48%,transparent_48%)] -mx-1 px-1 leading-[1.1]">fast</span> and{" "}
+              <span className="bg-[linear-gradient(to_top,transparent_8%,#F5C842_8%,#F5C842_48%,transparent_48%)] -mx-1 px-1 leading-[1.1]">
+                keep control
               </span>
+              .
             </h1>
 
             <p className="mt-6 max-w-[460px] text-base leading-[1.75] text-wasp-g6">
@@ -208,7 +206,7 @@ const Hero = () => {
             </div>
           </div>
         </div>
-        <div className="mt-16 flex w-full xl:col-span-6 xl:mt-0 xl:min-w-0">
+        <div className="mt-16 flex w-full xl:col-span-6 xl:-ml-8 xl:mt-0 xl:min-w-0 xl:w-[calc(100%+2rem)]">
           <TabbedCodeViewer />
         </div>
       </div>
