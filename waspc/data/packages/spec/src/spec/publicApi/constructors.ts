@@ -10,6 +10,13 @@ import type {
   Route,
 } from "./tsAppSpec.js";
 
+// Throughout this file, in order for the constructor's input type to be
+// expanded in the docs, but not the resulting type; we do one bit of
+// indirection, by creating a {Type}Config file, and setting it with the
+// `@inline` and `@expandType {Type}` tags. This makes sure that the config
+// option appear right in the documentation of the so users don't have to move
+// to another page to see the fields.
+
 /**
  * Creates a Wasp {@link App}.
  *
@@ -39,9 +46,15 @@ import type {
  *
  * @category Constructors
  */
-export function app(input: App): App {
-  return input;
+export function app(config: AppConfig): App {
+  return config;
 }
+
+/**
+ * @inline
+ * @expandType App
+ */
+type AppConfig = Omit<App, "kind">;
 
 /**
  * Creates a {@link Page} definition.
@@ -67,12 +80,15 @@ export function app(input: App): App {
  *
  * @category Constructors
  */
-export function page(
-  component: Page["component"],
-  config?: Pick<Page, "authRequired">,
-): Page {
+export function page(component: Page["component"], config?: PageConfig): Page {
   return { kind: "page", component, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Page
+ */
+type PageConfig = Omit<Page, "kind" | "component">;
 
 /**
  * Creates a {@link Route} definition.
@@ -108,10 +124,16 @@ export function route(
    * This should be the result of the `page()` function.
    */
   page: Route["page"],
-  config?: Pick<Route, "lazy" | "prerender">,
+  config?: RouteConfig,
 ): Route {
   return { kind: "route", name, path, page, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Route
+ */
+type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
 
 /**
  * Creates a {@link Query} definition.
@@ -137,12 +159,15 @@ export function route(
  *
  * @category Constructors
  */
-export function query(
-  fn: Query["fn"],
-  config?: Pick<Query, "entities" | "auth">,
-): Query {
+export function query(fn: Query["fn"], config?: QueryConfig): Query {
   return { kind: "query", fn, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Query
+ */
+type QueryConfig = Omit<Query, "kind" | "fn">;
 
 /**
  * Creates an {@link Action} definition.
@@ -166,12 +191,15 @@ export function query(
  *
  * @category Constructors
  */
-export function action(
-  fn: Action["fn"],
-  config?: Pick<Action, "entities" | "auth">,
-): Action {
+export function action(fn: Action["fn"], config?: ActionConfig): Action {
   return { kind: "action", fn, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Action
+ */
+type ActionConfig = Omit<Action, "kind" | "fn">;
 
 /**
  * Creates an {@link Api} endpoint definition.
@@ -201,10 +229,16 @@ export function api(
   method: Api["method"],
   path: Api["path"],
   fn: Api["fn"],
-  config?: Pick<Api, "middlewareConfigFn" | "entities" | "auth">,
+  config?: ApiConfig,
 ): Api {
   return { kind: "api", method, path, fn, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Api
+ */
+type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
 
 /**
  * Creates an {@link ApiNamespace} definition.
@@ -231,10 +265,16 @@ export function api(
  */
 export function apiNamespace(
   path: ApiNamespace["path"],
-  config: Pick<ApiNamespace, "middlewareConfigFn">,
+  config: ApiNamespaceConfig,
 ): ApiNamespace {
   return { kind: "apiNamespace", path, ...config };
 }
+
+/**
+ * @inline
+ * @expandType ApiNamespace
+ */
+type ApiNamespaceConfig = Omit<ApiNamespace, "kind" | "path">;
 
 /**
  * Creates a {@link Job} definition.
@@ -265,15 +305,15 @@ export function apiNamespace(
  *
  * @category Constructors
  */
-export function job(
-  fn: Job["fn"],
-  config: Pick<
-    Job,
-    "executor" | "schedule" | "entities" | "performExecutorOptions"
-  >,
-): Job {
+export function job(fn: Job["fn"], config: JobConfig): Job {
   return { kind: "job", fn, ...config };
 }
+
+/**
+ * @inline
+ * @expandType Job
+ */
+type JobConfig = Omit<Job, "kind" | "fn">;
 
 /**
  * Creates a {@link Crud} definition.

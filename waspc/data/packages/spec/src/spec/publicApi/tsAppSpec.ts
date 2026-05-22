@@ -168,8 +168,9 @@ export interface LocalAuthMethods {
  * [Social Auth overview](https://wasp.sh/docs/auth/social-auth/overview) for
  * details on each provider.
  */
-export interface ExternalAuthMethods
-  extends Partial<Record<SocialAuthMethodName, SocialAuthConfig>> {}
+export interface ExternalAuthMethods extends Partial<
+  Record<SocialAuthMethodName, SocialAuthConfig>
+> {}
 
 /**
  * Supported social auth providers.
@@ -676,8 +677,9 @@ export interface Crud extends BasePart<"crud"> {
  * Each key enables the matching operation; an empty object enables it with
  * Wasp's defaults.
  */
-export interface CrudOperations
-  extends Partial<Record<CrudOperation, CrudOperationOptions>> {}
+export interface CrudOperations extends Partial<
+  Record<CrudOperation, CrudOperationOptions>
+> {}
 
 /**
  * Operations a {@link Crud} can generate.
@@ -738,10 +740,8 @@ export type {
 
 interface BasePart<Kind extends string> {
   /**
-   * We don't want this to show up in the docs, because users don't need to set
-   * it manually.
-   *
-   * @hidden
+   * The internal Wasp type of this part. Used by the compiler.
+   * You should not set this field directly, instead use the dedicated constructors for each part type.
    */
   kind: Kind;
 }
