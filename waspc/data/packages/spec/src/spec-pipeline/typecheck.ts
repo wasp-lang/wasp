@@ -73,7 +73,7 @@ function promiseToResult<T>(
   promise: Promise<T>,
 ): Promise<{ type: "success"; value: T } | { type: "error"; error: unknown }> {
   return promise.then(
-    (value) => ({ type: "success", value }) as const,
-    (error: unknown) => ({ type: "error", error }) as const,
+    (value) => ({ type: "success", value }),
+    (error) => ({ type: "error", error }),
   );
 }

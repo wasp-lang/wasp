@@ -1,7 +1,7 @@
 import type { JitiOptions } from "jiti";
 import { createJiti } from "jiti";
 import { lowerRefImports } from "./lowerRefImports.js";
-import { typecheck } from "./typechecking.js";
+import { typecheck } from "./typecheck.js";
 
 export async function loadWaspTsSpecDefaultExport({
   specPath,

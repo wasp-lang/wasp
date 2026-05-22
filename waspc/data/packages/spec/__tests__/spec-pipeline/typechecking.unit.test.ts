@@ -1,7 +1,7 @@
 import { writeFileSync } from "fs";
 import { join } from "path";
 import { afterEach, describe, expect, test, vi } from "vitest";
-import { typecheck } from "../../src/spec-pipeline/typechecking.js";
+import { typecheck } from "../../src/spec-pipeline/typecheck.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 import { makeTempProject, writeTsConfig } from "./testHelpers.js";
 
