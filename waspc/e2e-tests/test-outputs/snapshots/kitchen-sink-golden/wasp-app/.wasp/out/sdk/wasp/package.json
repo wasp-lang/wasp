@@ -28,7 +28,6 @@
     "socket.io": "^4.6.1",
     "socket.io-client": "^4.6.1",
     "superjson": "^2.2.1",
-    "vitest": "^4.0.16",
     "zod": "^4.3.6"
   },
   "devDependencies": {

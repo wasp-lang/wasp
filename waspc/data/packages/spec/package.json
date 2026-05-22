@@ -38,9 +38,5 @@
     "nodemon": "^3.1.4",
     "typescript-eslint": "^8.1.0",
     "vitest": "^4.0.16"
-  },
-  "//": [
-    "Keep `vitest` and `@vitest/coverage-v8` compatible with the Vitest version at `src/Wasp/Generator/SdkGenerator.hs`.",
-    "Mismatched Vitest majors make npm install separate copies; production builds remove `@wasp.sh/spec`, so app test files can no longer resolve `vitest` during server typechecking."
-  ]
+  }
 }
