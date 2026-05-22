@@ -3,7 +3,6 @@ wasp-app/.env.server.example
 wasp-app/.env.vault
 wasp-app/.gitignore
 wasp-app/.npmrc
-wasp-app/.wasp/decls.json
 wasp-app/.wasp/out/.dockerignore
 wasp-app/.wasp/out/.waspchecksums
 wasp-app/.wasp/out/.waspinfo
@@ -1317,6 +1316,7 @@ wasp-app/.wasp/out/server/src/server.ts
 wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/src/webSocket/initialization.ts
 wasp-app/.wasp/out/server/tsconfig.json
+wasp-app/.wasp/spec-result.json
 wasp-app/.waspignore
 wasp-app/.wasproot
 wasp-app/Dockerfile

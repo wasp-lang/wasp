@@ -1,10 +1,10 @@
-import { crud, page, route } from "@wasp.sh/spec";
+import { crud, page, route, type Part } from "@wasp.sh/spec";
 
 import { crudCreateTask, crudGetAllTasks } from "./crud" with { type: "ref" };
 import { DetailPage } from "./pages/DetailPage" with { type: "ref" };
 import { ListPage } from "./pages/ListPage" with { type: "ref" };
 
-export const crudFeature = [
+export const crudFeature: Part[] = [
   crud("tasks", "Task", {
     get: {},
     getAll: {

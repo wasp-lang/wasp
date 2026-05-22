@@ -1,4 +1,4 @@
-import { action, query } from "@wasp.sh/spec";
+import { action, query, type Part } from "@wasp.sh/spec";
 
 import {
   boolToStringAuth,
@@ -22,7 +22,7 @@ import {
 import { jsActionWithArgs } from "./operations/jsDefinitions" with { type: "ref" };
 import { testingAction } from "./operations/server" with { type: "ref" };
 
-export const rpcTests = [
+export const rpcTests: Part[] = [
   action(testingAction, { entities: [] }),
   query(getDate),
   query(getAnythingNoAuth, { auth: false, entities: [] }),

@@ -1250,7 +1250,7 @@
             "file",
             "sdk/wasp/server/webSocket/index.ts"
         ],
-        "6d659f40443639c707c444744243f1c4217cb9c215bfd3864a17aeb6f4979b54"
+        "daa23be4d546f8a50fccb23311fac59c65ebffbf32de0f69431deaca39e3eeac"
     ],
     [
         [
@@ -1327,14 +1327,14 @@
             "file",
             "sdk/wasp/src/features/apis/apis.ts"
         ],
-        "b9aafd5cff3925552193d2058d6a5fcf85c730af93ecdd5b7a43b1a63d05191d"
+        "956d41ca62ba1964f6e196281eeac3f85c8ab0f74495e1815c1c646ad70e4a9b"
     ],
     [
         [
             "file",
             "sdk/wasp/src/features/apis/apis.wasp.ts"
         ],
-        "928b6095df8bee41bc51521836e948e5a0e3af3eea58be97fd12f421e5baf786"
+        "80090e88697e7f8bca3584c8c4381d9a8b7c9c49ce637455bed564e473a89b03"
     ],
     [
         [
@@ -1348,7 +1348,7 @@
             "file",
             "sdk/wasp/src/features/auth/auth.wasp.ts"
         ],
-        "56bc10b78aa48aee1d6b6cb53848a5c4e492321d78074e9156b2dfcfb745f94a"
+        "432c07643baf18222c050b9863f9ca293bb5554867f9303397911b6e0223819a"
     ],
     [
         [
@@ -1481,7 +1481,7 @@
             "file",
             "sdk/wasp/src/features/chat/chat.wasp.ts"
         ],
-        "baa2f6cbfde8617fe1ccd7cab1d72ff068abd74ba84b9e23ac80543164130c5c"
+        "f22d7adc681995623061beda8a637a5a905e8a64c3292ee17a04949a9d5ad43b"
     ],
     [
         [
@@ -1495,7 +1495,7 @@
             "file",
             "sdk/wasp/src/features/chat/webSocket.ts"
         ],
-        "d0c8a8b5d7dc4e4a25e3c52edf9b55c49de02d4a4f13d730c14dd9b036729e25"
+        "0f22aa12b78b29aee67514ce16713fe5ba4261e37c47b9bb40d87567bfbff7f0"
     ],
     [
         [
@@ -1509,7 +1509,7 @@
             "file",
             "sdk/wasp/src/features/crud/crud.wasp.ts"
         ],
-        "361ea7c129e3e737ded9ab9525adfe25710dc10b0f5cacea55ba30584f6e4e31"
+        "f1ce12ae3d0163a70041577442c25134340b001a7d49cb11e91af2a14e2e1834"
     ],
     [
         [
@@ -1530,7 +1530,7 @@
             "file",
             "sdk/wasp/src/features/db/db.wasp.ts"
         ],
-        "1ac5461d68be5d7ee3af80f1c1081b22dafc90c93cb4bfcb6e208916f5318094"
+        "635ea17261b175e3d4fed8a336545e30dfc11fe30bc7120b26720f8bf3d26a26"
     ],
     [
         [
@@ -1558,7 +1558,7 @@
             "file",
             "sdk/wasp/src/features/jobs/jobs.wasp.ts"
         ],
-        "d5d2c62df55b5828fc1cb6b8bbf95db7e558cac906e5b95d40ea81fd2c925f34"
+        "646f1c23e182861d179e882c95a366a6dc9b9b58b2f5770b6f1f5bda5741fa9c"
     ],
     [
         [
@@ -1586,7 +1586,7 @@
             "file",
             "sdk/wasp/src/features/lazy-loading/lazyLoading.wasp.ts"
         ],
-        "f162002ce9f4249dca72271c557f809a226c29d120894a5313c45c6f012685f2"
+        "0a885824035e50f47810307074d9c38a44d5c2db2a9d67fb5fe290e932b0d8b5"
     ],
     [
         [
@@ -1642,7 +1642,7 @@
             "file",
             "sdk/wasp/src/features/operations/operations.wasp.ts"
         ],
-        "0c46ab9b3e24a314a3127a575c88129158a5d6594004f686f23aaeb334dd4162"
+        "84053e84866e6742d41665de41c38d7e1c1c5b79118bd35775b2a0d05568c6f7"
     ],
     [
         [
@@ -1691,7 +1691,7 @@
             "file",
             "sdk/wasp/src/features/prerender/prerender.wasp.ts"
         ],
-        "13ef1ee6d78752112ae39c42936e14d495e80f81d5d4a37384d6ef025fcb90ee"
+        "1d4e270e53f86dd6ff948f59643d1ac2e343588801c57b1d6f740fc7e100e521"
     ],
     [
         [
@@ -1712,7 +1712,7 @@
             "file",
             "sdk/wasp/src/features/streaming/streaming.wasp.ts"
         ],
-        "53554845736db492cccc070b166e39641ccd9141ce1ba4cecd0de9436143c716"
+        "89436921c2a905c0282e4f78e30861f1a3e0215da46a8ac11983d52bd52a74d9"
     ],
     [
         [
@@ -1775,7 +1775,7 @@
             "file",
             "sdk/wasp/src/rpcTests/rpcTests.wasp.ts"
         ],
-        "599e379730bf266176521b6eb39de8b33dabda0c8289d2ac4e619013d30d96af"
+        "94877aedd1dd5a17a7b6158544e6eacb2db84fa488fface33f96846884f4925b"
     ],
     [
         [
@@ -2307,7 +2307,7 @@
             "file",
             "server/src/routes/apis/index.ts"
         ],
-        "cf34e46ece8535b8f9b7817dffa112079ff9dade62a7786abc283aacdac6437c"
+        "83ef7b37c5b37e337f8eebce4c8f2682811b4ec2ca870954cca51b1315637c09"
     ],
     [
         [
@@ -2587,7 +2587,7 @@
             "file",
             "server/src/webSocket/initialization.ts"
         ],
-        "834aa5aec6302c6ae44624cd4142acb8c0d0fe83c8ca5211577ed7e1c6b2cfc4"
+        "1da42b92f03f7d2017e4da2bfa8db24bd90eb29dd716cc10e0c985c30c91a182"
     ],
     [
         [

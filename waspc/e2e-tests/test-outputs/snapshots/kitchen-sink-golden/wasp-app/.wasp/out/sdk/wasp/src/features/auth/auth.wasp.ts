@@ -1,4 +1,4 @@
-import { action, page, route } from "@wasp.sh/spec";
+import { action, page, route, type Auth, type Part } from "@wasp.sh/spec";
 
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
@@ -42,7 +42,7 @@ import {
   slackUserSignupFields,
 } from "./providers/slack" with { type: "ref" };
 
-export const authConfig = {
+export const authConfig: Auth = {
   userEntity: "User",
   methods: {
     slack: {
@@ -90,7 +90,7 @@ export const authConfig = {
   onAfterLogin,
 };
 
-export const auth = [
+export const auth: Part[] = [
   route("SignupRoute", "/signup", page(Signup)),
   route("LoginRoute", "/login", page(Login)),
   route("PasswordResetRoute", "/password-reset", page(PasswordReset)),

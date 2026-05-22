@@ -5,7 +5,7 @@ import { MiddlewareConfigFn, globalMiddlewareConfigForExpress } from '../../midd
 import auth from 'wasp/core/auth'
 import { type AuthUserData, makeAuthUserIfPossible } from 'wasp/auth/user'
 
-import { bar as _waspbarnamespaceMiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
+import { barNamespaceMiddlewareFn as _waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn } from '../../../../../../src/features/apis/apis'
 import { defaultMiddlewareForStreamingText as _waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn } from '../../../../../../src/features/streaming/api'
 
 import { fooBar as _waspfooBarfn } from '../../../../../../src/features/apis/apis'
@@ -22,7 +22,7 @@ const _waspstreamingTextmiddlewareConfigFn = idFn
 
 const router = express.Router()
 
-router.use('/bar', globalMiddlewareConfigForExpress(_waspbarnamespaceMiddlewareConfigFn))
+router.use('/bar', globalMiddlewareConfigForExpress(_waspbarNamespaceMiddlewareFnnamespaceMiddlewareConfigFn))
 router.use('/api/streaming-test', globalMiddlewareConfigForExpress(_waspdefaultMiddlewareForStreamingTextnamespaceMiddlewareConfigFn))
 
 const fooBarMiddleware = globalMiddlewareConfigForExpress(_waspfooBarmiddlewareConfigFn)

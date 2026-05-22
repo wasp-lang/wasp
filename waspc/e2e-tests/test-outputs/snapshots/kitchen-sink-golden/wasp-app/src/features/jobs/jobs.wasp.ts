@@ -1,4 +1,4 @@
-import { action, job, page, query, route } from "@wasp.sh/spec";
+import { action, job, page, query, route, type Part } from "@wasp.sh/spec";
 
 import {
   mySpecialJob,
@@ -11,7 +11,7 @@ import {
   uppercaseTextJob,
 } from "./uppercaseText" with { type: "ref" };
 
-export const jobs = [
+export const jobs: Part[] = [
   route("JobsRoute", "/jobs", page(JobsPage, { authRequired: true })),
   action(requestUppercaseText, { entities: ["UppercaseTextRequest"] }),
   query(getTextUppercaseRequests, { entities: ["UppercaseTextRequest"] }),

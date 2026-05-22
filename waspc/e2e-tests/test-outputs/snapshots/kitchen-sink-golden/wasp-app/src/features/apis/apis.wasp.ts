@@ -1,8 +1,8 @@
-import { api, apiNamespace, page, route } from "@wasp.sh/spec";
+import { api, apiNamespace, page, route, type Part } from "@wasp.sh/spec";
 
 import {
-  bar,
   barBaz,
+  barNamespaceMiddlewareFn,
   fooBar,
   fooBarMiddlewareFn,
   webhookCallback,
@@ -10,14 +10,14 @@ import {
 } from "./apis" with { type: "ref" };
 import { ApisPage } from "./pages/ApisPage" with { type: "ref" };
 
-export const apis = [
+export const apis: Part[] = [
   route("ApisRoute", "/apis", page(ApisPage)),
   api("ALL", "/foo/bar", fooBar, {
     middlewareConfigFn: fooBarMiddlewareFn,
     entities: ["Task"],
   }),
   apiNamespace("/bar", {
-    middlewareConfigFn: bar,
+    middlewareConfigFn: barNamespaceMiddlewareFn,
   }),
   api("GET", "/bar/baz", barBaz, { auth: false, entities: ["Task"] }),
   api("POST", "/webhook/callback", webhookCallback, {

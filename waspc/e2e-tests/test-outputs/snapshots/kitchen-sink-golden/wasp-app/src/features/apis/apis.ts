@@ -34,7 +34,9 @@ export const barBaz: BarBaz = (_req, res, _context) => {
   res.json({ msg: `Hello, stranger!` });
 };
 
-export const bar: MiddlewareConfigFn = (middlewareConfig) => {
+export const barNamespaceMiddlewareFn: MiddlewareConfigFn = (
+  middlewareConfig,
+) => {
   console.log("barNamespaceMiddlewareFn: Ignoring all default middleware.");
 
   middlewareConfig.set("custom.apiNamespace", (req, _res, next) => {
