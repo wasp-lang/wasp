@@ -737,7 +737,7 @@
     [
         [
             "file",
-            "types/register-spec.ts"
+            "spec-types/register.ts"
         ],
         "f59497edea0839362067856657594c46a9e728cfbf1c637068153f7299245b10"
     ]

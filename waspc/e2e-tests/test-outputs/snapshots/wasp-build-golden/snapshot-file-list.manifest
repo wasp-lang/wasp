@@ -413,12 +413,12 @@ wasp-app/.wasp/out/server/src/routes/index.js
 wasp-app/.wasp/out/server/src/routes/operations/index.js
 wasp-app/.wasp/out/server/src/server.ts
 wasp-app/.wasp/out/server/tsconfig.json
+wasp-app/.wasp/out/spec-types/register.ts
 wasp-app/.wasp/out/src/Main.css
 wasp-app/.wasp/out/src/MainPage.tsx
 wasp-app/.wasp/out/src/assets/logo.svg
 wasp-app/.wasp/out/src/vite-env.d.ts
 wasp-app/.wasp/out/tsconfig.src.json
-wasp-app/.wasp/out/types/register-spec.ts
 wasp-app/.wasp/out/user/tsconfig.src.tsbuildinfo
 wasp-app/.wasp/out/web-app/build/.gitkeep
 wasp-app/.wasp/out/web-app/build/200.html

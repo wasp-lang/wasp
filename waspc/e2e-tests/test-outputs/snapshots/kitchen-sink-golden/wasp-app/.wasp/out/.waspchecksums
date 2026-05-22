@@ -2599,7 +2599,7 @@
     [
         [
             "file",
-            "types/register-spec.ts"
+            "spec-types/register.ts"
         ],
         "6c5d84f435b8b5632f342ce35c15e873c1bbfcdea61d52946b70602c24c3ac03"
     ]
