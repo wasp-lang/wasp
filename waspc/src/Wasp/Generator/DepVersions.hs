@@ -11,6 +11,7 @@ module Wasp.Generator.DepVersions
     expressVersionRange,
     expressTypesVersionRange,
     viteVersionRange,
+    vitestVersionRange,
     dotenvVersionRange,
     kyVersionRange,
   )
@@ -60,6 +61,9 @@ expressTypesVersionRange = [SV.r|^5.0.0|]
 
 viteVersionRange :: SV.Range
 viteVersionRange = [SV.r|^7.0.6|]
+
+vitestVersionRange :: SV.Range
+vitestVersionRange = [SV.r|^4.0.16|]
 
 dotenvVersionRange :: SV.Range
 dotenvVersionRange = [SV.r|^16.6.1|]
