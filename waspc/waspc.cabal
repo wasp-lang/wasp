@@ -361,10 +361,10 @@ library
     Wasp.Generator.ServerGenerator.Start
     Wasp.Generator.ServerGenerator.WebSocketG
     Wasp.Generator.Setup
+    Wasp.Generator.SpecTypesGenerator
     Wasp.Generator.Start
     Wasp.Generator.Templates
     Wasp.Generator.Test
-    Wasp.Generator.SpecTypesGenerator
     Wasp.Generator.Valid
     Wasp.Generator.Valid.PackageJson
     Wasp.Generator.Valid.PackageJson.Common
@@ -876,6 +876,7 @@ test-suite waspc-e2e-tests
     Tests.WaspInstallTest
     Tests.WaspNewTest
     Tests.WaspSpecAvailableTest
+    Tests.WaspSpecEntityTypesTest
     Tests.WaspStartTest
     Tests.WaspStudioTest
     Tests.WaspTelemetryTest

@@ -27,9 +27,9 @@ import Wasp.Generator.Monad
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
+import Wasp.Generator.SpecTypesGenerator (genSpecTypes)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
-import Wasp.Generator.SpecTypesGenerator (genSpecTypes)
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
 import Wasp.Generator.WaspLibs (genWaspLibs)
