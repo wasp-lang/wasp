@@ -130,16 +130,18 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
         >>= mapM SP.parseAbsFile
       where
         filterIgnoredFilePaths =
-          combineFilePathFilters
-            [ ignoreBasename [".DS_Store", "node_modules"],
-              -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-              -- what we ship in waspc/data/packages/spec.
-              -- It is only copied into .wasp because we need to reach it with `npm install`.
-              -- If there are errors in this package, they will surface either during package tests or
-              -- manifest in the project snapshot. We can therefore skip it.
-              ignoreSubPath [".wasp/spec"],
-              ignoreExtension [".tgz"]
-            ]
+          keepUnlessMatched
+            ( map isBasenameOf [".DS_Store", "node_modules"]
+                ++ [
+                     -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+                     -- what we ship in waspc/data/packages/spec.
+                     -- It is only copied into .wasp because we need to reach it with `npm install`.
+                     -- If there are errors in this package, they will surface either during package tests or
+                     -- manifest in the project snapshot. We can therefore skip it.
+                     isSubpathOf ".wasp/spec",
+                     isExtensionOf ".tgz"
+                   ]
+            )
 
     -- Creates a deterministic manifest of files that should exist in the snapshot.
     -- File paths are normalized to relative paths and sorted.
@@ -162,8 +164,9 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
         >>= mapM SP.parseAbsFile
       where
         filterIgnoredFilePaths =
-          combineFilePathFilters
-            [ ignoreBasename
+          keepUnlessMatched
+            ( map
+                isBasenameOf
                 [ ".DS_Store",
                   "node_modules",
                   "dev.db",
@@ -174,12 +177,13 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
                   "tsconfig.wasp.tsbuildinfo",
                   "tsconfig.src.tsbuildinfo",
                   "dist"
-                ],
-              -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-              -- what we ship in waspc/data/packages/spec, so we skip it.
-              ignoreSubPath [".wasp/spec"],
-              ignoreExtension [".tgz"]
-            ]
+                ]
+                ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+                     -- what we ship in waspc/data/packages/spec, so we skip it.
+                     isSubpathOf ".wasp/spec",
+                     isExtensionOf ".tgz"
+                   ]
+            )
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
@@ -232,19 +236,14 @@ defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFile
 
 type FilePathFilter = FilePath -> Bool
 
-combineFilePathFilters :: [FilePathFilter] -> FilePath -> Bool
-combineFilePathFilters rules absPath = not $ any ($ absPath) rules
+keepUnlessMatched :: [FilePathFilter] -> FilePathFilter
+keepUnlessMatched filters filePath = not $ any ($ filePath) filters
 
-ignoreBasename :: [FilePath] -> FilePathFilter
-ignoreBasename names = (`elem` names) . takeFileName
+isBasenameOf :: FilePath -> FilePathFilter
+isBasenameOf basename filePath = basename == takeFileName filePath
 
-ignoreSubPath :: [FilePath] -> FilePathFilter
-ignoreSubPath subPaths filePath = any isSubPath subPaths
-  where
-    isSubPath p = splitDirectories p `isInfixOf` splitDirectories filePath
-
-ignoreExtension :: [String] -> FilePathFilter
-ignoreExtension exts absPath = any (`isExtensionOf` absPath) exts
+isSubpathOf :: FilePath -> FilePathFilter
+isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirectories filePath
 
 -- | Interruptible version of callCommand that terminates the entire process tree on async exception.
 -- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
