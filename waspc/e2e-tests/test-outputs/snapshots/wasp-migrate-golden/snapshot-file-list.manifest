@@ -423,7 +423,6 @@ wasp-app/.wasp/out/server/src/routes/operations/index.js
 wasp-app/.wasp/out/server/src/server.ts
 wasp-app/.wasp/out/server/src/views/wrong-port.ts
 wasp-app/.wasp/out/server/tsconfig.json
-wasp-app/.wasp/out/spec-types/register.ts
 wasp-app/.wasp/spec-result.json
 wasp-app/.waspignore
 wasp-app/.wasproot
