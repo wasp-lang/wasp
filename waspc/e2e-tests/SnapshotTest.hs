@@ -252,8 +252,6 @@ isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirecto
 -- | Interruptible version of callCommand that terminates the entire process tree on async exception.
 -- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
 -- all child processes are also terminated rather than continuing to run.
--- The command's stdout and stderr are redirected to the given log file (interleaved),
--- prepended by a header identifying the test.
 callCommandInProcessGroup :: String -> Path' Abs File' -> String -> IO ()
 callCommandInProcessGroup cmd logFile testName = do
   (logOut, logErr) <- openLogForCommand logFile testName cmd
