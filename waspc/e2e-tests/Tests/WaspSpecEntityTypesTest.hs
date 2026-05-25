@@ -27,9 +27,9 @@ waspSpecEntityTypesTest =
             [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ appendToPrismaFile prismaUserModel,
-                  replaceMainWaspTsFile validMainWaspTs,
+                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
                   waspCliCompile, -- Necessary to generate the spec's Entity types.
-                  replaceMainWaspTsFile invalidMainWaspTs,
+                  replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
                   assertCommandOutputContains
                     (("! " ++) <$> typeCheckMainTsFiles)
                     ("Type '\"" ++ T.unpack invalidEntityName ++ "\"' is not assignable to type '\"" ++ T.unpack validEntityName ++ "\"'.")
@@ -53,8 +53,8 @@ waspSpecEntityTypesTest =
     -- NOTE: We manually create a fake `ExtImport` object.
     -- This is so that `tsc` does not have to resolve any
     -- external imports besides the `@wasp.sh/spec` package.
-    validMainWaspTs :: T.Text
-    validMainWaspTs =
+    mainWaspTs :: T.Text -> T.Text
+    mainWaspTs entityName =
       [trimming|
         import { app, route } from "@wasp.sh/spec";
 
@@ -64,7 +64,7 @@ waspSpecEntityTypesTest =
           wasp: { version: "$textWaspVersion" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           auth: {
-            userEntity: "$validEntityName",
+            userEntity: "$entityName",
             methods: {
               usernameAndPassword: {},
             },
@@ -79,39 +79,8 @@ waspSpecEntityTypesTest =
         });
       |]
 
-    validEntityName :: T.Text
+    validEntityName, invalidEntityName :: T.Text
     validEntityName = "User"
-
-    -- NOTE: We manually create a fake `ExtImport` object.
-    -- This is so that `tsc` does not have to resolve any
-    -- external imports besides the `@wasp.sh/spec` package.
-    invalidMainWaspTs :: T.Text
-    invalidMainWaspTs =
-      [trimming|
-        import { app, route } from "@wasp.sh/spec";
-
-        export default app({
-          name: "enti",
-          title: "enti",
-          wasp: { version: "$textWaspVersion" },
-          head: ["<link rel='icon' href='/favicon.ico' />"],
-          auth: {
-            userEntity: "$invalidEntityName",
-            methods: {
-              usernameAndPassword: {},
-            },
-            onAuthFailedRedirectTo: "/",
-          },
-          parts: [
-            route("Route", "/", {
-              kind: "page",
-              component: { from: "@src/somewhere", import: "something" },
-            }),
-          ],
-        });
-      |]
-
-    invalidEntityName :: T.Text
     invalidEntityName = "InvalidUser"
 
     textWaspVersion :: T.Text
