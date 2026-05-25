@@ -131,7 +131,9 @@ build = do
       -- instead of pruning them manually.
       --
       -- This relies on `npm install` (not `npm ci`) being used in the Dockerfile.
-      -- The proper fix is tracked in https://github.com/wasp-lang/wasp/issues/1769.
+      -- The proper fix(es) are tracked in:
+      --   - https://github.com/wasp-lang/wasp/issues/897
+      --   - https://github.com/wasp-lang/wasp/issues/1769
       ExceptT $ updateJsonFile removeWaspSpecFromDevDependencies packageJsonInBuildDir
       ExceptT $ updateJsonFile (key "packages" . key "" %~ removeWaspSpecFromDevDependencies) packageLockJsonInBuildDir
 
