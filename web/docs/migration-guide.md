@@ -10,15 +10,15 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 ## What's new in 0.24.X?
 
-### Replaced Axios with [ky](https://github.com/sindresorhus/ky) in the client API module
+### Wasp Spec is the new way to configure apps
 
-The `api` export from `wasp/client/api` is now a [ky](https://github.com/sindresorhus/ky) instance instead of Axios. Ky is a tiny HTTP client built on `fetch` that provides a cleaner API with method shortcuts, automatic JSON handling, and hooks.
+You now configure your app with a Wasp Spec file, `main.wasp.ts`. It has a new syntax that is incompatible with both the old Wasp DSL and the Wasp TS config. The new Wasp Spec is more flexible and powerful, allowing you to use JS imports, functions, and values in your app configuration. You can read more about the new Wasp Spec in the new [Wasp Spec documentation](./general/spec.md).
 
-### The Wasp TS config is now called the Wasp Spec
+#### The Wasp Spec package is now `@wasp.sh/spec`
 
-The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. This better reflects the purpose of this file as a place to configure and customize Wasp's behavior in your project.
+The Wasp TS config package (`wasp-config`) is now the Wasp Spec package (`@wasp.sh/spec`). This better reflects the purpose of this package as the API for configuring and customizing Wasp's behavior in your project.
 
-### Ref imports in Wasp TS spec
+#### Reference imports in the Wasp Spec
 
 In `main.wasp.ts`, you can now import app source references with `with { type: "ref" }` and pass imported values directly to Wasp declarations instead of using import objects like `{ import, from }`.
 
@@ -27,13 +27,13 @@ import MainPage from './src/MainPage' with { type: 'ref' }
 import { getTasks } from './src/operations' with { type: 'ref' }
 ```
 
-### Package.json requirements changed
+### Client tests now use your project's Vitest package
 
-Wasp now expects some project-level `package.json` dependencies to be explicit. `vitest` must be in `devDependencies` because Wasp runs client tests through your project-installed Vitest. `@types/node` must also be in `devDependencies`, and the local Wasp Spec package is now `@wasp.sh/spec` instead of `wasp-config`.
+Wasp now expects `vitest` to be in your project's `devDependencies` because `wasp test client` runs the Vitest package installed in your project.
 
-### Stricter validation for Wasp Spec support files
+### Client API module now uses [ky](https://github.com/sindresorhus/ky) instead of Axios
 
-Wasp now validates more of the Wasp Spec support files. It checks that `package.json` includes the required `@types/node` dev dependency, that `tsconfig.wasp.json` includes the required Wasp Spec options, and that `tsconfig.src.json` excludes Wasp Spec files.
+The `api` export from `wasp/client/api` is now a [ky](https://github.com/sindresorhus/ky) instance instead of Axios. Ky is a tiny HTTP client built on `fetch` that provides a cleaner API with method shortcuts, automatic JSON handling, and hooks.
 
 ## How to migrate?
 
@@ -50,45 +50,25 @@ app MyApp {
 }
 ```
 
-### 2. Update `package.json` dependencies and fields
+### 2. Migrate your `main.wasp` or `main.wasp.ts` to the new Wasp Spec
 
-Make the relevant `package.json` changes in one pass:
+- If you were using a `main.wasp` file, follow [our guide on how to migrate from the Wasp DSL to the new Wasp Spec](./guides/legacy/wasp-dsl.md).
+- If you were using a `main.wasp.ts` file, follow [our guide on how to migrate from the old Wasp TS config to the new Wasp Spec](./guides/legacy/wasp-ts-config.md).
 
-<Tabs>
-  <TabItem value="before" label="Before">
-    ```json title="package.json"
-    {
-      "devDependencies": {
-        // highlight-next-line
-        "wasp-config": "file:.wasp/wasp-config"
-      }
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="after" label="After">
-    ```json title="package.json"
-    {
-      "devDependencies": {
-        // highlight-next-line
-        "@types/node": "^24.0.0",
-        // highlight-next-line
-        "@wasp.sh/spec": "file:.wasp/spec",
-        // highlight-next-line
-        "vitest": "^4.0.16"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
+### 3. Add `vitest` to your `package.json`
 
 Add `vitest` to `devDependencies` because `wasp test client` now runs the Vitest package installed in your project.
 
-Add `@types/node` to `devDependencies` because the Wasp Spec runs in a Node.js environment and Wasp now validates that the Node types are present.
+```json title="package.json"
+{
+  "devDependencies": {
+    // highlight-next-line
+    "vitest": "^4.0.16"
+  }
+}
+```
 
-Replace `wasp-config` with `@wasp.sh/spec` because the Wasp TS config package was renamed to the Wasp Spec package.
-
-### 3. Update client code that uses `api` from `wasp/client/api`
+### 4. Update client code that uses `api` from `wasp/client/api`
 
 **If you don't use the `api` function from `wasp/client/api` directly, you can skip this step.**
 
@@ -141,61 +121,6 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
 </Tabs>
 
 You can also remove `axios` from your project's dependencies if you added it only for use with the Wasp `api` wrapper.
-
-### 4. Update Wasp Spec support files
-
-Make sure your `tsconfig.wasp.json` includes the required Wasp Spec compiler options and include entries:
-
-```json title="tsconfig.wasp.json"
-{
-  "compilerOptions": {
-    // ...
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "jsx": "preserve",
-    // highlight-next-line
-    "allowJs": true
-  },
-  "include": ["main.wasp.ts", "**/*.wasp.ts"]
-}
-```
-
-Make sure your `tsconfig.src.json` excludes Wasp Spec files:
-
-```json title="tsconfig.src.json"
-{
-  // ...
-  "include": ["src"],
-  "exclude": ["**/*.wasp.ts"]
-}
-```
-
-And finally, update your `main.wasp.ts` to import from `@wasp.sh/spec` instead of `wasp-config`:
-
-
-<Tabs>
-  <TabItem value="before" label="Before">
-    ```ts title="main.wasp.ts"
-    // highlight-next-line
-    import { ActionConfig, App, ExtImport } from "wasp-config";
-
-    const app = new App({
-      // ...
-    });
-    ```
-  </TabItem>
-
-  <TabItem value="after" label="After">
-    ```ts title="main.wasp.ts"
-    // highlight-next-line
-    import { ActionConfig, App, ExtImport } from "@wasp.sh/spec";
-
-    const app = new App({
-      // ...
-    });
-    ```
-  </TabItem>
-</Tabs>
 
 ### 5. Enjoy your updated Wasp app
 

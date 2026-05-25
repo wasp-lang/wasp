@@ -743,10 +743,8 @@ export type {
 
 interface BasePart<Kind extends string> {
   /**
-   * We don't want this to show up in the docs, because users don't need to set
-   * it manually.
-   *
-   * @hidden
+   * The internal Wasp type of this part. Used by the compiler.
+   * You should not set this field directly, instead use the dedicated constructors for each part type.
    */
   kind: Kind;
 }
