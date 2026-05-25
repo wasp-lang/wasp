@@ -5,17 +5,14 @@ module Wasp.Cli.Command.Build
   )
 where
 
-import Control.Lens
+import Control.Lens (at, (%~), (&), (.~))
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (Value (..))
+import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
-import qualified Data.Aeson.KeyMap as KM
-import Data.Aeson.Lens
-import Data.List (isSuffixOf)
+import Data.Aeson.Lens (_Object, key)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
@@ -122,34 +119,24 @@ build = do
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
 
-      -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
-      -- We should remove this code once we implement a proper solution.
-      ExceptT $ updateJsonFile removeWaspSpecFromDevDependenciesArray packageJsonInBuildDir
-      ExceptT $ updateJsonFile removeAllMentionsOfWaspSpecInPackageLockJson packageLockJsonInBuildDir
+      -- The user's `package.json` references `@wasp.sh/spec` via `file:.wasp/spec`,
+      -- but Docker's build context is `.wasp/out/` and doesn't include `.wasp/spec/`.
+      -- We strip `@wasp.sh/spec` from the build's `devDependencies` so that Docker's
+      -- `npm install` reconciles the lockfile (dropping the now-orphan spec entries)
+      -- and proceeds without trying to resolve the missing `file:` path.
+      --
+      -- This is a simplified version of the original hack done for
+      -- https://github.com/wasp-lang/wasp/issues/2368.
+      -- It's simpler because we let `npm install` to drop orphans from the lockfile
+      -- instead of pruning them manually.
+      -- 
+      -- This relies on `npm install` (not `npm ci`) being used in the Dockerfile.
+      -- The proper fix is tracked in https://github.com/wasp-lang/wasp/issues/1769.
+      ExceptT $ updateJsonFile removeWaspSpecFromDevDependencies packageJsonInBuildDir
+      ExceptT $ updateJsonFile (key "packages" . key "" %~ removeWaspSpecFromDevDependencies) packageLockJsonInBuildDir
 
-    removeAllMentionsOfWaspSpecInPackageLockJson :: Value -> Value
-    removeAllMentionsOfWaspSpecInPackageLockJson packageLockJsonObject =
-      -- We want to:
-      --   1. Remove the `@wasp.sh/spec` dev dependency from the root package in package-lock.json.
-      --   This is at `packageLock["packages"][""]["@wasp.sh/spec"]`.
-      --   2. Remove all package location entries for the `@wasp.sh/spec` package
-      --   (i.e., entries whose location keys end in `/@wasp.sh/spec`).
-      --   Example locations include:
-      --      packageLock["packages"]["../../data/packages/@wasp.sh/spec"]
-      --      packageLock["packages"]["node_modules/@wasp.sh/spec"]
-      --      packageLock["packages"]["/home/filip/../@wasp.sh/spec"]
-      packageLockJsonObject
-        & key "packages" . key "" %~ removeWaspSpecFromDevDependenciesArray
-        & key "packages" . _Object
-          %~ KM.filterWithKey
-            (\packageLocation _ -> not $ isWaspSpecPackageLocation (Key.toString packageLocation))
-
-    isWaspSpecPackageLocation :: String -> Bool
-    isWaspSpecPackageLocation packageLocation =
-      (FP.pathSeparator : waspSpecPackageName) `isSuffixOf` packageLocation
-
-    removeWaspSpecFromDevDependenciesArray :: Value -> Value
-    removeWaspSpecFromDevDependenciesArray original =
+    removeWaspSpecFromDevDependencies :: Value -> Value
+    removeWaspSpecFromDevDependencies original =
       original & key "devDependencies" . _Object . at (Key.fromString waspSpecPackageName) .~ Nothing
 
     waspSpecPackageName :: String
