@@ -22,6 +22,18 @@ waspSpecEntityTypesTest =
   Test
     "wasp-spec-entity-types"
     [ TestCase
+        "typescript-compiles-when-a-valid-entity-name-is-provided"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile prismaUserModel,
+                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  waspCliCompile, -- Necessary to generate the spec's Entity types.
+                  typeCheckMainTsFiles
+                ]
+            ]
+        ),
+      TestCase
         "typescript-errors-when-an-invalid-entity-name-is-provided"
         ( sequence
             [ createTestWaspProject minimalStarterTemplate,
@@ -33,6 +45,18 @@ waspSpecEntityTypesTest =
                   assertCommandOutputContains
                     (("! " ++) <$> typeCheckMainTsFiles)
                     ("Type '\"" ++ T.unpack invalidEntityName ++ "\"' is not assignable to type '\"" ++ T.unpack validEntityName ++ "\"'.")
+                ]
+            ]
+        ),
+      -- NOTE: This is undesired behavior: https://github.com/wasp-lang/wasp/issues/4186
+      TestCase
+        "typescript-compiles-when-an-invalid-entity-name-is-provided-without-compile"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile prismaUserModel,
+                  replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
+                  typeCheckMainTsFiles
                 ]
             ]
         )

@@ -11,16 +11,24 @@ import Wasp.Generator.Common (GeneratedAppDir, makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft, createTemplateFileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.Templates (TemplatesDir)
+import Wasp.NodePackageFFI (InstallablePackage (..), getInstallablePackageName)
 
 genSpecTypes :: AppSpec -> Generator [FileDraft]
 genSpecTypes spec =
   return
     [ mkTmplFdWithData
         [relfile|register.ts|]
-        (object ["entities" .= entities])
+        ( object
+            [ "entities" .= entities,
+              "waspSpecPackageName" .= waspSpecPackageName
+            ]
+        )
     ]
   where
     entities = map (makeJsonWithEntityData . fst) $ getEntities spec
+
+    waspSpecPackageName :: String
+    waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
 data SpecTypesRootDir
 

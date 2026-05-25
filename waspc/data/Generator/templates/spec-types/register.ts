@@ -1,9 +1,9 @@
 {{={= =}=}}
 // The import ensures the module is always loaded into the bundle.
 // Otherwise, module augmentation can fail if it wasn't loaded.
-import "@wasp.sh/spec";
+import "{= waspSpecPackageName =}";
 
-declare module "@wasp.sh/spec" {
+declare module "{= waspSpecPackageName =}" {
   export interface Register {
     entities: {
 {=# entities =}
