@@ -2,6 +2,7 @@
 import type { RequireOneOrNone } from "type-fest";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { ExtImport } from "../extImport.js";
+import { FromRegister } from "./register.js";
 
 /**
  * Root shape of a Wasp app specification.
@@ -706,7 +707,11 @@ export interface CrudOperationOptions {
 /**
  * One of the app's entity names, matching a model in `schema.prisma`.
  */
-export type EntityName = string;
+export type EntityName = keyof Entities extends never
+  ? string
+  : Extract<keyof Entities, string>;
+
+type Entities = FromRegister<"entities", {}>;
 
 /**
  * A reference to your app's code. Prefer importing the value with

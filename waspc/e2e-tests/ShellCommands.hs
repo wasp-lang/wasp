@@ -317,8 +317,13 @@ assertCommandOutputContains commandBuilder marker = do
   command <- commandBuilder
   let logFile = ".wasp-e2e-output.log"
       logCommandOutputToFile = command ++ " > " ++ logFile ++ " 2>&1"
-      searchMarkerInLogFile = "grep -qF '" ++ marker ++ "' " ++ logFile
+      searchMarkerInLogFile = "grep -qF " ++ shellSingleQuote marker ++ " " ++ logFile
   return $ logCommandOutputToFile ~&& searchMarkerInLogFile
+  where
+    shellSingleQuote input = "'" ++ concatMap escapeSingleQuote input ++ "'"
+
+    escapeSingleQuote '\'' = "'\\''"
+    escapeSingleQuote c = [c]
 
 -- 'SnapshotTest' specific commands
 

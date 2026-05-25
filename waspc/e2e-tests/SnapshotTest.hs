@@ -13,7 +13,7 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import Data.List (sort)
+import Data.List (isInfixOf, sort)
 import Data.Maybe (fromJust)
 import FileSystem
   ( SnapshotDir,
@@ -30,7 +30,7 @@ import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.Exit (ExitCode (..))
-import System.FilePath (equalFilePath, isExtensionOf, makeRelative, takeFileName)
+import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeFileName)
 import System.Process (CreateProcess (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
@@ -125,21 +125,23 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
   where
     getSnapshotFilesForExistenceCheck :: IO [Path' Abs (File SnapshotFile)]
     getSnapshotFilesForExistenceCheck =
-      getDirFiltered (return . filterIgnoredFileNames) (SP.fromAbsDir snapshotDir)
+      getDirFiltered (return . filterIgnoredFilePaths) (SP.fromAbsDir snapshotDir)
         >>= filterM doesFileExist -- only files, no directories
         >>= mapM SP.parseAbsFile
       where
-        filterIgnoredFileNames = createFilenameFilter [flip notElem ignoredFileNames, not . isTgzFile]
-        ignoredFileNames =
-          [ ".DS_Store",
-            "node_modules",
-            -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-            -- what we ship in waspc/data/packages/spec.
-            -- It is only copied into .waspc because we need to reach it with `npm install`.
-            -- If there are errors in this package, they will surface either during package tests or
-            -- manifest in the project snapshot. We can therefore skip it.
-            "spec"
-          ]
+        filterIgnoredFilePaths =
+          keepUnlessMatched
+            ( map isBasenameOf [".DS_Store", "node_modules"]
+                ++ [
+                     -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+                     -- what we ship in waspc/data/packages/spec.
+                     -- It is only copied into .wasp because we need to reach it with `npm install`.
+                     -- If there are errors in this package, they will surface either during package tests or
+                     -- manifest in the project snapshot. We can therefore skip it.
+                     isSubpathOf ".wasp/spec",
+                     isExtensionOf ".tgz"
+                   ]
+            )
 
     -- Creates a deterministic manifest of files that should exist in the snapshot.
     -- File paths are normalized to relative paths and sorted.
@@ -157,26 +159,31 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
   where
     getSnapshotFilesForContentCheck :: IO [Path' Abs (File SnapshotFile)]
     getSnapshotFilesForContentCheck =
-      getDirFiltered (return . filterIgnoredFileNames) (SP.fromAbsDir snapshotDir)
+      getDirFiltered (return . filterIgnoredFilePaths) (SP.fromAbsDir snapshotDir)
         >>= filterM doesFileExist -- only files, no directories
         >>= mapM SP.parseAbsFile
       where
-        filterIgnoredFileNames = createFilenameFilter [flip notElem ignoredFileNames, not . isTgzFile]
-        ignoredFileNames =
-          [ ".DS_Store",
-            "node_modules",
-            "dev.db",
-            "dev.db-journal",
-            ".gitignore",
-            ".waspinfo",
-            "package-lock.json",
-            "tsconfig.wasp.tsbuildinfo",
-            "tsconfig.src.tsbuildinfo",
-            "dist",
-            -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-            -- what we ship in waspc/data/packages/spec, so we skip it.
-            "spec"
-          ]
+        filterIgnoredFilePaths =
+          keepUnlessMatched
+            ( map
+                isBasenameOf
+                [ ".DS_Store",
+                  "node_modules",
+                  "dev.db",
+                  "dev.db-journal",
+                  ".gitignore",
+                  ".waspinfo",
+                  "package-lock.json",
+                  "tsconfig.wasp.tsbuildinfo",
+                  "tsconfig.src.tsbuildinfo",
+                  "dist"
+                ]
+                ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+                     -- what we ship in waspc/data/packages/spec, so we skip it.
+                     isSubpathOf ".wasp/spec",
+                     isExtensionOf ".tgz"
+                   ]
+            )
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
@@ -227,13 +234,16 @@ defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFile
       where
         relSnapshotFilePath = makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile)
 
-isTgzFile :: FilePath -> Bool
-isTgzFile = (".tgz" `isExtensionOf`)
+type FilePathFilter = FilePath -> Bool
 
-type FileName = String
+keepUnlessMatched :: [FilePathFilter] -> FilePathFilter
+keepUnlessMatched filters filePath = not $ any ($ filePath) filters
 
-createFilenameFilter :: [FileName -> Bool] -> FilePath -> Bool
-createFilenameFilter predicates filePath = all ($ takeFileName filePath) predicates
+isBasenameOf :: FilePath -> FilePathFilter
+isBasenameOf basename filePath = basename == takeFileName filePath
+
+isSubpathOf :: FilePath -> FilePathFilter
+isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirectories filePath
 
 -- | Interruptible version of callCommand that terminates the entire process tree on async exception.
 -- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),

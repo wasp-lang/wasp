@@ -32,6 +32,9 @@ export default [
       "no-empty": "warn",
       "no-constant-condition": "warn",
       "object-shorthand": "warn",
+      "no-empty-object-type": {
+        allowInterfaces: "always",
+      },
     },
   },
 ];
