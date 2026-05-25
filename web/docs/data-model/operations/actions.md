@@ -231,7 +231,7 @@ Here's how you might implement the previously declared Actions `createTask` and 
         message: "Here's your foo!",
         returnedAt: new Date(),
       }
-    }) satisfies GetFoo
+    }) satisfies CreateFoo
     ```
 
     From the snippet above, TypeScript knows:
@@ -242,7 +242,7 @@ Here's how you might implement the previously declared Actions `createTask` and 
     If you don't need the context, you can skip specifying the Action's type (and arguments):
 
     ```typescript
-    const createFoo = () => {{ name: 'Foo', date: new Date() }}
+    const createFoo = () => ({ name: 'Foo', date: new Date() })
     ```
 
     :::
@@ -590,7 +590,7 @@ The `action` declaration supports the following fields:
     Declaring the Action:
 
     ```wasp
-    query createFoo {
+    action createFoo {
         fn: import { createFoo } from "@src/actions"
         entities: [Foo]
     }
@@ -611,7 +611,7 @@ The `action` declaration supports the following fields:
     Declaring the Action:
 
     ```wasp
-    query createFoo {
+    action createFoo {
         fn: import { createFoo } from "@src/actions"
         entities: [Foo]
     }

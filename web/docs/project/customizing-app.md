@@ -92,11 +92,7 @@ The `app` declaration has the following fields:
 
   - `version: string` <Required />
 
-    The version specifies which versions of Wasp are compatible with the app. It should contain a valid [SemVer range](https://github.com/npm/node-semver#ranges)
-
-    :::info
-    For now, the version field only supports caret ranges (i.e., `^x.y.z`). Support for the full specification will come in a future version of Wasp
-    :::
+    The version specifies which versions of Wasp are compatible with the app. It should contain a valid [SemVer range](https://github.com/npm/node-semver#ranges).
 
 - `title: string` <Required />
 
