@@ -10,25 +10,17 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 ## What's new in 0.24.X?
 
+### New Wasp Spec, removed the old Wasp DSL and Wasp TS config
+
+You now configure your app with Wasp Spec file, `main.wasp.ts`. It has a new syntax that is incompatible with both the old Wasp DSL and the Wasp TS config. The new Wasp Spec is more flexible and powerful, allowing you to use JS imports, functions, and values in your app configuration. You can read more about the new Wasp Spec in the new [Wasp Spec documentation](../general/spec.md).
+
 ### Replaced Axios with [ky](https://github.com/sindresorhus/ky) in the client API module
 
 The `api` export from `wasp/client/api` is now a [ky](https://github.com/sindresorhus/ky) instance instead of Axios. Ky is a tiny HTTP client built on `fetch` that provides a cleaner API with method shortcuts, automatic JSON handling, and hooks.
 
-### The Wasp TS config is now called the Wasp Spec
-
-The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. This better reflects the purpose of this file as a place to configure and customize Wasp's behavior in your project.
-
-### Ref imports in Wasp TS spec
-
-In `main.wasp.ts`, you can now import app source references with `with { type: "ref" }` and pass imported values directly to Wasp declarations instead of using import objects like `{ import, from }`.
-
-```ts title="main.wasp.ts"
-import MainPage from './src/MainPage' with { type: 'ref' }
-import { getTasks } from './src/operations' with { type: 'ref' }
-```
-
 ### Stricter validation for Wasp TS projects
 
+Wasp now validates more of the TS spec support files. If your project uses `main.wasp.ts`, Wasp checks that `package.json` includes the required `@types/node` dev dependency, that `tsconfig.wasp.json` includes the required TS spec options, and that `tsconfig.src.json` excludes Wasp TS spec files.
 Wasp now validates more of the TS spec support files. If your project uses `main.wasp.ts`, Wasp checks that `package.json` includes the required `@types/node` dev dependency, that `tsconfig.wasp.json` includes the required TS spec options, and that `tsconfig.src.json` excludes Wasp TS spec files.
 
 ## How to migrate?
@@ -46,7 +38,12 @@ app MyApp {
 }
 ```
 
-### 2. Update client code that uses `api` from `wasp/client/api`
+### 2. Migrate your `main.wasp` or `main.wasp.ts` to the new Wasp Spec
+
+- If you were using a `main.wasp` file, follow [our guide on how to migrate from the Wasp DSL to the new Wasp Spec](../guides/legacy/wasp-dsl.md).
+- If you were using a `main.wasp.ts` file, follow [our guide on how to migrate from the old Wasp TS config to the new Wasp Spec](../guides/legacy/wasp-ts-config.md).
+
+### 3. Update client code that uses `api` from `wasp/client/api`
 
 **If you don't use the `api` function from `wasp/client/api` directly, you can skip this step.**
 
@@ -99,89 +96,6 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
 </Tabs>
 
 You can also remove `axios` from your project's dependencies if you added it only for use with the Wasp `api` wrapper.
-
-### 3. Update Wasp TS spec support files
-
-Make sure your `package.json` includes `@types/node` in `devDependencies`, and update the `wasp-config` dependency:
-
-<Tabs>
-  <TabItem value="before" label="Before">
-    ```json title="package.json"
-    {
-      "devDependencies": {
-        // highlight-next-line
-        "wasp-config": "file:.wasp/wasp-config"
-      }
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="after" label="After">
-    ```json title="package.json"
-    {
-      "devDependencies": {
-        // highlight-next-line
-        "@types/node": "^24.0.0",
-        // highlight-next-line
-        "@wasp.sh/spec": "file:.wasp/spec"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-Make sure your `tsconfig.wasp.json` includes the required TS spec compiler options and include entries:
-
-```json title="tsconfig.wasp.json"
-{
-  "compilerOptions": {
-    // ...
-    "module": "esnext",
-    "moduleResolution": "bundler",
-    "jsx": "preserve",
-    // highlight-next-line
-    "allowJs": true
-  },
-  "include": ["main.wasp.ts", "**/*.wasp.ts"]
-}
-```
-
-Make sure your `tsconfig.src.json` excludes Wasp TS spec files:
-
-```json title="tsconfig.src.json"
-{
-  // ...
-  "include": ["src"],
-  "exclude": ["**/*.wasp.ts"]
-}
-```
-
-And finally, update your `main.wasp.ts` to import from `@wasp.sh/spec` instead of `wasp-config`:
-
-
-<Tabs>
-  <TabItem value="before" label="Before">
-    ```ts title="main.wasp.ts"
-    // highlight-next-line
-    import { ActionConfig, App, ExtImport } from "wasp-config";
-
-    const app = new App({
-      // ...
-    });
-    ```
-  </TabItem>
-
-  <TabItem value="after" label="After">
-    ```ts title="main.wasp.ts"
-    // highlight-next-line
-    import { ActionConfig, App, ExtImport } from "@wasp.sh/spec";
-
-    const app = new App({
-      // ...
-    });
-    ```
-  </TabItem>
-</Tabs>
 
 ### 4. Enjoy your updated Wasp app
 
