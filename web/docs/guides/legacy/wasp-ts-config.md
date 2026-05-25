@@ -49,7 +49,7 @@ In the TS Config you could only reference your code with import objects (`{ impo
   </TabItem>
 </Tabs>
 
-Import objects still work, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#reference-imports) for the supported patterns and their limitations.
+Import objects still work, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#referencing-your-apps-code) for the supported patterns and their limitations.
 
 ### Multiple files
 
@@ -274,7 +274,9 @@ These were configured with mutating method calls. They are now keys of the `app(
 
 ## How to migrate
 
-These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follow the [migration guide](../../migration-guides/migrate-from-0-23-to-0-24.md) first.
+These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follow the [migration guide](../../migration-guide.md) first.
+
+Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
 1. Update your `package.json` with the new dependencies:
 
@@ -299,6 +301,8 @@ These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follo
         ```
       </TabItem>
     </Tabs>
+
+    Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 2. Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 

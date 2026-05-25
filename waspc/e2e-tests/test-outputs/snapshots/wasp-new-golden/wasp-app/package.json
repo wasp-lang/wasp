@@ -11,7 +11,8 @@
     "@wasp.sh/spec": "file:.wasp/spec/",
     "prisma": "5.19.1",
     "typescript": "5.9.3",
-    "vite": "^7.0.6"
+    "vite": "^7.0.6",
+    "vitest": "^4.0.16"
   },
   "name": "wasp-app",
   "type": "module",

@@ -273,7 +273,9 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
 
 ## How to migrate
 
-These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follow the [migration guide](../../migration-guides/migrate-from-0-23-to-0-24.md) first.
+These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follow the [migration guide](../../migration-guide.md) first.
+
+Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
 1. Rename `tsconfig.json` to `tsconfig.src.json` and make it exclude Wasp Spec files:
 
@@ -318,17 +320,20 @@ These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follo
     }
     ```
 
-4. Add the required `type` and `devDependencies` to your `package.json`:
+4. Add the required `devDependencies` to your `package.json`:
 
-   ```json title="package.json"
-   {
-     "type": "module",
-     "devDependencies": {
-       "@types/node": "^24.0.0",
-       "@wasp.sh/spec": "file:.wasp/spec"
-     }
-   }
-   ```
+    ```json title="package.json"
+    {
+      "devDependencies": {
+        // highlight-next-line
+        "@types/node": "^24.0.0",
+        // highlight-next-line
+        "@wasp.sh/spec": "file:.wasp/spec"
+      }
+    }
+    ```
+
+    Keep your existing dependencies, and add these entries. `@types/node` is required because the Wasp Spec runs in a Node.js environment, and `@wasp.sh/spec` provides the local Wasp Spec API package.
 
 5. Run `wasp install`.
 
