@@ -67,7 +67,7 @@ const features = [
     title: "TypeScript Config",
     description:
       "Your app config is written in TypeScript, a safe choice your AI already speaks fluently.",
-    url: "/docs/general/wasp-ts-config",
+    url: "/docs/general/wasp-ts-spec",
   },
   {
     Icon: Settings,

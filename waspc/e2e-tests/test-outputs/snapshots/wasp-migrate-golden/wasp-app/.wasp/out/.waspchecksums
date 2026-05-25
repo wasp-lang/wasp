@@ -240,9 +240,16 @@
     [
         [
             "file",
+            "sdk/wasp/client/router/NavLink.tsx"
+        ],
+        "22f7b0a0000fc53091f7a281feb025ea80f8a279bf2d21a2be3531d0c5b202ab"
+    ],
+    [
+        [
+            "file",
             "sdk/wasp/client/router/index.ts"
         ],
-        "ad12dae94c1c68a4f31f660dd942fc0b43d713b4ed37145faeb2f65d3e5bc392"
+        "fe6c41ea908c928b00df7778f790750ab207558a8eb3a2a594ba4ab56b527ebe"
     ],
     [
         [
@@ -305,14 +312,14 @@
             "file",
             "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
         ],
-        "737990d1ed27a0481690366da5a0c8cd7bd795a08e0984d35eac8f6a132fbd3c"
+        "d039097bc563e8f51831f01b9f73549e7eda752d21480cf2cbe545520c0f8aea"
     ],
     [
         [
             "file",
             "sdk/wasp/client/vite/plugins/validateEnv.ts"
         ],
-        "e29136c690aa3c9a65692a9a680c78a92e15040db611af166798d2b5bf8c76bd"
+        "0fdf894207303eb8f9b072786a2fa3b69da84795db85631fdf32394686f3d863"
     ],
     [
         [
@@ -326,7 +333,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "356176e14b791e4d2bf5896dda26d1758cc80500533888990db0ba2b265a1361"
+        "6cf5e3e60d652b061bd5f6b7e31d6844ab7f4f6c7c519427405ed2272a6050b2"
     ],
     [
         [
@@ -592,7 +599,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "c8af1903f502f7ea1850203d1f9b5d31f8f4878a51bad9a4cc0c65155bb100e0"
+        "911ea00b85a30de03a5ff87ac4505d23fa2700199683a9468690ac25a0ac88bf"
     ],
     [
         [
@@ -739,6 +746,6 @@
             "file",
             "server/tsconfig.json"
         ],
-        "41bd85355b03c53e6a036aadc42ce4f1e6ed20e45215d4f2036747b2c7d181e1"
+        "ed0d16bf761ad18f0837ddaed868f149c70814903bd46cc0c841289bcb6b68df"
     ]
 ]

@@ -1,6 +1,4 @@
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE NamedFieldPuns #-}
-{-# LANGUAGE OverloadedRecordDot #-}
 
 module SnapshotTest
   ( SnapshotTest,
@@ -134,7 +132,13 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
         filterIgnoredFileNames = createFilenameFilter [flip notElem ignoredFileNames, not . isTgzFile]
         ignoredFileNames =
           [ ".DS_Store",
-            "node_modules"
+            "node_modules",
+            -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+            -- what we ship in waspc/data/packages/spec.
+            -- It is only copied into .waspc because we need to reach it with `npm install`.
+            -- If there are errors in this package, they will surface either during package tests or
+            -- manifest in the project snapshot. We can therefore skip it.
+            "spec"
           ]
 
     -- Creates a deterministic manifest of files that should exist in the snapshot.
@@ -166,8 +170,12 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
             ".gitignore",
             ".waspinfo",
             "package-lock.json",
-            "tsconfig.tsbuildinfo",
-            "dist"
+            "tsconfig.wasp.tsbuildinfo",
+            "tsconfig.src.tsbuildinfo",
+            "dist",
+            -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+            -- what we ship in waspc/data/packages/spec, so we skip it.
+            "spec"
           ]
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.

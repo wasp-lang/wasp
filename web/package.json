@@ -22,9 +22,10 @@
     "write-translations": "docusaurus write-translations"
   },
   "dependencies": {
-    "@docusaurus/core": "^3.7.0",
-    "@docusaurus/preset-classic": "^3.7.0",
-    "@docusaurus/theme-mermaid": "^3.7.0",
+    "@docusaurus/core": "~3.10.1",
+    "@docusaurus/faster": "~3.10.1",
+    "@docusaurus/preset-classic": "~3.10.1",
+    "@docusaurus/theme-mermaid": "~3.10.1",
     "@giscus/react": "^3.1.0",
     "@kodingdotninja/use-tailwind-breakpoint": "^0.0.5",
     "@mdx-js/react": "^3.1.0",
@@ -52,15 +53,15 @@
     "ts-blank-space": "^0.6.1"
   },
   "devDependencies": {
-    "@docusaurus/module-type-aliases": "^3.7.0",
-    "@docusaurus/tsconfig": "^3.7.0",
+    "@docusaurus/module-type-aliases": "~3.10.1",
+    "@docusaurus/tsconfig": "~3.10.1",
     "@types/marked": "^5.0.2",
     "@types/mdast": "^4.0.4",
     "@types/node": "~22.12",
     "marked": "^17.0.3",
     "mdast": "^2.3.2",
     "mdast-util-mdx": "^3.0.0",
-    "prettier": "^3.0.3",
+    "prettier": "3.5.3",
     "remark-cli": "^11.0.0",
     "remark-validate-links": "^12.1.1",
     "tsx": "^4.20.3",

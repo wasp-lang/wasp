@@ -16,7 +16,7 @@ import Wasp.Generator.SdkGenerator.Client.VitePlugin.Common (clientEntryPointPat
 import Wasp.Generator.SdkGenerator.Client.VitePlugin.VirtualModulesPlugin.VirtualRoutesG (genVirtualRoutesTsx)
 import qualified Wasp.Generator.SdkGenerator.Common as C
 import qualified Wasp.Generator.WebAppGenerator.Common as WebApp
-import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeJsImport)
+import Wasp.JsImport (JsImportName (JsImportField), JsImportPath (RawImportName), makeValueJsImport)
 
 getVirtualModulesPlugin :: AppSpec -> Generator [FileDraft]
 getVirtualModulesPlugin spec =
@@ -56,12 +56,6 @@ getVirtualModulesTs =
           "ssrEntryPointPath" .= ssrEntryPointPath
         ]
 
-routeObjectsImportJson :: Value
-routeObjectsImportJson =
-  jsImportToImportJson $
-    Just $
-      makeJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")
-
 genVirtualClientEntryTsx :: AppSpec -> Generator FileDraft
 genVirtualClientEntryTsx spec =
   return $
@@ -86,3 +80,9 @@ genVirtualSsrEntryTsx spec =
           "spaFallbackFile" .= spaFallbackFile,
           "baseDir" .= SP.fromAbsDirP (WebApp.getBaseDir spec)
         ]
+
+routeObjectsImportJson :: Value
+routeObjectsImportJson =
+  jsImportToImportJson $
+    Just $
+      makeValueJsImport (RawImportName routesEntryPointPath) (JsImportField "routeObjects")

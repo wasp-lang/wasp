@@ -8,18 +8,14 @@ import Control.Monad.IO.Class (liftIO)
 import System.Environment (getExecutablePath)
 import Wasp.Cli.Command (Command, CommandError (CommandError))
 import Wasp.Cli.Command.Install (installIfNeeded)
-import Wasp.Cli.Command.Require
-  ( InWaspProject (InWaspProject),
-    WaspConfigAvailable (WaspConfigAvailable),
-    require,
-  )
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import qualified Wasp.Project.Deployment
 
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
   InWaspProject waspProjectDir <- require
   installIfNeeded
-  WaspConfigAvailable <- require
+  WaspSpecAvailable <- require
   deployResult <- liftIO $ do
     -- `getExecutablePath` has some caveats:
     --   https://frasertweedale.github.io/blog-fp/posts/2022-05-10-improved-executable-path-queries.html

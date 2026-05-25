@@ -36,14 +36,14 @@ const config: Config = {
   onBrokenLinks: "throw",
   onBrokenAnchors: "throw",
   onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
+  favicon: "img/favicon.svg",
   themeConfig: {
     announcementBar: {
-      id: "design-aithon",
+      id: "app-in-production",
       content:
         '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
-      backgroundColor: "#8b5cf6",
-      textColor: "#fff",
+      backgroundColor: "#111",
+      textColor: "#f5c842",
       isCloseable: false,
     },
 
@@ -63,10 +63,10 @@ const config: Config = {
       },
     },
     navbar: {
-      title: "Wasp (beta)",
+      title: "Wasp",
       logo: {
         alt: "Wasp logo",
-        src: "img/wasp-logo-eqpar-circle.png",
+        src: "img/wasp-logo.svg",
         href: "https://wasp.sh/",
         target: "_self",
       },
@@ -275,7 +275,7 @@ const config: Config = {
       },
     ],
 
-    async function myPlugin(context, options) {
+    async function tailwindPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -290,6 +290,14 @@ const config: Config = {
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {
     mermaid: true,
+    mdx1Compat: {
+      admonitions: true,
+      comments: true,
+      headingIds: true,
+    },
+  },
+  future: {
+    v4: true,
   },
 };
 

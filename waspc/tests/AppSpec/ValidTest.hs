@@ -129,7 +129,6 @@ spec_AppSpecValid = do
       let validAppAuth =
             AS.Auth.Auth
               { AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                AS.Auth.externalAuthEntity = Nothing,
                 AS.Auth.methods =
                   AS.Auth.AuthMethods
                     { AS.Auth.usernameAndPassword = Just AS.Auth.UsernameAndPasswordConfig {AS.Auth.userSignupFields = Nothing},
@@ -190,7 +189,6 @@ spec_AppSpecValid = do
                                 AS.Auth.Auth
                                   { AS.Auth.methods = authMethods,
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
@@ -363,7 +361,6 @@ spec_AppSpecValid = do
                                   { AS.Auth.methods =
                                       AS.Auth.AuthMethods {email = Just emailAuthConfig, usernameAndPassword = Nothing, slack = Nothing, discord = Nothing, google = Nothing, keycloak = Nothing, gitHub = Nothing, microsoft = Nothing},
                                     AS.Auth.userEntity = AS.Core.Ref.Ref userEntityName,
-                                    AS.Auth.externalAuthEntity = Nothing,
                                     AS.Auth.onAuthFailedRedirectTo = "/",
                                     AS.Auth.onAuthSucceededRedirectTo = Nothing,
                                     AS.Auth.onBeforeSignup = Nothing,
@@ -623,6 +620,7 @@ spec_AppSpecValid = do
           AS.packageJson =
             Npm.PackageJson.PackageJson
               { Npm.PackageJson.name = "testApp",
+                Npm.PackageJson.version = Nothing,
                 Npm.PackageJson.dependencies = M.empty,
                 Npm.PackageJson.devDependencies = M.empty,
                 Npm.PackageJson.workspaces = Just $ S.toList NW.requiredWorkspaceGlobs,
@@ -655,7 +653,8 @@ spec_AppSpecValid = do
         { AS.Page.component =
             AS.ExtImport.ExtImport
               (AS.ExtImport.ExtImportModule "Home")
-              (fromJust $ SP.parseRelFileP "pages/Main"),
+              (fromJust $ SP.parseRelFileP "pages/Main")
+              Nothing,
           AS.Page.authRequired = Nothing
         }
 
@@ -762,3 +761,4 @@ spec_AppSpecValid = do
       AS.ExtImport.ExtImport
         (AS.ExtImport.ExtImportModule "Dummy")
         (fromJust $ SP.parseRelFileP "dummy/File")
+        Nothing

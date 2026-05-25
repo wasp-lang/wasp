@@ -1,3 +1,5 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Wasp.Cli.Command.Compile
   ( compileIO,
     compile,
@@ -21,7 +23,7 @@ import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -41,8 +43,7 @@ compile = do
   -- add make externalCodeDirPath a helper function, along with any others we typically need.
   InWaspProject waspProjectDir <- require
   installIfNeeded
-  WaspConfigAvailable <- require
-
+  WaspSpecAvailable <- require
   compileWithOptions $ defaultCompileOptions waspProjectDir
 
 -- | Compiles Wasp project that the current working directory is part of.
@@ -136,7 +137,7 @@ compileIOWithOptions options waspProjectDir outDir =
 defaultCompileOptions :: Path' Abs (Dir WaspProjectDir) -> CompileOptions
 defaultCompileOptions waspProjectDir =
   CompileOptions
-    { waspProjectDirPath = waspProjectDir,
+    { waspProjectDir,
       buildType = BuildType.Development,
       sendMessage = cliSendMessage,
       generatorWarningsFilter = id

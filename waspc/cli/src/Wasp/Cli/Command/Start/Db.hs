@@ -22,7 +22,7 @@ import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
@@ -42,7 +42,7 @@ start :: Arguments -> Command ()
 start = withArguments "wasp start db" startDbArgsParser $ \args -> do
   InWaspProject waspProjectDir <- require
   installIfNeeded
-  WaspConfigAvailable <- require
+  WaspSpecAvailable <- require
   appSpec <- analyze waspProjectDir
 
   throwIfCustomDbAlreadyInUse appSpec

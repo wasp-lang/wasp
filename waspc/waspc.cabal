@@ -28,13 +28,12 @@ data-files:
   Cli/starters/**/*.js
   Cli/starters/**/*.json
   Cli/starters/**/*.md
+  Cli/starters/**/*.mjs
   Cli/starters/**/*.prisma
   Cli/starters/**/*.svg
   Cli/starters/**/*.ts
   Cli/starters/**/*.tsx
-  Cli/starters/**/*.wasp
   Cli/starters/basic/.prettierignore
-  Cli/starters/basic/.prettierrc
   Cli/starters/skeleton/.waspignore
   Cli/starters/skeleton/.wasproot
   Cli/starters/skeleton/gitignore
@@ -63,6 +62,11 @@ data-files:
   packages/prisma/dist/**/*.js
   packages/prisma/package-lock.json
   packages/prisma/package.json
+  packages/spec/dist/**/*.d.ts
+  packages/spec/dist/**/*.js
+  packages/spec/dist/**/*.map
+  packages/spec/package-lock.json
+  packages/spec/package.json
   packages/studio/dist/**/*.css
   packages/studio/dist/**/*.html
   packages/studio/dist/**/*.js
@@ -71,11 +75,6 @@ data-files:
   packages/ts-inspect/dist/**/*.js
   packages/ts-inspect/package-lock.json
   packages/ts-inspect/package.json
-  packages/wasp-config/dist/**/*.d.ts
-  packages/wasp-config/dist/**/*.js
-  packages/wasp-config/dist/**/*.map
-  packages/wasp-config/package-lock.json
-  packages/wasp-config/package.json
 
 data-dir: data/
 
@@ -100,6 +99,8 @@ common common-all
     FlexibleContexts
     LambdaCase
     MultiParamTypeClasses
+    NamedFieldPuns
+    OverloadedRecordDot
     OverloadedStrings
     QuasiQuotes
     ScopedTypeVariables
@@ -278,6 +279,7 @@ library
     Wasp.Error
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
+    Wasp.ExternalConfig.Npm.PackageJson.DepValidators
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
@@ -402,8 +404,11 @@ library
     Wasp.Project.Env
     Wasp.Project.ExternalConfig
     Wasp.Project.ExternalConfig.PackageJson
+    Wasp.Project.ExternalConfig.RootTsConfig
+    Wasp.Project.ExternalConfig.SrcTsConfig
     Wasp.Project.ExternalConfig.TsConfig
     Wasp.Project.ExternalConfig.ViteConfig
+    Wasp.Project.ExternalConfig.WaspTsConfig
     Wasp.Project.ExternalFiles
     Wasp.Project.Studio
     Wasp.Project.WaspFile
@@ -705,6 +710,7 @@ test-suite waspc-tests
     EnvTest
     ErrorTest
     ExternalConfig.Npm.NpmDependenciesTest
+    ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest
     Fixtures
     Generator.AuthInjectionTest
@@ -717,13 +723,16 @@ test-suite waspc-tests
     Generator.FileDraft.TemplateFileDraftTest
     Generator.JsImportTest
     Generator.MockWriteableMonad
-    Generator.Valid.PackageJsonTest
     Generator.WriteFileDraftsTest
     JsImportTest
     Node.InternalTest
     Paths_waspc
     Project.DbTest
-    Project.ExternalConfigTest
+    Project.ExternalConfig.PackageJsonTest
+    Project.ExternalConfig.RootTsConfigTest
+    Project.ExternalConfig.SrcTsConfigTest
+    Project.ExternalConfig.TsConfigTest
+    Project.ExternalConfig.WaspTsConfigTest
     Project.WaspignoreTest
     Psl.Common.ModelTest
     Psl.Generator.ModelTest
@@ -823,6 +832,7 @@ test-suite waspc-e2e-tests
     base,
     base64-bytestring,
     bytestring,
+    cli-lib,
     dir-traverse ^>=0.2.3,
     directory,
     filepath,
@@ -862,8 +872,11 @@ test-suite waspc-e2e-tests
     Tests.WaspDepsTest
     Tests.WaspDockerfileTest
     Tests.WaspInfoTest
+    Tests.WaspInstallTest
     Tests.WaspNewTest
+    Tests.WaspSpecAvailableTest
     Tests.WaspStartTest
     Tests.WaspStudioTest
     Tests.WaspTelemetryTest
+    Tests.WaspTsSpecNodeEnvTest
     Tests.WaspVersionTest

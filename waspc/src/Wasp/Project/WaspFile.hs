@@ -15,6 +15,7 @@ import StrongPath
   )
 import qualified Wasp.AppSpec as AS
 import Wasp.AppSpec.Core.Decl.JSON ()
+import Wasp.CompileOptions (CompileOptions)
 import Wasp.Project.Common
   ( CompileError,
     WaspFilePath (..),
@@ -59,10 +60,10 @@ isWaspTsProject projectDir =
     _ -> return False
 
 analyzeWaspFile ::
-  Path' Abs (Dir WaspProjectDir) ->
+  CompileOptions ->
   Psl.Schema.Schema ->
   WaspFilePath ->
   IO (Either [CompileError] [AS.Decl])
-analyzeWaspFile waspDir prismaSchemaAst = \case
+analyzeWaspFile compileOptions prismaSchemaAst = \case
   WaspLang waspFilePath -> analyzeWaspLangFile prismaSchemaAst waspFilePath
-  WaspTs waspFilePath -> analyzeWaspTsFile waspDir prismaSchemaAst waspFilePath
+  WaspTs waspFilePath -> analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath

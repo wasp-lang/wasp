@@ -1,3 +1,5 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Wasp.Cli.Command.Build
   ( build,
   )
@@ -18,22 +20,23 @@ import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Install (installIfNeeded)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspConfigAvailable (WaspConfigAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
     generatedAppDirInWaspProjectDir,
-    getSrcTsConfigInWaspProjectDir,
+    getTsConfigPathsForWaspProject,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    srcTsConfig,
     userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
@@ -51,7 +54,7 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
   installIfNeeded
-  WaspConfigAvailable <- require
+  WaspSpecAvailable <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
@@ -84,7 +87,7 @@ build = do
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
-      let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+      let srcTsConfigPath = srcTsConfig $ getTsConfigPathsForWaspProject waspFilePath
 
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
       -- we're copying all files and folders necessary for Docker build into the .wasp/out directory.
@@ -123,36 +126,36 @@ build = do
 
       -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
       -- We should remove this code once we implement a proper solution.
-      ExceptT $ updateJsonFile removeWaspConfigFromDevDependenciesArray packageJsonInBuildDir
-      ExceptT $ updateJsonFile removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonInBuildDir
+      ExceptT $ updateJsonFile removeWaspSpecFromDevDependenciesArray packageJsonInBuildDir
+      ExceptT $ updateJsonFile removeAllMentionsOfWaspSpecInPackageLockJson packageLockJsonInBuildDir
 
-    removeAllMentionsOfWaspConfigInPackageLockJson :: Value -> Value
-    removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonObject =
+    removeAllMentionsOfWaspSpecInPackageLockJson :: Value -> Value
+    removeAllMentionsOfWaspSpecInPackageLockJson packageLockJsonObject =
       -- We want to:
-      --   1. Remove the `wasp-config` dev dependency from the root package in package-lock.json.
-      --   This is at `packageLock["packages"][""]["wasp-config"]`.
-      --   2. Remove all package location entries for the `wasp-config` package
-      --   (i.e., entries whose location keys end in `/wasp-config`).
+      --   1. Remove the `@wasp.sh/spec` dev dependency from the root package in package-lock.json.
+      --   This is at `packageLock["packages"][""]["@wasp.sh/spec"]`.
+      --   2. Remove all package location entries for the `@wasp.sh/spec` package
+      --   (i.e., entries whose location keys end in `/@wasp.sh/spec`).
       --   Example locations include:
-      --      packageLock["packages"]["../../data/packages/wasp-config"]
-      --      packageLock["packages"]["node_modules/wasp-config"]
-      --      packageLock["packages"]["/home/filip/../wasp-config"]
+      --      packageLock["packages"]["../../data/packages/@wasp.sh/spec"]
+      --      packageLock["packages"]["node_modules/@wasp.sh/spec"]
+      --      packageLock["packages"]["/home/filip/../@wasp.sh/spec"]
       packageLockJsonObject
-        & key "packages" . key "" %~ removeWaspConfigFromDevDependenciesArray
+        & key "packages" . key "" %~ removeWaspSpecFromDevDependenciesArray
         & key "packages" . _Object
           %~ KM.filterWithKey
-            (\packageLocation _ -> not $ isWaspConfigPackageLocation (Key.toString packageLocation))
+            (\packageLocation _ -> not $ isWaspSpecPackageLocation (Key.toString packageLocation))
 
-    isWaspConfigPackageLocation :: String -> Bool
-    isWaspConfigPackageLocation packageLocation =
-      (FP.pathSeparator : waspConfigPackageName) `isSuffixOf` packageLocation
+    isWaspSpecPackageLocation :: String -> Bool
+    isWaspSpecPackageLocation packageLocation =
+      (FP.pathSeparator : waspSpecPackageName) `isSuffixOf` packageLocation
 
-    removeWaspConfigFromDevDependenciesArray :: Value -> Value
-    removeWaspConfigFromDevDependenciesArray original =
-      original & key "devDependencies" . _Object . at (Key.fromString waspConfigPackageName) .~ Nothing
+    removeWaspSpecFromDevDependenciesArray :: Value -> Value
+    removeWaspSpecFromDevDependenciesArray original =
+      original & key "devDependencies" . _Object . at (Key.fromString waspSpecPackageName) .~ Nothing
 
-    waspConfigPackageName :: String
-    waspConfigPackageName = getInstallablePackageName WaspConfigPackage
+    waspSpecPackageName :: String
+    waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -162,7 +165,7 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
   where
     options =
       CompileOptions
-        { waspProjectDirPath = waspProjectDir,
+        { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
           -- Ignore "DB needs migration warnings" during build, as that is not a required step.

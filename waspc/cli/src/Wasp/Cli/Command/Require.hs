@@ -24,7 +24,7 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
-    WaspConfigAvailable (WaspConfigAvailable),
+    WaspSpecAvailable (WaspSpecAvailable),
     GeneratedAppIsProduction (GeneratedAppIsProduction),
     GeneratedAppIsDevelopment (GeneratedAppIsDevelopment),
     DbConnectionEstablished (DbConnectionEstablished),
@@ -37,7 +37,7 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Bool (bool)
 import Data.Data (Typeable)
 import Data.Maybe (fromJust)
-import StrongPath (Abs, Dir, Path', (</>))
+import StrongPath (Abs, Dir, Path')
 import qualified StrongPath as SP
 import System.Directory (doesFileExist, doesPathExist, getCurrentDirectory)
 import qualified System.FilePath as FP
@@ -45,12 +45,13 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (check
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getPackagePathInNodeModules)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
 import Wasp.Project.WaspFile (isWaspTsProject)
-import qualified Wasp.Util.IO as IOUtil
+import Wasp.Util.Terminal (styleCode)
+import qualified Wasp.Version as WV
 
 -- | Require a Wasp project to exist near the current directory. Get the
 -- project directory by pattern matching on the result of 'require':
@@ -88,23 +89,28 @@ instance Requirable InWaspProject where
               ++ " you are running this command from a Wasp project."
           )
 
--- | Require that the wasp-config package is available in node_modules (for TS projects).
--- For DSL projects, this check always passes.
-data WaspConfigAvailable = WaspConfigAvailable deriving (Typeable)
+-- | Require that the @wasp.sh/spec package is available in node_modules and that
+-- its version matches this CLI's version (for TS projects). For DSL projects,
+-- this check always passes.
+data WaspSpecAvailable = WaspSpecAvailable deriving (Typeable)
 
-instance Requirable WaspConfigAvailable where
+instance Requirable WaspSpecAvailable where
   checkRequirement = do
     InWaspProject waspProjectDir <- require
     isTsProject <- liftIO $ isWaspTsProject waspProjectDir
-    when isTsProject $ do
-      let waspConfigInNodeModules = waspProjectDir </> getPackagePathInNodeModules WaspConfigPackage
-      exists <- liftIO $ IOUtil.doesDirectoryExist waspConfigInNodeModules
-      unless exists $
-        throwError $
-          CommandError
-            "Missing dependencies in project"
-            "Your project is missing some dependencies. Run `wasp install` to install them."
-    return WaspConfigAvailable
+    when isTsProject $ ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
+    return WaspSpecAvailable
+    where
+      ensureInstalledWaspSpecMatchesCliVersion waspProjectDir =
+        liftIO (tryGettingInstalledPackageVersion waspProjectDir WaspSpecPackage) >>= \case
+          Left _ -> throwError missingDepsError
+          Right installedWaspSpecVersion
+            | installedWaspSpecVersion == WV.waspVersion -> return ()
+            | otherwise -> throwError missingDepsError
+      missingDepsError =
+        CommandError
+          "Missing or stale dependencies in project"
+          $ "Your project dependencies are out of date. Run " ++ styleCode "wasp install" ++ " to fix this."
 
 data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 
