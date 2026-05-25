@@ -23,15 +23,18 @@ import FileSystem
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
+    snapshotLogFileInSnapshotsDir,
   )
+import GHC.IO.Handle (hDuplicate)
 import ShellCommands (ShellCommand, ShellCommandBuilder, SnapshotTestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
-import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
+import StrongPath (Abs, Dir, File, File', Path', parseRelDir, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.Exit (ExitCode (..))
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeFileName)
-import System.Process (CreateProcess (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
+import System.IO (IOMode (AppendMode), openFile)
+import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
 
@@ -66,9 +69,10 @@ prepareSnapshotTestData snapshotTest = do
   let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Golden
       currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Current
       currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
+      logFile = snapshotsDir </> snapshotLogFileInSnapshotsDir snapshotTest.name
 
   setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
-  executeSnapshotTestCommand snapshotTest currentSnapshotDir
+  executeSnapshotTestCommand snapshotTest currentSnapshotDir logFile
   generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
   currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
 
@@ -100,12 +104,14 @@ setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
   callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
   callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
-executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO ()
-executeSnapshotTestCommand snapshotTest snapshotDir = do
-  putStrLn $ "Executing snapshot test: " ++ snapshotTest.name
-  putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommandInProcessGroup $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> Path' Abs File' -> IO ()
+executeSnapshotTestCommand snapshotTest snapshotDir logFile = do
+  writeLogHeader logFile snapshotTest.name fullCommand
+  callCommandInProcessGroup fullCommand logFile
   where
+    fullCommand :: ShellCommand
+    fullCommand = "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTest.shellCommandBuilder
 
@@ -118,6 +124,17 @@ executeSnapshotTestCommand snapshotTest snapshotDir = do
         { waspProjectDir = snapshotDir </> (fromJust . parseRelDir $ "wasp-app"),
           waspProjectName = "wasp-app"
         }
+
+writeLogHeader :: Path' Abs File' -> String -> ShellCommand -> IO ()
+writeLogHeader logFile testName command =
+  writeFile (SP.fromAbsFile logFile) $
+    unlines
+      [ "=== Snapshot test: " ++ testName ++ " ===",
+        "=== Command ===",
+        command,
+        "=== Output ===",
+        ""
+      ]
 
 generateSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> IO ()
 generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
@@ -248,14 +265,24 @@ isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirecto
 -- | Interruptible version of callCommand that terminates the entire process tree on async exception.
 -- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
 -- all child processes are also terminated rather than continuing to run.
-callCommandInProcessGroup :: String -> IO ()
-callCommandInProcessGroup cmd =
+-- The command's stdout and stderr are redirected to the given log file (interleaved).
+callCommandInProcessGroup :: String -> Path' Abs File' -> IO ()
+callCommandInProcessGroup cmd logFile = do
+  logOut <- openFile (SP.fromAbsFile logFile) AppendMode
+  logErr <- hDuplicate logOut
   bracket
-    (createProcess (shell cmd) {create_group = True})
+    ( createProcess
+        (shell cmd)
+          { create_group = True,
+            std_out = UseHandle logOut,
+            std_err = UseHandle logErr
+          }
+    )
     (\(_, _, _, ph) -> interruptProcessGroupOf ph)
     ( \(_, _, _, ph) -> do
         exitCode <- waitForProcess ph
         case exitCode of
           ExitSuccess -> return ()
-          ExitFailure code -> fail $ "Command failed with exit code " ++ show code ++ ": " ++ cmd
+          ExitFailure code ->
+            fail $ "Command failed with exit code " ++ show code ++ ". See log: " ++ SP.fromAbsFile logFile
     )

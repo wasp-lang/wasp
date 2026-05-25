@@ -8,10 +8,12 @@ module Test
 where
 
 import Data.Maybe (fromJust)
-import FileSystem (TestCaseDir, getTestCaseDir)
+import FileSystem (TestCaseDir, getTestCaseDir, testCaseLogFileInTestCaseDir)
+import GHC.IO.Handle (hDuplicate)
 import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
-import StrongPath (Abs, Dir, Path', fromAbsDir, parseRelDir, (</>))
+import StrongPath (Abs, Dir, File', Path', fromAbsDir, fromAbsFile, parseRelDir, (</>))
 import System.Exit (ExitCode (..))
+import System.IO (IOMode (AppendMode), openFile)
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
 import Test.Hspec (Spec, expectationFailure, it)
 import Test.Tasty (TestTree)
@@ -37,15 +39,14 @@ testTreeFromTest test = do
       it testCase.name $ do
         testCaseDir <- getTestCaseDir test.name testCase.name
         let testCaseCommand = createTestCaseCommand testCaseDir testCase
+            logFile = testCaseDir </> testCaseLogFileInTestCaseDir
 
         setupTestCase testCaseDir
-
-        putStrLn $ "Executing test case: " ++ test.name ++ "/" ++ testCase.name
-        putStrLn $ "Command: " ++ testCaseCommand
-        exitCode <- executeTestCaseCommand testCaseDir testCaseCommand
+        writeLogHeader logFile (test.name ++ " / " ++ testCase.name) testCaseCommand
+        exitCode <- executeTestCaseCommand testCaseDir testCaseCommand logFile
 
         case exitCode of
-          ExitFailure _ -> expectationFailure $ "Command failed: " ++ testCaseCommand
+          ExitFailure _ -> expectationFailure $ "Command failed. See log: " ++ fromAbsFile logFile
           ExitSuccess -> return ()
 
 createTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> TestCase -> ShellCommand
@@ -64,14 +65,27 @@ setupTestCase testCaseDir = do
   callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
   callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
 
-executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> IO ExitCode
-executeTestCaseCommand testCaseDir testCaseCommand = do
+writeLogHeader :: Path' Abs File' -> String -> ShellCommand -> IO ()
+writeLogHeader logFile testName command =
+  writeFile (fromAbsFile logFile) $
+    unlines
+      [ "=== Test: " ++ testName ++ " ===",
+        "=== Command ===",
+        command,
+        "=== Output ===",
+        ""
+      ]
+
+executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> Path' Abs File' -> IO ExitCode
+executeTestCaseCommand testCaseDir testCaseCommand logFile = do
+  logOut <- openFile (fromAbsFile logFile) AppendMode
+  logErr <- hDuplicate logOut
   (_, _, _, processHandle) <-
     createProcess
       (shell testCaseCommand)
         { cwd = Just $ fromAbsDir testCaseDir,
           std_in = Inherit,
-          std_out = Inherit,
-          std_err = Inherit
+          std_out = UseHandle logOut,
+          std_err = UseHandle logErr
         }
   waitForProcess processHandle
