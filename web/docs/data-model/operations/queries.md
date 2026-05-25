@@ -217,7 +217,7 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
     If you don't need the context, you can skip specifying the Query's type (and arguments):
 
     ```typescript
-    const getFoo = () => {{ name: 'Foo', date: new Date() }}
+    const getFoo = () => ({ name: 'Foo', date: new Date() })
     ```
 
     :::
