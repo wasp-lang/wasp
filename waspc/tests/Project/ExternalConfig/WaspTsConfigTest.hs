@@ -47,7 +47,7 @@ validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
     { T.compilerOptions = Just validCompilerOptions,
-      T.include = Just ["main.wasp.ts", "**/*.wasp.ts", ".wasp/out/spec-types"],
+      T.include = Just ["main.wasp.ts", "**/*.wasp.ts", ".wasp/out/types/spec"],
       T.exclude = Nothing,
       T.files = Nothing,
       T.references = Nothing

@@ -15,15 +15,18 @@ import Wasp.NodePackageFFI (InstallablePackage (..), getInstallablePackageName)
 
 genSpecTypes :: AppSpec -> Generator [FileDraft]
 genSpecTypes spec =
-  return
-    [ mkTmplFdWithData
-        [relfile|register.ts|]
-        ( object
-            [ "entities" .= entities,
-              "waspSpecPackageName" .= waspSpecPackageName
-            ]
-        )
-    ]
+  if null entities
+    then return []
+    else
+      return
+        [ mkTmplFdWithData
+            [relfile|register.ts|]
+            ( object
+                [ "entities" .= entities,
+                  "waspSpecPackageName" .= waspSpecPackageName
+                ]
+            )
+        ]
   where
     entities = map (makeJsonWithEntityData . fst) $ getEntities spec
 
@@ -56,7 +59,7 @@ mkTmplFdWithDstAndData relSrcPath relDstPath tmplData =
     tmplData
 
 specTypesRootDirInGeneratedCodeDir :: Path' (Rel GeneratedAppDir) (Dir SpecTypesRootDir)
-specTypesRootDirInGeneratedCodeDir = [reldir|spec-types|]
+specTypesRootDirInGeneratedCodeDir = [reldir|types/spec|]
 
 specTypesTemplatesDirInTemplatesDir :: Path' (Rel TemplatesDir) (Dir SpecTypesTemplatesDir)
-specTypesTemplatesDirInTemplatesDir = [reldir|spec-types|]
+specTypesTemplatesDirInTemplatesDir = [reldir|types/spec|]
