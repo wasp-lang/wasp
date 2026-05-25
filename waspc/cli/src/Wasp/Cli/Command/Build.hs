@@ -11,7 +11,7 @@ import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
-import Data.Aeson.Lens (_Object, key)
+import Data.Aeson.Lens (key, _Object)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
@@ -129,7 +129,7 @@ build = do
       -- https://github.com/wasp-lang/wasp/issues/2368.
       -- It's simpler because we let `npm install` to drop orphans from the lockfile
       -- instead of pruning them manually.
-      -- 
+      --
       -- This relies on `npm install` (not `npm ci`) being used in the Dockerfile.
       -- The proper fix is tracked in https://github.com/wasp-lang/wasp/issues/1769.
       ExceptT $ updateJsonFile removeWaspSpecFromDevDependencies packageJsonInBuildDir
