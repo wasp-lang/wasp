@@ -1,10 +1,10 @@
 diff --git a/schema.prisma b/schema.prisma
-index 65d7d30..76c3741 100644
+index f7885aa..9a2d4ef 100644
 --- a/schema.prisma
 +++ b/schema.prisma
 @@ -14,3 +14,7 @@ model Task {
-   description String
-   isDone      Boolean @default(false)
+     description String
+     isDone      Boolean @default(false)
  }
 +
 +model User {
