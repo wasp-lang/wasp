@@ -8,9 +8,9 @@ module Test
 where
 
 import Data.Maybe (fromJust)
-import FileSystem (TestCaseDir, getTestCaseDir, testCaseLogFileInTestCaseDir)
+import FileSystem (TestCaseDir, TestLogFile, getTestCaseDir, testCaseLogFileInTestCaseDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
-import StrongPath (Abs, Dir, File', Path', fromAbsDir, fromAbsFile, parseRelDir, (</>))
+import StrongPath (Abs, Dir, File, Path', fromAbsDir, fromAbsFile, parseRelDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
 import Test.Hspec (Spec, expectationFailure, it)
@@ -45,7 +45,8 @@ testTreeFromTest test = do
         exitCode <- executeTestCaseCommand testCaseDir testCaseCommand logFile testName
 
         case exitCode of
-          ExitFailure _ -> expectationFailure $ "Command failed. See log: " ++ fromAbsFile logFile
+          ExitFailure code ->
+            expectationFailure $ "Command failed with exit code " ++ show code ++ ". See log: " ++ fromAbsFile logFile
           ExitSuccess -> return ()
 
 createTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> TestCase -> ShellCommand
@@ -64,7 +65,7 @@ setupTestCase testCaseDir = do
   callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
   callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
 
-executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> Path' Abs File' -> String -> IO ExitCode
+executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> Path' Abs (File TestLogFile) -> String -> IO ExitCode
 executeTestCaseCommand testCaseDir testCaseCommand logFile testName = do
   (logOut, logErr) <- openLogForCommand logFile testName testCaseCommand
   (_, _, _, processHandle) <-

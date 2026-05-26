@@ -8,6 +8,7 @@ module FileSystem
     mainWaspTsFileInWaspProjectDir,
     seedsFileInSeedsDir,
     TestOutputsDir,
+    TestLogFile,
     TestCaseDir,
     testCaseDirInTestOutputsDir,
     testCaseLogFileInTestCaseDir,
@@ -78,6 +79,8 @@ mainWaspFileInWaspProjectDir = [relfile|main.wasp|]
 mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 mainWaspTsFileInWaspProjectDir = [relfile|main.wasp.ts|]
 
+data TestLogFile
+
 -- 'Test' tests file system
 
 -- | A directory inside the 'TestOutputsDir' where outputs of a specific e2e test case are stored.
@@ -92,7 +95,7 @@ getTestCaseDir testName testCaseName = do
 testCaseDirInTestOutputsDir :: String -> String -> Path' (Rel TestOutputsDir) (Dir TestCaseDir)
 testCaseDirInTestOutputsDir testName testCaseName = fromJust . parseRelDir $ joinPath [testName, testCaseName]
 
-testCaseLogFileInTestCaseDir :: Path' (Rel TestCaseDir) File'
+testCaseLogFileInTestCaseDir :: Path' (Rel TestCaseDir) (File TestLogFile)
 testCaseLogFileInTestCaseDir = [relfile|output.log|]
 
 -- 'SnapshotTest' tests file system
@@ -130,7 +133,7 @@ snapshotDirInSnapshotsDir snapshotTestName snapshotType = (fromJust . parseRelDi
 
 -- | A log file for a snapshot test, kept as a sibling of the snapshot dir so
 -- it doesn't pollute the snapshot's file-list / content comparison against golden.
-snapshotLogFileInSnapshotsDir :: String -> Path' (Rel SnapshotsDir) File'
+snapshotLogFileInSnapshotsDir :: String -> Path' (Rel SnapshotsDir) (File TestLogFile)
 snapshotLogFileInSnapshotsDir snapshotTestName = fromJust . parseRelFile $ snapshotTestName ++ ".log"
 
 snapshotFileListManifestFileInSnapshotDir :: Path' (Rel SnapshotDir) (File SnapshotFileListManifestFile)

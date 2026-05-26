@@ -20,13 +20,14 @@ import FileSystem
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
+    TestLogFile,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
     snapshotLogFileInSnapshotsDir,
   )
 import ShellCommands (ShellCommand, ShellCommandBuilder, SnapshotTestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
-import StrongPath (Abs, Dir, File, File', Path', parseRelDir, (</>))
+import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
 import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
@@ -103,7 +104,7 @@ setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
   callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
   callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
-executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> Path' Abs File' -> IO ()
+executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> Path' Abs (File TestLogFile) -> IO ()
 executeSnapshotTestCommand snapshotTest snapshotDir logFile =
   callCommandInProcessGroup fullCommand logFile snapshotTest.name
   where
@@ -252,7 +253,7 @@ isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirecto
 -- | Interruptible version of callCommand that terminates the entire process tree on async exception.
 -- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
 -- all child processes are also terminated rather than continuing to run.
-callCommandInProcessGroup :: String -> Path' Abs File' -> String -> IO ()
+callCommandInProcessGroup :: String -> Path' Abs (File TestLogFile) -> String -> IO ()
 callCommandInProcessGroup cmd logFile testName = do
   (logOut, logErr) <- openLogForCommand logFile testName cmd
   bracket
