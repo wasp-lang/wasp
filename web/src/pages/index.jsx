@@ -13,6 +13,7 @@ import Properties from "../components/Properties";
 import Roadmap from "../components/Roadmap";
 import ShowcaseGallery from "../components/ShowcaseGallery";
 import Testimonials from "../components/Testimonials";
+import WaspOutThere from "../components/WaspOutThere";
 
 import waspCoverPhoto from "../../static/img/wasp_twitter_cover.png";
 import "./index.css";
@@ -51,6 +52,7 @@ const Index = () => {
             <Hero />
             <Properties />
             <FeaturesExplorer />
+            <WaspOutThere />
             <HowItWorks />
             <ExampleWaspApps />
             <Testimonials />
