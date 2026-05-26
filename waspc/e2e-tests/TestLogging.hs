@@ -1,4 +1,4 @@
-module TestLogging (openLogForCommand) where
+module TestLogging (openLogForCommand, formatCommandFailure) where
 
 import FileSystem (TestLogFile)
 import GHC.IO.Handle (hDuplicate)
@@ -19,3 +19,13 @@ openLogForCommand logFile testName command = do
   hFlush hOut
   hErr <- hDuplicate hOut
   return (hOut, hErr)
+
+formatCommandFailure :: Int -> Path' Abs (File TestLogFile) -> IO String
+formatCommandFailure exitCode logFile = do
+  logContent <- readFile (fromAbsFile logFile)
+  return $
+    unlines
+      [ "Command failed with exit code " ++ show exitCode ++ ". See log: " ++ fromAbsFile logFile,
+        "=== Log content ===",
+        logContent
+      ]

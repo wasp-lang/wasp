@@ -10,13 +10,13 @@ where
 import Data.Maybe (fromJust)
 import FileSystem (TestCaseDir, TestLogFile, getTestCaseDir, testCaseLogFileInTestCaseDir)
 import ShellCommands (ShellCommand, ShellCommandBuilder, TestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
-import StrongPath (Abs, Dir, File, Path', fromAbsDir, fromAbsFile, parseRelDir, (</>))
+import StrongPath (Abs, Dir, File, Path', fromAbsDir, parseRelDir, (</>))
 import System.Exit (ExitCode (..))
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, shell, waitForProcess)
 import Test.Hspec (Spec, expectationFailure, it)
 import Test.Tasty (TestTree)
 import Test.Tasty.Hspec (testSpec)
-import TestLogging (openLogForCommand)
+import TestLogging (formatCommandFailure, openLogForCommand)
 
 data Test = Test
   { name :: String,
@@ -38,15 +38,13 @@ testTreeFromTest test = do
       it testCase.name $ do
         testCaseDir <- getTestCaseDir test.name testCase.name
         let testCaseCommand = createTestCaseCommand testCaseDir testCase
-            logFile = testCaseDir </> testCaseLogFileInTestCaseDir
             testName = test.name ++ " / " ++ testCase.name
 
         setupTestCase testCaseDir
-        exitCode <- executeTestCaseCommand testCaseDir testCaseCommand logFile testName
+        (exitCode, logFile) <- executeTestCaseCommand testCaseDir testCaseCommand testName
 
         case exitCode of
-          ExitFailure code ->
-            expectationFailure $ "Command failed with exit code " ++ show code ++ ". See log: " ++ fromAbsFile logFile
+          ExitFailure code -> expectationFailure =<< formatCommandFailure code logFile
           ExitSuccess -> return ()
 
 createTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> TestCase -> ShellCommand
@@ -65,8 +63,9 @@ setupTestCase testCaseDir = do
   callCommand $ "rm -rf " ++ fromAbsDir testCaseDir
   callCommand $ "mkdir -p " ++ fromAbsDir testCaseDir
 
-executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> Path' Abs (File TestLogFile) -> String -> IO ExitCode
-executeTestCaseCommand testCaseDir testCaseCommand logFile testName = do
+executeTestCaseCommand :: Path' Abs (Dir TestCaseDir) -> ShellCommand -> String -> IO (ExitCode, Path' Abs (File TestLogFile))
+executeTestCaseCommand testCaseDir testCaseCommand testName = do
+  let logFile = testCaseDir </> testCaseLogFileInTestCaseDir
   (logOut, logErr) <- openLogForCommand logFile testName testCaseCommand
   (_, _, _, processHandle) <-
     createProcess
@@ -76,4 +75,5 @@ executeTestCaseCommand testCaseDir testCaseCommand logFile testName = do
           std_out = UseHandle logOut,
           std_err = UseHandle logErr
         }
-  waitForProcess processHandle
+  exitCode <- waitForProcess processHandle
+  return (exitCode, logFile)

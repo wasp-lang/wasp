@@ -36,7 +36,7 @@ import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirecto
 import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
-import TestLogging (openLogForCommand)
+import TestLogging (formatCommandFailure, openLogForCommand)
 
 data SnapshotTest = SnapshotTest
   { name :: String,
@@ -269,6 +269,5 @@ callCommandInProcessGroup cmd logFile testName = do
         exitCode <- waitForProcess ph
         case exitCode of
           ExitSuccess -> return ()
-          ExitFailure code ->
-            fail $ "Command failed with exit code " ++ show code ++ ". See log: " ++ SP.fromAbsFile logFile
+          ExitFailure code -> fail =<< formatCommandFailure code logFile
     )
