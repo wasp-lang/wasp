@@ -145,7 +145,7 @@ Your code is now processed by TypeScript and uses several of Wasp's TypeScript-s
 
   And gives you Intellisense and type-checking. Read more about this feature [here](../data-model/operations/queries#implementing-queries).
 
-You don't need to change anything inside the Wasp Spec file.
+You don't need to change anything inside the Wasp file.
 
 ### Migrating the rest of the project
 

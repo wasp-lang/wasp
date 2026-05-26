@@ -18,7 +18,7 @@ Wasp supports username & password authentication out of the box with login and s
 
 To set up username authentication we need to:
 
-1. Enable username authentication in the Wasp Spec file
+1. Enable username authentication in the Wasp file
 2. Add the `User` entity
 3. Add the auth routes and pages
 4. Use Auth UI components in our pages

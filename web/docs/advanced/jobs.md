@@ -22,7 +22,7 @@ Wasp supports background jobs that can help you with this:
 
 Let's write an example Job that will print a message to the console and return a list of tasks from the database.
 
-1. Start by creating a Job declaration in your Wasp Spec file:
+1. Start by creating a Job declaration in your Wasp file:
 
 ```ts title="main.wasp.ts"
 import { app, job } from '@wasp.sh/spec'
@@ -200,7 +200,7 @@ All job data will be stored in a separate database schema called `pgboss`. It ha
 
 - **Renaming scheduled jobs**
 
-    The job name/identifier in your Wasp Spec file is the same name that will be used in the `name` column of `pgboss` tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `pgboss.schedule` table.
+    The job name/identifier in your Wasp file is the same name that will be used in the `name` column of `pgboss` tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `pgboss.schedule` table.
 
     For example, if you renamed a job from `emailReminder` to `sendEmailReminder`, you would need to remove the old scheduled job with the following SQL query:
 

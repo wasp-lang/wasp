@@ -22,7 +22,7 @@ Wasp supports e-mail authentication out of the box, along with email verificatio
 
 We'll need to take the following steps to set up email authentication:
 
-1. Enable email authentication in the Wasp Spec file
+1. Enable email authentication in the Wasp file
 2. Add the `User` entity
 3. Add the auth routes and pages
 4. Use Auth UI components in our pages

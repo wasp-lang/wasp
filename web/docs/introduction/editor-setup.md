@@ -7,7 +7,7 @@ slug: /editor-setup
 This page assumes you have already installed Wasp. If you do not have Wasp installed yet, check out the [Quick Start](./quick-start.md) guide.
 :::
 
-Wasp Spec files are TypeScript files, so editor support comes from your editor's regular TypeScript tooling.
+Wasp files are TypeScript files, so editor support comes from your editor's regular TypeScript tooling.
 
 ## TypeScript support
 

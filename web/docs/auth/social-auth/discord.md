@@ -25,7 +25,7 @@ Let's walk through enabling Discord Authentication, explain some of the default 
 
 Enabling Discord Authentication comes down to a series of steps:
 
-1. Enabling Discord authentication in the Wasp Spec file.
+1. Enabling Discord authentication in the Wasp file.
 2. Adding the `User` entity.
 3. Creating a Discord App.
 4. Adding the necessary Routes and Pages
@@ -33,7 +33,7 @@ Enabling Discord Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 1. Adding Discord Auth to Your Wasp Spec File
+### 1. Adding Discord Auth to Your Wasp File
 
 Let's start by properly configuring the Auth object:
 

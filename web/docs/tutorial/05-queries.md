@@ -19,7 +19,7 @@ To list the tasks, you must:
 
 ## Defining the Query
 
-We'll create a new Query called `getTasks`. We'll need to declare the Query in the Wasp Spec file and write its implementation in <ShowForJs>JS</ShowForJs><ShowForTs>TS</ShowForTs>.
+We'll create a new Query called `getTasks`. We'll need to declare the Query in the Wasp file and write its implementation in <ShowForJs>JS</ShowForJs><ShowForTs>TS</ShowForTs>.
 
 ### Declaring a Query
 

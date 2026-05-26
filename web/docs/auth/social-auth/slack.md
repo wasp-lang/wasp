@@ -26,7 +26,7 @@ Let's walk through enabling Slack Authentication, explain some quirks, explore d
 
 Enabling Slack Authentication comes down to a series of steps:
 
-1. Enabling Slack authentication in the Wasp Spec file.
+1. Enabling Slack authentication in the Wasp file.
 2. Adding the `User` entity.
 3. Creating Slack App.
 4. Adding the necessary Routes and Pages
@@ -34,7 +34,7 @@ Enabling Slack Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 1. Enabling Slack authentication in the Wasp Spec file.
+### 1. Enabling Slack authentication in the Wasp file.
 
 Now let's properly configure the Auth object:
 

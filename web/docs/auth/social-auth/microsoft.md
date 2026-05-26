@@ -40,7 +40,7 @@ We recommend choosing the least-permissive option that fits your use case, as Mi
 
 Enabling Microsoft Authentication comes down to a series of steps:
 
-1. Enabling Microsoft authentication in the Wasp Spec file.
+1. Enabling Microsoft authentication in the Wasp file.
 2. Adding the `User` entity.
 3. Creating a Microsoft Entra ID app registration.
 4. Adding the necessary Routes and Pages
@@ -48,7 +48,7 @@ Enabling Microsoft Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 1. Adding Microsoft Auth to Your Wasp Spec File
+### 1. Adding Microsoft Auth to Your Wasp File
 
 Let's start by properly configuring the Auth object:
 

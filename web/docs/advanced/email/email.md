@@ -244,7 +244,7 @@ The `send` method accepts an object with the following fields:
 
 - `from: object`
 
-  The sender's details. If you set up the `defaultFrom` field in the `emailSender` config in your Wasp Spec file, this field is optional.
+  The sender's details. If you set up the `defaultFrom` field in the `emailSender` config in your Wasp file, this field is optional.
 
   - `name: string`
 

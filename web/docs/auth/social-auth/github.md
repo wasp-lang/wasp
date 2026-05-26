@@ -26,7 +26,7 @@ Let's walk through enabling GitHub Authentication, explain some of the default s
 
 Enabling GitHub Authentication comes down to a series of steps:
 
-1. Enabling GitHub authentication in the Wasp Spec file.
+1. Enabling GitHub authentication in the Wasp file.
 2. Adding the `User` entity.
 3. Creating a GitHub OAuth app.
 4. Adding the necessary Routes and Pages
@@ -34,7 +34,7 @@ Enabling GitHub Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 1. Adding GitHub Auth to Your Wasp Spec File
+### 1. Adding GitHub Auth to Your Wasp File
 
 Let's start by properly configuring the Auth object:
 

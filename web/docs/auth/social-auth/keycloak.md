@@ -25,7 +25,7 @@ Let's walk through enabling Keycloak authentication, explain some of the default
 
 Enabling Keycloak Authentication comes down to a series of steps:
 
-1. Enabling Keycloak authentication in the Wasp Spec file.
+1. Enabling Keycloak authentication in the Wasp file.
 2. Adding the `User` entity.
 3. Creating a Keycloak client.
 4. Adding the necessary Routes and Pages
@@ -33,7 +33,7 @@ Enabling Keycloak Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 1. Adding Keycloak Auth to Your Wasp Spec File
+### 1. Adding Keycloak Auth to Your Wasp File
 
 Let's start by properly configuring the Auth object:
 

@@ -128,7 +128,7 @@ You can now delete redundant files: `src/Main.css`, `src/assets/logo.svg`, and `
 
 Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route/page pair from the `main.wasp.ts` file.
 
-Your Wasp Spec file should now look like this:
+Your Wasp file should now look like this:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from '@wasp.sh/spec'

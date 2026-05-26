@@ -93,7 +93,7 @@ Wasp also supports authentication using [Google](../auth/social-auth/google), [G
 
 ## Adding Login and Signup Pages
 
-Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp Spec file:
+Wasp creates the login and signup forms for us, but we still need to define the pages to display those forms on. We'll start by declaring the pages in the Wasp file:
 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 

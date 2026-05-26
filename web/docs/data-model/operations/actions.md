@@ -59,7 +59,7 @@ The names of Wasp Actions and their implementations don't necessarily have to ma
 :::info
 You might have noticed that we told Wasp to import Action implementations that don't yet exist. Don't worry about that for now. We'll write the implementations imported from `actions.{js,ts}` in the next section.
 
-It's a good idea to start with the high-level concept (the Action declaration in the Wasp Spec file) and only then deal with the implementation details (the Action's implementation in JavaScript).
+It's a good idea to start with the high-level concept (the Action declaration in the Wasp file) and only then deal with the implementation details (the Action's implementation in JavaScript).
 :::
 
 After declaring a Wasp Action, two important things happen:
@@ -165,7 +165,7 @@ Here's how you might implement the previously declared Actions `createTask` and 
 
     #### Type support for Actions
 
-    Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp Spec file:
+    Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp file:
 
     - `CreateTask` is a generic type that Wasp automatically generated based on the Action declaration for `createTask`.
     - `MarkTaskAsDone` is a generic type that Wasp automatically generated based on the Action declaration for `markTaskAsDone`.

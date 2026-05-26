@@ -34,7 +34,7 @@ Install the Sentry SDKs:
 npm install @sentry/node @sentry/react
 ```
 
-### 3. Configure your Wasp Spec file
+### 3. Configure your Wasp file
 
 Add both the server and client setup functions to your `main.wasp.ts`:
 

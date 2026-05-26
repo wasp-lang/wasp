@@ -13,13 +13,13 @@ We handle making sure your URLs are correctly setup, CORS is enabled, and provid
 To get started, you need to:
 
 1. Define your WebSocket logic on the server.
-2. Enable WebSockets in your Wasp Spec file, and connect it with your server logic.
+2. Enable WebSockets in your Wasp file, and connect it with your server logic.
 3. Use WebSockets on the client, in React, via `useSocket` and `useSocketListener`.
 4. Optionally, type the WebSocket events and payloads for full-stack type safety.
 
-Let's go through setting up WebSockets step by step, starting with enabling WebSockets in your Wasp Spec file.
+Let's go through setting up WebSockets step by step, starting with enabling WebSockets in your Wasp file.
 
-## Turn On WebSockets in Your Wasp Spec File
+## Turn On WebSockets in Your Wasp File
 
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
@@ -158,7 +158,7 @@ Client access to WebSockets is provided by the `useSocket` hook. It returns:
 - `socket: Socket` for sending and receiving events.
 - `isConnected: boolean` for showing a display of the Socket.IO connection status.
   - Note: Wasp automatically connects and establishes a WebSocket connection from the client to the server by default, so you do not need to explicitly `socket.connect()` or `socket.disconnect()`.
-  - If you set `autoConnect: false` in your Wasp Spec file, then you should call these as needed.
+  - If you set `autoConnect: false` in your Wasp file, then you should call these as needed.
 
 All components using `useSocket` share the same underlying `socket`.
 

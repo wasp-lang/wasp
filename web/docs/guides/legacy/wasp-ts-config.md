@@ -325,7 +325,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     }
     ```
 
-3. Make sure your `tsconfig.src.json` excludes Wasp Spec files:
+3. Make sure your `tsconfig.src.json` excludes Wasp files:
 
     ```json title="tsconfig.src.json"
     {

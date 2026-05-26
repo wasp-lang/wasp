@@ -20,7 +20,7 @@ After completing these two steps, you'll be able to call the API from the client
 
 ### Declaring the API in Wasp
 
-First, we need to declare the API in the Wasp Spec file and you can easily do this with the `api` function:
+First, we need to declare the API in the Wasp file and you can easily do this with the `api` function:
 
 ```ts title="main.wasp.ts"
 import { api, app } from '@wasp.sh/spec'
@@ -40,7 +40,7 @@ Read more about the supported fields in the [API Reference](#api-reference).
 
 <ShowForTs>
   :::note
-  To make sure the Wasp compiler generates the types for APIs for use in the NodeJS implementation, you should add your `api` declarations to your Wasp Spec file first _and_ keep the `wasp start` command running.
+  To make sure the Wasp compiler generates the types for APIs for use in the NodeJS implementation, you should add your `api` declarations to your Wasp file first _and_ keep the `wasp start` command running.
   :::
 </ShowForTs>
 
@@ -133,7 +133,7 @@ export const Foo = () => {
 
 APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do. As a result, to use these APIs on the client side, you must ensure that CORS (Cross-Origin Resource Sharing) is enabled.
 
-You can do this by defining custom middleware for your APIs in the Wasp Spec file.
+You can do this by defining custom middleware for your APIs in the Wasp file.
 
 For example, an `apiNamespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path:
 

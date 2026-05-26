@@ -43,7 +43,7 @@ Users signing in with [OAuth](./social-auth/overview.md) must authorize access b
 
 ## Using hooks
 
-To use auth hooks, you must first declare them in the Wasp Spec file:
+To use auth hooks, you must first declare them in the Wasp file:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">

@@ -27,7 +27,7 @@ In Wasp, the `schema.prisma` file is located in your project's root directory:
 
 Wasp uses the `schema.prisma` file to understand your app's data model and generate the necessary code to interact with the database.
 
-## Wasp Spec file and Prisma schema file
+## Wasp file and Prisma schema file
 
 Let's see how Wasp and Prisma files work together to define your application.
 
@@ -63,7 +63,7 @@ The `datasource` block defines which database you want to use (PostgreSQL in thi
 
 The `generator` block defines how to generate the Prisma Client code that you can use in your application to interact with the database.
 
-<ImgWithCaption alt="Relationship between Wasp Spec file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp Spec file and Prisma file" />
+<ImgWithCaption alt="Relationship between Wasp file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp file and Prisma file" />
 
 Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp.ts` file:
 
@@ -76,7 +76,7 @@ import { foo } from './src/workers/bar' with { type: "ref" }
 export default app({
   // ...
   parts: [
-    // Using Wasp Entities in the Wasp Spec file.
+    // Using Wasp Entities in the Wasp file.
     // highlight-next-line
     query(getTasks, { entities: ['Task'] }),
     job(foo, {

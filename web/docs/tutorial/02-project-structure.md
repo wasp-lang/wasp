@@ -80,7 +80,7 @@ Let's take a closer look at `main.wasp.ts`
 
 ## `main.wasp.ts`
 
-`main.wasp.ts` is your app's Wasp Spec file.
+`main.wasp.ts` is your app's Wasp file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
 The file exports your app's top-level configuration and a `parts` array. Each part defines a route, page, Query, Action, or another part of your app.

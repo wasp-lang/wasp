@@ -26,7 +26,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 All the `User` fields you defined will be present at the top level of the `AuthUser` object. The auth-related fields will be on the `identities` object. For each auth method you enable, there will be a separate data object in the `identities` object.
 
-The `AuthUser` object will change depending on which auth method you have enabled in the Wasp Spec file. For example, if you enabled the email auth and Google auth, it would look something like this:
+The `AuthUser` object will change depending on which auth method you have enabled in the Wasp file. For example, if you enabled the email auth and Google auth, it would look something like this:
 
 <Tabs>
   <TabItem value="google" label="User Signed Up with Google">

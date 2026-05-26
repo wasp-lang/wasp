@@ -35,7 +35,7 @@ At the core is the Wasp compiler which takes the Wasp Spec and your Javascript c
 
 The cool thing about having a compiler that understands your code is that it can do a lot of things for you.
 
-Define your app in the Wasp Spec file and get:
+Define your app in the Wasp file and get:
 
 - login and signup with Auth UI components,
 - full-stack type safety,
