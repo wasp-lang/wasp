@@ -20,37 +20,27 @@ npm install multer
 npm install --save-dev @types/multer
 ```
 
-### 2. Define the API endpoint in main.wasp
+### 2. Define the API endpoint in main.wasp.ts
 
 Create an API namespace with middleware configuration and the upload endpoint:
 
-```wasp title="main.wasp"
-app FileUpload {
-  wasp: {
-    version: "^0.21.0"
-  },
-  title: "file-upload",
-}
+```ts title="main.wasp.ts"
+import { api, apiNamespace, app, page, route } from '@wasp.sh/spec'
+import { configureFileUploadMiddleware, uploadFile } from './src/apis' with { type: "ref" }
+import { MainPage } from './src/MainPage' with { type: "ref" }
 
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  component: import { MainPage } from "@src/MainPage"
-}
-
-// highlight-start
-apiNamespace fileUploadMiddleware {
-  middlewareConfigFn: import { addMiddleware } from "@src/apis",
-  path: "/api/upload"
-}
-// highlight-end
-
-// highlight-start
-api fileUpload {
-  httpRoute: (POST, "/api/upload"),
-  fn: import { uploadFile } from "@src/apis",
-  entities: []
-}
-// highlight-end
+export default app({
+  // ...
+  parts: [
+    route('RootRoute', '/', page(MainPage)),
+    // highlight-start
+    apiNamespace('/api/upload', { middlewareConfigFn: configureFileUploadMiddleware }),
+    // highlight-end
+    // highlight-start
+    api('POST', '/api/upload', uploadFile),
+    // highlight-end
+  ],
+})
 ```
 
 ### 3. Create the API handlers
@@ -64,7 +54,7 @@ import multer from "multer";
 
 const upload = multer({ dest: "uploads/" });
 
-export const addMiddleware: MiddlewareConfigFn = (config) => {
+export const configureFileUploadMiddleware: MiddlewareConfigFn = (config) => {
   config.set("multer", upload.single("file"));
   return config;
 };
@@ -161,7 +151,7 @@ const upload = multer({
 To handle multiple file uploads:
 
 ```ts auto-js
-export const addMiddleware: MiddlewareConfigFn = (config) => {
+export const configureFileUploadMiddleware: MiddlewareConfigFn = (config) => {
   config.set("multer", upload.array("files", 10)); // Max 10 files
   return config;
 };

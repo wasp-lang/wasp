@@ -7,7 +7,7 @@ last_checked_with_versions:
 
 # Migrating from the Wasp DSL
 
-Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Start with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](../../general/spec.md): a `main.wasp.ts` file written in TypeScript.
+Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Starting with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](../../general/spec.md): a `main.wasp.ts` file written in TypeScript.
 
 :::tip Let an LLM do the heavy lifting
 The mapping below is mechanical. You can give the [Wasp Spec reference](../../general/spec.md#reference) and your `main.wasp` to the LLM of your choice and ask it to rewrite it following that reference. We had great results with this.

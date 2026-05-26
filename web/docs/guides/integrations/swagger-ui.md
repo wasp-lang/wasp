@@ -21,31 +21,28 @@ npm install swagger-jsdoc swagger-ui-express
 npm install --save-dev @types/swagger-jsdoc @types/swagger-ui-express
 ```
 
-### 2. Configure the API namespace in main.wasp
+### 2. Configure the API namespace in main.wasp.ts
 
 Add an API namespace for the Swagger UI endpoint:
 
-```wasp title="main.wasp"
-app MyApp {
+```ts title="main.wasp.ts"
+import { api, apiNamespace, app } from '@wasp.sh/spec'
+import { getStatus } from './src/apis' with { type: "ref" }
+import { swaggerMiddleware } from './src/swagger-ui' with { type: "ref" }
+
+export default app({
+  name: 'MyApp',
   wasp: {
-    version: "^0.21.0"
+    version: '^0.24.0',
   },
-  title: "my-app",
-}
-
-// highlight-start
-apiNamespace swaggerUI {
-  middlewareConfigFn: import { swaggerMiddleware } from "@src/swagger-ui",
-  path: "/api-docs"
-}
-// highlight-end
-
-api getStatus {
-  fn: import { getStatus } from "@src/apis",
-  auth: false,
-  entities: [],
-  httpRoute: (GET, "/status")
-}
+  title: 'my-app',
+  parts: [
+    // highlight-start
+    apiNamespace('/api-docs', { middlewareConfigFn: swaggerMiddleware }),
+    // highlight-end
+    api('GET', '/status', getStatus, { auth: false }),
+  ],
+})
 ```
 
 ### 3. Create the spec generator script

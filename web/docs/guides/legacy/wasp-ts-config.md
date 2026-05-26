@@ -9,7 +9,7 @@ last_checked_with_versions:
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered parts with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 
-Start with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `parts` array.
+Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `parts` array.
 
 :::tip Let an LLM do the heavy lifting
 The mapping below is mechanical. You can give the [Wasp Spec reference](../../general/spec.md#reference) and your old `main.wasp.ts` to the LLM of your choice and ask it to rewrite it following that reference.
