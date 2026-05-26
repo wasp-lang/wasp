@@ -249,7 +249,7 @@ export default app({
 })
 ```
 
-The `job` constructor accepts the worker function as the first argument and a configuration object with these fields:
+The `job` function accepts the worker function as the first argument and a configuration object with these fields:
 
 - `executor: JobExecutor` <Required />
 

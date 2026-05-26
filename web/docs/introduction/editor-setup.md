@@ -14,7 +14,7 @@ Wasp Spec files are TypeScript files, so editor support comes from your editor's
 Use any editor with TypeScript language service support. In Wasp projects, this gives you:
 
 - type checking and diagnostics for `main.wasp.ts`
-- autocompletion for `@wasp.sh/spec` constructors and options
+- autocompletion for `@wasp.sh/spec` functions and options
 - go to definition for [reference imports](../general/spec.md#reference-imports)
 - import path checks for files in `src`
 

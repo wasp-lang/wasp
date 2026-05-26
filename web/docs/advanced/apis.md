@@ -20,7 +20,7 @@ After completing these two steps, you'll be able to call the API from the client
 
 ### Declaring the API in Wasp
 
-First, we need to declare the API in the Wasp Spec file and you can easily do this with the `api` constructor:
+First, we need to declare the API in the Wasp Spec file and you can easily do this with the `api` function:
 
 ```ts title="main.wasp.ts"
 import { api, app } from '@wasp.sh/spec'
@@ -357,7 +357,7 @@ export default app({
 })
 ```
 
-The `api` constructor accepts the following arguments and options:
+The `api` function accepts the following arguments and options:
 
 - `method: HttpMethod` <Required />
 

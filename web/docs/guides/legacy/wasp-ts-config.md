@@ -19,7 +19,7 @@ The mapping below is mechanical. You can give the [Wasp Spec reference](../../ge
 
 ### Reference imports
 
-In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a constructor.
+In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a declaration function.
 
 <Tabs>
   <TabItem value="before" label="TS Config">
@@ -339,7 +339,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 5. Rewrite `main.wasp.ts`:
 
-    Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `parts` array holds the constructors (see the [mapping above](#changes)), and update the import:
+    Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `parts` array holds the declarations (see the [mapping above](#changes)), and update the import:
 
     <Tabs>
       <TabItem value="before" label="Before">

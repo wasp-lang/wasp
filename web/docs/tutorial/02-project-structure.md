@@ -137,7 +137,7 @@ The default `main.wasp.ts` file generated with `wasp new` on the previous page l
   </TabItem>
 </Tabs>
 
-This spec uses three constructor types:
+This spec uses three function types:
 
 - **app**: Top-level configuration information about your app.
 
