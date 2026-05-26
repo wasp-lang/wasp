@@ -299,13 +299,9 @@ const config: Config = {
         // docusaurus-plugin-typedoc options
         sidebar: { typescript: true },
 
-        // typedoc-plugin-mardkown options
+        // typedoc-plugin-markdown options
         readme: "none",
         alwaysCreateEntryPointModule: true,
-
-        // typedoc options
-        disableSources: true,
-        packageOptions: { readme: "none" },
 
         // input packages
         entryPointStrategy: "packages",

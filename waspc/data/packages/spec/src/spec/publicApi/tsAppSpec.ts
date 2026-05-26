@@ -10,7 +10,7 @@ import { FromRegister } from "./register.js";
  * Pass an `App` to the {@link app} constructor and `export default` the
  * result from `main.wasp.ts`.
  *
- * @category Parts
+ * @category Spec
  *
  * @example
  * ```ts
@@ -190,8 +190,9 @@ export interface LocalAuthMethods {
  * [Social Auth overview](https://wasp.sh/docs/auth/social-auth/overview) for
  * details on each provider.
  */
-export interface ExternalAuthMethods
-  extends Partial<Record<SocialAuthMethodName, SocialAuthConfig>> {}
+export interface ExternalAuthMethods extends Partial<
+  Record<SocialAuthMethodName, SocialAuthConfig>
+> {}
 
 /**
  * Supported social auth providers.
@@ -744,8 +745,9 @@ export interface Crud extends BasePart<"crud"> {
  * Wasp's defaults. Default `get`, `update`, and `delete` implementations use
  * the field marked with `@id` in the Prisma schema as the entity ID.
  */
-export interface CrudOperations
-  extends Partial<Record<CrudOperation, CrudOperationOptions>> {}
+export interface CrudOperations extends Partial<
+  Record<CrudOperation, CrudOperationOptions>
+> {}
 
 /**
  * Operations a {@link Crud} can generate.
