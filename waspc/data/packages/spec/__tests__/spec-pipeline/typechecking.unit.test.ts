@@ -1,9 +1,7 @@
-import { writeFileSync } from "fs";
-import { join } from "path";
+import { stripVTControlCharacters } from "node:util";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { typecheck } from "../../src/spec-pipeline/typecheck.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
-import { makeTempProject, writeTsConfig } from "./testHelpers.js";
 
 describe("typecheck", () => {
   afterEach(() => {
@@ -11,56 +9,38 @@ describe("typecheck", () => {
   });
 
   test("returns the callback value when no source files are added", async () => {
-    const { tsconfigPath } = setupProject("typecheck-empty-");
-
-    const result = await typecheck({ tsconfigPath }, async () => 42);
+    const result = await runTypecheck(async () => 42);
 
     expect(result).toBe(42);
   });
 
   test("returns the callback value when added source files are type-clean", async () => {
-    const { tempDir, tsconfigPath } = setupProject("typecheck-clean-");
-
-    const result = await typecheck(
-      { tsconfigPath },
-      async ({ addSourceFile }) => {
-        addSourceFile(
-          join(tempDir, "clean.ts"),
-          `export const x: number = 1;\n`,
-        );
-        return "ok";
-      },
-    );
+    const result = await runTypecheck(async ({ addSourceFile }) => {
+      addSourceFile("/clean.ts", `export const x: number = 1;\n`);
+      return "ok";
+    });
 
     expect(result).toBe("ok");
   });
 
   test("throws SpecUserError when an added source file has a type error", async () => {
-    const { tempDir, tsconfigPath } = setupProject("typecheck-bad-type-");
-    silenceConsoleError();
+    vi.spyOn(console, "error");
 
     await expect(
-      typecheck({ tsconfigPath }, async ({ addSourceFile }) => {
-        addSourceFile(
-          join(tempDir, "bad.ts"),
-          `export const x: string = 123;\n`,
-        );
+      runTypecheck(async ({ addSourceFile }) => {
+        addSourceFile("/bad.ts", `export const x: string = 123;\n`);
         return "should not reach";
       }),
-    ).rejects.toThrowError(new SpecUserError("Type errors found"));
+    ).rejects.toThrow(new SpecUserError("Type errors found"));
   });
 
   test("re-throws a ParseError from the callback without typechecking", async () => {
-    const { tempDir, tsconfigPath } = setupProject("typecheck-parse-error-");
-    const consoleError = silenceConsoleError();
+    const consoleError = vi.spyOn(console, "error");
     const parseError = new Error("ParseError: unexpected token");
 
     await expect(
-      typecheck({ tsconfigPath }, async ({ addSourceFile }) => {
-        addSourceFile(
-          join(tempDir, "bad.ts"),
-          `export const x: string = 123;\n`,
-        );
+      runTypecheck(async ({ addSourceFile }) => {
+        addSourceFile("/bad.ts", `export const x: string = 123;\n`);
         throw parseError;
       }),
     ).rejects.toBe(parseError);
@@ -69,85 +49,76 @@ describe("typecheck", () => {
   });
 
   test("re-throws a non-parse runtime error when there are no type errors", async () => {
-    const { tsconfigPath } = setupProject("typecheck-runtime-error-");
     const runtimeError = new Error("runtime boom");
 
     await expect(
-      typecheck({ tsconfigPath }, async () => {
+      runTypecheck(async () => {
         throw runtimeError;
       }),
     ).rejects.toBe(runtimeError);
   });
 
   test("type errors take precedence over a runtime error from the callback", async () => {
-    const { tempDir, tsconfigPath } = setupProject(
-      "typecheck-type-vs-runtime-",
-    );
-    silenceConsoleError();
+    vi.spyOn(console, "error");
 
     await expect(
-      typecheck({ tsconfigPath }, async ({ addSourceFile }) => {
-        addSourceFile(
-          join(tempDir, "bad.ts"),
-          `export const x: string = 123;\n`,
-        );
+      runTypecheck(async ({ addSourceFile }) => {
+        addSourceFile("/bad.ts", `export const x: string = 123;\n`);
         throw new Error("runtime boom");
       }),
-    ).rejects.toThrowError(new SpecUserError("Type errors found"));
+    ).rejects.toThrow(new SpecUserError("Type errors found"));
+  });
+
+  test("reports type errors from any added source file", async () => {
+    vi.spyOn(console, "error");
+
+    await expect(
+      runTypecheck(async ({ addSourceFile }) => {
+        addSourceFile("/main.ts", `export const x: number = 1;\n`);
+        addSourceFile("/helper.ts", `export const broken: string = 123;\n`);
+        return "unused";
+      }),
+    ).rejects.toThrow(new SpecUserError("Type errors found"));
   });
 
   test("addSourceFile called twice with the same path uses the latest contents", async () => {
-    const { tempDir, tsconfigPath } = setupProject("typecheck-overwrite-");
-
-    const result = await typecheck(
-      { tsconfigPath },
-      async ({ addSourceFile }) => {
-        const path = join(tempDir, "shared.ts");
-        addSourceFile(path, `export const x: string = 123;\n`);
-        addSourceFile(path, `export const x: number = 1;\n`);
-        return "ok";
-      },
-    );
+    const result = await runTypecheck(async ({ addSourceFile }) => {
+      addSourceFile("/shared.ts", `export const x: string = 123;\n`);
+      addSourceFile("/shared.ts", `export const x: number = 1;\n`);
+      return "ok";
+    });
 
     expect(result).toBe("ok");
   });
 
   test("prints formatted diagnostics to stderr when type errors exist", async () => {
-    const { tempDir, tsconfigPath } = setupProject(
-      "typecheck-diagnostics-output-",
-    );
-    const consoleError = silenceConsoleError();
+    const consoleError = vi.spyOn(console, "error");
 
     await expect(
-      typecheck({ tsconfigPath }, async ({ addSourceFile }) => {
-        addSourceFile(
-          join(tempDir, "bad.ts"),
-          `export const x: string = 123;\n`,
-        );
+      runTypecheck(async ({ addSourceFile }) => {
+        addSourceFile("/bad.ts", `export const x: string = 123;\n`);
         return "unused";
       }),
-    ).rejects.toThrowError(SpecUserError);
+    ).rejects.toThrow(SpecUserError);
 
     expect(consoleError).toHaveBeenCalledTimes(1);
-    const [output] = consoleError.mock.calls[0]!;
-    expect(typeof output).toBe("string");
-    expect((output as string).length).toBeGreaterThan(0);
+
+    const rawOutput = consoleError.mock.calls[0]?.[0] as string;
+    const output = stripVTControlCharacters(rawOutput);
+    expect(output).toMatchInlineSnapshot(`
+      "../../../../../../../../../../../bad.ts:1:14 - error TS2322: Type 'number' is not assignable to type 'string'.
+
+      1 export const x: string = 123;
+                     ~
+      "
+    `);
   });
 });
 
-function setupProject(prefix: string): {
-  tempDir: string;
-  tsconfigPath: string;
-} {
-  const tempDir = makeTempProject(prefix);
-  // Satisfy the tsconfig include so the TS compiler does not emit TS18003
-  // ("no inputs were found in config file"), which surfaces as a type error.
-  writeFileSync(join(tempDir, "_placeholder.ts"), `export {};\n`);
-  const tsconfigPath = join(tempDir, "tsconfig.json");
-  writeTsConfig(tsconfigPath, "**/*.ts");
-  return { tempDir, tsconfigPath };
-}
-
-function silenceConsoleError(): ReturnType<typeof vi.spyOn> {
-  return vi.spyOn(console, "error").mockImplementation(() => {});
+function runTypecheck<T>(
+  fn: (ctx: {
+    addSourceFile: (path: string, code: string) => void;
+  }) => Promise<T>,
+): Promise<T> {
+  return typecheck({ tsconfigPath: null }, fn);
 }

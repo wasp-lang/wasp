@@ -2,13 +2,23 @@ import { DiagnosticCategory, Project } from "ts-morph";
 import { SpecUserError } from "../spec/specUserError.js";
 
 export async function typecheck<T>(
-  { tsconfigPath }: { tsconfigPath: string },
+  {
+    tsconfigPath,
+  }: {
+    /**
+     * @remarks
+     * This should only be `null` when used in tests, where there isn't an
+     * actual tsconfig project on disk.
+     */
+    tsconfigPath: string | null;
+  },
+
   fn: (ctx: {
     addSourceFile: (path: string, code: string) => void;
   }) => Promise<T>,
 ): Promise<T> {
   const project = new Project({
-    tsConfigFilePath: tsconfigPath,
+    tsConfigFilePath: tsconfigPath ?? undefined,
     skipAddingFilesFromTsConfig: true,
     defaultCompilerOptions: {
       // For some reason `ts-morph` doesn't pick up `@types/*` packages if we
@@ -17,16 +27,10 @@ export async function typecheck<T>(
     },
   });
 
-  const loadedWaspTsFiles = new Set<string>();
   const result = await promiseToResult(
     fn({
       addSourceFile: (path, code) => {
-        const sourceFile = project.createSourceFile(path, code, {
-          overwrite: true,
-        });
-        if (isWaspTsPath(path)) {
-          loadedWaspTsFiles.add(sourceFile.getFilePath());
-        }
+        project.createSourceFile(path, code, { overwrite: true });
       },
     }),
   );
@@ -39,20 +43,6 @@ export async function typecheck<T>(
     throw result.error;
   }
 
-  // Now that all the files are added, we can let TypeScript add every other
-  // file in the project and resolve their imports. Ref imports have been
-  // lowered so the typechecker won't follow them.
-  project.addSourceFilesFromTsConfig(tsconfigPath);
-  // Only `.wasp.ts` files reachable from the loaded spec have had their ref
-  // imports lowered; other `.wasp.ts` files matched by the tsconfig include
-  // patterns still contain unlowered ref imports and would produce spurious
-  // type errors, so drop them before resolving dependencies.
-  for (const sourceFile of project.getSourceFiles()) {
-    const path = sourceFile.getFilePath();
-    if (isWaspTsPath(path) && !loadedWaspTsFiles.has(path)) {
-      project.removeSourceFile(sourceFile);
-    }
-  }
   project.resolveSourceFileDependencies();
 
   const diagnostics = project.getPreEmitDiagnostics();
@@ -70,10 +60,6 @@ export async function typecheck<T>(
   } else {
     return result.value;
   }
-}
-
-function isWaspTsPath(path: string): boolean {
-  return path.endsWith(".wasp.ts");
 }
 
 function promiseToResult<T>(
