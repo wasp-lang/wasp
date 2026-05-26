@@ -300,12 +300,17 @@ const config: Config = {
         sidebar: { typescript: true },
 
         // typedoc-plugin-markdown options
-        readme: "none",
-        alwaysCreateEntryPointModule: true,
+        readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
+        alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
 
         // input packages
         entryPointStrategy: "packages",
         entryPoints: ["../waspc/data/packages/spec"],
+
+        // If you want to set an option to a specific package, you can create a
+        // `typedoc.jsonc` file in that package's folder with the desired
+        // options from
+        // https://typedoc.org/documents/Options.Package_Options.html.
       },
     ],
   ],
