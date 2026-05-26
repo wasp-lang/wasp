@@ -12,18 +12,22 @@ In Wasp, the `schema.prisma` file is located in your project's root directory:
 
 ```c
 .
-├── main.wasp
+├── main.wasp.ts
 ...
+├── package.json
+├── public
 // highlight-next-line
 ├── schema.prisma
 ├── src
 ├── tsconfig.json
+├── tsconfig.src.json
+├── tsconfig.wasp.json
 └── vite.config.ts
 ```
 
 Wasp uses the `schema.prisma` file to understand your app's data model and generate the necessary code to interact with the database.
 
-## Wasp file and Prisma schema file
+## Wasp Spec file and Prisma schema file
 
 Let's see how Wasp and Prisma files work together to define your application.
 
@@ -59,44 +63,33 @@ The `datasource` block defines which database you want to use (PostgreSQL in thi
 
 The `generator` block defines how to generate the Prisma Client code that you can use in your application to interact with the database.
 
-<ImgWithCaption alt="Relationship between Wasp file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp file and Prisma file" />
+<ImgWithCaption alt="Relationship between Wasp Spec file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp Spec file and Prisma file" />
 
-Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp` file:
+Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp.ts` file:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-}
+```ts title="main.wasp.ts"
+import { api, app, job, query } from '@wasp.sh/spec'
+import { fooBar } from './src/apis' with { type: "ref" }
+import { getTasks } from './src/queries' with { type: "ref" }
+import { foo } from './src/workers/bar' with { type: "ref" }
 
-...
-
-// Using Wasp Entities in the Wasp file
-
-query getTasks {
-  fn: import { getTasks } from "@src/queries",
-  // highlight-next-line
-  entities: [Task]
-}
-
-job myJob {
-  executor: PgBoss,
-  perform: {
-    fn: import { foo } from "@src/workers/bar"
-  },
-  // highlight-next-line
-  entities: [Task],
-}
-
-api fooBar {
-  fn: import { fooBar } from "@src/apis",
-  // highlight-next-line
-  entities: [Task],
-  httpRoute: (GET, "/foo/bar/:email")
-}
-
+export default app({
+  // ...
+  parts: [
+    // Using Wasp Entities in the Wasp Spec file.
+    // highlight-next-line
+    query(getTasks, { entities: ['Task'] }),
+    job(foo, {
+      executor: 'PgBoss',
+      // highlight-next-line
+      entities: ['Task'],
+    }),
+    api('GET', '/foo/bar/:email', fooBar, {
+      // highlight-next-line
+      entities: ['Task'],
+    }),
+  ],
+})
 ```
 
 In the implementation of the `getTasks` query, `Task` is a Wasp Entity that corresponds to the `Task` model defined in the `schema.prisma` file.

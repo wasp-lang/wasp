@@ -20,15 +20,18 @@ After completing these two steps, you'll be able to call the API from the client
 
 ### Declaring the API in Wasp
 
-First, we need to declare the API in the Wasp file and you can easily do this with the `api` declaration:
+First, we need to declare the API in the Wasp Spec file and you can easily do this with the `api` constructor:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { api, app } from '@wasp.sh/spec'
+import { fooBar } from './src/apis' with { type: "ref" }
 
-api fooBar { // APIs and their implementations don't need to (but can) have the same name.
-  fn: import { fooBar } from "@src/apis",
-  httpRoute: (GET, "/foo/bar")
-}
+export default app({
+  // ...
+  parts: [
+    api('GET', '/foo/bar', fooBar),
+  ],
+})
 ```
 
 Read more about the supported fields in the [API Reference](#api-reference).
@@ -37,7 +40,7 @@ Read more about the supported fields in the [API Reference](#api-reference).
 
 <ShowForTs>
   :::note
-  To make sure the Wasp compiler generates the types for APIs for use in the NodeJS implementation, you should add your `api` declarations to your `.wasp` file first _and_ keep the `wasp start` command running.
+  To make sure the Wasp compiler generates the types for APIs for use in the NodeJS implementation, you should add your `api` declarations to your Wasp Spec file first _and_ keep the `wasp start` command running.
   :::
 </ShowForTs>
 
@@ -69,12 +72,16 @@ export const fooBar: FooBar = (req, res, context) => {
 
   Define the API in Wasp:
 
-  ```wasp title="main.wasp"
-  api fooBar {
-    fn: import { fooBar } from "@src/apis",
-    entities: [Task],
-    httpRoute: (GET, "/foo/bar/:email")
-  }
+  ```ts title="main.wasp.ts"
+  import { api, app } from '@wasp.sh/spec'
+  import { fooBar } from './src/apis' with { type: "ref" }
+
+  export default app({
+    // ...
+    parts: [
+      api('GET', '/foo/bar/:email', fooBar, { entities: ['Task'] }),
+    ],
+  })
   ```
 
   We can use the `FooBar` type to which we'll provide the generic **params** and **response** types, which then gives us full type safety in the implementation.
@@ -126,15 +133,20 @@ export const Foo = () => {
 
 APIs are designed to be as flexible as possible, hence they don't utilize the default middleware like Operations do. As a result, to use these APIs on the client side, you must ensure that CORS (Cross-Origin Resource Sharing) is enabled.
 
-You can do this by defining custom middleware for your APIs in the Wasp file.
+You can do this by defining custom middleware for your APIs in the Wasp Spec file.
 
 For example, an `apiNamespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path:
 
-```wasp title="main.wasp"
-apiNamespace fooBar {
-  middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@src/apis",
-  path: "/foo"
-}
+```ts title="main.wasp.ts"
+import { apiNamespace, app } from '@wasp.sh/spec'
+import { apiMiddleware } from './src/apis' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    apiNamespace('/foo', { middlewareConfigFn: apiMiddleware }),
+  ],
+})
 ```
 
 And then in the implementation file (returning the default config):
@@ -155,12 +167,16 @@ For more information about middleware configuration, please see: [Middleware Con
 In many cases, resources used in APIs will be [Entities](../data-model/entities.md).
 To use an Entity in your API, add it to the `api` declaration in Wasp:
 
-```wasp {3} title="main.wasp"
-api fooBar {
-  fn: import { fooBar } from "@src/apis",
-  entities: [Task],
-  httpRoute: (GET, "/foo/bar")
-}
+```ts title="main.wasp.ts"
+import { api, app } from '@wasp.sh/spec'
+import { fooBar } from './src/apis' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    api('GET', '/foo/bar', fooBar, { entities: ['Task'] }),
+  ],
+})
 ```
 
 Wasp will inject the specified Entity into the APIs `context` argument, giving you access to the Entity's Prisma API:
@@ -187,11 +203,16 @@ You can use streaming responses to send data to the client in chunks as it becom
 
 To create a streaming API, write a function that uses Express response methods like `res.write()` and `res.end()`:
 
-```wasp title="main.wasp"
-api streamingText {
-  httpRoute: (POST, "/api/streaming-example"),
-  fn: import { getStreamingText } from "@src/streaming",
-}
+```ts title="main.wasp.ts"
+import { api, app } from '@wasp.sh/spec'
+import { getStreamingText } from './src/streaming' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    api('POST', '/api/streaming-example', getStreamingText),
+  ],
+})
 ```
 
 <small>
@@ -320,30 +341,37 @@ async function fetchStream(
 
 ## API Reference
 
-```wasp title="main.wasp"
-api fooBar {
-  fn: import { fooBar } from "@src/apis",
-  httpRoute: (GET, "/foo/bar"),
-  entities: [Task],
-  auth: true,
-  middlewareConfigFn: import { apiMiddleware } from "@src/apis"
-}
+```ts title="main.wasp.ts"
+import { api, app } from '@wasp.sh/spec'
+import { apiMiddleware, fooBar } from './src/apis' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    api('GET', '/foo/bar', fooBar, {
+      entities: ['Task'],
+      auth: true,
+      middlewareConfigFn: apiMiddleware,
+    }),
+  ],
+})
 ```
 
-The `api` declaration has the following fields:
+The `api` constructor accepts the following arguments and options:
 
-- `fn: ExtImport` <Required />
+- `method: HttpMethod` <Required />
 
-  The import statement of the APIs NodeJs implementation.
+  The HTTP method. It can be one of `ALL`, `GET`, `POST`, `PUT` or `DELETE`.
 
-- `httpRoute: (HttpMethod, string)` <Required />
+- `path: string` <Required />
 
-  The HTTP (method, path) pair, where the method can be one of:
+  An Express path string.
 
-  - `ALL`, `GET`, `POST`, `PUT` or `DELETE`
-  - and path is an Express path `string`.
+- `fn: Reference` <Required />
 
-- `entities: [Entity]`
+  The API's NodeJS implementation imported with `with { type: "ref" }`.
+
+- `entities: string[]`
 
   A list of entities you wish to use inside your API. You can read more about it [here](#using-entities-in-apis).
 
@@ -351,6 +379,6 @@ The `api` declaration has the following fields:
 
   If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you should set this to `false`.
 
-- `middlewareConfigFn: ExtImport`
+- `middlewareConfigFn: Reference`
 
   The import statement to an Express middleware config function for this API. See more in [middleware section](../advanced/middleware-config) of the docs.

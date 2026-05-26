@@ -26,7 +26,7 @@ Let's walk through enabling Google authentication, explain some of the default s
 
 Enabling Google Authentication comes down to a series of steps:
 
-1. Enabling Google authentication in the Wasp file.
+1. Enabling Google authentication in the Wasp Spec file.
 2. Adding the `User` entity.
 3. Creating a Google OAuth app.
 4. Adding the necessary Routes and Pages
@@ -34,28 +34,30 @@ Enabling Google Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 1. Adding Google Auth to Your Wasp File
+### 1. Adding Google Auth to Your Wasp Spec File
 
 Let's start by properly configuring the Auth object:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       // 2. Enable Google Auth
       // highlight-next-line
       google: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: '/login'
   },
-}
+  parts: [],
+})
 ```
 
 `userEntity` is explained in [the social auth overview](./overview.md#user-entity).
@@ -161,15 +163,18 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 Let's define the necessary authentication Routes and Pages.
 
-Add the following code to your `main.wasp` file:
+Add the following code to your `main.wasp.ts` file:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { Login } from './src/pages/auth' with { type: "ref" }
 
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth"
-}
+export default app({
+  // ...
+  parts: [
+    route('LoginRoute', '/login', page(Login)),
+  ],
+})
 ```
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
@@ -191,21 +196,23 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 Add `google: {}` to the `auth.methods` dictionary to use it with default settings:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       // highlight-next-line
       google: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: '/login'
   },
-}
+  parts: [],
+})
 ```
 
 <DefaultBehaviour />
@@ -247,25 +254,28 @@ The fields you receive depend on the scopes you request. The default scope is se
 
 <OverrideExampleIntro />
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { getConfig, userSignupFields } from './src/auth/google' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       google: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google",
+        configFn: getConfig,
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google"
+        userSignupFields
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: '/login'
   },
-}
+  parts: [],
+})
 ```
 
 ```prisma title="schema.prisma"
@@ -309,30 +319,33 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 <ApiReferenceIntro />
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { getConfig, userSignupFields } from './src/auth/google' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       google: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google",
+        configFn: getConfig,
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google"
+        userSignupFields
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: '/login'
   },
-}
+  parts: [],
+})
 ```
 
 The `google` dict has the following properties:
 
-- #### `configFn: ExtImport`
+- #### `configFn: Reference`
 
   This function must return an object with the scopes for the OAuth provider.
 
@@ -344,7 +357,7 @@ The `google` dict has the following properties:
   }
   ```
 
-- #### `userSignupFields: ExtImport`
+- #### `userSignupFields: Reference`
 
   <UserSignupFieldsExplainer />
 

@@ -321,16 +321,20 @@ Take a look at an example of defining env vars validation:
   </TabItem>
 </Tabs>
 
-```wasp title="main.wasp"
-app myApp {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { clientEnvValidationSchema, serverEnvValidationSchema } from './src/env' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
   client: {
-    envValidationSchema: import { clientEnvValidationSchema } from "@src/env",
+    envValidationSchema: clientEnvValidationSchema,
   },
   server: {
-    envValidationSchema: import { serverEnvValidationSchema } from "@src/env",
+    envValidationSchema: serverEnvValidationSchema,
   },
-}
+  parts: [],
+})
 ```
 
 You defined schemas for both the client and the server env vars and told Wasp to use them. Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `process.env` object on the server and the `import.meta.env` object on the client.
@@ -391,13 +395,17 @@ You can define your client env vars validation like this:
   </TabItem>
 </Tabs>
 
-```wasp title="main.wasp"
-app myApp {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { envValidationSchema } from './src/env' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
   client: {
-    envValidationSchema: import { envValidationSchema } from "@src/env",
+    envValidationSchema,
   },
-}
+  parts: [],
+})
 ```
 
 Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `import.meta.env` object.
@@ -476,13 +484,17 @@ You can define your env vars validation like this:
   </TabItem>
 </Tabs>
 
-```wasp title="main.wasp"
-app myApp {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { envValidationSchema } from './src/env' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
   server: {
-    envValidationSchema: import { envValidationSchema } from "@src/env",
+    envValidationSchema,
   },
-}
+  parts: [],
+})
 ```
 
 Wasp merges your env validation schemas with the built-in env vars validation schemas when it validates the `process.env` object.

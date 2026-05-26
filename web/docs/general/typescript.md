@@ -41,13 +41,18 @@ model Task {
 }
 ```
 
-And your `main.wasp` file defines the `getTaskInfo` query:
+And your `main.wasp.ts` file defines the `getTaskInfo` query:
 
-```wasp title="main.wasp"
-query getTaskInfo {
-  fn: import { getTaskInfo } from "@src/queries",
-  entities: [Task]
-}
+```ts title="main.wasp.ts"
+import { app, query } from '@wasp.sh/spec'
+import { getTaskInfo } from './src/queries' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    query(getTaskInfo, { entities: ['Task'] }),
+  ],
+})
 ```
 
 We will show you how to migrate the following `queries.js` file:
@@ -140,7 +145,7 @@ Your code is now processed by TypeScript and uses several of Wasp's TypeScript-s
 
   And gives you Intellisense and type-checking. Read more about this feature [here](../data-model/operations/queries#implementing-queries).
 
-You don't need to change anything inside the `.wasp` file.
+You don't need to change anything inside the Wasp Spec file.
 
 ### Migrating the rest of the project
 

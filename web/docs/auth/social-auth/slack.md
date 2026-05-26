@@ -26,7 +26,7 @@ Let's walk through enabling Slack Authentication, explain some quirks, explore d
 
 Enabling Slack Authentication comes down to a series of steps:
 
-1. Enabling Slack authentication in the Wasp file.
+1. Enabling Slack authentication in the Wasp Spec file.
 2. Adding the `User` entity.
 3. Creating Slack App.
 4. Adding the necessary Routes and Pages
@@ -34,30 +34,32 @@ Enabling Slack Authentication comes down to a series of steps:
 
 <WaspFileStructureNote />
 
-### 1. Enabling Slack authentication in the Wasp file.
+### 1. Enabling Slack authentication in the Wasp Spec file.
 
 Now let's properly configure the Auth object:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
     // highlight-next-line
     // 1. Specify the User entity  (we'll define it next)
     // highlight-next-line
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       // highlight-next-line
       // 2. Enable Slack Auth
       // highlight-next-line
       slack: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: '/login'
   },
-}
+  parts: [],
+})
 ```
 
 ### 2. Add the User Entity
@@ -113,15 +115,18 @@ SLACK_CLIENT_SECRET=your-slack-client-secret
 
 Let's define the necessary authentication Routes and Pages.
 
-Add the following code to your `main.wasp` file:
+Add the following code to your `main.wasp.ts` file:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { Login } from './src/pages/auth' with { type: "ref" }
 
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth"
-}
+export default app({
+  // ...
+  parts: [
+    route('LoginRoute', '/login', page(Login)),
+  ],
+})
 ```
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
@@ -186,21 +191,23 @@ WASP_SERVER_URL=https://<subdomain>.loca.lt
 
 Add `slack: {}` to the `auth.methods` dictionary to use it with default settings.
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       // highlight-next-line
       slack: {}
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: '/login'
   },
-}
+  parts: [],
+})
 ```
 
 <DefaultBehaviour />
@@ -258,25 +265,28 @@ The fields you receive depend on the scopes you request. In the example above, t
 
 <OverrideExampleIntro />
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { config, userSignupFields } from './src/auth/slack' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       slack: {
         // highlight-next-line
-        configFn: import { config } from "@src/auth/slack",
+        configFn: config,
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/slack"
+        userSignupFields
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: '/login'
   },
-}
+  parts: [],
+})
 ```
 
 ```prisma title="schema.prisma"
@@ -321,30 +331,33 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 <ApiReferenceIntro />
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { config, userSignupFields } from './src/auth/slack' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       slack: {
         // highlight-next-line
-        configFn: import { config } from "@src/auth/slack",
+        configFn: config,
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/slack"
+        userSignupFields
       }
     },
-    onAuthFailedRedirectTo: "/login"
+    onAuthFailedRedirectTo: '/login'
   },
-}
+  parts: [],
+})
 ```
 
 The `slack` dict has the following properties:
 
-- #### `configFn: ExtImport`
+- #### `configFn: Reference`
 
   This function should return an object with the scopes for the OAuth provider.
 
@@ -356,7 +369,7 @@ The `slack` dict has the following properties:
   }
   ```
 
-- #### `userSignupFields: ExtImport`
+- #### `userSignupFields: Reference`
 
   <UserSignupFieldsExplainer />
 

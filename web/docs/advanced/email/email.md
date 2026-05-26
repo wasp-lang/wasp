@@ -10,17 +10,20 @@ import DummyProviderNote from './_dummy-provider-note.md'
 
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
-```wasp title="main.wasp"
-app Example {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'Example',
   emailSender: {
-    provider: <provider>,
+    provider: '<provider>',
     defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com"
+      name: 'Example',
+      email: 'hello@itsme.com',
     },
-  }
-}
+  },
+  parts: [],
+})
 ```
 
 Choose from one of the providers:
@@ -68,28 +71,34 @@ We'll go over all of the available providers in the next section. For some of th
 
 To speed up development, Wasp offers a `Dummy` email sender that `console.log`s the emails in the console. Since it doesn't send emails for real, it doesn't require any setup.
 
-Set the provider to `Dummy` in your `main.wasp` file.
+Set the provider to `Dummy` in your `main.wasp.ts` file.
 
-```wasp title="main.wasp"
-app Example {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'Example',
   emailSender: {
-    provider: Dummy,
-  }
-}
+    provider: 'Dummy',
+  },
+  parts: [],
+})
 ```
 
 ### Using the SMTP Provider {#smtp}
 
-First, set the provider to `SMTP` in your `main.wasp` file.
+First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
-```wasp title="main.wasp"
-app Example {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'Example',
   emailSender: {
-    provider: SMTP,
-  }
-}
+    provider: 'SMTP',
+  },
+  parts: [],
+})
 ```
 
 Then, add the following env variables to your `.env.server` file.
@@ -110,15 +119,18 @@ If you run into issues, check their documentation for a solution, or consider us
 
 ### Using the Mailgun Provider {#mailgun}
 
-Set the provider to `Mailgun` in the `main.wasp` file.
+Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
-```wasp title="main.wasp"
-app Example {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'Example',
   emailSender: {
-    provider: Mailgun,
-  }
-}
+    provider: 'Mailgun',
+  },
+  parts: [],
+})
 ```
 
 Then, get the Mailgun API key and domain and add them to your `.env.server` file.
@@ -150,15 +162,18 @@ MAILGUN_API_URL=https://api.eu.mailgun.net
 As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com/en-us/changelog/sendgrid-free-plan). A paid SendGrid plan is now required to send emails. Consider using [Mailgun](#mailgun) or [SMTP](#smtp) with another provider if you need a free tier option.
 :::
 
-Set the provider field to `SendGrid` in your `main.wasp` file.
+Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
-```wasp title="main.wasp"
-app Example {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'Example',
   emailSender: {
-    provider: SendGrid,
-  }
-}
+    provider: 'SendGrid',
+  },
+  parts: [],
+})
 ```
 
 Then, get the SendGrid API key and add it to your `.env.server` file.
@@ -177,17 +192,20 @@ SENDGRID_API_KEY=
 
 ### `emailSender` dict
 
-```wasp title="main.wasp"
-app Example {
-  ...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'Example',
   emailSender: {
-    provider: <provider>,
+    provider: '<provider>',
     defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com"
+      name: 'Example',
+      email: 'hello@itsme.com',
     },
-  }
-}
+  },
+  parts: [],
+})
 ```
 
 The `emailSender` dict has the following fields:
@@ -226,7 +244,7 @@ The `send` method accepts an object with the following fields:
 
 - `from: object`
 
-  The sender's details. If you set up `defaultFrom` field in the `emailSender` dict in Wasp file, this field is optional.
+  The sender's details. If you set up the `defaultFrom` field in the `emailSender` config in your Wasp Spec file, this field is optional.
 
   - `name: string`
 

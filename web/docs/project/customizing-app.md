@@ -6,16 +6,20 @@ import { Required } from '@site/src/components/Tag';
 
 Each Wasp project can have only one `app` type declaration. It is used to configure your app and its components.
 
-```wasp
-app todoApp {
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'todoApp',
   wasp: {
-    version: "{latestWaspVersion}"
+    version: '{latestWaspVersion}',
   },
-  title: "ToDo App",
+  title: 'ToDo App',
   head: [
-    "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
-  ]
-}
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" />',
+  ],
+  parts: [],
+})
 ```
 
 We'll go through some common customizations you might want to do to your app. For more details on each of the fields, check out the [API Reference](#api-reference).
@@ -24,13 +28,17 @@ We'll go through some common customizations you might want to do to your app. Fo
 
 You may want to change the title of your app, which appears in the browser tab, next to the favicon. You can change it by changing the `title` field of your `app` declaration:
 
-```wasp
-app myApp {
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'myApp',
   wasp: {
-    version: "{latestWaspVersion}"
+    version: '{latestWaspVersion}',
   },
-  title: "BookFace"
-}
+  title: 'BookFace',
+  parts: [],
+})
 ```
 
 ### Adding Additional Lines to the Head
@@ -39,30 +47,37 @@ If you are looking to add additional style sheets or scripts to your app, you ca
 
 An example of adding extra style sheets and scripts:
 
-```wasp
-app myApp {
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'myApp',
   wasp: {
-    version: "{latestWaspVersion}"
+    version: '{latestWaspVersion}',
   },
-  title: "My App",
-  head: [  // optional
-    "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />",
-    "<script src=\"https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js\"></script>",
-    "<meta name=\"viewport\" content=\"minimum-scale=1, initial-scale=1, width=device-width\" />"
-  ]
-}
+  title: 'My App',
+  head: [ // optional
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" />',
+    '<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>',
+    '<meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />',
+  ],
+  parts: [],
+})
 ```
 
 ## API Reference
 
-```wasp
-app todoApp {
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'todoApp',
   wasp: {
-    version: "{latestWaspVersion}"
+    version: '{latestWaspVersion}',
   },
-  title: "ToDo App",
+  title: 'ToDo App',
   head: [
-    "<link rel=\"stylesheet\" href=\"https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap\" />"
+    '<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap" />',
   ],
   auth: {
     // ...
@@ -81,8 +96,9 @@ app todoApp {
   },
   webSocket: {
     // ...
-  }
-}
+  },
+  parts: [],
+})
 ```
 
 The `app` declaration has the following fields:

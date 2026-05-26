@@ -4,7 +4,7 @@ title: Type-Safe Links
 
 import { Required } from '@site/src/components/Tag'
 
-If you are using Typescript, Wasp gives you typesafe building blocks for navigation. You get autocompletion on route paths, compile errors when params are missing, and a single source of truth between your `main.wasp` file and your client code.
+If you are using Typescript, Wasp gives you typesafe building blocks for navigation. You get autocompletion on route paths, compile errors when params are missing, and a single source of truth between your `main.wasp.ts` file and your client code.
 
 ## Typesafe navigation with components
 
@@ -14,9 +14,16 @@ For navigating between pages inside JSX, Wasp exposes two components from `wasp/
 
 Reach for `Link` when you just need to send the user to another page. Given this route:
 
-```wasp title="main.wasp"
-route TaskRoute { path: "/task/:id", to: TaskPage }
-page TaskPage { ... }
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { TaskPage } from './src/TaskPage' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route('TaskRoute', '/task/:id', page(TaskPage)),
+  ],
+})
 ```
 
 You'd use it like this:
@@ -44,7 +51,7 @@ export const TaskList = () => {
 }
 ```
 
-The `to` prop is autocompleted from the routes you defined in `main.wasp`, and `params` is typechecked against the path you picked. Rename a route or change a param, and any broken `Link` is pointed out by Typescript.
+The `to` prop is autocompleted from the routes you defined in `main.wasp.ts`, and `params` is typechecked against the path you picked. Rename a route or change a param, and any broken `Link` is pointed out by Typescript.
 
 ### Reacting to navigation state with `NavLink`
 
@@ -75,9 +82,16 @@ Everything below applies to both `Link` and `NavLink`.
 
 If a route path ends with a `/*` pattern (also known as [splat](https://reactrouter.com/7.12.0/start/declarative/routing#splats)), pass the rest of the path as the `*` param:
 
-```wasp title="main.wasp"
-route CatchAllRoute { path: "/pages/*", to: CatchAllPage }
-page CatchAllPage { ... }
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { CatchAllPage } from './src/CatchAllPage' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route('CatchAllRoute', '/pages/*', page(CatchAllPage)),
+  ],
+})
 ```
 
 ```jsx title="TaskList.tsx"
@@ -92,9 +106,16 @@ This renders as `/pages/about`.
 
 If a route has an optional static segment, you can choose at the call site whether to include it or not:
 
-```wasp title="main.wasp"
-route OptionalRoute { path: "/task/:id/details?", to: OptionalPage }
-page OptionalPage { ... }
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { OptionalPage } from './src/OptionalPage' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route('OptionalRoute', '/task/:id/details?', page(OptionalPage)),
+  ],
+})
 ```
 
 ```jsx title="TaskList.tsx"
@@ -136,7 +157,7 @@ import { routes } from 'wasp/client/router'
 const linkToTask = routes.TaskRoute.build({ params: { id: 1 } })
 ```
 
-`linkToTask` is the string `/task/1`. Each route from `main.wasp` shows up on `routes` with a `build` function whose options are typed against the route's path, so the same compile-time safety you get from `Link` is also available outside of JSX.
+`linkToTask` is the string `/task/1`. Each route from `main.wasp.ts` shows up on `routes` with a `build` function whose options are typed against the route's path, so the same compile-time safety you get from `Link` is also available outside of JSX.
 
 `build` follows the same rules as the [components above](#typesafe-navigation-with-components): catch-all routes take a `*` param, optional static segments pick a concrete `path`, and you can attach a query string and fragment via `search` and `hash`.
 
@@ -159,7 +180,7 @@ The `Link` component accepts the following props:
 
 - `to` <Required />
 
-  - A valid Wasp Route path from your `main.wasp` file.
+  - A valid Wasp Route path from your `main.wasp.ts` file.
 
     In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
 
@@ -183,7 +204,7 @@ The `NavLink` component accepts the following props:
 
 - `to` <Required />
 
-  - A valid Wasp Route path from your `main.wasp` file.
+  - A valid Wasp Route path from your `main.wasp.ts` file.
 
     In the case of optional static segments, you must provide one of the possible paths which include or exclude the optional segment. For example, if the path is `/task/:id/details?`, you must provide either `/task/:id/details` or `/task/:id`.
 

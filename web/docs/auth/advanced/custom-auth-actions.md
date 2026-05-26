@@ -19,20 +19,23 @@ Below you will find a starting point for creating your own actions. The given im
 
 ### Email
 
-```wasp title="main.wasp"
-app myApp {
-  // ...
+```ts title="main.wasp.ts"
+import { action, app } from '@wasp.sh/spec'
+import { onBeforeSignup } from './src/auth/hooks' with { type: "ref" }
+import { signup } from './src/auth/signup' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
     // ...
-    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+    onBeforeSignup,
   },
-}
-
-// ...
-
-action customSignup {
-  fn: import { signup } from "@src/auth/signup",
-}
+  parts: [
+    action(signup),
+  ],
+})
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
@@ -157,20 +160,23 @@ export const signup: CustomSignup<
 
 ### Username and password
 
-```wasp title="main.wasp"
-app myApp {
-  // ...
+```ts title="main.wasp.ts"
+import { action, app } from '@wasp.sh/spec'
+import { onBeforeSignup } from './src/auth/hooks' with { type: "ref" }
+import { signup } from './src/auth/signup' with { type: "ref" }
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
     // ...
-    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+    onBeforeSignup,
   },
-}
-
-// ...
-
-action customSignup {
-  fn: import { signup } from "@src/auth/signup",
-}
+  parts: [
+    action(signup),
+  ],
+})
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js

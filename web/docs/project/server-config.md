@@ -8,28 +8,36 @@ You can configure the behavior of the server via the `server` field of `app` dec
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
+    ```ts title="main.wasp.ts"
+    import { app } from '@wasp.sh/spec'
+    import { myMiddlewareConfigFn, mySetupFunction } from './src/myServerSetupCode' with { type: "ref" }
+
+    export default app({
+      name: 'MyApp',
+      title: 'My app',
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+        setupFn: mySetupFunction,
+        middlewareConfigFn: myMiddlewareConfigFn,
+      },
+      parts: [],
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
+    ```ts title="main.wasp.ts"
+    import { app } from '@wasp.sh/spec'
+    import { myMiddlewareConfigFn, mySetupFunction } from './src/myServerSetupCode' with { type: "ref" }
+
+    export default app({
+      name: 'MyApp',
+      title: 'My app',
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+        setupFn: mySetupFunction,
+        middlewareConfigFn: myMiddlewareConfigFn,
+      },
+      parts: [],
+    })
     ```
   </TabItem>
 </Tabs>
@@ -150,47 +158,55 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-Read more about [server setup function](#setupfn-extimport) below.
+Read more about [server setup function](#setupfn-reference) below.
 
 ## Middleware Config Function
 
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
 
-Read more about [middleware config function](#middlewareconfigfn-extimport) below.
+Read more about [middleware config function](#middlewareconfigfn-reference) below.
 
 ## API Reference
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
+    ```ts title="main.wasp.ts"
+    import { app } from '@wasp.sh/spec'
+    import { myMiddlewareConfigFn, mySetupFunction } from './src/myServerSetupCode' with { type: "ref" }
+
+    export default app({
+      name: 'MyApp',
+      title: 'My app',
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+        setupFn: mySetupFunction,
+        middlewareConfigFn: myMiddlewareConfigFn,
+      },
+      parts: [],
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
+    ```ts title="main.wasp.ts"
+    import { app } from '@wasp.sh/spec'
+    import { myMiddlewareConfigFn, mySetupFunction } from './src/myServerSetupCode' with { type: "ref" }
+
+    export default app({
+      name: 'MyApp',
+      title: 'My app',
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+        setupFn: mySetupFunction,
+        middlewareConfigFn: myMiddlewareConfigFn,
+      },
+      parts: [],
+    })
     ```
   </TabItem>
 </Tabs>
 
 `app.server` is a dictionary with the following fields:
 
-- #### `setupFn: ExtImport`
+- #### `setupFn: Reference`
 
   `setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>Javascript</ShowForJs> function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
 
@@ -229,6 +245,6 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
     </TabItem>
   </Tabs>
 
-- #### `middlewareConfigFn: ExtImport`
+- #### `middlewareConfigFn: Reference`
 
-  The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).
+  A reference to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).

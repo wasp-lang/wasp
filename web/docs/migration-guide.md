@@ -39,15 +39,17 @@ The `api` export from `wasp/client/api` is now a [ky](https://github.com/sindres
 
 ### 1. Bump the Wasp version
 
-Update the version field in your Wasp config to `^0.24.0`:
+When rewriting your config as a Wasp Spec, set the version field to `^0.24.0`:
 
-```wasp title="main.wasp"
-app MyApp {
-  wasp: {
-    version: "^0.24.0"
-  },
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'MyApp',
+  wasp: { version: '^0.24.0' },
   // ...
-}
+  parts: [],
+})
 ```
 
 ### 2. Migrate your `main.wasp` or `main.wasp.ts` to the new Wasp Spec

@@ -17,11 +17,16 @@ This gives you:
 
 Add `prerender: true` to any route declaration:
 
-```wasp title="main.wasp"
-route LandingRoute { path: "/", to: LandingPage, prerender: true }
-page LandingPage {
-  component: import { LandingPage } from "@src/LandingPage"
-}
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { LandingPage } from './src/LandingPage' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route('LandingRoute', '/', page(LandingPage), { prerender: true }),
+  ],
+})
 ```
 
 That's it. When you run `wasp build`, Wasp renders this route's HTML at build time. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
@@ -55,25 +60,42 @@ Prerendering is especially valuable if you want your content to be indexed by se
 
 Prerendering only works on routes with static paths. Routes with dynamic segments (`:paramName`), optional segments (`?`), or splats (`*`) cannot be prerendered, because the HTML must be generated at build time for a known URL.
 
-```wasp title="main.wasp"
-// ✅ Works (static path)
-route AboutRoute { path: "/about", to: AboutPage, prerender: true }
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { AboutPage } from './src/AboutPage' with { type: "ref" }
+import { UserPage } from './src/UserPage' with { type: "ref" }
 
-// ❌ Won't compile (dynamic segment)
-route UserRoute { path: "/user/:id", to: UserPage, prerender: true }
+export default app({
+  // ...
+  parts: [
+    // ✅ Works (static path)
+    route('AboutRoute', '/about', page(AboutPage), { prerender: true }),
+    // ❌ Won't compile (dynamic segment)
+    route('UserRoute', '/user/:id', page(UserPage), { prerender: true }),
+  ],
+})
 ```
 
 ### No auth-required pages
 
 Routes pointing to pages with `authRequired: true` cannot be prerendered, since the page content depends on the logged-in user.
 
-```wasp title="main.wasp"
-// ❌ Won't compile (authRequired is true)
-route DashRoute { path: "/dashboard", to: DashPage, prerender: true }
-page DashPage {
-  authRequired: true,
-  component: import { DashPage } from "@src/DashPage"
-}
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { DashPage } from './src/DashPage' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    // ❌ Won't compile (authRequired is true)
+    route(
+      'DashRoute',
+      '/dashboard',
+      page(DashPage, { authRequired: true }),
+      { prerender: true }
+    ),
+  ],
+})
 ```
 
 :::caution
@@ -134,12 +156,18 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 
 ### `prerender` field on `route`
 
-```wasp title="main.wasp"
-route NameRoute {
-  path: "/some-path",
-  to: SomePage,
-  prerender: true,   // optional, defaults to false
-}
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { SomePage } from './src/SomePage' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route('NameRoute', '/some-path', page(SomePage), {
+      prerender: true, // optional, defaults to false
+    }),
+  ],
+})
 ```
 
 `prerender` is an optional boolean field on the `route` declaration.

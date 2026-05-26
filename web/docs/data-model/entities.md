@@ -12,11 +12,15 @@ In your project, you'll find a `schema.prisma` file in the root directory:
 
 ```
 .
-├── main.wasp
+├── main.wasp.ts
 ...
+├── package.json
+├── public
 ├── schema.prisma
 ├── src
 ├── tsconfig.json
+├── tsconfig.src.json
+├── tsconfig.wasp.json
 └── vite.config.ts
 ```
 

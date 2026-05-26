@@ -26,7 +26,7 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 All the `User` fields you defined will be present at the top level of the `AuthUser` object. The auth-related fields will be on the `identities` object. For each auth method you enable, there will be a separate data object in the `identities` object.
 
-The `AuthUser` object will change depending on which auth method you have enabled in the Wasp file. For example, if you enabled the email auth and Google auth, it would look something like this:
+The `AuthUser` object will change depending on which auth method you have enabled in the Wasp Spec file. For example, if you enabled the email auth and Google auth, it would look something like this:
 
 <Tabs>
   <TabItem value="google" label="User Signed Up with Google">
@@ -443,18 +443,20 @@ When you want to add authentication to your app, you need to specify the `userEn
 
 For example, you might set it to `User`:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'myApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My App',
   auth: {
     // highlight-next-line
-    userEntity: User,
+    userEntity: 'User',
     // ...
   },
-}
+  parts: [],
+})
 ```
 
 And define the `User` in the `schema.prisma` file:
@@ -594,13 +596,16 @@ Below is a simplified version of a custom signup action which you probably would
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    // ...
+    ```ts title="main.wasp.ts"
+    import { action, app } from '@wasp.sh/spec'
+    import { signup } from './src/auth/signup' with { type: "ref" }
 
-    action customSignup {
-      fn: import { signup } from "@src/auth/signup",
-      entities: [User]
-    }
+    export default app({
+      // ...
+      parts: [
+        action(signup, { entities: ['User'] }),
+      ],
+    })
     ```
 
     ```js title="src/auth/signup.js"
@@ -662,13 +667,16 @@ Below is a simplified version of a custom signup action which you probably would
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    // ...
+    ```ts title="main.wasp.ts"
+    import { action, app } from '@wasp.sh/spec'
+    import { signup } from './src/auth/signup' with { type: "ref" }
 
-    action customSignup {
-      fn: import { signup } from "@src/auth/signup",
-      entities: [User]
-    }
+    export default app({
+      // ...
+      parts: [
+        action(signup, { entities: ['User'] }),
+      ],
+    })
     ```
 
     ```ts title="src/auth/signup.ts"

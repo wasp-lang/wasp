@@ -18,23 +18,25 @@ Here's a 1-minute tour of how full-stack auth works in Wasp:
 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` declaration:
 
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  //...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'MyApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My app',
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
       google: {},
       gitHub: {},
     },
-    onAuthFailedRedirectTo: "/someRoute"
-  }
-}
-
-//...
+    onAuthFailedRedirectTo: '/someRoute',
+  },
+  parts: [],
+})
 ```
 
 <small>
@@ -109,11 +111,16 @@ When declaring a page, you can set the `authRequired` property.
 
 If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `app.auth.onAuthFailedRedirectTo` field.
 
-```wasp title="main.wasp"
-page MainPage {
-  component: import Main from "@src/pages/Main",
-  authRequired: true
-}
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import Main from './src/pages/Main' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route('MainRoute', '/', page(Main, { authRequired: true })),
+  ],
+})
 ```
 
 :::caution Requires auth method
@@ -171,13 +178,20 @@ There are two ways to access the `user` object on the client:
 
 If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import Account from './src/pages/Account' with { type: "ref" }
 
-page AccountPage {
-  component: import Account from "@src/pages/Account",
-  authRequired: true
-}
+export default app({
+  // ...
+  parts: [
+    route(
+      'AccountRoute',
+      '/account',
+      page(Account, { authRequired: true })
+    ),
+  ],
+})
 ```
 
 ```tsx title="src/pages/Account.tsx" auto-js
@@ -277,12 +291,16 @@ When users log in, Wasp creates a session for them and stores it in the database
 
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { action, app } from '@wasp.sh/spec'
+import { updatePassword } from './src/auth' with { type: "ref" }
 
-action updatePassword {
-  fn: import { updatePassword } from "@src/auth",
-}
+export default app({
+  // ...
+  parts: [
+    action(updatePassword),
+  ],
+})
 ```
 
 ```ts title="src/auth.ts" auto-js
@@ -364,23 +382,28 @@ We do that by defining an object where the keys represent the field name, and th
   \* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
 
-First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `main.wasp` file. The `{authMethod}` depends on the auth method you are using.
+First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `main.wasp.ts` file. The `{authMethod}` depends on the auth method you are using.
 
 For example, if you are using [Username & Password](./username-and-pass), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
-```wasp title="main.wasp"
-app crudTesting {
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { userSignupFields } from './src/auth/signup' with { type: "ref" }
+
+export default app({
+  name: 'crudTesting',
   // ...
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       usernameAndPassword: {
-        userSignupFields: import { userSignupFields } from "@src/auth/signup",
+        userSignupFields,
       },
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: '/login',
   },
-}
+  parts: [],
+})
 ```
 
 ```prisma title="schema.prisma"
@@ -413,7 +436,7 @@ export const userSignupFields = defineUserSignupFields({
   Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
 </small>
 
-Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
+Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp.ts` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
 
 The field function will receive the data sent from the client and it needs to return the value that will be saved into the database. If the field is invalid, the function should throw an error.
 
@@ -562,23 +585,25 @@ export const SignupPage = () => {
 
 ### Auth Fields
 
-```wasp title="main.wasp"
-app MyApp {
-  title: "My app",
-  //...
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+
+export default app({
+  name: 'MyApp',
+  wasp: { version: '{latestWaspVersion}' },
+  title: 'My app',
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
       google: {},
       gitHub: {},
     },
-    onAuthFailedRedirectTo: "/someRoute",
-  }
-}
-
-//...
+    onAuthFailedRedirectTo: '/someRoute',
+  },
+  parts: [],
+})
 ```
 
 `app.auth` is a dictionary with the following fields:
@@ -611,22 +636,27 @@ Automatic redirect on successful login only works when using the Wasp-provided [
 
 ### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp` file.
+If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
 
-```wasp title="main.wasp"
-app crudTesting {
+```ts title="main.wasp.ts"
+import { app } from '@wasp.sh/spec'
+import { userSignupFields } from './src/auth/signup' with { type: "ref" }
+
+export default app({
+  name: 'crudTesting',
   // ...
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       usernameAndPassword: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/signup",
+        userSignupFields,
       },
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: '/login',
   },
-}
+  parts: [],
+})
 ```
 
 Then we'll export the `userSignupFields` object from the `src/auth/signup.{js,ts}` file:

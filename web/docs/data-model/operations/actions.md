@@ -37,36 +37,18 @@ Once these two steps are completed, you can use the Action from anywhere in your
 
 To create an Action in Wasp, we begin with an `action` declaration. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    // ...
+```ts title="main.wasp.ts"
+import { action, app } from '@wasp.sh/spec'
+import { createTask, markTaskAsDone } from './src/actions' with { type: "ref" }
 
-    action createTask {
-      fn: import { createTask } from "@src/actions"
-    }
-
-    action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions"
-    }
-
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    // ...
-
-    action createTask {
-      fn: import { createTask } from "@src/actions"
-    }
-
-    action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions"
-    }
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  // ...
+  parts: [
+    action(createTask),
+    action(markTaskAsDone),
+  ],
+})
+```
 
 <small>
   If you want to know about all supported options for the `action` declaration, take a look at the [API Reference](#api-reference).
@@ -77,7 +59,7 @@ The names of Wasp Actions and their implementations don't necessarily have to ma
 :::info
 You might have noticed that we told Wasp to import Action implementations that don't yet exist. Don't worry about that for now. We'll write the implementations imported from `actions.{js,ts}` in the next section.
 
-It's a good idea to start with the high-level concept (the Action declaration in the Wasp file) and only then deal with the implementation details (the Action's implementation in JavaScript).
+It's a good idea to start with the high-level concept (the Action declaration in the Wasp Spec file) and only then deal with the implementation details (the Action's implementation in JavaScript).
 :::
 
 After declaring a Wasp Action, two important things happen:
@@ -183,7 +165,7 @@ Here's how you might implement the previously declared Actions `createTask` and 
 
     #### Type support for Actions
 
-    Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp file:
+    Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp Spec file:
 
     - `CreateTask` is a generic type that Wasp automatically generated based on the Action declaration for `createTask`.
     - `MarkTaskAsDone` is a generic type that Wasp automatically generated based on the Action declaration for `markTaskAsDone`.
@@ -447,37 +429,18 @@ If you do want to pass additional error information to the client, you can const
 In most cases, resources used in Actions will be [Entities](../../data-model/entities.md).
 To use an Entity in your Action, add it to the `action` declaration in Wasp:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp {4,9} title="main.wasp"
+```ts title="main.wasp.ts"
+import { action, app } from '@wasp.sh/spec'
+import { createTask, markTaskAsDone } from './src/actions' with { type: "ref" }
 
-    action createTask {
-      fn: import { createTask } from "@src/actions",
-      entities: [Task]
-    }
-
-    action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions",
-      entities: [Task]
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp {4,9} title="main.wasp"
-
-    action createTask {
-      fn: import { createTask } from "@src/actions",
-      entities: [Task]
-    }
-
-    action markTaskAsDone {
-      fn: import { markTaskAsDone } from "@src/actions",
-      entities: [Task]
-    }
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  // ...
+  parts: [
+    action(createTask, { entities: ['Task'] }),
+    action(markTaskAsDone, { entities: ['Task'] }),
+  ],
+})
+```
 
 Wasp will inject the specified Entity into the Action's `context` argument, giving you access to the Entity's Prisma API.
 Wasp invalidates frontend Query caches by looking at the Entities used by each Action/Query. Read more about Wasp's smart cache invalidation [here](#cache-invalidation).
@@ -570,18 +533,22 @@ Here are the key differences between Queries and Actions:
 
 ## API Reference
 
-### Declaring Actions in Wasp
+### Declaring Actions in Wasp Spec
 
-The `action` declaration supports the following fields:
+Declare an Action with `action(fn, config)`:
 
-- `fn: ExtImport` <Required />
+- `fn` <Required />
 
-  The import statement of the Action's NodeJs implementation.
+  The Action's Node.js implementation. Import it from your app source with `with { type: "ref" }` and pass the imported value as the first argument.
 
-- `entities: [Entity]`
+- `config.entities: EntityName[]`
 
   A list of entities you wish to use inside your Action.
   For instructions on using Entities in Actions, take a look at [the guide](#using-entities-in-actions).
+
+- `config.auth: boolean`
+
+  Whether this Action requires auth. If your app has auth enabled, this defaults to `true`.
 
 #### Example
 
@@ -589,11 +556,16 @@ The `action` declaration supports the following fields:
   <TabItem value="js" label="JavaScript">
     Declaring the Action:
 
-    ```wasp
-    action createFoo {
-        fn: import { createFoo } from "@src/actions"
-        entities: [Foo]
-    }
+    ```ts
+    import { action, app } from '@wasp.sh/spec'
+    import { createFoo } from './src/actions' with { type: "ref" }
+
+    export default app({
+      // ...
+      parts: [
+        action(createFoo, { entities: ['Foo'] }),
+      ],
+    })
     ```
 
     Enables you to import and use it anywhere in your code (on the server or the client):
@@ -610,11 +582,16 @@ The `action` declaration supports the following fields:
   <TabItem value="ts" label="TypeScript">
     Declaring the Action:
 
-    ```wasp
-    action createFoo {
-        fn: import { createFoo } from "@src/actions"
-        entities: [Foo]
-    }
+    ```ts
+    import { action, app } from '@wasp.sh/spec'
+    import { createFoo } from './src/actions' with { type: "ref" }
+
+    export default app({
+      // ...
+      parts: [
+        action(createFoo, { entities: ['Foo'] }),
+      ],
+    })
     ```
 
     Enables you to import and use it anywhere in your code (on the server or the client):
@@ -676,16 +653,21 @@ Since both arguments are positional, you can name the parameters however you wan
   <TabItem value="js" label="JavaScript">
     The following Action:
 
-    ```wasp
-    action createFoo {
-        fn: import { createFoo } from "@src/actions"
-        entities: [Foo]
-    }
+    ```ts
+    import { action, app } from '@wasp.sh/spec'
+    import { createFoo } from './src/actions' with { type: "ref" }
+
+    export default app({
+      // ...
+      parts: [
+        action(createFoo, { entities: ['Foo'] }),
+      ],
+    })
     ```
 
-    Expects to find a named export `createfoo` from the file `src/actions.js`
+    Expects to find a named export `createFoo` from the file `src/actions.js`
 
-    ```js title="actions.js"
+    ```js title="src/actions.js"
     export const createFoo = (args, context) => {
       // implementation
     }
@@ -695,18 +677,23 @@ Since both arguments are positional, you can name the parameters however you wan
   <TabItem value="ts" label="TypeScript">
     The following Action:
 
-    ```wasp
-    action createFoo {
-        fn: import { createFoo } from "@src/actions"
-        entities: [Foo]
-    }
+    ```ts
+    import { action, app } from '@wasp.sh/spec'
+    import { createFoo } from './src/actions' with { type: "ref" }
+
+    export default app({
+      // ...
+      parts: [
+        action(createFoo, { entities: ['Foo'] }),
+      ],
+    })
     ```
 
-    Expects to find a named export `createfoo` from the file `src/actions.js`
+    Expects to find a named export `createFoo` from the file `src/actions.ts`
 
     You can use the generated type `CreateFoo` and specify the Action's inputs and outputs using its type arguments.
 
-    ```ts title="actions.ts"
+    ```ts title="src/actions.ts"
     import { type CreateFoo } from 'wasp/server/operations'
 
     type Foo = // ...

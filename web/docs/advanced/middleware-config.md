@@ -85,14 +85,17 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp {5} title="main.wasp"
-    app todoApp {
-      // ...
+    ```ts {7} title="main.wasp.ts"
+    import { app } from '@wasp.sh/spec'
+    import { serverMiddlewareFn } from './src/serverSetup' with { type: "ref" }
 
+    export default app({
+      name: 'todoApp',
       server: {
-        middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup"
+        middlewareConfigFn: serverMiddlewareFn,
       },
-    }
+      parts: [],
+    })
     ```
 
     ```ts title="src/serverSetup.js"
@@ -108,14 +111,17 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp {5} title="main.wasp"
-    app todoApp {
-      // ...
+    ```ts {7} title="main.wasp.ts"
+    import { app } from '@wasp.sh/spec'
+    import { serverMiddlewareFn } from './src/serverSetup' with { type: "ref" }
 
+    export default app({
+      name: 'todoApp',
       server: {
-        middlewareConfigFn: import { serverMiddlewareFn } from "@src/serverSetup"
+        middlewareConfigFn: serverMiddlewareFn,
       },
-    }
+      parts: [],
+    })
     ```
 
     ```ts title="src/serverSetup.ts"
@@ -137,15 +143,19 @@ If you would like to modify the middleware for a single API, you can do somethin
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp {5} title="main.wasp"
-    // ...
+    ```ts title="main.wasp.ts"
+    import { api, app } from '@wasp.sh/spec'
+    import { webhookCallback, webhookCallbackMiddlewareFn } from './src/apis' with { type: "ref" }
 
-    api webhookCallback {
-      fn: import { webhookCallback } from "@src/apis",
-      middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@src/apis",
-      httpRoute: (POST, "/webhook/callback"),
-      auth: false
-    }
+    export default app({
+      // ...
+      parts: [
+        api('POST', '/webhook/callback', webhookCallback, {
+          middlewareConfigFn: webhookCallbackMiddlewareFn,
+          auth: false,
+        }),
+      ],
+    })
     ```
 
     ```ts title="src/apis.js"
@@ -168,15 +178,19 @@ If you would like to modify the middleware for a single API, you can do somethin
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp {5} title="main.wasp"
-    // ...
+    ```ts title="main.wasp.ts"
+    import { api, app } from '@wasp.sh/spec'
+    import { webhookCallback, webhookCallbackMiddlewareFn } from './src/apis' with { type: "ref" }
 
-    api webhookCallback {
-      fn: import { webhookCallback } from "@src/apis",
-      middlewareConfigFn: import { webhookCallbackMiddlewareFn } from "@src/apis",
-      httpRoute: (POST, "/webhook/callback"),
-      auth: false
-    }
+    export default app({
+      // ...
+      parts: [
+        api('POST', '/webhook/callback', webhookCallback, {
+          middlewareConfigFn: webhookCallbackMiddlewareFn,
+          auth: false,
+        }),
+      ],
+    })
     ```
 
     ```ts title="src/apis.ts"
@@ -216,13 +230,18 @@ If you would like to modify the middleware for all API routes under some common 
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp {4} title="main.wasp"
-    // ...
+    ```ts title="main.wasp.ts"
+    import { apiNamespace, app } from '@wasp.sh/spec'
+    import { fooBarNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
 
-    apiNamespace fooBar {
-      middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@src/apis",
-      path: "/foo/bar"
-    }
+    export default app({
+      // ...
+      parts: [
+        apiNamespace('/foo/bar', {
+          middlewareConfigFn: fooBarNamespaceMiddlewareFn,
+        }),
+      ],
+    })
     ```
 
     ```ts title="src/apis.js"
@@ -240,13 +259,18 @@ If you would like to modify the middleware for all API routes under some common 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp {4} title="main.wasp"
-    // ...
+    ```ts title="main.wasp.ts"
+    import { apiNamespace, app } from '@wasp.sh/spec'
+    import { fooBarNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
 
-    apiNamespace fooBar {
-      middlewareConfigFn: import { fooBarNamespaceMiddlewareFn } from "@src/apis",
-      path: "/foo/bar"
-    }
+    export default app({
+      // ...
+      parts: [
+        apiNamespace('/foo/bar', {
+          middlewareConfigFn: fooBarNamespaceMiddlewareFn,
+        }),
+      ],
+    })
     ```
 
     ```ts title="src/apis.ts"

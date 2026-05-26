@@ -32,20 +32,25 @@ We can then define a new `crud` called `Tasks`.
 
 We specify to use the `Task` entity and we enable the `getAll`, `get`, `create` and `update` operations (let's say we don't need the `delete` operation).
 
-```wasp title="main.wasp"
-crud Tasks {
-  entity: Task,
-  operations: {
-    getAll: {
-      isPublic: true, // by default only logged in users can perform operations
-    },
-    get: {},
-    create: {
-      overrideFn: import { createTask } from "@src/tasks",
-    },
-    update: {},
-  },
-}
+```ts title="main.wasp.ts"
+import { app, crud } from '@wasp.sh/spec'
+import { createTask } from './src/tasks' with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    crud('Tasks', 'Task', {
+      getAll: {
+        isPublic: true, // by default only logged in users can perform operations
+      },
+      get: {},
+      create: {
+        overrideFn: createTask,
+      },
+      update: {},
+    }),
+  ],
+})
 ```
 
 1. It uses default implementation for `getAll`, `get`, and `update`,
@@ -68,41 +73,42 @@ Let's create a full-app example that uses automatic CRUD. We'll stick to using t
 
 ### Creating the App
 
-We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp` file:
+We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.ts` file:
 
-```wasp title="main.wasp"
-app tasksCrudApp {
+```ts title="main.wasp.ts"
+import { app, page, route } from '@wasp.sh/spec'
+import { LoginPage } from './src/LoginPage' with { type: "ref" }
+import { MainPage } from './src/MainPage' with { type: "ref" }
+import { SignupPage } from './src/SignupPage' with { type: "ref" }
+
+export default app({
+  name: 'tasksCrudApp',
   wasp: {
-    version: "{latestWaspVersion}"
+    version: '{latestWaspVersion}',
   },
-  title: "Tasks Crud App",
+  title: 'Tasks Crud App',
 
   // We enabled auth and set the auth method to username and password
   auth: {
-    userEntity: User,
+    userEntity: 'User',
     methods: {
       usernameAndPassword: {},
     },
-    onAuthFailedRedirectTo: "/login",
+    onAuthFailedRedirectTo: '/login',
   },
-}
-
-// Tasks app routes
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  component: import { MainPage } from "@src/MainPage",
-  authRequired: true,
-}
-
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { LoginPage } from "@src/LoginPage",
-}
-
-route SignupRoute { path: "/signup", to: SignupPage }
-page SignupPage {
-  component: import { SignupPage } from "@src/SignupPage",
-}
+  parts: [
+    // Tasks app routes
+    route(
+      'RootRoute',
+      '/',
+      page(MainPage, {
+        authRequired: true,
+      })
+    ),
+    route('LoginRoute', '/login', page(LoginPage)),
+    route('SignupRoute', '/signup', page(SignupPage)),
+  ],
+})
 ```
 
 And let's define our entities in the `schema.prisma` file:
@@ -127,20 +133,23 @@ We can then run `wasp db migrate-dev` to create the database and run the migrati
 
 ### Adding CRUD to the `Task` Entity ✨
 
-Let's add the following `crud` declaration to our `main.wasp` file:
+Let's add the following `crud` declaration to our `main.wasp.ts` file:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, crud } from '@wasp.sh/spec'
+import { createTask } from './src/tasks' with { type: "ref" }
 
-crud Tasks {
-  entity: Task,
-  operations: {
-    getAll: {},
-    create: {
-      overrideFn: import { createTask } from "@src/tasks",
-    },
-  },
-}
+export default app({
+  // ...
+  parts: [
+    crud('Tasks', 'Task', {
+      getAll: {},
+      create: {
+        overrideFn: createTask,
+      },
+    }),
+  ],
+})
 ```
 
 You'll notice that we enabled only `getAll` and `create` operations. This means that only these operations will be available.
@@ -222,7 +231,7 @@ Here's the `src/tasks.{js,ts}` file:
     }
     ```
 
-    Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD declaration in your Wasp file.
+    Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD declaration in your Wasp Spec file.
     Use it to type the CRUD action's implementation.
 
     The `Tasks.CreateAction` type works exactly like the types Wasp generates for [Queries](../data-model/operations/queries#type-support-for-queries) and [Actions](../data-model/operations/actions#type-support-for-actions).
@@ -455,17 +464,21 @@ If we create CRUD operations for an entity named `Task`, like this:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    crud Tasks { // crud name here is "Tasks"
-      entity: Task,
-      operations: {
-        get: {},
-        getAll: {},
-        create: {},
-        update: {},
-        delete: {},
-      },
-    }
+    ```ts title="main.wasp.ts"
+    import { app, crud } from '@wasp.sh/spec'
+
+    export default app({
+      // ...
+      parts: [
+        crud('Tasks', 'Task', { // crud name here is "Tasks"
+          get: {},
+          getAll: {},
+          create: {},
+          update: {},
+          delete: {},
+        }),
+      ],
+    })
     ```
 
     Wasp will give you the following default implementations:
@@ -514,17 +527,21 @@ If we create CRUD operations for an entity named `Task`, like this:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    crud Tasks { // crud name here is "Tasks"
-      entity: Task,
-      operations: {
-        get: {},
-        getAll: {},
-        create: {},
-        update: {},
-        delete: {},
-      },
-    }
+    ```ts title="main.wasp.ts"
+    import { app, crud } from '@wasp.sh/spec'
+
+    export default app({
+      // ...
+      parts: [
+        crud('Tasks', 'Task', { // crud name here is "Tasks"
+          get: {},
+          getAll: {},
+          create: {},
+          update: {},
+          delete: {},
+        }),
+      ],
+    })
     ```
 
     Wasp will give you the following default implementations:
@@ -588,38 +605,48 @@ Here's an example of a more complex CRUD declaration:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    crud Tasks { // crud name here is "Tasks"
-      entity: Task,
-      operations: {
-        getAll: {
-          isPublic: true, // optional, defaults to false
-        },
-        get: {},
-        create: {
-          overrideFn: import { createTask } from "@src/tasks", // optional
-        },
-        update: {},
-      },
-    }
+    ```ts title="main.wasp.ts"
+    import { app, crud } from '@wasp.sh/spec'
+    import { createTask } from './src/tasks' with { type: "ref" }
+
+    export default app({
+      // ...
+      parts: [
+        crud('Tasks', 'Task', { // crud name here is "Tasks"
+          getAll: {
+            isPublic: true, // optional, defaults to false
+          },
+          get: {},
+          create: {
+            overrideFn: createTask, // optional
+          },
+          update: {},
+        }),
+      ],
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    crud Tasks { // crud name here is "Tasks"
-      entity: Task,
-      operations: {
-        getAll: {
-          isPublic: true, // optional, defaults to false
-        },
-        get: {},
-        create: {
-          overrideFn: import { createTask } from "@src/tasks", // optional
-        },
-        update: {},
-      },
-    }
+    ```ts title="main.wasp.ts"
+    import { app, crud } from '@wasp.sh/spec'
+    import { createTask } from './src/tasks' with { type: "ref" }
+
+    export default app({
+      // ...
+      parts: [
+        crud('Tasks', 'Task', { // crud name here is "Tasks"
+          getAll: {
+            isPublic: true, // optional, defaults to false
+          },
+          get: {},
+          create: {
+            overrideFn: createTask, // optional
+          },
+          update: {},
+        }),
+      ],
+    })
     ```
   </TabItem>
 </Tabs>
@@ -642,7 +669,7 @@ The CRUD declaration features the following fields:
     - `delete`
   - `CrudOperationOptions` can have the following fields:
     - `isPublic: bool` - Whether the operation is public or not. If it is public, no auth is required to access it. If it is not public, it will be available only to authenticated users. Defaults to `false`.
-    - `overrideFn: ExtImport` - The import statement of the optional override implementation in Node.js.
+    - `overrideFn: Reference` - A reference to the optional override implementation in Node.js.
 
 #### Defining the overrides
 
