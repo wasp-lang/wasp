@@ -395,7 +395,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
   </TabItem>
 </Tabs>
 
-#### `userSignupFields: Reference`
+#### `userSignupFields`: [`Reference`](../general/spec.md#reference-imports)
 
 <UserSignupFieldsExplainer />
 

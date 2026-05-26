@@ -206,7 +206,7 @@ Read more about [middleware config function](#middlewareconfigfn-reference) belo
 
 `app.server` is a dictionary with the following fields:
 
-- #### `setupFn: Reference`
+- #### `setupFn`: [`Reference`](../general/spec.md#reference-imports)
 
   `setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>Javascript</ShowForJs> function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
 
@@ -245,6 +245,6 @@ Read more about [middleware config function](#middlewareconfigfn-reference) belo
     </TabItem>
   </Tabs>
 
-- #### `middlewareConfigFn: Reference`
+- #### `middlewareConfigFn`: [`Reference`](../general/spec.md#reference-imports)
 
   A reference to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).

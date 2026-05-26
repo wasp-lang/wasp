@@ -71,7 +71,7 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 
 ## Adding a Second Page
 
-To add more pages, you can add another route/page pair to your spec. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
+To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from '@wasp.sh/spec'
@@ -126,7 +126,7 @@ At this point, the main page should look like this:
 
 You can now delete redundant files: `src/Main.css`, `src/assets/logo.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
-Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route/page pair from the `main.wasp.ts` file.
+Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.ts` file.
 
 Your Wasp file should now look like this:
 

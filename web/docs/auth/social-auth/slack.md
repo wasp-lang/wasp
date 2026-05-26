@@ -357,7 +357,7 @@ export default app({
 
 The `slack` dict has the following properties:
 
-- #### `configFn: Reference`
+- #### `configFn`: [`Reference`](../../general/spec.md#reference-imports)
 
   This function should return an object with the scopes for the OAuth provider.
 
@@ -369,7 +369,7 @@ The `slack` dict has the following properties:
   }
   ```
 
-- #### `userSignupFields: Reference`
+- #### `userSignupFields`: [`Reference`](../../general/spec.md#reference-imports)
 
   <UserSignupFieldsExplainer />
 

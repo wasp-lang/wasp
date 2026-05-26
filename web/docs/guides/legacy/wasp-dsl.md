@@ -277,7 +277,7 @@ These steps assume your project is already on Wasp `^0.24.0`. If it isn't, follo
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
-1. Rename `tsconfig.json` to `tsconfig.src.json` and make it exclude Wasp files:
+1. Rename `tsconfig.json` to `tsconfig.src.json` and make it exclude Wasp Spec files:
 
    ```json title="tsconfig.src.json"
    {

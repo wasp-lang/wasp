@@ -367,11 +367,11 @@ The `api` function accepts the following arguments and options:
 
   An Express path string.
 
-- `fn: Reference` <Required />
+- `fn`: [`Reference`](../general/spec.md#reference-imports) <Required />
 
   The API's NodeJS implementation imported with `with { type: "ref" }`.
 
-- `entities: string[]`
+- `entities: EntityName[]`
 
   A list of entities you wish to use inside your API. You can read more about it [here](#using-entities-in-apis).
 
@@ -379,6 +379,6 @@ The `api` function accepts the following arguments and options:
 
   If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you should set this to `false`.
 
-- `middlewareConfigFn: Reference`
+- `middlewareConfigFn`: [`Reference`](../general/spec.md#reference-imports)
 
   The import statement to an Express middleware config function for this API. See more in [middleware section](../advanced/middleware-config) of the docs.

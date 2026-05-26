@@ -361,7 +361,7 @@ router will work correctly, and all the assets will be served from
 
 Client has the following options:
 
-- #### `rootComponent: Reference`
+- #### `rootComponent`: [`Reference`](../general/spec.md#reference-imports)
 
   `rootComponent` defines the root component of your client application. It is
   expected to be a React component, and Wasp will use it as the root of the
@@ -436,7 +436,7 @@ Client has the following options:
     </TabItem>
   </Tabs>
 
-- #### `setupFn: Reference`
+- #### `setupFn`: [`Reference`](../general/spec.md#reference-imports)
 
   <ShowForTs>
     `setupFn` declares a Typescript function that Wasp executes on the client

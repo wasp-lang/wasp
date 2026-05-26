@@ -508,7 +508,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 Declare a Query with `query(fn, config)`:
 
-- `fn` <Required />
+- `fn`: [`Reference`](../../general/spec.md#reference-imports) <Required />
 
   The Query's Node.js implementation. Import it from your app source with `with { type: "ref" }` and pass the imported value as the first argument.
 

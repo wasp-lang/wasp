@@ -537,7 +537,7 @@ Here are the key differences between Queries and Actions:
 
 Declare an Action with `action(fn, config)`:
 
-- `fn` <Required />
+- `fn`: [`Reference`](../../general/spec.md#reference-imports) <Required />
 
   The Action's Node.js implementation. Import it from your app source with `with { type: "ref" }` and pass the imported value as the first argument.
 

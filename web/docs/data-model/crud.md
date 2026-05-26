@@ -669,7 +669,7 @@ The CRUD declaration features the following fields:
     - `delete`
   - `CrudOperationOptions` can have the following fields:
     - `isPublic: bool` - Whether the operation is public or not. If it is public, no auth is required to access it. If it is not public, it will be available only to authenticated users. Defaults to `false`.
-    - `overrideFn: Reference` - A reference to the optional override implementation in Node.js.
+    - `overrideFn`: [`Reference`](../general/spec.md#reference-imports) - A reference to the optional override implementation in Node.js.
 
 #### Defining the overrides
 

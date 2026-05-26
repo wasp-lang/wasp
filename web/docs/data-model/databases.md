@@ -486,12 +486,12 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
 
 `app.db` is a dictionary with the following fields (all fields are optional):
 
-- `seeds: Reference[]`
+- `seeds`: [`Reference[]`](../general/spec.md#reference-imports)
 
   Defines the seed functions you can use with the `wasp db seed` command to seed your database with initial data.
   Read the [Seeding section](#seeding-the-database) for more details.
 
-- `prismaSetupFn: Reference`
+- `prismaSetupFn`: [`Reference`](../general/spec.md#reference-imports)
 
   Defines a function that sets up the Prisma Client instance. Wasp expects it to return a Prisma Client instance.
   You can use this function to set up [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):

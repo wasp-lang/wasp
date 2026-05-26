@@ -255,7 +255,7 @@ The `job` function accepts the worker function as the first argument and a confi
 
   The job executor to use for this job. Currently, the only supported executor is [`PgBoss`](#pgboss).
 
-- `fn: Reference` <Required />
+- `fn`: [`Reference`](../general/spec.md#reference-imports) <Required />
 
   The worker function imported with `with { type: "ref" }`.
 
@@ -323,7 +323,7 @@ The `job` function accepts the worker function as the first argument and a confi
 
       See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
 
-- `entities: string[]`
+- `entities: EntityName[]`
 
   A list of entities you wish to use inside your Job (similar to [Queries and Actions](../data-model/operations/queries#using-entities-in-queries)).
 

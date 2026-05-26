@@ -291,7 +291,7 @@ export default app({
 
 The `discord` dict has the following properties:
 
-- #### `configFn: Reference`
+- #### `configFn`: [`Reference`](../../general/spec.md#reference-imports)
 
   This function should return an object with the scopes for the OAuth provider.
 
@@ -303,7 +303,7 @@ The `discord` dict has the following properties:
   }
   ```
 
-- #### `userSignupFields: Reference`
+- #### `userSignupFields`: [`Reference`](../../general/spec.md#reference-imports)
 
   <UserSignupFieldsExplainer />
 
