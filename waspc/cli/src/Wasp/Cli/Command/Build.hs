@@ -125,16 +125,17 @@ build = do
       -- `npm install` reconciles the lockfile (dropping the now-orphan spec entries)
       -- and proceeds without trying to resolve the missing `file:` path.
       --
-      -- This is a simplified version of the original hack done for
-      -- https://github.com/wasp-lang/wasp/issues/2368.
-      -- It's simpler because we let `npm install` to drop orphans from the lockfile
-      -- instead of pruning them manually.
-      --
       -- This relies on `npm install` (not `npm ci`) being used in the Dockerfile.
       -- The proper fix(es) are tracked in:
       --   - https://github.com/wasp-lang/wasp/issues/897
       --   - https://github.com/wasp-lang/wasp/issues/1769
       ExceptT $ updateJsonFile removeWaspSpecFromDevDependencies packageJsonInBuildDir
+      -- Removing `@wasp.sh/spec` from the package-lock.json file is not
+      -- strictly necessary (`npm install` would drop it anyway). We still do
+      -- it because:
+      --   - Npm throws a warning if it detects a mismatch.
+      --   - Npm has become more strict about this over time and will possibly
+      --   upgrade the warning into an error in future versions.
       ExceptT $ updateJsonFile (key "packages" . key "" %~ removeWaspSpecFromDevDependencies) packageLockJsonInBuildDir
 
     removeWaspSpecFromDevDependencies :: Value -> Value
