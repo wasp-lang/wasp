@@ -2,6 +2,8 @@
 title: Wasp Spec (main.wasp.ts)
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 You define and configure the high level of your app (pages, routes, queries, actions, auth, ...) in a `main.wasp.ts` file in the root of your project. We call this file the **Wasp Spec**.
 
 You write the Wasp Spec in TypeScript, so you get out-of-the-box support in all editors, full type checking, and the flexibility of a real programming language while configuring your app.
@@ -168,4 +170,4 @@ export default app({
 
 ## Reference
 
-Visit our [API Reference](../api/@wasp.sh/spec) for a complete overview of all the available configuration options in the Wasp Spec.
+<CardLink to="../api/@wasp.sh/spec" kind="api" title="@wasp.sh/spec" description="A complete overview of all the available configuration options in the Wasp Spec." />
