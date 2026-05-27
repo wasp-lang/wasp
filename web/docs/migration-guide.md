@@ -12,7 +12,7 @@ import LegacyInstallerMigration from './_legacy_installer_migration.md'
 
 ### Wasp Spec is the new way to configure apps
 
-You now configure your app with a Wasp file, `main.wasp.ts`. It has a new syntax that is incompatible with both the old Wasp DSL and the Wasp TS config. The new Wasp Spec is more flexible and powerful, allowing you to use JS imports, functions, and values in your app configuration. You can read more about the new Wasp Spec in the new [Wasp Spec documentation](./general/spec.md).
+You now configure your app with a Wasp Spec file, `main.wasp.ts`. It has a new syntax that is incompatible with both the old Wasp DSL and the Wasp TS config. The new Wasp Spec is more flexible and powerful, allowing you to use JS imports, functions, and values in your app configuration. You can read more about the new Wasp Spec in the new [Wasp Spec documentation](./general/spec.md).
 
 #### The Wasp Spec package is now `@wasp.sh/spec`
 
