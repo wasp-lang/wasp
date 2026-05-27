@@ -1,8 +1,8 @@
 import * as ts from "typescript";
 import { SpecUserError } from "../../spec/specUserError.js";
-import { getRefObjectPathForRefImport } from "./refObjectPath.js";
 import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
+import { getRefObjectPathForRefImport } from "./refObjectPath.js";
 import type {
   ImportDiagnostic,
   UnsupportedImportType,
