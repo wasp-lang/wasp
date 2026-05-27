@@ -5,6 +5,7 @@ title: Queries
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './\_superjson-note.md';
+import ReferencingCodeFromSrcNote from '../../_referencing-code-from-src-note.md';
 
 We'll explain what Queries are and how to use them. If you're looking for a detailed API specification, skip ahead to the [API Reference](#api-reference).
 
@@ -55,7 +56,7 @@ export default app({
   If you want to know about all supported options for the `query` declaration, take a look at the [API Reference](#api-reference).
 </small>
 
-The names of Wasp Queries and their implementations don't need to match, but we'll keep them the same to avoid confusion.
+<ReferencingCodeFromSrcNote />
 
 :::info
 You might have noticed that we told Wasp to import Query implementations that don't yet exist. Don't worry about that for now. We'll write the implementations imported from `queries.{js,ts}` in the next section.
@@ -63,11 +64,13 @@ You might have noticed that we told Wasp to import Query implementations that do
 It's a good idea to start with the high-level concept (the Query declaration in the Wasp file) and only then deal with the implementation details (the Query's implementation in JavaScript).
 :::
 
-After declaring a Wasp Query, two important things happen:
+After declaring a Wasp Query, Wasp derives the Query's name from the function you pass to `query`. For example, `query(getFilteredTasks)` creates a Query named `getFilteredTasks`.
 
-- Wasp **generates a server-side NodeJS function** that shares its name with the Query.
+Two important things then happen:
 
-- Wasp **generates a client-side JavaScript function** that shares its name with the Query (e.g., `getFilteredTasks`).
+- Wasp **generates a server-side NodeJS function** with the Query's name.
+
+- Wasp **generates a client-side JavaScript function** with the Query's name (e.g., `getFilteredTasks`).
   This function takes a single optional argument - an object containing any serializable data you wish to use inside the Query.
   Wasp will send this object over the network and pass it into the Query's implementation as its first positional argument (more on this when we look at the implementations).
   Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Query's NodeJS implementation under the hood.

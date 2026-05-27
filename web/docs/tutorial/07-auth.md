@@ -99,14 +99,18 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from '@wasp.sh/spec'
+// highlight-start
 import { SignupPage } from './src/SignupPage' with { type: "ref" }
 import { LoginPage } from './src/LoginPage' with { type: "ref" }
+// highlight-end
 
 export default app({
   // ...
   parts: [
+    // highlight-start
     route('SignupRoute', '/signup', page(SignupPage)),
     route('LoginRoute', '/login', page(LoginPage)),
+    // highlight-end    
   ],
 })
 ```
@@ -177,14 +181,10 @@ import { MainPage } from './src/MainPage' with { type: "ref" }
 export default app({
   // ...
   parts: [
-    route(
-      'RootRoute',
-      '/',
-      page(MainPage, {
-        // highlight-next-line
-        authRequired: true,
-      })
-    ),
+    route('RootRoute', '/', page(MainPage, {
+      // highlight-next-line
+      authRequired: true,
+    }),
   ],
 })
 ```

@@ -4,6 +4,7 @@ title: Recurring Jobs
 
 import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
+import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
 
 In most web apps, users send requests to the server and receive responses with some data. When the server responds quickly, the app feels responsive and smooth.
 
@@ -38,6 +39,8 @@ export default app({
   ],
 })
 ```
+
+<ReferencingCodeFromSrcNote />
 
 2. After declaring the Job, implement its worker function:
 
@@ -200,7 +203,7 @@ All job data will be stored in a separate database schema called `pgboss`. It ha
 
 - **Renaming scheduled jobs**
 
-    The job name/identifier in your Wasp file is the same name that will be used in the `name` column of `pgboss` tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `pgboss.schedule` table.
+    Wasp derives the Job's name from the worker function you pass to `job`. For example, `job(emailReminder, ...)` creates a Job named `emailReminder`, and Wasp uses that name in the `name` column of `pgboss` tables. If you change a name that had a `schedule` associated with it, pg-boss will continue scheduling those jobs but they will have no handlers associated, and will thus become stale and expire. To resolve this, you can remove the applicable row from the `pgboss.schedule` table.
 
     For example, if you renamed a job from `emailReminder` to `sendEmailReminder`, you would need to remove the old scheduled job with the following SQL query:
 
@@ -344,7 +347,7 @@ The `job` function accepts the worker function as the first argument and a confi
       ```
 
       :::info Type-safe jobs
-      Wasp generates a generic type for each Job declaration, which you can use to type your worker function. The type is named after the job declaration, and is available in the `wasp/server/jobs` module. In the example above, the type is `MySpecialJob`.
+      Wasp generates a generic type for each Job, which you can use to type your worker function. The type is named after the worker function you pass to `job`, converted to PascalCase, and is available in the `wasp/server/jobs` module. In the example above, the type is `MySpecialJob`.
 
       The type takes two type arguments:
 
@@ -408,7 +411,7 @@ The `job` function accepts the worker function as the first argument and a confi
 The return value of `submit()` is an instance of `SubmittedJob`, which has the following fields:
 
 - `jobId`: The ID for the job in that executor.
-- `jobName`: The name of the job you used in your `.wasp` file.
+- `jobName`: The Job name Wasp derived from the worker function you passed to `job`.
 - `executorName`: The Symbol of the name of the job executor.
 
 There are also some namespaced, job executor-specific objects.

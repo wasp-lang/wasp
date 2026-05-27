@@ -211,12 +211,8 @@ Wasp addresses the same core problems that typical web app frameworks are addres
 - to be used as a no-code solution
 - to be a solve-it-all tool in a single language
 
-## Wasp is a compiler-driven framework
+## Wasp is a spec-driven framework
 
-:::note
-You don't need to understand compilers to use Wasp, but the compiler is what lets Wasp generate so much app code for you.
-:::
-
-Wasp does not match typical expectations of a web app framework: it is not just a set of libraries. You describe your app in a TypeScript Wasp Spec, and the compiler uses that spec together with your React, Node.js, and Prisma code to generate the application structure and glue code.
+Wasp does not match typical expectations of a web app framework: it is not just a set of libraries. You describe your app in the `main.wasp.ts` spec file, and the compiler uses that spec together with your React, Node.js, and Prisma code to generate the application structure and glue code.
 
 This spec-driven approach lets Wasp focus on one purpose: **building modern web applications with 10x less code and less stack-specific knowledge**.

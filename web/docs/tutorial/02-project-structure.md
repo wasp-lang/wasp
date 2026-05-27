@@ -83,7 +83,7 @@ Let's take a closer look at `main.wasp.ts`
 `main.wasp.ts` is your app's Wasp file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
-The file exports your app's top-level configuration and a `parts` array. Each part defines a route, page, Query, Action, or another part of your app.
+The file exports your app's top-level configuration and a `parts` array. Each entry defines a route, page, Query, Action, or another part of your app.
 
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
@@ -137,7 +137,19 @@ The default `main.wasp.ts` file generated with `wasp new` on the previous page l
   </TabItem>
 </Tabs>
 
-This spec uses three declaration functions:
+### Referencing code from `src`
+
+When `main.wasp.ts` needs to point to your React components or Node.js functions, it uses imports like this:
+
+```ts
+import { MainPage } from './src/MainPage' with { type: "ref" }
+```
+
+Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](../general/spec.md#reference-imports).
+
+### Declarations
+
+This spec uses three declarations:
 
 - **app**: Top-level configuration information about your app.
 

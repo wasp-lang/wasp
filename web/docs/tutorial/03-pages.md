@@ -44,7 +44,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
   </TabItem>
 </Tabs>
 
-Together, these declarations tell Wasp that when a user navigates to `/`, it should render the named export from `src/MainPage.{jsx,tsx}`.
+Together, these declarations tell Wasp that when a user navigates to `/`, it should render the `MainPage` component from `src/MainPage.{jsx,tsx}`.
 
 ## The MainPage Component
 

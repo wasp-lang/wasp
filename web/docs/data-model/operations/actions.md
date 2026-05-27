@@ -5,6 +5,7 @@ title: Actions
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './\_superjson-note.md';
+import ReferencingCodeFromSrcNote from '../../_referencing-code-from-src-note.md';
 
 We'll explain what Actions are and how to use them. If you're looking for a detailed API specification, skip ahead to the [API Reference](#api-reference).
 
@@ -54,7 +55,7 @@ export default app({
   If you want to know about all supported options for the `action` declaration, take a look at the [API Reference](#api-reference).
 </small>
 
-The names of Wasp Actions and their implementations don't necessarily have to match. However, to avoid confusion, we'll keep them the same.
+<ReferencingCodeFromSrcNote />
 
 :::info
 You might have noticed that we told Wasp to import Action implementations that don't yet exist. Don't worry about that for now. We'll write the implementations imported from `actions.{js,ts}` in the next section.
@@ -62,11 +63,13 @@ You might have noticed that we told Wasp to import Action implementations that d
 It's a good idea to start with the high-level concept (the Action declaration in the Wasp file) and only then deal with the implementation details (the Action's implementation in JavaScript).
 :::
 
-After declaring a Wasp Action, two important things happen:
+After declaring a Wasp Action, Wasp derives the Action's name from the function you pass to `action`. For example, `action(markTaskAsDone)` creates an Action named `markTaskAsDone`.
 
-- Wasp **generates a server-side NodeJS function** that shares its name with the Action.
+Two important things then happen:
 
-- Wasp **generates a client-side JavaScript function** that shares its name with the Action (e.g., `markTaskAsDone`).
+- Wasp **generates a server-side NodeJS function** with the Action's name.
+
+- Wasp **generates a client-side JavaScript function** with the Action's name (e.g., `markTaskAsDone`).
   This function takes a single optional argument - an object containing any serializable data you wish to use inside the Action.
   Wasp will send this object over the network and pass it into the Action's implementation as its first positional argument (more on this when we look at the implementations).
   Such an abstraction works thanks to an HTTP API route handler Wasp generates on the server, which calls the Action's NodeJS implementation under the hood.

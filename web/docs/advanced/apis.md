@@ -4,6 +4,7 @@ title: Custom HTTP API Endpoints
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import { Required } from '@site/src/components/Tag'
+import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
 
 In Wasp, the default client-server interaction mechanism is through [Operations](../data-model/operations/overview). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`. Best of all, they should look and feel very familiar.
 
@@ -33,6 +34,8 @@ export default app({
   ],
 })
 ```
+
+<ReferencingCodeFromSrcNote />
 
 Read more about the supported fields in the [API Reference](#api-reference).
 

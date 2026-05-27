@@ -11,7 +11,7 @@ Wasp Spec files are TypeScript files, so editor support comes from your editor's
 
 ## TypeScript support
 
-Use any editor with TypeScript language service support. In Wasp projects, this gives you:
+Use any editor with TypeScript language service support (VS Code, Zed, etc.), this gives you:
 
 - type checking and diagnostics for `main.wasp.ts`
 - autocompletion for `@wasp.sh/spec` functions and options

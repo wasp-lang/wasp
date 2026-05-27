@@ -30,6 +30,7 @@ We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it e
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
     import { app, query } from '@wasp.sh/spec'
+    // highlight-next-line
     import { getTasks } from './src/queries' with { type: "ref" }
 
     export default app({
@@ -37,6 +38,7 @@ We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it e
       parts: [
         // Tell Wasp that this query reads from the `Task` entity. Wasp will
         // automatically update the results of this query when tasks are modified.
+        // highlight-next-line
         query(getTasks, { entities: ['Task'] }),
       ],
     })
@@ -47,6 +49,7 @@ We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it e
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
     import { app, query } from '@wasp.sh/spec'
+    // highlight-next-line
     import { getTasks } from './src/queries' with { type: "ref" }
 
     export default app({
@@ -54,6 +57,7 @@ We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it e
       parts: [
         // Tell Wasp that this query reads from the `Task` entity. Wasp will
         // automatically update the results of this query when tasks are modified.
+        // highlight-next-line
         query(getTasks, { entities: ['Task'] }),
       ],
     })
@@ -131,7 +135,7 @@ import type { Task } from "wasp/entities";
 import { getTasks, useQuery } from "wasp/client/operations";
 
 export const MainPage = () => {
-  // highlight-start
+  // highlight-next-line
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
@@ -142,10 +146,8 @@ export const MainPage = () => {
       {error && "Error: " + error}
     </div>
   );
-  // highlight-end
 };
 
-// highlight-start
 const TaskView = ({ task }: { task: Task }) => {
   return (
     <div>
@@ -166,7 +168,6 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
     </div>
   );
 };
-// highlight-end
 ```
 </TutorialAction>
 

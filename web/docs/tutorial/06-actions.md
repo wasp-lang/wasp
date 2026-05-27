@@ -27,11 +27,13 @@ We must first declare the Action in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
 import { action, app } from '@wasp.sh/spec'
+// highlight-next-line
 import { createTask } from './src/actions' with { type: "ref" }
 
 export default app({
   // ...
   parts: [
+    // highlight-next-line
     action(createTask, { entities: ['Task'] }),
   ],
 })
