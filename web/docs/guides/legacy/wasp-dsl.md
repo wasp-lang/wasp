@@ -36,7 +36,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 | What | Before | After |
 | --- | --- | --- |
 | File name | `main.wasp` | `main.wasp.ts` |
-| Creating an app | `app Name { ... }` | `app({ name, ..., parts: [] })` |
+| Creating an app | `app Name { ... }` | `app({ name, ..., parts: [...] })` |
 | Configuring the app | <pre>app Name \{<br/>  auth: \{ ... },<br/>  server: \{ ... },<br/>}</pre> | <pre>app(\{<br/>  auth: ...,<br/>  server: ...,<br/>})</pre> |
 | Adding app declarations | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre> | <pre>app(\{<br/>  parts: [<br/>    route(...),<br/>    query(...),<br/>    action(...),<br/>  ]<br/>})</pre> |
 | Referencing code | `import { x } from "@src/..."` inside a declaration | `import { ... } from "./src/..." with { type: "ref" }` at the top level |
@@ -265,7 +265,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
         provider: "SMTP",
         defaultFrom: { email: "hi@example.com" },
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -346,7 +346,9 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
     export default app({
       name: "myAppName",
-      parts: []
+      parts: [
+        // ...
+      ]
     })
     ```
 

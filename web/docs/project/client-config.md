@@ -22,7 +22,7 @@ You can configure the client using the `client` field inside the `app` declarati
         rootComponent: Root,
         setupFn: mySetupFunction,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -40,7 +40,7 @@ You can configure the client using the `client` field inside the `app` declarati
         rootComponent: Root,
         setupFn: mySetupFunction,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -71,7 +71,7 @@ Let's define a common layout for your application:
       client: {
         rootComponent: Root,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -106,7 +106,7 @@ Let's define a common layout for your application:
       client: {
         rootComponent: Root,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -149,7 +149,7 @@ This is how to set up various providers that your application needs:
       client: {
         rootComponent: Root,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -179,7 +179,7 @@ This is how to set up various providers that your application needs:
       client: {
         rootComponent: Root,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -308,7 +308,7 @@ export default app({
   client: {
     baseDir: "/my-app",
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -334,7 +334,7 @@ router will work correctly, and all the assets will be served from
         rootComponent: Root,
         setupFn: mySetupFunction,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -353,7 +353,7 @@ router will work correctly, and all the assets will be served from
         setupFn: mySetupFunction,
         baseDir: "/my-app",
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>

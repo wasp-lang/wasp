@@ -37,7 +37,7 @@ export default app({
     // highlight-next-line
     rootComponent: Layout,
   },
-  parts: [],
+  // ...
 })
 ```
 

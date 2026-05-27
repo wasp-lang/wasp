@@ -18,7 +18,7 @@ export default app({
   head: [
     "<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap' />",
   ],
-  parts: [],
+  // ...
 })
 ```
 
@@ -37,7 +37,7 @@ export default app({
     version: "{latestWaspVersion}",
   },
   title: "BookFace",
-  parts: [],
+  // ...
 })
 ```
 
@@ -61,7 +61,7 @@ export default app({
     "<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js'></script>",
     "<meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />",
   ],
-  parts: [],
+  // ...
 })
 ```
 
@@ -97,7 +97,7 @@ export default app({
   webSocket: {
     // ...
   },
-  parts: [],
+  // ...
 })
 ```
 

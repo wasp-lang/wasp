@@ -35,7 +35,7 @@ We specify that we are using WebSockets by adding `webSocket` to our `app` and p
         fn: webSocketFn,
         autoConnect: true, // optional, default: true
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -51,7 +51,7 @@ We specify that we are using WebSockets by adding `webSocket` to our `app` and p
         fn: webSocketFn,
         autoConnect: true, // optional, default: true
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -313,7 +313,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
         fn: webSocketFn,
         autoConnect: true, // optional, default: true
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -329,7 +329,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
         fn: webSocketFn,
         autoConnect: true, // optional, default: true
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>

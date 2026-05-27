@@ -44,7 +44,7 @@ export default app({
     "<meta name='twitter:image:height' content='400' />",
     "<meta name='twitter:card' content='summary_large_image' />",
   ],
-  parts: [],
+  // ...
 })
 ```
 

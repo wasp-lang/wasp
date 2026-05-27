@@ -57,7 +57,7 @@ export default app({
     // highlight-next-line
     setupFn: setupClient,
   },
-  parts: [],
+  // ...
 })
 ```
 

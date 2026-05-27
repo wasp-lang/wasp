@@ -19,7 +19,7 @@ You can configure the behavior of the server via the `server` field of `app` dec
         setupFn: mySetupFunction,
         middlewareConfigFn: myMiddlewareConfigFn,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -36,7 +36,7 @@ You can configure the behavior of the server via the `server` field of `app` dec
         setupFn: mySetupFunction,
         middlewareConfigFn: myMiddlewareConfigFn,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -181,7 +181,7 @@ Read more about [middleware config function](#middlewareconfigfn-reference) belo
         setupFn: mySetupFunction,
         middlewareConfigFn: myMiddlewareConfigFn,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -198,7 +198,7 @@ Read more about [middleware config function](#middlewareconfigfn-reference) belo
         setupFn: mySetupFunction,
         middlewareConfigFn: myMiddlewareConfigFn,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>

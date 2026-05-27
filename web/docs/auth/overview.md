@@ -35,7 +35,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/someRoute",
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -400,7 +400,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/login",
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -600,7 +600,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/someRoute",
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -653,7 +653,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/login",
   },
-  parts: [],
+  // ...
 })
 ```
 

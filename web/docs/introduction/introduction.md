@@ -67,7 +67,7 @@ export default app({
     onAuthFailedRedirectTo: "/login",
     userEntity: "User",
   },
-  parts: [],
+  // ...
 })
 ```
 

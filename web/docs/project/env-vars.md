@@ -333,7 +333,7 @@ export default app({
   server: {
     envValidationSchema: serverEnvValidationSchema,
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -404,7 +404,7 @@ export default app({
   client: {
     envValidationSchema,
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -493,7 +493,7 @@ export default app({
   server: {
     envValidationSchema,
   },
-  parts: [],
+  // ...
 })
 ```
 

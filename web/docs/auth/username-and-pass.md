@@ -67,7 +67,7 @@ Let's start with adding the following to our `main.wasp.ts` file:
         },
         onAuthFailedRedirectTo: "/login"
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -89,7 +89,7 @@ Let's start with adding the following to our `main.wasp.ts` file:
         },
         onAuthFailedRedirectTo: "/login"
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -305,7 +305,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
         },
         onAuthFailedRedirectTo: "/login"
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -331,7 +331,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
         },
         onAuthFailedRedirectTo: "/login"
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -366,7 +366,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
         },
         onAuthFailedRedirectTo: "/login"
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -389,7 +389,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
         },
         onAuthFailedRedirectTo: "/login"
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>

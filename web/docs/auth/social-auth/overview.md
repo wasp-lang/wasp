@@ -46,7 +46,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/login"
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -112,7 +112,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/login"
   },
-  parts: [],
+  // ...
 })
 ```
 

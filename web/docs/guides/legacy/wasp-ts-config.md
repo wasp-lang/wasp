@@ -63,7 +63,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 | What | Before | After |
 | --- | --- | --- |
-| Creating an app | `new App(name, { ... })` | `app({ name, ..., parts: [] })` |
+| Creating an app | `new App(name, { ... })` | `app({ name, ..., parts: [...] })` |
 | Configuring the app | `app.auth(...)` <br/> `app.server(...)` <br/> `app.client(...)` <br/> `app.db(...)` <br/> `app.emailSender(...)` <br/> `app.webSocket(...)` | <pre>app(\{<br/>  auth: ...,<br/>  server: ...,<br/>  client: ...,<br/>  db: ...,<br/>  emailSender: ...,<br/>  webSocket: ...,<br/>})</pre> |
 | Adding app declarations | `app.route(...)` <br/> `app.query(...)` <br/> `app.action(...)` <br/> etc | <pre>app(\{<br/>  parts: [<br/>    route(...),<br/>    query(...),<br/>    action(...),<br/>  ]<br/>})</pre> |
 | Imports | `{ import, from }` | `import { ... } from "./src/..." with { type: "ref" }` |
@@ -266,7 +266,7 @@ These were configured with mutating method calls. They are now keys of the `app(
         provider: "SMTP",
         defaultFrom: { email: "hi@example.com" },
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -360,7 +360,9 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           name: "myApp",
           title: "My app",
           wasp: { version: "^0.24.0" },
-          parts: [],
+          parts: [
+            // ...
+          ]
         })
         ```
       </TabItem>

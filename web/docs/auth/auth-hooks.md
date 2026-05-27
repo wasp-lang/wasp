@@ -73,7 +73,7 @@ To use auth hooks, you must first declare them in the Wasp file:
         onBeforeLogin,
         onAfterLogin,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -105,7 +105,7 @@ To use auth hooks, you must first declare them in the Wasp file:
         onBeforeLogin,
         onAfterLogin,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -137,7 +137,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
         // ...
         onBeforeSignup,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -175,7 +175,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
         // ...
         onBeforeSignup,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -232,7 +232,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
         // ...
         onAfterSignup,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -275,7 +275,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
         // ...
         onAfterSignup,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -335,7 +335,7 @@ export default app({
     // ...
     onAfterEmailVerified,
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -369,7 +369,7 @@ export default app({
     // ...
     onAfterEmailVerified,
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -418,7 +418,7 @@ Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
         // ...
         onBeforeOAuthRedirect,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -446,7 +446,7 @@ Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
         // ...
         onBeforeOAuthRedirect,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -495,7 +495,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
         // ...
         onBeforeLogin,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -524,7 +524,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
         // ...
         onBeforeLogin,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -573,7 +573,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
         // ...
         onAfterLogin,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -614,7 +614,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
         // ...
         onAfterLogin,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -726,7 +726,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
         onBeforeLogin,
         onAfterLogin,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -758,7 +758,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
         onBeforeLogin,
         onAfterLogin,
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>

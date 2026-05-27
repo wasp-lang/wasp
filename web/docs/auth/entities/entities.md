@@ -455,7 +455,7 @@ export default app({
     userEntity: "User",
     // ...
   },
-  parts: [],
+  // ...
 })
 ```
 

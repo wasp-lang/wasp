@@ -22,7 +22,7 @@ export default app({
       email: "hello@itsme.com",
     },
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -81,7 +81,7 @@ export default app({
   emailSender: {
     provider: "Dummy",
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -97,7 +97,7 @@ export default app({
   emailSender: {
     provider: "SMTP",
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -129,7 +129,7 @@ export default app({
   emailSender: {
     provider: "Mailgun",
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -172,7 +172,7 @@ export default app({
   emailSender: {
     provider: "SendGrid",
   },
-  parts: [],
+  // ...
 })
 ```
 
@@ -204,7 +204,7 @@ export default app({
       email: "hello@itsme.com",
     },
   },
-  parts: [],
+  // ...
 })
 ```
 

@@ -36,7 +36,7 @@ Based on the authentication providers you enabled in your `main.wasp.ts` file, t
         },
         // ...
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -54,7 +54,7 @@ Based on the authentication providers you enabled in your `main.wasp.ts` file, t
         },
         // ...
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -82,7 +82,7 @@ And then if you enable Google and Github:
         },
         // ...
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -102,7 +102,7 @@ And then if you enable Google and Github:
         },
         // ...
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>

@@ -94,7 +94,7 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
       server: {
         middlewareConfigFn: serverMiddlewareFn,
       },
-      parts: [],
+      // ...
     })
     ```
 
@@ -120,7 +120,7 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
       server: {
         middlewareConfigFn: serverMiddlewareFn,
       },
-      parts: [],
+      // ...
     })
     ```
 

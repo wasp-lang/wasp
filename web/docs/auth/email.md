@@ -89,7 +89,7 @@ Let's start with adding the following to our `main.wasp.ts` file:
         onAuthFailedRedirectTo: "/login",
         onAuthSucceededRedirectTo: "/"
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -125,7 +125,7 @@ Let's start with adding the following to our `main.wasp.ts` file:
         onAuthFailedRedirectTo: "/login",
         onAuthSucceededRedirectTo: "/"
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -631,7 +631,6 @@ Let's go over the options we can specify when using email authentication.
         onAuthFailedRedirectTo: "/someRoute"
       },
       // ...
-      parts: [],
     })
     ```
 
@@ -662,7 +661,6 @@ Let's go over the options we can specify when using email authentication.
         onAuthFailedRedirectTo: "/someRoute"
       },
       // ...
-      parts: [],
     })
     ```
 
@@ -716,7 +714,6 @@ Let's go over the options we can specify when using email authentication.
         onAuthFailedRedirectTo: "/someRoute"
       },
       // ...
-      parts: [],
     })
     ```
   </TabItem>
@@ -758,7 +755,6 @@ Let's go over the options we can specify when using email authentication.
         onAuthFailedRedirectTo: "/someRoute"
       },
       // ...
-      parts: [],
     })
     ```
   </TabItem>
