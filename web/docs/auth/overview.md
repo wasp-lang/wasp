@@ -185,11 +185,9 @@ import Account from './src/pages/Account' with { type: "ref" }
 export default app({
   // ...
   parts: [
-    route(
-      'AccountRoute',
-      '/account',
-      page(Account, { authRequired: true })
-    ),
+    route('AccountRoute', '/account', page(Account, {
+      authRequired: true
+    })),
   ],
 })
 ```

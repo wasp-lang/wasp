@@ -98,13 +98,7 @@ export default app({
   },
   parts: [
     // Tasks app routes
-    route(
-      'RootRoute',
-      '/',
-      page(MainPage, {
-        authRequired: true,
-      })
-    ),
+    route('RootRoute', '/', page(MainPage, { authRequired: true, })),
     route('LoginRoute', '/login', page(LoginPage)),
     route('SignupRoute', '/signup', page(SignupPage)),
   ],

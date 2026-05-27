@@ -144,12 +144,9 @@ export default app({
   // ...
   parts: [
     // ...
-    route(
-      'HomeRoute',
-      '/',
-      page(HomePage, {
-        authRequired: true, // Will send user to /login if not authenticated.
-      })
+    route('HomeRoute', '/', page(HomePage, {
+      authRequired: true, // Will send user to /login if not authenticated.
+    })
     ),
   ],
 })
