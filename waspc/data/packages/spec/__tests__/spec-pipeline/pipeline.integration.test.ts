@@ -20,8 +20,8 @@ const refImportPrelude = [
   `import * as ops from "./src/operations" with { type: "ref" };`,
 ];
 
-const extImportDescriptorPrelude = [
-  `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
+const refObjectDescriptorPrelude = [
+  `const MainPage = { import: "default", alias: "MainPage", from: "@src/MainPage" } as const;`,
   `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
   `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;`,
   `const archiveAdminTask = { import: "archive", from: "@src/adminOperations", alias: "archiveAdminTask" } as const;`,
@@ -47,7 +47,7 @@ const appSpecBody = [
 
 describe("Wasp TS spec pipeline", () => {
   describe("ref imports", () => {
-    test("lowers ref imports to the same declarations as explicit ExtImport descriptors", async () => {
+    test("lowers ref imports to the same declarations as explicit RefObject descriptors", async () => {
       const tempDir = makeTempProject("wasp-spec-pipeline-");
       writeUserSourceFiles(tempDir);
 
@@ -56,13 +56,13 @@ describe("Wasp TS spec pipeline", () => {
         specFileName: "main.wasp.ts",
         sourceText: appSpecWithImports(refImportPrelude),
       });
-      const extImportDecls = await analyzeSpec({
+      const refObjectDecls = await analyzeSpec({
         tempDir,
-        specFileName: "main.wasp.ext-import.ts",
-        sourceText: appSpecWithImports(extImportDescriptorPrelude),
+        specFileName: "main.wasp.ref-object.ts",
+        sourceText: appSpecWithImports(refObjectDescriptorPrelude),
       });
 
-      expect(importDecls).toEqual(extImportDecls);
+      expect(importDecls).toEqual(refObjectDecls);
       expect(importDecls).toEqual(expectedDecls());
     });
 

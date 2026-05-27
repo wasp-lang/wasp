@@ -6,15 +6,15 @@ describe("lowerRefImports", () => {
   const projectRootDir = "/project";
   const sourcePath = `${projectRootDir}/main.wasp.ts`;
 
-  test("lowers a default ref import into an importDefault ExtImport const", () => {
+  test("lowers a default ref import into a default RefObject const", () => {
     const input = `import MainPage from "./src/MainPage" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;\n`,
+      `const MainPage = { import: "default", from: "@src/MainPage", alias: "MainPage" } as const;\n`,
     );
   });
 
-  test("lowers named and aliased ref imports into ExtImport consts", () => {
+  test("lowers named and aliased ref imports into RefObject consts", () => {
     const input = `import { getTasks, archive as archiveTask } from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
@@ -38,7 +38,7 @@ describe("lowerRefImports", () => {
     );
   });
 
-  test("lowers multiple named ref imports into separate ExtImport consts", () => {
+  test("lowers multiple named ref imports into separate RefObject consts", () => {
     const input = `import { getTasks, createTask } from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
@@ -50,7 +50,7 @@ describe("lowerRefImports", () => {
     const input = `import MainPage, { Helper } from "./src/MainPage" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;\nconst Helper = { import: "Helper", from: "@src/MainPage" } as const;\n`,
+      `const MainPage = { import: "default", from: "@src/MainPage", alias: "MainPage" } as const;\nconst Helper = { import: "Helper", from: "@src/MainPage" } as const;\n`,
     );
   });
 
@@ -109,7 +109,7 @@ describe("lowerRefImports", () => {
     const output = lower(input);
 
     expect(output).toContain(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
+      `const MainPage = { import: "default", from: "@src/MainPage", alias: "MainPage" } as const;`,
     );
     expect(output).toContain(
       `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
@@ -120,12 +120,12 @@ describe("lowerRefImports", () => {
     expect(output).not.toContain(`with { type: "ref" }`);
   });
 
-  test("is a no-op on an ExtImport-form spec file", () => {
+  test("is a no-op on a RefObject-form spec file", () => {
     const input = [
       `import { app } from "@wasp.sh/spec";`,
       ``,
       `const demoApp = app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, parts: [] });`,
-      `demoApp.client = { rootComponent: { importDefault: "MainPage", from: "@src/MainPage" } };`,
+      `demoApp.client = { rootComponent: { import: "default", alias: "MainPage", from: "@src/MainPage" } };`,
       `export default demoApp;`,
       ``,
     ].join("\n");
