@@ -16,14 +16,14 @@ This guide shows you how to set up meta tags for your Wasp application to improv
 You can add meta tags to your application using the `head` property in your `app` declaration. These tags will be included in the `<head>` section of your HTML.
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'MyApp',
+  name: "MyApp",
   wasp: {
-    version: '^0.24.0',
+    version: "^0.24.0",
   },
-  title: 'My App',
+  title: "My App",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
     "<meta name='description' content='Your apps main description and features.' />",

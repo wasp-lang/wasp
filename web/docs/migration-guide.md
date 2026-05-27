@@ -23,8 +23,8 @@ The Wasp TS config package (`wasp-config`) is now the Wasp Spec package (`@wasp.
 In `main.wasp.ts`, you can now import app source references with `with { type: "ref" }` and pass imported values directly to Wasp declarations instead of using import objects like `{ import, from }`.
 
 ```ts title="main.wasp.ts"
-import MainPage from './src/MainPage' with { type: 'ref' }
-import { getTasks } from './src/operations' with { type: 'ref' }
+import MainPage from "./src/MainPage" with { type: "ref" }
+import { getTasks } from "./src/operations" with { type: "ref" }
 ```
 
 ### Client tests now use your project's Vitest package
@@ -77,19 +77,19 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
 <Tabs>
   <TabItem value="before" label="Before">
     ```ts
-    import { api } from 'wasp/client/api'
+    import { api } from "wasp/client/api"
 
     // Making requests
-    const response = await api.get('/foo/bar')
+    const response = await api.get("/foo/bar")
     const data = response.data
 
     // POST with body
-    await api.post('/foo/bar', { key: 'value' })
+    await api.post("/foo/bar", { key: "value" })
 
     // Error handling
-    import { type AxiosError } from 'axios'
+    import { type AxiosError } from "axios"
     try {
-      await api.get('/foo/bar')
+      await api.get("/foo/bar")
     } catch (e) {
       const error = e as AxiosError
       console.log(error.response?.status)
@@ -99,18 +99,18 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
 
   <TabItem value="after" label="After">
     ```ts
-    import { api } from 'wasp/client/api'
-    import { isHTTPError } from 'ky'
+    import { api } from "wasp/client/api"
+    import { isHTTPError } from "ky"
 
     // Making requests
-    const data = await api.get('/foo/bar').json()
+    const data = await api.get("/foo/bar").json()
 
     // POST with body
-    await api.post('/foo/bar', { json: { key: 'value' } })
+    await api.post("/foo/bar", { json: { key: "value" } })
 
     // Error handling
     try {
-      await api.get('/foo/bar').json()
+      await api.get("/foo/bar").json()
     } catch (e) {
       if (isHTTPError(e)) {
         console.log(e.response.status)

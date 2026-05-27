@@ -29,9 +29,9 @@ We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it e
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app, query } from '@wasp.sh/spec'
+    import { app, query } from "@wasp.sh/spec"
     // highlight-next-line
-    import { getTasks } from './src/queries' with { type: "ref" }
+    import { getTasks } from "./src/queries" with { type: "ref" }
 
     export default app({
       // ...
@@ -39,7 +39,7 @@ We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it e
         // Tell Wasp that this query reads from the `Task` entity. Wasp will
         // automatically update the results of this query when tasks are modified.
         // highlight-next-line
-        query(getTasks, { entities: ['Task'] }),
+        query(getTasks, { entities: ["Task"] }),
       ],
     })
     ```
@@ -48,9 +48,9 @@ We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it e
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app, query } from '@wasp.sh/spec'
+    import { app, query } from "@wasp.sh/spec"
     // highlight-next-line
-    import { getTasks } from './src/queries' with { type: "ref" }
+    import { getTasks } from "./src/queries" with { type: "ref" }
 
     export default app({
       // ...
@@ -58,7 +58,7 @@ We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it e
         // Tell Wasp that this query reads from the `Task` entity. Wasp will
         // automatically update the results of this query when tasks are modified.
         // highlight-next-line
-        query(getTasks, { entities: ['Task'] }),
+        query(getTasks, { entities: ["Task"] }),
       ],
     })
     ```

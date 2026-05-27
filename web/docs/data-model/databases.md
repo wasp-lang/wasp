@@ -198,11 +198,11 @@ You can define as many **seed functions** as you want in an array under the `db.
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { devSeedSimple, prodSeed } from './src/dbSeeds' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
 
     export default app({
-      name: 'MyApp',
+      name: "MyApp",
       // ...
       db: {
         seeds: [devSeedSimple, prodSeed],
@@ -213,11 +213,11 @@ You can define as many **seed functions** as you want in an array under the `db.
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { devSeedSimple, prodSeed } from './src/dbSeeds' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
 
     export default app({
-      name: 'MyApp',
+      name: "MyApp",
       // ...
       db: {
         seeds: [devSeedSimple, prodSeed],
@@ -237,17 +237,17 @@ Here's an example of a seed function that imports an Action:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js
-    import { createTask } from './actions.js'
-    import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
+    import { createTask } from "./actions.js"
+    import { sanitizeAndSerializeProviderData } from "wasp/server/auth"
 
     export const devSeedSimple = async (prisma) => {
       const user = await createUser(prisma, {
-        username: 'RiuTheDog',
-        password: 'bark1234',
+        username: "RiuTheDog",
+        password: "bark1234",
       })
 
       await createTask(
-        { description: 'Chase the cat' },
+        { description: "Chase the cat" },
         { user, entities: { Task: prisma.task } }
       )
     }
@@ -259,7 +259,7 @@ Here's an example of a seed function that imports an Action:
             create: {
               identities: {
                 create: {
-                  providerName: 'username',
+                  providerName: "username",
                   providerUserId: data.username,
                   providerData: await sanitizeAndSerializeProviderData({
                     hashedPassword: data.password
@@ -279,20 +279,20 @@ Here's an example of a seed function that imports an Action:
 
   <TabItem value="ts" label="TypeScript">
     ```ts
-    import { createTask } from './actions.js'
-    import type { DbSeedFn } from 'wasp/server'
-    import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
-    import type { AuthUser } from 'wasp/auth'
-    import type { PrismaClient } from 'wasp/server'
+    import { createTask } from "./actions.js"
+    import type { DbSeedFn } from "wasp/server"
+    import { sanitizeAndSerializeProviderData } from "wasp/server/auth"
+    import type { AuthUser } from "wasp/auth"
+    import type { PrismaClient } from "wasp/server"
 
     export const devSeedSimple: DbSeedFn = async (prisma) => {
       const user = await createUser(prisma, {
-        username: 'RiuTheDog',
-        password: 'bark1234',
+        username: "RiuTheDog",
+        password: "bark1234",
       })
 
       await createTask(
-        { description: 'Chase the cat', isDone: false },
+        { description: "Chase the cat", isDone: false },
         { user, entities: { Task: prisma.task } }
       )
     };
@@ -307,9 +307,9 @@ Here's an example of a seed function that imports an Action:
             create: {
               identities: {
                 create: {
-                  providerName: 'username',
+                  providerName: "username",
                   providerUserId: data.username,
-                  providerData: await sanitizeAndSerializeProviderData<'username'>({
+                  providerData: await sanitizeAndSerializeProviderData<"username">({
                     hashedPassword: data.password
                   }),
                 },
@@ -363,12 +363,12 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { setUpPrisma } from './src/prisma' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
     export default app({
-      name: 'MyApp',
-      title: 'My app',
+      name: "MyApp",
+      title: "My app",
       // ...
       db: {
         prismaSetupFn: setUpPrisma,
@@ -377,18 +377,18 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
     ```
 
     ```js title="src/prisma.js"
-    import { PrismaClient } from '@prisma/client'
+    import { PrismaClient } from "@prisma/client"
 
     export const setUpPrisma = () => {
       const prisma = new PrismaClient({
-        log: ['query'],
+        log: ["query"],
       }).$extends({
         query: {
           task: {
             async findMany({ args, query }) {
               args.where = {
                 ...args.where,
-                description: { not: { contains: 'hidden by setUpPrisma' } },
+                description: { not: { contains: "hidden by setUpPrisma" } },
               }
               return query(args)
             },
@@ -404,12 +404,12 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { setUpPrisma } from './src/prisma' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
     export default app({
-      name: 'MyApp',
-      title: 'My app',
+      name: "MyApp",
+      title: "My app",
       // ...
       db: {
         prismaSetupFn: setUpPrisma,
@@ -418,18 +418,18 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
     ```
 
     ```ts title="src/prisma.ts"
-    import { PrismaClient } from '@prisma/client'
+    import { PrismaClient } from "@prisma/client"
 
     export const setUpPrisma = () => {
       const prisma = new PrismaClient({
-        log: ['query'],
+        log: ["query"],
       }).$extends({
         query: {
           task: {
             async findMany({ args, query }) {
               args.where = {
                 ...args.where,
-                description: { not: { contains: 'hidden by setUpPrisma' } },
+                description: { not: { contains: "hidden by setUpPrisma" } },
               }
               return query(args)
             },
@@ -449,13 +449,13 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import devSeed from './src/dbSeeds' with { type: "ref" }
-    import { setUpPrisma } from './src/prisma' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import devSeed from "./src/dbSeeds" with { type: "ref" }
+    import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
     export default app({
-      name: 'MyApp',
-      title: 'My app',
+      name: "MyApp",
+      title: "My app",
       // ...
       db: {
         seeds: [devSeed],
@@ -467,13 +467,13 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import devSeed from './src/dbSeeds' with { type: "ref" }
-    import { setUpPrisma } from './src/prisma' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import devSeed from "./src/dbSeeds" with { type: "ref" }
+    import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
     export default app({
-      name: 'MyApp',
-      title: 'My app',
+      name: "MyApp",
+      title: "My app",
       // ...
       db: {
         seeds: [devSeed],
@@ -497,11 +497,11 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
   You can use this function to set up [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
   ```ts title="src/prisma.ts"
-  import { PrismaClient } from '@prisma/client'
+  import { PrismaClient } from "@prisma/client"
 
   export const setUpPrisma = () => {
     const prisma = new PrismaClient({
-      log: ['query', 'info', 'warn', 'error'],
+      log: ["query", "info", "warn", "error"],
     })
 
     return prisma
@@ -524,11 +524,11 @@ Use one of the following commands to run the seed functions:
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
       ```ts title="main.wasp.ts"
-      import { app } from '@wasp.sh/spec'
-      import { devSeedSimple } from './src/dbSeeds' with { type: "ref" }
+      import { app } from "@wasp.sh/spec"
+      import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
 
       export default app({
-        name: 'MyApp',
+        name: "MyApp",
         // ...
         db: {
           seeds: [
@@ -542,11 +542,11 @@ Use one of the following commands to run the seed functions:
 
     <TabItem value="ts" label="TypeScript">
       ```ts title="main.wasp.ts"
-      import { app } from '@wasp.sh/spec'
-      import { devSeedSimple } from './src/dbSeeds' with { type: "ref" }
+      import { app } from "@wasp.sh/spec"
+      import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
 
       export default app({
-        name: 'MyApp',
+        name: "MyApp",
         // ...
         db: {
           seeds: [

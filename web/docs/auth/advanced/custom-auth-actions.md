@@ -20,14 +20,14 @@ Below you will find a starting point for creating your own actions. The given im
 ### Email
 
 ```ts title="main.wasp.ts"
-import { action, app } from '@wasp.sh/spec'
-import { onBeforeSignup } from './src/auth/hooks' with { type: "ref" }
-import { signup } from './src/auth/signup' with { type: "ref" }
+import { action, app } from "@wasp.sh/spec"
+import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
+import { signup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // ...
     onBeforeSignup,
@@ -39,11 +39,11 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { HttpError } from 'wasp/server'
+import { HttpError } from "wasp/server"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, 'This sign-up method is disabled')
+  throw new HttpError(403, "This sign-up method is disabled")
 }
 ```
 
@@ -161,14 +161,14 @@ export const signup: CustomSignup<
 ### Username and password
 
 ```ts title="main.wasp.ts"
-import { action, app } from '@wasp.sh/spec'
-import { onBeforeSignup } from './src/auth/hooks' with { type: "ref" }
-import { signup } from './src/auth/signup' with { type: "ref" }
+import { action, app } from "@wasp.sh/spec"
+import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
+import { signup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // ...
     onBeforeSignup,
@@ -180,11 +180,11 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { HttpError } from 'wasp/server'
+import { HttpError } from "wasp/server"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, 'This sign-up method is disabled')
+  throw new HttpError(403, "This sign-up method is disabled")
 }
 ```
 

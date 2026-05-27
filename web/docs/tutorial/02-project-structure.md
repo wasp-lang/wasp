@@ -90,15 +90,15 @@ The default `main.wasp.ts` file generated with `wasp new` on the previous page l
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from '@wasp.sh/spec'
-    import { MainPage } from './src/MainPage' with { type: "ref" }
+    import { app, page, route } from "@wasp.sh/spec"
+    import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
-      name: 'TodoApp',
+      name: "TodoApp",
       wasp: {
-        version: '{latestWaspVersion}', // Pins the version of Wasp to use.
+        version: "{latestWaspVersion}", // Pins the version of Wasp to use.
       },
-      title: 'TodoApp', // Used as the browser tab title.
+      title: "TodoApp", // Used as the browser tab title.
       head: [
         "<link rel='icon' href='/favicon.ico' />",
       ],
@@ -106,7 +106,7 @@ The default `main.wasp.ts` file generated with `wasp new` on the previous page l
       parts: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.jsx`. Reference imports must point to files inside `src`.
-        route('RootRoute', '/', page(MainPage)),
+        route("RootRoute", "/", page(MainPage)),
       ],
     })
     ```
@@ -114,15 +114,15 @@ The default `main.wasp.ts` file generated with `wasp new` on the previous page l
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from '@wasp.sh/spec'
-    import { MainPage } from './src/MainPage' with { type: "ref" }
+    import { app, page, route } from "@wasp.sh/spec"
+    import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
-      name: 'TodoApp',
+      name: "TodoApp",
       wasp: {
-        version: '{latestWaspVersion}', // Pins the version of Wasp to use.
+        version: "{latestWaspVersion}", // Pins the version of Wasp to use.
       },
-      title: 'TodoApp', // Used as the browser tab title.
+      title: "TodoApp", // Used as the browser tab title.
       head: [
         "<link rel='icon' href='/favicon.ico' />",
       ],
@@ -130,7 +130,7 @@ The default `main.wasp.ts` file generated with `wasp new` on the previous page l
       parts: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.tsx`. Reference imports must point to files inside `src`.
-        route('RootRoute', '/', page(MainPage)),
+        route("RootRoute", "/", page(MainPage)),
       ],
     })
     ```
@@ -142,7 +142,7 @@ The default `main.wasp.ts` file generated with `wasp new` on the previous page l
 When `main.wasp.ts` needs to point to your React components or Node.js functions, it uses imports like this:
 
 ```ts
-import { MainPage } from './src/MainPage' with { type: "ref" }
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 ```
 
 Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](../general/spec.md#reference-imports).

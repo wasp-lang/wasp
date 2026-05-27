@@ -28,23 +28,23 @@ By default, Wasp configures CORS to allow requests only from your client URL (de
 Add the server middleware configuration:
 
 ```ts title="main.wasp.ts"
-import { app, page, query, route } from '@wasp.sh/spec'
-import { getSomeData } from './src/data' with { type: "ref" }
-import { MainPage } from './src/MainPage' with { type: "ref" }
-import { getGlobalMiddleware } from './src/middleware' with { type: "ref" }
+import { app, page, query, route } from "@wasp.sh/spec"
+import { getSomeData } from "./src/data" with { type: "ref" }
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getGlobalMiddleware } from "./src/middleware" with { type: "ref" }
 
 export default app({
-  name: 'CorsTest',
+  name: "CorsTest",
   wasp: {
-    version: '^0.24.0',
+    version: "^0.24.0",
   },
-  title: 'cors-test',
+  title: "cors-test",
   server: {
     // highlight-next-line
     middlewareConfigFn: getGlobalMiddleware,
   },
   parts: [
-    route('RootRoute', '/', page(MainPage)),
+    route("RootRoute", "/", page(MainPage)),
     query(getSomeData),
   ],
 })

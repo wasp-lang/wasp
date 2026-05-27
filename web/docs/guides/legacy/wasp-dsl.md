@@ -63,15 +63,15 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from '@wasp.sh/spec'
-    import { MainPage } from './src/MainPage' with { type: "ref" }
+    import { app, page, route } from "@wasp.sh/spec"
+    import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
-      name: 'todoApp',
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+      name: "todoApp",
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
       parts: [
-        route('MainRoute', '/', page(MainPage, { authRequired: true })),
+        route("MainRoute", "/", page(MainPage, { authRequired: true })),
       ],
     })
     ```
@@ -98,15 +98,15 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { action, app, query } from '@wasp.sh/spec'
-    import { getTasks } from './src/queries' with { type: "ref" }
-    import { createTask } from './src/actions' with { type: "ref" }
+    import { action, app, query } from "@wasp.sh/spec"
+    import { getTasks } from "./src/queries" with { type: "ref" }
+    import { createTask } from "./src/actions" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        query(getTasks, { entities: ['Task'] }),
-        action(createTask, { entities: ['Task'] }),
+        query(getTasks, { entities: ["Task"] }),
+        action(createTask, { entities: ["Task"] }),
       ],
     })
     ```
@@ -135,16 +135,16 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from '@wasp.sh/spec'
-    import { barBaz, barNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
+    import { api, apiNamespace, app } from "@wasp.sh/spec"
+    import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        apiNamespace('/bar', {
+        apiNamespace("/bar", {
           middlewareConfigFn: barNamespaceMiddlewareFn,
         }),
-        api('GET', '/bar/baz', barBaz, { auth: false, entities: ['Task'] }),
+        api("GET", "/bar/baz", barBaz, { auth: false, entities: ["Task"] }),
       ],
     })
     ```
@@ -170,15 +170,15 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from '@wasp.sh/spec'
-    import { foo } from './src/jobs/bar' with { type: "ref" }
+    import { app, job } from "@wasp.sh/spec"
+    import { foo } from "./src/jobs/bar" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
         job(foo, {
-          executor: 'PgBoss',
-          entities: ['Task'],
+          executor: "PgBoss",
+          entities: ["Task"],
           performExecutorOptions: { pgBoss: { retryLimit: 1 } },
         }),
       ],
@@ -203,13 +203,13 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from '@wasp.sh/spec'
-    import { createTask } from './src/actions' with { type: "ref" }
+    import { app, crud } from "@wasp.sh/spec"
+    import { createTask } from "./src/actions" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        crud('tasks', 'Task', {
+        crud("tasks", "Task", {
           getAll: {},
           create: { overrideFn: createTask },
         }),
@@ -246,24 +246,24 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import App from './src/App' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import App from "./src/App" with { type: "ref" }
 
     export default app({
-      name: 'todoApp',
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+      name: "todoApp",
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: { google: {} },
-        onAuthFailedRedirectTo: '/login',
+        onAuthFailedRedirectTo: "/login",
       },
       client: {
         rootComponent: App,
       },
       emailSender: {
-        provider: 'SMTP',
-        defaultFrom: { email: 'hi@example.com' },
+        provider: "SMTP",
+        defaultFrom: { email: "hi@example.com" },
       },
       parts: [],
     })
@@ -342,7 +342,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 7. Create a `main.wasp.ts` file with the following content:
 
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
 
     export default app({
       name: "myAppName",

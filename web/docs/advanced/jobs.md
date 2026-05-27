@@ -26,15 +26,15 @@ Let's write an example Job that will print a message to the console and return a
 1. Start by creating a Job declaration in your Wasp file:
 
 ```ts title="main.wasp.ts"
-import { app, job } from '@wasp.sh/spec'
-import { mySpecialJob } from './src/workers/bar' with { type: "ref" }
+import { app, job } from "@wasp.sh/spec"
+import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
     job(mySpecialJob, {
-      executor: 'PgBoss',
-      entities: ['Task'],
+      executor: "PgBoss",
+      entities: ["Task"],
     }),
   ],
 })
@@ -57,8 +57,8 @@ export default app({
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/workers/bar.ts"
-    import { type MySpecialJob } from 'wasp/server/jobs'
-    import { type Task } from 'wasp/entities'
+    import { type MySpecialJob } from "wasp/server/jobs"
+    import { type Task } from "wasp/entities"
 
     type Input = { name: string; }
     type Output = { tasks: Task[]; }
@@ -90,7 +90,7 @@ The worker function accepts two arguments:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="someAction.js"
-    import { mySpecialJob } from 'wasp/server/jobs'
+    import { mySpecialJob } from "wasp/server/jobs"
 
     const submittedJob = await mySpecialJob.submit({ name: "Johnny" })
 
@@ -104,7 +104,7 @@ The worker function accepts two arguments:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="someAction.ts"
-    import { mySpecialJob } from 'wasp/server/jobs'
+    import { mySpecialJob } from "wasp/server/jobs"
 
     const submittedJob = await mySpecialJob.submit({ name: "Johnny" })
 
@@ -126,17 +126,17 @@ In our example, `mySpecialJob` takes an argument, but passing arguments to jobs 
 If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
 
 ```ts title="main.wasp.ts"
-import { app, job } from '@wasp.sh/spec'
-import { mySpecialJob } from './src/workers/bar' with { type: "ref" }
+import { app, job } from "@wasp.sh/spec"
+import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
     job(mySpecialJob, {
-      executor: 'PgBoss',
+      executor: "PgBoss",
       schedule: {
-        cron: '0 * * * *',
-        args: { name: 'Johnny' }, // optional
+        cron: "0 * * * *",
+        args: { name: "Johnny" }, // optional
       },
     }),
   ],
@@ -228,25 +228,25 @@ PG_BOSS_NEW_OPTIONS={"connectionString":"...your postgress connection url...","a
 ### Declaring Jobs
 
 ```ts title="main.wasp.ts"
-import { app, job } from '@wasp.sh/spec'
-import { mySpecialJob } from './src/workers/bar' with { type: "ref" }
+import { app, job } from "@wasp.sh/spec"
+import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
     job(mySpecialJob, {
-      executor: 'PgBoss',
+      executor: "PgBoss",
       performExecutorOptions: {
         pgBoss: { retryLimit: 1 },
       },
       schedule: {
-        cron: '*/5 * * * *',
-        args: { name: 'Johnny' },
+        cron: "*/5 * * * *",
+        args: { name: "Johnny" },
         executorOptions: {
           pgBoss: { retryLimit: 0 },
         },
       },
-      entities: ['Task'],
+      entities: ["Task"],
     }),
   ],
 })
@@ -276,7 +276,7 @@ The worker function is a [`Reference`](../general/spec.md#reference-imports) to 
   
     <TabItem value="ts" label="TypeScript">
       ```ts title="src/workers/bar.ts"
-      import { type MySpecialJob } from 'wasp/server/jobs'
+      import { type MySpecialJob } from "wasp/server/jobs"
   
       type Input = { name: string; }
       type Output = { tasks: Task[]; }
@@ -337,13 +337,13 @@ The configuration object has the following fields:
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
       ```js title="someAction.js"
-      import { mySpecialJob } from 'wasp/server/jobs'
+      import { mySpecialJob } from "wasp/server/jobs"
       ```
     </TabItem>
 
     <TabItem value="ts" label="TypeScript">
       ```ts title="someAction.ts"
-      import { mySpecialJob, type MySpecialJob } from 'wasp/server/jobs'
+      import { mySpecialJob, type MySpecialJob } from "wasp/server/jobs"
       ```
 
       :::info Type-safe jobs

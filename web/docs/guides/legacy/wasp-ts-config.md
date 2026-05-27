@@ -24,24 +24,24 @@ In the TS Config you could only reference your code with import objects (`{ impo
 <Tabs>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    const mainPage = app.page('MainPage', {
-      component: { importDefault: 'MainPage', from: '@src/MainPage' },
+    const mainPage = app.page("MainPage", {
+      component: { importDefault: "MainPage", from: "@src/MainPage" },
     })
 
-    app.query('getTasks', {
-      fn: { import: 'getTasks', from: '@src/queries' },
+    app.query("getTasks", {
+      fn: { import: "getTasks", from: "@src/queries" },
     })
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import MainPage from './src/MainPage' with { type: "ref" }
-    import { getTasks } from './src/queries' with { type: "ref" }
+    import MainPage from "./src/MainPage" with { type: "ref" }
+    import { getTasks } from "./src/queries" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        route('MainRoute', '/', page(MainPage)),
+        route("MainRoute", "/", page(MainPage)),
         query(getTasks),
       ],
     })
@@ -74,21 +74,21 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 <Tabs>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    import { App } from 'wasp-config'
+    import { App } from "wasp-config"
 
-    const app = new App('todoApp', {
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+    const app = new App("todoApp", {
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
     })
 
-    const mainPage = app.page('MainPage', {
-      component: { importDefault: 'MainPage', from: '@src/MainPage' },
+    const mainPage = app.page("MainPage", {
+      component: { importDefault: "MainPage", from: "@src/MainPage" },
     })
-    app.route('MainRoute', { path: '/', to: mainPage })
+    app.route("MainRoute", { path: "/", to: mainPage })
 
-    app.query('getTasks', {
-      fn: { import: 'getTasks', from: '@src/queries' },
-      entities: ['Task'],
+    app.query("getTasks", {
+      fn: { import: "getTasks", from: "@src/queries" },
+      entities: ["Task"],
     })
 
     export default app
@@ -96,17 +96,17 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, query, route } from '@wasp.sh/spec'
-    import MainPage from './src/MainPage' with { type: "ref" }
-    import { getTasks } from './src/queries' with { type: "ref" }
+    import { app, page, query, route } from "@wasp.sh/spec"
+    import MainPage from "./src/MainPage" with { type: "ref" }
+    import { getTasks } from "./src/queries" with { type: "ref" }
 
     export default app({
-      name: 'todoApp',
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+      name: "todoApp",
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
       parts: [
-        route('MainRoute', '/', page(MainPage)),
-        query(getTasks, { entities: ['Task'] }),
+        route("MainRoute", "/", page(MainPage)),
+        query(getTasks, { entities: ["Task"] }),
       ],
     })
     ```
@@ -118,31 +118,31 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 <Tabs>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    app.apiNamespace('bar', {
-      middlewareConfigFn: { import: 'barNamespaceMiddlewareFn', from: '@src/apis' },
-      path: '/bar',
+    app.apiNamespace("bar", {
+      middlewareConfigFn: { import: "barNamespaceMiddlewareFn", from: "@src/apis" },
+      path: "/bar",
     })
 
-    app.api('barBaz', {
-      fn: { import: 'barBaz', from: '@src/apis' },
+    app.api("barBaz", {
+      fn: { import: "barBaz", from: "@src/apis" },
       auth: false,
-      entities: ['Task'],
-      httpRoute: { method: 'GET', route: '/bar/baz' },
+      entities: ["Task"],
+      httpRoute: { method: "GET", route: "/bar/baz" },
     })
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from '@wasp.sh/spec'
-    import { barBaz, barNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
+    import { api, apiNamespace, app } from "@wasp.sh/spec"
+    import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        apiNamespace('/bar', {
+        apiNamespace("/bar", {
           middlewareConfigFn: barNamespaceMiddlewareFn,
         }),
-        api('GET', '/bar/baz', barBaz, { auth: false, entities: ['Task'] }),
+        api("GET", "/bar/baz", barBaz, { auth: false, entities: ["Task"] }),
       ],
     })
     ```
@@ -154,27 +154,27 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 <Tabs>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    app.job('mySpecialJob', {
-      executor: 'PgBoss',
+    app.job("mySpecialJob", {
+      executor: "PgBoss",
       perform: {
-        fn: { import: 'foo', from: '@src/jobs/bar' },
+        fn: { import: "foo", from: "@src/jobs/bar" },
         executorOptions: { pgBoss: { retryLimit: 1 } },
       },
-      entities: ['Task'],
+      entities: ["Task"],
     })
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from '@wasp.sh/spec'
-    import { foo } from './src/jobs/bar' with { type: "ref" }
+    import { app, job } from "@wasp.sh/spec"
+    import { foo } from "./src/jobs/bar" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
         job(foo, {
-          executor: 'PgBoss',
-          entities: ['Task'],
+          executor: "PgBoss",
+          entities: ["Task"],
           performExecutorOptions: { pgBoss: { retryLimit: 1 } },
         }),
       ],
@@ -188,24 +188,24 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 <Tabs>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    app.crud('tasks', {
-      entity: 'Task',
+    app.crud("tasks", {
+      entity: "Task",
       operations: {
         getAll: {},
-        create: { overrideFn: { import: 'createTask', from: '@src/actions' } },
+        create: { overrideFn: { import: "createTask", from: "@src/actions" } },
       },
     })
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from '@wasp.sh/spec'
-    import { createTask } from './src/actions' with { type: "ref" }
+    import { app, crud } from "@wasp.sh/spec"
+    import { createTask } from "./src/actions" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        crud('tasks', 'Task', {
+        crud("tasks", "Task", {
           getAll: {},
           create: { overrideFn: createTask },
         }),
@@ -222,24 +222,24 @@ These were configured with mutating method calls. They are now keys of the `app(
 <Tabs>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    const app = new App('todoApp', {
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+    const app = new App("todoApp", {
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
     })
 
     app.auth({
-      userEntity: 'User',
+      userEntity: "User",
       methods: { google: {} },
-      onAuthFailedRedirectTo: '/login',
+      onAuthFailedRedirectTo: "/login",
     })
 
     app.client({
-      rootComponent: { importDefault: 'App', from: '@src/App' },
+      rootComponent: { importDefault: "App", from: "@src/App" },
     })
 
     app.emailSender({
-      provider: 'SMTP',
-      defaultFrom: { email: 'hi@example.com' },
+      provider: "SMTP",
+      defaultFrom: { email: "hi@example.com" },
     })
 
     export default app
@@ -247,24 +247,24 @@ These were configured with mutating method calls. They are now keys of the `app(
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import App from './src/App' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import App from "./src/App" with { type: "ref" }
 
     export default app({
-      name: 'todoApp',
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+      name: "todoApp",
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: { google: {} },
-        onAuthFailedRedirectTo: '/login',
+        onAuthFailedRedirectTo: "/login",
       },
       client: {
         rootComponent: App,
       },
       emailSender: {
-        provider: 'SMTP',
-        defaultFrom: { email: 'hi@example.com' },
+        provider: "SMTP",
+        defaultFrom: { email: "hi@example.com" },
       },
       parts: [],
     })
@@ -344,22 +344,22 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     <Tabs>
       <TabItem value="before" label="Before">
         ```ts title="main.wasp.ts"
-        import { App } from 'wasp-config'
+        import { App } from "wasp-config"
 
-        const app = new App('myApp', {
-          title: 'My app',
-          wasp: { version: '^0.24.0' },
+        const app = new App("myApp", {
+          title: "My app",
+          wasp: { version: "^0.24.0" },
         })
         ```
       </TabItem>
       <TabItem value="after" label="After">
         ```ts title="main.wasp.ts"
-        import { app, page, route, query, action } from '@wasp.sh/spec'
+        import { app, page, route, query, action } from "@wasp.sh/spec"
 
         export default app({
           name: "myApp",
-          title: 'My app',
-          wasp: { version: '^0.24.0' },
+          title: "My app",
+          wasp: { version: "^0.24.0" },
           parts: [],
         })
         ```

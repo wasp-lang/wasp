@@ -35,14 +35,14 @@ The `AuthUser` object will change depending on which auth method you have enable
     ```ts
     const user = {
       // User data
-      id: 'cluqs9qyh00007cn73apj4hp7',
-      address: 'Some address',
+      id: "cluqs9qyh00007cn73apj4hp7",
+      address: "Some address",
 
       // Auth methods specific data
       identities: {
         email: null,
         google: {
-          id: '1117XXXX1301972049448',
+          id: "1117XXXX1301972049448",
         },
       },
     }
@@ -55,15 +55,15 @@ The `AuthUser` object will change depending on which auth method you have enable
     ```ts
     const user = {
       // User data
-      id: 'cluqsex9500017cn7i2hwsg17',
-      address: 'Some address',
+      id: "cluqsex9500017cn7i2hwsg17",
+      address: "Some address",
 
       // Auth methods specific data
       identities: {
         email: {
-          id: 'user@app.com',
+          id: "user@app.com",
           isEmailVerified: true,
-          emailVerificationSentAt: '2024-04-08T10:06:02.204Z',
+          emailVerificationSentAt: "2024-04-08T10:06:02.204Z",
           passwordResetSentAt: null,
         },
         google: null,
@@ -152,7 +152,7 @@ This can be useful if you support multiple authentication methods and you need _
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/MainPage.tsx"
-    import { type AuthUser } from 'wasp/auth'
+    import { type AuthUser } from "wasp/auth"
 
     const MainPage = ({ user }: { user: AuthUser }) => {
       const userId = user.getFirstProviderUserId()
@@ -192,7 +192,7 @@ You can include the full user's data with other entities using the `include` opt
     ```js title="src/tasks.js"
     export const getAllTasks = async (args, context) => {
       return context.entities.Task.findMany({
-        orderBy: { id: 'desc' },
+        orderBy: { id: "desc" },
         select: {
           id: true,
           title: true,
@@ -224,7 +224,7 @@ You can include the full user's data with other entities using the `include` opt
     ```ts title="src/tasks.ts"
     export const getAllTasks = (async (args, context) => {
       return context.entities.Task.findMany({
-        orderBy: { id: 'desc' },
+        orderBy: { id: "desc" },
         select: {
           id: true,
           title: true,
@@ -306,7 +306,7 @@ It accepts the `user` object and if the user signed up with the [Username & pass
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```jsx title="src/MainPage.jsx"
-    import { getUsername } from 'wasp/auth'
+    import { getUsername } from "wasp/auth"
 
     function MainPage() {
       // ...
@@ -325,7 +325,7 @@ It accepts the `user` object and if the user signed up with the [Username & pass
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/MainPage.tsx"
-    import { getUsername } from 'wasp/auth'
+    import { getUsername } from "wasp/auth"
 
     function MainPage() {
       // ...
@@ -350,7 +350,7 @@ It accepts the `user` object and if the user signed up with the [Email](./email)
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```jsx title="src/MainPage.jsx"
-    import { getEmail } from 'wasp/auth'
+    import { getEmail } from "wasp/auth"
 
     function MainPage() {
       // ...
@@ -369,7 +369,7 @@ It accepts the `user` object and if the user signed up with the [Email](./email)
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/MainPage.tsx"
-    import { getEmail } from 'wasp/auth'
+    import { getEmail } from "wasp/auth"
 
     function MainPage() {
       // ...
@@ -394,7 +394,7 @@ It returns the first user ID that it finds for the user. For example if the user
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```jsx title="src/MainPage.jsx"
-    import { getFirstProviderUserId } from 'wasp/auth'
+    import { getFirstProviderUserId } from "wasp/auth"
 
     function MainPage() {
       // ...
@@ -413,7 +413,7 @@ It returns the first user ID that it finds for the user. For example if the user
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/MainPage.tsx"
-    import { getFirstProviderUserId } from 'wasp/auth'
+    import { getFirstProviderUserId } from "wasp/auth"
 
     function MainPage() {
       // ...
@@ -444,15 +444,15 @@ When you want to add authentication to your app, you need to specify the `userEn
 For example, you might set it to `User`:
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // highlight-next-line
-    userEntity: 'User',
+    userEntity: "User",
     // ...
   },
   parts: [],
@@ -597,13 +597,13 @@ Below is a simplified version of a custom signup action which you probably would
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { action, app } from '@wasp.sh/spec'
-    import { signup } from './src/auth/signup' with { type: "ref" }
+    import { action, app } from "@wasp.sh/spec"
+    import { signup } from "./src/auth/signup" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        action(signup, { entities: ['User'] }),
+        action(signup, { entities: ["User"] }),
       ],
     })
     ```
@@ -613,13 +613,13 @@ Below is a simplified version of a custom signup action which you probably would
       createProviderId,
       sanitizeAndSerializeProviderData,
       createUser,
-    } from 'wasp/server/auth'
+    } from "wasp/server/auth"
 
     export const signup = async (args, { entities: { User } }) => {
       try {
         // Provider ID is a combination of the provider name and the provider user ID
         // And it is used to uniquely identify the user in your app
-        const providerId = createProviderId('username', args.username)
+        const providerId = createProviderId("username", args.username)
         // sanitizeAndSerializeProviderData hashes the password and returns a JSON string
         const providerData = await sanitizeAndSerializeProviderData({
           hashedPassword: args.password,
@@ -639,7 +639,7 @@ Below is a simplified version of a custom signup action which you probably would
         //       create: {
         //         identities: {
         //             create: {
-        //                 providerName: 'username',
+        //                 providerName: "username",
         //                 providerUserId: args.username
         //                 providerData,
         //             },
@@ -660,7 +660,7 @@ Below is a simplified version of a custom signup action which you probably would
 
       return {
         success: true,
-        message: 'User created successfully',
+        message: "User created successfully",
       }
     }
     ```
@@ -668,13 +668,13 @@ Below is a simplified version of a custom signup action which you probably would
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { action, app } from '@wasp.sh/spec'
-    import { signup } from './src/auth/signup' with { type: "ref" }
+    import { action, app } from "@wasp.sh/spec"
+    import { signup } from "./src/auth/signup" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        action(signup, { entities: ['User'] }),
+        action(signup, { entities: ["User"] }),
       ],
     })
     ```
@@ -684,8 +684,8 @@ Below is a simplified version of a custom signup action which you probably would
       createProviderId,
       sanitizeAndSerializeProviderData,
       createUser,
-    } from 'wasp/server/auth'
-    import type { CustomSignup } from 'wasp/server/operations'
+    } from "wasp/server/auth"
+    import type { CustomSignup } from "wasp/server/operations"
 
     type CustomSignupInput = {
       username: string
@@ -703,9 +703,9 @@ Below is a simplified version of a custom signup action which you probably would
       try {
         // Provider ID is a combination of the provider name and the provider user ID
         // And it is used to uniquely identify the user in your app
-        const providerId = createProviderId('username', args.username)
+        const providerId = createProviderId("username", args.username)
         // sanitizeAndSerializeProviderData hashes the password and returns a JSON string
-        const providerData = await sanitizeAndSerializeProviderData<'username'>({
+        const providerData = await sanitizeAndSerializeProviderData<"username">({
           hashedPassword: args.password,
         })
 
@@ -723,7 +723,7 @@ Below is a simplified version of a custom signup action which you probably would
         //       create: {
         //         identities: {
         //             create: {
-        //                 providerName: 'username',
+        //                 providerName: "username",
         //                 providerUserId: args.username
         //                 providerData,
         //             },
@@ -744,7 +744,7 @@ Below is a simplified version of a custom signup action which you probably would
 
       return {
         success: true,
-        message: 'User created successfully',
+        message: "User created successfully",
       }
     }
     ```

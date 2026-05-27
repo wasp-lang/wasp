@@ -40,8 +40,8 @@ To create a Query in Wasp, we begin with a `query` declaration.
 Let's declare two Queries - one to fetch all tasks, and another to fetch tasks based on a filter, such as whether a task is done:
 
 ```ts title="main.wasp.ts"
-import { app, query } from '@wasp.sh/spec'
-import { getAllTasks, getFilteredTasks } from './src/queries' with { type: "ref" }
+import { app, query } from "@wasp.sh/spec"
+import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
   // ...
@@ -89,9 +89,9 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
     ```js title="src/queries.js"
     // our "database"
     const tasks = [
-      { id: 1, description: 'Buy some eggs', isDone: true },
-      { id: 2, description: 'Make an omelette', isDone: false },
-      { id: 3, description: 'Eat breakfast', isDone: false },
+      { id: 1, description: "Buy some eggs", isDone: true },
+      { id: 2, description: "Make an omelette", isDone: false },
+      { id: 3, description: "Eat breakfast", isDone: false },
     ]
 
     // You don't need to use the arguments if you don't need them
@@ -111,7 +111,7 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/queries.ts"
-    import { type GetAllTasks, type GetFilteredTasks } from 'wasp/server/operations'
+    import { type GetAllTasks, type GetFilteredTasks } from "wasp/server/operations"
 
     type Task = {
       id: number
@@ -121,9 +121,9 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
 
     // our "database"
     const tasks: Task[] = [
-      { id: 1, description: 'Buy some eggs', isDone: true },
-      { id: 2, description: 'Make an omelette', isDone: false },
-      { id: 3, description: 'Eat breakfast', isDone: false },
+      { id: 1, description: "Buy some eggs", isDone: true },
+      { id: 2, description: "Make an omelette", isDone: false },
+      { id: 3, description: "Eat breakfast", isDone: false },
     ]
 
     // You don't need to use the arguments if you don't need them
@@ -133,7 +133,7 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
 
     // The 'args' object is something sent by the caller (most often from the client)
     export const getFilteredTasks: GetFilteredTasks<
-      Pick<Task, 'isDone'>,
+      Pick<Task, "isDone">,
       Task[]
     > = (args) => {
       const { isDone } = args
@@ -189,7 +189,7 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
       const foos = await context.entities.Foo.findMany()
       return {
         foos,
-        message: 'Here are some foos!',
+        message: "Here are some foos!",
         queriedAt: new Date(),
       }
     }) satisfies GetFoo
@@ -203,7 +203,7 @@ Here's how you might implement the previously declared Queries `getAllTasks` and
     If you don't need the context, you can skip specifying the Query's type (and arguments):
 
     ```typescript
-    const getFoo = () => ({ name: 'Foo', date: new Date() })
+    const getFoo = () => ({ name: "Foo", date: new Date() })
     ```
 
     :::
@@ -226,7 +226,7 @@ Wasp authenticates the logged-in user in the background.
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js
-    import { getAllTasks, getFilteredTasks } from 'wasp/client/operations'
+    import { getAllTasks, getFilteredTasks } from "wasp/client/operations"
 
     // ...
 
@@ -237,7 +237,7 @@ Wasp authenticates the logged-in user in the background.
 
   <TabItem value="ts" label="TypeScript">
     ```ts
-    import { getAllTasks, getFilteredTasks } from 'wasp/client/operations'
+    import { getAllTasks, getFilteredTasks } from "wasp/client/operations"
 
     // TypeScript automatically infers the return values and type-checks
     // the payloads.
@@ -263,7 +263,7 @@ Here's what you have to do differently:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js
-    import { getAllTasks, getFilteredTasks } from 'wasp/server/operations'
+    import { getAllTasks, getFilteredTasks } from "wasp/server/operations"
 
 
     const user = // Get an AuthUser object, e.g., from context.user in an operation.
@@ -277,7 +277,7 @@ Here's what you have to do differently:
 
   <TabItem value="ts" label="TypeScript">
     ```ts
-    import { getAllTasks, getFilteredTasks } from 'wasp/server/operations'
+    import { getAllTasks, getFilteredTasks } from "wasp/server/operations"
 
     const user = // Get an AuthUser object, e.g., from context.user in an operation.
 
@@ -299,8 +299,8 @@ Here's an example of calling the Queries using the `useQuery` hook:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```jsx title="src/MainPage.jsx"
-    import React from 'react'
-    import { useQuery, getAllTasks, getFilteredTasks } from 'wasp/client/operations'
+    import React from "react"
+    import { useQuery, getAllTasks, getFilteredTasks } from "wasp/client/operations"
 
     const MainPage = () => {
       const { data: allTasks, error: error1 } = useQuery(getAllTasks)
@@ -317,12 +317,12 @@ Here's an example of calling the Queries using the `useQuery` hook:
           <h2>All Tasks</h2>
           {allTasks && allTasks.length > 0
             ? allTasks.map((task) => <Task key={task.id} {...task} />)
-            : 'No tasks'}
+            : "No tasks"}
 
           <h2>Finished Tasks</h2>
           {doneTasks && doneTasks.length > 0
             ? doneTasks.map((task) => <Task key={task.id} {...task} />)
-            : 'No finished tasks'}
+            : "No finished tasks"}
         </div>
       )
     }
@@ -336,7 +336,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
           </p>
           <p>
             <strong>Is done: </strong>
-            {isDone ? 'Yes' : 'No'}
+            {isDone ? "Yes" : "No"}
           </p>
         </div>
       )
@@ -348,9 +348,9 @@ Here's an example of calling the Queries using the `useQuery` hook:
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/MainPage.tsx"
-    import React from 'react'
-    import { type Task } from 'wasp/entities'
-    import { useQuery, getAllTasks, getFilteredTasks } from 'wasp/client/operations'
+    import React from "react"
+    import { type Task } from "wasp/entities"
+    import { useQuery, getAllTasks, getFilteredTasks } from "wasp/client/operations"
 
     const MainPage = () => {
       // TypeScript automatically infers return values and type-checks payload types.
@@ -368,12 +368,12 @@ Here's an example of calling the Queries using the `useQuery` hook:
           <h2>All Tasks</h2>
           {allTasks && allTasks.length > 0
             ? allTasks.map((task) => <Task key={task.id} {...task} />)
-            : 'No tasks'}
+            : "No tasks"}
 
           <h2>Finished Tasks</h2>
           {doneTasks && doneTasks.length > 0
             ? doneTasks.map((task) => <Task key={task.id} {...task} />)
-            : 'No finished tasks'}
+            : "No finished tasks"}
         </div>
       )
     }
@@ -387,7 +387,7 @@ Here's an example of calling the Queries using the `useQuery` hook:
           </p>
           <p>
             <strong>Is done: </strong>
-            {isDone ? 'Yes' : 'No'}
+            {isDone ? "Yes" : "No"}
           </p>
         </div>
       )
@@ -414,13 +414,13 @@ If you do want to pass additional error information to the client, you can const
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/queries.js"
-    import { HttpError } from 'wasp/server'
+    import { HttpError } from "wasp/server"
 
     export const getAllTasks = async (args, context) => {
       throw new HttpError(
         403, // status code
         "You can't do this!", // message
-        { foo: 'bar' } // data
+        { foo: "bar" } // data
       )
     }
     ```
@@ -428,14 +428,14 @@ If you do want to pass additional error information to the client, you can const
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/queries.ts"
-    import { type GetAllTasks } from 'wasp/server/operations'
-    import { HttpError } from 'wasp/server'
+    import { type GetAllTasks } from "wasp/server/operations"
+    import { HttpError } from "wasp/server"
 
     export const getAllTasks: GetAllTasks = async (args, context) => {
       throw new HttpError(
         403, // status code
         "You can't do this!", // message
-        { foo: 'bar' } // data
+        { foo: "bar" } // data
       )
     }
     ```
@@ -451,14 +451,14 @@ In most cases, resources used in Queries will be [Entities](../../data-model/ent
 To use an Entity in your Query, add it to the `query` declaration in Wasp:
 
 ```ts title="main.wasp.ts"
-import { app, query } from '@wasp.sh/spec'
-import { getAllTasks, getFilteredTasks } from './src/queries' with { type: "ref" }
+import { app, query } from "@wasp.sh/spec"
+import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    query(getAllTasks, { entities: ['Task'] }),
-    query(getFilteredTasks, { entities: ['Task'] }),
+    query(getAllTasks, { entities: ["Task"] }),
+    query(getFilteredTasks, { entities: ["Task"] }),
   ],
 })
 ```
@@ -482,15 +482,15 @@ Wasp will inject the specified Entity into the Query's `context` argument, givin
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/queries.ts"
-    import { type Task } from 'wasp/entities'
-    import { type GetAllTasks, type GetFilteredTasks } from 'wasp/server/operations'
+    import { type Task } from "wasp/entities"
+    import { type GetAllTasks, type GetFilteredTasks } from "wasp/server/operations"
 
     export const getAllTasks: GetAllTasks<void, Task[]> = async (args, context) => {
       return context.entities.Task.findMany({})
     }
 
     export const getFilteredTasks: GetFilteredTasks<
-      Pick<Task, 'isDone'>,
+      Pick<Task, "isDone">,
       Task[]
     > = async (args, context) => {
       return context.entities.Task.findMany({
@@ -531,13 +531,13 @@ Declare a Query with `query(fn, config)`:
     Declaring the Query:
 
     ```ts
-    import { app, query } from '@wasp.sh/spec'
-    import { getFoo } from './src/queries' with { type: "ref" }
+    import { app, query } from "@wasp.sh/spec"
+    import { getFoo } from "./src/queries" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        query(getFoo, { entities: ['Foo'] }),
+        query(getFoo, { entities: ["Foo"] }),
       ],
     })
     ```
@@ -546,10 +546,10 @@ Declare a Query with `query(fn, config)`:
 
     ```js
     // Use it on the client
-    import { getFoo } from 'wasp/client/operations'
+    import { getFoo } from "wasp/client/operations"
 
     // Use it on the server
-    import { getFoo } from 'wasp/server/operations'
+    import { getFoo } from "wasp/server/operations"
     ```
 
     On the client, the Query expects
@@ -559,13 +559,13 @@ Declare a Query with `query(fn, config)`:
     Declaring the Query:
 
     ```ts
-    import { app, query } from '@wasp.sh/spec'
-    import { getFoo } from './src/queries' with { type: "ref" }
+    import { app, query } from "@wasp.sh/spec"
+    import { getFoo } from "./src/queries" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        query(getFoo, { entities: ['Foo'] }),
+        query(getFoo, { entities: ["Foo"] }),
       ],
     })
     ```
@@ -574,16 +574,16 @@ Declare a Query with `query(fn, config)`:
 
     ```ts
     // Use it on the client
-    import { getFoo } from 'wasp/client/operations'
+    import { getFoo } from "wasp/client/operations"
 
     // Use it on the server
-    import { getFoo } from 'wasp/server/operations'
+    import { getFoo } from "wasp/server/operations"
     ```
 
     And also creates a type you can import on the server:
 
     ```ts
-    import { type GetFoo } from 'wasp/server/operations'
+    import { type GetFoo } from "wasp/server/operations"
     ```
   </TabItem>
 </Tabs>
@@ -607,7 +607,7 @@ Since both arguments are positional, you can name the parameters however you wan
   For the Query declared as `getSomething`, the generated type is called `GetSomething`:
 
   ```ts
-  import { type GetSomething } from 'wasp/server/operations'
+  import { type GetSomething } from "wasp/server/operations"
   ```
 
   It expects two (optional) type arguments:
@@ -630,13 +630,13 @@ Since both arguments are positional, you can name the parameters however you wan
     The following Query:
 
     ```ts
-    import { app, query } from '@wasp.sh/spec'
-    import { getFoo } from './src/queries' with { type: "ref" }
+    import { app, query } from "@wasp.sh/spec"
+    import { getFoo } from "./src/queries" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        query(getFoo, { entities: ['Foo'] }),
+        query(getFoo, { entities: ["Foo"] }),
       ],
     })
     ```
@@ -654,13 +654,13 @@ Since both arguments are positional, you can name the parameters however you wan
     The following Query:
 
     ```ts
-    import { app, query } from '@wasp.sh/spec'
-    import { getFoo } from './src/queries' with { type: "ref" }
+    import { app, query } from "@wasp.sh/spec"
+    import { getFoo } from "./src/queries" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        query(getFoo, { entities: ['Foo'] }),
+        query(getFoo, { entities: ["Foo"] }),
       ],
     })
     ```
@@ -670,7 +670,7 @@ Since both arguments are positional, you can name the parameters however you wan
     You can use the generated type `GetFoo` and specify the Query's inputs and outputs using its type arguments.
 
     ```ts title="src/queries.ts"
-    import { type GetFoo } from 'wasp/server/operations'
+    import { type GetFoo } from "wasp/server/operations"
 
     type Foo = // ...
 

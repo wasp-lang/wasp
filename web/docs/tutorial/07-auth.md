@@ -42,27 +42,27 @@ Next, tell Wasp to use full-stack [authentication](../auth/overview):
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'TodoApp',
+  name: "TodoApp",
   wasp: {
-    version: '{latestWaspVersion}',
+    version: "{latestWaspVersion}",
   },
-  title: 'TodoApp',
+  title: "TodoApp",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
   ],
   // highlight-start
   auth: {
     // Tells Wasp which entity to use for storing users.
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       // Enable username and password auth.
       usernameAndPassword: {},
     },
     // We'll see how this is used in a bit.
-    onAuthFailedRedirectTo: '/login',
+    onAuthFailedRedirectTo: "/login",
   },
   // highlight-end
   parts: [
@@ -98,18 +98,18 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
+import { app, page, route } from "@wasp.sh/spec"
 // highlight-start
-import { SignupPage } from './src/SignupPage' with { type: "ref" }
-import { LoginPage } from './src/LoginPage' with { type: "ref" }
+import { SignupPage } from "./src/SignupPage" with { type: "ref" }
+import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 // highlight-end
 
 export default app({
   // ...
   parts: [
     // highlight-start
-    route('SignupRoute', '/signup', page(SignupPage)),
-    route('LoginRoute', '/login', page(LoginPage)),
+    route("SignupRoute", "/signup", page(SignupPage)),
+    route("LoginRoute", "/login", page(LoginPage)),
     // highlight-end    
   ],
 })
@@ -175,13 +175,13 @@ We don't want users who are not logged in to access the main page, because they 
 <TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { MainPage } from './src/MainPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('RootRoute', '/', page(MainPage, {
+    route("RootRoute", "/", page(MainPage, {
       // highlight-next-line
       authRequired: true,
     }),

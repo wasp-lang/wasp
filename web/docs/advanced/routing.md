@@ -9,22 +9,22 @@ Wasp uses [React Router](https://reactrouter.com) under the hood. Route paths su
 Use `:paramName` in a route path to match any value in that segment. Access the matched value in your page component with the `useParams` hook from `react-router`.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { PhotoPage } from './src/PhotoPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('PhotoRoute', '/photo/:photoId', page(PhotoPage)),
+    route("PhotoRoute", "/photo/:photoId", page(PhotoPage)),
   ],
 })
 ```
 
 ```tsx title="src/PhotoPage.tsx" auto-js
-import { useParams } from 'react-router'
+import { useParams } from "react-router"
 
 export function PhotoPage() {
-  const { photoId } = useParams<'photoId'>()
+  const { photoId } = useParams<"photoId">()
   return <div>Viewing photo {photoId}</div>
 }
 ```
@@ -36,25 +36,25 @@ Read more in the [React Router docs on dynamic segments](https://reactrouter.com
 Append `?` to a path segment to make it optional. The route will match whether or not the segment is present.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { PhotoPage } from './src/PhotoPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('PhotoRoute', '/photo/:photoId/edit?', page(PhotoPage)),
+    route("PhotoRoute", "/photo/:photoId/edit?", page(PhotoPage)),
   ],
 })
 ```
 
 ```tsx title="src/PhotoPage.tsx" auto-js
-import { useParams, useLocation } from 'react-router'
+import { useParams, useLocation } from "react-router"
 
 export function PhotoPage() {
-  const { photoId } = useParams<'photoId'>()
+  const { photoId } = useParams<"photoId">()
   const { pathname } = useLocation()
-  const isEditing = pathname.endsWith('/edit')
-  return <div>{isEditing ? 'Editing' : 'Viewing'} photo {photoId}</div>
+  const isEditing = pathname.endsWith("/edit")
+  return <div>{isEditing ? "Editing" : "Viewing"} photo {photoId}</div>
 }
 ```
 
@@ -65,22 +65,22 @@ Read more in the [React Router docs on optional segments](https://reactrouter.co
 Use `/*` at the end of a route path to match any remaining path segments. Access the matched portion with the `'*'` param.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { FilesPage } from './src/FilesPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { FilesPage } from "./src/FilesPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('FilesRoute', '/files/*', page(FilesPage)),
+    route("FilesRoute", "/files/*", page(FilesPage)),
   ],
 })
 ```
 
 ```tsx title="src/FilesPage.tsx" auto-js
-import { useParams } from 'react-router'
+import { useParams } from "react-router"
 
 export function FilesPage() {
-  const { '*': filePath } = useParams()
+  const { "*": filePath } = useParams()
   // Visiting /files/docs/report.txt → filePath = "docs/report.txt"
   return <div>File: {filePath}</div>
 }
@@ -95,14 +95,14 @@ By default, Wasp lazy-loads all page routes using React Router's [`lazy`](https:
 If you need a specific route to be eagerly loaded (included in the main bundle), you can set `lazy: false` on the route declaration:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { DashboardPage } from './src/DashboardPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 
 // This route's page will be included in the initial bundle
 export default app({
   // ...
   parts: [
-    route('DashboardRoute', '/dashboard', page(DashboardPage), { lazy: false }),
+    route("DashboardRoute", "/dashboard", page(DashboardPage), { lazy: false }),
   ],
 })
 ```
@@ -116,13 +116,13 @@ Most apps won't need to change this. Disabling lazy loading is useful when you w
 You can prerender specific routes at build time by setting `prerender: true`. This generates static HTML that is served immediately, giving faster load times and better SEO.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { LandingPage } from './src/LandingPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('LandingRoute', '/', page(LandingPage), { prerender: true }),
+    route("LandingRoute", "/", page(LandingPage), { prerender: true }),
   ],
 })
 ```

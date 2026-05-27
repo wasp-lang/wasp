@@ -13,15 +13,15 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from '@wasp.sh/spec'
-    import { MainPage } from './src/MainPage' with { type: "ref" }
+    import { app, page, route } from "@wasp.sh/spec"
+    import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.jsx`. Reference imports must point to files inside `src`.
-        route('RootRoute', '/', page(MainPage)),
+        route("RootRoute", "/", page(MainPage)),
       ],
     })
     ```
@@ -29,15 +29,15 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from '@wasp.sh/spec'
-    import { MainPage } from './src/MainPage' with { type: "ref" }
+    import { app, page, route } from "@wasp.sh/spec"
+    import { MainPage } from "./src/MainPage" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.tsx`. Reference imports must point to files inside `src`.
-        route('RootRoute', '/', page(MainPage)),
+        route("RootRoute", "/", page(MainPage)),
       ],
     })
     ```
@@ -51,8 +51,8 @@ Together, these declarations tell Wasp that when a user navigates to `/`, it sho
 Let's take a look at the React component referenced by the page declaration:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import Logo from './assets/logo.svg';
-import './Main.css';
+import Logo from "./assets/logo.svg";
+import "./Main.css";
 
 export function MainPage() {
   // ...
@@ -74,13 +74,13 @@ That is all the code you need! Wasp takes care of everything else necessary to d
 To add more pages, you can add another route to your spec. You can even add parameters to the URL path, using [dynamic segments](../advanced/routing#dynamic-segments). Let's test this out by adding a new page:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { HelloPage } from './src/HelloPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('HelloRoute', '/hello/:name', page(HelloPage)),
+    route("HelloRoute", "/hello/:name", page(HelloPage)),
   ],
 })
 ```
@@ -131,20 +131,20 @@ Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `mai
 Your Wasp file should now look like this:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { MainPage } from './src/MainPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
-  name: 'TodoApp',
+  name: "TodoApp",
   wasp: {
-    version: '{latestWaspVersion}',
+    version: "{latestWaspVersion}",
   },
-  title: 'TodoApp',
+  title: "TodoApp",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
   ],
   parts: [
-    route('RootRoute', '/', page(MainPage)),
+    route("RootRoute", "/", page(MainPage)),
   ],
 })
 ```

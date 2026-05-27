@@ -39,16 +39,16 @@ npm install @sentry/node @sentry/react
 Add both the server and client setup functions to your `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { setupClient } from './src/clientSetup' with { type: "ref" }
-import { setupServer } from './src/serverSetup' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { setupClient } from "./src/clientSetup" with { type: "ref" }
+import { setupServer } from "./src/serverSetup" with { type: "ref" }
 
 export default app({
-  name: 'MyApp',
+  name: "MyApp",
   wasp: {
-    version: '^0.24.0',
+    version: "^0.24.0",
   },
-  title: 'my-app',
+  title: "my-app",
   server: {
     // highlight-start
     setupFn: setupServer,

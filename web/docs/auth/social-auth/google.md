@@ -39,22 +39,22 @@ Enabling Google Authentication comes down to a series of steps:
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       // 2. Enable Google Auth
       // highlight-next-line
       google: {}
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -166,13 +166,13 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { Login } from './src/pages/auth' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { Login } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('LoginRoute', '/login', page(Login)),
+    route("LoginRoute", "/login", page(Login)),
   ],
 })
 ```
@@ -197,19 +197,19 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 Add `google: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       // highlight-next-line
       google: {}
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -255,15 +255,15 @@ The fields you receive depend on the scopes you request. The default scope is se
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { getConfig, userSignupFields } from './src/auth/google' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       google: {
         // highlight-next-line
@@ -272,7 +272,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -289,16 +289,16 @@ model User {
 ```
 
 ```ts title="src/auth/google.ts" auto-js
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth"
 
 export const userSignupFields = defineUserSignupFields({
-  username: () => 'hardcoded-username',
+  username: () => "hardcoded-username",
   displayName: (data: any) => data.profile.name,
 })
 
 export function getConfig() {
   return {
-    scopes: ['profile', 'email'],
+    scopes: ["profile", "email"],
   }
 }
 ```
@@ -320,15 +320,15 @@ When you receive the `user` object [on the client or the server](../overview.md#
 <ApiReferenceIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { getConfig, userSignupFields } from './src/auth/google' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       google: {
         // highlight-next-line
@@ -337,7 +337,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -352,7 +352,7 @@ The `google` object has the following properties:
   ```ts title="src/auth/google.ts" auto-js
   export function getConfig() {
     return {
-      scopes: ['profile', 'email'],
+      scopes: ["profile", "email"],
     }
   }
   ```

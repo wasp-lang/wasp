@@ -18,13 +18,13 @@ This gives you:
 Add `prerender: true` to any route declaration:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { LandingPage } from './src/LandingPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('LandingRoute', '/', page(LandingPage), { prerender: true }),
+    route("LandingRoute", "/", page(LandingPage), { prerender: true }),
   ],
 })
 ```
@@ -61,17 +61,17 @@ Prerendering is especially valuable if you want your content to be indexed by se
 Prerendering only works on routes with static paths. Routes with dynamic segments (`:paramName`), optional segments (`?`), or splats (`*`) cannot be prerendered, because the HTML must be generated at build time for a known URL.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { AboutPage } from './src/AboutPage' with { type: "ref" }
-import { UserPage } from './src/UserPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { AboutPage } from "./src/AboutPage" with { type: "ref" }
+import { UserPage } from "./src/UserPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
     // ✅ Works (static path)
-    route('AboutRoute', '/about', page(AboutPage), { prerender: true }),
+    route("AboutRoute", "/about", page(AboutPage), { prerender: true }),
     // ❌ Won't compile (dynamic segment)
-    route('UserRoute', '/user/:id', page(UserPage), { prerender: true }),
+    route("UserRoute", "/user/:id", page(UserPage), { prerender: true }),
   ],
 })
 ```
@@ -81,16 +81,16 @@ export default app({
 Routes pointing to pages with `authRequired: true` cannot be prerendered, since the page content depends on the logged-in user.
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { DashPage } from './src/DashPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { DashPage } from "./src/DashPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
     // ❌ Won't compile (authRequired is true)
     route(
-      'DashRoute',
-      '/dashboard',
+      "DashRoute",
+      "/dashboard",
       page(DashPage, { authRequired: true }),
       { prerender: true }
     ),
@@ -123,8 +123,8 @@ Here's an example of the **wrong** approach:
 ```tsx title="src/LandingPage.tsx" auto-js
 // ❌ Causes a hydration mismatch
 export function LandingPage() {
-  const isClient = typeof window !== 'undefined'
-  return <p>{isClient ? 'Client content' : 'Prerendered content'}</p>
+  const isClient = typeof window !== "undefined"
+  return <p>{isClient ? "Client content" : "Prerendered content"}</p>
 }
 ```
 
@@ -132,7 +132,7 @@ And the **correct** approach:
 
 ```tsx title="src/LandingPage.tsx" auto-js
 // ✅ No hydration mismatch
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 
 function useIsClient() {
   const [isClient, setIsClient] = useState(false)
@@ -144,7 +144,7 @@ function useIsClient() {
 
 export function LandingPage() {
   const isClient = useIsClient()
-  return <p>{isClient ? 'Client content' : 'Prerendered content'}</p>
+  return <p>{isClient ? "Client content" : "Prerendered content"}</p>
 }
 ```
 
@@ -157,13 +157,13 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 ### `prerender` route config option
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { SomePage } from './src/SomePage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { SomePage } from "./src/SomePage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('NameRoute', '/some-path', page(SomePage), {
+    route("NameRoute", "/some-path", page(SomePage), {
       prerender: true, // optional, defaults to false
     }),
   ],

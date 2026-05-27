@@ -26,15 +26,15 @@ We must first declare the Action in `main.wasp.ts`:
 <TutorialAction id="action-create-task" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app } from '@wasp.sh/spec'
+import { action, app } from "@wasp.sh/spec"
 // highlight-next-line
-import { createTask } from './src/actions' with { type: "ref" }
+import { createTask } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
     // highlight-next-line
-    action(createTask, { entities: ['Task'] }),
+    action(createTask, { entities: ["Task"] }),
   ],
 })
 ```
@@ -183,13 +183,13 @@ Since we've already created one task together, try to create this one yourself. 
   <TutorialAction id="action-update-task" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app } from '@wasp.sh/spec'
-import { updateTask } from './src/actions' with { type: "ref" }
+import { action, app } from "@wasp.sh/spec"
+import { updateTask } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    action(updateTask, { entities: ['Task'] }),
+    action(updateTask, { entities: ["Task"] }),
   ],
 })
 ```

@@ -31,14 +31,14 @@ We'll need to take the following steps to set up email authentication:
 Structure of the `main.wasp.ts` file we will end up with:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { SignupPage } from './src/pages/auth' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 // Configuring e-mail authentication
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // ...
   },
@@ -47,7 +47,7 @@ export default app({
   },
   parts: [
     // Defining routes and pages
-    route('SignupRoute', '/signup', page(SignupPage)),
+    route("SignupRoute", "/signup", page(SignupPage)),
     // ...
   ],
 })
@@ -60,34 +60,34 @@ Let's start with adding the following to our `main.wasp.ts` file:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
-      title: 'My App',
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
+      title: "My App",
       auth: {
         // 1. Specify the user entity (we'll define it next)
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           // 2. Enable email authentication
           email: {
             // 3. Specify the email from field
             fromField: {
-              name: 'My App Postman',
-              email: 'hello@itsme.com'
+              name: "My App Postman",
+              email: "hello@itsme.com"
             },
             // 4. Specify the email verification and password reset options (we'll talk about them later)
             emailVerification: {
-              clientRoute: 'EmailVerificationRoute',
+              clientRoute: "EmailVerificationRoute",
             },
             passwordReset: {
-              clientRoute: 'PasswordResetRoute',
+              clientRoute: "PasswordResetRoute",
             },
           },
         },
-        onAuthFailedRedirectTo: '/login',
-        onAuthSucceededRedirectTo: '/'
+        onAuthFailedRedirectTo: "/login",
+        onAuthSucceededRedirectTo: "/"
       },
       parts: [],
     })
@@ -96,34 +96,34 @@ Let's start with adding the following to our `main.wasp.ts` file:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
-      title: 'My App',
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
+      title: "My App",
       auth: {
         // 1. Specify the user entity (we'll define it next)
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           // 2. Enable email authentication
           email: {
             // 3. Specify the email from field
             fromField: {
-              name: 'My App Postman',
-              email: 'hello@itsme.com'
+              name: "My App Postman",
+              email: "hello@itsme.com"
             },
             // 4. Specify the email verification and password reset options (we'll talk about them later)
             emailVerification: {
-              clientRoute: 'EmailVerificationRoute',
+              clientRoute: "EmailVerificationRoute",
             },
             passwordReset: {
-              clientRoute: 'PasswordResetRoute',
+              clientRoute: "PasswordResetRoute",
             },
           },
         },
-        onAuthFailedRedirectTo: '/login',
-        onAuthSucceededRedirectTo: '/'
+        onAuthFailedRedirectTo: "/login",
+        onAuthSucceededRedirectTo: "/"
       },
       parts: [],
     })
@@ -174,27 +174,27 @@ Add the following to the `main.wasp.ts` file:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from '@wasp.sh/spec'
+    import { app, page, route } from "@wasp.sh/spec"
     import {
       Login,
       Signup,
       RequestPasswordReset,
       PasswordReset,
       EmailVerification,
-    } from './src/pages/auth' with { type: "ref" }
+    } from "./src/pages/auth" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        route('LoginRoute', '/login', page(Login)),
-        route('SignupRoute', '/signup', page(Signup)),
+        route("LoginRoute", "/login", page(Login)),
+        route("SignupRoute", "/signup", page(Signup)),
         route(
-          'RequestPasswordResetRoute',
-          '/request-password-reset',
+          "RequestPasswordResetRoute",
+          "/request-password-reset",
           page(RequestPasswordReset)
         ),
-        route('PasswordResetRoute', '/password-reset', page(PasswordReset)),
-        route('EmailVerificationRoute', '/email-verification', page(EmailVerification)),
+        route("PasswordResetRoute", "/password-reset", page(PasswordReset)),
+        route("EmailVerificationRoute", "/email-verification", page(EmailVerification)),
       ],
     })
     ```
@@ -202,27 +202,27 @@ Add the following to the `main.wasp.ts` file:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from '@wasp.sh/spec'
+    import { app, page, route } from "@wasp.sh/spec"
     import {
       Login,
       Signup,
       RequestPasswordReset,
       PasswordReset,
       EmailVerification,
-    } from './src/pages/auth' with { type: "ref" }
+    } from "./src/pages/auth" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        route('LoginRoute', '/login', page(Login)),
-        route('SignupRoute', '/signup', page(Signup)),
+        route("LoginRoute", "/login", page(Login)),
+        route("SignupRoute", "/signup", page(Signup)),
         route(
-          'RequestPasswordResetRoute',
-          '/request-password-reset',
+          "RequestPasswordResetRoute",
+          "/request-password-reset",
           page(RequestPasswordReset)
         ),
-        route('PasswordResetRoute', '/password-reset', page(PasswordReset)),
-        route('EmailVerificationRoute', '/email-verification', page(EmailVerification)),
+        route("PasswordResetRoute", "/password-reset", page(PasswordReset)),
+        route("EmailVerificationRoute", "/email-verification", page(EmailVerification)),
       ],
     })
     ```
@@ -246,8 +246,8 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       VerifyEmailForm,
       ForgotPasswordForm,
       ResetPasswordForm,
-    } from 'wasp/client/auth'
-    import { Link } from 'react-router'
+    } from "wasp/client/auth"
+    import { Link } from "react-router"
 
     export function Login() {
       return (
@@ -332,8 +332,8 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       VerifyEmailForm,
       ForgotPasswordForm,
       ResetPasswordForm,
-    } from 'wasp/client/auth'
-    import { Link } from 'react-router'
+    } from "wasp/client/auth"
+    import { Link } from "react-router"
 
     export function Login() {
       return (
@@ -428,7 +428,7 @@ To set up the `Dummy` provider to send emails, add the following to the `main.wa
       // ...
       // 7. Set up the email sender
       emailSender: {
-        provider: 'Dummy',
+        provider: "Dummy",
       },
     })
     ```
@@ -440,7 +440,7 @@ To set up the `Dummy` provider to send emails, add the following to the `main.wa
       // ...
       // 7. Set up the email sender
       emailSender: {
-        provider: 'Dummy',
+        provider: "Dummy",
       },
     })
     ```
@@ -504,7 +504,7 @@ Our setup looks like this:
     // ...
 
     emailVerification: {
-      clientRoute: 'EmailVerificationRoute',
+      clientRoute: "EmailVerificationRoute",
     }
     ```
   </TabItem>
@@ -514,7 +514,7 @@ Our setup looks like this:
     // ...
 
     emailVerification: {
-      clientRoute: 'EmailVerificationRoute',
+      clientRoute: "EmailVerificationRoute",
     }
     ```
   </TabItem>
@@ -552,7 +552,7 @@ Our setup in `main.wasp.ts` looks like this:
     // ...
 
     passwordReset: {
-      clientRoute: 'PasswordResetRoute',
+      clientRoute: "PasswordResetRoute",
     }
     ```
   </TabItem>
@@ -562,7 +562,7 @@ Our setup in `main.wasp.ts` looks like this:
     // ...
 
     passwordReset: {
-      clientRoute: 'PasswordResetRoute',
+      clientRoute: "PasswordResetRoute",
     }
     ```
   </TabItem>
@@ -613,22 +613,22 @@ Let's go over the options we can specify when using email authentication.
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
-      title: 'My app',
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
+      title: "My app",
       // ...
 
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           email: {
             // We'll explain these options below
           },
         },
-        onAuthFailedRedirectTo: '/someRoute'
+        onAuthFailedRedirectTo: "/someRoute"
       },
       // ...
       parts: [],
@@ -644,22 +644,22 @@ Let's go over the options we can specify when using email authentication.
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
-      title: 'My app',
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
+      title: "My app",
       // ...
 
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           email: {
             // We'll explain these options below
           },
         },
-        onAuthFailedRedirectTo: '/someRoute'
+        onAuthFailedRedirectTo: "/someRoute"
       },
       // ...
       parts: [],
@@ -681,39 +681,39 @@ Let's go over the options we can specify when using email authentication.
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { userSignupFields } from './src/auth' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { userSignupFields } from "./src/auth" with { type: "ref" }
     import {
       getVerificationEmailContent,
       getPasswordResetEmailContent,
-    } from './src/auth/email' with { type: "ref" }
+    } from "./src/auth/email" with { type: "ref" }
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
-      title: 'My app',
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
+      title: "My app",
       // ...
 
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           email: {
             userSignupFields,
             fromField: {
-              name: 'My App',
-              email: 'hello@itsme.com'
+              name: "My App",
+              email: "hello@itsme.com"
             },
             emailVerification: {
-              clientRoute: 'EmailVerificationRoute',
+              clientRoute: "EmailVerificationRoute",
               getEmailContentFn: getVerificationEmailContent,
             },
             passwordReset: {
-              clientRoute: 'PasswordResetRoute',
+              clientRoute: "PasswordResetRoute",
               getEmailContentFn: getPasswordResetEmailContent,
             },
           },
         },
-        onAuthFailedRedirectTo: '/someRoute'
+        onAuthFailedRedirectTo: "/someRoute"
       },
       // ...
       parts: [],
@@ -723,39 +723,39 @@ Let's go over the options we can specify when using email authentication.
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { userSignupFields } from './src/auth' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { userSignupFields } from "./src/auth" with { type: "ref" }
     import {
       getVerificationEmailContent,
       getPasswordResetEmailContent,
-    } from './src/auth/email' with { type: "ref" }
+    } from "./src/auth/email" with { type: "ref" }
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
-      title: 'My app',
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
+      title: "My app",
       // ...
 
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           email: {
             userSignupFields,
             fromField: {
-              name: 'My App',
-              email: 'hello@itsme.com'
+              name: "My App",
+              email: "hello@itsme.com"
             },
             emailVerification: {
-              clientRoute: 'EmailVerificationRoute',
+              clientRoute: "EmailVerificationRoute",
               getEmailContentFn: getVerificationEmailContent,
             },
             passwordReset: {
-              clientRoute: 'PasswordResetRoute',
+              clientRoute: "PasswordResetRoute",
               getEmailContentFn: getPasswordResetEmailContent,
             },
           },
         },
-        onAuthFailedRedirectTo: '/someRoute'
+        onAuthFailedRedirectTo: "/someRoute"
       },
       // ...
       parts: [],
@@ -792,7 +792,7 @@ It has the following fields:
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
       ```js title="src/pages/EmailVerificationPage.jsx"
-      import { verifyEmail } from 'wasp/client/auth'
+      import { verifyEmail } from "wasp/client/auth"
       ...
       await verifyEmail({ token });
       ```
@@ -800,7 +800,7 @@ It has the following fields:
 
     <TabItem value="ts" label="TypeScript">
       ```ts title="src/pages/EmailVerificationPage.tsx"
-      import { verifyEmail } from 'wasp/client/auth'
+      import { verifyEmail } from "wasp/client/auth"
       ...
       await verifyEmail({ token });
       ```
@@ -819,7 +819,7 @@ It has the following fields:
     <TabItem value="js" label="JavaScript">
       ```ts title="src/email.js"
       export const getVerificationEmailContent = ({ verificationLink }) => ({
-        subject: 'Verify your email',
+        subject: "Verify your email",
         text: `Click the link below to verify your email: ${verificationLink}`,
         html: `
               <p>Click the link below to verify your email</p>
@@ -831,12 +831,12 @@ It has the following fields:
 
     <TabItem value="ts" label="TypeScript">
       ```ts title="src/email.ts"
-      import { GetVerificationEmailContentFn } from 'wasp/server/auth'
+      import { GetVerificationEmailContentFn } from "wasp/server/auth"
 
       export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
         verificationLink,
       }) => ({
-        subject: 'Verify your email',
+        subject: "Verify your email",
         text: `Click the link below to verify your email: ${verificationLink}`,
         html: `
               <p>Click the link below to verify your email</p>
@@ -862,13 +862,13 @@ It has the following fields:
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
       ```js title="src/pages/ForgotPasswordPage.jsx"
-      import { requestPasswordReset } from 'wasp/client/auth'
+      import { requestPasswordReset } from "wasp/client/auth"
       ...
       await requestPasswordReset({ email });
       ```
 
       ```js title="src/pages/PasswordResetPage.jsx"
-      import { resetPassword } from 'wasp/client/auth'
+      import { resetPassword } from "wasp/client/auth"
       ...
       await resetPassword({ password, token })
       ```
@@ -876,13 +876,13 @@ It has the following fields:
 
     <TabItem value="ts" label="TypeScript">
       ```ts title="src/pages/ForgotPasswordPage.tsx"
-      import { requestPasswordReset } from 'wasp/client/auth'
+      import { requestPasswordReset } from "wasp/client/auth"
       ...
       await requestPasswordReset({ email });
       ```
 
       ```ts title="src/pages/PasswordResetPage.tsx"
-      import { resetPassword } from 'wasp/client/auth'
+      import { resetPassword } from "wasp/client/auth"
       ...
       await resetPassword({ password, token })
       ```
@@ -901,7 +901,7 @@ It has the following fields:
     <TabItem value="js" label="JavaScript">
       ```ts title="src/email.js"
       export const getPasswordResetEmailContent = ({ passwordResetLink }) => ({
-        subject: 'Password reset',
+        subject: "Password reset",
         text: `Click the link below to reset your password: ${passwordResetLink}`,
         html: `
               <p>Click the link below to reset your password</p>
@@ -913,12 +913,12 @@ It has the following fields:
 
     <TabItem value="ts" label="TypeScript">
       ```ts title="src/email.ts"
-      import { GetPasswordResetEmailContentFn } from 'wasp/server/auth'
+      import { GetPasswordResetEmailContentFn } from "wasp/server/auth"
 
       export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
         passwordResetLink,
       }) => ({
-        subject: 'Password reset',
+        subject: "Password reset",
         text: `Click the link below to reset your password: ${passwordResetLink}`,
         html: `
               <p>Click the link below to reset your password</p>

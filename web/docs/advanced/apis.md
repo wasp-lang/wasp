@@ -24,13 +24,13 @@ After completing these two steps, you'll be able to call the API from the client
 First, we need to declare the API in the Wasp file and you can easily do this with the `api` function:
 
 ```ts title="main.wasp.ts"
-import { api, app } from '@wasp.sh/spec'
-import { fooBar } from './src/apis' with { type: "ref" }
+import { api, app } from "@wasp.sh/spec"
+import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    api('GET', '/foo/bar', fooBar),
+    api("GET", "/foo/bar", fooBar),
   ],
 })
 ```
@@ -76,13 +76,13 @@ export const fooBar: FooBar = (req, res, context) => {
   Define the API in Wasp:
 
   ```ts title="main.wasp.ts"
-  import { api, app } from '@wasp.sh/spec'
-  import { fooBar } from './src/apis' with { type: "ref" }
+  import { api, app } from "@wasp.sh/spec"
+  import { fooBar } from "./src/apis" with { type: "ref" }
 
   export default app({
     // ...
     parts: [
-      api('GET', '/foo/bar/:email', fooBar, { entities: ['Task'] }),
+      api("GET", "/foo/bar/:email", fooBar, { entities: ["Task"] }),
     ],
   })
   ```
@@ -141,13 +141,13 @@ You can do this by defining custom middleware for your APIs in the Wasp file.
 For example, an `apiNamespace` is a simple declaration used to apply some `middlewareConfigFn` to all APIs under some specific path:
 
 ```ts title="main.wasp.ts"
-import { apiNamespace, app } from '@wasp.sh/spec'
-import { apiMiddleware } from './src/apis' with { type: "ref" }
+import { apiNamespace, app } from "@wasp.sh/spec"
+import { apiMiddleware } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    apiNamespace('/foo', { middlewareConfigFn: apiMiddleware }),
+    apiNamespace("/foo", { middlewareConfigFn: apiMiddleware }),
   ],
 })
 ```
@@ -171,13 +171,13 @@ In many cases, resources used in APIs will be [Entities](../data-model/entities.
 To use an Entity in your API, add it to the `api` declaration in Wasp:
 
 ```ts title="main.wasp.ts"
-import { api, app } from '@wasp.sh/spec'
-import { fooBar } from './src/apis' with { type: "ref" }
+import { api, app } from "@wasp.sh/spec"
+import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    api('GET', '/foo/bar', fooBar, { entities: ['Task'] }),
+    api("GET", "/foo/bar", fooBar, { entities: ["Task"] }),
   ],
 })
 ```
@@ -207,13 +207,13 @@ You can use streaming responses to send data to the client in chunks as it becom
 To create a streaming API, write a function that uses Express response methods like `res.write()` and `res.end()`:
 
 ```ts title="main.wasp.ts"
-import { api, app } from '@wasp.sh/spec'
-import { getStreamingText } from './src/streaming' with { type: "ref" }
+import { api, app } from "@wasp.sh/spec"
+import { getStreamingText } from "./src/streaming" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    api('POST', '/api/streaming-example', getStreamingText),
+    api("POST", "/api/streaming-example", getStreamingText),
   ],
 })
 ```
@@ -345,14 +345,14 @@ async function fetchStream(
 ## API Reference
 
 ```ts title="main.wasp.ts"
-import { api, app } from '@wasp.sh/spec'
-import { apiMiddleware, fooBar } from './src/apis' with { type: "ref" }
+import { api, app } from "@wasp.sh/spec"
+import { apiMiddleware, fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    api('GET', '/foo/bar', fooBar, {
-      entities: ['Task'],
+    api("GET", "/foo/bar", fooBar, {
+      entities: ["Task"],
       auth: true,
       middlewareConfigFn: apiMiddleware,
     }),

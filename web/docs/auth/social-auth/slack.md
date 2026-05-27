@@ -39,24 +39,24 @@ Enabling Slack Authentication comes down to a series of steps:
 Now let's properly configure the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // highlight-next-line
     // 1. Specify the User entity  (we'll define it next)
     // highlight-next-line
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       // highlight-next-line
       // 2. Enable Slack Auth
       // highlight-next-line
       slack: {}
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -118,13 +118,13 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { Login } from './src/pages/auth' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { Login } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('LoginRoute', '/login', page(Login)),
+    route("LoginRoute", "/login", page(Login)),
   ],
 })
 ```
@@ -192,19 +192,19 @@ WASP_SERVER_URL=https://<subdomain>.loca.lt
 Add `slack: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       // highlight-next-line
       slack: {}
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -266,15 +266,15 @@ The fields you receive depend on the scopes you request. In the example above, t
 <OverrideExampleIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { config, userSignupFields } from './src/auth/slack' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       slack: {
         // highlight-next-line
@@ -283,7 +283,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -300,10 +300,10 @@ model User {
 ```
 
 ```ts title="src/auth/slack.ts" auto-js
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth"
 
 export function config() {
-  console.log('Inside user-supplied Slack config')
+  console.log("Inside user-supplied Slack config")
   return {
     scopes: ["openid", "email", "profile"],
   }
@@ -332,15 +332,15 @@ When you receive the `user` object [on the client or the server](../overview.md#
 <ApiReferenceIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { config, userSignupFields } from './src/auth/slack' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { config, userSignupFields } from "./src/auth/slack" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       slack: {
         // highlight-next-line
@@ -349,7 +349,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })

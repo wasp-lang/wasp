@@ -11,15 +11,15 @@ import DummyProviderNote from './_dummy-provider-note.md'
 With Wasp's email-sending feature, you can easily integrate email functionality into your web application.
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'Example',
+  name: "Example",
   emailSender: {
-    provider: '<provider>',
+    provider: "<provider>",
     defaultFrom: {
-      name: 'Example',
-      email: 'hello@itsme.com',
+      name: "Example",
+      email: "hello@itsme.com",
     },
   },
   parts: [],
@@ -74,12 +74,12 @@ To speed up development, Wasp offers a `Dummy` email sender that `console.log`s 
 Set the provider to `Dummy` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'Example',
+  name: "Example",
   emailSender: {
-    provider: 'Dummy',
+    provider: "Dummy",
   },
   parts: [],
 })
@@ -90,12 +90,12 @@ export default app({
 First, set the provider to `SMTP` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'Example',
+  name: "Example",
   emailSender: {
-    provider: 'SMTP',
+    provider: "SMTP",
   },
   parts: [],
 })
@@ -122,12 +122,12 @@ If you run into issues, check their documentation for a solution, or consider us
 Set the provider to `Mailgun` in the `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'Example',
+  name: "Example",
   emailSender: {
-    provider: 'Mailgun',
+    provider: "Mailgun",
   },
   parts: [],
 })
@@ -165,12 +165,12 @@ As of May 27, 2025, SendGrid has [retired its free plans](https://www.twilio.com
 Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'Example',
+  name: "Example",
   emailSender: {
-    provider: 'SendGrid',
+    provider: "SendGrid",
   },
   parts: [],
 })
@@ -193,15 +193,15 @@ SENDGRID_API_KEY=
 ### `emailSender` object
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'Example',
+  name: "Example",
   emailSender: {
-    provider: '<provider>',
+    provider: "<provider>",
     defaultFrom: {
-      name: 'Example',
-      email: 'hello@itsme.com',
+      name: "Example",
+      email: "hello@itsme.com",
     },
   },
   parts: [],

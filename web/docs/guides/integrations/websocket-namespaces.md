@@ -21,16 +21,16 @@ When using namespaces, you bypass Wasp's built-in client hooks (`useSocket`, `us
 Enable WebSocket in your Wasp spec with `autoConnect: false` since you'll manage connections manually:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import Main from './src/MainPage' with { type: "ref" }
-import { webSocketFn } from './src/websocketSetup' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import Main from "./src/MainPage" with { type: "ref" }
+import { webSocketFn } from "./src/websocketSetup" with { type: "ref" }
 
 export default app({
-  name: 'WebsocketTest',
+  name: "WebsocketTest",
   wasp: {
-    version: '^0.24.0',
+    version: "^0.24.0",
   },
-  title: 'websocket-test',
+  title: "websocket-test",
   // highlight-start
   webSocket: {
     fn: webSocketFn,
@@ -38,7 +38,7 @@ export default app({
   },
   // highlight-end
   parts: [
-    route('RootRoute', '/', page(Main)),
+    route("RootRoute", "/", page(Main)),
   ],
 })
 ```

@@ -39,24 +39,24 @@ Enabling GitHub Authentication comes down to a series of steps:
 Let's start by properly configuring the Auth object:
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // highlight-next-line
     // 1. Specify the User entity  (we'll define it next)
     // highlight-next-line
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       // highlight-next-line
       // 2. Enable GitHub Auth
       // highlight-next-line
       gitHub: {}
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -116,13 +116,13 @@ Let's define the necessary authentication Routes and Pages.
 Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { Login } from './src/pages/auth' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { Login } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('LoginRoute', '/login', page(Login)),
+    route("LoginRoute", "/login", page(Login)),
   ],
 })
 ```
@@ -147,19 +147,19 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 Add `gitHub: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       // highlight-next-line
       gitHub: {}
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -221,15 +221,15 @@ The fields you receive will depend on the scopes you requested. By default we do
 
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { getConfig, userSignupFields } from './src/auth/github' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { getConfig, userSignupFields } from "./src/auth/github" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       gitHub: {
         // highlight-next-line
@@ -238,7 +238,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })
@@ -255,16 +255,16 @@ model User {
 ```
 
 ```ts title="src/auth/github.ts" auto-js
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth"
 
 export const userSignupFields = defineUserSignupFields({
-  username: () => 'hardcoded-username',
+  username: () => "hardcoded-username",
   displayName: (data: any) => data.profile.name,
 })
 
 export function getConfig() {
   return {
-    scopes: ['user'],
+    scopes: ["user"],
   }
 }
 ```
@@ -286,15 +286,15 @@ When you receive the `user` object [on the client or the server](../overview.md#
 <ApiReferenceIntro />
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { getConfig, userSignupFields } from './src/auth/github' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { getConfig, userSignupFields } from "./src/auth/github" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
-  wasp: { version: '{latestWaspVersion}' },
-  title: 'My App',
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       gitHub: {
         // highlight-next-line
@@ -303,7 +303,7 @@ export default app({
         userSignupFields
       }
     },
-    onAuthFailedRedirectTo: '/login'
+    onAuthFailedRedirectTo: "/login"
   },
   parts: [],
 })

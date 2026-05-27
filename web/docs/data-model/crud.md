@@ -33,13 +33,13 @@ We can then define a new `crud` called `Tasks`.
 We specify to use the `Task` entity and we enable the `getAll`, `get`, `create` and `update` operations (let's say we don't need the `delete` operation).
 
 ```ts title="main.wasp.ts"
-import { app, crud } from '@wasp.sh/spec'
-import { createTask } from './src/tasks' with { type: "ref" }
+import { app, crud } from "@wasp.sh/spec"
+import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    crud('Tasks', 'Task', {
+    crud("Tasks", "Task", {
       getAll: {
         isPublic: true, // by default only logged in users can perform operations
       },
@@ -76,31 +76,31 @@ Let's create a full-app example that uses automatic CRUD. We'll stick to using t
 We can start by running `wasp new tasksCrudApp` and then adding the following to the `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { LoginPage } from './src/LoginPage' with { type: "ref" }
-import { MainPage } from './src/MainPage' with { type: "ref" }
-import { SignupPage } from './src/SignupPage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/LoginPage" with { type: "ref" }
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
-  name: 'tasksCrudApp',
+  name: "tasksCrudApp",
   wasp: {
-    version: '{latestWaspVersion}',
+    version: "{latestWaspVersion}",
   },
-  title: 'Tasks Crud App',
+  title: "Tasks Crud App",
 
   // We enabled auth and set the auth method to username and password
   auth: {
-    userEntity: 'User',
+    userEntity: "User",
     methods: {
       usernameAndPassword: {},
     },
-    onAuthFailedRedirectTo: '/login',
+    onAuthFailedRedirectTo: "/login",
   },
   parts: [
     // Tasks app routes
-    route('RootRoute', '/', page(MainPage, { authRequired: true, })),
-    route('LoginRoute', '/login', page(LoginPage)),
-    route('SignupRoute', '/signup', page(SignupPage)),
+    route("RootRoute", "/", page(MainPage, { authRequired: true, })),
+    route("LoginRoute", "/login", page(LoginPage)),
+    route("SignupRoute", "/signup", page(SignupPage)),
   ],
 })
 ```
@@ -130,13 +130,13 @@ We can then run `wasp db migrate-dev` to create the database and run the migrati
 Let's add the following `crud` declaration to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
-import { app, crud } from '@wasp.sh/spec'
-import { createTask } from './src/tasks' with { type: "ref" }
+import { app, crud } from "@wasp.sh/spec"
+import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    crud('Tasks', 'Task', {
+    crud("Tasks", "Task", {
       getAll: {},
       create: {
         overrideFn: createTask,
@@ -161,11 +161,11 @@ Here's the `src/tasks.{js,ts}` file:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/tasks.js"
-    import { HttpError } from 'wasp/server'
+    import { HttpError } from "wasp/server"
 
     export const createTask = async (args, context) => {
       if (!context.user) {
-        throw new HttpError(401, 'User not authenticated.')
+        throw new HttpError(401, "User not authenticated.")
       }
 
       const { description, isDone } = args
@@ -191,9 +191,9 @@ Here's the `src/tasks.{js,ts}` file:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/tasks.ts"
-    import { type Tasks } from 'wasp/server/crud'
-    import { type Task } from 'wasp/entities'
-    import { HttpError } from 'wasp/server'
+    import { type Tasks } from "wasp/server/crud"
+    import { type Task } from "wasp/entities"
+    import { HttpError } from "wasp/server"
 
     type CreateTaskInput = { description: string; isDone: boolean }
 
@@ -202,7 +202,7 @@ Here's the `src/tasks.{js,ts}` file:
       context
     ) => {
       if (!context.user) {
-        throw new HttpError(401, 'User not authenticated.')
+        throw new HttpError(401, "User not authenticated.")
       }
 
       const { description, isDone } = args
@@ -243,19 +243,19 @@ And let's use the generated operations in our client code:
   <TabItem value="js" label="JavaScript">
     ```jsx title="src/MainPage.jsx"
     // highlight-next-line
-    import { Tasks } from 'wasp/client/crud'
-    import { useState } from 'react'
+    import { Tasks } from "wasp/client/crud"
+    import { useState } from "react"
 
     export const MainPage = () => {
       // highlight-next-line
       const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
       // highlight-next-line
       const createTask = Tasks.create.useAction()
-      const [taskDescription, setTaskDescription] = useState('')
+      const [taskDescription, setTaskDescription] = useState("")
 
       function handleCreateTask() {
         createTask({ description: taskDescription, isDone: false })
-        setTaskDescription('')
+        setTaskDescription("")
       }
 
       if (isLoading) return <div>Loading...</div>
@@ -263,10 +263,10 @@ And let's use the generated operations in our client code:
       return (
         <div
           style={{
-            fontSize: '1.5rem',
-            display: 'grid',
-            placeContent: 'center',
-            height: '100vh',
+            fontSize: "1.5rem",
+            display: "grid",
+            placeContent: "center",
+            height: "100vh",
           }}
         >
           <div>
@@ -290,8 +290,8 @@ And let's use the generated operations in our client code:
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/MainPage.tsx"
     // highlight-next-line
-    import { Tasks } from 'wasp/client/crud'
-    import { useState } from 'react'
+    import { Tasks } from "wasp/client/crud"
+    import { useState } from "react"
 
     export const MainPage = () => {
       // highlight-next-line
@@ -302,11 +302,11 @@ And let's use the generated operations in our client code:
       const { data: tasks, isLoading, error } = Tasks.getAll.useQuery()
       // highlight-next-line
       const createTask = Tasks.create.useAction()
-      const [taskDescription, setTaskDescription] = useState('')
+      const [taskDescription, setTaskDescription] = useState("")
 
       function handleCreateTask() {
         createTask({ description: taskDescription, isDone: false })
-        setTaskDescription('')
+        setTaskDescription("")
       }
 
       if (isLoading) return <div>Loading...</div>
@@ -314,10 +314,10 @@ And let's use the generated operations in our client code:
       return (
         <div
           style={{
-            fontSize: '1.5rem',
-            display: 'grid',
-            placeContent: 'center',
-            height: '100vh',
+            fontSize: "1.5rem",
+            display: "grid",
+            placeContent: "center",
+            height: "100vh",
           }}
         >
           <div>
@@ -344,15 +344,15 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```jsx title="src/LoginPage.jsx"
-    import { LoginForm } from 'wasp/client/auth'
-    import { Link } from 'react-router'
+    import { LoginForm } from "wasp/client/auth"
+    import { Link } from "react-router"
 
     export function LoginPage() {
       return (
         <div
           style={{
-            display: 'grid',
-            placeContent: 'center',
+            display: "grid",
+            placeContent: "center",
           }}
         >
           <LoginForm />
@@ -367,15 +367,15 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/LoginPage.tsx"
-    import { LoginForm } from 'wasp/client/auth'
-    import { Link } from 'react-router'
+    import { LoginForm } from "wasp/client/auth"
+    import { Link } from "react-router"
 
     export function LoginPage() {
       return (
         <div
           style={{
-            display: 'grid',
-            placeContent: 'center',
+            display: "grid",
+            placeContent: "center",
           }}
         >
           <LoginForm />
@@ -392,14 +392,14 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```jsx title="src/SignupPage.jsx"
-    import { SignupForm } from 'wasp/client/auth'
+    import { SignupForm } from "wasp/client/auth"
 
     export function SignupPage() {
       return (
         <div
           style={{
-            display: 'grid',
-            placeContent: 'center',
+            display: "grid",
+            placeContent: "center",
           }}
         >
           <SignupForm />
@@ -411,14 +411,14 @@ And here are the login and signup pages, where we are using Wasp's [Auth UI](../
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/SignupPage.tsx"
-    import { SignupForm } from 'wasp/client/auth'
+    import { SignupForm } from "wasp/client/auth"
 
     export function SignupPage() {
       return (
         <div
           style={{
-            display: 'grid',
-            placeContent: 'center',
+            display: "grid",
+            placeContent: "center",
           }}
         >
           <SignupForm />
@@ -459,12 +459,12 @@ If we create CRUD operations for an entity named `Task`, like this:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app, crud } from '@wasp.sh/spec'
+    import { app, crud } from "@wasp.sh/spec"
 
     export default app({
       // ...
       parts: [
-        crud('Tasks', 'Task', { // crud name here is "Tasks"
+        crud("Tasks", "Task", { // crud name here is "Tasks"
           get: {},
           getAll: {},
           create: {},
@@ -522,12 +522,12 @@ If we create CRUD operations for an entity named `Task`, like this:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app, crud } from '@wasp.sh/spec'
+    import { app, crud } from "@wasp.sh/spec"
 
     export default app({
       // ...
       parts: [
-        crud('Tasks', 'Task', { // crud name here is "Tasks"
+        crud("Tasks", "Task", { // crud name here is "Tasks"
           get: {},
           getAll: {},
           create: {},
@@ -600,13 +600,13 @@ Here's an example of a more complex CRUD declaration:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app, crud } from '@wasp.sh/spec'
-    import { createTask } from './src/tasks' with { type: "ref" }
+    import { app, crud } from "@wasp.sh/spec"
+    import { createTask } from "./src/tasks" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        crud('Tasks', 'Task', { // crud name here is "Tasks"
+        crud("Tasks", "Task", { // crud name here is "Tasks"
           getAll: {
             isPublic: true, // optional, defaults to false
           },
@@ -623,13 +623,13 @@ Here's an example of a more complex CRUD declaration:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app, crud } from '@wasp.sh/spec'
-    import { createTask } from './src/tasks' with { type: "ref" }
+    import { app, crud } from "@wasp.sh/spec"
+    import { createTask } from "./src/tasks" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        crud('Tasks', 'Task', { // crud name here is "Tasks"
+        crud("Tasks", "Task", { // crud name here is "Tasks"
           getAll: {
             isPublic: true, // optional, defaults to false
           },
@@ -693,7 +693,7 @@ Like with actions and queries, you can define the implementation in a Javascript
   If you have a CRUD named `Tasks`, you would import the types like this:
 
   ```ts
-  import { type Tasks } from 'wasp/server/crud'
+  import { type Tasks } from "wasp/server/crud"
 
   // Each of the types is a generic type, so you can use it like this:
   export const getAllOverride: Tasks.GetAllQuery<Input, Output> = async (
@@ -714,13 +714,13 @@ On the client, you import the CRUD operations from `wasp/client/crud` by import 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```jsx title="SomePage.jsx"
-    import { Tasks } from 'wasp/client/crud'
+    import { Tasks } from "wasp/client/crud"
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="SomePage.tsx"
-    import { Tasks } from 'wasp/client/crud'
+    import { Tasks } from "wasp/client/crud"
     ```
   </TabItem>
 </Tabs>

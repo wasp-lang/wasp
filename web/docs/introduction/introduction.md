@@ -56,16 +56,16 @@ Let's start with the `main.wasp.ts` file: it is the central spec file of your ap
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
+import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: 'RecipeApp',
-  title: 'My Recipes',
-  wasp: { version: '{latestWaspVersion}' },
+  name: "RecipeApp",
+  title: "My Recipes",
+  wasp: { version: "{latestWaspVersion}" },
   auth: {
     methods: { usernameAndPassword: {} },
-    onAuthFailedRedirectTo: '/login',
-    userEntity: 'User',
+    onAuthFailedRedirectTo: "/login",
+    userEntity: "User",
   },
   parts: [],
 })
@@ -99,17 +99,17 @@ which are in their essence Node.js functions that execute on the server and can,
 First, we define these Operations in our `main.wasp.ts` file, so Wasp knows about them and can "beef them up":
 
 ```ts title="main.wasp.ts"
-import { action, app, query } from '@wasp.sh/spec'
-import { getRecipes, addRecipe } from './src/recipe/operations' with { type: "ref" }
+import { action, app, query } from "@wasp.sh/spec"
+import { getRecipes, addRecipe } from "./src/recipe/operations" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
     // ...
     // Queries have automatic cache invalidation and are type-safe.
-    query(getRecipes, { entities: ['Recipe'] }),
+    query(getRecipes, { entities: ["Recipe"] }),
     // Actions are type-safe and can be used to perform side-effects.
-    action(addRecipe, { entities: ['Recipe'] }),
+    action(addRecipe, { entities: ["Recipe"] }),
   ],
 })
 ```
@@ -137,14 +137,14 @@ For the end, let's create a home page of our app.
 First, we define it in `main.wasp.ts`:
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from '@wasp.sh/spec'
-import { HomePage } from './src/pages/HomePage' with { type: "ref" }
+import { app, page, route } from "@wasp.sh/spec"
+import { HomePage } from "./src/pages/HomePage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
     // ...
-    route('HomeRoute', '/', page(HomePage, {
+    route("HomeRoute", "/", page(HomePage, {
       authRequired: true, // Will send user to /login if not authenticated.
     })
     ),
@@ -155,8 +155,8 @@ export default app({
 and then implement it as a React component in JS/TS (that calls the Operations we previously defined):
 
 ```tsx title="src/pages/HomePage.tsx"
-import { useQuery, getRecipes } from 'wasp/client/operations'
-import { type User } from 'wasp/entities'
+import { useQuery, getRecipes } from "wasp/client/operations"
+import { type User } from "wasp/entities"
 
 export function HomePage({ user }: { user: User }) {
   // Due to full-stack type safety, `recipes` will be of type `Recipe[]` here.
@@ -177,7 +177,7 @@ export function HomePage({ user }: { user: User }) {
                 <div>{recipe.description}</div>
               </li>
             ))
-          : 'No recipes defined yet!'}
+          : "No recipes defined yet!"}
       </ul>
     </div>
   )

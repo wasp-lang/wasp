@@ -48,7 +48,7 @@ To use auth hooks, you must first declare them in the Wasp file:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
     import {
       onBeforeSignup,
       onAfterSignup,
@@ -56,13 +56,13 @@ To use auth hooks, you must first declare them in the Wasp file:
       onBeforeOAuthRedirect,
       onBeforeLogin,
       onAfterLogin,
-    } from './src/auth/hooks' with { type: "ref" }
+    } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           // ...
         },
@@ -80,7 +80,7 @@ To use auth hooks, you must first declare them in the Wasp file:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
     import {
       onBeforeSignup,
       onAfterSignup,
@@ -88,13 +88,13 @@ To use auth hooks, you must first declare them in the Wasp file:
       onBeforeOAuthRedirect,
       onBeforeLogin,
       onAfterLogin,
-    } from './src/auth/hooks' with { type: "ref" }
+    } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           // ...
         },
@@ -128,8 +128,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onBeforeSignup } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -142,23 +142,23 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
     ```
 
     ```js title="src/auth/hooks.js"
-    import { HttpError } from 'wasp/server'
+    import { HttpError } from "wasp/server"
 
     export const onBeforeSignup = async ({ providerId, prisma, req }) => {
       const count = await prisma.user.count()
-      console.log('number of users before', count)
-      console.log('provider name', providerId.providerName)
-      console.log('provider user ID', providerId.providerUserId)
+      console.log("number of users before", count)
+      console.log("provider name", providerId.providerName)
+      console.log("provider user ID", providerId.providerUserId)
 
       if (count > 100) {
-        throw new HttpError(403, 'Too many users')
+        throw new HttpError(403, "Too many users")
       }
 
       if (
-        providerId.providerName === 'email' &&
-        providerId.providerUserId === 'some@email.com'
+        providerId.providerName === "email" &&
+        providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, 'This email is not allowed')
+        throw new HttpError(403, "This email is not allowed")
       }
     }
     ```
@@ -166,8 +166,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onBeforeSignup } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -180,8 +180,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
     ```
 
     ```ts title="src/auth/hooks.ts"
-    import { HttpError } from 'wasp/server'
-    import type { OnBeforeSignupHook } from 'wasp/server/auth'
+    import { HttpError } from "wasp/server"
+    import type { OnBeforeSignupHook } from "wasp/server/auth"
 
     export const onBeforeSignup: OnBeforeSignupHook = async ({
       providerId,
@@ -189,19 +189,19 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
       req,
     }) => {
       const count = await prisma.user.count()
-      console.log('number of users before', count)
-      console.log('provider name', providerId.providerName)
-      console.log('provider user ID', providerId.providerUserId)
+      console.log("number of users before", count)
+      console.log("provider name", providerId.providerName)
+      console.log("provider user ID", providerId.providerUserId)
 
       if (count > 100) {
-        throw new HttpError(403, 'Too many users')
+        throw new HttpError(403, "Too many users")
       }
 
       if (
-        providerId.providerName === 'email' &&
-        providerId.providerUserId === 'some@email.com'
+        providerId.providerName === "email" &&
+        providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, 'This email is not allowed')
+        throw new HttpError(403, "This email is not allowed")
       }
     }
     ```
@@ -223,8 +223,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onAfterSignup } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -245,18 +245,18 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
       req,
     }) => {
       const count = await prisma.user.count()
-      console.log('number of users after', count)
-      console.log('user object', user)
+      console.log("number of users after", count)
+      console.log("user object", user)
 
       // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
       if (oauth) {
-        console.log('accessToken', oauth.tokens.accessToken)
-        console.log('uniqueRequestId', oauth.uniqueRequestId)
+        console.log("accessToken", oauth.tokens.accessToken)
+        console.log("uniqueRequestId", oauth.uniqueRequestId)
 
         const id = oauth.uniqueRequestId
         const data = someKindOfStore.get(id)
         if (data) {
-          console.log('saved data for the ID', data)
+          console.log("saved data for the ID", data)
         }
         someKindOfStore.delete(id)
       }
@@ -266,8 +266,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onAfterSignup } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -280,7 +280,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
     ```
 
     ```ts title="src/auth/hooks.ts"
-    import type { OnAfterSignupHook } from 'wasp/server/auth'
+    import type { OnAfterSignupHook } from "wasp/server/auth"
 
     export const onAfterSignup: OnAfterSignupHook = async ({
       providerId,
@@ -290,18 +290,18 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
       req,
     }) => {
       const count = await prisma.user.count()
-      console.log('number of users after', count)
-      console.log('user object', user)
+      console.log("number of users after", count)
+      console.log("user object", user)
 
       // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
       if (oauth) {
-        console.log('accessToken', oauth.tokens.accessToken)
-        console.log('uniqueRequestId', oauth.uniqueRequestId)
+        console.log("accessToken", oauth.tokens.accessToken)
+        console.log("uniqueRequestId", oauth.uniqueRequestId)
 
         const id = oauth.uniqueRequestId
         const data = someKindOfStore.get(id)
         if (data) {
-          console.log('saved data for the ID', data)
+          console.log("saved data for the ID", data)
         }
         someKindOfStore.delete(id)
       }
@@ -326,8 +326,8 @@ Works with <EmailPill />
 <TabItem value="js" label="JavaScript">
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { onAfterEmailVerified } from './src/auth/hooks' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { onAfterEmailVerified } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
   // ...
@@ -340,16 +340,16 @@ export default app({
 ```
 
 ```js title="src/auth/hooks.js"
-import { emailSender } from 'wasp/server/email'
+import { emailSender } from "wasp/server/email"
 
 export const onAfterEmailVerified = async ({ email }) => {
   const info = await emailSender.send({
     from: {
-      name: 'John Doe',
-      email: 'john@doe.com',
+      name: "John Doe",
+      email: "john@doe.com",
     },
     to: email,
-    subject: 'Thank you for verifying your email!',
+    subject: "Thank you for verifying your email!",
     text: `Your email ${email} has been successfully verified!`,
   })
   // ...
@@ -360,8 +360,8 @@ export const onAfterEmailVerified = async ({ email }) => {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { onAfterEmailVerified } from './src/auth/hooks' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { onAfterEmailVerified } from "./src/auth/hooks" with { type: "ref" }
 
 export default app({
   // ...
@@ -374,19 +374,19 @@ export default app({
 ```
 
 ```ts title="src/auth/hooks.ts"
-import type { OnAfterEmailVerifiedHook } from 'wasp/server/auth'
-import { emailSender } from 'wasp/server/email'
+import type { OnAfterEmailVerifiedHook } from "wasp/server/auth"
+import { emailSender } from "wasp/server/email"
 
 export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
   email,
 }) => {
   const info = await emailSender.send({
     from: {
-      name: 'John Doe',
-      email: 'john@doe.com',
+      name: "John Doe",
+      email: "john@doe.com",
     },
     to: email,
-    subject: 'Thank you for verifying your email!',
+    subject: "Thank you for verifying your email!",
     text: `Your email ${email} has been successfully verified!`,
   })
   // ...
@@ -409,8 +409,8 @@ Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onBeforeOAuthRedirect } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -424,7 +424,7 @@ Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
     ```js title="src/auth/hooks.js"
     export const onBeforeOAuthRedirect = async ({ url, oauth, prisma, req }) => {
-      console.log('query params before oAuth redirect', req.query)
+      console.log("query params before oAuth redirect", req.query)
 
       // Saving query params for later use in onAfterSignup or onAfterLogin hooks
       const id = oauth.uniqueRequestId
@@ -437,8 +437,8 @@ Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onBeforeOAuthRedirect } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -451,7 +451,7 @@ Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
     ```
 
     ```ts title="src/auth/hooks.ts"
-    import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
+    import type { OnBeforeOAuthRedirectHook } from "wasp/server/auth"
 
     export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
       url,
@@ -459,7 +459,7 @@ Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
       prisma,
       req,
     }) => {
-      console.log('query params before oAuth redirect', req.query)
+      console.log("query params before oAuth redirect", req.query)
 
       // Saving query params for later use in onAfterSignup or onAfterLogin hooks
       const id = oauth.uniqueRequestId
@@ -486,8 +486,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onBeforeLogin } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -500,14 +500,14 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
     ```
 
     ```js title="src/auth/hooks.js"
-    import { HttpError } from 'wasp/server'
+    import { HttpError } from "wasp/server"
 
     export const onBeforeLogin = async ({ providerId, user, prisma, req }) => {
       if (
-        providerId.providerName === 'email' &&
-        providerId.providerUserId === 'some@email.com'
+        providerId.providerName === "email" &&
+        providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, 'You cannot log in with this email')
+        throw new HttpError(403, "You cannot log in with this email")
       }
     }
     ```
@@ -515,8 +515,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onBeforeLogin } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -529,8 +529,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
     ```
 
     ```ts title="src/auth/hooks.ts"
-    import { HttpError } from 'wasp/server'
-    import type { OnBeforeLoginHook } from 'wasp/server/auth'
+    import { HttpError } from "wasp/server"
+    import type { OnBeforeLoginHook } from "wasp/server/auth"
 
     export const onBeforeLogin: OnBeforeLoginHook = async ({
       providerId,
@@ -539,10 +539,10 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
       req,
     }) => {
       if (
-        providerId.providerName === 'email' &&
-        providerId.providerUserId === 'some@email.com'
+        providerId.providerName === "email" &&
+        providerId.providerUserId === "some@email.com"
       ) {
-        throw new HttpError(403, 'You cannot log in with this email')
+        throw new HttpError(403, "You cannot log in with this email")
       }
     }
     ```
@@ -564,8 +564,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onAfterLogin } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -585,17 +585,17 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
       prisma,
       req,
     }) => {
-      console.log('user object', user)
+      console.log("user object", user)
 
       // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
       if (oauth) {
-        console.log('accessToken', oauth.tokens.accessToken)
-        console.log('uniqueRequestId', oauth.uniqueRequestId)
+        console.log("accessToken", oauth.tokens.accessToken)
+        console.log("uniqueRequestId", oauth.uniqueRequestId)
 
         const id = oauth.uniqueRequestId
         const data = someKindOfStore.get(id)
         if (data) {
-          console.log('saved data for the ID', data)
+          console.log("saved data for the ID", data)
         }
         someKindOfStore.delete(id)
       }
@@ -605,8 +605,8 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import { onAfterLogin } from './src/auth/hooks' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
       // ...
@@ -619,7 +619,7 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
     ```
 
     ```ts title="src/auth/hooks.ts"
-    import type { OnAfterLoginHook } from 'wasp/server/auth'
+    import type { OnAfterLoginHook } from "wasp/server/auth"
 
     export const onAfterLogin: OnAfterLoginHook = async ({
       providerId,
@@ -628,17 +628,17 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
       prisma,
       req,
     }) => {
-      console.log('user object', user)
+      console.log("user object", user)
 
       // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
       if (oauth) {
-        console.log('accessToken', oauth.tokens.accessToken)
-        console.log('uniqueRequestId', oauth.uniqueRequestId)
+        console.log("accessToken", oauth.tokens.accessToken)
+        console.log("uniqueRequestId", oauth.uniqueRequestId)
 
         const id = oauth.uniqueRequestId
         const data = someKindOfStore.get(id)
         if (data) {
-          console.log('saved data for the ID', data)
+          console.log("saved data for the ID", data)
         }
         someKindOfStore.delete(id)
       }
@@ -662,14 +662,14 @@ Here's an example of how you can refresh the access token for Google OAuth:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/auth/hooks.js"
-    import { google } from 'wasp/server/auth'
+    import { google } from "wasp/server/auth"
 
     export const onAfterLogin = async ({ oauth }) => {
-      if (oauth.provider === 'google' && oauth.tokens.refreshToken !== null) {
+      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
-        log('new tokens', newTokens)
+        log("new tokens", newTokens)
       }
     }
     ```
@@ -677,15 +677,15 @@ Here's an example of how you can refresh the access token for Google OAuth:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import type { OnAfterLoginHook } from 'wasp/server/auth'
-    import { google } from 'wasp/server/auth'
+    import type { OnAfterLoginHook } from "wasp/server/auth"
+    import { google } from "wasp/server/auth"
 
     export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-      if (oauth.provider === 'google' && oauth.tokens.refreshToken !== null) {
+      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
           oauth.tokens.refreshToken
         )
-        log('new tokens', newTokens)
+        log("new tokens", newTokens)
       }
     }
     ```
@@ -701,7 +701,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
     import {
       onBeforeSignup,
       onAfterSignup,
@@ -709,13 +709,13 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
       onBeforeOAuthRedirect,
       onBeforeLogin,
       onAfterLogin,
-    } from './src/auth/hooks' with { type: "ref" }
+    } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           // ...
         },
@@ -733,7 +733,7 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
+    import { app } from "@wasp.sh/spec"
     import {
       onBeforeSignup,
       onAfterSignup,
@@ -741,13 +741,13 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
       onBeforeOAuthRedirect,
       onBeforeLogin,
       onAfterLogin,
-    } from './src/auth/hooks' with { type: "ref" }
+    } from "./src/auth/hooks" with { type: "ref" }
 
     export default app({
-      name: 'myApp',
-      wasp: { version: '{latestWaspVersion}' },
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: {
           // ...
         },
@@ -789,7 +789,7 @@ The following properties are available in all auth hooks:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import type { OnBeforeSignupHook } from 'wasp/server/auth'
+    import type { OnBeforeSignupHook } from "wasp/server/auth"
 
     export const onBeforeSignup: OnBeforeSignupHook = async ({
       providerId,
@@ -829,7 +829,7 @@ Wasp ignores this hook's **return value**.
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import type { OnAfterSignupHook } from 'wasp/server/auth'
+    import type { OnAfterSignupHook } from "wasp/server/auth"
 
     export const onAfterSignup: OnAfterSignupHook = async ({
       providerId,
@@ -873,7 +873,7 @@ export const onAfterEmailVerified = async ({ email, user, prisma, req }) => {
 <TabItem value="ts" label="TypeScript">
 
 ```ts title="src/auth/hooks.ts"
-import type { OnAfterEmailVerifiedHook } from 'wasp/server/auth'
+import type { OnAfterEmailVerifiedHook } from "wasp/server/auth"
 
 export const onAfterEmailVerified: OnAfterEmailVerifiedHook = async ({
   email,
@@ -917,7 +917,7 @@ Wasp ignores this hook's **return value**.
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import type { OnBeforeOAuthRedirectHook } from 'wasp/server/auth'
+    import type { OnBeforeOAuthRedirectHook } from "wasp/server/auth"
 
     export const onBeforeOAuthRedirect: OnBeforeOAuthRedirectHook = async ({
       url,
@@ -966,7 +966,7 @@ This hook's return value must be an object that looks like this: `{ url: URL }`.
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import type { OnBeforeLoginHook } from 'wasp/server/auth'
+    import type { OnBeforeLoginHook } from "wasp/server/auth"
 
     export const onBeforeLogin: OnBeforeLoginHook = async ({
       providerId,
@@ -1010,7 +1010,7 @@ Wasp ignores this hook's **return value**.
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/auth/hooks.ts"
-    import type { OnAfterLoginHook } from 'wasp/server/auth'
+    import type { OnAfterLoginHook } from "wasp/server/auth"
 
     export const onAfterLogin: OnAfterLoginHook = async ({
       providerId,
@@ -1073,7 +1073,7 @@ It has the following fields:
     To access the provider-specific fields, you must first narrow down the `oauth.tokens` object type to the specific OAuth provider type.
 
     ```ts
-    if (oauth && oauth.providerName === 'google') {
+    if (oauth && oauth.providerName === "google") {
       console.log(oauth.tokens.accessToken)
       //                  ^ Google specific tokens are available here
       console.log(oauth.tokens.refreshToken)

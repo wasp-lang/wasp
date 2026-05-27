@@ -25,19 +25,19 @@ npm install --save-dev @types/multer
 Create an API namespace with middleware configuration and the upload endpoint:
 
 ```ts title="main.wasp.ts"
-import { api, apiNamespace, app, page, route } from '@wasp.sh/spec'
-import { configureFileUploadMiddleware, uploadFile } from './src/apis' with { type: "ref" }
-import { MainPage } from './src/MainPage' with { type: "ref" }
+import { api, apiNamespace, app, page, route } from "@wasp.sh/spec"
+import { configureFileUploadMiddleware, uploadFile } from "./src/apis" with { type: "ref" }
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route('RootRoute', '/', page(MainPage)),
+    route("RootRoute", "/", page(MainPage)),
     // highlight-start
-    apiNamespace('/api/upload', { middlewareConfigFn: configureFileUploadMiddleware }),
+    apiNamespace("/api/upload", { middlewareConfigFn: configureFileUploadMiddleware }),
     // highlight-end
     // highlight-start
-    api('POST', '/api/upload', uploadFile),
+    api("POST", "/api/upload", uploadFile),
     // highlight-end
   ],
 })

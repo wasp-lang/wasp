@@ -20,19 +20,19 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 Set up the auth configuration and API routes:
 
 ```ts title="main.wasp.ts"
-import { api, app, page, route } from '@wasp.sh/spec'
-import { authWithSpotify, authWithSpotifyCallback } from './src/auth' with { type: "ref" }
-import { MainPage } from './src/MainPage' with { type: "ref" }
+import { api, app, page, route } from "@wasp.sh/spec"
+import { authWithSpotify, authWithSpotifyCallback } from "./src/auth" with { type: "ref" }
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
-  name: 'SpotifyOauth',
+  name: "SpotifyOauth",
   wasp: {
-    version: '^0.24.0',
+    version: "^0.24.0",
   },
-  title: 'spotify-oauth',
+  title: "spotify-oauth",
   auth: {
-    userEntity: 'User',
-    onAuthFailedRedirectTo: '/',
+    userEntity: "User",
+    onAuthFailedRedirectTo: "/",
     methods: {
       // highlight-start
       // Enable at least one OAuth provider so Wasp exposes OAuth helpers
@@ -41,12 +41,12 @@ export default app({
     },
   },
   parts: [
-    route('RootRoute', '/', page(MainPage)),
+    route("RootRoute", "/", page(MainPage)),
     // highlight-start
-    api('GET', '/auth/spotify', authWithSpotify),
+    api("GET", "/auth/spotify", authWithSpotify),
     // highlight-end
     // highlight-start
-    api('GET', '/auth/spotify/callback', authWithSpotifyCallback),
+    api("GET", "/auth/spotify/callback", authWithSpotifyCallback),
     // highlight-end
   ],
 })

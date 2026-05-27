@@ -25,7 +25,7 @@ You can read them from the client code like this:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/App.js"
-    import { env } from 'wasp/client'
+    import { env } from "wasp/client"
 
     console.log(env.REACT_APP_SOME_VAR_NAME)
     ```
@@ -33,7 +33,7 @@ You can read them from the client code like this:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/App.ts"
-    import { env } from 'wasp/client'
+    import { env } from "wasp/client"
 
     console.log(env.REACT_APP_SOME_VAR_NAME)
     ```
@@ -65,7 +65,7 @@ You can read the env vars from server code like this:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js
-    import { env } from 'wasp/server'
+    import { env } from "wasp/server"
 
     console.log(env.SOME_VAR_NAME)
     ```
@@ -73,7 +73,7 @@ You can read the env vars from server code like this:
 
   <TabItem value="ts" label="TypeScript">
     ```ts
-    import { env } from 'wasp/server'
+    import { env } from "wasp/server"
 
     console.log(env.SOME_VAR_NAME)
     ```
@@ -276,21 +276,21 @@ Take a look at an example of defining env vars validation:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/env.js"
-    import * as z from 'zod'
+    import * as z from "zod"
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+    import { defineEnvValidationSchema } from "wasp/env"
 
     export const serverEnvValidationSchema = defineEnvValidationSchema(
       z.object({
         STRIPE_API_KEY: z.string({
-          required_error: 'STRIPE_API_KEY is required.',
+          required_error: "STRIPE_API_KEY is required.",
         }),
       })
     )
 
     export const clientEnvValidationSchema = defineEnvValidationSchema(
       z.object({
-        REACT_APP_NAME: z.string().default('TODO App'),
+        REACT_APP_NAME: z.string().default("TODO App"),
       })
     )
     ```
@@ -298,21 +298,21 @@ Take a look at an example of defining env vars validation:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/env.ts"
-    import * as z from 'zod'
+    import * as z from "zod"
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+    import { defineEnvValidationSchema } from "wasp/env"
 
     export const serverEnvValidationSchema = defineEnvValidationSchema(
       z.object({
         STRIPE_API_KEY: z.string({
-          required_error: 'STRIPE_API_KEY is required.',
+          required_error: "STRIPE_API_KEY is required.",
         }),
       })
     )
 
     export const clientEnvValidationSchema = defineEnvValidationSchema(
       z.object({
-        REACT_APP_NAME: z.string().default('TODO App'),
+        REACT_APP_NAME: z.string().default("TODO App"),
       })
     )
     ```
@@ -322,11 +322,11 @@ Take a look at an example of defining env vars validation:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { clientEnvValidationSchema, serverEnvValidationSchema } from './src/env' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { clientEnvValidationSchema, serverEnvValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
+  name: "myApp",
   client: {
     envValidationSchema: clientEnvValidationSchema,
   },
@@ -342,7 +342,7 @@ You defined schemas for both the client and the server env vars and told Wasp to
 This means you can use the `env` object to access **your env vars** like this:
 
 ```ts title="src/stripe.ts"
-import { env } from 'wasp/server'
+import { env } from "wasp/server"
 
 const stripeApiKey = env.STRIPE_API_KEY
 ```
@@ -362,14 +362,14 @@ You can define your client env vars validation like this:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/env.js"
-    import * as z from 'zod'
+    import * as z from "zod"
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+    import { defineEnvValidationSchema } from "wasp/env"
 
     export const envValidationSchema = defineEnvValidationSchema(
       z.object({
         REACT_APP_ANALYTICS_ID: z.string({
-          required_error: 'REACT_APP_ANALYTICS_ID is required.',
+          required_error: "REACT_APP_ANALYTICS_ID is required.",
         }),
       })
     )
@@ -378,14 +378,14 @@ You can define your client env vars validation like this:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/env.ts"
-    import * as z from 'zod'
+    import * as z from "zod"
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+    import { defineEnvValidationSchema } from "wasp/env"
 
     export const envValidationSchema = defineEnvValidationSchema(
       z.object({
         REACT_APP_ANALYTICS_ID: z.string({
-          required_error: 'REACT_APP_ANALYTICS_ID is required.',
+          required_error: "REACT_APP_ANALYTICS_ID is required.",
         }),
       })
     )
@@ -396,11 +396,11 @@ You can define your client env vars validation like this:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { envValidationSchema } from './src/env' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
+  name: "myApp",
   client: {
     envValidationSchema,
   },
@@ -417,7 +417,7 @@ You can access both **Wasp-defined** and **user-defined** client env vars in you
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/App.js"
-    import { env } from 'wasp/client'
+    import { env } from "wasp/client"
 
     // Wasp-defined
     const apiUrl = env.REACT_APP_API_URL
@@ -429,7 +429,7 @@ You can access both **Wasp-defined** and **user-defined** client env vars in you
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/App.ts"
-    import { env } from 'wasp/client'
+    import { env } from "wasp/client"
 
     // Wasp-defined
     const apiUrl = env.REACT_APP_API_URL
@@ -451,14 +451,14 @@ You can define your env vars validation like this:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/env.js"
-    import * as z from 'zod'
+    import * as z from "zod"
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+    import { defineEnvValidationSchema } from "wasp/env"
 
     export const envValidationSchema = defineEnvValidationSchema(
       z.object({
         STRIPE_API_KEY: z.string({
-          required_error: 'STRIPE_API_KEY is required.',
+          required_error: "STRIPE_API_KEY is required.",
         }),
       })
     )
@@ -467,14 +467,14 @@ You can define your env vars validation like this:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/env.ts"
-    import * as z from 'zod'
+    import * as z from "zod"
 
-    import { defineEnvValidationSchema } from 'wasp/env'
+    import { defineEnvValidationSchema } from "wasp/env"
 
     export const envValidationSchema = defineEnvValidationSchema(
       z.object({
         STRIPE_API_KEY: z.string({
-          required_error: 'STRIPE_API_KEY is required.',
+          required_error: "STRIPE_API_KEY is required.",
         }),
       })
     )
@@ -485,11 +485,11 @@ You can define your env vars validation like this:
 </Tabs>
 
 ```ts title="main.wasp.ts"
-import { app } from '@wasp.sh/spec'
-import { envValidationSchema } from './src/env' with { type: "ref" }
+import { app } from "@wasp.sh/spec"
+import { envValidationSchema } from "./src/env" with { type: "ref" }
 
 export default app({
-  name: 'myApp',
+  name: "myApp",
   server: {
     envValidationSchema,
   },
@@ -506,7 +506,7 @@ You can access both **Wasp-defined** and **user-defined** client env vars in you
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/stripe.js"
-    import { env } from 'wasp/server'
+    import { env } from "wasp/server"
 
     // Wasp-defined
     const serverUrl = env.WASP_SERVER_URL
@@ -518,7 +518,7 @@ You can access both **Wasp-defined** and **user-defined** client env vars in you
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/stripe.ts"
-    import { env } from 'wasp/server'
+    import { env } from "wasp/server"
 
     // Wasp-defined
     const serverUrl = env.WASP_SERVER_URL
