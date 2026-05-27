@@ -35,8 +35,6 @@ export default app({
     route("RootRoute", "/", page(MainPage)),
     // highlight-start
     apiNamespace("/api/upload", { middlewareConfigFn: configureFileUploadMiddleware }),
-    // highlight-end
-    // highlight-start
     api("POST", "/api/upload", uploadFile),
     // highlight-end
   ],

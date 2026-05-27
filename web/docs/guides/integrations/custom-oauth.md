@@ -44,8 +44,6 @@ export default app({
     route("RootRoute", "/", page(MainPage)),
     // highlight-start
     api("GET", "/auth/spotify", authWithSpotify),
-    // highlight-end
-    // highlight-start
     api("GET", "/auth/spotify/callback", authWithSpotifyCallback),
     // highlight-end
   ],

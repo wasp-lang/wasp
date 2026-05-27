@@ -37,9 +37,8 @@ export default app({
   },
   title: "my-app",
   parts: [
-    // highlight-start
+    // highlight-next-line
     apiNamespace("/api-docs", { middlewareConfigFn: swaggerMiddleware }),
-    // highlight-end
     api("GET", "/status", getStatus, { auth: false }),
   ],
 })

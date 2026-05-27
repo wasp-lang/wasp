@@ -50,14 +50,12 @@ export default app({
   },
   title: "my-app",
   server: {
-    // highlight-start
+    // highlight-next-line
     setupFn: setupServer,
-    // highlight-end
   },
   client: {
-    // highlight-start
+    // highlight-next-line
     setupFn: setupClient,
-    // highlight-end
   },
   parts: [],
 })
