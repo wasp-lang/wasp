@@ -5,6 +5,8 @@ last_checked_with_versions:
   Wasp: 0.24
 ---
 
+import BeforeAfter, { Before, After } from '@site/src/components/BeforeAfter';
+
 # Migrating from the Wasp TS Config
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered parts with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
@@ -21,8 +23,8 @@ The mapping below is mechanical. You can give the [Wasp Spec reference](../../ge
 
 In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a constructor.
 
-<Tabs>
-  <TabItem value="before" label="TS Config">
+<BeforeAfter>
+  <Before>
     ```ts title="main.wasp.ts"
     const mainPage = app.page('MainPage', {
       component: { importDefault: 'MainPage', from: '@src/MainPage' },
@@ -32,8 +34,8 @@ In the TS Config you could only reference your code with import objects (`{ impo
       fn: { import: 'getTasks', from: '@src/queries' },
     })
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import MainPage from './src/MainPage' with { type: "ref" }
     import { getTasks } from './src/queries' with { type: "ref" }
@@ -46,8 +48,8 @@ In the TS Config you could only reference your code with import objects (`{ impo
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 Import objects still work, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#referencing-your-apps-code) for the supported patterns and their limitations.
 
@@ -71,8 +73,8 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### App and parts
 
-<Tabs>
-  <TabItem value="before" label="TS Config">
+<BeforeAfter>
+  <Before>
     ```ts title="main.wasp.ts"
     import { App } from 'wasp-config'
 
@@ -93,8 +95,8 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
     export default app
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { app, page, query, route } from '@wasp.sh/spec'
     import MainPage from './src/MainPage' with { type: "ref" }
@@ -110,13 +112,13 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ### API: `httpRoute` becomes positional arguments
 
-<Tabs>
-  <TabItem value="before" label="TS Config">
+<BeforeAfter>
+  <Before>
     ```ts title="main.wasp.ts"
     app.apiNamespace('bar', {
       middlewareConfigFn: { import: 'barNamespaceMiddlewareFn', from: '@src/apis' },
@@ -130,8 +132,8 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       httpRoute: { method: 'GET', route: '/bar/baz' },
     })
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { api, apiNamespace, app } from '@wasp.sh/spec'
     import { barBaz, barNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
@@ -146,13 +148,13 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ### Jobs: `perform` is flattened
 
-<Tabs>
-  <TabItem value="before" label="TS Config">
+<BeforeAfter>
+  <Before>
     ```ts title="main.wasp.ts"
     app.job('mySpecialJob', {
       executor: 'PgBoss',
@@ -163,8 +165,8 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       entities: ['Task'],
     })
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { app, job } from '@wasp.sh/spec'
     import { foo } from './src/jobs/bar' with { type: "ref" }
@@ -180,13 +182,13 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ### CRUD
 
-<Tabs>
-  <TabItem value="before" label="TS Config">
+<BeforeAfter>
+  <Before>
     ```ts title="main.wasp.ts"
     app.crud('tasks', {
       entity: 'Task',
@@ -196,8 +198,8 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       },
     })
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { app, crud } from '@wasp.sh/spec'
     import { createTask } from './src/actions' with { type: "ref" }
@@ -212,15 +214,15 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ### Top-level config: `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`
 
 These were configured with mutating method calls. They are now keys of the `app({ ... })` object.
 
-<Tabs>
-  <TabItem value="before" label="TS Config">
+<BeforeAfter>
+  <Before>
     ```ts title="main.wasp.ts"
     const app = new App('todoApp', {
       title: 'ToDo App',
@@ -244,8 +246,8 @@ These were configured with mutating method calls. They are now keys of the `app(
 
     export default app
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { app } from '@wasp.sh/spec'
     import App from './src/App' with { type: "ref" }
@@ -269,8 +271,8 @@ These were configured with mutating method calls. They are now keys of the `app(
       parts: [],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ## How to migrate
 
@@ -280,8 +282,8 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 1. Update your `package.json` with the new dependencies:
 
-    <Tabs>
-      <TabItem value="before" label="Before">
+    <BeforeAfter>
+      <Before>
         ```json title="package.json"
         {
           "devDependencies": {
@@ -289,8 +291,8 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           }
         }
         ```
-      </TabItem>
-      <TabItem value="after" label="After">
+      </Before>
+      <After>
         ```json title="package.json"
         {
           "devDependencies": {
@@ -299,8 +301,8 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           }
         }
         ```
-      </TabItem>
-    </Tabs>
+      </After>
+    </BeforeAfter>
 
     Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
@@ -341,8 +343,8 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
     Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `parts` array holds the constructors (see the [mapping above](#changes)), and update the import:
 
-    <Tabs>
-      <TabItem value="before" label="Before">
+    <BeforeAfter>
+      <Before>
         ```ts title="main.wasp.ts"
         import { App } from 'wasp-config'
 
@@ -351,8 +353,8 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           wasp: { version: '^0.24.0' },
         })
         ```
-      </TabItem>
-      <TabItem value="after" label="After">
+      </Before>
+      <After>
         ```ts title="main.wasp.ts"
         import { app, page, route, query, action } from '@wasp.sh/spec'
 
@@ -363,8 +365,8 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           parts: [],
         })
         ```
-      </TabItem>
-    </Tabs>
+      </After>
+    </BeforeAfter>
 
 6. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 

@@ -4,6 +4,7 @@ title: Migration from 0.23.X to 0.24.X
 
 import InstallInstructions from './_install-instructions.md'
 import LegacyInstallerMigration from './_legacy_installer_migration.md'
+import BeforeAfter, { Before, After } from '@site/src/components/BeforeAfter';
 
 <LegacyInstallerMigration />
 <InstallInstructions version="0.24" />
@@ -74,8 +75,8 @@ Add `vitest` to `devDependencies` because `wasp test client` now runs the Vitest
 
 The `api` object was previously an Axios instance. It is now a [ky](https://github.com/sindresorhus/ky) instance with a pre-configured base URL and authentication. Update your code as follows:
 
-<Tabs>
-  <TabItem value="before" label="Before">
+<BeforeAfter>
+  <Before>
     ```ts
     import { api } from 'wasp/client/api'
 
@@ -95,9 +96,9 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
       console.log(error.response?.status)
     }
     ```
-  </TabItem>
+  </Before>
 
-  <TabItem value="after" label="After">
+  <After>
     ```ts
     import { api } from 'wasp/client/api'
     import { isHTTPError } from 'ky'
@@ -117,8 +118,8 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
       }
     }
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 You can also remove `axios` from your project's dependencies if you added it only for use with the Wasp `api` wrapper.
 

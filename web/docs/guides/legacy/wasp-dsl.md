@@ -5,6 +5,8 @@ last_checked_with_versions:
   Wasp: 0.24
 ---
 
+import BeforeAfter, { Before, After } from '@site/src/components/BeforeAfter';
+
 # Migrating from the Wasp DSL
 
 Wasp used to have its own configuration language, the **Wasp DSL**, which you wrote in a `main.wasp` file. Start with Wasp 0.24, the Wasp DSL is now retired in favor of the [Wasp Spec](../../general/spec.md): a `main.wasp.ts` file written in TypeScript.
@@ -46,8 +48,8 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` takes the `page` object directly.
 
-<Tabs>
-  <TabItem value="before" label="Wasp DSL">
+<BeforeAfter>
+  <Before>
     ```wasp title="main.wasp"
     app todoApp {
       title: "ToDo App",
@@ -60,8 +62,8 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
       authRequired: true
     }
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { app, page, route } from '@wasp.sh/spec'
     import { MainPage } from './src/MainPage' with { type: "ref" }
@@ -75,15 +77,15 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 Note that `route` no longer references a page by name (`to: MainPage`); it takes the `page(...)` object directly.
 
 ### Queries and actions
 
-<Tabs>
-  <TabItem value="before" label="Wasp DSL">
+<BeforeAfter>
+  <Before>
     ```wasp title="main.wasp"
     query getTasks {
       fn: import { getTasks } from "@src/queries",
@@ -95,8 +97,8 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
       entities: [Task]
     }
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { action, app, query } from '@wasp.sh/spec'
     import { getTasks } from './src/queries' with { type: "ref" }
@@ -110,15 +112,15 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ### APIs: `httpRoute` becomes positional arguments
 
 The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
 
-<Tabs>
-  <TabItem value="before" label="Wasp DSL">
+<BeforeAfter>
+  <Before>
     ```wasp title="main.wasp"
     apiNamespace bar {
       middlewareConfigFn: import { barNamespaceMiddlewareFn } from "@src/apis",
@@ -132,8 +134,8 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
       httpRoute: (GET, "/bar/baz")
     }
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { api, apiNamespace, app } from '@wasp.sh/spec'
     import { barBaz, barNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
@@ -148,15 +150,15 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ### Jobs: `perform` is flattened
 
 The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the first argument and `executorOptions` becomes `performExecutorOptions`.
 
-<Tabs>
-  <TabItem value="before" label="Wasp DSL">
+<BeforeAfter>
+  <Before>
     ```wasp title="main.wasp"
     job mySpecialJob {
       executor: PgBoss,
@@ -167,8 +169,8 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
       entities: [Task]
     }
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { app, job } from '@wasp.sh/spec'
     import { foo } from './src/jobs/bar' with { type: "ref" }
@@ -184,13 +186,13 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ### CRUD
 
-<Tabs>
-  <TabItem value="before" label="Wasp DSL">
+<BeforeAfter>
+  <Before>
     ```wasp title="main.wasp"
     crud tasks {
       entity: Task,
@@ -200,8 +202,8 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
       }
     }
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { app, crud } from '@wasp.sh/spec'
     import { createTask } from './src/actions' with { type: "ref" }
@@ -216,15 +218,15 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
       ],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ### Top-level config: `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`
 
 These were top-level fields of the `app` declaration's dictionary in the DSL. In the Wasp Spec they are keys of the `app({ ... })` object.
 
-<Tabs>
-  <TabItem value="before" label="Wasp DSL">
+<BeforeAfter>
+  <Before>
     ```wasp title="main.wasp"
     app todoApp {
       title: "ToDo App",
@@ -243,8 +245,8 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
       }
     }
     ```
-  </TabItem>
-  <TabItem value="after" label="Wasp Spec">
+  </Before>
+  <After>
     ```ts title="main.wasp.ts"
     import { app } from '@wasp.sh/spec'
     import App from './src/App' with { type: "ref" }
@@ -268,8 +270,8 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
       parts: [],
     })
     ```
-  </TabItem>
-</Tabs>
+  </After>
+</BeforeAfter>
 
 ## How to migrate
 
