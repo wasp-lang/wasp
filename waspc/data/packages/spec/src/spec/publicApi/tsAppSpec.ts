@@ -109,7 +109,7 @@ export interface Auth extends AuthHooks {
    * The model must be defined in `schema.prisma` and have an `@id` field. The
    * ID can use any Prisma-supported ID type.
    *
-   * See [Accessing User Data](https://wasp.sh/docs/auth/entities/entities) for
+   * See [Accessing User Data](https://wasp.sh/docs/auth/entities) for
    * how the user entity connects to the rest of the auth system.
    */
   userEntity: EntityName;
@@ -321,7 +321,7 @@ export interface Server {
    * Function that customizes the global Express middleware stack. Affects
    * all operations and APIs.
    *
-   * See [Configuring global middleware](https://wasp.sh/docs/advanced/middleware-config#1-customize-global-middleware).
+   * See [Configuring Middleware](https://wasp.sh/docs/advanced/middleware-config).
    */
   middlewareConfigFn?: Reference<AnyFunction>;
   /**
@@ -684,7 +684,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  */
 export interface Job extends BasePart<"job"> {
   /**
-   * Reference to the Job's NodeJS implementation. It receives the submitted
+   * Reference to the job's NodeJS implementation. It receives the submitted
    * args and a context containing the declared entities.
    */
   fn: Reference<AnyFunction>;
@@ -759,9 +759,7 @@ export interface ExecutorOptions {
  *
  * Create one with the {@link crud} constructor.
  *
- * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud) for an overview
- * and [Adding CRUD to the Task Entity](https://wasp.sh/docs/data-model/crud#adding-crud-to-the-task-entity-)
- * for a complete example.
+ * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud).
  *
  * @category Parts
  */
@@ -778,9 +776,9 @@ export interface Crud extends BasePart<"crud"> {
  * Mapping of CRUD operations to their options.
  *
  * Each key enables the matching operation; an empty object enables it with
- * Wasp's defaults. Default `getAll` returns all entities. Default `get`,
- * `update`, and `delete` implementations use the field marked with `@id` in
- * the Prisma schema as the entity ID.
+ * Wasp's defaults. Default `get`, `update`, and `delete` implementations use
+ * the field marked with `@id` in the Prisma schema as the entity ID. Default
+ * `getAll` returns all entities.
  *
  * CRUD operations are implemented with Wasp queries and actions. See
  * [Operations](https://wasp.sh/docs/data-model/operations/overview).
