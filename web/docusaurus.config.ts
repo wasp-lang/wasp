@@ -35,7 +35,6 @@ const config: Config = {
   trailingSlash: false,
   onBrokenLinks: "throw",
   onBrokenAnchors: "throw",
-  onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.svg",
   themeConfig: {
     announcementBar: {
@@ -321,6 +320,9 @@ const config: Config = {
       admonitions: true,
       comments: true,
       headingIds: true,
+    },
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
     },
   },
   future: {
