@@ -82,7 +82,7 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
 
 ### Queries and actions
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="Wasp DSL">
     ```wasp title="main.wasp"
     query getTasks {
@@ -117,7 +117,7 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
 
 The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="Wasp DSL">
     ```wasp title="main.wasp"
     apiNamespace bar {
@@ -155,7 +155,7 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
 
 The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the first argument and `executorOptions` becomes `performExecutorOptions`.
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="Wasp DSL">
     ```wasp title="main.wasp"
     job mySpecialJob {
@@ -189,7 +189,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
 
 ### CRUD
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="Wasp DSL">
     ```wasp title="main.wasp"
     crud tasks {
@@ -223,7 +223,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
 
 These were top-level fields of the `app` declaration's dictionary in the DSL. In the Wasp Spec they are keys of the `app({ ... })` object.
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="Wasp DSL">
     ```wasp title="main.wasp"
     app todoApp {
