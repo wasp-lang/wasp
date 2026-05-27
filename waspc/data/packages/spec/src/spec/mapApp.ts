@@ -24,15 +24,15 @@ export function mapApp(
     db,
     emailSender,
     webSocket,
-    parts,
+    decls,
   } = app;
 
   const entityRefParser = makeRefParser("Entity", entityNames);
 
   // TODO: When you add all declarations, see if you can generalize better
-  // (e.g., maybe named parameters, maybe putting extractParts inside
+  // (e.g., maybe named parameters, maybe putting extractDecls inside
   // mapToDecls)
-  const pages = extractParts("page", parts);
+  const pages = extractDecls("page", decls);
   const pageDecls = mapToDecls(
     pages,
     "Page",
@@ -40,7 +40,7 @@ export function mapApp(
     mapPage,
   );
 
-  const routes = extractParts("route", parts);
+  const routes = extractDecls("route", decls);
   const routeDecls = mapToDecls(
     routes,
     "Route",
@@ -58,7 +58,7 @@ export function mapApp(
     routes.map((r) => r.name),
   );
 
-  const queries = extractParts("query", parts);
+  const queries = extractDecls("query", decls);
   const queryDecls = mapToDecls(
     queries,
     "Query",
@@ -66,7 +66,7 @@ export function mapApp(
     (query) => mapQuery(query, entityRefParser),
   );
 
-  const actions = extractParts("action", parts);
+  const actions = extractDecls("action", decls);
   const actionDecls = mapToDecls(
     actions,
     "Action",
@@ -74,7 +74,7 @@ export function mapApp(
     (action) => mapAction(action, entityRefParser),
   );
 
-  const apis = extractParts("api", parts);
+  const apis = extractDecls("api", decls);
   const apiDecls = mapToDecls(
     apis,
     "Api",
@@ -82,7 +82,7 @@ export function mapApp(
     (api) => mapApi(api, entityRefParser),
   );
 
-  const apiNamespaces = extractParts("apiNamespace", parts);
+  const apiNamespaces = extractDecls("apiNamespace", decls);
   const apiNamespaceDecls = mapToDecls(
     apiNamespaces,
     "ApiNamespace",
@@ -90,7 +90,7 @@ export function mapApp(
     mapApiNamespace,
   );
 
-  const jobs = extractParts("job", parts);
+  const jobs = extractDecls("job", decls);
   const jobDecls = mapToDecls(
     jobs,
     "Job",
@@ -98,7 +98,7 @@ export function mapApp(
     (job) => mapJob(job, entityRefParser),
   );
 
-  const cruds = extractParts("crud", parts);
+  const cruds = extractDecls("crud", decls);
   const crudDecls = mapToDecls(
     cruds,
     "Crud",
@@ -486,15 +486,15 @@ export function makeRefParser<T extends AppSpec.DeclType>(
   };
 }
 
-function extractParts<Kind extends TsAppSpec.Part["kind"]>(
+function extractDecls<Kind extends TsAppSpec.Decl["kind"]>(
   id: Kind,
-  parts: TsAppSpec.Part[],
-): GetPartForKind<Kind>[] {
-  return parts.filter((p): p is GetPartForKind<Kind> => p.kind === id);
+  decls: TsAppSpec.Decl[],
+): GetDeclForKind<Kind>[] {
+  return decls.filter((p): p is GetDeclForKind<Kind> => p.kind === id);
 }
 
-type GetPartForKind<Kind extends TsAppSpec.Part["kind"]> = Extract<
-  TsAppSpec.Part,
+type GetDeclForKind<Kind extends TsAppSpec.Decl["kind"]> = Extract<
+  TsAppSpec.Decl,
   { kind: Kind }
 >;
 
@@ -526,11 +526,11 @@ export function deriveExtImportName(
  * types, ensuring we don't forget to include anything.
  * Check the original comment for details: https://github.com/wasp-lang/wasp/pull/2393#discussion_r1866620833
  *
- * TODO: The new spec bundles all parts (queries, actions...) together in the parts array, so
+ * TODO: The new spec bundles all decls (queries, actions...) together in the decls array, so
  * there's no need to go through them one by one.
  * We'd likely be better of by:
  *   1. Mapping the entire array with a dispatcher that calls the correct
- *   mapper depending on the part's kind
+ *   mapper depending on the decl's kind
  *   2. Passing this mapped array into the app spec (which expects them all on
  *   the same level anyway).
  * We'll likely lose some mapping type safety in the process though. Explore

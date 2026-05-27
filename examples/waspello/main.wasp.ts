@@ -21,7 +21,7 @@ export default app({
   client: {
     rootComponent: Layout,
   },
-  parts: [
+  decls: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     ...auth,
     ...cards,

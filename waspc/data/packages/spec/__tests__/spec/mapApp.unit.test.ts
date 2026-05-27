@@ -91,7 +91,7 @@ describe("mapApp", () => {
       db,
       emailSender,
       webSocket,
-      parts: [
+      decls: [
         page,
         route,
         query,
@@ -197,7 +197,7 @@ describe("mapApp", () => {
     const page1 = page(extImport);
     const page2 = page(extImport);
 
-    const app = Fixtures.getMinimalAppWithParts([page1, page2]);
+    const app = Fixtures.getMinimalAppWithDecls([page1, page2]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
@@ -214,7 +214,7 @@ describe("mapApp", () => {
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalAppWithParts([route1, route2]);
+    const app = Fixtures.getMinimalAppWithDecls([route1, route2]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
@@ -230,7 +230,7 @@ describe("mapApp", () => {
     const page2 = page(extImport);
     const route1 = route("Route1", "/", page2);
 
-    const app = Fixtures.getMinimalAppWithParts([page1, route1]);
+    const app = Fixtures.getMinimalAppWithDecls([page1, route1]);
     const decls = mapApp(app, []);
 
     const pageNames = decls
@@ -245,7 +245,7 @@ describe("mapApp", () => {
     const page1 = page(extImport);
     const page2 = page(extImport, { authRequired: true });
 
-    const app = Fixtures.getMinimalAppWithParts([page1, page2]);
+    const app = Fixtures.getMinimalAppWithDecls([page1, page2]);
 
     expect(() => mapApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
@@ -260,7 +260,7 @@ describe("mapApp", () => {
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalAppWithParts([route1, route2]);
+    const app = Fixtures.getMinimalAppWithDecls([route1, route2]);
 
     expect(() => mapApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
@@ -274,7 +274,7 @@ describe("mapApp", () => {
     const page2 = page(extImport, { authRequired: true });
     const route1 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalAppWithParts([page1, route1]);
+    const app = Fixtures.getMinimalAppWithDecls([page1, route1]);
 
     expect(() => mapApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
@@ -924,20 +924,20 @@ describe("mapCrud", () => {
   });
 
   test("should throw if entity ref is not provided", () => {
-    const crudPart = Fixtures.getCrud("full");
+    const crudDecl = Fixtures.getCrud("full");
     const entityRefParser = makeRefParser("Entity", []);
 
-    expect(() => mapCrud(crudPart, entityRefParser)).toThrowError();
+    expect(() => mapCrud(crudDecl, entityRefParser)).toThrowError();
   });
 
-  function testMapCrud(crudPart: TsAppSpec.Crud): void {
-    const entityRefParser = makeRefParser("Entity", [crudPart.entity]);
+  function testMapCrud(crudDecl: TsAppSpec.Crud): void {
+    const entityRefParser = makeRefParser("Entity", [crudDecl.entity]);
 
-    const result = mapCrud(crudPart, entityRefParser);
+    const result = mapCrud(crudDecl, entityRefParser);
 
     expect(result).toStrictEqual({
-      entity: entityRefParser(crudPart.entity),
-      operations: mapCrudOperations(crudPart.operations),
+      entity: entityRefParser(crudDecl.entity),
+      operations: mapCrudOperations(crudDecl.operations),
     } satisfies AppSpec.Crud);
   }
 });

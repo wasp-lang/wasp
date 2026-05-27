@@ -1,8 +1,8 @@
 import { app } from "@wasp.sh/spec";
 import { App } from "./src/App" with { type: "ref" };
-import { auth, authParts } from "./src/auth/auth.wasp";
-import { tagsParts } from "./src/tags/tags.wasp";
-import { tasksParts } from "./src/tasks/task.wasp";
+import { auth, authDecls } from "./src/auth/auth.wasp";
+import { tagsDecls } from "./src/tags/tags.wasp";
+import { tasksDecls } from "./src/tasks/task.wasp";
 
 export default app({
   name: "__waspAppName__",
@@ -16,5 +16,5 @@ export default app({
   client: {
     rootComponent: App,
   },
-  parts: [...authParts, ...tasksParts, ...tagsParts],
+  decls: [...authDecls, ...tasksDecls, ...tagsDecls],
 });

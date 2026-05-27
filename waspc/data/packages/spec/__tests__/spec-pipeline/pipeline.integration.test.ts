@@ -33,7 +33,7 @@ const appSpecBody = [
   `  name: "demo",`,
   `  title: "Demo",`,
   `  wasp: { version: "^0.16.0" },`,
-  `  parts: [`,
+  `  decls: [`,
   `    page(MainPage),`,
   `    query(getTasks, { entities: [] }),`,
   `    action(archiveTask, { entities: [] }),`,
@@ -107,7 +107,7 @@ describe("Wasp TS spec pipeline", () => {
             `  name: "demo",`,
             `  title: "Demo",`,
             `  wasp: { version: "^0.16.0" },`,
-            `  parts: [],`,
+            `  decls: [],`,
             `});`,
           ].join("\n"),
         }),
@@ -136,7 +136,7 @@ describe("Wasp TS spec pipeline", () => {
           `  name: "demo",`,
           `  title: appTitle,`,
           `  wasp: { version: "^0.16.0" },`,
-          `  parts: [],`,
+          `  decls: [],`,
           `});`,
         ].join("\n"),
       });
@@ -163,7 +163,7 @@ describe("Wasp TS spec pipeline", () => {
           `  name: "demo",`,
           `  title: "Async Demo",`,
           `  wasp: { version: "^0.16.0" },`,
-          `  parts: [],`,
+          `  decls: [],`,
           `}));`,
         ].join("\n"),
       });
@@ -222,7 +222,7 @@ describe("Wasp TS spec pipeline", () => {
           `  name: "demo",`,
           `  title: splitTitle,`,
           `  wasp: { version: "^0.16.0" },`,
-          `  parts: [homePage, archiveAction],`,
+          `  decls: [homePage, archiveAction],`,
           `});`,
         ].join("\n"),
       });
@@ -263,7 +263,7 @@ describe("Wasp TS spec pipeline", () => {
           `  name: "demo",`,
           `  title: "Demo",`,
           `  wasp: { version: "^0.16.0" },`,
-          `  parts: [],`,
+          `  decls: [],`,
           `});`,
         ].join("\n"),
       });
@@ -307,7 +307,7 @@ describe("Wasp TS spec pipeline", () => {
           `  name: "demo",`,
           `  title,`,
           `  wasp: { version: "^0.16.0" },`,
-          `  parts: [],`,
+          `  decls: [],`,
           `});`,
         ].join("\n"),
       });

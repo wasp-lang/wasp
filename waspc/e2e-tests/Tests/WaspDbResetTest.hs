@@ -88,7 +88,7 @@ waspDbResetTest =
               $seedScriptThatAssertsTasksTableIsNotEmptyName
             ]
           },
-          parts: [
+          decls: [
             route("RootRoute", "/", page(MainPage)),
           ]
         })

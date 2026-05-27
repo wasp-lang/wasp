@@ -107,7 +107,7 @@ waspSpecEntityTypesTest =
             },
             onAuthFailedRedirectTo: "/",
           },
-          parts: [
+          decls: [
             route("Route", "/", {
               kind: "page",
               component: { from: "@src/somewhere", import: "something" },

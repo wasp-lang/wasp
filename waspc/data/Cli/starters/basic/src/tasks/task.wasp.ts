@@ -1,4 +1,4 @@
-import { type Part, action, page, query, route } from "@wasp.sh/spec";
+import { type Decl, action, page, query, route } from "@wasp.sh/spec";
 import {
   createTask,
   deleteCompletedTasks,
@@ -7,7 +7,7 @@ import {
 import { getTasks } from "./queries" with { type: "ref" };
 import { TasksPage } from "./TasksPage" with { type: "ref" };
 
-export const tasksParts: Part[] = [
+export const tasksDecls: Decl[] = [
   route("TasksRoute", "/", page(TasksPage, { authRequired: true })),
   query(getTasks, { entities: ["Task", "Tag"] }),
   action(createTask, { entities: ["Task"] }),

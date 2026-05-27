@@ -1334,7 +1334,7 @@
             "file",
             "sdk/wasp/src/features/apis/apis.wasp.ts"
         ],
-        "80090e88697e7f8bca3584c8c4381d9a8b7c9c49ce637455bed564e473a89b03"
+        "e8b6eb6f6fcd76ddbb2702d8143b67e77e6de66de1e23d8764ec5fd07592a96f"
     ],
     [
         [
@@ -1348,7 +1348,7 @@
             "file",
             "sdk/wasp/src/features/auth/auth.wasp.ts"
         ],
-        "432c07643baf18222c050b9863f9ca293bb5554867f9303397911b6e0223819a"
+        "de6e7e1b6015453b0b906700c17a88de8a72568250f72c006c169b744959e60d"
     ],
     [
         [
@@ -1481,7 +1481,7 @@
             "file",
             "sdk/wasp/src/features/chat/chat.wasp.ts"
         ],
-        "f22d7adc681995623061beda8a637a5a905e8a64c3292ee17a04949a9d5ad43b"
+        "6e7f18b647322d437679a97ba6fdc523bf3685d7f698afb476c1a007e00a3c4b"
     ],
     [
         [
@@ -1509,7 +1509,7 @@
             "file",
             "sdk/wasp/src/features/crud/crud.wasp.ts"
         ],
-        "f1ce12ae3d0163a70041577442c25134340b001a7d49cb11e91af2a14e2e1834"
+        "acfc5c0931e3625e523720c671acc400b484a7297f72950ec6617096ad43719c"
     ],
     [
         [
@@ -1558,7 +1558,7 @@
             "file",
             "sdk/wasp/src/features/jobs/jobs.wasp.ts"
         ],
-        "646f1c23e182861d179e882c95a366a6dc9b9b58b2f5770b6f1f5bda5741fa9c"
+        "cc130693586e0aafa326ab7d1fece5728b255875e19083e2b41a2afd40678880"
     ],
     [
         [
@@ -1586,7 +1586,7 @@
             "file",
             "sdk/wasp/src/features/lazy-loading/lazyLoading.wasp.ts"
         ],
-        "0a885824035e50f47810307074d9c38a44d5c2db2a9d67fb5fe290e932b0d8b5"
+        "3bb6a57dd87a89f9ea8788b4b24125b5fa06fc3c84205274650f37764436834d"
     ],
     [
         [
@@ -1642,7 +1642,7 @@
             "file",
             "sdk/wasp/src/features/operations/operations.wasp.ts"
         ],
-        "84053e84866e6742d41665de41c38d7e1c1c5b79118bd35775b2a0d05568c6f7"
+        "f91935228d8306470e80c09cf7b8224195c7887a7e1215f9d859e98d4d3ec2f2"
     ],
     [
         [
@@ -1691,7 +1691,7 @@
             "file",
             "sdk/wasp/src/features/prerender/prerender.wasp.ts"
         ],
-        "1d4e270e53f86dd6ff948f59643d1ac2e343588801c57b1d6f740fc7e100e521"
+        "5e0ad9ec78875936ee850513b8013872fb22cf054cb796857da7a9cf255e58ad"
     ],
     [
         [
@@ -1712,7 +1712,7 @@
             "file",
             "sdk/wasp/src/features/streaming/streaming.wasp.ts"
         ],
-        "89436921c2a905c0282e4f78e30861f1a3e0215da46a8ac11983d52bd52a74d9"
+        "0c7cc8fbb4f9ed704f773e8e3115c36490cb8e576b3f1cd1ca36cbe0b3c18049"
     ],
     [
         [
@@ -1775,7 +1775,7 @@
             "file",
             "sdk/wasp/src/rpcTests/rpcTests.wasp.ts"
         ],
-        "94877aedd1dd5a17a7b6158544e6eacb2db84fa488fface33f96846884f4925b"
+        "9f8af5452d07800d65c1f098bd878e3196994dee862d4e9d6a55c00f37434117"
     ],
     [
         [

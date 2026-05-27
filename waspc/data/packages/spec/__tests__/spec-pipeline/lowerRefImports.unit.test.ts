@@ -102,7 +102,7 @@ describe("lowerRefImports", () => {
       `import { getTasks } from "./src/operations" with { type: "ref" };`,
       `import helper from "./helpers";`,
       ``,
-      `const demoApp = app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, parts: [] });`,
+      `const demoApp = app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
       `export default demoApp;`,
       ``,
     ].join("\n");
@@ -124,7 +124,7 @@ describe("lowerRefImports", () => {
     const input = [
       `import { app } from "@wasp.sh/spec";`,
       ``,
-      `const demoApp = app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, parts: [] });`,
+      `const demoApp = app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
       `demoApp.client = { rootComponent: { importDefault: "MainPage", from: "@src/MainPage" } };`,
       `export default demoApp;`,
       ``,

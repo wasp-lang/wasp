@@ -20,7 +20,7 @@ import { FromRegister } from "./register.js";
  *   name: 'todoApp',
  *   title: 'ToDo App',
  *   wasp: { version: '^0.24.0' },
- *   parts: [],
+ *   decls: [],
  * })
  * ```
  */
@@ -68,13 +68,13 @@ export interface App {
   /** Configuration for the app's WebSocket support. */
   webSocket?: WebSocket;
   /**
-   * All the {@link Part}s of the app.
+   * All the {@link Decl}s of the app.
    *
    * Build entries with the dedicated constructors ({@link page}, {@link route},
    * {@link query}, {@link action}, {@link api}, {@link apiNamespace},
    * {@link job}, {@link crud}).
    */
-  parts: Part[];
+  decls: Decl[];
 }
 
 /**
@@ -285,7 +285,7 @@ export interface EmailFlowConfig {
    * Name of the route that handles the link sent in the email
    * (e.g. `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
    *
-   * The route must be defined in {@link App.parts} with the {@link route}
+   * The route must be defined in {@link App.decls} with the {@link route}
    * constructor.
    */
   clientRoute: string;
@@ -443,11 +443,11 @@ export interface WebSocket {
 }
 
 /**
- * Union of every kind of app part that can appear in {@link App.parts}.
+ * Union of every kind of app decl that can appear in {@link App.decls}.
  *
  * Each variant is produced by its matching constructor.
  */
-export type Part =
+export type Decl =
   | Page
   | Route
   | Query
@@ -462,9 +462,9 @@ export type Part =
  *
  * Create one with the {@link page} constructor.
  *
- * @category Parts
+ * @category Decls
  */
-export interface Page extends BasePart<"page"> {
+export interface Page extends BaseDecl<"page"> {
   /** React component rendered for this page. */
   component: Reference<AnyFunction>;
   /**
@@ -486,9 +486,9 @@ export interface Page extends BasePart<"page"> {
  * See [Routing](https://wasp.sh/docs/advanced/routing) for path patterns
  * (dynamic segments, optional segments, splats).
  *
- * @category Parts
+ * @category Decls
  */
-export interface Route extends BasePart<"route"> {
+export interface Route extends BaseDecl<"route"> {
   /** Unique route name. */
   name: string;
   /**
@@ -528,9 +528,9 @@ export interface Route extends BasePart<"route"> {
  *
  * See [Queries](https://wasp.sh/docs/data-model/operations/queries).
  *
- * @category Parts
+ * @category Decls
  */
-export interface Query extends BasePart<"query"> {
+export interface Query extends BaseDecl<"query"> {
   /**
    * Reference to the Query's NodeJS implementation. The implementation can be
    * async and receives two positional arguments: the caller-provided `args`
@@ -560,9 +560,9 @@ export interface Query extends BasePart<"query"> {
  *
  * See [Actions](https://wasp.sh/docs/data-model/operations/actions).
  *
- * @category Parts
+ * @category Decls
  */
-export interface Action extends BasePart<"action"> {
+export interface Action extends BaseDecl<"action"> {
   /**
    * Reference to the Action's NodeJS implementation. The implementation can be
    * async and receives two positional arguments: the caller-provided `args`
@@ -596,9 +596,9 @@ export interface Action extends BasePart<"action"> {
  *
  * See [Custom HTTP API Endpoints](https://wasp.sh/docs/advanced/apis).
  *
- * @category Parts
+ * @category Decls
  */
-export interface Api extends BasePart<"api"> {
+export interface Api extends BaseDecl<"api"> {
   /** HTTP method this endpoint responds to. */
   method: HttpMethod;
   /** Express path of the endpoint (e.g. `"/webhooks/stripe"`). */
@@ -629,9 +629,9 @@ export interface Api extends BasePart<"api"> {
  *
  * Create one with the {@link apiNamespace} constructor.
  *
- * @category Parts
+ * @category Decls
  */
-export interface ApiNamespace extends BasePart<"apiNamespace"> {
+export interface ApiNamespace extends BaseDecl<"apiNamespace"> {
   /** Reference to an Express middleware config function for this namespace. */
   middlewareConfigFn: Reference<AnyFunction>;
   /** Path prefix the namespace applies to (e.g. `"/webhooks"`). */
@@ -652,9 +652,9 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  *
  * See [Recurring Jobs](https://wasp.sh/docs/advanced/jobs).
  *
- * @category Parts
+ * @category Decls
  */
-export interface Job extends BasePart<"job"> {
+export interface Job extends BaseDecl<"job"> {
   /**
    * Reference to the async function that performs the job's work. It receives
    * the submitted args and a context containing the declared entities.
@@ -726,9 +726,9 @@ export interface ExecutorOptions {
  *
  * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud).
  *
- * @category Parts
+ * @category Decls
  */
-export interface Crud extends BasePart<"crud"> {
+export interface Crud extends BaseDecl<"crud"> {
   /** Unique name for this CRUD. */
   name: string;
   /** Entity to generate operations for. */
@@ -814,10 +814,10 @@ export type {
   NamedExtImport,
 } from "../extImport.js";
 
-interface BasePart<Kind extends string> {
+interface BaseDecl<Kind extends string> {
   /**
-   * The internal Wasp type of this part. Used by the compiler.
-   * You should not set this field directly, instead use the dedicated constructors for each part type.
+   * The internal Wasp type of this decl. Used by the compiler.
+   * You should not set this field directly, instead use the dedicated constructors for each decl type.
    */
   kind: Kind;
 }
