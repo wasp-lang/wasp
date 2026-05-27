@@ -64,7 +64,7 @@ export default app({
 
 ### 2. Adding the User Entity
 
-Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
+Let's now define the `auth.userEntity` entity in the `schema.prisma` file:
 
 ```prisma title="schema.prisma"
 // 3. Define the user entity
@@ -194,7 +194,7 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 ## Default Behaviour
 
-Add `google: {}` to the `auth.methods` dictionary to use it with default settings:
+Add `google: {}` to the `auth.methods` object to use it with default settings:
 
 ```ts title="main.wasp.ts"
 import { app } from '@wasp.sh/spec'
@@ -343,7 +343,7 @@ export default app({
 })
 ```
 
-The `google` dict has the following properties:
+The `google` object has the following properties:
 
 - #### `configFn`: [`Reference`](../../general/spec.md#reference-imports)
 

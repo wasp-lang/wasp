@@ -103,8 +103,8 @@ export default app({
 
 The `app` declaration has the following fields:
 
-- `wasp: dict` <Required />
-  Wasp compiler configuration. It is a dictionary with a single field:
+- `wasp: object` <Required />
+  Wasp compiler configuration. It is an object with a single field:
 
   - `version: string` <Required />
 
@@ -124,26 +124,26 @@ The `app` declaration has the following fields:
 
 The rest of the fields are covered in dedicated sections of the docs:
 
-- `auth: dict`
+- `auth: object`
 
   Authentication configuration. Read more in the [authentication section](../auth/overview) of the docs.
 
-- `client: dict`
+- `client: object`
 
   Configuration for the client side of your app. Read more in the [client configuration section](../project/client-config) of the docs.
 
-- `server: dict`
+- `server: object`
 
   Configuration for the server side of your app. Read more in the [server configuration section](../project/server-config) of the docs.
 
-- `db: dict`
+- `db: object`
 
   Database configuration. Read more in the [database configuration section](../data-model/databases.md) of the docs.
 
-- `emailSender: dict`
+- `emailSender: object`
 
   Email sender configuration. Read more in the [email sending section](../advanced/email) of the docs.
 
-- `webSocket: dict`
+- `webSocket: object`
 
   WebSocket configuration. Read more in the [WebSocket section](../advanced/web-sockets) of the docs.

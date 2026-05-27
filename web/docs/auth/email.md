@@ -131,7 +131,7 @@ Let's start with adding the following to our `main.wasp.ts` file:
   </TabItem>
 </Tabs>
 
-Read more about the `email` auth method options [here](#fields-in-the-email-dict).
+Read more about the `email` auth method options [here](#fields-in-the-email-object).
 
 ### 2. Add the User Entity
 
@@ -676,7 +676,7 @@ Let's go over the options we can specify when using email authentication.
 
 <UserFields />
 
-### Fields in the `email` dict
+### Fields in the `email` object
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -772,7 +772,7 @@ Read more about the `userSignupFields` function [here](./overview#1-defining-ext
 
 #### `fromField: EmailFromField` <Required />
 
-`fromField` is a dict that specifies the name and e-mail address of the sender of the e-mails sent by your app.
+`fromField` is an object that specifies the name and e-mail address of the sender of the e-mails sent by your app.
 
 It has the following fields:
 
@@ -781,7 +781,7 @@ It has the following fields:
 
 #### `emailVerification: EmailVerificationConfig` <Required />
 
-`emailVerification` is a dict that specifies the details of the e-mail verification process.
+`emailVerification` is an object that specifies the details of the e-mail verification process.
 
 It has the following fields:
 
@@ -851,7 +851,7 @@ It has the following fields:
 
 #### `passwordReset: PasswordResetConfig` <Required />
 
-`passwordReset` is a dict that specifies the password reset process.
+`passwordReset` is an object that specifies the password reset process.
 
 It has the following fields:
 

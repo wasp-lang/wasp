@@ -92,7 +92,7 @@ model User {
 
 #### 2. Overriding the Default Behavior
 
-Declare an import under `app.auth.methods.google.userSignupFields` (the example assumes you're using Google):
+Declare an import under `auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
 ```ts title="main.wasp.ts"
 import { app } from '@wasp.sh/spec'
@@ -164,11 +164,11 @@ Each provider has their own rules for defining the `userSignupFields` and `confi
 
 ## API Reference
 
-### Fields in the `app.auth` Dictionary and Overrides
+### Fields in the `auth` Object and Overrides
 
 For more information on:
 
-- Allowed fields in `app.auth`
+- Allowed fields in `auth`
 - `userSignupFields` and `configFn` functions
 
 Check the provider-specific API References:

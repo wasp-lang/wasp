@@ -298,7 +298,7 @@ The `job` function accepts the worker function as the first argument and a confi
     </TabItem>
   </Tabs>
 
-- `performExecutorOptions: dict`
+- `performExecutorOptions: object`
 
   Executor-specific default options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. These can be overridden during invocation with `submit()` or in a `schedule`.
 
@@ -306,7 +306,7 @@ The `job` function accepts the worker function as the first argument and a confi
 
     See the docs for [pg-boss](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options).
 
-- `schedule: dict`
+- `schedule: object`
 
   - `cron: string` <Required />
 
@@ -318,7 +318,7 @@ The `job` function accepts the worker function as the first argument and a confi
 
     The arguments to pass to the worker function when invoked.
 
-  - `executorOptions: dict`
+  - `executorOptions: object`
 
     Executor-specific options to use when submitting jobs. These are passed directly through and you should consult the documentation for the job executor. The `performExecutorOptions` are the default options, and `schedule.executorOptions` can override/extend those.
 

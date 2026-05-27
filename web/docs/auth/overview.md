@@ -109,7 +109,7 @@ Please check first if other Wasp features (mainly [auth hooks](./auth-hooks.md))
 
 When declaring a page, you can set the `authRequired` property.
 
-If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `app.auth.onAuthFailedRedirectTo` field.
+If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `auth.onAuthFailedRedirectTo` field.
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from '@wasp.sh/spec'
@@ -604,7 +604,7 @@ export default app({
 })
 ```
 
-`app.auth` is a dictionary with the following fields:
+`auth` is an object with the following fields:
 
 #### `userEntity: entity` <Required />
 
@@ -612,9 +612,9 @@ The entity representing the user connected to your business logic.
 
 <ReadMoreAboutAuthEntities />
 
-#### `methods: dict` <Required />
+#### `methods: object` <Required />
 
-A dictionary of auth methods enabled for the app.
+An object of auth methods enabled for the app.
 
 <AuthMethodsGrid />
 

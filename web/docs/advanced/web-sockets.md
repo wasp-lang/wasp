@@ -335,7 +335,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
   </TabItem>
 </Tabs>
 
-The `webSocket` dict has the following fields:
+The `webSocket` object has the following fields:
 
 - `fn: WebSocketFn` <Required />
 

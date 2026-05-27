@@ -190,7 +190,7 @@ export default app({
 ```
 </TutorialAction>
 
-Now that auth is required for this page, unauthenticated users will be redirected to `/login`, as we specified with `app.auth.onAuthFailedRedirectTo`.
+Now that auth is required for this page, unauthenticated users will be redirected to `/login`, as we specified with `auth.onAuthFailedRedirectTo`.
 
 Additionally, when `authRequired` is `true`, the page's React component will be provided a `user` object as prop.
 

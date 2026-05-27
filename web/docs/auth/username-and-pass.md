@@ -95,7 +95,7 @@ Let's start with adding the following to our `main.wasp.ts` file:
   </TabItem>
 </Tabs>
 
-Read more about the `usernameAndPassword` auth method options [here](#fields-in-the-usernameandpassword-dict).
+Read more about the `usernameAndPassword` auth method options [here](#fields-in-the-usernameandpassword-object).
 
 ### 2. Add the User Entity
 
@@ -345,7 +345,7 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 
 <UserFieldsExplainer />
 
-### Fields in the `usernameAndPassword` dict
+### Fields in the `usernameAndPassword` object
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">

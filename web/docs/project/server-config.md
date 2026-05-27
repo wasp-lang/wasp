@@ -204,7 +204,7 @@ Read more about [middleware config function](#middlewareconfigfn-reference) belo
   </TabItem>
 </Tabs>
 
-`app.server` is a dictionary with the following fields:
+`server` is an object with the following fields:
 
 - #### `setupFn`: [`Reference`](../general/spec.md#reference-imports)
 

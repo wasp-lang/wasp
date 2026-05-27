@@ -193,7 +193,7 @@ Seeding is most commonly used for:
 
 ### Writing a Seed Function
 
-You can define as many **seed functions** as you want in an array under the `app.db.seeds` field:
+You can define as many **seed functions** as you want in an array under the `db.seeds` field:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -357,7 +357,7 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
 ## Customising the Prisma Client
 
 Wasp interacts with the database using the [Prisma Client](https://www.prisma.io/docs/orm/prisma-client).
-To customize the client, define a function in the `app.db.prismaSetupFn` field that returns a Prisma Client instance.
+To customize the client, define a function in the `db.prismaSetupFn` field that returns a Prisma Client instance.
 This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
 <Tabs groupId="js-ts">
@@ -484,7 +484,7 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
   </TabItem>
 </Tabs>
 
-`app.db` is a dictionary with the following fields (all fields are optional):
+`db` is an object with the following fields (all fields are optional):
 
 - `seeds`: [`Reference[]`](../general/spec.md#reference-imports)
 
@@ -518,7 +518,7 @@ Use one of the following commands to run the seed functions:
 
 - `wasp db seed <seed-name>`
 
-  This command runs the seed function with the specified name. The name is the identifier used in its `import` expression in the `app.db.seeds` list.
+  This command runs the seed function with the specified name. The name is the identifier used in its `import` expression in the `db.seeds` list.
   For example, to run the seed function `devSeedSimple` which was defined like this:
 
   <Tabs groupId="js-ts">

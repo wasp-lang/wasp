@@ -190,7 +190,7 @@ SENDGRID_API_KEY=
 
 ## API Reference
 
-### `emailSender` dict
+### `emailSender` object
 
 ```ts title="main.wasp.ts"
 import { app } from '@wasp.sh/spec'
@@ -208,7 +208,7 @@ export default app({
 })
 ```
 
-The `emailSender` dict has the following fields:
+The `emailSender` object has the following fields:
 
 - `provider: Provider` <Required />
 
@@ -216,7 +216,7 @@ The `emailSender` dict has the following fields:
 
   <DummyProviderNote />
 
-- `defaultFrom: dict`
+- `defaultFrom: object`
 
   The default sender's details. If you set this field, you don't need to provide the `from` field when sending an email.
 

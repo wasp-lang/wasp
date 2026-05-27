@@ -64,7 +64,7 @@ export default app({
 
 ### 2. Add the User Entity
 
-Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
+Let's now define the `auth.userEntity` entity in the `schema.prisma` file:
 
 ```prisma title="schema.prisma"
 // 3. Define the user entity
@@ -189,7 +189,7 @@ WASP_SERVER_URL=https://<subdomain>.loca.lt
 
 ## Default Behaviour
 
-Add `slack: {}` to the `auth.methods` dictionary to use it with default settings.
+Add `slack: {}` to the `auth.methods` object to use it with default settings.
 
 ```ts title="main.wasp.ts"
 import { app } from '@wasp.sh/spec'
@@ -355,7 +355,7 @@ export default app({
 })
 ```
 
-The `slack` dict has the following properties:
+The `slack` object has the following properties:
 
 - #### `configFn`: [`Reference`](../../general/spec.md#reference-imports)
 
