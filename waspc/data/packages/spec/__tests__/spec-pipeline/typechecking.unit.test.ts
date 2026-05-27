@@ -24,8 +24,6 @@ describe("typecheck", () => {
   });
 
   test("throws SpecUserError when an added source file has a type error", async () => {
-    vi.spyOn(console, "error");
-
     await expect(
       runTypecheck(async ({ addSourceFile }) => {
         addSourceFile("./bad.ts", `export const x: string = 123;\n`);
@@ -59,8 +57,6 @@ describe("typecheck", () => {
   });
 
   test("type errors take precedence over a runtime error from the callback", async () => {
-    vi.spyOn(console, "error");
-
     await expect(
       runTypecheck(async ({ addSourceFile }) => {
         addSourceFile("./bad.ts", `export const x: string = 123;\n`);
@@ -70,8 +66,6 @@ describe("typecheck", () => {
   });
 
   test("reports type errors from any added source file", async () => {
-    vi.spyOn(console, "error");
-
     await expect(
       runTypecheck(async ({ addSourceFile }) => {
         addSourceFile("./main.ts", `export const x: number = 1;\n`);
@@ -104,7 +98,11 @@ describe("typecheck", () => {
     expect(consoleError).toHaveBeenCalledTimes(1);
 
     const rawOutput = consoleError.mock.calls[0]?.[0] as string;
+
+    // `ts-morph` prints with colors (terminal control characters), so we strip
+    // those out for the snapshot test, otherwise it would be unreadable.
     const output = stripVTControlCharacters(rawOutput);
+
     expect(output).toMatchInlineSnapshot(`
       "bad.ts:1:14 - error TS2322: Type 'number' is not assignable to type 'string'.
 
