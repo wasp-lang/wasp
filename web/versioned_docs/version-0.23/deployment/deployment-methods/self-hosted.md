@@ -3,7 +3,7 @@ title: Self-Hosted
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
-import { GuideLink } from '@site/src/components/GuideLink'
+import { CardLink } from '@site/src/components/CardLink'
 
 If you have your server or rent out a server, you can self-host your Wasp apps. Self-hosting your apps gives you full control over your apps and their data. It can be more cost-effective than a cloud provider since you can deploy multiple apps on a single server. However, you'll need to manage the server yourself, which can be time-consuming and require some technical knowledge.
 
@@ -11,11 +11,11 @@ If you have your server or rent out a server, you can self-host your Wasp apps. 
 
 We have step-by-step guides for deploying your Wasp app on your server with different methods. Check out the guides below:
 
-<GuideLink linkToGuide="../../guides/deployment/self-hosted/caprover" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
+<CardLink to="../../guides/deployment/self-hosted/caprover" label="guide" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
 
-<GuideLink linkToGuide="../../guides/deployment/self-hosted/coolify" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
+<CardLink to="../../guides/deployment/self-hosted/coolify" label="guide" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
 
-<GuideLink linkToGuide="../../guides/deployment/self-hosted/vps" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
+<CardLink to="../../guides/deployment/self-hosted/vps" label="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
 
 ## Manual deployment
 
