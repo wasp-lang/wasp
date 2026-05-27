@@ -148,7 +148,7 @@ export default app({
 
 You'll notice that we enabled only `getAll` and `create` operations. This means that only these operations will be available.
 
-We also overrode the `create` operation with a custom implementation. This means that the `create` operation will not be generated, but instead, the `createTask` function from `@src/tasks.{js,ts}` will be used.
+We also overrode the `create` operation with a custom implementation. This means that the `create` operation will not be generated, but instead, the `createTask` function from `src/tasks.{js,ts}` will be used.
 
 ### Our Custom `create` Operation
 

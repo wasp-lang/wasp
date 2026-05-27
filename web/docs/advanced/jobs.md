@@ -252,23 +252,17 @@ export default app({
 })
 ```
 
-The `job` function accepts the worker function as the first argument and a configuration object with these fields:
+The `job` function accepts the worker function as the first argument and a configuration object as the second argument.
 
-- `executor: JobExecutor` <Required />
-
-  The job executor to use for this job. Currently, the only supported executor is [`PgBoss`](#pgboss).
-
-- `fn`: [`Reference`](../general/spec.md#reference-imports) <Required />
-
-  The worker function imported with `with { type: "ref" }`.
+The worker function is a [`Reference`](../general/spec.md#reference-imports) to an implementation defined in a NodeJS file:
 
   - An `async` function that performs the work. Since Wasp executes Jobs on the server, the import path must lead to a NodeJS file.
   - It receives the following arguments:
     - `args: Input`: The data passed to the job when it's submitted.
     - `context: { entities: Entities }`: The context object containing any declared entities.
-
+  
   Here's an example worker function:
-
+  
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
       ```js title="src/workers/bar.js"
@@ -279,24 +273,30 @@ The `job` function accepts the worker function as the first argument and a confi
       }
       ```
     </TabItem>
-
+  
     <TabItem value="ts" label="TypeScript">
       ```ts title="src/workers/bar.ts"
       import { type MySpecialJob } from 'wasp/server/jobs'
-
+  
       type Input = { name: string; }
       type Output = { tasks: Task[]; }
-
+  
       export const mySpecialJob: MySpecialJob<Input, Output> = async ({ name }, context) => {
         console.log(`Hello ${name}!`)
         const tasks = await context.entities.Task.findMany({})
         return { tasks }
       }
       ```
-
+  
       Read more about type-safe jobs in the [JavaScript API section](#javascript-api).
     </TabItem>
   </Tabs>
+
+The configuration object has the following fields:
+
+- `executor: JobExecutor` <Required />
+
+  The job executor to use for this job. Currently, the only supported executor is [`PgBoss`](#pgboss).
 
 - `performExecutorOptions: object`
 
