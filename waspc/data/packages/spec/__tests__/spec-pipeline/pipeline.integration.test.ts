@@ -3,7 +3,6 @@ import { tmpdir } from "os";
 import { dirname, join } from "path";
 import { pathToFileURL } from "url";
 import { describe, expect, test } from "vitest";
-import type * as AppSpec from "../../src/appSpec.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
 // We use the absolute file:// URL of the local @wasp.sh/spec source so the
@@ -14,14 +13,12 @@ const waspSpecEntryUrl = pathToFileURL(
 
 describe("Wasp TS spec pipeline", () => {
   test("analyzes split specs with lowered ref imports", async () => {
-    const tempDir = makeTempProject("wasp-spec-pipeline-");
-    writeProjectFile(
-      tempDir,
+    const project = makeTempProject("wasp-spec-pipeline-");
+    project.writeProjectFile(
       "src/MainPage.ts",
       `export default function MainPage() { return null; }\n`,
     );
-    writeProjectFile(
-      tempDir,
+    project.writeProjectFile(
       "src/adminOperations.ts",
       [
         `throw new Error("ref import was executed");`,
@@ -29,9 +26,7 @@ describe("Wasp TS spec pipeline", () => {
         ``,
       ].join("\n"),
     );
-
-    writeProjectFile(
-      tempDir,
+    project.writeProjectFile(
       "src/features/home.wasp.ts",
       [
         `// @ts-ignore: This test imports the local TS source through Vitest.`,
@@ -41,26 +36,24 @@ describe("Wasp TS spec pipeline", () => {
         `export const homePage = page(MainPage);`,
       ].join("\n"),
     );
-    writeProjectFile(
-      tempDir,
-      "features/tasks.wasp.ts",
+    project.writeProjectFile(
+      "src/features/tasks.wasp.ts",
       [
         `// @ts-ignore: This test imports the local TS source through Vitest.`,
         `import { action } from ${JSON.stringify(waspSpecEntryUrl)};`,
-        `import { archive as archiveTask } from "../src/adminOperations" with { type: "ref" };`,
+        `import { archive as archiveTask } from "../adminOperations" with { type: "ref" };`,
         ``,
         `export const splitTitle = "Split Demo";`,
         `export const archiveAction = action(archiveTask, { entities: [] });`,
       ].join("\n"),
     );
 
-    const decls = await analyzeSpec({
-      tempDir,
-      sourceText: [
+    const decls = await project.analyzeSpec(
+      [
         `// @ts-ignore: This test imports the local TS source through Vitest.`,
         `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
         `import { homePage } from "./src/features/home.wasp.js";`,
-        `import { archiveAction, splitTitle } from "./features/tasks.wasp.js";`,
+        `import { archiveAction, splitTitle } from "./src/features/tasks.wasp.js";`,
         ``,
         `export default app({`,
         `  name: "demo",`,
@@ -69,7 +62,7 @@ describe("Wasp TS spec pipeline", () => {
         `  parts: [homePage, archiveAction],`,
         `});`,
       ].join("\n"),
-    });
+    );
 
     expect(decls).toContainEqual(
       expect.objectContaining({ declType: "App", declName: "demo" }),
@@ -83,15 +76,20 @@ describe("Wasp TS spec pipeline", () => {
   });
 });
 
-function makeTempProject(prefix: string): string {
+function makeTempProject(prefix: string): {
+  writeProjectFile: (relativeFilePath: string, sourceText: string) => void;
+  analyzeSpec: (sourceText: string) => ReturnType<typeof analyzeApp>;
+} {
   // Jiti reports loaded files using canonical paths, so use a canonical temp root too.
-  const tempDir = mkdtempSync(join(realpathSync(tmpdir()), prefix));
+  const projectRootDir = mkdtempSync(join(realpathSync(tmpdir()), prefix));
+  const tsconfigPath = join(projectRootDir, "tsconfig.json");
+
   writeFileSync(
-    join(tempDir, "package.json"),
+    join(projectRootDir, "package.json"),
     JSON.stringify({ type: "module" }),
   );
   writeFileSync(
-    getTsConfigPath(tempDir),
+    tsconfigPath,
     JSON.stringify({
       compilerOptions: {
         target: "ES2022",
@@ -105,38 +103,23 @@ function makeTempProject(prefix: string): string {
       include: ["main.wasp.ts", "**/*.wasp.ts"],
     }),
   );
-  return tempDir;
-}
+  return {
+    writeProjectFile: (relativeFilePath: string, sourceText: string) => {
+      const filePath = join(projectRootDir, relativeFilePath);
+      mkdirSync(dirname(filePath), { recursive: true });
+      writeFileSync(filePath, sourceText, "utf8");
+    },
+    analyzeSpec: async (sourceText: string) => {
+      const sourcePath = join(projectRootDir, "main.wasp.ts");
 
-function writeProjectFile(
-  tempDir: string,
-  relativePath: string,
-  sourceText: string,
-): void {
-  const filePath = join(tempDir, relativePath);
-  mkdirSync(dirname(filePath), { recursive: true });
-  writeFileSync(filePath, sourceText, "utf8");
-}
+      writeFileSync(sourcePath, sourceText, "utf8");
 
-async function analyzeSpec({
-  tempDir,
-  sourceText,
-}: {
-  tempDir: string;
-  sourceText: string;
-}): Promise<AppSpec.Decl[]> {
-  const sourcePath = join(tempDir, "main.wasp.ts");
-
-  writeFileSync(sourcePath, sourceText, "utf8");
-
-  return analyzeApp({
-    waspTsSpecPath: sourcePath,
-    tsconfigPath: getTsConfigPath(tempDir),
-    projectRootDir: tempDir,
-    entityNames: [],
-  });
-}
-
-function getTsConfigPath(tempDir: string): string {
-  return join(tempDir, "main.wasp.tsconfig.json");
+      return analyzeApp({
+        waspTsSpecPath: sourcePath,
+        tsconfigPath,
+        projectRootDir,
+        entityNames: [],
+      });
+    },
+  };
 }
