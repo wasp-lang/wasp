@@ -96,6 +96,10 @@ export interface Wasp {
  * If hooks are async, Wasp awaits them. All hooks receive `prisma` and `req`
  * in their input. Hook return values are ignored except for
  * {@link AuthHooks.onBeforeOAuthRedirect}, which can change the redirect URL.
+ * Hooks that receive `providerId` get `{ providerName, providerUserId }`.
+ * `providerName` identifies the auth method, such as `"email"` or `"google"`.
+ * `providerUserId` is the user's stable ID within that provider, such as an
+ * email address for email auth or the OAuth provider's user ID.
  */
 export interface Auth extends AuthHooks {
   /**
@@ -404,6 +408,8 @@ export interface Db {
  *
  * Required for the email auth flows (verification, password reset) and
  * available for sending arbitrary emails via `wasp/server/email`.
+ *
+ * See [Sending Emails](https://wasp.sh/docs/advanced/email).
  */
 export interface EmailSender {
   /** Provider Wasp uses to deliver outgoing emails. */
@@ -678,8 +684,8 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  */
 export interface Job extends BasePart<"job"> {
   /**
-   * Reference to the async function that performs the job's work. It receives
-   * the submitted args and a context containing the declared entities.
+   * Reference to the Job's NodeJS implementation. It receives the submitted
+   * args and a context containing the declared entities.
    */
   fn: Reference<AnyFunction>;
   /** Executor backing this job. */
@@ -772,8 +778,9 @@ export interface Crud extends BasePart<"crud"> {
  * Mapping of CRUD operations to their options.
  *
  * Each key enables the matching operation; an empty object enables it with
- * Wasp's defaults. Default `get`, `update`, and `delete` implementations use
- * the field marked with `@id` in the Prisma schema as the entity ID.
+ * Wasp's defaults. Default `getAll` returns all entities. Default `get`,
+ * `update`, and `delete` implementations use the field marked with `@id` in
+ * the Prisma schema as the entity ID.
  *
  * CRUD operations are implemented with Wasp queries and actions. See
  * [Operations](https://wasp.sh/docs/data-model/operations/overview).
