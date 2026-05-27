@@ -35,7 +35,11 @@ export async function typecheck<T>(
     }),
   );
 
+  // Throw parser errors before typechecking, to keep the regular expectations
+  // for how code pre-processing works.
   if (
+    // Jiti parse errors are not any specific `Error` subclass, just regular
+    // `Error` that start with "ParseError".
     result.type === "error" &&
     result.error instanceof Error &&
     result.error.message.startsWith("ParseError")

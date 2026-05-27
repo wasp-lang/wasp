@@ -34,6 +34,9 @@ describe("typecheck", () => {
 
   test("re-throws a ParseError from the callback without typechecking", async () => {
     const consoleError = vi.spyOn(console, "error");
+
+    // Jiti parse errors are not any specific `Error` subclass, just regular
+    // `Error` that start with "ParseError".
     const parseError = new Error("ParseError: unexpected token");
 
     await expect(
