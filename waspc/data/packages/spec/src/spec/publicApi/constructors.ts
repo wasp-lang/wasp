@@ -42,9 +42,9 @@ import type {
  * })
  * ```
  *
- * @param input The app configuration.
+ * @param config The app configuration.
  *
- * @category Constructors
+ * @category Spec
  */
 export function app(config: AppConfig): App {
   return config;

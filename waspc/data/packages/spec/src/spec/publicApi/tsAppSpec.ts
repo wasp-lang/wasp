@@ -10,7 +10,7 @@ import { FromRegister } from "./register.js";
  * Pass an `App` to the {@link app} constructor and `export default` the
  * result from `main.wasp.ts`.
  *
- * @category Parts
+ * @category Spec
  *
  * @example
  * ```ts
