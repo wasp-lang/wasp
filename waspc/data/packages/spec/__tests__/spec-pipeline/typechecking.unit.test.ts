@@ -16,7 +16,7 @@ describe("typecheck", () => {
 
   test("returns the callback value when added source files are type-clean", async () => {
     const result = await runTypecheck(async ({ addSourceFile }) => {
-      addSourceFile("/clean.ts", `export const x: number = 1;\n`);
+      addSourceFile("./clean.ts", `export const x: number = 1;\n`);
       return "ok";
     });
 
@@ -28,7 +28,7 @@ describe("typecheck", () => {
 
     await expect(
       runTypecheck(async ({ addSourceFile }) => {
-        addSourceFile("/bad.ts", `export const x: string = 123;\n`);
+        addSourceFile("./bad.ts", `export const x: string = 123;\n`);
         return "should not reach";
       }),
     ).rejects.toThrow(new SpecUserError("Type errors found"));
@@ -40,7 +40,7 @@ describe("typecheck", () => {
 
     await expect(
       runTypecheck(async ({ addSourceFile }) => {
-        addSourceFile("/bad.ts", `export const x: string = 123;\n`);
+        addSourceFile("./bad.ts", `export const x: string = 123;\n`);
         throw parseError;
       }),
     ).rejects.toBe(parseError);
@@ -63,7 +63,7 @@ describe("typecheck", () => {
 
     await expect(
       runTypecheck(async ({ addSourceFile }) => {
-        addSourceFile("/bad.ts", `export const x: string = 123;\n`);
+        addSourceFile("./bad.ts", `export const x: string = 123;\n`);
         throw new Error("runtime boom");
       }),
     ).rejects.toThrow(new SpecUserError("Type errors found"));
@@ -74,8 +74,8 @@ describe("typecheck", () => {
 
     await expect(
       runTypecheck(async ({ addSourceFile }) => {
-        addSourceFile("/main.ts", `export const x: number = 1;\n`);
-        addSourceFile("/helper.ts", `export const broken: string = 123;\n`);
+        addSourceFile("./main.ts", `export const x: number = 1;\n`);
+        addSourceFile("./helper.ts", `export const broken: string = 123;\n`);
         return "unused";
       }),
     ).rejects.toThrow(new SpecUserError("Type errors found"));
@@ -83,8 +83,8 @@ describe("typecheck", () => {
 
   test("addSourceFile called twice with the same path uses the latest contents", async () => {
     const result = await runTypecheck(async ({ addSourceFile }) => {
-      addSourceFile("/shared.ts", `export const x: string = 123;\n`);
-      addSourceFile("/shared.ts", `export const x: number = 1;\n`);
+      addSourceFile("./shared.ts", `export const x: string = 123;\n`);
+      addSourceFile("./shared.ts", `export const x: number = 1;\n`);
       return "ok";
     });
 
@@ -96,7 +96,7 @@ describe("typecheck", () => {
 
     await expect(
       runTypecheck(async ({ addSourceFile }) => {
-        addSourceFile("/bad.ts", `export const x: string = 123;\n`);
+        addSourceFile("./bad.ts", `export const x: string = 123;\n`);
         return "unused";
       }),
     ).rejects.toThrow(SpecUserError);
@@ -106,7 +106,7 @@ describe("typecheck", () => {
     const rawOutput = consoleError.mock.calls[0]?.[0] as string;
     const output = stripVTControlCharacters(rawOutput);
     expect(output).toMatchInlineSnapshot(`
-      "../../../../../../../../../../../bad.ts:1:14 - error TS2322: Type 'number' is not assignable to type 'string'.
+      "bad.ts:1:14 - error TS2322: Type 'number' is not assignable to type 'string'.
 
       1 export const x: string = 123;
                      ~
