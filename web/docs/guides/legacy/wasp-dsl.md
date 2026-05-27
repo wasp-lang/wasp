@@ -46,7 +46,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` takes the `page` object directly.
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="Wasp DSL">
     ```wasp title="main.wasp"
     app todoApp {
