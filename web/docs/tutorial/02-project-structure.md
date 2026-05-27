@@ -81,8 +81,8 @@ Let's take a closer look at `main.wasp`
 `main.wasp` is your app's definition file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
-:::tip Wasp TS spec [Early-preview feature]
-If you wish, you can alternatively define your [Wasp spec in TS](../general/wasp-ts-spec.md) (`main.wasp.ts`) instead of `main.wasp`.
+:::tip Wasp Spec
+You can also define your app in TypeScript with the [Wasp Spec](../general/spec.md) (`main.wasp.ts`) instead of `main.wasp`.
 :::
 
 The file is a list of _declarations_. Each declaration defines a part of your app.

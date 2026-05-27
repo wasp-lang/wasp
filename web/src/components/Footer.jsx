@@ -13,8 +13,8 @@ const docs = [
     url: "/docs/tutorial/create",
   },
   {
-    text: "Language reference",
-    url: "/docs/general/language",
+    text: "Wasp Spec reference",
+    url: "/docs/general/spec",
   },
 ];
 

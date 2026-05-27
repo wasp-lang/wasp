@@ -2,6 +2,7 @@
 import type { RequireOneOrNone } from "type-fest";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { ExtImport } from "../extImport.js";
+import { FromRegister } from "./register.js";
 
 /**
  * Root shape of a Wasp app specification.
@@ -9,7 +10,7 @@ import type { ExtImport } from "../extImport.js";
  * Pass an `App` to the {@link app} constructor and `export default` the
  * result from `main.wasp.ts`.
  *
- * @category Parts
+ * @category Spec
  *
  * @example
  * ```ts
@@ -92,15 +93,17 @@ export interface Wasp {
  *
  * See the [Auth overview](https://wasp.sh/docs/auth/overview) for the
  * supported auth methods and how the `User` entity is connected to auth.
- * If hooks are async, Wasp awaits them. Hook return values are ignored except
- * for {@link AuthHooks.onBeforeOAuthRedirect}, which can change the redirect
- * URL.
+ * If hooks are async, Wasp awaits them. All hooks receive `prisma` and `req`
+ * in their input. Hook return values are ignored except for
+ * {@link AuthHooks.onBeforeOAuthRedirect}, which can change the redirect URL.
  */
 export interface Auth extends AuthHooks {
   /**
-   * Name of the Prisma model that represents the application user.
+   * Name of the Prisma model that represents the application user connected
+   * to your business logic.
    *
-   * The model must be defined in `schema.prisma`.
+   * The model must be defined in `schema.prisma` and have an `@id` field. The
+   * ID can use any Prisma-supported ID type.
    */
   userEntity: EntityName;
   /** Enabled authentication methods. */
@@ -121,17 +124,36 @@ export interface Auth extends AuthHooks {
 }
 
 interface AuthHooks {
-  /** Called before the user is created. Useful for rejecting signups based on custom criteria. */
+  /**
+   * Called before the user is created. Receives `providerId` plus the common
+   * hook input. Throw from this hook to reject a signup based on custom
+   * criteria.
+   */
   onBeforeSignup?: Reference<AnyFunction>;
-  /** Called after the user is created. Receives the created user and, for social auth, the OAuth tokens. */
+  /**
+   * Called after the user is created. Receives `providerId`, the created
+   * `user`, and, for social auth, `oauth` fields including tokens and the
+   * unique OAuth request ID.
+   */
   onAfterSignup?: Reference<AnyFunction>;
-  /** Called once, after the user verifies their email. */
+  /** Called once, after the user verifies their email. Receives `email` and `user`. */
   onAfterEmailVerified?: Reference<AnyFunction>;
-  /** Called before redirecting the user to the OAuth provider. Its return value can override the redirect URL. */
+  /**
+   * Called before redirecting the user to the OAuth provider. Receives the
+   * generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override
+   * the redirect URL.
+   */
   onBeforeOAuthRedirect?: Reference<AnyFunction>;
-  /** Called before the user is logged in. */
+  /**
+   * Called before the user is logged in. Receives `providerId` and `user`.
+   * Throw from this hook to reject a login based on custom criteria.
+   */
   onBeforeLogin?: Reference<AnyFunction>;
-  /** Called after a successful login. */
+  /**
+   * Called after a successful login. Receives `providerId`, `user`, and, for
+   * social auth, `oauth` fields including tokens and the unique OAuth request
+   * ID.
+   */
   onAfterLogin?: Reference<AnyFunction>;
 }
 
@@ -189,11 +211,19 @@ export interface UsernameAndPasswordConfig extends BaseAuthMethodConfig {}
 
 /**
  * Social auth provider configuration.
+ *
+ * By default, Wasp stores only the user's provider-specific ID. Use
+ * `userSignupFields` to save provider account details or custom signup state
+ * on your {@link Auth.userEntity}. Each provider has provider-specific
+ * `userSignupFields` and `configFn` behavior, documented in the
+ * [Social Auth docs](https://wasp.sh/docs/auth/social-auth/overview).
  */
 export interface SocialAuthConfig extends BaseAuthMethodConfig {
   /**
    * Function that returns provider-specific OAuth options (scopes, prompt,
-   * etc.). Use this to request extra scopes or customize the OAuth flow.
+   * etc.). Use this to request extra scopes, such as requesting email/profile
+   * data from providers that do not include it by default, or to customize the
+   * OAuth flow.
    */
   configFn?: Reference<AnyFunction>;
 }
@@ -207,16 +237,32 @@ export interface SocialAuthConfig extends BaseAuthMethodConfig {
 export interface EmailAuthConfig extends BaseAuthMethodConfig {
   /** Sender identity used for verification and password reset emails. */
   fromField: EmailFromField;
-  /** Email verification flow configuration. */
+  /**
+   * Email verification flow configuration.
+   *
+   * Its `clientRoute` should handle the verification link sent to the user.
+   */
   emailVerification: EmailFlowConfig;
-  /** Password reset flow configuration. */
+  /**
+   * Password reset flow configuration.
+   *
+   * Its `clientRoute` should handle the password reset link and the new
+   * password submitted by the user.
+   */
   passwordReset: EmailFlowConfig;
 }
 
 interface BaseAuthMethodConfig {
   /**
    * Object that defines extra fields to save on the user during signup
-   * (e.g. `firstName`, `address`).
+   * (e.g. `firstName`, `address`). Each field name must exist on the
+   * configured {@link Auth.userEntity}.
+   *
+   * Each field function receives the data sent from the client and returns
+   * the value Wasp saves to the database. For social auth, this data includes
+   * provider-specific profile information. If the value is invalid, throw an
+   * error. The `password` field is excluded from this object and handled by
+   * Wasp's auth backend.
    *
    * See [Signup Fields Customization](https://wasp.sh/docs/auth/overview#signup-fields-customization).
    */
@@ -229,7 +275,10 @@ interface BaseAuthMethodConfig {
 export interface EmailFlowConfig {
   /**
    * Function that returns the email content (subject, html, text) Wasp sends
-   * for this flow. If omitted, Wasp uses a built-in default template.
+   * for this flow. Verification email functions receive
+   * `{ verificationLink }`, and password reset email functions receive
+   * `{ passwordResetLink }`. If omitted, Wasp uses a built-in default
+   * template.
    */
   getEmailContentFn?: Reference<AnyFunction>;
   /**
@@ -250,10 +299,10 @@ export interface EmailFlowConfig {
  */
 export interface Server {
   /**
-   * Async function called once on server start, before the server accepts
-   * requests. Receives a context containing the Express `app` and underlying
-   * `http.Server`, so you can register custom routes or kick off background
-   * work.
+   * Async function called once on server start. Wasp awaits it before the
+   * server accepts requests. Receives a context containing the Express `app`
+   * and underlying `http.Server`, so you can register custom routes, set up
+   * additional databases or WebSockets, or kick off scheduled jobs.
    */
   setupFn?: Reference<AnyFunction>;
   /**
@@ -264,9 +313,10 @@ export interface Server {
    */
   middlewareConfigFn?: Reference<AnyFunction>;
   /**
-   * Zod schema used to validate the server's environment variables on
-   * startup. Import the schema from app code with a reference import or pass an
-   * {@link ExtImport} object.
+   * Zod schema used to validate user-defined server environment variables on
+   * startup. Wasp merges it with built-in validation for Wasp-defined env vars
+   * when validating `process.env`. Import the schema from app code with a
+   * reference import or pass an {@link ExtImport} object.
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
@@ -288,23 +338,26 @@ export interface Client {
    */
   rootComponent?: Reference<AnyFunction>;
   /**
-   * Async function awaited on the client before any page renders. It receives
-   * no arguments, and its return value is ignored. Use it for one-time
-   * client-side setup, e.g. starting client-side periodic jobs.
+   * Async function Wasp calls once while initializing the client app. Wasp
+   * awaits it before rendering the app. It receives no arguments, and its
+   * return value is ignored. Use it for one-time client-side setup, such as
+   * configuring the query client or starting client-side periodic jobs.
    */
   setupFn?: Reference<AnyFunction>;
   /**
    * Subpath the client app is served from (e.g. `"/my-app"`).
    *
-   * When set, Wasp configures both React Router's `basename` and Vite's
-   * `base` option so the app works from `https://example.com/my-app`.
+   * When set, Wasp configures React Router's `basename` for routing and
+   * Vite's `base` option for asset URLs, so the app works from
+   * `https://example.com/my-app`.
    */
   baseDir?: `/${string}`;
   /**
-   * Zod schema used to validate the client's environment variables at build
-   * time. Import the schema from app code with a reference import or pass an
-   * {@link ExtImport} object. Client env vars must be prefixed with
-   * `REACT_APP_`.
+   * Zod schema used to validate user-defined client environment variables at
+   * build time. Wasp merges it with built-in validation for Wasp-defined env
+   * vars when validating `import.meta.env`. Import the schema from app code
+   * with a reference import or pass an {@link ExtImport} object. Client env
+   * vars must be prefixed with `REACT_APP_`.
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
@@ -326,8 +379,8 @@ export interface Db {
    */
   seeds?: Reference<AnyFunction>[];
   /**
-   * Function that returns a configured Prisma Client instance. Use this to
-   * add Prisma logging or client extensions.
+   * Function that sets up and returns a configured Prisma Client instance.
+   * Use this to add Prisma logging or client extensions.
    */
   prismaSetupFn?: Reference<AnyFunction>;
 }
@@ -375,7 +428,8 @@ export interface WebSocket {
   /**
    * Function that registers Socket.IO event handlers. Wasp calls it once on
    * server start with the Socket.IO server instance and a context containing
-   * all app entities.
+   * all app entities. If a connected socket is authenticated, Wasp stores the
+   * user on `socket.data.user`.
    */
   fn: Reference<AnyFunction>;
   /**
@@ -477,7 +531,12 @@ export interface Route extends BasePart<"route"> {
  * @category Parts
  */
 export interface Query extends BasePart<"query"> {
-  /** Reference to the Query's NodeJS implementation. */
+  /**
+   * Reference to the Query's NodeJS implementation. The implementation can be
+   * async and receives two positional arguments: the caller-provided `args`
+   * payload and a Wasp-provided `context` containing declared entities and,
+   * when auth is enabled for the Query, the current user.
+   */
   fn: Reference<AnyFunction>;
   /**
    * Entities the query reads from. Wasp injects a Prisma delegate for each
@@ -504,7 +563,12 @@ export interface Query extends BasePart<"query"> {
  * @category Parts
  */
 export interface Action extends BasePart<"action"> {
-  /** Reference to the Action's NodeJS implementation. */
+  /**
+   * Reference to the Action's NodeJS implementation. The implementation can be
+   * async and receives two positional arguments: the caller-provided `args`
+   * payload and a Wasp-provided `context` containing declared entities and,
+   * when auth is enabled for the Action, the current user.
+   */
   fn: Reference<AnyFunction>;
   /**
    * Entities the action operates on. Wasp injects a Prisma delegate for each
@@ -552,9 +616,9 @@ export interface Api extends BasePart<"api"> {
   entities?: EntityName[];
   /**
    * If `true`, the handler requires the request to come from an
-   * authenticated user. Defaults to `true` when the app has auth enabled,
-   * and `false` otherwise. Set to `false` to skip parsing the JWT from the
-   * Authorization header.
+   * authenticated user and receives `context.user`. Defaults to `true` when
+   * the app has auth enabled, and `false` otherwise. Set to `false` to skip
+   * parsing the JWT from the Authorization header.
    */
   auth?: boolean;
 }
@@ -637,7 +701,10 @@ export interface Schedule {
   cron: string;
   /** Arguments passed to the worker function on each scheduled run. */
   args?: object;
-  /** Executor-specific options applied only to scheduled runs. */
+  /**
+   * Executor-specific options applied only to scheduled runs. These override
+   * or extend {@link Job.performExecutorOptions}.
+   */
   executorOptions?: ExecutorOptions;
 }
 
@@ -645,7 +712,7 @@ export interface Schedule {
  * Executor-specific options.
  *
  * The `pgBoss` field is forwarded as-is to the matching pg-boss API. See
- * the [pg-boss docs](https://github.com/timgit/pg-boss/blob/master/docs/readme.md)
+ * the [pg-boss send options docs](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#sendname-data-options)
  * for the supported keys.
  */
 export interface ExecutorOptions {
@@ -674,7 +741,8 @@ export interface Crud extends BasePart<"crud"> {
  * Mapping of CRUD operations to their options.
  *
  * Each key enables the matching operation; an empty object enables it with
- * Wasp's defaults.
+ * Wasp's defaults. Default `get`, `update`, and `delete` implementations use
+ * the field marked with `@id` in the Prisma schema as the entity ID.
  */
 export interface CrudOperations
   extends Partial<Record<CrudOperation, CrudOperationOptions>> {}
@@ -699,6 +767,12 @@ export interface CrudOperationOptions {
    * Reference to a custom implementation that replaces Wasp's auto-generated
    * one. Use this when you need custom business logic for an operation (e.g.
    * attaching `userId` on `create`).
+   *
+   * The override receives the caller-provided `args` payload and a
+   * Wasp-provided `context` containing the current user and the entity being
+   * operated on. Use an override to validate or filter input before saving it;
+   * the default `create` and `update` implementations pass client-sent data to
+   * Prisma.
    */
   overrideFn?: Reference<AnyFunction>;
 }
@@ -706,7 +780,11 @@ export interface CrudOperationOptions {
 /**
  * One of the app's entity names, matching a model in `schema.prisma`.
  */
-export type EntityName = string;
+export type EntityName = keyof Entities extends never
+  ? string
+  : Extract<keyof Entities, string>;
+
+type Entities = FromRegister<"entities", {}>;
 
 /**
  * A reference to your app's code. Prefer importing the value with
@@ -738,10 +816,8 @@ export type {
 
 interface BasePart<Kind extends string> {
   /**
-   * We don't want this to show up in the docs, because users don't need to set
-   * it manually.
-   *
-   * @hidden
+   * The internal Wasp type of this part. Used by the compiler.
+   * You should not set this field directly, instead use the dedicated constructors for each part type.
    */
   kind: Kind;
 }
