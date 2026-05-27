@@ -21,7 +21,6 @@ const darkCodeTheme = {
 const includeCurrentVersion =
   process.env.DOCS_INCLUDE_CURRENT_VERSION === "true";
 const isProduction = process.env.NODE_ENV === "production";
-const isTypedocWatchMode = process.env.TYPEDOC_WATCH === "true";
 
 const config: Config = {
   title: "Wasp",
@@ -298,7 +297,6 @@ const config: Config = {
       {
         // docusaurus-plugin-typedoc options
         sidebar: { typescript: true },
-        watch: isTypedocWatchMode,
 
         // typedoc-plugin-markdown options
         readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
