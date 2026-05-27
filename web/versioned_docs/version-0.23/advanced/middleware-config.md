@@ -40,7 +40,7 @@ You have three places where you can customize middleware:
 3. [per-path](#3-customize-per-path-middleware): this is helpful if you need to customize middleware for all methods under a given path.
    - It's helpful for things like "complex CORS requests" which may need to apply to both `OPTIONS` and `GET`, or to apply some middleware to a _set of `api` routes_.
 
-<CardLink to="../guides/configuration/cors-multiple-domains" label="guide" title="Multiple Domains CORS" description="Configure CORS to support multiple domains in your Wasp application" />
+<CardLink to="../guides/configuration/cors-multiple-domains" kind="guide" title="Multiple Domains CORS" description="Configure CORS to support multiple domains in your Wasp application" />
 
 ### Default Middleware Definitions
 

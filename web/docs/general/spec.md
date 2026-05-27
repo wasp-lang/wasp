@@ -170,4 +170,4 @@ export default app({
 
 ## Reference
 
-<CardLink to="../api/@wasp.sh/spec" label="API reference" title="@wasp.sh/spec" description="A complete overview of all the available configuration options in the Wasp Spec." />
+<CardLink to="../api/@wasp.sh/spec" kind="api" title="@wasp.sh/spec" description="A complete overview of all the available configuration options in the Wasp Spec." />

@@ -77,4 +77,4 @@ That's why we recommend setting the `DATABASE_URL` env variable in the terminal 
 
 If you are looking how to connect to a Fly.io production database, we wrote a guide on how to do that:
 
-<CardLink to="../guides/debugging/db-studio-fly-io" label="guide" title="Database Studio with Fly.io" description="Connect to your Fly.io production database and run wasp db studio" />
+<CardLink to="../guides/debugging/db-studio-fly-io" kind="guide" title="Database Studio with Fly.io" description="Connect to your Fly.io production database and run wasp db studio" />

@@ -69,7 +69,7 @@ On your server:
 
 Check out one of our step-by-step guides for more details:
 
-<CardLink to="../../guides/deployment/vps" label="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
+<CardLink to="../../guides/deployment/vps" kind="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
 
 ### Coolify
 
@@ -92,7 +92,7 @@ Check out one of our step-by-step guides for more details:
 
 Check out one of our step-by-step guides for more details:
 
-<CardLink to="../../guides/deployment/coolify" label="guide" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
+<CardLink to="../../guides/deployment/coolify" kind="guide" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
 
 ### CapRover
 
@@ -115,7 +115,7 @@ Check out one of our step-by-step guides for more details:
 
 Check out one of our step-by-step guides for more details:
 
-<CardLink to="../../guides/deployment/caprover" label="guide" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
+<CardLink to="../../guides/deployment/caprover" kind="guide" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
 
 ## Database setup
 
