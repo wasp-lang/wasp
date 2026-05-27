@@ -8,7 +8,7 @@ import { FromRegister } from "./register.js";
  * Root shape of a Wasp app specification.
  *
  * Pass an `App` to the {@link app} constructor and `export default` the
- * result from `main.wasp.ts`.
+ * result from `main.wasp.ts`. [Check something](https://wasp.sh/docs/general/speasasdc#creating-the-app-specification)
  *
  * @category Spec
  *
@@ -198,8 +198,9 @@ export interface LocalAuthMethods {
  * [Social Auth overview](https://wasp.sh/docs/auth/social-auth/overview) for
  * details on each provider.
  */
-export interface ExternalAuthMethods
-  extends Partial<Record<SocialAuthMethodName, SocialAuthConfig>> {}
+export interface ExternalAuthMethods extends Partial<
+  Record<SocialAuthMethodName, SocialAuthConfig>
+> {}
 
 /**
  * Supported social auth providers.
@@ -779,8 +780,9 @@ export interface Crud extends BasePart<"crud"> {
  * CRUD operations are implemented with Wasp queries and actions. See
  * [Operations](https://wasp.sh/docs/data-model/operations/overview).
  */
-export interface CrudOperations
-  extends Partial<Record<CrudOperation, CrudOperationOptions>> {}
+export interface CrudOperations extends Partial<
+  Record<CrudOperation, CrudOperationOptions>
+> {}
 
 /**
  * Operations a {@link Crud} can generate.
