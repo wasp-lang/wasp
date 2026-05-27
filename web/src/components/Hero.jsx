@@ -200,7 +200,7 @@ const Hero = () => {
             <p className="mt-6 max-w-[460px] text-base leading-[1.75] text-wasp-g6">
               React, Node.js, and Prisma — wired together with auth, jobs, and
               deployment built in. Ship in a day and own every line.
-              <span className="font-bold block mt-1">
+              <span className="mt-1 block font-bold">
                 Designed for humans, works beautifully with AI.
               </span>
             </p>

@@ -4,7 +4,8 @@ const properties = [
     body: (
       <>
         A uniquely powerful config layer serves as a backbone that connects all
-        parts of the stack - <strong>frontend, backend, database, and deployment</strong>.
+        parts of the stack -{" "}
+        <strong>frontend, backend, database, and deployment</strong>.
       </>
     ),
   },
@@ -12,8 +13,8 @@ const properties = [
     title: "Batteries: Included",
     body: (
       <>
-        <strong>Like Rails and Laravel</strong>, focus on your app, not your framework. Auth,
-        jobs, email, deploy and much more built in.
+        <strong>Like Rails and Laravel</strong>, focus on your app, not your
+        framework. Auth, jobs, email, deploy and much more built in.
       </>
     ),
   },
@@ -21,7 +22,8 @@ const properties = [
     title: "Fully Yours",
     body: (
       <>
-        Open source, no lock-in. No third-party provider or cloud platform dependency. <strong>Host anywhere</strong>.
+        Open source, no lock-in. No third-party provider or cloud platform
+        dependency. <strong>Host anywhere</strong>.
       </>
     ),
   },
