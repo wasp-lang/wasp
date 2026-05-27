@@ -96,10 +96,6 @@ export interface Wasp {
  * If hooks are async, Wasp awaits them. All hooks receive `prisma` and `req`
  * in their input. Hook return values are ignored except for
  * {@link AuthHooks.onBeforeOAuthRedirect}, which can change the redirect URL.
- * Hooks that receive `providerId` get `{ providerName, providerUserId }`.
- * `providerName` identifies the auth method, such as `"email"` or `"google"`.
- * `providerUserId` is the user's stable ID within that provider, such as an
- * email address for email auth or the OAuth provider's user ID.
  */
 export interface Auth extends AuthHooks {
   /**
