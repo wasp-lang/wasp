@@ -360,7 +360,7 @@ export default app({
 })
 ```
 
-The `api` function accepts the following arguments and options:
+The `api` function accepts `method`, `path`, and `fn` as positional arguments, plus an optional config object:
 
 - `method: HttpMethod` <Required />
 
@@ -368,20 +368,22 @@ The `api` function accepts the following arguments and options:
 
 - `path: string` <Required />
 
-  An Express path string.
+  An Express route path string.
 
 - `fn`: [`Reference`](../general/spec.md#reference-imports) <Required />
 
-  The API's NodeJS implementation imported with `with { type: "ref" }`.
+  A reference to the API's NodeJS implementation.
+
+The config object accepts the following fields:
 
 - `entities: EntityName[]`
 
   A list of entities you wish to use inside your API. You can read more about it [here](#using-entities-in-apis).
 
-- `auth: bool`
+- `auth: boolean`
 
   If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you should set this to `false`.
 
 - `middlewareConfigFn`: [`Reference`](../general/spec.md#reference-imports)
 
-  The import statement to an Express middleware config function for this API. See more in [middleware section](../advanced/middleware-config) of the docs.
+  A reference to an Express middleware config function for this API. See more in the [middleware section](../advanced/middleware-config) of the docs.

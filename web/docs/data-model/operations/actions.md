@@ -542,7 +542,7 @@ Declare an Action with `action(fn, config)`:
 
 - `fn`: [`Reference`](../../general/spec.md#reference-imports) <Required />
 
-  The Action's Node.js implementation. Import it from your app source with `with { type: "ref" }` and pass the imported value as the first argument.
+  A reference to the Action's Node.js implementation.
 
 - `config.entities: EntityName[]`
 

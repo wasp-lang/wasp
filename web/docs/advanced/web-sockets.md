@@ -341,6 +341,6 @@ The `webSocket` object has the following fields:
 
   The function that defines the WebSocket events and handlers.
 
-- `autoConnect: bool`
+- `autoConnect: boolean`
 
   Whether to automatically connect to the WebSocket server. Default: `true`.

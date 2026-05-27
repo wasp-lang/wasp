@@ -518,7 +518,7 @@ Use one of the following commands to run the seed functions:
 
 - `wasp db seed <seed-name>`
 
-  This command runs the seed function with the specified name. The name is the identifier used in its `import` expression in the `db.seeds` list.
+  This command runs the seed function with the specified name. Wasp derives this name from the imported function name you list in `db.seeds`.
   For example, to run the seed function `devSeedSimple` which was defined like this:
 
   <Tabs groupId="js-ts">

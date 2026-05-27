@@ -127,7 +127,7 @@ export default app({
 You can only use `authRequired` if your app uses one of the [available auth methods](#available-auth-methods).
 :::
 
-If `authRequired` is set to `true`, the page's React component (specified by the `component` property) receives the `user` object as a prop. Read more about the `user` object in the [Accessing the logged-in user section](#accessing-the-logged-in-user).
+If `authRequired` is set to `true`, the page's React component (passed as the first argument to `page(...)`) receives the `user` object as a prop. Read more about the `user` object in the [Accessing the logged-in user section](#accessing-the-logged-in-user).
 
 ## Logout action
 

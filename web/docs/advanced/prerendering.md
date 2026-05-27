@@ -154,7 +154,7 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 
 ## API reference
 
-### `prerender` field on `route`
+### `prerender` route config option
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from '@wasp.sh/spec'
@@ -170,7 +170,7 @@ export default app({
 })
 ```
 
-`prerender` is an optional boolean field on the `route` declaration.
+`prerender` is an optional boolean field in the config object passed as the fourth argument to `route(...)`.
 
 When set to `true`, Wasp prerenders the route's page component at build time, producing a static HTML file for that path.
 

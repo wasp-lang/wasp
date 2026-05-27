@@ -513,7 +513,7 @@ Declare a Query with `query(fn, config)`:
 
 - `fn`: [`Reference`](../../general/spec.md#reference-imports) <Required />
 
-  The Query's Node.js implementation. Import it from your app source with `with { type: "ref" }` and pass the imported value as the first argument.
+  A reference to the Query's Node.js implementation.
 
 - `config.entities: EntityName[]`
 
