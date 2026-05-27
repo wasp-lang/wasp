@@ -59,7 +59,7 @@ const HowItWorks = () => {
             <dl className="grid grid-cols-12 gap-y-4 md:gap-8">
               <Feature
                 title="Simple config in TypeScript"
-                url="/docs/general/spec"
+                url="/docs/general/wasp-ts-config"
                 description="Declaratively describe high-level details of your app."
               />
 

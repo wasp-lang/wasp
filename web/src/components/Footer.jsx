@@ -14,7 +14,7 @@ const docs = [
   },
   {
     text: "Wasp Spec reference",
-    url: "/docs/general/spec",
+    url: "/docs/general/wasp-ts-config",
   },
 ];
 
