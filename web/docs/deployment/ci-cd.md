@@ -83,7 +83,7 @@ The most common way to package your app for deployment is using Docker images. T
 **To build the app as a Docker image**, you'll need to:
 
 1. Install Docker in the CD environment.
-2. Build the app with `wasp build`.
+2. Install dependencies with `wasp install` and build the app with `wasp build`.
 3. Build the Docker image and push it to a Docker registry:
    - for our server app
    - for our client app
@@ -109,9 +109,9 @@ Let's go through the [deploy.yml](https://gist.github.com/infomiho/ad6fade739649
 
    We are using the `docker/metadata-action` action to prepare some extra info that we'll use later in the deployment process.
 
-3. Next, we **build the Wasp app** with `wasp build`.
+3. Next, we **install dependencies** with `wasp install` and **build the Wasp app** with `wasp build`.
 
-   This gives our server and the client app in the `.wasp/out` folder.
+   This creates our server and the client app in the `.wasp/out` folder.
 
 4. Then, we **package the server app** into a Docker image and **push it to the GHCR**.
 
@@ -131,7 +131,7 @@ Wasp's client app is a single page application (SPA) which you build into static
 
 **To deploy the client app as static files**, you'll need to:
 
-1. Build the app with `wasp build` in the CD environment.
+1. Install dependencies with `wasp install` and build the app with `wasp build` in the CD environment.
 2. Build the client app with `npx vite build`.
 3. Upload the static files (from `.wasp/out/web-app/build`) to your hosting provider.
 

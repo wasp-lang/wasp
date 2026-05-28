@@ -1,8 +1,8 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
-  Netlify: 2026-04-06
+  Wasp: "0.24"
+  Netlify: 2026-05-28
 ---
 
 import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
@@ -19,15 +19,13 @@ First, make sure you have [built the Wasp app](../../../deployment/deployment-me
 
 <BuildingTheWebClient />
 
-Before deploying, you need to create a `netlify.toml` file in your project root to configure Netlify for building and deploying your Wasp app. This file tells Netlify where to find the web app and configures URL redirects for SPA routing.
+Before deploying, you need to create a `netlify.toml` file in your project root to tell Netlify where to find the built client and to configure URL redirects for SPA routing.
 
 Create the `netlify.toml` file with the following content:
 
 ```toml title="netlify.toml"
 [build]
-  base = "./.wasp/out/web-app"
-  publish = "./build"
-  command = "exit 0"
+  publish = "./.wasp/out/web-app/build"
 
 # By default, Netlify only redirects when a path doesn't match an existing file.
 # See: https://docs.netlify.com/manage/routing/redirects/rewrites-proxies/#shadowing
@@ -37,24 +35,22 @@ Create the `netlify.toml` file with the following content:
   status = 200
 ```
 
-The `build.base` path should point from your Git repository root to the `web-app` directory. Adjust the path if your Wasp project is in a subdirectory (e.g., `base = "./my-app/.wasp/out/web-app"`).
-
-The `build.command` is set to `exit 0` because the client is already built with the client environment variables.
+The `build.publish` path should point from the directory containing `netlify.toml` to the built client output. Adjust the path if your Wasp project is in a subdirectory (e.g., `publish = "./my-app/.wasp/out/web-app/build"`).
 
 We can now deploy the client with:
 
 ```shell
-npx netlify-cli deploy
+npx netlify-cli deploy --filter wasp --no-build
 ```
 
 <small>
-  Carefully follow the instructions: decide if you want to create a new app or use an existing one, pick the team under which your app will be deployed etc.
+  Carefully follow the instructions: decide if you want to create a new app or use an existing one, pick the team under which your app will be deployed etc. Netlify CLI detects Wasp's generated server and SDK packages as workspaces, so `--filter wasp` makes that selection explicit. The `build.publish` setting still determines which files Netlify uploads. The `--no-build` flag is used because you already built the client with the right environment variables.
 </small>
 
 The final step is to run:
 
 ```shell
-npx netlify-cli deploy --prod
+npx netlify-cli deploy --prod --filter wasp --no-build
 ```
 
 That is it! Your client should be live at `https://<app-name>.netlify.app`.
@@ -63,14 +59,14 @@ That is it! Your client should be live at `https://<app-name>.netlify.app`.
 Make sure you set the `https://<app-name>.netlify.app` URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
 :::
 
-### Deploying through Github Actions
+### Deploying through GitHub Actions
 
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
 Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Netlify whenever changes are pushed to the main branch.
 
 <details>
-  <summary>Example Github Action</summary>
+  <summary>Example GitHub Action</summary>
 
   ```yaml
   name: Deploy Client to Netlify
@@ -97,6 +93,9 @@ Here's an example configuration file to help you get started. This example workf
         - name: Install Wasp
           run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
 
+        - name: Wasp Install
+          run: wasp install
+
         - name: Wasp Build
           run: wasp build
 
@@ -105,11 +104,11 @@ Here's an example configuration file to help you get started. This example workf
 
         - name: Deploy to Netlify
           run: |
-            npx netlify-cli deploy --prod --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_NAME
+            npx netlify-cli deploy --prod --auth=$NETLIFY_AUTH_TOKEN --site=$NETLIFY_SITE_ID --filter wasp --no-build
 
       env:
         NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_NAME: netlify-site-name
+        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
   ```
 </details>
 
@@ -118,7 +117,7 @@ Here's an example configuration file to help you get started. This example workf
 
   - **`NETLIFY_AUTH_TOKEN`**: For the auth token, you'll generate a new Personal Access Token on [Netlify](https://docs.netlify.com/cli/get-started/#obtain-a-token-in-the-netlify-ui).
 
-  - **`NETLIFY_SITE_NAME`**: This is the name of your Netlify project.
+  - **`NETLIFY_SITE_ID`**: This is the ID of your Netlify project.
 
   - **`WASP_SERVER_URL`**: This is your server's URL and is generally only available after **deploying the backend**. This variable can be skipped when the backend is not functional or not deployed, but be aware that backend-dependent functionalities may be broken.
 
