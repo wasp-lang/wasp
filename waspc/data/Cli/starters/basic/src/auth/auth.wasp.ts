@@ -6,7 +6,7 @@ import { RequestPasswordResetPage } from "./email/RequestPasswordResetPage" with
 import { SignupPage } from "./email/SignupPage" with { type: "ref" };
 import { userSignupFields } from "./email/userSignupFields" with { type: "ref" };
 
-export const auth: Auth = {
+export const authConfig: Auth = {
   userEntity: "User",
   methods: {
     email: {
@@ -27,7 +27,7 @@ export const auth: Auth = {
   onAuthFailedRedirectTo: "/login",
 };
 
-export const authParts: Part[] = [
+export const auth: Part[] = [
   route("LoginRoute", "/login", page(LoginPage)),
   route("SignupRoute", "/signup", page(SignupPage)),
   route(

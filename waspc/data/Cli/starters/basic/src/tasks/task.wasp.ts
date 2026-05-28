@@ -7,7 +7,7 @@ import {
 import { getTasks } from "./queries" with { type: "ref" };
 import { TasksPage } from "./TasksPage" with { type: "ref" };
 
-export const tasksParts: Part[] = [
+export const tasks: Part[] = [
   route("TasksRoute", "/", page(TasksPage, { authRequired: true })),
   query(getTasks, { entities: ["Task", "Tag"] }),
   action(createTask, { entities: ["Task"] }),
