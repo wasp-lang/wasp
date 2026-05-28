@@ -8,6 +8,10 @@ comments: true
 
 This guide shows you how to connect to your production database on Fly.io and run `wasp db studio` to inspect or modify your data.
 
+:::warning Working with production data
+You are about to point your local tooling at the live production database. Make sure to understand the [Security Considerations](#security-considerations) before proceeding.
+:::
+
 ## Prerequisites
 
 - A Wasp app deployed to [Fly.io](https://fly.io/)
@@ -64,7 +68,7 @@ Before opening the tunnel, make sure nothing else is running on port 5432:
 - Stop any local database started with `wasp db start`
 - Check for Docker containers that might be using the port
 
-:::caution
+:::warning Background processes
 Even if you close the terminal that was running `wasp db start`, the Docker container may still be running in the background. Make sure to stop it before proceeding.
 :::
 
@@ -108,6 +112,7 @@ This will open a web interface where you can view and modify your database recor
 Be careful when modifying production data. Always back up your database before making changes, and consider using a read-only user for routine inspections.
 :::
 
+- **Any changes you make to production data is immediate** and may be hard to undo
 - Remember to restore your `.env.server` to point to your local database when you're done
 - Close the tunnel when finished by terminating the `fly proxy` command
 - Never commit production credentials to version control
