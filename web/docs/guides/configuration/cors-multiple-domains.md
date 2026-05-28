@@ -2,7 +2,7 @@
 title: Multiple Domains CORS
 comments: true
 last_checked_with_versions:
-  Wasp: "0.21"
+  Wasp: "0.24"
 ---
 
 # Multiple Domains CORS

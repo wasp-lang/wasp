@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   multer: "2.1.1"
 ---
 
@@ -47,7 +47,7 @@ Create the middleware configuration and upload handler:
 
 ```ts title="src/apis.ts" auto-js
 import type { MiddlewareConfigFn } from "wasp/server";
-import type { FileUpload } from "wasp/server/api";
+import type { UploadFile } from "wasp/server/api";
 import multer from "multer";
 
 const upload = multer({ dest: "uploads/" });
@@ -57,7 +57,7 @@ export const configureFileUploadMiddleware: MiddlewareConfigFn = (config) => {
   return config;
 };
 
-export const uploadFile: FileUpload = (req, res) => {
+export const uploadFile: UploadFile = (req, res) => {
   console.log(req.body);
   console.log(req.file);
   const file = req.file!;
@@ -85,7 +85,9 @@ export const MainPage = () => {
     const formData = new FormData();
     formData.append("name", name);
     formData.append("file", file);
-    const { data } = await api.post("/api/upload", formData);
+    const data = await api
+      .post("/api/upload", { body: formData })
+      .json<{ fileExists: boolean }>();
     alert(JSON.stringify(data, null, 2));
   };
 
