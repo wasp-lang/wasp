@@ -1,6 +1,7 @@
 import Head from "@docusaurus/Head";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 
+import AI from "../components/AI";
 import ExampleWaspApps from "../components/ExampleWaspApps";
 import Faq from "../components/Faq.jsx";
 import FeaturesExplorer from "../components/FeaturesExplorer";
@@ -51,6 +52,7 @@ const Index = () => {
             <Hero />
             <Properties />
             <FeaturesExplorer />
+            <AI />
             <HowItWorks />
             <ExampleWaspApps />
             <Testimonials />
