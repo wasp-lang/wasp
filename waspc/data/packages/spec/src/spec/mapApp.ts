@@ -1,20 +1,20 @@
 /**
  * This module maps the TsAppSpec-facing API to the internal representation of
- * the app (OutputSpec.Decl).
+ * the app ({@link OutputAppSpec.Decl})
  * All of the mapping functions are exported so that they can be individually
  * tested.
  */
 
-import * as OutputSpec from "../appSpec.js";
+import * as OutputAppSpec from "../appSpec.js";
 import type { AnyFunction } from "../typeUtils.js";
 import { mapExtImport } from "./extImport.js";
-import * as InputSpec from "./publicApi/tsAppSpec.js";
+import * as InputAppSpec from "./publicApi/tsAppSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
 export function mapApp(
-  appInput: InputSpec.App,
+  appInput: InputAppSpec.App,
   entityNames: string[],
-): OutputSpec.Decl[] {
+): OutputAppSpec.Decl[] {
   const {
     name,
     wasp,
@@ -124,7 +124,7 @@ export function mapApp(
     },
   };
 
-  return transformOutputDecls({
+  return ensureAllOutputDecls({
     App: [appOutput],
     Page: dedupePageDecls([...pagesOutput, ...routePagesOutputs]),
     Route: routesOutput,
@@ -137,7 +137,7 @@ export function mapApp(
   });
 }
 
-export function mapPage(page: InputSpec.Page): OutputSpec.Page {
+export function mapPage(page: InputAppSpec.Page): OutputAppSpec.Page {
   const { component, authRequired } = page;
   return {
     component: mapExtImport(component),
@@ -145,7 +145,7 @@ export function mapPage(page: InputSpec.Page): OutputSpec.Page {
   };
 }
 
-export function mapRoute(route: InputSpec.Route): OutputSpec.Route {
+export function mapRoute(route: InputAppSpec.Route): OutputAppSpec.Route {
   const { path, prerender, lazy } = route;
   return {
     path,
@@ -159,16 +159,16 @@ export function mapRoute(route: InputSpec.Route): OutputSpec.Route {
 }
 
 /**
- * {@link InputSpec.Route} through it's constructor can either:
- * - Create a new {@link InputSpec.Page}.
- * - Reference an existing {@link InputSpec.Page}.
+ * {@link InputAppSpec.Route} through it's constructor can either:
+ * - Create a new {@link InputAppSpec.Page}.
+ * - Reference an existing {@link InputAppSpec.Page}.
  *
  * In case when it references an existing page, we don't want to
- * count the reference as a separate {@link OutputSpec.Page} declaration.
+ * count the reference as a separate {@link OutputAppSpec.Page} declaration.
  */
 export function dedupePageDecls(
-  decls: OutputSpec.GetDeclForType<"Page">[],
-): OutputSpec.GetDeclForType<"Page">[] {
+  decls: OutputAppSpec.GetDeclForType<"Page">[],
+): OutputAppSpec.GetDeclForType<"Page">[] {
   const pagesByDeclName = Map.groupBy(decls, (decls) => decls.declName);
   return Array.from(pagesByDeclName.values()).map((pages) =>
     pages.reduce((firstPage, currentPage) => {
@@ -187,8 +187,8 @@ export function dedupePageDecls(
 }
 
 function arePageDeclsEqual(
-  page1: OutputSpec.GetDeclForType<"Page">,
-  page2: OutputSpec.GetDeclForType<"Page">,
+  page1: OutputAppSpec.GetDeclForType<"Page">,
+  page2: OutputAppSpec.GetDeclForType<"Page">,
 ): boolean {
   const isSameCanonicalPage = page1.declName === page2.declName;
   return (
@@ -198,9 +198,9 @@ function arePageDeclsEqual(
 }
 
 export function mapQuery(
-  query: InputSpec.Query,
+  query: InputAppSpec.Query,
   entityRefParser: RefParser<"Entity">,
-): OutputSpec.Query {
+): OutputAppSpec.Query {
   const { fn, entities, auth } = query;
   return {
     fn: mapExtImport(fn),
@@ -210,9 +210,9 @@ export function mapQuery(
 }
 
 export function mapAction(
-  action: InputSpec.Action,
+  action: InputAppSpec.Action,
   entityRefParser: RefParser<"Entity">,
-): OutputSpec.Action {
+): OutputAppSpec.Action {
   const { fn, entities, auth } = action;
   return {
     fn: mapExtImport(fn),
@@ -222,10 +222,10 @@ export function mapAction(
 }
 
 export function mapAuth(
-  auth: InputSpec.Auth,
+  auth: InputAppSpec.Auth,
   entityRefParser: RefParser<"Entity">,
   routeRefParser: RefParser<"Route">,
-): OutputSpec.Auth {
+): OutputAppSpec.Auth {
   const {
     userEntity,
     methods,
@@ -255,9 +255,9 @@ export function mapAuth(
 }
 
 export function mapAuthMethods(
-  methods: InputSpec.AuthMethods,
+  methods: InputAppSpec.AuthMethods,
   routeRefParser: RefParser<"Route">,
-): OutputSpec.AuthMethods {
+): OutputAppSpec.AuthMethods {
   const {
     usernameAndPassword,
     slack,
@@ -282,8 +282,8 @@ export function mapAuthMethods(
 }
 
 export function mapUsernameAndPassword(
-  usernameAndPassword: InputSpec.UsernameAndPasswordConfig,
-): OutputSpec.UsernameAndPasswordConfig {
+  usernameAndPassword: InputAppSpec.UsernameAndPasswordConfig,
+): OutputAppSpec.UsernameAndPasswordConfig {
   const { userSignupFields } = usernameAndPassword;
   return {
     userSignupFields: userSignupFields && mapExtImport(userSignupFields),
@@ -291,8 +291,8 @@ export function mapUsernameAndPassword(
 }
 
 export function mapSocialAuth(
-  socialAuth: InputSpec.SocialAuthConfig,
-): OutputSpec.ExternalAuthConfig {
+  socialAuth: InputAppSpec.SocialAuthConfig,
+): OutputAppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = socialAuth;
   return {
     configFn: configFn && mapExtImport(configFn),
@@ -301,9 +301,9 @@ export function mapSocialAuth(
 }
 
 export function mapEmailAuth(
-  emailAuth: InputSpec.EmailAuthConfig,
+  emailAuth: InputAppSpec.EmailAuthConfig,
   routeRefParser: RefParser<"Route">,
-): OutputSpec.EmailAuthConfig {
+): OutputAppSpec.EmailAuthConfig {
   const { userSignupFields, fromField, emailVerification, passwordReset } =
     emailAuth;
   return {
@@ -315,9 +315,9 @@ export function mapEmailAuth(
 }
 
 export function mapEmailFlow(
-  emailFlow: InputSpec.EmailFlowConfig,
+  emailFlow: InputAppSpec.EmailFlowConfig,
   routeRefParser: RefParser<"Route">,
-): OutputSpec.EmailVerificationConfig {
+): OutputAppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailFlow;
   return {
     getEmailContentFn: getEmailContentFn && mapExtImport(getEmailContentFn),
@@ -326,9 +326,9 @@ export function mapEmailFlow(
 }
 
 export function mapApi(
-  api: InputSpec.Api,
+  api: InputAppSpec.Api,
   entityRefParser: RefParser<"Entity">,
-): OutputSpec.Api {
+): OutputAppSpec.Api {
   const { method, path, fn, middlewareConfigFn, entities, auth } = api;
   return {
     fn: mapExtImport(fn),
@@ -340,8 +340,8 @@ export function mapApi(
 }
 
 export function mapApiNamespace(
-  apiNamespace: InputSpec.ApiNamespace,
-): OutputSpec.ApiNamespace {
+  apiNamespace: InputAppSpec.ApiNamespace,
+): OutputAppSpec.ApiNamespace {
   const { middlewareConfigFn, path } = apiNamespace;
   return {
     middlewareConfigFn: mapExtImport(middlewareConfigFn),
@@ -349,7 +349,7 @@ export function mapApiNamespace(
   };
 }
 
-export function mapServer(server: InputSpec.Server): OutputSpec.Server {
+export function mapServer(server: InputAppSpec.Server): OutputAppSpec.Server {
   const { setupFn, middlewareConfigFn, envValidationSchema } = server;
   return {
     setupFn: setupFn && mapExtImport(setupFn),
@@ -359,7 +359,7 @@ export function mapServer(server: InputSpec.Server): OutputSpec.Server {
   };
 }
 
-export function mapClient(client: InputSpec.Client): OutputSpec.Client {
+export function mapClient(client: InputAppSpec.Client): OutputAppSpec.Client {
   const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
   return {
     rootComponent: rootComponent && mapExtImport(rootComponent),
@@ -370,7 +370,7 @@ export function mapClient(client: InputSpec.Client): OutputSpec.Client {
   };
 }
 
-export function mapDb(db: InputSpec.Db): OutputSpec.Db {
+export function mapDb(db: InputAppSpec.Db): OutputAppSpec.Db {
   const { seeds, prismaSetupFn } = db;
   return {
     seeds: seeds?.map(mapExtImport),
@@ -379,8 +379,8 @@ export function mapDb(db: InputSpec.Db): OutputSpec.Db {
 }
 
 export function mapEmailSender(
-  emailSender: InputSpec.EmailSender,
-): OutputSpec.EmailSender {
+  emailSender: InputAppSpec.EmailSender,
+): OutputAppSpec.EmailSender {
   const { provider, defaultFrom } = emailSender;
   return {
     provider,
@@ -389,8 +389,8 @@ export function mapEmailSender(
 }
 
 export function mapEmailFromField(
-  emailFromField: InputSpec.EmailFromField,
-): OutputSpec.EmailFromField {
+  emailFromField: InputAppSpec.EmailFromField,
+): OutputAppSpec.EmailFromField {
   return {
     name: emailFromField.name,
     email: emailFromField.email,
@@ -398,8 +398,8 @@ export function mapEmailFromField(
 }
 
 export function mapWebSocket(
-  webSocket: InputSpec.WebSocket,
-): OutputSpec.WebSocket {
+  webSocket: InputAppSpec.WebSocket,
+): OutputAppSpec.WebSocket {
   const { fn, autoConnect } = webSocket;
   return {
     fn: mapExtImport(fn),
@@ -408,9 +408,9 @@ export function mapWebSocket(
 }
 
 export function mapJob(
-  job: InputSpec.Job,
+  job: InputAppSpec.Job,
   entityRefParser: RefParser<"Entity">,
-): OutputSpec.Job {
+): OutputAppSpec.Job {
   const { fn, executor, schedule, entities, performExecutorOptions } = job;
   return {
     executor,
@@ -424,9 +424,9 @@ export function mapJob(
 }
 
 export function mapCrud(
-  crud: InputSpec.Crud,
+  crud: InputAppSpec.Crud,
   entityRefParser: RefParser<"Entity">,
-): OutputSpec.Crud {
+): OutputAppSpec.Crud {
   const { entity, operations } = crud;
   return {
     entity: entityRefParser(entity),
@@ -435,8 +435,8 @@ export function mapCrud(
 }
 
 export function mapCrudOperations(
-  operations: InputSpec.CrudOperations,
-): OutputSpec.CrudOperations {
+  operations: InputAppSpec.CrudOperations,
+): OutputAppSpec.CrudOperations {
   const { get, getAll, create, update, delete: del } = operations;
   return {
     get: get && mapCrudOperationOptions(get),
@@ -448,8 +448,8 @@ export function mapCrudOperations(
 }
 
 export function mapCrudOperationOptions(
-  options: InputSpec.CrudOperationOptions,
-): OutputSpec.CrudOperationOptions {
+  options: InputAppSpec.CrudOperationOptions,
+): OutputAppSpec.CrudOperationOptions {
   const { isPublic, overrideFn } = options;
   return {
     isPublic,
@@ -457,7 +457,9 @@ export function mapCrudOperationOptions(
   };
 }
 
-export function mapSchedule(schedule: InputSpec.Schedule): OutputSpec.Schedule {
+export function mapSchedule(
+  schedule: InputAppSpec.Schedule,
+): OutputAppSpec.Schedule {
   const { cron, args, executorOptions } = schedule;
   return {
     cron,
@@ -466,15 +468,15 @@ export function mapSchedule(schedule: InputSpec.Schedule): OutputSpec.Schedule {
   };
 }
 
-export type RefParser<T extends OutputSpec.DeclType> = (
+export type RefParser<T extends OutputAppSpec.DeclType> = (
   name: string,
-) => OutputSpec.Ref<T>;
+) => OutputAppSpec.Ref<T>;
 
-export function makeRefParser<T extends OutputSpec.DeclType>(
+export function makeRefParser<T extends OutputAppSpec.DeclType>(
   declType: T,
   declNames: string[],
 ): RefParser<T> {
-  return function parseRef(potentialRef: string): OutputSpec.Ref<T> {
+  return function parseRef(potentialRef: string): OutputAppSpec.Ref<T> {
     if (!declNames.includes(potentialRef)) {
       throw new SpecUserError(
         `Invalid \`${declType}\` reference: \`${potentialRef}\`\n` +
@@ -488,23 +490,23 @@ export function makeRefParser<T extends OutputSpec.DeclType>(
   };
 }
 
-function extractInputDecls<Kind extends InputSpec.Decl["kind"]>(
+function extractInputDecls<Kind extends InputAppSpec.Decl["kind"]>(
   id: Kind,
-  decls: InputSpec.Decl[],
+  decls: InputAppSpec.Decl[],
 ): GetInputDeclForKind<Kind>[] {
   return decls.filter((p): p is GetInputDeclForKind<Kind> => p.kind === id);
 }
 
-type GetInputDeclForKind<Kind extends InputSpec.Decl["kind"]> = Extract<
-  InputSpec.Decl,
+type GetInputDeclForKind<Kind extends InputAppSpec.Decl["kind"]> = Extract<
+  InputAppSpec.Decl,
   { kind: Kind }
 >;
 
-function mapDecls<T, DeclType extends OutputSpec.Decl["declType"]>(
+function mapDecls<T, DeclType extends OutputAppSpec.Decl["declType"]>(
   items: T[],
   declType: DeclType,
   deriveName: (item: T) => string,
-  mapValue: (item: T) => OutputSpec.GetDeclForType<DeclType>["declValue"],
+  mapValue: (item: T) => OutputAppSpec.GetDeclForType<DeclType>["declValue"],
 ) {
   return items.map((item) => ({
     declType,
@@ -514,7 +516,7 @@ function mapDecls<T, DeclType extends OutputSpec.Decl["declType"]>(
 }
 
 export function deriveExtImportName(
-  extImport: InputSpec.ExtImport | AnyFunction,
+  extImport: InputAppSpec.ExtImport | AnyFunction,
 ): string {
   const mappedExtImport = mapExtImport(extImport);
 
@@ -539,8 +541,8 @@ export function deriveExtImportName(
  * We'll likely lose some mapping type safety in the process though. Explore
  * when we're done with the port from legacy to the new spec.
  */
-function transformOutputDecls(decls: {
-  [Type in OutputSpec.Decl["declType"]]: OutputSpec.GetDeclForType<Type>[];
-}): OutputSpec.Decl[] {
-  return Object.values(decls).flatMap((decl) => [...decl]);
+function ensureAllOutputDecls(decls: {
+  [Type in OutputAppSpec.Decl["declType"]]: OutputAppSpec.GetDeclForType<Type>[];
+}): OutputAppSpec.Decl[] {
+  return Object.values(decls).flat();
 }
