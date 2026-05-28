@@ -108,11 +108,9 @@ This will open a web interface where you can view and modify your database recor
 
 ## Security Considerations
 
-:::warning
-Be careful when modifying production data. Always back up your database before making changes, and consider using a read-only user for routine inspections.
-:::
-
-- **Any changes you make to production data is immediate** and may be hard or impossible to undo
+- **Any changes you make to production data are immediate** and may be hard or impossible to undo
+- **Back up your database** before making changes
+- Consider using a **read-only user** for routine inspections
 - Remember to restore your `.env.server` to point to your local database when you're done
 - Close the tunnel when finished by terminating the `fly proxy` command
 - Never commit production credentials to version control
