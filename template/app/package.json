@@ -28,6 +28,7 @@
     "@tailwindcss/forms": "^0.5.11",
     "@tailwindcss/typography": "^0.5.19",
     "apexcharts": "5.10.1",
+    "axios": "^1.4.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.525.0",
@@ -53,6 +54,7 @@
     "@types/react": "^19.2.7",
     "prisma": "5.19.1",
     "typescript": "5.9.3",
-    "vite": "^7.0.6"
+    "vite": "^7.0.6",
+    "vitest": "^4.0.16"
   }
 }
