@@ -1,12 +1,19 @@
-diff --git a/main.wasp b/main.wasp
-index f2aa7ca..aa5eef1 100644
---- a/main.wasp
-+++ b/main.wasp
-@@ -17,6 +17,7 @@ app TodoApp {
- 
- route RootRoute { path: "/", to: MainPage }
- page MainPage {
-+  authRequired: true,
-   component: import { MainPage } from "@src/MainPage"
- }
- 
+diff --git a/main.wasp.ts b/main.wasp.ts
+index 1d820cf..d558017 100644
+--- a/main.wasp.ts
++++ b/main.wasp.ts
+@@ -18,7 +18,13 @@ export default app({
+     onAuthFailedRedirectTo: "/login",
+   },
+   parts: [
+-    route("RootRoute", "/", page(MainPage)),
++    route(
++      "RootRoute",
++      "/",
++      page(MainPage, {
++        authRequired: true,
++      }),
++    ),
+     query(getTasks, { entities: ["Task"] }),
+     action(createTask, { entities: ["Task"] }),
+     action(updateTask, { entities: ["Task"] }),

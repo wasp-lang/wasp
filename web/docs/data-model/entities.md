@@ -12,11 +12,15 @@ In your project, you'll find a `schema.prisma` file in the root directory:
 
 ```
 .
-├── main.wasp
+├── main.wasp.ts
 ...
+├── package.json
+├── public
 ├── schema.prisma
 ├── src
 ├── tsconfig.json
+├── tsconfig.src.json
+├── tsconfig.wasp.json
 └── vite.config.ts
 ```
 
@@ -76,7 +80,7 @@ The above Prisma `model` definition tells Wasp to create a table for storing Tas
   Wasp also exposes a type for working with the created Entity. You can import and use it like this:
 
   ```ts
-  import { Task } from 'wasp/entities'
+  import { Task } from "wasp/entities"
 
   const task: Task = { ... }
 
@@ -133,7 +137,7 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js
-    import { prisma } from 'wasp/server'
+    import { prisma } from "wasp/server"
 
     prisma.task.create({
         description: "Read the Entities doc",
@@ -144,7 +148,7 @@ You can only use the Prisma Client in your Wasp server code. You can import it l
 
   <TabItem value="ts" label="TypeScript">
     ```ts
-    import { prisma } from 'wasp/server'
+    import { prisma } from "wasp/server"
 
     prisma.task.create({
         description: "Read the Entities doc",

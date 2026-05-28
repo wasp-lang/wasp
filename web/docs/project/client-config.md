@@ -10,28 +10,38 @@ You can configure the client using the `client` field inside the `app` declarati
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import Root from "./src/Root" with { type: "ref" }
+    import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       client: {
-        rootComponent: import Root from "@src/Root",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode"
-      }
-    }
+        rootComponent: Root,
+        setupFn: mySetupFunction,
+      },
+      // ...
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import Root from "./src/Root" with { type: "ref" }
+    import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       client: {
-        rootComponent: import Root from "@src/Root",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode"
-      }
-    }
+        rootComponent: Root,
+        setupFn: mySetupFunction,
+      },
+      // ...
+    })
     ```
   </TabItem>
 </Tabs>
@@ -51,18 +61,22 @@ Let's define a common layout for your application:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import Root from "./src/Root" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       client: {
-        rootComponent: import Root from "@src/Root",
-      }
-    }
+        rootComponent: Root,
+      },
+      // ...
+    })
     ```
 
     ```jsx title="src/Root.jsx"
-    import { Outlet } from 'react-router'
+    import { Outlet } from "react-router"
 
     export default function Root() {
       return (
@@ -82,18 +96,22 @@ Let's define a common layout for your application:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import Root from "./src/Root" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       client: {
-        rootComponent: import Root from "@src/Root",
-      }
-    }
+        rootComponent: Root,
+      },
+      // ...
+    })
     ```
 
     ```tsx title="src/Root.tsx"
-    import { Outlet } from 'react-router'
+    import { Outlet } from "react-router"
 
     export default function Root() {
       return (
@@ -121,20 +139,24 @@ This is how to set up various providers that your application needs:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import Root from "./src/Root" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       client: {
-        rootComponent: import Root from "@src/Root",
-      }
-    }
+        rootComponent: Root,
+      },
+      // ...
+    })
     ```
 
     ```jsx title="src/Root.jsx"
-    import { Outlet } from 'react-router'
-    import store from './store'
-    import { Provider } from 'react-redux'
+    import { Outlet } from "react-router"
+    import store from "./store"
+    import { Provider } from "react-redux"
 
     export default function Root() {
       return (
@@ -147,20 +169,24 @@ This is how to set up various providers that your application needs:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import Root from "./src/Root" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       client: {
-        rootComponent: import Root from "@src/Root",
-      }
-    }
+        rootComponent: Root,
+      },
+      // ...
+    })
     ```
 
     ```tsx title="src/Root.tsx"
-    import { Outlet } from 'react-router'
-    import store from './store'
-    import { Provider } from 'react-redux'
+    import { Outlet } from "react-router"
+    import store from "./store"
+    import { Provider } from "react-redux"
 
     export default function Root() {
       return (
@@ -175,7 +201,7 @@ This is how to set up various providers that your application needs:
 
 As long as you render the `Outlet` component, you can put what ever you want in the root component.
 
-Read more about the root component in the [API Reference](#rootcomponent-extimport).
+Read more about the root component in the [API Reference](#rootcomponent-reference).
 
 ## Setup Function
 
@@ -228,7 +254,7 @@ Wasp exposes a `configureQueryClient` hook that lets you configure _react-query_
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js title="src/myClientSetupCode.js"
-    import { configureQueryClient } from 'wasp/client/operations'
+    import { configureQueryClient } from "wasp/client/operations"
 
     export default async function mySetupFunction() {
       // ... some setup
@@ -246,7 +272,7 @@ Wasp exposes a `configureQueryClient` hook that lets you configure _react-query_
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/myClientSetupCode.ts"
-    import { configureQueryClient } from 'wasp/client/operations'
+    import { configureQueryClient } from "wasp/client/operations"
 
     export default async function mySetupFunction(): Promise<void> {
       // ... some setup
@@ -267,20 +293,23 @@ Make sure to pass in an object expected by the `QueryClient`'s constructor, as
 explained in
 [react-query's docs](https://tanstack.com/query/v4/docs/reference/QueryClient).
 
-Read more about the setup function in the [API Reference](#setupfn-extimport).
+Read more about the setup function in the [API Reference](#setupfn-reference).
 
 ## Base Directory
 
 If you need to serve the client from a subdirectory, you can use the `baseDir` option:
 
-```wasp title="main.wasp"
-app MyApp {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "MyApp",
   title: "My app",
-  // ...
   client: {
     baseDir: "/my-app",
-  }
-}
+  },
+  // ...
+})
 ```
 
 This means that if you serve your app from `https://example.com/my-app`, the
@@ -293,36 +322,46 @@ router will work correctly, and all the assets will be served from
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import Root from "./src/Root" with { type: "ref" }
+    import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       client: {
-        rootComponent: import Root from "@src/Root",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode"
-      }
-    }
+        rootComponent: Root,
+        setupFn: mySetupFunction,
+      },
+      // ...
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import Root from "./src/Root" with { type: "ref" }
+    import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       client: {
-        rootComponent: import Root from "@src/Root",
-        setupFn: import mySetupFunction from "@src/myClientSetupCode",
+        rootComponent: Root,
+        setupFn: mySetupFunction,
         baseDir: "/my-app",
-      }
-    }
+      },
+      // ...
+    })
     ```
   </TabItem>
 </Tabs>
 
 Client has the following options:
 
-- #### `rootComponent: ExtImport`
+- #### `rootComponent`: [`Reference`](../general/spec.md#reference-imports)
 
   `rootComponent` defines the root component of your client application. It is
   expected to be a React component, and Wasp will use it as the root of the
@@ -336,9 +375,9 @@ Client has the following options:
   <Tabs groupId="js-ts">
     <TabItem value="js" label="JavaScript">
       ```jsx title="src/Root.jsx"
-      import { Outlet } from 'react-router'
-      import store from './store'
-      import { Provider } from 'react-redux'
+      import { Outlet } from "react-router"
+      import store from "./store"
+      import { Provider } from "react-redux"
 
       export default function Root() {
         return (
@@ -367,9 +406,9 @@ Client has the following options:
 
     <TabItem value="ts" label="TypeScript">
       ```tsx title="src/Root.tsx"
-      import { Outlet } from 'react-router'
-      import store from './store'
-      import { Provider } from 'react-redux'
+      import { Outlet } from "react-router"
+      import store from "./store"
+      import { Provider } from "react-redux"
 
       export default function Root() {
         return (
@@ -397,7 +436,7 @@ Client has the following options:
     </TabItem>
   </Tabs>
 
-- #### `setupFn: ExtImport`
+- #### `setupFn`: [`Reference`](../general/spec.md#reference-imports)
 
   <ShowForTs>
     `setupFn` declares a Typescript function that Wasp executes on the client

@@ -31,21 +31,23 @@ This field tells Wasp which Entity represents the user.
 
 Here's what the full setup looks like:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
     // highlight-next-line
-    userEntity: User,
+    userEntity: "User",
     methods: {
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
+  // ...
+})
 ```
 
 ```prisma title="schema.prisma"
@@ -63,7 +65,7 @@ model User {
 
 By default, Wasp doesn't store any information it receives from the social login provider. It only stores the user's ID specific to the provider.
 
-If you wish to store more information about the user, you can override the default behavior. You can do this by defining the `userSignupFields` and `configFn` fields in `main.wasp` for each provider.
+If you wish to store more information about the user, you can override the default behavior. You can do this by defining the `userSignupFields` and `configFn` fields in `main.wasp.ts` for each provider.
 
 You can create custom signup setups, such as allowing users to define a custom username after they sign up with a social provider.
 
@@ -90,33 +92,34 @@ model User {
 
 #### 2. Overriding the Default Behavior
 
-Declare an import under `app.auth.methods.google.userSignupFields` (the example assumes you're using Google):
+Declare an import under `auth.methods.google.userSignupFields` (the example assumes you're using Google):
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { userSignupFields } from "./src/auth/google" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       google: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google"
+        userSignupFields
       }
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
-
-// ...
+  // ...
+})
 ```
 
 And implement the imported function:
 
 ```ts title="src/auth/google.ts" auto-js
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth"
 
 export const userSignupFields = defineUserSignupFields({
   isSignupComplete: () => false,
@@ -138,8 +141,8 @@ For example:
 2. If it's `false`, it means the user has started the signup process but hasn't yet chosen their username. Therefore, you can redirect them to `EditUserDetailsPage` where they can edit the `username` property.
 
 ```tsx title="src/HomePage.tsx" auto-js
-import { Navigate } from 'react-router'
-import type { AuthUser } from 'wasp/auth'
+import { Navigate } from "react-router"
+import type { AuthUser } from "wasp/auth"
 
 export function HomePage({ user }: { user: AuthUser }) {
   if (user.isSignupComplete === false) {
@@ -161,11 +164,11 @@ Each provider has their own rules for defining the `userSignupFields` and `confi
 
 ## API Reference
 
-### Fields in the `app.auth` Dictionary and Overrides
+### Fields in the `auth` Object and Overrides
 
 For more information on:
 
-- Allowed fields in `app.auth`
+- Allowed fields in `auth`
 - `userSignupFields` and `configFn` functions
 
 Check the provider-specific API References:

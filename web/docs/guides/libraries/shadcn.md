@@ -1,8 +1,8 @@
 ---
 comments: true
 last_checked_with_versions:
-    Wasp: "0.21"
-    Shadcn: 2026-02-16
+    Wasp: "0.24"
+    Shadcn: 2026-05-28
 ---
 
 # Shadcn
@@ -21,21 +21,22 @@ If you haven't added Tailwind CSS to your Wasp project yet, follow the instructi
 
 We need to temporarily setup the `@` alias to pass Shadcn's "Preflight checks". We'll remove it later.
 
-Add the following lines to your `tsconfig.json`:
+Add a top-level `compilerOptions` block to your `tsconfig.json`:
 
-```json title="tsconfig.json"
-{
-  "compilerOptions": {
-    // ...
-    // highlight-start
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-    // highlight-end
-    // ...
-  }
-}
+```diff title="tsconfig.json"
+ {
++  "compilerOptions": {
++    "baseUrl": ".",
++    "paths": {
++      "@/*": ["./src/*"]
++    }
++  },
+   "files": [],
+   "references": [
+     { "path": "./tsconfig.src.json" },
+     { "path": "./tsconfig.wasp.json" }
+   ],
+ }
 ```
 
 ### 3. Setup Shadcn
@@ -43,24 +44,20 @@ Add the following lines to your `tsconfig.json`:
 Go into your project directory and run:
 
 ```bash
-npx shadcn@latest init
+npx shadcn@latest init -b radix -p luma
 ```
 
-Select the options like this:
+This initializes Shadcn with the Radix component library and the Luma preset. You should see output like this:
 
 ```bash
 ✔ Preflight checks.
 ✔ Verifying framework. Found Vite.
-✔ Validating Tailwind CSS.
+✔ Validating Tailwind CSS. Found v4.
 ✔ Validating import alias.
-✔ Which style would you like to use? › New York
-✔ Which color would you like to use as the base color? › Neutral
-✔ Would you like to use CSS variables for theming? … yes
 ✔ Writing components.json.
 ✔ Checking registry.
-✔ Updating tailwind.config.js
-✔ Updating src/Main.css
 ✔ Installing dependencies.
+✔ Updating src/Main.css
 ✔ Created 1 file:
 - src/lib/utils.ts
 ```
@@ -71,13 +68,17 @@ Remove the lines we added in the `tsconfig.json`:
 
 ```diff title="tsconfig.json"
  {
-   "compilerOptions": {
-     // ...
+-  "compilerOptions": {
 -    "baseUrl": ".",
 -    "paths": {
 -      "@/*": ["./src/*"]
 -    }
-   }
+-  },
+   "files": [],
+   "references": [
+     { "path": "./tsconfig.src.json" },
+     { "path": "./tsconfig.wasp.json" }
+   ],
  }
 ```
 
@@ -119,10 +120,10 @@ You'll notice that you now have a brand new `button.tsx` file in `src/components
 
 ```diff title="src/components/ui/button.tsx"
  import * as React from "react"
- import { Slot } from "@radix-ui/react-slot"
  import { cva, type VariantProps } from "class-variance-authority"
+ import { Slot } from "radix-ui"
 
--import { cn } from "src/lib/utils"
+-import { cn } from "@/lib/utils"
 +import { cn } from "../../lib/utils"
 ```
 

@@ -1,20 +1,21 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 44c52c8..ec559d7 100644
+index 6ee0dbe..fc734f5 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -1,5 +1,10 @@
+@@ -1,6 +1,11 @@
 -import type { FormEvent } from "react";
--import { createTask, getTasks, useQuery } from "wasp/client/operations";
 +import type { ChangeEvent, FormEvent } from "react";
+ import type { Task } from "wasp/entities";
+-import { createTask, getTasks, useQuery } from "wasp/client/operations";
 +import {
++  updateTask,
 +  createTask,
 +  getTasks,
-+  updateTask,
 +  useQuery,
 +} from "wasp/client/operations";
- import type { Task } from "wasp/entities";
  
  export const MainPage = () => {
+   const { data: tasks, isLoading, error } = useQuery(getTasks);
 @@ -17,9 +22,25 @@ export const MainPage = () => {
  };
  

@@ -37,16 +37,17 @@ Enabling Keycloak Authentication comes down to a series of steps:
 
 Let's start by properly configuring the Auth object:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
-    userEntity: User,
+    userEntity: "User",
     methods: {
       // 2. Enable Keycloak Auth
       // highlight-next-line
@@ -54,14 +55,15 @@ app myApp {
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
+  // ...
+})
 ```
 
 `userEntity` is explained in [the social auth overview](./overview.md#user-entity).
 
 ### 2. Adding the User Entity
 
-Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
+Let's now define the `auth.userEntity` entity in the `schema.prisma` file:
 
 ```prisma title="schema.prisma"
 // 3. Define the user entity
@@ -116,15 +118,18 @@ We assumed in the `KEYCLOAK_REALM_URL` env variable that you are using the `mast
 
 Let's define the necessary authentication Routes and Pages.
 
-Add the following code to your `main.wasp` file:
+Add the following code to your `main.wasp.ts` file:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth"
-}
+export default app({
+  // ...
+  parts: [
+    route("LoginRoute", "/login", page(LoginPage)),
+  ],
+})
 ```
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
@@ -142,23 +147,25 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 ## Default Behaviour
 
-Add `keycloak: {}` to the `auth.methods` dictionary to use it with default settings:
+Add `keycloak: {}` to the `auth.methods` object to use it with default settings:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       // highlight-next-line
       keycloak: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
+  // ...
+})
 ```
 
 <DefaultBehaviour />
@@ -173,13 +180,13 @@ We are using Keycloak's API and its `/userinfo` endpoint to fetch the user's dat
 
 ```ts title="Keycloak user data"
 {
-  sub: '5adba8fc-3ea6-445a-a379-13f0bb0b6969',
+  sub: "5adba8fc-3ea6-445a-a379-13f0bb0b6969",
   email_verified: true,
-  name: 'Test User',
-  preferred_username: 'test',
-  given_name: 'Test',
-  family_name: 'User',
-  email: 'test@example.com'
+  name: "Test User",
+  preferred_username: "test",
+  given_name: "Test",
+  family_name: "User",
+  email: "test@example.com"
 }
 ```
 
@@ -193,25 +200,28 @@ The fields you receive will depend on the scopes you requested. The default scop
 
 <OverrideExampleIntro />
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       keycloak: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/keycloak",
+        configFn: getConfig,
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/keycloak"
+        userSignupFields
       }
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
+  // ...
+})
 ```
 
 ```prisma title="schema.prisma"
@@ -225,16 +235,16 @@ model User {
 ```
 
 ```ts title="src/auth/keycloak.ts" auto-js
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth"
 
 export const userSignupFields = defineUserSignupFields({
-  username: () => 'hardcoded-username',
+  username: () => "hardcoded-username",
   displayName: (data: any) => data.profile.name,
 })
 
 export function getConfig() {
   return {
-    scopes: ['profile', 'email'],
+    scopes: ["profile", "email"],
   }
 }
 ```
@@ -255,42 +265,45 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 <ApiReferenceIntro />
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { getConfig, userSignupFields } from "./src/auth/keycloak" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       keycloak: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/keycloak",
+        configFn: getConfig,
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/keycloak"
+        userSignupFields
       }
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
+  // ...
+})
 ```
 
-The `keycloak` dict has the following properties:
+The `keycloak` object has the following properties:
 
-- #### `configFn: ExtImport`
+- #### `configFn`: [`Reference`](../../general/spec.md#reference-imports)
 
   This function must return an object with the scopes for the OAuth provider.
 
   ```ts title="src/auth/keycloak.ts" auto-js
   export function getConfig() {
     return {
-      scopes: ['profile', 'email'],
+      scopes: ["profile", "email"],
     }
   }
   ```
 
-- #### `userSignupFields: ExtImport`
+- #### `userSignupFields`: [`Reference`](../../general/spec.md#reference-imports)
 
   <UserSignupFieldsExplainer />
 

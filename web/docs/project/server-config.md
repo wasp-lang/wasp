@@ -8,28 +8,36 @@ You can configure the behavior of the server via the `server` field of `app` dec
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+        setupFn: mySetupFunction,
+        middlewareConfigFn: myMiddlewareConfigFn,
+      },
+      // ...
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+        setupFn: mySetupFunction,
+        middlewareConfigFn: myMiddlewareConfigFn,
+      },
+      // ...
+    })
     ```
   </TabItem>
 </Tabs>
@@ -56,8 +64,8 @@ As an example, adding a custom route would look something like:
     }
 
     function addCustomRoute(app) {
-      app.get('/customRoute', (_req, res) => {
-        res.send('I am a custom route')
+      app.get("/customRoute", (_req, res) => {
+        res.send("I am a custom route")
       })
     }
     ```
@@ -65,16 +73,16 @@ As an example, adding a custom route would look something like:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/myServerSetupCode.ts"
-    import { ServerSetupFn } from 'wasp/server'
-    import { Application } from 'express'
+    import { ServerSetupFn } from "wasp/server"
+    import { Application } from "express"
 
     export const mySetupFunction: ServerSetupFn = async ({ app }) => {
       addCustomRoute(app)
     }
 
     function addCustomRoute(app: Application) {
-      app.get('/customRoute', (_req, res) => {
-        res.send('I am a custom route')
+      app.get("/customRoute", (_req, res) => {
+        res.send("I am a custom route")
       })
     }
     ```
@@ -103,7 +111,7 @@ Dummy example of such function and its usage:
     ```
 
     ```js title="src/queries.js"
-    import { getSomeResource } from './myServerSetupCode.js'
+    import { getSomeResource } from "./myServerSetupCode.js"
 
     ...
 
@@ -116,7 +124,7 @@ Dummy example of such function and its usage:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/myServerSetupCode.ts"
-    import { type ServerSetupFn } from 'wasp/server'
+    import { type ServerSetupFn } from "wasp/server"
 
     let someResource = undefined
 
@@ -131,8 +139,8 @@ Dummy example of such function and its usage:
     ```
 
     ```ts title="src/queries.ts"
-    import { type SomeQuery } from 'wasp/server/operations'
-    import { getSomeResource } from './myServerSetupCode.js'
+    import { type SomeQuery } from "wasp/server/operations"
+    import { getSomeResource } from "./myServerSetupCode.js"
 
     ...
 
@@ -150,47 +158,55 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-Read more about [server setup function](#setupfn-extimport) below.
+Read more about [server setup function](#setupfn-reference) below.
 
 ## Middleware Config Function
 
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
 
-Read more about [middleware config function](#middlewareconfigfn-extimport) below.
+Read more about [middleware config function](#middlewareconfigfn-reference) below.
 
 ## API Reference
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+        setupFn: mySetupFunction,
+        middlewareConfigFn: myMiddlewareConfigFn,
+      },
+      // ...
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+
+    export default app({
+      name: "MyApp",
       title: "My app",
-      // ...
       server: {
-        setupFn: import { mySetupFunction } from "@src/myServerSetupCode",
-        middlewareConfigFn: import { myMiddlewareConfigFn } from "@src/myServerSetupCode"
-      }
-    }
+        setupFn: mySetupFunction,
+        middlewareConfigFn: myMiddlewareConfigFn,
+      },
+      // ...
+    })
     ```
   </TabItem>
 </Tabs>
 
-`app.server` is a dictionary with the following fields:
+`server` is an object with the following fields:
 
-- #### `setupFn: ExtImport`
+- #### `setupFn`: [`Reference`](../general/spec.md#reference-imports)
 
   `setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>Javascript</ShowForJs> function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
 
@@ -220,7 +236,7 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
       ```
 
       ```ts title="src/myServerSetupCode.ts"
-      import { type ServerSetupFn } from 'wasp/server'
+      import { type ServerSetupFn } from "wasp/server"
 
       export const mySetupFunction: ServerSetupFn = async () => {
         await setUpSomeResource()
@@ -229,6 +245,6 @@ Read more about [middleware config function](#middlewareconfigfn-extimport) belo
     </TabItem>
   </Tabs>
 
-- #### `middlewareConfigFn: ExtImport`
+- #### `middlewareConfigFn`: [`Reference`](../general/spec.md#reference-imports)
 
-  The import statement to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).
+  A reference to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).

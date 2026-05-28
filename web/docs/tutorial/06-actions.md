@@ -21,17 +21,22 @@ Creating an Action is very similar to creating a Query.
 
 ### Declaring an Action
 
-We must first declare the Action in `main.wasp`:
+We must first declare the Action in `main.wasp.ts`:
 
 <TutorialAction id="action-create-task" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { action, app } from "@wasp.sh/spec"
+// highlight-next-line
+import { createTask } from "./src/actions" with { type: "ref" }
 
-action createTask {
-  fn: import { createTask } from "@src/actions",
-  entities: [Task]
-}
+export default app({
+  // ...
+  parts: [
+    // highlight-next-line
+    action(createTask, { entities: ["Task"] }),
+  ],
+})
 ```
 </TutorialAction>
 
@@ -63,7 +68,7 @@ Once again, we've annotated the Action with the `CreateTask` and `Task` types ge
 </ShowForTs>
 
 :::tip
-We put the function in a new file `src/actions.{js,ts}`, but we could have put it anywhere we wanted! There are no limitations here, as long as the declaration in the Wasp file imports it correctly and the file is located within `src` directory.
+We put the function in a new file `src/actions.{js,ts}`, but we could have put it anywhere we wanted! There are no limitations here, as long as the reference import in `main.wasp.ts` points to it and the file is located within the `src` directory.
 :::
 
 ## Invoking the Action on the Client
@@ -173,17 +178,20 @@ We'll create a new Action to update a task's status and call it from React whene
 Since we've already created one task together, try to create this one yourself. It should be an Action named `updateTask` that receives the task's `id` and its `isDone` status. You can see our implementation below.
 
 <Collapse title="Solution">
-  Declaring the Action in `main.wasp`:
+  Declaring the Action in `main.wasp.ts`:
 
   <TutorialAction id="action-update-task" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { action, app } from "@wasp.sh/spec"
+import { updateTask } from "./src/actions" with { type: "ref" }
 
-action updateTask {
-  fn: import { updateTask } from "@src/actions",
-  entities: [Task]
-}
+export default app({
+  // ...
+  parts: [
+    action(updateTask, { entities: ["Task"] }),
+  ],
+})
 ```
   </TutorialAction>
 

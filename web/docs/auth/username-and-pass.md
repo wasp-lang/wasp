@@ -23,67 +23,79 @@ To set up username authentication we need to:
 3. Add the auth routes and pages
 4. Use Auth UI components in our pages
 
-Structure of the `main.wasp` file we will end up with:
+Structure of the `main.wasp.ts` file we will end up with:
 
-```wasp title="main.wasp"
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { SignupPage } from "./src/pages/auth" with { type: "ref" }
+
 // Configuring e-mail authentication
-app myApp {
-  auth: { ... }
-}
-
-// Defining routes and pages
-route SignupRoute { ... }
-page SignupPage { ... }
-// ...
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
+  auth: {
+    // ...
+  },
+  parts: [
+    // Defining routes and pages
+    route("SignupRoute", "/signup", page(SignupPage)),
+    // ...
+  ],
+})
 ```
 
 ### 1. Enable Username Authentication
 
-Let's start with adding the following to our `main.wasp` file:
+Let's start with adding the following to our `main.wasp.ts` file:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp" {11}
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
+    ```ts title="main.wasp.ts" {12}
+    import { app } from "@wasp.sh/spec"
+
+    export default app({
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       title: "My App",
       auth: {
         // 1. Specify the user entity (we'll define it next)
-        userEntity: User,
+        userEntity: "User",
         methods: {
           // 2. Enable username authentication
           usernameAndPassword: {},
         },
         onAuthFailedRedirectTo: "/login"
-      }
-    }
+      },
+      // ...
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"  {11}
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
+    ```ts title="main.wasp.ts" {12}
+    import { app } from "@wasp.sh/spec"
+
+    export default app({
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       title: "My App",
       auth: {
         // 1. Specify the user entity (we'll define it next)
-        userEntity: User,
+        userEntity: "User",
         methods: {
           // 2. Enable username authentication
           usernameAndPassword: {},
         },
         onAuthFailedRedirectTo: "/login"
-      }
-    }
+      },
+      // ...
+    })
     ```
   </TabItem>
 </Tabs>
 
-Read more about the `usernameAndPassword` auth method options [here](#fields-in-the-usernameandpassword-dict).
+Read more about the `usernameAndPassword` auth method options [here](#fields-in-the-usernameandpassword-object).
 
 ### 2. Add the User Entity
 
@@ -121,34 +133,36 @@ The `User` entity can be as simple as including only the `id` field:
 
 Next, we need to define the routes and pages for the authentication pages.
 
-Add the following to the `main.wasp` file:
+Add the following to the `main.wasp.ts` file:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    // ...
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import { Login } from "@src/pages/auth"
-    }
-    route SignupRoute { path: "/signup", to: SignupPage }
-    page SignupPage {
-      component: import { Signup } from "@src/pages/auth"
-    }
+    ```ts title="main.wasp.ts"
+    import { app, page, route } from "@wasp.sh/spec"
+    import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
+
+    export default app({
+      // ...
+      parts: [
+        route("LoginRoute", "/login", page(LoginPage)),
+        route("SignupRoute", "/signup", page(SignupPage)),
+      ],
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    // ...
-    route LoginRoute { path: "/login", to: LoginPage }
-    page LoginPage {
-      component: import { Login } from "@src/pages/auth"
-    }
-    route SignupRoute { path: "/signup", to: SignupPage }
-    page SignupPage {
-      component: import { Signup } from "@src/pages/auth"
-    }
+    ```ts title="main.wasp.ts"
+    import { app, page, route } from "@wasp.sh/spec"
+    import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
+
+    export default app({
+      // ...
+      parts: [
+        route("LoginRoute", "/login", page(LoginPage)),
+        route("SignupRoute", "/signup", page(SignupPage)),
+      ],
+    })
     ```
   </TabItem>
 </Tabs>
@@ -164,10 +178,10 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```tsx title="src/pages/auth.jsx"
-    import { LoginForm, SignupForm } from 'wasp/client/auth'
-    import { Link } from 'react-router'
+    import { LoginForm, SignupForm } from "wasp/client/auth"
+    import { Link } from "react-router"
 
-    export function Login() {
+    export function LoginPage() {
       return (
         <Layout>
           <LoginForm />
@@ -179,7 +193,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function Signup() {
+    export function SignupPage() {
       return (
         <Layout>
           <SignupForm />
@@ -208,10 +222,10 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
 
   <TabItem value="ts" label="TypeScript">
     ```tsx title="src/pages/auth.tsx"
-    import { LoginForm, SignupForm } from 'wasp/client/auth'
-    import { Link } from 'react-router'
+    import { LoginForm, SignupForm } from "wasp/client/auth"
+    import { Link } from "react-router"
 
-    export function Login() {
+    export function LoginPage() {
       return (
         <Layout>
           <LoginForm />
@@ -223,7 +237,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function Signup() {
+    export function SignupPage() {
       return (
         <Layout>
           <SignupForm />
@@ -277,20 +291,22 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+
+    export default app({
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       title: "My App",
       auth: {
-        userEntity: User,
+        userEntity: "User",
         methods: {
           usernameAndPassword: {},
         },
         onAuthFailedRedirectTo: "/login"
-      }
-    }
+      },
+      // ...
+    })
     ```
 
     ```prisma title="schema.prisma"
@@ -301,20 +317,22 @@ When you receive the `user` object [on the client or the server](./overview.md#a
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+
+    export default app({
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       title: "My App",
       auth: {
-        userEntity: User,
+        userEntity: "User",
         methods: {
           usernameAndPassword: {},
         },
         onAuthFailedRedirectTo: "/login"
-      }
-    }
+      },
+      // ...
+    })
     ```
 
     ```prisma title="schema.prisma"
@@ -327,53 +345,57 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 
 <UserFieldsExplainer />
 
-### Fields in the `usernameAndPassword` dict
+### Fields in the `usernameAndPassword` object
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import { userSignupFields } from "./src/auth/email" with { type: "ref" }
+
+    export default app({
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       title: "My App",
       auth: {
-        userEntity: User,
+        userEntity: "User",
         methods: {
           usernameAndPassword: {
-            userSignupFields: import { userSignupFields } from "@src/auth/email",
+            userSignupFields,
           },
         },
         onAuthFailedRedirectTo: "/login"
-      }
-    }
-    // ...
+      },
+      // ...
+    })
     ```
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app myApp {
-      wasp: {
-        version: "{latestWaspVersion}"
-      },
+    ```ts title="main.wasp.ts"
+    import { app } from "@wasp.sh/spec"
+    import { userSignupFields } from "./src/auth/email" with { type: "ref" }
+
+    export default app({
+      name: "myApp",
+      wasp: { version: "{latestWaspVersion}" },
       title: "My App",
       auth: {
-        userEntity: User,
+        userEntity: "User",
         methods: {
           usernameAndPassword: {
-            userSignupFields: import { userSignupFields } from "@src/auth/email",
+            userSignupFields,
           },
         },
         onAuthFailedRedirectTo: "/login"
-      }
-    }
-    // ...
+      },
+      // ...
+    })
     ```
   </TabItem>
 </Tabs>
 
-#### `userSignupFields: ExtImport`
+#### `userSignupFields`: [`Reference`](../general/spec.md#reference-imports)
 
 <UserSignupFieldsExplainer />
 
