@@ -7,7 +7,7 @@ import {
 import { getTasks } from "./queries" with { type: "ref" };
 import { TasksPage } from "./TasksPage" with { type: "ref" };
 
-export const tasksDecls: Decl[] = [
+export const tasks: Decl[] = [
   route("TasksRoute", "/", page(TasksPage, { authRequired: true })),
   query(getTasks, { entities: ["Task", "Tag"] }),
   action(createTask, { entities: ["Task"] }),

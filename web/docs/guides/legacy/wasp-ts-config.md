@@ -21,7 +21,7 @@ The mapping below is mechanical. You can give the [Wasp Spec reference](../../ge
 
 In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a constructor.
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
     const mainPage = app.page('MainPage', {
@@ -71,7 +71,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### App and decls
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
     import { App } from 'wasp-config'
@@ -115,7 +115,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### API: `httpRoute` becomes positional arguments
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
     app.apiNamespace('bar', {
@@ -151,7 +151,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### Jobs: `perform` is flattened
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
     app.job('mySpecialJob', {
@@ -185,7 +185,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### CRUD
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
     app.crud('tasks', {
@@ -219,7 +219,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 These were configured with mutating method calls. They are now keys of the `app({ ... })` object.
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
     const app = new App('todoApp', {
@@ -280,7 +280,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 1. Update your `package.json` with the new dependencies:
 
-    <Tabs>
+    <Tabs sideBySide>
       <TabItem value="before" label="Before">
         ```json title="package.json"
         {
@@ -341,7 +341,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
     Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `decls` array holds the constructors (see the [mapping above](#changes)), and update the import:
 
-    <Tabs>
+    <Tabs sideBySide>
       <TabItem value="before" label="Before">
         ```ts title="main.wasp.ts"
         import { App } from 'wasp-config'

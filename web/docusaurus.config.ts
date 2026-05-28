@@ -6,6 +6,7 @@ import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
+import fixAPILinks from "./src/remark/fix-api-links";
 import searchAndReplace from "./src/remark/search-and-replace";
 
 const lightCodeTheme = {
@@ -21,7 +22,6 @@ const darkCodeTheme = {
 const includeCurrentVersion =
   process.env.DOCS_INCLUDE_CURRENT_VERSION === "true";
 const isProduction = process.env.NODE_ENV === "production";
-const isTypedocWatchMode = process.env.TYPEDOC_WATCH === "true";
 
 const config: Config = {
   title: "Wasp",
@@ -195,6 +195,7 @@ const config: Config = {
             fileExtSwitcher,
             searchAndReplace,
             codeWithHole,
+            fixAPILinks,
           ],
 
           // ------ Configuration for multiple docs versions ------ //
@@ -298,7 +299,6 @@ const config: Config = {
       {
         // docusaurus-plugin-typedoc options
         sidebar: { typescript: true },
-        watch: isTypedocWatchMode,
 
         // typedoc-plugin-markdown options
         readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
