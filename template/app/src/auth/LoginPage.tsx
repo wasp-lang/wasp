@@ -13,7 +13,7 @@ export function Login() {
       <span className="text-sm font-medium text-gray-900 dark:text-gray-900">
         Don't have an account yet?{" "}
         <WaspRouterLink to={routes.SignupRoute.to} className="underline">
-          go to signup
+          Go to signup
         </WaspRouterLink>
         .
       </span>
@@ -24,7 +24,7 @@ export function Login() {
           to={routes.RequestPasswordResetRoute.to}
           className="underline"
         >
-          reset it
+          Reset it
         </WaspRouterLink>
         .
       </span>
