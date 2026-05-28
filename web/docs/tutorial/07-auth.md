@@ -216,7 +216,7 @@ However, you will notice that if you try logging in as different users and creat
 
 ## Defining a User-Task Relation
 
-First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
+First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/orm/prisma-schema/data-model/relations)):
 
 <TutorialAction id="prisma-connect-task-user" action="APPLY_PATCH">
 

@@ -10,7 +10,7 @@ import { FromRegister } from "./register.js";
  * Pass an `App` to the {@link app} constructor and `export default` the
  * result from `main.wasp.ts`.
  *
- * @category Parts
+ * @category Spec
  *
  * @example
  * ```ts
@@ -104,6 +104,9 @@ export interface Auth extends AuthHooks {
    *
    * The model must be defined in `schema.prisma` and have an `@id` field. The
    * ID can use any Prisma-supported ID type.
+   *
+   * See [Accessing User Data](https://wasp.sh/docs/auth/entities) for
+   * how the user entity connects to the rest of the auth system.
    */
   userEntity: EntityName;
   /** Enabled authentication methods. */
@@ -111,12 +114,17 @@ export interface Auth extends AuthHooks {
   /**
    * Route that Wasp redirects unauthenticated users to when they try to
    * access a page that has `authRequired: true`.
+   *
+   * See [Adding Auth to the Project](https://wasp.sh/docs/tutorial/auth#adding-auth-to-the-project)
+   * for an example.
    */
   onAuthFailedRedirectTo: string;
   /**
    * Route that Wasp redirects users to after a successful login or signup.
    *
    * Only takes effect when using Wasp's built-in Auth UI.
+   *
+   * See [Auth UI](https://wasp.sh/docs/auth/ui).
    *
    * @default "/"
    */
@@ -376,11 +384,17 @@ export interface Db {
    * database with initial data. Each function receives Wasp's Prisma Client;
    * the name passed to `wasp db seed` matches the function's identifier in the
    * import.
+   *
+   * See [Seeding the Database](https://wasp.sh/docs/data-model/databases#seeding-the-database).
    */
   seeds?: Reference<AnyFunction>[];
   /**
    * Function that sets up and returns a configured Prisma Client instance.
    * Use this to add Prisma logging or client extensions.
+   *
+   * See Prisma's [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging)
+   * and [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions)
+   * docs.
    */
   prismaSetupFn?: Reference<AnyFunction>;
 }
@@ -390,6 +404,8 @@ export interface Db {
  *
  * Required for the email auth flows (verification, password reset) and
  * available for sending arbitrary emails via `wasp/server/email`.
+ *
+ * See [Sending Emails](https://wasp.sh/docs/advanced/email).
  */
 export interface EmailSender {
   /** Provider Wasp uses to deliver outgoing emails. */
@@ -542,6 +558,8 @@ export interface Query extends BasePart<"query"> {
    * Entities the query reads from. Wasp injects a Prisma delegate for each
    * one into the query's `context.entities`, and uses the list to invalidate
    * the client-side cache when related actions run.
+   *
+   * See [Using Entities in Queries](https://wasp.sh/docs/data-model/operations/queries#using-entities-in-queries).
    */
   entities?: EntityName[];
   /**
@@ -574,6 +592,8 @@ export interface Action extends BasePart<"action"> {
    * Entities the action operates on. Wasp injects a Prisma delegate for each
    * one into the action's `context.entities`, and uses the list to
    * invalidate the related query caches on the client.
+   *
+   * See [Using Entities in Actions](https://wasp.sh/docs/data-model/operations/actions#using-entities-in-actions).
    */
   entities?: EntityName[];
   /**
@@ -607,11 +627,15 @@ export interface Api extends BasePart<"api"> {
   fn: Reference<AnyFunction>;
   /**
    * Reference to an Express middleware config function for this endpoint only.
+   *
+   * See [Configuring API middleware](https://wasp.sh/docs/advanced/middleware-config#2-customize-api-specific-middleware).
    */
   middlewareConfigFn?: Reference<AnyFunction>;
   /**
    * Entities the handler operates on. Wasp injects a Prisma delegate for
    * each one into the handler's `context.entities`.
+   *
+   * See [Using Entities in APIs](https://wasp.sh/docs/advanced/apis#using-entities-in-apis).
    */
   entities?: EntityName[];
   /**
@@ -656,8 +680,8 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  */
 export interface Job extends BasePart<"job"> {
   /**
-   * Reference to the async function that performs the job's work. It receives
-   * the submitted args and a context containing the declared entities.
+   * Reference to the job's NodeJS implementation. It receives the submitted
+   * args and a context containing the declared entities.
    */
   fn: Reference<AnyFunction>;
   /** Executor backing this job. */
@@ -667,6 +691,9 @@ export interface Job extends BasePart<"job"> {
   /**
    * Entities the worker operates on. Wasp injects a Prisma delegate for
    * each one into the worker's `context.entities`.
+   *
+   * This works like entity access in queries and actions. See
+   * [Using Entities in Queries](https://wasp.sh/docs/data-model/operations/queries#using-entities-in-queries).
    */
   entities?: EntityName[];
   /**
@@ -697,6 +724,10 @@ export interface Schedule {
    * Five-field cron expression (e.g. `"0 * * * *"` for hourly).
    *
    * Wasp supports minute-level precision.
+   *
+   * See pg-boss's [scheduling docs](https://github.com/timgit/pg-boss/blob/8.4.2/docs/readme.md#scheduling)
+   * for the rationale. Use [Crontab Guru](https://crontab.guru/#0_*_*_*_*)
+   * to build cron expressions.
    */
   cron: string;
   /** Arguments passed to the worker function on each scheduled run. */
@@ -742,7 +773,11 @@ export interface Crud extends BasePart<"crud"> {
  *
  * Each key enables the matching operation; an empty object enables it with
  * Wasp's defaults. Default `get`, `update`, and `delete` implementations use
- * the field marked with `@id` in the Prisma schema as the entity ID.
+ * the field marked with `@id` in the Prisma schema as the entity ID. Default
+ * `getAll` returns all entities.
+ *
+ * CRUD operations are implemented with Wasp queries and actions. See
+ * [Operations](https://wasp.sh/docs/data-model/operations/overview).
  */
 export interface CrudOperations
   extends Partial<Record<CrudOperation, CrudOperationOptions>> {}
@@ -767,6 +802,9 @@ export interface CrudOperationOptions {
    * Reference to a custom implementation that replaces Wasp's auto-generated
    * one. Use this when you need custom business logic for an operation (e.g.
    * attaching `userId` on `create`).
+   *
+   * See the [CRUD guide](https://wasp.sh/docs/data-model/crud#adding-crud-to-the-task-entity-)
+   * for an override example.
    *
    * The override receives the caller-provided `args` payload and a
    * Wasp-provided `context` containing the current user and the entity being

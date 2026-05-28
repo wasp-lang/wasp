@@ -35,7 +35,6 @@ const config: Config = {
   trailingSlash: false,
   onBrokenLinks: "throw",
   onBrokenAnchors: "throw",
-  onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.svg",
   themeConfig: {
     announcementBar: {
@@ -299,17 +298,18 @@ const config: Config = {
         // docusaurus-plugin-typedoc options
         sidebar: { typescript: true },
 
-        // typedoc-plugin-mardkown options
-        readme: "none",
-        alwaysCreateEntryPointModule: true,
-
-        // typedoc options
-        disableSources: true,
-        packageOptions: { readme: "none" },
+        // typedoc-plugin-markdown options
+        readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
+        alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
 
         // input packages
         entryPointStrategy: "packages",
         entryPoints: ["../waspc/data/packages/spec"],
+
+        // If you want to set an option to a specific package, you can create a
+        // `typedoc.jsonc` file in that package's folder with the desired
+        // options from
+        // https://typedoc.org/documents/Options.Package_Options.html.
       },
     ],
   ],
@@ -320,6 +320,9 @@ const config: Config = {
       admonitions: true,
       comments: true,
       headingIds: true,
+    },
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
     },
   },
   future: {
