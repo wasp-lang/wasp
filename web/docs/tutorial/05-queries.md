@@ -26,49 +26,27 @@ We'll create a new Query called `getTasks`. We'll need to declare the Query in t
 We need to add a **query** declaration to `main.wasp.ts` so that Wasp knows it exists:
 
 <TutorialAction id="query-get-tasks" action="APPLY_PATCH">
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, query } from "@wasp.sh/spec"
+```ts title="main.wasp.ts"
+import { app, query } from "@wasp.sh/spec"
+// highlight-next-line
+import { getTasks } from "./src/queries" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    // Tell Wasp that this query reads from the `Task` entity. Wasp will
+    // automatically update the results of this query when tasks are modified.
     // highlight-next-line
-    import { getTasks } from "./src/queries" with { type: "ref" }
+    query(getTasks, { entities: ["Task"] }),
+  ],
+})
+```
 
-    export default app({
-      // ...
-      parts: [
-        // Tell Wasp that this query reads from the `Task` entity. Wasp will
-        // automatically update the results of this query when tasks are modified.
-        // highlight-next-line
-        query(getTasks, { entities: ["Task"] }),
-      ],
-    })
-    ```
-
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, query } from "@wasp.sh/spec"
-    // highlight-next-line
-    import { getTasks } from "./src/queries" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        // Tell Wasp that this query reads from the `Task` entity. Wasp will
-        // automatically update the results of this query when tasks are modified.
-        // highlight-next-line
-        query(getTasks, { entities: ["Task"] }),
-      ],
-    })
-    ```
-
-    :::note
-    To generate the types used in the next section, make sure that `wasp start` is still running.
-    :::
-
-  </TabItem>
-</Tabs>
+<ShowForTs>
+  :::note
+  To generate the types used in the next section, make sure that `wasp start` is still running.
+  :::
+</ShowForTs>
 </TutorialAction>
 
 ### Implementing a Query

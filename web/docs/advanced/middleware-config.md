@@ -83,22 +83,22 @@ Below is the actual definitions of default middleware which you can override.
 
 If you would like to modify the middleware for _all_ operations and APIs, you can do something like:
 
+```ts {7} title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { serverMiddlewareFn } from "./src/serverSetup" with { type: "ref" }
+
+export default app({
+  name: "todoApp",
+  server: {
+    middlewareConfigFn: serverMiddlewareFn,
+  },
+  // ...
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts {7} title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { serverMiddlewareFn } from "./src/serverSetup" with { type: "ref" }
-
-    export default app({
-      name: "todoApp",
-      server: {
-        middlewareConfigFn: serverMiddlewareFn,
-      },
-      // ...
-    })
-    ```
-
-    ```ts title="src/serverSetup.js"
+    ```js title="src/serverSetup.js"
     import cors from "cors"
     import { config } from "wasp/server"
 
@@ -111,19 +111,6 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts {7} title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { serverMiddlewareFn } from "./src/serverSetup" with { type: "ref" }
-
-    export default app({
-      name: "todoApp",
-      server: {
-        middlewareConfigFn: serverMiddlewareFn,
-      },
-      // ...
-    })
-    ```
-
     ```ts title="src/serverSetup.ts"
     import cors from "cors"
     import { config, type MiddlewareConfigFn } from "wasp/server"
@@ -141,24 +128,24 @@ If you would like to modify the middleware for _all_ operations and APIs, you ca
 
 If you would like to modify the middleware for a single API, you can do something like:
 
+```ts title="main.wasp.ts"
+import { api, app } from "@wasp.sh/spec"
+import { webhookCallback, webhookCallbackMiddlewareFn } from "./src/apis" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    api("POST", "/webhook/callback", webhookCallback, {
+      middlewareConfigFn: webhookCallbackMiddlewareFn,
+      auth: false,
+    }),
+  ],
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { api, app } from "@wasp.sh/spec"
-    import { webhookCallback, webhookCallbackMiddlewareFn } from "./src/apis" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        api("POST", "/webhook/callback", webhookCallback, {
-          middlewareConfigFn: webhookCallbackMiddlewareFn,
-          auth: false,
-        }),
-      ],
-    })
-    ```
-
-    ```ts title="src/apis.js"
+    ```js title="src/apis.js"
     import express from "express"
 
     export const webhookCallback = (req, res, _context) => {
@@ -178,21 +165,6 @@ If you would like to modify the middleware for a single API, you can do somethin
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { api, app } from "@wasp.sh/spec"
-    import { webhookCallback, webhookCallbackMiddlewareFn } from "./src/apis" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        api("POST", "/webhook/callback", webhookCallback, {
-          middlewareConfigFn: webhookCallbackMiddlewareFn,
-          auth: false,
-        }),
-      ],
-    })
-    ```
-
     ```ts title="src/apis.ts"
     import express from "express"
     import { type WebhookCallback } from "wasp/server/api"
@@ -228,23 +200,23 @@ router.post("/webhook/callback", webhookCallbackMiddleware, ...)
 
 If you would like to modify the middleware for all API routes under some common path, you can define a `middlewareConfigFn` on an `apiNamespace`:
 
+```ts title="main.wasp.ts"
+import { apiNamespace, app } from "@wasp.sh/spec"
+import { fooBarNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    apiNamespace("/foo/bar", {
+      middlewareConfigFn: fooBarNamespaceMiddlewareFn,
+    }),
+  ],
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { apiNamespace, app } from "@wasp.sh/spec"
-    import { fooBarNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        apiNamespace("/foo/bar", {
-          middlewareConfigFn: fooBarNamespaceMiddlewareFn,
-        }),
-      ],
-    })
-    ```
-
-    ```ts title="src/apis.js"
+    ```js title="src/apis.js"
     export const fooBarNamespaceMiddlewareFn = (middlewareConfig) => {
       const customMiddleware = (_req, _res, next) => {
         console.log("fooBarNamespaceMiddlewareFn: custom middleware")
@@ -259,20 +231,6 @@ If you would like to modify the middleware for all API routes under some common 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { apiNamespace, app } from "@wasp.sh/spec"
-    import { fooBarNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        apiNamespace("/foo/bar", {
-          middlewareConfigFn: fooBarNamespaceMiddlewareFn,
-        }),
-      ],
-    })
-    ```
-
     ```ts title="src/apis.ts"
     import express from "express"
     import { type MiddlewareConfigFn } from "wasp/server"

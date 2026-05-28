@@ -87,55 +87,27 @@ The file exports your app's top-level configuration and a `parts` array. Each en
 
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { MainPage } from "./src/MainPage" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+// This is a reference to your MainPage component.
+// Read more about how Wasp references your code in the section below.
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 
-    export default app({
-      name: "TodoApp",
-      wasp: {
-        version: "{latestWaspVersion}", // Pins the version of Wasp to use.
-      },
-      title: "TodoApp", // Used as the browser tab title.
-      head: [
-        "<link rel='icon' href='/favicon.ico' />",
-      ],
-      // Add your app declarations here so Wasp knows to register them.
-      parts: [
-        // We specify that the React implementation of the page is exported from
-        // `src/MainPage.jsx`. Reference imports must point to files inside `src`.
-        route("RootRoute", "/", page(MainPage)),
-      ],
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { MainPage } from "./src/MainPage" with { type: "ref" }
-
-    export default app({
-      name: "TodoApp",
-      wasp: {
-        version: "{latestWaspVersion}", // Pins the version of Wasp to use.
-      },
-      title: "TodoApp", // Used as the browser tab title.
-      head: [
-        "<link rel='icon' href='/favicon.ico' />",
-      ],
-      // Add your app declarations here so Wasp knows to register them.
-      parts: [
-        // We specify that the React implementation of the page is exported from
-        // `src/MainPage.tsx`. Reference imports must point to files inside `src`.
-        route("RootRoute", "/", page(MainPage)),
-      ],
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "TodoApp",
+  wasp: {
+    version: "{latestWaspVersion}", // Pins the version of Wasp to use.
+  },
+  title: "TodoApp", // Used as the browser tab title.
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ],
+  // Add your app declarations here so Wasp knows to register them.
+  parts: [
+    route("RootRoute", "/", page(MainPage)),
+  ],
+})
+```
 
 ### Referencing code from `src`
 

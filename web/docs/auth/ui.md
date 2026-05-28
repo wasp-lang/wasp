@@ -22,43 +22,22 @@ After Wasp generates the UI components for your auth, you can use it as is, or c
 
 Based on the authentication providers you enabled in your `main.wasp.ts` file, the Auth UI will show the corresponding UI (form and buttons). For example, if you enabled e-mail authentication:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts" {7}
-    import { app } from "@wasp.sh/spec"
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
 
-    export default app({
-      name: "MyApp",
-      //...
-      auth: {
-        methods: {
-          email: {},
-        },
-        // ...
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts" {7}
-    import { app } from "@wasp.sh/spec"
-
-    export default app({
-      name: "MyApp",
-      //...
-      auth: {
-        methods: {
-          email: {},
-        },
-        // ...
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "MyApp",
+  //...
+  auth: {
+    methods: {
+      // highlight-next-line
+      email: {},
+    },
+    // ...
+  },
+  // ...
+})
+```
 
 You'll get the following UI:
 
@@ -66,47 +45,25 @@ You'll get the following UI:
 
 And then if you enable Google and Github:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts" {8-9}
-    import { app } from "@wasp.sh/spec"
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
 
-    export default app({
-      name: "MyApp",
-      //...
-      auth: {
-        methods: {
-          email: {},
-          google: {},
-          gitHub: {},
-        },
-        // ...
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts" {8-9}
-    import { app } from "@wasp.sh/spec"
-
-    export default app({
-      name: "MyApp",
-      //...
-      auth: {
-        methods: {
-          email: {},
-          google: {},
-          gitHub: {},
-        },
-        // ...
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "MyApp",
+  //...
+  auth: {
+    methods: {
+      email: {},
+      // highlight-start
+      google: {},
+      gitHub: {},
+      // highlight-end
+    },
+    // ...
+  },
+  // ...
+})
+```
 
 The form will automatically update to look like this:
 
@@ -132,21 +89,21 @@ Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePil
 
 You can use the `LoginForm` component to build your login page:
 
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/LoginPage" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route("LoginRoute", "/login", page(LoginPage)),
+  ],
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { LoginPage } from "./src/LoginPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route("LoginRoute", "/login", page(LoginPage)),
-      ],
-    })
-    ```
-
-    ```tsx title="src/LoginPage.jsx"
+    ```jsx title="src/LoginPage.jsx"
     import { LoginForm } from "wasp/client/auth"
 
     // Use it like this
@@ -157,18 +114,6 @@ You can use the `LoginForm` component to build your login page:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { LoginPage } from "./src/LoginPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route("LoginRoute", "/login", page(LoginPage)),
-      ],
-    })
-    ```
-
     ```tsx title="src/LoginPage.tsx"
     import { LoginForm } from "wasp/client/auth"
 
@@ -190,21 +135,21 @@ Used with <UsernameAndPasswordPill />, <EmailPill />, <GithubPill />, <GooglePil
 
 You can use the `SignupForm` component to build your signup page:
 
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { SignupPage } from "./src/SignupPage" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route("SignupRoute", "/signup", page(SignupPage)),
+  ],
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { SignupPage } from "./src/SignupPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route("SignupRoute", "/signup", page(SignupPage)),
-      ],
-    })
-    ```
-
-    ```tsx title="src/SignupPage.jsx"
+    ```jsx title="src/SignupPage.jsx"
     import { SignupForm } from "wasp/client/auth"
 
     // Use it like this
@@ -215,18 +160,6 @@ You can use the `SignupForm` component to build your signup page:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { SignupPage } from "./src/SignupPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route("SignupRoute", "/signup", page(SignupPage)),
-      ],
-    })
-    ```
-
     ```tsx title="src/SignupPage.tsx"
     import { SignupForm } from "wasp/client/auth"
 
@@ -252,25 +185,25 @@ If users forget their password, they can use this form to reset it.
 
 You can use the `ForgotPasswordForm` component to build your own forgot password page:
 
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route(
+      "RequestPasswordResetRoute",
+      "/request-password-reset",
+      page(ForgotPasswordPage)
+    ),
+  ],
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route(
-          "RequestPasswordResetRoute",
-          "/request-password-reset",
-          page(ForgotPasswordPage)
-        ),
-      ],
-    })
-    ```
-
-    ```tsx title="src/ForgotPasswordPage.jsx"
+    ```jsx title="src/ForgotPasswordPage.jsx"
     import { ForgotPasswordForm } from "wasp/client/auth"
 
     // Use it like this
@@ -281,22 +214,6 @@ You can use the `ForgotPasswordForm` component to build your own forgot password
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route(
-          "RequestPasswordResetRoute",
-          "/request-password-reset",
-          page(ForgotPasswordPage)
-        ),
-      ],
-    })
-    ```
-
     ```tsx title="src/ForgotPasswordPage.tsx"
     import { ForgotPasswordForm } from "wasp/client/auth"
 
@@ -318,21 +235,21 @@ After users click on the link in the email they receive after submitting the for
 
 You can use the `ResetPasswordForm` component to build your reset password page:
 
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route("PasswordResetRoute", "/password-reset", page(ResetPasswordPage)),
+  ],
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route("PasswordResetRoute", "/password-reset", page(ResetPasswordPage)),
-      ],
-    })
-    ```
-
-    ```tsx title="src/ResetPasswordPage.jsx"
+    ```jsx title="src/ResetPasswordPage.jsx"
     import { ResetPasswordForm } from "wasp/client/auth"
 
     // Use it like this
@@ -343,18 +260,6 @@ You can use the `ResetPasswordForm` component to build your reset password page:
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route("PasswordResetRoute", "/password-reset", page(ResetPasswordPage)),
-      ],
-    })
-    ```
-
     ```tsx title="src/ResetPasswordPage.tsx"
     import { ResetPasswordForm } from "wasp/client/auth"
 
@@ -376,21 +281,21 @@ After users sign up, they will receive an email with a link to this form where t
 
 You can use the `VerifyEmailForm` component to build your email verification page:
 
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    route("EmailVerificationRoute", "/email-verification", page(VerifyEmailPage)),
+  ],
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route("EmailVerificationRoute", "/email-verification", page(VerifyEmailPage)),
-      ],
-    })
-    ```
-
-    ```tsx title="src/VerifyEmailPage.jsx"
+    ```jsx title="src/VerifyEmailPage.jsx"
     import { VerifyEmailForm } from "wasp/client/auth"
 
     // Use it like this
@@ -401,18 +306,6 @@ You can use the `VerifyEmailForm` component to build your email verification pag
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        route("EmailVerificationRoute", "/email-verification", page(VerifyEmailPage)),
-      ],
-    })
-    ```
-
     ```tsx title="src/VerifyEmailPage.tsx"
     import { VerifyEmailForm } from "wasp/client/auth"
 
@@ -508,7 +401,7 @@ You can add your logo to the Auth UI by passing the `logo` prop to any of the co
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```tsx title="src/LoginPage.jsx"
+    ```jsx title="src/LoginPage.jsx"
     import { LoginForm } from "wasp/client/auth"
     import Logo from "./logo.png"
 
@@ -548,7 +441,7 @@ If we pass in `vertical`:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```tsx title="src/LoginPage.jsx"
+    ```jsx title="src/LoginPage.jsx"
     import { LoginForm } from "wasp/client/auth"
 
     export function LoginPage() {
@@ -588,7 +481,7 @@ If we provide the logo and custom colors:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="src/appearance.js"
+    ```js title="src/appearance.js"
     export const appearance = {
       colors: {
         brand: "#5969b8", // blue
@@ -598,7 +491,7 @@ If we provide the logo and custom colors:
     }
     ```
 
-    ```tsx title="src/LoginPage.jsx"
+    ```jsx title="src/LoginPage.jsx"
     import { LoginForm } from "wasp/client/auth"
 
     import { authAppearance } from "./appearance"
