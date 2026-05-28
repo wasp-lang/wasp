@@ -25,7 +25,7 @@ The Wasp DSL was a custom language, so it needed its own IDE extension for highl
 
 ### Multiple files
 
-The Wasp DSL kept your entire configuration in a single `main.wasp`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import decls between them, so you can keep large configs organized (for example, a separate `auth.wasp.ts` or `payments.wasp.ts` next to the feature it configures).
+The Wasp DSL kept your entire configuration in a single `main.wasp`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import declarations between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `payments.wasp.ts` next to the feature it configures).
 
 See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into-multiple-files) for details.
 

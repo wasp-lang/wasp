@@ -13,5 +13,5 @@
   // For exports with no category
   "defaultCategory": "Fields",
 
-  "categoryOrder": ["Spec", "Constructors", "Parts", "*"],
+  "categoryOrder": ["Spec", "Constructors", "Declarations", "*"],
 }

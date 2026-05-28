@@ -7,7 +7,7 @@ last_checked_with_versions:
 
 # Migrating from the Wasp TS Config
 
-The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered decls with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
+The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered declarations with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 
 Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `decls` array.
 
@@ -53,7 +53,7 @@ Import objects still work, so you can migrate gradually. See the [Wasp Spec docu
 
 ### Multiple files
 
-The TS Config required your entire configuration to live in a single `main.wasp.ts`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import decls between them, so you can keep large configs organized (for example, a separate `auth.wasp.ts` or `cards.wasp.ts` next to the feature it configures).
+The TS Config required your entire configuration to live in a single `main.wasp.ts`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import declarations between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `cards.wasp.ts` next to the feature it configures).
 
 See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into-multiple-files) for details.
 
@@ -69,7 +69,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 | Imports | `{ import, from }` | `import { ... } from "./src/..." with { type: "ref" }` |
 | Package name | `wasp-config` | `@wasp.sh/spec` |
 
-### App and decls
+### App and declarations
 
 <Tabs sideBySide>
   <TabItem value="before" label="TS Config">

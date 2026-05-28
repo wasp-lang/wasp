@@ -110,9 +110,9 @@ The `from` path should always start with `@src` and is relative to your project'
 
 ### Splitting your spec into multiple files
 
-For larger apps you don't have to keep everything in `main.wasp.ts`. You can move related decls into their own `*.wasp.ts` files and combine them in `main.wasp.ts`.
+For larger apps you don't have to keep everything in `main.wasp.ts`. You can move related declarations into their own `*.wasp.ts` files and combine them in `main.wasp.ts`.
 
-A feature file exports an array of decls:
+A feature file exports an array of `Decl`s:
 
 ```ts title="src/auth/auth.wasp.ts"
 import { page, route, Decl } from '@wasp.sh/spec'

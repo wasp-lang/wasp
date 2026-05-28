@@ -68,7 +68,7 @@ export interface App {
   /** Configuration for the app's WebSocket support. */
   webSocket?: WebSocket;
   /**
-   * All the {@link Decl}s of the app.
+   * All the declarations ({@link Decl}) of the app.
    *
    * Build entries with the dedicated constructors ({@link page}, {@link route},
    * {@link query}, {@link action}, {@link api}, {@link apiNamespace},
@@ -459,9 +459,11 @@ export interface WebSocket {
 }
 
 /**
- * Union of every kind of app decl that can appear in {@link App.decls}.
+ * Union of every kind of declaration that can appear in {@link App.decls}.
  *
  * Each variant is produced by its matching constructor.
+ *
+ * @category Declarations
  */
 export type Decl =
   | Page
@@ -478,7 +480,7 @@ export type Decl =
  *
  * Create one with the {@link page} constructor.
  *
- * @category Decls
+ * @category Declarations
  */
 export interface Page extends BaseDecl<"page"> {
   /** React component rendered for this page. */
@@ -502,7 +504,7 @@ export interface Page extends BaseDecl<"page"> {
  * See [Routing](https://wasp.sh/docs/advanced/routing) for path patterns
  * (dynamic segments, optional segments, splats).
  *
- * @category Decls
+ * @category Declarations
  */
 export interface Route extends BaseDecl<"route"> {
   /** Unique route name. */
@@ -544,7 +546,7 @@ export interface Route extends BaseDecl<"route"> {
  *
  * See [Queries](https://wasp.sh/docs/data-model/operations/queries).
  *
- * @category Decls
+ * @category Declarations
  */
 export interface Query extends BaseDecl<"query"> {
   /**
@@ -578,7 +580,7 @@ export interface Query extends BaseDecl<"query"> {
  *
  * See [Actions](https://wasp.sh/docs/data-model/operations/actions).
  *
- * @category Decls
+ * @category Declarations
  */
 export interface Action extends BaseDecl<"action"> {
   /**
@@ -616,7 +618,7 @@ export interface Action extends BaseDecl<"action"> {
  *
  * See [Custom HTTP API Endpoints](https://wasp.sh/docs/advanced/apis).
  *
- * @category Decls
+ * @category Declarations
  */
 export interface Api extends BaseDecl<"api"> {
   /** HTTP method this endpoint responds to. */
@@ -653,7 +655,7 @@ export interface Api extends BaseDecl<"api"> {
  *
  * Create one with the {@link apiNamespace} constructor.
  *
- * @category Decls
+ * @category Declarations
  */
 export interface ApiNamespace extends BaseDecl<"apiNamespace"> {
   /** Reference to an Express middleware config function for this namespace. */
@@ -676,7 +678,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  *
  * See [Recurring Jobs](https://wasp.sh/docs/advanced/jobs).
  *
- * @category Decls
+ * @category Declarations
  */
 export interface Job extends BaseDecl<"job"> {
   /**
@@ -757,7 +759,7 @@ export interface ExecutorOptions {
  *
  * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud).
  *
- * @category Decls
+ * @category Declarations
  */
 export interface Crud extends BaseDecl<"crud"> {
   /** Unique name for this CRUD. */
