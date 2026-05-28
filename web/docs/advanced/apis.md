@@ -224,13 +224,13 @@ Don't forget to set up the CORS middleware. See the [section explaning CORS](#ma
 
 ```ts title="src/streaming.ts" auto-js
 import OpenAI from "openai";
-import type { StreamingText } from "wasp/server/api";
+import type { GetStreamingText } from "wasp/server/api";
 
 const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-export const getStreamingText: StreamingText<
+export const getStreamingText: GetStreamingText<
   never,
   string,
   { message: string }

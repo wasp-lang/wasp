@@ -22,7 +22,7 @@ Below you will find a starting point for creating your own actions. The given im
 ```ts title="main.wasp.ts"
 import { action, app } from "@wasp.sh/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
-import { signup } from "./src/auth/signup" with { type: "ref" }
+import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -33,7 +33,7 @@ export default app({
     onBeforeSignup,
   },
   parts: [
-    action(signup),
+    action(customSignup),
   ],
 })
 ```
@@ -73,7 +73,7 @@ type CustomSignupOutput = {
   message: string;
 };
 
-export const signup: CustomSignup<
+export const customSignup: CustomSignup<
   CustomSignupInput,
   CustomSignupOutput
 > = async (args, _context) => {
@@ -163,7 +163,7 @@ export const signup: CustomSignup<
 ```ts title="main.wasp.ts"
 import { action, app } from "@wasp.sh/spec"
 import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
-import { signup } from "./src/auth/signup" with { type: "ref" }
+import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   name: "myApp",
@@ -174,7 +174,7 @@ export default app({
     onBeforeSignup,
   },
   parts: [
-    action(signup),
+    action(customSignup),
   ],
 })
 ```
@@ -209,7 +209,7 @@ type CustomSignupOutput = {
   message: string;
 };
 
-export const signup: CustomSignup<
+export const customSignup: CustomSignup<
   CustomSignupInput,
   CustomSignupOutput
 > = async (args, _context) => {

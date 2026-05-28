@@ -179,7 +179,7 @@ If you need to access your `enum` cases and their values from your server, you c
     import { TaskState } from "@prisma/client";
     import { Task } from "wasp/entities";
 
-    export const getOpenTasks  = async (args, context) => {
+    export const getTasks = async (args, context) => {
       return context.entities.Task.findMany({
         orderBy: { id: "asc" },
         where: { NOT: { state: TaskState.Done } },
@@ -194,7 +194,7 @@ If you need to access your `enum` cases and their values from your server, you c
     import { Task } from "wasp/entities";
     import { type GetTasks } from "wasp/server/operations";
 
-    export const getOpenTasks: GetTasks<void, Task[]> = async (args, context) => {
+    export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
       return context.entities.Task.findMany({
         orderBy: { id: "asc" },
         where: { NOT: { state: TaskState.Done } },
