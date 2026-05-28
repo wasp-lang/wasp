@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
 ---
 
 # Custom OAuth Provider
@@ -15,48 +15,39 @@ This guide shows you how to implement a custom OAuth provider in your Wasp appli
 
 ## Setting up a Custom OAuth Provider
 
-### 1. Configure main.wasp
+### 1. Configure main.wasp.ts
 
 Set up the auth configuration and API routes:
 
-```wasp title="main.wasp"
-app SpotifyOauth {
+```ts title="main.wasp.ts"
+import { api, app, page, route } from "@wasp.sh/spec"
+import { authWithSpotify, authWithSpotifyCallback } from "./src/auth" with { type: "ref" }
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+
+export default app({
+  name: "SpotifyOauth",
   wasp: {
-    version: "^0.21.0"
+    version: "^0.24.0",
   },
   title: "spotify-oauth",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     onAuthFailedRedirectTo: "/",
     methods: {
       // highlight-start
       // Enable at least one OAuth provider so Wasp exposes OAuth helpers
-      google: {}
+      google: {},
       // highlight-end
-    }
+    },
   },
-}
-
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  component: import { MainPage } from "@src/MainPage",
-}
-
-// highlight-start
-api authWithSpotify {
-  httpRoute: (GET, "/auth/spotify"),
-  fn: import { authWithSpotify } from "@src/auth",
-  entities: []
-}
-// highlight-end
-
-// highlight-start
-api authWithSpotifyCallback {
-  httpRoute: (GET, "/auth/spotify/callback"),
-  fn: import { authWithSpotifyCallback } from "@src/auth",
-  entities: []
-}
-// highlight-end
+  parts: [
+    route("RootRoute", "/", page(MainPage)),
+    // highlight-start
+    api("GET", "/auth/spotify", authWithSpotify),
+    api("GET", "/auth/spotify/callback", authWithSpotifyCallback),
+    // highlight-end
+  ],
+})
 ```
 
 :::note

@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   Heroku: 2026-04-06
 ---
 
@@ -96,7 +96,7 @@ Deploy the pushed image and restart the app:
 heroku container:release --app <app-name> web
 ```
 
-This is it, the backend is deployed at `https://<app-name>-XXXX.herokuapp.com` 🎉
+This is it, the backend is deployed at `https://<app-name>.herokuapp.com` 🎉
 
 Find out the exact app URL with:
 

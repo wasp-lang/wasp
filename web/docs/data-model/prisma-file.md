@@ -12,12 +12,16 @@ In Wasp, the `schema.prisma` file is located in your project's root directory:
 
 ```c
 .
-├── main.wasp
+├── main.wasp.ts
 ...
+├── package.json
+├── public
 // highlight-next-line
 ├── schema.prisma
 ├── src
 ├── tsconfig.json
+├── tsconfig.src.json
+├── tsconfig.wasp.json
 └── vite.config.ts
 ```
 
@@ -61,42 +65,31 @@ The `generator` block defines how to generate the Prisma Client code that you ca
 
 <ImgWithCaption alt="Relationship between Wasp file and Prisma file" source="img/data-model/prisma_in_wasp.png" caption="Relationship between Wasp file and Prisma file" />
 
-Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp` file:
+Finally, Prisma models become Wasp Entities which can be then used in the `main.wasp.ts` file:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-}
+```ts title="main.wasp.ts"
+import { api, app, job, query } from "@wasp.sh/spec"
+import { fooBar } from "./src/apis" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { foo } from "./src/workers/bar" with { type: "ref" }
 
-...
-
-// Using Wasp Entities in the Wasp file
-
-query getTasks {
-  fn: import { getTasks } from "@src/queries",
-  // highlight-next-line
-  entities: [Task]
-}
-
-job myJob {
-  executor: PgBoss,
-  perform: {
-    fn: import { foo } from "@src/workers/bar"
-  },
-  // highlight-next-line
-  entities: [Task],
-}
-
-api fooBar {
-  fn: import { fooBar } from "@src/apis",
-  // highlight-next-line
-  entities: [Task],
-  httpRoute: (GET, "/foo/bar/:email")
-}
-
+export default app({
+  // ...
+  parts: [
+    // Using Wasp Entities in the Wasp file.
+    // highlight-next-line
+    query(getTasks, { entities: ["Task"] }),
+    job(foo, {
+      executor: "PgBoss",
+      // highlight-next-line
+      entities: ["Task"],
+    }),
+    api("GET", "/foo/bar/:email", fooBar, {
+      // highlight-next-line
+      entities: ["Task"],
+    }),
+  ],
+})
 ```
 
 In the implementation of the `getTasks` query, `Task` is a Wasp Entity that corresponds to the `Task` model defined in the `schema.prisma` file.
@@ -186,7 +179,7 @@ If you need to access your `enum` cases and their values from your server, you c
     import { TaskState } from "@prisma/client";
     import { Task } from "wasp/entities";
 
-    export const getOpenTasks  = async (args, context) => {
+    export const getTasks = async (args, context) => {
       return context.entities.Task.findMany({
         orderBy: { id: "asc" },
         where: { NOT: { state: TaskState.Done } },
@@ -201,7 +194,7 @@ If you need to access your `enum` cases and their values from your server, you c
     import { Task } from "wasp/entities";
     import { type GetTasks } from "wasp/server/operations";
 
-    export const getOpenTasks: GetTasks<void, Task[]> = async (args, context) => {
+    export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
       return context.entities.Task.findMany({
         orderBy: { id: "asc" },
         where: { NOT: { state: TaskState.Done } },

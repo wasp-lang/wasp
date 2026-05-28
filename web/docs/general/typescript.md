@@ -41,22 +41,27 @@ model Task {
 }
 ```
 
-And your `main.wasp` file defines the `getTaskInfo` query:
+And your `main.wasp.ts` file defines the `getTaskInfo` query:
 
-```wasp title="main.wasp"
-query getTaskInfo {
-  fn: import { getTaskInfo } from "@src/queries",
-  entities: [Task]
-}
+```ts title="main.wasp.ts"
+import { app, query } from "@wasp.sh/spec"
+import { getTaskInfo } from "./src/queries" with { type: "ref" }
+
+export default app({
+  // ...
+  parts: [
+    query(getTaskInfo, { entities: ["Task"] }),
+  ],
+})
 ```
 
 We will show you how to migrate the following `queries.js` file:
 
 ```javascript title="src/queries.js"
-import HttpError from 'wasp/server'
+import HttpError from "wasp/server"
 
 function getInfoMessage(task) {
-  const isDoneText = task.isDone ? 'is done' : 'is not done'
+  const isDoneText = task.isDone ? "is done" : "is not done"
   return `Task '${task.description}' is ${isDoneText}.`
 }
 
@@ -78,10 +83,10 @@ To migrate this file to TypeScript, all you have to do is:
 <Tabs>
   <TabItem value="before" label="Before">
     ```javascript title="src/queries.js"
-    import HttpError from '@wasp/core/HttpError.js'
+    import HttpError from "@wasp/core/HttpError.js"
 
     function getInfoMessage(task) {
-      const isDoneText = task.isDone ? 'is done' : 'is not done'
+      const isDoneText = task.isDone ? "is done" : "is not done"
       return `Task '${task.description}' is ${isDoneText}.`
     }
 
@@ -98,20 +103,20 @@ To migrate this file to TypeScript, all you have to do is:
 
   <TabItem value="after" label="After">
     ```typescript title="src/queries.ts"
-    import HttpError from 'wasp/server'
+    import HttpError from "wasp/server"
     // highlight-next-line
-    import { type Task } from '@wasp/entities'
+    import { type Task } from "@wasp/entities"
     // highlight-next-line
-    import { type GetTaskInfo } from '@wasp/server/operations'
+    import { type GetTaskInfo } from "@wasp/server/operations"
 
     // highlight-next-line
-    function getInfoMessage(task: Pick<Task, 'isDone' | 'description'>): string {
-      const isDoneText = task.isDone ? 'is done' : 'is not done'
+    function getInfoMessage(task: Pick<Task, "isDone" | "description">): string {
+      const isDoneText = task.isDone ? "is done" : "is not done"
       return `Task '${task.description}' is ${isDoneText}.`
     }
 
     // highlight-next-line
-    export const getTaskInfo: GetTaskInfo<Pick<Task, 'id'>, string> = async (
+    export const getTaskInfo: GetTaskInfo<Pick<Task, "id">, string> = async (
       { id },
       context
     ) => {
@@ -140,7 +145,7 @@ Your code is now processed by TypeScript and uses several of Wasp's TypeScript-s
 
   And gives you Intellisense and type-checking. Read more about this feature [here](../data-model/operations/queries#implementing-queries).
 
-You don't need to change anything inside the `.wasp` file.
+You don't need to change anything inside the Wasp file.
 
 ### Migrating the rest of the project
 

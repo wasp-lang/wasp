@@ -9,7 +9,7 @@ last_checked_with_versions:
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered parts with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 
-Start with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `parts` array.
+Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `parts` array.
 
 :::tip Let an LLM do the heavy lifting
 The mapping below is mechanical. You can give the [Wasp Spec reference](../../general/spec.md#reference) and your old `main.wasp.ts` to the LLM of your choice and ask it to rewrite it following that reference.
@@ -19,29 +19,29 @@ The mapping below is mechanical. You can give the [Wasp Spec reference](../../ge
 
 ### Reference imports
 
-In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a constructor.
+In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a declaration function.
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    const mainPage = app.page('MainPage', {
-      component: { importDefault: 'MainPage', from: '@src/MainPage' },
+    const mainPage = app.page("MainPage", {
+      component: { importDefault: "MainPage", from: "@src/MainPage" },
     })
 
-    app.query('getTasks', {
-      fn: { import: 'getTasks', from: '@src/queries' },
+    app.query("getTasks", {
+      fn: { import: "getTasks", from: "@src/queries" },
     })
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import MainPage from './src/MainPage' with { type: "ref" }
-    import { getTasks } from './src/queries' with { type: "ref" }
+    import MainPage from "./src/MainPage" with { type: "ref" }
+    import { getTasks } from "./src/queries" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        route('MainRoute', '/', page(MainPage)),
+        route("MainRoute", "/", page(MainPage)),
         query(getTasks),
       ],
     })
@@ -63,7 +63,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 | What | Before | After |
 | --- | --- | --- |
-| Creating an app | `new App(name, { ... })` | `app({ name, ..., parts: [] })` |
+| Creating an app | `new App(name, { ... })` | `app({ name, ..., parts: [...] })` |
 | Configuring the app | `app.auth(...)` <br/> `app.server(...)` <br/> `app.client(...)` <br/> `app.db(...)` <br/> `app.emailSender(...)` <br/> `app.webSocket(...)` | <pre>app(\{<br/>  auth: ...,<br/>  server: ...,<br/>  client: ...,<br/>  db: ...,<br/>  emailSender: ...,<br/>  webSocket: ...,<br/>})</pre> |
 | Adding app declarations | `app.route(...)` <br/> `app.query(...)` <br/> `app.action(...)` <br/> etc | <pre>app(\{<br/>  parts: [<br/>    route(...),<br/>    query(...),<br/>    action(...),<br/>  ]<br/>})</pre> |
 | Imports | `{ import, from }` | `import { ... } from "./src/..." with { type: "ref" }` |
@@ -71,24 +71,24 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### App and parts
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    import { App } from 'wasp-config'
+    import { App } from "wasp-config"
 
-    const app = new App('todoApp', {
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+    const app = new App("todoApp", {
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
     })
 
-    const mainPage = app.page('MainPage', {
-      component: { importDefault: 'MainPage', from: '@src/MainPage' },
+    const mainPage = app.page("MainPage", {
+      component: { importDefault: "MainPage", from: "@src/MainPage" },
     })
-    app.route('MainRoute', { path: '/', to: mainPage })
+    app.route("MainRoute", { path: "/", to: mainPage })
 
-    app.query('getTasks', {
-      fn: { import: 'getTasks', from: '@src/queries' },
-      entities: ['Task'],
+    app.query("getTasks", {
+      fn: { import: "getTasks", from: "@src/queries" },
+      entities: ["Task"],
     })
 
     export default app
@@ -96,17 +96,17 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, query, route } from '@wasp.sh/spec'
-    import MainPage from './src/MainPage' with { type: "ref" }
-    import { getTasks } from './src/queries' with { type: "ref" }
+    import { app, page, query, route } from "@wasp.sh/spec"
+    import MainPage from "./src/MainPage" with { type: "ref" }
+    import { getTasks } from "./src/queries" with { type: "ref" }
 
     export default app({
-      name: 'todoApp',
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+      name: "todoApp",
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
       parts: [
-        route('MainRoute', '/', page(MainPage)),
-        query(getTasks, { entities: ['Task'] }),
+        route("MainRoute", "/", page(MainPage)),
+        query(getTasks, { entities: ["Task"] }),
       ],
     })
     ```
@@ -115,34 +115,34 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### API: `httpRoute` becomes positional arguments
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    app.apiNamespace('bar', {
-      middlewareConfigFn: { import: 'barNamespaceMiddlewareFn', from: '@src/apis' },
-      path: '/bar',
+    app.apiNamespace("bar", {
+      middlewareConfigFn: { import: "barNamespaceMiddlewareFn", from: "@src/apis" },
+      path: "/bar",
     })
 
-    app.api('barBaz', {
-      fn: { import: 'barBaz', from: '@src/apis' },
+    app.api("barBaz", {
+      fn: { import: "barBaz", from: "@src/apis" },
       auth: false,
-      entities: ['Task'],
-      httpRoute: { method: 'GET', route: '/bar/baz' },
+      entities: ["Task"],
+      httpRoute: { method: "GET", route: "/bar/baz" },
     })
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from '@wasp.sh/spec'
-    import { barBaz, barNamespaceMiddlewareFn } from './src/apis' with { type: "ref" }
+    import { api, apiNamespace, app } from "@wasp.sh/spec"
+    import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        apiNamespace('/bar', {
+        apiNamespace("/bar", {
           middlewareConfigFn: barNamespaceMiddlewareFn,
         }),
-        api('GET', '/bar/baz', barBaz, { auth: false, entities: ['Task'] }),
+        api("GET", "/bar/baz", barBaz, { auth: false, entities: ["Task"] }),
       ],
     })
     ```
@@ -151,30 +151,30 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### Jobs: `perform` is flattened
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    app.job('mySpecialJob', {
-      executor: 'PgBoss',
+    app.job("mySpecialJob", {
+      executor: "PgBoss",
       perform: {
-        fn: { import: 'foo', from: '@src/jobs/bar' },
+        fn: { import: "foo", from: "@src/jobs/bar" },
         executorOptions: { pgBoss: { retryLimit: 1 } },
       },
-      entities: ['Task'],
+      entities: ["Task"],
     })
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from '@wasp.sh/spec'
-    import { foo } from './src/jobs/bar' with { type: "ref" }
+    import { app, job } from "@wasp.sh/spec"
+    import { foo } from "./src/jobs/bar" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
         job(foo, {
-          executor: 'PgBoss',
-          entities: ['Task'],
+          executor: "PgBoss",
+          entities: ["Task"],
           performExecutorOptions: { pgBoss: { retryLimit: 1 } },
         }),
       ],
@@ -185,27 +185,27 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### CRUD
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    app.crud('tasks', {
-      entity: 'Task',
+    app.crud("tasks", {
+      entity: "Task",
       operations: {
         getAll: {},
-        create: { overrideFn: { import: 'createTask', from: '@src/actions' } },
+        create: { overrideFn: { import: "createTask", from: "@src/actions" } },
       },
     })
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from '@wasp.sh/spec'
-    import { createTask } from './src/actions' with { type: "ref" }
+    import { app, crud } from "@wasp.sh/spec"
+    import { createTask } from "./src/actions" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        crud('tasks', 'Task', {
+        crud("tasks", "Task", {
           getAll: {},
           create: { overrideFn: createTask },
         }),
@@ -219,27 +219,27 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 These were configured with mutating method calls. They are now keys of the `app({ ... })` object.
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    const app = new App('todoApp', {
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+    const app = new App("todoApp", {
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
     })
 
     app.auth({
-      userEntity: 'User',
+      userEntity: "User",
       methods: { google: {} },
-      onAuthFailedRedirectTo: '/login',
+      onAuthFailedRedirectTo: "/login",
     })
 
     app.client({
-      rootComponent: { importDefault: 'App', from: '@src/App' },
+      rootComponent: { importDefault: "App", from: "@src/App" },
     })
 
     app.emailSender({
-      provider: 'SMTP',
-      defaultFrom: { email: 'hi@example.com' },
+      provider: "SMTP",
+      defaultFrom: { email: "hi@example.com" },
     })
 
     export default app
@@ -247,26 +247,26 @@ These were configured with mutating method calls. They are now keys of the `app(
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from '@wasp.sh/spec'
-    import App from './src/App' with { type: "ref" }
+    import { app } from "@wasp.sh/spec"
+    import App from "./src/App" with { type: "ref" }
 
     export default app({
-      name: 'todoApp',
-      title: 'ToDo App',
-      wasp: { version: '^0.24.0' },
+      name: "todoApp",
+      title: "ToDo App",
+      wasp: { version: "^0.24.0" },
       auth: {
-        userEntity: 'User',
+        userEntity: "User",
         methods: { google: {} },
-        onAuthFailedRedirectTo: '/login',
+        onAuthFailedRedirectTo: "/login",
       },
       client: {
         rootComponent: App,
       },
       emailSender: {
-        provider: 'SMTP',
-        defaultFrom: { email: 'hi@example.com' },
+        provider: "SMTP",
+        defaultFrom: { email: "hi@example.com" },
       },
-      parts: [],
+      // ...
     })
     ```
   </TabItem>
@@ -280,7 +280,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 1. Update your `package.json` with the new dependencies:
 
-    <Tabs>
+    <Tabs sideBySide>
       <TabItem value="before" label="Before">
         ```json title="package.json"
         {
@@ -339,28 +339,30 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 5. Rewrite `main.wasp.ts`:
 
-    Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `parts` array holds the constructors (see the [mapping above](#changes)), and update the import:
+    Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `parts` array holds the declarations (see the [mapping above](#changes)), and update the import:
 
-    <Tabs>
+    <Tabs sideBySide>
       <TabItem value="before" label="Before">
         ```ts title="main.wasp.ts"
-        import { App } from 'wasp-config'
+        import { App } from "wasp-config"
 
-        const app = new App('myApp', {
-          title: 'My app',
-          wasp: { version: '^0.24.0' },
+        const app = new App("myApp", {
+          title: "My app",
+          wasp: { version: "^0.24.0" },
         })
         ```
       </TabItem>
       <TabItem value="after" label="After">
         ```ts title="main.wasp.ts"
-        import { app, page, route, query, action } from '@wasp.sh/spec'
+        import { app, page, route, query, action } from "@wasp.sh/spec"
 
         export default app({
           name: "myApp",
-          title: 'My app',
-          wasp: { version: '^0.24.0' },
-          parts: [],
+          title: "My app",
+          wasp: { version: "^0.24.0" },
+          parts: [
+            // ...
+          ]
         })
         ```
       </TabItem>

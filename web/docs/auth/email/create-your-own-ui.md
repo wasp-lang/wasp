@@ -32,7 +32,7 @@ Below you can find a starting point for making your own UI in the client code. T
     import { useNavigate } from 'react-router'
 
     // This will be shown when the user wants to log in
-    export function Login() {
+    export function LoginPage() {
       const [email, setEmail] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState(null)
@@ -71,7 +71,7 @@ Below you can find a starting point for making your own UI in the client code. T
     }
 
     // This will be shown when the user wants to sign up
-    export function Signup() {
+    export function SignupPage() {
       const [email, setEmail] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState(null)
@@ -121,7 +121,7 @@ Below you can find a starting point for making your own UI in the client code. T
 
     // This will be shown has clicked on the link in their
     // email to verify their email address
-    export function EmailVerification() {
+    export function EmailVerificationPage() {
       const [error, setError] = useState(null)
       const navigate = useNavigate()
 
@@ -149,7 +149,7 @@ Below you can find a starting point for making your own UI in the client code. T
     }
 
     // This will be shown when the user wants to reset their password
-    export function RequestPasswordReset() {
+    export function RequestPasswordResetPage() {
       const [email, setEmail] = useState('')
       const [error, setError] = useState(null)
       const [needsConfirmation, setNeedsConfirmation] = useState(false)
@@ -193,7 +193,7 @@ Below you can find a starting point for making your own UI in the client code. T
 
     // This will be shown when the user clicks on the link in their
     // email to reset their password
-    export function PasswordReset() {
+    export function PasswordResetPage() {
       const [error, setError] = useState(null)
       const [newPassword, setNewPassword] = useState('')
       const navigate = useNavigate()
@@ -246,7 +246,7 @@ Below you can find a starting point for making your own UI in the client code. T
     import { useNavigate } from 'react-router'
 
     // This will be shown when the user wants to log in
-    export function Login() {
+    export function LoginPage() {
       const [email, setEmail] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState<Error | null>(null)
@@ -285,7 +285,7 @@ Below you can find a starting point for making your own UI in the client code. T
     }
 
     // This will be shown when the user wants to sign up
-    export function Signup() {
+    export function SignupPage() {
       const [email, setEmail] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState<Error | null>(null)
@@ -335,7 +335,7 @@ Below you can find a starting point for making your own UI in the client code. T
 
     // This will be shown has clicked on the link in their
     // email to verify their email address
-    export function EmailVerification() {
+    export function EmailVerificationPage() {
       const [error, setError] = useState<Error | null>(null)
       const navigate = useNavigate()
 
@@ -363,7 +363,7 @@ Below you can find a starting point for making your own UI in the client code. T
     }
 
     // This will be shown when the user wants to reset their password
-    export function RequestPasswordReset() {
+    export function RequestPasswordResetPage() {
       const [email, setEmail] = useState('')
       const [error, setError] = useState<Error | null>(null)
       const [needsConfirmation, setNeedsConfirmation] = useState(false)
@@ -407,7 +407,7 @@ Below you can find a starting point for making your own UI in the client code. T
 
     // This will be shown when the user clicks on the link in their
     // email to reset their password
-    export function PasswordReset() {
+    export function PasswordResetPage() {
       const [error, setError] = useState<Error | null>(null)
       const [newPassword, setNewPassword] = useState('')
       const navigate = useNavigate()

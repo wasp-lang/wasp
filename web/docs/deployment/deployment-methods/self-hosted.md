@@ -47,7 +47,7 @@ To self-host your Wasp app, you'll follow these general steps:
 1. Install [Docker](https://docs.docker.com/engine/install/), [Node.js](https://github.com/nvm-sh/nvm) and [Wasp CLI](/introduction/quick-start.md#installation).
 2. Get your **app's source code**.
    - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
-3. Build your app with **`wasp build`**.
+3. Install dependencies with **`wasp install`** and build your app with **`wasp build`**.
 4. Build and run the **server app**.
    - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the server app.
    - We are using Docker to run the server app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.

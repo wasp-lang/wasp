@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   Caddy: 2026-01-30
   Ubuntu: 2026-01-30
 ---
@@ -143,9 +143,10 @@ wasp version
 
 ### Step 9: Build the Application
 
-In your project directory:
+In your project directory, install dependencies and build the app:
 
 ```bash
+wasp install
 wasp build
 ```
 
@@ -163,6 +164,7 @@ Start PostgreSQL:
 docker run -d \
   --name myapp-db \
   -e POSTGRES_PASSWORD=mysecretpassword \
+  -e POSTGRES_DB=myapp \
   -v postgres_data:/var/lib/postgresql \
   --network myapp-network \
   postgres:18
@@ -171,10 +173,10 @@ docker run -d \
 Connect to the database using `psql` to verify it's running:
 
 ```bash
-docker exec -it myapp-db psql -U postgres
+docker exec -it myapp-db psql -U postgres -d myapp
 ```
 
-List all the tables by typing `\t`. You can exit `psql` by typing in `\q`.
+Verify you are connected to the `myapp` database by typing `\conninfo`. You can exit `psql` by typing in `\q`.
 
 ### Step 11: Configure Your Domain
 
@@ -220,7 +222,7 @@ docker run -d \
 ```
 
 :::note
-We bind to `127.0.0.1:5432` to ensure the server is only accessible from the server itself, not from the internet.
+We bind the server to `127.0.0.1:3001` to ensure it is only accessible from the server itself, not directly from the internet.
 :::
 
 Verify it's running:
@@ -253,7 +255,7 @@ Edit the Caddyfile at `/etc/caddy/Caddyfile`:
 myapp.com {
     root * /var/www
     encode gzip
-    try_files {path} {path}/index.html /200.html
+    try_files {path} /200.html
     file_server
 }
 
@@ -289,12 +291,12 @@ git pull
 echo "Building Wasp project..."
 wasp build
 
-echo "Stopping existing server..."
-docker container stop $SERVER_APP_NAME && docker container rm $SERVER_APP_NAME || true
-
 echo "Building Docker image..."
 cd .wasp/out/
 docker build . -t $SERVER_APP_NAME
+
+echo "Stopping existing server..."
+docker container stop $SERVER_APP_NAME && docker container rm $SERVER_APP_NAME || true
 
 echo "Starting new server..."
 cd ~/"$APP_DIR"
@@ -304,8 +306,9 @@ echo "Building client..."
 REACT_APP_API_URL=$SERVER_APP_URL npx vite build
 
 echo "Copying new client files..."
-rm -r /var/www/*
-cp -R .wasp/out/web-app/build/* /var/www
+sudo rm -rf /var/www/*
+sudo cp -R .wasp/out/web-app/build/* /var/www/
+sudo chown -R caddy:caddy /var/www
 ```
 
 Make it executable and run:
