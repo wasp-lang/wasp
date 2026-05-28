@@ -598,12 +598,12 @@ Below is a simplified version of a custom signup action which you probably would
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
     import { action, app } from "@wasp.sh/spec"
-    import { signup } from "./src/auth/signup" with { type: "ref" }
+    import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        action(signup, { entities: ["User"] }),
+        action(customSignup, { entities: ["User"] }),
       ],
     })
     ```
@@ -615,7 +615,7 @@ Below is a simplified version of a custom signup action which you probably would
       createUser,
     } from "wasp/server/auth"
 
-    export const signup = async (args, { entities: { User } }) => {
+    export const customSignup = async (args, { entities: { User } }) => {
       try {
         // Provider ID is a combination of the provider name and the provider user ID
         // And it is used to uniquely identify the user in your app
@@ -669,12 +669,12 @@ Below is a simplified version of a custom signup action which you probably would
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
     import { action, app } from "@wasp.sh/spec"
-    import { signup } from "./src/auth/signup" with { type: "ref" }
+    import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        action(signup, { entities: ["User"] }),
+        action(customSignup, { entities: ["User"] }),
       ],
     })
     ```
@@ -696,7 +696,7 @@ Below is a simplified version of a custom signup action which you probably would
       message: string
     }
 
-    export const signup: CustomSignup<
+    export const customSignup: CustomSignup<
       CustomSignupInput,
       CustomSignupOutput
     > = async (args, { entities: { User } }) => {

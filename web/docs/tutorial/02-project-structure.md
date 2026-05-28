@@ -70,7 +70,7 @@ We'll keep it simple by placing everything in the root `src` directory.
 Many other files (e.g., `tsconfig.json`, `tsconfig.src.json`, `tsconfig.wasp.json`, `vite-env.d.ts`, etc.) help Wasp and the IDE improve your development experience with autocompletion, IntelliSense, and error reporting.
 
 The `vite.config.ts` file is used to configure [Vite](https://vitejs.dev/guide/), Wasp's build tool of choice.
-We won't be configuring Vite in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../project/custom-vite-config.md).
+We won't be customizing the Vite setup in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../project/custom-vite-config.md).
 
 The `schema.prisma` file is where you define your database schema using [Prisma](https://www.prisma.io/). We'll cover this a bit later in the tutorial.
 
@@ -83,7 +83,7 @@ Let's take a closer look at `main.wasp.ts`
 `main.wasp.ts` is your app's Wasp file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
-The file exports your app's top-level configuration and a `parts` array. Each entry defines a route, page, Query, Action, or another part of your app.
+The file exports your app's top-level configuration and a `parts` array. Each entry defines a Route, Page, Query, Action, or other features provided by Wasp.
 
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
@@ -151,10 +151,10 @@ Notice the `with { type: "ref" }` part at the end of the import statement. This 
 
 This spec uses three declarations:
 
-- **app**: Top-level configuration information about your app.
+- [**app**](../api/@wasp.sh/spec/functions/app): Top-level configuration information about your app.
 
-- **route**: Describes which path each page should be accessible from.
+- [**route**](../api/@wasp.sh/spec/functions/route): Describes which path each page should be accessible from.
 
-- **page**: Defines a web page and the React component that gets rendered when the page is loaded.
+- [**page**](../api/@wasp.sh/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
 
 In the next section, we'll explore how **route** and **page** work together to build your web app.

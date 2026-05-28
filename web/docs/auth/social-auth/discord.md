@@ -111,12 +111,12 @@ Add the following code to your `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
-import { Login } from "./src/pages/auth" with { type: "ref" }
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
   parts: [
-    route("LoginRoute", "/login", page(Login)),
+    route("LoginRoute", "/login", page(LoginPage)),
   ],
 })
 ```

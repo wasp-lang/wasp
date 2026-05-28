@@ -139,13 +139,13 @@ Add the following to the `main.wasp.ts` file:
   <TabItem value="js" label="JavaScript">
     ```ts title="main.wasp.ts"
     import { app, page, route } from "@wasp.sh/spec"
-    import { Login, Signup } from "./src/pages/auth" with { type: "ref" }
+    import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        route("LoginRoute", "/login", page(Login)),
-        route("SignupRoute", "/signup", page(Signup)),
+        route("LoginRoute", "/login", page(LoginPage)),
+        route("SignupRoute", "/signup", page(SignupPage)),
       ],
     })
     ```
@@ -154,13 +154,13 @@ Add the following to the `main.wasp.ts` file:
   <TabItem value="ts" label="TypeScript">
     ```ts title="main.wasp.ts"
     import { app, page, route } from "@wasp.sh/spec"
-    import { Login, Signup } from "./src/pages/auth" with { type: "ref" }
+    import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        route("LoginRoute", "/login", page(Login)),
-        route("SignupRoute", "/signup", page(Signup)),
+        route("LoginRoute", "/login", page(LoginPage)),
+        route("SignupRoute", "/signup", page(SignupPage)),
       ],
     })
     ```
@@ -181,7 +181,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
     import { LoginForm, SignupForm } from "wasp/client/auth"
     import { Link } from "react-router"
 
-    export function Login() {
+    export function LoginPage() {
       return (
         <Layout>
           <LoginForm />
@@ -193,7 +193,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function Signup() {
+    export function SignupPage() {
       return (
         <Layout>
           <SignupForm />
@@ -225,7 +225,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
     import { LoginForm, SignupForm } from "wasp/client/auth"
     import { Link } from "react-router"
 
-    export function Login() {
+    export function LoginPage() {
       return (
         <Layout>
           <LoginForm />
@@ -237,7 +237,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function Signup() {
+    export function SignupPage() {
       return (
         <Layout>
           <SignupForm />

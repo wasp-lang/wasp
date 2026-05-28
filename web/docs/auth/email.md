@@ -176,25 +176,25 @@ Add the following to the `main.wasp.ts` file:
     ```ts title="main.wasp.ts"
     import { app, page, route } from "@wasp.sh/spec"
     import {
-      Login,
-      Signup,
-      RequestPasswordReset,
-      PasswordReset,
-      EmailVerification,
+      LoginPage,
+      SignupPage,
+      RequestPasswordResetPage,
+      PasswordResetPage,
+      EmailVerificationPage,
     } from "./src/pages/auth" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        route("LoginRoute", "/login", page(Login)),
-        route("SignupRoute", "/signup", page(Signup)),
+        route("LoginRoute", "/login", page(LoginPage)),
+        route("SignupRoute", "/signup", page(SignupPage)),
         route(
           "RequestPasswordResetRoute",
           "/request-password-reset",
-          page(RequestPasswordReset)
+          page(RequestPasswordResetPage)
         ),
-        route("PasswordResetRoute", "/password-reset", page(PasswordReset)),
-        route("EmailVerificationRoute", "/email-verification", page(EmailVerification)),
+        route("PasswordResetRoute", "/password-reset", page(PasswordResetPage)),
+        route("EmailVerificationRoute", "/email-verification", page(EmailVerificationPage)),
       ],
     })
     ```
@@ -204,25 +204,25 @@ Add the following to the `main.wasp.ts` file:
     ```ts title="main.wasp.ts"
     import { app, page, route } from "@wasp.sh/spec"
     import {
-      Login,
-      Signup,
-      RequestPasswordReset,
-      PasswordReset,
-      EmailVerification,
+      LoginPage,
+      SignupPage,
+      RequestPasswordResetPage,
+      PasswordResetPage,
+      EmailVerificationPage,
     } from "./src/pages/auth" with { type: "ref" }
 
     export default app({
       // ...
       parts: [
-        route("LoginRoute", "/login", page(Login)),
-        route("SignupRoute", "/signup", page(Signup)),
+        route("LoginRoute", "/login", page(LoginPage)),
+        route("SignupRoute", "/signup", page(SignupPage)),
         route(
           "RequestPasswordResetRoute",
           "/request-password-reset",
-          page(RequestPasswordReset)
+          page(RequestPasswordResetPage)
         ),
-        route("PasswordResetRoute", "/password-reset", page(PasswordReset)),
-        route("EmailVerificationRoute", "/email-verification", page(EmailVerification)),
+        route("PasswordResetRoute", "/password-reset", page(PasswordResetPage)),
+        route("EmailVerificationRoute", "/email-verification", page(EmailVerificationPage)),
       ],
     })
     ```
@@ -249,7 +249,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
     } from "wasp/client/auth"
     import { Link } from "react-router"
 
-    export function Login() {
+    export function LoginPage() {
       return (
         <Layout>
           <LoginForm />
@@ -265,7 +265,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function Signup() {
+    export function SignupPage() {
       return (
         <Layout>
           <SignupForm />
@@ -277,7 +277,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function EmailVerification() {
+    export function EmailVerificationPage() {
       return (
         <Layout>
           <VerifyEmailForm />
@@ -289,7 +289,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function RequestPasswordReset() {
+    export function RequestPasswordResetPage() {
       return (
         <Layout>
           <ForgotPasswordForm />
@@ -297,7 +297,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function PasswordReset() {
+    export function PasswordResetPage() {
       return (
         <Layout>
           <ResetPasswordForm />
@@ -335,7 +335,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
     } from "wasp/client/auth"
     import { Link } from "react-router"
 
-    export function Login() {
+    export function LoginPage() {
       return (
         <Layout>
           <LoginForm />
@@ -351,7 +351,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function Signup() {
+    export function SignupPage() {
       return (
         <Layout>
           <SignupForm />
@@ -363,7 +363,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function EmailVerification() {
+    export function EmailVerificationPage() {
       return (
         <Layout>
           <VerifyEmailForm />
@@ -375,7 +375,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function RequestPasswordReset() {
+    export function RequestPasswordResetPage() {
       return (
         <Layout>
           <ForgotPasswordForm />
@@ -383,7 +383,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
       )
     }
 
-    export function PasswordReset() {
+    export function PasswordResetPage() {
       return (
         <Layout>
           <ResetPasswordForm />
