@@ -74,7 +74,7 @@ Add `vitest` to `devDependencies` because `wasp test client` now runs the Vitest
 
 The `api` object was previously an Axios instance. It is now a [ky](https://github.com/sindresorhus/ky) instance with a pre-configured base URL and authentication. Update your code as follows:
 
-<Tabs>
+<Tabs sideBySide>
   <TabItem value="before" label="Before">
     ```ts
     import { api } from "wasp/client/api"

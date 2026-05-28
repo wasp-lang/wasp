@@ -6,6 +6,7 @@ import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
+import fixAPILinks from "./src/remark/fix-api-links";
 import searchAndReplace from "./src/remark/search-and-replace";
 
 const lightCodeTheme = {
@@ -35,7 +36,6 @@ const config: Config = {
   trailingSlash: false,
   onBrokenLinks: "throw",
   onBrokenAnchors: "throw",
-  onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.svg",
   themeConfig: {
     announcementBar: {
@@ -195,6 +195,7 @@ const config: Config = {
             fileExtSwitcher,
             searchAndReplace,
             codeWithHole,
+            fixAPILinks,
           ],
 
           // ------ Configuration for multiple docs versions ------ //
@@ -321,6 +322,9 @@ const config: Config = {
       admonitions: true,
       comments: true,
       headingIds: true,
+    },
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
     },
   },
   future: {
