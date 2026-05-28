@@ -9,7 +9,7 @@ last_checked_with_versions:
 
 This guide shows you how to configure CORS (Cross-Origin Resource Sharing) to support multiple domains in your Wasp application using custom global middleware.
 
-:::warning Security matters here
+:::warning Potentially exposing your API
 A loose CORS config can expose your API to any client on the internet. Make sure to understand the [Security Considerations](#security-considerations) before proceeding.
 :::
 
