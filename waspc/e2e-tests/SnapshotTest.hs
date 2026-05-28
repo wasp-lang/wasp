@@ -20,9 +20,11 @@ import FileSystem
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
+    TestLogFile,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
+    snapshotLogFileInSnapshotsDir,
   )
 import ShellCommands (ShellCommand, ShellCommandBuilder, SnapshotTestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
 import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
@@ -31,9 +33,10 @@ import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.Exit (ExitCode (..))
 import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeFileName)
-import System.Process (CreateProcess (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
+import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
+import TestLogging (formatCommandFailure, openLogForCommand)
 
 data SnapshotTest = SnapshotTest
   { name :: String,
@@ -66,9 +69,10 @@ prepareSnapshotTestData snapshotTest = do
   let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Golden
       currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Current
       currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
+      logFile = snapshotsDir </> snapshotLogFileInSnapshotsDir snapshotTest.name
 
   setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
-  executeSnapshotTestCommand snapshotTest currentSnapshotDir
+  executeSnapshotTestCommand snapshotTest currentSnapshotDir logFile
   generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
   currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
 
@@ -100,12 +104,13 @@ setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
   callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
   callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
-executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO ()
-executeSnapshotTestCommand snapshotTest snapshotDir = do
-  putStrLn $ "Executing snapshot test: " ++ snapshotTest.name
-  putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommandInProcessGroup $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> Path' Abs (File TestLogFile) -> IO ()
+executeSnapshotTestCommand snapshotTest snapshotDir logFile =
+  callCommandInProcessGroup fullCommand logFile snapshotTest.name
   where
+    fullCommand :: ShellCommand
+    fullCommand = "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTest.shellCommandBuilder
 
@@ -248,14 +253,21 @@ isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirecto
 -- | Interruptible version of callCommand that terminates the entire process tree on async exception.
 -- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
 -- all child processes are also terminated rather than continuing to run.
-callCommandInProcessGroup :: String -> IO ()
-callCommandInProcessGroup cmd =
+callCommandInProcessGroup :: String -> Path' Abs (File TestLogFile) -> String -> IO ()
+callCommandInProcessGroup cmd logFile testName = do
+  (logOut, logErr) <- openLogForCommand logFile testName cmd
   bracket
-    (createProcess (shell cmd) {create_group = True})
+    ( createProcess
+        (shell cmd)
+          { create_group = True,
+            std_out = UseHandle logOut,
+            std_err = UseHandle logErr
+          }
+    )
     (\(_, _, _, ph) -> interruptProcessGroupOf ph)
     ( \(_, _, _, ph) -> do
         exitCode <- waitForProcess ph
         case exitCode of
           ExitSuccess -> return ()
-          ExitFailure code -> fail $ "Command failed with exit code " ++ show code ++ ": " ++ cmd
+          ExitFailure code -> fail =<< formatCommandFailure code logFile
     )
