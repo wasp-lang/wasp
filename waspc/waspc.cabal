@@ -853,6 +853,7 @@ test-suite waspc-e2e-tests
     ShellCommands
     SnapshotTest
     Test
+    TestLogging
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest
