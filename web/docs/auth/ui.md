@@ -22,7 +22,7 @@ After Wasp generates the UI components for your auth, you can use it as is, or c
 
 Based on the authentication providers you enabled in your `main.wasp.ts` file, the Auth UI will show the corresponding UI (form and buttons). For example, if you enabled e-mail authentication:
 
-```ts title="main.wasp.ts" {7}
+```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
 
 export default app({
@@ -30,6 +30,7 @@ export default app({
   //...
   auth: {
     methods: {
+      // highlight-next-line
       email: {},
     },
     // ...
@@ -44,7 +45,7 @@ You'll get the following UI:
 
 And then if you enable Google and Github:
 
-```ts title="main.wasp.ts" {8-9}
+```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
 
 export default app({
@@ -53,8 +54,10 @@ export default app({
   auth: {
     methods: {
       email: {},
+      // highlight-start
       google: {},
       gitHub: {},
+      // highlight-end
     },
     // ...
   },
