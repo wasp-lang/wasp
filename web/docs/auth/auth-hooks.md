@@ -1047,7 +1047,7 @@ It has the following fields:
 
 - `providerName: string`
 
-  The provider's name (e.g. `'email'`, `'google'`, `'github`)
+  The provider's name (e.g. `"email"`, `"google"`, `"github"`)
 
 - `providerUserId: string`
 
@@ -1061,7 +1061,7 @@ It has the following fields:
 
 - `providerName: string`
 
-  The name of the OAuth provider the user authenticated with (e.g. `'google'`, `'github'`).
+  The name of the OAuth provider the user authenticated with (e.g. `"google"`, `"github"`).
 
 - `tokens: Tokens`
 

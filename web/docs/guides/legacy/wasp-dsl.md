@@ -40,7 +40,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 | Configuring the app | <pre>app Name \{<br/>  auth: \{ ... },<br/>  server: \{ ... },<br/>}</pre> | <pre>app(\{<br/>  auth: ...,<br/>  server: ...,<br/>})</pre> |
 | Adding app declarations | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre> | <pre>app(\{<br/>  parts: [<br/>    route(...),<br/>    query(...),<br/>    action(...),<br/>  ]<br/>})</pre> |
 | Referencing code | `import { x } from "@src/..."` inside a declaration | `import { ... } from "./src/..." with { type: "ref" }` at the top level |
-| Entity references | `Task` (identifier) | `'Task'` (string) |
+| Entity references | `Task` (identifier) | `"Task"` (string) |
 
 ### App, routes, and pages
 
