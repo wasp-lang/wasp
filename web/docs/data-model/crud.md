@@ -456,133 +456,66 @@ CRUD declaration works on top of an existing entity declaration. We'll fully exp
 
 If we create CRUD operations for an entity named `Task`, like this:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec"
+```ts title="main.wasp.ts"
+import { app, crud } from "@wasp.sh/spec"
 
-    export default app({
-      // ...
-      parts: [
-        crud("Tasks", "Task", { // crud name here is "Tasks"
-          get: {},
-          getAll: {},
-          create: {},
-          update: {},
-          delete: {},
-        }),
-      ],
-    })
-    ```
+export default app({
+  // ...
+  parts: [
+    crud("Tasks", "Task", { // crud name here is "Tasks"
+      get: {},
+      getAll: {},
+      create: {},
+      update: {},
+      delete: {},
+    }),
+  ],
+})
+```
 
-    Wasp will give you the following default implementations:
+Wasp will give you the following default implementations:
 
-    **get** - returns one entity based on the `id` field
+**get** - returns one entity based on the `id` field
 
-    ```js
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.findUnique({ where: { id: args.id } })
-    ```
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.findUnique({ where: { id: args.id } })
+```
 
-    **getAll** - returns all entities
+**getAll** - returns all entities
 
-    ```js
-    // ...
+```ts
+// ...
 
-    // If the operation is not public, Wasp checks if an authenticated user
-    // is making the request.
+// If the operation is not public, Wasp checks if an authenticated user
+// is making the request.
 
-    return Task.findMany()
-    ```
+return Task.findMany()
+```
 
-    **create** - creates a new entity
+**create** - creates a new entity
 
-    ```js
-    // ...
-    return Task.create({ data: args.data })
-    ```
+```ts
+// ...
+return Task.create({ data: args.data })
+```
 
-    **update** - updates an existing entity
+**update** - updates an existing entity
 
-    ```js
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.update({ where: { id: args.id }, data: args.data })
-    ```
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.update({ where: { id: args.id }, data: args.data })
+```
 
-    **delete** - deletes an existing entity
+**delete** - deletes an existing entity
 
-    ```js
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.delete({ where: { id: args.id } })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec"
-
-    export default app({
-      // ...
-      parts: [
-        crud("Tasks", "Task", { // crud name here is "Tasks"
-          get: {},
-          getAll: {},
-          create: {},
-          update: {},
-          delete: {},
-        }),
-      ],
-    })
-    ```
-
-    Wasp will give you the following default implementations:
-
-    **get** - returns one entity based on the `id` field
-
-    ```ts
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.findUnique({ where: { id: args.id } })
-    ```
-
-    **getAll** - returns all entities
-
-    ```ts
-    // ...
-
-    // If the operation is not public, Wasp checks if an authenticated user
-    // is making the request.
-
-    return Task.findMany()
-    ```
-
-    **create** - creates a new entity
-
-    ```ts
-    // ...
-    return Task.create({ data: args.data })
-    ```
-
-    **update** - updates an existing entity
-
-    ```ts
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.update({ where: { id: args.id }, data: args.data })
-    ```
-
-    **delete** - deletes an existing entity
-
-    ```ts
-    // ...
-    // Wasp uses the field marked with `@id` in Prisma schema as the id field.
-    return Task.delete({ where: { id: args.id } })
-    ```
-  </TabItem>
-</Tabs>
+```ts
+// ...
+// Wasp uses the field marked with `@id` in Prisma schema as the id field.
+return Task.delete({ where: { id: args.id } })
+```
 
 :::info Current Limitations
 In the default `create` and `update` implementations, we are saving all of the data that the client sends to the server. This is not always desirable, i.e. in the case when the client should not be able to modify all of the data in the entity.
@@ -597,53 +530,26 @@ For now, the solution is to provide an override function. You can override the d
 
 Here's an example of a more complex CRUD declaration:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec"
-    import { createTask } from "./src/tasks" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app, crud } from "@wasp.sh/spec"
+import { createTask } from "./src/tasks" with { type: "ref" }
 
-    export default app({
-      // ...
-      parts: [
-        crud("Tasks", "Task", { // crud name here is "Tasks"
-          getAll: {
-            isPublic: true, // optional, defaults to false
-          },
-          get: {},
-          create: {
-            overrideFn: createTask, // optional
-          },
-          update: {},
-        }),
-      ],
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec"
-    import { createTask } from "./src/tasks" with { type: "ref" }
-
-    export default app({
-      // ...
-      parts: [
-        crud("Tasks", "Task", { // crud name here is "Tasks"
-          getAll: {
-            isPublic: true, // optional, defaults to false
-          },
-          get: {},
-          create: {
-            overrideFn: createTask, // optional
-          },
-          update: {},
-        }),
-      ],
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  // ...
+  parts: [
+    crud("Tasks", "Task", { // crud name here is "Tasks"
+      getAll: {
+        isPublic: true, // optional, defaults to false
+      },
+      get: {},
+      create: {
+        overrideFn: createTask, // optional
+      },
+      update: {},
+    }),
+  ],
+})
+```
 
 The `crud` function accepts the following arguments:
 

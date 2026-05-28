@@ -195,37 +195,18 @@ Seeding is most commonly used for:
 
 You can define as many **seed functions** as you want in an array under the `db.seeds` field:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
 
-    export default app({
-      name: "MyApp",
-      // ...
-      db: {
-        seeds: [devSeedSimple, prodSeed],
-      },
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
-
-    export default app({
-      name: "MyApp",
-      // ...
-      db: {
-        seeds: [devSeedSimple, prodSeed],
-      },
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "MyApp",
+  // ...
+  db: {
+    seeds: [devSeedSimple, prodSeed],
+  },
+})
+```
 
 Each seed function must be an async function that takes one argument, `prisma`, which is a [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud) instance used to interact with the database.
 This is the same Prisma Client instance that Wasp uses internally.
@@ -360,22 +341,22 @@ Wasp interacts with the database using the [Prisma Client](https://www.prisma.io
 To customize the client, define a function in the `db.prismaSetupFn` field that returns a Prisma Client instance.
 This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
 
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { setUpPrisma } from "./src/prisma" with { type: "ref" }
+
+export default app({
+  name: "MyApp",
+  title: "My app",
+  // ...
+  db: {
+    prismaSetupFn: setUpPrisma,
+  },
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { setUpPrisma } from "./src/prisma" with { type: "ref" }
-
-    export default app({
-      name: "MyApp",
-      title: "My app",
-      // ...
-      db: {
-        prismaSetupFn: setUpPrisma,
-      },
-    })
-    ```
-
     ```js title="src/prisma.js"
     import { PrismaClient } from "@prisma/client"
 
@@ -403,20 +384,6 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { setUpPrisma } from "./src/prisma" with { type: "ref" }
-
-    export default app({
-      name: "MyApp",
-      title: "My app",
-      // ...
-      db: {
-        prismaSetupFn: setUpPrisma,
-      },
-    })
-    ```
-
     ```ts title="src/prisma.ts"
     import { PrismaClient } from "@prisma/client"
 
@@ -446,43 +413,21 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
 
 ## API Reference
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import devSeed from "./src/dbSeeds" with { type: "ref" }
-    import { setUpPrisma } from "./src/prisma" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import devSeed from "./src/dbSeeds" with { type: "ref" }
+import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
-    export default app({
-      name: "MyApp",
-      title: "My app",
-      // ...
-      db: {
-        seeds: [devSeed],
-        prismaSetupFn: setUpPrisma,
-      },
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import devSeed from "./src/dbSeeds" with { type: "ref" }
-    import { setUpPrisma } from "./src/prisma" with { type: "ref" }
-
-    export default app({
-      name: "MyApp",
-      title: "My app",
-      // ...
-      db: {
-        seeds: [devSeed],
-        prismaSetupFn: setUpPrisma,
-      },
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "MyApp",
+  title: "My app",
+  // ...
+  db: {
+    seeds: [devSeed],
+    prismaSetupFn: setUpPrisma,
+  },
+})
+```
 
 `db` is an object with the following fields (all fields are optional):
 
@@ -521,43 +466,21 @@ Use one of the following commands to run the seed functions:
   This command runs the seed function with the specified name. Wasp derives this name from the imported function name you list in `db.seeds`.
   For example, to run the seed function `devSeedSimple` which was defined like this:
 
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```ts title="main.wasp.ts"
-      import { app } from "@wasp.sh/spec"
-      import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
+  ```ts title="main.wasp.ts"
+  import { app } from "@wasp.sh/spec"
+  import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
 
-      export default app({
-        name: "MyApp",
+  export default app({
+    name: "MyApp",
+    // ...
+    db: {
+      seeds: [
         // ...
-        db: {
-          seeds: [
-            // ...
-            devSeedSimple,
-          ],
-        },
-      })
-      ```
-    </TabItem>
-
-    <TabItem value="ts" label="TypeScript">
-      ```ts title="main.wasp.ts"
-      import { app } from "@wasp.sh/spec"
-      import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
-
-      export default app({
-        name: "MyApp",
-        // ...
-        db: {
-          seeds: [
-            // ...
-            devSeedSimple,
-          ],
-        },
-      })
-      ```
-    </TabItem>
-  </Tabs>
+        devSeedSimple,
+      ],
+    },
+  })
+  ```
 
   Use the following command:
 

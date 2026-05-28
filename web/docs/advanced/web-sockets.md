@@ -23,39 +23,19 @@ Let's go through setting up WebSockets step by step, starting with enabling WebS
 
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { webSocketFn } from "./src/webSocket" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
-    export default app({
-      name: "todoApp",
-      webSocket: {
-        fn: webSocketFn,
-        autoConnect: true, // optional, default: true
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { webSocketFn } from "./src/webSocket" with { type: "ref" }
-
-    export default app({
-      name: "todoApp",
-      webSocket: {
-        fn: webSocketFn,
-        autoConnect: true, // optional, default: true
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "todoApp",
+  webSocket: {
+    fn: webSocketFn,
+    autoConnect: true, // optional, default: true
+  },
+  // ...
+})
+```
 
 ## Defining the Events Handler
 
@@ -77,7 +57,7 @@ This is how we can define our `webSocketFn` function:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="src/webSocket.js"
+    ```js title="src/webSocket.js"
     import { v4 as uuidv4 } from "uuid"
 
     export const webSocketFn = (io, context) => {
@@ -168,7 +148,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```tsx title="src/ChatPage.jsx"
+    ```jsx title="src/ChatPage.jsx"
     import React, { useState } from "react"
     import {
       useSocket,
@@ -301,39 +281,19 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
 ## API Reference
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { webSocketFn } from "./src/webSocket" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
-    export default app({
-      name: "todoApp",
-      webSocket: {
-        fn: webSocketFn,
-        autoConnect: true, // optional, default: true
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { webSocketFn } from "./src/webSocket" with { type: "ref" }
-
-    export default app({
-      name: "todoApp",
-      webSocket: {
-        fn: webSocketFn,
-        autoConnect: true, // optional, default: true
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "todoApp",
+  webSocket: {
+    fn: webSocketFn,
+    autoConnect: true, // optional, default: true
+  },
+  // ...
+})
+```
 
 The `webSocket` object has the following fields:
 

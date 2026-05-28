@@ -6,41 +6,20 @@ import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 
 You can configure the behavior of the server via the `server` field of `app` declaration:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
-    export default app({
-      name: "MyApp",
-      title: "My app",
-      server: {
-        setupFn: mySetupFunction,
-        middlewareConfigFn: myMiddlewareConfigFn,
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
-
-    export default app({
-      name: "MyApp",
-      title: "My app",
-      server: {
-        setupFn: mySetupFunction,
-        middlewareConfigFn: myMiddlewareConfigFn,
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "MyApp",
+  title: "My app",
+  server: {
+    setupFn: mySetupFunction,
+    middlewareConfigFn: myMiddlewareConfigFn,
+  },
+  // ...
+})
+```
 
 ## Setup Function
 
@@ -58,7 +37,7 @@ As an example, adding a custom route would look something like:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```js title="src/myServerSetupCode.ts"
+    ```js title="src/myServerSetupCode.js"
     export const mySetupFunction = async ({ app }) => {
       addCustomRoute(app)
     }
@@ -168,41 +147,20 @@ Read more about [middleware config function](#middlewareconfigfn-reference) belo
 
 ## API Reference
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
 
-    export default app({
-      name: "MyApp",
-      title: "My app",
-      server: {
-        setupFn: mySetupFunction,
-        middlewareConfigFn: myMiddlewareConfigFn,
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
-
-    export default app({
-      name: "MyApp",
-      title: "My app",
-      server: {
-        setupFn: mySetupFunction,
-        middlewareConfigFn: myMiddlewareConfigFn,
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "MyApp",
+  title: "My app",
+  server: {
+    setupFn: mySetupFunction,
+    middlewareConfigFn: myMiddlewareConfigFn,
+  },
+  // ...
+})
+```
 
 `server` is an object with the following fields:
 
