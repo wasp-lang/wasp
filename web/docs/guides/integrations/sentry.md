@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   "@sentry/node": "8"
   "@sentry/react": "8"
 ---
@@ -36,25 +36,29 @@ npm install @sentry/node @sentry/react
 
 ### 3. Configure your Wasp file
 
-Add both the server and client setup functions to your `main.wasp`:
+Add both the server and client setup functions to your `main.wasp.ts`:
 
-```wasp title="main.wasp"
-app MyApp {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { setupClient } from "./src/clientSetup" with { type: "ref" }
+import { setupServer } from "./src/serverSetup" with { type: "ref" }
+
+export default app({
+  name: "MyApp",
   wasp: {
-    version: "^0.21.0"
+    version: "^0.24.0",
   },
   title: "my-app",
   server: {
-    // highlight-start
-    setupFn: import { setupServer } from "@src/serverSetup"
-    // highlight-end
+    // highlight-next-line
+    setupFn: setupServer,
   },
   client: {
-    // highlight-start
-    setupFn: import { setupClient } from "@src/clientSetup"
-    // highlight-end
+    // highlight-next-line
+    setupFn: setupClient,
   },
-}
+  // ...
+})
 ```
 
 ### 4. Configure Server-Side Sentry

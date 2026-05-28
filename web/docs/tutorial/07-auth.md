@@ -41,10 +41,13 @@ Next, tell Wasp to use full-stack [authentication](../auth/overview):
 
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-app TodoApp {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "TodoApp",
   wasp: {
-    version: "{latestWaspVersion}"
+    version: "{latestWaspVersion}",
   },
   title: "TodoApp",
   head: [
@@ -53,18 +56,19 @@ app TodoApp {
   // highlight-start
   auth: {
     // Tells Wasp which entity to use for storing users.
-    userEntity: User,
+    userEntity: "User",
     methods: {
       // Enable username and password auth.
-      usernameAndPassword: {}
+      usernameAndPassword: {},
     },
     // We'll see how this is used in a bit.
-    onAuthFailedRedirectTo: "/login"
-  }
+    onAuthFailedRedirectTo: "/login",
+  },
   // highlight-end
-}
-
-// ...
+  decls: [
+    // ...
+  ],
+})
 ```
 </TutorialAction>
 
@@ -93,18 +97,22 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+// highlight-start
+import { SignupPage } from "./src/SignupPage" with { type: "ref" }
+import { LoginPage } from "./src/LoginPage" with { type: "ref" }
+// highlight-end
 
-route SignupRoute { path: "/signup", to: SignupPage }
-page SignupPage {
-  component: import { SignupPage } from "@src/SignupPage"
-}
-
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { LoginPage } from "@src/LoginPage"
-}
+export default app({
+  // ...
+  decls: [
+    // highlight-start
+    route("SignupRoute", "/signup", page(SignupPage)),
+    route("LoginRoute", "/login", page(LoginPage)),
+    // highlight-end    
+  ],
+})
 ```
 </TutorialAction>
 
@@ -166,18 +174,23 @@ We don't want users who are not logged in to access the main page, because they 
 
 <TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 
-page MainPage {
-  // highlight-next-line
-  authRequired: true,
-  component: import { MainPage } from "@src/MainPage"
-}
+export default app({
+  // ...
+  decls: [
+    route("RootRoute", "/", page(MainPage, {
+      // highlight-next-line
+      authRequired: true,
+    }),
+  ],
+})
 ```
 </TutorialAction>
 
-Now that auth is required for this page, unauthenticated users will be redirected to `/login`, as we specified with `app.auth.onAuthFailedRedirectTo`.
+Now that auth is required for this page, unauthenticated users will be redirected to `/login`, as we specified with `auth.onAuthFailedRedirectTo`.
 
 Additionally, when `authRequired` is `true`, the page's React component will be provided a `user` object as prop.
 

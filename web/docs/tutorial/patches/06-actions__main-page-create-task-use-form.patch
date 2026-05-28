@@ -1,8 +1,8 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index eb804b9..cd11965 100644
+index 414406f..6ee0dbe 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
-@@ -8,6 +8,7 @@ export const MainPage = () => {
+@@ -7,6 +7,7 @@ export const MainPage = () => {
  
    return (
      <div>

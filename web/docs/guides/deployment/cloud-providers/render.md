@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   Render: 2026-04-15
 ---
 
@@ -40,6 +40,7 @@ services:
     buildCommand: >-
       npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
+      wasp install &&
       wasp build &&
       cd .wasp/out/server &&
       npm install &&
@@ -68,6 +69,7 @@ services:
     buildCommand: >-
       npm install -g @wasp.sh/wasp-cli@<wasp-version> &&
       export PATH="$(npm prefix -g)/bin:$PATH" &&
+      wasp install &&
       wasp build &&
       npx vite build
     staticPublishPath: .wasp/out/web-app/build
@@ -93,7 +95,7 @@ You should replace the following values for your app:
 | Variable | Value | Example |
 |---|---|---|
 | `<app-name>` | A unique name for your app | `my-wasp-app` |
-| `<wasp-version>` | The Wasp CLI version you're using | `0.23` |
+| `<wasp-version>` | The Wasp CLI version you're using | `0.24` |
 | `<plan>` | The Render plan for your services | `free` |
 | `<region>` | The Render region closest to your users | `oregon` |
 
