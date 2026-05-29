@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import { mapExtImport } from "../../src/spec/extImport.js";
+import { mapExtImport } from "../../src/spec/refObject.js";
 import {
   deriveExtImportName,
   makeRefParser,

@@ -98,7 +98,7 @@ describe("Env validation schema input types", () => {
     const schemaImport = {
       importDefault: "schema",
       from: "@src/env",
-    } satisfies TsAppSpec.ExtImport;
+    } satisfies TsAppSpec.RefObject;
 
     assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
     assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });

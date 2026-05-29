@@ -1,5 +1,5 @@
-import type { ExtImport } from "../spec/extImport.js";
-import { isNamedExtImport } from "../spec/extImport.js";
+import type { RefObject } from "../spec/refObject.js";
+import { isNamedExtImport } from "../spec/refObject.js";
 import type { ImportLoweringPlan } from "./planImportLowering/index.js";
 import { planImportLowering } from "./planImportLowering/index.js";
 import type {
@@ -71,7 +71,7 @@ function getNamespaceImportProxySource(
   return `const ${binding.localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
 }
 
-function getExtImportObjectLiteralSource(extImport: ExtImport): string {
+function getExtImportObjectLiteralSource(extImport: RefObject): string {
   if (isNamedExtImport(extImport)) {
     const fields: Field[] = [
       ["import", extImport.import],

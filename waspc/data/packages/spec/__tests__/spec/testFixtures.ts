@@ -592,7 +592,7 @@ export function getExtImport<
 export function getExtImport(
   scope: ConfigScope,
   importKind: AppSpec.ExtImportKind,
-): Config<TsAppSpec.ExtImport> {
+): Config<TsAppSpec.RefObject> {
   switch (importKind) {
     case "named":
       return scope === "full"
@@ -679,8 +679,8 @@ type IsExclusionMarker<V> = [Exclude<V, undefined>] extends [never]
   : false;
 
 type ExtImportFor<Kind extends AppSpec.ExtImportKind> = Kind extends "named"
-  ? TsAppSpec.NamedExtImport
-  : TsAppSpec.DefaultExtImport;
+  ? TsAppSpec.NamedRefObject
+  : TsAppSpec.DefaultRefObject;
 
 type ConfigFor<Scope extends ConfigScope, Data> = Scope extends "full"
   ? FullConfig<Data>

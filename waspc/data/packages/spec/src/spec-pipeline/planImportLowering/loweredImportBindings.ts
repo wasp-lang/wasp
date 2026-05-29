@@ -1,24 +1,24 @@
 import * as ts from "typescript";
-import type { ExtImport } from "../../spec/extImport.js";
+import type { RefObject } from "../../spec/refObject.js";
 
 export type LoweredImportBinding = ExtImportBinding | NamespaceImportBinding;
 
 type ExtImportBinding = {
   kind: "extImport";
   localName: string;
-  extImport: ExtImport;
+  extImport: RefObject;
 };
 
 export type NamespaceImportBinding = {
   kind: "namespace";
   localName: string;
-  from: ExtImport["from"];
+  from: RefObject["from"];
   aliasPrefix: string;
 };
 
 export function getLoweredImportBindings(
   clause: ts.ImportClause,
-  from: ExtImport["from"],
+  from: RefObject["from"],
 ): LoweredImportBinding[] {
   const bindings: LoweredImportBinding[] = [];
 
