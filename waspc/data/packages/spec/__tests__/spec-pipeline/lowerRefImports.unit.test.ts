@@ -133,6 +133,23 @@ describe("lowerRefImports", () => {
     expect(lower(input)).toBe(input);
   });
 
+  test("rewrites explicit refImport imports", () => {
+    const input = [
+      `import { app, refImport } from "@wasp.sh/spec";`,
+      `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
+      ``,
+    ].join("\n");
+
+    expect(lower(input)).toBe(
+      [
+        `import { app, makeRefImport } from "@wasp.sh/spec";`,
+        `const refImport = makeRefImport(import.meta.url);`,
+        `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
   test.each([
     {
       source: `import "./src/setup" with { type: "ref" };\n`,

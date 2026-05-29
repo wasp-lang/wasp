@@ -1,5 +1,6 @@
 import type { ExtImport } from "../spec/refImport.js";
 import { isNamedExtImport } from "../spec/refImport.js";
+import { ensureSourceAwareRefImport } from "./ensureSourceAwareRefImport.js";
 import type { ImportLoweringPlan } from "./planImportLowering/index.js";
 import { planImportLowering } from "./planImportLowering/index.js";
 import type {
@@ -20,9 +21,19 @@ export function lowerRefImports({
   sourcePath: string;
   projectRootDir: string;
 }): string {
-  return applyImportLoweringPlan(
+  const sourceAwareRefImport = ensureSourceAwareRefImport({
     sourceText,
-    planImportLowering({ sourceText, sourcePath, projectRootDir }),
+    sourcePath,
+    required: false,
+  });
+
+  return applyImportLoweringPlan(
+    sourceAwareRefImport.sourceText,
+    planImportLowering({
+      sourceText: sourceAwareRefImport.sourceText,
+      sourcePath,
+      projectRootDir,
+    }),
   );
 }
 
