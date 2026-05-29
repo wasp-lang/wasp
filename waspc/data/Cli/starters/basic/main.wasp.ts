@@ -16,5 +16,5 @@ export default app({
   client: {
     rootComponent: App,
   },
-  parts: [...auth, ...tasks, ...tags],
+  decls: [...auth, ...tasks, ...tags],
 });

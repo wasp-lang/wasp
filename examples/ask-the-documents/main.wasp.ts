@@ -37,7 +37,7 @@ export default app({
   server: {
     envValidationSchema: serverEnvValidation,
   },
-  parts: [
+  decls: [
     route("RootRoute", "/", page(Main), { prerender: true }),
 
     action(embedDocument, { entities: ["Document"] }),

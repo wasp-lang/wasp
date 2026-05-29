@@ -31,7 +31,7 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("RootRoute", "/", page(MainPage)),
     // highlight-start
     apiNamespace("/api/upload", { middlewareConfigFn: configureFileUploadMiddleware }),

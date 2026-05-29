@@ -1,4 +1,4 @@
-import { action, page, route, type Auth, type Part } from "@wasp.sh/spec";
+import { action, page, route, type Auth, type Decl } from "@wasp.sh/spec";
 
 import { customSignup } from "./customSignup" with { type: "ref" };
 import {
@@ -90,7 +90,7 @@ export const authConfig: Auth = {
   onAfterLogin,
 };
 
-export const auth: Part[] = [
+export const auth: Decl[] = [
   route("SignupRoute", "/signup", page(Signup)),
   route("LoginRoute", "/login", page(Login)),
   route("PasswordResetRoute", "/password-reset", page(PasswordReset)),

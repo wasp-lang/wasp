@@ -40,7 +40,7 @@ export default app({
       // highlight-end
     },
   },
-  parts: [
+  decls: [
     route("RootRoute", "/", page(MainPage)),
     // highlight-start
     api("GET", "/auth/spotify", authWithSpotify),

@@ -134,7 +134,7 @@ import { webhookCallback, webhookCallbackMiddlewareFn } from "./src/apis" with {
 
 export default app({
   // ...
-  parts: [
+  decls: [
     api("POST", "/webhook/callback", webhookCallback, {
       middlewareConfigFn: webhookCallbackMiddlewareFn,
       auth: false,
@@ -206,7 +206,7 @@ import { fooBarNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     apiNamespace("/foo/bar", {
       middlewareConfigFn: fooBarNamespaceMiddlewareFn,
     }),

@@ -117,7 +117,7 @@ import Main from "./src/pages/Main" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("MainRoute", "/", page(Main, { authRequired: true })),
   ],
 })
@@ -184,7 +184,7 @@ import Account from "./src/pages/Account" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("AccountRoute", "/account", page(Account, {
       authRequired: true
     })),
@@ -295,7 +295,7 @@ import { updatePassword } from "./src/auth" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     action(updatePassword),
   ],
 })

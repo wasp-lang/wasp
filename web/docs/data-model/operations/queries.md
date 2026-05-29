@@ -45,7 +45,7 @@ import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref"
 
 export default app({
   // ...
-  parts: [
+  decls: [
     query(getAllTasks),
     query(getFilteredTasks),
   ],
@@ -456,7 +456,7 @@ import { getAllTasks, getFilteredTasks } from "./src/queries" with { type: "ref"
 
 export default app({
   // ...
-  parts: [
+  decls: [
     query(getAllTasks, { entities: ["Task"] }),
     query(getFilteredTasks, { entities: ["Task"] }),
   ],
@@ -536,7 +536,7 @@ Declare a Query with `query(fn, config)`:
 
     export default app({
       // ...
-      parts: [
+      decls: [
         query(getFoo, { entities: ["Foo"] }),
       ],
     })
@@ -564,7 +564,7 @@ Declare a Query with `query(fn, config)`:
 
     export default app({
       // ...
-      parts: [
+      decls: [
         query(getFoo, { entities: ["Foo"] }),
       ],
     })
@@ -635,7 +635,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     export default app({
       // ...
-      parts: [
+      decls: [
         query(getFoo, { entities: ["Foo"] }),
       ],
     })
@@ -659,7 +659,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     export default app({
       // ...
-      parts: [
+      decls: [
         query(getFoo, { entities: ["Foo"] }),
       ],
     })

@@ -37,7 +37,7 @@ export default app({
   auth: {
     // ...
   },
-  parts: [
+  decls: [
     // Defining routes and pages
     route("SignupRoute", "/signup", page(SignupPage)),
     // ...
@@ -115,7 +115,7 @@ import { LoginPage, SignupPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("LoginRoute", "/login", page(LoginPage)),
     route("SignupRoute", "/signup", page(SignupPage)),
   ],

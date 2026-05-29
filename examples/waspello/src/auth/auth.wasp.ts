@@ -1,9 +1,9 @@
-import { page, route, type Part } from "@wasp.sh/spec";
+import { page, route, type Decl } from "@wasp.sh/spec";
 
 import LoginPage from "./LoginPage" with { type: "ref" };
 import SignupPage from "./SignupPage" with { type: "ref" };
 
-export const auth: Part[] = [
+export const auth: Decl[] = [
   route("SignupRoute", "/signup", page(SignupPage)),
   route("LoginRoute", "/login", page(LoginPage)),
 ];

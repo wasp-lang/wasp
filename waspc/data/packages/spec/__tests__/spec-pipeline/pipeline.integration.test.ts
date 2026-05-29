@@ -59,7 +59,7 @@ describe("Wasp TS spec pipeline", () => {
         `  name: "demo",`,
         `  title: splitTitle,`,
         `  wasp: { version: "^0.16.0" },`,
-        `  parts: [homePage, archiveAction],`,
+        `  decls: [homePage, archiveAction],`,
         `});`,
       ].join("\n"),
     );

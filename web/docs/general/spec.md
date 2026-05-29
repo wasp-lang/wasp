@@ -26,7 +26,7 @@ export default app({
   name: 'todoApp',
   title: 'ToDo App',
   wasp: { version: '^0.24.0' },
-  parts: [
+  decls: [
     route('MainRoute', '/', page(MainPage, { authRequired: true })),
     query(getTasks, { entities: ['Task'] }),
   ],
@@ -37,7 +37,7 @@ You build your app by:
 
 1. Importing the building blocks (`app`, `page`, `route`, `query`, ...) from `@wasp.sh/spec`.
 2. Importing your own components and functions adding the import attribute `with { type: "ref" }`.
-3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `parts` array.
+3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `decls` array.
 4. Exporting the result as the **default export** of the file.
 
 ## `wasp install`
@@ -61,7 +61,7 @@ import MainPage from './src/MainPage' with { type: "ref" }
 import { getTasks } from './src/queries' with { type: "ref" }
 
 export default app({
-  parts: [
+  decls: [
     page(MainPage),
     query(getTasks)
   ]
@@ -95,7 +95,7 @@ Just pass an object with `import` (or `importDefault`) and `from`:
 
   ```ts
   export default app({
-    parts: [
+    decls: [
         page({ importDefault: 'MainPage', from: '@src/MainPage' }),
         query({ import: 'getTasks', from: '@src/queries' }),
         // You can rename a named import with `alias`:
@@ -110,23 +110,23 @@ The `from` path should always start with `@src` and is relative to your project'
 
 ### Splitting your spec into multiple files
 
-For larger apps you don't have to keep everything in `main.wasp.ts`. You can move related parts into their own `*.wasp.ts` files and combine them in `main.wasp.ts`.
+For larger apps you don't have to keep everything in `main.wasp.ts`. You can move related declarations into their own `*.wasp.ts` files and combine them in `main.wasp.ts`.
 
-A feature file exports an array of parts:
+A feature file exports an array of `Decl`s:
 
 ```ts title="src/auth/auth.wasp.ts"
-import { page, route, Part } from '@wasp.sh/spec'
+import { page, route, Decl } from '@wasp.sh/spec'
 
 import LoginPage from './LoginPage' with { type: "ref" }
 import SignupPage from './SignupPage' with { type: "ref" }
 
-export const auth: Part[] = [
+export const auth: Decl[] = [
   route('SignupRoute', '/signup', page(SignupPage)),
   route('LoginRoute', '/login', page(LoginPage)),
 ]
 ```
 
-Then `main.wasp.ts` imports it and spreads it into `parts`:
+Then `main.wasp.ts` imports it and spreads it into `decls`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from '@wasp.sh/spec'
@@ -138,7 +138,7 @@ export default app({
   name: 'todoApp',
   title: 'ToDo App',
   wasp: { version: '^0.24.0' },
-  parts: [
+  decls: [
     route('MainRoute', '/', page(MainPage, { authRequired: true })),
     ...auth,
   ],

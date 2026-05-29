@@ -14,7 +14,7 @@ import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("PhotoRoute", "/photo/:photoId", page(PhotoPage)),
   ],
 })
@@ -41,7 +41,7 @@ import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("PhotoRoute", "/photo/:photoId/edit?", page(PhotoPage)),
   ],
 })
@@ -70,7 +70,7 @@ import { FilesPage } from "./src/FilesPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("FilesRoute", "/files/*", page(FilesPage)),
   ],
 })
@@ -101,7 +101,7 @@ import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 // This route's page will be included in the initial bundle
 export default app({
   // ...
-  parts: [
+  decls: [
     route("DashboardRoute", "/dashboard", page(DashboardPage), { lazy: false }),
   ],
 })
@@ -121,7 +121,7 @@ import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("LandingRoute", "/", page(LandingPage), { prerender: true }),
   ],
 })

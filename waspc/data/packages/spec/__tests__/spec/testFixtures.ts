@@ -26,7 +26,7 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
         name: "MinimalApp",
         wasp: { version: "^0.16.3" },
         title: "Mock App",
-        parts: [],
+        decls: [],
       });
     case "full":
       return app({
@@ -40,7 +40,7 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
         db: getDbConfig("full"),
         emailSender: getEmailSenderConfig("full"),
         webSocket: getWebSocketConfig("full"),
-        parts: [
+        decls: [
           getPage("full"),
           getRoute("full"),
           getQuery("full"),
@@ -55,10 +55,10 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
   }
 }
 
-export function getMinimalAppWithParts(parts: TsAppSpec.Part[]): TsAppSpec.App {
+export function getMinimalAppWithDecls(decls: TsAppSpec.Decl[]): TsAppSpec.App {
   return {
     ...getApp("minimal"),
-    parts,
+    decls,
   };
 }
 
@@ -192,7 +192,7 @@ export function getCrud<Scope extends ConfigScope>(
   scope: Scope,
 ): ConfigFor<Scope, TsAppSpec.Crud>;
 export function getCrud(scope: ConfigScope): Config<TsAppSpec.Crud> {
-  // NOTE: Unlike the other parts, this fixture builds the object literally
+  // NOTE: Unlike the other decls, this fixture builds the object literally
   // instead of calling the `crud()` constructor. `crud()` returns the public
   // `Crud` type, whose `operations: CrudOperations` (all fields optional)
   // satisfies neither `MinimalConfig<Crud>` (operations collapse to an empty

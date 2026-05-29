@@ -12,7 +12,7 @@ export default app({
   auth: {
     // ...
   },
-  parts: [
+  decls: [
     // Defining routes and pages
     route("LoginRoute", "/login", page(LoginPage)),
   ],

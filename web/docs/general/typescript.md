@@ -49,7 +49,7 @@ import { getTaskInfo } from "./src/queries" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     query(getTaskInfo, { entities: ["Task"] }),
   ],
 })
