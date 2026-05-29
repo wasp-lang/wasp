@@ -9,6 +9,13 @@ export type EnsureSourceAwareRefImportResult = {
   refImportName?: string;
 };
 
+/**
+ * Rewrites explicit `refImport(...)` usage so the local helper is created with
+ * `makeRefImport(import.meta.url)`.
+ *
+ * Ref imports need the user's `.wasp.ts` file location. This rewrite makes
+ * both handwritten and generated `refImport(...)` calls use that location.
+ */
 export function ensureSourceAwareRefImport({
   sourceText,
   sourcePath,

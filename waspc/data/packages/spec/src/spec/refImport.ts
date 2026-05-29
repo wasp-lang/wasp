@@ -46,6 +46,14 @@ export function refImport<T extends RefImportDescriptor>(
   return { ...descriptor, kind: "refImport" } as RefImport<T>;
 }
 
+/**
+ * Creates a `refImport` helper bound to the user's `.wasp.ts` file.
+ *
+ * Ref imports need the current spec file location to resolve relative paths,
+ * but `refImport` itself can't use `import.meta.url` because it would point to
+ * this helper module. `makeRefImport(import.meta.url)` lets each `.wasp.ts`
+ * file create a local `refImport` that carries its own source file path.
+ */
 export function makeRefImport(
   importingFileUrl: string,
 ): SourceAwareRefImportHelper {
@@ -57,6 +65,17 @@ export function makeRefImport(
     >;
 }
 
+/**
+ * Converts a public `RefImport` into the internal `AppSpec.ExtImport` shape.
+ *
+ * This is the only place relative reference paths are normalized, keeping the
+ * TypeScript API source-relative while preserving the `@src/...` shape expected
+ * by the Haskell compiler.
+ *
+ * For example, `{ importDefault: "MainPage", from: "./src/MainPage" }` from
+ * `/app/main.wasp.ts` becomes `{ kind: "default", name: "MainPage", path:
+ * "@src/MainPage" }`.
+ */
 export function mapRefImportToExtImport(
   refImport: unknown,
   { projectRootDir }: { projectRootDir: string },
