@@ -6,6 +6,7 @@ import type {
   LoweredImportBinding,
   NamespaceImportBinding,
 } from "./planImportLowering/loweredImportBindings.js";
+import { applyEdits, type Edit } from "./sourceEdits.js";
 
 /**
  * Given source code, finds supported ref import statements and replaces them
@@ -31,33 +32,24 @@ export function lowerRefImports({
     sourcePath,
   });
 
-  return applyImportLoweringPlan(
+  return applyEdits(
     sourceAwareRefImport.sourceText,
-    plan,
-    sourceAwareRefImport.refImportName ?? "refImport",
+    getImportLoweringEdits(
+      plan,
+      sourceAwareRefImport.refImportName ?? "refImport",
+    ),
   );
 }
 
-function applyImportLoweringPlan(
-  sourceText: string,
+function getImportLoweringEdits(
   plan: ImportLoweringPlan,
   refImportName: string,
-): string {
-  let sourceCursor = 0;
-  let modifiedSource = "";
-
-  for (const replacement of plan.replacements) {
-    modifiedSource += sourceText.slice(sourceCursor, replacement.start);
-    modifiedSource += getImportReplacementSource(
-      replacement.bindings,
-      refImportName,
-    );
-    sourceCursor = replacement.end;
-  }
-
-  modifiedSource += sourceText.slice(sourceCursor);
-
-  return modifiedSource;
+): Edit[] {
+  return plan.replacements.map((replacement) => ({
+    start: replacement.start,
+    end: replacement.end,
+    text: getImportReplacementSource(replacement.bindings, refImportName),
+  }));
 }
 
 function getImportReplacementSource(
