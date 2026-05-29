@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { ExtImport } from "../../spec/extImport.js";
+import type { ExtImport } from "../../spec/refImport.js";
 import { SpecUserError } from "../../spec/specUserError.js";
 
 export function getExtImportPathForRefImport({

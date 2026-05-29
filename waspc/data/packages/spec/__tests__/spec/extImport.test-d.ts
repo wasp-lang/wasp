@@ -1,7 +1,17 @@
 import { assertType, describe, test } from "vitest";
+import { refImport } from "../../src/spec/publicApi/index.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 describe("ExtImport input types", () => {
+  test("should accept refImport helper output at reference use sites", () => {
+    const component = refImport({
+      importDefault: "MainPage",
+      from: "@src/MainPage",
+    });
+
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+  });
+
   test("should accept functions at ExtImport use sites", () => {
     const component = () => null;
     const operation = async (_args: { id: string }) => null;
@@ -95,6 +105,8 @@ describe("Env validation schema input types", () => {
   });
 
   test("should accept ExtImport env validation schemas", () => {
+    // TODO: Remove raw ExtImport coverage after reference import lowering emits
+    // refImport(...) calls instead of plain descriptors.
     const schemaImport = {
       importDefault: "schema",
       from: "@src/env",

@@ -1,5 +1,5 @@
-import type { ExtImport } from "../spec/extImport.js";
-import { isNamedExtImport } from "../spec/extImport.js";
+import type { ExtImport } from "../spec/refImport.js";
+import { isNamedExtImport } from "../spec/refImport.js";
 import type { ImportLoweringPlan } from "./planImportLowering/index.js";
 import { planImportLowering } from "./planImportLowering/index.js";
 import type {

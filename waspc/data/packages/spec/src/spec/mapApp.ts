@@ -7,7 +7,7 @@
 
 import * as OutputAppSpec from "../appSpec.js";
 import type { AnyFunction } from "../typeUtils.js";
-import { mapExtImport } from "./extImport.js";
+import { mapExtImport } from "./refImport.js";
 import * as InputAppSpec from "./publicApi/tsAppSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
@@ -516,7 +516,7 @@ function mapDecls<T, DeclType extends OutputAppSpec.Decl["declType"]>(
 }
 
 export function deriveExtImportName(
-  extImport: InputAppSpec.ExtImport | AnyFunction,
+  extImport: InputAppSpec.RefImport | InputAppSpec.ExtImport | AnyFunction,
 ): string {
   const mappedExtImport = mapExtImport(extImport);
 

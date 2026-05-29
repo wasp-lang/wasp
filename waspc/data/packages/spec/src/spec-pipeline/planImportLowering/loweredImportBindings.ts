@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import type { ExtImport } from "../../spec/extImport.js";
+import type { ExtImport } from "../../spec/refImport.js";
 
 export type LoweredImportBinding = ExtImportBinding | NamespaceImportBinding;
 

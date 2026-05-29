@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
-import { mapExtImport } from "../../src/spec/extImport.js";
+import { mapExtImport, refImport } from "../../src/spec/refImport.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";
@@ -34,6 +34,8 @@ describe("mapExtImport", () => {
   });
 
   function testMapExtImport(extImport: TsAppSpec.ExtImport): void {
+    // TODO: Remove raw ExtImport coverage after reference import lowering emits
+    // refImport(...) calls instead of plain descriptors.
     const result = mapExtImport(extImport);
 
     if ("import" in extImport) {
@@ -51,4 +53,16 @@ describe("mapExtImport", () => {
       } satisfies AppSpec.ExtImport);
     }
   }
+});
+
+describe("refImport", () => {
+  test("marks a descriptor as a RefImport", () => {
+    expect(
+      refImport({ importDefault: "MainPage", from: "@src/MainPage" }),
+    ).toStrictEqual({
+      kind: "refImport",
+      importDefault: "MainPage",
+      from: "@src/MainPage",
+    });
+  });
 });

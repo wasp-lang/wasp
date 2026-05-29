@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { RequireOneOrNone } from "type-fest";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
-import type { ExtImport } from "../extImport.js";
+import type { ExtImport, RefImport } from "../refImport.js";
 import { FromRegister } from "./register.js";
 
 /**
@@ -828,31 +828,50 @@ type Entities = FromRegister<"entities", {}>;
 
 /**
  * A reference to your app's code. Prefer importing the value with
- * `with { type: "ref" }`; use a reference object ({@link ExtImport}) when a
- * direct reference import is not practical.
+ * `with { type: "ref" }`; use {@link refImport} when a direct reference import
+ * is not practical.
  *
  * See [Reference imports](https://wasp.sh/docs/general/spec#reference-imports).
  */
-export type Reference<T> = ExtImport | T;
+// TODO: Remove raw ExtImport from Reference after reference import lowering
+// emits refImport(...) calls instead of plain descriptors.
+export type Reference<T> = RefImport | ExtImport | T;
 
 export type {
+  /**
+   * Default-import variant of {@link RefImportDescriptor}.
+   */
+  DefaultRefImportDescriptor,
   /**
    * Default-import variant of {@link ExtImport}, written as
    * `{ importDefault: 'X', from: '@src/...' }`.
    */
   DefaultExtImport,
   /**
+   * A user-facing reference object, pointing to a value in the project's `src`
+   * directory.
+   */
+  RefImport,
+  /**
+   * Descriptor accepted by {@link refImport}.
+   */
+  RefImportDescriptor,
+  /**
    * A reference object, pointing to a value in the project's `src` directory.
    * Used wherever the spec accepts a reference to user code.
    */
   ExtImport,
+  /**
+   * Named-import variant of {@link RefImportDescriptor}.
+   */
+  NamedRefImportDescriptor,
   /**
    * Named-import variant of {@link ExtImport}, written as
    * `{ import: 'X', from: '@src/...' }`. An optional `alias` renames the
    * imported value.
    */
   NamedExtImport,
-} from "../extImport.js";
+} from "../refImport.js";
 
 interface BaseDecl<Kind extends string> {
   /**

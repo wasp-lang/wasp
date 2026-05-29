@@ -11,6 +11,33 @@ import { SpecUserError } from "./specUserError.js";
 export type ExtImport = NamedExtImport | DefaultExtImport;
 
 /**
+ * User-facing reference to code in your app's `src` directory.
+ */
+export type RefImport<T extends RefImportDescriptor = RefImportDescriptor> =
+  Omit<T, "kind"> & { kind: "refImport" };
+
+export type RefImportDescriptor =
+  | NamedRefImportDescriptor
+  | DefaultRefImportDescriptor;
+
+export interface NamedRefImportDescriptor {
+  import: string;
+  alias?: string;
+  from: string;
+}
+
+export interface DefaultRefImportDescriptor {
+  importDefault: string;
+  from: string;
+}
+
+export function refImport<T extends RefImportDescriptor>(
+  descriptor: T,
+): RefImport<T> {
+  return { ...descriptor, kind: "refImport" } as RefImport<T>;
+}
+
+/**
  * Named import reference, equivalent to
  * `import { SomeValue } from "./src/someModule" with { type: "ref" }`.
  */
