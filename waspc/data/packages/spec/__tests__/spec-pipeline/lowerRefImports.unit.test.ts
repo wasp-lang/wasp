@@ -11,7 +11,7 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getRefImportSetupSource(),
+        getExpectedRefImportSetupSource(),
         `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
       ].join("\n"),
@@ -23,7 +23,7 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getRefImportSetupSource(),
+        getExpectedRefImportSetupSource(),
         `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
         `const archiveTask = refImport({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
         ``,
@@ -40,7 +40,7 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getRefImportSetupSource(),
+        getExpectedRefImportSetupSource(),
         `const archiveTask = refImport({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
         `const archiveLegacyTask = refImport({ import: "archive", from: "./src/legacyOperations", alias: "archiveLegacyTask" });`,
         ``,
@@ -53,7 +53,7 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getRefImportSetupSource(),
+        getExpectedRefImportSetupSource(),
         `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
         `const createTask = refImport({ import: "createTask", from: "./src/operations" });`,
         ``,
@@ -66,7 +66,7 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getRefImportSetupSource(),
+        getExpectedRefImportSetupSource(),
         `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
         `const Helper = refImport({ import: "Helper", from: "./src/MainPage" });`,
         ``,
@@ -79,8 +79,8 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getRefImportSetupSource(),
-        getNamespaceProxySource("ops", "./src/operations", "ops_"),
+        getExpectedRefImportSetupSource(),
+        getExpectedNamespaceProxySource("ops", "./src/operations", "ops_"),
         ``,
       ].join("\n"),
     );
@@ -95,9 +95,9 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getRefImportSetupSource(),
-        getNamespaceProxySource("ops", "./src/operations", "ops_"),
-        getNamespaceProxySource(
+        getExpectedRefImportSetupSource(),
+        getExpectedNamespaceProxySource("ops", "./src/operations", "ops_"),
+        getExpectedNamespaceProxySource(
           "legacyOps",
           "./src/legacyOperations",
           "legacyOps_",
@@ -232,7 +232,7 @@ describe("lowerRefImports", () => {
   }
 });
 
-function getNamespaceProxySource(
+function getExpectedNamespaceProxySource(
   localName: string,
   from: string,
   aliasPrefix: string,
@@ -243,7 +243,7 @@ function getNamespaceProxySource(
   return `const ${localName} = new Proxy({}, { get: (_t, k) => refImport({ import: String(k), from: ${quotedFrom}, alias: ${quotedAliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof refImport>>;`;
 }
 
-function getRefImportSetupSource(): string {
+function getExpectedRefImportSetupSource(): string {
   return [
     `import { makeRefImport } from "@wasp.sh/spec";`,
     `const refImport = makeRefImport(import.meta.url);`,
