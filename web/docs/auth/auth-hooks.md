@@ -45,71 +45,35 @@ Users signing in with [OAuth](./social-auth/overview.md) must authorize access b
 
 To use auth hooks, you must first declare them in the Wasp file:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import {
-      onBeforeSignup,
-      onAfterSignup,
-      onAfterEmailVerified,
-      onBeforeOAuthRedirect,
-      onBeforeLogin,
-      onAfterLogin,
-    } from "./src/auth/hooks" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import {
+  onBeforeSignup,
+  onAfterSignup,
+  onAfterEmailVerified,
+  onBeforeOAuthRedirect,
+  onBeforeLogin,
+  onAfterLogin,
+} from "./src/auth/hooks" with { type: "ref" }
 
-    export default app({
-      name: "myApp",
-      wasp: { version: "{latestWaspVersion}" },
-      auth: {
-        userEntity: "User",
-        methods: {
-          // ...
-        },
-        onBeforeSignup,
-        onAfterSignup,
-        onAfterEmailVerified,
-        onBeforeOAuthRedirect,
-        onBeforeLogin,
-        onAfterLogin,
-      },
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  auth: {
+    userEntity: "User",
+    methods: {
       // ...
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import {
-      onBeforeSignup,
-      onAfterSignup,
-      onAfterEmailVerified,
-      onBeforeOAuthRedirect,
-      onBeforeLogin,
-      onAfterLogin,
-    } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      name: "myApp",
-      wasp: { version: "{latestWaspVersion}" },
-      auth: {
-        userEntity: "User",
-        methods: {
-          // ...
-        },
-        onBeforeSignup,
-        onAfterSignup,
-        onAfterEmailVerified,
-        onBeforeOAuthRedirect,
-        onBeforeLogin,
-        onAfterLogin,
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-</Tabs>
+    },
+    onBeforeSignup,
+    onAfterSignup,
+    onAfterEmailVerified,
+    onBeforeOAuthRedirect,
+    onBeforeLogin,
+    onAfterLogin,
+  },
+  // ...
+})
+```
 
 If the hooks are defined as async functions, Wasp _awaits_ them. This means the auth process waits for the hooks to finish before continuing.
 
@@ -125,22 +89,22 @@ The `onBeforeSignup` hook can be useful if you want to reject a user based on so
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
+
+export default app({
+  // ...
+  auth: {
+    // ...
+    onBeforeSignup,
+  },
+  // ...
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onBeforeSignup,
-      },
-      // ...
-    })
-    ```
-
     ```js title="src/auth/hooks.js"
     import { HttpError } from "wasp/server"
 
@@ -165,20 +129,6 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onBeforeSignup,
-      },
-      // ...
-    })
-    ```
-
     ```ts title="src/auth/hooks.ts"
     import { HttpError } from "wasp/server"
     import type { OnBeforeSignupHook } from "wasp/server/auth"
@@ -220,22 +170,22 @@ Since the `onAfterSignup` hook receives the OAuth tokens, you can use this hook 
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
+
+export default app({
+  // ...
+  auth: {
+    // ...
+    onAfterSignup,
+  },
+  // ...
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onAfterSignup,
-      },
-      // ...
-    })
-    ```
-
     ```js title="src/auth/hooks.js"
     export const onAfterSignup = async ({
       providerId,
@@ -265,20 +215,6 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onAfterSignup } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onAfterSignup,
-      },
-      // ...
-    })
-    ```
-
     ```ts title="src/auth/hooks.ts"
     import type { OnAfterSignupHook } from "wasp/server/auth"
 
@@ -322,9 +258,6 @@ The `onAfterEmailVerified` hook receives an `email` string and `user` object, th
 
 Works with <EmailPill />
 
-<Tabs groupId="js-ts">
-<TabItem value="js" label="JavaScript">
-
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
 import { onAfterEmailVerified } from "./src/auth/hooks" with { type: "ref" }
@@ -338,6 +271,9 @@ export default app({
   // ...
 })
 ```
+
+<Tabs groupId="js-ts">
+<TabItem value="js" label="JavaScript">
 
 ```js title="src/auth/hooks.js"
 import { emailSender } from "wasp/server/email"
@@ -358,20 +294,6 @@ export const onAfterEmailVerified = async ({ email }) => {
 
 </TabItem>
 <TabItem value="ts" label="TypeScript">
-
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { onAfterEmailVerified } from "./src/auth/hooks" with { type: "ref" }
-
-export default app({
-  // ...
-  auth: {
-    // ...
-    onAfterEmailVerified,
-  },
-  // ...
-})
-```
 
 ```ts title="src/auth/hooks.ts"
 import type { OnAfterEmailVerifiedHook } from "wasp/server/auth"
@@ -406,22 +328,22 @@ The `onBeforeOAuthRedirect` hook can be useful if you want to save some data (e.
 
 Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
+
+export default app({
+  // ...
+  auth: {
+    // ...
+    onBeforeOAuthRedirect,
+  },
+  // ...
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onBeforeOAuthRedirect,
-      },
-      // ...
-    })
-    ```
-
     ```js title="src/auth/hooks.js"
     export const onBeforeOAuthRedirect = async ({ url, oauth, prisma, req }) => {
       console.log("query params before oAuth redirect", req.query)
@@ -436,20 +358,6 @@ Works with <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onBeforeOAuthRedirect } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onBeforeOAuthRedirect,
-      },
-      // ...
-    })
-    ```
-
     ```ts title="src/auth/hooks.ts"
     import type { OnBeforeOAuthRedirectHook } from "wasp/server/auth"
 
@@ -483,22 +391,22 @@ The `onBeforeLogin` hook can be useful if you want to reject a user based on som
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
+
+export default app({
+  // ...
+  auth: {
+    // ...
+    onBeforeLogin,
+  },
+  // ...
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onBeforeLogin,
-      },
-      // ...
-    })
-    ```
-
     ```js title="src/auth/hooks.js"
     import { HttpError } from "wasp/server"
 
@@ -514,20 +422,6 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <SlackPill /> <DiscordPill 
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onBeforeLogin } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onBeforeLogin,
-      },
-      // ...
-    })
-    ```
-
     ```ts title="src/auth/hooks.ts"
     import { HttpError } from "wasp/server"
     import type { OnBeforeLoginHook } from "wasp/server/auth"
@@ -561,22 +455,22 @@ Since the `onAfterLogin` hook receives the OAuth tokens, you can use it to updat
 
 Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill /> <GooglePill /> <KeycloakPill />
 
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
+
+export default app({
+  // ...
+  auth: {
+    // ...
+    onAfterLogin,
+  },
+  // ...
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onAfterLogin,
-      },
-      // ...
-    })
-    ```
-
     ```js title="src/auth/hooks.js"
     export const onAfterLogin = async ({
       providerId,
@@ -604,20 +498,6 @@ Works with <EmailPill /> <UsernameAndPasswordPill /> <DiscordPill /> <GithubPill
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import { onAfterLogin } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      // ...
-      auth: {
-        // ...
-        onAfterLogin,
-      },
-      // ...
-    })
-    ```
-
     ```ts title="src/auth/hooks.ts"
     import type { OnAfterLoginHook } from "wasp/server/auth"
 
@@ -698,71 +578,35 @@ If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs
 
 ## API Reference
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import {
-      onBeforeSignup,
-      onAfterSignup,
-      onAfterEmailVerified,
-      onBeforeOAuthRedirect,
-      onBeforeLogin,
-      onAfterLogin,
-    } from "./src/auth/hooks" with { type: "ref" }
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import {
+  onBeforeSignup,
+  onAfterSignup,
+  onAfterEmailVerified,
+  onBeforeOAuthRedirect,
+  onBeforeLogin,
+  onAfterLogin,
+} from "./src/auth/hooks" with { type: "ref" }
 
-    export default app({
-      name: "myApp",
-      wasp: { version: "{latestWaspVersion}" },
-      auth: {
-        userEntity: "User",
-        methods: {
-          // ...
-        },
-        onBeforeSignup,
-        onAfterSignup,
-        onAfterEmailVerified,
-        onBeforeOAuthRedirect,
-        onBeforeLogin,
-        onAfterLogin,
-      },
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  auth: {
+    userEntity: "User",
+    methods: {
       // ...
-    })
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import {
-      onBeforeSignup,
-      onAfterSignup,
-      onAfterEmailVerified,
-      onBeforeOAuthRedirect,
-      onBeforeLogin,
-      onAfterLogin,
-    } from "./src/auth/hooks" with { type: "ref" }
-
-    export default app({
-      name: "myApp",
-      wasp: { version: "{latestWaspVersion}" },
-      auth: {
-        userEntity: "User",
-        methods: {
-          // ...
-        },
-        onBeforeSignup,
-        onAfterSignup,
-        onAfterEmailVerified,
-        onBeforeOAuthRedirect,
-        onBeforeLogin,
-        onAfterLogin,
-      },
-      // ...
-    })
-    ```
-  </TabItem>
-</Tabs>
+    },
+    onBeforeSignup,
+    onAfterSignup,
+    onAfterEmailVerified,
+    onBeforeOAuthRedirect,
+    onBeforeLogin,
+    onAfterLogin,
+  },
+  // ...
+})
+```
 
 ### Common hook input
 

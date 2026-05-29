@@ -594,20 +594,20 @@ In the Advanced section you can see an example for [Email](../advanced/custom-au
 
 Below is a simplified version of a custom signup action which you probably wouldn't use in your app but it shows you how you can use the `Auth` and `AuthIdentity` entities to create a custom signup action.
 
+```ts title="main.wasp.ts"
+import { action, app } from "@wasp.sh/spec"
+import { customSignup } from "./src/auth/signup" with { type: "ref" }
+
+export default app({
+  // ...
+  decls: [
+    action(customSignup, { entities: ["User"] }),
+  ],
+})
+```
+
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="main.wasp.ts"
-    import { action, app } from "@wasp.sh/spec"
-    import { customSignup } from "./src/auth/signup" with { type: "ref" }
-
-    export default app({
-      // ...
-      decls: [
-        action(customSignup, { entities: ["User"] }),
-      ],
-    })
-    ```
-
     ```js title="src/auth/signup.js"
     import {
       createProviderId,
@@ -667,18 +667,6 @@ Below is a simplified version of a custom signup action which you probably would
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```ts title="main.wasp.ts"
-    import { action, app } from "@wasp.sh/spec"
-    import { customSignup } from "./src/auth/signup" with { type: "ref" }
-
-    export default app({
-      // ...
-      decls: [
-        action(customSignup, { entities: ["User"] }),
-      ],
-    })
-    ```
-
     ```ts title="src/auth/signup.ts"
     import {
       createProviderId,
