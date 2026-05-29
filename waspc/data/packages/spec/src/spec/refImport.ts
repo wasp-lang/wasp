@@ -1,5 +1,6 @@
 import { fileURLToPath } from "node:url";
 import type * as AppSpec from "../appSpec.js";
+import { normalizeRefImportPath } from "./refImportPath.js";
 import { SpecUserError } from "./specUserError.js";
 
 /**
@@ -94,43 +95,119 @@ export interface DefaultExtImport {
   from: AppSpec.ExtImport["path"];
 }
 
-export function mapExtImport(extImport: unknown): AppSpec.ExtImport {
-  if (isNamedExtImport(extImport)) {
+export function mapRefImportToExtImport(
+  refImport: unknown,
+  { projectRootDir }: { projectRootDir: string },
+): AppSpec.ExtImport {
+  if (isNamedRefImportDescriptor(refImport)) {
     return {
       kind: "named",
-      name: extImport.import,
-      path: extImport.from,
-      alias: extImport.alias,
+      name: refImport.import,
+      path: mapRefImportPath(refImport, { projectRootDir }),
+      alias: refImport.alias,
     };
-  } else if (isDefaultExtImport(extImport)) {
+  } else if (isDefaultRefImportDescriptor(refImport)) {
     return {
       kind: "default",
-      name: extImport.importDefault,
-      path: extImport.from,
+      name: refImport.importDefault,
+      path: mapRefImportPath(refImport, { projectRootDir }),
     };
   } else {
     throw new SpecUserError(
       "Got an import in the Wasp file that we couldn't process: " +
-        JSON.stringify(extImport) +
-        '\nYou either used a value imported without `with { type: "ref" }` or didn\'t write the ExtImport object correctly.',
+        JSON.stringify(refImport) +
+        '\nYou either used a value imported without `with { type: "ref" }` or didn\'t write the RefImport object correctly.',
     );
   }
 }
 
+export function getRefImportDeclarationName(refImport: unknown): string {
+  if (isNamedRefImportDescriptor(refImport)) {
+    return refImport.alias ?? refImport.import;
+  }
+
+  if (isDefaultRefImportDescriptor(refImport)) {
+    return refImport.importDefault;
+  }
+
+  throw new SpecUserError(
+    "Got an import in the Wasp file that we couldn't process: " +
+      JSON.stringify(refImport),
+  );
+}
+
+function mapRefImportPath(
+  refImport: RefImportDescriptor,
+  { projectRootDir }: { projectRootDir: string },
+): AppSpec.ExtImport["path"] {
+  if (isAppSpecExtImportPath(refImport.from)) {
+    // TODO: Remove raw @src descriptor support after reference import lowering
+    // emits refImport(...) calls instead of plain descriptors.
+    return refImport.from;
+  }
+
+  if (!hasSourceFilePath(refImport)) {
+    throw new SpecUserError(
+      `Relative refImport path ${JSON.stringify(refImport.from)} is missing source file information. Use refImport(...) in a *.wasp.ts file.`,
+    );
+  }
+
+  return normalizeRefImportPath({
+    importPath: refImport.from,
+    importingFilePath: refImport.sourceFilePath,
+    projectRootDir,
+  });
+}
+
+function isAppSpecExtImportPath(
+  path: string,
+): path is AppSpec.ExtImport["path"] {
+  return path.startsWith("@src/");
+}
+
+function hasSourceFilePath(value: unknown): value is RefImportSource {
+  return (
+    isObject(value) &&
+    "sourceFilePath" in value &&
+    typeof value.sourceFilePath === "string"
+  );
+}
+
+function isNamedRefImportDescriptor(
+  value: unknown,
+): value is NamedRefImportDescriptor {
+  return (
+    isObject(value) &&
+    typeof value.import === "string" &&
+    typeof value.from === "string" &&
+    hasValidAlias(value) &&
+    isSupportedRefImportDescriptor(value.from, value.kind)
+  );
+}
+
+function isDefaultRefImportDescriptor(
+  value: unknown,
+): value is DefaultRefImportDescriptor {
+  return (
+    isObject(value) &&
+    typeof value.importDefault === "string" &&
+    typeof value.from === "string" &&
+    isSupportedRefImportDescriptor(value.from, value.kind)
+  );
+}
+
+function isSupportedRefImportDescriptor(from: string, kind: unknown): boolean {
+  return kind === "refImport" || isAppSpecExtImportPath(from);
+}
+
+// TODO: Remove after reference import lowering emits refImport(...) calls instead
+// of plain descriptors.
 export function isNamedExtImport(value: unknown): value is NamedExtImport {
   return (
     isObject(value) &&
     typeof value.import === "string" &&
     typeof value.from === "string" &&
     hasValidAlias(value)
-  );
-}
-
-function isDefaultExtImport(value: unknown): value is DefaultExtImport {
-  return (
-    isObject(value) &&
-    typeof value.importDefault === "string" &&
-    typeof value.from === "string"
   );
 }
 
