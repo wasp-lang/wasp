@@ -7,7 +7,7 @@ import {
   mapAction,
   mapApi,
   mapApiNamespace,
-  mapApp,
+  mapAppToAppSpecDecls,
   mapAuth,
   mapAuthMethods,
   mapClient,
@@ -28,10 +28,16 @@ import {
   mapSocialAuth,
   mapUsernameAndPassword,
   mapWebSocket,
-} from "../../src/spec/mapApp.js";
+} from "../../src/spec/mapAppToAppSpecDecls.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import * as Fixtures from "./testFixtures.js";
+
+const projectRootDir = "/project";
+
+function mapApp(app: TsAppSpec.App, entityNames: string[]) {
+  return mapAppToAppSpecDecls(app, { entityNames, projectRootDir });
+}
 
 describe("mapApp", () => {
   test("should map minimal app correctly", () => {

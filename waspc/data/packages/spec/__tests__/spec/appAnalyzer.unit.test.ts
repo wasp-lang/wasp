@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { loadWaspTsSpecDefaultExport } from "../../src/spec-pipeline/loadWaspTsSpec.js";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
-import { mapApp } from "../../src/spec/mapApp.js";
+import { mapAppToAppSpecDecls } from "../../src/spec/mapAppToAppSpecDecls.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";
@@ -75,7 +75,10 @@ describe("analyzeApp", () => {
       await expect(analyze()).rejects.toThrowError(SpecUserError);
     } else {
       const result = await analyze();
-      const expected = mapApp(app, entities);
+      const expected = mapAppToAppSpecDecls(app, {
+        entityNames: entities,
+        projectRootDir: "/project",
+      });
 
       expect(result).toEqual(expected);
     }

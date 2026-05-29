@@ -11,7 +11,50 @@ import { mapExtImport } from "./refImport.js";
 import * as InputAppSpec from "./publicApi/tsAppSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
-export function mapApp(
+export type AppSpecMappingContext = {
+  entityNames: string[];
+  projectRootDir: string;
+};
+
+export function mapAppToAppSpecDecls(
+  app: InputAppSpec.App,
+  context: AppSpecMappingContext,
+): OutputAppSpec.Decl[] {
+  return makeAppSpecMapper(context).mapAppToDecls(app);
+}
+
+export function makeAppSpecMapper(context: AppSpecMappingContext) {
+  return {
+    mapAppToDecls: (app: InputAppSpec.App) =>
+      mapAppToDecls(app, context.entityNames),
+    mapPage,
+    mapRoute,
+    mapQuery,
+    mapAction,
+    mapAuth,
+    mapAuthMethods,
+    mapUsernameAndPassword,
+    mapSocialAuth,
+    mapEmailAuth,
+    mapEmailFlow,
+    mapApi,
+    mapApiNamespace,
+    mapServer,
+    mapClient,
+    mapDb,
+    mapEmailSender,
+    mapEmailFromField,
+    mapWebSocket,
+    mapJob,
+    mapCrud,
+    mapCrudOperations,
+    mapCrudOperationOptions,
+    mapSchedule,
+    deriveExtImportName,
+  };
+}
+
+function mapAppToDecls(
   appInput: InputAppSpec.App,
   entityNames: string[],
 ): OutputAppSpec.Decl[] {
