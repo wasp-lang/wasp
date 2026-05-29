@@ -600,7 +600,7 @@ import { customSignup } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     action(customSignup, { entities: ["User"] }),
   ],
 })

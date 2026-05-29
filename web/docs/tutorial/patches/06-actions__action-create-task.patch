@@ -12,7 +12,7 @@ index 64b489a..b0c2589 100644
  export default app({
    name: "TodoApp",
 @@ -10,5 +11,6 @@ export default app({
-   parts: [
+   decls: [
      route("RootRoute", "/", page(MainPage)),
      query(getTasks, { entities: ["Task"] }),
 +    action(createTask, { entities: ["Task"] }),

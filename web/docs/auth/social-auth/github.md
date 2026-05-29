@@ -121,7 +121,7 @@ import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("LoginRoute", "/login", page(LoginPage)),
   ],
 })

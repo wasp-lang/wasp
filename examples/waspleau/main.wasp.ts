@@ -13,7 +13,7 @@ export default app({
   server: {
     setupFn: serverSetup,
   },
-  parts: [
+  decls: [
     job(refreshGitHubRepoData, {
       executor: "PgBoss",
       schedule: {

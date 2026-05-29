@@ -1,4 +1,4 @@
-import { type Auth, type Part, page, route } from "@wasp.sh/spec";
+import { type Auth, type Decl, page, route } from "@wasp.sh/spec";
 import { EmailVerificationPage } from "./email/EmailVerificationPage" with { type: "ref" };
 import { LoginPage } from "./email/LoginPage" with { type: "ref" };
 import { PasswordResetPage } from "./email/PasswordResetPage" with { type: "ref" };
@@ -27,7 +27,7 @@ export const authConfig: Auth = {
   onAuthFailedRedirectTo: "/login",
 };
 
-export const auth: Part[] = [
+export const auth: Decl[] = [
   route("LoginRoute", "/login", page(LoginPage)),
   route("SignupRoute", "/signup", page(SignupPage)),
   route(

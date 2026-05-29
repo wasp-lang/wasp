@@ -1,4 +1,4 @@
-import { api, apiNamespace, page, route, type Part } from "@wasp.sh/spec";
+import { api, apiNamespace, page, route, type Decl } from "@wasp.sh/spec";
 
 import {
   barBaz,
@@ -10,7 +10,7 @@ import {
 } from "./apis" with { type: "ref" };
 import { ApisPage } from "./pages/ApisPage" with { type: "ref" };
 
-export const apis: Part[] = [
+export const apis: Decl[] = [
   route("ApisRoute", "/apis", page(ApisPage)),
   api("ALL", "/foo/bar", fooBar, {
     middlewareConfigFn: fooBarMiddlewareFn,

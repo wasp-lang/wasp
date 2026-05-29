@@ -65,7 +65,7 @@ export default app({
     onAuthFailedRedirectTo: "/login",
   },
   // highlight-end
-  parts: [
+  decls: [
     // ...
   ],
 })
@@ -106,7 +106,7 @@ import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     // highlight-start
     route("SignupRoute", "/signup", page(SignupPage)),
     route("LoginRoute", "/login", page(LoginPage)),
@@ -180,7 +180,7 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("RootRoute", "/", page(MainPage, {
       // highlight-next-line
       authRequired: true,

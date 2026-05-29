@@ -95,7 +95,7 @@ import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("LoginRoute", "/login", page(LoginPage)),
   ],
 })
@@ -141,7 +141,7 @@ import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("SignupRoute", "/signup", page(SignupPage)),
   ],
 })
@@ -191,7 +191,7 @@ import { ForgotPasswordPage } from "./src/ForgotPasswordPage" with { type: "ref"
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route(
       "RequestPasswordResetRoute",
       "/request-password-reset",
@@ -241,7 +241,7 @@ import { ResetPasswordPage } from "./src/ResetPasswordPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("PasswordResetRoute", "/password-reset", page(ResetPasswordPage)),
   ],
 })
@@ -287,7 +287,7 @@ import { VerifyEmailPage } from "./src/VerifyEmailPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     route("EmailVerificationRoute", "/email-verification", page(VerifyEmailPage)),
   ],
 })

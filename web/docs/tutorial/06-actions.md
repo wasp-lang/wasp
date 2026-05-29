@@ -32,7 +32,7 @@ import { createTask } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     // highlight-next-line
     action(createTask, { entities: ["Task"] }),
   ],
@@ -188,7 +188,7 @@ import { updateTask } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     action(updateTask, { entities: ["Task"] }),
   ],
 })

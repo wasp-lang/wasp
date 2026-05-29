@@ -31,7 +31,7 @@ import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     job(mySpecialJob, {
       executor: "PgBoss",
       entities: ["Task"],
@@ -131,7 +131,7 @@ import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     job(mySpecialJob, {
       executor: "PgBoss",
       schedule: {
@@ -233,7 +233,7 @@ import { mySpecialJob } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  decls: [
     job(mySpecialJob, {
       executor: "PgBoss",
       performExecutorOptions: {
