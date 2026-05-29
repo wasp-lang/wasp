@@ -1,7 +1,7 @@
 import { basename } from "path";
 import * as AppSpec from "../appSpec.js";
 import { loadWaspTsSpecDefaultExport } from "../spec-pipeline/loadWaspTsSpec.js";
-import { mapAppToAppSpecDecls } from "./mapAppToAppSpecDecls.js";
+import { mapApp } from "./mapApp.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
@@ -24,7 +24,7 @@ export async function analyzeApp({
 
   const app = getApp(basename(waspTsSpecPath), waspTsDefaultExport);
 
-  return mapAppToAppSpecDecls(app, { entityNames, projectRootDir });
+  return mapApp(app, { entityNames, projectRootDir });
 }
 
 function getApp(

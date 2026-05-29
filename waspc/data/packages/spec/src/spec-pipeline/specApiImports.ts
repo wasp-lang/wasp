@@ -4,6 +4,11 @@ export const PACKAGE_SPEC_MODULE_NAME = "@wasp.sh/spec";
 export const REF_IMPORT_NAME = "refImport";
 export const MAKE_REF_IMPORT_NAME = "makeRefImport";
 
+const LOCAL_SPEC_PUBLIC_API_MODULE_SUFFIXES = [
+  "/src/spec/publicApi/index.ts",
+  "/src/spec/publicApi/index.js",
+];
+
 export type ImportSpecifierSource = ts.ImportSpecifier | string;
 
 export function getSpecApiImports(
@@ -88,6 +93,12 @@ function isSpecImportDeclaration(stmt: ts.ImportDeclaration): boolean {
 function isSpecModuleSpecifier(moduleSpecifier: string): boolean {
   return (
     moduleSpecifier === PACKAGE_SPEC_MODULE_NAME ||
-    /\/src\/spec\/publicApi\/index\.[jt]s$/.test(moduleSpecifier)
+    isLocalSpecPublicApiModuleSpecifier(moduleSpecifier)
+  );
+}
+
+function isLocalSpecPublicApiModuleSpecifier(moduleSpecifier: string): boolean {
+  return LOCAL_SPEC_PUBLIC_API_MODULE_SUFFIXES.some((suffix) =>
+    moduleSpecifier.endsWith(suffix),
   );
 }

@@ -1,20 +1,18 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import {
-  makeAppSpecMapper,
-  makeRefParser,
-  mapAppToAppSpecDecls,
-} from "../../src/spec/mapAppToAppSpecDecls.js";
+import * as AppSpecMapper from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
-import { mapRefImportToExtImport } from "../../src/spec/refImport.js";
+import { mapRefImportToExtImport as mapRefImportToExtImportWithContext } from "../../src/spec/refImport.js";
 import * as Fixtures from "./testFixtures.js";
 
 const projectRootDir = "/project";
 
-function mapReferenceToExtImport(refImport: unknown) {
-  return mapRefImportToExtImport(refImport, { projectRootDir });
+function mapRefImportToExtImport(refImport: unknown) {
+  return mapRefImportToExtImportWithContext(refImport, { projectRootDir });
 }
+
+const makeRefParser = AppSpecMapper.makeRefParser;
 
 const {
   deriveExtImportName,
@@ -41,10 +39,52 @@ const {
   mapSocialAuth,
   mapUsernameAndPassword,
   mapWebSocket,
-} = makeAppSpecMapper({ entityNames: [], projectRootDir });
+} = makeTestAppSpecMapper();
 
 function mapApp(app: TsAppSpec.App, entityNames: string[]) {
-  return mapAppToAppSpecDecls(app, { entityNames, projectRootDir });
+  return AppSpecMapper.mapApp(app, {
+    entityNames,
+    projectRootDir,
+  });
+}
+
+function makeTestAppSpecMapper() {
+  return {
+    deriveExtImportName: AppSpecMapper.deriveExtImportName,
+    mapAction: bindRefImportMapper(AppSpecMapper.mapAction),
+    mapApi: bindRefImportMapper(AppSpecMapper.mapApi),
+    mapApiNamespace: bindRefImportMapper(AppSpecMapper.mapApiNamespace),
+    mapAuth: bindRefImportMapper(AppSpecMapper.mapAuth),
+    mapAuthMethods: bindRefImportMapper(AppSpecMapper.mapAuthMethods),
+    mapClient: bindRefImportMapper(AppSpecMapper.mapClient),
+    mapCrud: bindRefImportMapper(AppSpecMapper.mapCrud),
+    mapCrudOperationOptions: bindRefImportMapper(
+      AppSpecMapper.mapCrudOperationOptions,
+    ),
+    mapCrudOperations: bindRefImportMapper(AppSpecMapper.mapCrudOperations),
+    mapDb: bindRefImportMapper(AppSpecMapper.mapDb),
+    mapEmailAuth: bindRefImportMapper(AppSpecMapper.mapEmailAuth),
+    mapEmailFlow: bindRefImportMapper(AppSpecMapper.mapEmailFlow),
+    mapEmailFromField: AppSpecMapper.mapEmailFromField,
+    mapEmailSender: AppSpecMapper.mapEmailSender,
+    mapJob: bindRefImportMapper(AppSpecMapper.mapJob),
+    mapPage: bindRefImportMapper(AppSpecMapper.mapPage),
+    mapQuery: bindRefImportMapper(AppSpecMapper.mapQuery),
+    mapRoute: AppSpecMapper.mapRoute,
+    mapSchedule: AppSpecMapper.mapSchedule,
+    mapServer: bindRefImportMapper(AppSpecMapper.mapServer),
+    mapSocialAuth: bindRefImportMapper(AppSpecMapper.mapSocialAuth),
+    mapUsernameAndPassword: bindRefImportMapper(
+      AppSpecMapper.mapUsernameAndPassword,
+    ),
+    mapWebSocket: bindRefImportMapper(AppSpecMapper.mapWebSocket),
+  };
+}
+
+function bindRefImportMapper<Args extends unknown[], Result>(
+  mapper: (...args: [...Args, typeof mapRefImportToExtImport]) => Result,
+): (...args: Args) => Result {
+  return (...args) => mapper(...args, mapRefImportToExtImport);
 }
 
 describe("mapApp", () => {
@@ -311,7 +351,7 @@ describe("mapPage", () => {
     const result = mapPage(page);
 
     expect(result).toStrictEqual({
-      component: mapReferenceToExtImport(page.component),
+      component: mapRefImportToExtImport(page.component),
       authRequired: page.authRequired,
     } satisfies AppSpec.Page);
   }
@@ -363,7 +403,7 @@ describe("mapQuery", () => {
     const result = mapQuery(query, entityRefParser);
 
     expect(result).toStrictEqual({
-      fn: mapReferenceToExtImport(query.fn),
+      fn: mapRefImportToExtImport(query.fn),
       entities: query.entities?.map(entityRefParser),
       auth: query.auth,
     } satisfies AppSpec.Query);
@@ -392,7 +432,7 @@ describe("mapAction", () => {
     const result = mapAction(action, entityRefParser);
 
     expect(result).toStrictEqual({
-      fn: mapReferenceToExtImport(action.fn),
+      fn: mapRefImportToExtImport(action.fn),
       entities: action.entities?.map(entityRefParser),
       auth: action.auth,
     } satisfies AppSpec.Action);
@@ -471,19 +511,19 @@ describe("mapAuth", () => {
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
       onBeforeSignup:
-        auth.onBeforeSignup && mapReferenceToExtImport(auth.onBeforeSignup),
+        auth.onBeforeSignup && mapRefImportToExtImport(auth.onBeforeSignup),
       onAfterSignup:
-        auth.onAfterSignup && mapReferenceToExtImport(auth.onAfterSignup),
+        auth.onAfterSignup && mapRefImportToExtImport(auth.onAfterSignup),
       onAfterEmailVerified:
         auth.onAfterEmailVerified &&
-        mapReferenceToExtImport(auth.onAfterEmailVerified),
+        mapRefImportToExtImport(auth.onAfterEmailVerified),
       onBeforeOAuthRedirect:
         auth.onBeforeOAuthRedirect &&
-        mapReferenceToExtImport(auth.onBeforeOAuthRedirect),
+        mapRefImportToExtImport(auth.onBeforeOAuthRedirect),
       onBeforeLogin:
-        auth.onBeforeLogin && mapReferenceToExtImport(auth.onBeforeLogin),
+        auth.onBeforeLogin && mapRefImportToExtImport(auth.onBeforeLogin),
       onAfterLogin:
-        auth.onAfterLogin && mapReferenceToExtImport(auth.onAfterLogin),
+        auth.onAfterLogin && mapRefImportToExtImport(auth.onAfterLogin),
     } satisfies AppSpec.Auth);
   }
 });
@@ -615,7 +655,7 @@ describe("mapEmailAuth", () => {
     expect(result).toStrictEqual({
       userSignupFields:
         emailAuth.userSignupFields &&
-        mapReferenceToExtImport(emailAuth.userSignupFields),
+        mapRefImportToExtImport(emailAuth.userSignupFields),
       fromField: mapEmailFromField(emailAuth.fromField),
       emailVerification: mapEmailFlow(
         emailAuth.emailVerification,
@@ -678,7 +718,7 @@ describe("mapEmailFlow", () => {
       clientRoute: routeRefParser(emailFlow.clientRoute),
       getEmailContentFn:
         emailFlow.getEmailContentFn &&
-        mapReferenceToExtImport(emailFlow.getEmailContentFn),
+        mapRefImportToExtImport(emailFlow.getEmailContentFn),
     } satisfies AppSpec.EmailVerificationConfig);
   }
 });
@@ -702,7 +742,7 @@ describe("mapUsernameAndPassword", () => {
     expect(result).toStrictEqual({
       userSignupFields:
         usernameAndPassword.userSignupFields &&
-        mapReferenceToExtImport(usernameAndPassword.userSignupFields),
+        mapRefImportToExtImport(usernameAndPassword.userSignupFields),
     } satisfies AppSpec.UsernameAndPasswordConfig);
   }
 });
@@ -721,10 +761,10 @@ describe("mapSocialAuth", () => {
 
     expect(result).toStrictEqual({
       configFn:
-        socialAuth.configFn && mapReferenceToExtImport(socialAuth.configFn),
+        socialAuth.configFn && mapRefImportToExtImport(socialAuth.configFn),
       userSignupFields:
         socialAuth.userSignupFields &&
-        mapReferenceToExtImport(socialAuth.userSignupFields),
+        mapRefImportToExtImport(socialAuth.userSignupFields),
     } satisfies AppSpec.ExternalAuthConfig);
   }
 });
@@ -751,10 +791,10 @@ describe("mapApi", () => {
     const result = mapApi(api, entityRefParser);
 
     expect(result).toStrictEqual({
-      fn: mapReferenceToExtImport(api.fn),
+      fn: mapRefImportToExtImport(api.fn),
       middlewareConfigFn:
         api.middlewareConfigFn &&
-        mapReferenceToExtImport(api.middlewareConfigFn),
+        mapRefImportToExtImport(api.middlewareConfigFn),
       entities: api.entities?.map(entityRefParser),
       httpRoute: [api.method, api.path],
       auth: api.auth,
@@ -775,7 +815,7 @@ describe("mapApiNamespace", () => {
     const result = mapApiNamespace(apiNamespace);
 
     expect(result).toStrictEqual({
-      middlewareConfigFn: mapReferenceToExtImport(
+      middlewareConfigFn: mapRefImportToExtImport(
         apiNamespace.middlewareConfigFn,
       ),
       path: apiNamespace.path,
@@ -796,13 +836,13 @@ describe("mapServer", () => {
     const result = mapServer(server);
 
     expect(result).toStrictEqual({
-      setupFn: server.setupFn && mapReferenceToExtImport(server.setupFn),
+      setupFn: server.setupFn && mapRefImportToExtImport(server.setupFn),
       middlewareConfigFn:
         server.middlewareConfigFn &&
-        mapReferenceToExtImport(server.middlewareConfigFn),
+        mapRefImportToExtImport(server.middlewareConfigFn),
       envValidationSchema:
         server.envValidationSchema &&
-        mapReferenceToExtImport(server.envValidationSchema),
+        mapRefImportToExtImport(server.envValidationSchema),
     } satisfies AppSpec.Server);
   }
 });
@@ -821,12 +861,12 @@ describe("mapClient", () => {
 
     expect(result).toStrictEqual({
       rootComponent:
-        client.rootComponent && mapReferenceToExtImport(client.rootComponent),
-      setupFn: client.setupFn && mapReferenceToExtImport(client.setupFn),
+        client.rootComponent && mapRefImportToExtImport(client.rootComponent),
+      setupFn: client.setupFn && mapRefImportToExtImport(client.setupFn),
       baseDir: client.baseDir,
       envValidationSchema:
         client.envValidationSchema &&
-        mapReferenceToExtImport(client.envValidationSchema),
+        mapRefImportToExtImport(client.envValidationSchema),
     } satisfies AppSpec.Client);
   }
 });
@@ -844,9 +884,9 @@ describe("mapDb", () => {
     const result = mapDb(db);
 
     expect(result).toStrictEqual({
-      seeds: db.seeds?.map((seed) => mapReferenceToExtImport(seed)),
+      seeds: db.seeds?.map((seed) => mapRefImportToExtImport(seed)),
       prismaSetupFn:
-        db.prismaSetupFn && mapReferenceToExtImport(db.prismaSetupFn),
+        db.prismaSetupFn && mapRefImportToExtImport(db.prismaSetupFn),
     } satisfies AppSpec.Db);
   }
 });
@@ -905,7 +945,7 @@ describe("mapWebSocket", () => {
     const result = mapWebSocket(webSocket);
 
     expect(result).toStrictEqual({
-      fn: mapReferenceToExtImport(webSocket.fn),
+      fn: mapRefImportToExtImport(webSocket.fn),
       autoConnect: webSocket.autoConnect,
     } satisfies AppSpec.WebSocket);
   }
@@ -935,7 +975,7 @@ describe("mapJob", () => {
     expect(result).toStrictEqual({
       executor: job.executor,
       perform: {
-        fn: mapReferenceToExtImport(job.fn),
+        fn: mapRefImportToExtImport(job.fn),
         executorOptions: job.performExecutorOptions,
       },
       schedule: job.schedule && mapSchedule(job.schedule),
@@ -1018,7 +1058,7 @@ describe("mapCrudOperationOptions", () => {
       isPublic: crudOperationOptions.isPublic,
       overrideFn:
         crudOperationOptions.overrideFn &&
-        mapReferenceToExtImport(crudOperationOptions.overrideFn),
+        mapRefImportToExtImport(crudOperationOptions.overrideFn),
     } satisfies AppSpec.CrudOperationOptions);
   }
 });

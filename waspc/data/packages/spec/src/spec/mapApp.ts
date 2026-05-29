@@ -1,7 +1,6 @@
 /**
  * This module maps the TsAppSpec-facing API to the internal representation of
- * the app ({@link OutputAppSpec.Decl}). Individual mapping functions are
- * exposed through makeAppSpecMapper so they share the mapping context.
+ * the app ({@link OutputAppSpec.Decl}).
  */
 
 import * as OutputAppSpec from "../appSpec.js";
@@ -17,76 +16,16 @@ export type AppSpecMappingContext = {
   projectRootDir: string;
 };
 
-export function mapAppToAppSpecDecls(
+export function mapApp(
   app: InputAppSpec.App,
   context: AppSpecMappingContext,
 ): OutputAppSpec.Decl[] {
-  return makeAppSpecMapper(context).mapAppToDecls(app);
-}
-
-export function makeAppSpecMapper(context: AppSpecMappingContext) {
   const mapRefImport: RefImportMapper = (refImport) =>
     mapRefImportToExtImport(refImport, {
       projectRootDir: context.projectRootDir,
     });
 
-  return {
-    mapAppToDecls: (app: InputAppSpec.App) =>
-      mapAppToDecls(app, context.entityNames, mapRefImport),
-    mapPage: (page: InputAppSpec.Page) => mapPage(page, mapRefImport),
-    mapRoute,
-    mapQuery: (
-      query: InputAppSpec.Query,
-      entityRefParser: RefParser<"Entity">,
-    ) => mapQuery(query, entityRefParser, mapRefImport),
-    mapAction: (
-      action: InputAppSpec.Action,
-      entityRefParser: RefParser<"Entity">,
-    ) => mapAction(action, entityRefParser, mapRefImport),
-    mapAuth: (
-      auth: InputAppSpec.Auth,
-      entityRefParser: RefParser<"Entity">,
-      routeRefParser: RefParser<"Route">,
-    ) => mapAuth(auth, entityRefParser, routeRefParser, mapRefImport),
-    mapAuthMethods: (
-      methods: InputAppSpec.AuthMethods,
-      routeRefParser: RefParser<"Route">,
-    ) => mapAuthMethods(methods, routeRefParser, mapRefImport),
-    mapUsernameAndPassword: (
-      usernameAndPassword: InputAppSpec.UsernameAndPasswordConfig,
-    ) => mapUsernameAndPassword(usernameAndPassword, mapRefImport),
-    mapSocialAuth: (socialAuth: InputAppSpec.SocialAuthConfig) =>
-      mapSocialAuth(socialAuth, mapRefImport),
-    mapEmailAuth: (
-      emailAuth: InputAppSpec.EmailAuthConfig,
-      routeRefParser: RefParser<"Route">,
-    ) => mapEmailAuth(emailAuth, routeRefParser, mapRefImport),
-    mapEmailFlow: (
-      emailFlow: InputAppSpec.EmailFlowConfig,
-      routeRefParser: RefParser<"Route">,
-    ) => mapEmailFlow(emailFlow, routeRefParser, mapRefImport),
-    mapApi: (api: InputAppSpec.Api, entityRefParser: RefParser<"Entity">) =>
-      mapApi(api, entityRefParser, mapRefImport),
-    mapApiNamespace: (apiNamespace: InputAppSpec.ApiNamespace) =>
-      mapApiNamespace(apiNamespace, mapRefImport),
-    mapServer: (server: InputAppSpec.Server) => mapServer(server, mapRefImport),
-    mapClient: (client: InputAppSpec.Client) => mapClient(client, mapRefImport),
-    mapDb: (db: InputAppSpec.Db) => mapDb(db, mapRefImport),
-    mapEmailSender,
-    mapEmailFromField,
-    mapWebSocket: (webSocket: InputAppSpec.WebSocket) =>
-      mapWebSocket(webSocket, mapRefImport),
-    mapJob: (job: InputAppSpec.Job, entityRefParser: RefParser<"Entity">) =>
-      mapJob(job, entityRefParser, mapRefImport),
-    mapCrud: (crud: InputAppSpec.Crud, entityRefParser: RefParser<"Entity">) =>
-      mapCrud(crud, entityRefParser, mapRefImport),
-    mapCrudOperations: (operations: InputAppSpec.CrudOperations) =>
-      mapCrudOperations(operations, mapRefImport),
-    mapCrudOperationOptions: (options: InputAppSpec.CrudOperationOptions) =>
-      mapCrudOperationOptions(options, mapRefImport),
-    mapSchedule,
-    deriveExtImportName: getRefImportDeclarationName,
-  };
+  return mapAppToDecls(app, context.entityNames, mapRefImport);
 }
 
 type RefImportMapper = (refImport: unknown) => OutputAppSpec.ExtImport;
@@ -219,7 +158,7 @@ function mapAppToDecls(
   });
 }
 
-function mapPage(
+export function mapPage(
   page: InputAppSpec.Page,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.Page {
@@ -230,7 +169,7 @@ function mapPage(
   };
 }
 
-function mapRoute(route: InputAppSpec.Route): OutputAppSpec.Route {
+export function mapRoute(route: InputAppSpec.Route): OutputAppSpec.Route {
   const { path, prerender, lazy } = route;
   return {
     path,
@@ -282,7 +221,7 @@ function arePageDeclsEqual(
   );
 }
 
-function mapQuery(
+export function mapQuery(
   query: InputAppSpec.Query,
   entityRefParser: RefParser<"Entity">,
   mapRefImport: RefImportMapper,
@@ -295,7 +234,7 @@ function mapQuery(
   };
 }
 
-function mapAction(
+export function mapAction(
   action: InputAppSpec.Action,
   entityRefParser: RefParser<"Entity">,
   mapRefImport: RefImportMapper,
@@ -308,7 +247,7 @@ function mapAction(
   };
 }
 
-function mapAuth(
+export function mapAuth(
   auth: InputAppSpec.Auth,
   entityRefParser: RefParser<"Entity">,
   routeRefParser: RefParser<"Route">,
@@ -342,7 +281,7 @@ function mapAuth(
   };
 }
 
-function mapAuthMethods(
+export function mapAuthMethods(
   methods: InputAppSpec.AuthMethods,
   routeRefParser: RefParser<"Route">,
   mapRefImport: RefImportMapper,
@@ -371,7 +310,7 @@ function mapAuthMethods(
   };
 }
 
-function mapUsernameAndPassword(
+export function mapUsernameAndPassword(
   usernameAndPassword: InputAppSpec.UsernameAndPasswordConfig,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.UsernameAndPasswordConfig {
@@ -381,7 +320,7 @@ function mapUsernameAndPassword(
   };
 }
 
-function mapSocialAuth(
+export function mapSocialAuth(
   socialAuth: InputAppSpec.SocialAuthConfig,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.ExternalAuthConfig {
@@ -392,7 +331,7 @@ function mapSocialAuth(
   };
 }
 
-function mapEmailAuth(
+export function mapEmailAuth(
   emailAuth: InputAppSpec.EmailAuthConfig,
   routeRefParser: RefParser<"Route">,
   mapRefImport: RefImportMapper,
@@ -411,7 +350,7 @@ function mapEmailAuth(
   };
 }
 
-function mapEmailFlow(
+export function mapEmailFlow(
   emailFlow: InputAppSpec.EmailFlowConfig,
   routeRefParser: RefParser<"Route">,
   mapRefImport: RefImportMapper,
@@ -423,7 +362,7 @@ function mapEmailFlow(
   };
 }
 
-function mapApi(
+export function mapApi(
   api: InputAppSpec.Api,
   entityRefParser: RefParser<"Entity">,
   mapRefImport: RefImportMapper,
@@ -438,7 +377,7 @@ function mapApi(
   };
 }
 
-function mapApiNamespace(
+export function mapApiNamespace(
   apiNamespace: InputAppSpec.ApiNamespace,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.ApiNamespace {
@@ -449,7 +388,7 @@ function mapApiNamespace(
   };
 }
 
-function mapServer(
+export function mapServer(
   server: InputAppSpec.Server,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.Server {
@@ -462,7 +401,7 @@ function mapServer(
   };
 }
 
-function mapClient(
+export function mapClient(
   client: InputAppSpec.Client,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.Client {
@@ -476,7 +415,7 @@ function mapClient(
   };
 }
 
-function mapDb(
+export function mapDb(
   db: InputAppSpec.Db,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.Db {
@@ -506,7 +445,7 @@ export function mapEmailFromField(
   };
 }
 
-function mapWebSocket(
+export function mapWebSocket(
   webSocket: InputAppSpec.WebSocket,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.WebSocket {
@@ -517,7 +456,7 @@ function mapWebSocket(
   };
 }
 
-function mapJob(
+export function mapJob(
   job: InputAppSpec.Job,
   entityRefParser: RefParser<"Entity">,
   mapRefImport: RefImportMapper,
@@ -534,7 +473,7 @@ function mapJob(
   };
 }
 
-function mapCrud(
+export function mapCrud(
   crud: InputAppSpec.Crud,
   entityRefParser: RefParser<"Entity">,
   mapRefImport: RefImportMapper,
@@ -546,7 +485,7 @@ function mapCrud(
   };
 }
 
-function mapCrudOperations(
+export function mapCrudOperations(
   operations: InputAppSpec.CrudOperations,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.CrudOperations {
@@ -560,7 +499,7 @@ function mapCrudOperations(
   };
 }
 
-function mapCrudOperationOptions(
+export function mapCrudOperationOptions(
   options: InputAppSpec.CrudOperationOptions,
   mapRefImport: RefImportMapper,
 ): OutputAppSpec.CrudOperationOptions {

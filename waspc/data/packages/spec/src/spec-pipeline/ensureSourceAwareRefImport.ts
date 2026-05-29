@@ -12,7 +12,7 @@ import {
 
 export type EnsureSourceAwareRefImportResult = {
   sourceText: string;
-  refImportName?: string;
+  refImportName: string;
 };
 
 /**
@@ -26,22 +26,22 @@ export function ensureSourceAwareRefImport({
   sourceText,
   sourcePath,
   required,
-  insertBefore,
+  helperDeclarationInsertionOffset,
 }: {
   sourceText: string;
   sourcePath: string;
   required: boolean;
-  insertBefore?: number;
+  helperDeclarationInsertionOffset?: number;
 }): EnsureSourceAwareRefImportResult {
   const sourceFile = parseSourceFile({ sourceText, sourcePath });
   const plan = getSourceAwareRefImportPlan({
     sourceFile,
     required,
-    insertBefore,
+    helperDeclarationInsertionOffset,
   });
 
   if (!plan) {
-    return { sourceText };
+    return { sourceText, refImportName: REF_IMPORT_NAME };
   }
 
   return {
@@ -74,11 +74,11 @@ function parseSourceFile({
 function getSourceAwareRefImportPlan({
   sourceFile,
   required,
-  insertBefore,
+  helperDeclarationInsertionOffset,
 }: {
   sourceFile: ts.SourceFile;
   required: boolean;
-  insertBefore?: number;
+  helperDeclarationInsertionOffset?: number;
 }): SourceAwareRefImportPlan | undefined {
   const specImports = getSpecApiImports(sourceFile);
   const existingRefImportName = findValueImportLocalName(
@@ -106,7 +106,7 @@ function getSourceAwareRefImportPlan({
     sourceFile,
     refImportName,
     makeRefImportName,
-    insertBefore,
+    helperDeclarationInsertionOffset,
     shouldAddMakeRefImport:
       !existingMakeRefImportName && specImportEdits.length === 0,
   });
@@ -178,7 +178,7 @@ type HelperEditOptions = {
   sourceFile: ts.SourceFile;
   refImportName: string;
   makeRefImportName: string;
-  insertBefore?: number;
+  helperDeclarationInsertionOffset?: number;
   shouldAddMakeRefImport: boolean;
 };
 
@@ -186,20 +186,20 @@ function getRefImportHelperEdits({
   sourceFile,
   refImportName,
   makeRefImportName,
-  insertBefore,
+  helperDeclarationInsertionOffset,
   shouldAddMakeRefImport,
 }: HelperEditOptions): Edit[] {
   const helperDeclaration = `const ${refImportName} = ${makeRefImportName}(import.meta.url);`;
 
-  if (insertBefore !== undefined) {
+  if (helperDeclarationInsertionOffset !== undefined) {
     const makeRefImportImport = shouldAddMakeRefImport
       ? getMakeRefImportImportSource()
       : "";
 
     return [
       {
-        start: insertBefore,
-        end: insertBefore,
+        start: helperDeclarationInsertionOffset,
+        end: helperDeclarationInsertionOffset,
         text: `${makeRefImportImport}${helperDeclaration}\n`,
       },
     ];

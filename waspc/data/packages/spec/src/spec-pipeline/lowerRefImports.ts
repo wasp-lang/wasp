@@ -25,7 +25,7 @@ export function lowerRefImports({
     sourceText,
     sourcePath,
     required: initialPlan.replacements.length > 0,
-    insertBefore: initialPlan.replacements[0]?.start,
+    helperDeclarationInsertionOffset: initialPlan.replacements[0]?.start,
   });
   const plan = planImportLowering({
     sourceText: sourceAwareRefImport.sourceText,
@@ -34,10 +34,7 @@ export function lowerRefImports({
 
   return applyEdits(
     sourceAwareRefImport.sourceText,
-    getImportLoweringEdits(
-      plan,
-      sourceAwareRefImport.refImportName ?? "refImport",
-    ),
+    getImportLoweringEdits(plan, sourceAwareRefImport.refImportName),
   );
 }
 

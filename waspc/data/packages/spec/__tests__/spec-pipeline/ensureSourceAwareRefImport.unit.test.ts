@@ -24,6 +24,29 @@ describe("ensureSourceAwareRefImport", () => {
     });
   });
 
+  test("rewrites explicit refImport imports from the local public API source", () => {
+    const localSpecApiImport =
+      "file:///repo/waspc/data/packages/spec/src/spec/publicApi/index.ts";
+
+    expect(
+      transform(
+        [
+          `import { refImport, page } from ${JSON.stringify(localSpecApiImport)};`,
+          `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toEqual({
+      refImportName: "refImport",
+      sourceText: [
+        `import { page, makeRefImport } from ${JSON.stringify(localSpecApiImport)};`,
+        `const refImport = makeRefImport(import.meta.url);`,
+        `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
+        ``,
+      ].join("\n"),
+    });
+  });
+
   test("preserves a refImport alias", () => {
     expect(
       transform(
@@ -65,7 +88,10 @@ describe("ensureSourceAwareRefImport", () => {
   test("leaves type-only imports unchanged", () => {
     const sourceText = `import type { RefImport } from "@wasp.sh/spec";\n`;
 
-    expect(transform(sourceText)).toEqual({ sourceText });
+    expect(transform(sourceText)).toEqual({
+      refImportName: "refImport",
+      sourceText,
+    });
   });
 
   test("reuses an existing makeRefImport import", () => {

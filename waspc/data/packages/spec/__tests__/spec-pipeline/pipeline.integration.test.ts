@@ -41,10 +41,10 @@ describe("Wasp TS spec pipeline", () => {
       [
         `// @ts-ignore: This test imports the local TS source through Vitest.`,
         `import { action } from ${JSON.stringify(waspSpecEntryUrl)};`,
-        `import { archive as archiveTask } from "../adminOperations" with { type: "ref" };`,
+        `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
         ``,
         `export const splitTitle = "Split Demo";`,
-        `export const archiveAction = action(archiveTask, { entities: [] });`,
+        `export const archiveAction = action(adminOperations.archive, { entities: [] });`,
       ].join("\n"),
     );
 
@@ -71,7 +71,10 @@ describe("Wasp TS spec pipeline", () => {
       expect.objectContaining({ declType: "Page", declName: "MainPage" }),
     );
     expect(decls).toContainEqual(
-      expect.objectContaining({ declType: "Action", declName: "archiveTask" }),
+      expect.objectContaining({
+        declType: "Action",
+        declName: "adminOperations_archive",
+      }),
     );
   });
 });
