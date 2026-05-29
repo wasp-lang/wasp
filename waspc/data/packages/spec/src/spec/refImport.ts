@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import type * as AppSpec from "../appSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
@@ -20,6 +21,22 @@ export type RefImportDescriptor =
   | NamedRefImportDescriptor
   | DefaultRefImportDescriptor;
 
+export type RefImportSource = {
+  sourceFilePath: string;
+};
+
+export type RefImportWithSourcePath<
+  T extends RefImportDescriptor = RefImportDescriptor,
+> = RefImport<T & RefImportSource>;
+
+export type RefImportHelper = <T extends RefImportDescriptor>(
+  descriptor: T,
+) => RefImport<T>;
+
+export type SourceAwareRefImportHelper = <T extends RefImportDescriptor>(
+  descriptor: T,
+) => RefImportWithSourcePath<T>;
+
 export interface NamedRefImportDescriptor {
   import: string;
   alias?: string;
@@ -35,6 +52,17 @@ export function refImport<T extends RefImportDescriptor>(
   descriptor: T,
 ): RefImport<T> {
   return { ...descriptor, kind: "refImport" } as RefImport<T>;
+}
+
+export function makeRefImport(
+  importingFileUrl: string,
+): SourceAwareRefImportHelper {
+  const sourceFilePath = fileURLToPath(importingFileUrl);
+
+  return (descriptor) =>
+    refImport({ ...descriptor, sourceFilePath }) as RefImportWithSourcePath<
+      typeof descriptor
+    >;
 }
 
 /**

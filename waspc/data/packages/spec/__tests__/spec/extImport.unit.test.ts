@@ -1,6 +1,11 @@
+import { pathToFileURL } from "node:url";
 import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
-import { mapExtImport, refImport } from "../../src/spec/refImport.js";
+import {
+  makeRefImport,
+  mapExtImport,
+  refImport,
+} from "../../src/spec/refImport.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";
@@ -63,6 +68,29 @@ describe("refImport", () => {
       kind: "refImport",
       importDefault: "MainPage",
       from: "@src/MainPage",
+    });
+  });
+});
+
+describe("makeRefImport", () => {
+  test("returns a source-aware refImport helper", () => {
+    const sourceFilePath = "/project/main.wasp.ts";
+    const sourceAwareRefImport = makeRefImport(
+      pathToFileURL(sourceFilePath).href,
+    );
+
+    expect(
+      sourceAwareRefImport({
+        import: "archive",
+        from: "@src/operations",
+        alias: "archiveTask",
+      }),
+    ).toStrictEqual({
+      kind: "refImport",
+      import: "archive",
+      from: "@src/operations",
+      alias: "archiveTask",
+      sourceFilePath,
     });
   });
 });

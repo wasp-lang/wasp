@@ -857,6 +857,22 @@ export type {
    */
   RefImportDescriptor,
   /**
+   * Function returned by {@link makeRefImport}.
+   */
+  SourceAwareRefImportHelper,
+  /**
+   * Function signature for {@link refImport}.
+   */
+  RefImportHelper,
+  /**
+   * Source file metadata attached by {@link makeRefImport}.
+   */
+  RefImportSource,
+  /**
+   * A {@link RefImport} with source file metadata.
+   */
+  RefImportWithSourcePath,
+  /**
    * A reference object, pointing to a value in the project's `src` directory.
    * Used wherever the spec accepts a reference to user code.
    */

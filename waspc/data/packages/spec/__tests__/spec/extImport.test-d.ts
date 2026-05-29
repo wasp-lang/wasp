@@ -1,10 +1,20 @@
 import { assertType, describe, test } from "vitest";
-import { refImport } from "../../src/spec/publicApi/index.js";
+import { makeRefImport, refImport } from "../../src/spec/publicApi/index.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 describe("ExtImport input types", () => {
   test("should accept refImport helper output at reference use sites", () => {
     const component = refImport({
+      importDefault: "MainPage",
+      from: "@src/MainPage",
+    });
+
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+  });
+
+  test("should accept makeRefImport helper output at reference use sites", () => {
+    const sourceAwareRefImport = makeRefImport(import.meta.url);
+    const component = sourceAwareRefImport({
       importDefault: "MainPage",
       from: "@src/MainPage",
     });
