@@ -2,7 +2,7 @@ import path from "node:path";
 import type { RefObject } from "../../spec/refObject.js";
 import { SpecUserError } from "../../spec/specUserError.js";
 
-export function getExtImportPathForRefImport({
+export function getRefObjectPathForRefImport({
   refImportPath,
   importingFilePath,
   projectRootDir,
@@ -17,7 +17,7 @@ export function getExtImportPathForRefImport({
     projectRootDir,
   });
 
-  return toExtImportPath(srcRelativePath);
+  return toRefObjectPath(srcRelativePath);
 }
 
 /**
@@ -49,9 +49,9 @@ function getValidSrcRelativePathForRefImport({
 }
 
 /**
- * ExtImport paths use Wasp's @src alias and forward slashes on every OS.
+ * RefObject paths use Wasp's @src alias and forward slashes on every OS.
  */
-function toExtImportPath(srcRelativePath: string): RefObject["from"] {
+function toRefObjectPath(srcRelativePath: string): RefObject["from"] {
   return `@src/${srcRelativePath.split(path.sep).join("/")}` as RefObject["from"];
 }
 

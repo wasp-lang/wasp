@@ -39,30 +39,30 @@ export interface DefaultRefObject {
   from: AppSpec.ExtImport["path"];
 }
 
-export function mapExtImport(extImport: unknown): AppSpec.ExtImport {
-  if (isNamedExtImport(extImport)) {
+export function mapRefObject(refObject: unknown): AppSpec.ExtImport {
+  if (isNamedRefObject(refObject)) {
     return {
       kind: "named",
-      name: extImport.import,
-      path: extImport.from,
-      alias: extImport.alias,
+      name: refObject.import,
+      path: refObject.from,
+      alias: refObject.alias,
     };
-  } else if (isDefaultExtImport(extImport)) {
+  } else if (isDefaultRefObject(refObject)) {
     return {
       kind: "default",
-      name: extImport.importDefault,
-      path: extImport.from,
+      name: refObject.importDefault,
+      path: refObject.from,
     };
   } else {
     throw new SpecUserError(
       "Got an import in the Wasp file that we couldn't process: " +
-        JSON.stringify(extImport) +
+        JSON.stringify(refObject) +
         '\nYou either used a value imported without `with { type: "ref" }` or didn\'t write the RefObject correctly.',
     );
   }
 }
 
-export function isNamedExtImport(value: unknown): value is NamedRefObject {
+export function isNamedRefObject(value: unknown): value is NamedRefObject {
   return (
     isObject(value) &&
     typeof value.import === "string" &&
@@ -71,7 +71,7 @@ export function isNamedExtImport(value: unknown): value is NamedRefObject {
   );
 }
 
-function isDefaultExtImport(value: unknown): value is DefaultRefObject {
+function isDefaultRefObject(value: unknown): value is DefaultRefObject {
   return (
     isObject(value) &&
     typeof value.importDefault === "string" &&

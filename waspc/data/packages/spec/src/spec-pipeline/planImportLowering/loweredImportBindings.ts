@@ -1,12 +1,12 @@
 import * as ts from "typescript";
 import type { RefObject } from "../../spec/refObject.js";
 
-export type LoweredImportBinding = ExtImportBinding | NamespaceImportBinding;
+export type LoweredImportBinding = RefObjectBinding | NamespaceImportBinding;
 
-type ExtImportBinding = {
-  kind: "extImport";
+type RefObjectBinding = {
+  kind: "refObject";
   localName: string;
-  extImport: RefObject;
+  refObject: RefObject;
 };
 
 export type NamespaceImportBinding = {
@@ -25,9 +25,9 @@ export function getLoweredImportBindings(
   if (clause.name) {
     const name = clause.name.text;
     bindings.push({
-      kind: "extImport",
+      kind: "refObject",
       localName: name,
-      extImport: { importDefault: name, from },
+      refObject: { importDefault: name, from },
     });
   }
 
@@ -45,9 +45,9 @@ export function getLoweredImportBindings(
       const localName = spec.name.text;
       const importedName = getImportedName(spec);
       bindings.push({
-        kind: "extImport",
+        kind: "refObject",
         localName,
-        extImport: {
+        refObject: {
           import: importedName,
           from,
           ...(importedName === localName ? {} : { alias: localName }),

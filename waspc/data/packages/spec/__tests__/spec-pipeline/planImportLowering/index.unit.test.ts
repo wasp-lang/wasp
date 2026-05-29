@@ -22,19 +22,19 @@ describe("planImportLowering", () => {
       plan.replacements.flatMap((replacement) => replacement.bindings),
     ).toEqual([
       {
-        kind: "extImport",
+        kind: "refObject",
         localName: "MainPage",
-        extImport: { importDefault: "MainPage", from: "@src/MainPage" },
+        refObject: { importDefault: "MainPage", from: "@src/MainPage" },
       },
       {
-        kind: "extImport",
+        kind: "refObject",
         localName: "getTasks",
-        extImport: { import: "getTasks", from: "@src/operations" },
+        refObject: { import: "getTasks", from: "@src/operations" },
       },
       {
-        kind: "extImport",
+        kind: "refObject",
         localName: "archiveTask",
-        extImport: {
+        refObject: {
           import: "archive",
           from: "@src/operations",
           alias: "archiveTask",
@@ -58,9 +58,9 @@ describe("planImportLowering", () => {
 
     expect(plan.replacements[0]?.bindings).toEqual([
       {
-        kind: "extImport",
+        kind: "refObject",
         localName: "MainPage",
-        extImport: {
+        refObject: {
           importDefault: "MainPage",
           from: "@src/features/MainPage",
         },

@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 import { SpecUserError } from "../../spec/specUserError.js";
-import { getExtImportPathForRefImport } from "./extImportPath.js";
+import { getRefObjectPathForRefImport } from "./refObjectPath.js";
 import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
 import type {
@@ -26,7 +26,7 @@ type ImportReplacement = {
 
 /**
  * Given source code, detects supported ref import statements and returns a
- * plan for replacing them with inline ExtImport consts. We call this lowering
+ * plan for replacing them with inline RefObject consts. We call this lowering
  * imports.
  */
 export function planImportLowering({
@@ -99,7 +99,7 @@ function planStatementLowering({
       end: stmt.getEnd(),
       bindings: getLoweredImportBindings(
         stmt.importClause,
-        getExtImportPathForRefImport({
+        getRefObjectPathForRefImport({
           refImportPath,
           importingFilePath: sourceFile.fileName,
           projectRootDir,

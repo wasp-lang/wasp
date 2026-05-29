@@ -6,7 +6,7 @@ describe("lowerRefImports", () => {
   const projectRootDir = "/project";
   const sourcePath = `${projectRootDir}/main.wasp.ts`;
 
-  test("lowers a default ref import into an importDefault ExtImport const", () => {
+  test("lowers a default ref import into an importDefault RefObject const", () => {
     const input = `import MainPage from "./src/MainPage" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
@@ -14,7 +14,7 @@ describe("lowerRefImports", () => {
     );
   });
 
-  test("lowers named and aliased ref imports into ExtImport consts", () => {
+  test("lowers named and aliased ref imports into RefObject consts", () => {
     const input = `import { getTasks, archive as archiveTask } from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
@@ -38,7 +38,7 @@ describe("lowerRefImports", () => {
     );
   });
 
-  test("lowers multiple named ref imports into separate ExtImport consts", () => {
+  test("lowers multiple named ref imports into separate RefObject consts", () => {
     const input = `import { getTasks, createTask } from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
@@ -120,7 +120,7 @@ describe("lowerRefImports", () => {
     expect(output).not.toContain(`with { type: "ref" }`);
   });
 
-  test("is a no-op on an ExtImport-form spec file", () => {
+  test("is a no-op on a RefObject-form spec file", () => {
     const input = [
       `import { app } from "@wasp.sh/spec";`,
       ``,
