@@ -46,6 +46,7 @@ ensureE2eTestsEnvironment = do
     Just _ -> return ()
     Nothing -> do
       waspcDir <- getWaspcDirPath
+      -- Runs the tests using the current state of the `waspc` project.
       let devWaspCliCmd = "cabal -v0 --project-dir=" ++ SP.fromAbsDir waspcDir ++ " run wasp-cli --"
       setEnv "WASP_CLI_CMD" devWaspCliCmd
 
