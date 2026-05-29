@@ -1,6 +1,6 @@
 import * as ts from "typescript";
+import { normalizeRefImportPath } from "../../spec/refImportPath.js";
 import { SpecUserError } from "../../spec/specUserError.js";
-import { getExtImportPathForRefImport } from "./extImportPath.js";
 import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
 import type {
@@ -99,8 +99,8 @@ function planStatementLowering({
       end: stmt.getEnd(),
       bindings: getLoweredImportBindings(
         stmt.importClause,
-        getExtImportPathForRefImport({
-          refImportPath,
+        normalizeRefImportPath({
+          importPath: refImportPath,
           importingFilePath: sourceFile.fileName,
           projectRootDir,
         }),
