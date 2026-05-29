@@ -51,7 +51,7 @@ waspDbSeedTest =
     ]
   where
     waspCliDbSeedFails :: ShellCommand
-    waspCliDbSeedFails = "! wasp-cli db seed"
+    waspCliDbSeedFails = "! $WASP_CLI_CMD db seed"
 
     taskPrismaModel :: T.Text
     taskPrismaModel =

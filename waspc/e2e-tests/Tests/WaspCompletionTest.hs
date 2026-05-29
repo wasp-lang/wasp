@@ -26,4 +26,4 @@ waspCompletionTest =
     assertWaspCliCompletion :: String -> String -> ShellCommand
     assertWaspCliCompletion query expectedCompletion =
       ("export COMP_LINE='" ++ query ++ "'")
-        ~&& ("[ \"$(wasp-cli completion:list)\" = \"" ++ expectedCompletion ++ "\" ]")
+        ~&& ("[ \"$($WASP_CLI_CMD completion:list)\" = \"" ++ expectedCompletion ++ "\" ]")

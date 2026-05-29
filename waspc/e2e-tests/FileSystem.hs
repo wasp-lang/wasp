@@ -1,6 +1,7 @@
 module FileSystem
   ( GitRootDir,
     WaspcDir,
+    getWaspcDirPath,
     SeedsDir,
     SeedsFile,
     seedsDirInWaspProjectDir,
@@ -72,9 +73,6 @@ seedsDirInWaspProjectDir = [reldir|src/db|]
 
 seedsFileInSeedsDir :: String -> Path' (Rel SeedsDir) File'
 seedsFileInSeedsDir = fromJust . parseRelFile
-
-mainWaspFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-mainWaspFileInWaspProjectDir = [relfile|main.wasp|]
 
 mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 mainWaspTsFileInWaspProjectDir = [relfile|main.wasp.ts|]

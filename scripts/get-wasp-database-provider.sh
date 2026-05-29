@@ -3,7 +3,8 @@
 # Extract database provider from Wasp CLI info output
 
 # Usage: get-wasp-database-provider.sh <command>
-# Where <command> is either 'wasp' or 'wasp-cli'
+# Where <command> is whatever invokes Wasp's CLI in the current environment,
+# e.g. 'wasp', 'wasp-cli', or 'cabal -v0 --project-dir=/path/to/waspc run wasp-cli --'.
 
 # Returns the provider name in lowercase
 
@@ -11,16 +12,10 @@ set -e
 
 if [ $# -ne 1 ]; then
   echo "ERROR: Usage: $0 <command>" >&2
-  echo "       Where <command> is either 'wasp' or 'wasp-cli'" >&2
   exit 1
 fi
 
 WASP_COMMAND="$1"
-
-if [ "$WASP_COMMAND" != "wasp" ] && [ "$WASP_COMMAND" != "wasp-cli" ]; then
-  echo "ERROR: Command must be either 'wasp' or 'wasp-cli', got: $WASP_COMMAND" >&2
-  exit 1
-fi
 
 WASP_INFO_OUTPUT=$($WASP_COMMAND info 2>&1) || {
   echo "ERROR: '$WASP_COMMAND info' failed with exit code $?:" >&2

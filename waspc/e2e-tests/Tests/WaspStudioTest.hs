@@ -27,4 +27,4 @@ waspStudioTest =
     ]
   where
     waspCliStudioFails :: ShellCommand
-    waspCliStudioFails = "! wasp-cli studio"
+    waspCliStudioFails = "! $WASP_CLI_CMD studio"

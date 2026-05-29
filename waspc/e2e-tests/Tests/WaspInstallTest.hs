@@ -34,7 +34,7 @@ waspInstallTest =
     ]
   where
     waspCliInstallFails :: ShellCommand
-    waspCliInstallFails = "! wasp-cli install"
+    waspCliInstallFails = "! $WASP_CLI_CMD install"
 
     assertDirectoryDoesNotExist :: FilePath -> ShellCommand
     assertDirectoryDoesNotExist dirFilePath = "[ ! -d '" ++ dirFilePath ++ "' ]"

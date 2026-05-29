@@ -25,4 +25,4 @@ waspInfoTest =
     ]
   where
     waspCliInfoFails :: ShellCommand
-    waspCliInfoFails = "! wasp-cli info"
+    waspCliInfoFails = "! $WASP_CLI_CMD info"

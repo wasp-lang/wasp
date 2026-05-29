@@ -1,5 +1,8 @@
 import Control.Concurrent.Async (mapConcurrently)
+import FileSystem (getWaspcDirPath)
 import SnapshotTest (testTreeFromSnapshotTest)
+import qualified StrongPath as SP
+import System.Environment (lookupEnv, setEnv)
 import System.Info (os)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
@@ -32,7 +35,19 @@ main :: IO ()
 main = do
   if os == "mingw32"
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
-    else e2eTests >>= defaultMain
+    else do
+      ensureE2eTestsEnvironment
+      e2eTests >>= defaultMain
+
+ensureE2eTestsEnvironment :: IO ()
+ensureE2eTestsEnvironment = do
+  existing <- lookupEnv "WASP_CLI_CMD"
+  case existing of
+    Just _ -> return ()
+    Nothing -> do
+      waspcDir <- getWaspcDirPath
+      let devWaspCliCmd = "cabal -v0 --project-dir=" ++ SP.fromAbsDir waspcDir ++ " run wasp-cli --"
+      setEnv "WASP_CLI_CMD" devWaspCliCmd
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
