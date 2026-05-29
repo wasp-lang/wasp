@@ -1,5 +1,5 @@
-import type { ExtImport } from "../spec/extImport.js";
-import { isNamedExtImport } from "../spec/extImport.js";
+import type { RefObject } from "../spec/refObject.js";
+import { isNamedRefObject } from "../spec/refObject.js";
 import type { ImportLoweringPlan } from "./planImportLowering/index.js";
 import { planImportLowering } from "./planImportLowering/index.js";
 import type {
@@ -9,7 +9,7 @@ import type {
 
 /**
  * Given source code, finds supported ref import statements and replaces them
- * with inline ExtImport consts. We call this lowering imports.
+ * with inline RefObject consts. We call this lowering imports.
  */
 export function lowerRefImports({
   sourceText,
@@ -50,8 +50,8 @@ function getImportReplacementSource(bindings: LoweredImportBinding[]): string {
 
 function getLoweredImportBindingSource(binding: LoweredImportBinding): string {
   switch (binding.kind) {
-    case "extImport":
-      return `const ${binding.localName} = ${getExtImportObjectLiteralSource(binding.extImport)} as const;`;
+    case "refObject":
+      return `const ${binding.localName} = ${getRefObjectLiteralSource(binding.refObject)} as const;`;
     case "namespace":
       return getNamespaceImportProxySource(binding);
   }
@@ -71,19 +71,19 @@ function getNamespaceImportProxySource(
   return `const ${binding.localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
 }
 
-function getExtImportObjectLiteralSource(extImport: ExtImport): string {
-  if (isNamedExtImport(extImport)) {
+function getRefObjectLiteralSource(refObject: RefObject): string {
+  if (isNamedRefObject(refObject)) {
     const fields: Field[] = [
-      ["import", extImport.import],
-      ["from", extImport.from],
-      ["alias", extImport.alias],
+      ["import", refObject.import],
+      ["from", refObject.from],
+      ["alias", refObject.alias],
     ];
 
     return `{ ${getObjectFieldsSource(fields)} }`;
   } else {
     const fields: Field[] = [
-      ["importDefault", extImport.importDefault],
-      ["from", extImport.from],
+      ["importDefault", refObject.importDefault],
+      ["from", refObject.from],
     ];
 
     return `{ ${getObjectFieldsSource(fields)} }`;
