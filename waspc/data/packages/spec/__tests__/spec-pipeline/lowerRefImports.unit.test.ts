@@ -131,23 +131,20 @@ describe("lowerRefImports", () => {
       `export default demoApp;`,
       ``,
     ].join("\n");
-    const output = lower(input);
 
-    expect(output).toContain(
-      `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
+    expect(lower(input)).toBe(
+      [
+        `import { app, makeRefImport } from "@wasp.sh/spec";`,
+        `const refImport = makeRefImport(import.meta.url);`,
+        `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
+        `import helper from "./helpers";`,
+        ``,
+        `const demoApp = app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
+        `export default demoApp;`,
+        ``,
+      ].join("\n"),
     );
-    expect(output).toContain(
-      `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
-    );
-    expect(output).toContain(
-      `import { app, makeRefImport } from "@wasp.sh/spec";`,
-    );
-    expect(output).toContain(
-      `const refImport = makeRefImport(import.meta.url);`,
-    );
-    expect(output).toContain(`import helper from "./helpers";`);
-    expect(output).toContain(`export default demoApp;`);
-    expect(output).not.toContain(`with { type: "ref" }`);
   });
 
   test("is a no-op on an ExtImport-form spec file", () => {
