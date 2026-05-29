@@ -7,7 +7,10 @@ Let users write normal relative paths for references to app code while keeping t
 User-facing API:
 
 ```ts
-const LoginPage = refImport({ importDefault: "LoginPage", from: "./LoginPage" })
+const LoginPage = refImport({
+  importDefault: "LoginPage",
+  from: "./LoginPage",
+});
 ```
 
 Internal compiler JSON stays unchanged:
@@ -59,18 +62,19 @@ Add:
 /**
  * User-facing reference to code in your app's `src` directory.
  */
-export type RefImport<T extends RefImportDescriptor = RefImportDescriptor> = T & {
-  kind: "refImport"
-}
+export type RefImport<T extends RefImportDescriptor = RefImportDescriptor> =
+  T & {
+    kind: "refImport";
+  };
 
 export type RefImportDescriptor =
   | NamedRefImportDescriptor
-  | DefaultRefImportDescriptor
+  | DefaultRefImportDescriptor;
 
 export function refImport<T extends RefImportDescriptor>(
   descriptor: T,
 ): RefImport<T> {
-  return { ...descriptor, kind: "refImport" }
+  return { ...descriptor, kind: "refImport" };
 }
 ```
 
@@ -96,7 +100,7 @@ normalizeRefImportPath({
   importPath,
   importingFilePath,
   projectRootDir,
-})
+});
 ```
 
 Behavior:
@@ -114,14 +118,16 @@ Add source-aware helper:
 
 ```ts
 export type RefImportSource = {
-  sourceFilePath: string
-}
+  sourceFilePath: string;
+};
 
 export type RefImportWithSourcePath<
   T extends RefImportDescriptor = RefImportDescriptor,
-> = RefImport<T & RefImportSource>
+> = RefImport<T & RefImportSource>;
 
-export function makeRefImport(importingFileUrl: string): SourceAwareRefImportHelper
+export function makeRefImport(
+  importingFileUrl: string,
+): SourceAwareRefImportHelper;
 ```
 
 `makeRefImport(import.meta.url)` attaches visible `sourceFilePath`.
@@ -133,7 +139,7 @@ makeRefImport(fileUrl)({
   import: "archive",
   from: "./operations",
   alias: "archiveTask",
-})
+});
 ```
 
 It returns the descriptor plus `kind: "refImport"` and `sourceFilePath`.
@@ -151,11 +157,11 @@ Add:
 
 ```ts
 export type AppSpecMappingContext = {
-  entityNames: string[]
-  projectRootDir: string
-}
+  entityNames: string[];
+  projectRootDir: string;
+};
 
-export function makeAppSpecMapper(context: AppSpecMappingContext)
+export function makeAppSpecMapper(context: AppSpecMappingContext);
 ```
 
 Individual mapping functions become methods on the mapper object.
@@ -163,7 +169,7 @@ Individual mapping functions become methods on the mapper object.
 Avoid threading helpers like:
 
 ```ts
-mapQuery(query, entityRefParser, mapRefImport)
+mapQuery(query, entityRefParser, mapRefImport);
 ```
 
 Use closure state instead.
@@ -180,8 +186,8 @@ If a temporary pass-through seam is introduced, it must have a TODO:
 Add:
 
 ```ts
-mapRefImportToExtImport(refImport, { projectRootDir })
-getRefImportDeclarationName(refImport)
+mapRefImportToExtImport(refImport, { projectRootDir });
+getRefImportDeclarationName(refImport);
 ```
 
 Delete `mapExtImport` and update all callers.
@@ -205,14 +211,14 @@ Raw `@src` descriptors remain only temporarily if needed. That branch needs a TO
 Source transform rewrites:
 
 ```ts
-import { refImport, page } from "@wasp.sh/spec"
+import { refImport, page } from "@wasp.sh/spec";
 ```
 
 to:
 
 ```ts
-import { page, makeRefImport } from "@wasp.sh/spec"
-const refImport = makeRefImport(import.meta.url)
+import { page, makeRefImport } from "@wasp.sh/spec";
+const refImport = makeRefImport(import.meta.url);
 ```
 
 Support:
@@ -229,7 +235,7 @@ ensureSourceAwareRefImport({
   sourceText,
   sourcePath,
   required,
-})
+});
 ```
 
 This transform owns helper import rewriting and injection.
@@ -245,13 +251,19 @@ Change lowering output from plain objects to helper calls.
 Current:
 
 ```ts
-const LoginPage = { importDefault: "LoginPage", from: "@src/LoginPage" } as const
+const LoginPage = {
+  importDefault: "LoginPage",
+  from: "@src/LoginPage",
+} as const;
 ```
 
 Target:
 
 ```ts
-const LoginPage = refImport({ importDefault: "LoginPage", from: "./LoginPage" })
+const LoginPage = refImport({
+  importDefault: "LoginPage",
+  from: "./LoginPage",
+});
 ```
 
 Requirements:
@@ -266,13 +278,17 @@ Requirements:
 Namespace target:
 
 ```ts
-const ops = new Proxy({}, {
-  get: (_t, k) => refImport({
-    import: String(k),
-    from: "./operations",
-    alias: "ops_" + String(k),
-  }),
-}) as Record<string, ReturnType<typeof refImport>>
+const ops = new Proxy(
+  {},
+  {
+    get: (_t, k) =>
+      refImport({
+        import: String(k),
+        from: "./operations",
+        alias: "ops_" + String(k),
+      }),
+  },
+) as Record<string, ReturnType<typeof refImport>>;
 ```
 
 This bullet removes TODOs tied to old lowering emitting plain descriptors.
@@ -284,7 +300,7 @@ Remove raw descriptor compatibility after all generated and user-facing referenc
 Update:
 
 ```ts
-export type Reference<T> = RefImport | T
+export type Reference<T> = RefImport | T;
 ```
 
 Remove from public API:

@@ -14,19 +14,37 @@ describe("mapRefImportToExtImport", () => {
   const projectRootDir = "/project";
 
   test("should map minimal named import correctly", () => {
-    testRawExtImportMapping(Fixtures.getExtImport("minimal", "named"));
+    testRefImportMapping(Fixtures.getExtImport("minimal", "named"), {
+      kind: "named",
+      name: "namedExport",
+      path: "@src/external",
+      alias: undefined,
+    });
   });
 
   test("should map full named import correctly", () => {
-    testRawExtImportMapping(Fixtures.getExtImport("full", "named"));
+    testRefImportMapping(Fixtures.getExtImport("full", "named"), {
+      kind: "named",
+      name: "namedExport",
+      path: "@src/external",
+      alias: "namedAlias",
+    });
   });
 
   test("should map minimal default import correctly", () => {
-    testRawExtImportMapping(Fixtures.getExtImport("minimal", "default"));
+    testRefImportMapping(Fixtures.getExtImport("minimal", "default"), {
+      kind: "default",
+      name: "defaultExport",
+      path: "@src/external",
+    });
   });
 
   test("should map full default import correctly", () => {
-    testRawExtImportMapping(Fixtures.getExtImport("full", "default"));
+    testRefImportMapping(Fixtures.getExtImport("full", "default"), {
+      kind: "default",
+      name: "defaultExport",
+      path: "@src/external",
+    });
   });
 
   test.each([
@@ -82,36 +100,33 @@ describe("mapRefImportToExtImport", () => {
     ).toThrowError(SpecUserError);
   });
 
-  function testRawExtImportMapping(extImport: TsAppSpec.ExtImport): void {
-    // TODO: Remove raw ExtImport coverage after raw public ExtImport support is
-    // removed.
-    const result = mapRefImportToExtImport(extImport, { projectRootDir });
+  test("rejects raw @src descriptors", () => {
+    expect(() =>
+      mapRefImportToExtImport(
+        { importDefault: "LoginPage", from: "@src/LoginPage" },
+        { projectRootDir },
+      ),
+    ).toThrowError(SpecUserError);
+  });
 
-    if ("import" in extImport) {
-      expect(result).toStrictEqual({
-        kind: "named",
-        name: extImport.import,
-        path: extImport.from,
-        alias: extImport.alias,
-      } satisfies AppSpec.ExtImport);
-    } else {
-      expect(result).toStrictEqual({
-        kind: "default",
-        name: extImport.importDefault,
-        path: extImport.from,
-      } satisfies AppSpec.ExtImport);
-    }
+  function testRefImportMapping(
+    refImport: TsAppSpec.RefImport,
+    expected: AppSpec.ExtImport,
+  ): void {
+    const result = mapRefImportToExtImport(refImport, { projectRootDir });
+
+    expect(result).toStrictEqual(expected);
   }
 });
 
 describe("refImport", () => {
   test("marks a descriptor as a RefImport", () => {
     expect(
-      refImport({ importDefault: "MainPage", from: "@src/MainPage" }),
+      refImport({ importDefault: "MainPage", from: "./MainPage" }),
     ).toStrictEqual({
       kind: "refImport",
       importDefault: "MainPage",
-      from: "@src/MainPage",
+      from: "./MainPage",
     });
   });
 });
@@ -126,13 +141,13 @@ describe("makeRefImport", () => {
     expect(
       sourceAwareRefImport({
         import: "archive",
-        from: "@src/operations",
+        from: "./operations",
         alias: "archiveTask",
       }),
     ).toStrictEqual({
       kind: "refImport",
       import: "archive",
-      from: "@src/operations",
+      from: "./operations",
       alias: "archiveTask",
       sourceFilePath,
     });

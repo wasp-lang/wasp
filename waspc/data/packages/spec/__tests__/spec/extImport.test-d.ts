@@ -2,11 +2,11 @@ import { assertType, describe, test } from "vitest";
 import { makeRefImport, refImport } from "../../src/spec/publicApi/index.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
-describe("ExtImport input types", () => {
+describe("RefImport input types", () => {
   test("should accept refImport helper output at reference use sites", () => {
     const component = refImport({
       importDefault: "MainPage",
-      from: "@src/MainPage",
+      from: "./MainPage",
     });
 
     assertType<TsAppSpec.Page>({ kind: "page", component });
@@ -16,13 +16,13 @@ describe("ExtImport input types", () => {
     const sourceAwareRefImport = makeRefImport(import.meta.url);
     const component = sourceAwareRefImport({
       importDefault: "MainPage",
-      from: "@src/MainPage",
+      from: "./MainPage",
     });
 
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 
-  test("should accept functions at ExtImport use sites", () => {
+  test("should accept functions at reference use sites", () => {
     const component = () => null;
     const operation = async (_args: { id: string }) => null;
     const object = { field: () => "" };
@@ -85,17 +85,17 @@ describe("ExtImport input types", () => {
     });
   });
 
-  test("should reject objects that are not ExtImport objects at ExtImport use sites", () => {
+  test("should reject objects that are not RefImport objects at reference use sites", () => {
     const component = { render: () => null };
 
-    // @ts-expect-error ExtImport use sites accept descriptors or functions.
+    // @ts-expect-error Reference use sites accept RefImport values or functions.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 
-  test("should reject malformed descriptor-like objects", () => {
-    const component = { from: 42, importDefault: "X" };
+  test("should reject raw descriptor-like objects", () => {
+    const component = { from: "./MainPage", importDefault: "MainPage" };
 
-    // @ts-expect-error Descriptor-like objects must still satisfy ExtImport.
+    // @ts-expect-error Descriptor-like objects must be wrapped in refImport.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 });
@@ -114,23 +114,34 @@ describe("Env validation schema input types", () => {
     assertType<TsAppSpec.Client>({ envValidationSchema: schema });
   });
 
-  test("should accept ExtImport env validation schemas", () => {
-    // TODO: Remove raw ExtImport coverage after raw public ExtImport support is
-    // removed.
-    const schemaImport = {
+  test("should accept RefImport env validation schemas", () => {
+    const schemaImport = refImport({
       importDefault: "schema",
-      from: "@src/env",
-    } satisfies TsAppSpec.ExtImport;
+      from: "./env",
+    });
 
     assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
     assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
   });
 
+  test("should reject raw descriptor env validation schemas", () => {
+    const schemaImport = {
+      importDefault: "schema",
+      from: "./env",
+    };
+
+    // @ts-expect-error Env validation schemas must use refImport or Zod schema-shaped values.
+    assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
+
+    // @ts-expect-error Env validation schemas must use refImport or Zod schema-shaped values.
+    assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
+  });
+
   test("should reject non-schema objects at env validation schema use sites", () => {
-    // @ts-expect-error Env validation schemas must be ExtImport or Zod schema-shaped.
+    // @ts-expect-error Env validation schemas must use refImport or Zod schema-shaped values.
     assertType<TsAppSpec.Server>({ envValidationSchema: {} });
 
-    // @ts-expect-error Env validation schemas must be ExtImport or Zod schema-shaped.
+    // @ts-expect-error Env validation schemas must use refImport or Zod schema-shaped values.
     assertType<TsAppSpec.Client>({ envValidationSchema: [] });
   });
 

@@ -14,6 +14,7 @@ import {
   job,
   page,
   query,
+  refImport,
   route,
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
@@ -573,7 +574,7 @@ export function getEmailVerifyRoute(): TsAppSpec.Route {
   return route(
     EMAIL_VERIFY_ROUTE_NAME,
     EMAIL_VERIFY_ROUTE_PATH,
-    page({ import: "EmailVerifyPage", from: "@src/auth/pages" }),
+    page(getRefImport({ import: "EmailVerifyPage", from: "./src/auth/pages" })),
   );
 }
 
@@ -581,30 +582,41 @@ export function getPasswordResetRoute(): TsAppSpec.Route {
   return route(
     PASSWORD_RESET_ROUTE_NAME,
     PASSWORD_RESET_ROUTE_PATH,
-    page({ import: "PasswordResetPage", from: "@src/auth/pages" }),
+    page(
+      getRefImport({ import: "PasswordResetPage", from: "./src/auth/pages" }),
+    ),
   );
 }
 
 export function getExtImport<
   Scope extends ConfigScope,
   Kind extends AppSpec.ExtImportKind,
->(scope: Scope, importKind: Kind): ConfigFor<Scope, ExtImportFor<Kind>>;
+>(scope: Scope, importKind: Kind): ConfigFor<Scope, RefImportFor<Kind>>;
 export function getExtImport(
   scope: ConfigScope,
   importKind: AppSpec.ExtImportKind,
-): Config<TsAppSpec.ExtImport> {
-  // TODO: Replace raw ExtImport fixtures with RefImport values after raw public
-  // ExtImport support is removed.
+): Config<TsAppSpec.RefImport> {
   switch (importKind) {
     case "named":
       return scope === "full"
-        ? { import: "namedExport", alias: "namedAlias", from: "@src/external" }
-        : { import: "namedExport", from: "@src/external" };
+        ? getRefImport({
+            import: "namedExport",
+            alias: "namedAlias",
+            from: "./src/external",
+          })
+        : getRefImport({ import: "namedExport", from: "./src/external" });
     case "default":
-      return { importDefault: "defaultExport", from: "@src/external" };
+      return getRefImport({
+        importDefault: "defaultExport",
+        from: "./src/external",
+      });
     default:
       assertUnreachable(importKind);
   }
+}
+
+function getRefImport<T extends TsAppSpec.RefImportDescriptor>(descriptor: T) {
+  return refImport({ ...descriptor, sourceFilePath: "/project/main.wasp.ts" });
 }
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>;
@@ -680,9 +692,9 @@ type IsExclusionMarker<V> = [Exclude<V, undefined>] extends [never]
   ? true
   : false;
 
-type ExtImportFor<Kind extends AppSpec.ExtImportKind> = Kind extends "named"
-  ? TsAppSpec.NamedExtImport
-  : TsAppSpec.DefaultExtImport;
+type RefImportFor<Kind extends AppSpec.ExtImportKind> = Kind extends "named"
+  ? TsAppSpec.RefImport<TsAppSpec.NamedRefImportDescriptor>
+  : TsAppSpec.RefImport<TsAppSpec.DefaultRefImportDescriptor>;
 
 type ConfigFor<Scope extends ConfigScope, Data> = Scope extends "full"
   ? FullConfig<Data>

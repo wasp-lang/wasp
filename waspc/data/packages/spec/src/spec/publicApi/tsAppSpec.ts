@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { RequireOneOrNone } from "type-fest";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
-import type { ExtImport, RefImport } from "../refImport.js";
+import type { RefImport } from "../refImport.js";
 import { FromRegister } from "./register.js";
 
 /**
@@ -324,7 +324,7 @@ export interface Server {
    * Zod schema used to validate user-defined server environment variables on
    * startup. Wasp merges it with built-in validation for Wasp-defined env vars
    * when validating `process.env`. Import the schema from app code with a
-   * reference import or pass an {@link ExtImport} object.
+   * reference import or {@link refImport}.
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
@@ -364,7 +364,7 @@ export interface Client {
    * Zod schema used to validate user-defined client environment variables at
    * build time. Wasp merges it with built-in validation for Wasp-defined env
    * vars when validating `import.meta.env`. Import the schema from app code
-   * with a reference import or pass an {@link ExtImport} object. Client env
+   * with a reference import or {@link refImport}. Client env
    * vars must be prefixed with `REACT_APP_`.
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
@@ -833,31 +833,13 @@ type Entities = FromRegister<"entities", {}>;
  *
  * See [Reference imports](https://wasp.sh/docs/general/spec#reference-imports).
  */
-// TODO: Remove raw ExtImport from Reference after raw public ExtImport support
-// is removed.
-export type Reference<T> = RefImport | ExtImport | T;
+export type Reference<T> = RefImport | T;
 
 export type {
-  /**
-   * Default-import variant of {@link ExtImport}, written as
-   * `{ importDefault: 'X', from: '@src/...' }`.
-   */
-  DefaultExtImport,
   /**
    * Default-import variant of {@link RefImportDescriptor}.
    */
   DefaultRefImportDescriptor,
-  /**
-   * A reference object, pointing to a value in the project's `src` directory.
-   * Used wherever the spec accepts a reference to user code.
-   */
-  ExtImport,
-  /**
-   * Named-import variant of {@link ExtImport}, written as
-   * `{ import: 'X', from: '@src/...' }`. An optional `alias` renames the
-   * imported value.
-   */
-  NamedExtImport,
   /**
    * Named-import variant of {@link RefImportDescriptor}.
    */
@@ -900,7 +882,7 @@ interface BaseDecl<Kind extends string> {
 /**
  * Structural type for a runtime Zod schema.
  *
- * Env schemas imported with reference imports are lowered to {@link ExtImport}
+ * Env schemas imported with reference imports are lowered to AppSpec.ExtImport
  * objects before mapping, but the public API still accepts runtime Zod objects
  * in `server.envValidationSchema` and `client.envValidationSchema`.
  *

@@ -61,7 +61,7 @@ type AppConfig = Omit<App, "kind">;
  *
  * A page is a React component rendered by a {@link route}. Pass the
  * component as the first argument, either via a reference import
- * (recommended) or an {@link ExtImport} object.
+ * (recommended) or {@link refImport}.
  *
  * See [Routing](https://wasp.sh/docs/advanced/routing) and the
  * [Auth overview](https://wasp.sh/docs/auth/overview#protecting-a-page-with-authrequired)

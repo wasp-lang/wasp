@@ -4,15 +4,6 @@ import { normalizeRefImportPath } from "./refImportPath.js";
 import { SpecUserError } from "./specUserError.js";
 
 /**
- * A reference to code in your app's `src` directory.
- *
- * Use this when you can't use a reference import.
- * The import path must start with `@src/` and be either a single named import
- * ({@link NamedExtImport}) or a default import ({@link DefaultExtImport}).
- */
-export type ExtImport = NamedExtImport | DefaultExtImport;
-
-/**
  * User-facing reference to code in your app's `src` directory.
  */
 export type RefImport<T extends RefImportDescriptor = RefImportDescriptor> =
@@ -66,35 +57,6 @@ export function makeRefImport(
     >;
 }
 
-/**
- * Named import reference, equivalent to
- * `import { SomeValue } from "./src/someModule" with { type: "ref" }`.
- */
-export interface NamedExtImport {
-  /** Exported name to import. */
-  import: string;
-  /**
-   * Optional local alias.
-   *
-   * When Wasp derives a declaration name from this import, the alias takes
-   * precedence over the `import` field.
-   */
-  alias?: string;
-  /** Module path. Must start with `@src/`. */
-  from: AppSpec.ExtImport["path"];
-}
-
-/**
- * Default import reference, equivalent to
- * `import SomeValue from "./src/someModule" with { type: "ref" }`.
- */
-export interface DefaultExtImport {
-  /** Local name for the default import. */
-  importDefault: string;
-  /** Module path. Must start with `@src/`. */
-  from: AppSpec.ExtImport["path"];
-}
-
 export function mapRefImportToExtImport(
   refImport: unknown,
   { projectRootDir }: { projectRootDir: string },
@@ -140,12 +102,6 @@ function mapRefImportPath(
   refImport: RefImportDescriptor,
   { projectRootDir }: { projectRootDir: string },
 ): AppSpec.ExtImport["path"] {
-  if (isAppSpecExtImportPath(refImport.from)) {
-    // TODO: Remove raw @src descriptor support after raw public ExtImport
-    // support is removed from Reference.
-    return refImport.from;
-  }
-
   if (!hasSourceFilePath(refImport)) {
     throw new SpecUserError(
       `Relative refImport path ${JSON.stringify(refImport.from)} is missing source file information. Use refImport(...) in a *.wasp.ts file.`,
@@ -157,12 +113,6 @@ function mapRefImportPath(
     importingFilePath: refImport.sourceFilePath,
     projectRootDir,
   });
-}
-
-function isAppSpecExtImportPath(
-  path: string,
-): path is AppSpec.ExtImport["path"] {
-  return path.startsWith("@src/");
 }
 
 function hasSourceFilePath(value: unknown): value is RefImportSource {
@@ -181,7 +131,7 @@ function isNamedRefImportDescriptor(
     typeof value.import === "string" &&
     typeof value.from === "string" &&
     hasValidAlias(value) &&
-    isSupportedRefImportDescriptor(value.from, value.kind)
+    hasRefImportMarker(value)
   );
 }
 
@@ -192,12 +142,12 @@ function isDefaultRefImportDescriptor(
     isObject(value) &&
     typeof value.importDefault === "string" &&
     typeof value.from === "string" &&
-    isSupportedRefImportDescriptor(value.from, value.kind)
+    hasRefImportMarker(value)
   );
 }
 
-function isSupportedRefImportDescriptor(from: string, kind: unknown): boolean {
-  return kind === "refImport" || isAppSpecExtImportPath(from);
+function hasRefImportMarker(value: Record<string, unknown>): boolean {
+  return value.kind === "refImport";
 }
 
 function hasValidAlias(value: Record<string, unknown>): boolean {
