@@ -4,7 +4,7 @@
 
 # Usage: get-wasp-database-provider.sh <command>
 # Where <command> is whatever invokes Wasp's CLI in the current environment,
-# e.g. 'wasp', 'wasp-cli', or 'cabal -v0 --project-dir=/path/to/waspc run wasp-cli --'.
+# e.g. 'wasp', 'wasp-cli', 'cabal -v0 --project-dir=/path/to/waspc run wasp-cli --'...
 
 # Returns the provider name in lowercase
 
