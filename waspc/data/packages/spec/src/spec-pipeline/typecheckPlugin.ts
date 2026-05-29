@@ -21,11 +21,13 @@ export function typecheckPlugin({
 
   return {
     name: "wasp/spec/typecheck",
+
     moduleParsed(info) {
       if (!WASP_SPEC_FILE_REGEX.test(info.id)) return;
       assert(info.code);
       project.createSourceFile(info.id, info.code, { overwrite: true });
     },
+
     buildEnd(err) {
       if (err) return;
       project.resolveSourceFileDependencies();

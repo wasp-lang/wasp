@@ -1,5 +1,5 @@
 import { unrun } from "unrun";
-import { lowerImportsPlugin } from "./lowerImportsPlugin.js";
+import { lowerImportsPlugin } from "./lowerImportsPlugin/index.js";
 import { typecheckPlugin } from "./typecheckPlugin.js";
 
 export async function loadWaspTsSpecDefaultExport({
@@ -15,7 +15,6 @@ export async function loadWaspTsSpecDefaultExport({
     path: specPath,
     debug: true,
     inputOptions: {
-      experimental: { nativeMagicString: true },
       plugins: [
         lowerImportsPlugin({ projectRootDir }),
         typecheckPlugin({ tsconfigPath }),
