@@ -853,22 +853,6 @@ export type {
    * Descriptor accepted by {@link refImport}.
    */
   RefImportDescriptor,
-  /**
-   * Function signature for {@link refImport}.
-   */
-  RefImportHelper,
-  /**
-   * Source file metadata attached by {@link makeRefImport}.
-   */
-  RefImportSource,
-  /**
-   * A {@link RefImport} with source file metadata.
-   */
-  RefImportWithSourcePath,
-  /**
-   * Function returned by {@link makeRefImport}.
-   */
-  SourceAwareRefImportHelper,
 } from "../refImport.js";
 
 interface BaseDecl<Kind extends string> {

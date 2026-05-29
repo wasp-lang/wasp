@@ -98,6 +98,13 @@ describe("RefImport input types", () => {
     // @ts-expect-error Descriptor-like objects must be wrapped in refImport.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
+
+  test("should reject incomplete RefImport objects", () => {
+    const component = { kind: "refImport", from: "./MainPage" } as const;
+
+    // @ts-expect-error RefImport objects must include either import or importDefault.
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+  });
 });
 
 describe("Env validation schema input types", () => {

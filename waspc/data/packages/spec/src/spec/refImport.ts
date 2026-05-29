@@ -4,30 +4,16 @@ import { normalizeRefImportPath } from "./refImportPath.js";
 import { SpecUserError } from "./specUserError.js";
 
 /**
- * User-facing reference to code in your app's `src` directory.
+ * Reference to code in user's app's `src` directory.
  */
-export type RefImport<T extends RefImportDescriptor = RefImportDescriptor> =
-  Omit<T, "kind"> & { kind: "refImport" };
+export type RefImport<T extends RefImportDescriptor = RefImportDescriptor> = T &
+  RefImportMarker;
+
+type RefImportMarker = { kind: "refImport" };
 
 export type RefImportDescriptor =
   | NamedRefImportDescriptor
   | DefaultRefImportDescriptor;
-
-export type RefImportSource = {
-  sourceFilePath: string;
-};
-
-export type RefImportWithSourcePath<
-  T extends RefImportDescriptor = RefImportDescriptor,
-> = RefImport<T & RefImportSource>;
-
-export type RefImportHelper = <T extends RefImportDescriptor>(
-  descriptor: T,
-) => RefImport<T>;
-
-export type SourceAwareRefImportHelper = <T extends RefImportDescriptor>(
-  descriptor: T,
-) => RefImportWithSourcePath<T>;
 
 export interface NamedRefImportDescriptor {
   import: string;
@@ -43,7 +29,7 @@ export interface DefaultRefImportDescriptor {
 export function refImport<T extends RefImportDescriptor>(
   descriptor: T,
 ): RefImport<T> {
-  return { ...descriptor, kind: "refImport" } as RefImport<T>;
+  return { ...descriptor, kind: "refImport" };
 }
 
 /**
@@ -56,13 +42,10 @@ export function refImport<T extends RefImportDescriptor>(
  */
 export function makeRefImport(
   importingFileUrl: string,
-): SourceAwareRefImportHelper {
+): <T extends RefImportDescriptor>(descriptor: T) => RefImport<T> {
   const sourceFilePath = fileURLToPath(importingFileUrl);
 
-  return (descriptor) =>
-    refImport({ ...descriptor, sourceFilePath }) as RefImportWithSourcePath<
-      typeof descriptor
-    >;
+  return (descriptor) => ({ ...refImport(descriptor), sourceFilePath });
 }
 
 /**
@@ -133,6 +116,10 @@ function mapRefImportPath(
     projectRootDir,
   });
 }
+
+type RefImportSource = {
+  sourceFilePath: string;
+};
 
 function hasSourceFilePath(value: unknown): value is RefImportSource {
   return (
