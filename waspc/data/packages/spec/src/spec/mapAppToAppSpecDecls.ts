@@ -65,10 +65,8 @@ export function makeAppSpecMapper(context: AppSpecMappingContext) {
       emailFlow: InputAppSpec.EmailFlowConfig,
       routeRefParser: RefParser<"Route">,
     ) => mapEmailFlow(emailFlow, routeRefParser, mapRefImport),
-    mapApi: (
-      api: InputAppSpec.Api,
-      entityRefParser: RefParser<"Entity">,
-    ) => mapApi(api, entityRefParser, mapRefImport),
+    mapApi: (api: InputAppSpec.Api, entityRefParser: RefParser<"Entity">) =>
+      mapApi(api, entityRefParser, mapRefImport),
     mapApiNamespace: (apiNamespace: InputAppSpec.ApiNamespace) =>
       mapApiNamespace(apiNamespace, mapRefImport),
     mapServer: (server: InputAppSpec.Server) => mapServer(server, mapRefImport),
@@ -78,14 +76,10 @@ export function makeAppSpecMapper(context: AppSpecMappingContext) {
     mapEmailFromField,
     mapWebSocket: (webSocket: InputAppSpec.WebSocket) =>
       mapWebSocket(webSocket, mapRefImport),
-    mapJob: (
-      job: InputAppSpec.Job,
-      entityRefParser: RefParser<"Entity">,
-    ) => mapJob(job, entityRefParser, mapRefImport),
-    mapCrud: (
-      crud: InputAppSpec.Crud,
-      entityRefParser: RefParser<"Entity">,
-    ) => mapCrud(crud, entityRefParser, mapRefImport),
+    mapJob: (job: InputAppSpec.Job, entityRefParser: RefParser<"Entity">) =>
+      mapJob(job, entityRefParser, mapRefImport),
+    mapCrud: (crud: InputAppSpec.Crud, entityRefParser: RefParser<"Entity">) =>
+      mapCrud(crud, entityRefParser, mapRefImport),
     mapCrudOperations: (operations: InputAppSpec.CrudOperations) =>
       mapCrudOperations(operations, mapRefImport),
     mapCrudOperationOptions: (options: InputAppSpec.CrudOperationOptions) =>
