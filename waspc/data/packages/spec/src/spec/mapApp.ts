@@ -7,8 +7,8 @@
 
 import * as OutputAppSpec from "../appSpec.js";
 import type { AnyFunction } from "../typeUtils.js";
-import { mapExtImport, type RefObject } from "./refObject.js";
 import * as InputAppSpec from "./publicApi/tsAppSpec.js";
+import { mapExtImport, type RefObject } from "./refObject.js";
 import { SpecUserError } from "./specUserError.js";
 
 export function mapApp(

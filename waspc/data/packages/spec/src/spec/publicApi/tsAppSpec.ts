@@ -842,16 +842,16 @@ export type {
    */
   DefaultRefObject,
   /**
-   * A reference object, pointing to a value in the project's `src` directory.
-   * Used wherever the spec accepts a reference to user code.
-   */
-  RefObject,
-  /**
    * Named-import variant of {@link RefObject}, written as
    * `{ import: 'X', from: '@src/...' }`. An optional `alias` renames the
    * imported value.
    */
   NamedRefObject,
+  /**
+   * A reference object, pointing to a value in the project's `src` directory.
+   * Used wherever the spec accepts a reference to user code.
+   */
+  RefObject,
 } from "../refObject.js";
 
 interface BaseDecl<Kind extends string> {
