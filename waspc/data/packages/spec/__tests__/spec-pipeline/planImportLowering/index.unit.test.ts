@@ -9,7 +9,6 @@ describe("planImportLowering", () => {
   test("plans lowered bindings for supported ref import shapes", () => {
     const plan = planImportLowering({
       sourcePath,
-      projectRootDir,
       sourceText: [
         `import MainPage from "./src/MainPage" with { type: "ref" };`,
         `import { getTasks, archive as archiveTask } from "./src/operations" with { type: "ref" };`,
@@ -22,47 +21,46 @@ describe("planImportLowering", () => {
       plan.replacements.flatMap((replacement) => replacement.bindings),
     ).toEqual([
       {
-        kind: "extImport",
+        kind: "refImport",
         localName: "MainPage",
-        extImport: { importDefault: "MainPage", from: "@src/MainPage" },
+        descriptor: { importDefault: "MainPage", from: "./src/MainPage" },
       },
       {
-        kind: "extImport",
+        kind: "refImport",
         localName: "getTasks",
-        extImport: { import: "getTasks", from: "@src/operations" },
+        descriptor: { import: "getTasks", from: "./src/operations" },
       },
       {
-        kind: "extImport",
+        kind: "refImport",
         localName: "archiveTask",
-        extImport: {
+        descriptor: {
           import: "archive",
-          from: "@src/operations",
+          from: "./src/operations",
           alias: "archiveTask",
         },
       },
       {
         kind: "namespace",
         localName: "ops",
-        from: "@src/operations",
+        from: "./src/operations",
         aliasPrefix: "ops_",
       },
     ]);
   });
 
-  test("plans paths relative to nested spec files", () => {
+  test("preserves paths from import specifiers", () => {
     const plan = planImportLowering({
       sourcePath: `${projectRootDir}/src/features/home.wasp.ts`,
-      projectRootDir,
       sourceText: `import MainPage from "./MainPage" with { type: "ref" };\n`,
     });
 
     expect(plan.replacements[0]?.bindings).toEqual([
       {
-        kind: "extImport",
+        kind: "refImport",
         localName: "MainPage",
-        extImport: {
+        descriptor: {
           importDefault: "MainPage",
-          from: "@src/features/MainPage",
+          from: "./MainPage",
         },
       },
     ]);
@@ -72,7 +70,6 @@ describe("planImportLowering", () => {
     expect(
       planImportLowering({
         sourcePath,
-        projectRootDir,
         sourceText: [
           `import { app } from "@wasp.sh/spec";`,
           `import helper from "./helpers";`,
@@ -125,7 +122,7 @@ describe("planImportLowering", () => {
     "throws SpecUserError for $unsupportedImportType",
     ({ source, expectedMessage, refImportPath }) => {
       const getPlan = () =>
-        planImportLowering({ sourceText: source, sourcePath, projectRootDir });
+        planImportLowering({ sourceText: source, sourcePath });
 
       expect(getPlan).toThrowError(SpecUserError);
       expect(getPlan).toThrowError(
@@ -141,7 +138,7 @@ describe("planImportLowering", () => {
       ``,
     ].join("\n");
     const getPlan = () =>
-      planImportLowering({ sourceText: source, sourcePath, projectRootDir });
+      planImportLowering({ sourceText: source, sourcePath });
 
     expect(getPlan).toThrowError(SpecUserError);
     expect(getPlan).toThrowError(

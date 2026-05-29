@@ -833,20 +833,35 @@ type Entities = FromRegister<"entities", {}>;
  *
  * See [Reference imports](https://wasp.sh/docs/general/spec#reference-imports).
  */
-// TODO: Remove raw ExtImport from Reference after reference import lowering
-// emits refImport(...) calls instead of plain descriptors.
+// TODO: Remove raw ExtImport from Reference after raw public ExtImport support
+// is removed.
 export type Reference<T> = RefImport | ExtImport | T;
 
 export type {
-  /**
-   * Default-import variant of {@link RefImportDescriptor}.
-   */
-  DefaultRefImportDescriptor,
   /**
    * Default-import variant of {@link ExtImport}, written as
    * `{ importDefault: 'X', from: '@src/...' }`.
    */
   DefaultExtImport,
+  /**
+   * Default-import variant of {@link RefImportDescriptor}.
+   */
+  DefaultRefImportDescriptor,
+  /**
+   * A reference object, pointing to a value in the project's `src` directory.
+   * Used wherever the spec accepts a reference to user code.
+   */
+  ExtImport,
+  /**
+   * Named-import variant of {@link ExtImport}, written as
+   * `{ import: 'X', from: '@src/...' }`. An optional `alias` renames the
+   * imported value.
+   */
+  NamedExtImport,
+  /**
+   * Named-import variant of {@link RefImportDescriptor}.
+   */
+  NamedRefImportDescriptor,
   /**
    * A user-facing reference object, pointing to a value in the project's `src`
    * directory.
@@ -856,10 +871,6 @@ export type {
    * Descriptor accepted by {@link refImport}.
    */
   RefImportDescriptor,
-  /**
-   * Function returned by {@link makeRefImport}.
-   */
-  SourceAwareRefImportHelper,
   /**
    * Function signature for {@link refImport}.
    */
@@ -873,20 +884,9 @@ export type {
    */
   RefImportWithSourcePath,
   /**
-   * A reference object, pointing to a value in the project's `src` directory.
-   * Used wherever the spec accepts a reference to user code.
+   * Function returned by {@link makeRefImport}.
    */
-  ExtImport,
-  /**
-   * Named-import variant of {@link RefImportDescriptor}.
-   */
-  NamedRefImportDescriptor,
-  /**
-   * Named-import variant of {@link ExtImport}, written as
-   * `{ import: 'X', from: '@src/...' }`. An optional `alias` renames the
-   * imported value.
-   */
-  NamedExtImport,
+  SourceAwareRefImportHelper,
 } from "../refImport.js";
 
 interface BaseDecl<Kind extends string> {

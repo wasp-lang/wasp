@@ -1,5 +1,4 @@
-import type { ExtImport } from "../spec/refImport.js";
-import { isNamedExtImport } from "../spec/refImport.js";
+import type { RefImportDescriptor } from "../spec/refImport.js";
 import { ensureSourceAwareRefImport } from "./ensureSourceAwareRefImport.js";
 import type { ImportLoweringPlan } from "./planImportLowering/index.js";
 import { planImportLowering } from "./planImportLowering/index.js";
@@ -10,43 +9,49 @@ import type {
 
 /**
  * Given source code, finds supported ref import statements and replaces them
- * with inline ExtImport consts. We call this lowering imports.
+ * with inline refImport(...) consts. We call this lowering imports.
  */
 export function lowerRefImports({
   sourceText,
   sourcePath,
-  projectRootDir,
 }: {
   sourceText: string;
   sourcePath: string;
   projectRootDir: string;
 }): string {
+  const initialPlan = planImportLowering({ sourceText, sourcePath });
   const sourceAwareRefImport = ensureSourceAwareRefImport({
     sourceText,
     sourcePath,
-    required: false,
+    required: initialPlan.replacements.length > 0,
+    insertBefore: initialPlan.replacements[0]?.start,
+  });
+  const plan = planImportLowering({
+    sourceText: sourceAwareRefImport.sourceText,
+    sourcePath,
   });
 
   return applyImportLoweringPlan(
     sourceAwareRefImport.sourceText,
-    planImportLowering({
-      sourceText: sourceAwareRefImport.sourceText,
-      sourcePath,
-      projectRootDir,
-    }),
+    plan,
+    sourceAwareRefImport.refImportName ?? "refImport",
   );
 }
 
 function applyImportLoweringPlan(
   sourceText: string,
   plan: ImportLoweringPlan,
+  refImportName: string,
 ): string {
   let sourceCursor = 0;
   let modifiedSource = "";
 
   for (const replacement of plan.replacements) {
     modifiedSource += sourceText.slice(sourceCursor, replacement.start);
-    modifiedSource += getImportReplacementSource(replacement.bindings);
+    modifiedSource += getImportReplacementSource(
+      replacement.bindings,
+      refImportName,
+    );
     sourceCursor = replacement.end;
   }
 
@@ -55,16 +60,24 @@ function applyImportLoweringPlan(
   return modifiedSource;
 }
 
-function getImportReplacementSource(bindings: LoweredImportBinding[]): string {
-  return bindings.map(getLoweredImportBindingSource).join("\n");
+function getImportReplacementSource(
+  bindings: LoweredImportBinding[],
+  refImportName: string,
+): string {
+  return bindings
+    .map((binding) => getLoweredImportBindingSource(binding, refImportName))
+    .join("\n");
 }
 
-function getLoweredImportBindingSource(binding: LoweredImportBinding): string {
+function getLoweredImportBindingSource(
+  binding: LoweredImportBinding,
+  refImportName: string,
+): string {
   switch (binding.kind) {
-    case "extImport":
-      return `const ${binding.localName} = ${getExtImportObjectLiteralSource(binding.extImport)} as const;`;
+    case "refImport":
+      return `const ${binding.localName} = ${refImportName}(${getRefImportDescriptorObjectLiteralSource(binding.descriptor)});`;
     case "namespace":
-      return getNamespaceImportProxySource(binding);
+      return getNamespaceImportProxySource(binding, refImportName);
   }
 }
 
@@ -75,26 +88,29 @@ function getLoweredImportBindingSource(binding: LoweredImportBinding): string {
  */
 function getNamespaceImportProxySource(
   binding: NamespaceImportBinding,
+  refImportName: string,
 ): string {
   const from = JSON.stringify(binding.from);
   const aliasPrefix = JSON.stringify(binding.aliasPrefix);
 
-  return `const ${binding.localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${from}; alias: string }>;`;
+  return `const ${binding.localName} = new Proxy({}, { get: (_t, k) => ${refImportName}({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof ${refImportName}>>;`;
 }
 
-function getExtImportObjectLiteralSource(extImport: ExtImport): string {
-  if (isNamedExtImport(extImport)) {
+function getRefImportDescriptorObjectLiteralSource(
+  descriptor: RefImportDescriptor,
+): string {
+  if ("import" in descriptor) {
     const fields: Field[] = [
-      ["import", extImport.import],
-      ["from", extImport.from],
-      ["alias", extImport.alias],
+      ["import", descriptor.import],
+      ["from", descriptor.from],
+      ["alias", descriptor.alias],
     ];
 
     return `{ ${getObjectFieldsSource(fields)} }`;
   } else {
     const fields: Field[] = [
-      ["importDefault", extImport.importDefault],
-      ["from", extImport.from],
+      ["importDefault", descriptor.importDefault],
+      ["from", descriptor.from],
     ];
 
     return `{ ${getObjectFieldsSource(fields)} }`;

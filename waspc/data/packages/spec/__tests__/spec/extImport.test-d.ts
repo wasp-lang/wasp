@@ -115,8 +115,8 @@ describe("Env validation schema input types", () => {
   });
 
   test("should accept ExtImport env validation schemas", () => {
-    // TODO: Remove raw ExtImport coverage after reference import lowering emits
-    // refImport(...) calls instead of plain descriptors.
+    // TODO: Remove raw ExtImport coverage after raw public ExtImport support is
+    // removed.
     const schemaImport = {
       importDefault: "schema",
       from: "@src/env",

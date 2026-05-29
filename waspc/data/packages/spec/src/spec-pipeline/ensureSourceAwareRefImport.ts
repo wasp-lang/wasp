@@ -1,6 +1,6 @@
 import * as ts from "typescript";
 
-const SPEC_MODULE_NAME = "@wasp.sh/spec";
+const PACKAGE_SPEC_MODULE_NAME = "@wasp.sh/spec";
 const REF_IMPORT_NAME = "refImport";
 const MAKE_REF_IMPORT_NAME = "makeRefImport";
 
@@ -13,10 +13,12 @@ export function ensureSourceAwareRefImport({
   sourceText,
   sourcePath,
   required,
+  insertBefore,
 }: {
   sourceText: string;
   sourcePath: string;
   required: boolean;
+  insertBefore?: number;
 }): EnsureSourceAwareRefImportResult {
   const sourceFile = ts.createSourceFile(
     sourcePath,
@@ -51,6 +53,7 @@ export function ensureSourceAwareRefImport({
     sourceFile,
     helperName,
     makeRefImportName,
+    insertBefore,
     shouldAddMakeRefImport:
       !importedMakeRefImportName && replacements.length === 0,
   });
@@ -124,6 +127,7 @@ type HelperInsertionOptions = {
   sourceFile: ts.SourceFile;
   helperName: string;
   makeRefImportName: string;
+  insertBefore?: number;
   shouldAddMakeRefImport: boolean;
 };
 
@@ -131,9 +135,37 @@ function getHelperInsertions({
   sourceFile,
   helperName,
   makeRefImportName,
+  insertBefore,
   shouldAddMakeRefImport,
 }: HelperInsertionOptions): Edit[] {
   const helperDeclaration = `const ${helperName} = ${makeRefImportName}(import.meta.url);`;
+
+  if (insertBefore !== undefined) {
+    const makeRefImportImport = shouldAddMakeRefImport
+      ? `import { ${MAKE_REF_IMPORT_NAME} } from ${JSON.stringify(PACKAGE_SPEC_MODULE_NAME)};\n`
+      : "";
+
+    return [
+      {
+        start: insertBefore,
+        end: insertBefore,
+        text: `${makeRefImportImport}${helperDeclaration}\n`,
+      },
+    ];
+  }
+
+  if (shouldAddMakeRefImport) {
+    return [
+      {
+        start: 0,
+        end: 0,
+        text:
+          `import { ${MAKE_REF_IMPORT_NAME} } from ${JSON.stringify(PACKAGE_SPEC_MODULE_NAME)};\n` +
+          `${helperDeclaration}\n`,
+      },
+    ];
+  }
+
   const lastImportDeclaration = sourceFile.statements
     .filter(ts.isImportDeclaration)
     .at(-1);
@@ -143,22 +175,16 @@ function getHelperInsertions({
       {
         start: 0,
         end: 0,
-        text:
-          `import { ${MAKE_REF_IMPORT_NAME} } from ${JSON.stringify(SPEC_MODULE_NAME)};\n` +
-          `${helperDeclaration}\n`,
+        text: `${helperDeclaration}\n`,
       },
     ];
   }
-
-  const makeRefImportImport = shouldAddMakeRefImport
-    ? `\nimport { ${MAKE_REF_IMPORT_NAME} } from ${JSON.stringify(SPEC_MODULE_NAME)};`
-    : "";
 
   return [
     {
       start: lastImportDeclaration.getEnd(),
       end: lastImportDeclaration.getEnd(),
-      text: `${makeRefImportImport}\n${helperDeclaration}`,
+      text: `\n${helperDeclaration}`,
     },
   ];
 }
@@ -189,7 +215,7 @@ function formatSpecImport(
     namedImports.length > 0 ? `{ ${namedImports.join(", ")} }` : undefined,
   ].filter((part): part is string => part !== undefined);
 
-  return `import ${importParts.join(", ")} from ${JSON.stringify(SPEC_MODULE_NAME)};`;
+  return `import ${importParts.join(", ")} from ${stmt.moduleSpecifier.getText(sourceFile)};`;
 }
 
 function findValueImportLocalName(
@@ -232,7 +258,14 @@ function getImportedName(specifier: ts.ImportSpecifier): string {
 function isSpecImportDeclaration(stmt: ts.ImportDeclaration): boolean {
   return (
     ts.isStringLiteral(stmt.moduleSpecifier) &&
-    stmt.moduleSpecifier.text === SPEC_MODULE_NAME
+    isSpecModuleSpecifier(stmt.moduleSpecifier.text)
+  );
+}
+
+function isSpecModuleSpecifier(moduleSpecifier: string): boolean {
+  return (
+    moduleSpecifier === PACKAGE_SPEC_MODULE_NAME ||
+    /\/src\/spec\/publicApi\/index\.[jt]s$/.test(moduleSpecifier)
   );
 }
 

@@ -593,8 +593,8 @@ export function getExtImport(
   scope: ConfigScope,
   importKind: AppSpec.ExtImportKind,
 ): Config<TsAppSpec.ExtImport> {
-  // TODO: Replace raw ExtImport fixtures with RefImport values after reference
-  // import lowering emits refImport(...) calls instead of plain descriptors.
+  // TODO: Replace raw ExtImport fixtures with RefImport values after raw public
+  // ExtImport support is removed.
   switch (importKind) {
     case "named":
       return scope === "full"

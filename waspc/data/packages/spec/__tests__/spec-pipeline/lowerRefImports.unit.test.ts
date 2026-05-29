@@ -6,19 +6,19 @@ describe("lowerRefImports", () => {
   const projectRootDir = "/project";
   const sourcePath = `${projectRootDir}/main.wasp.ts`;
 
-  test("lowers a default ref import into an importDefault ExtImport const", () => {
+  test("lowers a default ref import into a refImport const", () => {
     const input = `import MainPage from "./src/MainPage" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;\n`,
+      `${expectedRefImportSetup()}\nconst MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });\n`,
     );
   });
 
-  test("lowers named and aliased ref imports into ExtImport consts", () => {
+  test("lowers named and aliased ref imports into refImport consts", () => {
     const input = `import { getTasks, archive as archiveTask } from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
-      `const getTasks = { import: "getTasks", from: "@src/operations" } as const;\nconst archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;\n`,
+      `${expectedRefImportSetup()}\nconst getTasks = refImport({ import: "getTasks", from: "./src/operations" });\nconst archiveTask = refImport({ import: "archive", from: "./src/operations", alias: "archiveTask" });\n`,
     );
   });
 
@@ -31,18 +31,19 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        `const archiveTask = { import: "archive", from: "@src/operations", alias: "archiveTask" } as const;`,
-        `const archiveLegacyTask = { import: "archive", from: "@src/legacyOperations", alias: "archiveLegacyTask" } as const;`,
+        expectedRefImportSetup(),
+        `const archiveTask = refImport({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
+        `const archiveLegacyTask = refImport({ import: "archive", from: "./src/legacyOperations", alias: "archiveLegacyTask" });`,
         ``,
       ].join("\n"),
     );
   });
 
-  test("lowers multiple named ref imports into separate ExtImport consts", () => {
+  test("lowers multiple named ref imports into separate refImport consts", () => {
     const input = `import { getTasks, createTask } from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
-      `const getTasks = { import: "getTasks", from: "@src/operations" } as const;\nconst createTask = { import: "createTask", from: "@src/operations" } as const;\n`,
+      `${expectedRefImportSetup()}\nconst getTasks = refImport({ import: "getTasks", from: "./src/operations" });\nconst createTask = refImport({ import: "createTask", from: "./src/operations" });\n`,
     );
   });
 
@@ -50,7 +51,7 @@ describe("lowerRefImports", () => {
     const input = `import MainPage, { Helper } from "./src/MainPage" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;\nconst Helper = { import: "Helper", from: "@src/MainPage" } as const;\n`,
+      `${expectedRefImportSetup()}\nconst MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });\nconst Helper = refImport({ import: "Helper", from: "./src/MainPage" });\n`,
     );
   });
 
@@ -58,7 +59,7 @@ describe("lowerRefImports", () => {
     const input = `import * as ops from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
-      `${expectedNamespaceProxy("ops", "@src/operations", "ops_")}\n`,
+      `${expectedRefImportSetup()}\n${expectedNamespaceProxy("ops", "./src/operations", "ops_")}\n`,
     );
   });
 
@@ -71,10 +72,11 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        expectedNamespaceProxy("ops", "@src/operations", "ops_"),
+        expectedRefImportSetup(),
+        expectedNamespaceProxy("ops", "./src/operations", "ops_"),
         expectedNamespaceProxy(
           "legacyOps",
-          "@src/legacyOperations",
+          "./src/legacyOperations",
           "legacyOps_",
         ),
         ``,
@@ -109,12 +111,17 @@ describe("lowerRefImports", () => {
     const output = lower(input);
 
     expect(output).toContain(
-      `const MainPage = { importDefault: "MainPage", from: "@src/MainPage" } as const;`,
+      `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
     );
     expect(output).toContain(
-      `const getTasks = { import: "getTasks", from: "@src/operations" } as const;`,
+      `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
     );
-    expect(output).toContain(`import { app } from "@wasp.sh/spec";`);
+    expect(output).toContain(
+      `import { app, makeRefImport } from "@wasp.sh/spec";`,
+    );
+    expect(output).toContain(
+      `const refImport = makeRefImport(import.meta.url);`,
+    );
     expect(output).toContain(`import helper from "./helpers";`);
     expect(output).toContain(`export default demoApp;`);
     expect(output).not.toContain(`with { type: "ref" }`);
@@ -210,7 +217,14 @@ function expectedNamespaceProxy(
   const quotedFrom = JSON.stringify(from);
   const quotedAliasPrefix = JSON.stringify(aliasPrefix);
 
-  return `const ${localName} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${quotedFrom}, alias: ${quotedAliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${quotedFrom}; alias: string }>;`;
+  return `const ${localName} = new Proxy({}, { get: (_t, k) => refImport({ import: String(k), from: ${quotedFrom}, alias: ${quotedAliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof refImport>>;`;
+}
+
+function expectedRefImportSetup(): string {
+  return [
+    `import { makeRefImport } from "@wasp.sh/spec";`,
+    `const refImport = makeRefImport(import.meta.url);`,
+  ].join("\n");
 }
 
 function expectSpecUserError(

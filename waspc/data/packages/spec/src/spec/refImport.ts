@@ -141,8 +141,8 @@ function mapRefImportPath(
   { projectRootDir }: { projectRootDir: string },
 ): AppSpec.ExtImport["path"] {
   if (isAppSpecExtImportPath(refImport.from)) {
-    // TODO: Remove raw @src descriptor support after reference import lowering
-    // emits refImport(...) calls instead of plain descriptors.
+    // TODO: Remove raw @src descriptor support after raw public ExtImport
+    // support is removed from Reference.
     return refImport.from;
   }
 
@@ -198,17 +198,6 @@ function isDefaultRefImportDescriptor(
 
 function isSupportedRefImportDescriptor(from: string, kind: unknown): boolean {
   return kind === "refImport" || isAppSpecExtImportPath(from);
-}
-
-// TODO: Remove after reference import lowering emits refImport(...) calls instead
-// of plain descriptors.
-export function isNamedExtImport(value: unknown): value is NamedExtImport {
-  return (
-    isObject(value) &&
-    typeof value.import === "string" &&
-    typeof value.from === "string" &&
-    hasValidAlias(value)
-  );
 }
 
 function hasValidAlias(value: Record<string, unknown>): boolean {

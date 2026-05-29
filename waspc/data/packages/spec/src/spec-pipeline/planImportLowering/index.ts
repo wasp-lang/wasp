@@ -1,5 +1,4 @@
 import * as ts from "typescript";
-import { normalizeRefImportPath } from "../../spec/refImportPath.js";
 import { SpecUserError } from "../../spec/specUserError.js";
 import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
@@ -26,17 +25,15 @@ type ImportReplacement = {
 
 /**
  * Given source code, detects supported ref import statements and returns a
- * plan for replacing them with inline ExtImport consts. We call this lowering
+ * plan for replacing them with inline refImport(...) consts. We call this lowering
  * imports.
  */
 export function planImportLowering({
   sourceText,
   sourcePath,
-  projectRootDir,
 }: {
   sourceText: string;
   sourcePath: string;
-  projectRootDir: string;
 }): ImportLoweringPlan {
   const sourceFile = ts.createSourceFile(
     sourcePath,
@@ -51,9 +48,7 @@ export function planImportLowering({
 
   for (const stmt of sourceFile.statements) {
     try {
-      replacements.push(
-        ...planStatementLowering({ sourceFile, stmt, projectRootDir }),
-      );
+      replacements.push(...planStatementLowering({ sourceFile, stmt }));
     } catch (error) {
       if (!(error instanceof DiagnosticError)) {
         throw error;
@@ -72,11 +67,9 @@ export function planImportLowering({
 function planStatementLowering({
   sourceFile,
   stmt,
-  projectRootDir,
 }: {
   sourceFile: ts.SourceFile;
   stmt: ts.Statement;
-  projectRootDir: string;
 }): ImportReplacement[] {
   if (ts.isExportDeclaration(stmt)) {
     assertNonRefReExport(sourceFile, stmt);
@@ -97,14 +90,7 @@ function planStatementLowering({
     {
       start: stmt.getStart(sourceFile),
       end: stmt.getEnd(),
-      bindings: getLoweredImportBindings(
-        stmt.importClause,
-        normalizeRefImportPath({
-          importPath: refImportPath,
-          importingFilePath: sourceFile.fileName,
-          projectRootDir,
-        }),
-      ),
+      bindings: getLoweredImportBindings(stmt.importClause, refImportPath),
     },
   ];
 }

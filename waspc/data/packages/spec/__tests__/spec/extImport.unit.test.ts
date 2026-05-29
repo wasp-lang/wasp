@@ -83,8 +83,8 @@ describe("mapRefImportToExtImport", () => {
   });
 
   function testRawExtImportMapping(extImport: TsAppSpec.ExtImport): void {
-    // TODO: Remove raw ExtImport coverage after reference import lowering emits
-    // refImport(...) calls instead of plain descriptors.
+    // TODO: Remove raw ExtImport coverage after raw public ExtImport support is
+    // removed.
     const result = mapRefImportToExtImport(extImport, { projectRootDir });
 
     if ("import" in extImport) {

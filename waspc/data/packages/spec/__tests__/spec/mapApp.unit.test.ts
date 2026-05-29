@@ -13,8 +13,8 @@ import * as Fixtures from "./testFixtures.js";
 const projectRootDir = "/project";
 
 function mapReferenceToExtImport(refImport: unknown) {
-  // TODO: Remove raw ExtImport coverage after reference import lowering emits
-  // refImport(...) calls instead of plain descriptors.
+  // TODO: Remove raw ExtImport coverage after raw public ExtImport support is
+  // removed.
   return mapRefImportToExtImport(refImport, { projectRootDir });
 }
 
