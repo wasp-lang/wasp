@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import type { RefImportDescriptor } from "../../spec/refImport.js";
+import type { RefImportDescriptor } from "../../../spec/refImport.js";
 
 export type LoweredImportBinding = RefImportBinding | NamespaceImportBinding;
 

@@ -1,4 +1,5 @@
 import * as ts from "typescript";
+import { SpecUserError } from "../../spec/specUserError.js";
 import { applyEdits, type Edit } from "./sourceEdits.js";
 import {
   findValueImportLocalName,
@@ -10,11 +11,6 @@ import {
   REF_IMPORT_NAME,
 } from "./specApiImports.js";
 
-export type EnsureSourceAwareRefImportResult = {
-  sourceText: string;
-  refImportName: string;
-};
-
 /**
  * Rewrites explicit `refImport(...)` usage so the local helper is created with
  * `makeRefImport(import.meta.url)`.
@@ -25,24 +21,15 @@ export type EnsureSourceAwareRefImportResult = {
 export function ensureSourceAwareRefImport({
   sourceText,
   sourcePath,
-  required,
-  helperDeclarationInsertionOffset,
 }: {
   sourceText: string;
   sourcePath: string;
-  required: boolean;
-  helperDeclarationInsertionOffset?: number;
-}): EnsureSourceAwareRefImportResult {
+}): {
+  sourceText: string;
+  refImportName: string;
+} {
   const sourceFile = parseSourceFile({ sourceText, sourcePath });
-  const plan = getSourceAwareRefImportPlan({
-    sourceFile,
-    required,
-    helperDeclarationInsertionOffset,
-  });
-
-  if (!plan) {
-    return { sourceText, refImportName: REF_IMPORT_NAME };
-  }
+  const plan = getSourceAwareRefImportPlan(sourceFile);
 
   return {
     sourceText: applyEdits(sourceText, plan.edits),
@@ -71,16 +58,16 @@ function parseSourceFile({
   );
 }
 
-function getSourceAwareRefImportPlan({
-  sourceFile,
-  required,
-  helperDeclarationInsertionOffset,
-}: {
-  sourceFile: ts.SourceFile;
-  required: boolean;
-  helperDeclarationInsertionOffset?: number;
-}): SourceAwareRefImportPlan | undefined {
+function getSourceAwareRefImportPlan(
+  sourceFile: ts.SourceFile,
+): SourceAwareRefImportPlan {
   const specImports = getSpecApiImports(sourceFile);
+  if (specImports.length === 0) {
+    throw new SpecUserError(
+      `Could not add a source-aware ref import helper because ${sourceFile.fileName} does not import from ${JSON.stringify(PACKAGE_SPEC_MODULE_NAME)}.`,
+    );
+  }
+
   const existingRefImportName = findValueImportLocalName(
     specImports,
     REF_IMPORT_NAME,
@@ -90,12 +77,12 @@ function getSourceAwareRefImportPlan({
     MAKE_REF_IMPORT_NAME,
   );
 
-  if (!required && !existingRefImportName) {
-    return undefined;
-  }
-
   const refImportName = existingRefImportName ?? REF_IMPORT_NAME;
   const makeRefImportName = existingMakeRefImportName ?? MAKE_REF_IMPORT_NAME;
+  const helperInsertionOffset = getRefImportHelperInsertionOffset({
+    specImports,
+    existingMakeRefImportName,
+  });
   const specImportEdits = getSpecApiImportEdits({
     sourceFile,
     specImports,
@@ -106,7 +93,7 @@ function getSourceAwareRefImportPlan({
     sourceFile,
     refImportName,
     makeRefImportName,
-    helperDeclarationInsertionOffset,
+    insertionOffset: helperInsertionOffset,
     shouldAddMakeRefImport:
       !existingMakeRefImportName && specImportEdits.length === 0,
   });
@@ -178,7 +165,7 @@ type HelperEditOptions = {
   sourceFile: ts.SourceFile;
   refImportName: string;
   makeRefImportName: string;
-  helperDeclarationInsertionOffset?: number;
+  insertionOffset: number | undefined;
   shouldAddMakeRefImport: boolean;
 };
 
@@ -186,21 +173,21 @@ function getRefImportHelperEdits({
   sourceFile,
   refImportName,
   makeRefImportName,
-  helperDeclarationInsertionOffset,
+  insertionOffset,
   shouldAddMakeRefImport,
 }: HelperEditOptions): Edit[] {
   const helperDeclaration = `const ${refImportName} = ${makeRefImportName}(import.meta.url);`;
 
-  if (helperDeclarationInsertionOffset !== undefined) {
+  if (insertionOffset !== undefined) {
     const makeRefImportImport = shouldAddMakeRefImport
       ? getMakeRefImportImportSource()
       : "";
 
     return [
       {
-        start: helperDeclarationInsertionOffset,
-        end: helperDeclarationInsertionOffset,
-        text: `${makeRefImportImport}${helperDeclaration}\n`,
+        start: insertionOffset,
+        end: insertionOffset,
+        text: `\n${makeRefImportImport}${helperDeclaration}`,
       },
     ];
   }
@@ -238,6 +225,47 @@ function getRefImportHelperEdits({
 
 function getMakeRefImportImportSource(): string {
   return `import { ${MAKE_REF_IMPORT_NAME} } from ${JSON.stringify(PACKAGE_SPEC_MODULE_NAME)};\n`;
+}
+
+function getRefImportHelperInsertionOffset({
+  specImports,
+  existingMakeRefImportName,
+}: {
+  specImports: ts.ImportDeclaration[];
+  existingMakeRefImportName: string | undefined;
+}): number | undefined {
+  const anchorImport = existingMakeRefImportName
+    ? findSpecImportWithValueImport(specImports, MAKE_REF_IMPORT_NAME)
+    : specImports[0];
+
+  return anchorImport?.getEnd();
+}
+
+function findSpecImportWithValueImport(
+  specImports: ts.ImportDeclaration[],
+  exportedName: string,
+): ts.ImportDeclaration | undefined {
+  return specImports.find((stmt) => {
+    const namedBindings = getNamedValueImports(stmt);
+
+    return namedBindings?.elements.some((specifier) =>
+      isValueImportOf(specifier, exportedName),
+    );
+  });
+}
+
+function getNamedValueImports(
+  stmt: ts.ImportDeclaration,
+): ts.NamedImports | undefined {
+  const importClause = stmt.importClause;
+  if (!importClause || importClause.isTypeOnly) {
+    return undefined;
+  }
+
+  const namedBindings = importClause.namedBindings;
+  return namedBindings && ts.isNamedImports(namedBindings)
+    ? namedBindings
+    : undefined;
 }
 
 function getLastImportDeclarationEnd(

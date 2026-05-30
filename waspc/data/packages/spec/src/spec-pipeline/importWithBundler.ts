@@ -1,22 +1,19 @@
 import type { JitiOptions } from "jiti";
 import { createJiti } from "jiti";
-import { lowerRefImports } from "./lowerRefImports.js";
+import { transformWaspTsSpecSource } from "./transform/index.js";
 
 export async function importWithBundler({
   specPath,
   tsconfigPath,
-  projectRootDir,
   onTransformedWaspFile,
 }: {
   specPath: string;
   tsconfigPath: string;
-  projectRootDir: string;
   onTransformedWaspFile: (path: string, code: string) => void;
 }): Promise<unknown> {
   const specJiti = createSpecJiti({
     specPath,
     tsconfigPath,
-    projectRootDir,
     onTransformedWaspFile,
   });
 
@@ -26,12 +23,10 @@ export async function importWithBundler({
 function createSpecJiti({
   specPath,
   tsconfigPath,
-  projectRootDir,
   onTransformedWaspFile,
 }: {
   specPath: string;
   tsconfigPath: string;
-  projectRootDir: string;
   onTransformedWaspFile: (path: string, code: string) => void;
 }) {
   const jitiOptions = {
@@ -44,7 +39,7 @@ function createSpecJiti({
 
   // Using a custom `transform` function replaces the default jiti
   // transform, so we need another jiti instance to call it after we
-  // have lowered the imports in the source.
+  // have transformed the Wasp TS source.
   const jitiWithoutCustomTransform = createJiti(specPath, jitiOptions);
 
   return createJiti(specPath, {
@@ -53,10 +48,9 @@ function createSpecJiti({
       let transformedSource = options.source;
 
       if (options.filename && isWaspTsFile(options.filename)) {
-        transformedSource = lowerRefImports({
+        transformedSource = transformWaspTsSpecSource({
           sourceText: options.source,
           sourcePath: options.filename,
-          projectRootDir,
         });
         onTransformedWaspFile(options.filename, transformedSource);
       }

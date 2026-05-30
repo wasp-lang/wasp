@@ -1,5 +1,4 @@
-import type { RefImportDescriptor } from "../spec/refImport.js";
-import { ensureSourceAwareRefImport } from "./ensureSourceAwareRefImport.js";
+import type { RefImportDescriptor } from "../../spec/refImport.js";
 import type { ImportLoweringPlan } from "./planImportLowering/index.js";
 import { planImportLowering } from "./planImportLowering/index.js";
 import type {
@@ -15,27 +14,18 @@ import { applyEdits, type Edit } from "./sourceEdits.js";
 export function lowerRefImports({
   sourceText,
   sourcePath,
+  refImportName,
 }: {
   sourceText: string;
   sourcePath: string;
-  projectRootDir: string;
+  refImportName: string;
 }): string {
-  const initialPlan = planImportLowering({ sourceText, sourcePath });
-  const sourceAwareRefImport = ensureSourceAwareRefImport({
-    sourceText,
-    sourcePath,
-    required: initialPlan.replacements.length > 0,
-    helperDeclarationInsertionOffset: initialPlan.replacements[0]?.start,
-  });
   const plan = planImportLowering({
-    sourceText: sourceAwareRefImport.sourceText,
+    sourceText,
     sourcePath,
   });
 
-  return applyEdits(
-    sourceAwareRefImport.sourceText,
-    getImportLoweringEdits(plan, sourceAwareRefImport.refImportName),
-  );
+  return applyEdits(sourceText, getImportLoweringEdits(plan, refImportName));
 }
 
 function getImportLoweringEdits(

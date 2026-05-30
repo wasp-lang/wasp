@@ -6,7 +6,7 @@ import { typecheck } from "./typecheck.js";
   match expectations of users:
 
   1. Read source files
-  2. Lower imports
+  2. Transform Wasp TS source
   3. Typecheck
   4. Compile to JS
   5. Run
@@ -17,7 +17,7 @@ import { typecheck } from "./typecheck.js";
 
   Therefore, we will let jiti transform and run the code. In the `transform`
   function, we will notify the typechecker of any changed source code as we go
-  (which will have its imports lowered), so we can overwrite them in the
+  (with imports lowered and ref imports made source-aware), so we can overwrite them in the
   TypeScript compiler memory.
 
   Jiti will immediately run the transformed code. We let it do that. It might
@@ -30,8 +30,8 @@ import { typecheck } from "./typecheck.js";
   1. Create the TypeScript project in memory, without any files.
   2. Jiti reads source files
   3. Jiti calls the transform function:
-    1. Lower imports
-    2. Add the lowered source code to the Typescript project
+    1. Transform Wasp TS source
+    2. Add the transformed source code to the Typescript project
     3. Pass it to the rest of the jiti pipeline
   4. Jiti automatically runs the user's `wasp.ts` file. We capture the errors or
      result.
@@ -46,18 +46,15 @@ import { typecheck } from "./typecheck.js";
 export async function loadWaspTsSpecDefaultExport({
   specPath,
   tsconfigPath,
-  projectRootDir,
 }: {
   specPath: string;
   tsconfigPath: string;
-  projectRootDir: string;
 }): Promise<unknown> {
   const specModule = await typecheck(
     { tsconfigPath },
     async ({ addSourceFile }) =>
       await importWithBundler({
         specPath,
-        projectRootDir,
         tsconfigPath,
         onTransformedWaspFile: addSourceFile,
       }),

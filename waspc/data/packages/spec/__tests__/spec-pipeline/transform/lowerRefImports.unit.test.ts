@@ -1,17 +1,15 @@
 import { describe, expect, test } from "vitest";
-import { lowerRefImports } from "../../src/spec-pipeline/lowerRefImports.js";
-import { SpecUserError } from "../../src/spec/specUserError.js";
+import { lowerRefImports } from "../../../src/spec-pipeline/transform/lowerRefImports.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("lowerRefImports", () => {
-  const projectRootDir = "/project";
-  const sourcePath = `${projectRootDir}/main.wasp.ts`;
+  const sourcePath = "/project/main.wasp.ts";
 
   test("lowers a default ref import into a refImport const", () => {
     const input = `import MainPage from "./src/MainPage" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
       [
-        getExpectedRefImportSetupSource(),
         `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
       ].join("\n"),
@@ -23,7 +21,6 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getExpectedRefImportSetupSource(),
         `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
         `const archiveTask = refImport({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
         ``,
@@ -40,7 +37,6 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getExpectedRefImportSetupSource(),
         `const archiveTask = refImport({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
         `const archiveLegacyTask = refImport({ import: "archive", from: "./src/legacyOperations", alias: "archiveLegacyTask" });`,
         ``,
@@ -53,7 +49,6 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getExpectedRefImportSetupSource(),
         `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
         `const createTask = refImport({ import: "createTask", from: "./src/operations" });`,
         ``,
@@ -66,7 +61,6 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getExpectedRefImportSetupSource(),
         `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
         `const Helper = refImport({ import: "Helper", from: "./src/MainPage" });`,
         ``,
@@ -79,7 +73,6 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getExpectedRefImportSetupSource(),
         getExpectedNamespaceProxySource("ops", "./src/operations", "ops_"),
         ``,
       ].join("\n"),
@@ -95,7 +88,6 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        getExpectedRefImportSetupSource(),
         getExpectedNamespaceProxySource("ops", "./src/operations", "ops_"),
         getExpectedNamespaceProxySource(
           "legacyOps",
@@ -134,8 +126,7 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        `import { app, makeRefImport } from "@wasp.sh/spec";`,
-        `const refImport = makeRefImport(import.meta.url);`,
+        `import { app } from "@wasp.sh/spec";`,
         `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
         `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
         `import helper from "./helpers";`,
@@ -160,21 +151,14 @@ describe("lowerRefImports", () => {
     expect(lower(input)).toBe(input);
   });
 
-  test("rewrites explicit refImport imports", () => {
+  test("leaves explicit refImport imports untouched", () => {
     const input = [
       `import { app, refImport } from "@wasp.sh/spec";`,
       `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
       ``,
     ].join("\n");
 
-    expect(lower(input)).toBe(
-      [
-        `import { app, makeRefImport } from "@wasp.sh/spec";`,
-        `const refImport = makeRefImport(import.meta.url);`,
-        `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
-        ``,
-      ].join("\n"),
-    );
+    expect(lower(input)).toBe(input);
   });
 
   test.each([
@@ -225,7 +209,11 @@ describe("lowerRefImports", () => {
   });
 
   function lower(sourceText: string): string {
-    return lowerRefImports({ sourceText, sourcePath, projectRootDir });
+    return lowerRefImports({
+      sourceText,
+      sourcePath,
+      refImportName: "refImport",
+    });
   }
 });
 
@@ -240,21 +228,13 @@ function getExpectedNamespaceProxySource(
   return `const ${localName} = new Proxy({}, { get: (_t, k) => refImport({ import: String(k), from: ${quotedFrom}, alias: ${quotedAliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof refImport>>;`;
 }
 
-function getExpectedRefImportSetupSource(): string {
-  return [
-    `import { makeRefImport } from "@wasp.sh/spec";`,
-    `const refImport = makeRefImport(import.meta.url);`,
-  ].join("\n");
-}
-
 function expectSpecUserError(
   sourceText: string,
   expectedMessage: string | RegExp,
 ): void {
-  const projectRootDir = "/project";
-  const sourcePath = `${projectRootDir}/main.wasp.ts`;
+  const sourcePath = "/project/main.wasp.ts";
   const getLoweredSource = () =>
-    lowerRefImports({ sourceText, sourcePath, projectRootDir });
+    lowerRefImports({ sourceText, sourcePath, refImportName: "refImport" });
 
   expect(getLoweredSource).toThrowError(SpecUserError);
   expect(getLoweredSource).toThrowError(expectedMessage);

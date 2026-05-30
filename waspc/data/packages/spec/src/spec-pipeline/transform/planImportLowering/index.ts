@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import { SpecUserError } from "../../spec/specUserError.js";
+import { SpecUserError } from "../../../spec/specUserError.js";
 import type { LoweredImportBinding } from "./loweredImportBindings.js";
 import { getLoweredImportBindings } from "./loweredImportBindings.js";
 import type {

@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { ensureSourceAwareRefImport } from "../../src/spec-pipeline/ensureSourceAwareRefImport.js";
+import { ensureSourceAwareRefImport } from "../../../src/spec-pipeline/transform/ensureSourceAwareRefImport.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("ensureSourceAwareRefImport", () => {
   const sourcePath = "/project/main.wasp.ts";
@@ -24,7 +25,7 @@ describe("ensureSourceAwareRefImport", () => {
     });
   });
 
-  test("leaves local public API source imports unchanged", () => {
+  test("throws when there is no spec package import", () => {
     const localSpecApiImport =
       "file:///repo/waspc/data/packages/spec/src/spec/publicApi/index.ts";
     const sourceText = [
@@ -33,10 +34,7 @@ describe("ensureSourceAwareRefImport", () => {
       ``,
     ].join("\n");
 
-    expect(transform(sourceText)).toEqual({
-      refImportName: "refImport",
-      sourceText,
-    });
+    expect(() => transform(sourceText)).toThrowError(SpecUserError);
   });
 
   test("preserves a refImport alias", () => {
@@ -77,12 +75,17 @@ describe("ensureSourceAwareRefImport", () => {
     });
   });
 
-  test("leaves type-only imports unchanged", () => {
+  test("uses a type-only spec package import as the helper anchor", () => {
     const sourceText = `import type { RefImport } from "@wasp.sh/spec";\n`;
 
     expect(transform(sourceText)).toEqual({
       refImportName: "refImport",
-      sourceText,
+      sourceText: [
+        `import type { RefImport } from "@wasp.sh/spec";`,
+        `import { makeRefImport } from "@wasp.sh/spec";`,
+        `const refImport = makeRefImport(import.meta.url);`,
+        ``,
+      ].join("\n"),
     });
   });
 
@@ -122,10 +125,8 @@ describe("ensureSourceAwareRefImport", () => {
     });
   });
 
-  test("injects refImport when required", () => {
-    expect(
-      transform(`import { app } from "@wasp.sh/spec";\n`, { required: true }),
-    ).toEqual({
+  test("injects refImport for spec package value imports", () => {
+    expect(transform(`import { app } from "@wasp.sh/spec";\n`)).toEqual({
       refImportName: "refImport",
       sourceText: [
         `import { app, makeRefImport } from "@wasp.sh/spec";`,
@@ -135,10 +136,7 @@ describe("ensureSourceAwareRefImport", () => {
     });
   });
 
-  function transform(
-    sourceText: string,
-    { required }: { required: boolean } = { required: false },
-  ) {
-    return ensureSourceAwareRefImport({ sourceText, sourcePath, required });
+  function transform(sourceText: string) {
+    return ensureSourceAwareRefImport({ sourceText, sourcePath });
   }
 });
