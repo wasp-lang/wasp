@@ -89,22 +89,24 @@ The vast majority of Wasp apps won't run into these limitations, so we recommend
 
 :::
 
-### Reference objects {#reference-objects}
+### `ref` helper {#reference-objects}
 
-Just pass an object with `import` (or `importDefault`) and `from`:
+Use `ref(...)` when a direct reference import is not practical. Import `ref` from `@wasp.sh/spec`, then pass it a descriptor with `import` (or `importDefault`) and `from`:
 
-  ```ts
-  export default app({
-    decls: [
-        page({ importDefault: 'MainPage', from: '@src/MainPage' }),
-        query({ import: 'getTasks', from: '@src/queries' }),
-        // You can rename a named import with `alias`:
-        query({ import: 'getTasks', alias: 'getAllTasks', from: '@src/queries' })
-    ]
-  })
-  ```
+```ts
+import { ref } from '@wasp.sh/spec'
 
-The `from` path should always start with `@src` and is relative to your project's `src` directory.
+export default app({
+  decls: [
+    page(ref({ importDefault: 'MainPage', from: './src/MainPage' })),
+    query(ref({ import: 'getTasks', from: './src/queries' })),
+    // You can rename a named import with `alias`:
+    query(ref({ import: 'getTasks', alias: 'getAllTasks', from: './src/queries' })),
+  ]
+})
+```
+
+The `from` path is relative to the `*.wasp.ts` file where you call `ref(...)` and must resolve inside your project's `src` directory.
 
 ## Useful patterns
 
