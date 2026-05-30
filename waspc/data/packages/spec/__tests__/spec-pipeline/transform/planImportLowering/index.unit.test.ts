@@ -21,17 +21,17 @@ describe("planImportLowering", () => {
       plan.replacements.flatMap((replacement) => replacement.bindings),
     ).toEqual([
       {
-        kind: "refImport",
+        kind: "refObject",
         localName: "MainPage",
         descriptor: { importDefault: "MainPage", from: "./src/MainPage" },
       },
       {
-        kind: "refImport",
+        kind: "refObject",
         localName: "getTasks",
         descriptor: { import: "getTasks", from: "./src/operations" },
       },
       {
-        kind: "refImport",
+        kind: "refObject",
         localName: "archiveTask",
         descriptor: {
           import: "archive",
@@ -56,7 +56,7 @@ describe("planImportLowering", () => {
 
     expect(plan.replacements[0]?.bindings).toEqual([
       {
-        kind: "refImport",
+        kind: "refObject",
         localName: "MainPage",
         descriptor: {
           importDefault: "MainPage",

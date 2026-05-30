@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-empty-object-type */
 import type { RequireOneOrNone } from "type-fest";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
-import type { RefImport } from "../refImport.js";
+import type { RefObject } from "../refObject.js";
 import { FromRegister } from "./register.js";
 
 /**
@@ -833,27 +833,27 @@ type Entities = FromRegister<"entities", {}>;
  *
  * See [Reference imports](https://wasp.sh/docs/general/spec#reference-imports).
  */
-export type Reference<T> = RefImport | T;
+export type Reference<T> = RefObject | T;
 
 export type {
   /**
-   * Default-import variant of {@link RefImportDescriptor}.
+   * Default-import variant of {@link RefObjectDescriptor}.
    */
-  DefaultRefImportDescriptor,
+  DefaultRefObjectDescriptor,
   /**
-   * Named-import variant of {@link RefImportDescriptor}.
+   * Named-import variant of {@link RefObjectDescriptor}.
    */
-  NamedRefImportDescriptor,
+  NamedRefObjectDescriptor,
   /**
    * A user-facing reference object, pointing to a value in the project's `src`
    * directory.
    */
-  RefImport,
+  RefObject,
   /**
    * Descriptor accepted by {@link ref}.
    */
-  RefImportDescriptor,
-} from "../refImport.js";
+  RefObjectDescriptor,
+} from "../refObject.js";
 
 interface BaseDecl<Kind extends string> {
   /**

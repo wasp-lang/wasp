@@ -3,8 +3,8 @@ import type * as AppSpec from "../appSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
 /**
- * Converts a relative ref import path from the user's `.wasp.ts` file into AppSpec's
- * absolute `@src/...` path format.
+ * Converts a relative ref object path from the user's `.wasp.ts` file into
+ * AppSpec's absolute `@src/...` path format.
  *
  * This keeps user-authored paths source-relative while giving the Haskell side
  * the same project-rooted paths it already understands.
@@ -13,7 +13,7 @@ import { SpecUserError } from "./specUserError.js";
  * `@src/MainPage`, while `./LoginPage` from `/app/src/auth/auth.wasp.ts`
  * becomes `@src/auth/LoginPage`.
  */
-export function normalizeRefImportPath({
+export function normalizeRefObjectPath({
   importPath,
   importingFilePath,
   projectRootDir,

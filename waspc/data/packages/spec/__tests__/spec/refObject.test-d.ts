@@ -2,7 +2,7 @@ import { assertType, describe, test } from "vitest";
 import { _waspMakeRef, ref } from "../../src/spec/publicApi/index.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
-describe("RefImport input types", () => {
+describe("RefObject input types", () => {
   test("should accept ref helper output at reference use sites", () => {
     const component = ref({
       importDefault: "MainPage",
@@ -85,10 +85,10 @@ describe("RefImport input types", () => {
     });
   });
 
-  test("should reject objects that are not RefImport objects at reference use sites", () => {
+  test("should reject objects that are not RefObject objects at reference use sites", () => {
     const component = { render: () => null };
 
-    // @ts-expect-error Reference use sites accept RefImport values or functions.
+    // @ts-expect-error Reference use sites accept RefObject values or functions.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 
@@ -99,10 +99,10 @@ describe("RefImport input types", () => {
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 
-  test("should reject incomplete RefImport objects", () => {
-    const component = { kind: "refImport", from: "./MainPage" } as const;
+  test("should reject incomplete RefObject objects", () => {
+    const component = { kind: "refObject", from: "./MainPage" } as const;
 
-    // @ts-expect-error RefImport objects must include either import or importDefault.
+    // @ts-expect-error RefObject objects must include either import or importDefault.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 });
@@ -121,7 +121,7 @@ describe("Env validation schema input types", () => {
     assertType<TsAppSpec.Client>({ envValidationSchema: schema });
   });
 
-  test("should accept RefImport env validation schemas", () => {
+  test("should accept RefObject env validation schemas", () => {
     const schemaImport = ref({
       importDefault: "schema",
       from: "./env",

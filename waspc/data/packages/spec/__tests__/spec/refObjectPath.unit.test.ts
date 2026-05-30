@@ -1,13 +1,13 @@
 import { describe, expect, test } from "vitest";
-import { normalizeRefImportPath } from "../../src/spec/refImportPath.js";
+import { normalizeRefObjectPath } from "../../src/spec/refObjectPath.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 
-describe("normalizeRefImportPath", () => {
+describe("normalizeRefObjectPath", () => {
   const projectRootDir = "/project";
 
   test("maps a top-level spec ref import targeting src", () => {
     expect(
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "./src/MainPage",
         importingFilePath: `${projectRootDir}/main.wasp.ts`,
         projectRootDir,
@@ -17,7 +17,7 @@ describe("normalizeRefImportPath", () => {
 
   test("maps a nested spec ref import from its importing file", () => {
     expect(
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "./MainPage",
         importingFilePath: `${projectRootDir}/src/features/home.wasp.ts`,
         projectRootDir,
@@ -27,7 +27,7 @@ describe("normalizeRefImportPath", () => {
 
   test("maps a nested ref import that climbs to the src root", () => {
     expect(
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "../../MainPage",
         importingFilePath: `${projectRootDir}/src/features/home/home.wasp.ts`,
         projectRootDir,
@@ -37,7 +37,7 @@ describe("normalizeRefImportPath", () => {
 
   test("normalizes ref import path segments", () => {
     expect(
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "./src/features/../MainPage",
         importingFilePath: `${projectRootDir}/main.wasp.ts`,
         projectRootDir,
@@ -47,14 +47,14 @@ describe("normalizeRefImportPath", () => {
 
   test("rejects ref imports that resolve outside src", () => {
     expect(() =>
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "./helpers/helper",
         importingFilePath: `${projectRootDir}/main.wasp.ts`,
         projectRootDir,
       }),
     ).toThrowError(SpecUserError);
     expect(() =>
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "./helpers/helper",
         importingFilePath: `${projectRootDir}/main.wasp.ts`,
         projectRootDir,
@@ -64,14 +64,14 @@ describe("normalizeRefImportPath", () => {
 
   test("rejects ref imports that resolve to src itself", () => {
     expect(() =>
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "./src",
         importingFilePath: `${projectRootDir}/main.wasp.ts`,
         projectRootDir,
       }),
     ).toThrowError(SpecUserError);
     expect(() =>
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "./src",
         importingFilePath: `${projectRootDir}/main.wasp.ts`,
         projectRootDir,
@@ -81,7 +81,7 @@ describe("normalizeRefImportPath", () => {
 
   test("allows ref imports that leave src and resolve back inside", () => {
     expect(
-      normalizeRefImportPath({
+      normalizeRefObjectPath({
         importPath: "../../../src/MainPage",
         importingFilePath: `${projectRootDir}/src/features/home/home.wasp.ts`,
         projectRootDir,

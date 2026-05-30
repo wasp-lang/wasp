@@ -1,4 +1,4 @@
-import type { RefImportDescriptor } from "../../spec/refImport.js";
+import type { RefObjectDescriptor } from "../../spec/refObject.js";
 import type { ImportLoweringPlan } from "./planImportLowering/index.js";
 import { planImportLowering } from "./planImportLowering/index.js";
 import type {
@@ -53,8 +53,8 @@ function getLoweredImportBindingSource(
   refName: string,
 ): string {
   switch (binding.kind) {
-    case "refImport":
-      return `const ${binding.localName} = ${refName}(${getRefImportDescriptorObjectLiteralSource(binding.descriptor)});`;
+    case "refObject":
+      return `const ${binding.localName} = ${refName}(${getRefObjectDescriptorObjectLiteralSource(binding.descriptor)});`;
     case "namespace":
       return getNamespaceImportProxySource(binding, refName);
   }
@@ -75,8 +75,8 @@ function getNamespaceImportProxySource(
   return `const ${binding.localName} = new Proxy({}, { get: (_t, k) => ${refName}({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof ${refName}>>;`;
 }
 
-function getRefImportDescriptorObjectLiteralSource(
-  descriptor: RefImportDescriptor,
+function getRefObjectDescriptorObjectLiteralSource(
+  descriptor: RefObjectDescriptor,
 ): string {
   if ("import" in descriptor) {
     const fields: Field[] = [

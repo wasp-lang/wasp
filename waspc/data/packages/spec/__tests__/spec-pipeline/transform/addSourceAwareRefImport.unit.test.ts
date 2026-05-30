@@ -62,14 +62,14 @@ describe("addSourceAwareRefImport", () => {
   test("preserves type specifiers in mixed imports", () => {
     expect(
       transform(
-        [`import { type RefImport, ref, page } from "@wasp.sh/spec";`, ``].join(
+        [`import { type RefObject, ref, page } from "@wasp.sh/spec";`, ``].join(
           "\n",
         ),
       ),
     ).toEqual({
       refName: "ref",
       sourceText: [
-        `import { type RefImport, page } from "@wasp.sh/spec";`,
+        `import { type RefObject, page } from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const ref = _waspMakeRef(import.meta.url);`,
         ``,
@@ -78,12 +78,12 @@ describe("addSourceAwareRefImport", () => {
   });
 
   test("uses a type-only spec package import as the helper anchor", () => {
-    const sourceText = `import type { RefImport } from "@wasp.sh/spec";\n`;
+    const sourceText = `import type { RefObject } from "@wasp.sh/spec";\n`;
 
     expect(transform(sourceText)).toEqual({
       refName: "ref",
       sourceText: [
-        `import type { RefImport } from "@wasp.sh/spec";`,
+        `import type { RefObject } from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const ref = _waspMakeRef(import.meta.url);`,
         ``,

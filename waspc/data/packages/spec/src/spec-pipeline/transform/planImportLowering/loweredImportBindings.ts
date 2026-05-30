@@ -1,12 +1,12 @@
 import * as ts from "typescript";
-import type { RefImportDescriptor } from "../../../spec/refImport.js";
+import type { RefObjectDescriptor } from "../../../spec/refObject.js";
 
-export type LoweredImportBinding = RefImportBinding | NamespaceImportBinding;
+export type LoweredImportBinding = RefObjectBinding | NamespaceImportBinding;
 
-type RefImportBinding = {
-  kind: "refImport";
+type RefObjectBinding = {
+  kind: "refObject";
   localName: string;
-  descriptor: RefImportDescriptor;
+  descriptor: RefObjectDescriptor;
 };
 
 export type NamespaceImportBinding = {
@@ -25,7 +25,7 @@ export function getLoweredImportBindings(
   if (clause.name) {
     const name = clause.name.text;
     bindings.push({
-      kind: "refImport",
+      kind: "refObject",
       localName: name,
       descriptor: { importDefault: name, from },
     });
@@ -45,7 +45,7 @@ export function getLoweredImportBindings(
       const localName = spec.name.text;
       const importedName = getImportedName(spec);
       bindings.push({
-        kind: "refImport",
+        kind: "refObject",
         localName,
         descriptor: {
           import: importedName,

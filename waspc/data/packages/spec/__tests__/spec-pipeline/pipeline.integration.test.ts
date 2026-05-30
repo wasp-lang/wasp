@@ -137,7 +137,7 @@ function writeSpecPackageStub(projectRootDir: string): void {
       `export function action(fn, options = {}) { return { kind: "action", fn, ...options }; }`,
       `export function _waspMakeRef(importingFileUrl) {`,
       `  const sourceFilePath = new URL(importingFileUrl).pathname;`,
-      `  return (descriptor) => ({ ...descriptor, kind: "refImport", sourceFilePath });`,
+      `  return (descriptor) => ({ ...descriptor, kind: "refObject", sourceFilePath });`,
       `}`,
       ``,
     ].join("\n"),
