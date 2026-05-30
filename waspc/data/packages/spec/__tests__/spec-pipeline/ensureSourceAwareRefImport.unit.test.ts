@@ -24,26 +24,18 @@ describe("ensureSourceAwareRefImport", () => {
     });
   });
 
-  test("rewrites explicit refImport imports from the local public API source", () => {
+  test("leaves local public API source imports unchanged", () => {
     const localSpecApiImport =
       "file:///repo/waspc/data/packages/spec/src/spec/publicApi/index.ts";
+    const sourceText = [
+      `import { refImport, page } from ${JSON.stringify(localSpecApiImport)};`,
+      `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
+      ``,
+    ].join("\n");
 
-    expect(
-      transform(
-        [
-          `import { refImport, page } from ${JSON.stringify(localSpecApiImport)};`,
-          `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
-          ``,
-        ].join("\n"),
-      ),
-    ).toEqual({
+    expect(transform(sourceText)).toEqual({
       refImportName: "refImport",
-      sourceText: [
-        `import { page, makeRefImport } from ${JSON.stringify(localSpecApiImport)};`,
-        `const refImport = makeRefImport(import.meta.url);`,
-        `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
-        ``,
-      ].join("\n"),
+      sourceText,
     });
   });
 

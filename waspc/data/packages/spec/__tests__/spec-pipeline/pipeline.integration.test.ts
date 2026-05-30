@@ -1,15 +1,8 @@
 import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { dirname, join } from "path";
-import { pathToFileURL } from "url";
 import { describe, expect, test } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
-
-// We use the absolute file:// URL of the local @wasp.sh/spec source so the
-// compiled spec does not rely on node_modules resolution from a temp dir.
-const waspSpecEntryUrl = pathToFileURL(
-  join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
-).href;
 
 describe("Wasp TS spec pipeline", () => {
   test("analyzes split specs with lowered ref imports", async () => {
@@ -29,8 +22,7 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/home.wasp.ts",
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { page } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import { page } from "@wasp.sh/spec";`,
         `import MainPage from "../MainPage" with { type: "ref" };`,
         ``,
         `export const homePage = page(MainPage);`,
@@ -39,8 +31,7 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/tasks.wasp.ts",
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { action } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import { action } from "@wasp.sh/spec";`,
         `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
         ``,
         `export const splitTitle = "Split Demo";`,
@@ -50,8 +41,7 @@ describe("Wasp TS spec pipeline", () => {
 
     const decls = await project.analyzeSpec(
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import { app } from "@wasp.sh/spec";`,
         `import { homePage } from "./src/features/home.wasp.js";`,
         `import { archiveAction, splitTitle } from "./src/features/tasks.wasp.js";`,
         ``,
@@ -91,6 +81,7 @@ function makeTempProject(prefix: string): {
     join(projectRootDir, "package.json"),
     JSON.stringify({ type: "module" }),
   );
+  writeSpecPackageStub(projectRootDir);
   writeFileSync(
     tsconfigPath,
     JSON.stringify({
@@ -125,4 +116,51 @@ function makeTempProject(prefix: string): {
       });
     },
   };
+}
+
+function writeSpecPackageStub(projectRootDir: string): void {
+  writeProjectFile(
+    projectRootDir,
+    "node_modules/@wasp.sh/spec/package.json",
+    JSON.stringify({
+      type: "module",
+      exports: "./index.js",
+      types: "./index.d.ts",
+    }),
+  );
+  writeProjectFile(
+    projectRootDir,
+    "node_modules/@wasp.sh/spec/index.js",
+    [
+      `export function app(config) { return config; }`,
+      `export function page(component, options = {}) { return { kind: "page", component, ...options }; }`,
+      `export function action(fn, options = {}) { return { kind: "action", fn, ...options }; }`,
+      `export function makeRefImport(importingFileUrl) {`,
+      `  const sourceFilePath = new URL(importingFileUrl).pathname;`,
+      `  return (descriptor) => ({ ...descriptor, kind: "refImport", sourceFilePath });`,
+      `}`,
+      ``,
+    ].join("\n"),
+  );
+  writeProjectFile(
+    projectRootDir,
+    "node_modules/@wasp.sh/spec/index.d.ts",
+    [
+      `export declare function app(config: any): any;`,
+      `export declare function page(component: any, options?: any): any;`,
+      `export declare function action(fn: any, options?: any): any;`,
+      `export declare function makeRefImport(importingFileUrl: string): (descriptor: any) => any;`,
+      ``,
+    ].join("\n"),
+  );
+}
+
+function writeProjectFile(
+  projectRootDir: string,
+  relativeFilePath: string,
+  sourceText: string,
+): void {
+  const filePath = join(projectRootDir, relativeFilePath);
+  mkdirSync(dirname(filePath), { recursive: true });
+  writeFileSync(filePath, sourceText, "utf8");
 }
