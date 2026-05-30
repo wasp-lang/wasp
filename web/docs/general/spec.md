@@ -91,7 +91,7 @@ The vast majority of Wasp apps won't run into these limitations, so we recommend
 
 ### `ref` helper {#reference-objects}
 
-Use `ref(...)` when a direct reference import is not practical. Import `ref` from `@wasp.sh/spec`, then pass it a descriptor with `import` (or `importDefault`) and `from`:
+Use `ref(...)` when a direct reference import is not practical. Import `ref` from `@wasp.sh/spec`, then pass it an import object with `import` (or `importDefault`) and `from`:
 
 ```ts
 import { ref } from '@wasp.sh/spec'

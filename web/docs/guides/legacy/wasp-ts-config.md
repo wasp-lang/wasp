@@ -49,7 +49,7 @@ In the TS Config you could only reference your code with import objects (`{ impo
   </TabItem>
 </Tabs>
 
-Descriptor-style references still work through the `ref(...)` helper, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#referencing-your-apps-code) for the supported patterns and their limitations.
+Import objects still work through the `ref(...)` helper, so you can migrate gradually. See the [Wasp Spec documentation](../../general/spec.md#referencing-your-apps-code) for the supported patterns and their limitations.
 
 ### Multiple files
 
