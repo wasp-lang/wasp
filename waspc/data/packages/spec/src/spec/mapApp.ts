@@ -1,5 +1,7 @@
 /**
  * This module maps the TsAppSpec-facing API to the internal representation of
+ * All of the mapping functions are exported so that they can be individually
+ * tested.
  * the app ({@link OutputAppSpec.Decl}).
  */
 
@@ -14,7 +16,7 @@ import { SpecUserError } from "./specUserError.js";
 type RefImportMapper = (refImport: unknown) => OutputAppSpec.ExtImport;
 
 export function mapApp(
-  app: InputAppSpec.App,
+  appInput: InputAppSpec.App,
   {
     projectRootDir,
     entityNames,
@@ -40,7 +42,7 @@ export function mapApp(
     emailSender,
     webSocket,
     decls,
-  } = app;
+  } = appInput;
 
   const entityRefParser = makeRefParser("Entity", entityNames);
 
@@ -561,6 +563,10 @@ function mapDecls<T, DeclType extends OutputAppSpec.Decl["declType"]>(
   }));
 }
 
+export function deriveRefImportName(refImport: unknown): string {
+  return getRefImportDeclarationName(refImport);
+}
+
 /**
  * The point of this function is to enforce exhaustivness over all declaration
  * types, ensuring we don't forget to include anything.
@@ -581,8 +587,4 @@ function ensureAllOutputDecls(decls: {
   [Type in OutputAppSpec.Decl["declType"]]: OutputAppSpec.GetDeclForType<Type>[];
 }): OutputAppSpec.Decl[] {
   return Object.values(decls).flat();
-}
-
-export function deriveRefImportName(refImport: unknown): string {
-  return getRefImportDeclarationName(refImport);
 }
