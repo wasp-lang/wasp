@@ -14,7 +14,7 @@ describe("mapRefImportToExtImport", () => {
   const projectRootDir = "/project";
 
   test("should map minimal named import correctly", () => {
-    testRefImportMapping(Fixtures.getExtImport("minimal", "named"), {
+    testRefImportMapping(Fixtures.getRefImport("minimal", "named"), {
       kind: "named",
       name: "namedExport",
       path: "@src/external",
@@ -23,7 +23,7 @@ describe("mapRefImportToExtImport", () => {
   });
 
   test("should map full named import correctly", () => {
-    testRefImportMapping(Fixtures.getExtImport("full", "named"), {
+    testRefImportMapping(Fixtures.getRefImport("full", "named"), {
       kind: "named",
       name: "namedExport",
       path: "@src/external",
@@ -32,7 +32,7 @@ describe("mapRefImportToExtImport", () => {
   });
 
   test("should map minimal default import correctly", () => {
-    testRefImportMapping(Fixtures.getExtImport("minimal", "default"), {
+    testRefImportMapping(Fixtures.getRefImport("minimal", "default"), {
       kind: "default",
       name: "defaultExport",
       path: "@src/external",
@@ -40,7 +40,7 @@ describe("mapRefImportToExtImport", () => {
   });
 
   test("should map full default import correctly", () => {
-    testRefImportMapping(Fixtures.getExtImport("full", "default"), {
+    testRefImportMapping(Fixtures.getRefImport("full", "default"), {
       kind: "default",
       name: "defaultExport",
       path: "@src/external",

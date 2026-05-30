@@ -3,88 +3,22 @@ import * as AppSpec from "../../src/appSpec.js";
 import * as AppSpecMapper from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
-import { mapRefImportToExtImport as mapRefImportToExtImportWithContext } from "../../src/spec/refImport.js";
+import { mapRefImportToExtImport } from "../../src/spec/refImport.js";
 import * as Fixtures from "./testFixtures.js";
 
-const projectRootDir = "/project";
+const mockProjectDir = "/project";
 
-function mapRefImportToExtImport(refImport: unknown) {
-  return mapRefImportToExtImportWithContext(refImport, { projectRootDir });
+function mapRefImportForMockProjectDir(refImport: unknown) {
+  return mapRefImportToExtImport(refImport, { projectRootDir: mockProjectDir });
 }
 
 const makeRefParser = AppSpecMapper.makeRefParser;
 
-const {
-  deriveExtImportName,
-  mapAction,
-  mapApi,
-  mapApiNamespace,
-  mapAuth,
-  mapAuthMethods,
-  mapClient,
-  mapCrud,
-  mapCrudOperationOptions,
-  mapCrudOperations,
-  mapDb,
-  mapEmailAuth,
-  mapEmailFlow,
-  mapEmailFromField,
-  mapEmailSender,
-  mapJob,
-  mapPage,
-  mapQuery,
-  mapRoute,
-  mapSchedule,
-  mapServer,
-  mapSocialAuth,
-  mapUsernameAndPassword,
-  mapWebSocket,
-} = makeTestAppSpecMapper();
-
 function mapApp(app: TsAppSpec.App, entityNames: string[]) {
   return AppSpecMapper.mapApp(app, {
     entityNames,
-    projectRootDir,
+    projectRootDir: mockProjectDir,
   });
-}
-
-function makeTestAppSpecMapper() {
-  return {
-    deriveExtImportName: AppSpecMapper.deriveExtImportName,
-    mapAction: bindRefImportMapper(AppSpecMapper.mapAction),
-    mapApi: bindRefImportMapper(AppSpecMapper.mapApi),
-    mapApiNamespace: bindRefImportMapper(AppSpecMapper.mapApiNamespace),
-    mapAuth: bindRefImportMapper(AppSpecMapper.mapAuth),
-    mapAuthMethods: bindRefImportMapper(AppSpecMapper.mapAuthMethods),
-    mapClient: bindRefImportMapper(AppSpecMapper.mapClient),
-    mapCrud: bindRefImportMapper(AppSpecMapper.mapCrud),
-    mapCrudOperationOptions: bindRefImportMapper(
-      AppSpecMapper.mapCrudOperationOptions,
-    ),
-    mapCrudOperations: bindRefImportMapper(AppSpecMapper.mapCrudOperations),
-    mapDb: bindRefImportMapper(AppSpecMapper.mapDb),
-    mapEmailAuth: bindRefImportMapper(AppSpecMapper.mapEmailAuth),
-    mapEmailFlow: bindRefImportMapper(AppSpecMapper.mapEmailFlow),
-    mapEmailFromField: AppSpecMapper.mapEmailFromField,
-    mapEmailSender: AppSpecMapper.mapEmailSender,
-    mapJob: bindRefImportMapper(AppSpecMapper.mapJob),
-    mapPage: bindRefImportMapper(AppSpecMapper.mapPage),
-    mapQuery: bindRefImportMapper(AppSpecMapper.mapQuery),
-    mapRoute: AppSpecMapper.mapRoute,
-    mapSchedule: AppSpecMapper.mapSchedule,
-    mapServer: bindRefImportMapper(AppSpecMapper.mapServer),
-    mapSocialAuth: bindRefImportMapper(AppSpecMapper.mapSocialAuth),
-    mapUsernameAndPassword: bindRefImportMapper(
-      AppSpecMapper.mapUsernameAndPassword,
-    ),
-    mapWebSocket: bindRefImportMapper(AppSpecMapper.mapWebSocket),
-  };
-}
-
-function bindRefImportMapper<Args extends unknown[], Result>(
-  mapper: (...args: [...Args, typeof mapRefImportToExtImport]) => Result,
-): (...args: Args) => Result {
-  return (...args) => mapper(...args, mapRefImportToExtImport);
 }
 
 describe("mapApp", () => {
@@ -165,7 +99,7 @@ describe("mapApp", () => {
       passwordResetRoute.name,
     ]);
 
-    // TODO: Reaching into `deriveExtImportName` here is not ideal — it leaks
+    // TODO: Reaching into `deriveRefImportName` here is not ideal — it leaks
     // an orchestrator-internal helper into the test. Revisit once we have a
     // higher-level name-derivation system: either a part-agnostic
     // `deriveDeclName(part)`, or a part-specific dispatch (mirroring how we
@@ -179,75 +113,120 @@ describe("mapApp", () => {
           wasp: inputApp.wasp,
           title: inputApp.title,
           head: inputApp.head,
-          auth: mapAuth(authConfig, entityRefParser, routeRefParser),
-          server: mapServer(server),
-          client: mapClient(client),
-          db: mapDb(db),
-          emailSender: mapEmailSender(emailSender),
-          webSocket: mapWebSocket(webSocket),
+          auth: AppSpecMapper.mapAuth(
+            authConfig,
+            entityRefParser,
+            routeRefParser,
+            mapRefImportForMockProjectDir,
+          ),
+          server: AppSpecMapper.mapServer(
+            server,
+            mapRefImportForMockProjectDir,
+          ),
+          client: AppSpecMapper.mapClient(
+            client,
+            mapRefImportForMockProjectDir,
+          ),
+          db: AppSpecMapper.mapDb(db, mapRefImportForMockProjectDir),
+          emailSender: AppSpecMapper.mapEmailSender(emailSender),
+          webSocket: AppSpecMapper.mapWebSocket(
+            webSocket,
+            mapRefImportForMockProjectDir,
+          ),
         },
       },
       {
         declType: "Page",
-        declName: deriveExtImportName(page.component),
-        declValue: mapPage(page),
+        declName: AppSpecMapper.deriveRefImportName(page.component),
+        declValue: AppSpecMapper.mapPage(page, mapRefImportForMockProjectDir),
       },
       {
         declType: "Page",
-        declName: deriveExtImportName(emailVerifyRoute.page.component),
-        declValue: mapPage(emailVerifyRoute.page),
+        declName: AppSpecMapper.deriveRefImportName(
+          emailVerifyRoute.page.component,
+        ),
+        declValue: AppSpecMapper.mapPage(
+          emailVerifyRoute.page,
+          mapRefImportForMockProjectDir,
+        ),
       },
       {
         declType: "Page",
-        declName: deriveExtImportName(passwordResetRoute.page.component),
-        declValue: mapPage(passwordResetRoute.page),
+        declName: AppSpecMapper.deriveRefImportName(
+          passwordResetRoute.page.component,
+        ),
+        declValue: AppSpecMapper.mapPage(
+          passwordResetRoute.page,
+          mapRefImportForMockProjectDir,
+        ),
       },
       {
         declType: "Route",
         declName: route.name,
-        declValue: mapRoute(route),
+        declValue: AppSpecMapper.mapRoute(route),
       },
       {
         declType: "Route",
         declName: emailVerifyRoute.name,
-        declValue: mapRoute(emailVerifyRoute),
+        declValue: AppSpecMapper.mapRoute(emailVerifyRoute),
       },
       {
         declType: "Route",
         declName: passwordResetRoute.name,
-        declValue: mapRoute(passwordResetRoute),
+        declValue: AppSpecMapper.mapRoute(passwordResetRoute),
       },
       {
         declType: "Query",
-        declName: deriveExtImportName(query.fn),
-        declValue: mapQuery(query, entityRefParser),
+        declName: AppSpecMapper.deriveRefImportName(query.fn),
+        declValue: AppSpecMapper.mapQuery(
+          query,
+          entityRefParser,
+          mapRefImportForMockProjectDir,
+        ),
       },
       {
         declType: "Api",
-        declName: deriveExtImportName(api.fn),
-        declValue: mapApi(api, entityRefParser),
+        declName: AppSpecMapper.deriveRefImportName(api.fn),
+        declValue: AppSpecMapper.mapApi(
+          api,
+          entityRefParser,
+          mapRefImportForMockProjectDir,
+        ),
       },
       {
         declType: "ApiNamespace",
-        declName: deriveExtImportName(apiNamespace.middlewareConfigFn),
-        declValue: mapApiNamespace(apiNamespace),
+        declName: AppSpecMapper.deriveRefImportName(
+          apiNamespace.middlewareConfigFn,
+        ),
+        declValue: AppSpecMapper.mapApiNamespace(
+          apiNamespace,
+          mapRefImportForMockProjectDir,
+        ),
       },
       {
         declType: "Job",
-        declName: deriveExtImportName(job.fn),
-        declValue: mapJob(job, entityRefParser),
+        declName: AppSpecMapper.deriveRefImportName(job.fn),
+        declValue: AppSpecMapper.mapJob(
+          job,
+          entityRefParser,
+          mapRefImportForMockProjectDir,
+        ),
       },
       {
         declType: "Crud",
         declName: crud.name,
-        declValue: mapCrud(crud, entityRefParser),
+        declValue: AppSpecMapper.mapCrud(
+          crud,
+          entityRefParser,
+          mapRefImportForMockProjectDir,
+        ),
       },
     ] satisfies AppSpec.Decl[]);
   });
 
   test("dedups a page referenced explicitly twice", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
+    const extImport = Fixtures.getRefImport("minimal", "default");
+    const pageName = AppSpecMapper.deriveRefImportName(extImport);
     const page1 = page(extImport);
     const page2 = page(extImport);
 
@@ -261,8 +240,8 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced via a route shorthand twice", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
+    const extImport = Fixtures.getRefImport("minimal", "default");
+    const pageName = AppSpecMapper.deriveRefImportName(extImport);
     const page1 = page(extImport);
     const page2 = page(extImport);
     const route1 = route("Route1", "/", page1);
@@ -278,8 +257,8 @@ describe("mapApp", () => {
   });
 
   test("dedups a page referenced explicitly and via a route shorthand", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
+    const extImport = Fixtures.getRefImport("minimal", "default");
+    const pageName = AppSpecMapper.deriveRefImportName(extImport);
     const page1 = page(extImport);
     const page2 = page(extImport);
     const route1 = route("Route1", "/", page2);
@@ -294,8 +273,8 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs explicitly", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
+    const extImport = Fixtures.getRefImport("minimal", "default");
+    const pageName = AppSpecMapper.deriveRefImportName(extImport);
     const page1 = page(extImport);
     const page2 = page(extImport, { authRequired: true });
 
@@ -307,8 +286,8 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs via a route shorthand twice", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
+    const extImport = Fixtures.getRefImport("minimal", "default");
+    const pageName = AppSpecMapper.deriveRefImportName(extImport);
     const page1 = page(extImport);
     const page2 = page(extImport, { authRequired: true });
     const route1 = route("Route1", "/", page1);
@@ -322,8 +301,8 @@ describe("mapApp", () => {
   });
 
   test("throws when the same page name is produced with differing configs explicitly and via a route shorthand", () => {
-    const extImport = Fixtures.getExtImport("minimal", "default");
-    const pageName = deriveExtImportName(extImport);
+    const extImport = Fixtures.getRefImport("minimal", "default");
+    const pageName = AppSpecMapper.deriveRefImportName(extImport);
     const page1 = page(extImport);
     const page2 = page(extImport, { authRequired: true });
     const route1 = route("Route2", "/", page2);
@@ -348,10 +327,10 @@ describe("mapPage", () => {
   });
 
   function testMapPage(page: TsAppSpec.Page): void {
-    const result = mapPage(page);
+    const result = AppSpecMapper.mapPage(page, mapRefImportForMockProjectDir);
 
     expect(result).toStrictEqual({
-      component: mapRefImportToExtImport(page.component),
+      component: mapRefImportForMockProjectDir(page.component),
       authRequired: page.authRequired,
     } satisfies AppSpec.Page);
   }
@@ -367,12 +346,12 @@ describe("mapRoute", () => {
   });
 
   function testMapRoute(route: TsAppSpec.Route): void {
-    const result = mapRoute(route);
+    const result = AppSpecMapper.mapRoute(route);
 
     expect(result).toStrictEqual({
       path: route.path,
       to: {
-        name: deriveExtImportName(route.page.component),
+        name: AppSpecMapper.deriveRefImportName(route.page.component),
         declType: "Page",
       },
       prerender: route.prerender,
@@ -394,16 +373,26 @@ describe("mapQuery", () => {
     const query = Fixtures.getQuery("full");
     const entityRefParser = makeRefParser("Entity", []);
 
-    expect(() => mapQuery(query, entityRefParser)).toThrowError();
+    expect(() =>
+      AppSpecMapper.mapQuery(
+        query,
+        entityRefParser,
+        mapRefImportForMockProjectDir,
+      ),
+    ).toThrowError();
   });
 
   function testMapQuery(query: TsAppSpec.Query): void {
     const entityRefParser = makeRefParser("Entity", query.entities ?? []);
 
-    const result = mapQuery(query, entityRefParser);
+    const result = AppSpecMapper.mapQuery(
+      query,
+      entityRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
-      fn: mapRefImportToExtImport(query.fn),
+      fn: mapRefImportForMockProjectDir(query.fn),
       entities: query.entities?.map(entityRefParser),
       auth: query.auth,
     } satisfies AppSpec.Query);
@@ -423,16 +412,26 @@ describe("mapAction", () => {
     const action = Fixtures.getAction("full");
     const entityRefParser = makeRefParser("Entity", []);
 
-    expect(() => mapAction(action, entityRefParser)).toThrowError();
+    expect(() =>
+      AppSpecMapper.mapAction(
+        action,
+        entityRefParser,
+        mapRefImportForMockProjectDir,
+      ),
+    ).toThrowError();
   });
 
   function testMapAction(action: TsAppSpec.Action): void {
     const entityRefParser = makeRefParser("Entity", action.entities ?? []);
 
-    const result = mapAction(action, entityRefParser);
+    const result = AppSpecMapper.mapAction(
+      action,
+      entityRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
-      fn: mapRefImportToExtImport(action.fn),
+      fn: mapRefImportForMockProjectDir(action.fn),
       entities: action.entities?.map(entityRefParser),
       auth: action.auth,
     } satisfies AppSpec.Action);
@@ -498,32 +497,47 @@ describe("mapAuth", () => {
 
     if (shouldError) {
       expect(() =>
-        mapAuth(auth, entityRefParser, routeRefParser),
+        AppSpecMapper.mapAuth(
+          auth,
+          entityRefParser,
+          routeRefParser,
+          mapRefImportForMockProjectDir,
+        ),
       ).toThrowError();
       return;
     }
 
-    const result = mapAuth(auth, entityRefParser, routeRefParser);
+    const result = AppSpecMapper.mapAuth(
+      auth,
+      entityRefParser,
+      routeRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       userEntity: entityRefParser(auth.userEntity),
-      methods: mapAuthMethods(auth.methods, routeRefParser),
+      methods: AppSpecMapper.mapAuthMethods(
+        auth.methods,
+        routeRefParser,
+        mapRefImportForMockProjectDir,
+      ),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
       onBeforeSignup:
-        auth.onBeforeSignup && mapRefImportToExtImport(auth.onBeforeSignup),
+        auth.onBeforeSignup &&
+        mapRefImportForMockProjectDir(auth.onBeforeSignup),
       onAfterSignup:
-        auth.onAfterSignup && mapRefImportToExtImport(auth.onAfterSignup),
+        auth.onAfterSignup && mapRefImportForMockProjectDir(auth.onAfterSignup),
       onAfterEmailVerified:
         auth.onAfterEmailVerified &&
-        mapRefImportToExtImport(auth.onAfterEmailVerified),
+        mapRefImportForMockProjectDir(auth.onAfterEmailVerified),
       onBeforeOAuthRedirect:
         auth.onBeforeOAuthRedirect &&
-        mapRefImportToExtImport(auth.onBeforeOAuthRedirect),
+        mapRefImportForMockProjectDir(auth.onBeforeOAuthRedirect),
       onBeforeLogin:
-        auth.onBeforeLogin && mapRefImportToExtImport(auth.onBeforeLogin),
+        auth.onBeforeLogin && mapRefImportForMockProjectDir(auth.onBeforeLogin),
       onAfterLogin:
-        auth.onAfterLogin && mapRefImportToExtImport(auth.onAfterLogin),
+        auth.onAfterLogin && mapRefImportForMockProjectDir(auth.onAfterLogin),
     } satisfies AppSpec.Auth);
   }
 });
@@ -576,24 +590,72 @@ describe("mapAuthMethods", () => {
     const routeRefParser = makeRefParser("Route", routes);
 
     if (shouldError) {
-      expect(() => mapAuthMethods(authMethods, routeRefParser)).toThrowError();
+      expect(() =>
+        AppSpecMapper.mapAuthMethods(
+          authMethods,
+          routeRefParser,
+          mapRefImportForMockProjectDir,
+        ),
+      ).toThrowError();
       return;
     }
 
-    const result = mapAuthMethods(authMethods, routeRefParser);
+    const result = AppSpecMapper.mapAuthMethods(
+      authMethods,
+      routeRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       usernameAndPassword:
         authMethods.usernameAndPassword &&
-        mapUsernameAndPassword(authMethods.usernameAndPassword),
-      slack: authMethods.slack && mapSocialAuth(authMethods.slack),
-      discord: authMethods.discord && mapSocialAuth(authMethods.discord),
-      google: authMethods.google && mapSocialAuth(authMethods.google),
-      gitHub: authMethods.gitHub && mapSocialAuth(authMethods.gitHub),
-      keycloak: authMethods.keycloak && mapSocialAuth(authMethods.keycloak),
-      microsoft: authMethods.microsoft && mapSocialAuth(authMethods.microsoft),
+        AppSpecMapper.mapUsernameAndPassword(
+          authMethods.usernameAndPassword,
+          mapRefImportForMockProjectDir,
+        ),
+      slack:
+        authMethods.slack &&
+        AppSpecMapper.mapSocialAuth(
+          authMethods.slack,
+          mapRefImportForMockProjectDir,
+        ),
+      discord:
+        authMethods.discord &&
+        AppSpecMapper.mapSocialAuth(
+          authMethods.discord,
+          mapRefImportForMockProjectDir,
+        ),
+      google:
+        authMethods.google &&
+        AppSpecMapper.mapSocialAuth(
+          authMethods.google,
+          mapRefImportForMockProjectDir,
+        ),
+      gitHub:
+        authMethods.gitHub &&
+        AppSpecMapper.mapSocialAuth(
+          authMethods.gitHub,
+          mapRefImportForMockProjectDir,
+        ),
+      keycloak:
+        authMethods.keycloak &&
+        AppSpecMapper.mapSocialAuth(
+          authMethods.keycloak,
+          mapRefImportForMockProjectDir,
+        ),
+      microsoft:
+        authMethods.microsoft &&
+        AppSpecMapper.mapSocialAuth(
+          authMethods.microsoft,
+          mapRefImportForMockProjectDir,
+        ),
       email:
-        authMethods.email && mapEmailAuth(authMethods.email, routeRefParser),
+        authMethods.email &&
+        AppSpecMapper.mapEmailAuth(
+          authMethods.email,
+          routeRefParser,
+          mapRefImportForMockProjectDir,
+        ),
     } satisfies AppSpec.AuthMethods);
   }
 });
@@ -646,22 +708,37 @@ describe("mapEmailAuth", () => {
     const routeRefParser = makeRefParser("Route", routes);
 
     if (shouldError) {
-      expect(() => mapEmailAuth(emailAuth, routeRefParser)).toThrowError();
+      expect(() =>
+        AppSpecMapper.mapEmailAuth(
+          emailAuth,
+          routeRefParser,
+          mapRefImportForMockProjectDir,
+        ),
+      ).toThrowError();
       return;
     }
 
-    const result = mapEmailAuth(emailAuth, routeRefParser);
+    const result = AppSpecMapper.mapEmailAuth(
+      emailAuth,
+      routeRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       userSignupFields:
         emailAuth.userSignupFields &&
-        mapRefImportToExtImport(emailAuth.userSignupFields),
-      fromField: mapEmailFromField(emailAuth.fromField),
-      emailVerification: mapEmailFlow(
+        mapRefImportForMockProjectDir(emailAuth.userSignupFields),
+      fromField: AppSpecMapper.mapEmailFromField(emailAuth.fromField),
+      emailVerification: AppSpecMapper.mapEmailFlow(
         emailAuth.emailVerification,
         routeRefParser,
+        mapRefImportForMockProjectDir,
       ),
-      passwordReset: mapEmailFlow(emailAuth.passwordReset, routeRefParser),
+      passwordReset: AppSpecMapper.mapEmailFlow(
+        emailAuth.passwordReset,
+        routeRefParser,
+        mapRefImportForMockProjectDir,
+      ),
     } satisfies AppSpec.EmailAuthConfig);
   }
 });
@@ -708,17 +785,27 @@ describe("mapEmailFlow", () => {
     const routeRefParser = makeRefParser("Route", routes);
 
     if (shouldError) {
-      expect(() => mapEmailFlow(emailFlow, routeRefParser)).toThrowError();
+      expect(() =>
+        AppSpecMapper.mapEmailFlow(
+          emailFlow,
+          routeRefParser,
+          mapRefImportForMockProjectDir,
+        ),
+      ).toThrowError();
       return;
     }
 
-    const result = mapEmailFlow(emailFlow, routeRefParser);
+    const result = AppSpecMapper.mapEmailFlow(
+      emailFlow,
+      routeRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       clientRoute: routeRefParser(emailFlow.clientRoute),
       getEmailContentFn:
         emailFlow.getEmailContentFn &&
-        mapRefImportToExtImport(emailFlow.getEmailContentFn),
+        mapRefImportForMockProjectDir(emailFlow.getEmailContentFn),
     } satisfies AppSpec.EmailVerificationConfig);
   }
 });
@@ -737,12 +824,15 @@ describe("mapUsernameAndPassword", () => {
   function testMapUsernameAndPassword(
     usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig,
   ): void {
-    const result = mapUsernameAndPassword(usernameAndPassword);
+    const result = AppSpecMapper.mapUsernameAndPassword(
+      usernameAndPassword,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       userSignupFields:
         usernameAndPassword.userSignupFields &&
-        mapRefImportToExtImport(usernameAndPassword.userSignupFields),
+        mapRefImportForMockProjectDir(usernameAndPassword.userSignupFields),
     } satisfies AppSpec.UsernameAndPasswordConfig);
   }
 });
@@ -757,14 +847,18 @@ describe("mapSocialAuth", () => {
   });
 
   function testMapSocialAuth(socialAuth: TsAppSpec.SocialAuthConfig): void {
-    const result = mapSocialAuth(socialAuth);
+    const result = AppSpecMapper.mapSocialAuth(
+      socialAuth,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       configFn:
-        socialAuth.configFn && mapRefImportToExtImport(socialAuth.configFn),
+        socialAuth.configFn &&
+        mapRefImportForMockProjectDir(socialAuth.configFn),
       userSignupFields:
         socialAuth.userSignupFields &&
-        mapRefImportToExtImport(socialAuth.userSignupFields),
+        mapRefImportForMockProjectDir(socialAuth.userSignupFields),
     } satisfies AppSpec.ExternalAuthConfig);
   }
 });
@@ -782,19 +876,25 @@ describe("mapApi", () => {
     const api = Fixtures.getApi("full");
     const entityRefParser = makeRefParser("Entity", []);
 
-    expect(() => mapApi(api, entityRefParser)).toThrowError();
+    expect(() =>
+      AppSpecMapper.mapApi(api, entityRefParser, mapRefImportForMockProjectDir),
+    ).toThrowError();
   });
 
   function testMapApi(api: TsAppSpec.Api): void {
     const entityRefParser = makeRefParser("Entity", api.entities ?? []);
 
-    const result = mapApi(api, entityRefParser);
+    const result = AppSpecMapper.mapApi(
+      api,
+      entityRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
-      fn: mapRefImportToExtImport(api.fn),
+      fn: mapRefImportForMockProjectDir(api.fn),
       middlewareConfigFn:
         api.middlewareConfigFn &&
-        mapRefImportToExtImport(api.middlewareConfigFn),
+        mapRefImportForMockProjectDir(api.middlewareConfigFn),
       entities: api.entities?.map(entityRefParser),
       httpRoute: [api.method, api.path],
       auth: api.auth,
@@ -812,10 +912,13 @@ describe("mapApiNamespace", () => {
   });
 
   function testMapApiNamespace(apiNamespace: TsAppSpec.ApiNamespace): void {
-    const result = mapApiNamespace(apiNamespace);
+    const result = AppSpecMapper.mapApiNamespace(
+      apiNamespace,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
-      middlewareConfigFn: mapRefImportToExtImport(
+      middlewareConfigFn: mapRefImportForMockProjectDir(
         apiNamespace.middlewareConfigFn,
       ),
       path: apiNamespace.path,
@@ -833,16 +936,19 @@ describe("mapServer", () => {
   });
 
   function testMapServer(server: TsAppSpec.Server): void {
-    const result = mapServer(server);
+    const result = AppSpecMapper.mapServer(
+      server,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
-      setupFn: server.setupFn && mapRefImportToExtImport(server.setupFn),
+      setupFn: server.setupFn && mapRefImportForMockProjectDir(server.setupFn),
       middlewareConfigFn:
         server.middlewareConfigFn &&
-        mapRefImportToExtImport(server.middlewareConfigFn),
+        mapRefImportForMockProjectDir(server.middlewareConfigFn),
       envValidationSchema:
         server.envValidationSchema &&
-        mapRefImportToExtImport(server.envValidationSchema),
+        mapRefImportForMockProjectDir(server.envValidationSchema),
     } satisfies AppSpec.Server);
   }
 });
@@ -857,16 +963,20 @@ describe("mapClient", () => {
   });
 
   function testMapClient(client: TsAppSpec.Client): void {
-    const result = mapClient(client);
+    const result = AppSpecMapper.mapClient(
+      client,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       rootComponent:
-        client.rootComponent && mapRefImportToExtImport(client.rootComponent),
-      setupFn: client.setupFn && mapRefImportToExtImport(client.setupFn),
+        client.rootComponent &&
+        mapRefImportForMockProjectDir(client.rootComponent),
+      setupFn: client.setupFn && mapRefImportForMockProjectDir(client.setupFn),
       baseDir: client.baseDir,
       envValidationSchema:
         client.envValidationSchema &&
-        mapRefImportToExtImport(client.envValidationSchema),
+        mapRefImportForMockProjectDir(client.envValidationSchema),
     } satisfies AppSpec.Client);
   }
 });
@@ -881,12 +991,12 @@ describe("mapDb", () => {
   });
 
   function testMapDb(db: TsAppSpec.Db): void {
-    const result = mapDb(db);
+    const result = AppSpecMapper.mapDb(db, mapRefImportForMockProjectDir);
 
     expect(result).toStrictEqual({
-      seeds: db.seeds?.map((seed) => mapRefImportToExtImport(seed)),
+      seeds: db.seeds?.map((seed) => mapRefImportForMockProjectDir(seed)),
       prismaSetupFn:
-        db.prismaSetupFn && mapRefImportToExtImport(db.prismaSetupFn),
+        db.prismaSetupFn && mapRefImportForMockProjectDir(db.prismaSetupFn),
     } satisfies AppSpec.Db);
   }
 });
@@ -901,12 +1011,13 @@ describe("mapEmailSender", () => {
   });
 
   function testMapEmailSender(emailSender: TsAppSpec.EmailSender): void {
-    const result = mapEmailSender(emailSender);
+    const result = AppSpecMapper.mapEmailSender(emailSender);
 
     expect(result).toStrictEqual({
       provider: emailSender.provider,
       defaultFrom:
-        emailSender.defaultFrom && mapEmailFromField(emailSender.defaultFrom),
+        emailSender.defaultFrom &&
+        AppSpecMapper.mapEmailFromField(emailSender.defaultFrom),
     } satisfies AppSpec.EmailSender);
   }
 });
@@ -923,7 +1034,7 @@ describe("mapEmailFromField", () => {
   function testMapEmailFromField(
     emailFromField: TsAppSpec.EmailFromField,
   ): void {
-    const result = mapEmailFromField(emailFromField);
+    const result = AppSpecMapper.mapEmailFromField(emailFromField);
 
     expect(result).toStrictEqual({
       name: emailFromField.name,
@@ -942,10 +1053,13 @@ describe("mapWebSocket", () => {
   });
 
   function testMapWebSocket(webSocket: TsAppSpec.WebSocket): void {
-    const result = mapWebSocket(webSocket);
+    const result = AppSpecMapper.mapWebSocket(
+      webSocket,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
-      fn: mapRefImportToExtImport(webSocket.fn),
+      fn: mapRefImportForMockProjectDir(webSocket.fn),
       autoConnect: webSocket.autoConnect,
     } satisfies AppSpec.WebSocket);
   }
@@ -964,21 +1078,27 @@ describe("mapJob", () => {
     const job = Fixtures.getJob("full");
     const entityRefParser = makeRefParser("Entity", []);
 
-    expect(() => mapJob(job, entityRefParser)).toThrowError();
+    expect(() =>
+      AppSpecMapper.mapJob(job, entityRefParser, mapRefImportForMockProjectDir),
+    ).toThrowError();
   });
 
   function testMapJob(job: TsAppSpec.Job): void {
     const entityRefParser = makeRefParser("Entity", job.entities ?? []);
 
-    const result = mapJob(job, entityRefParser);
+    const result = AppSpecMapper.mapJob(
+      job,
+      entityRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       executor: job.executor,
       perform: {
-        fn: mapRefImportToExtImport(job.fn),
+        fn: mapRefImportForMockProjectDir(job.fn),
         executorOptions: job.performExecutorOptions,
       },
-      schedule: job.schedule && mapSchedule(job.schedule),
+      schedule: job.schedule && AppSpecMapper.mapSchedule(job.schedule),
       entities: job.entities?.map(entityRefParser),
     } satisfies AppSpec.Job);
   }
@@ -997,17 +1117,30 @@ describe("mapCrud", () => {
     const crudDecl = Fixtures.getCrud("full");
     const entityRefParser = makeRefParser("Entity", []);
 
-    expect(() => mapCrud(crudDecl, entityRefParser)).toThrowError();
+    expect(() =>
+      AppSpecMapper.mapCrud(
+        crudDecl,
+        entityRefParser,
+        mapRefImportForMockProjectDir,
+      ),
+    ).toThrowError();
   });
 
   function testMapCrud(crudDecl: TsAppSpec.Crud): void {
     const entityRefParser = makeRefParser("Entity", [crudDecl.entity]);
 
-    const result = mapCrud(crudDecl, entityRefParser);
+    const result = AppSpecMapper.mapCrud(
+      crudDecl,
+      entityRefParser,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       entity: entityRefParser(crudDecl.entity),
-      operations: mapCrudOperations(crudDecl.operations),
+      operations: AppSpecMapper.mapCrudOperations(
+        crudDecl.operations,
+        mapRefImportForMockProjectDir,
+      ),
     } satisfies AppSpec.Crud);
   }
 });
@@ -1024,18 +1157,42 @@ describe("mapCrudOperations", () => {
   function testMapCrudOperations(
     crudOperations: TsAppSpec.CrudOperations,
   ): void {
-    const result = mapCrudOperations(crudOperations);
+    const result = AppSpecMapper.mapCrudOperations(
+      crudOperations,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
-      get: crudOperations.get && mapCrudOperationOptions(crudOperations.get),
+      get:
+        crudOperations.get &&
+        AppSpecMapper.mapCrudOperationOptions(
+          crudOperations.get,
+          mapRefImportForMockProjectDir,
+        ),
       getAll:
-        crudOperations.getAll && mapCrudOperationOptions(crudOperations.getAll),
+        crudOperations.getAll &&
+        AppSpecMapper.mapCrudOperationOptions(
+          crudOperations.getAll,
+          mapRefImportForMockProjectDir,
+        ),
       create:
-        crudOperations.create && mapCrudOperationOptions(crudOperations.create),
+        crudOperations.create &&
+        AppSpecMapper.mapCrudOperationOptions(
+          crudOperations.create,
+          mapRefImportForMockProjectDir,
+        ),
       update:
-        crudOperations.update && mapCrudOperationOptions(crudOperations.update),
+        crudOperations.update &&
+        AppSpecMapper.mapCrudOperationOptions(
+          crudOperations.update,
+          mapRefImportForMockProjectDir,
+        ),
       delete:
-        crudOperations.delete && mapCrudOperationOptions(crudOperations.delete),
+        crudOperations.delete &&
+        AppSpecMapper.mapCrudOperationOptions(
+          crudOperations.delete,
+          mapRefImportForMockProjectDir,
+        ),
     } satisfies AppSpec.CrudOperations);
   }
 });
@@ -1052,13 +1209,16 @@ describe("mapCrudOperationOptions", () => {
   function testMapCrudOperationOptions(
     crudOperationOptions: TsAppSpec.CrudOperationOptions,
   ): void {
-    const result = mapCrudOperationOptions(crudOperationOptions);
+    const result = AppSpecMapper.mapCrudOperationOptions(
+      crudOperationOptions,
+      mapRefImportForMockProjectDir,
+    );
 
     expect(result).toStrictEqual({
       isPublic: crudOperationOptions.isPublic,
       overrideFn:
         crudOperationOptions.overrideFn &&
-        mapRefImportToExtImport(crudOperationOptions.overrideFn),
+        mapRefImportForMockProjectDir(crudOperationOptions.overrideFn),
     } satisfies AppSpec.CrudOperationOptions);
   }
 });
@@ -1073,7 +1233,7 @@ describe("mapSchedule", () => {
   });
 
   function testMapSchedule(schedule: TsAppSpec.Schedule): void {
-    const result = mapSchedule(schedule);
+    const result = AppSpecMapper.mapSchedule(schedule);
 
     expect(result).toStrictEqual({
       cron: schedule.cron,

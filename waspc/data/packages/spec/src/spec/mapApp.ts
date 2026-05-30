@@ -11,30 +11,23 @@ import {
 } from "./refImport.js";
 import { SpecUserError } from "./specUserError.js";
 
-export type AppSpecMappingContext = {
-  entityNames: string[];
-  projectRootDir: string;
-};
+type RefImportMapper = (refImport: unknown) => OutputAppSpec.ExtImport;
 
 export function mapApp(
   app: InputAppSpec.App,
-  context: AppSpecMappingContext,
+  {
+    projectRootDir,
+    entityNames,
+  }: {
+    projectRootDir: string;
+    entityNames: string[];
+  },
 ): OutputAppSpec.Decl[] {
-  const mapRefImport: RefImportMapper = (refImport) =>
+  const mapRefImport: RefImportMapper = (refImport: unknown) =>
     mapRefImportToExtImport(refImport, {
-      projectRootDir: context.projectRootDir,
+      projectRootDir,
     });
 
-  return mapAppToDecls(app, context.entityNames, mapRefImport);
-}
-
-type RefImportMapper = (refImport: unknown) => OutputAppSpec.ExtImport;
-
-function mapAppToDecls(
-  app: InputAppSpec.App,
-  entityNames: string[],
-  mapRefImport: RefImportMapper,
-): OutputAppSpec.Decl[] {
   const {
     name,
     wasp,
@@ -58,7 +51,7 @@ function mapAppToDecls(
   const pagesOutput = mapDecls(
     pagesInput,
     "Page",
-    (page) => getRefImportDeclarationName(page.component),
+    (page) => deriveRefImportName(page.component),
     (page) => mapPage(page, mapRefImport),
   );
 
@@ -72,7 +65,7 @@ function mapAppToDecls(
   const routePagesOutputs = mapDecls(
     routesInput,
     "Page",
-    (route) => getRefImportDeclarationName(route.page.component),
+    (route) => deriveRefImportName(route.page.component),
     (route) => mapPage(route.page, mapRefImport),
   );
   const routeRefParser = makeRefParser(
@@ -84,7 +77,7 @@ function mapAppToDecls(
   const queriesOutput = mapDecls(
     queriesInput,
     "Query",
-    (query) => getRefImportDeclarationName(query.fn),
+    (query) => deriveRefImportName(query.fn),
     (query) => mapQuery(query, entityRefParser, mapRefImport),
   );
 
@@ -92,7 +85,7 @@ function mapAppToDecls(
   const actionsOutput = mapDecls(
     actionsInput,
     "Action",
-    (action) => getRefImportDeclarationName(action.fn),
+    (action) => deriveRefImportName(action.fn),
     (action) => mapAction(action, entityRefParser, mapRefImport),
   );
 
@@ -100,7 +93,7 @@ function mapAppToDecls(
   const apisOutput = mapDecls(
     apisInput,
     "Api",
-    (api) => getRefImportDeclarationName(api.fn),
+    (api) => deriveRefImportName(api.fn),
     (api) => mapApi(api, entityRefParser, mapRefImport),
   );
 
@@ -108,7 +101,7 @@ function mapAppToDecls(
   const apiNamespacesOutput = mapDecls(
     apiNamespacesInput,
     "ApiNamespace",
-    (ns) => getRefImportDeclarationName(ns.middlewareConfigFn),
+    (ns) => deriveRefImportName(ns.middlewareConfigFn),
     (ns) => mapApiNamespace(ns, mapRefImport),
   );
 
@@ -116,7 +109,7 @@ function mapAppToDecls(
   const jobsOutput = mapDecls(
     jobsInput,
     "Job",
-    (job) => getRefImportDeclarationName(job.fn),
+    (job) => deriveRefImportName(job.fn),
     (job) => mapJob(job, entityRefParser, mapRefImport),
   );
 
@@ -174,7 +167,7 @@ export function mapRoute(route: InputAppSpec.Route): OutputAppSpec.Route {
   return {
     path,
     to: {
-      name: getRefImportDeclarationName(route.page.component),
+      name: deriveRefImportName(route.page.component),
       declType: "Page",
     },
     prerender,
@@ -568,8 +561,6 @@ function mapDecls<T, DeclType extends OutputAppSpec.Decl["declType"]>(
   }));
 }
 
-export const deriveExtImportName = getRefImportDeclarationName;
-
 /**
  * The point of this function is to enforce exhaustivness over all declaration
  * types, ensuring we don't forget to include anything.
@@ -590,4 +581,8 @@ function ensureAllOutputDecls(decls: {
   [Type in OutputAppSpec.Decl["declType"]]: OutputAppSpec.GetDeclForType<Type>[];
 }): OutputAppSpec.Decl[] {
   return Object.values(decls).flat();
+}
+
+export function deriveRefImportName(refImport: unknown): string {
+  return getRefImportDeclarationName(refImport);
 }
