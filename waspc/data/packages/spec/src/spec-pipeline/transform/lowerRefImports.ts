@@ -9,54 +9,54 @@ import { applyEdits, type Edit } from "./sourceEdits.js";
 
 /**
  * Given source code, finds supported ref import statements and replaces them
- * with inline refImport(...) consts. We call this lowering imports.
+ * with inline ref(...) consts. We call this lowering imports.
  */
 export function lowerRefImports({
   sourceText,
   sourcePath,
-  refImportName,
+  refName,
 }: {
   sourceText: string;
   sourcePath: string;
-  refImportName: string;
+  refName: string;
 }): string {
   const plan = planImportLowering({
     sourceText,
     sourcePath,
   });
 
-  return applyEdits(sourceText, getImportLoweringEdits(plan, refImportName));
+  return applyEdits(sourceText, getImportLoweringEdits(plan, refName));
 }
 
 function getImportLoweringEdits(
   plan: ImportLoweringPlan,
-  refImportName: string,
+  refName: string,
 ): Edit[] {
   return plan.replacements.map((replacement) => ({
     start: replacement.start,
     end: replacement.end,
-    text: getImportReplacementSource(replacement.bindings, refImportName),
+    text: getImportReplacementSource(replacement.bindings, refName),
   }));
 }
 
 function getImportReplacementSource(
   bindings: LoweredImportBinding[],
-  refImportName: string,
+  refName: string,
 ): string {
   return bindings
-    .map((binding) => getLoweredImportBindingSource(binding, refImportName))
+    .map((binding) => getLoweredImportBindingSource(binding, refName))
     .join("\n");
 }
 
 function getLoweredImportBindingSource(
   binding: LoweredImportBinding,
-  refImportName: string,
+  refName: string,
 ): string {
   switch (binding.kind) {
     case "refImport":
-      return `const ${binding.localName} = ${refImportName}(${getRefImportDescriptorObjectLiteralSource(binding.descriptor)});`;
+      return `const ${binding.localName} = ${refName}(${getRefImportDescriptorObjectLiteralSource(binding.descriptor)});`;
     case "namespace":
-      return getNamespaceImportProxySource(binding, refImportName);
+      return getNamespaceImportProxySource(binding, refName);
   }
 }
 
@@ -67,12 +67,12 @@ function getLoweredImportBindingSource(
  */
 function getNamespaceImportProxySource(
   binding: NamespaceImportBinding,
-  refImportName: string,
+  refName: string,
 ): string {
   const from = JSON.stringify(binding.from);
   const aliasPrefix = JSON.stringify(binding.aliasPrefix);
 
-  return `const ${binding.localName} = new Proxy({}, { get: (_t, k) => ${refImportName}({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof ${refImportName}>>;`;
+  return `const ${binding.localName} = new Proxy({}, { get: (_t, k) => ${refName}({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof ${refName}>>;`;
 }
 
 function getRefImportDescriptorObjectLiteralSource(

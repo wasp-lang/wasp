@@ -9,16 +9,16 @@ import {
   getSpecPackageImports,
   isImportSpecifierFor,
   isValueImportSpecifierFor,
-  REF_IMPORT_EXPORT_NAME,
+  REF_EXPORT_NAME,
   REF_IMPORT_FACTORY_EXPORT_NAME,
   SPEC_PACKAGE_NAME,
 } from "./specPackageImports.js";
 
 /**
- * Adds a local `refImport` helper created with `_waspMakeRef(import.meta.url)`.
+ * Adds a local `ref` helper created with `_waspMakeRef(import.meta.url)`.
  *
  * Ref imports need the user's `.wasp.ts` file location. This rewrite makes
- * both handwritten and generated `refImport(...)` calls use that location.
+ * both handwritten and generated `ref(...)` calls use that location.
  */
 export function addSourceAwareRefImport({
   sourceText,
@@ -28,7 +28,7 @@ export function addSourceAwareRefImport({
   sourcePath: string;
 }): {
   sourceText: string;
-  refImportName: string;
+  refName: string;
 } {
   const sourceFile = ts.createSourceFile(
     sourcePath,
@@ -41,12 +41,12 @@ export function addSourceAwareRefImport({
 
   return {
     sourceText: applyEdits(sourceText, plan.edits),
-    refImportName: plan.refImportName,
+    refName: plan.refName,
   };
 }
 
 type SourceAwareRefImportPlan = {
-  refImportName: string;
+  refName: string;
   edits: Edit[];
 };
 
@@ -63,22 +63,22 @@ function planSourceAwareRefImport(
 
   assertInternalRefImportFactoryIsNotImported(specPackageImports);
 
-  const importedRefImportName = getLocalNameForValueImport(
+  const importedRefName = getLocalNameForValueImport(
     specPackageImports,
-    REF_IMPORT_EXPORT_NAME,
+    REF_EXPORT_NAME,
   );
-  const refImportName = importedRefImportName ?? REF_IMPORT_EXPORT_NAME;
-  const importEdits = removeRefImportFromSpecPackageImports({
+  const refName = importedRefName ?? REF_EXPORT_NAME;
+  const importEdits = removeRefFromSpecPackageImports({
     sourceFile,
     specPackageImports,
   });
-  const helperEdit = addLocalRefImportHelper({
+  const helperEdit = addLocalRefHelper({
     anchorImport: firstSpecPackageImport,
-    refImportName,
+    refName,
   });
 
   return {
-    refImportName,
+    refName,
     edits: [...importEdits, helperEdit],
   };
 }
@@ -99,7 +99,7 @@ function assertInternalRefImportFactoryIsNotImported(
   }
 }
 
-function removeRefImportFromSpecPackageImports({
+function removeRefFromSpecPackageImports({
   sourceFile,
   specPackageImports,
 }: {
@@ -109,17 +109,17 @@ function removeRefImportFromSpecPackageImports({
   const edits: Edit[] = [];
 
   for (const stmt of specPackageImports) {
-    if (!importsRefImport(stmt)) {
+    if (!importsRef(stmt)) {
       continue;
     }
 
-    edits.push(removeRefImportFromSpecImport({ sourceFile, stmt }));
+    edits.push(removeRefFromSpecImport({ sourceFile, stmt }));
   }
 
   return edits;
 }
 
-function removeRefImportFromSpecImport({
+function removeRefFromSpecImport({
   sourceFile,
   stmt,
 }: {
@@ -129,24 +129,23 @@ function removeRefImportFromSpecImport({
   return replaceSpecPackageImportSpecifiers({
     sourceFile,
     stmt,
-    nextSpecifiers: getSpecifiersWithoutRefImport(stmt),
+    nextSpecifiers: getSpecifiersWithoutRef(stmt),
   });
 }
 
-function importsRefImport(stmt: ts.ImportDeclaration): boolean {
+function importsRef(stmt: ts.ImportDeclaration): boolean {
   return Boolean(
     getNamedValueImports(stmt)?.elements.some((specifier) =>
-      isValueImportSpecifierFor(specifier, REF_IMPORT_EXPORT_NAME),
+      isValueImportSpecifierFor(specifier, REF_EXPORT_NAME),
     ),
   );
 }
 
-function getSpecifiersWithoutRefImport(
+function getSpecifiersWithoutRef(
   stmt: ts.ImportDeclaration,
 ): ts.ImportSpecifier[] {
   return [...(getNamedValueImports(stmt)?.elements ?? [])].filter(
-    (specifier) =>
-      !isValueImportSpecifierFor(specifier, REF_IMPORT_EXPORT_NAME),
+    (specifier) => !isValueImportSpecifierFor(specifier, REF_EXPORT_NAME),
   );
 }
 
@@ -166,17 +165,17 @@ function replaceSpecPackageImportSpecifiers({
   };
 }
 
-function addLocalRefImportHelper({
+function addLocalRefHelper({
   anchorImport,
-  refImportName,
+  refName,
 }: {
   anchorImport: ts.ImportDeclaration;
-  refImportName: string;
+  refName: string;
 }): Edit {
   return {
     start: anchorImport.getEnd(),
     end: anchorImport.getEnd(),
-    text: `\n${getFactoryImportSource()}\nconst ${refImportName} = ${REF_IMPORT_FACTORY_EXPORT_NAME}(import.meta.url);`,
+    text: `\n${getFactoryImportSource()}\nconst ${refName} = ${REF_IMPORT_FACTORY_EXPORT_NAME}(import.meta.url);`,
   };
 }
 

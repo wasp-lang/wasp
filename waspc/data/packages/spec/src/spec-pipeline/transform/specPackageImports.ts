@@ -1,7 +1,7 @@
 import * as ts from "typescript";
 
 export const SPEC_PACKAGE_NAME = "@wasp.sh/spec";
-export const REF_IMPORT_EXPORT_NAME = "refImport";
+export const REF_EXPORT_NAME = "ref";
 export const REF_IMPORT_FACTORY_EXPORT_NAME = "_waspMakeRef";
 
 export function getSpecPackageImports(

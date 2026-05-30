@@ -18,8 +18,8 @@ describe("transformWaspTsSpecSource", () => {
       [
         `import { app } from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
-        `const refImport = _waspMakeRef(import.meta.url);`,
-        `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        `const ref = _waspMakeRef(import.meta.url);`,
+        `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
         `export default app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
         ``,

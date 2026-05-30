@@ -5,24 +5,24 @@ import { SpecUserError } from "../../../src/spec/specUserError.js";
 describe("lowerRefImports", () => {
   const sourcePath = "/project/main.wasp.ts";
 
-  test("lowers a default ref import into a refImport const", () => {
+  test("lowers a default ref import into a ref const", () => {
     const input = `import MainPage from "./src/MainPage" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
       [
-        `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
       ].join("\n"),
     );
   });
 
-  test("lowers named and aliased ref imports into refImport consts", () => {
+  test("lowers named and aliased ref imports into ref consts", () => {
     const input = `import { getTasks, archive as archiveTask } from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
       [
-        `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
-        `const archiveTask = refImport({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
+        `const getTasks = ref({ import: "getTasks", from: "./src/operations" });`,
+        `const archiveTask = ref({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
         ``,
       ].join("\n"),
     );
@@ -37,20 +37,20 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        `const archiveTask = refImport({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
-        `const archiveLegacyTask = refImport({ import: "archive", from: "./src/legacyOperations", alias: "archiveLegacyTask" });`,
+        `const archiveTask = ref({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
+        `const archiveLegacyTask = ref({ import: "archive", from: "./src/legacyOperations", alias: "archiveLegacyTask" });`,
         ``,
       ].join("\n"),
     );
   });
 
-  test("lowers multiple named ref imports into separate refImport consts", () => {
+  test("lowers multiple named ref imports into separate ref consts", () => {
     const input = `import { getTasks, createTask } from "./src/operations" with { type: "ref" };\n`;
 
     expect(lower(input)).toBe(
       [
-        `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
-        `const createTask = refImport({ import: "createTask", from: "./src/operations" });`,
+        `const getTasks = ref({ import: "getTasks", from: "./src/operations" });`,
+        `const createTask = ref({ import: "createTask", from: "./src/operations" });`,
         ``,
       ].join("\n"),
     );
@@ -61,8 +61,8 @@ describe("lowerRefImports", () => {
 
     expect(lower(input)).toBe(
       [
-        `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
-        `const Helper = refImport({ import: "Helper", from: "./src/MainPage" });`,
+        `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        `const Helper = ref({ import: "Helper", from: "./src/MainPage" });`,
         ``,
       ].join("\n"),
     );
@@ -127,8 +127,8 @@ describe("lowerRefImports", () => {
     expect(lower(input)).toBe(
       [
         `import { app } from "@wasp.sh/spec";`,
-        `const MainPage = refImport({ importDefault: "MainPage", from: "./src/MainPage" });`,
-        `const getTasks = refImport({ import: "getTasks", from: "./src/operations" });`,
+        `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        `const getTasks = ref({ import: "getTasks", from: "./src/operations" });`,
         `import helper from "./helpers";`,
         ``,
         `const demoApp = app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
@@ -151,10 +151,10 @@ describe("lowerRefImports", () => {
     expect(lower(input)).toBe(input);
   });
 
-  test("leaves explicit refImport imports untouched", () => {
+  test("leaves explicit ref imports untouched", () => {
     const input = [
-      `import { app, refImport } from "@wasp.sh/spec";`,
-      `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
+      `import { app, ref } from "@wasp.sh/spec";`,
+      `const MainPage = ref({ importDefault: "MainPage", from: "./MainPage" });`,
       ``,
     ].join("\n");
 
@@ -212,7 +212,7 @@ describe("lowerRefImports", () => {
     return lowerRefImports({
       sourceText,
       sourcePath,
-      refImportName: "refImport",
+      refName: "ref",
     });
   }
 });
@@ -225,7 +225,7 @@ function getExpectedNamespaceProxySource(
   const quotedFrom = JSON.stringify(from);
   const quotedAliasPrefix = JSON.stringify(aliasPrefix);
 
-  return `const ${localName} = new Proxy({}, { get: (_t, k) => refImport({ import: String(k), from: ${quotedFrom}, alias: ${quotedAliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof refImport>>;`;
+  return `const ${localName} = new Proxy({}, { get: (_t, k) => ref({ import: String(k), from: ${quotedFrom}, alias: ${quotedAliasPrefix} + String(k) }) }) as Record<string, ReturnType<typeof ref>>;`;
 }
 
 function expectSpecUserError(
@@ -234,7 +234,7 @@ function expectSpecUserError(
 ): void {
   const sourcePath = "/project/main.wasp.ts";
   const getLoweredSource = () =>
-    lowerRefImports({ sourceText, sourcePath, refImportName: "refImport" });
+    lowerRefImports({ sourceText, sourcePath, refName: "ref" });
 
   expect(getLoweredSource).toThrowError(SpecUserError);
   expect(getLoweredSource).toThrowError(expectedMessage);

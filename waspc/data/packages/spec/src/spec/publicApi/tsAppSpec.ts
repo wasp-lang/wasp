@@ -324,7 +324,7 @@ export interface Server {
    * Zod schema used to validate user-defined server environment variables on
    * startup. Wasp merges it with built-in validation for Wasp-defined env vars
    * when validating `process.env`. Import the schema from app code with a
-   * reference import or {@link refImport}.
+   * reference import or {@link ref}.
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
@@ -364,7 +364,7 @@ export interface Client {
    * Zod schema used to validate user-defined client environment variables at
    * build time. Wasp merges it with built-in validation for Wasp-defined env
    * vars when validating `import.meta.env`. Import the schema from app code
-   * with a reference import or {@link refImport}. Client env
+   * with a reference import or {@link ref}. Client env
    * vars must be prefixed with `REACT_APP_`.
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
@@ -828,7 +828,7 @@ type Entities = FromRegister<"entities", {}>;
 
 /**
  * A reference to your app's code. Prefer importing the value with
- * `with { type: "ref" }`; use {@link refImport} when a direct reference import
+ * `with { type: "ref" }`; use {@link ref} when a direct reference import
  * is not practical.
  *
  * See [Reference imports](https://wasp.sh/docs/general/spec#reference-imports).
@@ -850,7 +850,7 @@ export type {
    */
   RefImport,
   /**
-   * Descriptor accepted by {@link refImport}.
+   * Descriptor accepted by {@link ref}.
    */
   RefImportDescriptor,
 } from "../refImport.js";

@@ -1,10 +1,10 @@
 import { assertType, describe, test } from "vitest";
-import { _waspMakeRef, refImport } from "../../src/spec/publicApi/index.js";
+import { _waspMakeRef, ref } from "../../src/spec/publicApi/index.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 describe("RefImport input types", () => {
-  test("should accept refImport helper output at reference use sites", () => {
-    const component = refImport({
+  test("should accept ref helper output at reference use sites", () => {
+    const component = ref({
       importDefault: "MainPage",
       from: "./MainPage",
     });
@@ -95,7 +95,7 @@ describe("RefImport input types", () => {
   test("should reject raw descriptor-like objects", () => {
     const component = { from: "./MainPage", importDefault: "MainPage" };
 
-    // @ts-expect-error Descriptor-like objects must be wrapped in refImport.
+    // @ts-expect-error Descriptor-like objects must be wrapped in ref.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 
@@ -122,7 +122,7 @@ describe("Env validation schema input types", () => {
   });
 
   test("should accept RefImport env validation schemas", () => {
-    const schemaImport = refImport({
+    const schemaImport = ref({
       importDefault: "schema",
       from: "./env",
     });
@@ -137,18 +137,18 @@ describe("Env validation schema input types", () => {
       from: "./env",
     };
 
-    // @ts-expect-error Env validation schemas must use refImport or Zod schema-shaped values.
+    // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
     assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
 
-    // @ts-expect-error Env validation schemas must use refImport or Zod schema-shaped values.
+    // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
     assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
   });
 
   test("should reject non-schema objects at env validation schema use sites", () => {
-    // @ts-expect-error Env validation schemas must use refImport or Zod schema-shaped values.
+    // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
     assertType<TsAppSpec.Server>({ envValidationSchema: {} });
 
-    // @ts-expect-error Env validation schemas must use refImport or Zod schema-shaped values.
+    // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
     assertType<TsAppSpec.Client>({ envValidationSchema: [] });
   });
 

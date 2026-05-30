@@ -26,19 +26,19 @@ export interface DefaultRefImportDescriptor {
   from: string;
 }
 
-export function refImport<T extends RefImportDescriptor>(
+export function ref<T extends RefImportDescriptor>(
   descriptor: T,
 ): RefImport<T> {
   return { ...descriptor, kind: "refImport" };
 }
 
 /**
- * Creates a `refImport` helper bound to the user's `.wasp.ts` file.
+ * Creates a `ref` helper bound to the user's `.wasp.ts` file.
  *
  * Ref imports need the current spec file location to resolve relative paths,
- * but `refImport` itself can't use `import.meta.url` because it would point to
+ * but `ref` itself can't use `import.meta.url` because it would point to
  * this helper module. `_waspMakeRef(import.meta.url)` lets each `.wasp.ts`
- * file create a local `refImport` that carries its own source file path.
+ * file create a local `ref` that carries its own source file path.
  *
  * @internal
  */
@@ -47,7 +47,7 @@ export function _waspMakeRef(
 ): <T extends RefImportDescriptor>(descriptor: T) => RefImport<T> {
   const sourceFilePath = fileURLToPath(importingFileUrl);
 
-  return (descriptor) => ({ ...refImport(descriptor), sourceFilePath });
+  return (descriptor) => ({ ...ref(descriptor), sourceFilePath });
 }
 
 /**
@@ -108,7 +108,7 @@ function mapRefImportPath(
 ): AppSpec.ExtImport["path"] {
   if (!hasSourceFilePath(refImport)) {
     throw new SpecUserError(
-      `Relative refImport path ${JSON.stringify(refImport.from)} is missing source file information. Use refImport(...) in a *.wasp.ts file.`,
+      `Relative ref path ${JSON.stringify(refImport.from)} is missing source file information. Use ref(...) in a *.wasp.ts file.`,
     );
   }
 

@@ -25,7 +25,7 @@ type ImportReplacement = {
 
 /**
  * Given source code, detects supported ref import statements and returns a
- * plan for replacing them with inline refImport(...) consts. We call this lowering
+ * plan for replacing them with inline ref(...) consts. We call this lowering
  * imports.
  */
 export function planImportLowering({

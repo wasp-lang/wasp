@@ -5,7 +5,7 @@ import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import {
   _waspMakeRef,
   mapRefImportToExtImport,
-  refImport,
+  ref,
 } from "../../src/spec/refImport.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";
@@ -119,10 +119,10 @@ describe("mapRefImportToExtImport", () => {
   }
 });
 
-describe("refImport", () => {
+describe("ref", () => {
   test("marks a descriptor as a RefImport", () => {
     expect(
-      refImport({ importDefault: "MainPage", from: "./MainPage" }),
+      ref({ importDefault: "MainPage", from: "./MainPage" }),
     ).toStrictEqual({
       kind: "refImport",
       importDefault: "MainPage",
@@ -132,7 +132,7 @@ describe("refImport", () => {
 });
 
 describe("_waspMakeRef", () => {
-  test("returns a source-aware refImport helper", () => {
+  test("returns a source-aware ref helper", () => {
     const sourceFilePath = "/project/main.wasp.ts";
     const sourceAwareRefImport = _waspMakeRef(
       pathToFileURL(sourceFilePath).href,
