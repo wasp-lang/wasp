@@ -3,7 +3,7 @@ import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import {
-  makeRefImport,
+  _waspMakeRef,
   mapRefImportToExtImport,
   refImport,
 } from "../../src/spec/refImport.js";
@@ -131,10 +131,10 @@ describe("refImport", () => {
   });
 });
 
-describe("makeRefImport", () => {
+describe("_waspMakeRef", () => {
   test("returns a source-aware refImport helper", () => {
     const sourceFilePath = "/project/main.wasp.ts";
-    const sourceAwareRefImport = makeRefImport(
+    const sourceAwareRefImport = _waspMakeRef(
       pathToFileURL(sourceFilePath).href,
     );
 

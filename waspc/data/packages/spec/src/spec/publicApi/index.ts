@@ -1,4 +1,4 @@
-export { makeRefImport, refImport } from "../refImport.js";
+export { _waspMakeRef, refImport } from "../refImport.js";
 export {
   action,
   api,

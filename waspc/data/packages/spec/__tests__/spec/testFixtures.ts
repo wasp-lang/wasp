@@ -8,12 +8,12 @@ import { pathToFileURL } from "node:url";
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
 import {
+  _waspMakeRef,
   action,
   api,
   apiNamespace,
   app,
   job,
-  makeRefImport,
   page,
   query,
   route,
@@ -627,7 +627,7 @@ export function getRefImport(
   }
 }
 
-const getRefImportForMockProject = makeRefImport(
+const getRefImportForMockProject = _waspMakeRef(
   pathToFileURL("/project/main.wasp.ts").href,
 );
 

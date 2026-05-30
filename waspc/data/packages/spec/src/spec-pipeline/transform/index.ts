@@ -1,10 +1,10 @@
-import { ensureSourceAwareRefImport } from "./ensureSourceAwareRefImport.js";
+import { addSourceAwareRefImport } from "./addSourceAwareRefImport.js";
 import { lowerRefImports } from "./lowerRefImports.js";
 import { planImportLowering } from "./planImportLowering/index.js";
 
 /**
  * Transforms the Wasp Spec file source:
- * 1. Makes sure `refImport` helper is constructed from `makeRefImport`.
+ * 1. Adds a local `refImport` helper constructed from `_waspMakeRef`.
  * 2. Lowers the `with { type: "ref" }` imports.
  */
 export function transformWaspTsSpecSource({
@@ -20,14 +20,14 @@ export function transformWaspTsSpecSource({
   // keeping diagnostics mapped to the original source, so we don't plan twice.
   planImportLowering({ sourceText, sourcePath });
 
-  const { sourceText: sourceAwareRefImportSource, refImportName } =
-    ensureSourceAwareRefImport({
+  const { sourceText: sourceWithRefImportHelper, refImportName } =
+    addSourceAwareRefImport({
       sourceText,
       sourcePath,
     });
 
   return lowerRefImports({
-    sourceText: sourceAwareRefImportSource,
+    sourceText: sourceWithRefImportHelper,
     sourcePath,
     refImportName,
   });

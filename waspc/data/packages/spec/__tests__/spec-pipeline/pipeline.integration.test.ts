@@ -135,7 +135,7 @@ function writeSpecPackageStub(projectRootDir: string): void {
       `export function app(config) { return config; }`,
       `export function page(component, options = {}) { return { kind: "page", component, ...options }; }`,
       `export function action(fn, options = {}) { return { kind: "action", fn, ...options }; }`,
-      `export function makeRefImport(importingFileUrl) {`,
+      `export function _waspMakeRef(importingFileUrl) {`,
       `  const sourceFilePath = new URL(importingFileUrl).pathname;`,
       `  return (descriptor) => ({ ...descriptor, kind: "refImport", sourceFilePath });`,
       `}`,
@@ -149,7 +149,7 @@ function writeSpecPackageStub(projectRootDir: string): void {
       `export declare function app(config: any): any;`,
       `export declare function page(component: any, options?: any): any;`,
       `export declare function action(fn: any, options?: any): any;`,
-      `export declare function makeRefImport(importingFileUrl: string): (descriptor: any) => any;`,
+      `export declare function _waspMakeRef(importingFileUrl: string): (descriptor: any) => any;`,
       ``,
     ].join("\n"),
   );

@@ -1,8 +1,8 @@
 import { describe, expect, test } from "vitest";
-import { ensureSourceAwareRefImport } from "../../../src/spec-pipeline/transform/ensureSourceAwareRefImport.js";
+import { addSourceAwareRefImport } from "../../../src/spec-pipeline/transform/addSourceAwareRefImport.js";
 import { SpecUserError } from "../../../src/spec/specUserError.js";
 
-describe("ensureSourceAwareRefImport", () => {
+describe("addSourceAwareRefImport", () => {
   const sourcePath = "/project/main.wasp.ts";
 
   test("rewrites explicit refImport imports", () => {
@@ -17,8 +17,9 @@ describe("ensureSourceAwareRefImport", () => {
     ).toEqual({
       refImportName: "refImport",
       sourceText: [
-        `import { page, makeRefImport } from "@wasp.sh/spec";`,
-        `const refImport = makeRefImport(import.meta.url);`,
+        `import { page } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `const refImport = _waspMakeRef(import.meta.url);`,
         `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
         ``,
       ].join("\n"),
@@ -26,10 +27,10 @@ describe("ensureSourceAwareRefImport", () => {
   });
 
   test("throws when there is no spec package import", () => {
-    const localSpecApiImport =
+    const localSpecPackageImport =
       "file:///repo/waspc/data/packages/spec/src/spec/publicApi/index.ts";
     const sourceText = [
-      `import { refImport, page } from ${JSON.stringify(localSpecApiImport)};`,
+      `import { refImport, page } from ${JSON.stringify(localSpecPackageImport)};`,
       `const MainPage = refImport({ importDefault: "MainPage", from: "./MainPage" });`,
       ``,
     ].join("\n");
@@ -49,8 +50,9 @@ describe("ensureSourceAwareRefImport", () => {
     ).toEqual({
       refImportName: "ref",
       sourceText: [
-        `import { page, makeRefImport } from "@wasp.sh/spec";`,
-        `const ref = makeRefImport(import.meta.url);`,
+        `import { page } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `const ref = _waspMakeRef(import.meta.url);`,
         `const MainPage = ref({ importDefault: "MainPage", from: "./MainPage" });`,
         ``,
       ].join("\n"),
@@ -68,8 +70,9 @@ describe("ensureSourceAwareRefImport", () => {
     ).toEqual({
       refImportName: "refImport",
       sourceText: [
-        `import { type RefImport, page, makeRefImport } from "@wasp.sh/spec";`,
-        `const refImport = makeRefImport(import.meta.url);`,
+        `import { type RefImport, page } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `const refImport = _waspMakeRef(import.meta.url);`,
         ``,
       ].join("\n"),
     });
@@ -82,61 +85,49 @@ describe("ensureSourceAwareRefImport", () => {
       refImportName: "refImport",
       sourceText: [
         `import type { RefImport } from "@wasp.sh/spec";`,
-        `import { makeRefImport } from "@wasp.sh/spec";`,
-        `const refImport = makeRefImport(import.meta.url);`,
+        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `const refImport = _waspMakeRef(import.meta.url);`,
         ``,
       ].join("\n"),
     });
   });
 
-  test("reuses an existing makeRefImport import", () => {
-    expect(
-      transform(
-        [
-          `import { makeRefImport, refImport, page } from "@wasp.sh/spec";`,
-          ``,
-        ].join("\n"),
-      ),
-    ).toEqual({
-      refImportName: "refImport",
-      sourceText: [
-        `import { makeRefImport, page } from "@wasp.sh/spec";`,
-        `const refImport = makeRefImport(import.meta.url);`,
-        ``,
-      ].join("\n"),
-    });
+  test.each([
+    [`import { _waspMakeRef, refImport, page } from "@wasp.sh/spec";\n`],
+    [
+      `import { _waspMakeRef as makeRef, refImport, page } from "@wasp.sh/spec";\n`,
+    ],
+    [`import { type _waspMakeRef, refImport, page } from "@wasp.sh/spec";\n`],
+    [`import type { _waspMakeRef } from "@wasp.sh/spec";\n`],
+  ])("rejects internal helper import: %s", (sourceText) => {
+    expect(() => transform(sourceText)).toThrowError(SpecUserError);
   });
 
-  test("reuses an aliased makeRefImport import", () => {
-    expect(
-      transform(
-        [
-          `import { makeRefImport as makeRef, refImport as ref, page } from "@wasp.sh/spec";`,
-          ``,
-        ].join("\n"),
-      ),
-    ).toEqual({
-      refImportName: "ref",
-      sourceText: [
-        `import { makeRefImport as makeRef, page } from "@wasp.sh/spec";`,
-        `const ref = makeRef(import.meta.url);`,
-        ``,
-      ].join("\n"),
-    });
-  });
-
-  test("injects refImport for spec package value imports", () => {
+  test("adds refImport helper for spec package value imports", () => {
     expect(transform(`import { app } from "@wasp.sh/spec";\n`)).toEqual({
       refImportName: "refImport",
       sourceText: [
-        `import { app, makeRefImport } from "@wasp.sh/spec";`,
-        `const refImport = makeRefImport(import.meta.url);`,
+        `import { app } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `const refImport = _waspMakeRef(import.meta.url);`,
+        ``,
+      ].join("\n"),
+    });
+  });
+
+  test("allows namespace spec package imports", () => {
+    expect(transform(`import * as wasp from "@wasp.sh/spec";\n`)).toEqual({
+      refImportName: "refImport",
+      sourceText: [
+        `import * as wasp from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `const refImport = _waspMakeRef(import.meta.url);`,
         ``,
       ].join("\n"),
     });
   });
 
   function transform(sourceText: string) {
-    return ensureSourceAwareRefImport({ sourceText, sourcePath });
+    return addSourceAwareRefImport({ sourceText, sourcePath });
   }
 });

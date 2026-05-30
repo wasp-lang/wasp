@@ -10,6 +10,8 @@
   // confusing about the package's location.
   "disableSources": true,
 
+  "excludeInternal": true,
+
   // For exports with no category
   "defaultCategory": "Fields",
 

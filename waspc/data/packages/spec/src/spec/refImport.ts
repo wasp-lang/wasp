@@ -37,10 +37,12 @@ export function refImport<T extends RefImportDescriptor>(
  *
  * Ref imports need the current spec file location to resolve relative paths,
  * but `refImport` itself can't use `import.meta.url` because it would point to
- * this helper module. `makeRefImport(import.meta.url)` lets each `.wasp.ts`
+ * this helper module. `_waspMakeRef(import.meta.url)` lets each `.wasp.ts`
  * file create a local `refImport` that carries its own source file path.
+ *
+ * @internal
  */
-export function makeRefImport(
+export function _waspMakeRef(
   importingFileUrl: string,
 ): <T extends RefImportDescriptor>(descriptor: T) => RefImport<T> {
   const sourceFilePath = fileURLToPath(importingFileUrl);
