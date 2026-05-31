@@ -17,6 +17,7 @@ describe("transformWaspTsSpecSource", () => {
     expect(transform(input)).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
@@ -39,6 +40,7 @@ describe("transformWaspTsSpecSource", () => {
     expect(transform(input)).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
         `import { app } from "@wasp.sh/spec";`,
@@ -62,6 +64,7 @@ describe("transformWaspTsSpecSource", () => {
     expect(transform(input)).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref1 = _waspMakeRef(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
         `const ref = "taken";`,

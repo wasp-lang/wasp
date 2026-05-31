@@ -199,6 +199,7 @@ function getSourceAwareRefHelperSource({
 }): string {
   return [
     getRefFactoryImportSource(refFactoryName),
+    `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
     `const ${refName} = ${refFactoryName}(import.meta.url);`,
     ``,
   ].join("\n");

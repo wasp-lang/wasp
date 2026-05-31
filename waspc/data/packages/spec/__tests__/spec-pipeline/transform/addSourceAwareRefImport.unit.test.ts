@@ -18,6 +18,7 @@ describe("addSourceAwareRefImport", () => {
       refName: "ref",
       sourceText: [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import { page } from "@wasp.sh/spec";`,
         `const MainPage = ref({ importDefault: "MainPage", from: "./MainPage" });`,
@@ -51,6 +52,7 @@ describe("addSourceAwareRefImport", () => {
       refName: "appRef",
       sourceText: [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const appRef = _waspMakeRef(import.meta.url);`,
         `import { page } from "@wasp.sh/spec";`,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./MainPage" });`,
@@ -74,6 +76,7 @@ describe("addSourceAwareRefImport", () => {
       refName: "ref2",
       sourceText: [
         `import { _waspMakeRef as _waspMakeRef1 } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref2 = _waspMakeRef1(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
         `const ref = "taken";`,
@@ -97,6 +100,7 @@ describe("addSourceAwareRefImport", () => {
       refName: "_waspMakeRef",
       sourceText: [
         `import { _waspMakeRef as _waspMakeRef1 } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const _waspMakeRef = _waspMakeRef1(import.meta.url);`,
         `import { page } from "@wasp.sh/spec";`,
         `const MainPage = _waspMakeRef({ importDefault: "MainPage", from: "./MainPage" });`,
@@ -116,6 +120,7 @@ describe("addSourceAwareRefImport", () => {
       refName: "ref",
       sourceText: [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import { type RefObject, page } from "@wasp.sh/spec";`,
         ``,
@@ -130,6 +135,7 @@ describe("addSourceAwareRefImport", () => {
       refName: "ref",
       sourceText: [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import type { RefObject } from "@wasp.sh/spec";`,
         ``,
@@ -151,6 +157,7 @@ describe("addSourceAwareRefImport", () => {
       refName: "ref",
       sourceText: [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
         ``,
@@ -163,6 +170,7 @@ describe("addSourceAwareRefImport", () => {
       refName: "ref",
       sourceText: [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import * as wasp from "@wasp.sh/spec";`,
         ``,
