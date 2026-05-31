@@ -17,9 +17,9 @@ describe("addSourceAwareRefImport", () => {
     ).toEqual({
       refName: "ref",
       sourceText: [
-        `import { page } from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const ref = _waspMakeRef(import.meta.url);`,
+        `import { page } from "@wasp.sh/spec";`,
         `const MainPage = ref({ importDefault: "MainPage", from: "./MainPage" });`,
         ``,
       ].join("\n"),
@@ -50,9 +50,9 @@ describe("addSourceAwareRefImport", () => {
     ).toEqual({
       refName: "appRef",
       sourceText: [
-        `import { page } from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const appRef = _waspMakeRef(import.meta.url);`,
+        `import { page } from "@wasp.sh/spec";`,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./MainPage" });`,
         ``,
       ].join("\n"),
@@ -69,23 +69,23 @@ describe("addSourceAwareRefImport", () => {
     ).toEqual({
       refName: "ref",
       sourceText: [
-        `import { type RefObject, page } from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const ref = _waspMakeRef(import.meta.url);`,
+        `import { type RefObject, page } from "@wasp.sh/spec";`,
         ``,
       ].join("\n"),
     });
   });
 
-  test("uses a type-only spec package import as the helper anchor", () => {
+  test("adds the helper when there is only a type-only spec package import", () => {
     const sourceText = `import type { RefObject } from "@wasp.sh/spec";\n`;
 
     expect(transform(sourceText)).toEqual({
       refName: "ref",
       sourceText: [
-        `import type { RefObject } from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const ref = _waspMakeRef(import.meta.url);`,
+        `import type { RefObject } from "@wasp.sh/spec";`,
         ``,
       ].join("\n"),
     });
@@ -104,9 +104,9 @@ describe("addSourceAwareRefImport", () => {
     expect(transform(`import { app } from "@wasp.sh/spec";\n`)).toEqual({
       refName: "ref",
       sourceText: [
-        `import { app } from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const ref = _waspMakeRef(import.meta.url);`,
+        `import { app } from "@wasp.sh/spec";`,
         ``,
       ].join("\n"),
     });
@@ -116,9 +116,9 @@ describe("addSourceAwareRefImport", () => {
     expect(transform(`import * as wasp from "@wasp.sh/spec";\n`)).toEqual({
       refName: "ref",
       sourceText: [
-        `import * as wasp from "@wasp.sh/spec";`,
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const ref = _waspMakeRef(import.meta.url);`,
+        `import * as wasp from "@wasp.sh/spec";`,
         ``,
       ].join("\n"),
     });

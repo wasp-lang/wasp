@@ -54,8 +54,7 @@ function planSourceAwareRefImport(
   sourceFile: ts.SourceFile,
 ): SourceAwareRefImportPlan {
   const specPackageImports = getSpecPackageImports(sourceFile);
-  const firstSpecPackageImport = specPackageImports[0];
-  if (!firstSpecPackageImport) {
+  if (specPackageImports.length === 0) {
     throw new SpecUserError(
       `Could not add a source-aware ref import helper because ${sourceFile.fileName} does not import from ${JSON.stringify(SPEC_PACKAGE_NAME)}.`,
     );
@@ -73,7 +72,7 @@ function planSourceAwareRefImport(
     specPackageImports,
   });
   const helperEdit = addLocalRefHelper({
-    anchorImport: firstSpecPackageImport,
+    sourceFile,
     refName,
   });
 
@@ -166,16 +165,19 @@ function replaceSpecPackageImportSpecifiers({
 }
 
 function addLocalRefHelper({
-  anchorImport,
+  sourceFile,
   refName,
 }: {
-  anchorImport: ts.ImportDeclaration;
+  sourceFile: ts.SourceFile;
   refName: string;
 }): Edit {
+  const firstStatement = sourceFile.statements[0];
+  const insertionPoint = firstStatement?.getStart(sourceFile) ?? 0;
+
   return {
-    start: anchorImport.getEnd(),
-    end: anchorImport.getEnd(),
-    text: `\n${getFactoryImportSource()}\nconst ${refName} = ${REF_IMPORT_FACTORY_EXPORT_NAME}(import.meta.url);`,
+    start: insertionPoint,
+    end: insertionPoint,
+    text: `${getFactoryImportSource()}\nconst ${refName} = ${REF_IMPORT_FACTORY_EXPORT_NAME}(import.meta.url);\n`,
   };
 }
 

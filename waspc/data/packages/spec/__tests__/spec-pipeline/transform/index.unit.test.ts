@@ -16,10 +16,32 @@ describe("transformWaspTsSpecSource", () => {
 
     expect(transform(input)).toBe(
       [
+        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `const ref = _waspMakeRef(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
+        `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        ``,
+        `export default app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
+  test("adds the ref helper before lowered refs when ref imports come first", () => {
+    const input = [
+      `import MainPage from "./src/MainPage" with { type: "ref" };`,
+      `import { app } from "@wasp.sh/spec";`,
+      ``,
+      `export default app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
+      ``,
+    ].join("\n");
+
+    expect(transform(input)).toBe(
+      [
         `import { _waspMakeRef } from "@wasp.sh/spec";`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        `import { app } from "@wasp.sh/spec";`,
         ``,
         `export default app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
         ``,
