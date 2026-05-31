@@ -49,6 +49,30 @@ describe("transformWaspTsSpecSource", () => {
     );
   });
 
+  test("lowers ref imports through the generated non-colliding helper name", () => {
+    const input = [
+      `import { app } from "@wasp.sh/spec";`,
+      `const ref = "taken";`,
+      `import MainPage from "./src/MainPage" with { type: "ref" };`,
+      ``,
+      `export default app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
+      ``,
+    ].join("\n");
+
+    expect(transform(input)).toBe(
+      [
+        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `const ref1 = _waspMakeRef(import.meta.url);`,
+        `import { app } from "@wasp.sh/spec";`,
+        `const ref = "taken";`,
+        `const MainPage = ref1({ importDefault: "MainPage", from: "./src/MainPage" });`,
+        ``,
+        `export default app({ name: "demo", title: "Demo", wasp: { version: "^0.16.0" }, decls: [] });`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
   test("throws when there is no spec package import", () => {
     expect(() =>
       transform(

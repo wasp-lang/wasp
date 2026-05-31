@@ -76,7 +76,7 @@ export function isImportSpecifierFor(
 
 type ImportSpecifierSource = ts.ImportSpecifier | string;
 
-export function formatSpecPackageImport(
+export function getSpecPackageImportSource(
   sourceFile: ts.SourceFile,
   stmt: ts.ImportDeclaration,
   namedSpecifiers: ImportSpecifierSource[],

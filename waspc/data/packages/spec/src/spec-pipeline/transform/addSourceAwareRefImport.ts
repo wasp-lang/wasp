@@ -2,17 +2,18 @@ import * as ts from "typescript";
 import { SpecUserError } from "../../spec/specUserError.js";
 import { applyEdits, type Edit } from "./sourceEdits.js";
 import {
-  formatSpecPackageImport,
   getLocalNameForValueImport,
   getNamedImports,
   getNamedValueImports,
   getSpecPackageImports,
+  getSpecPackageImportSource,
   isImportSpecifierFor,
   isValueImportSpecifierFor,
   REF_EXPORT_NAME,
   REF_IMPORT_FACTORY_EXPORT_NAME,
   SPEC_PACKAGE_NAME,
 } from "./specPackageImports.js";
+import { createUniqueTopLevelNameGenerator } from "./topLevelNameGenerator.js";
 
 /**
  * Adds a local `ref` helper created with `_waspMakeRef(import.meta.url)`.
@@ -62,11 +63,16 @@ function planSourceAwareRefImport(
 
   assertInternalRefImportFactoryIsNotImported(specPackageImports);
 
+  const nameGenerator = createUniqueTopLevelNameGenerator(sourceFile);
   const importedRefName = getLocalNameForValueImport(
     specPackageImports,
     REF_EXPORT_NAME,
   );
-  const refName = importedRefName ?? REF_EXPORT_NAME;
+  const refName =
+    importedRefName ?? nameGenerator.generateName(REF_EXPORT_NAME);
+  const refFactoryName = nameGenerator.generateName(
+    REF_IMPORT_FACTORY_EXPORT_NAME,
+  );
   const importEdits = removeRefFromSpecPackageImports({
     sourceFile,
     specPackageImports,
@@ -74,6 +80,7 @@ function planSourceAwareRefImport(
   const helperEdit = addLocalRefHelper({
     sourceFile,
     refName,
+    refFactoryName,
   });
 
   return {
@@ -160,16 +167,18 @@ function replaceSpecPackageImportSpecifiers({
   return {
     start: stmt.getStart(sourceFile),
     end: stmt.getEnd(),
-    text: formatSpecPackageImport(sourceFile, stmt, nextSpecifiers),
+    text: getSpecPackageImportSource(sourceFile, stmt, nextSpecifiers),
   };
 }
 
 function addLocalRefHelper({
   sourceFile,
   refName,
+  refFactoryName,
 }: {
   sourceFile: ts.SourceFile;
   refName: string;
+  refFactoryName: string;
 }): Edit {
   const firstStatement = sourceFile.statements[0];
   const insertionPoint = firstStatement?.getStart(sourceFile) ?? 0;
@@ -177,10 +186,29 @@ function addLocalRefHelper({
   return {
     start: insertionPoint,
     end: insertionPoint,
-    text: `${getFactoryImportSource()}\nconst ${refName} = ${REF_IMPORT_FACTORY_EXPORT_NAME}(import.meta.url);\n`,
+    text: getSourceAwareRefHelperSource({ refName, refFactoryName }),
   };
 }
 
-function getFactoryImportSource(): string {
-  return `import { ${REF_IMPORT_FACTORY_EXPORT_NAME} } from ${JSON.stringify(SPEC_PACKAGE_NAME)};`;
+function getSourceAwareRefHelperSource({
+  refName,
+  refFactoryName,
+}: {
+  refName: string;
+  refFactoryName: string;
+}): string {
+  return [
+    getRefFactoryImportSource(refFactoryName),
+    `const ${refName} = ${refFactoryName}(import.meta.url);`,
+    ``,
+  ].join("\n");
+}
+
+function getRefFactoryImportSource(refFactoryName: string): string {
+  const importSpecifier =
+    refFactoryName === REF_IMPORT_FACTORY_EXPORT_NAME
+      ? REF_IMPORT_FACTORY_EXPORT_NAME
+      : `${REF_IMPORT_FACTORY_EXPORT_NAME} as ${refFactoryName}`;
+
+  return `import { ${importSpecifier} } from ${JSON.stringify(SPEC_PACKAGE_NAME)};`;
 }

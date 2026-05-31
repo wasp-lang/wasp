@@ -59,6 +59,52 @@ describe("addSourceAwareRefImport", () => {
     });
   });
 
+  test("uses generated names that do not collide with top-level bindings", () => {
+    expect(
+      transform(
+        [
+          `import { app } from "@wasp.sh/spec";`,
+          `const ref = "taken";`,
+          `const ref1 = "taken";`,
+          `const _waspMakeRef = "taken";`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toEqual({
+      refName: "ref2",
+      sourceText: [
+        `import { _waspMakeRef as _waspMakeRef1 } from "@wasp.sh/spec";`,
+        `const ref2 = _waspMakeRef1(import.meta.url);`,
+        `import { app } from "@wasp.sh/spec";`,
+        `const ref = "taken";`,
+        `const ref1 = "taken";`,
+        `const _waspMakeRef = "taken";`,
+        ``,
+      ].join("\n"),
+    });
+  });
+
+  test("aliases the factory import when a ref alias uses the factory name", () => {
+    expect(
+      transform(
+        [
+          `import { ref as _waspMakeRef, page } from "@wasp.sh/spec";`,
+          `const MainPage = _waspMakeRef({ importDefault: "MainPage", from: "./MainPage" });`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toEqual({
+      refName: "_waspMakeRef",
+      sourceText: [
+        `import { _waspMakeRef as _waspMakeRef1 } from "@wasp.sh/spec";`,
+        `const _waspMakeRef = _waspMakeRef1(import.meta.url);`,
+        `import { page } from "@wasp.sh/spec";`,
+        `const MainPage = _waspMakeRef({ importDefault: "MainPage", from: "./MainPage" });`,
+        ``,
+      ].join("\n"),
+    });
+  });
+
   test("preserves type specifiers in mixed imports", () => {
     expect(
       transform(
