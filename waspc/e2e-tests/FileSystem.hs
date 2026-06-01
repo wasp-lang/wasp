@@ -5,7 +5,6 @@ module FileSystem
     SeedsFile,
     seedsDirInWaspProjectDir,
     mainWaspFileInWaspProjectDir,
-    mainWaspTsFileInWaspProjectDir,
     seedsFileInSeedsDir,
     TestOutputsDir,
     TestLogFile,
@@ -36,7 +35,6 @@ import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
 import System.FilePath (joinPath, takeFileName)
 import Wasp.Project (WaspProjectDir)
-import qualified Wasp.Project.Common as Project.Common
 
 data GitRootDir
 
@@ -76,9 +74,6 @@ seedsFileInSeedsDir = fromJust . parseRelFile
 
 mainWaspFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 mainWaspFileInWaspProjectDir = [relfile|main.wasp|]
-
-mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-mainWaspTsFileInWaspProjectDir = SP.castFile Project.Common.mainWaspTsFileInWaspProjectDir
 
 data TestLogFile
 
