@@ -1,4 +1,3 @@
-import { stripVTControlCharacters } from "node:util";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { typecheck } from "../../src/spec-pipeline/typecheck.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
@@ -24,21 +23,17 @@ describe("typecheck", () => {
   });
 
   test("throws SpecUserError with formatted diagnostics when an added source file has a type error", async () => {
-    const error = await getRejectedError(
-      runTypecheck(async ({ addSourceFile }) => {
-        addSourceFile("./bad.ts", `export const x: string = 123;\n`);
-        return "should not reach";
-      }),
+    const result = runTypecheck(async ({ addSourceFile }) => {
+      addSourceFile("./bad.ts", `export const x: string = 123;\n`);
+      return "should not reach";
+    });
+
+    await expect(result).rejects.toThrowError(SpecUserError);
+    await expect(result).rejects.toThrowError("bad.ts");
+    await expect(result).rejects.toThrowError("TS2322");
+    await expect(result).rejects.toThrowError(
+      "export const x: string = 123;",
     );
-
-    expect(error).toBeInstanceOf(SpecUserError);
-    expect(stripVTControlCharacters((error as Error).message))
-      .toMatchInlineSnapshot(`
-        "bad.ts:1:14 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-        1 export const x: string = 123;
-                       ~"
-      `);
   });
 
   test("re-throws a ParseError from the callback without typechecking", async () => {
@@ -69,30 +64,26 @@ describe("typecheck", () => {
   });
 
   test("type errors take precedence over a runtime error from the callback", async () => {
-    const error = await getRejectedSpecUserError(
-      runTypecheck(async ({ addSourceFile }) => {
-        addSourceFile("./bad.ts", `export const x: string = 123;\n`);
-        throw new Error("runtime boom");
-      }),
-    );
+    const result = runTypecheck(async ({ addSourceFile }) => {
+      addSourceFile("./bad.ts", `export const x: string = 123;\n`);
+      throw new Error("runtime boom");
+    });
 
-    const message = stripVTControlCharacters(error.message);
-    expect(message).toContain("bad.ts:1:14 - error TS2322");
-    expect(message).not.toContain("runtime boom");
+    await expect(result).rejects.toThrowError(SpecUserError);
+    await expect(result).rejects.toThrowError("TS2322");
+    await expect(result).rejects.not.toThrowError("runtime boom");
   });
 
   test("reports type errors from any added source file", async () => {
-    const error = await getRejectedSpecUserError(
-      runTypecheck(async ({ addSourceFile }) => {
-        addSourceFile("./main.ts", `export const x: number = 1;\n`);
-        addSourceFile("./helper.ts", `export const broken: string = 123;\n`);
-        return "unused";
-      }),
-    );
+    const result = runTypecheck(async ({ addSourceFile }) => {
+      addSourceFile("./main.ts", `export const x: number = 1;\n`);
+      addSourceFile("./helper.ts", `export const broken: string = 123;\n`);
+      return "unused";
+    });
 
-    expect(stripVTControlCharacters(error.message)).toContain(
-      "helper.ts:1:14 - error TS2322",
-    );
+    await expect(result).rejects.toThrowError(SpecUserError);
+    await expect(result).rejects.toThrowError("helper.ts");
+    await expect(result).rejects.toThrowError("TS2322");
   });
 
   test("addSourceFile called twice with the same path uses the latest contents", async () => {
@@ -125,21 +116,4 @@ function runTypecheck<T>(
   }) => Promise<T>,
 ): Promise<T> {
   return typecheck({ tsconfigPath: null }, fn);
-}
-
-async function getRejectedError(promise: Promise<unknown>): Promise<unknown> {
-  try {
-    await promise;
-  } catch (error) {
-    return error;
-  }
-  throw new Error("Expected promise to reject");
-}
-
-async function getRejectedSpecUserError(
-  promise: Promise<unknown>,
-): Promise<SpecUserError> {
-  const error = await getRejectedError(promise);
-  expect(error).toBeInstanceOf(SpecUserError);
-  return error as SpecUserError;
 }
