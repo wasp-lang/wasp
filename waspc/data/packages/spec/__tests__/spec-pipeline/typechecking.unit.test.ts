@@ -23,13 +23,22 @@ describe("typecheck", () => {
     expect(result).toBe("ok");
   });
 
-  test("throws SpecUserError when an added source file has a type error", async () => {
-    await expect(
+  test("throws SpecUserError with formatted diagnostics when an added source file has a type error", async () => {
+    const error = await getRejectedError(
       runTypecheck(async ({ addSourceFile }) => {
         addSourceFile("./bad.ts", `export const x: string = 123;\n`);
         return "should not reach";
       }),
-    ).rejects.toThrow(new SpecUserError("Type errors found"));
+    );
+
+    expect(error).toBeInstanceOf(SpecUserError);
+    expect(stripVTControlCharacters((error as Error).message))
+      .toMatchInlineSnapshot(`
+        "bad.ts:1:14 - error TS2322: Type 'number' is not assignable to type 'string'.
+
+        1 export const x: string = 123;
+                       ~"
+      `);
   });
 
   test("re-throws a ParseError from the callback without typechecking", async () => {
@@ -60,22 +69,30 @@ describe("typecheck", () => {
   });
 
   test("type errors take precedence over a runtime error from the callback", async () => {
-    await expect(
+    const error = await getRejectedSpecUserError(
       runTypecheck(async ({ addSourceFile }) => {
         addSourceFile("./bad.ts", `export const x: string = 123;\n`);
         throw new Error("runtime boom");
       }),
-    ).rejects.toThrow(new SpecUserError("Type errors found"));
+    );
+
+    const message = stripVTControlCharacters(error.message);
+    expect(message).toContain("bad.ts:1:14 - error TS2322");
+    expect(message).not.toContain("runtime boom");
   });
 
   test("reports type errors from any added source file", async () => {
-    await expect(
+    const error = await getRejectedSpecUserError(
       runTypecheck(async ({ addSourceFile }) => {
         addSourceFile("./main.ts", `export const x: number = 1;\n`);
         addSourceFile("./helper.ts", `export const broken: string = 123;\n`);
         return "unused";
       }),
-    ).rejects.toThrow(new SpecUserError("Type errors found"));
+    );
+
+    expect(stripVTControlCharacters(error.message)).toContain(
+      "helper.ts:1:14 - error TS2322",
+    );
   });
 
   test("addSourceFile called twice with the same path uses the latest contents", async () => {
@@ -88,7 +105,7 @@ describe("typecheck", () => {
     expect(result).toBe("ok");
   });
 
-  test("prints formatted diagnostics to stderr when type errors exist", async () => {
+  test("does not print formatted diagnostics to stderr when type errors exist", async () => {
     const consoleError = vi.spyOn(console, "error");
 
     await expect(
@@ -98,21 +115,7 @@ describe("typecheck", () => {
       }),
     ).rejects.toThrow(SpecUserError);
 
-    expect(consoleError).toHaveBeenCalledTimes(1);
-
-    const rawOutput = consoleError.mock.calls[0]?.[0] as string;
-
-    // `ts-morph` prints with colors (terminal control characters), so we strip
-    // those out for the snapshot test, otherwise it would be unreadable.
-    const output = stripVTControlCharacters(rawOutput);
-
-    expect(output).toMatchInlineSnapshot(`
-      "bad.ts:1:14 - error TS2322: Type 'number' is not assignable to type 'string'.
-
-      1 export const x: string = 123;
-                     ~
-      "
-    `);
+    expect(consoleError).not.toHaveBeenCalled();
   });
 });
 
@@ -122,4 +125,21 @@ function runTypecheck<T>(
   }) => Promise<T>,
 ): Promise<T> {
   return typecheck({ tsconfigPath: null }, fn);
+}
+
+async function getRejectedError(promise: Promise<unknown>): Promise<unknown> {
+  try {
+    await promise;
+  } catch (error) {
+    return error;
+  }
+  throw new Error("Expected promise to reject");
+}
+
+async function getRejectedSpecUserError(
+  promise: Promise<unknown>,
+): Promise<SpecUserError> {
+  const error = await getRejectedError(promise);
+  expect(error).toBeInstanceOf(SpecUserError);
+  return error as SpecUserError;
 }

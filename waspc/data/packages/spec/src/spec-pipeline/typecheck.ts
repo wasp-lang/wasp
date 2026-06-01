@@ -50,13 +50,14 @@ export async function typecheck<T>(
   project.resolveSourceFileDependencies();
 
   const diagnostics = project.getPreEmitDiagnostics();
+  const errorDiagnostics = diagnostics.filter(
+    (d) => d.getCategory() === DiagnosticCategory.Error,
+  );
 
-  if (diagnostics.length > 0) {
-    console.error(project.formatDiagnosticsWithColorAndContext(diagnostics));
-  }
-
-  if (diagnostics.some((d) => d.getCategory() === DiagnosticCategory.Error)) {
-    throw new SpecUserError("Type errors found");
+  if (errorDiagnostics.length > 0) {
+    throw new SpecUserError(
+      project.formatDiagnosticsWithColorAndContext(errorDiagnostics).trimEnd(),
+    );
   }
 
   if (result.type === "error") {
