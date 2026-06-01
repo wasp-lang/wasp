@@ -316,7 +316,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
         "noEmit": true,
         "lib": ["ES2023"]
       },
-      "include": ["main.wasp.ts", "**/*.wasp.ts"]
+      "include": ["main.wasp.ts", "**/*.wasp.ts", ".wasp/out/types/spec"]
     }
     ```
 
