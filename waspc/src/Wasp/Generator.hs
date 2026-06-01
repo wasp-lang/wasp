@@ -1,6 +1,8 @@
 module Wasp.Generator
   ( writeWebAppCode,
     Wasp.Generator.Start.start,
+    Wasp.Generator.Start.StartOptions (..),
+    Wasp.Generator.Start.defaultStartOptions,
     Wasp.Generator.Test.testWebApp,
     GeneratedAppDir,
   )

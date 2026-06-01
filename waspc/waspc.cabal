@@ -470,6 +470,7 @@ library
     Wasp.Util.InstallMethod
     Wasp.Util.Json
     Wasp.Util.Network.HTTP
+    Wasp.Util.Network.LocalAddress
     Wasp.Util.Network.Socket
     Wasp.Util.StrongPath
     Wasp.Util.TH
@@ -622,6 +623,7 @@ library cli-lib
     Wasp.Cli.Command.News.LocalNewsState
     Wasp.Cli.Command.Require
     Wasp.Cli.Command.Start
+    Wasp.Cli.Command.Start.ArgumentsParser
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
     Wasp.Cli.Command.Telemetry
@@ -761,6 +763,7 @@ test-suite waspc-tests
     Util.FibTest
     Util.FilePathTest
     Util.IO.RetryTest
+    Util.Network.LocalAddressTest
     Util.Prisma
     Util.StrongPathTest
     UtilTest

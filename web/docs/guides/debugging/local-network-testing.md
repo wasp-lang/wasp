@@ -20,96 +20,61 @@ Run your application normally:
 wasp start
 ```
 
-## Step 2: Find Your Network URL
-
-Look for the network URLs in Wasp's terminal output:
+`wasp start` auto-detects the LAN address of your machine and configures the dev server so other devices on the same network can connect to it. You'll see a message like:
 
 ```
-[ Client ]   VITE v7.3.1  ready in 536 ms
-[ Client ]
-[ Client ]   ->  Local:   http://localhost:3000/
-[ Client ]   ->  Network: http://192.168.1.39:3000/
-[ Client ]   ->  Network: http://198.19.249.3:3000/
-[ Client ]   ->  Network: http://192.168.215.0:3000/
-[ Client ]   ->  press h + enter to show help
+Local network access enabled. Open this URL on another device on the same network:
+  http://192.168.1.39.nip.io:3000
+Use `wasp start --no-lan` to disable, or `wasp start --host <hostname>` to override the auto-detected hostname.
 ```
 
-If you have multiple network interfaces, you'll see multiple Network URLs. Note one of these IPs (you may need to try a few to find the one that works).
+## Step 2: Open the URL on Your Device
 
-## Step 3: Configure Environment Variables
-
-The app won't be fully functional until you configure the environment variables. Edit your environment files:
-
-### .env.server
-
-```bash title=".env.server"
-WASP_WEB_CLIENT_URL=http://192.168.1.39.nip.io:3000
-WASP_SERVER_URL=http://192.168.1.39.nip.io:3001
-```
-
-### .env.client
-
-```bash title=".env.client"
-REACT_APP_API_URL=http://192.168.1.39.nip.io:3001
-```
-
-Replace `192.168.1.39` with your actual IP address from Step 2.
-
-:::note Why these variables?
-
-- **WASP_WEB_CLIENT_URL**: Ensures CORS works correctly
-- **WASP_SERVER_URL**: Makes OAuth redirects work properly
-- **REACT_APP_API_URL**: Tells the client where to find the server on the local network
-  :::
-
-## Step 4: Allow the Host in Vite Config
-
-By default, Vite blocks requests from hostnames other than `localhost`. Since we're using a `.nip.io` hostname, you need to explicitly allow it.
-
-Add `allowedHosts` to the `server` section in your `vite.config.ts`:
-
-```ts title="vite.config.ts"
-import { defineConfig } from "vitest/config";
-import { wasp } from "wasp/client/vite";
-
-export default defineConfig({
-  server: {
-    // highlight-next-line
-    allowedHosts: ["192.168.1.39.nip.io"],
-  },
-  plugins: [wasp()],
-});
-```
-
-Replace `192.168.1.39.nip.io` with the hostname matching your IP from Step 2.
-
-## Step 5: Restart and Test
-
-After saving the environment files, restart your app:
-
-```bash
-wasp start
-```
-
-On your phone or tablet, open the URL with the `.nip.io` suffix:
+On your phone or tablet, open the URL printed by `wasp start`:
 
 ```
 http://192.168.1.39.nip.io:3000
 ```
 
+That's it. Both the client and the API call work over the network without any manual configuration.
+
+## Overriding the Hostname
+
+If `wasp start` picks the wrong network interface (this can happen on machines with multiple network adapters, VPNs, or Docker bridges), pass `--host` to specify which hostname or IP to use:
+
+```bash
+# Force a specific LAN IP
+wasp start --host 192.168.1.50
+
+# Or use a custom hostname (e.g. a mDNS name)
+wasp start --host my-laptop.local
+```
+
+A bare IP gets a `.nip.io` suffix appended automatically, so OAuth-style integrations keep working. Custom hostnames are used as-is.
+
+## Disabling Local Network Access
+
+If you don't want your dev server exposed on the network, pass `--no-lan`:
+
+```bash
+wasp start --no-lan
+```
+
+The app will only be reachable at `http://localhost:3000`, just like in earlier versions of Wasp.
+
 ## Why Use nip.io?
 
 [nip.io](https://nip.io) is a free DNS service that maps any IP address to a hostname. For example, `192.168.1.39.nip.io` resolves to `192.168.1.39`.
 
-This is necessary because some Wasp features (like Google OAuth) don't allow plain IP addresses. Using nip.io provides a proper hostname without any configuration.
+This matters because some Wasp features (like Google OAuth) don't allow plain IP addresses as redirect URLs. Using nip.io gives you a real hostname for your LAN IP without any DNS setup on your side.
 
-:::tip
-You can skip nip.io if you're not using features that require proper hostnames, but using it has no downside and ensures everything works correctly.
-:::
+## Respecting Your `.env` Files
+
+If you've already set `WASP_WEB_CLIENT_URL`, `WASP_SERVER_URL`, or `REACT_APP_API_URL` in your `.env.server` / `.env.client` files, Wasp won't override them and will print a warning telling you which variable it skipped. If that's not what you want, remove the value from the `.env` file and let `wasp start` populate it.
 
 ## OAuth Configuration
 
-If you're using OAuth providers (Google, GitHub, etc.), remember to add your local network URLs to the allowed redirect URIs in each provider's configuration:
+If you're using OAuth providers (Google, GitHub, etc.), add your local network URL to the allowed redirect URIs in each provider's configuration:
 
 ```
 http://192.168.1.39.nip.io:3001/auth/google/callback
@@ -121,16 +86,15 @@ http://192.168.1.39.nip.io:3001/auth/google/callback
 
 1. Make sure both devices are on the same network
 2. Check if your firewall is blocking incoming connections on ports 3000 and 3001
-3. Try different Network URLs if you have multiple
+3. If you have multiple network interfaces, try overriding with `wasp start --host <ip>`
 
 ### API calls failing
 
-1. Verify `REACT_APP_API_URL` is set correctly in `.env.client`
-2. Make sure the server is accessible on port 3001
-3. Check browser console for CORS errors
+1. Confirm the URL in your browser uses the `.nip.io` hostname Wasp printed, not `localhost`
+2. Make sure the server is reachable on port 3001 from the same device
+3. Check the browser console for CORS errors
 
 ### OAuth not working
 
-1. Update redirect URIs in your OAuth provider's settings
-2. Make sure `WASP_SERVER_URL` uses the nip.io hostname
-3. Restart the server after changing environment variables
+1. Update redirect URIs in your OAuth provider's settings to match the `.nip.io` URL
+2. Make sure you haven't overridden `WASP_SERVER_URL` in `.env.server` with a `localhost` value

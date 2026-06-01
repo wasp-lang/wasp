@@ -53,8 +53,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   let commandCall = case args of
         ("new" : newArgs) -> Command.Call.New newArgs
         ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
-        ["start"] -> Command.Call.Start
         ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
+        ("start" : startArgs) -> Command.Call.Start startArgs
         ["clean"] -> Command.Call.Clean
         ["install"] -> Command.Call.Install
         ["compile"] -> Command.Call.Compile
@@ -106,7 +106,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
             appDescription
             projectConfigJson
       _unknownCommand -> printWaspNewAiUsage >> exitFailure
-    Command.Call.Start -> runCommand start
+    Command.Call.Start startArgs -> runCommand $ start startArgs
     Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
     Command.Call.Clean -> runCommand clean
     Command.Call.Install -> runCommand install
@@ -179,7 +179,11 @@ printUsage =
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
-        cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
+        cmd   "    start [--no-lan] [--host <hostname>]",
+              "                          Runs Wasp app in development mode, watching for file changes.",
+              "                          By default, the app is exposed on the local network so other",
+              "                          devices on the same Wi-Fi can connect. Use --no-lan to disable,",
+              "                          or --host to override the auto-detected hostname.",
         cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
               "                          Starts managed development database for you.",
               "                          Optionally specify a custom Docker image or Docker volume mount path.",

@@ -36,6 +36,10 @@ export function waspConfig(): PluginOption {
         server: {
           port: useUserValue(config.server?.port, 3000),
           host: useUserValue(config.server?.host, "0.0.0.0"),
+          // `wasp start` sets this to the LAN hostname it auto-detects (or the
+          // user override from `--host`). It's `undefined` in any other case so
+          // Vite keeps its default `allowedHosts` policy.
+          allowedHosts: process.env.WASP_LAN_ALLOWED_HOST ? [process.env.WASP_LAN_ALLOWED_HOST] : undefined,
         },
         envPrefix: forcedOptions['envPrefix'],
         build: {
