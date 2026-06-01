@@ -36,6 +36,7 @@ import qualified StrongPath as SP
 import System.Directory (getCurrentDirectory)
 import System.FilePath (joinPath, takeFileName)
 import Wasp.Project (WaspProjectDir)
+import qualified Wasp.Project.Common as Project.Common
 
 data GitRootDir
 
@@ -77,7 +78,7 @@ mainWaspFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 mainWaspFileInWaspProjectDir = [relfile|main.wasp|]
 
 mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-mainWaspTsFileInWaspProjectDir = [relfile|main.wasp.ts|]
+mainWaspTsFileInWaspProjectDir = SP.castFile Project.Common.mainWaspTsFileInWaspProjectDir
 
 data TestLogFile
 
