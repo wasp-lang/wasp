@@ -1,1 +1,1 @@
-export const WASP_SPEC_FILE_REGEX = /\.wasp\.m?ts?$/;
+export const WASP_SPEC_FILE_REGEX = /\.wasp\.ts$/;
