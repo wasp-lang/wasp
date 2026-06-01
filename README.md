@@ -85,9 +85,13 @@ export default app({
     onAuthFailedRedirectTo: "/login",
   },
   decls: [
-    route("RootRoute", "/", page(MainPage), {
-      authRequired: true, // Limit access to logged-in users.
-    }),
+    route(
+      "RootRoute",
+      "/",
+      page(MainPage, {
+        authRequired: true, // Limit access to logged-in users.
+      }),
+    ),
     query(getTasks, {
       entities: ["Task"], // Automatic cache invalidation.
     }),
