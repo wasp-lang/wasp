@@ -64,6 +64,7 @@ Simple Wasp spec file in which you describe the high-level details of your web a
 import { app, page, route } from "@wasp.sh/spec";
 
 import { MainPage } from "./src/MainPage" with { type: "ref" }; // Your React code.
+import { DashboardPage } from "./src/dashboard/DashboardPage" with { type: "ref" }; // Your React code.
 import { getTasks } from "./queries" with { type: "ref" }; // Your Node.js code.
 
 export default app({
@@ -85,10 +86,11 @@ export default app({
     onAuthFailedRedirectTo: "/login",
   },
   decls: [
+    route("RootRoute", "/", page(MainPage),
     route(
-      "RootRoute",
-      "/",
-      page(MainPage, {
+      "DashboardRoute",
+      "/dashboard",
+      page(DashboardPage, {
         authRequired: true, // Limit access to logged-in users.
       }),
     ),
