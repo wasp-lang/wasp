@@ -321,7 +321,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
         "noEmit": true,
         "lib": ["ES2023"]
       },
-      "include": ["main.wasp.ts", "**/*.wasp.ts"]
+      "include": ["main.wasp.ts", "**/*.wasp.ts", ".wasp/out/types/spec"]
     }
     ```
 
@@ -367,6 +367,10 @@ Wasp validates the Wasp Spec support files during migration, including the requi
         ```
       </TabItem>
     </Tabs>
+
+    :::note
+    While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
+    :::
 
 6. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 
