@@ -1,22 +1,32 @@
 module DbMigrateTest where
 
-import Data.Either (isLeft)
+import qualified Options.Applicative as Opt
 import Test.Hspec
-import Wasp.Cli.Command.Db.Migrate (parseMigrateArgs)
+import Wasp.Cli.Command.Db.Migrate (migrateArgsParser)
 import Wasp.Generator.DbGenerator.Common (MigrateArgs (..), defaultMigrateArgs)
+
+runParser :: [String] -> Either String MigrateArgs
+runParser args = case Opt.execParserPure Opt.defaultPrefs parserInfo args of
+  Opt.Success result -> Right result
+  Opt.Failure failure -> Left $ show failure
+  Opt.CompletionInvoked _ -> Left "completion invoked"
+  where
+    parserInfo = Opt.info migrateArgsParser Opt.fullDesc
 
 spec_parseMigrateArgs :: Spec
 spec_parseMigrateArgs =
-  it "should parse input options strings correcly" $ do
-    parseMigrateArgs [] `shouldBe` Right defaultMigrateArgs
-    parseMigrateArgs ["--create-only"]
+  it "parses migrate-dev options" $ do
+    runParser [] `shouldBe` Right defaultMigrateArgs
+    runParser ["--create-only"]
       `shouldBe` Right (MigrateArgs {_migrationName = Nothing, _isCreateOnlyMigration = True})
-    parseMigrateArgs ["--name", "something"]
+    runParser ["--name", "something"]
       `shouldBe` Right (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = False})
-    parseMigrateArgs ["--name", "something else longer"]
+    runParser ["--name", "something else longer"]
       `shouldBe` Right (MigrateArgs {_migrationName = Just "something else longer", _isCreateOnlyMigration = False})
-    parseMigrateArgs ["--name", "something", "--create-only"]
+    runParser ["--name", "something", "--create-only"]
       `shouldBe` Right (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
-    parseMigrateArgs ["--create-only", "--name", "something"]
+    runParser ["--create-only", "--name", "something"]
       `shouldBe` Right (MigrateArgs {_migrationName = Just "something", _isCreateOnlyMigration = True})
-    isLeft (parseMigrateArgs ["--create-only", "--wtf"]) `shouldBe` True
+    case runParser ["--create-only", "--wtf"] of
+      Left _ -> pure ()
+      Right _ -> expectationFailure "expected parse failure on unknown flag"

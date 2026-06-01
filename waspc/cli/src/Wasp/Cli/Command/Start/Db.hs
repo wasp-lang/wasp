@@ -1,5 +1,7 @@
 module Wasp.Cli.Command.Start.Db
   ( start,
+    startDbArgsParser,
+    StartDbArgs (..),
     waspDevDbDockerVolumePrefix,
   )
 where
@@ -17,12 +19,10 @@ import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
 import Wasp.Cli.Command (Command, CommandError (CommandError))
-import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
-import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
@@ -37,8 +37,8 @@ import qualified Wasp.Util.Network.Socket as Socket
 -- Wasp creates it and connects the Wasp app with it.
 -- Wasp is smart while doing this so it checks which database is specified
 -- in Wasp configuration and spins up a database of appropriate type.
-start :: Arguments -> Command ()
-start = withArguments "wasp start db" startDbArgsParser $ \args -> do
+start :: StartDbArgs -> Command ()
+start args = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
   appSpec <- analyze waspProjectDir

@@ -637,9 +637,9 @@ library cli-lib
     Wasp.Cli.GithubRepo
     Wasp.Cli.Interactive
     Wasp.Cli.Message
+    Wasp.Cli.Parser
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
-    Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
 
 executable wasp-cli
@@ -807,6 +807,7 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
+    optparse-applicative,
     tasty,
     tasty-hspec,
     time,

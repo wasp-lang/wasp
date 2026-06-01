@@ -4,22 +4,17 @@ import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
 import Control.Monad (void)
-import Data.Char (isSpace)
-import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
-import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
 import Wasp.Cli.Command.BuildStart (buildStart)
-import qualified Wasp.Cli.Command.Call as Command.Call
 import Wasp.Cli.Command.Clean (clean)
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.CreateNewProject (createNewProject)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as Command.CreateNewProject.AI
-import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.Db (runCommandThatRequiresDbRunning)
 import qualified Wasp.Cli.Command.Db.Migrate as Command.Db.Migrate
 import qualified Wasp.Cli.Command.Db.Reset as Command.Db.Reset
@@ -39,44 +34,20 @@ import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.Terminal (title)
+import qualified Wasp.Cli.Parser as Parser
 import qualified Wasp.Message as Message
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
-import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
-  args <- getArgs
-  let commandCall = case args of
-        ("new" : newArgs) -> Command.Call.New newArgs
-        ("new:ai" : newAiArgs) -> Command.Call.NewAi newAiArgs
-        ["start"] -> Command.Call.Start
-        ("start" : "db" : startDbArgs) -> Command.Call.StartDb startDbArgs
-        ["clean"] -> Command.Call.Clean
-        ["install"] -> Command.Call.Install
-        ["compile"] -> Command.Call.Compile
-        ("db" : dbArgs) -> Command.Call.Db dbArgs
-        ["uninstall"] -> Command.Call.Uninstall
-        ["version"] -> Command.Call.Version
-        ["build"] -> Command.Call.Build
-        ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
-        ["telemetry"] -> Command.Call.Telemetry
-        ["deps"] -> Command.Call.Deps
-        ["dockerfile"] -> Command.Call.Dockerfile
-        ["info"] -> Command.Call.Info
-        ["news"] -> Command.Call.News
-        ["studio"] -> Command.Call.Studio
-        ["completion"] -> Command.Call.PrintBashCompletionInstruction
-        ["completion:list"] -> Command.Call.BashCompletionListCommands
-        ("waspls" : _) -> Command.Call.WaspLS
-        ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
-        ("test" : testArgs) -> Command.Call.Test testArgs
-        _unknownCommand -> Command.Call.Unknown args
+  action <- Parser.parseAction
 
-  telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
+  telemetryThread <-
+    Async.async . runCommand . Telemetry.considerSendingData $
+      Parser.actionToCall action
 
   -- Before calling any command, check that the node requirement is met. Node is
   -- not needed for every command, but checking for every command was decided
@@ -90,45 +61,9 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   setDefaultCliEnvVars
 
-  case commandCall of
-    Command.Call.New newArgs -> runCommand $ createNewProject newArgs
-    Command.Call.NewAi newAiArgs -> case newAiArgs of
-      ["--stdout", projectName, appDescription, projectConfigJson] ->
-        runCommand $
-          Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout
-            projectName
-            appDescription
-            projectConfigJson
-      [projectName, appDescription, projectConfigJson] ->
-        runCommand $
-          Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk
-            projectName
-            appDescription
-            projectConfigJson
-      _unknownCommand -> printWaspNewAiUsage >> exitFailure
-    Command.Call.Start -> runCommand start
-    Command.Call.StartDb startDbArgs -> runCommand $ Command.Start.Db.start startDbArgs
-    Command.Call.Clean -> runCommand clean
-    Command.Call.Install -> runCommand install
-    Command.Call.Compile -> runCommand compile
-    Command.Call.Db dbArgs -> dbCli dbArgs
-    Command.Call.Version -> printVersion
-    Command.Call.Studio -> runCommand studio
-    Command.Call.Uninstall -> runCommand uninstall
-    Command.Call.Build -> runCommand build
-    Command.Call.BuildStart buildStartArgs -> runCommand $ buildStart buildStartArgs
-    Command.Call.Telemetry -> runCommand Telemetry.telemetry
-    Command.Call.Deps -> runCommand deps
-    Command.Call.Dockerfile -> runCommand printDockerfile
-    Command.Call.Info -> runCommand info
-    Command.Call.News -> runCommand news
-    Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
-    Command.Call.BashCompletionListCommands -> runCommand bashCompletion
-    Command.Call.WaspLS -> runWaspLS
-    Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
-    Command.Call.Test testArgs -> runCommand $ test testArgs
-    Command.Call.Unknown _ -> printUsage >> exitFailure
-  -- If sending of telemetry data is still not done 1 second since commmand finished, abort it.
+  runAction action
+
+  -- If sending of telemetry data is still not done 1 second since command finished, abort it.
   -- We also make sure here to catch all errors that might get thrown and silence them.
   void $ Async.race (threadDelaySeconds 1) (Async.waitCatch telemetryThread)
   where
@@ -141,73 +76,59 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
       putStrLn $ "\nInternal Wasp error (bug in the compiler):\n" ++ indent 2 (show e)
       exitFailure
 
+runAction :: Parser.Action -> IO ()
+runAction = \case
+  Parser.ANew args -> runCommand $ createNewProject args
+  Parser.ANewAi args
+    | Command.CreateNewProject.AI.newAiToStdout args ->
+        runCommand $
+          Command.CreateNewProject.AI.createNewProjectNonInteractiveToStdout
+            (Command.CreateNewProject.AI.newAiProjectName args)
+            (Command.CreateNewProject.AI.newAiAppDescription args)
+            (Command.CreateNewProject.AI.newAiConfigJson args)
+    | otherwise ->
+        runCommand $
+          Command.CreateNewProject.AI.createNewProjectNonInteractiveOnDisk
+            (Command.CreateNewProject.AI.newAiProjectName args)
+            (Command.CreateNewProject.AI.newAiAppDescription args)
+            (Command.CreateNewProject.AI.newAiConfigJson args)
+  Parser.AStart -> runCommand start
+  Parser.AStartDb args -> runCommand $ Command.Start.Db.start args
+  Parser.ADbStart args -> runCommand $ Command.Start.Db.start args
+  Parser.ADbReset args -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset args
+  Parser.ADbMigrateDev args -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev args
+  Parser.ADbSeed maybeName -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed maybeName
+  Parser.ADbStudio -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
+  Parser.AClean -> runCommand clean
+  Parser.AInstall -> runCommand install
+  Parser.AUninstall -> runCommand uninstall
+  Parser.ACompile -> runCommand compile
+  Parser.ABuild -> runCommand build
+  Parser.ABuildStart args -> runCommand $ buildStart args
+  Parser.AVersion -> printVersion
+  Parser.ATelemetry -> runCommand Telemetry.telemetry
+  Parser.ADeps -> runCommand deps
+  Parser.ADockerfile -> runCommand printDockerfile
+  Parser.AInfo -> runCommand info
+  Parser.ANews -> runCommand news
+  Parser.AStudio -> runCommand studio
+  Parser.APrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
+  Parser.ABashCompletionListCommands -> runCommand bashCompletion
+  Parser.AWaspLS args -> runWaspLS args
+  Parser.ADeploy args -> runCommand $ deploy args
+  Parser.ATest args -> runCommand $ test args
+
 -- | Sets env variables that are visible to the commands run by the CLI.
 -- For example, we can use this to hide update messages by tools like Prisma.
 -- The env variables are visible to our CLI and any child processes spawned by it.
 -- The env variables won't be set in the terminal session after the CLI exits.
 setDefaultCliEnvVars :: IO ()
-setDefaultCliEnvVars = do
-  mapM_ (uncurry Env.setEnv) cliEnvVars
+setDefaultCliEnvVars = mapM_ (uncurry Env.setEnv) cliEnvVars
   where
     cliEnvVars :: [(String, String)]
     cliEnvVars =
       [ ("PRISMA_HIDE_UPDATE_MESSAGE", "true")
       ]
-
-{- ORMOLU_DISABLE -}
-printUsage :: IO ()
-printUsage =
-  putStrLn $
-    unlines
-      [ title "USAGE",
-              "  wasp <command> [command-args]",
-              "",
-        title "COMMANDS",
-        title "  GENERAL",
-        cmd   "    new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.",
-              "      OPTIONS:",
-              "        -t|--template <template-name>",
-              "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
-              "",
-        cmd   "    new:ai <app-name> <app-description> [<config-json>]",
-              "      Uses AI to create a new Wasp project just based on the app name and the description.",
-              "      You can do the same thing with `wasp new` interactively.",
-              "      Run `wasp new:ai` for more info.",
-              "",
-        cmd   "    version               Prints current version of CLI.",
-        cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
-        cmd   "    completion            Prints help on bash completion.",
-        cmd   "    uninstall             Removes Wasp from your system.",
-        title "  IN PROJECT",
-        cmd   "    start                 Runs Wasp app in development mode, watching for file changes.",
-        cmd   "    start db [--db-image <image>] [--db-volume-mount-path <path>]",
-              "                          Starts managed development database for you.",
-              "                          Optionally specify a custom Docker image or Docker volume mount path.",
-        cmd   "    db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.",
-        cmd   "    install               Sets up all internal Wasp npm dependencies and runs npm install.",
-        cmd   "    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.",
-              "                          Wasp equivalent of 'have you tried closing and opening it again?'.",
-        cmd   "    build                 Generates the full web app, ready for deployment.",
-        cmd   "    build start [args]    Previews the built production app locally.",
-        cmd   "    deploy                Deploys your Wasp app to cloud hosting providers.",
-        cmd   "    telemetry             Prints telemetry status.",
-        cmd   "    deps                  Prints the dependencies that Wasp uses in your project.",
-        cmd   "    dockerfile            Prints the contents of the Wasp generated Dockerfile.",
-        cmd   "    info                  Prints basic information about the current Wasp project.",
-        cmd   "    test                  Executes tests in your project.",
-        cmd   "    studio                (experimental) GUI for inspecting your Wasp app.",
-        cmd   "    news                  Read the latest Wasp-related news.",
-              "",
-        title "EXAMPLES",
-              "  wasp new MyApp",
-              "  wasp start",
-              "  wasp db migrate-dev",
-              "",
-        Term.applyStyles [Term.Green]   "Docs:" ++ " https://wasp.sh/docs",
-        Term.applyStyles [Term.Magenta] "Discord (chat):" ++ " https://discord.gg/rzdnErX",
-        Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
-      ]
-{- ORMOLU_ENABLE -}
 
 printVersion :: IO ()
 printVersion =
@@ -223,87 +144,3 @@ printVersion =
         "",
         "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
       ]
-
--- TODO: maybe extract to a separate module, e.g. DbCli.hs?
-dbCli :: [String] -> IO ()
-dbCli args = case args of
-  -- These commands don't require an existing and running database.
-  "start" : optionalStartArgs -> runCommand $ Command.Start.Db.start optionalStartArgs
-  -- These commands require an existing and running database.
-  "reset" : resetArgs -> runCommandThatRequiresDbRunning $ Command.Db.Reset.reset resetArgs
-  "migrate-dev" : optionalMigrateArgs -> runCommandThatRequiresDbRunning $ Command.Db.Migrate.migrateDev optionalMigrateArgs
-  ["seed"] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed Nothing
-  ["seed", seedName] -> runCommandThatRequiresDbRunning $ Command.Db.Seed.seed $ Just seedName
-  ["studio"] -> runCommandThatRequiresDbRunning Command.Db.Studio.studio
-  _unknownDbCommand -> printDbUsage >> exitFailure
-
-{- ORMOLU_DISABLE -}
-printDbUsage :: IO ()
-printDbUsage =
-  putStrLn $
-    unlines
-      [ title "USAGE",
-              "  wasp db <command> [command-args]",
-              "",
-        title "COMMANDS",
-        cmd $ intercalate "\n" [
-              "  start [--db-image <image>] [--db-volume-mount-path <path>]",
-              "                               Alias for `wasp start db`.",
-              "                               Starts managed development database for you.",
-              "                               Optionally specify a custom Docker image or Docker volume mount path."
-        ],
-        cmd   "  reset [args]                 Drops all data and tables from development database and re-applies all migrations.",
-        cmd   "  seed [name]                  Executes a db seed function (specified via app.db.seeds).",
-              "                               If there are multiple seeds, you can specify a seed to execute by providing its name,",
-              "                               or if not then you will be asked to provide the name interactively.",
-        cmd $ intercalate "\n" [
-              "  migrate-dev                  Ensures dev database corresponds to the current state of schema(entities):",
-              "                                 - Generates a new migration if there are changes in the schema.",
-              "                                 - Applies any pending migrations to the database either using the",
-              "                                   supplied migration name or asking for one.",
-              "    OPTIONS:",
-              "      --name [migration-name]",
-              "      --create-only"
-        ],
-        cmd   "  studio                       GUI for inspecting your database.",
-              "",
-        title "EXAMPLES",
-              "  wasp db migrate-dev",
-              "  wasp db migrate-dev --name \"Added User entity\"",
-              "  wasp db migrate-dev --create-only",
-              "  wasp db studio"
-      ]
-{- ORMOLU_ENABLE -}
-
-{- ORMOLU_DISABLE -}
-printWaspNewAiUsage :: IO ()
-printWaspNewAiUsage =
-  putStrLn $
-    unlines
-      [ title "USAGE",
-              "  wasp new:ai <app-name> <app-description> <config-json>",
-              "",
-              "    Config JSON:",
-              "      It is used to provide additional configuration to Wasp AI.",
-              "      Following fields are supported:",
-              "      {",
-              "        \"defaultGptTemperature\"?: number (from 0 to 2)",
-              "        \"planningGptModel\"?: string (OpenAI model name)",
-              "        \"codingGptModel\"?: string (OpenAI model name)",
-              "        \"primaryColor\"?: string (Tailwind color name)",
-              "      }",
-              "",
-        title "EXAMPLES",
-              "  wasp new:ai ButtonApp \"One page with button\" \"{}\"",
-              "  wasp new:ai ButtonApp \"One page with button\" \"{ \\\"defaultGptTemperature\\\": 0.5, \\\"codingGptModel\\\": \\\"gpt-4-1106-preview\\\" }\""
-      ]
-{- ORMOLU_ENABLE -}
-
-cmd :: String -> String
-cmd = mapFirstWord (Term.applyStyles [Term.Yellow, Term.Bold])
-
-mapFirstWord :: (String -> String) -> String -> String
-mapFirstWord f s = beforeFirstWord ++ f firstWord ++ afterFirstWord
-  where
-    (beforeFirstWord, firstWordAndAfter) = span isSpace s
-    (firstWord, afterFirstWord) = break isSpace firstWordAndAfter

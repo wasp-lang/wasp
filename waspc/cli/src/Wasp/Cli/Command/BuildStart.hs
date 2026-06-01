@@ -8,22 +8,20 @@ import Control.Concurrent.Chan (newChan)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
 import Wasp.Cli.Command (Command, CommandError (CommandError), require)
-import Wasp.Cli.Command.BuildStart.ArgumentsParser (buildStartArgsParser)
+import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
-import Wasp.Cli.Command.Call (Arguments)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (GeneratedAppIsProduction (GeneratedAppIsProduction), InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Util.Parser (withArguments)
 import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 
-buildStart :: Arguments -> Command ()
-buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
+buildStart :: BuildStartArgs -> Command ()
+buildStart args = do
   GeneratedAppIsProduction _ <- require
 
   InWaspProject waspProjectDir <- require

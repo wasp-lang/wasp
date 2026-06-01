@@ -1,51 +1,33 @@
 module Wasp.Cli.Command.WaspLS
   ( runWaspLS,
+    WaspLSArgs (..),
+    waspLSArgsParser,
   )
 where
 
-import qualified Options.Applicative as O
+import qualified Options.Applicative as Opt
 import qualified Wasp.LSP.Server as LS
 
-runWaspLS :: IO ()
-runWaspLS = do
-  args <- parseArgsOrPrintUsageAndExit
-  LS.serve $ _optionsLogFile $ options args
-
-parseArgsOrPrintUsageAndExit :: IO Args
-parseArgsOrPrintUsageAndExit =
-  O.execParser $
-    O.info
-      (O.helper <*> parseArgs)
-      (O.progDesc "LSP Server for the Wasp language" <> O.fullDesc)
-
-data Args = Args
-  { options :: Options
+data WaspLSArgs = WaspLSArgs
+  { waspLSLogFile :: Maybe FilePath,
+    -- vscode passes --stdio; we always use stdio so the value is ignored.
+    waspLSUseStdio :: Bool
   }
 
-data Options = Options
-  { _optionsLogFile :: Maybe FilePath,
-    _optionsUseStdio :: Bool
-  }
+runWaspLS :: WaspLSArgs -> IO ()
+runWaspLS args = LS.serve (waspLSLogFile args)
 
--- NOTE: Here we assume that first arg on command line is "waspls".
-parseArgs :: O.Parser Args
-parseArgs = Args <$> O.hsubparser (O.command "waspls" (O.info parseOptions (O.progDesc "Run Wasp Language Server")))
-
-parseOptions :: O.Parser Options
-parseOptions = Options <$> O.optional parseLogFile <*> parseStdio
-  where
-    parseLogFile =
-      O.strOption
-        ( O.long "log"
-            <> O.help "Write log output to this file, if present. If not present, no logs are written. If set to `[OUTPUT]`, log output is sent to the LSP client."
-            <> O.action "file"
-            <> O.metavar "LOG_FILE"
-        )
-
-    -- vscode passes this option to the language server. waspls always uses stdio,
-    -- so this switch is ignored.
-    parseStdio =
-      O.switch
-        ( O.long "stdio"
-            <> O.help "Use stdio for communicating with LSP client. This is the only communication method we support for now, so this is the default anyway and this flag has no effect."
-        )
+waspLSArgsParser :: Opt.Parser WaspLSArgs
+waspLSArgsParser =
+  WaspLSArgs
+    <$> Opt.optional
+      ( Opt.strOption $
+          Opt.long "log"
+            <> Opt.help "Write log output to this file. Set to `[OUTPUT]` to send it to the LSP client."
+            <> Opt.action "file"
+            <> Opt.metavar "LOG_FILE"
+      )
+    <*> Opt.switch
+      ( Opt.long "stdio"
+          <> Opt.help "Use stdio for communicating with the LSP client. This is the only supported transport and is always on; the flag is accepted for compatibility."
+      )

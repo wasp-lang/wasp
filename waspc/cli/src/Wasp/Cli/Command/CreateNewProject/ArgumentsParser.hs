@@ -4,7 +4,9 @@ module Wasp.Cli.Command.CreateNewProject.ArgumentsParser
   )
 where
 
+import Data.List (intercalate)
 import qualified Options.Applicative as Opt
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 
 data NewProjectArgs = NewProjectArgs
   { _projectName :: Maybe String,
@@ -26,4 +28,8 @@ newProjectArgsParser =
         Opt.long "template"
           <> Opt.short 't'
           <> Opt.metavar "TEMPLATE_NAME"
-          <> Opt.help "Template to use for the new project"
+          <> Opt.help
+            ( "Template to use for the new project. Available templates: "
+                <> intercalate ", " (map show availableStarterTemplates)
+                <> "."
+            )

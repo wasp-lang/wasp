@@ -2,6 +2,8 @@ module Wasp.Cli.Command.CreateNewProject.AI
   ( createNewProjectInteractiveOnDisk,
     createNewProjectNonInteractiveOnDisk,
     createNewProjectNonInteractiveToStdout,
+    NewAiArgs (..),
+    newAiArgsParser,
   )
 where
 
@@ -14,6 +16,7 @@ import Data.Functor ((<&>))
 import Data.List (intercalate)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T.IO
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', basename, fromAbsDir, fromRelDir)
 import StrongPath.Operations ()
 import System.Directory (createDirectory, createDirectoryIfMissing, setCurrentDirectory)
@@ -208,3 +211,30 @@ newProjectDetails projectConfig webAppName webAppDescription =
       _projectDescription = webAppDescription,
       _projectConfig = projectConfig
     }
+
+data NewAiArgs = NewAiArgs
+  { newAiProjectName :: String,
+    newAiAppDescription :: String,
+    newAiConfigJson :: String,
+    newAiToStdout :: Bool
+  }
+
+newAiArgsParser :: Opt.Parser NewAiArgs
+newAiArgsParser =
+  (\toStdout projectName appDescription configJson -> NewAiArgs projectName appDescription configJson toStdout)
+    <$> Opt.switch
+      ( Opt.long "stdout"
+          <> Opt.help "Write generated files and logs to stdout instead of disk"
+      )
+    <*> Opt.strArgument
+      ( Opt.metavar "APP_NAME"
+          <> Opt.help "Name of the new Wasp app"
+      )
+    <*> Opt.strArgument
+      ( Opt.metavar "APP_DESCRIPTION"
+          <> Opt.help "Short description of the app to generate"
+      )
+    <*> Opt.strArgument
+      ( Opt.metavar "CONFIG_JSON"
+          <> Opt.help "JSON config for Wasp AI (use \"{}\" for defaults)"
+      )

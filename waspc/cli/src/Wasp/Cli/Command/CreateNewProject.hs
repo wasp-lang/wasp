@@ -6,9 +6,8 @@ where
 import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
-import Wasp.Cli.Command.Call (Arguments)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as AI
-import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
+import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
@@ -23,15 +22,13 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (crea
 import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Message (cliSendMessage)
-import Wasp.Cli.Util.Parser (withArguments)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Util.Terminal as Term
 
--- | It receives all of the arguments that were passed to the `wasp new` command.
-createNewProject :: Arguments -> Command ()
-createNewProject = withArguments "wasp new" newProjectArgsParser $ \args -> do
+createNewProject :: NewProjectArgs -> Command ()
+createNewProject args = do
   newProjectDescription <- obtainNewProjectDescription args availableStarterTemplates
 
   createProjectOnDisk newProjectDescription
