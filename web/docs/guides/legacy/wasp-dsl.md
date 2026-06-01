@@ -352,6 +352,10 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     })
     ```
 
+    :::note
+    While previously we accepted any `*.wasp` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
+    :::
+
 8. Rewrite your config:
 
     You can use the mapping above. Top-level concerns (e.g. `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`) become keys of the `app({ ... })` object; pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `decls` array.
