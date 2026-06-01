@@ -1,8 +1,8 @@
 import { assertType, describe, test } from "vitest";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
-describe("ExtImport input types", () => {
-  test("should accept functions at ExtImport use sites", () => {
+describe("RefObject input types", () => {
+  test("should accept functions at RefObject use sites", () => {
     const component = () => null;
     const operation = async (_args: { id: string }) => null;
     const object = { field: () => "" };
@@ -65,17 +65,17 @@ describe("ExtImport input types", () => {
     });
   });
 
-  test("should reject objects that are not ExtImport objects at ExtImport use sites", () => {
+  test("should reject objects that are not RefObject objects at RefObject use sites", () => {
     const component = { render: () => null };
 
-    // @ts-expect-error ExtImport use sites accept descriptors or functions.
+    // @ts-expect-error RefObject use sites accept descriptors or functions.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 
   test("should reject malformed descriptor-like objects", () => {
     const component = { from: 42, importDefault: "X" };
 
-    // @ts-expect-error Descriptor-like objects must still satisfy ExtImport.
+    // @ts-expect-error Descriptor-like objects must still satisfy RefObject.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 });
@@ -94,21 +94,21 @@ describe("Env validation schema input types", () => {
     assertType<TsAppSpec.Client>({ envValidationSchema: schema });
   });
 
-  test("should accept ExtImport env validation schemas", () => {
+  test("should accept RefObject env validation schemas", () => {
     const schemaImport = {
       importDefault: "schema",
       from: "@src/env",
-    } satisfies TsAppSpec.ExtImport;
+    } satisfies TsAppSpec.RefObject;
 
     assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
     assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
   });
 
   test("should reject non-schema objects at env validation schema use sites", () => {
-    // @ts-expect-error Env validation schemas must be ExtImport or Zod schema-shaped.
+    // @ts-expect-error Env validation schemas must be RefObject or Zod schema-shaped.
     assertType<TsAppSpec.Server>({ envValidationSchema: {} });
 
-    // @ts-expect-error Env validation schemas must be ExtImport or Zod schema-shaped.
+    // @ts-expect-error Env validation schemas must be RefObject or Zod schema-shaped.
     assertType<TsAppSpec.Client>({ envValidationSchema: [] });
   });
 

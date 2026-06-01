@@ -6,15 +6,15 @@ import { SpecUserError } from "./specUserError.js";
  *
  * Use this when you can't use a reference import.
  * The import path must start with `@src/` and be either a single named import
- * ({@link NamedExtImport}) or a default import ({@link DefaultExtImport}).
+ * ({@link NamedRefObject}) or a default import ({@link DefaultRefObject}).
  */
-export type ExtImport = NamedExtImport | DefaultExtImport;
+export type RefObject = NamedRefObject | DefaultRefObject;
 
 /**
  * Named import reference, equivalent to
  * `import { SomeValue } from "./src/someModule" with { type: "ref" }`.
  */
-export interface NamedExtImport {
+export interface NamedRefObject {
   /** Exported name to import. */
   import: string;
   /**
@@ -32,37 +32,37 @@ export interface NamedExtImport {
  * Default import reference, equivalent to
  * `import SomeValue from "./src/someModule" with { type: "ref" }`.
  */
-export interface DefaultExtImport {
+export interface DefaultRefObject {
   /** Local name for the default import. */
   importDefault: string;
   /** Module path. Must start with `@src/`. */
   from: AppSpec.ExtImport["path"];
 }
 
-export function mapExtImport(extImport: unknown): AppSpec.ExtImport {
-  if (isNamedExtImport(extImport)) {
+export function mapRefObject(refObject: unknown): AppSpec.ExtImport {
+  if (isNamedRefObject(refObject)) {
     return {
       kind: "named",
-      name: extImport.import,
-      path: extImport.from,
-      alias: extImport.alias,
+      name: refObject.import,
+      path: refObject.from,
+      alias: refObject.alias,
     };
-  } else if (isDefaultExtImport(extImport)) {
+  } else if (isDefaultRefObject(refObject)) {
     return {
       kind: "default",
-      name: extImport.importDefault,
-      path: extImport.from,
+      name: refObject.importDefault,
+      path: refObject.from,
     };
   } else {
     throw new SpecUserError(
       "Got an import in the Wasp file that we couldn't process: " +
-        JSON.stringify(extImport) +
-        '\nYou either used a value imported without `with { type: "ref" }` or didn\'t write the ExtImport object correctly.',
+        JSON.stringify(refObject) +
+        '\nYou either used a value imported without `with { type: "ref" }` or didn\'t write the RefObject correctly.',
     );
   }
 }
 
-export function isNamedExtImport(value: unknown): value is NamedExtImport {
+export function isNamedRefObject(value: unknown): value is NamedRefObject {
   return (
     isObject(value) &&
     typeof value.import === "string" &&
@@ -71,7 +71,7 @@ export function isNamedExtImport(value: unknown): value is NamedExtImport {
   );
 }
 
-function isDefaultExtImport(value: unknown): value is DefaultExtImport {
+function isDefaultRefObject(value: unknown): value is DefaultRefObject {
   return (
     isObject(value) &&
     typeof value.importDefault === "string" &&
