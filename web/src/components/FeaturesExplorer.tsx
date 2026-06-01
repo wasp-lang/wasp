@@ -67,7 +67,7 @@ const FeaturesExplorer = () => {
           onKeyDown={onTabsKeyDown}
           className={classNames(
             "flex overflow-x-auto border-b-2 border-wasp-black bg-wasp-black font-mono lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-r-2",
-            "wasp-scrollbar"
+            "wasp-scrollbar",
           )}
         >
           {features.map((feature) => (
@@ -100,7 +100,7 @@ const FeaturesExplorer = () => {
         <div
           className={classNames(
             "min-w-0 bg-wasp-bg lg:overflow-y-auto",
-            "wasp-scrollbar"
+            "wasp-scrollbar",
           )}
         >
           {features.map((feature) => (

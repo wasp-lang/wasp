@@ -8,7 +8,7 @@ const SectionContainer = ({
   <div
     className={classNames(
       "mx-auto lg:container",
-      "px-6  md:px-12 lg:px-16",
+      "px-6 md:px-12 lg:px-16",
       "py-10 md:py-12 lg:py-16",
       className,
     )}
