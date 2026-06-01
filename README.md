@@ -60,6 +60,7 @@ Simple Wasp spec file in which you describe the high-level details of your web a
 
 ```ts
 // file: main.wasp.ts
+
 import { app, page, route } from "@wasp.sh/spec";
 
 import { MainPage } from "./src/MainPage" with { type: "ref" }; // Your React code.
@@ -106,7 +107,7 @@ model Task { // Your Prisma data model.
 }
 ```
 
-The rest of the code you write in React / Node.js and reference it from the `main.wasp.ts` file.
+The rest of the code you write in React / Node.js and reference it from the `*.wasp.ts` files.
 
 👉 Check out [TodoApp example](/examples/tutorials/TodoApp) for a complete code example. 👈
 
