@@ -47,7 +47,10 @@ export function waspStart({
   return spawnWithLog({
     name: "wasp-start",
     cmd: waspCliCmd.cmd,
-    args: [...waspCliCmd.args, "start"],
+    // `--no-lan` keeps the app on localhost. e2e tests run against
+    // `http://localhost`, but `wasp start` exposes the app on the local network
+    // by default, which rebinds the client/server URLs to a LAN hostname.
+    args: [...waspCliCmd.args, "start", "--no-lan"],
     cwd: pathToApp,
     extraEnv,
   });
