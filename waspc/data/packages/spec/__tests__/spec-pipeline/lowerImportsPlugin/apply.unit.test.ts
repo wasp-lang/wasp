@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { getLoweredImportSource } from "../../src/spec-pipeline/lowerImportsPlugin/apply.js";
+import { getLoweredImportSource } from "../../../src/spec-pipeline/lowerImportsPlugin/apply.js";
 
 describe("getLoweredImportSource", () => {
   test("lowers a default import into a DefaultRefObject (importDefault)", () => {

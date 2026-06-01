@@ -10,7 +10,7 @@ export function typecheckPlugin({
   tsconfigPath: string;
 }): Plugin {
   const project = new Project({
-    tsConfigFilePath: tsconfigPath ?? undefined,
+    tsConfigFilePath: tsconfigPath,
     skipAddingFilesFromTsConfig: true,
     defaultCompilerOptions: {
       // For some reason `ts-morph` doesn't pick up `@types/*` packages if we

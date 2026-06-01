@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { mapImportPath } from "../../src/spec-pipeline/lowerImportsPlugin/mapImportPath.js";
+import { mapImportPath } from "../../../src/spec-pipeline/lowerImportsPlugin/mapImportPath.js";
 
 describe("mapImportPath", () => {
   const projectRootDir = "/project";

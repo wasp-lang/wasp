@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
-import { planLowerImports } from "../../src/spec-pipeline/lowerImportsPlugin/plan.js";
-import { SpecUserError } from "../../src/spec/specUserError.js";
+import { planLowerImports } from "../../../src/spec-pipeline/lowerImportsPlugin/plan.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("planLowerImports", () => {
   const projectRootDir = "/project";
