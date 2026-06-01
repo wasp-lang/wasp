@@ -353,7 +353,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     ```
 
     :::note
-    While previously we accepted any `*.wasp` file name, with the Wasp Spec the file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
+    While previously we accepted any `*.wasp` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
     :::
 
 8. Rewrite your config:
