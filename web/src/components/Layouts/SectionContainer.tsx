@@ -1,5 +1,5 @@
-import { ReactNode } from "react";
 import classNames from "classnames";
+import { ReactNode } from "react";
 
 interface SectionContainerProps {
   children: ReactNode;
@@ -7,7 +7,11 @@ interface SectionContainerProps {
   id?: string;
 }
 
-const SectionContainer = ({ children, className, id }: SectionContainerProps) => (
+const SectionContainer = ({
+  children,
+  className,
+  id,
+}: SectionContainerProps) => (
   <div
     className={classNames(
       "mx-auto lg:container",

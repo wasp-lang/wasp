@@ -26,28 +26,29 @@ interface Project {
 const WaspOutThere = () => (
   <SectionContainer>
     <SectionLabel text="wasp out there" />
-    <div className="gap-3 columns-1 sm:columns-2 lg:columns-3">
-      {showcases.map((showcase, idx) =>
+    <div className="columns-1 gap-3 sm:columns-2 lg:columns-3">
+      {showcases.map((showcase, idx) => (
         <div key={idx} className="mb-3 inline-block w-full break-inside-avoid">
           {caseByKind(showcase, {
-            "testimonial": (t) => <TestimonialCard key={idx} testimonial={t} />,
+            testimonial: (t) => <TestimonialCard key={idx} testimonial={t} />,
             "real-app": (p) => <ProjectCard key={idx} project={p} />,
-            "example-app": (p) => <ProjectCard key={idx} project={p} />
+            "example-app": (p) => <ProjectCard key={idx} project={p} />,
           })}
         </div>
-      )}
+      ))}
     </div>
   </SectionContainer>
 );
 
 const TestimonialCard = ({ testimonial }: { testimonial: Testimonial }) => {
   return (
-    <article
-      className="border-l-4 border-wasp-black py-3 pl-4">
+    <article className="border-l-4 border-wasp-black py-3 pl-4">
       <p className="mb-2 text-sm italic leading-relaxed text-wasp-g7">
         “{testimonial.text}”
       </p>
-      <div className="font-mono text-xs text-wasp-g6">{testimonial.attribution}</div>
+      <div className="font-mono text-xs text-wasp-g6">
+        {testimonial.attribution}
+      </div>
     </article>
   );
 };
@@ -57,12 +58,15 @@ const ProjectCard = ({ project }: { project: Project }) => {
     <article
       className={classNames(
         "border border-wasp-black p-4",
-        caseByKind(project, { "real-app": () => "bg-wasp-yellow-light", "example-app" : () => "bg-wasp-white" }),
+        caseByKind(project, {
+          "real-app": () => "bg-wasp-yellow-light",
+          "example-app": () => "bg-wasp-white",
+        }),
       )}
     >
       <h4 className="mb-1 flex flex-wrap items-baseline gap-x-2 font-mono text-base font-bold text-wasp-black">
         {project.name}
-        <span className="font-mono text-sm text-wasp-g6 font-normal ml-2">
+        <span className="ml-2 font-mono text-sm font-normal text-wasp-g6">
           {commentLabel(project)}
         </span>
       </h4>
@@ -77,13 +81,15 @@ const ProjectCard = ({ project }: { project: Project }) => {
       </Link>
     </article>
   );
-}
+};
 
-const commentLabel = (project: Project) => (
+const commentLabel = (project: Project) =>
   "// " +
-    caseByKind(project, { "real-app": () => "real app", "example-app" : () => "example app" }) +
-    (project.tag ? ': ' + project.tag : '')
-);
+  caseByKind(project, {
+    "real-app": () => "real app",
+    "example-app": () => "example app",
+  }) +
+  (project.tag ? ": " + project.tag : "");
 
 const showcases: Showcase[] = [
   {
@@ -183,7 +189,8 @@ const showcases: Showcase[] = [
   {
     kind: "example-app",
     name: "AskDocs",
-    description: "Chat with your documents using RAG. Deployed with one command.",
+    description:
+      "Chat with your documents using RAG. Deployed with one command.",
     linkText: "see the code →",
     linkUrl:
       "https://github.com/wasp-lang/wasp/tree/release/examples/ask-the-documents",
