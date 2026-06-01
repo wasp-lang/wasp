@@ -2,7 +2,7 @@ import Link from "@docusaurus/Link";
 import classNames from "classnames";
 
 import SectionContainer from "./Layouts/SectionContainer";
-import SectionLabel from "./SectionLabel";
+import SectionLabel from "./Layouts/SectionLabel";
 
 import { caseByKind } from "../lib/utils";
 
@@ -24,7 +24,7 @@ interface Project {
 }
 
 const WaspOutThere = () => (
-  <SectionContainer className="pt-6 lg:pt-12 lg:pb-24">
+  <SectionContainer>
     <SectionLabel text="wasp out there" />
     <div className="gap-3 columns-1 sm:columns-2 lg:columns-3">
       {showcases.map((showcase, idx) =>
