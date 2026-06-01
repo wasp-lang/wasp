@@ -58,28 +58,40 @@ Build your app in a day and deploy it with a single CLI command!
 
 Simple Wasp spec file in which you describe the high-level details of your web app:
 
-```js
-// file: main.wasp
+```ts
+// file: main.wasp.ts
+import { app, page, route } from "@wasp.sh/spec";
 
-app TodoApp {
-  title: "TODO App",  // visible in the browser tab
-  wasp: { version: "^0.18.1" },
-  auth: { // full-stack auth out-of-the-box
-    userEntity: User,
-    methods: { email: {...}, google: {...}, }
-  }
-}
+import { MainPage } from "./src/MainPage" with { type: "ref" }; // Your React code.
+import { getTasks } from "./queries" with { type: "ref" }; // Your Node.js code.
 
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  authRequired: true, // Limit access to logged-in users.
-  component: import MainPage from "@src/MainPage" // Your React code.
-}
-
-query getTasks {
-  fn: import { getTasks } from "@src/queries", // Your Node.js code.
-  entities: [Task] // Automatic cache invalidation.
-}
+export default app({
+  name: "TodoApp",
+  title: "TODO App",
+  wasp: { version: "^0.24.0" },
+  head: ["<link rel='icon' href='/favicon.ico' />"],
+  auth: {
+    // Full-stack auth out-of-the-box.
+    userEntity: "User",
+    methods: {
+      email: {
+        // ...
+      },
+      google: {
+        // ...
+      },
+    },
+    onAuthFailedRedirectTo: "/login",
+  },
+  decls: [
+    route("RootRoute", "/", page(MainPage), {
+      authRequired: true, // Limit access to logged-in users.
+    }),
+    query(getTasks, {
+      entities: ["Task"], // Automatic cache invalidation.
+    }),
+  ],
+});
 ```
 
 And a Prisma schema for the database:
@@ -94,7 +106,7 @@ model Task { // Your Prisma data model.
 }
 ```
 
-The rest of the code you write in React / Node.js and reference it from the `.wasp` file.
+The rest of the code you write in React / Node.js and reference it from the `main.wasp.ts` file.
 
 👉 Check out [TodoApp example](/examples/tutorials/TodoApp) for a complete code example. 👈
 
@@ -102,7 +114,7 @@ The rest of the code you write in React / Node.js and reference it from the `.wa
 
 <img width="800px" src="https://user-images.githubusercontent.com/1536647/231472285-126679e5-ecce-4cbb-8579-eb3cd9ba95bf.png"/>
 
-Given a simple `.wasp` configuration file that describes the high-level details of your web app, and `.ts(x)`/`.css`/..., source files with your unique logic, Wasp compiler generates the whole source of your web app in the target stack: front-end, back-end and deployment.
+Given a simple `main.wasp.ts` specification file that describes the high-level details of your web app, and `.ts(x)`/`.css`/..., source files with your unique logic, Wasp compiler generates the whole source of your web app in the target stack: front-end, back-end and deployment.
 
 This unique approach is what makes Wasp "smart" and gives it its superpowers!
 
