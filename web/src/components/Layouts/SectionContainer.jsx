@@ -1,11 +1,15 @@
 import classNames from "classnames";
 
-const SectionContainer = ({ children, className, id }) => (
+const SectionContainer = ({
+  children,
+  className = undefined,
+  id = undefined,
+}) => (
   <div
     className={classNames(
-      "sm:py-18 mx-auto px-6 py-16 lg:container",
-      "md:py-24",
-      "lg:px-16 lg:py-24 xl:px-20",
+      "mx-auto lg:container",
+      "px-6 md:px-12 lg:px-16",
+      "py-10 md:py-12 lg:py-16",
       className,
     )}
     id={id}

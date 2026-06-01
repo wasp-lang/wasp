@@ -4,7 +4,6 @@ import { BookOpen, Terminal } from "react-feather";
 
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
-import Properties from "./Properties";
 
 const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
 
@@ -218,8 +217,6 @@ const Hero = () => {
           <TabbedCodeViewer />
         </div>
       </div>
-
-      <Properties />
 
       {/* 1-min video */}
       {/*
