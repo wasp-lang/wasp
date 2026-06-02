@@ -50,7 +50,7 @@ const Nav = () => {
       {/* <Announcement /> */}
       <div className="sticky top-0 z-50">
         <nav className="border-b border-wasp-g3 bg-wasp-bg">
-          <div className="relative mx-auto flex h-16 items-center justify-between lg:container lg:px-16 xl:px-20">
+          <div className="relative mx-auto flex h-16 items-center justify-between lg:container lg:px-16">
             <HamburgerButton toggleFlyOut={() => setOpen(true)} />
 
             {/* Left: Logo */}
