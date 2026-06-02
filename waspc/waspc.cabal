@@ -814,7 +814,6 @@ test-suite wasp-cli-tests
     waspc,
 
   other-modules:
-    DbMigrateTest
     Paths_waspc
     TerminalTest
     Wasp.Cli.Command.News.ListingTest
