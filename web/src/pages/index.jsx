@@ -9,6 +9,7 @@ import Hero from "../components/Hero";
 import HowItWorks from "../components/HowItWorks";
 import Nav from "../components/Nav/index";
 import Newsletter from "../components/Newsletter";
+import OpenSaas from "../components/OpenSaas";
 import Properties from "../components/Properties";
 import Roadmap from "../components/Roadmap";
 import ShowcaseGallery from "../components/ShowcaseGallery";
@@ -55,6 +56,7 @@ const Index = () => {
             <ExampleWaspApps />
             <Testimonials />
             <ShowcaseGallery />
+            <OpenSaas />
             <Newsletter />
             <Roadmap />
             <Faq />
