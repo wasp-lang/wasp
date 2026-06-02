@@ -51,8 +51,8 @@ const NoLockIn = () => (
 
       <div className="flex flex-col justify-center gap-4 lg:p-2">
         <Point>
-          <Code>wasp deploy fly/railway/...</Code>: one command deploy to popular
-          providers.
+          <Code>wasp deploy fly/railway/...</Code>: one command deploy to
+          popular providers.
         </Point>
         <Point>
           Or take the generated <Strong>Dockerfile + static files</Strong> and
