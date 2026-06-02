@@ -34,12 +34,19 @@ export function typecheckPlugin({
           overriddenFiles: specFileSources,
         });
 
-      if (diagnostics.length > 0) {
-        console.error(formatDiagnosticsWithColorAndContext(diagnostics));
-      }
+      const formattedDiagnostics =
+        diagnostics.length > 0
+          ? formatDiagnosticsWithColorAndContext(diagnostics).trimEnd()
+          : undefined;
 
-      if (diagnostics.some((d) => d.category === ts.DiagnosticCategory.Error)) {
-        throw new SpecUserError("Type errors found");
+      const hasErrorDiagnostic = diagnostics.some(
+        (d) => d.category === ts.DiagnosticCategory.Error,
+      );
+
+      if (hasErrorDiagnostic) {
+        throw new SpecUserError(formattedDiagnostics);
+      } else if (formattedDiagnostics) {
+        console.warn(formattedDiagnostics);
       }
     },
   };

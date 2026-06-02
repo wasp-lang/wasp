@@ -4,6 +4,7 @@ import * as path from "node:path";
 import * as url from "node:url";
 import { describe, expect, test } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
+import { SpecUserError } from "../../src/spec/specUserError.js";
 
 // We use the absolute file:// URL of the local @wasp.sh/spec source so the
 // compiled spec does not rely on node_modules resolution from a temp dir.
@@ -104,6 +105,31 @@ describe("Wasp TS spec pipeline", () => {
 
     expect(decls).toContainEqual(
       expect.objectContaining({ declType: "Page", declName: "MainPage" }),
+    );
+  });
+
+  test("surfaces type errors in the spec as a SpecUserError with formatted diagnostics", async () => {
+    using project = makeTempProject("wasp-spec-pipeline-type-error-");
+
+    const result = project.analyzeSpec(
+      [
+        `// @ts-ignore: This test imports the local TS source through Vitest.`,
+        `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        ``,
+        `export const oops: string = 123;`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: "Demo",`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  decls: [],`,
+        `});`,
+      ].join("\n"),
+    );
+
+    await expect(result).rejects.toThrow(SpecUserError);
+    await expect(result).rejects.toThrow(
+      "Type 'number' is not assignable to type 'string'",
     );
   });
 });
