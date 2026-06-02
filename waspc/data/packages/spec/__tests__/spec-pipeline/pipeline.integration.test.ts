@@ -1,19 +1,20 @@
-import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
-import { pathToFileURL } from "node:url";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
+import * as url from "node:url";
 import { describe, expect, test } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
 // We use the absolute file:// URL of the local @wasp.sh/spec source so the
 // compiled spec does not rely on node_modules resolution from a temp dir.
-const waspSpecEntryUrl = pathToFileURL(
-  join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
+const waspSpecEntryUrl = url.pathToFileURL(
+  path.join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
 ).href;
 
 describe("Wasp TS spec pipeline", () => {
   test("analyzes split specs with lowered ref imports", async () => {
-    const project = makeTempProject("wasp-spec-pipeline-");
+    using project = makeTempProject("wasp-spec-pipeline-");
+
     project.writeProjectFile(
       "src/MainPage.ts",
       `export default function MainPage() { return null; }\n`,
@@ -76,19 +77,18 @@ describe("Wasp TS spec pipeline", () => {
   });
 });
 
-function makeTempProject(prefix: string): {
+function makeTempProject(prefix: string): Disposable & {
   writeProjectFile: (relativeFilePath: string, sourceText: string) => void;
   analyzeSpec: (sourceText: string) => ReturnType<typeof analyzeApp>;
 } {
-  // unrun reports loaded files using canonical paths, so use a canonical temp root too.
-  const projectRootDir = mkdtempSync(join(realpathSync(tmpdir()), prefix));
-  const tsconfigPath = join(projectRootDir, "tsconfig.json");
+  const projectRootDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+  const tsconfigPath = path.join(projectRootDir, "tsconfig.json");
 
-  writeFileSync(
-    join(projectRootDir, "package.json"),
+  fs.writeFileSync(
+    path.join(projectRootDir, "package.json"),
     JSON.stringify({ type: "module" }),
   );
-  writeFileSync(
+  fs.writeFileSync(
     tsconfigPath,
     JSON.stringify({
       compilerOptions: {
@@ -103,16 +103,22 @@ function makeTempProject(prefix: string): {
       include: ["main.wasp.ts", "**/*.wasp.ts"],
     }),
   );
-  return {
-    writeProjectFile: (relativeFilePath: string, sourceText: string) => {
-      const filePath = join(projectRootDir, relativeFilePath);
-      mkdirSync(dirname(filePath), { recursive: true });
-      writeFileSync(filePath, sourceText, "utf8");
-    },
-    analyzeSpec: async (sourceText: string) => {
-      const sourcePath = join(projectRootDir, "main.wasp.ts");
 
-      writeFileSync(sourcePath, sourceText, "utf8");
+  return {
+    [Symbol.dispose]() {
+      fs.rmSync(projectRootDir, { recursive: true, force: true });
+    },
+
+    writeProjectFile: (relativeFilePath: string, sourceText: string) => {
+      const filePath = path.join(projectRootDir, relativeFilePath);
+      fs.mkdirSync(path.dirname(filePath), { recursive: true });
+      fs.writeFileSync(filePath, sourceText, "utf8");
+    },
+
+    analyzeSpec: async (sourceText: string) => {
+      const sourcePath = path.join(projectRootDir, "main.wasp.ts");
+
+      fs.writeFileSync(sourcePath, sourceText, "utf8");
 
       return analyzeApp({
         waspTsSpecPath: sourcePath,

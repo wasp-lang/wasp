@@ -1,5 +1,7 @@
 import path from "node:path";
 
+export type RefImportPath = `@src/${string}`;
+
 /**
  * Resolves a ref import path (as written in the importing spec file) to an
  * `@src/...` path, which is how Wasp references files in the app's `src/`
@@ -13,7 +15,7 @@ export function mapImportPath({
   refImportPath: string;
   importingFilePath: string;
   projectRootDir: string;
-}): string {
+}): RefImportPath {
   const srcFolder = path.resolve(projectRootDir, "src");
   const importedFilePath = path.resolve(
     path.dirname(importingFilePath),
@@ -21,5 +23,5 @@ export function mapImportPath({
   );
   const srcRelativePath = path.relative(srcFolder, importedFilePath);
 
-  return path.join("@src", srcRelativePath);
+  return path.join("@src", srcRelativePath) as RefImportPath;
 }

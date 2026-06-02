@@ -1,45 +1,42 @@
 import type { RolldownMagicString } from "rolldown";
-import type { PlannedImport, PlannedImportBinding } from "./plan.js";
+import { RefObject } from "../../index.js";
+import type { PlannedImport, PlannedImportReference } from "./plan.js";
 
-export function applyLowerImportsPlan(
+export function applyLowerImportsPlan_mutate(
   magicString: RolldownMagicString,
   plan: PlannedImport[],
 ): void {
-  for (const plannedImport of plan) {
-    magicString.remove(plannedImport.start, plannedImport.end);
+  for (const { removeImport, references } of plan) {
+    magicString.remove(removeImport.start, removeImport.end);
 
-    for (const binding of plannedImport.bindings) {
-      // Imports are hoisted, so we prepend the lowered consts to mimic that
-      // regardless of where the original ref import lived in the source file.
-      magicString.prepend(getLoweredImportSource(binding, plannedImport.from));
+    for (const ref of references) {
+      // Imports are hoisted, so we always prepend the lowered consts to mimic
+      // that, regardless of where the original ref import lived in the source
+      // file.
+      magicString.prepend(getLoweredImportSource(ref));
     }
   }
 }
 
-/**
- * Renders a single lowered ref import as a `const` declaration whose value is
- * a RefObject literal. Default imports become a `DefaultRefObject`
- * (`importDefault`), named imports a `NamedRefObject` (`import`, plus `alias`
- * only when the local name differs from the imported one).
- */
-export function getLoweredImportSource(
-  binding: PlannedImportBinding,
-  from: string,
-): string {
-  return `const ${binding.alias} = ${JSON.stringify(toRefObject(binding, from))} as const;\n`;
+export function getLoweredImportSource(ref: PlannedImportReference): string {
+  switch (ref.kind) {
+    case "named":
+      return getRefObjectBindingSource(
+        ref.refObject.alias ?? ref.refObject.import,
+        ref.refObject,
+      );
+
+    case "default":
+      return getRefObjectBindingSource(
+        ref.refObject.importDefault,
+        ref.refObject,
+      );
+
+    case "namespace":
+      throw new Error("Namespace imports are not supported for ref imports.");
+  }
 }
 
-function toRefObject(
-  binding: PlannedImportBinding,
-  from: string,
-): Record<string, string> {
-  if (binding.import === "default") {
-    return { importDefault: binding.alias, from };
-  }
-
-  if (binding.import === binding.alias) {
-    return { import: binding.import, from };
-  }
-
-  return { import: binding.import, alias: binding.alias, from };
+function getRefObjectBindingSource(identifier: string, refObject: RefObject) {
+  return `const ${identifier} = ${JSON.stringify(refObject)} as const;\n`;
 }

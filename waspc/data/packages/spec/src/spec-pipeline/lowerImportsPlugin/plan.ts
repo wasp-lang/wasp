@@ -1,23 +1,24 @@
 import { parseAst } from "rolldown/parseAst";
 import type { ESTree as t } from "rolldown/utils";
-import { SpecUserError } from "../../spec/specUserError.js";
-import { mapImportPath } from "./mapImportPath.js";
+import { DefaultRefObject, NamedRefObject } from "../../spec/refObject.js";
+import { mapImportPath, RefImportPath } from "./mapImportPath.js";
 
-export interface PlannedImportBinding {
-  import: string;
-  alias: string;
-}
+export type PlannedImportReference =
+  | { kind: "named"; refObject: NamedRefObject }
+  | { kind: "default"; refObject: DefaultRefObject }
+  | { kind: "namespace"; from: RefImportPath; alias: string };
 
 export interface PlannedImport {
-  from: string;
-  bindings: PlannedImportBinding[];
-  start: number;
-  end: number;
+  references: PlannedImportReference[];
+  removeImport: {
+    start: number;
+    end: number;
+  };
 }
 
 /**
  * Given a Wasp Spec source file, returns a plan for replacing each
- * `with { type: "ref" }` import with inline ExtImport consts. We call this
+ * `with { type: "ref" }` import with inline RefObject consts. We call this
  * lowering imports.
  */
 export function planLowerImports({
@@ -31,16 +32,20 @@ export function planLowerImports({
 }): PlannedImport[] {
   const ast = parseAst(sourceText, { lang: "ts" });
 
-  return ast.body.filter(isRefImportDeclaration).map((node) => ({
-    from: mapImportPath({
+  return ast.body.filter(isRefImportDeclaration).map((node) => {
+    const importSource = mapImportPath({
       refImportPath: getStringValue(node.source),
       importingFilePath,
       projectRootDir,
-    }),
-    bindings: node.specifiers.map(getSpecifierBinding),
-    start: node.start,
-    end: node.end,
-  }));
+    });
+
+    return {
+      references: node.specifiers.map((specifier) =>
+        makeRefObject(importSource, specifier),
+      ),
+      removeImport: { start: node.start, end: node.end },
+    };
+  });
 }
 
 function isRefImportDeclaration(
@@ -56,24 +61,34 @@ function isRefImportDeclaration(
   );
 }
 
-function getSpecifierBinding(
+function makeRefObject(
+  importSource: RefImportPath,
   specifier: t.ImportDeclarationSpecifier,
-): PlannedImportBinding {
+): PlannedImportReference {
   switch (specifier.type) {
     case "ImportSpecifier":
       return {
-        import: getStringValue(specifier.imported),
-        alias: getStringValue(specifier.local),
+        kind: "named",
+        refObject: {
+          import: getStringValue(specifier.imported),
+          alias: getStringValue(specifier.local),
+          from: importSource,
+        },
       };
     case "ImportDefaultSpecifier":
       return {
-        import: "default",
-        alias: getStringValue(specifier.local),
+        kind: "default",
+        refObject: {
+          importDefault: getStringValue(specifier.local),
+          from: importSource,
+        },
       };
     case "ImportNamespaceSpecifier":
-      throw new SpecUserError(
-        "Namespace ref imports (`import * as X`) are not supported.",
-      );
+      return {
+        kind: "namespace",
+        alias: getStringValue(specifier.local),
+        from: importSource,
+      };
     default:
       return specifier satisfies never;
   }

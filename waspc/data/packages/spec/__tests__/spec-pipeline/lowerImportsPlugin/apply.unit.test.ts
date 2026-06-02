@@ -4,10 +4,13 @@ import { getLoweredImportSource } from "../../../src/spec-pipeline/lowerImportsP
 describe("getLoweredImportSource", () => {
   test("lowers a default import into a DefaultRefObject (importDefault)", () => {
     expect(
-      getLoweredImportSource(
-        { import: "default", alias: "MainPage" },
-        "@src/MainPage",
-      ),
+      getLoweredImportSource({
+        kind: "default",
+        refObject: {
+          importDefault: "MainPage",
+          from: "@src/MainPage",
+        },
+      }),
     ).toBe(
       `const MainPage = {"importDefault":"MainPage","from":"@src/MainPage"} as const;\n`,
     );
@@ -15,10 +18,13 @@ describe("getLoweredImportSource", () => {
 
   test("lowers a named import without an alias when local matches imported", () => {
     expect(
-      getLoweredImportSource(
-        { import: "getTasks", alias: "getTasks" },
-        "@src/operations",
-      ),
+      getLoweredImportSource({
+        kind: "named",
+        refObject: {
+          import: "getTasks",
+          from: "@src/operations",
+        },
+      }),
     ).toBe(
       `const getTasks = {"import":"getTasks","from":"@src/operations"} as const;\n`,
     );
@@ -26,10 +32,14 @@ describe("getLoweredImportSource", () => {
 
   test("lowers an aliased named import carrying the alias", () => {
     expect(
-      getLoweredImportSource(
-        { import: "archive", alias: "archiveTask" },
-        "@src/operations",
-      ),
+      getLoweredImportSource({
+        kind: "named",
+        refObject: {
+          import: "archive",
+          alias: "archiveTask",
+          from: "@src/operations",
+        },
+      }),
     ).toBe(
       `const archiveTask = {"import":"archive","alias":"archiveTask","from":"@src/operations"} as const;\n`,
     );

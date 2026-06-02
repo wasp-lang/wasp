@@ -29,7 +29,10 @@ export function typecheckPlugin({
     },
 
     buildEnd(err) {
-      if (err) return;
+      if (err) {
+        return;
+      }
+
       project.resolveSourceFileDependencies();
       const diagnostics = project.getPreEmitDiagnostics();
 

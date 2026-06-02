@@ -13,13 +13,15 @@ export async function loadWaspTsSpecDefaultExport({
 }): Promise<unknown> {
   const { module: specModule } = await unrun({
     path: specPath,
-    debug: true,
     inputOptions: {
       plugins: [
         lowerImportsPlugin({ projectRootDir }),
         typecheckPlugin({ tsconfigPath }),
       ],
     },
+    // By default, unrun will directly return the `default` export. We want to
+    // get it ourselves, so we use this option.
+    // https://gugustinette.github.io/unrun/advanced/presets.html
     preset: "bundle-require",
   });
 
