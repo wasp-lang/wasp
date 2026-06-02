@@ -13,8 +13,6 @@ function mapRefObjectForMockProjectDir(refObject: unknown) {
   return mapRefObject(refObject, { projectRootDir: Fixtures.MOCK_PROJECT_DIR });
 }
 
-const makeRefParser = AppSpecMapper.makeRefParser;
-
 function makeMapperContext({
   entityNames = [],
   routeNames = [],
@@ -23,13 +21,13 @@ function makeMapperContext({
   routeNames?: string[];
 } = {}): AppSpecMapper.AppMapperContext {
   return {
-    entityRefParser: makeRefParser("Entity", entityNames),
-    routeRefParser: makeRefParser("Route", routeNames),
+    entityRefParser: AppSpecMapper.makeRefParser("Entity", entityNames),
+    routeRefParser: AppSpecMapper.makeRefParser("Route", routeNames),
     mapRefObject: mapRefObjectForMockProjectDir,
   };
 }
 
-function mapApp(app: TsAppSpec.App, entityNames: string[]) {
+function mapMockApp(app: TsAppSpec.App, entityNames: string[]) {
   return AppSpecMapper.mapApp(app, {
     entityNames,
     projectRootDir: Fixtures.MOCK_PROJECT_DIR,
@@ -41,7 +39,7 @@ describe("mapApp", () => {
     const entityNames = Fixtures.getEntities("minimal");
     const app = Fixtures.getApp("minimal");
 
-    const decls = mapApp(app, entityNames);
+    const decls = mapMockApp(app, entityNames);
 
     expect(decls).toStrictEqual([
       {
@@ -106,7 +104,7 @@ describe("mapApp", () => {
       ],
     });
 
-    const result = mapApp(inputApp, entityNames);
+    const result = mapMockApp(inputApp, entityNames);
 
     const ctx = makeMapperContext({
       entityNames,
@@ -202,7 +200,7 @@ describe("mapApp", () => {
     const page2 = page(refObject);
 
     const app = Fixtures.getMinimalAppWithDecls([page1, page2]);
-    const decls = mapApp(app, []);
+    const decls = mapMockApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
@@ -219,7 +217,7 @@ describe("mapApp", () => {
     const route2 = route("Route2", "/", page2);
 
     const app = Fixtures.getMinimalAppWithDecls([route1, route2]);
-    const decls = mapApp(app, []);
+    const decls = mapMockApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
@@ -235,7 +233,7 @@ describe("mapApp", () => {
     const route1 = route("Route1", "/", page2);
 
     const app = Fixtures.getMinimalAppWithDecls([page1, route1]);
-    const decls = mapApp(app, []);
+    const decls = mapMockApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
@@ -251,7 +249,7 @@ describe("mapApp", () => {
 
     const app = Fixtures.getMinimalAppWithDecls([page1, page2]);
 
-    expect(() => mapApp(app, [])).toThrow(
+    expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
     );
   });
@@ -266,7 +264,7 @@ describe("mapApp", () => {
 
     const app = Fixtures.getMinimalAppWithDecls([route1, route2]);
 
-    expect(() => mapApp(app, [])).toThrow(
+    expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
     );
   });
@@ -280,7 +278,7 @@ describe("mapApp", () => {
 
     const app = Fixtures.getMinimalAppWithDecls([page1, route1]);
 
-    expect(() => mapApp(app, [])).toThrow(
+    expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
     );
   });

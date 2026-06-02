@@ -1,14 +1,16 @@
 import * as ts from "typescript";
 import { SpecUserError } from "../../spec/specUserError.js";
-import { applyEdits, type Edit } from "./sourceEdits.js";
 import {
   getLocalNameForValueImport,
   getNamedImports,
   getNamedValueImports,
-  getSpecPackageImports,
-  getSpecPackageImportSource,
   isImportSpecifierFor,
   isValueImportSpecifierFor,
+} from "./importStatements.js";
+import { applyEdits, type Edit } from "./sourceEdits.js";
+import {
+  getSpecPackageImports,
+  getSpecPackageImportStatementSource,
   REF_EXPORT_NAME,
   REF_IMPORT_FACTORY_EXPORT_NAME,
   SPEC_PACKAGE_INTERNAL_NAME,
@@ -168,7 +170,7 @@ function replaceSpecPackageImportSpecifiers({
   return {
     start: stmt.getStart(sourceFile),
     end: stmt.getEnd(),
-    text: getSpecPackageImportSource(sourceFile, stmt, nextSpecifiers),
+    text: getSpecPackageImportStatementSource(sourceFile, stmt, nextSpecifiers),
   };
 }
 
@@ -199,14 +201,14 @@ function getSourceAwareRefHelperSource({
   refFactoryName: string;
 }): string {
   return [
-    getRefFactoryImportSource(refFactoryName),
+    getRefFactoryImportStatementSource(refFactoryName),
     `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
     `const ${refName} = ${refFactoryName}(import.meta.url);`,
     ``,
   ].join("\n");
 }
 
-function getRefFactoryImportSource(refFactoryName: string): string {
+function getRefFactoryImportStatementSource(refFactoryName: string): string {
   const importSpecifier =
     refFactoryName === REF_IMPORT_FACTORY_EXPORT_NAME
       ? REF_IMPORT_FACTORY_EXPORT_NAME
