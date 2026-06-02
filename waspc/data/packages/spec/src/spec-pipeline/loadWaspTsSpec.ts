@@ -37,10 +37,8 @@ export async function loadWaspTsSpecDefaultExport({
 
 function getSpecUserError(error: unknown): SpecUserError | undefined {
   if (
-    // Long chain of checks to convince TypeScript that we can access
-    // `error.errors[0]`.
-    error &&
-    typeof error === "object" &&
+    // Checks to convince TypeScript that we can access `error.errors[0]`.
+    error instanceof Error &&
     "errors" in error &&
     Array.isArray(error.errors) &&
     error.errors.length === 1 &&
