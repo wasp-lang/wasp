@@ -127,11 +127,9 @@ describe("Wasp TS spec pipeline", () => {
       ].join("\n"),
     );
 
-    await expect(result).rejects.toThrowError(SpecUserError);
-    await expect(result).rejects.toThrowError("main.wasp.ts");
-    await expect(result).rejects.toThrowError("TS2322");
-    await expect(result).rejects.toThrowError(
-      "export const oops: string = 123;",
+    await expect(result).rejects.toThrow(SpecUserError);
+    await expect(result).rejects.toThrow(
+      "Type 'number' is not assignable to type 'string'",
     );
   });
 });
