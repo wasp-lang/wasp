@@ -36,18 +36,19 @@ export function typecheckPlugin({
       project.resolveSourceFileDependencies();
 
       const diagnostics = project.getPreEmitDiagnostics();
-      const formattedDiagnostics = project
-        .formatDiagnosticsWithColorAndContext(diagnostics)
-        .trimEnd();
+      const formattedDiagnostics =
+        diagnostics.length > 0
+          ? project.formatDiagnosticsWithColorAndContext(diagnostics).trimEnd()
+          : undefined;
 
-      const hasError = diagnostics.some(
+      const hasErrorDiagnostic = diagnostics.some(
         (d) => d.getCategory() === DiagnosticCategory.Error,
       );
 
-      if (hasError) {
+      if (hasErrorDiagnostic) {
         throw new SpecUserError(formattedDiagnostics);
-      } else {
-        console.error(formattedDiagnostics);
+      } else if (formattedDiagnostics) {
+        console.warn(formattedDiagnostics);
       }
     },
   };
