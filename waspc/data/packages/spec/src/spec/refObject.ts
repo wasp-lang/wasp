@@ -1,15 +1,16 @@
 import { fileURLToPath } from "node:url";
 import type * as AppSpec from "../appSpec.js";
+import type { Branded } from "../branded.js";
 import { normalizeRefObjectPath } from "./refObjectPath.js";
 import { SpecUserError } from "./specUserError.js";
 
 /**
  * A reference to code in your app's `src` directory.
  */
-export type RefObject<T extends RefObjectDescriptor = RefObjectDescriptor> = T &
-  RefObjectMarker;
-
-type RefObjectMarker = { kind: "refObject" };
+export type RefObject = Branded<
+  RefObjectDescriptor & { kind: "refObject" },
+  "RefObject"
+>;
 
 export type RefObjectDescriptor =
   | NamedRefObjectDescriptor
@@ -44,10 +45,31 @@ export interface DefaultRefObjectDescriptor {
   from: string;
 }
 
-export function ref<T extends RefObjectDescriptor>(
-  descriptor: T,
-): RefObject<T> {
-  return { ...descriptor, kind: "refObject" };
+/**
+ * Creates an object that describes a reference to your app's code.
+ *
+ * Prefer using [reference imports](https://wasp.sh/docs/general/spec#reference-imports) when possible because editors can
+ * follow and rename real imports. Use `ref(...)` when a reference must be
+ * built directly.
+ *
+ * The import path must be a relative and resolve inside the app's `src/`
+ * directory, relative to the `*.wasp.ts` file where it is used. Absolute
+ * paths are not supported.
+ *
+ * @example
+ * ```ts
+ * import { page, ref } from "@wasp.sh/spec"
+ *
+ * export const mainPage = page(ref({
+ *   importDefault: "MainPage",
+ *   from: "./src/MainPage",
+ * }))
+ * ```
+ */
+export function ref(_descriptor: RefObjectDescriptor): RefObject {
+  throw new Error(
+    "Missing Wasp transformation. The `.wasp.ts` files are not directly executable, use the Wasp CLI.",
+  );
 }
 
 /**
@@ -62,24 +84,29 @@ export function ref<T extends RefObjectDescriptor>(
  */
 export function _waspMakeRef(
   importingFileUrl: string,
-): <T extends RefObjectDescriptor>(descriptor: T) => RefObject<T> {
+): (descriptor: RefObjectDescriptor) => SourceAwareRefObject {
   const sourceFilePath = fileURLToPath(importingFileUrl);
 
-  return (descriptor) => ({ ...ref(descriptor), sourceFilePath });
+  return (descriptor: RefObjectDescriptor) =>
+    ({
+      ...descriptor,
+      kind: "refObject",
+      sourceFilePath,
+    }) as unknown as SourceAwareRefObject;
 }
 
 export function mapRefObject(
   refObject: unknown,
   { projectRootDir }: { projectRootDir: string },
 ): AppSpec.ExtImport {
-  if (isNamedRefObjectDescriptor(refObject)) {
+  if (isNamedRefObject(refObject)) {
     return {
       kind: "named",
       name: refObject.import,
       path: mapRefObjectPath(refObject, { projectRootDir }),
       alias: refObject.alias,
     };
-  } else if (isDefaultRefObjectDescriptor(refObject)) {
+  } else if (isDefaultRefObject(refObject)) {
     return {
       kind: "default",
       name: refObject.importDefault,
@@ -95,11 +122,11 @@ export function mapRefObject(
 }
 
 export function getRefObjectDeclarationName(refObject: unknown): string {
-  if (isNamedRefObjectDescriptor(refObject)) {
+  if (isNamedRefObject(refObject)) {
     return refObject.alias ?? refObject.import;
   }
 
-  if (isDefaultRefObjectDescriptor(refObject)) {
+  if (isDefaultRefObject(refObject)) {
     return refObject.importDefault;
   }
 
@@ -115,7 +142,7 @@ function mapRefObjectPath(
 ): AppSpec.ExtImport["path"] {
   if (!hasSourceFilePath(refObject)) {
     throw new SpecUserError(
-      `Relative ref path ${JSON.stringify(refObject.from)} is missing source file information. Use ref(...) in a *.wasp.ts file.`,
+      `Relative ref path ${JSON.stringify(refObject.from)} is missing source file information. Use \`ref(...)\` in a \`*.wasp.ts\` file.`,
     );
   }
 
@@ -130,6 +157,8 @@ type RefObjectSource = {
   sourceFilePath: string;
 };
 
+type SourceAwareRefObject = RefObject & RefObjectSource;
+
 function hasSourceFilePath(value: unknown): value is RefObjectSource {
   return (
     isObject(value) &&
@@ -138,9 +167,7 @@ function hasSourceFilePath(value: unknown): value is RefObjectSource {
   );
 }
 
-function isNamedRefObjectDescriptor(
-  value: unknown,
-): value is NamedRefObjectDescriptor {
+function isNamedRefObject(value: unknown): value is NamedRefObjectDescriptor {
   return (
     isObject(value) &&
     typeof value.import === "string" &&
@@ -150,7 +177,7 @@ function isNamedRefObjectDescriptor(
   );
 }
 
-function isDefaultRefObjectDescriptor(
+function isDefaultRefObject(
   value: unknown,
 ): value is DefaultRefObjectDescriptor {
   return (

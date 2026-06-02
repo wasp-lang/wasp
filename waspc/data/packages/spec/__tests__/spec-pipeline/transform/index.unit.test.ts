@@ -1,10 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { transformWaspTsSpecSource } from "../../../src/spec-pipeline/transform/index.js";
 import { SpecUserError } from "../../../src/spec/specUserError.js";
+import * as Fixtures from "../../spec/testFixtures.js";
 
 describe("transformWaspTsSpecSource", () => {
-  const sourcePath = "/project/main.wasp.ts";
-
   test("adds a source-aware ref import helper and lowers ref imports", () => {
     const input = [
       `import { app } from "@wasp.sh/spec";`,
@@ -16,7 +15,7 @@ describe("transformWaspTsSpecSource", () => {
 
     expect(transform(input)).toBe(
       [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
@@ -39,7 +38,7 @@ describe("transformWaspTsSpecSource", () => {
 
     expect(transform(input)).toBe(
       [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
@@ -63,7 +62,7 @@ describe("transformWaspTsSpecSource", () => {
 
     expect(transform(input)).toBe(
       [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref1 = _waspMakeRef(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
@@ -92,11 +91,14 @@ describe("transformWaspTsSpecSource", () => {
     ].join("\n");
 
     expect(() => transform(input)).toThrowError(
-      `${sourcePath}(2,1): error: Unsupported ref import "./src/setup". Side-effect imports are not supported.`,
+      `${Fixtures.MOCK_MAIN_WASP_TS_PATH}(2,1): error: Unsupported ref import "./src/setup". Side-effect imports are not supported.`,
     );
   });
 
   function transform(sourceText: string): string {
-    return transformWaspTsSpecSource({ sourceText, sourcePath });
+    return transformWaspTsSpecSource({
+      sourceText,
+      sourcePath: Fixtures.MOCK_MAIN_WASP_TS_PATH,
+    });
   }
 });

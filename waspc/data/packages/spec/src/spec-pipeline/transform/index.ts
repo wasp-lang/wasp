@@ -4,7 +4,7 @@ import { planImportLowering } from "./planImportLowering/index.js";
 
 /**
  * Transforms the Wasp Spec file source:
- * 1. Adds a local `ref` helper constructed from `_waspMakeRef`.
+ * 1. Adds a local `ref` helper constructed from internal `_waspMakeRef`.
  * 2. Lowers the `with { type: "ref" }` imports.
  */
 export function transformWaspTsSpecSource({

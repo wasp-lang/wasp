@@ -6,8 +6,6 @@ import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";
 
 describe("mapRefObject", () => {
-  const projectRootDir = "/project";
-
   test("should map minimal named import correctly", () => {
     testMapRefObject(Fixtures.getRefObject("minimal", "named"));
   });
@@ -29,14 +27,14 @@ describe("mapRefObject", () => {
     { refObject: { parse: () => ({}) } },
     { refObject: { from: "./src/external" } },
   ])("returns an error for invalid runtime values", ({ refObject }) => {
-    expect(() => map(refObject)).toThrowError(SpecUserError);
-    expect(() => map(refObject)).toThrowError(
+    expect(() => mapRefObjectForProject(refObject)).toThrow(SpecUserError);
+    expect(() => mapRefObjectForProject(refObject)).toThrow(
       "Got an import in the Wasp file that we couldn't process",
     );
   });
 
   function testMapRefObject(refObject: TsAppSpec.RefObject): void {
-    const result = map(refObject);
+    const result = mapRefObjectForProject(refObject);
 
     if ("import" in refObject) {
       expect(result).toStrictEqual({
@@ -54,7 +52,9 @@ describe("mapRefObject", () => {
     }
   }
 
-  function map(refObject: unknown): AppSpec.ExtImport {
-    return mapRefObject(refObject, { projectRootDir });
+  function mapRefObjectForProject(refObject: unknown): AppSpec.ExtImport {
+    return mapRefObject(refObject, {
+      projectRootDir: Fixtures.MOCK_PROJECT_DIR,
+    });
   }
 });

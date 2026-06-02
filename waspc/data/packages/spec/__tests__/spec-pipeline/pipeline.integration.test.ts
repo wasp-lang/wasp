@@ -124,8 +124,16 @@ function writeSpecPackageStub(projectRootDir: string): void {
     "node_modules/@wasp.sh/spec/package.json",
     JSON.stringify({
       type: "module",
-      exports: "./index.js",
-      types: "./index.d.ts",
+      exports: {
+        ".": {
+          types: "./index.d.ts",
+          default: "./index.js",
+        },
+        "./internal": {
+          types: "./internal.d.ts",
+          default: "./internal.js",
+        },
+      },
     }),
   );
   writeProjectFile(
@@ -135,6 +143,13 @@ function writeSpecPackageStub(projectRootDir: string): void {
       `export function app(config) { return config; }`,
       `export function page(component, options = {}) { return { kind: "page", component, ...options }; }`,
       `export function action(fn, options = {}) { return { kind: "action", fn, ...options }; }`,
+      ``,
+    ].join("\n"),
+  );
+  writeProjectFile(
+    projectRootDir,
+    "node_modules/@wasp.sh/spec/internal.js",
+    [
       `export function _waspMakeRef(importingFileUrl) {`,
       `  const sourceFilePath = new URL(importingFileUrl).pathname;`,
       `  return (descriptor) => ({ ...descriptor, kind: "refObject", sourceFilePath });`,
@@ -149,6 +164,13 @@ function writeSpecPackageStub(projectRootDir: string): void {
       `export declare function app(config: any): any;`,
       `export declare function page(component: any, options?: any): any;`,
       `export declare function action(fn: any, options?: any): any;`,
+      ``,
+    ].join("\n"),
+  );
+  writeProjectFile(
+    projectRootDir,
+    "node_modules/@wasp.sh/spec/internal.d.ts",
+    [
       `export declare function _waspMakeRef(importingFileUrl: string): (descriptor: any) => any;`,
       ``,
     ].join("\n"),

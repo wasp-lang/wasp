@@ -1,14 +1,13 @@
 import { describe, expect, test } from "vitest";
 import { lowerRefImports } from "../../../src/spec-pipeline/transform/lowerRefImports.js";
 import { SpecUserError } from "../../../src/spec/specUserError.js";
+import * as Fixtures from "../../spec/testFixtures.js";
 
 describe("lowerRefImports", () => {
-  const sourcePath = "/project/main.wasp.ts";
-
   test("lowers a default ref import into a ref const", () => {
     const input = `import MainPage from "./src/MainPage" with { type: "ref" };\n`;
 
-    expect(lower(input)).toBe(
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(
       [
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
@@ -19,7 +18,7 @@ describe("lowerRefImports", () => {
   test("lowers named and aliased ref imports into ref consts", () => {
     const input = `import { getTasks, archive as archiveTask } from "./src/operations" with { type: "ref" };\n`;
 
-    expect(lower(input)).toBe(
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(
       [
         `const getTasks = ref({ import: "getTasks", from: "./src/operations" });`,
         `const archiveTask = ref({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
@@ -35,7 +34,7 @@ describe("lowerRefImports", () => {
       ``,
     ].join("\n");
 
-    expect(lower(input)).toBe(
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(
       [
         `const archiveTask = ref({ import: "archive", from: "./src/operations", alias: "archiveTask" });`,
         `const archiveLegacyTask = ref({ import: "archive", from: "./src/legacyOperations", alias: "archiveLegacyTask" });`,
@@ -47,7 +46,7 @@ describe("lowerRefImports", () => {
   test("lowers multiple named ref imports into separate ref consts", () => {
     const input = `import { getTasks, createTask } from "./src/operations" with { type: "ref" };\n`;
 
-    expect(lower(input)).toBe(
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(
       [
         `const getTasks = ref({ import: "getTasks", from: "./src/operations" });`,
         `const createTask = ref({ import: "createTask", from: "./src/operations" });`,
@@ -59,7 +58,7 @@ describe("lowerRefImports", () => {
   test("lowers a default + named ref import together", () => {
     const input = `import MainPage, { Helper } from "./src/MainPage" with { type: "ref" };\n`;
 
-    expect(lower(input)).toBe(
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(
       [
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
         `const Helper = ref({ import: "Helper", from: "./src/MainPage" });`,
@@ -71,7 +70,7 @@ describe("lowerRefImports", () => {
   test("lowers a namespace ref import into a Proxy", () => {
     const input = `import * as ops from "./src/operations" with { type: "ref" };\n`;
 
-    expect(lower(input)).toBe(
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(
       [
         getExpectedNamespaceProxySource("ops", "./src/operations", "ops_"),
         ``,
@@ -86,7 +85,7 @@ describe("lowerRefImports", () => {
       ``,
     ].join("\n");
 
-    expect(lower(input)).toBe(
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(
       [
         getExpectedNamespaceProxySource("ops", "./src/operations", "ops_"),
         getExpectedNamespaceProxySource(
@@ -109,7 +108,7 @@ describe("lowerRefImports", () => {
       ``,
     ].join("\n");
 
-    expect(lower(input)).toBe(input);
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(input);
   });
 
   test("lowers only ref imports in a mixed file", () => {
@@ -124,7 +123,7 @@ describe("lowerRefImports", () => {
       ``,
     ].join("\n");
 
-    expect(lower(input)).toBe(
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(
       [
         `import { app } from "@wasp.sh/spec";`,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
@@ -148,7 +147,7 @@ describe("lowerRefImports", () => {
       ``,
     ].join("\n");
 
-    expect(lower(input)).toBe(input);
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(input);
   });
 
   test("leaves explicit ref imports untouched", () => {
@@ -158,7 +157,7 @@ describe("lowerRefImports", () => {
       ``,
     ].join("\n");
 
-    expect(lower(input)).toBe(input);
+    expect(lowerRefImportsWithMockSourcePath(input)).toBe(input);
   });
 
   test.each([
@@ -200,21 +199,13 @@ describe("lowerRefImports", () => {
     expectSpecUserError(
       input,
       [
-        `${sourcePath}(1,1): error: Unsupported ref import "./src/setup". Side-effect imports are not supported.`,
-        `${sourcePath}(2,1): error: Unsupported ref import "./src/MainPage". Type-only imports are not supported.`,
+        `${Fixtures.MOCK_MAIN_WASP_TS_PATH}(1,1): error: Unsupported ref import "./src/setup". Side-effect imports are not supported.`,
+        `${Fixtures.MOCK_MAIN_WASP_TS_PATH}(2,1): error: Unsupported ref import "./src/MainPage". Type-only imports are not supported.`,
         ``,
         `Supported ref imports are default, named, aliased named, or namespace imports marked with { type: "ref" }.`,
       ].join("\n"),
     );
   });
-
-  function lower(sourceText: string): string {
-    return lowerRefImports({
-      sourceText,
-      sourcePath,
-      refName: "ref",
-    });
-  }
 });
 
 function getExpectedNamespaceProxySource(
@@ -232,10 +223,16 @@ function expectSpecUserError(
   sourceText: string,
   expectedMessage: string | RegExp,
 ): void {
-  const sourcePath = "/project/main.wasp.ts";
-  const getLoweredSource = () =>
-    lowerRefImports({ sourceText, sourcePath, refName: "ref" });
+  const getLoweredSource = () => lowerRefImportsWithMockSourcePath(sourceText);
 
-  expect(getLoweredSource).toThrowError(SpecUserError);
-  expect(getLoweredSource).toThrowError(expectedMessage);
+  expect(getLoweredSource).toThrow(SpecUserError);
+  expect(getLoweredSource).toThrow(expectedMessage);
+}
+
+function lowerRefImportsWithMockSourcePath(sourceText: string): string {
+  return lowerRefImports({
+    sourceText,
+    sourcePath: Fixtures.MOCK_MAIN_WASP_TS_PATH,
+    refName: "ref",
+  });
 }

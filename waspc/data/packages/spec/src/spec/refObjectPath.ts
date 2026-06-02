@@ -58,7 +58,7 @@ function getValidSrcRelativePath({
 function toAppSpecExtImportPath(
   srcRelativePath: string,
 ): AppSpec.ExtImport["path"] {
-  return `@src/${srcRelativePath.split(path.sep).join("/")}` as AppSpec.ExtImport["path"];
+  return path.join("@src", srcRelativePath) as AppSpec.ExtImport["path"];
 }
 
 function isValidSrcRelativeFilePath(srcRelativePath: string): boolean {

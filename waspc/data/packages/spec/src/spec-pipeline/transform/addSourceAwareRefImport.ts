@@ -11,12 +11,13 @@ import {
   isValueImportSpecifierFor,
   REF_EXPORT_NAME,
   REF_IMPORT_FACTORY_EXPORT_NAME,
+  SPEC_PACKAGE_INTERNAL_NAME,
   SPEC_PACKAGE_NAME,
 } from "./specPackageImports.js";
 import { createUniqueTopLevelNameGenerator } from "./topLevelNameGenerator.js";
 
 /**
- * Adds a local `ref` helper created with `_waspMakeRef(import.meta.url)`.
+ * Adds a local `ref` helper created with internal `_waspMakeRef(import.meta.url)`.
  *
  * Ref imports need the user's `.wasp.ts` file location. This rewrite makes
  * both handwritten and generated `ref(...)` calls use that location.
@@ -211,5 +212,5 @@ function getRefFactoryImportSource(refFactoryName: string): string {
       ? REF_IMPORT_FACTORY_EXPORT_NAME
       : `${REF_IMPORT_FACTORY_EXPORT_NAME} as ${refFactoryName}`;
 
-  return `import { ${importSpecifier} } from ${JSON.stringify(SPEC_PACKAGE_NAME)};`;
+  return `import { ${importSpecifier} } from ${JSON.stringify(SPEC_PACKAGE_INTERNAL_NAME)};`;
 }

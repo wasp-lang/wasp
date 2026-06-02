@@ -7,8 +7,8 @@
 import { pathToFileURL } from "node:url";
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
+import { _waspMakeRef } from "../../src/internal.js";
 import {
-  _waspMakeRef,
   action,
   api,
   apiNamespace,
@@ -20,6 +20,9 @@ import {
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
+
+export const MOCK_PROJECT_DIR = "/project";
+export const MOCK_MAIN_WASP_TS_PATH = `${MOCK_PROJECT_DIR}/main.wasp.ts`;
 
 export function getApp(scope: ConfigScope): TsAppSpec.App {
   switch (scope) {
@@ -628,7 +631,7 @@ export function getRefObject(
 }
 
 const getRefObjectForMockProject = _waspMakeRef(
-  pathToFileURL("/project/main.wasp.ts").href,
+  pathToFileURL(MOCK_MAIN_WASP_TS_PATH).href,
 );
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>;
@@ -705,8 +708,8 @@ type IsExclusionMarker<V> = [Exclude<V, undefined>] extends [never]
   : false;
 
 type RefObjectFor<Kind extends AppSpec.ExtImportKind> = Kind extends "named"
-  ? TsAppSpec.RefObject<TsAppSpec.NamedRefObjectDescriptor>
-  : TsAppSpec.RefObject<TsAppSpec.DefaultRefObjectDescriptor>;
+  ? TsAppSpec.RefObject & TsAppSpec.NamedRefObjectDescriptor
+  : TsAppSpec.RefObject & TsAppSpec.DefaultRefObjectDescriptor;
 
 type ConfigFor<Scope extends ConfigScope, Data> = Scope extends "full"
   ? FullConfig<Data>

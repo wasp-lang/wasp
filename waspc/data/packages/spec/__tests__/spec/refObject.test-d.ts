@@ -1,5 +1,6 @@
 import { assertType, describe, test } from "vitest";
-import { _waspMakeRef, ref } from "../../src/spec/publicApi/index.js";
+import { _waspMakeRef } from "../../src/internal.js";
+import { ref } from "../../src/spec/publicApi/index.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 describe("RefObject input types", () => {
@@ -103,6 +104,17 @@ describe("RefObject input types", () => {
     const component = { kind: "refObject", from: "./MainPage" } as const;
 
     // @ts-expect-error RefObject objects must include either import or importDefault.
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+  });
+
+  test("should reject handwritten RefObject-shaped objects", () => {
+    const component = {
+      kind: "refObject",
+      importDefault: "MainPage",
+      from: "./MainPage",
+    } as const;
+
+    // @ts-expect-error RefObject objects must come from ref or reference imports.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 });

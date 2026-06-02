@@ -1,10 +1,9 @@
 import { describe, expect, test } from "vitest";
 import { addSourceAwareRefImport } from "../../../src/spec-pipeline/transform/addSourceAwareRefImport.js";
 import { SpecUserError } from "../../../src/spec/specUserError.js";
+import * as Fixtures from "../../spec/testFixtures.js";
 
 describe("addSourceAwareRefImport", () => {
-  const sourcePath = "/project/main.wasp.ts";
-
   test("rewrites explicit ref imports", () => {
     expect(
       transform(
@@ -17,7 +16,7 @@ describe("addSourceAwareRefImport", () => {
     ).toEqual({
       refName: "ref",
       sourceText: [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import { page } from "@wasp.sh/spec";`,
@@ -51,7 +50,7 @@ describe("addSourceAwareRefImport", () => {
     ).toEqual({
       refName: "appRef",
       sourceText: [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const appRef = _waspMakeRef(import.meta.url);`,
         `import { page } from "@wasp.sh/spec";`,
@@ -75,7 +74,7 @@ describe("addSourceAwareRefImport", () => {
     ).toEqual({
       refName: "ref2",
       sourceText: [
-        `import { _waspMakeRef as _waspMakeRef1 } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef as _waspMakeRef1 } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref2 = _waspMakeRef1(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
@@ -99,7 +98,7 @@ describe("addSourceAwareRefImport", () => {
     ).toEqual({
       refName: "_waspMakeRef",
       sourceText: [
-        `import { _waspMakeRef as _waspMakeRef1 } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef as _waspMakeRef1 } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const _waspMakeRef = _waspMakeRef1(import.meta.url);`,
         `import { page } from "@wasp.sh/spec";`,
@@ -119,7 +118,7 @@ describe("addSourceAwareRefImport", () => {
     ).toEqual({
       refName: "ref",
       sourceText: [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import { type RefObject, page } from "@wasp.sh/spec";`,
@@ -134,7 +133,7 @@ describe("addSourceAwareRefImport", () => {
     expect(transform(sourceText)).toEqual({
       refName: "ref",
       sourceText: [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import type { RefObject } from "@wasp.sh/spec";`,
@@ -156,7 +155,7 @@ describe("addSourceAwareRefImport", () => {
     expect(transform(`import { app } from "@wasp.sh/spec";\n`)).toEqual({
       refName: "ref",
       sourceText: [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import { app } from "@wasp.sh/spec";`,
@@ -169,7 +168,7 @@ describe("addSourceAwareRefImport", () => {
     expect(transform(`import * as wasp from "@wasp.sh/spec";\n`)).toEqual({
       refName: "ref",
       sourceText: [
-        `import { _waspMakeRef } from "@wasp.sh/spec";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `// @ts-ignore TS6133: This generated helper can be unused in files without refs.`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `import * as wasp from "@wasp.sh/spec";`,
@@ -179,6 +178,9 @@ describe("addSourceAwareRefImport", () => {
   });
 
   function transform(sourceText: string) {
-    return addSourceAwareRefImport({ sourceText, sourcePath });
+    return addSourceAwareRefImport({
+      sourceText,
+      sourcePath: Fixtures.MOCK_MAIN_WASP_TS_PATH,
+    });
   }
 });
