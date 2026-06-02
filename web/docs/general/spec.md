@@ -58,7 +58,7 @@ Anywhere the Wasp Spec expects your app's function or component (like a page's `
 
 **Recommended**
 
-Import the value with the regular syntax, adding `with { type: "ref" }`. The import attribute tells Wasp that this import points to your app source code instead of a value that should run while evaluating the spec. Then you can pass it directly.
+Import the value with the regular syntax, adding `with { type: "ref" }`. Use it when importing components or functions from `src` so Wasp can connect them to pages, actions, queries, and other declarations.
 
 ```ts
 import MainPage from "./src/MainPage" with { type: "ref" };
