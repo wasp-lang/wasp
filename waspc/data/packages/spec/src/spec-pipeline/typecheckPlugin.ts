@@ -34,18 +34,21 @@ export function typecheckPlugin({
       }
 
       project.resolveSourceFileDependencies();
+
       const diagnostics = project.getPreEmitDiagnostics();
+      const formattedDiagnostics =
+        diagnostics.length > 0
+          ? project.formatDiagnosticsWithColorAndContext(diagnostics).trimEnd()
+          : undefined;
 
-      if (diagnostics.length > 0) {
-        console.error(
-          project.formatDiagnosticsWithColorAndContext(diagnostics),
-        );
-      }
+      const hasErrorDiagnostic = diagnostics.some(
+        (d) => d.getCategory() === DiagnosticCategory.Error,
+      );
 
-      if (
-        diagnostics.some((d) => d.getCategory() === DiagnosticCategory.Error)
-      ) {
-        throw new SpecUserError("Type errors found");
+      if (hasErrorDiagnostic) {
+        throw new SpecUserError(formattedDiagnostics);
+      } else if (formattedDiagnostics) {
+        console.warn(formattedDiagnostics);
       }
     },
   };
