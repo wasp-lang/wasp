@@ -34,17 +34,20 @@ export function typecheckPlugin({
       }
 
       project.resolveSourceFileDependencies();
+
       const diagnostics = project.getPreEmitDiagnostics();
-      const errorDiagnostics = diagnostics.filter(
+      const formattedDiagnostics = project
+        .formatDiagnosticsWithColorAndContext(diagnostics)
+        .trimEnd();
+
+      const hasError = diagnostics.some(
         (d) => d.getCategory() === DiagnosticCategory.Error,
       );
 
-      if (errorDiagnostics.length > 0) {
-        throw new SpecUserError(
-          project
-            .formatDiagnosticsWithColorAndContext(errorDiagnostics)
-            .trimEnd(),
-        );
+      if (hasError) {
+        throw new SpecUserError(formattedDiagnostics);
+      } else {
+        console.error(formattedDiagnostics);
       }
     },
   };
