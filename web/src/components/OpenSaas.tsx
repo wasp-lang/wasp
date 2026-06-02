@@ -83,7 +83,12 @@ const OpenSaas = () => (
 
         <ul>
           {features.map(([before, keyword, after]) => (
-            <Feature key={keyword} before={before} keyword={keyword} after={after} />
+            <Feature
+              key={keyword}
+              before={before}
+              keyword={keyword}
+              after={after}
+            />
           ))}
         </ul>
       </div>
