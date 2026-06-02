@@ -103,9 +103,15 @@ const TreeRow = ({
 
 const Dots = ({ dark = false }: { dark?: boolean }) => (
   <div className="flex gap-1.5">
-    <span className={`h-3 w-3 rounded-full ${dark ? "bg-wasp-g5" : "bg-wasp-g3"}`} />
-    <span className={`h-3 w-3 rounded-full ${dark ? "bg-wasp-g5" : "bg-wasp-g3"}`} />
-    <span className={`h-3 w-3 rounded-full ${dark ? "bg-wasp-g5" : "bg-wasp-g3"}`} />
+    <span
+      className={`h-3 w-3 rounded-full ${dark ? "bg-wasp-g5" : "bg-wasp-g3"}`}
+    />
+    <span
+      className={`h-3 w-3 rounded-full ${dark ? "bg-wasp-g5" : "bg-wasp-g3"}`}
+    />
+    <span
+      className={`h-3 w-3 rounded-full ${dark ? "bg-wasp-g5" : "bg-wasp-g3"}`}
+    />
   </div>
 );
 
@@ -130,7 +136,9 @@ const BrowserPane = () => (
       <h1 className="text-2xl font-extrabold uppercase tracking-tight text-wasp-black">
         Welcome to <span className="bg-wasp-yellow px-1">myApp</span>
       </h1>
-      <p className="text-sm text-wasp-g6">Your full-stack app, ready to ship.</p>
+      <p className="text-sm text-wasp-g6">
+        Your full-stack app, ready to ship.
+      </p>
       <button
         type="button"
         className="cursor-default border-2 border-wasp-black bg-wasp-yellow px-4 py-2 text-sm font-semibold text-wasp-black"
@@ -163,7 +171,8 @@ const EditorDemo = () => {
 
   // Keep the terminal scrolled to the latest line.
   useEffect(() => {
-    if (termRef.current) termRef.current.scrollTop = termRef.current.scrollHeight;
+    if (termRef.current)
+      termRef.current.scrollTop = termRef.current.scrollHeight;
   }, [termLines, termInput]);
 
   // Blinking caret.
@@ -319,7 +328,10 @@ const EditorDemo = () => {
         await sleep(800);
         pushLine({ kind: "out", text: "📦 Building for production..." });
         await sleep(900);
-        pushLine({ kind: "ok", text: "✓ Live at https://myapp.up.railway.app" });
+        pushLine({
+          kind: "ok",
+          text: "✓ Live at https://myapp.up.railway.app",
+        });
         await sleep(900);
         setFocus(null);
         await sleep(4500);
@@ -341,8 +353,7 @@ const EditorDemo = () => {
           ? { code: tsxCode, language: "tsx" }
           : null;
   // Swap the caret marker for a blinking glyph (or a same-width space).
-  const renderCode = (code: string) =>
-    code.replace(CARET, caretOn ? "│" : " ");
+  const renderCode = (code: string) => code.replace(CARET, caretOn ? "│" : " ");
 
   return (
     <div className="flex h-[500px] w-full flex-col border-2 border-wasp-black bg-[#f0ede6] font-mono text-sm sm:h-[580px]">
@@ -386,7 +397,8 @@ const EditorDemo = () => {
         {/* Main pane: code editor or browser preview */}
         <div
           className={`relative min-w-0 flex-1 overflow-auto ${
-            !browser && (focus === "wasp" || focus === "queries" || focus === "tsx")
+            !browser &&
+            (focus === "wasp" || focus === "queries" || focus === "tsx")
               ? "ring-1 ring-inset ring-wasp-yellow"
               : ""
           }`}
