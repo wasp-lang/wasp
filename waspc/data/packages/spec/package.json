@@ -25,7 +25,6 @@
     "test:watch": "vitest --reporter=verbose"
   },
   "dependencies": {
-    "ts-morph": "^28.0.0",
     "type-fest": "^5.6.0",
     "typescript": "^5.8.3",
     "unrun": "^0.3.0"

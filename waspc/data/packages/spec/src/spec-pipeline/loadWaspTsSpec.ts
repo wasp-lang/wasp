@@ -1,6 +1,6 @@
 import { unrun } from "unrun";
 import { lowerImportsPlugin } from "./lowerImportsPlugin/index.js";
-import { typecheckPlugin } from "./typecheckPlugin.js";
+import { typecheckPlugin } from "./typecheckPlugin/index.js";
 
 export async function loadWaspTsSpecDefaultExport({
   specPath,
