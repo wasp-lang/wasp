@@ -106,23 +106,28 @@ export async function getRailwayProjectForDirectory(
 export async function getRailwayProjectById(
   railwayExe: RailwayCliExe,
   id: string,
+  workspace?: string,
 ): Promise<RailwayProject | null> {
-  const projects = await getRailwayProjects(railwayExe);
+  const projects = await getRailwayProjects(railwayExe, workspace);
   return projects.find((project) => project.id === id) ?? null;
 }
 
 export async function getRailwayProjectByName(
   railwayExe: RailwayCliExe,
   name: string,
+  workspace?: string,
 ): Promise<RailwayProject | null> {
-  const projects = await getRailwayProjects(railwayExe);
+  const projects = await getRailwayProjects(railwayExe, workspace);
   return projects.find((project) => project.name === name) ?? null;
 }
 
-// TODO: Figure out how to specify the workspace when listing projects.
-// This command lists all projects in all the workspaces the user has access to.
+// `railway list --json` returns projects from all workspaces the user has access to.
+// When a workspace name is provided, we filter results to only include projects
+// belonging to that workspace. This is done client-side because the JSON output
+// includes workspace info per project (via `workspace: { id, name }`).
 async function getRailwayProjects(
   railwayExe: RailwayCliExe,
+  workspace?: string,
 ): Promise<RailwayProject[]> {
   const result = await $({
     verbose: false,
@@ -130,7 +135,11 @@ async function getRailwayProjects(
 
   const projects = RailwayProjectListSchema.parse(JSON.parse(result.stdout));
 
-  return projects.map((cliProject) => {
+  const filtered = workspace
+    ? projects.filter((p) => p.workspace.name === workspace)
+    : projects;
+
+  return filtered.map((cliProject) => {
     return createRailwayProject(cliProject);
   });
 }

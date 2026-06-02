@@ -12,6 +12,10 @@ export type RailwayCliProject = z.infer<typeof RailwayCliProjectSchema>;
 export const RailwayCliProjectSchema = z.object({
   id: z.string(),
   name: z.string(),
+  workspace: z.object({
+    id: z.string(),
+    name: z.string(),
+  }),
   services: z.object({
     edges: z.array(
       z.object({

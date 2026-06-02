@@ -5,6 +5,7 @@ import {
   RailwayProjectListSchema,
 } from "../../../src/providers/railway/jsonOutputSchemas.js";
 import {
+  cliProjectInDifferentWorkspace,
   cliProjectWithServices,
   cliProjectWithoutServices,
 } from "./fixtures/railwayCliProject.js";
@@ -43,13 +44,35 @@ describe("RailwayCliProjectSchema", () => {
     const result = RailwayCliProjectSchema.parse(cliProjectWithoutServices);
     expect(result.services.edges).toEqual([]);
   });
+
+  test("parses workspace info", () => {
+    const result = RailwayCliProjectSchema.parse(cliProjectWithServices);
+    expect(result.workspace).toEqual({
+      id: "ws-1",
+      name: "my-workspace",
+    });
+  });
+
+  test("parses project from a different workspace", () => {
+    const result = RailwayCliProjectSchema.parse(
+      cliProjectInDifferentWorkspace,
+    );
+    expect(result.workspace).toEqual({
+      id: "ws-2",
+      name: "other-workspace",
+    });
+  });
 });
 
 describe("RailwayProjectListSchema", () => {
   test("parses a list of projects", () => {
-    const input = [cliProjectWithServices, cliProjectWithoutServices];
+    const input = [
+      cliProjectWithServices,
+      cliProjectWithoutServices,
+      cliProjectInDifferentWorkspace,
+    ];
     const result = RailwayProjectListSchema.parse(input);
-    expect(result).toHaveLength(2);
+    expect(result).toHaveLength(3);
   });
 
   test("parses empty list", () => {

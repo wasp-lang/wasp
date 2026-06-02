@@ -1,6 +1,7 @@
 import { describe, expect, test } from "vitest";
 import { createRailwayProject } from "../../../src/providers/railway/railwayProject/RailwayProject.js";
 import {
+  cliProjectInDifferentWorkspace,
   cliProjectWithServices,
   cliProjectWithoutServices,
 } from "./fixtures/railwayCliProject.js";
@@ -10,6 +11,14 @@ describe("createRailwayProject", () => {
     const project = createRailwayProject(cliProjectWithServices);
     expect(project.id).toBe("proj-1");
     expect(project.name).toBe("my-project");
+  });
+
+  test("extracts workspace info", () => {
+    const project = createRailwayProject(cliProjectWithServices);
+    expect(project.workspace).toEqual({
+      id: "ws-1",
+      name: "my-workspace",
+    });
   });
 
   test("flattens edge-node graph into services array", () => {
@@ -34,5 +43,13 @@ describe("createRailwayProject", () => {
     const project = createRailwayProject(cliProjectWithoutServices);
     expect(project.services).toEqual([]);
     expect(project.doesServiceExist("anything")).toBe(false);
+  });
+
+  test("preserves workspace from a different workspace", () => {
+    const project = createRailwayProject(cliProjectInDifferentWorkspace);
+    expect(project.workspace).toEqual({
+      id: "ws-2",
+      name: "other-workspace",
+    });
   });
 });

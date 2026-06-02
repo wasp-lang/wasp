@@ -90,6 +90,7 @@ async function setupRailwayProjectForDirectory({
     waspProjectDir,
     railwayExe,
     existingProjectId,
+    workspace,
   });
 
   switch (status) {

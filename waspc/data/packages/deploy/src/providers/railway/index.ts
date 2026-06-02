@@ -116,7 +116,7 @@ function makeRailwaySetupCommand(): Command {
     )
     .option(
       "--workspace [workspace]",
-      "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
+      "the Railway workspace to use when creating or looking up projects (if not provided, will ask interactively during creation)",
     )
     .option(
       "--db-image <dbImage>",
@@ -154,7 +154,7 @@ function makeRailwayLaunchCommand(): Command {
     )
     .option(
       "--workspace [workspace]",
-      "the Railway workspace to use if a new project needs to be created (if not provided, will ask interactively)",
+      "the Railway workspace to use when creating or looking up projects (if not provided, will ask interactively during creation)",
     )
     .option(
       "--db-image <dbImage>",
