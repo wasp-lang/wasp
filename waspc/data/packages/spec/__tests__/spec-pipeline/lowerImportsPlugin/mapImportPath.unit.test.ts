@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import { mapImportPath } from "../../../src/spec-pipeline/lowerImportsPlugin/mapImportPath.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("mapImportPath", () => {
   const projectRootDir = "/project";
@@ -42,6 +43,40 @@ describe("mapImportPath", () => {
         projectRootDir,
       }),
     ).toBe("@src/MainPage");
+  });
+
+  test("rejects ref imports that resolve outside src", () => {
+    expect(() =>
+      mapImportPath({
+        refImportPath: "./helpers/helper",
+        importingFilePath: `${projectRootDir}/main.wasp.ts`,
+        projectRootDir,
+      }),
+    ).toThrow(SpecUserError);
+    expect(() =>
+      mapImportPath({
+        refImportPath: "./helpers/helper",
+        importingFilePath: `${projectRootDir}/main.wasp.ts`,
+        projectRootDir,
+      }),
+    ).toThrow(/must resolve to a file inside the app src\/ directory/);
+  });
+
+  test("rejects ref imports that resolve to src itself", () => {
+    expect(() =>
+      mapImportPath({
+        refImportPath: "./src",
+        importingFilePath: `${projectRootDir}/main.wasp.ts`,
+        projectRootDir,
+      }),
+    ).toThrow(SpecUserError);
+    expect(() =>
+      mapImportPath({
+        refImportPath: "./src",
+        importingFilePath: `${projectRootDir}/main.wasp.ts`,
+        projectRootDir,
+      }),
+    ).toThrow(/must resolve to a file inside the app src\/ directory/);
   });
 
   test("allows ref imports that leave src and resolve back inside", () => {

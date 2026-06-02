@@ -1,4 +1,5 @@
 import path from "node:path";
+import { SpecUserError } from "../../spec/specUserError.js";
 
 export type RefImportPath = `@src/${string}`;
 
@@ -23,5 +24,20 @@ export function mapImportPath({
   );
   const srcRelativePath = path.relative(srcFolder, importedFilePath);
 
+  if (!isInsideSrc(srcRelativePath)) {
+    throw new SpecUserError(
+      `Ref import ${JSON.stringify(refImportPath)} must resolve to a file inside the app src/ directory.`,
+    );
+  }
+
   return path.join("@src", srcRelativePath) as RefImportPath;
+}
+
+function isInsideSrc(srcRelativePath: string): boolean {
+  return (
+    srcRelativePath !== "" &&
+    srcRelativePath !== ".." &&
+    !srcRelativePath.startsWith(`..${path.sep}`) &&
+    !path.isAbsolute(srcRelativePath)
+  );
 }
