@@ -216,7 +216,7 @@ const Faq = () => {
         Frequently asked questions
       </h2>
 
-      <div className="mx-auto max-w-3xl space-y-3">
+      <div className="max-w-3xl border-t-2 border-wasp-black">
         {faqs.map((faq, idx) => (
           <FaqItem key={idx} faq={faq} />
         ))}
@@ -229,12 +229,12 @@ const FaqItem = ({ faq }: { faq: FaqItemData }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className="border-2 border-wasp-black bg-wasp-bg">
+    <div className="border-b-2 border-wasp-black">
       <button
         type="button"
         onClick={() => setIsOpen((v) => !v)}
         aria-expanded={isOpen}
-        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left font-mono text-sm font-bold text-wasp-black"
+        className="flex w-full items-center justify-between gap-4 py-4 text-left font-mono text-sm font-bold text-wasp-black"
       >
         <span>{faq.question}</span>
         <span className="shrink-0 text-wasp-yellow-dark" aria-hidden="true">
@@ -242,7 +242,7 @@ const FaqItem = ({ faq }: { faq: FaqItemData }) => {
         </span>
       </button>
       {isOpen && (
-        <div className="space-y-3 border-t-2 border-wasp-black/15 px-5 py-4 font-mono text-sm leading-relaxed text-wasp-g6">
+        <div className="space-y-3 pb-5 font-mono text-sm leading-relaxed text-wasp-g6">
           {faq.answer}
         </div>
       )}
