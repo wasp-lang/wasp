@@ -44,4 +44,16 @@ describe("getLoweredImportSource", () => {
       `const archiveTask = {"import":"archive","alias":"archiveTask","from":"@src/operations"} as const;\n`,
     );
   });
+
+  test("lowers a namespace import into a Proxy with a name-prefixed alias", () => {
+    expect(
+      getLoweredImportSource({
+        kind: "namespace",
+        alias: "ops",
+        from: "@src/operations",
+      }),
+    ).toBe(
+      `const ops = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: "@src/operations", alias: "ops_" + String(k) } as const) }) as Record<string, { import: string; from: "@src/operations"; alias: string }>;\n`,
+    );
+  });
 });
