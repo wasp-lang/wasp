@@ -4,6 +4,7 @@ import classNames from "classnames";
 import { ReactNode } from "react";
 import { ArrowUpRight, GitHub, Monitor } from "react-feather";
 
+import CtaLink from "./CtaLink";
 import SectionContainer from "./Layouts/SectionContainer";
 import SectionLabel from "./Layouts/SectionLabel";
 import TextLink from "./TextLink";
@@ -67,13 +68,10 @@ const WaspOutThere = () => {
           ))}
         </div>
         <div className="mt-8">
-          <TextLink
-            to="https://github.com/wasp-lang/wasp/tree/release/examples"
-            className="inline-flex items-center gap-1 font-mono text-sm font-semibold"
-          >
+          <CtaLink to="https://github.com/wasp-lang/wasp/tree/release/examples">
             <span>See all examples</span>
-            <ArrowUpRight size={14} />
-          </TextLink>
+            <ArrowUpRight size={16} />
+          </CtaLink>
         </div>
       </SectionContainer>
 
