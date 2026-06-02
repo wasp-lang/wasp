@@ -75,13 +75,78 @@ describe("Wasp TS spec pipeline", () => {
       expect.objectContaining({ declType: "Action", declName: "archiveTask" }),
     );
   });
+
+  test("resolves ref imports when the project root is reached through a symlink", async () => {
+    using project = makeSymlinkTempProject("wasp-spec-pipeline-symlink-");
+
+    project.writeProjectFile(
+      "src/MainPage.ts",
+      `export default function MainPage() { return null; }\n`,
+    );
+
+    // The bundler reports canonical (symlink-resolved) module ids, while the
+    // project root is given as a symlinked path. Lowering this ref import must
+    // still place it inside src/ instead of rejecting it as escaping src/.
+    const decls = await project.analyzeSpec(
+      [
+        `// @ts-ignore: This test imports the local TS source through Vitest.`,
+        `import { app, page } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import MainPage from "./src/MainPage" with { type: "ref" };`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: "Demo",`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  decls: [page(MainPage)],`,
+        `});`,
+      ].join("\n"),
+    );
+
+    expect(decls).toContainEqual(
+      expect.objectContaining({ declType: "Page", declName: "MainPage" }),
+    );
+  });
 });
 
-function makeTempProject(prefix: string): Disposable & {
+type TempProject = Disposable & {
   writeProjectFile: (relativeFilePath: string, sourceText: string) => void;
   analyzeSpec: (sourceText: string) => ReturnType<typeof analyzeApp>;
-} {
+};
+
+function makeTempProject(prefix: string): TempProject {
   const projectRootDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+
+  return scaffoldProject({
+    projectRootDir,
+    dispose: () => fs.rmSync(projectRootDir, { recursive: true, force: true }),
+  });
+}
+
+function makeSymlinkTempProject(prefix: string): TempProject {
+  const realRootDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+
+  // The path the caller (e.g. the Wasp CLI) uses to refer to the project. Going
+  // through a symlink makes it differ from the canonical paths the bundler
+  // reports for module ids, which is the case the plugin must resolve.
+  const symlinkRootDir = `${realRootDir}-link`;
+  fs.symlinkSync(realRootDir, symlinkRootDir, "dir");
+
+  return scaffoldProject({
+    projectRootDir: symlinkRootDir,
+    dispose: () => {
+      fs.rmSync(symlinkRootDir, { force: true });
+      fs.rmSync(realRootDir, { recursive: true, force: true });
+    },
+  });
+}
+
+function scaffoldProject({
+  projectRootDir,
+  dispose,
+}: {
+  projectRootDir: string;
+  dispose: () => void;
+}): TempProject {
   const tsconfigPath = path.join(projectRootDir, "tsconfig.json");
 
   fs.writeFileSync(
@@ -105,9 +170,7 @@ function makeTempProject(prefix: string): Disposable & {
   );
 
   return {
-    [Symbol.dispose]() {
-      fs.rmSync(projectRootDir, { recursive: true, force: true });
-    },
+    [Symbol.dispose]: dispose,
 
     writeProjectFile: (relativeFilePath: string, sourceText: string) => {
       const filePath = path.join(projectRootDir, relativeFilePath);
