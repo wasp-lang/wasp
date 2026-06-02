@@ -2,7 +2,7 @@ import Head from "@docusaurus/Head";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 
 import ExampleWaspApps from "../components/ExampleWaspApps";
-import Faq from "../components/Faq.jsx";
+import Faq from "../components/Faq";
 import FeaturesExplorer from "../components/FeaturesExplorer";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
