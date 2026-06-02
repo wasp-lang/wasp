@@ -13,6 +13,7 @@ module Wasp.Cli.Command.News
     -- Check the repo's README for more details.
     news,
     fetchAndListMustSeeNewsIfDue,
+    parserInfo,
   )
 where
 
@@ -20,8 +21,10 @@ import Control.Monad (unless)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (isJust)
+import qualified Options.Applicative as Opt
 import System.Environment (lookupEnv)
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..), runCommand)
+import qualified Wasp.Cli.Command.Call as Call
 import Wasp.Cli.Command.News.Fetching (fetchNews, fetchNewsWithTimeout)
 import Wasp.Cli.Command.News.Listing
   ( NewsListing (..),
@@ -29,7 +32,14 @@ import Wasp.Cli.Command.News.Listing
     shouldWaspListMustSeeNews,
   )
 import Wasp.Cli.Command.News.LocalNewsState (loadLocalNewsState)
+import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Util (checkIfOnCi, whenM)
+
+parserInfo :: Opt.ParserInfo (IO ())
+parserInfo =
+  Opt.info
+    (pure $ runWithTelemetry Call.Other (runCommand news))
+    (Opt.progDesc "Read the latest Wasp-related news.")
 
 news :: Command ()
 news = do

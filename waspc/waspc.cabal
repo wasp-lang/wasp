@@ -630,6 +630,7 @@ library cli-lib
     Wasp.Cli.Command.Telemetry.User
     Wasp.Cli.Command.Test
     Wasp.Cli.Command.Uninstall
+    Wasp.Cli.Command.Version
     Wasp.Cli.Command.WaspLS
     Wasp.Cli.Command.Watch
     Wasp.Cli.Common
@@ -647,7 +648,6 @@ executable wasp-cli
   hs-source-dirs: cli/exe
   main-is: Main.hs
   build-depends:
-    async,
     base,
     cli-lib,
     waspc,
@@ -807,11 +807,9 @@ test-suite wasp-cli-tests
     base,
     cli-lib,
     hspec,
-    optparse-applicative,
     tasty,
     tasty-hspec,
     time,
-    waspc,
 
   other-modules:
     Paths_waspc

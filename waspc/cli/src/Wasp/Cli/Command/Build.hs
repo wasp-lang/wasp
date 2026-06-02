@@ -2,9 +2,11 @@
 
 module Wasp.Cli.Command.Build
   ( build,
+    parserInfo,
   )
 where
 
+import Control.Applicative ((<|>))
 import Control.Lens (at, (%~), (&), (.~))
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
@@ -12,11 +14,15 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
 import Data.Aeson.Lens (key, _Object)
+import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..), runCommand)
+import qualified Wasp.Cli.Command.BuildStart as BuildStart
+import qualified Wasp.Cli.Command.Call as Call
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -38,6 +44,15 @@ import Wasp.Project.Common
 import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
+
+-- | `wasp build` produces the deployable bundle; `wasp build start [...]` previews it locally.
+parserInfo :: Opt.ParserInfo (IO ())
+parserInfo =
+  Opt.info
+    (buildStartCommand <|> pure (runWithTelemetry Call.Build (runCommand build)))
+    (Opt.progDesc "Generate the full web app, ready for deployment.")
+  where
+    buildStartCommand = Opt.hsubparser $ Opt.command "start" BuildStart.parserInfo
 
 -- | Builds Wasp project that the current working directory is part of.
 -- Does all the steps, from analysis to generation, and at the end writes generated code

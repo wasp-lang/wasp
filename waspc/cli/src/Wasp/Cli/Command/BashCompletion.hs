@@ -1,15 +1,32 @@
 module Wasp.Cli.Command.BashCompletion
   ( bashCompletion,
     printBashCompletionInstruction,
+    listCommandsParserInfo,
+    printInstructionParserInfo,
   )
 where
 
 import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
+import qualified Options.Applicative as Opt
 import qualified System.Environment as ENV
-import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command (Command, runCommand)
+import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Util.Terminal (styleCode)
+
+printInstructionParserInfo :: Opt.ParserInfo (IO ())
+printInstructionParserInfo =
+  Opt.info
+    (pure $ runWithTelemetry Call.Other (runCommand printBashCompletionInstruction))
+    (Opt.progDesc "Print bash auto-completion install instructions.")
+
+listCommandsParserInfo :: Opt.ParserInfo (IO ())
+listCommandsParserInfo =
+  Opt.info
+    (pure $ runWithTelemetry Call.Other (runCommand bashCompletion))
+    (Opt.progDesc "List commands for bash completion (used by complete -C).")
 
 -- generate bash completion depending on commands input
 bashCompletion :: Command ()

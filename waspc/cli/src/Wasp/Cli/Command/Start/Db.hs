@@ -2,6 +2,7 @@ module Wasp.Cli.Command.Start.Db
   ( start,
     startDbArgsParser,
     StartDbArgs (..),
+    parserInfo,
     waspDevDbDockerVolumePrefix,
   )
 where
@@ -18,11 +19,13 @@ import Text.Printf (printf)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.App.Db as AS.App.Db
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, CommandError (CommandError), runCommand)
+import qualified Wasp.Cli.Command.Call as Call
 import Wasp.Cli.Command.Common (throwIfExeIsNotAvailable)
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Db.Postgres (defaultPostgresDockerImageSpec)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir, makeAppUniqueId)
@@ -32,6 +35,13 @@ import Wasp.Project.Env (dotEnvServer)
 import Wasp.Util (whenM)
 import Wasp.Util.Docker (DockerImageName, DockerVolumeMountPath)
 import qualified Wasp.Util.Network.Socket as Socket
+
+-- | Parser for both `wasp start db` and its alias `wasp db start`.
+parserInfo :: Opt.ParserInfo (IO ())
+parserInfo =
+  Opt.info
+    (runWithTelemetry Call.Other . runCommand . start <$> startDbArgsParser)
+    (Opt.progDesc "Start the managed development database for this Wasp project.")
 
 -- | Starts a "managed" dev database, where "managed" means that
 -- Wasp creates it and connects the Wasp app with it.

@@ -1,7 +1,6 @@
 module Wasp.Cli.Command.Test
   ( test,
-    TestArgs (..),
-    testArgsParser,
+    parserInfo,
   )
 where
 
@@ -12,10 +11,12 @@ import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, (</>))
 import StrongPath.Types (Path')
-import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command (Command, CommandError (..), runCommand)
+import qualified Wasp.Cli.Command.Call as Call
 import Wasp.Cli.Command.Compile (compile)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -28,22 +29,27 @@ data TestArgs
   = TestClient [String]
   | TestServer [String]
 
-test :: TestArgs -> Command ()
-test (TestClient args) = watchAndTest $ Wasp.Generator.testWebApp args
-test (TestServer _args) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
-
-testArgsParser :: Opt.Parser TestArgs
-testArgsParser =
-  Opt.hsubparser $
-    Opt.command "client" (Opt.info (TestClient <$> passthroughArgsParser) (Opt.progDesc "Run client-side tests via Vitest"))
-      <> Opt.command "server" (Opt.info (TestServer <$> passthroughArgsParser) (Opt.progDesc "Run server-side tests (not yet implemented)"))
+parserInfo :: Opt.ParserInfo (IO ())
+parserInfo =
+  Opt.info testCommands (Opt.progDesc "Run tests in your project.")
   where
+    testCommands =
+      Opt.hsubparser $
+        Opt.command "client" (Opt.info (run . TestClient <$> passthroughArgsParser) (Opt.progDesc "Run client-side tests via Vitest"))
+          <> Opt.command "server" (Opt.info (run . TestServer <$> passthroughArgsParser) (Opt.progDesc "Run server-side tests (not yet implemented)"))
+
+    run = runWithTelemetry Call.Other . runCommand . test
+
     passthroughArgsParser :: Opt.Parser [String]
     passthroughArgsParser =
       Opt.many $
         Opt.strArgument $
           Opt.metavar "TEST_RUNNER_ARGS..."
             <> Opt.help "Arguments passed through to the test runner"
+
+test :: TestArgs -> Command ()
+test (TestClient args) = watchAndTest $ Wasp.Generator.testWebApp args
+test (TestServer _args) = throwError $ CommandError "Invalid arguments" "Server testing not yet implemented."
 
 watchAndTest :: (Path' Abs (Dir WaspProjectDir) -> IO (Either String ())) -> Command ()
 watchAndTest testRunner = do

@@ -4,6 +4,7 @@ module Wasp.Cli.Command.CreateNewProject.AI
     createNewProjectNonInteractiveToStdout,
     NewAiArgs (..),
     newAiArgsParser,
+    parserInfo,
   )
 where
 
@@ -37,13 +38,15 @@ import qualified Wasp.AI.GenerateNewProject.Common as GNP.C
 import qualified Wasp.AI.GenerateNewProject.LogMsg as GNP.L
 import Wasp.AI.OpenAI (OpenAIApiKey)
 import qualified Wasp.AI.OpenAI.ChatGPT as ChatGPT
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, CommandError (CommandError), runCommand)
+import qualified Wasp.Cli.Command.Call as Call
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectAppName (..),
     obtainAvailableProjectDirPath,
     parseWaspProjectNameIntoAppName,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (readWaspProjectSkeletonFiles)
+import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import qualified Wasp.Cli.Interactive as Interactive
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Util as U
@@ -238,3 +241,19 @@ newAiArgsParser =
       ( Opt.metavar "CONFIG_JSON"
           <> Opt.help "JSON config for Wasp AI (use \"{}\" for defaults)"
       )
+
+parserInfo :: Opt.ParserInfo (IO ())
+parserInfo =
+  Opt.info
+    (run <$> newAiArgsParser)
+    (Opt.progDesc "Use AI to create a new Wasp project from a short description.")
+  where
+    run args =
+      runWithTelemetry Call.Other . runCommand $
+        ( if newAiToStdout args
+            then createNewProjectNonInteractiveToStdout
+            else createNewProjectNonInteractiveOnDisk
+        )
+          (newAiProjectName args)
+          (newAiAppDescription args)
+          (newAiConfigJson args)

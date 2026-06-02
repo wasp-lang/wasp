@@ -1,5 +1,6 @@
 module Wasp.Cli.Command.Studio
   ( studio,
+    parserInfo,
   )
 where
 
@@ -10,6 +11,7 @@ import Data.Aeson (object, (.=))
 import Data.Aeson.Encode.Pretty (encodePretty)
 import qualified Data.ByteString.Lazy as BSL
 import Data.Maybe (fromMaybe, isJust)
+import qualified Options.Applicative as Opt
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import StrongPath.Operations ()
@@ -24,13 +26,21 @@ import qualified Wasp.AppSpec.Operation as Operation
 import qualified Wasp.AppSpec.Page as AS.Page
 import qualified Wasp.AppSpec.Route as AS.Route
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, CommandError (CommandError))
+import Wasp.Cli.Command (Command, CommandError (CommandError), runCommand)
+import qualified Wasp.Cli.Command.Call as Call
 import Wasp.Cli.Command.Compile (analyze)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir)
 import qualified Wasp.Project.Studio
+
+parserInfo :: Opt.ParserInfo (IO ())
+parserInfo =
+  Opt.info
+    (pure $ runWithTelemetry Call.Other (runCommand studio))
+    (Opt.progDesc "(experimental) GUI for inspecting your Wasp app.")
 
 studio :: Command ()
 studio = do

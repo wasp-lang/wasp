@@ -2,10 +2,13 @@ module Wasp.Cli.Command.WaspLS
   ( runWaspLS,
     WaspLSArgs (..),
     waspLSArgsParser,
+    parserInfo,
   )
 where
 
 import qualified Options.Applicative as Opt
+import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import qualified Wasp.LSP.Server as LS
 
 data WaspLSArgs = WaspLSArgs
@@ -13,6 +16,12 @@ data WaspLSArgs = WaspLSArgs
     -- vscode passes --stdio; we always use stdio so the value is ignored.
     waspLSUseStdio :: Bool
   }
+
+parserInfo :: Opt.ParserInfo (IO ())
+parserInfo =
+  Opt.info
+    (runWithTelemetry Call.Other . runWaspLS <$> waspLSArgsParser)
+    (Opt.progDesc "Run the Wasp Language Server.")
 
 runWaspLS :: WaspLSArgs -> IO ()
 runWaspLS args = LS.serve (waspLSLogFile args)
