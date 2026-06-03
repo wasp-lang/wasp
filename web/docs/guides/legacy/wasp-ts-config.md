@@ -32,7 +32,6 @@ In the TS Config you could only reference your code with import objects (`{ impo
       fn: { import: "getTasks", from: "@src/queries" },
     })
     ```
-
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
@@ -47,7 +46,6 @@ In the TS Config you could only reference your code with import objects (`{ impo
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -95,7 +93,6 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
     export default app
     ```
-
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
@@ -113,7 +110,6 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -134,7 +130,6 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       httpRoute: { method: "GET", route: "/bar/baz" },
     })
     ```
-
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
@@ -151,7 +146,6 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -186,7 +180,6 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -219,7 +212,6 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -252,7 +244,6 @@ These were configured with mutating method calls. They are now keys of the `app(
 
     export default app
     ```
-
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
@@ -278,7 +269,6 @@ These were configured with mutating method calls. They are now keys of the `app(
       // ...
     })
     ```
-
   </TabItem>
 </Tabs>
 
