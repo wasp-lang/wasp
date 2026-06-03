@@ -14,34 +14,31 @@ import {
 
 export const SPEC_PACKAGE_NAME = "@wasp.sh/spec";
 export const SPEC_PACKAGE_INTERNAL_NAME = "@wasp.sh/spec/internal";
-export const REF_EXPORT_NAME = "ref";
-export const REF_IMPORT_FACTORY_EXPORT_NAME = "_waspMakeRef";
+export const REF_HELPER_EXPORT_NAME = "ref";
+export const MAKE_REF_EXPORT_NAME = "_waspMakeRef";
 
 export function getSpecPackageImports(
   program: t.Program,
 ): t.ImportDeclaration[] {
-  return program.body
-    .filter(isImportDeclaration)
-    .filter(isSpecPackageImport);
+  return program.body.filter(isImportDeclaration).filter(isSpecPackageImport);
 }
 
-export function getLocalRefImportName(
+export function getLocalRefHelperName(
   imports: t.ImportDeclaration[],
 ): string | undefined {
   for (const stmt of imports) {
-    const refSpecifier = getNamedValueImportSpecifiers(stmt).find(
-      importsRef,
-    );
+    const refHelperSpecifier =
+      getNamedValueImportSpecifiers(stmt).find(importsRefHelper);
 
-    if (refSpecifier) {
-      return getLocalImportName(refSpecifier);
+    if (refHelperSpecifier) {
+      return getLocalImportName(refHelperSpecifier);
     }
   }
 
   return undefined;
 }
 
-export function getImportWithoutRefSource(
+export function getImportWithoutRefHelperSource(
   sourceText: string,
   stmt: t.ImportDeclaration,
 ): string | undefined {
@@ -51,7 +48,7 @@ export function getImportWithoutRefSource(
 
   const defaultImport = getDefaultImportSource(sourceText, stmt);
   const namedImports = getNamedImportSpecifiers(stmt)
-    .filter((specifier) => !isValueRefImport(specifier))
+    .filter((specifier) => !isValueRefHelperSpecifier(specifier))
     .map((specifier) => getImportSpecifierSource(sourceText, specifier));
 
   const importParts = [
@@ -76,13 +73,15 @@ function getDefaultImportSource(
     (specifier) => specifier.type === "ImportDefaultSpecifier",
   );
 
-  return specifier ? getImportSpecifierSource(sourceText, specifier) : undefined;
+  return specifier
+    ? getImportSpecifierSource(sourceText, specifier)
+    : undefined;
 }
 
-function isValueRefImport(specifier: NamedImportSpecifier): boolean {
-  return isValueImportSpecifier(specifier) && importsRef(specifier);
+function isValueRefHelperSpecifier(specifier: NamedImportSpecifier): boolean {
+  return isValueImportSpecifier(specifier) && importsRefHelper(specifier);
 }
 
-function importsRef(specifier: NamedImportSpecifier): boolean {
-  return getImportedName(specifier) === REF_EXPORT_NAME;
+function importsRefHelper(specifier: NamedImportSpecifier): boolean {
+  return getImportedName(specifier) === REF_HELPER_EXPORT_NAME;
 }

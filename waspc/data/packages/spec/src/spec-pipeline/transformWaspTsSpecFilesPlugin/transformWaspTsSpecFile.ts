@@ -3,7 +3,7 @@ import { parseAst } from "rolldown/parseAst";
 import { planRefImportLowering } from "./refImportLowering.js";
 import { planSourceAwareRefHelper } from "./sourceAwareRefHelper.js";
 
-export type Removal = {
+export type SourceRemoval = {
   start: number;
   end: number;
 };
@@ -32,7 +32,7 @@ export function transformWaspTsSpecFile_mutate(
   });
   const refImportLoweringPlan = planRefImportLowering({
     program,
-    refName: sourceAwareRefHelperPlan.refName,
+    refHelperName: sourceAwareRefHelperPlan.refHelperName,
   });
 
   const prependedSource = [

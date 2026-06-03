@@ -21,6 +21,22 @@ export function createUniqueTopLevelNameGenerator(program: t.Program): {
   };
 }
 
+function findUnusedName(
+  preferredName: string,
+  usedNames: ReadonlySet<string>,
+): string {
+  if (!usedNames.has(preferredName)) {
+    return preferredName;
+  }
+
+  for (let index = 1; ; index++) {
+    const candidate = `${preferredName}${index}`;
+    if (!usedNames.has(candidate)) {
+      return candidate;
+    }
+  }
+}
+
 function getTopLevelValueNames(program: t.Program): Set<string> {
   return new Set(program.body.flatMap(getTopLevelStatementValueNames));
 }
@@ -52,7 +68,7 @@ function getTopLevelDeclarationValueNames(declaration: unknown): string[] {
     case "TSImportEqualsDeclaration":
       return declaration.importKind === "type"
         ? []
-        : optionalName(declaration.id);
+        : getOptionalIdentifierName(declaration.id);
 
     case "VariableDeclaration":
       return getVariableDeclarationValueNames(declaration);
@@ -61,7 +77,7 @@ function getTopLevelDeclarationValueNames(declaration: unknown): string[] {
     case "ClassDeclaration":
     case "TSEnumDeclaration":
     case "TSModuleDeclaration":
-      return optionalName(declaration.id);
+      return getOptionalIdentifierName(declaration.id);
 
     default:
       return [];
@@ -140,7 +156,7 @@ function getObjectPatternPropertyValueNames(property: unknown): string[] {
   }
 }
 
-function optionalName(node: unknown): string[] {
+function getOptionalIdentifierName(node: unknown): string[] {
   return isObject(node) &&
     node.type === "Identifier" &&
     typeof node.name === "string"
@@ -154,20 +170,4 @@ function getObjectProperty(object: unknown, property: string): unknown {
 
 function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
-}
-
-function findUnusedName(
-  preferredName: string,
-  usedNames: ReadonlySet<string>,
-): string {
-  if (!usedNames.has(preferredName)) {
-    return preferredName;
-  }
-
-  for (let index = 1; ; index++) {
-    const candidate = `${preferredName}${index}`;
-    if (!usedNames.has(candidate)) {
-      return candidate;
-    }
-  }
 }
