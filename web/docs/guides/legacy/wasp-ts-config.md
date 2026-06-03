@@ -282,97 +282,97 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 1. Update your `package.json` with the new dependencies:
 
-    <Tabs sideBySide>
-      <TabItem value="before" label="Before">
-        ```json title="package.json"
-        {
-          "devDependencies": {
-            "wasp-config": "file:.wasp/wasp-config"
-          }
-        }
-        ```
-      </TabItem>
-      <TabItem value="after" label="After">
-        ```json title="package.json"
-        {
-          "devDependencies": {
-            "@types/node": "^24.0.0",
-            "@wasp.sh/spec": "file:.wasp/spec"
-          }
-        }
-        ```
-      </TabItem>
-    </Tabs>
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```json title="package.json"
+       {
+         "devDependencies": {
+           "wasp-config": "file:.wasp/wasp-config"
+         }
+       }
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```json title="package.json"
+       {
+         "devDependencies": {
+           "@types/node": "^24.0.0",
+           "@wasp.sh/spec": "file:.wasp/spec"
+         }
+       }
+       ```
+     </TabItem>
+   </Tabs>
 
-    Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+   Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
 2. Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 
-    ```json title="tsconfig.wasp.json"
-    {
-      "compilerOptions": {
-        "target": "ES2022",
-        "module": "esnext",
-        "moduleResolution": "bundler",
-        "jsx": "preserve",
-        "strict": true,
-        "isolatedModules": true,
-        "moduleDetection": "force",
-        "skipLibCheck": true,
-        "allowJs": true,
-        "noEmit": true,
-        "lib": ["ES2023"]
-      },
-      "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
-    }
-    ```
+   ```json title="tsconfig.wasp.json"
+   {
+     "compilerOptions": {
+       "target": "ES2022",
+       "module": "esnext",
+       "moduleResolution": "bundler",
+       "jsx": "preserve",
+       "strict": true,
+       "isolatedModules": true,
+       "moduleDetection": "force",
+       "skipLibCheck": true,
+       "allowJs": true,
+       "noEmit": true,
+       "lib": ["ES2023"]
+     },
+     "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
+   }
+   ```
 
 3. Make sure your `tsconfig.src.json` excludes Wasp Spec files:
 
-    ```json title="tsconfig.src.json"
-    {
-      // ...
-      "include": ["src"],
-      "exclude": ["**/*.wasp.ts"]
-    }
-    ```
+   ```json title="tsconfig.src.json"
+   {
+     // ...
+     "include": ["src"],
+     "exclude": ["**/*.wasp.ts"]
+   }
+   ```
 
 4. Run `wasp install`.
 
 5. Rewrite `main.wasp.ts`:
 
-    Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `decls` array holds the declarations (see the [mapping above](#changes)), and update the import:
+   Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `decls` array holds the declarations (see the [mapping above](#changes)), and update the import:
 
-    <Tabs sideBySide>
-      <TabItem value="before" label="Before">
-        ```ts title="main.wasp.ts"
-        import { App } from "wasp-config"
+   <Tabs sideBySide>
+     <TabItem value="before" label="Before">
+       ```ts title="main.wasp.ts"
+       import { App } from "wasp-config"
 
-        const app = new App("myApp", {
-          title: "My app",
-          wasp: { version: "^0.24.0" },
-        })
-        ```
-      </TabItem>
-      <TabItem value="after" label="After">
-        ```ts title="main.wasp.ts"
-        import { app, page, route, query, action } from "@wasp.sh/spec"
+       const app = new App("myApp", {
+         title: "My app",
+         wasp: { version: "^0.24.0" },
+       })
+       ```
+     </TabItem>
+     <TabItem value="after" label="After">
+       ```ts title="main.wasp.ts"
+       import { app, page, route, query, action } from "@wasp.sh/spec"
 
-        export default app({
-          name: "myApp",
-          title: "My app",
-          wasp: { version: "^0.24.0" },
-          decls: [
-            // ...
-          ]
-        })
-        ```
-      </TabItem>
-    </Tabs>
+       export default app({
+         name: "myApp",
+         title: "My app",
+         wasp: { version: "^0.24.0" },
+         decls: [
+           // ...
+         ]
+       })
+       ```
+     </TabItem>
+   </Tabs>
 
-    :::note
-    While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
-    :::
+   :::note
+   While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
+   :::
 
 6. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 
