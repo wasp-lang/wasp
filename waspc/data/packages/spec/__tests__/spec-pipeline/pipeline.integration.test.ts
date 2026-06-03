@@ -119,6 +119,8 @@ function makeTempProject(prefix: string): {
 }
 
 function writeSpecPackageStub(projectRootDir: string): void {
+  // The pipeline loads transformed specs through Node, so tests need a minimal
+  // local @wasp.sh/spec package for runtime imports and type resolution.
   writeProjectFile(
     projectRootDir,
     "node_modules/@wasp.sh/spec/package.json",

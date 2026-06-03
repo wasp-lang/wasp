@@ -6,12 +6,19 @@ import { SpecUserError } from "./specUserError.js";
 
 /**
  * A reference to code in your app's `src` directory.
+ *
+ * @category References
  */
 export type RefObject = Branded<
   RefObjectDescriptor & { kind: "refObject" },
   "RefObject"
 >;
 
+/**
+ * Input accepted by {@link ref}.
+ *
+ * @category References
+ */
 export type RefObjectDescriptor =
   | NamedRefObjectDescriptor
   | DefaultRefObjectDescriptor;
@@ -19,6 +26,8 @@ export type RefObjectDescriptor =
 /**
  * Named import reference, equivalent to
  * `import { SomeValue } from "./src/someModule" with { type: "ref" }`.
+ *
+ * @category References
  */
 export interface NamedRefObjectDescriptor {
   /** Exported name to import. */
@@ -37,6 +46,8 @@ export interface NamedRefObjectDescriptor {
 /**
  * Default import reference, equivalent to
  * `import SomeValue from "./src/someModule" with { type: "ref" }`.
+ *
+ * @category References
  */
 export interface DefaultRefObjectDescriptor {
   /** Local name for the default import. */
@@ -46,24 +57,29 @@ export interface DefaultRefObjectDescriptor {
 }
 
 /**
- * Creates an object that describes a reference to your app's code.
+ * Creates a fallback reference object for a value from your app.
  *
- * Prefer using [reference imports](https://wasp.sh/docs/general/spec#reference-imports) when possible because editors can
- * follow and rename real imports. Use `ref(...)` when a reference must be
- * built directly.
+ * {@include ./publicApi/referenceImports.md}
  *
- * The import path must be a relative and resolve inside the app's `src/`
- * directory, relative to the `*.wasp.ts` file where it is used. Absolute
+ * Reference imports are preferred because editors can follow and rename real
+ * imports.
+ *
+ * The import path must be relative to the `*.wasp.ts` file where it is used
+ * and resolve inside the app's `src/` directory. Absolute
  * paths are not supported.
+ *
+ * @category References
  *
  * @example
  * ```ts
  * import { page, ref } from "@wasp.sh/spec"
  *
- * export const mainPage = page(ref({
+ * const MainPage = ref({
  *   importDefault: "MainPage",
  *   from: "./src/MainPage",
- * }))
+ * })
+ *
+ * export const mainPage = page(MainPage)
  * ```
  */
 export function ref(_descriptor: RefObjectDescriptor): RefObject {
@@ -87,12 +103,14 @@ export function _waspMakeRef(
 ): (descriptor: RefObjectDescriptor) => SourceAwareRefObject {
   const sourceFilePath = fileURLToPath(importingFileUrl);
 
-  return (descriptor: RefObjectDescriptor) =>
-    ({
+  return (descriptor: RefObjectDescriptor) => {
+    const refObject = {
       ...descriptor,
       kind: "refObject",
-      sourceFilePath,
-    }) as unknown as SourceAwareRefObject;
+    } as RefObject;
+
+    return { ...refObject, sourceFilePath };
+  };
 }
 
 export function mapRefObject(

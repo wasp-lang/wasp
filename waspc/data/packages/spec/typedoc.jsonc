@@ -12,6 +12,8 @@
 
   "excludeInternal": true,
 
+  "entryPoints": ["src/index.ts"],
+
   // For exports with no category
   "defaultCategory": "Fields",
 
