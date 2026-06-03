@@ -51,7 +51,7 @@ Pick the prompt that matches your current config style and give it to your agent
 {`
 You are migrating my Wasp app from Wasp 0.23 to Wasp 0.24.
 
-My app currently uses the Wasp DSL in main.wasp. Please convert the config to the Wasp Spec in main.wasp.ts.
+My app currently uses the Wasp DSL in main.wasp. Please convert the config to the Wasp Spec in \`main.wasp.ts\`.
 
 Use these docs:
 
@@ -67,7 +67,7 @@ Important:
 - After converting the config, return to the 0.23 to 0.24 migration guide and finish the shared migration steps.
 - Keep the app's behavior the same.
 - Use reference imports with \`with { type: "ref" }\` when importing components and functions from src.
-- If splitting the spec into multiple files, export Decl[] arrays from feature spec files and spread them into main.wasp.ts.
+- If splitting the spec into multiple files, export \`Decl[]\` arrays from feature spec files and spread them into \`main.wasp.ts\`.
 
 Please make the changes directly in the repo and tell me what commands I should run to verify the migration.
 `}
@@ -81,7 +81,7 @@ Please make the changes directly in the repo and tell me what commands I should 
 {`
 You are migrating my Wasp app from Wasp 0.23 to Wasp 0.24.
 
-My app currently uses the old class-based Wasp TS Config in main.wasp.ts. Please convert it to the new function-based Wasp Spec.
+My app currently uses the old class-based Wasp TS Config in \`main.wasp.ts\`. Please convert it to the new function-based Wasp Spec.
 
 Use these docs:
 
@@ -97,7 +97,7 @@ Important:
 - After converting the config, return to the 0.23 to 0.24 migration guide and finish the shared migration steps.
 - Keep the app's behavior the same.
 - Prefer reference imports with \`with { type: "ref" }\` when importing components and functions from src.
-- If splitting the spec into multiple files, export Decl[] arrays from feature spec files and spread them into main.wasp.ts.
+- If splitting the spec into multiple files, export \`Decl[]\` arrays from feature spec files and spread them into \`main.wasp.ts\`.
 
 Please make the changes directly in the repo and tell me what commands I should run to verify the migration.
 `}

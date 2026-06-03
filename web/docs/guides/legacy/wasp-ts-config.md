@@ -11,12 +11,8 @@ The first version of configuring Wasp in TypeScript used a **class-based API**: 
 
 Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `decls` array.
 
-:::info Upgrading from Wasp 0.23 to 0.24?
-This guide is self-contained for converting the old class-based `main.wasp.ts` to the new Wasp Spec. If you came here from the [0.23 to 0.24 migration guide](../../migration-guide.md), finish this config conversion, then return there for the remaining shared migration steps.
-:::
-
-:::tip Let an LLM do the heavy lifting
-The mapping below is mechanical. If you are upgrading from Wasp 0.23 to 0.24, the [migration guide](../../migration-guide.md#use-an-agent-to-do-it-for-you) has a copyable prompt that includes this guide, the Wasp Spec docs, and the shared migration steps.
+:::tip Upgrading from Wasp 0.23 to 0.24?
+The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](../../migration-guide.md#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](../../migration-guide.md) for the remaining shared steps.
 :::
 
 ## New features
@@ -290,7 +286,7 @@ These were configured with mutating method calls. They are now keys of the `app(
 
 These steps convert an old class-based Wasp TS Config to the new Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.24.0`.
 
-After finishing this guide, return to the [migration guide](../../migration-guide.md) if you still need to complete the shared Wasp 0.24 migration steps.
+After finishing this guide, return to the [migration guide](../../migration-guide.md) if you still need to complete the shared Wasp `0.24.0` migration steps.
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 

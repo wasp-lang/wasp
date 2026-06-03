@@ -9,12 +9,14 @@ You define and configure the high level of your app (pages, routes, queries, act
 You write the Wasp Spec in TypeScript, so you get out-of-the-box support in all editors, full type checking, and the flexibility of a real programming language while configuring your app.
 
 :::info Coming from an older version of Wasp?
-The Wasp Spec replaces two older ways of configuring a Wasp app:
+The Wasp Spec replaces two older ways of configuring a Wasp app: 
+- The **Wasp DSL** (`main.wasp`).
+- The **TS Config** (`main.wasp.ts`, with the class-based `new App(...)` API).
 
-- The **Wasp DSL** (`main.wasp`). See [Migrating from the Wasp DSL](../guides/legacy/wasp-dsl.md).
-- The **TS Config** (`main.wasp.ts` with the class-based `new App(...)` API). See [Migrating from the TS Config](../guides/legacy/wasp-ts-config.md).
+If you're upgrading from Wasp `0.23.X` to `0.24.X`, start with the [migration guide](../migration-guide.md). Then pick the conversion guide matching your old config:
 
-If you are upgrading from Wasp `0.23.X` to Wasp `0.24.X`, start with the [migration guide](../migration-guide.md) and use the matching conversion guide from there.
+- **Wasp DSL** → [Migrating from the Wasp DSL](../guides/legacy/wasp-dsl.md)
+- **TS Config** → [Migrating from the TS Config](../guides/legacy/wasp-ts-config.md)
 :::
 
 ## A quick example
@@ -58,9 +60,9 @@ Anywhere the Wasp Spec expects your app's function or component (like a page's `
 
 **Recommended**
 
-Import the value with the regular syntax, adding `with { type: "ref" }`. Use it when importing components or functions from `src` so Wasp can connect them to pages, actions, queries, and other declarations.
+Import the value with the regular syntax, adding `with { type: "ref" }`. Use it when importing components or functions from `src/` so Wasp can connect them to pages, actions, queries, and other declarations.
 
-```ts
+```ts title="main.wasp.ts"
 import MainPage from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
@@ -69,7 +71,8 @@ export default app({
 });
 ```
 
-You can use relative import paths when splitting an app into multiple files:
+The import paths are relative to the  `*.wasp.ts` file they're written in (see [multiple spec files](#splitting-your-spec-into-multiple-files)):
+
 
 ```ts title="src/auth/auth.wasp.ts"
 import LoginPage from "./LoginPage" with { type: "ref" };
@@ -92,7 +95,7 @@ The vast majority of Wasp apps won't run into these limitations, so we recommend
 
 Just pass an object with `import` (or `importDefault`) and `from`:
 
-```ts
+```ts title="main.wasp.ts"
 export default app({
   decls: [
     page({ importDefault: "MainPage", from: "@src/MainPage" }),
