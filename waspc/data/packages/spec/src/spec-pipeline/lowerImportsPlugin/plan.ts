@@ -1,6 +1,7 @@
 import { parseAst } from "rolldown/parseAst";
 import type { ESTree as t } from "rolldown/utils";
 import { DefaultRefObject, NamedRefObject } from "../../spec/refObject.js";
+import { SpecUserError } from "../../spec/specUserError.js";
 import { mapImportPath, RefImportPath } from "./mapImportPath.js";
 
 export type PlannedImportReference =
@@ -33,8 +34,16 @@ export function planLowerImports({
   const ast = parseAst(sourceText, { lang: "ts" });
 
   return ast.body.filter(isRefImportDeclaration).map((node) => {
+    const refImportPath = getStringValue(node.source);
+
+    if (node.specifiers.length === 0) {
+      throw new SpecUserError(
+        `Ref import from ${JSON.stringify(refImportPath)} must import at least one binding.`,
+      );
+    }
+
     const importSource = mapImportPath({
-      refImportPath: getStringValue(node.source),
+      refImportPath,
       importingFilePath,
       projectRootDir,
     });

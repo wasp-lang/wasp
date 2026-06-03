@@ -3,6 +3,7 @@ import {
   planLowerImports,
   PlannedImport,
 } from "../../../src/spec-pipeline/lowerImportsPlugin/plan.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("planLowerImports", () => {
   describe("simple cases", () => {
@@ -189,6 +190,31 @@ describe("planLowerImports", () => {
         ).toEqual(expected);
       },
     );
+  });
+
+  describe("ref imports without specifiers", () => {
+    type ThrowingTestCase = [name: string, source: string];
+
+    test.for([
+      [
+        "rejects a side-effect ref import",
+        `import "./src/operations" with { type: "ref" };`,
+      ],
+      [
+        "rejects an empty named ref import",
+        `import {} from "./src/operations" with { type: "ref" };`,
+      ],
+    ] satisfies ThrowingTestCase[])("%s", ([, source]: ThrowingTestCase) => {
+      const plan = () =>
+        planLowerImports({
+          sourceText: source,
+          projectRootDir: "/project",
+          importingFilePath: "/project/main.wasp.ts",
+        });
+
+      expect(plan).toThrow(SpecUserError);
+      expect(plan).toThrow("must import at least one binding");
+    });
   });
 
   test("resolves ref imports relative to the importing file's directory", () => {
