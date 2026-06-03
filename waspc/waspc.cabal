@@ -642,6 +642,7 @@ library cli-lib
     Wasp.Cli.Parser
     Wasp.Cli.Terminal
     Wasp.Cli.Util.EnvVarArgument
+    Wasp.Cli.Util.Parser
     Wasp.Cli.Util.PathArgument
 
 executable wasp-cli
