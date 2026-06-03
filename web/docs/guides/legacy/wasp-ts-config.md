@@ -290,7 +290,7 @@ After finishing this guide, return to the [migration guide](../../migration-guid
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
-1.  Update your `package.json` with the new dependencies:
+1. Update your `package.json` with the new dependencies:
 
     <Tabs sideBySide>
       <TabItem value="before" label="Before">
@@ -316,7 +316,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
     Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
-2.  Update your `tsconfig.wasp.json` and make sure it includes the following settings:
+2. Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 
     ```json title="tsconfig.wasp.json"
     {
@@ -337,7 +337,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     }
     ```
 
-3.  Make sure your `tsconfig.src.json` excludes Wasp Spec files:
+3. Make sure your `tsconfig.src.json` excludes Wasp Spec files:
 
     ```json title="tsconfig.src.json"
     {
@@ -347,9 +347,9 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     }
     ```
 
-4.  Run `wasp install`.
+4. Run `wasp install`.
 
-5.  Rewrite `main.wasp.ts`:
+5. Rewrite `main.wasp.ts`:
 
     Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `decls` array holds the declarations (see the [mapping above](#changes)), and update the import:
 
@@ -363,7 +363,6 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           wasp: { version: "^0.24.0" },
         })
         ```
-
       </TabItem>
       <TabItem value="after" label="After">
         ```ts title="main.wasp.ts"
@@ -378,7 +377,6 @@ Wasp validates the Wasp Spec support files during migration, including the requi
           ]
         })
         ```
-
       </TabItem>
     </Tabs>
 
@@ -386,7 +384,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
     While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
     :::
 
-6.  Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
+6. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 
 :::note
 At some points, when the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.

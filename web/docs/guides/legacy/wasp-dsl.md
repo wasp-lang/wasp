@@ -60,7 +60,6 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
       authRequired: true
     }
     ```
-
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
@@ -76,7 +75,6 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -97,7 +95,6 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
       entities: [Task]
     }
     ```
-
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
@@ -113,7 +110,6 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -136,7 +132,6 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
       httpRoute: (GET, "/bar/baz")
     }
     ```
-
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
@@ -153,7 +148,6 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -190,7 +184,6 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -223,7 +216,6 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
       ],
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -276,7 +268,6 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
       // ...
     })
     ```
-
   </TabItem>
 </Tabs>
 

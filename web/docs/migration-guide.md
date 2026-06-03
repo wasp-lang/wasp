@@ -122,7 +122,6 @@ Update the version field in your Wasp config to `^0.24.0`. The syntax depends on
     }
     ```
   </TabItem>
-
   <TabItem value="wasp-ts-config" label="Wasp TS Config">
     ```ts title="main.wasp.ts"
     import { App } from "wasp-config"
@@ -134,7 +133,6 @@ Update the version field in your Wasp config to `^0.24.0`. The syntax depends on
       // ...
     })
     ```
-
   </TabItem>
 </Tabs>
 
@@ -185,9 +183,7 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
       console.log(error.response?.status)
     }
     ```
-
   </TabItem>
-
   <TabItem value="after" label="After">
     ```ts
     import { api } from "wasp/client/api"
@@ -208,7 +204,6 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
       }
     }
     ```
-
   </TabItem>
 </Tabs>
 
