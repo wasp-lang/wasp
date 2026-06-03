@@ -1,5 +1,6 @@
 import type { RolldownMagicString } from "rolldown";
 import { RefObject } from "../../index.js";
+import { SpecUserError } from "../../spec/specUserError.js";
 import type { PlannedImport, PlannedImportReference } from "./plan.js";
 
 export function applyLowerImportsPlan_mutate(
@@ -33,27 +34,15 @@ export function getLoweredImportSource(ref: PlannedImportReference): string {
       );
 
     case "namespace":
-      return getNamespaceProxySource(ref);
+      throw new SpecUserError(
+        [
+          "Namespace imports are not supported for reference imports.",
+          `Replace \`import * as ${ref.alias} from "${ref.from}" with { type: "ref" }\` with a named or default reference imports.`,
+        ].join("\n"),
+      );
   }
 }
 
 function getRefObjectBindingSource(identifier: string, refObject: RefObject) {
   return `const ${identifier} = ${JSON.stringify(refObject)} as const;\n`;
-}
-
-/**
- * Namespace imports are lowered to a Proxy so `import * as ops` can support any
- * `ops.anything` access by returning `{ import: "anything", from: ... }`. This
- * avoids enumerating every place where `ops` is used.
- *
- * The generated alias is prefixed with the local name (e.g. `ops.archive`
- * becomes `ops_archive`) so multiple namespace imports don't collide.
- */
-function getNamespaceProxySource(
-  ref: Extract<PlannedImportReference, { kind: "namespace" }>,
-): string {
-  const from = JSON.stringify(ref.from);
-  const aliasPrefix = JSON.stringify(`${ref.alias}_`);
-
-  return `const ${ref.alias} = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: ${from}, alias: ${aliasPrefix} + String(k) } as const) }) as Record<string, { import: string; from: ${from}; alias: string }>;\n`;
 }

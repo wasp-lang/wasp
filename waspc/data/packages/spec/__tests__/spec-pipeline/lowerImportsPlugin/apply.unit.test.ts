@@ -1,5 +1,9 @@
 import { describe, expect, test } from "vitest";
-import { getLoweredImportSource } from "../../../src/spec-pipeline/lowerImportsPlugin/apply.js";
+import {
+  applyLowerImportsPlan_mutate,
+  getLoweredImportSource,
+} from "../../../src/spec-pipeline/lowerImportsPlugin/apply.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("getLoweredImportSource", () => {
   test("lowers a default import into a DefaultRefObject (importDefault)", () => {
@@ -45,15 +49,49 @@ describe("getLoweredImportSource", () => {
     );
   });
 
-  test("lowers a namespace import into a Proxy with a name-prefixed alias", () => {
-    expect(
+  test("rejects a namespace import with a SpecUserError", () => {
+    expect(() =>
       getLoweredImportSource({
         kind: "namespace",
         alias: "ops",
         from: "@src/operations",
       }),
-    ).toBe(
-      `const ops = new Proxy({}, { get: (_t, k) => ({ import: String(k), from: "@src/operations", alias: "ops_" + String(k) } as const) }) as Record<string, { import: string; from: "@src/operations"; alias: string }>;\n`,
-    );
+    ).toThrow(SpecUserError);
+  });
+
+  test("mentions the offending namespace binding in the error", () => {
+    expect(() =>
+      getLoweredImportSource({
+        kind: "namespace",
+        alias: "ops",
+        from: "@src/operations",
+      }),
+    ).toThrow(/import \* as ops/);
   });
 });
+
+describe("applyLowerImportsPlan_mutate", () => {
+  test("rejects a plan containing a namespace import with a SpecUserError", () => {
+    const magicString = makeMagicStringStub();
+
+    expect(() =>
+      applyLowerImportsPlan_mutate(magicString, [
+        {
+          removeImport: { start: 0, end: 10 },
+          references: [
+            { kind: "namespace", alias: "ops", from: "@src/operations" },
+          ],
+        },
+      ]),
+    ).toThrow(SpecUserError);
+  });
+});
+
+// A minimal stand-in for RolldownMagicString that records the mutating calls
+// `applyLowerImportsPlan_mutate` makes, so we can exercise it without a bundler.
+function makeMagicStringStub() {
+  return {
+    remove: () => {},
+    prepend: () => {},
+  } as unknown as Parameters<typeof applyLowerImportsPlan_mutate>[0];
+}
