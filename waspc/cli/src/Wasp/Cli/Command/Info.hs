@@ -6,29 +6,24 @@ where
 
 import Control.Arrow ()
 import Control.Monad.IO.Class (MonadIO (liftIO))
-import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', fromRelFile)
 import StrongPath.Operations ()
 import System.Directory (getFileSize)
 import qualified Wasp.AppSpec.Valid as ASV
-import Wasp.Cli.Command (Command, runCommand)
-import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Common (readWaspCompileInfo)
 import Wasp.Cli.Command.Compile (analyze)
+import Wasp.Cli.Command.Definition (CommandParserInfo, command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Msg
 import Wasp.Project (WaspProjectDir)
 import qualified Wasp.Util.IO as IOUtil
 import qualified Wasp.Util.Terminal as Term
 
-parserInfo :: Opt.ParserInfo (IO ())
-parserInfo =
-  Opt.info
-    (pure $ runWithTelemetry Call.Other (runCommand info))
-    (Opt.progDesc "Print basic information about the current Wasp project.")
+parserInfo :: CommandParserInfo
+parserInfo = command "Print basic information about the current Wasp project." info
 
 info :: Command ()
 info = do

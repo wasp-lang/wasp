@@ -7,8 +7,7 @@ module Wasp.Cli.Command.WaspLS
 where
 
 import qualified Options.Applicative as Opt
-import qualified Wasp.Cli.Command.Call as Call
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
+import Wasp.Cli.Command.Definition (CommandParserInfo, leafWithArgs, runWaspIO)
 import qualified Wasp.LSP.Server as LS
 
 data WaspLSArgs = WaspLSArgs
@@ -17,11 +16,12 @@ data WaspLSArgs = WaspLSArgs
     waspLSUseStdio :: Bool
   }
 
-parserInfo :: Opt.ParserInfo (IO ())
+parserInfo :: CommandParserInfo
 parserInfo =
-  Opt.info
-    (runWithTelemetry Call.Other . runWaspLS <$> waspLSArgsParser)
-    (Opt.progDesc "Run the Wasp Language Server.")
+  leafWithArgs
+    "Run the Wasp Language Server."
+    waspLSArgsParser
+    (runWaspIO . runWaspLS)
 
 runWaspLS :: WaspLSArgs -> IO ()
 runWaspLS args = LS.serve (waspLSLogFile args)

@@ -608,6 +608,7 @@ library cli-lib
     Wasp.Cli.Command.Db.Reset
     Wasp.Cli.Command.Db.Seed
     Wasp.Cli.Command.Db.Studio
+    Wasp.Cli.Command.Definition
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Dockerfile

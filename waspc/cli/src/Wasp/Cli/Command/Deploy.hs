@@ -8,20 +8,21 @@ import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import qualified Options.Applicative as Opt
 import System.Environment (getExecutablePath)
-import Wasp.Cli.Command (Command, CommandError (CommandError), runCommand)
+import Wasp.Cli.Command (Command, CommandError (CommandError))
 import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command.Definition (CommandParserInfo, runWaspCommandAs)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import qualified Wasp.Project.Deployment
 
-parserInfo :: Opt.ParserInfo (IO ())
+-- | Custom parser (not the 'Definition' combinators) because deploy forwards all
+-- options to the deploy script and reports arg-aware telemetry.
+parserInfo :: CommandParserInfo
 parserInfo =
   Opt.info
     (run <$> deployArgsParser)
     (Opt.progDesc "Deploy your Wasp app to cloud hosting providers." <> Opt.forwardOptions)
   where
-    -- Deploy reports its own (arg-aware) telemetry, so it knows its command call here.
-    run args = runWithTelemetry (Call.Deploy args) (runCommand (deploy args))
+    run args = runWaspCommandAs (Call.Deploy args) (deploy args)
 
     deployArgsParser :: Opt.Parser [String]
     deployArgsParser =

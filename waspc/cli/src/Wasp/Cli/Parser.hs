@@ -14,6 +14,7 @@ import qualified Wasp.Cli.Command.Compile as Compile
 import qualified Wasp.Cli.Command.CreateNewProject as CreateNewProject
 import qualified Wasp.Cli.Command.CreateNewProject.AI as CreateNewProject.AI
 import qualified Wasp.Cli.Command.Db as Db
+import Wasp.Cli.Command.Definition (subcommandsParser)
 import qualified Wasp.Cli.Command.Deploy as Deploy
 import qualified Wasp.Cli.Command.Deps as Deps
 import qualified Wasp.Cli.Command.Dockerfile as Dockerfile
@@ -57,33 +58,32 @@ topLevelParserInfo =
 
 commandsParser :: Opt.Parser (IO ())
 commandsParser =
-  Opt.hsubparser $
-    mconcat
-      [ -- General
-        Opt.command "new" CreateNewProject.parserInfo,
-        Opt.command "new:ai" CreateNewProject.AI.parserInfo,
-        Opt.command "version" Version.parserInfo,
-        Opt.command "waspls" WaspLS.parserInfo,
-        Opt.command "completion" BashCompletion.printInstructionParserInfo,
-        Opt.command "completion:list" BashCompletion.listCommandsParserInfo,
-        Opt.command "uninstall" Uninstall.parserInfo,
-        -- In project
-        Opt.command "start" Start.parserInfo,
-        Opt.command "db" Db.parserInfo,
-        Opt.command "install" Install.parserInfo,
-        Opt.command "clean" Clean.parserInfo,
-        Opt.command "build" Build.parserInfo,
-        Opt.command "deploy" Deploy.parserInfo,
-        Opt.command "telemetry" Telemetry.parserInfo,
-        Opt.command "deps" Deps.parserInfo,
-        Opt.command "dockerfile" Dockerfile.parserInfo,
-        Opt.command "info" Info.parserInfo,
-        Opt.command "test" Test.parserInfo,
-        Opt.command "studio" Studio.parserInfo,
-        Opt.command "news" News.parserInfo,
-        -- Hidden internal command, used by the top-level dispatcher.
-        Opt.command "compile" Compile.parserInfo
-      ]
+  subcommandsParser
+    [ -- General
+      ("new", CreateNewProject.parserInfo),
+      ("new:ai", CreateNewProject.AI.parserInfo),
+      ("version", Version.parserInfo),
+      ("waspls", WaspLS.parserInfo),
+      ("completion", BashCompletion.printInstructionParserInfo),
+      ("completion:list", BashCompletion.listCommandsParserInfo),
+      ("uninstall", Uninstall.parserInfo),
+      -- In project
+      ("start", Start.parserInfo),
+      ("db", Db.parserInfo),
+      ("install", Install.parserInfo),
+      ("clean", Clean.parserInfo),
+      ("build", Build.parserInfo),
+      ("deploy", Deploy.parserInfo),
+      ("telemetry", Telemetry.parserInfo),
+      ("deps", Deps.parserInfo),
+      ("dockerfile", Dockerfile.parserInfo),
+      ("info", Info.parserInfo),
+      ("test", Test.parserInfo),
+      ("studio", Studio.parserInfo),
+      ("news", News.parserInfo),
+      -- Hidden internal command, used by the top-level dispatcher.
+      ("compile", Compile.parserInfo)
+    ]
 
 -- | Examples and the (color-coded) community links shown at the bottom of the
 -- top-level help. optparse-applicative's plain-text 'Opt.footer' reflows

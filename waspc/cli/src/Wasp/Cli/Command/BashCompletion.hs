@@ -9,24 +9,18 @@ where
 import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
-import qualified Options.Applicative as Opt
 import qualified System.Environment as ENV
-import Wasp.Cli.Command (Command, runCommand)
-import qualified Wasp.Cli.Command.Call as Call
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Definition (CommandParserInfo, command)
 import Wasp.Util.Terminal (styleCode)
 
-printInstructionParserInfo :: Opt.ParserInfo (IO ())
+printInstructionParserInfo :: CommandParserInfo
 printInstructionParserInfo =
-  Opt.info
-    (pure $ runWithTelemetry Call.Other (runCommand printBashCompletionInstruction))
-    (Opt.progDesc "Print bash auto-completion install instructions.")
+  command "Print bash auto-completion install instructions." printBashCompletionInstruction
 
-listCommandsParserInfo :: Opt.ParserInfo (IO ())
+listCommandsParserInfo :: CommandParserInfo
 listCommandsParserInfo =
-  Opt.info
-    (pure $ runWithTelemetry Call.Other (runCommand bashCompletion))
-    (Opt.progDesc "List commands for bash completion (used by complete -C).")
+  command "List commands for bash completion (used by complete -C)." bashCompletion
 
 -- generate bash completion depending on commands input
 bashCompletion :: Command ()

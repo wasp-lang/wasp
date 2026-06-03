@@ -4,21 +4,18 @@ module Wasp.Cli.Command.Start
   )
 where
 
-import Control.Applicative ((<|>))
 import Control.Concurrent.Async (race)
 import Control.Concurrent.MVar (MVar, newMVar, tryTakeMVar)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Options.Applicative as Opt
 import StrongPath ((</>))
-import Wasp.Cli.Command (Command, CommandError (..), runCommand)
-import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compile, printWarningsAndErrorsIfAny)
+import Wasp.Cli.Command.Definition (CommandParserInfo, commandWithSubcommands, runWaspCommand)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.News (fetchAndListMustSeeNewsIfDue)
 import Wasp.Cli.Command.Require (DbConnectionEstablished (DbConnectionEstablished), InWaspProject (InWaspProject), require)
 import qualified Wasp.Cli.Command.Start.Db as Db
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Cli.Command.Watch (watch)
 import qualified Wasp.Generator
 import qualified Wasp.Message as Msg
@@ -26,13 +23,12 @@ import Wasp.Project (CompileError, CompileWarning)
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 
 -- | `wasp start` runs the dev server; `wasp start db [...]` is an alias for `wasp db start [...]`.
-parserInfo :: Opt.ParserInfo (IO ())
+parserInfo :: CommandParserInfo
 parserInfo =
-  Opt.info
-    (startDbCommand <|> pure (runWithTelemetry Call.Other (runCommand start)))
-    (Opt.progDesc "Run the Wasp app in development mode, watching for file changes.")
-  where
-    startDbCommand = Opt.hsubparser $ Opt.command "db" Db.parserInfo
+  commandWithSubcommands
+    "Run the Wasp app in development mode, watching for file changes."
+    (runWaspCommand start)
+    [("db", Db.parserInfo)]
 
 -- | Does initial compile of wasp code and then runs the generated project.
 -- It also listens for any file changes and recompiles and restarts generated project accordingly.

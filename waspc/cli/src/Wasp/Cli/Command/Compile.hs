@@ -18,15 +18,13 @@ import Control.Monad (unless, when)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (intercalate)
-import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path', (</>))
 import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
-import Wasp.Cli.Command (Command, CommandError (..), runCommand)
-import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Definition (CommandParserInfo, command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -38,11 +36,8 @@ import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (generatedAppDirInWaspProjectDir)
 import Wasp.Util.IO (doesDirectoryExist, removeDirectory)
 
-parserInfo :: Opt.ParserInfo (IO ())
-parserInfo =
-  Opt.info
-    (pure $ runWithTelemetry Call.Other (runCommand compile))
-    (Opt.progDesc "(internal) Run the Wasp compiler without starting the app." <> Opt.fullDesc)
+parserInfo :: CommandParserInfo
+parserInfo = command "(internal) Run the Wasp compiler without starting the app." compile
 
 -- | Same like 'compileWithOptions', but with default compile options.
 compile :: Command [CompileWarning]

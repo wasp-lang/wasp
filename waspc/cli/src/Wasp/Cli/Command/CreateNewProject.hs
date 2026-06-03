@@ -5,10 +5,8 @@ module Wasp.Cli.Command.CreateNewProject
 where
 
 import Control.Monad.IO.Class (liftIO)
-import qualified Options.Applicative as Opt
 import qualified StrongPath as SP
-import Wasp.Cli.Command (Command, runCommand)
-import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command (Command)
 import qualified Wasp.Cli.Command.CreateNewProject.AI as AI
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (NewProjectArgs, newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
@@ -22,20 +20,21 @@ import Wasp.Cli.Command.CreateNewProject.StarterTemplates
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Bundled (createProjectOnDiskFromBundledTemplate)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.GhReleaseArchive (createProjectOnDiskFromGhReleaseArchiveTemplate)
+import Wasp.Cli.Command.Definition (CommandParserInfo, commandWithArgs)
 import Wasp.Cli.Command.Install (installIO)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Cli.Message (cliSendMessage)
 import qualified Wasp.Message as Msg
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Util.Terminal as Term
 
-parserInfo :: Opt.ParserInfo (IO ())
+parserInfo :: CommandParserInfo
 parserInfo =
-  Opt.info
-    (runWithTelemetry Call.Other . runCommand . createNewProject <$> newProjectArgsParser)
-    (Opt.progDesc "Create a new Wasp project. Run without arguments for interactive mode.")
+  commandWithArgs
+    "Create a new Wasp project. Run without arguments for interactive mode."
+    newProjectArgsParser
+    createNewProject
 
 createNewProject :: NewProjectArgs -> Command ()
 createNewProject args = do

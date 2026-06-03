@@ -4,18 +4,13 @@ module Wasp.Cli.Command.Version
   )
 where
 
-import qualified Options.Applicative as Opt
-import qualified Wasp.Cli.Command.Call as Call
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
+import Wasp.Cli.Command.Definition (CommandParserInfo, leaf, runWaspIO)
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import Wasp.Version (waspVersion)
 
-parserInfo :: Opt.ParserInfo (IO ())
-parserInfo =
-  Opt.info
-    (pure $ runWithTelemetry Call.Other printVersion)
-    (Opt.progDesc "Print the version of the CLI.")
+parserInfo :: CommandParserInfo
+parserInfo = leaf "Print the version of the CLI." (runWaspIO printVersion)
 
 printVersion :: IO ()
 printVersion =

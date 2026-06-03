@@ -8,27 +8,26 @@ import Control.Concurrent.Async (concurrently)
 import Control.Concurrent.Chan (newChan)
 import Control.Monad.Except (MonadError (throwError), runExceptT)
 import Control.Monad.IO.Class (liftIO)
-import qualified Options.Applicative as Opt
-import Wasp.Cli.Command (Command, CommandError (CommandError), require, runCommand)
+import Wasp.Cli.Command (Command, CommandError (CommandError), require)
 import Wasp.Cli.Command.BuildStart.ArgumentsParser (BuildStartArgs, buildStartArgsParser)
 import Wasp.Cli.Command.BuildStart.Client (buildClient, startClient)
 import Wasp.Cli.Command.BuildStart.Config (BuildStartConfig, makeBuildStartConfig)
 import Wasp.Cli.Command.BuildStart.Server (buildServer, startServer)
-import qualified Wasp.Cli.Command.Call as Call
 import Wasp.Cli.Command.Compile (analyze)
+import Wasp.Cli.Command.Definition (CommandParserInfo, commandWithArgs)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Require (GeneratedAppIsProduction (GeneratedAppIsProduction), InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable))
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Job.Except (ExceptJob)
 import qualified Wasp.Job.Except as ExceptJob
 import Wasp.Job.IO (readJobMessagesAndPrintThemPrefixed)
 import qualified Wasp.Message as Msg
 
-parserInfo :: Opt.ParserInfo (IO ())
+parserInfo :: CommandParserInfo
 parserInfo =
-  Opt.info
-    (runWithTelemetry Call.Other . runCommand . buildStart <$> buildStartArgsParser)
-    (Opt.progDesc "Preview the built production app locally.")
+  commandWithArgs
+    "Preview the built production app locally."
+    buildStartArgsParser
+    buildStart
 
 buildStart :: BuildStartArgs -> Command ()
 buildStart args = do

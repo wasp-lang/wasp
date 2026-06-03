@@ -6,15 +6,13 @@ where
 
 import Control.Monad (filterM, unless, when)
 import Control.Monad.IO.Class (liftIO)
-import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir', File', Path', (</>))
 import qualified StrongPath as SP
 import System.Exit (die)
-import Wasp.Cli.Command (Command, runCommand)
-import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command (Command)
+import Wasp.Cli.Command.Definition (CommandParserInfo, command)
 import Wasp.Cli.Command.Message (cliSendMessageC)
 import Wasp.Cli.Command.Start.Db (waspDevDbDockerVolumePrefix)
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Cli.FileSystem
   ( getHomeDir,
     getUserCacheDir,
@@ -33,11 +31,8 @@ import Wasp.Util.IO
   )
 import Wasp.Util.InstallMethod (uninstallationCommand)
 
-parserInfo :: Opt.ParserInfo (IO ())
-parserInfo =
-  Opt.info
-    (pure $ runWithTelemetry Call.Other (runCommand uninstall))
-    (Opt.progDesc "Remove Wasp from your system.")
+parserInfo :: CommandParserInfo
+parserInfo = command "Remove Wasp from your system." uninstall
 
 -- | Removes Wasp from the system.
 uninstall :: Command ()

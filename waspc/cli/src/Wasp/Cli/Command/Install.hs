@@ -8,21 +8,16 @@ where
 import Control.Concurrent (newChan)
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Options.Applicative as Opt
 import StrongPath (Abs, Dir, Path')
-import Wasp.Cli.Command (Command, CommandError (..), runCommand)
-import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command (Command, CommandError (..))
+import Wasp.Cli.Command.Definition (CommandParserInfo, command)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Generator.NpmInstall (installProjectNpmDependencies)
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), ensurePackageIsAtInstallationPathInProject)
 import Wasp.Project.Common (WaspProjectDir)
 
-parserInfo :: Opt.ParserInfo (IO ())
-parserInfo =
-  Opt.info
-    (pure $ runWithTelemetry Call.Other (runCommand install))
-    (Opt.progDesc "Set up all internal Wasp npm dependencies and run npm install.")
+parserInfo :: CommandParserInfo
+parserInfo = command "Set up all internal Wasp npm dependencies and run npm install." install
 
 -- | Standalone `wasp install` command: copies @wasp.sh/spec and runs npm install.
 install :: Command ()

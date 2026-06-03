@@ -6,13 +6,11 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import qualified Options.Applicative as Opt
 import Wasp.AppSpec (AppSpec)
-import Wasp.Cli.Command (Command, CommandError (..), runCommand)
-import qualified Wasp.Cli.Command.Call as Call
+import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
+import Wasp.Cli.Command.Definition (CommandParserInfo, command)
 import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
-import Wasp.Cli.Command.Telemetry (runWithTelemetry)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
@@ -20,11 +18,8 @@ import qualified Wasp.Generator.ServerGenerator as ServerGenerator
 import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
 
-parserInfo :: Opt.ParserInfo (IO ())
-parserInfo =
-  Opt.info
-    (pure $ runWithTelemetry Call.Other (runCommand deps))
-    (Opt.progDesc "Print the dependencies that Wasp uses in your project.")
+parserInfo :: CommandParserInfo
+parserInfo = command "Print the dependencies that Wasp uses in your project." deps
 
 deps :: Command ()
 deps = do
