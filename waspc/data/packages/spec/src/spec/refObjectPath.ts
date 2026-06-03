@@ -1,4 +1,5 @@
 import path from "node:path";
+import { realpathSync } from "node:fs";
 import type * as AppSpec from "../appSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
@@ -40,8 +41,16 @@ function getValidSrcRelativePath({
   importingFilePath: string;
   projectRootDir: string;
 }): string {
-  const importingDir = path.dirname(path.resolve(importingFilePath));
-  const srcRootDir = path.resolve(projectRootDir, "src");
+  const projectRootPath = path.resolve(projectRootDir);
+  const canonicalProjectRootPath = getCanonicalPath(projectRootPath);
+  const canonicalImportingFilePath = toCanonicalProjectPath({
+    filePath: path.resolve(importingFilePath),
+    projectRootPath,
+    canonicalProjectRootPath,
+  });
+
+  const importingDir = path.dirname(canonicalImportingFilePath);
+  const srcRootDir = path.resolve(canonicalProjectRootPath, "src");
   const importedFilePath = path.resolve(importingDir, importPath);
 
   const srcRelativePath = path.relative(srcRootDir, importedFilePath);
@@ -55,6 +64,45 @@ function getValidSrcRelativePath({
   return srcRelativePath;
 }
 
+function getCanonicalPath(filePath: string): string {
+  try {
+    return realpathSync(filePath);
+  } catch (error) {
+    if (isNodeError(error) && error.code === "ENOENT") {
+      return filePath;
+    }
+
+    throw error;
+  }
+}
+
+function toCanonicalProjectPath({
+  filePath,
+  projectRootPath,
+  canonicalProjectRootPath,
+}: {
+  filePath: string;
+  projectRootPath: string;
+  canonicalProjectRootPath: string;
+}): string {
+  const projectRelativePath =
+    getPathInsideRoot(filePath, projectRootPath) ??
+    getPathInsideRoot(filePath, canonicalProjectRootPath);
+
+  return projectRelativePath !== undefined
+    ? path.resolve(canonicalProjectRootPath, projectRelativePath)
+    : filePath;
+}
+
+function getPathInsideRoot(
+  filePath: string,
+  rootDir: string,
+): string | undefined {
+  const relativePath = path.relative(rootDir, filePath);
+
+  return isInsideRootRelativePath(relativePath) ? relativePath : undefined;
+}
+
 function toAppSpecExtImportPath(
   srcRelativePath: string,
 ): AppSpec.ExtImport["path"] {
@@ -64,11 +112,18 @@ function toAppSpecExtImportPath(
 function isValidSrcRelativeFilePath(srcRelativePath: string): boolean {
   return (
     srcRelativePath !== "" &&
-    !startsWithParentSegment(srcRelativePath) &&
-    !path.isAbsolute(srcRelativePath)
+    isInsideRootRelativePath(srcRelativePath)
   );
+}
+
+function isInsideRootRelativePath(relativePath: string): boolean {
+  return !startsWithParentSegment(relativePath) && !path.isAbsolute(relativePath);
 }
 
 function startsWithParentSegment(filePath: string): boolean {
   return filePath === ".." || filePath.startsWith(`..${path.sep}`);
+}
+
+function isNodeError(error: unknown): error is NodeJS.ErrnoException {
+  return error instanceof Error && "code" in error;
 }
