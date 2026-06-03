@@ -1,5 +1,7 @@
 /**
  * Registry for type augmentation via declaration merging.
+ *
+ * @internal
  */
 export interface Register {}
 
