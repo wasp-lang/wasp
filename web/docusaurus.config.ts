@@ -10,7 +10,7 @@ import searchAndReplace from "./src/remark/search-and-replace";
 
 const lightCodeTheme = {
   ...themes.github,
-  plain: { ...themes.github.plain, backgroundColor: "#f0ede6" },
+  plain: { ...themes.github.plain, backgroundColor: "var(--wasp-code-bg)" },
 };
 
 const darkCodeTheme = {

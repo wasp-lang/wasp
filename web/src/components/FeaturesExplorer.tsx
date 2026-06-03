@@ -9,6 +9,7 @@ import {
 import { BookOpen } from "react-feather";
 
 import CodeHighlight from "./CodeHighlight";
+import InlineCode from "./InlineCode";
 import SectionContainer from "./Layouts/SectionContainer";
 import SectionLabel from "./Layouts/SectionLabel";
 
@@ -203,11 +204,6 @@ const CodeBlock = ({ codeBlock }: { codeBlock: CodeBlockInfo }) => (
   </div>
 );
 
-// Inline code.
-const Code = ({ children }: { children: ReactNode }) => (
-  <code className="bg-wasp-yellow-light px-1 py-0.5 font-mono">{children}</code>
-);
-
 interface CodeBlockInfo {
   head: string;
   language: string;
@@ -232,8 +228,8 @@ const features: Feature[] = [
     intro: (
       <>
         Define your app via a specialized full-stack aware logic layer, using
-        high-level terms like <Code>app</Code>, <Code>route</Code>,{" "}
-        <Code>page</Code>, ... . Think framework config, but taken to a whole
+        high-level terms like <InlineCode>app</InlineCode>, <InlineCode>route</InlineCode>,{" "}
+        <InlineCode>page</InlineCode>, ... . Think framework config, but taken to a whole
         new level.
       </>
     ),
@@ -550,7 +546,7 @@ export default function ChatPage() {
     docUrl: "/docs/project/pre-rendering",
     intro: (
       <>
-        Set <Code>prerender: true</Code> to get the best speed / SEO / LLM
+        Set <InlineCode>prerender: true</InlineCode> to get the best speed / SEO / LLM
         experience for your static content.
       </>
     ),
@@ -613,8 +609,8 @@ Dockerfile  server/  web-app/  db/  # ship them anywhere`,
     docUrl: "/docs/advanced/links",
     intro: (
       <>
-        Wasp turns your route declarations into a typed <Code>Link</Code>{" "}
-        component and <Code>routes</Code> object, so a wrong path or a missing
+        Wasp turns your route declarations into a typed <InlineCode>Link</InlineCode>{" "}
+        component and <InlineCode>routes</InlineCode> object, so a wrong path or a missing
         param is a compile-time error. Works with route params, search query,
         hash, and optional static segments.
       </>

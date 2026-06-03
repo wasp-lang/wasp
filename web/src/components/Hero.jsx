@@ -1,6 +1,6 @@
 import Link from "@docusaurus/Link";
 import { useState } from "react";
-import { BookOpen, Terminal } from "react-feather";
+import { BookOpen, Check, Copy, Terminal } from "react-feather";
 
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
@@ -20,12 +20,16 @@ const InstallCommand = () => {
     <button
       type="button"
       onClick={handleCopy}
-      className="block w-full cursor-pointer border-0 bg-transparent p-0 text-left font-mono text-sm text-wasp-g7 transition-colors hover:text-wasp-black"
+      className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-[var(--wasp-code-bg)] px-3 py-2 text-left font-mono text-xs text-wasp-g7 transition hover:text-wasp-black hover:brightness-95"
       title="Click to copy"
       aria-label={`Copy install command: ${installCmd}`}
     >
-      <span className="text-wasp-yellow-dark">$</span> {installCmd}{" "}
-      {copied ? "✓" : ""}
+      <span className="min-w-0 truncate">
+        <span className="text-wasp-yellow-dark">$</span> {installCmd}
+      </span>
+      <span className="shrink-0 text-wasp-g5 opacity-0 transition-opacity group-hover:opacity-100">
+        {copied ? <Check size={14} /> : <Copy size={14} />}
+      </span>
     </button>
   );
 };
