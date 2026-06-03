@@ -13,17 +13,17 @@ import {
   serverSetup,
 } from "./src/serverSetup" with { type: "ref" };
 
-import { apis } from "./src/features/apis/apis.wasp";
-import { auth, authConfig } from "./src/features/auth/auth.wasp";
-import { chat, webSocket } from "./src/features/chat/chat.wasp";
-import { crudFeature } from "./src/features/crud/crud.wasp";
+import { apisDecls } from "./src/features/apis/apis.wasp";
+import { authConfig, authDecls } from "./src/features/auth/auth.wasp";
+import { chatDecls, webSocket } from "./src/features/chat/chat.wasp";
+import { crudFeatureDecls } from "./src/features/crud/crud.wasp";
 import { db } from "./src/features/db/db.wasp";
-import { jobs } from "./src/features/jobs/jobs.wasp";
-import { lazyLoading } from "./src/features/lazy-loading/lazyLoading.wasp";
-import { operations } from "./src/features/operations/operations.wasp";
-import { prerender } from "./src/features/prerender/prerender.wasp";
-import { streaming } from "./src/features/streaming/streaming.wasp";
-import { rpcTests } from "./src/rpcTests/rpcTests.wasp";
+import { jobsDecls } from "./src/features/jobs/jobs.wasp";
+import { lazyLoadingDecls } from "./src/features/lazy-loading/lazyLoading.wasp";
+import { operationsDecls } from "./src/features/operations/operations.wasp";
+import { prerenderDecls } from "./src/features/prerender/prerender.wasp";
+import { streamingDecls } from "./src/features/streaming/streaming.wasp";
+import { rpcTestsDecls } from "./src/rpcTests/rpcTests.wasp";
 
 export default app({
   name: "KitchenSink",
@@ -56,15 +56,15 @@ export default app({
     route("HomeRoute", "/", page(HomePage), { prerender: true }),
     route("CatchAllRoute", "*", page(CatchAllPage)),
 
-    ...auth,
-    ...operations,
-    ...jobs,
-    ...apis,
-    ...crudFeature,
-    ...streaming,
-    ...chat,
-    ...lazyLoading,
-    ...prerender,
-    ...rpcTests,
+    ...authDecls,
+    ...operationsDecls,
+    ...jobsDecls,
+    ...apisDecls,
+    ...crudFeatureDecls,
+    ...streamingDecls,
+    ...chatDecls,
+    ...lazyLoadingDecls,
+    ...prerenderDecls,
+    ...rpcTestsDecls,
   ],
 });

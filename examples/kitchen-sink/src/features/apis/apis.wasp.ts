@@ -10,7 +10,7 @@ import {
 } from "./apis" with { type: "ref" };
 import { ApisPage } from "./pages/ApisPage" with { type: "ref" };
 
-export const apis: Decl[] = [
+export const apisDecls: Decl[] = [
   route("ApisRoute", "/apis", page(ApisPage)),
   api("ALL", "/foo/bar", fooBar, {
     middlewareConfigFn: fooBarMiddlewareFn,

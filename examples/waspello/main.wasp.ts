@@ -3,8 +3,8 @@ import { readFile } from "fs/promises";
 import MainPage from "./src/cards/MainPage" with { type: "ref" };
 import Layout from "./src/Layout" with { type: "ref" };
 
-import { auth } from "./src/auth/auth.wasp";
-import { cards } from "./src/cards/cards.wasp";
+import { authDecls } from "./src/auth/auth.wasp";
+import { cardsDecls } from "./src/cards/cards.wasp";
 
 export default app({
   name: "waspello",
@@ -23,7 +23,7 @@ export default app({
   },
   decls: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
-    ...auth,
-    ...cards,
+    ...authDecls,
+    ...cardsDecls,
   ],
 });

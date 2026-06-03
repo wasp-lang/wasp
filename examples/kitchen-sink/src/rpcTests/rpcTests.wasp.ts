@@ -22,7 +22,7 @@ import {
 import { jsActionWithArgs } from "./operations/jsDefinitions" with { type: "ref" };
 import { testingAction } from "./operations/server" with { type: "ref" };
 
-export const rpcTests: Decl[] = [
+export const rpcTestsDecls: Decl[] = [
   action(testingAction, { entities: [] }),
   query(getDate),
   query(getAnythingNoAuth, { auth: false, entities: [] }),

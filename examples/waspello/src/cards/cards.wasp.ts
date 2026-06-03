@@ -9,7 +9,7 @@ import {
   updateList,
 } from "./lists" with { type: "ref" };
 
-export const cards: Decl[] = [
+export const cardsDecls: Decl[] = [
   query(getListsAndCards, { entities: ["List", "Card"] }),
   action(createList, { entities: ["List"] }),
   action(updateList, { entities: ["List"] }),
