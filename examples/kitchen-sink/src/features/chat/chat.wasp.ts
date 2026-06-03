@@ -7,6 +7,6 @@ export const webSocket: WebSocket = {
   fn: chatWebSocket,
 };
 
-export const chat: Decl[] = [
+export const chatDecls: Decl[] = [
   route("ChatRoute", "/chat", page(ChatPage, { authRequired: true })),
 ];
