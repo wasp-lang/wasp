@@ -1,5 +1,5 @@
-import path from "node:path";
 import { realpathSync } from "node:fs";
+import path from "node:path";
 import type * as AppSpec from "../appSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
@@ -41,6 +41,9 @@ function getValidSrcRelativePath({
   importingFilePath: string;
   projectRootDir: string;
 }): string {
+  // The bundler resolves symlinks in module ids, so we compare paths under a
+  // canonical project root. Otherwise valid in-src imports can look like they
+  // escape src/ because one path has symlinks resolved and the other does not.
   const projectRootPath = path.resolve(projectRootDir);
   const canonicalProjectRootPath = getCanonicalPath(projectRootPath);
   const canonicalImportingFilePath = toCanonicalProjectPath({
@@ -110,14 +113,13 @@ function toAppSpecExtImportPath(
 }
 
 function isValidSrcRelativeFilePath(srcRelativePath: string): boolean {
-  return (
-    srcRelativePath !== "" &&
-    isInsideRootRelativePath(srcRelativePath)
-  );
+  return srcRelativePath !== "" && isInsideRootRelativePath(srcRelativePath);
 }
 
 function isInsideRootRelativePath(relativePath: string): boolean {
-  return !startsWithParentSegment(relativePath) && !path.isAbsolute(relativePath);
+  return (
+    !startsWithParentSegment(relativePath) && !path.isAbsolute(relativePath)
+  );
 }
 
 function startsWithParentSegment(filePath: string): boolean {

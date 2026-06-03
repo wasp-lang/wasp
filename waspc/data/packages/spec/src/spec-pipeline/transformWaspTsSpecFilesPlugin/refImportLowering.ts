@@ -141,6 +141,14 @@ function getLoweredImportBindingSource(
   }
 }
 
+/**
+ * Namespace imports are lowered to a Proxy so `import * as ops` can support any
+ * `ops.anything` access by returning `ref({ import: "anything", ... })`. This
+ * avoids enumerating every place where `ops` is used.
+ *
+ * The generated alias is prefixed with the local name (e.g. `ops.archive`
+ * becomes `ops_archive`) so multiple namespace imports don't collide.
+ */
 function getNamespaceImportProxySource(
   binding: NamespaceImportBinding,
   refName: string,
@@ -168,7 +176,9 @@ function getRefObjectDescriptorObjectLiteralSource(
   ]);
 }
 
-function getObjectLiteralSource(fields: [string, string | undefined][]): string {
+function getObjectLiteralSource(
+  fields: [string, string | undefined][],
+): string {
   return `{ ${fields
     .filter((field): field is [string, string] => field[1] !== undefined)
     .map(([key, value]) => `${key}: ${JSON.stringify(value)}`)

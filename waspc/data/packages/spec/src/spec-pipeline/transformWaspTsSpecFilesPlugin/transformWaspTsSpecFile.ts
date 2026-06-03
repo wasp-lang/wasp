@@ -43,6 +43,8 @@ export function transformWaspTsSpecFile_mutate(
     .join("");
 
   if (prependedSource.length > 0) {
+    // Imports are hoisted, so we always prepend generated imports and lowered
+    // ref bindings regardless of where the original ref import lived.
     source.prepend(prependedSource);
   }
 
