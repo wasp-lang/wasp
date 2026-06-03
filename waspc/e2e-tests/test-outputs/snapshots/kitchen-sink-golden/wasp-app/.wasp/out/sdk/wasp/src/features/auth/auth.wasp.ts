@@ -90,7 +90,7 @@ export const authConfig: Auth = {
   onAfterLogin,
 };
 
-export const auth: Decl[] = [
+export const authDecls: Decl[] = [
   route("SignupRoute", "/signup", page(Signup)),
   route("LoginRoute", "/login", page(Login)),
   route("PasswordResetRoute", "/password-reset", page(PasswordReset)),

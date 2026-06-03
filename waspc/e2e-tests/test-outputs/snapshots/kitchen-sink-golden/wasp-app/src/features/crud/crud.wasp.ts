@@ -4,7 +4,7 @@ import { crudCreateTask, crudGetAllTasks } from "./crud" with { type: "ref" };
 import { DetailPage } from "./pages/DetailPage" with { type: "ref" };
 import { ListPage } from "./pages/ListPage" with { type: "ref" };
 
-export const crudFeature: Decl[] = [
+export const crudFeatureDecls: Decl[] = [
   crud("tasks", "Task", {
     get: {},
     getAll: {
