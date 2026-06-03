@@ -50,21 +50,23 @@ runWaspCommandAs call = runWithTelemetry call . runCommand
 -- | A leaf command from a ready-made action. Escape hatch for actions that
 -- aren't a plain 'Command' or use a non-default runner.
 leaf :: String -> IO () -> CommandParserInfo
-leaf description action = Opt.info (pure action) (Opt.progDesc description)
+leaf description action = leafWithArgs description (pure action)
 
--- | A leaf command, parametrised by parsed arguments, from a ready-made action.
-leafWithArgs :: String -> Opt.Parser a -> (a -> IO ()) -> CommandParserInfo
-leafWithArgs description argsParser toAction =
-  Opt.info (toAction <$> argsParser) (Opt.progDesc description)
+-- | A leaf command whose action is produced by the given parser. Escape hatch
+-- for actions that aren't a plain 'Command' or use a non-default runner.
+leafWithArgs :: String -> Opt.Parser (IO ()) -> CommandParserInfo
+leafWithArgs description actionParser = Opt.info actionParser (Opt.progDesc description)
 
 -- | A leaf command that takes no arguments.
 command :: String -> Command a -> CommandParserInfo
 command description cmd = leaf description (runWaspCommand cmd)
 
--- | A leaf command parametrised by parsed arguments.
-commandWithArgs :: String -> Opt.Parser a -> (a -> Command b) -> CommandParserInfo
-commandWithArgs description argsParser toCommand =
-  leafWithArgs description argsParser (runWaspCommand . toCommand)
+-- | A leaf command whose 'Command' is produced by the given parser. Build the
+-- parser by applying a handler to the argument parsers, e.g.
+-- @commandWithArgs "..." (handler \<$\> argP1 \<*\> argP2)@.
+commandWithArgs :: String -> Opt.Parser (Command b) -> CommandParserInfo
+commandWithArgs description commandParser =
+  leafWithArgs description (runWaspCommand <$> commandParser)
 
 -- | Dispatches to one of the named subcommands.
 subcommandsParser :: [(String, CommandParserInfo)] -> Opt.Parser (IO ())

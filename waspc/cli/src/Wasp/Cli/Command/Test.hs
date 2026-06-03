@@ -32,8 +32,8 @@ parserInfo :: CommandParserInfo
 parserInfo =
   commandGroup
     "Run tests in your project."
-    [ ("client", commandWithArgs "Run client-side tests via Vitest" passthroughArgsParser (test . TestClient)),
-      ("server", commandWithArgs "Run server-side tests (not yet implemented)" passthroughArgsParser (test . TestServer))
+    [ ("client", commandWithArgs "Run client-side tests via Vitest" (test . TestClient <$> passthroughArgsParser)),
+      ("server", commandWithArgs "Run server-side tests (not yet implemented)" (test . TestServer <$> passthroughArgsParser))
     ]
   where
     passthroughArgsParser :: Opt.Parser [String]

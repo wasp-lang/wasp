@@ -33,8 +33,7 @@ parserInfo :: CommandParserInfo
 parserInfo =
   commandWithArgs
     "Create a new Wasp project. Run without arguments for interactive mode."
-    newProjectArgsParser
-    createNewProject
+    (createNewProject <$> newProjectArgsParser)
 
 createNewProject :: NewProjectArgs -> Command ()
 createNewProject args = do

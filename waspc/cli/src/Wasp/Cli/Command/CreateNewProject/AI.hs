@@ -2,8 +2,6 @@ module Wasp.Cli.Command.CreateNewProject.AI
   ( createNewProjectInteractiveOnDisk,
     createNewProjectNonInteractiveOnDisk,
     createNewProjectNonInteractiveToStdout,
-    NewAiArgs (..),
-    newAiArgsParser,
     parserInfo,
   )
 where
@@ -214,45 +212,38 @@ newProjectDetails projectConfig webAppName webAppDescription =
       _projectConfig = projectConfig
     }
 
-data NewAiArgs = NewAiArgs
-  { newAiProjectName :: String,
-    newAiAppDescription :: String,
-    newAiConfigJson :: String,
-    newAiToStdout :: Bool
-  }
-
-newAiArgsParser :: Opt.Parser NewAiArgs
-newAiArgsParser =
-  (\toStdout projectName appDescription configJson -> NewAiArgs projectName appDescription configJson toStdout)
-    <$> Opt.switch
-      ( Opt.long "stdout"
-          <> Opt.help "Write generated files and logs to stdout instead of disk"
-      )
-    <*> Opt.strArgument
-      ( Opt.metavar "APP_NAME"
-          <> Opt.help "Name of the new Wasp app"
-      )
-    <*> Opt.strArgument
-      ( Opt.metavar "APP_DESCRIPTION"
-          <> Opt.help "Short description of the app to generate"
-      )
-    <*> Opt.strArgument
-      ( Opt.metavar "CONFIG_JSON"
-          <> Opt.help "JSON config for Wasp AI (use \"{}\" for defaults)"
-      )
-
 parserInfo :: CommandParserInfo
 parserInfo =
   commandWithArgs
     "Use AI to create a new Wasp project from a short description."
-    newAiArgsParser
-    runNewAi
+    (runNewAi <$> toStdoutParser <*> projectNameParser <*> appDescriptionParser <*> configJsonParser)
   where
-    runNewAi args =
-      ( if newAiToStdout args
+    runNewAi toStdout projectName appDescription configJson =
+      ( if toStdout
           then createNewProjectNonInteractiveToStdout
           else createNewProjectNonInteractiveOnDisk
       )
-        (newAiProjectName args)
-        (newAiAppDescription args)
-        (newAiConfigJson args)
+        projectName
+        appDescription
+        configJson
+
+    toStdoutParser =
+      Opt.switch
+        ( Opt.long "stdout"
+            <> Opt.help "Write generated files and logs to stdout instead of disk"
+        )
+    projectNameParser =
+      Opt.strArgument
+        ( Opt.metavar "APP_NAME"
+            <> Opt.help "Name of the new Wasp app"
+        )
+    appDescriptionParser =
+      Opt.strArgument
+        ( Opt.metavar "APP_DESCRIPTION"
+            <> Opt.help "Short description of the app to generate"
+        )
+    configJsonParser =
+      Opt.strArgument
+        ( Opt.metavar "CONFIG_JSON"
+            <> Opt.help "JSON config for Wasp AI (use \"{}\" for defaults)"
+        )

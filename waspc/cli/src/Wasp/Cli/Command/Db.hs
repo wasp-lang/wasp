@@ -25,22 +25,19 @@ parserInfo =
       ( "reset",
         leafWithArgs
           "Drop all data and tables from the dev database and re-apply all migrations."
-          Reset.resetArgsParser
-          (runDb . Reset.reset)
+          (runDb . Reset.reset <$> Reset.resetArgsParser)
       ),
       ( "seed",
         leafWithArgs
           "Run a database seed function (defined via app.db.seeds)."
-          Seed.seedArgsParser
-          (runDb . Seed.seed)
+          (runDb . Seed.seed <$> Seed.seedArgsParser)
       ),
       ( "migrate-dev",
         leafWithArgs
           ( "Ensure the dev database matches the current schema: generate a migration if the"
               <> " schema has changed and apply any pending migrations."
           )
-          Migrate.migrateArgsParser
-          (runDb . Migrate.migrateDev)
+          (runDb . Migrate.migrateDev <$> Migrate.migrateArgsParser)
       ),
       ("studio", leaf "Open a GUI for inspecting the database." (runDb Studio.studio))
     ]

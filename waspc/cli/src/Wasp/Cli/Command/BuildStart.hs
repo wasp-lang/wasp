@@ -26,8 +26,7 @@ parserInfo :: CommandParserInfo
 parserInfo =
   commandWithArgs
     "Preview the built production app locally."
-    buildStartArgsParser
-    buildStart
+    (buildStart <$> buildStartArgsParser)
 
 buildStart :: BuildStartArgs -> Command ()
 buildStart args = do
