@@ -1,6 +1,5 @@
 import type { RolldownMagicString } from "rolldown";
 import {
-  getStringValue,
   INTERNAL_MAKE_REF_HELPER_IMPORT_NAME,
   INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE,
 } from "../util.js";
@@ -8,14 +7,19 @@ import { Plan } from "./plan.js";
 
 export function applyTransformRefHelperPlan_mutate(
   magicString: RolldownMagicString,
-  { refHelperImports, safeInternalHelperName, safeRefHelperName }: Plan,
+  {
+    refHelperLocalNames,
+    removals,
+    safeInternalHelperName,
+    safeRefHelperName,
+  }: Plan,
 ): void {
-  if (refHelperImports.length === 0) {
+  if (refHelperLocalNames.length === 0) {
     return;
   }
 
-  for (const importSpecifier of refHelperImports) {
-    magicString.remove(importSpecifier.start, importSpecifier.end);
+  for (const removal of removals) {
+    magicString.remove(removal.start, removal.end);
   }
 
   // Create the ref helper using the internal helper.
@@ -27,9 +31,8 @@ export function applyTransformRefHelperPlan_mutate(
 
       // We alias our just-created ref helper to the original imported name(s),
       // so that the rest of the code can remain unchanged.
-      ...refHelperImports.map(
-        (importSpecifier) =>
-          `const ${getStringValue(importSpecifier.local)} = ${safeRefHelperName};\n`,
+      ...refHelperLocalNames.map(
+        (localName) => `const ${localName} = ${safeRefHelperName};\n`,
       ),
     ].join(""),
   );
