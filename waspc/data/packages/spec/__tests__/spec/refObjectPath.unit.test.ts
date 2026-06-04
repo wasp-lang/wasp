@@ -149,7 +149,8 @@ function makeTempProject(): TempProject {
 
   return {
     rootDir,
-    [Symbol.dispose]: () => fs.rmSync(rootDir, { recursive: true, force: true }),
+    [Symbol.dispose]: () =>
+      fs.rmSync(rootDir, { recursive: true, force: true }),
   };
 }
 

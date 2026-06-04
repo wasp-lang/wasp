@@ -2,12 +2,19 @@ import * as cp from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import { describe, expect, test } from "vitest";
+import { beforeAll, describe, expect, test } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
 const SPEC_PACKAGE_DIR = path.resolve(import.meta.dirname, "..", "..");
 
 describe("Wasp TS spec pipeline", () => {
+  // These tests install the package into a temp project and run its built CLI
+  // (`npx @wasp.sh/spec` -> dist/src/run.js). CI runs the test suite without a
+  // prior build, so build the package here to keep the tests self-contained.
+  beforeAll(() => {
+    cp.execSync("npm run build", { cwd: SPEC_PACKAGE_DIR, stdio: "inherit" });
+  }, 120_000);
+
   test("analyzes split specs with lowered ref imports", () => {
     using project = makeTempProject("wasp-spec-pipeline-");
 
