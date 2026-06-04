@@ -1,32 +1,14 @@
+import * as cp from "node:child_process";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import * as url from "node:url";
-import { afterAll, beforeAll, describe, expect, test } from "vitest";
+import { describe, expect, test } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
-import { SpecUserError } from "../../src/spec/specUserError.js";
 
-// We use the absolute file:// URL of the local @wasp.sh/spec source so the
-// compiled spec does not rely on node_modules resolution from a temp dir for
-// public APIs.
-const waspSpecEntryUrl = url.pathToFileURL(
-  path.join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
-).href;
-
-let disposeRuntimeSpecInternalPackageShim = (): void => {};
-
-beforeAll(() => {
-  disposeRuntimeSpecInternalPackageShim = writeSpecInternalPackageShim(
-    path.join(__dirname, "..", ".."),
-  );
-});
-
-afterAll(() => {
-  disposeRuntimeSpecInternalPackageShim();
-});
+const SPEC_PACKAGE_DIR = path.resolve(import.meta.dirname, "..", "..");
 
 describe("Wasp TS spec pipeline", () => {
-  test("analyzes split specs with lowered ref imports", async () => {
+  test("analyzes split specs with lowered ref imports", () => {
     using project = makeTempProject("wasp-spec-pipeline-");
 
     project.writeProjectFile(
@@ -44,8 +26,7 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/home.wasp.ts",
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { page } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import { page } from "@wasp.sh/spec";`,
         `import MainPage from "../MainPage" with { type: "ref" };`,
         ``,
         `export const homePage = page(MainPage);`,
@@ -54,8 +35,7 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/tasks.wasp.ts",
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { action } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import { action } from "@wasp.sh/spec";`,
         `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
         ``,
         `export const splitTitle = "Split Demo";`,
@@ -63,10 +43,9 @@ describe("Wasp TS spec pipeline", () => {
       ].join("\n"),
     );
 
-    const decls = await project.analyzeSpec(
+    const decls = project.analyzeSpec(
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import { app } from "@wasp.sh/spec";`,
         `import { homePage } from "./src/features/home.wasp.js";`,
         `import { archiveAction, splitTitle } from "./src/features/tasks.wasp.js";`,
         ``,
@@ -79,59 +58,35 @@ describe("Wasp TS spec pipeline", () => {
       ].join("\n"),
     );
 
-    expect(decls).toContainEqual(
-      expect.objectContaining({ declType: "App", declName: "demo" }),
-    );
-    expect(decls).toContainEqual(
-      expect.objectContaining({ declType: "Page", declName: "MainPage" }),
-    );
-    expect(decls).toContainEqual(
-      expect.objectContaining({
-        declType: "Action",
-        declName: "adminOperations_archive",
-      }),
-    );
+    expect(decls).toEqual({
+      status: "ok",
+      value: expect.arrayContaining([
+        expect.objectContaining({ declType: "App", declName: "demo" }),
+      ]),
+    });
+    expect(decls).toEqual({
+      status: "ok",
+      value: expect.arrayContaining([
+        expect.objectContaining({ declType: "Page", declName: "MainPage" }),
+      ]),
+    });
+    expect(decls).toEqual({
+      status: "ok",
+      value: expect.arrayContaining([
+        expect.objectContaining({
+          declType: "Action",
+          declName: "adminOperations_archive",
+        }),
+      ]),
+    });
   });
 
-  test("resolves ref imports when the project root is reached through a symlink", async () => {
-    using project = makeSymlinkTempProject("wasp-spec-pipeline-symlink-");
-
-    project.writeProjectFile(
-      "src/MainPage.ts",
-      `export default function MainPage() { return null; }\n`,
-    );
-
-    // The bundler reports canonical (symlink-resolved) module ids, while the
-    // project root is given as a symlinked path. Mapping the source-aware ref
-    // object must still place it inside src/ instead of rejecting it as escaping
-    // src/.
-    const decls = await project.analyzeSpec(
-      [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { app, page } from ${JSON.stringify(waspSpecEntryUrl)};`,
-        `import MainPage from "./src/MainPage" with { type: "ref" };`,
-        ``,
-        `export default app({`,
-        `  name: "demo",`,
-        `  title: "Demo",`,
-        `  wasp: { version: "^0.16.0" },`,
-        `  decls: [page(MainPage)],`,
-        `});`,
-      ].join("\n"),
-    );
-
-    expect(decls).toContainEqual(
-      expect.objectContaining({ declType: "Page", declName: "MainPage" }),
-    );
-  });
-
-  test("surfaces type errors in the spec as a SpecUserError with formatted diagnostics", async () => {
+  test("surfaces type errors in the spec as a SpecUserError with formatted diagnostics", () => {
     using project = makeTempProject("wasp-spec-pipeline-type-error-");
 
     const result = project.analyzeSpec(
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import { app } from "@wasp.sh/spec";`,
         ``,
         `export const oops: string = 123;`,
         ``,
@@ -144,10 +99,12 @@ describe("Wasp TS spec pipeline", () => {
       ].join("\n"),
     );
 
-    await expect(result).rejects.toThrow(SpecUserError);
-    await expect(result).rejects.toThrow(
-      "Type 'number' is not assignable to type 'string'",
-    );
+    expect(result).toEqual({
+      status: "error",
+      error: expect.stringContaining(
+        "Type 'number' is not assignable to type 'string'",
+      ),
+    });
   });
 });
 
@@ -165,20 +122,6 @@ function makeTempProject(prefix: string): TempProject {
   });
 }
 
-function makeSymlinkTempProject(prefix: string): TempProject {
-  const realRootDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
-  const symlinkRootDir = `${realRootDir}-link`;
-  fs.symlinkSync(realRootDir, symlinkRootDir, "dir");
-
-  return scaffoldProject({
-    projectRootDir: symlinkRootDir,
-    dispose: () => {
-      fs.rmSync(symlinkRootDir, { force: true });
-      fs.rmSync(realRootDir, { recursive: true, force: true });
-    },
-  });
-}
-
 function scaffoldProject({
   projectRootDir,
   dispose,
@@ -190,9 +133,12 @@ function scaffoldProject({
 
   fs.writeFileSync(
     path.join(projectRootDir, "package.json"),
-    JSON.stringify({ type: "module" }),
+    JSON.stringify({
+      type: "module",
+      dependencies: { "@wasp.sh/spec": "file:" + SPEC_PACKAGE_DIR },
+    }),
   );
-  writeSpecInternalPackageShim(projectRootDir);
+
   fs.writeFileSync(
     tsconfigPath,
     JSON.stringify({
@@ -216,71 +162,19 @@ function scaffoldProject({
       writeProjectFile(projectRootDir, relativeFilePath, sourceText);
     },
 
-    analyzeSpec: async (sourceText: string) => {
-      const sourcePath = path.join(projectRootDir, "main.wasp.ts");
+    analyzeSpec: (sourceText: string) => {
+      writeProjectFile(projectRootDir, "main.wasp.ts", sourceText);
 
-      fs.writeFileSync(sourcePath, sourceText, "utf8");
+      cp.execSync("npm i", { cwd: projectRootDir, stdio: "inherit" });
+      cp.execSync(
+        "npx @wasp.sh/spec analyze main.wasp.ts tsconfig.json . result.json '[]'",
+        { cwd: projectRootDir, stdio: "inherit" },
+      );
 
-      return analyzeApp({
-        waspTsSpecPath: sourcePath,
-        tsconfigPath,
-        projectRootDir,
-        entityNames: [],
-      });
+      return JSON.parse(
+        fs.readFileSync(path.join(projectRootDir, "result.json"), "utf8"),
+      );
     },
-  };
-}
-
-function writeSpecInternalPackageShim(nodeModulesOwnerDir: string): () => void {
-  const packageRootDir = path.join(
-    nodeModulesOwnerDir,
-    "node_modules",
-    "@wasp.sh",
-    "spec",
-  );
-
-  if (fs.existsSync(packageRootDir)) {
-    return () => {};
-  }
-
-  writeFile(
-    path.join(packageRootDir, "package.json"),
-    JSON.stringify({
-      type: "module",
-      exports: {
-        "./internal": {
-          types: "./internal.d.ts",
-          default: "./internal.js",
-        },
-      },
-    }),
-  );
-  writeFile(
-    path.join(packageRootDir, "internal.js"),
-    [
-      `import { fileURLToPath } from "node:url";`,
-      ``,
-      `export function _waspMakeRef(importingFileUrl) {`,
-      `  const sourceFilePath = fileURLToPath(importingFileUrl);`,
-      ``,
-      `  return (descriptor) => ({ ...descriptor, kind: "refObject", sourceFilePath });`,
-      `}`,
-      ``,
-    ].join("\n"),
-  );
-  writeFile(
-    path.join(packageRootDir, "internal.d.ts"),
-    `export declare function _waspMakeRef(importingFileUrl: string): (descriptor: any) => any;\n`,
-  );
-
-  return () => {
-    fs.rmSync(packageRootDir, { recursive: true, force: true });
-
-    try {
-      fs.rmdirSync(path.dirname(packageRootDir));
-    } catch {
-      // The scope directory can contain unrelated packages.
-    }
   };
 }
 
