@@ -43,42 +43,38 @@ describe("Wasp TS spec pipeline", () => {
       ].join("\n"),
     );
 
+    project.writeProjectFile(
+      "src/features/faq.wasp.ts",
+      [
+        `import { page } from "@wasp.sh/spec";`,
+        `import { splitTitle } from "./tasks.wasp";`,
+        `import FaqPage from "./faq/FaqPage" with { type: "ref" };`,
+        ``,
+        `export const faqPage = page(FaqPage);`,
+      ].join("\n"),
+    );
+    project.writeProjectFile(
+      "src/features/faq/FaqPage.ts",
+      [`export defautl function FaqPage() { return null; }`].join("\n"),
+    );
+
     const decls = project.analyzeSpec(
       [
         `import { app } from "@wasp.sh/spec";`,
-        `import { homePage } from "./src/features/home.wasp.js";`,
-        `import { archiveAction, splitTitle } from "./src/features/tasks.wasp.js";`,
+        `import { homePage } from "./src/features/home.wasp";`,
+        `import { archiveAction, splitTitle } from "./src/features/tasks.wasp";`,
+        `import { faqPage } from "./src/features/faq.wasp";`,
         ``,
         `export default app({`,
         `  name: "demo",`,
         `  title: splitTitle,`,
         `  wasp: { version: "^0.16.0" },`,
-        `  decls: [homePage, archiveAction],`,
+        `  decls: [homePage, archiveAction, faqPage],`,
         `});`,
       ].join("\n"),
     );
 
-    expect(decls).toEqual({
-      status: "ok",
-      value: expect.arrayContaining([
-        expect.objectContaining({ declType: "App", declName: "demo" }),
-      ]),
-    });
-    expect(decls).toEqual({
-      status: "ok",
-      value: expect.arrayContaining([
-        expect.objectContaining({ declType: "Page", declName: "MainPage" }),
-      ]),
-    });
-    expect(decls).toEqual({
-      status: "ok",
-      value: expect.arrayContaining([
-        expect.objectContaining({
-          declType: "Action",
-          declName: "adminOperations_archive",
-        }),
-      ]),
-    });
+    expect(decls).toMatchSnapshot();
   });
 
   test("surfaces type errors in the spec as a SpecUserError with formatted diagnostics", () => {
