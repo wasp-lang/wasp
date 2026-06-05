@@ -147,7 +147,7 @@ function transformRefHelper(sourceText: string): string {
 
   const plan = planTransformRefHelper(ast);
   if (plan) {
-    applyTransformRefHelperPlan_mutate(source, plan);
+    applyTransformRefHelperPlan_mutate("/path/main.wasp.ts", source, plan);
   }
 
   return source.toString();
