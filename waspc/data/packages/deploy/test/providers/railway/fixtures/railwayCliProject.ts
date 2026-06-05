@@ -32,3 +32,15 @@ export const cliProjectInDifferentWorkspace = {
   },
   services: { edges: [] },
 };
+
+// Regression fixture: same project name in two different workspaces.
+// Ensures --workspace filtering correctly distinguishes between them.
+export const cliProjectSameNameDifferentWorkspace = {
+  id: "proj-4",
+  name: "my-project", // same name as cliProjectWithServices
+  workspace: {
+    id: "ws-2",
+    name: "other-workspace",
+  },
+  services: { edges: [] },
+};

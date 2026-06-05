@@ -136,7 +136,9 @@ async function getRailwayProjects(
   const projects = RailwayProjectListSchema.parse(JSON.parse(result.stdout));
 
   const filtered = workspace
-    ? projects.filter((p) => p.workspace.name === workspace)
+    ? projects.filter(
+        (p) => p.workspace.name === workspace || p.workspace.id === workspace,
+      )
     : projects;
 
   return filtered.map((cliProject) => {
