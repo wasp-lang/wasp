@@ -228,9 +228,9 @@ const features: Feature[] = [
     intro: (
       <>
         Define your app via a specialized full-stack aware logic layer, using
-        high-level terms like <InlineCode>app</InlineCode>, <InlineCode>route</InlineCode>,{" "}
-        <InlineCode>page</InlineCode>, ... . Think framework config, but taken to a whole
-        new level.
+        high-level terms like <InlineCode>app</InlineCode>,{" "}
+        <InlineCode>route</InlineCode>, <InlineCode>page</InlineCode>, ... .
+        Think framework config, but taken to a whole new level.
       </>
     ),
     codeBlocks: [
@@ -546,8 +546,8 @@ export default function ChatPage() {
     docUrl: "/docs/project/pre-rendering",
     intro: (
       <>
-        Set <InlineCode>prerender: true</InlineCode> to get the best speed / SEO / LLM
-        experience for your static content.
+        Set <InlineCode>prerender: true</InlineCode> to get the best speed / SEO
+        / LLM experience for your static content.
       </>
     ),
     codeBlocks: [
@@ -609,8 +609,9 @@ Dockerfile  server/  web-app/  db/  # ship them anywhere`,
     docUrl: "/docs/advanced/links",
     intro: (
       <>
-        Wasp turns your route declarations into a typed <InlineCode>Link</InlineCode>{" "}
-        component and <InlineCode>routes</InlineCode> object, so a wrong path or a missing
+        Wasp turns your route declarations into a typed{" "}
+        <InlineCode>Link</InlineCode> component and{" "}
+        <InlineCode>routes</InlineCode> object, so a wrong path or a missing
         param is a compile-time error. Works with route params, search query,
         hash, and optional static segments.
       </>
