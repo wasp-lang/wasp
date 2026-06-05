@@ -17,7 +17,7 @@ export type Plan = {
   refHelperLocalNames: string[];
   /** Source ranges to delete */
   removals: SourceRange[];
-  safeInternalHelperName: string;
+  safeMakeRefHelperName: string;
 };
 
 type SourceRange = { start: number; end: number };
@@ -44,7 +44,7 @@ export function planTransformRefHelper(ast: t.Program): Plan | null {
 
   const scope = getTopLevelBindings(ast);
 
-  const safeInternalHelperName = makeSafeName(
+  const safeMakeRefHelperName = makeSafeName(
     INTERNAL_MAKE_REF_HELPER_IMPORT_NAME,
     scope,
   );
@@ -52,7 +52,7 @@ export function planTransformRefHelper(ast: t.Program): Plan | null {
   return {
     refHelperLocalNames,
     removals,
-    safeInternalHelperName,
+    safeMakeRefHelperName,
   };
 }
 
