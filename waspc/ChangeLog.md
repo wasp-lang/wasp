@@ -22,7 +22,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 ### 📖 Documentation
 
-- We now have a [SEO & GEO optimization guide](https://wasp.sh/docs/guides/optimization/seo).
+- We now have a [SEO & GEO optimization guide](https://wasp.sh/docs/guides/optimization/seo). ([#4264](https://github.com/wasp-lang/wasp/pull/4264))
 
 ## 0.23.0
 
