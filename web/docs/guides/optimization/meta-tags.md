@@ -1,11 +1,11 @@
 ---
-title: SEO metadata
+title: Meta tags
 comments: true
 last_checked_with_versions:
   Wasp: "0.24"
 ---
 
-# Adding SEO metadata to your Wasp app
+# Adding `<meta>` tags to your Wasp app
 
 This guide shows you how to set up meta tags for your Wasp application to improve SEO and enable rich previews when your app is shared on platforms like Slack, X, or Discord.
 
