@@ -21,18 +21,29 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: 75c37602a6b75c790961219411cb1b92
           CLOUDFLARE_PROJECT_NAME: wasp-docs
         run: |
+          # Subtract 60 seconds to account for clock skew between GitHub runner and Cloudflare
+          WORKFLOW_START=$(( $(date -u +%s) - 60 ))
+
           while true; do
             response=$(curl -s "https://api.cloudflare.com/client/v4/accounts/$CLOUDFLARE_ACCOUNT_ID/pages/projects/$CLOUDFLARE_PROJECT_NAME/deployments?per_page=1&page=1&env=production" \
               -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_READ_PAGES_API_TOKEN }}" \
               -H "Content-Type: application/json")
 
+            latest_created=$(echo "$response" | jq -r '.result[0].created_on')
             latest_name=$(echo "$response" | jq -r '.result[0].latest_stage.name')
             latest_status=$(echo "$response" | jq -r '.result[0].latest_stage.status')
+            latest_epoch=$(date -u -d "$latest_created" +%s)
 
-            echo "Latest stage: $latest_name, status: $latest_status"
+            echo "Latest stage: $latest_name, status: $latest_status, created: $latest_created"
 
-            if [[ "$latest_status" == "active" ]]; then
-              echo "Deployment is still active, waiting 5 seconds..."
+            if [[ $latest_epoch -lt $WORKFLOW_START ]]; then
+              echo "No new deployment found yet, waiting 10 seconds..."
+              sleep 10
+              continue
+            fi
+
+            if [[ "$latest_status" == "active" || "$latest_status" == "queued" ]]; then
+              echo "Deployment is still in progress, waiting 5 seconds..."
               sleep 5
               continue
             elif [[ "$latest_name" == "deploy" && "$latest_status" == "success" ]]; then
