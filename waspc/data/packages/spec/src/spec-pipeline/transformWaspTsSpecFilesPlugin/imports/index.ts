@@ -29,9 +29,7 @@ export function transformRefImportsPlugin(): Plugin {
         // parse it.
         const ast = meta.ast || this.parse(code, { lang: "ts" });
 
-        const importsPlan = planTransformImports(ast, {
-          importingFilePath: id,
-        });
+        const importsPlan = planTransformImports(ast);
 
         if (!importsPlan) {
           return null;

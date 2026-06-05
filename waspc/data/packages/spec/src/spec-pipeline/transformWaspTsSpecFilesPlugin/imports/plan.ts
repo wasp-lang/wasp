@@ -1,4 +1,3 @@
-import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import type { ESTree as t } from "rolldown/utils";
 import {
   getStringValue,
@@ -30,11 +29,8 @@ export interface RefImport {
   };
 }
 
-export function planTransformImports(
-  ast: t.Program,
-  { importingFilePath }: { importingFilePath: string },
-): Plan | null {
-  const refImports = findRefImports(ast, importingFilePath);
+export function planTransformImports(ast: t.Program): Plan | null {
+  const refImports = findRefImports(ast);
   if (refImports.length === 0) {
     return null;
   }
@@ -46,12 +42,9 @@ export function planTransformImports(
   return { refImports, safeRefHelperName };
 }
 
-function findRefImports(ast: t.Program, importingFilePath: string) {
+function findRefImports(ast: t.Program) {
   return ast.body.filter(isRefImportDeclaration).map((node) => {
-    const importSource = mapImportPath({
-      refImportPath: getStringValue(node.source),
-      importingFilePath,
-    });
+    const importSource = getStringValue(node.source);
 
     return {
       references: node.specifiers.map((specifier) =>
@@ -106,19 +99,4 @@ function makeRefObject(
     default:
       return specifier satisfies never;
   }
-}
-
-/**
- * Resolves a ref import path (as written in the importing spec file) to an
- * `@src/...` path, which is how Wasp references files in the app's `src/`
- * directory.
- */
-function mapImportPath({
-  refImportPath,
-  importingFilePath,
-}: {
-  refImportPath: string;
-  importingFilePath: string;
-}): string {
-  return path.resolve(path.dirname(importingFilePath), refImportPath);
 }
