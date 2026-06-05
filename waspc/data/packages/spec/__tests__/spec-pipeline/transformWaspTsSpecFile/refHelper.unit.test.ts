@@ -93,7 +93,7 @@ describe("transformRefHelper", () => {
     );
   });
 
-  test.only("handles multiple ref imports in the same file", () => {
+  test("handles multiple ref imports in the same file", () => {
     expect(
       transformRefHelper(
         [
