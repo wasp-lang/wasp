@@ -15,8 +15,7 @@ export type Plan = {
    * helper so the rest of the file keeps working.
    */
   refHelperLocalNames: string[];
-  /** Source ranges to delete: `ref` specifiers (with their commas) or whole
-   * `@wasp.sh/spec` imports when `ref` was their only specifier. */
+  /** Source ranges to delete */
   removals: SourceRange[];
   safeInternalHelperName: string;
 };
