@@ -1,7 +1,9 @@
 import assert from "node:assert/strict";
-import type { Plugin } from "rolldown";
+import type { Plugin, RolldownMagicString } from "rolldown";
+import type { ESTree as t } from "rolldown/utils";
 import { WASP_SPEC_FILE_REGEX } from "../../common.js";
 import { applyTransformRefHelperPlan_mutate } from "./apply.js";
+import { assertCanTransformRefHelper } from "./check.js";
 import { planTransformRefHelper } from "./plan.js";
 
 export function transformRefHelperPlugin(): Plugin {
@@ -29,15 +31,25 @@ export function transformRefHelperPlugin(): Plugin {
         // parse it.
         const ast = meta.ast || this.parse(code, { lang: "ts" });
 
-        const refHelperPlan = planTransformRefHelper(ast);
-        if (!refHelperPlan) {
-          return null;
-        }
-
-        applyTransformRefHelperPlan_mutate(id, meta.magicString, refHelperPlan);
+        transformRefHelper_mutate(id, ast, meta.magicString);
 
         return { code: meta.magicString };
       },
     },
   };
+}
+
+export function transformRefHelper_mutate(
+  id: string,
+  ast: t.Program,
+  magicString: RolldownMagicString,
+): void {
+  assertCanTransformRefHelper(ast);
+
+  const refHelperPlan = planTransformRefHelper(ast);
+  if (!refHelperPlan) {
+    return;
+  }
+
+  applyTransformRefHelperPlan_mutate(id, magicString, refHelperPlan);
 }
