@@ -1,8 +1,8 @@
 /**
  * This module maps the TsAppSpec-facing API to the internal representation of
+ * the app ({@link OutputAppSpec.Decl}).
  * All of the mapping functions are exported so that they can be individually
  * tested.
- * the app ({@link OutputAppSpec.Decl}).
  */
 
 import * as OutputAppSpec from "../appSpec.js";
