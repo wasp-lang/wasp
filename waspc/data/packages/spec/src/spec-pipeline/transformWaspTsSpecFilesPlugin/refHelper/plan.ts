@@ -19,7 +19,6 @@ export type Plan = {
    * `@wasp.sh/spec` imports when `ref` was their only specifier. */
   removals: SourceRange[];
   safeInternalHelperName: string;
-  safeRefHelperName: string;
 };
 
 type SourceRange = { start: number; end: number };
@@ -51,13 +50,10 @@ export function planTransformRefHelper(ast: t.Program): Plan | null {
     scope,
   );
 
-  const safeRefHelperName = makeSafeName(PUBLIC_REF_HELPER_IMPORT_NAME, scope);
-
   return {
     refHelperLocalNames,
     removals,
     safeInternalHelperName,
-    safeRefHelperName,
   };
 }
 

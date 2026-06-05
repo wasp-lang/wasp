@@ -23,8 +23,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const ref_0 = _waspMakeRef(import.meta.url);`,
-        `const ref = ref_0;`,
+        `const ref = _waspMakeRef(import.meta.url);`,
         ``,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
@@ -44,8 +43,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const ref = _waspMakeRef(import.meta.url);`,
-        `const appRef = ref;`,
+        `const appRef = _waspMakeRef(import.meta.url);`,
         ``,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
@@ -66,8 +64,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
-        `const ref_0 = _waspMakeRef_0(import.meta.url);`,
-        `const appRef = ref_0;`,
+        `const appRef = _waspMakeRef_0(import.meta.url);`,
         `const ref = "taken";`,
         `const _waspMakeRef = "taken";`,
         ``,
@@ -88,8 +85,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
-        `const ref = _waspMakeRef_0(import.meta.url);`,
-        `const appRef = ref;`,
+        `const appRef = _waspMakeRef_0(import.meta.url);`,
         `class _waspMakeRef {}`,
         ``,
         ``,
@@ -97,23 +93,29 @@ describe("transformRefHelper", () => {
     );
   });
 
-  test("treats type-only imports that shadow the helper names as collisions", () => {
+  test.only("handles multiple ref imports in the same file", () => {
     expect(
       transformRefHelper(
         [
-          `import type { ref, _waspMakeRef } from "./types";`,
-          `import { ref as appRef } from "@wasp.sh/spec";`,
+          `import { ref as refA, ref as refB } from "@wasp.sh/spec";`,
+          `import { ref as refC } from "@wasp.sh/spec";`,
+          `import { ref } from "@wasp.sh/spec";`,
           ``,
         ].join("\n"),
       ),
     ).toBe(
       [
-        `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
-        `const ref_0 = _waspMakeRef_0(import.meta.url);`,
-        `const appRef = ref_0;`,
-        `import type { ref, _waspMakeRef } from "./types";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `const refA = _waspMakeRef(import.meta.url);`,
+        `const refB = refA;`,
+        `const refC = refA;`,
+        `const ref = refA;`,
         ``,
         ``,
+        ``,
+        ``,
+        // This is not a mistake: each newline is a removed import statement.
+        // The ranges in the AST don't cover the final newline of each.
       ].join("\n"),
     );
   });
@@ -130,8 +132,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const ref = _waspMakeRef(import.meta.url);`,
-        `const appRef = ref;`,
+        `const appRef = _waspMakeRef(import.meta.url);`,
         `import { type RefObject, page } from "@wasp.sh/spec";`,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
