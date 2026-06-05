@@ -1,52 +1,57 @@
-import { parseAst } from "rolldown/parseAst";
 import type { ESTree as t } from "rolldown/utils";
-import { DefaultRefObject, NamedRefObject } from "../../spec/refObject.js";
-import { SpecUserError } from "../../spec/specUserError.js";
-import { mapImportPath, RefImportPath } from "./mapImportPath.js";
+import { SpecUserError } from "../../../spec/specUserError.js";
+import {
+  getStringValue,
+  getTopLevelBindings,
+  makeSafeName,
+  PUBLIC_REF_HELPER_IMPORT_NAME,
+} from "../util.js";
 
-export type PlannedImportReference =
-  | { kind: "named"; refObject: NamedRefObject }
-  | { kind: "default"; refObject: DefaultRefObject }
-  | { kind: "namespace"; from: RefImportPath; alias: string };
+import type {
+  DefaultRefObjectDescriptor,
+  NamedRefObjectDescriptor,
+} from "@wasp.sh/spec";
 
-export interface PlannedImport {
-  references: PlannedImportReference[];
+export type Plan = {
+  refImports: RefImport[];
+  safeRefHelperName: string;
+};
+
+export type RefImportReference =
+  | { kind: "named"; refObject: NamedRefObjectDescriptor }
+  | { kind: "default"; refObject: DefaultRefObjectDescriptor }
+  | { kind: "namespace"; from: string; alias: string };
+
+export interface RefImport {
+  references: RefImportReference[];
   removeImport: {
     start: number;
     end: number;
   };
 }
 
-/**
- * Given a Wasp Spec source file, returns a plan for replacing each
- * `with { type: "ref" }` import with inline RefObject consts. We call this
- * lowering imports.
- */
-export function planLowerImports({
-  sourceText,
-  importingFilePath,
-  projectRootDir,
-}: {
-  sourceText: string;
-  importingFilePath: string;
-  projectRootDir: string;
-}): PlannedImport[] {
-  const ast = parseAst(sourceText, { lang: "ts" });
+export function planTransformImports(ast: t.Program): Plan | null {
+  const refImports = findRefImports(ast);
+  if (refImports.length === 0) {
+    return null;
+  }
 
+  const scope = getTopLevelBindings(ast);
+
+  const safeRefHelperName = makeSafeName(PUBLIC_REF_HELPER_IMPORT_NAME, scope);
+
+  return { refImports, safeRefHelperName };
+}
+
+function findRefImports(ast: t.Program) {
   return ast.body.filter(isRefImportDeclaration).map((node) => {
-    const refImportPath = getStringValue(node.source);
+    const importSource = getStringValue(node.source);
 
     if (node.specifiers.length === 0) {
       throw new SpecUserError(
-        `Ref import from ${JSON.stringify(refImportPath)} must import at least one binding.`,
+        `Ref import from ${JSON.stringify(importSource)} must import at least one binding.`,
       );
     }
-
-    const importSource = mapImportPath({
-      refImportPath,
-      importingFilePath,
-      projectRootDir,
-    });
 
     return {
       references: node.specifiers.map((specifier) =>
@@ -71,9 +76,9 @@ function isRefImportDeclaration(
 }
 
 function makeRefObject(
-  importSource: RefImportPath,
+  importSource: string,
   specifier: t.ImportDeclarationSpecifier,
-): PlannedImportReference {
+): RefImportReference {
   switch (specifier.type) {
     case "ImportSpecifier":
       return {
@@ -101,8 +106,4 @@ function makeRefObject(
     default:
       return specifier satisfies never;
   }
-}
-
-function getStringValue(node: t.IdentifierName | t.StringLiteral): string {
-  return node.type === "Identifier" ? node.name : node.value;
 }

@@ -25,30 +25,36 @@ describe("mapRefObject", () => {
   test.each([
     { refObject: () => null },
     { refObject: { parse: () => ({}) } },
-    { refObject: { from: "@src/external" } },
+    { refObject: { from: "./src/external" } },
   ])("returns an error for invalid runtime values", ({ refObject }) => {
-    expect(() => mapRefObject(refObject)).toThrowError(SpecUserError);
-    expect(() => mapRefObject(refObject)).toThrowError(
+    expect(() => mapRefObjectForProject(refObject)).toThrow(SpecUserError);
+    expect(() => mapRefObjectForProject(refObject)).toThrow(
       "Got an import in the Wasp file that we couldn't process",
     );
   });
 
   function testMapRefObject(refObject: TsAppSpec.RefObject): void {
-    const result = mapRefObject(refObject);
+    const result = mapRefObjectForProject(refObject);
 
     if ("import" in refObject) {
       expect(result).toStrictEqual({
         kind: "named",
         name: refObject.import,
-        path: refObject.from,
+        path: "@src/external",
         alias: refObject.alias,
       } satisfies AppSpec.ExtImport);
     } else {
       expect(result).toStrictEqual({
         kind: "default",
         name: refObject.importDefault,
-        path: refObject.from,
+        path: "@src/external",
       } satisfies AppSpec.ExtImport);
     }
+  }
+
+  function mapRefObjectForProject(refObject: unknown): AppSpec.ExtImport {
+    return mapRefObject(refObject, {
+      projectRootDir: Fixtures.MOCK_PROJECT_DIR,
+    });
   }
 });

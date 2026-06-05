@@ -75,7 +75,10 @@ describe("analyzeApp", () => {
       await expect(analyze()).rejects.toThrowError(SpecUserError);
     } else {
       const result = await analyze();
-      const expected = mapApp(app, entities);
+      const expected = mapApp(app, {
+        entityNames: entities,
+        projectRootDir: "/project",
+      });
 
       expect(result).toEqual(expected);
     }
@@ -83,7 +86,6 @@ describe("analyzeApp", () => {
     expect(mockLoadWaspTsSpecDefaultExport).toHaveBeenCalledWith({
       specPath: "main.wasp.ts",
       tsconfigPath: "tsconfig.wasp.json",
-      projectRootDir: "/project",
     });
   }
 });
