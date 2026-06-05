@@ -26,7 +26,7 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
         name: "MinimalApp",
         wasp: { version: "^0.16.3" },
         title: "Mock App",
-        decls: [],
+        spec: [],
       });
     case "full":
       return app({
@@ -40,7 +40,7 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
         db: getDbConfig("full"),
         emailSender: getEmailSenderConfig("full"),
         webSocket: getWebSocketConfig("full"),
-        decls: [
+        spec: [
           getPage("full"),
           getRoute("full"),
           getQuery("full"),
@@ -55,10 +55,10 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
   }
 }
 
-export function getMinimalAppWithDecls(decls: TsAppSpec.Decl[]): TsAppSpec.App {
+export function getMinimalAppWithDecls(decls: TsAppSpec.Spec[]): TsAppSpec.App {
   return {
     ...getApp("minimal"),
-    decls,
+    spec: decls,
   };
 }
 

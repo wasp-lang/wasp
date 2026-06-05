@@ -44,7 +44,7 @@ import type {
  *
  * @param config The app configuration.
  *
- * @category Spec
+ * @category Wasp Spec
  */
 export function app(config: AppConfig): App {
   return config;

@@ -26,12 +26,12 @@ export function mapApp(
     db,
     emailSender,
     webSocket,
-    decls,
+    spec: decls,
   } = appInput;
 
   const entityRefParser = makeRefParser("Entity", entityNames);
 
-  // TODO: When you add all declarations, see if you can generalize better
+  // TODO: When you add all specifications, see if you can generalize better
   // (e.g., maybe named parameters, maybe putting extractDecls inside
   // mapToDecls)
   const pagesInput = extractInputDecls("page", decls);
@@ -164,7 +164,7 @@ export function mapRoute(route: InputAppSpec.Route): OutputAppSpec.Route {
  * - Reference an existing {@link InputAppSpec.Page}.
  *
  * In case when it references an existing page, we don't want to
- * count the reference as a separate {@link OutputAppSpec.Page} declaration.
+ * count the reference as a separate {@link OutputAppSpec.Page} specification.
  */
 export function dedupePageDecls(
   decls: OutputAppSpec.GetDeclForType<"Page">[],
@@ -490,15 +490,15 @@ export function makeRefParser<T extends OutputAppSpec.DeclType>(
   };
 }
 
-function extractInputDecls<Kind extends InputAppSpec.Decl["kind"]>(
+function extractInputDecls<Kind extends InputAppSpec.Spec["kind"]>(
   id: Kind,
-  decls: InputAppSpec.Decl[],
+  decls: InputAppSpec.Spec[],
 ): GetInputDeclForKind<Kind>[] {
   return decls.filter((p): p is GetInputDeclForKind<Kind> => p.kind === id);
 }
 
-type GetInputDeclForKind<Kind extends InputAppSpec.Decl["kind"]> = Extract<
-  InputAppSpec.Decl,
+type GetInputDeclForKind<Kind extends InputAppSpec.Spec["kind"]> = Extract<
+  InputAppSpec.Spec,
   { kind: Kind }
 >;
 
@@ -526,16 +526,16 @@ export function deriveRefObjectName(
 }
 
 /**
- * The point of this function is to enforce exhaustivness over all declaration
+ * The point of this function is to enforce exhaustivness over all specification
  * types, ensuring we don't forget to include anything.
  * Check the original comment for details: https://github.com/wasp-lang/wasp/pull/2393#discussion_r1866620833
  *
- * TODO: The new spec bundles all declarations (queries, actions...) together in
+ * TODO: The new spec bundles all specifications (queries, actions...) together in
  * the decls array, so there's no need to go through them one by one.
  *
  * We'd likely be better off by:
  *   1. Mapping the entire array with a dispatcher that calls the correct
- *   mapper depending on the declaration's kind
+ *   mapper depending on the specification's kind
  *   2. Passing this mapped array into the app spec (which expects them all on
  *   the same level anyway).
  * We'll likely lose some mapping type safety in the process though. Explore

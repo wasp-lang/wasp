@@ -25,7 +25,7 @@ The Wasp DSL was a custom language, so it needed its own IDE extension for highl
 
 ### Multiple files
 
-The Wasp DSL kept your entire configuration in a single `main.wasp`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import declarations between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `payments.wasp.ts` next to the feature it configures).
+The Wasp DSL kept your entire configuration in a single `main.wasp`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import specifications between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `payments.wasp.ts` next to the feature it configures).
 
 See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into-multiple-files) for details.
 
@@ -33,14 +33,14 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### Overview
 
-| What                    | Before                                                                   | After                                                                                             |
-| ----------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| File name               | `main.wasp`                                                              | `main.wasp.ts`                                                                                    |
-| Creating an app         | `app Name { ... }`                                                       | `app({ name, ..., decls: [...] })`                                                                |
-| Configuring the app     | <pre>app Name \{<br/> auth: \{ ... },<br/> server: \{ ... },<br/>}</pre> | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/>})</pre>                                        |
-| Adding app declarations | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre>   | <pre>app(\{<br/> decls: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>})</pre> |
-| Referencing code        | `import { x } from "@src/..."` inside a declaration                      | `import { ... } from "./src/..." with { type: "ref" }` at the top level                           |
-| Entity references       | `Task` (identifier)                                                      | `"Task"` (string)                                                                                 |
+| What                      | Before                                                                   | After                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| File name                 | `main.wasp`                                                              | `main.wasp.ts`                                                                                    |
+| Creating an app           | `app Name { ... }`                                                       | `app({ name, ..., spec: [...] })`                                                                 |
+| Configuring the app       | <pre>app Name \{<br/> auth: \{ ... },<br/> server: \{ ... },<br/>}</pre> | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/>})</pre>                                        |
+| Adding app specifications | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre>   | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>})</pre>  |
+| Referencing code          | `import { x } from "@src/..."` inside a specification                    | `import { ... } from "./src/..." with { type: "ref" }` at the top level                           |
+| Entity references         | `Task` (identifier)                                                      | `"Task"` (string)                                                                                 |
 
 ### App, routes, and pages
 
@@ -70,7 +70,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
       name: "todoApp",
       title: "ToDo App",
       wasp: { version: "^0.24.0" },
-      decls: [
+      spec: [
         route("MainRoute", "/", page(MainPage, { authRequired: true })),
       ],
     })
@@ -104,7 +104,7 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
 
     export default app({
       // ...
-      decls: [
+      spec: [
         query(getTasks, { entities: ["Task"] }),
         action(createTask, { entities: ["Task"] }),
       ],
@@ -140,7 +140,7 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
 
     export default app({
       // ...
-      decls: [
+      spec: [
         apiNamespace("/bar", {
           middlewareConfigFn: barNamespaceMiddlewareFn,
         }),
@@ -175,7 +175,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
 
     export default app({
       // ...
-      decls: [
+      spec: [
         job(foo, {
           executor: "PgBoss",
           entities: ["Task"],
@@ -208,7 +208,7 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
 
     export default app({
       // ...
-      decls: [
+      spec: [
         crud("tasks", "Task", {
           getAll: {},
           create: { overrideFn: createTask },
@@ -348,7 +348,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
    export default app({
      name: "myAppName",
-     decls: [
+     spec: [
        // ...
      ],
    });
@@ -360,7 +360,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 8. Rewrite your config:
 
-   You can use the mapping above. Top-level concerns (e.g. `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`) become keys of the `app({ ... })` object; pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `decls` array.
+   You can use the mapping above. Top-level concerns (e.g. `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`) become keys of the `app({ ... })` object; pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `spec` array.
 
 9. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 

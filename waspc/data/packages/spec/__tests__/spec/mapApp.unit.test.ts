@@ -91,7 +91,7 @@ describe("mapApp", () => {
       db,
       emailSender,
       webSocket,
-      decls: [
+      spec: [
         page,
         route,
         query,

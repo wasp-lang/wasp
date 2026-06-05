@@ -20,7 +20,7 @@ export interface NamedRefObject {
   /**
    * Optional local alias.
    *
-   * When Wasp derives a declaration name from this import, the alias takes
+   * When Wasp derives a specification name from this import, the alias takes
    * precedence over the `import` field.
    */
   alias?: string;
