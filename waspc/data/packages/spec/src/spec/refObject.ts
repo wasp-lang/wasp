@@ -1,4 +1,3 @@
-import { fileURLToPath } from "node:url";
 import type * as AppSpec from "../appSpec.js";
 import type { Branded } from "../branded.js";
 import { normalizeRefObjectPath } from "./refObjectPath.js";
@@ -93,16 +92,14 @@ export function ref(_descriptor: RefObjectDescriptor): RefObject {
  *
  * Ref objects need the current spec file location to resolve relative paths,
  * but `ref` itself can't use `import.meta.url` because it would point to this
- * helper module. `_waspMakeRef(import.meta.url)` lets each `.wasp.ts` file
+ * helper module. `_waspMakeRef(sourceFilePath)` lets each `.wasp.ts` file
  * create a local `ref` that carries its own source file path.
  *
  * @internal
  */
 export function _waspMakeRef(
-  importingFileUrl: string,
+  sourceFilePath: string,
 ): (descriptor: RefObjectDescriptor) => SourceAwareRefObject {
-  const sourceFilePath = fileURLToPath(importingFileUrl);
-
   return (descriptor: RefObjectDescriptor) => {
     const refObject = {
       ...descriptor,

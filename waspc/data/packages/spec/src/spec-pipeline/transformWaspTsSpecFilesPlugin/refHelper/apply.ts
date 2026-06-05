@@ -7,6 +7,7 @@ import {
 import { Plan } from "./plan.js";
 
 export function applyTransformRefHelperPlan_mutate(
+  importingFilePath: string,
   magicString: RolldownMagicString,
   {
     refHelperLocalNames,
@@ -34,7 +35,7 @@ export function applyTransformRefHelperPlan_mutate(
         [[INTERNAL_MAKE_REF_HELPER_IMPORT_NAME, safeMakeRefHelperName]],
         INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE,
       ),
-      `const ${firstRefHelperLocalName} = ${safeMakeRefHelperName}(import.meta.url);\n`,
+      `const ${firstRefHelperLocalName} = ${safeMakeRefHelperName}(${JSON.stringify(importingFilePath)});\n`,
       ...extraRefHelperAliases.map(
         (localName) => `const ${localName} = ${firstRefHelperLocalName};\n`,
       ),
