@@ -1,19 +1,24 @@
 /**
  * This module maps the TsAppSpec-facing API to the internal representation of
- * the app ({@link OutputAppSpec.Decl})
+ * the app ({@link OutputAppSpec.Decl}).
  * All of the mapping functions are exported so that they can be individually
  * tested.
  */
 
 import * as OutputAppSpec from "../appSpec.js";
-import type { AnyFunction } from "../typeUtils.js";
 import * as InputAppSpec from "./publicApi/tsAppSpec.js";
-import { mapRefObject, type RefObject } from "./refObject.js";
+import { getRefObjectDeclarationName, mapRefObject } from "./refObject.js";
 import { SpecUserError } from "./specUserError.js";
 
 export function mapApp(
   appInput: InputAppSpec.App,
-  entityNames: string[],
+  {
+    projectRootDir,
+    entityNames,
+  }: {
+    projectRootDir: string;
+    entityNames: string[];
+  },
 ): OutputAppSpec.Decl[] {
   const {
     name,
@@ -30,19 +35,31 @@ export function mapApp(
   } = appInput;
 
   const entityRefParser = makeRefParser("Entity", entityNames);
+  const routesInput = extractInputDecls("route", decls);
+  const routeRefParser = makeRefParser(
+    "Route",
+    routesInput.map((r) => r.name),
+  );
+  const ctx: AppMapperContext = {
+    entityRefParser,
+    routeRefParser,
+    mapRefObject: (refObject: unknown) =>
+      mapRefObject(refObject, {
+        projectRootDir,
+      }),
+  };
 
   // TODO: When you add all declarations, see if you can generalize better
-  // (e.g., maybe named parameters, maybe putting extractDecls inside
-  // mapToDecls)
+  // (e.g., maybe named parameters, maybe putting extractInputDecls inside
+  // mapDecls)
   const pagesInput = extractInputDecls("page", decls);
   const pagesOutput = mapDecls(
     pagesInput,
     "Page",
-    (page) => deriveRefObjectName(page.component),
-    mapPage,
+    (page) => getRefObjectDeclarationName(page.component),
+    (page) => mapPage(page, ctx),
   );
 
-  const routesInput = extractInputDecls("route", decls);
   const routesOutput = mapDecls(
     routesInput,
     "Route",
@@ -52,52 +69,48 @@ export function mapApp(
   const routePagesOutputs = mapDecls(
     routesInput,
     "Page",
-    (route) => deriveRefObjectName(route.page.component),
-    (route) => mapPage(route.page),
-  );
-  const routeRefParser = makeRefParser(
-    "Route",
-    routesInput.map((r) => r.name),
+    (route) => getRefObjectDeclarationName(route.page.component),
+    (route) => mapPage(route.page, ctx),
   );
 
   const queriesInput = extractInputDecls("query", decls);
   const queriesOutput = mapDecls(
     queriesInput,
     "Query",
-    (query) => deriveRefObjectName(query.fn),
-    (query) => mapQuery(query, entityRefParser),
+    (query) => getRefObjectDeclarationName(query.fn),
+    (query) => mapQuery(query, ctx),
   );
 
   const actionsInput = extractInputDecls("action", decls);
   const actionsOutput = mapDecls(
     actionsInput,
     "Action",
-    (action) => deriveRefObjectName(action.fn),
-    (action) => mapAction(action, entityRefParser),
+    (action) => getRefObjectDeclarationName(action.fn),
+    (action) => mapAction(action, ctx),
   );
 
   const apisInput = extractInputDecls("api", decls);
   const apisOutput = mapDecls(
     apisInput,
     "Api",
-    (api) => deriveRefObjectName(api.fn),
-    (api) => mapApi(api, entityRefParser),
+    (api) => getRefObjectDeclarationName(api.fn),
+    (api) => mapApi(api, ctx),
   );
 
   const apiNamespacesInput = extractInputDecls("apiNamespace", decls);
   const apiNamespacesOutput = mapDecls(
     apiNamespacesInput,
     "ApiNamespace",
-    (ns) => deriveRefObjectName(ns.middlewareConfigFn),
-    mapApiNamespace,
+    (ns) => getRefObjectDeclarationName(ns.middlewareConfigFn),
+    (ns) => mapApiNamespace(ns, ctx),
   );
 
   const jobsInput = extractInputDecls("job", decls);
   const jobsOutput = mapDecls(
     jobsInput,
     "Job",
-    (job) => deriveRefObjectName(job.fn),
-    (job) => mapJob(job, entityRefParser),
+    (job) => getRefObjectDeclarationName(job.fn),
+    (job) => mapJob(job, ctx),
   );
 
   const crudsInput = extractInputDecls("crud", decls);
@@ -105,7 +118,7 @@ export function mapApp(
     crudsInput,
     "Crud",
     (crud) => crud.name,
-    (crud) => mapCrud(crud, entityRefParser),
+    (crud) => mapCrud(crud, ctx),
   );
 
   const appOutput = {
@@ -115,12 +128,12 @@ export function mapApp(
       wasp,
       title,
       head,
-      auth: auth && mapAuth(auth, entityRefParser, routeRefParser),
-      server: server && mapServer(server),
-      client: client && mapClient(client),
-      db: db && mapDb(db),
+      auth: auth && mapAuth(auth, ctx),
+      server: server && mapServer(server, ctx),
+      client: client && mapClient(client, ctx),
+      db: db && mapDb(db, ctx),
       emailSender: emailSender && mapEmailSender(emailSender),
-      webSocket: webSocket && mapWebSocket(webSocket),
+      webSocket: webSocket && mapWebSocket(webSocket, ctx),
     },
   };
 
@@ -137,10 +150,21 @@ export function mapApp(
   });
 }
 
-export function mapPage(page: InputAppSpec.Page): OutputAppSpec.Page {
+export type AppMapperContext = {
+  entityRefParser: RefParser<"Entity">;
+  routeRefParser: RefParser<"Route">;
+  mapRefObject: RefObjectMapper;
+};
+
+type RefObjectMapper = (refObject: unknown) => OutputAppSpec.ExtImport;
+
+export function mapPage(
+  page: InputAppSpec.Page,
+  ctx: AppMapperContext,
+): OutputAppSpec.Page {
   const { component, authRequired } = page;
   return {
-    component: mapRefObject(component),
+    component: ctx.mapRefObject(component),
     authRequired,
   };
 }
@@ -150,7 +174,7 @@ export function mapRoute(route: InputAppSpec.Route): OutputAppSpec.Route {
   return {
     path,
     to: {
-      name: deriveRefObjectName(route.page.component),
+      name: getRefObjectDeclarationName(route.page.component),
       declType: "Page",
     },
     prerender,
@@ -199,32 +223,31 @@ function arePageDeclsEqual(
 
 export function mapQuery(
   query: InputAppSpec.Query,
-  entityRefParser: RefParser<"Entity">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.Query {
   const { fn, entities, auth } = query;
   return {
-    fn: mapRefObject(fn),
-    entities: entities?.map(entityRefParser),
+    fn: ctx.mapRefObject(fn),
+    entities: entities?.map(ctx.entityRefParser),
     auth,
   };
 }
 
 export function mapAction(
   action: InputAppSpec.Action,
-  entityRefParser: RefParser<"Entity">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.Action {
   const { fn, entities, auth } = action;
   return {
-    fn: mapRefObject(fn),
-    entities: entities?.map(entityRefParser),
+    fn: ctx.mapRefObject(fn),
+    entities: entities?.map(ctx.entityRefParser),
     auth,
   };
 }
 
 export function mapAuth(
   auth: InputAppSpec.Auth,
-  entityRefParser: RefParser<"Entity">,
-  routeRefParser: RefParser<"Route">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.Auth {
   const {
     userEntity,
@@ -239,24 +262,24 @@ export function mapAuth(
     onAfterLogin,
   } = auth;
   return {
-    userEntity: entityRefParser(userEntity),
-    methods: mapAuthMethods(methods, routeRefParser),
+    userEntity: ctx.entityRefParser(userEntity),
+    methods: mapAuthMethods(methods, ctx),
     onAuthFailedRedirectTo,
     onAuthSucceededRedirectTo,
-    onBeforeSignup: onBeforeSignup && mapRefObject(onBeforeSignup),
-    onAfterSignup: onAfterSignup && mapRefObject(onAfterSignup),
+    onBeforeSignup: onBeforeSignup && ctx.mapRefObject(onBeforeSignup),
+    onAfterSignup: onAfterSignup && ctx.mapRefObject(onAfterSignup),
     onAfterEmailVerified:
-      onAfterEmailVerified && mapRefObject(onAfterEmailVerified),
+      onAfterEmailVerified && ctx.mapRefObject(onAfterEmailVerified),
     onBeforeOAuthRedirect:
-      onBeforeOAuthRedirect && mapRefObject(onBeforeOAuthRedirect),
-    onBeforeLogin: onBeforeLogin && mapRefObject(onBeforeLogin),
-    onAfterLogin: onAfterLogin && mapRefObject(onAfterLogin),
+      onBeforeOAuthRedirect && ctx.mapRefObject(onBeforeOAuthRedirect),
+    onBeforeLogin: onBeforeLogin && ctx.mapRefObject(onBeforeLogin),
+    onAfterLogin: onAfterLogin && ctx.mapRefObject(onAfterLogin),
   };
 }
 
 export function mapAuthMethods(
   methods: InputAppSpec.AuthMethods,
-  routeRefParser: RefParser<"Route">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.AuthMethods {
   const {
     usernameAndPassword,
@@ -270,70 +293,73 @@ export function mapAuthMethods(
   } = methods;
   return {
     usernameAndPassword:
-      usernameAndPassword && mapUsernameAndPassword(usernameAndPassword),
-    slack: slack && mapSocialAuth(slack),
-    discord: discord && mapSocialAuth(discord),
-    google: google && mapSocialAuth(google),
-    gitHub: gitHub && mapSocialAuth(gitHub),
-    keycloak: keycloak && mapSocialAuth(keycloak),
-    microsoft: microsoft && mapSocialAuth(microsoft),
-    email: email && mapEmailAuth(email, routeRefParser),
+      usernameAndPassword && mapUsernameAndPassword(usernameAndPassword, ctx),
+    slack: slack && mapSocialAuth(slack, ctx),
+    discord: discord && mapSocialAuth(discord, ctx),
+    google: google && mapSocialAuth(google, ctx),
+    gitHub: gitHub && mapSocialAuth(gitHub, ctx),
+    keycloak: keycloak && mapSocialAuth(keycloak, ctx),
+    microsoft: microsoft && mapSocialAuth(microsoft, ctx),
+    email: email && mapEmailAuth(email, ctx),
   };
 }
 
 export function mapUsernameAndPassword(
   usernameAndPassword: InputAppSpec.UsernameAndPasswordConfig,
+  ctx: AppMapperContext,
 ): OutputAppSpec.UsernameAndPasswordConfig {
   const { userSignupFields } = usernameAndPassword;
   return {
-    userSignupFields: userSignupFields && mapRefObject(userSignupFields),
+    userSignupFields: userSignupFields && ctx.mapRefObject(userSignupFields),
   };
 }
 
 export function mapSocialAuth(
   socialAuth: InputAppSpec.SocialAuthConfig,
+  ctx: AppMapperContext,
 ): OutputAppSpec.ExternalAuthConfig {
   const { configFn, userSignupFields } = socialAuth;
   return {
-    configFn: configFn && mapRefObject(configFn),
-    userSignupFields: userSignupFields && mapRefObject(userSignupFields),
+    configFn: configFn && ctx.mapRefObject(configFn),
+    userSignupFields: userSignupFields && ctx.mapRefObject(userSignupFields),
   };
 }
 
 export function mapEmailAuth(
   emailAuth: InputAppSpec.EmailAuthConfig,
-  routeRefParser: RefParser<"Route">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.EmailAuthConfig {
   const { userSignupFields, fromField, emailVerification, passwordReset } =
     emailAuth;
   return {
-    userSignupFields: userSignupFields && mapRefObject(userSignupFields),
+    userSignupFields: userSignupFields && ctx.mapRefObject(userSignupFields),
     fromField: mapEmailFromField(fromField),
-    emailVerification: mapEmailFlow(emailVerification, routeRefParser),
-    passwordReset: mapEmailFlow(passwordReset, routeRefParser),
+    emailVerification: mapEmailFlow(emailVerification, ctx),
+    passwordReset: mapEmailFlow(passwordReset, ctx),
   };
 }
 
 export function mapEmailFlow(
   emailFlow: InputAppSpec.EmailFlowConfig,
-  routeRefParser: RefParser<"Route">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.EmailVerificationConfig {
   const { getEmailContentFn, clientRoute } = emailFlow;
   return {
-    getEmailContentFn: getEmailContentFn && mapRefObject(getEmailContentFn),
-    clientRoute: routeRefParser(clientRoute),
+    getEmailContentFn: getEmailContentFn && ctx.mapRefObject(getEmailContentFn),
+    clientRoute: ctx.routeRefParser(clientRoute),
   };
 }
 
 export function mapApi(
   api: InputAppSpec.Api,
-  entityRefParser: RefParser<"Entity">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.Api {
   const { method, path, fn, middlewareConfigFn, entities, auth } = api;
   return {
-    fn: mapRefObject(fn),
-    middlewareConfigFn: middlewareConfigFn && mapRefObject(middlewareConfigFn),
-    entities: entities?.map(entityRefParser),
+    fn: ctx.mapRefObject(fn),
+    middlewareConfigFn:
+      middlewareConfigFn && ctx.mapRefObject(middlewareConfigFn),
+    entities: entities?.map(ctx.entityRefParser),
     httpRoute: [method, path],
     auth,
   };
@@ -341,40 +367,51 @@ export function mapApi(
 
 export function mapApiNamespace(
   apiNamespace: InputAppSpec.ApiNamespace,
+  ctx: AppMapperContext,
 ): OutputAppSpec.ApiNamespace {
   const { middlewareConfigFn, path } = apiNamespace;
   return {
-    middlewareConfigFn: mapRefObject(middlewareConfigFn),
+    middlewareConfigFn: ctx.mapRefObject(middlewareConfigFn),
     path,
   };
 }
 
-export function mapServer(server: InputAppSpec.Server): OutputAppSpec.Server {
+export function mapServer(
+  server: InputAppSpec.Server,
+  ctx: AppMapperContext,
+): OutputAppSpec.Server {
   const { setupFn, middlewareConfigFn, envValidationSchema } = server;
   return {
-    setupFn: setupFn && mapRefObject(setupFn),
-    middlewareConfigFn: middlewareConfigFn && mapRefObject(middlewareConfigFn),
+    setupFn: setupFn && ctx.mapRefObject(setupFn),
+    middlewareConfigFn:
+      middlewareConfigFn && ctx.mapRefObject(middlewareConfigFn),
     envValidationSchema:
-      envValidationSchema && mapRefObject(envValidationSchema),
+      envValidationSchema && ctx.mapRefObject(envValidationSchema),
   };
 }
 
-export function mapClient(client: InputAppSpec.Client): OutputAppSpec.Client {
+export function mapClient(
+  client: InputAppSpec.Client,
+  ctx: AppMapperContext,
+): OutputAppSpec.Client {
   const { rootComponent, setupFn, baseDir, envValidationSchema } = client;
   return {
-    rootComponent: rootComponent && mapRefObject(rootComponent),
-    setupFn: setupFn && mapRefObject(setupFn),
+    rootComponent: rootComponent && ctx.mapRefObject(rootComponent),
+    setupFn: setupFn && ctx.mapRefObject(setupFn),
     baseDir,
     envValidationSchema:
-      envValidationSchema && mapRefObject(envValidationSchema),
+      envValidationSchema && ctx.mapRefObject(envValidationSchema),
   };
 }
 
-export function mapDb(db: InputAppSpec.Db): OutputAppSpec.Db {
+export function mapDb(
+  db: InputAppSpec.Db,
+  ctx: AppMapperContext,
+): OutputAppSpec.Db {
   const { seeds, prismaSetupFn } = db;
   return {
-    seeds: seeds?.map(mapRefObject),
-    prismaSetupFn: prismaSetupFn && mapRefObject(prismaSetupFn),
+    seeds: seeds?.map(ctx.mapRefObject),
+    prismaSetupFn: prismaSetupFn && ctx.mapRefObject(prismaSetupFn),
   };
 }
 
@@ -399,61 +436,64 @@ export function mapEmailFromField(
 
 export function mapWebSocket(
   webSocket: InputAppSpec.WebSocket,
+  ctx: AppMapperContext,
 ): OutputAppSpec.WebSocket {
   const { fn, autoConnect } = webSocket;
   return {
-    fn: mapRefObject(fn),
+    fn: ctx.mapRefObject(fn),
     autoConnect,
   };
 }
 
 export function mapJob(
   job: InputAppSpec.Job,
-  entityRefParser: RefParser<"Entity">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.Job {
   const { fn, executor, schedule, entities, performExecutorOptions } = job;
   return {
     executor,
     perform: {
-      fn: mapRefObject(fn),
+      fn: ctx.mapRefObject(fn),
       executorOptions: performExecutorOptions,
     },
     schedule: schedule && mapSchedule(schedule),
-    entities: entities?.map(entityRefParser),
+    entities: entities?.map(ctx.entityRefParser),
   };
 }
 
 export function mapCrud(
   crud: InputAppSpec.Crud,
-  entityRefParser: RefParser<"Entity">,
+  ctx: AppMapperContext,
 ): OutputAppSpec.Crud {
   const { entity, operations } = crud;
   return {
-    entity: entityRefParser(entity),
-    operations: mapCrudOperations(operations),
+    entity: ctx.entityRefParser(entity),
+    operations: mapCrudOperations(operations, ctx),
   };
 }
 
 export function mapCrudOperations(
   operations: InputAppSpec.CrudOperations,
+  ctx: AppMapperContext,
 ): OutputAppSpec.CrudOperations {
   const { get, getAll, create, update, delete: del } = operations;
   return {
-    get: get && mapCrudOperationOptions(get),
-    getAll: getAll && mapCrudOperationOptions(getAll),
-    create: create && mapCrudOperationOptions(create),
-    update: update && mapCrudOperationOptions(update),
-    delete: del && mapCrudOperationOptions(del),
+    get: get && mapCrudOperationOptions(get, ctx),
+    getAll: getAll && mapCrudOperationOptions(getAll, ctx),
+    create: create && mapCrudOperationOptions(create, ctx),
+    update: update && mapCrudOperationOptions(update, ctx),
+    delete: del && mapCrudOperationOptions(del, ctx),
   };
 }
 
 export function mapCrudOperationOptions(
   options: InputAppSpec.CrudOperationOptions,
+  ctx: AppMapperContext,
 ): OutputAppSpec.CrudOperationOptions {
   const { isPublic, overrideFn } = options;
   return {
     isPublic,
-    overrideFn: overrideFn && mapRefObject(overrideFn),
+    overrideFn: overrideFn && ctx.mapRefObject(overrideFn),
   };
 }
 
@@ -513,16 +553,6 @@ function mapDecls<T, DeclType extends OutputAppSpec.Decl["declType"]>(
     declName: deriveName(item),
     declValue: mapValue(item),
   }));
-}
-
-export function deriveRefObjectName(
-  refObject: RefObject | AnyFunction,
-): string {
-  const mappedRefObject = mapRefObject(refObject);
-
-  return "alias" in mappedRefObject
-    ? (mappedRefObject.alias ?? mappedRefObject.name)
-    : mappedRefObject.name;
 }
 
 /**

@@ -6,6 +6,7 @@
 
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
+import { _waspMakeRef } from "../../src/internal.js";
 import {
   action,
   api,
@@ -18,6 +19,9 @@ import {
 } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
+
+export const MOCK_PROJECT_DIR = "/project";
+export const MOCK_MAIN_WASP_TS_PATH = `${MOCK_PROJECT_DIR}/main.wasp.ts`;
 
 export function getApp(scope: ConfigScope): TsAppSpec.App {
   switch (scope) {
@@ -573,7 +577,12 @@ export function getEmailVerifyRoute(): TsAppSpec.Route {
   return route(
     EMAIL_VERIFY_ROUTE_NAME,
     EMAIL_VERIFY_ROUTE_PATH,
-    page({ import: "EmailVerifyPage", from: "@src/auth/pages" }),
+    page(
+      getRefObjectForMockProject({
+        import: "EmailVerifyPage",
+        from: "./src/auth/pages",
+      }),
+    ),
   );
 }
 
@@ -581,7 +590,12 @@ export function getPasswordResetRoute(): TsAppSpec.Route {
   return route(
     PASSWORD_RESET_ROUTE_NAME,
     PASSWORD_RESET_ROUTE_PATH,
-    page({ import: "PasswordResetPage", from: "@src/auth/pages" }),
+    page(
+      getRefObjectForMockProject({
+        import: "PasswordResetPage",
+        from: "./src/auth/pages",
+      }),
+    ),
   );
 }
 
@@ -596,14 +610,26 @@ export function getRefObject(
   switch (importKind) {
     case "named":
       return scope === "full"
-        ? { import: "namedExport", alias: "namedAlias", from: "@src/external" }
-        : { import: "namedExport", from: "@src/external" };
+        ? getRefObjectForMockProject({
+            import: "namedExport",
+            alias: "namedAlias",
+            from: "./src/external",
+          })
+        : getRefObjectForMockProject({
+            import: "namedExport",
+            from: "./src/external",
+          });
     case "default":
-      return { importDefault: "defaultExport", from: "@src/external" };
+      return getRefObjectForMockProject({
+        importDefault: "defaultExport",
+        from: "./src/external",
+      });
     default:
       assertUnreachable(importKind);
   }
 }
+
+const getRefObjectForMockProject = _waspMakeRef(MOCK_MAIN_WASP_TS_PATH);
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>;
 
@@ -679,8 +705,8 @@ type IsExclusionMarker<V> = [Exclude<V, undefined>] extends [never]
   : false;
 
 type RefObjectFor<Kind extends AppSpec.ExtImportKind> = Kind extends "named"
-  ? TsAppSpec.NamedRefObject
-  : TsAppSpec.DefaultRefObject;
+  ? TsAppSpec.RefObject & TsAppSpec.NamedRefObjectDescriptor
+  : TsAppSpec.RefObject & TsAppSpec.DefaultRefObjectDescriptor;
 
 type ConfigFor<Scope extends ConfigScope, Data> = Scope extends "full"
   ? FullConfig<Data>
