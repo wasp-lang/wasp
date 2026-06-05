@@ -30,7 +30,7 @@ export default app({
   name: "todoApp",
   title: "ToDo App",
   wasp: { version: "^0.24.0" },
-  decls: [
+  spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     query(getTasks, { entities: ["Task"] }),
   ],
@@ -41,10 +41,10 @@ You build your app by:
 
 1. Importing the building blocks (`app`, `page`, `route`, `query`, ...) from `@wasp.sh/spec`.
 2. Importing your own components and functions adding the import attribute `with { type: "ref" }`.
-3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `decls` array.
+3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `spec` array.
 4. Exporting the result as the **default export** of the file.
 
-`decls` is short for declarations: the pages, routes, queries, actions, APIs, jobs, and CRUD declarations that make up your app.
+`spec` is short for specifications: the pages, routes, queries, actions, APIs, jobs, and CRUD specifications that make up your app.
 
 ## `wasp install`
 
@@ -60,14 +60,14 @@ Anywhere the Wasp Spec expects your app's function or component (like a page's `
 
 **Recommended**
 
-Import the value with the regular syntax, adding `with { type: "ref" }`. Use it when importing components or functions from `src/` so Wasp can connect them to pages, actions, queries, and other declarations.
+Import the value with the regular syntax, adding `with { type: "ref" }`. Use it when importing components or functions from `src/` so Wasp can connect them to pages, actions, queries, and other specifications.
 
 ```ts title="main.wasp.ts"
 import MainPage from "./src/MainPage" with { type: "ref" };
 import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
-  decls: [page(MainPage), query(getTasks)],
+  spec: [page(MainPage), query(getTasks)],
 });
 ```
 
@@ -97,7 +97,7 @@ Just pass an object with `import` (or `importDefault`) and `from`:
 
 ```ts title="main.wasp.ts"
 export default app({
-  decls: [
+  spec: [
     page({ importDefault: "MainPage", from: "@src/MainPage" }),
     query({ import: "getTasks", from: "@src/queries" }),
     // You can rename a named import with `alias`:
@@ -112,25 +112,25 @@ The `from` path should always start with `@src` and is relative to your project'
 
 ### Splitting your spec into multiple files
 
-For larger apps you don't have to keep everything in `main.wasp.ts`. You can move related declarations into their own `*.wasp.ts` files and combine them in `main.wasp.ts`. This works well for vertical slices, like keeping a feature's page, route, query, and action declarations in that feature's folder.
+For larger apps you don't have to keep everything in `main.wasp.ts`. You can move related specifications into their own `*.wasp.ts` files and combine them in `main.wasp.ts`. This works well for vertical slices, like keeping a feature's page, route, query, and action specifications in that feature's folder.
 
-A feature file exports an array of `Decl`s:
+A feature file exports an array of `Spec`s:
 
 ```ts title="src/auth/auth.wasp.ts"
-import { page, route, Decl } from "@wasp.sh/spec";
+import { page, route, Spec } from "@wasp.sh/spec";
 
 import LoginPage from "./LoginPage" with { type: "ref" };
 import SignupPage from "./SignupPage" with { type: "ref" };
 
-export const auth: Decl[] = [
+export const auth: Spec[] = [
   route("SignupRoute", "/signup", page(SignupPage)),
   route("LoginRoute", "/login", page(LoginPage)),
 ];
 ```
 
-The `Decl[]` annotation gives TypeScript enough information to validate the declarations in a split spec file before they are spread into `main.wasp.ts`.
+The `Spec[]` annotation gives TypeScript enough information to validate the specifications in a split spec file before they are spread into `main.wasp.ts`.
 
-Then `main.wasp.ts` imports it and spreads it into `decls`:
+Then `main.wasp.ts` imports it and spreads it into `spec`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec";
@@ -142,7 +142,7 @@ export default app({
   name: "todoApp",
   title: "ToDo App",
   wasp: { version: "^0.24.0" },
-  decls: [
+  spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     ...auth,
   ],
