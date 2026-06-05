@@ -4,10 +4,10 @@ authors: [vinny]
 image: /img/build-saas-with-ai/banner.webp
 tags: [wasp, open saas, vibe coding, ai, claude code]
 keywords: ["build a saas with ai", "vibe coding saas", "ai coding agent", "stay the architect", "vertical slice development", "saas boilerplate", "open saas", "llms.txt", "claude code skills", "ai pair programming", "how to build a saas without getting stuck", "refactor vibe coded app", "context management ai agent", "ai coding best practices"]
-description: "Vibe coding gets you a working SaaS fast, then a tangled mess you can't touch. The way out isn't a rewrite, it's a process. Here are 5 habits that keep you the architect while AI does the building."
+description: "Vibe coding a SaaS can get you started fast but can also turn into a mess. The way out isn't a rewrite, it's a process. Here are 5 tips that keep you the architect while AI does the building."
 ---
 
-Somone on [r/vibecoding](https://www.reddit.com/r/vibecoding/comments/1su03dk/vibe_coded_for_6_months_my_codebase_is_a_disaster/) posted something last week that I've been thinking a lot about. His post is titled: *"vibe coded for 6 months. my codebase is a disaster."*
+Someone on [r/vibecoding](https://www.reddit.com/r/vibecoding/comments/1su03dk/vibe_coded_for_6_months_my_codebase_is_a_disaster/) posted something last week that I've been thinking a lot about. His post is titled: *"vibe coded for 6 months. my codebase is a disaster."*
 
 ![r/vibecoding post titled "vibe coded for 6 months. my codebase is a disaster."](/img/build-saas-with-ai/reddit-vibe-coded-disaster.webp)
 
@@ -19,13 +19,23 @@ So he tried to onboard a developer to help him. The dev opened the repo, went qu
 
 Six months of prompting led to a Frankenstein's monster of a codebase that is such a tangled mess, he's probably better off starting over from scratch. In his words, *"nobody was thinking about structure. the AI just kept adding. new file here, duplicate function there, 3 different ways to handle the same thing across the codebase."* 
 
-As the creator and maintainer of [Open SaaS](https://opensaas.sh), I get a lot of people asking for help when building a SaaS with AI. And they get stuck for the same handful of reasons. Usually one of two ways: the first 70% comes together almost too easily and the last 30% becomes next to impossible, or you ship something that works, but you lack any understanding of what you built (like the redditor above), and therefore don't understand what you need to do to modify, extend, or improve you app.
+As the creator and maintainer of [Open SaaS](https://opensaas.sh), I get a lot of people asking for help when building a SaaS with AI. And they get stuck for the same handful of reasons. Usually one of two ways: the first 70% comes together almost too easily and the last 30% becomes next to impossible, or you ship something that works, but you lack any understanding of what you built (like the redditor above), and therefore don't understand what you need to do to modify, extend, or improve your app.
 
 So, with that in mind, let's look at some of my favorite ways you can avoid these problems, build something you understand, and stay in control.
 
 > 📺 **Prefer to watch?** I walk through all five of these workflow tips with live demos in [this video](https://youtu.be/0DpqHItVkYs).
 >
 > [![How To Build A SaaS with AI. Without Getting Stuck. — watch on YouTube](/img/build-saas-with-ai/banner.webp)](https://youtu.be/0DpqHItVkYs)
+
+## TL;DR
+
+The way out of a tangled, vibe-coded SaaS isn't to throw it all away and start over, rather it's a process that allows you to **stay in control.** AI is a great builder but you need to stay in charge of the decision making and understand the implementation process to avoid bigger problems down the line. Here are five tips that help you stay the architect:
+
+1. **Give your agent rails to run on** — start on a solid SaaS boilerplate (like [Open SaaS](https://opensaas.sh)) and feed it official, AI-friendly docs (`llms.txt`) via memory and skill files.
+2. **Converse, don't command** — don't open with "build me X." Have the agent interview you (clarify-first) and brainstorm options with pros and cons before it writes any code.
+3. **Understand the systems you're building on** — you don't need to read every line of code, but you do need to know what a database, a payments provider, etc. actually do, so you can debug and ask the right questions.
+4. **Build in vertical slices** — ship thin, working slices that touch the whole stack (UI → database), one small testable milestone at a time, instead of half-finished layers.
+5. **Verify each slice before moving on** — test every milestone as you build so small problems surface early, not six months from now.
 
 ## The good news and the bad news
 
@@ -80,7 +90,7 @@ By having a conversation with your agent, it will help you decide what the best 
 
 ## 3. Understand the systems you're building on
 
-A SaaS is just a bunch of existing tools pieced together in a creative way to solve a problem. You don't need to read every line of code, but you do need to understand the things being pieced together, like what a database is, how your payments provider is peiced together, and how the other peices generally work.
+A SaaS is just a bunch of existing tools pieced together in a creative way to solve a problem. You don't need to read every line of code, but you do need to understand the things being pieced together, like what a database is, how your payments provider is pieced together, and how the other pieces generally work.
 
 That understanding is what lets you debug and ask the right questions when something breaks, instead of flailing in the wrong direction. A great move you can use along with your SaaS boilerplate starter is to ask your agent e.g.: `fetch the llms.txt docs from Stripe and explain at a high level how payments work in my current codebase`. Using your SaaS starter code to explain the concepts is the best way to learn. You can even start at a very high level (e.g. "explain like I'm five") before going deeper.
 
@@ -112,7 +122,7 @@ Once the agent designs a plan you're happy with, **save the plan to a file** (`s
 
 ![An AI agent's context window filling up over a session, degrading performance as it fills](/img/build-saas-with-ai/context.webp)
 
-That file is also a great **context-management** trick. Remember, agents don't have memory, only the context of the current session, and performance degrades as that context fills up. So I treat each milestone as a fresh session and `/clear` or `/compact` the converstation before moving on to the next milestone.
+That file is also a great **context-management** trick. Remember, agents don't have memory, only the context of the current session, and performance degrades as that context fills up. So I treat each milestone as a fresh session and `/clear` or `/compact` the conversation before moving on to the next milestone.
 
 After clearing or starting a new session, I point the agent back at the implementation plan, and move on to the next milestone with a clean slate. 
 
