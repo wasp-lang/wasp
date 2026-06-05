@@ -68,9 +68,26 @@ async function getSubPackage() {
 
   /** @type {{ default: import("../../src/schema/output-data.ts").SubPackageAPI }} */
   const importedPackage = await import(selectedSubPackage.packageName).catch(
-    CLIError.rethrowWith(
-      "Can't locate the correct executable for your platform.",
-    ),
+    async (/** @type {unknown} */ error) => {
+      // A common case for failure here is that the Node.js version is not
+      // supported. `npm` doesn't like to complain when being specifically asked
+      // to install a package, but will then **not** install our subpackages
+      // because they are marked as "optionalDependencies". Because it is quite
+      // a common case, we'll check if we're on an unsupported Node version and
+      // throw a specific error for that.
+      const nodeVersionRequirement = await getSupportedNodeVersion();
+      const nodeVersionIsSupported = checkNodeVersionIsSupported(
+        nodeVersionRequirement,
+      );
+
+      throw nodeVersionIsSupported === false
+        ? new CLIError(
+            `Your Node.js version is not supported. Please upgrade to Node ${nodeVersionRequirement} to use Wasp.`,
+          )
+        : CLIError.rethrowWith(
+            "Can't locate the correct executable for your platform.",
+          )(error);
+    },
   );
 
   debug("Imported sub-package: %j", importedPackage);
@@ -111,6 +128,40 @@ async function runWasp(
       throw e;
     }
   }
+}
+
+async function getSupportedNodeVersion() {
+  // We import here and not in the top level to keep the happy path free of this
+  // overhead.
+  const { default: pkg } = await import("./package.json", {
+    with: { type: "json" },
+  });
+
+  return pkg.engines.node;
+}
+
+function checkNodeVersionIsSupported(/** @type {string} */ requirement) {
+  const requiredMatch = requirement.match(/(\d+)\.(\d+)\.(\d+)/);
+  if (!requiredMatch) {
+    debug("No parseable Node.js version requirement found, skipping check.");
+    return undefined;
+  }
+
+  const required = requiredMatch.slice(1, 4).map(Number);
+  const current = process.versions.node.split(".").map(Number);
+  debug("Required Node.js version: %j, current: %j", required, current);
+
+  for (let i = 0; i < required.length; i++) {
+    const currentPart = current[i];
+    const requiredPart = required[i];
+    if (currentPart > requiredPart) return true;
+    if (currentPart === requiredPart) continue;
+    if (currentPart < requiredPart) return false;
+  }
+
+  // If we reach the end it's because all parts are equal, so the current
+  // version satisfies the requirement.
+  return true;
 }
 
 // Adapted from rollup
