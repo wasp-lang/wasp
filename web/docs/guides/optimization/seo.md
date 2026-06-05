@@ -1,7 +1,6 @@
 ---
 title: SEO & GEO
 comments: true
-sidebar_position: 1
 last_checked_with_versions:
   Wasp: "0.24"
 ---
