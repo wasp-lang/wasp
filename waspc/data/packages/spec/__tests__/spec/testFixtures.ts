@@ -4,7 +4,6 @@
  * surface currently supports (`page`, `query`).
  */
 
-import { pathToFileURL } from "node:url";
 import * as AppSpec from "../../src/appSpec.js";
 import { Branded } from "../../src/branded.js";
 import { _waspMakeRef } from "../../src/internal.js";
@@ -630,9 +629,7 @@ export function getRefObject(
   }
 }
 
-const getRefObjectForMockProject = _waspMakeRef(
-  pathToFileURL(MOCK_MAIN_WASP_TS_PATH).href,
-);
+const getRefObjectForMockProject = _waspMakeRef(MOCK_MAIN_WASP_TS_PATH);
 
 export type Config<T> = MinimalConfig<T> | FullConfig<T>;
 
