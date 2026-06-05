@@ -3,6 +3,7 @@ import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
 import { applyTransformImportsPlan_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/apply.js";
 import { planTransformImports } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/plan.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("transformRefImports", () => {
   test("leaves files without ref imports untouched", () => {
@@ -157,6 +158,24 @@ describe("transformRefImports", () => {
         ``,
       ].join("\n"),
     );
+  });
+
+  describe("ref imports without specifiers", () => {
+    test.for([
+      {
+        caseName: "a side-effect ref import",
+        source: `import "./operations" with { type: "ref" };`,
+      },
+      {
+        caseName: "an empty named ref import",
+        source: `import {} from "./operations" with { type: "ref" };`,
+      },
+    ])("rejects $caseName", ({ source }) => {
+      expect(() => transformImports(source)).toThrow(SpecUserError);
+      expect(() => transformImports(source)).toThrow(
+        "must import at least one binding",
+      );
+    });
   });
 });
 
