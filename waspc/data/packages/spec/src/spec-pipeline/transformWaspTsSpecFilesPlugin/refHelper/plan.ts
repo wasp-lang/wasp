@@ -24,10 +24,14 @@ export type Plan = {
 
 type SourceRange = { start: number; end: number };
 
-export function planTransformRefHelper(ast: t.Program): Plan {
+export function planTransformRefHelper(ast: t.Program): Plan | null {
   const refHelperImportDeclarations = ast.body.filter(
     isRefHelperImportDeclaration,
   );
+
+  if (refHelperImportDeclarations.length === 0) {
+    return null;
+  }
 
   const removals = refHelperImportDeclarations.flatMap(
     planRefSpecifierRemovals,

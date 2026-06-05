@@ -144,7 +144,10 @@ function transformRefHelper(sourceText: string): string {
   const ast = parseAst(sourceText, { lang: "ts" });
   const source = new RolldownMagicString(sourceText);
 
-  applyTransformRefHelperPlan_mutate(source, planTransformRefHelper(ast));
+  const plan = planTransformRefHelper(ast);
+  if (plan) {
+    applyTransformRefHelperPlan_mutate(source, plan);
+  }
 
   return source.toString();
 }

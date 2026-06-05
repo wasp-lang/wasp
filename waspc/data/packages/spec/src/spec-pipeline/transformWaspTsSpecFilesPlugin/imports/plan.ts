@@ -33,8 +33,11 @@ export interface RefImport {
 export function planTransformImports(
   ast: t.Program,
   { importingFilePath }: { importingFilePath: string },
-): Plan {
+): Plan | null {
   const refImports = findRefImports(ast, importingFilePath);
+  if (refImports.length === 0) {
+    return null;
+  }
 
   const scope = getTopLevelBindings(ast);
 

@@ -14,10 +14,6 @@ export function applyTransformRefHelperPlan_mutate(
     safeRefHelperName,
   }: Plan,
 ): void {
-  if (refHelperLocalNames.length === 0) {
-    return;
-  }
-
   for (const removal of removals) {
     magicString.remove(removal.start, removal.end);
   }

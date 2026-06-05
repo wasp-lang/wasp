@@ -169,10 +169,11 @@ function transformImports(
   const ast = parseAst(sourceText, { lang: "ts" });
   const source = new RolldownMagicString(sourceText);
 
-  applyTransformImportsPlan_mutate(
-    source,
-    planTransformImports(ast, { importingFilePath: sourcePath }),
-  );
+  const plan = planTransformImports(ast, { importingFilePath: sourcePath });
+
+  if (plan) {
+    applyTransformImportsPlan_mutate(source, plan);
+  }
 
   return source.toString();
 }

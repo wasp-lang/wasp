@@ -33,6 +33,10 @@ export function transformRefImportsPlugin(): Plugin {
           importingFilePath: id,
         });
 
+        if (!importsPlan) {
+          return null;
+        }
+
         applyTransformImportsPlan_mutate(meta.magicString, importsPlan);
 
         return { code: meta.magicString };

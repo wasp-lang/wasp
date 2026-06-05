@@ -10,10 +10,6 @@ export function applyTransformImportsPlan_mutate(
   magicString: RolldownMagicString,
   { refImports, safeRefHelperName }: Plan,
 ): void {
-  if (refImports.length === 0) {
-    return;
-  }
-
   for (const { removeImport } of refImports) {
     magicString.remove(removeImport.start, removeImport.end);
   }

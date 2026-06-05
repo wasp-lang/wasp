@@ -30,6 +30,9 @@ export function transformRefHelperPlugin(): Plugin {
         const ast = meta.ast || this.parse(code, { lang: "ts" });
 
         const refHelperPlan = planTransformRefHelper(ast);
+        if (!refHelperPlan) {
+          return null;
+        }
 
         applyTransformRefHelperPlan_mutate(meta.magicString, refHelperPlan);
 
