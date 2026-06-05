@@ -12,19 +12,25 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./internal": {
+      "types": "./dist/src/internal.d.ts",
+      "default": "./dist/src/internal.js"
     }
   },
   "scripts": {
     "build": "tsc",
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
-    "test": "vitest run --reporter=verbose",
-    "test:integration": "vitest run --reporter=verbose --project integration",
-    "test:type": "vitest run --reporter=verbose --project type",
-    "test:unit": "vitest run --reporter=verbose --project unit",
-    "test:watch": "vitest --reporter=verbose"
+    "test": "npm run build && vitest run --reporter=verbose",
+    "test:integration": "npm run build && vitest run --reporter=verbose --project integration",
+    "test:type": "npm run build && vitest run --reporter=verbose --project type",
+    "test:unit": "npm run build && vitest run --reporter=verbose --project unit",
+    "test:watch": "npm run build && vitest --reporter=verbose"
   },
   "dependencies": {
+    "estree-util-scope": "^1.0.0",
+    "estree-walker": "^3.0.3",
     "type-fest": "^5.6.0",
     "typescript": "^5.8.3",
     "unrun": "^0.3.0"

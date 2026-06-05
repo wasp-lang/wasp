@@ -1,22 +1,20 @@
 import { unrun } from "unrun";
 import { SpecUserError } from "../spec/specUserError.js";
-import { lowerImportsPlugin } from "./lowerImportsPlugin/index.js";
+import { transformWaspTsSpecFilesPlugin } from "./transformWaspTsSpecFilesPlugin/index.js";
 import { typecheckPlugin } from "./typecheckPlugin/index.js";
 
 export async function loadWaspTsSpecDefaultExport({
   specPath,
   tsconfigPath,
-  projectRootDir,
 }: {
   specPath: string;
   tsconfigPath: string;
-  projectRootDir: string;
 }): Promise<unknown> {
   const { module: specModule } = await unrun({
     path: specPath,
     inputOptions: {
       plugins: [
-        lowerImportsPlugin({ projectRootDir }),
+        transformWaspTsSpecFilesPlugin(),
         typecheckPlugin({ tsconfigPath }),
       ],
     },
@@ -24,7 +22,7 @@ export async function loadWaspTsSpecDefaultExport({
     // get it ourselves, so we use this option.
     // https://gugustinette.github.io/unrun/advanced/presets.html
     preset: "bundle-require",
-  }).catch((error) => {
+  }).catch((error: unknown) => {
     // When a plugin throws, the bundler wraps the original error in an
     // aggregate build error and exposes the originals on `.errors`. We dig out
     // the `SpecUserError` so it reaches the top-level handler in `run.ts` as a

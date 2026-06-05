@@ -323,8 +323,15 @@ export interface Server {
   /**
    * Zod schema used to validate user-defined server environment variables on
    * startup. Wasp merges it with built-in validation for Wasp-defined env vars
-   * when validating `process.env`. Import the schema from app code with a
-   * reference import or pass a {@link RefObject}.
+   * when validating `process.env`.
+   *
+   * {@include ./referenceImports.md}
+   *
+   * For example:
+   *
+   * ```ts
+   * import { serverEnvSchema } from './src/env' with { type: 'ref' }
+   * ```
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
@@ -363,9 +370,16 @@ export interface Client {
   /**
    * Zod schema used to validate user-defined client environment variables at
    * build time. Wasp merges it with built-in validation for Wasp-defined env
-   * vars when validating `import.meta.env`. Import the schema from app code
-   * with a reference import or pass a {@link RefObject}. Client env
-   * vars must be prefixed with `REACT_APP_`.
+   * vars when validating `import.meta.env`. Client env vars must be prefixed
+   * with `REACT_APP_`.
+   *
+   * {@include ./referenceImports.md}
+   *
+   * For example:
+   *
+   * ```ts
+   * import { clientEnvSchema } from './src/env' with { type: 'ref' }
+   * ```
    *
    * See [Env Vars](https://wasp.sh/docs/project/env-vars).
    */
@@ -827,31 +841,45 @@ export type EntityName = keyof Entities extends never
 type Entities = FromRegister<"entities", {}>;
 
 /**
- * A reference to your app's code. Prefer importing the value with
- * `with { type: "ref" }`; use a {@link RefObject} when a direct reference
- * import is not practical.
+ * Represents a value from your app passed into the Wasp spec.
  *
- * See [Reference imports](https://wasp.sh/docs/general/spec#reference-imports).
+ * {@include ./referenceImports.md}
+ *
+ * @category References
+ *
+ * @typeParam AppValue - The expected TypeScript type for the value from your
+ * app. The field using `Reference<AppValue>` decides this type. For example,
+ * {@link Page.component} expects a React component, {@link Query.fn} expects a
+ * server function, and env schema fields expect a {@link ZodSchema}.
+ *
+ * @example
+ * ```ts
+ * import { query } from '@wasp.sh/spec'
+ * import { getTasks } from './src/queries' with { type: 'ref' }
+ *
+ * query(getTasks, { entities: ['Task'] })
+ * ```
  */
-export type Reference<T> = RefObject | T;
+export type Reference<AppValue> = RefObject | AppValue;
 
 export type {
   /**
-   * Default-import variant of {@link RefObject}, written as
-   * `{ importDefault: 'X', from: '@src/...' }`.
+   * Default-import variant of {@link RefObjectDescriptor}.
    */
-  DefaultRefObject,
+  DefaultRefObjectDescriptor,
   /**
-   * Named-import variant of {@link RefObject}, written as
-   * `{ import: 'X', from: '@src/...' }`. An optional `alias` renames the
-   * imported value.
+   * Named-import variant of {@link RefObjectDescriptor}.
    */
-  NamedRefObject,
+  NamedRefObjectDescriptor,
   /**
-   * A reference object, pointing to a value in the project's `src` directory.
-   * Used wherever the spec accepts a reference to user code.
+   * A user-facing reference object, pointing to a value in the project's `src`
+   * directory.
    */
   RefObject,
+  /**
+   * Descriptor accepted by {@link ref}.
+   */
+  RefObjectDescriptor,
 } from "../refObject.js";
 
 interface BaseDecl<Kind extends string> {
@@ -863,15 +891,18 @@ interface BaseDecl<Kind extends string> {
 }
 
 /**
- * Structural type for a runtime Zod schema.
+ * Structural type for a runtime Zod schema accepted by Wasp env validation fields.
  *
- * Env schemas imported with reference imports are lowered to {@link RefObject}
- * objects before mapping, but the public API still accepts runtime Zod objects
- * in `server.envValidationSchema` and `client.envValidationSchema`.
+ * {@include ./referenceImports.md}
+ *
+ * See {@link Server.envValidationSchema} and
+ * {@link Client.envValidationSchema} for examples.
  *
  * To avoid depending on the `zod` package, Wasp structurally recognizes Zod 4
  * schemas via their documented library-author marker. See
  * https://zod.dev/library-authors.
+ *
+ * @category References
  */
 export type ZodSchema = {
   readonly _zod: {

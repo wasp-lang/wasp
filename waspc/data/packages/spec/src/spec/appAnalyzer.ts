@@ -19,12 +19,11 @@ export async function analyzeApp({
   const waspTsDefaultExport = await loadWaspTsSpecDefaultExport({
     specPath: waspTsSpecPath,
     tsconfigPath,
-    projectRootDir,
   });
 
   const app = getApp(basename(waspTsSpecPath), waspTsDefaultExport);
 
-  return mapApp(app, entityNames);
+  return mapApp(app, { entityNames, projectRootDir });
 }
 
 function getApp(
