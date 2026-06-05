@@ -3,6 +3,7 @@ import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
 import { applyTransformImportsPlan_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/apply.js";
 import { planTransformImports } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/plan.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("transformRefImports", () => {
   test("leaves files without ref imports untouched", () => {
@@ -53,19 +54,6 @@ describe("transformRefImports", () => {
       ],
     },
     {
-      caseName: "namespace ref imports",
-      sourceLines: [
-        `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
-        ``,
-      ],
-      expectedLines: [
-        `import { ref } from "@wasp.sh/spec";`,
-        `const adminOperations = new Proxy({}, { get: (_t, k) => ref({ import: String(k), from: "../adminOperations", alias: "adminOperations_" + String(k) }) }) as Record<string, ReturnType<typeof ref>>;`,
-        ``,
-        ``,
-      ],
-    },
-    {
       caseName: "a combined default and named ref import",
       sourceLines: [
         `import MainPage, { Helper } from "./src/MainPage" with { type: "ref" };`,
@@ -83,6 +71,28 @@ describe("transformRefImports", () => {
     expect(transformImports(sourceLines.join("\n"))).toBe(
       expectedLines.join("\n"),
     );
+  });
+
+  test("rejects namespace ref imports with a SpecUserError", () => {
+    expect(() =>
+      transformImports(
+        [
+          `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toThrow(SpecUserError);
+  });
+
+  test("mentions the offending namespace binding in the error", () => {
+    expect(() =>
+      transformImports(
+        [
+          `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toThrow(/import \* as adminOperations/);
   });
 
   test("transforms only ref imports in a mixed file", () => {
