@@ -1,4 +1,4 @@
-import * as path from "node:path";
+import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import type { ESTree as t } from "rolldown/utils";
 import {
   getStringValue,

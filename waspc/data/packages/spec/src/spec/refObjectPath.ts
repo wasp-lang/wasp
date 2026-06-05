@@ -1,5 +1,5 @@
 import { realpathSync } from "node:fs";
-import path from "node:path";
+import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import type * as AppSpec from "../appSpec.js";
 import { SpecUserError } from "./specUserError.js";
 

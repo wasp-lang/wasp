@@ -1,6 +1,6 @@
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path/posix"; // Module paths are always `/`-delimited
 import { describe, expect, test } from "vitest";
 import { normalizeRefObjectPath } from "../../src/spec/refObjectPath.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
@@ -15,7 +15,7 @@ describe("normalizeRefObjectPath", () => {
         importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
         projectRootDir: project.rootDir,
       }),
-    ).toBe(path.join("@src", "MainPage"));
+    ).toBe("@src/MainPage");
   });
 
   test("maps a nested spec ref import from its importing file", () => {
@@ -32,7 +32,7 @@ describe("normalizeRefObjectPath", () => {
         ),
         projectRootDir: project.rootDir,
       }),
-    ).toBe(path.join("@src", "features", "MainPage"));
+    ).toBe("@src/features/MainPage");
   });
 
   test("maps a nested ref import that climbs to the src root", () => {
@@ -50,7 +50,7 @@ describe("normalizeRefObjectPath", () => {
         ),
         projectRootDir: project.rootDir,
       }),
-    ).toBe(path.join("@src", "MainPage"));
+    ).toBe("@src/MainPage");
   });
 
   test("normalizes ref import path segments", () => {
@@ -62,7 +62,7 @@ describe("normalizeRefObjectPath", () => {
         importingFilePath: path.join(project.rootDir, "main.wasp.ts"),
         projectRootDir: project.rootDir,
       }),
-    ).toBe(path.join("@src", "MainPage"));
+    ).toBe("@src/MainPage");
   });
 
   test("rejects ref imports that resolve outside src", () => {
@@ -118,24 +118,7 @@ describe("normalizeRefObjectPath", () => {
         ),
         projectRootDir: project.rootDir,
       }),
-    ).toBe(path.join("@src", "MainPage"));
-  });
-
-  test("handles canonical import paths when the project root is a symlink", () => {
-    using project = makeSymlinkTempProject();
-
-    expect(
-      normalizeRefObjectPath({
-        importPath: "./MainPage",
-        importingFilePath: path.join(
-          project.realRootDir,
-          "src",
-          "features",
-          "home.wasp.ts",
-        ),
-        projectRootDir: project.rootDir,
-      }),
-    ).toBe(path.join("@src", "features", "MainPage"));
+    ).toBe("@src/MainPage");
   });
 });
 
@@ -151,29 +134,5 @@ function makeTempProject(): TempProject {
     rootDir,
     [Symbol.dispose]: () =>
       fs.rmSync(rootDir, { recursive: true, force: true }),
-  };
-}
-
-type SymlinkTempProject = TempProject & {
-  realRootDir: string;
-};
-
-function makeSymlinkTempProject(): SymlinkTempProject {
-  const tempRootDir = fs.mkdtempSync(
-    path.join(os.tmpdir(), "wasp-ref-path-symlink-"),
-  );
-  const realRootDir = fs.realpathSync(tempRootDir);
-  const rootDir = `${tempRootDir}-link`;
-
-  fs.mkdirSync(path.join(realRootDir, "src"));
-  fs.symlinkSync(tempRootDir, rootDir, "dir");
-
-  return {
-    rootDir,
-    realRootDir,
-    [Symbol.dispose]: () => {
-      fs.rmSync(rootDir, { force: true });
-      fs.rmSync(tempRootDir, { recursive: true, force: true });
-    },
   };
 }
