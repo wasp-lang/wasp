@@ -1,3 +1,4 @@
+import { RolldownMagicString } from "rolldown";
 import { describe, expect, test } from "vitest";
 import {
   applyLowerImportsPlan_mutate,
@@ -72,7 +73,7 @@ describe("getLoweredImportSource", () => {
 
 describe("applyLowerImportsPlan_mutate", () => {
   test("rejects a plan containing a namespace import with a SpecUserError", () => {
-    const magicString = makeMagicStringStub();
+    const magicString = new RolldownMagicString("");
 
     expect(() =>
       applyLowerImportsPlan_mutate(magicString, [
@@ -86,12 +87,3 @@ describe("applyLowerImportsPlan_mutate", () => {
     ).toThrow(SpecUserError);
   });
 });
-
-// A minimal stand-in for RolldownMagicString that records the mutating calls
-// `applyLowerImportsPlan_mutate` makes, so we can exercise it without a bundler.
-function makeMagicStringStub() {
-  return {
-    remove: () => {},
-    prepend: () => {},
-  } as unknown as Parameters<typeof applyLowerImportsPlan_mutate>[0];
-}
