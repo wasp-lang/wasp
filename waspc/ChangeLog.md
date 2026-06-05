@@ -16,6 +16,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Added a type-safe `NavLink` component, mirroring `react-router`'s `NavLink` API (with `isActive`, `isPending`, `isTransitioning` render-prop helpers). ([#4104](https://github.com/wasp-lang/wasp/pull/4104))
 - Wasp TS spec now supports real JS imports, letting you import values in `main.wasp.ts` and pass them directly instead of using import objects like `{ import, from }`. ([#4143](https://github.com/wasp-lang/wasp/pull/4143))
 
+### 🐞 Bug fixes
+
+- Fixed a race condition in development mode that could potentially load the app's JS bundle before the Vite runtime, causing the app to fail the load with a "Can't detect preamble" error. ([#4258](https://github.com/wasp-lang/wasp/issues/4258))
+
 ### 🔧 Small improvements
 
 - Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))

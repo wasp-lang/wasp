@@ -11,7 +11,7 @@ import {
   uppercaseTextJob,
 } from "./uppercaseText" with { type: "ref" };
 
-export const jobs: Decl[] = [
+export const jobsDecls: Decl[] = [
   route("JobsRoute", "/jobs", page(JobsPage, { authRequired: true })),
   action(requestUppercaseText, { entities: ["UppercaseTextRequest"] }),
   query(getTextUppercaseRequests, { entities: ["UppercaseTextRequest"] }),

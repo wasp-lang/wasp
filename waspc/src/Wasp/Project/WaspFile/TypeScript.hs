@@ -69,7 +69,7 @@ analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
           Analyzer.getEntityDecls prismaSchemaAst
 
     formatSpecAnalysisError specErrorMessage =
-      "Error while analyzing spec (*.wasp.ts) files: " ++ specErrorMessage
+      "Error while analyzing spec (*.wasp.ts) files:\n\n" ++ specErrorMessage
 
 runWaspSpecAnalyzer ::
   CompileOptions ->

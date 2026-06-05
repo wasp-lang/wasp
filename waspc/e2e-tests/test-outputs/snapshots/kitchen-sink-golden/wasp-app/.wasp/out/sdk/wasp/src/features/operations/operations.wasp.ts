@@ -16,7 +16,7 @@ import {
   getTasks,
 } from "./queries" with { type: "ref" };
 
-export const operations: Decl[] = [
+export const operationsDecls: Decl[] = [
   route("TasksRoute", "/tasks", page(TasksPage, { authRequired: true })),
   route(
     "TaskRoute",
