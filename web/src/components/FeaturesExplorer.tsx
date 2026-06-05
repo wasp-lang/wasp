@@ -543,7 +543,7 @@ export default function ChatPage() {
     id: "static",
     title: "Static Rendering",
     sub: "SSG for SEO & LLMs",
-    docUrl: "/docs/project/pre-rendering",
+    docUrl: "/docs/advanced/prerendering",
     intro: (
       <>
         Set <InlineCode>prerender: true</InlineCode> to get the best speed / SEO
@@ -573,7 +573,7 @@ route DashboardRoute { path: "/dashboard", to: DashboardPage }`,
     id: "deploy",
     title: "Simple Deployment",
     sub: "one command, any platform",
-    docUrl: "/docs/advanced/deployment/overview",
+    docUrl: "/docs/deployment/deployment-methods/overview",
     intro:
       "No magic — you are deploying just a React / Node.js / Prisma app. Deploy with a single command to supported providers (Fly.io and Railway for now), or deploy yourself wherever you want. Comes with a generated Dockerfile to make it easier.",
     codeBlocks: [
