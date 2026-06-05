@@ -1,5 +1,6 @@
 import type { RolldownMagicString } from "rolldown";
 import {
+  buildImportStatement,
   INTERNAL_MAKE_REF_HELPER_IMPORT_NAME,
   INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE,
 } from "../util.js";
@@ -21,7 +22,10 @@ export function applyTransformRefHelperPlan_mutate(
   // Create the ref helper using the internal helper.
   magicString.prepend(
     [
-      `import { ${INTERNAL_MAKE_REF_HELPER_IMPORT_NAME} as ${safeInternalHelperName} } from ${JSON.stringify(INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE)};\n`,
+      buildImportStatement(
+        [[INTERNAL_MAKE_REF_HELPER_IMPORT_NAME, safeInternalHelperName]],
+        INTERNAL_MAKE_REF_HELPER_IMPORT_SOURCE,
+      ),
       `const ${safeRefHelperName} = ${safeInternalHelperName}(import.meta.url);\n`,
       ``,
 

@@ -66,3 +66,18 @@ export function makeSafeName(
   }
   return name;
 }
+
+export function buildImportStatement(
+  imports: readonly [importName: string, localName?: string][],
+  source: string,
+) {
+  const specifiers = imports
+    .map(([importName, localName]) =>
+      !localName || importName === localName
+        ? importName
+        : `${importName} as ${localName}`,
+    )
+    .join(", ");
+
+  return `import { ${specifiers} } from ${JSON.stringify(source)};\n`;
+}

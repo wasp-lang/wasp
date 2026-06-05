@@ -1,6 +1,7 @@
 import type { RefObjectDescriptor } from "@wasp.sh/spec";
 import type { RolldownMagicString } from "rolldown";
 import {
+  buildImportStatement,
   PUBLIC_REF_HELPER_IMPORT_NAME,
   PUBLIC_REF_HELPER_IMPORT_SOURCE,
 } from "../util.js";
@@ -17,9 +18,10 @@ export function applyTransformImportsPlan_mutate(
   magicString.prepend(
     [
       // Add the `ref` helper import
-      `import { ${PUBLIC_REF_HELPER_IMPORT_NAME} as ${safeRefHelperName} } from ${JSON.stringify(
+      buildImportStatement(
+        [[PUBLIC_REF_HELPER_IMPORT_NAME, safeRefHelperName]],
         PUBLIC_REF_HELPER_IMPORT_SOURCE,
-      )};\n`,
+      ),
 
       // Convert each original ref import to a `const` declaration that uses the
       // `ref` helper.

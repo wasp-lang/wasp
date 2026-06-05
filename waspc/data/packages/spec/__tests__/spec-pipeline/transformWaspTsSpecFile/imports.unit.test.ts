@@ -21,7 +21,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref as ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp.sh/spec";`,
         `const MainPage = ref({"importDefault":"MainPage","from":"/project/src/MainPage"});`,
         ``,
         ``,
@@ -34,7 +34,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref as ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp.sh/spec";`,
         `const getTasks = ref({"import":"getTasks","alias":"getTasks","from":"/project/operations"});`,
         `const createTask = ref({"import":"createTask","alias":"createTask","from":"/project/operations"});`,
         ``,
@@ -48,7 +48,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref as ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp.sh/spec";`,
         `const archiveTask = ref({"import":"archive","alias":"archiveTask","from":"/project/operations"});`,
         ``,
         ``,
@@ -61,7 +61,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref as ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp.sh/spec";`,
         `const adminOperations = new Proxy({}, { get: (_t, k) => ref({ import: String(k), from: "/adminOperations", alias: "adminOperations_" + String(k) }) }) as Record<string, ReturnType<typeof ref>>;`,
         ``,
         ``,
@@ -74,7 +74,7 @@ describe("transformRefImports", () => {
         ``,
       ],
       expectedLines: [
-        `import { ref as ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp.sh/spec";`,
         `const MainPage = ref({"importDefault":"MainPage","from":"/project/src/MainPage"});`,
         `const Helper = ref({"import":"Helper","alias":"Helper","from":"/project/src/MainPage"});`,
         ``,
@@ -102,7 +102,7 @@ describe("transformRefImports", () => {
       ),
     ).toBe(
       [
-        `import { ref as ref } from "@wasp.sh/spec";`,
+        `import { ref } from "@wasp.sh/spec";`,
         `const MainPage = ref({"importDefault":"MainPage","from":"/project/src/MainPage"});`,
         `import { app } from "@wasp.sh/spec";`,
         `import z from "zod";`,

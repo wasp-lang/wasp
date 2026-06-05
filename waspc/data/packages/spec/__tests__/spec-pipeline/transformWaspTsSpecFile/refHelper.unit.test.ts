@@ -22,7 +22,7 @@ describe("transformRefHelper", () => {
       ),
     ).toBe(
       [
-        `import { _waspMakeRef as _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `const ref_0 = _waspMakeRef(import.meta.url);`,
         `const ref = ref_0;`,
         ``,
@@ -43,7 +43,7 @@ describe("transformRefHelper", () => {
       ),
     ).toBe(
       [
-        `import { _waspMakeRef as _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `const appRef = ref;`,
         ``,
@@ -129,7 +129,7 @@ describe("transformRefHelper", () => {
       ),
     ).toBe(
       [
-        `import { _waspMakeRef as _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
         `const ref = _waspMakeRef(import.meta.url);`,
         `const appRef = ref;`,
         `import { type RefObject, page } from "@wasp.sh/spec";`,
