@@ -1,44 +1,45 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
-import {
-  deriveRefObjectName,
-  makeRefParser,
-  mapAction,
-  mapApi,
-  mapApiNamespace,
-  mapApp,
-  mapAuth,
-  mapAuthMethods,
-  mapClient,
-  mapCrud,
-  mapCrudOperationOptions,
-  mapCrudOperations,
-  mapDb,
-  mapEmailAuth,
-  mapEmailFlow,
-  mapEmailFromField,
-  mapEmailSender,
-  mapJob,
-  mapPage,
-  mapQuery,
-  mapRoute,
-  mapSchedule,
-  mapServer,
-  mapSocialAuth,
-  mapUsernameAndPassword,
-  mapWebSocket,
-} from "../../src/spec/mapApp.js";
+import * as AppSpecMapper from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
-import { mapRefObject } from "../../src/spec/refObject.js";
+import {
+  getRefObjectDeclarationName,
+  mapRefObject,
+} from "../../src/spec/refObject.js";
 import * as Fixtures from "./testFixtures.js";
+
+function mapRefObjectForMockProjectDir(refObject: unknown) {
+  return mapRefObject(refObject, { projectRootDir: Fixtures.MOCK_PROJECT_DIR });
+}
+
+function makeMapperContext({
+  entityNames = [],
+  routeNames = [],
+}: {
+  entityNames?: string[];
+  routeNames?: string[];
+} = {}): AppSpecMapper.AppMapperContext {
+  return {
+    entityRefParser: AppSpecMapper.makeRefParser("Entity", entityNames),
+    routeRefParser: AppSpecMapper.makeRefParser("Route", routeNames),
+    mapRefObject: mapRefObjectForMockProjectDir,
+  };
+}
+
+function mapMockApp(app: TsAppSpec.App, entityNames: string[]) {
+  return AppSpecMapper.mapApp(app, {
+    entityNames,
+    projectRootDir: Fixtures.MOCK_PROJECT_DIR,
+  });
+}
 
 describe("mapApp", () => {
   test("should map minimal app correctly", () => {
     const entityNames = Fixtures.getEntities("minimal");
     const app = Fixtures.getApp("minimal");
 
-    const decls = mapApp(app, entityNames);
+    const decls = mapMockApp(app, entityNames);
 
     expect(decls).toStrictEqual([
       {
@@ -78,7 +79,6 @@ describe("mapApp", () => {
     const emailSender = Fixtures.getEmailSenderConfig("full");
     const webSocket = Fixtures.getWebSocketConfig("full");
     const entityNames = Fixtures.getEntities("full");
-    const entityRefParser = makeRefParser("Entity", entityNames);
 
     const inputApp = app({
       name: "FullApp",
@@ -104,14 +104,14 @@ describe("mapApp", () => {
       ],
     });
 
-    const result = mapApp(inputApp, entityNames);
+    const result = mapMockApp(inputApp, entityNames);
 
-    const routeRefParser = makeRefParser("Route", [
-      emailVerifyRoute.name,
-      passwordResetRoute.name,
-    ]);
+    const ctx = makeMapperContext({
+      entityNames,
+      routeNames: [emailVerifyRoute.name, passwordResetRoute.name],
+    });
 
-    // TODO: Reaching into `deriveRefObjectName` here is not ideal — it leaks
+    // TODO: Reaching into `getRefObjectDeclarationName` here is not ideal — it leaks
     // an orchestrator-internal helper into the test. Revisit once we have a
     // higher-level name-derivation system: either a part-agnostic
     // `deriveDeclName(part)`, or a part-specific dispatch (mirroring how we
@@ -125,80 +125,82 @@ describe("mapApp", () => {
           wasp: inputApp.wasp,
           title: inputApp.title,
           head: inputApp.head,
-          auth: mapAuth(authConfig, entityRefParser, routeRefParser),
-          server: mapServer(server),
-          client: mapClient(client),
-          db: mapDb(db),
-          emailSender: mapEmailSender(emailSender),
-          webSocket: mapWebSocket(webSocket),
+          auth: AppSpecMapper.mapAuth(authConfig, ctx),
+          server: AppSpecMapper.mapServer(server, ctx),
+          client: AppSpecMapper.mapClient(client, ctx),
+          db: AppSpecMapper.mapDb(db, ctx),
+          emailSender: AppSpecMapper.mapEmailSender(emailSender),
+          webSocket: AppSpecMapper.mapWebSocket(webSocket, ctx),
         },
       },
       {
         declType: "Page",
-        declName: deriveRefObjectName(page.component),
-        declValue: mapPage(page),
+        declName: getRefObjectDeclarationName(page.component),
+        declValue: AppSpecMapper.mapPage(page, ctx),
       },
       {
         declType: "Page",
-        declName: deriveRefObjectName(emailVerifyRoute.page.component),
-        declValue: mapPage(emailVerifyRoute.page),
+        declName: getRefObjectDeclarationName(emailVerifyRoute.page.component),
+        declValue: AppSpecMapper.mapPage(emailVerifyRoute.page, ctx),
       },
       {
         declType: "Page",
-        declName: deriveRefObjectName(passwordResetRoute.page.component),
-        declValue: mapPage(passwordResetRoute.page),
+        declName: getRefObjectDeclarationName(
+          passwordResetRoute.page.component,
+        ),
+        declValue: AppSpecMapper.mapPage(passwordResetRoute.page, ctx),
       },
       {
         declType: "Route",
         declName: route.name,
-        declValue: mapRoute(route),
+        declValue: AppSpecMapper.mapRoute(route),
       },
       {
         declType: "Route",
         declName: emailVerifyRoute.name,
-        declValue: mapRoute(emailVerifyRoute),
+        declValue: AppSpecMapper.mapRoute(emailVerifyRoute),
       },
       {
         declType: "Route",
         declName: passwordResetRoute.name,
-        declValue: mapRoute(passwordResetRoute),
+        declValue: AppSpecMapper.mapRoute(passwordResetRoute),
       },
       {
         declType: "Query",
-        declName: deriveRefObjectName(query.fn),
-        declValue: mapQuery(query, entityRefParser),
+        declName: getRefObjectDeclarationName(query.fn),
+        declValue: AppSpecMapper.mapQuery(query, ctx),
       },
       {
         declType: "Api",
-        declName: deriveRefObjectName(api.fn),
-        declValue: mapApi(api, entityRefParser),
+        declName: getRefObjectDeclarationName(api.fn),
+        declValue: AppSpecMapper.mapApi(api, ctx),
       },
       {
         declType: "ApiNamespace",
-        declName: deriveRefObjectName(apiNamespace.middlewareConfigFn),
-        declValue: mapApiNamespace(apiNamespace),
+        declName: getRefObjectDeclarationName(apiNamespace.middlewareConfigFn),
+        declValue: AppSpecMapper.mapApiNamespace(apiNamespace, ctx),
       },
       {
         declType: "Job",
-        declName: deriveRefObjectName(job.fn),
-        declValue: mapJob(job, entityRefParser),
+        declName: getRefObjectDeclarationName(job.fn),
+        declValue: AppSpecMapper.mapJob(job, ctx),
       },
       {
         declType: "Crud",
         declName: crud.name,
-        declValue: mapCrud(crud, entityRefParser),
+        declValue: AppSpecMapper.mapCrud(crud, ctx),
       },
     ] satisfies AppSpec.Decl[]);
   });
 
   test("dedups a page referenced explicitly twice", () => {
     const refObject = Fixtures.getRefObject("minimal", "default");
-    const pageName = deriveRefObjectName(refObject);
+    const pageName = getRefObjectDeclarationName(refObject);
     const page1 = page(refObject);
     const page2 = page(refObject);
 
     const app = Fixtures.getMinimalAppWithDecls([page1, page2]);
-    const decls = mapApp(app, []);
+    const decls = mapMockApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
@@ -208,14 +210,14 @@ describe("mapApp", () => {
 
   test("dedups a page referenced via a route shorthand twice", () => {
     const refObject = Fixtures.getRefObject("minimal", "default");
-    const pageName = deriveRefObjectName(refObject);
+    const pageName = getRefObjectDeclarationName(refObject);
     const page1 = page(refObject);
     const page2 = page(refObject);
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
     const app = Fixtures.getMinimalAppWithDecls([route1, route2]);
-    const decls = mapApp(app, []);
+    const decls = mapMockApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
@@ -225,13 +227,13 @@ describe("mapApp", () => {
 
   test("dedups a page referenced explicitly and via a route shorthand", () => {
     const refObject = Fixtures.getRefObject("minimal", "default");
-    const pageName = deriveRefObjectName(refObject);
+    const pageName = getRefObjectDeclarationName(refObject);
     const page1 = page(refObject);
     const page2 = page(refObject);
     const route1 = route("Route1", "/", page2);
 
     const app = Fixtures.getMinimalAppWithDecls([page1, route1]);
-    const decls = mapApp(app, []);
+    const decls = mapMockApp(app, []);
 
     const pageNames = decls
       .filter((d) => d.declType === "Page")
@@ -241,20 +243,20 @@ describe("mapApp", () => {
 
   test("throws when the same page name is produced with differing configs explicitly", () => {
     const refObject = Fixtures.getRefObject("minimal", "default");
-    const pageName = deriveRefObjectName(refObject);
+    const pageName = getRefObjectDeclarationName(refObject);
     const page1 = page(refObject);
     const page2 = page(refObject, { authRequired: true });
 
     const app = Fixtures.getMinimalAppWithDecls([page1, page2]);
 
-    expect(() => mapApp(app, [])).toThrow(
+    expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
     );
   });
 
   test("throws when the same page name is produced with differing configs via a route shorthand twice", () => {
     const refObject = Fixtures.getRefObject("minimal", "default");
-    const pageName = deriveRefObjectName(refObject);
+    const pageName = getRefObjectDeclarationName(refObject);
     const page1 = page(refObject);
     const page2 = page(refObject, { authRequired: true });
     const route1 = route("Route1", "/", page1);
@@ -262,21 +264,21 @@ describe("mapApp", () => {
 
     const app = Fixtures.getMinimalAppWithDecls([route1, route2]);
 
-    expect(() => mapApp(app, [])).toThrow(
+    expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
     );
   });
 
   test("throws when the same page name is produced with differing configs explicitly and via a route shorthand", () => {
     const refObject = Fixtures.getRefObject("minimal", "default");
-    const pageName = deriveRefObjectName(refObject);
+    const pageName = getRefObjectDeclarationName(refObject);
     const page1 = page(refObject);
     const page2 = page(refObject, { authRequired: true });
     const route1 = route("Route2", "/", page2);
 
     const app = Fixtures.getMinimalAppWithDecls([page1, route1]);
 
-    expect(() => mapApp(app, [])).toThrow(
+    expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
     );
   });
@@ -294,10 +296,11 @@ describe("mapPage", () => {
   });
 
   function testMapPage(page: TsAppSpec.Page): void {
-    const result = mapPage(page);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapPage(page, ctx);
 
     expect(result).toStrictEqual({
-      component: mapRefObject(page.component),
+      component: mapRefObjectForMockProjectDir(page.component),
       authRequired: page.authRequired,
     } satisfies AppSpec.Page);
   }
@@ -313,12 +316,12 @@ describe("mapRoute", () => {
   });
 
   function testMapRoute(route: TsAppSpec.Route): void {
-    const result = mapRoute(route);
+    const result = AppSpecMapper.mapRoute(route);
 
     expect(result).toStrictEqual({
       path: route.path,
       to: {
-        name: deriveRefObjectName(route.page.component),
+        name: getRefObjectDeclarationName(route.page.component),
         declType: "Page",
       },
       prerender: route.prerender,
@@ -338,19 +341,19 @@ describe("mapQuery", () => {
 
   test("should throw if entity ref is not provided", () => {
     const query = Fixtures.getQuery("full");
-    const entityRefParser = makeRefParser("Entity", []);
+    const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => mapQuery(query, entityRefParser)).toThrowError();
+    expect(() => AppSpecMapper.mapQuery(query, ctx)).toThrow();
   });
 
   function testMapQuery(query: TsAppSpec.Query): void {
-    const entityRefParser = makeRefParser("Entity", query.entities ?? []);
+    const ctx = makeMapperContext({ entityNames: query.entities ?? [] });
 
-    const result = mapQuery(query, entityRefParser);
+    const result = AppSpecMapper.mapQuery(query, ctx);
 
     expect(result).toStrictEqual({
-      fn: mapRefObject(query.fn),
-      entities: query.entities?.map(entityRefParser),
+      fn: mapRefObjectForMockProjectDir(query.fn),
+      entities: query.entities?.map(ctx.entityRefParser),
       auth: query.auth,
     } satisfies AppSpec.Query);
   }
@@ -367,19 +370,19 @@ describe("mapAction", () => {
 
   test("should throw if entity ref is not provided", () => {
     const action = Fixtures.getAction("full");
-    const entityRefParser = makeRefParser("Entity", []);
+    const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => mapAction(action, entityRefParser)).toThrowError();
+    expect(() => AppSpecMapper.mapAction(action, ctx)).toThrow();
   });
 
   function testMapAction(action: TsAppSpec.Action): void {
-    const entityRefParser = makeRefParser("Entity", action.entities ?? []);
+    const ctx = makeMapperContext({ entityNames: action.entities ?? [] });
 
-    const result = mapAction(action, entityRefParser);
+    const result = AppSpecMapper.mapAction(action, ctx);
 
     expect(result).toStrictEqual({
-      fn: mapRefObject(action.fn),
-      entities: action.entities?.map(entityRefParser),
+      fn: mapRefObjectForMockProjectDir(action.fn),
+      entities: action.entities?.map(ctx.entityRefParser),
       auth: action.auth,
     } satisfies AppSpec.Action);
   }
@@ -439,31 +442,38 @@ describe("mapAuth", () => {
         auth.methods.email?.emailVerification.clientRoute,
         auth.methods.email?.passwordReset.clientRoute,
       ].filter((e) => e !== undefined);
-    const entityRefParser = makeRefParser("Entity", entities);
-    const routeRefParser = makeRefParser("Route", routes);
+    const ctx = makeMapperContext({
+      entityNames: entities,
+      routeNames: routes,
+    });
 
     if (shouldError) {
-      expect(() =>
-        mapAuth(auth, entityRefParser, routeRefParser),
-      ).toThrowError();
+      expect(() => AppSpecMapper.mapAuth(auth, ctx)).toThrow();
       return;
     }
 
-    const result = mapAuth(auth, entityRefParser, routeRefParser);
+    const result = AppSpecMapper.mapAuth(auth, ctx);
 
     expect(result).toStrictEqual({
-      userEntity: entityRefParser(auth.userEntity),
-      methods: mapAuthMethods(auth.methods, routeRefParser),
+      userEntity: ctx.entityRefParser(auth.userEntity),
+      methods: AppSpecMapper.mapAuthMethods(auth.methods, ctx),
       onAuthFailedRedirectTo: auth.onAuthFailedRedirectTo,
       onAuthSucceededRedirectTo: auth.onAuthSucceededRedirectTo,
-      onBeforeSignup: auth.onBeforeSignup && mapRefObject(auth.onBeforeSignup),
-      onAfterSignup: auth.onAfterSignup && mapRefObject(auth.onAfterSignup),
+      onBeforeSignup:
+        auth.onBeforeSignup &&
+        mapRefObjectForMockProjectDir(auth.onBeforeSignup),
+      onAfterSignup:
+        auth.onAfterSignup && mapRefObjectForMockProjectDir(auth.onAfterSignup),
       onAfterEmailVerified:
-        auth.onAfterEmailVerified && mapRefObject(auth.onAfterEmailVerified),
+        auth.onAfterEmailVerified &&
+        mapRefObjectForMockProjectDir(auth.onAfterEmailVerified),
       onBeforeOAuthRedirect:
-        auth.onBeforeOAuthRedirect && mapRefObject(auth.onBeforeOAuthRedirect),
-      onBeforeLogin: auth.onBeforeLogin && mapRefObject(auth.onBeforeLogin),
-      onAfterLogin: auth.onAfterLogin && mapRefObject(auth.onAfterLogin),
+        auth.onBeforeOAuthRedirect &&
+        mapRefObjectForMockProjectDir(auth.onBeforeOAuthRedirect),
+      onBeforeLogin:
+        auth.onBeforeLogin && mapRefObjectForMockProjectDir(auth.onBeforeLogin),
+      onAfterLogin:
+        auth.onAfterLogin && mapRefObjectForMockProjectDir(auth.onAfterLogin),
     } satisfies AppSpec.Auth);
   }
 });
@@ -513,27 +523,42 @@ describe("mapAuthMethods", () => {
         authMethods.email?.emailVerification.clientRoute,
         authMethods.email?.passwordReset.clientRoute,
       ].filter((e) => e !== undefined);
-    const routeRefParser = makeRefParser("Route", routes);
+    const ctx = makeMapperContext({ routeNames: routes });
 
     if (shouldError) {
-      expect(() => mapAuthMethods(authMethods, routeRefParser)).toThrowError();
+      expect(() => AppSpecMapper.mapAuthMethods(authMethods, ctx)).toThrow();
       return;
     }
 
-    const result = mapAuthMethods(authMethods, routeRefParser);
+    const result = AppSpecMapper.mapAuthMethods(authMethods, ctx);
 
     expect(result).toStrictEqual({
       usernameAndPassword:
         authMethods.usernameAndPassword &&
-        mapUsernameAndPassword(authMethods.usernameAndPassword),
-      slack: authMethods.slack && mapSocialAuth(authMethods.slack),
-      discord: authMethods.discord && mapSocialAuth(authMethods.discord),
-      google: authMethods.google && mapSocialAuth(authMethods.google),
-      gitHub: authMethods.gitHub && mapSocialAuth(authMethods.gitHub),
-      keycloak: authMethods.keycloak && mapSocialAuth(authMethods.keycloak),
-      microsoft: authMethods.microsoft && mapSocialAuth(authMethods.microsoft),
+        AppSpecMapper.mapUsernameAndPassword(
+          authMethods.usernameAndPassword,
+          ctx,
+        ),
+      slack:
+        authMethods.slack &&
+        AppSpecMapper.mapSocialAuth(authMethods.slack, ctx),
+      discord:
+        authMethods.discord &&
+        AppSpecMapper.mapSocialAuth(authMethods.discord, ctx),
+      google:
+        authMethods.google &&
+        AppSpecMapper.mapSocialAuth(authMethods.google, ctx),
+      gitHub:
+        authMethods.gitHub &&
+        AppSpecMapper.mapSocialAuth(authMethods.gitHub, ctx),
+      keycloak:
+        authMethods.keycloak &&
+        AppSpecMapper.mapSocialAuth(authMethods.keycloak, ctx),
+      microsoft:
+        authMethods.microsoft &&
+        AppSpecMapper.mapSocialAuth(authMethods.microsoft, ctx),
       email:
-        authMethods.email && mapEmailAuth(authMethods.email, routeRefParser),
+        authMethods.email && AppSpecMapper.mapEmailAuth(authMethods.email, ctx),
     } satisfies AppSpec.AuthMethods);
   }
 });
@@ -583,24 +608,25 @@ describe("mapEmailAuth", () => {
         emailAuth?.emailVerification.clientRoute,
         emailAuth?.passwordReset.clientRoute,
       ].filter((e) => e !== undefined);
-    const routeRefParser = makeRefParser("Route", routes);
+    const ctx = makeMapperContext({ routeNames: routes });
 
     if (shouldError) {
-      expect(() => mapEmailAuth(emailAuth, routeRefParser)).toThrowError();
+      expect(() => AppSpecMapper.mapEmailAuth(emailAuth, ctx)).toThrow();
       return;
     }
 
-    const result = mapEmailAuth(emailAuth, routeRefParser);
+    const result = AppSpecMapper.mapEmailAuth(emailAuth, ctx);
 
     expect(result).toStrictEqual({
       userSignupFields:
-        emailAuth.userSignupFields && mapRefObject(emailAuth.userSignupFields),
-      fromField: mapEmailFromField(emailAuth.fromField),
-      emailVerification: mapEmailFlow(
+        emailAuth.userSignupFields &&
+        mapRefObjectForMockProjectDir(emailAuth.userSignupFields),
+      fromField: AppSpecMapper.mapEmailFromField(emailAuth.fromField),
+      emailVerification: AppSpecMapper.mapEmailFlow(
         emailAuth.emailVerification,
-        routeRefParser,
+        ctx,
       ),
-      passwordReset: mapEmailFlow(emailAuth.passwordReset, routeRefParser),
+      passwordReset: AppSpecMapper.mapEmailFlow(emailAuth.passwordReset, ctx),
     } satisfies AppSpec.EmailAuthConfig);
   }
 });
@@ -644,20 +670,20 @@ describe("mapEmailFlow", () => {
   ): void {
     const { overrideRoutes, shouldError } = options;
     const routes = overrideRoutes ?? [emailFlow.clientRoute];
-    const routeRefParser = makeRefParser("Route", routes);
+    const ctx = makeMapperContext({ routeNames: routes });
 
     if (shouldError) {
-      expect(() => mapEmailFlow(emailFlow, routeRefParser)).toThrowError();
+      expect(() => AppSpecMapper.mapEmailFlow(emailFlow, ctx)).toThrow();
       return;
     }
 
-    const result = mapEmailFlow(emailFlow, routeRefParser);
+    const result = AppSpecMapper.mapEmailFlow(emailFlow, ctx);
 
     expect(result).toStrictEqual({
-      clientRoute: routeRefParser(emailFlow.clientRoute),
+      clientRoute: ctx.routeRefParser(emailFlow.clientRoute),
       getEmailContentFn:
         emailFlow.getEmailContentFn &&
-        mapRefObject(emailFlow.getEmailContentFn),
+        mapRefObjectForMockProjectDir(emailFlow.getEmailContentFn),
     } satisfies AppSpec.EmailVerificationConfig);
   }
 });
@@ -676,12 +702,16 @@ describe("mapUsernameAndPassword", () => {
   function testMapUsernameAndPassword(
     usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig,
   ): void {
-    const result = mapUsernameAndPassword(usernameAndPassword);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapUsernameAndPassword(
+      usernameAndPassword,
+      ctx,
+    );
 
     expect(result).toStrictEqual({
       userSignupFields:
         usernameAndPassword.userSignupFields &&
-        mapRefObject(usernameAndPassword.userSignupFields),
+        mapRefObjectForMockProjectDir(usernameAndPassword.userSignupFields),
     } satisfies AppSpec.UsernameAndPasswordConfig);
   }
 });
@@ -696,13 +726,16 @@ describe("mapSocialAuth", () => {
   });
 
   function testMapSocialAuth(socialAuth: TsAppSpec.SocialAuthConfig): void {
-    const result = mapSocialAuth(socialAuth);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapSocialAuth(socialAuth, ctx);
 
     expect(result).toStrictEqual({
-      configFn: socialAuth.configFn && mapRefObject(socialAuth.configFn),
+      configFn:
+        socialAuth.configFn &&
+        mapRefObjectForMockProjectDir(socialAuth.configFn),
       userSignupFields:
         socialAuth.userSignupFields &&
-        mapRefObject(socialAuth.userSignupFields),
+        mapRefObjectForMockProjectDir(socialAuth.userSignupFields),
     } satisfies AppSpec.ExternalAuthConfig);
   }
 });
@@ -718,21 +751,22 @@ describe("mapApi", () => {
 
   test("should throw if entity refs are not provided", () => {
     const api = Fixtures.getApi("full");
-    const entityRefParser = makeRefParser("Entity", []);
+    const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => mapApi(api, entityRefParser)).toThrowError();
+    expect(() => AppSpecMapper.mapApi(api, ctx)).toThrow();
   });
 
   function testMapApi(api: TsAppSpec.Api): void {
-    const entityRefParser = makeRefParser("Entity", api.entities ?? []);
+    const ctx = makeMapperContext({ entityNames: api.entities ?? [] });
 
-    const result = mapApi(api, entityRefParser);
+    const result = AppSpecMapper.mapApi(api, ctx);
 
     expect(result).toStrictEqual({
-      fn: mapRefObject(api.fn),
+      fn: mapRefObjectForMockProjectDir(api.fn),
       middlewareConfigFn:
-        api.middlewareConfigFn && mapRefObject(api.middlewareConfigFn),
-      entities: api.entities?.map(entityRefParser),
+        api.middlewareConfigFn &&
+        mapRefObjectForMockProjectDir(api.middlewareConfigFn),
+      entities: api.entities?.map(ctx.entityRefParser),
       httpRoute: [api.method, api.path],
       auth: api.auth,
     } satisfies AppSpec.Api);
@@ -749,10 +783,13 @@ describe("mapApiNamespace", () => {
   });
 
   function testMapApiNamespace(apiNamespace: TsAppSpec.ApiNamespace): void {
-    const result = mapApiNamespace(apiNamespace);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapApiNamespace(apiNamespace, ctx);
 
     expect(result).toStrictEqual({
-      middlewareConfigFn: mapRefObject(apiNamespace.middlewareConfigFn),
+      middlewareConfigFn: mapRefObjectForMockProjectDir(
+        apiNamespace.middlewareConfigFn,
+      ),
       path: apiNamespace.path,
     } satisfies AppSpec.ApiNamespace);
   }
@@ -768,14 +805,17 @@ describe("mapServer", () => {
   });
 
   function testMapServer(server: TsAppSpec.Server): void {
-    const result = mapServer(server);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapServer(server, ctx);
 
     expect(result).toStrictEqual({
-      setupFn: server.setupFn && mapRefObject(server.setupFn),
+      setupFn: server.setupFn && mapRefObjectForMockProjectDir(server.setupFn),
       middlewareConfigFn:
-        server.middlewareConfigFn && mapRefObject(server.middlewareConfigFn),
+        server.middlewareConfigFn &&
+        mapRefObjectForMockProjectDir(server.middlewareConfigFn),
       envValidationSchema:
-        server.envValidationSchema && mapRefObject(server.envValidationSchema),
+        server.envValidationSchema &&
+        mapRefObjectForMockProjectDir(server.envValidationSchema),
     } satisfies AppSpec.Server);
   }
 });
@@ -790,14 +830,18 @@ describe("mapClient", () => {
   });
 
   function testMapClient(client: TsAppSpec.Client): void {
-    const result = mapClient(client);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapClient(client, ctx);
 
     expect(result).toStrictEqual({
-      rootComponent: client.rootComponent && mapRefObject(client.rootComponent),
-      setupFn: client.setupFn && mapRefObject(client.setupFn),
+      rootComponent:
+        client.rootComponent &&
+        mapRefObjectForMockProjectDir(client.rootComponent),
+      setupFn: client.setupFn && mapRefObjectForMockProjectDir(client.setupFn),
       baseDir: client.baseDir,
       envValidationSchema:
-        client.envValidationSchema && mapRefObject(client.envValidationSchema),
+        client.envValidationSchema &&
+        mapRefObjectForMockProjectDir(client.envValidationSchema),
     } satisfies AppSpec.Client);
   }
 });
@@ -812,11 +856,13 @@ describe("mapDb", () => {
   });
 
   function testMapDb(db: TsAppSpec.Db): void {
-    const result = mapDb(db);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapDb(db, ctx);
 
     expect(result).toStrictEqual({
-      seeds: db.seeds?.map((seed) => mapRefObject(seed)),
-      prismaSetupFn: db.prismaSetupFn && mapRefObject(db.prismaSetupFn),
+      seeds: db.seeds?.map((seed) => mapRefObjectForMockProjectDir(seed)),
+      prismaSetupFn:
+        db.prismaSetupFn && mapRefObjectForMockProjectDir(db.prismaSetupFn),
     } satisfies AppSpec.Db);
   }
 });
@@ -831,12 +877,13 @@ describe("mapEmailSender", () => {
   });
 
   function testMapEmailSender(emailSender: TsAppSpec.EmailSender): void {
-    const result = mapEmailSender(emailSender);
+    const result = AppSpecMapper.mapEmailSender(emailSender);
 
     expect(result).toStrictEqual({
       provider: emailSender.provider,
       defaultFrom:
-        emailSender.defaultFrom && mapEmailFromField(emailSender.defaultFrom),
+        emailSender.defaultFrom &&
+        AppSpecMapper.mapEmailFromField(emailSender.defaultFrom),
     } satisfies AppSpec.EmailSender);
   }
 });
@@ -853,7 +900,7 @@ describe("mapEmailFromField", () => {
   function testMapEmailFromField(
     emailFromField: TsAppSpec.EmailFromField,
   ): void {
-    const result = mapEmailFromField(emailFromField);
+    const result = AppSpecMapper.mapEmailFromField(emailFromField);
 
     expect(result).toStrictEqual({
       name: emailFromField.name,
@@ -872,10 +919,11 @@ describe("mapWebSocket", () => {
   });
 
   function testMapWebSocket(webSocket: TsAppSpec.WebSocket): void {
-    const result = mapWebSocket(webSocket);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapWebSocket(webSocket, ctx);
 
     expect(result).toStrictEqual({
-      fn: mapRefObject(webSocket.fn),
+      fn: mapRefObjectForMockProjectDir(webSocket.fn),
       autoConnect: webSocket.autoConnect,
     } satisfies AppSpec.WebSocket);
   }
@@ -892,24 +940,24 @@ describe("mapJob", () => {
 
   test("should throw if entity ref is not provided", () => {
     const job = Fixtures.getJob("full");
-    const entityRefParser = makeRefParser("Entity", []);
+    const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => mapJob(job, entityRefParser)).toThrowError();
+    expect(() => AppSpecMapper.mapJob(job, ctx)).toThrow();
   });
 
   function testMapJob(job: TsAppSpec.Job): void {
-    const entityRefParser = makeRefParser("Entity", job.entities ?? []);
+    const ctx = makeMapperContext({ entityNames: job.entities ?? [] });
 
-    const result = mapJob(job, entityRefParser);
+    const result = AppSpecMapper.mapJob(job, ctx);
 
     expect(result).toStrictEqual({
       executor: job.executor,
       perform: {
-        fn: mapRefObject(job.fn),
+        fn: mapRefObjectForMockProjectDir(job.fn),
         executorOptions: job.performExecutorOptions,
       },
-      schedule: job.schedule && mapSchedule(job.schedule),
-      entities: job.entities?.map(entityRefParser),
+      schedule: job.schedule && AppSpecMapper.mapSchedule(job.schedule),
+      entities: job.entities?.map(ctx.entityRefParser),
     } satisfies AppSpec.Job);
   }
 });
@@ -925,19 +973,19 @@ describe("mapCrud", () => {
 
   test("should throw if entity ref is not provided", () => {
     const crudDecl = Fixtures.getCrud("full");
-    const entityRefParser = makeRefParser("Entity", []);
+    const ctx = makeMapperContext({ entityNames: [] });
 
-    expect(() => mapCrud(crudDecl, entityRefParser)).toThrowError();
+    expect(() => AppSpecMapper.mapCrud(crudDecl, ctx)).toThrow();
   });
 
   function testMapCrud(crudDecl: TsAppSpec.Crud): void {
-    const entityRefParser = makeRefParser("Entity", [crudDecl.entity]);
+    const ctx = makeMapperContext({ entityNames: [crudDecl.entity] });
 
-    const result = mapCrud(crudDecl, entityRefParser);
+    const result = AppSpecMapper.mapCrud(crudDecl, ctx);
 
     expect(result).toStrictEqual({
-      entity: entityRefParser(crudDecl.entity),
-      operations: mapCrudOperations(crudDecl.operations),
+      entity: ctx.entityRefParser(crudDecl.entity),
+      operations: AppSpecMapper.mapCrudOperations(crudDecl.operations, ctx),
     } satisfies AppSpec.Crud);
   }
 });
@@ -954,18 +1002,25 @@ describe("mapCrudOperations", () => {
   function testMapCrudOperations(
     crudOperations: TsAppSpec.CrudOperations,
   ): void {
-    const result = mapCrudOperations(crudOperations);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapCrudOperations(crudOperations, ctx);
 
     expect(result).toStrictEqual({
-      get: crudOperations.get && mapCrudOperationOptions(crudOperations.get),
+      get:
+        crudOperations.get &&
+        AppSpecMapper.mapCrudOperationOptions(crudOperations.get, ctx),
       getAll:
-        crudOperations.getAll && mapCrudOperationOptions(crudOperations.getAll),
+        crudOperations.getAll &&
+        AppSpecMapper.mapCrudOperationOptions(crudOperations.getAll, ctx),
       create:
-        crudOperations.create && mapCrudOperationOptions(crudOperations.create),
+        crudOperations.create &&
+        AppSpecMapper.mapCrudOperationOptions(crudOperations.create, ctx),
       update:
-        crudOperations.update && mapCrudOperationOptions(crudOperations.update),
+        crudOperations.update &&
+        AppSpecMapper.mapCrudOperationOptions(crudOperations.update, ctx),
       delete:
-        crudOperations.delete && mapCrudOperationOptions(crudOperations.delete),
+        crudOperations.delete &&
+        AppSpecMapper.mapCrudOperationOptions(crudOperations.delete, ctx),
     } satisfies AppSpec.CrudOperations);
   }
 });
@@ -982,13 +1037,17 @@ describe("mapCrudOperationOptions", () => {
   function testMapCrudOperationOptions(
     crudOperationOptions: TsAppSpec.CrudOperationOptions,
   ): void {
-    const result = mapCrudOperationOptions(crudOperationOptions);
+    const ctx = makeMapperContext();
+    const result = AppSpecMapper.mapCrudOperationOptions(
+      crudOperationOptions,
+      ctx,
+    );
 
     expect(result).toStrictEqual({
       isPublic: crudOperationOptions.isPublic,
       overrideFn:
         crudOperationOptions.overrideFn &&
-        mapRefObject(crudOperationOptions.overrideFn),
+        mapRefObjectForMockProjectDir(crudOperationOptions.overrideFn),
     } satisfies AppSpec.CrudOperationOptions);
   }
 });
@@ -1003,7 +1062,7 @@ describe("mapSchedule", () => {
   });
 
   function testMapSchedule(schedule: TsAppSpec.Schedule): void {
-    const result = mapSchedule(schedule);
+    const result = AppSpecMapper.mapSchedule(schedule);
 
     expect(result).toStrictEqual({
       cron: schedule.cron,

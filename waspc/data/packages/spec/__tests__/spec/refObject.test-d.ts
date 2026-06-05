@@ -1,8 +1,29 @@
 import { assertType, describe, test } from "vitest";
+import { _waspMakeRef } from "../../src/internal.js";
+import { ref } from "../../src/spec/publicApi/index.js";
 import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
 
 describe("RefObject input types", () => {
-  test("should accept functions at RefObject use sites", () => {
+  test("should accept ref helper output at reference use sites", () => {
+    const component = ref({
+      importDefault: "MainPage",
+      from: "./MainPage",
+    });
+
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+  });
+
+  test("should accept _waspMakeRef helper output at reference use sites", () => {
+    const sourceAwareRefImport = _waspMakeRef(import.meta.url);
+    const component = sourceAwareRefImport({
+      importDefault: "MainPage",
+      from: "./MainPage",
+    });
+
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+  });
+
+  test("should accept functions at reference use sites", () => {
     const component = () => null;
     const operation = async (_args: { id: string }) => null;
     const object = { field: () => "" };
@@ -65,17 +86,35 @@ describe("RefObject input types", () => {
     });
   });
 
-  test("should reject objects that are not RefObject objects at RefObject use sites", () => {
+  test("should reject objects that are not RefObject objects at reference use sites", () => {
     const component = { render: () => null };
 
-    // @ts-expect-error RefObject use sites accept descriptors or functions.
+    // @ts-expect-error Reference use sites accept RefObject values or functions.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 
-  test("should reject malformed descriptor-like objects", () => {
-    const component = { from: 42, importDefault: "X" };
+  test("should reject raw descriptor-like objects", () => {
+    const component = { from: "./MainPage", importDefault: "MainPage" };
 
-    // @ts-expect-error Descriptor-like objects must still satisfy RefObject.
+    // @ts-expect-error Descriptor-like objects must be wrapped in ref.
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+  });
+
+  test("should reject incomplete RefObject objects", () => {
+    const component = { kind: "refObject", from: "./MainPage" } as const;
+
+    // @ts-expect-error RefObject objects must include either import or importDefault.
+    assertType<TsAppSpec.Page>({ kind: "page", component });
+  });
+
+  test("should reject handwritten RefObject-shaped objects", () => {
+    const component = {
+      kind: "refObject",
+      importDefault: "MainPage",
+      from: "./MainPage",
+    } as const;
+
+    // @ts-expect-error RefObject objects must come from ref or reference imports.
     assertType<TsAppSpec.Page>({ kind: "page", component });
   });
 });
@@ -95,20 +134,33 @@ describe("Env validation schema input types", () => {
   });
 
   test("should accept RefObject env validation schemas", () => {
-    const schemaImport = {
+    const schemaImport = ref({
       importDefault: "schema",
-      from: "@src/env",
-    } satisfies TsAppSpec.RefObject;
+      from: "./env",
+    });
 
     assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
     assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
   });
 
+  test("should reject raw descriptor env validation schemas", () => {
+    const schemaImport = {
+      importDefault: "schema",
+      from: "./env",
+    };
+
+    // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
+    assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
+
+    // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
+    assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
+  });
+
   test("should reject non-schema objects at env validation schema use sites", () => {
-    // @ts-expect-error Env validation schemas must be RefObject or Zod schema-shaped.
+    // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
     assertType<TsAppSpec.Server>({ envValidationSchema: {} });
 
-    // @ts-expect-error Env validation schemas must be RefObject or Zod schema-shaped.
+    // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
     assertType<TsAppSpec.Client>({ envValidationSchema: [] });
   });
 
