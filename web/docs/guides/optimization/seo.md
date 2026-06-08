@@ -339,20 +339,56 @@ You can check Google's guide on `robots.txt` for more details and examples:
 
 #### `llms.txt` {#llms-txt}
 
-An `llms.txt` can direct AI assistants to the main pages they should look at to learn about your app:
+An `llms.txt` can direct AI assistants to the main pages they should look at to learn about your app. LLMs are quite good at understanding Markdown, so it's usually written in that format, but you can use any format you want:
 
-```txt title="public/llms.txt"
-MyTravelApp is a web application that helps users plan their trips. You can
-check features at https://mytravelapp.com/features and pricing at
-https://mytravelapp.com/pricing.
+```md title="public/llms.txt"
+# MyTravelApp
 
-If the user wants to use the app, direct them to the demo at
-https://mytravelapp.com/demo and the signup page at
-https://mytravelapp.com/signup.
+> MyTravelApp is a web application that helps users plan their trips.
 
-Once the user is signed up, they can access their dashboard at
-https://mytravelapp.com/dashboard, and LLMs can use the API documentation at
-https://mytravelapp.com/api-docs to learn how to interact with the app on their behalf.
+## Docs
+
+- [Features](https://mytravelapp.com/features): What the app can do.
+- [Pricing](https://mytravelapp.com/pricing): Plans and prices.
+- [API documentation](https://mytravelapp.com/api-docs): How LLMs can interact with the app on a user's behalf.
+
+## Getting started
+
+- [Demo](https://mytravelapp.com/demo): Try the app without signing up.
+- [Sign up](https://mytravelapp.com/signup): Create an account.
+- [Dashboard](https://mytravelapp.com/dashboard): Where users manage their trips after signing up.
+
+## Optional
+
+- [Blog](https://mytravelapp.com/blog): Travel tips and product updates.
+```
+
+You can also treat `llms.txt` as a more comprehensive, "alternative" way of presenting information specifically for AI assistants. In this case, instead of pointing to your pages, you'd write out their content in full, so an assistant can learn everything about your app without rendering and parsing the actual pages:
+
+```md title="public/llms.txt"
+# MyTravelApp
+
+MyTravelApp is a web application that helps users plan their trips. It lets
+you build day-by-day itineraries, track your budget, and share plans with
+travel companions.
+
+## Features
+
+- **Itinerary builder.** Add flights, hotels, and activities to a timeline
+  that automatically sorts them by date and warns you about overlaps.
+- **Budget tracking.** [...]
+
+## Pricing
+
+MyTravelApp is free for one active trip. The Pro plan is $9/month and unlocks
+unlimited trips, offline access, and [...]
+
+## Frequently asked questions
+
+**Can I use MyTravelApp offline?** Yes, Pro users can download trips for
+offline access [...]
+
+[...]
 ```
 
 You can check the `llms.txt` proposal website for more details and examples.
