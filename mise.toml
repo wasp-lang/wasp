@@ -1,4 +1,4 @@
-min_version = "2026.5.7"
+min_version = "2026.6.1"
 
 [tools]
 "github:tfausak/cabal-gild" = "1.5.0.1"
