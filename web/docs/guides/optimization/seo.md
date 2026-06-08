@@ -300,10 +300,10 @@ Search engines factor page speed into ranking through [Core Web Vitals](https://
 
 ### Well-known files {#well-known-files}
 
-Crawlers look for a couple of standard files at the root of your site:
+Crawlers look for a couple of standard files at the root of your site, for example:
 
-- A `robots.txt` tells crawlers which paths they may visit.
-- An `llms.txt` file that can give instructions to AI assistants about how to interact with your site and which pages to read.
+- [A `robots.txt` file](#robots-txt) tells crawlers which paths they may visit.
+- [An `llms.txt` file](#llms-txt) that can give instructions to AI assistants about how to interact with your site and which pages to read.
 
 Place these in the [`public` directory](/project/static-assets.md#the-public-directory) at the root of your project. Files there are served as-is from the root path, so `public/robots.txt` becomes available at `https://your-app.com/robots.txt`:
 
@@ -315,6 +315,8 @@ Place these in the [`public` directory](/project/static-assets.md#the-public-dir
     ├── llms.txt
     └── sitemap.xml
 ```
+
+#### `robots.txt` {#robots-txt}
 
 A minimal `robots.txt` lets crawlers visit everything except the routes you don't want indexed, like your admin, API, and auth pages:
 
@@ -335,7 +337,9 @@ You can check Google's guide on `robots.txt` for more details and examples:
   description="From Google"
 />
 
-Moreover, an `llms.txt` can direct AI assistants to the main pages they should look at to learn about your app.
+#### `llms.txt` {#llms-txt}
+
+An `llms.txt` can direct AI assistants to the main pages they should look at to learn about your app:
 
 ```txt title="public/llms.txt"
 MyTravelApp is a web application that helps users plan their trips. You can
