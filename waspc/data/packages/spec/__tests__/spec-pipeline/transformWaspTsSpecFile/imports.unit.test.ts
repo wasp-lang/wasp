@@ -191,6 +191,26 @@ describe("transformRefImports", () => {
     expect(transformImports(source)).toBe(source);
   });
 
+  test("transforms a ref import that is then re-exported", () => {
+    expect(
+      transformImports(
+        [
+          `import MainPage from "./src/MainPage" with { type: "ref" };`,
+          `export { MainPage };`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toBe(
+      [
+        `import { ref } from "@wasp.sh/spec";`,
+        `const MainPage = ref({"importDefault":"MainPage","from":"./src/MainPage"});`,
+        ``,
+        `export { MainPage };`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
   test("throws when transforming re-exports with ref imports", () => {
     expect(() =>
       transformImports(

@@ -145,6 +145,26 @@ describe("transformRefHelper", () => {
     expect(transformRefHelper(source)).toBe(source);
   });
 
+  test("rewrites a ref import that is then re-exported", () => {
+    expect(
+      transformRefHelper(
+        [
+          `import { ref } from "@wasp.sh/spec";`,
+          `export { ref };`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toBe(
+      [
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `const ref = _waspMakeRef("/path/main.wasp.ts");`,
+        ``,
+        `export { ref };`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
   test("throws when transforming re-exports of the ref helper", () => {
     expect(() =>
       transformRefHelper(`export { ref } from "@wasp.sh/spec";`),
