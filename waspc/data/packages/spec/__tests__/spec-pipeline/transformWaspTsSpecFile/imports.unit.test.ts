@@ -186,6 +186,11 @@ describe("transformRefImports", () => {
     });
   });
 
+  test("leaves re-exports without the ref attribute untouched", () => {
+    const source = `export { helper } from "./helpers";\n`;
+    expect(transformImports(source)).toBe(source);
+  });
+
   test("throws when transforming re-exports with ref imports", () => {
     expect(() =>
       transformImports(

@@ -140,6 +140,11 @@ describe("transformRefHelper", () => {
     );
   });
 
+  test("leaves re-exports from other modules untouched", () => {
+    const source = `export { ref } from "./helpers";\n`;
+    expect(transformRefHelper(source)).toBe(source);
+  });
+
   test("throws when transforming re-exports of the ref helper", () => {
     expect(() =>
       transformRefHelper(`export { ref } from "@wasp.sh/spec";`),
