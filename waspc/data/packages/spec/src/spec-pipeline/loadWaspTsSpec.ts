@@ -1,7 +1,7 @@
 import { unrun } from "unrun";
 import { SpecUserError } from "../spec/specUserError.js";
 import { transformWaspTsSpecFilesPlugin } from "./transformWaspTsSpecFilesPlugin/index.js";
-import { typecheckPlugin } from "./typecheckPlugin.js";
+import { typecheckPlugin } from "./typecheckPlugin/index.js";
 
 export async function loadWaspTsSpecDefaultExport({
   specPath,
