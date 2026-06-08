@@ -37,12 +37,12 @@ exports[`Wasp TS spec pipeline > analyzes split specs with lowered ref imports 1
       },
     },
     {
-      "declName": "adminOperations_archive",
+      "declName": "archive",
       "declType": "Action",
       "declValue": {
         "entities": [],
         "fn": {
-          "alias": "adminOperations_archive",
+          "alias": "archive",
           "kind": "named",
           "name": "archive",
           "path": "@src/adminOperations",
