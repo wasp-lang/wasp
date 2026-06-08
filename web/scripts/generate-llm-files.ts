@@ -7,11 +7,8 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import {
-  bumpHeadings,
-  cleanMarkdown,
-  computeDocMarkdownUrl,
-} from "../src/llm/docs-markdown";
+import { bumpHeadings, computeDocMarkdownUrl } from "../src/llm/docs-markdown";
+import { renderMdxToMarkdown } from "../src/llm/render-mdx";
 import waspVersionsJson from "../versions.json";
 
 const SITE_ROOT = process.cwd();
@@ -324,7 +321,9 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
     const sourceDoc: SourceDoc = {
       title,
       slug,
-      processedBody: cleanMarkdown(body),
+      processedBody: await renderMdxToMarkdown(body, {
+        filePath: absolutePath,
+      }),
     };
     sourceDocCache.set(absolutePath, sourceDoc);
     return sourceDoc;

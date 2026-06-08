@@ -6,6 +6,7 @@ import docsMarkdownFilesPlugin from "./src/plugins/docs-markdown-files";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
+import extractDocMarkdown from "./src/remark/extract-doc-markdown";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
 import fixAPILinks from "./src/remark/fix-api-links";
 import searchAndReplace from "./src/remark/search-and-replace";
@@ -197,6 +198,8 @@ const config: Config = {
             searchAndReplace,
             codeWithHole,
             fixAPILinks,
+            // Must run last: it flattens the fully-transformed tree to Markdown.
+            extractDocMarkdown,
           ],
 
           // ------ Configuration for multiple docs versions ------ //

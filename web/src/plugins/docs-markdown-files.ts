@@ -3,15 +3,24 @@ import type { LoadContext, Plugin } from "@docusaurus/types";
 import fs from "fs/promises";
 import path from "path";
 
-import { cleanMarkdown, computeDocPermalink } from "../llm/docs-markdown";
+import { computeDocPermalink } from "../llm/docs-markdown";
+import { renderMdxToMarkdown } from "../llm/render-mdx";
+import { stagedMarkdownPath } from "../remark/extract-doc-markdown";
 
 // Emits a raw Markdown file next to every built docs page, so that appending
 // `.md` to any docs URL returns clean source for agents to fetch.
 // e.g. /docs/auth/overview  ->  /docs/auth/overview.md
+//
+// The Markdown itself is produced by the `extract-doc-markdown` remark plugin,
+// which taps Docusaurus' own pipeline and stages a flattened `.md` per doc.
+// Here we just place each staged file at its permalink, falling back to
+// rendering from source if a staged file is missing (e.g. an MDX cache hit
+// skipped the loader).
 
 interface DocsMarkdownFileToWrite {
   permalink: string;
   docSourcePath: string;
+  title?: string;
 }
 
 export default function docsMarkdownFilesPlugin(
@@ -41,26 +50,52 @@ export default function docsMarkdownFilesPlugin(
             docsMarkdownFilesToWrite.push({
               permalink: modifiedPermalink,
               docSourcePath: doc.source.replace(/^@site/, siteDir),
+              title: doc.title,
             });
           }
         }
       }
     },
     async postBuild({ outDir }) {
-      for (const { permalink, docSourcePath } of docsMarkdownFilesToWrite) {
-        const rawDoc = await fs.readFile(docSourcePath, "utf8");
-
-        const markdownDoc = toMarkdownDoc(rawDoc);
+      let fromSource = 0;
+      for (const {
+        permalink,
+        docSourcePath,
+        title,
+      } of docsMarkdownFilesToWrite) {
+        const body = await readStagedOrRender(
+          docSourcePath,
+          () => fromSource++,
+        );
+        const markdownDoc = title ? `# ${title}\n\n${body}\n` : `${body}\n`;
         const markdownDocPath = path.join(outDir, `${permalink}.md`);
 
         await fs.mkdir(path.dirname(markdownDocPath), { recursive: true });
         await fs.writeFile(markdownDocPath, markdownDoc, "utf8");
       }
       console.log(
-        `docs-markdown-files: wrote ${docsMarkdownFilesToWrite.length} .md files`,
+        `docs-markdown-files: wrote ${docsMarkdownFilesToWrite.length} .md files` +
+          (fromSource ? ` (${fromSource} rendered from source fallback)` : ""),
       );
     },
   };
+
+  async function readStagedOrRender(
+    docSourcePath: string,
+    onFallback: () => void,
+  ): Promise<string> {
+    try {
+      return await fs.readFile(
+        stagedMarkdownPath(siteDir, docSourcePath),
+        "utf8",
+      );
+    } catch {
+      onFallback();
+      const rawDoc = await fs.readFile(docSourcePath, "utf8");
+      const { body } = splitDocFrontMatter(rawDoc);
+      return renderMdxToMarkdown(body, { filePath: docSourcePath });
+    }
+  }
 }
 
 /**
@@ -90,23 +125,9 @@ function warnOnPermalinkDrift(
   }
 }
 
-function toMarkdownDoc(rawDocSource: string): string {
-  const { body, title } = splitDocFrontMatter(rawDocSource);
-  const cleanedMarkdown = cleanMarkdown(body);
-  return title ? `# ${title}\n\n${cleanedMarkdown}\n` : `${cleanedMarkdown}\n`;
-}
-
-function splitDocFrontMatter(rawDocSource: string): {
-  body: string;
-  title?: string;
-} {
-  const match = rawDocSource.match(/^---\n([\s\S]*?)\n---\n?/);
-  if (!match) return { body: rawDocSource };
-
-  const body = rawDocSource.slice(match[0].length);
-  const titleMatch = match[1].match(/^title:\s*(.+)$/m);
-  const title = titleMatch
-    ? titleMatch[1].trim().replace(/^['"]|['"]$/g, "")
-    : undefined;
-  return { body, title };
+function splitDocFrontMatter(rawDocSource: string): { body: string } {
+  const match = rawDocSource.match(/^---\n[\s\S]*?\n---\n?/);
+  return match
+    ? { body: rawDocSource.slice(match[0].length) }
+    : { body: rawDocSource };
 }
