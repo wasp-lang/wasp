@@ -19,11 +19,11 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 ### 🐞 Bug fixes
 
 - Fixed a race condition in development mode that could potentially load the app's JS bundle before the Vite runtime, causing the app to fail the load with a "Can't detect preamble" error. ([#4258](https://github.com/wasp-lang/wasp/issues/4258))
-- The npm package now shows a clear error asking you to upgrade Node.js when installed on an unsupported Node.js version, instead of a confusing "Can't locate the correct executable for your platform" error. ([#4268](https://github.com/wasp-lang/wasp/pull/4268))
 
 ### 🔧 Small improvements
 
 - Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))
+- The npm package now shows a clear error when installed on an unsupported Node.js version. ([#4268](https://github.com/wasp-lang/wasp/pull/4268))
 
 ## 0.23.0
 
