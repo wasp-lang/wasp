@@ -1,8 +1,7 @@
 import { RolldownMagicString } from "rolldown";
 import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
-import { applyTransformImportsPlan_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/apply.js";
-import { planTransformImports } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/plan.js";
+import { transformRefImports_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/imports/index.js";
 import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("transformRefImports", () => {
@@ -186,17 +185,46 @@ describe("transformRefImports", () => {
       );
     });
   });
+
+  test("leaves re-exports without the ref attribute untouched", () => {
+    const source = `export { helper } from "./helpers";\n`;
+    expect(transformImports(source)).toBe(source);
+  });
+
+  test("transforms a ref import that is then re-exported", () => {
+    expect(
+      transformImports(
+        [
+          `import MainPage from "./src/MainPage" with { type: "ref" };`,
+          `export { MainPage };`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toBe(
+      [
+        `import { ref } from "@wasp.sh/spec";`,
+        `const MainPage = ref({"importDefault":"MainPage","from":"./src/MainPage"});`,
+        ``,
+        `export { MainPage };`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
+  test("throws when transforming re-exports with ref imports", () => {
+    expect(() =>
+      transformImports(
+        `export { MainPage } from "./src/MainPage" with { type: "ref" };`,
+      ),
+    ).toThrow(SpecUserError);
+  });
 });
 
 function transformImports(sourceText: string): string {
   const ast = parseAst(sourceText, { lang: "ts" });
   const source = new RolldownMagicString(sourceText);
 
-  const plan = planTransformImports(ast);
-
-  if (plan) {
-    applyTransformImportsPlan_mutate(source, plan);
-  }
+  transformRefImports_mutate(ast, source);
 
   return source.toString();
 }

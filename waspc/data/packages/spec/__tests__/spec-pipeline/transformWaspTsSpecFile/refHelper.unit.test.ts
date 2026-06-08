@@ -1,8 +1,8 @@
 import { RolldownMagicString } from "rolldown";
 import { parseAst } from "rolldown/parseAst";
 import { describe, expect, test } from "vitest";
-import { applyTransformRefHelperPlan_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/refHelper/apply.js";
-import { planTransformRefHelper } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/refHelper/plan.js";
+import { transformRefHelper_mutate } from "../../../src/spec-pipeline/transformWaspTsSpecFilesPlugin/refHelper/index.js";
+import { SpecUserError } from "../../../src/spec/specUserError.js";
 
 describe("transformRefHelper", () => {
   test("leaves files without a public ref import untouched", () => {
@@ -139,16 +139,42 @@ describe("transformRefHelper", () => {
       ].join("\n"),
     );
   });
+
+  test("leaves re-exports from other modules untouched", () => {
+    const source = `export { ref } from "./helpers";\n`;
+    expect(transformRefHelper(source)).toBe(source);
+  });
+
+  test("rewrites a ref import that is then re-exported", () => {
+    expect(
+      transformRefHelper(
+        [`import { ref } from "@wasp.sh/spec";`, `export { ref };`, ``].join(
+          "\n",
+        ),
+      ),
+    ).toBe(
+      [
+        `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
+        `const ref = _waspMakeRef("/path/main.wasp.ts");`,
+        ``,
+        `export { ref };`,
+        ``,
+      ].join("\n"),
+    );
+  });
+
+  test("throws when transforming re-exports of the ref helper", () => {
+    expect(() =>
+      transformRefHelper(`export { ref } from "@wasp.sh/spec";`),
+    ).toThrow(SpecUserError);
+  });
 });
 
 function transformRefHelper(sourceText: string): string {
   const ast = parseAst(sourceText, { lang: "ts" });
   const source = new RolldownMagicString(sourceText);
 
-  const plan = planTransformRefHelper(ast);
-  if (plan) {
-    applyTransformRefHelperPlan_mutate("/path/main.wasp.ts", source, plan);
-  }
+  transformRefHelper_mutate("/path/main.wasp.ts", ast, source);
 
   return source.toString();
 }
