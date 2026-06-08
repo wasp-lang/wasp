@@ -6,9 +6,11 @@ import type { LlmFile } from "./common";
 
 const SPEC_API_DOCS_PATH = "docs/api/@wasp.sh/spec";
 const SPEC_API_FILE_NAME = "spec-api.txt";
+const SPEC_API_FULL_FILE_NAME = "spec-api-full.txt";
 const WASP_SPEC_API_BASE_URL = "https://wasp.sh/docs/api/@wasp.sh/spec";
+const WASP_BASE_URL = "https://wasp.sh/";
 
-export async function buildSpecApiFile(siteDir: string): Promise<LlmFile> {
+export async function buildSpecApiFiles(siteDir: string): Promise<LlmFile[]> {
   const specApiDocsDir = path.join(siteDir, SPEC_API_DOCS_PATH);
   const markdownFiles = globSync("**/*.md", {
     cwd: specApiDocsDir,
@@ -21,6 +23,37 @@ export async function buildSpecApiFile(siteDir: string): Promise<LlmFile> {
     );
   }
 
+  return [
+    {
+      fileName: SPEC_API_FILE_NAME,
+      content: await buildSpecApiMap(specApiDocsDir),
+    },
+    {
+      fileName: SPEC_API_FULL_FILE_NAME,
+      content: await buildFullSpecApiFile(specApiDocsDir, markdownFiles),
+    },
+  ];
+}
+
+async function buildSpecApiMap(specApiDocsDir: string): Promise<string> {
+  const indexContent = await fs.readFile(
+    path.join(specApiDocsDir, "index.md"),
+    "utf8",
+  );
+
+  return [
+    "# Wasp Spec API",
+    "> API reference map for @wasp.sh/spec, the TypeScript package used to define Wasp apps in main.wasp.ts.",
+    "Load this map first. Load the full file only when you need the complete generated TypeDoc reference.",
+    `- [Full Spec API](${WASP_BASE_URL}${SPEC_API_FULL_FILE_NAME})`,
+    rewriteLocalMarkdownLinks(indexContent, "index.md"),
+  ].join("\n\n");
+}
+
+async function buildFullSpecApiFile(
+  specApiDocsDir: string,
+  markdownFiles: string[],
+): Promise<string> {
   const sections = await Promise.all(
     markdownFiles.map(async (relativePath) => {
       const rawContent = await fs.readFile(
@@ -42,10 +75,7 @@ export async function buildSpecApiFile(siteDir: string): Promise<LlmFile> {
     "> API reference for @wasp.sh/spec, the TypeScript package used to define Wasp apps in main.wasp.ts.",
   ].join("\n");
 
-  return {
-    fileName: SPEC_API_FILE_NAME,
-    content: [header, ...sections].join("\n\n---\n\n"),
-  };
+  return [header, ...sections].join("\n\n---\n\n");
 }
 
 function rewriteLocalMarkdownLinks(

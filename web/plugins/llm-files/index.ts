@@ -4,7 +4,7 @@ import path from "path";
 
 import type { LlmFile } from "./common";
 import { buildDocsLlmFiles } from "./docs";
-import { buildSpecApiFile } from "./specApi";
+import { buildSpecApiFiles } from "./specApi";
 
 export function llmFilesPlugin(context: LoadContext): Plugin<void> {
   return {
@@ -12,7 +12,7 @@ export function llmFilesPlugin(context: LoadContext): Plugin<void> {
     async postBuild({ outDir }) {
       await writeLlmFiles(outDir, [
         ...(await buildDocsLlmFiles(context.siteDir)),
-        await buildSpecApiFile(context.siteDir),
+        ...(await buildSpecApiFiles(context.siteDir)),
       ]);
       console.log("LLM files generation completed successfully.");
     },
