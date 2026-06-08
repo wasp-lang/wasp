@@ -3,27 +3,21 @@ title: Editor Setup
 slug: /editor-setup
 ---
 
-import TypescriptServerNote from '../_TypescriptServerNote.md'
-
 :::note
 This page assumes you have already installed Wasp. If you do not have Wasp installed yet, check out the [Quick Start](./quick-start.md) guide.
 :::
 
-Wasp comes with the Wasp language server, which gives supported editors powerful support and integration with the language.
+Wasp Spec files are TypeScript files, so editor support comes from your editor's regular TypeScript tooling.
 
-## VSCode
+## TypeScript support
 
-Currently, Wasp only supports integration with VSCode. Install the [Wasp language extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) to get syntax highlighting and integration with the Wasp language server.
+Use any editor with TypeScript language service support (VS Code, Zed, etc.), this gives you:
 
-The extension enables:
+- type checking and diagnostics for `main.wasp.ts`
+- autocompletion for `@wasp.sh/spec` functions and options
+- go to definition for [reference imports](../general/spec.md#reference-imports)
+- import path checks for files in `src`
 
-- syntax highlighting for `.wasp` files
-- the Prisma extension for `.prisma` files
-- scaffolding of new project files
-- code completion
-- diagnostics (errors and warnings)
-- go to definition
+For `schema.prisma`, install the [Prisma extension for VS Code](https://marketplace.visualstudio.com/items?itemName=Prisma.prisma) or the equivalent Prisma extension for your editor.
 
-and more!
-
-<TypescriptServerNote />
+If your editor reports stale type or import errors after changing Wasp files, restart the TypeScript server. In VS Code, open the command palette and run _"TypeScript: Restart TS Server."_

@@ -1,10 +1,10 @@
 diff --git a/src/MainPage.tsx b/src/MainPage.tsx
-index 144163a..addc7ba 100644
+index 144163a..f7c9fab 100644
 --- a/src/MainPage.tsx
 +++ b/src/MainPage.tsx
 @@ -1,3 +1,36 @@
-+import { getTasks, useQuery } from "wasp/client/operations";
 +import type { Task } from "wasp/entities";
++import { getTasks, useQuery } from "wasp/client/operations";
 +
  export const MainPage = () => {
 -  return <div>Hello world!</div>;

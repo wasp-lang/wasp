@@ -5,10 +5,9 @@ body {
 }
 
 div.twLandingPage {
-  background-color: #f7f5f0;
+  background-color: var(--wasp-bg);
   font-family: "IBM Plex Mono", monospace;
   -webkit-font-smoothing: antialiased;
-  font-family: "IBM Plex Mono", monospace;
 }
 
 pre code {

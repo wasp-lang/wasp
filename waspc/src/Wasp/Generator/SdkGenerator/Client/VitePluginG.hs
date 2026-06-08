@@ -54,6 +54,7 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
     tmplData =
       object
         [ "clientEntryPointPath" .= clientEntryPointPath,
+          "srcTsConfigPath" .= SP.fromRelFile (AS.srcTsConfigPath spec),
           "ssrEntryPointPath" .= ssrEntryPointPath,
           "spaFallbackFile" .= spaFallbackFile,
           "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths

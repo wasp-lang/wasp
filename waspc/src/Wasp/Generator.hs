@@ -27,6 +27,7 @@ import Wasp.Generator.Monad
 import Wasp.Generator.SdkGenerator (genSdk)
 import Wasp.Generator.ServerGenerator (genServer)
 import Wasp.Generator.Setup (runSetup)
+import Wasp.Generator.SpecTypesGenerator (genSpecTypes)
 import qualified Wasp.Generator.Start
 import qualified Wasp.Generator.Test
 import Wasp.Generator.Valid (validateExternalConfigsWithAppSpec)
@@ -65,6 +66,7 @@ genApp spec = do
 
   genServer spec
     <++> genSdk spec
+    <++> genSpecTypes spec
     <++> genDb spec
     <++> genDockerFiles spec
     <++> genWaspLibs

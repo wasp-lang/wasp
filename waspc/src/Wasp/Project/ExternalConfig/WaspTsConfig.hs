@@ -22,7 +22,7 @@ parseAndValidateWaspTsConfig = parseAndValidateTsConfigFile waspTsConfigValidato
 waspTsConfigValidator :: V.Validator T.TsConfig
 waspTsConfigValidator =
   V.all
-    [ V.inField ("include", T.include) $ V.eqJust ["main.wasp.ts"],
+    [ V.inField ("include", T.include) $ V.eqJust ["**/*.wasp.ts", ".wasp/out/types/spec"],
       V.inField ("compilerOptions", T.compilerOptions) $ V.required compilerOptionsValidator
     ]
   where
@@ -30,11 +30,14 @@ waspTsConfigValidator =
     compilerOptionsValidator =
       V.all
         [ V.inField ("target", T.target) $ V.eqJust "ES2022",
-          V.inField ("module", T._module) $ V.eqJust "NodeNext",
+          V.inField ("module", T._module) $ V.eqJust "esnext",
+          V.inField ("moduleResolution", T.moduleResolution) $ V.eqJust "bundler",
+          V.inField ("jsx", T.jsx) $ V.eqJust "preserve",
           V.inField ("strict", T.strict) $ V.eqJust True,
           V.inField ("isolatedModules", T.isolatedModules) $ V.eqJust True,
           V.inField ("moduleDetection", T.moduleDetection) $ V.eqJust "force",
           V.inField ("skipLibCheck", T.skipLibCheck) $ V.eqJust True,
+          V.inField ("allowJs", T.allowJs) $ V.eqJust True,
           V.inField ("noEmit", T.noEmit) $ V.eqJust True,
           V.inField ("lib", T.lib) $ V.eqJust ["ES2023"]
         ]

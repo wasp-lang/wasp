@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   "Fly.io": 2026-04-06
 ---
 
@@ -37,7 +37,7 @@ You need to do this only once per Wasp app.
 
 Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
-After you have [built the app](../../../deployment/deployment-methods/paas.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out

@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   "Cloudflare Workers": 2026-04-06
 ---
 
@@ -20,7 +20,7 @@ Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can l
 npx wrangler login
 ```
 
-Before you continue, make sure you have [built the Wasp app](../../../deployment/deployment-methods/paas.md#1-generating-deployable-code). We'll build the client web app next.
+Before you continue, make sure you have [built the Wasp app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code). We'll build the client web app next.
 
 <BuildingTheWebClient />
 
@@ -64,14 +64,14 @@ That is it! Your client should be live at `https://my-wasp-app-client.<subdomain
 Make sure you set your Workers URL as the `WASP_WEB_CLIENT_URL` environment variable in your server hosting environment.
 :::
 
-### Deploying through Github Actions
+### Deploying through GitHub Actions
 
 To enable automatic deployment of the client whenever you push to the `main` branch, you can set up a GitHub Actions workflow. To do this, create a file in your repository at `.github/workflows/deploy.yaml`. Feel free to rename `deploy.yaml` as long as the file type is not changed.
 
 Here's an example configuration file to help you get started. This example workflow will trigger a deployment to Cloudflare Workers whenever changes are pushed to the main branch.
 
 <details>
-  <summary>Example Github Action</summary>
+  <summary>Example GitHub Action</summary>
 
   ```yaml
   name: Deploy Client to Cloudflare
@@ -97,6 +97,9 @@ Here's an example configuration file to help you get started. This example workf
 
         - name: Install Wasp
           run: npm i -g @wasp.sh/wasp-cli@{latestWaspVersion} # Change to your Wasp version
+
+        - name: Install Wasp app dependencies
+          run: cd ./app && wasp install
 
         - name: Wasp Build
           run: cd ./app && wasp build

@@ -1,10 +1,7 @@
 import addWaspSourceHeader from "./addWaspSourceHeader";
 import "./style.css";
 
-import {
-  dashboard as refreshDashboardData,
-  useQuery,
-} from "wasp/client/operations";
+import { refreshDashboardData, useQuery } from "wasp/client/operations";
 
 const MainPage = () => {
   const {

@@ -18,23 +18,25 @@ Here's a 1-minute tour of how full-stack auth works in Wasp:
 
 Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` declaration:
 
-```wasp title="main.wasp"
-app MyApp {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "MyApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My app",
-  //...
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
       google: {},
       gitHub: {},
     },
-    onAuthFailedRedirectTo: "/someRoute"
-  }
-}
-
-//...
+    onAuthFailedRedirectTo: "/someRoute",
+  },
+  // ...
+})
 ```
 
 <small>
@@ -107,27 +109,32 @@ Please check first if other Wasp features (mainly [auth hooks](./auth-hooks.md))
 
 When declaring a page, you can set the `authRequired` property.
 
-If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `app.auth.onAuthFailedRedirectTo` field.
+If you set it to `true`, only authenticated users can access the page. Unauthenticated users are redirected to a route defined by the `auth.onAuthFailedRedirectTo` field.
 
-```wasp title="main.wasp"
-page MainPage {
-  component: import Main from "@src/pages/Main",
-  authRequired: true
-}
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import Main from "./src/pages/Main" with { type: "ref" }
+
+export default app({
+  // ...
+  decls: [
+    route("MainRoute", "/", page(Main, { authRequired: true })),
+  ],
+})
 ```
 
 :::caution Requires auth method
 You can only use `authRequired` if your app uses one of the [available auth methods](#available-auth-methods).
 :::
 
-If `authRequired` is set to `true`, the page's React component (specified by the `component` property) receives the `user` object as a prop. Read more about the `user` object in the [Accessing the logged-in user section](#accessing-the-logged-in-user).
+If `authRequired` is set to `true`, the page's React component (passed as the first argument to `page(...)`) receives the `user` object as a prop. Read more about the `user` object in the [Accessing the logged-in user section](#accessing-the-logged-in-user).
 
 ## Logout action
 
 We provide an action for logging out the user. Here's how you can use it:
 
 ```tsx title="src/components/LogoutButton.tsx"
-import { logout } from 'wasp/client/auth'
+import { logout } from "wasp/client/auth"
 
 const LogoutButton = () => {
   return <button onClick={logout}>Logout</button>
@@ -143,15 +150,15 @@ The `user` object has all the fields that you defined in your `User` entity. In 
 ```ts
 const user = {
   // User data
-  id: 'cluqsex9500017cn7i2hwsg17',
-  address: 'Some address',
+  id: "cluqsex9500017cn7i2hwsg17",
+  address: "Some address",
 
   // Auth methods specific data
   identities: {
     email: {
-      id: 'user@app.com',
+      id: "user@app.com",
       isEmailVerified: true,
-      emailVerificationSentAt: '2024-04-08T10:06:02.204Z',
+      emailVerificationSentAt: "2024-04-08T10:06:02.204Z",
       passwordResetSentAt: null,
     },
   },
@@ -171,19 +178,24 @@ There are two ways to access the `user` object on the client:
 
 If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import Account from "./src/pages/Account" with { type: "ref" }
 
-page AccountPage {
-  component: import Account from "@src/pages/Account",
-  authRequired: true
-}
+export default app({
+  // ...
+  decls: [
+    route("AccountRoute", "/account", page(Account, {
+      authRequired: true
+    })),
+  ],
+})
 ```
 
 ```tsx title="src/pages/Account.tsx" auto-js
-import type { AuthUser } from 'wasp/auth'
-import Button from './Button'
-import { logout } from 'wasp/client/auth'
+import type { AuthUser } from "wasp/auth"
+import Button from "./Button"
+import { logout } from "wasp/client/auth"
 
 const AccountPage = ({ user }: { user: AuthUser }) => {
   return (
@@ -204,9 +216,9 @@ Wasp provides a React hook you can use in the client components - `useAuth`.
 This hook is a thin wrapper over Wasp's `useQuery` hook and returns data in the same format.
 
 ```tsx title="src/pages/MainPage.tsx" auto-js
-import { useAuth, logout } from 'wasp/client/auth'
-import { Link } from 'react-router'
-import Todo from '../Todo'
+import { useAuth, logout } from "wasp/client/auth"
+import { Link } from "react-router"
+import Todo from "../Todo"
 
 export function Main() {
   const { data: user } = useAuth()
@@ -214,7 +226,7 @@ export function Main() {
   if (!user) {
     return (
       <span>
-        Please <Link to="/login">login</Link> or{' '}
+        Please <Link to="/login">login</Link> or{" "}
         <Link to="/signup">sign up</Link>.
       </span>
     )
@@ -235,11 +247,11 @@ export function Main() {
 When authentication is enabled, all [queries and actions](../data-model/operations/overview) have access to the `user` object through the `context` argument. `context.user` contains all User entity's fields and the auth identities connected to the user. We strip out the `hashedPassword` field from the identities for security reasons.
 
 ```ts title="src/actions.ts" auto-js
-import type { Task } from 'wasp/entities'
-import type { CreateTask } from 'wasp/server/operations'
-import { HttpError } from 'wasp/server'
+import type { Task } from "wasp/entities"
+import type { CreateTask } from "wasp/server/operations"
+import { HttpError } from "wasp/server"
 
-type CreateTaskPayload = Pick<Task, 'description'>
+type CreateTaskPayload = Pick<Task, "description">
 
 export const createTask: CreateTask<CreateTaskPayload, Task> = async (
   args,
@@ -277,12 +289,16 @@ When users log in, Wasp creates a session for them and stores it in the database
 
 If you are saving a user's password in the database, you should **never** save it as plain text. You can use Wasp's helper functions for serializing and deserializing provider data which will automatically hash the password for you:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { action, app } from "@wasp.sh/spec"
+import { updatePassword } from "./src/auth" with { type: "ref" }
 
-action updatePassword {
-  fn: import { updatePassword } from "@src/auth",
-}
+export default app({
+  // ...
+  decls: [
+    action(updatePassword),
+  ],
+})
 ```
 
 ```ts title="src/auth.ts" auto-js
@@ -291,20 +307,20 @@ import {
   findAuthIdentity,
   updateAuthIdentityProviderData,
   getProviderDataWithPassword,
-} from 'wasp/server/auth'
-import type { UpdatePassword } from 'wasp/server/operations'
+} from "wasp/server/auth"
+import type { UpdatePassword } from "wasp/server/operations"
 
 export const updatePassword: UpdatePassword<
   { email: string; password: string },
   void
 > = async (args, context) => {
-  const providerId = createProviderId('email', args.email)
+  const providerId = createProviderId("email", args.email)
   const authIdentity = await findAuthIdentity(providerId)
   if (!authIdentity) {
-    throw new HttpError(400, 'Unknown user')
+    throw new HttpError(400, "Unknown user")
   }
 
-  const providerData = getProviderDataWithPassword<'email'>(
+  const providerData = getProviderDataWithPassword<"email">(
     authIdentity.providerData
   )
 
@@ -364,23 +380,28 @@ We do that by defining an object where the keys represent the field name, and th
   \* We exclude the `password` field from this object to prevent it from being saved as plain-text in the database. The `password` field is handled by Wasp's auth backend.
 </small>
 
-First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `main.wasp` file. The `{authMethod}` depends on the auth method you are using.
+First, we add the `auth.methods.{authMethod}.userSignupFields` field in our `main.wasp.ts` file. The `{authMethod}` depends on the auth method you are using.
 
 For example, if you are using [Username & Password](./username-and-pass), you would add the `auth.methods.usernameAndPassword.userSignupFields` field:
 
-```wasp title="main.wasp"
-app crudTesting {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
+
+export default app({
+  name: "crudTesting",
   // ...
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       usernameAndPassword: {
-        userSignupFields: import { userSignupFields } from "@src/auth/signup",
+        userSignupFields,
       },
     },
     onAuthFailedRedirectTo: "/login",
   },
-}
+  // ...
+})
 ```
 
 ```prisma title="schema.prisma"
@@ -393,16 +414,16 @@ model User {
 Then we'll define the `userSignupFields` object in the `src/auth/signup.{js,ts}` file:
 
 ```ts title="src/auth/signup.ts" auto-js
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth"
 
 export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
-    if (typeof address !== 'string') {
-      throw new Error('Address is required')
+    if (typeof address !== "string") {
+      throw new Error("Address is required")
     }
     if (address.length < 5) {
-      throw new Error('Address must be at least 5 characters long')
+      throw new Error("Address must be at least 5 characters long")
     }
     return address
   },
@@ -413,7 +434,7 @@ export const userSignupFields = defineUserSignupFields({
   Read more about the `userSignupFields` object in the [API Reference](#signup-fields-customization).
 </small>
 
-Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
+Keep in mind, that these field names need to exist on the `userEntity` you defined in your `main.wasp.ts` file e.g. `address` needs to be a field on the `User` entity you defined in the `schema.prisma` file.
 
 The field function will receive the data sent from the client and it needs to return the value that will be saved into the database. If the field is invalid, the function should throw an error.
 
@@ -425,17 +446,17 @@ You can use any validation library you want to validate the fields. For example,
   <summary>Click to see the code</summary>
 
   ```ts title="src/auth/signup.ts" auto-js
-  import { defineUserSignupFields } from 'wasp/server/auth'
-  import * as z from 'zod'
+  import { defineUserSignupFields } from "wasp/server/auth"
+  import * as z from "zod"
 
   export const userSignupFields = defineUserSignupFields({
     address: (data) => {
       const AddressSchema = z
         .string({
-          required_error: 'Address is required',
-          invalid_type_error: 'Address must be a string',
+          required_error: "Address is required",
+          invalid_type_error: "Address must be a string",
         })
-        .min(10, 'Address must be at least 10 characters long')
+        .min(10, "Address must be at least 10 characters long")
       const result = AddressSchema.safeParse(data.address)
       if (result.success === false) {
         throw new Error(result.error.issues[0].message)
@@ -485,7 +506,7 @@ import {
   FormInput,
   FormItemGroup,
   FormLabel,
-} from 'wasp/client/auth'
+} from "wasp/client/auth"
 
 export const SignupPage = () => {
   return (
@@ -493,11 +514,11 @@ export const SignupPage = () => {
       additionalFields={[
         /* The address field is defined using an object */
         {
-          name: 'address',
-          label: 'Address',
-          type: 'input',
+          name: "address",
+          label: "Address",
+          type: "input",
           validations: {
-            required: 'Address is required',
+            required: "Address is required",
           },
         },
         /* The phone number is defined using a render function */
@@ -506,8 +527,8 @@ export const SignupPage = () => {
             <FormItemGroup>
               <FormLabel>Phone Number</FormLabel>
               <FormInput
-                {...form.register('phoneNumber', {
-                  required: 'Phone number is required',
+                {...form.register("phoneNumber", {
+                  required: "Phone number is required",
                 })}
                 disabled={state.isLoading}
               />
@@ -534,13 +555,13 @@ export const SignupPage = () => {
 Instead of passing in a list of extra fields, you can pass in a render function which will receive the `react-hook-form` object and the form state object as arguments. What ever the render function returns, will be rendered below the default fields.
 
 ```tsx title="src/SignupPage.tsx" auto-js
-import { SignupForm, FormItemGroup } from 'wasp/client/auth'
+import { SignupForm, FormItemGroup } from "wasp/client/auth"
 
 export const SignupPage = () => {
   return (
     <SignupForm
       additionalFields={(form, state) => {
-        const username = form.watch('username')
+        const username = form.watch("username")
         return (
           username && (
             <FormItemGroup>
@@ -562,12 +583,15 @@ export const SignupPage = () => {
 
 ### Auth Fields
 
-```wasp title="main.wasp"
-app MyApp {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "MyApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My app",
-  //...
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       usernameAndPassword: {}, // use this or email, not both
       email: {}, // use this or usernameAndPassword, not both
@@ -575,13 +599,12 @@ app MyApp {
       gitHub: {},
     },
     onAuthFailedRedirectTo: "/someRoute",
-  }
-}
-
-//...
+  },
+  // ...
+})
 ```
 
-`app.auth` is a dictionary with the following fields:
+`auth` is an object with the following fields:
 
 #### `userEntity: entity` <Required />
 
@@ -589,9 +612,9 @@ The entity representing the user connected to your business logic.
 
 <ReadMoreAboutAuthEntities />
 
-#### `methods: dict` <Required />
+#### `methods: object` <Required />
 
-A dictionary of auth methods enabled for the app.
+An object of auth methods enabled for the app.
 
 <AuthMethodsGrid />
 
@@ -611,37 +634,42 @@ Automatic redirect on successful login only works when using the Wasp-provided [
 
 ### Signup Fields Customization
 
-If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp` file.
+If you want to add extra fields to the signup process, the server needs to know how to save them to the database. You do that by defining the `auth.methods.{authMethod}.userSignupFields` field in your `main.wasp.ts` file.
 
-```wasp title="main.wasp"
-app crudTesting {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
+
+export default app({
+  name: "crudTesting",
   // ...
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       usernameAndPassword: {
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/signup",
+        userSignupFields,
       },
     },
     onAuthFailedRedirectTo: "/login",
   },
-}
+  // ...
+})
 ```
 
 Then we'll export the `userSignupFields` object from the `src/auth/signup.{js,ts}` file:
 
 ```ts title="src/auth/signup.ts" auto-js
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth"
 
 export const userSignupFields = defineUserSignupFields({
   address: async (data) => {
     const address = data.address
-    if (typeof address !== 'string') {
-      throw new Error('Address is required')
+    if (typeof address !== "string") {
+      throw new Error("Address is required")
     }
     if (address.length < 5) {
-      throw new Error('Address must be at least 5 characters long')
+      throw new Error("Address must be at least 5 characters long")
     }
     return address
   },
@@ -667,18 +695,18 @@ import {
   FormInput,
   FormItemGroup,
   FormLabel,
-} from 'wasp/client/auth'
+} from "wasp/client/auth"
 
 export const SignupPage = () => {
   return (
     <SignupForm
       additionalFields={[
         {
-          name: 'address',
-          label: 'Address',
-          type: 'input',
+          name: "address",
+          label: "Address",
+          type: "input",
           validations: {
-            required: 'Address is required',
+            required: "Address is required",
           },
         },
         (form, state) => {
@@ -686,8 +714,8 @@ export const SignupPage = () => {
             <FormItemGroup>
               <FormLabel>Phone Number</FormLabel>
               <FormInput
-                {...form.register('phoneNumber', {
-                  required: 'Phone number is required',
+                {...form.register("phoneNumber", {
+                  required: "Phone number is required",
                 })}
                 disabled={state.isLoading}
               />

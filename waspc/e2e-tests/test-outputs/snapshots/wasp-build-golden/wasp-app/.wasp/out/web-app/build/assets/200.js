@@ -53,11 +53,7 @@ function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntry
       /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
       /* @__PURE__ */ jsx("meta", { name: "viewport", content: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" }),
       /* @__PURE__ */ jsx("link", { rel: "icon", href: "/favicon.ico" }),
-      /* @__PURE__ */ jsx("title", { children: "wasp-app" })
-    ] }),
-    /* @__PURE__ */ jsxs("body", { children: [
-      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
-      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null }),
+      /* @__PURE__ */ jsx("title", { children: "wasp-app" }),
       // We pass that argument in SSR builds and not in client builds.
       // This would usually cause a hydration mismatch, but React has an
       // exception for `<script>` tags, for this specific usecase, so it
@@ -69,15 +65,12 @@ function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntry
         // we just add the script ourselves in the regular way.
         //
         // https://react.dev/reference/react-dom/static/prerenderToNodeStream
-        /* @__PURE__ */ jsx(
-          "script",
-          {
-            type: "module",
-            src: clientEntrySrc,
-            async: true
-          }
-        )
+        /* @__PURE__ */ jsx("script", { type: "module", src: clientEntrySrc })
       ) : null
+    ] }),
+    /* @__PURE__ */ jsxs("body", { children: [
+      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
+      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null })
     ] })
   ] }) });
 }

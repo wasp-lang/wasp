@@ -2,12 +2,16 @@
 title: Multiple Domains CORS
 comments: true
 last_checked_with_versions:
-  Wasp: "0.21"
+  Wasp: "0.24"
 ---
 
 # Multiple Domains CORS
 
 This guide shows you how to configure CORS (Cross-Origin Resource Sharing) to support multiple domains in your Wasp application using custom global middleware.
+
+:::warning Potentially exposing your API
+A loose CORS config can expose your API to any client on the internet. Make sure to understand the [Security Considerations](#security-considerations) before proceeding.
+:::
 
 ## Prerequisites
 
@@ -23,31 +27,31 @@ By default, Wasp configures CORS to allow requests only from your client URL (de
 
 ## Setting up Multiple Domain CORS
 
-### 1. Configure global middleware in main.wasp
+### 1. Configure global middleware in main.wasp.ts
 
 Add the server middleware configuration:
 
-```wasp title="main.wasp"
-app CorsTest {
+```ts title="main.wasp.ts"
+import { app, page, query, route } from "@wasp.sh/spec"
+import { getSomeData } from "./src/data" with { type: "ref" }
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getGlobalMiddleware } from "./src/middleware" with { type: "ref" }
+
+export default app({
+  name: "CorsTest",
   wasp: {
-    version: "^0.21.0"
+    version: "^0.24.0",
   },
   title: "cors-test",
   server: {
     // highlight-next-line
-    middlewareConfigFn: import { getGlobalMiddleware } from "@src/middleware",
-  }
-}
-
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  component: import { MainPage } from "@src/MainPage"
-}
-
-query getSomeData {
-  fn: import { getSomeData } from "@src/data",
-  entities: []
-}
+    middlewareConfigFn: getGlobalMiddleware,
+  },
+  decls: [
+    route("RootRoute", "/", page(MainPage)),
+    query(getSomeData),
+  ],
+})
 ```
 
 ### 2. Create the middleware configuration

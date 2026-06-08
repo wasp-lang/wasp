@@ -2,7 +2,7 @@
 title: SEO metadata
 comments: true
 last_checked_with_versions:
-  Wasp: "0.21"
+  Wasp: "0.24"
 ---
 
 # Adding SEO metadata to your Wasp app
@@ -15,10 +15,13 @@ This guide shows you how to set up meta tags for your Wasp application to improv
 
 You can add meta tags to your application using the `head` property in your `app` declaration. These tags will be included in the `<head>` section of your HTML.
 
-```wasp title="main.wasp"
-app MyApp {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "MyApp",
   wasp: {
-    version: "^0.21.0"
+    version: "^0.24.0",
   },
   title: "My App",
   head: [
@@ -41,7 +44,8 @@ app MyApp {
     "<meta name='twitter:image:height' content='400' />",
     "<meta name='twitter:card' content='summary_large_image' />",
   ],
-}
+  // ...
+})
 ```
 
 ### Setting metadata for a specific page

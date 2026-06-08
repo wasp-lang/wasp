@@ -58,8 +58,8 @@ const HowItWorks = () => {
           <div className="py-8">
             <dl className="grid grid-cols-12 gap-y-4 md:gap-8">
               <Feature
-                title="Simple config language"
-                url="/docs/general/language"
+                title="Simple config in TypeScript"
+                url="/docs/general/spec"
                 description="Declaratively describe high-level details of your app."
               />
 

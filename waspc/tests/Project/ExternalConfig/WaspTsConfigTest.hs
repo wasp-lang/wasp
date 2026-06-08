@@ -16,9 +16,17 @@ spec_WaspTsConfig = do
       assertReturnsValidationErrorMentioningField "strict" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.strict = Just False})}
 
+    it "returns an error when allowJs has a wrong value" $
+      assertReturnsValidationErrorMentioningField "allowJs" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Just False})}
+
     it "returns an error when a compilerOption is missing" $
       assertReturnsValidationErrorMentioningField "noEmit" $
         validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.noEmit = Nothing})}
+
+    it "returns an error when allowJs is missing" $
+      assertReturnsValidationErrorMentioningField "allowJs" $
+        validTsConfig {T.compilerOptions = Just (validCompilerOptions {T.allowJs = Nothing})}
 
     it "returns an error when compilerOptions is missing" $
       assertReturnsValidationErrorMentioningField "compilerOptions" $
@@ -39,7 +47,8 @@ validTsConfig :: T.TsConfig
 validTsConfig =
   T.TsConfig
     { T.compilerOptions = Just validCompilerOptions,
-      T.include = Just ["main.wasp.ts"],
+      T.include = Just ["**/*.wasp.ts", ".wasp/out/types/spec"],
+      T.exclude = Nothing,
       T.files = Nothing,
       T.references = Nothing
     }
@@ -47,18 +56,19 @@ validTsConfig =
 validCompilerOptions :: T.CompilerOptions
 validCompilerOptions =
   T.CompilerOptions
-    { T._module = Just "NodeNext",
+    { T._module = Just "esnext",
       T.target = Just "ES2022",
       T.composite = Nothing,
       T.skipLibCheck = Just True,
-      T.moduleResolution = Nothing,
+      T.moduleResolution = Just "bundler",
       T.moduleDetection = Just "force",
       T.isolatedModules = Just True,
-      T.jsx = Nothing,
+      T.jsx = Just "preserve",
       T.strict = Just True,
       T.esModuleInterop = Nothing,
       T.lib = Just ["ES2023"],
-      T.allowJs = Nothing,
+      T.paths = Nothing,
+      T.allowJs = Just True,
       T.outDir = Nothing,
       T.noEmit = Just True
     }

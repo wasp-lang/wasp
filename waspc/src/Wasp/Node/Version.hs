@@ -2,6 +2,7 @@ module Wasp.Node.Version
   ( VersionCheckResult (..),
     oldestWaspSupportedNpmVersion,
     oldestWaspSupportedNodeVersion,
+    nodeTypesVersionRangeMatchingNodeMajor,
     isRangeInWaspSupportedRange,
     checkUserNodeAndNpmMeetWaspRequirements,
   )
@@ -23,6 +24,10 @@ oldestWaspSupportedNodeVersion = SV.Version 24 14 1
 
 oldestWaspSupportedNpmVersion :: SV.Version
 oldestWaspSupportedNpmVersion = SV.Version 11 11 0
+
+nodeTypesVersionRangeMatchingNodeMajor :: SV.Version -> SV.Range
+nodeTypesVersionRangeMatchingNodeMajor nodeVersion =
+  SV.backwardsCompatibleWith $ SV.Version (SV.major nodeVersion) 0 0
 
 isRangeInWaspSupportedRange :: SV.Range -> Bool
 isRangeInWaspSupportedRange range =

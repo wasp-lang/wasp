@@ -13,16 +13,18 @@ import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
-import Data.List (sort)
+import Data.List (isInfixOf, sort)
 import Data.Maybe (fromJust)
 import FileSystem
   ( SnapshotDir,
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
+    TestLogFile,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
+    snapshotLogFileInSnapshotsDir,
   )
 import ShellCommands (ShellCommand, ShellCommandBuilder, SnapshotTestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
 import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
@@ -30,10 +32,11 @@ import qualified StrongPath as SP
 import System.Directory (doesFileExist)
 import System.Directory.Recursive (getDirFiltered)
 import System.Exit (ExitCode (..))
-import System.FilePath (equalFilePath, isExtensionOf, makeRelative, takeFileName)
-import System.Process (CreateProcess (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
+import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeFileName)
+import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
 import Test.Tasty (TestTree, testGroup)
 import Test.Tasty.Golden (goldenVsFileDiff)
+import TestLogging (formatCommandFailure, openLogForCommand)
 
 data SnapshotTest = SnapshotTest
   { name :: String,
@@ -66,9 +69,10 @@ prepareSnapshotTestData snapshotTest = do
   let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Golden
       currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Current
       currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
+      logFile = snapshotsDir </> snapshotLogFileInSnapshotsDir snapshotTest.name
 
   setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
-  executeSnapshotTestCommand snapshotTest currentSnapshotDir
+  executeSnapshotTestCommand snapshotTest currentSnapshotDir logFile
   generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
   currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
 
@@ -100,12 +104,13 @@ setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
   callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
   callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
 
-executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> IO ()
-executeSnapshotTestCommand snapshotTest snapshotDir = do
-  putStrLn $ "Executing snapshot test: " ++ snapshotTest.name
-  putStrLn $ "Running the following command: " ++ snapshotTestCommand
-  callCommandInProcessGroup $ "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> Path' Abs (File TestLogFile) -> IO ()
+executeSnapshotTestCommand snapshotTest snapshotDir logFile =
+  callCommandInProcessGroup fullCommand logFile snapshotTest.name
   where
+    fullCommand :: ShellCommand
+    fullCommand = "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+
     snapshotTestCommand :: ShellCommand
     snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTest.shellCommandBuilder
 
@@ -125,15 +130,23 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
   where
     getSnapshotFilesForExistenceCheck :: IO [Path' Abs (File SnapshotFile)]
     getSnapshotFilesForExistenceCheck =
-      getDirFiltered (return . filterIgnoredFileNames) (SP.fromAbsDir snapshotDir)
+      getDirFiltered (return . filterIgnoredFilePaths) (SP.fromAbsDir snapshotDir)
         >>= filterM doesFileExist -- only files, no directories
         >>= mapM SP.parseAbsFile
       where
-        filterIgnoredFileNames = createFilenameFilter [flip notElem ignoredFileNames, not . isTgzFile]
-        ignoredFileNames =
-          [ ".DS_Store",
-            "node_modules"
-          ]
+        filterIgnoredFilePaths =
+          keepUnlessMatched
+            ( map isBasenameOf [".DS_Store", "node_modules"]
+                ++ [
+                     -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+                     -- what we ship in waspc/data/packages/spec.
+                     -- It is only copied into .wasp because we need to reach it with `npm install`.
+                     -- If there are errors in this package, they will surface either during package tests or
+                     -- manifest in the project snapshot. We can therefore skip it.
+                     isSubpathOf ".wasp/spec",
+                     isExtensionOf ".tgz"
+                   ]
+            )
 
     -- Creates a deterministic manifest of files that should exist in the snapshot.
     -- File paths are normalized to relative paths and sorted.
@@ -151,22 +164,31 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
   where
     getSnapshotFilesForContentCheck :: IO [Path' Abs (File SnapshotFile)]
     getSnapshotFilesForContentCheck =
-      getDirFiltered (return . filterIgnoredFileNames) (SP.fromAbsDir snapshotDir)
+      getDirFiltered (return . filterIgnoredFilePaths) (SP.fromAbsDir snapshotDir)
         >>= filterM doesFileExist -- only files, no directories
         >>= mapM SP.parseAbsFile
       where
-        filterIgnoredFileNames = createFilenameFilter [flip notElem ignoredFileNames, not . isTgzFile]
-        ignoredFileNames =
-          [ ".DS_Store",
-            "node_modules",
-            "dev.db",
-            "dev.db-journal",
-            ".gitignore",
-            ".waspinfo",
-            "package-lock.json",
-            "tsconfig.tsbuildinfo",
-            "dist"
-          ]
+        filterIgnoredFilePaths =
+          keepUnlessMatched
+            ( map
+                isBasenameOf
+                [ ".DS_Store",
+                  "node_modules",
+                  "dev.db",
+                  "dev.db-journal",
+                  ".gitignore",
+                  ".waspinfo",
+                  "package-lock.json",
+                  "tsconfig.wasp.tsbuildinfo",
+                  "tsconfig.src.tsbuildinfo",
+                  "dist"
+                ]
+                ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+                     -- what we ship in waspc/data/packages/spec, so we skip it.
+                     isSubpathOf ".wasp/spec",
+                     isExtensionOf ".tgz"
+                   ]
+            )
 
     -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
     -- Ref: https://github.com/wasp-lang/wasp/issues/482
@@ -217,25 +239,35 @@ defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFile
       where
         relSnapshotFilePath = makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile)
 
-isTgzFile :: FilePath -> Bool
-isTgzFile = (".tgz" `isExtensionOf`)
+type FilePathFilter = FilePath -> Bool
 
-type FileName = String
+keepUnlessMatched :: [FilePathFilter] -> FilePathFilter
+keepUnlessMatched filters filePath = not $ any ($ filePath) filters
 
-createFilenameFilter :: [FileName -> Bool] -> FilePath -> Bool
-createFilenameFilter predicates filePath = all ($ takeFileName filePath) predicates
+isBasenameOf :: FilePath -> FilePathFilter
+isBasenameOf basename filePath = basename == takeFileName filePath
+
+isSubpathOf :: FilePath -> FilePathFilter
+isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirectories filePath
 
 -- | Interruptible version of callCommand that terminates the entire process tree on async exception.
 -- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
 -- all child processes are also terminated rather than continuing to run.
-callCommandInProcessGroup :: String -> IO ()
-callCommandInProcessGroup cmd =
+callCommandInProcessGroup :: String -> Path' Abs (File TestLogFile) -> String -> IO ()
+callCommandInProcessGroup cmd logFile testName = do
+  (logOut, logErr) <- openLogForCommand logFile testName cmd
   bracket
-    (createProcess (shell cmd) {create_group = True})
+    ( createProcess
+        (shell cmd)
+          { create_group = True,
+            std_out = UseHandle logOut,
+            std_err = UseHandle logErr
+          }
+    )
     (\(_, _, _, ph) -> interruptProcessGroupOf ph)
     ( \(_, _, _, ph) -> do
         exitCode <- waitForProcess ph
         case exitCode of
           ExitSuccess -> return ()
-          ExitFailure code -> fail $ "Command failed with exit code " ++ show code ++ ": " ++ cmd
+          ExitFailure code -> fail =<< formatCommandFailure code logFile
     )

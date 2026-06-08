@@ -9,6 +9,7 @@ module Wasp.Project.Common
     WaspFilePath (..),
     WaspLangFile,
     WaspTsFile,
+    mainWaspTsFileInWaspProjectDir,
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedAppDirInDotWaspDir,
@@ -63,6 +64,9 @@ data WaspFilePath
 data WaspLangFile
 
 data WaspTsFile
+
+mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File WaspTsFile)
+mainWaspTsFileInWaspProjectDir = [relfile|main.wasp.ts|]
 
 data SrcTsConfigFile
 

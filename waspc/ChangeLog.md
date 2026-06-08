@@ -6,15 +6,24 @@
 
 Remember to check out the [migration guide](https://wasp.sh/docs/migration-guides/migrate-from-0-23-to-0-24) for step-by-step documentation on how to upgrade.
 
+- The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. ([#4153](https://github.com/wasp-lang/wasp/pull/4153))
+- Wasp now requires `vitest` to be listed in your project's `devDependencies`. ([#4182](https://github.com/wasp-lang/wasp/pull/4182))
+
 ### 🎉 New Features
 
 - The `api` export from `wasp/client/api` is now a [Ky](https://github.com/sindresorhus/ky) instance instead of Axios for improved performance and smaller final size. ([#3998](https://github.com/wasp-lang/wasp/pull/3998))
 - Wasp TS spec now properly sets the `NODE_ENV` environment variable depending on which command you use to run Wasp. ([#4087](https://github.com/wasp-lang/wasp/pull/4087))
 - Added a type-safe `NavLink` component, mirroring `react-router`'s `NavLink` API (with `isActive`, `isPending`, `isTransitioning` render-prop helpers). ([#4104](https://github.com/wasp-lang/wasp/pull/4104))
+- Wasp TS spec now supports real JS imports, letting you import values in `main.wasp.ts` and pass them directly instead of using import objects like `{ import, from }`. ([#4143](https://github.com/wasp-lang/wasp/pull/4143))
+
+### 🐞 Bug fixes
+
+- Fixed a race condition in development mode that could potentially load the app's JS bundle before the Vite runtime, causing the app to fail the load with a "Can't detect preamble" error. ([#4258](https://github.com/wasp-lang/wasp/issues/4258))
 
 ### 🔧 Small improvements
 
 - Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))
+- The npm package now shows a clear error when installed on an unsupported Node.js version. ([#4268](https://github.com/wasp-lang/wasp/pull/4268))
 
 ## 0.23.0
 

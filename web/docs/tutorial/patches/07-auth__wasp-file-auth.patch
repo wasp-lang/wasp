@@ -1,23 +1,18 @@
-diff --git a/main.wasp b/main.wasp
-index f761afe..d4798a4 100644
---- a/main.wasp
-+++ b/main.wasp
-@@ -5,7 +5,17 @@ app TodoApp {
+diff --git a/main.wasp.ts b/main.wasp.ts
+index 64d2908..f6d0dfc 100644
+--- a/main.wasp.ts
++++ b/main.wasp.ts
+@@ -8,6 +8,13 @@ export default app({
    title: "TodoApp",
-   head: [
-     "<link rel='icon' href='/favicon.ico' />",
--  ]
-+  ],
+   wasp: { version: "^0.24.0" },
+   head: ["<link rel='icon' href='/favicon.ico' />"],
 +  auth: {
-+    // Tells Wasp which entity to use for storing users.
-+    userEntity: User,
++    userEntity: "User",
 +    methods: {
-+      // Enable username and password auth.
-+      usernameAndPassword: {}
++      usernameAndPassword: {},
 +    },
-+    // We'll see how this is used in a bit.
-+    onAuthFailedRedirectTo: "/login"
-+  }
- }
- 
- route RootRoute { path: "/", to: MainPage }
++    onAuthFailedRedirectTo: "/login",
++  },
+   decls: [
+     route("RootRoute", "/", page(MainPage)),
+     query(getTasks, { entities: ["Task"] }),

@@ -19,6 +19,7 @@ import Data.Aeson
   )
 import qualified Data.Aeson as Aeson
 import qualified Data.ByteString.Lazy.UTF8 as BS
+import Data.Map.Strict (Map)
 import GHC.Generics (Generic)
 import StrongPath (Abs, File, Path', basename, fromRelFile)
 import Wasp.Util (indent)
@@ -28,6 +29,7 @@ import Wasp.Util.Json (parseJsonWithComments)
 data TsConfig = TsConfig
   { compilerOptions :: !(Maybe CompilerOptions),
     include :: !(Maybe [String]),
+    exclude :: !(Maybe [String]),
     files :: !(Maybe [String]),
     references :: !(Maybe [TsConfigReference])
   }
@@ -45,6 +47,7 @@ data CompilerOptions = CompilerOptions
     strict :: !(Maybe Bool),
     esModuleInterop :: !(Maybe Bool),
     lib :: !(Maybe [String]),
+    paths :: !(Maybe (Map String [String])),
     allowJs :: !(Maybe Bool),
     outDir :: !(Maybe String),
     noEmit :: !(Maybe Bool)

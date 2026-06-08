@@ -8,7 +8,7 @@ Let's create a `auth.{jsx,tsx}` file in the `src/pages` folder and add the follo
 import type { ReactNode } from 'react'
 import { LoginForm } from 'wasp/client/auth'
 
-export function Login() {
+export function LoginPage() {
   return (
     <Layout>
       <LoginForm />

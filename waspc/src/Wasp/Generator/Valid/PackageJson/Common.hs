@@ -27,6 +27,7 @@ requiredUserRuntimeDeps =
 requiredUserDevelopmentDeps :: [DependencySpecification]
 requiredUserDevelopmentDeps =
   [ ("vite", show DepVersions.viteVersionRange),
+    ("vitest", show DepVersions.vitestVersionRange),
     ("prisma", show DepVersions.prismaVersionRange)
   ]
 

@@ -109,7 +109,7 @@
             "file",
             "sdk/wasp/client/app/layout.tsx"
         ],
-        "41d376823d51bcbc38267f1f6050ccafc0c5a0bd1cfb76125bf1456f4655e796"
+        "e2e453d10b129803681e6cec3dccead055cfde26a20a1a81b374a0a1ed43001c"
     ],
     [
         [
@@ -312,7 +312,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/typescriptCheck.ts"
         ],
-        "737990d1ed27a0481690366da5a0c8cd7bd795a08e0984d35eac8f6a132fbd3c"
+        "d039097bc563e8f51831f01b9f73549e7eda752d21480cf2cbe545520c0f8aea"
     ],
     [
         [
@@ -333,7 +333,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "356176e14b791e4d2bf5896dda26d1758cc80500533888990db0ba2b265a1361"
+        "6cf5e3e60d652b061bd5f6b7e31d6844ab7f4f6c7c519427405ed2272a6050b2"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "af53827f8ee7852083d1a73e172b4c59d0ea5816a3d63eb5efed4f5b3344486a"
+        "6707cec26908e0c1aa8f04af76775dd6d6264d0850194cf42960a1e0b43e26c5"
     ],
     [
         [
@@ -592,7 +592,7 @@
             "file",
             "sdk/wasp/tsconfig.json"
         ],
-        "c8af1903f502f7ea1850203d1f9b5d31f8f4878a51bad9a4cc0c65155bb100e0"
+        "911ea00b85a30de03a5ff87ac4505d23fa2700199683a9468690ac25a0ac88bf"
     ],
     [
         [
@@ -732,6 +732,6 @@
             "file",
             "server/tsconfig.json"
         ],
-        "41bd85355b03c53e6a036aadc42ce4f1e6ed20e45215d4f2036747b2c7d181e1"
+        "ed0d16bf761ad18f0837ddaed868f149c70814903bd46cc0c841289bcb6b68df"
     ]
 ]

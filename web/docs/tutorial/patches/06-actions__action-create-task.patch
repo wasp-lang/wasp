@@ -1,13 +1,20 @@
-diff --git a/main.wasp b/main.wasp
-index c3df1d1..9b3c9d8 100644
---- a/main.wasp
-+++ b/main.wasp
-@@ -19,3 +19,8 @@ query getTasks {
-   // automatically update the results of this query when tasks are modified.
-   entities: [Task]
- }
-+
-+action createTask {
-+  fn: import { createTask } from "@src/actions",
-+  entities: [Task]
-+}
+diff --git a/main.wasp.ts b/main.wasp.ts
+index 64b489a..b0c2589 100644
+--- a/main.wasp.ts
++++ b/main.wasp.ts
+@@ -1,6 +1,7 @@
++import { createTask } from "./src/actions" with { type: "ref" }
+ import { MainPage } from "./src/MainPage" with { type: "ref" }
+ import { getTasks } from "./src/queries" with { type: "ref" }
+-import { app, page, query, route } from "@wasp.sh/spec"
++import { action, app, page, query, route } from "@wasp.sh/spec"
+ 
+ export default app({
+   name: "TodoApp",
+@@ -10,5 +11,6 @@ export default app({
+   decls: [
+     route("RootRoute", "/", page(MainPage)),
+     query(getTasks, { entities: ["Task"] }),
++    action(createTask, { entities: ["Task"] }),
+   ],
+ });

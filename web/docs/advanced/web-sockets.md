@@ -23,33 +23,19 @@ Let's go through setting up WebSockets step by step, starting with enabling WebS
 
 We specify that we are using WebSockets by adding `webSocket` to our `app` and providing the required `fn`. You can optionally change the auto-connect behavior.
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="todoApp.wasp"
-    app todoApp {
-      // ...
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
-      webSocket: {
-        fn: import { webSocketFn } from "@src/webSocket",
-        autoConnect: true, // optional, default: true
-      },
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="todoApp.wasp"
-    app todoApp {
-      // ...
-
-      webSocket: {
-        fn: import { webSocketFn } from "@src/webSocket",
-        autoConnect: true, // optional, default: true
-      },
-    }
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "todoApp",
+  webSocket: {
+    fn: webSocketFn,
+    autoConnect: true, // optional, default: true
+  },
+  // ...
+})
+```
 
 ## Defining the Events Handler
 
@@ -71,17 +57,17 @@ This is how we can define our `webSocketFn` function:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```ts title="src/webSocket.js"
-    import { v4 as uuidv4 } from 'uuid'
+    ```js title="src/webSocket.js"
+    import { v4 as uuidv4 } from "uuid"
 
     export const webSocketFn = (io, context) => {
-      io.on('connection', (socket) => {
-        const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
-        console.log('a user connected: ', username)
+      io.on("connection", (socket) => {
+        const username = socket.data.user?.getFirstProviderUserId() ?? "Unknown"
+        console.log("a user connected: ", username)
 
-        socket.on('chatMessage', async (msg) => {
-          console.log('message: ', msg)
-          io.emit('chatMessage', { id: uuidv4(), username, text: msg })
+        socket.on("chatMessage", async (msg) => {
+          console.log("message: ", msg)
+          io.emit("chatMessage", { id: uuidv4(), username, text: msg })
           // You can also use your entities here:
           // await context.entities.SomeEntity.create({ someField: msg })
         })
@@ -92,17 +78,17 @@ This is how we can define our `webSocketFn` function:
 
   <TabItem value="ts" label="TypeScript">
     ```ts title="src/webSocket.ts"
-    import { v4 as uuidv4 } from 'uuid'
-    import { type WebSocketDefinition, type WaspSocketData } from 'wasp/server/webSocket'
+    import { v4 as uuidv4 } from "uuid"
+    import { type WebSocketDefinition, type WaspSocketData } from "wasp/server/webSocket"
 
     export const webSocketFn: WebSocketFn = (io, context) => {
-      io.on('connection', (socket) => {
-        const username = socket.data.user?.getFirstProviderUserId() ?? 'Unknown'
-        console.log('a user connected: ', username)
+      io.on("connection", (socket) => {
+        const username = socket.data.user?.getFirstProviderUserId() ?? "Unknown"
+        console.log("a user connected: ", username)
 
-        socket.on('chatMessage', async (msg) => {
-          console.log('message: ', msg)
-          io.emit('chatMessage', { id: uuidv4(), username, text: msg })
+        socket.on("chatMessage", async (msg) => {
+          console.log("message: ", msg)
+          io.emit("chatMessage", { id: uuidv4(), username, text: msg })
           // You can also use your entities here:
           // await context.entities.SomeEntity.create({ someField: msg })
         })
@@ -162,19 +148,19 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```tsx title="src/ChatPage.jsx"
-    import React, { useState } from 'react'
+    ```jsx title="src/ChatPage.jsx"
+    import React, { useState } from "react"
     import {
       useSocket,
       useSocketListener,
-    } from 'wasp/client/webSocket'
+    } from "wasp/client/webSocket"
 
     export const ChatPage = () => {
-      const [messageText, setMessageText] = useState('')
+      const [messageText, setMessageText] = useState("")
       const [messages, setMessages] = useState([])
       const { socket, isConnected } = useSocket()
 
-      useSocketListener('chatMessage', logMessage)
+      useSocketListener("chatMessage", logMessage)
 
       function logMessage(msg) {
         setMessages((priorMessages) => [msg, ...priorMessages])
@@ -182,8 +168,8 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
       function handleSubmit(e) {
         e.preventDefault()
-        socket.emit('chatMessage', messageText)
-        setMessageText('')
+        socket.emit("chatMessage", messageText)
+        setMessageText("")
       }
 
       const messageList = messages.map((msg) => (
@@ -191,7 +177,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
           <em>{msg.username}</em>: {msg.text}
         </li>
       ))
-      const connectionIcon = isConnected ? '🟢' : '🔴'
+      const connectionIcon = isConnected ? "🟢" : "🔴"
 
       return (
         <>
@@ -225,29 +211,29 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
     You can additionally use the `ClientToServerPayload` and `ServerToClientPayload` helper types to get the payload type for a specific event.
 
     ```tsx title="src/ChatPage.tsx"
-    import React, { useState } from 'react'
+    import React, { useState } from "react"
     import {
       useSocket,
       useSocketListener,
       ServerToClientPayload,
-    } from 'wasp/client/webSocket'
+    } from "wasp/client/webSocket"
 
     export const ChatPage = () => {
       const [messageText, setMessageText] = useState<
         // We are using a helper type to get the payload type for the "chatMessage" event.
-        ClientToServerPayload<'chatMessage'>
-      >('')
+        ClientToServerPayload<"chatMessage">
+      >("")
       const [messages, setMessages] = useState<
-        ServerToClientPayload<'chatMessage'>[]
+        ServerToClientPayload<"chatMessage">[]
       >([])
       // The "socket" instance is typed with the types you defined on the server.
       const { socket, isConnected } = useSocket()
 
       // This is a type-safe event handler: "chatMessage" event and its payload type
       // are defined on the server.
-      useSocketListener('chatMessage', logMessage)
+      useSocketListener("chatMessage", logMessage)
 
-      function logMessage(msg: ServerToClientPayload<'chatMessage'>) {
+      function logMessage(msg: ServerToClientPayload<"chatMessage">) {
         setMessages((priorMessages) => [msg, ...priorMessages])
       }
 
@@ -255,8 +241,8 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
         e.preventDefault()
         // This is a type-safe event emitter: "chatMessage" event and its payload type
         // are defined on the server.
-        socket.emit('chatMessage', messageText)
-        setMessageText('')
+        socket.emit("chatMessage", messageText)
+        setMessageText("")
       }
 
       const messageList = messages.map((msg) => (
@@ -264,7 +250,7 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
           <em>{msg.username}</em>: {msg.text}
         </li>
       ))
-      const connectionIcon = isConnected ? '🟢' : '🔴'
+      const connectionIcon = isConnected ? "🟢" : "🔴"
 
       return (
         <>
@@ -295,40 +281,26 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
 ## API Reference
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="todoApp.wasp"
-    app todoApp {
-      // ...
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
-      webSocket: {
-        fn: import { webSocketFn } from "@src/webSocket",
-        autoConnect: true, // optional, default: true
-      },
-    }
-    ```
-  </TabItem>
+export default app({
+  name: "todoApp",
+  webSocket: {
+    fn: webSocketFn,
+    autoConnect: true, // optional, default: true
+  },
+  // ...
+})
+```
 
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="todoApp.wasp"
-    app todoApp {
-      // ...
-
-      webSocket: {
-        fn: import { webSocketFn } from "@src/webSocket",
-        autoConnect: true, // optional, default: true
-      },
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-The `webSocket` dict has the following fields:
+The `webSocket` object has the following fields:
 
 - `fn: WebSocketFn` <Required />
 
   The function that defines the WebSocket events and handlers.
 
-- `autoConnect: bool`
+- `autoConnect: boolean`
 
   Whether to automatically connect to the WebSocket server. Default: `true`.

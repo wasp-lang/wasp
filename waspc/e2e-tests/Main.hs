@@ -20,7 +20,10 @@ import Tests.WaspDbSeedTest (waspDbSeedTest)
 import Tests.WaspDepsTest (waspDepsTest)
 import Tests.WaspDockerfileTest (waspDockerfileTest)
 import Tests.WaspInfoTest (waspInfoTest)
+import Tests.WaspInstallTest (waspInstallTest)
 import Tests.WaspNewTest (waspNewTest)
+import Tests.WaspSpecAvailableTest (waspSpecAvailableTest)
+import Tests.WaspSpecEntityTypesTest (waspSpecEntityTypesTest)
 import Tests.WaspTelemetryTest (waspTelemetryTest)
 import Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest)
 import Tests.WaspVersionTest (waspVersionTest)
@@ -65,7 +68,9 @@ e2eTests = do
         viteConfigTest,
         -- FIXME: waspBuildStartTest,
         waspCleanTest,
+        waspSpecAvailableTest,
         waspInfoTest,
+        waspInstallTest,
         waspDepsTest,
         waspDockerfileTest,
         -- FIXME: waspStudioTest,
@@ -74,7 +79,8 @@ e2eTests = do
         -- FIXME: waspDbStudioTest,
         waspDbSeedTest,
         waspDbResetTest,
-        waspDbMigrateDevTest
+        waspDbMigrateDevTest,
+        waspSpecEntityTypesTest
       ]
 
   return $

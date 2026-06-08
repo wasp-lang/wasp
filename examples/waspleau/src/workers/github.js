@@ -1,8 +1,8 @@
 import ky from "ky";
 import { upsertData } from "./utils.js";
 
-export async function workerFunction(args, context) {
-  console.log("github.js workerFunction", args, context);
+export async function refreshGitHubRepoData(args, context) {
+  console.log("github.js refreshGitHubRepoData", args, context);
 
   const response = await ky
     .get("https://api.github.com/repos/wasp-lang/wasp")

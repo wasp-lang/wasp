@@ -246,8 +246,7 @@ npmDepsForSdk spec =
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
   Npm.Dependency.fromList
-    [ ("vitest", "^4.0.16"),
-      ("@vitest/ui", "^4.0.16"),
+    [ ("@vitest/ui", "^4.0.16"),
       ("jsdom", "^27.4.0"),
       ("@testing-library/react", "^16.3.1"),
       ("@testing-library/jest-dom", "^6.9.1"),

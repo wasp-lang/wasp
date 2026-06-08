@@ -135,7 +135,6 @@ Add the correct font weight in Edge and Safari.
     "Courier New",
     monospace
   ); /* 1 */
-  font-size: 1em; /* 2 */
 }
 
 /*

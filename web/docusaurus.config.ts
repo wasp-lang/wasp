@@ -6,6 +6,7 @@ import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
+import fixAPILinks from "./src/remark/fix-api-links";
 import searchAndReplace from "./src/remark/search-and-replace";
 
 const lightCodeTheme = {
@@ -35,15 +36,14 @@ const config: Config = {
   trailingSlash: false,
   onBrokenLinks: "throw",
   onBrokenAnchors: "throw",
-  onBrokenMarkdownLinks: "warn",
-  favicon: "img/favicon.ico",
+  favicon: "img/favicon.svg",
   themeConfig: {
     announcementBar: {
-      id: "design-aithon",
+      id: "app-in-production",
       content:
         '<b>Have a Wasp app in production?</b> 🐝 <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We\'ll send you some swag! 👕</a>',
-      backgroundColor: "#8b5cf6",
-      textColor: "#fff",
+      backgroundColor: "#111",
+      textColor: "#f5c842",
       isCloseable: false,
     },
 
@@ -63,10 +63,10 @@ const config: Config = {
       },
     },
     navbar: {
-      title: "Wasp (beta)",
+      title: "Wasp",
       logo: {
         alt: "Wasp logo",
-        src: "img/wasp-logo-eqpar-circle.png",
+        src: "img/wasp-logo.svg",
         href: "https://wasp.sh/",
         target: "_self",
       },
@@ -77,6 +77,12 @@ const config: Config = {
           sidebarId: "docs",
           label: "Docs",
           className: "navbar-item-docs navbar-item-outside",
+        },
+        {
+          type: "docSidebar",
+          position: "left",
+          sidebarId: "api",
+          label: "API",
         },
         {
           type: "docSidebar",
@@ -189,6 +195,7 @@ const config: Config = {
             fileExtSwitcher,
             searchAndReplace,
             codeWithHole,
+            fixAPILinks,
           ],
 
           // ------ Configuration for multiple docs versions ------ //
@@ -275,7 +282,7 @@ const config: Config = {
       },
     ],
 
-    async function myPlugin(context, options) {
+    async function tailwindPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -286,10 +293,42 @@ const config: Config = {
         },
       };
     },
+
+    [
+      "docusaurus-plugin-typedoc",
+      {
+        // docusaurus-plugin-typedoc options
+        sidebar: { typescript: true },
+
+        // typedoc-plugin-markdown options
+        readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
+        alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
+
+        // input packages
+        entryPointStrategy: "packages",
+        entryPoints: ["../waspc/data/packages/spec"],
+
+        // If you want to set an option to a specific package, you can create a
+        // `typedoc.jsonc` file in that package's folder with the desired
+        // options from
+        // https://typedoc.org/documents/Options.Package_Options.html.
+      },
+    ],
   ],
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {
     mermaid: true,
+    mdx1Compat: {
+      admonitions: true,
+      comments: true,
+      headingIds: true,
+    },
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
+  future: {
+    v4: true,
   },
 };
 

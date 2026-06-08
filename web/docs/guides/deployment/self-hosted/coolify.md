@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   Coolify: 2026-01-30
 ---
 
@@ -147,9 +147,8 @@ jobs:
         shell: bash
         run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
 
-      # Uncomment if using Wasp TS Config
-      # - name: Initialize Wasp TS Config
-      #   run: wasp ts-setup
+      - name: Install Wasp app dependencies
+        run: wasp install
 
       - name: Build Wasp app
         run: wasp build

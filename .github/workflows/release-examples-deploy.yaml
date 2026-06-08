@@ -58,12 +58,9 @@ jobs:
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
 
-      - name: Setup Wasp TS Config (if needed)
+      - name: Install app dependencies
         working-directory: ${{ matrix.app-dir }}
-        run: |
-          if [ -f *.wasp.ts ]; then
-            wasp ts-setup
-          fi
+        run: wasp install
 
       - name: Deploy
         working-directory: ${{ matrix.app-dir }}

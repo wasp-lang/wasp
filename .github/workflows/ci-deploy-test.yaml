@@ -34,6 +34,10 @@ jobs:
 
       - uses: ./.github/actions/install-wasp-cli-artifact
 
+      - name: Install app dependencies
+        working-directory: ${{ env.APP_TO_DEPLOY }}
+        run: wasp-cli install
+
       - name: Install Fly CLI
         # NOTE: We tell users to install the latest version of Fly CLI,
         # so we use it here too.
@@ -110,6 +114,10 @@ jobs:
       - uses: ./.github/actions/setup-env
 
       - uses: ./.github/actions/install-wasp-cli-artifact
+
+      - name: Install app dependencies
+        working-directory: ${{ env.APP_TO_DEPLOY }}
+        run: wasp-cli install
 
       - name: Install Railway CLI
         run: npm install -g @railway/cli@4.11.1
