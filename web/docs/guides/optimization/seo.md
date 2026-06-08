@@ -11,23 +11,21 @@ import { CardLink } from "@site/src/components/CardLink"
 
 Search engine optimization (SEO) and generative engine optimization (GEO) are about making your app visible and attractive to search engines, social media platforms, and AI assistants.
 
-## Content pages vs. app pages
+## Where to optimize
 
-All pages in your Wasp app should be built with good performance and accessibility in mind. However, some SEO techniques can come with caveats or make your development experience more complex; so it's worth thinking about which pages you want to be indexed and crawled, and which you don't care much about.
+**In general, we recommend applying the following optimization techniques to your content pages, not your app pages.** Think about which pages you want to be surfaced to users, that provide good information _about_ your app to a wide audience.
 
-In general, SEO is most effective for pages with content that doesn't change much based on who visits it or when. This includes stuff like your landing page, about page, pricing page, and other marketing pages. These are the pages you want to show up in search results and link previews. We'll call them **content pages**.
+- **Content pages** include your landing page, about page, pricing page, and other marketing pages. These are the pages you want to show up in search results and link previews. They usually don't change much often, nor based on who visits them. **SEO is most effective for these.**
 
-On the other hand, pages that show dynamic content based on user data, like a dashboard or profile page, should be hidden from other users, and you don't want them to be indexed by search engines. Similarly, pages whose main goal is to be interacted with, can't be meaningfully indexed; like a form, a settings page, a chat interface, or a game. These are **app pages**.
+- **App pages** include your dashboard, profile page, settings page, a form, chat interface, or any page that shows dynamic content based on user data. These pages should be hidden from other users, as they contain personalized data. They also can't be meaningfully indexed, since their main goal is to be interacted with, not read.
 
-You can use this broad distinction to decide which pages you apply SEO techniques to, and which you want to appear in search results and AI engines. For example, you definitely want ChatGPT to be able to read your landing page so it can recommend your site to users, but you definitely _don't_ want Google to recommend some user's specific dashboard page to other users.
-
-For the following techniques, we recommend applying them to your content pages, not your app pages. Think about which pages you want to be surfaced to users, and apply the techniques to those pages.
+You can use this broad distinction to decide which pages you apply SEO techniques to. For example, you definitely want ChatGPT to be able to read your landing page so it can recommend your site to users, but you definitely _don't_ want Google to recommend some user's specific dashboard page to other users.
 
 ## Measuring your SEO {#measuring}
 
-As is a common refrain, [premature optimization is the root of all evil](https://en.wikipedia.org/wiki/Program_optimization#When_to_optimize). This also applies to SEO and GEO. While there's always room for improvement, it's easy to get lost in trying to optimize little details instead of looking at the bigger picture. But very little can go a very long way.
+We recommend **first to measure your app** against common industry tools and see where you stand. Then, you can pick the techniques that are most relevant to your app and focus on those. After applying them, measure again to see how much they improved your score, and if there are any new issues to fix.
 
-For that reason, we recommend **first** to measure your app against common industry tools and see where you stand. Then, you can pick the techniques that are most relevant to your app and focus on those. After applying them, measure again to see how much they improved your score, and if there are any new issues to fix.
+SEO can come with costs; at a minimum, the cost of development time and maintenance burden. So while there's always room for improvement, it's important to focus on the techniques that will give you the biggest boost. A little improvement can go a long way, and you don't need to get a perfect score to see significant benefits.
 
 :::warning Always run measurements against your production build
 Full optimization of the Wasp app only happens on the production build, not the development server. Running Lighthouse or other tools against `wasp start` won't reflect what crawlers and users actually get. Always run it against your production build, either [locally](/docs/deployment/local-testing) or [after deploying](/docs/deployment/intro).
@@ -95,13 +93,13 @@ Good SEO comes down to a few separate problems. We ordered them here by their ef
 - Making your pages [smaller](#reduce-size).
 - Giving crawlers the [standard files](#well-known-files) they look for.
 
-These are general techniques that apply to most websites, but there are many more you can use depending on your specific app and goals. We recommend starting with these, and then exploring more as needed.
+These are general techniques that apply to most websites, but there are many more you can use depending on your specific app and goals. You can start with these, and explore more as needed.
 
 ### Good content {#good-content}
 
-It all starts with good content. If your page doesn't have useful, relevant content, no amount of SEO will make it rank well. So make sure your content is high-quality, well-written, and provides value to your users. Spamming keywords, using clickbait titles, or generating unreviewed content by the pound won't help you in the long run, and can even get you penalized by search engines. Focus on creating content that answers your users' questions, solves their problems, or entertains them.
+It all starts with good content. If your page doesn't have useful, relevant content, no amount of SEO will make it rank well. So make sure your content is high-quality, well-written, and provides value to your users. Spamming keywords, using clickbait titles, or generating unreviewed content by the pound won't help you in the long run, and can even get you penalized by search engines. Focus on creating content that answers your users' questions and solves their problems.
 
-You should read Google's guide on creating good content for more tips on what you should focus on when creating content pages, before optimizing them for search engines:
+You should read Google's guide on creating good content for more tips on what to focus on when creating content pages, before optimizing them for search engines:
 
 <CardLink
   kind="external"
