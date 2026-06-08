@@ -148,6 +148,16 @@ const sidebars: SidebarsConfig = {
                 "deployment/deployment-methods/wasp-deploy/ci-cd",
               ],
             },
+            {
+              type: "link",
+              label: "Cloud Providers",
+              href: "/docs/guides/deployment/cloud-providers",
+            },
+            {
+              type: "link",
+              label: "Self-Hosted",
+              href: "/docs/guides/deployment/self-hosted",
+            },
           ],
         },
         "deployment/ci-cd",
