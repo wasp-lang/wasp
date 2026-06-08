@@ -10,7 +10,7 @@ export function typecheckProject({
 }) {
   const { options: compilerOptions, tsconfigDir } = parseTsConfig(tsconfigPath);
 
-  const host = createInMemorySpecHost({
+  const host = createCompilerHostWithOverriddenFiles({
     compilerOptions,
     tsconfigDir,
     overriddenFiles,
@@ -39,7 +39,9 @@ function parseTsConfig(tsconfigPath: string): {
 
   const configFile = ts.readConfigFile(tsconfigPath, ts.sys.readFile);
   if (configFile.error) {
-    throw new Error(formatError(configFile.error, tsconfigDir));
+    throw new Error(
+      `Error when reading ${tsconfigPath}:\n${formatConfigError(configFile.error, tsconfigDir)}`,
+    );
   }
 
   // Converts the raw JSON (e.g. `"target": "ES2022"`) into the typed compiler
@@ -51,11 +53,17 @@ function parseTsConfig(tsconfigPath: string): {
     undefined,
     tsconfigPath,
   );
+  if (parsed.errors.length > 0) {
+    const formattedErrors = parsed.errors
+      .map((error) => formatConfigError(error, tsconfigDir))
+      .join("\n");
+    throw new Error(`Error when parsing ${tsconfigPath}:\n${formattedErrors}`);
+  }
 
   return { options: parsed.options, tsconfigDir };
 }
 
-function createInMemorySpecHost({
+function createCompilerHostWithOverriddenFiles({
   compilerOptions,
   tsconfigDir,
   overriddenFiles,
@@ -71,14 +79,14 @@ function createInMemorySpecHost({
   // process' working directory.
   host.getCurrentDirectory = () => tsconfigDir;
 
-  overrideHostFs_mutate(host, overriddenFiles);
+  overlayOverriddenFilesOnHost_mutate(host, overriddenFiles);
 
   return host;
 }
 
-// We want to read some overridden spec files from memory instead of disk. For
-// other files, we delegate to the normal FS implementation.
-function overrideHostFs_mutate(
+// We want to read the specific overridden files from memory instead of disk.
+// For other files, we delegate to the normal FS implementation.
+function overlayOverriddenFilesOnHost_mutate(
   host: ts.CompilerHost,
   overriddenFiles: ReadonlyMap<string, string>,
 ) {
@@ -99,7 +107,7 @@ function overrideHostFs_mutate(
     overriddenFiles.get(fileName) ?? fsReadFile(fileName);
 }
 
-function formatError(diagnostic: ts.Diagnostic, cwd: string): string {
+function formatConfigError(diagnostic: ts.Diagnostic, cwd: string): string {
   return ts.formatDiagnostic(diagnostic, {
     getCurrentDirectory: () => cwd,
     getCanonicalFileName: (fileName) => fileName,
