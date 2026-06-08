@@ -9,6 +9,8 @@ module ShellCommands
     (~&&),
     (~?),
     (~||),
+    assertDirectoryDoesNotExist,
+    assertDirectoryExists,
     writeToFile,
     appendToFile,
     replaceLineInFile,
@@ -110,6 +112,12 @@ infixl 6 ~||
 infixl 4 ~?
 
 -- General commands
+
+assertDirectoryExists :: FilePath -> ShellCommand
+assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"
+
+assertDirectoryDoesNotExist :: FilePath -> ShellCommand
+assertDirectoryDoesNotExist = ("! " ++) . assertDirectoryExists
 
 writeToFile :: Path' Abs (File a) -> T.Text -> ShellCommandBuilder context ShellCommand
 writeToFile file fileContent = return $ createParentDir ~&& writeContentsToFile

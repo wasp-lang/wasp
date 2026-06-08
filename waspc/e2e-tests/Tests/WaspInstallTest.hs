@@ -6,6 +6,8 @@ import ShellCommands
   ( ShellCommand,
     ShellCommandBuilder,
     WaspProjectContext (..),
+    assertDirectoryDoesNotExist,
+    assertDirectoryExists,
     createTestWaspProject,
     inTestWaspProjectDir,
     waspCliClean,
@@ -68,12 +70,6 @@ waspInstallTest =
   where
     waspCliInstallFails :: ShellCommand
     waspCliInstallFails = "! wasp-cli install"
-
-    assertDirectoryDoesNotExist :: FilePath -> ShellCommand
-    assertDirectoryDoesNotExist dirFilePath = "[ ! -d '" ++ dirFilePath ++ "' ]"
-
-    assertDirectoryExists :: FilePath -> ShellCommand
-    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"
 
     assertSymlinkExists :: FilePath -> ShellCommand
     assertSymlinkExists path = "[ -L '" ++ path ++ "' ]"

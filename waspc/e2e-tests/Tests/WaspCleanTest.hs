@@ -1,6 +1,6 @@
 module Tests.WaspCleanTest (waspCleanTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliClean, waspCliCompile)
+import ShellCommands (ShellCommand, assertDirectoryDoesNotExist, createTestWaspProject, inTestWaspProjectDir, waspCliClean, waspCliCompile)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -38,6 +38,3 @@ waspCleanTest =
   where
     waspCliCleanFails :: ShellCommand
     waspCliCleanFails = "! wasp-cli clean"
-
-    assertDirectoryDoesNotExist :: FilePath -> ShellCommand
-    assertDirectoryDoesNotExist dirFilePath = "[ ! -d '" ++ dirFilePath ++ "' ]"
