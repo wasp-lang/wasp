@@ -7,12 +7,17 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import { bumpHeadings, computeDocMarkdownUrl } from "../src/llm/docs-markdown";
-import { renderMdxToMarkdown } from "../src/llm/render-mdx";
+import {
+  bumpHeadings,
+  computeDocMarkdownUrl,
+  computeDocPermalink,
+} from "../src/llm/docs-markdown";
 import waspVersionsJson from "../versions.json";
 
 const SITE_ROOT = process.cwd();
-const STATIC_DIR = path.join(SITE_ROOT, "static/");
+// We run after `docusaurus build`, so we read the already-rendered per-page
+// `.md` files from the build output and write our `llms*.txt` there too.
+const BUILD_DIR = path.join(SITE_ROOT, "build/");
 const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs/");
 const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars/");
 const BLOG_DIR = path.join(SITE_ROOT, "blog/");
@@ -91,7 +96,7 @@ async function generateFiles() {
     docsMapsByVersionSection,
     blogPostsSection,
   );
-  await fs.writeFile(path.join(STATIC_DIR, "llms.txt"), llmsTxtContent, "utf8");
+  await fs.writeFile(path.join(BUILD_DIR, "llms.txt"), llmsTxtContent, "utf8");
   console.log("Generated: llms.txt");
 
   for (const version of waspVersionsJson) {
@@ -104,7 +109,7 @@ async function generateFiles() {
       categorizedDocs,
     );
     await fs.writeFile(
-      path.join(STATIC_DIR, `llms-${version}.txt`),
+      path.join(BUILD_DIR, `llms-${version}.txt`),
       versionedLlmsTxtContent,
       "utf8",
     );
@@ -117,7 +122,7 @@ async function generateFiles() {
     const llmsFullVersionedContent =
       buildFullDocsHeader(version) + fullDocsBody;
     await fs.writeFile(
-      path.join(STATIC_DIR, `llms-full-${version}.txt`),
+      path.join(BUILD_DIR, `llms-full-${version}.txt`),
       llmsFullVersionedContent.trim(),
       "utf8",
     );
@@ -127,7 +132,7 @@ async function generateFiles() {
       const llmsFullWithIndex =
         buildFullDocsHeaderWithIndex(version, waspVersionsJson) + fullDocsBody;
       await fs.writeFile(
-        path.join(STATIC_DIR, "llms-full.txt"),
+        path.join(BUILD_DIR, "llms-full.txt"),
         llmsFullWithIndex.trim(),
         "utf8",
       );
@@ -310,8 +315,10 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
   }
 
   try {
-    const rawContent = await fs.readFile(absolutePath, "utf8");
-    const { attributes, body } = fm(rawContent);
+    // Frontmatter still comes from source (for the `title-llm` override and the
+    // `slug` we need to locate the built file); the body is the already-rendered
+    // per-page `.md` from the build output, so there's a single rendering path.
+    const { attributes } = fm(await fs.readFile(absolutePath, "utf8"));
     const title =
       attributes["title-llm"] ||
       attributes["title"] ||
@@ -321,9 +328,7 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
     const sourceDoc: SourceDoc = {
       title,
       slug,
-      processedBody: await renderMdxToMarkdown(body, {
-        filePath: absolutePath,
-      }),
+      processedBody: await readBuiltDocBody(ref, slug),
     };
     sourceDocCache.set(absolutePath, sourceDoc);
     return sourceDoc;
@@ -337,6 +342,24 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
     sourceDocCache.set(absolutePath, null);
     return null;
   }
+}
+
+// Reads a doc's rendered body from the per-page `.md` the build already wrote
+// at its permalink. That file is `# Title\n\n<body>`; we drop the title line
+// because the full-docs builder adds its own `## Title` heading per doc.
+async function readBuiltDocBody(
+  ref: DocRef,
+  slug: string | undefined,
+): Promise<string> {
+  const permalink = computeDocPermalink(
+    ref.version,
+    ref.docId,
+    slug,
+    ref.version === LATEST_WASP_VERSION,
+  );
+  const builtPath = path.join(BUILD_DIR, `${permalink}.md`);
+  const built = await fs.readFile(builtPath, "utf8");
+  return built.replace(/^#\s[^\n]*\n+/, "").trim();
 }
 
 // e.g., 'tutorial/01-create.mdx' → 'tutorial/create'

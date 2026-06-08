@@ -39,6 +39,7 @@ import { unified } from "unified";
 
 import searchAndReplace from "../remark/search-and-replace";
 import { cleanMarkdown } from "./docs-markdown";
+import { markdownRegistry } from "./markdown-registry";
 
 type MdxJsxElement = Extract<
   Nodes,
@@ -52,6 +53,7 @@ interface FlattenContext {
   partials: Map<string, string>; // local component name -> absolute .md(x) path
   visited: ReadonlySet<string>; // absolute partial paths already being inlined
   props: Record<string, string>; // partial props, for evaluating `{props.x}`
+  unhandled: Set<string>; // names of dropped components lacking a markdown renderer
 }
 
 const ADMONITION_NAMES = new Set([
@@ -107,12 +109,29 @@ export function treeToMarkdown(
     partials: dir ? collectPartialImports(tree.children, dir) : new Map(),
     visited: new Set(filePath ? [filePath] : []),
     props: {},
+    unhandled: new Set(),
   };
   const flattened: Root = {
     type: "root",
     children: transformChildren(tree.children, context) as RootContent[],
   };
+  warnUnhandled(context.unhandled, filePath);
   return collapseBlankLines(stringifier.stringify(flattened)).trim();
+}
+
+// Surfaces components that were dropped because nothing knows how to render them
+// to Markdown, so authors can add a `toMarkdown` (see markdown-registry.ts).
+function warnUnhandled(
+  unhandled: Set<string>,
+  filePath: string | undefined,
+): void {
+  if (unhandled.size === 0) return;
+  const where = filePath ? path.basename(filePath) : "doc";
+  console.warn(
+    `render-mdx: ${where}: no markdown renderer for ${[...unhandled]
+      .sort()
+      .join(", ")} (dropped)`,
+  );
 }
 
 function transformChildren(children: Nodes[], ctx: FlattenContext): Nodes[] {
@@ -158,30 +177,110 @@ function transformNode(node: Nodes, ctx: FlattenContext): Nodes[] {
 }
 
 function flattenJsxElement(node: MdxJsxElement, ctx: FlattenContext): Nodes[] {
+  const result = renderJsxElement(node, ctx);
+  // A flow (block-level) element must yield block nodes. If a renderer returned
+  // phrasing (a link, image, text, ...), wrap those runs in a paragraph;
+  // otherwise a phrasing node at block level breaks block separation downstream.
+  return node.type === "mdxJsxFlowElement" ? wrapPhrasingRuns(result) : result;
+}
+
+function renderJsxElement(node: MdxJsxElement, ctx: FlattenContext): Nodes[] {
   const name = node.name ?? "";
 
+  // Local `.md` partials imported into this doc take precedence.
   if (ctx.partials.has(name)) return inlinePartial(node, ctx);
 
-  // JS/TS variants -> keep TypeScript only.
-  if (name === "ShowForTs") return unwrap(node, ctx);
-  if (name === "ShowForJs") return [];
+  // A component that owns its markdown form (the dual-render contract).
+  const renderer = markdownRegistry[name];
+  if (renderer) {
+    return renderer({
+      props: evalProps(node.attributes, ctx.props),
+      children: transformChildren(node.children, ctx),
+    });
+  }
 
+  // Structural built-ins whose markdown is a tree transform, not a component.
   if (name === "Tabs") return flattenTabs(node, ctx);
   if (name === "TabItem") return unwrap(node, ctx); // only non-js-ts groups reach here
-
   // `<CodeBlock language="sh">{`...`}</CodeBlock>` is the JS way to build a
   // fenced block; recover the string into a real code node.
   if (name === "CodeBlock") return flattenCodeBlock(node, ctx);
-
   if (name === "Collapse") return flattenCollapse(node, ctx);
-  if (name === "Required") return [text("(required)")];
+  if (name === "img") return flattenImage(node);
 
-  // Wrappers that only carry content (TutorialAction, Layout, fragments, ...).
+  // Unregistered wrappers that carry content (TutorialAction, Layout, ...) still
+  // render fine by unwrapping; nothing is lost, so we don't warn.
   if (node.children.length > 0) return unwrap(node, ctx);
 
-  // Self-closing widgets (LoginForm, pills, EnvVarsTable, ...) carry no inline
-  // text we can render, so drop them.
+  // Unregistered self-closing widget: nothing to unwrap and no renderer, so it's
+  // dropped. Record component names (PascalCase) so we can warn the author to add
+  // a `toMarkdown`; lowercase HTML voids (br, iframe, ...) are just dropped.
+  if (/^[A-Z]/.test(name)) ctx.unhandled.add(name);
   return [];
+}
+
+const PHRASING_TYPES = new Set([
+  "text",
+  "emphasis",
+  "strong",
+  "delete",
+  "inlineCode",
+  "link",
+  "linkReference",
+  "image",
+  "imageReference",
+  "break",
+  "footnoteReference",
+]);
+
+// Groups runs of phrasing nodes into paragraphs, leaving block nodes as-is.
+function wrapPhrasingRuns(nodes: Nodes[]): Nodes[] {
+  const out: Nodes[] = [];
+  let run: Nodes[] = [];
+  const flush = () => {
+    if (run.length) {
+      out.push({ type: "paragraph", children: run as Paragraph["children"] });
+      run = [];
+    }
+  };
+  for (const node of nodes) {
+    if (PHRASING_TYPES.has(node.type)) run.push(node);
+    else {
+      flush();
+      out.push(node);
+    }
+  }
+  flush();
+  return out;
+}
+
+function flattenImage(node: MdxJsxElement): Nodes[] {
+  const url = attrString(node, "src");
+  if (!url) return [];
+  return [
+    { type: "image", url, alt: attrString(node, "alt") ?? null, title: null },
+  ];
+}
+
+// Evaluates a component's attributes into a props object for its markdown
+// renderer: `foo="bar"` -> "bar", `foo={expr}` -> the evaluated value, bare
+// `foo` -> true.
+function evalProps(
+  attributes: MdxJsxElement["attributes"],
+  scope: Record<string, string>,
+): Record<string, unknown> {
+  const props: Record<string, unknown> = {};
+  for (const attr of attributes) {
+    if (attr.type !== "mdxJsxAttribute") continue; // skip {...spread}
+    if (attr.value === null) {
+      props[attr.name] = true;
+    } else if (typeof attr.value === "string") {
+      props[attr.name] = attr.value;
+    } else {
+      props[attr.name] = evalExpressionRaw(attr.value.value, scope);
+    }
+  }
+  return props;
 }
 
 function flattenTabs(node: MdxJsxElement, ctx: FlattenContext): Nodes[] {
@@ -238,11 +337,20 @@ function evalExpression(
   expression: string,
   props: Record<string, string>,
 ): string | undefined {
+  const result = evalExpressionRaw(expression, props);
+  return typeof result === "string" || typeof result === "number"
+    ? String(result)
+    : undefined;
+}
+
+// Evaluates an MDX expression with `props` bound and returns its raw value.
+// Build-time only, on trusted repo content. Anything that throws is undefined.
+function evalExpressionRaw(
+  expression: string,
+  props: Record<string, string>,
+): unknown {
   try {
-    const result = new Function("props", `return (${expression});`)(props);
-    return typeof result === "string" || typeof result === "number"
-      ? String(result)
-      : undefined;
+    return new Function("props", `return (${expression});`)(props);
   } catch {
     return undefined;
   }
@@ -312,6 +420,7 @@ function inlinePartial(node: MdxJsxElement, ctx: FlattenContext): Nodes[] {
     partials: collectPartialImports(tree.children, dir),
     visited: new Set([...ctx.visited, absPath]),
     props: collectProps(node.attributes),
+    unhandled: ctx.unhandled, // share so warnings aggregate to the top doc
   };
   return transformChildren(tree.children, childCtx);
 }

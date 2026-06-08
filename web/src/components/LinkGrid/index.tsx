@@ -1,5 +1,5 @@
 import Link from "@docusaurus/Link";
-import "./LinkGrid.css";
+import "./styles.css";
 
 export interface LinkInfo {
   title: string;
