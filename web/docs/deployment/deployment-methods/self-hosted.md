@@ -17,6 +17,9 @@ We have step-by-step guides for deploying your Wasp app on your server with diff
 
 <CardLink to="../../guides/deployment/self-hosted/vps" kind="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
 
+If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
+Feel free to [open a PR](https://github.com/wasp-lang/wasp/new/release/web/docs/guides/deployment/self-hosted) if you'd like to write one yourself :)
+
 ## Manual deployment
 
 We will show you a general overview of the architecture of a self-hosted Wasp app and the steps you need to take to deploy your app on your server. This is a more manual process than using the guides above, but it gives you more control over your deployment and you'll learn how everything works. If you are looking for a more guided deployment, check out the guides above.
@@ -58,7 +61,7 @@ To self-host your Wasp app, you'll follow these general steps:
 6. Build the **client app** into static files.
    - Wasp outputs the client app in the `.wasp/out/web-app` directory.
    <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
-   - You should [build the client app](./paas.md#3-deploying-the-web-client) into static files.
+   - You should [build the client app](./cloud-providers.md#3-deploying-the-web-client) into static files.
 7. Install and set up a **reverse proxy** to serve your client and server apps.
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
    - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.
