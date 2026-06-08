@@ -3,6 +3,7 @@
 module Wasp.Generator.WaspInfo
   ( persist,
     isCompatibleWithExistingBuildAt,
+    isGeneratedByCurrentVersion,
     WaspInfo (..),
     safeRead,
     ReadResult,
@@ -49,16 +50,19 @@ persist generatedAppDir currentBuildType = do
         }
 
     waspInfoFile = generatedAppDir </> waspInfoInGeneratedAppDir
-    currentVersion = showVersion Paths_waspc.version
 
 isCompatibleWithExistingBuildAt :: BuildType -> Path' Abs (Dir GeneratedAppDir) -> IO Bool
 currentBuildType `isCompatibleWithExistingBuildAt` outDir =
   either (const False) isCompatible <$> safeRead outDir
   where
-    isCompatible (WaspInfo {waspVersion = storedVersion, buildType = storedBuildType}) =
-      (storedVersion == currentVersion) && (storedBuildType == currentBuildType)
+    isCompatible waspInfo@(WaspInfo {buildType = storedBuildType}) =
+      isGeneratedByCurrentVersion waspInfo && (storedBuildType == currentBuildType)
 
-    currentVersion = showVersion Paths_waspc.version
+isGeneratedByCurrentVersion :: WaspInfo -> Bool
+isGeneratedByCurrentVersion (WaspInfo {waspVersion = storedVersion}) = storedVersion == currentVersion
+
+currentVersion :: String
+currentVersion = showVersion Paths_waspc.version
 
 type ReadResult = Either ReadError WaspInfo
 
