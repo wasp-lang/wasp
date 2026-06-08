@@ -34,7 +34,7 @@ export function transformRefHelperPlugin(): Plugin {
           return null;
         }
 
-        applyTransformRefHelperPlan_mutate(id, meta.magicString, refHelperPlan);
+        applyTransformRefHelperPlan_mutate(meta.magicString, refHelperPlan);
 
         return { code: meta.magicString };
       },

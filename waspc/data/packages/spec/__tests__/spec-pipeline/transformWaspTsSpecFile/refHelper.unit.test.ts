@@ -23,7 +23,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const ref = _waspMakeRef("/path/main.wasp.ts");`,
+        `const ref = _waspMakeRef(import.meta.url);`,
         ``,
         `const MainPage = ref({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
@@ -43,7 +43,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const appRef = _waspMakeRef("/path/main.wasp.ts");`,
+        `const appRef = _waspMakeRef(import.meta.url);`,
         ``,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
@@ -64,7 +64,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
-        `const appRef = _waspMakeRef_0("/path/main.wasp.ts");`,
+        `const appRef = _waspMakeRef_0(import.meta.url);`,
         `const ref = "taken";`,
         `const _waspMakeRef = "taken";`,
         ``,
@@ -85,7 +85,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef as _waspMakeRef_0 } from "@wasp.sh/spec/internal";`,
-        `const appRef = _waspMakeRef_0("/path/main.wasp.ts");`,
+        `const appRef = _waspMakeRef_0(import.meta.url);`,
         `class _waspMakeRef {}`,
         ``,
         ``,
@@ -106,7 +106,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const refA = _waspMakeRef("/path/main.wasp.ts");`,
+        `const refA = _waspMakeRef(import.meta.url);`,
         `const refB = refA;`,
         `const refC = refA;`,
         `const ref = refA;`,
@@ -132,7 +132,7 @@ describe("transformRefHelper", () => {
     ).toBe(
       [
         `import { _waspMakeRef } from "@wasp.sh/spec/internal";`,
-        `const appRef = _waspMakeRef("/path/main.wasp.ts");`,
+        `const appRef = _waspMakeRef(import.meta.url);`,
         `import { type RefObject, page } from "@wasp.sh/spec";`,
         `const MainPage = appRef({ importDefault: "MainPage", from: "./src/MainPage" });`,
         ``,
@@ -147,7 +147,7 @@ function transformRefHelper(sourceText: string): string {
 
   const plan = planTransformRefHelper(ast);
   if (plan) {
-    applyTransformRefHelperPlan_mutate("/path/main.wasp.ts", source, plan);
+    applyTransformRefHelperPlan_mutate(source, plan);
   }
 
   return source.toString();
