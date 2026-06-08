@@ -75,7 +75,7 @@ async function getSubPackage() {
       // because they are marked as "optionalDependencies". Because it is quite
       // a common case, we'll check if we're on an unsupported Node version and
       // throw a specific error for that.
-      const nodeVersionRequirement = await getSupportedNodeVersion();
+      const nodeVersionRequirement = await getSupportedNodeVersionRequirement();
       const nodeVersionIsSupported = checkNodeVersionIsSupported(
         nodeVersionRequirement,
       );
@@ -130,7 +130,7 @@ async function runWasp(
   }
 }
 
-async function getSupportedNodeVersion() {
+async function getSupportedNodeVersionRequirement() {
   // We import here and not in the top level to keep the happy path free of this
   // overhead.
   const { default: pkg } = await import("./package.json", {
