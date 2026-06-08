@@ -178,6 +178,11 @@ const sidebars: SidebarsConfig = {
         "advanced/links",
         "advanced/routing",
         "advanced/prerendering",
+        {
+          type: "ref",
+          id: "guides/optimization/seo",
+          label: "SEO & GEO",
+        },
       ],
     },
     {
