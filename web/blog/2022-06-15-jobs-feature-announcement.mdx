@@ -10,9 +10,9 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 import WaspIntro from './_wasp-intro.md';
 import { InBlogCta } from './components/InBlogCta';
 
-<p align="center">
+<div align="center">
   <img alt="You get a job!" src={useBaseUrl('img/jobs-oprah.gif')} width="300px" />
-</p>
+</div>
 
 {/* truncate */}
 
@@ -22,15 +22,15 @@ import { InBlogCta } from './components/InBlogCta';
 
 ## **Storytime**
 
-<p align="center">
+<div align="center">
   <img alt="Storytime" src={useBaseUrl('img/jobs-storytime.gif')} width="300px" />
-</p>
+</div>
 
 Imagine you are working on the next unicorn SaaS web app and need to send a user an email, manipulate an uploaded image via an external API call, or recalculate some internal metrics every night. (Or, maybe you’re doing some fancy blockchain thing for that frothy investment multiple; :D whatever it is, just envision an operation that may take a significant amount of time and/or fail.) How would you implement this?
 
-<p align="center">
+<div align="center">
   <img alt="Spinning!" src={useBaseUrl('img/jobs-spinner.gif')} width="30px" />
-</p>
+</div>
 
 You wouldn’t want the server to delay sending its HTTP response until those are done (unless you are one of those people who love seeing the Mac spinning icon), so you'll need something out-of-band from the normal request-response flow. Even in an event-loop-based system like Node.js, just calling an async function isn't ideal since you will need to handle failures, retries, and throttling, amongst other concerns. And sometimes we need to schedule tasks to run in the future, or repeatedly, so we need a completely different toolset.
 
@@ -60,13 +60,13 @@ Wasp allows you to write a regular async JavaScript function (like the one above
 
 ## Most jobs have a boss. Our first job executor is a... pg-boss. 😅
 
-<p align="center">
+<div align="center">
   <figure>
     <img alt="Eeek" src={useBaseUrl('img/jobs-eyes.gif')} />
 
     <figcaption>Me trying to lay off the job-related puns. Ok, ok, I’ll quit. Ahhh!</figcaption>
   </figure>
-</p>
+</div>
 
 In my prior life as a Ruby on Rails developer, the decision of how to implement jobs was pretty simple. You had Active Job at your disposal, and for backends, you would use something like Sidekiq or Delayed Job. In a similarly paved path, Python developers would have likely looked first to Celery.
 

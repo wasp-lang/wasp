@@ -2,6 +2,7 @@ import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
+import docsMarkdownFilesPlugin from "./src/plugins/docs-markdown-files";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
@@ -262,7 +263,7 @@ const config: Config = {
   scripts: getScripts(),
   plugins: [
     "plugin-image-zoom",
-
+    docsMarkdownFilesPlugin,
     [
       "@docusaurus/plugin-content-blog",
       {
@@ -281,8 +282,7 @@ const config: Config = {
         onUntruncatedBlogPosts: "throw",
       },
     ],
-
-    async function tailwindPlugin(context, options) {
+    async function tailwindPlugin(_context, _options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -293,7 +293,6 @@ const config: Config = {
         },
       };
     },
-
     [
       "docusaurus-plugin-typedoc",
       {

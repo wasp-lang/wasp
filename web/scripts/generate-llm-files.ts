@@ -7,6 +7,11 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
+import {
+  bumpHeadings,
+  cleanMarkdown,
+  computeDocMarkdownUrl,
+} from "../src/llm/docs-markdown";
 import waspVersionsJson from "../versions.json";
 
 const SITE_ROOT = process.cwd();
@@ -14,9 +19,8 @@ const STATIC_DIR = path.join(SITE_ROOT, "static/");
 const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs/");
 const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars/");
 const BLOG_DIR = path.join(SITE_ROOT, "blog/");
-const GITHUB_RAW_BASE_URL =
-  "https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/"; // Use the release branch
 const WASP_BASE_URL = "https://wasp.sh/";
+const LATEST_WASP_VERSION = waspVersionsJson[0];
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 const WASP_VERSIONS = new Set<string>(waspVersionsJson);
 
@@ -34,14 +38,13 @@ const LLMS_TXT_RESOURCES = `## Other Resources
 
 type SourceDoc = {
   title: string;
+  slug?: string;
   processedBody: string;
-  absolutePath: string;
-  relativePath: string;
 };
 
 type DocMapEntry = {
   title: string;
-  githubRawUrl: string;
+  markdownUrl: string;
   processedBody: string;
 };
 
@@ -83,8 +86,7 @@ async function generateFiles() {
   // Our llms.txt URL is the entry point for the LLM.
   // It contains a section with links to llms-{version}.txt files
   // which are versioned documentation maps that link
-  // to the individual raw markdown files on GitHub.
-  const latestWaspVersion = waspVersionsJson[0];
+  // to the per-page .md files served on wasp.sh.
   const blogPostsSection = await buildBlogPostsSection();
   const docsMapsByVersionSection =
     buildDocsMapsByVersionSection(waspVersionsJson);
@@ -97,7 +99,7 @@ async function generateFiles() {
 
   for (const version of waspVersionsJson) {
     console.log(`Processing version ${version}...`);
-    const isLatest = version === latestWaspVersion;
+    const isLatest = version === LATEST_WASP_VERSION;
     const sidebarItems = await loadVersionedSidebar(version);
     const categorizedDocs = await loadCategorizedDocs(sidebarItems, version);
     const versionedLlmsTxtContent = buildVersionedLlmsTxtContent(
@@ -191,12 +193,14 @@ async function loadCategorizedDocs(
       if (!info) {
         continue;
       }
-      const relativeToSite = path
-        .relative(SITE_ROOT, info.absolutePath)
-        .replace(/\\/g, "/");
       docs.push({
         title: info.title,
-        githubRawUrl: GITHUB_RAW_BASE_URL + relativeToSite,
+        markdownUrl: computeDocMarkdownUrl(
+          ref.version,
+          ref.docId,
+          info.slug,
+          ref.version === LATEST_WASP_VERSION,
+        ),
         processedBody: info.processedBody,
       });
     }
@@ -215,7 +219,7 @@ function buildVersionedLlmsTxtContent(
   for (const category of docs.categories) {
     lines.push(category.label);
     for (const doc of category.docs) {
-      lines.push(`- [${doc.title}](${doc.githubRawUrl})`);
+      lines.push(`- [${doc.title}](${doc.markdownUrl})`);
     }
   }
 
@@ -246,7 +250,7 @@ function buildFullDocsBody(docs: CategorizedDocs): string {
   for (const category of docs.categories) {
     content += `# ${category.label}\n\n`;
     for (const doc of category.docs) {
-      content += `## ${doc.title}\n\n${doc.processedBody}\n\n`;
+      content += `## ${doc.title}\n\n${bumpHeadings(doc.processedBody)}\n\n`;
     }
     content += `------\n\n`;
   }
@@ -315,11 +319,12 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
       attributes["title-llm"] ||
       attributes["title"] ||
       path.basename(absolutePath, path.extname(absolutePath));
+    const slug =
+      typeof attributes["slug"] === "string" ? attributes["slug"] : undefined;
     const sourceDoc: SourceDoc = {
       title,
-      processedBody: cleanDocContent(body),
-      absolutePath,
-      relativePath,
+      slug,
+      processedBody: cleanMarkdown(body),
     };
     sourceDocCache.set(absolutePath, sourceDoc);
     return sourceDoc;
@@ -544,64 +549,4 @@ async function loadVersionedSidebar(
   }
 
   return sidebarConfig.docs;
-}
-
-function cleanDocContent(content: string): string {
-  if (!content) return "";
-
-  const componentsToReplace = new Set<string>();
-  // NOTE: Not sure if this is needed, as LLMs can probably parse the component's meaning from context.
-  // Regex to capture imports from '@site/src/components/Tag'
-  // e.g. import MyTag from '...' -> MyTag
-  // e.g. import {Tag1, Tag2 as MyTag2} from '...' -> {Tag1, Tag2 as MyTag2}
-  const importRegex =
-    /^\s*import\s+(.+?)\s+from\s+['"]@site\/src\/components\/Tag['"]\s*;?\s*$/gm;
-
-  function extractNames(rawSpecifier: string): string[] {
-    const names: string[] = [];
-    const specifier = rawSpecifier.trim();
-    if (specifier.startsWith("{") && specifier.endsWith("}")) {
-      const inner = specifier.substring(1, specifier.length - 1).trim();
-      if (inner) {
-        inner.split(",").forEach((part) => {
-          part = part.trim();
-          if (part.includes(" as ")) {
-            names.push(part.split(" as ")[1].trim());
-          } else {
-            names.push(part);
-          }
-        });
-      }
-    } else {
-      names.push(specifier);
-    }
-    return names.filter(Boolean);
-  }
-
-  for (const importMatch of content.matchAll(importRegex)) {
-    for (const name of extractNames(importMatch[1])) {
-      componentsToReplace.add(name);
-    }
-  }
-
-  let cleaned = content;
-
-  // Replace <CompName ... /> with "CompName!" (e.g. <Internal /> -> Internal!)
-  componentsToReplace.forEach((compName) => {
-    const tagRegex = new RegExp(`<(?:${compName})(\\s+[^>]*)?\\s*/>`, "g");
-    cleaned = cleaned.replace(tagRegex, `${compName}!`);
-  });
-
-  // Remove all import statements
-  cleaned = cleaned.replace(/^import\s+.*(?:from\s+['"].*['"])?;?\s*$/gm, "");
-  // Remove JSX comments like {/* TODO: ... */}
-  cleaned = cleaned.replace(/^\{\/\*.*\*\/\}\s*$/gm, "");
-  // Remove HTML comments like <!-- TODO: ... -->
-  cleaned = cleaned.replace(/^<!--.*-->\s*$/gm, "");
-  // Collapse 3+ newlines to 2
-  cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
-  // Increase heading levels (# -> ##, ## -> ###, etc.)
-  cleaned = cleaned.replace(/^(#{1,6})\s/gm, "#$1 ");
-
-  return cleaned.trim();
 }
