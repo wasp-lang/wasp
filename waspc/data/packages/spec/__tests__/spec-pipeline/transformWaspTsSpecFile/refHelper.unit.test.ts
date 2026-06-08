@@ -148,11 +148,9 @@ describe("transformRefHelper", () => {
   test("rewrites a ref import that is then re-exported", () => {
     expect(
       transformRefHelper(
-        [
-          `import { ref } from "@wasp.sh/spec";`,
-          `export { ref };`,
-          ``,
-        ].join("\n"),
+        [`import { ref } from "@wasp.sh/spec";`, `export { ref };`, ``].join(
+          "\n",
+        ),
       ),
     ).toBe(
       [
