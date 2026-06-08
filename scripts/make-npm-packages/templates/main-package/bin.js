@@ -67,28 +67,22 @@ async function getSubPackage() {
   debug("Selected sub-package: %j", selectedSubPackage);
 
   /** @type {{ default: import("../../src/schema/output-data.ts").SubPackageAPI }} */
-  const importedPackage = await import(selectedSubPackage.packageName).catch(
-    async (/** @type {unknown} */ error) => {
+  const importedPackage = await import(selectedSubPackage.packageName)
+    .catch(async (error) => {
       // A common case for failure here is that the Node.js version is not
       // supported. `npm` doesn't like to complain when being specifically asked
       // to install a package, but will then **not** install our subpackages
       // because they are marked as "optionalDependencies". Because it is quite
       // a common case, we'll check if we're on an unsupported Node version and
       // throw a specific error for that.
-      const nodeVersionRequirement = await getSupportedNodeVersionRequirement();
-      const nodeVersionIsSupported = checkNodeVersionIsSupported(
-        nodeVersionRequirement,
-      );
-
-      throw nodeVersionIsSupported === false
-        ? new CLIError(
-            `Your Node.js version is not supported. Please upgrade to Node ${nodeVersionRequirement} to use Wasp.`,
-          )
-        : CLIError.rethrowWith(
-            "Can't locate the correct executable for your platform.",
-          )(error);
-    },
-  );
+      await assertNodeIsSupported();
+      throw error;
+    })
+    .catch(
+      CLIError.rethrowWith(
+        "Can't locate the correct executable for your platform.",
+      ),
+    );
 
   debug("Imported sub-package: %j", importedPackage);
 
@@ -130,30 +124,70 @@ async function runWasp(
   }
 }
 
-async function getSupportedNodeVersionRequirement() {
+async function assertNodeIsSupported() {
+  const minVersion = await getMinimumNodeVersion();
+  if (!minVersion) {
+    debug(
+      "No minimum Node.js version specified in package.json, skipping check.",
+    );
+    return;
+  }
+
+  const currentVersion = getCurrentNodeVersion();
+
+  debug(
+    "Minimum required Node.js version: %j, current: %j",
+    minVersion,
+    currentVersion,
+  );
+
+  const nodeVersionIsSupported = checkNodeVersionIsSupported({
+    minVersion,
+    currentVersion,
+  });
+
+  if (!nodeVersionIsSupported) {
+    throw new CLIError(
+      `Your Node.js version (${currentVersion.join(".")}) is not supported. Please upgrade to Node.js ${minVersion.join(".")} to use Wasp.`,
+    );
+  }
+}
+
+async function getMinimumNodeVersion() {
   // We import here and not in the top level to keep the happy path free of this
   // overhead.
   const { default: pkg } = await import("./package.json", {
     with: { type: "json" },
   });
 
-  return pkg.engines.node;
+  const requirement = pkg.engines.node;
+  const requirementMatch = requirement.match(/(\d+)\.(\d+)\.(\d+)/);
+  if (!requirementMatch) return undefined;
+
+  const [_, major, minor, patch] = requirementMatch;
+  return [
+    Number.parseInt(major),
+    Number.parseInt(minor),
+    Number.parseInt(patch),
+  ];
 }
 
-function checkNodeVersionIsSupported(/** @type {string} */ requirement) {
-  const requiredMatch = requirement.match(/(\d+)\.(\d+)\.(\d+)/);
-  if (!requiredMatch) {
-    debug("No parseable Node.js version requirement found, skipping check.");
-    return undefined;
-  }
+function getCurrentNodeVersion() {
+  const [major, minor, patch] = process.versions.node.split(".");
+  return [
+    Number.parseInt(major),
+    Number.parseInt(minor),
+    Number.parseInt(patch),
+  ];
+}
 
-  const required = requiredMatch.slice(1, 4).map(Number);
-  const current = process.versions.node.split(".").map(Number);
-  debug("Required Node.js version: %j, current: %j", required, current);
-
-  for (let i = 0; i < required.length; i++) {
-    const currentPart = current[i];
-    const requiredPart = required[i];
+function checkNodeVersionIsSupported(
+  /** @type {{minVersion: number[], currentVersion: number[]}} */
+  { minVersion, currentVersion },
+) {
+  for (let i = 0; i < minVersion.length; i++) {
+    const currentPart = currentVersion[i];
+    const requiredPart = minVersion[i];
     if (currentPart > requiredPart) return true;
     if (currentPart === requiredPart) continue;
     if (currentPart < requiredPart) return false;
