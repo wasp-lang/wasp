@@ -36,10 +36,10 @@ describe("Wasp TS spec pipeline", () => {
       "src/features/tasks.wasp.ts",
       [
         `import { action } from "@wasp.sh/spec";`,
-        `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
+        `import { archive } from "../adminOperations" with { type: "ref" };`,
         ``,
         `export const splitTitle = "Split Demo";`,
-        `export const archiveAction = action(adminOperations.archive, { entities: [] });`,
+        `export const archiveAction = action(archive, { entities: [] });`,
       ].join("\n"),
     );
 
@@ -99,6 +99,36 @@ describe("Wasp TS spec pipeline", () => {
       status: "error",
       error: expect.stringContaining(
         "Type 'number' is not assignable to type 'string'",
+      ),
+    });
+  });
+
+  test("rejects namespace ref imports with a SpecUserError", () => {
+    using project = makeTempProject("wasp-spec-pipeline-namespace-");
+
+    project.writeProjectFile(
+      "src/operations.ts",
+      `export async function archive() { return null; }\n`,
+    );
+
+    const result = project.analyzeSpec(
+      [
+        `import { app } from "@wasp.sh/spec";`,
+        `import * as ops from "./src/operations" with { type: "ref" };`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: "Demo",`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  decls: [],`,
+        `});`,
+      ].join("\n"),
+    );
+
+    expect(result).toEqual({
+      status: "error",
+      error: expect.stringContaining(
+        "Namespace imports are not supported for reference imports",
       ),
     });
   });

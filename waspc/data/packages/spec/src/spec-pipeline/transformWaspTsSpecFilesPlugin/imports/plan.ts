@@ -1,4 +1,5 @@
 import type { ESTree as t } from "rolldown/utils";
+import { SpecUserError } from "../../../spec/specUserError.js";
 import {
   getStringValue,
   getTopLevelBindings,
@@ -45,6 +46,12 @@ export function planTransformImports(ast: t.Program): Plan | null {
 function findRefImports(ast: t.Program) {
   return ast.body.filter(isRefImportDeclaration).map((node) => {
     const importSource = getStringValue(node.source);
+
+    if (node.specifiers.length === 0) {
+      throw new SpecUserError(
+        `Ref import from ${JSON.stringify(importSource)} must import at least one binding.`,
+      );
+    }
 
     return {
       references: node.specifiers.map((specifier) =>

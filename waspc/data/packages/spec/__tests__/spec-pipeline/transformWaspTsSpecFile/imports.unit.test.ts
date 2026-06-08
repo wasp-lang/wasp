@@ -53,19 +53,6 @@ describe("transformRefImports", () => {
       ],
     },
     {
-      caseName: "namespace ref imports",
-      sourceLines: [
-        `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
-        ``,
-      ],
-      expectedLines: [
-        `import { ref } from "@wasp.sh/spec";`,
-        `const adminOperations = new Proxy({}, { get: (_t, k) => ref({ import: String(k), from: "../adminOperations", alias: "adminOperations_" + String(k) }) }) as Record<string, ReturnType<typeof ref>>;`,
-        ``,
-        ``,
-      ],
-    },
-    {
       caseName: "a combined default and named ref import",
       sourceLines: [
         `import MainPage, { Helper } from "./src/MainPage" with { type: "ref" };`,
@@ -83,6 +70,28 @@ describe("transformRefImports", () => {
     expect(transformImports(sourceLines.join("\n"))).toBe(
       expectedLines.join("\n"),
     );
+  });
+
+  test("rejects namespace ref imports with a SpecUserError", () => {
+    expect(() =>
+      transformImports(
+        [
+          `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toThrow(SpecUserError);
+  });
+
+  test("mentions the offending namespace binding in the error", () => {
+    expect(() =>
+      transformImports(
+        [
+          `import * as adminOperations from "../adminOperations" with { type: "ref" };`,
+          ``,
+        ].join("\n"),
+      ),
+    ).toThrow(/import \* as adminOperations/);
   });
 
   test("transforms only ref imports in a mixed file", () => {
@@ -157,6 +166,24 @@ describe("transformRefImports", () => {
         ``,
       ].join("\n"),
     );
+  });
+
+  describe("ref imports without specifiers", () => {
+    test.for([
+      {
+        caseName: "a side-effect ref import",
+        source: `import "./operations" with { type: "ref" };`,
+      },
+      {
+        caseName: "an empty named ref import",
+        source: `import {} from "./operations" with { type: "ref" };`,
+      },
+    ])("rejects $caseName", ({ source }) => {
+      expect(() => transformImports(source)).toThrow(SpecUserError);
+      expect(() => transformImports(source)).toThrow(
+        "must import at least one binding",
+      );
+    });
   });
 
   test("throws when transforming re-exports with ref imports", () => {

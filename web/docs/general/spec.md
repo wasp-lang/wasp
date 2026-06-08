@@ -87,6 +87,7 @@ Reference imports have some limitations:
 - They only work from `*.wasp.ts` files.
 - The referenced files must be inside the `src` directory.
 - You can't re-export something as a reference import (`export { X } from "./X" with { type: "ref" }`). Import it first, then re-export it if needed.
+- Namespace imports (`import * as something from './src/something' with { type: "ref" }`) aren't supported. Use named or default imports instead.
 
 The vast majority of Wasp apps won't run into these limitations, so we recommend using reference imports by default.
 
