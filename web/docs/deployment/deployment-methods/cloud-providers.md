@@ -24,7 +24,7 @@ We have step-by-step guides for deploying your Wasp app to some of the most popu
 <CardLink to="../../guides/deployment/cloud-providers/render" kind="guide" title="Deploying Wasp on Render" description="Uses Render, Blueprint (IaC)" />
 
 If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
-Feel free to [open a PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/deployment/deployment-methods/paas.md) if you'd like to write one yourself :)
+Feel free to [open a PR](https://github.com/wasp-lang/wasp/new/release/web/docs/guides/deployment/cloud-providers) if you'd like to write one yourself :)
 
 ## Manual deployment
 

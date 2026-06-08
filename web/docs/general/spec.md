@@ -2,14 +2,14 @@
 title: Wasp Spec (main.wasp.ts)
 ---
 
-import { CardLink } from '@site/src/components/CardLink'
+import { CardLink } from "@site/src/components/CardLink";
 
 You define and configure the high level of your app (pages, routes, queries, actions, auth, ...) in a `main.wasp.ts` file in the root of your project. We call this file the **Wasp Spec**.
 
 You write the Wasp Spec in TypeScript, so you get out-of-the-box support in all editors, full type checking, and the flexibility of a real programming language while configuring your app.
 
 :::info Coming from an older version of Wasp?
-The Wasp Spec replaces two older ways of configuring a Wasp app: 
+The Wasp Spec replaces two older ways of configuring a Wasp app:
 - The **Wasp DSL** (`main.wasp`).
 - The **TS Config** (`main.wasp.ts`, with the class-based `new App(...)` API).
 
@@ -86,27 +86,37 @@ Reference imports have some limitations:
 
 - They only work from `*.wasp.ts` files.
 - The referenced files must be inside the `src` directory.
+- You can't re-export something as a reference import (`export { X } from "./X" with { type: "ref" }`). Import it first, then re-export it if needed.
+- Namespace imports (`import * as something from './src/something' with { type: "ref" }`) aren't supported. Use named or default imports instead.
 
 The vast majority of Wasp apps won't run into these limitations, so we recommend using reference imports by default.
 
 :::
 
-### Reference objects {#reference-objects}
+### `ref` helper {#reference-objects}
 
-Just pass an object with `import` (or `importDefault`) and `from`:
+Use `ref(...)` when a direct reference import is not practical. Import `ref` from `@wasp.sh/spec`, then pass it an import object with `import` (or `importDefault`) and `from`:
 
 ```ts title="main.wasp.ts"
+import { ref } from "@wasp.sh/spec";
+
 export default app({
   spec: [
-    page({ importDefault: "MainPage", from: "@src/MainPage" }),
-    query({ import: "getTasks", from: "@src/queries" }),
+    page(ref({ importDefault: "MainPage", from: "./src/MainPage" })),
+    query(ref({ import: "getTasks", from: "./src/queries" })),
     // You can rename a named import with `alias`:
-    query({ import: "getTasks", alias: "getAllTasks", from: "@src/queries" }),
+    query(ref({ import: "getTasks", alias: "getAllTasks", from: "./src/queries" })),
   ],
 });
 ```
 
-The `from` path should always start with `@src` and is relative to your project's `src` directory.
+The `from` path is relative to the `*.wasp.ts` file where you call `ref(...)` and must resolve inside your project's `src` directory.
+
+:::note Limitation
+
+You can't re-export `ref` from `@wasp.sh/spec` (`export { ref } from "@wasp.sh/spec"`). Import it first, then re-export it if needed.
+
+:::
 
 ## Useful patterns
 

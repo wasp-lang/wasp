@@ -59,9 +59,7 @@ type AppConfig = Omit<App, "kind">;
 /**
  * Creates a {@link Page} definition.
  *
- * A page is a React component rendered by a {@link route}. Pass the
- * component as the first argument, either via a reference import
- * (recommended) or a {@link RefObject}.
+ * A page is a React component rendered by a {@link route}.
  *
  * See [Routing](https://wasp.sh/docs/advanced/routing) and the
  * [Auth overview](https://wasp.sh/docs/auth/overview#protecting-a-page-with-authrequired)
@@ -76,6 +74,8 @@ type AppConfig = Omit<App, "kind">;
  * ```
  *
  * @param component The React component to render.
+ *
+ * {@include ./referenceImports.md}
  * @param config Optional page settings such as `authRequired`.
  *
  * @category Constructors
@@ -155,6 +155,8 @@ type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
  * ```
  *
  * @param fn The Query's NodeJS implementation.
+ *
+ * {@include ./referenceImports.md}
  * @param config Optional settings: `entities` and `auth`.
  *
  * @category Constructors
@@ -187,6 +189,8 @@ type QueryConfig = Omit<Query, "kind" | "fn">;
  * ```
  *
  * @param fn The Action's NodeJS implementation.
+ *
+ * {@include ./referenceImports.md}
  * @param config Optional settings: `entities` and `auth`.
  *
  * @category Constructors
@@ -221,6 +225,8 @@ type ActionConfig = Omit<Action, "kind" | "fn">;
  * @param method HTTP method to listen on (or `"ALL"` for any).
  * @param path Express path the endpoint is mounted at.
  * @param fn The API's NodeJS implementation.
+ *
+ * {@include ./referenceImports.md}
  * @param config Optional settings: `middlewareConfigFn`, `entities`, `auth`.
  *
  * @category Constructors
@@ -261,6 +267,8 @@ type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
  * @param path Path prefix the namespace applies to.
  * @param config Required `middlewareConfigFn`.
  *
+ * {@include ./referenceImports.md}
+ *
  * @category Constructors
  */
 export function apiNamespace(
@@ -300,6 +308,8 @@ type ApiNamespaceConfig = Omit<ApiNamespace, "kind" | "path">;
  *
  * @param fn The async function that performs the job's work. It receives the
  *   submitted args and a context containing the declared entities.
+ *
+ * {@include ./referenceImports.md}
  * @param config Required `executor` and optional `schedule`, `entities`,
  *   and `performExecutorOptions`.
  *
@@ -338,6 +348,8 @@ type JobConfig = Omit<Job, "kind" | "fn">;
  * @param name Unique name for the generated CRUD.
  * @param entity Name of the Prisma entity to generate operations for.
  * @param operations Which operations to generate and how to configure each.
+ *
+ * {@include ./referenceImports.md}
  *
  * @category Constructors
  */
