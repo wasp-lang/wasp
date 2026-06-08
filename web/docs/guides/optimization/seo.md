@@ -3,6 +3,8 @@ title: SEO & GEO
 comments: true
 last_checked_with_versions:
   Wasp: "0.24"
+  Lighthouse: 13
+  "industry standards": 2026-06-08
 ---
 
 import { CardLink } from "@site/src/components/CardLink"
