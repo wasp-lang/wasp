@@ -4,6 +4,7 @@
 /docs/data-model/backends                  /docs/data-model/databases                                  301
 /docs/deploying                            /docs/deployment/intro                                      301
 /docs/deployment/deployment-methods/cli    /docs/deployment/deployment-methods/wasp-deploy/overview    301
+/docs/deployment/deployment-methods/paas   /docs/guides/deployment/cloud-providers                     301
 /docs/general/language                     /docs/guides/legacy/wasp-dsl                                301
 /docs/general/wasp-ts-config               /docs/guides/legacy/wasp-ts-config                          301
 /docs/guides/auth-ui                       /docs/auth/ui                                               301

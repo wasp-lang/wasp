@@ -54,4 +54,4 @@ For example, if you deploy your server to [Fly](https://fly.io), you can define 
 fly secrets set SOME_VAR_NAME=somevalue
 ```
 
-We talk about specific providers in the [PaaS deployment section](./deployment-methods/paas.md) or the [self-hosted deployment section](./deployment-methods/self-hosted.md).
+We talk about specific providers in the [Cloud Providers section](../guides/deployment/cloud-providers/index.md) or the [self-hosted deployment section](./deployment-methods/self-hosted.md).

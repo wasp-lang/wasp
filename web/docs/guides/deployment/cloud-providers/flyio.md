@@ -37,7 +37,7 @@ You need to do this only once per Wasp app.
 
 Unless you already have a Fly.io app that you want to deploy to, let's create a new Fly.io app.
 
-After you have [built the app](../../../deployment/deployment-methods/paas.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](./index.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out

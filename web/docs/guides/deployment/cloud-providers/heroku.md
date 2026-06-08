@@ -61,7 +61,7 @@ If you do not know what your client URL is yet, don't worry. You can set `WASP_W
 
 ### Deploy the Heroku app
 
-After you have [built the app](../../../deployment/deployment-methods/paas.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](./index.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out

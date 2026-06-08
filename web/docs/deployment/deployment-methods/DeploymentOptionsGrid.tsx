@@ -9,7 +9,7 @@ const deploymentMethods = [
   {
     title: "Cloud Providers",
     description: "Deploy your app manually to the cloud",
-    linkTo: "./paas",
+    linkTo: "../../guides/deployment/cloud-providers",
   },
   {
     title: "Self-hosting",
