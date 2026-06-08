@@ -11,20 +11,20 @@ You can deploy the built Wasp app wherever and however you want, as long as your
 
 We have step-by-step guides for deploying your Wasp app to some of the most popular providers you can follow:
 
-<CardLink to="./cloud-providers/cloudflare" kind="guide" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
+<CardLink to="../../guides/deployment/cloud-providers/cloudflare" kind="guide" title="Deploying Wasp to Cloudflare Workers" description="Uses Cloudflare Workers, Wrangler CLI" />
 
-<CardLink to="./cloud-providers/flyio" kind="guide" title="Deploying Wasp to Fly.io" description="Uses Fly.io, fly CLI, Docker" />
+<CardLink to="../../guides/deployment/cloud-providers/flyio" kind="guide" title="Deploying Wasp to Fly.io" description="Uses Fly.io, fly CLI, Docker" />
 
-<CardLink to="./cloud-providers/heroku" kind="guide" title="Deploying Wasp to Heroku" description="Uses Heroku, heroku CLI, Docker" />
+<CardLink to="../../guides/deployment/cloud-providers/heroku" kind="guide" title="Deploying Wasp to Heroku" description="Uses Heroku, heroku CLI, Docker" />
 
-<CardLink to="./cloud-providers/netlify" kind="guide" title="Deploying Wasp to Netlify" description="Uses Netlify, Netlify CLI" />
+<CardLink to="../../guides/deployment/cloud-providers/netlify" kind="guide" title="Deploying Wasp to Netlify" description="Uses Netlify, Netlify CLI" />
 
-<CardLink to="./cloud-providers/railway" kind="guide" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
+<CardLink to="../../guides/deployment/cloud-providers/railway" kind="guide" title="Deploying Wasp to Railway" description="Uses Railway, Railway CLI" />
 
-<CardLink to="./cloud-providers/render" kind="guide" title="Deploying Wasp on Render" description="Uses Render, Blueprint (IaC)" />
+<CardLink to="../../guides/deployment/cloud-providers/render" kind="guide" title="Deploying Wasp on Render" description="Uses Render, Blueprint (IaC)" />
 
 If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
-Feel free to [open a PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/guides/deployment/cloud-providers/index.md) if you'd like to write one yourself :)
+Feel free to [open a PR](https://github.com/wasp-lang/wasp/edit/release/web/docs/deployment/deployment-methods/cloud-providers.md) if you'd like to write one yourself :)
 
 ## Manual deployment
 
@@ -47,7 +47,7 @@ wasp build
 
 :::caution PostgreSQL in production
 You won't be able to build the app if you are using SQLite as a database (which is the default database).
-You'll have to [switch to PostgreSQL](../../../data-model/databases.md#migrating-from-sqlite-to-postgresql) before deploying to production.
+You'll have to [switch to PostgreSQL](../../data-model/databases.md#migrating-from-sqlite-to-postgresql) before deploying to production.
 :::
 
 ### 2. Deploying the API Server
@@ -56,7 +56,7 @@ There's a Dockerfile that defines an image for building the server in the `.wasp
 
 To run the server in production, deploy this Docker image to a hosting provider and make sure the required env variables are correctly set up. Usually, you use the provider's dashboard UI or a CLI tool to set up these env variables.
 
-Check the [required server env variables](../../../deployment/env-vars.md#server-env-vars) and make sure they are set up for your server.
+Check the [required server env variables](../env-vars.md#server-env-vars) and make sure they are set up for your server.
 
 While these are the general instructions on deploying the server anywhere, we also have more detailed instructions for chosen providers below, so check that out for more guidance if you are deploying to one of those providers.
 

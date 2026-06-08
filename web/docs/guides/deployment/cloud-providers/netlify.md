@@ -5,7 +5,7 @@ last_checked_with_versions:
   Netlify: 2026-05-28
 ---
 
-import BuildingTheWebClient from './_building-the-web-client.md'
+import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
 import { Client } from '../DeploymentTag'
 
 # Netlify
@@ -15,7 +15,7 @@ This guide shows you how to deploy your Wasp app's client to Netlify. Netlify is
 
 Make sure you are logged in with Netlify CLI. You can check if you are logged in with `npx netlify-cli status`, and if you are not, you can log in with `npx netlify-cli login`.
 
-First, make sure you have [built the Wasp app](./index.md#1-generating-deployable-code). We'll build the client web app next.
+First, make sure you have [built the Wasp app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code). We'll build the client web app next.
 
 <BuildingTheWebClient />
 

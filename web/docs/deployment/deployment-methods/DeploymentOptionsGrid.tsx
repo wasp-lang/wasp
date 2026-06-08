@@ -9,12 +9,12 @@ const deploymentMethods = [
   {
     title: "Cloud Providers",
     description: "Deploy your app manually to the cloud",
-    linkTo: "/docs/guides/deployment/cloud-providers",
+    linkTo: "./cloud-providers",
   },
   {
     title: "Self-hosting",
     description: "Use your own servers to host your app",
-    linkTo: "/docs/guides/deployment/self-hosted",
+    linkTo: "./self-hosted",
   },
 ];
 

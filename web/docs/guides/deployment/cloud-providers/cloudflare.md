@@ -5,7 +5,7 @@ last_checked_with_versions:
   "Cloudflare Workers": 2026-04-06
 ---
 
-import BuildingTheWebClient from './_building-the-web-client.md'
+import BuildingTheWebClient from '../../../deployment/deployment-methods/_building-the-web-client.md'
 import { Client } from '../DeploymentTag'
 
 # Cloudflare
@@ -20,7 +20,7 @@ Make sure you are logged in with the Cloudflare's CLI called Wrangler. You can l
 npx wrangler login
 ```
 
-Before you continue, make sure you have [built the Wasp app](./index.md#1-generating-deployable-code). We'll build the client web app next.
+Before you continue, make sure you have [built the Wasp app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code). We'll build the client web app next.
 
 <BuildingTheWebClient />
 
