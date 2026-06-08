@@ -7,13 +7,10 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import waspVersionsJson from "../versions.json";
+import waspVersionsJson from "../../versions.json";
 
-const SITE_ROOT = process.cwd();
-const STATIC_DIR = path.join(SITE_ROOT, "static/");
-const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs/");
-const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars/");
-const BLOG_DIR = path.join(SITE_ROOT, "blog/");
+import type { LlmFile } from "./common";
+
 const GITHUB_RAW_BASE_URL =
   "https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/"; // Use the release branch
 const WASP_BASE_URL = "https://wasp.sh/";
@@ -69,47 +66,55 @@ type BlogPost = {
   linkPath: string;
 };
 
-generateFiles().catch((err) => {
-  console.error("Failed to generate LLM files:", err);
-  process.exit(1);
-});
+type DocsLlmFilesContext = {
+  siteDir: string;
+  versionedDocsDir: string;
+  versionedSidebarsDir: string;
+  blogDir: string;
+  docIdToPathMapCache: Map<string, Map<string, string>>;
+  sourceDocCache: Map<string, SourceDoc | null>;
+};
 
-async function generateFiles() {
+export async function buildDocsLlmFiles(siteDir: string): Promise<LlmFile[]> {
   console.log("Starting LLM file generation...");
 
   if (!waspVersionsJson || waspVersionsJson.length === 0) {
     throw new Error("No versions found in versions.json");
   }
+
+  const context = createDocsLlmFilesContext(siteDir);
+  const files: LlmFile[] = [];
   // Our llms.txt URL is the entry point for the LLM.
   // It contains a section with links to llms-{version}.txt files
   // which are versioned documentation maps that link
   // to the individual raw markdown files on GitHub.
   const latestWaspVersion = waspVersionsJson[0];
-  const blogPostsSection = await buildBlogPostsSection();
+  const blogPostsSection = await buildBlogPostsSection(context);
   const docsMapsByVersionSection =
     buildDocsMapsByVersionSection(waspVersionsJson);
   const llmsTxtContent = buildLlmsTxtContent(
     docsMapsByVersionSection,
     blogPostsSection,
   );
-  await fs.writeFile(path.join(STATIC_DIR, "llms.txt"), llmsTxtContent, "utf8");
-  console.log("Generated: llms.txt");
+  files.push({ fileName: "llms.txt", content: llmsTxtContent });
 
   for (const version of waspVersionsJson) {
     console.log(`Processing version ${version}...`);
     const isLatest = version === latestWaspVersion;
-    const sidebarItems = await loadVersionedSidebar(version);
-    const categorizedDocs = await loadCategorizedDocs(sidebarItems, version);
+    const sidebarItems = await loadVersionedSidebar(context, version);
+    const categorizedDocs = await loadCategorizedDocs(
+      context,
+      sidebarItems,
+      version,
+    );
     const versionedLlmsTxtContent = buildVersionedLlmsTxtContent(
       version,
       categorizedDocs,
     );
-    await fs.writeFile(
-      path.join(STATIC_DIR, `llms-${version}.txt`),
-      versionedLlmsTxtContent,
-      "utf8",
-    );
-    console.log(`  Generated: llms-${version}.txt`);
+    files.push({
+      fileName: `llms-${version}.txt`,
+      content: versionedLlmsTxtContent,
+    });
 
     // We also generate a full concatenated documentation file, llms-full.txt,
     // for the latest version only with a section containing links
@@ -117,26 +122,30 @@ async function generateFiles() {
     const fullDocsBody = buildFullDocsBody(categorizedDocs);
     const llmsFullVersionedContent =
       buildFullDocsHeader(version) + fullDocsBody;
-    await fs.writeFile(
-      path.join(STATIC_DIR, `llms-full-${version}.txt`),
-      llmsFullVersionedContent.trim(),
-      "utf8",
-    );
-    console.log(`  Generated: llms-full-${version}.txt`);
+    files.push({
+      fileName: `llms-full-${version}.txt`,
+      content: llmsFullVersionedContent,
+    });
 
     if (isLatest) {
       const llmsFullWithIndex =
         buildFullDocsHeaderWithIndex(version, waspVersionsJson) + fullDocsBody;
-      await fs.writeFile(
-        path.join(STATIC_DIR, "llms-full.txt"),
-        llmsFullWithIndex.trim(),
-        "utf8",
-      );
-      console.log(`  Generated: llms-full.txt`);
+      files.push({ fileName: "llms-full.txt", content: llmsFullWithIndex });
     }
   }
 
-  console.log("LLM files generation completed successfully.");
+  return files;
+}
+
+function createDocsLlmFilesContext(siteDir: string): DocsLlmFilesContext {
+  return {
+    siteDir,
+    versionedDocsDir: path.join(siteDir, "versioned_docs"),
+    versionedSidebarsDir: path.join(siteDir, "versioned_sidebars"),
+    blogDir: path.join(siteDir, "blog"),
+    docIdToPathMapCache: new Map(),
+    sourceDocCache: new Map(),
+  };
 }
 
 function buildDocsMapsByVersionSection(versions: string[]): string {
@@ -174,10 +183,13 @@ Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}ll
     fullDocsSection,
     blogPostsSection,
     LLMS_TXT_RESOURCES,
-  ].join("\n\n");
+  ]
+    .filter(Boolean)
+    .join("\n\n");
 }
 
 async function loadCategorizedDocs(
+  context: DocsLlmFilesContext,
   sidebarItems: SidebarItemConfig[],
   version: string,
 ): Promise<CategorizedDocs> {
@@ -187,12 +199,12 @@ async function loadCategorizedDocs(
   for (const category of sidebarCategories) {
     const docs: DocMapEntry[] = [];
     for (const ref of category.docRefs) {
-      const info = await resolveDocRef(ref);
+      const info = await resolveDocRef(context, ref);
       if (!info) {
         continue;
       }
       const relativeToSite = path
-        .relative(SITE_ROOT, info.absolutePath)
+        .relative(context.siteDir, info.absolutePath)
         .replace(/\\/g, "/");
       docs.push({
         title: info.title,
@@ -271,27 +283,25 @@ function buildDocIdToPathMap(directory: string): Map<string, string> {
   return docIdToPath;
 }
 
-// versioned_docs/version-<version> doc-id -> relative-path maps, built lazily
-// and cached because a single version's sidebar can reference migration
-// guides that live in many other versions' folders.
-const docIdToPathMapCache = new Map<string, Map<string, string>>();
-// Resolved docs cached by absolute path: the same migration guide is
-// referenced by every later version's sidebar, so we only read it once.
-const sourceDocCache = new Map<string, SourceDoc | null>();
-
-function getDocIdToPathMap(version: string): Map<string, string> {
-  let docIdToPath = docIdToPathMapCache.get(version);
+function getDocIdToPathMap(
+  context: DocsLlmFilesContext,
+  version: string,
+): Map<string, string> {
+  let docIdToPath = context.docIdToPathMapCache.get(version);
   if (!docIdToPath) {
     docIdToPath = buildDocIdToPathMap(
-      path.join(VERSIONED_DOCS_DIR, `version-${version}`),
+      path.join(context.versionedDocsDir, `version-${version}`),
     );
-    docIdToPathMapCache.set(version, docIdToPath);
+    context.docIdToPathMapCache.set(version, docIdToPath);
   }
   return docIdToPath;
 }
 
-async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
-  const relativePath = getDocIdToPathMap(ref.version).get(ref.docId);
+async function resolveDocRef(
+  context: DocsLlmFilesContext,
+  ref: DocRef,
+): Promise<SourceDoc | null> {
+  const relativePath = getDocIdToPathMap(context, ref.version).get(ref.docId);
   if (!relativePath) {
     console.warn(
       `Document ID "${ref.docId}" was not found in version ${ref.version} (or it is ignored).`,
@@ -300,12 +310,12 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
   }
 
   const absolutePath = path.join(
-    VERSIONED_DOCS_DIR,
+    context.versionedDocsDir,
     `version-${ref.version}`,
     relativePath,
   );
-  if (sourceDocCache.has(absolutePath)) {
-    return sourceDocCache.get(absolutePath)!;
+  if (context.sourceDocCache.has(absolutePath)) {
+    return context.sourceDocCache.get(absolutePath)!;
   }
 
   try {
@@ -321,7 +331,7 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
       absolutePath,
       relativePath,
     };
-    sourceDocCache.set(absolutePath, sourceDoc);
+    context.sourceDocCache.set(absolutePath, sourceDoc);
     return sourceDoc;
   } catch (fileReadError) {
     // This is intentionally not re-thrown to allow the script to continue
@@ -330,7 +340,7 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
       `Error reading or processing file for docId '${ref.docId}' (version ${ref.version}) at ${absolutePath}:`,
       fileReadError,
     );
-    sourceDocCache.set(absolutePath, null);
+    context.sourceDocCache.set(absolutePath, null);
     return null;
   }
 }
@@ -426,9 +436,11 @@ function parseInternalDocHref(href: string): DocRef | null {
   return { docId, version };
 }
 
-async function buildBlogPostsSection(): Promise<string> {
+async function buildBlogPostsSection(
+  context: DocsLlmFilesContext,
+): Promise<string> {
   const blogPostFiles = globSync("*.{md,mdx}", {
-    cwd: BLOG_DIR,
+    cwd: context.blogDir,
     nodir: true,
     ignore: ["_*.md", "_*.mdx", "authors.yml", "components/**"],
   });
@@ -440,7 +452,7 @@ async function buildBlogPostsSection(): Promise<string> {
     if (!fileDate) {
       continue;
     }
-    const absoluteFilePath = path.join(BLOG_DIR, file);
+    const absoluteFilePath = path.join(context.blogDir, file);
     try {
       const rawContent = await fs.readFile(absoluteFilePath, "utf8");
       const { attributes } = fm(rawContent);
@@ -518,10 +530,11 @@ function constructBlogUrl(filename: string): string {
 }
 
 async function loadVersionedSidebar(
+  context: DocsLlmFilesContext,
   version: string,
 ): Promise<SidebarItemConfig[]> {
   const sidebarPath = path.join(
-    VERSIONED_SIDEBARS_DIR,
+    context.versionedSidebarsDir,
     `version-${version}-sidebars.json`,
   );
   const sidebarContent = await fs.readFile(sidebarPath, "utf8");
@@ -550,7 +563,6 @@ function cleanDocContent(content: string): string {
   if (!content) return "";
 
   const componentsToReplace = new Set<string>();
-  // NOTE: Not sure if this is needed, as LLMs can probably parse the component's meaning from context.
   // Regex to capture imports from '@site/src/components/Tag'
   // e.g. import MyTag from '...' -> MyTag
   // e.g. import {Tag1, Tag2 as MyTag2} from '...' -> {Tag1, Tag2 as MyTag2}
