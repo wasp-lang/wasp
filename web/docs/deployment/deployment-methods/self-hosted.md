@@ -17,6 +17,9 @@ We have step-by-step guides for deploying your Wasp app on your server with diff
 
 <CardLink to="../../guides/deployment/self-hosted/vps" kind="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
 
+If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
+Feel free to [open a PR](https://github.com/wasp-lang/wasp/new/release/web/docs/guides/deployment/self-hosted) if you'd like to write one yourself :)
+
 ## Manual deployment
 
 We will show you a general overview of the architecture of a self-hosted Wasp app and the steps you need to take to deploy your app on your server. This is a more manual process than using the guides above, but it gives you more control over your deployment and you'll learn how everything works. If you are looking for a more guided deployment, check out the guides above.
