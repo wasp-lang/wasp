@@ -71,7 +71,12 @@ type DocsLlmFilesContext = {
   versionedDocsDir: string;
   versionedSidebarsDir: string;
   blogDir: string;
+  // versioned_docs/version-<version> doc-id -> relative-path maps, built lazily
+  // and cached because a single version's sidebar can reference migration
+  // guides that live in many other versions' folders.
   docIdToPathMapCache: Map<string, Map<string, string>>;
+  // Resolved docs cached by absolute path: the same migration guide is
+  // referenced by every later version's sidebar, so we only read it once.
   sourceDocCache: Map<string, SourceDoc | null>;
 };
 
@@ -563,6 +568,7 @@ function cleanDocContent(content: string): string {
   if (!content) return "";
 
   const componentsToReplace = new Set<string>();
+  // NOTE: Not sure if this is needed, as LLMs can probably parse the component's meaning from context.
   // Regex to capture imports from '@site/src/components/Tag'
   // e.g. import MyTag from '...' -> MyTag
   // e.g. import {Tag1, Tag2 as MyTag2} from '...' -> {Tag1, Tag2 as MyTag2}
