@@ -96,7 +96,7 @@ model User {
 
 The implementation splits across two files: pure Spotify logic in `src/spotify.ts`, and Wasp auth logic in `src/auth.ts`.
 
-`src/spotify.ts` holds the [Arctic](https://v1.arcticjs.dev/providers/spotify) client (the library Wasp uses for OAuth) and the [Spotify `/me`](https://developer.spotify.com/documentation/web-api/reference/get-current-users-profile) profile fetch:
+`src/spotify.ts` holds the [Arctic](https://arcticjs.dev/providers/spotify) client (the library Wasp uses for OAuth) and the [Spotify `/me`](https://developer.spotify.com/documentation/web-api/reference/get-current-users-profile) profile fetch:
 
 ```ts title="src/spotify.ts" auto-js
 import * as arctic from "arctic";
@@ -163,7 +163,9 @@ import { spotify, getSpotifyUser, type SpotifyUser } from "./spotify";
 // Handler for /auth/spotify - initiates OAuth flow
 export const authWithSpotify: AuthWithSpotify = async (req, res) => {
   const state = arctic.generateState();
-  const url = await spotify.createAuthorizationURL(state, { scopes: ["user-read-email"] });
+  // Spotify is used as a confidential client here, so we pass `null` as the
+  // PKCE code verifier. `createAuthorizationURL` is synchronous since Arctic v2.
+  const url = spotify.createAuthorizationURL(state, null, ["user-read-email"]);
   res.redirect(url.toString());
 };
 
@@ -173,8 +175,8 @@ export const authWithSpotifyCallback: AuthWithSpotifyCallback = async (
   res,
 ) => {
   const code = req.query.code as string;
-  const tokens = await spotify.validateAuthorizationCode(code);
-  const spotifyUser = await getSpotifyUser(tokens.accessToken);
+  const tokens = await spotify.validateAuthorizationCode(code, null);
+  const spotifyUser = await getSpotifyUser(tokens.accessToken());
 
   const providerId = {
     providerName: "spotify" as ProviderName,
@@ -249,7 +251,7 @@ export const MainPage = () => {
 
 ## Using a Different OAuth Provider
 
-[Arctic](https://v1.arcticjs.dev/) (v1) supports many providers. Check its documentation for the full list and their specific setup requirements.
+[Arctic](https://arcticjs.dev/) supports many providers. Check its documentation for the full list and their specific setup requirements.
 
 Each provider follows the same pattern. For example, to use Twitch instead of Spotify:
 

@@ -59,9 +59,11 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state }) => discord.oAuthClient.createAuthorizationURL(state, config),
-            getProviderTokens: ({ code }) => discord.oAuthClient.validateAuthorizationCode(code),
-            getProviderInfo: ({ accessToken }) => getDiscordProfile(accessToken),
+            // Discord is used as a confidential client (we have a client secret),
+            // so PKCE is not used and we pass `null` as the code verifier.
+            getAuthorizationUrl: ({ state }) => discord.oAuthClient.createAuthorizationURL(state, null, config.scopes),
+            getProviderTokens: ({ code }) => discord.oAuthClient.validateAuthorizationCode(code, null),
+            getProviderInfo: (tokens) => getDiscordProfile(tokens.accessToken()),
         });
     },
 }

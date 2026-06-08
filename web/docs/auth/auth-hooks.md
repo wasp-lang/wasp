@@ -200,7 +200,7 @@ export default app({
 
       // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
       if (oauth) {
-        console.log("accessToken", oauth.tokens.accessToken)
+        console.log("accessToken", oauth.tokens.accessToken())
         console.log("uniqueRequestId", oauth.uniqueRequestId)
 
         const id = oauth.uniqueRequestId
@@ -231,7 +231,7 @@ export default app({
 
       // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
       if (oauth) {
-        console.log("accessToken", oauth.tokens.accessToken)
+        console.log("accessToken", oauth.tokens.accessToken())
         console.log("uniqueRequestId", oauth.uniqueRequestId)
 
         const id = oauth.uniqueRequestId
@@ -483,7 +483,7 @@ export default app({
 
       // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
       if (oauth) {
-        console.log("accessToken", oauth.tokens.accessToken)
+        console.log("accessToken", oauth.tokens.accessToken())
         console.log("uniqueRequestId", oauth.uniqueRequestId)
 
         const id = oauth.uniqueRequestId
@@ -512,7 +512,7 @@ export default app({
 
       // If this is an OAuth signup, you have access to the OAuth tokens and the uniqueRequestId
       if (oauth) {
-        console.log("accessToken", oauth.tokens.accessToken)
+        console.log("accessToken", oauth.tokens.accessToken())
         console.log("uniqueRequestId", oauth.uniqueRequestId)
 
         const id = oauth.uniqueRequestId
@@ -545,9 +545,9 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin = async ({ oauth }) => {
-      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth.providerName === "google" && oauth.tokens.hasRefreshToken()) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
-          oauth.tokens.refreshToken
+          oauth.tokens.refreshToken()
         )
         log("new tokens", newTokens)
       }
@@ -561,9 +561,9 @@ Here's an example of how you can refresh the access token for Google OAuth:
     import { google } from "wasp/server/auth"
 
     export const onAfterLogin: OnAfterLoginHook = async ({ oauth }) => {
-      if (oauth.provider === "google" && oauth.tokens.refreshToken !== null) {
+      if (oauth.providerName === "google" && oauth.tokens.hasRefreshToken()) {
         const newTokens = await google.oAuthClient.refreshAccessToken(
-          oauth.tokens.refreshToken
+          oauth.tokens.refreshToken()
         )
         log("new tokens", newTokens)
       }
@@ -572,7 +572,7 @@ Here's an example of how you can refresh the access token for Google OAuth:
   </TabItem>
 </Tabs>
 
-Google exposes the `accessTokenExpiresAt` field in the `oauth.tokens` object. You can use this field to determine when the access token expires.
+Google exposes the access token expiration via the `accessTokenExpiresAt()` method on the `oauth.tokens` object. You can use it to determine when the access token expires.
 
 If you want to refresh the token periodically, use a [Wasp Job](../advanced/jobs.md).
 
@@ -907,22 +907,23 @@ It has the following fields:
 
   The name of the OAuth provider the user authenticated with (e.g. `"google"`, `"github"`).
 
-- `tokens: Tokens`
+- `tokens: OAuth2Tokens`
 
   You can use the OAuth tokens to make requests to the provider's API on the user's behalf.
 
-  Depending on the OAuth provider, the `tokens` object might have different fields. For example, Google has the fields `accessToken`, `refreshToken`, `idToken`, and `accessTokenExpiresAt`.
+  `tokens` is an [Arctic `OAuth2Tokens`](https://arcticjs.dev/reference/main/OAuth2Tokens) instance. You read the values through methods (e.g. `accessToken()`, `refreshToken()`, `idToken()`, `accessTokenExpiresAt()`). These methods throw if the field isn't present in the provider's response, so guard optional fields with the matching `has*` method (e.g. `hasRefreshToken()`).
 
   <ShowForTs>
-    To access the provider-specific fields, you must first narrow down the `oauth.tokens` object type to the specific OAuth provider type.
+    Which fields a provider returns depends on the provider. For example, Google returns an access token, a refresh token, an ID token, and an access token expiration.
 
     ```ts
     if (oauth && oauth.providerName === "google") {
-      console.log(oauth.tokens.accessToken)
-      //                  ^ Google specific tokens are available here
-      console.log(oauth.tokens.refreshToken)
-      console.log(oauth.tokens.idToken)
-      console.log(oauth.tokens.accessTokenExpiresAt)
+      console.log(oauth.tokens.accessToken())
+      console.log(oauth.tokens.idToken())
+      console.log(oauth.tokens.accessTokenExpiresAt())
+      if (oauth.tokens.hasRefreshToken()) {
+        console.log(oauth.tokens.refreshToken())
+      }
     }
     ```
   </ShowForTs>

@@ -55,9 +55,9 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state, codeVerifier }) => google.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
+            getAuthorizationUrl: ({ state, codeVerifier }) => google.oAuthClient.createAuthorizationURL(state, codeVerifier, config.scopes),
             getProviderTokens: ({ code, codeVerifier }) => google.oAuthClient.validateAuthorizationCode(code, codeVerifier),
-            getProviderInfo: ({ accessToken }) => getGoogleProfile(accessToken),
+            getProviderInfo: (tokens) => getGoogleProfile(tokens.accessToken()),
         });
     },
 }

@@ -173,19 +173,19 @@ export type OAuthData = {
   uniqueRequestId: string
 } & (
   {=# enabledProviders.isGoogleAuthEnabled =}
-  | { providerName: 'google'; tokens: import('arctic').GoogleTokens } 
+  | { providerName: 'google'; tokens: import('arctic').OAuth2Tokens }
   {=/ enabledProviders.isGoogleAuthEnabled =}
   {=# enabledProviders.isDiscordAuthEnabled =}
-  | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }
+  | { providerName: 'discord'; tokens: import('arctic').OAuth2Tokens }
   {=/ enabledProviders.isDiscordAuthEnabled =}
   {=# enabledProviders.isGitHubAuthEnabled =}
-  | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
+  | { providerName: 'github'; tokens: import('arctic').OAuth2Tokens }
   {=/ enabledProviders.isGitHubAuthEnabled =}
   {=# enabledProviders.isKeycloakAuthEnabled =}
-  | { providerName: 'keycloak'; tokens: import('arctic').KeycloakTokens }
+  | { providerName: 'keycloak'; tokens: import('arctic').OAuth2Tokens }
   {=/ enabledProviders.isKeycloakAuthEnabled =}
   {=# enabledProviders.isMicrosoftAuthEnabled =}
-  | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
+  | { providerName: 'microsoft'; tokens: import('arctic').OAuth2Tokens }
   {=/ enabledProviders.isMicrosoftAuthEnabled =}
   | never
 )

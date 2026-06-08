@@ -57,9 +57,9 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state }) => github.oAuthClient.createAuthorizationURL(state, config),
+            getAuthorizationUrl: ({ state }) => github.oAuthClient.createAuthorizationURL(state, config.scopes),
             getProviderTokens: ({ code }) => github.oAuthClient.validateAuthorizationCode(code),
-            getProviderInfo: ({ accessToken }) => getGithubProfile(accessToken),
+            getProviderInfo: (tokens) => getGithubProfile(tokens.accessToken()),
         });
     },
 }

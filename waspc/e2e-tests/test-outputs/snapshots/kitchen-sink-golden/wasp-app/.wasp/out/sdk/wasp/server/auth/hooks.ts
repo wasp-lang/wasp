@@ -171,9 +171,9 @@ export type OAuthData = {
   */
   uniqueRequestId: string
 } & (
-  | { providerName: 'google'; tokens: import('arctic').GoogleTokens } 
-  | { providerName: 'discord'; tokens: import('arctic').DiscordTokens }
-  | { providerName: 'github'; tokens: import('arctic').GitHubTokens }
-  | { providerName: 'microsoft'; tokens: import('arctic').MicrosoftEntraIdTokens }
+  | { providerName: 'google'; tokens: import('arctic').OAuth2Tokens }
+  | { providerName: 'discord'; tokens: import('arctic').OAuth2Tokens }
+  | { providerName: 'github'; tokens: import('arctic').OAuth2Tokens }
+  | { providerName: 'microsoft'; tokens: import('arctic').OAuth2Tokens }
   | never
 )

@@ -8,6 +8,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. ([#4153](https://github.com/wasp-lang/wasp/pull/4153))
 - Wasp now requires `vitest` to be listed in your project's `devDependencies`. ([#4182](https://github.com/wasp-lang/wasp/pull/4182))
+- Upgraded the [Arctic](https://arcticjs.dev/) OAuth library from v1 to v3. The `oauth.tokens` object passed to your auth hooks (`onAfterLoginHook`, `onAfterSignupHook`) is now an Arctic `OAuth2Tokens` instance, so tokens are read via methods (e.g. `oauth.tokens.accessToken()`) instead of properties (e.g. `oauth.tokens.accessToken`). See the [Arctic v2 migration guide](https://arcticjs.dev/guides/migrate-v2) for details.
 
 ### 🎉 New Features
 

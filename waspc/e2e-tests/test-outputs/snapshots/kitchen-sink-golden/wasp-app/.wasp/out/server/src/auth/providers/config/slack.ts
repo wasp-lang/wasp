@@ -44,9 +44,9 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state }) => slack.oAuthClient.createAuthorizationURL(state, config),
+            getAuthorizationUrl: ({ state }) => slack.oAuthClient.createAuthorizationURL(state, config.scopes),
             getProviderTokens: ({ code }) => slack.oAuthClient.validateAuthorizationCode(code),
-            getProviderInfo: ({ accessToken }) => getSlackProfile(accessToken),
+            getProviderInfo: (tokens) => getSlackProfile(tokens.accessToken()),
         });
     },
 }

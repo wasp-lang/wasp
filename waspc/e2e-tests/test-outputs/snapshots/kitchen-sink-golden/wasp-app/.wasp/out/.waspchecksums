@@ -893,7 +893,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "96f48814066690a3671e7d496c335121cd835c9ad7e91311afc914ae55a24a5c"
+        "db513342299616c9a9833dabbeec13cd4b9ac316c3b1fe73101af6f617455834"
     ],
     [
         [
@@ -956,7 +956,7 @@
             "file",
             "sdk/wasp/server/auth/hooks.ts"
         ],
-        "eeed54475dc629b87bee0f652ced2fa45268e9464c07438133aebfcafa4069c2"
+        "94ad9857975ca0c465c78adfee2f37f0e0265ea3e099ab05fb07b67cafac0eb0"
     ],
     [
         [
@@ -984,7 +984,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/provider.ts"
         ],
-        "5b913ae922e7a2b409c06e84687786ade16694522b85b36a1ca11d365414f6bc"
+        "f05c56ed5569c93499ccfa1287e15dcbfb798da4ea183395109c375e40f6c919"
     ],
     [
         [
@@ -998,7 +998,7 @@
             "file",
             "sdk/wasp/server/auth/oauth/providers/github.ts"
         ],
-        "493ea5cc77ce04e4bdabc9568ef8f5760b6b00d86b54ac6c0a3aa1f99d7e4722"
+        "656b8978df88f64e8dd08abaed2a4a0f2c4eadde5514cab769b7dfdce85d0fec"
     ],
     [
         [
@@ -2027,7 +2027,7 @@
             "file",
             "server/src/auth/providers/config/discord.ts"
         ],
-        "e18413bf3013b160deeaa195680086c6ef02a0b470fecea9de75c90afd550365"
+        "c40631196ee3f4dfe8a598fa34b203bce4bff8046ae4b01464fcde0c26bbf24e"
     ],
     [
         [
@@ -2041,28 +2041,28 @@
             "file",
             "server/src/auth/providers/config/github.ts"
         ],
-        "ac4ecb92c0c4e00bd8080eaafa4aacfe3a6c36bb9391fc65181f2981502d2328"
+        "07a4f619942c35fe29f89838a354f435e14296ef6b0dab692f6209acb97bba7b"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/google.ts"
         ],
-        "4b9e240b8659bddfad56f79fb7d3af5c00c20dab1aca764fdf2d3254d912ff10"
+        "dbf92a7cd60c3243b0d05a726abbe52aac0439a600dab6c96ccdf04c21ce4e82"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/microsoft.ts"
         ],
-        "09ffb4ccd5350cf0434ba16c610e96e2253183565862cbf12b8d17147abe1bb7"
+        "16909913e035e31d7c7fff6ff23b4a547c4815d3f57df586a655b89e6673b8dd"
     ],
     [
         [
             "file",
             "server/src/auth/providers/config/slack.ts"
         ],
-        "546d0faf0a7e4f834c5358e705ca34e0c98a3619350d87587c4a8957a22ac8e7"
+        "6a9d27f4457d7c0d77418854382e93585fad7bcfc9e6a49c2897ecf2e2997838"
     ],
     [
         [
@@ -2125,7 +2125,7 @@
             "file",
             "server/src/auth/providers/oauth/handler.ts"
         ],
-        "ed664d19bae3a1c00162f47f6f74d296ea7cf5d681ae66ea6de742cc3d8781b3"
+        "c9cb83f7201a6778deb62c436f31ca4733ee3b99eb9715ab06194a67d072b4aa"
     ],
     [
         [

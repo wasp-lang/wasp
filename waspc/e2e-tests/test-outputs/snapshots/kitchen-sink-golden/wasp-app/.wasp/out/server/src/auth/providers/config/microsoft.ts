@@ -44,9 +44,9 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state, codeVerifier }) => microsoft.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
+            getAuthorizationUrl: ({ state, codeVerifier }) => microsoft.oAuthClient.createAuthorizationURL(state, codeVerifier, config.scopes),
             getProviderTokens: ({ code, codeVerifier }) => microsoft.oAuthClient.validateAuthorizationCode(code, codeVerifier),
-            getProviderInfo: ({ accessToken }) => getMicrosoftProfile(accessToken),
+            getProviderInfo: (tokens) => getMicrosoftProfile(tokens.accessToken()),
         });
     },
 }

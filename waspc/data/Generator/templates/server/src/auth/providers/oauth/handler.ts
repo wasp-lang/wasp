@@ -40,11 +40,12 @@ export function createOAuthProviderRouter<OT extends OAuthType, Tokens extends O
   userSignupFields: UserSignupFields | undefined
   /*
     The function that returns the URL to redirect the user to the
-    provider's login page.
+    provider's login page. Since Arctic v2 `createAuthorizationURL` is
+    synchronous, so this returns a `URL` instead of a `Promise<URL>`.
   */
   getAuthorizationUrl: (
     oAuthState: OAuthStateFor<OT>,
-  ) => Promise<URL>
+  ) => URL
   /*
     The function that returns the access token and refresh token from the
     provider's callback.

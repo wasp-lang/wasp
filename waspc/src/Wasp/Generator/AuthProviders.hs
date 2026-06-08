@@ -14,7 +14,9 @@ googleAuthProvider =
   OA.OAuthAuthProvider
     { OA._providerId = fromJust $ makeProviderId "google",
       OA._displayName = "Google",
-      OA._requiredScope = ["profile"]
+      -- Arctic <2 added the "openid" scope automatically; since v2 scopes
+      -- must be requested explicitly, so we include it here.
+      OA._requiredScope = ["openid", "profile"]
     }
 
 keycloakAuthProvider :: OA.OAuthAuthProvider
@@ -22,7 +24,9 @@ keycloakAuthProvider =
   OA.OAuthAuthProvider
     { OA._providerId = fromJust $ makeProviderId "keycloak",
       OA._displayName = "Keycloak",
-      OA._requiredScope = ["profile"]
+      -- Arctic <2 added the "openid" scope automatically; since v2 scopes
+      -- must be requested explicitly, so we include it here.
+      OA._requiredScope = ["openid", "profile"]
     }
 
 gitHubAuthProvider :: OA.OAuthAuthProvider

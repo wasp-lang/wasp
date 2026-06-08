@@ -57,9 +57,9 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state, codeVerifier }) => keycloak.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
+            getAuthorizationUrl: ({ state, codeVerifier }) => keycloak.oAuthClient.createAuthorizationURL(state, codeVerifier, config.scopes),
             getProviderTokens: ({ code, codeVerifier }) => keycloak.oAuthClient.validateAuthorizationCode(code, codeVerifier),
-            getProviderInfo: ({ accessToken }) => getKeycloakProfile(accessToken),
+            getProviderInfo: (tokens) => getKeycloakProfile(tokens.accessToken()),
         });
     },
 }

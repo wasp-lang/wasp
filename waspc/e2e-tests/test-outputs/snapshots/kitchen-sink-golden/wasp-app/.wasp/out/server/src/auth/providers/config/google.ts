@@ -14,7 +14,7 @@ const _waspConfig: ProviderConfig = {
     displayName: google.displayName,
     createRouter(provider) {
         const config = mergeDefaultAndUserConfig({
-            scopes: ['profile'],
+            scopes: ['openid', 'profile'],
         }, _waspUserDefinedConfigFn);
 
         async function getGoogleProfile(accessToken: string): Promise<{
@@ -44,9 +44,9 @@ const _waspConfig: ProviderConfig = {
             provider,
             oAuthType: 'OAuth2WithPKCE',
             userSignupFields: _waspUserSignupFields,
-            getAuthorizationUrl: ({ state, codeVerifier }) => google.oAuthClient.createAuthorizationURL(state, codeVerifier, config),
+            getAuthorizationUrl: ({ state, codeVerifier }) => google.oAuthClient.createAuthorizationURL(state, codeVerifier, config.scopes),
             getProviderTokens: ({ code, codeVerifier }) => google.oAuthClient.validateAuthorizationCode(code, codeVerifier),
-            getProviderInfo: ({ accessToken }) => getGoogleProfile(accessToken),
+            getProviderInfo: (tokens) => getGoogleProfile(tokens.accessToken()),
         });
     },
 }
