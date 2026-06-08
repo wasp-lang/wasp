@@ -34,7 +34,7 @@ export function cleanMarkdown(content: string): string {
 }
 
 // Increases every heading level by one (# -> ##, ## -> ###, ...). Used when a
-// doc body is nested under a `## <title>` section in the concatenated output.
+// doc body is nested under some title section in the concatenated output.
 export function bumpHeadings(markdown: string): string {
   return markdown.replace(/^(#{1,6})\s/gm, "#$1 ");
 }
