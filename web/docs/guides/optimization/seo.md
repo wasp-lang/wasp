@@ -61,7 +61,7 @@ A straightforward way to run Lighthouse is through the command line:
 $ wasp build
 $ wasp build start
 
-# While the app is running, open another terminal and run Lighthouse:
+# While the server is running, open another terminal and run Lighthouse:
 $ npx lighthouse http://localhost:3000 --preset=desktop --view
 
 # You can change the URL to a specific page or to point to your deployed app if you want to test that instead.
