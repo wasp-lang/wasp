@@ -69,20 +69,6 @@ export function computeDocPermalink(
   return `${base}/${stripCategoryIndexSegment(docId)}`;
 }
 
-// Docusaurus' category index convention: a doc named `index`, `README`, or the
-// same as its parent folder (e.g. auth/entities/entities) becomes that folder's
-// index page, so its route drops the last segment.
-function stripCategoryIndexSegment(docId: string): string {
-  const segments = docId.split("/");
-  if (segments.length < 2) return docId;
-  const last = segments[segments.length - 1].toLowerCase();
-  const parent = segments[segments.length - 2].toLowerCase();
-  if (last === "index" || last === "readme" || last === parent) {
-    return segments.slice(0, -1).join("/");
-  }
-  return docId;
-}
-
 function collectTagComponentNames(content: string): Set<string> {
   const names = new Set<string>();
   // Imports from '@site/src/components/Tag', e.g.
@@ -118,4 +104,18 @@ function extractImportedNames(rawSpecifier: string): string[] {
     names.push(specifier);
   }
   return names.filter(Boolean);
+}
+
+// Docusaurus' category index convention: a doc named `index`, `README`, or the
+// same as its parent folder (e.g. auth/entities/entities) becomes that folder's
+// index page, so its route drops the last segment.
+function stripCategoryIndexSegment(docId: string): string {
+  const segments = docId.split("/");
+  if (segments.length < 2) return docId;
+  const last = segments[segments.length - 1].toLowerCase();
+  const parent = segments[segments.length - 2].toLowerCase();
+  if (last === "index" || last === "readme" || last === parent) {
+    return segments.slice(0, -1).join("/");
+  }
+  return docId;
 }
