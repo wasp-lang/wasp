@@ -38,6 +38,10 @@ const config: Config = {
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.svg",
   themeConfig: {
+    colorMode: {
+      respectPrefersColorScheme: true,
+    },
+
     announcementBar: {
       id: "app-in-production",
       content:
