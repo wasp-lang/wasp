@@ -14,7 +14,7 @@ const deploymentMethods = [
   {
     title: "Self-hosting",
     description: "Use your own servers to host your app",
-    linkTo: "./self-hosted",
+    linkTo: "../../guides/deployment/self-hosted",
   },
 ];
 

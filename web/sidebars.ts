@@ -148,7 +148,6 @@ const sidebars: SidebarsConfig = {
                 "deployment/deployment-methods/wasp-deploy/ci-cd",
               ],
             },
-            "deployment/deployment-methods/self-hosted",
           ],
         },
         "deployment/ci-cd",

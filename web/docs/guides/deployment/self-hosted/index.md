@@ -11,11 +11,11 @@ If you have your server or rent out a server, you can self-host your Wasp apps. 
 
 We have step-by-step guides for deploying your Wasp app on your server with different methods. Check out the guides below:
 
-<CardLink to="../../guides/deployment/self-hosted/caprover" kind="guide" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
+<CardLink to="./self-hosted/caprover" kind="guide" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
 
-<CardLink to="../../guides/deployment/self-hosted/coolify" kind="guide" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
+<CardLink to="./self-hosted/coolify" kind="guide" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
 
-<CardLink to="../../guides/deployment/self-hosted/vps" kind="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
+<CardLink to="./self-hosted/vps" kind="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
 
 ## Manual deployment
 
@@ -58,13 +58,13 @@ To self-host your Wasp app, you'll follow these general steps:
 6. Build the **client app** into static files.
    - Wasp outputs the client app in the `.wasp/out/web-app` directory.
    <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
-   - You should [build the client app](../../guides/deployment/cloud-providers/index.md#3-deploying-the-web-client) into static files.
+   - You should [build the client app](../cloud-providers/index.md#3-deploying-the-web-client) into static files.
 7. Install and set up a **reverse proxy** to serve your client and server apps.
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
    - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.
 8. Point your **domain(s)** to your server's IP address.
    - We recommend setting `myapp.com` for the client and `api.myapp.com` for the server.
-   - The reverse proxy should serve the client app on `myapp.com` and proxy requests to the server app on `api.myapp.com`. Make sure your [env variables](../env-vars.md) are using these client and server URLs.
+   - The reverse proxy should serve the client app on `myapp.com` and proxy requests to the server app on `api.myapp.com`. Make sure your [env variables](../../../deployment/env-vars.md) are using these client and server URLs.
 
 ## Database setup
 
