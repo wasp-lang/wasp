@@ -167,6 +167,8 @@ By default, Wasp apps are [single-page applications (SPAs)](https://en.wikipedia
 
 Most search engines (like Google) can also execute JavaScript when indexing a page too. But some crawlers (and many AI assistants) don't run JavaScript at all. So they see only the empty HTML, not your actual content. As such, they can't answer questions about your website, and they'll mostly ignore it.
 
+![Diagram explaining prerendering in Wasp apps. Two side-by-side scenarios compare how a real browser and an AI assistant handle a page. On the left, 'Without prerender': the browser window shows 'Loading...' and the HTML contains only an empty body with a script tag. A real browser executes the JavaScript and successfully shows the page (green checkmark), but the AI assistant only sees the empty HTML, reading the page content as 'Loading,' and responds 'Hmm... I don't know what this page is about,' marked with a red X. On the right, 'With prerender': the browser window shows 'Welcome to Wasp,' and the HTML contains the actual content inside the body. Both the real browser and the AI assistant succeed (green checkmarks); the AI assistant reads 'Welcome to Wasp,' understands the page describes Wasp, and says it will recommend it to the user.](/img/prerendering-diagram.png)
+
 However, Wasp can **prerender** chosen routes to static HTML at build time, so the content is readable in the initial file even without JavaScript. Browsers will still download and execute the rest of the app, and present the same experience as with a pure SPA, so you get the best of both worlds. You can opt-in per route:
 
 ```ts title="main.wasp.ts"
