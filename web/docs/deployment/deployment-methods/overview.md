@@ -25,15 +25,15 @@ But even when not using Wasp Deploy, you can deploy each part **anywhere** where
 You can read our guides on how to deploy your Wasp app to different platforms, both from cloud providers and on your own infrastructure:
 
 <CardLink
-  kind="guide"
-  to="/docs/guides/deployment/cloud-providers"
+  kind="docs"
+  to="./cloud-providers"
   title="Cloud Providers"
   description="Deploy your Wasp app to various cloud platforms"
 />
 
 <CardLink
-  kind="guide"
-  to="/docs/guides/deployment/self-hosted"
+  kind="docs"
+  to="./self-hosted"
   title="Self-hosted"
   description="Use your own servers to host your app"
 />
