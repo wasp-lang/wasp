@@ -67,7 +67,7 @@ const FeaturesExplorer = () => {
           aria-label="Wasp features"
           onKeyDown={onTabsKeyDown}
           className={classNames(
-            "flex overflow-x-auto border-b-2 border-wasp-black bg-wasp-black font-mono lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-r-2",
+            "tab-bar-fade-mobile flex overflow-x-auto border-b-2 border-wasp-black bg-wasp-black font-mono lg:flex-col lg:overflow-y-auto lg:border-b-0 lg:border-r-2",
             "wasp-scrollbar",
           )}
         >
@@ -196,7 +196,7 @@ const Tab = ({
 );
 
 const CodeBlock = ({ codeBlock }: { codeBlock: CodeBlockInfo }) => (
-  <div className="border border-wasp-black bg-wasp-bg text-sm">
+  <div className="border border-wasp-black bg-wasp-bg text-xs sm:text-sm">
     <div className="border-b border-wasp-black bg-wasp-yellow-light px-4 py-2 font-mono text-xs font-semibold text-wasp-black">
       {codeBlock.head}
     </div>

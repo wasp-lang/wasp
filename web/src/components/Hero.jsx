@@ -138,12 +138,12 @@ function TabbedCodeViewer() {
   return (
     <div className="flex h-full w-full flex-col border border-wasp-g3">
       {/* Tab bar */}
-      <div className="flex border-b border-wasp-g3">
+      <div className="tab-bar-fade-mobile flex overflow-x-auto border-b border-wasp-g3">
         {codeTabs.map((t, i) => (
           <button
             key={t.name}
             onClick={() => setActiveTab(i)}
-            className={`px-4 py-2 font-mono text-xs transition-colors ${
+            className={`shrink-0 px-4 py-2 font-mono text-xs transition-colors ${
               i === activeTab
                 ? "font-semibold text-wasp-black"
                 : "text-wasp-g5 hover:text-wasp-g7"
@@ -165,7 +165,7 @@ function TabbedCodeViewer() {
         {codeTabs.map((t, i) => (
           <div
             key={t.name}
-            className={`col-start-1 row-start-1 min-w-0 text-sm ${
+            className={`col-start-1 row-start-1 min-w-0 text-xs sm:text-sm ${
               i !== activeTab ? "invisible" : ""
             }`}
           >
@@ -179,12 +179,12 @@ function TabbedCodeViewer() {
 
 const Hero = () => {
   return (
-    <SectionContainer className="pt-24">
+    <SectionContainer className="xl:pt-24">
       <div className="xl:grid xl:grid-cols-12 xl:gap-16">
         <div className="z-10 flex flex-col justify-between gap-12 xl:col-span-6 xl:min-w-0">
           {/* Hero title and subtitle */}
           <div>
-            <div className="mb-7 inline-block border border-wasp-g3 px-3 py-1 text-[11px] uppercase tracking-[3px] text-wasp-g7">
+            <div className="mb-7 hidden border border-wasp-g3 px-3 py-1 text-[11px] uppercase tracking-[3px] text-wasp-g7 md:inline-block">
               Full-Stack Framework for the AI Era
             </div>
             <h1
