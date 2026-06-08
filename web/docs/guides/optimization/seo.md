@@ -287,7 +287,32 @@ Search engines factor page speed into ranking through [Core Web Vitals](https://
   />
 
 
-- **Lazy-load heavy parts of the page.** Wasp builds the client with Vite, which minifies and splits your code in production builds automatically. You can split further by loading large or below-the-fold components on demand with `React.lazy`:
+- **Lazy-load heavy parts of the page.** Wasp can "split" your components so that their HTML, JS, and CSS code don't get loaded upfront. You can split large or below-the-fold components on demand with `React.lazy`:
+
+  ```tsx title="src/pages/LandingPage.tsx" auto-js
+  import { lazy } from "react"
+
+  // highlight-start
+  // This component might pull in a large graphing
+  // library, and it's not at the top of the page,
+  // so we don't load it upfront.
+  const InteractiveGraph = lazy(() => import("@src/components/InteractiveGraph"));
+  // highlight-end
+
+  export function LandingPage() {
+    return (
+      <div>
+        <h1>Welcome to My App</h1>
+        <p>Here's some important information about our app...</p>
+
+        {/* Loaded after the rest of the page. */}
+        <Suspense fallback={<p>Loading graph...</p>}>
+          <InteractiveGraph />
+        </Suspense>
+      </div>
+    )
+  }
+  ```
 
   <CardLink
     kind="external"
