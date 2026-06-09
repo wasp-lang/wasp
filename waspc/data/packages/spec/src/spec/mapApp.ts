@@ -549,6 +549,10 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
 }
 
 function flattenSpec(spec: WaspSpec.Spec): WaspSpec.SpecElement[] {
+  if (!Array.isArray(spec)) {
+    return [spec];
+  }
+
   return spec.flatMap((s) => (Array.isArray(s) ? flattenSpec(s) : s));
 }
 

@@ -473,15 +473,22 @@ export interface WebSocket {
 }
 
 /**
- * The (optionally nested) list of all spec elements that make up the {@link App.spec}.
- * Each element is one of the {@link SpecElement} variants.
+ * A single {@link SpecElement}, or an (optionally nested) array of them, that
+ * makes up the {@link App.spec}.
  *
- * Entries can be grouped in sub-arrays to any depth. This lets you define
- * related elements separately (for example, one array per feature) and
- * compose them together; the nested structure is treated as a single flat
- * list of elements.
+ * A lone element does not need to be wrapped in an array. When arrays are
+ * used, entries can be grouped in sub-arrays to any depth. This lets you
+ * define related elements separately (for example, one array per feature)
+ * and compose them together. The nested structure is treated as a single
+ * flat list of elements.
  *
  * @category Specifications
+ *
+ * @example
+ * A spec can be a single element:
+ * ```ts
+ * const spec: Spec = healthCheckRoute;
+ * ```
  *
  * @example
  * Nested arrays let you compose a spec from separate groups:
@@ -492,7 +499,7 @@ export interface WebSocket {
  * const spec: Spec = [authSpec, tasksSpec];
  * ```
  */
-export type Spec = (SpecElement | Spec)[];
+export type Spec = SpecElement | Spec[];
 
 /**
  * Union of every kind of specification element that can appear in {@link App.spec}.
