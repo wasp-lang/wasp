@@ -34,14 +34,26 @@ export function RootComponent() {
 
   useEffect(() => {
     recordAndDeleteReferrer();
-    const script = document.createElement("script");
-    script.src = "https://buttons.github.io/buttons.js"; // <----- add your script url
-    script.async = true;
+    const scripts = [];
 
-    document.body.appendChild(script);
+    if (import.meta.env.PROD) {
+      const plausibleScript = document.createElement("script");
+      plausibleScript.defer = true;
+      plausibleScript.dataset.domain = "usemage.ai";
+      plausibleScript.dataset.api = "/waspara/wasp/event";
+      plausibleScript.src = "/waspara/wasp/script.js";
+
+      const githubButtonsScript = document.createElement("script");
+      githubButtonsScript.src = "https://buttons.github.io/buttons.js";
+      githubButtonsScript.async = true;
+
+      scripts.push(plausibleScript, githubButtonsScript);
+    }
+
+    scripts.forEach((script) => document.body.appendChild(script));
 
     return () => {
-      document.body.removeChild(script);
+      scripts.forEach((script) => script.parentNode?.removeChild(script));
     };
   }, []);
 
