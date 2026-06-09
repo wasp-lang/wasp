@@ -392,7 +392,7 @@ How do I know where I want to target my PR, to `release` or `main`?
 
 - If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, update for Mage that needs to go out now, ... .
 - If you have a change that is not urgent and can wait until the next "normal" Wasp release is published, then target `main`. These are new features, refactorings, docs accompanying new features, ... .
-- Stuff published on `release` uses/references version of `wasp` that was last released (so one that is also on `release`). Mage is an exception: it is frozen on Wasp 0.23.
+- Stuff published on `release` uses/references version of `wasp` that was last released (so one that is also on `release`). Mage is an exception and uses its own pinned Wasp CLI version.
 - TLDR;
   - `release` represents the present, and is for changes to the already published stuff.
   - `main` represents near future, and is for changes to the to-be-published stuff.
@@ -500,9 +500,7 @@ External documentation, for users of Wasp, is hosted at https://wasp.sh/docs, an
 
 ## Mage
 
-Mage is Wasp's legacy GPT web app generator. It is hosted at https://usemage.ai and its source is available at [mage](/mage).
-
-Mage is frozen on Wasp 0.23 and generates legacy Wasp DSL apps.
+Mage is Wasp's GPT web app generator for the pre-Spec Wasp DSL. It is hosted at https://usemage.ai and its source is available at [mage](/mage).
 
 ## Haskell
 

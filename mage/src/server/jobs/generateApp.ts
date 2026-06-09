@@ -7,7 +7,6 @@ import { CODING_MODEL, PLANNING_MODEL } from "../../config/aiModels.js";
 import { log } from "./utils.js";
 
 const appGenerationResults: Record<string, any> = {};
-const waspCliCommand = process.env.MAGE_WASP_CLI_PATH ?? "wasp";
 
 export const generateApp: GenerateAppJob<
   { appId: string },
@@ -55,7 +54,7 @@ export const generateApp: GenerateAppJob<
     JSON.stringify(projectConfig),
   ];
 
-  waspCliProcess = spawn(waspCliCommand, waspCliProcessArgs, {
+  waspCliProcess = spawn("wasp", waspCliProcessArgs, {
     env: { ...process.env, waspc_datadir: undefined },
   });
 

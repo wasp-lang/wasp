@@ -1,8 +1,6 @@
 # Mage
 
-This directory contains the source code of Mage (aka "GPT Web App Generator" aka "Wasp AI"): a legacy Wasp app that generates legacy Wasp DSL apps from a short description.
-
-Mage is frozen on Wasp 0.23.0. It is not updated for the new Wasp Spec API.
+This directory contains the source code of Mage (aka "GPT Web App Generator" aka "Wasp AI"): a Wasp app (so a full-stack web app) that allows you to create a new Wasp app (inception :)!) from just a short description. It uses ChatGPT in a smart way to accomplish this (so it would be classified as an AI code agent).
 
 Mage is hosted at https://usemage.ai and you can use it there for free.
 
@@ -10,12 +8,11 @@ You can learn more about it [here](https://wasp.sh/blog/2023/07/10/gpt-web-app-g
 
 ## Running locally
 
-If you want to run Mage locally, you need to use Wasp 0.23.0:
+If you want to run Mage locally:
 
 1. Copy `.env.server.example` into `.env.server` and fill in the missing values. You will basically need to provide Github and Google OAuth creds (and first create OAuth apps on both Github and Google if you don't have them yet - if you are a member of Wasp team ask for dev creds, if not you will have to create your own OAuth apps).
-2. Install Wasp 0.23.0 with `npm i -g @wasp.sh/wasp-cli@0.23.0`.
+2. Install Wasp with `npm i -g @wasp.sh/wasp-cli@0.23.0`.
 3. Run `wasp db start` and then `wasp start`. It might ask you to do `wasp db migrate-dev`, do that if needed.
-4. When generating apps locally, Mage looks for the `wasp` binary. You can override this with `MAGE_WASP_CLI_PATH` if needed.
 
 ## Deployment
 

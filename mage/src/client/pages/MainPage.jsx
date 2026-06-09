@@ -256,8 +256,8 @@ function LegacyWaspVersionNotice() {
     <div className="mb-6 w-full rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-sm">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <p className="leading-relaxed">
-          <span className="font-semibold">Notice.</span> Mage is frozen on Wasp
-          0.23 and generates legacy Wasp DSL apps.
+          <span className="font-semibold">Notice.</span> Mage generates apps for
+          the pre-Spec Wasp DSL.
         </p>
         <a
           href="https://wasp.sh/docs"

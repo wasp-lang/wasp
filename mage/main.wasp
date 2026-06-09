@@ -6,7 +6,7 @@ app waspAi {
   head: [
     "<link rel='icon' href='/favicon.ico' />",
     "<meta property=\"og:title\" content=\"MAGE GPT Web App Generator ✨ MageGPT\" />",
-    "<meta property=\"og:description\" content=\"Generate a legacy Wasp 0.23 full-stack React, Node.js and Prisma web app using the magic of GPT.\" />",
+    "<meta property=\"og:description\" content=\"Generate your full-stack React, Node.js and Prisma web app using the magic of GPT and the Wasp full-stack framework.\" />",
     "<meta property=\"og:type\" content=\"website\" />",
     "<meta property=\"og:image\" content=\"https://usemage.ai/twitter.png\" />",
     "<meta name=\"twitter:image\" content=\"https://usemage.ai/twitter.png\" />",

@@ -29,8 +29,7 @@ const faqs = [
         web app where you can shortly describe the web app you would like to
         create, and in a matter of minutes, a full-stack web app codebase,
         written in React, Node.js, Prisma, and Wasp, will be generated right in
-        front of you, and made available to download and run locally. Mage is
-        frozen on Wasp 0.23, so generated apps use the legacy Wasp DSL.
+        front of you, and made available to download and run locally.
         <br />
         <br />
         All the code behind GPT Web App Generator is open source: {l(
@@ -63,12 +62,8 @@ const faqs = [
         mistakes, especially for more complex apps, but altogether it works
         better than we expected! The code it generates is often very reasonable,
         and for very simple apps, it can even produce a working app out of the
-        box, while for a bit more complex apps it currently serves more like a
+        box, while for a bit more complex apps it serves more like a
         super-intelligent starter that needs a couple of tweaks to get it going.
-        <br />
-        <br />
-        Mage is no longer being updated for newer Wasp versions, so it should be
-        treated as a legacy Wasp 0.23 generator.
       </p>
     ),
   },
@@ -76,17 +71,14 @@ const faqs = [
     question: "What kind of apps can it generate?",
     answer: (
       <p>
-        It can generate legacy Wasp 0.23 full-stack web apps written in React,
-        Node.js, Prisma, and Wasp. You can download the generated app and run it
-        locally on your machine with Wasp 0.23.0.
+        It can generate full stack web apps written in React, Node.js, Prisma,
+        and Wasp. You can download the generated app, run it locally on your
+        machine, even easily deploy if you wish.
         <br />
         <br />
         In order to keep things simpler for this first version, we enforced some
         limitations: no additional npm deps, no additional files, no TS, no
         advanced Wasp features.
-        <br />
-        <br />
-        Mage is frozen, so these limitations are expected to remain.
       </p>
     ),
   },
@@ -103,7 +95,7 @@ const faqs = [
         task.
         <br />
         <br />
-        Mage calls the legacy Wasp 0.23 CLI generator under the hood.
+        Mage calls the legacy CLI generator under the hood.
       </p>
     ),
   },
@@ -111,11 +103,12 @@ const faqs = [
     question: "[Advanced] Can I choose GPT model? / Can I run Mage locally?",
     answer: (
       <p>
-        If you have access yourself to the OpenAI API, you can run the legacy
-        Wasp GPT code agent locally with Wasp 0.23.0.
+        If you have access yourself to the OpenAI API, you can choose GPT model
+        for the whole app, or play with adjusting the temperature, by running
+        the Wasp GPT code agent locally.
         <br />
         <br />
-        Install Wasp 0.23.0:
+        Install the CLI:
         <br />
         <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
           npm i -g @wasp.sh/wasp-cli@0.23.0
@@ -132,8 +125,8 @@ const faqs = [
         will start generating!
         <br />
         <br />
-        Wasp 0.23.0 also has a command for running the same thing
-        programmatically, without interactive questions:
+        That CLI also has a command for running the same thing programmatically,
+        without interactive questions:
         <br />
         <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
           wasp new:ai
