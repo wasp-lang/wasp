@@ -913,7 +913,7 @@ export type {
 
 interface BaseSpecElement<Kind extends string> {
   /**
-   * The internal Wasp type of a spec elemenet. Used by the compiler.
+   * The internal Wasp type of a spec Element. Used by the compiler.
    * You should not set this field directly, instead use the dedicated constructors.
    */
   kind: Kind;

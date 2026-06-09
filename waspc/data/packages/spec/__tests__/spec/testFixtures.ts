@@ -196,7 +196,7 @@ export function getCrud<Scope extends ConfigScope>(
   scope: Scope,
 ): ConfigFor<Scope, TsAppSpec.Crud>;
 export function getCrud(scope: ConfigScope): Config<TsAppSpec.Crud> {
-  // NOTE: Unlike the other spec elemenets, this fixture builds the object literally
+  // NOTE: Unlike the other spec Elements, this fixture builds the object literally
   // instead of calling the `crud()` constructor. `crud()` returns the public
   // `Crud` type, whose `operations: CrudOperations` (all fields optional)
   // satisfies neither `MinimalConfig<Crud>` (operations collapse to an empty
