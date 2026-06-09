@@ -526,11 +526,11 @@ export function makeRefParser<T extends AppSpec.DeclType>(
 function extractSpecElements<Kind extends WaspSpec.SpecElement["kind"]>(
   id: Kind,
   spec: WaspSpec.SpecElement[],
-): GetInputDeclForKind<Kind>[] {
-  return spec.filter((p): p is GetInputDeclForKind<Kind> => p.kind === id);
+): GetSpecElementForKind<Kind>[] {
+  return spec.filter((p): p is GetSpecElementForKind<Kind> => p.kind === id);
 }
 
-type GetInputDeclForKind<Kind extends WaspSpec.SpecElement["kind"]> = Extract<
+type GetSpecElementForKind<Kind extends WaspSpec.SpecElement["kind"]> = Extract<
   WaspSpec.SpecElement,
   { kind: Kind }
 >;
