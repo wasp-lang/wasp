@@ -1,4 +1,4 @@
-import axios from "axios";
+import ky from "ky";
 import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE_BYTES } from "./validation";
 
 type AllowedFileTypes = (typeof ALLOWED_FILE_TYPES)[number];
@@ -17,14 +17,11 @@ export async function uploadFileWithProgress({
 }) {
   const formData = getFileUploadFormData(file, s3UploadFields);
 
-  return axios.post(s3UploadUrl, formData, {
-    onUploadProgress: (progressEvent) => {
-      if (progressEvent.total) {
-        const percentage = Math.round(
-          (progressEvent.loaded / progressEvent.total) * 100,
-        );
-        setUploadProgressPercent(percentage);
-      }
+  return ky.post(s3UploadUrl, {
+    body: formData,
+    onUploadProgress: (progress) => {
+      const percentage = Math.round(progress.percent * 100);
+      setUploadProgressPercent(percentage);
     },
   });
 }

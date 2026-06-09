@@ -1,0 +1,12 @@
+--- template/app/src/landing-page/landing-page.wasp.ts
++++ opensaas-sh/app/src/landing-page/landing-page.wasp.ts
+@@ -0,0 +1,9 @@
++import { page, query, route, type Spec } from "@wasp.sh/spec";
++
++import { LandingPage } from "./LandingPage" with { type: "ref" };
++import { getGithubRoadmap } from "./operations" with { type: "ref" };
++
++export const landingPage: Spec = [
++  route("LandingPageRoute", "/", page(LandingPage), { prerender: true }),
++  query(getGithubRoadmap),
++];

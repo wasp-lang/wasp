@@ -53,25 +53,21 @@ jobs:
       # validation steps so the app can run in the CI environment. For env vars that are actually
       # used in tests and therefore need real values, we set them in the GitHub secrets settings and
       # access them in a step below.
-      - name: Set required wasp app env vars to mock values
+      - name: Prepare the template for tests
         working-directory: ./template
         run: |
           cd app
           cp .env.server.example .env.server && cp .env.client.example .env.client
+          wasp install
 
-      - name: Check that patching demo app (opensaas-sh) works
-        working-directory: ./opensaas-sh
-        run: |
-          ./tools/patch.sh
-
-      - name: "[e2e-tests] Install Node.js dependencies for Playwright tests"
+      - name: "Install Node.js dependencies for Playwright tests"
         if: steps.cache-e2e-tests.outputs.cache-hit != 'true'
         working-directory: ./template
         run: |
           cd e2e-tests
           npm ci
 
-      - name: "[e2e-tests] Store Playwright's Version"
+      - name: "Store Playwright's Version"
         working-directory: ./template
         run: |
           cd e2e-tests
@@ -79,21 +75,21 @@ jobs:
           echo "Playwright's Version: $PLAYWRIGHT_VERSION"
           echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
 
-      - name: "[e2e-tests] Cache Playwright Browsers for Playwright's Version"
+      - name: "Cache Playwright Browsers for Playwright's Version"
         id: cache-playwright-browsers
         uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}-${{ runner.os }}
 
-      - name: "[e2e-tests] Set up Playwright"
+      - name: "Set up Playwright"
         if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
         working-directory: ./template
         run: |
           cd e2e-tests
           npx playwright install --with-deps
 
-      - name: "[e2e-tests] Install Stripe CLI"
+      - name: "Install Stripe CLI"
         run: |
           curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg
           echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list.d/stripe.list
@@ -103,13 +99,13 @@ jobs:
       # For Stripe webhooks to work in development, we need to run the Stripe CLI to listen for webhook events.
       # The Stripe CLI will receive the webhook events from Stripe test payments and
       # forward them to our local server so that we can test the payment flow in our e2e tests.
-      - name: "[e2e-tests] Run Stripe CLI to listen for webhooks"
+      - name: "Run Stripe CLI to listen for webhooks"
         env:
           STRIPE_DEVICE_NAME: ${{ secrets.STRIPE_DEVICE_NAME }}
         run: |
           stripe listen --api-key ${{ secrets.STRIPE_KEY }} --forward-to localhost:3001/payments-webhook &
 
-      - name: "[e2e-tests] Run Playwright tests"
+      - name: "Run Playwright tests"
         env:
           # The e2e tests are testing parts of the app that need certain env vars, so we need to access them here.
           # These secretes can be set in your GitHub repo settings, e.g. https://github.com/<account>/<repo>/settings/secrets/actions

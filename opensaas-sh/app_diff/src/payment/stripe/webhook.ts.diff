@@ -1,5 +1,23 @@
 --- template/app/src/payment/stripe/webhook.ts
 +++ opensaas-sh/app/src/payment/stripe/webhook.ts
+@@ -2,7 +2,7 @@
+ import express from "express";
+ import type { Stripe } from "stripe";
+ import { env, type MiddlewareConfigFn } from "wasp/server";
+-import { type PaymentsWebhook } from "wasp/server/api";
++import { type StripeWebhook } from "wasp/server/api";
+ import { emailSender } from "wasp/server/email";
+ import { assertUnreachable } from "../../shared/utils";
+ import { UnhandledWebhookEventError } from "../errors";
+@@ -25,7 +25,7 @@
+   return middlewareConfig;
+ };
+ 
+-export const stripeWebhook: PaymentsWebhook = async (
++export const stripeWebhook: StripeWebhook = async (
+   request,
+   response,
+   context,
 @@ -106,7 +106,7 @@
      case PaymentPlanId.Credits10:
        await updateUserCredits(

@@ -1,0 +1,52 @@
+--- template/app/src/auth/auth.wasp.ts
++++ opensaas-sh/app/src/auth/auth.wasp.ts
+@@ -28,7 +28,7 @@
+ const emailAuthMethod: NonNullable<AuthMethods["email"]> = {
+   fromField: {
+     name: "Open SaaS App",
+-    email: "me@example.com",
++    email: "noreply@mg.wasp.sh",
+   },
+   emailVerification: {
+     clientRoute: "EmailVerificationRoute",
+@@ -41,27 +41,20 @@
+   userSignupFields: getEmailUserFields,
+ };
+ 
+-// Plug the following authentication methods in the `authConfig` below to enable them.
+ // Do note that `email` and `usernameAndPassword` are mutually exclusive.
+ // @ts-expect-error Demo purposes
+ // eslint-disable-next-line @typescript-eslint/no-unused-vars
+ const usernameAndPasswordAuthMethod: NonNullable<
+   AuthMethods["usernameAndPassword"]
+ > = {};
+-// @ts-expect-error Demo purposes
+-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ const googleAuthMethod: NonNullable<AuthMethods["google"]> = {
+   userSignupFields: getGoogleUserFields,
+   configFn: getGoogleAuthConfig,
+ };
+-// @ts-expect-error Demo purposes
+-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ const gitGubAuthMethod: NonNullable<AuthMethods["gitHub"]> = {
+   userSignupFields: getGitHubUserFields,
+   configFn: getGitHubAuthConfig,
+ };
+-// @ts-expect-error Demo purposes
+-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+ const discordAuthMethod: NonNullable<AuthMethods["discord"]> = {
+   userSignupFields: getDiscordUserFields,
+   configFn: getDiscordAuthConfig,
+@@ -75,9 +68,9 @@
+     //       (RequestPasswordResetRoute, PasswordResetRoute, EmailVerificationRoute)
+     email: emailAuthMethod,
+     // usernameAndPassword: usernameAndPasswordAuthMethod,
+-    // google: googleAuthMethod,
+-    // gitHub: gitGubAuthMethod,
+-    // discord: discordAuthMethod,
++    google: googleAuthMethod,
++    gitHub: gitGubAuthMethod,
++    discord: discordAuthMethod,
+   },
+   onAuthFailedRedirectTo: "/login",
+   onAuthSucceededRedirectTo: "/demo-app",

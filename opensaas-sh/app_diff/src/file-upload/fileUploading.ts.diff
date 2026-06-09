@@ -2,12 +2,12 @@
 +++ opensaas-sh/app/src/file-upload/fileUploading.ts
 @@ -1,4 +1,6 @@
 +import { PrismaClient } from "@prisma/client";
- import axios from "axios";
+ import ky from "ky";
 +import type { User } from "wasp/entities";
  import { ALLOWED_FILE_TYPES, MAX_FILE_SIZE_BYTES } from "./validation";
  
  type AllowedFileTypes = (typeof ALLOWED_FILE_TYPES)[number];
-@@ -58,3 +60,23 @@
+@@ -55,3 +57,23 @@
  function isFileWithAllowedFileType(file: File): file is FileWithValidType {
    return ALLOWED_FILE_TYPES.includes(file.type as AllowedFileTypes);
  }

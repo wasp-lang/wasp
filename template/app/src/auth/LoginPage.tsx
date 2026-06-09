@@ -3,7 +3,7 @@ import { Link as WaspRouterLink, routes } from "wasp/client/router";
 import { AuthPageLayout } from "./AuthPageLayout";
 import { useRedirectIfLoggedIn } from "./hooks/useRedirectIfLoggedIn";
 
-export function Login() {
+export function LoginPage() {
   useRedirectIfLoggedIn();
 
   return (

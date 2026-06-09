@@ -1,0 +1,42 @@
+--- template/app/src/client/head.wasp.ts
++++ opensaas-sh/app/src/client/head.wasp.ts
+@@ -3,24 +3,24 @@
+ export const head: App["head"] = [
+   "<link rel='icon' href='/favicon.ico' />",
+ 
+-  "<meta name='description' content='Your apps main description and features.' />",
+-  "<meta name='author' content='Your (App) Name' />",
+-  "<meta name='keywords' content='saas, solution, product, app, service' />",
++  "<meta name='description' content='Build and launch your SaaS application faster with our free, open-source starter kit. Features include auth, payments, AI example app, and admin dashboard.' />",
++  "<meta name='author' content='Open SaaS' />",
++  "<meta name='keywords' content='saas, starter, boilerplate, free, open source, authentication, payments' />",
+ 
++  "<meta property='og:site_name' content='Open SaaS' />",
+   "<meta property='og:type' content='website' />",
+-  "<meta property='og:title' content='Your Open SaaS App' />",
+-  "<meta property='og:site_name' content='Your Open SaaS App' />",
+-  "<meta property='og:url' content='https://your-saas-app.com' />",
+-  "<meta property='og:description' content='Your apps main description and features.' />",
+-  "<meta property='og:image' content='https://your-saas-app.com/public-banner.webp' />",
+-  "<meta name='twitter:image' content='https://your-saas-app.com/public-banner.webp' />",
++  "<meta property='og:title' content='Open SaaS' />",
++  "<meta property='og:url' content='https://opensaas.sh' />",
++  "<meta property='og:description' content='Free, open-source SaaS boilerplate starter for React & NodeJS. Powered by Wasp.' />",
++  "<meta property='og:image' content='https://opensaas.sh/public-banner.webp' />",
++
++  "<meta name=\"twitter:title\" content=\"Open SaaS\" />",
++  "<meta name=\"twitter:text:title\" content=\"Open SaaS\" />",
++  "<meta name='twitter:image' content='https://opensaas.sh/public-banner.webp' />",
++  "<meta name=\"twitter:image:alt\" content=\"Open SaaS\" />",
+   "<meta name='twitter:image:width' content='800' />",
+   "<meta name='twitter:image:height' content='400' />",
+   "<meta name='twitter:card' content='summary_large_image' />",
+-  // TODO: You can put your Plausible analytics scripts below (https://docs.opensaas.sh/guides/analytics/):
+-  // NOTE: Plausible does not use Cookies, so you can simply add the scripts here.
+-  // Google, on the other hand, does, so you must instead add the script dynamically
+-  // via the Cookie Consent component after the user clicks the "Accept" cookies button.
+-  "<script async data-domain='<your-site-id>' src='https://plausible.io/js/script.js'></script>", // for production
+-  "<script async data-domain='<your-site-id>' src='https://plausible.io/js/script.local.js'></script>", // for development
++
++  "<script async data-domain='opensaas.sh' data-api='/waspara/wasp/event' src='/waspara/wasp/script.js'></script>",
+ ];
