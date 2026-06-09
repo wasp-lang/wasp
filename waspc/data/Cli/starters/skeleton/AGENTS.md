@@ -2,7 +2,8 @@
 
 This project uses the Wasp framework.
 
-- Wasp docs overview: https://wasp.sh/llms.txt
+- Find docs via the index at https://wasp.sh/llms.txt
+  - Don't try to guess docs URLs - use the index for specific version.
 - Focus on the TypeScript Wasp Spec API powered `main.wasp.ts`:
   - It contains the Wasp version and the app specification.
   - Wasp Spec overview: https://wasp.sh/docs/general/spec
