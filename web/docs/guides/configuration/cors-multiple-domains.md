@@ -47,7 +47,7 @@ export default app({
     // highlight-next-line
     middlewareConfigFn: getGlobalMiddleware,
   },
-  decls: [
+  spec: [
     route("RootRoute", "/", page(MainPage)),
     query(getSomeData),
   ],

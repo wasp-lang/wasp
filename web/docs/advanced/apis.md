@@ -29,7 +29,7 @@ import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     api("GET", "/foo/bar", fooBar),
   ],
 })
@@ -81,7 +81,7 @@ export const fooBar: FooBar = (req, res, context) => {
 
   export default app({
     // ...
-    decls: [
+    spec: [
       api("GET", "/foo/bar/:email", fooBar, { entities: ["Task"] }),
     ],
   })
@@ -146,7 +146,7 @@ import { apiMiddleware } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     apiNamespace("/foo", { middlewareConfigFn: apiMiddleware }),
   ],
 })
@@ -176,7 +176,7 @@ import { fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     api("GET", "/foo/bar", fooBar, { entities: ["Task"] }),
   ],
 })
@@ -212,7 +212,7 @@ import { getStreamingText } from "./src/streaming" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     api("POST", "/api/streaming-example", getStreamingText),
   ],
 })
@@ -350,7 +350,7 @@ import { apiMiddleware, fooBar } from "./src/apis" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     api("GET", "/foo/bar", fooBar, {
       entities: ["Task"],
       auth: true,

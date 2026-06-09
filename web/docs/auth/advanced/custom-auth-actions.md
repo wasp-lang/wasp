@@ -32,7 +32,7 @@ export default app({
     // ...
     onBeforeSignup,
   },
-  decls: [
+  spec: [
     action(customSignup),
   ],
 })
@@ -173,7 +173,7 @@ export default app({
     // ...
     onBeforeSignup,
   },
-  decls: [
+  spec: [
     action(customSignup),
   ],
 })

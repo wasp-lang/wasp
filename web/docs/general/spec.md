@@ -44,7 +44,7 @@ You build your app by:
 3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `spec` array.
 4. Exporting the result as the **default export** of the file.
 
-`spec` is short for specifications: the pages, routes, queries, actions, APIs, jobs, and CRUD specifications that make up your app.
+`spec` is short for specification: the pages, routes, queries, actions, APIs, jobs, CRUDs and other specification elements that make up your app.
 
 ## `wasp install`
 
@@ -124,23 +124,23 @@ You can't re-export `ref` from `@wasp.sh/spec` (`export { ref } from "@wasp.sh/s
 
 For larger apps you don't have to keep everything in `main.wasp.ts`. You can move related specifications into their own `*.wasp.ts` files and combine them in `main.wasp.ts`. This works well for vertical slices, like keeping a feature's page, route, query, and action specifications in that feature's folder.
 
-A feature file exports an array of `Spec`s:
+Eacj feature file exports it's own `Spec`:
 
 ```ts title="src/auth/auth.wasp.ts"
-import { page, route, Spec } from "@wasp.sh/spec";
+import { page, route, type Spec } from "@wasp.sh/spec";
 
 import LoginPage from "./LoginPage" with { type: "ref" };
 import SignupPage from "./SignupPage" with { type: "ref" };
 
-export const auth: Spec[] = [
+export const authSpec: Spec = [
   route("SignupRoute", "/signup", page(SignupPage)),
   route("LoginRoute", "/login", page(LoginPage)),
 ];
 ```
 
-The `Spec[]` annotation gives TypeScript enough information to validate the specifications in a split spec file before they are spread into `main.wasp.ts`.
+The `Spec` annotation gives TypeScript enough information to validate the specification in a split spec file before it's added to the `main.wasp.ts`.
 
-Then `main.wasp.ts` imports it and spreads it into `spec`:
+Then `main.wasp.ts` imports it and joins in into the `spec`:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec";
@@ -154,7 +154,7 @@ export default app({
   wasp: { version: "^0.24.0" },
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
-    ...auth,
+    authSpec,
   ],
 });
 ```

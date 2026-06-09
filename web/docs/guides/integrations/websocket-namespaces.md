@@ -37,7 +37,7 @@ export default app({
     autoConnect: false,
   },
   // highlight-end
-  decls: [
+  spec: [
     route("RootRoute", "/", page(Main)),
   ],
 })

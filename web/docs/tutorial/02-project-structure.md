@@ -83,7 +83,7 @@ Let's take a closer look at `main.wasp.ts`
 `main.wasp.ts` is your app's Wasp file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
-The file exports your app's top-level configuration and a `decls` array. Each entry defines a Route, Page, Query, Action, or other features provided by Wasp.
+The file exports your app's top-level configuration and a `spec` array. Each entry defines a Route, Page, Query, Action, or other features provided by Wasp.
 
 The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
@@ -103,7 +103,7 @@ export default app({
     "<link rel='icon' href='/favicon.ico' />",
   ],
   // Add your app declarations here so Wasp knows to register them.
-  decls: [
+  spec: [
     route("RootRoute", "/", page(MainPage)),
   ],
 })
