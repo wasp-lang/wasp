@@ -58,6 +58,6 @@ function isApp(value: unknown): value is TsAppSpec.App {
     "name" in value &&
     "wasp" in value &&
     "title" in value &&
-    "decls" in value
+    "spec" in value
   );
 }

@@ -57,7 +57,7 @@ waspTsSpecNodeEnvTest =
           title: "tsSpecNodeEnvTest",
           wasp: { version: "$textWaspVersion" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
-          decls: [
+          spec: [
             route("RootRoute", "/", page(MainPage)),
           ]
         })

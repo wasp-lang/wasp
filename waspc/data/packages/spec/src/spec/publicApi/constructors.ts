@@ -36,7 +36,7 @@ import type {
  *   name: 'todoApp',
  *   title: 'ToDo App',
  *   wasp: { version: '^0.24.0' },
- *   decls: [
+ *   spec: [
  *     route('MainRoute', '/', page(MainPage)),
  *   ],
  * })
