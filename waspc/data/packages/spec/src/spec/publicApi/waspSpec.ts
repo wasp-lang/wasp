@@ -479,7 +479,7 @@ export type Spec = SpecElement[] | Spec[];
  *
  * Each variant is produced by its matching constructor.
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export type SpecElement =
   | Page
@@ -496,7 +496,7 @@ export type SpecElement =
  *
  * Create one with the {@link page} constructor.
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export interface Page extends BaseSpecElemenet<"page"> {
   /** React component rendered for this page. */
@@ -520,7 +520,7 @@ export interface Page extends BaseSpecElemenet<"page"> {
  * See [Routing](https://wasp.sh/docs/advanced/routing) for path patterns
  * (dynamic segments, optional segments, splats).
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export interface Route extends BaseSpecElemenet<"route"> {
   /** Unique route name. */
@@ -562,7 +562,7 @@ export interface Route extends BaseSpecElemenet<"route"> {
  *
  * See [Queries](https://wasp.sh/docs/data-model/operations/queries).
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export interface Query extends BaseSpecElemenet<"query"> {
   /**
@@ -596,7 +596,7 @@ export interface Query extends BaseSpecElemenet<"query"> {
  *
  * See [Actions](https://wasp.sh/docs/data-model/operations/actions).
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export interface Action extends BaseSpecElemenet<"action"> {
   /**
@@ -634,7 +634,7 @@ export interface Action extends BaseSpecElemenet<"action"> {
  *
  * See [Custom HTTP API Endpoints](https://wasp.sh/docs/advanced/apis).
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export interface Api extends BaseSpecElemenet<"api"> {
   /** HTTP method this endpoint responds to. */
@@ -671,7 +671,7 @@ export interface Api extends BaseSpecElemenet<"api"> {
  *
  * Create one with the {@link apiNamespace} constructor.
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export interface ApiNamespace extends BaseSpecElemenet<"apiNamespace"> {
   /** Reference to an Express middleware config function for this namespace. */
@@ -694,7 +694,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  *
  * See [Recurring Jobs](https://wasp.sh/docs/advanced/jobs).
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export interface Job extends BaseSpecElemenet<"job"> {
   /**
@@ -775,7 +775,7 @@ export interface ExecutorOptions {
  *
  * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud).
  *
- * @category Specification elemenets
+ * @category Specification elements
  */
 export interface Crud extends BaseSpecElemenet<"crud"> {
   /** Unique name for this CRUD. */

@@ -34,8 +34,8 @@ export interface NamedRefObjectDescriptor {
   /**
    * Optional local alias.
    *
-   * When Wasp derives a specification name from this import, the alias takes
-   * precedence over the `import` field.
+   * When Wasp Spec derives a specification element name from this import,
+   * the alias takes precedence over the `import` field.
    */
   alias?: string;
   /** Module path, relative to the `*.wasp.ts` file using it. */
