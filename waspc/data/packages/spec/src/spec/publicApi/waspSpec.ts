@@ -20,7 +20,7 @@ import { FromRegister } from "./register.js";
  *   name: 'todoApp',
  *   title: 'ToDo App',
  *   wasp: { version: '^0.24.0' },
- *   decls: [],
+ *   spec: [],
  * })
  * ```
  */
@@ -68,13 +68,13 @@ export interface App {
   /** Configuration for the app's WebSocket support. */
   webSocket?: WebSocket;
   /**
-   * All the specifications ({@link Spec}) of the app.
+   * All the specifications ({@link SpecElement}) of the app.
    *
    * Build entries with the dedicated constructors ({@link page}, {@link route},
    * {@link query}, {@link action}, {@link api}, {@link apiNamespace},
    * {@link job}, {@link crud}).
    */
-  spec: Spec[];
+  spec: Spec;
 }
 
 /**
@@ -472,6 +472,8 @@ export interface WebSocket {
   autoConnect?: boolean;
 }
 
+export type Spec = SpecElement[] | Spec[];
+
 /**
  * Union of every kind of specification that can appear in {@link App.spec}.
  *
@@ -479,7 +481,7 @@ export interface WebSocket {
  *
  * @category Specifications
  */
-export type Spec =
+export type SpecElement =
   | Page
   | Route
   | Query
@@ -496,7 +498,7 @@ export type Spec =
  *
  * @category Specifications
  */
-export interface Page extends BaseDecl<"page"> {
+export interface Page extends BaseSpecElemenet<"page"> {
   /** React component rendered for this page. */
   component: Reference<AnyFunction>;
   /**
@@ -520,7 +522,7 @@ export interface Page extends BaseDecl<"page"> {
  *
  * @category Specifications
  */
-export interface Route extends BaseDecl<"route"> {
+export interface Route extends BaseSpecElemenet<"route"> {
   /** Unique route name. */
   name: string;
   /**
@@ -562,7 +564,7 @@ export interface Route extends BaseDecl<"route"> {
  *
  * @category Specifications
  */
-export interface Query extends BaseDecl<"query"> {
+export interface Query extends BaseSpecElemenet<"query"> {
   /**
    * Reference to the Query's NodeJS implementation. The implementation can be
    * async and receives two positional arguments: the caller-provided `args`
@@ -596,7 +598,7 @@ export interface Query extends BaseDecl<"query"> {
  *
  * @category Specifications
  */
-export interface Action extends BaseDecl<"action"> {
+export interface Action extends BaseSpecElemenet<"action"> {
   /**
    * Reference to the Action's NodeJS implementation. The implementation can be
    * async and receives two positional arguments: the caller-provided `args`
@@ -634,7 +636,7 @@ export interface Action extends BaseDecl<"action"> {
  *
  * @category Specifications
  */
-export interface Api extends BaseDecl<"api"> {
+export interface Api extends BaseSpecElemenet<"api"> {
   /** HTTP method this endpoint responds to. */
   method: HttpMethod;
   /** Express path of the endpoint (e.g. `"/webhooks/stripe"`). */
@@ -671,7 +673,7 @@ export interface Api extends BaseDecl<"api"> {
  *
  * @category Specifications
  */
-export interface ApiNamespace extends BaseDecl<"apiNamespace"> {
+export interface ApiNamespace extends BaseSpecElemenet<"apiNamespace"> {
   /** Reference to an Express middleware config function for this namespace. */
   middlewareConfigFn: Reference<AnyFunction>;
   /** Path prefix the namespace applies to (e.g. `"/webhooks"`). */
@@ -694,7 +696,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  *
  * @category Specifications
  */
-export interface Job extends BaseDecl<"job"> {
+export interface Job extends BaseSpecElemenet<"job"> {
   /**
    * Reference to the job's NodeJS implementation. It receives the submitted
    * args and a context containing the declared entities.
@@ -775,7 +777,7 @@ export interface ExecutorOptions {
  *
  * @category Specifications
  */
-export interface Crud extends BaseDecl<"crud"> {
+export interface Crud extends BaseSpecElemenet<"crud"> {
   /** Unique name for this CRUD. */
   name: string;
   /** Entity to generate operations for. */
@@ -882,10 +884,10 @@ export type {
   RefObjectDescriptor,
 } from "../refObject.js";
 
-interface BaseDecl<Kind extends string> {
+interface BaseSpecElemenet<Kind extends string> {
   /**
-   * The internal Wasp type of this decl. Used by the compiler.
-   * You should not set this field directly, instead use the dedicated constructors for each decl type.
+   * The internal Wasp type of a spec elemenet. Used by the compiler.
+   * You should not set this field directly, instead use the dedicated constructors.
    */
   kind: Kind;
 }

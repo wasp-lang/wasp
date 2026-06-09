@@ -2,7 +2,7 @@ import { basename } from "path";
 import * as AppSpec from "../appSpec.js";
 import { loadWaspTsSpecDefaultExport } from "../spec-pipeline/loadWaspTsSpec.js";
 import { mapApp } from "./mapApp.js";
-import * as TsAppSpec from "./publicApi/tsAppSpec.js";
+import * as TsAppSpec from "./publicApi/waspSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
 export async function analyzeApp({

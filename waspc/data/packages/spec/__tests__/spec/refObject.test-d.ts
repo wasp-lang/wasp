@@ -1,7 +1,7 @@
 import { assertType, describe, test } from "vitest";
 import { _waspMakeRef } from "../../src/internal.js";
 import { ref } from "../../src/spec/publicApi/index.js";
-import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import type * as TsAppSpec from "../../src/spec/publicApi/waspSpec.js";
 
 describe("RefObject input types", () => {
   test("should accept ref helper output at reference use sites", () => {

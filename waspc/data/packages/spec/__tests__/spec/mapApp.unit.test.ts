@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
 import * as AppSpecMapper from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
-import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import * as TsAppSpec from "../../src/spec/publicApi/waspSpec.js";
 import {
   getRefObjectDeclarationName,
   mapRefObject,
@@ -199,7 +199,7 @@ describe("mapApp", () => {
     const page1 = page(refObject);
     const page2 = page(refObject);
 
-    const app = Fixtures.getMinimalAppWithDecls([page1, page2]);
+    const app = Fixtures.getMinimalAppWithSpec([page1, page2]);
     const decls = mapMockApp(app, []);
 
     const pageNames = decls
@@ -216,7 +216,7 @@ describe("mapApp", () => {
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalAppWithDecls([route1, route2]);
+    const app = Fixtures.getMinimalAppWithSpec([route1, route2]);
     const decls = mapMockApp(app, []);
 
     const pageNames = decls
@@ -232,7 +232,7 @@ describe("mapApp", () => {
     const page2 = page(refObject);
     const route1 = route("Route1", "/", page2);
 
-    const app = Fixtures.getMinimalAppWithDecls([page1, route1]);
+    const app = Fixtures.getMinimalAppWithSpec([page1, route1]);
     const decls = mapMockApp(app, []);
 
     const pageNames = decls
@@ -247,7 +247,7 @@ describe("mapApp", () => {
     const page1 = page(refObject);
     const page2 = page(refObject, { authRequired: true });
 
-    const app = Fixtures.getMinimalAppWithDecls([page1, page2]);
+    const app = Fixtures.getMinimalAppWithSpec([page1, page2]);
 
     expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
@@ -262,7 +262,7 @@ describe("mapApp", () => {
     const route1 = route("Route1", "/", page1);
     const route2 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalAppWithDecls([route1, route2]);
+    const app = Fixtures.getMinimalAppWithSpec([route1, route2]);
 
     expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,
@@ -276,7 +276,7 @@ describe("mapApp", () => {
     const page2 = page(refObject, { authRequired: true });
     const route1 = route("Route2", "/", page2);
 
-    const app = Fixtures.getMinimalAppWithDecls([page1, route1]);
+    const app = Fixtures.getMinimalAppWithSpec([page1, route1]);
 
     expect(() => mapMockApp(app, [])).toThrow(
       `Conflicting configurations for the page \`${pageName}\``,

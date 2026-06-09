@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
-import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import type * as TsAppSpec from "../../src/spec/publicApi/waspSpec.js";
 import { mapRefObject } from "../../src/spec/refObject.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";

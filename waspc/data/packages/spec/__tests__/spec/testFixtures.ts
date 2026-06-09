@@ -17,7 +17,7 @@ import {
   query,
   route,
 } from "../../src/spec/publicApi/index.js";
-import * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import * as TsAppSpec from "../../src/spec/publicApi/waspSpec.js";
 import type { AnyFunction } from "../../src/typeUtils.js";
 
 export const MOCK_PROJECT_DIR = "/project";
@@ -59,10 +59,12 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
   }
 }
 
-export function getMinimalAppWithDecls(decls: TsAppSpec.Spec[]): TsAppSpec.App {
+export function getMinimalAppWithSpec(
+  specElements: TsAppSpec.SpecElement[],
+): TsAppSpec.App {
   return {
     ...getApp("minimal"),
-    spec: decls,
+    spec: specElements,
   };
 }
 
@@ -196,7 +198,7 @@ export function getCrud<Scope extends ConfigScope>(
   scope: Scope,
 ): ConfigFor<Scope, TsAppSpec.Crud>;
 export function getCrud(scope: ConfigScope): Config<TsAppSpec.Crud> {
-  // NOTE: Unlike the other decls, this fixture builds the object literally
+  // NOTE: Unlike the other spec elemenets, this fixture builds the object literally
   // instead of calling the `crud()` constructor. `crud()` returns the public
   // `Crud` type, whose `operations: CrudOperations` (all fields optional)
   // satisfies neither `MinimalConfig<Crud>` (operations collapse to an empty

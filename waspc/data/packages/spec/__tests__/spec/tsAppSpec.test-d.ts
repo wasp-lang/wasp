@@ -3,7 +3,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { describe, expectTypeOf, test } from "vitest";
-import type * as TsAppSpec from "../../src/spec/publicApi/tsAppSpec.js";
+import type * as TsAppSpec from "../../src/spec/publicApi/waspSpec.js";
 
 describe("AuthMethods", () => {
   const usernameAndPassword: Required<

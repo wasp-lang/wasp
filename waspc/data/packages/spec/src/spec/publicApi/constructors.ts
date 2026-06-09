@@ -8,7 +8,7 @@ import type {
   Page,
   Query,
   Route,
-} from "./tsAppSpec.js";
+} from "./waspSpec.js";
 
 // Throughout this file, in order for the constructor's input type to be
 // expanded in the docs, but not the resulting type; we do one bit of
