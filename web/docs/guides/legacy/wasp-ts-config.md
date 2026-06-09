@@ -7,9 +7,9 @@ last_checked_with_versions:
 
 # Migrating from the Wasp TS Config
 
-The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered specifications with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
+The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered declarations with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 
-Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `spec` array.
+Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `spec` property.
 
 :::tip Upgrading from Wasp 0.23 to 0.24?
 The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](../../migration-guide.md#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](../../migration-guide.md) for the remaining shared steps.
@@ -19,7 +19,7 @@ The conversion below is mechanical, so you can let an LLM do the heavy lifting i
 
 ### Reference imports
 
-In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a specification function.
+In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a specification constructor.
 
 <Tabs sideBySide>
   <TabItem value="before" label="TS Config">
@@ -341,7 +341,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 5. Rewrite `main.wasp.ts`:
 
-   Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `spec` array holds the specifications (see the [mapping above](#changes)), and update the import:
+   Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `spec` property holds the specifications (see the [mapping above](#changes)), and update the import:
 
    <Tabs sideBySide>
      <TabItem value="before" label="Before">

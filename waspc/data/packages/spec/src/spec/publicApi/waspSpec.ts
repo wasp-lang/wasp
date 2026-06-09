@@ -476,22 +476,14 @@ export interface WebSocket {
  * A single {@link SpecElement}, or an (optionally nested) array of them, that
  * makes up the {@link App.spec}.
  *
- * A lone element does not need to be wrapped in an array. When arrays are
- * used, entries can be grouped in sub-arrays to any depth. This lets you
- * define related elements separately (for example, one array per feature)
- * and compose them together. The nested structure is treated as a single
+ * This lets you define related elements separately (for example, one array per
+ * feature) and compose them together. The nested structure is treated as a single
  * flat list of elements.
  *
  * @category Specifications
  *
  * @example
- * A spec can be a single element:
- * ```ts
- * const spec: Spec = healthCheckRoute;
- * ```
- *
- * @example
- * Nested arrays let you compose a spec from separate groups:
+ * Nested arrays let you compose a spec from separate subspecs:
  * ```ts
  * const authSpec: Spec = [signupRoute, loginRoute];
  * const tasksSpec: Spec = [tasksRoute, getTasks, createTask];
@@ -913,7 +905,7 @@ export type {
 
 interface BaseSpecElement<Kind extends string> {
   /**
-   * The internal Wasp type of a spec Element. Used by the compiler.
+   * The internal Wasp type of a {@link SpecElement}. Used by the compiler.
    * You should not set this field directly, instead use the dedicated constructors.
    */
   kind: Kind;

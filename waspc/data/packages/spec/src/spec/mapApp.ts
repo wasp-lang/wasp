@@ -1,5 +1,5 @@
 /**
- * This module maps the TsAppSpec-facing API to the internal representation of
+ * This module maps the Wasp Spec to the internal representation of
  * the app ({@link AppSpec.Decl}).
  * All of the mapping functions are exported so that they can be individually
  * tested.
@@ -51,8 +51,8 @@ export function mapApp(
   };
 
   // TODO: When you add all declarations, see if you can generalize better
-  // (e.g., maybe named parameters, maybe putting extractSpecElement inside
-  // mapDecls)
+  // (e.g., maybe named parameters, maybe putting extractSpecElements inside
+  // mapToDecls)
   const pageSpecElements = extractSpecElements("page", flatSpec);
   const pageDecls = mapToDecls(
     pageSpecElements,
@@ -549,11 +549,9 @@ function mapToDecls<T, DeclType extends AppSpec.Decl["declType"]>(
 }
 
 function flattenSpec(spec: WaspSpec.Spec): WaspSpec.SpecElement[] {
-  if (!Array.isArray(spec)) {
-    return [spec];
-  }
-
-  return (spec as WaspSpec.SpecElement[]).flat(Infinity);
+  // We assert the `[spec]` as a `SpecElement[]` to avoid
+  // inifnite recursion of the `WaspSpec.Spec` type.
+  return ([spec] as WaspSpec.SpecElement[]).flat(Infinity);
 }
 
 /**

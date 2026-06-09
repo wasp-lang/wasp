@@ -2,7 +2,7 @@ import { basename } from "path";
 import * as AppSpec from "../appSpec.js";
 import { loadWaspTsSpecDefaultExport } from "../spec-pipeline/loadWaspTsSpec.js";
 import { mapApp } from "./mapApp.js";
-import * as TsAppSpec from "./publicApi/waspSpec.js";
+import * as WaspSpec from "./publicApi/waspSpec.js";
 import { SpecUserError } from "./specUserError.js";
 
 export async function analyzeApp({
@@ -29,7 +29,7 @@ export async function analyzeApp({
 function getApp(
   waspTsSpecFile: string,
   waspTsDefaultExport: unknown,
-): TsAppSpec.App {
+): WaspSpec.App {
   if (!waspTsDefaultExport) {
     throw new SpecUserError(
       "Could not load your app config. " +
@@ -51,7 +51,7 @@ function getApp(
 // TODO: Make this more robust — structural duck-typing accepts any object with
 // these keys. Consider branding the return value of `app()` with a
 // non-enumerable symbol and checking for it here.
-function isApp(value: unknown): value is TsAppSpec.App {
+function isApp(value: unknown): value is WaspSpec.App {
   return (
     typeof value === "object" &&
     value !== null &&

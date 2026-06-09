@@ -1,7 +1,7 @@
 import { assertType, describe, test } from "vitest";
 import { _waspMakeRef } from "../../src/internal.js";
 import { ref } from "../../src/spec/publicApi/index.js";
-import type * as TsAppSpec from "../../src/spec/publicApi/waspSpec.js";
+import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 
 describe("RefObject input types", () => {
   test("should accept ref helper output at reference use sites", () => {
@@ -10,7 +10,7 @@ describe("RefObject input types", () => {
       from: "./MainPage",
     });
 
-    assertType<TsAppSpec.Page>({ kind: "page", component });
+    assertType<WaspSpec.Page>({ kind: "page", component });
   });
 
   test("should accept _waspMakeRef helper output at reference use sites", () => {
@@ -20,7 +20,7 @@ describe("RefObject input types", () => {
       from: "./MainPage",
     });
 
-    assertType<TsAppSpec.Page>({ kind: "page", component });
+    assertType<WaspSpec.Page>({ kind: "page", component });
   });
 
   test("should accept functions at reference use sites", () => {
@@ -31,56 +31,56 @@ describe("RefObject input types", () => {
     const setup = () => null;
     const middleware = () => null;
 
-    assertType<TsAppSpec.Page>({ kind: "page", component });
-    assertType<TsAppSpec.Query>({
+    assertType<WaspSpec.Page>({ kind: "page", component });
+    assertType<WaspSpec.Query>({
       kind: "query",
       fn: operation,
     });
-    assertType<TsAppSpec.Action>({
+    assertType<WaspSpec.Action>({
       kind: "action",
       fn: operation,
     });
-    assertType<TsAppSpec.Api>({
+    assertType<WaspSpec.Api>({
       kind: "api",
       method: "GET",
       path: "/api",
       fn: operation,
       middlewareConfigFn: middleware,
     });
-    assertType<TsAppSpec.ApiNamespace>({
+    assertType<WaspSpec.ApiNamespace>({
       kind: "apiNamespace",
       path: "/api",
       middlewareConfigFn: middleware,
     });
-    assertType<TsAppSpec.Job>({
+    assertType<WaspSpec.Job>({
       kind: "job",
       fn: operation,
       executor: "PgBoss",
     });
-    assertType<TsAppSpec.WebSocket>({ fn: operation });
-    assertType<TsAppSpec.Auth>({
+    assertType<WaspSpec.WebSocket>({ fn: operation });
+    assertType<WaspSpec.Auth>({
       userEntity: "User",
       methods: {},
       onAuthFailedRedirectTo: "/login",
       onBeforeSignup: hook,
     });
-    assertType<TsAppSpec.SocialAuthConfig>({
+    assertType<WaspSpec.SocialAuthConfig>({
       configFn: hook,
       userSignupFields: object,
     });
-    assertType<TsAppSpec.EmailFlowConfig>({
+    assertType<WaspSpec.EmailFlowConfig>({
       getEmailContentFn: hook,
       clientRoute: "EmailRoute",
     });
-    assertType<TsAppSpec.Server>({
+    assertType<WaspSpec.Server>({
       setupFn: setup,
       middlewareConfigFn: middleware,
     });
-    assertType<TsAppSpec.Client>({
+    assertType<WaspSpec.Client>({
       rootComponent: component,
       setupFn: setup,
     });
-    assertType<TsAppSpec.Db>({
+    assertType<WaspSpec.Db>({
       seeds: [hook],
       prismaSetupFn: setup,
     });
@@ -90,21 +90,21 @@ describe("RefObject input types", () => {
     const component = { render: () => null };
 
     // @ts-expect-error Reference use sites accept RefObject values or functions.
-    assertType<TsAppSpec.Page>({ kind: "page", component });
+    assertType<WaspSpec.Page>({ kind: "page", component });
   });
 
   test("should reject raw descriptor-like objects", () => {
     const component = { from: "./MainPage", importDefault: "MainPage" };
 
     // @ts-expect-error Descriptor-like objects must be wrapped in ref.
-    assertType<TsAppSpec.Page>({ kind: "page", component });
+    assertType<WaspSpec.Page>({ kind: "page", component });
   });
 
   test("should reject incomplete RefObject objects", () => {
     const component = { kind: "refObject", from: "./MainPage" } as const;
 
     // @ts-expect-error RefObject objects must include either import or importDefault.
-    assertType<TsAppSpec.Page>({ kind: "page", component });
+    assertType<WaspSpec.Page>({ kind: "page", component });
   });
 
   test("should reject handwritten RefObject-shaped objects", () => {
@@ -115,7 +115,7 @@ describe("RefObject input types", () => {
     } as const;
 
     // @ts-expect-error RefObject objects must come from ref or reference imports.
-    assertType<TsAppSpec.Page>({ kind: "page", component });
+    assertType<WaspSpec.Page>({ kind: "page", component });
   });
 });
 
@@ -127,10 +127,10 @@ describe("Env validation schema input types", () => {
           type: "string",
         },
       },
-    } satisfies TsAppSpec.ZodSchema;
+    } satisfies WaspSpec.ZodSchema;
 
-    assertType<TsAppSpec.Server>({ envValidationSchema: schema });
-    assertType<TsAppSpec.Client>({ envValidationSchema: schema });
+    assertType<WaspSpec.Server>({ envValidationSchema: schema });
+    assertType<WaspSpec.Client>({ envValidationSchema: schema });
   });
 
   test("should accept RefObject env validation schemas", () => {
@@ -139,8 +139,8 @@ describe("Env validation schema input types", () => {
       from: "./env",
     });
 
-    assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
-    assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
+    assertType<WaspSpec.Server>({ envValidationSchema: schemaImport });
+    assertType<WaspSpec.Client>({ envValidationSchema: schemaImport });
   });
 
   test("should reject raw descriptor env validation schemas", () => {
@@ -150,25 +150,25 @@ describe("Env validation schema input types", () => {
     };
 
     // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
-    assertType<TsAppSpec.Server>({ envValidationSchema: schemaImport });
+    assertType<WaspSpec.Server>({ envValidationSchema: schemaImport });
 
     // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
-    assertType<TsAppSpec.Client>({ envValidationSchema: schemaImport });
+    assertType<WaspSpec.Client>({ envValidationSchema: schemaImport });
   });
 
   test("should reject non-schema objects at env validation schema use sites", () => {
     // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
-    assertType<TsAppSpec.Server>({ envValidationSchema: {} });
+    assertType<WaspSpec.Server>({ envValidationSchema: {} });
 
     // @ts-expect-error Env validation schemas must use ref or Zod schema-shaped values.
-    assertType<TsAppSpec.Client>({ envValidationSchema: [] });
+    assertType<WaspSpec.Client>({ envValidationSchema: [] });
   });
 
   test("should reject malformed Zod schema-shaped objects", () => {
     // @ts-expect-error Zod schema-shaped values must include a definition object.
-    assertType<TsAppSpec.Server>({ envValidationSchema: { _zod: true } });
+    assertType<WaspSpec.Server>({ envValidationSchema: { _zod: true } });
 
     // @ts-expect-error Zod schema-shaped values must include a definition object.
-    assertType<TsAppSpec.Client>({ envValidationSchema: { _zod: {} } });
+    assertType<WaspSpec.Client>({ envValidationSchema: { _zod: {} } });
   });
 });

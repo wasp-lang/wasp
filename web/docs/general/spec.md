@@ -41,7 +41,7 @@ You build your app by:
 
 1. Importing the building blocks (`app`, `page`, `route`, `query`, ...) from `@wasp.sh/spec`.
 2. Importing your own components and functions adding the import attribute `with { type: "ref" }`.
-3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `spec` array.
+3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `spec` property.
 4. Exporting the result as the **default export** of the file.
 
 `spec` is short for specification: the pages, routes, queries, actions, APIs, jobs and CRUDs that make up your app.
@@ -138,7 +138,7 @@ export const authSpec: Spec = [
 ];
 ```
 
-The `Spec` annotation gives TypeScript enough information to validate the specification in a split spec file before it's added to the `main.wasp.ts`.
+The `Spec` annotation gives TypeScript enough information to validate the specification in its own file before it's added to the `main.wasp.ts`.
 
 Then `main.wasp.ts` imports it and joins in into the `spec`:
 
@@ -146,7 +146,7 @@ Then `main.wasp.ts` imports it and joins in into the `spec`:
 import { app, page, route } from "@wasp.sh/spec";
 
 import MainPage from "./src/MainPage" with { type: "ref" };
-import { auth } from "./src/auth/auth.wasp";
+import { authSpec } from "./src/auth/auth.wasp";
 
 export default app({
   name: "todoApp",

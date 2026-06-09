@@ -1,6 +1,6 @@
 import { describe, expect, test } from "vitest";
 import type * as AppSpec from "../../src/appSpec.js";
-import type * as TsAppSpec from "../../src/spec/publicApi/waspSpec.js";
+import type * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import { mapRefObject } from "../../src/spec/refObject.js";
 import { SpecUserError } from "../../src/spec/specUserError.js";
 import * as Fixtures from "./testFixtures.js";
@@ -33,7 +33,7 @@ describe("mapRefObject", () => {
     );
   });
 
-  function testMapRefObject(refObject: TsAppSpec.RefObject): void {
+  function testMapRefObject(refObject: WaspSpec.RefObject): void {
     const result = mapRefObjectForProject(refObject);
 
     if ("import" in refObject) {

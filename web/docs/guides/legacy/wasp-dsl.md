@@ -39,7 +39,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 | Creating an app           | `app Name { ... }`                                                       | `app({ name, ..., spec: [...] })`                                                                 |
 | Configuring the app       | <pre>app Name \{<br/> auth: \{ ... },<br/> server: \{ ... },<br/>}</pre> | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/>})</pre>                                        |
 | Adding app specifications | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre>   | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>})</pre>  |
-| Referencing code          | `import { x } from "@src/..."` inside a specification                    | `import { ... } from "./src/..." with { type: "ref" }` at the top level                           |
+| Referencing code          | `import { x } from "@src/..."` inside a declaration                      | `import { ... } from "./src/..." with { type: "ref" }` at the top level                           |
 | Entity references         | `Task` (identifier)                                                      | `"Task"` (string)                                                                                 |
 
 ### App, routes, and pages
@@ -360,7 +360,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 8. Rewrite your config:
 
-   You can use the mapping above. Top-level concerns (e.g. `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`) become keys of the `app({ ... })` object; pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `spec` array.
+   You can use the mapping above. Top-level concerns (e.g. `auth`, `server`, `client`, `db`, `emailSender`, `webSocket`) become keys of the `app({ ... })` object; pages, routes, queries, actions, APIs, jobs, and CRUDs go into the `spec` property.
 
 9. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 

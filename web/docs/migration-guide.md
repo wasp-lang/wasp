@@ -89,7 +89,7 @@ Use these docs:
 - Wasp TS Config to Wasp Spec conversion guide: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/guides/legacy/wasp-ts-config.md
 - Wasp Spec docs: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/general/spec.md
 - Wasp Spec API constructors: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/constructors.ts
-- Wasp Spec API types: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/tsAppSpec.ts
+- Wasp Spec API types: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/waspSpec.ts
 
 Important:
 

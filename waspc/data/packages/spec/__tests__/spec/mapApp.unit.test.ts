@@ -2,7 +2,7 @@ import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
 import * as AppSpecMapper from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
-import * as TsAppSpec from "../../src/spec/publicApi/waspSpec.js";
+import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
 import {
   getRefObjectDeclarationName,
   mapRefObject,
@@ -27,7 +27,7 @@ function makeMapperContext({
   };
 }
 
-function mapMockApp(app: TsAppSpec.App, entityNames: string[]) {
+function mapMockApp(app: WaspSpec.App, entityNames: string[]) {
   return AppSpecMapper.mapApp(app, {
     entityNames,
     projectRootDir: Fixtures.MOCK_PROJECT_DIR,
@@ -295,7 +295,7 @@ describe("mapPage", () => {
     testMapPage(Fixtures.getPage("full"));
   });
 
-  function testMapPage(page: TsAppSpec.Page): void {
+  function testMapPage(page: WaspSpec.Page): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapPage(page, ctx);
 
@@ -315,7 +315,7 @@ describe("mapRoute", () => {
     testMapRoute(Fixtures.getRoute("full"));
   });
 
-  function testMapRoute(route: TsAppSpec.Route): void {
+  function testMapRoute(route: WaspSpec.Route): void {
     const result = AppSpecMapper.mapRoute(route);
 
     expect(result).toStrictEqual({
@@ -346,7 +346,7 @@ describe("mapQuery", () => {
     expect(() => AppSpecMapper.mapQuery(query, ctx)).toThrow();
   });
 
-  function testMapQuery(query: TsAppSpec.Query): void {
+  function testMapQuery(query: WaspSpec.Query): void {
     const ctx = makeMapperContext({ entityNames: query.entities ?? [] });
 
     const result = AppSpecMapper.mapQuery(query, ctx);
@@ -375,7 +375,7 @@ describe("mapAction", () => {
     expect(() => AppSpecMapper.mapAction(action, ctx)).toThrow();
   });
 
-  function testMapAction(action: TsAppSpec.Action): void {
+  function testMapAction(action: WaspSpec.Action): void {
     const ctx = makeMapperContext({ entityNames: action.entities ?? [] });
 
     const result = AppSpecMapper.mapAction(action, ctx);
@@ -423,7 +423,7 @@ describe("mapAuth", () => {
   });
 
   function testMapAuth(
-    auth: TsAppSpec.Auth,
+    auth: WaspSpec.Auth,
     options:
       | {
           overrideEntities?: string[];
@@ -506,7 +506,7 @@ describe("mapAuthMethods", () => {
   });
 
   function testMapAuthMethods(
-    authMethods: TsAppSpec.AuthMethods,
+    authMethods: WaspSpec.AuthMethods,
     options:
       | {
           overrideRoutes?: string[];
@@ -591,7 +591,7 @@ describe("mapEmailAuth", () => {
   });
 
   function testMapEmailAuth(
-    emailAuth: TsAppSpec.EmailAuthConfig,
+    emailAuth: WaspSpec.EmailAuthConfig,
     options:
       | {
           overrideRoutes?: string[];
@@ -658,7 +658,7 @@ describe("mapEmailFlow", () => {
   });
 
   function testMapEmailFlow(
-    emailFlow: TsAppSpec.EmailFlowConfig,
+    emailFlow: WaspSpec.EmailFlowConfig,
     options:
       | {
           overrideRoutes?: string[];
@@ -700,7 +700,7 @@ describe("mapUsernameAndPassword", () => {
   });
 
   function testMapUsernameAndPassword(
-    usernameAndPassword: TsAppSpec.UsernameAndPasswordConfig,
+    usernameAndPassword: WaspSpec.UsernameAndPasswordConfig,
   ): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapUsernameAndPassword(
@@ -725,7 +725,7 @@ describe("mapSocialAuth", () => {
     testMapSocialAuth(Fixtures.getSocialAuthConfig("full"));
   });
 
-  function testMapSocialAuth(socialAuth: TsAppSpec.SocialAuthConfig): void {
+  function testMapSocialAuth(socialAuth: WaspSpec.SocialAuthConfig): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapSocialAuth(socialAuth, ctx);
 
@@ -756,7 +756,7 @@ describe("mapApi", () => {
     expect(() => AppSpecMapper.mapApi(api, ctx)).toThrow();
   });
 
-  function testMapApi(api: TsAppSpec.Api): void {
+  function testMapApi(api: WaspSpec.Api): void {
     const ctx = makeMapperContext({ entityNames: api.entities ?? [] });
 
     const result = AppSpecMapper.mapApi(api, ctx);
@@ -782,7 +782,7 @@ describe("mapApiNamespace", () => {
     testMapApiNamespace(Fixtures.getApiNamespace("full"));
   });
 
-  function testMapApiNamespace(apiNamespace: TsAppSpec.ApiNamespace): void {
+  function testMapApiNamespace(apiNamespace: WaspSpec.ApiNamespace): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapApiNamespace(apiNamespace, ctx);
 
@@ -804,7 +804,7 @@ describe("mapServer", () => {
     testMapServer(Fixtures.getServerConfig("full"));
   });
 
-  function testMapServer(server: TsAppSpec.Server): void {
+  function testMapServer(server: WaspSpec.Server): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapServer(server, ctx);
 
@@ -829,7 +829,7 @@ describe("mapClient", () => {
     testMapClient(Fixtures.getClientConfig("full"));
   });
 
-  function testMapClient(client: TsAppSpec.Client): void {
+  function testMapClient(client: WaspSpec.Client): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapClient(client, ctx);
 
@@ -855,7 +855,7 @@ describe("mapDb", () => {
     testMapDb(Fixtures.getDbConfig("full"));
   });
 
-  function testMapDb(db: TsAppSpec.Db): void {
+  function testMapDb(db: WaspSpec.Db): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapDb(db, ctx);
 
@@ -876,7 +876,7 @@ describe("mapEmailSender", () => {
     testMapEmailSender(Fixtures.getEmailSenderConfig("full"));
   });
 
-  function testMapEmailSender(emailSender: TsAppSpec.EmailSender): void {
+  function testMapEmailSender(emailSender: WaspSpec.EmailSender): void {
     const result = AppSpecMapper.mapEmailSender(emailSender);
 
     expect(result).toStrictEqual({
@@ -898,7 +898,7 @@ describe("mapEmailFromField", () => {
   });
 
   function testMapEmailFromField(
-    emailFromField: TsAppSpec.EmailFromField,
+    emailFromField: WaspSpec.EmailFromField,
   ): void {
     const result = AppSpecMapper.mapEmailFromField(emailFromField);
 
@@ -918,7 +918,7 @@ describe("mapWebSocket", () => {
     testMapWebSocket(Fixtures.getWebSocketConfig("full"));
   });
 
-  function testMapWebSocket(webSocket: TsAppSpec.WebSocket): void {
+  function testMapWebSocket(webSocket: WaspSpec.WebSocket): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapWebSocket(webSocket, ctx);
 
@@ -945,7 +945,7 @@ describe("mapJob", () => {
     expect(() => AppSpecMapper.mapJob(job, ctx)).toThrow();
   });
 
-  function testMapJob(job: TsAppSpec.Job): void {
+  function testMapJob(job: WaspSpec.Job): void {
     const ctx = makeMapperContext({ entityNames: job.entities ?? [] });
 
     const result = AppSpecMapper.mapJob(job, ctx);
@@ -978,7 +978,7 @@ describe("mapCrud", () => {
     expect(() => AppSpecMapper.mapCrud(crudDecl, ctx)).toThrow();
   });
 
-  function testMapCrud(crudDecl: TsAppSpec.Crud): void {
+  function testMapCrud(crudDecl: WaspSpec.Crud): void {
     const ctx = makeMapperContext({ entityNames: [crudDecl.entity] });
 
     const result = AppSpecMapper.mapCrud(crudDecl, ctx);
@@ -1000,7 +1000,7 @@ describe("mapCrudOperations", () => {
   });
 
   function testMapCrudOperations(
-    crudOperations: TsAppSpec.CrudOperations,
+    crudOperations: WaspSpec.CrudOperations,
   ): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapCrudOperations(crudOperations, ctx);
@@ -1035,7 +1035,7 @@ describe("mapCrudOperationOptions", () => {
   });
 
   function testMapCrudOperationOptions(
-    crudOperationOptions: TsAppSpec.CrudOperationOptions,
+    crudOperationOptions: WaspSpec.CrudOperationOptions,
   ): void {
     const ctx = makeMapperContext();
     const result = AppSpecMapper.mapCrudOperationOptions(
@@ -1061,7 +1061,7 @@ describe("mapSchedule", () => {
     testMapSchedule(Fixtures.getSchedule("full"));
   });
 
-  function testMapSchedule(schedule: TsAppSpec.Schedule): void {
+  function testMapSchedule(schedule: WaspSpec.Schedule): void {
     const result = AppSpecMapper.mapSchedule(schedule);
 
     expect(result).toStrictEqual({
