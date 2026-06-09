@@ -483,7 +483,7 @@ export interface WebSocket {
  * @category Specifications
  *
  * @example
- * Nested arrays let you compose a spec from separate subspecs:
+ * Nested arrays let you compose a spec from separate sub-specs:
  * ```ts
  * const authSpec: Spec = [signupRoute, loginRoute];
  * const tasksSpec: Spec = [tasksRoute, getTasks, createTask];
