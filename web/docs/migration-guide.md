@@ -67,7 +67,7 @@ Important:
 - After converting the config, return to the 0.23 to 0.24 migration guide and finish the shared migration steps.
 - Keep the app's behavior the same.
 - Use reference imports with \`with { type: "ref" }\` when importing components and functions from src.
-- If splitting the spec into multiple files, export \`Spec\` from feature spec files and join them into \`main.wasp.ts\`.
+- If splitting the spec into multiple files, export \`Spec\` from feature spec files and combine them inside of \`app.spec\` in \`main.wasp.ts\`.
 
 Please make the changes directly in the repo and tell me what commands I should run to verify the migration.
 `}
@@ -97,7 +97,7 @@ Important:
 - After converting the config, return to the 0.23 to 0.24 migration guide and finish the shared migration steps.
 - Keep the app's behavior the same.
 - Prefer reference imports with \`with { type: "ref" }\` when importing components and functions from src.
-- If splitting the spec into multiple files, export \`Spec\` from feature spec files and join them into \`main.wasp.ts\`.
+- If splitting the spec into multiple files, export \`Spec\` from feature spec files and combine them inside of \`app.spec\` in \`main.wasp.ts\`.
 
 Please make the changes directly in the repo and tell me what commands I should run to verify the migration.
 `}
