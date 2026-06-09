@@ -1,5 +1,6 @@
 import type * as AppSpec from "../appSpec.js";
 import type { Branded } from "../branded.js";
+import type * as WaspSpec from "./publicApi/waspSpec.js";
 import { normalizeRefObjectPath } from "./refObjectPath.js";
 import { SpecUserError } from "./specUserError.js";
 
@@ -34,8 +35,8 @@ export interface NamedRefObjectDescriptor {
   /**
    * Optional local alias.
    *
-   * When Wasp Spec derives a specification element name from this import,
-   * the alias takes precedence over the `import` field.
+   * Alias takes precedence over the `import` field when
+   * Wasp Spec dervies some {@link WaspSpec.SpecElement} name.
    */
   alias?: string;
   /** Module path, relative to the `*.wasp.ts` file using it. */
