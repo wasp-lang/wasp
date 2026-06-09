@@ -68,7 +68,7 @@ export interface App {
   /** Configuration for the app's WebSocket support. */
   webSocket?: WebSocket;
   /**
-   * All the specifications ({@link SpecElement}) of the app.
+   * The specification ({@link Spec}) of the app.
    *
    * Build entries with the dedicated constructors ({@link page}, {@link route},
    * {@link query}, {@link action}, {@link api}, {@link apiNamespace},

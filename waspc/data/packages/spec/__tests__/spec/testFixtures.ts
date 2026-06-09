@@ -59,12 +59,10 @@ export function getApp(scope: ConfigScope): TsAppSpec.App {
   }
 }
 
-export function getMinimalAppWithSpec(
-  specElements: TsAppSpec.SpecElement[],
-): TsAppSpec.App {
+export function getMinimalAppWithSpec(spec: TsAppSpec.Spec): TsAppSpec.App {
   return {
     ...getApp("minimal"),
-    spec: specElements,
+    spec,
   };
 }
 

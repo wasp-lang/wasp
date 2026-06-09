@@ -44,7 +44,7 @@ You build your app by:
 3. Calling `app({ ... })` with your app's configuration, listing all the pages, routes, queries, actions, etc. in the `spec` array.
 4. Exporting the result as the **default export** of the file.
 
-`spec` is short for specification: the pages, routes, queries, actions, APIs, jobs, CRUDs and other specification elements that make up your app.
+`spec` is short for specification: the pages, routes, queries, actions, APIs, jobs and CRUDs that make up your app.
 
 ## `wasp install`
 
@@ -124,7 +124,7 @@ You can't re-export `ref` from `@wasp.sh/spec` (`export { ref } from "@wasp.sh/s
 
 For larger apps you don't have to keep everything in `main.wasp.ts`. You can move related specifications into their own `*.wasp.ts` files and combine them in `main.wasp.ts`. This works well for vertical slices, like keeping a feature's page, route, query, and action specifications in that feature's folder.
 
-Eacj feature file exports it's own `Spec`:
+Each feature file exports it's own `Spec`:
 
 ```ts title="src/auth/auth.wasp.ts"
 import { page, route, type Spec } from "@wasp.sh/spec";
