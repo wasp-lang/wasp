@@ -525,7 +525,7 @@ export type SpecElement =
  *
  * @category Specifications
  */
-export interface Page extends BaseSpecElemenet<"page"> {
+export interface Page extends BaseSpecElement<"page"> {
   /** React component rendered for this page. */
   component: Reference<AnyFunction>;
   /**
@@ -549,7 +549,7 @@ export interface Page extends BaseSpecElemenet<"page"> {
  *
  * @category Specifications
  */
-export interface Route extends BaseSpecElemenet<"route"> {
+export interface Route extends BaseSpecElement<"route"> {
   /** Unique route name. */
   name: string;
   /**
@@ -591,7 +591,7 @@ export interface Route extends BaseSpecElemenet<"route"> {
  *
  * @category Specifications
  */
-export interface Query extends BaseSpecElemenet<"query"> {
+export interface Query extends BaseSpecElement<"query"> {
   /**
    * Reference to the Query's NodeJS implementation. The implementation can be
    * async and receives two positional arguments: the caller-provided `args`
@@ -625,7 +625,7 @@ export interface Query extends BaseSpecElemenet<"query"> {
  *
  * @category Specifications
  */
-export interface Action extends BaseSpecElemenet<"action"> {
+export interface Action extends BaseSpecElement<"action"> {
   /**
    * Reference to the Action's NodeJS implementation. The implementation can be
    * async and receives two positional arguments: the caller-provided `args`
@@ -663,7 +663,7 @@ export interface Action extends BaseSpecElemenet<"action"> {
  *
  * @category Specifications
  */
-export interface Api extends BaseSpecElemenet<"api"> {
+export interface Api extends BaseSpecElement<"api"> {
   /** HTTP method this endpoint responds to. */
   method: HttpMethod;
   /** Express path of the endpoint (e.g. `"/webhooks/stripe"`). */
@@ -700,7 +700,7 @@ export interface Api extends BaseSpecElemenet<"api"> {
  *
  * @category Specifications
  */
-export interface ApiNamespace extends BaseSpecElemenet<"apiNamespace"> {
+export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
   /** Reference to an Express middleware config function for this namespace. */
   middlewareConfigFn: Reference<AnyFunction>;
   /** Path prefix the namespace applies to (e.g. `"/webhooks"`). */
@@ -723,7 +723,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  *
  * @category Specifications
  */
-export interface Job extends BaseSpecElemenet<"job"> {
+export interface Job extends BaseSpecElement<"job"> {
   /**
    * Reference to the job's NodeJS implementation. It receives the submitted
    * args and a context containing the declared entities.
@@ -804,7 +804,7 @@ export interface ExecutorOptions {
  *
  * @category Specifications
  */
-export interface Crud extends BaseSpecElemenet<"crud"> {
+export interface Crud extends BaseSpecElement<"crud"> {
   /** Unique name for this CRUD. */
   name: string;
   /** Entity to generate operations for. */
@@ -911,7 +911,7 @@ export type {
   RefObjectDescriptor,
 } from "../refObject.js";
 
-interface BaseSpecElemenet<Kind extends string> {
+interface BaseSpecElement<Kind extends string> {
   /**
    * The internal Wasp type of a spec elemenet. Used by the compiler.
    * You should not set this field directly, instead use the dedicated constructors.

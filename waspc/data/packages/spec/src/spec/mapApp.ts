@@ -74,9 +74,9 @@ export function mapApp(
     (route) => mapPage(route.page, ctx),
   );
 
-  const querySpecElemenets = extractSpecElements("query", flatSpec);
+  const querySpecElements = extractSpecElements("query", flatSpec);
   const queryDecls = mapToDecls(
-    querySpecElemenets,
+    querySpecElements,
     "Query",
     (query) => getRefObjectDeclarationName(query.fn),
     (query) => mapQuery(query, ctx),
