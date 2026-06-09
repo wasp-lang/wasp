@@ -472,7 +472,7 @@ export interface WebSocket {
   autoConnect?: boolean;
 }
 
-export type Spec = (SpecElement | Spec)[] | Spec[];
+export type Spec = (SpecElement | Spec)[];
 
 /**
  * Union of every kind of specification element that can appear in {@link App.spec}.
