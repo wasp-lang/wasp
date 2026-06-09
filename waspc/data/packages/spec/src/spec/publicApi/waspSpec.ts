@@ -14,14 +14,14 @@ import { FromRegister } from "./register.js";
  *
  * @example
  * ```ts
- * import { app } from '@wasp.sh/spec'
+ * import { app } from "@wasp.sh/spec"
  *
  * export default app({
- *   name: 'todoApp',
- *   title: 'ToDo App',
- *   wasp: { version: '^0.24.0' },
+ *   name: "todoApp",
+ *   title: "ToDo App",
+ *   wasp: { version: "^0.24.0" },
  *   spec: [],
- * })
+ * });
  * ```
  */
 export interface App {
@@ -472,6 +472,26 @@ export interface WebSocket {
   autoConnect?: boolean;
 }
 
+/**
+ * The (optionally nested) list of all spec elements that make up the {@link App.spec}.
+ * Each element is one of the {@link SpecElement} variants.
+ *
+ * Entries can be grouped in sub-arrays to any depth. This lets you define
+ * related elements separately (for example, one array per feature) and
+ * compose them together; the nested structure is treated as a single flat
+ * list of elements.
+ *
+ * @category Specifications
+ *
+ * @example
+ * Nested arrays let you compose a spec from separate groups:
+ * ```ts
+ * const authSpec: Spec = [signupRoute, loginRoute];
+ * const tasksSpec: Spec = [tasksRoute, getTasks, createTask];
+ *
+ * const spec: Spec = [authSpec, tasksSpec];
+ * ```
+ */
 export type Spec = (SpecElement | Spec)[];
 
 /**
@@ -479,7 +499,7 @@ export type Spec = (SpecElement | Spec)[];
  *
  * Each variant is produced by its matching constructor.
  *
- * @category Specification elements
+ * @category Specifications
  */
 export type SpecElement =
   | Page
@@ -496,7 +516,7 @@ export type SpecElement =
  *
  * Create one with the {@link page} constructor.
  *
- * @category Specification elements
+ * @category Specifications
  */
 export interface Page extends BaseSpecElemenet<"page"> {
   /** React component rendered for this page. */
@@ -520,7 +540,7 @@ export interface Page extends BaseSpecElemenet<"page"> {
  * See [Routing](https://wasp.sh/docs/advanced/routing) for path patterns
  * (dynamic segments, optional segments, splats).
  *
- * @category Specification elements
+ * @category Specifications
  */
 export interface Route extends BaseSpecElemenet<"route"> {
   /** Unique route name. */
@@ -562,7 +582,7 @@ export interface Route extends BaseSpecElemenet<"route"> {
  *
  * See [Queries](https://wasp.sh/docs/data-model/operations/queries).
  *
- * @category Specification elements
+ * @category Specifications
  */
 export interface Query extends BaseSpecElemenet<"query"> {
   /**
@@ -596,7 +616,7 @@ export interface Query extends BaseSpecElemenet<"query"> {
  *
  * See [Actions](https://wasp.sh/docs/data-model/operations/actions).
  *
- * @category Specification elements
+ * @category Specifications
  */
 export interface Action extends BaseSpecElemenet<"action"> {
   /**
@@ -634,7 +654,7 @@ export interface Action extends BaseSpecElemenet<"action"> {
  *
  * See [Custom HTTP API Endpoints](https://wasp.sh/docs/advanced/apis).
  *
- * @category Specification elements
+ * @category Specifications
  */
 export interface Api extends BaseSpecElemenet<"api"> {
   /** HTTP method this endpoint responds to. */
@@ -671,7 +691,7 @@ export interface Api extends BaseSpecElemenet<"api"> {
  *
  * Create one with the {@link apiNamespace} constructor.
  *
- * @category Specification elements
+ * @category Specifications
  */
 export interface ApiNamespace extends BaseSpecElemenet<"apiNamespace"> {
   /** Reference to an Express middleware config function for this namespace. */
@@ -694,7 +714,7 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  *
  * See [Recurring Jobs](https://wasp.sh/docs/advanced/jobs).
  *
- * @category Specification elements
+ * @category Specifications
  */
 export interface Job extends BaseSpecElemenet<"job"> {
   /**
@@ -775,7 +795,7 @@ export interface ExecutorOptions {
  *
  * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud).
  *
- * @category Specification elements
+ * @category Specifications
  */
 export interface Crud extends BaseSpecElemenet<"crud"> {
   /** Unique name for this CRUD. */
@@ -856,10 +876,10 @@ type Entities = FromRegister<"entities", {}>;
  *
  * @example
  * ```ts
- * import { query } from '@wasp.sh/spec'
- * import { getTasks } from './src/queries' with { type: 'ref' }
+ * import { query } from "@wasp.sh/spec"
+ * import { getTasks } from "./src/queries" with { type: "ref" }
  *
- * query(getTasks, { entities: ['Task'] })
+ * query(getTasks, { entities: ["Task"] })
  * ```
  */
 export type Reference<AppValue> = RefObject | AppValue;
