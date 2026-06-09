@@ -52,7 +52,7 @@ export default app({
       email: "kitchen-sink@wasp.sh",
     },
   },
-  decls: [
+  spec: [
     route("HomeRoute", "/", page(HomePage), { prerender: true }),
     route("CatchAllRoute", "*", page(CatchAllPage)),
     authSpec,
