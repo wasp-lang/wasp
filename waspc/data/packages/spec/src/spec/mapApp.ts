@@ -553,7 +553,7 @@ function flattenSpec(spec: WaspSpec.Spec): WaspSpec.SpecElement[] {
     return [spec];
   }
 
-  return spec.flatMap((s) => (Array.isArray(s) ? flattenSpec(s) : s));
+  return (spec as WaspSpec.SpecElement[]).flat(Infinity);
 }
 
 /**
