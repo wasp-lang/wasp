@@ -12,7 +12,7 @@ data Call
   | Db Arguments -- db args
   | Build
   | BuildStart Arguments
-  | Version
+  | Version Arguments
   | Telemetry
   | Deps
   | Dockerfile

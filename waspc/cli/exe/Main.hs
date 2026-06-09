@@ -40,12 +40,11 @@ import Wasp.Cli.Command.Uninstall (uninstall)
 import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
+import Wasp.Cli.Version (printVersion)
 import qualified Wasp.Message as Message
 import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
-import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
-import Wasp.Version (waspVersion)
 
 main :: IO ()
 main = withUtf8 . (`E.catch` handleInternalErrors) $ do
@@ -60,7 +59,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["compile"] -> Command.Call.Compile
         ("db" : dbArgs) -> Command.Call.Db dbArgs
         ["uninstall"] -> Command.Call.Uninstall
-        ["version"] -> Command.Call.Version
+        ("version" : versionArgs) -> Command.Call.Version versionArgs
         ["build"] -> Command.Call.Build
         ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
         ["telemetry"] -> Command.Call.Telemetry
@@ -112,7 +111,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Install -> runCommand install
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
-    Command.Call.Version -> printVersion
+    Command.Call.Version versionArgs -> printVersion versionArgs
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
@@ -174,7 +173,7 @@ printUsage =
               "      You can do the same thing with `wasp new` interactively.",
               "      Run `wasp new:ai` for more info.",
               "",
-        cmd   "    version               Prints current version of CLI.",
+        cmd   "    version [--full]      Prints current version of CLI.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
@@ -208,21 +207,6 @@ printUsage =
         Term.applyStyles [Term.Cyan]    "Newsletter:" ++ " https://wasp.sh/#signup"
       ]
 {- ORMOLU_ENABLE -}
-
-printVersion :: IO ()
-printVersion =
-  putStrLn $
-    unlines
-      [ show waspVersion,
-        "",
-        "If you wish to install/switch to the latest version of Wasp, do:",
-        indent 2 $ getInstallationCommand Nothing,
-        "",
-        "If you want a specific x.y.z version of Wasp, do:",
-        indent 2 $ getInstallationCommand $ Just "x.y.z",
-        "",
-        "Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one."
-      ]
 
 -- TODO: maybe extract to a separate module, e.g. DbCli.hs?
 dbCli :: [String] -> IO ()

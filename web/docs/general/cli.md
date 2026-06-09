@@ -26,7 +26,8 @@ COMMANDS
       You can do the same thing with `wasp new` interactively.
       Run `wasp new:ai` for more info.
 
-    version               Prints current version of CLI.
+    version [--full]      Prints current version of CLI.
+                          With --full, also prints the git commit, OS, and Node.js/npm versions.
     waspls                Run Wasp Language Server. Add --help to get more info.
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
@@ -179,6 +180,29 @@ To set up Bash completion, run the `wasp completion` command and follow the inst
 $ wasp version
 
 0.14.0
+
+If you wish to install/switch to the latest version of Wasp, do:
+npm i -g @wasp.sh/wasp-cli@latest
+
+If you want specific x.y.z version of Wasp, do:
+npm i -g @wasp.sh/wasp-cli@x.y.z
+
+Check https://github.com/wasp-lang/wasp/releases for the list of valid versions, including the latest one.
+
+```
+
+  Add the `--full` flag to also print diagnostic information useful for bug reports: the git commit the binary was built from, your operating system and architecture, and your Node.js and npm versions.
+
+```
+
+$ wasp version --full
+
+0.14.0
+
+Git commit: v0.23.0-136-g874e208c13
+OS:         darwin 25.5.0 aarch64
+Node:       24.14.1
+npm:        11.16.0
 
 If you wish to install/switch to the latest version of Wasp, do:
 npm i -g @wasp.sh/wasp-cli@latest
