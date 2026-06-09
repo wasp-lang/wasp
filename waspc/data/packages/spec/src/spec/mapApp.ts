@@ -553,16 +553,16 @@ function flattenSpec(spec: WaspSpec.Spec): WaspSpec.SpecElement[] {
 }
 
 /**
- * The point of this function is to enforce exhaustivness over all specification
- * types, ensuring we don't forget to include anything.
+ * The point of this function is to enforce exhaustivness over all AppSpec
+ * declaration types, ensuring we don't forget to include anything.
  * Check the original comment for details: https://github.com/wasp-lang/wasp/pull/2393#discussion_r1866620833
  *
  * TODO: The new spec bundles all specifications (queries, actions...) together in
- * the decls array, so there's no need to go through them one by one.
+ * the `spec` array, so there's no need to go through them one by one.
  *
  * We'd likely be better off by:
  *   1. Mapping the entire array with a dispatcher that calls the correct
- *   mapper depending on the specification's kind
+ *   mapper depending on the declaration's kind
  *   2. Passing this mapped array into the app spec (which expects them all on
  *   the same level anyway).
  * We'll likely lose some mapping type safety in the process though. Explore
