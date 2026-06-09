@@ -54,6 +54,7 @@ export const generateApp: GenerateAppJob<
     JSON.stringify(projectConfig),
   ];
 
+  // Mage generates Wasp 0.23 apps, so this must call the pinned 0.23 CLI.
   waspCliProcess = spawn("wasp", waspCliProcessArgs, {
     env: { ...process.env, waspc_datadir: undefined },
   });
