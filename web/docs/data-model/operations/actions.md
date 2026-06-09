@@ -44,7 +44,7 @@ import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     action(createTask),
     action(markTaskAsDone),
   ],
@@ -438,7 +438,7 @@ import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     action(createTask, { entities: ["Task"] }),
     action(markTaskAsDone, { entities: ["Task"] }),
   ],
@@ -565,7 +565,7 @@ Declare an Action with `action(fn, config)`:
 
     export default app({
       // ...
-      decls: [
+      spec: [
         action(createFoo, { entities: ["Foo"] }),
       ],
     })
@@ -591,7 +591,7 @@ Declare an Action with `action(fn, config)`:
 
     export default app({
       // ...
-      decls: [
+      spec: [
         action(createFoo, { entities: ["Foo"] }),
       ],
     })
@@ -662,7 +662,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     export default app({
       // ...
-      decls: [
+      spec: [
         action(createFoo, { entities: ["Foo"] }),
       ],
     })
@@ -686,7 +686,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     export default app({
       // ...
-      decls: [
+      spec: [
         action(createFoo, { entities: ["Foo"] }),
       ],
     })

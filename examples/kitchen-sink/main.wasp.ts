@@ -13,17 +13,17 @@ import {
   serverSetup,
 } from "./src/serverSetup" with { type: "ref" };
 
-import { apisDecls } from "./src/features/apis/apis.wasp";
-import { authConfig, authDecls } from "./src/features/auth/auth.wasp";
-import { chatDecls, webSocket } from "./src/features/chat/chat.wasp";
-import { crudFeatureDecls } from "./src/features/crud/crud.wasp";
+import { apisSpec } from "./src/features/apis/apis.wasp";
+import { authConfig, authSpec } from "./src/features/auth/auth.wasp";
+import { chatSpec, webSocket } from "./src/features/chat/chat.wasp";
+import { crudSpec } from "./src/features/crud/crud.wasp";
 import { db } from "./src/features/db/db.wasp";
-import { jobsDecls } from "./src/features/jobs/jobs.wasp";
-import { lazyLoadingDecls } from "./src/features/lazy-loading/lazyLoading.wasp";
-import { operationsDecls } from "./src/features/operations/operations.wasp";
-import { prerenderDecls } from "./src/features/prerender/prerender.wasp";
-import { streamingDecls } from "./src/features/streaming/streaming.wasp";
-import { rpcTestsDecls } from "./src/rpcTests/rpcTests.wasp";
+import { jobsSpec } from "./src/features/jobs/jobs.wasp";
+import { lazyLoadingSpec } from "./src/features/lazy-loading/lazyLoading.wasp";
+import { operationsSpec } from "./src/features/operations/operations.wasp";
+import { prerenderSpec } from "./src/features/prerender/prerender.wasp";
+import { streamingSpec } from "./src/features/streaming/streaming.wasp";
+import { rpcTestsSpec } from "./src/rpcTests/rpcTests.wasp";
 
 export default app({
   name: "KitchenSink",
@@ -52,19 +52,18 @@ export default app({
       email: "kitchen-sink@wasp.sh",
     },
   },
-  decls: [
+  spec: [
     route("HomeRoute", "/", page(HomePage), { prerender: true }),
     route("CatchAllRoute", "*", page(CatchAllPage)),
-
-    ...authDecls,
-    ...operationsDecls,
-    ...jobsDecls,
-    ...apisDecls,
-    ...crudFeatureDecls,
-    ...streamingDecls,
-    ...chatDecls,
-    ...lazyLoadingDecls,
-    ...prerenderDecls,
-    ...rpcTestsDecls,
+    authSpec,
+    operationsSpec,
+    jobsSpec,
+    apisSpec,
+    crudSpec,
+    streamingSpec,
+    chatSpec,
+    lazyLoadingSpec,
+    prerenderSpec,
+    rpcTestsSpec,
   ],
 });

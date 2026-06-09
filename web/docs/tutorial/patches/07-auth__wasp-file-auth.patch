@@ -13,6 +13,6 @@ index 64d2908..f6d0dfc 100644
 +    },
 +    onAuthFailedRedirectTo: "/login",
 +  },
-   decls: [
+   spec: [
      route("RootRoute", "/", page(MainPage)),
      query(getTasks, { entities: ["Task"] }),

@@ -33,7 +33,7 @@ import { getTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     // Tell Wasp that this query reads from the `Task` entity. Wasp will
     // automatically update the results of this query when tasks are modified.
     // highlight-next-line

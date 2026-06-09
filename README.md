@@ -85,7 +85,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/login",
   },
-  decls: [
+  spec: [
     route("RootRoute", "/", page(MainPage),
     route(
       "DashboardRoute",

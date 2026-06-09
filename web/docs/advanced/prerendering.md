@@ -23,7 +23,7 @@ import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("LandingRoute", "/", page(LandingPage), { prerender: true }),
   ],
 })
@@ -67,7 +67,7 @@ import { UserPage } from "./src/UserPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     // ✅ Works (static path)
     route("AboutRoute", "/about", page(AboutPage), { prerender: true }),
     // ❌ Won't compile (dynamic segment)
@@ -86,7 +86,7 @@ import { DashPage } from "./src/DashPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     // ❌ Won't compile (authRequired is true)
     route(
       "DashRoute",
@@ -162,7 +162,7 @@ import { SomePage } from "./src/SomePage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("NameRoute", "/some-path", page(SomePage), {
       prerender: true, // optional, defaults to false
     }),

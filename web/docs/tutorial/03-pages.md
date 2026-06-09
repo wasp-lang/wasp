@@ -18,7 +18,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
     export default app({
       // ...
-      decls: [
+      spec: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.jsx`. Reference imports must point to files inside `src`.
         route("RootRoute", "/", page(MainPage)),
@@ -34,7 +34,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
     export default app({
       // ...
-      decls: [
+      spec: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.tsx`. Reference imports must point to files inside `src`.
         route("RootRoute", "/", page(MainPage)),
@@ -79,7 +79,7 @@ import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("HelloRoute", "/hello/:name", page(HelloPage)),
   ],
 })
@@ -143,7 +143,7 @@ export default app({
   head: [
     "<link rel='icon' href='/favicon.ico' />",
   ],
-  decls: [
+  spec: [
     route("RootRoute", "/", page(MainPage)),
   ],
 })

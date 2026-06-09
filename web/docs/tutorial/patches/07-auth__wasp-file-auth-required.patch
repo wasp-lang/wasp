@@ -5,7 +5,7 @@ index 1d820cf..d558017 100644
 @@ -18,7 +18,13 @@ export default app({
      onAuthFailedRedirectTo: "/login",
    },
-   decls: [
+   spec: [
 -    route("RootRoute", "/", page(MainPage)),
 +    route(
 +      "RootRoute",

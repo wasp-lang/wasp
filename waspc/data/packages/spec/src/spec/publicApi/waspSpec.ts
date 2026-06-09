@@ -10,18 +10,18 @@ import { FromRegister } from "./register.js";
  * Pass an `App` to the {@link app} constructor and `export default` the
  * result from `main.wasp.ts`.
  *
- * @category Spec
+ * @category Wasp Spec
  *
  * @example
  * ```ts
- * import { app } from '@wasp.sh/spec'
+ * import { app } from "@wasp.sh/spec"
  *
  * export default app({
- *   name: 'todoApp',
- *   title: 'ToDo App',
- *   wasp: { version: '^0.24.0' },
- *   decls: [],
- * })
+ *   name: "todoApp",
+ *   title: "ToDo App",
+ *   wasp: { version: "^0.24.0" },
+ *   spec: [],
+ * });
  * ```
  */
 export interface App {
@@ -68,13 +68,13 @@ export interface App {
   /** Configuration for the app's WebSocket support. */
   webSocket?: WebSocket;
   /**
-   * All the declarations ({@link Decl}) of the app.
+   * The specification ({@link Spec}) of the app.
    *
    * Build entries with the dedicated constructors ({@link page}, {@link route},
    * {@link query}, {@link action}, {@link api}, {@link apiNamespace},
    * {@link job}, {@link crud}).
    */
-  decls: Decl[];
+  spec: Spec;
 }
 
 /**
@@ -293,7 +293,7 @@ export interface EmailFlowConfig {
    * Name of the route that handles the link sent in the email
    * (e.g. `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
    *
-   * The route must be defined in {@link App.decls} with the {@link route}
+   * The route must be defined in {@link App.spec} with the {@link route}
    * constructor.
    */
   clientRoute: string;
@@ -473,13 +473,34 @@ export interface WebSocket {
 }
 
 /**
- * Union of every kind of declaration that can appear in {@link App.decls}.
+ * A single {@link SpecElement}, or an (optionally nested) array of them, that
+ * makes up the {@link App.spec}.
+ *
+ * This lets you define related elements separately (for example, one array per
+ * feature) and compose them together. The nested structure is treated as a single
+ * flat list of elements.
+ *
+ * @category Specifications
+ *
+ * @example
+ * Nested arrays let you compose a spec from separate sub-specs:
+ * ```ts
+ * const authSpec: Spec = [signupRoute, loginRoute];
+ * const tasksSpec: Spec = [tasksRoute, getTasks, createTask];
+ *
+ * const spec: Spec = [authSpec, tasksSpec];
+ * ```
+ */
+export type Spec = SpecElement | Spec[];
+
+/**
+ * Union of every kind of specification element that can appear in {@link App.spec}.
  *
  * Each variant is produced by its matching constructor.
  *
- * @category Declarations
+ * @category Specifications
  */
-export type Decl =
+export type SpecElement =
   | Page
   | Route
   | Query
@@ -494,9 +515,9 @@ export type Decl =
  *
  * Create one with the {@link page} constructor.
  *
- * @category Declarations
+ * @category Specifications
  */
-export interface Page extends BaseDecl<"page"> {
+export interface Page extends BaseSpecElement<"page"> {
   /** React component rendered for this page. */
   component: Reference<AnyFunction>;
   /**
@@ -518,9 +539,9 @@ export interface Page extends BaseDecl<"page"> {
  * See [Routing](https://wasp.sh/docs/advanced/routing) for path patterns
  * (dynamic segments, optional segments, splats).
  *
- * @category Declarations
+ * @category Specifications
  */
-export interface Route extends BaseDecl<"route"> {
+export interface Route extends BaseSpecElement<"route"> {
   /** Unique route name. */
   name: string;
   /**
@@ -560,9 +581,9 @@ export interface Route extends BaseDecl<"route"> {
  *
  * See [Queries](https://wasp.sh/docs/data-model/operations/queries).
  *
- * @category Declarations
+ * @category Specifications
  */
-export interface Query extends BaseDecl<"query"> {
+export interface Query extends BaseSpecElement<"query"> {
   /**
    * Reference to the Query's NodeJS implementation. The implementation can be
    * async and receives two positional arguments: the caller-provided `args`
@@ -594,9 +615,9 @@ export interface Query extends BaseDecl<"query"> {
  *
  * See [Actions](https://wasp.sh/docs/data-model/operations/actions).
  *
- * @category Declarations
+ * @category Specifications
  */
-export interface Action extends BaseDecl<"action"> {
+export interface Action extends BaseSpecElement<"action"> {
   /**
    * Reference to the Action's NodeJS implementation. The implementation can be
    * async and receives two positional arguments: the caller-provided `args`
@@ -632,9 +653,9 @@ export interface Action extends BaseDecl<"action"> {
  *
  * See [Custom HTTP API Endpoints](https://wasp.sh/docs/advanced/apis).
  *
- * @category Declarations
+ * @category Specifications
  */
-export interface Api extends BaseDecl<"api"> {
+export interface Api extends BaseSpecElement<"api"> {
   /** HTTP method this endpoint responds to. */
   method: HttpMethod;
   /** Express path of the endpoint (e.g. `"/webhooks/stripe"`). */
@@ -669,9 +690,9 @@ export interface Api extends BaseDecl<"api"> {
  *
  * Create one with the {@link apiNamespace} constructor.
  *
- * @category Declarations
+ * @category Specifications
  */
-export interface ApiNamespace extends BaseDecl<"apiNamespace"> {
+export interface ApiNamespace extends BaseSpecElement<"apiNamespace"> {
   /** Reference to an Express middleware config function for this namespace. */
   middlewareConfigFn: Reference<AnyFunction>;
   /** Path prefix the namespace applies to (e.g. `"/webhooks"`). */
@@ -692,9 +713,9 @@ export type HttpMethod = "ALL" | "GET" | "POST" | "PUT" | "DELETE";
  *
  * See [Recurring Jobs](https://wasp.sh/docs/advanced/jobs).
  *
- * @category Declarations
+ * @category Specifications
  */
-export interface Job extends BaseDecl<"job"> {
+export interface Job extends BaseSpecElement<"job"> {
   /**
    * Reference to the job's NodeJS implementation. It receives the submitted
    * args and a context containing the declared entities.
@@ -773,9 +794,9 @@ export interface ExecutorOptions {
  *
  * See [Automatic CRUD](https://wasp.sh/docs/data-model/crud).
  *
- * @category Declarations
+ * @category Specifications
  */
-export interface Crud extends BaseDecl<"crud"> {
+export interface Crud extends BaseSpecElement<"crud"> {
   /** Unique name for this CRUD. */
   name: string;
   /** Entity to generate operations for. */
@@ -854,10 +875,10 @@ type Entities = FromRegister<"entities", {}>;
  *
  * @example
  * ```ts
- * import { query } from '@wasp.sh/spec'
- * import { getTasks } from './src/queries' with { type: 'ref' }
+ * import { query } from "@wasp.sh/spec"
+ * import { getTasks } from "./src/queries" with { type: "ref" }
  *
- * query(getTasks, { entities: ['Task'] })
+ * query(getTasks, { entities: ["Task"] })
  * ```
  */
 export type Reference<AppValue> = RefObject | AppValue;
@@ -882,10 +903,10 @@ export type {
   RefObjectDescriptor,
 } from "../refObject.js";
 
-interface BaseDecl<Kind extends string> {
+interface BaseSpecElement<Kind extends string> {
   /**
-   * The internal Wasp type of this decl. Used by the compiler.
-   * You should not set this field directly, instead use the dedicated constructors for each decl type.
+   * The internal Wasp type of a {@link SpecElement}. Used by the compiler.
+   * You should not set this field directly, instead use the dedicated constructors.
    */
   kind: Kind;
 }

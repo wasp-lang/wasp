@@ -45,7 +45,7 @@ export default app({
   emailSender: {
     // ...
   },
-  decls: [
+  spec: [
     // Defining routes and pages
     route("SignupRoute", "/signup", page(SignupPage)),
     // ...
@@ -143,7 +143,7 @@ import {
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("LoginRoute", "/login", page(LoginPage)),
     route("SignupRoute", "/signup", page(SignupPage)),
     route(

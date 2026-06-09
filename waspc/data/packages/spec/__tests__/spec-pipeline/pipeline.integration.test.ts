@@ -58,7 +58,7 @@ describe("Wasp TS spec pipeline", () => {
       [`export defautl function FaqPage() { return null; }`].join("\n"),
     );
 
-    const decls = project.analyzeSpec(
+    const result = project.analyzeSpec(
       [
         `import { app } from "@wasp.sh/spec";`,
         `import { homePage } from "./src/features/home.wasp";`,
@@ -69,12 +69,12 @@ describe("Wasp TS spec pipeline", () => {
         `  name: "demo",`,
         `  title: splitTitle,`,
         `  wasp: { version: "^0.16.0" },`,
-        `  decls: [homePage, archiveAction, faqPage],`,
+        `  spec: [homePage, archiveAction, faqPage],`,
         `});`,
       ].join("\n"),
     );
 
-    expect(decls).toMatchSnapshot();
+    expect(result).toMatchSnapshot();
   });
 
   test("surfaces type errors in the spec as a SpecUserError with formatted diagnostics", () => {
@@ -90,7 +90,7 @@ describe("Wasp TS spec pipeline", () => {
         `  name: "demo",`,
         `  title: "Demo",`,
         `  wasp: { version: "^0.16.0" },`,
-        `  decls: [],`,
+        `  spec: [],`,
         `});`,
       ].join("\n"),
     );
@@ -120,7 +120,7 @@ describe("Wasp TS spec pipeline", () => {
         `  name: "demo",`,
         `  title: "Demo",`,
         `  wasp: { version: "^0.16.0" },`,
-        `  decls: [],`,
+        `  spec: [],`,
         `});`,
       ].join("\n"),
     );

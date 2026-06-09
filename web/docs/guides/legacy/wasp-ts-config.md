@@ -9,7 +9,7 @@ last_checked_with_versions:
 
 The first version of configuring Wasp in TypeScript used a **class-based API**: you created an `App` instance with `new App(...)` and registered declarations with mutating method calls like `app.page(...)` and `app.query(...)`. We called this the **TS Config**.
 
-Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `decls` array.
+Starting with Wasp 0.24, the TS Config is now retired in favor of the [Wasp Spec](../../general/spec.md): a **function-based API** where you call `app({ ... })` once and list everything in a `spec` property.
 
 :::tip Upgrading from Wasp 0.23 to 0.24?
 The conversion below is mechanical, so you can let an LLM do the heavy lifting instead. The [migration guide](../../migration-guide.md#use-an-agent-to-do-it-for-you) has a copyable prompt bundling this guide, the Wasp Spec docs, and the shared migration steps. Once your config is converted, return to the [migration guide](../../migration-guide.md) for the remaining shared steps.
@@ -19,7 +19,7 @@ The conversion below is mechanical, so you can let an LLM do the heavy lifting i
 
 ### Reference imports
 
-In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a declaration function.
+In the TS Config you could only reference your code with import objects (`{ import, from }`). The Wasp Spec also supports **reference imports**: import the value with the regular `import` syntax and pass it directly to a specification constructor.
 
 <Tabs sideBySide>
   <TabItem value="before" label="TS Config">
@@ -40,7 +40,7 @@ In the TS Config you could only reference your code with import objects (`{ impo
 
     export default app({
       // ...
-      decls: [
+      spec: [
         route("MainRoute", "/", page(MainPage)),
         query(getTasks),
       ],
@@ -53,7 +53,7 @@ Import objects still work through the `ref(...)` helper, so you can migrate grad
 
 ### Multiple files
 
-The TS Config required your entire configuration to live in a single `main.wasp.ts`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import declarations between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `cards.wasp.ts` next to the feature it configures).
+The TS Config required your entire configuration to live in a single `main.wasp.ts`. The Wasp Spec lets you split it across multiple `*.wasp.ts` files and import specifications between them, so you can keep large apps organized (for example, a separate `auth.wasp.ts` or `cards.wasp.ts` next to the feature it configures).
 
 See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into-multiple-files) for details.
 
@@ -61,15 +61,15 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### Overview
 
-| What                    | Before                                                                                                                                      | After                                                                                                                                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Creating an app         | `new App(name, { ... })`                                                                                                                    | `app({ name, ..., decls: [...] })`                                                                                                     |
-| Configuring the app     | `app.auth(...)` <br/> `app.server(...)` <br/> `app.client(...)` <br/> `app.db(...)` <br/> `app.emailSender(...)` <br/> `app.webSocket(...)` | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/> client: ...,<br/> db: ...,<br/> emailSender: ...,<br/> webSocket: ...,<br/>})</pre> |
-| Adding app declarations | `app.route(...)` <br/> `app.query(...)` <br/> `app.action(...)` <br/> etc                                                                   | <pre>app(\{<br/> decls: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>})</pre>                                      |
-| Imports                 | `{ import, from }`                                                                                                                          | `import { ... } from "./src/..." with { type: "ref" }`                                                                                 |
-| Package name            | `wasp-config`                                                                                                                               | `@wasp.sh/spec`                                                                                                                        |
+| What                      | Before                                                                                                                                      | After                                                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| Creating an app           | `new App(name, { ... })`                                                                                                                    | `app({ name, ..., spec: [...] })`                                                                                                      |
+| Configuring the app       | `app.auth(...)` <br/> `app.server(...)` <br/> `app.client(...)` <br/> `app.db(...)` <br/> `app.emailSender(...)` <br/> `app.webSocket(...)` | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/> client: ...,<br/> db: ...,<br/> emailSender: ...,<br/> webSocket: ...,<br/>})</pre> |
+| Adding app specifications | `app.route(...)` <br/> `app.query(...)` <br/> `app.action(...)` <br/> etc                                                                   | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>})</pre>                                       |
+| Imports                   | `{ import, from }`                                                                                                                          | `import { ... } from "./src/..." with { type: "ref" }`                                                                                 |
+| Package name              | `wasp-config`                                                                                                                               | `@wasp.sh/spec`                                                                                                                        |
 
-### App and declarations
+### App and specifications
 
 <Tabs sideBySide>
   <TabItem value="before" label="TS Config">
@@ -104,7 +104,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
       name: "todoApp",
       title: "ToDo App",
       wasp: { version: "^0.24.0" },
-      decls: [
+      spec: [
         route("MainRoute", "/", page(MainPage)),
         query(getTasks, { entities: ["Task"] }),
       ],
@@ -138,7 +138,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
     export default app({
       // ...
-      decls: [
+      spec: [
         apiNamespace("/bar", {
           middlewareConfigFn: barNamespaceMiddlewareFn,
         }),
@@ -171,7 +171,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
     export default app({
       // ...
-      decls: [
+      spec: [
         job(foo, {
           executor: "PgBoss",
           entities: ["Task"],
@@ -204,7 +204,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
     export default app({
       // ...
-      decls: [
+      spec: [
         crud("tasks", "Task", {
           getAll: {},
           create: { overrideFn: createTask },
@@ -341,7 +341,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
 5. Rewrite `main.wasp.ts`:
 
-   Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `decls` array holds the declarations (see the [mapping above](#changes)), and update the import:
+   Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `spec` property holds the specifications (see the [mapping above](#changes)), and update the import:
 
    <Tabs sideBySide>
      <TabItem value="before" label="Before">
@@ -362,7 +362,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
          name: "myApp",
          title: "My app",
          wasp: { version: "^0.24.0" },
-         decls: [
+         spec: [
            // ...
          ]
        })
