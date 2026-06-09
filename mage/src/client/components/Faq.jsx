@@ -4,9 +4,9 @@ import { FiChevronDown, FiChevronRight } from "react-icons/fi";
 function l(title, overrideTitle) {
   const links = {
     Wasp: "https://wasp.sh/",
-    "web app": "https://github.com/wasp-lang/wasp/tree/main/mage",
+    "web app": "https://github.com/wasp-lang/wasp/tree/v0.23.0/mage",
     "GPT code agent":
-      "https://github.com/wasp-lang/wasp/tree/main/waspc/src/Wasp/AI",
+      "https://github.com/wasp-lang/wasp/tree/v0.23.0/waspc/src/Wasp/AI",
     "blog post": "https://wasp.sh/blog/2023/07/10/gpt-web-app-generator",
   };
 
@@ -29,7 +29,8 @@ const faqs = [
         web app where you can shortly describe the web app you would like to
         create, and in a matter of minutes, a full-stack web app codebase,
         written in React, Node.js, Prisma, and Wasp, will be generated right in
-        front of you, and made available to download and run locally.
+        front of you, and made available to download and run locally. Mage is
+        frozen on Wasp 0.23, so generated apps use the legacy Wasp DSL.
         <br />
         <br />
         All the code behind GPT Web App Generator is open source: {l(
@@ -66,8 +67,8 @@ const faqs = [
         super-intelligent starter that needs a couple of tweaks to get it going.
         <br />
         <br />
-        With LLMs improving in general, the quality of generated code will only
-        get better!
+        Mage is no longer being updated for newer Wasp versions, so it should be
+        treated as a legacy Wasp 0.23 generator.
       </p>
     ),
   },
@@ -75,9 +76,9 @@ const faqs = [
     question: "What kind of apps can it generate?",
     answer: (
       <p>
-        It can generate full stack web apps written in React, Node.js, Prisma,
-        and Wasp. You can download the generated app, run it locally on your
-        machine, even easily deploy if you wish.
+        It can generate legacy Wasp 0.23 full-stack web apps written in React,
+        Node.js, Prisma, and Wasp. You can download the generated app and run it
+        locally on your machine with Wasp 0.23.0.
         <br />
         <br />
         In order to keep things simpler for this first version, we enforced some
@@ -85,8 +86,7 @@ const faqs = [
         advanced Wasp features.
         <br />
         <br />
-        We believe most of these limitations can be removed in the future with
-        more work!
+        Mage is frozen, so these limitations are expected to remain.
       </p>
     ),
   },
@@ -103,8 +103,7 @@ const faqs = [
         task.
         <br />
         <br />
-        We use GPT4o for all the phases at the moment of writing, as it gives
-        the best ratio of quality / cost.
+        Mage calls the legacy Wasp 0.23 CLI generator under the hood.
       </p>
     ),
   },
@@ -112,13 +111,18 @@ const faqs = [
     question: "[Advanced] Can I choose GPT model? / Can I run Mage locally?",
     answer: (
       <p>
-        If you have access yourself to the OpenAI API, you can choose GPT model
-        for the whole app, or play with adjusting the temperature, by running
-        the Wasp GPT code agent locally! So same thing like Mage, but via CLI.
+        If you have access yourself to the OpenAI API, you can run the legacy
+        Wasp GPT code agent locally with Wasp 0.23.0.
         <br />
         <br />
-        To run Wasp AI (Mage) locally, make sure you have wasp installed and
-        just run:
+        Install Wasp 0.23.0:
+        <br />
+        <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
+          npm i -g @wasp.sh/wasp-cli@0.23.0
+        </span>
+        <br />
+        <br />
+        Then run:
         <br />
         <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
           wasp new
@@ -128,8 +132,8 @@ const faqs = [
         will start generating!
         <br />
         <br />
-        There is also a command for running the same thing programmatically,
-        without interactive questions:
+        Wasp 0.23.0 also has a command for running the same thing
+        programmatically, without interactive questions:
         <br />
         <span className="rounded-sm bg-slate-800 p-1 text-slate-200">
           wasp new:ai

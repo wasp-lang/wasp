@@ -7,6 +7,7 @@ import { CODING_MODEL, PLANNING_MODEL } from "../../config/aiModels.js";
 import { log } from "./utils.js";
 
 const appGenerationResults: Record<string, any> = {};
+const waspCliCommand = process.env.MAGE_WASP_CLI_PATH ?? "wasp";
 
 export const generateApp: GenerateAppJob<
   { appId: string },
@@ -54,15 +55,9 @@ export const generateApp: GenerateAppJob<
     JSON.stringify(projectConfig),
   ];
 
-  if (process.env.NODE_ENV === "production") {
-    waspCliProcess = spawn("wasp", waspCliProcessArgs);
-  } else {
-    // NOTE: In dev when we use `wasp-cli`, we want to make sure that if this app is run via `wasp` that its datadir env var does not propagate,
-    //   so we reset it here. This is problem only if you run app with `wasp` and let it call `wasp-cli` here.
-    waspCliProcess = spawn("wasp-cli", waspCliProcessArgs, {
-      env: { ...process.env, waspc_datadir: undefined },
-    });
-  }
+  waspCliProcess = spawn(waspCliCommand, waspCliProcessArgs, {
+    env: { ...process.env, waspc_datadir: undefined },
+  });
 
   waspCliProcess.stdout.on("data", async (data) => {
     const release = await stdoutMutex.acquire();

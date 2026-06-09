@@ -611,6 +611,11 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
             Now, let's get the app running!
           </p>
 
+          <p className="rounded-lg bg-amber-50 p-4 text-base leading-relaxed text-amber-900">
+            Mage generates legacy Wasp 0.23 DSL apps. Install Wasp 0.23.0 for
+            this project, not the latest Wasp version.
+          </p>
+
           <div className="mt-6 rounded-lg bg-slate-100 p-4 text-base text-slate-800">
             <h2 className="flex items-center space-x-1 font-bold">
               <span>1. Install Wasp CLI (Linux / Mac / Win+WSL)</span>
@@ -625,7 +630,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               :
             </h2>
             <pre className="mt-2 rounded-lg bg-slate-800 p-4 text-sm text-slate-200">
-              npm i -g @wasp.sh/wasp-cli@latest
+              npm i -g @wasp.sh/wasp-cli@0.23.0
             </pre>
 
             <h2 className="mt-4 font-bold">

@@ -4,7 +4,6 @@ import ShellCommands (waspCliNew, waspCliNewInteractive)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (basicStarterTemplate, minimalStarterTemplate)
 
--- TODO: add "new ai" tests
 waspNewTest :: Test
 waspNewTest =
   Test

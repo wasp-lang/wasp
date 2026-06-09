@@ -7,7 +7,6 @@ import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
-import qualified Wasp.Cli.Command.CreateNewProject.AI as AI
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
@@ -53,8 +52,6 @@ createProjectOnDisk
         createProjectOnDiskFromGhReleaseArchiveTemplate (show template) absWaspProjectDir projectName appName ghRepoRef archiveName' archivePath'
       BundledStarterTemplate {bundledPath = bundledPath'} ->
         liftIO $ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName bundledPath'
-      AiGeneratedStarterTemplate ->
-        AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
 
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO ()
 installDepsForNewProject absWaspProjectDir =

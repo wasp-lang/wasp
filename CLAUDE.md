@@ -15,7 +15,7 @@ Wasp is a full-stack web framework that compiles `.wasp` configuration files int
   - `run` — **Main development script** (run `./run` with no args to see all commands)
 - `wasp-app-runner/` — Node.js CLI for running Wasp apps in e2e tests
 - `web/` — Documentation website (Docusaurus), deployed to wasp.sh
-- `mage/` — Web frontend for `wasp new:ai`, which generates Wasp apps from a description
+- `mage/` — Legacy GPT app generator frozen on Wasp 0.23; generates legacy Wasp DSL apps from a description
 - `examples/` — Tutorial and example apps (kitchen-sink, waspello, etc.)
 - `scripts/` — Monorepo-level build/packaging scripts
 
