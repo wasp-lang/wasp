@@ -4,7 +4,7 @@ title: Server Config
 
 import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 
-You can configure the behavior of the server via the `server` field of `app` declaration:
+You can configure the behavior of the server via the `server` field of `app` spec:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"

@@ -4,7 +4,7 @@ title: Customizing the App
 
 import { Required } from '@site/src/components/Tag';
 
-Each Wasp project can have only one `app` type declaration. It is used to configure your app and its components.
+Each Wasp project can have only one `app` spec. It is used to configure your app and its components.
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -26,7 +26,7 @@ We'll go through some common customizations you might want to do to your app. Fo
 
 ### Changing the App Title
 
-You may want to change the title of your app, which appears in the browser tab, next to the favicon. You can change it by changing the `title` field of your `app` declaration:
+You may want to change the title of your app, which appears in the browser tab, next to the favicon. You can change it by changing the `title` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -43,7 +43,7 @@ export default app({
 
 ### Adding Additional Lines to the Head
 
-If you are looking to add additional style sheets or scripts to your app, you can do so by adding them to the `head` field of your `app` declaration.
+If you are looking to add additional style sheets or scripts to your app, you can do so by adding them to the `head` field of your `app` spec.
 
 An example of adding extra style sheets and scripts:
 
@@ -101,7 +101,7 @@ export default app({
 })
 ```
 
-The `app` declaration has the following fields:
+The `app` spec has the following fields:
 
 - `wasp: object` <Required />
   Wasp compiler configuration. It is an object with a single field:

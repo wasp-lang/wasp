@@ -10,7 +10,7 @@ If you have a lot of experience writing full-stack apps, you probably ended up d
 
 Wasp makes handling these boring bits easy by offering a higher-level concept called Automatic CRUD.
 
-With a single declaration, you can tell Wasp to automatically generate server-side logic (i.e., Queries and Actions) for creating, reading, updating and deleting [Entities](../data-model/entities). As you update definitions for your Entities, Wasp automatically regenerates the backend logic.
+With a single spec, you can tell Wasp to automatically generate server-side logic (i.e., Queries and Actions) for creating, reading, updating and deleting [Entities](../data-model/entities). As you update definitions for your Entities, Wasp automatically regenerates the backend logic.
 
 :::caution Early preview
 This feature is currently in early preview and we are actively working on it. Read more about [our plans](#future-of-crud-operations-in-wasp) for CRUD operations.
@@ -59,7 +59,7 @@ export default app({
 
 Here's what it looks like when visualized:
 
-<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud_diagram.png" caption="Visualization of the Tasks crud declaration" />
+<ImgWithCaption alt="Automatic CRUD with Wasp" source="img/crud_diagram.png" caption="Visualization of the Tasks crud spec" />
 
 We can now use the CRUD queries and actions we just specified in our client code.
 
@@ -127,7 +127,7 @@ We can then run `wasp db migrate-dev` to create the database and run the migrati
 
 ### Adding CRUD to the `Task` Entity ✨
 
-Let's add the following `crud` declaration to our `main.wasp.ts` file:
+Let's add the following `crud` spec to our `main.wasp.ts` file:
 
 ```ts title="main.wasp.ts"
 import { app, crud } from "@wasp.sh/spec"
@@ -225,7 +225,7 @@ Here's the `src/tasks.{js,ts}` file:
     }
     ```
 
-    Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD declaration in your Wasp file.
+    Wasp automatically generates the `Tasks.CreateAction` type based on the CRUD spec in your Wasp file.
     Use it to type the CRUD action's implementation.
 
     The `Tasks.CreateAction` type works exactly like the types Wasp generates for [Queries](../data-model/operations/queries#type-support-for-queries) and [Actions](../data-model/operations/actions#type-support-for-actions).
@@ -447,10 +447,10 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 
 ## API Reference
 
-CRUD declaration works on top of an existing entity declaration. We'll fully explore the API using two examples:
+CRUD spec works on top of an existing entity declaration. We'll fully explore the API using two examples:
 
-1. A basic CRUD declaration that relies on default options.
-2. A more involved CRUD declaration that uses extra options and overrides.
+1. A basic CRUD spec that relies on default options.
+2. A more involved CRUD spec that uses extra options and overrides.
 
 ### Declaring a CRUD With Default Options
 
@@ -528,7 +528,7 @@ For now, the solution is to provide an override function. You can override the d
 
 ### Declaring a CRUD With All Available Options
 
-Here's an example of a more complex CRUD declaration:
+Here's an example of a more complex CRUD spec:
 
 ```ts title="main.wasp.ts"
 import { app, crud } from "@wasp.sh/spec"
