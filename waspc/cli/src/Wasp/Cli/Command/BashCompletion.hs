@@ -29,6 +29,7 @@ bashCompletion = do
       [ "new",
         "new:ai",
         "version",
+        "doctor",
         "waspls",
         "completion",
         "uninstall",
