@@ -2,6 +2,7 @@
 title: Sending Emails
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 import DummyProviderNote from './_dummy-provider-note.md'
@@ -192,33 +193,14 @@ SENDGRID_API_KEY=
 
 ### `emailSender` object
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/EmailSender"
+  kind="api"
+  title="EmailSender"
+  description="All the options for the emailSender field of the app spec."
+/>
 
-export default app({
-  name: "Example",
-  emailSender: {
-    provider: "<provider>",
-    defaultFrom: {
-      name: "Example",
-      email: "hello@itsme.com",
-    },
-  },
-  // ...
-})
-```
-
-The `emailSender` object has the following fields:
-
-- `provider: Provider` <Required />
-
-  The provider you want to use. Choose from `Dummy`, `SMTP`, `Mailgun` or `SendGrid`.
-
-  <DummyProviderNote />
-
-- `defaultFrom: object`
-
-  The default sender's details. If you set this field, you don't need to provide the `from` field when sending an email.
+<DummyProviderNote />
 
 ### JavaScript API
 

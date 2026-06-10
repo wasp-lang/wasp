@@ -51,8 +51,9 @@ export interface App {
    * and attributes must be camelCased (e.g. `httpEquiv` instead of
    * `http-equiv`).
    *
-   * Due to a React bug, avoid `defer` on `<script>` tags because it can cause
-   * hydration warnings. Use `async` instead.
+   * Due to a [React bug](https://github.com/facebook/react/issues/36169),
+   * avoid `defer` on `<script>` tags because it can cause hydration
+   * warnings. Use `async` instead.
    */
   head?: string[];
   /** Configuration for authentication. Enables auth when set. */
@@ -82,7 +83,8 @@ export interface App {
  */
 export interface Wasp {
   /**
-   * The Wasp version this app is built for, as an npm-compatible version range
+   * The Wasp version this app is built for, as an npm-compatible
+   * [SemVer range](https://github.com/npm/node-semver#ranges)
    * (e.g. `"^0.24.0"`).
    */
   version: string;
@@ -96,6 +98,11 @@ export interface Wasp {
  * If hooks are async, Wasp awaits them. All hooks receive `prisma` and `req`
  * in their input. Hook return values are ignored except for
  * {@link AuthHooks.onBeforeOAuthRedirect}, which can change the redirect URL.
+ *
+ * In TypeScript, you can type each hook implementation with its matching
+ * type from `wasp/server/auth` (e.g. `OnBeforeSignupHook`). See
+ * [Auth Hooks](https://wasp.sh/docs/auth/auth-hooks) for the full hook
+ * inputs and examples.
  */
 export interface Auth extends AuthHooks {
   /**
@@ -103,7 +110,9 @@ export interface Auth extends AuthHooks {
    * to your business logic.
    *
    * The model must be defined in `schema.prisma` and have an `@id` field. The
-   * ID can use any Prisma-supported ID type.
+   * ID can use any Prisma-supported ID type. You can add any other fields you
+   * want to the model. If they need to be set during the sign-up process,
+   * also define them in the auth method's `userSignupFields`.
    *
    * See [Accessing User Data](https://wasp.sh/docs/auth/entities) for
    * how the user entity connects to the rest of the auth system.
@@ -248,14 +257,20 @@ export interface EmailAuthConfig extends BaseAuthMethodConfig {
   /**
    * Email verification flow configuration.
    *
-   * Its `clientRoute` should handle the verification link sent to the user.
+   * Its `clientRoute` should handle the verification link sent to the user:
+   * take the token from the URL and send it to the server with the
+   * `verifyEmail` action from `wasp/client/auth`. Wasp's built-in Auth UI
+   * does this for you.
    */
   emailVerification: EmailFlowConfig;
   /**
    * Password reset flow configuration.
    *
-   * Its `clientRoute` should handle the password reset link and the new
-   * password submitted by the user.
+   * Its `clientRoute` should handle the password reset link sent to the user:
+   * take the token from the URL and the new password from the user, and send
+   * them to the server with the `requestPasswordReset` and `resetPassword`
+   * actions from `wasp/client/auth`. Wasp's built-in Auth UI does this for
+   * you.
    */
   passwordReset: EmailFlowConfig;
 }
@@ -287,6 +302,10 @@ export interface EmailFlowConfig {
    * `{ verificationLink }`, and password reset email functions receive
    * `{ passwordResetLink }`. If omitted, Wasp uses a built-in default
    * template.
+   *
+   * In TypeScript, you can type the function with the
+   * `GetVerificationEmailContentFn` or `GetPasswordResetEmailContentFn` type
+   * from `wasp/server/auth`.
    */
   getEmailContentFn?: Reference<AnyFunction>;
   /**
@@ -311,6 +330,9 @@ export interface Server {
    * server accepts requests. Receives a context containing the Express `app`
    * and underlying `http.Server`, so you can register custom routes, set up
    * additional databases or WebSockets, or kick off scheduled jobs.
+   *
+   * In TypeScript, you can type the function with the `ServerSetupFn` type
+   * from `wasp/server`.
    */
   setupFn?: Reference<AnyFunction>;
   /**
@@ -323,7 +345,9 @@ export interface Server {
   /**
    * Zod schema used to validate user-defined server environment variables on
    * startup. Wasp merges it with built-in validation for Wasp-defined env vars
-   * when validating `process.env`.
+   * when validating `process.env`. Define the schema with
+   * `defineEnvValidationSchema` from `wasp/env` to make sure it is
+   * type-checked.
    *
    * {@include ./referenceImports.md}
    *
@@ -371,7 +395,8 @@ export interface Client {
    * Zod schema used to validate user-defined client environment variables at
    * build time. Wasp merges it with built-in validation for Wasp-defined env
    * vars when validating `import.meta.env`. Client env vars must be prefixed
-   * with `REACT_APP_`.
+   * with `REACT_APP_`. Define the schema with `defineEnvValidationSchema`
+   * from `wasp/env` to make sure it is type-checked.
    *
    * {@include ./referenceImports.md}
    *
@@ -555,8 +580,8 @@ export interface Route extends BaseSpecElement<"route"> {
    * If `true`, Wasp renders this page to static HTML at build time. Useful
    * for SEO and AI crawlers.
    *
-   * Only works on static paths and cannot be combined with
-   * {@link Page.authRequired}. See
+   * Only works on fully static paths (no `:paramName`, `*`, or `?` segments)
+   * and cannot be combined with {@link Page.authRequired}. See
    * [Prerendering](https://wasp.sh/docs/advanced/prerendering).
    *
    * @default false
@@ -809,9 +834,21 @@ export interface Crud extends BaseSpecElement<"crud"> {
  * Mapping of CRUD operations to their options.
  *
  * Each key enables the matching operation; an empty object enables it with
- * Wasp's defaults. Default `get`, `update`, and `delete` implementations use
- * the field marked with `@id` in the Prisma schema as the entity ID. Default
- * `getAll` returns all entities.
+ * Wasp's defaults. The default implementations map directly to Prisma calls
+ * on the entity:
+ *
+ * - `get` returns one entity: `findUnique({ where: { id: args.id } })`
+ * - `getAll` returns all entities: `findMany()`
+ * - `create` creates a new entity: `create({ data: args.data })`
+ * - `update` updates an existing entity:
+ *   `update({ where: { id: args.id }, data: args.data })`
+ * - `delete` deletes an existing entity:
+ *   `delete({ where: { id: args.id } })`
+ *
+ * The default `get`, `update`, and `delete` implementations use the field
+ * marked with `@id` in the Prisma schema as the entity ID. Unless an
+ * operation is marked with {@link CrudOperationOptions.isPublic}, Wasp checks
+ * that an authenticated user is making the request.
  *
  * CRUD operations are implemented with Wasp queries and actions. See
  * [Operations](https://wasp.sh/docs/data-model/operations/overview).

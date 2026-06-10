@@ -2,6 +2,7 @@
 title: Queries
 ---
 
+import { CardLink } from '@site/src/components/CardLink';
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './\_superjson-note.md';
@@ -509,84 +510,30 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 ### Declaring Queries
 
-Declare a Query with `query(fn, config)`:
+<CardLink
+  to="../../api/@wasp.sh/spec/functions/query"
+  kind="api"
+  title="query"
+  description="All the options for declaring a query in the Wasp spec."
+/>
 
-- `fn`: [`Reference`](../../general/spec.md#reference-imports) <Required />
+Declaring a Query enables you to import and use it anywhere in your code (on the server or the client):
 
-  A reference to the Query's Node.js implementation.
+```ts
+// Use it on the client
+import { getFoo } from "wasp/client/operations"
 
-- `config.entities: EntityName[]`
+// Use it on the server
+import { getFoo } from "wasp/server/operations"
+```
 
-  A list of entities you wish to use inside your Query.
-  For instructions on using Entities in Queries, take a look at [the guide](#using-entities-in-queries).
+<ShowForTs>
+  It also creates a type you can import on the server:
 
-- `config.auth: boolean`
-
-  Whether this Query requires auth. If your app has auth enabled, this defaults to `true`.
-
-#### Example
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    Declaring the Query:
-
-    ```ts
-    import { app, query } from "@wasp.sh/spec"
-    import { getFoo } from "./src/queries" with { type: "ref" }
-
-    export default app({
-      // ...
-      spec: [
-        query(getFoo, { entities: ["Foo"] }),
-      ],
-    })
-    ```
-
-    Enables you to import and use it anywhere in your code (on the server or the client):
-
-    ```js
-    // Use it on the client
-    import { getFoo } from "wasp/client/operations"
-
-    // Use it on the server
-    import { getFoo } from "wasp/server/operations"
-    ```
-
-    On the client, the Query expects
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    Declaring the Query:
-
-    ```ts
-    import { app, query } from "@wasp.sh/spec"
-    import { getFoo } from "./src/queries" with { type: "ref" }
-
-    export default app({
-      // ...
-      spec: [
-        query(getFoo, { entities: ["Foo"] }),
-      ],
-    })
-    ```
-
-    Enables you to import and use it anywhere in your code (on the server or the client):
-
-    ```ts
-    // Use it on the client
-    import { getFoo } from "wasp/client/operations"
-
-    // Use it on the server
-    import { getFoo } from "wasp/server/operations"
-    ```
-
-    And also creates a type you can import on the server:
-
-    ```ts
-    import { type GetFoo } from "wasp/server/operations"
-    ```
-  </TabItem>
-</Tabs>
+  ```ts
+  import { type GetFoo } from "wasp/server/operations"
+  ```
+</ShowForTs>
 
 ### Implementing Queries
 

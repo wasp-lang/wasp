@@ -2,6 +2,8 @@
 title: Prerendering
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 By default, Wasp apps are single-page applications: the browser downloads JavaScript, and React renders the page on the client. This means search engines, AI crawlers, and users on slow connections see a blank page until JavaScript loads and executes.
 
 Wasp can **prerender** specific routes at build time, producing static HTML files that are served immediately. The page then hydrates on the client for full interactivity.
@@ -154,26 +156,9 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 
 ## API reference
 
-### `prerender` route config option
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { SomePage } from "./src/SomePage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    route("NameRoute", "/some-path", page(SomePage), {
-      prerender: true, // optional, defaults to false
-    }),
-  ],
-})
-```
-
-`prerender` is an optional boolean field in the config object passed as the fourth argument to `route(...)`.
-
-When set to `true`, Wasp prerenders the route's page component at build time, producing a static HTML file for that path.
-
-**Requirements:**
-- The route path must be fully static (no `:paramName`, `*`, or `?` segments).
-- The target page must not have `authRequired: true`.
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Route#prerender"
+  kind="api"
+  title="Route.prerender"
+  description="The full description of the prerender option of the route spec."
+/>

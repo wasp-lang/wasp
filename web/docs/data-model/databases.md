@@ -2,7 +2,7 @@
 title: Databases
 ---
 
-import { Required } from '@site/src/components/Tag'
+import { CardLink } from '@site/src/components/CardLink'
 
 [Entities](../data-model/entities.md), [Operations](../data-model/operations/overview) and [Automatic CRUD](../data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 
@@ -413,45 +413,12 @@ export default app({
 
 ## API Reference
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import devSeed from "./src/dbSeeds" with { type: "ref" }
-import { setUpPrisma } from "./src/prisma" with { type: "ref" }
-
-export default app({
-  name: "MyApp",
-  title: "My app",
-  // ...
-  db: {
-    seeds: [devSeed],
-    prismaSetupFn: setUpPrisma,
-  },
-})
-```
-
-`db` is an object with the following fields (all fields are optional):
-
-- `seeds`: [`Reference[]`](../general/spec.md#reference-imports)
-
-  Defines the seed functions you can use with the `wasp db seed` command to seed your database with initial data.
-  Read the [Seeding section](#seeding-the-database) for more details.
-
-- `prismaSetupFn`: [`Reference`](../general/spec.md#reference-imports)
-
-  Defines a function that sets up the Prisma Client instance. Wasp expects it to return a Prisma Client instance.
-  You can use this function to set up [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
-
-  ```ts title="src/prisma.ts"
-  import { PrismaClient } from "@prisma/client"
-
-  export const setUpPrisma = () => {
-    const prisma = new PrismaClient({
-      log: ["query", "info", "warn", "error"],
-    })
-
-    return prisma
-  }
-  ```
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Db"
+  kind="api"
+  title="Db"
+  description="All the options for the db field of the app spec."
+/>
 
 ### CLI Commands for Seeding the Database
 

@@ -4,6 +4,7 @@ title-llm: Authentication Overview
 ---
 
 import { AuthMethodsGrid } from "./AuthMethodsGrid";
+import { CardLink } from "@site/src/components/CardLink";
 import { LinkGrid } from "@site/src/components/LinkGrid";
 import { Required } from '@site/src/components/Tag';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
@@ -583,54 +584,12 @@ export const SignupPage = () => {
 
 ### Auth Fields
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-
-export default app({
-  name: "MyApp",
-  wasp: { version: "{latestWaspVersion}" },
-  title: "My app",
-  auth: {
-    userEntity: "User",
-    methods: {
-      usernameAndPassword: {}, // use this or email, not both
-      email: {}, // use this or usernameAndPassword, not both
-      google: {},
-      gitHub: {},
-    },
-    onAuthFailedRedirectTo: "/someRoute",
-  },
-  // ...
-})
-```
-
-`auth` is an object with the following fields:
-
-#### `userEntity: entity` <Required />
-
-The entity representing the user connected to your business logic.
-
-<ReadMoreAboutAuthEntities />
-
-#### `methods: object` <Required />
-
-An object of auth methods enabled for the app.
-
-<AuthMethodsGrid />
-
-#### `onAuthFailedRedirectTo: String` <Required />
-
-The route to which Wasp should redirect unauthenticated user when they try to access a private page (i.e., a page that has `authRequired: true`).
-Check out these [essential docs on auth](../tutorial/auth#adding-auth-to-the-project) to see an example of usage.
-
-#### `onAuthSucceededRedirectTo: String`
-
-The route to which Wasp will send a successfully authenticated after a successful login/signup.
-The default value is `"/"`.
-
-:::note
-Automatic redirect on successful login only works when using the Wasp-provided [Auth UI](../auth/ui).
-:::
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Auth"
+  kind="api"
+  title="Auth"
+  description="All the options for the auth field of the app spec."
+/>
 
 ### Signup Fields Customization
 

@@ -340,8 +340,10 @@ type JobConfig = Omit<Job, "kind" | "fn">;
  * import { createTaskOverride } from './src/actions' with { type: 'ref' }
  *
  * crud('tasks', 'Task', {
- *   getAll: {},
+ *   getAll: { isPublic: true },
+ *   get: {},
  *   create: { overrideFn: createTaskOverride },
+ *   update: {},
  * })
  * ```
  *
