@@ -16,7 +16,7 @@ Here's a 1-minute tour of how full-stack auth works in Wasp:
   <iframe src="https://www.youtube.com/embed/Qiro77q-ulI?si=y8Rejsbjb1HJC6FA" frameborder="1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 </div>
 
-Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` declaration:
+Enabling auth for your app is optional and can be done by configuring the `auth` field of your `app` spec:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"
@@ -117,7 +117,7 @@ import Main from "./src/pages/Main" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("MainRoute", "/", page(Main, { authRequired: true })),
   ],
 })
@@ -176,7 +176,7 @@ There are two ways to access the `user` object on the client:
 
 #### Getting the `user` in authenticated routes
 
-If the page's declaration sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
+If the page's spec sets `authRequired` to `true`, the page's React component receives the `user` object as a prop. This is the simplest way to access the user inside an authenticated page:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -184,7 +184,7 @@ import Account from "./src/pages/Account" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("AccountRoute", "/account", page(Account, {
       authRequired: true
     })),
@@ -295,7 +295,7 @@ import { updatePassword } from "./src/auth" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     action(updatePassword),
   ],
 })

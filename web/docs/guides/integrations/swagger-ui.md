@@ -36,7 +36,7 @@ export default app({
     version: "^0.24.0",
   },
   title: "my-app",
-  decls: [
+  spec: [
     // highlight-next-line
     apiNamespace("/api-docs", { middlewareConfigFn: swaggerMiddleware }),
     api("GET", "/status", getStatus, { auth: false }),

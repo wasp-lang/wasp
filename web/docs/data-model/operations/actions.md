@@ -29,14 +29,14 @@ Instead, just focus on developing the business logic inside your Action, and let
 
 To create an Action, you need to:
 
-1. Declare the Action in Wasp using the `action` declaration.
+1. Declare the Action in Wasp using the `action` spec.
 2. Implement the Action's NodeJS functionality.
 
 Once these two steps are completed, you can use the Action from anywhere in your code.
 
 ### Declaring Actions
 
-To create an Action in Wasp, we begin with an `action` declaration. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
+To create an Action in Wasp, we begin with an `action` spec. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
 ```ts title="main.wasp.ts"
 import { action, app } from "@wasp.sh/spec"
@@ -44,7 +44,7 @@ import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     action(createTask),
     action(markTaskAsDone),
   ],
@@ -52,7 +52,7 @@ export default app({
 ```
 
 <small>
-  If you want to know about all supported options for the `action` declaration, take a look at the [API Reference](#api-reference).
+  If you want to know about all supported options for the `action` spec, take a look at the [API Reference](#api-reference).
 </small>
 
 <ReferencingCodeFromSrcNote />
@@ -60,7 +60,7 @@ export default app({
 :::info
 You might have noticed that we told Wasp to import Action implementations that don't yet exist. Don't worry about that for now. We'll write the implementations imported from `actions.{js,ts}` in the next section.
 
-It's a good idea to start with the high-level concept (the Action declaration in the Wasp file) and only then deal with the implementation details (the Action's implementation in JavaScript).
+It's a good idea to start with the high-level concept (the Action spec in the Wasp file) and only then deal with the implementation details (the Action's implementation in JavaScript).
 :::
 
 After declaring a Wasp Action, Wasp derives the Action's name from the function you pass to `action`. For example, `action(markTaskAsDone)` creates an Action named `markTaskAsDone`.
@@ -168,10 +168,10 @@ Here's how you might implement the previously declared Actions `createTask` and 
 
     #### Type support for Actions
 
-    Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the declarations in your Wasp file:
+    Wasp automatically generates the types `CreateTask` and `MarkTaskAsDone` based on the specs in your Wasp file:
 
-    - `CreateTask` is a generic type that Wasp automatically generated based on the Action declaration for `createTask`.
-    - `MarkTaskAsDone` is a generic type that Wasp automatically generated based on the Action declaration for `markTaskAsDone`.
+    - `CreateTask` is a generic type that Wasp automatically generated based on the Action spec for `createTask`.
+    - `MarkTaskAsDone` is a generic type that Wasp automatically generated based on the Action spec for `markTaskAsDone`.
 
     Use these types to type the Action's implementation.
     It's optional but very helpful since doing so properly types the Action's context.
@@ -430,7 +430,7 @@ If you do want to pass additional error information to the client, you can const
 ### Using Entities in Actions
 
 In most cases, resources used in Actions will be [Entities](../../data-model/entities.md).
-To use an Entity in your Action, add it to the `action` declaration in Wasp:
+To use an Entity in your Action, add it to the `action` spec in Wasp:
 
 ```ts title="main.wasp.ts"
 import { action, app } from "@wasp.sh/spec"
@@ -438,7 +438,7 @@ import { createTask, markTaskAsDone } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     action(createTask, { entities: ["Task"] }),
     action(markTaskAsDone, { entities: ["Task"] }),
   ],
@@ -532,7 +532,7 @@ Here are the key differences between Queries and Actions:
 
 1. Actions can (and often should) modify the server's state, while Queries are only permitted to read it. Wasp relies on you adhering to this convention when performing cache invalidations, so it's crucial to follow it.
 2. Actions don't need to be reactive, so you can call them directly. However, Wasp does provide a [`useAction` React hook](#the-useaction-hook-and-optimistic-updates) for adding extra behavior to the Action (like optimistic updates).
-3. `action` declarations in Wasp are mostly identical to `query` declarations. The only difference lies in the declaration's name.
+3. `action` specs in Wasp are mostly identical to `query` specs. The only difference lies in the spec's name.
 
 ## API Reference
 
@@ -565,7 +565,7 @@ Declare an Action with `action(fn, config)`:
 
     export default app({
       // ...
-      decls: [
+      spec: [
         action(createFoo, { entities: ["Foo"] }),
       ],
     })
@@ -591,7 +591,7 @@ Declare an Action with `action(fn, config)`:
 
     export default app({
       // ...
-      decls: [
+      spec: [
         action(createFoo, { entities: ["Foo"] }),
       ],
     })
@@ -662,7 +662,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     export default app({
       // ...
-      decls: [
+      spec: [
         action(createFoo, { entities: ["Foo"] }),
       ],
     })
@@ -686,7 +686,7 @@ Since both arguments are positional, you can name the parameters however you wan
 
     export default app({
       // ...
-      decls: [
+      spec: [
         action(createFoo, { entities: ["Foo"] }),
       ],
     })
@@ -721,7 +721,7 @@ The `useAction` hook accepts two arguments:
 
 - `actionFn` <Required />
 
-  The Wasp Action (the client-side Action function generated by Wasp based on a Action declaration) you wish to enhance.
+  The Wasp Action (the client-side Action function generated by Wasp based on an Action spec) you wish to enhance.
 
 - `actionOptions`
 

@@ -21,8 +21,7 @@ availableStarterTemplates :: [StarterTemplate]
 availableStarterTemplates =
   [ basicStarterTemplate,
     minimalStarterTemplate,
-    openSaasStarterTemplate,
-    AiGeneratedStarterTemplate
+    openSaasStarterTemplate
   ]
 
 defaultStarterTemplate :: StarterTemplate

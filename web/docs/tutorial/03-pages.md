@@ -8,7 +8,7 @@ import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
 
-In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** declaration:
+In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -18,7 +18,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
     export default app({
       // ...
-      decls: [
+      spec: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.jsx`. Reference imports must point to files inside `src`.
         route("RootRoute", "/", page(MainPage)),
@@ -34,7 +34,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
     export default app({
       // ...
-      decls: [
+      spec: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.tsx`. Reference imports must point to files inside `src`.
         route("RootRoute", "/", page(MainPage)),
@@ -44,11 +44,11 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
   </TabItem>
 </Tabs>
 
-Together, these declarations tell Wasp that when a user navigates to `/`, it should render the `MainPage` component from `src/MainPage.{jsx,tsx}`.
+Together, these specifications tell Wasp that when a user navigates to `/`, it should render the `MainPage` component from `src/MainPage.{jsx,tsx}`.
 
 ## The MainPage Component
 
-Let's take a look at the React component referenced by the page declaration:
+Let's take a look at the React component referenced by the page spec:
 
 ```tsx title="src/MainPage.tsx" auto-js
 import Logo from "./assets/logo.svg";
@@ -79,7 +79,7 @@ import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("HelloRoute", "/hello/:name", page(HelloPage)),
   ],
 })
@@ -143,7 +143,7 @@ export default app({
   head: [
     "<link rel='icon' href='/favicon.ico' />",
   ],
-  decls: [
+  spec: [
     route("RootRoute", "/", page(MainPage)),
   ],
 })

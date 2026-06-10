@@ -64,7 +64,7 @@ We want to give people the information they need to avoid a frustrating experien
 
 The API reference is an exhaustive list of the feature's API and must describe everything:
 
-1. The Wasp API (e.g., a declaration, mandatory and optional fields)
+1. The Wasp API (e.g., the spec constructor, mandatory and optional fields)
 2. The JavaScript API (e.g., imports, available functions, arguments, etc.)
 3. The CLI (i.e. CLI commands, their arguments, and usage examples)
 
@@ -108,7 +108,7 @@ This might seem redundant, but it makes our examples future-proof and helps reas
 - **Don't use emojis (except in discussions).** Emojis are cute and friendly, but they can be a distraction in documentation. Some emojis even convey different meanings in different cultures. They also make the documentation seem unprofessional and of lower quality.
 - **Don't use memes and funny pictures.** Everything said about emojis applies to memes as well. It's hard to focus on the text and take it seriously when it contains jokes and memes.
 - **Avoid passive voice.** Instead of "The Wasp app can be deployed...", write "You can deploy the Wasp app..."
-- **Avoid abbreviations** in writing and code examples (e.g., `attribute` is better than `attr`, `message` is better than `msg`), unless you want to specifically reference an abbreviation in the API (e.g., the `auth` declaration). Abbreviation symbols included on standard keyboards (e.g., `@`, `#`, `&`) are OK.
+- **Avoid abbreviations** in writing and code examples (e.g., `attribute` is better than `attr`, `message` is better than `msg`), unless you want to specifically reference an abbreviation in the API (e.g., the `auth` spec). Abbreviation symbols included on standard keyboards (e.g., `@`, `#`, `&`) are OK.
 - **Avoid too many exclamation points.** False excitement can alienate readers and also make the docs seem less professional.
 - **Address the reader directly.** Instead of "We can implement a Query..." or "A Query can be implemented..." or "The user can implement a Query...", say "You can implement a Query..."
   The docs should speak to the reader and address them directly to avoid possible confusion (e.g., Who are we? The Wasp team? The reader together with the Wasp team? etc.).

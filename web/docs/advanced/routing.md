@@ -14,7 +14,7 @@ import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("PhotoRoute", "/photo/:photoId", page(PhotoPage)),
   ],
 })
@@ -41,7 +41,7 @@ import { PhotoPage } from "./src/PhotoPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("PhotoRoute", "/photo/:photoId/edit?", page(PhotoPage)),
   ],
 })
@@ -70,7 +70,7 @@ import { FilesPage } from "./src/FilesPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("FilesRoute", "/files/*", page(FilesPage)),
   ],
 })
@@ -92,7 +92,7 @@ Read more in the [React Router docs on splats](https://reactrouter.com/7.12.0/st
 
 By default, Wasp lazy-loads all page routes using React Router's [`lazy`](https://reactrouter.com/how-to/code-splitting) property. This means each page's code is only downloaded when the user navigates to it, resulting in smaller initial bundle sizes. This is especially useful for apps with many routes.
 
-If you need a specific route to be eagerly loaded (included in the main bundle), you can set `lazy: false` on the route declaration:
+If you need a specific route to be eagerly loaded (included in the main bundle), you can set `lazy: false` on the route spec:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
@@ -101,7 +101,7 @@ import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
 // This route's page will be included in the initial bundle
 export default app({
   // ...
-  decls: [
+  spec: [
     route("DashboardRoute", "/dashboard", page(DashboardPage), { lazy: false }),
   ],
 })
@@ -121,7 +121,7 @@ import { LandingPage } from "./src/LandingPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("LandingRoute", "/", page(LandingPage), { prerender: true }),
   ],
 })

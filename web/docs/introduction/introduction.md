@@ -104,7 +104,7 @@ import { getRecipes, addRecipe } from "./src/recipe/operations" with { type: "re
 
 export default app({
   // ...
-  decls: [
+  spec: [
     // ...
     // Queries have automatic cache invalidation and are type-safe.
     query(getRecipes, { entities: ["Recipe"] }),
@@ -142,7 +142,7 @@ import { HomePage } from "./src/pages/HomePage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     // ...
     route("HomeRoute", "/", page(HomePage, {
       authRequired: true, // Will send user to /login if not authenticated.

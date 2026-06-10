@@ -6,7 +6,7 @@ import BaseDirEnvNote from './\_baseDirEnvNote.md'
 
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
 
-You can configure the client using the `client` field inside the `app` declaration:
+You can configure the client using the `client` field inside the `app` spec:
 
 ```ts title="main.wasp.ts"
 import { app } from "@wasp.sh/spec"

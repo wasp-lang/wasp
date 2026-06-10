@@ -19,12 +19,7 @@ COMMANDS
     new [<name>] [args]   Creates a new Wasp project. Run it without arguments for interactive mode.
       OPTIONS:
         -t|--template <template-name>
-           Available starter templates are: basic, minimal, saas, ai-generated.
-
-    new:ai <app-name> <app-description> [<config-json>]
-      Uses AI to create a new Wasp project just based on the app name and the description.
-      You can do the same thing with `wasp new` interactively.
-      Run `wasp new:ai` for more info.
+           Available starter templates are: basic, minimal, saas.
 
     version               Prints current version of CLI.
     doctor                Runs sanity checks on your setup (Node.js, Docker, ports, ...).
@@ -33,11 +28,14 @@ COMMANDS
     uninstall             Removes Wasp from your system.
   IN PROJECT
     start                 Runs Wasp app in development mode, watching for file changes.
-    start db              Starts managed development database for you.
+    start db [--db-image <image>] [--db-volume-mount-path <path>]
+                          Starts managed development database for you.
+                          Optionally specify a custom Docker image or Docker volume mount path.
     db <db-cmd> [args]    Executes a database command. Run 'wasp db' for more info.
-    clean                 Deletes all generated code, all cached artifacts, and the node_modules dir.
+    install               Sets up all internal Wasp npm dependencies and runs npm install.
+    clean                 Deletes the generated app, all cached artifacts, and the node_modules dir.
                           Wasp equivalent of 'have you tried closing and opening it again?'.
-    build                 Generates full web app code, ready for deployment. Use when deploying or ejecting.
+    build                 Generates the full web app, ready for deployment.
     build start [args]    Previews the built production app locally.
     deploy                Deploys your Wasp app to cloud hosting providers.
     telemetry             Prints telemetry status.
@@ -78,8 +76,6 @@ Choose a starter template
 [3] saas
     Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more.
     Check out https://opensaas.sh/ for more details.
-[4] ai-generated
-    🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)
 ▸ 1
 
 🐝 --- Creating your project from the "basic" template... -------------------------
