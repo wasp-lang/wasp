@@ -191,7 +191,7 @@ SENDGRID_API_KEY=
 
 ## API Reference
 
-### `emailSender` object
+### `emailSender` specification
 
 <CardLink
   to="../api/@wasp.sh/spec/interfaces/EmailSender"

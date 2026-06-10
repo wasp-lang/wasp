@@ -103,6 +103,24 @@ export interface Wasp {
  * type from `wasp/server/auth` (e.g. `OnBeforeSignupHook`). See
  * [Auth Hooks](https://wasp.sh/docs/auth/auth-hooks) for the full hook
  * inputs and examples.
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ *
+ * export default app({
+ *   // ...
+ *   auth: {
+ *     userEntity: "User",
+ *     methods: {
+ *       usernameAndPassword: {}, // use this or email, not both
+ *       google: {},
+ *       gitHub: {},
+ *     },
+ *     onAuthFailedRedirectTo: "/login",
+ *   },
+ * })
+ * ```
  */
 export interface Auth extends AuthHooks {
   /**
@@ -223,6 +241,25 @@ type SocialAuthMethodName =
 
 /**
  * Username and password auth configuration.
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ * import { userSignupFields } from "./src/auth" with { type: "ref" }
+ *
+ * export default app({
+ *   // ...
+ *   auth: {
+ *     userEntity: "User",
+ *     methods: {
+ *       usernameAndPassword: {
+ *         userSignupFields,
+ *       },
+ *     },
+ *     onAuthFailedRedirectTo: "/login",
+ *   },
+ * })
+ * ```
  */
 export interface UsernameAndPasswordConfig extends BaseAuthMethodConfig {}
 
@@ -234,6 +271,26 @@ export interface UsernameAndPasswordConfig extends BaseAuthMethodConfig {}
  * on your {@link Auth.userEntity}. Each provider has provider-specific
  * `userSignupFields` and `configFn` behavior, documented in the
  * [Social Auth docs](https://wasp.sh/docs/auth/social-auth/overview).
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ * import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
+ *
+ * export default app({
+ *   // ...
+ *   auth: {
+ *     userEntity: "User",
+ *     methods: {
+ *       google: {
+ *         configFn: getConfig,
+ *         userSignupFields,
+ *       },
+ *     },
+ *     onAuthFailedRedirectTo: "/login",
+ *   },
+ * })
+ * ```
  */
 export interface SocialAuthConfig extends BaseAuthMethodConfig {
   /**
@@ -250,6 +307,41 @@ export interface SocialAuthConfig extends BaseAuthMethodConfig {
  *
  * See the [Email auth docs](https://wasp.sh/docs/auth/email) for the full
  * signup, verification, and password reset flows.
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ * import { userSignupFields } from "./src/auth" with { type: "ref" }
+ * import {
+ *   getVerificationEmailContent,
+ *   getPasswordResetEmailContent,
+ * } from "./src/auth/email" with { type: "ref" }
+ *
+ * export default app({
+ *   // ...
+ *   auth: {
+ *     userEntity: "User",
+ *     methods: {
+ *       email: {
+ *         userSignupFields,
+ *         fromField: {
+ *           name: "My App",
+ *           email: "hello@itsme.com",
+ *         },
+ *         emailVerification: {
+ *           clientRoute: "EmailVerificationRoute",
+ *           getEmailContentFn: getVerificationEmailContent,
+ *         },
+ *         passwordReset: {
+ *           clientRoute: "PasswordResetRoute",
+ *           getEmailContentFn: getPasswordResetEmailContent,
+ *         },
+ *       },
+ *     },
+ *     onAuthFailedRedirectTo: "/login",
+ *   },
+ * })
+ * ```
  */
 export interface EmailAuthConfig extends BaseAuthMethodConfig {
   /** Sender identity used for verification and password reset emails. */
@@ -323,6 +415,20 @@ export interface EmailFlowConfig {
  *
  * See [Server Config](https://wasp.sh/docs/project/server-config) for usage
  * details.
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ * import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
+ *
+ * export default app({
+ *   // ...
+ *   server: {
+ *     setupFn: mySetupFunction,
+ *     middlewareConfigFn: myMiddlewareConfigFn,
+ *   },
+ * })
+ * ```
  */
 export interface Server {
   /**
@@ -367,6 +473,22 @@ export interface Server {
  *
  * See [Client Config](https://wasp.sh/docs/project/client-config) for usage
  * details.
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ * import Root from "./src/Root" with { type: "ref" }
+ * import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
+ *
+ * export default app({
+ *   // ...
+ *   client: {
+ *     rootComponent: Root,
+ *     setupFn: mySetupFunction,
+ *     baseDir: "/my-app",
+ *   },
+ * })
+ * ```
  */
 export interface Client {
   /**
@@ -416,6 +538,21 @@ export interface Client {
  *
  * See [Databases](https://wasp.sh/docs/data-model/databases) for seeding and
  * Prisma client customization.
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ * import devSeed from "./src/dbSeeds" with { type: "ref" }
+ * import { setUpPrisma } from "./src/prisma" with { type: "ref" }
+ *
+ * export default app({
+ *   // ...
+ *   db: {
+ *     seeds: [devSeed],
+ *     prismaSetupFn: setUpPrisma,
+ *   },
+ * })
+ * ```
  */
 export interface Db {
   /**
@@ -445,12 +582,29 @@ export interface Db {
  * available for sending arbitrary emails via `wasp/server/email`.
  *
  * See [Sending Emails](https://wasp.sh/docs/advanced/email).
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ *
+ * export default app({
+ *   // ...
+ *   emailSender: {
+ *     provider: "SMTP",
+ *     defaultFrom: {
+ *       name: "Example",
+ *       email: "hello@itsme.com",
+ *     },
+ *   },
+ * })
+ * ```
  */
 export interface EmailSender {
   /** Provider Wasp uses to deliver outgoing emails. */
   provider: EmailSenderProviderName;
   /**
-   * Sender identity used when an email is sent without an explicit `from`.
+   * The default sender's details. If you set this field, you don't need to
+   * provide the `from` field when sending an email.
    */
   defaultFrom?: EmailFromField;
 }
@@ -478,6 +632,20 @@ export interface EmailFromField {
  *
  * See [Web Sockets](https://wasp.sh/docs/advanced/web-sockets) for handler
  * shape and client-side usage.
+ *
+ * @example
+ * ```ts
+ * import { app } from "@wasp.sh/spec"
+ * import { webSocketFn } from "./src/webSocket" with { type: "ref" }
+ *
+ * export default app({
+ *   // ...
+ *   webSocket: {
+ *     fn: webSocketFn,
+ *     autoConnect: true,
+ *   },
+ * })
+ * ```
  */
 export interface WebSocket {
   /**
@@ -585,6 +753,13 @@ export interface Route extends BaseSpecElement<"route"> {
    * [Prerendering](https://wasp.sh/docs/advanced/prerendering).
    *
    * @default false
+   *
+   * @example
+   * ```ts
+   * route("NameRoute", "/some-path", page(SomePage), {
+   *   prerender: true,
+   * })
+   * ```
    */
   prerender?: boolean;
   /**
