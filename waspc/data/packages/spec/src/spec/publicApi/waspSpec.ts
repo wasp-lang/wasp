@@ -243,9 +243,8 @@ export interface LocalAuthMethods {
  * [Social Auth overview](https://wasp.sh/docs/auth/social-auth/overview) for
  * details on each provider.
  */
-export interface ExternalAuthMethods extends Partial<
-  Record<SocialAuthMethodName, SocialAuthConfig>
-> {}
+export interface ExternalAuthMethods
+  extends Partial<Record<SocialAuthMethodName, SocialAuthConfig>> {}
 
 /**
  * Supported social auth providers.
