@@ -1135,6 +1135,8 @@ interface BaseSpecElement<Kind extends string> {
  * schemas via their documented library-author marker. See
  * https://zod.dev/library-authors.
  *
+ * @inline
+ *
  * @category References
  */
 export type ZodSchema = {
