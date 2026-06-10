@@ -456,7 +456,7 @@ We plan on supporting CRUD operations and growing them to become the easiest way
   description="All the options for declaring CRUD operations in the Wasp spec."
 />
 
-#### Defining the overrides
+### Defining the overrides
 
 Like with actions and queries, you can define the implementation in a Javascript/Typescript file. The overrides are functions that take the following arguments:
 
@@ -494,7 +494,7 @@ Like with actions and queries, you can define the implementation in a Javascript
 
 For a usage example, check the [example guide](../data-model/crud#adding-crud-to-the-task-entity-).
 
-#### Using the CRUD operations in client code
+### Using the CRUD operations in client code
 
 On the client, you import the CRUD operations from `wasp/client/crud` by import the `{crud name}` object. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
 
@@ -537,7 +537,3 @@ You can then access the operations like this:
 </Tabs>
 
 All CRUD operations are implemented with [Queries and Actions](../data-model/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
-
----
-
-Join our **community** on [Discord](https://discord.com/invite/rzdnErX), where we chat about full-stack web stuff. Join us to see what we are up to, share your opinions or get help with CRUD operations.

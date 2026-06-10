@@ -148,16 +148,28 @@ type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
  *
  * @example
  * ```ts
- * import { query } from '@wasp.sh/spec'
+ * import { app, query } from "@wasp.sh/spec"
  * import { getTasks } from './src/queries' with { type: 'ref' }
  *
- * query(getTasks, { entities: ['Task'] })
+ * export default app({
+ *   // ...
+ *   spec: [
+ *     query(getTasks, { entities: ["Foo"] }),
+ *   ],
+ * })
  * ```
  *
- * @param fn The Query's NodeJS implementation.
+ * @param fn
+ *
+ * Reference to the Query's NodeJS implementation.
+ *
+ * See [the
+ * docs](https://wasp.sh/docs/data-model/operations/queries#implementing-queries)
+ * for details on the implementation and its context.
  *
  * {@include ./referenceImports.md}
- * @param config Optional settings: `entities` and `auth`.
+ *
+ * @param config
  *
  * @category Constructors
  */
@@ -182,16 +194,23 @@ type QueryConfig = Omit<Query, "kind" | "fn">;
  *
  * @example
  * ```ts
- * import { action } from '@wasp.sh/spec'
- * import { createTask } from './src/actions' with { type: 'ref' }
- *
- * action(createTask, { entities: ['Task'] })
+ * import { app, action } from "@wasp.sh/spec"
+ * import { createTask } from "./src/actions" with { type: "ref" }
+ * export default app({
+ *   // ...
+ *   spec: [
+ *     action(createTask, { entities: ["Task"] }),
+ *   ],
+ * })
  * ```
  *
- * @param fn The Action's NodeJS implementation.
+ * @param fn
+ * Reference to the Action's NodeJS implementation.
+ *
+ * See [the docs](https://wasp.sh/docs/data-model/operations/actions#implementing-actions) for details on the implementation and its context.
  *
  * {@include ./referenceImports.md}
- * @param config Optional settings: `entities` and `auth`.
+ * @param config
  *
  * @category Constructors
  */

@@ -124,16 +124,24 @@ export interface Wasp {
  */
 export interface Auth extends AuthHooks {
   /**
-   * Name of the Prisma model that represents the application user connected
-   * to your business logic.
+   * Name of the Prisma model that represents the application user connected to
+   * your business logic.
    *
-   * The model must be defined in `schema.prisma` and have an `@id` field. The
-   * ID can use any Prisma-supported ID type. You can add any other fields you
-   * want to the model. If they need to be set during the sign-up process,
-   * also define them in the auth method's `userSignupFields`.
+   * The user entity needs to have an ID field that uniquely identifies each
+   * user. It can be of any name and type, but it needs to be marked with `@id`:
    *
-   * See [Accessing User Data](https://wasp.sh/docs/auth/entities) for
-   * how the user entity connects to the rest of the auth system.
+   * ```prisma title="schema.prisma"
+   * model User {
+   *   id Int @id @default(autoincrement())
+   * }
+   * ```
+   *
+   * You can add any other fields you want to the user entity. Make sure to also
+   * define them in the `userSignupFields` field if they need to be set during
+   * the sign-up process.
+   *
+   * See [Accessing User Data](https://wasp.sh/docs/auth/entities) for how the
+   * user entity connects to the rest of the auth system.
    */
   userEntity: EntityName;
   /** Enabled authentication methods. */
@@ -163,12 +171,16 @@ interface AuthHooks {
    * Called before the user is created. Receives `providerId` plus the common
    * hook input. Throw from this hook to reject a signup based on custom
    * criteria.
+   *
+   * @category Hooks
    */
   onBeforeSignup?: Reference<AnyFunction>;
   /**
    * Called after the user is created. Receives `providerId`, the created
    * `user`, and, for social auth, `oauth` fields including tokens and the
    * unique OAuth request ID.
+   *
+   * @category Hooks
    */
   onAfterSignup?: Reference<AnyFunction>;
   /** Called once, after the user verifies their email. Receives `email` and `user`. */
@@ -177,17 +189,23 @@ interface AuthHooks {
    * Called before redirecting the user to the OAuth provider. Receives the
    * generated `url` and `oauth.uniqueRequestId`. Return `{ url }` to override
    * the redirect URL.
+   *
+   * @category Hooks
    */
   onBeforeOAuthRedirect?: Reference<AnyFunction>;
   /**
    * Called before the user is logged in. Receives `providerId` and `user`.
    * Throw from this hook to reject a login based on custom criteria.
+   *
+   * @category Hooks
    */
   onBeforeLogin?: Reference<AnyFunction>;
   /**
    * Called after a successful login. Receives `providerId`, `user`, and, for
    * social auth, `oauth` fields including tokens and the unique OAuth request
    * ID.
+   *
+   * @category Hooks
    */
   onAfterLogin?: Reference<AnyFunction>;
 }
@@ -225,8 +243,9 @@ export interface LocalAuthMethods {
  * [Social Auth overview](https://wasp.sh/docs/auth/social-auth/overview) for
  * details on each provider.
  */
-export interface ExternalAuthMethods
-  extends Partial<Record<SocialAuthMethodName, SocialAuthConfig>> {}
+export interface ExternalAuthMethods extends Partial<
+  Record<SocialAuthMethodName, SocialAuthConfig>
+> {}
 
 /**
  * Supported social auth providers.
@@ -298,6 +317,15 @@ export interface SocialAuthConfig extends BaseAuthMethodConfig {
    * etc.). Use this to request extra scopes, such as requesting email/profile
    * data from providers that do not include it by default, or to customize the
    * OAuth flow.
+   *
+   * @example
+   * ```ts
+   * export function getConfig() {
+   *   return {
+   *     scopes: ["openid", "profile", "email"],
+   *   }
+   * }
+   * ```
    */
   configFn?: Reference<AnyFunction>;
 }
@@ -347,22 +375,11 @@ export interface EmailAuthConfig extends BaseAuthMethodConfig {
   /** Sender identity used for verification and password reset emails. */
   fromField: EmailFromField;
   /**
-   * Email verification flow configuration.
-   *
-   * Its `clientRoute` should handle the verification link sent to the user:
-   * take the token from the URL and send it to the server with the
-   * `verifyEmail` action from `wasp/client/auth`. Wasp's built-in Auth UI
-   * does this for you.
+   * An object that specifies the details of the e-mail verification process.
    */
   emailVerification: EmailFlowConfig;
   /**
-   * Password reset flow configuration.
-   *
-   * Its `clientRoute` should handle the password reset link sent to the user:
-   * take the token from the URL and the new password from the user, and send
-   * them to the server with the `requestPasswordReset` and `resetPassword`
-   * actions from `wasp/client/auth`. Wasp's built-in Auth UI does this for
-   * you.
+   * An object that specifies the password reset process.
    */
   passwordReset: EmailFlowConfig;
 }
@@ -380,6 +397,21 @@ interface BaseAuthMethodConfig {
    * Wasp's auth backend.
    *
    * See [Signup Fields Customization](https://wasp.sh/docs/auth/overview#signup-fields-customization).
+   *
+   * @example
+   * ```ts
+   * import { defineUserSignupFields } from 'wasp/server/auth'
+   *
+   * export const userSignupFields = defineUserSignupFields({
+   *   address: (data) => {
+   *     if (!data.address) {
+   *       throw new Error('Address is required')
+   *     }
+   *     return data.address
+   *   },
+   *   phone: (data) => data.phone,
+   * })
+   * ```
    */
   userSignupFields?: Reference<AnyObject>;
 }
@@ -398,14 +430,36 @@ export interface EmailFlowConfig {
    * In TypeScript, you can type the function with the
    * `GetVerificationEmailContentFn` or `GetPasswordResetEmailContentFn` type
    * from `wasp/server/auth`.
+   *
+   * @example
+   * ```ts title="src/email.ts"
+   * import { GetVerificationEmailContentFn } from "wasp/server/auth"
+   *
+   * export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
+   *   verificationLink,
+   * }) => ({
+   *   subject: "Verify your email",
+   *   text: `Click the link below to verify your email: ${verificationLink}`,
+   *   html: `
+   *         <p>Click the link below to verify your email</p>
+   *         <a href="${verificationLink}">Verify email</a>
+   *     `,
+   * })
+   * ```
    */
   getEmailContentFn?: Reference<AnyFunction>;
   /**
-   * Name of the route that handles the link sent in the email
-   * (e.g. `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
+   * Name of the route that handles the link sent in the email (e.g.
+   * `"EmailVerificationRoute"` or `"PasswordResetRoute"`).
    *
    * The route must be defined in {@link App.spec} with the {@link route}
    * constructor.
+   *
+   * This route should handle the process of taking a token from the URL and
+   * sending it to the server to verify the e-mail address. You can use our
+   * [`verifyEmail`
+   * action](https://wasp.sh/docs/auth/email/create-your-own-ui#verifyemail) for
+   * that.
    */
   clientRoute: string;
 }
@@ -439,6 +493,15 @@ export interface Server {
    *
    * In TypeScript, you can type the function with the `ServerSetupFn` type
    * from `wasp/server`.
+   *
+   * @example
+   * ```ts
+   * import { type ServerSetupFn } from "wasp/server"
+   *
+   * export const mySetupFunction: ServerSetupFn = async () => {
+   *   await setUpSomeResource()
+   * }
+   * ```
    */
   setupFn?: Reference<AnyFunction>;
   /**
@@ -496,6 +559,38 @@ export interface Client {
    * render `Outlet` from `react-router` to show the current page.
    *
    * Useful for layouts, providers (Redux, theme, etc.), and global UI.
+   *
+   * @example
+   * ```tsx
+   * import { Outlet } from "react-router"
+   * import store from "./store"
+   * import { Provider } from "react-redux"
+   *
+   * export default function Root() {
+   *   return (
+   *     <Provider store={store}>
+   *       <Layout />
+   *     </Provider>
+   *   )
+   * }
+   *
+   * function Layout() {
+   *   return (
+   *     <div>
+   *       <header>
+   *         <h1>My App</h1>
+   *       </header>
+   *
+   *       {/* The current page will be rendered here *\/}
+   *       <Outlet />
+   *
+   *       <footer>
+   *         <p>My App footer</p>
+   *       </footer>
+   *     </div>
+   *   )
+   * }
+   * ```
    */
   rootComponent?: Reference<AnyFunction>;
   /**
@@ -503,14 +598,31 @@ export interface Client {
    * awaits it before rendering the app. It receives no arguments, and its
    * return value is ignored. Use it for one-time client-side setup, such as
    * configuring the query client or starting client-side periodic jobs.
+   *
+   * @example
+   * ```ts
+   * export default async function mySetupFunction(): Promise<void> {
+   *   // Run some code
+   * }
+   * ```
    */
   setupFn?: Reference<AnyFunction>;
   /**
-   * Subpath the client app is served from (e.g. `"/my-app"`).
    *
-   * When set, Wasp configures React Router's `basename` for routing and
-   * Vite's `base` option for asset URLs, so the app works from
+   * If you need to serve the client from a subdirectory, you can use the
+   * `baseDir` option.
+   *
+   * If you set `baseDir` to `/my-app` for example, that will make Wasp set the
+   * `basename` prop of the `Router` to `/my-app`. It will also set the `base`
+   * option of the Vite config to `/my-app`.
+   *
+   * This means that if you serve your app from `https://example.com/my-app`,
+   * the router will work correctly, and all the assets will be served from
    * `https://example.com/my-app`.
+   *
+   * Check the [Base directory
+   * docs](https://wasp.sh/docs/project/client-config#base-directory) for
+   * important details.
    */
   baseDir?: `/${string}`;
   /**
@@ -571,6 +683,19 @@ export interface Db {
    * See Prisma's [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging)
    * and [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions)
    * docs.
+   *
+   * @example
+   * ```ts
+   * import { PrismaClient } from "@prisma/client"
+   *
+   * export const setUpPrisma = () => {
+   *   const prisma = new PrismaClient({
+   *     log: ["query", "info", "warn", "error"],
+   *   })
+   *
+   *   return prisma
+   * }
+   * ```
    */
   prismaSetupFn?: Reference<AnyFunction>;
 }
@@ -653,6 +778,8 @@ export interface WebSocket {
    * server start with the Socket.IO server instance and a context containing
    * all app entities. If a connected socket is authenticated, Wasp stores the
    * user on `socket.data.user`.
+   *
+   * See [the `websocketFn` docs](https://wasp.sh/docs/advanced/web-sockets#websocketfn).
    */
   fn: Reference<AnyFunction>;
   /**
@@ -785,25 +912,24 @@ export interface Route extends BaseSpecElement<"route"> {
  */
 export interface Query extends BaseSpecElement<"query"> {
   /**
-   * Reference to the Query's NodeJS implementation. The implementation can be
-   * async and receives two positional arguments: the caller-provided `args`
-   * payload and a Wasp-provided `context` containing declared entities and,
-   * when auth is enabled for the Query, the current user.
+   * Reference to the Query's NodeJS implementation.
+   *
+   * See [the
+   * docs](https://wasp.sh/docs/data-model/operations/queries#implementing-queries)
+   * for details on the implementation and its context.
    */
   fn: Reference<AnyFunction>;
   /**
-   * Entities the query reads from. Wasp injects a Prisma delegate for each
-   * one into the query's `context.entities`, and uses the list to invalidate
-   * the client-side cache when related actions run.
+   * A list of entities you wish to use inside your Query.
    *
    * See [Using Entities in Queries](https://wasp.sh/docs/data-model/operations/queries#using-entities-in-queries).
    */
   entities?: EntityName[];
   /**
-   * If `true`, the query receives `context.user`. Defaults to `true` when
-   * the app has auth enabled, and `false` otherwise.
+   * Whether this Query requires auth. If your app has auth enabled, this
+   * defaults to `true`.
    *
-   * You can only set this field when app-level auth is enabled.
+   * Only available if your app has auth enabled.
    */
   auth?: boolean;
 }
@@ -819,25 +945,24 @@ export interface Query extends BaseSpecElement<"query"> {
  */
 export interface Action extends BaseSpecElement<"action"> {
   /**
-   * Reference to the Action's NodeJS implementation. The implementation can be
-   * async and receives two positional arguments: the caller-provided `args`
-   * payload and a Wasp-provided `context` containing declared entities and,
-   * when auth is enabled for the Action, the current user.
+   * Reference to the Action's NodeJS implementation.
+   *
+   * See [the
+   * docs](https://wasp.sh/docs/data-model/operations/actions#implementing-actions)
+   * for details on the implementation and its context.
    */
   fn: Reference<AnyFunction>;
   /**
-   * Entities the action operates on. Wasp injects a Prisma delegate for each
-   * one into the action's `context.entities`, and uses the list to
-   * invalidate the related query caches on the client.
+   * A list of entities you wish to use inside your Action.
    *
    * See [Using Entities in Actions](https://wasp.sh/docs/data-model/operations/actions#using-entities-in-actions).
    */
   entities?: EntityName[];
   /**
-   * If `true`, the action receives `context.user`. Defaults to `true` when
-   * the app has auth enabled, and `false` otherwise.
+   * Whether this Action requires auth. If your app has auth enabled, this
+   * defaults to `true`.
    *
-   * You can only set this field when app-level auth is enabled.
+   * Only available if your app has auth enabled.
    */
   auth?: boolean;
 }
@@ -919,9 +1044,15 @@ export interface Job extends BaseSpecElement<"job"> {
   /**
    * Reference to the job's NodeJS implementation. It receives the submitted
    * args and a context containing the declared entities.
+   *
+   * See [the docs](https://wasp.sh/docs/advanced/jobs#worker-api).
    */
   fn: Reference<AnyFunction>;
-  /** Executor backing this job. */
+  /**
+   * Executor backing this job.
+   *
+   * Currently only `"PgBoss"` is available.
+   */
   executor: JobExecutor;
   /** Cron schedule that runs the job automatically. */
   schedule?: Schedule;
@@ -947,9 +1078,10 @@ export interface Job extends BaseSpecElement<"job"> {
 }
 
 /**
- * Supported job executors. Currently only `"PgBoss"` is available, which
- * stores jobs in the app's PostgreSQL database via
- * [pg-boss](https://github.com/timgit/pg-boss).
+ * Supported job executors.
+ *
+ * Currently only `"PgBoss"` is available, which stores jobs in the app's
+ * PostgreSQL database via [pg-boss](https://github.com/timgit/pg-boss).
  */
 export type JobExecutor = "PgBoss";
 
@@ -1009,32 +1141,43 @@ export interface Crud extends BaseSpecElement<"crud"> {
  * Mapping of CRUD operations to their options.
  *
  * Each key enables the matching operation; an empty object enables it with
- * Wasp's defaults. The default implementations map directly to Prisma calls
- * on the entity:
+ * Wasp's defaults.
  *
- * - `get` returns one entity: `findUnique({ where: { id: args.id } })`
- * - `getAll` returns all entities: `findMany()`
- * - `create` creates a new entity: `create({ data: args.data })`
- * - `update` updates an existing entity:
- *   `update({ where: { id: args.id }, data: args.data })`
- * - `delete` deletes an existing entity:
- *   `delete({ where: { id: args.id } })`
- *
- * The default `get`, `update`, and `delete` implementations use the field
- * marked with `@id` in the Prisma schema as the entity ID. Unless an
- * operation is marked with {@link CrudOperationOptions.isPublic}, Wasp checks
- * that an authenticated user is making the request.
+ * The default implementations map directly to Prisma calls on the entity, and
+ * use the field marked with `@id` in the Prisma schema as the entity ID. Unless
+ * an operation is marked with {@link CrudOperationOptions.isPublic}, Wasp
+ * checks that an authenticated user is making the request.
  *
  * CRUD operations are implemented with Wasp queries and actions. See
  * [Operations](https://wasp.sh/docs/data-model/operations/overview).
  */
-export interface CrudOperations
-  extends Partial<Record<CrudOperation, CrudOperationOptions>> {}
-
-/**
- * Operations a {@link Crud} can generate.
- */
-export type CrudOperation = "get" | "getAll" | "create" | "update" | "delete";
+export interface CrudOperations {
+  /**
+   * @default
+   * `Entity.findUnique({ where: { id: args.id } })`
+   */
+  get?: CrudOperationOptions;
+  /**
+   * @default
+   * `Entity.findMany()`
+   */
+  getAll?: CrudOperationOptions;
+  /**
+   * @default
+   * `Entity.create({ data: args.data })`
+   */
+  create?: CrudOperationOptions;
+  /**
+   * @default
+   * `Entity.update({ where: { id: args.id }, data: args.data })`
+   */
+  update?: CrudOperationOptions;
+  /**
+   * @default
+   * `Entity.delete({ where: { id: args.id } })`
+   */
+  delete?: CrudOperationOptions;
+}
 
 /**
  * Configuration for a single CRUD operation.
@@ -1057,7 +1200,10 @@ export interface CrudOperationOptions {
    *
    * The override receives the caller-provided `args` payload and a
    * Wasp-provided `context` containing the current user and the entity being
-   * operated on. Use an override to validate or filter input before saving it;
+   * operated on.
+   *
+   * **Important**
+   * Use an override to validate or filter input before saving it;
    * the default `create` and `update` implementations pass client-sent data to
    * Prisma.
    */

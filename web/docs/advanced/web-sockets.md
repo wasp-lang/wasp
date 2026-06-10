@@ -5,6 +5,7 @@ title: Web Sockets
 import useBaseUrl from '@docusaurus/useBaseUrl';
 import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
+import { Required } from '@site/src/components/Tag';
 
 Wasp provides a fully integrated WebSocket experience by utilizing [Socket.IO](https://socket.io/) on the client and server.
 
@@ -47,7 +48,7 @@ Let's define the WebSockets server with all of the events and handler functions.
   :::
 </ShowForTs>
 
-### `webSocketFn` Function
+### `webSocketFn` Function {#websocketfn}
 
 On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function. The `context` object give you access to all of the entities from your Wasp app.
 
@@ -287,3 +288,4 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
   title="WebSocket"
   description="All the options for the webSocket field of the app spec."
 />
+
