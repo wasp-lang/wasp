@@ -156,6 +156,31 @@ jobs:
           echo "server=$SERVER_HOSTNAME" >> "$GITHUB_OUTPUT"
           echo "client=$CLIENT_HOSTNAME" >> "$GITHUB_OUTPUT"
 
+      # NOTE: `railway up --ci` (used by `wasp-cli deploy railway launch`)
+      # returns when the build finishes, not when the deployment serves
+      # traffic, and freshly created Railway domains return 404 until the edge
+      # starts routing. Poll the deployed URLs so e2e tests start against a
+      # live app.
+      - name: Wait for deployed app to be reachable
+        run: |
+          function wait_for_url() {
+            url="$1"
+            for attempt in $(seq 1 30); do
+              status=$(curl -s -o /dev/null -w "%{http_code}" \
+                --connect-timeout 5 --max-time 10 "$url") || status="000"
+              if [[ "$status" -ge 200 && "$status" -lt 400 ]]; then
+                echo "$url is ready (status $status)"
+                return 0
+              fi
+              echo "Attempt $attempt/30: $url not ready (status $status), retrying in 10s"
+              sleep 10
+            done
+            echo "Timed out waiting for $url"
+            return 1
+          }
+          wait_for_url "https://${{ steps.get-hostnames.outputs.server }}"
+          wait_for_url "https://${{ steps.get-hostnames.outputs.client }}"
+
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}
         env:
