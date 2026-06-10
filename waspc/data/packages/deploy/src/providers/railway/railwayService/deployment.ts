@@ -5,18 +5,17 @@ import { waspSays } from "../../../common/terminal.js";
 import { createCommandWithCwd } from "../../../common/zx.js";
 import { RailwayCliExe, RailwayServiceName } from "../brandedTypes.js";
 import {
+  DeploymentStatus,
   RailwayCliProjectStatus,
   RailwayCliProjectStatusSchema,
 } from "../jsonOutputSchemas.js";
 
-const DEFAULT_POLL_INTERVAL_MS = 3_000;
-const DEFAULT_TIMEOUT_MS = 5 * 60 * 1_000;
-const PROGRESS_MESSAGE_INTERVAL_MS = 30_000;
+const POLL_INTERVAL_MS = 3_000;
+const TIMEOUT_MS = 5 * 60 * 1_000;
 
-// From Railway's GraphQL `DeploymentStatus` enum, any other status
-// (BUILDING, DEPLOYING, QUEUED, ...) means the deployment is still in progress.
-const SUCCESS_STATUS = "SUCCESS";
-const FAILURE_STATUSES = ["FAILED", "CRASHED"];
+// Any other status means the deployment is still in progress.
+const SUCCESS_STATUS: DeploymentStatus = "SUCCESS";
+const FAILURE_STATUSES: DeploymentStatus[] = ["FAILED", "CRASHED"];
 
 export async function waitForServiceDeploymentSuccess(
   serviceName: RailwayServiceName,
@@ -24,25 +23,12 @@ export async function waitForServiceDeploymentSuccess(
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
   },
-  {
-    pollIntervalMs = DEFAULT_POLL_INTERVAL_MS,
-    timeoutMs = DEFAULT_TIMEOUT_MS,
-  }: {
-    pollIntervalMs?: number;
-    timeoutMs?: number;
-  } = {},
 ): Promise<void> {
-  waspSays(`Waiting for the "${serviceName}" service to be deployed...`);
-
-  let lastReportedStatus: string | null = null;
-  let lastReportTimestamp = Date.now();
-
-  const deadline = Date.now() + timeoutMs;
+  const deadline = Date.now() + TIMEOUT_MS;
   while (Date.now() < deadline) {
     const status = await getLatestServiceDeploymentStatus(serviceName, options);
 
     if (status === SUCCESS_STATUS) {
-      waspSays(`Service "${serviceName}" deployed successfully!`);
       return;
     }
 
@@ -52,19 +38,11 @@ export async function waitForServiceDeploymentSuccess(
       );
     }
 
-    if (status !== null && status !== lastReportedStatus) {
-      waspSays(`Service "${serviceName}" deployment status: ${status}`);
-      lastReportedStatus = status;
-      lastReportTimestamp = Date.now();
-    } else if (
-      Date.now() - lastReportTimestamp >=
-      PROGRESS_MESSAGE_INTERVAL_MS
-    ) {
-      waspSays(`Still waiting for the "${serviceName}" service...`);
-      lastReportTimestamp = Date.now();
-    }
+    waspSays(
+      `Waiting for "${serviceName}" service. Deployment status: "${status ?? "UNKNOWN"}"`,
+    );
 
-    await setTimeout(pollIntervalMs);
+    await setTimeout(POLL_INTERVAL_MS);
   }
 
   throw new Error(
@@ -78,7 +56,7 @@ async function getLatestServiceDeploymentStatus(
     railwayExe: RailwayCliExe;
     waspProjectDir: WaspProjectDir;
   },
-): Promise<string | null> {
+): Promise<DeploymentStatus | null> {
   const railwayCli = createCommandWithCwd(
     options.railwayExe,
     options.waspProjectDir,
@@ -99,7 +77,7 @@ async function getLatestServiceDeploymentStatus(
 export function findServiceDeploymentStatus(
   projectStatus: RailwayCliProjectStatus,
   serviceName: string,
-): string | null {
+): DeploymentStatus | null {
   const serviceInstance = projectStatus.environments.edges
     .flatMap((environment) => environment.node.serviceInstances.edges)
     .map((edge) => edge.node)

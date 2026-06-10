@@ -23,26 +23,42 @@ export const RailwayCliProjectSchema = z.object({
 
 export const RailwayProjectListSchema = z.array(RailwayCliProjectSchema);
 
-const ServiceInstancesSchema = z.object({
-  edges: z.array(
-    z.object({
-      node: z.object({
-        serviceName: z.string(),
-        latestDeployment: z
-          .object({
-            status: z.string(),
-          })
-          .nullish(),
-      }),
-    }),
-  ),
-});
+export const DeploymentStatusSchema = z.enum([
+  "BUILDING",
+  "CRASHED",
+  "DEPLOYING",
+  "FAILED",
+  "INITIALIZING",
+  "NEEDS_APPROVAL",
+  "QUEUED",
+  "REMOVED",
+  "REMOVING",
+  "SKIPPED",
+  "SLEEPING",
+  "SUCCESS",
+  "WAITING",
+]);
+
+export type DeploymentStatus = z.infer<typeof DeploymentStatusSchema>;
 
 const GroupedServiceInstancesSchema = z.object({
   edges: z.array(
     z.object({
       node: z.object({
-        serviceInstances: ServiceInstancesSchema,
+        serviceInstances: z.object({
+          edges: z.array(
+            z.object({
+              node: z.object({
+                serviceName: z.string(),
+                latestDeployment: z
+                  .object({
+                    status: DeploymentStatusSchema,
+                  })
+                  .nullish(),
+              }),
+            }),
+          ),
+        }),
       }),
     }),
   ),
@@ -58,19 +74,16 @@ const OldFormatProjectStatusSchema = z.object({
   services: GroupedServiceInstancesSchema,
 });
 
-export type RailwayCliProjectStatus = z.infer<
-  typeof NewFormatProjectStatusSchema
->;
-
 export const RailwayCliProjectStatusSchema = z.union([
   NewFormatProjectStatusSchema,
-
-  OldFormatProjectStatusSchema
-    // Convert to the newer format
-    .transform(
-      ({ services }): RailwayCliProjectStatus => ({ environments: services }),
-    ),
+  OldFormatProjectStatusSchema.transform(({ services }) => ({
+    environments: services,
+  })),
 ]);
+
+export type RailwayCliProjectStatus = z.infer<
+  typeof RailwayCliProjectStatusSchema
+>;
 
 export const RailwayCliDomainSchema = z.union([
   // Railway CLI >=4.18.1
