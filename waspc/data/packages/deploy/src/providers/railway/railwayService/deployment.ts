@@ -10,7 +10,7 @@ import {
   RailwayCliProjectStatusSchema,
 } from "../jsonOutputSchemas.js";
 
-const POLL_INTERVAL_MS = 3_000;
+const POLL_INTERVAL_MS = 5_000;
 const TIMEOUT_MS = 5 * 60 * 1_000;
 
 // Any other status means the deployment is still in progress.
@@ -34,19 +34,19 @@ export async function waitForServiceDeploymentSuccess(
 
     if (status !== null && FAILURE_STATUSES.includes(status)) {
       throw new Error(
-        `Service "${serviceName}" deployment finished with status "${status}". Check the Railway dashboard for details.`,
+        `"${serviceName}" deployment finished with status "${status}". Check the Railway dashboard for details.`,
       );
     }
 
     waspSays(
-      `Waiting for "${serviceName}" service. Deployment status: "${status ?? "UNKNOWN"}"`,
+      `Waiting for "${serviceName}" deployment... (Status: "${status ?? "UNKNOWN"}")`,
     );
 
     await setTimeout(POLL_INTERVAL_MS);
   }
 
   throw new Error(
-    `Timed out waiting for the "${serviceName}" service to be deployed. Check the Railway dashboard for details.`,
+    `Timed out waiting for "${serviceName}" to be deployed. Check the Railway dashboard for details.`,
   );
 }
 
