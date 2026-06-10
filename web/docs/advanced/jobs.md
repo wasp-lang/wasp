@@ -19,11 +19,11 @@ Wasp supports background jobs that can help you with this:
 
 ## Using Jobs
 
-### Job Declaration and Usage
+### Job spec and Usage
 
 Let's write an example Job that will print a message to the console and return a list of tasks from the database.
 
-1. Start by creating a Job declaration in your Wasp file:
+1. Start by creating a Job spec in your Wasp file:
 
 ```ts title="main.wasp.ts"
 import { app, job } from "@wasp.sh/spec"
@@ -78,7 +78,7 @@ The worker function must be an `async` function. The function's return value rep
 The worker function accepts two arguments:
 
 - `args`: The data passed into the job when it's submitted.
-- `context: { entities }`: The context object containing entities you put in the Job declaration.
+- `context: { entities }`: The context object containing entities you put in the Job spec.
   :::
 
 <ShowForTs>
@@ -123,7 +123,7 @@ In our example, `mySpecialJob` takes an argument, but passing arguments to jobs 
 
 ### Recurring Jobs
 
-If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job declaration:
+If you have work that needs to be done on some recurring basis, you can add a `schedule` to your job spec:
 
 ```ts title="main.wasp.ts"
 import { app, job } from "@wasp.sh/spec"

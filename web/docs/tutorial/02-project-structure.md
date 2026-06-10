@@ -102,7 +102,7 @@ export default app({
   head: [
     "<link rel='icon' href='/favicon.ico' />",
   ],
-  // Add your app declarations here so Wasp knows to register them.
+  // Add your specs here so Wasp knows to register them.
   spec: [
     route("RootRoute", "/", page(MainPage)),
   ],
@@ -119,9 +119,9 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](../general/spec.md#reference-imports).
 
-### Declarations
+### Specifications
 
-This spec uses three declarations:
+This Wasp app uses three specifications:
 
 - [**app**](../api/@wasp.sh/spec/functions/app): Top-level configuration information about your app.
 

@@ -15,7 +15,7 @@ This gives you:
 
 ## Enabling prerendering
 
-Add `prerender: true` to any route declaration:
+Add `prerender: true` to any route spec:
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"
