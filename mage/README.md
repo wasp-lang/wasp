@@ -27,4 +27,4 @@ To deploy it, just run `wasp deploy fly deploy`. You might want to add `--org wa
 ## FAQ
 
 Q: What is the difference between Wasp AI and Mage? Are those the same thing?<br>
-A: When we say "Wasp AI" in Mage, we refer to the legacy AI generator that existed in Wasp 0.23. Mage is the web app that calls that generator in the background.
+A: When we say "Wasp AI" in Mage, we refer to the legacy AI generator that existed in Wasp up to Wasp version 0.23. Mage is the web app that calls that generator in the background.
