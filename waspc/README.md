@@ -442,7 +442,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - Ensure that OpenSaaS is updated to the latest Wasp `main` (go to https://github.com/wasp-lang/open-saas/actions/workflows/e2e-tests.yml and manually run the workflow on the `main` branch).
 - 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
 - 👉 Update your local repository state to have all remote changes (`git fetch`) and ensure local `main` is up to date.
-- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.19.1`) and do the rest of the steps from there.
+- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `v<version>-rc<rc-iteration>` (e.g., `v0.24.1-rc1`) and do the rest of the steps from there.
 - 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
   - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into the RC branch.
 - 👉 Create an RC release do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
