@@ -11,7 +11,7 @@ You can learn more about it [here](https://wasp.sh/blog/2023/07/10/gpt-web-app-g
 If you want to run Mage locally:
 
 1. Copy `.env.server.example` into `.env.server` and fill in the missing values. You will basically need to provide Github and Google OAuth creds (and first create OAuth apps on both Github and Google if you don't have them yet - if you are a member of Wasp team ask for dev creds, if not you will have to create your own OAuth apps).
-2. Install Wasp with `npm i -g @wasp.sh/wasp-cli@0.23.0`.
+2. Install Wasp 0.23 with `npm i -g @wasp.sh/wasp-cli@0.23.0`.
 3. Run `wasp db start` and then `wasp start`. It might ask you to do `wasp db migrate-dev`, do that if needed.
 
 ## Deployment
