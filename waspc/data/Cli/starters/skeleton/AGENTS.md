@@ -11,7 +11,7 @@ This project uses the Wasp framework.
 
 ### Wasp TypeScript Spec
 
-- `main.wasp.ts` contains the Wasp version and the app specification.
+- `main.wasp.ts` contains the Wasp version and the Wasp app specification.
 - When it references app components/functions, import them from `src/` with `with { type: "ref" }`.
 - `route(name, ...)` and `crud(name, ...)` take an explicit name.
 - Other constructors take no name argument; the declaration's name is the imported identifier. For example, `job(sendReminder, { ... })` declares a job named `sendReminder`.
