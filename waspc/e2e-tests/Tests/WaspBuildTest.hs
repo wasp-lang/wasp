@@ -1,6 +1,14 @@
 module Tests.WaspBuildTest (waspBuildTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliBuild)
+import Steps
+  ( assertDirExists,
+    createTestWaspProject,
+    inTestWaspProjectDir,
+    runCommand,
+    runCommandExpectingFailure,
+    setWaspDbToPSQL,
+    waspCliBuild,
+  )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -10,30 +18,20 @@ waspBuildTest =
     "wasp-build"
     [ TestCase
         "fail-outside-project"
-        (return [waspCliBuildFails]),
+        [runCommandExpectingFailure waspCliBuild],
       TestCase
         "fail-sqlite-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir [return waspCliBuildFails]
-            ]
-        ),
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir [runCommandExpectingFailure waspCliBuild]
+        ],
       TestCase
         "succeed-postgresql-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  waspCliBuild,
-                  return $ assertDirectoryExists ".wasp",
-                  return $ assertDirectoryExists "node_modules"
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ setWaspDbToPSQL,
+              runCommand waspCliBuild,
+              assertDirExists ".wasp",
+              assertDirExists "node_modules"
             ]
-        )
+        ]
     ]
-  where
-    waspCliBuildFails :: ShellCommand
-    waspCliBuildFails = "! wasp-cli build"
-
-    assertDirectoryExists :: FilePath -> ShellCommand
-    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

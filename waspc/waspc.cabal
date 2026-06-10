@@ -809,33 +809,35 @@ test-suite waspc-e2e-tests
   main-is: Main.hs
   build-tool-depends: waspc:wasp-cli
   build-depends:
+    Diff ^>=0.4.1,
     aeson,
     aeson-pretty,
     async,
     base,
-    base64-bytestring,
     bytestring,
     cli-lib,
     dir-traverse ^>=0.2.3,
     directory,
     filepath,
-    hspec,
     mtl,
     neat-interpolation,
     process,
     strong-path,
     tasty,
     tasty-golden,
-    tasty-hspec,
+    tasty-hunit,
     text,
     waspc,
 
   other-modules:
+    Command
+    Context
     FileSystem
-    ShellCommands
     SnapshotTest
+    Step
+    Steps
     Test
-    TestLogging
+    TestLogger
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest

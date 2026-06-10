@@ -1,9 +1,12 @@
 module Tests.WaspInstallTest (waspInstallTest) where
 
-import ShellCommands
-  ( ShellCommand,
+import Steps
+  ( assertDirDoesNotExist,
+    assertSymlinkExists,
     createTestWaspProject,
     inTestWaspProjectDir,
+    runCommand,
+    runCommandExpectingFailure,
     waspCliClean,
     waspCliCompile,
     waspCliInstall,
@@ -17,27 +20,16 @@ waspInstallTest =
     "wasp-install"
     [ TestCase
         "install-fails-outside-project"
-        (return [waspCliInstallFails]),
+        [runCommandExpectingFailure waspCliInstall],
       TestCase
         "install-restores-wasp-spec-after-clean"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliClean,
-                  return $ assertDirectoryDoesNotExist "node_modules",
-                  waspCliInstall,
-                  return $ assertSymlinkExists "node_modules/@wasp.sh/spec",
-                  waspCliCompile
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ runCommand waspCliClean,
+              assertDirDoesNotExist "node_modules",
+              runCommand waspCliInstall,
+              assertSymlinkExists "node_modules/@wasp.sh/spec",
+              runCommand waspCliCompile
             ]
-        )
+        ]
     ]
-  where
-    waspCliInstallFails :: ShellCommand
-    waspCliInstallFails = "! wasp-cli install"
-
-    assertDirectoryDoesNotExist :: FilePath -> ShellCommand
-    assertDirectoryDoesNotExist dirFilePath = "[ ! -d '" ++ dirFilePath ++ "' ]"
-
-    assertSymlinkExists :: FilePath -> ShellCommand
-    assertSymlinkExists path = "[ -L '" ++ path ++ "' ]"

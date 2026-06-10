@@ -7,132 +7,247 @@ module SnapshotTest
   )
 where
 
-import Control.Exception (bracket)
-import Control.Monad (filterM)
+import Context (SnapshotTestContext (..), WaspProjectContext (..))
+import Control.Exception (Exception, throwIO)
+import Control.Monad (filterM, forM, forM_, unless)
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Encode.Pretty as AesonPretty
+import Data.Algorithm.Diff (getGroupedDiff)
+import Data.Algorithm.DiffOutput (ppDiff)
 import qualified Data.ByteString as BS
 import qualified Data.ByteString.Lazy as BSL
 import Data.List (isInfixOf, sort)
-import Data.Maybe (fromJust)
+import Data.Maybe (catMaybes, fromJust)
+import qualified Data.Text as T
+import qualified Data.Text.Encoding as TE
 import FileSystem
   ( SnapshotDir,
     SnapshotFile,
     SnapshotFileListManifestFile,
     SnapshotType (..),
-    TestLogFile,
     getSnapshotsDir,
     snapshotDirInSnapshotsDir,
     snapshotFileListManifestFileInSnapshotDir,
     snapshotLogFileInSnapshotsDir,
   )
-import ShellCommands (ShellCommand, ShellCommandBuilder, SnapshotTestContext (..), WaspProjectContext (..), buildShellCommand, (~&&))
+import Step (Step, runSteps)
 import StrongPath (Abs, Dir, File, Path', parseRelDir, (</>))
 import qualified StrongPath as SP
-import System.Directory (doesFileExist)
+import System.Directory (copyFile, createDirectoryIfMissing, doesFileExist, removePathForcibly)
 import System.Directory.Recursive (getDirFiltered)
-import System.Exit (ExitCode (..))
-import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeFileName)
-import System.Process (CreateProcess (..), StdStream (..), callCommand, createProcess, interruptProcessGroupOf, shell, waitForProcess)
-import Test.Tasty (TestTree, testGroup)
-import Test.Tasty.Golden (goldenVsFileDiff)
-import TestLogging (formatCommandFailure, openLogForCommand)
+import System.FilePath (equalFilePath, isExtensionOf, makeRelative, splitDirectories, takeDirectory, takeFileName)
+import System.IO.Error (doesNotExistErrorType, mkIOError)
+import Test.Tasty (TestTree)
+import Test.Tasty.Golden.Advanced (goldenTest)
 
 data SnapshotTest = SnapshotTest
   { name :: String,
-    shellCommandBuilder :: ShellCommandBuilder SnapshotTestContext [ShellCommand]
+    steps :: [Step SnapshotTestContext ()]
   }
 
-makeSnapshotTest :: String -> [ShellCommandBuilder SnapshotTestContext ShellCommand] -> SnapshotTest
-makeSnapshotTest name shellCommandBuilders =
-  SnapshotTest
-    { name,
-      shellCommandBuilder = sequence shellCommandBuilders
-    }
+makeSnapshotTest :: String -> [Step SnapshotTestContext ()] -> SnapshotTest
+makeSnapshotTest name steps = SnapshotTest {name, steps}
 
--- | Prepares a 'SnapshotTest' (executing shell commands and generating snapshots),
---  and then creates a test tree for comparing the generated files to the "golden" (expected) versions.
-testTreeFromSnapshotTest :: SnapshotTest -> IO TestTree
-testTreeFromSnapshotTest = fmap createSnapshotTestTree . prepareSnapshotTestData
-
--- | Data needed to create a snapshot test tree.
-data SnapshotTestData = SnapshotTestData
-  { name :: String,
-    currentSnapshotDir :: Path' Abs (Dir SnapshotDir),
-    goldenSnapshotDir :: Path' Abs (Dir SnapshotDir),
-    currentSnapshotFilesForContentCheck :: [Path' Abs (File SnapshotFile)]
-  }
-
-prepareSnapshotTestData :: SnapshotTest -> IO SnapshotTestData
-prepareSnapshotTestData snapshotTest = do
-  snapshotsDir <- getSnapshotsDir
-  let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Golden
-      currentSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTest.name Current
-      currentSnapshotFileListManifestFile = currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
-      logFile = snapshotsDir </> snapshotLogFileInSnapshotsDir snapshotTest.name
-
-  setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir
-  executeSnapshotTestCommand snapshotTest currentSnapshotDir logFile
-  generateSnapshotFileListManifest currentSnapshotDir currentSnapshotFileListManifestFile
-  currentSnapshotFilesForContentCheck <- getNormalizedSnapshotFilesForContentCheck currentSnapshotDir
-
-  return
-    SnapshotTestData
-      { name = snapshotTest.name,
-        currentSnapshotDir,
-        goldenSnapshotDir,
-        currentSnapshotFilesForContentCheck
-      }
-
-createSnapshotTestTree :: SnapshotTestData -> TestTree
-createSnapshotTestTree snapshotTestData =
-  testGroup
-    snapshotTestData.name
-    ( defineSnapshotTestCases
-        snapshotTestData.currentSnapshotDir
-        snapshotTestData.goldenSnapshotDir
-        snapshotTestData.currentSnapshotFilesForContentCheck
-    )
-
--- | Sets up the snapshot test environment by:
--- 1. Removing any existing files in the current snapshot directory from a prior test run.
--- 2. Ensuring the current and golden snapshot directories exist.
-setupSnapshotTestEnvironment :: Path' Abs (Dir SnapshotDir) -> Path' Abs (Dir SnapshotDir) -> IO ()
-setupSnapshotTestEnvironment currentSnapshotDir goldenSnapshotDir = do
-  callCommand $ "rm -rf " ++ SP.fromAbsDir currentSnapshotDir
-
-  callCommand $ "mkdir " ++ SP.fromAbsDir currentSnapshotDir
-  callCommand $ "mkdir -p " ++ SP.fromAbsDir goldenSnapshotDir
-
-executeSnapshotTestCommand :: SnapshotTest -> Path' Abs (Dir SnapshotDir) -> Path' Abs (File TestLogFile) -> IO ()
-executeSnapshotTestCommand snapshotTest snapshotDir logFile =
-  callCommandInProcessGroup fullCommand logFile snapshotTest.name
+-- | A snapshot test is a single golden test: it runs the test's steps in the
+-- "current" snapshot dir and then compares the current snapshot against the
+-- "golden" (expected) snapshot dir, all at test runtime.
+--
+-- Golden semantics (see 'Test.Tasty.Golden.Internal.runGolden'):
+--
+-- * When the golden snapshot does not exist, it is created from the current
+--   snapshot. This is what `./run test:waspc:e2e:accept-all` relies on
+--   (it deletes the golden snapshots and re-runs the tests).
+-- * With @--accept@, a golden snapshot that differs from the current one is
+--   updated to match it.
+testTreeFromSnapshotTest :: SnapshotTest -> TestTree
+testTreeFromSnapshotTest snapshotTest =
+  goldenTest
+    snapshotTest.name
+    getGoldenSnapshotDir
+    runStepsAndGetCurrentSnapshotDir
+    compareSnapshotDirs
+    (updateGoldenSnapshotDir snapshotTest.name)
   where
-    fullCommand :: ShellCommand
-    fullCommand = "cd " ++ SP.fromAbsDir snapshotDir ~&& snapshotTestCommand
+    -- The golden value is the golden snapshot dir. Its manifest file is used as
+    -- the marker of the golden snapshot's existence: when it is missing, we
+    -- signal "golden does not exist" to tasty-golden (which then creates it).
+    getGoldenSnapshotDir :: IO (Path' Abs (Dir SnapshotDir))
+    getGoldenSnapshotDir = do
+      goldenSnapshotDir <- getSnapshotDir snapshotTest.name Golden
+      let goldenManifestFilePath =
+            SP.fromAbsFile $ goldenSnapshotDir </> snapshotFileListManifestFileInSnapshotDir
+      manifestExists <- doesFileExist goldenManifestFilePath
+      unless manifestExists $
+        throwIO $
+          mkIOError doesNotExistErrorType "golden snapshot manifest" Nothing (Just goldenManifestFilePath)
+      return goldenSnapshotDir
 
-    snapshotTestCommand :: ShellCommand
-    snapshotTestCommand = foldr1 (~&&) $ buildShellCommand snapshotTestContext snapshotTest.shellCommandBuilder
+    -- The tested value is the current snapshot dir, produced by running the
+    -- snapshot test's steps in it.
+    runStepsAndGetCurrentSnapshotDir :: IO (Path' Abs (Dir SnapshotDir))
+    runStepsAndGetCurrentSnapshotDir = do
+      snapshotsDir <- getSnapshotsDir
+      currentSnapshotDir <- getSnapshotDir snapshotTest.name Current
+      let logFile = snapshotsDir </> snapshotLogFileInSnapshotsDir snapshotTest.name
 
-    snapshotTestContext :: SnapshotTestContext
-    snapshotTestContext = SnapshotTestContext {snapshotDir, waspProjectContext}
+      -- Remove any leftovers of a previous run of this snapshot test.
+      removePathForcibly $ SP.fromAbsDir currentSnapshotDir
+      createDirectoryIfMissing True $ SP.fromAbsDir currentSnapshotDir
 
-    waspProjectContext :: WaspProjectContext
-    waspProjectContext =
-      WaspProjectContext
-        { waspProjectDir = snapshotDir </> (fromJust . parseRelDir $ "wasp-app"),
-          waspProjectName = "wasp-app"
-        }
+      let snapshotTestContext =
+            SnapshotTestContext
+              { snapshotDir = currentSnapshotDir,
+                waspProjectContext =
+                  WaspProjectContext
+                    { waspProjectDir = currentSnapshotDir </> (fromJust . parseRelDir $ "wasp-app"),
+                      waspProjectName = "wasp-app"
+                    }
+              }
+
+      result <- runSteps snapshotTest.name logFile snapshotTestContext snapshotTest.steps
+      either (throwIO . SnapshotTestStepsFailure) return result
+
+      generateSnapshotFileListManifest
+        currentSnapshotDir
+        (currentSnapshotDir </> snapshotFileListManifestFileInSnapshotDir)
+      normalizePackageJsonFiles currentSnapshotDir
+
+      return currentSnapshotDir
+
+    getSnapshotDir :: String -> SnapshotType -> IO (Path' Abs (Dir SnapshotDir))
+    getSnapshotDir snapshotTestName snapshotType = do
+      snapshotsDir <- getSnapshotsDir
+      return $ snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName snapshotType
+
+-- | Thrown when the steps of a snapshot test fail: the snapshot comparison is
+-- skipped and the test fails with the (already formatted) step failure message.
+newtype SnapshotTestStepsFailure = SnapshotTestStepsFailure String
+
+instance Show SnapshotTestStepsFailure where
+  show (SnapshotTestStepsFailure message) = message
+
+instance Exception SnapshotTestStepsFailure
+
+-- Snapshot comparison
+
+-- | Compares the files of the golden and the current snapshot dir (existence
+-- and content), reporting all mismatches at once.
+compareSnapshotDirs ::
+  Path' Abs (Dir SnapshotDir) ->
+  Path' Abs (Dir SnapshotDir) ->
+  IO (Maybe String)
+compareSnapshotDirs goldenSnapshotDir currentSnapshotDir = do
+  goldenFiles <- getRelSnapshotFilesForContentCheck goldenSnapshotDir
+  currentFiles <- getRelSnapshotFilesForContentCheck currentSnapshotDir
+
+  let filesOnlyInGolden = filter (`notElem` currentFiles) goldenFiles
+      filesOnlyInCurrent = filter (`notElem` goldenFiles) currentFiles
+      filesInBoth = filter (`elem` goldenFiles) currentFiles
+
+  fileContentMismatches <- catMaybes <$> forM filesInBoth compareFileContents
+
+  let mismatchReports =
+        concat
+          [ map ("file missing in current snapshot: " ++) filesOnlyInGolden,
+            map ("file not present in golden snapshot: " ++) filesOnlyInCurrent,
+            fileContentMismatches
+          ]
+
+  return $
+    if null mismatchReports
+      then Nothing
+      else
+        Just $
+          unlines $
+            ("Current snapshot does not match the golden snapshot (" ++ SP.fromAbsDir goldenSnapshotDir ++ "):")
+              : mismatchReports
+  where
+    compareFileContents :: FilePath -> IO (Maybe String)
+    compareFileContents relFilePath = do
+      goldenContent <- BS.readFile (SP.fromAbsDir goldenSnapshotDir ++ relFilePath)
+      currentContent <- BS.readFile (SP.fromAbsDir currentSnapshotDir ++ relFilePath)
+      return $
+        if goldenContent == currentContent
+          then Nothing
+          else Just $ "file contents differ: " ++ relFilePath ++ "\n" ++ renderContentDiff goldenContent currentContent
+
+    renderContentDiff :: BS.ByteString -> BS.ByteString -> String
+    renderContentDiff goldenContent currentContent =
+      case (TE.decodeUtf8' goldenContent, TE.decodeUtf8' currentContent) of
+        (Right goldenText, Right currentText) ->
+          truncateDiff $ ppDiff $ getGroupedDiff (textToLines goldenText) (textToLines currentText)
+        _ -> "(binary files differ)"
+      where
+        textToLines = map T.unpack . T.lines
+
+    truncateDiff :: String -> String
+    truncateDiff diff
+      | length diff <= maxDiffLength = diff
+      | otherwise = take maxDiffLength diff ++ "\n... (diff truncated)\n"
+      where
+        maxDiffLength = 10000
+
+-- | Replaces the golden snapshot dir with the (filtered) contents of the
+-- current snapshot dir. Called by tasty-golden when the golden snapshot does
+-- not exist, or when it differs from the current one and @--accept@ is passed.
+updateGoldenSnapshotDir :: String -> Path' Abs (Dir SnapshotDir) -> IO ()
+updateGoldenSnapshotDir snapshotTestName currentSnapshotDir = do
+  snapshotsDir <- getSnapshotsDir
+  let goldenSnapshotDir = snapshotsDir </> snapshotDirInSnapshotsDir snapshotTestName Golden
+
+  removePathForcibly $ SP.fromAbsDir goldenSnapshotDir
+
+  -- Copy only the files that take part in the snapshot comparison, so that
+  -- ignored files (e.g. node_modules) don't end up in version control.
+  relFilesToCopy <- getRelSnapshotFilesForContentCheck currentSnapshotDir
+  forM_ relFilesToCopy $ \relFilePath -> do
+    let dstFilePath = SP.fromAbsDir goldenSnapshotDir ++ relFilePath
+    createDirectoryIfMissing True $ takeDirectory dstFilePath
+    copyFile (SP.fromAbsDir currentSnapshotDir ++ relFilePath) dstFilePath
+
+-- Snapshot file listing
+
+-- | Lists the files of a snapshot dir that take part in the snapshot content
+-- comparison, as relative paths (with a leading path separator stripped off by
+-- 'makeRelative'), sorted.
+getRelSnapshotFilesForContentCheck :: Path' Abs (Dir SnapshotDir) -> IO [FilePath]
+getRelSnapshotFilesForContentCheck snapshotDir =
+  map (makeRelative (SP.fromAbsDir snapshotDir) . SP.fromAbsFile)
+    <$> getSnapshotFilesForContentCheck snapshotDir
+
+getSnapshotFilesForContentCheck :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
+getSnapshotFilesForContentCheck snapshotDir =
+  sort <$> getSnapshotFiles snapshotDir filterIgnoredFilePaths
+  where
+    filterIgnoredFilePaths =
+      keepUnlessMatched
+        ( map
+            isBasenameOf
+            [ ".DS_Store",
+              "CLAUDE.md",
+              "node_modules",
+              "dev.db",
+              "dev.db-journal",
+              ".gitignore",
+              ".waspinfo",
+              "package-lock.json",
+              "tsconfig.wasp.tsbuildinfo",
+              "tsconfig.src.tsbuildinfo",
+              "dist"
+            ]
+            ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
+                 -- what we ship in waspc/data/packages/spec, so we skip it.
+                 isSubpathOf ".wasp/spec",
+                 isExtensionOf ".tgz"
+               ]
+        )
 
 generateSnapshotFileListManifest :: Path' Abs (Dir SnapshotDir) -> Path' Abs (File SnapshotFileListManifestFile) -> IO ()
 generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
   getSnapshotFilesForExistenceCheck >>= writeSnapshotFileListManifest
   where
     getSnapshotFilesForExistenceCheck :: IO [Path' Abs (File SnapshotFile)]
-    getSnapshotFilesForExistenceCheck =
-      getDirFiltered (return . filterIgnoredFilePaths) (SP.fromAbsDir snapshotDir)
-        >>= filterM doesFileExist -- only files, no directories
-        >>= mapM SP.parseAbsFile
+    getSnapshotFilesForExistenceCheck = getSnapshotFiles snapshotDir filterIgnoredFilePaths
       where
         filterIgnoredFilePaths =
           keepUnlessMatched
@@ -156,89 +271,39 @@ generateSnapshotFileListManifest snapshotDir snapshotFileListManifestFile =
       where
         normalizeFile = makeRelative (SP.fromAbsDir snapshotDir) . SP.fromAbsFile
 
-getNormalizedSnapshotFilesForContentCheck :: Path' Abs (Dir SnapshotDir) -> IO [Path' Abs (File SnapshotFile)]
-getNormalizedSnapshotFilesForContentCheck snapshotDir = do
-  snapshotFiles <- getSnapshotFilesForContentCheck
-  formatPackageJsonFiles snapshotFiles
-  return snapshotFiles
+getSnapshotFiles :: Path' Abs (Dir SnapshotDir) -> FilePathFilter -> IO [Path' Abs (File SnapshotFile)]
+getSnapshotFiles snapshotDir filePathFilter =
+  getDirFiltered (return . filePathFilter) (SP.fromAbsDir snapshotDir)
+    >>= filterM doesFileExist -- only files, no directories
+    >>= mapM SP.parseAbsFile
+
+-- | Normalizes @package.json@ files of the snapshot into deterministic format
+-- for snapshot comparison.
+-- Ref: https://github.com/wasp-lang/wasp/issues/482
+normalizePackageJsonFiles :: Path' Abs (Dir SnapshotDir) -> IO ()
+normalizePackageJsonFiles snapshotDir =
+  getSnapshotFilesForContentCheck snapshotDir >>= mapM_ formatPackageJsonFile . filter isPackageJsonFile
   where
-    getSnapshotFilesForContentCheck :: IO [Path' Abs (File SnapshotFile)]
-    getSnapshotFilesForContentCheck =
-      getDirFiltered (return . filterIgnoredFilePaths) (SP.fromAbsDir snapshotDir)
-        >>= filterM doesFileExist -- only files, no directories
-        >>= mapM SP.parseAbsFile
-      where
-        filterIgnoredFilePaths =
-          keepUnlessMatched
-            ( map
-                isBasenameOf
-                [ ".DS_Store",
-                  "CLAUDE.md",
-                  "node_modules",
-                  "dev.db",
-                  "dev.db-journal",
-                  ".gitignore",
-                  ".waspinfo",
-                  "package-lock.json",
-                  "tsconfig.wasp.tsbuildinfo",
-                  "tsconfig.src.tsbuildinfo",
-                  "dist"
-                ]
-                ++ [ -- The @wasp.sh/spec package copied into .wasp/spec is identical to
-                     -- what we ship in waspc/data/packages/spec, so we skip it.
-                     isSubpathOf ".wasp/spec",
-                     isExtensionOf ".tgz"
-                   ]
-            )
+    formatPackageJsonFile :: Path' Abs (File file) -> IO ()
+    formatPackageJsonFile packageJsonFile =
+      BS.readFile (SP.fromAbsFile packageJsonFile)
+        >>= BSL.writeFile (SP.fromAbsFile packageJsonFile) . formatJson . unsafeDecodeJson
 
-    -- Normalizes @package.json@ files into deterministic format for snapshot comparison.
-    -- Ref: https://github.com/wasp-lang/wasp/issues/482
-    formatPackageJsonFiles :: [Path' Abs (File file)] -> IO ()
-    formatPackageJsonFiles = mapM_ formatPackageJsonFile . filter isPackageJsonFile
-      where
-        formatPackageJsonFile :: Path' Abs (File file) -> IO ()
-        formatPackageJsonFile packageJsonFile =
-          BS.readFile (SP.fromAbsFile packageJsonFile)
-            >>= BSL.writeFile (SP.fromAbsFile packageJsonFile) . formatJson . unsafeDecodeJson
+    isPackageJsonFile :: Path' Abs (File file) -> Bool
+    isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
 
-        isPackageJsonFile :: Path' Abs (File file) -> Bool
-        isPackageJsonFile = equalFilePath "package.json" . takeFileName . SP.fromAbsFile
+    unsafeDecodeJson :: BS.ByteString -> Aeson.Value
+    unsafeDecodeJson = fromJust . Aeson.decodeStrict
 
-        unsafeDecodeJson :: BS.ByteString -> Aeson.Value
-        unsafeDecodeJson = fromJust . Aeson.decodeStrict
-
-        formatJson :: Aeson.Value -> BSL.ByteString
-        formatJson =
-          AesonPretty.encodePretty'
-            AesonPretty.Config
-              { AesonPretty.confIndent = AesonPretty.Spaces 2,
-                AesonPretty.confCompare = compare,
-                AesonPretty.confNumFormat = AesonPretty.Generic,
-                AesonPretty.confTrailingNewline = True
-              }
-
-defineSnapshotTestCases ::
-  Path' Abs (Dir SnapshotDir) ->
-  Path' Abs (Dir SnapshotDir) ->
-  [Path' Abs (File SnapshotFile)] ->
-  [TestTree]
-defineSnapshotTestCases currentSnapshotDir goldenSnapshotDir currentSnapshotFiles =
-  map defineSnapshotTestCase currentSnapshotFiles
-  where
-    defineSnapshotTestCase :: Path' Abs (File SnapshotFile) -> TestTree
-    defineSnapshotTestCase currentSnapshotFile =
-      goldenVsFileDiff
-        (SP.fromAbsFile currentSnapshotFile)
-        (\goldenFilePath currentFilePath -> ["diff", "-u", goldenFilePath, currentFilePath])
-        (SP.fromAbsFile $ mapCurrentToGoldenSnapshotFile currentSnapshotFile)
-        (SP.fromAbsFile currentSnapshotFile)
-        (return ())
-
-    mapCurrentToGoldenSnapshotFile :: Path' Abs (File SnapshotFile) -> Path' Abs (File SnapshotFile)
-    mapCurrentToGoldenSnapshotFile currentSnapshotFile =
-      goldenSnapshotDir </> fromJust (SP.parseRelFile relSnapshotFilePath)
-      where
-        relSnapshotFilePath = makeRelative (SP.fromAbsDir currentSnapshotDir) (SP.fromAbsFile currentSnapshotFile)
+    formatJson :: Aeson.Value -> BSL.ByteString
+    formatJson =
+      AesonPretty.encodePretty'
+        AesonPretty.Config
+          { AesonPretty.confIndent = AesonPretty.Spaces 2,
+            AesonPretty.confCompare = compare,
+            AesonPretty.confNumFormat = AesonPretty.Generic,
+            AesonPretty.confTrailingNewline = True
+          }
 
 type FilePathFilter = FilePath -> Bool
 
@@ -250,25 +315,3 @@ isBasenameOf basename filePath = basename == takeFileName filePath
 
 isSubpathOf :: FilePath -> FilePathFilter
 isSubpathOf subPath filePath = splitDirectories subPath `isInfixOf` splitDirectories filePath
-
--- | Interruptible version of callCommand that terminates the entire process tree on async exception.
--- Uses process groups so that when a thread is cancelled (e.g., when another concurrent test fails),
--- all child processes are also terminated rather than continuing to run.
-callCommandInProcessGroup :: String -> Path' Abs (File TestLogFile) -> String -> IO ()
-callCommandInProcessGroup cmd logFile testName = do
-  (logOut, logErr) <- openLogForCommand logFile testName cmd
-  bracket
-    ( createProcess
-        (shell cmd)
-          { create_group = True,
-            std_out = UseHandle logOut,
-            std_err = UseHandle logErr
-          }
-    )
-    (\(_, _, _, ph) -> interruptProcessGroupOf ph)
-    ( \(_, _, _, ph) -> do
-        exitCode <- waitForProcess ph
-        case exitCode of
-          ExitSuccess -> return ()
-          ExitFailure code -> fail =<< formatCommandFailure code logFile
-    )

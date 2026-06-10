@@ -1,6 +1,6 @@
 module Tests.WaspStudioTest (waspStudioTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliStudio)
+import Steps (createTestWaspProject, inTestWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliStudio)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -14,17 +14,12 @@ waspStudioTest =
     "wasp-studio"
     [ TestCase
         "fail-outside-project"
-        (return [waspCliStudioFails]),
+        [runCommandExpectingFailure waspCliStudio],
       TestCase
         "succeed-uncompiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliStudio
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ runCommand waspCliStudio
             ]
-        )
+        ]
     ]
-  where
-    waspCliStudioFails :: ShellCommand
-    waspCliStudioFails = "! wasp-cli studio"

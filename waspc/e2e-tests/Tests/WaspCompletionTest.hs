@@ -1,6 +1,9 @@
 module Tests.WaspCompletionTest (waspCompletionTest) where
 
-import ShellCommands (ShellCommand, (~&&))
+import Command (withEnvVars)
+import Context (TestContext)
+import Step (Step)
+import Steps (assertCommandStdoutTrimmedEquals, waspCliCompletionList)
 import Test (Test (..), TestCase (..))
 
 waspCompletionTest :: Test
@@ -11,19 +14,20 @@ waspCompletionTest =
       -- but I didn't find a nice way to do it so far.
       TestCase
         "complete-partial-word"
-        (return [assertWaspCliCompletion "wasp-cli tele" "telemetry"]),
+        [assertWaspCliCompletion "wasp-cli tele" "telemetry"],
       TestCase
         "complete-full-word"
-        (return [assertWaspCliCompletion "wasp-cli telemetry" "telemetry"]),
+        [assertWaspCliCompletion "wasp-cli telemetry" "telemetry"],
       TestCase
         "complete-multiple-choice"
-        (return [assertWaspCliCompletion "wasp-cli d" "db\ndeploy\ndeps\ndockerfile"]),
+        [assertWaspCliCompletion "wasp-cli d" "db\ndeploy\ndeps\ndockerfile"],
       TestCase
         "complete-unknown-empty"
-        (return [assertWaspCliCompletion "wasp-cli unknown" ""])
+        [assertWaspCliCompletion "wasp-cli unknown" ""]
     ]
   where
-    assertWaspCliCompletion :: String -> String -> ShellCommand
+    assertWaspCliCompletion :: String -> String -> Step TestContext ()
     assertWaspCliCompletion query expectedCompletion =
-      ("export COMP_LINE='" ++ query ++ "'")
-        ~&& ("[ \"$(wasp-cli completion:list)\" = \"" ++ expectedCompletion ++ "\" ]")
+      assertCommandStdoutTrimmedEquals
+        (withEnvVars [("COMP_LINE", query)] waspCliCompletionList)
+        expectedCompletion

@@ -1,13 +1,13 @@
 module Tests.ViteConfigTest (viteConfigTest) where
 
-import Control.Monad.Reader (ask)
+import Context (WaspProjectContext (..))
 import NeatInterpolation (trimming)
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext (..),
-    createTestWaspProject,
+import Step (Step, askStepContext)
+import Steps
+  ( createTestWaspProject,
+    deleteFile,
     inTestWaspProjectDir,
+    runCommandExpectingFailure,
     waspCliCompile,
     writeToFile,
   )
@@ -21,32 +21,25 @@ viteConfigTest =
     "vite-config-validation"
     [ TestCase
         "fail-on-missing-vite-config"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ deleteViteConfig,
-                  expectCommandFailure <$> waspCliCompile
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ deleteFile "vite.config.ts",
+              runCommandExpectingFailure waspCliCompile
             ]
-        ),
+        ],
       TestCase
         "fail-on-missing-wasp-plugin-import"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ writeViteConfigWithoutPlugin,
-                  expectCommandFailure <$> waspCliCompile
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ writeViteConfigWithoutPlugin,
+              runCommandExpectingFailure waspCliCompile
             ]
-        )
+        ]
     ]
 
-deleteViteConfig :: ShellCommandBuilder WaspProjectContext ShellCommand
-deleteViteConfig = return "rm vite.config.ts"
-
-writeViteConfigWithoutPlugin :: ShellCommandBuilder WaspProjectContext ShellCommand
+writeViteConfigWithoutPlugin :: Step WaspProjectContext ()
 writeViteConfigWithoutPlugin = do
-  context <- ask
+  context <- askStepContext
   writeToFile
     (context.waspProjectDir </> [relfile|vite.config.ts|])
     [trimming|
@@ -54,6 +47,3 @@ writeViteConfigWithoutPlugin = do
 
       export default defineConfig({});
     |]
-
-expectCommandFailure :: ShellCommand -> ShellCommand
-expectCommandFailure command = "! " ++ command

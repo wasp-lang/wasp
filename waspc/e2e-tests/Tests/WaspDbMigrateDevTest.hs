@@ -1,10 +1,19 @@
 module Tests.WaspDbMigrateDevTest (waspDbMigrateDevTest) where
 
-import Control.Monad.Reader (MonadReader (ask))
+import Context (WaspProjectContext (..))
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, ShellCommandBuilder, WaspProjectContext (..), appendToPrismaFile, createTestWaspProject, inTestWaspProjectDir, waspCliDbMigrateDev, (~&&))
-import StrongPath (fromAbsDir, (</>))
+import Step (Step, askStepContext)
+import Steps
+  ( appendToPrismaFile,
+    assertDirHasSubdirWithNameContaining,
+    createTestWaspProject,
+    inTestWaspProjectDir,
+    runCommandExpectingFailure,
+    waspCli,
+    waspCliDbMigrateDev,
+  )
+import StrongPath ((</>))
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.DbGenerator.Common
@@ -24,32 +33,25 @@ waspDbMigrateDevTest =
     "wasp-db-migrate-dev"
     [ TestCase
         "fail-outside-project"
-        (return [waspCliDbMigrateDevFails]),
+        [runCommandExpectingFailure $ waspCli ["db", "migrate-dev"]],
       TestCase
         "succeed-migrations-up-to-date"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliDbMigrateDev "no_migration"
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ waspCliDbMigrateDev "no_migration"
             ]
-        ),
+        ],
       TestCase
         "succeed-create-new-migration"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ appendToPrismaFile taskPrismaModel,
-                  waspCliDbMigrateDev "yes_migration",
-                  assertMigrationDirsExist "yes_migration"
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ appendToPrismaFile taskPrismaModel,
+              waspCliDbMigrateDev "yes_migration",
+              assertMigrationDirsExist "yes_migration"
             ]
-        )
+        ]
     ]
   where
-    waspCliDbMigrateDevFails :: ShellCommand
-    waspCliDbMigrateDevFails = "! wasp-cli db migrate-dev"
-
     taskPrismaModel :: T.Text
     taskPrismaModel =
       [trimming|
@@ -60,9 +62,9 @@ waspDbMigrateDevTest =
         }
       |]
 
-assertMigrationDirsExist :: String -> ShellCommandBuilder WaspProjectContext ShellCommand
+assertMigrationDirsExist :: String -> Step WaspProjectContext ()
 assertMigrationDirsExist migrationName = do
-  waspProjectContext <- ask
+  waspProjectContext <- askStepContext
   let waspMigrationsDir = waspProjectContext.waspProjectDir </> dbMigrationsDirInWaspProjectDir
       waspOutMigrationsDir =
         waspProjectContext.waspProjectDir
@@ -70,8 +72,5 @@ assertMigrationDirsExist migrationName = do
           </> generatedAppDirInDotWaspDir
           </> dbRootDirInGeneratedAppDir
           </> dbMigrationsDirInDbRootDir
-  return $
-    ("cd " ++ fromAbsDir waspMigrationsDir)
-      ~&& ("[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]")
-      ~&& ("cd " ++ fromAbsDir waspOutMigrationsDir)
-      ~&& ("[ -d \"$(find . -type d -name '*" ++ migrationName ++ "*' -print -quit)\" ]")
+  assertDirHasSubdirWithNameContaining waspMigrationsDir migrationName
+  assertDirHasSubdirWithNameContaining waspOutMigrationsDir migrationName

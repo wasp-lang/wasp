@@ -4,8 +4,8 @@ module Tests.WaspTsSpecNodeEnvTest (waspTsSpecNodeEnvTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands
-  ( assertCommandOutputContains,
+import Steps
+  ( assertCommandSucceedsWithOutputContaining,
     createTestWaspProject,
     inTestWaspProjectDir,
     replaceMainWaspTsFile,
@@ -23,25 +23,21 @@ waspTsSpecNodeEnvTest =
     "wasp-ts-spec-node-env"
     [ TestCase
         "node-env-is-development-on-compile"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ replaceMainWaspTsFile nodeEnvMainWaspTs,
-                  assertCommandOutputContains waspCliCompile "E2E-NODE-ENV=development"
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ replaceMainWaspTsFile nodeEnvMainWaspTs,
+              assertCommandSucceedsWithOutputContaining waspCliCompile "E2E-NODE-ENV=development"
             ]
-        ),
+        ],
       TestCase
         "node-env-is-production-on-build"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  replaceMainWaspTsFile nodeEnvMainWaspTs,
-                  assertCommandOutputContains waspCliBuild "E2E-NODE-ENV=production"
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ setWaspDbToPSQL,
+              replaceMainWaspTsFile nodeEnvMainWaspTs,
+              assertCommandSucceedsWithOutputContaining waspCliBuild "E2E-NODE-ENV=production"
             ]
-        )
+        ]
     ]
   where
     nodeEnvMainWaspTs :: T.Text

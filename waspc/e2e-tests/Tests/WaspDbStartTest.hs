@@ -1,6 +1,6 @@
 module Tests.WaspDbStartTest (waspDbStartTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, setWaspDbToPSQL, waspCliDbStart)
+import Steps (createTestWaspProject, inTestWaspProjectDir, runCommand, runCommandExpectingFailure, setWaspDbToPSQL, waspCliDbStart)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -11,27 +11,20 @@ waspDbStartTest =
     "wasp-db-start"
     [ TestCase
         "fail-outside-project"
-        (return [waspCliDbStartFails]),
+        [runCommandExpectingFailure waspCliDbStart],
       TestCase
         "succeed-sqlite-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliDbStart
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ runCommand waspCliDbStart
             ]
-        ),
+        ],
       TestCase
         "succeed-postgresql-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  waspCliDbStart
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ setWaspDbToPSQL,
+              runCommand waspCliDbStart
             ]
-        )
+        ]
     ]
-  where
-    waspCliDbStartFails :: ShellCommand
-    waspCliDbStartFails = "! wasp-cli db start"

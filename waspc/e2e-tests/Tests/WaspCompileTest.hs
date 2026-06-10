@@ -1,6 +1,13 @@
 module Tests.WaspCompileTest (waspCompileTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliCompile)
+import Steps
+  ( assertDirExists,
+    createTestWaspProject,
+    inTestWaspProjectDir,
+    runCommand,
+    runCommandExpectingFailure,
+    waspCliCompile,
+  )
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -10,34 +17,24 @@ waspCompileTest =
     "wasp-compile"
     [ TestCase
         "fail-outside-project"
-        (return [waspCliCompileFails]),
+        [runCommandExpectingFailure waspCliCompile],
       TestCase
         "succeed-uncompiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliCompile,
-                  return $ assertDirectoryExists ".wasp",
-                  return $ assertDirectoryExists "node_modules"
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ runCommand waspCliCompile,
+              assertDirExists ".wasp",
+              assertDirExists "node_modules"
             ]
-        ),
+        ],
       TestCase
         "succeed-compiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliCompile,
-                  waspCliCompile,
-                  return $ assertDirectoryExists ".wasp",
-                  return $ assertDirectoryExists "node_modules"
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ runCommand waspCliCompile,
+              runCommand waspCliCompile,
+              assertDirExists ".wasp",
+              assertDirExists "node_modules"
             ]
-        )
+        ]
     ]
-  where
-    waspCliCompileFails :: ShellCommand
-    waspCliCompileFails = "! wasp-cli compile"
-
-    assertDirectoryExists :: FilePath -> ShellCommand
-    assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

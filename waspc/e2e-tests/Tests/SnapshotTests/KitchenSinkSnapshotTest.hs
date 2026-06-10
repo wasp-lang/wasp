@@ -1,15 +1,15 @@
 module Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest) where
 
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext,
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import Steps
+  ( appendToFile,
     copyContentsOfGitTrackedDirToSnapshotWaspProjectDir,
+    copyFile,
     inSnapshotWaspProjectDir,
+    runCommand,
     waspCliCompile,
     waspCliInstall,
   )
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import StrongPath (reldir)
 
 kitchenSinkSnapshotTest :: SnapshotTest
@@ -20,13 +20,12 @@ kitchenSinkSnapshotTest =
       inSnapshotWaspProjectDir
         [ createDotEnvServerFile,
           normalizePostgresConnectionString,
-          waspCliInstall,
-          waspCliCompile
+          runCommand waspCliInstall,
+          runCommand waspCliCompile
         ]
     ]
   where
-    createDotEnvServerFile :: ShellCommandBuilder WaspProjectContext ShellCommand
-    createDotEnvServerFile = return "cp .env.server.example .env.server"
-
-    normalizePostgresConnectionString :: ShellCommandBuilder WaspProjectContext ShellCommand
-    normalizePostgresConnectionString = return "printf '\\nDATABASE_URL=mock-database-url\\n' >> .env.server"
+    createDotEnvServerFile = copyFile ".env.server.example" ".env.server"
+    -- NOTE: The leading newline is kept from the previous, `printf`-based
+    -- version of this step, since `.env.server` is part of the golden snapshot.
+    normalizePostgresConnectionString = appendToFile ".env.server" "\nDATABASE_URL=mock-database-url"

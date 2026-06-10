@@ -1,6 +1,6 @@
 module Tests.WaspDepsTest (waspDepsTest) where
 
-import ShellCommands (ShellCommand, createTestWaspProject, inTestWaspProjectDir, waspCliDeps)
+import Steps (createTestWaspProject, inTestWaspProjectDir, runCommand, runCommandExpectingFailure, waspCliDeps)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 
@@ -11,17 +11,12 @@ waspDepsTest =
     "wasp-deps"
     [ TestCase
         "fail-outside-project"
-        (return [waspCliDepsFails]),
+        [runCommandExpectingFailure waspCliDeps],
       TestCase
         "succeed-inside-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliDeps
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ runCommand waspCliDeps
             ]
-        )
+        ]
     ]
-  where
-    waspCliDepsFails :: ShellCommand
-    waspCliDepsFails = "! wasp-cli deps"

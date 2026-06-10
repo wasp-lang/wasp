@@ -1,21 +1,20 @@
 module Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest) where
 
-import Control.Monad.Reader (asks)
+import Command (Command, cmd, withEnvVars)
+import Context (WaspProjectContext (..))
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands
-  ( ShellCommand,
-    ShellCommandBuilder,
-    WaspProjectContext (),
-    buildAndRemoveWaspProjectDockerImage,
+import SnapshotTest (SnapshotTest, makeSnapshotTest)
+import Step (Step, askStepContext)
+import Steps
+  ( buildAndRemoveWaspProjectDockerImage,
     createSnapshotWaspProjectFromMinimalStarter,
     inSnapshotWaspProjectDir,
+    runCommand,
     setWaspDbToPSQL,
     waspCliBuild,
     writeToFile,
   )
-import qualified ShellCommands as WaspProjectContext
-import SnapshotTest (SnapshotTest, makeSnapshotTest)
 import StrongPath (relfile, (</>))
 import qualified StrongPath as SP
 import qualified StrongPath.FilePath as FP
@@ -28,22 +27,22 @@ waspBuildSnapshotTest =
     [ createSnapshotWaspProjectFromMinimalStarter,
       inSnapshotWaspProjectDir
         [ setWaspDbToPSQL,
-          waspCliBuild,
+          runCommand waspCliBuild,
           buildAndRemoveWaspProjectDockerImage,
           wrapViteConfigForDeterministicBuild,
-          viteBuild
+          runCommand viteBuild
         ]
     ]
 
 -- | Renames the generated vite.config.ts and wraps it with a config that adds
 -- deterministic build options (no minification, no hashes, externalized deps),
 -- so the snapshot output is stable and easy to diff.
-wrapViteConfigForDeterministicBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
+wrapViteConfigForDeterministicBuild :: Step WaspProjectContext ()
 wrapViteConfigForDeterministicBuild = do
-  waspProjectDir <- asks (.waspProjectDir)
+  context <- askStepContext
 
   writeToFile
-    (waspProjectDir </> wrapperViteFile)
+    (context.waspProjectDir </> wrapperViteFile)
     [trimming|
       import { mergeConfig, type Plugin } from "vite";
       import originalConfig from "${importOriginalFromMain}";
@@ -91,17 +90,10 @@ wrapViteConfigForDeterministicBuild = do
     importOriginalFromMain :: T.Text
     importOriginalFromMain = T.pack $ "./" ++ FP.fromRelFile originalViteFile
 
-viteBuild :: ShellCommandBuilder WaspProjectContext ShellCommand
+viteBuild :: Command
 viteBuild =
-  return $
-    unwords
-      [ "REACT_APP_API_URL=http://localhost:3001",
-        "npx",
-        "vite",
-        "build",
-        "--config",
-        FP.fromRelFile wrapperViteFile
-      ]
+  withEnvVars [("REACT_APP_API_URL", "http://localhost:3001")] $
+    cmd "npx" ["vite", "build", "--config", FP.fromRelFile wrapperViteFile]
 
 originalViteFile :: SP.Path' (SP.Rel WaspProjectDir) SP.File'
 originalViteFile = [relfile|vite.config.ts|]

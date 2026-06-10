@@ -2,7 +2,7 @@ module Tests.WaspDbResetTest (waspDbResetTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
+import Steps (appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, runCommand, runCommandExpectingFailure, waspCli, waspCliCompile, waspCliDbMigrateDev, waspCliDbReset, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
@@ -15,7 +15,7 @@ waspDbResetTest =
     "wasp-db-reset"
     [ TestCase
         "fail-outside-project"
-        (return [waspCliDbResetFails]),
+        [runCommandExpectingFailure $ waspCli ["db", "reset"]],
       -- FIXME: find a way without seed commands
       -- Both in 'WaspDbResetTest.hs' and in `WaspDbSeedTest.hs`
       -- I have the following comments with `FIXME`.
@@ -28,35 +28,30 @@ waspDbResetTest =
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       TestCase
         "succeed-reset-database"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ waspCliCompile,
-                  appendToPrismaFile taskPrismaModel,
-                  waspCliDbMigrateDev "foo",
-                  createSeedFile
-                    (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
-                    seedScriptThatPopulatesTasksTable,
-                  createSeedFile
-                    (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
-                    seedScriptThatAssertsTasksTableIsEmpty,
-                  createSeedFile
-                    (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
-                    seedScriptThatAssertsTasksTableIsNotEmpty,
-                  replaceMainWaspTsFile mainWaspTsWithSeeds,
-                  waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName,
-                  waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName,
-                  waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName,
-                  waspCliDbReset,
-                  waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName
-                ]
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir
+            [ runCommand waspCliCompile,
+              appendToPrismaFile taskPrismaModel,
+              waspCliDbMigrateDev "foo",
+              createSeedFile
+                (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
+                seedScriptThatPopulatesTasksTable,
+              createSeedFile
+                (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
+                seedScriptThatAssertsTasksTableIsEmpty,
+              createSeedFile
+                (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
+                seedScriptThatAssertsTasksTableIsNotEmpty,
+              replaceMainWaspTsFile mainWaspTsWithSeeds,
+              runCommand $ waspCliDbSeed [T.unpack seedScriptThatAssertsTasksTableIsEmptyName],
+              runCommand $ waspCliDbSeed [T.unpack seedScriptThatPopulatesTasksTableName],
+              runCommand $ waspCliDbSeed [T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName],
+              runCommand waspCliDbReset,
+              runCommand $ waspCliDbSeed [T.unpack seedScriptThatAssertsTasksTableIsEmptyName]
             ]
-        )
+        ]
     ]
   where
-    waspCliDbResetFails :: ShellCommand
-    waspCliDbResetFails = "! wasp-cli db reset"
-
     taskPrismaModel :: T.Text
     taskPrismaModel =
       [trimming|
