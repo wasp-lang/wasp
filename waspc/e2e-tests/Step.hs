@@ -16,7 +16,7 @@ where
 
 import Control.Exception (Exception, Handler (..), IOException, catches, throwIO)
 import Control.Monad.IO.Class (liftIO)
-import Control.Monad.Reader (ReaderT, ask, runReaderT)
+import Control.Monad.Reader (ReaderT, ask, asks, runReaderT)
 import StrongPath (Abs, File, Path')
 import TestLogger (TestLogger, formatFailureWithLog, logStepHeader, withTestLogger)
 
@@ -57,7 +57,7 @@ failStep :: String -> String -> IO a
 failStep stepDescription failureDetails = throwIO $ StepFailure stepDescription failureDetails
 
 askStepContext :: Step ctx ctx
-askStepContext = Step $ (.stepContext) <$> ask
+askStepContext = Step $ asks (.stepContext)
 
 liftStepIO :: IO a -> Step ctx a
 liftStepIO = Step . liftIO

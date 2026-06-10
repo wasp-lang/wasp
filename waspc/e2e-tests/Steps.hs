@@ -114,7 +114,7 @@ import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 -- Running commands
 
 -- | Runs a command in the step context's working directory, asserting it succeeds.
-runCommand :: HasWorkingDir ctx => Command -> Step ctx ()
+runCommand :: (HasWorkingDir ctx) => Command -> Step ctx ()
 runCommand command = do
   result <- runCommandGetResult command
   liftStepIO $ case result.exitCode of
@@ -123,7 +123,7 @@ runCommand command = do
       failStep (runDescription command) ("command exited with code " ++ show code)
 
 -- | Runs a command, asserting it fails (exits with a non-zero code).
-runCommandExpectingFailure :: HasWorkingDir ctx => Command -> Step ctx ()
+runCommandExpectingFailure :: (HasWorkingDir ctx) => Command -> Step ctx ()
 runCommandExpectingFailure command = do
   result <- runCommandGetResultDescribed description command
   liftStepIO $ case result.exitCode of
@@ -134,7 +134,7 @@ runCommandExpectingFailure command = do
 
 -- | Asserts that the command succeeds and that its output (stdout and stderr
 -- combined) contains the given text.
-assertCommandSucceedsWithOutputContaining :: HasWorkingDir ctx => Command -> String -> Step ctx ()
+assertCommandSucceedsWithOutputContaining :: (HasWorkingDir ctx) => Command -> String -> Step ctx ()
 assertCommandSucceedsWithOutputContaining command expectedOutputPart = do
   result <- runCommandGetResultDescribed description command
   liftStepIO $ do
@@ -147,7 +147,7 @@ assertCommandSucceedsWithOutputContaining command expectedOutputPart = do
 
 -- | Asserts that the command fails and that its output (stdout and stderr
 -- combined) contains the given text.
-assertCommandFailsWithOutputContaining :: HasWorkingDir ctx => Command -> String -> Step ctx ()
+assertCommandFailsWithOutputContaining :: (HasWorkingDir ctx) => Command -> String -> Step ctx ()
 assertCommandFailsWithOutputContaining command expectedOutputPart = do
   result <- runCommandGetResultDescribed description command
   liftStepIO $ do
@@ -158,7 +158,7 @@ assertCommandFailsWithOutputContaining command expectedOutputPart = do
   where
     description = "run expecting failure: " ++ showCommand command ++ " (expecting output to contain " ++ show expectedOutputPart ++ ")"
 
-assertCommandStdoutFirstLineEquals :: HasWorkingDir ctx => Command -> String -> Step ctx ()
+assertCommandStdoutFirstLineEquals :: (HasWorkingDir ctx) => Command -> String -> Step ctx ()
 assertCommandStdoutFirstLineEquals command expectedFirstLine =
   assertCommandStdoutMatches
     ("first line of stdout equals " ++ show expectedFirstLine)
@@ -169,14 +169,14 @@ assertCommandStdoutFirstLineEquals command expectedFirstLine =
       [] -> ""
       (line : _) -> line
 
-assertCommandStdoutTrimmedEquals :: HasWorkingDir ctx => Command -> String -> Step ctx ()
+assertCommandStdoutTrimmedEquals :: (HasWorkingDir ctx) => Command -> String -> Step ctx ()
 assertCommandStdoutTrimmedEquals command expectedStdout =
   assertCommandStdoutMatches
     ("trimmed stdout equals " ++ show expectedStdout)
     (\stdoutText -> T.strip stdoutText == T.pack expectedStdout)
     command
 
-assertCommandStdoutMatches :: HasWorkingDir ctx => String -> (T.Text -> Bool) -> Command -> Step ctx ()
+assertCommandStdoutMatches :: (HasWorkingDir ctx) => String -> (T.Text -> Bool) -> Command -> Step ctx ()
 assertCommandStdoutMatches expectationDescription matches command = do
   result <- runCommandGetResultDescribed description command
   liftStepIO $ do
@@ -188,10 +188,10 @@ assertCommandStdoutMatches expectationDescription matches command = do
   where
     description = showCommand command ++ " (expecting " ++ expectationDescription ++ ")"
 
-runCommandGetResult :: HasWorkingDir ctx => Command -> Step ctx CommandResult
+runCommandGetResult :: (HasWorkingDir ctx) => Command -> Step ctx CommandResult
 runCommandGetResult command = runCommandGetResultDescribed (runDescription command) command
 
-runCommandGetResultDescribed :: HasWorkingDir ctx => String -> Command -> Step ctx CommandResult
+runCommandGetResultDescribed :: (HasWorkingDir ctx) => String -> Command -> Step ctx CommandResult
 runCommandGetResultDescribed description command =
   makeStep description $ \logger context ->
     Command.executeCommand logger (workingDir context) command
@@ -354,13 +354,13 @@ writeToFile file fileContent =
 
 -- | Appends the text and a trailing newline to the file (relative to the
 -- working directory), creating the file if it does not exist.
-appendToFile :: HasWorkingDir ctx => FilePath -> T.Text -> Step ctx ()
+appendToFile :: (HasWorkingDir ctx) => FilePath -> T.Text -> Step ctx ()
 appendToFile fileName content =
   makeStep ("append to file: " ++ fileName) $ \_ context ->
     BS.appendFile (resolveInWorkingDir context fileName) (TE.encodeUtf8 $ content <> "\n")
 
 -- | Replaces the given (1-based) line of the file (relative to the working directory).
-replaceLineInFile :: HasWorkingDir ctx => FilePath -> Int -> String -> Step ctx ()
+replaceLineInFile :: (HasWorkingDir ctx) => FilePath -> Int -> String -> Step ctx ()
 replaceLineInFile fileName lineNumber newLine =
   makeStep ("replace line " ++ show lineNumber ++ " in file: " ++ fileName) $ \_ context -> do
     let filePath = resolveInWorkingDir context fileName
@@ -371,27 +371,27 @@ replaceLineInFile fileName lineNumber newLine =
     BS.writeFile filePath (TE.encodeUtf8 $ T.unlines updatedFileLines)
 
 -- | Copies a file to another path, both relative to the working directory.
-copyFile :: HasWorkingDir ctx => FilePath -> FilePath -> Step ctx ()
+copyFile :: (HasWorkingDir ctx) => FilePath -> FilePath -> Step ctx ()
 copyFile srcFileName dstFileName =
   makeStep ("copy file: " ++ srcFileName ++ " -> " ++ dstFileName) $ \_ context ->
     SD.copyFile (resolveInWorkingDir context srcFileName) (resolveInWorkingDir context dstFileName)
 
 -- | Deletes a file (relative to the working directory), failing if it does not exist.
-deleteFile :: HasWorkingDir ctx => FilePath -> Step ctx ()
+deleteFile :: (HasWorkingDir ctx) => FilePath -> Step ctx ()
 deleteFile fileName =
   makeStep ("delete file: " ++ fileName) $ \_ context ->
     SD.removeFile (resolveInWorkingDir context fileName)
 
 -- | Removes a directory (relative to the working directory) and its contents,
 -- if it exists.
-removeDirRecursively :: HasWorkingDir ctx => FilePath -> Step ctx ()
+removeDirRecursively :: (HasWorkingDir ctx) => FilePath -> Step ctx ()
 removeDirRecursively dirName =
   makeStep ("remove dir: " ++ dirName) $ \_ context ->
     SD.removePathForcibly (resolveInWorkingDir context dirName)
 
 -- File system assertions
 
-assertDirExists :: HasWorkingDir ctx => FilePath -> Step ctx ()
+assertDirExists :: (HasWorkingDir ctx) => FilePath -> Step ctx ()
 assertDirExists dirName =
   makeStep description $ \_ context -> do
     dirExists <- SD.doesDirectoryExist (resolveInWorkingDir context dirName)
@@ -399,7 +399,7 @@ assertDirExists dirName =
   where
     description = "assert dir exists: " ++ dirName
 
-assertDirDoesNotExist :: HasWorkingDir ctx => FilePath -> Step ctx ()
+assertDirDoesNotExist :: (HasWorkingDir ctx) => FilePath -> Step ctx ()
 assertDirDoesNotExist dirName =
   makeStep description $ \_ context -> do
     dirExists <- SD.doesDirectoryExist (resolveInWorkingDir context dirName)
@@ -407,7 +407,7 @@ assertDirDoesNotExist dirName =
   where
     description = "assert dir does not exist: " ++ dirName
 
-assertFileExists :: HasWorkingDir ctx => FilePath -> Step ctx ()
+assertFileExists :: (HasWorkingDir ctx) => FilePath -> Step ctx ()
 assertFileExists fileName =
   makeStep description $ \_ context -> do
     fileExists <- SD.doesFileExist (resolveInWorkingDir context fileName)
@@ -415,7 +415,7 @@ assertFileExists fileName =
   where
     description = "assert file exists: " ++ fileName
 
-assertSymlinkExists :: HasWorkingDir ctx => FilePath -> Step ctx ()
+assertSymlinkExists :: (HasWorkingDir ctx) => FilePath -> Step ctx ()
 assertSymlinkExists path =
   makeStep description $ \_ context -> do
     let resolvedPath = resolveInWorkingDir context path
@@ -441,7 +441,7 @@ assertDirHasSubdirWithNameContaining dir expectedNamePart =
 
 -- | Asserts that at least one file under the directory (relative to the
 -- working directory, searched recursively) contains the given text.
-assertAnyFileInDirContainsText :: HasWorkingDir ctx => Path' (Rel d) (Dir d') -> String -> Step ctx ()
+assertAnyFileInDirContainsText :: (HasWorkingDir ctx) => Path' (Rel d) (Dir d') -> String -> Step ctx ()
 assertAnyFileInDirContainsText dir expectedText =
   makeStep description $ \_ context -> do
     anyFileContainsText <- doesAnyFileInDirContainText (resolveInWorkingDir context $ fromRelDir dir) expectedText
@@ -451,7 +451,7 @@ assertAnyFileInDirContainsText dir expectedText =
 
 -- | Asserts that no file under the directory (relative to the working
 -- directory, searched recursively) contains the given text.
-assertNoFileInDirContainsText :: HasWorkingDir ctx => Path' (Rel d) (Dir d') -> String -> Step ctx ()
+assertNoFileInDirContainsText :: (HasWorkingDir ctx) => Path' (Rel d) (Dir d') -> String -> Step ctx ()
 assertNoFileInDirContainsText dir unexpectedText =
   makeStep description $ \_ context -> do
     anyFileContainsText <- doesAnyFileInDirContainText (resolveInWorkingDir context $ fromRelDir dir) unexpectedText
@@ -544,5 +544,5 @@ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir srcDirFromGitRootDir = do
   where
     description = "copy git-tracked contents of " ++ fromRelDir srcDirFromGitRootDir ++ " into the wasp project dir"
 
-resolveInWorkingDir :: HasWorkingDir ctx => ctx -> FilePath -> FilePath
+resolveInWorkingDir :: (HasWorkingDir ctx) => ctx -> FilePath -> FilePath
 resolveInWorkingDir context path = fromAbsDir (workingDir context) FP.</> path
