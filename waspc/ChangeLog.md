@@ -24,7 +24,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))
 - The npm package now shows a clear error when installed on an unsupported Node.js version. ([#4268](https://github.com/wasp-lang/wasp/pull/4268))
-- `wasp version` now accepts a `--full` flag that additionally prints the git commit the binary was built from, the OS and architecture, and the user's Node.js and npm versions.
+- `wasp version` now accepts a `--full` flag that additionally prints the git commit the binary was built from, the OS and architecture, and the user's Node.js and npm versions. ([#4279](https://github.com/wasp-lang/wasp/pull/4279))
 
 ## 0.23.0
 
