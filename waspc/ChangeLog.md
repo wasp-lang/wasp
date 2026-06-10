@@ -26,6 +26,10 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))
 - The npm package now shows a clear error when installed on an unsupported Node.js version. ([#4268](https://github.com/wasp-lang/wasp/pull/4268))
 
+### 📖 Documentation
+
+- We now have a [SEO & GEO optimization guide](https://wasp.sh/docs/guides/optimization/seo). ([#4264](https://github.com/wasp-lang/wasp/pull/4264))
+
 ## 0.23.0
 
 ### ⚠️ Breaking Changes

@@ -11,6 +11,9 @@ import "./Main.css";
 addPrismaLanguage(Prism);
 addWaspLangauge(Prism);
 
+const POSTHOG_SCRIPT_SRC = "/piggy.js";
+const GITHUB_BUTTONS_SCRIPT_SRC = "https://buttons.github.io/buttons.js";
+
 export function RootComponent() {
   function recordAndDeleteReferrer() {
     const urlParams = new URLSearchParams(window.location.search);
@@ -34,15 +37,8 @@ export function RootComponent() {
 
   useEffect(() => {
     recordAndDeleteReferrer();
-    const script = document.createElement("script");
-    script.src = "https://buttons.github.io/buttons.js"; // <----- add your script url
-    script.async = true;
-
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
+    loadAsyncScriptOnce(POSTHOG_SCRIPT_SRC);
+    loadAsyncScriptOnce(GITHUB_BUTTONS_SCRIPT_SRC);
   }, []);
 
   return (
@@ -112,4 +108,14 @@ export function RootComponent() {
       </div>
     </>
   );
+}
+
+function loadAsyncScriptOnce(src) {
+  if (document.querySelector(`script[src="${src}"]`)) {
+    return;
+  }
+  const script = document.createElement("script");
+  script.src = src;
+  script.async = true;
+  document.body.appendChild(script);
 }
