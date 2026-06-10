@@ -84,8 +84,8 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- not needed for every command, but checking for every command was decided
   -- to be more robust than trying to only check for commands that require it.
   -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
-  -- We skip the check for `wasp doctor`, which reports the Node/npm status itself
-  -- and must run even when the requirement isn't met.
+  -- The only exception is `wasp doctor`, since it can be used to report issues
+  -- such as Node not being installed.
   unless (commandCall == Command.Call.Doctor) $
     NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
       NodeVersion.VersionCheckFail errorMsg -> do
