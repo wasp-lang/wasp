@@ -12,7 +12,7 @@ import Control.Concurrent.MVar (MVar, newMVar, withMVar)
 import Control.Exception (bracket)
 import qualified Data.ByteString as BS
 import StrongPath (Abs, File, File', Path', castFile, fromAbsFile)
-import System.IO (Handle, IOMode (WriteMode), hClose, hFlush, hPutStr, openFile)
+import System.IO (Handle, IOMode (WriteMode), hClose, hFlush, hPutStr, openFile, readFile')
 
 -- | Collects the output of a single test (or snapshot test) into its log file.
 -- Writes are guarded by a lock so that concurrent writers (e.g. the stdout and
@@ -54,10 +54,12 @@ logOutputChunk logger chunk =
 
 -- | Formats a failure message so it points at the log and includes its content,
 -- since the log is the main tool for debugging a failed test.
+-- Closes the log, since GHC's file locking does not allow reading a file this
+-- process has open for writing (and a failed test won't log anything further).
 formatFailureWithLog :: TestLogger -> String -> IO String
 formatFailureWithLog logger failureMessage = do
-  writeLocked logger hFlush
-  logContent <- readFile (loggerLogFile logger)
+  writeLocked logger hClose
+  logContent <- readFile' (loggerLogFile logger)
   return $
     unlines
       [ failureMessage,
