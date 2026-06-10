@@ -166,13 +166,11 @@ jobs:
           function wait_for_url() {
             url="$1"
             for attempt in $(seq 1 30); do
-              status=$(curl -s -o /dev/null -w "%{http_code}" \
-                --connect-timeout 5 --max-time 10 "$url") || status="000"
-              if [[ "$status" -ge 200 && "$status" -lt 400 ]]; then
-                echo "$url is ready (status $status)"
+              if curl -fsS -o /dev/null --max-time 10 "$url"; then
+                echo "$url is ready"
                 return 0
               fi
-              echo "Attempt $attempt/30: $url not ready (status $status), retrying in 10s"
+              echo "Attempt $attempt/30: $url not ready, retrying in 10s"
               sleep 10
             done
             echo "Timed out waiting for $url"
