@@ -392,7 +392,7 @@ How do I know where I want to target my PR, to `release` or `main`?
 
 - If you have a change that you want to publish right now or very soon, certainly earlier than waiting till `main` is ready for publishing, then you want to target `release`. This could be website content update, new blog post, documentation (hot)fix, compiler hotfix that we need to release quickly via a new patch version, update for Mage that needs to go out now, ... .
 - If you have a change that is not urgent and can wait until the next "normal" Wasp release is published, then target `main`. These are new features, refactorings, docs accompanying new features, ... .
-- Stuff published on `release` (docs, Mage) uses/references version of `wasp` that was last released (so one that is also on `release`).
+- Stuff published on `release` uses/references version of `wasp` that was last released (so one that is also on `release`). Mage is an exception and uses its own pinned Wasp CLI version.
 - TLDR;
   - `release` represents the present, and is for changes to the already published stuff.
   - `main` represents near future, and is for changes to the to-be-published stuff.
@@ -437,7 +437,6 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 Do the steps marked with 👉 for every release of `waspc`.
 Do the non-bold steps when necessary (decide for each step depending on the changes, e.g. some can be skipped if there were no breaking changes).
 
-- Update [the templates in Wasp AI](./src/Wasp/AI/GenerateNewProject/InitialFiles.hs) if necessary
 - Update Open Saas:
   - Check and merge [all Open Saas PRs with the label `merge-before-release`](https://github.com/wasp-lang/open-saas/pulls?q=sort:updated-desc+is:pr+is:open+label:merge-before-release).
   - Ensure that OpenSaaS is updated to the latest Wasp `main` (go to https://github.com/wasp-lang/open-saas/actions/workflows/e2e-tests.yml and manually run the workflow on the `main` branch).
@@ -501,9 +500,7 @@ External documentation, for users of Wasp, is hosted at https://wasp.sh/docs, an
 
 ## Mage
 
-Wasp's magic GPT web app generator aka Wasp AI aka Mage is hosted at https://usemage.ai and its source is available at [mage](/mage).
-
-Make sure to update it when changes modify how Wasp works.
+Mage is Wasp's GPT web app generator for the pre-Spec Wasp DSL. It is hosted at https://usemage.ai and its source is available at [mage](/mage).
 
 ## Haskell
 

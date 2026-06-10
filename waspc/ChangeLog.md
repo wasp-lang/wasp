@@ -8,6 +8,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. ([#4153](https://github.com/wasp-lang/wasp/pull/4153))
 - Wasp now requires `vitest` to be listed in your project's `devDependencies`. ([#4182](https://github.com/wasp-lang/wasp/pull/4182))
+- Removed `wasp new:ai` and the `ai-generated` starter template. ([#4280](https://github.com/wasp-lang/wasp/pull/4280))
 
 ### 🎉 New Features
 
