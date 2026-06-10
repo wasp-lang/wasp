@@ -21,7 +21,7 @@ The Wasp TS config package (`wasp-config`) is now the Wasp Spec package (`@wasp.
 
 #### Reference imports in the Wasp Spec
 
-In `main.wasp.ts`, you can now import app source references with `with { type: "ref" }` and pass imported values directly to Wasp declarations instead of using import objects like `{ import, from }`.
+In `main.wasp.ts`, you can now import app source references with `with { type: "ref" }` and pass imported values directly to Wasp Spec instead of using import objects like `{ import, from }`.
 
 ```ts title="main.wasp.ts"
 import MainPage from "./src/MainPage" with { type: "ref" };
@@ -67,7 +67,7 @@ Important:
 - After converting the config, return to the 0.23 to 0.24 migration guide and finish the shared migration steps.
 - Keep the app's behavior the same.
 - Use reference imports with \`with { type: "ref" }\` when importing components and functions from src.
-- If splitting the spec into multiple files, export \`Decl[]\` arrays from feature spec files and spread them into \`main.wasp.ts\`.
+- If splitting the spec into multiple files, export \`Spec\` from feature spec files and combine them inside of \`app.spec\` in \`main.wasp.ts\`.
 
 Please make the changes directly in the repo and tell me what commands I should run to verify the migration.
 `}
@@ -89,7 +89,7 @@ Use these docs:
 - Wasp TS Config to Wasp Spec conversion guide: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/guides/legacy/wasp-ts-config.md
 - Wasp Spec docs: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/versioned_docs/version-0.24/general/spec.md
 - Wasp Spec API constructors: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/constructors.ts
-- Wasp Spec API types: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/tsAppSpec.ts
+- Wasp Spec API types: https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/waspc/data/packages/spec/src/spec/publicApi/waspSpec.ts
 
 Important:
 
@@ -97,7 +97,7 @@ Important:
 - After converting the config, return to the 0.23 to 0.24 migration guide and finish the shared migration steps.
 - Keep the app's behavior the same.
 - Prefer reference imports with \`with { type: "ref" }\` when importing components and functions from src.
-- If splitting the spec into multiple files, export \`Decl[]\` arrays from feature spec files and spread them into \`main.wasp.ts\`.
+- If splitting the spec into multiple files, export \`Spec\` from feature spec files and combine them inside of \`app.spec\` in \`main.wasp.ts\`.
 
 Please make the changes directly in the repo and tell me what commands I should run to verify the migration.
 `}

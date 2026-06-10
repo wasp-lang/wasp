@@ -38,7 +38,7 @@ import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     crud("Tasks", "Task", {
       getAll: {
         isPublic: true, // by default only logged in users can perform operations
@@ -96,7 +96,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/login",
   },
-  decls: [
+  spec: [
     // Tasks app routes
     route("RootRoute", "/", page(MainPage, { authRequired: true, })),
     route("LoginRoute", "/login", page(LoginPage)),
@@ -135,7 +135,7 @@ import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     crud("Tasks", "Task", {
       getAll: {},
       create: {
@@ -461,7 +461,7 @@ import { app, crud } from "@wasp.sh/spec"
 
 export default app({
   // ...
-  decls: [
+  spec: [
     crud("Tasks", "Task", { // crud name here is "Tasks"
       get: {},
       getAll: {},
@@ -536,7 +536,7 @@ import { createTask } from "./src/tasks" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     crud("Tasks", "Task", { // crud name here is "Tasks"
       getAll: {
         isPublic: true, // optional, defaults to false

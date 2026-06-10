@@ -75,7 +75,7 @@ import { foo } from "./src/workers/bar" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     // Using Wasp Entities in the Wasp file.
     // highlight-next-line
     query(getTasks, { entities: ["Task"] }),

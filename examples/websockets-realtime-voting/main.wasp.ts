@@ -23,7 +23,7 @@ export default app({
   webSocket: {
     fn: votingWebSocket,
   },
-  decls: [
+  spec: [
     route("RootRoute", "/", page(MainPage, { authRequired: true })),
     route("LoginRoute", "/login", page(LoginPage)),
     route("RegisterRoute", "/signup", page(SignupPage)),

@@ -8,7 +8,7 @@ import type {
   Page,
   Query,
   Route,
-} from "./tsAppSpec.js";
+} from "./waspSpec.js";
 
 // Throughout this file, in order for the constructor's input type to be
 // expanded in the docs, but not the resulting type; we do one bit of
@@ -36,7 +36,7 @@ import type {
  *   name: 'todoApp',
  *   title: 'ToDo App',
  *   wasp: { version: '^0.24.0' },
- *   decls: [
+ *   spec: [
  *     route('MainRoute', '/', page(MainPage)),
  *   ],
  * })
@@ -44,7 +44,7 @@ import type {
  *
  * @param config The app configuration.
  *
- * @category Spec
+ * @category Wasp Spec
  */
 export function app(config: AppConfig): App {
   return config;

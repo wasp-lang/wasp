@@ -20,7 +20,7 @@ import { TaskPage } from "./src/TaskPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("TaskRoute", "/task/:id", page(TaskPage)),
   ],
 })
@@ -88,7 +88,7 @@ import { CatchAllPage } from "./src/CatchAllPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("CatchAllRoute", "/pages/*", page(CatchAllPage)),
   ],
 })
@@ -112,7 +112,7 @@ import { OptionalPage } from "./src/OptionalPage" with { type: "ref" }
 
 export default app({
   // ...
-  decls: [
+  spec: [
     route("OptionalRoute", "/task/:id/details?", page(OptionalPage)),
   ],
 })
