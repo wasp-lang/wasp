@@ -111,7 +111,13 @@ This is used by X (formerly Twitter) to create rich link previews.
 - `twitter:image:width`: Image width in pixels
 - `twitter:image:height`: Image height in pixels
 
+X falls back to the Open Graph tags for the title, description, and image, so if you've already set those, the only tag you strictly need to add is `twitter:card`.
+
 You can check [X's guidelines](https://developer.x.com/en/docs/x-for-websites/cards/overview/markup) for more information on how this information is used.
+
+### Canonical URL
+
+- `<link rel="canonical" href="..." />`: The "original" URL of the page, without tracking parameters (like `?utm_source`). Adding a self-referencing canonical link to each page prevents crawlers from indexing parameterized variations of the same page as duplicates. Since it's different for every page, set it per-page rather than in the `head` field.
 
 ## Best practices for images
 

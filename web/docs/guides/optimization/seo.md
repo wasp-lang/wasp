@@ -88,27 +88,13 @@ Some SEO techniques have specific tools available to check if they're implemente
 
 Good SEO comes down to a few separate problems. We ordered them here by their effort-impact ratio, so you can focus on the techniques that will give you a bigger boost for less effort first. These are:
 
-- Having [good content](#good-content).
 - Telling crawlers what each page is about, with [meta tags](#meta-tags).
 - Making your content visible without running JavaScript, with [prerendering](#prerendering).
 - Helping crawlers understand your content with [semantic markup](#semantic-markup) and [structured data](#structured-data).
 - Making your pages [smaller](#reduce-size).
 - Giving crawlers the [standard files](#well-known-files) they look for.
 
-These are general techniques that apply to most websites, but there are many more you can use depending on your specific app and goals. You can start with these, and explore more as needed.
-
-### Good content {#good-content}
-
-It all starts with good content. If your page doesn't have useful, relevant content, no amount of SEO will make it rank well. So make sure your content is high-quality, well-written, and provides value to your users. Spamming keywords, using clickbait titles, or generating unreviewed content by the pound won't help you in the long run, and can even get you penalized by search engines. Focus on creating content that answers your users' questions and solves their problems.
-
-You should read Google's guide on creating good content for more tips on what to focus on when creating content pages, before optimizing them for search engines:
-
-<CardLink
-  kind="external"
-  to="https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
-  title="Creating helpful, reliable, people-first content"
-  description="From Google"
-/>
+These are general techniques that apply to most websites, but there are many more you can use depending on your specific app and goals. You can start with these, and explore more as needed. Keep in mind that these techniques can only amplify your content, not replace it; we talk more about that [below](#good-content).
 
 ### Meta tags {#meta-tags}
 
@@ -144,6 +130,17 @@ export function ProductPage({ productId }) {
       <meta name="description" content={product.description} />
       <meta property="og:title" content={product.name} />
       <meta property="og:image" content={product.imageUrl} />
+
+      {/* Twitter/X falls back to the og: tags for everything else;
+          this tag enables the large preview layout */}
+      <meta name="twitter:card" content="summary_large_image" />
+
+      {/* The "original" URL of this page, without tracking parameters,
+          so crawlers don't index duplicate variations of it */}
+      <link
+        rel="canonical"
+        href={`https://your-app.com/products/${productId}`}
+      />
       {/* highlight-end */}
 
       <h2>{product.name}</h2>
@@ -212,6 +209,24 @@ Most crawlers and screen readers can't see your inside images, so every meaningf
 If an image is purely decorative, you can give it an empty `alt=""` so crawlers know to ignore it. But if the image conveys information, like a product photo or a profile picture, the `alt` text should describe that information.
 
 You should also use semantic HTML to help crawlers understand your content. For example, use one `<h1>` per page for the main heading, and use `<h2>`, `<h3>`, etc. for subheadings in order. Most indexers will understand that as your page's subject matter and closely relate it with those terms. You should also use descriptive link text instead of generic phrases like "click here," so crawlers know what the linked page is about.
+
+Links deserve special attention, since crawlers discover your pages by following `<a>` tags. A `<button>` with an `onClick` handler that navigates is invisible to them, so your structural navigation (header, footer, and in-content links) should always use real links. In Wasp, that means using the [`Link` component](/advanced/links.md), which renders an `<a>` tag and type-checks your routes. Save programmatic navigation for actions, like redirecting after a form submission.
+
+```tsx title="src/components/Navbar.tsx" auto-js
+import { Link } from "wasp/client/router"
+
+export function Navbar() {
+  return (
+    <nav>
+      {/* ❌ Crawlers can't see or follow this navigation */}
+      <button onClick={() => navigate("/pricing")}>Pricing</button>
+
+      {/* ✅ A real link they can discover */}
+      <Link to="/pricing">Pricing</Link>
+    </nav>
+  )
+}
+```
 
 You can check Semrush's post on semantic HTML to see how it looks and which effects it has on SEO:
 
@@ -330,6 +345,7 @@ Search engines factor page speed into ranking through [Core Web Vitals](https://
 Crawlers look for a couple of standard files at the root of your site, for example:
 
 - [A `robots.txt` file](#robots-txt) tells crawlers which paths they may visit.
+- [A `sitemap.xml` file](#sitemap-xml) lists the pages you want crawlers to find and index.
 - [An `llms.txt` file](#llms-txt) that can give instructions to AI assistants about how to interact with your site and which pages to read.
 
 Place these in the [`public` directory](/project/static-assets.md#the-public-directory) at the root of your project. Files there are served as-is from the root path, so `public/robots.txt` becomes available at `https://your-app.com/robots.txt`:
@@ -345,7 +361,7 @@ Place these in the [`public` directory](/project/static-assets.md#the-public-dir
 
 #### `robots.txt` {#robots-txt}
 
-A minimal `robots.txt` lets crawlers visit everything except the routes you don't want indexed, like your admin, API, and auth pages:
+A minimal `robots.txt` lets crawlers visit everything except the routes you don't want them to waste time on, like your admin, API, and auth pages:
 
 ```txt title="public/robots.txt"
 User-agent: *
@@ -355,12 +371,51 @@ Disallow: /api/
 Disallow: /auth/
 ```
 
+:::caution `robots.txt` doesn't hide pages from search results
+`robots.txt` only prevents _crawling_, not _indexing_. If another site links to your `/admin/` route, Google can still index that URL without ever visiting it.
+:::
+
+To reliably keep your [app pages](#where-to-optimize) out of search results, add a `robots` meta tag to those page components:
+
+```tsx title="src/pages/DashboardPage.tsx" auto-js
+export function DashboardPage() {
+  return (
+    <>
+      {/* highlight-next-line */}
+      <meta name="robots" content="noindex, nofollow" />
+
+      <h1>Your Dashboard</h1>
+      {/* ... */}
+    </>
+  )
+}
+```
+
 You can check Google's guide on `robots.txt` for more details and examples:
 
 <CardLink
   kind="external"
   to="https://developers.google.com/search/docs/crawling-indexing/robots/intro"
   title="Introduction to robots.txt"
+  description="From Google"
+/>
+
+#### `sitemap.xml` {#sitemap-xml}
+
+A sitemap lists the URLs of your site that you want indexed. Crawlers can usually discover your pages just by following the links between them, but for a brand-new app with few external links pointing at it, a sitemap is the fastest way for them to find all your routes. You can also submit it to [Search Console](#search-console) to monitor how Google indexes your pages.
+
+Content pages are usually few and stable, so it's easy to write `public/sitemap.xml` by hand, or to ask your AI assistant to generate it from the routes in your `main.wasp.ts`.
+
+:::caution Keep your sitemap up to date
+An outdated sitemap, listing broken URLs or missing new ones, is worse than no sitemap at all. If you add one, remember to regenerate it whenever your content pages change.
+:::
+
+You can check Google's guide on sitemaps for more details:
+
+<CardLink
+  kind="external"
+  to="https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview"
+  title="Learn about sitemaps"
   description="From Google"
 />
 
@@ -438,4 +493,17 @@ Their starter guide is a good place to begin:
   to="https://developers.google.com/search/docs/fundamentals/seo-starter-guide"
   title="SEO Starter Guide"
   description="From Google Search"
+/>
+
+## Good content {#good-content}
+
+Everything above is a technical checklist: you apply each technique, measure, and check it off. But these techniques can only amplify what's already there. If your page doesn't have useful, relevant content, no amount of SEO will make it rank well. So make sure your content is high-quality, well-written, and provides value to your users. Spamming keywords, using clickbait titles, or generating unreviewed content by the pound won't help you in the long run, and can even get you penalized by search engines. Focus on creating content that answers your users' questions and solves their problems.
+
+You should read Google's guide on creating good content for more tips on what to focus on when creating content pages:
+
+<CardLink
+  kind="external"
+  to="https://developers.google.com/search/docs/fundamentals/creating-helpful-content"
+  title="Creating helpful, reliable, people-first content"
+  description="From Google"
 />
