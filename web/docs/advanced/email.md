@@ -5,7 +5,6 @@ title: Sending Emails
 import { CardLink } from '@site/src/components/CardLink'
 import { Required } from '@site/src/components/Tag'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
-import DummyProviderNote from './_dummy-provider-note.md'
 
 # Sending Emails
 
@@ -68,7 +67,10 @@ We'll go over all of the available providers in the next section. For some of th
 
 ### Using the Dummy Provider {#dummy}
 
-<DummyProviderNote />
+:::note Dummy Provider is not for production use
+
+The `Dummy` provider is not for production use. It is only meant to be used during development. If you try building your app with the `Dummy` provider, the build will fail.
+:::
 
 To speed up development, Wasp offers a `Dummy` email sender that `console.log`s the emails in the console. Since it doesn't send emails for real, it doesn't require any setup.
 
@@ -199,8 +201,6 @@ SENDGRID_API_KEY=
   title="EmailSender"
   description="All the options for the emailSender field of the app spec."
 />
-
-<DummyProviderNote />
 
 ### JavaScript API
 
