@@ -29,6 +29,7 @@ import {
   ProjectStatus,
 } from "../../railwayProject/index.js";
 import { RailwayProject } from "../../railwayProject/RailwayProject.js";
+import { waitForServiceDeploymentSuccess } from "../../railwayService/deployment.js";
 import { generateServiceUrl } from "../../railwayService/url.js";
 import { SetupCmdOptions } from "./SetupCmdOptions.js";
 
@@ -157,6 +158,12 @@ async function setupDb({
     // Use the default Railway Postgres template.
     await railwayCli(["add", "-d", "postgres"]);
   }
+
+  // The database service deploys asynchronously and `railway add` doesn't wait
+  // for it. The server service references the database's DATABASE_URL env
+  // variable, and Railway references to a service that isn't fully set up
+  // silently resolve to an empty string and never recover.
+  await waitForServiceDeploymentSuccess(dbServiceName, options);
 }
 
 async function setupServer({

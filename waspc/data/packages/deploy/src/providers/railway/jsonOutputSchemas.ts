@@ -23,6 +23,55 @@ export const RailwayCliProjectSchema = z.object({
 
 export const RailwayProjectListSchema = z.array(RailwayCliProjectSchema);
 
+const ServiceInstancesSchema = z.object({
+  edges: z.array(
+    z.object({
+      node: z.object({
+        serviceName: z.string(),
+        latestDeployment: z
+          .object({
+            status: z.string(),
+          })
+          .nullish(),
+      }),
+    }),
+  ),
+});
+
+const GroupedServiceInstancesSchema = z.object({
+  edges: z.array(
+    z.object({
+      node: z.object({
+        serviceInstances: ServiceInstancesSchema,
+      }),
+    }),
+  ),
+});
+
+// Railway CLI >=4.35 nests service instances under `environments`.
+const NewFormatProjectStatusSchema = z.object({
+  environments: GroupedServiceInstancesSchema,
+});
+
+// Older Railway CLI versions (e.g. 4.11) nest service instances under `services`.
+const OldFormatProjectStatusSchema = z.object({
+  services: GroupedServiceInstancesSchema,
+});
+
+export type RailwayCliProjectStatus = z.infer<
+  typeof NewFormatProjectStatusSchema
+>;
+
+export const RailwayCliProjectStatusSchema = z.union([
+  NewFormatProjectStatusSchema,
+
+  OldFormatProjectStatusSchema
+    // Convert to the newer format
+    .transform(
+      ({ services }): RailwayCliProjectStatus => ({ environments: services }),
+    ),
+]);
+
 export const RailwayCliDomainSchema = z.union([
   // Railway CLI >=4.18.1
   z.object({ domains: z.array(z.string()).min(1) }),
