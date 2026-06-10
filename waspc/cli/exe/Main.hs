@@ -181,7 +181,7 @@ printUsage =
               "      Run `wasp new:ai` for more info.",
               "",
         cmd   "    version               Prints current version of CLI.",
-        cmd   "    doctor                Runs sanity checks on your setup (Node.js, Docker, ports, ...).",
+        cmd   "    doctor                Runs common sanity checks on your environment.",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
