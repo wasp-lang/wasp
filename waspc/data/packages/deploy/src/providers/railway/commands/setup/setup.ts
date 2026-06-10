@@ -234,6 +234,9 @@ async function setupClient({
       "add",
       ["--service", clientServiceName],
       ["--variables", `PORT=${clientAppPort}`],
+      // So Railpack detects the output as static files even when there's not an
+      // `index.html`.
+      ["--variables", `RAILPACK_STATIC_FILE_ROOT=1`],
       ...options.clientSecret.map((secret) => ["--variables", secret]),
     ].flat(),
   );

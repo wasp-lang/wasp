@@ -21,6 +21,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - Fixed a race condition in development mode that could potentially load the app's JS bundle before the Vite runtime, causing the app to fail the load with a "Can't detect preamble" error. ([#4258](https://github.com/wasp-lang/wasp/issues/4258))
 - Fixed `wasp deploy railway launch` sometimes producing a crashed server with an empty `DATABASE_URL`. Wasp now waits for the database service to finish deploying before setting up the other services. ([#4291](https://github.com/wasp-lang/wasp/pull/4291))
+- Fixed a bug where `wasp deploy railway launch` wouldn't correctly build the Wasp app client if the `/` route was not prerendered. ([#4293](https://github.com/wasp-lang/wasp/pull/4293))
 
 ### 🔧 Small improvements
 
