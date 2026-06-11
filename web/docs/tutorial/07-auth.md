@@ -42,17 +42,13 @@ Next, tell Wasp to use full-stack [authentication](../auth/overview):
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
 export default app({
-  name: "TodoApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
-  title: "TodoApp",
-  head: [
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+  // ...
   // highlight-start
   auth: {
     // Tells Wasp which entity to use for storing users.
@@ -66,7 +62,10 @@ export default app({
   },
   // highlight-end
   spec: [
-    // ...
+    route("RootRoute", "/", page(MainPage)),
+    query(getTasks, { entities: ["Task"] }),
+    action(createTask, { entities: ["Task"] }),
+    action(updateTask, { entities: ["Task"] }),
   ],
 })
 ```
@@ -98,19 +97,24 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 // highlight-start
 import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 import { LoginPage } from "./src/LoginPage" with { type: "ref" }
 // highlight-end
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
   spec: [
+    route("RootRoute", "/", page(MainPage)),
     // highlight-start
     route("SignupRoute", "/signup", page(SignupPage)),
     route("LoginRoute", "/login", page(LoginPage)),
-    // highlight-end    
+    // highlight-end
+    // ... existing queries and actions
   ],
 })
 ```
@@ -175,8 +179,12 @@ We don't want users who are not logged in to access the main page, because they 
 <TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { SignupPage } from "./src/SignupPage" with { type: "ref" }
+import { LoginPage } from "./src/LoginPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
@@ -185,6 +193,7 @@ export default app({
       // highlight-next-line
       authRequired: true,
     }),
+    // ... existing routes, queries, and actions
   ],
 })
 ```
@@ -198,10 +207,12 @@ Additionally, when `authRequired` is `true`, the page's React component will be 
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { AuthUser } from "wasp/auth";
+// ... existing imports
 
 // highlight-next-line
 export const MainPage = ({ user }: { user: AuthUser }) => {
-  // Do something with the user
+  const { data: tasks, isLoading, error } = useQuery(getTasks);
+
   // ...
 };
 ```
@@ -366,12 +377,12 @@ Last, but not least, let's add the logout functionality:
 <TutorialAction id="main-page-add-logout" action="APPLY_PATCH">
 
 ```tsx title="src/MainPage.tsx" auto-js with-hole
-// ...
+import type { AuthUser } from "wasp/auth";
 // highlight-next-line
 import { logout } from "wasp/client/auth";
-//...
+// ... existing imports
 
-const MainPage = () => {
+export const MainPage = ({ user }: { user: AuthUser }) => {
   // ...
   return (
     <div>
