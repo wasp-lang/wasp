@@ -20,8 +20,6 @@ createProjectOnDiskFromBundledTemplate newProjectDescription templatePath = do
   copyBundledTemplateToNewProjectDir templatePath
   replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) absWaspProjectDir
   where
-    absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
-
     copyBundledTemplateToNewProjectDir :: Path' Rel' Dir' -> IO ()
     copyBundledTemplateToNewProjectDir templateDir = do
       dataDir <- Data.getAbsDataDirPath
@@ -39,3 +37,5 @@ createProjectOnDiskFromBundledTemplate newProjectDescription templatePath = do
     renameDotfiles projectDir dotfiles = do
       let dir = fromAbsDir projectDir
       mapM_ (\name -> renameFile (dir FP.</> name) (dir FP.</> ("." <> name))) dotfiles
+
+    absWaspProjectDir = getAbsWaspProjectDir newProjectDescription

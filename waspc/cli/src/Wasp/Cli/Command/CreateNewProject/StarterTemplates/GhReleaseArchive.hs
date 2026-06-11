@@ -34,9 +34,6 @@ createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef 
   fetchTemplateFromGhToTemplateOutputDir
     >>= either throwProjectCreationError (const replaceTemplatePlaceholders)
   where
-    templateName = show $ _template newProjectDescription
-    absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
-
     fetchTemplateFromGhToTemplateOutputDir =
       liftIO $ fetchFolderFromGithubReleaseArchiveToDisk ghRepoRef assetName templatePathInRepo (_absTemplateOutputDir newProjectDescription)
 
@@ -59,3 +56,6 @@ createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef 
           ]
 
     releasesUrl = intercalate "/" ["https://github.com", _repoOwner ghRepoRef, _repoName ghRepoRef, "releases"]
+
+    templateName = show $ _template newProjectDescription
+    absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
