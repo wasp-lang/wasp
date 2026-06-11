@@ -33,6 +33,7 @@ minimalStarterTemplate :: StarterTemplate
 minimalStarterTemplate =
   BundledStarterTemplate
     { bundledPath = [reldir|minimal|],
+      waspProjectFromTemplateOutputDir = [reldir|.|],
       metadata =
         TemplateMetadata
           { _name = "minimal",
@@ -52,6 +53,7 @@ basicStarterTemplate :: StarterTemplate
 basicStarterTemplate =
   BundledStarterTemplate
     { bundledPath = [reldir|basic|],
+      waspProjectFromTemplateOutputDir = [reldir|.|],
       metadata =
         TemplateMetadata
           { _name = "basic",
@@ -82,6 +84,7 @@ openSaasStarterTemplate =
         ),
       archiveName = "template.tar.gz",
       archivePath = [reldir|.|],
+      waspProjectFromTemplateOutputDir = [reldir|app|],
       metadata =
         ( TemplateMetadata
             { _name = "saas",

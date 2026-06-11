@@ -8,18 +8,20 @@ import StrongPath (Abs, Dir, Dir', Path', Rel', fromAbsDir, reldir, (</>))
 import StrongPath.Path (toPathAbsDir)
 import System.Directory (renameFile)
 import qualified System.FilePath as FP
-import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectAppName, NewProjectName)
+import Wasp.Cli.Command.CreateNewProject.ProjectDescription (NewProjectDescription (..), getAbsWaspProjectDir)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates (skeletonDotfiles)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates.Templating (replaceTemplatePlaceholdersInTemplateFiles)
 import qualified Wasp.Data as Data
 import Wasp.Project (WaspProjectDir)
 
 createProjectOnDiskFromBundledTemplate ::
-  Path' Abs (Dir WaspProjectDir) -> NewProjectName -> NewProjectAppName -> Path' Rel' Dir' -> IO ()
-createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName templatePath = do
+  NewProjectDescription -> Path' Rel' Dir' -> IO ()
+createProjectOnDiskFromBundledTemplate newProjectDescription templatePath = do
   copyBundledTemplateToNewProjectDir templatePath
-  replaceTemplatePlaceholdersInTemplateFiles appName projectName absWaspProjectDir
+  replaceTemplatePlaceholdersInTemplateFiles (_appName newProjectDescription) (_projectName newProjectDescription) absWaspProjectDir
   where
+    absWaspProjectDir = getAbsWaspProjectDir newProjectDescription
+
     copyBundledTemplateToNewProjectDir :: Path' Rel' Dir' -> IO ()
     copyBundledTemplateToNewProjectDir templateDir = do
       dataDir <- Data.getAbsDataDirPath

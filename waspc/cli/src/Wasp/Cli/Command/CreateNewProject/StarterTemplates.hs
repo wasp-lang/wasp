@@ -8,9 +8,11 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates
 where
 
 import Data.Foldable (find)
-import StrongPath (Dir', Path', Rel')
+import StrongPath (Dir, Dir', Path', Rel, Rel')
+import Wasp.Cli.Command.CreateNewProject.Common (TemplateOutputDir)
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Project (WaspProjectDir)
 
 -- More on how starter templates work in Wasp, including the development process,
 -- can be found in the `waspc/data/Cli/starters/README.md` file.
@@ -21,11 +23,13 @@ data StarterTemplate
       { repo :: !GhRepo.GithubRepoRef,
         archiveName :: !GhRepo.GithubReleaseArchiveName,
         archivePath :: Path' Rel' Dir',
+        waspProjectFromTemplateOutputDir :: Path' (Rel TemplateOutputDir) (Dir WaspProjectDir),
         metadata :: !TemplateMetadata
       }
   | -- | Template from disk, that comes bundled with wasp CLI.
     BundledStarterTemplate
       { bundledPath :: Path' Rel' Dir',
+        waspProjectFromTemplateOutputDir :: Path' (Rel TemplateOutputDir) (Dir WaspProjectDir),
         metadata :: !TemplateMetadata
       }
 
