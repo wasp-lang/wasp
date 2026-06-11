@@ -4,13 +4,16 @@ module Wasp.Cli.Command.CreateNewProject.StarterTemplates
     findTemplateByString,
     getTemplateStartingInstructions,
     skeletonDotfiles,
+    waspProjectDirFromTemplateOutputDir,
   )
 where
 
 import Data.Foldable (find)
-import StrongPath (Dir', Path', Rel')
+import StrongPath (Dir, Dir', Path', Rel, Rel', reldir)
+import Wasp.Cli.Command.CreateNewProject.Common (TemplateOutputDir)
 import qualified Wasp.Cli.GithubRepo as GhRepo
 import qualified Wasp.Cli.Interactive as Interactive
+import Wasp.Project (WaspProjectDir)
 
 -- More on how starter templates work in Wasp, including the development process,
 -- can be found in the `waspc/data/Cli/starters/README.md` file.
@@ -21,13 +24,25 @@ data StarterTemplate
       { repo :: !GhRepo.GithubRepoRef,
         archiveName :: !GhRepo.GithubReleaseArchiveName,
         archivePath :: Path' Rel' Dir',
+        _waspProjectDirFromTemplateOutputDir :: Path' (Rel TemplateOutputDir) (Dir WaspProjectDir),
         metadata :: !TemplateMetadata
       }
   | -- | Template from disk, that comes bundled with wasp CLI.
     BundledStarterTemplate
       { bundledPath :: Path' Rel' Dir',
+        -- No `_waspProjectDirFromTemplateOutputDir` here, since for the two-step
+        -- skeleton+template copy we assume it's `.`.
+        -- You will have to update `waspProjectDirFromTemplateOutputDir` and
+        -- `ProjectDescription.getAbsWaspProjectDir` if you want to change
+        -- this assumption.
         metadata :: !TemplateMetadata
       }
+
+waspProjectDirFromTemplateOutputDir :: StarterTemplate -> Path' (Rel TemplateOutputDir) (Dir WaspProjectDir)
+waspProjectDirFromTemplateOutputDir (BundledStarterTemplate {}) =
+  [reldir|.|]
+waspProjectDirFromTemplateOutputDir template@(GhRepoReleaseArchiveTemplate {}) =
+  _waspProjectDirFromTemplateOutputDir template
 
 data TemplateMetadata = TemplateMetadata
   { _name :: !String,
