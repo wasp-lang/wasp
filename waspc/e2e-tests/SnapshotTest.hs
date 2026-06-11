@@ -173,6 +173,7 @@ getNormalizedSnapshotFilesForContentCheck snapshotDir = do
             ( map
                 isBasenameOf
                 [ ".DS_Store",
+                  "CLAUDE.md",
                   "node_modules",
                   "dev.db",
                   "dev.db-journal",

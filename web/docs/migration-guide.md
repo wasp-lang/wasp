@@ -124,37 +124,40 @@ Update the version field in your Wasp config to `^0.24.0`. The syntax depends on
   </TabItem>
   <TabItem value="wasp-ts-config" label="Wasp TS Config">
     ```ts title="main.wasp.ts"
-    import { App } from "wasp-config"
+    import { App } from "wasp-config";
 
     const app = new App("MyApp", {
       wasp: {
         version: "^0.24.0",
       },
       // ...
-    })
+    });
     ```
   </TabItem>
 </Tabs>
 
-### 2. Convert your config to the Wasp Spec
+### 2. Add `vitest` to your `package.json`
+
+Add `vitest` to `devDependencies` because `wasp test client` now runs the Vitest package installed in your project.
+
+```json title="package.json"
+{
+  // ...
+  "devDependencies": {
+    // ...
+    // highlight-next-line
+    "vitest": "^4.0.16"
+  }
+}
+```
+
+### 3. Convert your config to the Wasp Spec
 
 - If your app has a `main.wasp` file, follow [Migrating from the Wasp DSL](./guides/legacy/wasp-dsl.md). This converts your app from the Wasp DSL to the Wasp Spec.
 - If your app already has a `main.wasp.ts` file using the old class-based `new App(...)` API, follow [Migrating from the Wasp TS Config](./guides/legacy/wasp-ts-config.md). This converts your app from the old TS Config to the Wasp Spec.
 
 After you finish the conversion guide, **come back here** and continue with the shared migration steps below.
 
-### 3. Add `vitest` to your `package.json`
-
-Add `vitest` to `devDependencies` because `wasp test client` now runs the Vitest package installed in your project.
-
-```json title="package.json"
-{
-  "devDependencies": {
-    // highlight-next-line
-    "vitest": "^4.0.16"
-  }
-}
-```
 
 ### 4. Update client code that uses `api` from `wasp/client/api`
 
@@ -165,42 +168,42 @@ The `api` object was previously an Axios instance. It is now a [ky](https://gith
 <Tabs sideBySide>
   <TabItem value="before" label="Before">
     ```ts
-    import { api } from "wasp/client/api"
+    import { api } from "wasp/client/api";
 
     // Making requests
-    const response = await api.get("/foo/bar")
-    const data = response.data
+    const response = await api.get("/foo/bar");
+    const data = response.data;
 
     // POST with body
-    await api.post("/foo/bar", { key: "value" })
+    await api.post("/foo/bar", { key: "value" });
 
     // Error handling
-    import { type AxiosError } from "axios"
+    import { type AxiosError } from "axios";
     try {
-      await api.get("/foo/bar")
+      await api.get("/foo/bar");
     } catch (e) {
-      const error = e as AxiosError
-      console.log(error.response?.status)
+      const error = e as AxiosError;
+      console.log(error.response?.status);
     }
     ```
   </TabItem>
   <TabItem value="after" label="After">
     ```ts
-    import { api } from "wasp/client/api"
-    import { isHTTPError } from "ky"
+    import { api } from "wasp/client/api";
+    import { isHTTPError } from "ky";
 
     // Making requests
-    const data = await api.get("/foo/bar").json()
+    const data = await api.get("/foo/bar").json();
 
     // POST with body
-    await api.post("/foo/bar", { json: { key: "value" } })
+    await api.post("/foo/bar", { json: { key: "value" } });
 
     // Error handling
     try {
-      await api.get("/foo/bar").json()
+      await api.get("/foo/bar").json();
     } catch (e) {
       if (isHTTPError(e)) {
-        console.log(e.response.status)
+        console.log(e.response.status);
       }
     }
     ```

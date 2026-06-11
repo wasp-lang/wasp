@@ -1,12 +1,12 @@
 diff --git a/main.wasp.ts b/main.wasp.ts
-index e3191d4..64b489a 100644
+index dc1b39f..53e10fc 100644
 --- a/main.wasp.ts
 +++ b/main.wasp.ts
 @@ -1,5 +1,6 @@
- import { MainPage } from "./src/MainPage" with { type: "ref" }
--import { app, page, route } from "@wasp.sh/spec"
-+import { getTasks } from "./src/queries" with { type: "ref" }
-+import { app, page, query, route } from "@wasp.sh/spec"
+-import { app, page, route } from "@wasp.sh/spec";
++import { app, page, query, route } from "@wasp.sh/spec";
+ import { MainPage } from "./src/MainPage" with { type: "ref" };
++import { getTasks } from "./src/queries" with { type: "ref" };
  
  export default app({
    name: "TodoApp",
