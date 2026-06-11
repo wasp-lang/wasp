@@ -16,6 +16,7 @@ export default app({
   },
   title: "ToDo App",
   head: [
+    "<link rel='icon' href='/favicon.ico' />",
     "<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap' />",
   ],
   // ...
@@ -57,6 +58,7 @@ export default app({
   },
   title: "My App",
   head: [ // optional
+    "<link rel='icon' href='/favicon.ico' />",
     "<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap' />",
     "<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js'></script>",
     "<meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />",

@@ -10,6 +10,7 @@ export default app({
   name: "waspleau",
   wasp: { version: "^0.24.0" },
   title: "Waspleau",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   server: {
     setupFn: serverSetup,
   },

@@ -16,7 +16,6 @@ import mySetupFunction from "./src/myClientSetupCode" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  title: "My app",
   client: {
     rootComponent: Root,
     setupFn: mySetupFunction,
@@ -44,7 +43,6 @@ import Root from "./src/Root" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  title: "My app",
   client: {
     rootComponent: Root,
   },
@@ -108,7 +106,6 @@ import Root from "./src/Root" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  title: "My app",
   client: {
     rootComponent: Root,
   },
@@ -255,7 +252,6 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "MyApp",
-  title: "My app",
   client: {
     baseDir: "/my-app",
   },

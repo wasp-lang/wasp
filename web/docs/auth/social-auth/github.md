@@ -44,6 +44,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     // highlight-next-line
     // 1. Specify the User entity  (we'll define it next)
@@ -152,6 +153,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
     methods: {
@@ -227,6 +229,7 @@ export default app({
   name: "myApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My App",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
     methods: {

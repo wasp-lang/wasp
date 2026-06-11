@@ -31,6 +31,7 @@ export default app({
     version: "^0.24.0",
   },
   title: "websocket-test",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   // highlight-start
   webSocket: {
     fn: webSocketFn,

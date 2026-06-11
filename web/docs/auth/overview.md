@@ -26,6 +26,7 @@ export default app({
   name: "MyApp",
   wasp: { version: "{latestWaspVersion}" },
   title: "My app",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
     methods: {
@@ -390,7 +391,7 @@ import { app } from "@wasp.sh/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
-  name: "crudTesting",
+  name: "myApp",
   // ...
   auth: {
     userEntity: "User",
@@ -600,7 +601,7 @@ import { app } from "@wasp.sh/spec"
 import { userSignupFields } from "./src/auth/signup" with { type: "ref" }
 
 export default app({
-  name: "crudTesting",
+  name: "myApp",
   // ...
   auth: {
     userEntity: "User",
