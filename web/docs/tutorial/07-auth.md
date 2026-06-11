@@ -192,7 +192,7 @@ export default app({
     route("RootRoute", "/", page(MainPage, {
       // highlight-next-line
       authRequired: true,
-    }),
+    })),
     // ... existing routes, queries, and actions
   ],
 })
