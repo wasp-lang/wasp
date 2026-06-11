@@ -433,6 +433,12 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 :root[data-theme="dark"] {
   --custom-background-color-diff: #2a2a2a;
 
+  /* Dark page background. Without this, the cream `--ifm-background-color` set
+     in the light `:root` block leaks into dark mode (it overrides Infima's own
+     dark default), leaving the content and navbar light. */
+  --ifm-background-color: #1a1a1a;
+  --ifm-navbar-background-color: #1a1a1a;
+
   /* Blog */
   --custom-blog-list-background-color: var(--ifm-background-color);
   --custom-blog-card-timestamp-color: #a3a3a3;
