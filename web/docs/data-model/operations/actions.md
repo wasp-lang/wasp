@@ -35,7 +35,7 @@ To create an Action, you need to:
 
 Once these two steps are completed, you can use the Action from anywhere in your code.
 
-### Declaring Actions
+### Specifying Actions
 
 To create an Action in Wasp, we begin with an `action` spec. Let's declare two Actions - one for creating a task, and another for marking tasks as done:
 
@@ -537,7 +537,7 @@ Here are the key differences between Queries and Actions:
 
 ## API Reference
 
-### Declaring Actions in Wasp Spec
+### Specifying Actions in Wasp Spec
 
 <CardLink
   to="../../api/@wasp.sh/spec/functions/action"
@@ -579,7 +579,7 @@ Since both arguments are positional, you can name the parameters however you wan
    An additional context object **passed into the Action by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Actions](#using-entities-in-actions) to see how to use the entities field on the `context` object, or the [auth section](../../auth/overview#using-the-contextuser-object) to see how to use the `user` object.
 
 <ShowForTs>
-  After you [declare the Action](#declaring-actions), Wasp generates a generic type you can use when defining its implementation.
+  After you [declare the Action](#specifying-actions), Wasp generates a generic type you can use when defining its implementation.
   For the Action declared as `createSomething`, the generated type is called `CreateSomething`:
 
   ```ts
