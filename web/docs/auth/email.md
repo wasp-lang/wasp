@@ -3,11 +3,9 @@ title: Overview
 title-llm: Email Auth Overview
 ---
 
-import { Required } from '@site/src/components/Tag';
+import { CardLink } from '@site/src/components/CardLink';
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
-import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
-import UserFields from './\_user-fields.md';
 import EmailData from './entities/\_email-data.md';
 import AccessingUserDataNote from './\_accessing-user-data-note.md';
 import TailwindNote from './\_tailwind-note.md';
@@ -91,7 +89,7 @@ export default app({
 })
 ```
 
-Read more about the `email` auth method options [here](#fields-in-the-email-object).
+Read more about the `email` auth method options in the [`EmailAuthConfig` API Reference](../api/@wasp.sh/spec/interfaces/EmailAuthConfig.md).
 
 ### 2. Add the User Entity
 
@@ -420,7 +418,7 @@ emailVerification: {
 
 When the user receives an e-mail, they receive a link that goes to the client route specified in the `clientRoute` field. In our case, this is the `EmailVerificationRoute` route we defined in the `main.wasp.ts` file.
 
-The content of the e-mail can be customized, read more about it [here](#emailverification-emailverificationconfig-).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../api/@wasp.sh/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
 
 ### Email Verification Page
 
@@ -466,7 +464,7 @@ When the user receives an e-mail, they receive a link that goes to the client ro
 
 Users can enter their new password there.
 
-The content of the e-mail can be customized, read more about it [here](#passwordreset-passwordresetconfig-).
+The content of the e-mail can be customized, read more about it in the [`EmailFlowConfig` API Reference](../api/@wasp.sh/spec/interfaces/EmailFlowConfig.md#getemailcontentfn).
 
 #### Password
 
@@ -490,244 +488,18 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 
 ## API Reference
 
-Let's go over the options we can specify when using email authentication.
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Auth"
+  kind="api"
+  title="Auth"
+  description="All the options for the auth field of the app spec, including userEntity."
+/>
 
-### `userEntity` fields
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/EmailAuthConfig"
+  kind="api"
+  title="EmailAuthConfig"
+  description="All the options for the email auth method."
+/>
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-
-export default app({
-  name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
-  title: "My app",
-  // ...
-
-  auth: {
-    userEntity: "User",
-    methods: {
-      email: {
-        // We'll explain these options below
-      },
-    },
-    onAuthFailedRedirectTo: "/someRoute"
-  },
-  // ...
-})
-```
-
-```prisma title="schema.prisma"
-model User {
-  id Int @id @default(autoincrement())
-}
-```
-
-<UserFields />
-
-### Fields in the `email` object
-
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { userSignupFields } from "./src/auth" with { type: "ref" }
-import {
-  getVerificationEmailContent,
-  getPasswordResetEmailContent,
-} from "./src/auth/email" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
-  title: "My app",
-  // ...
-
-  auth: {
-    userEntity: "User",
-    methods: {
-      email: {
-        userSignupFields,
-        fromField: {
-          name: "My App",
-          email: "hello@itsme.com"
-        },
-        emailVerification: {
-          clientRoute: "EmailVerificationRoute",
-          getEmailContentFn: getVerificationEmailContent,
-        },
-        passwordReset: {
-          clientRoute: "PasswordResetRoute",
-          getEmailContentFn: getPasswordResetEmailContent,
-        },
-      },
-    },
-    onAuthFailedRedirectTo: "/someRoute"
-  },
-  // ...
-})
-```
-
-#### `userSignupFields`: [`Reference`](../general/spec.md#reference-imports)
-
-<UserSignupFieldsExplainer />
-
-Read more about the `userSignupFields` function [here](./overview#1-defining-extra-fields).
-
-#### `fromField: EmailFromField` <Required />
-
-`fromField` is an object that specifies the name and e-mail address of the sender of the e-mails sent by your app.
-
-It has the following fields:
-
-- `name`: name of the sender
-- `email`: e-mail address of the sender <Required />
-
-#### `emailVerification: EmailVerificationConfig` <Required />
-
-`emailVerification` is an object that specifies the details of the e-mail verification process.
-
-It has the following fields:
-
-- `clientRoute: string`: the name of the route that is used for the user to verify their e-mail address. <Required />
-
-  Client route should handle the process of taking a token from the URL and sending it to the server to verify the e-mail address. You can use our `verifyEmail` action for that.
-
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```jsx title="src/pages/EmailVerificationPage.jsx"
-      import { verifyEmail } from "wasp/client/auth"
-      ...
-      await verifyEmail({ token });
-      ```
-    </TabItem>
-
-    <TabItem value="ts" label="TypeScript">
-      ```tsx title="src/pages/EmailVerificationPage.tsx"
-      import { verifyEmail } from "wasp/client/auth"
-      ...
-      await verifyEmail({ token });
-      ```
-    </TabItem>
-  </Tabs>
-
-  :::note
-  We used Auth UI above to avoid doing this work of sending the token to the server manually.
-  :::
-
-- `getEmailContentFn`: [`Reference`](../general/spec.md#reference-imports): a function that returns the content of the e-mail that is sent to the user.
-
-  Defining `getEmailContentFn` can be done by defining a file in the `src` directory.
-
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```js title="src/email.js"
-      export const getVerificationEmailContent = ({ verificationLink }) => ({
-        subject: "Verify your email",
-        text: `Click the link below to verify your email: ${verificationLink}`,
-        html: `
-              <p>Click the link below to verify your email</p>
-              <a href="${verificationLink}">Verify email</a>
-          `,
-      })
-      ```
-    </TabItem>
-
-    <TabItem value="ts" label="TypeScript">
-      ```ts title="src/email.ts"
-      import { GetVerificationEmailContentFn } from "wasp/server/auth"
-
-      export const getVerificationEmailContent: GetVerificationEmailContentFn = ({
-        verificationLink,
-      }) => ({
-        subject: "Verify your email",
-        text: `Click the link below to verify your email: ${verificationLink}`,
-        html: `
-              <p>Click the link below to verify your email</p>
-              <a href="${verificationLink}">Verify email</a>
-          `,
-      })
-      ```
-    </TabItem>
-  </Tabs>
-
-  <small>This is the default content of the e-mail, you can customize it to your liking.</small>
-
-#### `passwordReset: PasswordResetConfig` <Required />
-
-`passwordReset` is an object that specifies the password reset process.
-
-It has the following fields:
-
-- `clientRoute: string`: the name of the route that is used for the user to reset their password. <Required />
-
-  Client route should handle the process of taking a token from the URL and a new password from the user and sending it to the server. You can use our `requestPasswordReset` and `resetPassword` actions to do that.
-
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```jsx title="src/pages/ForgotPasswordPage.jsx"
-      import { requestPasswordReset } from "wasp/client/auth"
-      ...
-      await requestPasswordReset({ email });
-      ```
-
-      ```jsx title="src/pages/PasswordResetPage.jsx"
-      import { resetPassword } from "wasp/client/auth"
-      ...
-      await resetPassword({ password, token })
-      ```
-    </TabItem>
-
-    <TabItem value="ts" label="TypeScript">
-      ```tsx title="src/pages/ForgotPasswordPage.tsx"
-      import { requestPasswordReset } from "wasp/client/auth"
-      ...
-      await requestPasswordReset({ email });
-      ```
-
-      ```tsx title="src/pages/PasswordResetPage.tsx"
-      import { resetPassword } from "wasp/client/auth"
-      ...
-      await resetPassword({ password, token })
-      ```
-    </TabItem>
-  </Tabs>
-
-  :::note
-  We used Auth UI above to avoid doing this work of sending the password request and the new password to the server manually.
-  :::
-
-- `getEmailContentFn`: [`Reference`](../general/spec.md#reference-imports): a function that returns the content of the e-mail that is sent to the user.
-
-  Defining `getEmailContentFn` is done by defining a function that looks like this:
-
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```js title="src/email.js"
-      export const getPasswordResetEmailContent = ({ passwordResetLink }) => ({
-        subject: "Password reset",
-        text: `Click the link below to reset your password: ${passwordResetLink}`,
-        html: `
-              <p>Click the link below to reset your password</p>
-              <a href="${passwordResetLink}">Reset password</a>
-          `,
-      })
-      ```
-    </TabItem>
-
-    <TabItem value="ts" label="TypeScript">
-      ```ts title="src/email.ts"
-      import { GetPasswordResetEmailContentFn } from "wasp/server/auth"
-
-      export const getPasswordResetEmailContent: GetPasswordResetEmailContentFn = ({
-        passwordResetLink,
-      }) => ({
-        subject: "Password reset",
-        text: `Click the link below to reset your password: ${passwordResetLink}`,
-        html: `
-              <p>Click the link below to reset your password</p>
-              <a href="${passwordResetLink}">Reset password</a>
-          `,
-      })
-      ```
-    </TabItem>
-  </Tabs>
-
-  <small>This is the default content of the e-mail, you can customize it to your liking.</small>
+Read more about the `userSignupFields` function in the [Auth Overview docs](./overview.md#signup-fields-customization).

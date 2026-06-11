@@ -9,8 +9,7 @@ import OverrideExampleIntro from './\_override-example-intro.md';
 import UsingAuthNote from './\_using-auth-note.md';
 import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
-import ApiReferenceIntro from './\_api-reference-intro.md';
-import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
+import { CardLink } from '@site/src/components/CardLink';
 import DiscordData from '../entities/\_discord-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 import SocialLoginClientPages from './\_social-login-client-pages.md';
@@ -263,48 +262,11 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 ## API Reference
 
-<ApiReferenceIntro />
+<CardLink
+  to="../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
+  kind="api"
+  title="SocialAuthConfig"
+  description="All the options for the discord auth method."
+/>
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { getConfig, userSignupFields } from "./src/auth/discord" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
-  title: "My App",
-  auth: {
-    userEntity: "User",
-    methods: {
-      discord: {
-        // highlight-next-line
-        configFn: getConfig,
-        // highlight-next-line
-        userSignupFields
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-  // ...
-})
-```
-
-The `discord` object has the following properties:
-
-- #### `configFn`: [`Reference`](../../general/spec.md#reference-imports)
-
-  This function should return an object with the scopes for the OAuth provider.
-
-  ```ts title="src/auth/discord.ts" auto-js
-  export function getConfig() {
-    return {
-      scopes: [],
-    }
-  }
-  ```
-
-- #### `userSignupFields`: [`Reference`](../../general/spec.md#reference-imports)
-
-  <UserSignupFieldsExplainer />
-
-  Read more about the `userSignupFields` function [here](../overview#1-defining-extra-fields).
+For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](./overview.md).

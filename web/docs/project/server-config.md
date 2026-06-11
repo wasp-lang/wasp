@@ -2,6 +2,7 @@
 title: Server Config
 ---
 
+import { CardLink } from "@site/src/components/CardLink";
 import { ShowForTs, ShowForJs } from "@site/src/components/TsJsHelpers";
 
 You can configure the behavior of the server via the `server` field of `app` spec:
@@ -137,72 +138,19 @@ The recommended way is to put the variable in the same module where you defined 
 This effectively turns your module into a singleton whose construction is performed on server start.
 :::
 
-Read more about [server setup function](#setupfn-reference) below.
+For the full description of the `setupFn` field, check the [`Server` API Reference](../api/@wasp.sh/spec/interfaces/Server.md#setupfn).
 
 ## Middleware Config Function
 
 You can configure the global middleware via the `middlewareConfigFn`. This will modify the middleware stack for all operations and APIs.
 
-Read more about [middleware config function](#middlewareconfigfn-reference) below.
+Read more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).
 
 ## API Reference
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" with { type: "ref" }
-
-export default app({
-  name: "MyApp",
-  title: "My app",
-  server: {
-    setupFn: mySetupFunction,
-    middlewareConfigFn: myMiddlewareConfigFn,
-  },
-  // ...
-})
-```
-
-`server` is an object with the following fields:
-
-- #### `setupFn`: [`Reference`](../general/spec.md#reference-imports)
-
-  `setupFn` declares a <ShowForTs>Typescript</ShowForTs><ShowForJs>Javascript</ShowForJs> function that will be executed on server start. This function is expected to be async and will be awaited before the server starts accepting any requests.
-
-  It allows you to do any custom setup, e.g. setting up additional database/websockets or starting cron/scheduled jobs.
-
-  The `setupFn` function receives the `express.Application` and the `http.Server` instances as part of its context. They can be useful for setting up any custom server logic.
-
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```js title="src/myServerSetupCode.js"
-      export const mySetupFunction = async () => {
-        await setUpSomeResource()
-      }
-      ```
-    </TabItem>
-
-    <TabItem value="ts" label="TypeScript">
-      Types for the setup function and its context are as follows:
-
-      ```ts title="wasp/server"
-      export type ServerSetupFn = (context: ServerSetupFnContext) => Promise<void>
-
-      export type ServerSetupFnContext = {
-        app: Application // === express.Application
-        server: Server // === http.Server
-      }
-      ```
-
-      ```ts title="src/myServerSetupCode.ts"
-      import { type ServerSetupFn } from "wasp/server"
-
-      export const mySetupFunction: ServerSetupFn = async () => {
-        await setUpSomeResource()
-      }
-      ```
-    </TabItem>
-  </Tabs>
-
-- #### `middlewareConfigFn`: [`Reference`](../general/spec.md#reference-imports)
-
-  A reference to an Express middleware config function. This is a global modification affecting all operations and APIs. See more in the [configuring middleware section](../advanced/middleware-config#1-customize-global-middleware).
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Server"
+  kind="api"
+  title="Server"
+  description="All the options for the server field of the app spec."
+/>

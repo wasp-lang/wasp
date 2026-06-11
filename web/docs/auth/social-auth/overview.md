@@ -3,6 +3,7 @@ title: Overview
 title-llm: Social Auth Overview
 ---
 
+import { CardLink } from '@site/src/components/CardLink';
 import { SocialAuthGrid } from './SocialAuthGrid';
 import DefaultBehaviour from './\_default-behaviour.md';
 import OverrideIntro from './\_override-intro.md';
@@ -164,13 +165,13 @@ Each provider has their own rules for defining the `userSignupFields` and `confi
 
 ## API Reference
 
-### Fields in the `auth` Object and Overrides
+<CardLink
+  to="../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
+  kind="api"
+  title="SocialAuthConfig"
+  description="All the options for the social auth methods."
+/>
 
-For more information on:
-
-- Allowed fields in `auth`
-- `userSignupFields` and `configFn` functions
-
-Check the provider-specific API References:
+For more information on the provider-specific behavior of the `userSignupFields` and `configFn` functions, check the provider-specific API References:
 
 <SocialAuthGrid pagePart="#api-reference" />
