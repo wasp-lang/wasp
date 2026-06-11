@@ -464,10 +464,10 @@ createTestWaspProject template = do
   context <- askStepContext
   runCommand $ waspCliNew context.waspProjectContext.waspProjectName template
 
-inTestWaspProjectDir :: [Step WaspProjectContext ()] -> Step TestContext ()
+inTestWaspProjectDir :: Step WaspProjectContext () -> Step TestContext ()
 inTestWaspProjectDir steps = do
   context <- askStepContext
-  withInnerContext context.waspProjectContext (sequence steps)
+  withInnerContext context.waspProjectContext steps
 
 -- 'Context.SnapshotTestContext' steps
 
@@ -476,10 +476,10 @@ createSnapshotWaspProjectFromMinimalStarter = do
   context <- askStepContext
   runCommand $ waspCliNew context.waspProjectContext.waspProjectName minimalStarterTemplate
 
-inSnapshotWaspProjectDir :: [Step WaspProjectContext ()] -> Step SnapshotTestContext ()
+inSnapshotWaspProjectDir :: Step WaspProjectContext () -> Step SnapshotTestContext ()
 inSnapshotWaspProjectDir steps = do
   context <- askStepContext
-  withInnerContext context.waspProjectContext (sequence steps)
+  withInnerContext context.waspProjectContext steps
 
 copyContentsOfGitTrackedDirToSnapshotWaspProjectDir ::
   Path' (Rel GitRootDir) (Dir srcDir) ->

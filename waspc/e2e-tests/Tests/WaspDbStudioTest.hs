@@ -10,16 +10,10 @@ waspDbStudioTest :: Test
 waspDbStudioTest =
   Test
     "wasp-db-studio"
-    [ TestCase
-        "fail-outside-project"
-        (sequence [runCommandExpectingFailure waspCliDbStudio]),
-      TestCase
-        "succeed-uncompiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ runCommand waspCliDbStudio
-                ]
-            ]
-        )
+    [ TestCase "fail-outside-project" $
+        runCommandExpectingFailure waspCliDbStudio,
+      TestCase "succeed-uncompiled-project" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $
+          runCommand waspCliDbStudio
     ]

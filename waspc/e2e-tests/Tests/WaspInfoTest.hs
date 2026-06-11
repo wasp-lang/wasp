@@ -10,16 +10,10 @@ waspInfoTest :: Test
 waspInfoTest =
   Test
     "wasp-info"
-    [ TestCase
-        "fail-outside-project"
-        (sequence [runCommandExpectingFailure waspCliInfo]),
-      TestCase
-        "succeed-inside-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ runCommand waspCliInfo
-                ]
-            ]
-        )
+    [ TestCase "fail-outside-project" $
+        runCommandExpectingFailure waspCliInfo,
+      TestCase "succeed-inside-project" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $
+          runCommand waspCliInfo
     ]

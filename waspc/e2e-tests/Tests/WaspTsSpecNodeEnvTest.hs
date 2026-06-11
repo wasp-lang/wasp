@@ -21,27 +21,17 @@ waspTsSpecNodeEnvTest :: Test
 waspTsSpecNodeEnvTest =
   Test
     "wasp-ts-spec-node-env"
-    [ TestCase
-        "node-env-is-development-on-compile"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ replaceMainWaspTsFile nodeEnvMainWaspTs,
-                  assertCommandSucceedsWithOutputContaining waspCliCompile "E2E-NODE-ENV=development"
-                ]
-            ]
-        ),
-      TestCase
-        "node-env-is-production-on-build"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ setWaspDbToPSQL,
-                  replaceMainWaspTsFile nodeEnvMainWaspTs,
-                  assertCommandSucceedsWithOutputContaining waspCliBuild "E2E-NODE-ENV=production"
-                ]
-            ]
-        )
+    [ TestCase "node-env-is-development-on-compile" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $ do
+          replaceMainWaspTsFile nodeEnvMainWaspTs
+          assertCommandSucceedsWithOutputContaining waspCliCompile "E2E-NODE-ENV=development",
+      TestCase "node-env-is-production-on-build" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $ do
+          setWaspDbToPSQL
+          replaceMainWaspTsFile nodeEnvMainWaspTs
+          assertCommandSucceedsWithOutputContaining waspCliBuild "E2E-NODE-ENV=production"
     ]
   where
     nodeEnvMainWaspTs :: T.Text

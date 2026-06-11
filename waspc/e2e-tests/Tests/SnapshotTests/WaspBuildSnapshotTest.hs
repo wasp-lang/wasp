@@ -22,17 +22,14 @@ import Wasp.Project.Common (WaspProjectDir)
 
 waspBuildSnapshotTest :: SnapshotTest
 waspBuildSnapshotTest =
-  makeSnapshotTest
-    "wasp-build"
-    [ createSnapshotWaspProjectFromMinimalStarter,
-      inSnapshotWaspProjectDir
-        [ setWaspDbToPSQL,
-          runCommand waspCliBuild,
-          buildAndRemoveWaspProjectDockerImage,
-          wrapViteConfigForDeterministicBuild,
-          runCommand viteBuild
-        ]
-    ]
+  makeSnapshotTest "wasp-build" $ do
+    createSnapshotWaspProjectFromMinimalStarter
+    inSnapshotWaspProjectDir $ do
+      setWaspDbToPSQL
+      runCommand waspCliBuild
+      buildAndRemoveWaspProjectDockerImage
+      wrapViteConfigForDeterministicBuild
+      runCommand viteBuild
 
 -- | Renames the generated vite.config.ts and wraps it with a config that adds
 -- deterministic build options (no minification, no hashes, externalized deps),

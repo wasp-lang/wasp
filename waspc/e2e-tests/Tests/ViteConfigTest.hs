@@ -19,26 +19,16 @@ viteConfigTest :: Test
 viteConfigTest =
   Test
     "vite-config-validation"
-    [ TestCase
-        "fail-on-missing-vite-config"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ deleteFile "vite.config.ts",
-                  runCommandExpectingFailure waspCliCompile
-                ]
-            ]
-        ),
-      TestCase
-        "fail-on-missing-wasp-plugin-import"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ writeViteConfigWithoutPlugin,
-                  runCommandExpectingFailure waspCliCompile
-                ]
-            ]
-        )
+    [ TestCase "fail-on-missing-vite-config" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $ do
+          deleteFile "vite.config.ts"
+          runCommandExpectingFailure waspCliCompile,
+      TestCase "fail-on-missing-wasp-plugin-import" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $ do
+          writeViteConfigWithoutPlugin
+          runCommandExpectingFailure waspCliCompile
     ]
 
 writeViteConfigWithoutPlugin :: Step WaspProjectContext ()

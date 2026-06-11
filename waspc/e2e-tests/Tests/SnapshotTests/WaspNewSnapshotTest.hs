@@ -5,6 +5,4 @@ import Steps (createSnapshotWaspProjectFromMinimalStarter)
 
 waspNewSnapshotTest :: SnapshotTest
 waspNewSnapshotTest =
-  makeSnapshotTest
-    "wasp-new"
-    [createSnapshotWaspProjectFromMinimalStarter]
+  makeSnapshotTest "wasp-new" createSnapshotWaspProjectFromMinimalStarter

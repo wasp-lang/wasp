@@ -14,16 +14,13 @@ import StrongPath (reldir)
 
 kitchenSinkSnapshotTest :: SnapshotTest
 kitchenSinkSnapshotTest =
-  makeSnapshotTest
-    "kitchen-sink"
-    [ copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|],
-      inSnapshotWaspProjectDir
-        [ createDotEnvServerFile,
-          normalizePostgresConnectionString,
-          runCommand waspCliInstall,
-          runCommand waspCliCompile
-        ]
-    ]
+  makeSnapshotTest "kitchen-sink" $ do
+    copyContentsOfGitTrackedDirToSnapshotWaspProjectDir [reldir|examples/kitchen-sink|]
+    inSnapshotWaspProjectDir $ do
+      createDotEnvServerFile
+      normalizePostgresConnectionString
+      runCommand waspCliInstall
+      runCommand waspCliCompile
   where
     createDotEnvServerFile = copyFile ".env.server.example" ".env.server"
     normalizePostgresConnectionString = appendToFile ".env.server" "\nDATABASE_URL=mock-database-url"

@@ -26,65 +26,50 @@ viteBuildTest :: Test
 viteBuildTest =
   Test
     "vite-build"
-    [ TestCase
-        "fail-on-missing-required-env-vars"
-        (createViteBuildTestCase [runCommandExpectingFailure viteBuild]),
-      TestCase
-        "success-with-required-env-vars"
-        (createViteBuildTestCase [runCommand $ withEnvVars [apiUrlEnvVar] viteBuild]),
-      TestCase
-        "fail-missing-inline-env-var"
-        ( createViteBuildTestCase
-            [ runCommand $ withEnvVars [apiUrlEnvVar] viteBuild,
-              runCommandExpectingFailure $ assertBuildOutputContains inlineEnvVarValue
-            ]
-        ),
-      TestCase
-        -- Based on https://github.com/wasp-lang/wasp/issues/3741
-        "succeed-inline-env-var"
-        ( createViteBuildTestCase
-            [ runCommand $ withEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] viteBuild,
-              runCommand $ assertBuildOutputContains inlineEnvVarValue
-            ]
-        ),
-      TestCase
-        "ignore-dotenv-client-file-in-build"
-        ( createViteBuildTestCase
-            [ writeDotEnvClientFile dotEnvFileValue,
-              runCommand $ withEnvVars [apiUrlEnvVar] viteBuild,
-              runCommandExpectingFailure $ assertBuildOutputContains dotEnvFileValue
-            ]
-        ),
-      TestCase
-        "inline-env-vars-work-with-env-file-present"
-        ( createViteBuildTestCase
-            [ writeDotEnvClientFile dotEnvFileValue,
-              runCommand $ withEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] viteBuild,
-              runCommand $ assertBuildOutputContains inlineEnvVarValue
-            ]
-        ),
-      TestCase
-        "fail-on-user-code-type-error"
-        ( createViteBuildTestCase
-            [ addTypeErrorToSrcFile,
-              runCommandExpectingFailure viteBuildWithApiUrl
-            ]
-        ),
-      TestCase
-        "ignore-wasp-ts-type-errors"
-        ( createViteBuildTestCase
-            [ addTypeErrorToWaspTsFile,
-              runCommand viteBuildWithApiUrl
-            ]
-        )
+    [ TestCase "fail-on-missing-required-env-vars" $
+        createViteBuildTestCase $
+          runCommandExpectingFailure viteBuild,
+      TestCase "success-with-required-env-vars" $
+        createViteBuildTestCase $
+          runCommand $
+            withEnvVars [apiUrlEnvVar] viteBuild,
+      TestCase "fail-missing-inline-env-var" $
+        createViteBuildTestCase $ do
+          runCommand $ withEnvVars [apiUrlEnvVar] viteBuild
+          runCommandExpectingFailure $ assertBuildOutputContains inlineEnvVarValue,
+      -- Based on https://github.com/wasp-lang/wasp/issues/3741
+      TestCase "succeed-inline-env-var" $
+        createViteBuildTestCase $ do
+          runCommand $ withEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] viteBuild
+          runCommand $ assertBuildOutputContains inlineEnvVarValue,
+      TestCase "ignore-dotenv-client-file-in-build" $
+        createViteBuildTestCase $ do
+          writeDotEnvClientFile dotEnvFileValue
+          runCommand $ withEnvVars [apiUrlEnvVar] viteBuild
+          runCommandExpectingFailure $ assertBuildOutputContains dotEnvFileValue,
+      TestCase "inline-env-vars-work-with-env-file-present" $
+        createViteBuildTestCase $ do
+          writeDotEnvClientFile dotEnvFileValue
+          runCommand $ withEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] viteBuild
+          runCommand $ assertBuildOutputContains inlineEnvVarValue,
+      TestCase "fail-on-user-code-type-error" $
+        createViteBuildTestCase $ do
+          addTypeErrorToSrcFile
+          runCommandExpectingFailure viteBuildWithApiUrl,
+      TestCase "ignore-wasp-ts-type-errors" $
+        createViteBuildTestCase $ do
+          addTypeErrorToWaspTsFile
+          runCommand viteBuildWithApiUrl
     ]
   where
-    createViteBuildTestCase :: [Step WaspProjectContext ()] -> Step TestContext [()]
-    createViteBuildTestCase steps =
-      sequence
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, runCommand waspCliBuild] ++ steps
-        ]
+    createViteBuildTestCase :: Step WaspProjectContext () -> Step TestContext ()
+    createViteBuildTestCase steps = do
+      createTestWaspProject minimalStarterTemplate
+      inTestWaspProjectDir $ do
+        setWaspDbToPSQL
+        writeMainPageTsx
+        runCommand waspCliBuild
+        steps
 
     viteBuild :: Command
     viteBuild = cmd "npx" ["vite", "build"]

@@ -9,16 +9,10 @@ waspDockerfileTest :: Test
 waspDockerfileTest =
   Test
     "wasp-dockerfile"
-    [ TestCase
-        "fail-outside-project"
-        (sequence [runCommandExpectingFailure waspCliDockerfile]),
-      TestCase
-        "succeed-inside-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ runCommand waspCliDockerfile
-                ]
-            ]
-        )
+    [ TestCase "fail-outside-project" $
+        runCommandExpectingFailure waspCliDockerfile,
+      TestCase "succeed-inside-project" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $
+          runCommand waspCliDockerfile
     ]

@@ -14,15 +14,12 @@ import Steps
 
 waspMigrateSnapshotTest :: SnapshotTest
 waspMigrateSnapshotTest =
-  makeSnapshotTest
-    "wasp-migrate"
-    [ createSnapshotWaspProjectFromMinimalStarter,
-      inSnapshotWaspProjectDir
-        [ runCommand waspCliCompile,
-          appendToPrismaFile taskPrismaModel,
-          waspCliDbMigrateDev "foo"
-        ]
-    ]
+  makeSnapshotTest "wasp-migrate" $ do
+    createSnapshotWaspProjectFromMinimalStarter
+    inSnapshotWaspProjectDir $ do
+      runCommand waspCliCompile
+      appendToPrismaFile taskPrismaModel
+      waspCliDbMigrateDev "foo"
   where
     taskPrismaModel :: T.Text
     taskPrismaModel =

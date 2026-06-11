@@ -9,28 +9,17 @@ waspStartTest :: Test
 waspStartTest =
   Test
     "wasp-start"
-    [ TestCase
-        "fail-outside-project"
-        (sequence [runCommandExpectingFailure waspCliStart]),
-      TestCase
-        "succeed-uncompiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ runCommand waspCliStart,
-                  assertDirExists ".wasp",
-                  assertDirExists "node_modules"
-                ]
-            ]
-        ),
-      TestCase
-        "succeed-compiled-project"
-        ( sequence
-            [ createTestWaspProject minimalStarterTemplate,
-              inTestWaspProjectDir
-                [ runCommand waspCliCompile,
-                  runCommand waspCliStart
-                ]
-            ]
-        )
+    [ TestCase "fail-outside-project" $
+        runCommandExpectingFailure waspCliStart,
+      TestCase "succeed-uncompiled-project" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $ do
+          runCommand waspCliStart
+          assertDirExists ".wasp"
+          assertDirExists "node_modules",
+      TestCase "succeed-compiled-project" $ do
+        createTestWaspProject minimalStarterTemplate
+        inTestWaspProjectDir $ do
+          runCommand waspCliCompile
+          runCommand waspCliStart
     ]

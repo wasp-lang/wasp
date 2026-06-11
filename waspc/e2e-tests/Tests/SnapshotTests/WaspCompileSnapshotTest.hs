@@ -10,9 +10,7 @@ import Steps
 
 waspCompileSnapshotTest :: SnapshotTest
 waspCompileSnapshotTest =
-  makeSnapshotTest
-    "wasp-compile"
-    [ createSnapshotWaspProjectFromMinimalStarter,
-      inSnapshotWaspProjectDir
-        [runCommand waspCliCompile]
-    ]
+  makeSnapshotTest "wasp-compile" $ do
+    createSnapshotWaspProjectFromMinimalStarter
+    inSnapshotWaspProjectDir $
+      runCommand waspCliCompile

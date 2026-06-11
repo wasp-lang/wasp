@@ -8,7 +8,6 @@ waspVersionTest :: Test
 waspVersionTest =
   Test
     "wasp-version"
-    [ TestCase
-        "match-waspc-version"
-        (sequence [assertCommandStdoutFirstLineEquals waspCliVersion (show waspVersion)])
+    [ TestCase "match-waspc-version" $
+        assertCommandStdoutFirstLineEquals waspCliVersion (show waspVersion)
     ]

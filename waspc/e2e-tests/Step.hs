@@ -15,15 +15,14 @@ module Step
 where
 
 import Control.Exception (Exception, Handler (..), IOException, catches, throwIO)
-import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ReaderT, ask, asks, runReaderT)
 import StrongPath (Abs, File, Path')
 import TestLogger (TestLogger, formatFailureWithLog, logStepHeader, withTestLogger)
 
 -- | One executed action of an e2e test, with access to the test's context
--- (e.g. 'Context.TestContext') and the test's logger. A test case is a list of
--- steps, executed in order; the first failing step aborts the test case.
+-- (e.g. 'Context.TestContext') and the test's logger. A test case is a @do@
+-- block of steps, executed in order; the first failing step aborts the test case.
 newtype Step ctx a = Step (ReaderT (StepEnv ctx) IO a)
   deriving (Functor, Applicative, Monad)
 
@@ -63,17 +62,16 @@ askStepContext = Step $ asks (.stepContext)
 liftStepIO :: IO a -> Step ctx a
 liftStepIO = Step . liftIO
 
--- | Runs steps that expect a different (usually narrower) context, e.g. running
+-- | Runs a step that expects a different (usually narrower) context, e.g. running
 -- 'Context.WaspProjectContext' steps from within a 'Context.TestContext' test.
-withInnerContext :: innerCtx -> Step innerCtx a -> Step ctx ()
+withInnerContext :: innerCtx -> Step innerCtx () -> Step ctx ()
 withInnerContext innerContext step = Step $ do
   env <- ask
   liftIO $ runStepInEnv (StepEnv innerContext env.stepLogger) step
 
--- | Runs the steps of a test (e.g. @'sequence' [step1, step2, ...]@) in order,
--- collecting their output into the given log file. Returns the formatted
--- failure message of the first failed step, if any.
-runSteps :: String -> Path' Abs (File f) -> ctx -> Step ctx a -> IO (Either String ())
+-- | Runs the steps of a test in order, collecting their output into the given
+-- log file. Returns the formatted failure message of the first failed step, if any.
+runSteps :: String -> Path' Abs (File f) -> ctx -> Step ctx () -> IO (Either String ())
 runSteps testName logFile context step =
   withTestLogger logFile testName $ \logger -> do
     (Right <$> runStepInEnv (StepEnv context logger) step)
@@ -81,5 +79,5 @@ runSteps testName logFile context step =
                   Handler $ \(ioException :: IOException) -> Left <$> formatFailureWithLog logger ("IO error: " ++ show ioException)
                 ]
 
-runStepInEnv :: StepEnv ctx -> Step ctx a -> IO ()
-runStepInEnv env (Step reader) = void $ runReaderT reader env
+runStepInEnv :: StepEnv ctx -> Step ctx () -> IO ()
+runStepInEnv env (Step reader) = runReaderT reader env

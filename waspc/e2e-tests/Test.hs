@@ -21,11 +21,10 @@ data Test = Test
     testCases :: [TestCase]
   }
 
--- | Represent a single test case of some 'Test'. Its steps are a monadic
--- 'Step' value, typically @'sequence' [step1, step2, ...]@.
+-- | Represent a single test case of some 'Test'.
 data TestCase = TestCase
   { name :: String,
-    steps :: Step TestContext [()]
+    steps :: Step TestContext ()
   }
 
 testTreeFromTest :: Test -> TestTree
