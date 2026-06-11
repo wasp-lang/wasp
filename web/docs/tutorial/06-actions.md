@@ -197,8 +197,7 @@ import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 export default app({
   // ...
   spec: [
-    route("RootRoute", "/", page(MainPage)),
-    query(getTasks, { entities: ["Task"] }),
+    // ... existing routes and queries
     action(createTask, { entities: ["Task"] }),
     // highlight-next-line
     action(updateTask, { entities: ["Task"] }),

@@ -48,14 +48,7 @@ import { getTasks } from "./src/queries" with { type: "ref" }
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
 export default app({
-  name: "TodoApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
-  title: "TodoApp",
-  head: [
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+  // ...
   // highlight-start
   auth: {
     // Tells Wasp which entity to use for storing users.
@@ -121,9 +114,7 @@ export default app({
     route("SignupRoute", "/signup", page(SignupPage)),
     route("LoginRoute", "/login", page(LoginPage)),
     // highlight-end
-    query(getTasks, { entities: ["Task"] }),
-    action(createTask, { entities: ["Task"] }),
-    action(updateTask, { entities: ["Task"] }),
+    // ... existing queries and actions
   ],
 })
 ```
@@ -202,11 +193,7 @@ export default app({
       // highlight-next-line
       authRequired: true,
     }),
-    route("SignupRoute", "/signup", page(SignupPage)),
-    route("LoginRoute", "/login", page(LoginPage)),
-    query(getTasks, { entities: ["Task"] }),
-    action(createTask, { entities: ["Task"] }),
-    action(updateTask, { entities: ["Task"] }),
+    // ... existing routes, queries, and actions
   ],
 })
 ```
@@ -219,10 +206,8 @@ Additionally, when `authRequired` is `true`, the page's React component will be 
 <TutorialAction id="main-page-add-auth" action="APPLY_PATCH">
 
 ```tsx title="src/MainPage.tsx" auto-js
-import type { ChangeEvent, FormEvent } from "react";
 import type { AuthUser } from "wasp/auth";
-import type { Task } from "wasp/entities";
-import { createTask, getTasks, updateTask, useQuery } from "wasp/client/operations";
+// ... existing imports
 
 // highlight-next-line
 export const MainPage = ({ user }: { user: AuthUser }) => {
@@ -395,7 +380,7 @@ Last, but not least, let's add the logout functionality:
 import type { AuthUser } from "wasp/auth";
 // highlight-next-line
 import { logout } from "wasp/client/auth";
-// ...
+// ... existing imports
 
 export const MainPage = ({ user }: { user: AuthUser }) => {
   // ...
