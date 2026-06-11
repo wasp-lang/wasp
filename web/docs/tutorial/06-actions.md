@@ -26,6 +26,7 @@ We must first declare the Action in `main.wasp.ts`:
 <TutorialAction id="action-create-task" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
+// highlight-next-line
 import { action, app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
@@ -190,6 +191,7 @@ Since we've already created one task together, try to create this one yourself. 
 import { action, app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 import { getTasks } from "./src/queries" with { type: "ref" }
+// highlight-next-line
 import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
 export default app({
@@ -198,6 +200,7 @@ export default app({
     route("RootRoute", "/", page(MainPage)),
     query(getTasks, { entities: ["Task"] }),
     action(createTask, { entities: ["Task"] }),
+    // highlight-next-line
     action(updateTask, { entities: ["Task"] }),
   ],
 })

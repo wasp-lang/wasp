@@ -27,6 +27,7 @@ We need to add a **query** specification to `main.wasp.ts` so that Wasp knows it
 
 <TutorialAction id="query-get-tasks" action="APPLY_PATCH">
 ```ts title="main.wasp.ts"
+// highlight-next-line
 import { app, page, query, route } from "@wasp.sh/spec"
 import { MainPage } from "./src/MainPage" with { type: "ref" }
 // highlight-next-line
