@@ -569,6 +569,47 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 }
 /************************************/
 
+/****** WASP-STYLED SCROLLBAR *******/
+.wasp-scrollbar {
+  &::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--wasp-k);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--wasp-y);
+    border-radius: 0;
+    border: 2px solid var(--wasp-k);
+
+    &:hover {
+      background: var(--wasp-yd);
+    }
+  }
+
+  /* No up/down (or left/right) arrow buttons. */
+  &::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: var(--wasp-k);
+  }
+}
+/* For browsers that don't support ::-webkit-scrollbar (e.g. Firefox),
+   use the simpler scrollbar-* properties. */
+@supports not selector(::-webkit-scrollbar) {
+  .wasp-scrollbar {
+    scrollbar-color: var(--wasp-k) var(--wasp-y);
+  }
+}
+/************************************/
+
 /******* OTHER ********/
 
 .video-container {
