@@ -3,11 +3,9 @@ title: Overview
 title-llm: Username & Password Auth Overview
 ---
 
-import { Required } from '@site/src/components/Tag';
+import { CardLink } from '@site/src/components/CardLink';
 import MultipleIdentitiesWarning from './\_multiple-identities-warning.md';
 import ReadMoreAboutAuthEntities from './\_read-more-about-auth-entities.md';
-import UserSignupFieldsExplainer from './\_user-signup-fields-explainer.md';
-import UserFieldsExplainer from './\_user-fields.md';
 import UsernameData from './entities/\_username-data.md';
 import AccessingUserDataNote from './\_accessing-user-data-note.md';
 import TailwindNote from './\_tailwind-note.md';
@@ -69,7 +67,7 @@ export default app({
 })
 ```
 
-Read more about the `usernameAndPassword` auth method options [here](#fields-in-the-usernameandpassword-object).
+Read more about the `usernameAndPassword` auth method options in the [`UsernameAndPasswordConfig` API Reference](../api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig.md).
 
 ### 2. Add the User Entity
 
@@ -242,59 +240,18 @@ When you receive the `user` object [on the client or the server](./overview.md#a
 
 ## API Reference
 
-### `userEntity` fields
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Auth"
+  kind="api"
+  title="Auth"
+  description="All the options for the auth field of the app spec, including userEntity."
+/>
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/UsernameAndPasswordConfig"
+  kind="api"
+  title="UsernameAndPasswordConfig"
+  description="All the options for the usernameAndPassword auth method."
+/>
 
-export default app({
-  name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
-  title: "My App",
-  auth: {
-    userEntity: "User",
-    methods: {
-      usernameAndPassword: {},
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-  // ...
-})
-```
-
-```prisma title="schema.prisma"
-model User {
-  id Int @id @default(autoincrement())
-}
-```
-
-<UserFieldsExplainer />
-
-### Fields in the `usernameAndPassword` object
-
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { userSignupFields } from "./src/auth/email" with { type: "ref" }
-
-export default app({
-  name: "myApp",
-  wasp: { version: "{latestWaspVersion}" },
-  title: "My App",
-  auth: {
-    userEntity: "User",
-    methods: {
-      usernameAndPassword: {
-        userSignupFields,
-      },
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-  // ...
-})
-```
-
-#### `userSignupFields`: [`Reference`](../general/spec.md#reference-imports)
-
-<UserSignupFieldsExplainer />
-
-Read more about the `userSignupFields` function [here](./overview#1-defining-extra-fields).
+Read more about the `userSignupFields` function in the [Auth Overview docs](./overview.md#signup-fields-customization).

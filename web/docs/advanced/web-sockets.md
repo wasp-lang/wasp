@@ -3,6 +3,7 @@ title: Web Sockets
 ---
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
+import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { Required } from '@site/src/components/Tag';
 
@@ -47,7 +48,7 @@ Let's define the WebSockets server with all of the events and handler functions.
   :::
 </ShowForTs>
 
-### `webSocketFn` Function
+### `webSocketFn` Function {#websocketfn}
 
 On the server, you will get Socket.IO `io: Server` argument and `context` for your WebSocket function. The `context` object give you access to all of the entities from your Wasp app.
 
@@ -281,26 +282,10 @@ Additionally, there is a `useSocketListener: (event, callback) => void` hook whi
 
 ## API Reference
 
-```ts title="main.wasp.ts"
-import { app } from "@wasp.sh/spec"
-import { webSocketFn } from "./src/webSocket" with { type: "ref" }
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/WebSocket"
+  kind="api"
+  title="WebSocket"
+  description="All the options for the webSocket field of the app spec."
+/>
 
-export default app({
-  name: "todoApp",
-  webSocket: {
-    fn: webSocketFn,
-    autoConnect: true, // optional, default: true
-  },
-  // ...
-})
-```
-
-The `webSocket` object has the following fields:
-
-- `fn: WebSocketFn` <Required />
-
-  The function that defines the WebSocket events and handlers.
-
-- `autoConnect: boolean`
-
-  Whether to automatically connect to the WebSocket server. Default: `true`.

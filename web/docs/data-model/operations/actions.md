@@ -2,6 +2,7 @@
 title: Actions
 ---
 
+import { CardLink } from '@site/src/components/CardLink';
 import { Required } from '@site/src/components/Tag';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import SuperjsonNote from './\_superjson-note.md';
@@ -538,82 +539,30 @@ Here are the key differences between Queries and Actions:
 
 ### Declaring Actions in Wasp Spec
 
-Declare an Action with `action(fn, config)`:
+<CardLink
+  to="../../api/@wasp.sh/spec/functions/action"
+  kind="api"
+  title="action"
+  description="All the options for declaring an action in the Wasp spec."
+/>
 
-- `fn`: [`Reference`](../../general/spec.md#reference-imports) <Required />
+Declaring an Action enables you to import and use it anywhere in your code (on the server or the client). For example, for an Action that we declared as `createFoo`, Wasp generates two functions with the same name that you can import and use:
 
-  A reference to the Action's Node.js implementation.
+```ts
+// Use it on the client
+import { createFoo } from "wasp/client/operations"
 
-- `config.entities: EntityName[]`
+// Use it on the server
+import { createFoo } from "wasp/server/operations"
+```
 
-  A list of entities you wish to use inside your Action.
-  For instructions on using Entities in Actions, take a look at [the guide](#using-entities-in-actions).
+<ShowForTs>
+  It also creates a type you can import on the server:
 
-- `config.auth: boolean`
-
-  Whether this Action requires auth. If your app has auth enabled, this defaults to `true`.
-
-#### Example
-
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    Declaring the Action:
-
-    ```ts
-    import { action, app } from "@wasp.sh/spec"
-    import { createFoo } from "./src/actions" with { type: "ref" }
-
-    export default app({
-      // ...
-      spec: [
-        action(createFoo, { entities: ["Foo"] }),
-      ],
-    })
-    ```
-
-    Enables you to import and use it anywhere in your code (on the server or the client):
-
-    ```js
-    // Use it on the client
-    import { createFoo } from "wasp/client/operations"
-
-    // Use it on the server
-    import { createFoo } from "wasp/server/operations"
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    Declaring the Action:
-
-    ```ts
-    import { action, app } from "@wasp.sh/spec"
-    import { createFoo } from "./src/actions" with { type: "ref" }
-
-    export default app({
-      // ...
-      spec: [
-        action(createFoo, { entities: ["Foo"] }),
-      ],
-    })
-    ```
-
-    Enables you to import and use it anywhere in your code (on the server or the client):
-
-    ```ts
-    // Use it on the client
-    import { createFoo } from "wasp/client/operations"
-
-    // Use it on the server
-    import { createFoo } from "wasp/server/operations"
-    ```
-
-    As well as the following type import on the server:
-
-    ```ts
-    import { type CreateFoo } from "wasp/server/operations"
-    ```
-  </TabItem>
-</Tabs>
+  ```ts
+  import { type CreateFoo } from "wasp/server/operations"
+  ```
+</ShowForTs>
 
 ### Implementing Actions
 

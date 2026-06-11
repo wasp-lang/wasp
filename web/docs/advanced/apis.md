@@ -2,8 +2,8 @@
 title: Custom HTTP API Endpoints
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
 import { ShowForTs, ShowForJs } from '@site/src/components/TsJsHelpers'
-import { Required } from '@site/src/components/Tag'
 import ReferencingCodeFromSrcNote from '../_referencing-code-from-src-note.md'
 
 In Wasp, the default client-server interaction mechanism is through [Operations](../data-model/operations/overview). However, if you need a specific URL method/path, or a specific response, Operations may not be suitable for you. For these cases, you can use an `api`. Best of all, they should look and feel very familiar.
@@ -344,46 +344,16 @@ async function fetchStream(
 
 ## API Reference
 
-```ts title="main.wasp.ts"
-import { api, app } from "@wasp.sh/spec"
-import { apiMiddleware, fooBar } from "./src/apis" with { type: "ref" }
+<CardLink
+  to="../api/@wasp.sh/spec/functions/api"
+  kind="api"
+  title="api"
+  description="All the options for declaring an API endpoint in the Wasp spec."
+/>
 
-export default app({
-  // ...
-  spec: [
-    api("GET", "/foo/bar", fooBar, {
-      entities: ["Task"],
-      auth: true,
-      middlewareConfigFn: apiMiddleware,
-    }),
-  ],
-})
-```
-
-The `api` function accepts `method`, `path`, and `fn` as positional arguments, plus an optional config object:
-
-- `method: HttpMethod` <Required />
-
-  The HTTP method. It can be one of `ALL`, `GET`, `POST`, `PUT` or `DELETE`.
-
-- `path: string` <Required />
-
-  An Express route path string.
-
-- `fn`: [`Reference`](../general/spec.md#reference-imports) <Required />
-
-  A reference to the API's NodeJS implementation.
-
-The config object accepts the following fields:
-
-- `entities: EntityName[]`
-
-  A list of entities you wish to use inside your API. You can read more about it [here](#using-entities-in-apis).
-
-- `auth: boolean`
-
-  If auth is enabled, this will default to `true` and provide a `context.user` object. If you do not wish to attempt to parse the JWT in the Authorization Header, you should set this to `false`.
-
-- `middlewareConfigFn`: [`Reference`](../general/spec.md#reference-imports)
-
-  A reference to an Express middleware config function for this API. See more in the [middleware section](../advanced/middleware-config) of the docs.
+<CardLink
+  to="../api/@wasp.sh/spec/functions/apiNamespace"
+  kind="api"
+  title="apiNamespace"
+  description="All the options for declaring an API namespace in the Wasp spec."
+/>

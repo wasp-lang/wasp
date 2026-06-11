@@ -2,7 +2,7 @@
 title: Automatic CRUD
 ---
 
-import { Required } from '@site/src/components/Tag';
+import { CardLink } from '@site/src/components/CardLink';
 import { ShowForTs } from '@site/src/components/TsJsHelpers';
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
 
@@ -154,7 +154,7 @@ We also overrode the `create` operation with a custom implementation. This means
 
 We need a custom `create` operation because we want to make sure that the task is connected to the user creating it.
 Automatic CRUD doesn't yet support this by default.
-Read more about the default implementations [here](#declaring-a-crud-with-default-options).
+Read more about the default implementations in the [`CrudOperations` API Reference](../api/@wasp.sh/spec/interfaces/CrudOperations.md).
 
 Here's the `src/tasks.{js,ts}` file:
 
@@ -447,135 +447,16 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 
 ## API Reference
 
-CRUD spec works on top of an existing entity declaration. We'll fully explore the API using two examples:
+### Declaring CRUD Operations
 
-1. A basic CRUD spec that relies on default options.
-2. A more involved CRUD spec that uses extra options and overrides.
+<CardLink
+  to="../api/@wasp.sh/spec/functions/crud"
+  kind="api"
+  title="crud"
+  description="All the options for declaring CRUD operations in the Wasp spec."
+/>
 
-### Declaring a CRUD With Default Options
-
-If we create CRUD operations for an entity named `Task`, like this:
-
-```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec"
-
-export default app({
-  // ...
-  spec: [
-    crud("Tasks", "Task", { // crud name here is "Tasks"
-      get: {},
-      getAll: {},
-      create: {},
-      update: {},
-      delete: {},
-    }),
-  ],
-})
-```
-
-Wasp will give you the following default implementations:
-
-**get** - returns one entity based on the `id` field
-
-```ts
-// ...
-// Wasp uses the field marked with `@id` in Prisma schema as the id field.
-return Task.findUnique({ where: { id: args.id } })
-```
-
-**getAll** - returns all entities
-
-```ts
-// ...
-
-// If the operation is not public, Wasp checks if an authenticated user
-// is making the request.
-
-return Task.findMany()
-```
-
-**create** - creates a new entity
-
-```ts
-// ...
-return Task.create({ data: args.data })
-```
-
-**update** - updates an existing entity
-
-```ts
-// ...
-// Wasp uses the field marked with `@id` in Prisma schema as the id field.
-return Task.update({ where: { id: args.id }, data: args.data })
-```
-
-**delete** - deletes an existing entity
-
-```ts
-// ...
-// Wasp uses the field marked with `@id` in Prisma schema as the id field.
-return Task.delete({ where: { id: args.id } })
-```
-
-:::info Current Limitations
-In the default `create` and `update` implementations, we are saving all of the data that the client sends to the server. This is not always desirable, i.e. in the case when the client should not be able to modify all of the data in the entity.
-
-[In the future](#future-of-crud-operations-in-wasp), we are planning to add validation of action input, where only the data that the user is allowed to change will be saved.
-
-For now, the solution is to provide an override function. You can override the default implementation by using the `overrideFn` option and implementing the validation logic yourself.
-
-:::
-
-### Declaring a CRUD With All Available Options
-
-Here's an example of a more complex CRUD spec:
-
-```ts title="main.wasp.ts"
-import { app, crud } from "@wasp.sh/spec"
-import { createTask } from "./src/tasks" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    crud("Tasks", "Task", { // crud name here is "Tasks"
-      getAll: {
-        isPublic: true, // optional, defaults to false
-      },
-      get: {},
-      create: {
-        overrideFn: createTask, // optional
-      },
-      update: {},
-    }),
-  ],
-})
-```
-
-The `crud` function accepts the following arguments:
-
-- `name: string` <Required />
-
-  The name Wasp uses for the generated CRUD helpers.
-
-- `entity: EntityName` <Required />
-
-  The entity to which the CRUD operations will be applied.
-
-- `operations: { [operationName]: CrudOperationOptions }` <Required />
-
-  The operations to be generated. The key is the name of the operation, and the value is the operation configuration.
-
-  - The possible values for `operationName` are:
-    - `getAll`
-    - `get`
-    - `create`
-    - `update`
-    - `delete`
-  - `CrudOperationOptions` can have the following fields:
-    - `isPublic: boolean` - Whether the operation is public or not. If it is public, no auth is required to access it. If it is not public, it will be available only to authenticated users. Defaults to `false`.
-    - `overrideFn`: [`Reference`](../general/spec.md#reference-imports) - A reference to the optional override implementation in Node.js.
-
-#### Defining the overrides
+### Defining the overrides
 
 Like with actions and queries, you can define the implementation in a Javascript/Typescript file. The overrides are functions that take the following arguments:
 
@@ -613,7 +494,7 @@ Like with actions and queries, you can define the implementation in a Javascript
 
 For a usage example, check the [example guide](../data-model/crud#adding-crud-to-the-task-entity-).
 
-#### Using the CRUD operations in client code
+### Using the CRUD operations in client code
 
 On the client, you import the CRUD operations from `wasp/client/crud` by import the `{crud name}` object. For example, if you have a CRUD called `Tasks`, you would import the operations like this:
 
@@ -656,7 +537,3 @@ You can then access the operations like this:
 </Tabs>
 
 All CRUD operations are implemented with [Queries and Actions](../data-model/operations/overview) under the hood, which means they come with all the features you'd expect (e.g., automatic SuperJSON serialization, full-stack type safety when using TypeScript)
-
----
-
-Join our **community** on [Discord](https://discord.com/invite/rzdnErX), where we chat about full-stack web stuff. Join us to see what we are up to, share your opinions or get help with CRUD operations.
