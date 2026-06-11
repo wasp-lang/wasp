@@ -65,7 +65,7 @@ We can now use the CRUD queries and actions we just specified in our client code
 
 Keep reading for an example of Automatic CRUD in action, or skip ahead for the [API Reference](#api-reference).
 
-## Example: A Simple TODO App
+## Example: A Simple ToDo App
 
 Let's create a full-app example that uses automatic CRUD. We'll stick to using the `Task` entity from the previous example, but we'll add a `User` entity and enable [username and password](../auth/username-and-pass) based auth.
 

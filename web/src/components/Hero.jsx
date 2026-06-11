@@ -65,8 +65,8 @@ import { getTasks } from "./src/tasks" with { type: "ref" };
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.24.0" },
   title: "ToDo App",
+  wasp: { version: "^0.24.0" },
   auth: {
     userEntity: "User",
     methods: { google: {}, gitHub: {}, email: {} },

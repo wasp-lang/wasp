@@ -68,8 +68,8 @@ import { DashboardPage } from "./src/dashboard/DashboardPage" with { type: "ref"
 import { getTasks } from "./src/queries" with { type: "ref" }; // Your Node.js code.
 
 export default app({
-  name: "TodoApp",
-  title: "TODO App",
+  name: "todoApp",
+  title: "ToDo App",
   wasp: { version: "^0.24.0" },
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

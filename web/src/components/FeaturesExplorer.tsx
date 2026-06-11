@@ -244,8 +244,8 @@ import { dailyDigest, getMetrics } from "./src/admin/ops" with { type: "ref" };
 import { HomePage } from "./src/pages/Home" with { type: "ref" };
 
 export default app({
-  name: "TodoApp",
-  title: "TodoApp",
+  name: "todoApp",
+  title: "ToDo App",
   wasp: { version: "^0.24.0" },
   auth: {
     userEntity: "User",

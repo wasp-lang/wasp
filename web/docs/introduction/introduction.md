@@ -186,7 +186,7 @@ export function HomePage({ user }: { user: User }) {
 
 And voila! We are listing all the recipes in our app 🎉
 
-This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo app tutorial](../tutorial/01-create.md).
+This was just a quick example to give you a taste of what Wasp is. For step by step tour through the most important Wasp features, check out the [Todo App tutorial](../tutorial/01-create.md).
 
 :::note
 Above we skipped defining `/login` and `/signup` pages to keep the example a bit shorter, but those are very simple to do by using Wasp's Auth UI feature.
