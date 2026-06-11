@@ -386,7 +386,7 @@ spec: [
 
 export const countTasks: CountTasks<void, number> = async (_args, ctx) => {
   return ctx.entities.Task.count();
-}`,
+};`,
       },
       {
         head: "src/task/TaskCounter.tsx",
