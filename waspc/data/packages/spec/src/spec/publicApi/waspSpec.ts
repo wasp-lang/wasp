@@ -806,10 +806,15 @@ export interface WebSocket {
  * @example
  * Nested arrays let you compose a spec from separate sub-specs:
  * ```ts
+ * import { app } from "@wasp.sh/spec"
+ *
  * const authSpec: Spec = [signupRoute, loginRoute];
  * const tasksSpec: Spec = [tasksRoute, getTasks, createTask];
  *
- * const spec: Spec = [authSpec, tasksSpec];
+ * export default app({
+ *   // ...
+ *   spec: [authSpec, tasksSpec],
+ * });
  * ```
  */
 export type Spec = SpecElement | Spec[];
@@ -884,8 +889,16 @@ export interface Route extends BaseSpecElement<"route"> {
    *
    * @example
    * ```ts
-   * route("NameRoute", "/some-path", page(SomePage), {
-   *   prerender: true,
+   * import { app, page, route } from "@wasp.sh/spec"
+   * import { SomePage } from "./src/SomePage" with { type: "ref" }
+   *
+   * export default app({
+   *   // ...
+   *   spec: [
+   *     route("NameRoute", "/some-path", page(SomePage), {
+   *       prerender: true,
+   *     }),
+   *   ],
    * })
    * ```
    */
@@ -1234,10 +1247,15 @@ type Entities = FromRegister<"entities", {}>;
  *
  * @example
  * ```ts
- * import { query } from "@wasp.sh/spec"
+ * import { app, query } from "@wasp.sh/spec"
  * import { getTasks } from "./src/queries" with { type: "ref" }
  *
- * query(getTasks, { entities: ["Task"] })
+ * export default app({
+ *   // ...
+ *   spec: [
+ *     query(getTasks, { entities: ["Task"] }),
+ *   ],
+ * })
  * ```
  */
 export type Reference<AppValue> = RefObject | AppValue;
