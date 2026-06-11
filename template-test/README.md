@@ -20,6 +20,9 @@ cd app
 # Get the environment variables from Dotenv Vault.
 npm run env:pull
 
+# Install dependencies.
+wasp install
+
 # Run the dev database and create migrations.
 wasp db start
 wasp db migrate-dev --name "init"
