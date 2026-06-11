@@ -29,7 +29,7 @@ import { app } from "@wasp.sh/spec"
 import { webSocketFn } from "./src/webSocket" with { type: "ref" }
 
 export default app({
-  name: "todoApp",
+  name: "myApp",
   webSocket: {
     fn: webSocketFn,
     autoConnect: true, // optional, default: true

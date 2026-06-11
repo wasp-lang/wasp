@@ -109,12 +109,14 @@ export default app({
   // ...
   title: "My App",
   head: [
+    "<link rel='icon' href='/favicon.ico' />",
     // highlight-start
     "<meta name='description' content='Your apps main description.' />",
     "<meta property='og:title' content='My App' />",
     "<meta property='og:image' content='https://your-app.com/banner.webp' />",
     // highlight-end
   ],
+  // ...
 })
 ```
 

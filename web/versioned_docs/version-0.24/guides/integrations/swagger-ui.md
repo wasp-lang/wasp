@@ -32,10 +32,9 @@ import { swaggerMiddleware } from "./src/swagger-ui" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: {
-    version: "^0.24.0",
-  },
+  wasp: { version: "^0.24.0" },
   title: "my-app",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     // highlight-next-line
     apiNamespace("/api-docs", { middlewareConfigFn: swaggerMiddleware }),

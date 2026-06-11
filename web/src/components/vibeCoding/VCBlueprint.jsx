@@ -9,8 +9,9 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "mySaasApp",
-  title: "My SaaS App",
   wasp: { version: "^0.24.0" },
+  title: "My SaaS App",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
     methods: { google: {}, email: {} }

@@ -76,8 +76,7 @@ app.get("/auth/google/callback",
           source: `import { app } from "@wasp.sh/spec";
 
 export default app({
-  name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  // ...
   auth: {
     userEntity: "User",
     methods: { google: {} },
@@ -188,8 +187,7 @@ export const TasksPage = () => {
 import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
-  name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  // ...
   spec: [
     query(getTasks, { entities: ["Task"] })
   ]
@@ -287,8 +285,7 @@ export async function registerWorkers(boss: PgBoss) {
 import { emailDigest } from "./src/jobs/email" with { type: "ref" };
 
 export default app({
-  name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  // ...
   spec: [
     job(emailDigest, {
       executor: "PgBoss",

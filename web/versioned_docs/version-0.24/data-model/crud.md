@@ -83,10 +83,9 @@ import { SignupPage } from "./src/SignupPage" with { type: "ref" }
 
 export default app({
   name: "tasksCrudApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "Tasks Crud App",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
 
   // We enabled auth and set the auth method to username and password
   auth: {

@@ -347,7 +347,6 @@ import { setUpPrisma } from "./src/prisma" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  title: "My app",
   // ...
   db: {
     prismaSetupFn: setUpPrisma,

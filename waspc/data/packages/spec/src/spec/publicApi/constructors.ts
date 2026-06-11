@@ -34,8 +34,9 @@ import type {
  *
  * export default app({
  *   name: 'todoApp',
- *   title: 'ToDo App',
- *   wasp: { version: '^0.24.0' },
+ *   wasp: { version: "^0.24.0" },
+ *   title: "ToDo App",
+ *   head: ["<link rel='icon' href='/favicon.ico' />"],
  *   spec: [
  *     route('MainRoute', '/', page(MainPage)),
  *   ],

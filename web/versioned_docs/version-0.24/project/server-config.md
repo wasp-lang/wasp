@@ -13,7 +13,6 @@ import { myMiddlewareConfigFn, mySetupFunction } from "./src/myServerSetupCode" 
 
 export default app({
   name: "MyApp",
-  title: "My app",
   server: {
     setupFn: mySetupFunction,
     middlewareConfigFn: myMiddlewareConfigFn,

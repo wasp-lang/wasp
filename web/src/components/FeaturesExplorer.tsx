@@ -247,6 +247,7 @@ export default app({
   name: "todoApp",
   title: "ToDo App",
   wasp: { version: "^0.24.0" },
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
     methods: { email: {}, google: {} },

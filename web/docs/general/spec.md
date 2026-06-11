@@ -28,8 +28,9 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "todoApp",
-  title: "ToDo App",
   wasp: { version: "^0.24.0" },
+  title: "ToDo App",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     query(getTasks, { entities: ["Task"] }),
@@ -101,6 +102,7 @@ Use `ref(...)` when a direct reference import is not practical. Import `ref` fro
 import { ref } from "@wasp.sh/spec";
 
 export default app({
+  // ...
   spec: [
     page(ref({ importDefault: "MainPage", from: "./src/MainPage" })),
     query(ref({ import: "getTasks", from: "./src/queries" })),
@@ -150,8 +152,9 @@ import { authSpec } from "./src/auth/auth.wasp";
 
 export default app({
   name: "todoApp",
-  title: "ToDo App",
   wasp: { version: "^0.24.0" },
+  title: "ToDo App",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
     authSpec,

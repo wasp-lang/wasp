@@ -127,9 +127,7 @@ Update the version field in your Wasp config to `^0.24.0`. The syntax depends on
     import { App } from "wasp-config";
 
     const app = new App("MyApp", {
-      wasp: {
-        version: "^0.24.0",
-      },
+      wasp: { version: "^0.24.0" },
       // ...
     });
     ```

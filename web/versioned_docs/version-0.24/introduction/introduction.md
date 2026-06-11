@@ -60,8 +60,9 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "RecipeApp",
-  title: "My Recipes",
   wasp: { version: "{latestWaspVersion}" },
+  title: "My Recipes",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     methods: { usernameAndPassword: {} },
     onAuthFailedRedirectTo: "/login",

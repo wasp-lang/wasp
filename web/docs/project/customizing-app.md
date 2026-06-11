@@ -11,11 +11,10 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "todoApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
   head: [
+    "<link rel='icon' href='/favicon.ico' />",
     "<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap' />",
   ],
   // ...
@@ -33,9 +32,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "BookFace",
   // ...
 })
@@ -52,11 +49,10 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: [ // optional
+    "<link rel='icon' href='/favicon.ico' />",
     "<link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Roboto:300,400,500&display=swap' />",
     "<script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js'></script>",
     "<meta name='viewport' content='minimum-scale=1, initial-scale=1, width=device-width' />",
