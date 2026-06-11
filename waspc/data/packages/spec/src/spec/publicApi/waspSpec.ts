@@ -457,8 +457,10 @@ export interface EmailFlowConfig {
    * This route should handle the process of taking a token from the URL and
    * sending it to the server to verify the e-mail address. You can use our
    * [`verifyEmail`
-   * action](https://wasp.sh/docs/auth/email/create-your-own-ui#verifyemail) for
-   * that.
+   * action](https://wasp.sh/docs/auth/email/create-your-own-ui#verifyemail) and
+   * [`resetPassword`
+   * action](https://wasp.sh/docs/auth/email/create-your-own-ui#resetpassword)
+   * helpers for that.
    */
   clientRoute: string;
 }
