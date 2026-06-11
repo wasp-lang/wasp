@@ -40,62 +40,70 @@ waspSpecAvailableTest =
     "wasp-spec-available"
     [ TestCase
         "commands-requiring-wasp-spec-fail-with-install-hint-when-missing"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir $
-            removeNodeModules
-              : map
-                assertCommandFailsWithInstallHint
-                [ waspCliCompile,
-                  waspCliBuild,
-                  waspCliInfo,
-                  waspCliDeps,
-                  waspCliDockerfile,
-                  waspCliStudio,
-                  waspCliDbReset,
-                  waspCliDeploy ["fly", "setup"],
-                  waspCliStartDb,
-                  waspCliStart,
-                  waspCliTestClient []
-                ]
-        ],
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $
+                removeNodeModules
+                  : map
+                    assertCommandFailsWithInstallHint
+                    [ waspCliCompile,
+                      waspCliBuild,
+                      waspCliInfo,
+                      waspCliDeps,
+                      waspCliDockerfile,
+                      waspCliStudio,
+                      waspCliDbReset,
+                      waspCliDeploy ["fly", "setup"],
+                      waspCliStartDb,
+                      waspCliStart,
+                      waspCliTestClient []
+                    ]
+            ]
+        ),
       TestCase
         "compile-fails-with-install-hint-when-wasp-spec-version-mismatches-cli"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ corruptWaspSpecVersion,
-              assertCommandFailsWithInstallHint waspCliCompile
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ corruptWaspSpecVersion,
+                  assertCommandFailsWithInstallHint waspCliCompile
+                ]
             ]
-        ],
+        ),
       TestCase
         "build-start-fails-with-install-hint-when-wasp-spec-missing"
         -- `wasp build start` requires `.wasp/build` to exist before its
         -- `WaspSpecAvailable` check fires, so we build first, then nuke
         -- node_modules to reach the install-hint failure path.
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ setWaspDbToPSQL,
-              runCommand waspCliBuild,
-              removeNodeModules,
-              assertCommandFailsWithInstallHint (waspCliBuildStart [])
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  runCommand waspCliBuild,
+                  removeNodeModules,
+                  assertCommandFailsWithInstallHint (waspCliBuildStart [])
+                ]
             ]
-        ],
+        ),
       TestCase
         "commands-not-requiring-wasp-spec-succeed-when-missing"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir $
-            concatMap
-              (\command -> [removeNodeModules, runCommand command])
-              -- Project-scoped commands that don't require wasp-spec to be installed.
-              [ waspCliClean,
-                waspCliInstall,
-                -- Project-agnostic commands. They don't read the project,
-                -- so they should be unaffected by wasp-spec presence.
-                waspCliVersion,
-                waspCliCompletion,
-                waspCliTelemetry,
-                waspCliNews
-              ]
-        ]
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir $
+                concatMap
+                  (\command -> [removeNodeModules, runCommand command])
+                  -- Project-scoped commands that don't require wasp-spec to be installed.
+                  [ waspCliClean,
+                    waspCliInstall,
+                    -- Project-agnostic commands. They don't read the project,
+                    -- so they should be unaffected by wasp-spec presence.
+                    waspCliVersion,
+                    waspCliCompletion,
+                    waspCliTelemetry,
+                    waspCliNews
+                  ]
+            ]
+        )
     ]
   where
     -- Putting the project in a "wasp-spec missing" state without invoking any wasp command.

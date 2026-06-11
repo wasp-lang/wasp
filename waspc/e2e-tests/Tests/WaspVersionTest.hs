@@ -10,5 +10,5 @@ waspVersionTest =
     "wasp-version"
     [ TestCase
         "match-waspc-version"
-        [assertCommandStdoutFirstLineEquals waspCliVersion (show waspVersion)]
+        (sequence [assertCommandStdoutFirstLineEquals waspCliVersion (show waspVersion)])
     ]

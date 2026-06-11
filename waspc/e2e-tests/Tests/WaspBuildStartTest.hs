@@ -11,22 +11,26 @@ waspBuildStartTest =
     "wasp-build-start"
     [ TestCase
         "fail-outside-project"
-        [runCommandExpectingFailure $ waspCliBuildStart []],
+        (sequence [runCommandExpectingFailure $ waspCliBuildStart []]),
       TestCase
         "fail-unbuilt-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ setWaspDbToPSQL,
-              runCommandExpectingFailure $ waspCliBuildStart []
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  runCommandExpectingFailure $ waspCliBuildStart []
+                ]
             ]
-        ],
+        ),
       TestCase
         "succeed-built-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ setWaspDbToPSQL,
-              runCommand waspCliBuild,
-              runCommand $ waspCliBuildStart ["-s", "DATABASE_URL=none"]
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  runCommand waspCliBuild,
+                  runCommand $ waspCliBuildStart ["-s", "DATABASE_URL=none"]
+                ]
             ]
-        ]
+        )
     ]

@@ -13,7 +13,7 @@ waspDbSeedTest =
     "wasp-db-seed"
     [ TestCase
         "fail-outside-project"
-        [runCommandExpectingFailure $ waspCli ["db", "seed"]],
+        (sequence [runCommandExpectingFailure $ waspCli ["db", "seed"]]),
       -- FIXME: find a way without seed commands
       -- Both in 'WaspDbResetTest.hs' and in `WaspDbSeedTest.hs`
       -- I have the following comments with `FIXME`.
@@ -26,26 +26,28 @@ waspDbSeedTest =
       -- but I thought that typescript was more understandable than SQL (and more db agnostic).
       TestCase
         "succeed-seed-database"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ runCommand waspCliCompile,
-              appendToPrismaFile taskPrismaModel,
-              waspCliDbMigrateDev "foo",
-              createSeedFile
-                (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
-                seedScriptThatPopulatesTasksTable,
-              createSeedFile
-                (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
-                seedScriptThatAssertsTasksTableIsEmpty,
-              createSeedFile
-                (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
-                seedScriptThatAssertsTasksTableIsNotEmpty,
-              replaceMainWaspTsFile mainWaspTsWithSeeds,
-              runCommand $ waspCliDbSeed [T.unpack seedScriptThatAssertsTasksTableIsEmptyName],
-              runCommand $ waspCliDbSeed [T.unpack seedScriptThatPopulatesTasksTableName],
-              runCommand $ waspCliDbSeed [T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName]
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ runCommand waspCliCompile,
+                  appendToPrismaFile taskPrismaModel,
+                  waspCliDbMigrateDev "foo",
+                  createSeedFile
+                    (T.unpack seedScriptThatPopulatesTasksTableName <> ".ts")
+                    seedScriptThatPopulatesTasksTable,
+                  createSeedFile
+                    (T.unpack seedScriptThatAssertsTasksTableIsEmptyName <> ".ts")
+                    seedScriptThatAssertsTasksTableIsEmpty,
+                  createSeedFile
+                    (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
+                    seedScriptThatAssertsTasksTableIsNotEmpty,
+                  replaceMainWaspTsFile mainWaspTsWithSeeds,
+                  runCommand $ waspCliDbSeed [T.unpack seedScriptThatAssertsTasksTableIsEmptyName],
+                  runCommand $ waspCliDbSeed [T.unpack seedScriptThatPopulatesTasksTableName],
+                  runCommand $ waspCliDbSeed [T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName]
+                ]
             ]
-        ]
+        )
     ]
   where
     taskPrismaModel :: T.Text

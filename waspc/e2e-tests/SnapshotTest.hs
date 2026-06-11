@@ -42,11 +42,11 @@ import Test.Tasty.Golden.Advanced (goldenTest)
 
 data SnapshotTest = SnapshotTest
   { name :: String,
-    steps :: [Step SnapshotTestContext ()]
+    steps :: Step SnapshotTestContext [()]
   }
 
 makeSnapshotTest :: String -> [Step SnapshotTestContext ()] -> SnapshotTest
-makeSnapshotTest name steps = SnapshotTest {name, steps}
+makeSnapshotTest name steps = SnapshotTest {name, steps = sequence steps}
 
 -- | A snapshot test is a single golden test: it runs the test's steps in the
 -- "current" snapshot dir and then compares the current snapshot against the

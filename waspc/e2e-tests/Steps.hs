@@ -56,8 +56,6 @@ module Steps
     assertFileExists,
     assertSymlinkExists,
     assertDirHasSubdirWithNameContaining,
-    assertAnyFileInDirContainsText,
-    assertNoFileInDirContainsText,
 
     -- * Wasp project steps
     setWaspDbToPSQL,
@@ -439,44 +437,6 @@ assertDirHasSubdirWithNameContaining dir expectedNamePart =
   where
     description = "assert dir " ++ fromAbsDir dir ++ " has subdir with name containing " ++ show expectedNamePart
 
--- | Asserts that at least one file under the directory (relative to the
--- working directory, searched recursively) contains the given text.
-assertAnyFileInDirContainsText :: (HasWorkingDir ctx) => Path' (Rel d) (Dir d') -> String -> Step ctx ()
-assertAnyFileInDirContainsText dir expectedText =
-  makeStep description $ \_ context -> do
-    anyFileContainsText <- doesAnyFileInDirContainText (resolveInWorkingDir context $ fromRelDir dir) expectedText
-    unless anyFileContainsText $ failStep description "no file in the directory contains the text"
-  where
-    description = "assert some file in " ++ fromRelDir dir ++ " contains " ++ show expectedText
-
--- | Asserts that no file under the directory (relative to the working
--- directory, searched recursively) contains the given text.
-assertNoFileInDirContainsText :: (HasWorkingDir ctx) => Path' (Rel d) (Dir d') -> String -> Step ctx ()
-assertNoFileInDirContainsText dir unexpectedText =
-  makeStep description $ \_ context -> do
-    anyFileContainsText <- doesAnyFileInDirContainText (resolveInWorkingDir context $ fromRelDir dir) unexpectedText
-    when anyFileContainsText $ failStep description "some file in the directory contains the text"
-  where
-    description = "assert no file in " ++ fromRelDir dir ++ " contains " ++ show unexpectedText
-
-doesAnyFileInDirContainText :: FilePath -> String -> IO Bool
-doesAnyFileInDirContainText dirPath text = do
-  files <- listFilesInDirRecursively dirPath
-  fileContents <- mapM BS.readFile files
-  return $ any (TE.encodeUtf8 (T.pack text) `BS.isInfixOf`) fileContents
-
-listFilesInDirRecursively :: FilePath -> IO [FilePath]
-listFilesInDirRecursively dirPath = do
-  entryNames <- SD.listDirectory dirPath
-  concat
-    <$> mapM
-      ( \entryName -> do
-          let entryPath = dirPath FP.</> entryName
-          isDir <- SD.doesDirectoryExist entryPath
-          if isDir then listFilesInDirRecursively entryPath else return [entryPath]
-      )
-      entryNames
-
 -- Wasp project steps
 
 -- NOTE: Fragile, assumes line numbers do not change.
@@ -507,7 +467,7 @@ createTestWaspProject template = do
 inTestWaspProjectDir :: [Step WaspProjectContext ()] -> Step TestContext ()
 inTestWaspProjectDir steps = do
   context <- askStepContext
-  withInnerContext context.waspProjectContext steps
+  withInnerContext context.waspProjectContext (sequence steps)
 
 -- 'Context.SnapshotTestContext' steps
 
@@ -519,7 +479,7 @@ createSnapshotWaspProjectFromMinimalStarter = do
 inSnapshotWaspProjectDir :: [Step WaspProjectContext ()] -> Step SnapshotTestContext ()
 inSnapshotWaspProjectDir steps = do
   context <- askStepContext
-  withInnerContext context.waspProjectContext steps
+  withInnerContext context.waspProjectContext (sequence steps)
 
 copyContentsOfGitTrackedDirToSnapshotWaspProjectDir ::
   Path' (Rel GitRootDir) (Dir srcDir) ->

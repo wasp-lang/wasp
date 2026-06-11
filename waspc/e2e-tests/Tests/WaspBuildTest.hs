@@ -18,20 +18,24 @@ waspBuildTest =
     "wasp-build"
     [ TestCase
         "fail-outside-project"
-        [runCommandExpectingFailure waspCliBuild],
+        (sequence [runCommandExpectingFailure waspCliBuild]),
       TestCase
         "fail-sqlite-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir [runCommandExpectingFailure waspCliBuild]
-        ],
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir [runCommandExpectingFailure waspCliBuild]
+            ]
+        ),
       TestCase
         "succeed-postgresql-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ setWaspDbToPSQL,
-              runCommand waspCliBuild,
-              assertDirExists ".wasp",
-              assertDirExists "node_modules"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  runCommand waspCliBuild,
+                  assertDirExists ".wasp",
+                  assertDirExists "node_modules"
+                ]
             ]
-        ]
+        )
     ]

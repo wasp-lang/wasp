@@ -22,23 +22,27 @@ waspSpecEntityTypesTest =
     "wasp-spec-entity-types"
     [ TestCase
         "typescript-compiles-when-a-valid-entity-name-is-provided-before-compile"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ appendToPrismaFile prismaUserModel,
-              replaceMainWaspTsFile $ mainWaspTs validEntityName,
-              runCommand compileWaspMainTsFiles
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile prismaUserModel,
+                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  runCommand compileWaspMainTsFiles
+                ]
             ]
-        ],
+        ),
       TestCase
         "typescript-compiles-when-a-valid-entity-name-is-provided-after-compile"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ appendToPrismaFile prismaUserModel,
-              replaceMainWaspTsFile $ mainWaspTs validEntityName,
-              runCommand waspCliCompile, -- Necessary to generate the spec's Entity types.
-              runCommand compileWaspMainTsFiles
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile prismaUserModel,
+                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  runCommand waspCliCompile, -- Necessary to generate the spec's Entity types.
+                  runCommand compileWaspMainTsFiles
+                ]
             ]
-        ],
+        ),
       -- NOTE: Currently impossible. See: https://github.com/wasp-lang/wasp/issues/4186
       -- TestCase
       --   "typescript-errors-when-an-invalid-entity-name-is-provided-before-compile"
@@ -53,17 +57,19 @@ waspSpecEntityTypesTest =
       --   ],
       TestCase
         "typescript-errors-when-an-invalid-entity-name-is-provided-after-compile"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ appendToPrismaFile prismaUserModel,
-              replaceMainWaspTsFile $ mainWaspTs validEntityName,
-              runCommand waspCliCompile, -- Necessary to generate the spec's Entity types.
-              replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
-              assertCommandFailsWithOutputContaining
-                compileWaspMainTsFiles
-                ("Type '\"" ++ T.unpack invalidEntityName ++ "\"' is not assignable to type '\"" ++ T.unpack validEntityName ++ "\"'.")
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile prismaUserModel,
+                  replaceMainWaspTsFile $ mainWaspTs validEntityName,
+                  runCommand waspCliCompile, -- Necessary to generate the spec's Entity types.
+                  replaceMainWaspTsFile $ mainWaspTs invalidEntityName,
+                  assertCommandFailsWithOutputContaining
+                    compileWaspMainTsFiles
+                    ("Type '\"" ++ T.unpack invalidEntityName ++ "\"' is not assignable to type '\"" ++ T.unpack validEntityName ++ "\"'.")
+                ]
             ]
-        ]
+        )
     ]
   where
     compileWaspMainTsFiles :: Command

@@ -33,23 +33,27 @@ waspDbMigrateDevTest =
     "wasp-db-migrate-dev"
     [ TestCase
         "fail-outside-project"
-        [runCommandExpectingFailure $ waspCli ["db", "migrate-dev"]],
+        (sequence [runCommandExpectingFailure $ waspCli ["db", "migrate-dev"]]),
       TestCase
         "succeed-migrations-up-to-date"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ waspCliDbMigrateDev "no_migration"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ waspCliDbMigrateDev "no_migration"
+                ]
             ]
-        ],
+        ),
       TestCase
         "succeed-create-new-migration"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ appendToPrismaFile taskPrismaModel,
-              waspCliDbMigrateDev "yes_migration",
-              assertMigrationDirsExist "yes_migration"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ appendToPrismaFile taskPrismaModel,
+                  waspCliDbMigrateDev "yes_migration",
+                  assertMigrationDirsExist "yes_migration"
+                ]
             ]
-        ]
+        )
     ]
   where
     taskPrismaModel :: T.Text

@@ -17,24 +17,28 @@ waspCompileTest =
     "wasp-compile"
     [ TestCase
         "fail-outside-project"
-        [runCommandExpectingFailure waspCliCompile],
+        (sequence [runCommandExpectingFailure waspCliCompile]),
       TestCase
         "succeed-uncompiled-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ runCommand waspCliCompile,
-              assertDirExists ".wasp",
-              assertDirExists "node_modules"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ runCommand waspCliCompile,
+                  assertDirExists ".wasp",
+                  assertDirExists "node_modules"
+                ]
             ]
-        ],
+        ),
       TestCase
         "succeed-compiled-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ runCommand waspCliCompile,
-              runCommand waspCliCompile,
-              assertDirExists ".wasp",
-              assertDirExists "node_modules"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ runCommand waspCliCompile,
+                  runCommand waspCliCompile,
+                  assertDirExists ".wasp",
+                  assertDirExists "node_modules"
+                ]
             ]
-        ]
+        )
     ]

@@ -15,6 +15,7 @@ module Step
 where
 
 import Control.Exception (Exception, Handler (..), IOException, catches, throwIO)
+import Control.Monad (void)
 import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Reader (ReaderT, ask, asks, runReaderT)
 import StrongPath (Abs, File, Path')
@@ -64,20 +65,21 @@ liftStepIO = Step . liftIO
 
 -- | Runs steps that expect a different (usually narrower) context, e.g. running
 -- 'Context.WaspProjectContext' steps from within a 'Context.TestContext' test.
-withInnerContext :: innerCtx -> [Step innerCtx ()] -> Step ctx ()
-withInnerContext innerContext steps = Step $ do
+withInnerContext :: innerCtx -> Step innerCtx a -> Step ctx ()
+withInnerContext innerContext step = Step $ do
   env <- ask
-  liftIO $ runStepsInEnv (StepEnv innerContext env.stepLogger) steps
+  liftIO $ runStepInEnv (StepEnv innerContext env.stepLogger) step
 
--- | Runs the steps of a test in order, collecting their output into the given
--- log file. Returns the formatted failure message of the first failed step, if any.
-runSteps :: String -> Path' Abs (File f) -> ctx -> [Step ctx ()] -> IO (Either String ())
-runSteps testName logFile context steps =
+-- | Runs the steps of a test (e.g. @'sequence' [step1, step2, ...]@) in order,
+-- collecting their output into the given log file. Returns the formatted
+-- failure message of the first failed step, if any.
+runSteps :: String -> Path' Abs (File f) -> ctx -> Step ctx a -> IO (Either String ())
+runSteps testName logFile context step =
   withTestLogger logFile testName $ \logger -> do
-    (Right <$> runStepsInEnv (StepEnv context logger) steps)
+    (Right <$> runStepInEnv (StepEnv context logger) step)
       `catches` [ Handler $ \(failure :: StepFailure) -> Left <$> formatFailureWithLog logger (show failure),
                   Handler $ \(ioException :: IOException) -> Left <$> formatFailureWithLog logger ("IO error: " ++ show ioException)
                 ]
 
-runStepsInEnv :: StepEnv ctx -> [Step ctx ()] -> IO ()
-runStepsInEnv env steps = let (Step reader) = sequence_ steps in runReaderT reader env
+runStepInEnv :: StepEnv ctx -> Step ctx a -> IO ()
+runStepInEnv env (Step reader) = void $ runReaderT reader env

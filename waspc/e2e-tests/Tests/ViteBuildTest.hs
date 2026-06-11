@@ -7,8 +7,6 @@ import NeatInterpolation (trimming)
 import Step (Step, askStepContext)
 import Steps
   ( appendToFile,
-    assertAnyFileInDirContainsText,
-    assertNoFileInDirContainsText,
     createTestWaspProject,
     inTestWaspProjectDir,
     runCommand,
@@ -18,6 +16,7 @@ import Steps
     writeToFile,
   )
 import StrongPath (relfile, (</>))
+import qualified StrongPath as SP
 import Test (Test (..), TestCase (..))
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Generator.WebAppGenerator (viteBuildDirPath)
@@ -37,7 +36,7 @@ viteBuildTest =
         "fail-missing-inline-env-var"
         ( createViteBuildTestCase
             [ runCommand $ withEnvVars [apiUrlEnvVar] viteBuild,
-              assertNoFileInDirContainsText viteBuildDirPath inlineEnvVarValue
+              runCommandExpectingFailure $ assertBuildOutputContains inlineEnvVarValue
             ]
         ),
       TestCase
@@ -45,7 +44,7 @@ viteBuildTest =
         "succeed-inline-env-var"
         ( createViteBuildTestCase
             [ runCommand $ withEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] viteBuild,
-              assertAnyFileInDirContainsText viteBuildDirPath inlineEnvVarValue
+              runCommand $ assertBuildOutputContains inlineEnvVarValue
             ]
         ),
       TestCase
@@ -53,7 +52,7 @@ viteBuildTest =
         ( createViteBuildTestCase
             [ writeDotEnvClientFile dotEnvFileValue,
               runCommand $ withEnvVars [apiUrlEnvVar] viteBuild,
-              assertNoFileInDirContainsText viteBuildDirPath dotEnvFileValue
+              runCommandExpectingFailure $ assertBuildOutputContains dotEnvFileValue
             ]
         ),
       TestCase
@@ -61,7 +60,7 @@ viteBuildTest =
         ( createViteBuildTestCase
             [ writeDotEnvClientFile dotEnvFileValue,
               runCommand $ withEnvVars [apiUrlEnvVar, (testEnvVarKey, inlineEnvVarValue)] viteBuild,
-              assertAnyFileInDirContainsText viteBuildDirPath inlineEnvVarValue
+              runCommand $ assertBuildOutputContains inlineEnvVarValue
             ]
         ),
       TestCase
@@ -80,17 +79,21 @@ viteBuildTest =
         )
     ]
   where
-    createViteBuildTestCase :: [Step WaspProjectContext ()] -> [Step TestContext ()]
+    createViteBuildTestCase :: [Step WaspProjectContext ()] -> Step TestContext [()]
     createViteBuildTestCase steps =
-      [ createTestWaspProject minimalStarterTemplate,
-        inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, runCommand waspCliBuild] ++ steps
-      ]
+      sequence
+        [ createTestWaspProject minimalStarterTemplate,
+          inTestWaspProjectDir $ [setWaspDbToPSQL, writeMainPageTsx, runCommand waspCliBuild] ++ steps
+        ]
 
     viteBuild :: Command
     viteBuild = cmd "npx" ["vite", "build"]
 
     viteBuildWithApiUrl :: Command
     viteBuildWithApiUrl = withEnvVars [apiUrlEnvVar] viteBuild
+
+    assertBuildOutputContains :: String -> Command
+    assertBuildOutputContains value = cmd "grep" ["-r", value, SP.fromRelDir viteBuildDirPath]
 
     writeMainPageTsx :: Step WaspProjectContext ()
     writeMainPageTsx = do

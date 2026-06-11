@@ -18,24 +18,28 @@ waspCleanTest =
     "wasp-clean"
     [ TestCase
         "fail-outside-project"
-        [runCommandExpectingFailure waspCliClean],
+        (sequence [runCommandExpectingFailure waspCliClean]),
       TestCase
         "succeed-uncompiled-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ runCommand waspCliClean,
-              assertDirDoesNotExist ".wasp",
-              assertDirDoesNotExist "node_modules"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ runCommand waspCliClean,
+                  assertDirDoesNotExist ".wasp",
+                  assertDirDoesNotExist "node_modules"
+                ]
             ]
-        ],
+        ),
       TestCase
         "succeed-compiled-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ runCommand waspCliCompile,
-              runCommand waspCliClean,
-              assertDirDoesNotExist ".wasp",
-              assertDirDoesNotExist "node_modules"
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ runCommand waspCliCompile,
+                  runCommand waspCliClean,
+                  assertDirDoesNotExist ".wasp",
+                  assertDirDoesNotExist "node_modules"
+                ]
             ]
-        ]
+        )
     ]

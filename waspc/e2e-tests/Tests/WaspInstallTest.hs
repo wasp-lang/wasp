@@ -20,16 +20,18 @@ waspInstallTest =
     "wasp-install"
     [ TestCase
         "install-fails-outside-project"
-        [runCommandExpectingFailure waspCliInstall],
+        (sequence [runCommandExpectingFailure waspCliInstall]),
       TestCase
         "install-restores-wasp-spec-after-clean"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ runCommand waspCliClean,
-              assertDirDoesNotExist "node_modules",
-              runCommand waspCliInstall,
-              assertSymlinkExists "node_modules/@wasp.sh/spec",
-              runCommand waspCliCompile
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ runCommand waspCliClean,
+                  assertDirDoesNotExist "node_modules",
+                  runCommand waspCliInstall,
+                  assertSymlinkExists "node_modules/@wasp.sh/spec",
+                  runCommand waspCliCompile
+                ]
             ]
-        ]
+        )
     ]

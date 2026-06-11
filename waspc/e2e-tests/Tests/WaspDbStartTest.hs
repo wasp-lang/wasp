@@ -11,20 +11,24 @@ waspDbStartTest =
     "wasp-db-start"
     [ TestCase
         "fail-outside-project"
-        [runCommandExpectingFailure waspCliDbStart],
+        (sequence [runCommandExpectingFailure waspCliDbStart]),
       TestCase
         "succeed-sqlite-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ runCommand waspCliDbStart
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ runCommand waspCliDbStart
+                ]
             ]
-        ],
+        ),
       TestCase
         "succeed-postgresql-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ setWaspDbToPSQL,
-              runCommand waspCliDbStart
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ setWaspDbToPSQL,
+                  runCommand waspCliDbStart
+                ]
             ]
-        ]
+        )
     ]

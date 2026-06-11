@@ -10,14 +10,18 @@ waspTelemetryTest =
     "wasp-telemetry"
     [ TestCase
         "enabled-by-default"
-        [ assertCommandSucceedsWithOutputContaining
-            (withoutEnvVars ["WASP_TELEMETRY_DISABLE"] waspCliTelemetry)
-            "ENABLED"
-        ],
+        ( sequence
+            [ assertCommandSucceedsWithOutputContaining
+                (withoutEnvVars ["WASP_TELEMETRY_DISABLE"] waspCliTelemetry)
+                "ENABLED"
+            ]
+        ),
       TestCase
         "disabled-with-env-var"
-        [ assertCommandSucceedsWithOutputContaining
-            (withEnvVars [("WASP_TELEMETRY_DISABLE", "1")] waspCliTelemetry)
-            "DISABLED"
-        ]
+        ( sequence
+            [ assertCommandSucceedsWithOutputContaining
+                (withEnvVars [("WASP_TELEMETRY_DISABLE", "1")] waspCliTelemetry)
+                "DISABLED"
+            ]
+        )
     ]

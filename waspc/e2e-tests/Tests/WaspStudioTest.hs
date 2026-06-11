@@ -14,12 +14,14 @@ waspStudioTest =
     "wasp-studio"
     [ TestCase
         "fail-outside-project"
-        [runCommandExpectingFailure waspCliStudio],
+        (sequence [runCommandExpectingFailure waspCliStudio]),
       TestCase
         "succeed-uncompiled-project"
-        [ createTestWaspProject minimalStarterTemplate,
-          inTestWaspProjectDir
-            [ runCommand waspCliStudio
+        ( sequence
+            [ createTestWaspProject minimalStarterTemplate,
+              inTestWaspProjectDir
+                [ runCommand waspCliStudio
+                ]
             ]
-        ]
+        )
     ]
