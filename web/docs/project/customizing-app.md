@@ -11,9 +11,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "todoApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
   head: [
     "<link rel='icon' href='/favicon.ico' />",
@@ -34,9 +32,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "BookFace",
   // ...
 })
@@ -53,9 +49,7 @@ import { app } from "@wasp.sh/spec"
 
 export default app({
   name: "myApp",
-  wasp: {
-    version: "{latestWaspVersion}",
-  },
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   head: [ // optional
     "<link rel='icon' href='/favicon.ico' />",
