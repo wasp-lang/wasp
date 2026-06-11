@@ -3,7 +3,7 @@ title: Self-Hosted
 ---
 
 import { ImgWithCaption } from '@site/blog/components/ImgWithCaption'
-import { GuideLink } from '@site/src/components/GuideLink'
+import { CardLink } from '@site/src/components/CardLink'
 
 If you have your server or rent out a server, you can self-host your Wasp apps. Self-hosting your apps gives you full control over your apps and their data. It can be more cost-effective than a cloud provider since you can deploy multiple apps on a single server. However, you'll need to manage the server yourself, which can be time-consuming and require some technical knowledge.
 
@@ -11,11 +11,14 @@ If you have your server or rent out a server, you can self-host your Wasp apps. 
 
 We have step-by-step guides for deploying your Wasp app on your server with different methods. Check out the guides below:
 
-<GuideLink linkToGuide="../../guides/deployment/self-hosted/caprover" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
+<CardLink to="../../guides/deployment/self-hosted/caprover" kind="guide" title="Deploying Wasp with Caprover on your server" description="Uses Caprover, Github Actions, Github Container Registry" />
 
-<GuideLink linkToGuide="../../guides/deployment/self-hosted/coolify" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
+<CardLink to="../../guides/deployment/self-hosted/coolify" kind="guide" title="Deploying Wasp with Coolify on your server" description="Uses Coolify, Github Actions, Github Container Registry" />
 
-<GuideLink linkToGuide="../../guides/deployment/self-hosted/vps" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
+<CardLink to="../../guides/deployment/self-hosted/vps" kind="guide" title="Deploying Wasp with Docker on your server" description="Uses Ubuntu, Git, Caddy, Docker" />
+
+If your desired provider isn't on the list, no worries, you can still deploy your app  - it just means we don't yet have a step-by-step guide for you to follow.
+Feel free to [open a PR](https://github.com/wasp-lang/wasp/new/release/web/docs/guides/deployment/self-hosted) if you'd like to write one yourself :)
 
 ## Manual deployment
 
@@ -47,7 +50,7 @@ To self-host your Wasp app, you'll follow these general steps:
 1. Install [Docker](https://docs.docker.com/engine/install/), [Node.js](https://github.com/nvm-sh/nvm) and [Wasp CLI](/introduction/quick-start.md#installation).
 2. Get your **app's source code**.
    - We recommend using Git to clone your app's repository and then pulling the latest changes when you want to deploy a new version. You can use any other method to get your app's code on the server.
-3. Build your app with **`wasp build`**.
+3. Install dependencies with **`wasp install`** and build your app with **`wasp build`**.
 4. Build and run the **server app**.
    - Wasp gives you a `Dockerfile` in the `.wasp/out` directory that you can use to build and run the server app.
    - We are using Docker to run the server app, but you can run it without Docker if you prefer - just make sure to replicate the setup in the `Dockerfile`.
@@ -58,7 +61,7 @@ To self-host your Wasp app, you'll follow these general steps:
 6. Build the **client app** into static files.
    - Wasp outputs the client app in the `.wasp/out/web-app` directory.
    <!-- TODO: we should change this link to the new place where we talk about how the client is built -->
-   - You should [build the client app](./paas.md#3-deploying-the-web-client) into static files.
+   - You should [build the client app](./cloud-providers.md#3-deploying-the-web-client) into static files.
 7. Install and set up a **reverse proxy** to serve your client and server apps.
    - There are many great choices for reverse proxies, like [Nginx](https://www.nginx.com/), [Caddy](https://caddyserver.com/), and [Traefik](https://traefik.io/).
    - Make sure to set up the reverse proxy to serve the client app's static files and to proxy requests to the server app.

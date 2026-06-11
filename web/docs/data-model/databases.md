@@ -2,7 +2,7 @@
 title: Databases
 ---
 
-import { Required } from '@site/src/components/Tag'
+import { CardLink } from '@site/src/components/CardLink'
 
 [Entities](../data-model/entities.md), [Operations](../data-model/operations/overview) and [Automatic CRUD](../data-model/crud.md) together make a high-level interface for working with your app's data. Still, all that data has to live somewhere, so let's see how Wasp deals with databases.
 
@@ -193,37 +193,20 @@ Seeding is most commonly used for:
 
 ### Writing a Seed Function
 
-You can define as many **seed functions** as you want in an array under the `app.db.seeds` field:
+You can define as many **seed functions** as you want in an array under the `db.seeds` field:
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      // ...
-      db: {
-        seeds: [
-          import { devSeedSimple } from "@src/dbSeeds.js",
-          import { prodSeed } from "@src/dbSeeds.js"
-        ]
-      }
-    }
-    ```
-  </TabItem>
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { devSeedSimple, prodSeed } from "./src/dbSeeds" with { type: "ref" }
 
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      // ...
-      db: {
-        seeds: [
-          import { devSeedSimple } from "@src/dbSeeds.js",
-          import { prodSeed } from "@src/dbSeeds.js"
-        ]
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
+export default app({
+  name: "MyApp",
+  // ...
+  db: {
+    seeds: [devSeedSimple, prodSeed],
+  },
+})
+```
 
 Each seed function must be an async function that takes one argument, `prisma`, which is a [Prisma Client](https://www.prisma.io/docs/concepts/components/prisma-client/crud) instance used to interact with the database.
 This is the same Prisma Client instance that Wasp uses internally.
@@ -235,17 +218,17 @@ Here's an example of a seed function that imports an Action:
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     ```js
-    import { createTask } from './actions.js'
-    import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
+    import { createTask } from "./actions.js"
+    import { sanitizeAndSerializeProviderData } from "wasp/server/auth"
 
     export const devSeedSimple = async (prisma) => {
       const user = await createUser(prisma, {
-        username: 'RiuTheDog',
-        password: 'bark1234',
+        username: "RiuTheDog",
+        password: "bark1234",
       })
 
       await createTask(
-        { description: 'Chase the cat' },
+        { description: "Chase the cat" },
         { user, entities: { Task: prisma.task } }
       )
     }
@@ -257,7 +240,7 @@ Here's an example of a seed function that imports an Action:
             create: {
               identities: {
                 create: {
-                  providerName: 'username',
+                  providerName: "username",
                   providerUserId: data.username,
                   providerData: await sanitizeAndSerializeProviderData({
                     hashedPassword: data.password
@@ -277,20 +260,20 @@ Here's an example of a seed function that imports an Action:
 
   <TabItem value="ts" label="TypeScript">
     ```ts
-    import { createTask } from './actions.js'
-    import type { DbSeedFn } from 'wasp/server'
-    import { sanitizeAndSerializeProviderData } from 'wasp/server/auth'
-    import type { AuthUser } from 'wasp/auth'
-    import type { PrismaClient } from 'wasp/server'
+    import { createTask } from "./actions.js"
+    import type { DbSeedFn } from "wasp/server"
+    import { sanitizeAndSerializeProviderData } from "wasp/server/auth"
+    import type { AuthUser } from "wasp/auth"
+    import type { PrismaClient } from "wasp/server"
 
     export const devSeedSimple: DbSeedFn = async (prisma) => {
       const user = await createUser(prisma, {
-        username: 'RiuTheDog',
-        password: 'bark1234',
+        username: "RiuTheDog",
+        password: "bark1234",
       })
 
       await createTask(
-        { description: 'Chase the cat', isDone: false },
+        { description: "Chase the cat", isDone: false },
         { user, entities: { Task: prisma.task } }
       )
     };
@@ -305,9 +288,9 @@ Here's an example of a seed function that imports an Action:
             create: {
               identities: {
                 create: {
-                  providerName: 'username',
+                  providerName: "username",
                   providerUserId: data.username,
-                  providerData: await sanitizeAndSerializeProviderData<'username'>({
+                  providerData: await sanitizeAndSerializeProviderData<"username">({
                     hashedPassword: data.password
                   }),
                 },
@@ -355,34 +338,38 @@ You'll often want to call `wasp db seed` right after you run `wasp db reset`, as
 ## Customising the Prisma Client
 
 Wasp interacts with the database using the [Prisma Client](https://www.prisma.io/docs/orm/prisma-client).
-To customize the client, define a function in the `app.db.prismaSetupFn` field that returns a Prisma Client instance.
+To customize the client, define a function in the `db.prismaSetupFn` field that returns a Prisma Client instance.
 This allows you to configure features like [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
+
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { setUpPrisma } from "./src/prisma" with { type: "ref" }
+
+export default app({
+  name: "MyApp",
+  title: "My app",
+  // ...
+  db: {
+    prismaSetupFn: setUpPrisma,
+  },
+})
+```
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
-    ```wasp title=main.wasp
-    app MyApp {
-      title: "My app",
-      // ...
-      db: {
-        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
-      }
-    }
-    ```
-
     ```js title="src/prisma.js"
-    import { PrismaClient } from '@prisma/client'
+    import { PrismaClient } from "@prisma/client"
 
     export const setUpPrisma = () => {
       const prisma = new PrismaClient({
-        log: ['query'],
+        log: ["query"],
       }).$extends({
         query: {
           task: {
             async findMany({ args, query }) {
               args.where = {
                 ...args.where,
-                description: { not: { contains: 'hidden by setUpPrisma' } },
+                description: { not: { contains: "hidden by setUpPrisma" } },
               }
               return query(args)
             },
@@ -397,29 +384,19 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
   </TabItem>
 
   <TabItem value="ts" label="TypeScript">
-    ```wasp title=main.wasp
-    app MyApp {
-      title: "My app",
-      // ...
-      db: {
-        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
-      }
-    }
-    ```
-
     ```ts title="src/prisma.ts"
-    import { PrismaClient } from '@prisma/client'
+    import { PrismaClient } from "@prisma/client"
 
     export const setUpPrisma = () => {
       const prisma = new PrismaClient({
-        log: ['query'],
+        log: ["query"],
       }).$extends({
         query: {
           task: {
             async findMany({ args, query }) {
               args.where = {
                 ...args.where,
-                description: { not: { contains: 'hidden by setUpPrisma' } },
+                description: { not: { contains: "hidden by setUpPrisma" } },
               }
               return query(args)
             },
@@ -436,61 +413,12 @@ This allows you to configure features like [logging](https://www.prisma.io/docs/
 
 ## API Reference
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      db: {
-        seeds: [
-          import devSeed from "@src/dbSeeds"
-        ],
-        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
-      }
-    }
-    ```
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app MyApp {
-      title: "My app",
-      // ...
-      db: {
-        seeds: [
-          import devSeed from "@src/dbSeeds"
-        ],
-        prismaSetupFn: import { setUpPrisma } from "@src/prisma"
-      }
-    }
-    ```
-  </TabItem>
-</Tabs>
-
-`app.db` is a dictionary with the following fields (all fields are optional):
-
-- `seeds: [ExtImport]`
-
-  Defines the seed functions you can use with the `wasp db seed` command to seed your database with initial data.
-  Read the [Seeding section](#seeding-the-database) for more details.
-
-- `prismaSetupFn: ExtImport`
-
-  Defines a function that sets up the Prisma Client instance. Wasp expects it to return a Prisma Client instance.
-  You can use this function to set up [logging](https://www.prisma.io/docs/orm/prisma-client/observability-and-logging/logging) or [client extensions](https://www.prisma.io/docs/orm/prisma-client/client-extensions):
-
-  ```ts title="src/prisma.ts"
-  import { PrismaClient } from '@prisma/client'
-
-  export const setUpPrisma = () => {
-    const prisma = new PrismaClient({
-      log: ['query', 'info', 'warn', 'error'],
-    })
-
-    return prisma
-  }
-  ```
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Db"
+  kind="api"
+  title="Db"
+  description="All the options for the db field of the app spec."
+/>
 
 ### CLI Commands for Seeding the Database
 
@@ -502,38 +430,24 @@ Use one of the following commands to run the seed functions:
 
 - `wasp db seed <seed-name>`
 
-  This command runs the seed function with the specified name. The name is the identifier used in its `import` expression in the `app.db.seeds` list.
+  This command runs the seed function with the specified name. Wasp derives this name from the imported function name you list in `db.seeds`.
   For example, to run the seed function `devSeedSimple` which was defined like this:
 
-  <Tabs groupId="js-ts">
-    <TabItem value="js" label="JavaScript">
-      ```wasp title="main.wasp"
-      app MyApp {
-        // ...
-        db: {
-          seeds: [
-            // ...
-            import { devSeedSimple } from "@src/dbSeeds.js",
-          ]
-        }
-      }
-      ```
-    </TabItem>
+  ```ts title="main.wasp.ts"
+  import { app } from "@wasp.sh/spec"
+  import { devSeedSimple } from "./src/dbSeeds" with { type: "ref" }
 
-    <TabItem value="ts" label="TypeScript">
-      ```wasp title="main.wasp"
-      app MyApp {
+  export default app({
+    name: "MyApp",
+    // ...
+    db: {
+      seeds: [
         // ...
-        db: {
-          seeds: [
-            // ...
-            import { devSeedSimple } from "@src/dbSeeds.js",
-          ]
-        }
-      }
-      ```
-    </TabItem>
-  </Tabs>
+        devSeedSimple,
+      ],
+    },
+  })
+  ```
 
   Use the following command:
 

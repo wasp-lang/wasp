@@ -50,18 +50,6 @@ export function Layout({
           {=& head =}
 
           <title>{= title =}</title>
-        </head>
-        <body>
-          <noscript>You need to enable JavaScript to run this app.</noscript>
-
-          {
-            // We don't really need to wrap the app in a div nor name it "root",
-            // but we keep it for backwards compatibility with older Wasp
-            // versions.
-          }
-          <div id="root">
-              {shouldRenderChildren ? children : null}
-          </div>
 
           {
             // We pass that argument in SSR builds and not in client builds.
@@ -75,16 +63,21 @@ export function Layout({
               // we just add the script ourselves in the regular way.
               //
               // https://react.dev/reference/react-dom/static/prerenderToNodeStream
-              <script
-                type="module"
-                src={clientEntrySrc}
-                // We make it `async` to decouple the tag's position from its
-                // execution phase. This way Vite can move it anywhere in the
-                // document to optimize loading performance.
-                async
-              />
+              <script type="module" src={clientEntrySrc} />
             ) : null
           }
+        </head>
+        <body>
+          <noscript>You need to enable JavaScript to run this app.</noscript>
+
+          {
+            // We don't really need to wrap the app in a div nor name it "root",
+            // but we keep it for backwards compatibility with older Wasp
+            // versions.
+          }
+          <div id="root">
+              {shouldRenderChildren ? children : null}
+          </div>
         </body>
       </html>
     </StrictMode>

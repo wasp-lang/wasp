@@ -1,6 +1,6 @@
 diff --git a/src/SignupPage.tsx b/src/SignupPage.tsx
 new file mode 100644
-index 0000000..ee62723
+index 0000000..15710ec
 --- /dev/null
 +++ b/src/SignupPage.tsx
 @@ -0,0 +1,14 @@

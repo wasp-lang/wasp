@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { type WebSocketDefinition } from "wasp/server/webSocket";
 
-export const webSocketFn: WebSocketDefinition<
+export const chatWebSocket: WebSocketDefinition<
   ClientToServerEvents,
   ServerToClientEvents,
   InterServerEvents

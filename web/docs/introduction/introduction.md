@@ -27,7 +27,7 @@ Wasp is using **React**, **Node.js** and **Prisma** under the hood and relies on
 
 ### Wasp's secret sauce
 
-At the core is the Wasp compiler which takes the Wasp config and your Javascript code and outputs the client app, server app and deployment code.
+At the core is the Wasp compiler which takes the Wasp Spec and your Javascript code and outputs the client app, server app and deployment code.
 
 <!-- ![Wasp compilation diagram](/img/lp/wasp-compilation-diagram.png) -->
 
@@ -35,7 +35,7 @@ At the core is the Wasp compiler which takes the Wasp config and your Javascript
 
 The cool thing about having a compiler that understands your code is that it can do a lot of things for you.
 
-Define your app in the Wasp config and get:
+Define your app in the Wasp file and get:
 
 - login and signup with Auth UI components,
 - full-stack type safety,
@@ -51,20 +51,24 @@ You don't need to write any code for these features, Wasp will take care of it f
 
 Let's say you want to build a web app that allows users to **create and share their favorite recipes**.
 
-Let's start with the `main.wasp` file: it is the central file of your app, where you describe the app from the high level.
+Let's start with the `main.wasp.ts` file: it is the central spec file of your app, where you describe the app from the high level.
 
 Let's give our app a title and let's immediately turn on the full-stack authentication via username and password:
 
-```wasp title="main.wasp"
-app RecipeApp {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "RecipeApp",
   title: "My Recipes",
   wasp: { version: "{latestWaspVersion}" },
   auth: {
     methods: { usernameAndPassword: {} },
     onAuthFailedRedirectTo: "/login",
-    userEntity: User
-  }
-}
+    userEntity: "User",
+  },
+  // ...
+})
 ```
 
 Let's then add the data models for your recipes. Wasp understands and uses the models from the `schema.prisma` file. We will want to have Users and Users can own Recipes:
@@ -92,20 +96,22 @@ Next, let's define how to do something with these data models!
 We do that by defining Operations, in this case, a Query `getRecipes` and Action `addRecipe`,
 which are in their essence Node.js functions that execute on the server and can, thanks to Wasp, very easily be called from the client.
 
-First, we define these Operations in our `main.wasp` file, so Wasp knows about them and can "beef them up":
+First, we define these Operations in our `main.wasp.ts` file, so Wasp knows about them and can "beef them up":
 
-```wasp title="main.wasp"
-// Queries have automatic cache invalidation and are type-safe.
-query getRecipes {
-  fn: import { getRecipes } from "@src/recipe/operations",
-  entities: [Recipe],
-}
+```ts title="main.wasp.ts"
+import { action, app, query } from "@wasp.sh/spec"
+import { getRecipes, addRecipe } from "./src/recipe/operations" with { type: "ref" }
 
-// Actions are type-safe and can be used to perform side-effects.
-action addRecipe {
-  fn: import { addRecipe } from "@src/recipe/operations",
-  entities: [Recipe],
-}
+export default app({
+  // ...
+  spec: [
+    // ...
+    // Queries have automatic cache invalidation and are type-safe.
+    query(getRecipes, { entities: ["Recipe"] }),
+    // Actions are type-safe and can be used to perform side-effects.
+    action(addRecipe, { entities: ["Recipe"] }),
+  ],
+})
 ```
 
 ... and then implement them in our Javascript (or TypeScript) code (we show just the query here, using TypeScript):
@@ -128,23 +134,29 @@ Now we can very easily use these in our React components!
 
 For the end, let's create a home page of our app.
 
-First, we define it in `main.wasp`:
+First, we define it in `main.wasp.ts`:
 
-```wasp title="main.wasp"
-...
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { HomePage } from "./src/pages/HomePage" with { type: "ref" }
 
-route HomeRoute { path: "/", to: HomePage }
-page HomePage {
-  component: import { HomePage } from "@src/pages/HomePage",
-  authRequired: true // Will send user to /login if not authenticated.
-}
+export default app({
+  // ...
+  spec: [
+    // ...
+    route("HomeRoute", "/", page(HomePage, {
+      authRequired: true, // Will send user to /login if not authenticated.
+    })
+    ),
+  ],
+})
 ```
 
 and then implement it as a React component in JS/TS (that calls the Operations we previously defined):
 
 ```tsx title="src/pages/HomePage.tsx"
-import { useQuery, getRecipes } from 'wasp/client/operations'
-import { type User } from 'wasp/entities'
+import { useQuery, getRecipes } from "wasp/client/operations"
+import { type User } from "wasp/entities"
 
 export function HomePage({ user }: { user: User }) {
   // Due to full-stack type safety, `recipes` will be of type `Recipe[]` here.
@@ -165,7 +177,7 @@ export function HomePage({ user }: { user: User }) {
                 <div>{recipe.description}</div>
               </li>
             ))
-          : 'No recipes defined yet!'}
+          : "No recipes defined yet!"}
       </ul>
     </div>
   )
@@ -196,18 +208,8 @@ Wasp addresses the same core problems that typical web app frameworks are addres
 - to be used as a no-code solution
 - to be a solve-it-all tool in a single language
 
-## Wasp is a DSL
+## Wasp is a spec-driven framework
 
-:::note
-You don't need to know what a DSL is to use Wasp, but if you are curious, you can read more about it below.
-:::
+Wasp does not match typical expectations of a web app framework: it is not just a set of libraries. You describe your app in the `main.wasp.ts` spec file, and the compiler uses that spec together with your React, Node.js, and Prisma code to generate the application structure and glue code.
 
-Wasp does not match typical expectations of a web app framework: it is not a set of libraries, it is instead a simple programming language that understands your code and can do a lot of things for you.
-
-Wasp is a programming language, but a specific kind: it is specialized for a single purpose: **building modern web applications**. We call such languages _DS&#x4C;_&#x73; (Domain Specific Language).
-
-Other examples of _DS&#x4C;_&#x73; that are often used today are e.g. _SQL_ for databases and _HTML_ for web page layouts.
-The main advantage and reason why _DS&#x4C;_&#x73; exist is that they need to do only one task (e.g. database queries)
-so they can do it well and provide the best possible experience for the developer.
-
-The same idea stands behind Wasp - a language that will allow developers to **build modern web applications with 10x less code and less stack-specific knowledge**.
+This spec-driven approach lets Wasp focus on one purpose: **building modern web applications with 10x less code and less stack-specific knowledge**.

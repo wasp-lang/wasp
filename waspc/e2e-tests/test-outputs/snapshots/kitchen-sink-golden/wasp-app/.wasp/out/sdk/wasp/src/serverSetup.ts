@@ -14,7 +14,7 @@ let someResource: string | undefined = undefined;
 
 export const getSomeResource = () => someResource;
 
-export const setup: ServerSetupFn = async ({ app }) => {
+export const serverSetup: ServerSetupFn = async ({ app }) => {
   addCustomRoute(app);
 
   await new Promise((resolve) => setTimeout(resolve, 2000));

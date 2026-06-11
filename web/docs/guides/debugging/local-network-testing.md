@@ -1,7 +1,7 @@
 ---
 title: Local Network Testing
 last_checked_with_versions:
-  Wasp: 0.21.1
+  Wasp: "0.24"
 comments: true
 ---
 

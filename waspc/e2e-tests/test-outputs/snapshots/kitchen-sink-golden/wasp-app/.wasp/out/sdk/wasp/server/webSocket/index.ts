@@ -5,7 +5,7 @@ import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 import { prisma } from 'wasp/server'
 import { type AuthUser } from 'wasp/auth'
 
-import { webSocketFn as webSocketFn_ext } from 'wasp/src/features/chat/webSocket'
+import { chatWebSocket as chatWebSocket_ext } from 'wasp/src/features/chat/webSocket'
 
 // Public API
 export type WebSocketDefinition<
@@ -43,7 +43,7 @@ export type ClientToServerEvents = Events[0]
 // PRIVATE API (sdk)
 export type ServerToClientEvents = Events[1]
 
-type WebSocketFn = typeof webSocketFn_ext
+type WebSocketFn = typeof chatWebSocket_ext
 type Events = ServerType extends Server<
   infer ClientToServerEvents,
   infer ServerToClientEvents

@@ -1,38 +1,38 @@
+{-# LANGUAGE NamedFieldPuns #-}
+
 module Wasp.Cli.Command.Build
   ( build,
   )
 where
 
-import Control.Lens
+import Control.Lens (at, (%~), (&), (.~))
 import Control.Monad (unless, when)
 import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.Aeson (Value (..))
+import Data.Aeson (Value)
 import qualified Data.Aeson.Key as Key
-import qualified Data.Aeson.KeyMap as KM
-import Data.Aeson.Lens
-import Data.List (isSuffixOf)
+import Data.Aeson.Lens (key, _Object)
 import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
-import qualified System.FilePath as FP
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.Monad (GeneratorWarning (GeneratorNeedsMigrationWarning))
 import qualified Wasp.Message as Msg
-import Wasp.NodePackageFFI (InstallablePackage (WaspConfigPackage), getInstallablePackageName)
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), getInstallablePackageName)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common
   ( CompileError,
     CompileWarning,
     WaspProjectDir,
     generatedAppDirInWaspProjectDir,
-    getSrcTsConfigInWaspProjectDir,
+    getTsConfigPathsForWaspProject,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
+    srcTsConfig,
     userPackageJsonInWaspProjectDir,
   )
 import Wasp.Project.WaspFile (findWaspFile)
@@ -49,6 +49,7 @@ import Wasp.Util.Json (updateJsonFile)
 build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
+  WaspSpecAvailable <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
@@ -81,7 +82,7 @@ build = do
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
       waspFilePath <- ExceptT $ findWaspFile waspProjectDir
-      let srcTsConfigPath = getSrcTsConfigInWaspProjectDir waspFilePath
+      let srcTsConfigPath = srcTsConfig $ getTsConfigPathsForWaspProject waspFilePath
 
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
       -- we're copying all files and folders necessary for Docker build into the .wasp/out directory.
@@ -118,38 +119,31 @@ build = do
           (waspProjectDir </> srcTsConfigPath)
           tsconfigJsonInBuildDir
 
-      -- A hacky quick fix for https://github.com/wasp-lang/wasp/issues/2368
-      -- We should remove this code once we implement a proper solution.
-      ExceptT $ updateJsonFile removeWaspConfigFromDevDependenciesArray packageJsonInBuildDir
-      ExceptT $ updateJsonFile removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonInBuildDir
+      -- The user's `package.json` references `@wasp.sh/spec` via `file:.wasp/spec`,
+      -- but Docker's build context is `.wasp/out/` and doesn't include `.wasp/spec/`.
+      -- We strip `@wasp.sh/spec` from the build's `devDependencies` so that Docker's
+      -- `npm install` reconciles the lockfile (dropping the now-orphan spec entries)
+      -- and proceeds without trying to resolve the missing `file:` path.
+      --
+      -- This relies on `npm install` (not `npm ci`) being used in the Dockerfile.
+      -- The proper fix(es) are tracked in:
+      --   - https://github.com/wasp-lang/wasp/issues/897
+      --   - https://github.com/wasp-lang/wasp/issues/1769
+      ExceptT $ updateJsonFile removeWaspSpecFromDevDependencies packageJsonInBuildDir
+      -- Removing `@wasp.sh/spec` from the package-lock.json file is not
+      -- strictly necessary (`npm install` would drop it anyway). We still do
+      -- it because:
+      --   - Npm throws a warning if it detects a mismatch.
+      --   - Npm has become more strict about this over time and will possibly
+      --   upgrade the warning into an error in future versions.
+      ExceptT $ updateJsonFile (key "packages" . key "" %~ removeWaspSpecFromDevDependencies) packageLockJsonInBuildDir
 
-    removeAllMentionsOfWaspConfigInPackageLockJson :: Value -> Value
-    removeAllMentionsOfWaspConfigInPackageLockJson packageLockJsonObject =
-      -- We want to:
-      --   1. Remove the `wasp-config` dev dependency from the root package in package-lock.json.
-      --   This is at `packageLock["packages"][""]["wasp-config"]`.
-      --   2. Remove all package location entries for the `wasp-config` package
-      --   (i.e., entries whose location keys end in `/wasp-config`).
-      --   Example locations include:
-      --      packageLock["packages"]["../../data/packages/wasp-config"]
-      --      packageLock["packages"]["node_modules/wasp-config"]
-      --      packageLock["packages"]["/home/filip/../wasp-config"]
-      packageLockJsonObject
-        & key "packages" . key "" %~ removeWaspConfigFromDevDependenciesArray
-        & key "packages" . _Object
-          %~ KM.filterWithKey
-            (\packageLocation _ -> not $ isWaspConfigPackageLocation (Key.toString packageLocation))
+    removeWaspSpecFromDevDependencies :: Value -> Value
+    removeWaspSpecFromDevDependencies original =
+      original & key "devDependencies" . _Object . at (Key.fromString waspSpecPackageName) .~ Nothing
 
-    isWaspConfigPackageLocation :: String -> Bool
-    isWaspConfigPackageLocation packageLocation =
-      (FP.pathSeparator : waspConfigPackageName) `isSuffixOf` packageLocation
-
-    removeWaspConfigFromDevDependenciesArray :: Value -> Value
-    removeWaspConfigFromDevDependenciesArray original =
-      original & key "devDependencies" . _Object . at (Key.fromString waspConfigPackageName) .~ Nothing
-
-    waspConfigPackageName :: String
-    waspConfigPackageName = getInstallablePackageName WaspConfigPackage
+    waspSpecPackageName :: String
+    waspSpecPackageName = getInstallablePackageName WaspSpecPackage
 
 buildIO ::
   Path' Abs (Dir WaspProjectDir) ->
@@ -159,7 +153,7 @@ buildIO waspProjectDir buildDir = compileIOWithOptions options waspProjectDir bu
   where
     options =
       CompileOptions
-        { waspProjectDirPath = waspProjectDir,
+        { waspProjectDir,
           buildType = BuildType.Production,
           sendMessage = cliSendMessage,
           -- Ignore "DB needs migration warnings" during build, as that is not a required step.

@@ -10,8 +10,18 @@ Wasp is in beta, so keep in mind there might be some kinks / bugs, and possibly 
 
 Wasp enables you to quickly and easily write both unit tests and React component tests for your frontend code. Because Wasp uses [Vite](https://vitejs.dev/), we support testing web apps through [Vitest](https://vitest.dev/).
 
+Make sure your `devDependencies` include the Vitest dependency. Wasp starters come with Vitest included:
+
+```json title="package.json"
+{
+  "devDependencies": {
+    "vitest": "^4.0.16"
+  }
+}
+```
+
 <details>
-  <summary>Included Libraries</summary>
+  <summary>Testing Libraries</summary>
 
   <div>
     [`vitest`](https://www.npmjs.com/package/vitest): Unit test framework with native Vite support.
@@ -259,9 +269,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     const Todo = (_props) => {
       const [tasks, setTasks] = useState([]);
       useEffect(() => {
-        api
-          .get("/tasks")
-          .then((res) => res.json())
+        api.get("/tasks").json()
           .then((tasks) => setTasks(tasks))
           .catch((err) => window.alert(err));
       });
@@ -320,9 +328,7 @@ You can see some tests in a Wasp project [here](https://github.com/wasp-lang/was
     const Todo = (_props: {}) => {
       const [tasks, setTasks] = useState<Task>([]);
       useEffect(() => {
-        api
-          .get("/tasks")
-          .then((res) => res.json() as Task[])
+        api.get("/tasks").json<Task[]>()
           .then((tasks) => setTasks(tasks))
           .catch((err) => window.alert(err));
       });

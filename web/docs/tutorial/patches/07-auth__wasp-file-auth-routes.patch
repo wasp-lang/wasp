@@ -1,18 +1,21 @@
-diff --git a/main.wasp b/main.wasp
-index 5592563..f2aa7ca 100644
---- a/main.wasp
-+++ b/main.wasp
-@@ -39,3 +39,13 @@ action updateTask {
-   fn: import { updateTask } from "@src/actions",
-   entities: [Task]
- }
-+
-+route SignupRoute { path: "/signup", to: SignupPage }
-+page SignupPage {
-+  component: import { SignupPage } from "@src/SignupPage"
-+}
-+
-+route LoginRoute { path: "/login", to: LoginPage }
-+page LoginPage {
-+  component: import { LoginPage } from "@src/LoginPage"
-+}
+diff --git a/main.wasp.ts b/main.wasp.ts
+index 894c99a..52438c9 100644
+--- a/main.wasp.ts
++++ b/main.wasp.ts
+@@ -1,5 +1,7 @@
+ import { action, app, page, query, route } from "@wasp.sh/spec";
+ import { MainPage } from "./src/MainPage" with { type: "ref" };
++import { SignupPage } from "./src/SignupPage" with { type: "ref" };
++import { LoginPage } from "./src/LoginPage" with { type: "ref" };
+ import { getTasks } from "./src/queries" with { type: "ref" };
+ import { createTask, updateTask } from "./src/actions" with { type: "ref" };
+ 
+@@ -17,6 +19,8 @@ export default app({
+   },
+   spec: [
+     route("RootRoute", "/", page(MainPage)),
++    route("SignupRoute", "/signup", page(SignupPage)),
++    route("LoginRoute", "/login", page(LoginPage)),
+     query(getTasks, { entities: ["Task"] }),
+     action(createTask, { entities: ["Task"] }),
+     action(updateTask, { entities: ["Task"] }),

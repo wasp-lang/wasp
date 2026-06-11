@@ -2,6 +2,8 @@
 title: Prerendering
 ---
 
+import { CardLink } from '@site/src/components/CardLink'
+
 By default, Wasp apps are single-page applications: the browser downloads JavaScript, and React renders the page on the client. This means search engines, AI crawlers, and users on slow connections see a blank page until JavaScript loads and executes.
 
 Wasp can **prerender** specific routes at build time, producing static HTML files that are served immediately. The page then hydrates on the client for full interactivity.
@@ -15,13 +17,18 @@ This gives you:
 
 ## Enabling prerendering
 
-Add `prerender: true` to any route declaration:
+Add `prerender: true` to any route spec:
 
-```wasp title="main.wasp"
-route LandingRoute { path: "/", to: LandingPage, prerender: true }
-page LandingPage {
-  component: import { LandingPage } from "@src/LandingPage"
-}
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { LandingPage } from "./src/LandingPage" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    route("LandingRoute", "/", page(LandingPage), { prerender: true }),
+  ],
+})
 ```
 
 That's it. When you run `wasp build`, Wasp renders this route's HTML at build time. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
@@ -55,25 +62,42 @@ Prerendering is especially valuable if you want your content to be indexed by se
 
 Prerendering only works on routes with static paths. Routes with dynamic segments (`:paramName`), optional segments (`?`), or splats (`*`) cannot be prerendered, because the HTML must be generated at build time for a known URL.
 
-```wasp title="main.wasp"
-// ✅ Works (static path)
-route AboutRoute { path: "/about", to: AboutPage, prerender: true }
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { AboutPage } from "./src/AboutPage" with { type: "ref" }
+import { UserPage } from "./src/UserPage" with { type: "ref" }
 
-// ❌ Won't compile (dynamic segment)
-route UserRoute { path: "/user/:id", to: UserPage, prerender: true }
+export default app({
+  // ...
+  spec: [
+    // ✅ Works (static path)
+    route("AboutRoute", "/about", page(AboutPage), { prerender: true }),
+    // ❌ Won't compile (dynamic segment)
+    route("UserRoute", "/user/:id", page(UserPage), { prerender: true }),
+  ],
+})
 ```
 
 ### No auth-required pages
 
 Routes pointing to pages with `authRequired: true` cannot be prerendered, since the page content depends on the logged-in user.
 
-```wasp title="main.wasp"
-// ❌ Won't compile (authRequired is true)
-route DashRoute { path: "/dashboard", to: DashPage, prerender: true }
-page DashPage {
-  authRequired: true,
-  component: import { DashPage } from "@src/DashPage"
-}
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { DashPage } from "./src/DashPage" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    // ❌ Won't compile (authRequired is true)
+    route(
+      "DashRoute",
+      "/dashboard",
+      page(DashPage, { authRequired: true }),
+      { prerender: true }
+    ),
+  ],
+})
 ```
 
 :::caution
@@ -101,8 +125,8 @@ Here's an example of the **wrong** approach:
 ```tsx title="src/LandingPage.tsx" auto-js
 // ❌ Causes a hydration mismatch
 export function LandingPage() {
-  const isClient = typeof window !== 'undefined'
-  return <p>{isClient ? 'Client content' : 'Prerendered content'}</p>
+  const isClient = typeof window !== "undefined"
+  return <p>{isClient ? "Client content" : "Prerendered content"}</p>
 }
 ```
 
@@ -110,7 +134,7 @@ And the **correct** approach:
 
 ```tsx title="src/LandingPage.tsx" auto-js
 // ✅ No hydration mismatch
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 
 function useIsClient() {
   const [isClient, setIsClient] = useState(false)
@@ -122,7 +146,7 @@ function useIsClient() {
 
 export function LandingPage() {
   const isClient = useIsClient()
-  return <p>{isClient ? 'Client content' : 'Prerendered content'}</p>
+  return <p>{isClient ? "Client content" : "Prerendered content"}</p>
 }
 ```
 
@@ -132,20 +156,9 @@ React has some documentation on [hydration](https://react.dev/reference/react-do
 
 ## API reference
 
-### `prerender` field on `route`
-
-```wasp title="main.wasp"
-route NameRoute {
-  path: "/some-path",
-  to: SomePage,
-  prerender: true,   // optional, defaults to false
-}
-```
-
-`prerender` is an optional boolean field on the `route` declaration.
-
-When set to `true`, Wasp prerenders the route's page component at build time, producing a static HTML file for that path.
-
-**Requirements:**
-- The route path must be fully static (no `:paramName`, `*`, or `?` segments).
-- The target page must not have `authRequired: true`.
+<CardLink
+  to="../api/@wasp.sh/spec/interfaces/Route#prerender"
+  kind="api"
+  title="Route.prerender"
+  description="The full description of the prerender option of the route spec."
+/>

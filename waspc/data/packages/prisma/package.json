@@ -1,6 +1,6 @@
 {
   "name": "wasp-prisma",
-  "version": "0.0.1",
+  "version": "0.24.0",
   "type": "module",
   "author": "Wasp Team",
   "license": "MIT",
@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "json5": "^2.2.3",
-    "prisma": "Prisma version here needs to be kept in sync with prisma version used in wasp-cli.",
     "prisma": "5.19.1",
     "strip-ansi": "^7.1.2",
     "tmp-promise": "3.0.3"

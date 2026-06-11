@@ -21,60 +21,45 @@ To list the tasks, you must:
 
 We'll create a new Query called `getTasks`. We'll need to declare the Query in the Wasp file and write its implementation in <ShowForJs>JS</ShowForJs><ShowForTs>TS</ShowForTs>.
 
-### Declaring a Query
+### Specifying a Query
 
-We need to add a **query** declaration to `main.wasp` so that Wasp knows it exists:
+We need to add a **query** specification to `main.wasp.ts` so that Wasp knows it exists:
 
 <TutorialAction id="query-get-tasks" action="APPLY_PATCH">
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    // ...
+```ts title="main.wasp.ts"
+// highlight-next-line
+import { app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+// highlight-next-line
+import { getTasks } from "./src/queries" with { type: "ref" }
 
-    query getTasks {
-      // Specifies where the implementation for the query function is.
-      // The path `@src/queries` resolves to `src/queries.js`.
-      // No need to specify an extension.
-      fn: import { getTasks } from "@src/queries",
-      // Tell Wasp that this query reads from the `Task` entity. Wasp will
-      // automatically update the results of this query when tasks are modified.
-      entities: [Task]
-    }
-    ```
+export default app({
+  // ...
+  spec: [
+    route("RootRoute", "/", page(MainPage)),
+    // Tell Wasp that this query reads from the `Task` entity. Wasp will
+    // automatically update the results of this query when tasks are modified.
+    // highlight-next-line
+    query(getTasks, { entities: ["Task"] }),
+  ],
+})
+```
 
-  </TabItem>
-
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    // ...
-
-    query getTasks {
-      // Specifies where the implementation for the query function is.
-      // The path `@src/queries` resolves to `src/queries.ts`.
-      // No need to specify an extension.
-      fn: import { getTasks } from "@src/queries",
-      // Tell Wasp that this query reads from the `Task` entity. Wasp will
-      // automatically update the results of this query when tasks are modified.
-      entities: [Task]
-    }
-    ```
-
-    :::note
-    To generate the types used in the next section, make sure that `wasp start` is still running.
-    :::
-
-  </TabItem>
-</Tabs>
+<ShowForTs>
+  :::note
+  To generate the types used in the next section, make sure that `wasp start` is still running.
+  :::
+</ShowForTs>
 </TutorialAction>
 
 ### Implementing a Query
 
 <ShowForJs>
-  Next, create a new file called `src/queries.js` and define the JavaScript function we've just imported in our `query` declaration:
+  Next, create a new file called `src/queries.js` and define the JavaScript function we've just imported in our `query` spec:
 </ShowForJs>
 
 <ShowForTs>
-  Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` declaration:
+  Next, create a new file called `src/queries.ts` and define the TypeScript function we've just imported in our `query` spec:
 </ShowForTs>
 
 <TutorialAction id="query-get-tasks-impl" action="APPLY_PATCH">
@@ -91,10 +76,10 @@ export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
 ```
 </TutorialAction>
 <ShowForTs>
-Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp`:
+Wasp automatically generates the types `GetTasks` and `Task` based on the contents of `main.wasp.ts`:
 
 - `Task` is a type corresponding to the `Task` entity you defined in `schema.prisma`.
-- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp`.
+- `GetTasks` is a generic type Wasp automatically generated based on the `getTasks` Query you defined in `main.wasp.ts`.
 
 You can use these types to specify the Query's input and output types. This Query doesn't expect any arguments (its input type is `void`), but it does return an array of tasks (its output type is `Task[]`).
 
@@ -109,9 +94,9 @@ The arguments the caller passes to the Query.
 
 - `context`
 
-  An object with extra information injected by Wasp. Its type depends on the Query declaration.
+  An object with extra information injected by Wasp. Its type depends on the Query specification.
 
-Since the Query declaration in `main.wasp` says that the `getTasks` Query uses `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
+Since the Query spec in `main.wasp.ts` says that the `getTasks` Query uses the `Task` entity, Wasp injected a [Prisma client](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-client/crud) for the `Task` entity as `context.entities.Task` - we used it above to fetch all the tasks from the database.
 
 :::info
 Queries and Actions are NodeJS functions executed on the server.
@@ -131,7 +116,7 @@ import type { Task } from "wasp/entities";
 import { getTasks, useQuery } from "wasp/client/operations";
 
 export const MainPage = () => {
-  // highlight-start
+  // highlight-next-line
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
@@ -142,10 +127,8 @@ export const MainPage = () => {
       {error && "Error: " + error}
     </div>
   );
-  // highlight-end
 };
 
-// highlight-start
 const TaskView = ({ task }: { task: Task }) => {
   return (
     <div>
@@ -166,19 +149,18 @@ const TasksList = ({ tasks }: { tasks: Task[] }) => {
     </div>
   );
 };
-// highlight-end
 ```
 </TutorialAction>
 
 Most of this code is regular React, the only exception being the <ShowForJs>two</ShowForJs><ShowForTs>three</ShowForTs> special `wasp` imports:
 
 <ShowForJs>
-  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` declaration in `main.wasp`.
+  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
   - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
 </ShowForJs>
 
 <ShowForTs>
-  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` declaration in `main.wasp`.
+  - `getTasks` - The client-side Query function Wasp generated based on the `getTasks` spec in `main.wasp.ts`.
   - `useQuery` - Wasp's [useQuery](../data-model/operations/queries#the-usequery-hook-1) React hook, which is based on [react-query](https://github.com/tannerlinsley/react-query)'s hook with the same name.
   - `Task` - The type for the Task entity defined in `schema.prisma`.
 

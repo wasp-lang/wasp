@@ -9,8 +9,7 @@ import OverrideExampleIntro from './\_override-example-intro.md';
 import UsingAuthNote from './\_using-auth-note.md';
 import WaspFileStructureNote from './\_wasp-file-structure-note.md';
 import GetUserFieldsType from './\_getuserfields-type.md';
-import ApiReferenceIntro from './\_api-reference-intro.md';
-import UserSignupFieldsExplainer from '../\_user-signup-fields-explainer.md';
+import { CardLink } from '@site/src/components/CardLink';
 import GoogleData from '../entities/\_google-data.md';
 import AccessingUserDataNote from '../\_accessing-user-data-note.md';
 import SocialLoginClientPages from './\_social-login-client-pages.md';
@@ -38,16 +37,17 @@ Enabling Google Authentication comes down to a series of steps:
 
 Let's start by properly configuring the Auth object:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
     // 1. Specify the User entity (we'll define it next)
     // highlight-next-line
-    userEntity: User,
+    userEntity: "User",
     methods: {
       // 2. Enable Google Auth
       // highlight-next-line
@@ -55,14 +55,15 @@ app myApp {
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
+  // ...
+})
 ```
 
 `userEntity` is explained in [the social auth overview](./overview.md#user-entity).
 
 ### 2. Adding the User Entity
 
-Let's now define the `app.auth.userEntity` entity in the `schema.prisma` file:
+Let's now define the `auth.userEntity` entity in the `schema.prisma` file:
 
 ```prisma title="schema.prisma"
 // 3. Define the user entity
@@ -161,15 +162,18 @@ GOOGLE_CLIENT_SECRET=your-google-client-secret
 
 Let's define the necessary authentication Routes and Pages.
 
-Add the following code to your `main.wasp` file:
+Add the following code to your `main.wasp.ts` file:
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
 
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { Login } from "@src/pages/auth"
-}
+export default app({
+  // ...
+  spec: [
+    route("LoginRoute", "/login", page(LoginPage)),
+  ],
+})
 ```
 
 We'll define the React components for these pages in the `src/pages/auth.{jsx,tsx}` file below.
@@ -189,23 +193,25 @@ To see how to protect specific pages (i.e., hide them from non-authenticated use
 
 ## Default Behaviour
 
-Add `google: {}` to the `auth.methods` dictionary to use it with default settings:
+Add `google: {}` to the `auth.methods` object to use it with default settings:
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       // highlight-next-line
       google: {}
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
+  // ...
+})
 ```
 
 <DefaultBehaviour />
@@ -247,25 +253,28 @@ The fields you receive depend on the scopes you request. The default scope is se
 
 <OverrideExampleIntro />
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+import { getConfig, userSignupFields } from "./src/auth/google" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
   title: "My App",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: {
       google: {
         // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google",
+        configFn: getConfig,
         // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google"
+        userSignupFields
       }
     },
     onAuthFailedRedirectTo: "/login"
   },
-}
+  // ...
+})
 ```
 
 ```prisma title="schema.prisma"
@@ -279,16 +288,16 @@ model User {
 ```
 
 ```ts title="src/auth/google.ts" auto-js
-import { defineUserSignupFields } from 'wasp/server/auth'
+import { defineUserSignupFields } from "wasp/server/auth"
 
 export const userSignupFields = defineUserSignupFields({
-  username: () => 'hardcoded-username',
+  username: () => "hardcoded-username",
   displayName: (data: any) => data.profile.name,
 })
 
 export function getConfig() {
   return {
-    scopes: ['profile', 'email'],
+    scopes: ["profile", "email"],
   }
 }
 ```
@@ -307,45 +316,11 @@ When you receive the `user` object [on the client or the server](../overview.md#
 
 ## API Reference
 
-<ApiReferenceIntro />
+<CardLink
+  to="../../api/@wasp.sh/spec/interfaces/SocialAuthConfig"
+  kind="api"
+  title="SocialAuthConfig"
+  description="All the options for the google auth method."
+/>
 
-```wasp title="main.wasp"
-app myApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "My App",
-  auth: {
-    userEntity: User,
-    methods: {
-      google: {
-        // highlight-next-line
-        configFn: import { getConfig } from "@src/auth/google",
-        // highlight-next-line
-        userSignupFields: import { userSignupFields } from "@src/auth/google"
-      }
-    },
-    onAuthFailedRedirectTo: "/login"
-  },
-}
-```
-
-The `google` dict has the following properties:
-
-- #### `configFn: ExtImport`
-
-  This function must return an object with the scopes for the OAuth provider.
-
-  ```ts title="src/auth/google.ts" auto-js
-  export function getConfig() {
-    return {
-      scopes: ['profile', 'email'],
-    }
-  }
-  ```
-
-- #### `userSignupFields: ExtImport`
-
-  <UserSignupFieldsExplainer />
-
-  Read more about the `userSignupFields` function [here](../overview#1-defining-extra-fields).
+For the provider-specific behavior of the `configFn` and `userSignupFields` functions, check the [Overrides section](#overrides). For behavior common to all providers, check the [Social Auth Overview](./overview.md).

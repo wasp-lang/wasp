@@ -1,0 +1,48 @@
+{
+  "name": "@wasp.sh/spec",
+  "version": "0.24.0",
+  "type": "module",
+  "description": "Wasp TS SDK",
+  "author": "wasp",
+  "license": "MIT",
+  "bin": {
+    "__internal_wasp_spec__": "./dist/src/run.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/src/index.d.ts",
+      "default": "./dist/src/index.js"
+    },
+    "./internal": {
+      "types": "./dist/src/internal.d.ts",
+      "default": "./dist/src/internal.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "coverage": "vitest run --coverage",
+    "dev": "nodemon ./src/index.ts",
+    "test": "npm run build && vitest run --reporter=verbose",
+    "test:integration": "npm run build && vitest run --reporter=verbose --project integration",
+    "test:type": "npm run build && vitest run --reporter=verbose --project type",
+    "test:unit": "npm run build && vitest run --reporter=verbose --project unit",
+    "test:watch": "npm run build && vitest --reporter=verbose"
+  },
+  "dependencies": {
+    "estree-util-scope": "^1.0.0",
+    "estree-walker": "^3.0.3",
+    "type-fest": "^5.6.0",
+    "typescript": "^5.8.3",
+    "unrun": "^0.3.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.9.0",
+    "@types/node": "^22.17.0",
+    "@vitest/coverage-v8": "^4.0.16",
+    "eslint": "^9.9.0",
+    "globals": "^15.9.0",
+    "nodemon": "^3.1.4",
+    "typescript-eslint": "^8.1.0",
+    "vitest": "^4.0.16"
+  }
+}

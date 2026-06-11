@@ -19,7 +19,7 @@ interface ClientToServerEvents {
 }
 interface InterServerEvents {}
 
-export const webSocketFn: WebSocketDefinition<
+export const votingWebSocket: WebSocketDefinition<
   ClientToServerEvents,
   ServerToClientEvents,
   InterServerEvents

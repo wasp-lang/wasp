@@ -12,8 +12,8 @@ import { GetVerificationEmailContentFn, GetPasswordResetEmailContentFn } from "w
 import { defineHandler } from "wasp/server/utils";
 import { env } from "wasp/server";
 
-import { userSignupFields } from '../../../../../../../src/features/auth/providers/email'
-const _waspUserSignupFields = userSignupFields
+import { emailUserSignupFields } from '../../../../../../../src/features/auth/providers/email'
+const _waspUserSignupFields = emailUserSignupFields
 
 import { getVerificationEmailContent } from '../../../../../../../src/features/auth/providers/email'
 const _waspGetVerificationEmailContent: GetVerificationEmailContentFn = getVerificationEmailContent;

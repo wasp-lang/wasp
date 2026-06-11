@@ -7,23 +7,22 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
     By default, Wasp will create a TypeScript project. We recommend using TypeScript in new projects, and you can always mix-and-match TypeScript and JavaScript files.
-    
+
     To use JavaScript in the main page, you must manually rename the file
     `src/MainPage.tsx` to `src/MainPage.jsx`. Restart `wasp start` after you do this.
 
-    No updates to the `main.wasp` file are necessary - it stays the same regardless of the language you use.
+    No updates to the `main.wasp.ts` file are necessary - it stays the same regardless of the language you use.
 
     After creating a new Wasp project and renaming the `src/MainPage.tsx` file, your project should look like this:
 
     <!-- NOTE: Using python as language to get syntax highlighting for the comments -->
     ```python
     .
-    ├── .gitignore
-    ├── main.wasp     # Your Wasp code goes here.
-    ├── schema.prisma # Your database models go here.
+    ├── main.wasp.ts  # Your Wasp Spec goes here.
     ├── package.json  # Your dependencies and project info go here.
     ├── public        # Your static files (e.g., images, favicon) go here.
     │   └── favicon.ico
+    ├── schema.prisma # Your database models go here.
     ├── src           # Your source code (JS/React/Node.js) goes here.
     │   ├── Main.css
     # highlight-next-line
@@ -32,6 +31,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     │   │   └── logo.svg
     │   └── vite-env.d.ts
     ├── tsconfig.json
+    ├── tsconfig.src.json
+    ├── tsconfig.wasp.json
     └── vite.config.ts
     ```
   </TabItem>
@@ -41,12 +42,11 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
 
     ```python
     .
-    ├── .gitignore
-    ├── main.wasp     # Your Wasp code goes here.
-    ├── schema.prisma # Your database models go here.
+    ├── main.wasp.ts  # Your Wasp Spec goes here.
     ├── package.json  # Your dependencies and project info go here.
     ├── public        # Your static files (e.g., images, favicon) go here.
     │   └── favicon.ico
+    ├── schema.prisma # Your database models go here.
     ├── src           # Your source code (TS/React/Node.js) goes here.
     │   ├── Main.css
     │   ├── MainPage.tsx
@@ -54,6 +54,8 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     │   │   └── logo.svg
     │   └── vite-env.d.ts
     ├── tsconfig.json
+    ├── tsconfig.src.json
+    ├── tsconfig.wasp.json
     └── vite.config.ts
     ```
   </TabItem>
@@ -65,82 +67,66 @@ We'd normally recommend organizing code by features (i.e., vertically).
 However, since this tutorial contains only a handful of files, there's no need for fancy organization.
 We'll keep it simple by placing everything in the root `src` directory.
 
-Many other files (e.g., `tsconfig.json`, `vite-env.d.ts`, `.wasproot`, etc.) help Wasp and the IDE improve your development experience with autocompletion, IntelliSense, and error reporting.
+Many other files (e.g., `tsconfig.json`, `tsconfig.src.json`, `tsconfig.wasp.json`, `vite-env.d.ts`, etc.) help Wasp and the IDE improve your development experience with autocompletion, IntelliSense, and error reporting.
 
 The `vite.config.ts` file is used to configure [Vite](https://vitejs.dev/guide/), Wasp's build tool of choice.
-We won't be configuring Vite in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../project/custom-vite-config.md).
+We won't be customizing the Vite setup in this tutorial, so you can safely ignore the file. Still, if you ever end up wanting more control over Vite, you'll find everything you need to know in [custom Vite config docs](../project/custom-vite-config.md).
 
 The `schema.prisma` file is where you define your database schema using [Prisma](https://www.prisma.io/). We'll cover this a bit later in the tutorial.
 
-The most important file in the project is `main.wasp`. Wasp uses the configuration within it to perform its magic. Based on what you write, it generates a bunch of code for your database, server-client communication, React routing, and more.
+The most important file in the project is `main.wasp.ts`. Wasp uses the configuration within it to perform its magic. Based on what you write, it generates a bunch of code for your database, server-client communication, React routing, and more.
 
-Let's take a closer look at `main.wasp`
+Let's take a closer look at `main.wasp.ts`
 
-## `main.wasp`
+## `main.wasp.ts`
 
-`main.wasp` is your app's definition file.
+`main.wasp.ts` is your app's Wasp file.
 It defines the app's central components and helps Wasp to do a lot of the legwork for you.
 
-:::tip Wasp TS config [Early-preview feature]
-If you wish, you can alternatively define your [Wasp config in TS](../general/wasp-ts-config.md) (`main.wasp.ts`) instead of `main.wasp`.
-:::
+The file exports your app's top-level configuration and a collection of specifications. Each one defines a Route, Page, Query, Action, or other features provided by Wasp.
 
-The file is a list of _declarations_. Each declaration defines a part of your app.
+The default `main.wasp.ts` file generated with `wasp new` on the previous page looks like this:
 
-The default `main.wasp` file generated with `wasp new` on the previous page looks like this:
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+// This is a reference to your MainPage component.
+// Read more about how Wasp references your code in the section below.
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 
-<Tabs groupId="js-ts">
-  <TabItem value="js" label="JavaScript">
-    ```wasp title="main.wasp"
-    app TodoApp {
-      wasp: {
-        version: "{latestWaspVersion}" // Pins the version of Wasp to use.
-      },
-      title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
-      head: [
-        "<link rel='icon' href='/favicon.ico' />",
-      ]
-    }
+export default app({
+  name: "TodoApp",
+  wasp: {
+    version: "{latestWaspVersion}", // Pins the version of Wasp to use.
+  },
+  title: "TodoApp", // Used as the browser tab title.
+  head: [
+    "<link rel='icon' href='/favicon.ico' />",
+  ],
+  // Add your specs here so Wasp knows to register them.
+  spec: [
+    route("RootRoute", "/", page(MainPage)),
+  ],
+})
+```
 
-    route RootRoute { path: "/", to: MainPage }
-    page MainPage {
-      // We specify that the React implementation of the page is exported from
-      // `src/MainPage.jsx`. This statement uses standard JS import syntax.
-      // Use `@src` to reference files inside the `src` folder.
-      component: import { MainPage } from "@src/MainPage"
-    }
-    ```
-  </TabItem>
+### Referencing code from `src`
 
-  <TabItem value="ts" label="TypeScript">
-    ```wasp title="main.wasp"
-    app TodoApp {
-      wasp: {
-        version: "{latestWaspVersion}" // Pins the version of Wasp to use.
-      },
-      title: "TodoApp", // Used as the browser tab title. Note that all strings in Wasp are double quoted!
-      head: [
-        "<link rel='icon' href='/favicon.ico' />",
-      ]
-    }
+When `main.wasp.ts` needs to point to your React components or Node.js functions, it uses imports like this:
 
-    route RootRoute { path: "/", to: MainPage }
-    page MainPage {
-      // We specify that the React implementation of the page is exported from
-      // `src/MainPage.tsx`. This statement uses standard JS import syntax.
-      // Use `@src` to reference files inside the `src` folder.
-      component: import { MainPage } from "@src/MainPage"
-    }
-    ```
-  </TabItem>
-</Tabs>
+```ts
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+```
 
-This file uses three declaration types:
+Notice the `with { type: "ref" }` part at the end of the import statement. This tells Wasp to treat the import as a reference to your app's code, without running the imported code. For more details and examples, see [reference imports](../general/spec.md#reference-imports).
 
-- **app**: Top-level configuration information about your app.
+### Specifications
 
-- **route**: Describes which path each page should be accessible from.
+This Wasp app uses three specifications:
 
-- **page**: Defines a web page and the React component that gets rendered when the page is loaded.
+- [**app**](../api/@wasp.sh/spec/functions/app): Top-level configuration information about your app.
+
+- [**route**](../api/@wasp.sh/spec/functions/route): Describes which path each page should be accessible from.
+
+- [**page**](../api/@wasp.sh/spec/functions/page): Defines a web page and the React component that gets rendered when the page is loaded.
 
 In the next section, we'll explore how **route** and **page** work together to build your web app.

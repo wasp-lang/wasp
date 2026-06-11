@@ -22,8 +22,6 @@ Choose a starter template
 [3] saas
     Everything a SaaS needs! Comes with Auth, ChatGPT API, Tailwind, Stripe payments and more.
     Check out https://opensaas.sh/ for more details.
-[4] ai-generated
-    🤖 Describe an app in a couple of sentences and have Wasp AI generate initial code for you. (experimental)
  ▸ 1
 
 🐝 --- Creating your project from the "basic" template... -------------------------
@@ -63,12 +61,3 @@ Use this template:
 ```
 wasp new <project-name> -t minimal
 ```
-
-### AI Generated Starter 🤖
-
-Using the same tech as used on https://usemage.ai/, Wasp generates your custom starter template based on your
-project description. It will automatically generate your data model, auth, queries, actions and React pages.
-
-_You will need to provide your own OpenAI API key to be able to use this template._
-
-**Features:** Generated using OpenAI's GPT models, Auth (username/password), Queries, Actions, Pages, Full-stack Type Safety

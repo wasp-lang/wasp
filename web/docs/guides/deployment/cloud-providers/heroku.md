@@ -1,7 +1,7 @@
 ---
 comments: true
 last_checked_with_versions:
-  Wasp: "0.23"
+  Wasp: "0.24"
   Heroku: 2026-04-06
 ---
 
@@ -61,7 +61,7 @@ If you do not know what your client URL is yet, don't worry. You can set `WASP_W
 
 ### Deploy the Heroku app
 
-After you have [built the app](../../../deployment/deployment-methods/paas.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
+After you have [built the app](../../../deployment/deployment-methods/cloud-providers.md#1-generating-deployable-code), position yourself in `.wasp/out/` directory:
 
 ```shell
 cd .wasp/out
@@ -96,7 +96,7 @@ Deploy the pushed image and restart the app:
 heroku container:release --app <app-name> web
 ```
 
-This is it, the backend is deployed at `https://<app-name>-XXXX.herokuapp.com` 🎉
+This is it, the backend is deployed at `https://<app-name>.herokuapp.com` 🎉
 
 Find out the exact app URL with:
 

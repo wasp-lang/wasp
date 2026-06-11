@@ -56,28 +56,29 @@ const ActionButtons = () => (
 
 const codeTabs = [
   {
-    name: "main.wasp",
-    language: "wasp",
-    source: `app todoApp {
-  wasp: { version: "^0.23.0" },
+    name: "main.wasp.ts",
+    language: "typescript",
+    source: `import { app, page, query, route } from "@wasp.sh/spec";
+
+import { MainPage } from "./src/MainPage" with { type: "ref" };
+import { getTasks } from "./src/tasks" with { type: "ref" };
+
+export default app({
+  name: "todoApp",
+  wasp: { version: "^0.24.0" },
   title: "ToDo App",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: { google: {}, gitHub: {}, email: {} },
     onAuthFailedRedirectTo: "/login"
-  }
-}
-
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  authRequired: true,
-  component: import { MainPage } from "@src/MainPage" // <-- React
-}
-
-query getTasks {
-  fn: import { getTasks } from "@src/tasks", // <-- Node.js
-  entities: [Task] // <-- Automatic cache invalidation.
-}`,
+  },
+  spec: [
+    route("RootRoute", "/", page(MainPage, {
+      authRequired: true
+    })),
+    query(getTasks, { entities: ["Task"] })
+  ]
+});`,
   },
   {
     name: "schema.prisma",
@@ -99,10 +100,10 @@ model Task {
   {
     name: "MainPage.tsx",
     language: "tsx",
-    source: `import { getTasks, useQuery } from "wasp/client/operations"
+    source: `import { getTasks, useQuery } from "wasp/client/operations";
 
 export function MainPage() {
-  const { data: tasks } = useQuery(getTasks)
+  const { data: tasks } = useQuery(getTasks);
 
   return (
     <div>
@@ -111,24 +112,24 @@ export function MainPage() {
         <div key={task.id}>{task.description}</div>
       ))}
     </div>
-  )
+  );
 }`,
   },
   {
     name: "tasks.ts",
     language: "typescript",
-    source: `import { type GetTasks } from "wasp/server/operations"
-import { HttpError } from "wasp/server"
-import { Task } from "wasp/entities"
+    source: `import { type GetTasks } from "wasp/server/operations";
+import { HttpError } from "wasp/server";
+import { Task } from "wasp/entities";
 
 export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
-  if (!context.user) throw new HttpError(401)
+  if (!context.user) throw new HttpError(401);
 
   return context.entities.Task.findMany({
     where: { user: { id: context.user.id } },
     orderBy: { id: "desc" },
-  })
-}`,
+  });
+};`,
   },
 ];
 

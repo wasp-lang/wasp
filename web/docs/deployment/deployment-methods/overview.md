@@ -3,7 +3,7 @@ title: Overview
 title-llm: Deployment Overview
 ---
 
-import { DeploymentOptionsGrid } from './DeploymentOptionsGrid.tsx';
+import { CardLink } from '@site/src/components/CardLink';
 
 Wasp apps are full-stack apps that consist of:
 
@@ -11,11 +11,32 @@ Wasp apps are full-stack apps that consist of:
 - A static client.
 - A PostgreSQL database.
 
-You can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/).
-
 To make deploying as smooth as possible, Wasp also offers a single-command deployment called **Wasp Deploy**.
 
-<DeploymentOptionsGrid />
+<CardLink
+  kind="docs"
+  to="./wasp-deploy/overview"
+  title="Wasp Deploy"
+  description="One-command deployment & redeployment"
+/>
+
+But even when not using Wasp Deploy, you can deploy each part **anywhere** where you can usually deploy Node.js apps or static apps. For example, you can deploy your client on [Netlify](https://www.netlify.com/), the server on [Fly.io](https://fly.io/), and the database on [Neon](https://neon.tech/).
+
+You can read our guides on how to deploy your Wasp app to different platforms, both from cloud providers and on your own infrastructure:
+
+<CardLink
+  kind="docs"
+  to="./cloud-providers"
+  title="Cloud Providers"
+  description="Deploy your Wasp app to various cloud platforms"
+/>
+
+<CardLink
+  kind="docs"
+  to="./self-hosted"
+  title="Self-hosted"
+  description="Use your own servers to host your app"
+/>
 
 Regardless of how you choose to deploy your app (i.e., manually or using the Wasp CLI), you'll need to know about some common patterns covered below.
 

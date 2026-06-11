@@ -19,28 +19,31 @@ Below you will find a starting point for creating your own actions. The given im
 
 ### Email
 
-```wasp title="main.wasp"
-app myApp {
-  // ...
+```ts title="main.wasp.ts"
+import { action, app } from "@wasp.sh/spec"
+import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
+import { customSignup } from "./src/auth/signup" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // ...
-    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+    onBeforeSignup,
   },
-}
-
-// ...
-
-action customSignup {
-  fn: import { signup } from "@src/auth/signup",
-}
+  spec: [
+    action(customSignup),
+  ],
+})
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { HttpError } from 'wasp/server'
+import { HttpError } from "wasp/server"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, 'This sign-up method is disabled')
+  throw new HttpError(403, "This sign-up method is disabled")
 }
 ```
 
@@ -70,7 +73,7 @@ type CustomSignupOutput = {
   message: string;
 };
 
-export const signup: CustomSignup<
+export const customSignup: CustomSignup<
   CustomSignupInput,
   CustomSignupOutput
 > = async (args, _context) => {
@@ -157,28 +160,31 @@ export const signup: CustomSignup<
 
 ### Username and password
 
-```wasp title="main.wasp"
-app myApp {
-  // ...
+```ts title="main.wasp.ts"
+import { action, app } from "@wasp.sh/spec"
+import { onBeforeSignup } from "./src/auth/hooks" with { type: "ref" }
+import { customSignup } from "./src/auth/signup" with { type: "ref" }
+
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
   auth: {
     // ...
-    onBeforeSignup: import { onBeforeSignup } from "@src/auth/hooks",
+    onBeforeSignup,
   },
-}
-
-// ...
-
-action customSignup {
-  fn: import { signup } from "@src/auth/signup",
-}
+  spec: [
+    action(customSignup),
+  ],
+})
 ```
 
 ```ts title="src/auth/hooks.ts" auto-js
-import { HttpError } from 'wasp/server'
+import { HttpError } from "wasp/server"
 
 // This disables Wasp's default sign-up action
 export const onBeforeSignup = async () => {
-  throw new HttpError(403, 'This sign-up method is disabled')
+  throw new HttpError(403, "This sign-up method is disabled")
 }
 ```
 
@@ -203,7 +209,7 @@ type CustomSignupOutput = {
   message: string;
 };
 
-export const signup: CustomSignup<
+export const customSignup: CustomSignup<
   CustomSignupInput,
   CustomSignupOutput
 > = async (args, _context) => {

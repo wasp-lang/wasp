@@ -224,7 +224,7 @@ const features: Feature[] = [
     id: "spec",
     title: "High-Level Spec",
     sub: "app, auth, route, ...",
-    docUrl: "/docs/general/wasp-ts-config",
+    docUrl: "/docs/general/spec",
     intro: (
       <>
         Define your app via a specialized full-stack aware logic layer, using
@@ -235,39 +235,37 @@ const features: Feature[] = [
     ),
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
-        source: `app TodoApp {
+        head: "main.wasp.ts",
+        language: "typescript",
+        source: `import { app, job, page, query, route } from "@wasp.sh/spec";
+
+import { AdminDashboard } from "./src/admin/Dashboard" with { type: "ref" };
+import { dailyDigest, getMetrics } from "./src/admin/ops" with { type: "ref" };
+import { HomePage } from "./src/pages/Home" with { type: "ref" };
+
+export default app({
+  name: "TodoApp",
   title: "TodoApp",
-  wasp: { version: "^0.23.0" },
+  wasp: { version: "^0.24.0" },
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: { email: {}, google: {} },
     onAuthFailedRedirectTo: "/login"
-  }
-}
-
-route HomeRoute { path: "/", to: HomePage }
-page HomePage {
-  component: import Home from "@src/pages/Home"
-}
-
-route AdminRoute { path: "/admin", to: AdminDashboard }
-page AdminDashboard {
-  component: import Dashboard from "@src/admin/Dashboard",
-  authRequired: true
-}
-
-query getMetrics {
-  fn: import { getMetrics } from "@src/admin/ops",
-  entities: [Task, User]
-}
-
-job dailyDigest {
-  executor: PgBoss,
-  perform: { fn: import { dailyDigest } from "@src/admin/digest" },
-  schedule: { cron: "0 7 * * *" }
-}`,
+  },
+  spec: [
+    route("HomeRoute", "/", page(HomePage)),
+    route(
+      "AdminRoute",
+      "/admin",
+      page(AdminDashboard, { authRequired: true })
+    ),
+    query(getMetrics, { entities: ["Task", "User"] }),
+    job(dailyDigest, {
+      executor: "PgBoss",
+      schedule: { cron: "0 7 * * *" }
+    })
+  ]
+});`,
       },
     ],
   },
@@ -280,42 +278,43 @@ job dailyDigest {
       "Declare the auth methods you want, Wasp does the rest. Use the high-level API of premade but customizable Login/Signup/... forms, or drop lower and implement your own.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
-        source: `app TodoApp {
-  // ...
-  auth: {
-    userEntity: User,
-    methods: {
-      email: { fromField: { email: "hi@todo.dev" } },
-      google: {}, gitHub: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  }
-}
-
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import LoginPage from "@src/auth/LoginPage"
-}`,
+        head: "main.wasp.ts",
+        language: "typescript",
+        source: `// ...
+auth: {
+  userEntity: "User",
+  methods: {
+    email: { fromField: { email: "hi@todo.dev" } },
+    google: {}, gitHub: {}
+  },
+  onAuthFailedRedirectTo: "/login"
+},
+spec: [
+  route("LoginRoute", "/login", page(LoginPage)),
+  route(
+    "ProfileRoute",
+    "/profile",
+    page(ProfilePage, { authRequired: true })
+  )
+]`,
       },
       {
         head: "src/auth/LoginPage.tsx",
         language: "tsx",
-        source: `import { LoginForm } from 'wasp/client/auth'
+        source: `import { LoginForm } from "wasp/client/auth";
 
 export default function LoginPage() {
-  return <LoginForm />  // ready-made, themable, drop-in
+  return <LoginForm />; // ready-made, themable, drop-in
 }`,
       },
       {
         head: "src/user/ProfilePage.tsx",
         language: "tsx",
-        source: `import { useAuth } from 'wasp/client/auth'
+        source: `import { useAuth } from "wasp/client/auth";
 
 export default function ProfilePage() {
-  const { data: user } = useAuth()
-  return <p>Hi, {user?.identities.email?.id}</p>
+  const { data: user } = useAuth();
+  return <p>Hi, {user?.identities.email?.id}</p>;
 }`,
       },
     ],
@@ -340,19 +339,21 @@ export default function ProfilePage() {
 }`,
       },
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-query countTasks  { /* ... */ entities: [Task] }
-action createTask { /* ... */ entities: [Task, User] }
-job dailyDigest   { /* ... */ entities: [Task, User] }`,
+spec: [
+  query(countTasks, { entities: ["Task"] }),
+  action(createTask, { entities: ["Task", "User"] }),
+  job(dailyDigest, { executor: "PgBoss", entities: ["Task", "User"] })
+]`,
       },
       {
         head: "src/task/operations.ts",
         language: "typescript",
         source: `// ...
 export const countTasks: CountTasks<void, number> =
-  async (_args, ctx) => ctx.entities.Task.count()`,
+  async (_args, ctx) => ctx.entities.Task.count();`,
       },
       {
         head: "shell",
@@ -371,33 +372,32 @@ $ wasp db migrate-dev | wasp db studio | wasp db seed`,
       "Define functions on the server, call them from the client. No need for REST / GQL / ... . Fully typed and reactive. Powered by TanStack Query.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-query countTasks {
-  fn: import { countTasks } from "@src/task/operations",
-  entities: [Task]
-}`,
+spec: [
+  query(countTasks, { entities: ["Task"] })
+]`,
       },
       {
         head: "src/task/operations.ts",
         language: "typescript",
-        source: `import type { CountTasks } from 'wasp/server/operations'
+        source: `import type { CountTasks } from "wasp/server/operations";
 
 export const countTasks: CountTasks<void, number> = async (_args, ctx) => {
-  return ctx.entities.Task.count()
+  return ctx.entities.Task.count();
 }`,
       },
       {
         head: "src/task/TaskCounter.tsx",
         language: "tsx",
-        source: `import { useQuery, countTasks } from 'wasp/client/operations'
+        source: `import { useQuery, countTasks } from "wasp/client/operations";
 
 export default function TaskCounter() {
-  const { data: count, isLoading, error } = useQuery(countTasks)
-  if (isLoading) return <p>Loading...</p>
-  if (error) return <p>Error: {error.message}</p>
-  return <p>{count} tasks in total.</p>
+  const { data: count, isLoading, error } = useQuery(countTasks);
+  if (isLoading) return <p>Loading...</p>;
+  if (error) return <p>Error: {error.message}</p>;
+  return <p>{count} tasks in total.</p>;
 }`,
       },
     ],
@@ -411,41 +411,42 @@ export default function TaskCounter() {
       "Cron jobs, one-offs, retries, all working out of the box. No external service needed.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-job sendReminders {
-  executor: PgBoss,
-  perform: { fn: import { sendReminders } from "@src/reminders" },
-  schedule: { cron: "0 9 * * *" },   // every day at 9am
-  entities: [Task, User]
-}`,
+spec: [
+  job(sendReminders, {
+    executor: "PgBoss",
+    schedule: { cron: "0 9 * * *" },   // every day at 9am
+    entities: ["Task", "User"]
+  })
+]`,
       },
       {
         head: "src/reminders.ts",
         language: "typescript",
-        source: `import type { SendReminders } from 'wasp/server/jobs'
+        source: `import type { SendReminders } from "wasp/server/jobs";
 
 export const sendReminders: SendReminders<{ userId?: number }, void> =
   async ({ userId }, ctx) => {
     const tasks = await ctx.entities.Task.findMany({
       where: { done: false, ...(userId && { userId }) }
-    })
+    });
     // ...send a reminder email for each unfinished task
-  }`,
+  };`,
       },
       {
         head: "src/task/operations.ts",
         language: "typescript",
-        source: `import type { CreateTask } from 'wasp/server/operations'
-import { sendReminders } from 'wasp/server/jobs'
+        source: `import type { CreateTask } from "wasp/server/operations";
+import { sendReminders } from "wasp/server/jobs";
 
 export const createTask: CreateTask<{ title: string }, Task> =
   async ({ title }, ctx) => {
-    const task = await ctx.entities.Task.create({ data: { title, userId: ctx.user.id } })
-    await sendReminders.submit({ userId: ctx.user.id }).delay(3600)  // one-off, 1h later
-    return task
-  }`,
+    const task = await ctx.entities.Task.create({ data: { title, userId: ctx.user.id } });
+    await sendReminders.submit({ userId: ctx.user.id }).delay(3600); // one-off, 1h later
+    return task;
+  };`,
       },
     ],
   },
@@ -458,37 +459,35 @@ export const createTask: CreateTask<{ title: string }, Task> =
       "Provider-agnostic, integrated API for easy sending of emails from your web app.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
-        source: `app TodoApp {
+        head: "main.wasp.ts",
+        language: "typescript",
+        source: `// ...
+emailSender: {
+  provider: "SendGrid", // or "Mailgun" | "SMTP" | "Dummy"
+  defaultFrom: { email: "hi@todo.dev", name: "TodoApp" }
+},
+auth: {
   // ...
-  emailSender: {
-    provider: SendGrid, // or Mailgun | SMTP | Dummy
-    defaultFrom: { email: "hi@todo.dev", name: "TodoApp" }
-  },
-  auth: {
-    // ...
-    methods: {
-      email: { /* ... */ }  // will automatically use the email sender
-    }
+  methods: {
+    email: { /* ... */ }  // will automatically use the email sender
   }
 }`,
       },
       {
         head: "src/user/operations.ts",
         language: "typescript",
-        source: `import type { SendGreeting } from 'wasp/server/operations'
-import { emailSender } from 'wasp/server/email'
+        source: `import type { SendGreeting } from "wasp/server/operations";
+import { emailSender } from "wasp/server/email";
 
 export const sendGreeting: SendGreeting<{ userId: number }, void> =
   async ({ userId }, ctx) => {
-    const user = await ctx.entities.User.findUniqueOrThrow({ where: { id: userId } })
+    const user = await ctx.entities.User.findUniqueOrThrow({ where: { id: userId } });
     await emailSender.send({
       to: user.email,
-      subject: 'Welcome to TodoApp 🎉',
-      html: '<h1>Glad you are here.</h1>'
-    })
-  }`,
+      subject: "Welcome to TodoApp 🎉",
+      html: "<h1>Glad you are here.</h1>"
+    });
+  };`,
       },
     ],
   },
@@ -501,40 +500,38 @@ export const sendGreeting: SendGreeting<{ userId: number }, void> =
       "Make your web app alive with a fully integrated WebSocket experience (using Socket.IO).",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
-        source: `app TodoApp {
-  // ...
-  webSocket: { fn: import { webSocketFn } from "@src/webSocket" }
-}`,
+        head: "main.wasp.ts",
+        language: "typescript",
+        source: `// ...
+webSocket: { fn: webSocketFn }`,
       },
       {
         head: "src/webSocket.ts",
         language: "typescript",
-        source: `import type { WebSocketDefinition } from 'wasp/server/webSocket'
+        source: `import type { WebSocketDefinition } from "wasp/server/webSocket";
 
 type WebSocketFn = WebSocketDefinition<
   { chatMessage: (msg: string) => void },                       // client → server
   { chatMessage: (m: { user: string, text: string }) => void }  // server → client
->
+>;
 
 export const webSocketFn: WebSocketFn = (io, context) =>
-  io.on('connection', (socket) => {
-    const user = socket.data.user?.identities.username?.id ?? 'Anon'
-    socket.on('chatMessage', (text) => io.emit('chatMessage', { user, text }))
-  })`,
+  io.on("connection", (socket) => {
+    const user = socket.data.user?.identities.username?.id ?? "Anon";
+    socket.on("chatMessage", (text) => io.emit("chatMessage", { user, text }));
+  });`,
       },
       {
         head: "src/pages/ChatPage.tsx",
         language: "tsx",
-        source: `import { useState } from 'react'
-import { useSocket, useSocketListener } from 'wasp/client/webSocket'
+        source: `import { useState } from "react";
+import { useSocket, useSocketListener } from "wasp/client/webSocket";
 
 export default function ChatPage() {
-  const [messages, setMessages] = useState<{ user: string, text: string }[]>([])
-  const { socket } = useSocket()
-  useSocketListener('chatMessage', (m) => setMessages((prev) => [...prev, m]))
-  return <button onClick={() => socket.emit('chatMessage', 'hi!')}>Send</button>
+  const [messages, setMessages] = useState<{ user: string, text: string }[]>([]);
+  const { socket } = useSocket();
+  useSocketListener("chatMessage", (m) => setMessages((prev) => [...prev, m]));
+  return <button onClick={() => socket.emit("chatMessage", "hi!")}>Send</button>;
 }`,
       },
     ],
@@ -552,12 +549,14 @@ export default function ChatPage() {
     ),
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-route HomeRoute      { path: "/",          to: HomePage,      prerender: true }
-route PricingRoute   { path: "/pricing",   to: PricingPage,   prerender: true }
-route DashboardRoute { path: "/dashboard", to: DashboardPage }`,
+spec: [
+  route("HomeRoute", "/", page(HomePage), { prerender: true }),
+  route("PricingRoute", "/pricing", page(PricingPage), { prerender: true }),
+  route("DashboardRoute", "/dashboard", page(DashboardPage))
+]`,
       },
       {
         head: "shell",
@@ -618,29 +617,31 @@ Dockerfile  server/  web-app/  db/  # ship them anywhere`,
     ),
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-route TaskRoute { path: "/task/:id", to: TaskPage }`,
+spec: [
+  route("TaskRoute", "/task/:id", page(TaskPage))
+]`,
       },
       {
         head: "src/task/TaskList.tsx",
         language: "tsx",
-        source: `import { Link } from 'wasp/client/router'
+        source: `import { Link } from "wasp/client/router";
 
 // ...
   <Link to="/task/:id" params={{ id: task.id }}>...</Link>   // ✓ ok
   <Link to="/tsak/:id" params={{ id: task.id }}>...</Link>   // ✗ no such route
-  <Link to="/task/:id" params={{}}>...</Link>                // ✗ missing param 'id'
+  <Link to="/task/:id" params={{}}>...</Link>                // ✗ missing param "id"
 // ...`,
       },
       {
         head: "src/task/utils.ts",
         language: "typescript",
-        source: `import { routes } from 'wasp/client/router'
+        source: `import { routes } from "wasp/client/router";
 
 // ...
-const taskUrl = routes.TaskRoute.build({ params: { id: someTaskId } })  // e.g. '/task/1'
+const taskUrl = routes.TaskRoute.build({ params: { id: someTaskId } }); // e.g. "/task/1"
 // ...`,
       },
     ],
@@ -654,39 +655,39 @@ const taskUrl = routes.TaskRoute.build({ params: { id: someTaskId } })  // e.g. 
       "Define custom HTTP APIs while still being integrated with the rest of your web app (entities, auth, ...). Powered by ExpressJS.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-api getUserStats {
-  fn: import { getUserStats } from "@src/user/stats",
-  httpRoute: (GET, "/api/me/stats"),
-  entities: [Task],
-  auth: true
-}`,
+spec: [
+  api("GET", "/api/me/stats", getUserStats, {
+    entities: ["Task"],
+    auth: true
+  })
+]`,
       },
       {
         head: "src/user/stats.ts",
         language: "typescript",
-        source: `import type { GetUserStats } from 'wasp/server/api'
+        source: `import type { GetUserStats } from "wasp/server/api";
 
 export const getUserStats: GetUserStats = async (req, res, ctx) => {
   const numTasks = await ctx.entities.Task.count({
     where: { userId: ctx.user.id }
-  })
-  res.json({ numTasks })
-}`,
+  });
+  res.json({ numTasks });
+};`,
       },
       {
         head: "src/user/Stats.tsx",
         language: "tsx",
-        source: `import { api } from 'wasp/client/api'
+        source: `import { api } from "wasp/client/api";
 
 export default function Stats() {
   const load = async () => {
-    const res = await api.get('/api/me/stats')
-    console.log(res.data)  // { numTasks: 7 }
-  }
-  return <button onClick={load}>Load stats</button>
+    const res = await api.get("/api/me/stats");
+    console.log(res.data); // { numTasks: 7 }
+  };
+  return <button onClick={load}>Load stats</button>;
 }`,
       },
     ],

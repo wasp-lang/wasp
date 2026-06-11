@@ -167,3 +167,13 @@ export const validatePassword = (password: string) => password.length > 8 && /* 
 ````
 
 This Docusaurus plugin is implemented in [./src/remark/code-with-hole.ts](./src/remark/code-with-hole.ts).
+
+## Links
+
+### `fix-api-links`: rewrite absolute `wasp.sh` URLs to relative links in API docs
+
+The API reference at `docs/api/` is generated from TSDoc comments in the `@wasp.sh/spec` package (see [its README](../waspc/data/packages/spec/README.md)). Those comments are also consumed outside of the website as raw markdown (as IDE annotations), so links in them need to work in both contexts.
+
+To make that possible, authors write links to other Wasp docs as full `https://wasp.sh/docs/...` URLs in the TSDoc comments. The `fix-api-links` plugin then strips the `https://wasp.sh` prefix from any link inside `docs/api/`, leaving a relative path that resolves on the website and can be checked for broken links.
+
+This Docusaurus plugin is implemented in [./src/remark/fix-api-links.ts](./src/remark/fix-api-links.ts).

@@ -1,12 +1,20 @@
-Here's a skeleton of how our `main.wasp` should look like after we're done:
+Here's a skeleton of how our `main.wasp.ts` should look like after we're done:
 
-```wasp title="main.wasp"
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { LoginPage } from "./src/pages/auth" with { type: "ref" }
+
 // Configuring the social authentication
-app myApp {
-  auth: { ... }
-}
-
-// Defining routes and pages
-route LoginRoute { ... }
-page LoginPage { ... }
+export default app({
+  name: "myApp",
+  wasp: { version: "{latestWaspVersion}" },
+  title: "My App",
+  auth: {
+    // ...
+  },
+  spec: [
+    // Defining routes and pages
+    route("LoginRoute", "/login", page(LoginPage)),
+  ],
+})
 ```

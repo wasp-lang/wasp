@@ -27,7 +27,7 @@ Below you can find a starting point for making your own UI in the client code. Y
     import { useState } from 'react'
     import { useNavigate } from 'react-router'
 
-    export function Signup() {
+    export function SignupPage() {
       const [username, setUsername] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState(null)
@@ -76,7 +76,7 @@ Below you can find a starting point for making your own UI in the client code. Y
     import { useState } from 'react'
     import { useNavigate } from 'react-router'
 
-    export function Signup() {
+    export function SignupPage() {
       const [username, setUsername] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState<Error | null>(null)
@@ -129,7 +129,7 @@ Below you can find a starting point for making your own UI in the client code. Y
     import { useState } from 'react'
     import { useNavigate } from 'react-router'
 
-    export function Login() {
+    export function LoginPage() {
       const [username, setUsername] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState(null)
@@ -177,7 +177,7 @@ Below you can find a starting point for making your own UI in the client code. Y
     import { useState } from 'react'
     import { useNavigate } from 'react-router'
 
-    export function Login() {
+    export function LoginPage() {
       const [username, setUsername] = useState('')
       const [password, setPassword] = useState('')
       const [error, setError] = useState<Error | null>(null)

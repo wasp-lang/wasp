@@ -1,11 +1,11 @@
 ---
-title: SEO metadata
+title: Meta tags
 comments: true
 last_checked_with_versions:
-  Wasp: "0.21"
+  Wasp: "0.24"
 ---
 
-# Adding SEO metadata to your Wasp app
+# Adding `<meta>` tags to your Wasp app
 
 This guide shows you how to set up meta tags for your Wasp application to improve SEO and enable rich previews when your app is shared on platforms like Slack, X, or Discord.
 
@@ -13,12 +13,15 @@ This guide shows you how to set up meta tags for your Wasp application to improv
 
 ### Setting metadata for every page
 
-You can add meta tags to your application using the `head` property in your `app` declaration. These tags will be included in the `<head>` section of your HTML.
+You can add meta tags to your application using the `head` property in your `app` spec. These tags will be included in the `<head>` section of your HTML.
 
-```wasp title="main.wasp"
-app MyApp {
+```ts title="main.wasp.ts"
+import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "MyApp",
   wasp: {
-    version: "^0.21.0"
+    version: "^0.24.0",
   },
   title: "My App",
   head: [
@@ -41,7 +44,8 @@ app MyApp {
     "<meta name='twitter:image:height' content='400' />",
     "<meta name='twitter:card' content='summary_large_image' />",
   ],
-}
+  // ...
+})
 ```
 
 ### Setting metadata for a specific page
@@ -107,7 +111,13 @@ This is used by X (formerly Twitter) to create rich link previews.
 - `twitter:image:width`: Image width in pixels
 - `twitter:image:height`: Image height in pixels
 
+X falls back to the Open Graph tags for the title, description, and image, so if you've already set those, the only tag you strictly need to add is `twitter:card`.
+
 You can check [X's guidelines](https://developer.x.com/en/docs/x-for-websites/cards/overview/markup) for more information on how this information is used.
+
+### Canonical URL
+
+- `<link rel="canonical" href="..." />`: The "original" URL of the page, without tracking parameters (like `?utm_source`). Adding a self-referencing canonical link to each page prevents crawlers from indexing parameterized variations of the same page as duplicates. Since it's different for every page, set it per-page rather than in the `head` field.
 
 ## Best practices for images
 

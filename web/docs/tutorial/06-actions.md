@@ -19,19 +19,29 @@ In this section, you will create:
 
 Creating an Action is very similar to creating a Query.
 
-### Declaring an Action
+### Specifying an Action
 
-We must first declare the Action in `main.wasp`:
+We must first declare the Action in `main.wasp.ts`:
 
 <TutorialAction id="action-create-task" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+// highlight-next-line
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
+// highlight-next-line
+import { createTask } from "./src/actions" with { type: "ref" }
 
-action createTask {
-  fn: import { createTask } from "@src/actions",
-  entities: [Task]
-}
+export default app({
+  // ...
+  spec: [
+    route("RootRoute", "/", page(MainPage)),
+    query(getTasks, { entities: ["Task"] }),
+    // highlight-next-line
+    action(createTask, { entities: ["Task"] }),
+  ],
+})
 ```
 </TutorialAction>
 
@@ -63,7 +73,7 @@ Once again, we've annotated the Action with the `CreateTask` and `Task` types ge
 </ShowForTs>
 
 :::tip
-We put the function in a new file `src/actions.{js,ts}`, but we could have put it anywhere we wanted! There are no limitations here, as long as the declaration in the Wasp file imports it correctly and the file is located within `src` directory.
+We put the function in a new file `src/actions.{js,ts}`, but we could have put it anywhere we wanted! There are no limitations here, as long as the reference import in `main.wasp.ts` points to it and the file is located within the `src` directory.
 :::
 
 ## Invoking the Action on the Client
@@ -82,7 +92,7 @@ import {
   useQuery,
 } from "wasp/client/operations";
 
-// ... MainPage, TaskView, TaskList ...
+// ... MainPage, TaskView, TasksList ...
 
 // highlight-start
 const NewTaskForm = () => {
@@ -124,7 +134,7 @@ import type { FormEvent } from "react";
 import type { Task } from "wasp/entities";
 import { createTask, getTasks, useQuery } from "wasp/client/operations";
 
-const MainPage = () => {
+export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
@@ -138,7 +148,7 @@ const MainPage = () => {
   );
 };
 
-// ... TaskList, TaskView, NewTaskForm ...
+// ... TaskView, TasksList, NewTaskForm ...
 ```
 </TutorialAction>
 
@@ -173,17 +183,26 @@ We'll create a new Action to update a task's status and call it from React whene
 Since we've already created one task together, try to create this one yourself. It should be an Action named `updateTask` that receives the task's `id` and its `isDone` status. You can see our implementation below.
 
 <Collapse title="Solution">
-  Declaring the Action in `main.wasp`:
+  Declaring the Action in `main.wasp.ts`:
 
   <TutorialAction id="action-update-task" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
+// highlight-next-line
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
-action updateTask {
-  fn: import { updateTask } from "@src/actions",
-  entities: [Task]
-}
+export default app({
+  // ...
+  spec: [
+    // ... existing routes and queries
+    action(createTask, { entities: ["Task"] }),
+    // highlight-next-line
+    action(updateTask, { entities: ["Task"] }),
+  ],
+})
 ```
   </TutorialAction>
 
@@ -192,6 +211,7 @@ Implementing the Action on the server:
   <TutorialAction id="action-update-task-impl" action="APPLY_PATCH">
 
 ```ts title="src/actions.ts" auto-js
+import type { Task } from "wasp/entities";
 import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
 // ...
@@ -260,7 +280,7 @@ const TaskView = ({ task }: { task: Task }) => {
   );
 };
 
-// ... TaskList, NewTaskForm ...
+// ... TasksList, NewTaskForm ...
 ```
 </TutorialAction>
 

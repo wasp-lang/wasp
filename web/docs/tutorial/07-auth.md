@@ -41,30 +41,33 @@ Next, tell Wasp to use full-stack [authentication](../auth/overview):
 
 <TutorialAction id="wasp-file-auth" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-app TodoApp {
-  wasp: {
-    version: "{latestWaspVersion}"
-  },
-  title: "TodoApp",
-  head: [
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+```ts title="main.wasp.ts"
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
+
+export default app({
+  // ...
   // highlight-start
   auth: {
     // Tells Wasp which entity to use for storing users.
-    userEntity: User,
+    userEntity: "User",
     methods: {
       // Enable username and password auth.
-      usernameAndPassword: {}
+      usernameAndPassword: {},
     },
     // We'll see how this is used in a bit.
-    onAuthFailedRedirectTo: "/login"
-  }
+    onAuthFailedRedirectTo: "/login",
+  },
   // highlight-end
-}
-
-// ...
+  spec: [
+    route("RootRoute", "/", page(MainPage)),
+    query(getTasks, { entities: ["Task"] }),
+    action(createTask, { entities: ["Task"] }),
+    action(updateTask, { entities: ["Task"] }),
+  ],
+})
 ```
 </TutorialAction>
 
@@ -93,18 +96,27 @@ Wasp creates the login and signup forms for us, but we still need to define the 
 
 <TutorialAction id="wasp-file-auth-routes" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+// highlight-start
+import { SignupPage } from "./src/SignupPage" with { type: "ref" }
+import { LoginPage } from "./src/LoginPage" with { type: "ref" }
+// highlight-end
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
-route SignupRoute { path: "/signup", to: SignupPage }
-page SignupPage {
-  component: import { SignupPage } from "@src/SignupPage"
-}
-
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import { LoginPage } from "@src/LoginPage"
-}
+export default app({
+  // ...
+  spec: [
+    route("RootRoute", "/", page(MainPage)),
+    // highlight-start
+    route("SignupRoute", "/signup", page(SignupPage)),
+    route("LoginRoute", "/login", page(LoginPage)),
+    // highlight-end
+    // ... existing queries and actions
+  ],
+})
 ```
 </TutorialAction>
 
@@ -166,18 +178,28 @@ We don't want users who are not logged in to access the main page, because they 
 
 <TutorialAction id="wasp-file-auth-required" action="APPLY_PATCH">
 
-```wasp title="main.wasp"
-// ...
+```ts title="main.wasp.ts"
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { SignupPage } from "./src/SignupPage" with { type: "ref" }
+import { LoginPage } from "./src/LoginPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
-page MainPage {
-  // highlight-next-line
-  authRequired: true,
-  component: import { MainPage } from "@src/MainPage"
-}
+export default app({
+  // ...
+  spec: [
+    route("RootRoute", "/", page(MainPage, {
+      // highlight-next-line
+      authRequired: true,
+    })),
+    // ... existing routes, queries, and actions
+  ],
+})
 ```
 </TutorialAction>
 
-Now that auth is required for this page, unauthenticated users will be redirected to `/login`, as we specified with `app.auth.onAuthFailedRedirectTo`.
+Now that auth is required for this page, unauthenticated users will be redirected to `/login`, as we specified with `auth.onAuthFailedRedirectTo`.
 
 Additionally, when `authRequired` is `true`, the page's React component will be provided a `user` object as prop.
 
@@ -185,10 +207,12 @@ Additionally, when `authRequired` is `true`, the page's React component will be 
 
 ```tsx title="src/MainPage.tsx" auto-js
 import type { AuthUser } from "wasp/auth";
+// ... existing imports
 
 // highlight-next-line
 export const MainPage = ({ user }: { user: AuthUser }) => {
-  // Do something with the user
+  const { data: tasks, isLoading, error } = useQuery(getTasks);
+
   // ...
 };
 ```
@@ -216,7 +240,7 @@ However, you will notice that if you try logging in as different users and creat
 
 ## Defining a User-Task Relation
 
-First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/reference/tools-and-interfaces/prisma-schema/relations)):
+First, let's define a one-to-many relation between users and tasks (check the [Prisma docs on relations](https://www.prisma.io/docs/orm/prisma-schema/data-model/relations)):
 
 <TutorialAction id="prisma-connect-task-user" action="APPLY_PATCH">
 
@@ -353,12 +377,12 @@ Last, but not least, let's add the logout functionality:
 <TutorialAction id="main-page-add-logout" action="APPLY_PATCH">
 
 ```tsx title="src/MainPage.tsx" auto-js with-hole
-// ...
+import type { AuthUser } from "wasp/auth";
 // highlight-next-line
 import { logout } from "wasp/client/auth";
-//...
+// ... existing imports
 
-const MainPage = () => {
+export const MainPage = ({ user }: { user: AuthUser }) => {
   // ...
   return (
     <div>
