@@ -2,10 +2,7 @@ import Link from "@docusaurus/Link";
 import { useRef, useState } from "react";
 import Transition from "../../lib/Transition";
 import Logo from "./Logo";
-// Uncomment to show a site-wide announcement banner above the nav
-// (e.g. for launches, releases, events). Restyle Announcement.jsx to match
-// brandbook before shipping.
-// import Announcement from "./Announcement";
+import Announcement from "./Announcement";
 
 const Nav = () => {
   const [open, setOpen] = useState(false);
@@ -47,10 +44,10 @@ const Nav = () => {
 
   return (
     <>
-      {/* <Announcement /> */}
+      <Announcement />
       <div className="sticky top-0 z-50">
         <nav className="border-b border-wasp-g3 bg-wasp-bg">
-          <div className="relative mx-auto flex h-16 items-center justify-between lg:container lg:px-16 xl:px-20">
+          <div className="relative mx-auto flex h-16 items-center justify-between lg:container lg:px-16">
             <HamburgerButton toggleFlyOut={() => setOpen(true)} />
 
             {/* Left: Logo */}
