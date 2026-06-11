@@ -24,8 +24,9 @@ import Wasp.Cli.Command.CreateNewProject.ArgumentsParser
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (defaultStarterTemplate)
 import Wasp.Cli.Command.CreateNewProject.Common (TemplateOutputDir, throwProjectCreationError)
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
-  ( StarterTemplate (waspProjectFromTemplateOutputDir),
+  ( StarterTemplate,
     findTemplateByString,
+    waspProjectDirFromTemplateOutputDir,
   )
 import Wasp.Cli.FileSystem (getAbsPathToDirInCwd)
 import qualified Wasp.Cli.Interactive as Interactive
@@ -41,7 +42,7 @@ data NewProjectDescription = NewProjectDescription
 
 getAbsWaspProjectDir :: NewProjectDescription -> Path' Abs (Dir WaspProjectDir)
 getAbsWaspProjectDir (NewProjectDescription {_absTemplateOutputDir = absTemplateOutputDir, _template = template}) =
-  absTemplateOutputDir </> waspProjectFromTemplateOutputDir template
+  absTemplateOutputDir </> waspProjectDirFromTemplateOutputDir template
 
 newtype NewProjectName = NewProjectName String
 
