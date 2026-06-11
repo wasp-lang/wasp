@@ -88,7 +88,7 @@ import { app } from "@wasp.sh/spec"
 import { serverMiddlewareFn } from "./src/serverSetup" with { type: "ref" }
 
 export default app({
-  name: "todoApp",
+  name: "myApp",
   server: {
     middlewareConfigFn: serverMiddlewareFn,
   },

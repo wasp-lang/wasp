@@ -14,7 +14,7 @@ With Wasp's email-sending feature, you can easily integrate email functionality 
 import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: "Example",
+  name: "myApp",
   emailSender: {
     provider: "<provider>",
     defaultFrom: {
@@ -80,7 +80,7 @@ Set the provider to `Dummy` in your `main.wasp.ts` file.
 import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: "Example",
+  name: "myApp",
   emailSender: {
     provider: "Dummy",
   },
@@ -96,7 +96,7 @@ First, set the provider to `SMTP` in your `main.wasp.ts` file.
 import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: "Example",
+  name: "myApp",
   emailSender: {
     provider: "SMTP",
   },
@@ -128,7 +128,7 @@ Set the provider to `Mailgun` in the `main.wasp.ts` file.
 import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: "Example",
+  name: "myApp",
   emailSender: {
     provider: "Mailgun",
   },
@@ -171,7 +171,7 @@ Set the provider field to `SendGrid` in your `main.wasp.ts` file.
 import { app } from "@wasp.sh/spec"
 
 export default app({
-  name: "Example",
+  name: "myApp",
   emailSender: {
     provider: "SendGrid",
   },
