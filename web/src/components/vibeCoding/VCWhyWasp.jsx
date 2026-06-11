@@ -99,18 +99,18 @@ const conversation = [
   },
 ];
 
-const codeEmpty = `import { app } from "@wasp.sh/spec"
+const codeEmpty = `import { app } from "@wasp.sh/spec";
 
 export default app({
   name: "mySaasApp",
   wasp: { version: "^0.24.0" }
-})`;
+});`;
 
-const codeBase = `import { api, app, page, query, route } from "@wasp.sh/spec"
+const codeBase = `import { api, app, page, query, route } from "@wasp.sh/spec";
 
-import { paymentStripe } from "./src/apis" with { type: "ref" }
-import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
-import { getTasks } from "./src/queries" with { type: "ref" }
+import { paymentStripe } from "./src/apis" with { type: "ref" };
+import { DashboardPage } from "./src/DashboardPage" with { type: "ref" };
+import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "mySaasApp",
@@ -125,13 +125,13 @@ export default app({
     query(getTasks, { entities: ["Task"] }),
     api("POST", "/payment/stripe", paymentStripe)
   ]
-})`;
+});`;
 
-const codeWithSlack = `import { api, app, page, query, route } from "@wasp.sh/spec"
+const codeWithSlack = `import { api, app, page, query, route } from "@wasp.sh/spec";
 
-import { paymentStripe } from "./src/apis" with { type: "ref" }
-import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
-import { getTasks } from "./src/queries" with { type: "ref" }
+import { paymentStripe } from "./src/apis" with { type: "ref" };
+import { DashboardPage } from "./src/DashboardPage" with { type: "ref" };
+import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "mySaasApp",
@@ -146,7 +146,7 @@ export default app({
     query(getTasks, { entities: ["Task"] }),
     api("POST", "/payment/stripe", paymentStripe)
   ]
-})`;
+});`;
 
 const codeBaseLineCount = codeBase.split("\n").length;
 const slackLine =

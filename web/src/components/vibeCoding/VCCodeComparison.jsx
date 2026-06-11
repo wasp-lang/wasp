@@ -11,11 +11,11 @@ const tabs = [
       files: [
         {
           name: "auth.js",
-          source: `import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import session from 'express-session';
-import RedisStore from 'connect-redis';
-import csrf from 'csurf';
+          source: `import passport from "passport";
+import { Strategy as GoogleStrategy } from "passport-google-oauth20";
+import session from "express-session";
+import RedisStore from "connect-redis";
+import csrf from "csurf";
 
 app.use(session({
   store: new RedisStore({ client: redisClient }),
@@ -38,7 +38,7 @@ passport.deserializeUser(async (id, done) => {
 passport.use(new GoogleStrategy({
     clientID: process.env.GOOGLE_CLIENT_ID,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: '/auth/google/callback',
+    callbackURL: "/auth/google/callback",
   },
   async (accessToken, refreshToken, profile, done) => {
     let user = await prisma.user.upsert({
@@ -53,17 +53,17 @@ passport.use(new GoogleStrategy({
   }
 ));
 
-app.get('/auth/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email']
+app.get("/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"]
   })
 );
 
-app.get('/auth/google/callback',
-  passport.authenticate('google', {
-    failureRedirect: '/login'
+app.get("/auth/google/callback",
+  passport.authenticate("google", {
+    failureRedirect: "/login"
   }),
-  (req, res) => res.redirect('/')
+  (req, res) => res.redirect("/")
 );`,
         },
       ],
@@ -73,7 +73,7 @@ app.get('/auth/google/callback',
       files: [
         {
           name: "main.wasp.ts",
-          source: `import { app } from "@wasp.sh/spec"
+          source: `import { app } from "@wasp.sh/spec";
 
 export default app({
   name: "MyApp",
@@ -83,7 +83,7 @@ export default app({
     methods: { google: {} },
     onAuthFailedRedirectTo: "/login"
   },
-})`,
+});`,
         },
       ],
     },
@@ -95,9 +95,9 @@ export default app({
       files: [
         {
           name: "trpc/context.ts",
-          source: `import { prisma } from '../db';
-import { getSession } from 'next-auth/react';
-import type { inferAsyncReturnType } from '@trpc/server';
+          source: `import { prisma } from "../db";
+import { getSession } from "next-auth/react";
+import type { inferAsyncReturnType } from "@trpc/server";
 
 export const createContext = async ({ req, res }) => {
   const session = await getSession({ req });
@@ -107,14 +107,14 @@ export type Context = inferAsyncReturnType<typeof createContext>;`,
         },
         {
           name: "trpc/router.ts",
-          source: `import { initTRPC, TRPCError } from '@trpc/server';
-import { z } from 'zod';
-import type { Context } from './context';
+          source: `import { initTRPC, TRPCError } from "@trpc/server";
+import { z } from "zod";
+import type { Context } from "./context";
 
 const t = initTRPC.context<Context>().create();
 
 const isAuthed = t.middleware(({ ctx, next }) => {
-  if (!ctx.user) throw new TRPCError({ code: 'UNAUTHORIZED' });
+  if (!ctx.user) throw new TRPCError({ code: "UNAUTHORIZED" });
   return next({ ctx: { user: ctx.user } });
 });
 const protectedProcedure = t.procedure.use(isAuthed);
@@ -123,7 +123,7 @@ export const appRouter = t.router({
   getTasks: protectedProcedure.query(({ ctx }) =>
     ctx.prisma.task.findMany({
       where: { userId: ctx.user.id },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: "desc" },
     })
   ),
 });
@@ -131,9 +131,9 @@ export type AppRouter = typeof appRouter;`,
         },
         {
           name: "pages/api/trpc/[trpc].ts",
-          source: `import { createNextApiHandler } from '@trpc/server/adapters/next';
-import { appRouter } from '../../../trpc/router';
-import { createContext } from '../../../trpc/context';
+          source: `import { createNextApiHandler } from "@trpc/server/adapters/next";
+import { appRouter } from "../../../trpc/router";
+import { createContext } from "../../../trpc/context";
 
 export default createNextApiHandler({
   router: appRouter,
@@ -142,20 +142,20 @@ export default createNextApiHandler({
         },
         {
           name: "utils/trpc.ts",
-          source: `import { createTRPCReact } from '@trpc/react-query';
-import { httpBatchLink } from '@trpc/client';
-import type { AppRouter } from '../../server/trpc/router';
+          source: `import { createTRPCReact } from "@trpc/react-query";
+import { httpBatchLink } from "@trpc/client";
+import type { AppRouter } from "../../server/trpc/router";
 
 export const trpc = createTRPCReact<AppRouter>();`,
         },
         {
           name: "_app.tsx",
-          source: `import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { trpc } from '../utils/trpc';
+          source: `import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { trpc } from "../utils/trpc";
 
 const queryClient = new QueryClient();
 const trpcClient = trpc.createClient({
-  links: [httpBatchLink({ url: '/api/trpc' })],
+  links: [httpBatchLink({ url: "/api/trpc" })],
 });
 
 export default function App({ Component, pageProps }) {
@@ -170,7 +170,7 @@ export default function App({ Component, pageProps }) {
         },
         {
           name: "TasksPage.tsx",
-          source: `import { trpc } from '../utils/trpc';
+          source: `import { trpc } from "../utils/trpc";
 
 export const TasksPage = () => {
   const { data: tasks } = trpc.getTasks.useQuery();
@@ -183,9 +183,9 @@ export const TasksPage = () => {
       files: [
         {
           name: "main.wasp.ts",
-          source: `import { app, query } from "@wasp.sh/spec"
+          source: `import { app, query } from "@wasp.sh/spec";
 
-import { getTasks } from "./src/queries" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "MyApp",
@@ -193,28 +193,28 @@ export default app({
   spec: [
     query(getTasks, { entities: ["Task"] })
   ]
-})`,
+});`,
         },
         {
           name: "operations.ts",
-          source: `import type { GetTasks } from 'wasp/server/operations'
-import type { Task } from 'wasp/entities'
+          source: `import type { GetTasks } from "wasp/server/operations";
+import type { Task } from "wasp/entities";
 
 export const getTasks: GetTasks<void, Task[]> = async (args, context) => {
   return context.entities.Task.findMany({
     where: { userId: context.user.id },
-    orderBy: { createdAt: 'desc' },
-  })
-}`,
+    orderBy: { createdAt: "desc" },
+  });
+};`,
         },
         {
           name: "TasksPage.tsx",
-          source: `import { useQuery, getTasks } from 'wasp/client/operations'
+          source: `import { useQuery, getTasks } from "wasp/client/operations";
 
 export const TasksPage = () => {
-  const { data: tasks } = useQuery(getTasks)
+  const { data: tasks } = useQuery(getTasks);
   //     ^? Task[]  — auto-typed, auto-cached
-}`,
+};`,
         },
       ],
     },
@@ -226,7 +226,7 @@ export const TasksPage = () => {
       files: [
         {
           name: "lib/pgboss.ts",
-          source: `import PgBoss from 'pg-boss';
+          source: `import PgBoss from "pg-boss";
 
 let boss: PgBoss | null = null;
 
@@ -238,16 +238,16 @@ export async function getBoss() {
       expireInHours: 24,
       archiveCompletedAfterSeconds: 43200,
     });
-    boss.on('error', console.error);
+    boss.on("error", console.error);
   }
   return boss;
 }`,
         },
         {
           name: "index.ts",
-          source: `import express from 'express';
-import { getBoss } from './lib/pgboss';
-import { registerWorkers } from './jobs';
+          source: `import express from "express";
+import { getBoss } from "./lib/pgboss";
+import { registerWorkers } from "./jobs";
 
 const app = express();
 
@@ -256,7 +256,7 @@ async function start() {
   await boss.start();
   await registerWorkers(boss);
 
-  process.on('SIGTERM', async () => {
+  process.on("SIGTERM", async () => {
     await boss.stop();
     process.exit(0);
   });
@@ -267,12 +267,12 @@ start();`,
         },
         {
           name: "jobs/index.ts",
-          source: `import type PgBoss from 'pg-boss';
-import { sendDigest } from './email';
+          source: `import type PgBoss from "pg-boss";
+import { sendDigest } from "./email";
 
 export async function registerWorkers(boss: PgBoss) {
-  await boss.schedule('email-digest', '0 7 * * *');
-  await boss.work('email-digest', sendDigest);
+  await boss.schedule("email-digest", "0 7 * * *");
+  await boss.work("email-digest", sendDigest);
 }`,
         },
       ],
@@ -282,9 +282,9 @@ export async function registerWorkers(boss: PgBoss) {
       files: [
         {
           name: "main.wasp.ts",
-          source: `import { app, job } from "@wasp.sh/spec"
+          source: `import { app, job } from "@wasp.sh/spec";
 
-import { emailDigest } from "./src/jobs/email" with { type: "ref" }
+import { emailDigest } from "./src/jobs/email" with { type: "ref" };
 
 export default app({
   name: "MyApp",
@@ -296,7 +296,7 @@ export default app({
       entities: ["User", "Task"]
     })
   ]
-})`,
+});`,
         },
       ],
     },
