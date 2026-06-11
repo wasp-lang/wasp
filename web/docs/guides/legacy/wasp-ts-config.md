@@ -26,17 +26,18 @@ In the TS Config you could only reference your code with import objects (`{ impo
     ```ts title="main.wasp.ts"
     const mainPage = app.page("MainPage", {
       component: { importDefault: "MainPage", from: "@src/MainPage" },
-    })
+    });
 
     app.query("getTasks", {
       fn: { import: "getTasks", from: "@src/queries" },
-    })
+    });
     ```
+
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import MainPage from "./src/MainPage" with { type: "ref" }
-    import { getTasks } from "./src/queries" with { type: "ref" }
+    import MainPage from "./src/MainPage" with { type: "ref" };
+    import { getTasks } from "./src/queries" with { type: "ref" };
 
     export default app({
       // ...
@@ -44,8 +45,9 @@ In the TS Config you could only reference your code with import objects (`{ impo
         route("MainRoute", "/", page(MainPage)),
         query(getTasks),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -61,44 +63,45 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### Overview
 
-| What                      | Before                                                                                                                                      | After                                                                                                                                  |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| Creating an app           | `new App(name, { ... })`                                                                                                                    | `app({ name, ..., spec: [...] })`                                                                                                      |
-| Configuring the app       | `app.auth(...)` <br/> `app.server(...)` <br/> `app.client(...)` <br/> `app.db(...)` <br/> `app.emailSender(...)` <br/> `app.webSocket(...)` | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/> client: ...,<br/> db: ...,<br/> emailSender: ...,<br/> webSocket: ...,<br/>})</pre> |
-| Adding app specifications | `app.route(...)` <br/> `app.query(...)` <br/> `app.action(...)` <br/> etc                                                                   | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>})</pre>                                       |
-| Imports                   | `{ import, from }`                                                                                                                          | `import { ... } from "./src/..." with { type: "ref" }`                                                                                 |
-| Package name              | `wasp-config`                                                                                                                               | `@wasp.sh/spec`                                                                                                                        |
+| What                      | Before                                                                                                                                            | After                                                                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| Creating an app           | `new App(name, { ... });`                                                                                                                         | `app({ name, ..., spec: [...] });`                                                                                                      |
+| Configuring the app       | `app.auth(...);` <br/> `app.server(...);` <br/> `app.client(...);` <br/> `app.db(...);` <br/> `app.emailSender(...);` <br/> `app.webSocket(...);` | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/> client: ...,<br/> db: ...,<br/> emailSender: ...,<br/> webSocket: ...,<br/>});</pre> |
+| Adding app specifications | `app.route(...);` <br/> `app.query(...);` <br/> `app.action(...);` <br/> etc                                                                      | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>});</pre>                                       |
+| Imports                   | `{ import, from }`                                                                                                                                | `import { ... } from "./src/..." with { type: "ref" };`                                                                                 |
+| Package name              | `wasp-config`                                                                                                                                     | `@wasp.sh/spec`                                                                                                                         |
 
 ### App and specifications
 
 <Tabs sideBySide>
   <TabItem value="before" label="TS Config">
     ```ts title="main.wasp.ts"
-    import { App } from "wasp-config"
+    import { App } from "wasp-config";
 
     const app = new App("todoApp", {
       title: "ToDo App",
       wasp: { version: "^0.24.0" },
-    })
+    });
 
     const mainPage = app.page("MainPage", {
       component: { importDefault: "MainPage", from: "@src/MainPage" },
-    })
-    app.route("MainRoute", { path: "/", to: mainPage })
+    });
+    app.route("MainRoute", { path: "/", to: mainPage });
 
     app.query("getTasks", {
       fn: { import: "getTasks", from: "@src/queries" },
       entities: ["Task"],
-    })
+    });
 
-    export default app
+    export default app;
     ```
+
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, query, route } from "@wasp.sh/spec"
-    import MainPage from "./src/MainPage" with { type: "ref" }
-    import { getTasks } from "./src/queries" with { type: "ref" }
+    import { app, page, query, route } from "@wasp.sh/spec";
+    import MainPage from "./src/MainPage" with { type: "ref" };
+    import { getTasks } from "./src/queries" with { type: "ref" };
 
     export default app({
       name: "todoApp",
@@ -108,8 +111,9 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
         route("MainRoute", "/", page(MainPage)),
         query(getTasks, { entities: ["Task"] }),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -121,20 +125,21 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
     app.apiNamespace("bar", {
       middlewareConfigFn: { import: "barNamespaceMiddlewareFn", from: "@src/apis" },
       path: "/bar",
-    })
+    });
 
     app.api("barBaz", {
       fn: { import: "barBaz", from: "@src/apis" },
       auth: false,
       entities: ["Task"],
       httpRoute: { method: "GET", route: "/bar/baz" },
-    })
+    });
     ```
+
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from "@wasp.sh/spec"
-    import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
+    import { api, apiNamespace, app } from "@wasp.sh/spec";
+    import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
     export default app({
       // ...
@@ -144,8 +149,9 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
         }),
         api("GET", "/bar/baz", barBaz, { auth: false, entities: ["Task"] }),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -161,13 +167,13 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
         executorOptions: { pgBoss: { retryLimit: 1 } },
       },
       entities: ["Task"],
-    })
+    });
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from "@wasp.sh/spec"
-    import { foo } from "./src/jobs/bar" with { type: "ref" }
+    import { app, job } from "@wasp.sh/spec";
+    import { foo } from "./src/jobs/bar" with { type: "ref" };
 
     export default app({
       // ...
@@ -178,8 +184,9 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
           performExecutorOptions: { pgBoss: { retryLimit: 1 } },
         }),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -194,13 +201,13 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
         getAll: {},
         create: { overrideFn: { import: "createTask", from: "@src/actions" } },
       },
-    })
+    });
     ```
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec"
-    import { createTask } from "./src/actions" with { type: "ref" }
+    import { app, crud } from "@wasp.sh/spec";
+    import { createTask } from "./src/actions" with { type: "ref" };
 
     export default app({
       // ...
@@ -210,8 +217,9 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
           create: { overrideFn: createTask },
         }),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -225,30 +233,31 @@ These were configured with mutating method calls. They are now keys of the `app(
     const app = new App("todoApp", {
       title: "ToDo App",
       wasp: { version: "^0.24.0" },
-    })
+    });
 
     app.auth({
       userEntity: "User",
       methods: { google: {} },
       onAuthFailedRedirectTo: "/login",
-    })
+    });
 
     app.client({
       rootComponent: { importDefault: "App", from: "@src/App" },
-    })
+    });
 
     app.emailSender({
       provider: "SMTP",
       defaultFrom: { email: "hi@example.com" },
-    })
+    });
 
-    export default app
+    export default app;
     ```
+
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import App from "./src/App" with { type: "ref" }
+    import { app } from "@wasp.sh/spec";
+    import App from "./src/App" with { type: "ref" };
 
     export default app({
       name: "todoApp",
@@ -267,8 +276,9 @@ These were configured with mutating method calls. They are now keys of the `app(
         defaultFrom: { email: "hi@example.com" },
       },
       // ...
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -280,101 +290,108 @@ After finishing this guide, return to the [migration guide](../../migration-guid
 
 Wasp validates the Wasp Spec support files during migration, including the required `package.json` entries, `tsconfig.wasp.json` options, and `tsconfig.src.json` exclusions.
 
-1. Update your `package.json` with the new dependencies:
+1.  Update your `package.json` with the new dependencies:
 
-   <Tabs sideBySide>
-     <TabItem value="before" label="Before">
-       ```json title="package.json"
-       {
-         "devDependencies": {
-           "wasp-config": "file:.wasp/wasp-config"
-         }
-       }
-       ```
-     </TabItem>
-     <TabItem value="after" label="After">
-       ```json title="package.json"
-       {
-         "devDependencies": {
-           "@types/node": "^24.0.0",
-           "@wasp.sh/spec": "file:.wasp/spec"
-         }
-       }
-       ```
-     </TabItem>
-   </Tabs>
+    <Tabs sideBySide>
+      <TabItem value="before" label="Before">
+        ```json title="package.json"
+        {
+          // ...
+          "devDependencies": {
+            // ...
+            "wasp-config": "file:.wasp/wasp-config"
+          }
+        }
+        ```
+      </TabItem>
+      <TabItem value="after" label="After">
+        ```json title="package.json"
+        {
+          // ...
+          "devDependencies": {
+            // ...
+            "@types/node": "^24.0.0",
+            "@wasp.sh/spec": "file:.wasp/spec"
+          }
+        }
+        ```
+      </TabItem>
+    </Tabs>
 
-   Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
+    Keep your existing dependencies, replace `wasp-config` with `@wasp.sh/spec`, and add `@types/node`. `@types/node` is required because the Wasp Spec runs in a Node.js environment.
 
-2. Update your `tsconfig.wasp.json` and make sure it includes the following settings:
+2.  Update your `tsconfig.wasp.json` and make sure it includes the following settings:
 
-   ```json title="tsconfig.wasp.json"
-   {
-     "compilerOptions": {
-       "target": "ES2022",
-       "module": "esnext",
-       "moduleResolution": "bundler",
-       "jsx": "preserve",
-       "strict": true,
-       "isolatedModules": true,
-       "moduleDetection": "force",
-       "skipLibCheck": true,
-       "allowJs": true,
-       "noEmit": true,
-       "lib": ["ES2023"]
-     },
-     "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
-   }
-   ```
+    ```json title="tsconfig.wasp.json"
+    {
+      "compilerOptions": {
+        "target": "ES2022",
+        "module": "esnext",
+        "moduleResolution": "bundler",
+        "jsx": "preserve",
+        "strict": true,
+        "isolatedModules": true,
+        "moduleDetection": "force",
+        "skipLibCheck": true,
+        "allowJs": true,
+        "noEmit": true,
+        "lib": ["ES2023"]
+      },
+      "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
+    }
+    ```
 
-3. Make sure your `tsconfig.src.json` excludes Wasp Spec files:
+3.  Make sure your `tsconfig.src.json` excludes Wasp Spec files:
 
-   ```json title="tsconfig.src.json"
-   {
-     // ...
-     "include": ["src"],
-     "exclude": ["**/*.wasp.ts"]
-   }
-   ```
+    ```json title="tsconfig.src.json"
+    {
+      // ...
+      "include": ["src"],
+      "exclude": ["**/*.wasp.ts"]
+    }
+    ```
 
-4. Run `wasp install`.
+4.  Run `wasp install`.
 
-5. Rewrite `main.wasp.ts`:
+5.  Rewrite `main.wasp.ts`:
 
-   Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `spec` property holds the specifications (see the [mapping above](#changes)), and update the import:
+    Replace `new App(...)` and the `app.*(...)` method calls with a single `app({ ... })` call whose `spec` property holds the specifications (see the [mapping above](#changes)), and update the import:
 
-   <Tabs sideBySide>
-     <TabItem value="before" label="Before">
-       ```ts title="main.wasp.ts"
-       import { App } from "wasp-config"
+    <Tabs sideBySide>
+      <TabItem value="before" label="Before">
+        ```ts title="main.wasp.ts"
+        import { App } from "wasp-config";
 
-       const app = new App("myApp", {
-         title: "My app",
-         wasp: { version: "^0.24.0" },
-       })
-       ```
-     </TabItem>
-     <TabItem value="after" label="After">
-       ```ts title="main.wasp.ts"
-       import { app, page, route, query, action } from "@wasp.sh/spec"
+        const app = new App("myApp", {
+          title: "My app",
+          wasp: { version: "^0.24.0" },
+        });
+        ```
 
-       export default app({
-         name: "myApp",
-         title: "My app",
-         wasp: { version: "^0.24.0" },
-         spec: [
-           // ...
-         ]
-       })
-       ```
-     </TabItem>
-   </Tabs>
+      </TabItem>
+      <TabItem value="after" label="After">
+        ```ts title="main.wasp.ts"
+        import { app } from "@wasp.sh/spec";
 
-   :::note
-   While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
-   :::
+        export default app({
+          name: "myApp",
+          title: "My app",
+          wasp: { version: "^0.24.0" },
+          head: ["<link rel='icon' href='/favicon.ico' />"],
+          spec: [
+            // ...
+          ]
+        });
+        ```
 
-6. Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
+      </TabItem>
+    </Tabs>
+
+    :::note
+    While previously we accepted any `*.wasp.ts` file name, with the Wasp Spec the entry file must be named `main.wasp.ts`. You can still split the rest of your config across other `*.wasp.ts` files.
+    :::
+
+6.  Run your app with `wasp start`. If everything is correct, your app should behave exactly as before.
 
 :::note
 At some points, when the Spec needs to be regenerated, Wasp will tell you to run `wasp install` before being able to start the app. Usually, this might happen when upgrading Wasp versions, running `wasp clean`, or removing the `node_modules` folder.
