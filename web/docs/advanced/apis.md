@@ -19,7 +19,7 @@ To create a Wasp API, you must:
 
 After completing these two steps, you'll be able to call the API from the client code (via our `ky` wrapper), or from the outside world.
 
-### Declaring the API in Wasp
+### Specifying the API in Wasp
 
 First, we need to declare the API in the Wasp file and you can easily do this with the `api` function:
 

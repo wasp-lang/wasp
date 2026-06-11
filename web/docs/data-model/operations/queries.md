@@ -34,7 +34,7 @@ To create a Query, you must:
 
 After completing these two steps, you'll be able to use the Query from any point in your code.
 
-### Declaring Queries
+### Specifying Queries
 
 To create a Query in Wasp, we begin with a `query` spec.
 
@@ -508,7 +508,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
 
 ## API Reference
 
-### Declaring Queries
+### Specifying Queries
 
 <CardLink
   to="../../api/@wasp.sh/spec/functions/query"
@@ -550,7 +550,7 @@ Since both arguments are positional, you can name the parameters however you wan
    An additional context object **passed into the Query by Wasp**. This object contains user session information, as well as information about entities. Check the [section about using entities in Queries](#using-entities-in-queries) to see how to use the entities field on the `context` object, or the [auth section](../../auth/overview#using-the-contextuser-object) to see how to use the `user` object.
 
 <ShowForTs>
-  After you [declare the query](#declaring-queries), Wasp generates a generic type you can use when defining its implementation.
+  After you [declare the query](#specifying-queries), Wasp generates a generic type you can use when defining its implementation.
   For the Query declared as `getSomething`, the generated type is called `GetSomething`:
 
   ```ts

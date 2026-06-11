@@ -19,7 +19,7 @@ In this section, you will create:
 
 Creating an Action is very similar to creating a Query.
 
-### Declaring an Action
+### Specifying an Action
 
 We must first declare the Action in `main.wasp.ts`:
 

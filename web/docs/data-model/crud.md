@@ -447,7 +447,7 @@ We plan on supporting CRUD operations and growing them to become the easiest way
 
 ## API Reference
 
-### Declaring CRUD Operations
+### Specifying CRUD Operations
 
 <CardLink
   to="../api/@wasp.sh/spec/functions/crud"
