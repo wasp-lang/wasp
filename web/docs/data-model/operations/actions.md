@@ -546,7 +546,7 @@ Here are the key differences between Queries and Actions:
   description="All the options for declaring an action in the Wasp spec."
 />
 
-Declaring an Action enables you to import and use it anywhere in your code (on the server or the client):
+Declaring an Action enables you to import and use it anywhere in your code (on the server or the client). For example, for an Action that we declared as `createFoo`, Wasp generates two functions with the same name that you can import and use:
 
 ```ts
 // Use it on the client

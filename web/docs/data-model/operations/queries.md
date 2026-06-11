@@ -517,7 +517,7 @@ The object `context.entities.Task` exposes `prisma.task` from [Prisma's CRUD API
   description="All the options for declaring a query in the Wasp spec."
 />
 
-Declaring a Query enables you to import and use it anywhere in your code (on the server or the client):
+Declaring a Query enables you to import and use it anywhere in your code (on the server or the client). For example, for a Query that we declared as `getFoo`, Wasp generates two functions with the same name that you can import and use:
 
 ```ts
 // Use it on the client

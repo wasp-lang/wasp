@@ -1046,7 +1046,7 @@ export interface Job extends BaseSpecElement<"job"> {
    * Reference to the job's NodeJS implementation. It receives the submitted
    * args and a context containing the declared entities.
    *
-   * See [the docs](https://wasp.sh/docs/advanced/jobs#worker-api).
+   * See [Jobs documentation](https://wasp.sh/docs/advanced/jobs#worker-api) for more details.
    */
   fn: Reference<AnyFunction>;
   /**
