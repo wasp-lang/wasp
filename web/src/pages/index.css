@@ -27,11 +27,7 @@ a:hover {
       black calc(100% - 32px),
       transparent
     );
-    mask-image: linear-gradient(
-      to right,
-      black calc(100% - 32px),
-      transparent
-    );
+    mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
   }
 }
 
