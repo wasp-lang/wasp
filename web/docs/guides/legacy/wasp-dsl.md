@@ -33,14 +33,14 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
 ### Overview
 
-| What                      | Before                                                                   | After                                                                                             |
-| ------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------- |
-| File name                 | `main.wasp`                                                              | `main.wasp.ts`                                                                                    |
-| Creating an app           | `app Name { ... }`                                                       | `app({ name, ..., spec: [...] })`                                                                 |
-| Configuring the app       | <pre>app Name \{<br/> auth: \{ ... },<br/> server: \{ ... },<br/>}</pre> | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/>})</pre>                                        |
-| Adding app specifications | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre>   | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>})</pre>  |
-| Referencing code          | `import { x } from "@src/..."` inside a declaration                      | `import { ... } from "./src/..." with { type: "ref" }` at the top level                           |
-| Entity references         | `Task` (identifier)                                                      | `"Task"` (string)                                                                                 |
+| What                      | Before                                                                   | After                                                                                            |
+| ------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------ |
+| File name                 | `main.wasp`                                                              | `main.wasp.ts`                                                                                   |
+| Creating an app           | `app Name { ... }`                                                       | `app({ name, ..., spec: [...] });`                                                                |
+| Configuring the app       | <pre>app Name \{<br/> auth: \{ ... },<br/> server: \{ ... },<br/>}</pre> | <pre>app(\{<br/> auth: ...,<br/> server: ...,<br/>});</pre>                                       |
+| Adding app specifications | <pre>route X \{ ... }<br/>query X \{ ... }<br/>action X \{ ... }</pre>   | <pre>app(\{<br/> spec: [<br/> route(...),<br/> query(...),<br/> action(...),<br/> ]<br/>});</pre> |
+| Referencing code          | `import { x } from "@src/..."` inside a declaration                      | `import { ... } from "./src/..." with { type: "ref" };` at the top level                          |
+| Entity references         | `Task` (identifier)                                                      | `"Task"` (string)                                                                                |
 
 ### App, routes, and pages
 
@@ -60,11 +60,12 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
       authRequired: true
     }
     ```
+
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, page, route } from "@wasp.sh/spec"
-    import { MainPage } from "./src/MainPage" with { type: "ref" }
+    import { app, page, route } from "@wasp.sh/spec";
+    import { MainPage } from "./src/MainPage" with { type: "ref" };
 
     export default app({
       name: "todoApp",
@@ -73,8 +74,9 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
       spec: [
         route("MainRoute", "/", page(MainPage, { authRequired: true })),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -95,12 +97,13 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
       entities: [Task]
     }
     ```
+
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { action, app, query } from "@wasp.sh/spec"
-    import { getTasks } from "./src/queries" with { type: "ref" }
-    import { createTask } from "./src/actions" with { type: "ref" }
+    import { action, app, query } from "@wasp.sh/spec";
+    import { getTasks } from "./src/queries" with { type: "ref" };
+    import { createTask } from "./src/actions" with { type: "ref" };
 
     export default app({
       // ...
@@ -108,8 +111,9 @@ Note that `route` no longer references a page by name (`to: MainPage`); it takes
         query(getTasks, { entities: ["Task"] }),
         action(createTask, { entities: ["Task"] }),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -132,11 +136,12 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
       httpRoute: (GET, "/bar/baz")
     }
     ```
+
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { api, apiNamespace, app } from "@wasp.sh/spec"
-    import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" }
+    import { api, apiNamespace, app } from "@wasp.sh/spec";
+    import { barBaz, barNamespaceMiddlewareFn } from "./src/apis" with { type: "ref" };
 
     export default app({
       // ...
@@ -146,8 +151,9 @@ The DSL's `httpRoute: (GET, "/path")` becomes the first two arguments of `api`.
         }),
         api("GET", "/bar/baz", barBaz, { auth: false, entities: ["Task"] }),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -170,8 +176,8 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, job } from "@wasp.sh/spec"
-    import { foo } from "./src/jobs/bar" with { type: "ref" }
+    import { app, job } from "@wasp.sh/spec";
+    import { foo } from "./src/jobs/bar" with { type: "ref" };
 
     export default app({
       // ...
@@ -182,8 +188,9 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
           performExecutorOptions: { pgBoss: { retryLimit: 1 } },
         }),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -203,8 +210,8 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app, crud } from "@wasp.sh/spec"
-    import { createTask } from "./src/actions" with { type: "ref" }
+    import { app, crud } from "@wasp.sh/spec";
+    import { createTask } from "./src/actions" with { type: "ref" };
 
     export default app({
       // ...
@@ -214,8 +221,9 @@ The DSL's `perform: { fn, executorOptions }` is flattened: `fn` becomes the firs
           create: { overrideFn: createTask },
         }),
       ],
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -246,8 +254,8 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
   </TabItem>
   <TabItem value="after" label="Wasp Spec">
     ```ts title="main.wasp.ts"
-    import { app } from "@wasp.sh/spec"
-    import App from "./src/App" with { type: "ref" }
+    import { app } from "@wasp.sh/spec";
+    import App from "./src/App" with { type: "ref" };
 
     export default app({
       name: "todoApp",
@@ -266,8 +274,9 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
         defaultFrom: { email: "hi@example.com" },
       },
       // ...
-    })
+    });
     ```
+
   </TabItem>
 </Tabs>
 
@@ -326,7 +335,9 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
    ```json title="package.json"
    {
+     // ...
      "devDependencies": {
+       // ...
        // highlight-next-line
        "@types/node": "^24.0.0",
        // highlight-next-line
@@ -347,7 +358,10 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    import { app } from "@wasp.sh/spec";
 
    export default app({
-     name: "myAppName",
+     name: "myApp",
+     title: "My app",
+     wasp: { version: "^0.24.0" },
+     head: ["<link rel='icon' href='/favicon.ico' />"],
      spec: [
        // ...
      ],
