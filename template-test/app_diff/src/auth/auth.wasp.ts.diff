@@ -1,0 +1,11 @@
+--- /Users/carlos/Developer/Wasp/open-saas/template-test/tools/../../template-test/base-app/app/src/auth/auth.wasp.ts
++++ template-test/app/src/auth/auth.wasp.ts
+@@ -28,7 +28,7 @@
+ const emailAuthMethod: NonNullable<AuthMethods["email"]> = {
+   fromField: {
+     name: "Open SaaS App",
+-    email: "me@example.com",
++    email: "opensaastemplate@mg.wasp.sh",
+   },
+   emailVerification: {
+     clientRoute: "EmailVerificationRoute",

@@ -1,4 +1,4 @@
---- /Users/ilakovac/dev/open-saas/template-test/tools/../../template-test/base-app/app/.gitignore
+--- /Users/carlos/Developer/Wasp/open-saas/template-test/tools/../../template-test/base-app/app/.gitignore
 +++ template-test/app/.gitignore
 @@ -1,2 +1,24 @@
  node_modules/

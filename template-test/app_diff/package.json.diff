@@ -1,4 +1,4 @@
---- /Users/ilakovac/dev/open-saas/template-test/tools/../../template-test/base-app/app/package.json
+--- /Users/carlos/Developer/Wasp/open-saas/template-test/tools/../../template-test/base-app/app/package.json
 +++ template-test/app/package.json
 @@ -1,6 +1,10 @@
  {
@@ -9,5 +9,5 @@
 +    "env:push": "npx dotenv-vault@latest push development .env.server"
 +  },
    "workspaces": [
-     ".wasp/build/*",
-     ".wasp/out/*"
+     ".wasp/out/*",
+     ".wasp/out/sdk/wasp"
