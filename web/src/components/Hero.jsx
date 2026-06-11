@@ -56,28 +56,29 @@ const ActionButtons = () => (
 
 const codeTabs = [
   {
-    name: "main.wasp",
-    language: "wasp",
-    source: `app todoApp {
-  wasp: { version: "^0.23.0" },
+    name: "main.wasp.ts",
+    language: "typescript",
+    source: `import { app, page, query, route } from "@wasp.sh/spec"
+
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getTasks } from "./src/tasks" with { type: "ref" }
+
+export default app({
+  name: "todoApp",
+  wasp: { version: "^0.24.0" },
   title: "ToDo App",
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: { google: {}, gitHub: {}, email: {} },
     onAuthFailedRedirectTo: "/login"
-  }
-}
-
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  authRequired: true,
-  component: import { MainPage } from "@src/MainPage" // <-- React
-}
-
-query getTasks {
-  fn: import { getTasks } from "@src/tasks", // <-- Node.js
-  entities: [Task] // <-- Automatic cache invalidation.
-}`,
+  },
+  spec: [
+    route("RootRoute", "/", page(MainPage, {
+      authRequired: true
+    })),
+    query(getTasks, { entities: ["Task"] })
+  ]
+})`,
   },
   {
     name: "schema.prisma",

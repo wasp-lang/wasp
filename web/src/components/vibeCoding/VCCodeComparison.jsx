@@ -69,16 +69,20 @@ app.get('/auth/google/callback',
       ],
     },
     with: {
-      language: "javascript",
+      language: "typescript",
       files: [
         {
           name: "main.wasp.ts",
-          source: `app.auth({
-  userEntity: User,
-  methods: {
-    google: {},
+          source: `import { app } from "@wasp.sh/spec"
+
+export default app({
+  name: "MyApp",
+  wasp: { version: "^0.24.0" },
+  auth: {
+    userEntity: "User",
+    methods: { google: {} },
+    onAuthFailedRedirectTo: "/login"
   },
-  onAuthFailedRedirectTo: '/login',
 })`,
         },
       ],
@@ -179,10 +183,17 @@ export const TasksPage = () => {
       files: [
         {
           name: "main.wasp.ts",
-          source: `app.query('getTasks', {
-  fn: { import: 'getTasks', from: '@src/queries' },
-  entities: ['Task']
-});`,
+          source: `import { app, query } from "@wasp.sh/spec"
+
+import { getTasks } from "./src/queries" with { type: "ref" }
+
+export default app({
+  name: "MyApp",
+  wasp: { version: "^0.24.0" },
+  spec: [
+    query(getTasks, { entities: ["Task"] })
+  ]
+})`,
         },
         {
           name: "operations.ts",
@@ -267,19 +278,24 @@ export async function registerWorkers(boss: PgBoss) {
       ],
     },
     with: {
-      language: "javascript",
+      language: "typescript",
       files: [
         {
           name: "main.wasp.ts",
-          source: `app.job(emailDigest, {
-  executor: PgBoss,
-  perform: {
-    fn: import { sendDigest } from '@src/jobs/email',
-  },
-  schedule: {
-    cron: "0 7 * * *",
-  },
-  entities: [User, Task],
+          source: `import { app, job } from "@wasp.sh/spec"
+
+import { emailDigest } from "./src/jobs/email" with { type: "ref" }
+
+export default app({
+  name: "MyApp",
+  wasp: { version: "^0.24.0" },
+  spec: [
+    job(emailDigest, {
+      executor: "PgBoss",
+      schedule: { cron: "0 7 * * *" },
+      entities: ["User", "Task"]
+    })
+  ]
 })`,
         },
       ],

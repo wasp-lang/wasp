@@ -68,6 +68,14 @@ const DEPLOY_DURATION = 2000;
 const LIVE_DURATION = 2000;
 const REPLAY_DELAY = 1000;
 const HIGHLIGHT_DURATION = 2500;
+const DEMO_PANE_HEIGHT_CLASS = "h-[490px]";
+const CODE_BLOCK_PADDING_TOP_PX = 16;
+const CODE_LINE_HEIGHT_EM = 0.95 * 1.7;
+
+const getCodeFlashStyle = (startLine, lineCount = 1) => ({
+  top: `calc(${CODE_BLOCK_PADDING_TOP_PX}px + ${(startLine - 1) * CODE_LINE_HEIGHT_EM}em)`,
+  height: `${lineCount * CODE_LINE_HEIGHT_EM}em`,
+});
 
 const conversation = [
   { prompt: "claude", response: ["\u23FA How can I help?"] },
@@ -91,53 +99,58 @@ const conversation = [
   },
 ];
 
-const codeEmpty = `const app = new App()`;
+const codeEmpty = `import { app } from "@wasp.sh/spec"
 
-const codeBase = `const app = new App('mySaasApp', {
-  title: 'My SaaS App',
-})
+export default app({
+  name: "mySaasApp",
+  wasp: { version: "^0.24.0" }
+})`;
 
-app.auth({
-  userEntity: 'User',
-  methods: { google: {} }
-})
+const codeBase = `import { api, app, page, query, route } from "@wasp.sh/spec"
 
-app.route('DashboardRoute', {
-  path: '/dashboard', to: dashboard
-})
+import { paymentStripe } from "./src/apis" with { type: "ref" }
+import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
 
-app.query('getTasks', {
-  fn: { import: 'getTasks', from: '@src/queries' },
-  entities: ['Task']
-})
+export default app({
+  name: "mySaasApp",
+  title: "My SaaS App",
+  wasp: { version: "^0.24.0" },
+  auth: {
+    userEntity: "User",
+    methods: { google: {} }
+  },
+  spec: [
+    route("DashboardRoute", "/dashboard", page(DashboardPage)),
+    query(getTasks, { entities: ["Task"] }),
+    api("POST", "/payment/stripe", paymentStripe)
+  ]
+})`;
 
-app.api('payments', {
-  fn: { import: 'paymentStripe', from: '@src/apis' },
-  httpRoute: (POST, '/payment/stripe')
-});`;
+const codeWithSlack = `import { api, app, page, query, route } from "@wasp.sh/spec"
 
-const codeWithSlack = `const app = new App('mySaasApp', {
-  title: 'My SaaS App',
-})
+import { paymentStripe } from "./src/apis" with { type: "ref" }
+import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
 
-app.auth({
-  userEntity: 'User',
-  methods: { google: {}, slack: {} }
-})
+export default app({
+  name: "mySaasApp",
+  title: "My SaaS App",
+  wasp: { version: "^0.24.0" },
+  auth: {
+    userEntity: "User",
+    methods: { google: {}, slack: {} }
+  },
+  spec: [
+    route("DashboardRoute", "/dashboard", page(DashboardPage)),
+    query(getTasks, { entities: ["Task"] }),
+    api("POST", "/payment/stripe", paymentStripe)
+  ]
+})`;
 
-app.route('DashboardRoute', {
-  path: '/dashboard', to: dashboard
-})
-
-app.query('getTasks', {
-  fn: { import: 'getTasks', from: '@src/queries' },
-  entities: ['Task']
-})
-
-app.api('payments', {
-  fn: { import: 'paymentStripe', from: '@src/apis' },
-  httpRoute: (POST, '/payment/stripe')
-});`;
+const codeBaseLineCount = codeBase.split("\n").length;
+const slackLine =
+  codeWithSlack.split("\n").findIndex((line) => line.includes("slack")) + 1;
 
 const useInteractiveDemo = () => {
   // State machine: which conversation step, typing progress, phase within step
@@ -302,7 +315,9 @@ const useInteractiveDemo = () => {
         <div className="h-2 w-2 rounded-full bg-green-400" />
         <span className="ml-2 text-xs text-neutral-500">terminal</span>
       </div>
-      <div className="text-md h-[400px] overflow-hidden bg-neutral-900 px-4 py-3 font-mono leading-relaxed text-neutral-100">
+      <div
+        className={`text-md ${DEMO_PANE_HEIGHT_CLASS} overflow-hidden bg-neutral-900 px-4 py-3 font-mono leading-relaxed text-neutral-100`}
+      >
         {/* History */}
         {history.map((h, i) => (
           <div key={i} className="mb-2">
@@ -405,17 +420,19 @@ const useInteractiveDemo = () => {
           main.wasp.ts
         </span>
       </div>
-      <div className="relative h-[400px] overflow-hidden text-sm">
+      <div
+        className={`relative ${DEMO_PANE_HEIGHT_CLASS} overflow-hidden text-sm`}
+      >
         {fullCodeFlash && (
           <div
             className="pointer-events-none absolute left-0 right-0 bg-yellow-200/30 transition-opacity duration-1000"
-            style={{ top: "1.4em", bottom: 0 }}
+            style={getCodeFlashStyle(1, codeBaseLineCount)}
           />
         )}
         {slackFlash && (
           <div
             className="pointer-events-none absolute left-0 right-0 bg-yellow-200/30 transition-opacity duration-1000"
-            style={{ top: "8.2em", height: "1.4em" }}
+            style={getCodeFlashStyle(slackLine)}
           />
         )}
         <CodeHighlight

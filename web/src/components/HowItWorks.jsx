@@ -45,8 +45,8 @@ const HowItWorks = () => {
             How does it work? 🧐
           </h2>
           <p className="text-neutral-700">
-            Given a simple <code>.wasp</code> configuration file that describes
-            the high-level details of your web app, and{" "}
+            Given a simple <code>main.wasp.ts</code> configuration file that
+            describes the high-level details of your web app, and{" "}
             <code>.js(x)/.css/...</code>, source files with your unique logic,
             Wasp compiler generates the full source of your web app in the
             target stack: front-end, back-end and deployment. <br />

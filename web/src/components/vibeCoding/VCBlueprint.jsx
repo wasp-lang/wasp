@@ -1,33 +1,32 @@
 import CodeHighlight from "../CodeHighlight";
 import { VCSection } from "./vcWrappers";
 
-const waspCode = `const app = new App('mySaasApp', {
-  title: 'My SaaS App',
-})
+const waspCode = `import { app, job, page, query, route } from "@wasp.sh/spec"
 
-app.auth({
-  userEntity: 'User',
-  methods: {
-    google: {},
-    email: {},
-  }
-})
+import { DashboardPage } from "./src/DashboardPage" with { type: "ref" }
+import { dailyReport } from "./src/jobs/report" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
 
-app.route('DashboardRoute', { path: '/dashboard', to: dashboard })
-
-app.query('getTasks', {
-  fn: { import: 'getTasks', from: '@src/queries' },
-  entities: ['Task']
-})
-
-app.job('dailyReport', {
-  perform: { fn: { import: 'sendReport', from: '@src/jobs/report' } },
-  schedule: { cron: '0 8 * * *' },
-})
-
-app.emailSender({
-  provider: 'SMTP',
-  defaultFrom: { email: 'hello@myapp.com' }
+export default app({
+  name: "mySaasApp",
+  title: "My SaaS App",
+  wasp: { version: "^0.24.0" },
+  auth: {
+    userEntity: "User",
+    methods: { google: {}, email: {} }
+  },
+  emailSender: {
+    provider: "SMTP",
+    defaultFrom: { email: "hello@myapp.com" }
+  },
+  spec: [
+    route("DashboardRoute", "/dashboard", page(DashboardPage)),
+    query(getTasks, { entities: ["Task"] }),
+    job(dailyReport, {
+      executor: "PgBoss",
+      schedule: { cron: "0 8 * * *" }
+    })
+  ]
 })
 `;
 

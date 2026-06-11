@@ -224,7 +224,7 @@ const features: Feature[] = [
     id: "spec",
     title: "High-Level Spec",
     sub: "app, auth, route, ...",
-    docUrl: "/docs/general/wasp-ts-config",
+    docUrl: "/docs/general/spec",
     intro: (
       <>
         Define your app via a specialized full-stack aware logic layer, using
@@ -235,39 +235,37 @@ const features: Feature[] = [
     ),
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
-        source: `app TodoApp {
+        head: "main.wasp.ts",
+        language: "typescript",
+        source: `import { app, job, page, query, route } from "@wasp.sh/spec"
+
+import { AdminDashboard } from "./src/admin/Dashboard" with { type: "ref" }
+import { dailyDigest, getMetrics } from "./src/admin/ops" with { type: "ref" }
+import { HomePage } from "./src/pages/Home" with { type: "ref" }
+
+export default app({
+  name: "TodoApp",
   title: "TodoApp",
-  wasp: { version: "^0.23.0" },
+  wasp: { version: "^0.24.0" },
   auth: {
-    userEntity: User,
+    userEntity: "User",
     methods: { email: {}, google: {} },
     onAuthFailedRedirectTo: "/login"
-  }
-}
-
-route HomeRoute { path: "/", to: HomePage }
-page HomePage {
-  component: import Home from "@src/pages/Home"
-}
-
-route AdminRoute { path: "/admin", to: AdminDashboard }
-page AdminDashboard {
-  component: import Dashboard from "@src/admin/Dashboard",
-  authRequired: true
-}
-
-query getMetrics {
-  fn: import { getMetrics } from "@src/admin/ops",
-  entities: [Task, User]
-}
-
-job dailyDigest {
-  executor: PgBoss,
-  perform: { fn: import { dailyDigest } from "@src/admin/digest" },
-  schedule: { cron: "0 7 * * *" }
-}`,
+  },
+  spec: [
+    route("HomeRoute", "/", page(HomePage)),
+    route(
+      "AdminRoute",
+      "/admin",
+      page(AdminDashboard, { authRequired: true })
+    ),
+    query(getMetrics, { entities: ["Task", "User"] }),
+    job(dailyDigest, {
+      executor: "PgBoss",
+      schedule: { cron: "0 7 * * *" }
+    })
+  ]
+})`,
       },
     ],
   },
@@ -280,24 +278,25 @@ job dailyDigest {
       "Declare the auth methods you want, Wasp does the rest. Use the high-level API of premade but customizable Login/Signup/... forms, or drop lower and implement your own.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
-        source: `app TodoApp {
-  // ...
-  auth: {
-    userEntity: User,
-    methods: {
-      email: { fromField: { email: "hi@todo.dev" } },
-      google: {}, gitHub: {}
-    },
-    onAuthFailedRedirectTo: "/login"
-  }
-}
-
-route LoginRoute { path: "/login", to: LoginPage }
-page LoginPage {
-  component: import LoginPage from "@src/auth/LoginPage"
-}`,
+        head: "main.wasp.ts",
+        language: "typescript",
+        source: `// ...
+auth: {
+  userEntity: "User",
+  methods: {
+    email: { fromField: { email: "hi@todo.dev" } },
+    google: {}, gitHub: {}
+  },
+  onAuthFailedRedirectTo: "/login"
+},
+spec: [
+  route("LoginRoute", "/login", page(LoginPage)),
+  route(
+    "ProfileRoute",
+    "/profile",
+    page(ProfilePage, { authRequired: true })
+  )
+]`,
       },
       {
         head: "src/auth/LoginPage.tsx",
@@ -340,12 +339,14 @@ export default function ProfilePage() {
 }`,
       },
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-query countTasks  { /* ... */ entities: [Task] }
-action createTask { /* ... */ entities: [Task, User] }
-job dailyDigest   { /* ... */ entities: [Task, User] }`,
+spec: [
+  query(countTasks, { entities: ["Task"] }),
+  action(createTask, { entities: ["Task", "User"] }),
+  job(dailyDigest, { executor: "PgBoss", entities: ["Task", "User"] })
+]`,
       },
       {
         head: "src/task/operations.ts",
@@ -371,13 +372,12 @@ $ wasp db migrate-dev | wasp db studio | wasp db seed`,
       "Define functions on the server, call them from the client. No need for REST / GQL / ... . Fully typed and reactive. Powered by TanStack Query.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-query countTasks {
-  fn: import { countTasks } from "@src/task/operations",
-  entities: [Task]
-}`,
+spec: [
+  query(countTasks, { entities: ["Task"] })
+]`,
       },
       {
         head: "src/task/operations.ts",
@@ -411,15 +411,16 @@ export default function TaskCounter() {
       "Cron jobs, one-offs, retries, all working out of the box. No external service needed.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-job sendReminders {
-  executor: PgBoss,
-  perform: { fn: import { sendReminders } from "@src/reminders" },
-  schedule: { cron: "0 9 * * *" },   // every day at 9am
-  entities: [Task, User]
-}`,
+spec: [
+  job(sendReminders, {
+    executor: "PgBoss",
+    schedule: { cron: "0 9 * * *" },   // every day at 9am
+    entities: ["Task", "User"]
+  })
+]`,
       },
       {
         head: "src/reminders.ts",
@@ -458,19 +459,17 @@ export const createTask: CreateTask<{ title: string }, Task> =
       "Provider-agnostic, integrated API for easy sending of emails from your web app.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
-        source: `app TodoApp {
+        head: "main.wasp.ts",
+        language: "typescript",
+        source: `// ...
+emailSender: {
+  provider: "SendGrid", // or "Mailgun" | "SMTP" | "Dummy"
+  defaultFrom: { email: "hi@todo.dev", name: "TodoApp" }
+},
+auth: {
   // ...
-  emailSender: {
-    provider: SendGrid, // or Mailgun | SMTP | Dummy
-    defaultFrom: { email: "hi@todo.dev", name: "TodoApp" }
-  },
-  auth: {
-    // ...
-    methods: {
-      email: { /* ... */ }  // will automatically use the email sender
-    }
+  methods: {
+    email: { /* ... */ }  // will automatically use the email sender
   }
 }`,
       },
@@ -501,12 +500,10 @@ export const sendGreeting: SendGreeting<{ userId: number }, void> =
       "Make your web app alive with a fully integrated WebSocket experience (using Socket.IO).",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
-        source: `app TodoApp {
-  // ...
-  webSocket: { fn: import { webSocketFn } from "@src/webSocket" }
-}`,
+        head: "main.wasp.ts",
+        language: "typescript",
+        source: `// ...
+webSocket: { fn: webSocketFn }`,
       },
       {
         head: "src/webSocket.ts",
@@ -552,12 +549,14 @@ export default function ChatPage() {
     ),
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-route HomeRoute      { path: "/",          to: HomePage,      prerender: true }
-route PricingRoute   { path: "/pricing",   to: PricingPage,   prerender: true }
-route DashboardRoute { path: "/dashboard", to: DashboardPage }`,
+spec: [
+  route("HomeRoute", "/", page(HomePage), { prerender: true }),
+  route("PricingRoute", "/pricing", page(PricingPage), { prerender: true }),
+  route("DashboardRoute", "/dashboard", page(DashboardPage))
+]`,
       },
       {
         head: "shell",
@@ -618,10 +617,12 @@ Dockerfile  server/  web-app/  db/  # ship them anywhere`,
     ),
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-route TaskRoute { path: "/task/:id", to: TaskPage }`,
+spec: [
+  route("TaskRoute", "/task/:id", page(TaskPage))
+]`,
       },
       {
         head: "src/task/TaskList.tsx",
@@ -654,15 +655,15 @@ const taskUrl = routes.TaskRoute.build({ params: { id: someTaskId } })  // e.g. 
       "Define custom HTTP APIs while still being integrated with the rest of your web app (entities, auth, ...). Powered by ExpressJS.",
     codeBlocks: [
       {
-        head: "main.wasp",
-        language: "wasp",
+        head: "main.wasp.ts",
+        language: "typescript",
         source: `// ...
-api getUserStats {
-  fn: import { getUserStats } from "@src/user/stats",
-  httpRoute: (GET, "/api/me/stats"),
-  entities: [Task],
-  auth: true
-}`,
+spec: [
+  api("GET", "/api/me/stats", getUserStats, {
+    entities: ["Task"],
+    auth: true
+  })
+]`,
       },
       {
         head: "src/user/stats.ts",
