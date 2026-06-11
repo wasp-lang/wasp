@@ -1320,6 +1320,8 @@ wasp-app/.wasp/out/types/spec/register.ts
 wasp-app/.wasp/spec-result.json
 wasp-app/.waspignore
 wasp-app/.wasproot
+wasp-app/AGENTS.md
+wasp-app/CLAUDE.md
 wasp-app/Dockerfile
 wasp-app/README.md
 wasp-app/e2e-tests/playwright.config.ts
