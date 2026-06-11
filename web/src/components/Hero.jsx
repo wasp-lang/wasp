@@ -60,15 +60,15 @@ const codeTabs = [
     language: "typescript",
     source: `import { app, page, query, route } from "@wasp.sh/spec";
 
-import { MainPage } from "./src/MainPage" with { type: "ref" };
-import { getTasks } from "./src/tasks" with { type: "ref" };
+import { MainPage } from "./src/MainPage" with { type: "ref" }; // <-- React 
+import { getTasks } from "./src/tasks" with { type: "ref" }; // <-- Node.js
 
 export default app({
   name: "todoApp",
   wasp: { version: "^0.24.0" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
-  auth: {
+  auth: { // Full-stack auth out-of-the-box.
     userEntity: "User",
     methods: { google: {}, gitHub: {}, email: {} },
     onAuthFailedRedirectTo: "/login"
@@ -77,7 +77,9 @@ export default app({
     route("RootRoute", "/", page(MainPage, {
       authRequired: true
     })),
-    query(getTasks, { entities: ["Task"] })
+    query(getTasks, { 
+      entities: ["Task"] // <-- Automatic cache invalidation.
+    }) 
   ]
 });`,
   },
