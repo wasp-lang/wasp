@@ -27,13 +27,15 @@ We need to add a **query** specification to `main.wasp.ts` so that Wasp knows it
 
 <TutorialAction id="query-get-tasks" action="APPLY_PATCH">
 ```ts title="main.wasp.ts"
-import { app, query } from "@wasp.sh/spec"
+import { app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
 // highlight-next-line
 import { getTasks } from "./src/queries" with { type: "ref" }
 
 export default app({
   // ...
   spec: [
+    route("RootRoute", "/", page(MainPage)),
     // Tell Wasp that this query reads from the `Task` entity. Wasp will
     // automatically update the results of this query when tasks are modified.
     // highlight-next-line

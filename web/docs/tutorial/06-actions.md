@@ -26,13 +26,17 @@ We must first declare the Action in `main.wasp.ts`:
 <TutorialAction id="action-create-task" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
 // highlight-next-line
 import { createTask } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
   spec: [
+    route("RootRoute", "/", page(MainPage)),
+    query(getTasks, { entities: ["Task"] }),
     // highlight-next-line
     action(createTask, { entities: ["Task"] }),
   ],
@@ -87,7 +91,7 @@ import {
   useQuery,
 } from "wasp/client/operations";
 
-// ... MainPage, TaskView, TaskList ...
+// ... MainPage, TaskView, TasksList ...
 
 // highlight-start
 const NewTaskForm = () => {
@@ -129,7 +133,7 @@ import type { FormEvent } from "react";
 import type { Task } from "wasp/entities";
 import { createTask, getTasks, useQuery } from "wasp/client/operations";
 
-const MainPage = () => {
+export const MainPage = () => {
   const { data: tasks, isLoading, error } = useQuery(getTasks);
 
   return (
@@ -143,7 +147,7 @@ const MainPage = () => {
   );
 };
 
-// ... TaskList, TaskView, NewTaskForm ...
+// ... TaskView, TasksList, NewTaskForm ...
 ```
 </TutorialAction>
 
@@ -183,12 +187,17 @@ Since we've already created one task together, try to create this one yourself. 
   <TutorialAction id="action-update-task" action="APPLY_PATCH">
 
 ```ts title="main.wasp.ts"
-import { action, app } from "@wasp.sh/spec"
-import { updateTask } from "./src/actions" with { type: "ref" }
+import { action, app, page, query, route } from "@wasp.sh/spec"
+import { MainPage } from "./src/MainPage" with { type: "ref" }
+import { getTasks } from "./src/queries" with { type: "ref" }
+import { createTask, updateTask } from "./src/actions" with { type: "ref" }
 
 export default app({
   // ...
   spec: [
+    route("RootRoute", "/", page(MainPage)),
+    query(getTasks, { entities: ["Task"] }),
+    action(createTask, { entities: ["Task"] }),
     action(updateTask, { entities: ["Task"] }),
   ],
 })
@@ -200,6 +209,7 @@ Implementing the Action on the server:
   <TutorialAction id="action-update-task-impl" action="APPLY_PATCH">
 
 ```ts title="src/actions.ts" auto-js
+import type { Task } from "wasp/entities";
 import type { CreateTask, UpdateTask } from "wasp/server/operations";
 
 // ...
@@ -268,7 +278,7 @@ const TaskView = ({ task }: { task: Task }) => {
   );
 };
 
-// ... TaskList, NewTaskForm ...
+// ... TasksList, NewTaskForm ...
 ```
 </TutorialAction>
 
