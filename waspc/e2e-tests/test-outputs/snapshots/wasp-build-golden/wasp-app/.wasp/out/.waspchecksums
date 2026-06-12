@@ -571,14 +571,14 @@
             "file",
             "sdk/wasp/src/MainPage.tsx"
         ],
-        "8b411885c41164a60e135c7e191d23095dfda51c3d7968539a7e7f62e8f12940"
+        "30bd00d66d48654ca302e410bc20285c3a5d992af458d1507868a73458201b0e"
     ],
     [
         [
             "file",
-            "sdk/wasp/src/assets/logo.svg"
+            "sdk/wasp/src/assets/wasp-logo.svg"
         ],
-        "563d907afcd4f7860194dc46eeed2ad85e9933dd8cc5dd8c93563a3bb43b0daa"
+        "89cf0505ff0282218ad49414da215e7134fe2ab5e18888c67a65f7da5c02ae87"
     ],
     [
         [
