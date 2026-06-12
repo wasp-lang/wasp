@@ -1,4 +1,4 @@
-import Logo from "./assets/wasp-logo.svg";
+import Logo from "./assets/wasp-logo-rounded.svg";
 import "./Main.css";
 
 export function MainPage() {

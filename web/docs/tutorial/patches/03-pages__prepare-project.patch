@@ -70,8 +70,8 @@ index 9e93c7a..0000000
 -
 -.button-filled {
 -  color: black;
--  background-color: #ffcc00;
--  border: 2px solid #ffcc00;
+-  background-color: #f5c842;
+-  border: 2px solid #f5c842;
 -
 -  transition: all 0.2s ease-in-out;
 -}
@@ -83,7 +83,7 @@ index 9e93c7a..0000000
 -.button-outlined {
 -  color: black;
 -  background-color: transparent;
--  border: 2px solid #ffcc00;
+-  border: 2px solid #f5c842;
 -
 -  transition: all 0.2s ease-in-out;
 -}
@@ -94,9 +94,9 @@ index 9e93c7a..0000000
 -
 -code {
 -  border-radius: 5px;
--  border: 1px solid #ffcc00;
+-  border: 1px solid #f5c842;
 -  padding: 0.2rem;
--  background: #ffcc0044;
+-  background: #f5c84244;
 -  font-family:
 -    Menlo,
 -    Monaco,

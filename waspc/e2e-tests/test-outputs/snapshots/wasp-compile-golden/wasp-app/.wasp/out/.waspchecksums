@@ -564,21 +564,21 @@
             "file",
             "sdk/wasp/src/Main.css"
         ],
-        "05a725d9aa060e2972bf91ed825502667c9b8aeb0893110c493818efc0c9ffa9"
+        "b410e1a99ed88d2f587be8e9172957aa663dc4763e83611f4ba9569c3111c0e4"
     ],
     [
         [
             "file",
             "sdk/wasp/src/MainPage.tsx"
         ],
-        "30bd00d66d48654ca302e410bc20285c3a5d992af458d1507868a73458201b0e"
+        "64b5e63d9eb29b316493b474f3ce690ea072f3063ea1337db9b2c2e9e41fc322"
     ],
     [
         [
             "file",
-            "sdk/wasp/src/assets/wasp-logo.svg"
+            "sdk/wasp/src/assets/wasp-logo-rounded.svg"
         ],
-        "89cf0505ff0282218ad49414da215e7134fe2ab5e18888c67a65f7da5c02ae87"
+        "5667daf3583b1d6c7fe8187951246623fbe2330894dc12e69a8b068775470a3a"
     ],
     [
         [
