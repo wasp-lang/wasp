@@ -62,16 +62,6 @@ jobs:
           ./run.ps1 build:packages
           ./run.ps1 build:libs
 
-      - name: Debug
-        if: runner.os == 'Windows'
-        run: |
-          where.exe cabal
-          where.exe ghc
-          where.exe ghc-9.6.7
-
-          ghc --version
-          ghc-9.6.7 --version
-
       - name: Build external dependencies
         run: cabal build --enable-tests --enable-benchmarks --only-dependencies
 

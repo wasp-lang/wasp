@@ -18,6 +18,16 @@ runs:
     - name: Install Mise tools
       uses: jdx/mise-action@v4
 
+    - name: Prefer real GHC binaries over Mise shims (Windows)
+      # On Windows, Cabal can't determine the GHC version through Mise's
+      # `ghc-<version>` shim: it probes the shim and gets back an empty version,
+      # which breaks compiler detection. We prepend the real GHC bin directory
+      # to PATH so Cabal finds the actual `ghc.exe` and `ghc-<version>.exe`
+      # ahead of the shims.
+      if: runner.os == 'Windows'
+      shell: pwsh
+      run: Split-Path -Parent (mise which ghc) >> $env:GITHUB_PATH
+
     - name: Cache npm dependencies
       uses: actions/setup-node@v6
       with:
