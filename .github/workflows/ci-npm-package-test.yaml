@@ -34,12 +34,12 @@ jobs:
     container: ${{ matrix.runner.container }}
 
     steps:
-      - uses: actions/checkout@v6
-      - uses: ./.github/actions/setup-env
-
       - name: Install dependencies
         if: matrix.runner.install-deps
         run: ${{ matrix.runner.install-deps }}
+
+      - uses: actions/checkout@v6
+      - uses: ./.github/actions/setup-env
 
       - name: Install Wasp CLI from pkg.pr.new
         env:
