@@ -3,12 +3,13 @@ import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 
 import ExampleWaspApps from "../components/ExampleWaspApps";
 import Faq from "../components/Faq.jsx";
-import Features from "../components/Features";
+import FeaturesExplorer from "../components/FeaturesExplorer";
 import Footer from "../components/Footer";
 import Hero from "../components/Hero";
 import HowItWorks from "../components/HowItWorks";
 import Nav from "../components/Nav/index";
 import Newsletter from "../components/Newsletter";
+import Properties from "../components/Properties";
 import Roadmap from "../components/Roadmap";
 import ShowcaseGallery from "../components/ShowcaseGallery";
 import Testimonials from "../components/Testimonials";
@@ -48,7 +49,8 @@ const Index = () => {
           <div>
             {/* container */}
             <Hero />
-            <Features />
+            <Properties />
+            <FeaturesExplorer />
             <HowItWorks />
             <ExampleWaspApps />
             <Testimonials />

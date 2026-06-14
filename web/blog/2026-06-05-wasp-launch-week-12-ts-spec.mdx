@@ -1,0 +1,121 @@
+---
+title: "Wasp Launch Week #12 - TS Spec aka MeTSamorphosis 🐛🦋"
+authors: [matijasos]
+image: /img/lw12/lw12-banner.webp
+tags: [launch-week, update]
+keywords: ["wasp launch week 12", "wasp ts spec", "wasp typescript", "typescript framework", "full-stack typescript", "wasp dsl to typescript", "wasp ssr", "wasp pre-rendering", "wasp rebrand", "react node framework", "wasp framework update", "metsamorphosis"]
+description: "Launch Week #12 is Wasp's biggest shift yet: the DSL is gone, and Wasp is now a fully TypeScript-native full-stack framework. Plus SSR/pre-rendering, a rebrand, Community Day, and easier deploys."
+---
+
+import { ImgWithCaption } from './components/ImgWithCaption';
+
+<ImgWithCaption
+    alt="Launch Week 12 - MeTSamorphosis"
+    source="img/lw12/lw12-banner.webp"
+/>
+
+A few weeks ago, we published a post with a title that raised a few eyebrows: [*"5 years and $5M later: inventing our own programming language was a mistake."*](/blog/2026/05/13/new-language-for-web-dev-was-a-mistake) Five years. One whole DSL. And we said it out loud, in public, on the internet, where it stays forever.
+ 
+A lot of you wrote in afterwards ([179, to be precise](https://www.reddit.com/r/programming/comments/1tc02h0/5_years_and_5m_later_inventing_a_new_programming/)). Some to commiserate, some to cheer, a couple to ask if we were okay (we are, thank you). But the most common question by far was the obvious one:
+ 
+**"Okay… so what are you going to do about it?"**
+ 
+This is the moment where we answer that.
+ 
+{/* truncate */}
+ 
+## Caterpillars don't apologize for being caterpillars 🐛
+ 
+They just turn into something cooler, with wings (I know this doesn't work 100% for wasps, but *licentia poetica*, right?).
+ 
+Welcome to **Launch Week #12**, a.k.a. **MeTSamorphosis**: the week Wasp finally sheds the DSL and emerges in its **true, fully TypeScript-native** form. No more learning a config language to use a framework. No more "wait, why is this a `.wasp` file?" Just TypeScript, all the way down, the same language you're already writing the rest of your app in.
+ 
+**This is the biggest shift in Wasp's history, so TS Spec is unapologetically the star of this launch**. But it's far from the only thing we've got for you. There's pre-rendering/SSR support, a brand-new look for Wasp, and a few more surprises landing across the week. TS Spec leads the way, but none of the rest is filler.
+ 
+### But first - Thank you!
+
+Before we dive in, none of what's coming this week happens without you. The community around Wasp has never felt more alive, more people are shipping real apps with it than ever, and we don't take that for granted. So, genuinely: thank you. 🙏
+ 
+## The cocoon cracks open on Monday, June 15 🗓️
+ 
+There's no launch party without a nice, cozy community call to kick it all off! We're assembling on **Monday, June 15th, 8 AM PT / 11 AM ET / 5 PM CET**. Martin and I will be there live to walk you through TS Spec, take your questions, and probably get a little emotional about it.
+ 
+Make sure to [register for the event on our Discord](https://discord.gg/ZAV4j6Dp?event=1512472513609859072) and smash that "Interested" button so you don't miss it.
+ 
+<ImgWithCaption
+    alt="Register for the kickoff call"
+    source="img/lw12/lw12-register.webp"
+    caption="See you there, fellow metamorphosee. (Not a word. It is now.)"
+/>
+ 
+Here's some of what's hatching this week. A few of these are locked and loaded. A couple are still in the cocoon and might land later, or show up as a surprise. 🤫
+ 
+## 🦋 The Big One - Adiós DSL, TS Spec is here
+
+<ImgWithCaption
+    alt="main.wasp.ts in the new TS Spec — your whole app config defined in TypeScript: imports, app({...}), auth, and a spec list with route/page/query calls"
+    source="img/lw12/ts-spec-example.webp"
+    caption="A taste of the new TS Spec: imports up top, app shell in the middle, your routes, pages and queries below - all in one (or more) type-checked TypeScript files."
+/>
+ 
+This is the one. After five years, Wasp is now a **TypeScript framework, end to end**. You define your app (pages, routes, auth, jobs, the works) in TypeScript, with full type-safety and editor support, instead of a separate DSL you had to learn first.
+ 
+We'll publish the full announcement to kick things off, walking through what changed, why it's better, and how to migrate. If you've ever wanted Wasp's superpowers without the "wait, what's this file" tax, this is the one for you.
+ 
+<ImgWithCaption
+    alt="GitHub issue #3778 'Moving from the DSL to TS spec' — landing very soon (June 15!)"
+    source="img/lw12/dsl-ts-issue.webp"
+    caption="Spoon, my friend. Very spoon."
+/>
+ 
+## ⚡ New wings - SSR & pre-rendering
+ 
+A fresh form needs a fresh set of wings. We're also showing off **server-side rendering / pre-rendering in Wasp**: better SEO, faster first paint, and all the things you've been (politely, mostly) asking us for.
+
+It's already live, so you don't even have to wait for the launch — check out [the prerendering docs](/docs/advanced/prerendering) and try it on your app today.
+ 
+Vinny also put together a video walking through it end to end. Keep an eye on YouTube for *"Wasp now supports prerendering."* 📺
+
+<ImgWithCaption
+    alt="Lighthouse scores for a prerendered Wasp app: 98 Performance, 92 Accessibility, 96 Best Practices, 92 SEO"
+    source="img/lw12/wasp-prerendering.webp"
+    caption="Lighthouse scores for an Open SaaS landing page with prerendering turned on. Not bad. 💪"
+/>
+ 
+## 🐝 The swarm - Community Day
+ 
+A Wasp tradition we love: the spotlight goes to **you**, the builders.
+ 
+We're dropping **"Building with Wasp, vol. 2"**, a fresh roundup of genuinely cool apps people shipped on Wasp, plus videos and write-ups from community members on what they built and how Wasp helped. Real users showing real things hits different than us claiming Wasp is good, so we'll let them do the talking.
+ 
+<ImgWithCaption
+    alt="Tweet exchange: Catalin asks for the simplest, most effective full-stack tech stack; Kyle replies '@WaspLang by @MatijaSosic hands down!'"
+    source="img/lw12/wasp-testimonial-kyle.webp"
+    caption="Kyle gets it. 🫡"
+/>
+ 
+## 🎨 New look, who dis - the Rebrand
+ 
+A metamorphosis you can *see*. Wasp is getting a brand-new look (new visual identity, new vibe, the whole thing), and Boi's TS suit is just the start of it.
+ 
+We'll also show you the new brand and, more interestingly, the story behind it: we'll talk through why we did it, how we got there, and what we were going for. (Spoiler: we have… opinions about monospace fonts.)
+ 
+<ImgWithCaption
+    alt="Wasp's new landing page: 'A truly full-stack TypeScript framework that just works' with a code sample on the right"
+    source="img/lw12/wasp-new-lp-screenshot.webp"
+    caption="Look at me. I am the designer now."
+/>
+ 
+## 🚀 Out into the world - easier deploys
+ 
+A framework is only as good as the places it can fly to, so we've been working on making Wasp even easier to deploy to more of your favorite platforms. We're not spilling all the details yet, but if there's a host you've been wishing was one click away, keep an eye out. 👀
+ 
+And because we can't help ourselves, there might be *one more thing* tucked away for you, too. You'll have to show up to find out.
+
+## See you on the other side of the cocoon 🐝
+ 
+That's the week: the molt, the wings, the swarm, the new look, and the take-off. We've been working toward this one for a long time, and we honestly can't wait to show you.
+ 
+As always, we want **all** of your feedback: the good, the bad, and the "did Boi really need a suit." So come find us on [Discord](https://discord.gg/rzdnErX), [Twitter/X](https://twitter.com/WaspLang), or [GitHub](https://github.com/wasp-lang/wasp). We're there.
+ 
+To stay in the loop, [follow us on X](https://twitter.com/WaspLang) and [join the Discord](https://discord.gg/rzdnErX). See you Monday. 🐝🐝

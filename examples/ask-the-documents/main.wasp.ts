@@ -21,6 +21,7 @@ export default app({
   name: "askTheDocuments",
   wasp: { version: "^0.24.0" },
   title: "PG Vector Example",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
     methods: {
@@ -37,7 +38,7 @@ export default app({
   server: {
     envValidationSchema: serverEnvValidation,
   },
-  decls: [
+  spec: [
     route("RootRoute", "/", page(Main), { prerender: true }),
 
     action(embedDocument, { entities: ["Document"] }),

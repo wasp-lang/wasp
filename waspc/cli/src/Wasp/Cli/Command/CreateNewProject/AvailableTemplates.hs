@@ -21,8 +21,7 @@ availableStarterTemplates :: [StarterTemplate]
 availableStarterTemplates =
   [ basicStarterTemplate,
     minimalStarterTemplate,
-    openSaasStarterTemplate,
-    AiGeneratedStarterTemplate
+    openSaasStarterTemplate
   ]
 
 defaultStarterTemplate :: StarterTemplate
@@ -83,6 +82,7 @@ openSaasStarterTemplate =
         ),
       archiveName = "template.tar.gz",
       archivePath = [reldir|.|],
+      _waspProjectDirFromTemplateOutputDir = [reldir|app|],
       metadata =
         ( TemplateMetadata
             { _name = "saas",

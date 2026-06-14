@@ -3,13 +3,13 @@ import { readFile } from "fs/promises";
 import MainPage from "./src/cards/MainPage" with { type: "ref" };
 import Layout from "./src/Layout" with { type: "ref" };
 
-import { authDecls } from "./src/auth/auth.wasp";
-import { cardsDecls } from "./src/cards/cards.wasp";
+import { authSpec } from "./src/auth/auth.wasp";
+import { cardsSpec } from "./src/cards/cards.wasp";
 
 export default app({
   name: "waspello",
-  title: (await readFile("appTitle.txt", "utf-8")).trim(),
   wasp: { version: "^0.24.0" },
+  title: (await readFile("appTitle.txt", "utf-8")).trim(),
   auth: {
     userEntity: "User",
     methods: {
@@ -21,9 +21,9 @@ export default app({
   client: {
     rootComponent: Layout,
   },
-  decls: [
+  spec: [
     route("MainRoute", "/", page(MainPage, { authRequired: true })),
-    ...authDecls,
-    ...cardsDecls,
+    authSpec,
+    cardsSpec,
   ],
 });

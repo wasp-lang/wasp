@@ -6,13 +6,13 @@ import { PasswordResetPage } from "./src/auth/email/PasswordResetPage" with { ty
 import { RequestPasswordResetPage } from "./src/auth/email/RequestPasswordResetPage" with { type: "ref" };
 import { SignupPage } from "./src/auth/email/SignupPage" with { type: "ref" };
 import { userSignupFields } from "./src/auth/email/userSignupFields" with { type: "ref" };
-import { tagsDecls } from "./src/tags/tags.wasp";
-import { tasksDecls } from "./src/tasks/task.wasp";
+import { tagsSpec } from "./src/tags/tags.wasp";
+import { tasksSpec } from "./src/tasks/task.wasp";
 
 export default app({
   name: "__waspAppName__",
-  title: "__waspProjectName__",
   wasp: { version: "__waspVersion__" },
+  title: "__waspProjectName__",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {
     userEntity: "User",
@@ -40,9 +40,9 @@ export default app({
   client: {
     rootComponent: App,
   },
-  decls: [
-    ...tasksDecls,
-    ...tagsDecls,
+  spec: [
+    tasksSpec,
+    tagsSpec,
     route("LoginRoute", "/login", page(LoginPage)),
     route("SignupRoute", "/signup", page(SignupPage)),
     route(

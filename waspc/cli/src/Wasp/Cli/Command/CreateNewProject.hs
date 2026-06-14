@@ -7,11 +7,11 @@ import Control.Monad.IO.Class (liftIO)
 import qualified StrongPath as SP
 import Wasp.Cli.Command (Command)
 import Wasp.Cli.Command.Call (Arguments)
-import qualified Wasp.Cli.Command.CreateNewProject.AI as AI
 import Wasp.Cli.Command.CreateNewProject.ArgumentsParser (newProjectArgsParser)
 import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (availableStarterTemplates)
 import Wasp.Cli.Command.CreateNewProject.ProjectDescription
   ( NewProjectDescription (..),
+    getAbsWaspProjectDir,
     obtainNewProjectDescription,
   )
 import Wasp.Cli.Command.CreateNewProject.StarterTemplates
@@ -36,25 +36,18 @@ createNewProject = withArguments "wasp new" newProjectArgsParser $ \args -> do
 
   createProjectOnDisk newProjectDescription
   -- TODO consider removing if we start doing `wasp install` automatically
-  liftIO $ installDepsForNewProject (_absWaspProjectDir newProjectDescription)
+  liftIO $ installDepsForNewProject (getAbsWaspProjectDir newProjectDescription)
   liftIO $ printGettingStartedInstructionsForProject newProjectDescription
 
 createProjectOnDisk :: NewProjectDescription -> Command ()
 createProjectOnDisk
-  NewProjectDescription
-    { _projectName = projectName,
-      _appName = appName,
-      _template = template,
-      _absWaspProjectDir = absWaspProjectDir
-    } = do
+  newProjectDescription@(NewProjectDescription {_template = template}) = do
     cliSendMessageC $ Msg.Start $ "Creating your project from the \"" ++ show template ++ "\" template..."
     case template of
       GhRepoReleaseArchiveTemplate {repo = ghRepoRef, archiveName = archiveName', archivePath = archivePath'} ->
-        createProjectOnDiskFromGhReleaseArchiveTemplate (show template) absWaspProjectDir projectName appName ghRepoRef archiveName' archivePath'
+        createProjectOnDiskFromGhReleaseArchiveTemplate newProjectDescription ghRepoRef archiveName' archivePath'
       BundledStarterTemplate {bundledPath = bundledPath'} ->
-        liftIO $ createProjectOnDiskFromBundledTemplate absWaspProjectDir projectName appName bundledPath'
-      AiGeneratedStarterTemplate ->
-        AI.createNewProjectInteractiveOnDisk absWaspProjectDir appName
+        liftIO $ createProjectOnDiskFromBundledTemplate newProjectDescription bundledPath'
 
 installDepsForNewProject :: SP.Path' SP.Abs (SP.Dir WaspProjectDir) -> IO ()
 installDepsForNewProject absWaspProjectDir =
@@ -71,7 +64,7 @@ installDepsForNewProject absWaspProjectDir =
 -- | This function assumes that the project dir was created inside the current working directory.
 printGettingStartedInstructionsForProject :: NewProjectDescription -> IO ()
 printGettingStartedInstructionsForProject projectDescription = do
-  let projectDirName = init . SP.toFilePath . SP.basename $ _absWaspProjectDir projectDescription
+  let projectDirName = init . SP.toFilePath . SP.basename $ _absTemplateOutputDir projectDescription
   let instructions = getTemplateStartingInstructions projectDirName $ _template projectDescription
   cliSendMessage $ Msg.Success $ "Created a new Wasp app in ./" ++ projectDirName ++ " directory!"
   putStrLn instructions

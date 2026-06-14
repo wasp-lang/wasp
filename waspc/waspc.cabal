@@ -169,22 +169,6 @@ library
 
   other-modules: Paths_waspc
   exposed-modules:
-    Wasp.AI.CodeAgent
-    Wasp.AI.GenerateNewProject
-    Wasp.AI.GenerateNewProject.Common
-    Wasp.AI.GenerateNewProject.Common.Prompts
-    Wasp.AI.GenerateNewProject.Entity
-    Wasp.AI.GenerateNewProject.InitialFiles
-    Wasp.AI.GenerateNewProject.LogMsg
-    Wasp.AI.GenerateNewProject.Operation
-    Wasp.AI.GenerateNewProject.OperationsJsFile
-    Wasp.AI.GenerateNewProject.Page
-    Wasp.AI.GenerateNewProject.PageComponentFile
-    Wasp.AI.GenerateNewProject.Plan
-    Wasp.AI.GenerateNewProject.PrismaFile
-    Wasp.AI.GenerateNewProject.WaspFile
-    Wasp.AI.OpenAI
-    Wasp.AI.OpenAI.ChatGPT
     Wasp.Analyzer
     Wasp.Analyzer.AnalyzeError
     Wasp.Analyzer.ErrorMessage
@@ -594,7 +578,6 @@ library cli-lib
     Wasp.Cli.Command.Common
     Wasp.Cli.Command.Compile
     Wasp.Cli.Command.CreateNewProject
-    Wasp.Cli.Command.CreateNewProject.AI
     Wasp.Cli.Command.CreateNewProject.ArgumentsParser
     Wasp.Cli.Command.CreateNewProject.AvailableTemplates
     Wasp.Cli.Command.CreateNewProject.Common
@@ -691,7 +674,6 @@ test-suite waspc-tests
     waspc,
 
   other-modules:
-    AI.GenerateNewProject.LogMsgTest
     Analyzer.Evaluation.EvaluationErrorTest
     Analyzer.EvaluatorTest
     Analyzer.Parser.CST.TraverseTest

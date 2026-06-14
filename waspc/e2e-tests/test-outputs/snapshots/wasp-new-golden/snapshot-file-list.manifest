@@ -2,6 +2,8 @@ wasp-app/.gitignore
 wasp-app/.npmrc
 wasp-app/.waspignore
 wasp-app/.wasproot
+wasp-app/AGENTS.md
+wasp-app/CLAUDE.md
 wasp-app/main.wasp.ts
 wasp-app/package-lock.json
 wasp-app/package.json

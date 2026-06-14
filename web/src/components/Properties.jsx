@@ -1,3 +1,6 @@
+import SectionContainer from "./Layouts/SectionContainer";
+import SectionLabel from "./Layouts/SectionLabel";
+
 const properties = [
   {
     title: "High Level",
@@ -30,10 +33,8 @@ const properties = [
 ];
 
 const Properties = () => (
-  <div className="mt-32">
-    <div className="mb-6 inline-block bg-wasp-yellow px-4 py-1.5 font-mono text-xs font-bold uppercase tracking-widest text-wasp-black">
-      // Properties
-    </div>
+  <SectionContainer>
+    <SectionLabel text="properties" />
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {properties.map((p, i) => (
         <div
@@ -52,7 +53,7 @@ const Properties = () => (
         </div>
       ))}
     </div>
-  </div>
+  </SectionContainer>
 );
 
 export default Properties;

@@ -2,9 +2,10 @@ import Link from "@docusaurus/Link";
 import "./styles.css";
 
 const KIND_LABELS = {
-  guide: "guide",
+  guide: "Guide",
   api: "API reference",
-  docs: "docs",
+  docs: "Documentation",
+  external: "External",
 } as const;
 
 export function CardLink({

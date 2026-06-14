@@ -63,7 +63,7 @@ const Benefits = () => {
           Icon={Code}
           title="Less boilerplate"
           description={`
-            The .wasp spec file allows us to improve the developer experience immensely.
+            The main.wasp.ts spec file allows us to improve the developer experience immensely.
             E.g., full-stack auth takes only 5 lines of code.
           `}
         />
