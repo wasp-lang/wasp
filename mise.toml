@@ -1,6 +1,7 @@
-min_version = "2026.6.1"
+min_version = "2026.6.7"
 
 [tools]
+"aqua:ghcup" = "0.2.6.1"
 "github:tfausak/cabal-gild" = "1.5.0.1"
 "github:tweag/ormolu" = "0.7.2.0"
 "mise-ghcup:cabal" = "3.12.1.0"
@@ -20,24 +21,13 @@ min_version = "2026.6.1"
 # - The docs plugin: /web/src/remark/search-and-replace.ts
 node = "24.14.1"
 
-# Manually configuring `ghcup` to be taken from GitHub releases, as the built-in
-# definition doesn't support Windows (yet).
-# https://github.com/cprecioso/aqua-registry/pull/1
-[tool_alias]
-ghcup = "github:haskell/ghcup-hs"
-
-[tools."ghcup"]
-version = "latest"
-bin = "ghcup"
-
 [plugins]
 "vfox:mise-ghcup" = "https://github.com/cprecioso/mise-ghcup.git"
 
 [settings]
 lockfile = true
 experimental = true
-
-[settings.node]
+aqua.baked_registry = false
 # The Node backend has a knack for compiling from source on Alpine even when it
 # has a pre-built binary available. So we explicitly tell it not to.
-compile = false
+node.compile = false
