@@ -48,7 +48,15 @@ runs:
         set -euxo pipefail
 
         echo "GHC_VERSION=$(mise tool ghc --requested)" >> $GITHUB_OUTPUT
-        echo "LIBC=$(ldd --version 2>&1 | grep -q musl && echo 'musl' || echo 'default')" >> $GITHUB_OUTPUT
+
+        # Detect the libc so the Cabal cache key keeps glibc and musl builds
+        # apart.
+        ldd_version="$(ldd --version 2>&1 || true)"
+        case "$ldd_version" in
+          *musl*) libc=musl ;;
+          *) libc=default ;;
+        esac
+        echo "LIBC=$libc" >> "$GITHUB_OUTPUT"
 
         # The first run of `cabal path` has some extra messages telling you that
         # it's creating the store, so we run the command once to get rid of it.
@@ -66,9 +74,9 @@ runs:
           ${{ steps.probe.outputs.CABAL_INDEX }}
           ${{ inputs.cabal-project-dir }}/dist-newstyle
         key: |
-          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
+          cabal-v2-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-${{ hashFiles(format('{0}/*.cabal', inputs.cabal-project-dir), format('{0}/*.project', inputs.cabal-project-dir), format('{0}/*.project.freeze', inputs.cabal-project-dir)) }}
         restore-keys: |
-          cabal-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-
+          cabal-v2-${{ inputs.cabal-project-dir }}-${{ runner.os }}-${{ runner.arch }}-${{ steps.probe.outputs.LIBC }}-${{ steps.probe.outputs.GHC_VERSION }}-
 
     - name: Update Cabal package index
       shell: bash
