@@ -7,7 +7,7 @@ import {
   startContainer,
   type ContainerHandle,
 } from "../docker.js";
-import { createLogger, FatalError } from "../logging.js";
+import { createLogger, LoggerError } from "../logging.js";
 import { commandSucceeds } from "../process.js";
 import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
@@ -16,7 +16,9 @@ import type { SetupDbResult } from "./types.js";
 export const defaultPostgresDbImage = "postgres:18" as DockerImageName;
 
 const POSTGRES_PORT = 5432;
+const POSTGRES_USER = "postgres";
 const POSTGRES_PASSWORD = "devpass";
+const POSTGRES_DB = "postgres";
 const READINESS_RETRIES = 10;
 
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
@@ -66,7 +68,7 @@ export const setupPostgres = async ({
   await waitForPostgresReady({ container, containerName, signal });
 
   const databaseUrl =
-    `postgresql://postgres:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/postgres` as DatabaseConnectionUrl;
+    `postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/${POSTGRES_DB}` as DatabaseConnectionUrl;
   logger.info(`Using DATABASE_URL: ${databaseUrl}`);
 
   const ownedStack = stack.move();
@@ -104,7 +106,7 @@ async function waitForPostgresReady({
           const isReady = await commandSucceeds({
             name: "postgres-readiness-check",
             cmd: "docker",
-            args: ["exec", containerName, "pg_isready", "-U", "postgres"],
+            args: ["exec", containerName, "pg_isready", "-U", POSTGRES_USER],
             signal: readinessSignal,
           });
           if (!isReady) {
@@ -126,7 +128,6 @@ async function waitForPostgresReady({
       return;
     }
 
-    // The container died before becoming ready.
     const stderr = container.stderrSoFar();
     const extraInfo = getExtraInfoOnPostgresStartError({
       originalErrorText: stderr,
@@ -141,7 +142,7 @@ async function waitForPostgresReady({
   } catch (error) {
     // A graceful abort or the container-died fatal above propagate as-is; any
     // other rejection means p-retry exhausted its readiness attempts.
-    if (signal.aborted || error instanceof FatalError) {
+    if (signal.aborted || error instanceof LoggerError) {
       throw error;
     }
     logger.fatal("PostgreSQL did not become ready in time.", { cause: error });

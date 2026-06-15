@@ -78,7 +78,6 @@ export function spawnProcess(opts: SpawnProcessOptions): ProcessHandle {
     logger?.error(line);
   });
 
-  // `exited` resolves exactly once and never rejects.
   let settled = false;
   let resolveExited!: (exit: ProcessExit) => void;
   const exited = new Promise<ProcessExit>((resolve) => {
@@ -160,9 +159,7 @@ export function spawnProcess(opts: SpawnProcessOptions): ProcessHandle {
     }
     try {
       process.kill(detached ? -child.pid : child.pid, "SIGKILL");
-    } catch {
-      // Already gone.
-    }
+    } catch {}
   });
 
   const onAbort = () => void terminate();
@@ -205,14 +202,20 @@ export function spawnProcess(opts: SpawnProcessOptions): ProcessHandle {
 export class CommandError extends Error {
   readonly commandName: string;
   readonly exit: ProcessExit;
+  readonly stdout?: string;
   readonly stderr?: string;
 
-  constructor(commandName: string, exit: ProcessExit, stderr?: string) {
+  constructor(
+    commandName: string,
+    exit: ProcessExit,
+    output?: { stdout?: string; stderr?: string },
+  ) {
     super(`Command "${commandName}" ${describeExit(exit)}`);
     this.name = "CommandError";
     this.commandName = commandName;
     this.exit = exit;
-    this.stderr = stderr;
+    this.stdout = output?.stdout;
+    this.stderr = output?.stderr;
   }
 }
 
@@ -226,7 +229,7 @@ export async function runCommand(opts: CommandOptions): Promise<void> {
   await using proc = spawnProcess({ ...opts, output: "log" });
   const exit = await proc.exited;
   if (!isSuccessfulExit(exit)) {
-    throw new CommandError(opts.name, exit, proc.collectedOutput.stderr);
+    throw new CommandError(opts.name, exit, proc.collectedOutput);
   }
 }
 
@@ -238,7 +241,7 @@ export async function captureCommand(
   const exit = await proc.exited;
   const collected = proc.collectedOutput;
   if (!isSuccessfulExit(exit)) {
-    throw new CommandError(opts.name, exit, collected.stderr);
+    throw new CommandError(opts.name, exit, collected);
   }
   return collected;
 }

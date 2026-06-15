@@ -8,7 +8,6 @@ export async function checkDependencies({
 }): Promise<void> {
   const logger = createLogger("check-dependencies");
 
-  // ENOENT (command not found) surfaces as a spawn failure, i.e. `false`.
   const dockerAvailable = await commandSucceeds({
     name: "check-docker",
     cmd: "docker",

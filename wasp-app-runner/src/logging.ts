@@ -36,12 +36,12 @@ export function createLogger(processName: string) {
     },
     /**
      * Reports an unrecoverable error and stops the current flow. It does NOT log
-     * here: it throws a {@link FatalError} carrying this logger's process name
+     * here: it throws a {@link LoggerError} carrying this logger's process name
      * and (optionally) a `cause`, so the top level can pretty-print it with the
      * right prefix once cleanup has unwound. Returns `never`.
      */
     fatal(message: string, options?: ErrorOptions): never {
-      throw new FatalError(processName, message, options);
+      throw new LoggerError(processName, message, options);
     },
   };
 }
@@ -50,17 +50,18 @@ export function createLogger(processName: string) {
  * An error a logger raised via {@link Logger.fatal}. Keeps the originating
  * process name so the top level can render it like any other log line.
  */
-export class FatalError extends Error {
-  readonly processName: string;
-  constructor(processName: string, message: string, options?: ErrorOptions) {
+export class LoggerError extends Error {
+  constructor(
+    public readonly processName: string,
+    message: string,
+    options?: ErrorOptions,
+  ) {
     super(message, options);
-    this.name = "FatalError";
-    this.processName = processName;
   }
 }
 
-/** Pretty-prints a {@link FatalError} (and its cause chain) to stderr. */
-export function reportFatalError(error: FatalError): void {
+/** Pretty-prints a {@link LoggerError} (and its cause chain) to stderr. */
+export function reportFatalError(error: LoggerError): void {
   const lines = [error.message, ...describeCauseChain(error.cause)];
   for (const line of lines) {
     console.error(formatLogLine(error.processName, "fatal", line));

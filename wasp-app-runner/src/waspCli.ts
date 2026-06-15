@@ -250,7 +250,11 @@ async function captureWaspCommand({
     return stdout;
   } catch (error) {
     if (error instanceof CommandError) {
-      const details = (error.stderr ?? "").trim();
+      // The Wasp CLI prints its diagnostics to stdout, so include both streams.
+      const details = [error.stdout, error.stderr]
+        .map((stream) => (stream ?? "").trim())
+        .filter(Boolean)
+        .join("\n");
       logger.fatal(`${failureSummary}${details ? `:\n${details}` : ""}`, {
         cause: error,
       });

@@ -18,8 +18,6 @@ export async function startAppInDevMode({
   dbImage: DockerImageName;
   signal: AbortSignal;
 }): Promise<void> {
-  // Disposed in reverse declaration order: app first (its SIGTERM releases the
-  // DB connections), then the database.
   await using db = await setupDb({
     appName,
     dbType,

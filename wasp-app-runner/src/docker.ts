@@ -85,7 +85,7 @@ export async function removeContainerIfExists(
       error instanceof CommandError &&
       (error.stderr ?? "").toLowerCase().includes("no such container")
     ) {
-      return; // already gone
+      return;
     }
     throw error;
   }

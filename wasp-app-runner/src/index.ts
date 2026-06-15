@@ -11,7 +11,7 @@ import { DbType } from "./db/index.js";
 import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
-import { createLogger, FatalError, reportFatalError } from "./logging.js";
+import { createLogger, LoggerError, reportFatalError } from "./logging.js";
 import { installShutdownHandlers } from "./shutdown.js";
 import { waspInfo, waspInstall } from "./waspCli.js";
 
@@ -38,7 +38,7 @@ export async function main(): Promise<void> {
     if (signal.aborted) {
       // Graceful shutdown: teardown already ran via `await using` unwinding.
       logger.warn(`Shutting down: ${errorMessage(error)}`);
-    } else if (error instanceof FatalError) {
+    } else if (error instanceof LoggerError) {
       reportFatalError(error);
       process.exitCode = 1;
     } else {

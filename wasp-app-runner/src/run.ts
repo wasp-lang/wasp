@@ -70,7 +70,7 @@ export async function waitUntilAppStops({
   const result = await Promise.race(racers);
 
   if (result.source === "abort" || signal.aborted) {
-    return; // graceful shutdown
+    return;
   }
   if (result.source === "service") {
     throw new ServiceFailedError(result.service.name, result.exit);
