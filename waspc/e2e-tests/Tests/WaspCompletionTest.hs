@@ -17,7 +17,7 @@ waspCompletionTest =
         (return [assertWaspCliCompletion "wasp-cli telemetry" "telemetry"]),
       TestCase
         "complete-multiple-choice"
-        (return [assertWaspCliCompletion "wasp-cli d" "db\ndeploy\ndeps\ndockerfile"]),
+        (return [assertWaspCliCompletion "wasp-cli d" "doctor\ndb\ndeploy\ndeps\ndockerfile"]),
       TestCase
         "complete-unknown-empty"
         (return [assertWaspCliCompletion "wasp-cli unknown" ""])
