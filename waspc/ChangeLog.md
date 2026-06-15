@@ -16,6 +16,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Wasp TS spec now properly sets the `NODE_ENV` environment variable depending on which command you use to run Wasp. ([#4087](https://github.com/wasp-lang/wasp/pull/4087))
 - Added a type-safe `NavLink` component, mirroring `react-router`'s `NavLink` API (with `isActive`, `isPending`, `isTransitioning` render-prop helpers). ([#4104](https://github.com/wasp-lang/wasp/pull/4104))
 - Wasp TS spec now supports real JS imports, letting you import values in `main.wasp.ts` and pass them directly instead of using import objects like `{ import, from }`. ([#4143](https://github.com/wasp-lang/wasp/pull/4143))
+- A route's `prerender` option now also accepts an array of paths, so you can prerender specific instances of a dynamic route (e.g. `prerender: ["/blog/intro", "/blog/changelog"]` for a `/blog/:slug` route). ([#4318](https://github.com/wasp-lang/wasp/pull/4318))
 
 ### 🐞 Bug fixes
 
