@@ -15,9 +15,14 @@ runs:
   using: composite
 
   steps:
-    - # Manually install on Alpine until mise starts supporting apk:
-      # https://github.com/jdx/mise/discussions/10449
-      name: Install required system packages (Alpine)
+    - # mise-action (below) needs curl to download Mise itself, but minimal
+      # container images don't ship it. Install the bootstrap prerequisites
+      # manually here; the rest of the system packages come from
+      # `mise bootstrap` once Mise is available.
+      #
+      # On Alpine we install everything by hand, since Mise doesn't support
+      # apk yet: https://github.com/jdx/mise/discussions/10449
+      name: Install Mise bootstrap dependencies
       if: runner.os == 'Linux'
       shell: sh
       run: |
@@ -33,6 +38,13 @@ runs:
           apk add zlib-dev zlib-static
           # Prisma dependencies
           apk add openssl
+        elif ! command -v curl >/dev/null 2>&1; then
+          # Minimal Debian/Ubuntu container (e.g. ubuntu:20.04) that lacks
+          # curl. We only need curl to bootstrap Mise; the remaining apt
+          # packages are installed via `mise bootstrap` below.
+          export DEBIAN_FRONTEND=noninteractive
+          apt-get update -y
+          apt-get install -y curl
         fi
 
     - name: Install Mise
