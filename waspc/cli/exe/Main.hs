@@ -3,7 +3,7 @@ module Main where
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
-import Control.Monad (void)
+import Control.Monad (unless, void)
 import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
@@ -27,6 +27,7 @@ import qualified Wasp.Cli.Command.Db.Studio as Command.Db.Studio
 import Wasp.Cli.Command.Deploy (deploy)
 import Wasp.Cli.Command.Deps (deps)
 import Wasp.Cli.Command.Dockerfile (printDockerfile)
+import Wasp.Cli.Command.Doctor (doctor)
 import Wasp.Cli.Command.Info (info)
 import Wasp.Cli.Command.Install (install)
 import Wasp.Cli.Command.News (news)
@@ -59,6 +60,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ("db" : dbArgs) -> Command.Call.Db dbArgs
         ["uninstall"] -> Command.Call.Uninstall
         ["version"] -> Command.Call.Version
+        ["doctor"] -> Command.Call.Doctor
         ["build"] -> Command.Call.Build
         ("build" : "start" : buildStartArgs) -> Command.Call.BuildStart buildStartArgs
         ["telemetry"] -> Command.Call.Telemetry
@@ -80,11 +82,14 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
   -- not needed for every command, but checking for every command was decided
   -- to be more robust than trying to only check for commands that require it.
   -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
-  NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-    NodeVersion.VersionCheckFail errorMsg -> do
-      cliSendMessage $ Message.Failure "Node/NPM requirement not met" errorMsg
-      exitFailure
-    NodeVersion.VersionCheckSuccess -> pure ()
+  -- We skip the check for `wasp doctor`, which reports the Node/npm status itself
+  -- and must run even when the requirement isn't met.
+  unless (commandCall == Command.Call.Doctor) $
+    NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
+      NodeVersion.VersionCheckFail errorMsg -> do
+        cliSendMessage $ Message.Failure "Node/NPM requirement not met" errorMsg
+        exitFailure
+      NodeVersion.VersionCheckSuccess -> pure ()
 
   setDefaultCliEnvVars
 
@@ -97,6 +102,7 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.Compile -> runCommand compile
     Command.Call.Db dbArgs -> dbCli dbArgs
     Command.Call.Version -> printVersion
+    Command.Call.Doctor -> doctor
     Command.Call.Studio -> runCommand studio
     Command.Call.Uninstall -> runCommand uninstall
     Command.Call.Build -> runCommand build
@@ -154,6 +160,7 @@ printUsage =
               "           Available starter templates are: " <> intercalate ", " (map show availableStarterTemplates) <> ".",
               "",
         cmd   "    version               Prints current version of CLI.",
+        cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).",
         cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
