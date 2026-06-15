@@ -34,9 +34,9 @@ import qualified Wasp.Project.Studio
 
 studio :: Command ()
 studio = do
+  NodeAndNpmInstalled <- require
   InWaspProject waspDir <- require
   WaspSpecAvailable <- require
-  NodeAndNpmInstalled <- require
 
   appSpec <- analyze waspDir
   let (appName, app) = ASV.getApp appSpec

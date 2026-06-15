@@ -48,9 +48,9 @@ import Wasp.Util.Json (updateJsonFile)
 -- Very similar to 'compile'.
 build :: Command ()
 build = do
+  NodeAndNpmInstalled <- require
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-  NodeAndNpmInstalled <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

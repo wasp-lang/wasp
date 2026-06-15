@@ -52,10 +52,8 @@ compile = do
 -- Finally, throws if there was a compile error, otherwise returns any compile warnings.
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
-  InWaspProject waspProjectDir <- require
-  -- Code generation runs the project setup (npm install) and other Node.js
-  -- tooling, so Node.js and npm are required.
   NodeAndNpmInstalled <- require
+  InWaspProject waspProjectDir <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

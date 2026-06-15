@@ -24,11 +24,11 @@ import qualified Wasp.Message as Msg
 
 buildStart :: Arguments -> Command ()
 buildStart = withArguments "wasp build start" buildStartArgsParser $ \args -> do
+  NodeAndNpmInstalled <- require
   GeneratedAppIsProduction _ <- require
 
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-  NodeAndNpmInstalled <- require
   appSpec <- analyze waspProjectDir
 
   -- TODO: Find a way to easily check we can connect to the DB. We'd like to

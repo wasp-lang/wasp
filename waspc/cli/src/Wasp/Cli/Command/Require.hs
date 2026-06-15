@@ -114,8 +114,6 @@ instance Requirable WaspSpecAvailable where
     InWaspProject waspProjectDir <- require
     isTsProject <- liftIO $ isWaspTsProject waspProjectDir
     when isTsProject $ do
-      -- Reading the spec of a TypeScript Wasp project runs Node.js (via the
-      -- FFI), so it requires Node.js and npm to be present.
       NodeAndNpmInstalled <- require
       ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
     return WaspSpecAvailable

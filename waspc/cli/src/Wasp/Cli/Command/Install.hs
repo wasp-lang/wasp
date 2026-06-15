@@ -17,8 +17,8 @@ import Wasp.Project.Common (WaspProjectDir)
 -- | Standalone `wasp install` command: copies @wasp.sh/spec and runs npm install.
 install :: Command ()
 install = do
-  InWaspProject waspProjectDir <- require
   NodeAndNpmInstalled <- require
+  InWaspProject waspProjectDir <- require
   liftIO (installIO waspProjectDir)
     >>= either
       (throwError . CommandError "Couldn't install npm dependencies")

@@ -75,10 +75,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
 
-  -- The commands that need Node.js/npm assert it themselves through the
-  -- 'NodeAndNpmInstalled' requirement (see "Wasp.Cli.Command.Require"), so we
-  -- don't check it here for every command.
-
   setDefaultCliEnvVars
 
   case commandCall of

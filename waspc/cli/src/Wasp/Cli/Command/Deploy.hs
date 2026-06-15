@@ -12,9 +12,9 @@ import qualified Wasp.Project.Deployment
 
 deploy :: [String] -> Command ()
 deploy cmdArgs = do
+  NodeAndNpmInstalled <- require
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
-  NodeAndNpmInstalled <- require
   deployResult <- liftIO $ do
     -- `getExecutablePath` has some caveats:
     --   https://frasertweedale.github.io/blog-fp/posts/2022-05-10-improved-executable-path-queries.html
