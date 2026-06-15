@@ -1,7 +1,7 @@
-import { ReactNode } from "react";
 import Link from "@docusaurus/Link";
 import useBrokenLinks from "@docusaurus/useBrokenLinks";
 import classNames from "classnames";
+import { ReactNode } from "react";
 import { ArrowUpRight, GitHub, Monitor } from "react-feather";
 
 import SectionContainer from "./Layouts/SectionContainer";
@@ -50,60 +50,60 @@ const WaspOutThere = () => {
   brokenLinks.collectAnchor(TESTIMONIALS_ID);
 
   return (
-  <>
-    <SectionContainer id={EXAMPLES_ID}>
-      <SectionLabel text="example apps" />
-      <p className="mb-4 max-w-2xl text-base leading-relaxed text-wasp-g6">
-        Reference implementations to learn from, fork, or deploy. Each one
-        shows a complete Wasp app. Read the code, run it locally, ship it
-        your way.
-      </p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {exampleApps.slice(0, 3).map((p, i) => (
-          <ExampleAppCard key={i} project={p} />
-        ))}
-      </div>
-      <div className="mt-8">
-        <Link
-          to="https://github.com/wasp-lang/wasp/tree/release/examples"
-          className="inline-flex items-center gap-1 font-mono text-sm font-semibold text-wasp-black underline decoration-wasp-yellow decoration-2 underline-offset-2 hover:text-wasp-black hover:decoration-wasp-yellow-dark"
-        >
-          <span>See all examples</span>
-          <ArrowUpRight size={14} />
-        </Link>
-      </div>
-    </SectionContainer>
-
-    <SectionContainer id={SHOWCASES_ID}>
-      <SectionLabel text="shipped with wasp" />
-      <p className="mb-6 max-w-2xl text-base leading-relaxed text-wasp-g6">
-        Live apps the community built and shipped on top of Wasp, running in
-        production today.
-      </p>
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {realApps.slice(0, 3).map((p, i) => (
-          <ProjectCard key={i} project={p} />
-        ))}
-      </div>
-    </SectionContainer>
-
-    <div className="bg-wasp-yellow-light">
-      <SectionContainer id={TESTIMONIALS_ID}>
-        <SectionLabel text="join the community" />
-        <p className="mb-10 max-w-2xl text-base leading-relaxed text-wasp-g7">
-          Real builders, real apps, real conversations.{" "}
-          <Link
-            to="https://discord.gg/rzdnErX"
-            className="bg-wasp-yellow px-1 font-semibold text-wasp-black underline decoration-wasp-black decoration-2 underline-offset-2 hover:text-wasp-black hover:decoration-wasp-black"
-          >
-            Drop into Discord
-          </Link>{" "}
-          to ask questions, share what you're working on, or just hang out.
+    <>
+      <SectionContainer id={EXAMPLES_ID}>
+        <SectionLabel text="example apps" />
+        <p className="mb-4 max-w-2xl text-base leading-relaxed text-wasp-g6">
+          Reference implementations to learn from, fork, or deploy. Each one
+          shows a complete Wasp app. Read the code, run it locally, ship it your
+          way.
         </p>
-        <CommunityGrid />
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {exampleApps.slice(0, 3).map((p, i) => (
+            <ExampleAppCard key={i} project={p} />
+          ))}
+        </div>
+        <div className="mt-8">
+          <Link
+            to="https://github.com/wasp-lang/wasp/tree/release/examples"
+            className="inline-flex items-center gap-1 font-mono text-sm font-semibold text-wasp-black underline decoration-wasp-yellow decoration-2 underline-offset-2 hover:text-wasp-black hover:decoration-wasp-yellow-dark"
+          >
+            <span>See all examples</span>
+            <ArrowUpRight size={14} />
+          </Link>
+        </div>
       </SectionContainer>
-    </div>
-  </>
+
+      <SectionContainer id={SHOWCASES_ID}>
+        <SectionLabel text="shipped with wasp" />
+        <p className="mb-6 max-w-2xl text-base leading-relaxed text-wasp-g6">
+          Live apps the community built and shipped on top of Wasp, running in
+          production today.
+        </p>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {realApps.slice(0, 3).map((p, i) => (
+            <ProjectCard key={i} project={p} />
+          ))}
+        </div>
+      </SectionContainer>
+
+      <div className="bg-wasp-yellow-light">
+        <SectionContainer id={TESTIMONIALS_ID}>
+          <SectionLabel text="join the community" />
+          <p className="mb-10 max-w-2xl text-base leading-relaxed text-wasp-g7">
+            Real builders, real apps, real conversations.{" "}
+            <Link
+              to="https://discord.gg/rzdnErX"
+              className="bg-wasp-yellow px-1 font-semibold text-wasp-black underline decoration-wasp-black decoration-2 underline-offset-2 hover:text-wasp-black hover:decoration-wasp-black"
+            >
+              Drop into Discord
+            </Link>{" "}
+            to ask questions, share what you're working on, or just hang out.
+          </p>
+          <CommunityGrid />
+        </SectionContainer>
+      </div>
+    </>
   );
 };
 
@@ -223,8 +223,8 @@ const FeaturedTestimonial = () => (
       <span className="bg-wasp-yellow px-1 text-wasp-black">
         game-changing for me as React has been many years back
       </span>
-      . Its simplicity, and how well [it] captures most full-stack
-      engineering tasks is{" "}
+      . Its simplicity, and how well [it] captures most full-stack engineering
+      tasks is{" "}
       <span className="bg-wasp-yellow px-1 text-wasp-black">pure genius</span>.
       I believe Wasp will become{" "}
       <span className="bg-wasp-yellow px-1 text-wasp-black">
@@ -306,11 +306,7 @@ const ExampleAppActions = ({ project }: { project: ExampleApp }) => {
 
 /* Detailed SVG illustration occupying the right third of the example-app
    card. Yellow fill + black stroke to match the brand. */
-const BigIllustration = ({
-  type,
-}: {
-  type: ExampleApp["glyphType"];
-}) => {
+const BigIllustration = ({ type }: { type: ExampleApp["glyphType"] }) => {
   if (type === "checkbox") {
     return (
       <svg
@@ -318,13 +314,51 @@ const BigIllustration = ({
         viewBox="0 0 100 100"
         className="h-full w-full max-w-[120px]"
       >
-        <rect x="10" y="14" width="18" height="18" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
-        <polyline points="13,23 18,28 25,17" fill="none" stroke="#111" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter" />
+        <rect
+          x="10"
+          y="14"
+          width="18"
+          height="18"
+          fill="#F5C842"
+          stroke="#111"
+          strokeWidth="2.5"
+        />
+        <polyline
+          points="13,23 18,28 25,17"
+          fill="none"
+          stroke="#111"
+          strokeWidth="3"
+          strokeLinecap="square"
+          strokeLinejoin="miter"
+        />
         <line x1="36" y1="23" x2="90" y2="23" stroke="#111" strokeWidth="2.5" />
-        <rect x="10" y="42" width="18" height="18" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
-        <polyline points="13,51 18,56 25,45" fill="none" stroke="#111" strokeWidth="3" strokeLinecap="square" strokeLinejoin="miter" />
+        <rect
+          x="10"
+          y="42"
+          width="18"
+          height="18"
+          fill="#F5C842"
+          stroke="#111"
+          strokeWidth="2.5"
+        />
+        <polyline
+          points="13,51 18,56 25,45"
+          fill="none"
+          stroke="#111"
+          strokeWidth="3"
+          strokeLinecap="square"
+          strokeLinejoin="miter"
+        />
         <line x1="36" y1="51" x2="80" y2="51" stroke="#111" strokeWidth="2.5" />
-        <rect x="10" y="70" width="18" height="18" fill="none" stroke="#111" strokeWidth="2.5" />
+        <rect
+          x="10"
+          y="70"
+          width="18"
+          height="18"
+          fill="none"
+          stroke="#111"
+          strokeWidth="2.5"
+        />
         <line x1="36" y1="79" x2="85" y2="79" stroke="#111" strokeWidth="2.5" />
       </svg>
     );
@@ -336,21 +370,55 @@ const BigIllustration = ({
         viewBox="0 0 100 100"
         className="h-full w-full max-w-[120px]"
       >
-        <rect x="22" y="20" width="50" height="68" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
+        <rect
+          x="22"
+          y="20"
+          width="50"
+          height="68"
+          fill="#F5C842"
+          stroke="#111"
+          strokeWidth="2.5"
+        />
         <line x1="30" y1="32" x2="64" y2="32" stroke="#111" strokeWidth="2" />
         <line x1="30" y1="42" x2="64" y2="42" stroke="#111" strokeWidth="2" />
         <line x1="30" y1="52" x2="58" y2="52" stroke="#111" strokeWidth="2" />
         <line x1="30" y1="62" x2="64" y2="62" stroke="#111" strokeWidth="2" />
         <line x1="30" y1="72" x2="50" y2="72" stroke="#111" strokeWidth="2" />
-        <polygon points="84,16 87,24 95,27 87,30 84,38 81,30 73,27 81,24" fill="#111" />
-        <polygon points="14,68 16,72 20,74 16,76 14,80 12,76 8,74 12,72" fill="#111" />
+        <polygon
+          points="84,16 87,24 95,27 87,30 84,38 81,30 73,27 81,24"
+          fill="#111"
+        />
+        <polygon
+          points="14,68 16,72 20,74 16,76 14,80 12,76 8,74 12,72"
+          fill="#111"
+        />
       </svg>
     );
   }
   return (
-    <svg aria-hidden="true" viewBox="0 0 100 100" className="h-full w-full max-w-[120px]">
-      <rect x="16" y="14" width="30" height="72" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
-      <rect x="54" y="14" width="30" height="52" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 100 100"
+      className="h-full w-full max-w-[120px]"
+    >
+      <rect
+        x="16"
+        y="14"
+        width="30"
+        height="72"
+        fill="#F5C842"
+        stroke="#111"
+        strokeWidth="2.5"
+      />
+      <rect
+        x="54"
+        y="14"
+        width="30"
+        height="52"
+        fill="#F5C842"
+        stroke="#111"
+        strokeWidth="2.5"
+      />
     </svg>
   );
 };
