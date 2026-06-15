@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### 🔧 Small improvements
+
+- Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
+
 ## 0.24.0
 
 ### ⚠️ Breaking Changes

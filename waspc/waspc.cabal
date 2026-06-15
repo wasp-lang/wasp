@@ -143,6 +143,7 @@ library
     exceptions ^>=0.10.7,
     extra ^>=1.7.16,
     filepath ^>=1.4.301,
+    githash ^>=0.1.7,
     http-conduit ^>=2.3.9,
     http-types ^>=0.12.4,
     megaparsec ^>=9.5.0,
@@ -447,6 +448,7 @@ library
     Wasp.Util.Docker
     Wasp.Util.Fib
     Wasp.Util.FilePath
+    Wasp.Util.GitRev
     Wasp.Util.HashMap
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -593,6 +595,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Dockerfile
+    Wasp.Cli.Command.Doctor
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
