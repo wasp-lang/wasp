@@ -1,0 +1,7 @@
+.cliHatch {
+  background-image: repeating-linear-gradient(
+    135deg,
+    rgba(17, 17, 17, 0.03) 0 9px,
+    transparent 9px 18px
+  );
+}

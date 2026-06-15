@@ -1,198 +1,234 @@
-/* Compile pipeline diagram for the "How it works" section.
+import classNames from "classnames";
+import type { ReactNode } from "react";
 
-   Layout discipline:
-   - Arrow rail at y=140 — content centers on this line.
-   - Outer boxes (Code, frame, Hosts) all y=60-220 (160 tall).
-   - Generated box inset 20px inside frame top/bottom.
-   - All arrows have ~20px padding from neighbouring elements for the same feel.
-   - File rows in "your code" all share the same indent — flat hierarchy. */
+import styles from "./HowItWorksDiagram.module.css";
+
+const DIAGRAM_DESCRIPTION =
+  "Wasp compiles your code into an intermediate representation, then " +
+  "generates a full-stack app (frontend, backend, database) ready to " +
+  "deploy anywhere.";
+
 const HowItWorksDiagram = () => (
-  <svg
-    viewBox="0 0 1000 260"
-    preserveAspectRatio="xMidYMid meet"
-    aria-label="Wasp compiles your code into an intermediate representation, then generates a full-stack app (frontend, backend, database) ready to deploy anywhere."
-    className="mx-auto block w-full max-w-5xl font-mono"
+  <div
+    role="img"
+    aria-label={DIAGRAM_DESCRIPTION}
+    className="mx-auto my-6 flex max-w-[1144px] flex-col items-center font-body text-wasp-black xl:flex-row xl:items-stretch xl:justify-center"
   >
-    {/* ─── 1. Your code ─── */}
-    <g>
-      <rect x="10" y="60" width="200" height="160" fill="#FFF3CC" stroke="#111" strokeWidth="2.5" />
-      <rect x="10" y="60" width="200" height="26" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
-      <text x="24" y="78" fontSize="12" fontWeight="bold" fill="#111" letterSpacing="2">
-        YOUR CODE
-      </text>
+    <Card title="YOUR CODE">
+      <Row
+        active
+        glyph={<img src="img/wasp-logo.svg" alt="" width={16} height={16} />}
+        label="*.wasp.ts"
+      />
+      <Row glyph={<ReactGlyph />} label="*.tsx" />
+      <Row glyph={<NodeGlyph />} label="*.ts" />
+      <Row
+        glyph={
+          <img src="img/lp/prisma-logo.svg" alt="" width={16} height={16} />
+        }
+        label="schema.prisma"
+      />
+      <Row
+        glyph={
+          <img src="img/lp/docker-logo.svg" alt="" width={18} height={18} />
+        }
+        label="Dockerfile"
+      />
+    </Card>
 
-      {/* *.wasp.ts — highlighted row (still special, just same indent as the rest) */}
-      <rect x="14" y="96" width="192" height="26" fill="#F5C842" />
-      <g transform="translate(20, 100)">
-        <WaspIcon />
-      </g>
-      <text x="44" y="114" fontSize="16" fontWeight="bold" fill="#111">
-        *.wasp.ts
-      </text>
+    <Connector label="COMPILE" />
 
-      {/* Other files — same indent so they read as "all at the same level" */}
-      <g transform="translate(20, 128)">
-        <ReactIcon />
-      </g>
-      <text x="44" y="140" fontSize="14" fill="#333">*.tsx</text>
-
-      <g transform="translate(20, 148)">
-        <NodeIcon />
-      </g>
-      <text x="44" y="160" fontSize="14" fill="#333">*.ts</text>
-
-      <g transform="translate(20, 168)">
-        <PrismaIcon />
-      </g>
-      <text x="44" y="180" fontSize="14" fill="#333">schema.prisma</text>
-
-      <g transform="translate(20, 188)">
-        <DockerIcon />
-      </g>
-      <text x="44" y="200" fontSize="14" fill="#333">Dockerfile</text>
-    </g>
-
-    {/* ─── arrow 1: COMPILE ─── line length matches GENERATE for consistent feel */}
-    <g>
-      <text x="260" y="120" textAnchor="middle" fontSize="12" fill="#555" letterSpacing="3" fontWeight="bold">
-        COMPILE
-      </text>
-      <line x1="229" y1="140" x2="279" y2="140" stroke="#111" strokeWidth="2.5" />
-      <polygon points="279,133 291,140 279,147" fill="#111" />
-    </g>
-
-    {/* ─── WASP CLI dashed frame (label is just text, no tab background) ─── */}
-    <g>
-      <rect x="310" y="60" width="450" height="160" fill="none" stroke="#111" strokeWidth="2" strokeDasharray="6 4" />
-      <text x="318" y="52" fontSize="11" fontWeight="bold" fill="#555" letterSpacing="2">
+    <div
+      className={classNames(
+        "relative flex w-full max-w-[360px] flex-col items-center rounded-lg border-[2.5px] border-dashed border-wasp-black px-[30px] pb-[30px] pt-10 xl:w-auto xl:max-w-none xl:flex-row",
+        styles.cliHatch,
+      )}
+    >
+      <span className="absolute -top-[13px] left-[22px] bg-wasp-bg px-[10px] text-xs font-bold tracking-[4px] text-wasp-g6">
         WASP CLI
-      </text>
-    </g>
+      </span>
 
-    {/* ─── 2. Wasp area: bare two-line label, no box, no header ─── */}
-    <g>
-      <text x="402" y="135" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#111">
+      <div className="shrink-0 border-2 border-wasp-black bg-[var(--wasp-code-bg)] px-[18px] py-4 text-center text-[15px] font-medium italic leading-[1.45] shadow-[4px_4px_0_var(--wasp-yd)]">
+        <span className="mb-[5px] block text-[11px] font-extrabold not-italic tracking-[3px] text-wasp-g6">
+          IR
+        </span>
         intermediate
-      </text>
-      <text x="402" y="153" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#111">
+        <br />
         representation
-      </text>
-    </g>
+      </div>
 
-    {/* ─── arrow 2: GENERATE ─── */}
-    <g>
-      <text x="508" y="120" textAnchor="middle" fontSize="12" fill="#555" letterSpacing="3" fontWeight="bold">
-        GENERATE
-      </text>
-      <line x1="477" y1="140" x2="527" y2="140" stroke="#111" strokeWidth="2.5" />
-      <polygon points="527,133 539,140 527,147" fill="#111" />
-    </g>
+      <Connector label="GENERATE" />
 
-    {/* ─── 3. Generated code — each tier in a colored bordered row ─── */}
-    <g>
-      <rect x="560" y="80" width="185" height="120" fill="#FFF3CC" stroke="#111" strokeWidth="2.5" />
-      <rect x="560" y="80" width="185" height="26" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
-      <text x="574" y="98" fontSize="12" fontWeight="bold" fill="#111" letterSpacing="2">
-        GENERATED CODE
-      </text>
-      {/* small lock — generated code is read-only */}
-      <g transform="translate(726, 86)">
-        <path d="M 3 6 L 3 4 A 3 3 0 0 1 9 4 L 9 6" fill="none" stroke="#111" strokeWidth="1.5" strokeLinecap="round" />
-        <rect x="1" y="6" width="10" height="8" fill="#111" />
-      </g>
+      <Card title="GENERATED CODE" action={<LockGlyph />}>
+        <Tier name="frontend" tech="React" accent="border-l-[#61dafb]" />
+        <Tier name="backend" tech="Node" accent="border-l-[#5fa04e]" />
+        <Tier name="database" tech="Prisma" accent="border-l-[#2d3748]" />
+      </Card>
+    </div>
 
-      {/* frontend — React cyan */}
-      <rect x="572" y="114" width="161" height="22" fill="#E6F7FB" stroke="#61DAFB" strokeWidth="1.5" />
-      <text x="580" y="129" fontSize="13" fontWeight="bold" fill="#111">frontend</text>
-      <text x="727" y="129" textAnchor="end" fontSize="11" fill="#555">React</text>
+    <Connector label="DEPLOY" />
 
-      {/* backend — Node green */}
-      <rect x="572" y="140" width="161" height="22" fill="#E8F5E0" stroke="#5FA04E" strokeWidth="1.5" />
-      <text x="580" y="155" fontSize="13" fontWeight="bold" fill="#111">backend</text>
-      <text x="727" y="155" textAnchor="end" fontSize="11" fill="#555">Node</text>
+    <div className="flex shrink-0 flex-col items-center gap-[14px] pl-2 xl:self-center">
+      <span className="flex h-24 w-24 items-center justify-center rounded-full border-2 border-wasp-black bg-wasp-yellow-light shadow-[6px_6px_0_#1111111a]">
+        <GlobeGlyph />
+      </span>
+      <span className="text-[13px] tracking-[1px] text-wasp-g6">
+        Fly · Railway · your VPS
+      </span>
+    </div>
+  </div>
+);
 
-      {/* database — Prisma neutral */}
-      <rect x="572" y="166" width="161" height="22" fill="#FAFAFA" stroke="#2D3748" strokeWidth="1.5" />
-      <text x="580" y="181" fontSize="13" fontWeight="bold" fill="#111">database</text>
-      <text x="727" y="181" textAnchor="end" fontSize="11" fill="#555">Prisma</text>
-    </g>
+const Card = ({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: ReactNode;
+  children: ReactNode;
+}) => (
+  <div className="w-full max-w-[360px] overflow-hidden border-2 border-wasp-black bg-wasp-white shadow-[6px_6px_0_#1111111a] xl:w-auto xl:min-w-[244px] xl:max-w-none">
+    <div className="flex items-center justify-between gap-2 border-b-2 border-wasp-black bg-wasp-yellow px-[14px] py-[11px] text-sm font-extrabold tracking-[2px]">
+      <span>{title}</span>
+      {action}
+    </div>
+    <div className="py-[10px]">{children}</div>
+  </div>
+);
 
-    {/* ─── arrow 3: DEPLOY ─── equal padding from frame and globe */}
-    <g>
-      <text x="826" y="120" textAnchor="middle" fontSize="12" fill="#555" letterSpacing="3" fontWeight="bold">
-        DEPLOY
-      </text>
-      <line x1="795" y1="140" x2="845" y2="140" stroke="#111" strokeWidth="2.5" />
-      <polygon points="845,133 857,140 845,147" fill="#111" />
-    </g>
+const Row = ({
+  glyph,
+  label,
+  active = false,
+}: {
+  glyph: ReactNode;
+  label: string;
+  active?: boolean;
+}) => (
+  <div
+    className={classNames(
+      "flex items-center gap-[11px] px-4 py-[9px] text-[15px]",
+      active && "border-y-[1.5px] border-y-wasp-black bg-[#fde98a] font-bold",
+    )}
+  >
+    <span className="flex w-5 shrink-0 justify-center">{glyph}</span>
+    <span>{label}</span>
+  </div>
+);
 
-    {/* ─── 4. Anywhere — schematic globe, no surrounding box ─── */}
-    <g transform="translate(890, 95)">
-      <circle cx="35" cy="35" r="33" fill="#FFF3CC" stroke="#111" strokeWidth="2.5" />
-      {/* latitudes */}
-      <line x1="6" y1="22" x2="64" y2="22" stroke="#111" strokeWidth="1.3" />
-      <line x1="2" y1="35" x2="68" y2="35" stroke="#111" strokeWidth="1.3" />
-      <line x1="6" y1="48" x2="64" y2="48" stroke="#111" strokeWidth="1.3" />
-      {/* longitudes */}
-      <path d="M 35 2 Q 17 35 35 68" fill="none" stroke="#111" strokeWidth="1.3" />
-      <path d="M 35 2 Q 53 35 35 68" fill="none" stroke="#111" strokeWidth="1.3" />
-      <line x1="35" y1="2" x2="35" y2="68" stroke="#111" strokeWidth="1.3" />
-    </g>
-    <text x="925" y="195" textAnchor="middle" fontSize="10" fill="#555">
-      Fly · Railway · your VPS
-    </text>
+const Tier = ({
+  name,
+  tech,
+  accent,
+}: {
+  name: string;
+  tech: string;
+  accent: string;
+}) => (
+  <div
+    className={classNames(
+      "mx-[14px] mb-[9px] flex items-center justify-between border-y-[1.5px] border-l-[5px] border-r-[1.5px] border-y-wasp-black border-r-wasp-black bg-white px-3 py-[9px] text-[15px] first:mt-1",
+      accent,
+    )}
+  >
+    <span className="font-extrabold">{name}</span>
+    <span className="text-[13px] tracking-[1px] text-wasp-g6">{tech}</span>
+  </div>
+);
+
+const Connector = ({ label }: { label: string }) => (
+  <div className="flex shrink-0 flex-col items-center gap-[10px] self-center py-[6px] xl:px-5 xl:py-0">
+    <span className="text-xs font-bold tracking-[4px] text-wasp-g6">
+      {label}
+    </span>
+    <svg
+      className="rotate-90 xl:rotate-0"
+      width="74"
+      height="20"
+      viewBox="0 0 74 20"
+      fill="none"
+      aria-hidden="true"
+    >
+      <line x1="0" y1="10" x2="62" y2="10" stroke="#111" strokeWidth="2.5" />
+      <polygon points="60,3 72,10 60,17" fill="#111" />
+    </svg>
+  </div>
+);
+
+/* React mark: cyan orbital atom. */
+const ReactGlyph = () => (
+  <svg width="18" height="18" viewBox="0 0 16 16" aria-hidden="true">
+    <ellipse
+      cx="8"
+      cy="8"
+      rx="7.5"
+      ry="3"
+      fill="none"
+      stroke="#61DAFB"
+      strokeWidth="1.5"
+    />
+    <ellipse
+      cx="8"
+      cy="8"
+      rx="7.5"
+      ry="3"
+      fill="none"
+      stroke="#61DAFB"
+      strokeWidth="1.5"
+      transform="rotate(60 8 8)"
+    />
+    <ellipse
+      cx="8"
+      cy="8"
+      rx="7.5"
+      ry="3"
+      fill="none"
+      stroke="#61DAFB"
+      strokeWidth="1.5"
+      transform="rotate(-60 8 8)"
+    />
+    <circle cx="8" cy="8" r="1.6" fill="#61DAFB" />
   </svg>
 );
 
-/* Wasp mark: the actual brand SVG referenced from /static. */
-const WaspIcon = () => (
-  <image href="img/wasp-logo.svg" x="0" y="0" width="16" height="16" />
+/* Node mark: filled green hexagon. */
+const NodeGlyph = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+    <polygon points="8,1 14,4.5 14,11.5 8,15 2,11.5 2,4.5" fill="#5FA04E" />
+  </svg>
 );
 
-/* React mark: cyan orbital atom — three crossed ellipses + center dot. */
-const ReactIcon = () => (
-  <>
-    <ellipse cx="8" cy="8" rx="7.5" ry="3" fill="none" stroke="#61DAFB" strokeWidth="1.5" />
-    <ellipse
-      cx="8"
-      cy="8"
-      rx="7.5"
-      ry="3"
+/* Lock mark: generated code is read-only. */
+const LockGlyph = () => (
+  <svg width="12" height="14" viewBox="0 0 12 14" aria-hidden="true">
+    <path
+      d="M3 6 V4 a3 3 0 0 1 6 0 V6"
       fill="none"
-      stroke="#61DAFB"
+      stroke="#111"
       strokeWidth="1.5"
-      transform="rotate(60, 8, 8)"
+      strokeLinecap="round"
     />
-    <ellipse
-      cx="8"
-      cy="8"
-      rx="7.5"
-      ry="3"
-      fill="none"
-      stroke="#61DAFB"
-      strokeWidth="1.5"
-      transform="rotate(-60, 8, 8)"
-    />
-    <circle cx="8" cy="8" r="1.6" fill="#61DAFB" />
-  </>
+    <rect x="1" y="6" width="10" height="8" fill="#111" />
+  </svg>
 );
 
-/* Node mark: filled green hexagon — Node's iconic silhouette. */
-const NodeIcon = () => (
-  <polygon
-    points="8,1 14,4.5 14,11.5 8,15 2,11.5 2,4.5"
-    fill="#5FA04E"
-  />
-);
-
-/* Prisma mark: the official Prisma symbol from their press kit. */
-const PrismaIcon = () => (
-  <image href="img/lp/prisma-logo.svg" x="0" y="0" width="16" height="16" />
-);
-
-/* Docker mark: the official Docker brand SVG. */
-const DockerIcon = () => (
-  <image href="img/lp/docker-logo.svg" x="0" y="0" width="16" height="16" />
+/* Globe mark: schematic, deploy anywhere. */
+const GlobeGlyph = () => (
+  <svg
+    width="58"
+    height="58"
+    viewBox="0 0 64 64"
+    fill="none"
+    stroke="#111"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
+    <circle cx="32" cy="32" r="26" />
+    <ellipse cx="32" cy="32" rx="11" ry="26" />
+    <line x1="6" y1="32" x2="58" y2="32" />
+    <path d="M11 19c12 7 30 7 42 0M11 45c12-7 30-7 42 0" />
+  </svg>
 );
 
 export default HowItWorksDiagram;
