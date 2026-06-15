@@ -58,6 +58,12 @@ runs:
 
     - name: Install tools
       shell: bash
+      # On Windows, our GHCup-backed tools (ghc, cabal, hls) share a single
+      # GHCup cache dir and race when installed in parallel, failing with
+      # `MoveFileEx ... gs.exe: does not exist`. Serialize the installs there
+      # to avoid the race. Other platforms keep Mise's default parallelism.
+      env:
+        MISE_JOBS: ${{ runner.os == 'Windows' && '1' || '4' }}
       run: mise install --locked
 
     - name: Pin Cabal to the real GHC binary (Windows)
