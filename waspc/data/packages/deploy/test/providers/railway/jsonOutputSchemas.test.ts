@@ -2,12 +2,17 @@ import { describe, expect, test } from "vitest";
 import {
   RailwayCliDomainSchema,
   RailwayCliProjectSchema,
+  RailwayCliProjectStatusSchema,
   RailwayProjectListSchema,
 } from "../../../src/providers/railway/jsonOutputSchemas.js";
 import {
   cliProjectWithServices,
   cliProjectWithoutServices,
 } from "./fixtures/railwayCliProject.js";
+import {
+  cliProjectStatusInNewFormat,
+  cliProjectStatusInOldFormat,
+} from "./fixtures/railwayCliProjectStatus.js";
 
 describe("RailwayCliDomainSchema", () => {
   test("parses new format with domains array", () => {
@@ -42,6 +47,23 @@ describe("RailwayCliProjectSchema", () => {
   test("parses a project with no services", () => {
     const result = RailwayCliProjectSchema.parse(cliProjectWithoutServices);
     expect(result.services.edges).toEqual([]);
+  });
+});
+
+describe("RailwayCliProjectStatusSchema", () => {
+  test("parses new CLI output with instances under environments", () => {
+    const result = RailwayCliProjectStatusSchema.parse(
+      cliProjectStatusInNewFormat,
+    );
+    expect(result.environments.edges).toHaveLength(1);
+  });
+
+  test("converts old CLI output with instances under services to the new format", () => {
+    const result = RailwayCliProjectStatusSchema.parse(
+      cliProjectStatusInOldFormat,
+    );
+    expect(result.environments.edges).toHaveLength(2);
+    expect(result).not.toHaveProperty("services");
   });
 });
 

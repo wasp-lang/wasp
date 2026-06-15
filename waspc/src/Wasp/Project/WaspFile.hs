@@ -11,7 +11,6 @@ import StrongPath
     Dir,
     Path',
     castFile,
-    fromRelFile,
     (</>),
   )
 import qualified Wasp.AppSpec as AS
@@ -31,33 +30,22 @@ import Wasp.Util.StrongPath (findAllFilesWithSuffix)
 
 findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
 findWaspFile projectDir =
-  liftA2 (,) (findWaspLangFile projectDir) (findWaspTsFile projectDir)
+  liftA2 (,) (hasWaspLangFile projectDir) (findWaspTsFile projectDir)
     <&> \case
-      (Left err, _) -> Left err
-      (Right Nothing, Nothing) -> Left fileNotFoundMessage
-      (Right (Just _), Just _) -> Left bothFilesFoundMessage
-      (Right (Just waspLangFile), _) -> Right waspLangFile
-      (_, Just waspTsFile) -> Right waspTsFile
+      (True, _) -> Left dslNoLongerSupportedMessage
+      (False, Just waspTsFile) -> Right waspTsFile
+      (False, Nothing) -> Left fileNotFoundMessage
   where
-    fileNotFoundMessage = "Couldn't find the *.wasp or a *.wasp.ts file in the project directory."
-    bothFilesFoundMessage =
-      "Found both *.wasp and *.wasp.ts files in the project directory. "
-        ++ "You must choose how you want to define your app (using Wasp or TypeScript) and only keep one of them."
+    fileNotFoundMessage = "Couldn't find the `main.wasp.ts` file in the project directory."
+    dslNoLongerSupportedMessage =
+      "Defining your app with the Wasp DSL (`main.wasp`) is no longer supported. "
+        ++ "Please define your app in TypeScript using Wasp Spec (`main.wasp.ts`). "
+        ++ "See https://wasp.sh/docs/general/spec for more details."
 
-findWaspLangFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Maybe WaspFilePath))
-findWaspLangFile projectDir = do
+hasWaspLangFile :: Path' Abs (Dir WaspProjectDir) -> IO Bool
+hasWaspLangFile projectDir = do
   (filesInProjectDir, _) <- IOUtil.listDirectory projectDir
-  let waspLangFiles = findAllFilesWithSuffix ".wasp" filesInProjectDir
-  return $ case waspLangFiles of
-    [] -> Right Nothing
-    [waspFile] ->
-      if fromRelFile waspFile == ".wasp"
-        then Left invalidFileNameMessage
-        else Right $ Just $ WaspLang $ castFile (projectDir </> waspFile)
-    _ -> Left $ makeMultipleFilesMessage $ map fromRelFile waspLangFiles
-  where
-    invalidFileNameMessage = "Your Wasp file can't be called '.wasp'. Please rename it to something like '[name].wasp'."
-    makeMultipleFilesMessage files = "Found multiple *.wasp files in the project directory: " ++ show files ++ ". Please keep only one."
+  return $ not . null $ findAllFilesWithSuffix ".wasp" filesInProjectDir
 
 findWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe WaspFilePath)
 findWaspTsFile projectDir = do

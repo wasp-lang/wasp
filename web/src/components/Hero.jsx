@@ -1,10 +1,9 @@
 import Link from "@docusaurus/Link";
 import { useState } from "react";
-import { BookOpen, Terminal } from "react-feather";
+import { BookOpen, Check, Copy, Terminal } from "react-feather";
 
 import CodeHighlight from "./CodeHighlight";
 import SectionContainer from "./Layouts/SectionContainer";
-import Properties from "./Properties";
 
 const installCmd = "npm i -g @wasp.sh/wasp-cli@latest";
 
@@ -21,12 +20,16 @@ const InstallCommand = () => {
     <button
       type="button"
       onClick={handleCopy}
-      className="block w-full cursor-pointer border-0 bg-transparent p-0 text-left font-mono text-sm text-wasp-g7 transition-colors hover:text-wasp-black"
+      className="group flex w-full cursor-pointer items-center justify-between gap-3 border-0 bg-[var(--wasp-code-bg)] px-3 py-2 text-left font-mono text-xs text-wasp-g7 transition hover:text-wasp-black hover:brightness-95"
       title="Click to copy"
       aria-label={`Copy install command: ${installCmd}`}
     >
-      <span className="text-wasp-yellow-dark">$</span> {installCmd}{" "}
-      {copied ? "✓" : ""}
+      <span className="min-w-0 truncate">
+        <span className="text-wasp-yellow-dark">$</span> {installCmd}
+      </span>
+      <span className="shrink-0 text-wasp-g5 opacity-0 transition-opacity group-hover:opacity-100">
+        {copied ? <Check size={14} /> : <Copy size={14} />}
+      </span>
     </button>
   );
 };
@@ -53,28 +56,66 @@ const ActionButtons = () => (
 
 const codeTabs = [
   {
-    name: "main.wasp",
-    language: "wasp",
-    source: `app todoApp {
-  wasp: { version: "^0.23.0" },
+    name: "main.wasp.ts",
+    language: "typescript",
+    source: `import { app, page, query, route } from "@wasp.sh/spec";
+import { MainPage } from "./src/MainPage" with { type: "ref" };
+import { getTasks } from "./src/tasks" with { type: "ref" };
+
+export default app({
+  wasp: { version: "^0.24.0" },
   title: "ToDo App",
-  auth: {
-    userEntity: User,
+  auth: {  // Full-stack auth out-of-the-box.
+    userEntity: "User",
     methods: { google: {}, gitHub: {}, email: {} },
     onAuthFailedRedirectTo: "/login"
-  }
-}
+  },
+  spec: [
+    route("RootRoute", "/", page(MainPage, {
+      authRequired: true
+    })),
+    query(getTasks, {
+      entities: ["Task"]  // Automatic cache invalidation.
+    })
+  ]
+});`,
+  },
+  {
+    name: "MainPage.tsx",
+    language: "tsx",
+    source: `import { getTasks, useQuery } from "wasp/client/operations";
 
-route RootRoute { path: "/", to: MainPage }
-page MainPage {
-  authRequired: true,
-  component: import { MainPage } from "@src/MainPage" // <-- React
-}
+export function MainPage() {
+  const { data: tasks } = useQuery(getTasks);
 
-query getTasks {
-  fn: import { getTasks } from "@src/tasks", // <-- Node.js
-  entities: [Task] // <-- Automatic cache invalidation.
+  return (
+    <div>
+      <h1>Tasks</h1>
+      {tasks?.map(task => (
+        <div key={task.id}>{task.description}</div>
+      ))}
+    </div>
+  );
 }`,
+  },
+  {
+    name: "tasks.ts",
+    language: "typescript",
+    source: `import { type GetTasks } from "wasp/server/operations";
+import { HttpError } from "wasp/server";
+import { Task } from "wasp/entities";
+
+export const getTasks: GetTasks<void, Task[]> = async (
+  _args,
+  context
+) => {
+  if (!context.user) throw new HttpError(401);
+
+  return context.entities.Task.findMany({
+    where: { user: { id: context.user.id } },
+    orderBy: { id: "desc" },
+  });
+};`,
   },
   {
     name: "schema.prisma",
@@ -93,40 +134,6 @@ model Task {
   userId      Int
 }`,
   },
-  {
-    name: "MainPage.tsx",
-    language: "tsx",
-    source: `import { getTasks, useQuery } from "wasp/client/operations"
-
-export function MainPage() {
-  const { data: tasks } = useQuery(getTasks)
-
-  return (
-    <div>
-      <h1>Tasks</h1>
-      {tasks?.map(task => (
-        <div key={task.id}>{task.description}</div>
-      ))}
-    </div>
-  )
-}`,
-  },
-  {
-    name: "tasks.ts",
-    language: "typescript",
-    source: `import { type GetTasks } from "wasp/server/operations"
-import { HttpError } from "wasp/server"
-import { Task } from "wasp/entities"
-
-export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
-  if (!context.user) throw new HttpError(401)
-
-  return context.entities.Task.findMany({
-    where: { user: { id: context.user.id } },
-    orderBy: { id: "desc" },
-  })
-}`,
-  },
 ];
 
 function TabbedCodeViewer() {
@@ -135,12 +142,12 @@ function TabbedCodeViewer() {
   return (
     <div className="flex h-full w-full flex-col border border-wasp-g3">
       {/* Tab bar */}
-      <div className="flex border-b border-wasp-g3">
+      <div className="tab-bar-fade-mobile flex overflow-x-auto border-b border-wasp-g3">
         {codeTabs.map((t, i) => (
           <button
             key={t.name}
             onClick={() => setActiveTab(i)}
-            className={`px-4 py-2 font-mono text-xs transition-colors ${
+            className={`shrink-0 px-4 py-2 font-mono text-xs transition-colors ${
               i === activeTab
                 ? "font-semibold text-wasp-black"
                 : "text-wasp-g5 hover:text-wasp-g7"
@@ -162,7 +169,7 @@ function TabbedCodeViewer() {
         {codeTabs.map((t, i) => (
           <div
             key={t.name}
-            className={`col-start-1 row-start-1 min-w-0 text-sm ${
+            className={`col-start-1 row-start-1 min-w-0 text-xs sm:text-sm ${
               i !== activeTab ? "invisible" : ""
             }`}
           >
@@ -176,12 +183,12 @@ function TabbedCodeViewer() {
 
 const Hero = () => {
   return (
-    <SectionContainer className="pt-24">
+    <SectionContainer className="xl:pt-24">
       <div className="xl:grid xl:grid-cols-12 xl:gap-16">
         <div className="z-10 flex flex-col justify-between gap-12 xl:col-span-6 xl:min-w-0">
           {/* Hero title and subtitle */}
           <div>
-            <div className="mb-7 inline-block border border-wasp-g3 px-3 py-1 text-[11px] uppercase tracking-[3px] text-wasp-g7">
+            <div className="mb-7 hidden border border-wasp-g3 px-3 py-1 text-[11px] uppercase tracking-[3px] text-wasp-g7 md:inline-block">
               Full-Stack Framework for the AI Era
             </div>
             <h1
@@ -218,8 +225,6 @@ const Hero = () => {
           <TabbedCodeViewer />
         </div>
       </div>
-
-      <Properties />
 
       {/* 1-min video */}
       {/*

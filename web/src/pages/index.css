@@ -18,6 +18,19 @@ a:hover {
   text-decoration: none;
 }
 
+/* Mobile-only fade on the right edge of horizontally-scrolling tab bars,
+   so the cutoff reads as "scroll for more" instead of looking broken. */
+@media (max-width: 640px) {
+  .tab-bar-fade-mobile {
+    -webkit-mask-image: linear-gradient(
+      to right,
+      black calc(100% - 32px),
+      transparent
+    );
+    mask-image: linear-gradient(to right, black calc(100% - 32px), transparent);
+  }
+}
+
 /*
 @media (prefers-color-scheme: dark) {
   html {
