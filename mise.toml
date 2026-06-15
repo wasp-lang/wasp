@@ -1,4 +1,4 @@
-min_version = "2026.6.7"
+min_version = "2026.6.10"
 
 [tools]
 "aqua:ghcup" = "0.2.6.1"
@@ -27,7 +27,6 @@ node = "24.14.1"
 [settings]
 lockfile = true
 experimental = true
-aqua.baked_registry = false
 # The Node backend has a knack for compiling from source on Alpine even when it
 # has a pre-built binary available. So we explicitly tell it not to.
 node.compile = false
