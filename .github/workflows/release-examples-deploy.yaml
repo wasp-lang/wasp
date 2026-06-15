@@ -53,7 +53,7 @@ jobs:
       - uses: ./.github/actions/setup-env
 
       - name: Install Wasp
-        run: npm i -g @wasp.sh/wasp-cli@"${{  inputs.version }}"
+        run: mise use -g npm:@wasp.sh/wasp-cli@"${{  inputs.version }}"
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
