@@ -120,11 +120,17 @@ jobs:
         run: wasp-cli install
 
       - name: Install Railway CLI
-        # Install through Mise (instead of `npm install -g`) so it gets a
-        # proper versioned shim. With Mise managing Node, a plain global npm
-        # install leaves Mise with a `railway` shim it can't resolve a version
-        # for ("No version is set for shim: railway").
-        run: mise use --global "npm:@railway/cli@4.11.1"
+        # Install into a dedicated prefix and put it at the front of PATH.
+        # We can't use Mise here: with Mise managing Node, a plain global
+        # `npm install -g` leaves Mise with a `railway` shim it can't resolve
+        # a version for, and `mise use npm:@railway/cli` skips the package's
+        # postinstall script (which downloads the actual Railway binary). A
+        # plain npm install runs postinstall, and the explicit PATH entry
+        # (prepended, so searched before Mise's shims) resolves `railway` to
+        # the real binary.
+        run: |
+          npm install -g @railway/cli@4.11.1 --prefix "$RUNNER_TEMP/railway-cli"
+          echo "$RUNNER_TEMP/railway-cli/bin" >> "$GITHUB_PATH"
 
       - name: Deploy app to Railway
         working-directory: ${{ env.APP_TO_DEPLOY }}
