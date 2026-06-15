@@ -7,7 +7,7 @@ where
 import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
-import System.Environment qualified as ENV
+import qualified System.Environment as ENV
 import Wasp.Cli.Command (Command)
 import Wasp.Util.Terminal (styleCode)
 
