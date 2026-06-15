@@ -59,16 +59,13 @@ const codeTabs = [
     name: "main.wasp.ts",
     language: "typescript",
     source: `import { app, page, query, route } from "@wasp.sh/spec";
-
-import { MainPage } from "./src/MainPage" with { type: "ref" }; // <-- React 
-import { getTasks } from "./src/tasks" with { type: "ref" }; // <-- Node.js
+import { MainPage } from "./src/MainPage" with { type: "ref" };
+import { getTasks } from "./src/tasks" with { type: "ref" };
 
 export default app({
-  name: "todoApp",
   wasp: { version: "^0.24.0" },
   title: "ToDo App",
-  head: ["<link rel='icon' href='/favicon.ico' />"],
-  auth: { // Full-stack auth out-of-the-box.
+  auth: {  // Full-stack auth out-of-the-box.
     userEntity: "User",
     methods: { google: {}, gitHub: {}, email: {} },
     onAuthFailedRedirectTo: "/login"
@@ -77,28 +74,11 @@ export default app({
     route("RootRoute", "/", page(MainPage, {
       authRequired: true
     })),
-    query(getTasks, { 
-      entities: ["Task"] // <-- Automatic cache invalidation.
-    }) 
+    query(getTasks, {
+      entities: ["Task"]  // Automatic cache invalidation.
+    })
   ]
 });`,
-  },
-  {
-    name: "schema.prisma",
-    language: "prisma",
-    source: `model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  tasks Task[]
-}
-
-model Task {
-  id          Int     @id @default(autoincrement())
-  description String
-  isDone      Boolean @default(false)
-  user        User    @relation(fields: [userId], references: [id])
-  userId      Int
-}`,
   },
   {
     name: "MainPage.tsx",
@@ -125,7 +105,10 @@ export function MainPage() {
 import { HttpError } from "wasp/server";
 import { Task } from "wasp/entities";
 
-export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
+export const getTasks: GetTasks<void, Task[]> = async (
+  _args,
+  context
+) => {
   if (!context.user) throw new HttpError(401);
 
   return context.entities.Task.findMany({
@@ -133,6 +116,23 @@ export const getTasks: GetTasks<void, Task[]> = async (_args, context) => {
     orderBy: { id: "desc" },
   });
 };`,
+  },
+  {
+    name: "schema.prisma",
+    language: "prisma",
+    source: `model User {
+  id    Int     @id @default(autoincrement())
+  email String  @unique
+  tasks Task[]
+}
+
+model Task {
+  id          Int     @id @default(autoincrement())
+  description String
+  isDone      Boolean @default(false)
+  user        User    @relation(fields: [userId], references: [id])
+  userId      Int
+}`,
   },
 ];
 

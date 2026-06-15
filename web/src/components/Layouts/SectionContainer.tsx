@@ -1,10 +1,17 @@
 import classNames from "classnames";
+import { ReactNode } from "react";
+
+interface SectionContainerProps {
+  children: ReactNode;
+  className?: string;
+  id?: string;
+}
 
 const SectionContainer = ({
   children,
-  className = undefined,
-  id = undefined,
-}) => (
+  className,
+  id,
+}: SectionContainerProps) => (
   <div
     className={classNames(
       "mx-auto lg:container",

@@ -392,6 +392,7 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   --ifm-font-family-base: "IBM Plex Sans", sans-serif;
   --ifm-heading-font-family: "IBM Plex Mono", monospace;
   --ifm-color-primary: #bf9900;
+  /* TODO: update colors below with new design (#f5c842) */
   /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;
   --ifm-color-primary-darker: rgb(31, 165, 136);
