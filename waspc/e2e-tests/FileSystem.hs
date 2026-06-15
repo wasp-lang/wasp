@@ -5,7 +5,6 @@ module FileSystem
     SeedsDir,
     SeedsFile,
     seedsDirInWaspProjectDir,
-    mainWaspTsFileInWaspProjectDir,
     seedsFileInSeedsDir,
     TestOutputsDir,
     TestLogFile,
