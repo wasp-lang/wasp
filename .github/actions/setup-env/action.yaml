@@ -19,7 +19,10 @@ runs:
       if: runner.os == 'Linux'
       shell: sh
       run: |
-        if uname -a | grep -qi alpine; then
+        # Detect Alpine via /etc/alpine-release. We can't rely on `uname`
+        # because inside a container it reports the host kernel, not the
+        # container's distro.
+        if [ -f /etc/alpine-release ]; then
           apk add --no-cache bash curl gcc g++
         fi
 
