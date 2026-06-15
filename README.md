@@ -69,7 +69,7 @@ import { getTasks } from "./src/queries" with { type: "ref" }; // Your Node.js c
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.25.0" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

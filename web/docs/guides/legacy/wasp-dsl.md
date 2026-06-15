@@ -51,7 +51,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
     ```wasp title="main.wasp"
     app todoApp {
       title: "ToDo App",
-      wasp: { version: "^0.24.0" }
+      wasp: { version: "^0.25.0" }
     }
 
     route MainRoute { path: "/", to: MainPage }
@@ -70,7 +70,7 @@ In the DSL, a `route` points to a `page` by name. In the Wasp Spec, `route` take
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
+      wasp: { version: "^0.25.0" },
       spec: [
         route("MainRoute", "/", page(MainPage, { authRequired: true })),
       ],
@@ -236,7 +236,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
     ```wasp title="main.wasp"
     app todoApp {
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
+      wasp: { version: "^0.25.0" },
       auth: {
         userEntity: User,
         methods: { google: {} },
@@ -260,7 +260,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
+      wasp: { version: "^0.25.0" },
       auth: {
         userEntity: "User",
         methods: { google: {} },
@@ -282,7 +282,7 @@ These were top-level fields of the `app` declaration's dictionary in the DSL. In
 
 ## How to migrate
 
-These steps convert a Wasp DSL config to the Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.24.0`.
+These steps convert a Wasp DSL config to the Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.25.0`.
 
 After finishing this guide, return to the [migration guide](../../migration-guide.md) if you still need to complete the shared Wasp 0.24 migration steps.
 
@@ -360,7 +360,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
    export default app({
      name: "myApp",
      title: "My app",
-     wasp: { version: "^0.24.0" },
+     wasp: { version: "^0.25.0" },
      head: ["<link rel='icon' href='/favicon.ico' />"],
      spec: [
        // ...

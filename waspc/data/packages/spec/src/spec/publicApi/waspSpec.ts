@@ -18,7 +18,7 @@ import { FromRegister } from "./register.js";
  *
  * export default app({
  *   name: "todoApp",
- *   wasp: { version: "^0.24.0" },
+ *   wasp: { version: "^0.25.0" },
  *   title: "ToDo App",
  *   head: ["<link rel='icon' href='/favicon.ico' />"],
  *   spec: [],
@@ -86,7 +86,7 @@ export interface Wasp {
   /**
    * The Wasp version this app is built for, as an npm-compatible
    * [SemVer range](https://github.com/npm/node-semver#ranges)
-   * (e.g. `"^0.24.0"`).
+   * (e.g. `"^0.25.0"`).
    */
   version: string;
 }

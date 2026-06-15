@@ -23,16 +23,16 @@
     [
         [
             "file",
-            "libs/auth/wasp.sh-lib-auth-0.24.0.tgz"
+            "libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
         ],
-        "ebff18b870fff9120dcc52aa42d9aab6f9f074f94230783811f6d7e19b08048c"
+        "8c38eb0a94b6005701d231ed13d75d1869af441a0f061d56374fb49392379b18"
     ],
     [
         [
             "file",
-            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.24.0.tgz"
+            "libs/vite-ssr/wasp.sh-lib-vite-ssr-0.25.0.tgz"
         ],
-        "3cd2675d328494840796e1f619327d743acfbe899b6ea5e4db4677bd913fcdc5"
+        "59b166f322b5af0919da3c6618f7249cec73db38e2fc3fa338d904f49c565d82"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "6707cec26908e0c1aa8f04af76775dd6d6264d0850194cf42960a1e0b43e26c5"
+        "1d4ef4af61dad51d803f52852f7d0370828768ba7a58abae522368fe8fc0cc2b"
     ],
     [
         [
@@ -669,7 +669,7 @@
             "file",
             "server/package.json"
         ],
-        "a5edab468cdb7b773a096668f34e9d8f567600c48dc06877ea3d5e28d204f78c"
+        "7ddca917dc6230aff4efcadb318b16014ee1f3e34bfd870afbacfc8fe3f248b0"
     ],
     [
         [

@@ -9,7 +9,7 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "mySaasApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.25.0" },
   title: "My SaaS App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

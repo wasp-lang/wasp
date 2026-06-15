@@ -80,7 +80,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
 
     const app = new App("todoApp", {
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
+      wasp: { version: "^0.25.0" },
     });
 
     const mainPage = app.page("MainPage", {
@@ -106,7 +106,7 @@ See the [Wasp Spec documentation](../../general/spec.md#splitting-your-spec-into
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
+      wasp: { version: "^0.25.0" },
       spec: [
         route("MainRoute", "/", page(MainPage)),
         query(getTasks, { entities: ["Task"] }),
@@ -232,7 +232,7 @@ These were configured with mutating method calls. They are now keys of the `app(
     ```ts title="main.wasp.ts"
     const app = new App("todoApp", {
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
+      wasp: { version: "^0.25.0" },
     });
 
     app.auth({
@@ -262,7 +262,7 @@ These were configured with mutating method calls. They are now keys of the `app(
     export default app({
       name: "todoApp",
       title: "ToDo App",
-      wasp: { version: "^0.24.0" },
+      wasp: { version: "^0.25.0" },
       auth: {
         userEntity: "User",
         methods: { google: {} },
@@ -284,7 +284,7 @@ These were configured with mutating method calls. They are now keys of the `app(
 
 ## How to migrate
 
-These steps convert an old class-based Wasp TS Config to the new Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.24.0`.
+These steps convert an old class-based Wasp TS Config to the new Wasp Spec. Before running `wasp install` below, make sure your app's Wasp version is `^0.25.0`.
 
 After finishing this guide, return to the [migration guide](../../migration-guide.md) if you still need to complete the shared Wasp 0.24 migration steps.
 
@@ -364,7 +364,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
 
         const app = new App("myApp", {
           title: "My app",
-          wasp: { version: "^0.24.0" },
+          wasp: { version: "^0.25.0" },
         });
         ```
 
@@ -376,7 +376,7 @@ Wasp validates the Wasp Spec support files during migration, including the requi
         export default app({
           name: "myApp",
           title: "My app",
-          wasp: { version: "^0.24.0" },
+          wasp: { version: "^0.25.0" },
           head: ["<link rel='icon' href='/favicon.ico' />"],
           spec: [
             // ...

@@ -29,7 +29,7 @@ import { Layout } from "./src/Layout" with { type: "ref" }
 
 export default app({
   name: "MyApp",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.25.0" },
   title: "My App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   client: {
