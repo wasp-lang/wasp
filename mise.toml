@@ -30,3 +30,13 @@ experimental = true
 # The Node backend has a knack for compiling from source on Alpine even when it
 # has a pre-built binary available. So we explicitly tell it not to.
 node.compile = false
+
+[bootstrap.packages]
+# GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-ubuntu)
+"apt:build-essential" = "latest"
+"apt:curl" = "latest"
+"apt:libffi-dev" = "latest"
+"apt:libgmp-dev" = "latest"
+"apt:libncurses-dev" = "latest"
+# Cabal dependencies
+"apt:zlib1g-dev" = "latest"

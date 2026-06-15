@@ -61,13 +61,6 @@ jobs:
             # glibc than what it was built with (e.g. an older Ubuntu version).
             container: ubuntu:20.04
             static: false
-            install-deps: |
-              export DEBIAN_FRONTEND=noninteractive
-              apt-get update -y
-              # GHCup dependencies (https://www.haskell.org/ghcup/install/#version-2004-2010)
-              apt-get install -y build-essential curl libffi-dev libffi7 libgmp-dev libgmp10 libncurses-dev libncurses5 libtinfo5
-              # Cabal dependencies
-              apt-get install -y zlib1g-dev
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
@@ -77,15 +70,6 @@ jobs:
             container: alpine:3.23
             skip-node-install: true
             static: true
-            install-deps: |
-              # GHCup dependencies (https://www.haskell.org/ghcup/install/#linux-alpine)
-              apk add binutils-gold curl gcc g++ gmp-dev gmp-static libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
-              # `./run` script dependencies
-              apk add bash
-              # Cabal dependencies
-              apk add zlib-dev zlib-static
-              # Prisma dependencies
-              apk add openssl
 
           - name: macos-x86_64
             runner: macos-15-intel
@@ -102,10 +86,6 @@ jobs:
     name: Build Wasp (${{ matrix.env.name }})
 
     steps:
-      - name: Install dependencies
-        if: ${{ matrix.env.install-deps }}
-        run: ${{ matrix.env.install-deps }}
-
       - uses: actions/checkout@v6
       - uses: ./.github/actions/setup-env
 
