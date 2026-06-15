@@ -38,6 +38,27 @@ test.describe("prerender", () => {
     await expect(page.getByTestId("render-location")).toHaveText("client");
     await expect(page.getByTestId("slug")).toHaveText("bob");
   });
+
+  test("an unlisted instance of the dynamic route is not prerendered", async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+
+    // "charlie" is not in the route's prerender list, so it is served as the
+    // SPA shell instead of prerendered HTML. With no JavaScript, the page never
+    // renders, so its content is absent.
+    await page.goto("/prerender-instances/charlie");
+
+    await expect(page.getByTestId("render-location")).toHaveCount(0);
+  });
+
+  test("an unlisted instance still renders on the client", async ({ page }) => {
+    await page.goto("/prerender-instances/charlie");
+
+    await expect(page.getByTestId("render-location")).toHaveText("client");
+    await expect(page.getByTestId("slug")).toHaveText("charlie");
+  });
 });
 
 test.describe("hydration warnings", () => {
