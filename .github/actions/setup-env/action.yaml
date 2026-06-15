@@ -15,6 +15,14 @@ runs:
   using: composite
 
   steps:
+    - name: Install required system packages (Alpine)
+      if: runner.os == 'Linux'
+      shell: bash
+      run: |
+        if [[ "$(uname -a)" == *alpine* ]]; then
+          apk add --no-cache curl gcc g++
+        fi
+
     - name: Install Mise tools
       uses: jdx/mise-action@v4
 
