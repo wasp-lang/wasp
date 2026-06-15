@@ -9,7 +9,8 @@ const plugin: Plugin<[], Root> = () => (tree, file) => {
   // In versioned docs we want the placeholders to refer to that doc's version,
   // not to the latest one. For "current" (unversioned) docs we fall back to the
   // latest version.
-  const waspVersion = getWaspVersionFromFilePath(file.path) ?? latestWaspVersion;
+  const waspVersion =
+    getWaspVersionFromFilePath(file.path) ?? latestWaspVersion;
 
   const replacer = createReplacer({
     latestWaspVersion: `^${waspVersion}`,
