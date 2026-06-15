@@ -207,6 +207,7 @@ Running Wasp doctor...
 Everything looks good!
 
 ```
+
 - `wasp uninstall` removes Wasp from your system.
 
 ```
