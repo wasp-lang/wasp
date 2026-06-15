@@ -441,9 +441,7 @@ validatePrerenderRoutes :: AppSpec -> [ValidationError]
 validatePrerenderRoutes spec =
   concatMap validatePrerenderRoute prerenderRoutes
   where
-    -- Routes that prerender at least one path. The public @prerender: true@
-    -- shorthand has already been normalized to @[routePath]@ by the spec
-    -- mapper, so here we always deal with a list of concrete paths.
+    -- Routes that prerender at least one path.
     prerenderRoutes = filter (not . null . prerenderPaths . snd) (AS.getRoutes spec)
 
     validatePrerenderRoute (routeName, route) =

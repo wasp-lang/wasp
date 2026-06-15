@@ -495,8 +495,6 @@ spec_AppSpecValid = do
                   ]
               }
 
-      -- The public @prerender: true@ shorthand is normalized to @[routePath]@
-      -- before reaching the validator, so a static route prerenders @[path]@.
       it "returns no error for prerendered route with static path and no auth" $ do
         ASV.validateAppSpec (makeSpec "/about" ["/about"] Nothing) `shouldBe` []
 
