@@ -7,7 +7,6 @@ export class ShutdownRequestedError extends Error {
   readonly signalName: NodeJS.Signals;
   constructor(signalName: NodeJS.Signals) {
     super(`Shutdown requested via ${signalName}`);
-    this.name = "ShutdownRequestedError";
     this.signalName = signalName;
   }
 }

@@ -15,7 +15,6 @@ export class AppFailedError extends Error {
   readonly exit: ProcessExit;
   constructor(exit: ProcessExit) {
     super(`The app ${describeExit(exit)}`);
-    this.name = "AppFailedError";
     this.exit = exit;
   }
 }
@@ -27,7 +26,6 @@ export class ServiceFailedError extends Error {
     super(
       `Service "${serviceName}" ${describeExit(exit)} while the app was running`,
     );
-    this.name = "ServiceFailedError";
     this.serviceName = serviceName;
     this.exit = exit;
   }

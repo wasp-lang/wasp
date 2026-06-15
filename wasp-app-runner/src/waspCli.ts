@@ -61,8 +61,8 @@ export function waspStart({
     args: [...waspCliCmd.args, "start"],
     cwd: pathToApp,
     extraEnv,
-    // `wasp start` spawns its own processes, so need to be set `detached` to
-    // get its own process group and be killed as a tree.
+    // `wasp start` spawns its own child processes, so it must be `detached` to
+    // get its own process group and be killed as a whole tree.
     detached: true,
     signal,
   });
@@ -127,8 +127,8 @@ export function waspBuildStart({
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, ...args],
     cwd: pathToApp,
-    // `wasp build start` spawns its own processes, so need to be set `detached`
-    // to get its own process group and be killed as a tree.
+    // `wasp build start` spawns its own child processes, so it must be
+    // `detached` to get its own process group and be killed as a whole tree.
     detached: true,
     signal,
   });

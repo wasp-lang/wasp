@@ -16,7 +16,7 @@ export type ProcessExit =
   | { kind: "terminated"; signal: NodeJS.Signals }
   | { kind: "spawn-failed"; error: Error };
 
-export type OutputMode = "log" | "collect" | "ignore";
+export type OutputMode = "log" | "collect";
 
 export type SpawnProcessOptions = {
   name: string;
@@ -26,7 +26,7 @@ export type SpawnProcessOptions = {
   extraEnv?: EnvVars;
   /** Aborting this signal terminates the process (SIGTERM, then SIGKILL). */
   signal?: AbortSignal;
-  /** "log" (default) prints each line; "collect" only buffers; "ignore" drains silently. */
+  /** "log" (default) prints each line; "collect" only buffers. */
   output?: OutputMode;
   /** How long to wait after SIGTERM before SIGKILL. Default 1000ms. */
   killGracePeriodMs?: number;
@@ -211,7 +211,6 @@ export class CommandError extends Error {
     output?: { stdout?: string; stderr?: string },
   ) {
     super(`Command "${commandName}" ${describeExit(exit)}`);
-    this.name = "CommandError";
     this.commandName = commandName;
     this.exit = exit;
     this.stdout = output?.stdout;
