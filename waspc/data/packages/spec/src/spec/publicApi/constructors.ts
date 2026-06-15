@@ -8,7 +8,7 @@ import type {
   Page,
   Query,
   Route,
-} from "./tsAppSpec.js";
+} from "./waspSpec.js";
 
 // Throughout this file, in order for the constructor's input type to be
 // expanded in the docs, but not the resulting type; we do one bit of
@@ -34,9 +34,10 @@ import type {
  *
  * export default app({
  *   name: 'todoApp',
- *   title: 'ToDo App',
- *   wasp: { version: '^0.24.0' },
- *   parts: [
+ *   wasp: { version: "^0.24.0" },
+ *   title: "ToDo App",
+ *   head: ["<link rel='icon' href='/favicon.ico' />"],
+ *   spec: [
  *     route('MainRoute', '/', page(MainPage)),
  *   ],
  * })
@@ -44,7 +45,7 @@ import type {
  *
  * @param config The app configuration.
  *
- * @category Spec
+ * @category Wasp Spec
  */
 export function app(config: AppConfig): App {
   return config;
@@ -59,9 +60,7 @@ type AppConfig = Omit<App, "kind">;
 /**
  * Creates a {@link Page} definition.
  *
- * A page is a React component rendered by a {@link route}. Pass the
- * component as the first argument, either via a reference import
- * (recommended) or an {@link ExtImport} object.
+ * A page is a React component rendered by a {@link route}.
  *
  * See [Routing](https://wasp.sh/docs/advanced/routing) and the
  * [Auth overview](https://wasp.sh/docs/auth/overview#protecting-a-page-with-authrequired)
@@ -76,6 +75,8 @@ type AppConfig = Omit<App, "kind">;
  * ```
  *
  * @param component The React component to render.
+ *
+ * {@include ./referenceImports.md}
  * @param config Optional page settings such as `authRequired`.
  *
  * @category Constructors
@@ -148,14 +149,28 @@ type RouteConfig = Omit<Route, "kind" | "name" | "path" | "page">;
  *
  * @example
  * ```ts
- * import { query } from '@wasp.sh/spec'
+ * import { app, query } from "@wasp.sh/spec"
  * import { getTasks } from './src/queries' with { type: 'ref' }
  *
- * query(getTasks, { entities: ['Task'] })
+ * export default app({
+ *   // ...
+ *   spec: [
+ *     query(getTasks, { entities: ["Foo"] }),
+ *   ],
+ * })
  * ```
  *
- * @param fn The Query's NodeJS implementation.
- * @param config Optional settings: `entities` and `auth`.
+ * @param fn
+ *
+ * Reference to the Query's NodeJS implementation.
+ *
+ * See [the
+ * docs](https://wasp.sh/docs/data-model/operations/queries#implementing-queries)
+ * for details on the implementation and its context.
+ *
+ * {@include ./referenceImports.md}
+ *
+ * @param config
  *
  * @category Constructors
  */
@@ -180,14 +195,23 @@ type QueryConfig = Omit<Query, "kind" | "fn">;
  *
  * @example
  * ```ts
- * import { action } from '@wasp.sh/spec'
- * import { createTask } from './src/actions' with { type: 'ref' }
- *
- * action(createTask, { entities: ['Task'] })
+ * import { app, action } from "@wasp.sh/spec"
+ * import { createTask } from "./src/actions" with { type: "ref" }
+ * export default app({
+ *   // ...
+ *   spec: [
+ *     action(createTask, { entities: ["Task"] }),
+ *   ],
+ * })
  * ```
  *
- * @param fn The Action's NodeJS implementation.
- * @param config Optional settings: `entities` and `auth`.
+ * @param fn
+ * Reference to the Action's NodeJS implementation.
+ *
+ * See [the docs](https://wasp.sh/docs/data-model/operations/actions#implementing-actions) for details on the implementation and its context.
+ *
+ * {@include ./referenceImports.md}
+ * @param config
  *
  * @category Constructors
  */
@@ -221,6 +245,8 @@ type ActionConfig = Omit<Action, "kind" | "fn">;
  * @param method HTTP method to listen on (or `"ALL"` for any).
  * @param path Express path the endpoint is mounted at.
  * @param fn The API's NodeJS implementation.
+ *
+ * {@include ./referenceImports.md}
  * @param config Optional settings: `middlewareConfigFn`, `entities`, `auth`.
  *
  * @category Constructors
@@ -261,6 +287,8 @@ type ApiConfig = Omit<Api, "kind" | "method" | "path" | "fn">;
  * @param path Path prefix the namespace applies to.
  * @param config Required `middlewareConfigFn`.
  *
+ * {@include ./referenceImports.md}
+ *
  * @category Constructors
  */
 export function apiNamespace(
@@ -300,6 +328,8 @@ type ApiNamespaceConfig = Omit<ApiNamespace, "kind" | "path">;
  *
  * @param fn The async function that performs the job's work. It receives the
  *   submitted args and a context containing the declared entities.
+ *
+ * {@include ./referenceImports.md}
  * @param config Required `executor` and optional `schedule`, `entities`,
  *   and `performExecutorOptions`.
  *
@@ -330,14 +360,18 @@ type JobConfig = Omit<Job, "kind" | "fn">;
  * import { createTaskOverride } from './src/actions' with { type: 'ref' }
  *
  * crud('tasks', 'Task', {
- *   getAll: {},
+ *   getAll: { isPublic: true },
+ *   get: {},
  *   create: { overrideFn: createTaskOverride },
+ *   update: {},
  * })
  * ```
  *
  * @param name Unique name for the generated CRUD.
  * @param entity Name of the Prisma entity to generate operations for.
  * @param operations Which operations to generate and how to configure each.
+ *
+ * {@include ./referenceImports.md}
  *
  * @category Constructors
  */

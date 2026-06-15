@@ -10,8 +10,18 @@
   // confusing about the package's location.
   "disableSources": true,
 
+  "excludeInternal": true,
+
+  "entryPoints": ["src/index.ts"],
+
   // For exports with no category
   "defaultCategory": "Fields",
 
-  "categoryOrder": ["Spec", "Constructors", "Parts", "*"],
+  "categoryOrder": [
+    "Wasp Spec",
+    "Constructors",
+    "Specifications",
+    "Declarations",
+    "*",
+  ],
 }

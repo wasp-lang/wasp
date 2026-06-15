@@ -73,9 +73,6 @@ seedsDirInWaspProjectDir = [reldir|src/db|]
 seedsFileInSeedsDir :: String -> Path' (Rel SeedsDir) File'
 seedsFileInSeedsDir = fromJust . parseRelFile
 
-mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
-mainWaspTsFileInWaspProjectDir = [relfile|main.wasp.ts|]
-
 data TestLogFile
 
 -- 'Test' tests file system

@@ -1,4 +1,4 @@
-import { action, page, query, route, type Part } from "@wasp.sh/spec";
+import { action, page, query, route, type Spec } from "@wasp.sh/spec";
 
 import {
   createTask,
@@ -16,7 +16,7 @@ import {
   getTasks,
 } from "./queries" with { type: "ref" };
 
-export const operations: Part[] = [
+export const operationsSpec: Spec = [
   route("TasksRoute", "/tasks", page(TasksPage, { authRequired: true })),
   route(
     "TaskRoute",

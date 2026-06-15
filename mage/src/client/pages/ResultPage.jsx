@@ -625,7 +625,7 @@ export default function RunTheAppModal({ disabled, onDownloadZip }) {
               :
             </h2>
             <pre className="mt-2 rounded-lg bg-slate-800 p-4 text-sm text-slate-200">
-              npm i -g @wasp.sh/wasp-cli@latest
+              npm i -g @wasp.sh/wasp-cli@0.23.0
             </pre>
 
             <h2 className="mt-4 font-bold">

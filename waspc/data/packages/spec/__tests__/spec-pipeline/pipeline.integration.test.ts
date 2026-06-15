@@ -1,19 +1,16 @@
-import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from "fs";
-import { tmpdir } from "os";
-import { dirname, join } from "path";
-import { pathToFileURL } from "url";
+import * as cp from "node:child_process";
+import * as fs from "node:fs";
+import * as os from "node:os";
+import * as path from "node:path";
 import { describe, expect, test } from "vitest";
 import { analyzeApp } from "../../src/spec/appAnalyzer.js";
 
-// We use the absolute file:// URL of the local @wasp.sh/spec source so the
-// compiled spec does not rely on node_modules resolution from a temp dir.
-const waspSpecEntryUrl = pathToFileURL(
-  join(__dirname, "..", "..", "src", "spec", "publicApi", "index.ts"),
-).href;
+const SPEC_PACKAGE_DIR = path.resolve(import.meta.dirname, "..", "..");
 
 describe("Wasp TS spec pipeline", () => {
-  test("analyzes split specs with lowered ref imports", async () => {
-    const project = makeTempProject("wasp-spec-pipeline-");
+  test("analyzes split specs with lowered ref imports", () => {
+    using project = makeTempProject("wasp-spec-pipeline-");
+
     project.writeProjectFile(
       "src/MainPage.ts",
       `export default function MainPage() { return null; }\n`,
@@ -29,8 +26,7 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/home.wasp.ts",
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { page } from ${JSON.stringify(waspSpecEntryUrl)};`,
+        `import { page } from "@wasp.sh/spec";`,
         `import MainPage from "../MainPage" with { type: "ref" };`,
         ``,
         `export const homePage = page(MainPage);`,
@@ -39,56 +35,137 @@ describe("Wasp TS spec pipeline", () => {
     project.writeProjectFile(
       "src/features/tasks.wasp.ts",
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { action } from ${JSON.stringify(waspSpecEntryUrl)};`,
-        `import { archive as archiveTask } from "../adminOperations" with { type: "ref" };`,
+        `import { action } from "@wasp.sh/spec";`,
+        `import { archive } from "../adminOperations" with { type: "ref" };`,
         ``,
         `export const splitTitle = "Split Demo";`,
-        `export const archiveAction = action(archiveTask, { entities: [] });`,
+        `export const archiveAction = action(archive, { entities: [] });`,
       ].join("\n"),
     );
 
-    const decls = await project.analyzeSpec(
+    project.writeProjectFile(
+      "src/features/faq.wasp.ts",
       [
-        `// @ts-ignore: This test imports the local TS source through Vitest.`,
-        `import { app } from ${JSON.stringify(waspSpecEntryUrl)};`,
-        `import { homePage } from "./src/features/home.wasp.js";`,
-        `import { archiveAction, splitTitle } from "./src/features/tasks.wasp.js";`,
+        `import { page } from "@wasp.sh/spec";`,
+        `import { splitTitle } from "./tasks.wasp";`,
+        `import FaqPage from "./faq/FaqPage" with { type: "ref" };`,
+        ``,
+        `export const faqPage = page(FaqPage);`,
+      ].join("\n"),
+    );
+    project.writeProjectFile(
+      "src/features/faq/FaqPage.ts",
+      [`export defautl function FaqPage() { return null; }`].join("\n"),
+    );
+
+    const result = project.analyzeSpec(
+      [
+        `import { app } from "@wasp.sh/spec";`,
+        `import { homePage } from "./src/features/home.wasp";`,
+        `import { archiveAction, splitTitle } from "./src/features/tasks.wasp";`,
+        `import { faqPage } from "./src/features/faq.wasp";`,
         ``,
         `export default app({`,
         `  name: "demo",`,
         `  title: splitTitle,`,
         `  wasp: { version: "^0.16.0" },`,
-        `  parts: [homePage, archiveAction],`,
+        `  spec: [homePage, archiveAction, faqPage],`,
         `});`,
       ].join("\n"),
     );
 
-    expect(decls).toContainEqual(
-      expect.objectContaining({ declType: "App", declName: "demo" }),
+    expect(result).toMatchSnapshot();
+  });
+
+  test("surfaces type errors in the spec as a SpecUserError with formatted diagnostics", () => {
+    using project = makeTempProject("wasp-spec-pipeline-type-error-");
+
+    const result = project.analyzeSpec(
+      [
+        `import { app } from "@wasp.sh/spec";`,
+        ``,
+        `export const oops: string = 123;`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: "Demo",`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  spec: [],`,
+        `});`,
+      ].join("\n"),
     );
-    expect(decls).toContainEqual(
-      expect.objectContaining({ declType: "Page", declName: "MainPage" }),
+
+    expect(result).toEqual({
+      status: "error",
+      error: expect.stringContaining(
+        "Type 'number' is not assignable to type 'string'",
+      ),
+    });
+  });
+
+  test("rejects namespace ref imports with a SpecUserError", () => {
+    using project = makeTempProject("wasp-spec-pipeline-namespace-");
+
+    project.writeProjectFile(
+      "src/operations.ts",
+      `export async function archive() { return null; }\n`,
     );
-    expect(decls).toContainEqual(
-      expect.objectContaining({ declType: "Action", declName: "archiveTask" }),
+
+    const result = project.analyzeSpec(
+      [
+        `import { app } from "@wasp.sh/spec";`,
+        `import * as ops from "./src/operations" with { type: "ref" };`,
+        ``,
+        `export default app({`,
+        `  name: "demo",`,
+        `  title: "Demo",`,
+        `  wasp: { version: "^0.16.0" },`,
+        `  spec: [],`,
+        `});`,
+      ].join("\n"),
     );
+
+    expect(result).toEqual({
+      status: "error",
+      error: expect.stringContaining(
+        "Namespace imports are not supported for reference imports",
+      ),
+    });
   });
 });
 
-function makeTempProject(prefix: string): {
+type TempProject = Disposable & {
   writeProjectFile: (relativeFilePath: string, sourceText: string) => void;
   analyzeSpec: (sourceText: string) => ReturnType<typeof analyzeApp>;
-} {
-  // Jiti reports loaded files using canonical paths, so use a canonical temp root too.
-  const projectRootDir = mkdtempSync(join(realpathSync(tmpdir()), prefix));
-  const tsconfigPath = join(projectRootDir, "tsconfig.json");
+};
 
-  writeFileSync(
-    join(projectRootDir, "package.json"),
-    JSON.stringify({ type: "module" }),
+function makeTempProject(prefix: string): TempProject {
+  const projectRootDir = fs.mkdtempSync(path.join(os.tmpdir(), prefix));
+
+  return scaffoldProject({
+    projectRootDir,
+    dispose: () => fs.rmSync(projectRootDir, { recursive: true, force: true }),
+  });
+}
+
+function scaffoldProject({
+  projectRootDir,
+  dispose,
+}: {
+  projectRootDir: string;
+  dispose: () => void;
+}): TempProject {
+  const tsconfigPath = path.join(projectRootDir, "tsconfig.json");
+
+  fs.writeFileSync(
+    path.join(projectRootDir, "package.json"),
+    JSON.stringify({
+      type: "module",
+      dependencies: { "@wasp.sh/spec": "file:" + SPEC_PACKAGE_DIR },
+    }),
   );
-  writeFileSync(
+
+  fs.writeFileSync(
     tsconfigPath,
     JSON.stringify({
       compilerOptions: {
@@ -103,23 +180,40 @@ function makeTempProject(prefix: string): {
       include: ["main.wasp.ts", "**/*.wasp.ts"],
     }),
   );
+
   return {
+    [Symbol.dispose]: dispose,
+
     writeProjectFile: (relativeFilePath: string, sourceText: string) => {
-      const filePath = join(projectRootDir, relativeFilePath);
-      mkdirSync(dirname(filePath), { recursive: true });
-      writeFileSync(filePath, sourceText, "utf8");
+      writeProjectFile(projectRootDir, relativeFilePath, sourceText);
     },
-    analyzeSpec: async (sourceText: string) => {
-      const sourcePath = join(projectRootDir, "main.wasp.ts");
 
-      writeFileSync(sourcePath, sourceText, "utf8");
+    analyzeSpec: (sourceText: string) => {
+      writeProjectFile(projectRootDir, "main.wasp.ts", sourceText);
 
-      return analyzeApp({
-        waspTsSpecPath: sourcePath,
-        tsconfigPath,
-        projectRootDir,
-        entityNames: [],
-      });
+      cp.execSync("npm i", { cwd: projectRootDir, stdio: "inherit" });
+      cp.execSync(
+        "npx @wasp.sh/spec analyze main.wasp.ts tsconfig.json . result.json '[]'",
+        { cwd: projectRootDir, stdio: "inherit" },
+      );
+
+      return JSON.parse(
+        fs.readFileSync(path.join(projectRootDir, "result.json"), "utf8"),
+      );
     },
   };
+}
+
+function writeProjectFile(
+  projectRootDir: string,
+  relativeFilePath: string,
+  sourceText: string,
+): void {
+  const filePath = path.join(projectRootDir, relativeFilePath);
+  writeFile(filePath, sourceText);
+}
+
+function writeFile(filePath: string, sourceText: string): void {
+  fs.mkdirSync(path.dirname(filePath), { recursive: true });
+  fs.writeFileSync(filePath, sourceText, "utf8");
 }

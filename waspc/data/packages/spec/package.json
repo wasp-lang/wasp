@@ -12,23 +12,28 @@
     ".": {
       "types": "./dist/src/index.d.ts",
       "default": "./dist/src/index.js"
+    },
+    "./internal": {
+      "types": "./dist/src/internal.d.ts",
+      "default": "./dist/src/internal.js"
     }
   },
   "scripts": {
     "build": "tsc",
     "coverage": "vitest run --coverage",
     "dev": "nodemon ./src/index.ts",
-    "test": "vitest run --reporter=verbose",
-    "test:integration": "vitest run --reporter=verbose --project integration",
-    "test:type": "vitest run --reporter=verbose --project type",
-    "test:unit": "vitest run --reporter=verbose --project unit",
-    "test:watch": "vitest --reporter=verbose"
+    "test": "npm run build && vitest run --reporter=verbose",
+    "test:integration": "npm run build && vitest run --reporter=verbose --project integration",
+    "test:type": "npm run build && vitest run --reporter=verbose --project type",
+    "test:unit": "npm run build && vitest run --reporter=verbose --project unit",
+    "test:watch": "npm run build && vitest --reporter=verbose"
   },
   "dependencies": {
-    "jiti": "^2.7.0",
-    "ts-morph": "^28.0.0",
+    "estree-util-scope": "^1.0.0",
+    "estree-walker": "^3.0.3",
     "type-fest": "^5.6.0",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "unrun": "^0.3.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.0",

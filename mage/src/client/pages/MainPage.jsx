@@ -164,6 +164,7 @@ const MainPage = () => {
       />
 
       <form onSubmit={startGenerating} className="rounded-xl bg-slate-50 p-8">
+        <LegacyWaspVersionNotice />
         <div className="mb-6 flex flex-col gap-3">
           <div>
             <label htmlFor="appName" className="mb-2 block text-slate-700">
@@ -249,6 +250,27 @@ The simpler and more specific the app is, the better the generated app will be."
   );
 };
 export default MainPage;
+
+function LegacyWaspVersionNotice() {
+  return (
+    <div className="mb-6 w-full rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950 shadow-sm">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+        <p className="leading-relaxed">
+          <span className="font-semibold">Notice.</span> Mage is frozen on Wasp
+          0.23 and generates legacy Wasp DSL apps.
+        </p>
+        <a
+          href="https://wasp.sh/docs"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="shrink-0 font-semibold text-amber-950 underline decoration-amber-400 underline-offset-4 hover:text-slate-900"
+        >
+          Go to latest docs
+        </a>
+      </div>
+    </div>
+  );
+}
 
 export function AskForStarsModal({ isOpen, setIsOpen }) {
   return (

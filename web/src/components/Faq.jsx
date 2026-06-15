@@ -132,14 +132,13 @@ const faqs = [
         to.
         <br />
         <br />
-        The reason for that is that Wasp is a really simple configuration
-        language, without any loops or variables - you can think of it as a JSON
-        that is easier to read and is a bit smarter.
+        The main thing to learn is the Wasp Spec: a TypeScript-based
+        configuration in <code>main.wasp.ts</code> where you declare routes,
+        pages, auth, operations, jobs, and other high-level app features.
         <br />
         <br />
-        Still, although simple (and we plan to keep it that way), it's a real
-        language so you get all the IDE goodies with it - syntax highlighting,
-        auto-completion, live error reporting, ...
+        Because it is TypeScript, you get IDE support, autocomplete, type
+        checking, and live error reporting.
       </p>
     ),
   },
@@ -147,14 +146,15 @@ const faqs = [
     question: "Do you support only React & Node.js currently?",
     answer: (
       <p>
-        Yes, that is currently the supported stack. But, Wasp is being developed
-        as a language/framework and architecture-agnostic tool, so we plan to
-        add support for more languages and frameworks in the future.
+        Yes, that is currently the supported stack. Wasp is built around a
+        high-level TypeScript spec and compiler, so over time we can explore
+        support for more languages and frameworks in the future.
         <br />
         <br />
         This is something we're pretty excited about and think could be
-        potentially be a unique opportunity due to the language approach we're
-        taking with Wasp.
+        potentially be a unique opportunity because the Spec gives Wasp a
+        high-level model of your app instead of tying every feature directly to
+        low-level framework code.
       </p>
     ),
   },

@@ -17,5 +17,5 @@
 
     "lib": ["ES2023"]
   },
-  "include": ["main.wasp.ts", "**/*.wasp.ts", ".wasp/out/types/spec"]
+  "include": ["**/*.wasp.ts", ".wasp/out/types/spec"]
 }

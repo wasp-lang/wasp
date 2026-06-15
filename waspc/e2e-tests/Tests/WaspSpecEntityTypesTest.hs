@@ -87,13 +87,12 @@ waspSpecEntityTypesTest =
         }
       |]
 
-    -- NOTE: We manually create a fake `ExtImport` object.
-    -- This is so that `tsc` does not have to resolve any
+    -- NOTE: We use `ref(...)` so that `tsc` does not have to resolve any
     -- external imports besides the `@wasp.sh/spec` package.
     mainWaspTs :: T.Text -> T.Text
     mainWaspTs entityName =
       [trimming|
-        import { app, route } from "@wasp.sh/spec";
+        import { app, ref, route } from "@wasp.sh/spec";
 
         export default app({
           name: "enti",
@@ -107,10 +106,10 @@ waspSpecEntityTypesTest =
             },
             onAuthFailedRedirectTo: "/",
           },
-          parts: [
+          spec: [
             route("Route", "/", {
               kind: "page",
-              component: { from: "@src/somewhere", import: "something" },
+              component: ref({ from: "./src/somewhere", import: "something" }),
             }),
           ],
         });

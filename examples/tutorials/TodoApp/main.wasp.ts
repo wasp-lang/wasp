@@ -18,7 +18,7 @@ export default app({
     },
     onAuthFailedRedirectTo: "/login",
   },
-  parts: [
+  spec: [
     route("RootRoute", "/", page(MainPage, { authRequired: true })),
     route("SignupRoute", "/signup", page(SignupPage)),
     route("LoginRoute", "/login", page(LoginPage)),

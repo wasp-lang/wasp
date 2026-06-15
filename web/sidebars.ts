@@ -148,7 +148,7 @@ const sidebars: SidebarsConfig = {
                 "deployment/deployment-methods/wasp-deploy/ci-cd",
               ],
             },
-            "deployment/deployment-methods/paas",
+            "deployment/deployment-methods/cloud-providers",
             "deployment/deployment-methods/self-hosted",
           ],
         },
@@ -169,7 +169,7 @@ const sidebars: SidebarsConfig = {
       collapsed: false,
       collapsible: true,
       items: [
-        "advanced/email/email",
+        "advanced/email",
         "advanced/jobs",
         "advanced/web-sockets",
         "advanced/accessing-app-config",
@@ -178,6 +178,7 @@ const sidebars: SidebarsConfig = {
         "advanced/links",
         "advanced/routing",
         "advanced/prerendering",
+        "advanced/seo",
       ],
     },
     {

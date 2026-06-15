@@ -8,6 +8,7 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 
 - The Wasp TS config (`main.wasp.ts`) is now called the Wasp Spec, and it should import from `@wasp.sh/spec` instead of `wasp-config`. ([#4153](https://github.com/wasp-lang/wasp/pull/4153))
 - Wasp now requires `vitest` to be listed in your project's `devDependencies`. ([#4182](https://github.com/wasp-lang/wasp/pull/4182))
+- Removed `wasp new:ai` and the `ai-generated` starter template. ([#4280](https://github.com/wasp-lang/wasp/pull/4280))
 
 ### 🎉 New Features
 
@@ -16,9 +17,20 @@ Remember to check out the [migration guide](https://wasp.sh/docs/migration-guide
 - Added a type-safe `NavLink` component, mirroring `react-router`'s `NavLink` API (with `isActive`, `isPending`, `isTransitioning` render-prop helpers). ([#4104](https://github.com/wasp-lang/wasp/pull/4104))
 - Wasp TS spec now supports real JS imports, letting you import values in `main.wasp.ts` and pass them directly instead of using import objects like `{ import, from }`. ([#4143](https://github.com/wasp-lang/wasp/pull/4143))
 
+### 🐞 Bug fixes
+
+- Fixed a race condition in development mode that could potentially load the app's JS bundle before the Vite runtime, causing the app to fail the load with a "Can't detect preamble" error. ([#4258](https://github.com/wasp-lang/wasp/issues/4258))
+- Fixed `wasp deploy railway launch` sometimes producing a crashed server with an empty `DATABASE_URL`. Wasp now waits for the database service to finish deploying before setting up the other services. ([#4291](https://github.com/wasp-lang/wasp/pull/4291))
+- Fixed a bug where `wasp deploy railway launch` wouldn't correctly build the Wasp app client if the `/` route was not prerendered. ([#4293](https://github.com/wasp-lang/wasp/pull/4293))
+
 ### 🔧 Small improvements
 
 - Wasp now also validates `tsconfig.wasp.json` and the root `tsconfig.json` in TS spec projects, and tsconfig validation errors now mention which `tsconfig.*.json` file caused them. ([#3911](https://github.com/wasp-lang/wasp/pull/3911))
+- The npm package now shows a clear error when installed on an unsupported Node.js version. ([#4268](https://github.com/wasp-lang/wasp/pull/4268))
+
+### 📖 Documentation
+
+- We now have a [SEO & GEO optimization guide](https://wasp.sh/docs/guides/optimization/seo). ([#4264](https://github.com/wasp-lang/wasp/pull/4264))
 
 ## 0.23.0
 

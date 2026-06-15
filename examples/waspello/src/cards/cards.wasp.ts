@@ -1,4 +1,4 @@
-import { action, query, type Part } from "@wasp.sh/spec";
+import { action, query, type Spec } from "@wasp.sh/spec";
 
 import { createCard, updateCard } from "./cards" with { type: "ref" };
 import {
@@ -9,7 +9,7 @@ import {
   updateList,
 } from "./lists" with { type: "ref" };
 
-export const cards: Part[] = [
+export const cardsSpec: Spec = [
   query(getListsAndCards, { entities: ["List", "Card"] }),
   action(createList, { entities: ["List"] }),
   action(updateList, { entities: ["List"] }),

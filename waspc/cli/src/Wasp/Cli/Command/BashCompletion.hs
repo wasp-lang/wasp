@@ -27,7 +27,6 @@ bashCompletion = do
   where
     commands =
       [ "new",
-        "new:ai",
         "version",
         "waspls",
         "completion",

@@ -8,7 +8,7 @@ import WaspStartNote from '../\_WaspStartNote.md'
 import TypescriptServerNote from '../\_TypescriptServerNote.md'
 import { TutorialAction } from './TutorialAction';
 
-In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** declaration:
+In the default `main.wasp.ts` file created by `wasp new`, there is a **page** and a **route** spec:
 
 <Tabs groupId="js-ts">
   <TabItem value="js" label="JavaScript">
@@ -18,7 +18,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
     export default app({
       // ...
-      parts: [
+      spec: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.jsx`. Reference imports must point to files inside `src`.
         route("RootRoute", "/", page(MainPage)),
@@ -34,7 +34,7 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
 
     export default app({
       // ...
-      parts: [
+      spec: [
         // We specify that the React implementation of the page is exported from
         // `src/MainPage.tsx`. Reference imports must point to files inside `src`.
         route("RootRoute", "/", page(MainPage)),
@@ -44,14 +44,14 @@ In the default `main.wasp.ts` file created by `wasp new`, there is a **page** an
   </TabItem>
 </Tabs>
 
-Together, these declarations tell Wasp that when a user navigates to `/`, it should render the `MainPage` component from `src/MainPage.{jsx,tsx}`.
+Together, these specifications tell Wasp that when a user navigates to `/`, it should render the `MainPage` component from `src/MainPage.{jsx,tsx}`.
 
 ## The MainPage Component
 
-Let's take a look at the React component referenced by the page declaration:
+Let's take a look at the React component referenced by the page spec:
 
 ```tsx title="src/MainPage.tsx" auto-js
-import Logo from "./assets/logo.svg";
+import Logo from "./assets/wasp-logo-rounded.svg";
 import "./Main.css";
 
 export function MainPage() {
@@ -79,7 +79,7 @@ import { HelloPage } from "./src/HelloPage" with { type: "ref" }
 
 export default app({
   // ...
-  parts: [
+  spec: [
     route("HelloRoute", "/hello/:name", page(HelloPage)),
   ],
 })
@@ -124,7 +124,7 @@ At this point, the main page should look like this:
 
 <img alt="Todo App - Hello World" src={useBaseUrl('img/todo-app-hello-world.png')} className="tutorial-image" />
 
-You can now delete redundant files: `src/Main.css`, `src/assets/logo.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
+You can now delete redundant files: `src/Main.css`, `src/assets/wasp-logo-rounded.svg`, and `src/HelloPage.{jsx,tsx}` (we won't need this page for the rest of the tutorial).
 
 Since `src/HelloPage.{jsx,tsx}` no longer exists, remove its route from the `main.wasp.ts` file.
 
@@ -143,7 +143,7 @@ export default app({
   head: [
     "<link rel='icon' href='/favicon.ico' />",
   ],
-  parts: [
+  spec: [
     route("RootRoute", "/", page(MainPage)),
   ],
 })

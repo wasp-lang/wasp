@@ -1,3 +1,4 @@
+export { ref } from "../refObject.js";
 export {
   action,
   api,
@@ -10,4 +11,4 @@ export {
   route,
 } from "./constructors.js";
 export type { Register } from "./register.js";
-export type * from "./tsAppSpec.js";
+export type * from "./waspSpec.js";
