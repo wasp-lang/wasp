@@ -7,7 +7,7 @@ where
 import Control.Exception (assert)
 import Control.Monad.IO.Class (liftIO)
 import Data.List (isPrefixOf)
-import qualified System.Environment as ENV
+import System.Environment qualified as ENV
 import Wasp.Cli.Command (Command)
 import Wasp.Util.Terminal (styleCode)
 
@@ -28,7 +28,6 @@ bashCompletion = do
     commands =
       [ "new",
         "version",
-        "waspls",
         "completion",
         "uninstall",
         "start",

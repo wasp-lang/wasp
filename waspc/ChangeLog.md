@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### ⚠️ Breaking Changes
+
+- Removed the Wasp Language Server functionality, since it's not needed anymore since the migration to Wasp Spec. ([#4335](https://github.com/wasp-lang/wasp/pull/4335))
+
 ## 0.24.0
 
 ### ⚠️ Breaking Changes

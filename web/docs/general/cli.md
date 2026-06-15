@@ -22,7 +22,6 @@ COMMANDS
            Available starter templates are: basic, minimal, saas.
 
     version               Prints current version of CLI.
-    waspls                Run Wasp Language Server. Add --help to get more info.
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT

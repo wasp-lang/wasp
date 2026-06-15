@@ -89,7 +89,7 @@ jobs:
         run: cabal build all
 
       - name: Run unit tests
-        run: cabal test wasp-cli-tests waspc-tests waspls-tests
+        run: cabal test wasp-cli-tests waspc-tests
 
       - name: Run `waspc` e2e tests
         env:
