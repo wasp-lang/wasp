@@ -1,6 +1,5 @@
 module Wasp.Project.WaspFile
   ( findWaspFile,
-    isWaspTsProject,
     analyzeWaspFile,
   )
 where
@@ -9,6 +8,7 @@ import Data.Functor ((<&>))
 import StrongPath
   ( Abs,
     Dir,
+    File,
     Path',
     castFile,
     (</>),
@@ -18,17 +18,16 @@ import Wasp.AppSpec.Core.Decl.JSON ()
 import Wasp.CompileOptions (CompileOptions)
 import Wasp.Project.Common
   ( CompileError,
-    WaspFilePath (..),
     WaspProjectDir,
+    WaspTsFile,
     mainWaspTsFileInWaspProjectDir,
   )
 import Wasp.Project.WaspFile.TypeScript (analyzeWaspTsFile)
-import Wasp.Project.WaspFile.WaspLang (analyzeWaspLangFile)
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
 import qualified Wasp.Util.IO as IOUtil
 import Wasp.Util.StrongPath (findAllFilesWithSuffix)
 
-findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String WaspFilePath)
+findWaspFile :: Path' Abs (Dir WaspProjectDir) -> IO (Either String (Path' Abs (File WaspTsFile)))
 findWaspFile projectDir =
   liftA2 (,) (hasWaspLangFile projectDir) (findWaspTsFile projectDir)
     <&> \case
@@ -47,24 +46,16 @@ hasWaspLangFile projectDir = do
   (filesInProjectDir, _) <- IOUtil.listDirectory projectDir
   return $ not . null $ findAllFilesWithSuffix ".wasp" filesInProjectDir
 
-findWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe WaspFilePath)
+findWaspTsFile :: Path' Abs (Dir WaspProjectDir) -> IO (Maybe (Path' Abs (File WaspTsFile)))
 findWaspTsFile projectDir = do
   let fullPath = projectDir </> mainWaspTsFileInWaspProjectDir
   IOUtil.doesFileExist fullPath <&> \case
-    True -> Just $ WaspTs $ castFile fullPath
+    True -> Just $ castFile fullPath
     False -> Nothing
-
-isWaspTsProject :: Path' Abs (Dir WaspProjectDir) -> IO Bool
-isWaspTsProject projectDir =
-  findWaspFile projectDir >>= \case
-    Right (WaspTs _) -> return True
-    _ -> return False
 
 analyzeWaspFile ::
   CompileOptions ->
   Psl.Schema.Schema ->
-  WaspFilePath ->
+  Path' Abs (File WaspTsFile) ->
   IO (Either [CompileError] [AS.Decl])
-analyzeWaspFile compileOptions prismaSchemaAst = \case
-  WaspLang waspFilePath -> analyzeWaspLangFile prismaSchemaAst waspFilePath
-  WaspTs waspFilePath -> analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath
+analyzeWaspFile = analyzeWaspTsFile

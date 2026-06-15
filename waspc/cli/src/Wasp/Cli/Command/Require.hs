@@ -49,7 +49,6 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInst
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
-import Wasp.Project.WaspFile (isWaspTsProject)
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
 
@@ -97,8 +96,7 @@ data WaspSpecAvailable = WaspSpecAvailable deriving (Typeable)
 instance Requirable WaspSpecAvailable where
   checkRequirement = do
     InWaspProject waspProjectDir <- require
-    isTsProject <- liftIO $ isWaspTsProject waspProjectDir
-    when isTsProject $ ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
+    ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
     return WaspSpecAvailable
     where
       ensureInstalledWaspSpecMatchesCliVersion waspProjectDir =
