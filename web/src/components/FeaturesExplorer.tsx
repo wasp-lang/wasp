@@ -227,8 +227,8 @@ const features: Feature[] = [
     docUrl: "/docs/general/spec",
     intro: (
       <>
-        Define your app via a specialized full-stack aware logic layer, using
-        high-level terms like <InlineCode>app</InlineCode>,{" "}
+        Define your app via a specialized full-stack logic layer in TypeScript,
+        using high-level terms like <InlineCode>app</InlineCode>,{" "}
         <InlineCode>route</InlineCode>, <InlineCode>page</InlineCode>, ... .
         Think framework config, but taken to a whole new level.
       </>
