@@ -203,9 +203,6 @@ Running Wasp doctor...
 [✓] Port 3000 (web client): free
 [✓] Port 3001 (server): free
 [✓] Port 5432 (dev database): free
-
-Everything looks good!
-
 ```
 
 - `wasp uninstall` removes Wasp from your system.
