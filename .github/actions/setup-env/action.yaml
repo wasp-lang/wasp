@@ -17,10 +17,10 @@ runs:
   steps:
     - name: Install required system packages (Alpine)
       if: runner.os == 'Linux'
-      shell: bash
+      shell: sh
       run: |
-        if [[ "$(uname -a)" == *alpine* ]]; then
-          apk add --no-cache curl gcc g++
+        if uname -a | grep -qi alpine; then
+          apk add --no-cache bash curl gcc g++
         fi
 
     - name: Install Mise tools
