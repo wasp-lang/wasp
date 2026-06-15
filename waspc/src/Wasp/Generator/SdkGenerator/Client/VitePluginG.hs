@@ -60,8 +60,7 @@ genWaspPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData
           "ssrPaths" .= makeJsArrayFromHaskellList prerenderPaths
         ]
     prerenderPaths =
-      map (AS.Route.path . snd) $
-        filter (fromMaybe False . AS.Route.prerender . snd) (AS.getRoutes spec)
+      concatMap (fromMaybe [] . AS.Route.prerender . snd) (AS.getRoutes spec)
 
 genWaspConfigPlugin :: AppSpec -> Generator FileDraft
 genWaspConfigPlugin spec = return $ C.mkTmplFdWithData tmplPath tmplData

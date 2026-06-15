@@ -4,6 +4,7 @@
  */
 
 import * as AppSpec from "../appSpec.js";
+import { normalizePrerender } from "../normalizePrerender.js";
 import * as TsAppSpec from "./publicApi/tsAppSpec.js";
 
 export function mapTsAppSpecToAppSpecDecls(
@@ -421,7 +422,7 @@ export function mapRoute(
   return {
     path,
     to: pageRefParser(to),
-    prerender,
+    prerender: normalizePrerender(prerender, path),
     lazy,
   };
 }

@@ -33,6 +33,26 @@ export default app({
 
 That's it. When you run `wasp build`, Wasp renders this route's HTML at build time. The generated HTML is served directly to browsers and crawlers, then we [hydrate](https://react.dev/reference/react-dom/client/hydrateRoot) the page for full interactivity.
 
+### Prerendering specific paths
+
+Instead of `true`, you can pass an array of concrete paths. This is how you prerender specific instances of a **dynamic** route: the route's path stays dynamic for client-side navigation, while the listed paths are rendered to static HTML at build time.
+
+```ts title="main.wasp.ts"
+import { app, page, route } from "@wasp.sh/spec"
+import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
+
+export default app({
+  // ...
+  spec: [
+    route("BlogPostRoute", "/blog/:slug", page(BlogPostPage), {
+      prerender: ["/blog/intro", "/blog/changelog"],
+    }),
+  ],
+})
+```
+
+Each listed path must be fully static and must match the route's path pattern. `prerender: true` is shorthand for prerendering the route's own path.
+
 ## How it works
 
 By default, `wasp build` generates a single `200.html` file that serves as the entry point for all routes. When a request comes in, the server sends this HTML, and React renders the appropriate page on the client. This is called a Single-Page Application (SPA) architecture.
@@ -60,7 +80,9 @@ Prerendering is especially valuable if you want your content to be indexed by se
 
 ### Static paths only
 
-Prerendering only works on routes with static paths. Routes with dynamic segments (`:paramName`), optional segments (`?`), or splats (`*`) cannot be prerendered, because the HTML must be generated at build time for a known URL.
+Prerendering only works on static paths. The HTML must be generated at build time for a known URL, so any prerendered path must be fully static (no `:paramName` dynamic segments, `?` optional segments, or `*` splats).
+
+`prerender: true` therefore only works when the route's own path is static. To prerender a **dynamic** route, list the concrete instances you want instead (see [Prerendering specific paths](#prerendering-specific-paths)). Each listed path must be static and must match the route's pattern.
 
 ```ts title="main.wasp.ts"
 import { app, page, route } from "@wasp.sh/spec"

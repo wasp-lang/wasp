@@ -879,11 +879,19 @@ export interface Route extends BaseSpecElement<"route"> {
   /** Page rendered when this route matches. */
   page: Page;
   /**
-   * If `true`, Wasp renders this page to static HTML at build time. Useful
-   * for SEO and AI crawlers.
+   * Render this route to static HTML at build time. Useful for SEO and AI
+   * crawlers. The page then hydrates on the client for full interactivity.
    *
-   * Only works on fully static paths (no `:paramName`, `*`, or `?` segments)
-   * and cannot be combined with {@link Page.authRequired}. See
+   * Accepts either:
+   * - `true` — prerender this route's own path. The path must be fully static
+   *   (no `:paramName`, `*`, or `?` segments).
+   * - an array of concrete paths to prerender. Use this to prerender specific
+   *   instances of a dynamic route (e.g. `["/blog/intro", "/blog/changelog"]`
+   *   for a `"/blog/:slug"` route). Every listed path must be fully static and
+   *   must match this route's path pattern.
+   *
+   * In either case the route's page cannot have {@link Page.authRequired} set,
+   * since prerendered content can't depend on the logged-in user. See
    * [Prerendering](https://wasp.sh/docs/advanced/prerendering).
    *
    * @default false
@@ -891,19 +899,23 @@ export interface Route extends BaseSpecElement<"route"> {
    * @example
    * ```ts
    * import { app, page, route } from "@wasp.sh/spec"
-   * import { SomePage } from "./src/SomePage" with { type: "ref" }
+   * import { LandingPage } from "./src/LandingPage" with { type: "ref" }
+   * import { BlogPostPage } from "./src/BlogPostPage" with { type: "ref" }
    *
    * export default app({
    *   // ...
    *   spec: [
-   *     route("NameRoute", "/some-path", page(SomePage), {
+   *     route("LandingRoute", "/", page(LandingPage), {
    *       prerender: true,
+   *     }),
+   *     route("BlogPostRoute", "/blog/:slug", page(BlogPostPage), {
+   *       prerender: ["/blog/intro", "/blog/changelog"],
    *     }),
    *   ],
    * })
    * ```
    */
-  prerender?: boolean;
+  prerender?: boolean | string[];
   /**
    * Lazy-load the page's component.
    *

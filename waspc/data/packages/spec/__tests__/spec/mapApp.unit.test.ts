@@ -308,14 +308,43 @@ describe("mapPage", () => {
 
 describe("mapRoute", () => {
   test("should map minimal config correctly", () => {
-    testMapRoute(Fixtures.getRoute("minimal"));
+    testMapRoute(Fixtures.getRoute("minimal"), undefined);
   });
 
   test("should map full config correctly", () => {
-    testMapRoute(Fixtures.getRoute("full"));
+    // `prerender: true` is normalized to the route's own path.
+    testMapRoute(Fixtures.getRoute("full"), ["/foo/bar"]);
   });
 
-  function testMapRoute(route: WaspSpec.Route): void {
+  test("should keep an array of prerender paths as-is", () => {
+    const blogRoute = route(
+      "blogRoute",
+      "/blog/:slug",
+      Fixtures.getPage("minimal"),
+      {
+        prerender: ["/blog/intro", "/blog/changelog"],
+      },
+    );
+    testMapRoute(blogRoute, ["/blog/intro", "/blog/changelog"]);
+  });
+
+  test("should normalize prerender: false and an empty list to undefined", () => {
+    testMapRoute(
+      route("falseRoute", "/a", Fixtures.getPage("minimal"), {
+        prerender: false,
+      }),
+      undefined,
+    );
+    testMapRoute(
+      route("emptyRoute", "/b", Fixtures.getPage("minimal"), { prerender: [] }),
+      undefined,
+    );
+  });
+
+  function testMapRoute(
+    route: WaspSpec.Route,
+    expectedPrerender: string[] | undefined,
+  ): void {
     const result = AppSpecMapper.mapRoute(route);
 
     expect(result).toStrictEqual({
@@ -324,7 +353,7 @@ describe("mapRoute", () => {
         name: getRefObjectDeclarationName(route.page.component),
         declType: "Page",
       },
-      prerender: route.prerender,
+      prerender: expectedPrerender,
       lazy: route.lazy,
     } satisfies AppSpec.Route);
   }

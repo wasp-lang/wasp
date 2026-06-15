@@ -17,6 +17,27 @@ test.describe("prerender", () => {
 
     await expect(page.getByTestId("render-location")).toHaveText("client");
   });
+
+  test("listed instances of a dynamic route are prerendered with no javascript", async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({ javaScriptEnabled: false });
+    const page = await context.newPage();
+
+    await page.goto("/prerender-instances/alice");
+
+    await expect(page.getByTestId("render-location")).toHaveText("server");
+    await expect(page.getByTestId("slug")).toHaveText("alice");
+  });
+
+  test("prerendered dynamic-route instance hydrates on the client", async ({
+    page,
+  }) => {
+    await page.goto("/prerender-instances/bob");
+
+    await expect(page.getByTestId("render-location")).toHaveText("client");
+    await expect(page.getByTestId("slug")).toHaveText("bob");
+  });
 });
 
 test.describe("hydration warnings", () => {

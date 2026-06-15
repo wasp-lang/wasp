@@ -94,7 +94,7 @@ spec_Analyzer = do
                 "",
                 "route HomeRoute { path: \"/\", to: HomePage }",
                 "",
-                "route PrerenderRoute { path: \"/prerender\", to: HomePage, prerender: true }",
+                "route PrerenderRoute { path: \"/prerender\", to: HomePage, prerender: [\"/prerender\"] }",
                 "",
                 "query getUsers {",
                 "  fn: import { getAllUsers } from \"@src/foo\",",
@@ -248,7 +248,7 @@ spec_Analyzer = do
                 Route.Route {Route.path = "/", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = Nothing}
               ),
               ( "PrerenderRoute",
-                Route.Route {Route.path = "/prerender", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = Just True}
+                Route.Route {Route.path = "/prerender", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = Just ["/prerender"]}
               )
             ]
       takeDecls <$> decls `shouldBe` Right expectedRoutes
