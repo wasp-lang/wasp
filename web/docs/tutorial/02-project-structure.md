@@ -28,7 +28,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     # highlight-next-line
     │   ├── MainPage.jsx
     │   ├── assets
-    │   │   └── logo.svg
+    │   │   └── wasp-logo-rounded.svg
     │   └── vite-env.d.ts
     ├── tsconfig.json
     ├── tsconfig.src.json
@@ -51,7 +51,7 @@ import useBaseUrl from '@docusaurus/useBaseUrl';
     │   ├── Main.css
     │   ├── MainPage.tsx
     │   ├── assets
-    │   │   └── logo.svg
+    │   │   └── wasp-logo-rounded.svg
     │   └── vite-env.d.ts
     ├── tsconfig.json
     ├── tsconfig.src.json
