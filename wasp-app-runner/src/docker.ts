@@ -43,9 +43,7 @@ export async function ensureDockerIsRunning({
   });
 
   if (!isRunning) {
-    throw new Error(
-      "Docker is not running. Please start Docker and try again.",
-    );
+    logger.fatal("Docker is not running. Please start Docker and try again.");
   }
 }
 
@@ -62,7 +60,7 @@ export async function pullDockerImage(
       signal,
     });
   } catch (error) {
-    throw new Error(`Failed to pull Docker image: ${image}`, { cause: error });
+    pullLogger.fatal(`Failed to pull Docker image: ${image}`, { cause: error });
   }
 }
 

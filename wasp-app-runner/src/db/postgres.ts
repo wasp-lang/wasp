@@ -7,7 +7,7 @@ import {
   startContainer,
   type ContainerHandle,
 } from "../docker.js";
-import { createLogger } from "../logging.js";
+import { createLogger, FatalError } from "../logging.js";
 import { commandSucceeds } from "../process.js";
 import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
@@ -133,11 +133,18 @@ async function waitForPostgresReady({
       containerName,
       port: POSTGRES_PORT,
     });
-    throw new Error(
+    logger.fatal(
       `The PostgreSQL container exited before becoming ready.\n${stderr}${
         extraInfo === null ? "" : `\n${extraInfo}`
       }`,
     );
+  } catch (error) {
+    // A graceful abort or the container-died fatal above propagate as-is; any
+    // other rejection means p-retry exhausted its readiness attempts.
+    if (signal.aborted || error instanceof FatalError) {
+      throw error;
+    }
+    logger.fatal("PostgreSQL did not become ready in time.", { cause: error });
   } finally {
     readinessCtl.abort();
   }

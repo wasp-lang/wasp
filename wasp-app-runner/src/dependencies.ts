@@ -1,3 +1,4 @@
+import { createLogger } from "./logging.js";
 import { commandSucceeds } from "./process.js";
 
 export async function checkDependencies({
@@ -5,6 +6,8 @@ export async function checkDependencies({
 }: {
   signal: AbortSignal;
 }): Promise<void> {
+  const logger = createLogger("check-dependencies");
+
   // ENOENT (command not found) surfaces as a spawn failure, i.e. `false`.
   const dockerAvailable = await commandSucceeds({
     name: "check-docker",
@@ -14,6 +17,6 @@ export async function checkDependencies({
   });
 
   if (!dockerAvailable) {
-    throw new Error("Required command 'docker' not found. Please install it.");
+    logger.fatal("Required command 'docker' not found. Please install it.");
   }
 }

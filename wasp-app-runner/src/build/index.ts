@@ -28,7 +28,6 @@ export async function startAppInBuildMode({
     signal,
   });
 
-  // Disposed in reverse declaration order: app, then smtp, then db.
   await using db = await setupDb({
     appName,
     dbType,

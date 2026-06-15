@@ -11,7 +11,7 @@ import { DbType } from "./db/index.js";
 import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
-import { createLogger } from "./logging.js";
+import { createLogger, FatalError, reportFatalError } from "./logging.js";
 import { installShutdownHandlers } from "./shutdown.js";
 import { waspInfo, waspInstall } from "./waspCli.js";
 
@@ -38,6 +38,9 @@ export async function main(): Promise<void> {
     if (signal.aborted) {
       // Graceful shutdown: teardown already ran via `await using` unwinding.
       logger.warn(`Shutting down: ${errorMessage(error)}`);
+    } else if (error instanceof FatalError) {
+      reportFatalError(error);
+      process.exitCode = 1;
     } else {
       logger.error(`Fatal error: ${errorMessage(error)}`);
       process.exitCode = 1;
@@ -67,7 +70,7 @@ async function runWaspApp({
   });
 
   if (dbImageArg && dbType !== DbType.Postgres) {
-    throw new Error(
+    logger.fatal(
       "The --db-image option is only valid when using PostgreSQL as the database.",
     );
   }
@@ -120,7 +123,9 @@ async function isWaspTypescriptConfigProject(
     const files = await readdir(pathToApp);
     return files.some((file) => file.endsWith(".wasp.ts"));
   } catch (error) {
-    throw new Error(`Failed to read directory ${pathToApp}`, { cause: error });
+    return logger.fatal(`Failed to read directory ${pathToApp}`, {
+      cause: error,
+    });
   }
 }
 
