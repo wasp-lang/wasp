@@ -442,13 +442,13 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
   - Ensure that OpenSaaS is updated to the latest Wasp `main` (go to https://github.com/wasp-lang/open-saas/actions/workflows/e2e-tests.yml and manually run the workflow on the `main` branch).
 - 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
 - 👉 Update your local repository state to have all remote changes (`git fetch`) and ensure local `main` is up to date.
-- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.19.1`) and do the rest of the steps from there.
+- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `v<version>-rc.<rc-iteration>` (e.g., `v0.24.1-rc.1`) and do the rest of the steps from there.
 - 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
   - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into the RC branch.
 - 👉 Create an RC release do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
 - 👉 Check commits since the latest release, and consider enriching and polishing the `ChangeLog.md` and migration guides.
 - If this is a major version update, take a versioned "snapshot" of the current docs on the RC branch by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the [README in the `web` dir](https://github.com/wasp-lang/wasp/blob/main/web/README.md) for more details. Commit this change to the RC branch and push it.
-- 👉 Switch to the `release` branch and fast-forward it to the RC branch by running `git merge --ff rc-<version>`.
+- 👉 Switch to the `release` branch and fast-forward it to the RC branch by running `git merge --ff v<version>-rc.<rc-iteration>`.
 - 👉 When you're ready to make the final release, make sure you are on `release` and then run `./new-release 0.x.y`.
   - This script will do some checks, tag the commit with the new release version, and push the tag.
 - 👉 Wait for CI to finish & succeed for the new tag.
@@ -476,23 +476,23 @@ So how do changes to waspls affect the version of waspc, since they are packaged
 Making a test release, especially "Release Candidate" (RC) release is useful when you want to test the release without it being published to the normal users.
 If doing this, steps are the following:
 
-1. Create a new branch called `rc-<version>` (e.g., `rc-0.19.0`) by branching out of the last commit you want to release (probably latest `main`).
+1. Create a new branch called `v<version>-rc.<rc-iteration>` (e.g., `v0.24.1-rc.1`) by branching out of the last commit you want to release (probably latest `main`).
 
-2. Locally execute the `new-release` script. Append `-rc.N` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.19.1-rc.1`).
+2. Locally execute the `new-release` script. Append `-rc.N` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.24.1-rc.1`).
    The script will throw some warnings which you should accept.
 
 3. Once the draft release is created on Github:
 
    - Use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
-   - Push the `rc-<version>` branch to remote.
+   - Push the `v<version>-rc.<rc-iteration>` branch to remote.
 
 4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
 
    ```sh
-   npm i -g @wasp.sh/wasp-cli@0.19.0-rc.1
+   npm i -g @wasp.sh/wasp-cli@0.24.1-rc.1
    ```
 
-5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.19.0-rc.2`, see step 2).
+5. Create a new checklist [in Notion](https://www.notion.so/wasp-lang/1d018a74854c80d9aa64deb058719000) and go through the "Before the release" section. If you find problems, fix them on the `rc` branch and create a new RC following the same process (e.g., `0.24.1-rc.2`, see step 2).
 
 ## Documentation
 

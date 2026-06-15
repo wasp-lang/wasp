@@ -39,6 +39,7 @@
   --wasp-g1: #eee;
   --wasp-w: #fafafa;
   --wasp-bg: #f7f5f0;
+  --wasp-code-bg: #f0ede6;
   --wasp-handle: 7px;
 }
 
@@ -391,6 +392,7 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   --ifm-font-family-base: "IBM Plex Sans", sans-serif;
   --ifm-heading-font-family: "IBM Plex Mono", monospace;
   --ifm-color-primary: #bf9900;
+  /* TODO: update colors below with new design (#f5c842) */
   /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;
   --ifm-color-primary-darker: rgb(31, 165, 136);
@@ -431,6 +433,12 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 
 :root[data-theme="dark"] {
   --custom-background-color-diff: #2a2a2a;
+
+  /* Dark page background. Without this, the `--ifm-background-color` set
+     in the light `:root` block leaks into dark mode (it overrides Infima's own
+     dark default), leaving the content and navbar light. */
+  --ifm-background-color: #1a1a1a;
+  --ifm-navbar-background-color: #1a1a1a;
 
   /* Blog */
   --custom-blog-list-background-color: var(--ifm-background-color);
@@ -520,6 +528,88 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 }
 
 /******************************/
+
+/****** WASP-STYLED SCROLLBAR *******/
+.wasp-scrollbar {
+  &::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--wasp-k);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--wasp-y);
+    border-radius: 0;
+    border: 2px solid var(--wasp-k);
+
+    &:hover {
+      background: var(--wasp-yd);
+    }
+  }
+
+  /* No up/down (or left/right) arrow buttons. */
+  &::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: var(--wasp-k);
+  }
+}
+/* For browsers that don't support ::-webkit-scrollbar (e.g. Firefox),
+   use the simpler scrollbar-* properties. */
+@supports not selector(::-webkit-scrollbar) {
+  .wasp-scrollbar {
+    scrollbar-color: var(--wasp-k) var(--wasp-y);
+  }
+}
+/************************************/
+
+/****** WASP-STYLED SCROLLBAR *******/
+.wasp-scrollbar {
+  &::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--wasp-k);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--wasp-y);
+    border-radius: 0;
+    border: 2px solid var(--wasp-k);
+
+    &:hover {
+      background: var(--wasp-yd);
+    }
+  }
+
+  /* No up/down (or left/right) arrow buttons. */
+  &::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: var(--wasp-k);
+  }
+}
+/* For browsers that don't support ::-webkit-scrollbar (e.g. Firefox),
+   use the simpler scrollbar-* properties. */
+@supports not selector(::-webkit-scrollbar) {
+  .wasp-scrollbar {
+    scrollbar-color: var(--wasp-k) var(--wasp-y);
+  }
+}
+/************************************/
 
 /******* OTHER ********/
 
@@ -715,4 +805,17 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 
 .code-snippet .token.plain {
   color: #b0b0b0 !important;
+}
+
+/* Docusaurus announcement bar - bump font size and height.
+   Wrapper height is locked by --docusaurus-announcement-bar-height (default 30px).
+   `html.` prefix needed to beat Infima's own :root declaration (see note above). */
+html.docs-wrapper,
+html.blog-wrapper {
+  --docusaurus-announcement-bar-height: 42px;
+}
+
+div[class*="announcementBarContent_"] {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 15px;
 }

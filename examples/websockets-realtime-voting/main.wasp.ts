@@ -10,6 +10,7 @@ export default app({
   name: "whereDoWeEat",
   wasp: { version: "^0.24.0" },
   title: "where-do-we-eat",
+  head: ["<link rel='icon' href='/favicon.ico' />"],
   client: {
     rootComponent: Layout,
   },

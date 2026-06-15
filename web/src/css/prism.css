@@ -59,7 +59,7 @@ pre[class*="language-"] {
   padding: 0.2em;
   padding-top: 1px;
   padding-bottom: 1px;
-  background: #f0ede6;
+  background: var(--wasp-code-bg);
   border: 1px solid #bbb;
 }
 
