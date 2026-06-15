@@ -69,7 +69,7 @@ const Nav = () => {
                 rel="noreferrer"
                 className={navLinkClass}
               >
-                GitHub (18k)
+                GitHub
               </a>
               <a
                 href="https://discord.gg/rzdnErX"
@@ -151,7 +151,7 @@ const Nav = () => {
                   onClick={closeMenu}
                   className={mobileLinkClass}
                 >
-                  GitHub (18k)
+                  GitHub
                 </a>
                 <a
                   href="https://discord.gg/rzdnErX"

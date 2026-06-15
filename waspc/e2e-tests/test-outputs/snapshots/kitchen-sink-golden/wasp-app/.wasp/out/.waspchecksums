@@ -172,7 +172,7 @@
             "file",
             "sdk/wasp/auth/forms/internal/auth-styles.css"
         ],
-        "6abead385f76fe9e5ea16f437da00871f534050467a73800520ef9db2e94c41f"
+        "228aa6aa6bdac07cc4c7c55cc85422682f56c6b9242bac9b673bd3bab2132dc6"
     ],
     [
         [
@@ -1264,7 +1264,7 @@
             "file",
             "sdk/wasp/src/Main.css"
         ],
-        "041dfa96803f24000f0435fff5dfcfd2dace14cd37960c71db93766a5261f34d"
+        "562206ec272e66cf66163b3474c0066fad59c2d477415d379ae5d72a565ffae6"
     ],
     [
         [
@@ -1425,7 +1425,7 @@
             "file",
             "sdk/wasp/src/features/auth/pages/auth-ui.ts"
         ],
-        "1ac8a28faa4e795d17a030a6016640a7865b68e44696e0795d5b564ff4c4b065"
+        "3f5a1daa99493c6a6a867bddba6fd9cf9890c2cf9d421b40ffe83efd7cd3e5a3"
     ],
     [
         [
