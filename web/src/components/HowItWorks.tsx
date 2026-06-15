@@ -9,9 +9,9 @@ const HowItWorks = () => (
 
     <p className="mb-6 max-w-2xl text-base leading-relaxed text-wasp-g7">
       You write your app as high-level config in{" "}
-      <InlineCode>*.wasp.ts</InlineCode> files, alongside the usual React,
-      Node, and Prisma code. Wasp compiles it into a full-stack app, ready to
-      deploy anywhere.
+      <InlineCode>*.wasp.ts</InlineCode> files, alongside the usual React, Node,
+      and Prisma code. Wasp compiles it into a full-stack app, ready to deploy
+      anywhere.
     </p>
 
     <HowItWorksDiagram />
