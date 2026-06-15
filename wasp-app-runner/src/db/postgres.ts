@@ -1,16 +1,23 @@
+import pRetry from "p-retry";
 import type { DockerImageName, PathToApp } from "../args.js";
 import {
-  DbContainerName,
-  createAppSpecificDbContainerName,
+  ContainerName,
+  createAppSpecificContainerName,
   pullDockerImage,
+  startContainer,
+  type ContainerHandle,
 } from "../docker.js";
 import { createLogger } from "../logging.js";
-import { spawnAndCollectOutput } from "../process.js";
+import { commandSucceeds } from "../process.js";
 import { Branded } from "../types.js";
 import type { AppName } from "../waspCli.js";
 import type { SetupDbResult } from "./types.js";
 
 export const defaultPostgresDbImage = "postgres:18" as DockerImageName;
+
+const POSTGRES_PORT = 5432;
+const POSTGRES_PASSWORD = "devpass";
+const READINESS_RETRIES = 10;
 
 type DatabaseConnectionUrl = Branded<string, "DatabaseConnectionUrl">;
 
@@ -20,95 +27,120 @@ export const setupPostgres = async ({
   appName,
   pathToApp,
   dbImage,
+  signal,
 }: {
   appName: AppName;
   pathToApp: PathToApp;
   dbImage: DockerImageName;
+  signal: AbortSignal;
 }): Promise<SetupDbResult> => {
-  await ensureDockerIsRunning();
+  await pullDockerImage(dbImage, { signal });
 
-  const databaseUrl = await startPostgresContainerForApp({
+  const containerName = createAppSpecificContainerName("db", {
     appName,
     pathToApp,
-    dbImage,
   });
+  logger.info(`Using container name: ${containerName}`);
+  logger.info(`Starting the PostgreSQL container with image: ${dbImage}...`);
 
+  // Own the container in a stack so that if readiness fails or is aborted, the
+  // container is disposed (removed) before the error propagates. On success we
+  // `move()` ownership into the returned SetupDbResult.
+  await using stack = new AsyncDisposableStack();
+  const container = stack.use(
+    await startContainer({
+      name: "postgres",
+      containerName,
+      image: dbImage,
+      dockerRunArgs: [
+        "-p",
+        `${POSTGRES_PORT}:5432`,
+        "-e",
+        `POSTGRES_PASSWORD=${POSTGRES_PASSWORD}`,
+      ],
+      output: "collect",
+      signal,
+    }),
+  );
+
+  await waitForPostgresReady({ container, containerName, signal });
+
+  const databaseUrl =
+    `postgresql://postgres:${POSTGRES_PASSWORD}@localhost:${POSTGRES_PORT}/postgres` as DatabaseConnectionUrl;
   logger.info(`Using DATABASE_URL: ${databaseUrl}`);
 
+  const ownedStack = stack.move();
   return {
+    name: container.name,
+    exited: container.exited,
     dbEnvVars: { DATABASE_URL: databaseUrl },
+    async [Symbol.asyncDispose]() {
+      await ownedStack.disposeAsync();
+    },
   };
 };
 
-async function startPostgresContainerForApp({
-  appName,
-  pathToApp,
-  dbImage,
+async function waitForPostgresReady({
+  container,
+  containerName,
+  signal,
 }: {
-  appName: AppName;
-  pathToApp: PathToApp;
-  dbImage: DockerImageName;
-}): Promise<DatabaseConnectionUrl> {
-  const containerName = createAppSpecificDbContainerName({
-    appName,
-    pathToApp,
-  });
+  container: ContainerHandle;
+  containerName: ContainerName;
+  signal: AbortSignal;
+}): Promise<void> {
+  // Local controller lets us cancel the pending p-retry timers as soon as the
+  // race settles, so they can't hold the event loop open.
+  const readinessCtl = new AbortController();
+  const readinessSignal = AbortSignal.any([signal, readinessCtl.signal]);
 
-  logger.info(`Using container name: ${containerName}`);
+  try {
+    const result = await Promise.race([
+      pRetry(
+        async (attempt) => {
+          logger.info(
+            `Checking PostgreSQL readiness (attempt ${attempt}/${READINESS_RETRIES + 1})`,
+          );
+          const isReady = await commandSucceeds({
+            name: "postgres-readiness-check",
+            cmd: "docker",
+            args: ["exec", containerName, "pg_isready", "-U", "postgres"],
+            signal: readinessSignal,
+          });
+          if (!isReady) {
+            throw new Error("PostgreSQL is not ready yet");
+          }
+        },
+        {
+          retries: READINESS_RETRIES,
+          factor: 1,
+          minTimeout: 2000,
+          signal: readinessSignal,
+        },
+      ).then(() => "ready" as const),
+      container.exited.then((exit) => ({ exit }) as const),
+    ]);
 
-  const databaseUrl = await startPostgresContainerAndWaitUntilReady(
-    containerName,
-    dbImage,
-  );
+    if (result === "ready") {
+      logger.success("PostgreSQL is ready");
+      return;
+    }
 
-  return databaseUrl;
-}
-
-async function startPostgresContainerAndWaitUntilReady(
-  containerName: DbContainerName,
-  dbImage: DockerImageName,
-): Promise<DatabaseConnectionUrl> {
-  const port = 5432;
-  const password = "devpass";
-
-  await pullDockerImage(dbImage);
-
-  logger.info(`Starting the PostgreSQL container with image: ${dbImage}...`);
-
-  spawnAndCollectOutput({
-    name: "create-postgres-container",
-    cmd: "docker",
-    args: [
-      "run",
-      "--name",
+    // The container died before becoming ready.
+    const stderr = container.stderrSoFar();
+    const extraInfo = getExtraInfoOnPostgresStartError({
+      originalErrorText: stderr,
       containerName,
-      "-p",
-      `${port}:5432`,
-      "-e",
-      `POSTGRES_PASSWORD=${password}`,
-      `--rm`,
-      dbImage,
-    ],
-  })
-    // If we awaited here, we would block the main thread indefinitely.
-    .then(({ exitCode, stderrData }) => {
-      if (exitCode !== 0) {
-        logger.error(stderrData);
-        const extraInfo = getExtraInfoOnPostgresStartError({
-          originalErrorText: stderrData,
-          containerName,
-          port,
-        });
-        if (extraInfo !== null) {
-          logger.info(extraInfo);
-        }
-        process.exit(1);
-      }
+      port: POSTGRES_PORT,
     });
-
-  await waitForPostgresReady(containerName);
-
-  return `postgresql://postgres:${password}@localhost:${port}/postgres` as DatabaseConnectionUrl;
+    throw new Error(
+      `The PostgreSQL container exited before becoming ready.\n${stderr}${
+        extraInfo === null ? "" : `\n${extraInfo}`
+      }`,
+    );
+  } finally {
+    readinessCtl.abort();
+  }
 }
 
 function getExtraInfoOnPostgresStartError({
@@ -117,7 +149,7 @@ function getExtraInfoOnPostgresStartError({
   port,
 }: {
   originalErrorText: string;
-  containerName: DbContainerName;
+  containerName: ContainerName;
   port: number;
 }): string | null {
   const errorText = originalErrorText.toLowerCase();
@@ -131,65 +163,4 @@ function getExtraInfoOnPostgresStartError({
   }
 
   return null;
-}
-
-async function waitForPostgresReady(
-  containerName: DbContainerName,
-): Promise<void> {
-  const healthCheckRetries = 10;
-  const healthCheckDelay = 2000;
-
-  for (let i = 1; i <= healthCheckRetries; i++) {
-    logger.info(
-      `Checking PostgreSQL readiness (attempt ${i}/${healthCheckRetries})`,
-    );
-
-    const isPostgresReady = await checkIfPostgresIsReady(containerName);
-
-    if (isPostgresReady) {
-      logger.success("PostgreSQL is ready");
-      return;
-    }
-    await wait(healthCheckDelay);
-  }
-
-  logger.error("PostgreSQL did not become ready in time");
-  process.exit(1);
-}
-
-async function checkIfPostgresIsReady(
-  containerName: DbContainerName,
-): Promise<boolean> {
-  const { exitCode } = await spawnAndCollectOutput({
-    name: "postgres-readiness-check",
-    cmd: "docker",
-    args: ["exec", containerName, "pg_isready", "-U", "postgres"],
-  });
-
-  return exitCode === 0;
-}
-
-async function wait(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function ensureDockerIsRunning(): Promise<void> {
-  const isDockerRunning = await checkIfDockerIsRunning();
-
-  if (isDockerRunning) {
-    return;
-  }
-
-  logger.error("Docker is not running. Please start Docker and try again.");
-  process.exit(1);
-}
-
-async function checkIfDockerIsRunning(): Promise<boolean> {
-  const { exitCode } = await spawnAndCollectOutput({
-    name: "docker-health-check",
-    cmd: "docker",
-    args: ["info"],
-  });
-
-  return exitCode === 0;
 }

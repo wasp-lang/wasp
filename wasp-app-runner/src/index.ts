@@ -1,4 +1,4 @@
-import { readdir } from "fs/promises";
+import { readdir } from "node:fs/promises";
 import {
   parseArgs,
   type DockerImageName,
@@ -12,12 +12,19 @@ import { defaultPostgresDbImage } from "./db/postgres.js";
 import { checkDependencies } from "./dependencies.js";
 import { startAppInDevMode } from "./dev/index.js";
 import { createLogger } from "./logging.js";
+import { installShutdownHandlers } from "./shutdown.js";
 import { waspInfo, waspInstall } from "./waspCli.js";
 
 const logger = createLogger("main");
 
 export async function main(): Promise<void> {
+  // `commander` may call `process.exit` on `--help` or invalid arguments. That
+  // happens before we own any resources, so it's acceptable here.
   const { mode, waspCliCmd, pathToApp, dbImage } = parseArgs();
+
+  const controller = new AbortController();
+  using _shutdown = installShutdownHandlers(controller);
+  const { signal } = controller;
 
   try {
     await runWaspApp({
@@ -25,14 +32,16 @@ export async function main(): Promise<void> {
       waspCliCmd,
       pathToApp,
       dbImage,
+      signal,
     });
   } catch (error: unknown) {
-    if (error instanceof Error) {
-      logger.error(`Fatal error: ${error.message}`);
+    if (signal.aborted) {
+      // Graceful shutdown: teardown already ran via `await using` unwinding.
+      logger.warn(`Shutting down: ${errorMessage(error)}`);
     } else {
-      logger.error(`Fatal error: ${error}`);
+      logger.error(`Fatal error: ${errorMessage(error)}`);
+      process.exitCode = 1;
     }
-    process.exit(1);
   }
 }
 
@@ -41,24 +50,26 @@ async function runWaspApp({
   waspCliCmd,
   pathToApp,
   dbImage: dbImageArg,
+  signal,
 }: {
   mode: Mode;
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   dbImage?: DockerImageName;
+  signal: AbortSignal;
 }): Promise<void> {
-  await checkDependencies();
+  await checkDependencies({ signal });
 
   const { appName, dbType } = await waspInfo({
     waspCliCmd,
     pathToApp,
+    signal,
   });
 
   if (dbImageArg && dbType !== DbType.Postgres) {
-    logger.error(
-      `The --db-image option is only valid when using PostgreSQL as the database.`,
+    throw new Error(
+      "The --db-image option is only valid when using PostgreSQL as the database.",
     );
-    process.exit(1);
   }
   const dbImage = dbImageArg ?? defaultPostgresDbImage;
 
@@ -66,6 +77,7 @@ async function runWaspApp({
     await waspInstall({
       waspCliCmd,
       pathToApp,
+      signal,
     });
   }
 
@@ -81,6 +93,7 @@ async function runWaspApp({
         appName,
         dbType,
         dbImage,
+        signal,
       });
       break;
 
@@ -91,6 +104,7 @@ async function runWaspApp({
         appName,
         dbType,
         dbImage,
+        signal,
       });
       break;
 
@@ -99,12 +113,17 @@ async function runWaspApp({
   }
 }
 
-async function isWaspTypescriptConfigProject(pathToApp: PathToApp) {
+async function isWaspTypescriptConfigProject(
+  pathToApp: PathToApp,
+): Promise<boolean> {
   try {
     const files = await readdir(pathToApp);
     return files.some((file) => file.endsWith(".wasp.ts"));
   } catch (error) {
-    logger.error(`Failed to read directory ${pathToApp}: ${error}`);
-    process.exit(1);
+    throw new Error(`Failed to read directory ${pathToApp}`, { cause: error });
   }
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }

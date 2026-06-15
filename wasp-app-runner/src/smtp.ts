@@ -1,23 +1,36 @@
-import type { DockerImageName } from "./args.js";
-import { pullDockerImage } from "./docker.js";
-import { createLogger } from "./logging.js";
-import { spawnWithLog } from "./process.js";
+import type { DockerImageName, PathToApp } from "./args.js";
+import {
+  createAppSpecificContainerName,
+  pullDockerImage,
+  startContainer,
+} from "./docker.js";
+import type { ManagedService } from "./run.js";
+import type { AppName } from "./waspCli.js";
 
 const mailcrabImage = "marlonb/mailcrab:latest" as DockerImageName;
 
-export async function startLocalSmtpServer(): Promise<void> {
-  const logger = createLogger("smtp-server");
+export async function startLocalSmtpServer({
+  appName,
+  pathToApp,
+  signal,
+}: {
+  appName: AppName;
+  pathToApp: PathToApp;
+  signal: AbortSignal;
+}): Promise<ManagedService> {
+  await pullDockerImage(mailcrabImage, { signal });
 
-  await pullDockerImage(mailcrabImage);
+  const containerName = createAppSpecificContainerName("smtp", {
+    appName,
+    pathToApp,
+  });
 
-  spawnWithLog({
+  return startContainer({
     name: "smtp-server",
-    cmd: "docker",
-    args: ["run", "--rm", "-p", "1080:1080", "-p", "1025:1025", mailcrabImage],
-  }).then(({ exitCode }) => {
-    if (exitCode !== 0) {
-      logger.error(`SMTP server exited with code ${exitCode}`);
-      process.exit(1);
-    }
+    containerName,
+    image: mailcrabImage,
+    dockerRunArgs: ["-p", "1080:1080", "-p", "1025:1025"],
+    output: "log",
+    signal,
   });
 }

@@ -1,5 +1,6 @@
 import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
 import { DbType, setupDb } from "../db/index.js";
+import { waitUntilAppStops } from "../run.js";
 import { type AppName, waspMigrateDb, waspStart } from "../waspCli.js";
 
 export async function startAppInDevMode({
@@ -8,29 +9,38 @@ export async function startAppInDevMode({
   appName,
   dbType,
   dbImage,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   appName: AppName;
   dbType: DbType;
   dbImage: DockerImageName;
+  signal: AbortSignal;
 }): Promise<void> {
-  const { dbEnvVars } = await setupDb({
+  // Disposed in reverse declaration order: app first (its SIGTERM releases the
+  // DB connections), then the database.
+  await using db = await setupDb({
     appName,
     dbType,
     pathToApp,
     dbImage,
+    signal,
   });
 
   await waspMigrateDb({
     waspCliCmd,
     pathToApp,
-    extraEnv: dbEnvVars,
+    extraEnv: db.dbEnvVars,
+    signal,
   });
 
-  await waspStart({
+  await using app = waspStart({
     waspCliCmd,
     pathToApp,
-    extraEnv: dbEnvVars,
+    extraEnv: db.dbEnvVars,
+    signal,
   });
+
+  await waitUntilAppStops({ app, services: [db], signal });
 }

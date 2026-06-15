@@ -3,8 +3,12 @@ import semver, { type SemVer } from "semver";
 
 import type { PathToApp, WaspCliCmd } from "./args.js";
 import { DbType } from "./db/index.js";
-import { createLogger } from "./logging.js";
-import { spawnAndCollectOutput, spawnWithLog } from "./process.js";
+import {
+  captureCommand,
+  runCommand,
+  spawnProcess,
+  type ProcessHandle,
+} from "./process.js";
 import type { Branded, EnvVars } from "./types.js";
 
 export type AppName = Branded<string, "AppName">;
@@ -14,12 +18,14 @@ export function waspMigrateDb({
   waspCliCmd,
   pathToApp,
   extraEnv,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   extraEnv: EnvVars;
-}): Promise<{ exitCode: number | null }> {
-  return spawnWithLog({
+  signal: AbortSignal;
+}): Promise<void> {
+  return runCommand({
     name: "wasp-migrate-db",
     cmd: waspCliCmd.cmd,
     /**
@@ -32,6 +38,7 @@ export function waspMigrateDb({
     args: [...waspCliCmd.args, "db", "migrate-dev", "--name", "auto-migration"],
     cwd: pathToApp,
     extraEnv,
+    signal,
   });
 }
 
@@ -39,32 +46,41 @@ export function waspStart({
   waspCliCmd,
   pathToApp,
   extraEnv,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
   extraEnv: EnvVars;
-}): Promise<{ exitCode: number | null }> {
-  return spawnWithLog({
+  signal: AbortSignal;
+}): ProcessHandle {
+  // `wasp start` spawns npm -> vite/node grandchildren, so it needs its own
+  // process group to be killed as a tree.
+  return spawnProcess({
     name: "wasp-start",
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "start"],
     cwd: pathToApp,
     extraEnv,
+    detached: true,
+    signal,
   });
 }
 
 export function waspBuild({
   waspCliCmd,
   pathToApp,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
-}): Promise<{ exitCode: number | null }> {
-  return spawnWithLog({
+  signal: AbortSignal;
+}): Promise<void> {
+  return runCommand({
     name: "wasp-build",
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "build"],
     cwd: pathToApp,
+    signal,
   });
 }
 
@@ -75,6 +91,7 @@ export function waspBuildStart({
   clientEnvVars,
   serverEnvFile,
   clientEnvFile,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
@@ -82,7 +99,8 @@ export function waspBuildStart({
   clientEnvVars?: EnvVars;
   serverEnvFile?: string;
   clientEnvFile?: string;
-}): Promise<{ exitCode: number | null }> {
+  signal: AbortSignal;
+}): ProcessHandle {
   const args = [
     "build",
     "start",
@@ -102,41 +120,39 @@ export function waspBuildStart({
     ...(clientEnvFile ? ["--client-env-file", clientEnvFile] : []),
   ];
 
-  return spawnWithLog({
+  // Like `wasp start`, the build server spawns grandchildren; run it detached.
+  return spawnProcess({
     name: "wasp-build-start",
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, ...args],
     cwd: pathToApp,
+    detached: true,
+    signal,
   });
 }
 
 export async function getWaspVersion({
   waspCliCmd,
   pathToApp,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
+  signal?: AbortSignal;
 }): Promise<{ waspVersion: WaspVersion }> {
-  const logger = createLogger("wasp-info");
-  const { stdoutData, exitCode } = await spawnAndCollectOutput({
+  const { stdout } = await captureCommand({
     name: "wasp-version",
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "version"],
     cwd: pathToApp,
+    signal,
   });
-  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
 
-  if (exitCode !== 0) {
-    logger.error(`Failed to get wasp version: ${stdoutDataWithoutAnsiChars}`);
-    process.exit(1);
-  }
-
-  const [firstLine] = stdoutData.split("\n");
+  const [firstLine] = stdout.split("\n");
   const waspVersion = semver.parse(firstLine);
 
   if (!waspVersion) {
-    logger.error("Failed to get wasp version");
-    process.exit(1);
+    throw new Error("Failed to parse wasp version");
   }
 
   return {
@@ -147,41 +163,26 @@ export async function getWaspVersion({
 export async function waspInfo({
   waspCliCmd,
   pathToApp,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
+  signal?: AbortSignal;
 }): Promise<{
   appName: AppName;
   dbType: DbType;
 }> {
-  const logger = createLogger("wasp-info");
-  const { stdoutData, exitCode } = await spawnAndCollectOutput({
+  const { stdout } = await captureCommand({
     name: "wasp-info",
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "info"],
     cwd: pathToApp,
+    signal,
   });
-  const stdoutDataWithoutAnsiChars = stripVTControlCharacters(stdoutData);
+  const output = stripVTControlCharacters(stdout);
 
-  if (exitCode !== 0) {
-    logger.error(`Failed to get app info: ${stdoutDataWithoutAnsiChars}`);
-    process.exit(1);
-  }
-
-  const appNameMatch = stdoutDataWithoutAnsiChars.match(/Name: (.*)$/m);
-  const dbTypeMatch = stdoutDataWithoutAnsiChars.match(
-    /Database system: (.*)$/m,
-  );
-
-  if (appNameMatch === null) {
-    logger.error("Failed to get app name");
-    process.exit(1);
-  }
-
-  if (dbTypeMatch === null) {
-    logger.error("Failed to get database type");
-    process.exit(1);
-  }
+  const appNameMatch = output.match(/Name: (.*)$/m);
+  const dbTypeMatch = output.match(/Database system: (.*)$/m);
 
   return {
     appName: ensureRegexMatch(appNameMatch, "app name") as AppName,
@@ -195,37 +196,31 @@ export async function waspInfo({
 export async function waspInstall({
   waspCliCmd,
   pathToApp,
+  signal,
 }: {
   waspCliCmd: WaspCliCmd;
   pathToApp: PathToApp;
+  signal?: AbortSignal;
 }): Promise<void> {
-  const logger = createLogger("wasp-install");
-  const { stderrData, exitCode } = await spawnAndCollectOutput({
+  await captureCommand({
     name: "wasp-install",
     cmd: waspCliCmd.cmd,
     args: [...waspCliCmd.args, "install"],
     cwd: pathToApp,
+    signal,
   });
-
-  if (exitCode !== 0) {
-    logger.error(`Failed to install Wasp project dependencies: ${stderrData}`);
-    process.exit(1);
-  }
 }
 
 function ensureRegexMatch(
   match: RegExpMatchArray | null,
   name: string,
 ): string {
-  const logger = createLogger("ensure-regex-match");
   if (match === null) {
-    logger.error(`Failed to get ${name}`);
-    process.exit(1);
+    throw new Error(`Failed to get ${name}`);
   }
 
   if (match.length !== 2) {
-    logger.error(`Got more than one ${name}`);
-    process.exit(1);
+    throw new Error(`Got more than one ${name}`);
   }
 
   return match[1]!;
