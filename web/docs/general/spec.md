@@ -28,7 +28,7 @@ import { getTasks } from "./src/queries" with { type: "ref" };
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.25.0" },
+  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [
@@ -152,7 +152,7 @@ import { authSpec } from "./src/auth/auth.wasp";
 
 export default app({
   name: "todoApp",
-  wasp: { version: "^0.25.0" },
+  wasp: { version: "{latestWaspVersion}" },
   title: "ToDo App",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   spec: [

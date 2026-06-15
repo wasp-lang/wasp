@@ -26,7 +26,7 @@ import { MainPage } from "./src/MainPage" with { type: "ref" }
 
 export default app({
   name: "SpotifyOauth",
-  wasp: { version: "^0.25.0" },
+  wasp: { version: "^0.24.0" },
   title: "spotify-oauth",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   auth: {

@@ -109,14 +109,14 @@ If you want to do it manually, follow the steps below.
 
 ### 1. Bump the Wasp version
 
-Update the version field in your Wasp config to `^0.25.0`. The syntax depends on which config style your app currently uses.
+Update the version field in your Wasp config to `^0.24.0`. The syntax depends on which config style your app currently uses.
 
 <Tabs sideBySide>
   <TabItem value="wasp-dsl" label="Wasp DSL">
     ```wasp title="main.wasp"
     app MyApp {
       wasp: {
-        version: "^0.25.0"
+        version: "^0.24.0"
       },
       // ...
     }
@@ -127,7 +127,7 @@ Update the version field in your Wasp config to `^0.25.0`. The syntax depends on
     import { App } from "wasp-config";
 
     const app = new App("MyApp", {
-      wasp: { version: "^0.25.0" },
+      wasp: { version: "^0.24.0" },
       // ...
     });
     ```
