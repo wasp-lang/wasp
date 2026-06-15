@@ -3,7 +3,10 @@ module Wasp.Cli.Command.Doctor
   )
 where
 
-import Control.Monad (forM_)
+import Control.Monad (forM_, when)
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
+import Control.Monad.IO.Class (liftIO)
+import Data.Functor ((<&>))
 import Data.Maybe (catMaybes)
 import System.Directory (findExecutable)
 import System.Exit (ExitCode (ExitSuccess))
@@ -21,9 +24,7 @@ import qualified Wasp.Util.Network.Socket as Socket
 import qualified Wasp.Util.Terminal as Term
 import Wasp.Version (waspVersion)
 
-type Check = IO CheckResult
-
-type CheckResult = Either String String
+type Check a = ExceptT String IO a
 
 -- | Runs a series of sanity checks on the user's environment and prints a
 -- report. It is meant to help users (and us) figure out what might be wrong
@@ -36,10 +37,34 @@ doctor = do
   putStrLn $ Term.applyStyles [Term.Bold] "Checking your environment...\n"
 
   forM_ checks $ \(title, check) -> do
-    result <- check
+    result <- runExceptT check
     putStrLn $ renderCheckResult title result
 
-renderCheckResult :: String -> CheckResult -> String
+-- | The checks to run, each as a (title, check) pair. A check returns the text
+-- to print after the title: `Right` if it succeeded, `Left` if it failed.
+checks :: [(String, Check String)]
+checks =
+  [ ("Wasp", checkWasp),
+    ("System", checkSystem),
+    ("Node.js", makeToolVersionCheck "node" NodeVersion.oldestWaspSupportedNodeVersion (ExceptT NodeVersion.getUserNodeVersion)),
+    ("npm", makeToolVersionCheck "npm" NodeVersion.oldestWaspSupportedNpmVersion (ExceptT NodeVersion.getUserNpmVersion)),
+    ("Docker", checkDocker >> return "running"),
+    makePortCheck "Client" WebApp.defaultClientPort,
+    makePortCheck "Server" Server.defaultServerPort,
+    makePortCheck "Dev database" Dev.Postgres.defaultDevPort
+  ]
+  where
+    makePortCheck name port =
+      ( name ++ " port (" ++ show port ++ ")",
+        checkPortIsFree port >> return "free"
+      )
+
+    makeToolVersionCheck name minVersion getCurrentVersion =
+      checkToolExists name
+        >> checkToolVersion minVersion getCurrentVersion
+        <&> show
+
+renderCheckResult :: String -> Either String String -> String
 renderCheckResult title result =
   symbol ++ " " ++ title ++ ": " ++ detail
   where
@@ -48,29 +73,17 @@ renderCheckResult title result =
       Right _ -> Term.applyStyles [Term.Green] "[✓]"
       Left _ -> Term.applyStyles [Term.Red] "[✗]"
 
--- | The checks to run, each as a (title, check) pair. A check returns the text
--- to print after the title: `Right` if it succeeded, `Left` if it failed.
-checks :: [(String, Check)]
-checks =
-  [ ("Wasp", checkWasp),
-    ("System", checkSystem),
-    ("Node.js", checkNode),
-    ("npm", checkNpm),
-    ("Docker", checkDocker)
-  ]
-    ++ makePortChecks
-
-checkWasp :: Check
-checkWasp = return $ Right $ show waspVersion ++ gitInfo
+checkWasp :: Check String
+checkWasp = return $ show waspVersion ++ gitInfo
   where
     gitInfo = maybe "" (\description -> " (git " ++ description ++ ")") gitRevDescription
 
-checkSystem :: Check
+checkSystem :: Check String
 checkSystem =
-  Right . unwords . filter (not . null) . catMaybes
+  unwords . filter (not . null) . catMaybes
     <$> sequence
       [ return $ Just System.Info.os,
-        eitherToMaybe <$> getOsVersion,
+        liftIO $ eitherToMaybe <$> getOsVersion,
         return $ Just System.Info.arch
       ]
   where
@@ -78,47 +91,40 @@ checkSystem =
       (_exitCode, stdout, _stderr) <- readProcessWithExitCode "uname" ["-r"] ""
       return $ trim stdout
 
-checkNode :: Check
-checkNode = checkToolVersion NodeVersion.oldestWaspSupportedNodeVersion <$> NodeVersion.getUserNodeVersion
-
-checkNpm :: Check
-checkNpm = checkToolVersion NodeVersion.oldestWaspSupportedNpmVersion <$> NodeVersion.getUserNpmVersion
-
-checkToolVersion :: SV.Version -> Either String SV.Version -> CheckResult
-checkToolVersion _ (Left _) = Left "not found in PATH"
-checkToolVersion oldestSupportedVersion (Right userVersion)
-  | userVersion >= oldestSupportedVersion = Right (show userVersion)
-  | otherwise =
-      Left $
-        show userVersion ++ " is too old, Wasp requires version " ++ show oldestSupportedVersion ++ " or higher"
-
-checkDocker :: Check
+checkDocker :: Check ()
 checkDocker =
-  findExecutable "docker" >>= \case
-    Nothing -> return $ Left "not found in PATH"
-    Just _ -> do
-      isRunning <- isDockerDaemonRunning
-      return $
-        if isRunning
-          then Right "installed and running"
-          else Left "installed but not running"
+  checkToolExists "docker"
+    >> liftIO isDockerDaemonRunning
+    >>= \case
+      False -> throwError "docker daemon is not running"
+      True -> return ()
   where
     isDockerDaemonRunning =
       (isExitSuccess <$> readProcessWithExitCode "docker" ["info"] "")
         `catchIOError` const (return False)
-    isExitSuccess (exitCode, _stdout, _stderr) = exitCode == ExitSuccess
 
-makePortChecks :: [(String, Check)]
-makePortChecks =
-  makePortCheck
-    <$> [ ("client", WebApp.defaultClientPort),
-          ("server", Server.defaultServerPort),
-          ("dev database", Dev.Postgres.defaultDevPort)
-        ]
+    isExitSuccess (exitCode, _, _) = exitCode == ExitSuccess
+
+checkToolVersion :: SV.Version -> Check SV.Version -> Check SV.Version
+checkToolVersion minVersion getUserVersion = do
+  userVersion <- getUserVersion
+  when (userVersion < minVersion) $ do
+    throwError $
+      show userVersion ++ " (Wasp requires at least " ++ show minVersion ++ ")"
+  return userVersion
+
+checkToolExists :: String -> Check ()
+checkToolExists toolName =
+  liftIO (findExecutable toolName)
+    >>= \case
+      Just _ -> return ()
+      Nothing -> throwError "not found in PATH"
+
+checkPortIsFree :: Int -> Check ()
+checkPortIsFree port =
+  liftIO (checkIfLocalPortIsInuse port)
+    >>= \case
+      True -> throwError "in use"
+      False -> return ()
   where
-    makePortCheck (usedFor, port) =
-      ( "Port " ++ show port ++ " (" ++ usedFor ++ ")",
-        do
-          isInUse <- Socket.checkIfPortIsInUse $ Socket.makeLocalHostSocketAddress $ fromIntegral port
-          return $ if isInUse then Left "in use" else Right "free"
-      )
+    checkIfLocalPortIsInuse = Socket.checkIfPortIsInUse . Socket.makeLocalHostSocketAddress . fromIntegral
