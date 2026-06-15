@@ -22,7 +22,7 @@ import qualified StrongPath as SP
 import qualified Wasp.AppSpec as AS
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), NodeAndNpmInstalled (NodeAndNpmInstalled), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import qualified Wasp.Generator
@@ -53,6 +53,9 @@ compile = do
 compileWithOptions :: CompileOptions -> Command [CompileWarning]
 compileWithOptions options = do
   InWaspProject waspProjectDir <- require
+  -- Code generation runs the project setup (npm install) and other Node.js
+  -- tooling, so Node.js and npm are required.
+  NodeAndNpmInstalled <- require
 
   let outDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

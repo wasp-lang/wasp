@@ -24,6 +24,7 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
+    NodeAndNpmInstalled (NodeAndNpmInstalled),
     WaspSpecAvailable (WaspSpecAvailable),
     GeneratedAppIsProduction (GeneratedAppIsProduction),
     GeneratedAppIsDevelopment (GeneratedAppIsDevelopment),
@@ -45,6 +46,7 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (check
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
+import qualified Wasp.Node.Version as NodeVersion
 import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
@@ -89,6 +91,19 @@ instance Requirable InWaspProject where
               ++ " you are running this command from a Wasp project."
           )
 
+-- | Require that the Node.js and npm installed on the user's machine meet
+-- Wasp's version requirements. Any command that runs Node.js (compilation,
+-- running the generated app, npm install, Prisma, the deploy/studio packages,
+-- ...) should require this so the user gets a clear error early on.
+data NodeAndNpmInstalled = NodeAndNpmInstalled deriving (Typeable)
+
+instance Requirable NodeAndNpmInstalled where
+  checkRequirement =
+    liftIO NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
+      NodeVersion.VersionCheckFail errorMsg ->
+        throwError $ CommandError "Node/NPM requirement not met" errorMsg
+      NodeVersion.VersionCheckSuccess -> return NodeAndNpmInstalled
+
 -- | Require that the @wasp.sh/spec package is available in node_modules and that
 -- its version matches this CLI's version (for TS projects). For DSL projects,
 -- this check always passes.
@@ -98,7 +113,11 @@ instance Requirable WaspSpecAvailable where
   checkRequirement = do
     InWaspProject waspProjectDir <- require
     isTsProject <- liftIO $ isWaspTsProject waspProjectDir
-    when isTsProject $ ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
+    when isTsProject $ do
+      -- Reading the spec of a TypeScript Wasp project runs Node.js (via the
+      -- FFI), so it requires Node.js and npm to be present.
+      NodeAndNpmInstalled <- require
+      ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
     return WaspSpecAvailable
     where
       ensureInstalledWaspSpecMatchesCliVersion waspProjectDir =
