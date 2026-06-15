@@ -78,28 +78,6 @@ Prerendering is especially valuable if you want your content to be indexed by se
 
 ## Limitations
 
-### Static paths only
-
-Prerendering only works on static paths. The HTML must be generated at build time for a known URL, so any prerendered path must be fully static (no `:paramName` dynamic segments, `?` optional segments, or `*` splats).
-
-`prerender: true` therefore only works when the route's own path is static. To prerender a **dynamic** route, list the concrete instances you want instead (see [Prerendering specific paths](#prerendering-specific-paths)). Each listed path must be static and must match the route's pattern.
-
-```ts title="main.wasp.ts"
-import { app, page, route } from "@wasp.sh/spec"
-import { AboutPage } from "./src/AboutPage" with { type: "ref" }
-import { UserPage } from "./src/UserPage" with { type: "ref" }
-
-export default app({
-  // ...
-  spec: [
-    // ✅ Works (static path)
-    route("AboutRoute", "/about", page(AboutPage), { prerender: true }),
-    // ❌ Won't compile (dynamic segment)
-    route("UserRoute", "/user/:id", page(UserPage), { prerender: true }),
-  ],
-})
-```
-
 ### No auth-required pages
 
 Routes pointing to pages with `authRequired: true` cannot be prerendered, since the page content depends on the logged-in user.

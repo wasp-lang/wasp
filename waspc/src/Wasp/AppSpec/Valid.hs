@@ -477,7 +477,7 @@ validatePrerenderRoutes spec =
           ]
       | otherwise = []
 
-    prerenderPaths = fromMaybe [] . Route.prerender
+    prerenderPaths = Route.prerender
     pathHasDynamicSegments path = any (`elem` path) [':', '*', '?']
     pageRequiresAuth page = Page.authRequired page == Just True
 

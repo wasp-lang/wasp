@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
+import { normalizePrerender } from "../../src/normalizePrerender.js";
 import * as AppSpecMapper from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
@@ -308,43 +309,22 @@ describe("mapPage", () => {
 
 describe("mapRoute", () => {
   test("should map minimal config correctly", () => {
-    testMapRoute(Fixtures.getRoute("minimal"), undefined);
+    testMapRoute(Fixtures.getRoute("minimal"));
   });
 
   test("should map full config correctly", () => {
-    // `prerender: true` is normalized to the route's own path.
-    testMapRoute(Fixtures.getRoute("full"), ["/foo/bar"]);
+    testMapRoute(Fixtures.getRoute("full"));
   });
 
   test("should keep an array of prerender paths as-is", () => {
-    const blogRoute = route(
-      "blogRoute",
-      "/blog/:slug",
-      Fixtures.getPage("minimal"),
-      {
+    testMapRoute(
+      route("blogRoute", "/blog/:slug", Fixtures.getPage("minimal"), {
         prerender: ["/blog/intro", "/blog/changelog"],
-      },
-    );
-    testMapRoute(blogRoute, ["/blog/intro", "/blog/changelog"]);
-  });
-
-  test("should normalize prerender: false and an empty list to undefined", () => {
-    testMapRoute(
-      route("falseRoute", "/a", Fixtures.getPage("minimal"), {
-        prerender: false,
       }),
-      undefined,
-    );
-    testMapRoute(
-      route("emptyRoute", "/b", Fixtures.getPage("minimal"), { prerender: [] }),
-      undefined,
     );
   });
 
-  function testMapRoute(
-    route: WaspSpec.Route,
-    expectedPrerender: string[] | undefined,
-  ): void {
+  function testMapRoute(route: WaspSpec.Route): void {
     const result = AppSpecMapper.mapRoute(route);
 
     expect(result).toStrictEqual({
@@ -353,7 +333,7 @@ describe("mapRoute", () => {
         name: getRefObjectDeclarationName(route.page.component),
         declType: "Page",
       },
-      prerender: expectedPrerender,
+      prerender: normalizePrerender(route.prerender, route.path),
       lazy: route.lazy,
     } satisfies AppSpec.Route);
   }

@@ -915,7 +915,7 @@ export interface Route extends BaseSpecElement<"route"> {
    * })
    * ```
    */
-  prerender?: boolean | string[];
+  prerender?: boolean | readonly string[];
   /**
    * Lazy-load the page's component.
    *

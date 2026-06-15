@@ -498,48 +498,45 @@ spec_AppSpecValid = do
       -- The public @prerender: true@ shorthand is normalized to @[routePath]@
       -- before reaching the validator, so a static route prerenders @[path]@.
       it "returns no error for prerendered route with static path and no auth" $ do
-        ASV.validateAppSpec (makeSpec "/about" (Just ["/about"]) Nothing) `shouldBe` []
+        ASV.validateAppSpec (makeSpec "/about" ["/about"] Nothing) `shouldBe` []
 
       it "returns an error for prerendered route with dynamic segment" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/photo/:photoId" (Just ["/photo/:photoId"]) Nothing)
+        let errors = ASV.validateAppSpec (makeSpec "/photo/:photoId" ["/photo/:photoId"] Nothing)
         length errors `shouldBe` 1
         show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
 
       it "returns an error for prerendered route with splat" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/files/*" (Just ["/files/*"]) Nothing)
+        let errors = ASV.validateAppSpec (makeSpec "/files/*" ["/files/*"] Nothing)
         length errors `shouldBe` 1
         show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
 
       it "returns an error for prerendered route with optional segment" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/photo/:id/edit?" (Just ["/photo/:id/edit?"]) Nothing)
+        let errors = ASV.validateAppSpec (makeSpec "/photo/:id/edit?" ["/photo/:id/edit?"] Nothing)
         length errors `shouldBe` 1
         -- Has both : and ?, but we just check at least one error about dynamic segments
         show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
 
       it "returns an error for prerendered route pointing to authRequired page" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/dashboard" (Just ["/dashboard"]) (Just True))
+        let errors = ASV.validateAppSpec (makeSpec "/dashboard" ["/dashboard"] (Just True))
         -- One error from validateAppAuthIsSetIfAnyPageRequiresAuth (app.auth not set)
         -- and one from validatePrerenderRoutes (prerender + authRequired)
         any (("authRequired" `isInfixOf`) . show) errors `shouldBe` True
         any (("Prerendered routes cannot require authentication" `isInfixOf`) . show) errors `shouldBe` True
 
-      it "returns no error when prerender is not set on dynamic route" $ do
-        ASV.validateAppSpec (makeSpec "/photo/:photoId" Nothing Nothing) `shouldBe` []
-
-      it "returns no error when prerender is an empty list on dynamic route" $ do
-        ASV.validateAppSpec (makeSpec "/photo/:photoId" (Just []) Nothing) `shouldBe` []
+      it "returns no error when the prerender list is empty on a dynamic route" $ do
+        ASV.validateAppSpec (makeSpec "/photo/:photoId" [] Nothing) `shouldBe` []
 
       it "returns no error when prerendering concrete instances of a dynamic route" $ do
-        ASV.validateAppSpec (makeSpec "/blog/:slug" (Just ["/blog/intro", "/blog/changelog"]) Nothing)
+        ASV.validateAppSpec (makeSpec "/blog/:slug" ["/blog/intro", "/blog/changelog"] Nothing)
           `shouldBe` []
 
       it "returns an error when a listed prerender path is itself dynamic" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" (Just ["/blog/:slug"]) Nothing)
+        let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" ["/blog/:slug"] Nothing)
         length errors `shouldBe` 1
         show (head errors) `shouldSatisfy` ("dynamic segments" `isInfixOf`)
 
       it "returns an error when a listed prerender path does not match the route pattern" $ do
-        let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" (Just ["/not-blog/intro"]) Nothing)
+        let errors = ASV.validateAppSpec (makeSpec "/blog/:slug" ["/not-blog/intro"] Nothing)
         length errors `shouldBe` 1
         show (head errors) `shouldSatisfy` ("does not match" `isInfixOf`)
 
@@ -693,7 +690,7 @@ spec_AppSpecValid = do
     makeBasicRouteDecl name pageName =
       AS.Decl.makeDecl
         name
-        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing, AS.Route.prerender = Nothing}
+        AS.Route.Route {AS.Route.to = AS.Core.Ref.Ref pageName, AS.Route.path = "/test", AS.Route.lazy = Nothing, AS.Route.prerender = []}
 
     makeBasicActionDecl name =
       AS.Decl.makeDecl

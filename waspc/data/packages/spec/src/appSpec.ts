@@ -41,10 +41,10 @@ export type Page = {
 export type Route = {
   path: string;
   to: Ref<"Page">;
-  // List of concrete static paths to prerender at build time, or `undefined`
-  // when prerendering is disabled. The public `prerender: true` shorthand is
+  // List of concrete static paths to prerender at build time (empty when
+  // prerendering is disabled). The public `prerender: true` shorthand is
   // normalized to `[routePath]` by the spec mappers.
-  prerender: Optional<string[]>;
+  prerender: string[];
   lazy: Optional<boolean>;
 };
 

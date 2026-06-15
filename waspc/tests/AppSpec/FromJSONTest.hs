@@ -99,7 +99,8 @@ spec_AppSpecFromJSON = do
       [trimming|
           {
             "path": "/foo",
-            "to": ${pageRef}
+            "to": ${pageRef},
+            "prerender": []
           }
         |]
         `shouldDecodeTo` Just
@@ -107,7 +108,7 @@ spec_AppSpecFromJSON = do
               { Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Nothing,
-                Route.prerender = Nothing
+                Route.prerender = []
               }
           )
     it "parses a valid Route JSON with lazy: false" $ do
@@ -115,7 +116,8 @@ spec_AppSpecFromJSON = do
           {
             "path": "/foo",
             "to": ${pageRef},
-            "lazy": false
+            "lazy": false,
+            "prerender": []
           }
         |]
         `shouldDecodeTo` Just
@@ -123,7 +125,7 @@ spec_AppSpecFromJSON = do
               { Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Just False,
-                Route.prerender = Nothing
+                Route.prerender = []
               }
           )
     it "parses a valid Route JSON with lazy: true" $ do
@@ -131,7 +133,8 @@ spec_AppSpecFromJSON = do
           {
             "path": "/foo",
             "to": ${pageRef},
-            "lazy": true
+            "lazy": true,
+            "prerender": []
           }
         |]
         `shouldDecodeTo` Just
@@ -139,7 +142,7 @@ spec_AppSpecFromJSON = do
               { Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Just True,
-                Route.prerender = Nothing
+                Route.prerender = []
               }
           )
     it "parses a valid Route JSON with a prerender path list" $ do
@@ -155,23 +158,7 @@ spec_AppSpecFromJSON = do
               { Route.path = "/foo",
                 Route.to = fromJust $ decodeJson pageRef,
                 Route.lazy = Nothing,
-                Route.prerender = Just ["/foo", "/bar"]
-              }
-          )
-    it "parses a valid Route JSON with an empty prerender path list" $ do
-      [trimming|
-          {
-            "path": "/foo",
-            "to": ${pageRef},
-            "prerender": []
-          }
-        |]
-        `shouldDecodeTo` Just
-          ( Route.Route
-              { Route.path = "/foo",
-                Route.to = fromJust $ decodeJson pageRef,
-                Route.lazy = Nothing,
-                Route.prerender = Just []
+                Route.prerender = ["/foo", "/bar"]
               }
           )
 

@@ -609,8 +609,9 @@ describe("mapRoute", () => {
     expect(result).toStrictEqual({
       path: route.path,
       to: pageRefParser(route.to),
-      // The legacy boolean `prerender` is normalized to the route's own path.
-      prerender: route.prerender === true ? [route.path] : undefined,
+      // The legacy boolean `prerender` is normalized to the route's own path,
+      // or an empty list when disabled.
+      prerender: route.prerender === true ? [route.path] : [],
       lazy: route.lazy,
     } satisfies AppSpec.Route);
   }
