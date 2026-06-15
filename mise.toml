@@ -2,6 +2,8 @@ min_version = "2026.6.10"
 
 [tools]
 "aqua:ghcup" = "0.2.6.1"
+"github:railwayapp/cli" = "4.11.1"
+"github:superfly/flyctl" = "0.3.164"
 "github:tfausak/cabal-gild" = "1.5.0.1"
 "github:tweag/ormolu" = "0.7.2.0"
 "mise-ghcup:cabal" = "3.12.1.0"
