@@ -8,10 +8,15 @@ description: "Community Day of Launch Week #12: four real, paid SaaS apps shippi
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
+import { AppShowcaseGrid } from './components/AppShowcaseGrid';
 
-<ImgWithCaption
-    alt="Made with Wasp, Vol. 2 — a collage of four apps shipping on Wasp"
-    source="img/made-with-wasp-vol2/made-with-wasp-vol2-banner.webp"
+<AppShowcaseGrid
+  apps={[
+    { src: "img/made-with-wasp-vol2/app-cutcue.webp",    alt: "CutCue",     href: "https://cutcue.io/" },
+    { src: "img/made-with-wasp-vol2/app-brick.webp",     alt: "Brick",      href: "https://onbrick.co.uk/" },
+    { src: "img/made-with-wasp-vol2/app-chatbuster.webp", alt: "ChatBuster", href: "https://chatbuster.com/" },
+    { src: "img/made-with-wasp-vol2/app-planrelief.webp", alt: "PlanRelief", href: "https://planrelief.io/" },
+  ]}
 />
 
 Welcome to Day 3 of [Launch Week #12](/blog/2026/06/05/wasp-launch-week-12-ts-spec) — Community Day. This is the one where we step out of the way and let the swarm do the talking. 🐝
@@ -25,6 +30,7 @@ Four apps, four verticals that have basically nothing to do with each other — 
 ## [CutCue](https://cutcue.io/) — the AI editing intern for streamers, podcasters, and editors
 
 <ImgWithCaption
+    framed
     alt="CutCue landing page — 'AI-powered tool that analyses your audio and video, generating timestamped markers'"
     source="img/made-with-wasp-vol2/app-cutcue.webp"
 />
@@ -40,6 +46,7 @@ Three plans, €29 to €189/mo, with creator-friendly credit math (one credit �
 ## [Brick](https://onbrick.co.uk/) — a website builder for UK property operators
 
 <ImgWithCaption
+    framed
     alt="Brick landing page — 'Launch your property website in five minutes' for UK property operators"
     source="img/made-with-wasp-vol2/app-brick.webp"
 />
@@ -55,6 +62,7 @@ We love this one because it makes a point: Wasp isn't only for generic dashboard
 ## [ChatBuster](https://chatbuster.com/) — the AI chat that closes the sale, live on Shopify and WordPress
 
 <ImgWithCaption
+    framed
     alt="ChatBuster landing page — 'The chat that closes the sale. AI trained on your store, answering questions 24/7'"
     source="img/made-with-wasp-vol2/app-chatbuster.webp"
 />
@@ -70,6 +78,7 @@ Under the hood there's more than reactive Q&A: live catalog sync (SKUs, prices, 
 ## [PlanRelief](https://planrelief.io/) — AI lesson plans for daycare and early-years educators
 
 <ImgWithCaption
+    framed
     alt="PlanRelief landing page — 'Generate lesson plans. Instantly.' AI-powered lesson plans for educators of ages 0–12"
     source="img/made-with-wasp-vol2/app-planrelief.webp"
 />
