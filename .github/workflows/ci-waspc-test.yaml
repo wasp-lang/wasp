@@ -60,13 +60,6 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup-env
 
-      - if: matrix.node-version != 'default'
-        name: Override Node.js version
-        env:
-          NODE_VERSION: ${{ matrix.node-version }}
-        run: mise use --env local "node@${NODE_VERSION}"
-      - uses: jdx/mise-action@v4
-
       - name: Compile TS packages and libs
         if: runner.os == 'Linux' || runner.os == 'macOS'
         run: |
@@ -91,5 +84,6 @@ jobs:
       - name: Run `waspc` e2e tests
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
-        run: ./run test:waspc:e2e
+          NODE_TOOL: ${{ matrix.node-version == 'default' && 'node' || format('node@{0}', matrix.node-version) }}
         shell: bash
+        run: mise x "$NODE_TOOL" -- ./run test:waspc:e2e

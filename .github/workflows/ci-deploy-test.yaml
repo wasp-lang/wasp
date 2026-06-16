@@ -34,12 +34,6 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup-env
 
-      # We tell users to install the latest version of Fly CLI, so we use it
-      # here too.
-      - name: Use latest Fly CLI
-        run: mise use --env local flyctl@latest
-      - uses: jdx/mise-action@v4
-
       - uses: ./.github/actions/install-wasp-cli-artifact
 
       - name: Install app dependencies
@@ -55,12 +49,14 @@ jobs:
           echo "Deploying with prefix: $APP_PREFIX"
           mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
           # NOTE:
+          # - We tell users to install the latest version of Fly CLI, so we use
+          # it here too.
           # - The `yes` command is necessary because the `fly launch` command
           # prompts for confirmation.
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          yes | wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
+          yes | mise x flyctl@latest -- wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames
         id: get-hostnames
@@ -120,12 +116,6 @@ jobs:
           persist-credentials: false
       - uses: ./.github/actions/setup-env
 
-      # We tell users to install the latest version of Railway CLI, so we use it
-      # here too.
-      - name: Use latest Railway CLI
-        run: mise use --env local railway@latest
-      - uses: jdx/mise-action@v4
-
       - uses: ./.github/actions/install-wasp-cli-artifact
 
       - name: Install app dependencies
@@ -138,10 +128,12 @@ jobs:
           echo "Deploying with prefix: $APP_PREFIX"
           mapfile -d $'\0' -t ENV_VAR_ARGUMENTS < <(node ../../scripts/deploy-test/prepare-deploy-secrets.mjs .env.server.example)
           # NOTE:
+          # - We tell users to install the latest version of Railway CLI, so we
+          # use it here too.
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           # word splitting (i.e., force Bash to interpret the flags separately
           # instead of passing it as a single string value).
-          wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
+          mise x railway@latest -- wasp-cli deploy railway launch "$APP_PREFIX" --workspace $RAILWAY_WASP_WORKSPACE_ID "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames
         id: get-hostnames
