@@ -53,7 +53,7 @@ const HowItWorksDiagram = () => (
       <text
         x="24"
         y="56"
-        fontSize="12"
+        fontSize="10"
         fontWeight="bold"
         className="fill-wasp-black"
         letterSpacing="2"
@@ -75,7 +75,7 @@ const HowItWorksDiagram = () => (
       <text
         x="44"
         y="91"
-        fontSize="14"
+        fontSize="12"
         fontWeight="bold"
         className="fill-wasp-black"
       >
@@ -86,33 +86,33 @@ const HowItWorksDiagram = () => (
       <g transform="translate(20, 107)">
         <ReactIcon />
       </g>
-      <text x="44" y="119" fontSize="14" className="fill-wasp-g7">
+      <text x="44" y="119" fontSize="12" className="fill-wasp-g7">
         *.tsx
       </text>
 
       <g transform="translate(20, 135)">
         <NodeIcon />
       </g>
-      <text x="44" y="147" fontSize="14" className="fill-wasp-g7">
+      <text x="44" y="147" fontSize="12" className="fill-wasp-g7">
         *.ts
       </text>
 
       <g transform="translate(20, 163)">
         <PrismaIcon />
       </g>
-      <text x="44" y="175" fontSize="14" className="fill-wasp-g7">
+      <text x="44" y="175" fontSize="12" className="fill-wasp-g7">
         schema.prisma
       </text>
 
       <g transform="translate(20, 191)">
         <DockerIcon />
       </g>
-      <text x="44" y="203" fontSize="14" className="fill-wasp-g7">
+      <text x="44" y="203" fontSize="12" className="fill-wasp-g7">
         Dockerfile
       </text>
 
       {/* …and any other source files */}
-      <text x="44" y="231" fontSize="14" className="fill-wasp-g7">
+      <text x="44" y="231" fontSize="12" className="fill-wasp-g7">
         ...
       </text>
     </g>
@@ -132,7 +132,7 @@ const HowItWorksDiagram = () => (
       <text
         x="318"
         y="30"
-        fontSize="11"
+        fontSize="9"
         fontWeight="bold"
         className="fill-wasp-g6"
         letterSpacing="2"
@@ -149,7 +149,7 @@ const HowItWorksDiagram = () => (
         x="275"
         y="120"
         textAnchor="middle"
-        fontSize="12"
+        fontSize="10"
         className="fill-wasp-g6"
         letterSpacing="3"
         fontWeight="bold"
@@ -182,7 +182,7 @@ const HowItWorksDiagram = () => (
         x="391"
         y="136"
         textAnchor="middle"
-        fontSize="28"
+        fontSize="22"
         fontWeight="bold"
         className="fill-wasp-black"
         letterSpacing="2"
@@ -193,7 +193,7 @@ const HowItWorksDiagram = () => (
         x="391"
         y="153"
         textAnchor="middle"
-        fontSize="8.5"
+        fontSize="7.5"
         fontWeight="bold"
         className="fill-wasp-g6"
       >
@@ -203,7 +203,7 @@ const HowItWorksDiagram = () => (
         x="391"
         y="164"
         textAnchor="middle"
-        fontSize="8.5"
+        fontSize="7.5"
         fontWeight="bold"
         className="fill-wasp-g6"
       >
@@ -217,7 +217,7 @@ const HowItWorksDiagram = () => (
         x="494"
         y="120"
         textAnchor="middle"
-        fontSize="12"
+        fontSize="10"
         className="fill-wasp-g6"
         letterSpacing="3"
         fontWeight="bold"
@@ -256,7 +256,7 @@ const HowItWorksDiagram = () => (
       <text
         x="560"
         y="80"
-        fontSize="12"
+        fontSize="10"
         fontWeight="bold"
         className="fill-wasp-black"
         letterSpacing="2"
@@ -288,7 +288,7 @@ const HowItWorksDiagram = () => (
       <text
         x="566"
         y="118"
-        fontSize="13"
+        fontSize="11"
         fontWeight="bold"
         className="fill-wasp-black"
       >
@@ -298,7 +298,7 @@ const HowItWorksDiagram = () => (
         x="713"
         y="118"
         textAnchor="end"
-        fontSize="11"
+        fontSize="9"
         className="fill-wasp-g6"
       >
         React
@@ -317,7 +317,7 @@ const HowItWorksDiagram = () => (
       <text
         x="566"
         y="158"
-        fontSize="13"
+        fontSize="11"
         fontWeight="bold"
         className="fill-wasp-black"
       >
@@ -327,7 +327,7 @@ const HowItWorksDiagram = () => (
         x="713"
         y="158"
         textAnchor="end"
-        fontSize="11"
+        fontSize="9"
         className="fill-wasp-g6"
       >
         Node
@@ -346,7 +346,7 @@ const HowItWorksDiagram = () => (
       <text
         x="566"
         y="198"
-        fontSize="13"
+        fontSize="11"
         fontWeight="bold"
         className="fill-wasp-black"
       >
@@ -356,7 +356,7 @@ const HowItWorksDiagram = () => (
         x="713"
         y="198"
         textAnchor="end"
-        fontSize="11"
+        fontSize="9"
         className="fill-wasp-g6"
       >
         Prisma
@@ -371,7 +371,7 @@ const HowItWorksDiagram = () => (
         x="811"
         y="120"
         textAnchor="middle"
-        fontSize="12"
+        fontSize="10"
         className="fill-wasp-g6"
         letterSpacing="3"
         fontWeight="bold"
@@ -449,7 +449,7 @@ const HowItWorksDiagram = () => (
       x="925"
       y="195"
       textAnchor="middle"
-      fontSize="10"
+      fontSize="9"
       className="fill-wasp-g6"
     >
       Fly · Railway · your VPS
