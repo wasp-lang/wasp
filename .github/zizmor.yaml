@@ -5,4 +5,5 @@ rules:
         # While we don't have an autoupdater, we don't want to pin dependencies
         # to a specific version, or we'd miss out on security updates. This rule
         # will only enforce pinning to major versions.
+        # https://github.com/wasp-lang/wasp/issues/4344
         "*": ref-pin
