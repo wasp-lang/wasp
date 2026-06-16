@@ -36,9 +36,9 @@ jobs:
         # Ubuntu 22.04.
         include:
           - os: ubuntu-22.04
-            # Empty means to use the repo's default Node.js version, which is
+            # Default means to use the repo's default Node.js version, which is
             # our minimum supported version (from /mise.toml).
-            node-version: ""
+            node-version: "default"
 
     steps:
       - # For waspc parser tests, we need to make sure git doesn't convert line
@@ -59,6 +59,12 @@ jobs:
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup-env
+
+      - if: matrix.node-version != 'default'
+        name: Override Node.js version
+        env:
+          NODE_VERSION: ${{ matrix.node-version }}
+        run: mise use --env local "node@${NODE_VERSION}"
 
       - name: Compile TS packages and libs
         if: runner.os == 'Linux' || runner.os == 'macOS'
