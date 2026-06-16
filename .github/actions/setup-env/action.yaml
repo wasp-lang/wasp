@@ -15,14 +15,7 @@ runs:
   using: composite
 
   steps:
-    - # mise-action (below) needs curl to download Mise itself, but minimal
-      # container images don't ship it. Install the bootstrap prerequisites
-      # manually here; the rest of the system packages come from
-      # `mise bootstrap` once Mise is available.
-      #
-      # On Alpine we install everything by hand, since Mise doesn't support
-      # apk yet: https://github.com/jdx/mise/discussions/10449
-      name: Install Mise bootstrap dependencies
+    - name: Install system dependencies
       if: runner.os == 'Linux'
       shell: sh
       run: |
@@ -38,42 +31,33 @@ runs:
           apk add zlib-dev zlib-static
           # Prisma dependencies
           apk add openssl
-        elif ! command -v curl >/dev/null 2>&1; then
+        else
           # Minimal Debian/Ubuntu container (e.g. ubuntu:20.04) that lacks
           # curl. We only need curl to bootstrap Mise; the remaining apt
           # packages are installed via `mise bootstrap` below.
           export DEBIAN_FRONTEND=noninteractive
           apt-get update -y
-          apt-get install -y curl
+          # GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-ubuntu)
+          apt-get install -y build-essential curl libffi-dev libgmp-dev libncurses-dev
+          # Cabal dependencies
+          apt-get install -y zlib1g-dev
         fi
 
     - name: Install Mise
       uses: jdx/mise-action@v4
-      with:
-        install: false
-
-    - name: Install system packages
-      shell: bash
-      run: mise bootstrap packages install --update --yes
-
-    - name: Install tools
-      shell: bash
-      # On Windows, our GHCup-backed tools (ghc, cabal, hls) share a single
-      # GHCup cache dir and race when installed in parallel, failing with
-      # `MoveFileEx ... gs.exe: does not exist`. Serialize the installs there
-      # to avoid the race. Other platforms keep Mise's default parallelism.
       env:
-        MISE_JOBS: ${{ runner.os == 'Windows' && '1' || '4' }}
-      run: mise install --locked
+        # The GHCup backend has a race condition when installing concurrently on
+        # Windows, that can cause Mise to fail to install GHC.
+        MISE_JOBS: ${{ runner.os == 'Windows' && '1' || '' }}
 
-    - name: Pin Cabal to the real GHC binary (Windows)
-      # `cabal.project` sets `with-compiler: ghc-9.6.7`, so Cabal resolves the
-      # bare program name `ghc-9.6.7` on PATH. On Windows that hits Mise's shim,
+    - # `cabal.project` sets `with-compiler: x.y.z`, so Cabal resolves the bare
+      # program name `ghc-x.y.z` on PATH. On Windows that hits Mise's shim,
       # whose `--numeric-version` returns an empty string, so Cabal can't
       # determine the compiler version and the build fails. We override
       # `with-compiler` with the absolute path to the real `ghc.exe` so Cabal
       # probes the actual binary instead of the shim. Using forward slashes
       # keeps Cabal's config parser happy.
+      name: Pin Cabal to the real GHC binary (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
       working-directory: ${{ inputs.cabal-project-dir }}

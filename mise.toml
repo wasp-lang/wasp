@@ -27,18 +27,9 @@ node = "24.14.1"
 "vfox:mise-ghcup" = "https://github.com/cprecioso/mise-ghcup.git"
 
 [settings]
-lockfile = true
-experimental = true
-# The Node backend has a knack for compiling from source on Alpine even when it
-# has a pre-built binary available. So we explicitly tell it not to.
-node.compile = false
+experimental = true # Needed for backend plugins (mise-ghcup) to work.
 
-[bootstrap.packages]
-# GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-ubuntu)
-"apt:build-essential" = "latest"
-"apt:curl" = "latest"
-"apt:libffi-dev" = "latest"
-"apt:libgmp-dev" = "latest"
-"apt:libncurses-dev" = "latest"
-# Cabal dependencies
-"apt:zlib1g-dev" = "latest"
+[settings.node]
+# The Node backend has a knack for compiling from source on Alpine even when
+# there's a pre-built binary available. So we explicitly tell it not to do that.
+compile = false
