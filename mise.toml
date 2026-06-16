@@ -27,6 +27,7 @@ node = "24.14.1"
 "vfox:mise-ghcup" = "https://github.com/cprecioso/mise-ghcup.git"
 
 [settings]
+lockfile = true
 experimental = true # Needed for backend plugins (mise-ghcup) to work.
 
 [settings.node]
