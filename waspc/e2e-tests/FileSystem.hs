@@ -2,6 +2,7 @@ module FileSystem
   ( GitRootDir,
     WaspcDir,
     getWaspcDirPath,
+    waspCliDevToolInWaspcDir,
     SeedsDir,
     SeedsFile,
     seedsDirInWaspProjectDir,
@@ -40,12 +41,6 @@ data GitRootDir
 
 data WaspcDir
 
--- | The directory where all test outputs are created.
-data TestOutputsDir
-
-getTestOutputsDir :: IO (Path' Abs (Dir TestOutputsDir))
-getTestOutputsDir = getWaspcDirPath <&> (</> testsOutputsDirInWaspcDir)
-
 getWaspcDirPath :: IO (Path' Abs (Dir WaspcDir))
 getWaspcDirPath = do
   -- NOTE: Cabal launches `cabal test` from root of the project, so this should always be some absolute path to waspc.
@@ -54,11 +49,20 @@ getWaspcDirPath = do
   unless (takeFileName absCwd == "waspc") (error "Expecting test process to be invoked from waspc dir")
   SP.parseAbsDir absCwd
 
-testsOutputsDirInWaspcDir :: Path' (Rel WaspcDir) (Dir TestOutputsDir)
-testsOutputsDirInWaspcDir = [reldir|e2e-tests/test-outputs|]
+waspCliDevToolInWaspcDir :: Path' (Rel WaspcDir) File'
+waspCliDevToolInWaspcDir = [relfile|tools/wasp-cli-dev.ts|]
 
 waspcDirInGitRootDir :: Path' (Rel GitRootDir) (Dir WaspcDir)
 waspcDirInGitRootDir = [reldir|waspc|]
+
+-- | The directory where all test outputs are created.
+data TestOutputsDir
+
+getTestOutputsDir :: IO (Path' Abs (Dir TestOutputsDir))
+getTestOutputsDir = getWaspcDirPath <&> (</> testsOutputsDirInWaspcDir)
+
+testsOutputsDirInWaspcDir :: Path' (Rel WaspcDir) (Dir TestOutputsDir)
+testsOutputsDirInWaspcDir = [reldir|e2e-tests/test-outputs|]
 
 -- WaspProject file system
 

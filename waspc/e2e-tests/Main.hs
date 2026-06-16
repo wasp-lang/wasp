@@ -1,11 +1,12 @@
 import Control.Concurrent.Async (mapConcurrently)
-import FileSystem (getWaspcDirPath)
+import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
 import SnapshotTest (testTreeFromSnapshotTest)
+import StrongPath ((</>))
 import qualified StrongPath as SP
 import System.Environment (lookupEnv, setEnv)
 import System.Info (os)
 import Test (testTreeFromTest)
-import Test.Tasty (TestTree, defaultMain, testGroup)
+import Test.Tasty (TestTree, defaultMain, testGroup)  
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -45,9 +46,9 @@ ensureE2eTestsEnvironment = do
   case existing of
     Just _ -> return ()
     Nothing -> do
-      waspcDir <- getWaspcDirPath
       -- Runs the tests using the current state of the `waspc` project.
-      let devWaspCliCmd = "cabal -v0 --project-dir=" ++ SP.fromAbsDir waspcDir ++ " run wasp-cli --"
+      waspcDir <- getWaspcDirPath
+      let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
       setEnv "WASP_CLI_CMD" devWaspCliCmd
 
 -- TODO: Investigate automatically discovering the tests.
