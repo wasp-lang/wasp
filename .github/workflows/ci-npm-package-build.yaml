@@ -26,6 +26,8 @@ jobs:
     name: Make npm packages
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup-env
 
       - name: Compute artifact names for download
@@ -40,9 +42,11 @@ jobs:
           pattern: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
 
       - name: Copy artifacts to input folder
+        env:
+          ARTIFACT_NAME: ${{ steps.compute-download-artifact-names.outputs.artifact-name }}
         run: |
           mkdir -p ./input/
-          cp ./download/${{ steps.compute-download-artifact-names.outputs.artifact-name }}/* ./input/
+          cp ./download/${ARTIFACT_NAME}/* ./input/
 
       - name: Create build metadata file
         env:

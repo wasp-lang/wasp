@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup-env
 
       - name: Run Prettier
@@ -30,6 +32,8 @@ jobs:
           git config --global core.eol lf
 
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup-env
 
       - name: Run ormolu
@@ -41,6 +45,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup-env
 
       - name: Run cabal-gild

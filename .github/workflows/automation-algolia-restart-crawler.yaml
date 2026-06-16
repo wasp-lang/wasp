@@ -11,6 +11,8 @@ concurrency:
   group: "automation-algolia-restart-crawler"
   cancel-in-progress: true
 
+permissions: {}
+
 jobs:
   restart-crawler:
     name: Restart Algolia Crawler

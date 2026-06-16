@@ -423,18 +423,16 @@ If it happens just once every so it is probably nothing to worry about. If it ha
 Do the steps marked with 👉 for every release of `waspc`.
 Do the non-bold steps when necessary (decide for each step depending on the changes, e.g. some can be skipped if there were no breaking changes).
 
-- Update Open Saas:
-  - Check and merge [all Open Saas PRs with the label `merge-before-release`](https://github.com/wasp-lang/open-saas/pulls?q=sort:updated-desc+is:pr+is:open+label:merge-before-release).
-  - Ensure that OpenSaaS is updated to the latest Wasp `main` (go to https://github.com/wasp-lang/open-saas/actions/workflows/e2e-tests.yml and manually run the workflow on the `main` branch).
+- Ensure that OpenSaaS is updated to the latest Wasp `main` (go to https://github.com/wasp-lang/open-saas/actions/workflows/e2e-tests.yml and manually run the workflow on the `main` branch).
 - 👉 Ensure that you have merged any changes from the `release` branch into `main`. You can see the latest PR at https://github.com/wasp-lang/wasp/pull/release.
 - 👉 Update your local repository state to have all remote changes (`git fetch`) and ensure local `main` is up to date.
-- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `v<version>-rc.<rc-iteration>` (e.g., `v0.24.1-rc.1`) and do the rest of the steps from there.
+- 👉 Branch out from the latest commit you want to release (most likely latest `main`) into a new RC branch called `rc-<version>` (e.g., `rc-0.24.1`) and do the rest of the steps from there.
 - 👉 The version in `waspc.cabal` should already be correct, but double check and update it if needed.
   - If you modify `waspc.cabal`: create a PR, wait for approval and all the checks (CI) to pass. Then squash and merge the PR into the RC branch.
 - 👉 Create an RC release do some testing and fixing (see [below](#test-releases-eg-release-candidate)). Continue when everything is fine.
 - 👉 Check commits since the latest release, and consider enriching and polishing the `ChangeLog.md` and migration guides.
 - If this is a major version update, take a versioned "snapshot" of the current docs on the RC branch by running `npm run docusaurus docs:version {version}` in the [web](/web) dir. Check the [README in the `web` dir](https://github.com/wasp-lang/wasp/blob/main/web/README.md) for more details. Commit this change to the RC branch and push it.
-- 👉 Switch to the `release` branch and fast-forward it to the RC branch by running `git merge --ff v<version>-rc.<rc-iteration>`.
+- 👉 Switch to the `release` branch and fast-forward it to the RC branch by running `git merge --ff rc-<version>`.
 - 👉 When you're ready to make the final release, make sure you are on `release` and then run `./new-release 0.x.y`.
   - This script will do some checks, tag the commit with the new release version, and push the tag.
 - 👉 Wait for CI to finish & succeed for the new tag.
@@ -445,7 +443,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Push your local `release` branch to remote.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main` (you can also find it [here](https://github.com/wasp-lang/wasp/pulls?q=is%3Apr+head%3Arelease+base%3Amain+is%3Aopen)). Make sure to merge that PR (create a merge commit, **don't squash or rebase**). This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](https://github.com/wasp-lang/wasp/actions/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
-- If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
+- If there are changes to the docs, [publish the new version](../web/README.md#deployment) from the `release` branch.
 - If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
 - Announce the new release in Discord.
@@ -462,7 +460,7 @@ So how do changes to waspls affect the version of waspc, since they are packaged
 Making a test release, especially "Release Candidate" (RC) release is useful when you want to test the release without it being published to the normal users.
 If doing this, steps are the following:
 
-1. Create a new branch called `v<version>-rc.<rc-iteration>` (e.g., `v0.24.1-rc.1`) by branching out of the last commit you want to release (probably latest `main`).
+1. Create a new branch called `rc-<version>` (e.g., `rc-0.24.1`) by branching out of the last commit you want to release (probably latest `main`).
 
 2. Locally execute the `new-release` script. Append `-rc.N` to the version number to make it obvious that this release is a pre-release used for testing (e.g., `./new-release 0.24.1-rc.1`).
    The script will throw some warnings which you should accept.
@@ -470,7 +468,7 @@ If doing this, steps are the following:
 3. Once the draft release is created on Github:
 
    - Use their UI to mark it as a pre-release and publish it. This will automatically remove the checkmark from "latest release", which is exactly what we want. **This is the crucial step that differentiates test release from the proper release.**
-   - Push the `v<version>-rc.<rc-iteration>` branch to remote.
+   - Push the `rc-<version>` branch to remote.
 
 4. Since npm installs the latest release by default, it will skip this pre-release (which is what we wanted). You can install it by pasing an explicit version! That way user's don't get in touch with it, but we can install and use it normally:
 

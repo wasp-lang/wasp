@@ -14,4 +14,4 @@ waspVersionTest =
     ]
 
 waspCliVersion :: ShellCommand
-waspCliVersion = "wasp-cli version"
+waspCliVersion = "$WASP_CLI_CMD version"

@@ -16,4 +16,4 @@ waspTelemetryTest =
     ]
 
 waspCliTelemetry :: ShellCommand
-waspCliTelemetry = "wasp-cli telemetry"
+waspCliTelemetry = "$WASP_CLI_CMD telemetry"

@@ -12,5 +12,12 @@ concurrency:
 
 jobs:
   warm-cache-ci:
+    # We call a top-level workflow here, so it needs many permissions to do its
+    # job. The workflow itself is already checked by zizmor too, so we can
+    # safely ignore this warning here.
+    # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci.yaml
-    secrets: inherit
+    secrets:
+      # (Same comment as above)
+      # zizmor: ignore[secrets-inherit]
+      inherit
