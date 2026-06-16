@@ -5,6 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
+import Data.List (isPrefixOf)
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
@@ -30,6 +31,12 @@ deps = do
 
   liftIO $ putStrLn $ depsMessage appSpec
 
+-- | Filters out internal Wasp library dependencies (WaspLibs) from the list.
+-- WaspLibs are installed as local npm tarballs (version starts with "file:")
+-- and are internal to Wasp — users cannot import them directly.
+filterOutWaspLibDeps :: [Npm.Dependency.Dependency] -> [Npm.Dependency.Dependency]
+filterOutWaspLibDeps = filter (not . ("file:" `isPrefixOf`) . Npm.Dependency.version)
+
 depsMessage :: AppSpec -> String
 depsMessage appSpec =
   unlines $
@@ -39,12 +46,12 @@ depsMessage appSpec =
     ]
       ++ printDeps
         "Server dependencies:"
-        ( N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
+        ( filterOutWaspLibDeps $ N.dependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
         )
       ++ [""]
       ++ printDeps
         "Server devDependencies:"
-        ( N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
+        ( filterOutWaspLibDeps $ N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
         )
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
