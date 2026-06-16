@@ -56,7 +56,7 @@ jobs:
           # - We use a Bash array for `$ENV_VAR_ARGUMENTS` to ensure proper
           #   word splitting (i.e., force Bash to interpret the flags separately
           #   instead of passing it as a single string value).
-          yes | mise x superfly/flyctl@latest -- wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
+          yes | mise x github:superfly/flyctl@latest -- wasp-cli deploy fly launch "$APP_PREFIX" "$FLY_REGION" --org "$FLY_ORG" "${ENV_VAR_ARGUMENTS[@]}"
 
       - name: Get deployed app hostnames
         id: get-hostnames
