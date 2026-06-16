@@ -6,7 +6,7 @@ import qualified StrongPath as SP
 import System.Environment (lookupEnv, setEnv)
 import System.Info (os)
 import Test (testTreeFromTest)
-import Test.Tasty (TestTree, defaultMain, testGroup)  
+import Test.Tasty (TestTree, defaultMain, testGroup)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
