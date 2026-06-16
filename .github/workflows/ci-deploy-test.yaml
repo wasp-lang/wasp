@@ -38,6 +38,7 @@ jobs:
       # here too.
       - name: Use latest Fly CLI
         run: mise use --env local flyctl@latest
+      - uses: jdx/mise-action@v4
 
       - uses: ./.github/actions/install-wasp-cli-artifact
 
@@ -123,6 +124,7 @@ jobs:
       # here too.
       - name: Use latest Railway CLI
         run: mise use --env local railway@latest
+      - uses: jdx/mise-action@v4
 
       - uses: ./.github/actions/install-wasp-cli-artifact
 

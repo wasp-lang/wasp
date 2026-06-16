@@ -65,6 +65,7 @@ jobs:
         env:
           NODE_VERSION: ${{ matrix.node-version }}
         run: mise use --env local "node@${NODE_VERSION}"
+      - uses: jdx/mise-action@v4
 
       - name: Compile TS packages and libs
         if: runner.os == 'Linux' || runner.os == 'macOS'
