@@ -8,14 +8,17 @@ import { globSync } from "glob";
 import path from "path";
 
 import waspVersionsJson from "../versions.json";
+import { DOCS_FOOTER_PATTERN } from "./html-to-md/footer";
+import { loadPermalinkMaps, normalizePathToDocId } from "./permalinks";
 
 const SITE_ROOT = process.cwd();
-const STATIC_DIR = path.join(SITE_ROOT, "static/");
+// Output and doc bodies both come from the build: this script runs after
+// `docusaurus build`, reads the Markdown that scripts/html-to-md generated next
+// to each HTML page, and writes the llms*.txt files into the build output.
+const BUILD_DIR = path.join(SITE_ROOT, "build");
 const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs/");
 const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars/");
 const BLOG_DIR = path.join(SITE_ROOT, "blog/");
-const GITHUB_RAW_BASE_URL =
-  "https://raw.githubusercontent.com/wasp-lang/wasp/refs/heads/release/web/"; // Use the release branch
 const WASP_BASE_URL = "https://wasp.sh/";
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 const WASP_VERSIONS = new Set<string>(waspVersionsJson);
@@ -35,13 +38,12 @@ const LLMS_TXT_RESOURCES = `## Other Resources
 type SourceDoc = {
   title: string;
   processedBody: string;
-  absolutePath: string;
-  relativePath: string;
+  docUrl: string;
 };
 
 type DocMapEntry = {
   title: string;
-  githubRawUrl: string;
+  docUrl: string;
   processedBody: string;
 };
 
@@ -83,7 +85,7 @@ async function generateFiles() {
   // Our llms.txt URL is the entry point for the LLM.
   // It contains a section with links to llms-{version}.txt files
   // which are versioned documentation maps that link
-  // to the individual raw markdown files on GitHub.
+  // to the individual Markdown pages served on wasp.sh (the `.md` variant).
   const latestWaspVersion = waspVersionsJson[0];
   const blogPostsSection = await buildBlogPostsSection();
   const docsMapsByVersionSection =
@@ -92,7 +94,7 @@ async function generateFiles() {
     docsMapsByVersionSection,
     blogPostsSection,
   );
-  await fs.writeFile(path.join(STATIC_DIR, "llms.txt"), llmsTxtContent, "utf8");
+  await fs.writeFile(path.join(BUILD_DIR, "llms.txt"), llmsTxtContent, "utf8");
   console.log("Generated: llms.txt");
 
   for (const version of waspVersionsJson) {
@@ -105,7 +107,7 @@ async function generateFiles() {
       categorizedDocs,
     );
     await fs.writeFile(
-      path.join(STATIC_DIR, `llms-${version}.txt`),
+      path.join(BUILD_DIR, `llms-${version}.txt`),
       versionedLlmsTxtContent,
       "utf8",
     );
@@ -118,7 +120,7 @@ async function generateFiles() {
     const llmsFullVersionedContent =
       buildFullDocsHeader(version) + fullDocsBody;
     await fs.writeFile(
-      path.join(STATIC_DIR, `llms-full-${version}.txt`),
+      path.join(BUILD_DIR, `llms-full-${version}.txt`),
       llmsFullVersionedContent.trim(),
       "utf8",
     );
@@ -128,7 +130,7 @@ async function generateFiles() {
       const llmsFullWithIndex =
         buildFullDocsHeaderWithIndex(version, waspVersionsJson) + fullDocsBody;
       await fs.writeFile(
-        path.join(STATIC_DIR, "llms-full.txt"),
+        path.join(BUILD_DIR, "llms-full.txt"),
         llmsFullWithIndex.trim(),
         "utf8",
       );
@@ -191,12 +193,9 @@ async function loadCategorizedDocs(
       if (!info) {
         continue;
       }
-      const relativeToSite = path
-        .relative(SITE_ROOT, info.absolutePath)
-        .replace(/\\/g, "/");
       docs.push({
         title: info.title,
-        githubRawUrl: GITHUB_RAW_BASE_URL + relativeToSite,
+        docUrl: info.docUrl,
         processedBody: info.processedBody,
       });
     }
@@ -215,7 +214,7 @@ function buildVersionedLlmsTxtContent(
   for (const category of docs.categories) {
     lines.push(category.label);
     for (const doc of category.docs) {
-      lines.push(`- [${doc.title}](${doc.githubRawUrl})`);
+      lines.push(`- [${doc.title}](${doc.docUrl})`);
     }
   }
 
@@ -275,7 +274,7 @@ function buildDocIdToPathMap(directory: string): Map<string, string> {
 // and cached because a single version's sidebar can reference migration
 // guides that live in many other versions' folders.
 const docIdToPathMapCache = new Map<string, Map<string, string>>();
-// Resolved docs cached by absolute path: the same migration guide is
+// Resolved docs cached by build Markdown path: the same migration guide is
 // referenced by every later version's sidebar, so we only read it once.
 const sourceDocCache = new Map<string, SourceDoc | null>();
 
@@ -290,67 +289,100 @@ function getDocIdToPathMap(version: string): Map<string, string> {
   return docIdToPath;
 }
 
+const permalinkMapsByVersion = loadPermalinkMaps(SITE_ROOT);
+
+function getPermalinkMap(version: string): Map<string, string> {
+  return permalinkMapsByVersion.get(version) ?? new Map();
+}
+
 async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
-  const relativePath = getDocIdToPathMap(ref.version).get(ref.docId);
-  if (!relativePath) {
+  // The permalink is authoritative: it accounts for `slug` frontmatter and
+  // index-page collapsing that a path-based guess would get wrong.
+  const permalink = getPermalinkMap(ref.version).get(ref.docId);
+  if (!permalink) {
     console.warn(
-      `Document ID "${ref.docId}" was not found in version ${ref.version} (or it is ignored).`,
+      `Document ID "${ref.docId}" was not found in built version ${ref.version} (or it is ignored).`,
     );
     return null;
   }
 
-  const absolutePath = path.join(
+  // `trailingSlash` is false, so the page at "/docs/x/" is the file
+  // "build/docs/x.html" and its Markdown sibling is "build/docs/x.md".
+  const route = permalink.replace(/\/+$/, "");
+  const mdPath = path.join(BUILD_DIR, route + ".md");
+  if (sourceDocCache.has(mdPath)) {
+    return sourceDocCache.get(mdPath)!;
+  }
+
+  const builtMarkdown = await readFileOrNull(mdPath);
+  if (builtMarkdown === null) {
+    console.warn(
+      `No built Markdown for docId "${ref.docId}" (version ${ref.version}) at ${mdPath}. ` +
+        `Was scripts/html-to-md run after the build?`,
+    );
+    sourceDocCache.set(mdPath, null);
+    return null;
+  }
+
+  const sourceDoc: SourceDoc = {
+    title: await readDocTitle(ref),
+    processedBody: processBuiltMarkdown(builtMarkdown),
+    docUrl: WASP_BASE_URL + route.slice(1) + ".md",
+  };
+  sourceDocCache.set(mdPath, sourceDoc);
+  return sourceDoc;
+}
+
+// We still read the title from the source frontmatter so the `title-llm`
+// override keeps working; the body itself comes from the rendered Markdown.
+async function readDocTitle(ref: DocRef): Promise<string> {
+  const relativePath = getDocIdToPathMap(ref.version).get(ref.docId);
+  const fallback = ref.docId.split("/").pop() ?? ref.docId;
+  if (!relativePath) {
+    return fallback;
+  }
+  const sourcePath = path.join(
     VERSIONED_DOCS_DIR,
     `version-${ref.version}`,
     relativePath,
   );
-  if (sourceDocCache.has(absolutePath)) {
-    return sourceDocCache.get(absolutePath)!;
+  const raw = await readFileOrNull(sourcePath);
+  if (raw === null) {
+    return fallback;
   }
+  const { attributes } = fm<Record<string, string>>(raw);
+  return attributes["title-llm"] || attributes["title"] || fallback;
+}
 
+async function readFileOrNull(filePath: string): Promise<string | null> {
   try {
-    const rawContent = await fs.readFile(absolutePath, "utf8");
-    const { attributes, body } = fm(rawContent);
-    const title =
-      attributes["title-llm"] ||
-      attributes["title"] ||
-      path.basename(absolutePath, path.extname(absolutePath));
-    const sourceDoc: SourceDoc = {
-      title,
-      processedBody: cleanDocContent(body),
-      absolutePath,
-      relativePath,
-    };
-    sourceDocCache.set(absolutePath, sourceDoc);
-    return sourceDoc;
-  } catch (fileReadError) {
-    // This is intentionally not re-thrown to allow the script to continue
-    // and generate a partial file, even if some source files have errors.
-    console.error(
-      `Error reading or processing file for docId '${ref.docId}' (version ${ref.version}) at ${absolutePath}:`,
-      fileReadError,
-    );
-    sourceDocCache.set(absolutePath, null);
+    return await fs.readFile(filePath, "utf8");
+  } catch {
     return null;
   }
 }
 
-// e.g., 'tutorial/01-create.mdx' → 'tutorial/create'
-// e.g., 'data-model/entities/index.md' → 'data-model/entities'
-function normalizePathToDocId(filePath: string): string {
-  const normalizedPath = filePath
-    .replace(/\.(mdx|md)$/, "")
-    .replace(/\/index$/, "");
+// The rendered Markdown leads with the page's `# Title`, ends with the docs
+// footer, and uses site-absolute links. For the concatenated docs we drop the
+// title (the category section adds its own heading) and the footer (it would
+// repeat once per page), nest the remaining headings one level deeper, and turn
+// links into full URLs so the file stands on its own.
+function processBuiltMarkdown(markdown: string): string {
+  const withoutFooter = markdown.replace(DOCS_FOOTER_PATTERN, "");
+  const withoutTitle = withoutFooter.replace(/^#\s+.*\n+/, "");
+  const nested = withoutTitle.replace(
+    /^(#{1,6})(\s)/gm,
+    (_match, hashes, space) =>
+      hashes.length < 6 ? `#${hashes}${space}` : `${hashes}${space}`,
+  );
+  return makeLinksAbsolute(nested).trim();
+}
 
-  const pathSegments = normalizedPath.split("/");
-  const filename = pathSegments.pop() ?? ""; // This will be the filename or last directory name
-
-  // Remove leading "NN-" or "NN." from the filename part, e.g. "01-create" => "create"
-  const cleanFilename = filename.replace(/^\d+[-.]/, "");
-
-  return pathSegments.length > 0
-    ? [...pathSegments, cleanFilename].join("/")
-    : cleanFilename;
+function makeLinksAbsolute(markdown: string): string {
+  return markdown.replace(
+    /\]\((\/[^)]*)\)/g,
+    (_match, sitePath: string) => `](${WASP_BASE_URL}${sitePath.slice(1)})`,
+  );
 }
 
 function extractSidebarCategories(
@@ -544,64 +576,4 @@ async function loadVersionedSidebar(
   }
 
   return sidebarConfig.docs;
-}
-
-function cleanDocContent(content: string): string {
-  if (!content) return "";
-
-  const componentsToReplace = new Set<string>();
-  // NOTE: Not sure if this is needed, as LLMs can probably parse the component's meaning from context.
-  // Regex to capture imports from '@site/src/components/Tag'
-  // e.g. import MyTag from '...' -> MyTag
-  // e.g. import {Tag1, Tag2 as MyTag2} from '...' -> {Tag1, Tag2 as MyTag2}
-  const importRegex =
-    /^\s*import\s+(.+?)\s+from\s+['"]@site\/src\/components\/Tag['"]\s*;?\s*$/gm;
-
-  function extractNames(rawSpecifier: string): string[] {
-    const names: string[] = [];
-    const specifier = rawSpecifier.trim();
-    if (specifier.startsWith("{") && specifier.endsWith("}")) {
-      const inner = specifier.substring(1, specifier.length - 1).trim();
-      if (inner) {
-        inner.split(",").forEach((part) => {
-          part = part.trim();
-          if (part.includes(" as ")) {
-            names.push(part.split(" as ")[1].trim());
-          } else {
-            names.push(part);
-          }
-        });
-      }
-    } else {
-      names.push(specifier);
-    }
-    return names.filter(Boolean);
-  }
-
-  for (const importMatch of content.matchAll(importRegex)) {
-    for (const name of extractNames(importMatch[1])) {
-      componentsToReplace.add(name);
-    }
-  }
-
-  let cleaned = content;
-
-  // Replace <CompName ... /> with "CompName!" (e.g. <Internal /> -> Internal!)
-  componentsToReplace.forEach((compName) => {
-    const tagRegex = new RegExp(`<(?:${compName})(\\s+[^>]*)?\\s*/>`, "g");
-    cleaned = cleaned.replace(tagRegex, `${compName}!`);
-  });
-
-  // Remove all import statements
-  cleaned = cleaned.replace(/^import\s+.*(?:from\s+['"].*['"])?;?\s*$/gm, "");
-  // Remove JSX comments like {/* TODO: ... */}
-  cleaned = cleaned.replace(/^\{\/\*.*\*\/\}\s*$/gm, "");
-  // Remove HTML comments like <!-- TODO: ... -->
-  cleaned = cleaned.replace(/^<!--.*-->\s*$/gm, "");
-  // Collapse 3+ newlines to 2
-  cleaned = cleaned.replace(/\n{3,}/g, "\n\n");
-  // Increase heading levels (# -> ##, ## -> ###, etc.)
-  cleaned = cleaned.replace(/^(#{1,6})\s/gm, "#$1 ");
-
-  return cleaned.trim();
 }
