@@ -11,8 +11,15 @@ concurrency:
 
 jobs:
   ci:
+    # We call a top-level workflow here, so it needs many permissions to do its
+    # job. The workflow itself is already checked by zizmor too, so we can
+    # safely ignore this warning here.
+    # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci.yaml
-    secrets: inherit
+    secrets:
+      # (Same comment as above)
+      # zizmor: ignore[secrets-inherit]
+      inherit
     with:
       override-npm-package-version: ${{ github.ref_name }}
 
@@ -34,13 +41,11 @@ jobs:
       # folders, not the folders themselves.
 
       - name: Create Github release
-        uses: ncipollo/release-action@v1
-        with:
-          draft: true
-          allowUpdates: true
-          artifacts: "./wasp-cli-*/*"
-          artifactErrorsFailBuild: true
-          replacesArtifacts: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REF_NAME: ${{ github.ref_name }}
+        run: |
+          gh release create --draft --verify-tag ${REF_NAME} "./wasp-cli-*/*"
 
   publish-npm:
     needs: ci
@@ -52,10 +57,17 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v6
         with:
           node-version-file: .nvmrc
+          # Disable caching to avoid a potentially poisoned cache introducing a
+          # vulnerability not present in the stored artifacts.
+          # https://docs.zizmor.sh/audits/#cache-poisoning
+          cache: false
+          package-manager-cache: false
 
       - uses: actions/download-artifact@v8
         with:
