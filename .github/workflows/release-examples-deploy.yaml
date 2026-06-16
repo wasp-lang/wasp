@@ -63,9 +63,9 @@ jobs:
           node-version-file: .nvmrc
 
       - name: Install Wasp
-        run: npm i -g "@wasp.sh/wasp-cli@${WASP_VERSION}"
         env:
           WASP_VERSION: ${{ inputs.version }}
+        run: npm i -g "@wasp.sh/wasp-cli@${WASP_VERSION}"
 
       - name: Install Fly CLI
         uses: superfly/flyctl-actions/setup-flyctl@v1
