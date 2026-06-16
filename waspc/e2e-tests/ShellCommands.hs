@@ -66,10 +66,6 @@ import Wasp.Generator.DbGenerator.Common (dbMigrationsDirInDbRootDir, dbRootDirI
 import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, generatedAppDirInDotWaspDir, mainWaspTsFileInWaspProjectDir)
 import Wasp.Project.Db.Migrations (dbMigrationsDirInWaspProjectDir)
 
--- NOTE: We invoke the Wasp CLI through `$WASP_CLI_CMD`.
--- This gives us flexibility to:
---  * Locally, run Wasp through cabal.
---  * In CI, run Wasp through the installed `wasp` binary.
 -- TODO: In future, find a good way to test `wasp-cli start`.
 
 type ShellCommand = String
