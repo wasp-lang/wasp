@@ -457,7 +457,7 @@ Do the non-bold steps when necessary (decide for each step depending on the chan
 - 👉 Push your local `release` branch to remote.
 - 👉 You will have been tagged in an automated PR to merge `release` back to `main` (you can also find it [here](https://github.com/wasp-lang/wasp/pulls?q=is%3Apr+head%3Arelease+base%3Amain+is%3Aopen)). Make sure to merge that PR (create a merge commit, **don't squash or rebase**). This ensures that `main` is ahead of `release` and we won't have merge conflicts in future releases.
 - Deploy the example apps to Fly.io by running the [release-examples-deploy workflow](https://github.com/wasp-lang/wasp/actions/workflows/release-examples-deploy.yaml) (see "Deployment / CI" section for more details).
-- If there are changes to the docs, [publish the new version](/web#deployment) from the `release` branch.
+- If there are changes to the docs, [publish the new version](../web/README.md#deployment) from the `release` branch.
 - If there are changes to Mage, [publish the new version](/mage#deployment) from the `release` branch.
 - If there are changes to the [Wasp VSCode extension](https://github.com/wasp-lang/vscode-wasp), publish the new version.
 - Announce the new release in Discord.
