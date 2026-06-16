@@ -56,9 +56,10 @@ jobs:
         # the test cases to fail.
         name: Configure git
         working-directory:
-          # This gets flagged by the GitHub Actions linter as an incorrect type,
-          # but it actually works. Don't lose time as I did, wrapping it in
-          # quotes makes it not work.
+          # This gets flagged by the GitHub Actions language server as an
+          # incorrect type, but it actually works. Wrapping it in quotes makes
+          # the language server happy but changes the interpretation on the
+          # runner, and breaks the workflow. So don't do it.
           ~
         run: |
           git config --global core.autocrlf input

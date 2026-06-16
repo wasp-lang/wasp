@@ -7,17 +7,15 @@ permissions: {}
 
 jobs:
   zizmor:
-    name: Run zizmor 🌈
+    name: Run zizmor
     runs-on: ubuntu-latest
     permissions:
       security-events: write # Required for upload-sarif (used by zizmor-action) to upload SARIF files.
-      contents: read # Only needed for private repos. Needed to clone the repo.
-      actions: read # Only needed for private repos. Needed for upload-sarif to read workflow run info.
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
         with:
           persist-credentials: false
 
-      - name: Run zizmor 🌈
+      - name: Run zizmor
         uses: zizmorcore/zizmor-action@5f14fd08f7cf1cb1609c1e344975f152c7ee938d # v0.5.6
