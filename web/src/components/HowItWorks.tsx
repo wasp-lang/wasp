@@ -4,7 +4,7 @@ import SectionContainer from "./Layouts/SectionContainer";
 import SectionLabel from "./Layouts/SectionLabel";
 
 const HowItWorks = () => (
-  <div className="bg-wasp-g1">
+  <div className="bg-wasp-yellow-light">
     <SectionContainer>
       <SectionLabel text="how it works" />
 

@@ -39,8 +39,8 @@ const HowItWorksDiagram = () => (
         y="38"
         width="200"
         height="204"
-        className="fill-wasp-yellow-light stroke-wasp-black"
-        strokeWidth="2.5"
+        className="fill-wasp-white stroke-wasp-black"
+        strokeWidth="1.25"
       />
       <rect
         x="10"
@@ -48,7 +48,7 @@ const HowItWorksDiagram = () => (
         width="200"
         height="26"
         className="fill-wasp-yellow stroke-wasp-black"
-        strokeWidth="2.5"
+        strokeWidth="1.25"
       />
       <text
         x="24"
@@ -126,7 +126,7 @@ const HowItWorksDiagram = () => (
         height="204"
         fill="url(#waspCliStripes)"
         className="stroke-wasp-black"
-        strokeWidth="2"
+        strokeWidth="1.5"
         strokeDasharray="6 4"
       />
       <text
@@ -162,7 +162,7 @@ const HowItWorksDiagram = () => (
         x2="294"
         y2="140"
         className="stroke-wasp-black"
-        strokeWidth="2.5"
+        strokeWidth="1.75"
       />
       <polygon points="294,133 306,140 294,147" className="fill-wasp-black" />
     </g>
@@ -176,7 +176,7 @@ const HowItWorksDiagram = () => (
         height="80"
         fill="#E8E8E8"
         className="stroke-wasp-black"
-        strokeWidth="2"
+        strokeWidth="1.5"
       />
       <text
         x="391"
@@ -230,7 +230,7 @@ const HowItWorksDiagram = () => (
         x2="513"
         y2="140"
         className="stroke-wasp-black"
-        strokeWidth="2.5"
+        strokeWidth="1.75"
       />
       <polygon points="513,133 525,140 513,147" className="fill-wasp-black" />
     </g>
@@ -242,8 +242,8 @@ const HowItWorksDiagram = () => (
         y="62"
         width="185"
         height="156"
-        className="fill-wasp-yellow-light stroke-wasp-black"
-        strokeWidth="2.5"
+        className="fill-wasp-white stroke-wasp-black"
+        strokeWidth="1.25"
       />
       <rect
         x="546"
@@ -251,7 +251,7 @@ const HowItWorksDiagram = () => (
         width="185"
         height="26"
         className="fill-wasp-yellow stroke-wasp-black"
-        strokeWidth="2.5"
+        strokeWidth="1.25"
       />
       <text
         x="560"
@@ -384,7 +384,7 @@ const HowItWorksDiagram = () => (
         x2="830"
         y2="140"
         className="stroke-wasp-black"
-        strokeWidth="2.5"
+        strokeWidth="1.75"
       />
       <polygon points="830,133 842,140 830,147" className="fill-wasp-black" />
     </g>
@@ -395,8 +395,8 @@ const HowItWorksDiagram = () => (
         cx="35"
         cy="35"
         r="33"
-        className="fill-wasp-yellow-light stroke-wasp-black"
-        strokeWidth="2.5"
+        className="fill-wasp-white stroke-wasp-black"
+        strokeWidth="1.25"
       />
       {/* latitudes */}
       <line
