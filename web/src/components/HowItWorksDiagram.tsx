@@ -1,144 +1,457 @@
 /* Compile pipeline diagram for the "How it works" section.
 
    Layout discipline:
-   - Arrow rail at y=140 — content centers on this line.
-   - Outer boxes (Code, frame, Hosts) all y=60-220 (160 tall).
-   - Generated box inset 20px inside frame top/bottom.
-   - All arrows have ~20px padding from neighbouring elements for the same feel.
-   - File rows in "your code" all share the same indent — flat hierarchy. */
+   - Arrow rail at y=140 — every stage (boxes, arrows, globe) centers on it.
+   - The YOUR CODE box and the WASP CLI frame share the same extent (y=38-242).
+   - COMPILE and DEPLOY are centered on the frame's left/right edges, so each
+     arrow sits half inside the frame and half outside; a white plate keeps the
+     label legible where it crosses the striped fill.
+   - File rows in "your code" all share the same indent — flat hierarchy.
+
+   Colours come from the Wasp palette via Tailwind's fill and stroke utilities.
+   The only raw hex left is genuinely off-palette: the React/Node brand colours
+   and a few bespoke tints (stripe greys, coloured tier-row fills). */
 const HowItWorksDiagram = () => (
   <svg
     viewBox="0 0 1000 260"
     preserveAspectRatio="xMidYMid meet"
     aria-label="Wasp compiles your code into an intermediate representation, then generates a full-stack app (frontend, backend, database) ready to deploy anywhere."
-    className="mx-auto block w-full max-w-5xl font-mono"
+    className="block w-full font-mono"
   >
+    {/* Diagonal striped fill for the WASP CLI frame — bespoke light greys. */}
+    <defs>
+      <pattern
+        id="waspCliStripes"
+        width="8"
+        height="8"
+        patternUnits="userSpaceOnUse"
+        patternTransform="rotate(45)"
+      >
+        <rect width="8" height="8" fill="#F7F7F7" />
+        <line x1="0" y1="0" x2="0" y2="8" stroke="#E2E2E2" strokeWidth="4" />
+      </pattern>
+    </defs>
+
     {/* ─── 1. Your code ─── */}
     <g>
-      <rect x="10" y="60" width="200" height="160" fill="#FFF3CC" stroke="#111" strokeWidth="2.5" />
-      <rect x="10" y="60" width="200" height="26" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
-      <text x="24" y="78" fontSize="12" fontWeight="bold" fill="#111" letterSpacing="2">
+      <rect
+        x="10"
+        y="38"
+        width="200"
+        height="204"
+        className="fill-wasp-yellow-light stroke-wasp-black"
+        strokeWidth="2.5"
+      />
+      <rect
+        x="10"
+        y="38"
+        width="200"
+        height="26"
+        className="fill-wasp-yellow stroke-wasp-black"
+        strokeWidth="2.5"
+      />
+      <text
+        x="24"
+        y="56"
+        fontSize="12"
+        fontWeight="bold"
+        className="fill-wasp-black"
+        letterSpacing="2"
+      >
         YOUR CODE
       </text>
 
-      {/* *.wasp.ts — highlighted row (still special, just same indent as the rest) */}
-      <rect x="14" y="96" width="192" height="26" fill="#F5C842" />
-      <g transform="translate(20, 100)">
+      {/* *.wasp.ts — same size as the rest, just bold + yellow highlight */}
+      <rect
+        x="14"
+        y="74"
+        width="192"
+        height="26"
+        className="fill-wasp-yellow"
+      />
+      <g transform="translate(20, 79)">
         <WaspIcon />
       </g>
-      <text x="44" y="114" fontSize="16" fontWeight="bold" fill="#111">
+      <text
+        x="44"
+        y="91"
+        fontSize="14"
+        fontWeight="bold"
+        className="fill-wasp-black"
+      >
         *.wasp.ts
       </text>
 
       {/* Other files — same indent so they read as "all at the same level" */}
-      <g transform="translate(20, 128)">
+      <g transform="translate(20, 107)">
         <ReactIcon />
       </g>
-      <text x="44" y="140" fontSize="14" fill="#333">*.tsx</text>
+      <text x="44" y="119" fontSize="14" className="fill-wasp-g7">
+        *.tsx
+      </text>
 
-      <g transform="translate(20, 148)">
+      <g transform="translate(20, 135)">
         <NodeIcon />
       </g>
-      <text x="44" y="160" fontSize="14" fill="#333">*.ts</text>
+      <text x="44" y="147" fontSize="14" className="fill-wasp-g7">
+        *.ts
+      </text>
 
-      <g transform="translate(20, 168)">
+      <g transform="translate(20, 163)">
         <PrismaIcon />
       </g>
-      <text x="44" y="180" fontSize="14" fill="#333">schema.prisma</text>
+      <text x="44" y="175" fontSize="14" className="fill-wasp-g7">
+        schema.prisma
+      </text>
 
-      <g transform="translate(20, 188)">
+      <g transform="translate(20, 191)">
         <DockerIcon />
       </g>
-      <text x="44" y="200" fontSize="14" fill="#333">Dockerfile</text>
-    </g>
-
-    {/* ─── arrow 1: COMPILE ─── line length matches GENERATE for consistent feel */}
-    <g>
-      <text x="260" y="120" textAnchor="middle" fontSize="12" fill="#555" letterSpacing="3" fontWeight="bold">
-        COMPILE
+      <text x="44" y="203" fontSize="14" className="fill-wasp-g7">
+        Dockerfile
       </text>
-      <line x1="229" y1="140" x2="279" y2="140" stroke="#111" strokeWidth="2.5" />
-      <polygon points="279,133 291,140 279,147" fill="#111" />
+
+      {/* …and any other source files */}
+      <text x="44" y="231" fontSize="14" className="fill-wasp-g7">
+        ...
+      </text>
     </g>
 
     {/* ─── WASP CLI dashed frame (label is just text, no tab background) ─── */}
     <g>
-      <rect x="310" y="60" width="450" height="160" fill="none" stroke="#111" strokeWidth="2" strokeDasharray="6 4" />
-      <text x="318" y="52" fontSize="11" fontWeight="bold" fill="#555" letterSpacing="2">
+      <rect
+        x="275"
+        y="38"
+        width="536"
+        height="204"
+        fill="url(#waspCliStripes)"
+        className="stroke-wasp-black"
+        strokeWidth="2"
+        strokeDasharray="6 4"
+      />
+      <text
+        x="318"
+        y="30"
+        fontSize="11"
+        fontWeight="bold"
+        className="fill-wasp-g6"
+        letterSpacing="2"
+      >
         WASP CLI
       </text>
     </g>
 
-    {/* ─── 2. Wasp area: bare two-line label, no box, no header ─── */}
+    {/* ─── arrow 1: COMPILE ─── centered in the YOUR CODE→IR gap, drawn over the frame ─── */}
     <g>
-      <text x="402" y="135" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#111">
+      {/* white plate so the label stays legible over the frame's stripes */}
+      <rect x="236" y="108" width="78" height="16" className="fill-white" />
+      <text
+        x="275"
+        y="120"
+        textAnchor="middle"
+        fontSize="12"
+        className="fill-wasp-g6"
+        letterSpacing="3"
+        fontWeight="bold"
+      >
+        COMPILE
+      </text>
+      <line
+        x1="244"
+        y1="140"
+        x2="294"
+        y2="140"
+        className="stroke-wasp-black"
+        strokeWidth="2.5"
+      />
+      <polygon points="294,133 306,140 294,147" className="fill-wasp-black" />
+    </g>
+
+    {/* ─── 2. Wasp area: IR in its own grey box, label beneath the mark ─── */}
+    <g>
+      <rect
+        x="339"
+        y="100"
+        width="104"
+        height="80"
+        fill="#E8E8E8"
+        className="stroke-wasp-black"
+        strokeWidth="2"
+      />
+      <text
+        x="391"
+        y="136"
+        textAnchor="middle"
+        fontSize="28"
+        fontWeight="bold"
+        className="fill-wasp-black"
+        letterSpacing="2"
+      >
+        IR
+      </text>
+      <text
+        x="391"
+        y="153"
+        textAnchor="middle"
+        fontSize="8.5"
+        fontWeight="bold"
+        className="fill-wasp-g6"
+      >
         intermediate
       </text>
-      <text x="402" y="153" textAnchor="middle" fontSize="13" fontWeight="bold" fill="#111">
+      <text
+        x="391"
+        y="164"
+        textAnchor="middle"
+        fontSize="8.5"
+        fontWeight="bold"
+        className="fill-wasp-g6"
+      >
         representation
       </text>
     </g>
 
     {/* ─── arrow 2: GENERATE ─── */}
     <g>
-      <text x="508" y="120" textAnchor="middle" fontSize="12" fill="#555" letterSpacing="3" fontWeight="bold">
+      <text
+        x="494"
+        y="120"
+        textAnchor="middle"
+        fontSize="12"
+        className="fill-wasp-g6"
+        letterSpacing="3"
+        fontWeight="bold"
+      >
         GENERATE
       </text>
-      <line x1="477" y1="140" x2="527" y2="140" stroke="#111" strokeWidth="2.5" />
-      <polygon points="527,133 539,140 527,147" fill="#111" />
+      <line
+        x1="463"
+        y1="140"
+        x2="513"
+        y2="140"
+        className="stroke-wasp-black"
+        strokeWidth="2.5"
+      />
+      <polygon points="513,133 525,140 513,147" className="fill-wasp-black" />
     </g>
 
     {/* ─── 3. Generated code — each tier in a colored bordered row ─── */}
     <g>
-      <rect x="560" y="80" width="185" height="120" fill="#FFF3CC" stroke="#111" strokeWidth="2.5" />
-      <rect x="560" y="80" width="185" height="26" fill="#F5C842" stroke="#111" strokeWidth="2.5" />
-      <text x="574" y="98" fontSize="12" fontWeight="bold" fill="#111" letterSpacing="2">
+      <rect
+        x="546"
+        y="62"
+        width="185"
+        height="156"
+        className="fill-wasp-yellow-light stroke-wasp-black"
+        strokeWidth="2.5"
+      />
+      <rect
+        x="546"
+        y="62"
+        width="185"
+        height="26"
+        className="fill-wasp-yellow stroke-wasp-black"
+        strokeWidth="2.5"
+      />
+      <text
+        x="560"
+        y="80"
+        fontSize="12"
+        fontWeight="bold"
+        className="fill-wasp-black"
+        letterSpacing="2"
+      >
         GENERATED CODE
       </text>
       {/* small lock — generated code is read-only */}
-      <g transform="translate(726, 86)">
-        <path d="M 3 6 L 3 4 A 3 3 0 0 1 9 4 L 9 6" fill="none" stroke="#111" strokeWidth="1.5" strokeLinecap="round" />
-        <rect x="1" y="6" width="10" height="8" fill="#111" />
+      <g transform="translate(712, 68)">
+        <path
+          d="M 3 6 L 3 4 A 3 3 0 0 1 9 4 L 9 6"
+          fill="none"
+          className="stroke-wasp-black"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
+        <rect x="1" y="6" width="10" height="8" className="fill-wasp-black" />
       </g>
 
-      {/* frontend — React cyan */}
-      <rect x="572" y="114" width="161" height="22" fill="#E6F7FB" stroke="#61DAFB" strokeWidth="1.5" />
-      <text x="580" y="129" fontSize="13" fontWeight="bold" fill="#111">frontend</text>
-      <text x="727" y="129" textAnchor="end" fontSize="11" fill="#555">React</text>
+      {/* frontend — React cyan (brand colours) */}
+      <rect
+        x="558"
+        y="98"
+        width="161"
+        height="30"
+        fill="#E6F7FB"
+        stroke="#61DAFB"
+        strokeWidth="1.5"
+      />
+      <text
+        x="566"
+        y="118"
+        fontSize="13"
+        fontWeight="bold"
+        className="fill-wasp-black"
+      >
+        frontend
+      </text>
+      <text
+        x="713"
+        y="118"
+        textAnchor="end"
+        fontSize="11"
+        className="fill-wasp-g6"
+      >
+        React
+      </text>
 
-      {/* backend — Node green */}
-      <rect x="572" y="140" width="161" height="22" fill="#E8F5E0" stroke="#5FA04E" strokeWidth="1.5" />
-      <text x="580" y="155" fontSize="13" fontWeight="bold" fill="#111">backend</text>
-      <text x="727" y="155" textAnchor="end" fontSize="11" fill="#555">Node</text>
+      {/* backend — Node green (brand colours) */}
+      <rect
+        x="558"
+        y="138"
+        width="161"
+        height="30"
+        fill="#E8F5E0"
+        stroke="#5FA04E"
+        strokeWidth="1.5"
+      />
+      <text
+        x="566"
+        y="158"
+        fontSize="13"
+        fontWeight="bold"
+        className="fill-wasp-black"
+      >
+        backend
+      </text>
+      <text
+        x="713"
+        y="158"
+        textAnchor="end"
+        fontSize="11"
+        className="fill-wasp-g6"
+      >
+        Node
+      </text>
 
-      {/* database — Prisma neutral */}
-      <rect x="572" y="166" width="161" height="22" fill="#FAFAFA" stroke="#2D3748" strokeWidth="1.5" />
-      <text x="580" y="181" fontSize="13" fontWeight="bold" fill="#111">database</text>
-      <text x="727" y="181" textAnchor="end" fontSize="11" fill="#555">Prisma</text>
+      {/* database — Prisma slate */}
+      <rect
+        x="558"
+        y="178"
+        width="161"
+        height="30"
+        stroke="#2D3748"
+        strokeWidth="1.5"
+        className="fill-wasp-white"
+      />
+      <text
+        x="566"
+        y="198"
+        fontSize="13"
+        fontWeight="bold"
+        className="fill-wasp-black"
+      >
+        database
+      </text>
+      <text
+        x="713"
+        y="198"
+        textAnchor="end"
+        fontSize="11"
+        className="fill-wasp-g6"
+      >
+        Prisma
+      </text>
     </g>
 
-    {/* ─── arrow 3: DEPLOY ─── equal padding from frame and globe */}
+    {/* ─── arrow 3: DEPLOY ─── centered in the GENERATED→globe gap, drawn over the frame ─── */}
     <g>
-      <text x="826" y="120" textAnchor="middle" fontSize="12" fill="#555" letterSpacing="3" fontWeight="bold">
+      {/* white plate so the label stays legible over the frame's stripes */}
+      <rect x="778" y="108" width="66" height="16" className="fill-white" />
+      <text
+        x="811"
+        y="120"
+        textAnchor="middle"
+        fontSize="12"
+        className="fill-wasp-g6"
+        letterSpacing="3"
+        fontWeight="bold"
+      >
         DEPLOY
       </text>
-      <line x1="795" y1="140" x2="845" y2="140" stroke="#111" strokeWidth="2.5" />
-      <polygon points="845,133 857,140 845,147" fill="#111" />
+      <line
+        x1="780"
+        y1="140"
+        x2="830"
+        y2="140"
+        className="stroke-wasp-black"
+        strokeWidth="2.5"
+      />
+      <polygon points="830,133 842,140 830,147" className="fill-wasp-black" />
     </g>
 
     {/* ─── 4. Anywhere — schematic globe, no surrounding box ─── */}
-    <g transform="translate(890, 95)">
-      <circle cx="35" cy="35" r="33" fill="#FFF3CC" stroke="#111" strokeWidth="2.5" />
+    <g transform="translate(890, 105)">
+      <circle
+        cx="35"
+        cy="35"
+        r="33"
+        className="fill-wasp-yellow-light stroke-wasp-black"
+        strokeWidth="2.5"
+      />
       {/* latitudes */}
-      <line x1="6" y1="22" x2="64" y2="22" stroke="#111" strokeWidth="1.3" />
-      <line x1="2" y1="35" x2="68" y2="35" stroke="#111" strokeWidth="1.3" />
-      <line x1="6" y1="48" x2="64" y2="48" stroke="#111" strokeWidth="1.3" />
+      <line
+        x1="6"
+        y1="22"
+        x2="64"
+        y2="22"
+        className="stroke-wasp-black"
+        strokeWidth="1.3"
+      />
+      <line
+        x1="2"
+        y1="35"
+        x2="68"
+        y2="35"
+        className="stroke-wasp-black"
+        strokeWidth="1.3"
+      />
+      <line
+        x1="6"
+        y1="48"
+        x2="64"
+        y2="48"
+        className="stroke-wasp-black"
+        strokeWidth="1.3"
+      />
       {/* longitudes */}
-      <path d="M 35 2 Q 17 35 35 68" fill="none" stroke="#111" strokeWidth="1.3" />
-      <path d="M 35 2 Q 53 35 35 68" fill="none" stroke="#111" strokeWidth="1.3" />
-      <line x1="35" y1="2" x2="35" y2="68" stroke="#111" strokeWidth="1.3" />
+      <path
+        d="M 35 2 Q 17 35 35 68"
+        fill="none"
+        className="stroke-wasp-black"
+        strokeWidth="1.3"
+      />
+      <path
+        d="M 35 2 Q 53 35 35 68"
+        fill="none"
+        className="stroke-wasp-black"
+        strokeWidth="1.3"
+      />
+      <line
+        x1="35"
+        y1="2"
+        x2="35"
+        y2="68"
+        className="stroke-wasp-black"
+        strokeWidth="1.3"
+      />
     </g>
-    <text x="925" y="195" textAnchor="middle" fontSize="10" fill="#555">
+    <text
+      x="925"
+      y="195"
+      textAnchor="middle"
+      fontSize="10"
+      className="fill-wasp-g6"
+    >
       Fly · Railway · your VPS
     </text>
   </svg>
@@ -152,7 +465,15 @@ const WaspIcon = () => (
 /* React mark: cyan orbital atom — three crossed ellipses + center dot. */
 const ReactIcon = () => (
   <>
-    <ellipse cx="8" cy="8" rx="7.5" ry="3" fill="none" stroke="#61DAFB" strokeWidth="1.5" />
+    <ellipse
+      cx="8"
+      cy="8"
+      rx="7.5"
+      ry="3"
+      fill="none"
+      stroke="#61DAFB"
+      strokeWidth="1.5"
+    />
     <ellipse
       cx="8"
       cy="8"
@@ -179,10 +500,7 @@ const ReactIcon = () => (
 
 /* Node mark: filled green hexagon — Node's iconic silhouette. */
 const NodeIcon = () => (
-  <polygon
-    points="8,1 14,4.5 14,11.5 8,15 2,11.5 2,4.5"
-    fill="#5FA04E"
-  />
+  <polygon points="8,1 14,4.5 14,11.5 8,15 2,11.5 2,4.5" fill="#5FA04E" />
 );
 
 /* Prisma mark: the official Prisma symbol from their press kit. */
