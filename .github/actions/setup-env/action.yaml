@@ -50,11 +50,6 @@ runs:
 
     - name: Install Mise
       uses: jdx/mise-action@v4
-      env:
-        # The GHCup backend has a race condition when installing concurrently on
-        # Windows, that can cause Mise to fail to install GHC.
-        # https://github.com/cprecioso/mise-ghcup/issues/10
-        MISE_JOBS: ${{ runner.os == 'Windows' && '1' || '4' }}
 
     - # `cabal.project` sets `with-compiler: x.y.z`, so Cabal resolves the bare
       # program name `ghc-x.y.z` on PATH. On Windows that hits Mise's shim,
