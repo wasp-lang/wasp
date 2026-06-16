@@ -93,6 +93,8 @@ jobs:
       # of Wasp, we're just incidentally using the same tool Wasp uses.
 
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup-env
 
       - name: Clean up test apps
@@ -196,6 +198,8 @@ jobs:
       # tool Wasp uses.
 
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
       - uses: ./.github/actions/setup-env
 
       - name: Clean up test project
