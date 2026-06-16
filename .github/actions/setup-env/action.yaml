@@ -36,11 +36,16 @@ runs:
           # curl. We only need curl to bootstrap Mise; the remaining apt
           # packages are installed via `mise bootstrap` below.
           export DEBIAN_FRONTEND=noninteractive
-          apt-get update -y
+          if command -v sudo >/dev/null 2>&1; then
+            APT_GET="sudo apt-get"
+          else
+            APT_GET="apt-get"
+          fi
+          $APT_GET update -y
           # GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-ubuntu)
-          apt-get install -y build-essential curl libffi-dev libgmp-dev libncurses-dev
+          $APT_GET install -y build-essential curl libffi-dev libgmp-dev libncurses-dev
           # Cabal dependencies
-          apt-get install -y zlib1g-dev
+          $APT_GET install -y zlib1g-dev
         fi
 
     - name: Install Mise
