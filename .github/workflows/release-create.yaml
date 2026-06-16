@@ -42,8 +42,10 @@ jobs:
 
       - name: Create Github release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REF_NAME: ${{ github.ref_name }}
+          # Env for the `gh` CLI tool
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
           gh release create --draft --verify-tag ${REF_NAME} "./wasp-cli-*/*"
 
