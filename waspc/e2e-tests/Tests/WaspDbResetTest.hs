@@ -55,7 +55,7 @@ waspDbResetTest =
     ]
   where
     waspCliDbResetFails :: ShellCommand
-    waspCliDbResetFails = "! wasp-cli db reset"
+    waspCliDbResetFails = "! $WASP_CLI_CMD db reset"
 
     taskPrismaModel :: T.Text
     taskPrismaModel =
