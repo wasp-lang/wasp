@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### 🐞 Bug fixes
+
+- Fixed a race condition where `useAuth()` could return stale user data after an action that modifies the `User` entity, causing redirect loops. Query cache invalidation now correctly awaits all pending refetches before the action resolves. ([#3009](https://github.com/wasp-lang/wasp/issues/3009))
+
 ### 🔧 Small improvements
 
 - Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
