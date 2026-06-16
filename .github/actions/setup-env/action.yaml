@@ -22,6 +22,11 @@ runs:
         # Detect Alpine via /etc/alpine-release. We can't rely on `uname`
         # because inside a container it reports the host kernel, not the
         # container's distro.
+        # We can fold this step into Mise when apk packages are supported
+        # (https://github.com/jdx/mise/discussions/10449) and curl is no longer
+        # needed to use the Mise action
+        # (https://github.com/jdx/mise/discussions/10488).
+
         if [ -f /etc/alpine-release ]; then
           # GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-alpine)
           apk add binutils-gold curl gcc g++ gmp-dev gmp-static libc-dev libffi-dev make musl-dev ncurses-dev perl pkgconfig tar xz
@@ -32,15 +37,16 @@ runs:
           # Prisma dependencies
           apk add openssl
         else
-          # Minimal Debian/Ubuntu container (e.g. ubuntu:20.04) that lacks
-          # curl. We only need curl to bootstrap Mise; the remaining apt
-          # packages are installed via `mise bootstrap` below.
-          export DEBIAN_FRONTEND=noninteractive
+          # If we have sudo, we need to use it to install dependencies. If we
+          # don't have sudo, we assume we're running as root and can just use
+          # apt-get directly.
           if command -v sudo >/dev/null 2>&1; then
             APT_GET="sudo apt-get"
           else
             APT_GET="apt-get"
           fi
+
+          export DEBIAN_FRONTEND=noninteractive
           $APT_GET update -y
           # GHCup dependencies (https://www.haskell.org/ghcup/install/reqs/#linux-ubuntu)
           $APT_GET install -y build-essential curl libffi-dev libgmp-dev libncurses-dev
@@ -52,12 +58,11 @@ runs:
       uses: jdx/mise-action@v4
 
     - # `cabal.project` sets `with-compiler: x.y.z`, so Cabal resolves the bare
-      # program name `ghc-x.y.z` on PATH. On Windows that hits Mise's shim,
-      # whose `--numeric-version` returns an empty string, so Cabal can't
-      # determine the compiler version and the build fails. We override
-      # `with-compiler` with the absolute path to the real `ghc.exe` so Cabal
-      # probes the actual binary instead of the shim. Using forward slashes
-      # keeps Cabal's config parser happy.
+      # program name `ghc-x.y.z` on PATH. On Windows, that hits Mise's shim,
+      # which Cabal can't determine the version of, and the build fails. We
+      # override `with-compiler` with the absolute path to the real `ghc.exe` so
+      # Cabal probes the actual binary instead of the shim. Using forward
+      # slashes keeps Cabal's config parser happy.
       name: Pin Cabal to the real GHC binary (Windows)
       if: runner.os == 'Windows'
       shell: pwsh
