@@ -8,7 +8,7 @@ import { cardsSpec } from "./src/cards/cards.wasp";
 
 export default app({
   name: "waspello",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.24.0" }, // x-release-please-version
   title: (await readFile("appTitle.txt", "utf-8")).trim(),
   auth: {
     userEntity: "User",

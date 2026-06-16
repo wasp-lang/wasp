@@ -222,8 +222,8 @@ print_usage() {
     "Sets the correct version of GHC and Cabal for this project (via GHCup)."
   print_usage_cmd "get-waspc-version" \
     "Gets the current version of waspc from the Haskell project."
-  print_usage_cmd "version-bump <major | minor | patch>" \
-    "Bumps the Wasp version across waspc.cabal, libs, and example projects, then rebuilds libs and busts each project's libs cache."
+  print_usage_cmd "sync-derived-versions" \
+    "Regenerates derived artifacts (built libs/packages and example lockfiles) from the already-bumped source versions."
 }
 
 exitStatusToString() {
@@ -376,8 +376,8 @@ case $COMMAND in
   get-waspc-version)
     node "$SCRIPT_DIR/tools/get-waspc-version.ts"
     ;;
-  version-bump)
-    node "$SCRIPT_DIR/tools/version-bump.ts" "${ARGS[@]}"
+  sync-derived-versions)
+    node "$SCRIPT_DIR/tools/sync-derived-versions.ts"
     ;;
   *)
     print_usage

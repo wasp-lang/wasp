@@ -27,7 +27,7 @@ import { rpcTestsSpec } from "./src/rpcTests/rpcTests.wasp";
 
 export default app({
   name: "KitchenSink",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "^0.24.0" }, // x-release-please-version
   title: "Wasp Kitchen Sink",
   head: [
     "<link rel='manifest' href='/manifest.json' />",

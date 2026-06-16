@@ -1,0 +1,30 @@
+name: Release Please
+
+on:
+  push:
+    branches:
+      - release
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      # Manifest-driven mode with default file locations
+      # (`release-please-config.json` + `.release-please-manifest.json` at the repo root),
+      # so `config-file`/`manifest-file` are omitted. `token` defaults to `GITHUB_TOKEN`.
+      #
+      # `target-branch` cannot be set in the config file (no such field in its schema), so it
+      # must stay here. It makes release-please open its PR into `release` instead of the repo
+      # default branch (`main`).
+      #
+      # NOTE: tags pushed with `GITHUB_TOKEN` don't trigger other workflows, so the `v*` tag
+      # created on merge will NOT auto-trigger `release-create.yaml`. Kick that off manually
+      # (see the release runbook).
+      - uses: googleapis/release-please-action@v5
+        with:
+          target-branch: release

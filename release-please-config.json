@@ -1,0 +1,45 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bump-minor-pre-major": true,
+  "bump-patch-for-minor-pre-major": true,
+  "separate-pull-requests": true,
+  "packages": {
+    "waspc": {
+      "release-type": "simple",
+      "component": "waspc",
+      "include-component-in-tag": false,
+      "skip-changelog": true,
+      "extra-files": [
+        { "type": "generic", "path": "waspc.cabal" },
+        {
+          "type": "json",
+          "path": "data/packages/*/package.json",
+          "glob": true,
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "json",
+          "path": "data/Generator/libs/*/package.json",
+          "glob": true,
+          "jsonpath": "$.version"
+        },
+        {
+          "type": "generic",
+          "path": "/examples/ask-the-documents/main.wasp.ts"
+        },
+        { "type": "generic", "path": "/examples/kitchen-sink/main.wasp.ts" },
+        { "type": "generic", "path": "/examples/waspello/main.wasp.ts" },
+        { "type": "generic", "path": "/examples/waspleau/main.wasp.ts" },
+        {
+          "type": "generic",
+          "path": "/examples/websockets-realtime-voting/main.wasp.ts"
+        }
+      ]
+    },
+    "wasp-app-runner": {
+      "release-type": "node",
+      "component": "wasp-app-runner",
+      "skip-changelog": true
+    }
+  }
+}
