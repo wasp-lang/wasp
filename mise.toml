@@ -2,11 +2,11 @@ min_version = "2026.6.10"
 
 [tools]
 "aqua:ghcup" = "0.2.6.1"
-"github:railwayapp/cli" = "4.11.1"
-"github:superfly/flyctl" = "0.3.164"
+"flyctl" = "0.3.164"
 "github:tfausak/cabal-gild" = "1.5.0.1"
-"github:tweag/ormolu" = "0.7.2.0"
-"mise-ghcup:cabal" = "3.12.1.0"
+"cabal" = "3.12.1.0"
+"ormolu" = "0.7.2.0"
+"railway" = "4.11.1"
 
 # Keep in sync with:
 # - /waspc/cabal.project
@@ -21,7 +21,7 @@ min_version = "2026.6.10"
 # - The compiler (Wasp.Node.Version).
 # - The docs: /docs/introduction/quick-start.md ("Requirements" section).
 # - The docs plugin: /web/src/remark/search-and-replace.ts
-node = "24.14.1"
+"node" = "24.14.1"
 
 [plugins]
 "vfox:mise-ghcup" = "https://github.com/cprecioso/mise-ghcup.git"
