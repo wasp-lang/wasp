@@ -96,3 +96,7 @@ jobs:
   waspc-test: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-waspc-test.yaml
     secrets: inherit # zizmor: ignore[secrets-inherit]
+
+  actions-check: # zizmor: ignore[excessive-permissions]
+    uses: ./.github/workflows/ci-actions-check.yaml
+    secrets: inherit # zizmor: ignore[secrets-inherit]
