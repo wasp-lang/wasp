@@ -2,22 +2,16 @@ import { gfm as githubFlavoredMarkdown } from "@joplin/turndown-plugin-gfm";
 import TurndownService from "turndown";
 
 /**
- * Turndown rules for Docusaurus output. Docusaurus renders MDX into HTML with
- * theme-specific wrappers (code blocks with copy buttons, admonitions, tabs).
+ * Turndown rules for Docusaurus HTML output.
+ * Docusaurus renders MDX into HTML with theme-specific wrappers.
  * Turndown's defaults mangle those, so we add rules that recognize the wrappers
  * and emit clean Markdown.
  */
 
 /**
- * Creates the Turndown service used to convert doc HTML to Markdown.
- *
- * The admonition and tabs rules convert their inner content by calling back into
- * this same service. That is safe: Turndown parses each `turndown()` call into
- * its own document, and the rules only re-feed the wrapper's inner content (a
- * strictly smaller subtree), so recursion always terminates. Reusing the same
- * instance also means nested admonitions/tabs are converted properly.
+ * Creates the Turndown service used to convert Docusaurus doc HTML to Markdown.
  */
-export function createLlmFriendlyTurndownService(): TurndownService {
+export function createDocusaurusLlmFriendlyTurndownService(): TurndownService {
   const turndownService = new TurndownService({
     headingStyle: "atx",
     codeBlockStyle: "fenced",
@@ -28,11 +22,13 @@ export function createLlmFriendlyTurndownService(): TurndownService {
     linkStyle: "inlined",
   });
   turndownService.use(githubFlavoredMarkdown);
-  turndownService.remove(["script", "style", "button"]);
-  addHashLinkRule(turndownService);
-  addCodeBlockRule(turndownService);
-  addAdmonitionRule(turndownService);
-  addTabsRule(turndownService);
+  // Currently, this only removes the "Generate secret" buttons
+  // next to secret env vars.
+  turndownService.remove(["button"]);
+  addDocusaurusHashLinkRule(turndownService);
+  addDocusaurusCodeBlockRule(turndownService);
+  addDocusaurusAdmonitionRule(turndownService);
+  addDocusaurusTabsRule(turndownService);
 
   return turndownService;
 }
@@ -56,8 +52,8 @@ export function createLlmFriendlyTurndownService(): TurndownService {
  * ## Title
  * ```
  */
-function addHashLinkRule(td: TurndownService): void {
-  td.addRule("hashLink", {
+function addDocusaurusHashLinkRule(td: TurndownService): void {
+  td.addRule("docusaurusHashLink", {
     filter: (node) => node.nodeName === "A" && hasClass(node, "hash-link"),
     replacement: () => "",
   });
@@ -66,8 +62,7 @@ function addHashLinkRule(td: TurndownService): void {
 /**
  * Converts a Docusaurus code block to a fenced code block. Lines are separate
  * elements with no newline text nodes between them, so we join token-line
- * elements explicitly. The language lives on the container, and replacing the
- * whole container also drops the "Copy" button.
+ * elements explicitly. The language lives on the container.
  *
  * @example
  * HTML:
@@ -75,7 +70,7 @@ function addHashLinkRule(td: TurndownService): void {
  * <div class="theme-code-block language-ts"><pre><code>
  *   <div class="token-line">const x = 1;</div>
  *   <div class="token-line">const y = 2;</div>
- * </code></pre><button>Copy</button></div>
+ * </code></pre></div>
  * ```
  *
  * Without rule:
@@ -83,7 +78,6 @@ function addHashLinkRule(td: TurndownService): void {
  * ```
  * const x = 1;const y = 2;
  * ```
- * Copy
  * ````
  * With rule:
  * ````md
@@ -93,7 +87,7 @@ function addHashLinkRule(td: TurndownService): void {
  * ```
  * ````
  */
-function addCodeBlockRule(td: TurndownService): void {
+function addDocusaurusCodeBlockRule(td: TurndownService): void {
   td.addRule("docusaurusCodeBlock", {
     filter: (node) =>
       node.nodeName === "DIV" && hasClass(node, "theme-code-block"),
@@ -158,8 +152,8 @@ function extractCodeText(node: HTMLElement): string {
  * :::
  * ```
  */
-function addAdmonitionRule(td: TurndownService): void {
-  td.addRule("admonition", {
+function addDocusaurusAdmonitionRule(td: TurndownService): void {
+  td.addRule("docusaurusAdmonition", {
     filter: (node) =>
       node.nodeName === "DIV" && hasClass(node, "theme-admonition"),
     replacement: (_content, node) => {
@@ -240,8 +234,8 @@ function detectAdmonitionCustomTitle(node: HTMLElement): string {
  * ```
  * ````
  */
-function addTabsRule(td: TurndownService): void {
-  td.addRule("tabs", {
+function addDocusaurusTabsRule(td: TurndownService): void {
+  td.addRule("docusaurusTabs", {
     filter: (node) =>
       node.nodeName === "DIV" && hasClass(node, "tabs-container"),
     replacement: (_content, node) => {

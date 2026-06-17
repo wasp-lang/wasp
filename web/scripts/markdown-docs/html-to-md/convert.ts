@@ -1,8 +1,8 @@
 import * as cheerio from "cheerio";
 
-import { createLlmFriendlyTurndownService } from "./turndown-rules";
+import { createDocusaurusLlmFriendlyTurndownService } from "./turndown-rules";
 
-const turndownService = createLlmFriendlyTurndownService();
+const turndownService = createDocusaurusLlmFriendlyTurndownService();
 
 /**
  * Docusaurus content lives in different wrappers depending on the page type:
