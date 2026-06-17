@@ -5,7 +5,7 @@ where
 
 import Control.Monad.Except (throwError)
 import Control.Monad.IO.Class (liftIO)
-import Data.List (isPrefixOf)
+import qualified Data.Set as Set
 import Wasp.AppSpec (AppSpec)
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (defaultCompileOptions)
@@ -14,6 +14,8 @@ import Wasp.Cli.Terminal (title)
 import qualified Wasp.ExternalConfig.Npm.Dependency as Npm.Dependency
 import qualified Wasp.Generator.NpmDependencies as N
 import qualified Wasp.Generator.ServerGenerator as ServerGenerator
+import qualified Wasp.Generator.WaspLibs.AvailableLibs as AvailableLibs
+import qualified Wasp.Generator.WaspLibs.WaspLib as WaspLib
 import Wasp.Project (analyzeWaspProject)
 import qualified Wasp.Util.Terminal as Term
 
@@ -31,12 +33,6 @@ deps = do
 
   liftIO $ putStrLn $ depsMessage appSpec
 
--- | Filters out internal Wasp library dependencies (WaspLibs) from the list.
--- WaspLibs are installed as local npm tarballs (version starts with "file:")
--- and are internal to Wasp — users cannot import them directly.
-filterOutWaspLibDeps :: [Npm.Dependency.Dependency] -> [Npm.Dependency.Dependency]
-filterOutWaspLibDeps = filter (not . ("file:" `isPrefixOf`) . Npm.Dependency.version)
-
 depsMessage :: AppSpec -> String
 depsMessage appSpec =
   unlines $
@@ -53,6 +49,9 @@ depsMessage appSpec =
         "Server devDependencies:"
         ( filterOutWaspLibDeps $ N.devDependencies $ N.fromWasp $ ServerGenerator.npmDepsFromWasp appSpec
         )
+  where
+    waspLibPackageNames = Set.fromList $ map WaspLib.packageName AvailableLibs.waspLibs
+    filterOutWaspLibDeps = filter ((`Set.notMember` waspLibPackageNames) . Npm.Dependency.name)
 
 printDeps :: String -> [Npm.Dependency.Dependency] -> [String]
 printDeps dependenciesTitle dependencies =
