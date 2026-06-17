@@ -106,5 +106,6 @@ e2eTests = do
     testGroup
       "E2E tests"
       [ testGroup "Snapshot Tests" snapshotTestTrees,
-        testGroup "Tests" (shellTestTrees ++ [sdkPackageExportsTestTree])
+        testGroup "Shell tests" shellTestTrees,
+        testGroup "Tests" [sdkPackageExportsTestTree]
       ]
