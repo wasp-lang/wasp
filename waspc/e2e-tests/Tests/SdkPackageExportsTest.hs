@@ -1,4 +1,4 @@
-module Tests.SdkPackageExportsTest (sdkPackageExportsTest) where
+module Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree) where
 
 import Control.Monad (filterM, unless)
 import qualified Data.Aeson as Aeson
@@ -16,8 +16,8 @@ import Test.Hspec (Spec, expectationFailure, it)
 import Test.Tasty (TestTree)
 import Test.Tasty.Hspec (testSpec)
 
-sdkPackageExportsTest :: IO TestTree
-sdkPackageExportsTest =
+makeSdkPackageExportsTestTree :: IO TestTree
+makeSdkPackageExportsTestTree =
   testSpec "SDK package exports" sdkPackageExportsSpec
 
 sdkPackageExportsSpec :: Spec

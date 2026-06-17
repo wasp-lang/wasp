@@ -2,7 +2,7 @@ module Wasp.Generator.SdkGenerator.Server.JobGenerator
   ( genJobsApi,
     genJobExecutors,
     depsRequiredByJobs,
-    getJobExecutorImportPath,
+    getJobExecutorSdkPackageImportPath,
     getImportJsonForJobDefinition,
   )
 where
@@ -71,7 +71,7 @@ genJob (jobName, job) =
       object
         [ "jobName" .= jobName,
           "typeName" .= toUpperFirst jobName,
-          "jobExecutorImportPath" .= getSdkJobExecutorImportPath (J.executor job),
+          "jobExecutorImportPath" .= getJobExecutorSdkInternalImportPath (J.executor job),
           "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job),
           -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
           -- This is why we must get a text representation of the object, either by
@@ -99,17 +99,6 @@ genJob (jobName, job) =
       maybe
         (object ["isDefined" .= False])
         (\options -> object ["isDefined" .= True, "json" .= Aeson.Text.encodeToLazyText options])
-
--- | We are importing relevant functions and types per executor e.g. JobFn or registerJob,
--- this functions maps the executor to the import path from SDK.
-getJobExecutorImportPath :: JobExecutor -> Path Posix (Rel r) File'
-getJobExecutorImportPath PgBoss =
-  makeSdkImportPath [relfileP|server/jobs/core/pgBoss|]
-
-getSdkJobExecutorImportPath :: JobExecutor -> String
-getSdkJobExecutorImportPath PgBoss =
-  JI.getJsImportPathStringFromPath $
-    JI.RelativeImportPath [relfileP|core/pgBoss/index.js|]
 
 getImportJsonForJobDefinition :: String -> Aeson.Value
 getImportJsonForJobDefinition jobName =
@@ -157,3 +146,15 @@ serverJobsDirInSdkTemplatesDir = [reldir|server/jobs|]
 genFileCopyInServerJob :: Path' Rel' File' -> Generator FileDraft
 genFileCopyInServerJob =
   genFileCopy . (serverJobsDirInSdkTemplatesDir </>)
+
+-- Generated server code lives outside the SDK, so it imports executor symbols through
+-- the SDK package exports. Generated SDK job files live inside server/jobs, so they
+-- import the same executor symbols through SDK-internal relative paths.
+getJobExecutorSdkPackageImportPath :: JobExecutor -> Path Posix (Rel r) File'
+getJobExecutorSdkPackageImportPath PgBoss =
+  makeSdkImportPath [relfileP|server/jobs/core/pgBoss|]
+
+getJobExecutorSdkInternalImportPath :: JobExecutor -> String
+getJobExecutorSdkInternalImportPath PgBoss =
+  JI.getJsImportPathStringFromPath $
+    JI.RelativeImportPath [relfileP|core/pgBoss/index.js|]
