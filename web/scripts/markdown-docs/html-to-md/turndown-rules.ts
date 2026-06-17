@@ -112,19 +112,10 @@ function addCodeBlockRule(td: TurndownService): void {
   });
 }
 
+/**
+ * `language-text` means "no language", so we treat it as none.
+ */
 function detectCodeLanguage(node: HTMLElement): string {
-  const fromContainer = findCodeLanguageClass(node);
-  if (fromContainer) {
-    return fromContainer;
-  }
-  const fromPre = findCodeLanguageClass(node.querySelector("pre"));
-  if (fromPre) {
-    return fromPre;
-  }
-  return "";
-}
-
-function findCodeLanguageClass(node: HTMLElement): string {
   for (const className of Array.from(node.classList)) {
     const match = className.match(/^language-(.+)$/);
     if (match && match[1] !== "text") {
@@ -137,16 +128,12 @@ function findCodeLanguageClass(node: HTMLElement): string {
 function extractCodeText(node: HTMLElement): string {
   const code = node.querySelector("code") ?? node.querySelector("pre");
   if (!code) {
-    return (node.textContent ?? "").replace(/\s+$/, "");
+    throw Error("Code block has no <code> or <pre> element.");
   }
-  const lines = code.querySelectorAll(".token-line");
-  const text =
-    lines.length > 0
-      ? Array.from(lines)
-          .map((line) => line.textContent ?? "")
-          .join("\n")
-      : (code.textContent ?? "");
-  return text.replace(/\s+$/, "");
+  return Array.from(code.querySelectorAll(".token-line"))
+    .map((line) => line.textContent ?? "")
+    .join("\n")
+    .replace(/\s+$/, "");
 }
 
 /**
