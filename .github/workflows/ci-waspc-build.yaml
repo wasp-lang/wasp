@@ -61,6 +61,12 @@ jobs:
             # glibc than what it was built with (e.g. an older Ubuntu version).
             container: ubuntu:20.04
             static: false
+            install-deps: |
+              # We need either `curl` or `wget` to install Mise, which then
+              # installs everything else.
+              export DEBIAN_FRONTEND=noninteractive
+              apt get update -y
+              apt-get install -y curl
 
           - name: linux-x86_64-static
             runner: ubuntu-latest
@@ -90,6 +96,10 @@ jobs:
     name: Build Wasp (${{ matrix.env.name }})
 
     steps:
+      - name: Install dependencies
+        if: ${{ matrix.env.install-deps }}
+        run: ${{ matrix.env.install-deps }}
+
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
