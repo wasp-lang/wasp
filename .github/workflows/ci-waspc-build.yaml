@@ -65,7 +65,7 @@ jobs:
               # We need either `curl` or `wget` to install Mise, which then
               # installs everything else.
               export DEBIAN_FRONTEND=noninteractive
-              apt get update -y
+              apt-get update -y
               apt-get install -y curl
 
           - name: linux-x86_64-static
