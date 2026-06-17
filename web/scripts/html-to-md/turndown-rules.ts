@@ -3,9 +3,12 @@ import TurndownService from "turndown";
 // @ts-expect-error -- no type declarations available
 import { gfm } from "turndown-plugin-gfm";
 
-// Docusaurus renders MDX into HTML with theme-specific wrappers (code blocks
-// with copy buttons, admonitions, tabs). Turndown's defaults mangle those, so
-// we add rules that recognize the wrappers and emit clean Markdown.
+/**
+ * Turndown rules for Docusaurus output. Docusaurus renders MDX into HTML with
+ * theme-specific wrappers (code blocks with copy buttons, admonitions, tabs).
+ * Turndown's defaults mangle those, so we add rules that recognize the wrappers
+ * and emit clean Markdown.
+ */
 
 type TurndownNode = HTMLElement;
 
@@ -19,9 +22,12 @@ const sharedOptions: TurndownService.Options = {
   linkStyle: "inlined",
 };
 
-// The base service handles plain content. The full service adds rules for
-// admonitions and tabs that delegate back to the base service to convert their
-// inner content, which avoids infinite recursion.
+/**
+ * Creates the Turndown service used to convert doc HTML to Markdown. The base
+ * service handles plain content; the returned full service adds rules for
+ * admonitions and tabs that delegate back to the base service to convert their
+ * inner content, which avoids infinite recursion.
+ */
 export function createTurndownService(): TurndownService {
   const base = buildBaseService();
   const full = buildBaseService();
@@ -39,7 +45,7 @@ function buildBaseService(): TurndownService {
   return td;
 }
 
-// Heading anchor links (the "#" that appears on hover) carry no content.
+/** Drops heading anchor links (the "#" that appears on hover); they carry no content. */
 function addHashLinkRule(td: TurndownService): void {
   td.addRule("hashLink", {
     filter: (node) =>
@@ -48,13 +54,17 @@ function addHashLinkRule(td: TurndownService): void {
   });
 }
 
-// Docusaurus code block:
-//   <div class="theme-code-block language-tsx ...">
-//     <div><pre><code><span class="token-line">...</span>...</code></pre></div>
-//     <div class="buttonGroup_..."><button>Copy</button></div>
-//   </div>
-// Lines are separate elements with no newline text nodes between them, so we
-// join token-line elements explicitly. The language lives on the container.
+/**
+ * Converts a Docusaurus code block to a fenced block. Lines are separate
+ * elements with no newline text nodes between them, so we join token-line
+ * elements explicitly. The language lives on the container.
+ *
+ * @example
+ * <div class="theme-code-block language-tsx ...">
+ *   <div><pre><code><span class="token-line">...</span>...</code></pre></div>
+ *   <div class="buttonGroup_..."><button>Copy</button></div>
+ * </div>
+ */
 function addCodeBlockRule(td: TurndownService): void {
   td.addRule("docusaurusCodeBlock", {
     filter: (node) =>
@@ -107,13 +117,16 @@ function extractCodeText(node: TurndownNode): string {
   return text.replace(/\s+$/, "");
 }
 
-// Admonition:
-//   <div class="theme-admonition theme-admonition-tip alert alert--success">
-//     <div class="admonitionHeading_..."><span class="...Icon">svg</span>tip</div>
-//     <div class="admonitionContent_...">...</div>
-//   </div>
-// We render it back as the original MDX directive (`:::tip ... :::`), which is
-// compact and round-trips to how the docs are authored.
+/**
+ * Renders an admonition back as the original MDX directive (`:::tip ... :::`),
+ * which is compact and round-trips to how the docs are authored.
+ *
+ * @example
+ * <div class="theme-admonition theme-admonition-tip alert alert--success">
+ *   <div class="admonitionHeading_..."><span class="...Icon">svg</span>tip</div>
+ *   <div class="admonitionContent_...">...</div>
+ * </div>
+ */
 function addAdmonitionRule(td: TurndownService, base: TurndownService): void {
   td.addRule("admonition", {
     filter: (node) =>
@@ -131,8 +144,10 @@ function addAdmonitionRule(td: TurndownService, base: TurndownService): void {
   });
 }
 
-// Returns the admonition's custom title (e.g. from `:::note[Gotcha]`) or an
-// empty string when it just uses the default type label.
+/**
+ * Returns the admonition's custom title (e.g. from `:::note[Gotcha]`) or an
+ * empty string when it just uses the default type label.
+ */
 function detectAdmonitionCustomTitle(node: TurndownNode, type: string): string {
   const heading = node.querySelector('[class*="admonitionHeading"]');
   const headingText = (heading?.textContent ?? "").trim();
@@ -149,14 +164,18 @@ function detectAdmonitionType(node: TurndownNode): string {
   return "note";
 }
 
-// Tabs:
-//   <div class="tabs-container">
-//     <ul role="tablist"><li role="tab">JavaScript</li>...</ul>
-//     <div><div role="tabpanel">...</div>...</div>
-//   </div>
-// All panels are present in the DOM, so we keep every variant and label it with
-// its tab title. The one exception is the JavaScript/TypeScript code switcher:
-// it shows the same snippet twice, so we keep only the TypeScript variant.
+/**
+ * Converts tabs to Markdown. All panels are present in the DOM, so we keep every
+ * variant and label it with its tab title. The one exception is the
+ * JavaScript/TypeScript code switcher: it shows the same snippet twice, so we
+ * keep only the TypeScript variant.
+ *
+ * @example
+ * <div class="tabs-container">
+ *   <ul role="tablist"><li role="tab">JavaScript</li>...</ul>
+ *   <div><div role="tabpanel">...</div>...</div>
+ * </div>
+ */
 function addTabsRule(td: TurndownService, base: TurndownService): void {
   td.addRule("tabs", {
     filter: (node) =>
@@ -185,8 +204,10 @@ function addTabsRule(td: TurndownService, base: TurndownService): void {
   });
 }
 
-// Returns the index of the TypeScript tab when the tabs are exactly a
-// JavaScript/TypeScript pair, otherwise -1.
+/**
+ * Returns the index of the TypeScript tab when the tabs are exactly a
+ * JavaScript/TypeScript pair, otherwise -1.
+ */
 function findTypescriptOnlyIndex(labels: string[]): number {
   if (labels.length !== 2) {
     return -1;

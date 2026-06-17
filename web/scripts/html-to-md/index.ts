@@ -2,13 +2,14 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import { loadPermalinkMaps, rewriteRawGithubDocLinks } from "../permalinks";
 import { htmlToMarkdown } from "./convert";
 import { buildDocsFooter } from "./footer";
 
-// Post-build step: turn the rendered HTML for docs, blog, and resources pages
-// into Markdown served alongside the HTML. Because `trailingSlash` is false,
-// Docusaurus emits `<route>.html` files, so we write `<route>.md` next to each.
+/**
+ * Post-build step: turn the rendered HTML for docs, blog, and resources pages
+ * into Markdown served alongside the HTML. Because `trailingSlash` is false,
+ * Docusaurus emits `<route>.html` files, so we write `<route>.md` next to each.
+ */
 
 const SITE_ROOT = process.cwd();
 const BUILD_DIR = path.join(SITE_ROOT, "build");
@@ -29,7 +30,6 @@ generateMarkdownFiles().catch((err) => {
 async function generateMarkdownFiles(): Promise<void> {
   console.log("Generating Markdown files from built HTML...");
 
-  const permalinkMaps = loadPermalinkMaps(SITE_ROOT);
   const htmlFiles = findConvertibleHtmlFiles();
   let written = 0;
   let skipped = 0;
@@ -43,10 +43,9 @@ async function generateMarkdownFiles(): Promise<void> {
       continue;
     }
 
-    const body = rewriteRawGithubDocLinks(result.markdown, permalinkMaps);
     const footer = buildDocsFooter(toRoute(relativePath));
     const markdownPath = absolutePath.replace(/\.html$/, ".md");
-    await fs.writeFile(markdownPath, `${body}\n${footer}\n`, "utf8");
+    await fs.writeFile(markdownPath, `${result.markdown}\n${footer}\n`, "utf8");
     written++;
   }
 
@@ -74,7 +73,12 @@ function isConvertibleRoute(relativePath: string): boolean {
   return !SKIP_PATH_PATTERNS.some((pattern) => pattern.test(normalized));
 }
 
-// "docs/tutorial/create.html" -> "/docs/tutorial/create"; "docs.html" -> "/docs".
+/**
+ * Maps a build-relative HTML path to its route.
+ *
+ * @example "docs/tutorial/create.html" → "/docs/tutorial/create"
+ * @example "docs.html" → "/docs"
+ */
 function toRoute(relativePath: string): string {
   return "/" + relativePath.replace(/\\/g, "/").replace(/\.html$/, "");
 }

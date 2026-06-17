@@ -5,8 +5,8 @@ import { createTurndownService } from "./turndown-rules";
 const turndown = createTurndownService();
 
 // Docusaurus content lives in different wrappers depending on the page type:
-// docs and API reference use `.theme-doc-markdown`, blog and resources posts
-// use a bare `.markdown` inside the article.
+// docs and API reference use `.theme-doc-markdown`, blog and resources posts use
+// a bare `.markdown` inside the article.
 const CONTENT_SELECTORS = [
   ".theme-doc-markdown",
   "article .markdown",
@@ -18,8 +18,12 @@ export type ConversionResult = {
   markdown: string;
 };
 
-// Returns null when the page has no recognizable doc content (e.g. the
-// homepage, listing pages, tag pages), which means it should not get a .md.
+/**
+ * Converts a built Docusaurus HTML page to Markdown.
+ *
+ * @returns null when the page has no recognizable doc content (e.g. the
+ * homepage, listing pages, tag pages), which means it should not get a `.md`.
+ */
 export function htmlToMarkdown(html: string): ConversionResult | null {
   const $ = cheerio.load(html);
 
