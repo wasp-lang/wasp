@@ -6,13 +6,12 @@
  * of the HTML.
  */
 
+import { isMarkdownRoute } from "../scripts/markdown-docs/html-to-md/markdown-routes";
+
 interface CloudflarePagesContext {
   request: Request;
   next: (input?: Request | string, init?: RequestInit) => Promise<Response>;
 }
-
-// Routes that have generated `.md` counterparts.
-const MARKDOWN_ROUTE_PREFIXES = ["/docs", "/blog", "/resources"];
 
 export const onRequest = async (
   context: CloudflarePagesContext,
@@ -58,15 +57,6 @@ function wantsMarkdown(request: Request): boolean {
 
 function isAlreadyRequestingMarkdown(url: URL): boolean {
   return url.pathname.endsWith(".md");
-}
-
-/**
- * We server markdown assets only on {@link MARKDOWN_ROUTE_PREFIXES}.
- */
-function isMarkdownRoute(pathname: string): boolean {
-  return MARKDOWN_ROUTE_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(prefix + "/"),
-  );
 }
 
 function generateMarkdownPath(pathname: string): string {

@@ -1,7 +1,6 @@
 import TurndownService from "turndown";
-// turndown-plugin-gfm ships without types.
-// @ts-expect-error -- no type declarations available
-import { gfm } from "turndown-plugin-gfm";
+// @ts-expect-error -- `@joplin/turndown-plugin-gfm` ships without types
+import { gfm } from "@joplin/turndown-plugin-gfm";
 
 /**
  * Turndown rules for Docusaurus output. Docusaurus renders MDX into HTML with
@@ -10,46 +9,39 @@ import { gfm } from "turndown-plugin-gfm";
  * and emit clean Markdown.
  */
 
-type TurndownNode = HTMLElement;
-
-const sharedOptions: TurndownService.Options = {
-  headingStyle: "atx",
-  codeBlockStyle: "fenced",
-  fence: "```",
-  bulletListMarker: "-",
-  emDelimiter: "*",
-  strongDelimiter: "**",
-  linkStyle: "inlined",
-};
-
 /**
- * Creates the Turndown service used to convert doc HTML to Markdown. The base
- * service handles plain content; the returned full service adds rules for
- * admonitions and tabs that delegate back to the base service to convert their
- * inner content, which avoids infinite recursion.
+ * Creates the Turndown service used to convert doc HTML to Markdown.
+ *
+ * The admonition and tabs rules convert their inner content by calling back into
+ * this same service. That is safe: Turndown parses each `turndown()` call into
+ * its own document, and the rules only re-feed the wrapper's inner content (a
+ * strictly smaller subtree), so recursion always terminates. Reusing the same
+ * instance also means nested admonitions/tabs are converted properly.
  */
-export function createTurndownService(): TurndownService {
-  const base = buildBaseService();
-  const full = buildBaseService();
-  addAdmonitionRule(full, base);
-  addTabsRule(full, base);
-  return full;
-}
+export function createLlmFriendlyTurndownService(): TurndownService {
+  const turndownService = new TurndownService({
+    headingStyle: "atx",
+    codeBlockStyle: "fenced",
+    fence: "```",
+    bulletListMarker: "-",
+    emDelimiter: "*",
+    strongDelimiter: "**",
+    linkStyle: "inlined",
+  });
+  turndownService.use(gfm);
+  turndownService.remove(["script", "style", "button"]);
+  addHashLinkRule(turndownService);
+  addCodeBlockRule(turndownService);
+  addAdmonitionRule(turndownService);
+  addTabsRule(turndownService);
 
-function buildBaseService(): TurndownService {
-  const td = new TurndownService(sharedOptions);
-  td.use(gfm);
-  td.remove(["script", "style", "button"]);
-  addHashLinkRule(td);
-  addCodeBlockRule(td);
-  return td;
+  return turndownService;
 }
 
 /** Drops heading anchor links (the "#" that appears on hover); they carry no content. */
 function addHashLinkRule(td: TurndownService): void {
   td.addRule("hashLink", {
-    filter: (node) =>
-      node.nodeName === "A" && hasClass(node as TurndownNode, "hash-link"),
+    filter: (node) => node.nodeName === "A" && hasClass(node, "hash-link"),
     replacement: () => "",
   });
 }
@@ -68,10 +60,9 @@ function addHashLinkRule(td: TurndownService): void {
 function addCodeBlockRule(td: TurndownService): void {
   td.addRule("docusaurusCodeBlock", {
     filter: (node) =>
-      node.nodeName === "DIV" &&
-      hasClass(node as TurndownNode, "theme-code-block"),
+      node.nodeName === "DIV" && hasClass(node, "theme-code-block"),
     replacement: (_content, node) => {
-      const el = node as TurndownNode;
+      const el = node;
       const language = detectCodeLanguage(el);
       const code = extractCodeText(el);
       const fence = "```";
@@ -80,7 +71,7 @@ function addCodeBlockRule(td: TurndownService): void {
   });
 }
 
-function detectCodeLanguage(node: TurndownNode): string {
+function detectCodeLanguage(node: HTMLElement): string {
   const fromContainer = findLanguageClass(node);
   if (fromContainer) {
     return fromContainer;
@@ -102,7 +93,7 @@ function findLanguageClass(el: Element | null): string {
   return "";
 }
 
-function extractCodeText(node: TurndownNode): string {
+function extractCodeText(node: HTMLElement): string {
   const code = node.querySelector("code") ?? node.querySelector("pre");
   if (!code) {
     return (node.textContent ?? "").replace(/\s+$/, "");
@@ -121,23 +112,22 @@ function extractCodeText(node: TurndownNode): string {
  * Renders an admonition back as the original MDX directive (`:::tip ... :::`),
  * which is compact and round-trips to how the docs are authored.
  *
- * @example
+ * @example Target HTML
  * <div class="theme-admonition theme-admonition-tip alert alert--success">
  *   <div class="admonitionHeading_..."><span class="...Icon">svg</span>tip</div>
  *   <div class="admonitionContent_...">...</div>
  * </div>
  */
-function addAdmonitionRule(td: TurndownService, base: TurndownService): void {
+function addAdmonitionRule(td: TurndownService): void {
   td.addRule("admonition", {
     filter: (node) =>
-      node.nodeName === "DIV" &&
-      hasClass(node as TurndownNode, "theme-admonition"),
+      node.nodeName === "DIV" && hasClass(node, "theme-admonition"),
     replacement: (_content, node) => {
-      const el = node as TurndownNode;
+      const el = node;
       const type = detectAdmonitionType(el);
       const customTitle = detectAdmonitionCustomTitle(el, type);
       const contentEl = el.querySelector('[class*="admonitionContent"]') ?? el;
-      const inner = base.turndown(contentEl.innerHTML).trim();
+      const inner = td.turndown(contentEl.innerHTML).trim();
       const opening = customTitle ? `:::${type}[${customTitle}]` : `:::${type}`;
       return `\n\n${opening}\n\n${inner}\n\n:::\n\n`;
     },
@@ -148,13 +138,13 @@ function addAdmonitionRule(td: TurndownService, base: TurndownService): void {
  * Returns the admonition's custom title (e.g. from `:::note[Gotcha]`) or an
  * empty string when it just uses the default type label.
  */
-function detectAdmonitionCustomTitle(node: TurndownNode, type: string): string {
+function detectAdmonitionCustomTitle(node: HTMLElement, type: string): string {
   const heading = node.querySelector('[class*="admonitionHeading"]');
   const headingText = (heading?.textContent ?? "").trim();
   return headingText.toLowerCase() === type.toLowerCase() ? "" : headingText;
 }
 
-function detectAdmonitionType(node: TurndownNode): string {
+function detectAdmonitionType(node: HTMLElement): string {
   for (const className of Array.from(node.classList)) {
     const match = className.match(/^theme-admonition-(.+)$/);
     if (match) {
@@ -170,19 +160,18 @@ function detectAdmonitionType(node: TurndownNode): string {
  * JavaScript/TypeScript code switcher: it shows the same snippet twice, so we
  * keep only the TypeScript variant.
  *
- * @example
+ * @example Target HTML
  * <div class="tabs-container">
  *   <ul role="tablist"><li role="tab">JavaScript</li>...</ul>
  *   <div><div role="tabpanel">...</div>...</div>
  * </div>
  */
-function addTabsRule(td: TurndownService, base: TurndownService): void {
+function addTabsRule(td: TurndownService): void {
   td.addRule("tabs", {
     filter: (node) =>
-      node.nodeName === "DIV" &&
-      hasClass(node as TurndownNode, "tabs-container"),
+      node.nodeName === "DIV" && hasClass(node, "tabs-container"),
     replacement: (_content, node) => {
-      const el = node as TurndownNode;
+      const el = node;
       const labels = Array.from(el.querySelectorAll('[role="tab"]')).map(
         (tab) => (tab.textContent ?? "").trim(),
       );
@@ -191,12 +180,12 @@ function addTabsRule(td: TurndownService, base: TurndownService): void {
       const typescriptIndex = findTypescriptOnlyIndex(labels);
       if (typescriptIndex !== -1) {
         const panel = panels[typescriptIndex] ?? panels[panels.length - 1];
-        return panel ? `\n\n${base.turndown(panel.innerHTML).trim()}\n\n` : "";
+        return panel ? `\n\n${td.turndown(panel.innerHTML).trim()}\n\n` : "";
       }
 
       const parts = panels.map((panel, index) => {
         const label = labels[index] ?? `Tab ${index + 1}`;
-        const inner = base.turndown(panel.innerHTML).trim();
+        const inner = td.turndown(panel.innerHTML).trim();
         return `**${label}**\n\n${inner}`;
       });
       return `\n\n${parts.join("\n\n")}\n\n`;
@@ -218,6 +207,6 @@ function findTypescriptOnlyIndex(labels: string[]): number {
   return isJsTsPair ? normalized.indexOf("typescript") : -1;
 }
 
-function hasClass(node: TurndownNode, className: string): boolean {
-  return node.classList?.contains(className) ?? false;
+function hasClass(htmlElement: HTMLElement, className: string): boolean {
+  return htmlElement.classList?.contains(className) ?? false;
 }

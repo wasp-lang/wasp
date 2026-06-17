@@ -7,11 +7,11 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import waspVersionsJson from "../versions.json";
-import { DOCS_FOOTER_PATTERN } from "./html-to-md/footer";
+import waspVersionsJson from "../../versions.json";
 import { loadPermalinkMaps, normalizePathToDocId } from "./permalinks";
+import { getSiteRoot } from "./site-root";
 
-const SITE_ROOT = process.cwd();
+const SITE_ROOT = getSiteRoot();
 // Output and doc bodies both come from the build: this script runs after
 // `docusaurus build`, reads the Markdown that scripts/html-to-md generated next
 // to each HTML page, and writes the llms*.txt files into the build output.
@@ -368,8 +368,7 @@ async function readFileOrNull(filePath: string): Promise<string | null> {
 // repeat once per page), nest the remaining headings one level deeper, and turn
 // links into full URLs so the file stands on its own.
 function processBuiltMarkdown(markdown: string): string {
-  const withoutFooter = markdown.replace(DOCS_FOOTER_PATTERN, "");
-  const withoutTitle = withoutFooter.replace(/^#\s+.*\n+/, "");
+  const withoutTitle = markdown.replace(/^#\s+.*\n+/, "");
   const nested = withoutTitle.replace(
     /^(#{1,6})(\s)/gm,
     (_match, hashes, space) =>

@@ -2,8 +2,9 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
+import { getSiteRoot } from "../site-root";
 import { htmlToMarkdown } from "./convert";
-import { buildDocsFooter } from "./footer";
+import { isMarkdownRoute } from "./markdown-routes";
 
 /**
  * Post-build step: turn the rendered HTML for docs, blog, and resources pages
@@ -11,13 +12,8 @@ import { buildDocsFooter } from "./footer";
  * Docusaurus emits `<route>.html` files, so we write `<route>.md` next to each.
  */
 
-const SITE_ROOT = process.cwd();
+const SITE_ROOT = getSiteRoot();
 const BUILD_DIR = path.join(SITE_ROOT, "build");
-
-// Only these route prefixes hold prose worth converting. Everything else
-// (homepage, search, 404, sitemap) is skipped. The section landing pages
-// themselves (`/docs`, `/blog`, `/resources`) are included too.
-const ROUTE_PREFIXES = ["/docs", "/blog", "/resources"];
 
 // Listing, tag, and pagination pages have no single document body.
 const SKIP_PATH_PATTERNS = [/\/tags(\/|\.html$)/, /\/page\/\d+/, /\/authors\./];
@@ -34,18 +30,17 @@ async function generateMarkdownFiles(): Promise<void> {
   let written = 0;
   let skipped = 0;
 
-  for (const relativePath of htmlFiles) {
-    const absolutePath = path.join(BUILD_DIR, relativePath);
-    const html = await fs.readFile(absolutePath, "utf8");
+  for (const htmlFileRelativePath of htmlFiles) {
+    const htmlFileAbsolutePath = path.join(BUILD_DIR, htmlFileRelativePath);
+    const html = await fs.readFile(htmlFileAbsolutePath, "utf8");
     const result = htmlToMarkdown(html);
     if (!result) {
       skipped++;
       continue;
     }
 
-    const footer = buildDocsFooter(toRoute(relativePath));
-    const markdownPath = absolutePath.replace(/\.html$/, ".md");
-    await fs.writeFile(markdownPath, `${result.markdown}\n${footer}\n`, "utf8");
+    const markdownPath = htmlFileAbsolutePath.replace(/\.html$/, ".md");
+    await fs.writeFile(markdownPath, result.markdown, "utf8");
     written++;
   }
 
@@ -62,15 +57,12 @@ function findConvertibleHtmlFiles(): string[] {
 }
 
 function isConvertibleRoute(relativePath: string): boolean {
-  const route = toRoute(relativePath);
-  const isUnderPrefix = ROUTE_PREFIXES.some(
-    (prefix) => route === prefix || route.startsWith(prefix + "/"),
-  );
-  if (!isUnderPrefix) {
+  if (!isMarkdownRoute(toRoute(relativePath))) {
     return false;
   }
-  const normalized = "/" + relativePath.replace(/\\/g, "/");
-  return !SKIP_PATH_PATTERNS.some((pattern) => pattern.test(normalized));
+  const normalizedPath = "/" + relativePath.replace(/\\/g, "/");
+  // TODO: check
+  return !SKIP_PATH_PATTERNS.some((pattern) => pattern.test(normalizedPath));
 }
 
 /**
