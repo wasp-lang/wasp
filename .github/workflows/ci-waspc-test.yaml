@@ -88,4 +88,7 @@ jobs:
           MISE_VERBOSE: 1
           MISE_DEBUG: 1
         shell: bash
-        run: mise x "$NODE_TOOL" -- ./run test:waspc:e2e
+        run: |
+          mise x "$NODE_TOOL" -- echo Hello
+          mise x "$NODE_TOOL" -- node -v
+          mise x "$NODE_TOOL" -- ./run test:waspc:e2e
