@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Server.JobGenerator
-  ( genNewJobsApi,
+  ( genJobsApi,
     genJobExecutors,
     depsRequiredByJobs,
     getJobExecutorImportPath,
@@ -11,7 +11,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import qualified Data.Aeson.Text as Aeson.Text
 import Data.Maybe (fromJust, fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', castRel, fromRelFileP, parseRelFile, reldir, relfile, relfileP, (</>))
+import StrongPath (Dir', File', Path, Path', Posix, Rel, Rel', castRel, parseRelFile, reldir, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec, getJobs)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.JSON as AS.JSON
@@ -34,8 +34,8 @@ import qualified Wasp.JsImport as JI
 import qualified Wasp.SemanticVersion as SV
 import Wasp.Util
 
-genNewJobsApi :: AppSpec -> Generator [FileDraft]
-genNewJobsApi spec =
+genJobsApi :: AppSpec -> Generator [FileDraft]
+genJobsApi spec =
   case getJobs spec of
     [] -> return []
     jobs ->
@@ -71,7 +71,7 @@ genJob (jobName, job) =
       object
         [ "jobName" .= jobName,
           "typeName" .= toUpperFirst jobName,
-          "jobExecutorImportPath" .= fromRelFileP jobExecutorImportPath,
+          "jobExecutorImportPath" .= getSdkJobExecutorImportPath (J.executor job),
           "entities" .= maybe [] (map (makeJsonWithEntityData . AS.refName)) (J.entities job),
           -- NOTE: You cannot directly input an Aeson.object for Mustache to substitute.
           -- This is why we must get a text representation of the object, either by
@@ -79,7 +79,6 @@ genJob (jobName, job) =
           "jobSchedule" .= getJobScheduleData (J.schedule job),
           "jobPerformOptions" .= show (fromMaybe AS.JSON.emptyObject maybeJobPerformOptions)
         ]
-    jobExecutorImportPath = getJobExecutorImportPath (J.executor job)
     maybeJobPerformOptions = J.performExecutorOptionsJson job
     getJobScheduleData =
       maybe
@@ -106,6 +105,11 @@ genJob (jobName, job) =
 getJobExecutorImportPath :: JobExecutor -> Path Posix (Rel r) File'
 getJobExecutorImportPath PgBoss =
   makeSdkImportPath [relfileP|server/jobs/core/pgBoss|]
+
+getSdkJobExecutorImportPath :: JobExecutor -> String
+getSdkJobExecutorImportPath PgBoss =
+  JI.getJsImportPathStringFromPath $
+    JI.RelativeImportPath [relfileP|core/pgBoss/index.js|]
 
 getImportJsonForJobDefinition :: String -> Aeson.Value
 getImportJsonForJobDefinition jobName =

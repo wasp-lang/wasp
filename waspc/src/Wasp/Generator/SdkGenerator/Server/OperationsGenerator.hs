@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( getServerOperationsImportPath,
+  ( getServerOperationsImportPathFromClientOperations,
     genOperations,
   )
 where
@@ -10,7 +10,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
+import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, relfile, relfileP, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -24,19 +24,15 @@ import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
   ( SdkTemplatesDir,
     getOperationTypeName,
-    makeSdkImportPath,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Util (toUpperFirst)
 
--- | This function should match the `exports` path from the SDK's package.json.
-getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
-getServerOperationsImportPath = \operation ->
-  makeSdkImportPath $
-    [reldirP|server/operations|] </> case operation of
-      (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
-      (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
+getServerOperationsImportPathFromClientOperations :: AS.Operation.Operation -> Path Posix (Rel r) File'
+getServerOperationsImportPathFromClientOperations = \operation -> case operation of
+  (AS.Operation.QueryOp _ _) -> [relfileP|../../../server/operations/queries/index.js|]
+  (AS.Operation.ActionOp _ _) -> [relfileP|../../../server/operations/actions/index.js|]
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
