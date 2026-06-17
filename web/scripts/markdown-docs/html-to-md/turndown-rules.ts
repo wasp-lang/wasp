@@ -22,15 +22,42 @@ export function createDocusaurusLlmFriendlyTurndownService(): TurndownService {
     linkStyle: "inlined",
   });
   turndownService.use(githubFlavoredMarkdown);
-  // Currently, this only removes the "Generate secret" buttons
-  // next to secret env vars.
-  turndownService.remove(["button"]);
+  removeDocusaurusSecretGeneratorButton(turndownService);
   addDocusaurusHashLinkRule(turndownService);
   addDocusaurusCodeBlockRule(turndownService);
   addDocusaurusAdmonitionRule(turndownService);
   addDocusaurusTabsRule(turndownService);
 
   return turndownService;
+}
+
+/**
+ * Drops the "Generate secret" widget button.
+ * Without this its label leaks into the Markdown as prose.
+ *
+ * @example
+ * HTML:
+ * ```html
+ * <td>A random string. <button class="generateBtn_CFbx">Generate secret</button></td>
+ * ```
+ *
+ * Without rule:
+ * ```md
+ * A random string. Generate secret
+ * ```
+ * With rule:
+ * ```md
+ * A random string.
+ * ```
+ */
+function removeDocusaurusSecretGeneratorButton(td: TurndownService): void {
+  td.remove(
+    (node) =>
+      node.nodeName === "BUTTON" &&
+      Array.from(node.classList).some((className) =>
+        className.startsWith("generateBtn"),
+      ),
+  );
 }
 
 /**
