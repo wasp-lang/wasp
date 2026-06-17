@@ -7,11 +7,11 @@
   },
   "scripts": {
     "//": "Remark scripts based on https://github.com/facebook/docusaurus/issues/3321#issuecomment-1477543749",
-    "build": "npm run install-spec-package && docusaurus build && generate-md",
+    "build": "npm run install-spec-package && docusaurus build && npm run generate-md",
     "clear": "docusaurus clear",
     "deploy": "docusaurus deploy",
     "docusaurus": "docusaurus",
-    "generate-md": "npm run generate-md && npm run generate-md-llm-txt-files",
+    "generate-md": "npm run generate-md-docs && npm run generate-md-llm-txt-files",
     "generate-md-llm-txt-files": "tsx ./scripts/markdown-docs/generate-llm-files.ts",
     "generate-md-docs": "tsx ./scripts/markdown-docs/html-to-md/index.ts",
     "install-spec-package": "npm install --prefix ../waspc/data/packages/spec",
