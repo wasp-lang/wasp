@@ -1,4 +1,4 @@
-import { gfm } from "@joplin/turndown-plugin-gfm";
+import { gfm as githubFlavoredMarkdown } from "@joplin/turndown-plugin-gfm";
 import TurndownService from "turndown";
 
 /**
@@ -27,13 +27,7 @@ export function createLlmFriendlyTurndownService(): TurndownService {
     strongDelimiter: "**",
     linkStyle: "inlined",
   });
-  // Adds GitHub-flavored Markdown: tables, ~~strikethrough~~, task lists.
-  // Before: "A\n\nB\n\n1\n\n2"
-  // After:  "| A | B |\n| --- | --- |\n| 1 | 2 |"
-  turndownService.use(gfm);
-  // Removes these elements and their text (e.g. a code block's "Copy" button).
-  // Before: "Keep this.\n\nCopy.x{color:red}doEvil()"
-  // After:  "Keep this."
+  turndownService.use(githubFlavoredMarkdown);
   turndownService.remove(["script", "style", "button"]);
   addHashLinkRule(turndownService);
   addCodeBlockRule(turndownService);
