@@ -85,5 +85,6 @@ jobs:
         env:
           WASP_E2E_TESTS_SKIP_DOCKER: ${{ runner.os == 'macOS' && '1' || '' }}
           NODE_TOOL: ${{ matrix.node-version == 'default' && 'node' || format('node@{0}', matrix.node-version) }}
+          MISE_VERBOSE: 1
         shell: bash
         run: mise x "$NODE_TOOL" -- ./run test:waspc:e2e
