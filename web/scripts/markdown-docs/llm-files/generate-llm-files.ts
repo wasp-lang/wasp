@@ -19,7 +19,7 @@ const BUILD_DIR = path.join(SITE_ROOT, "build");
 const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs");
 const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars");
 
-const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
+const DOCS_SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 const WASP_VERSIONS = new Set<string>(waspVersions);
 
 interface CategorizedDocs {
@@ -66,20 +66,19 @@ async function generateLlmFilesForVersion(
 ): Promise<void> {
   console.log(`Processing version ${waspVersion}...`);
 
-  const sidebarItems = await loadVersionedSidebar(waspVersion);
-  const categorizedDocs = await loadCategorizedDocs(sidebarItems, waspVersion);
+  const categorizedDocs = await loadCategorizedDocs(waspVersion);
 
   await generateVersionedLlmTxt(waspVersion, categorizedDocs);
   console.log(`  Generated: llms-${waspVersion}.txt`);
 
-  const mergedDocs = mergeDocsTogether(categorizedDocs);
+  const fullDocsBody = buildFullDocsBody(categorizedDocs);
 
-  await generateVersionedLlmFullTxt(waspVersion, mergedDocs);
+  await generateVersionedLlmFullTxt(waspVersion, fullDocsBody);
   console.log(`  Generated: llms-full-${waspVersion}.txt`);
 
   const isLatestWaspVersion = waspVersion === waspVersions[0];
   if (isLatestWaspVersion) {
-    generateLatestVersionLLmFullTxt(waspVersion, waspVersions, mergedDocs);
+    generateLatestVersionLLmFullTxt(waspVersion, waspVersions, fullDocsBody);
     console.log(`  Generated: llms-full.txt`);
   }
 }
@@ -105,9 +104,9 @@ async function generateVersionedLlmTxt(
 
 async function generateVersionedLlmFullTxt(
   waspVersion: string,
-  mergedDocs: string,
+  fullDocsBody: string,
 ): Promise<void> {
-  const llmsTxtFullContent = buildFullDocsHeader(waspVersion) + mergedDocs;
+  const llmsTxtFullContent = buildFullDocsHeader(waspVersion) + fullDocsBody;
   const llmsTxtFullAbsPath = path.join(
     BUILD_DIR,
     `llms-full-${waspVersion}.txt`,
@@ -119,10 +118,10 @@ async function generateVersionedLlmFullTxt(
 async function generateLatestVersionLLmFullTxt(
   waspVersion: string,
   waspVersions: string[],
-  mergedDocs: string,
+  fullDocsBody: string,
 ): Promise<void> {
   const llmsTxtFullContent =
-    buildLatestVersionFullDocsHeader(waspVersion, waspVersions) + mergedDocs;
+    buildLatestVersionFullDocsHeader(waspVersion, waspVersions) + fullDocsBody;
   const llmsTxtFullAbsPath = path.join(BUILD_DIR, `llms-full.txt`);
 
   await fs.writeFile(llmsTxtFullAbsPath, llmsTxtFullContent, "utf8");
@@ -155,11 +154,25 @@ function buildFullDocsIndexSection(waspVersions: string[]): string {
   return section;
 }
 
+function buildFullDocsBody(categorizedDocs: CategorizedDocs): string {
+  let fullDocsBody = "";
+  for (const category of categorizedDocs.categories) {
+    fullDocsBody += `# ${category.label}\n\n`;
+    for (const doc of category.docs) {
+      fullDocsBody += `## ${doc.title}\n\n${doc.processedBody}\n\n`;
+    }
+    fullDocsBody += `------\n\n`;
+  }
+  return fullDocsBody;
+}
+
+// TODO: refactor code below this line
+
 async function loadCategorizedDocs(
-  sidebarItems: SidebarItemConfig[],
-  version: string,
+  waspVersion: string,
 ): Promise<CategorizedDocs> {
-  const sidebarCategories = extractSidebarCategories(sidebarItems, version);
+  const sidebarItems = await loadVersionedSidebarItems(waspVersion);
+  const sidebarCategories = extractSidebarCategories(waspVersion, sidebarItems);
 
   const categories: CategorizedDocs["categories"] = [];
   for (const category of sidebarCategories) {
@@ -181,56 +194,112 @@ async function loadCategorizedDocs(
   return { categories };
 }
 
-function mergeDocsTogether(docs: CategorizedDocs): string {
-  let content = "";
-  for (const category of docs.categories) {
-    content += `# ${category.label}\n\n`;
-    for (const doc of category.docs) {
-      content += `## ${doc.title}\n\n${doc.processedBody}\n\n`;
-    }
-    content += `------\n\n`;
-  }
-  return content;
-}
+async function loadVersionedSidebarItems(
+  version: string,
+): Promise<SidebarItemConfig[]> {
+  const sidebarPath = path.join(
+    VERSIONED_SIDEBARS_DIR,
+    `version-${version}-sidebars.json`,
+  );
+  const sidebarContent = await fs.readFile(sidebarPath, "utf8");
 
-function buildDocIdToPathMap(directory: string): Map<string, string> {
-  console.log(`Gathering and processing source files from: ${directory}...`);
-  const markdownFiles = globSync("**/*.{md,mdx}", {
-    cwd: directory,
-    nodir: true,
-    ignore: ["**/_*.md", "**/_*.mdx"],
-  });
-
-  const docIdToPath = new Map<string, string>();
-  for (const filePath of markdownFiles) {
-    const docId = normalizePathToDocId(filePath);
-    if (!docIdToPath.has(docId)) {
-      docIdToPath.set(docId, filePath);
-    }
-  }
-  return docIdToPath;
-}
-
-// versioned_docs/version-<version> doc-id -> relative-path maps, built lazily
-// and cached because a single version's sidebar can reference migration
-// guides that live in many other versions' folders.
-const docIdToPathMapCache = new Map<string, Map<string, string>>();
-
-function getDocIdToPathMap(version: string): Map<string, string> {
-  let docIdToPath = docIdToPathMapCache.get(version);
-  if (!docIdToPath) {
-    docIdToPath = buildDocIdToPathMap(
-      path.join(VERSIONED_DOCS_DIR, `version-${version}`),
+  let sidebarConfig: { docs: SidebarItemConfig[] };
+  try {
+    sidebarConfig = JSON.parse(sidebarContent);
+  } catch (parseError) {
+    const errorMessage =
+      parseError instanceof Error ? parseError.message : String(parseError);
+    throw new Error(
+      `Failed to parse sidebar JSON for version "${version}" at ${sidebarPath}: ${errorMessage}`,
     );
-    docIdToPathMapCache.set(version, docIdToPath);
   }
-  return docIdToPath;
+
+  return sidebarConfig.docs;
 }
 
-const permalinkMapsByVersion = loadPermalinkMaps(SITE_ROOT);
+interface SidebarCategory {
+  label: string;
+  docRefs: DocRef[];
+}
 
-function getPermalinkMap(version: string): Map<string, string> {
-  return permalinkMapsByVersion.get(version) ?? new Map();
+function extractSidebarCategories(
+  waspVersion: string,
+  sidebarItems: SidebarItemConfig[],
+): SidebarCategory[] {
+  const categories: SidebarCategory[] = [];
+
+  for (const item of sidebarItems) {
+    if (
+      typeof item !== "string" &&
+      item.type === "category" &&
+      item.label &&
+      item.items &&
+      !DOCS_SIDEBAR_CATEGORIES_TO_IGNORE.includes(item.label)
+    ) {
+      const docRefs = flattenSidebarItemsToDocRefs(item.items, waspVersion);
+      if (docRefs.length > 0) {
+        categories.push({
+          label: item.label,
+          docRefs,
+        });
+      }
+    }
+  }
+  return categories;
+}
+
+function flattenSidebarItemsToDocRefs(
+  sidebarItems: SidebarConfig,
+  currentVersion: string,
+): DocRef[] {
+  const docRefs: DocRef[] = [];
+
+  if (!Array.isArray(sidebarItems)) {
+    return docRefs;
+  }
+
+  for (const sidebarItem of sidebarItems) {
+    if (typeof sidebarItem === "string") {
+      docRefs.push({ docId: sidebarItem, version: currentVersion });
+    } else if (sidebarItem.type === "category" && sidebarItem.items) {
+      docRefs.push(
+        ...flattenSidebarItemsToDocRefs(sidebarItem.items, currentVersion),
+      );
+    } else if (
+      (sidebarItem.type === "doc" || sidebarItem.type === "ref") &&
+      sidebarItem.id
+    ) {
+      docRefs.push({ docId: sidebarItem.id, version: currentVersion });
+    } else if (sidebarItem.type === "link" && sidebarItem.href) {
+      // Migration guides link to other versions' docs in their versioned
+      // form (e.g. /docs/0.22/migration-guide), so resolve those too.
+      const ref = parseInternalDocHref(sidebarItem.href);
+      if (ref) {
+        docRefs.push(ref);
+      }
+    } else if (sidebarItem.type === "autogenerated") {
+      console.warn(
+        `Warning: 'autogenerated' sidebar type for dirName '${sidebarItem.dirName}' might not be fully processed.`,
+      );
+    }
+  }
+  return docRefs;
+}
+
+// Parses an internal versioned doc link like "/docs/0.22/migration-guide"
+// into a { docId, version } ref. Returns null for external links or
+// unversioned "/docs/<docId>" links (which point to the current docs, a
+// folder this script does not process).
+function parseInternalDocHref(href: string): DocRef | null {
+  const match = href.match(/^\/docs\/([^/]+)\/(.+?)\/?(?:#.*)?$/);
+  if (!match) {
+    return null;
+  }
+  const [, version, docId] = match;
+  if (!WASP_VERSIONS.has(version)) {
+    return null;
+  }
+  return { docId, version };
 }
 
 interface SourceDoc {
@@ -281,6 +350,30 @@ async function resolveDocRef(ref: DocRef): Promise<SourceDoc | null> {
   return sourceDoc;
 }
 
+const permalinkMapsByVersion = loadPermalinkMaps(SITE_ROOT);
+
+function getPermalinkMap(version: string): Map<string, string> {
+  return permalinkMapsByVersion.get(version) ?? new Map();
+}
+
+function buildDocIdToPathMap(directory: string): Map<string, string> {
+  console.log(`Gathering and processing source files from: ${directory}...`);
+  const markdownFiles = globSync("**/*.{md,mdx}", {
+    cwd: directory,
+    nodir: true,
+    ignore: ["**/_*.md", "**/_*.mdx"],
+  });
+
+  const docIdToPath = new Map<string, string>();
+  for (const filePath of markdownFiles) {
+    const docId = normalizePathToDocId(filePath);
+    if (!docIdToPath.has(docId)) {
+      docIdToPath.set(docId, filePath);
+    }
+  }
+  return docIdToPath;
+}
+
 // We still read the title from the source frontmatter so the `title-llm`
 // override keeps working; the body itself comes from the rendered Markdown.
 async function readDocTitle(ref: DocRef): Promise<string> {
@@ -300,6 +393,22 @@ async function readDocTitle(ref: DocRef): Promise<string> {
   }
   const { attributes } = fm<Record<string, string>>(raw);
   return attributes["title-llm"] || attributes["title"] || fallback;
+}
+
+// versioned_docs/version-<version> doc-id -> relative-path maps, built lazily
+// and cached because a single version's sidebar can reference migration
+// guides that live in many other versions' folders.
+const docIdToPathMapCache = new Map<string, Map<string, string>>();
+
+function getDocIdToPathMap(version: string): Map<string, string> {
+  let docIdToPath = docIdToPathMapCache.get(version);
+  if (!docIdToPath) {
+    docIdToPath = buildDocIdToPathMap(
+      path.join(VERSIONED_DOCS_DIR, `version-${version}`),
+    );
+    docIdToPathMapCache.set(version, docIdToPath);
+  }
+  return docIdToPath;
 }
 
 async function readFileOrNull(filePath: string): Promise<string | null> {
@@ -330,111 +439,4 @@ function makeLinksAbsolute(markdown: string): string {
     /\]\((\/[^)]*)\)/g,
     (_match, sitePath: string) => `](${WASP_BASE_URL}${sitePath.slice(1)})`,
   );
-}
-
-interface SidebarCategory {
-  label: string;
-  docRefs: DocRef[];
-}
-
-function extractSidebarCategories(
-  sidebarItems: SidebarItemConfig[],
-  currentVersion: string,
-): SidebarCategory[] {
-  const categories: SidebarCategory[] = [];
-
-  for (const item of sidebarItems) {
-    if (
-      typeof item !== "string" &&
-      item.type === "category" &&
-      item.label &&
-      item.items &&
-      !CATEGORIES_TO_IGNORE.includes(item.label)
-    ) {
-      const docRefs = flattenSidebarItemsToDocRefs(item.items, currentVersion);
-      if (docRefs.length > 0) {
-        categories.push({
-          label: item.label,
-          docRefs,
-        });
-      }
-    }
-  }
-  return categories;
-}
-
-function flattenSidebarItemsToDocRefs(
-  sidebarItems: SidebarConfig,
-  currentVersion: string,
-): DocRef[] {
-  const docRefs: DocRef[] = [];
-  if (!Array.isArray(sidebarItems)) {
-    return docRefs;
-  }
-  for (const item of sidebarItems) {
-    if (typeof item === "string") {
-      docRefs.push({ docId: item, version: currentVersion });
-    } else if (item.type === "category" && item.items) {
-      docRefs.push(...flattenSidebarItemsToDocRefs(item.items, currentVersion));
-    } else if ((item.type === "doc" || item.type === "ref") && item.id) {
-      docRefs.push({ docId: item.id, version: currentVersion });
-    } else if (item.type === "link" && item.href) {
-      // Migration guides link to other versions' docs in their versioned
-      // form (e.g. /docs/0.22/migration-guide), so resolve those too.
-      const ref = parseInternalDocHref(item.href);
-      if (ref) {
-        docRefs.push(ref);
-      }
-    } else if (item.type === "autogenerated") {
-      console.warn(
-        `Warning: 'autogenerated' sidebar type for dirName '${item.dirName}' might not be fully processed.`,
-      );
-    }
-  }
-  return docRefs;
-}
-
-// Parses an internal versioned doc link like "/docs/0.22/migration-guide"
-// into a { docId, version } ref. Returns null for external links or
-// unversioned "/docs/<docId>" links (which point to the current docs, a
-// folder this script does not process).
-function parseInternalDocHref(href: string): DocRef | null {
-  const match = href.match(/^\/docs\/([^/]+)\/(.+?)\/?(?:#.*)?$/);
-  if (!match) {
-    return null;
-  }
-  const [, version, docId] = match;
-  if (!WASP_VERSIONS.has(version)) {
-    return null;
-  }
-  return { docId, version };
-}
-
-async function loadVersionedSidebar(
-  version: string,
-): Promise<SidebarItemConfig[]> {
-  const sidebarPath = path.join(
-    VERSIONED_SIDEBARS_DIR,
-    `version-${version}-sidebars.json`,
-  );
-  const sidebarContent = await fs.readFile(sidebarPath, "utf8");
-
-  let sidebarConfig: { docs?: unknown };
-  try {
-    sidebarConfig = JSON.parse(sidebarContent);
-  } catch (parseError) {
-    const errorMessage =
-      parseError instanceof Error ? parseError.message : String(parseError);
-    throw new Error(
-      `Failed to parse sidebar JSON for version "${version}" at ${sidebarPath}: ${errorMessage}`,
-    );
-  }
-
-  if (!Array.isArray(sidebarConfig.docs)) {
-    throw new Error(
-      `Versioned sidebar configuration for ${version} does not have a docs array.`,
-    );
-  }
-
-  return sidebarConfig.docs;
 }
