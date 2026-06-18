@@ -3,7 +3,11 @@ import path from "path";
 
 import { getSiteRoot } from "../site-root";
 import { WASP_BASE_URL } from "./constants";
-import { type DocsIndex, type IndexItem, buildDocsIndex } from "./docs-index";
+import {
+  type IndexItem,
+  type MarkdownDocsIndex,
+  buildMarkdownDocsIndex,
+} from "./docs-index";
 
 const SITE_ROOT = getSiteRoot();
 const BUILD_DIR = path.join(SITE_ROOT, "build");
@@ -17,12 +21,12 @@ export async function generateVersionedLlmFiles(
 ): Promise<void> {
   console.log(`Processing Wasp version ${waspVersion}:`);
 
-  const docsIndex = await buildDocsIndex(waspVersion);
+  const markdownDocsIndex = await buildMarkdownDocsIndex(waspVersion);
 
-  await generateVersionedLlmsTxt(waspVersion, docsIndex);
+  await generateVersionedLlmsTxt(waspVersion, markdownDocsIndex);
   console.log(`- Generated: llms-${waspVersion}.txt`);
 
-  const llmsFullTxtContent = buildLlmsFullTxtContent(docsIndex);
+  const llmsFullTxtContent = buildLlmsFullTxtContent(markdownDocsIndex);
 
   await generateVersionedLlmsFullTxt(waspVersion, llmsFullTxtContent);
   console.log(`- Generated: llms-full-${waspVersion}.txt`);
@@ -40,11 +44,11 @@ export async function generateVersionedLlmFiles(
 
 async function generateVersionedLlmsTxt(
   waspVersion: string,
-  docsIndex: DocsIndex,
+  markdownDocsIndex: MarkdownDocsIndex,
 ): Promise<void> {
   const lines: string[] = [`# Wasp ${waspVersion} Documentation`, ""];
 
-  for (const section of docsIndex.sections) {
+  for (const section of markdownDocsIndex.sections) {
     lines.push(`## ${section.title}`);
     buildLlmsTxtBody(lines, section.items, 0);
     lines.push("");
@@ -72,9 +76,9 @@ function buildLlmsTxtBody(
   }
 }
 
-function buildLlmsFullTxtContent(docsIndex: DocsIndex): string {
+function buildLlmsFullTxtContent(markdownDocsIndex: MarkdownDocsIndex): string {
   let fullDocsBody = "";
-  for (const section of docsIndex.sections) {
+  for (const section of markdownDocsIndex.sections) {
     fullDocsBody += `# ${section.title}\n\n`;
     fullDocsBody += buildLlmsFullTxtBody(section.items, []);
     fullDocsBody += `------\n\n`;

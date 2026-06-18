@@ -26,12 +26,12 @@ const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 // (the package overview) in the API section instead of every symbol page.
 const API_PACKAGE_INDEX_REG_EXP = /^api\/(.+)\/index$/;
 
-export interface DocsIndex {
+export interface MarkdownDocsIndex {
   sections: IndexSection[];
 }
 
 /**
- * Esentially, a sidebar of `Docs`, `Guides` or `API`.
+ * Esentially, the sidebar of `Docs`, `Guides` or `API`.
  */
 export interface IndexSection {
   title: string;
@@ -63,11 +63,12 @@ const sidebarsByWaspVersion = loadResolvedSidebarsByWaspVersion(SITE_ROOT);
 const permalinkMapsByWaspVersion = loadPermalinkMaps(SITE_ROOT);
 
 /**
- * Builds the nested index of a version's docs, guides, and API packages from the
- * resolved sidebars and the generated Markdown docs. Each doc's title is the
- * sidebar label; its category breadcrumb comes from the surrounding categories.
+ * Builds the nested index of a Wasp version's docs, guides, and API packages from the
+ * resolved sidebars and the generated Markdown docs.
  */
-export async function buildDocsIndex(waspVersion: string): Promise<DocsIndex> {
+export async function buildMarkdownDocsIndex(
+  waspVersion: string,
+): Promise<MarkdownDocsIndex> {
   const sidebars = sidebarsByWaspVersion.get(waspVersion);
   if (!sidebars) {
     throw Error(`Resolved sidebars are missing a Wasp version: ${waspVersion}`);
