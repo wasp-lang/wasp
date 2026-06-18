@@ -7,19 +7,20 @@ import fs from "fs/promises";
 import { globSync } from "glob";
 import path from "path";
 
-import waspVersionsJson from "../../versions.json";
-import { loadPermalinkMaps, normalizePathToDocId } from "./permalinks";
-import { getSiteRoot } from "./site-root";
+import waspVersionsJson from "../../../versions.json";
+import { loadPermalinkMaps, normalizePathToDocId } from "../permalinks";
+import { getSiteRoot } from "../site-root";
+import { buildBlogPostsIndexSection } from "./blog";
+import { WASP_BASE_URL } from "./constants";
 
 const SITE_ROOT = getSiteRoot();
 // Output and doc bodies both come from the build: this script runs after
 // `docusaurus build`, reads the Markdown that scripts/html-to-md generated next
 // to each HTML page, and writes the llms*.txt files into the build output.
 const BUILD_DIR = path.join(SITE_ROOT, "build");
-const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs/");
-const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars/");
-const BLOG_DIR = path.join(SITE_ROOT, "blog/");
-const WASP_BASE_URL = "https://wasp.sh/";
+const VERSIONED_DOCS_DIR = path.join(SITE_ROOT, "versioned_docs");
+const VERSIONED_SIDEBARS_DIR = path.join(SITE_ROOT, "versioned_sidebars");
+
 const CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 const WASP_VERSIONS = new Set<string>(waspVersionsJson);
 
@@ -65,12 +66,6 @@ type SidebarCategory = {
   docRefs: DocRef[];
 };
 
-type BlogPost = {
-  title: string;
-  fileDate: string;
-  linkPath: string;
-};
-
 generateFiles().catch((err) => {
   console.error("Failed to generate LLM files:", err);
   process.exit(1);
@@ -79,20 +74,18 @@ generateFiles().catch((err) => {
 async function generateFiles() {
   console.log("Starting LLM file generation...");
 
-  if (!waspVersionsJson || waspVersionsJson.length === 0) {
-    throw new Error("No versions found in versions.json");
-  }
   // Our llms.txt URL is the entry point for the LLM.
   // It contains a section with links to llms-{version}.txt files
   // which are versioned documentation maps that link
   // to the individual Markdown pages served on wasp.sh (the `.md` variant).
+
   const latestWaspVersion = waspVersionsJson[0];
-  const blogPostsSection = await buildBlogPostsSection();
+  const blogPostsIndexSection = await buildBlogPostsIndexSection();
   const docsMapsByVersionSection =
     buildDocsMapsByVersionSection(waspVersionsJson);
   const llmsTxtContent = buildLlmsTxtContent(
     docsMapsByVersionSection,
-    blogPostsSection,
+    blogPostsIndexSection,
   );
   await fs.writeFile(path.join(BUILD_DIR, "llms.txt"), llmsTxtContent, "utf8");
   console.log("Generated: llms.txt");
@@ -455,97 +448,6 @@ function parseInternalDocHref(href: string): DocRef | null {
     return null;
   }
   return { docId, version };
-}
-
-async function buildBlogPostsSection(): Promise<string> {
-  const blogPostFiles = globSync("*.{md,mdx}", {
-    cwd: BLOG_DIR,
-    nodir: true,
-    ignore: ["_*.md", "_*.mdx", "authors.yml", "components/**"],
-  });
-
-  const blogPosts: BlogPost[] = [];
-
-  for (const file of blogPostFiles) {
-    const fileDate = parseBlogFileDate(file);
-    if (!fileDate) {
-      continue;
-    }
-    const absoluteFilePath = path.join(BLOG_DIR, file);
-    try {
-      const rawContent = await fs.readFile(absoluteFilePath, "utf8");
-      const { attributes } = fm(rawContent);
-
-      const title = extractBlogPostTitle(attributes, file);
-      const linkPath = constructBlogUrl(file);
-
-      if (linkPath) {
-        blogPosts.push({ title, fileDate, linkPath });
-      } else {
-        console.warn(
-          `Skipping blog post ${file}, does not match YYYY-MM-DD-name.md(x) naming convention`,
-        );
-      }
-    } catch (fileReadError) {
-      // This is intentionally not re-thrown to allow the script to continue
-      // and generate a partial file, even if some source files have errors.
-      console.error(
-        `Error reading or processing blog file ${absoluteFilePath}:`,
-        fileReadError,
-      );
-    }
-  }
-
-  blogPosts.sort((a, b) => b.fileDate.localeCompare(a.fileDate));
-
-  if (blogPosts.length === 0) {
-    return "";
-  }
-
-  let section = `## Blogposts\n`;
-  for (const post of blogPosts) {
-    section += `- [${post.title}](${post.linkPath})\n`;
-  }
-  return section.trim();
-}
-
-function parseBlogFileDate(file: string): string | null {
-  const dateMatch = file.match(/^(\d{4}-\d{2}-\d{2})-.*\.(mdx|md)$/);
-  if (dateMatch !== null) {
-    return dateMatch[1];
-  }
-
-  console.warn(
-    `Skipping file in web/blog, does not match YYYY-MM-DD-name.md(x) naming convention: ${file}`,
-  );
-  return null;
-}
-
-function extractBlogPostTitle(attributes: unknown, filename: string): string {
-  if (
-    typeof attributes === "object" &&
-    attributes !== null &&
-    "title" in attributes &&
-    typeof (attributes as { title: unknown }).title === "string"
-  ) {
-    return (attributes as { title: string }).title;
-  }
-
-  let title = path.basename(filename, path.extname(filename));
-  title = title.replace(/^\d{4}-\d{2}-\d{2}-/, "");
-  title = title.replace(/-/g, " ");
-  return title
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
-}
-
-function constructBlogUrl(filename: string): string {
-  const basename = filename.replace(/\.(mdx|md)$/, "");
-  const [year, month, day, ...slugParts] = basename.split("-");
-  const slug = slugParts.join("-");
-  const blogPath = `${WASP_BASE_URL}blog/${year}/${month}/${day}/${slug}`;
-  return blogPath.replace(/\\/g, "/");
 }
 
 async function loadVersionedSidebar(

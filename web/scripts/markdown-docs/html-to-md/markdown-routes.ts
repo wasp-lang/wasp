@@ -1,7 +1,7 @@
 /**
  * Routes that get a generated `.md` counterpart.
  */
-const MARKDOWN_ROUTE_PREFIXES = ["/docs", "/blog", "/resources"];
+const MARKDOWN_ROUTE_PREFIXES = ["/docs", "/blog"];
 
 /** Whether a route is (or sits under) one of the Markdown route prefixes. */
 export function isMarkdownRoute(pathname: string): boolean {
