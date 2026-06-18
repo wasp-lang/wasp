@@ -1,62 +1,44 @@
 import fs from "fs/promises";
 import path from "path";
 
-import waspVersions from "../../../versions.json";
 import { getSiteRoot } from "../site-root";
 import { WASP_BASE_URL } from "./constants";
 import { type DocsIndex, type IndexItem, buildDocsIndex } from "./docs-index";
-import { generateLlmsTxtFile } from "./llmsTxt";
 
 const SITE_ROOT = getSiteRoot();
 const BUILD_DIR = path.join(SITE_ROOT, "build");
 
-// llms.txt - index of llms-{version}.txt, llms-full-{version}.txt, blog posts, and other resources
-// llms-{version}.txt - index of that version's docs, guides, and API pages
-// llms-full-{version}.txt - that version's pages concatenated together
-generateLlmFiles().catch((err) => {
-  console.error("Failed to generate LLM files:", err);
-  process.exit(1);
-});
-
-async function generateLlmFiles() {
-  console.log("Starting LLM file generation...");
-
-  await generateLlmsTxtFile(waspVersions);
-  for (const waspVersion of waspVersions) {
-    await generateVersionedLlmFiles(waspVersion, waspVersions);
-  }
-
-  console.log("LLM files generation completed successfully.");
-}
-
-async function generateVersionedLlmFiles(
+/**
+ * Generates all `llm-{waspVersion}.txt` and `llm-full-{waspVersion}.txt` files.
+ */
+export async function generateVersionedLlmFiles(
   waspVersion: string,
   waspVersions: string[],
 ): Promise<void> {
-  console.log(`Processing version ${waspVersion}...`);
+  console.log(`Processing Wasp version ${waspVersion}:`);
 
   const docsIndex = await buildDocsIndex(waspVersion);
 
-  await generateVersionedLlmTxt(waspVersion, docsIndex);
-  console.log(`  Generated: llms-${waspVersion}.txt`);
+  await generateVersionedLlmsTxt(waspVersion, docsIndex);
+  console.log(`- Generated: llms-${waspVersion}.txt`);
 
-  const fullDocsBody = buildFullDocsBody(docsIndex);
+  const llmsFullTxtBody = buildLlmsFullTxtBody(docsIndex);
 
-  await generateVersionedLlmFullTxt(waspVersion, fullDocsBody);
-  console.log(`  Generated: llms-full-${waspVersion}.txt`);
+  await generateVersionedLlmsFullTxt(waspVersion, llmsFullTxtBody);
+  console.log(`- Generated: llms-full-${waspVersion}.txt`);
 
   const isLatestWaspVersion = waspVersion === waspVersions[0];
   if (isLatestWaspVersion) {
-    await generateLatestVersionLlmFullTxt(
+    await generateLatestVersionLlmsFullTxt(
       waspVersion,
       waspVersions,
-      fullDocsBody,
+      llmsFullTxtBody,
     );
-    console.log(`  Generated: llms-full.txt`);
+    console.log(`- Generated: llms-full.txt`);
   }
 }
 
-async function generateVersionedLlmTxt(
+async function generateVersionedLlmsTxt(
   waspVersion: string,
   docsIndex: DocsIndex,
 ): Promise<void> {
@@ -64,7 +46,7 @@ async function generateVersionedLlmTxt(
 
   for (const section of docsIndex.sections) {
     lines.push(`## ${section.title}`);
-    appendIndexItems(lines, section.items, 0);
+    buildLlmsTxtBody(lines, section.items, 0);
     lines.push("");
   }
 
@@ -75,7 +57,7 @@ async function generateVersionedLlmTxt(
 // Renders the index tree: categories become headings (deeper nesting -> deeper
 // heading), docs become links. Heading level starts at 3 (### under the `##`
 // section), capped at 6.
-function appendIndexItems(
+function buildLlmsTxtBody(
   lines: string[],
   items: IndexItem[],
   depth: number,
@@ -86,12 +68,12 @@ function appendIndexItems(
     } else {
       const headingHashes = "#".repeat(Math.min(6, 3 + depth));
       lines.push(`${headingHashes} ${item.label}`);
-      appendIndexItems(lines, item.items, depth + 1);
+      buildLlmsTxtBody(lines, item.items, depth + 1);
     }
   }
 }
 
-function buildFullDocsBody(docsIndex: DocsIndex): string {
+function buildLlmsFullTxtBody(docsIndex: DocsIndex): string {
   let fullDocsBody = "";
   for (const section of docsIndex.sections) {
     fullDocsBody += `# ${section.title}\n\n`;
@@ -116,7 +98,7 @@ function buildFullDocsItems(items: IndexItem[], breadcrumb: string[]): string {
   return body;
 }
 
-async function generateVersionedLlmFullTxt(
+async function generateVersionedLlmsFullTxt(
   waspVersion: string,
   fullDocsBody: string,
 ): Promise<void> {
@@ -125,7 +107,7 @@ async function generateVersionedLlmFullTxt(
   await fs.writeFile(absPath, content, "utf8");
 }
 
-async function generateLatestVersionLlmFullTxt(
+async function generateLatestVersionLlmsFullTxt(
   waspVersion: string,
   waspVersions: string[],
   fullDocsBody: string,
