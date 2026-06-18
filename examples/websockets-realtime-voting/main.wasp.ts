@@ -8,7 +8,7 @@ import { votingWebSocket } from "./src/ws-server" with { type: "ref" };
 
 export default app({
   name: "whereDoWeEat",
-  wasp: { version: "^0.24.0" },
+  wasp: { version: "0.25.0" },
   title: "where-do-we-eat",
   head: ["<link rel='icon' href='/favicon.ico' />"],
   client: {
