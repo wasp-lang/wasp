@@ -4,7 +4,7 @@ import path from "path";
 import waspVersions from "../../../versions.json";
 import { getSiteRoot } from "../site-root";
 import { WASP_BASE_URL } from "./constants";
-import { type DocsIndex, buildDocsIndex } from "./docs-index";
+import { type DocsIndex, type IndexItem, buildDocsIndex } from "./docs-index";
 import { generateLlmsTxtFile } from "./llmsTxt";
 
 const SITE_ROOT = getSiteRoot();
@@ -64,14 +64,7 @@ async function generateVersionedLlmTxt(
 
   for (const section of docsIndex.sections) {
     lines.push(`## ${section.title}`);
-    for (const group of section.groups) {
-      if (group.label) {
-        lines.push(group.label);
-      }
-      for (const doc of group.docs) {
-        lines.push(`- [${doc.title}](${doc.docUrl})`);
-      }
-    }
+    appendIndexItems(lines, section.items, 0);
     lines.push("");
   }
 
@@ -79,18 +72,48 @@ async function generateVersionedLlmTxt(
   await fs.writeFile(llmsTxtAbsPath, lines.join("\n").trimEnd() + "\n", "utf8");
 }
 
+// Renders the index tree: categories become headings (deeper nesting -> deeper
+// heading), docs become links. Heading level starts at 3 (### under the `##`
+// section), capped at 6.
+function appendIndexItems(
+  lines: string[],
+  items: IndexItem[],
+  depth: number,
+): void {
+  for (const item of items) {
+    if (item.type === "doc") {
+      lines.push(`- [${item.title}](${item.docUrl})`);
+    } else {
+      const headingHashes = "#".repeat(Math.min(6, 3 + depth));
+      lines.push(`${headingHashes} ${item.label}`);
+      appendIndexItems(lines, item.items, depth + 1);
+    }
+  }
+}
+
 function buildFullDocsBody(docsIndex: DocsIndex): string {
   let fullDocsBody = "";
   for (const section of docsIndex.sections) {
     fullDocsBody += `# ${section.title}\n\n`;
-    for (const group of section.groups) {
-      for (const doc of group.docs) {
-        fullDocsBody += `## ${doc.title}\n\n${doc.processedBody}\n\n`;
-      }
-    }
+    fullDocsBody += buildFullDocsItems(section.items, []);
     fullDocsBody += `------\n\n`;
   }
   return fullDocsBody;
+}
+
+// Each doc is titled by its full category breadcrumb, e.g.
+// `## Authentication / Email / Overview`, so it stays unambiguous out of context.
+function buildFullDocsItems(items: IndexItem[], breadcrumb: string[]): string {
+  let body = "";
+  for (const item of items) {
+    if (item.type === "doc") {
+      const heading = [...breadcrumb, item.title].join(" / ");
+      body += `## ${heading}\n\n${item.processedBody}\n\n`;
+    } else {
+      body += buildFullDocsItems(item.items, [...breadcrumb, item.label]);
+    }
+  }
+  return body;
 }
 
 async function generateVersionedLlmFullTxt(

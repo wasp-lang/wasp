@@ -38,25 +38,3 @@ export function loadPermalinkMaps(siteRoot: string): DocVersionToPermalinkMap {
 
   return docVersionToPermalinkMap;
 }
-
-/**
- * Turns a doc source path into its Docusaurus doc id.
- *
- * @example 'tutorial/01-create.mdx' → 'tutorial/create'
- * @example 'data-model/entities/index.md' → 'data-model/entities'
- */
-export function normalizePathToDocId(filePath: string): string {
-  const normalizedPath = filePath
-    .replace(/\.(mdx|md)$/, "")
-    .replace(/\/index$/, "");
-
-  const pathSegments = normalizedPath.split("/");
-  const filename = pathSegments.pop() ?? ""; // This will be the filename or last directory name.
-
-  // Remove leading number ("NN-" or "NN.") from the filename part, e.g. "01-create" => "create".
-  const cleanFilename = filename.replace(/^\d+[-.]/, "");
-
-  return pathSegments.length > 0
-    ? [...pathSegments, cleanFilename].join("/")
-    : cleanFilename;
-}
