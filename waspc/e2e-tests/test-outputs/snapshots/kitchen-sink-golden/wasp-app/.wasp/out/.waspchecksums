@@ -606,7 +606,7 @@
             "file",
             "sdk/wasp/client/operations/actions/index.ts"
         ],
-        "6dfb3ab8053c4ade4c99c513abdfb1492d6e257fb54007f9f9c1b8f43216ceff"
+        "8c3fb209aea2a3f6d34d14fcf0890f8cb1160386d13d27dbad8e1732fb79cd52"
     ],
     [
         [
@@ -620,7 +620,7 @@
             "file",
             "sdk/wasp/client/operations/index.ts"
         ],
-        "edcdc3798590e62b778115b3818df8cc69fa5a8bb3a7fe9fa6d6d5ea706d14c4"
+        "c96965e460ada3ad0369ed17a0dc8ebce623781ba02ab8059e61856024d12df2"
     ],
     [
         [
@@ -655,7 +655,7 @@
             "file",
             "sdk/wasp/client/operations/queries/index.ts"
         ],
-        "23d98fe298e6bd2f12a7c831b481261944135e14e06db7088a1849b3e9533a32"
+        "eb9aa4ec9cf229bbc301f84221085911177970c637a49472d0807ebc68e82a51"
     ],
     [
         [
@@ -893,7 +893,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "561d2dc6e527164925e734432ac26bdcc7990023724b314f6f6b7ce3b124fe78"
+        "dcf551b166f6c3e1c4bed53776d9fd5a714ab7387933b3eb06d1d52030f6536b"
     ],
     [
         [
@@ -908,6 +908,13 @@
             "sdk/wasp/scripts/copy-assets.js"
         ],
         "0b7e3d7a0238faae3d97c43c50dfcbcfb088b769632046048ff78f8970e1d55b"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/serialization/index.ts"
+        ],
+        "ea0d33a9d5dda88e783ac63d402c9f7444bd516a5e624f6af2b9d69b4a15e0a3"
     ],
     [
         [
@@ -1740,7 +1747,7 @@
             "file",
             "sdk/wasp/src/rpcTests/operations/client.ts"
         ],
-        "3abd264b4d04825107a727ba3c3b038c0d53125fb7b43cba79f2b74f1bb50621"
+        "7b206091975ef1ba835c542482f87e3bc7c1af84859a8757d5e2513d43428491"
     ],
     [
         [
@@ -1768,7 +1775,7 @@
             "file",
             "sdk/wasp/src/rpcTests/operations/server.ts"
         ],
-        "6b86d48cf4653ae2ad01a110239c6bcc3936032fcd667ef0c93c14aa1706a958"
+        "e567a438fa2fe74bdcb35104cefc1989dccd74c38fd58816ea640cb00572de97"
     ],
     [
         [

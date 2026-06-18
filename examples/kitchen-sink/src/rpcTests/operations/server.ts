@@ -26,7 +26,7 @@ import {
 
 import { AuthUser } from "wasp/auth";
 import { Task } from "wasp/entities";
-import { Payload } from "wasp/server/_types";
+import { Payload } from "wasp/serialization";
 import { Equal, Expect } from "../helpers";
 
 export const testingAction: TestingAction = async (_args, context) => {

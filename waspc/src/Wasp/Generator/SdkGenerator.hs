@@ -106,6 +106,7 @@ genSdk spec =
       C.genFileCopy [relfile|scripts/copy-assets.js|],
       C.genFileCopy [relfile|api/index.ts|],
       C.genFileCopy [relfile|api/events.ts|],
+      C.genFileCopy [relfile|serialization/index.ts|],
       C.genFileCopy [relfile|core/storage.ts|],
       C.genFileCopy [relfile|server/index.ts|],
       C.genFileCopy [relfile|server/HttpError.ts|],

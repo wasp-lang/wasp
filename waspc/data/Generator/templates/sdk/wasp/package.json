@@ -85,16 +85,13 @@
       "./client/test/setup": "./dist/client/test/setup.js",
       "./client": "./dist/client/index.js",
       "./env": "./dist/env/index.js",
+      "./serialization": "./dist/serialization/index.js",
       {=! Private: [client] =}
       "./client/app": "./dist/client/app/index.jsx",
       "./client/app/layout": "./dist/client/app/layout.jsx",
       "./client/app/router": "./dist/client/app/router.jsx",
       {=! Private: [client] =}
-      "./client/vite": "./dist/client/vite/index.js",
-
-      {=! Used by our code (SDK for full-stack type safety), undocumented (but accessible) for users. =}
-      "./client/operations/rpc": "./dist/client/operations/rpc.js",
-      "./server/_types": "./dist/server/_types/index.js"
+      "./client/vite": "./dist/client/vite/index.js"
 
    },
    {=!

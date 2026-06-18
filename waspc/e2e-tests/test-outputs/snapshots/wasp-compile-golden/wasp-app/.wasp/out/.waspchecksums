@@ -179,7 +179,7 @@
             "file",
             "sdk/wasp/client/operations/index.ts"
         ],
-        "edcdc3798590e62b778115b3818df8cc69fa5a8bb3a7fe9fa6d6d5ea706d14c4"
+        "c96965e460ada3ad0369ed17a0dc8ebce623781ba02ab8059e61856024d12df2"
     ],
     [
         [
@@ -424,7 +424,7 @@
             "file",
             "sdk/wasp/package.json"
         ],
-        "3bece21c1d3e9b92449ca1d7dee09d9b3514d93fe0039814af8e98e2ea4316ce"
+        "d7c3c3ffa22b6f2f6db48e50bb2ad74d665d3e88155c380f5e2fe6e537f6b563"
     ],
     [
         [
@@ -439,6 +439,13 @@
             "sdk/wasp/scripts/copy-assets.js"
         ],
         "0b7e3d7a0238faae3d97c43c50dfcbcfb088b769632046048ff78f8970e1d55b"
+    ],
+    [
+        [
+            "file",
+            "sdk/wasp/serialization/index.ts"
+        ],
+        "ea0d33a9d5dda88e783ac63d402c9f7444bd516a5e624f6af2b9d69b4a15e0a3"
     ],
     [
         [
