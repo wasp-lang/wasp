@@ -54,7 +54,7 @@ async function generateLlmFiles() {
 
   await generateLlmsTxtFile(waspVersions);
   for (const waspVersion of waspVersions) {
-    generateLlmFilesForVersion(waspVersion, waspVersions);
+    await generateLlmFilesForVersion(waspVersion, waspVersions);
   }
 
   console.log("LLM files generation completed successfully.");
@@ -147,7 +147,7 @@ function buildFullDocsIndexSection(waspVersions: string[]): string {
   const latestWaspVersion = waspVersions[0];
   let section = `## Full Documentation by Version\n`;
 
-  section += `- [latest (currently ${latestWaspVersion})](${WASP_BASE_URL}llms-full.txt`;
+  section += `- [latest (${latestWaspVersion})](${WASP_BASE_URL}llms-full.txt)\n`;
   for (const waspVersion of waspVersions) {
     section += `- [${waspVersion}](${WASP_BASE_URL}llms-full-${waspVersion}.txt)\n`;
   }
