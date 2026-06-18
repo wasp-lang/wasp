@@ -1,11 +1,12 @@
-/**
- * Routes that get a generated `.md` counterpart.
- */
-const MARKDOWN_ROUTE_PREFIXES = ["/docs", "/blog"];
-
 /** Whether a route is (or sits under) one of the Markdown route prefixes. */
-export function isMarkdownRoute(pathname: string): boolean {
-  return MARKDOWN_ROUTE_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(prefix + "/"),
+export function isValidMarkdownDocsRoute(pathname: string): boolean {
+  return (
+    pathname === "/docs" ||
+    pathname.startsWith("/docs/") ||
+    isBlogPostPathname(pathname)
   );
+}
+
+function isBlogPostPathname(pathname: string) {
+  return /\/blog\/\d{4}-\d{2}-\d{2}/.test(pathname);
 }

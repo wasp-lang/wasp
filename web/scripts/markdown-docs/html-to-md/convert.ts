@@ -16,54 +16,45 @@ const MARKDOWN_CONTENT_CONTAINER_SELECTORS = [
 
 /**
  * Converts a built Docusaurus HTML page to Markdown.
- *
- * @returns null when the page has no recognizable doc content (e.g. the
- * homepage), which means it should not generate a markdown file.
  */
-export function htmlToMarkdown(html: string): {
-  title: string;
-  markdown: string;
-} | null {
+export function htmlToMarkdown(html: string): string {
   const $ = cheerio.load(html);
-
   const contentContainer = findContentContainer($);
-  if (!contentContainer) {
-    return null;
-  }
-
   const contentContainerHTML = $.html(contentContainer);
+
   const markdown = turndownService.turndown(contentContainerHTML).trim();
   if (!markdown) {
-    return null;
+    throw Error(
+      "Markdown content is null. Most likely a stray document. Please update the `isValidMarkdownDocsRoute` function.",
+    );
   }
 
-  return {
-    title: extractTitle($, contentContainer),
-    markdown,
-  };
+  return markdown;
 }
 
 function findContentContainer(
   $: cheerio.CheerioAPI,
-): cheerio.Cheerio<cheerio.AnyNode> | null {
+): cheerio.Cheerio<cheerio.AnyNode> {
   for (const selector of MARKDOWN_CONTENT_CONTAINER_SELECTORS) {
     const containerElement = $(selector).first();
     if (containerElement.length > 0) {
       return containerElement;
     }
   }
-  return null;
+  throw Error(
+    "Unable to find content containers for markdown conversion. Maybe the Docusaurus DOM theme changed?",
+  );
 }
 
-function extractTitle(
-  $: cheerio.CheerioAPI,
-  contentContainer: cheerio.Cheerio<cheerio.AnyNode>,
-): string {
-  const h1 = contentContainer.find("h1").first().text().trim();
-  if (h1) {
-    return h1;
-  }
-  const documentTitle = $("title").first().text().trim();
-  // If the document title is "Page Title | Wasp"; keep only the page part.
-  return documentTitle.replace(/\s*\|\s*Wasp\s*$/, "").trim();
-}
+// function extractTitle(
+//   $: cheerio.CheerioAPI,
+//   contentContainer: cheerio.Cheerio<cheerio.AnyNode>,
+// ): string {
+//   const h1 = contentContainer.find("h1").first().text().trim();
+//   if (h1) {
+//     return h1;
+//   }
+//   const documentTitle = $("title").first().text().trim();
+//   // If the document title is "Page Title | Wasp"; keep only the page part.
+//   return documentTitle.replace(/\s*\|\s*Wasp\s*$/, "").trim();
+// }

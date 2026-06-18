@@ -6,7 +6,7 @@
  * of the HTML.
  */
 
-import { isMarkdownRoute } from "../scripts/markdown-docs/html-to-md/markdown-routes";
+import { isValidMarkdownDocsRoute } from "../scripts/markdown-docs/html-to-md/markdown-routes";
 
 interface CloudflarePagesContext {
   request: Request;
@@ -18,34 +18,32 @@ export const onRequest = async (
 ): Promise<Response> => {
   const { request, next } = context;
 
-  if (!wantsMarkdown(request)) {
+  if (!wantsMarkdownContent(request)) {
     return next();
   }
 
   const url = new URL(request.url);
-  if (isAlreadyRequestingMarkdown(url)) {
+  if (isAlreadyMarkdownRoute(url.pathname)) {
     return next();
   }
-  if (!isMarkdownRoute(url.pathname)) {
-    return next();
-  }
-
-  const markdownPath = generateMarkdownPath(url.pathname);
-  if (!markdownPath) {
+  if (!isValidMarkdownDocsRoute(url.pathname)) {
     return next();
   }
 
-  const markdownUrl = new URL(markdownPath, url.origin);
+  const markdownPathname = generateMarkdownPathname(url.pathname);
+  if (!markdownPathname) {
+    return next();
+  }
+
+  const markdownUrl = new URL(markdownPathname, url.origin);
   const markdownResponse = await next(new Request(markdownUrl, request));
-  if (!markdownResponse.ok) {
-    return next();
-  }
-
-  // TODO: check if we will have change the response status / headers.
+  // TODO: Check headers are a okay.
+  markdownResponse.headers.set("Vary", "Accept");
+  markdownResponse.headers.set("Content-Type", "text/markdown; charset=utf-8");
   return markdownResponse;
 };
 
-function wantsMarkdown(request: Request): boolean {
+function wantsMarkdownContent(request: Request): boolean {
   if (request.method !== "GET") {
     return false;
   }
@@ -55,11 +53,11 @@ function wantsMarkdown(request: Request): boolean {
   return acceptHeader.includes("text/markdown");
 }
 
-function isAlreadyRequestingMarkdown(url: URL): boolean {
-  return url.pathname.endsWith(".md");
+function isAlreadyMarkdownRoute(pathname: string): boolean {
+  return pathname.endsWith(".md");
 }
 
-function generateMarkdownPath(pathname: string): string {
+function generateMarkdownPathname(pathname: string): string {
   // This middleware runs before trialing slash stripping happens.
   return pathname.replace(/\/+$/, "") + ".md";
 }

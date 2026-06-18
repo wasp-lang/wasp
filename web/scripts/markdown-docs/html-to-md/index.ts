@@ -4,7 +4,7 @@ import path from "path";
 
 import { getSiteRoot } from "../site-root";
 import { htmlToMarkdown } from "./convert";
-import { isMarkdownRoute } from "./markdown-routes";
+import { isValidMarkdownDocsRoute } from "./markdown-routes";
 
 /**
  * Post-build step: turn the rendered HTML for docs, blog, and resources pages
@@ -15,37 +15,29 @@ import { isMarkdownRoute } from "./markdown-routes";
 const SITE_ROOT = getSiteRoot();
 const BUILD_DIR = path.join(SITE_ROOT, "build");
 
-// Listing, tag, and pagination pages have no single document body.
-const SKIP_PATH_PATTERNS = [/\/tags(\/|\.html$)/, /\/page\/\d+/, /\/authors\./];
-
 generateMarkdownFiles().catch((err) => {
   console.error("Failed to generate Markdown files:", err);
   process.exit(1);
 });
 
 async function generateMarkdownFiles(): Promise<void> {
-  console.log("Generating Markdown files from built HTML...");
+  console.log("Generating markdown files from built HTML...");
 
-  const htmlFiles = findConvertibleHtmlFiles();
-  let written = 0;
-  let skipped = 0;
+  const htmlFilesRelPaths = findConvertibleHtmlFiles();
+  let generatedDocs = 0;
+  for (const htmlFileRelPath of htmlFilesRelPaths) {
+    const htmlFileAbsPath = path.join(BUILD_DIR, htmlFileRelPath);
+    const html = await fs.readFile(htmlFileAbsPath, "utf8");
 
-  for (const htmlFileRelativePath of htmlFiles) {
-    const htmlFileAbsolutePath = path.join(BUILD_DIR, htmlFileRelativePath);
-    const html = await fs.readFile(htmlFileAbsolutePath, "utf8");
-    const result = htmlToMarkdown(html);
-    if (!result) {
-      skipped++;
-      continue;
-    }
+    const markdown = htmlToMarkdown(html);
+    const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
-    const markdownPath = htmlFileAbsolutePath.replace(/\.html$/, ".md");
-    await fs.writeFile(markdownPath, result.markdown, "utf8");
-    written++;
+    await fs.writeFile(markdownFileAbsPath, markdown, "utf8");
+    generatedDocs++;
   }
 
   console.log(
-    `Markdown generation complete: ${written} written, ${skipped} skipped (no content).`,
+    `Markdown generation complete: generated ${generatedDocs} markdown docs from HTML.`,
   );
 }
 
@@ -53,16 +45,9 @@ function findConvertibleHtmlFiles(): string[] {
   return globSync("**/*.html", {
     cwd: BUILD_DIR,
     nodir: true,
-  }).filter(isConvertibleRoute);
-}
-
-function isConvertibleRoute(relativePath: string): boolean {
-  if (!isMarkdownRoute(toRoute(relativePath))) {
-    return false;
-  }
-  const normalizedPath = "/" + relativePath.replace(/\\/g, "/");
-  // TODO: check
-  return !SKIP_PATH_PATTERNS.some((pattern) => pattern.test(normalizedPath));
+  }).filter((htmlFileRelPath) =>
+    isValidMarkdownDocsRoute(toRoute(htmlFileRelPath)),
+  );
 }
 
 /**
