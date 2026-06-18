@@ -114,9 +114,18 @@ CABAL_GILD_BASE_CMD="$(install_dev_tool cabal-gild) && $(dev_tool_path cabal-gil
 CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check --input waspc.cabal"
 CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format --io waspc.cabal"
 
-function remove_wasp_libs_from_package_lock() {
+function remove_generated_wasp_packages_from_package_lock() {
   PACKAGE_LOCK_TMP=$(mktemp)
-  if ! jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > "$PACKAGE_LOCK_TMP"; then
+  if ! jq '
+    .packages |= with_entries(
+      select(.key | test("^(node_modules/@wasp\\.sh/lib-|node_modules/@wasp\\.sh/generated-server$|node_modules/wasp$|\\.wasp/out(/|$))") | not)
+      | if .value.dependencies then
+          .value.dependencies |= with_entries(select(.key | test("^@wasp\\.sh/lib-") | not))
+        else
+          .
+        end
+    )
+  ' package-lock.json > "$PACKAGE_LOCK_TMP"; then
     rm -f "$PACKAGE_LOCK_TMP"
     exit 1
   fi
@@ -310,7 +319,12 @@ case $COMMAND in
     echo_and_eval "$WASP_CLI_RUN_CMD"
     ;;
   bust-libs-cache)
-    remove_wasp_libs_from_package_lock
+    # `wasp install` must run before compile so @wasp.sh/spec matches CLI version.
+    # Old generated workspaces point at old lib tarballs, so remove them from disk
+    # and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
+    rm -rf .wasp/out node_modules/@wasp.sh/generated-server node_modules/wasp
+    remove_generated_wasp_packages_from_package_lock
+    eval "$WASP_CLI_INSTALL_CMD"
 
     # Compiling the project copies the new lib tarball to the out dir.
     eval "$WASP_CLI_RUN_CMD compile"
