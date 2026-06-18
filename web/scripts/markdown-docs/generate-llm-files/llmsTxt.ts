@@ -36,7 +36,9 @@ Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}/l
     llmFullFilesSection,
     blogPostsIndexSection,
     LLMS_TXT_RESOURCES,
-  ].join("\n\n");
+  ]
+    .map((content) => content.trimEnd())
+    .join("\n\n");
   const llmsTxtAbsPath = path.join(BUILD_DIR, "llms.txt");
 
   await fs.writeFile(llmsTxtAbsPath, llmsTxtContent, "utf8");

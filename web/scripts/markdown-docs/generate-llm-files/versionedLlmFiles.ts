@@ -50,10 +50,10 @@ async function generateVersionedLlmsTxt(
     lines.push("");
   }
 
-  const llmsTxtAbsPath = path.join(BUILD_DIR, `llms-${waspVersion}.txt`);
-  const llmsTxtContent = lines.join("\n").trimEnd() + "\n";
+  const absPath = path.join(BUILD_DIR, `llms-${waspVersion}.txt`);
+  const content = lines.join("\n").trimEnd() + "\n";
 
-  await fs.writeFile(llmsTxtAbsPath, llmsTxtContent, "utf8");
+  await fs.writeFile(absPath, content, "utf8");
 }
 
 function buildLlmsTxtBody(
@@ -66,7 +66,7 @@ function buildLlmsTxtBody(
       lines.push(`- [${item.title}](${item.url})`);
     } else {
       const headingHashes = "#".repeat(3 + depth);
-      lines.push(`${headingHashes} ${item.label}`);
+      lines.push(`\n${headingHashes} ${item.label}`);
       buildLlmsTxtBody(lines, item.items, depth + 1);
     }
   }
@@ -98,12 +98,18 @@ function buildLlmsFullTxtBody(
   return body;
 }
 
+const LLMS_FULL_TXT_HEADER_DIVIDER = "\n---\n\n";
+
 async function generateVersionedLlmsFullTxt(
   waspVersion: string,
   llmsFullTxtContent: string,
 ): Promise<void> {
-  const content = buildFullDocsHeader(waspVersion) + llmsFullTxtContent;
+  const content =
+    buildFullDocsHeader(waspVersion) +
+    LLMS_FULL_TXT_HEADER_DIVIDER +
+    llmsFullTxtContent;
   const absPath = path.join(BUILD_DIR, `llms-full-${waspVersion}.txt`);
+
   await fs.writeFile(absPath, content, "utf8");
 }
 
@@ -114,8 +120,10 @@ async function generateLatestVersionLlmsFullTxt(
 ): Promise<void> {
   const content =
     buildLatestVersionFullDocsHeader(waspVersion, waspVersions) +
+    LLMS_FULL_TXT_HEADER_DIVIDER +
     llmsFullTxtContent;
   const absPath = path.join(BUILD_DIR, `llms-full.txt`);
+
   await fs.writeFile(absPath, content, "utf8");
 }
 
@@ -123,16 +131,15 @@ function buildLatestVersionFullDocsHeader(
   waspVersion: string,
   waspVersions: string[],
 ): string {
-  return (
-    buildFullDocsHeader(waspVersion) +
-    "> This is the full documentation for the latest version of Wasp.\n> For other versions, see the links below.\n\n" +
-    buildFullDocsIndexSection(waspVersions) +
-    "\n---\n\n"
-  );
+  return [
+    buildFullDocsHeader(waspVersion),
+    "This is the full documentation for the latest version of Wasp.\nFor other versions, see the links below.\n",
+    buildFullDocsIndexSection(waspVersions),
+  ].join("\n");
 }
 
 function buildFullDocsHeader(waspVersion: string): string {
-  return `# Wasp ${waspVersion} Full Documentation\n\n`;
+  return `# Wasp ${waspVersion} Full Documentation\n`;
 }
 
 function buildFullDocsIndexSection(waspVersions: string[]): string {
