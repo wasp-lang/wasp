@@ -9,7 +9,7 @@ type DocumentId = string;
 type DocumentPath = string;
 
 /**
- * Builds the authoritative doc-id -> permalink mapping per version from the docs
+ * Builds the document id to path mapping per Wasp version from the
  * plugin data Docusaurus emits during the build.
  */
 export function loadPermalinkMaps(siteRoot: string): WaspVersionToPermalinkMap {

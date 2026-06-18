@@ -1,4 +1,6 @@
-/** Whether a route is (or sits under) one of the Markdown route prefixes. */
+/**
+ * Whether a route is (or sits under) one of the Markdown route prefixes.
+ */
 export function isValidMarkdownDocsRoute(pathname: string): boolean {
   return (
     pathname === "/docs" ||

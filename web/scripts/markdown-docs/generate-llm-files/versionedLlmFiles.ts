@@ -47,7 +47,6 @@ async function generateVersionedLlmsTxt(
   markdownDocsIndex: MarkdownDocsIndex,
 ): Promise<void> {
   const lines: string[] = [`# Wasp ${waspVersion} Documentation`, ""];
-
   for (const section of markdownDocsIndex.sections) {
     lines.push(`## ${section.title}`);
     buildLlmsTxtBody(lines, section.items, 0);

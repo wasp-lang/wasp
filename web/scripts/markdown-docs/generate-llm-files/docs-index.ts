@@ -2,9 +2,9 @@ import { existsSync } from "fs";
 import fs from "fs/promises";
 import path from "path";
 
-import { loadPermalinkMaps, PermalinkMap } from "../permalinks";
 import { getSiteRoot } from "../site-root";
 import { WASP_BASE_URL } from "./constants";
+import { loadPermalinkMaps, PermalinkMap } from "./permalinks";
 import {
   isSidebarCategory,
   isSidebarLink,
