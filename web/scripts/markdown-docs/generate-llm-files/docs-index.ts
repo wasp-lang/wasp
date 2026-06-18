@@ -31,7 +31,7 @@ export interface DocsIndex {
 }
 
 /**
- * E.g. `Docs`, `Guides`, `API`.
+ * Esentially, a sidebar of `Docs`, `Guides` or `API`.
  */
 export interface IndexSection {
   title: string;
@@ -41,8 +41,7 @@ export interface IndexSection {
 export type IndexItem = IndexCategory | IndexDoc;
 
 /**
- * A sidebar category, e.g. `Authentication` or `Authentication > Email`. Kept
- * nested so the index can mirror the sidebar and each doc keeps its breadcrumb.
+ * A sidebar category, e.g. `Authentication` or `Authentication / Email`.
  */
 export interface IndexCategory {
   type: "category";
@@ -50,10 +49,13 @@ export interface IndexCategory {
   items: IndexItem[];
 }
 
+/**
+ * An idividual item of some sidebar category, e.g. `Authentication / Email / Overview`.
+ */
 export interface IndexDoc {
   type: "doc";
   title: string;
-  docUrl: string;
+  url: string;
   markdown: string;
 }
 
@@ -131,7 +133,10 @@ async function resolveSidebarLink(
   if (!sidebarLink.href.startsWith("/")) {
     return null;
   }
-  return resolveDoc(stripTrailingSlash(sidebarLink.href), sidebarLink.label);
+  return resolveIndexDoc(
+    stripTrailingSlash(sidebarLink.href),
+    sidebarLink.label,
+  );
 }
 
 async function resolveSidebarCategory(
@@ -161,38 +166,38 @@ async function buildApiSectionItems(
   for (const [docId, permalink] of permalinkMap) {
     const match = docId.match(API_PACKAGE_INDEX_REG_EXP);
     if (match) {
-      items.push(await resolveDoc(stripTrailingSlash(permalink), match[1]));
+      items.push(
+        await resolveIndexDoc(stripTrailingSlash(permalink), match[1]),
+      );
     }
   }
   return items;
 }
 
-// Body and URL are derived from the route, so they are cached by it; the same
-// page (e.g. a migration guide) is referenced by several versions' sidebars.
-const resolvedBodyByRoute = new Map<
+const markdownDocumentByRoute = new Map<
   string,
-  { docUrl: string; markdown: string }
+  { url: string; markdown: string }
 >();
 
-async function resolveDoc(route: string, title: string): Promise<IndexDoc> {
-  let resolved = resolvedBodyByRoute.get(route);
-  if (!resolved) {
-    // TODO: do we overwrite old docs?
-
-    // `trailingSlash` is false, so the page at "/docs/x" is "build/docs/x.html",
-    // and its Markdown sibling is "build/docs/x.md".
+async function resolveIndexDoc(
+  route: string,
+  title: string,
+): Promise<IndexDoc> {
+  let markdownDocument = markdownDocumentByRoute.get(route);
+  if (!markdownDocument) {
     const markdownFilePath = path.join(BUILD_DIR, route + ".md");
     if (!existsSync(markdownFilePath)) {
       throw Error(`Missing Markdown file for a document: ${markdownFilePath}`);
     }
+
     const markdown = await fs.readFile(markdownFilePath, "utf8");
-    resolved = {
-      docUrl: WASP_BASE_URL + route + ".md",
+    markdownDocument = {
+      url: WASP_BASE_URL + route + ".md",
       markdown: processBuiltMarkdown(markdown),
     };
-    resolvedBodyByRoute.set(route, resolved);
+    markdownDocumentByRoute.set(route, markdownDocument);
   }
-  return { type: "doc", title, ...resolved };
+  return { type: "doc", title, ...markdownDocument };
 }
 
 /**

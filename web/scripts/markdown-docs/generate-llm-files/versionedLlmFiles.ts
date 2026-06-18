@@ -63,7 +63,7 @@ function buildLlmsTxtBody(
 ): void {
   for (const item of items) {
     if (item.type === "doc") {
-      lines.push(`- [${item.title}](${item.docUrl})`);
+      lines.push(`- [${item.title}](${item.url})`);
     } else {
       const headingHashes = "#".repeat(3 + depth);
       lines.push(`${headingHashes} ${item.label}`);
