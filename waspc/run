@@ -114,21 +114,38 @@ CABAL_GILD_BASE_CMD="$(install_dev_tool cabal-gild) && $(dev_tool_path cabal-gil
 CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check --input waspc.cabal"
 CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format --io waspc.cabal"
 
-function remove_generated_wasp_packages_from_package_lock() {
+# We remove .wasp/out before `wasp install`, so package-lock entries for
+# generated workspaces and their local tarball deps become stale. Drop them so
+# npm rebuilds those entries from the freshly generated package.json files.
+function remove_stale_generated_wasp_lock_entries() {
   PACKAGE_LOCK_TMP=$(mktemp)
+
   if ! jq '
+    def is_stale_generated_wasp_package:
+      startswith("node_modules/@wasp.sh/lib-")
+      or . == "node_modules/@wasp.sh/generated-server"
+      or . == "node_modules/wasp"
+      or . == ".wasp/out"
+      or startswith(".wasp/out/");
+
+    def without_wasp_lib_deps:
+      if .dependencies then
+        .dependencies |= with_entries(
+          select(.key | startswith("@wasp.sh/lib-") | not)
+        )
+      else
+        .
+      end;
+
     .packages |= with_entries(
-      select(.key | test("^(node_modules/@wasp\\.sh/lib-|node_modules/@wasp\\.sh/generated-server$|node_modules/wasp$|\\.wasp/out(/|$))") | not)
-      | if .value.dependencies then
-          .value.dependencies |= with_entries(select(.key | test("^@wasp\\.sh/lib-") | not))
-        else
-          .
-        end
+      select(.key | is_stale_generated_wasp_package | not)
+      | .value |= without_wasp_lib_deps
     )
   ' package-lock.json > "$PACKAGE_LOCK_TMP"; then
     rm -f "$PACKAGE_LOCK_TMP"
     exit 1
   fi
+
   mv "$PACKAGE_LOCK_TMP" package-lock.json
 }
 
@@ -323,7 +340,7 @@ case $COMMAND in
     # Old generated workspaces point at old lib tarballs, so remove them from disk
     # and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
     rm -rf .wasp/out node_modules/@wasp.sh/generated-server node_modules/wasp
-    remove_generated_wasp_packages_from_package_lock
+    remove_stale_generated_wasp_lock_entries
     eval "$WASP_CLI_INSTALL_CMD"
 
     # Compiling the project copies the new lib tarball to the out dir.
