@@ -2,8 +2,8 @@
 import { Server } from 'socket.io'
 import { EventsMap, DefaultEventsMap } from '@socket.io/component-emitter'
 
-import { prisma } from 'wasp/server'
-import { type AuthUser } from 'wasp/auth'
+import { prisma } from '../index.js'
+import { type AuthUser } from '../auth/user.js'
 
 import { chatWebSocket as chatWebSocket_ext } from 'wasp/src/features/chat/webSocket'
 
@@ -50,4 +50,3 @@ type Events = ServerType extends Server<
 >
   ? [ClientToServerEvents, ServerToClientEvents]
   : [DefaultEventsMap, DefaultEventsMap]
-
