@@ -28,7 +28,7 @@ export async function generateLlmsTxtFile(
   const blogPostsIndexSection = await buildBlogPostsIndexSection();
   const llmFilesIndexSection = buildLlmFilesIndexSection(waspVersions);
   const llmFullFilesSection = `## Full Concatenated Documentation Files
-Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}llms-full-{version}.txt`;
+Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}/llms-full-{version}.txt`;
 
   const llmsTxtContent = [
     LLMS_TXT_INTRO,
@@ -106,7 +106,7 @@ function generateBlogPostUrl(blogPostFileName: string): string {
   const [year, month, day, ...slugParts] = baseName.split("-");
   const slug = slugParts.join("-");
 
-  return `${WASP_BASE_URL}blog/${year}/${month}/${day}/${slug}`;
+  return `${WASP_BASE_URL}/blog/${year}/${month}/${day}/${slug}`;
 }
 
 function buildLlmFilesIndexSection(waspVersions: string[]): string {
@@ -118,7 +118,7 @@ function buildLlmFilesIndexSection(waspVersions: string[]): string {
       waspVersion === latestWaspVersion
         ? `${waspVersion} (latest)`
         : waspVersion;
-    llmFilesIndexSection += `- [${waspVersionLabel}](${WASP_BASE_URL}llms-${waspVersion}.txt)\n`;
+    llmFilesIndexSection += `- [${waspVersionLabel}](${WASP_BASE_URL}/llms-${waspVersion}.txt)\n`;
   }
   return llmFilesIndexSection;
 }
