@@ -45,16 +45,3 @@ function findContentContainer(
     "Unable to find content containers for markdown conversion. Maybe the Docusaurus DOM theme changed?",
   );
 }
-
-// function extractTitle(
-//   $: cheerio.CheerioAPI,
-//   contentContainer: cheerio.Cheerio<cheerio.AnyNode>,
-// ): string {
-//   const h1 = contentContainer.find("h1").first().text().trim();
-//   if (h1) {
-//     return h1;
-//   }
-//   const documentTitle = $("title").first().text().trim();
-//   // If the document title is "Page Title | Wasp"; keep only the page part.
-//   return documentTitle.replace(/\s*\|\s*Wasp\s*$/, "").trim();
-// }
