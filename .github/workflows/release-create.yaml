@@ -23,6 +23,12 @@ jobs:
     with:
       override-npm-package-version: ${{ github.ref_name }}
 
+  # These following jobs are the only ones where we don't want to use our
+  # `setup-env` actions, cause we don't want to pick up the CI caches, avoiding
+  # a potential cache poisoning attack that is not observable in the stored
+  # artifacts. See https://docs.zizmor.sh/audits/#cache-poisoning for more
+  # details.
+
   create-release:
     needs: ci
     runs-on: ubuntu-latest
@@ -61,7 +67,6 @@ jobs:
       - uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - uses: ./.github/actions/setup-env
 
       - uses: actions/download-artifact@v8
         with:
