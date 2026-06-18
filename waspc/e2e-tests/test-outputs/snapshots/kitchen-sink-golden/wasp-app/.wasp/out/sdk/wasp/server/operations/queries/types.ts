@@ -5,7 +5,7 @@ import {
   type UnauthenticatedQueryDefinition,
   type AuthenticatedQueryDefinition,
   type Payload,
-} from 'wasp/server/_types'
+} from '../../_types/index.js'
 
 // PUBLIC API
 export type GetTasks<Input extends Payload = never, Output extends Payload = Payload> = 

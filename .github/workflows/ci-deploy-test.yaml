@@ -30,6 +30,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v6
         with:
@@ -115,6 +117,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - uses: actions/setup-node@v6
         with:
@@ -162,6 +166,9 @@ jobs:
       # starts routing. Poll the deployed URLs so e2e tests start against a
       # live app.
       - name: Wait for deployed app to be reachable
+        env:
+          SERVER_HOSTNAME: ${{ steps.get-hostnames.outputs.server }}
+          CLIENT_HOSTNAME: ${{ steps.get-hostnames.outputs.client }}
         run: |
           function wait_for_url() {
             url="$1"
@@ -176,8 +183,8 @@ jobs:
             echo "Timed out waiting for $url"
             return 1
           }
-          wait_for_url "https://${{ steps.get-hostnames.outputs.server }}"
-          wait_for_url "https://${{ steps.get-hostnames.outputs.client }}"
+          wait_for_url "https://${SERVER_HOSTNAME}"
+          wait_for_url "https://${CLIENT_HOSTNAME}"
 
       - name: Run E2E tests against deployed app
         working-directory: ${{ env.APP_TO_DEPLOY }}

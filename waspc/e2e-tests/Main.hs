@@ -1,8 +1,13 @@
 import Control.Concurrent.Async (mapConcurrently)
+import FileSystem (getWaspcDirPath, waspCliDevToolInWaspcDir)
 import SnapshotTest (testTreeFromSnapshotTest)
+import StrongPath ((</>))
+import qualified StrongPath as SP
+import System.Environment (lookupEnv, setEnv)
 import System.Info (os)
 import Test (testTreeFromTest)
 import Test.Tasty (TestTree, defaultMain, testGroup)
+import Tests.SdkPackageExportsTest (makeSdkPackageExportsTestTree)
 import Tests.SnapshotTests.KitchenSinkSnapshotTest (kitchenSinkSnapshotTest)
 import Tests.SnapshotTests.WaspBuildSnapshotTest (waspBuildSnapshotTest)
 import Tests.SnapshotTests.WaspCompileSnapshotTest (waspCompileSnapshotTest)
@@ -32,7 +37,20 @@ main :: IO ()
 main = do
   if os == "mingw32"
     then putStrLn "Skipping end-to-end tests on Windows due to tests using *nix-only commands"
-    else e2eTests >>= defaultMain
+    else do
+      ensureE2eTestsEnvironment
+      e2eTests >>= defaultMain
+
+ensureE2eTestsEnvironment :: IO ()
+ensureE2eTestsEnvironment = do
+  existing <- lookupEnv "WASP_CLI_CMD"
+  case existing of
+    Just _ -> return ()
+    Nothing -> do
+      -- Runs the tests using the current state of the `waspc` project.
+      waspcDir <- getWaspcDirPath
+      let devWaspCliCmd = SP.fromAbsFile (waspcDir </> waspCliDevToolInWaspcDir)
+      setEnv "WASP_CLI_CMD" devWaspCliCmd
 
 -- TODO: Investigate automatically discovering the tests.
 -- TODO: Refactor tests DSL so it does not depend on bash commands. Use pure Haskell instead.
@@ -48,7 +66,7 @@ e2eTests = do
         waspMigrateSnapshotTest,
         kitchenSinkSnapshotTest
       ]
-  testTrees <-
+  shellTestTrees <-
     mapM
       testTreeFromTest
       [ -- general Wasp commads
@@ -82,10 +100,12 @@ e2eTests = do
         waspDbMigrateDevTest,
         waspSpecEntityTypesTest
       ]
+  sdkPackageExportsTestTree <- makeSdkPackageExportsTestTree
 
   return $
     testGroup
       "E2E tests"
       [ testGroup "Snapshot Tests" snapshotTestTrees,
-        testGroup "Tests" testTrees
+        testGroup "Shell tests" shellTestTrees,
+        testGroup "Tests" [sdkPackageExportsTestTree]
       ]

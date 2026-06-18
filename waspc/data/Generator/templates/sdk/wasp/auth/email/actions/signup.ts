@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { api, handleApiError } from 'wasp/client/api';
+import { api, handleApiError } from '../../../api/index.js';
 import { SuccessResponseSchema } from '../../responseSchemas';
 {=# emailUserSignupFields.isDefined =}
 import { type UserEmailSignupFields } from '../../providers'

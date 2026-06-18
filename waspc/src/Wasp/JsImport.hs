@@ -14,6 +14,7 @@ module Wasp.JsImport
     getImportIdentifier,
     getJsImportStmtAndIdentifier,
     getJsImportPathString,
+    getJsImportPathStringFromPath,
     getJsDynamicImportExpression,
   )
 where
@@ -108,7 +109,10 @@ getJsImportStmtAndIdentifier jsImport =
     (importIdentifier, importClause) = getJsImportIdentifierAndClause jsImport._name jsImport._importAlias
 
 getJsImportPathString :: JsImport -> String
-getJsImportPathString jsImport = case jsImport._path of
+getJsImportPathString jsImport = getJsImportPathStringFromPath jsImport._path
+
+getJsImportPathStringFromPath :: JsImportPath -> String
+getJsImportPathStringFromPath = \case
   RelativeImportPath relPath -> normalizePath $ SP.fromRelFileP relPath
   ModuleImportPath modulePath -> SP.fromRelFileP modulePath
   RawImportName moduleName -> moduleName
