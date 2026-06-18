@@ -175,7 +175,7 @@ async function buildApiSectionItems(
   return items;
 }
 
-const markdownDocumentByRoute = new Map<
+const markdownDocumentByRouteCache = new Map<
   string,
   { url: string; markdown: string }
 >();
@@ -184,7 +184,7 @@ async function resolveIndexDoc(
   route: string,
   title: string,
 ): Promise<IndexDoc> {
-  let markdownDocument = markdownDocumentByRoute.get(route);
+  let markdownDocument = markdownDocumentByRouteCache.get(route);
   if (!markdownDocument) {
     const markdownFilePath = path.join(BUILD_DIR, route + ".md");
     if (!existsSync(markdownFilePath)) {
@@ -196,7 +196,7 @@ async function resolveIndexDoc(
       url: WASP_BASE_URL + route + ".md",
       markdown: processBuiltMarkdown(markdown),
     };
-    markdownDocumentByRoute.set(route, markdownDocument);
+    markdownDocumentByRouteCache.set(route, markdownDocument);
   }
   return { type: "doc", title, ...markdownDocument };
 }
