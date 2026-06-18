@@ -1,10 +1,9 @@
 import { existsSync, readFileSync } from "fs";
 import path from "path";
 
-export type DocVersionToPermalinkMap = Map<DocumentVersion, PermalinkMap>;
+export type WaspVersionToPermalinkMap = Map<string, PermalinkMap>;
 
-type DocumentVersion = string;
-type PermalinkMap = Map<DocumentId, DocumentPath>;
+export type PermalinkMap = Map<DocumentId, DocumentPath>;
 
 type DocumentId = string;
 type DocumentPath = string;
@@ -13,7 +12,7 @@ type DocumentPath = string;
  * Builds the authoritative doc-id -> permalink mapping per version from the docs
  * plugin data Docusaurus emits during the build.
  */
-export function loadPermalinkMaps(siteRoot: string): DocVersionToPermalinkMap {
+export function loadPermalinkMaps(siteRoot: string): WaspVersionToPermalinkMap {
   const globalDataPath = path.join(siteRoot, ".docusaurus/globalData.json");
   if (!existsSync(globalDataPath)) {
     throw new Error(
@@ -27,7 +26,7 @@ export function loadPermalinkMaps(siteRoot: string): DocVersionToPermalinkMap {
     throw new Error(`Could not parse docs versions from ${globalDataPath}.`);
   }
 
-  const docVersionToPermalinkMap: DocVersionToPermalinkMap = new Map();
+  const docVersionToPermalinkMap: WaspVersionToPermalinkMap = new Map();
   for (const version of docsPlugin.versions) {
     const permalinkMap = new Map<DocumentId, DocumentPath>();
     for (const doc of version.docs) {

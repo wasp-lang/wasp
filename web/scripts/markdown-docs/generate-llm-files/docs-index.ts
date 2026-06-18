@@ -2,14 +2,16 @@ import { existsSync } from "fs";
 import fs from "fs/promises";
 import path from "path";
 
-import { loadPermalinkMaps } from "../permalinks";
+import { loadPermalinkMaps, PermalinkMap } from "../permalinks";
 import { getSiteRoot } from "../site-root";
 import { WASP_BASE_URL } from "./constants";
 import {
-  type ResolvedSidebarItem,
   isSidebarCategory,
   isSidebarLink,
   loadResolvedSidebarsByWaspVersion,
+  ResolvedSidebarCategory,
+  type ResolvedSidebarItem,
+  ResolvedSidebarLink,
 } from "./resolved-sidebars";
 
 const SITE_ROOT = getSiteRoot();
@@ -52,7 +54,7 @@ export interface IndexDoc {
   type: "doc";
   title: string;
   docUrl: string;
-  processedBody: string;
+  markdown: string;
 }
 
 const sidebarsByWaspVersion = loadResolvedSidebarsByWaspVersion(SITE_ROOT);
@@ -68,8 +70,12 @@ export async function buildDocsIndex(waspVersion: string): Promise<DocsIndex> {
   if (!sidebars) {
     throw Error(`Resolved sidebars are missing a Wasp version: ${waspVersion}`);
   }
+  const permalinkMap = permalinkMapsByWaspVersion.get(waspVersion);
+  if (!permalinkMap) {
+    throw Error(`Permalink maps are missing a Wasp version: ${waspVersion}`);
+  }
 
-  const sections: IndexSection[] = [];
+  const indexSections: IndexSection[] = [];
   for (const { title, sidebarName } of EXPECTED_SIDEBARS) {
     const sidebarItems = sidebars[sidebarName];
     if (!sidebarItems) {
@@ -77,56 +83,80 @@ export async function buildDocsIndex(waspVersion: string): Promise<DocsIndex> {
         `Resolved sidebars are missing an expected sidebar: ${sidebarName}`,
       );
     }
-    sections.push({
+    indexSections.push({
       title,
-      items: await buildSectionItems(sidebarItems, waspVersion),
+      items: await buildSectionItems(sidebarItems),
     });
   }
-  sections.push(await buildApiSection("API", waspVersion));
+  indexSections.push({
+    title: "API",
+    items: await buildApiSectionItems(permalinkMap),
+  });
 
-  // Drop empty sections (e.g. older versions without API packages).
-  return { sections: sections.filter((section) => section.items.length > 0) };
+  const validIndexSections = indexSections.filter(
+    (section) => section.items.length > 0,
+  );
+
+  return {
+    sections: validIndexSections,
+  };
 }
 
-// Mirrors the sidebar tree: links become docs, categories recurse (ignored or
-// empty ones are dropped).
 async function buildSectionItems(
   sidebarItems: ResolvedSidebarItem[],
-  waspVersion: string,
 ): Promise<IndexItem[]> {
-  const items: IndexItem[] = [];
+  const indexItems: IndexItem[] = [];
   for (const sidebarItem of sidebarItems) {
     if (isSidebarLink(sidebarItem)) {
-      const doc = await resolveSidebarLink(sidebarItem);
-      if (doc) {
-        items.push(doc);
+      const indexDoc = await resolveSidebarLink(sidebarItem);
+      if (indexDoc) {
+        indexItems.push(indexDoc);
       }
     } else if (isSidebarCategory(sidebarItem)) {
       if (SIDEBAR_CATEGORIES_TO_IGNORE.includes(sidebarItem.label)) {
         continue;
       }
-      const children = await buildSectionItems(sidebarItem.items, waspVersion);
-      if (children.length > 0) {
-        items.push({
-          type: "category",
-          label: sidebarItem.label,
-          items: children,
-        });
+      const indexCategory = await resolveSidebarCategory(sidebarItem);
+      if (indexCategory) {
+        indexItems.push(indexCategory);
       }
     }
   }
-  return items;
+  return indexItems;
 }
 
-// The API reference is large and verbose, so we list only each package's index
-// page (its overview, which itself links to every symbol) rather than every
-// function/interface page. Package indexes come from the permalink map.
-async function buildApiSection(
-  title: string,
-  waspVersion: string,
-): Promise<IndexSection> {
-  const permalinkMap = permalinkMapsByWaspVersion.get(waspVersion) ?? new Map();
+async function resolveSidebarLink(
+  sidebarLink: ResolvedSidebarLink,
+): Promise<IndexDoc | null> {
+  if (!sidebarLink.href.startsWith("/")) {
+    return null;
+  }
+  return resolveDoc(stripTrailingSlash(sidebarLink.href), sidebarLink.label);
+}
 
+async function resolveSidebarCategory(
+  sidebarCategory: ResolvedSidebarCategory,
+): Promise<IndexCategory | null> {
+  const sidebarCategoryItems = await buildSectionItems(sidebarCategory.items);
+
+  if (sidebarCategoryItems.length === 0) {
+    return null;
+  }
+
+  return {
+    type: "category",
+    label: sidebarCategory.label,
+    items: sidebarCategoryItems,
+  };
+}
+
+/**
+ * The API reference is large and verbose, so we list only each package's index
+ * page (its overview, which itself links to every symbol).
+ */
+async function buildApiSectionItems(
+  permalinkMap: PermalinkMap,
+): Promise<IndexSection["items"]> {
   const items: IndexItem[] = [];
   for (const [docId, permalink] of permalinkMap) {
     const match = docId.match(API_PACKAGE_INDEX_REG_EXP);
@@ -134,30 +164,21 @@ async function buildApiSection(
       items.push(await resolveDoc(stripTrailingSlash(permalink), match[1]));
     }
   }
-  return { title, items };
-}
-
-// Keeps only internal links (the ones with a corresponding built `.md`).
-async function resolveSidebarLink(link: {
-  href: string;
-  label: string;
-}): Promise<IndexDoc | null> {
-  if (!link.href.startsWith("/")) {
-    return null;
-  }
-  return resolveDoc(stripTrailingSlash(link.href), link.label);
+  return items;
 }
 
 // Body and URL are derived from the route, so they are cached by it; the same
 // page (e.g. a migration guide) is referenced by several versions' sidebars.
 const resolvedBodyByRoute = new Map<
   string,
-  { docUrl: string; processedBody: string }
+  { docUrl: string; markdown: string }
 >();
 
 async function resolveDoc(route: string, title: string): Promise<IndexDoc> {
   let resolved = resolvedBodyByRoute.get(route);
   if (!resolved) {
+    // TODO: do we overwrite old docs?
+
     // `trailingSlash` is false, so the page at "/docs/x" is "build/docs/x.html",
     // and its Markdown sibling is "build/docs/x.md".
     const markdownFilePath = path.join(BUILD_DIR, route + ".md");
@@ -167,32 +188,28 @@ async function resolveDoc(route: string, title: string): Promise<IndexDoc> {
     const markdown = await fs.readFile(markdownFilePath, "utf8");
     resolved = {
       docUrl: WASP_BASE_URL + route + ".md",
-      processedBody: processBuiltMarkdown(markdown),
+      markdown: processBuiltMarkdown(markdown),
     };
     resolvedBodyByRoute.set(route, resolved);
   }
   return { type: "doc", title, ...resolved };
 }
 
-// ----------------------------------------------------------------------------
-// Markdown helpers
-// ----------------------------------------------------------------------------
-
-// The rendered Markdown leads with the page's `# Title` and uses site-absolute
-// links. For the concatenated docs we drop the title (the breadcrumb heading
-// replaces it), nest the remaining headings one level deeper, and turn links
-// into full URLs so the file stands on its own.
+/**
+ * For the concatenated docs we drop the title (the breadcrumb heading
+ * replaces it), nest the remaining headings one level deeper, and turn links
+ * into full URLs so the file stands on its own.
+ */
 function processBuiltMarkdown(markdown: string): string {
   const withoutTitle = markdown.replace(/^#\s+.*\n+/, "");
-  const nested = withoutTitle.replace(
-    /^(#{1,6})(\s)/gm,
-    (_match, hashes, space) =>
-      hashes.length < 6 ? `#${hashes}${space}` : `${hashes}${space}`,
+  const withNestedSubTitles = withoutTitle.replace(
+    /^(#+)(\s)/gm,
+    (match) => `#${match}`,
   );
-  return makeLinksAbsolute(nested).trim();
+  return makePermalinksAbsolute(withNestedSubTitles).trim();
 }
 
-function makeLinksAbsolute(markdown: string): string {
+function makePermalinksAbsolute(markdown: string): string {
   return markdown.replace(
     /\]\((\/[^)]*)\)/g,
     (_match, sitePath: string) => `](${WASP_BASE_URL}${sitePath})`,

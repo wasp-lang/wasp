@@ -90,7 +90,7 @@ function buildLlmsFullTxtBody(
   for (const item of items) {
     if (item.type === "doc") {
       const heading = [...breadcrumb, item.title].join(" / ");
-      body += `## ${heading}\n\n${item.processedBody}\n\n`;
+      body += `## ${heading}\n\n${item.markdown}\n\n`;
     } else {
       body += buildLlmsFullTxtBody(item.items, [...breadcrumb, item.label]);
     }
