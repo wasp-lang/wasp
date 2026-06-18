@@ -22,9 +22,9 @@ export async function generateVersionedLlmFiles(
   await generateVersionedLlmsTxt(waspVersion, docsIndex);
   console.log(`- Generated: llms-${waspVersion}.txt`);
 
-  const llmsFullTxtBody = buildLlmsFullTxtBody(docsIndex);
+  const llmsFullTxtContent = buildLlmsFullTxtContent(docsIndex);
 
-  await generateVersionedLlmsFullTxt(waspVersion, llmsFullTxtBody);
+  await generateVersionedLlmsFullTxt(waspVersion, llmsFullTxtContent);
   console.log(`- Generated: llms-full-${waspVersion}.txt`);
 
   const isLatestWaspVersion = waspVersion === waspVersions[0];
@@ -32,7 +32,7 @@ export async function generateVersionedLlmFiles(
     await generateLatestVersionLlmsFullTxt(
       waspVersion,
       waspVersions,
-      llmsFullTxtBody,
+      llmsFullTxtContent,
     );
     console.log(`- Generated: llms-full.txt`);
   }
@@ -51,12 +51,11 @@ async function generateVersionedLlmsTxt(
   }
 
   const llmsTxtAbsPath = path.join(BUILD_DIR, `llms-${waspVersion}.txt`);
-  await fs.writeFile(llmsTxtAbsPath, lines.join("\n").trimEnd() + "\n", "utf8");
+  const llmsTxtContent = lines.join("\n").trimEnd() + "\n";
+
+  await fs.writeFile(llmsTxtAbsPath, llmsTxtContent, "utf8");
 }
 
-// Renders the index tree: categories become headings (deeper nesting -> deeper
-// heading), docs become links. Heading level starts at 3 (### under the `##`
-// section), capped at 6.
 function buildLlmsTxtBody(
   lines: string[],
   items: IndexItem[],
@@ -66,33 +65,34 @@ function buildLlmsTxtBody(
     if (item.type === "doc") {
       lines.push(`- [${item.title}](${item.docUrl})`);
     } else {
-      const headingHashes = "#".repeat(Math.min(6, 3 + depth));
+      const headingHashes = "#".repeat(3 + depth);
       lines.push(`${headingHashes} ${item.label}`);
       buildLlmsTxtBody(lines, item.items, depth + 1);
     }
   }
 }
 
-function buildLlmsFullTxtBody(docsIndex: DocsIndex): string {
+function buildLlmsFullTxtContent(docsIndex: DocsIndex): string {
   let fullDocsBody = "";
   for (const section of docsIndex.sections) {
     fullDocsBody += `# ${section.title}\n\n`;
-    fullDocsBody += buildFullDocsItems(section.items, []);
+    fullDocsBody += buildLlmsFullTxtBody(section.items, []);
     fullDocsBody += `------\n\n`;
   }
   return fullDocsBody;
 }
 
-// Each doc is titled by its full category breadcrumb, e.g.
-// `## Authentication / Email / Overview`, so it stays unambiguous out of context.
-function buildFullDocsItems(items: IndexItem[], breadcrumb: string[]): string {
+function buildLlmsFullTxtBody(
+  items: IndexItem[],
+  breadcrumb: string[],
+): string {
   let body = "";
   for (const item of items) {
     if (item.type === "doc") {
       const heading = [...breadcrumb, item.title].join(" / ");
       body += `## ${heading}\n\n${item.processedBody}\n\n`;
     } else {
-      body += buildFullDocsItems(item.items, [...breadcrumb, item.label]);
+      body += buildLlmsFullTxtBody(item.items, [...breadcrumb, item.label]);
     }
   }
   return body;
@@ -100,9 +100,9 @@ function buildFullDocsItems(items: IndexItem[], breadcrumb: string[]): string {
 
 async function generateVersionedLlmsFullTxt(
   waspVersion: string,
-  fullDocsBody: string,
+  llmsFullTxtContent: string,
 ): Promise<void> {
-  const content = buildFullDocsHeader(waspVersion) + fullDocsBody;
+  const content = buildFullDocsHeader(waspVersion) + llmsFullTxtContent;
   const absPath = path.join(BUILD_DIR, `llms-full-${waspVersion}.txt`);
   await fs.writeFile(absPath, content, "utf8");
 }
@@ -110,10 +110,11 @@ async function generateVersionedLlmsFullTxt(
 async function generateLatestVersionLlmsFullTxt(
   waspVersion: string,
   waspVersions: string[],
-  fullDocsBody: string,
+  llmsFullTxtContent: string,
 ): Promise<void> {
   const content =
-    buildLatestVersionFullDocsHeader(waspVersion, waspVersions) + fullDocsBody;
+    buildLatestVersionFullDocsHeader(waspVersion, waspVersions) +
+    llmsFullTxtContent;
   const absPath = path.join(BUILD_DIR, `llms-full.txt`);
   await fs.writeFile(absPath, content, "utf8");
 }
