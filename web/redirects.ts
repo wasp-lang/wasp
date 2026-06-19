@@ -64,8 +64,8 @@ export const redirects: RedirectRule[] = [
   { from: "/docs/0.19.0/*", to: "/docs/0.19/:splat", code: 301 },
   { from: "/docs/0.20.0/*", to: "/docs/0.20/:splat", code: 301 },
 
-  // Current version redirect (kept last, since it's a broad wildcard).
+  // Current version redirect
   // Redirects explicitly versioned links for the current version to the
   // unprefixed canonical path, e.g. /docs/0.24/quick-start -> /docs/quick-start.
-  { from: `/docs/${currentVersion}/*`, to: "/docs/:splat", code: 301 },
+  { from: `/docs/${currentVersion}/*`, to: "/docs/:splat", code: 302 },
 ];
