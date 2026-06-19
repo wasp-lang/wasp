@@ -1,6 +1,5 @@
 ---
 title: Overview
-title-llm: Overview of Automated Deployment with Wasp CLI
 ---
 
 import { WaspDeployProvidersGrid } from './WaspDeployProvidersGrid';
