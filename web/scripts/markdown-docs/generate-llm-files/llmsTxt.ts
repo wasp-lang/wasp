@@ -121,7 +121,7 @@ function generatePostUrl(routeBasePath: string, postFileName: string): string {
   const [year, month, day, ...slugParts] = baseName.split("-");
   const slug = slugParts.join("-");
 
-  return `${WASP_BASE_URL}/${routeBasePath}/${year}/${month}/${day}/${slug}`;
+  return `${WASP_BASE_URL}/${routeBasePath}/${year}/${month}/${day}/${slug}.md`;
 }
 
 function buildLlmFilesIndexSection(waspVersions: string[]): string {
