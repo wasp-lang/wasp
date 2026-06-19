@@ -48,7 +48,7 @@ function wantsMarkdownContent(request: Request): boolean {
     return false;
   }
   const acceptHeader = request.headers.get("Accept") ?? "";
-  // We don't really want to borther with order of formats and their q-values.
+  // We don't really want to bother with order of formats and their q-values.
   // Requesting `text/markdown` is a deliberate choice, so we assume priority.
   return acceptHeader.includes("text/markdown");
 }
@@ -58,6 +58,6 @@ function isAlreadyMarkdownRoute(pathname: string): boolean {
 }
 
 function generateMarkdownPathname(pathname: string): string {
-  // This middleware runs before trialing slash stripping happens.
+  // This middleware runs before trailing slash stripping happens.
   return pathname.replace(/\/+$/, "") + ".md";
 }
