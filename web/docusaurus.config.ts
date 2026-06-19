@@ -269,7 +269,11 @@ const config: Config = {
   plugins: [
     "plugin-image-zoom",
 
-    cloudflareRedirects({ redirects: getRedirects({ includeCurrentVersion }) }),
+    cloudflareRedirects({
+      redirects: getRedirects({
+        redirectCurrentVersionToCanonical: !includeCurrentVersion,
+      }),
+    }),
 
     [
       "@docusaurus/plugin-content-blog",
