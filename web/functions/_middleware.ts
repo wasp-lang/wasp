@@ -58,6 +58,6 @@ function isAlreadyMarkdownRoute(pathname: string): boolean {
 }
 
 function generateMarkdownPathname(pathname: string): string {
-  // This middleware runs before trialing slash stripping happens.
+  // This middleware runs before trailing slash stripping happens.
   return pathname.replace(/\/+$/, "") + ".md";
 }
