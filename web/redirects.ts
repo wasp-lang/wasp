@@ -6,7 +6,7 @@ export function getRedirects({
 }: {
   includeCurrentVersion: boolean;
 }): RedirectRule[] {
-  const redirects: RedirectRule[] = [...staticRedirects];
+  const redirects: RedirectRule[] = [...hardcodedRedirects];
 
   if (!includeCurrentVersion) {
     // Redirects explicitly versioned links for the current version to the
@@ -27,7 +27,7 @@ export function getRedirects({
 // Order matters: Cloudflare applies the first matching rule, so list more
 // specific rules before more general ones.
 // prettier-ignore
-const staticRedirects: RedirectRule[] = [
+const hardcodedRedirects: RedirectRule[] = [
   { from: "/docs/advanced/deployment/overview",       to: "/docs/deployment/intro",                                   code: 301 },
   { from: "/docs/data-model/backends",                to: "/docs/data-model/databases",                               code: 301 },
   { from: "/docs/deploying",                          to: "/docs/deployment/intro",                                   code: 301 },
