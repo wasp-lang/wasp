@@ -1,6 +1,6 @@
 import * as cheerio from "cheerio";
 
-import { createDocusaurusLlmFriendlyTurndownService } from "./turndown-rules";
+import { createDocusaurusLlmFriendlyTurndownService } from "./turndowns-service";
 
 const turndownService = createDocusaurusLlmFriendlyTurndownService();
 
