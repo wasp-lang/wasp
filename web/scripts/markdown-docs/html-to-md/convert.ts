@@ -160,45 +160,63 @@ function isStrippableElement(element: hast.Element): boolean {
 /**
  * Converts a Docusaurus code block to a fenced code block. Lines are separate
  * elements with no newline text nodes between them, so we join token-line
- * elements explicitly. The language lives on the container.
+ * elements explicitly. The language lives on the container, and the `title=`
+ * filename (when present) renders as a `.codeBlockTitle` element which we
+ * carry back into the fence info string.
  *
  * @example
  * HTML:
  * ```html
- * <div class="theme-code-block language-ts"><pre><code>
- *   <div class="token-line">const x = 1;</div>
- *   <div class="token-line">const y = 2;</div>
- * </code></pre></div>
+ * <div class="theme-code-block language-ts">
+ *   <div class="codeBlockTitle">main.wasp.ts</div>
+ *   <pre><code>
+ *     <div class="token-line">const x = 1;</div>
+ *     <div class="token-line">const y = 2;</div>
+ *   </code></pre>
+ * </div>
  * ```
  *
  * Without handler:
  * ````md
+ * main.wasp.ts
+ *
  * ```
  * const x = 1;const y = 2;
  * ```
  * ````
  * With handler:
  * ````md
- * ```ts
+ * ```ts title="main.wasp.ts"
  * const x = 1;
  * const y = 2;
  * ```
  * ````
  */
 function docusaurusCodeBlockToMdast(codeBlock: hast.Element): mdast.Code {
-  const codeLanguage = detectCodeLanguage(codeBlock);
+  const codeLanguage = detectCodeBlockLanguage(codeBlock);
+  const codeTitle = detectCodeBlockTitle(codeBlock);
   const codeText = hastSelect
     .selectAll(".token-line", codeBlock)
     .map((line) => hastTextContent(line))
     .join("\n")
     .replace(/\s+$/, "");
-  return { type: "code", lang: codeLanguage || null, value: codeText };
+  return {
+    type: "code",
+    lang: codeLanguage || null,
+    meta: codeTitle ? `title="${codeTitle}"` : null,
+    value: codeText,
+  };
+}
+
+function detectCodeBlockTitle(codeBlock: hast.Element): string {
+  const title = hastSelect.select('[class*="codeBlockTitle"]', codeBlock);
+  return title ? hastTextContent(title).trim() : "";
 }
 
 /**
  * `language-text` means "no language", so we treat it as none.
  */
-function detectCodeLanguage(codeBlock: hast.Element): string {
+function detectCodeBlockLanguage(codeBlock: hast.Element): string {
   for (const className of getClassNames(codeBlock)) {
     const match = className.match(/^language-(.+)$/);
     if (match && match[1] !== "text") {
