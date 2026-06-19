@@ -316,12 +316,13 @@ describe("mapRoute", () => {
     testMapRoute(Fixtures.getRoute("full"));
   });
 
-  test("should keep an array of prerender paths as-is", () => {
-    testMapRoute(
-      route("blogRoute", "/blog/:slug", Fixtures.getPage("minimal"), {
-        prerender: ["/blog/intro", "/blog/changelog"],
+  test("should expand prerender: true to the route's own path", () => {
+    const result = AppSpecMapper.mapRoute(
+      route("LandingRoute", "/landing", Fixtures.getPage("minimal"), {
+        prerender: true,
       }),
     );
+    expect(result.prerender).toEqual(["/landing"]);
   });
 
   function testMapRoute(route: WaspSpec.Route): void {
