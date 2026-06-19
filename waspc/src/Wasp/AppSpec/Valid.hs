@@ -16,7 +16,7 @@ import Data.Bifunctor (first)
 import Data.List (find, group, groupBy, intercalate, sort, sortBy)
 import Data.Maybe (fromJust, fromMaybe, isJust, isNothing)
 import qualified Text.Parsec as P
-import Wasp.Analyzer.Parser (isValidWaspIdentifier)
+import Wasp.Analyzer.AST (isValidWaspIdentifier)
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Api as AS.Api

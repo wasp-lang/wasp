@@ -1,13 +1,11 @@
-module Wasp.Analyzer.Parser.SourceRegion
+module Wasp.Analyzer.SourceRegion
   ( SourceRegion (..),
     getRgnStart,
     getRgnEnd,
-    sourceSpanToRegion,
   )
 where
 
-import Wasp.Analyzer.Parser.SourcePosition (SourcePosition (..), sourceOffsetToPosition)
-import Wasp.Analyzer.Parser.SourceSpan (SourceSpan (..))
+import Wasp.Analyzer.SourcePosition (SourcePosition (..))
 
 -- | @SourceRegion <regionStart> <regionEnd>@
 -- where @regionStart@ is position of the first character in the region while @regionEnd@
@@ -28,9 +26,3 @@ getRgnStart (SourceRegion start _) = start
 
 getRgnEnd :: SourceRegion -> SourcePosition
 getRgnEnd (SourceRegion _ end) = end
-
-sourceSpanToRegion :: String -> SourceSpan -> SourceRegion
-sourceSpanToRegion source (SourceSpan start end) =
-  let startPos = sourceOffsetToPosition source start
-      endPos = sourceOffsetToPosition source (end - 1)
-   in SourceRegion startPos endPos

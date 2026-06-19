@@ -1,4 +1,0 @@
-test Imports {
-  module: import Page from "page",
-  field: import { Page } from "page"
-}
