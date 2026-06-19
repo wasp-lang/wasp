@@ -46,8 +46,6 @@ WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
 WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests --test-options='--hide-successes'"
 
-WASPLS_TESTS_CMD="cabal test waspls-tests --test-options='--hide-successes'"
-
 LIBS_TESTS_CMD="node ${SCRIPT_DIR}/tools/libs/test.ts"
 
 PACKAGES_TESTS_CMD="node ${SCRIPT_DIR}/tools/packages/test.ts"
@@ -204,8 +202,6 @@ print_usage() {
     "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
-  print_usage_cmd "test:waspls" \
-    "Executes only waspls tests. Builds the project first if needed."
   print_usage_cmd "test:libs" \
     "Run tests on Wasp libs (types, unit, type-exports)."
   print_usage_cmd "test:packages" \
@@ -310,9 +306,6 @@ case $COMMAND in
     ;;
   test:cli)
     echo_and_eval "$WASP_CLI_TESTS_CMD"
-    ;;
-  test:waspls)
-    echo_and_eval "$WASPLS_TESTS_CMD"
     ;;
   test:libs)
     echo_and_eval "$LIBS_TESTS_CMD"

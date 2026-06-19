@@ -5,6 +5,7 @@
 ### ⚠️ Breaking Changes
 
 - Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))
+- Removed the Wasp Language Server functionality, since it's not needed anymore in the Wasp Spec. ([#4335](https://github.com/wasp-lang/wasp/pull/4335))
 
 ### 🔧 Small improvements
 
