@@ -4,7 +4,6 @@ import path from "path";
 
 import { getSiteRoot } from "../site-root";
 import { htmlToMarkdown } from "./convert";
-import { isValidMarkdownDocsRoute } from "./markdown-routes";
 
 /**
  * Post-build step: turn the rendered HTML for docs, blog, and resources pages
@@ -45,17 +44,27 @@ function findConvertibleHtmlFiles(): string[] {
   return globSync("**/*.html", {
     cwd: BUILD_DIR,
     nodir: true,
-  }).filter((htmlFileRelPath) =>
-    isValidMarkdownDocsRoute(toRoute(htmlFileRelPath)),
-  );
+  }).filter(isValidMarkdownDocsHtmlFile);
 }
 
 /**
- * Maps a build-relative HTML path to its route.
- *
- * @example "docs/tutorial/create.html" → "/docs/tutorial/create"
- * @example "docs.html" → "/docs"
+ * Whether a route is (or sits under) one of the Markdown route prefixes.
  */
-function toRoute(relativePath: string): string {
-  return "/" + relativePath.replace(/\\/g, "/").replace(/\.html$/, "");
+export function isValidMarkdownDocsHtmlFile(htmlFileRelPath: string): boolean {
+  return (
+    htmlFileRelPath === "docs.html" ||
+    htmlFileRelPath.startsWith("docs/") ||
+    htmlFileRelPath === "blog.html" ||
+    isBlogPostHtmlFile(htmlFileRelPath) ||
+    htmlFileRelPath === "resources.html" ||
+    isResourcesPostHtmlFile(htmlFileRelPath)
+  );
+}
+
+function isBlogPostHtmlFile(htmlFileRelPath: string) {
+  return /blog\/\d{4}\/\d{2}\/\d{2}/.test(htmlFileRelPath);
+}
+
+function isResourcesPostHtmlFile(htmlFileRelPath: string) {
+  return /resources\/\d{4}\/\d{2}\/\d{2}/.test(htmlFileRelPath);
 }
