@@ -570,15 +570,22 @@ test-suite waspc-tests
     neat-interpolation,
     parsec,
     path,
+    split,
     strong-path,
     tasty ^>=1.5.3,
     tasty-hspec >=1.2,
     tasty-quickcheck ^>=0.10.3,
     text,
     time,
+    unordered-containers,
     waspc,
 
   other-modules:
+    Analyzer.Evaluation.EvaluationErrorTest
+    Analyzer.EvaluatorTest
+    Analyzer.TestUtil
+    Analyzer.TypeChecker.InternalTest
+    Analyzer.TypeCheckerTest
     AppSpec.EntityTest
     AppSpec.FromJSONTest
     AppSpec.ValidTest
