@@ -1,6 +1,8 @@
 ---
-title: Migration from 0.24 to 0.25
+title: From 0.24 to 0.25
 ---
+
+# Migration from 0.24 to 0.25
 
 import InstallInstructions from './\_install-instructions.md'
 
