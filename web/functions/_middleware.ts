@@ -37,10 +37,16 @@ export const onRequest = async (
 
   const markdownUrl = new URL(markdownPathname, url.origin);
   const markdownResponse = await next(new Request(markdownUrl, request));
-  // TODO: Check headers are a okay.
-  markdownResponse.headers.set("Vary", "Accept");
-  markdownResponse.headers.set("Content-Type", "text/markdown; charset=utf-8");
-  return markdownResponse;
+
+  if (!markdownResponse.ok) {
+    return next();
+  }
+
+  const response = new Response(markdownResponse.body, markdownResponse);
+  response.headers.set("Content-Type", "text/markdown; charset=utf-8");
+  response.headers.set("Vary", "Accept");
+
+  return response;
 };
 
 function wantsMarkdownContent(request: Request): boolean {
@@ -48,7 +54,7 @@ function wantsMarkdownContent(request: Request): boolean {
     return false;
   }
   const acceptHeader = request.headers.get("Accept") ?? "";
-  // We don't really want to borther with order of formats and their q-values.
+  // We don't really want to bother with order of formats and their q-values.
   // Requesting `text/markdown` is a deliberate choice, so we assume priority.
   return acceptHeader.includes("text/markdown");
 }
@@ -58,6 +64,6 @@ function isAlreadyMarkdownRoute(pathname: string): boolean {
 }
 
 function generateMarkdownPathname(pathname: string): string {
-  // This middleware runs before trialing slash stripping happens.
+  // This middleware runs before trailing slash stripping happens.
   return pathname.replace(/\/+$/, "") + ".md";
 }
