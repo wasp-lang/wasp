@@ -37,10 +37,16 @@ export const onRequest = async (
 
   const markdownUrl = new URL(markdownPathname, url.origin);
   const markdownResponse = await next(new Request(markdownUrl, request));
-  // TODO: Check headers are a okay.
-  markdownResponse.headers.set("Vary", "Accept");
-  markdownResponse.headers.set("Content-Type", "text/markdown; charset=utf-8");
-  return markdownResponse;
+
+  if (!markdownResponse.ok) {
+    return next();
+  }
+
+  const response = new Response(markdownResponse.body, markdownResponse);
+  response.headers.set("Content-Type", "text/markdown; charset=utf-8");
+  response.headers.set("Vary", "Accept");
+
+  return response;
 };
 
 function wantsMarkdownContent(request: Request): boolean {
