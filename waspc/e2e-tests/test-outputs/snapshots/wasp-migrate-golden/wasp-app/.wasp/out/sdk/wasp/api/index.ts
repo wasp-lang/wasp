@@ -1,6 +1,6 @@
 import ky, { isHTTPError } from 'ky'
-import { config } from 'wasp/client'
-import { storage } from 'wasp/core/storage'
+import { config } from '../client/index.js'
+import { storage } from '../core/storage.js'
 import { apiEventsEmitter } from './events.js'
 
 const WASP_APP_AUTH_SESSION_ID_NAME = 'sessionId'

@@ -1,5 +1,5 @@
 
-import { prisma } from 'wasp/server'
+import { prisma } from '../../index.js'
 import {
   type UnauthenticatedOperationFor,
   createUnauthenticatedOperation,

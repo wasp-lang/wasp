@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Client.RouterGenerator
-  ( genNewClientRouterApi,
+  ( genClientRouterApi,
   )
 where
 
@@ -18,8 +18,8 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import qualified Wasp.Util.WebRouterPath as WebRouterPath
 
-genNewClientRouterApi :: AppSpec -> Generator [FileDraft]
-genNewClientRouterApi spec =
+genClientRouterApi :: AppSpec -> Generator [FileDraft]
+genClientRouterApi spec =
   sequence
     [ genIndexTs spec,
       genFileCopyInClientRouter [relfile|types.ts|],

@@ -1,6 +1,6 @@
 import * as z from "zod";
 
-import { colorize } from "wasp/universal/ansiColors";
+import { colorize } from "../universal/ansiColors.js";
 
 // PRIVATE API (SDK)
 export function ensureEnvSchema<Schema extends z.ZodType>(

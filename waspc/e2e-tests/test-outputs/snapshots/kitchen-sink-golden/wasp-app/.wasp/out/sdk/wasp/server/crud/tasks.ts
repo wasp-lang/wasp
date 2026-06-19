@@ -4,10 +4,10 @@ import type {
   _Task,
 } from "../_types";
 import type { Prisma } from "@prisma/client";
-import type { Payload, SuperJSONObject } from "wasp/core/serialization";
+import type { Payload, SuperJSONObject } from "../../core/serialization/index.js";
 import type {
   Task,
-} from "wasp/entities";
+} from "../../entities/index.js";
 import { crudGetAllTasks as crudGetAllTasks_ext } from 'wasp/src/features/crud/crud'
 import { crudCreateTask as crudCreateTask_ext } from 'wasp/src/features/crud/crud'
 

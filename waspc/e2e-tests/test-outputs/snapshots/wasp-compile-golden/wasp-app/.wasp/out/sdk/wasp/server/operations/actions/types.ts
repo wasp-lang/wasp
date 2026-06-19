@@ -1,4 +1,4 @@
 import {
   type Payload,
-} from 'wasp/server/_types'
+} from '../../_types/index.js'
 

@@ -4,7 +4,7 @@ cabal-version: 2.4
 --  - Manually updating exposed-modules, other-modules and data-files is tedious.
 --    Consider using hpack, or maybe even hpack-dhall.
 name: waspc
-version: 0.24.0
+version: 0.25.0
 description: Please see the README on GitHub at <https://github.com/wasp-lang/wasp/waspc#readme>
 homepage: https://github.com/wasp-lang/wasp/waspc#readme
 bug-reports: https://github.com/wasp-lang/wasp/issues
@@ -143,6 +143,7 @@ library
     exceptions ^>=0.10.7,
     extra ^>=1.7.16,
     filepath ^>=1.4.301,
+    githash ^>=0.1.7,
     http-conduit ^>=2.3.9,
     http-types ^>=0.12.4,
     megaparsec ^>=9.5.0,
@@ -447,6 +448,7 @@ library
     Wasp.Util.Docker
     Wasp.Util.Fib
     Wasp.Util.FilePath
+    Wasp.Util.GitRev
     Wasp.Util.HashMap
     Wasp.Util.IO
     Wasp.Util.IO.Retry
@@ -529,6 +531,7 @@ library cli-lib
     Wasp.Cli.Command.Deploy
     Wasp.Cli.Command.Deps
     Wasp.Cli.Command.Dockerfile
+    Wasp.Cli.Command.Doctor
     Wasp.Cli.Command.Info
     Wasp.Cli.Command.Install
     Wasp.Cli.Command.Message
@@ -742,6 +745,7 @@ test-suite waspc-e2e-tests
     SnapshotTest
     Test
     TestLogging
+    Tests.SdkPackageExportsTest
     Tests.SnapshotTests.KitchenSinkSnapshotTest
     Tests.SnapshotTests.WaspBuildSnapshotTest
     Tests.SnapshotTests.WaspCompileSnapshotTest

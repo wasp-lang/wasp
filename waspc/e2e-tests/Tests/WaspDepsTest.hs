@@ -24,4 +24,4 @@ waspDepsTest =
     ]
   where
     waspCliDepsFails :: ShellCommand
-    waspCliDepsFails = "! wasp-cli deps"
+    waspCliDepsFails = "! $WASP_CLI_CMD deps"
