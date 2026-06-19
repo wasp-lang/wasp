@@ -682,6 +682,7 @@ test-suite waspc-tests
     Util.IO.RetryTest
     Util.Prisma
     Util.StrongPathTest
+    Util.WebRouterPathTest
     UtilTest
     ValidatorTest
 
