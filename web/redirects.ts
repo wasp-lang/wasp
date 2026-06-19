@@ -1,17 +1,33 @@
 import type { RedirectRule } from "./src/plugins/cloudflare-redirects";
 import docsVersions from "./versions.json";
 
-// In production the current docs version is served unprefixed at /docs/..., so
-// its explicitly versioned URLs (/docs/<currentVersion>/...) don't resolve.
-// Reading the version from versions.json keeps the redirect below in sync
-// automatically whenever a new version is released.
-const currentVersion = docsVersions[0];
+export function getRedirects({
+  includeCurrentVersion,
+}: {
+  includeCurrentVersion: boolean;
+}): RedirectRule[] {
+  const redirects: RedirectRule[] = [...staticRedirects];
+
+  if (!includeCurrentVersion) {
+    // Redirects explicitly versioned links for the current version to the
+    // unprefixed canonical path, e.g. /docs/0.24/quick-start -> /docs/quick-start.
+    const currentVersion = docsVersions[0];
+
+    redirects.push({
+      from: `/docs/${currentVersion}/*`,
+      to: "/docs/:splat",
+      code: 302,
+    });
+  }
+
+  return redirects;
+}
 
 // Cloudflare Pages server redirects.
 // Order matters: Cloudflare applies the first matching rule, so list more
 // specific rules before more general ones.
 // prettier-ignore
-export const redirects: RedirectRule[] = [
+const staticRedirects = [
   { from: "/docs/advanced/deployment/overview",       to: "/docs/deployment/intro",                                   code: 301 },
   { from: "/docs/data-model/backends",                to: "/docs/data-model/databases",                               code: 301 },
   { from: "/docs/deploying",                          to: "/docs/deployment/intro",                                   code: 301 },
@@ -63,9 +79,4 @@ export const redirects: RedirectRule[] = [
   { from: "/docs/0.18.0/*", to: "/docs/0.18/:splat", code: 301 },
   { from: "/docs/0.19.0/*", to: "/docs/0.19/:splat", code: 301 },
   { from: "/docs/0.20.0/*", to: "/docs/0.20/:splat", code: 301 },
-
-  // Current version redirect
-  // Redirects explicitly versioned links for the current version to the
-  // unprefixed canonical path, e.g. /docs/0.24/quick-start -> /docs/quick-start.
-  { from: `/docs/${currentVersion}/*`, to: "/docs/:splat", code: 302 },
 ];
