@@ -4,6 +4,7 @@ import path from "path";
 
 import { getSiteRoot } from "../site-root";
 import { htmlToMarkdown } from "./convert";
+import { isValidMarkdownDocsRoute } from "./markdown-routes";
 
 /**
  * Post-build step: turn the rendered HTML for docs, blog, and resources pages
@@ -44,27 +45,24 @@ function findConvertibleHtmlFiles(): string[] {
   return globSync("**/*.html", {
     cwd: BUILD_DIR,
     nodir: true,
-  }).filter(isValidMarkdownDocsHtmlFile);
-}
-
-/**
- * Whether a route is (or sits under) one of the Markdown route prefixes.
- */
-export function isValidMarkdownDocsHtmlFile(htmlFileRelPath: string): boolean {
-  return (
-    htmlFileRelPath === "docs.html" ||
-    htmlFileRelPath.startsWith("docs/") ||
-    htmlFileRelPath === "blog.html" ||
-    isBlogPostHtmlFile(htmlFileRelPath) ||
-    htmlFileRelPath === "resources.html" ||
-    isResourcesPostHtmlFile(htmlFileRelPath)
+  }).filter((htmlFileRelPath) =>
+    isValidMarkdownDocsRoute(toRoute(htmlFileRelPath)),
   );
 }
 
-function isBlogPostHtmlFile(htmlFileRelPath: string) {
-  return /blog\/\d{4}\/\d{2}\/\d{2}/.test(htmlFileRelPath);
-}
-
-function isResourcesPostHtmlFile(htmlFileRelPath: string) {
-  return /resources\/\d{4}\/\d{2}\/\d{2}/.test(htmlFileRelPath);
+/**
+ * Maps a build-relative HTML path to its route.
+ *
+ * @example "docs/tutorial/create.html" → "/docs/tutorial/create"
+ * @example "docs.html" → "/docs"
+ * @example "blog/2025/12/31/post.html" → "/blog/2025-12-31/post"
+ */
+function toRoute(htmlFileRelPath: string): string {
+  return (
+    "/" +
+    htmlFileRelPath
+      .replace(/\\/g, "/")
+      .replace(/\.html$/, "")
+      .replace(/(\d{4})\/(\d{2})\/(\d{2})/g, "$1-$2-$3")
+  );
 }
