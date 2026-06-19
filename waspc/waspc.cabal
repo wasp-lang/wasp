@@ -132,7 +132,6 @@ library
     conduit-extra ^>=1.3.7,
     containers ^>=0.6.7,
     cryptohash-sha256 ^>=0.11.102,
-    deepseq ^>=1.4.8,
     directory ^>=1.3.8,
     dotenv ^>=0.11.0,
     exceptions ^>=0.10.7,
@@ -560,10 +559,8 @@ test-suite waspc-tests
 
   build-depends:
     Diff ^>=0.4.1,
-    QuickCheck ^>=2.14.3,
     aeson,
     base,
-    bytestring,
     containers,
     deepseq,
     filepath,
@@ -573,15 +570,12 @@ test-suite waspc-tests
     neat-interpolation,
     parsec,
     path,
-    split,
     strong-path,
     tasty ^>=1.5.3,
-    tasty-golden ^>=2.3.5,
     tasty-hspec >=1.2,
     tasty-quickcheck ^>=0.10.3,
     text,
     time,
-    unordered-containers,
     waspc,
 
   other-modules:
