@@ -28,7 +28,7 @@ bashCompletion = do
     commands =
       [ "new",
         "version",
-        "waspls",
+        "doctor",
         "completion",
         "uninstall",
         "start",

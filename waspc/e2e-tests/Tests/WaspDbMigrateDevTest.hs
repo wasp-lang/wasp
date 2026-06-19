@@ -48,7 +48,7 @@ waspDbMigrateDevTest =
     ]
   where
     waspCliDbMigrateDevFails :: ShellCommand
-    waspCliDbMigrateDevFails = "! wasp-cli db migrate-dev"
+    waspCliDbMigrateDevFails = "! $WASP_CLI_CMD db migrate-dev"
 
     taskPrismaModel :: T.Text
     taskPrismaModel =

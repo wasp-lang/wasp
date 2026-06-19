@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Server.EmailSenderG
-  ( genNewEmailSenderApi,
+  ( genEmailSenderApi,
     depsRequiredByEmail,
   )
 where
@@ -24,8 +24,8 @@ import Wasp.Generator.SdkGenerator.Common
 import qualified Wasp.Generator.SdkGenerator.EmailSender.Providers as Providers
 import Wasp.Util ((<++>))
 
-genNewEmailSenderApi :: AppSpec -> Generator [FileDraft]
-genNewEmailSenderApi spec = case maybeEmailSender of
+genEmailSenderApi :: AppSpec -> Generator [FileDraft]
+genEmailSenderApi spec = case maybeEmailSender of
   Just emailSender ->
     sequence
       [ genIndex emailSender

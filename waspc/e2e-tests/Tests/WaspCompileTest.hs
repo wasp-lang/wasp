@@ -37,7 +37,7 @@ waspCompileTest =
     ]
   where
     waspCliCompileFails :: ShellCommand
-    waspCliCompileFails = "! wasp-cli compile"
+    waspCliCompileFails = "! $WASP_CLI_CMD compile"
 
     assertDirectoryExists :: FilePath -> ShellCommand
     assertDirectoryExists dirFilePath = "[ -d '" ++ dirFilePath ++ "' ]"

@@ -36,4 +36,4 @@ waspBuildStartTest =
     ]
   where
     waspCliBuildStartFails :: ShellCommand
-    waspCliBuildStartFails = "! wasp-cli build start"
+    waspCliBuildStartFails = "! $WASP_CLI_CMD build start"

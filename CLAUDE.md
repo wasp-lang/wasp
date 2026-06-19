@@ -7,7 +7,6 @@ Wasp is a full-stack web framework that compiles `.wasp` configuration files int
 - `waspc/` — Haskell compiler, CLI, and LSP server (the core of Wasp)
   - `src/` — Main compiler library (Analyzer, Generator, AppSpec, Psl)
   - `cli/src/` — CLI commands (start, build, new, deploy, etc.)
-  - `waspls/` — Language Server Protocol implementation
   - `data/packages/` — TypeScript packages called by the CLI when compiling projects as FFI
   - `data/Generator/libs/` — TypeScript libraries embedded into generated project code
   - `data/Generator/templates/` — Mustache templates for code generation
