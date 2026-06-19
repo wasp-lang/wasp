@@ -1,11 +1,12 @@
 import path from "path";
+import { fileURLToPath } from "url";
 
-const SITE_DIR_PATH = path.resolve(import.meta.dirname, "../..");
+const SCRIPT_DIR = path.dirname(fileURLToPath(import.meta.url));
+const SITE_DIR_PATH = path.resolve(SCRIPT_DIR, "../..");
 
 /**
- * Returns the site root (the `web/` directory) and fails fast when the script is
- * run from the wrong working directory, since every path is resolved relative
- * to it (build/, versioned_docs/, .docusaurus/, ...).
+ * Returns the site root and fails fast when the script is
+ * run from the wrong working directory.
  */
 export function getSiteRoot(): string {
   const cwd = process.cwd();
