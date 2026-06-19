@@ -7,7 +7,6 @@ import { getSiteRoot } from "../site-root";
 import { WASP_BASE_URL } from "./constants";
 
 const SITE_ROOT = getSiteRoot();
-const BLOG_DIR = path.join(SITE_ROOT, "blog");
 const BUILD_DIR = path.join(SITE_ROOT, "build");
 
 const LLMS_TXT_INTRO = `# Wasp
@@ -25,16 +24,24 @@ const LLMS_TXT_RESOURCES = `## Other Resources
 export async function generateLlmsTxtFile(
   waspVersions: string[],
 ): Promise<void> {
-  const blogPostsIndexSection = await buildBlogPostsIndexSection();
   const llmFilesIndexSection = buildLlmFilesIndexSection(waspVersions);
   const llmFullFilesSection = `## Full Concatenated Documentation Files
 Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}/llms-full-{version}.txt`;
+  const blogPostsIndexSection = await buildPostsIndexSection(
+    "Blogposts",
+    "blog",
+  );
+  const resourcesIndexSection = await buildPostsIndexSection(
+    "Resources",
+    "resources",
+  );
 
   const llmsTxtContent = [
     LLMS_TXT_INTRO,
     llmFilesIndexSection,
     llmFullFilesSection,
     blogPostsIndexSection,
+    resourcesIndexSection,
     LLMS_TXT_RESOURCES,
   ]
     .map((content) => content.trimEnd())
@@ -45,13 +52,15 @@ Use the same URL pattern as the versioned documentation maps: ${WASP_BASE_URL}/l
   console.log("Generated: llms.txt");
 }
 
-interface BlogPostReference {
+interface PostReference {
   title: string;
   url: string;
 }
 
 /**
- * Generates a blog posts index section.
+ * Generates a posts index section for a date-based content plugin.
+ * Blog and resources share the `YYYY-MM-DD-slug.md(x)` naming and
+ * `/<routeBasePath>/YYYY/MM/DD/slug` routing.
  *
  * @example
  * Rendered output:
@@ -62,53 +71,57 @@ interface BlogPostReference {
  * ...
  * ```
  */
-async function buildBlogPostsIndexSection(): Promise<string> {
-  const blogPostsFileNames = await glob("*.{md,mdx}", {
-    cwd: BLOG_DIR,
+async function buildPostsIndexSection(
+  sectionTitle: string,
+  routeBasePath: string,
+): Promise<string> {
+  const postsDir = path.join(SITE_ROOT, routeBasePath);
+  const postsFileNames = await glob("*.{md,mdx}", {
+    cwd: postsDir,
     nodir: true,
     ignore: ["_*.md", "_*.mdx", "CLAUDE.md"], // Ignore markdown partials.
   });
 
-  if (blogPostsFileNames.length === 0) {
+  if (postsFileNames.length === 0) {
     return "";
   }
   // Assumes we use the `YYYY-MM-DD-slug.md(x)` naming convention.
-  blogPostsFileNames.sort((a, b) => b.localeCompare(a));
+  postsFileNames.sort((a, b) => b.localeCompare(a));
 
-  const blogPostReferences: BlogPostReference[] = [];
-  for (const blogPostFileName of blogPostsFileNames) {
-    const url = generateBlogPostUrl(blogPostFileName);
+  const postReferences: PostReference[] = [];
+  for (const postFileName of postsFileNames) {
+    const url = generatePostUrl(routeBasePath, postFileName);
 
-    const blogPostAbsFilePath = path.join(BLOG_DIR, blogPostFileName);
-    const blogPostFrontMatter = fm<{ [key: string]: string | undefined }>(
-      await fs.readFile(blogPostAbsFilePath, "utf8"),
+    const postAbsFilePath = path.join(postsDir, postFileName);
+    const postFrontMatter = fm<{ [key: string]: string | undefined }>(
+      await fs.readFile(postAbsFilePath, "utf8"),
     );
-    const title = blogPostFrontMatter.attributes.title;
+    const title = postFrontMatter.attributes.title;
 
     if (!title) {
-      throw Error(`A blog post has no title: ${blogPostFileName}`);
+      throw Error(`A post has no title: ${postFileName}`);
     }
 
-    blogPostReferences.push({
+    postReferences.push({
       title,
       url,
     });
   }
 
-  let section = `## Blogposts\n`;
-  for (const blogPostReference of blogPostReferences) {
-    section += `- [${blogPostReference.title}](${blogPostReference.url})\n`;
+  let section = `## ${sectionTitle}\n`;
+  for (const postReference of postReferences) {
+    section += `- [${postReference.title}](${postReference.url})\n`;
   }
   return section;
 }
 
-function generateBlogPostUrl(blogPostFileName: string): string {
-  const baseName = blogPostFileName.replace(/\.(mdx|md)$/, "");
+function generatePostUrl(routeBasePath: string, postFileName: string): string {
+  const baseName = postFileName.replace(/\.(mdx|md)$/, "");
 
   const [year, month, day, ...slugParts] = baseName.split("-");
   const slug = slugParts.join("-");
 
-  return `${WASP_BASE_URL}/blog/${year}/${month}/${day}/${slug}`;
+  return `${WASP_BASE_URL}/${routeBasePath}/${year}/${month}/${day}/${slug}`;
 }
 
 function buildLlmFilesIndexSection(waspVersions: string[]): string {
