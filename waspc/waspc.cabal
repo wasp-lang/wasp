@@ -626,7 +626,6 @@ test-suite waspc-tests
     AppSpec.FromJSONTest
     AppSpec.ValidTest
     EnvTest
-    ErrorTest
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest

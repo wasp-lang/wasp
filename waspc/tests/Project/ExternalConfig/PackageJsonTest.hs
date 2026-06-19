@@ -5,21 +5,21 @@ import qualified Data.Map as M
 import Test.Hspec
 import qualified Wasp.ExternalConfig.Npm.PackageJson as P
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (TsConfigPaths, tsConfigPathsInWaspLangProjects, tsConfigPathsInWaspTsProjects)
+import Wasp.Project.Common (TsConfigPaths (..), tsConfigPaths)
 import Wasp.Project.ExternalConfig.PackageJson (validatePackageJsonForProject)
 
 spec_PackageJson :: Spec
 spec_PackageJson = do
   describe "validatePackageJsonForProject" $ do
     it "returns no errors for a valid Wasp TS project package.json" $
-      validate tsConfigPathsInWaspTsProjects (validPackageJson `withDevDependency` requiredNodeTypesDependency)
+      validate tsConfigPathsForWaspTsProject (validPackageJson `withDevDependency` requiredNodeTypesDependency)
         `shouldBe` []
 
     it "returns an error when a Wasp TS project is missing @types/node" $
       assertReturnsValidationErrorMentioningField "@types/node" validPackageJson
 
-    it "skips Node types validation for Wasp-lang projects" $
-      validate tsConfigPathsInWaspLangProjects validPackageJson
+    it "skips Node types validation for projects without a Wasp TS config" $
+      validate tsConfigPathsWithoutWaspTsConfig validPackageJson
         `shouldBe` []
 
 validate :: TsConfigPaths -> P.PackageJson -> [String]
@@ -27,7 +27,15 @@ validate = validatePackageJsonForProject
 
 assertReturnsValidationErrorMentioningField :: String -> P.PackageJson -> Expectation
 assertReturnsValidationErrorMentioningField fieldName packageJson =
-  validate tsConfigPathsInWaspTsProjects packageJson `shouldSatisfy` any (fieldName `isInfixOf`)
+  validate tsConfigPathsForWaspTsProject packageJson `shouldSatisfy` any (fieldName `isInfixOf`)
+
+-- A Wasp TS project has a Wasp TS config, which triggers @types/node validation.
+tsConfigPathsForWaspTsProject :: TsConfigPaths
+tsConfigPathsForWaspTsProject = tsConfigPaths
+
+-- Without a Wasp TS config, @types/node validation is skipped.
+tsConfigPathsWithoutWaspTsConfig :: TsConfigPaths
+tsConfigPathsWithoutWaspTsConfig = tsConfigPaths {waspTsConfig = Nothing}
 
 validPackageJson :: P.PackageJson
 validPackageJson =
