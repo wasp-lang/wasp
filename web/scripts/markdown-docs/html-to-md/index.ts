@@ -15,10 +15,11 @@ import { isValidMarkdownDocsRoute } from "./markdown-routes";
 const SITE_ROOT = getSiteRoot();
 const BUILD_DIR = path.join(SITE_ROOT, "build");
 
-generateMarkdownFiles().catch((err) => {
-  console.error("Failed to generate Markdown files:", err);
-  process.exit(1);
-});
+try {
+  await generateMarkdownFiles();
+} catch (err) {
+  throw new Error("Failed to generate Markdown files", { cause: err });
+}
 
 async function generateMarkdownFiles(): Promise<void> {
   console.log("Generating markdown files from built HTML...");
