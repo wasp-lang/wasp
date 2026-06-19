@@ -35,7 +35,21 @@ export default function cloudflareRedirectsPlugin(
     name: "cloudflare-redirects",
     async postBuild({ outDir }) {
       const content = serializeRedirects(options.redirects);
-      await fs.writeFile(path.join(outDir, "_redirects"), content, "utf8");
+      const filePath = path.join(outDir, "_redirects");
+      try {
+        // `wx` fails if the file already exists, so we never silently overwrite
+        // a `_redirects` produced elsewhere (e.g. a stray `static/_redirects`).
+        await fs.writeFile(filePath, content, { encoding: "utf8", flag: "wx" });
+      } catch (error) {
+        if ((error as any).code === "EEXIST") {
+          throw new Error(
+            `cloudflare-redirects: a "_redirects" file already exists at ${filePath}. ` +
+              `This plugin generates that file, so it must not also come from another source ` +
+              `(e.g. "static/_redirects"). Remove the conflicting file and define redirects in code instead.`,
+          );
+        }
+        throw error;
+      }
     },
   });
 }
