@@ -391,11 +391,11 @@ case $COMMAND in
     echo "               SUMMARY"
     echo "======================================"
     echo
-    echo -e "Formatter (prettier): $(exitStatusToString "$PRETTIER_RESULT")"
-    echo -e "Formatter (ormolu): $(exitStatusToString "$ORMOLU_RESULT")"
-    echo -e "Formatter (cabal-gild): $(exitStatusToString "$CABAL_GILD_RESULT")"
-    echo -e "Linter (hlint): $(exitStatusToString "$HLINT_RESULT")"
-    echo -e "Static analysis (stan): $(exitStatusToString "$STAN_RESULT")"
+    echo -e "Formatter (prettier): $(exitStatusToString $PRETTIER_RESULT)"
+    echo -e "Formatter (ormolu): $(exitStatusToString $ORMOLU_RESULT)"
+    echo -e "Formatter (cabal-gild): $(exitStatusToString $CABAL_GILD_RESULT)"
+    echo -e "Linter (hlint): $(exitStatusToString $HLINT_RESULT)"
+    echo -e "Static analysis (stan): $(exitStatusToString $STAN_RESULT)"
     echo "-----------------------"
     echo -e "All together: $(exitStatusToString $TOTAL_RESULT)"
 
