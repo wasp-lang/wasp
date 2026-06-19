@@ -774,7 +774,7 @@
             "file",
             "sdk/wasp/client/vite/plugins/wasp.ts"
         ],
-        "8819bc2a237dd5dc8e498d776443d9cccf7a97ae2d27a27918dff44e8bfd6a14"
+        "ab1bd7e983f778eb843cb764a4e077fddb01223365b82a8b8115349363983507"
     ],
     [
         [
@@ -1705,7 +1705,7 @@
             "file",
             "sdk/wasp/src/features/prerender/prerender.wasp.ts"
         ],
-        "c217d3f3de6232852f01ac5cf1f316af24733d77f9da70653d79ea48074b21a9"
+        "3c94f1a1eca7c470c6a7af2bb9df24571a7ca827ad2ebfa8f32bbd864c9239a0"
     ],
     [
         [

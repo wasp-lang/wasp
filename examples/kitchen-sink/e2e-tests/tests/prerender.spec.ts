@@ -24,19 +24,19 @@ test.describe("prerender", () => {
     const context = await browser.newContext({ javaScriptEnabled: false });
     const page = await context.newPage();
 
-    await page.goto("/prerender-instances/alice");
+    await page.goto("/prerender-instances/martin");
 
     await expect(page.getByTestId("render-location")).toHaveText("server");
-    await expect(page.getByTestId("slug")).toHaveText("alice");
+    await expect(page.getByTestId("slug")).toHaveText("martin");
   });
 
   test("prerendered dynamic-route instance hydrates on the client", async ({
     page,
   }) => {
-    await page.goto("/prerender-instances/bob");
+    await page.goto("/prerender-instances/matija");
 
     await expect(page.getByTestId("render-location")).toHaveText("client");
-    await expect(page.getByTestId("slug")).toHaveText("bob");
+    await expect(page.getByTestId("slug")).toHaveText("matija");
   });
 
   test("an unlisted instance of the dynamic route is not prerendered", async ({

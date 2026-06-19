@@ -13,7 +13,9 @@ export const prerenderSpec: Spec = [
     "PrerenderInstancesRoute",
     "/prerender-instances/:slug",
     page(PrerenderInstancesPage),
-    { prerender: ["/prerender-instances/alice", "/prerender-instances/bob"] },
+    {
+      prerender: ["/prerender-instances/martin", "/prerender-instances/matija"],
+    },
   ),
   route(
     "HydrationMismatchRoute",
