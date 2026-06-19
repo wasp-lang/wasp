@@ -1,7 +1,9 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
+import { redirects } from "./redirects";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
+import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
@@ -266,6 +268,8 @@ const config: Config = {
   scripts: getScripts(),
   plugins: [
     "plugin-image-zoom",
+
+    cloudflareRedirects({ redirects }),
 
     [
       "@docusaurus/plugin-content-blog",
