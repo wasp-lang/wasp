@@ -1,5 +1,4 @@
 import fs from "fs/promises";
-import { globSync } from "glob";
 import path from "path";
 
 import { getSiteRoot } from "../site-root";
@@ -15,16 +14,15 @@ import { isValidMarkdownDocsRoute } from "./markdown-routes";
 const SITE_ROOT = getSiteRoot();
 const BUILD_DIR = path.join(SITE_ROOT, "build");
 
-try {
-  await generateMarkdownFiles();
-} catch (err) {
-  throw new Error("Failed to generate Markdown files", { cause: err });
-}
+generateMarkdownFiles().catch((err) => {
+  console.error("Failed to generate Markdown files:", err);
+  process.exit(1);
+});
 
 async function generateMarkdownFiles(): Promise<void> {
   console.log("Generating markdown files from built HTML...");
 
-  const htmlFilesRelPaths = findConvertibleHtmlFiles();
+  const htmlFilesRelPaths = await findConvertibleHtmlFiles();
   let generatedDocs = 0;
   for (const htmlFileRelPath of htmlFilesRelPaths) {
     const htmlFileAbsPath = path.join(BUILD_DIR, htmlFileRelPath);
@@ -42,13 +40,18 @@ async function generateMarkdownFiles(): Promise<void> {
   );
 }
 
-function findConvertibleHtmlFiles(): string[] {
-  return globSync("**/*.html", {
+async function findConvertibleHtmlFiles(): Promise<string[]> {
+  const htmlFileRelPaths: string[] = [];
+
+  for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: BUILD_DIR,
-    nodir: true,
-  }).filter((htmlFileRelPath) =>
-    isValidMarkdownDocsRoute(toRoute(htmlFileRelPath)),
-  );
+  })) {
+    if (isValidMarkdownDocsRoute(toRoute(htmlFileRelPath))) {
+      htmlFileRelPaths.push(htmlFileRelPath);
+    }
+  }
+
+  return htmlFileRelPaths;
 }
 
 /**
