@@ -148,9 +148,7 @@ export default app({
 })
 ```
 
-:::caution
-Wasp reports an error at compile time if you try to prerender a route with a dynamic path or an auth-required page.
-:::
+Wasp reports an error at compile time if you try to prerender an auth-required page.
 
 ## Troubleshooting
 
