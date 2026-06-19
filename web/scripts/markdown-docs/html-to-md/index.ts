@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { getSiteRoot } from "../site-root";
+import { SITE_ROOT_DIR } from "../site-root";
 import { htmlToMarkdown } from "./convert";
 import { isValidMarkdownDocsRoute } from "./markdown-routes";
 
@@ -11,8 +11,7 @@ import { isValidMarkdownDocsRoute } from "./markdown-routes";
  * Docusaurus emits `<route>.html` files, so we write `<route>.md` next to each.
  */
 
-const SITE_ROOT = getSiteRoot();
-const BUILD_DIR = path.join(SITE_ROOT, "build");
+const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
 
 generateMarkdownFiles().catch((err) => {
   console.error("Failed to generate Markdown files:", err);
