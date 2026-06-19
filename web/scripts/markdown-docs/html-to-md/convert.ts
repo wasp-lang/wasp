@@ -6,12 +6,14 @@ const turndownService = createDocusaurusLlmFriendlyTurndownService();
 
 /**
  * Docusaurus content lives in different wrappers depending on the page type:
- * - docs and API reference use `.theme-doc-markdown`
- * - blog and resources posts use a bare `.markdown` inside the article
+ * - Docs use `.theme-doc-markdown`.
+ * - Blog and resource posts use a bare `.markdown` inside the article.
+ * - `blog/` and `resources/` index pages use blog schema.
  */
 const MARKDOWN_CONTENT_CONTAINER_SELECTORS = [
   ".theme-doc-markdown",
   "article .markdown",
+  'main[itemtype="http://schema.org/Blog"]',
 ];
 
 /**
