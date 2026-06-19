@@ -12,30 +12,18 @@ spec_PackageJson :: Spec
 spec_PackageJson = do
   describe "validatePackageJsonForProject" $ do
     it "returns no errors for a valid Wasp TS project package.json" $
-      validate tsConfigPathsForWaspTsProject (validPackageJson `withDevDependency` requiredNodeTypesDependency)
+      validate tsConfigPaths (validPackageJson `withDevDependency` requiredNodeTypesDependency)
         `shouldBe` []
 
     it "returns an error when a Wasp TS project is missing @types/node" $
       assertReturnsValidationErrorMentioningField "@types/node" validPackageJson
-
-    it "skips Node types validation for projects without a Wasp TS config" $
-      validate tsConfigPathsWithoutWaspTsConfig validPackageJson
-        `shouldBe` []
 
 validate :: TsConfigPaths -> P.PackageJson -> [String]
 validate = validatePackageJsonForProject
 
 assertReturnsValidationErrorMentioningField :: String -> P.PackageJson -> Expectation
 assertReturnsValidationErrorMentioningField fieldName packageJson =
-  validate tsConfigPathsForWaspTsProject packageJson `shouldSatisfy` any (fieldName `isInfixOf`)
-
--- A Wasp TS project has a Wasp TS config, which triggers @types/node validation.
-tsConfigPathsForWaspTsProject :: TsConfigPaths
-tsConfigPathsForWaspTsProject = tsConfigPaths
-
--- Without a Wasp TS config, @types/node validation is skipped.
-tsConfigPathsWithoutWaspTsConfig :: TsConfigPaths
-tsConfigPathsWithoutWaspTsConfig = tsConfigPaths {waspTsConfig = Nothing}
+  validate tsConfigPaths packageJson `shouldSatisfy` any (fieldName `isInfixOf`)
 
 validPackageJson :: P.PackageJson
 validPackageJson =
