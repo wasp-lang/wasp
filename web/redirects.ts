@@ -1,10 +1,31 @@
 import type { RedirectRule } from "./src/plugins/cloudflare-redirects";
+import docsVersions from "./versions.json";
 
-// Cloudflare Pages server redirects.
-// Order matters: Cloudflare applies the first matching rule, so list more
-// specific rules before more general ones.
+export function getRedirects({
+  redirectCurrentVersionToCanonical,
+}: {
+  /**
+   * Redirects explicitly versioned links for the current version to the
+   * unprefixed canonical path, e.g.:
+   * /docs/0.24/quick-start -> /docs/quick-start
+   */
+  redirectCurrentVersionToCanonical: boolean;
+}): RedirectRule[] {
+  // Order matters: Cloudflare applies the first matching rule, so list more
+  // specific rules before more general ones.
+  const redirects: RedirectRule[] = [...legacyDocsRedirects];
+
+  if (redirectCurrentVersionToCanonical) {
+    const latestWaspVersion = docsVersions[0];
+    const redirect = temporary(`/docs/${latestWaspVersion}/*`, "/docs/:splat");
+    redirects.push(redirect);
+  }
+
+  return redirects;
+}
+
 // prettier-ignore
-export const redirects: RedirectRule[] = [
+const legacyDocsRedirects: RedirectRule[] = [
   permanent("/docs/advanced/deployment/overview",       "/docs/deployment/intro"),
   permanent("/docs/data-model/backends",                "/docs/data-model/databases"),
   permanent("/docs/deploying",                          "/docs/deployment/intro"),
@@ -61,4 +82,9 @@ export const redirects: RedirectRule[] = [
 /** Builds a permanent redirect rule (301). */
 function permanent(from: string, to: string): RedirectRule {
   return { from, to, code: 301 };
+}
+
+/** Builds a temporary redirect rule (302). */
+function temporary(from: string, to: string): RedirectRule {
+  return { from, to, code: 302 };
 }
