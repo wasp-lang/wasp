@@ -6,9 +6,6 @@ import Wasp.Util.WebRouterPath (doesConcretePathMatchRoutePattern)
 spec_WebRouterPathTest :: Spec
 spec_WebRouterPathTest = do
   describe "doesConcretePathMatchRoutePattern" $ do
-    let matches routePattern path = doesConcretePathMatchRoutePattern routePattern path `shouldBe` True
-    let doesNotMatch routePattern path = doesConcretePathMatchRoutePattern routePattern path `shouldBe` False
-
     it "matches identical static paths" $ do
       matches "/about" "/about"
       matches "/" "/"
@@ -42,3 +39,6 @@ spec_WebRouterPathTest = do
       matches "/photo/:id/edit?" "/photo/42"
       matches "/users/:id?" "/users/42"
       matches "/users/:id?" "/users"
+  where
+    matches routePattern path = doesConcretePathMatchRoutePattern routePattern path `shouldBe` True
+    doesNotMatch routePattern path = doesConcretePathMatchRoutePattern routePattern path `shouldBe` False
