@@ -17,10 +17,6 @@ import {
 const SITE_ROOT = getSiteRoot();
 const BUILD_DIR = path.join(SITE_ROOT, "build");
 
-const EXPECTED_SIDEBARS: Array<{ title: string; sidebarName: string }> = [
-  { title: "Docs", sidebarName: "docs" },
-  { title: "Guides", sidebarName: "guides" },
-];
 const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 // A typedoc package's index page, e.g. "api/@wasp.sh/spec/index". We list these
 // (the package overview) in the API section instead of every symbol page.
@@ -78,30 +74,23 @@ export async function buildMarkdownDocsIndex(
     throw Error(`Permalink maps are missing a Wasp version: ${waspVersion}`);
   }
 
-  const indexSections: IndexSection[] = [];
-  for (const { title, sidebarName } of EXPECTED_SIDEBARS) {
-    const sidebarItems = sidebars[sidebarName];
-    if (!sidebarItems) {
-      throw Error(
-        `Resolved sidebars are missing an expected sidebar: ${sidebarName}`,
-      );
-    }
-    indexSections.push({
-      title,
-      items: await buildSectionItems(sidebarItems),
-    });
-  }
-  indexSections.push({
-    title: "API",
-    items: await buildApiSectionItems(permalinkMap),
-  });
-
-  const validIndexSections = indexSections.filter(
-    (section) => section.items.length > 0,
-  );
+  const indexSections: IndexSection[] = [
+    {
+      title: "Docs",
+      items: await buildSectionItems(sidebars["docs"]),
+    },
+    {
+      title: "Guides",
+      items: await buildSectionItems(sidebars["guides"]),
+    },
+    {
+      title: "API",
+      items: await buildApiSectionItems(permalinkMap),
+    },
+  ].filter((section) => section.items.length > 0);
 
   return {
-    sections: validIndexSections,
+    sections: indexSections,
   };
 }
 
