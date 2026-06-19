@@ -5,55 +5,60 @@ import type { RedirectRule } from "./src/plugins/cloudflare-redirects";
 // specific rules before more general ones.
 // prettier-ignore
 export const redirects: RedirectRule[] = [
-  { from: "/docs/advanced/deployment/overview",       to: "/docs/deployment/intro",                                   code: 301 },
-  { from: "/docs/data-model/backends",                to: "/docs/data-model/databases",                               code: 301 },
-  { from: "/docs/deploying",                          to: "/docs/deployment/intro",                                   code: 301 },
-  { from: "/docs/deployment/deployment-methods/cli",  to: "/docs/deployment/deployment-methods/wasp-deploy/overview", code: 301 },
-  { from: "/docs/deployment/deployment-methods/paas", to: "/docs/deployment/deployment-methods/cloud-providers",      code: 301 },
-  { from: "/docs/general/language",                   to: "/docs/guides/legacy/wasp-dsl",                             code: 301 },
-  { from: "/docs/general/wasp-ts-config",             to: "/docs/guides/legacy/wasp-ts-config",                       code: 301 },
-  { from: "/docs/guides/auth-ui",                     to: "/docs/auth/ui",                                            code: 301 },
-  { from: "/docs/guides/crud",                        to: "/docs/data-model/crud",                                    code: 301 },
-  { from: "/docs/guides/email-auth",                  to: "/docs/auth/email",                                         code: 301 },
-  { from: "/docs/guides/middleware-customization",    to: "/docs/advanced/middleware-config",                         code: 301 },
-  { from: "/docs/guides/testing",                     to: "/docs/project/testing",                                    code: 301 },
-  { from: "/docs/guides/username-password",           to: "/docs/auth/username-and-pass",                             code: 301 },
-  { from: "/docs/guides/websockets",                  to: "/docs/advanced/web-sockets",                               code: 301 },
-  { from: "/docs/integrations/css-frameworks",        to: "/docs/project/css-frameworks",                             code: 301 },
-  { from: "/docs/integrations/github",                to: "/docs/auth/social-auth/github",                            code: 301 },
-  { from: "/docs/integrations/google",                to: "/docs/auth/social-auth/google",                            code: 301 },
-  { from: "/docs/project/css-frameworks",             to: "/docs/guides/libraries/tailwind",                          code: 301 },
-  { from: "/docs/tutorials/todo-app",                 to: "/docs/tutorial/create",                                    code: 301 },
+  permanent("/docs/advanced/deployment/overview",       "/docs/deployment/intro"),
+  permanent("/docs/data-model/backends",                "/docs/data-model/databases"),
+  permanent("/docs/deploying",                          "/docs/deployment/intro"),
+  permanent("/docs/deployment/deployment-methods/cli",  "/docs/deployment/deployment-methods/wasp-deploy/overview"),
+  permanent("/docs/deployment/deployment-methods/paas", "/docs/deployment/deployment-methods/cloud-providers"),
+  permanent("/docs/general/language",                   "/docs/guides/legacy/wasp-dsl"),
+  permanent("/docs/general/wasp-ts-config",             "/docs/guides/legacy/wasp-ts-config"),
+  permanent("/docs/guides/auth-ui",                     "/docs/auth/ui"),
+  permanent("/docs/guides/crud",                        "/docs/data-model/crud"),
+  permanent("/docs/guides/email-auth",                  "/docs/auth/email"),
+  permanent("/docs/guides/middleware-customization",    "/docs/advanced/middleware-config"),
+  permanent("/docs/guides/testing",                     "/docs/project/testing"),
+  permanent("/docs/guides/username-password",           "/docs/auth/username-and-pass"),
+  permanent("/docs/guides/websockets",                  "/docs/advanced/web-sockets"),
+  permanent("/docs/integrations/css-frameworks",        "/docs/project/css-frameworks"),
+  permanent("/docs/integrations/github",                "/docs/auth/social-auth/github"),
+  permanent("/docs/integrations/google",                "/docs/auth/social-auth/google"),
+  permanent("/docs/project/css-frameworks",             "/docs/guides/libraries/tailwind"),
+  permanent("/docs/tutorials/todo-app",                 "/docs/tutorial/create"),
 
   // Migration guides
   // We migrated from /docs/{version}/migration-guides/migrate-from-{version}-to-{version}
   // to /docs/{version}/migration-guide, so we want to redirect links going to the old
   // URLs.
   // You don't need to add new redirects for new versions.
-  { from: "/*/migrate-from-0-11-to-0-12", to: "/docs/0.12/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-12-to-0-13", to: "/docs/0.13/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-13-to-0-14", to: "/docs/0.14/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-14-to-0-15", to: "/docs/0.15/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-15-to-0-16", to: "/docs/0.16/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-16-to-0-17", to: "/docs/0.17/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-17-to-0-18", to: "/docs/0.18/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-18-to-0-19", to: "/docs/0.19/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-19-to-0-20", to: "/docs/0.20/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-20-to-0-21", to: "/docs/0.21/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-21-to-0-22", to: "/docs/0.22/migration-guide", code: 301 },
-  { from: "/*/migrate-from-0-22-to-0-23", to: "/docs/0.23/migration-guide", code: 301 },
+  permanent("/*/migrate-from-0-11-to-0-12", "/docs/0.12/migration-guide"),
+  permanent("/*/migrate-from-0-12-to-0-13", "/docs/0.13/migration-guide"),
+  permanent("/*/migrate-from-0-13-to-0-14", "/docs/0.14/migration-guide"),
+  permanent("/*/migrate-from-0-14-to-0-15", "/docs/0.15/migration-guide"),
+  permanent("/*/migrate-from-0-15-to-0-16", "/docs/0.16/migration-guide"),
+  permanent("/*/migrate-from-0-16-to-0-17", "/docs/0.17/migration-guide"),
+  permanent("/*/migrate-from-0-17-to-0-18", "/docs/0.18/migration-guide"),
+  permanent("/*/migrate-from-0-18-to-0-19", "/docs/0.19/migration-guide"),
+  permanent("/*/migrate-from-0-19-to-0-20", "/docs/0.20/migration-guide"),
+  permanent("/*/migrate-from-0-20-to-0-21", "/docs/0.21/migration-guide"),
+  permanent("/*/migrate-from-0-21-to-0-22", "/docs/0.22/migration-guide"),
+  permanent("/*/migrate-from-0-22-to-0-23", "/docs/0.23/migration-guide"),
 
   // Legacy version path redirects (0.X.0 -> 0.X)
   // These exist because docs versions used to be named 0.X.0 but were renamed to 0.X,
   // so we want to redirect links going to the old URLs.
   // You don't need to add new redirects for new versions.
-  { from: "/docs/0.12.0/*", to: "/docs/0.12/:splat", code: 301 },
-  { from: "/docs/0.13.0/*", to: "/docs/0.13/:splat", code: 301 },
-  { from: "/docs/0.14.0/*", to: "/docs/0.14/:splat", code: 301 },
-  { from: "/docs/0.15.0/*", to: "/docs/0.15/:splat", code: 301 },
-  { from: "/docs/0.16.0/*", to: "/docs/0.16/:splat", code: 301 },
-  { from: "/docs/0.17.0/*", to: "/docs/0.17/:splat", code: 301 },
-  { from: "/docs/0.18.0/*", to: "/docs/0.18/:splat", code: 301 },
-  { from: "/docs/0.19.0/*", to: "/docs/0.19/:splat", code: 301 },
-  { from: "/docs/0.20.0/*", to: "/docs/0.20/:splat", code: 301 },
+  permanent("/docs/0.12.0/*", "/docs/0.12/:splat"),
+  permanent("/docs/0.13.0/*", "/docs/0.13/:splat"),
+  permanent("/docs/0.14.0/*", "/docs/0.14/:splat"),
+  permanent("/docs/0.15.0/*", "/docs/0.15/:splat"),
+  permanent("/docs/0.16.0/*", "/docs/0.16/:splat"),
+  permanent("/docs/0.17.0/*", "/docs/0.17/:splat"),
+  permanent("/docs/0.18.0/*", "/docs/0.18/:splat"),
+  permanent("/docs/0.19.0/*", "/docs/0.19/:splat"),
+  permanent("/docs/0.20.0/*", "/docs/0.20/:splat"),
 ];
+
+/** Builds a permanent redirect rule (301). */
+function permanent(from: string, to: string): RedirectRule {
+  return { from, to, code: 301 };
+}
