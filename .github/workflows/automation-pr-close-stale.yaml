@@ -1,6 +1,7 @@
 name: "Automation - Close stale PRs"
 
 on:
+  workflow_dispatch:
   schedule:
     - cron: "30 1 * * *"
 
@@ -18,6 +19,8 @@ jobs:
     steps:
       - uses: actions/stale@v10
         with:
+          operations-per-run: 100 # Default is 30, which is quite low
+
           # First we mark a PR or issue as "Stale".
           # PRs get it automatically after 7 days of inactivity, while issues
           # are never marked as stale automatically (we can do it manually if we
