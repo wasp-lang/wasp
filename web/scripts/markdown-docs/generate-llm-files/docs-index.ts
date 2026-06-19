@@ -1,6 +1,13 @@
 import { existsSync } from "fs";
 import fs from "fs/promises";
+import type { Heading, Nodes as MdastNodes, Root as MdastRoot } from "mdast";
 import path from "path";
+import remarkDirective from "remark-directive";
+import remarkGfm from "remark-gfm";
+import remarkParse from "remark-parse";
+import remarkStringify from "remark-stringify";
+import { unified } from "unified";
+import { visit } from "unist-util-visit";
 
 import { getSiteRoot } from "../site-root";
 import { WASP_BASE_URL } from "./constants";
@@ -196,19 +203,58 @@ async function resolveIndexDoc(
  * into full URLs so the file stands on its own.
  */
 function processBuiltMarkdown(markdown: string): string {
-  const withoutTitle = markdown.replace(/^#\s+.*\n+/, "");
-  const withNestedSubTitles = withoutTitle.replace(
-    /^(#+)(\s)/gm,
-    (match) => `#${match}`,
-  );
-  return makePermalinksAbsolute(withNestedSubTitles).trim();
+  return String(builtMarkdownProcessor.processSync(markdown)).trim();
 }
 
-function makePermalinksAbsolute(markdown: string): string {
-  return markdown.replace(
-    /\]\((\/[^)]*)\)/g,
-    (_match, sitePath: string) => `](${WASP_BASE_URL}${sitePath})`,
+const builtMarkdownProcessor = unified()
+  .use(remarkParse)
+  .use(remarkGfm)
+  .use(remarkDirective)
+  .use(remarkRewriteBuiltDoc)
+  .use(remarkStringify, {
+    bullet: "-",
+    emphasis: "*",
+    strong: "*",
+    fence: "`",
+    fences: true,
+    rule: "-",
+    listItemIndent: "one",
+  });
+
+function remarkRewriteBuiltDoc(): (tree: MdastRoot) => void {
+  return (tree: MdastRoot): void => {
+    dropTitleHeading(tree);
+    nestHeadingsDeeper(tree);
+    makeRootRelativeUrlsAbsolute(tree);
+  };
+}
+
+function dropTitleHeading(tree: MdastRoot): void {
+  const titleIndex = tree.children.findIndex(
+    (node) => node.type === "heading" && node.depth === 1,
   );
+  if (titleIndex !== -1) {
+    tree.children.splice(titleIndex, 1);
+  }
+}
+
+function nestHeadingsDeeper(tree: MdastRoot): void {
+  visit(tree, "heading", (heading) => {
+    heading.depth = (heading.depth + 1) as Heading["depth"];
+  });
+}
+
+function makeRootRelativeUrlsAbsolute(tree: MdastRoot): void {
+  visit(tree, (node: MdastNodes) => {
+    const hasRootRelativeUrl =
+      (node.type === "link" ||
+        node.type === "image" ||
+        node.type === "definition") &&
+      node.url.startsWith("/");
+    if (hasRootRelativeUrl) {
+      node.url = WASP_BASE_URL + node.url;
+    }
+  });
 }
 
 function stripTrailingSlash(value: string): string {

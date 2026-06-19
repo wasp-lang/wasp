@@ -73,6 +73,7 @@
     "remark-cli": "^11.0.0",
     "remark-directive": "^4.0.0",
     "remark-gfm": "^4.0.1",
+    "remark-parse": "^11.0.0",
     "remark-stringify": "^11.0.0",
     "remark-validate-links": "^12.1.1",
     "tsx": "^4.20.3",
