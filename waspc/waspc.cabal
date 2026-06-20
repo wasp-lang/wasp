@@ -264,6 +264,7 @@ library
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
     Wasp.ExternalConfig.Npm.PackageJson.DepValidators
+    Wasp.ExternalConfig.Npm.Lockfile
     Wasp.ExternalConfig.Npm.Tarball
     Wasp.ExternalConfig.TsConfig
     Wasp.Generator
