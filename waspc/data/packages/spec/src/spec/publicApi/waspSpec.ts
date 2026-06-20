@@ -3,6 +3,7 @@ import type { RequireOneOrNone } from "type-fest";
 import type { AnyFunction, AnyObject } from "../../typeUtils.js";
 import type { RefObject } from "../refObject.js";
 import { FromRegister } from "./register.js";
+import type { ReactNode } from "react";
 
 /**
  * Root shape of a Wasp app specification.
@@ -47,16 +48,36 @@ export interface App {
   /**
    * Extra tags injected into the HTML `<head>`.
    *
-   * Each entry is rendered inside a React component, so the strings must be
-   * valid JSX: self-closing tags must end with `/>` (e.g. `<meta ... />`),
-   * and attributes must be camelCased (e.g. `httpEquiv` instead of
-   * `http-equiv`).
+   * Accepts either:
+   * - A string array of HTML/JSX tags (legacy form).
+   * - A JSX element (or fragment) — useful for IDE autocomplete and syntax
+   *   highlighting. When using JSX, each tag must be properly closed
+   *   (e.g. `<meta ... />`), and attributes must be camelCased
+   *   (e.g. `httpEquiv` instead of `http-equiv`).
+   *
+   * @example
+   * ```tsx
+   * head: [
+   *   '<link rel="icon" href="/favicon.ico" />',
+   *   '<meta name="theme-color" content="#000" />',
+   * ]
+   * ```
+   *
+   * @example
+   * ```tsx
+   * head: (
+   *   <>
+   *     <link rel="icon" href="/favicon.ico" />
+   *     <meta name="theme-color" content="#000" />
+   *   </>
+   * )
+   * ```
    *
    * Due to a [React bug](https://github.com/facebook/react/issues/36169),
    * avoid `defer` on `<script>` tags because it can cause hydration
    * warnings. Use `async` instead.
    */
-  head?: string[];
+  head?: string[] | ReactNode;
   /** Configuration for authentication. Enables auth when set. */
   auth?: Auth;
   /** Configuration for the server part of the resulting Wasp app. */

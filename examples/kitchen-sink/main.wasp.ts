@@ -1,3 +1,4 @@
+import React from "react";
 import { app, page, route } from "@wasp.sh/spec";
 
 import { App } from "./src/App" with { type: "ref" };
@@ -29,10 +30,12 @@ export default app({
   name: "KitchenSink",
   wasp: { version: "0.25.0" },
   title: "Wasp Kitchen Sink",
-  head: [
-    "<link rel='manifest' href='/manifest.json' />",
-    "<link rel='icon' href='/favicon.ico' />",
-  ],
+  head: (
+    <>
+      <link rel="icon" href="/favicon.ico" />
+      <meta name="description" content="Wasp Kitchen Sink - feature showcase app" />
+    </>
+  ),
   webSocket,
   auth: authConfig,
   server: {

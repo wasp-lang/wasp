@@ -5,6 +5,8 @@
  * tested.
  */
 
+import { renderToStaticMarkup } from "react-dom/server";
+import type { ReactNode } from "react";
 import * as AppSpec from "../appSpec.js";
 import { normalizePrerender } from "../normalizePrerender.js";
 import * as WaspSpec from "./publicApi/waspSpec.js";
@@ -132,7 +134,7 @@ export function mapApp(
     declValue: {
       wasp,
       title,
-      head,
+      head: serializeHead(head),
       auth: auth && mapAuth(auth, ctx),
       server: server && mapServer(server, ctx),
       client: client && mapClient(client, ctx),
@@ -500,6 +502,14 @@ export function mapSchedule(schedule: WaspSpec.Schedule): AppSpec.Schedule {
     args,
     executorOptions,
   };
+}
+
+function serializeHead(
+  head: string[] | ReactNode | undefined,
+): string[] | undefined {
+  if (!head) return undefined;
+  if (Array.isArray(head)) return head;
+  return [renderToStaticMarkup(head as React.ReactElement)];
 }
 
 export type RefParser<T extends AppSpec.DeclType> = (
