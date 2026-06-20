@@ -542,6 +542,7 @@ library cli-lib
     Wasp.Cli.Command.News.Listing
     Wasp.Cli.Command.News.LocalNewsState
     Wasp.Cli.Command.Require
+    Wasp.Cli.Command.SpecDump
     Wasp.Cli.Command.Start
     Wasp.Cli.Command.Start.Db
     Wasp.Cli.Command.Studio
