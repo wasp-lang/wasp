@@ -7,3 +7,4 @@ dist
 *.log*
 *.env*
 *.tgz
+storybook-static
