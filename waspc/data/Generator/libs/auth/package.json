@@ -38,7 +38,8 @@
   },
   "dependencies": {
     "@node-rs/argon2": "^2.0.2",
-    "oslo": "^1.1.2"
+    "oslo": "^1.1.2",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.2",
