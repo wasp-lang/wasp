@@ -57,6 +57,8 @@ For Auth UI, ship composable headless hooks and tiny unstyled primitives from th
 - OAuth state and cookie mechanics move after pure helpers. Generated code passes request, response, provider config, and secure-cookie settings through adapters.
 - Route logic moves only after adapter interfaces exist. The library should not import generated Wasp modules.
 - Adapter contracts should use domain language and capabilities, not generated Wasp module shapes.
+- Auth library files should stay small and grouped by concern. Split before creating god files.
+- Prefer pure functions and factory functions with closures over classes. Classes are reserved for blessed patterns such as errors.
 - Email and username auth route internals move behind adapters for stores, sessions, hooks, email, token handling, clock, random, and error creation.
 - OAuth callback, OAuth user resolution, and one-time-code exchange move behind adapters after email and username flows prove the adapter model.
 - Auth UI migration depends on Storybook and interaction tests.
