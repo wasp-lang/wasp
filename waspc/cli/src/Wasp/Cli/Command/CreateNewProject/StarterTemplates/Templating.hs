@@ -13,7 +13,6 @@ import Wasp.NodePackageFFI
   ( InstallablePackage (WaspSpecPackage),
     getPackageJsonSpecifierForPackage,
   )
-import Wasp.Project.Analyze (WaspFilePath (..))
 import Wasp.Project.Common (WaspProjectDir)
 import Wasp.Project.ExternalConfig.PackageJson (findUserPackageJsonFile)
 import Wasp.Project.WaspFile (findWaspFile)
@@ -33,8 +32,7 @@ replaceTemplatePlaceholdersInWaspFile ::
 replaceTemplatePlaceholdersInWaspFile appName projectName projectDir =
   findWaspFile projectDir >>= \case
     Left _error -> return ()
-    Right (WaspLang absMainWaspFile) -> replaceTemplatePlaceholders absMainWaspFile
-    Right (WaspTs absMainTsFile) -> replaceTemplatePlaceholders absMainTsFile
+    Right absMainTsFile -> replaceTemplatePlaceholders absMainTsFile
   where
     replaceTemplatePlaceholders = replaceTemplatePlaceholdersInFileOnDisk appName projectName
 
