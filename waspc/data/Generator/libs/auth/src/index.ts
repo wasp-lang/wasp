@@ -9,3 +9,13 @@ export {
 } from "./validation";
 
 export { SessionResponseSchema, SuccessResponseSchema } from "./responseSchemas";
+
+export { mergeDefaultAndUserConfig } from "./config";
+
+export {
+  getEmail,
+  getFirstProviderUserId,
+  getUsername,
+  makeAuthUserIfPossible,
+  type AuthUserWithHelpers,
+} from "./user";
