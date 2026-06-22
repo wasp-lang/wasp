@@ -27,8 +27,16 @@
 
 :root {
   --wasp-y: #f5c842;
+  --wasp-sl: "#f8d670";
+  --wasp-ql: "#fce59e";
   --wasp-yl: #fff3cc;
   --wasp-yd: #d4a930;
+  --wasp-p: #7b42f5;
+  --wasp-psl: #a172f8;
+  --wasp-pql: #c2a2fb;
+  --wasp-pl: #e0ccff;
+  --wasp-pd: #5a30d4;
+  --wasp-code-bg-pd: #292435;
   --wasp-k: #111;
   --wasp-g7: #333;
   --wasp-g6: #555;
