@@ -1,5 +1,5 @@
 module Wasp.Generator.SdkGenerator.Server.AuthG
-  ( genNewServerApi,
+  ( genServerAuth,
   )
 where
 
@@ -21,8 +21,8 @@ import Wasp.Generator.SdkGenerator.Common
   )
 import Wasp.Util ((<++>))
 
-genNewServerApi :: AppSpec -> Generator [FileDraft]
-genNewServerApi spec =
+genServerAuth :: AppSpec -> Generator [FileDraft]
+genServerAuth spec =
   case maybeAuth of
     Nothing -> return []
     Just auth ->

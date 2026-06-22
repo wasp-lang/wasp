@@ -1,13 +1,13 @@
 import { createAction } from "../operations/actions/core.js";
 import { createQuery } from "../operations/queries/core.js";
 import { makeUseActionFor, makeUseQueryFor } from "./operationsHelpers.js";
-import { 
+import type {
     GetQueryResolved,
     GetAllQueryResolved,
     CreateActionResolved,
     UpdateActionResolved,
     DeleteActionResolved,
-} from 'wasp/server/crud/tasks'
+} from '../../server/crud/tasks.js'
 
 function createCrud() {
     const crudGetQuery = createQuery<GetQueryResolved>(

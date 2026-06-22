@@ -25,7 +25,11 @@ runs:
       env:
         TARBALL_PATH: ${{ runner.temp }}/wasp-cli-download/${{ steps.artifact-names.outputs.tarball-name }}
         INSTALL_DIR: ${{ runner.temp }}/wasp-cli-install
-      run: |
+      run:
+        # We do need to install the Wasp CLI and modify the environment
+        # variables, so we need to ignore the error here.
+        # zizmor: ignore[github-env]
+        |
         mkdir -p "$INSTALL_DIR"
         tar -xzf "$TARBALL_PATH" -C "$INSTALL_DIR"
         mv "$INSTALL_DIR/wasp-bin" "$INSTALL_DIR/wasp-cli"

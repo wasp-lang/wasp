@@ -1,5 +1,5 @@
 {{={= =}=}}
-import { api, handleApiError } from 'wasp/client/api';
+import { api, handleApiError } from '../../../api/index.js';
 import { initSession } from '../../helpers/user';
 import { SessionResponseSchema } from '../../responseSchemas';
 

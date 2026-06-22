@@ -59,7 +59,8 @@ git merge release
 git push
 ```
 5. Cloudflare Pages will automatically pick up the changes and deploy them.
-6. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
+6. Check that the [Algolia docs search crawler restart](https://github.com/wasp-lang/wasp/actions/workflows/automation-algolia-restart-crawler.yaml) succeeded.
+7. Go back to the `release` branch so you don't accidentally commit to `deploy-web`:
 ```
 git checkout release
 ```

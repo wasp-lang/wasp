@@ -29,10 +29,13 @@ BUILD_ALL_CMD="$WASP_ALL_DEPS_COMPILE && $BUILD_HS_CMD"
 
 INSTALL_CMD="$WASP_ALL_DEPS_COMPILE && cabal install --overwrite-policy=always"
 
-# Running
-WASP_CMD="cabal --project-dir=${PROJECT_ROOT} run wasp-cli --"
-RUN_CMD="${WASP_CMD} ${ARGS[@]}"
-WASP_INSTALL_CMD="${WASP_CMD} install"
+# Wasp CLI
+# A single executable that runs the locally-built CLI via `cabal run`.
+# Being a single executable (rather than a multi-word command string) lets it
+# be a drop-in replacement for `wasp`, with no shell-quoting surprises.
+WASP_CLI_CMD="${PROJECT_ROOT}/tools/wasp-cli-dev.ts"
+WASP_CLI_RUN_CMD="${WASP_CLI_CMD} ${ARGS[@]}"
+WASP_CLI_INSTALL_CMD="${WASP_CLI_CMD} install"
 
 # Testing
 WASPC_UNIT_TESTS_CMD="cabal test waspc-tests --test-options='--hide-successes'"
@@ -43,13 +46,11 @@ WASPC_TESTS_CMD="$WASPC_UNIT_TESTS_CMD && $WASPC_E2E_TESTS_CMD"
 
 WASP_CLI_TESTS_CMD="cabal test wasp-cli-tests --test-options='--hide-successes'"
 
-WASPLS_TESTS_CMD="cabal test waspls-tests --test-options='--hide-successes'"
-
 LIBS_TESTS_CMD="node ${SCRIPT_DIR}/tools/libs/test.ts"
 
 PACKAGES_TESTS_CMD="node ${SCRIPT_DIR}/tools/packages/test.ts"
 
-KITCHEN_SINK_E2E_TESTS_CMD="cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_INSTALL_CMD && npm run test"
+KITCHEN_SINK_E2E_TESTS_CMD="cd $REPOSITORY_ROOT/examples/kitchen-sink && $WASP_CLI_INSTALL_CMD && npm run test"
 
 STARTERS_E2E_TESTS_CMD="cd $PROJECT_ROOT/starters-e2e-tests && npm i && npm run test:dev"
 
@@ -111,12 +112,38 @@ CABAL_GILD_BASE_CMD="$(install_dev_tool cabal-gild) && $(dev_tool_path cabal-gil
 CABAL_GILD_CHECK_CMD="$CABAL_GILD_BASE_CMD --mode check --input waspc.cabal"
 CABAL_GILD_FORMAT_CMD="$CABAL_GILD_BASE_CMD --mode format --io waspc.cabal"
 
-function remove_wasp_libs_from_package_lock() {
+# We remove .wasp/out before `wasp install`, so package-lock entries for
+# generated workspaces and their local tarball deps become stale. Drop them so
+# npm rebuilds those entries from the freshly generated package.json files.
+function remove_stale_generated_wasp_lock_entries() {
   PACKAGE_LOCK_TMP=$(mktemp)
-  if ! jq '.packages |= with_entries(select(.key | test("^node_modules/@wasp\\.sh/lib-") | not))' package-lock.json > "$PACKAGE_LOCK_TMP"; then
+
+  if ! jq '
+    def is_stale_generated_wasp_package:
+      startswith("node_modules/@wasp.sh/lib-")
+      or . == "node_modules/@wasp.sh/generated-server"
+      or . == "node_modules/wasp"
+      or . == ".wasp/out"
+      or startswith(".wasp/out/");
+
+    def without_wasp_lib_deps:
+      if .dependencies then
+        .dependencies |= with_entries(
+          select(.key | startswith("@wasp.sh/lib-") | not)
+        )
+      else
+        .
+      end;
+
+    .packages |= with_entries(
+      select(.key | is_stale_generated_wasp_package | not)
+      | .value |= without_wasp_lib_deps
+    )
+  ' package-lock.json > "$PACKAGE_LOCK_TMP"; then
     rm -f "$PACKAGE_LOCK_TMP"
     exit 1
   fi
+
   mv "$PACKAGE_LOCK_TMP" package-lock.json
 }
 
@@ -175,8 +202,6 @@ print_usage() {
     "Accepts any diffs in the generated app in Wasp CLI snapshot tests. Does so by deleting the current golden output and re-running snapshot tests to produce the new golden output."
   print_usage_cmd "test:cli" \
     "Executes only cli tests. Builds the project first if needed."
-  print_usage_cmd "test:waspls" \
-    "Executes only waspls tests. Builds the project first if needed."
   print_usage_cmd "test:libs" \
     "Run tests on Wasp libs (types, unit, type-exports)."
   print_usage_cmd "test:packages" \
@@ -256,9 +281,11 @@ case $COMMAND in
     ghcid -T=':main --color always' --command=cabal repl tests/TastyDiscoverDriver.hs
     ;;
   test)
+    export WASP_CLI_CMD="$WASP_CLI_CMD"
     echo_and_eval "$TEST_CMD"
     ;;
   test:waspc)
+    export WASP_CLI_CMD="$WASP_CLI_CMD"
     echo_and_eval "$WASPC_TESTS_CMD"
     ;;
   test:waspc:unit)
@@ -270,16 +297,15 @@ case $COMMAND in
     fi
     ;;
   test:waspc:e2e)
+    export WASP_CLI_CMD="$WASP_CLI_CMD"
     echo_and_eval "$WASPC_E2E_TESTS_CMD"
     ;;
   test:waspc:e2e:accept-all)
+    export WASP_CLI_CMD="$WASP_CLI_CMD"
     echo_and_eval "$WASPC_E2E_TESTS_ACCEPT_CURRENT_CMD"
     ;;
   test:cli)
     echo_and_eval "$WASP_CLI_TESTS_CMD"
-    ;;
-  test:waspls)
-    echo_and_eval "$WASPLS_TESTS_CMD"
     ;;
   test:libs)
     echo_and_eval "$LIBS_TESTS_CMD"
@@ -288,22 +314,30 @@ case $COMMAND in
     echo_and_eval "$PACKAGES_TESTS_CMD"
     ;;
   test:kitchen-sink)
+    export WASP_CLI_CMD="$WASP_CLI_CMD"
     echo_and_eval "$KITCHEN_SINK_E2E_TESTS_CMD"
     ;;
   test:examples)
+    export WASP_CLI_CMD="$WASP_CLI_CMD"
     echo_and_eval "$EXAMPLES_E2E_TESTS_CMD"
     ;;
   test:starters)
+    export WASP_CLI_CMD="$WASP_CLI_CMD"
     echo_and_eval "$STARTERS_E2E_TESTS_CMD"
     ;;
   wasp-cli)
-    echo_and_eval "$RUN_CMD"
+    echo_and_eval "$WASP_CLI_RUN_CMD"
     ;;
   bust-libs-cache)
-    remove_wasp_libs_from_package_lock
+    # `wasp install` must run before compile so @wasp.sh/spec matches CLI version.
+    # Old generated workspaces point at old lib tarballs, so remove them from disk
+    # and lockfile first. Compile then regenerates .wasp/out with fresh tarballs.
+    rm -rf .wasp/out node_modules/@wasp.sh/generated-server node_modules/wasp
+    remove_stale_generated_wasp_lock_entries
+    eval "$WASP_CLI_INSTALL_CMD"
 
     # Compiling the project copies the new lib tarball to the out dir.
-    eval "$RUN_CMD compile"
+    eval "$WASP_CLI_RUN_CMD compile"
 
     # The --force flag tells `npm` to ignore local cache when installing packages.
     npm install --force

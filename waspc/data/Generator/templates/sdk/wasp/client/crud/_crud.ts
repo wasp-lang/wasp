@@ -2,7 +2,7 @@
 import { createAction } from "../operations/actions/core.js";
 import { createQuery } from "../operations/queries/core.js";
 import { makeUseActionFor, makeUseQueryFor } from "./operationsHelpers.js";
-import { 
+import type {
     {=# operations.Get =}
     GetQueryResolved,
     {=/ operations.Get =}
@@ -18,7 +18,7 @@ import {
     {=# operations.Delete =}
     DeleteActionResolved,
     {=/ operations.Delete =}
-} from 'wasp/server/crud/{= name =}'
+} from '../../server/crud/{= name =}.js'
 
 function createCrud() {
     {=# operations.Get =}

@@ -112,11 +112,17 @@ jobs:
             static: false # Check the comment above for why we can't statically link on macOS
 
     runs-on: ${{ matrix.env.runner }}
-    container: ${{ matrix.env.container }}
+    container:
+      # Zizmor can't follow the matrix to see which container is used so it
+      # marks everything as unpinned, but they _are_ pinned.
+      # zizmor: ignore[unpinned-images]
+      ${{ matrix.env.container }}
     name: Build Wasp (${{ matrix.env.name }})
 
     steps:
       - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
 
       - name: Compute artifact names
         uses: ./.github/actions/compute-artifact-names
@@ -142,10 +148,11 @@ jobs:
         env:
           LC_ALL: C.UTF-8 # In some Docker containers the LOCALE is not UTF-8 by default
           BUILD_STATIC: ${{ matrix.env.static && '1' || '' }}
+          TARBALL_NAME: ${{ steps.compute-artifact-names.outputs.tarball-name }}
         run: |
           ./run build
           mkdir -p artifacts
-          ./tools/make_binary_package.sh "artifacts/${{ steps.compute-artifact-names.outputs.tarball-name }}"
+          ./tools/make_binary_package.sh "artifacts/${TARBALL_NAME}"
 
       - name: Compute data files list
         id: data-files

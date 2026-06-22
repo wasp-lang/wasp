@@ -1,5 +1,6 @@
 import { describe, expect, test } from "vitest";
 import * as AppSpec from "../../src/appSpec.js";
+import { normalizePrerender } from "../../src/normalizePrerender.js";
 import * as AppSpecMapper from "../../src/spec/mapApp.js";
 import { app, page, route } from "../../src/spec/publicApi/index.js";
 import * as WaspSpec from "../../src/spec/publicApi/waspSpec.js";
@@ -315,6 +316,15 @@ describe("mapRoute", () => {
     testMapRoute(Fixtures.getRoute("full"));
   });
 
+  test("should expand prerender: true to the route's own path", () => {
+    const result = AppSpecMapper.mapRoute(
+      route("LandingRoute", "/landing", Fixtures.getPage("minimal"), {
+        prerender: true,
+      }),
+    );
+    expect(result.prerender).toEqual(["/landing"]);
+  });
+
   function testMapRoute(route: WaspSpec.Route): void {
     const result = AppSpecMapper.mapRoute(route);
 
@@ -324,7 +334,7 @@ describe("mapRoute", () => {
         name: getRefObjectDeclarationName(route.page.component),
         declType: "Page",
       },
-      prerender: route.prerender,
+      prerender: normalizePrerender(route.prerender, route.path),
       lazy: route.lazy,
     } satisfies AppSpec.Route);
   }

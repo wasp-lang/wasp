@@ -4,7 +4,7 @@ import {
   type UnauthenticatedActionDefinition,
   type AuthenticatedActionDefinition,
   type Payload,
-} from 'wasp/server/_types'
+} from '../../_types/index.js'
 
 // PUBLIC API
 export type CustomSignup<Input extends Payload = never, Output extends Payload = Payload> = 
