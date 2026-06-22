@@ -23,7 +23,6 @@ COMMANDS
 
     version               Prints current version of CLI.
     doctor                Runs sanity checks on your setup (Node.js, Docker, ports, ...).
-    waspls                Run Wasp Language Server. Add --help to get more info.
     completion            Prints help on bash completion.
     uninstall             Removes Wasp from your system.
   IN PROJECT

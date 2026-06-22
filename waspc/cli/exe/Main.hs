@@ -10,6 +10,7 @@ import Main.Utf8 (withUtf8)
 import System.Environment (getArgs)
 import qualified System.Environment as Env
 import System.Exit (exitFailure)
+import System.IO (hPutStrLn, stderr, stdout)
 import Wasp.Cli.Command (runCommand)
 import Wasp.Cli.Command.BashCompletion (bashCompletion, printBashCompletionInstruction)
 import Wasp.Cli.Command.Build (build)
@@ -37,7 +38,6 @@ import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
-import Wasp.Cli.Command.WaspLS (runWaspLS)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
 import qualified Wasp.Message as Message
@@ -71,7 +71,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         ["studio"] -> Command.Call.Studio
         ["completion"] -> Command.Call.PrintBashCompletionInstruction
         ["completion:list"] -> Command.Call.BashCompletionListCommands
-        ("waspls" : _) -> Command.Call.WaspLS
         ("deploy" : deployArgs) -> Command.Call.Deploy deployArgs
         ("test" : testArgs) -> Command.Call.Test testArgs
         _unknownCommand -> Command.Call.Unknown args
@@ -114,7 +113,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
     Command.Call.News -> runCommand news
     Command.Call.PrintBashCompletionInstruction -> runCommand printBashCompletionInstruction
     Command.Call.BashCompletionListCommands -> runCommand bashCompletion
-    Command.Call.WaspLS -> runWaspLS
     Command.Call.Deploy deployArgs -> runCommand $ deploy deployArgs
     Command.Call.Test testArgs -> runCommand $ test testArgs
     Command.Call.Unknown _ -> printUsage >> exitFailure
@@ -161,7 +159,6 @@ printUsage =
               "",
         cmd   "    version               Prints current version of CLI.",
         cmd   "    doctor                Checks your machine for Wasp requirements (Node.js, Docker, ports, ...).",
-        cmd   "    waspls                Run Wasp Language Server. Add --help to get more info.",
         cmd   "    completion            Prints help on bash completion.",
         cmd   "    uninstall             Removes Wasp from your system.",
         title "  IN PROJECT",
@@ -196,11 +193,11 @@ printUsage =
 {- ORMOLU_ENABLE -}
 
 printVersion :: IO ()
-printVersion =
-  putStrLn $
+printVersion = do
+  hPutStrLn stdout $ show waspVersion
+  hPutStrLn stderr $
     unlines
-      [ show waspVersion,
-        "",
+      [ "",
         "If you wish to install/switch to the latest version of Wasp, do:",
         indent 2 $ getInstallationCommand Nothing,
         "",

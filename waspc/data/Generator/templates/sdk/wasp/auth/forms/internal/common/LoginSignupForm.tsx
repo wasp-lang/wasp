@@ -2,7 +2,7 @@
 import { useForm, UseFormReturn } from 'react-hook-form'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
-import { config } from 'wasp/client'
+import { config } from '../../../../client/index.js'
 import { clsx } from '../util'
 
 import { useAuthContext } from '@wasp.sh/lib-auth/browser'

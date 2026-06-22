@@ -92,9 +92,9 @@ spec_Analyzer = do
                 "  authRequired: true",
                 "}",
                 "",
-                "route HomeRoute { path: \"/\", to: HomePage }",
+                "route HomeRoute { path: \"/\", to: HomePage, prerender: [] }",
                 "",
-                "route PrerenderRoute { path: \"/prerender\", to: HomePage, prerender: true }",
+                "route PrerenderRoute { path: \"/prerender\", to: HomePage, prerender: [\"/prerender\"] }",
                 "",
                 "query getUsers {",
                 "  fn: import { getAllUsers } from \"@src/foo\",",
@@ -245,10 +245,10 @@ spec_Analyzer = do
 
       let expectedRoutes =
             [ ( "HomeRoute",
-                Route.Route {Route.path = "/", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = Nothing}
+                Route.Route {Route.path = "/", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = []}
               ),
               ( "PrerenderRoute",
-                Route.Route {Route.path = "/prerender", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = Just True}
+                Route.Route {Route.path = "/prerender", Route.to = Ref "HomePage", Route.lazy = Nothing, Route.prerender = ["/prerender"]}
               )
             ]
       takeDecls <$> decls `shouldBe` Right expectedRoutes
@@ -319,7 +319,7 @@ spec_Analyzer = do
     it "Returns a type error if unexisting declaration is referenced" $ do
       let source =
             unlines
-              [ "route HomeRoute { path: \"/\", to: NonExistentPage }"
+              [ "route HomeRoute { path: \"/\", to: NonExistentPage, prerender: [] }"
               ]
       takeDecls @Route <$> analyze prismaSchema source
         `shouldBe` Left [TypeError $ TC.mkTypeError (ctx (1, 34) (1, 48)) $ TC.UndefinedIdentifier "NonExistentPage"]
@@ -327,7 +327,7 @@ spec_Analyzer = do
     it "Returns a type error if referenced declaration is of wrong type" $ do
       let source =
             unlines
-              [ "route HomeRoute { path: \"/\",  to: HomeRoute }"
+              [ "route HomeRoute { path: \"/\",  to: HomeRoute, prerender: [] }"
               ]
       analyze prismaSchema source
         `errorMessageShouldBe` ( ctx (1, 35) (1, 43),
@@ -344,7 +344,7 @@ spec_Analyzer = do
     it "Works when referenced declaration is declared after the reference." $ do
       let source =
             unlines
-              [ "route HomeRoute { path: \"/\",  to: HomePage }",
+              [ "route HomeRoute { path: \"/\",  to: HomePage, prerender: [] }",
                 "page HomePage { component: import Home from \"@src/HomePage\" }"
               ]
       isRight (analyze prismaSchema source) `shouldBe` True
