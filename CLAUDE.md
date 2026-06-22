@@ -28,6 +28,7 @@ Key things to know:
 - Run the dev CLI with `./run wasp-cli <args>`.
 - Toolchain versions (GHC, HLS) are specified in `waspc/cabal.project` and `waspc/dev-tool.project`. Use `./run ghcup-set` to set the correct versions.
 - Node.js minimum version is in `.nvmrc`.
+- Lib migration rules live in `waspc/LIB_MIGRATION.md`.
 
 ## Code Conventions
 
