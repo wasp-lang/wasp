@@ -3,8 +3,10 @@ import {
   AuthServiceError,
   createJWTHelpers,
   hashPassword,
+  loginWithEmail,
   loginWithUsername,
   parseCookies,
+  signupWithEmail,
   signupWithUsername,
   TimeSpan,
   verifyPassword,
@@ -17,6 +19,8 @@ describe("node exports", () => {
     expect(verifyPassword).toEqual(expect.any(Function));
     expect(TimeSpan).toEqual(expect.any(Function));
     expect(AuthServiceError).toEqual(expect.any(Function));
+    expect(signupWithEmail).toEqual(expect.any(Function));
+    expect(loginWithEmail).toEqual(expect.any(Function));
     expect(signupWithUsername).toEqual(expect.any(Function));
     expect(loginWithUsername).toEqual(expect.any(Function));
   });

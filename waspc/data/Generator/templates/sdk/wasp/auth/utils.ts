@@ -164,9 +164,9 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
 // NOTE: Attacker measuring time to response can still determine
 // if a user exists or not. We'll be able to avoid it when 
 // we implement e-mail sending via jobs.
-export async function doFakeWork(): Promise<unknown> {
+export async function doFakeWork(): Promise<void> {
   const timeToWork = Math.floor(Math.random() * 1000) + 1000;
-  return sleep(timeToWork);
+  await sleep(timeToWork);
 }
 
 // PRIVATE API
@@ -221,6 +221,15 @@ export function rethrowPossibleAuthServiceError(e: unknown): void {
 
   if (e instanceof AuthServiceError && e.code === 'invalid-credentials') {
     throw createInvalidCredentialsError()
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'email-resend-too-soon') {
+    throw new HttpError(400, e.message)
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'email-delivery-failed') {
+    console.error(e.metadata.logMessage ?? e.message, e.metadata.cause ?? e)
+    throw new HttpError(500, String(e.metadata.responseMessage ?? e.message))
   }
 }
 

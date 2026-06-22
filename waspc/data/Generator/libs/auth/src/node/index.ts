@@ -60,6 +60,17 @@ export {
 } from "./providerData";
 
 export {
+  loginWithEmail,
+  signupWithEmail,
+  type EmailAuthLoginResult,
+  type EmailLoginAdapters,
+  type EmailLoginArgs,
+  type EmailSignupAdapters,
+  type EmailSignupArgs,
+  type EmailSignupResult,
+} from "./emailAuth";
+
+export {
   loginWithUsername,
   signupWithUsername,
   type UsernameAuthLoginResult,
