@@ -5,6 +5,33 @@ export { hashPassword, verifyPassword } from "./password";
 export { parseCookies } from "oslo/cookie";
 
 export {
+  AuthServiceError,
+  type AuthCoreAdapters,
+  type AuthHooks,
+  type AuthId,
+  type AuthIdentity,
+  type AuthRepository,
+  type AuthServiceAdapters,
+  type AuthServiceErrorCode,
+  type AuthWithUser,
+  type Clock,
+  type CreatedUserWithAuth,
+  type EmailAuthAdapters,
+  type EmailTokenService,
+  type EmailVerificationService,
+  type MaybePromise,
+  type OAuthAuthAdapters,
+  type OAuthRedirects,
+  type OneTimeCodeStore,
+  type PasswordResetService,
+  type ProviderIdFor,
+  type RandomSource,
+  type Session,
+  type SessionService,
+  type WorkSimulator,
+} from "./authServiceAdapters";
+
+export {
   generateAndStoreOAuthState,
   getOAuthCookieName,
   getOAuthCookieOptions,

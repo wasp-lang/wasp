@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  AuthServiceError,
   createJWTHelpers,
   hashPassword,
   parseCookies,
@@ -13,6 +14,7 @@ describe("node exports", () => {
     expect(hashPassword).toEqual(expect.any(Function));
     expect(verifyPassword).toEqual(expect.any(Function));
     expect(TimeSpan).toEqual(expect.any(Function));
+    expect(AuthServiceError).toEqual(expect.any(Function));
   });
 
   it("should export cookie parsing", () => {

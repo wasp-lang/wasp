@@ -12,6 +12,14 @@ The library has multiple entry points:
 
 Read more about the naming convention for exports in the parent [README](../README.md#lib-exports-naming-convention).
 
+### Auth service adapters
+
+The `node` entry point exports auth service adapter types. They describe the generated app capabilities the auth library can call when route
+internals move into the library: auth persistence, sessions, hooks, email, one-time codes, OAuth redirects, time, randomness, and fake work.
+
+These adapters use auth-domain names instead of generated Wasp modules, Prisma types, Express types, or Wasp errors. Generated templates should map
+Wasp-specific code to this contract.
+
 ### Lib version
 
 Read more about versioning in the parent [README](../README.md#lib-version).
