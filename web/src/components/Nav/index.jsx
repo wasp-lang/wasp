@@ -1,8 +1,8 @@
 import Link from "@docusaurus/Link";
 import { useRef, useState } from "react";
 import Transition from "../../lib/Transition";
-import Logo from "./Logo";
 import Announcement from "./Announcement";
+import Logo from "./Logo";
 
 const Nav = () => {
   const [open, setOpen] = useState(false);
