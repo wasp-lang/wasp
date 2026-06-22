@@ -6,8 +6,6 @@ module Wasp.Project.Common
     CompileWarning,
     UserPackageJsonFile,
     SrcTsConfigFile,
-    WaspFilePath (..),
-    WaspLangFile,
     WaspTsFile,
     mainWaspTsFileInWaspProjectDir,
     findFileInWaspProjectDir,
@@ -21,9 +19,7 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
-    getTsConfigPathsForWaspProject,
-    tsConfigPathsInWaspLangProjects,
-    tsConfigPathsInWaspTsProjects,
+    tsConfigPaths,
     TsConfigPaths (..),
     WaspTsConfigFile,
     RootTsConfigFile,
@@ -56,12 +52,6 @@ data DotWaspDir -- Here we put everything that wasp generates.
 data UserPackageJsonFile
 
 instance PackageJsonFile UserPackageJsonFile
-
-data WaspFilePath
-  = WaspLang !(Path' Abs (File WaspLangFile))
-  | WaspTs !(Path' Abs (File WaspTsFile))
-
-data WaspLangFile
 
 data WaspTsFile
 
@@ -117,25 +107,12 @@ dotWaspInfoFileInGeneratedAppDir = [relfile|.waspinfo|]
 userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
 userPackageJsonInWaspProjectDir = [relfile|package.json|]
 
-getTsConfigPathsForWaspProject :: WaspFilePath -> TsConfigPaths
-getTsConfigPathsForWaspProject = \case
-  WaspTs _ -> tsConfigPathsInWaspTsProjects
-  WaspLang _ -> tsConfigPathsInWaspLangProjects
-
-tsConfigPathsInWaspTsProjects :: TsConfigPaths
-tsConfigPathsInWaspTsProjects =
+tsConfigPaths :: TsConfigPaths
+tsConfigPaths =
   TsConfigPaths
     { srcTsConfig = [relfile|tsconfig.src.json|],
       rootTsConfig = Just [relfile|tsconfig.json|],
       waspTsConfig = Just [relfile|tsconfig.wasp.json|]
-    }
-
-tsConfigPathsInWaspLangProjects :: TsConfigPaths
-tsConfigPathsInWaspLangProjects =
-  TsConfigPaths
-    { srcTsConfig = [relfile|tsconfig.json|],
-      rootTsConfig = Nothing,
-      waspTsConfig = Nothing
     }
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'

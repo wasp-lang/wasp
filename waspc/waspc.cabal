@@ -260,7 +260,6 @@ library
     Wasp.Data
     Wasp.Db.Postgres
     Wasp.Env
-    Wasp.Error
     Wasp.ExternalConfig.Npm.Dependency
     Wasp.ExternalConfig.Npm.PackageJson
     Wasp.ExternalConfig.Npm.PackageJson.DepValidators
@@ -398,7 +397,6 @@ library
     Wasp.Project.Studio
     Wasp.Project.WaspFile
     Wasp.Project.WaspFile.TypeScript
-    Wasp.Project.WaspFile.WaspLang
     Wasp.Project.Waspignore
     Wasp.Psl.Ast.Argument
     Wasp.Psl.Ast.Attribute
@@ -628,7 +626,6 @@ test-suite waspc-tests
     AppSpec.FromJSONTest
     AppSpec.ValidTest
     EnvTest
-    ErrorTest
     ExternalConfig.Npm.NpmDependenciesTest
     ExternalConfig.Npm.PackageJson.DepValidatorsTest
     ExternalConfig.Npm.TarballTest

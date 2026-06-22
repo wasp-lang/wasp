@@ -39,7 +39,7 @@ import Wasp.Project.Common
     WaspTsConfigFile,
     WaspTsFile,
     dotWaspDirInWaspProjectDir,
-    tsConfigPathsInWaspTsProjects,
+    tsConfigPaths,
   )
 import qualified Wasp.Psl.Ast.Model as Psl.Schema.Model
 import qualified Wasp.Psl.Ast.Schema as Psl.Schema
@@ -61,7 +61,7 @@ analyzeWaspTsFile compileOptions prismaSchemaAst waspFilePath = do
     Right (SpecAnalysisOk specDecls) ->
       (++ specDecls) <$> entityDeclsOrErrors
   where
-    waspTsConfigFile = fromJust tsConfigPathsInWaspTsProjects.waspTsConfig
+    waspTsConfigFile = fromJust tsConfigPaths.waspTsConfig
 
     entityDeclsOrErrors =
       left (map fst) $
