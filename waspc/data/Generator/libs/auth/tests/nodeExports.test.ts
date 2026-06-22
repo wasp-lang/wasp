@@ -3,7 +3,9 @@ import {
   AuthServiceError,
   createJWTHelpers,
   hashPassword,
+  loginWithUsername,
   parseCookies,
+  signupWithUsername,
   TimeSpan,
   verifyPassword,
 } from "../src/node";
@@ -15,6 +17,8 @@ describe("node exports", () => {
     expect(verifyPassword).toEqual(expect.any(Function));
     expect(TimeSpan).toEqual(expect.any(Function));
     expect(AuthServiceError).toEqual(expect.any(Function));
+    expect(signupWithUsername).toEqual(expect.any(Function));
+    expect(loginWithUsername).toEqual(expect.any(Function));
   });
 
   it("should export cookie parsing", () => {

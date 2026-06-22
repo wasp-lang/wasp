@@ -9,9 +9,11 @@ import {
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
+import { ValidationError } from '@wasp.sh/lib-auth'
 
 import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
 import {
+  AuthServiceError,
   createProviderId,
   getProviderData,
   getProviderDataWithPassword,
@@ -209,6 +211,17 @@ export function rethrowPossibleAuthError(e: unknown): void {
   }
 
   throw e
+}
+
+// PRIVATE API
+export function rethrowPossibleAuthServiceError(e: unknown): void {
+  if (e instanceof ValidationError) {
+    throwValidationError(e.message)
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'invalid-credentials') {
+    throw createInvalidCredentialsError()
+  }
 }
 
 // PRIVATE API

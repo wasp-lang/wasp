@@ -58,3 +58,14 @@ export {
   type ProviderName,
   type UsernameProviderData,
 } from "./providerData";
+
+export {
+  loginWithUsername,
+  signupWithUsername,
+  type UsernameAuthLoginResult,
+  type UsernameLoginAdapters,
+  type UsernameLoginArgs,
+  type UsernameSignupAdapters,
+  type UsernameSignupArgs,
+  type UsernameSignupResult,
+} from "./usernameAuth";

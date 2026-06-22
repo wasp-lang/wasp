@@ -1,17 +1,12 @@
 {{={= =}=}}
 import { defineHandler } from 'wasp/server/utils'
+import { signupWithUsername } from '@wasp.sh/lib-auth/node'
 import {
-  createProviderId,
   createUser,
   rethrowPossibleAuthError,
-  sanitizeAndSerializeProviderData,
+  rethrowPossibleAuthServiceError,
+  validateAndGetUserFields,
 } from 'wasp/auth/utils'
-import {
-  ensureValidUsername,
-  ensurePasswordIsPresent,
-  ensureValidPassword,
-} from 'wasp/auth/validation'
-import { validateAndGetUserFields } from 'wasp/auth/utils'
 import type { UserSignupFields } from 'wasp/auth/providers/types'
 import { onBeforeSignupHook, onAfterSignupHook } from '../../hooks.js';
 
@@ -22,38 +17,49 @@ export function getSignupRoute({
 }) {
   return defineHandler(async function signup(req, res) {
     const fields = req.body ?? {}
-    ensureValidArgs(fields)
-
-    const userFields = await validateAndGetUserFields(
-      fields,
-      userSignupFields,
-    );
-
-    const providerId = createProviderId('username', fields.username)
-    const providerData = await sanitizeAndSerializeProviderData<'username'>({
-      hashedPassword: fields.password,
-    })
 
     try {
-      await onBeforeSignupHook({ req, providerId })
-      const user = await createUser(
-        providerId,
-        providerData,
-        // Using any here because we want to avoid TypeScript errors and
-        // rely on Prisma to validate the data.
-        userFields as any
-      )
-      await onAfterSignupHook({ req, providerId, user })
+      await signupWithUsername({
+        fields,
+        request: req,
+        getUserFields: (fields) =>
+          validateAndGetUserFields(
+            fields as Record<string, unknown>,
+            userSignupFields,
+          ),
+        adapters: {
+          authRepository: {
+            async createUserWithIdentity({
+              providerId,
+              serializedProviderData,
+              userFields,
+            }) {
+              const user = await createUser(
+                providerId,
+                serializedProviderData,
+                // Using any here because we want to avoid TypeScript errors and
+                // rely on Prisma to validate the data.
+                userFields as any,
+              )
+              if (user.auth === null) {
+                throw new Error('Auth entity not found after username signup')
+              }
+              return { authId: user.auth.id, user }
+            },
+          },
+          hooks: {
+            onBeforeSignup: ({ request, providerId }) =>
+              onBeforeSignupHook({ req: request, providerId }),
+            onAfterSignup: ({ request, providerId, user }) =>
+              onAfterSignupHook({ req: request, providerId, user }),
+          },
+        },
+      })
     } catch (e: unknown) {
+      rethrowPossibleAuthServiceError(e)
       rethrowPossibleAuthError(e)
     }
 
     res.json({ success: true })
   })
-}
-
-function ensureValidArgs(args: object): void {
-  ensureValidUsername(args)
-  ensurePasswordIsPresent(args)
-  ensureValidPassword(args)
 }
