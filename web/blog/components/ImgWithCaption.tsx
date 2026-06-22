@@ -32,7 +32,9 @@ export function ImgWithCaption(props: ImgWithCaptionProps) {
       style={{
         width: props.width,
         display: isFramed ? "block" : undefined,
-        border: isFramed ? `${frameBorderWidth}px solid ${frameBorderColor}` : undefined,
+        border: isFramed
+          ? `${frameBorderWidth}px solid ${frameBorderColor}`
+          : undefined,
         boxSizing: isFramed ? "border-box" : undefined,
       }}
       alt={props.alt}

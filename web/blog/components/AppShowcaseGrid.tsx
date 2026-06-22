@@ -39,7 +39,12 @@ function Tile({
     />
   );
   return app.href ? (
-    <a href={app.href} target="_blank" rel="noreferrer noopener" style={{ display: "block" }}>
+    <a
+      href={app.href}
+      target="_blank"
+      rel="noreferrer noopener"
+      style={{ display: "block" }}
+    >
       {img}
     </a>
   ) : (
@@ -70,7 +75,12 @@ export function AppShowcaseGrid({
         }}
       >
         {apps.map((app, i) => (
-          <Tile key={i} app={app} borderColor={borderColor} borderWidth={borderWidth} />
+          <Tile
+            key={i}
+            app={app}
+            borderColor={borderColor}
+            borderWidth={borderWidth}
+          />
         ))}
       </div>
       <style>{`

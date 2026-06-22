@@ -162,7 +162,9 @@ const BentoCard = ({
     <article
       className={classNames(
         "border-2 p-6",
-        accent ? "bg-wasp-yellow-light border-wasp-black" : "bg-wasp-white border-wasp-g3",
+        accent
+          ? "border-wasp-black bg-wasp-yellow-light"
+          : "border-wasp-g3 bg-wasp-white",
         className,
       )}
     >
