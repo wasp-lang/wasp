@@ -1,6 +1,6 @@
+import { QueryObserver } from "@tanstack/react-query";
 import { http, HttpResponse } from "msw";
 import { beforeAll, describe, expect, it, vi } from "vitest";
-import { QueryObserver } from "@tanstack/react-query";
 import { config } from "wasp/client";
 import {
   createTask,
@@ -55,7 +55,9 @@ beforeAll(async () => {
       if (pathname === getTasks.route.path) {
         return HttpResponse.json(serialize(tasksOnServer));
       }
-      return HttpResponse.json(serialize({ id: 0, description: "", isDone: false }));
+      return HttpResponse.json(
+        serialize({ id: 0, description: "", isDone: false }),
+      );
     }),
   );
 });
