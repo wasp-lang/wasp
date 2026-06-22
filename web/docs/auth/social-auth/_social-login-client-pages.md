@@ -30,4 +30,4 @@ export function Layout({ children }: { children: ReactNode }) {
 }
 ```
 
-We imported the generated Auth UI components and used them in our pages. Read more about the Auth UI components [here](../../auth/ui).
+We imported the Auth UI components and used them in our pages. Read more about the Auth UI options [here](../../auth/ui).

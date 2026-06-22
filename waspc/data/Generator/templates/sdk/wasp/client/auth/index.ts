@@ -1,5 +1,6 @@
 {{={= =}=}}
 export * from './ui'
+export * from '@wasp.sh/lib-auth/browser'
 {=# isEmailAuthEnabled =}
 export * from './email'
 {=/ isEmailAuthEnabled =}

@@ -1,4 +1,5 @@
 export * from './ui'
+export * from '@wasp.sh/lib-auth/browser'
 export * from './email'
 export * from './slack'
 export * from './discord'

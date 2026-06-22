@@ -32,7 +32,7 @@
             "file",
             "libs/auth/wasp.sh-lib-auth-0.25.0.tgz"
         ],
-        "6b44499db2b66a4018a4f1d2c716f347df99d62c710de9687adfed3415284e28"
+        "3244f610163feacb3eb622729935dcbda5981cfba8348c5fc02fe417a407b079"
     ],
     [
         [
@@ -508,7 +508,7 @@
             "file",
             "sdk/wasp/client/auth/index.ts"
         ],
-        "d637e7f7ac33a73ed335a6c8889dc43e6a6cf23035aec8b0ab062e88f6d7c2e6"
+        "1bc0450e3535e489228b2a1f0b94df4c752cca7b7d31e025888bdf7fa15922e0"
     ],
     [
         [
