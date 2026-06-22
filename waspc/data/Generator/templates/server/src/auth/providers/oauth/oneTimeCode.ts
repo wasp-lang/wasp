@@ -1,39 +1,51 @@
 import { Router } from "express";
 
-import { HttpError } from 'wasp/server';
-import { defineHandler } from 'wasp/server/utils';
-import { findAuthWithUserBy } from 'wasp/auth/utils'
-import { createSession } from 'wasp/auth/session'
+import { exchangeOAuthCodeForSession } from "@wasp.sh/lib-auth/node";
+import { createSession } from "wasp/auth/session";
+import {
+  findAuthWithUserBy,
+  rethrowPossibleAuthServiceError,
+} from "wasp/auth/utils";
 import { exchangeCodeForTokenPath, tokenStore } from "wasp/server/auth";
+import { defineHandler } from "wasp/server/utils";
 
 export function setupOneTimeCodeRoute(router: Router) {
   router.post(
     `/${exchangeCodeForTokenPath}`,
     defineHandler(async (req, res) => {
-      const { code } = req.body;
+      try {
+        const { sessionId } = await exchangeOAuthCodeForSession({
+          fields: req.body ?? {},
+          adapters: {
+            oneTimeCodeStore: {
+              isUsed: tokenStore.isUsed,
+              markUsed: tokenStore.markUsed,
+              async verifyToken(code) {
+                const { id: authId } = await tokenStore.verifyToken(code);
+                return { authId };
+              },
+            },
+            authRepository: {
+              async findAuthWithUserByAuthId(authId) {
+                const auth = await findAuthWithUserBy({ id: authId });
+                return auth === null
+                  ? null
+                  : { authId: auth.id, user: auth.user };
+              },
+            },
+            sessionService: {
+              createSession,
+            },
+          },
+        });
 
-      if (code === undefined) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code is missing.");
+        res.json({
+          sessionId,
+        });
+      } catch (e: unknown) {
+        rethrowPossibleAuthServiceError(e);
+        throw e;
       }
-
-      if (tokenStore.isUsed(code)) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code has already been used.");
-      }
-
-      const { id: authId } = await tokenStore.verifyToken(code);
-      const auth = await findAuthWithUserBy({ id: authId })
-
-      if (auth === null) {
-        throw new HttpError(400, "Unable to login with the OAuth provider. The code is invalid.");
-      }
-
-      const session = await createSession(auth.id);
-
-      tokenStore.markUsed(code);
-
-      res.json({
-        sessionId: session.id,
-      });
-    })
+    }),
   );
 }

@@ -45,6 +45,21 @@ export {
 } from "./oauthState";
 
 export {
+  completeOAuthCallback,
+  exchangeOAuthCodeForSession,
+  getOAuthCallbackErrorRedirectUrl,
+  type OAuthCallbackAdapters,
+  type OAuthCallbackArgs,
+  type OAuthCallbackErrorRedirectArgs,
+  type OAuthCallbackResult,
+  type OAuthCodeExchangeAdapters,
+  type OAuthCodeExchangeArgs,
+  type OAuthCodeExchangeResult,
+  type OAuthHookData,
+  type OAuthProviderName,
+} from "./oauthAuth";
+
+export {
   createProviderId,
   getProviderData,
   getProviderDataWithPassword,

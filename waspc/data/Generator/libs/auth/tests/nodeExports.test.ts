@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
   AuthServiceError,
+  completeOAuthCallback,
   createJWTHelpers,
+  exchangeOAuthCodeForSession,
+  getOAuthCallbackErrorRedirectUrl,
   hashPassword,
   loginWithEmail,
   loginWithUsername,
@@ -27,6 +30,9 @@ describe("node exports", () => {
     expect(requestPasswordReset).toEqual(expect.any(Function));
     expect(resetPassword).toEqual(expect.any(Function));
     expect(verifyEmail).toEqual(expect.any(Function));
+    expect(completeOAuthCallback).toEqual(expect.any(Function));
+    expect(getOAuthCallbackErrorRedirectUrl).toEqual(expect.any(Function));
+    expect(exchangeOAuthCodeForSession).toEqual(expect.any(Function));
     expect(signupWithUsername).toEqual(expect.any(Function));
     expect(loginWithUsername).toEqual(expect.any(Function));
   });

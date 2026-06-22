@@ -227,6 +227,14 @@ export function rethrowPossibleAuthServiceError(e: unknown): void {
     throw new HttpError(400, String(e.metadata.responseMessage ?? e.message))
   }
 
+  if (e instanceof AuthServiceError && e.code === 'missing-token') {
+    throw new HttpError(400, String(e.metadata.responseMessage ?? e.message))
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'used-token') {
+    throw new HttpError(400, String(e.metadata.responseMessage ?? e.message))
+  }
+
   if (e instanceof AuthServiceError && e.code === 'email-resend-too-soon') {
     throw new HttpError(400, e.message)
   }
