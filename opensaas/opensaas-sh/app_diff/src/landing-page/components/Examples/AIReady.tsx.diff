@@ -1,0 +1,26 @@
+--- template/app/src/landing-page/components/Examples/AIReady.tsx
++++ opensaas-sh/app/src/landing-page/components/Examples/AIReady.tsx
+@@ -0,0 +1,23 @@
++import aiReadyDark from "../../../client/static/assets/aiready-dark.webp";
++import aiReady from "../../../client/static/assets/aiready.webp";
++import { HighlightedFeature } from "../HighlightedFeature";
++
++export function AIReady() {
++  return (
++    <HighlightedFeature
++      name="AI Ready"
++      description="With Wasp's abstractions and opinionated defaults, plus custom agent rules, skills, and tools to use with your favorite AI-assisted coding tool, this is the perfect stack for building complex apps in the AI era."
++      highlightedComponent={<AIReadyExample />}
++      direction="row-reverse"
++    />
++  );
++}
++
++function AIReadyExample() {
++  return (
++    <div className="w-full">
++      <img src={aiReady} alt="AI Ready" className="dark:hidden" />
++      <img src={aiReadyDark} alt="AI Ready" className="hidden dark:block" />
++    </div>
++  );
++}

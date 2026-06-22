@@ -1,0 +1,46 @@
+--- template/app/src/client/components/NavBar/Announcement.tsx
++++ opensaas-sh/app/src/client/components/NavBar/Announcement.tsx
+@@ -1,32 +1,33 @@
+-const ANNOUNCEMENT_URL = "https://github.com/wasp-lang/wasp";
++const ANNOUNCEMENT_URL = "https:/openvibe.sh";
+ 
+ export function Announcement() {
++
+   return (
+-    <div className="from-accent to-secondary text-primary-foreground bg-linear-to-r relative flex w-full items-center justify-center gap-3 p-3 text-center font-semibold">
++    <div className="from-accent to-secondary text-primary-foreground relative z-51 flex w-full items-center justify-center gap-3 bg-linear-to-r p-3 text-center font-semibold tracking-wider">
+       <a
+         href={ANNOUNCEMENT_URL}
+         target="_blank"
+-        rel="noopener noreferrer"
+-        className="hidden cursor-pointer transition-opacity hover:opacity-90 hover:drop-shadow-sm lg:block"
++        className="hidden transition-opacity hover:opacity-90 hover:drop-shadow-sm lg:block"
++        rel="noreferrer"
+       >
+-        Support Open-Source Software!
++        🧑‍🏫 Learn to build a SaaS with our free, interactive course
+       </a>
+       <div className="bg-primary-foreground/20 hidden w-0.5 self-stretch lg:block"></div>
+       <a
+         href={ANNOUNCEMENT_URL}
+         target="_blank"
+-        rel="noopener noreferrer"
+-        className="bg-background/20 hover:bg-background/30 hidden cursor-pointer rounded-full px-2.5 py-1 text-xs tracking-wider transition-colors lg:block"
++        className="bg-background/20 hover:bg-background/30 hidden cursor-pointer rounded-full px-2.5 py-1 tracking-wider opacity-95 transition-colors lg:block"
++        rel="noreferrer"
+       >
+-        Star Our Repo on Github ⭐️ →
++        Become a pro with Open Vibe 😎 →
+       </a>
+       <a
+         href={ANNOUNCEMENT_URL}
+         target="_blank"
+-        rel="noopener noreferrer"
+         className="bg-background/20 hover:bg-background/30 cursor-pointer rounded-full px-2.5 py-1 text-xs transition-colors lg:hidden"
++        rel="noreferrer"
+       >
+-        ⭐️ Star the Our Repo and Support Open-Source! ⭐️
++        🧑‍🏫 Learn to Build a SaaS w/ our free course → 
+       </a>
+     </div>
+   );

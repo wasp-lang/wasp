@@ -1,0 +1,28 @@
+{
+  "name": "e2e-tests",
+  "version": "1.0.0",
+  "description": "e2e-tests for opensaas.sh",
+  "author": "",
+  "license": "ISC",
+  "main": "ci-start-app-and-db.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "_comment-on-local:e2e:cleanup-stripe": "NOTE: because we are running the stripe webhook listener in the background, we want to make sure we kill the previous processes before starting a new one.",
+    "e2e:playwright": "DEBUG=pw:webserver npx playwright test",
+    "local:e2e:cleanup-stripe": "PID=$(ps -ef | grep 'stripe listen' | grep -v grep | awk '{print $2}') || true && kill -9 $PID || true",
+    "local:e2e:playwright:ui": "SKIP_EMAIL_VERIFICATION_IN_DEV=true npx playwright test --ui",
+    "local:e2e:start": "npm run local:e2e:cleanup-stripe && npm run local:e2e:start-stripe && npm run local:e2e:playwright:ui && npm run local:e2e:cleanup-stripe",
+    "local:e2e:start-stripe": "stripe listen --forward-to localhost:3001/payments-webhook &"
+  },
+  "dependencies": {
+    "@prisma/client": "5.19.1",
+    "@wasp.sh/wasp-app-runner": "0.0.16",
+    "prisma": "5.19.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.55.1",
+    "@types/node": "^22.12.0"
+  }
+}

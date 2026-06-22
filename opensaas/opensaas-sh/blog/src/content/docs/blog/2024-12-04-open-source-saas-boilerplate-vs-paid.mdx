@@ -1,0 +1,138 @@
+---
+title: Should You Use an Open-source SaaS Boilerplate Starter or a $300+ Paid One?
+date: 2024-12-04
+tags:
+  - webdev
+  - saas
+  - sideproject
+authors: matija
+---
+import { Image } from 'astro:assets';
+import marc1 from '../../../assets/boilerplate-starters/marc1.png';
+import opensaas from '../../../assets/boilerplate-starters/opensaas.png';
+import marc2 from '../../../assets/boilerplate-starters/marc2.png';
+import daveShipfast from '../../../assets/boilerplate-starters/dave-shipfast-tweet.png';
+import osGhStats from '../../../assets/boilerplate-starters/os-gh-stats.png';
+import osCommits from '../../../assets/boilerplate-starters/os-commits.png';
+import freeUpdates from '../../../assets/boilerplate-starters/free-updates-vs-not.png';
+import communityContributions from '../../../assets/boilerplate-starters/community-contributions.png';
+import boilerplateLicenses from '../../../assets/boilerplate-starters/boilerplate-licenses.png';
+
+SaaS boilerplate starters became a very popular thing in the web dev community, and also a pathway to a luxury lifestyle for those behind them, sometimes making north of five figure amounts per month.
+
+<Image src={marc1} alt="Twitter screenshot" loading="lazy" />
+
+On the other hand, there's also been a rise of the open-source SaaS boilerplate starters, that cover various stacks and offer similar features as their paid counterparts, but completely for free and with an active community alongside.
+
+So, what's the catch? Why pay $300 or $500 for something that you can simply get for free? Are there any trade-offs you should be aware of, and what are the pros and cons of each option?
+
+As it usually turns out in the real world, the answer isn't completely black and white and depends on what you need (your requirements) but also what you want (your personal preferences).
+
+The goal of this article is to break these further down and give you an objective, simple framework to follow when choosing a boilerplate starter for your next project. So, let's get into it!
+
+## Why a sudden craze with all these starters? SaaS-es are not a new thing at all
+
+We have all been building web apps and SaaS-es for decades, you may rightfully observe, so why this became a thing just now? It seems like everybody is making their own starter today and getting a ton of excitement (and money) from the community.
+
+**The answer is that the complexity of building a SaaS (or in another words, a web app) in the last ten years increased tenfold.** Partly it is due to the evolution of the underlying architecture (we switched from monolithic, server-based approach to “rich client ↔ backend”) which introduced more moving parts into the equation, and partly due to the explosion of options for each part of the stack.
+
+If you were about to build a SaaS fifteen years ago, you pretty much knew you'd go with either Ruby on Rails, Laravel, or Django, depending on which language and community you preferred. These would come as a batteries-included solution, give you their best defaults and you'd be up and running in a matter of hour(s). You got a single, well-tested path to follow and not much decisions to make.
+
+If you sit down and try to do the same today, your head would probably get dizzy after a few hour(s) of merely reading about all the possible options you could go with:
+
+- **What to use for the frontend?** Something mainstream as React, Vue or Angular, or something more sexy and bleeding edge like Svelte or Solid?
+- **Should I use a React framework** e.g. Next or Remix? Or just go with React + Vite?
+- **Do I need SSR and SSG**? Or should I just stick with CSR?
+- **What should I use as an API layer?** Good ol' REST, or maybe GraphQL, or maybe even typesafe RPC?
+- **What to choose for the backend?** Do I use something lightweight like Express.js with Node/Bun/Deno or a full-blown solution such as Nest.js/Django/Rails? Or maybe finally try Phoenix/Livewire combo everybody has been talking about? Do I go serverless or not?
+- **What about the database and ORM?** Relational or non-relational? Should I write raw queries or use a full-blown ORM such as Drizzle and Prisma? If yes, which one?
+- **What are my hosting options?** Am I going to get locked in with a single provider? What if I want/need to host my app somewhere else?
+
+These are just some of the questions you need to start thinking about when deciding how to start your SaaS in 2024. As you can see, it's more then enough to make your head spin and even if you're a seasoned developer and makes you feel like you need to be a rocket scientist to figure out the right combination.
+
+This is why people today turn to SaaS boilerplate starters and gladly even pay for it. It means somebody else did the legwork and (hopefully) made a sensible decision on the stack which will remain current and easy to maintain in the years to come.
+
+Now that we gave some context to the sudden rise of SaaS starters, let's back to the original question - why pay for something when there is an open-source, free version of it? Let's take a look at some of the factors that come to play.
+
+## With an open-source SaaS starter, you know exactly what you're getting into
+
+By the definition of open-source, **you can see and examine the full code** **of the starter in advance**, before committing to using it for your project.
+
+Although it's not likely you will go through every line of code beforehand and try to understand it all (that's why you're looking for a starter in the first place), you can check it out and see how you like it - e.g. the style of the code, readability and how well documented and tested it is.
+
+You can also see the repository's activity stats - number of open and closed issues, features in progress, commit frequency and how fast are things being resolved and new features added.
+
+<Image src={opensaas} alt="Open SaaS screenshot" loading="lazy" />
+
+Paid, closed-source starters, again by definition, offer at best a fraction of these benefits. You can see the value proposition as the author designed it - some hand-picked testimonials, a demo and potentially have a peek at the docs.
+
+## With a paid starter, you become a member of an exclusive tribe (aka Air Jordans Effect)
+
+The most popular paid boilerplates today often come from well-known developers, or “indie makers,” who've already built successful products. Buying their boilerplate feels a bit like joining an exclusive club—it's as if you're tapping into their expertise and using the same tools they once used to succeed.
+
+<Image src={marc2} alt="Marc promo banner" loading="lazy" />
+
+It's like wearing a jersey signed by a famous athlete or a perfume co-created by a pop star. It won't guarantee instant success, but it gives you a sense of connection and inspiration. You're reminded that someone else turned these same tools into something great—and that you could do it too!
+
+In the long run, this mindset might matter even more than the tools themselves. When things get hard, feeling part of that “club” could be what keeps you going, and taking your idea one step further.
+
+## Security: in open-source, everyone is a reviewer
+
+Paid boilerplate starters are mostly an effort of a single person. It is the type of project that, past the initial development phase, doesn't require a full-time attention and is more of a seasonal nature (e.g. updating libraries to the latest versions). That makes it a perfect workload for a single person and also makes it much more profitable rather than splitting the margin with the team. If there was a whole team behind, it probably wouldn't cost $500, but rather $2000.
+
+<Image src={daveShipfast} alt="Dave Shipfast tweet" loading="lazy" />
+
+Recently, there was a security incident with one of the popular paid starters that allowed external parties to send unauthorized web hook requests, which caused a lot of ripples in the online community of builders.
+
+It is a good reminder that, while it's important to ship quickly, security isn't something that can be skipped over. And while nobody can guarantee the security of any SaaS starter, be it paid or open-source, the fact is that in open-source projects there are much more people involved in both development and code review. Since the code is freely available, you're also free to review it yourself, use any pen-testing tools on it or ask another expert to check it before committing to it.
+
+## With a paid SaaS starter, the bus factor is 1, with open-source you get the full community support!
+
+A paid SaaS starter typically depends on a single maintainer. Since the code is closed source, nobody else has access nor rights to it, and **if for any reason the author becomes unable or unwilling to continue working on it, that's the end of the story.** No support, updates, nor anybody to turn to with questions.
+
+**On the other hand, [an open-source boilerplate starter](https://opensaas.sh/) like Open SaaS is a living organism, with a number of contributors behind it.** As with any open-source project, there will typically be a smaller core team which does the bulk of the work and steers the project (and that might as well be a single person in the start), but anybody can join at any point, and they will. As the project grows and becomes more used, more and more people will start adding fixes and features they need themselves and take ownership of the specific parts.
+
+<Image src={osGhStats} alt="Open source stats from opensaas" loading="lazy" />
+
+Another thing to account for is it takes a long time for SaaS starter business to become more than a side income, and only a fraction of builders will ever come to that point. That means most of boilerplate creators will still have a full-time job or other engagements going on. Which means they will have a limited time for customer support and adding new features.
+
+## Open-source SaaS starter === unlimited updates. Closed source? Sometimes.
+
+An another direct benefit of the SaaS starter code being open-source is that you will have an immediate access to all the updates, as soon as they get released. That includes both security patches, version bumps and completely new features.
+
+<Image src={osCommits} alt="Commits to open saas" loading="lazy" />
+
+With closed source, it varies a lot from one starter to another. Some offer updates as an upsell (e.g. basic and pro tier), some offer a limited time updates (e.g. 1-year), and some promise a lifetime of updates. 
+
+<Image src={freeUpdates} alt="Free updates vs pay for everything" loading="lazy" />
+
+## With a paid SaaS starter, you might need to buy a “license” for every new app
+
+Another thing to be aware of is that, with paid starters, there often might be a limit to the number of apps you are allowed to start with a single starter purchase. It is typically phrased in terms of “licenses”, and if you exceed a limit you're legally required to buy a new one, although you already own the starter code.
+
+<Image src={boilerplateLicenses} alt="Boilerplate licenses" loading="lazy" />
+
+Again, this is not the case with all paid starters (some offer unlimited projects with a single purchase), but it is a common pattern worth checking before buying.
+
+With an open-source starter, there naturally isn't any such limit - the full source code is publicly available and you're free to use it in any way you see fit.
+
+## With an open-source SaaS starter, you can add new features yourself!
+
+One of the most exciting benefits of the open-source approach is that anybody can contribute! If there is a feature you're missing or want to improve, you can simply do it yourself it and create a pull request. Then, the core maintainers will review it, give advice and point you in the right direction if needed. Once it gets merged, it is available for everyone to use!
+
+<Image src={communityContributions} alt="Community contributions" loading="lazy" />
+
+## Summary
+
+Now that we have gone through the main differences between open-source and paid SaaS starters, let's give it a bird's-eye view:
+
+|  | Cost | Lifetime updates | Unlimited apps | Maintainers | Community | Air Jordans Effect | Easily contribute |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Open-source SaaS starter | $0 | YES | YES | Many | Big, public | Rarely | YES |
+| Paid starter | $300+ | Depends | Depends | Typically one | Sometimes, private | Often | No |
+
+This is a useful list to be aware of when making a decision which route to go, but in the end there is no one answer that will fit all. Your decision will depend on what exactly you're looking to build and which tech stack you prefer using.
+
+Also, the factors above will not be equally weighted by everyone - one person might be excited about being a part of a wider community and being able to easily contribute to the project, while other most appreciate the fact there is a strong online personality they can follow and get inspired.
+
+In the end, the only important thing is to take action and successfully ship that application you've been thinking about for so long. Good luck! 

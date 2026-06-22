@@ -1,0 +1,31 @@
+{
+  "name": "docs",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "astro": "astro",
+    "build": "npm run generate-llm-files && astro check && astro build",
+    "dev": "astro dev",
+    "generate-llm-files": "node ./scripts/generate-llm-files.mjs",
+    "preview": "astro preview",
+    "start": "astro dev"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.4",
+    "@astrojs/starlight": "^0.29.2",
+    "@astrojs/starlight-tailwind": "^2.0.3",
+    "@astrojs/tailwind": "^5.1.2",
+    "astro": "^4.16.15",
+    "prettier": "^3.4.2",
+    "sharp": "^0.32.5",
+    "starlight-blog": "^0.15.0",
+    "typescript": "^5.4.5",
+    "vanilla-cookieconsent": "^3.1.0"
+  },
+  "devDependencies": {
+    "front-matter": "^4.0.2",
+    "fs-extra": "^11.3.0",
+    "glob": "^11.0.2",
+    "path": "^0.12.7"
+  }
+}

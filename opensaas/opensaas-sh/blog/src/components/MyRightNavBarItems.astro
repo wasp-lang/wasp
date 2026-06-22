@@ -1,0 +1,33 @@
+---
+import StarlightThemeSelect from '@astrojs/starlight/components/ThemeSelect.astro'
+import CopyForLlmButton from './CopyForLlmButton.astro'
+import type { Props } from '@astrojs/starlight/props'
+---
+
+<div class="flex items-center justify-center gap-2">
+  <CopyForLlmButton />
+  <span aria-hidden="true" style="display: inline-block; width: 1px; height: 2em; background: var(--sl-color-gray-5); margin: 0 0.5rem;"></span>
+  <StarlightThemeSelect {...Astro.props}>
+    <slot />
+  </StarlightThemeSelect>
+</div>
+
+<style>
+  div {
+    border-inline-end: 1px solid var(--sl-color-gray-5);
+    display: none;
+    padding-inline-end: 1rem;
+  }
+
+  @media (min-width: 50rem) {
+    div {
+      display: flex;
+    }
+  }
+
+  a {
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+</style>

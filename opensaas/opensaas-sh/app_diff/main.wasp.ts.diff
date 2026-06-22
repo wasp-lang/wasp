@@ -1,0 +1,40 @@
+--- template/app/main.wasp.ts
++++ opensaas-sh/app/main.wasp.ts
+@@ -3,7 +3,6 @@
+ import { App } from "./src/client/App" with { type: "ref" };
+ import { NotFoundPage } from "./src/client/components/NotFoundPage" with { type: "ref" };
+ import { serverEnvValidationSchema } from "./src/env" with { type: "ref" };
+-import { LandingPage } from "./src/landing-page/LandingPage" with { type: "ref" };
+ import { seedMockUsers } from "./src/server/scripts/dbSeeds" with { type: "ref" };
+ 
+ import { adminSpec } from "./src/admin/admin.wasp";
+@@ -12,6 +11,7 @@
+ import { head } from "./src/client/head.wasp";
+ import { demoAiAppSpec } from "./src/demo-ai-app/demo-ai-app.wasp";
+ import { fileUploadSpec } from "./src/file-upload/file-upload.wasp";
++import { landingPage } from "./src/landing-page/landing-page.wasp";
+ import { paymentSpec } from "./src/payment/payment.wasp";
+ import { emailSender } from "./src/server/emailSender.wasp";
+ import { userSpec } from "./src/user/user.wasp";
+@@ -19,7 +19,7 @@
+ export default app({
+   name: "OpenSaaS",
+   wasp: { version: "^0.25.0" },
+-  title: "My Open SaaS App",
++  title: "Open SaaS",
+   head,
+   auth: authConfig,
+   db: {
+@@ -37,10 +37,9 @@
+   },
+   emailSender,
+   spec: [
+-    // Prerendering routes with static content creates HTML files at build time that are served immediately,
+-    // improving SEO, search engine/AI crawling, and performance: https://wasp.sh/docs/advanced/prerendering
+-    route("LandingPageRoute", "/", page(LandingPage), { prerender: true }),
+     route("NotFoundRoute", "*", page(NotFoundPage)),
++
++    landingPage,
+     authSpec,
+     userSpec,
+     demoAiAppSpec,

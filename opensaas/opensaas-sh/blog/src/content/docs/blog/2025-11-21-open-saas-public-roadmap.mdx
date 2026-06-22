@@ -1,0 +1,206 @@
+---
+title: "The Public Development Roadmap for Open SaaS"
+date: 2025-11-21
+tags:
+  - roadmap
+  - wasp
+  - open-source
+  - development
+authors: vince
+---
+import { Image } from 'astro:assets';
+import openSaasUsedBy from '../../../assets/roadmap/open-saas-used-by.webp';
+import openSaasRoadmap from '../../../assets/roadmap/open-saas-roadmap.webp';
+import epicExample from '../../../assets/roadmap/open-saas-epic.webp';
+import epicDetailExample from '../../../assets/roadmap/open-saas-epic-detail.webp';
+import aiReady from '../../../assets/roadmap/open-saas-ai-ready.webp';
+import subscribeGithubButton from '../../../assets/roadmap/subscribe-github.webp';
+import Tweet from '../../../components/Tweet.astro';
+import { Aside } from '@astrojs/starlight/components';
+
+We created Open SaaS to help developers launch full-featured SaaS products faster. 
+
+But launching fast only works when you're working with clear direction and a good foundation. As an open-source project powered by [Wasp](https://wasp.sh), and with our users in mind, we thought it was important to add two things to this project:
+1. A solid roadmap so that development is focused.
+2. Making that roadmap public, to give the community a clear view of what's coming next and how they can get involved.
+
+So we created just that. 
+
+Behold, the [Open SaaS public roadmap](https://github.com/orgs/wasp-lang/projects/6)!
+<br/>
+<a href="https://github.com/orgs/wasp-lang/projects/6" target="_blank">
+<Image src={openSaasRoadmap} alt="Open SaaS public roadmap" style="border-radius: 8px;"/>
+</a>
+
+---
+
+## Why a roadmap?
+
+Open SaaS is becoming a beast of its own. At [13k GitHub stars](https://github.com/wasp-lang/open-saas) and growing, and with constant feature additions and improvements, we thought it was time to make future development more organized, transparent, and community-driven.
+
+<br/>
+<a href="https://opensaas.sh" target="_blank">
+<Image src={openSaasUsedBy} alt="Open SaaS is used by thousands of developers" style="border-radius: 8px;"/>
+</a>
+<br/>
+
+With tons of SaaS apps being deployed with Open SaaS, the needs of its users are also becoming more diverse. It would be impossible to address all of them, but we needed a way to track and prioritize the most important features and improvements.
+
+Up until now, it was just me basically deciding which issues to work on and when. This was pretty inefficent to begin with, and then with more contributors joining the project, it became even more so.
+
+The roadmap is thus a great way to make sense of all the different possible directions we can go in, help focus our efforts, and make development and contributions more meaningful.
+
+## How it works
+
+Open SaaS currently has about [100 open GitHub issues](https://github.com/wasp-lang/open-saas/issues), so it would be crazy to organize and track them all in the roadmap.
+
+<br/>
+<a href="https://github.com/orgs/wasp-lang/projects/6" target="_blank">
+<Image src={epicDetailExample} alt="An example of an Epic in the Open SaaS roadmap" style="border-radius: 8px;"/>
+</a>
+<br/>
+
+So to make things overseeable, the roadmap is a GitHub project with a collection of "Epics". An Epic is just a GitHub issue with a bunch of sub-issues. Each Epic has a status and a progress bar to show you how many of its sub-issues are completed.
+
+<br/>
+<a href="https://github.com/orgs/wasp-lang/projects/6" target="_blank">
+<Image src={epicExample} alt="An example of an Epic in the Open SaaS roadmap" width="400px" style="border-radius: 8px;"/>
+</a>
+<br/>
+
+No regular issues are allowed in it, only epics, of which we don't want too many. This way, its easy to understand the current themes and priorities of the project, as well as what's currently underway.
+
+---
+
+## Guiding themes
+
+When creating epics within the roadmap, there are a few categories we're focusing on at the moment. These guiding themes inform the epics we create, and help us make sure we're addressing the most important needs of our users.
+
+### 1. Real-world launch readiness
+
+Open SaaS should not just be a polished demo, or a flimsy template. It should be something you can deploy and scale. We want to make sure Open SaaS is a production-ready starter that can be used to build real-world SaaS products. 
+This means having a solid architecture, a clean codebase, and a set of features that are robust and ready to be used in production.
+
+<Aside type="tip" title="Startups are using Open SaaS">
+Learn how **Kivo.dev used Open SaaS** to launch their data analysis and reporting platform [here](https://wasp.sh/blog/2025/07/17/three-saas-case-studies-wasp#case-study-1-kivo---democratizing-data-reporting).
+</Aside>
+
+### 2. Modularity & flexibility
+
+Different [auth methods](https://docs.opensaas.sh/guides/authentication/), [billing providers](https://docs.opensaas.sh/guides/payment-integrations/), file uploads, AI integrations, analytics, and more. We want to make sure Open SaaS is a flexible and modular platform that can be tailored to the needs of (almost) any SaaS product. 
+This means having the most essential features you need to launch your SaaS quickly, and being able to easily remove the things you don't.
+
+### 3. AI-first developer experience
+
+<br/>
+<a href="https://github.com/orgs/wasp-lang/projects/6" target="_blank">
+<Image src={aiReady} alt="Open SaaS is AI-ready" width="400px" style="border-radius: 8px;"/>
+</a>
+<br/>
+
+Whether you use Cursor, VSCode + Copilot, Claude, or others, Open SaaS should have top-notch code quality and be able to “explain itself” well to AI-driven coding tools, making it enjoyable to develop with in 2026 and beyond.
+
+We also want to provide demos and templates for AI-powered SaaS products, so you can get started building SaaS apps that leverage the newest technologies to create powerful and innovative products.
+
+<Aside type="note" title="AI-ready">
+Open SaaS already comes with a full set of Cursor rules.
+And it's got a [llms-full.txt](https://docs.opensaas.sh/llms-full.txt) url you can pass to your ai-assisted coding tools!
+</Aside>
+
+### 4. Community-powered evolution
+
+We want Open SaaS to be shaped by real feedback, real PRs, and real use cases. Roadmap ideas are only valuable when they reflect what people actually need.
+So your [feedback and contributions](https://github.com/wasp-lang/open-saas/issues) are important to us!
+
+---
+
+## What's in the roadmap
+
+We just got finished with a major UI redesign, which we dubbed "Open SaaS v2.0". Take a look at the announcement below.
+<Tweet id="1950117243246821770" />
+
+With the new UI, based on [Shadcn UI](https://ui.shadcn.com/), finished and tucked away, we've turned back towards adding highly-requested features, and improving the codebase with smaller fixes.
+
+### 1. Payment Provider Expansion
+
+Today, Open SaaS supports Stripe, Polar, and Lemon Squeezy as payment providers. It's super [easy to get started](https://docs.opensaas.sh/guides/payment-integrations/) with one -- just plug and play.
+
+**Upcoming features:**
+
+* Polar.sh integration (merged in [#461](https://github.com/wasp-lang/open-saas/pull/461))
+* Paddle, and additional gateways (especially regional-friendly options)
+* Supporting up- or down-grading between different billing plans and models (proration)
+
+---
+
+### 2. AI-First Workflows & Templates
+
+Open SaaS already includes a simple OpenAI integration example, but we’re looking to expand and improve it.
+
+**Coming soon:**
+
+* Exploring using Vercel's AI SDK within our demo app (issue [#567](https://github.com/wasp-lang/open-saas/issues/567)).
+* Cursor / Claude prompt presets for smoother onboarding (issue [#579](https://github.com/wasp-lang/open-saas/issues/579))
+* Creating better docs and guides for AI-powered SaaS development
+
+---
+
+### 3. Core Development Improvements
+
+We want to keep Open SaaS relevant and up-to-date with the latest trends, as well as with the latest Wasp (the framework it's built on) features and improvements .
+
+**Efforts underway:**
+
+* Refactors, galore! E.g. removing `any` and `as` from the codebase, extracting `SVGs`, etc. (issue [#568](https://github.com/wasp-lang/open-saas/issues/568))
+* Improving OpenSaaS.sh development workflows (issue [#552](https://github.com/wasp-lang/open-saas/issues/552))
+* Improving e2e tests (issue [#558](https://github.com/wasp-lang/open-saas/issues/558))
+
+---
+
+<br/>
+
+<Aside type="tip" title="Subscribe to an Epic">
+If you find any of these Epics interesting, you can get notified when they're updated by subscribing to them. Just click the "Subscribe" button in the bottom right corner of the Epic detail view.
+<Image src={subscribeGithubButton} alt="Subscribe to an Epic" width="400" style="border-radius: 8px;"/>
+</Aside>
+
+# How to Participate
+
+So that's just a quick overview of the current state of the roadmap. But we're not done yet!
+
+Open SaaS is community-driven — and we’d love your help.
+
+### ⭐ Star the repo
+
+This is super easy and helps a ton!
+
+[https://github.com/wasp-lang/open-saas](https://github.com/wasp-lang/open-saas)
+
+### 🧩 File issues or feature requests
+
+Especially around real-world SaaS requirements you’re running into.
+
+[https://github.com/wasp-lang/open-saas/issues](https://github.com/wasp-lang/open-saas/issues)
+
+### 🔧 Contribute code
+
+If you’re interested in payments, dashboarding, AI workflows, or dev-experience improvements — we’ll happily support and guide.
+
+[https://github.com/orgs/wasp-lang/projects/6](https://github.com/orgs/wasp-lang/projects/6)
+
+### 🚀 Build with it
+
+The best feedback always comes from people deploying real products. 
+Drop us a line on [Discord](https://discord.com/invite/aCamt5wCpS) or [Twitter](https://x.com/wasplang) and let us know what you're building!
+
+---
+
+# Roadmap Updates
+
+We’ll keep updating this roadmap alongside major releases and aim for a quarterly revision cycle.
+
+You can follow progress in the GitHub Project board:
+
+👉 **[https://github.com/orgs/wasp-lang/projects/6](https://github.com/orgs/wasp-lang/projects/6)**
+
+See you there!

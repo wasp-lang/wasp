@@ -1,0 +1,25 @@
+--- template/app/fly-server.toml
++++ opensaas-sh/app/fly-server.toml
+@@ -0,0 +1,22 @@
++# fly.toml app configuration file generated for open-saas-wasp-sh-server on 2025-07-18T17:11:52+02:00
++#
++# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
++#
++
++app = 'open-saas-wasp-sh-server'
++primary_region = 'ams'
++
++[build]
++
++[http_service]
++  internal_port = 8080
++  force_https = true
++  auto_stop_machines = 'stop'
++  auto_start_machines = true
++  min_machines_running = 1
++  processes = ['app']
++
++[[vm]]
++  memory = '1gb'
++  cpu_kind = 'shared'
++  cpus = 1

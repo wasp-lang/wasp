@@ -1,0 +1,8 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.src.json" },
+    { "path": "./tsconfig.wasp.json" }
+  ],
+  "exclude": ["**/*.wasp.ts"]
+}

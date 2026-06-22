@@ -1,0 +1,39 @@
+---
+interface FAQItem {
+  question: string;
+  answer: string;
+}
+
+interface Props {
+  items: FAQItem[];
+}
+
+const { items } = Astro.props;
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: items.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+};
+---
+
+<section class="faq-section">
+  <dl class="space-y-4">
+    {items.map((item) => (
+      <div class="rounded-lg border border-gray-200 p-4 dark:border-gray-700">
+        <dt class="text-lg font-semibold text-gray-900 dark:text-white">{item.question}</dt>
+        <dd class="mt-2 text-gray-600 dark:text-gray-300">{item.answer}</dd>
+      </div>
+    ))}
+  </dl>
+</section>
+
+<!-- Adds JSON-LD schema for FAQ to body of the page. AI search engines can parse schema markup in both <head> and <body> as per: https://developers.google.com/search/docs/appearance/structured-data/intro-structured-data#supported-formats -->
+<script is:inline type="application/ld+json" set:html={JSON.stringify(faqSchema)} />

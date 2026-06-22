@@ -1,0 +1,113 @@
+---
+title: "Going from an Idea to MVP in Weeks: PromptPanda's Launch(es)"
+date: 2025-03-12
+tags:
+  - webdev
+  - saas
+  - sideproject
+  - indiehackers
+authors: milica
+---
+import { Image } from 'astro:assets';
+import StarOpenSaaSCTA from '../../../components/StarOpenSaaSCTA.astro';
+import plausibleCommunity from '../../../assets/plausible/plausible-community.png';
+import interfaceImg from '../../../assets/promptpanda/interface.png';
+import meme1 from '../../../assets/promptpanda/meme1.jpg';
+import meme2 from '../../../assets/promptpanda/meme2.jpg';
+import ph1 from '../../../assets/promptpanda/ph1.png';
+import ph2 from '../../../assets/promptpanda/ph2.png';
+import listImg from '../../../assets/promptpanda/list.png';
+
+Did you know that most co-founders meet each other through work? **[Lander Willem](https://x.com/WWWillems)** met his friend and co-founder **[Bram Billiet](https://x.com/brambilicious)** while they were working at the local venture fund. They both shared the love towards LLMs and got the idea to kickstart their SaaS after experiencing the same pain points with managing and versioning prompts.
+
+In this post, you'll learn how they:
+
+- Shipped their SaaS from idea to MVP in weeks, using modern AI stack
+- Launched and got trending on Product Hunt with 100+ upvotes
+- Successfully onboarded first users
+
+## The problem: Managing prompts is messy
+
+Right after OpenAI released their first LLM models, Lander and Bram started exchanging tips on how to get optimal results from prompts. Soon, they learned that managing AI prompts is often chaotic. 
+
+People who share prompts usually do so through messaging apps such as Slack, Microsoft Teams or in better cases, shared Google Docs documents. Some of the people they talked to even confessed they were sharing their favorite prompts using screenshots 😅. Although a Google Doc might work initially, people quickly bump into issues regarding versioning and granular access management.
+
+This is how they got the idea to create [PromptPanda](https://www.promptpanda.io/) - a SaaS that allows people to exchange prompts in an easy way. Here's an interactive demo you can click through to see what they've built:
+
+
+<div style={{ position: 'relative', paddingBottom: 'calc(53.11430527036276% + 41px)', height: 0, width: '100%' }}>
+  <iframe
+    src="https://demo.arcade.software/JiVvKE3oDWzbar0DKUDX?embed"
+    title="PromptPanda: Live Demo"
+    frameBorder="0"
+    loading="lazy"
+    allowFullScreen
+    style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', colorScheme: 'light' }}
+  ></iframe>
+</div>
+
+## The opportunity: Everyone uses prompts, not just devs
+
+Other AI prompt tools are primarily designed with developers in mind, which leaves out non-technical teams. Those less technical users depend heavily on collaboration, efficiency, and consistency to complete their tasks. This is the market PromptPanda decided to go after.
+
+<div className="flex justify-center"> 
+<Image src={meme1} alt="Make apps for everyone" loading="lazy" />
+</div>
+
+The tool is designed specifically to help teams centralize their prompts and ensures consistent output quality. Collaboration is painless because of an intuitive web app that also has [a Chrome extension](https://chromewebstore.google.com/detail/promptpanda/hpgfoodclhmbloolkenjjofklhalfblc).
+
+PromptPanda integrates with major AI providers such as OpenAI, Anthropic, Google, Perplexity, and DeepSeek. Coupled with its built-in Prompt Improver, these integrations allow users to quickly test, iterate, and enhance their prompts, while not imposing any limitations for the end-users.
+
+<div className="flex justify-center">
+<Image src={interfaceImg} alt="PromptPanda interface" loading="lazy" />
+</div>
+
+With this approach they covered a market that other companies overlooked, non-technical users who rely on the biggest LLM providers for their daily tasks.
+
+<StarOpenSaaSCTA />
+
+## Launching is unpredictable: Product Hunt hits and flops
+
+As soon as the app was somewhat stable and usable, Lander and Bram decided to launch on ProductHunt.
+
+<div className="flex justify-center">
+<Image src={ph1} alt="PromptPanda on Product Hunt" loading="lazy" />
+</div>
+
+[Their first ProductHunt launch](https://www.producthunt.com/products/promptpanda#promptpanda) was great in terms of visibility. They were featured by the ProductHunt team which got them a bunch of upvotes and comments. **Although there was quite a lot of engagement with the launch, it didn't really end up in sticky, paying customers.**
+
+<div className="flex justify-center">
+<Image src={ph2} alt="PromptPanda on Product Hunt" loading="lazy" />
+</div>
+
+A short while later they relaunched on ProductHunt after processing the feedback from their first launch. Both their product and launch campaign were much better prepared. Weirdly enough, the launch mostly failed as they got almost no upvotes or conversions.
+
+<div className="flex justify-center">
+<Image src={meme2} alt="Trying again" loading="lazy" />
+</div>
+
+**Although their second launch was mostly a flop, it did manage to get them mentioned in a Superhuman (the email app) newsletter. Their user base doubled overnight.**
+
+Ever since then they have an active stream of users and new signups coming in. 
+
+> ”My main takeaway is to never stop shipping, and always share your work!”
+> 
+> Lander Willem
+
+Most of their users today have found PromptPanda through organic SEO. They started writing articles about [AI Prompt Management](https://www.promptpanda.io/ai-prompt-management/) which have quickly found traction in search engine algorithms.
+
+## Choosing the right stack for developing your SaaS app
+
+PromptPanda's team chose [Open SaaS](https://opensaas.sh/) because it significantly streamlined their product development by simplifying backend setup, database management, and built-in authentication. This was crucial as they needed an efficient solution that could save time due to their busy schedules. [Wasp](https://wasp.sh/)'s default integration with Fly also enabled rapid deployment, allowing them to quickly validate their product idea without getting bogged down in infrastructure complexities.
+
+Here's a full overview of their tech stack alongside all the tools they rely on to run their SaaS:
+
+<div className="flex justify-center">
+<Image src={listImg} alt="PromptPanda tech stack" loading="lazy" />
+</div>
+
+## Are you ready to ship your SaaS now?
+
+PromptPanda's story proves the best SaaS ideas come from solving your own pain points. Lander and Bram also learned launching isn't predictable—success can come from unexpected places, even failed launches. The takeaway? Keep building, keep shipping, and always share your progress openly.
+
+If you enjoyed this post please make sure to [give Open SaaS a star on GitHub](https://github.com/wasp-lang/open-saas), this keeps us going forward and supports our work!

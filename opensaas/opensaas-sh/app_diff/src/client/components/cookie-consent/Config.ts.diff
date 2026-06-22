@@ -1,0 +1,74 @@
+--- template/app/src/client/components/cookie-consent/Config.ts
++++ opensaas-sh/app/src/client/components/cookie-consent/Config.ts
+@@ -1,4 +1,5 @@
+ import type { CookieConsentConfig } from "vanilla-cookieconsent";
++import * as CookieConsent from "vanilla-cookieconsent";
+ 
+ declare global {
+   interface Window {
+@@ -15,8 +16,9 @@
+     disablePageInteraction: false,
+     hideFromBots: import.meta.env.PROD ? true : false, // Set this to false for dev/headless tests otherwise the modal will not be visible.
+     mode: "opt-in",
+-    // Bump the revision field when you add new services
+-    revision: 0,
++    // Bump the revision field when you add new services.
++    // Keep this in sync with: opensaas-sh/blog/src/components/CookieConsentBanner.astro
++    revision: 2,
+ 
+     // Default configuration for the cookie.
+     cookie: {
+@@ -50,6 +52,12 @@
+             {
+               name: "_gid", // string: exact cookie name
+             },
++            {
++              name: /^__sec__/, // regex: match all REO.dev cookies (https://docs.reo.dev/integrations/tracking-beacon/reo.dev-javascript-cookies-and-consent-guide#key-features-of-reo.dev-cookies)
++            },
++            {
++              name: /^ph_/, // regex: match all PostHog cookies
++            },
+           ],
+         },
+ 
+@@ -87,6 +95,28 @@
+             },
+             onReject: () => {},
+           },
++          posthog: {
++            label: "PostHog",
++            onAccept: async () => {
++              try {
++                await CookieConsent.loadScript("/scripts/posthog.js");
++              } catch (error) {
++                console.error(error);
++              }
++            },
++            onReject: () => {},
++          },
++          reo: {
++            label: "REO.dev",
++            onAccept: async () => {
++              try {
++                await CookieConsent.loadScript("/scripts/reo.js");
++              } catch (error) {
++                console.error(error);
++              }
++            },
++            onReject: () => {},
++          },
+         },
+       },
+     },
+@@ -103,10 +133,7 @@
+             acceptNecessaryBtn: "Reject all",
+             // showPreferencesBtn: 'Manage Individual preferences', // (OPTIONAL) Activates the preferences modal
+             // TODO: Add your own privacy policy and terms and conditions links below.
+-            footer: `
+-            <a href="<your-url-here>" target="_blank">Privacy Policy</a>
+-            <a href="<your-url-here>" target="_blank">Terms and Conditions</a>
+-                    `,
++            footer: `<a href="https://docs.opensaas.sh/general/privacy-policy" target="_blank">Privacy Policy</a>`,
+           },
+           // The showPreferencesBtn activates this modal to manage individual preferences https://cookieconsent.orestbida.com/reference/configuration-reference.html#translation-preferencesmodal
+           preferencesModal: {

@@ -1,0 +1,14 @@
+--- template/app/.claude/settings.json
++++ opensaas-sh/app/.claude/settings.json
+@@ -0,0 +1,11 @@
++{
++  "enableAllProjectMcpServers": true,
++  "enabledMcpjsonServers": ["chrome-devtools"],
++  "permissions": {
++    "allow": [
++      "Bash(ln:*)",
++      "Bash(wasp start:*)",
++      "Bash(npx -y https://pkg.pr.new/@wasp.sh/wasp-cli@main:*)"
++    ]
++  }
++}

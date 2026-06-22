@@ -1,0 +1,4 @@
+--- template/app/src/landing-page/components/Hero/index.ts
++++ opensaas-sh/app/src/landing-page/components/Hero/index.ts
+@@ -0,0 +1 @@
++export { Hero } from "./Hero";

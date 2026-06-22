@@ -1,0 +1,29 @@
+name: Check `opensaas-sh` diffs are up to date
+
+on:
+  workflow_dispatch:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  check-diffs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Generate diffs
+        run: |
+          ./opensaas-sh/tools/patch.sh
+          ./opensaas-sh/tools/diff.sh
+
+      - name: Check for uncommitted changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            echo "Error: There are uncommitted diff changes"
+            echo "Please run './opensaas-sh/tools/patch.sh' and './opensaas-sh/tools/diff.sh' locally and commit the changes"
+            git status
+            exit 1
+          fi

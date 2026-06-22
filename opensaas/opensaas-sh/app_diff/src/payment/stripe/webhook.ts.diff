@@ -1,0 +1,56 @@
+--- template/app/src/payment/stripe/webhook.ts
++++ opensaas-sh/app/src/payment/stripe/webhook.ts
+@@ -2,7 +2,7 @@
+ import express from "express";
+ import type { Stripe } from "stripe";
+ import { env, type MiddlewareConfigFn } from "wasp/server";
+-import { type PaymentsWebhook } from "wasp/server/api";
++import { type StripeWebhook } from "wasp/server/api";
+ import { emailSender } from "wasp/server/email";
+ import { assertUnreachable } from "../../shared/utils";
+ import { UnhandledWebhookEventError } from "../errors";
+@@ -25,7 +25,7 @@
+   return middlewareConfig;
+ };
+ 
+-export const stripeWebhook: PaymentsWebhook = async (
++export const stripeWebhook: StripeWebhook = async (
+   request,
+   response,
+   context,
+@@ -106,7 +106,7 @@
+     case PaymentPlanId.Credits10:
+       await updateUserCredits(
+         {
+-          paymentProcessorUserId: customerId,
++          stripeId: customerId,
+           datePaid: invoicePaidAtDate,
+           numOfCreditsPurchased: paymentPlans[paymentPlanId].effect.amount,
+         },
+@@ -117,7 +117,7 @@
+     case PaymentPlanId.Hobby:
+       await updateUserSubscription(
+         {
+-          paymentProcessorUserId: customerId,
++          stripeId: customerId,
+           datePaid: invoicePaidAtDate,
+           paymentPlanId,
+           subscriptionStatus: SubscriptionStatus.Active,
+@@ -164,7 +164,7 @@
+   );
+ 
+   const user = await updateUserSubscription(
+-    { paymentProcessorUserId: customerId, paymentPlanId, subscriptionStatus },
++    { stripeId: customerId, paymentPlanId, subscriptionStatus },
+     prismaUserDelegate,
+   );
+ 
+@@ -232,7 +232,7 @@
+ 
+   await updateUserSubscription(
+     {
+-      paymentProcessorUserId: customerId,
++      stripeId: customerId,
+       subscriptionStatus: SubscriptionStatus.Deleted,
+     },
+     prismaUserDelegate,

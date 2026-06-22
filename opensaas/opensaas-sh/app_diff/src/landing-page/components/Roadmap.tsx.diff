@@ -1,0 +1,94 @@
+--- template/app/src/landing-page/components/Roadmap.tsx
++++ opensaas-sh/app/src/landing-page/components/Roadmap.tsx
+@@ -0,0 +1,91 @@
++import { GithubEpicStatus } from "../operations";
++
++import { GitPullRequestArrow, Loader2 } from "lucide-react";
++import { Link } from "react-router";
++import { getGithubRoadmap, useQuery } from "wasp/client/operations";
++import { RoadmapStatusColumn } from "./RoadmapStatusColumn";
++
++export function Roadmap() {
++  const { data: epics, isLoading, error } = useQuery(getGithubRoadmap);
++
++  if (isLoading) {
++    return (
++      <RoadmapWrapper>
++        <div className="flex justify-center py-12">
++          <Loader2 className="h-8 w-8 animate-spin text-yellow-500" />
++        </div>
++      </RoadmapWrapper>
++    );
++  }
++
++  if (error) {
++    return (
++      <RoadmapWrapper>
++        <div className="py-12 text-center text-red-500">
++          Failed to load roadmap
++        </div>
++      </RoadmapWrapper>
++    );
++  }
++
++  if (!epics || epics.length === 0) {
++    return (
++      <RoadmapWrapper>
++        <div className="flex items-center justify-center gap-1 py-12 text-center text-gray-500 dark:text-gray-400">
++          <GitPullRequestArrow className="mr-1 h-5 w-5" />
++          <p>No roadmap items yet.</p>
++          <p>
++            Add your idea{" "}
++            <Link
++              to="https://github.com/wasp-lang/open-saas/issues/new"
++              target="_blank"
++              rel="noreferrer"
++              className="text-primary hover:text-primary/80 hover:underline"
++            >
++              here
++            </Link>
++            .
++          </p>
++        </div>
++      </RoadmapWrapper>
++    );
++  }
++
++  return (
++    <RoadmapWrapper>
++      <div className="grid gap-6 md:grid-cols-4">
++        {Object.values(GithubEpicStatus).map((status) => (
++          <RoadmapStatusColumn
++            key={status}
++            status={status}
++            epics={epics.filter((e) => e.status === status)}
++          />
++        ))}
++      </div>
++    </RoadmapWrapper>
++  );
++}
++
++function RoadmapWrapper({ children }: { children?: React.ReactNode }) {
++  return (
++    <div className="scroll-mt-24 py-12 md:py-20" id="roadmap">
++      <div className="mx-auto max-w-7xl px-6 lg:px-8">
++        <RoadmapHeader />
++        {children}
++      </div>
++    </div>
++  );
++}
++
++function RoadmapHeader() {
++  return (
++    <div className="mx-auto mb-12 max-w-2xl text-center">
++      <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
++        The Roadmap
++      </h2>
++      <p className="mt-4 text-lg leading-8 text-gray-600 dark:text-gray-300">
++        High-level topics we are planning and working on.
++      </p>
++    </div>
++  );
++}

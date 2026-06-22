@@ -1,0 +1,148 @@
+---
+import type { Props } from '@astrojs/starlight/props'
+import blogConfig from 'virtual:starlight-blog-config'
+import type { StarlightBlogAuthor } from 'starlight-blog/schema'
+import { BANNER_PATH, DEFAULT_BANNER_IMAGE, getBannerImageFilename, checkBannerImageExists } from './imagePaths'
+
+const { entry, id } = Astro.props
+
+// Only generate schema for blog posts
+const isBlogPost = id.startsWith('blog/')
+if (!isBlogPost) return
+
+const { data } = entry
+const title = data.title
+const description = data.description || ''
+const date = (data as any).date as Date | undefined
+const tags = (data as any).tags as string[] | undefined
+const keywords = (data as any).keywords as string[] | undefined
+const lastUpdate = (data as any).last_update?.date as string | undefined
+
+// Resolve authors
+const rawAuthors = (data as any).authors
+const authors: StarlightBlogAuthor[] = []
+
+if (typeof rawAuthors === 'string') {
+  const author = blogConfig.authors[rawAuthors]
+  if (author) authors.push(author)
+} else if (Array.isArray(rawAuthors)) {
+  for (const a of rawAuthors) {
+    if (typeof a === 'string') {
+      const author = blogConfig.authors[a]
+      if (author) authors.push(author)
+    } else if (a?.name) {
+      authors.push(a)
+    }
+  }
+} else if (rawAuthors?.name) {
+  authors.push(rawAuthors)
+}
+
+// Build canonical URL
+const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href : Astro.url.href
+
+// Build image URL
+const bannerImageFileName = getBannerImageFilename({ path: id })
+const imageExists = checkBannerImageExists({ bannerImageFileName })
+const imageUrl = Astro.site
+  ? new URL(
+      `${BANNER_PATH}/${imageExists ? bannerImageFileName : DEFAULT_BANNER_IMAGE}`,
+      Astro.site,
+    ).href
+  : `${BANNER_PATH}/${imageExists ? bannerImageFileName : DEFAULT_BANNER_IMAGE}`
+
+// Construct author schema
+const authorSchema = authors.length === 1
+  ? {
+      '@type': 'Person' as const,
+      name: authors[0]!.name,
+      ...(authors[0]!.title && { description: authors[0]!.title }),
+      ...(authors[0]!.url && { url: authors[0]!.url }),
+      ...(authors[0]!.picture && {
+        image: Astro.site
+          ? new URL(authors[0]!.picture, Astro.site).href
+          : authors[0]!.picture,
+      }),
+    }
+  : authors.map((a) => ({
+      '@type': 'Person' as const,
+      name: a.name,
+      ...(a.title && { description: a.title }),
+      ...(a.url && { url: a.url }),
+      ...(a.picture && {
+        image: Astro.site ? new URL(a.picture, Astro.site).href : a.picture,
+      }),
+    }))
+
+// Construct BlogPosting schema
+const blogPostingSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  '@id': canonical,
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': canonical,
+  },
+  url: canonical,
+  headline: title,
+  name: title,
+  description,
+  ...(date && { datePublished: date.toISOString() }),
+  ...(lastUpdate
+    ? { dateModified: new Date(lastUpdate).toISOString() }
+    : date && { dateModified: date.toISOString() }),
+  author: authorSchema,
+  image: {
+    '@type': 'ImageObject',
+    '@id': imageUrl,
+    url: imageUrl,
+    contentUrl: imageUrl,
+    caption: `title image for the blog post: ${title}`,
+  },
+  ...((keywords || tags) && { keywords: keywords || tags }),
+  isPartOf: {
+    '@type': 'Blog',
+    '@id': Astro.site ? new URL('/blog/', Astro.site).href : '/blog/',
+    name: 'Blog',
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Wasp',
+    url: 'https://wasp.sh',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://wasp.sh/img/wasp-logo.png',
+    },
+  },
+}
+
+// Construct BreadcrumbList schema
+const siteUrl = Astro.site?.href || '/'
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: siteUrl,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Blog',
+      item: Astro.site ? new URL('/blog/', Astro.site).href : '/blog/',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: title,
+      item: canonical,
+    },
+  ],
+}
+---
+
+<script type="application/ld+json" set:html={JSON.stringify(blogPostingSchema)} />
+<script type="application/ld+json" set:html={JSON.stringify(breadcrumbSchema)} />

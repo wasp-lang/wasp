@@ -1,0 +1,11 @@
+--- template/app/migrations/20250220095333_remove_last_active_timestamp/migration.sql
++++ opensaas-sh/app/migrations/20250220095333_remove_last_active_timestamp/migration.sql
+@@ -0,0 +1,8 @@
++/*
++  Warnings:
++
++  - You are about to drop the column `lastActiveTimestamp` on the `User` table. All the data in the column will be lost.
++
++*/
++-- AlterTable
++ALTER TABLE "User" DROP COLUMN "lastActiveTimestamp";

@@ -1,0 +1,47 @@
+--- template/app/src/payment/stripe/paymentProcessor.ts
++++ opensaas-sh/app/src/payment/stripe/paymentProcessor.ts
+@@ -8,10 +8,7 @@
+ } from "../paymentProcessor";
+ import { getPaymentProcessorPlanId } from "../paymentProcessorPlans";
+ import type { PaymentPlanEffect } from "../plans";
+-import {
+-  fetchUserPaymentProcessorUserId,
+-  updateUserPaymentProcessorUserId,
+-} from "../user";
++import { fetchUserStripeId, updateUserStripeId } from "../user";
+ import {
+   createStripeCheckoutSession,
+   ensureStripeCustomer,
+@@ -29,8 +26,8 @@
+   }: CreateCheckoutSessionArgs) => {
+     const customer = await ensureStripeCustomer(userEmail);
+ 
+-    await updateUserPaymentProcessorUserId(
+-      { userId, paymentProcessorUserId: customer.id },
++    await updateUserStripeId(
++      { userId, stripeId: customer.id },
+       prismaUserDelegate,
+     );
+ 
+@@ -57,18 +54,15 @@
+     prismaUserDelegate,
+     userId,
+   }: FetchCustomerPortalUrlArgs) => {
+-    const paymentProcessorUserId = await fetchUserPaymentProcessorUserId(
+-      userId,
+-      prismaUserDelegate,
+-    );
++    const stripeId = await fetchUserStripeId(userId, prismaUserDelegate);
+ 
+-    if (!paymentProcessorUserId) {
++    if (!stripeId) {
+       return null;
+     }
+ 
+     const billingPortalSession =
+       await stripeClient.billingPortal.sessions.create({
+-        customer: paymentProcessorUserId,
++        customer: stripeId,
+         return_url: CUSTOMER_PORTAL_RETURN_URL,
+       });
+ 

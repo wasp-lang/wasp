@@ -1,0 +1,45 @@
+---
+import type { Props } from '@astrojs/starlight/props'
+import { Image } from 'astro:assets';
+import { BANNER_PATH, getBannerImageFilename, checkBannerImageExists } from './imagePaths'
+
+const { id, entry } = Astro.props;
+const { title, subtitle, hideBannerImage } = entry.data;
+const bannerImageFileName = getBannerImageFilename({ path: id })
+const imageExists = checkBannerImageExists({ bannerImageFileName })
+---
+
+<h1 id='_top'>{title}</h1>
+{subtitle && <p class="subtitle">{subtitle}</p>}
+{imageExists && <div class="image-container">
+  <Image src={`${BANNER_PATH}/${bannerImageFileName}`} loading="eager" alt={title} width="50" height="50" class={!hideBannerImage ? 'cover-image' : 'hidden'} />
+</div>}
+
+<style>
+  .image-container {
+    width: 100%;
+    max-width: 800px;
+    margin: 1rem 0;
+  }
+
+  .subtitle {
+    font-size: var(--sl-text-h4);
+    color: var(--sl-color-gray-2);
+    margin: 0.5rem 0;
+  }
+
+  .cover-image {
+    width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+  }
+
+	h1 {
+		margin: 1rem 0;
+		font-size: var(--sl-text-h1);
+		line-height: var(--sl-line-height-headings);
+		font-weight: 600;
+		color: var(--sl-color-white);
+	}
+</style>

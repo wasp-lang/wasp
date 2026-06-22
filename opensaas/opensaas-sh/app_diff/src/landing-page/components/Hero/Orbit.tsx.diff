@@ -1,0 +1,285 @@
+--- template/app/src/landing-page/components/Hero/Orbit.tsx
++++ opensaas-sh/app/src/landing-page/components/Hero/Orbit.tsx
+@@ -0,0 +1,282 @@
++import logo from "../../../client/static/logo.webp";
++import nodeLogoDark from "../../../client/static/logos/nodejs-dark.webp";
++import nodeLogo from "../../../client/static/logos/nodejs-light.webp";
++import stripeLogoDark from "../../../client/static/logos/stripe-dark.webp";
++import stripeLogo from "../../../client/static/logos/stripe-light.webp";
++import tailwindLogoDark from "../../../client/static/logos/tailwind-dark.webp";
++import tailwindLogo from "../../../client/static/logos/tailwind-light.webp";
++import { cn } from "../../../client/utils";
++import { AstroLogo } from "../../logos/AstroLogo";
++import { OpenAILogo } from "../../logos/OpenAILogo";
++import { PrismaLogo } from "../../logos/PrismaLogo";
++import { ReactLogo } from "../../logos/ReactLogo";
++import { ShadCNLogo } from "../../logos/ShadCNLogo";
++
++interface LogoConfig {
++  id: string;
++  component: React.ComponentType;
++  circleIndex: number;
++  position: number;
++  size?: number;
++}
++
++function ImageLogo({
++  src,
++  alt,
++  className,
++  dark,
++}: {
++  src: string;
++  alt: string;
++  className?: string;
++  dark?: boolean;
++}) {
++  return (
++    <img
++      src={src}
++      alt={alt}
++      className={cn(
++        "h-8 w-8",
++        dark ? "hidden dark:block" : "dark:hidden",
++        className,
++      )}
++    />
++  );
++}
++
++const logoConfigs: LogoConfig[] = [
++  {
++    id: "wasp",
++    component: () => (
++      <ImageLogo
++        src={logo}
++        alt="Wasp Logo"
++        className="h-8 w-8 dark:block"
++        dark={false}
++      />
++    ),
++    circleIndex: 1,
++    position: 0,
++  },
++  {
++    id: "openai",
++    component: OpenAILogo,
++    circleIndex: 1,
++    position: 120,
++    size: 24,
++  },
++  {
++    id: "astro",
++    component: AstroLogo,
++    circleIndex: 1,
++    position: 270,
++    size: 24,
++  },
++  {
++    id: "prisma",
++    component: PrismaLogo,
++    circleIndex: 2,
++    position: 90,
++    size: 24,
++  },
++  {
++    id: "shadcn",
++    component: ShadCNLogo,
++    circleIndex: 2,
++    position: 210,
++    size: 24,
++  },
++  {
++    id: "tailwind-light",
++    component: () => (
++      <ImageLogo
++        src={tailwindLogo}
++        alt="Tailwind CSS Logo"
++        className="h-8 w-8 dark:hidden"
++        dark={false}
++      />
++    ),
++    circleIndex: 2,
++    position: 330,
++  },
++  {
++    id: "tailwind-dark",
++    component: () => (
++      <ImageLogo src={tailwindLogoDark} alt="Tailwind CSS Logo" dark={true} />
++    ),
++    circleIndex: 2,
++    position: 330,
++  },
++  {
++    id: "stripe-light",
++    component: () => (
++      <ImageLogo src={stripeLogo} alt="Stripe Logo" dark={false} />
++    ),
++    circleIndex: 3,
++    position: 180,
++  },
++  {
++    id: "stripe-dark",
++    component: () => (
++      <ImageLogo src={stripeLogoDark} alt="Stripe Logo" dark={true} />
++    ),
++    circleIndex: 3,
++    position: 180,
++  },
++  {
++    id: "react",
++    component: ReactLogo,
++    circleIndex: 3,
++    position: 300,
++    size: 32,
++  },
++  {
++    id: "node-light",
++    component: () => (
++      <ImageLogo src={nodeLogo} alt="Node.js Logo" dark={false} />
++    ),
++    circleIndex: 3,
++    position: 50,
++  },
++  {
++    id: "node-dark",
++    component: () => (
++      <ImageLogo src={nodeLogoDark} alt="Node.js Logo" dark={true} />
++    ),
++    circleIndex: 3,
++    position: 50,
++  },
++];
++
++const circles = [
++  // Innermost to outermost
++  { radius: 120, orbitPeriod: 72, ringPeriod: 180 },
++  { radius: 180, orbitPeriod: 120, ringPeriod: 240 },
++  { radius: 240, orbitPeriod: 180, ringPeriod: 360 },
++  { radius: 300, orbitPeriod: 360, ringPeriod: 720 },
++];
++
++const ringGradients = [
++  `conic-gradient(from 0deg,
++    hsl(var(--primary) / 0.15),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.15),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.05),
++    hsl(var(--primary) / 0.15)
++  )`,
++  `conic-gradient(from 45deg,
++    hsl(var(--primary) / 0.12),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.08),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.2),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.12)
++  )`,
++  `conic-gradient(from 90deg,
++    hsl(var(--primary) / 0.1),
++    hsl(var(--primary) / 0.18),
++    hsl(var(--primary) / 0.1),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.15),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.1)
++  )`,
++  `conic-gradient(from 135deg,
++    hsl(var(--primary) / 0.08),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.16),
++    hsl(var(--primary) / 0.06),
++    hsl(var(--primary) / 0),
++    hsl(var(--primary) / 0.12),
++    hsl(var(--primary) / 0.08)
++  )`,
++];
++
++export function Orbit() {
++  return (
++    <div className="relative flex h-[500px] w-[500px] items-center justify-center">
++      <style>{`
++        @keyframes ring-spin {
++          to { transform: rotate(360deg); }
++        }
++        @keyframes orbit-spin {
++          from { transform: rotate(var(--start-angle, 0deg)); }
++          to { transform: rotate(calc(var(--start-angle, 0deg) + 360deg)); }
++        }
++        @keyframes orbit-counter-spin {
++          from { transform: rotate(calc(var(--start-angle, 0deg) * -1)); }
++          to { transform: rotate(calc(var(--start-angle, 0deg) * -1 - 360deg)); }
++        }
++      `}</style>
++
++      <div className="absolute flex flex-col items-center gap-2">
++        <p className="text-gradient-primary font-sans text-6xl font-black leading-none">
++          100%
++        </p>
++        <p className="text-muted-foreground text-lg">Open Source</p>
++      </div>
++
++      {circles.map((circle, circleIndex) => (
++        <div
++          key={circleIndex}
++          className="absolute rounded-full"
++          style={{
++            width: circle.radius * 2,
++            height: circle.radius * 2,
++            background: ringGradients[circleIndex],
++            mask: `radial-gradient(circle at center, transparent ${
++              circle.radius - 2
++            }px, black ${circle.radius - 1}px, black ${
++              circle.radius
++            }px, transparent ${circle.radius + 1}px)`,
++            WebkitMask: `radial-gradient(circle at center, transparent ${
++              circle.radius - 2
++            }px, black ${circle.radius - 1}px, black ${
++              circle.radius
++            }px, transparent ${circle.radius + 1}px)`,
++            animation: `ring-spin ${circle.ringPeriod}s linear infinite`,
++          }}
++        />
++      ))}
++
++      {logoConfigs.map((logoConfig) => {
++        const circle = circles[logoConfig.circleIndex];
++        const logoSize = logoConfig.size || 32;
++        const LogoComponent = logoConfig.component;
++
++        return (
++          <div
++            key={logoConfig.id}
++            className="absolute left-1/2 top-1/2"
++            style={
++              {
++                width: 0,
++                height: 0,
++                "--start-angle": `${logoConfig.position}deg`,
++                animation: `orbit-spin ${circle.orbitPeriod}s linear infinite`,
++              } as React.CSSProperties
++            }
++          >
++            <div style={{ transform: `translateX(${circle.radius}px)` }}>
++              <div
++                className="z-20 flex items-center justify-center"
++                style={{
++                  width: logoSize,
++                  height: logoSize,
++                  marginLeft: -logoSize / 2,
++                  marginTop: -logoSize / 2,
++                  animation: `orbit-counter-spin ${circle.orbitPeriod}s linear infinite`,
++                }}
++              >
++                <LogoComponent />
++              </div>
++            </div>
++          </div>
++        );
++      })}
++    </div>
++  );
++}

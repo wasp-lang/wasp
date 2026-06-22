@@ -1,0 +1,11 @@
+--- template/app/migrations/20240605151848_remove_has_paid/migration.sql
++++ opensaas-sh/app/migrations/20240605151848_remove_has_paid/migration.sql
+@@ -0,0 +1,8 @@
++/*
++  Warnings:
++
++  - You are about to drop the column `hasPaid` on the `User` table. All the data in the column will be lost.
++
++*/
++-- AlterTable
++ALTER TABLE "User" DROP COLUMN "hasPaid";

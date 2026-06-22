@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Just a wrapper to always use the latest Wasp CLI from main branch.
+
+npm_config_prefer_online=true npx -y https://pkg.pr.new/@wasp.sh/wasp-cli@main "$@"

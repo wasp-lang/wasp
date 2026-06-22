@@ -1,0 +1,29 @@
+--- template/app/src/analytics/providers/plausibleAnalyticsUtils.ts
++++ opensaas-sh/app/src/analytics/providers/plausibleAnalyticsUtils.ts
+@@ -34,7 +34,7 @@
+ 
+ async function getTotalPageViews() {
+   const response = await fetch(
+-    `${env.PLAUSIBLE_BASE_URL}/v1/stats/aggregate?site_id=${env.PLAUSIBLE_SITE_ID}&metrics=pageviews`,
++    `${env.PLAUSIBLE_BASE_URL}/v1/stats/aggregate?site_id=${env.PLAUSIBLE_SITE_ID}&metrics=pageviews&with_imported=true`,
+     {
+       method: "GET",
+       headers,
+@@ -83,7 +83,7 @@
+ }
+ 
+ async function getPageviewsForDate(date: string) {
+-  const url = `${env.PLAUSIBLE_BASE_URL}/v1/stats/aggregate?site_id=${env.PLAUSIBLE_SITE_ID}&period=day&date=${date}&metrics=pageviews`;
++  const url = `${env.PLAUSIBLE_BASE_URL}/v1/stats/aggregate?site_id=${env.PLAUSIBLE_SITE_ID}&period=day&date=${date}&metrics=pageviews&with_imported=true`;
+   const response = await fetch(url, {
+     method: "GET",
+     headers,
+@@ -96,7 +96,7 @@
+ }
+ 
+ export async function getSources() {
+-  const url = `${env.PLAUSIBLE_BASE_URL}/v1/stats/breakdown?site_id=${env.PLAUSIBLE_SITE_ID}&property=visit:source&metrics=visitors`;
++  const url = `${env.PLAUSIBLE_BASE_URL}/v1/stats/breakdown?site_id=${env.PLAUSIBLE_SITE_ID}&property=visit:source&metrics=visitors&with_imported=true`;
+   const response = await fetch(url, {
+     method: "GET",
+     headers,

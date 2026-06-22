@@ -1,0 +1,11 @@
+--- template/app/migrations/20250710084843_remove_newsletter_fields/migration.sql
++++ opensaas-sh/app/migrations/20250710084843_remove_newsletter_fields/migration.sql
+@@ -0,0 +1,8 @@
++/*
++  Warnings:
++
++  - You are about to drop the column `sendNewsletter` on the `User` table. All the data in the column will be lost.
++
++*/
++-- AlterTable
++ALTER TABLE "User" DROP COLUMN "sendNewsletter";

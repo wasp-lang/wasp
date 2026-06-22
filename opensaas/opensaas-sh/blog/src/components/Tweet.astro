@@ -1,0 +1,48 @@
+---
+interface Props {
+    id: string;
+}
+
+const { id } = Astro.props;
+---
+
+<style>
+    .tweet-wrapper {
+        transform: scale(0.85);
+        margin: -3rem 0;
+    }
+    /* Target the Twitter iframe to reduce padding */
+    :global(.twitter-tweet-rendered) {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+</style>
+
+<div class="tweet-wrapper">
+    <blockquote class="twitter-tweet">
+        <a href={`https://twitter.com/x/status/${id}`}></a>
+    </blockquote>
+</div>
+
+<script>
+    declare global {
+        interface Window {
+            twttr: any;
+        }
+    }
+
+    window.twttr = (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0],
+            t = window.twttr || {};
+        if (d.getElementById(id)) return t;
+        js = d.createElement(s) as HTMLScriptElement;
+        js.id = id;
+        js.src = "https://platform.twitter.com/widgets.js";
+        fjs.parentNode?.insertBefore(js, fjs);
+        t._e = [];
+        t.ready = function(f: () => void) {
+            t._e.push(f);
+        };
+        return t;
+    }(document, "script", "twitter-wjs"));
+</script> 

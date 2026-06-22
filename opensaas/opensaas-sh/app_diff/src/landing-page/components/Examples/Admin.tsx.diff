@@ -1,0 +1,23 @@
+--- template/app/src/landing-page/components/Examples/Admin.tsx
++++ opensaas-sh/app/src/landing-page/components/Examples/Admin.tsx
+@@ -0,0 +1,20 @@
++import admin from "../../../client/static/assets/admin.webp";
++import { HighlightedFeature } from "../HighlightedFeature";
++
++export function Admin() {
++  return (
++    <HighlightedFeature
++      name="Admin Dashboard"
++      description="Graphs! Tables! Analytics w/ Plausible or Google! All in one place. Ooooooooh."
++      highlightedComponent={<AdminExample />}
++    />
++  );
++}
++
++function AdminExample() {
++  return (
++    <div className="w-full">
++      <img src={admin} alt="Admin" />
++    </div>
++  );
++}

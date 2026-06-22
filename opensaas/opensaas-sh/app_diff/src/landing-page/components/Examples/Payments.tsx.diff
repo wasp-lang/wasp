@@ -1,0 +1,24 @@
+--- template/app/src/landing-page/components/Examples/Payments.tsx
++++ opensaas-sh/app/src/landing-page/components/Examples/Payments.tsx
+@@ -0,0 +1,21 @@
++import payments from "../../../client/static/assets/payments.webp";
++import { HighlightedFeature } from "../HighlightedFeature";
++
++export function Payments() {
++  return (
++    <HighlightedFeature
++      name="Stripe / Polar.sh / Lemon Squeezy Integration"
++      description="No SaaS is complete without payments. We've pre-configured checkout and webhooks for Stripe, Polar.sh, and Lemon Squeezy. Just choose a provider and start cashing out."
++      highlightedComponent={<PaymentsExample />}
++      direction="row-reverse"
++    />
++  );
++}
++
++function PaymentsExample() {
++  return (
++    <div className="w-full max-w-lg">
++      <img src={payments} alt="Payments" />
++    </div>
++  );
++}

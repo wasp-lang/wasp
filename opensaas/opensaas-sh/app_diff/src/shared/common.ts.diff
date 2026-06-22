@@ -1,0 +1,7 @@
+--- template/app/src/shared/common.ts
++++ opensaas-sh/app/src/shared/common.ts
+@@ -1,2 +1,4 @@
+ export const DocsUrl = "https://docs.opensaas.sh";
+ export const BlogUrl = "https://docs.opensaas.sh/blog";
++export const GithubUrl = "https://github.com/wasp-lang/open-saas";
++export const WaspUrl = "https://wasp.sh";

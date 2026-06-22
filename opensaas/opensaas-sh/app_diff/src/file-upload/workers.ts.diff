@@ -1,0 +1,40 @@
+--- template/app/src/file-upload/workers.ts
++++ opensaas-sh/app/src/file-upload/workers.ts
+@@ -0,0 +1,37 @@
++import type { DeleteFilesJob } from "wasp/server/jobs";
++import { deleteFileFromS3 } from "./s3Utils";
++
++export const deleteFilesJob: DeleteFilesJob<never, void> = async (
++  _args,
++  context,
++) => {
++  const dayInMiliseconds = 1000 * 60 * 60 * 24;
++  const sevenDaysAgo = Date.now() - 7 * dayInMiliseconds;
++  const filesToDelete = await context.entities.File.findMany({
++    where: {
++      createdAt: {
++        lt: new Date(sevenDaysAgo),
++      },
++    },
++    select: { s3Key: true, id: true },
++  });
++
++  const deletionResults = await Promise.allSettled(
++    filesToDelete.map(async (file) => {
++      await deleteFileFromS3({ s3Key: file.s3Key });
++      return file.id;
++    }),
++  );
++
++  const successfullyDeletedFromS3Ids = deletionResults
++    .filter((result) => result.status === "fulfilled")
++    .map((result) => result.value);
++
++  const deletedFiles = await context.entities.File.deleteMany({
++    where: {
++      id: { in: successfullyDeletedFromS3Ids },
++    },
++  });
++
++  console.log(`Deleted ${deletedFiles.count} files`);
++};

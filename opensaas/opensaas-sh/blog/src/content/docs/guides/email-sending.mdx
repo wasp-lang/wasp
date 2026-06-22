@@ -1,0 +1,107 @@
+---
+title: Email Sending
+banner:
+  content: |
+    Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
+---
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+This guide explains how to use the integrated email sender and how you can integrate your own account in this template.
+
+## Sending Emails
+
+### The `Dummy` Email Provider (for Local Dev Only)
+By default we've set up the email sender to use the `Dummy` provider. This is **for local development only** and no emails will actually be sent out!
+To obtain an email verification token/link, you must check the server logs on initial sign up. You can click this link to verify your email and continue with the sign up process.
+```tsx title="main.wasp"
+app SaaSTemplate {
+  // ...
+  emailSender: {
+    provider: Dummy,
+    defaultFrom: {
+      name: "Open SaaS App",
+      email: "me@example.com" 
+    },
+  },
+```
+
+Note that your app will not build if using the `Dummy` provider and you must switch to a production-ready provider in order to do so.
+
+### Using a Production-Ready Email Provider (e.g. SendGrid)
+To change your email provider to a production-ready one, such as SendGrid, you'll want to configure your `emailSender` like so:
+
+```tsx title="main.wasp"
+app SaaSTemplate {
+  // ...
+  emailSender: {
+    provider: SendGrid,
+    defaultFrom: {
+      name: "Open SaaS App",
+      // When using SendGrid, you must use the same email address that you configured your account to send out emails with!
+      email: "me@example.com" 
+    },
+  },
+```
+
+This means that you can send emails from your app using the `send` function from the `email` modul provided by Wasp:
+
+```tsx title="src/server/webhooks.ts"
+import { emailSender } from "wasp/server/email";
+
+//...
+
+  if (subscription.cancel_at_period_end) {
+    await emailSender.send({
+      to: customer.email,
+      subject: 'We hate to see you go :(',
+      text: 'We hate to see you go. Here is a sweet offer...',
+      html: 'We hate to see you go. Here is a sweet offer...',
+    });
+  }
+```
+
+In the example above, you can see that we're sending an email to the customer when we receive a cancel subscription event within the Stripe webhook. 
+
+This is a powerful feature and super simple to use.
+
+## Integrate your email sender
+
+To set up your email sender, you first need an account with one of the supported email providers.
+
+<Tabs>
+  <TabItem label="SendGrid">
+    - Register at SendGrid.com and then get your [API KEYS](https://app.sendgrid.com/settings/api_keys).
+    - Copy yours to the `.env.server` file under the `SENDGRID_API_KEY` variable. 
+
+    Make sure to change the `defaultFrom` email address in the `main.wasp` file to use the same email address that you configured your account to send out emails with!
+
+    ```tsx title="main.wasp" {5}
+    emailSender: {
+      provider: SendGrid,
+      defaultFrom: {
+        name: "Open SaaS App",
+        email: "me@example.com" // <--- same email address you configured your SendGrid account to send emails with!
+      },
+    ``` 
+  </TabItem>
+  <TabItem label="Mailgun">
+    - Go to [Mailgun](https://mailgun.com) and create an account.
+    - Go to [API Keys](https://app.mailgun.com/settings/api_security/api_keys?onboardingTask=api-key) and create a new API key.
+    - Copy the API key and add it to your .env.server file under the `MAILGUN_API_KEY` variable.
+    - Go to [Domains](https://app.mailgun.com/mg/sending/new-domain?onboardingTask=add-verify-domain) and create a new domain.
+    - Copy the domain and add it to your .env.server file as `MAILGUN_DOMAIN`.
+
+    Make sure to change the `defaultFrom` email address in the `main.wasp` file to use the same email address that you configured your account to send out emails with!
+
+    ```tsx title="main.wasp" {5}
+    emailSender: {
+      provider: Mailgun,
+      defaultFrom: {
+        name: "Open SaaS App",
+        email: "me@example.com" // <--- same email address you configured your Mailgun account to send emails with!
+      },
+    ```
+  </TabItem>
+</Tabs>
+
+If you want more detailed info, or would like to use SMTP, check out the [Wasp docs](https://wasp.sh/docs/advanced/email).

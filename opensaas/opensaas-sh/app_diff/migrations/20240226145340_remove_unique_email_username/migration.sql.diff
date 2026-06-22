@@ -1,0 +1,8 @@
+--- template/app/migrations/20240226145340_remove_unique_email_username/migration.sql
++++ opensaas-sh/app/migrations/20240226145340_remove_unique_email_username/migration.sql
+@@ -0,0 +1,5 @@
++-- DropIndex
++DROP INDEX "User_email_key";
++
++-- DropIndex
++DROP INDEX "User_username_key";

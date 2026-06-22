@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /account
+Disallow: /admin

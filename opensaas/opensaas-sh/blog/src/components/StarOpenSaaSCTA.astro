@@ -1,0 +1,20 @@
+---
+interface Props {
+  trailingText?: string;
+}
+
+const { trailingText = 'and support open-source tools for builders, by builders!' } = Astro.props;
+---
+
+<div class="bg-yellow-300 p-4 text-center text-md font-bold rounded-lg text-black">
+  <span>
+    ⭐️ Star the{' '}
+  </span>
+  <a href="https://github.com/wasp-lang/open-saas" class="!text-yellow-800 underline hover:!text-yellow-600">
+    Open SaaS repo
+  </a>
+  <span>
+    {trailingText}
+  </span>
+</div>
+

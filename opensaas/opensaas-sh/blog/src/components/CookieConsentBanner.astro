@@ -1,0 +1,106 @@
+<script>
+  import * as CookieConsent from "vanilla-cookieconsent";
+  import "vanilla-cookieconsent/dist/cookieconsent.css";
+
+  declare global {
+    interface Window {
+      posthog: any;
+      Reo: any;
+    }
+  }
+
+  const config: Parameters<typeof CookieConsent.run>[0] = {
+    root: "body",
+    autoShow: true,
+    disablePageInteraction: false,
+    hideFromBots: import.meta.env.PROD ? true : false, // Set this to false for dev/headless tests otherwise the modal will not be visible.
+    mode: "opt-in",
+    // Keep this in sync with: opensaas-sh/app/src/client/components/cookie-consent/Config.ts
+    revision: 2,
+
+    cookie: {
+      name: "cc_cookie",
+      // Use opensaas.sh domain to share consent with main site
+      domain: location.hostname.includes("opensaas.sh")
+        ? "opensaas.sh"
+        : location.hostname,
+      path: "/",
+      sameSite: "Lax",
+      expiresAfterDays: 365,
+    },
+
+    guiOptions: {
+      consentModal: {
+        layout: "box",
+        position: "bottom right",
+        equalWeightButtons: true,
+        flipButtons: false,
+      },
+    },
+
+    categories: {
+      necessary: {
+        enabled: true,
+        readOnly: true
+      },
+      analytics: {
+        autoClear: {
+          cookies: [
+            {
+              name: /^__sec__/, // regex: match all REO.dev cookies (https://docs.reo.dev/integrations/tracking-beacon/reo.dev-javascript-cookies-and-consent-guide#key-features-of-reo.dev-cookies)
+            },
+            {
+              name: /^ph_/, // regex: match all PostHog cookies
+            },
+          ],
+        },
+
+        services: {
+          posthog: {
+            label: "PostHog",
+            onAccept: async () => {
+              try {
+                await CookieConsent.loadScript("/scripts/posthog.js");
+              } catch (error) {
+                console.error(error);
+              }
+            },
+            onReject: () => {},
+          },
+          reo: {
+            label: "REO.dev",
+            onAccept: async () => {
+              try {
+                await CookieConsent.loadScript("/scripts/reo.js");
+              } catch (error) {
+                console.error(error);
+              }
+            },
+            onReject: () => {},
+          },
+        },
+      },
+    },
+
+    language: {
+      default: "en",
+      translations: {
+        en: {
+          consentModal: {
+            title: "We use cookies",
+            description:
+              "We use cookies primarily for analytics to enhance your experience. By accepting, you agree to our use of these cookies. You can manage your preferences or learn more about our cookie policy.",
+            acceptAllBtn: "Accept all",
+            acceptNecessaryBtn: "Reject all",
+            footer: `<a href="/general/privacy-policy/">Privacy Policy</a>`,
+          },
+          preferencesModal: {
+            sections: [],
+          },
+        },
+      },
+    },
+  };
+
+  CookieConsent.run(config);
+</script>

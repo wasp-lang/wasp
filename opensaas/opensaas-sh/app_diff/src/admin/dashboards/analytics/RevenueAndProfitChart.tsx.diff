@@ -1,0 +1,11 @@
+--- template/app/src/admin/dashboards/analytics/RevenueAndProfitChart.tsx
++++ opensaas-sh/app/src/admin/dashboards/analytics/RevenueAndProfitChart.tsx
+@@ -11,7 +11,7 @@
+   },
+   colors: ["#3C50E0", "#80CAEE"],
+   chart: {
+-    fontFamily: "system-ui, sans-serif",
++    fontFamily: "Satoshi, system-ui, sans-serif",
+     height: 335,
+     type: "area",
+     dropShadow: {

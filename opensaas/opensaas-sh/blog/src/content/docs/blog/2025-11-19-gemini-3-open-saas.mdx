@@ -1,0 +1,72 @@
+---
+title: "Building a SaaS with Gemini 3 and Open SaaS"
+date: 2025-11-19
+tags:
+  - gemini
+  - cursor
+  - ai
+  - tutorial
+authors: vince
+---
+import VideoPlayer from '../../../components/VideoPlayer.astro';
+import { Image } from 'astro:assets';
+import chatInterface from '../../../assets/gemini-3/chat.webp';
+import landingPage from '../../../assets/gemini-3/landing-page.webp';
+
+I'm always skeptical of demos whenever a new model gets released. So I had to test Google's new Gemini 3 model myself.
+
+I wanted to give a more unfiltered look at some real-life SaaS development tasks with **Gemini 3**, **Cursor** and our very own **Open SaaS boilerplate**, so I recorded a quick video of the process. 
+
+The results were impressive and it was able to handle 3 tasks of increasing complexity. I'll definitely be using this as my new go-to model for feature development in future projects!
+
+Check out the full video below to see it in action:
+
+<VideoPlayer src="https://www.youtube.com/watch?v=ag7kbLFlPyA" lgWidth="100%"/>
+
+## Refactoring the Landing Page
+
+I started with a fresh copy of the [Open SaaS template](https://opensaas.sh/) and gave Gemini 3 a simple prompt: **look at the demo AI app and update the landing page to reflect it.**
+
+Using Cursor's "Plan Mode," Gemini 3 proposed three different design styles. I chose an "interactive product-led demo" approach. The model generated a plan and executed it on the first try, building a custom interactive component and integrating it seamlessly into the existing landing page hero section.
+
+This was a cool surprise, as I hand't thought about building an interactive component to showcase the app's features. A nice win!
+
+<Image src={landingPage} alt="Landing page" width={800} />
+
+## Refactoring with Structured Outputs
+
+Next, I ramped up the difficulty. The demo app originally used OpenAI's function calling to generate a daily schedule. I asked Gemini 3 to **refactor this to use OpenAI's "Structured Outputs" feature instead.**
+
+The model:
+1.  Identified the need for a Zod schema to define the response format.
+2.  Switched the model to `gpt-4o-mini`.
+3.  Replaced the legacy tool definitions with the new `response_format` parameter.
+4.  Updated the parsing logic to handle the structured response.
+
+This refactor modernized the codebase without breaking existing functionality. Nice. This saved me a ton of time reading the docs and figuring out how to use the new feature myself.
+
+## Adding a Collaborative Chat Interface
+
+For the final test, we asked for a major feature addition: **a chat interface to collaborate with the AI on the creating a daily plan (with subtasks) before committing to it.**
+
+Gemini 3 broke this down into a multi-step plan:
+*   **Backend:** Define new schemas and actions to handle the chat history and plan proposals.
+*   **Frontend:** Implement a chat component using `shadcn/ui` components (specifically the ScrollArea).
+*   **Integration:** Connect the chat interface to the planning logic, allowing users to refine tasks (e.g., "prioritize filming the video") before accepting the final schedule.
+
+The result was a functional chat interface where the AI intelligently adjusted the schedule based on user feedback, embedded directly into the app. I loved how it injected a nice styled component into the chat window, something that I wanted (it read my mind!) and would have taken me hours to build in the past.
+
+I was really happy with the results of this challenge!
+
+<Image src={chatInterface} alt="Chat interface" width={800} />
+
+## Conclusion
+
+The combination of **Gemini 3**, **Cursor**, and **Open SaaS** proved to be pretty powerful. The model didn't just generate code; it understood the project structure (Open SaaS organizes code vertically by feature), followed architectural patterns, and successfully implemented complex refactors and new features with minimal human intervention.
+
+Overall, I was very impressed and I think other SaaS builders would be smart to give this stack a go.
+
+<div style="background-color: #FFD700; padding: 1rem; text-align: center; font-size: 1.2rem; font-weight: bold; border-radius: 8px; color: black;">
+  ⭐️ Star <a href="https://github.com/wasp-lang/open-saas" style="color: #0000FF; text-decoration: underline;">Open SaaS repo</a> and start building your next idea today!
+</div>
+

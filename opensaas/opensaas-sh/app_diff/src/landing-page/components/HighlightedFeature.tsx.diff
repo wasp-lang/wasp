@@ -1,0 +1,59 @@
+--- template/app/src/landing-page/components/HighlightedFeature.tsx
++++ opensaas-sh/app/src/landing-page/components/HighlightedFeature.tsx
+@@ -1,11 +1,14 @@
+ import { cn } from "../../client/utils";
+ 
+ interface FeatureProps {
++  id?: string;
+   name: string;
+   description: string | React.ReactNode;
+   direction?: "row" | "row-reverse";
+   highlightedComponent: React.ReactNode;
+   tilt?: "left" | "right";
++  className?: string;
++  url?: string;
+ }
+ 
+ /**
+@@ -13,11 +16,14 @@
+  * Shows text description on one side, and whatever component you want to show on the other side to demonstrate the functionality.
+  */
+ export function HighlightedFeature({
++  id,
+   name,
+   description,
+   direction = "row",
+   highlightedComponent,
+   tilt,
++  className,
++  url,
+ }: FeatureProps) {
+   const tiltToClass: Record<Required<FeatureProps>["tilt"], string> = {
+     left: "rotate-1",
+@@ -26,13 +32,16 @@
+ 
+   return (
+     <div
++      id={id}
+       className={cn(
+-        "my-50 mx-auto flex max-w-6xl flex-col items-center justify-between gap-x-20 gap-y-10 px-8 transition-all duration-300 ease-in-out md:px-4",
++        "my-50 mx-auto flex max-w-6xl scroll-mt-24 flex-col justify-between gap-x-20 gap-y-10 px-8 transition-all duration-300 ease-in-out md:items-center md:px-4",
+         direction === "row" ? "md:flex-row" : "md:flex-row-reverse",
+       )}
+     >
+       <div className="flex-1 flex-col">
+-        <h2 className="mb-2 text-4xl font-bold">{name}</h2>
++        <a href={url} target="_blank" rel="noopener noreferrer">
++          <h2 className="mb-2 text-4xl font-bold">{name}</h2>
++        </a>
+         {typeof description === "string" ? (
+           <p className="text-muted-foreground">{description}</p>
+         ) : (
+@@ -43,6 +52,7 @@
+         className={cn(
+           "my-10 flex w-full flex-1 items-center justify-center transition-transform duration-300 ease-in-out",
+           tilt && tiltToClass[tilt],
++          className,
+         )}
+       >
+         {highlightedComponent}

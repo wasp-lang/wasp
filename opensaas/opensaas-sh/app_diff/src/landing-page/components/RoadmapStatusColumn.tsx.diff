@@ -1,0 +1,95 @@
+--- template/app/src/landing-page/components/RoadmapStatusColumn.tsx
++++ opensaas-sh/app/src/landing-page/components/RoadmapStatusColumn.tsx
+@@ -0,0 +1,92 @@
++import { cn } from "../../client/utils";
++import type { GithubEpic } from "../operations";
++import { GithubEpicStatus } from "../operations";
++import { RoadmapEpicAddIssueCard, RoadmapEpicCard } from "./RoadmapEpicCard";
++
++type RoadmapStatusColumnProps = {
++  status: GithubEpicStatus;
++  epics: GithubEpic[];
++};
++
++export function RoadmapStatusColumn({
++  status,
++  epics,
++}: RoadmapStatusColumnProps) {
++  const borderColor = getBorderColor(status);
++  const statusBgColor = getStatusBgColor(status);
++  const statusTextColor = getStatusTextColor(status);
++
++  return (
++    <div className="flex flex-col gap-4">
++      <div
++        className={cn(
++          "flex items-center justify-center rounded-lg border bg-opacity-10 p-3",
++          borderColor,
++          statusBgColor,
++        )}
++      >
++        <h3 className={cn("font-bold", statusTextColor)}>{status}</h3>
++        <span className="ml-2 text-xs opacity-70">({epics.length})</span>
++      </div>
++
++      <div className="flex flex-col gap-4">
++        {epics.map((epic) => (
++          <RoadmapEpicCard key={epic.name} epic={epic} />
++        ))}
++
++        {epics.length === 0 && (
++          <div className="rounded-lg border border-dashed py-8 text-center text-sm italic text-gray-400 dark:border-gray-800">
++            No epics
++          </div>
++        )}
++
++        {status === GithubEpicStatus.Ideas && <RoadmapEpicAddIssueCard />}
++      </div>
++    </div>
++  );
++}
++
++const getStatusBgColor = (status: GithubEpicStatus) => {
++  switch (status) {
++    case GithubEpicStatus.Ideas:
++      return "bg-blue-100 dark:bg-blue-900/30";
++    case GithubEpicStatus.Planned:
++      return "bg-green-100 dark:bg-green-900/30";
++    case GithubEpicStatus.InProgress:
++      return "bg-yellow-100 dark:bg-yellow-900/30";
++    case GithubEpicStatus.Done:
++      return "bg-purple-100 dark:bg-purple-900/30";
++    default:
++      return "bg-gray-100 dark:bg-gray-800";
++  }
++};
++
++const getStatusTextColor = (status: GithubEpicStatus) => {
++  switch (status) {
++    case GithubEpicStatus.Ideas:
++      return "text-blue-700 dark:text-blue-300";
++    case GithubEpicStatus.Planned:
++      return "text-green-700 dark:text-green-300";
++    case GithubEpicStatus.InProgress:
++      return "text-yellow-700 dark:text-yellow-300";
++    case GithubEpicStatus.Done:
++      return "text-purple-700 dark:text-purple-300";
++    default:
++      return "text-gray-700 dark:text-gray-300";
++  }
++};
++
++const getBorderColor = (status: GithubEpicStatus) => {
++  switch (status) {
++    case GithubEpicStatus.Ideas:
++      return "border-blue-200 dark:border-blue-800";
++    case GithubEpicStatus.Planned:
++      return "border-green-200 dark:border-green-800";
++    case GithubEpicStatus.InProgress:
++      return "border-yellow-200 dark:border-yellow-800";
++    case GithubEpicStatus.Done:
++      return "border-purple-200 dark:border-purple-800";
++    default:
++      return "border-gray-200 dark:border-gray-700";
++  }
++};

@@ -1,0 +1,11 @@
+--- template/app/src/landing-page/components/ExamplesCarousel.tsx
++++ opensaas-sh/app/src/landing-page/components/ExamplesCarousel.tsx
+@@ -108,7 +108,7 @@
+       ref={containerRef}
+       className="relative left-1/2 my-16 flex w-screen -translate-x-1/2 flex-col items-center"
+     >
+-      <h2 className="text-muted-foreground mb-6 text-center font-semibold tracking-wide">
++      <h2 className="text-muted-foreground mb-6 text-center text-lg font-semibold tracking-wide">
+         Used by:
+       </h2>
+       <div className="w-full max-w-full overflow-hidden">

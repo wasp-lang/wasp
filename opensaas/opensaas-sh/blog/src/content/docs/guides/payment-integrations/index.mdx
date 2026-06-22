@@ -1,0 +1,59 @@
+---
+title: Overview
+banner:
+  content: |
+    Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
+---
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+This guide will show you how to set up payments for testing and local development with the following payment processors:
+- Stripe
+- Lemon Squeezy
+- Polar
+
+:::note[Which should I choose?]
+Stripe is the industry standard, is more configurable, and has cheaper fees.
+Lemon Squeezy and Polar act as a [Merchant of Record](https://www.lemonsqueezy.com/reporting/merchant-of-record). This means they take care of paying taxes in multiple countries for you, but charge higher fees per transaction.
+:::
+
+## Important First Steps
+
+First, go to `/src/payment/paymentProcessor.ts` and choose which payment processor you'd like to use:
+
+```ts title="src/payment/paymentProcessor.ts" ins={7, 9, 11}
+import { stripePaymentProcessor } from './stripe/paymentProcessor';
+import { lemonSqueezyPaymentProcessor } from './lemonSqueezy/paymentProcessor';
+import { polarPaymentProcessor } from './polar/paymentProcessor';
+
+// ...
+
+export const paymentProcessor: PaymentProcessor = stripePaymentProcessor;
+// or
+export const paymentProcessor: PaymentProcessor = lemonSqueezyPaymentProcessor;
+// or
+export const paymentProcessor: PaymentProcessor = polarPaymentProcessor;
+```
+
+Then you should delete:
+- The unused payment processor directories at `/src/payment/<unused-provider>`.
+- Any unused environment variables from `.env.server` (they will be prefixed with the name of the provider you are not using):
+  - E.g. `STRIPE_API_KEY`, `LEMONSQUEEZY_API_KEY`, `POLAR_ORGANIZATION_ACCESS_TOKEN`.
+- Update `src/env.ts` to remove the env schema imports and `.merge()` calls for the providers you removed.
+- Make sure to also run `npm uninstall` for providers you didn't use:
+  - Stripe: `npm uninstall stripe`
+  - Polar: `npm uninstall @polar-sh/sdk`
+  - Lemon Squeezy: `npm uninstall @lemonsqueezy/lemonsqueezy.js`
+- If you are not using Lemon Squeezy remove the `lemonSqueezyCustomerPortalUrl` field from the `User` model in the `schema.prisma` file.
+
+Now your code is ready to go with your preferred payment processor and it's time to configure your payment processor's API keys, products, and other settings.
+
+Follow the steps for your selected processor:
+
+- [Stripe](stripe/)
+- [Lemon Squeezy](lemon-squeezy/)
+- [Polar](polar/)
+
+
+## Deploying
+
+Once you're ready to deploy your app, follow the steps from the [deploying guide](/guides/deploying/) to set up the production settings for your prayment provider.

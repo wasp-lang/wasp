@@ -1,0 +1,68 @@
+---
+
+---
+<copy-llm-button>
+	<button type="button" class="flex items-center justify-center">
+    <span id="copy-llm-check" class="hidden w-[1.2em]">✅</span>
+    <svg id="copy-llm-icon" xmlns="http://www.w3.org/2000/svg" width="1.2em" height="1em" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-file-text">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+        <polyline points="14 2 14 8 20 8"></polyline>
+        <line x1="16" y1="13" x2="8" y2="13"></line>
+        <line x1="16" y1="17" x2="8" y2="17"></line>
+        <polyline points="10 9 9 9 8 9"></polyline>
+    </svg>
+		<span class="ml-2 text-sm">Copy URL for LLMs</span>
+	</button>
+</copy-llm-button>
+
+<style>
+	button {
+		color: var(--sl-color-text-primary);
+		font-weight: 600;
+		text-decoration: none;
+		background-color: transparent;
+		border: none;
+		padding: 0;
+		margin: 0;
+		cursor: pointer;
+		font-family: inherit;
+		font-size: var(--sl-text-body);
+		line-height: 1.5;
+	}
+	button:hover {
+		opacity: 0.8;
+	}
+</style>
+
+<script>
+	class CopyLlmButton extends HTMLElement {
+		constructor() {
+			super();
+      const button = this.querySelector('button');
+      if (!button) return;
+			const llmsUrl = 'https://docs.opensaas.sh/llms.txt';
+
+			button.addEventListener('click', async () => {
+				try {
+					await navigator.clipboard.writeText(llmsUrl);
+					const originalIcon = button.querySelector('svg');
+          const checkIcon = button.querySelector('#copy-llm-check');
+					if (!originalIcon || !checkIcon) return;
+					checkIcon.classList.remove('hidden');
+					originalIcon.classList.add('hidden');
+					setTimeout(() => {
+						originalIcon.classList.remove('hidden');
+						checkIcon.classList.add('hidden');
+					}, 2000);
+				} catch (err) {
+					console.error('Failed to copy URL: ', err);
+					button.textContent = 'Error!';
+					setTimeout(() => {
+						button.textContent = 'Copy URL for LLMs';
+					}, 2000);
+				}
+			});
+		}
+	}
+	customElements.define('copy-llm-button', CopyLlmButton);
+</script>

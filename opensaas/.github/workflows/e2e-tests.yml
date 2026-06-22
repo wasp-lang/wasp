@@ -1,0 +1,124 @@
+name: e2e tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+
+env:
+  WASP_TELEMETRY_DISABLE: 1
+  WASP_VERSION:
+    # If you're copying this workflow to your own project, set this to your app's Wasp version:
+    main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repo
+        uses: actions/checkout@v6
+
+      - name: Setup Node.js
+        id: setup-node
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24.14.1"
+
+      - name: Docker setup
+        uses: docker/setup-buildx-action@v4
+
+      - name: Install Wasp ${{ env.WASP_VERSION }}
+        if: env.WASP_VERSION != 'main'
+        run: npm i -g @wasp.sh/wasp-cli@${{ env.WASP_VERSION }}
+
+      # If you're copying this workflow to your own project, you can remove this step:
+      - name: Install latest development Wasp
+        if: env.WASP_VERSION == 'main'
+        # Installs the latest published build of the CLI from the `main` branch.
+        run: npm i -g https://pkg.pr.new/@wasp.sh/wasp-cli@main
+
+      - name: Cache global node modules
+        uses: actions/cache@v5
+        with:
+          path: ~/.npm
+          key: node-modules-${{ runner.os }}-${{ hashFiles('template/app/package-lock.json') }}-${{ hashFiles('template/e2e-tests/package-lock.json') }}-wasp${{ env.WASP_VERSION }}-node${{ steps.setup-node.outputs.node-version }}
+          restore-keys: |
+            node-modules-${{ runner.os }}-
+
+      # In order for the app to run in the dev mode we need to set the required env vars even if
+      # they aren't actually used by the app. This step sets mock env vars in order to pass the
+      # validation steps so the app can run in the CI environment. For env vars that are actually
+      # used in tests and therefore need real values, we set them in the GitHub secrets settings and
+      # access them in a step below.
+      - name: Prepare the template for tests
+        working-directory: ./template
+        run: |
+          cd app
+          cp .env.server.example .env.server && cp .env.client.example .env.client
+          wasp install
+
+      - name: "Install Node.js dependencies for Playwright tests"
+        if: steps.cache-e2e-tests.outputs.cache-hit != 'true'
+        working-directory: ./template
+        run: |
+          cd e2e-tests
+          npm ci
+
+      - name: "Store Playwright's Version"
+        working-directory: ./template
+        run: |
+          cd e2e-tests
+          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
+          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
+      - name: "Cache Playwright Browsers for Playwright's Version"
+        id: cache-playwright-browsers
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-${{ env.PLAYWRIGHT_VERSION }}-${{ runner.os }}
+
+      - name: "Set up Playwright"
+        if: steps.cache-playwright-browsers.outputs.cache-hit != 'true'
+        working-directory: ./template
+        run: |
+          cd e2e-tests
+          npx playwright install --with-deps
+
+      - name: "Install Stripe CLI"
+        run: |
+          curl -s https://packages.stripe.dev/api/security/keypair/stripe-cli-gpg/public | gpg --dearmor | sudo tee /usr/share/keyrings/stripe.gpg
+          echo "deb [signed-by=/usr/share/keyrings/stripe.gpg] https://packages.stripe.dev/stripe-cli-debian-local stable main" | sudo tee -a /etc/apt/sources.list.d/stripe.list
+          sudo apt update
+          sudo apt install stripe
+
+      # For Stripe webhooks to work in development, we need to run the Stripe CLI to listen for webhook events.
+      # The Stripe CLI will receive the webhook events from Stripe test payments and
+      # forward them to our local server so that we can test the payment flow in our e2e tests.
+      - name: "Run Stripe CLI to listen for webhooks"
+        env:
+          STRIPE_DEVICE_NAME: ${{ secrets.STRIPE_DEVICE_NAME }}
+        run: |
+          stripe listen --api-key ${{ secrets.STRIPE_KEY }} --forward-to localhost:3001/payments-webhook &
+
+      - name: "Run Playwright tests"
+        env:
+          # The e2e tests are testing parts of the app that need certain env vars, so we need to access them here.
+          # These secretes can be set in your GitHub repo settings, e.g. https://github.com/<account>/<repo>/settings/secrets/actions
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          STRIPE_API_KEY: ${{ secrets.STRIPE_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          PAYMENTS_HOBBY_SUBSCRIPTION_PLAN_ID: ${{ secrets.STRIPE_HOBBY_SUBSCRIPTION_PRICE_ID }}
+          PAYMENTS_PRO_SUBSCRIPTION_PLAN_ID: ${{ secrets.STRIPE_PRO_SUBSCRIPTION_PRICE_ID }}
+          PAYMENTS_CREDITS_10_PLAN_ID: ${{ secrets.STRIPE_CREDITS_PRICE_ID }}
+          SKIP_EMAIL_VERIFICATION_IN_DEV: true
+          # Client-side env vars
+          REACT_APP_GOOGLE_ANALYTICS_ID: G-H3LSJCK95H
+        working-directory: ./template
+        run: |
+          cd e2e-tests
+          npm run e2e:playwright

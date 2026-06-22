@@ -1,0 +1,15 @@
+--- template/app/src/client/components/ui/card.tsx
++++ opensaas-sh/app/src/client/components/ui/card.tsx
+@@ -12,7 +12,11 @@
+         accent: "bg-card-accent text-card-accent-foreground hover:scale-[1.02]",
+         faded: "text-card-faded-foreground scale-95 opacity-50",
+         bento:
+-          "bg-card-subtle text-card-subtle-foreground hover:scale-[1.02] border-none shadow-none",
++          "bg-card-subtle text-card-subtle-foreground border-none shadow-none hover:shadow-none",
++        bentoHighlight:
++          "bg-card-subtle text-card-subtle-foreground border-none shadow-outer dark:shadow-lg hover:shadow-outer",
++        outer: "bg-card shadow-outer text-card-foreground hover:shadow-outer",
++        inner: "bg-card shadow-inner text-card-foreground hover:shadow-inner",
+       },
+     },
+   },

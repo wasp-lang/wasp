@@ -1,0 +1,7 @@
+--- template/app/src/landing-page/components/Examples/index.ts
++++ opensaas-sh/app/src/landing-page/components/Examples/index.ts
+@@ -0,0 +1,4 @@
++export { Admin } from "./Admin";
++export { AIReady } from "./AIReady";
++export { Auth } from "./Auth";
++export { Payments } from "./Payments";

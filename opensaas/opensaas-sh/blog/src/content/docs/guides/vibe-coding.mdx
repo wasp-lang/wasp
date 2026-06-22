@@ -1,0 +1,53 @@
+---
+title: "AI-assisted Coding / Vibe Coding with Open SaaS"
+banner:
+  content: |
+    Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
+---
+import { Image } from 'astro:assets';
+import vibeBoi from '@assets/ai/vibe-boi.png';
+
+<Image src={vibeBoi} alt="vibe boi" width={300} />
+
+If you're looking to use AI coding tools to help build your SaaS app, this guide is for you.
+
+:::tip[New to building SaaS? Learn while you build with Open Vibe]
+[Open Vibe](https://openvibe.sh) is our free, open-source curriculum that turns Claude Code (or your agent of choice) into a SaaS-building tutor. It pairs interactive diagrams with hands-on lessons — and Phase 2 builds a real SaaS on top of this very Open SaaS template.
+:::
+
+## Coding with AI, Open SaaS, & Wasp
+
+Wasp is the perfect match for AI-assisted coding due to its central config file which gives LLMs immediate context about the entire full-stack app, as well as its ability to manage boilerplate code so AI doesn't have to. 
+
+To make it even easier, here are some resources to help you use Wasp & Open SaaS with AI as effectively as possible.
+
+## Agent Skills and Rules
+
+We've put some agent skills and rules into the template to help you get started using Open SaaS with your favorite AI-assisted coding tools (Claude Code, Cursor, VS Code/Copilot, Codex, Gemini CLI, OpenCode, etc.).
+
+Skills are found in the `app/.agents` (and `app/.claude`) directory of the Open SaaS template, and follow the [Agent Skills](https://agentskills.io/) standard.
+See your AI-assisted coding tool's documentation for more details on how to add Agent Skills if they don't load automatically.
+
+Rules, found within the `AGENTS.md` (and `CLAUDE.md`), is another [open standard](https://agents.md/) used by many popular AI-assisted coding tools to give instructions to the agents when coding.
+
+:::tip[These are just a starting point!]
+Use these skills and rules to get your project up and running.
+
+Run the `add-wasp-skills` skill to add [Wasp framework-specific skills](https://github.com/wasp-lang/wasp-agent-plugins/tree/main/plugins/wasp) to your project for even more power.
+:::
+
+## LLM-Friendly Documentation
+
+Note: the `AGENTS.md` has specific instructions on how to automatically fetch and use the LLM-friendly documentation but you can also paste the following links in chat sessions if needed.
+
+- [Open SaaS Docs - LLMs.txt](https://docs.opensaas.sh/llms.txt) - Links to the raw text docs.
+- [Open SaaS Docs - LLMs-full.txt](https://docs.opensaas.sh/llms-full.txt) - Complete docs as one text file.
+- [Wasp Docs - LLMs.txt](https://wasp.sh/llms.txt) - Links to the raw text docs by Wasp version.
+- [Wasp Docs - LLMs-full.txt](https://wasp.sh/llms-full.txt) - Complete docs as one text file.
+
+## More AI-assisted Coding Learning Resources
+
+Here's a list of articles and tutorials we've made:
+- [Open Vibe: a free, agent-guided curriculum for building your SaaS on Open SaaS](https://openvibe.sh)
+- [3hr YouTube tutorial: Vibe Coding a Personal Finance App w/ Wasp & Cursor](https://www.youtube.com/watch?v=WYzEROo7reY)
+- [Article: A Structured Workflow for "Vibe Coding" Full-Stack Apps](https://dev.to/wasp/a-structured-workflow-for-vibe-coding-full-stack-apps-352l)

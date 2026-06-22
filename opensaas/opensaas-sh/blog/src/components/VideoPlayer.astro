@@ -1,0 +1,56 @@
+---
+interface Props {
+  src: string;
+  lgWidth?: string;
+  smWidth?: string;
+}
+
+const { src, lgWidth = '55%', smWidth = '100%' } = Astro.props;
+
+// Function to check if the URL is a YouTube URL and, if so, extract the video ID
+function getYouTubeId(url: string): string | null {
+  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
+  const match = url.match(regExp);
+  return match && match[2].length === 11 ? match[2] : null; // Note: all YouTube video IDs are 11 characters long.
+}
+
+const youTubeId = getYouTubeId(src);
+const isYouTube = !!youTubeId;
+---
+
+{isYouTube ? (
+  <iframe
+    src={`https://www.youtube.com/embed/${youTubeId}`}
+    title="YouTube video player"
+    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+    allowfullscreen
+    style="aspect-ratio: 16 / 9; width: 100%;"
+  >
+  </iframe>
+) : (
+  <video
+    src={src}
+    preload="true"
+    autoplay
+    muted
+    controls
+    loop
+    class="video-player"
+  >
+    <track kind="captions">
+  </video>
+)}
+
+<style define:vars={{ lgWidth, smWidth }}>
+  .video-player {
+    width: var(--lgWidth);
+    margin: 2rem auto;
+    border-radius: 8px;
+  }
+
+  @media (max-width: 425px) {
+    .video-player {
+      width: var(--smWidth);
+    }
+  }
+</style>

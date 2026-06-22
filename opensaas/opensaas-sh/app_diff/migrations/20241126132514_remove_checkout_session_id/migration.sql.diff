@@ -1,0 +1,11 @@
+--- template/app/migrations/20241126132514_remove_checkout_session_id/migration.sql
++++ opensaas-sh/app/migrations/20241126132514_remove_checkout_session_id/migration.sql
+@@ -0,0 +1,8 @@
++/*
++  Warnings:
++
++  - You are about to drop the column `checkoutSessionId` on the `User` table. All the data in the column will be lost.
++
++*/
++-- AlterTable
++ALTER TABLE "User" DROP COLUMN IF EXISTS "checkoutSessionId";

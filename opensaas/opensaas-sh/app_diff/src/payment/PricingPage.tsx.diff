@@ -1,0 +1,10 @@
+--- template/app/src/payment/PricingPage.tsx
++++ opensaas-sh/app/src/payment/PricingPage.tsx
+@@ -25,6 +25,7 @@
+ } from "./plans";
+ 
+ const bestDealPaymentPlanId: PaymentPlanId = PaymentPlanId.Pro;
++const PaymentsDocsURL = "https://docs.opensaas.sh/guides/payment-integrations/";
+ 
+ interface PaymentPlanCard {
+   name: string;

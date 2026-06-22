@@ -1,0 +1,25 @@
+{
+  "name": "wasp-repo",
+  "type": "module",
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "prettier:check": "prettier --ignore-unknown --check --config prettier.config.ts .",
+    "prettier:format": "prettier --ignore-unknown --write --config prettier.config.ts ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.4",
+    "@typescript-eslint/eslint-plugin": "^8.58.1",
+    "@typescript-eslint/parser": "^8.58.1",
+    "eslint": "^9.39.4",
+    "eslint-plugin-react": "^7.37.5",
+    "eslint-plugin-react-hooks": "^7.0.1",
+    "prettier": "3.8.1",
+    "prettier-plugin-organize-imports": "4.3.0",
+    "prettier-plugin-pkg": "0.22.1",
+    "prettier-plugin-sh": "0.18.1",
+    "prettier-plugin-tailwindcss": "^0.6.14",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.58.1"
+  }
+}

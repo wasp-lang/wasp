@@ -1,0 +1,130 @@
+--- template/app/src/client/Main.css
++++ opensaas-sh/app/src/client/Main.css
+@@ -122,6 +122,25 @@
+     0px 2px 4px rgba(0, 0, 0, 0.2), inset 0px 2px 2px #ffffff,
+     inset 0px -1px 1px rgba(0, 0, 0, 0.1);
+   --shadow-switch-1: 0px 0px 5px rgba(0, 0, 0, 0.15);
++  --shadow-outer:
++    0px 1px 3px 0px hsl(var(--background)/0.8) inset,
++    0px 0.5px 1px 0px hsl(var(--background)/0.8) inset,
++    0px -1px 3px 0px hsl(var(--primary)/0.3) inset,
++    0px -0.5px 1px 0px hsl(var(--primary)/0.15) inset,
++    0px -2px 4.8px 0px hsl(var(--background)/0.05),
++    0px 1px 2px 0px hsl(var(--background)/0.1),
++    0px 2px 4px 0px hsl(var(--background)/0.1),
++    0px 4px 8px 0px hsl(var(--background)/0.15);
++  --shadow-inner:
++    0px 1px 3px 0px hsl(var(--background)/0.8),
++    0px 0.5px 1px 0px hsl(var(--background)/0.5),
++    0px -1px 3px 0px hsl(var(--primary)/0.5),
++    0px -0.5px 1px 0px hsl(var(--primary)/0.5),
++    0px -1px 4px 0px hsl(var(--background)/0.06) inset,
++    0px -2px 4.8px 0px hsl(var(--background)/0.06) inset,
++    0px 1px 2px 0px hsl(var(--background)/0.06) inset,
++    0px 2px 4px 0px hsl(var(--background)/0.06) inset,
++    0px 4px 8px 0px hsl(var(--background)/0.06) inset;
+ 
+   --drop-shadow-1: 0px 1px 0px #e2e8f0;
+   --drop-shadow-2: 0px 1px 4px rgba(0, 0, 0, 0.12);
+@@ -136,6 +155,8 @@
+   --radius-md: calc(var(--radius) - 2px);
+   --radius-sm: calc(var(--radius) - 4px);
+ 
++  --font-satoshi: "Satoshi", system-ui, sans-serif;
++
+   @keyframes rotating {
+     0%,
+     100% {
+@@ -209,6 +230,64 @@
+   & > * {
+     background: hsl(var(--background));
+   }
++
++  /* Radial gradient utilities */
++  .bg-radial-gradient {
++    background: radial-gradient(
++      circle at 30% 30%,
++      hsl(var(--card-accent) / 0.5) 0%,
++      hsl(var(--accent) / 0.15) 100%
++    );
++  }
++
++  .dark .bg-radial-gradient {
++    background: radial-gradient(
++      circle at 30% 30%,
++      hsl(var(--card-subtle) / 0.8) 0%,
++      hsl(var(--card)) 100%
++    );
++  }
++}
++
++/* Satoshi Font Family */
++@font-face {
++  font-family: "Satoshi";
++  src: url("/fonts/Satoshi-Light.woff2") format("woff2");
++  font-weight: 300;
++  font-style: normal;
++  font-display: swap;
++}
++
++@font-face {
++  font-family: "Satoshi";
++  src: url("/fonts/Satoshi-Regular.woff2") format("woff2");
++  font-weight: normal;
++  font-style: normal;
++  font-display: swap;
++}
++
++@font-face {
++  font-family: "Satoshi";
++  src: url("/fonts/Satoshi-Medium.woff2") format("woff2");
++  font-weight: 500;
++  font-style: normal;
++  font-display: swap;
++}
++
++@font-face {
++  font-family: "Satoshi";
++  src: url("/fonts/Satoshi-Bold.woff2") format("woff2");
++  font-weight: bold;
++  font-style: normal;
++  font-display: swap;
++}
++
++@font-face {
++  font-family: "Satoshi";
++  src: url("/fonts/Satoshi-Black.woff2") format("woff2");
++  font-weight: 900;
++  font-style: normal;
++  font-display: swap;
+ }
+ 
+ @layer base {
+@@ -285,6 +364,19 @@
+   body {
+     @apply bg-background text-foreground;
+   }
++  /* Global typography styles */
++  h1,
++  h2,
++  h3,
++  h4,
++  h5,
++  h6 {
++    @apply font-satoshi font-black leading-tight;
++  }
++
++  p {
++    @apply font-mono text-base leading-relaxed;
++  }
+ }
+ 
+ /* third-party libraries CSS */
+@@ -330,3 +422,7 @@
+ .apexcharts-xaxistooltip-bottom:before {
+   @apply dark:border-b-muted!;
+ }
++
++.navbar-maxwidth-transition {
++  transition: max-width 300ms cubic-bezier(0.4, 0, 0.2, 1);
++}

@@ -1,0 +1,25 @@
+--- template/app/src/file-upload/operations.ts
++++ opensaas-sh/app/src/file-upload/operations.ts
+@@ -7,6 +7,7 @@
+   type GetAllFilesByUser,
+   type GetDownloadFileSignedURL,
+ } from "wasp/server/operations";
++import { checkIfUserHasReachedFileUploadLimit } from "./fileUploading";
+ 
+ import * as z from "zod";
+ import { ensureArgsSchemaOrThrowHttpError } from "../server/validation";
+@@ -37,6 +38,14 @@
+     throw new HttpError(401);
+   }
+ 
++  const userFileLimitReached = await checkIfUserHasReachedFileUploadLimit({
++    userId: context.user.id,
++    prismaFileDelegate: context.entities.File,
++  });
++  if (userFileLimitReached) {
++    throw new HttpError(403, "This demo only allows 2 file uploads per user.");
++  }
++
+   const { fileType, fileName } = ensureArgsSchemaOrThrowHttpError(
+     createFileInputSchema,
+     rawArgs,

@@ -1,0 +1,19 @@
+--- template/app/src/client/components/NavBar/constants.ts
++++ opensaas-sh/app/src/client/components/NavBar/constants.ts
+@@ -8,13 +8,14 @@
+ ];
+ 
+ export const marketingNavigationItems: NavigationItem[] = [
+-  { name: "Features", to: "/#features" },
+-  { name: "Pricing", to: routes.PricingPageRoute.to },
++  { name: "Features", to: "/#auth-feature" },
++  { name: "Roadmap", to: "/#roadmap" },
+   ...staticNavigationItems,
+ ] as const;
+ 
+ export const demoNavigationitems: NavigationItem[] = [
+   { name: "AI Scheduler", to: routes.DemoAppRoute.to },
+   { name: "File Upload", to: routes.FileUploadRoute.to },
++  { name: "Pricing", to: routes.PricingPageRoute.to },
+   ...staticNavigationItems,
+ ] as const;

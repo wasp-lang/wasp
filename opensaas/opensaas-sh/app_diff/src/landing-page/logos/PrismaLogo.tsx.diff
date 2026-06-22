@@ -1,0 +1,13 @@
+--- template/app/src/landing-page/logos/PrismaLogo.tsx
++++ opensaas-sh/app/src/landing-page/logos/PrismaLogo.tsx
+@@ -1,8 +1,8 @@
+ export function PrismaLogo() {
+   return (
+     <svg
+-      width={48}
+-      height={48}
++      width={32}
++      height={32}
+       viewBox="0 0 32 32"
+       xmlns="http://www.w3.org/2000/svg"
+     >

@@ -1,0 +1,55 @@
+--- template/app/src/client/App.tsx
++++ opensaas-sh/app/src/client/App.tsx
+@@ -1,4 +1,4 @@
+-import { useEffect, useMemo } from "react";
++import { useEffect, useMemo, useRef } from "react";
+ import { Outlet, useLocation } from "react-router";
+ import { routes } from "wasp/client/router";
+ import { Toaster } from "../client/components/ui/toaster";
+@@ -17,10 +17,7 @@
+ export function App() {
+   const location = useLocation();
+   const isMarketingPage = useMemo(() => {
+-    return (
+-      location.pathname === routes.LandingPageRoute.to ||
+-      location.pathname === routes.PricingPageRoute.to
+-    );
++    return location.pathname === routes.LandingPageRoute.to;
+   }, [location]);
+ 
+   const navigationItems = isMarketingPage
+@@ -38,14 +35,33 @@
+     return location.pathname.startsWith(routes.AdminRoute.to);
+   }, [location]);
+ 
++  const resizeObserverRef = useRef<ResizeObserver | null>(null);
++
+   useEffect(() => {
+     if (location.hash) {
++      console.log("location ..", location.hash);
+       const id = location.hash.replace("#", "");
+       const element = document.getElementById(id);
++
+       if (element) {
+-        element.scrollIntoView();
++        // Scroll immediately but watches for size changes (async content loading) and re-scrolls
++        element.scrollIntoView({ behavior: "smooth" });
++        console.log("element scrolled ..", element);
++        resizeObserverRef.current = new ResizeObserver(() => {
++          element.scrollIntoView({ behavior: "smooth" });
++        });
++        resizeObserverRef.current.observe(element);
++      }
++    } else if (location.pathname === "/") {
++      // Only scroll to top when navigating TO homepage from another page
++      if (window.scrollY > 0) {
++        window.scrollTo({ top: 0, behavior: "smooth" });
+       }
+     }
++
++    return () => {
++      resizeObserverRef.current?.disconnect();
++    };
+   }, [location]);
+ 
+   return (

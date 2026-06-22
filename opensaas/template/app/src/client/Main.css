@@ -1,0 +1,332 @@
+@import "tailwindcss";
+
+@plugin "@tailwindcss/forms";
+@plugin "@tailwindcss/typography";
+@plugin "tailwindcss-animate";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-current: currentColor;
+  --color-transparent: transparent;
+  --color-black-2: #010101;
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+
+  --color-card-accent: hsl(var(--card-accent));
+  --color-card-accent-foreground: hsl(var(--card-accent-foreground));
+
+  --color-card-subtle: hsl(var(--card-subtle));
+  --color-card-subtle-foreground: hsl(var(--card-subtle-foreground));
+
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+
+  --color-secondary-muted: hsl(var(--secondary-muted));
+  --color-secondary-muted-foreground: hsl(var(--secondary-muted-foreground));
+
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+
+  --color-warning: hsl(var(--warning));
+  --color-warning-foreground: hsl(var(--warning-foreground));
+
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+
+  --breakpoint-2xsm: 375px;
+  --breakpoint-xsm: 425px;
+  --breakpoint-3xl: 2000px;
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  --text-title-xxl: 44px;
+  --text-title-xxl--line-height: 55px;
+  --text-title-xl: 36px;
+  --text-title-xl--line-height: 45px;
+  --text-title-xl2: 33px;
+  --text-title-xl2--line-height: 45px;
+  --text-title-lg: 28px;
+  --text-title-lg--line-height: 35px;
+  --text-title-md: 24px;
+  --text-title-md--line-height: 30px;
+  --text-title-md2: 26px;
+  --text-title-md2--line-height: 30px;
+  --text-title-sm: 20px;
+  --text-title-sm--line-height: 26px;
+  --text-title-xsm: 18px;
+  --text-title-xsm--line-height: 24px;
+
+  --max-height-35: 8.75rem;
+  --max-height-70: 17.5rem;
+  --max-height-90: 22.5rem;
+  --max-height-300: 18.75rem;
+  --max-height-550: 34.375rem;
+
+  --min-width-75: 18.75rem;
+  --min-width-22_5: 5.625rem;
+  --min-width-42_5: 10.625rem;
+  --min-width-47_5: 11.875rem;
+
+  --z-index-1: 1;
+  --z-index-9: 9;
+  --z-index-99: 99;
+  --z-index-999: 999;
+  --z-index-9999: 9999;
+  --z-index-99999: 99999;
+  --z-index-999999: 999999;
+
+  --content-icon-copy: url("../images/icon/icon-copy-alt.svg");
+
+  --transition-property-width: width;
+  --transition-property-stroke: stroke;
+
+  --border-width-6: 6px;
+
+  --shadow-1: 0px 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-2: 0px 1px 4px rgba(0, 0, 0, 0.12);
+  --shadow-3: 0px 1px 5px rgba(0, 0, 0, 0.14);
+  --shadow-4: 0px 4px 10px rgba(0, 0, 0, 0.12);
+  --shadow-5: 0px 1px 1px rgba(0, 0, 0, 0.15);
+  --shadow-6: 0px 3px 15px rgba(0, 0, 0, 0.1);
+  --shadow-7: -5px 0 0 #313d4a, 5px 0 0 #313d4a;
+  --shadow-8:
+    1px 0 0 #313d4a, -1px 0 0 #313d4a, 0 1px 0 #313d4a, 0 -1px 0 #313d4a,
+    0 3px 13px rgb(0 0 0 / 8%);
+  --shadow-default: 0px 8px 13px -3px rgba(0, 0, 0, 0.07);
+  --shadow-card: 0px 1px 3px rgba(0, 0, 0, 0.12);
+  --shadow-card-2: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-switcher:
+    0px 2px 4px rgba(0, 0, 0, 0.2), inset 0px 2px 2px #ffffff,
+    inset 0px -1px 1px rgba(0, 0, 0, 0.1);
+  --shadow-switch-1: 0px 0px 5px rgba(0, 0, 0, 0.15);
+
+  --drop-shadow-1: 0px 1px 0px #e2e8f0;
+  --drop-shadow-2: 0px 1px 4px rgba(0, 0, 0, 0.12);
+
+  --animate-ping-once: ping 5s cubic-bezier(0, 0, 0.2, 1);
+  --animate-rotating: rotating 30s linear infinite;
+  --animate-spin-1_5: spin 1.5s linear infinite;
+  --animate-spin-2: spin 2s linear infinite;
+  --animate-spin-3: spin 3s linear infinite;
+
+  --radius-lg: var(--radius);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-sm: calc(var(--radius) - 4px);
+
+  @keyframes rotating {
+    0%,
+    100% {
+      transform: rotate(360deg);
+    }
+    50% {
+      transform: rotate(0deg);
+    }
+  }
+}
+
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility no-scrollbar {
+  /* Chrome, Safari and Opera */
+  &::-webkit-scrollbar {
+    display: none;
+  }
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+@utility chat-height {
+  @apply h-[calc(100vh-8.125rem)] lg:h-[calc(100vh-5.625rem)];
+}
+
+@utility inbox-height {
+  @apply h-[calc(100vh-8.125rem)] lg:h-[calc(100vh-5.625rem)];
+}
+
+@utility text-gradient-primary {
+  /* Text gradient utilities */
+  background: linear-gradient(
+    to right,
+    hsl(var(--secondary-muted)),
+    hsl(var(--secondary))
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility text-gradient-primary-diagonal {
+  background: linear-gradient(
+    135deg,
+    hsl(var(--secondary-muted)),
+    hsl(var(--secondary))
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+@utility border-gradient-primary {
+  /* Border gradient utilities */
+  background: linear-gradient(
+    to right,
+    hsl(var(--secondary-muted)),
+    hsl(var(--secondary))
+  );
+  padding: 1px;
+
+  & > * {
+    background: hsl(var(--background));
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --card-accent: 0 0% 100%;
+    --card-accent-foreground: 0 0% 3.9%;
+    --card-subtle: 31 57% 96%;
+    --card-subtle-foreground: 0 0% 9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 210 100% 13%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 32 100% 37%;
+    --secondary-foreground: 0 0% 9%;
+    --secondary-muted: 32 75% 78%;
+    --secondary-muted-foreground: 0 0% 3.9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 33 74% 62%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 141 71% 48%;
+    --success-foreground: 0 0% 98%;
+    --warning: 36 100% 50%;
+    --warning-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 210 50% 5%;
+    --foreground: 0 0% 98%;
+    --card: 210 50% 5%;
+    --card-foreground: 0 0% 98%;
+    --card-accent: 31 57% 93%;
+    --card-accent-foreground: 0 0% 3.9%;
+    --card-subtle: 233 24% 15%;
+    --card-subtle-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 31 57% 93%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 209 91% 61%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-muted: 210 67% 94%;
+    --secondary-muted-foreground: 0 0% 3.9%;
+    --muted: 210 100% 13%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 31 57% 93%;
+    --accent-foreground: 210 100% 13%;
+    --destructive: 0 62.8% 63%;
+    --destructive-foreground: 0 0% 98%;
+    --success: 141 71% 48%;
+    --success-foreground: 0 0% 98%;
+    --warning: 36 100% 50%;
+    --warning-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* third-party libraries CSS */
+
+.tableCheckbox:checked ~ div span {
+  @apply opacity-100;
+}
+.tableCheckbox:checked ~ div {
+  @apply bg-primary border-primary;
+}
+
+.apexcharts-legend-text {
+  @apply text-muted-foreground!;
+}
+.apexcharts-text {
+  @apply fill-muted-foreground!;
+}
+.apexcharts-xcrosshairs {
+  @apply fill-border!;
+}
+.apexcharts-gridline {
+  @apply stroke-border!;
+}
+.apexcharts-series.apexcharts-pie-series path {
+  @apply dark:stroke-transparent!;
+}
+.apexcharts-legend-series {
+  @apply inline-flex! gap-1.5;
+}
+.apexcharts-tooltip.apexcharts-theme-light {
+  @apply dark:bg-card! dark:border-border!;
+}
+.apexcharts-tooltip.apexcharts-theme-light .apexcharts-tooltip-title {
+  @apply dark:bg-muted! dark:border-border!;
+}
+.apexcharts-xaxistooltip,
+.apexcharts-yaxistooltip {
+  @apply dark:bg-muted! dark:border-muted! dark:text-muted-foreground!;
+}
+.apexcharts-xaxistooltip-bottom:after {
+  @apply dark:border-b-muted!;
+}
+.apexcharts-xaxistooltip-bottom:before {
+  @apply dark:border-b-muted!;
+}

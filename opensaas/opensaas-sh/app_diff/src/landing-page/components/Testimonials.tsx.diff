@@ -1,0 +1,47 @@
+--- template/app/src/landing-page/components/Testimonials.tsx
++++ opensaas-sh/app/src/landing-page/components/Testimonials.tsx
+@@ -1,4 +1,3 @@
+-import { useState } from "react";
+ import {
+   Card,
+   CardContent,
+@@ -21,18 +20,12 @@
+ }: {
+   testimonials: Testimonial[];
+ }) {
+-  const [isExpanded, setIsExpanded] = useState(false);
+-  const shouldShowExpand = testimonials.length > 5;
+-  const mobileItemsToShow = 3;
+-  const itemsToShow =
+-    shouldShowExpand && !isExpanded ? mobileItemsToShow : testimonials.length;
+-
+   return (
+     <div className="mx-auto mt-32 max-w-7xl sm:mt-56 sm:px-6 lg:px-8">
+       <SectionTitle title="What Our Users Say" />
+ 
+       <div className="relative z-10 w-full columns-1 gap-2 px-4 md:columns-2 md:gap-6 md:px-0 lg:columns-3">
+-        {testimonials.slice(0, itemsToShow).map((testimonial, idx) => (
++        {testimonials.map((testimonial, idx) => (
+           <div key={idx} className="mb-6 break-inside-avoid">
+             <Card className="flex flex-col justify-between">
+               <CardContent className="p-6">
+@@ -65,19 +58,6 @@
+           </div>
+         ))}
+       </div>
+-
+-      {shouldShowExpand && (
+-        <div className="mt-8 flex justify-center md:hidden">
+-          <button
+-            onClick={() => setIsExpanded(!isExpanded)}
+-            className="text-primary bg-primary/10 hover:bg-primary/20 rounded-lg px-6 py-3 text-sm font-medium transition-colors duration-200"
+-          >
+-            {isExpanded
+-              ? "Show Less"
+-              : `Show ${testimonials.length - mobileItemsToShow} More`}
+-          </button>
+-        </div>
+-      )}
+     </div>
+   );
+ }

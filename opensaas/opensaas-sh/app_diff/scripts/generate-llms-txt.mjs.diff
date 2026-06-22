@@ -1,0 +1,97 @@
+--- template/app/scripts/generate-llms-txt.mjs
++++ opensaas-sh/app/scripts/generate-llms-txt.mjs
+@@ -0,0 +1,94 @@
++import { readdir, readFile, writeFile } from "node:fs/promises";
++import path from "node:path";
++import { fileURLToPath } from "node:url";
++
++const __dirname = path.dirname(fileURLToPath(import.meta.url));
++const APP_ROOT = path.resolve(__dirname, "..");
++const BLOG_POSTS_DIR = path.resolve(
++  APP_ROOT,
++  "../blog/src/content/docs/blog",
++);
++const OUTPUT_FILE = path.join(APP_ROOT, "public/llms.txt");
++
++const DOCS_SITE = "https://docs.opensaas.sh";
++
++function parseFrontmatter(source) {
++  const match = source.match(/^---\r?\n([\s\S]*?)\r?\n---/);
++  if (!match) return {};
++  const out = {};
++  for (const line of match[1].split(/\r?\n/)) {
++    const m = line.match(/^([A-Za-z0-9_-]+):\s*(.*)$/);
++    if (!m) continue;
++    const [, key, rawValue] = m;
++    let value = rawValue.trim();
++    if (
++      (value.startsWith('"') && value.endsWith('"')) ||
++      (value.startsWith("'") && value.endsWith("'"))
++    ) {
++      value = value.slice(1, -1);
++    }
++    out[key] = value;
++  }
++  return out;
++}
++
++async function collectBlogPosts() {
++  const entries = await readdir(BLOG_POSTS_DIR);
++  const posts = [];
++  for (const file of entries) {
++    if (!file.endsWith(".mdx") && !file.endsWith(".md")) continue;
++    const slug = file.replace(/\.(mdx|md)$/, "");
++    const source = await readFile(path.join(BLOG_POSTS_DIR, file), "utf8");
++    const fm = parseFrontmatter(source);
++    if (!fm.title) {
++      console.warn(`Skipping ${file}: no title in frontmatter`);
++      continue;
++    }
++    posts.push({
++      title: fm.title,
++      date: fm.date ?? "",
++      url: `${DOCS_SITE}/blog/${slug}/`,
++    });
++  }
++  posts.sort((a, b) => b.date.localeCompare(a.date));
++  return posts;
++}
++
++function renderLlmsTxt(posts) {
++  const lines = [
++    "# Open SaaS",
++    "",
++    "> Open SaaS is a free, open-source, full-stack SaaS boilerplate starter kit built on the Wasp framework (React, Node.js, Prisma). It ships with auth, Stripe/Lemon Squeezy/Polar payments, an OpenAI demo app, AWS S3 file uploads, an admin dashboard, email sending, and AI agent rules and skills.",
++    "",
++    "## Site",
++    "- [Homepage](https://opensaas.sh): product overview, features, demo, FAQ, etc.",
++    "- [GitHub repository](https://github.com/wasp-lang/open-saas): source code, issues, and releases",
++    "",
++    "## Documentation",
++    `- [Documentation site](${DOCS_SITE}/)`,
++    `- [LLM-formatted docs index](${DOCS_SITE}/llms.txt): per-guide links to raw markdown sources`,
++    `- [Full LLM-formatted docs](${DOCS_SITE}/llms-full.txt): every guide concatenated into one file`,
++    "",
++    "## Blog",
++  ];
++  for (const post of posts) {
++    const datePart = post.date ? ` — ${post.date}` : "";
++    lines.push(`- [${post.title}](${post.url})${datePart}`);
++  }
++  lines.push("");
++  return lines.join("\n");
++}
++
++async function main() {
++  const posts = await collectBlogPosts();
++  const content = renderLlmsTxt(posts);
++  await writeFile(OUTPUT_FILE, content, "utf8");
++  console.log(
++    `Wrote ${OUTPUT_FILE} with ${posts.length} blog post${posts.length === 1 ? "" : "s"}.`,
++  );
++}
++
++main().catch((err) => {
++  console.error(err);
++  process.exit(1);
++});

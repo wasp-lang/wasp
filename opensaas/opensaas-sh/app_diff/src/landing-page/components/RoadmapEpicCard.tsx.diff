@@ -1,0 +1,95 @@
+--- template/app/src/landing-page/components/RoadmapEpicCard.tsx
++++ opensaas-sh/app/src/landing-page/components/RoadmapEpicCard.tsx
+@@ -0,0 +1,92 @@
++import { Plus } from "lucide-react";
++import { cn } from "../../client/utils";
++import type { GithubEpic } from "../operations";
++import { GithubEpicStatus } from "../operations";
++
++type RoadmapEpicCardProps = {
++  epic: GithubEpic;
++};
++
++export function RoadmapEpicCard({ epic }: RoadmapEpicCardProps) {
++  const progress =
++    epic.totalIssues > 0
++      ? Math.round((epic.doneIssues / epic.totalIssues) * 100)
++      : 0;
++  const progressColor = getProgressBarColor(epic.status);
++  const hoverBorderColor = getHoverBorderColor(epic.status);
++
++  return (
++    <a
++      href={epic.url}
++      target="_blank"
++      rel="noreferrer"
++      className={cn(
++        "group flex flex-col gap-3 rounded-xl border border-gray-200 bg-white p-5 transition-all hover:shadow-md dark:border-gray-700 dark:bg-gray-900/50",
++        hoverBorderColor,
++      )}
++    >
++      <h4 className="text-base font-semibold leading-tight text-gray-900 transition-opacity dark:text-white">
++        {epic.name}
++      </h4>
++
++      <div className="mt-auto pt-1">
++        <div className="mb-1.5 flex justify-between text-xs text-gray-500 dark:text-gray-400">
++          <span>Progress</span>
++          <span>
++            {progress}% ({epic.doneIssues}/{epic.totalIssues})
++          </span>
++        </div>
++        <div className="relative h-1.5 w-full overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
++          <div
++            className={cn("absolute h-full rounded-full", progressColor)}
++            style={{ width: `${progress}%` }}
++          />
++        </div>
++      </div>
++    </a>
++  );
++}
++
++export function RoadmapEpicAddIssueCard() {
++  return (
++    <a
++      href="https://github.com/wasp-lang/open-saas/issues/new"
++      target="_blank"
++      rel="noreferrer"
++      className="group flex min-h-[100px] items-center justify-center rounded-xl border border-dashed border-gray-300 bg-gray-100/50 p-5 transition-all hover:border-blue-400 hover:bg-blue-50 dark:border-gray-700 dark:bg-gray-900/30 dark:hover:border-blue-600 dark:hover:bg-blue-900/20"
++      title="Add your idea to the roadmap"
++    >
++      <Plus className="h-8 w-8 text-gray-400 transition-colors group-hover:text-blue-500 dark:text-gray-600 dark:group-hover:text-blue-400" />
++    </a>
++  );
++}
++
++const getProgressBarColor = (status: GithubEpicStatus) => {
++  switch (status) {
++    case GithubEpicStatus.Ideas:
++      return "bg-blue-500";
++    case GithubEpicStatus.Planned:
++      return "bg-green-500";
++    case GithubEpicStatus.InProgress:
++      return "bg-yellow-500";
++    case GithubEpicStatus.Done:
++      return "bg-purple-500";
++    default:
++      return "bg-gray-500";
++  }
++};
++
++const getHoverBorderColor = (status: GithubEpicStatus) => {
++  switch (status) {
++    case GithubEpicStatus.Ideas:
++      return "hover:border-blue-400 dark:hover:border-blue-600";
++    case GithubEpicStatus.Planned:
++      return "hover:border-green-400 dark:hover:border-green-600";
++    case GithubEpicStatus.InProgress:
++      return "hover:border-yellow-400 dark:hover:border-yellow-600";
++    case GithubEpicStatus.Done:
++      return "hover:border-purple-400 dark:hover:border-purple-600";
++    default:
++      return "hover:border-gray-400 dark:hover:border-gray-600";
++  }
++};

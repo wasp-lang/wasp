@@ -1,0 +1,22 @@
+--- template/app/src/server/scripts/dbSeeds.ts
++++ opensaas-sh/app/src/server/scripts/dbSeeds.ts
+@@ -45,15 +45,15 @@
+     isAdmin: false,
+     credits,
+     subscriptionStatus,
+-    lemonSqueezyCustomerPortalUrl: null,
+-    paymentProcessorUserId: hasUserPaidOnStripe
+-      ? `cus_test_${faker.string.uuid()}`
+-      : null,
++    stripeId: hasUserPaidOnStripe ? `cus_test_${faker.string.uuid()}` : null,
+     datePaid: hasUserPaidOnStripe
+       ? faker.date.between({ from: createdAt, to: timePaid })
+       : null,
+     subscriptionPlan: subscriptionStatus
+       ? faker.helpers.arrayElement(getSubscriptionPaymentPlanIds())
+       : null,
++    // For the demo app, we want to default isMockUser to true so that our admin dash only shows mock users
++    // and not real users signing up to test the app
++    isMockUser: true,
+   };
+ }

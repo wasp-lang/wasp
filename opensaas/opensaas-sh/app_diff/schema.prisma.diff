@@ -1,0 +1,18 @@
+--- template/app/schema.prisma
++++ opensaas-sh/app/schema.prisma
+@@ -13,10 +13,12 @@
+ 
+   email                     String?         @unique
+   username                  String?         @unique
+-  isAdmin                   Boolean         @default(false)
++  isAdmin                   Boolean         @default(true)
++  // isMockUser is an extra property for the demo app ensuring that all users can access
++  // the admin dashboard but won't be able to see the other users' data, only mock user data.
++  isMockUser                Boolean         @default(false)
+ 
+-  paymentProcessorUserId    String?         @unique
+-  lemonSqueezyCustomerPortalUrl String?     // You can delete this if you're not using Lemon Squeezy as your payments processor.
++  stripeId                  String?         @unique
+   subscriptionStatus        String?         // 'active', 'cancel_at_period_end', 'past_due', 'deleted'
+   subscriptionPlan          String?         // 'hobby', 'pro'
+   datePaid                  DateTime?

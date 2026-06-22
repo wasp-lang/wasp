@@ -1,0 +1,151 @@
+---
+title: Stripe
+banner:
+  content: |
+    Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
+---
+import ngrok from '@assets/ngrok.png';
+import testApiKeys from '@assets/stripe/api-keys.png';
+import dbStudio from '@assets/stripe/db-studio.png';
+import priceIds from '@assets/stripe/price-ids.png';
+import switchPlans from '@assets/stripe/switch-plans.png';
+import testProduct from '@assets/stripe/test-product.png';
+import { Image } from 'astro:assets';
+
+First, make sure you've defined your payment processor in `src/payment/paymentProcessor.ts`, as described in the [important first steps](/guides/payment-integrations/).
+
+Next, you'll need to create a Stripe account. You can do that [here](https://dashboard.stripe.com/register).
+
+:::tip[Star our Repo on GitHub! 🌟]
+We've packed in a ton of features and love into this SaaS starter, and offer it all to you for free!
+
+If you're finding this template and its guides useful, consider giving us [a star on GitHub](https://github.com/wasp-lang/wasp)
+:::
+
+### Get your test Stripe API Keys
+
+Once you've created your account, you'll need to get your test API keys. You can do that by navigating to [https://dashboard.stripe.com/test/apikeys](https://dashboard.stripe.com/test/apikeys) or by going to the [Stripe Dashboard](https://dashboard.stripe.com/test/dashboard) and clicking on the `Developers`:
+1. Click on the `Reveal test key token` button and copy the `Secret key`.
+2. Paste it in your `.env.server` file under `STRIPE_API_KEY`.
+
+<Image src={testApiKeys} alt="test api keys" loading="lazy" />
+
+### Create Test Products
+
+To create a test product, go to the test products url [https://dashboard.stripe.com/test/products](https://dashboard.stripe.com/test/products), or after navigating to your dashboard, click the `test mode` toggle:
+1. Click on the `Add a product` button and fill in the relevant information for your product. 
+   <Image src={testProduct} alt="test product" loading="lazy" />
+   - Select `Software as a service (SaaS)` as the product type.
+   - For Subscription products, select `Recurring` as the billing type.
+   - For One-time payment products, select `One-time` as the billing type.
+2. If you want to add different price tiers for the same product (e.g. monthly and yearly), click the `Add another price` button at the buttom. 
+   <Image src={priceIds} alt="price ids" loading="lazy" />
+3. After you save the product, you'll be directed to the product page. 
+4. Copy the price IDs and paste them in the `.env.server` file.
+   - We've set you up with two example subscription product environment variables, `PAYMENTS_HOBBY_SUBSCRIPTION_PLAN_ID` and `PAYMENTS_PRO_SUBSCRIPTION_PLAN_ID`.
+   - As well as a one-time payment product/credits-based environment variable, `PAYMENTS_CREDITS_10_PLAN_ID`.
+
+If you intend to let your users switch between two subscription plans, e.g. upgrade from hobby to pro, you'll need to create two separate products with their own price IDs. The ability for users to swich plans can then be configured later in the [Customer Portal](#set-up-the-customer-portal).
+
+:::note[Naming products differently]
+Note that if you change names of your products, you'll need to update your app code in `src/payment/plans.ts` and `src/payment/paymentProcessorPlans.ts` to match these names as well.
+:::
+
+### Create a Test Customer
+
+You can create a test customer in the [Stripe Dashboard](https://dashboard.stripe.com/test/customers). 
+
+Click on the `Add a customer` button and fill in the relevant information for your test customer.
+
+Alternatively, Open SasS automatically creates a test customer the first time a user starts a checkout session. 
+This customer is linked to the email address associated with the user in your app.
+
+### Set up the Customer Portal
+
+You can set up your customer portal in your [Stripe Dashboard](https://dashboard.stripe.com/test/settings/billing/portal).
+
+By default, OpenSaas generates a unique customer portal link for each user on the back end.
+If you'd rather provide a permanent link to the customer portal, activate it and copy the `Portal link`.
+
+If you'd like to give users the ability to switch between different plans, e.g., upgrade from a "Hobby" to a "Pro" subscription, go down to the `Subscriptions` dropdown and select `customers can switch plans`. 
+
+<Image src={switchPlans} alt="switch plans" loading="lazy" />
+
+Then select the products you'd like them to be able to switch between.
+
+Now, after your users have paid, they can click on `Manage Subscription` in the client and will be taken to the customer portal where they can update their current plan.
+
+### Stripe CLI
+
+To install the Stripe CLI follow the instructions [here](https://docs.stripe.com/stripe-cli/install).
+
+Make sure to login after you install the Stripe CLI:
+```sh
+stripe login
+```
+
+:::caution[Errors running the Stripe CLI]
+If you're seeing errors, consider appending `sudo` to the stripe commands.
+See this [GitHuh issue](https://github.com/stripe/stripe-cli/issues/933) for more details.
+:::
+
+### Testing Webhooks via the Stripe CLI
+
+Start the Stripe CLI webhook forwarding on port 3001 where your Node server is running:
+
+```sh
+stripe listen --forward-to localhost:3001/payments-webhook
+```
+
+:::caution[Webhook URL]
+In older versions of this template, the webhook URL was `http://localhost:3001/stripe-webhook`.
+If you're using an older version, **make sure to use the url that matches the webhook url in your `main.wasp` file payemnts API definition.**
+:::
+
+Remember to copy and paste the outputted webhook signing secret (`whsec_...`) into your `.env.server` file under `STRIPE_WEBHOOK_SECRET`.
+
+In another terminal window, trigger a test event:
+
+```sh
+stripe trigger payment_intent.succeeded
+```
+
+The results of the event firing will be visible in the initial terminal window. You should see messages like this:
+
+```sh
+...
+2023-11-21 09:31:09   --> invoice.paid [evt_1OEpMPILOQf67J5TjrUgRpk4]
+2023-11-21 09:31:09  <--  [200] POST http://localhost:3001/payments-webhook [evt_1OEpMPILOQf67J5TjrUgRpk4]
+2023-11-21 09:31:10   --> invoice.payment_succeeded [evt_1OEpMPILOQf67J5T3MFBr1bq]
+2023-11-21 09:31:10  <--  [200] POST http://localhost:3001/payments-webhook [evt_1OEpMPILOQf67J5T3MFBr1bq]
+2023-11-21 09:31:10   --> checkout.session.completed [evt_1OEpMQILOQf67J5ThTZ0999r]
+2023-11-21 09:31:11  <--  [200] POST http://localhost:3001/payments-webhook [evt_1OEpMQILOQf67J5ThTZ0999r]
+```
+
+For more info on testing webhooks, check out https://stripe.com/docs/webhooks#test-webhook.
+
+:::tip[Star our Repo on GitHub! 🌟]
+We've packed in a ton of features and love into this SaaS starter, and offer it all to you for free!
+
+If you're finding this template and its guides useful, consider giving us [a star on GitHub](https://github.com/wasp-lang/wasp)
+:::
+
+### Testing Checkout and Payments via the Client
+
+Make sure the **Stripe CLI is running** by following the steps above.
+You can then test the payment flow via the client by doing the following:
+
+1. Click on a Buy button on the for any of the products on the homepage. You should be redirected to the checkout page.
+2. Fill in the form with the following test credit card number `4242 4242 4242 4242` and any future date for the expiration date and any 3 digits for the CVC.
+3. Click on the "Pay" button. You should be redirected to the success page.
+4. Check your terminal window for status messages and logs.
+5. You can also check your Database via the DB Studio to see if the user entity has been updated by running:
+   ```sh
+   wasp db studio
+   ```
+6. Navigate to `localhost:5555` and click on the `users` table. You should see the `subscriptionStatus` is `active` for the user that just made the purchase.
+   <Image src={dbStudio} alt="db studio" loading="lazy" />
+
+:::note
+If you want to learn more about how a user's payment status, subscription status, and subscription tier affect a user's priveledges within the app, check out the [User Overview](/general/user-overview/) reference.
+:::

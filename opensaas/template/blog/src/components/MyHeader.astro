@@ -1,0 +1,90 @@
+---
+import { logos } from 'virtual:starlight/user-images';
+import config from 'virtual:starlight/user-config';
+import blogConfig from 'virtual:starlight-blog-config'
+import type { Props } from '@astrojs/starlight/props';
+
+const href = Astro.site
+const { siteTitle } = Astro.props;
+---
+<a {href} class="site-title sl-flex">
+	{
+		config.logo && logos.dark && (
+			<>
+				<img
+					class:list={{ 'light:sl-hidden': !('src' in config.logo) }}
+					alt={config.logo.alt}
+					src={logos.dark.src}
+					width={logos.dark.width}
+					height={logos.dark.height}
+				/>
+				{/* Show light alternate if a user configure both light and dark logos. */}
+				{!('src' in config.logo) && (
+					<img
+						class="dark:sl-hidden"
+						alt={config.logo.alt}
+						src={logos.light?.src}
+						width={logos.light?.width}
+						height={logos.light?.height}
+					/>
+				)}
+			</>
+		)
+	}
+	<span class:list={{ 'sr-only': config.logo?.replacesTitle }} class="dark:text-white hover:text-yellow-500">
+		{siteTitle}
+	</span>
+</a>
+<div>
+  <a href="/" class="text-gray-900 hover:text-yellow-500 dark:text-white">Docs</a>
+</div>
+<div>
+  <a href="/blog/" class="text-gray-900 hover:text-yellow-500 dark:text-white">{blogConfig.title}</a>
+</div>
+
+<style>
+	.site-title {
+		justify-self: flex-start;
+		max-width: 100%;
+		overflow: hidden;
+		align-items: center;
+		color: var(--sl-color-gray-9);
+		gap: var(--sl-nav-gap);
+		font-size: var(--sl-text-h4);
+		font-weight: 600;
+		text-decoration: none;
+		white-space: nowrap;
+    padding-inline-end: 1rem;
+    border-inline-end: 1px solid var(--sl-color-gray-5);
+	}
+	img {
+		height: calc(var(--sl-nav-height) - 2 * var(--sl-nav-pad-y));
+		width: auto;
+		max-width: 100%;
+		object-fit: contain;
+		object-position: 0 50%;
+	}
+  div {
+    border-inline-end: 1px solid var(--sl-color-gray-5);
+    margin-left: 1rem;
+    align-self: center;
+    gap: 1rem;
+    height: 100%;
+    padding-inline-end: 1rem;
+  }
+
+  @media (min-width: 50rem) {
+    div {
+      align-items: center;
+      display: flex;
+    }
+  }
+  a {
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  a:hover {
+		opacity: 0.66;
+	}
+</style>

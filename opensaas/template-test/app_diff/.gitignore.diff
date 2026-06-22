@@ -1,0 +1,27 @@
+--- /Users/carlos/Developer/Wasp/open-saas/template-test/tools/../../template-test/base-app/app/.gitignore
++++ template-test/app/.gitignore
+@@ -1,2 +1,24 @@
+ node_modules/
+ .wasp/
++
++# Dotenv Vault entries
++# These are automatically added by Dotenv Vault when running `npm run env:pull`.
++# They're kept in this diff to avoid having to manually revert .gitignore changes
++# each time we test modifications. They don't cause any harm and make the process
++# less annoying.
++.env*
++.flaskenv*
++!.env.project
++!.env.vault
++
++# Don't ignore example dotenv files.
++!.env.example
++!.env.*.example
++
++# Ignore migrations dir to avoid including them in the diffs. We want to test
++# generating migrations each time.
++migrations/
++
++# Ignore package-lock.json to avoid including it in the diffs. Our users start
++# new projects without it, and we want to test the template like our users.
++package-lock.json

@@ -1,0 +1,48 @@
+---
+name: Template Release
+
+"on":
+  push:
+    tags:
+      - "wasp-v*-template"
+
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to release (e.g., wasp-v0.18-template)"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    env:
+      tag_name: ${{ inputs.tag || github.ref_name }}
+      archive_name: template.tar.gz
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ env.tag_name}}
+
+      - name: Create template archive
+        # The Wasp CLI expects the template contents to be in the root of the archive.
+        working-directory: template
+        run: tar -czf "../$archive_name" .
+
+      - name: Create release if it doesn't exist
+        run: |
+          if ! gh release view "$tag_name"; then
+            gh release create "$tag_name"
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload release asset
+        run: gh release upload "$tag_name" "$archive_name" --clobber
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

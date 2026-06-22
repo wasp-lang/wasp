@@ -1,0 +1,161 @@
+---
+title: Cookie Consent Modal
+banner:
+  content: |
+    Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
+---
+import { Image } from 'astro:assets';
+import cookieBanner from '@assets/cookie-consent/cookiebanner.png';
+import preferences from '@assets/cookie-consent/preferences.png';
+
+<Image src={cookieBanner} alt="cookie banner" width="400px" />
+
+Cookie consent banners are annoying, we know. But they are legally required in many countries, so we have to deal with them.
+
+This guide will help you dynamically add or remove cookies from your app via the Cookie Consent modal that comes with this template. 
+
+This is needed for *non-essential cookies* that are not necessary for the basic functionality of your app, such as analytics cookies or marketing cookies.
+
+The Modal can be found at `app/src/client/components/cookie-consent/` and contains two main files:
+1. `Banner.tsx` - the component that displays the banner at the bottom of the page.
+2. `Config.ts` - the configuration file that contains the cookies/scripts that will be dynamically added.
+
+The `Banner.tsx` component is imported in `app/src/client/App.tsx` and is rendered at the bottom of the page, while all the changes to the banner itself are done within the `Config.ts` file, which we explain below.
+
+## Configuration
+
+We decided to use the `vanilla-cookieconsent` library to handle the cookie consent. We've set it up to give you some basic functionality, using mostly the default settings. For a full list of options, you can check the [official documentation](https://www.npmjs.com/package/vanilla-cookieconsent).
+
+Below, we will guide you through the necessary steps to get the cookie consent modal set up for your app.
+
+### Google Analytics
+
+What's impotant to note for this template is that we are simply using the `onAccept` callbacks to dynamically add or remove our [Google Analytics](/guides/analytics/#google-analytics) cookies from the page. In order for it to work correctly with your app, you need to add your [Google Analytics ID](/guides/analytics/#google-analytics) to your `.env.client` file.
+
+```sh title=".env.client"
+ REACT_APP_GOOGLE_ANALYTICS_ID=G-1234567890
+```
+
+And that's it! The cookie consent modal will now dynamically add or remove the Google Analytics cookies based on the user's choice.
+
+To check if it's working correctly, you can open the browser's developer tools and check the cookies tab. You should see the following cookies being added or removed based on the user's choice:
+
+```sh
+_ga
+_ga... # Google Analytics cookies.
+cc_cookie # Cookie Consent cookie. The name of this cookie can be changed in the config file.
+```
+
+### Plausible Analytics
+
+If you decide to go with [Plausible Analytics](/guides/analytics/#plausible), you **DO NOT** need to ask users for their consent to use cookies because Plausible, as a privacy-first analytics provider, [does not use cookies](https://plausible.io/privacy-focused-web-analytics). Instead, It collects website usage data anonymously and in aggregate form only, without any personally identifiable information
+
+**By avoiding cookies, Plausible Analytics avoids the need for cookie consent banners.**
+
+### Your Terms / Privacy Policy
+
+You should also add a link to your terms and privacy policy within `consentModal` section of `config.language`:
+
+```ts title="Config.ts" {10,11}
+    language: {
+      default: 'en',
+      translations: {
+        en: {
+          consentModal: {
+            title: 'We use cookies',
+            // ...
+            // TODO: Add your own privacy policy and terms and conditions links below.
+            footer: `
+            <a href="<your-url-here>" target="_blank">Privacy Policy</a>
+            <a href="<your-url-here>" target="_blank">Terms and Conditions</a>
+                    `,
+          },
+        },
+      },
+    }
+```
+
+### Allowing Users to Control Certain Cookies (OPTIONAL)
+
+If you've added more than just Google Analytics cookies to your app, you can allow users to control which cookies they want to accept or reject. For example, if you've added marketing cookies, you can add a button to the modal that allows users to reject them, while accepting analytics cookies.
+
+<Image src={preferences} alt="fine-grained cookie control" loading="lazy" />
+
+To do that, you can change the `preferencesModal.sections` property in `config.language`. Any section that you add to `preferencesModal.sections` must match a `linkedCategory` in the `config.categories` property. Make sure you also add a `showPreferencesBtn` property to `consentModal` (highlighted below). 
+
+Below is an example of what your config might look like if you want to give users the option to control over multiple cookie preferences:
+
+```ts title="Config.ts" {7,9-67}
+    language: {
+      default: 'en',
+      translations: {
+        en: {
+          consentModal: {
+            // ...
+            showPreferencesBtn: 'Manage Individual preferences', // This button will open the preferences modal below.
+          },
+          preferencesModal: {
+            title: 'Manage cookie preferences',
+            acceptAllBtn: 'Accept all',
+            acceptNecessaryBtn: 'Reject all',
+            savePreferencesBtn: 'Accept current selection',
+            closeIconLabel: 'Close modal',
+            serviceCounterLabel: 'Service|Services',
+            sections: [
+              {
+                title: 'Your Privacy Choices',
+                description: `In this panel you can express some preferences related to the processing of your personal information. You may review and change expressed choices at any time by resurfacing this panel via the provided link. To deny your consent to the specific processing activities described below, switch the toggles to off or use the "Reject all" button and confirm you want to save your choices.`,
+              },
+              {
+                title: 'Strictly Necessary',
+                description:
+                  'These cookies are essential for the proper functioning of the website and cannot be disabled.',
+                linkedCategory: 'necessary',
+              },
+              {
+                title: 'Performance and Analytics',
+                description:
+                  'These cookies collect information about how you use our website. All of the data is anonymized and cannot be used to identify you.',
+                linkedCategory: 'analytics',
+                cookieTable: {
+                  caption: 'Cookie table',
+                  headers: {
+                    name: 'Cookie',
+                    domain: 'Domain',
+                    desc: 'Description',
+                  },
+                  body: [
+                    {
+                      name: '_ga',
+                      domain: location.hostname,
+                      desc: 'Description 1',
+                    },
+                    {
+                      name: '_gid',
+                      domain: location.hostname,
+                      desc: 'Description 2',
+                    },
+                  ],
+                },
+              },
+              {
+                title: 'YouTube',
+                description: 'This service is used to display video content on the website.',
+                linkedCategory: 'youtube',
+                cookieTable: { 
+                  // ...
+                }
+              },
+              {
+                title: 'More information',
+                description:
+                  'For any queries in relation to my policy on cookies and your choices, please <a href="#contact-page">contact us</a>',
+              },
+            ],
+          },
+        },
+      },
+    }
+```
+
+For more information on how to do that, check the [official documentation](https://cookieconsent.orestbida.com/reference/configuration-reference.html#translation-preferencesmodal-sections).

@@ -1,0 +1,158 @@
+--- template/app/src/landing-page/components/Examples/Auth.tsx
++++ opensaas-sh/app/src/landing-page/components/Examples/Auth.tsx
+@@ -0,0 +1,155 @@
++import { type ComponentType, useState } from "react";
++import { FaDiscord, FaGithub, FaGoogle, FaSlack } from "react-icons/fa";
++import { Button } from "../../../client/components/ui/button";
++import {
++  Card,
++  CardContent,
++  CardHeader,
++} from "../../../client/components/ui/card";
++import { Input } from "../../../client/components/ui/input";
++import { DocsUrl } from "../../../shared/common";
++import { HighlightedFeature } from "../HighlightedFeature";
++
++const Provider = {
++  google: { displayName: "Google", icon: FaGoogle },
++  github: { displayName: "GitHub", icon: FaGithub },
++  discord: { displayName: "Discord", icon: FaDiscord },
++  slack: { displayName: "Slack", icon: FaSlack },
++} as const satisfies Record<
++  string,
++  { displayName: string; icon: ComponentType<{ className?: string }> }
++>;
++
++type AuthProvider = keyof typeof Provider;
++
++const providers = Object.entries(Provider) as (readonly [
++  key: AuthProvider,
++  provider: (typeof Provider)[AuthProvider],
++])[];
++
++export function Auth() {
++  const [selectedProviders, setSelectedProviders] = useState<
++    readonly AuthProvider[]
++  >(["google", "github"]);
++
++  const toggleProvider = (provider: AuthProvider) => {
++    setSelectedProviders((prev) =>
++      prev.includes(provider)
++        ? prev.filter((p) => p !== provider)
++        : [...prev, provider],
++    );
++  };
++
++  return (
++    <HighlightedFeature
++      id="auth-feature"
++      name="DIY Auth Done for you"
++      description={
++        <AuthPlayground
++          toggleProvider={toggleProvider}
++          selectedProviders={selectedProviders}
++        />
++      }
++      highlightedComponent={
++        <AuthExample selectedProviders={selectedProviders} />
++      }
++      tilt="left"
++      className="h-100"
++    />
++  );
++}
++
++function AuthPlayground({
++  toggleProvider,
++  selectedProviders,
++}: {
++  toggleProvider: (provider: AuthProvider) => void;
++  selectedProviders: readonly AuthProvider[];
++}) {
++  return (
++    <div className="flex flex-col gap-2">
++      <p className="text-muted-foreground">
++        Pre-configured full-stack Auth that you own.
++      </p>
++      <div className="flex flex-row gap-2">
++        {providers.map(([key, provider]) => {
++          const IconComponent = provider.icon;
++          return (
++            <Button
++              key={key}
++              onClick={() => toggleProvider(key)}
++              size="iconLg"
++              variant={selectedProviders.includes(key) ? "inner" : "outer"}
++              title={provider.displayName}
++            >
++              <IconComponent />
++            </Button>
++          );
++        })}
++      </div>
++    </div>
++  );
++}
++
++function Divider() {
++  return (
++    <div className="flex flex-row items-center gap-2">
++      <div className="bg-muted h-px flex-1" />
++      <p className="text-xs">Or continue with</p>
++      <div className="bg-muted h-px flex-1" />
++    </div>
++  );
++}
++
++function AuthExample({
++  selectedProviders,
++}: {
++  selectedProviders: readonly AuthProvider[];
++}) {
++  return (
++    <Card
++      className="w-full max-w-md py-10 transition-all duration-300 ease-in-out"
++      variant="outer"
++    >
++      <CardHeader>
++        <p className="text-2xl font-bold">Log in to your account</p>
++      </CardHeader>
++      <CardContent>
++        <div className="flex flex-col gap-4">
++          <div className="flex flex-col">
++            {selectedProviders.length > 0 ? (
++              <p className="mb-2 text-xs">Log in with</p>
++            ) : null}
++            <div className="flex flex-row gap-2">
++              {selectedProviders.map((provider) => {
++                const { icon: IconComponent, displayName } = Provider[provider];
++                return (
++                  <a
++                    href={DocsUrl + "/guides/authentication/"}
++                    key={provider}
++                    className="mb-2 w-full"
++                    target="_blank"
++                  >
++                    <Button
++                      variant="outline"
++                      className="w-full"
++                      title={displayName}
++                    >
++                      <IconComponent className="h-4 w-4" />
++                    </Button>
++                  </a>
++                );
++              })}
++            </div>
++          </div>
++          {selectedProviders.length > 0 ? <Divider /> : null}
++          <div className="flex flex-col gap-2">
++            <Input type="email" placeholder="Email" />
++            <Input type="password" placeholder="Password" />
++            <Button className="mt-2">Log in</Button>
++          </div>
++        </div>
++      </CardContent>
++    </Card>
++  );
++}

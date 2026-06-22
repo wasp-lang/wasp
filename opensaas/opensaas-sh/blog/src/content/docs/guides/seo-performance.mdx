@@ -1,0 +1,143 @@
+---
+title: SEO & Performance
+banner:
+  content: |
+    Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
+---
+import { Image } from 'astro:assets';
+import { TabItem, Tabs } from '@astrojs/starlight/components';
+
+This guides explains how to improve the SEO and performance for of your app.
+
+## Landing Page Meta Tags
+
+Wasp gives you the ability to add meta tags to your landing page HTML via the `main.wasp` file's `head` property:
+
+```js {8-11}
+app SaaSTemplate {
+  wasp: {
+    version: "^0.13.0"
+  },
+  title: "Open SaaS",
+  head: [
+        "<meta property='og:type' content='website' />",
+        "<meta property='og:url' content='https://opensaas.sh' />",
+        "<meta property='og:title' content='Open SaaS' />",
+        "<meta property='og:description' content='Free, open-source SaaS boilerplate starter for React & NodeJS.' />",
+        "<meta property='og:image' content='https://opensaas.sh/public-banner.webp' />",
+        //...
+  ],
+  //...
+```
+
+Change the above highlighted meta tags to match your app. Wasp will inject these tags into the HTML of your `index.html` file, which is the Landing Page (`app/src/client/landing-page/LandingPage.tsx`), in this case.
+
+## Prerendering Routes
+
+By default, a Wasp app is a Single Page Application (SPA). When someone visits your site, their browser first downloads a mostly empty page and then runs JavaScript to fill it in with the actual content. This works well for pages behind a login, but it has two downsides for pages like your landing page:
+
+- Visitors wait longer before they see anything.
+- Search engines and AI crawlers sometimes struggle to see your real content, which hurts your ranking.
+
+Prerendering fixes both. You can turn it on for any route by adding `prerender: true` in your config file:
+
+<Tabs syncKey="wasp-config-language">
+  <TabItem label="main.wasp.ts">
+    ```ts
+    app.route('LandingPageRoute', { path: '/', to: landingPage, prerender: true });
+    ```
+  </TabItem>
+  <TabItem label="main.wasp">
+    ```c
+    route LandingPageRoute { path: "/", to: LandingPage, prerender: true }
+    ```
+  </TabItem>
+</Tabs>
+
+Now, when you run `wasp build`, Wasp builds a complete HTML version of that page ahead of time. Visitors (and Google) see your real content right away, and React still takes over in the background so buttons, links, and other interactions keep working as normal.
+
+For a content-heavy landing page, this typically makes the page feel several times faster to load.
+
+See the Wasp docs for the full reference and caveats: [Prerendering](https://wasp.sh/docs/advanced/prerendering).
+
+:::tip[Star our Repo on GitHub! 🌟]
+We've packed in a ton of features and love into this SaaS starter, and offer it all to you for free!
+
+If you're finding this template and its guides useful, consider giving us [a star on GitHub](https://github.com/wasp-lang/wasp)
+:::
+
+## Structured Data (JSON-LD)
+
+In addition to meta tags, Open SaaS includes a `SchemaMarkup` component at `src/landing-page/components/SchemaMarkup.tsx` that embeds [JSON-LD structured data](https://schema.org) into your landing page. This helps search engines and LLMs understand what your app is, who makes it, and what it offers, improving how it appears in search results, AI answers, and rich snippets.
+
+```tsx title="src/landing-page/components/SchemaMarkup.tsx"
+const schema = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SoftwareApplication",
+      name: "Your Open SaaS App",
+      description: "Your apps main description and features.",
+      url: "https://your-saas-app.com",
+      // ...
+    },
+  ],
+};
+```
+
+Customize the schema object to match your product:
+
+- Update `name`, `description`, and `url`
+- Set `applicationCategory` / `applicationSubCategory` (see [schema.org/SoftwareApplication](https://schema.org/SoftwareApplication))
+- Add an `Organization` entry to associate the app with a company
+- Add a `FAQPage` entry if your landing page has an FAQ section
+
+The component is rendered inside `LandingPage.tsx`, and Wasp's prerendering inlines its output into the static HTML so crawlers see the structured data without needing to execute JavaScript.
+
+## AI / LLM Discoverability
+
+Beyond traditional search engines, AI assistants and LLM-powered search tools (ChatGPT, Perplexity, Claude, etc.) are an increasingly important source of discovery. The [llms.txt convention](https://llmstxt.org) provides a curated, markdown index of your site that these tools can use to understand and recommend your app.
+
+The template ships a placeholder `llms.txt` at `template/app/public/llms.txt`, which gets served at `https://your-saas-app.com/llms.txt`:
+
+```md title="public/llms.txt"
+# Your Open SaaS App
+
+> One-line description of what your SaaS does and who it's for.
+
+A longer paragraph giving context: the problem your app solves, the kind of
+user it serves, and the key value it delivers.
+
+## Core pages
+- [Home](https://your-saas-app.com): Landing page with features, pricing, and FAQ
+- [Pricing](https://your-saas-app.com/pricing): Subscription plans and pricing
+- [Sign up](https://your-saas-app.com/signup): Create a new account
+```
+
+Customize it before deploying:
+
+- Replace `your-saas-app.com` with your production URL
+- Update the name, description, and longer paragraph to match your product
+- Curate the list of links — include only your most important public pages
+- Add or remove sections as needed (e.g. `## API`, `## Integrations`)
+
+Keep the file short and intentional. It should be a concise index of your site that AI crawlers and LLMs can digest easily.
+
+## Docs & Blog Meta Tags
+
+Astro, being a static-site generator, will automatically inject relevant information provided in the `blog/astro.config.mjs` file, as well as in the frontmatter of `.md` files into the pages HTML:
+
+```yaml
+---
+title: 'My First Blog Post'
+pubDate: 2022-07-01
+description: 'This is the first post of my new Astro blog.'
+author: 'Astro Learner'
+image:
+    url: 'https://docs.astro.build/assets/full-logo-light.png'
+    alt: 'The full Astro logo.'
+tags: ["astro", "blogging", "learning in public"]
+---
+```
+
+Improving your SEO is as simple as adding these properties to your docs and blog content!

@@ -1,0 +1,262 @@
+---
+title: Getting Started
+banner:
+  content: |
+    Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
+---
+import VideoPlayer from '../../../components/VideoPlayer.astro';
+
+This guide will help you get your new SaaS app up and running.
+
+If you prefer video tutorials, you can watch this walkthrough below which will guide you through most of the setup (installation, authentication, payments, etc.). If you get stuck at any point, you can refer back to these docs for more information.
+
+<VideoPlayer src="https://youtu.be/lFGtwbwt66k" lgWidth="100%" />
+
+:::tip[Prefer to learn while you build?]
+[Open Vibe](https://openvibe.sh) is our free, open-source curriculum that turns Claude Code (or your agent of choice) into a SaaS-building tutor. Phase 2 walks you through building a real SaaS on top of this Open SaaS template — a great companion to this guide if you want to understand the systems as you go.
+:::
+
+## Install Wasp
+
+### Pre-requisites
+
+You must have Node.js (and NPM) installed on your machine and available in `PATH` to use Wasp.
+Your version of Node.js must be >= 22.12.
+
+To switch easily between Node.js versions, we recommend using [nvm](https://github.com/nvm-sh/nvm).
+
+:::note[Installing and using nvm]
+<details aria-label="Installing and using nvm">
+  <summary aria-label="Need help with nvm?">
+    Need help with nvm?
+  </summary>
+  <div>
+    Install nvm via your OS package manager (`apt`, `pacman`, `homebrew`, ...) or via the [nvm](https://github.com/nvm-sh/nvm#install--update-script) install script.
+
+    Then, install a version of Node.js that you need:
+
+    ```shell
+    nvm install 20
+    ```
+
+    Finally, whenever you need to ensure a specific version of Node.js is used, run:
+
+    ```shell
+    nvm use 20
+    ```
+
+    to set the Node.js version for the current shell session.
+
+    You can run
+
+    ```shell
+    node -v
+    ```
+
+    to check the version of Node.js currently being used in this shell session.
+
+    Check NVM repo for more details: [https://github.com/nvm-sh/nvm](https://github.com/nvm-sh/nvm).
+  </div>
+</details>
+:::
+
+### Linux and macOS
+
+Open your terminal and run:
+
+```shell
+npm i -g @wasp.sh/wasp-cli
+```
+
+:::caution[Bad CPU type in executable]
+<details aria-label="Bad CPU type in executable">
+  <summary aria-label="Are you getting this error on a Mac (Apple Silicon)?">
+    Are you getting this error on a Mac (Apple Silicon)?
+  </summary>
+Given that the wasp binary is built for x86 and not for arm64 (Apple Silicon), you'll need to install <a href='https://support.apple.com/en-us/HT211861' alt='Rosetta on your Mac'>Rosetta on your Mac</a> if you are using a Mac with Mx (M1, M2, ...). Rosetta is a translation process that enables users to run applications designed for x86 on arm64 (Apple Silicon). To install Rosetta, run the following command in your terminal
+
+```bash
+softwareupdate --install-rosetta
+```
+Once Rosetta is installed, you should be able to run Wasp without any issues.
+
+</details>
+:::
+
+### Windows
+
+In order to use Wasp on Windows, you need to install WSL2 (Windows Subsystem for Linux) and a Linux distribution of your choice. We recommend using Ubuntu.
+
+**You can refer to this [article](https://wasp.sh/blog/2023/11/21/guide-windows-development-wasp-wsl) for a step by step guide to using Wasp in the WSL environment.** If you need further help, reach out to us on [Discord](https://discord.gg/rzdnErX).
+
+:::caution[WSL2 Docker post installation steps]
+
+<details>
+  <summary>
+      Complete those steps to ensure that PostgreSQL and Docker work correctly with Wasp in WSL2.
+  </summary>
+It is recommended to complete those post-install steps in WSL, based on the official <a href="https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user">Docker</a> guide. These work if you are experiencing an error similar to <a href="https://github.com/wasp-lang/open-saas/issues/347">this</a> one.
+
+First, run
+
+```bash
+sudo groupadd docker
+```
+
+command to create the `docker` group in case it doesn't exist. If it exists, don't worry, just continue with next steps. After that, add your current user to docker group by running
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+where $USER is your username. After that, log out and log back in to apply the changes. Finally, run
+
+```bash
+su -s $USER
+```
+
+</details>
+:::
+
+
+Once in WSL2, run the following command in your **WSL2 environment**:
+```sh
+npm i -g @wasp.sh/wasp-cli
+```
+
+:::caution[WSL2 and file system issues]
+<details aria-label="Are you getting file system issues using WSL2?">
+  <summary aria-label="Are you getting file system issues using WSL2?">
+    Are you getting file system issues using WSL2?
+  </summary>
+If you are using WSL2, make sure that your Wasp project is not on the Windows file system, <b>but instead on the Linux file system</b>. Otherwise, Wasp won't be able to detect file changes, due to this <a href='https://github.com/microsoft/WSL/issues/4739'>issue in WSL2</a>.
+</details>
+:::
+
+### Finalize Installation
+
+Run the following command to verify that Wasp was installed correctly:
+
+```shell
+wasp version
+```
+
+Also be sure to install the Wasp VSCode extension to get the best DX, e.g. syntax highlighting, code scaffolding, autocomplete, etc.
+
+:::tip[Installing the Wasp VSCode Extension]
+You can install the Wasp VSCode extension by searching for "Wasp" in the Extensions tab in VSCode, or by visiting the [Wasp VSCode Extension](https://marketplace.visualstudio.com/items?itemName=wasp-lang.wasp) homepage
+:::
+
+## Setting up your SaaS app
+
+### Cloning the Open SaaS template
+
+From the directory where you'd like to create your new project run:
+```sh
+wasp new
+```
+
+Then select option `[3] saas` from the list of templates after entering the name of your project.
+
+This will clone a **clean copy of the Open SaaS template** into a new directory! 🎉
+
+### Start your DB
+
+Before you start your app, you need to have a Postgres Database connected and running. With Wasp, that's super easy!
+
+First, make sure you have **Docker installed and running**. If not, download and install it [here](https://www.docker.com/products/docker-desktop/)
+
+With Docker running, open a new terminal window/tab and position yourself in the `app` directory:
+
+```sh
+cd app
+```
+
+Then run:
+
+```sh
+wasp start db
+```
+
+This will start and connect your app to a Postgres database for you. No need to do anything else! 🤯 Just make sure to leave this terminal window open in the background while developing. Once you terminate the process, your DB will no longer be available to your app.
+
+Now let's create our very first database migration, to ensure the database has a correct schema. Open a new terminal tab/window and run the following command:
+
+```sh
+wasp db migrate-dev
+```
+
+This might take a bit since this is the first time you are running it and it needs to install all the
+dependencies for your Wasp project.
+
+In the future, you will also want to run `wasp db migrate-dev` whenever you make changes to your Prisma schema (Entities),
+to apply those schema changes to the database.
+
+Additionally, if you want to see or manage your DB via Prisma's DB Studio GUI, run:
+
+```sh
+wasp db studio
+```
+
+### Start your app
+
+At this point, you should be positioned in the `app/` directory and have the database running in another terminal session.
+
+Next, copy the `.env.server.example` file to `.env.server`.
+
+```sh
+cp .env.server.example .env.server
+```
+
+`.env.server` is where API keys for services like payments, email sender, and similar go, and this is where you will want to put them in later.
+For now, you can leave it as it is (dummy API keys), this will be enough to run the app.
+
+Then run:
+
+```sh
+wasp start
+```
+
+This will install all the dependencies and start the app (client and server) for you :)!
+
+If the app doesn't open automatically in your browser, you can open it manually by visiting `http://localhost:3000` in your browser.
+
+At this point, you should have:
+ - your database running in one terminal session, likely on port `5432`.
+ - your app running in another terminal session, the client likely on port `3000`, and the server likely on port `3001`.
+
+#### Run Blog and Docs
+
+This SaaS app comes with a docs and blog section built with the [Starlight template on top of the Astro](https://starlight.astro.build) framework. You can use this as a starting point for your own blog and documentation, if necessary.
+
+If you do not need this, you can simply delete the `blog` folder from the root of the project.
+
+If you want to run the Starlight docs and blog, first navigate to the `blog` folder:
+
+```sh
+cd ../blog
+```
+
+Then run:
+
+```sh
+npm install
+```
+
+Then start the development server:
+
+```sh
+npm run dev
+```
+
+Check the instructions in the terminal for the link to open the blog, it will typically be `https://localhost:4321/`.
+
+## What's next?
+
+Awesome! We have our new app ready and we know how to run both it and the blog/docs! Now, in the next section, we'll give you a quick "guided tour" of the different parts of the app we created and understand how it works.
+
+:::tip[Star our Repo on GitHub! 🌟]
+We've packed in a ton of features and love into this SaaS starter, and offer it all to you for free!
+
+If you're finding this template and its guides useful, consider giving us [a star on GitHub](https://github.com/wasp-lang/wasp)
+:::

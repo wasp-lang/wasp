@@ -1,0 +1,358 @@
+--- template/app/src/landing-page/contentSections.tsx
++++ opensaas-sh/app/src/landing-page/contentSections.tsx
+@@ -1,4 +1,8 @@
+-import daBoiAvatar from "../client/static/da-boi.webp";
++import { routes } from "wasp/client/router";
++import blog from "../client/static/assets/blog.webp";
++import email from "../client/static/assets/email.webp";
++import fileupload from "../client/static/assets/fileupload.webp";
++import ai from "../client/static/assets/openapi.webp";
+ import kivo from "../client/static/examples/kivo.webp";
+ import messync from "../client/static/examples/messync.webp";
+ import microinfluencerClub from "../client/static/examples/microinfluencers.webp";
+@@ -6,161 +10,248 @@
+ import reviewradar from "../client/static/examples/reviewradar.webp";
+ import scribeist from "../client/static/examples/scribeist.webp";
+ import searchcraft from "../client/static/examples/searchcraft.webp";
+-import { BlogUrl, DocsUrl } from "../shared/common";
+-import type { GridFeature } from "./components/FeaturesGrid";
++import logo from "../client/static/logo.webp";
++import { BlogUrl, DocsUrl, GithubUrl, WaspUrl } from "../shared/common";
++import { GridFeature } from "./components/FeaturesGrid";
+ 
+ export const features: GridFeature[] = [
+   {
+-    name: "Cool Feature 1",
+-    description: "Your feature",
+-    emoji: "🤝",
++    description:
++      "Have a sweet AI-powered app concept? Get your idea shipped to potential customers in days!",
++    icon: <img src={ai} alt="AI illustration" />,
+     href: DocsUrl,
+-    size: "small",
++    size: "medium",
++    fullWidthIcon: true,
++    align: "left",
+   },
+   {
+-    name: "Cool Feature 2",
+-    description: "Feature description",
+-    emoji: "🔐",
++    name: "Full-stack Type Safety",
++    description:
++      "Full support for TypeScript with auto-generated types that span the whole stack. Nothing to configure!",
++    emoji: "🥞",
+     href: DocsUrl,
+-    size: "small",
++    size: "medium",
+   },
+   {
+-    name: "Cool Feature 3",
+-    description: "Describe your cool feature here",
+-    emoji: "🥞",
+-    href: DocsUrl,
++    description:
++      "File upload examples with AWS S3 presigned URLs are included and fully documented!",
++    icon: (
++      <img
++        src={fileupload}
++        alt="File upload illustration"
++        className="h-auto w-full"
++      />
++    ),
++    href: DocsUrl + "/guides/file-uploading/",
+     size: "medium",
++    fullWidthIcon: true,
+   },
+   {
+-    name: "Cool Feature 4",
+-    description: "Describe your cool feature here",
+-    emoji: "💸",
+-    href: DocsUrl,
+-    size: "large",
++    name: "Email Sending",
++    description:
++      "Email sending built-in. Combine it with the cron jobs feature to easily send emails to your customers.",
++    icon: <img src={email} alt="Email sending illustration" />,
++    href: DocsUrl + "/guides/email-sending/",
++    size: "medium",
++    fullWidthIcon: true,
++    direction: "col-reverse",
+   },
+   {
+-    name: "Cool Feature 5",
+-    description: "Describe your cool feature here",
+-    emoji: "💼",
+-    href: DocsUrl,
+-    size: "large",
++    name: "Open SaaS",
++    description: "Try the demo app",
++    icon: <img src={logo} alt="Wasp Logo" />,
++    href: routes.LoginRoute.to,
++    size: "medium",
++    highlight: true,
+   },
+   {
+-    name: "Cool Feature 6",
+-    description: "It is cool",
+-    emoji: "📈",
+-    href: DocsUrl,
+-    size: "small",
++    name: "Blog w/ Astro",
++    description:
++      "Built-in blog with the Astro framework. Write your posts in Markdown, and watch your SEO performance take off.",
++    icon: <img src={blog} alt="Blog illustration" />,
++    href: DocsUrl + "/start/guided-tour/",
++    size: "medium",
++    fullWidthIcon: true,
+   },
+   {
+-    name: "Cool Feature 7",
+-    description: "Cool feature",
+-    emoji: "📧",
++    name: "Deploy Anywhere. Easily.",
++    description:
++      "No vendor lock-in because you own all your code. Deploy yourself, or let Wasp deploy it for you with a single command.",
++    emoji: "🚀",
++    href: DocsUrl + "/guides/deploying/",
++    size: "medium",
++  },
++  {
++    name: "Complete Documentation & Support",
++    description: "And a Discord community to help!",
+     href: DocsUrl,
+     size: "small",
+   },
+   {
+-    name: "Cool Feature 8",
+-    description: "Describe your cool feature here",
+-    emoji: "🤖",
+-    href: DocsUrl,
+-    size: "medium",
++    name: "E2E Tests w/ Playwright",
++    description: "Tests and a CI pipeline w/ GitHub Actions",
++    href: DocsUrl + "/guides/tests/",
++    size: "small",
+   },
+   {
+-    name: "Cool Feature 9",
+-    description: "Describe your cool feature here",
+-    emoji: "🚀",
++    name: "Open-Source Philosophy",
++    description:
++      "The repo and framework are 100% open-source, and so are the services wherever possible. Still missing something? Contribute!",
++    emoji: "🤝",
+     href: DocsUrl,
+     size: "medium",
+   },
+ ];
+-
+ export const testimonials = [
+   {
+-    name: "Da Boi",
+-    role: "Wasp Mascot",
+-    avatarSrc: daBoiAvatar,
+-    socialUrl: "https://twitter.com/wasplang",
+-    quote: "I don't even know how to code. I'm just a plushie.",
+-  },
+-  {
+-    name: "Mr. Foobar",
+-    role: "Founder @ Cool Startup",
+-    avatarSrc: daBoiAvatar,
+-    socialUrl: "",
+-    quote: "This product makes me cooler than I already am.",
+-  },
+-  {
+-    name: "Jamie",
+-    role: "Happy Customer",
+-    avatarSrc: daBoiAvatar,
+-    socialUrl: "#",
+-    quote: "My cats love it!",
++    name: "Max Khamrovskyi",
++    role: "Senior Eng @ Red Hat",
++    avatarSrc:
++      "https://pbs.twimg.com/profile_images/1719397191205179392/V_QrGPSO_400x400.jpg",
++    socialUrl: "https://twitter.com/maksim36ua",
++    quote:
++      "I used Wasp to build and sell my AI-augmented SaaS app for marketplace vendors within two months!",
++  },
++  {
++    name: "Jonathan Cocharan",
++    role: "Entrepreneur",
++    avatarSrc:
++      "https://pbs.twimg.com/profile_images/1950172296376639488/sZ0JIqfR_400x400.jpg",
++    socialUrl: "https://twitter.com/JonathanCochran",
++    quote:
++      "In just 6 nights... my SaaS app is live 🎉! Huge thanks to the amazing @wasplang community 🙌 for their guidance along the way. These tools are incredibly efficient 🤯!",
++  },
++  {
++    name: "Billy Howell",
++    role: "Entrepreneur",
++    avatarSrc:
++      "https://pbs.twimg.com/profile_images/1877734205561430016/jjpG4mS6_400x400.jpg",
++    socialUrl: "https://twitter.com/billyjhowell",
++    quote:
++      "Congrats! I am loving Wasp & Open SaaS. It's really helped me, a self-taught coder increase my confidence. I feel like I've finally found the perfect, versatile stack for all my projects instead of trying out a new one each time.",
++  },
++  {
++    name: "Tim Skaggs",
++    role: "Founder @ Antler US",
++    avatarSrc:
++      "https://pbs.twimg.com/profile_images/1802196804236091392/ZG0OE_fO_400x400.jpg",
++    socialUrl: "https://twitter.com/tskaggs",
++    quote:
++      "Nearly done with a MVP in 3 days of part-time work... and deployed on Fly.io in 10 minutes.",
++  },
++  {
++    name: "Cam Blackwood",
++    role: "Founder @ Microinfluencer.club",
++    avatarSrc:
++      "https://pbs.twimg.com/profile_images/1927721707164377089/it8oCAkf_400x400.jpg",
++    socialUrl: "https://twitter.com/CamBlackwood95",
++    quote: "Setting up a full stack SaaS in 1 minute with WaspLang.",
++  },
++  {
++    name: "JLegendz",
++    role: "Enterpreneur",
++    avatarSrc:
++      "https://cdn.discordapp.com/avatars/1003468772251811921/a_c6124fcbee5621d1ad9cca83a102c4a9.png?size=80",
++    socialUrl:
++      "https://discord.com/channels/686873244791210014/1080864617347162122/1246388561020850188",
++    quote:
++      "Just randomly wanted to say that I've been loving working with Wasp so far. The open-saas template is great starting point and great way to learn how Wasp works. The documentation is superb and I see the GitHub is super active. The team is super responsive and the ai kapa rocks! So thanks for the work you all are doing. I’ve done plenty of with  react in the past but I’m a front end person.  With wasp though, I'm managing my db, back end functions, actions, queries, all with so much ease. I occasionally get stuck on an issue but within a day or two, and thanks to a couple of AI assistants, I get through it. So thank you!",
++  },
++  {
++    name: "Dimitrios Mastrogiannis",
++    role: "Founder @ Kivo.dev",
++    avatarSrc:
++      "https://pbs.twimg.com/profile_images/1771240035020324864/bcNSr-dA_400x400.jpg",
++    socialUrl: "https://twitter.com/dmastroyiannis",
++    quote: "Without Wasp & Open SaaS, Kivo.dev wouldn't exist",
++  },
++  {
++    name: "Alex Ionascu",
++    role: "Entrepreneur",
++    avatarSrc:
++      "https://pbs.twimg.com/profile_images/1356710335001018376/HEfgRu8X_400x400.jpg",
++    socialUrl: "https://twitter.com/alexandrionascu",
++    quote:
++      "Wasp is like hot water. You don't realise how much you need it unless you try it.",
++  },
++  {
++    name: "Emm Ajayi",
++    role: "Enterpreneur",
++    avatarSrc:
++      "https://media2.dev.to/dynamic/image/width=320,height=320,fit=cover,gravity=auto,format=auto/https%3A%2F%2Fdev-to-uploads.s3.amazonaws.com%2Fuploads%2Fuser%2Fprofile_image%2F1215082%2F860c57b3-ac41-420b-9420-b6efda743596.jpg",
++    socialUrl:
++      "https://dev.to/wasp/our-web-framework-reached-9000-stars-on-github-9000-jij#comment-2dech",
++    quote:
++      "This is exactly the framework I've been dreaming of ever since I've been waiting to fully venture into the JS Backend Dev world. I believe Wasp will go above 50k stars this year. The documentation alone gives me the confidence that this is my permanent Nodejs framework and I'm staying with Wasp. Phenomenal work by the team...  Please keep up your amazing spirits. Thank you",
+   },
+ ];
+-
+ export const faqs = [
+   {
+     id: 1,
+-    question: "Whats the meaning of life?",
+-    answer: "42.",
+-    href: "https://en.wikipedia.org/wiki/42_(number)",
++    question: "Why is this SaaS Template free and open-source?",
++    answer:
++      "We believe the best product is made when the community puts their heads together. We also believe a quality starting point for a web app should be free and available to everyone. Our hope is that together we can create the best SaaS template out there and bring our ideas to customers quickly.",
++  },
++  {
++    id: 2,
++    question: "What's Wasp?",
++    href: "https://wasp-lang.dev",
++    answer:
++      "It's the fastest way to develop full-stack React + NodeJS + Prisma apps and it's what gives this template superpowers. Wasp relies on React, NodeJS, and Prisma to define web components and server queries and actions. Wasp's secret sauce is its compiler which takes the client, server code, and config file and outputs the client app, server app and deployment code, supercharging the development experience. Combined with this template, you can build a SaaS app in record time.",
+   },
+ ];
+-
+ export const footerNavigation = {
+   app: [
++    { name: "Github", href: GithubUrl },
+     { name: "Documentation", href: DocsUrl },
+     { name: "Blog", href: BlogUrl },
+   ],
+   company: [
+-    { name: "About", href: "https://wasp.sh" },
+-    { name: "Privacy", href: "#" },
+-    { name: "Terms of Service", href: "#" },
++    { name: "Terms of Service", href: GithubUrl + "/blob/main/LICENSE" },
++    { name: "Made by the Wasp team = }", href: WaspUrl },
+   ],
+ };
+-
+ export const examples = [
+   {
+-    name: "Example #1",
+-    description: "Describe your example here.",
+-    imageSrc: kivo,
+-    href: "#",
++    name: "Microinfluencers",
++    description: "microinfluencer.club",
++    imageSrc: microinfluencerClub,
++    href: "https://microinfluencer.club",
+   },
+   {
+-    name: "Example #2",
+-    description: "Describe your example here.",
+-    imageSrc: messync,
+-    href: "#",
++    name: "Kivo",
++    description: "kivo.dev",
++    imageSrc: kivo,
++    href: "https://kivo.dev",
+   },
+   {
+-    name: "Example #3",
+-    description: "Describe your example here.",
+-    imageSrc: microinfluencerClub,
+-    href: "#",
++    name: "Searchcraft",
++    description: "searchcraft.io",
++    imageSrc: searchcraft,
++    href: "https://www.searchcraft.io",
+   },
+   {
+-    name: "Example #4",
+-    description: "Describe your example here.",
+-    imageSrc: promptpanda,
+-    href: "#",
++    name: "Scribeist",
++    description: "scribeist.com",
++    imageSrc: scribeist,
++    href: "https://scribeist.com",
+   },
+   {
+-    name: "Example #5",
+-    description: "Describe your example here.",
+-    imageSrc: reviewradar,
+-    href: "#",
++    name: "Messync",
++    description: "messync.com",
++    imageSrc: messync,
++    href: "https://messync.com",
+   },
+   {
+-    name: "Example #6",
+-    description: "Describe your example here.",
+-    imageSrc: scribeist,
+-    href: "#",
++    name: "Prompt Panda",
++    description: "promptpanda.io",
++    imageSrc: promptpanda,
++    href: "https://promptpanda.io",
+   },
+   {
+-    name: "Example #7",
+-    description: "Describe your example here.",
+-    imageSrc: searchcraft,
+-    href: "#",
++    name: "Review Radar",
++    description: "reviewradar.ai",
++    imageSrc: reviewradar,
++    href: "https://reviewradar.ai",
+   },
+ ];

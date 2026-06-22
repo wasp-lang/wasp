@@ -1,0 +1,33 @@
+---
+interface Props {
+  quote: string;
+  name: string;
+  title?: string;
+  avatarUrl?: string;
+  profileUrl?: string;
+}
+
+const { quote, name, title, avatarUrl, profileUrl } = Astro.props;
+---
+
+<figure class="mx-auto max-w-screen-md rounded-lg bg-gray-50 px-6 py-8 text-center dark:bg-gray-800/50">
+  <svg class="mx-auto mb-3 h-8 w-8 text-gray-400 dark:text-gray-600" viewBox="0 0 24 27" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M14.017 18L14.017 10.609C14.017 4.905 17.748 1.039 23 0L23.995 2.151C21.563 3.068 20 5.789 20 8H24V18H14.017ZM0 18V10.609C0 4.905 3.748 1.038 9 0L9.996 2.151C7.563 3.068 6 5.789 6 8H9.983L9.983 18L0 18Z" fill="currentColor"/>
+  </svg>
+  <blockquote>
+    <p class="text-xl font-medium text-gray-900 dark:text-gray-200"><i>&ldquo;{quote}&rdquo;</i></p>
+  </blockquote>
+  <figcaption class="flex items-end justify-center space-x-5">
+    {avatarUrl && (
+      <img class="h-12 w-12 rounded-full" src={avatarUrl} alt={`${name}'s profile picture`} />
+    )}
+    <div class="flex flex-col items-start">
+      {profileUrl ? (
+        <a href={profileUrl} target="_blank" rel="noopener noreferrer" class="font-medium text-gray-900 hover:underline dark:text-white">{name}</a>
+      ) : (
+        <span class="font-medium text-gray-900 dark:text-white">{name}</span>
+      )}
+      {title && <span class="text-sm font-light text-gray-500 dark:text-gray-400">{title}</span>}
+    </div>
+  </figcaption>
+</figure>

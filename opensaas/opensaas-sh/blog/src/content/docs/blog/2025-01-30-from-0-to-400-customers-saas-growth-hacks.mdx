@@ -1,0 +1,122 @@
+---
+title: "From 0 to 400+ Customers: SaaS Growth Hacks from a Serial Founder"
+date: 2025-01-30
+tags:
+  - webdev
+  - saas
+  - sideproject
+  - indiehackers
+authors: milica
+---
+import { Image } from 'astro:assets';
+import articleGeneration from '../../../assets/ricardo-growth-hacks/article-generation.png';
+import StarOpenSaaSCTA from '../../../components/StarOpenSaaSCTA.astro';
+import meetingReminders from '../../../assets/ricardo-growth-hacks/meeting-reminders.png';
+import googleAddons from '../../../assets/ricardo-growth-hacks/google-addons.png';
+
+[Meet Ricardo](https://x.com/rbatista19) - he has successfully launched multiple SaaS products, turning his ideas into revenue-generating apps. If you're looking to build and launch your own product efficiently, we're about to share some of Ricardo's key strategies.
+
+He's a developer with a background in telecom engineering, having held leadership roles at companies like Vodafone and Glovo. But after years of putting fires out in management, he returned to hands-on development, focusing on building apps that solve real problems—fast.
+
+By leveraging [Open SaaS](https://opensaas.sh/), Ricardo was able to ship multiple projects quickly, skipping the usual headaches of setting up authentication, payments, and other things every SaaS needs. In this post, you'll discover what types of SaaS products he launched and the strategies he used to get them off the ground.
+
+### Why Ricardo Chose Open SaaS
+
+When searching for frameworks to kickstart his projects, Ricardo stumbled upon Open SaaS, a 100% free, open-source starter for React & Node.js. and. He was drawn to Open SaaS because of its simplicity, community, and modern tech stack. He also liked the fact that the company had Y Combinator seal of approval.
+
+> *"The fact that Wasp is low-friction and uses a great stack like Prisma, React, Node.js, and TypeScript—made it stand out. Plus, the community is super helpful. You can get started fast without spending hours on setup."*
+
+<div className="flex justify-center">
+  <img src="https://media0.giphy.com/media/13zeE9qQNC5IKk/giphy.gif?cid=7941fdc69ba2psk3jei2jwzvohsqp0912ugkwzm2jugyrw7x&ep=v1_gifs_search&rid=giphy.gif&ct=g" alt="Excited reaction gif" />
+</div>
+
+What Ricardo loves most:
+
+- **Pre-built Features**: Open SaaS relies on Wasp - a full stack framework for React, Node.js and Prisma. The way Wasp handles routes and authentication was a game-changer. 
+
+> *"Just putting routes in `main.wasp` makes everything super simple. Auth works seamlessly, too."*
+
+- **Focus on Building**: By handling repetitive setup tasks like setting up payment integrations or making admin dashboards, Open SaaS allowed Ricardo to focus on core features.
+- **Adaptability**: regardless of the idea he had - a full-fledged SaaS, or a Google add-on which needed a robust-backend and a dashboard, he was able to build the app with Open SaaS boilerplate starter.
+
+> *"I didn't feel limited by the boilerplate—it's flexible and gets out of the way."*
+
+## Ricardo's Projects Built with Wasp
+
+Ricardo started a few projects with Wasp, while working on the third one he started before discovering Open SaaS.
+
+### **Article Generator**
+
+- Built in less than 7 days.
+- 40+ paying customers.
+
+[This tool](https://article-generation.com/) simplifies content creation for businesses by generating SEO-friendly blog posts with AI.  Article Generator is competing in a crowded market of AI writing tools, where each tool claims that it's the best one on the market. 
+
+
+<Image src={articleGeneration} alt="Article Generation" loading="lazy" />
+
+Ricardo is using Open SaaS to focus on feature development while testing pricing strategies to differentiate the product from the rest of the market. Integrations with Stripe, Open AI, and similar helped him move faster than he could on his own. His first clients came from Reddit and he has a standard subscription monetization set up.
+
+<StarOpenSaaSCTA trailingText="and support tools that help you build fast!" />
+
+### **Meeting Reminders**
+
+- Bult in less than 7 days.
+- 400+ paying customers.
+
+[This tool is a Google Workspace add-on](https://meeting-reminders.com/) that reduces no-shows by automating pre-meeting reminders. His competitive edge is that he covers WhatsApp alongside SMS and email reminders. Meeting Reminders app shows how versatile Open SaaS boilerplate is, because it can handle edge cases like this one and integrate into Google's system.
+
+Calls being skipped was a huge pain for Ricardo when he was working at a VC company. His day would include a lot of calls, and the cancellation rate was high. Once he started emailing participants before the call, the number of cancellations reduced significantly. Some time later, he built the tool himself to automate this 😃
+
+<div className="flex justify-center">
+  <Image src={meetingReminders} alt="Meeting Reminders" loading="lazy" />
+</div>
+
+In this case, Open SaaS handles backend tasks like subscription checks and authentication. Because of that, this is a lightweight app that solves a niche problem effectively, and doesn't require a lot of maintenance.
+
+The first users were people he knew personally, and he did a bit of promotion on targeted groups on Slack and Discord. Since it's a Google Marketplace app, anyone looking for Meeting Reminder add-on will have a chance to see it.
+
+<div className="flex justify-center">
+  <Image src={googleAddons} alt="Google Addons" loading="lazy" />
+</div>
+
+He also relies on SEO, and guess what, he pushed a couple of blog posts with his first SaaS, AI Article Generator. As he said before, you should make tools that scratch your itch first. 😃
+
+### Tips for Builders Launching Products
+
+1. **Validate Before You Build**
+    
+> *"Start by searching Reddit or similar platforms to find out if people are already solving the problem. If they are, ask yourself: can I do it better or faster?"*
+    
+<div className="flex justify-center">
+  <img src="https://media3.giphy.com/media/iK45mgOPCt5MsqcKhq/giphy.gif?cid=7941fdc6b5cs6fcmgw1ki92h5ic0v6xxweb2yn58h6nkx1c1&ep=v1_gifs_search&rid=giphy.gif&ct=g" alt="Excited reaction gif" />
+</div>
+    
+2. **Diversify Launch Strategies**
+
+- Avoid relying solely on Product Hunt 
+
+> *"It's not as effective as it used to be."*
+
+- Explore short-form content like TikTok for quick validation. You can create a company account and post videos that showcase the problem and the solution.  
+    
+<blockquote class="tiktok-embed" cite="https://www.tiktok.com/@meetingreminders/video/7462839913231306016" data-video-id="7462839913231306016" data-embed-from="embed_page" style="max-width:605px; min-width:325px;"> <section> <a target="_blank" title="@meetingreminders" href="https://www.tiktok.com/@meetingreminders?refer=embed">@meetingreminders</a> <p>BOOOM!! no more waiting in meetings - it's called Meeting Reminders <a title="workmeeting" target="_blank" href="https://www.tiktok.com/tag/workmeeting?refer=embed">#workmeeting</a> <a title="corporate" target="_blank" href="https://www.tiktok.com/tag/corporate?refer=embed">#corporate</a> <a title="workfromhome" target="_blank" href="https://www.tiktok.com/tag/workfromhome?refer=embed">#workfromhome</a> <a title="googlemeet" target="_blank" href="https://www.tiktok.com/tag/googlemeet?refer=embed">#googlemeet</a></p> <a target="_blank" title="♬ original sound - Meeting Reminders" href="https://www.tiktok.com/music/original-sound-7462839967913134880?refer=embed">♬ original sound - Meeting Reminders</a> </section> </blockquote> <script async src="https://www.tiktok.com/embed.js"></script>
+    
+> *"Their algorithm is great for targeting the right audience."*
+
+- Use targeted Reddit ads to reach niche communities.
+
+3. **Start small**
+    
+> *"If you're entering a competitive space, start small. Validate your product's unique edge by solving specific pain points and adjust based on user feedback."*
+    
+4. **Iterate Quickly**
+    
+> *"Launch fast, gather feedback, and refine your product. You don't need to build the perfect app on day one—get it out there, see how people use it, and adjust."*
+    
+
+### **Ready to Build Your SaaS?**
+
+Explore the [Open SaaS boilerplate](https://opensaas.sh/) to see how you can kickstart your SaaS today.
+
+<StarOpenSaaSCTA trailingText="and support tools that help you build fast!" />

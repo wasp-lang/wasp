@@ -1,0 +1,135 @@
+---
+title: "Good Specs, Right Tools, Weeks to Production: How a PM Built an Emergency Preparedness SaaS with Open SaaS"
+date: 2026-04-13
+tags:
+  - wasp
+  - opensaas
+  - user-interview
+  - fullstack
+  - chroni
+keywords:
+  - "opensaas user interview"
+  - "wasp framework saas"
+  - "claude code saas development"
+  - "pm built saas"
+  - "non-engineer build saas"
+  - "emergency preparedness saas"
+  - "full-stack saas boilerplate"
+  - "ai assisted saas development"
+  - "open source saas starter kit"
+  - "chroni emergency planning"
+authors: matija
+description: "How a Product Manager at PepsiCo built Chroni, a multi-language emergency preparedness SaaS for European families, using Open SaaS, Wasp, and Claude Code, shipped in weeks, not months."
+---
+
+import { Image } from 'astro:assets';
+import chroniSignup from '../../../assets/chroni/Chroni-sign-up.png';
+import VideoPlayer from '../../../components/VideoPlayer.astro';
+
+*Piotr Ciechowicz is a Product Manager at PepsiCo, where his day job is PowerBI dashboards, data pipelines, and enormous Excel files. On the side, he builds. His latest project, [Chroni](https://chroni.eu), is a multi-language emergency preparedness SaaS built entirely on Open SaaS and Wasp. He has a detailed emergency plan, and thinks your family should have one too.*
+
+---
+
+## Tell us about yourself, and what actually pushed you to build something.
+
+My day job is PowerBI dashboards, data pipelines, enormous Excel files. I love it, but it doesn't scratch the itch of building something I actually want.
+
+That itch started when I became a dad. I realized that comfort and safety means being prepared for anything. Diapers? Check. Band-aids? Check. But the list kept growing: pandemic, blackout, heat wave. My inventory stockpile got larger, things started expiring, so I introduced a kanban-like monitoring system for stock rotation.
+
+Then I came across emergency handbooks, the kind that tell you what to do when things go south. In the US, there's a whole ecosystem of tools. In Europe, this meant mostly PDFs buried on a government website. As a parent, that bothered me. That's how Chroni became a thing.
+
+---
+
+## What did you actually build, and what's under the hood?
+
+[Chroni](https://chroni.eu) is a browser-first emergency preparedness SaaS, multi-language, built for European families who want to be actually ready, not just have a PDF somewhere.
+
+The content foundation is official emergency recommendations. I sourced handbooks from agencies across countries, BBK in Germany, RCB in Poland, and others, and extracted the core: what inventory you need, what emergency scenarios are covered, and how to act when they happen. The tricky part was harmonisation: BBK says one thing about water storage, RCB says something slightly different. I had to find universal best practices while preserving country-specific nuances, critical both for the guides and the inventory templates.
+
+On top of that, I built:
+
+- Emergency guides and quizzes
+- Inventory management with a template of over 90 items, including emergency bag contents
+- A family emergency plan
+- Full multi-language support, currently English, German, and Polish
+
+<Image src={chroniSignup} alt="Chroni's sign up page, a multi-language emergency preparedness SaaS with Google OAuth, built on Wasp and Open SaaS." />
+
+---
+
+## You're a PM, not an engineer. How did you pick a stack, and why Open SaaS?
+
+Being a PM actually helped. I specced things out before touching any tooling, without falling in love with ideas or technology.
+
+What I needed was clear: browser-first SaaS with auth and user management, payments, full-stack without having to stitch frontend, backend, and auth myself, which would have driven me mad before shipping. And it had to be AI-friendly. I used Claude Code throughout.
+
+I looked at a few boilerplates. They felt messy. Then I found Open SaaS and Wasp.
+
+Wasp describes itself as a full-stack React + Node.js + Prisma framework with superpowers. That's accurate, but for me the biggest differentiator was simpler: **it thinks in products, not in files.** And it met every criterion I had.
+
+Open SaaS took it even further. From the first `git clone`, I immediately had:
+
+- **Authentication**, email and Google OAuth out of the box
+- **Stripe integration**, subscription management and webhook handling, done
+- **Admin dashboard** with user management
+- **Landing page**, ready to modify
+- **Transactional email**, configured and ready
+- **Background jobs**, for scheduled reminders, expiration date tracking, anything I'd need later
+
+I didn't have to build any of that. The only task was replacing the demo content with Chroni. That saved me weeks, maybe months, of trial and error.
+
+<VideoPlayer src="/chroni-dashboard.mp4" lgWidth="100%" smWidth="100%" />
+
+---
+
+## Did you consider no-code tools like Lovable or Replit?
+
+I tried both. I just didn't want to argue with a middleman, because that's basically what it is. With Replit or Lovable it felt like I'm writing to an agency, like some sales guy trying to sell me things. Something is happening, and then I can chat with a chatbot that delivers code. I didn't feel like I could really affect anything. With Replit specifically, it hallucinated a lot, created things I didn't ask for, and the end result didn't feel secure.
+
+> *The problem was that I didn't feel like I'm in control of things, I just didn't want to argue with a middleman, because that's basically what it is.*
+
+With Claude Code it's different, I feel like I have a coworker. A junior, probably. But a coworker. Depending on how I phrase what I want to build, with what constraints and guardrails, it will most likely deliver what I wanted.
+
+## Were there specific limitations that pushed you away?
+
+The biggest one was user journey management. I could explain exactly what I needed and in the end get something similar, but not that thing. On top of that, loads of placeholders and phantom pages everywhere. Something that looks nice by the reference but isn't actually there. And role-based access, specific user roles, scoped access, that just wasn't possible, or at least it didn't feel like it was.
+
+There was also a more deliberate reason I stepped away: I didn't want to use no-code tools, because I wanted to learn how to actually operate AI agents on a real project. Wasp with Claude Code kept me in the loop. I understood what was being built and where it lived.
+
+---
+
+## Walk us through how the development actually worked.
+
+My process was probably different from typical. I didn't start with code, I started with documents. Typical PRDs, specs, problem statements. I figured that if a vague prompt produces a vague response, well-structured requirements might produce something I could actually ship.
+
+So the workflow was: define what I wanted to build, talk it through with Claude, brainstorm, expand with more context, review and iterate. The end result was a spec I agreed with and knew was buildable.
+
+With specs done, the next challenge wasn't even code, it was content. Harmonising a dozen emergency handbooks turned out to be a serious data problem I totally underestimated.
+
+On the coding side, Wasp's structure made a real difference for AI-assisted work. Claude Code had a clear pattern to follow, it understood where an action should go, how to define it, how to wire it up. The `.wasp` config file gives the model a map of the entire app. That's not a small thing when context is the precious resource.
+
+> *The mindset of preparing specs before coding means the coding becomes the easy part.*
+
+---
+
+## Where did it actually hurt?
+
+A few places. AI-generated technical debt was real: hardcoded values, placeholders, TODO comments scattered through the codebase. Where my personal discipline fell short, Wasp's structure picked up the slack.
+
+Deployment on Railway was trickier than expected, and honestly that was my bad. At first I tried to deploy with Claude Code, but Claude by default didn't know how to do this correctly, which caused bundling: initial builds were packing everything into a single service instead of separating them properly. Once that part was sorted, the builds still failed frequently for different reasons. What worked for me in the end was a GitHub Actions pipeline: pushes to the production repo trigger consistent builds and deploys. It became a reusable template across projects, though I know now there are even better and easier ways to deploy safely.
+
+Auth pages don't support multi-language out of the box. Chroni is a three-language product, so I had to work around that with CSS, which introduced some UI awkwardness that Claude Code wasn't great at fixing either.
+
+---
+
+## What would you say to another PM or non-engineer considering Wasp?
+
+If you're a PM, a designer, anyone who thinks in products rather than in code, I totally recommend Wasp. Paired with Open SaaS, it makes the whole 0 → 1 journey a lot faster. You can go from idea to deployed SaaS remarkably fast. Not "build a landing page" fast. End-to-end app fast.
+
+> *Wasp's structure makes AI-assisted development actually work. Heck, even I understood what was what.*
+
+Prepare your specs before you write a line of code. The coding becomes the easy part. And lean on Open SaaS, the fact that auth, payments, and the admin dashboard are already there means you spend your time on the one thing only you can build.
+
+---
+
+*Piotr Ciechowicz is a Product Manager and emergency preparedness advocate based in Berlin. You can find Chroni at [chroni.eu](https://chroni.eu).*

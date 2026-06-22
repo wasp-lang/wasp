@@ -1,0 +1,265 @@
+---
+title: Deploying
+banner:
+  content: |
+    Have an Open SaaS app in production? <a href="https://e44cy1h4s0q.typeform.com/to/EPJCwsMi">We'll send you some swag! 👕</a>
+---
+import stripeListenEvents from '@assets/stripe/listen-to-stripe-events.png';
+import npmVersion from '@assets/stripe/npm-version.png';
+import stripeSigningSecret from '@assets/stripe/stripe-webhook-signing-secret.png';
+import { Image } from 'astro:assets';
+
+Because this SaaS app is a React/NodeJS/Postgres app built on top of [Wasp](https://wasp.sh), Open SaaS can take advantage of Wasp's easy, one-command deploy or manual deploy to any provider of your choice.
+
+The simplest and quickest option is to take advantage of Wasp's one-command deploy to Fly.io or Railway.
+
+Or if you prefer to deploy to a different provider, or your frontend and backend separately, you can follow the [Deploying Manually](#deploying-manually) section below.
+
+## Steps for Deploying
+
+These are the steps necessary for you to deploy your app. We recommend you follow these steps in order.
+
+- [ ] Get your [production API keys and environment variables](#prerequisites).
+- [ ] Set your [production environment variables](#other-vars) on your deployed apps.
+- [ ] Add the correct [redirect URL's to your social auth credentials](#adding-server-redirect-urls-to-social-auth).
+- [ ] Set your [production settings for your payment provider](#payment-providers-production-settings).
+- [ ] [Customize SEO and discoverability](#customizing-seo-and-discoverability) (meta tags, JSON-LD, `llms.txt`).
+- [ ] [Deploy your App](#deploying-your-app) through Wasp Deploy commands or [manually](#deploying-manually--to-other-providers) to any provider.
+- [ ] (Optional) [Deploy your blog](#deploying-your-blog).
+
+Each of these steps is covered in more detail below.
+
+## Prerequisites
+### AWS S3 CORS configuration
+If you're storing files in AWS S3, ensure you've listed your production domain
+in the bucket's CORS configuration under `AllowedOrigins`. Check the [File
+uploading guide](/guides/file-uploading/#change-the-cors-settings) for details.
+
+### Env Vars
+Make sure you've got all your API keys and environment variables set up before you deploy.
+#### Payment Processor Vars
+In the [Payments Processor integration guide](/guides/payment-integrations/), you set up your API keys using test keys and test product ids. You'll need to get the live/production versions of those keys. To get these, repeat the instructions in the [Integration Guide](/guides/payment-integrations/) without being in test mode. Add the new keys to your deployed environment secrets.
+
+#### Other Vars
+Many of your other environment variables will probably be the same as in development, but you should double-check that they are set correctly for production.
+
+Here are a list of all of them (some of which you may not be using, e.g. Analytics, Social Auth) in case you need to check:
+##### General Vars
+- [ ] `DATABASE_URL`
+- [ ] `JWT_SECRET`
+- [ ] `WASP_WEB_CLIENT_URL`
+- [ ] `WASP_SERVER_URL`
+
+##### Open AI API Key
+- [ ] `OPENAI_API_KEY`
+
+##### Sendgrid API Key
+- [ ] `SENDGRID_API_KEY`
+
+##### Social Auth Vars
+- [ ] `GOOGLE_CLIENT_ID`
+- [ ] `GOOGLE_CLIENT_SECRET`
+- [ ] `GITHUB_CLIENT_ID`
+- [ ] `GITHUB_CLIENT_SECRET`
+
+##### Analytics Vars
+- [ ] `REACT_APP_PLAUSIBLE_ANALYTICS_ID` (for client-side)
+- [ ] `PLAUSIBLE_API_KEY`
+- [ ] `PLAUSIBLE_SITE_ID`
+- [ ] `PLAUSIBLE_BASE_URL`
+- [ ] `REACT_APP_GOOGLE_ANALYTICS_ID` (for client-side)
+- [ ] `GOOGLE_ANALYTICS_CLIENT_EMAIL`
+- [ ] `GOOGLE_ANALYTICS_PROPERTY_ID` 
+- [ ] `GOOGLE_ANALYTICS_PRIVATE_KEY`
+(Make sure you convert the private key within the JSON file to base64 first with `echo -n "PRIVATE_KEY" | base64`. See the [Analytics docs](/guides/analytics/#google-analytics) for more info)
+
+##### AWS S3 Vars
+- [ ] `AWS_S3_IAM_ACCESS_KEY`
+- [ ] `AWS_S3_IAM_SECRET_KEY`
+- [ ] `AWS_S3_FILES_BUCKET`
+- [ ] `AWS_S3_REGION`
+
+:::tip[Deployed? Get some swag! 👕]
+
+Do you have an Open SaaS app running in production? If yes, we'd love to send some swag your way! All you need to do is fill out [this form](https://e44cy1h4s0q.typeform.com/to/EPJCwsMi) and we'll make it happen.
+
+:::
+
+## Adding Server Redirect URL's to Social Auth
+
+After deploying your server, you need to add the correct redirect URIs to the credential settings. For this, refer to [the guides from the Wasp Docs](https://wasp.sh/docs/auth/social-auth/overview).
+
+## Payment Providers Production Settings
+
+### Stripe
+
+Now you need to set up your stripe webhook for production use. Below are some important steps and considerations you should take as you prepare to deploy your app to production.
+
+#### Stripe API Versions
+
+When you create your Stripe account, Stripe will automatically assign you to their latest API version at that time. This API version is important because it determines the structure of the responses Stripe sends to your webhook, as well as the structure it expects of the requests you make toward the Stripe API.
+  
+Because this template was built with a specific version of the Stripe API in mind, it could be that your Stripe account is set to a different API version. 
+
+:::note
+```ts title="stripeClient.ts" 
+const STRIPE_API_VERSION = "2025-04-30.basil"; // or e.g. 2023-08-16 if using older format
+
+export const stripeClient = new Stripe(env.STRIPE_API_KEY, {
+  apiVersion: STRIPE_API_VERSION,
+});
+```
+When you specify a specific API version in your Stripe client, the requests you send to Stripe from your server, along with their responses, will match that API version. On the other hand, Stripe will send all other events to your webhook that didn't originate as a request sent from your server, like those made after a user completes a payment on checkout, using the default API version of the API.
+
+This is why it's important to make sure your Stripe client version also matches the API version in your Stripe account, and to thoroughly test any changes you make to your Stripe client before deploying to production.
+:::
+
+To make sure your app is consistent with your Stripe account, here are some steps you can follow:
+
+1. You can find your `default` API version in the Stripe dashboard under the [Developers](https://dashboard.stripe.com/developers) section.
+2. Check that the API version in your `/src/payment/stripe/stripeClient.ts` file matches the default API version in your dashboard:
+   ```ts title="stripeClient.ts" {1}
+   const STRIPE_API_VERSION = "2025-04-30.basil"; // or e.g. 2023-08-16 if using older format
+
+   export const stripeClient = new Stripe(env.STRIPE_API_KEY, {
+     apiVersion: STRIPE_API_VERSION,
+   });
+   ```
+3. If they don't match, you can upgrade/downgrade your Stripe NPM package in `package.json` to match the API version in your dashboard:
+  - If your default version on the Stripe dashboard is also the latest version of the API, you can simply upgrade your Stripe NPM package to the latest version.
+  - If your default version on the Stripe dashboard is not the latest version, and you don't want to [upgrade to the latest version](https://docs.stripe.com/upgrades#how-can-i-upgrade-my-api), because e.g. you have other projects that depend on the current version, you can find and install the Stripe NPM package version that matches your default API version by following these steps:
+    - Find and note the date of your default API version in the [developer dashboard](https://dashboard.stripe.com/developers).
+    - Go to the [Stripe NPM package](https://www.npmjs.com/package/stripe) page and hover over `Published` date column until you find the package release that matches your version. For example, here we find the NPM version `13.x.x` matches the API version of `2023-08-16`.
+      <Image src={npmVersion} alt="npm version" loading="lazy" />
+    - Install the correct version of the Stripe NPM package by running:
+      ```sh
+        npm install stripe@x.x.x # e.g. npm install stripe@13.11.0
+      ```
+4. **Test your app thoroughly** to make sure that the changes you made to your Stripe client are working as expected before deploying to production.
+
+
+#### Creating Your Production Webhook
+1. Go to [https://dashboard.stripe.com/webhooks](https://dashboard.stripe.com/webhooks)
+2. Click on `+ add endpoint`
+3. Enter your endpoint url, which will be the url of your deployed server + `/payments-webhook`, e.g. `https://open-saas-wasp-sh-server.fly.dev/payments-webhook`
+   <Image src={stripeListenEvents} alt="listen events" loading="lazy" />
+4. Select the events you want to listen to. These should be the same events you're consuming in your webhook which are handled in [`src/payment/stripe/webhook.ts`](https://github.com/wasp-lang/open-saas/blob/main/template/app/src/payment/stripe/webhook.ts):
+   <Image src={stripeSigningSecret} alt="signing secret" loading="lazy" />
+5. After that, go to the webhook you just created and `reveal` the new signing secret.
+6. Add this secret to your deployed server's `STRIPE_WEBHOOK_SECRET` environment variable. If you've deployed to Fly.io, you can do that easily with the following command:
+   ```sh
+   wasp deploy fly cmd --context server secrets set STRIPE_WEBHOOK_SECRET=whsec_...
+   ```
+
+### Lemon Squeezy 
+
+#### Creating Your Production Webhook
+
+To set up your Lemon Squeezy webhook, you'll need the URL of you newly deployed server + `/payments-webhook`, e.g. `https://open-saas-wasp-sh-server.fly.dev/payments-webhook`. 
+
+With the webhook url ready, go to your [Lemon Squeezy Webhooks Dashboard](https://app.lemonsqueezy.com/settings/webhooks):
+1. Click the `+` button.
+2. Add the webhook forwarding url to the `Callback URL` section.
+3. Give your webhook a signing secret (a long, random string).
+4. Add this signing secret to your server's production environment variables under `LEMONSQUEEZY_WEBHOOK_SECRET`.
+5. Make sure to select at least the following updates to be sent:
+   - `order_created`
+   - `subscription_created`
+   - `subscription_updated`
+   - `subscription_cancelled`
+6. Click `save`.
+
+### Polar
+
+#### Turning off the Sandbox mode
+
+Make sure to turn off the sandbox mode in your server's production environemnt: 
+
+```ini title=".env.server"
+POLAR_SANDBOX_MODE=false
+```
+
+#### Creating Your Production Webhook
+
+To set up your Polar webhook, you'll need the URL of your newly deployed server + `/payments-webhook`, e.g. `https://open-saas-wasp-sh-server.fly.dev/payments-webhook`. 
+
+With the webhook URL ready, in your [Polar Dashboard](https://polar.sh/dashboard):
+1. Navigate to `Settings > Webhooks`.
+2. Click the `Add Endpoint` button.
+3. In the URL field, paste your production forwarding address.
+4. Set the `Format` to `"Raw"`.
+5. Select the following events to listen for:
+   - `order.paid`
+   - `subscription.updated`
+6. Click `Save`.
+7. Copy the generated webhook secret and set it as the `POLAR_WEBHOOK_SECRET` environment variable in production.
+
+## Customizing SEO and Discoverability
+
+Before deploying, make sure your app's meta tags, JSON-LD schema, and `llms.txt` reflect your production URL and content so search engines and AI/LLM tools can index and recommend your app correctly. See the [SEO guide](/guides/seo-performance/) for details.
+
+## Deploying your App
+
+### Deploying to Fly.io
+
+[Fly.io](https://fly.io) is a platform for running your apps globally. It's a great choice for deploying your SaaS app because it's free to get started, can host your entire full-stack app in one place, scales well, and has one-command deploy integration with Wasp.
+
+**Wasp provides the handy `wasp deploy` command to deploy your entire full-stack app (DB, server, and client) in one command.**
+
+To learn how, please follow the detailed guide for [deploying to Fly via the Wasp CLI](https://wasp.sh/docs/deployment/deployment-methods/cli) from the Wasp documentation. We suggest you follow this guide carefully to get your app deployed.
+
+:::caution[Setting Environment Variables]
+Remember, because we've set certain client-side env variables, make sure to pass them to the `wasp deploy` commands so that they can be included in the build: 
+```sh
+REACT_APP_CLIENT_ENV_VAR_1=<...> REACT_APP_CLIENT_ENV_VAR_2=<...> wasp deploy 
+```
+
+The `wasp deploy` command will also take care of setting the following server-side environment variables for you so you don't have to:
+- `DATABASE_URL`
+- `PORT`
+- `JWT_SECRET`
+- `WASP_WEB_CLIENT_URL`
+- `WASP_SERVER_URL`
+
+For setting the remaining server-side environment variables, please refer to the [Deploying with the Wasp CLI Guide](https://wasp.sh/docs/deployment/deployment-methods/cli#launch).
+:::
+
+### Deploying Manually
+
+If you prefer to deploy manually, your frontend and backend separately, or just prefer using your favorite provider you can follow [Wasp's Manual Deployment Guide](https://wasp.sh/docs/deployment/deployment-methods/paas).
+
+:::caution[Client-side Environment Variables]
+Remember to always set additional client-side environment variables, such as `REACT_APP_STRIPE_CUSTOMER_PORTAL` by appending them to the build command, e.g. 
+```sh
+REACT_APP_CLIENT_ENV_VAR_1=<...> npm run build
+```
+:::
+
+## Deploying your Blog
+
+Deploying your Astro Starlight blog is a bit different than deploying your SaaS app. As an example, we will show you how to deploy your blog for free to Netlify. You will need a Netlify account and [Netlify CLI](https://docs.netlify.com/cli/get-started/) installed to follow these instructions.
+
+Make sure you are logged in with Netlify CLI:
+- You can check if you are logged in with `netlify status`.
+- You can log in with `netlify login`.
+
+Position yourself in the `blog` directory and run the following command:
+
+```sh
+npm run build
+```
+
+This will build your blog into the `blog/dist` directory. Now you can deploy your blog to Netlify with the following command:
+
+```sh
+netlify deploy 
+``` 
+
+Select the `dist` directory as the deploy path.
+
+Finally, if the deployment looks good, you can deploy your blog to production with the following command: 
+  
+```sh
+netlify deploy --prod
+```
+

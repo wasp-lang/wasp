@@ -1,0 +1,98 @@
+--- template/app/src/payment/user.ts
++++ opensaas-sh/app/src/payment/user.ts
+@@ -2,7 +2,7 @@
+ import { PrismaClient } from "wasp/server";
+ import { PaymentPlanId, SubscriptionStatus } from "./plans";
+ 
+-export async function fetchUserPaymentProcessorUserId(
++export async function fetchUserStripeId(
+   userId: User["id"],
+   prismaUserDelegate: PrismaClient["user"],
+ ): Promise<string | null> {
+@@ -11,20 +11,20 @@
+       id: userId,
+     },
+     select: {
+-      paymentProcessorUserId: true,
++      stripeId: true,
+     },
+   });
+ 
+-  return user.paymentProcessorUserId;
++  return user.stripeId;
+ }
+ 
+-interface UpdateUserPaymentProcessorUserIdArgs {
++interface UpdateUserStripeIdArgs {
+   userId: User["id"];
+-  paymentProcessorUserId: NonNullable<User["paymentProcessorUserId"]>;
++  stripeId: NonNullable<User["stripeId"]>;
+ }
+ 
+-export function updateUserPaymentProcessorUserId(
+-  { userId, paymentProcessorUserId }: UpdateUserPaymentProcessorUserIdArgs,
++export function updateUserStripeId(
++  { userId, stripeId }: UpdateUserStripeIdArgs,
+   prismaUserDelegate: PrismaClient["user"],
+ ): Promise<User> {
+   return prismaUserDelegate.update({
+@@ -32,13 +32,13 @@
+       id: userId,
+     },
+     data: {
+-      paymentProcessorUserId,
++      stripeId,
+     },
+   });
+ }
+ 
+ interface UpdateUserSubscriptionArgs {
+-  paymentProcessorUserId: NonNullable<User["paymentProcessorUserId"]>;
++  stripeId: NonNullable<User["stripeId"]>;
+   subscriptionStatus: SubscriptionStatus;
+   paymentPlanId?: PaymentPlanId;
+   datePaid?: Date;
+@@ -46,7 +46,7 @@
+ 
+ export function updateUserSubscription(
+   {
+-    paymentProcessorUserId,
++    stripeId,
+     paymentPlanId,
+     subscriptionStatus,
+     datePaid,
+@@ -55,7 +55,7 @@
+ ): Promise<User> {
+   return userDelegate.update({
+     where: {
+-      paymentProcessorUserId,
++      stripeId,
+     },
+     data: {
+       subscriptionPlan: paymentPlanId,
+@@ -66,22 +66,18 @@
+ }
+ 
+ interface UpdateUserCreditsArgs {
+-  paymentProcessorUserId: NonNullable<User["paymentProcessorUserId"]>;
++  stripeId: NonNullable<User["stripeId"]>;
+   numOfCreditsPurchased: number;
+   datePaid: Date;
+ }
+ 
+ export function updateUserCredits(
+-  {
+-    paymentProcessorUserId,
+-    numOfCreditsPurchased,
+-    datePaid,
+-  }: UpdateUserCreditsArgs,
++  { stripeId, numOfCreditsPurchased, datePaid }: UpdateUserCreditsArgs,
+   userDelegate: PrismaClient["user"],
+ ): Promise<User> {
+   return userDelegate.update({
+     where: {
+-      paymentProcessorUserId,
++      stripeId,
+     },
+     data: {
+       credits: { increment: numOfCreditsPurchased },

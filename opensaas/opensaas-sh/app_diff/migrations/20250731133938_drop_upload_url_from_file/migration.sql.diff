@@ -1,0 +1,11 @@
+--- template/app/migrations/20250731133938_drop_upload_url_from_file/migration.sql
++++ opensaas-sh/app/migrations/20250731133938_drop_upload_url_from_file/migration.sql
+@@ -0,0 +1,8 @@
++/*
++  Warnings:
++
++  - You are about to drop the column `uploadUrl` on the `File` table. All the data in the column will be lost.
++
++*/
++-- AlterTable
++ALTER TABLE "File" DROP COLUMN "uploadUrl";

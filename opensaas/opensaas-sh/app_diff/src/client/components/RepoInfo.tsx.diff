@@ -1,0 +1,50 @@
+--- template/app/src/client/components/RepoInfo.tsx
++++ opensaas-sh/app/src/client/components/RepoInfo.tsx
+@@ -0,0 +1,47 @@
++import { useEffect, useState } from "react";
++import { FaGithub } from "react-icons/fa";
++import { Button } from "../../client/components/ui/button";
++import { formatNumber } from "../utils";
++
++export function RepoInfo() {
++  const [repoInfo, setRepoInfo] = useState<null | any>(null);
++  const [isLoading, setIsLoading] = useState(true);
++
++  useEffect(() => {
++    const fetchRepoInfo = async () => {
++      try {
++        setIsLoading(true);
++        const response = await fetch(
++          "https://api.github.com/repos/wasp-lang/open-saas",
++        );
++        const data = await response.json();
++        setRepoInfo(data);
++      } catch (error) {
++        console.error("Error fetching repo info", error);
++      } finally {
++        setIsLoading(false);
++      }
++    };
++    fetchRepoInfo();
++  }, []);
++
++  if (isLoading || !repoInfo) {
++    return null;
++  }
++
++  return (
++    <a
++      href="https://github.com/wasp-lang/open-saas"
++      target="_blank"
++      rel="noopener noreferrer"
++    >
++      <Button variant="ghost" className="h-8 rounded-full py-0 pl-2 pr-3">
++        <FaGithub />
++        <span className="text-sm leading-none">
++          {formatNumber(repoInfo.stargazers_count)}
++        </span>
++      </Button>
++    </a>
++  );
++}
++
