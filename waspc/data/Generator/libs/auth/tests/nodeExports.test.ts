@@ -6,9 +6,12 @@ import {
   loginWithEmail,
   loginWithUsername,
   parseCookies,
+  requestPasswordReset,
+  resetPassword,
   signupWithEmail,
   signupWithUsername,
   TimeSpan,
+  verifyEmail,
   verifyPassword,
 } from "../src/node";
 
@@ -21,6 +24,9 @@ describe("node exports", () => {
     expect(AuthServiceError).toEqual(expect.any(Function));
     expect(signupWithEmail).toEqual(expect.any(Function));
     expect(loginWithEmail).toEqual(expect.any(Function));
+    expect(requestPasswordReset).toEqual(expect.any(Function));
+    expect(resetPassword).toEqual(expect.any(Function));
+    expect(verifyEmail).toEqual(expect.any(Function));
     expect(signupWithUsername).toEqual(expect.any(Function));
     expect(loginWithUsername).toEqual(expect.any(Function));
   });

@@ -223,6 +223,10 @@ export function rethrowPossibleAuthServiceError(e: unknown): void {
     throw createInvalidCredentialsError()
   }
 
+  if (e instanceof AuthServiceError && e.code === 'invalid-token') {
+    throw new HttpError(400, String(e.metadata.responseMessage ?? e.message))
+  }
+
   if (e instanceof AuthServiceError && e.code === 'email-resend-too-soon') {
     throw new HttpError(400, e.message)
   }

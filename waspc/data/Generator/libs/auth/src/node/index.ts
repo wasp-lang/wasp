@@ -61,13 +61,25 @@ export {
 
 export {
   loginWithEmail,
+  requestPasswordReset,
+  resetPassword,
   signupWithEmail,
+  verifyEmail,
   type EmailAuthLoginResult,
   type EmailLoginAdapters,
   type EmailLoginArgs,
+  type EmailPasswordResetAdapters,
+  type EmailPasswordResetArgs,
+  type EmailPasswordResetRequestAdapters,
+  type EmailPasswordResetRequestArgs,
+  type EmailPasswordResetRequestResult,
+  type EmailPasswordResetResult,
   type EmailSignupAdapters,
   type EmailSignupArgs,
   type EmailSignupResult,
+  type EmailVerificationAdapters,
+  type EmailVerificationArgs,
+  type EmailVerificationResult,
 } from "./emailAuth";
 
 export {

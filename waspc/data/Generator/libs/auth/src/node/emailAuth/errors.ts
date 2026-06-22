@@ -12,14 +12,25 @@ export function throwEmailResendTooSoon(timeLeft: number): never {
   );
 }
 
-export function throwEmailDeliveryFailed(cause: unknown): never {
-  throw new AuthServiceError(
-    "email-delivery-failed",
-    "Failed to send email verification email.",
-    {
-      cause,
-      logMessage: "Failed to send email verification email:",
-      responseMessage: "Failed to send email verification email.",
-    },
-  );
+export function throwInvalidToken(message: string): never {
+  throw new AuthServiceError("invalid-token", message, {
+    responseMessage: message,
+  });
+}
+
+export function throwEmailDeliveryFailed(
+  cause: unknown,
+  {
+    logMessage = "Failed to send email verification email:",
+    responseMessage = "Failed to send email verification email.",
+  }: {
+    logMessage?: string;
+    responseMessage?: string;
+  } = {},
+): never {
+  throw new AuthServiceError("email-delivery-failed", responseMessage, {
+    cause,
+    logMessage,
+    responseMessage,
+  });
 }
