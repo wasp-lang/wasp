@@ -2,12 +2,11 @@ module Wasp.Cli.Command.Call where
 
 data Call
   = New Arguments
-  | NewAi Arguments
   | Start
   | StartDb Arguments
   | Clean
+  | Install
   | Uninstall
-  | TsSetup
   | Compile
   | Db Arguments -- db args
   | Build

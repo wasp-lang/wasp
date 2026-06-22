@@ -9,8 +9,10 @@ export type OperationRoute = { method: HttpMethod.Post, path: string }
 export async function callOperation(operationRoute: OperationRoute, args: any) {
   try {
     const serializedArgs = serialize(args)
-    const response = await api.post(operationRoute.path, serializedArgs)
-    return deserialize(response.data)
+    const json = await api.post(operationRoute.path, {
+      json: serializedArgs,
+    }).json()
+    return deserialize(json as any)
   } catch (error) {
     throw handleApiError(error)
   }

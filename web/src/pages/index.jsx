@@ -1,7 +1,7 @@
 import Head from "@docusaurus/Head";
 import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
 
-import ExampleWaspApps from "../components/ExampleWaspApps";
+import AI from "../components/AI";
 import Faq from "../components/Faq.jsx";
 import FeaturesExplorer from "../components/FeaturesExplorer";
 import Footer from "../components/Footer";
@@ -9,10 +9,10 @@ import Hero from "../components/Hero";
 import HowItWorks from "../components/HowItWorks";
 import Nav from "../components/Nav/index";
 import Newsletter from "../components/Newsletter";
+import Philosophy from "../components/Philosophy";
 import Properties from "../components/Properties";
 import Roadmap from "../components/Roadmap";
-import ShowcaseGallery from "../components/ShowcaseGallery";
-import Testimonials from "../components/Testimonials";
+import WaspOutThere from "../components/WaspOutThere";
 
 import waspCoverPhoto from "../../static/img/wasp_twitter_cover.png";
 import "./index.css";
@@ -51,10 +51,10 @@ const Index = () => {
             <Hero />
             <Properties />
             <FeaturesExplorer />
+            <AI />
             <HowItWorks />
-            <ExampleWaspApps />
-            <Testimonials />
-            <ShowcaseGallery />
+            <WaspOutThere />
+            <Philosophy />
             <Newsletter />
             <Roadmap />
             <Faq />

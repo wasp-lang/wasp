@@ -1,8 +1,8 @@
-import { github, loadTime } from "wasp/server/jobs";
+import { measureLoadTime, refreshGitHubRepoData } from "wasp/server/jobs";
 
 export default async function () {
-  await github.submit();
-  await loadTime.submit({
+  await refreshGitHubRepoData.submit();
+  await measureLoadTime.submit({
     url: "https://wasp.sh",
     name: "wasp.sh Load Time",
   });

@@ -27,7 +27,7 @@ import Wasp.JsImport
   ( JsImportName (..),
     JsImportPath (RelativeImportPath),
     getJsImportStmtAndIdentifier,
-    makeJsImport,
+    makeValueJsImport,
   )
 import qualified Wasp.Util as U
 
@@ -69,7 +69,7 @@ genOperationRoute operation tmplFile = return $ C.mkTmplFdWithDstAndData tmplFil
 
     (operationImportStmt, operationImportIdentifier) =
       getJsImportStmtAndIdentifier $
-        makeJsImport (RelativeImportPath operationImportPath) (JsImportModule operationName)
+        makeValueJsImport (RelativeImportPath operationImportPath) (JsImportModule operationName)
 
     pathToOperationFile =
       relPosixPathFromOperationsRoutesDirToSrcDir
@@ -114,7 +114,7 @@ genOperationsRouter spec
     makeOperationRoute operation =
       let operationName = AS.Operation.getName operation
           importPath = fromJust $ SP.relFileToPosix $ SP.castRel $ operationRouteFileInOperationsRoutesDir operation
-          (importStmt, importIdentifier) = getJsImportStmtAndIdentifier $ makeJsImport (RelativeImportPath importPath) (JsImportModule operationName)
+          (importStmt, importIdentifier) = getJsImportStmtAndIdentifier $ makeValueJsImport (RelativeImportPath importPath) (JsImportModule operationName)
        in object
             [ "importIdentifier" .= importIdentifier,
               "importStatement" .= importStmt,

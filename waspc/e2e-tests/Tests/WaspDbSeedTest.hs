@@ -2,8 +2,9 @@ module Tests.WaspDbSeedTest (waspDbSeedTest) where
 
 import qualified Data.Text as T
 import NeatInterpolation (trimming)
-import ShellCommands (ShellCommand, WaspNewTemplate (..), appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
+import ShellCommands (ShellCommand, appendToPrismaFile, createSeedFile, createTestWaspProject, inTestWaspProjectDir, replaceMainWaspTsFile, waspCliCompile, waspCliDbMigrateDev, waspCliDbSeed)
 import Test (Test (..), TestCase (..))
+import Wasp.Cli.Command.CreateNewProject.AvailableTemplates (minimalStarterTemplate)
 import Wasp.Version (waspVersion)
 
 waspDbSeedTest :: Test
@@ -26,7 +27,7 @@ waspDbSeedTest =
       TestCase
         "succeed-seed-database"
         ( sequence
-            [ createTestWaspProject Minimal,
+            [ createTestWaspProject minimalStarterTemplate,
               inTestWaspProjectDir
                 [ waspCliCompile,
                   appendToPrismaFile taskPrismaModel,
@@ -40,7 +41,7 @@ waspDbSeedTest =
                   createSeedFile
                     (T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName <> ".ts")
                     seedScriptThatAssertsTasksTableIsNotEmpty,
-                  replaceMainWaspFile mainWaspWithSeeds,
+                  replaceMainWaspTsFile mainWaspTsWithSeeds,
                   waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsEmptyName,
                   waspCliDbSeed $ T.unpack seedScriptThatPopulatesTasksTableName,
                   waspCliDbSeed $ T.unpack seedScriptThatAssertsTasksTableIsNotEmptyName
@@ -62,29 +63,31 @@ waspDbSeedTest =
         }
       |]
 
-    mainWaspWithSeeds :: T.Text
-    mainWaspWithSeeds =
+    mainWaspTsWithSeeds :: T.Text
+    mainWaspTsWithSeeds =
       [trimming|
-        app waspApp {
-          wasp: {
-            version: "^$textWaspVersion"
-          },
-          title: "wasp-app",
-          head: [
-            "<link rel='icon' href='/favicon.ico' />",
-          ],
+        import { app, page, route } from "@wasp.sh/spec";
+        import { MainPage } from "./src/MainPage" with { type: "ref" };
+        import { $seedScriptThatPopulatesTasksTableName } from "./src/db/$seedScriptThatPopulatesTasksTableName" with { type: "ref" };
+        import { $seedScriptThatAssertsTasksTableIsEmptyName } from "./src/db/$seedScriptThatAssertsTasksTableIsEmptyName" with { type: "ref" };
+        import { $seedScriptThatAssertsTasksTableIsNotEmptyName } from "./src/db/$seedScriptThatAssertsTasksTableIsNotEmptyName" with { type: "ref" };
+
+        export default app({
+          name: "waspDbSeedTest",
+          title: "waspDbSeedTest",
+          wasp: { version: "$textWaspVersion" },
+          head: ["<link rel='icon' href='/favicon.ico' />"],
           db: {
             seeds: [
-              import { $seedScriptThatPopulatesTasksTableName } from "@src/db/$seedScriptThatPopulatesTasksTableName",
-              import { $seedScriptThatAssertsTasksTableIsEmptyName } from "@src/db/$seedScriptThatAssertsTasksTableIsEmptyName",
-              import { $seedScriptThatAssertsTasksTableIsNotEmptyName } from "@src/db/$seedScriptThatAssertsTasksTableIsNotEmptyName"
+              $seedScriptThatPopulatesTasksTableName,
+              $seedScriptThatAssertsTasksTableIsEmptyName,
+              $seedScriptThatAssertsTasksTableIsNotEmptyName
             ]
           },
-        }
-        route RootRoute { path: "/", to: MainPage }
-        page MainPage {
-          component: import { MainPage } from "@src/MainPage"
-        }
+          spec: [
+            route("RootRoute", "/", page(MainPage)),
+          ]
+        })
       |]
 
     seedScriptThatPopulatesTasksTableName :: T.Text

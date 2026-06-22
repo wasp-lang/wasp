@@ -5,7 +5,7 @@ import { hydrateRoot } from "react-dom/client";
 import { useRouteError, createBrowserRouter } from "react-router";
 import { RouterProvider } from "react-router/dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import axios from "axios";
+import ky from "ky";
 import * as z from "zod";
 import mitt from "mitt";
 import "superjson";
@@ -53,11 +53,7 @@ function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntry
       /* @__PURE__ */ jsx("meta", { charSet: "utf-8" }),
       /* @__PURE__ */ jsx("meta", { name: "viewport", content: "minimum-scale=1, initial-scale=1, width=device-width, shrink-to-fit=no" }),
       /* @__PURE__ */ jsx("link", { rel: "icon", href: "/favicon.ico" }),
-      /* @__PURE__ */ jsx("title", { children: "wasp-app" })
-    ] }),
-    /* @__PURE__ */ jsxs("body", { children: [
-      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
-      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null }),
+      /* @__PURE__ */ jsx("title", { children: "wasp-app" }),
       // We pass that argument in SSR builds and not in client builds.
       // This would usually cause a hydration mismatch, but React has an
       // exception for `<script>` tags, for this specific usecase, so it
@@ -69,15 +65,12 @@ function Layout({ children, isFallbackPage: isFallbackPage2 = false, clientEntry
         // we just add the script ourselves in the regular way.
         //
         // https://react.dev/reference/react-dom/static/prerenderToNodeStream
-        /* @__PURE__ */ jsx(
-          "script",
-          {
-            type: "module",
-            src: clientEntrySrc,
-            async: true
-          }
-        )
+        /* @__PURE__ */ jsx("script", { type: "module", src: clientEntrySrc })
       ) : null
+    ] }),
+    /* @__PURE__ */ jsxs("body", { children: [
+      /* @__PURE__ */ jsx("noscript", { children: "You need to enable JavaScript to run this app." }),
+      /* @__PURE__ */ jsx("div", { id: "root", children: shouldRenderChildren ? children : null })
     ] })
   ] }) });
 }
@@ -149,12 +142,13 @@ z.object({
 const waspProdClientEnvSchema = z.object({
   "REACT_APP_API_URL": serverUrlSchema
 });
-function getClientEnvSchema(mode) {
-  const waspClientEnvSchema = waspProdClientEnvSchema;
-  return z.object({ ...userClientEnvSchema.shape, ...waspClientEnvSchema.shape });
-}
+const waspClientEnvSchema = waspProdClientEnvSchema;
+const clientEnvSchema = z.object({
+  ...userClientEnvSchema.shape,
+  ...waspClientEnvSchema.shape
+});
 const __vite_import_meta_env__ = { "BASE_URL": "/", "DEV": false, "MODE": "production", "PROD": true, "REACT_APP_API_URL": "http://localhost:3001", "SSR": false };
-const env = ensureEnvSchema(__vite_import_meta_env__, getClientEnvSchema());
+const env = ensureEnvSchema(__vite_import_meta_env__, clientEnvSchema);
 const apiUrl = stripTrailingSlash(env["REACT_APP_API_URL"]);
 const config = {
   apiUrl
@@ -222,9 +216,6 @@ function createLocalStorageDataStore(prefix) {
   };
 }
 const apiEventsEmitter = mitt();
-const api = axios.create({
-  baseURL: config.apiUrl
-});
 const WASP_APP_AUTH_SESSION_ID_NAME = "sessionId";
 function getSessionId() {
   const sessionId = storage.get(WASP_APP_AUTH_SESSION_ID_NAME);
@@ -234,20 +225,29 @@ function clearSessionId() {
   storage.remove(WASP_APP_AUTH_SESSION_ID_NAME);
   apiEventsEmitter.emit("sessionId.clear");
 }
-api.interceptors.request.use((config2) => {
-  const sessionId = getSessionId();
-  if (sessionId !== null) {
-    config2.headers["Authorization"] = `Bearer ${sessionId}`;
+ky.extend({
+  prefix: config.apiUrl,
+  hooks: {
+    beforeRequest: [
+      ({ request }) => {
+        const sessionId = getSessionId();
+        if (sessionId !== null) {
+          request.headers.set("Authorization", `Bearer ${sessionId}`);
+        }
+      }
+    ],
+    afterResponse: [
+      ({ request, response }) => {
+        if (response.status === 401) {
+          const failingSessionId = getSessionIdFromAuthorizationHeader(request.headers.get("Authorization"));
+          const currentSessionId = getSessionId();
+          if (failingSessionId === currentSessionId) {
+            clearSessionId();
+          }
+        }
+      }
+    ]
   }
-  return config2;
-});
-api.interceptors.response.use(void 0, (error) => {
-  const failingSessionId = getSessionIdFromAuthorizationHeader(error.config.headers["Authorization"]);
-  const currentSessionId = getSessionId();
-  if (error.response?.status === 401 && failingSessionId === currentSessionId) {
-    clearSessionId();
-  }
-  return Promise.reject(error);
 });
 if (typeof window !== "undefined") {
   window.addEventListener("storage", (event) => {

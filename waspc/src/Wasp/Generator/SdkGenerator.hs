@@ -33,10 +33,10 @@ import Wasp.Generator.Common
 import Wasp.Generator.DbGenerator (getEntitiesForPrismaSchema)
 import qualified Wasp.Generator.DbGenerator.Auth as DbAuth
 import Wasp.Generator.DepVersions
-  ( axiosVersionRange,
-    dotenvVersionRange,
+  ( dotenvVersionRange,
     expressTypesVersionRange,
     expressVersionRange,
+    kyVersionRange,
     prismaVersionRange,
     reactDomTypesVersionRange,
     reactDomVersionRange,
@@ -198,10 +198,10 @@ npmDepsForSdk spec =
         Npm.Dependency.fromList
           [ ("@prisma/client", show prismaVersionRange),
             ("prisma", show prismaVersionRange),
-            ("axios", show axiosVersionRange),
             ("dotenv", show dotenvVersionRange),
             ("dotenv-expand", "^12.0.3"),
             ("express", show expressVersionRange),
+            ("ky", show kyVersionRange),
             ("mitt", "3.0.0"),
             ("react", show reactVersionRange),
             ("react-dom", show reactDomVersionRange),
@@ -246,8 +246,7 @@ npmDepsForSdk spec =
 depsRequiredForTesting :: [Npm.Dependency.Dependency]
 depsRequiredForTesting =
   Npm.Dependency.fromList
-    [ ("vitest", "^4.0.16"),
-      ("@vitest/ui", "^4.0.16"),
+    [ ("@vitest/ui", "^4.0.16"),
       ("jsdom", "^27.4.0"),
       ("@testing-library/react", "^16.3.1"),
       ("@testing-library/jest-dom", "^6.9.1"),

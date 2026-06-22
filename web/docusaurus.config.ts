@@ -1,11 +1,14 @@
 import type * as Preset from "@docusaurus/preset-classic";
 import type { Config, DocusaurusConfig } from "@docusaurus/types";
 import { themes } from "prism-react-renderer";
+import { getRedirects } from "./redirects";
 import { SCRIPT_WITH_CONSENT_TYPE } from "./src/lib/cookie-consent";
+import cloudflareRedirects from "./src/plugins/cloudflare-redirects";
 import autoImportTabs from "./src/remark/auto-import-tabs";
 import autoJSCode from "./src/remark/auto-js-code";
 import codeWithHole from "./src/remark/code-with-hole";
 import fileExtSwitcher from "./src/remark/file-ext-switcher";
+import fixAPILinks from "./src/remark/fix-api-links";
 import searchAndReplace from "./src/remark/search-and-replace";
 
 const lightCodeTheme = {
@@ -35,7 +38,6 @@ const config: Config = {
   trailingSlash: false,
   onBrokenLinks: "throw",
   onBrokenAnchors: "throw",
-  onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.svg",
   themeConfig: {
     colorMode: {
@@ -81,6 +83,12 @@ const config: Config = {
           sidebarId: "docs",
           label: "Docs",
           className: "navbar-item-docs navbar-item-outside",
+        },
+        {
+          type: "docSidebar",
+          position: "left",
+          sidebarId: "api",
+          label: "API",
         },
         {
           type: "docSidebar",
@@ -193,6 +201,7 @@ const config: Config = {
             fileExtSwitcher,
             searchAndReplace,
             codeWithHole,
+            fixAPILinks,
           ],
 
           // ------ Configuration for multiple docs versions ------ //
@@ -260,6 +269,12 @@ const config: Config = {
   plugins: [
     "plugin-image-zoom",
 
+    cloudflareRedirects({
+      redirects: getRedirects({
+        redirectCurrentVersionToCanonical: !includeCurrentVersion,
+      }),
+    }),
+
     [
       "@docusaurus/plugin-content-blog",
       {
@@ -279,7 +294,7 @@ const config: Config = {
       },
     ],
 
-    async function myPlugin(context, options) {
+    async function tailwindPlugin(context, options) {
       return {
         name: "docusaurus-tailwindcss",
         configurePostCss(postcssOptions) {
@@ -290,10 +305,42 @@ const config: Config = {
         },
       };
     },
+
+    [
+      "docusaurus-plugin-typedoc",
+      {
+        // docusaurus-plugin-typedoc options
+        sidebar: { typescript: true },
+
+        // typedoc-plugin-markdown options
+        readme: "none", // Otherwise it will copy the `<repo>/README.md` file to the docs, which we don't want.
+        alwaysCreateEntryPointModule: true, // Otherwise it will put all of the exports of the packages into a single pool instead of per-package.
+
+        // input packages
+        entryPointStrategy: "packages",
+        entryPoints: ["../waspc/data/packages/spec"],
+
+        // If you want to set an option to a specific package, you can create a
+        // `typedoc.jsonc` file in that package's folder with the desired
+        // options from
+        // https://typedoc.org/documents/Options.Package_Options.html.
+      },
+    ],
   ],
   themes: ["@docusaurus/theme-mermaid"],
   markdown: {
     mermaid: true,
+    mdx1Compat: {
+      admonitions: true,
+      comments: true,
+      headingIds: true,
+    },
+    hooks: {
+      onBrokenMarkdownLinks: "warn",
+    },
+  },
+  future: {
+    v4: true,
   },
 };
 

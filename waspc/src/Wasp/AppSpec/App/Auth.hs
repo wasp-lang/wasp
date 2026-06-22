@@ -2,7 +2,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE OverloadedRecordDot #-}
 
 module Wasp.AppSpec.App.Auth
   ( Auth (..),
@@ -38,7 +37,6 @@ import Wasp.AppSpec.ExtImport (ExtImport)
 
 data Auth = Auth
   { userEntity :: Ref Entity,
-    externalAuthEntity :: Maybe (Ref Entity),
     methods :: AuthMethods,
     onAuthFailedRedirectTo :: String,
     onAuthSucceededRedirectTo :: Maybe String,

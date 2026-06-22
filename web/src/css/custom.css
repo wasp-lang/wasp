@@ -27,8 +27,16 @@
 
 :root {
   --wasp-y: #f5c842;
+  --wasp-sl: "#f8d670";
+  --wasp-ql: "#fce59e";
   --wasp-yl: #fff3cc;
   --wasp-yd: #d4a930;
+  --wasp-p: #7b42f5;
+  --wasp-psl: #a172f8;
+  --wasp-pql: #c2a2fb;
+  --wasp-pl: #e0ccff;
+  --wasp-pd: #5a30d4;
+  --wasp-code-bg-pd: #292435;
   --wasp-k: #111;
   --wasp-g7: #333;
   --wasp-g6: #555;
@@ -392,6 +400,7 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
   --ifm-font-family-base: "IBM Plex Sans", sans-serif;
   --ifm-heading-font-family: "IBM Plex Mono", monospace;
   --ifm-color-primary: #bf9900;
+  /* TODO: update colors below with new design (#f5c842) */
   /* wasp color (ffcc00) darkened by 25% */
   --ifm-color-primary-dark: #8a6f04;
   --ifm-color-primary-darker: rgb(31, 165, 136);
@@ -432,6 +441,12 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 
 :root[data-theme="dark"] {
   --custom-background-color-diff: #2a2a2a;
+
+  /* Dark page background. Without this, the `--ifm-background-color` set
+     in the light `:root` block leaks into dark mode (it overrides Infima's own
+     dark default), leaving the content and navbar light. */
+  --ifm-background-color: #1a1a1a;
+  --ifm-navbar-background-color: #1a1a1a;
 
   /* Blog */
   --custom-blog-list-background-color: var(--ifm-background-color);
@@ -521,6 +536,47 @@ html.blog-wrapper[data-theme="dark"] .markdown blockquote {
 }
 
 /******************************/
+
+/****** WASP-STYLED SCROLLBAR *******/
+.wasp-scrollbar {
+  &::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--wasp-k);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--wasp-y);
+    border-radius: 0;
+    border: 2px solid var(--wasp-k);
+
+    &:hover {
+      background: var(--wasp-yd);
+    }
+  }
+
+  /* No up/down (or left/right) arrow buttons. */
+  &::-webkit-scrollbar-button {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-corner {
+    background: var(--wasp-k);
+  }
+}
+/* For browsers that don't support ::-webkit-scrollbar (e.g. Firefox),
+   use the simpler scrollbar-* properties. */
+@supports not selector(::-webkit-scrollbar) {
+  .wasp-scrollbar {
+    scrollbar-color: var(--wasp-k) var(--wasp-y);
+  }
+}
+/************************************/
 
 /****** WASP-STYLED SCROLLBAR *******/
 .wasp-scrollbar {

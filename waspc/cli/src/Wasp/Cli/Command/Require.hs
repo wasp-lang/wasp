@@ -24,6 +24,7 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
+    WaspSpecAvailable (WaspSpecAvailable),
     GeneratedAppIsProduction (GeneratedAppIsProduction),
     GeneratedAppIsDevelopment (GeneratedAppIsDevelopment),
     DbConnectionEstablished (DbConnectionEstablished),
@@ -44,9 +45,13 @@ import Wasp.Cli.Command (Command, CommandError (CommandError), Requirable (check
 import Wasp.Generator.Common (GeneratedAppDir)
 import Wasp.Generator.DbGenerator.Operations (isDbConnectionPossible, testDbConnection)
 import qualified Wasp.Generator.WaspInfo as WaspInfo
+import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInstalledPackageVersion)
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
+import Wasp.Project.WaspFile (isWaspTsProject)
+import Wasp.Util.Terminal (styleCode)
+import qualified Wasp.Version as WV
 
 -- | Require a Wasp project to exist near the current directory. Get the
 -- project directory by pattern matching on the result of 'require':
@@ -83,6 +88,29 @@ instance Requirable InWaspProject where
           ( "Couldn't find wasp project root - make sure"
               ++ " you are running this command from a Wasp project."
           )
+
+-- | Require that the @wasp.sh/spec package is available in node_modules and that
+-- its version matches this CLI's version (for TS projects). For DSL projects,
+-- this check always passes.
+data WaspSpecAvailable = WaspSpecAvailable deriving (Typeable)
+
+instance Requirable WaspSpecAvailable where
+  checkRequirement = do
+    InWaspProject waspProjectDir <- require
+    isTsProject <- liftIO $ isWaspTsProject waspProjectDir
+    when isTsProject $ ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
+    return WaspSpecAvailable
+    where
+      ensureInstalledWaspSpecMatchesCliVersion waspProjectDir =
+        liftIO (tryGettingInstalledPackageVersion waspProjectDir WaspSpecPackage) >>= \case
+          Left _ -> throwError missingDepsError
+          Right installedWaspSpecVersion
+            | installedWaspSpecVersion == WV.waspVersion -> return ()
+            | otherwise -> throwError missingDepsError
+      missingDepsError =
+        CommandError
+          "Missing or stale dependencies in project"
+          $ "Your project dependencies are out of date. Run " ++ styleCode "wasp install" ++ " to fix this."
 
 data DbConnectionEstablished = DbConnectionEstablished deriving (Typeable)
 

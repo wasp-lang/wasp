@@ -9,6 +9,7 @@ module Wasp.Project.Common
     WaspFilePath (..),
     WaspLangFile,
     WaspTsFile,
+    mainWaspTsFileInWaspProjectDir,
     findFileInWaspProjectDir,
     dotWaspDirInWaspProjectDir,
     generatedAppDirInDotWaspDir,
@@ -20,9 +21,12 @@ module Wasp.Project.Common
     nodeModulesDirInWaspProjectDir,
     srcDirInWaspProjectDir,
     prismaSchemaFileInWaspProjectDir,
-    getSrcTsConfigInWaspProjectDir,
-    srcTsConfigInWaspLangProject,
-    srcTsConfigInWaspTsProject,
+    getTsConfigPathsForWaspProject,
+    tsConfigPathsInWaspLangProjects,
+    tsConfigPathsInWaspTsProjects,
+    TsConfigPaths (..),
+    WaspTsConfigFile,
+    RootTsConfigFile,
     waspProjectDirFromGeneratedAppComponentDir,
     generatedAppDirInWaspProjectDir,
     makeAppUniqueId,
@@ -53,10 +57,6 @@ data UserPackageJsonFile
 
 instance PackageJsonFile UserPackageJsonFile
 
-data SrcTsConfigFile
-
-instance TsConfigFile SrcTsConfigFile
-
 data WaspFilePath
   = WaspLang !(Path' Abs (File WaspLangFile))
   | WaspTs !(Path' Abs (File WaspTsFile))
@@ -64,6 +64,27 @@ data WaspFilePath
 data WaspLangFile
 
 data WaspTsFile
+
+mainWaspTsFileInWaspProjectDir :: Path' (Rel WaspProjectDir) (File WaspTsFile)
+mainWaspTsFileInWaspProjectDir = [relfile|main.wasp.ts|]
+
+data SrcTsConfigFile
+
+instance TsConfigFile SrcTsConfigFile
+
+data WaspTsConfigFile
+
+instance TsConfigFile WaspTsConfigFile
+
+data RootTsConfigFile
+
+instance TsConfigFile RootTsConfigFile
+
+data TsConfigPaths = TsConfigPaths
+  { srcTsConfig :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile),
+    waspTsConfig :: Maybe (Path' (Rel WaspProjectDir) (File WaspTsConfigFile)),
+    rootTsConfig :: Maybe (Path' (Rel WaspProjectDir) (File RootTsConfigFile))
+  }
 
 -- TODO: SHould this be renamed to include word "root"?
 dotWaspDirInWaspProjectDir :: Path' (Rel WaspProjectDir) (Dir DotWaspDir)
@@ -96,16 +117,26 @@ dotWaspInfoFileInGeneratedAppDir = [relfile|.waspinfo|]
 userPackageJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) (File UserPackageJsonFile)
 userPackageJsonInWaspProjectDir = [relfile|package.json|]
 
-getSrcTsConfigInWaspProjectDir :: WaspFilePath -> Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
-getSrcTsConfigInWaspProjectDir = \case
-  WaspTs _ -> srcTsConfigInWaspTsProject
-  WaspLang _ -> srcTsConfigInWaspLangProject
+getTsConfigPathsForWaspProject :: WaspFilePath -> TsConfigPaths
+getTsConfigPathsForWaspProject = \case
+  WaspTs _ -> tsConfigPathsInWaspTsProjects
+  WaspLang _ -> tsConfigPathsInWaspLangProjects
 
-srcTsConfigInWaspLangProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
-srcTsConfigInWaspLangProject = [relfile|tsconfig.json|]
+tsConfigPathsInWaspTsProjects :: TsConfigPaths
+tsConfigPathsInWaspTsProjects =
+  TsConfigPaths
+    { srcTsConfig = [relfile|tsconfig.src.json|],
+      rootTsConfig = Just [relfile|tsconfig.json|],
+      waspTsConfig = Just [relfile|tsconfig.wasp.json|]
+    }
 
-srcTsConfigInWaspTsProject :: Path' (Rel WaspProjectDir) (File SrcTsConfigFile)
-srcTsConfigInWaspTsProject = [relfile|tsconfig.src.json|]
+tsConfigPathsInWaspLangProjects :: TsConfigPaths
+tsConfigPathsInWaspLangProjects =
+  TsConfigPaths
+    { srcTsConfig = [relfile|tsconfig.json|],
+      rootTsConfig = Nothing,
+      waspTsConfig = Nothing
+    }
 
 packageLockJsonInWaspProjectDir :: Path' (Rel WaspProjectDir) File'
 packageLockJsonInWaspProjectDir = [relfile|package-lock.json|]

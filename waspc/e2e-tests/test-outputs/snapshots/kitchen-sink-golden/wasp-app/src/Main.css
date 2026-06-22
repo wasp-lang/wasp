@@ -3,18 +3,20 @@
 @plugin "@tailwindcss/forms";
 @plugin "@tailwindcss/typography";
 
+/* Created using https://www.tints.dev */
+/* Defaults settings, #f5c842 locked at 500 */
 @theme {
-  --color-primary-50: #fffee7;
-  --color-primary-100: #fffec1;
-  --color-primary-200: #fff886;
-  --color-primary-300: #ffec41;
-  --color-primary-400: #ffdb0d;
-  --color-primary-500: #ffcc00;
-  --color-primary-600: #d19500;
-  --color-primary-700: #a66a02;
-  --color-primary-800: #89530a;
-  --color-primary-900: #74430f;
-  --color-primary-950: #442304;
+  --color-primary-50: #fef9ef;
+  --color-primary-100: #fef2df;
+  --color-primary-200: #fde9c3;
+  --color-primary-300: #fcdc97;
+  --color-primary-400: #fcd26a;
+  --color-primary-500: #f5c842;
+  --color-primary-600: #c09c32;
+  --color-primary-700: #8c7122;
+  --color-primary-800: #5e4b13;
+  --color-primary-900: #322706;
+  --color-primary-950: #1e1703;
 }
 
 @utility link {

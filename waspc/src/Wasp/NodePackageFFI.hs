@@ -1,5 +1,3 @@
-{-# LANGUAGE DeriveAnyClass #-}
-
 module Wasp.NodePackageFFI
   ( -- * Node Package FFI
 
@@ -10,12 +8,16 @@ module Wasp.NodePackageFFI
     InstallablePackage (..),
     getInstallablePackageName,
     getPackageJsonSpecifierForPackage,
+    tryGettingInstalledPackageVersion,
     ensurePackageIsAtInstallationPathInProject,
     getInstallablePackageScriptInProject,
   )
 where
 
+import Control.Monad.Except (ExceptT (ExceptT), runExceptT, throwError)
 import Control.Monad.Extra (unlessM)
+import Control.Monad.IO.Class (liftIO)
+import Data.Bifunctor (first)
 import Data.Maybe (fromJust)
 import StrongPath
   ( Abs,
@@ -24,7 +26,9 @@ import StrongPath
     File',
     Path',
     Rel,
+    castDir,
     castFile,
+    castRel,
     fromAbsDir,
     fromAbsFile,
     fromRelDir,
@@ -38,8 +42,10 @@ import System.IO (hPutStrLn, stderr)
 import qualified System.Process as P
 import Wasp.Data (DataDir)
 import qualified Wasp.Data as Data
+import qualified Wasp.ExternalConfig.Npm.PackageJson as PJ
 import qualified Wasp.Node.Version as NodeVersion
-import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir)
+import Wasp.Project.Common (WaspProjectDir, dotWaspDirInWaspProjectDir, nodeModulesDirInWaspProjectDir)
+import qualified Wasp.SemanticVersion as SV
 import qualified Wasp.Util.IO as IOUtil
 
 -- | These are the globally installed packages waspc runs directly from
@@ -60,7 +66,7 @@ data RunnablePackage
 -- | These are globally installed packages waspc copies into a location inside
 -- the user's project and then installs using `npm`'s file specifiers. They are
 -- used/run from inside the project's node_modules.
-data InstallablePackage = WaspConfigPackage
+data InstallablePackage = WaspSpecPackage
 
 data PackagesDir
 
@@ -79,8 +85,8 @@ runnablePackageDirInPackagesDir = \case
   WaspStudioPackage -> [reldir|studio|]
 
 installablePackageDirInPackagesDir :: InstallablePackage -> Path' (Rel PackagesDir) (Dir PackageDir)
-installablePackageDirInPackagesDir package =
-  fromJust $ parseRelDir $ getInstallablePackageName package
+installablePackageDirInPackagesDir = \case
+  WaspSpecPackage -> [reldir|spec|]
 
 scriptInPackageDir :: Path' (Rel PackageDir) (File PackageScript)
 scriptInPackageDir = [relfile|dist/index.js|]
@@ -113,7 +119,7 @@ getPackageJsonSpecifierForPackage package =
 getInstallablePackageName :: InstallablePackage -> String
 getInstallablePackageName = \case
   -- NOTE: These names must match the 'name' fields in packages' package.json files.
-  WaspConfigPackage -> "wasp-config"
+  WaspSpecPackage -> "@wasp.sh/spec"
 
 ensurePackageIsAtInstallationPathInProject :: Path' Abs (Dir WaspProjectDir) -> InstallablePackage -> IO ()
 ensurePackageIsAtInstallationPathInProject projectDir package = do
@@ -126,7 +132,32 @@ ensurePackageIsAtInstallationPathInProject projectDir package = do
 
 getPackageInstallationPathInProject :: InstallablePackage -> Path' (Rel WaspProjectDir) (Dir d)
 getPackageInstallationPathInProject package =
-  dotWaspDirInWaspProjectDir </> fromJust (parseRelDir $ getInstallablePackageName package)
+  dotWaspDirInWaspProjectDir </> castRel (castDir $ installablePackageDirInPackagesDir package)
+
+tryGettingInstalledPackageVersion ::
+  Path' Abs (Dir WaspProjectDir) ->
+  InstallablePackage ->
+  IO (Either String SV.Version)
+tryGettingInstalledPackageVersion projectDir package = runExceptT $ do
+  unlessM (liftIO $ IOUtil.doesFileExist packageJsonPath) $
+    throwError $
+      "Couldn't find " ++ fromAbsFile packageJsonPath
+  packageJson <- ExceptT $ liftIO $ PJ.parsePackageJsonFile packageJsonPath
+  ExceptT $ return $ case PJ.version packageJson of
+    Just versionString -> first show $ SV.parseVersion versionString
+    Nothing -> Left $ fromAbsFile packageJsonPath ++ " has no `version` field"
+  where
+    packageJsonPath :: Path' Abs (File InstalledPackageJsonFile)
+    packageJsonPath =
+      castFile $
+        projectDir
+          </> nodeModulesDirInWaspProjectDir
+          </> fromJust (parseRelDir $ getInstallablePackageName package)
+          </> [relfile|package.json|]
+
+data InstalledPackageJsonFile
+
+instance PJ.PackageJsonFile InstalledPackageJsonFile
 
 -- | Returns the path to the main script of an installable package, relative
 -- to the project root. This can be passed to @node@ directly, avoiding the
@@ -137,7 +168,7 @@ getInstallablePackageScriptInProject package =
 
 installablePackageScript :: InstallablePackage -> Path' (Rel d) File'
 installablePackageScript = \case
-  WaspConfigPackage -> [relfile|dist/src/run.js|]
+  WaspSpecPackage -> [relfile|dist/src/run.js|]
 
 getRunnablePackageDir :: RunnablePackage -> IO (Path' Abs (Dir PackageDir))
 getRunnablePackageDir package = do

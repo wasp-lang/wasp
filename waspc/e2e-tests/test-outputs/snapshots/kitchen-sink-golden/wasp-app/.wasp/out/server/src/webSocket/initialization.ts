@@ -8,7 +8,7 @@ import { config, prisma } from 'wasp/server'
 import { getSessionAndUserFromSessionId } from 'wasp/auth/session'
 import { makeAuthUserIfPossible } from 'wasp/auth/user'
 
-import { webSocketFn } from '../../../../../src/features/chat/webSocket'
+import { chatWebSocket } from '../../../../../src/features/chat/webSocket'
 
 // Initializes the WebSocket server and invokes the user's WebSocket function.
 export async function init(server: http.Server): Promise<void> {
@@ -34,7 +34,7 @@ export async function init(server: http.Server): Promise<void> {
     }
   }
 
-  await (webSocketFn as any)(io, context)
+  await (chatWebSocket as any)(io, context)
 }
 
 async function addUserToSocketDataIfAuthenticated(socket: Socket, next: (err?: Error) => void) {

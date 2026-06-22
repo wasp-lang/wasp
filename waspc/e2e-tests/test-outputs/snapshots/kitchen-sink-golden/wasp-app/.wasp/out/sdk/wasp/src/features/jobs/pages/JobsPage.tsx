@@ -1,6 +1,5 @@
 import { UppercaseTextRequestState } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import { useState } from "react";
 import {
   getTextUppercaseRequests,
@@ -161,7 +160,7 @@ function StatusBadge({ state }: { state: UppercaseTextRequestState }) {
 }
 
 function getMutationErrorMessage(error: unknown): string | undefined {
-  if (error instanceof AxiosError) {
+  if (error instanceof Error) {
     return error.message;
   }
   return "An unexpected error occurred.";
