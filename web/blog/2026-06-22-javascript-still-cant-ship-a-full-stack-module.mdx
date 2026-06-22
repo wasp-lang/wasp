@@ -8,6 +8,7 @@ description: "Why JavaScript lacks true full-stack modules, what Rails and Larav
 ---
 
 import { ImgWithCaption } from './components/ImgWithCaption';
+import { VideoWithCaption } from './components/VideoWithCaption';
 
 Imagine if there were a way for us to somehow ship a *full-stack* package that you could plug into your app. Client code, backend code, webhooks, and database models all wired up and ready to go. I know I'd love that. Just install one complete module and the whole thing just works.
 
@@ -33,7 +34,15 @@ Matt Pocock talks about how LLMs struggle when a feature is split across too man
 
 <ImgWithCaption
   source="/img/javascript-still-cant-ship-a-full-stack-module/matt-pocock-deep-modules.webp"
-  caption="Matt Pocock's talk: Your codebase is NOT ready for AI."
+  caption={
+    <a
+      href="https://youtu.be/uC44zFz7JSM?si=uike3KKy_fbc01TU"
+      target="_blank"
+      rel="noreferrer noopener"
+    >
+      Matt Pocock's talk: Your codebase is NOT ready for AI.
+    </a>
+  }
   alt="Matt Pocock video about preparing codebases for AI"
 />
 
@@ -72,6 +81,12 @@ To make it easy to compare, I created a static HTML prototype and tried to flesh
 - they can see their purchased items
 
 In all of the frameworks, we want to see the same webshop (same design, same capabilities).
+
+<VideoWithCaption
+  source="img/javascript-still-cant-ship-a-full-stack-module/fsm.mp4"
+  caption="Demo of the payments module in Django"
+  alt="Demo of the payments module in Django"
+/>
 
 Our webshop is made out of auth, payments, and products modules. In this exercise, we told the agent that the "payments" module *must be implemented* as a full-stack module. The idea was for the module to be reusable, and it can't make any assumptions about where it will be used.
 
