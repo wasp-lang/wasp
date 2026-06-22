@@ -30,8 +30,16 @@ module.exports = {
       colors: {
         wasp: {
           yellow: "#F5C842",
+          "yellow-somewhat-light": "#F8D670",
+          "yellow-quite-light": "#FCE59E",
           "yellow-light": "#FFF3CC",
           "yellow-dark": "#D4A930",
+          purple: "#7B42F5",
+          "purple-somewhat-light": "#A172F8",
+          "purple-quite-light": "#C2A2FB",
+          "purple-light": "#E0CCFF",
+          "purple-dark": "#5A30D4",
+          "code-bg-purple-dark": "#292435",
           black: "#111",
           bg: "#F7F5F0",
           white: "#FAFAFA",
