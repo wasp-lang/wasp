@@ -1,48 +1,61 @@
-import { Request, Response } from 'express';
+import { resetPassword as resetPasswordWithEmail } from "@wasp.sh/lib-auth/node";
+import { Request, Response } from "express";
+import { validateJWT } from "wasp/auth/jwt";
 import {
-    createProviderId,
-    findAuthIdentity,
-    updateAuthIdentityProviderData,
-    getProviderDataWithPassword,
-} from 'wasp/auth/utils';
-import { validateJWT } from 'wasp/auth/jwt'
-import { ensureTokenIsPresent, ensurePasswordIsPresent, ensureValidPassword } from 'wasp/auth/validation';
-import { HttpError } from 'wasp/server';
+  findAuthIdentity,
+  rethrowPossibleAuthServiceError,
+  updateAuthIdentityProviderData,
+} from "wasp/auth/utils";
 
 export async function resetPassword(
-    req: Request<{ token: string; password: string; }>,
-    res: Response,
+  req: Request<{ token: string; password: string }>,
+  res: Response,
 ): Promise<void> {
-    const args = req.body ?? {};
-    ensureValidArgs(args);
+  const args = req.body ?? {};
 
-    const { token, password } = args;
-    const { email } = await validateJWT<{ email: string }>(token)
-        .catch(() => {
-            throw new HttpError(400, "Password reset failed, invalid token");
-        });
-
-    const providerId = createProviderId('email', email);
-    const authIdentity = await findAuthIdentity(providerId);
-    if (!authIdentity) {
-        throw new HttpError(400, "Password reset failed, invalid token");
-    }
-
-    const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
-
-    await updateAuthIdentityProviderData(providerId, providerData, {
-        // The act of resetting the password verifies the email
-        isEmailVerified: true,
-        // The password will be hashed when saving the providerData
-        // in the DB
-        hashedPassword: password,
+  try {
+    await resetPasswordWithEmail({
+      fields: args,
+      adapters: {
+        tokenService: {
+          verifyEmailToken: validateJWT,
+        },
+        authRepository: {
+          async findIdentity(providerId) {
+            const authIdentity = await findAuthIdentity(providerId);
+            return authIdentity === null
+              ? null
+              : {
+                  authId: authIdentity.authId,
+                  providerName: "email",
+                  providerUserId: authIdentity.providerUserId,
+                  providerData: authIdentity.providerData,
+                };
+          },
+          async updateIdentityProviderData({
+            providerId,
+            existingProviderData,
+            providerDataUpdates,
+          }) {
+            const authIdentity = await updateAuthIdentityProviderData(
+              providerId,
+              existingProviderData,
+              providerDataUpdates,
+            );
+            return {
+              authId: authIdentity.authId,
+              providerName: "email",
+              providerUserId: authIdentity.providerUserId,
+              providerData: authIdentity.providerData,
+            };
+          },
+        },
+      },
     });
+  } catch (e: unknown) {
+    rethrowPossibleAuthServiceError(e);
+    throw e;
+  }
 
-    res.json({ success: true });
-};
-
-function ensureValidArgs(args: object): void {
-    ensureTokenIsPresent(args);
-    ensurePasswordIsPresent(args);
-    ensureValidPassword(args);
+  res.json({ success: true });
 }

@@ -55,6 +55,22 @@ describe("headless auth UI", () => {
     expect(await screen.findByRole("status")).toHaveTextContent("Welcome back");
   });
 
+  it("should submit fields from an external form controller", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn(async () => undefined);
+
+    render(<ExternalLoginSubmit submit={submit} />);
+
+    await user.click(
+      screen.getByRole("button", { name: "Submit external form" }),
+    );
+
+    expect(submit).toHaveBeenCalledWith({
+      email: "miho@example.com",
+      password: "super-secret",
+    });
+  });
+
   it("should expose submit errors", async () => {
     const user = userEvent.setup();
     const submit = vi.fn(async () => {
@@ -90,7 +106,7 @@ describe("headless auth UI", () => {
     expect(emailInput).toHaveValue("");
   });
 
-  it("should validate reset password token and confirmation", async () => {
+  it("should validate reset password token", async () => {
     const user = userEvent.setup();
     const submit = vi.fn();
 
@@ -103,7 +119,22 @@ describe("headless auth UI", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "The token is missing from the URL.",
     );
-    expect(screen.getByText("Passwords don't match")).toBeInTheDocument();
+    expect(submit).not.toHaveBeenCalled();
+  });
+
+  it("should validate reset password confirmation", async () => {
+    const user = userEvent.setup();
+    const submit = vi.fn();
+
+    render(<ResetPasswordForm token="reset-token" submit={submit} />);
+
+    await user.type(screen.getByLabelText("New password"), "new-password");
+    await user.type(screen.getByLabelText("Confirm new password"), "different");
+    await user.click(screen.getByRole("button", { name: "Reset password" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Passwords don't match!",
+    );
     expect(submit).not.toHaveBeenCalled();
   });
 
@@ -209,6 +240,34 @@ function LoginForm({
         Log in
       </button>
     </form>
+  );
+}
+
+function ExternalLoginSubmit({
+  submit,
+}: {
+  submit: (fields: {
+    email: string;
+    password: string;
+  }) => Promise<AuthFormSubmitResult> | AuthFormSubmitResult;
+}) {
+  const form = useLoginForm<{ email: string; password: string }>({
+    identityField: "email",
+    submit,
+  });
+
+  return (
+    <button
+      type="button"
+      onClick={() =>
+        void form.submitFields({
+          email: "miho@example.com",
+          password: "super-secret",
+        })
+      }
+    >
+      Submit external form
+    </button>
   );
 }
 

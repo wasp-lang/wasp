@@ -162,8 +162,8 @@ export function useResetPasswordForm<Result = AuthFormSubmitResult>({
         }),
         fields.password !== fields.passwordConfirmation
           ? {
-              fieldErrors: {
-                passwordConfirmation: "Passwords don't match",
+              errorMessage: {
+                title: "Passwords don't match!",
               },
             }
           : null,

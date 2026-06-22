@@ -1,5 +1,4 @@
-import { useState, useMemo } from 'react'
-import { AuthContext, type ErrorMessage } from '@wasp.sh/lib-auth/browser'
+import { useMemo } from 'react'
 import styles from './Auth.module.css'
 import './internal/auth-styles.css'
 import { tokenObjToCSSVars } from "./internal/util"
@@ -10,7 +9,6 @@ import {
   type AdditionalSignupFields,
 } from './types'
 import { LoginSignupForm } from './internal/common/LoginSignupForm'
-import { MessageError, MessageSuccess } from './internal/Message'
 import { ForgotPasswordForm } from './internal/email/ForgotPasswordForm'
 import { ResetPasswordForm } from './internal/email/ResetPasswordForm'
 import { VerifyEmailForm } from './internal/email/VerifyEmailForm'
@@ -25,10 +23,6 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
 } & CustomizationOptions & {
   additionalSignupFields?: AdditionalSignupFields;
 }) {
-  const [errorMessage, setErrorMessage] = useState<ErrorMessage | null>(null);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-
   const customStyle = useMemo(() => ({
     ...tokenObjToCSSVars('color', appearance?.colors ?? {}),
     ...tokenObjToCSSVars('font-size', appearance?.fontSizes ?? {}),
@@ -52,24 +46,16 @@ function Auth ({ state, appearance, logo, socialLayout = 'horizontal', additiona
         <h2 className={styles.headerText}>{title}</h2>
       </div>
 
-      {errorMessage && (
-        <MessageError>
-          {errorMessage.title}{errorMessage.description && ': '}{errorMessage.description}
-        </MessageError>
+      {(state === 'login' || state === 'signup') && (
+        <LoginSignupForm
+          state={state}
+          socialButtonsDirection={socialButtonsDirection}
+          additionalSignupFields={additionalSignupFields}
+        />
       )}
-      {successMessage && <MessageSuccess>{successMessage}</MessageSuccess>}
-      <AuthContext.Provider value={{ isLoading, setIsLoading, setErrorMessage, setSuccessMessage }}>
-        {(state === 'login' || state === 'signup') && (
-          <LoginSignupForm
-            state={state}
-            socialButtonsDirection={socialButtonsDirection}
-            additionalSignupFields={additionalSignupFields}
-          />
-        )}
-        {state === 'forgot-password' && (<ForgotPasswordForm />)}
-        {state === 'reset-password' && (<ResetPasswordForm />)}
-        {state === 'verify-email' && (<VerifyEmailForm />)}
-      </AuthContext.Provider>
+      {state === 'forgot-password' && (<ForgotPasswordForm />)}
+      {state === 'reset-password' && (<ResetPasswordForm />)}
+      {state === 'verify-email' && (<VerifyEmailForm />)}
     </div>
   )
 }

@@ -50,6 +50,14 @@ export type AuthFormFieldProps = {
 
 export type AuthFormSubmitEvent = FormEvent<HTMLFormElement>;
 
-export type AuthFormSubmitOutcome<Result> =
+export type AuthFormSubmitOutcome<
+  Result,
+  Fields extends AuthFormFields = AuthFormFields,
+> =
   | { ok: true; result: Result; successMessage: string | null }
-  | { ok: false; error: unknown; errorMessage: ErrorMessage };
+  | {
+      ok: false;
+      error: unknown;
+      errorMessage: ErrorMessage | null;
+      fieldErrors?: AuthFieldErrors<Fields>;
+    };

@@ -78,7 +78,6 @@ genInternalAuthComponents auth =
     <++> genFormComponent
     <++> genMessageComponent
     <++> genEmailComponents
-    <++> genUsernameAndPasswordComponents
     <++> genSocialComponents
   where
     genFormComponent =
@@ -97,15 +96,8 @@ genInternalAuthComponents auth =
       genConditionally isEmailAuthEnabled $
         sequence
           [ genFileCopyInAuthFormsInternal [relfile|email/VerifyEmailForm.tsx|],
-            genFileCopyInAuthFormsInternal [relfile|email/useEmail.ts|],
             genFileCopyInAuthFormsInternal [relfile|email/ForgotPasswordForm.tsx|],
             genFileCopyInAuthFormsInternal [relfile|email/ResetPasswordForm.tsx|]
-          ]
-
-    genUsernameAndPasswordComponents =
-      genConditionally isUsernameAndPasswordAuthEnabled $
-        sequence
-          [ genFileCopyInAuthFormsInternal [relfile|usernameAndPassword/useUsernameAndPassword.ts|]
           ]
 
     genSocialComponents =
@@ -126,7 +118,6 @@ genInternalAuthComponents auth =
         ]
 
     isEmailAuthEnabled = AS.Auth.isEmailAuthEnabled auth
-    isUsernameAndPasswordAuthEnabled = AS.Auth.isUsernameAndPasswordAuthEnabled auth
     isExternalAuthEnabled = AS.Auth.isExternalAuthEnabled auth
 
 genLoginSignupForm :: AS.Auth.Auth -> Generator [FileDraft]

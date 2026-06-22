@@ -1,10 +1,14 @@
-import { type ProviderName } from '../server/_types/index.js'
+import {
+  getEmail as getLibEmail,
+  getFirstProviderUserId as getLibFirstProviderUserId,
+  getUsername as getLibUsername,
+  makeAuthUserIfPossible as makeLibAuthUserIfPossible,
+} from '@wasp.sh/lib-auth'
 import type {
   AuthUserData,
   AuthUser,
   UserEntityWithAuth,
 } from '../server/auth/user.js'
-import { isNotNull } from '../universal/predicates.js'
 
 /**
  * We split the user.ts code into two files to avoid some server-only
@@ -13,21 +17,17 @@ import { isNotNull } from '../universal/predicates.js'
 
 // PUBLIC API
 export function getEmail(user: UserEntityWithAuth): string | null {
-  return findUserIdentity(user, "email")?.providerUserId ?? null;
+  return getLibEmail(user);
 }
 
 // PUBLIC API
 export function getUsername(user: UserEntityWithAuth): string | null {
-  return findUserIdentity(user, "username")?.providerUserId ?? null;
+  return getLibUsername(user);
 }
 
 // PUBLIC API
 export function getFirstProviderUserId(user?: UserEntityWithAuth): string | null {
-  if (!user || !user.auth || !user.auth.identities || user.auth.identities.length === 0) {
-    return null;
-  }
-
-  return user.auth.identities[0].providerUserId ?? null;
+  return getLibFirstProviderUserId(user);
 }
 
 // PRIVATE API (used in SDK and server)
@@ -40,24 +40,5 @@ export function makeAuthUserIfPossible(user: AuthUserData | null): AuthUser | nu
 export function makeAuthUserIfPossible(
   user: AuthUserData | null,
 ): AuthUser | null {
-  return user ? makeAuthUser(user) : null
-}
-
-function makeAuthUser(data: AuthUserData): AuthUser {
-  return {
-    ...data,
-    getFirstProviderUserId: () => {
-      const identities = Object.values(data.identities).filter(isNotNull);
-      return identities.length > 0 ? identities[0].id : null;
-    },
-  };
-}
-
-function findUserIdentity(user: UserEntityWithAuth, providerName: ProviderName): NonNullable<UserEntityWithAuth['auth']>['identities'][number] | null {
-  if (!user.auth) {
-    return null;
-  }
-  return user.auth.identities.find(
-    (identity) => identity.providerName === providerName
-  ) ?? null;
+  return makeLibAuthUserIfPossible(user);
 }

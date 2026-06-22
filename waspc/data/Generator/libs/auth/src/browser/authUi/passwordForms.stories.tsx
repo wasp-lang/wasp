@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
+import { useState } from "react";
 import {
   useForgotPasswordForm,
   useLoginForm,
@@ -38,6 +39,10 @@ export const Login: Story = {
   render: () => <LoginHarness />,
 };
 
+export const ExternalFormController: Story = {
+  render: () => <ExternalFormControllerHarness />,
+};
+
 export const Signup: Story = {
   render: () => <SignupHarness />,
 };
@@ -67,6 +72,73 @@ function LoginHarness() {
       form={form}
       identityField="email"
     />
+  );
+}
+
+function ExternalFormControllerHarness() {
+  const [fields, setFields] = useState<LoginFields>({
+    email: "miho@example.com",
+    password: "super-secret",
+  });
+  const form = useLoginForm<LoginFields>({
+    identityField: "email",
+    submit: async () => ({ successMessage: "Submitted external fields." }),
+  });
+
+  return (
+    <form
+      className="grid max-w-sm gap-3"
+      onSubmit={(event) => {
+        event.preventDefault();
+        void form.submitFields(fields);
+      }}
+    >
+      <h2 className="text-xl font-semibold">External form controller</h2>
+      <label className="grid gap-1">
+        Email
+        <input
+          className="rounded border px-3 py-2"
+          value={fields.email}
+          onChange={(event) =>
+            setFields((currentFields) => ({
+              ...currentFields,
+              email: event.target.value,
+            }))
+          }
+        />
+      </label>
+      <label className="grid gap-1">
+        Password
+        <input
+          className="rounded border px-3 py-2"
+          type="password"
+          value={fields.password}
+          onChange={(event) =>
+            setFields((currentFields) => ({
+              ...currentFields,
+              password: event.target.value,
+            }))
+          }
+        />
+      </label>
+      {form.errorMessage && (
+        <p className="text-red-700" role="alert">
+          {form.errorMessage.title}
+        </p>
+      )}
+      {form.successMessage && (
+        <p className="text-green-700" role="status">
+          {form.successMessage}
+        </p>
+      )}
+      <button
+        className="rounded bg-slate-950 px-4 py-2 text-white"
+        type="submit"
+        disabled={form.isSubmitting}
+      >
+        Submit external fields
+      </button>
+    </form>
   );
 }
 
@@ -155,6 +227,11 @@ function ResetPasswordHarness() {
       </label>
       {form.fieldErrors.passwordConfirmation && (
         <p className="text-red-700">{form.fieldErrors.passwordConfirmation}</p>
+      )}
+      {form.errorMessage && (
+        <p className="text-red-700" role="alert">
+          {form.errorMessage.title}
+        </p>
       )}
       {form.successMessage && (
         <p className="text-green-700" role="status">

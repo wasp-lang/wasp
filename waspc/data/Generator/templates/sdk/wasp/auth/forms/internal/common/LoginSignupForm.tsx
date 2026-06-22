@@ -1,11 +1,11 @@
 {{={= =}=}}
 import { useForm, UseFormReturn } from 'react-hook-form'
+import { useLoginForm, useSignupForm } from '@wasp.sh/lib-auth/browser'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
 import { config } from '../../../../client/index.js'
 import { clsx } from '../util'
 
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import {
   Form,
   FormInput,
@@ -15,6 +15,7 @@ import {
   FormTextarea,
   SubmitButton,
 } from '../Form'
+import { MessageError, MessageSuccess } from '../Message'
 import type {
   AdditionalSignupFields,
   AdditionalSignupField,
@@ -29,16 +30,13 @@ import { SocialButton } from '../social/SocialButton'
 import { useNavigate } from 'react-router'
 {=/ isAnyPasswordBasedAuthEnabled =}
 {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-import { useUsernameAndPassword } from '../usernameAndPassword/useUsernameAndPassword'
+import { login as usernameLogin, signup as usernameSignup } from '../../../username'
 {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
 {=# enabledProviders.isEmailAuthEnabled =}
-import { useEmail } from '../email/useEmail'
+import { login as emailLogin } from '../../../email/actions/login'
+import { signup as emailSignup } from '../../../email/actions/signup'
 {=/ enabledProviders.isEmailAuthEnabled =}
 
-{=# areBothSocialAndPasswordBasedAuthEnabled =}
-{=/ areBothSocialAndPasswordBasedAuthEnabled =}
-{=# isSocialAuthEnabled =}
-{=/ isSocialAuthEnabled =}
 {=# enabledProviders.isSlackAuthEnabled =}
 const slackSignInUrl = `${config.apiUrl}{= slackSignInPath =}`
 {=/ enabledProviders.isSlackAuthEnabled =}
@@ -78,58 +76,68 @@ export const LoginSignupForm = ({
     socialButtonsDirection?: 'horizontal' | 'vertical'
     additionalSignupFields?: AdditionalSignupFields
 }) => {
-  const {
-    isLoading,
-    setErrorMessage,
-    setSuccessMessage,
-    setIsLoading,
-  } = useAuthContext();
   const isLogin = state === 'login'
-  const cta = isLogin ? 'Log in' : 'Sign up';
+  const cta = isLogin ? 'Log in' : 'Sign up'
   {=# isAnyPasswordBasedAuthEnabled =}
-  const navigate = useNavigate();
-  const onErrorHandler = (error) => {
-    setErrorMessage({ title: error.message, description: error.data?.data?.message })
-  };
-  {=/ isAnyPasswordBasedAuthEnabled =}
+  const navigate = useNavigate()
   const hookForm = useForm<LoginSignupFormFields>()
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
   {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
-  const { handleSubmit } = useUsernameAndPassword({
-    isLogin,
-    onError: onErrorHandler,
-    onSuccess() {
-      navigate('{= onAuthSucceededRedirectTo =}')
-    },
-  });
+  const identityField = 'username' as const
   {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
   {=# enabledProviders.isEmailAuthEnabled =}
-  const { handleSubmit } = useEmail({
-    isLogin,
-    onError: onErrorHandler,
-    showEmailVerificationPending() {
-      hookForm.reset()
-      setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
-    },
-    onLoginSuccess() {
-      navigate('{= onAuthSucceededRedirectTo =}')
-    },
-  });
+  const identityField = 'email' as const
   {=/ enabledProviders.isEmailAuthEnabled =}
-  {=# isAnyPasswordBasedAuthEnabled =}
-  async function onSubmit (data) {
-    setIsLoading(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    try {
-      await handleSubmit(data);
-    } finally {
-      setIsLoading(false);
+  const loginForm = useLoginForm<LoginSignupFormFields>({
+    identityField,
+    submit: submitLogin,
+  })
+  const signupForm = useSignupForm<LoginSignupFormFields>({
+    identityField,
+    submit: submitSignup,
+  })
+  const authForm = isLogin ? loginForm : signupForm
+  const isLoading = authForm.isSubmitting
+
+  async function submitLogin(data: LoginSignupFormFields) {
+    {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    await usernameLogin(data as Parameters<typeof usernameLogin>[0])
+    {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    {=# enabledProviders.isEmailAuthEnabled =}
+    await emailLogin(data as Parameters<typeof emailLogin>[0])
+    {=/ enabledProviders.isEmailAuthEnabled =}
+    navigate('{= onAuthSucceededRedirectTo =}')
+  }
+
+  async function submitSignup(data: LoginSignupFormFields) {
+    {=# enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    await usernameSignup(data as Parameters<typeof usernameSignup>[0])
+    await usernameLogin(data as Parameters<typeof usernameLogin>[0])
+    navigate('{= onAuthSucceededRedirectTo =}')
+    {=/ enabledProviders.isUsernameAndPasswordAuthEnabled =}
+    {=# enabledProviders.isEmailAuthEnabled =}
+    await emailSignup(data as Parameters<typeof emailSignup>[0])
+    hookForm.reset()
+    return {
+      successMessage: `You've signed up successfully! Check your email for the confirmation link.`,
     }
+    {=/ enabledProviders.isEmailAuthEnabled =}
+  }
+
+  async function onSubmit(data: LoginSignupFormFields) {
+    await authForm.submitFields(data)
   }
   {=/ isAnyPasswordBasedAuthEnabled =}
 
   return (<>
+      {=# isAnyPasswordBasedAuthEnabled =}
+        {authForm.errorMessage && (
+          <MessageError>
+            {authForm.errorMessage.title}{authForm.errorMessage.description && ': '}{authForm.errorMessage.description}
+          </MessageError>
+        )}
+        {authForm.successMessage && <MessageSuccess>{authForm.successMessage}</MessageSuccess>}
+      {=/ isAnyPasswordBasedAuthEnabled =}
       {=# isSocialAuthEnabled =}
         <div className={styles.socialAuth}>
           <div className={styles.socialAuthLabel}>{cta} with</div>

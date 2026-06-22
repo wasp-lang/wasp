@@ -1,4 +1,3 @@
-import { hashPassword } from './password.js'
 import { prisma, HttpError } from '../server/index.js'
 import { sleep } from '../server/utils.js'
 import {
@@ -9,46 +8,39 @@ import {
 import { Prisma } from '@prisma/client';
 
 import { throwValidationError } from './validation.js'
+import { ValidationError } from '@wasp.sh/lib-auth'
 
 import { type UserSignupFields, type PossibleUserFields } from './providers/types.js'
+import {
+  AuthServiceError,
+  createProviderId,
+  getProviderData,
+  getProviderDataWithPassword,
+  mergeAndSerializeProviderDataUpdates,
+  sanitizeAndSerializeProviderData,
+  type EmailProviderData,
+  type OAuthProviderData,
+  type PossibleProviderData,
+  type ProviderId,
+  type ProviderName,
+  type UsernameProviderData,
+} from '@wasp.sh/lib-auth/node'
 
-// PUBLIC API
-export type EmailProviderData = {
-  hashedPassword: string;
-  isEmailVerified: boolean;
-  emailVerificationSentAt: string | null;
-  passwordResetSentAt: string | null;
+export {
+  createProviderId,
+  getProviderData,
+  getProviderDataWithPassword,
+  sanitizeAndSerializeProviderData,
 }
 
-// PUBLIC API
-export type UsernameProviderData = {
-  hashedPassword: string;
+export type {
+  EmailProviderData,
+  OAuthProviderData,
+  PossibleProviderData,
+  ProviderId,
+  ProviderName,
+  UsernameProviderData,
 }
-
-// PUBLIC API
-export type OAuthProviderData = {}
-
-// PRIVATE API
-/**
- * This type is used for type-level programming e.g. to enumerate
- * all possible provider data types.
- * 
- * The keys of this type are the names of the providers and the values
- * are the types of the provider data.
- */
-export type PossibleProviderData = {
-  email: EmailProviderData;
-  username: UsernameProviderData;
-  discord: OAuthProviderData;
-  slack: OAuthProviderData;
-  google: OAuthProviderData;
-  keycloak: OAuthProviderData;
-  github: OAuthProviderData;
-  microsoft: OAuthProviderData;
-}
-
-// PUBLIC API
-export type ProviderName = keyof PossibleProviderData
 
 // PRIVATE API
 export const contextWithUserEntity = {
@@ -61,59 +53,6 @@ export const contextWithUserEntity = {
 export const authConfig = {
   failureRedirectPath: "/login",
   successRedirectPath: "/",
-}
-
-// PUBLIC API
-/**
- * ProviderId uniquely identifies an auth identity e.g. 
- * "email" provider with user id "test@test.com" or
- * "google" provider with user id "1234567890".
- * 
- * We use this type to avoid passing the providerName and providerUserId
- * separately. Also, we can normalize the providerUserId to make sure it's
- * consistent across different DB operations.
- */
-export type ProviderId = {
-  providerName: ProviderName;
-  providerUserId: string;
-}
-
-// PUBLIC API
-export function createProviderId(providerName: ProviderName, providerUserId: string): ProviderId {
-  return {
-    providerName,
-    providerUserId: normalizeProviderUserId(providerName, providerUserId),
-  }
-}
-
-// PRIVATE API
-export function normalizeProviderUserId(providerName: ProviderName, providerUserId: string): string {
-  switch (providerName) {
-    case 'email':
-    case 'username':
-      return providerUserId.toLowerCase();
-    case 'google':
-    case 'github':
-    case 'discord':
-    case 'keycloak':
-    case 'slack':
-    case 'microsoft':
-      return providerUserId;
-    /*
-      Why the default case?
-      In case users add a new auth provider in the user-land.
-      Users can't extend this function because it is private.
-      If there is an unknown `providerName` in runtime, we'll
-      return the `providerUserId` as is.
-
-      We want to still have explicit OAuth providers listed
-      so that we get a type error if we forget to add a new provider
-      to the switch statement.
-    */
-    default:
-      providerName satisfies never;
-      return providerUserId;
-  }
 }
 
 // PUBLIC API
@@ -139,14 +78,10 @@ export async function updateAuthIdentityProviderData<PN extends ProviderName>(
   existingProviderData: PossibleProviderData[PN],
   providerDataUpdates: Partial<PossibleProviderData[PN]>,
 ): Promise<AuthIdentity> {
-  // We are doing the sanitization here only on updates to avoid
-  // hashing the password multiple times.
-  const sanitizedProviderDataUpdates = await ensurePasswordIsHashed(providerDataUpdates);
-  const newProviderData = {
-    ...existingProviderData,
-    ...sanitizedProviderDataUpdates,
-  }
-  const serializedProviderData = await serializeProviderData<PN>(newProviderData);
+  const serializedProviderData = await mergeAndSerializeProviderDataUpdates(
+    existingProviderData,
+    providerDataUpdates,
+  );
   return prisma.authIdentity.update({
     where: {
       providerName_providerUserId: providerId,
@@ -228,9 +163,9 @@ export async function deleteUserByAuthId(authId: string): Promise<{ count: numbe
 // NOTE: Attacker measuring time to response can still determine
 // if a user exists or not. We'll be able to avoid it when 
 // we implement e-mail sending via jobs.
-export async function doFakeWork(): Promise<unknown> {
+export async function doFakeWork(): Promise<void> {
   const timeToWork = Math.floor(Math.random() * 1000) + 1000;
-  return sleep(timeToWork);
+  await sleep(timeToWork);
 }
 
 // PRIVATE API
@@ -278,6 +213,38 @@ export function rethrowPossibleAuthError(e: unknown): void {
 }
 
 // PRIVATE API
+export function rethrowPossibleAuthServiceError(e: unknown): void {
+  if (e instanceof ValidationError) {
+    throwValidationError(e.message)
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'invalid-credentials') {
+    throw createInvalidCredentialsError()
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'invalid-token') {
+    throw new HttpError(400, String(e.metadata.responseMessage ?? e.message))
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'missing-token') {
+    throw new HttpError(400, String(e.metadata.responseMessage ?? e.message))
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'used-token') {
+    throw new HttpError(400, String(e.metadata.responseMessage ?? e.message))
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'email-resend-too-soon') {
+    throw new HttpError(400, e.message)
+  }
+
+  if (e instanceof AuthServiceError && e.code === 'email-delivery-failed') {
+    console.error(e.metadata.logMessage ?? e.message, e.metadata.cause ?? e)
+    throw new HttpError(500, String(e.metadata.responseMessage ?? e.message))
+  }
+}
+
+// PRIVATE API
 export async function validateAndGetUserFields(
   data: {
     [key: string]: unknown
@@ -303,65 +270,6 @@ export async function validateAndGetUserFields(
     }
   }
   return result;
-}
-
-// PUBLIC API
-export function getProviderData<PN extends ProviderName>(
-  providerData: string,
-):  Omit<PossibleProviderData[PN], 'hashedPassword'> {
-  return sanitizeProviderData(getProviderDataWithPassword(providerData));
-}
-
-// PUBLIC API
-export function getProviderDataWithPassword<PN extends ProviderName>(
-  providerData: string,
-): PossibleProviderData[PN] {
-  // NOTE: We are letting JSON.parse throw an error if the providerData is not valid JSON.
-  return JSON.parse(providerData);
-}
-
-function sanitizeProviderData<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Omit<PossibleProviderData[PN], 'hashedPassword'> {
-  if (providerDataHasPasswordField(providerData)) {
-    const { hashedPassword, ...rest } = providerData;
-    return rest;
-  } else {
-    return providerData;
-  }
-}
-
-// PUBLIC API
-export async function sanitizeAndSerializeProviderData<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Promise<string> {
-  return serializeProviderData(
-    await ensurePasswordIsHashed(providerData)
-  );
-}
-
-function serializeProviderData<PN extends ProviderName>(providerData: PossibleProviderData[PN]): string {
-  return JSON.stringify(providerData);
-}
-
-async function ensurePasswordIsHashed<PN extends ProviderName>(
-  providerData: PossibleProviderData[PN],
-): Promise<PossibleProviderData[PN]> {
-  const data = {
-    ...providerData,
-  };
-  if (providerDataHasPasswordField(data)) {
-    data.hashedPassword = await hashPassword(data.hashedPassword);
-  }
-
-  return data;
-}
-
-
-function providerDataHasPasswordField(
-  providerData: PossibleProviderData[keyof PossibleProviderData],
-): providerData is { hashedPassword: string } {
-  return 'hashedPassword' in providerData;
 }
 
 // PRIVATE API

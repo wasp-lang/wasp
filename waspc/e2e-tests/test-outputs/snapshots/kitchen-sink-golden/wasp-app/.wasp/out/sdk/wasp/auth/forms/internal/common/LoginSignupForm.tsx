@@ -1,10 +1,10 @@
 import { useForm, UseFormReturn } from 'react-hook-form'
+import { useLoginForm, useSignupForm } from '@wasp.sh/lib-auth/browser'
 import styles from './LoginSignupForm.module.css'
 import '../auth-styles.css'
 import { config } from '../../../../client/index.js'
 import { clsx } from '../util'
 
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
 import {
   Form,
   FormInput,
@@ -14,6 +14,7 @@ import {
   FormTextarea,
   SubmitButton,
 } from '../Form'
+import { MessageError, MessageSuccess } from '../Message'
 import type {
   AdditionalSignupFields,
   AdditionalSignupField,
@@ -23,7 +24,8 @@ import type {
 import * as SocialIcons from '../social/SocialIcons'
 import { SocialButton } from '../social/SocialButton'
 import { useNavigate } from 'react-router'
-import { useEmail } from '../email/useEmail'
+import { login as emailLogin } from '../../../email/actions/login'
+import { signup as emailSignup } from '../../../email/actions/signup'
 
 const slackSignInUrl = `${config.apiUrl}/auth/slack/login`
 const discordSignInUrl = `${config.apiUrl}/auth/discord/login`
@@ -46,43 +48,47 @@ export const LoginSignupForm = ({
     socialButtonsDirection?: 'horizontal' | 'vertical'
     additionalSignupFields?: AdditionalSignupFields
 }) => {
-  const {
-    isLoading,
-    setErrorMessage,
-    setSuccessMessage,
-    setIsLoading,
-  } = useAuthContext();
   const isLogin = state === 'login'
-  const cta = isLogin ? 'Log in' : 'Sign up';
-  const navigate = useNavigate();
-  const onErrorHandler = (error) => {
-    setErrorMessage({ title: error.message, description: error.data?.data?.message })
-  };
+  const cta = isLogin ? 'Log in' : 'Sign up'
+  const navigate = useNavigate()
   const hookForm = useForm<LoginSignupFormFields>()
   const { register, formState: { errors }, handleSubmit: hookFormHandleSubmit } = hookForm
-  const { handleSubmit } = useEmail({
-    isLogin,
-    onError: onErrorHandler,
-    showEmailVerificationPending() {
-      hookForm.reset()
-      setSuccessMessage(`You've signed up successfully! Check your email for the confirmation link.`)
-    },
-    onLoginSuccess() {
-      navigate('/')
-    },
-  });
-  async function onSubmit (data) {
-    setIsLoading(true);
-    setErrorMessage(null);
-    setSuccessMessage(null);
-    try {
-      await handleSubmit(data);
-    } finally {
-      setIsLoading(false);
+  const identityField = 'email' as const
+  const loginForm = useLoginForm<LoginSignupFormFields>({
+    identityField,
+    submit: submitLogin,
+  })
+  const signupForm = useSignupForm<LoginSignupFormFields>({
+    identityField,
+    submit: submitSignup,
+  })
+  const authForm = isLogin ? loginForm : signupForm
+  const isLoading = authForm.isSubmitting
+
+  async function submitLogin(data: LoginSignupFormFields) {
+    await emailLogin(data as Parameters<typeof emailLogin>[0])
+    navigate('/')
+  }
+
+  async function submitSignup(data: LoginSignupFormFields) {
+    await emailSignup(data as Parameters<typeof emailSignup>[0])
+    hookForm.reset()
+    return {
+      successMessage: `You've signed up successfully! Check your email for the confirmation link.`,
     }
   }
 
+  async function onSubmit(data: LoginSignupFormFields) {
+    await authForm.submitFields(data)
+  }
+
   return (<>
+        {authForm.errorMessage && (
+          <MessageError>
+            {authForm.errorMessage.title}{authForm.errorMessage.description && ': '}{authForm.errorMessage.description}
+          </MessageError>
+        )}
+        {authForm.successMessage && <MessageSuccess>{authForm.successMessage}</MessageSuccess>}
         <div className={styles.socialAuth}>
           <div className={styles.socialAuthLabel}>{cta} with</div>
             <div className={clsx(styles.socialAuthButtons, styles[socialButtonsDirection])}>

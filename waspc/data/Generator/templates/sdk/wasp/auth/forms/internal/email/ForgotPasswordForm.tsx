@@ -1,49 +1,34 @@
-import { useForm } from 'react-hook-form'
-import { useAuthContext } from '@wasp.sh/lib-auth/browser'
+import { useForgotPasswordForm } from '@wasp.sh/lib-auth/browser'
 
 import { requestPasswordReset } from '../../../email/actions/passwordReset.js'
 import { Form, FormItemGroup, FormLabel, FormInput, SubmitButton, FormError } from '../Form'
-
+import { MessageError, MessageSuccess } from '../Message'
 
 // PRIVATE API
 export const ForgotPasswordForm = () => {
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<{ email: string }>()
-  const { isLoading, setErrorMessage, setSuccessMessage, setIsLoading } = useAuthContext()
-
-  const onSubmit = async (data) => {
-    setIsLoading(true)
-    setErrorMessage(null)
-    setSuccessMessage(null)
-    try {
-      await requestPasswordReset(data)
-      reset()
-      setSuccessMessage('Check your email for a password reset link.')
-    } catch (error) {
-      setErrorMessage({
-        title: error.message,
-        description: error.data?.data?.message,
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const form = useForgotPasswordForm({
+    submit: requestPasswordReset,
+  })
 
   return (
     <>
-      <Form onSubmit={handleSubmit(onSubmit)}>
+      {form.errorMessage && (
+        <MessageError>
+          {form.errorMessage.title}{form.errorMessage.description && ': '}{form.errorMessage.description}
+        </MessageError>
+      )}
+      {form.successMessage && <MessageSuccess>{form.successMessage}</MessageSuccess>}
+      <Form onSubmit={(event) => void form.submit(event)}>
         <FormItemGroup>
           <FormLabel>E-mail</FormLabel>
           <FormInput
-            {...register('email', {
-              required: 'Email is required',
-            })}
+            {...form.getFieldProps('email')}
             type="email"
-            disabled={isLoading}
           />
-          {errors.email && <FormError>{errors.email.message}</FormError>}
+          {form.fieldErrors.email && <FormError>{form.fieldErrors.email}</FormError>}
         </FormItemGroup>
         <FormItemGroup>
-          <SubmitButton type="submit" disabled={isLoading}>
+          <SubmitButton type="submit" disabled={form.isSubmitting}>
             Send password reset email
           </SubmitButton>
         </FormItemGroup>

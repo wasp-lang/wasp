@@ -1,42 +1,72 @@
-import { Request, Response } from 'express';
-import { validateJWT } from 'wasp/auth/jwt';
+import { verifyEmail as verifyEmailWithToken } from "@wasp.sh/lib-auth/node";
+import { Request, Response } from "express";
+import { validateJWT } from "wasp/auth/jwt";
 import {
-  createProviderId,
   findAuthIdentity,
   findAuthWithUserBy,
-  getProviderDataWithPassword,
+  rethrowPossibleAuthServiceError,
   updateAuthIdentityProviderData,
-} from 'wasp/auth/utils';
-import { HttpError } from 'wasp/server';
-import { onAfterEmailVerifiedHook } from '../../hooks.js';
-
+} from "wasp/auth/utils";
+import { onAfterEmailVerifiedHook } from "../../hooks.js";
 
 export async function verifyEmail(
-    req: Request<{ token: string }>,
-    res: Response,
+  req: Request<{ token: string }>,
+  res: Response,
 ): Promise<void> {
-    const { token } = req.body;
-    const { email } = await validateJWT<{ email: string }>(token)
-        .catch(() => {
-            throw new HttpError(400, "Email verification failed, invalid token");
-        });
+  const fields = req.body ?? {};
 
-    const providerId = createProviderId('email', email);
-    const authIdentity = await findAuthIdentity(providerId);
-    if (!authIdentity) {
-        throw new HttpError(400, "Email verification failed, invalid token");
-    }
-
-    const providerData = getProviderDataWithPassword<'email'>(authIdentity.providerData);
-
-    await updateAuthIdentityProviderData(providerId, providerData, {
-        isEmailVerified: true,
+  try {
+    await verifyEmailWithToken({
+      fields,
+      request: req,
+      adapters: {
+        tokenService: {
+          verifyEmailToken: validateJWT,
+        },
+        authRepository: {
+          async findIdentity(providerId) {
+            const authIdentity = await findAuthIdentity(providerId);
+            return authIdentity === null
+              ? null
+              : {
+                  authId: authIdentity.authId,
+                  providerName: "email",
+                  providerUserId: authIdentity.providerUserId,
+                  providerData: authIdentity.providerData,
+                };
+          },
+          async findAuthWithUserByAuthId(authId) {
+            const auth = await findAuthWithUserBy({ id: authId });
+            return auth === null ? null : { authId: auth.id, user: auth.user };
+          },
+          async updateIdentityProviderData({
+            providerId,
+            existingProviderData,
+            providerDataUpdates,
+          }) {
+            const authIdentity = await updateAuthIdentityProviderData(
+              providerId,
+              existingProviderData,
+              providerDataUpdates,
+            );
+            return {
+              authId: authIdentity.authId,
+              providerName: "email",
+              providerUserId: authIdentity.providerUserId,
+              providerData: authIdentity.providerData,
+            };
+          },
+        },
+        hooks: {
+          onAfterEmailVerified: ({ request, email, user }) =>
+            onAfterEmailVerifiedHook({ req: request, email, user }),
+        },
+      },
     });
+  } catch (e: unknown) {
+    rethrowPossibleAuthServiceError(e);
+    throw e;
+  }
 
-    const auth = await findAuthWithUserBy({ id: authIdentity.authId })
-
-    await onAfterEmailVerifiedHook({ req, email, user: auth.user });
-
-    res.json({ success: true });
-};
-
+  res.json({ success: true });
+}

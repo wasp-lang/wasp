@@ -47,7 +47,6 @@ wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/common/LoginSignupForm.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/ForgotPasswordForm.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/ResetPasswordForm.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/VerifyEmailForm.tsx
-wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/email/useEmail.ts
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/social/SocialButton.module.css
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/social/SocialButton.tsx
 wasp-app/.wasp/out/sdk/wasp/auth/forms/internal/social/SocialIcons.module.css
@@ -222,10 +221,6 @@ wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/email/VerifyEmailForm.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/email/VerifyEmailForm.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/email/VerifyEmailForm.jsx
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/email/VerifyEmailForm.jsx.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/email/useEmail.d.ts
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/email/useEmail.d.ts.map
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/email/useEmail.js
-wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/email/useEmail.js.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialButton.d.ts
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialButton.d.ts.map
 wasp-app/.wasp/out/sdk/wasp/dist/auth/forms/internal/social/SocialButton.jsx

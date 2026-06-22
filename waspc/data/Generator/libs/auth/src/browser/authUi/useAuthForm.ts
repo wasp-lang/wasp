@@ -113,16 +113,27 @@ export function useAuthForm<
 
   async function submitForm(
     event?: AuthFormSubmitEvent,
-  ): Promise<AuthFormSubmitOutcome<Result>> {
+  ): Promise<AuthFormSubmitOutcome<Result, Fields>> {
     event?.preventDefault();
+    return submitWithFields(fields);
+  }
+
+  async function submitFields(
+    nextFields: Fields,
+  ): Promise<AuthFormSubmitOutcome<Result, Fields>> {
+    setFields(cloneFields(nextFields));
+    return submitWithFields(nextFields);
+  }
+
+  async function submitWithFields(
+    nextFields: Fields,
+  ): Promise<AuthFormSubmitOutcome<Result, Fields>> {
     clearMessages();
 
-    const validationResult = validate?.(fields);
+    const validationResult = validate?.(nextFields);
     if (hasValidationErrors(validationResult)) {
       const nextFieldErrors = validationResult.fieldErrors ?? {};
-      const nextErrorMessage = validationResult.errorMessage ?? {
-        title: "Please check the form fields.",
-      };
+      const nextErrorMessage = validationResult.errorMessage ?? null;
       setFieldErrors(nextFieldErrors);
       setErrorMessage(nextErrorMessage);
       setStatus("error");
@@ -130,6 +141,7 @@ export function useAuthForm<
         ok: false,
         error: validationResult,
         errorMessage: nextErrorMessage,
+        fieldErrors: nextFieldErrors,
       };
     }
 
@@ -137,9 +149,9 @@ export function useAuthForm<
     setStatus("submitting");
 
     try {
-      const result = await submit(fields);
+      const result = await submit(nextFields);
       const nextSuccessMessage = resolveSuccessMessage({
-        fields,
+        fields: nextFields,
         result,
         successMessage,
       });
@@ -148,13 +160,21 @@ export function useAuthForm<
       if (resetOnSuccess) {
         setFields(cloneFields(initialFields));
       }
-      await onSuccess?.({ fields, result, successMessage: nextSuccessMessage });
+      await onSuccess?.({
+        fields: nextFields,
+        result,
+        successMessage: nextSuccessMessage,
+      });
       return { ok: true, result, successMessage: nextSuccessMessage };
     } catch (error: unknown) {
       const nextErrorMessage = getErrorMessage(error);
       setErrorMessage(nextErrorMessage);
       setStatus("error");
-      await onError?.({ fields, error, errorMessage: nextErrorMessage });
+      await onError?.({
+        fields: nextFields,
+        error,
+        errorMessage: nextErrorMessage,
+      });
       return { ok: false, error, errorMessage: nextErrorMessage };
     }
   }
@@ -177,6 +197,7 @@ export function useAuthForm<
     clearMessages,
     reset,
     submit: submitForm,
+    submitFields,
   };
 }
 
