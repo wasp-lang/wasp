@@ -4,6 +4,10 @@
   "type": "module",
   "license": "MIT",
   "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
     "./index": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
