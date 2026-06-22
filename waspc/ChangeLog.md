@@ -14,7 +14,7 @@
 ### 🔧 Small improvements
 
 - Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
-- `wasp deps` no longer shows internal WaspLib packages in its output. These are implementation details of Wasp and cannot be imported directly by users. ([#3244](https://github.com/wasp-lang/wasp/issues/3244))
+- `wasp deps` no longer shows internal Wasp packages in its output. ([#4342](https://github.com/wasp-lang/wasp/issues/4342))
 
 ## 0.24.0
 
