@@ -2,8 +2,6 @@
 
 Durable notes for moving generated-app logic from templates into libraries under `data/Generator/libs/`.
 
-Detailed task plans can live under `plans/` while migration work is active. Do not put durable engineering rules only in `plans/`.
-
 ## Core Rules
 
 - Preserve current generated-app behavior during migrations.
