@@ -1,8 +1,9 @@
 import useBaseUrl from "@docusaurus/useBaseUrl";
+import type { ReactNode } from "react";
 
 interface ImgWithCaptionProps {
   source: string;
-  caption?: string;
+  caption?: ReactNode;
   width?: number;
   alt: string;
   justifyContent?: "center" | "flex-start" | "flex-end";
