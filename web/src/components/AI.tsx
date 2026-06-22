@@ -26,8 +26,8 @@ const AI = () => (
       <CliCard question="why AI loves Wasp" className="lg:row-span-2">
         <List>
           <Item>
-            <Strong>Clear best practices and structure</Strong> keep AI's
-            focus on what is important.
+            <Strong>Clear best practices and structure</Strong> keep AI's focus
+            on what is important.
           </Item>
           <Item>
             <Strong>Less boilerplate, less code,</Strong> less space for bugs
@@ -43,8 +43,7 @@ const AI = () => (
           </Item>
           <Item>
             <Strong>Batteries included</Strong> means bigger building blocks,
-            keeping AI on point, codebase tidy, and reducing chance of
-            mistakes.
+            keeping AI on point, codebase tidy, and reducing chance of mistakes.
           </Item>
         </List>
       </CliCard>
@@ -65,12 +64,13 @@ const AI = () => (
       <CliCard question="first-party AI tooling?">
         <List>
           <Item>
-            <Strong>Rule files, skills, and plugins</Strong> crafted by the
-            Wasp team and shaped by community experience, so you get the most
-            out of your AI.
+            <Strong>Rule files, skills, and plugins</Strong> crafted by the Wasp
+            team and shaped by community experience, so you get the most out of
+            your AI.
           </Item>
           <Item>
-            <Strong>llms.txt</Strong> built directly from the docs and always up to date.
+            <Strong>llms.txt</Strong> built directly from the docs and always up
+            to date.
           </Item>
         </List>
       </CliCard>
