@@ -2,7 +2,11 @@ import {
   Request as ExpressRequest,
   Response as ExpressResponse,
 } from 'express';
-import { parseCookies } from '@wasp.sh/lib-auth/node';
+import {
+  getOAuthCookieName,
+  getOAuthCookieOptions,
+  getOAuthCookieValueFromHeader,
+} from '@wasp.sh/lib-auth/node';
 
 import type { ProviderConfig } from 'wasp/auth/providers/types';
 import { config } from 'wasp/server';
@@ -15,12 +19,9 @@ export function setOAuthCookieValue(
   fieldName: OAuthStateFieldName,
   value: string,
 ): void {
-  const cookieName = `${provider.id}_${fieldName}`;
+  const cookieName = getOAuthCookieName(provider.id, fieldName);
   res.cookie(cookieName, value, {
-    httpOnly: true,
-    secure: !config.isDevelopment,
-    path: "/",
-    maxAge: 60 * 60 * 1000, // 1 hour
+    ...getOAuthCookieOptions({ isDevelopment: config.isDevelopment }),
   });
 }
 
@@ -29,7 +30,9 @@ export function getOAuthCookieValue(
   req: ExpressRequest,
   fieldName: OAuthStateFieldName,
 ): string {
-  const cookieName = `${provider.id}_${fieldName}`;
-  const cookies = parseCookies(req.headers.cookie ?? "");
-  return cookies.get(cookieName);
+  return getOAuthCookieValueFromHeader(
+    provider.id,
+    fieldName,
+    req.headers.cookie ?? "",
+  );
 }
