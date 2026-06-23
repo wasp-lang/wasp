@@ -1,8 +1,8 @@
-import type { Element, Nodes as HastNodes, Root as HastRoot } from "hast";
-import { matches, select, selectAll } from "hast-util-select";
-import type { State } from "hast-util-to-mdast";
-import type { Code, RootContent } from "mdast";
-import type { ContainerDirective } from "mdast-util-directive";
+import type * as hast from "hast";
+import * as hastSelect from "hast-util-select";
+import type * as hastToMdast from "hast-util-to-mdast";
+import type * as mdast from "mdast";
+import type * as mdastDirective from "mdast-util-directive";
 import rehypeParse from "rehype-parse";
 import rehypeRemark from "rehype-remark";
 import remarkDirective from "remark-directive";
@@ -23,17 +23,17 @@ const markdownProcessor = unified()
   .use(rehypeSelectAndCleanDocusaurusContent)
   .use(rehypeRemark, {
     handlers: {
-      div(state, node: Element) {
-        if (hasClass(node, "theme-code-block")) {
-          return docusaurusCodeBlockToMdast(node);
+      div(state, element: hast.Element) {
+        if (hasClass(element, "theme-code-block")) {
+          return docusaurusCodeBlockToMdast(element);
         }
-        if (hasClass(node, "theme-admonition")) {
-          return docusaurusAdmonitionToMdast(state, node);
+        if (hasClass(element, "theme-admonition")) {
+          return docusaurusAdmonitionToMdast(state, element);
         }
-        if (hasClass(node, "tabs-container")) {
-          return docusaurusTabsToMdast(state, node);
+        if (hasClass(element, "tabs-container")) {
+          return docusaurusTabsToMdast(state, element);
         }
-        return state.all(node);
+        return state.all(element);
       },
     },
   })
@@ -78,18 +78,18 @@ const MARKDOWN_CONTENT_CONTAINER_SELECTORS = [
  * Reduces the parsed page to just its content container and drops
  * unnecessary nodes that would otherwise leak into the Markdown.
  */
-function rehypeSelectAndCleanDocusaurusContent(): (tree: HastRoot) => void {
-  return (tree: HastRoot): void => {
-    const contentContainer = findContentContainer(tree);
+function rehypeSelectAndCleanDocusaurusContent(): (root: hast.Root) => void {
+  return (root: hast.Root): void => {
+    const contentContainer = findContentContainer(root);
     const lastCheckedWithBanner = findLastCheckedWithBanner(
-      tree,
+      root,
       contentContainer,
     );
-    tree.children = lastCheckedWithBanner
+    root.children = lastCheckedWithBanner
       ? [lastCheckedWithBanner, contentContainer]
       : [contentContainer];
 
-    visit(tree, (node, index, parent) => {
+    visit(root, (node, index, parent) => {
       if (!parent || index === undefined) {
         return;
       }
@@ -109,11 +109,11 @@ function rehypeSelectAndCleanDocusaurusContent(): (tree: HastRoot) => void {
  * content container, and would otherwise be dropped.
  */
 function findLastCheckedWithBanner(
-  tree: HastRoot,
-  contentContainer: Element,
-): Element | undefined {
-  let banner: Element | undefined;
-  visit(tree, "element", (node, index, parent) => {
+  root: hast.Root,
+  contentContainer: hast.Element,
+): hast.Element | undefined {
+  let banner: hast.Element | undefined;
+  visit(root, "element", (node, index, parent) => {
     if (node !== contentContainer || !parent || index === undefined) {
       return;
     }
@@ -123,8 +123,8 @@ function findLastCheckedWithBanner(
         continue;
       }
       const holdsAdmonition =
-        matches(".theme-admonition", sibling) ||
-        select(".theme-admonition", sibling) !== undefined;
+        hastSelect.matches(".theme-admonition", sibling) ||
+        hastSelect.select(".theme-admonition", sibling) !== undefined;
       if (holdsAdmonition) {
         banner = sibling;
       }
@@ -135,9 +135,9 @@ function findLastCheckedWithBanner(
   return banner;
 }
 
-function findContentContainer(tree: HastRoot): Element {
+function findContentContainer(root: hast.Root): hast.Element {
   for (const selector of MARKDOWN_CONTENT_CONTAINER_SELECTORS) {
-    const containerElement = select(selector, tree);
+    const containerElement = hastSelect.select(selector, root);
     if (containerElement) {
       return containerElement;
     }
@@ -147,11 +147,11 @@ function findContentContainer(tree: HastRoot): Element {
   );
 }
 
-function isStrippableElement(node: Element): boolean {
-  const isHashLink = node.tagName === "a" && hasClass(node, "hash-link");
+function isStrippableElement(element: hast.Element): boolean {
+  const isHashLink = element.tagName === "a" && hasClass(element, "hash-link");
   const isSecretGeneratorButton =
-    node.tagName === "button" &&
-    getClassNames(node).some((className) =>
+    element.tagName === "button" &&
+    getClassNames(element).some((className) =>
       className.startsWith("generateBtn"),
     );
   return isHashLink || isSecretGeneratorButton;
@@ -160,45 +160,64 @@ function isStrippableElement(node: Element): boolean {
 /**
  * Converts a Docusaurus code block to a fenced code block. Lines are separate
  * elements with no newline text nodes between them, so we join token-line
- * elements explicitly. The language lives on the container.
+ * elements explicitly. The language lives on the container, and the `title=`
+ * filename (when present) renders as a `.codeBlockTitle` element which we
+ * carry back into the fence info string.
  *
  * @example
  * HTML:
  * ```html
- * <div class="theme-code-block language-ts"><pre><code>
- *   <div class="token-line">const x = 1;</div>
- *   <div class="token-line">const y = 2;</div>
- * </code></pre></div>
+ * <div class="theme-code-block language-ts">
+ *   <div class="codeBlockTitle">main.wasp.ts</div>
+ *   <pre><code>
+ *     <div class="token-line">const x = 1;</div>
+ *     <div class="token-line">const y = 2;</div>
+ *   </code></pre>
+ * </div>
  * ```
  *
  * Without handler:
  * ````md
+ * main.wasp.ts
+ *
  * ```
  * const x = 1;const y = 2;
  * ```
  * ````
  * With handler:
  * ````md
- * ```ts
+ * ```ts title="main.wasp.ts"
  * const x = 1;
  * const y = 2;
  * ```
  * ````
  */
-function docusaurusCodeBlockToMdast(node: Element): Code {
-  const codeLanguage = detectCodeLanguage(node);
-  const codeText = selectAll(".token-line", node)
+function docusaurusCodeBlockToMdast(codeBlock: hast.Element): mdast.Code {
+  const codeLanguage = detectCodeBlockLanguage(codeBlock);
+  const codeTitle = detectCodeBlockTitle(codeBlock);
+  const codeText = hastSelect
+    .selectAll(".token-line", codeBlock)
     .map((line) => hastTextContent(line))
     .join("\n")
     .replace(/\s+$/, "");
-  return { type: "code", lang: codeLanguage || null, value: codeText };
+  return {
+    type: "code",
+    lang: codeLanguage || null,
+    meta: codeTitle ? `title="${codeTitle}"` : null,
+    value: codeText,
+  };
+}
+
+function detectCodeBlockTitle(codeBlock: hast.Element): string {
+  const title = hastSelect.select('[class*="codeBlockTitle"]', codeBlock);
+  return title ? hastTextContent(title).trim() : "";
 }
 
 /**
  * `language-text` means "no language", so we treat it as none.
  */
-function detectCodeLanguage(node: Element): string {
-  for (const className of getClassNames(node)) {
+function detectCodeBlockLanguage(codeBlock: hast.Element): string {
+  for (const className of getClassNames(codeBlock)) {
     const match = className.match(/^language-(.+)$/);
     if (match && match[1] !== "text") {
       return match[1];
@@ -236,12 +255,15 @@ function detectCodeLanguage(node: Element): string {
  * ```
  */
 function docusaurusAdmonitionToMdast(
-  state: State,
-  node: Element,
-): ContainerDirective {
-  const admonitionType = detectAdmonitionType(node);
-  const customTitle = detectAdmonitionCustomTitle(node);
-  const admonitionContent = select('[class*="admonitionContent"]', node);
+  state: hastToMdast.State,
+  admonition: hast.Element,
+): mdastDirective.ContainerDirective {
+  const admonitionType = detectAdmonitionType(admonition);
+  const admonitionCustomTitle = detectAdmonitionCustomTitle(admonition);
+  const admonitionContent = hastSelect.select(
+    '[class*="admonitionContent"]',
+    admonition,
+  );
 
   if (!admonitionContent) {
     throw Error("Empty admonition content.");
@@ -249,16 +271,16 @@ function docusaurusAdmonitionToMdast(
 
   const children = state.all(
     admonitionContent,
-  ) as ContainerDirective["children"];
+  ) as mdastDirective.ContainerDirective["children"];
 
   const hasCustomTitle =
-    customTitle !== "" &&
-    customTitle.toLowerCase() !== admonitionType.toLowerCase();
+    admonitionCustomTitle !== "" &&
+    admonitionCustomTitle.toLowerCase() !== admonitionType.toLowerCase();
   if (hasCustomTitle) {
     children.unshift({
       type: "paragraph",
       data: { directiveLabel: true },
-      children: [{ type: "text", value: customTitle }],
+      children: [{ type: "text", value: admonitionCustomTitle }],
     });
   }
 
@@ -269,8 +291,8 @@ function docusaurusAdmonitionToMdast(
   };
 }
 
-function detectAdmonitionType(node: Element): string {
-  for (const className of getClassNames(node)) {
+function detectAdmonitionType(admonition: hast.Element): string {
+  for (const className of getClassNames(admonition)) {
     const match = className.match(/^theme-admonition-(.+)$/);
     if (match) {
       return match[1];
@@ -283,8 +305,8 @@ function detectAdmonitionType(node: Element): string {
  * Returns the admonition's custom title (e.g. from `:::note[Gotcha]`) or an
  * empty string when it just uses the default type label.
  */
-function detectAdmonitionCustomTitle(node: Element): string {
-  const heading = select('[class*="admonitionHeading"]', node);
+function detectAdmonitionCustomTitle(admonition: hast.Element): string {
+  const heading = hastSelect.select('[class*="admonitionHeading"]', admonition);
   return heading ? hastTextContent(heading).trim() : "";
 }
 
@@ -323,11 +345,14 @@ function detectAdmonitionCustomTitle(node: Element): string {
  * ```
  * ````
  */
-function docusaurusTabsToMdast(state: State, node: Element): RootContent[] {
-  const tabsLabels = selectAll('[role="tab"]', node).map((tab) =>
-    hastTextContent(tab).trim(),
-  );
-  const tabsPanels = selectAll('[role="tabpanel"]', node);
+function docusaurusTabsToMdast(
+  state: hastToMdast.State,
+  tabs: hast.Element,
+): mdast.RootContent[] {
+  const tabsLabels = hastSelect
+    .selectAll('[role="tab"]', tabs)
+    .map((tab) => hastTextContent(tab).trim());
+  const tabsPanels = hastSelect.selectAll('[role="tabpanel"]', tabs);
 
   if (tabsLabels.length !== tabsPanels.length) {
     throw Error("Tabs label count does not equal panel count.");
@@ -340,7 +365,7 @@ function docusaurusTabsToMdast(state: State, node: Element): RootContent[] {
     return state.all(tabsPanels[typescriptIndex]);
   }
 
-  return tabsPanels.flatMap((panel, index): RootContent[] => [
+  return tabsPanels.flatMap((panel, index): mdast.RootContent[] => [
     {
       type: "paragraph",
       children: [
@@ -368,16 +393,16 @@ function isJsTsTabsPair(tabsLabels: string[]): boolean {
   );
 }
 
-function hasClass(node: Element, className: string): boolean {
-  return getClassNames(node).includes(className);
+function hasClass(element: hast.Element, className: string): boolean {
+  return getClassNames(element).includes(className);
 }
 
-function getClassNames(node: Element): string[] {
-  const className = node.properties?.className;
+function getClassNames(element: hast.Element): string[] {
+  const className = element.properties?.className;
   return Array.isArray(className) ? className.map(String) : [];
 }
 
-function hastTextContent(node: HastNodes): string {
+function hastTextContent(node: hast.Nodes): string {
   if (node.type === "text") {
     return node.value;
   }

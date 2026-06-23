@@ -18,36 +18,35 @@ export const onRequest = async (
 ): Promise<Response> => {
   const { request, next } = context;
 
-  if (!wantsMarkdownContent(request)) {
+  const url = new URL(request.url);
+  if (
+    isAlreadyMarkdownRoute(url.pathname) ||
+    !isValidMarkdownDocsRoute(url.pathname)
+  ) {
     return next();
   }
 
-  const url = new URL(request.url);
-  if (isAlreadyMarkdownRoute(url.pathname)) {
-    return next();
-  }
-  if (!isValidMarkdownDocsRoute(url.pathname)) {
-    return next();
+  // Content negotiation starts here. Return with `Vary` header.
+  if (!wantsMarkdownContent(request)) {
+    return fallbackToHtmlResponse(next);
   }
 
   const markdownPathname = generateMarkdownPathname(url.pathname);
-  if (!markdownPathname) {
-    return next();
-  }
-
   const markdownUrl = new URL(markdownPathname, url.origin);
   const markdownResponse = await next(new Request(markdownUrl, request));
 
   if (!markdownResponse.ok) {
-    return next();
+    return fallbackToHtmlResponse(next);
   }
 
-  const response = new Response(markdownResponse.body, markdownResponse);
-  response.headers.set("Content-Type", "text/markdown; charset=utf-8");
-  response.headers.set("Vary", "Accept");
-
-  return response;
+  markdownResponse.headers.set("Content-Type", "text/markdown; charset=utf-8");
+  markdownResponse.headers.set("Vary", "Accept");
+  return markdownResponse;
 };
+
+function isAlreadyMarkdownRoute(pathname: string): boolean {
+  return pathname.endsWith(".md");
+}
 
 function wantsMarkdownContent(request: Request): boolean {
   if (request.method !== "GET") {
@@ -59,8 +58,10 @@ function wantsMarkdownContent(request: Request): boolean {
   return acceptHeader.includes("text/markdown");
 }
 
-function isAlreadyMarkdownRoute(pathname: string): boolean {
-  return pathname.endsWith(".md");
+async function fallbackToHtmlResponse(next: CloudflarePagesContext["next"]) {
+  const htmlResponse = await next();
+  htmlResponse.headers.set("Vary", "Accept");
+  return htmlResponse;
 }
 
 function generateMarkdownPathname(pathname: string): string {

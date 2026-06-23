@@ -1,8 +1,7 @@
 import fs from "fs/promises";
-import { globSync } from "glob";
 import path from "path";
 
-import { getSiteRoot } from "../site-root";
+import { SITE_ROOT_DIR } from "../site-root";
 import { htmlToMarkdown } from "./convert";
 import { isValidMarkdownDocsRoute } from "./markdown-routes";
 
@@ -12,8 +11,12 @@ import { isValidMarkdownDocsRoute } from "./markdown-routes";
  * Docusaurus emits `<route>.html` files, so we write `<route>.md` next to each.
  */
 
-const SITE_ROOT = getSiteRoot();
-const BUILD_DIR = path.join(SITE_ROOT, "build");
+const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
+const MARKDOWN_DOCS_INDEX_HEADER = `\
+> Fetch the complete documentation index at: https://wasp.sh/llms.txt
+------
+
+`;
 
 generateMarkdownFiles().catch((err) => {
   console.error("Failed to generate Markdown files:", err);
@@ -23,16 +26,18 @@ generateMarkdownFiles().catch((err) => {
 async function generateMarkdownFiles(): Promise<void> {
   console.log("Generating markdown files from built HTML...");
 
-  const htmlFilesRelPaths = findConvertibleHtmlFiles();
+  const htmlFilesRelPaths = await findConvertibleHtmlFiles();
   let generatedDocs = 0;
   for (const htmlFileRelPath of htmlFilesRelPaths) {
     const htmlFileAbsPath = path.join(BUILD_DIR, htmlFileRelPath);
     const html = await fs.readFile(htmlFileAbsPath, "utf8");
 
     const markdown = htmlToMarkdown(html);
+    const markdownWithIndex = MARKDOWN_DOCS_INDEX_HEADER + markdown;
+
     const markdownFileAbsPath = htmlFileAbsPath.replace(/\.html$/, ".md");
 
-    await fs.writeFile(markdownFileAbsPath, markdown, "utf8");
+    await fs.writeFile(markdownFileAbsPath, markdownWithIndex, "utf8");
     generatedDocs++;
   }
 
@@ -41,13 +46,18 @@ async function generateMarkdownFiles(): Promise<void> {
   );
 }
 
-function findConvertibleHtmlFiles(): string[] {
-  return globSync("**/*.html", {
+async function findConvertibleHtmlFiles(): Promise<string[]> {
+  const htmlFileRelPaths: string[] = [];
+
+  for await (const htmlFileRelPath of fs.glob("**/*.html", {
     cwd: BUILD_DIR,
-    nodir: true,
-  }).filter((htmlFileRelPath) =>
-    isValidMarkdownDocsRoute(toRoute(htmlFileRelPath)),
-  );
+  })) {
+    if (isValidMarkdownDocsRoute(toRoute(htmlFileRelPath))) {
+      htmlFileRelPaths.push(htmlFileRelPath);
+    }
+  }
+
+  return htmlFileRelPaths;
 }
 
 /**
@@ -63,6 +73,7 @@ function toRoute(htmlFileRelPath: string): string {
     htmlFileRelPath
       .replace(/\\/g, "/")
       .replace(/\.html$/, "")
+      // "YYYY/MM/DD" → "YYYY-MM-DD"
       .replace(/(\d{4})\/(\d{2})\/(\d{2})/g, "$1-$2-$3")
   );
 }
