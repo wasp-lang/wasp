@@ -24,7 +24,7 @@ module Wasp.Cli.Command.Require
     -- * Requirables
     Requirable (checkRequirement),
     InWaspProject (InWaspProject),
-    NodeAndNpmInstalled (NodeAndNpmInstalled),
+    ValidNodeAndNpm (ValidNodeAndNpm),
     WaspSpecAvailable (WaspSpecAvailable),
     GeneratedAppIsProduction (GeneratedAppIsProduction),
     GeneratedAppIsDevelopment (GeneratedAppIsDevelopment),
@@ -95,14 +95,14 @@ instance Requirable InWaspProject where
 -- Wasp's version requirements. Any command that runs Node.js (compilation,
 -- running the generated app, npm install, Prisma, the deploy/studio packages,
 -- ...) should require this so the user gets a clear error early on.
-data NodeAndNpmInstalled = NodeAndNpmInstalled deriving (Typeable)
+data ValidNodeAndNpm = ValidNodeAndNpm deriving (Typeable)
 
-instance Requirable NodeAndNpmInstalled where
+instance Requirable ValidNodeAndNpm where
   checkRequirement =
     liftIO NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
       NodeVersion.VersionCheckFail errorMsg ->
         throwError $ CommandError "Node/NPM requirement not met" errorMsg
-      NodeVersion.VersionCheckSuccess -> return NodeAndNpmInstalled
+      NodeVersion.VersionCheckSuccess -> return ValidNodeAndNpm
 
 -- | Require that the @wasp.sh/spec package is available in node_modules and that
 -- its version matches this CLI's version (for TS projects). For DSL projects,
@@ -114,7 +114,7 @@ instance Requirable WaspSpecAvailable where
     InWaspProject waspProjectDir <- require
     isTsProject <- liftIO $ isWaspTsProject waspProjectDir
     when isTsProject $ do
-      NodeAndNpmInstalled <- require
+      ValidNodeAndNpm <- require
       ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
     return WaspSpecAvailable
     where
