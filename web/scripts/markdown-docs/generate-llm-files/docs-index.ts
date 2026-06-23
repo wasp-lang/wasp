@@ -9,7 +9,7 @@ import remarkStringify from "remark-stringify";
 import { unified } from "unified";
 import { visit } from "unist-util-visit";
 
-import { SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
+import { BUILD_DIR, SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
 import { loadPermalinkMaps, PermalinkMap } from "./permalinks";
 import {
   isSidebarCategory,
@@ -19,8 +19,6 @@ import {
   type ResolvedSidebarItem,
   ResolvedSidebarLink,
 } from "./resolved-sidebars";
-
-const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
 
 const SIDEBAR_CATEGORIES_TO_IGNORE = ["Miscellaneous"];
 // A typedoc package's index page, e.g. "api/@wasp.sh/spec/index". We list these
@@ -221,10 +219,22 @@ const builtMarkdownProcessor = unified()
 
 function remarkRewriteBuiltDoc(): (tree: MdastRoot) => void {
   return (tree: MdastRoot): void => {
+    dropIndexHeader(tree);
     dropTitleHeading(tree);
     nestHeadingsDeeper(tree);
     makeRootRelativeUrlsAbsolute(tree);
   };
+}
+
+/**
+ * Each built Markdown file starts with a header pointing at the docs index
+ * It is redundant inside the concatenated index, so we drop it.
+ */
+function dropIndexHeader(tree: MdastRoot): void {
+  const [first, second] = tree.children;
+  if (first?.type === "blockquote" && second?.type === "thematicBreak") {
+    tree.children.splice(0, 2);
+  }
 }
 
 function dropTitleHeading(tree: MdastRoot): void {

@@ -3,9 +3,7 @@ import fs from "fs/promises";
 import { glob } from "glob";
 import path from "path";
 
-import { SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
-
-const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
+import { BUILD_DIR, SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
 
 const LLMS_TXT_INTRO = `# Wasp
 

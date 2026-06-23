@@ -1,14 +1,12 @@
 import fs from "fs/promises";
 import path from "path";
 
-import { SITE_ROOT_DIR, WASP_BASE_URL } from "../constants";
+import { BUILD_DIR, WASP_BASE_URL } from "../constants";
 import {
   type IndexItem,
   type MarkdownDocsIndex,
   buildMarkdownDocsIndex,
 } from "./docs-index";
-
-const BUILD_DIR = path.join(SITE_ROOT_DIR, "build");
 
 /**
  * Generates all `llm-{waspVersion}.txt` and `llm-full-{waspVersion}.txt` files.
