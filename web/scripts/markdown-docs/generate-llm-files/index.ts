@@ -1,6 +1,6 @@
 import waspVersions from "../../../versions.json";
-import { generateLlmsTxtFile } from "./llmsTxt";
-import { generateVersionedLlmFiles } from "./versionedLlmFiles";
+import { generateLlmsTxtFile } from "./llms-txt";
+import { generateVersionedLlmFiles } from "./versioned-llm-files";
 
 /**
  * Generates the following files:
