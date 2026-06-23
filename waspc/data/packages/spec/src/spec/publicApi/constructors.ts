@@ -98,8 +98,10 @@ type PageConfig = Omit<Page, "kind" | "component">;
  * such as dynamic segments (`/tasks/:id`), optional segments
  * (`/photo/:id/edit?`), and splats (`/files/*`).
  *
- * Use `config.prerender` to render the route to static HTML at build time
- * (see [Prerendering](https://wasp.sh/docs/advanced/prerendering)) and
+ * Use `config.prerender` to render the route to static HTML at build time:
+ * `true` prerenders the route's own static path, or pass an array of concrete
+ * paths to prerender specific instances of a dynamic route (see
+ * [Prerendering](https://wasp.sh/docs/advanced/prerendering)). Use
  * `config.lazy` to opt out of lazy-loading the page's bundle.
  *
  * @example

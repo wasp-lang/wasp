@@ -32,7 +32,7 @@ export function wasp(options?: WaspPluginOptions): PluginOption {
     ssr({
       clientEntrySrc: "/@wasp/client-entry.tsx",
       ssrEntrySrc: "/@wasp/ssr-entry.tsx",
-      ssrPaths: ['/', '/prerender', '/hydration-mismatch'],
+      ssrPaths: ['/', '/prerender', '/prerender-instances/martin', '/prerender-instances/matija', '/hydration-mismatch'],
       spaFallbackFile: "200.html",
     }),
   ];

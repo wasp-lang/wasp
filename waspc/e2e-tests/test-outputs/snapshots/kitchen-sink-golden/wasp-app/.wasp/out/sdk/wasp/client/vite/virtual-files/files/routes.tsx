@@ -168,6 +168,13 @@ const routesMapping = {
         .then(component => ({ default: component }))
       ),
   },
+  PrerenderInstancesRoute: {
+    Component:
+      lazy(() =>
+        import('./src/features/prerender/pages/PrerenderInstancesPage').then(m => m.PrerenderInstancesPage)
+        .then(component => ({ default: component }))
+      ),
+  },
   HydrationMismatchRoute: {
     Component:
       lazy(() =>

@@ -7,9 +7,18 @@
 - Cleaned up SDK package exports by removing stale internal `wasp/...` paths that were not part of the documented public API. If your app imported any of these private paths, switch to documented public imports like `wasp/client/operations`, `wasp/server/operations`, `wasp/server/auth`, and `wasp/serialization`. ([#4351](https://github.com/wasp-lang/wasp/pull/4351))
 - Removed the Wasp Language Server functionality, since it's not needed anymore in the Wasp Spec. ([#4335](https://github.com/wasp-lang/wasp/pull/4335))
 
+### 🎉 New Features
+
+- A route's `prerender` option now also accepts an array of paths, so you can prerender specific instances of a dynamic route (e.g. `prerender: ["/blog/intro", "/blog/changelog"]` for a `/blog/:slug` route). ([#4318](https://github.com/wasp-lang/wasp/pull/4318))
+
+### 🐞 Bug fixes
+
+- Fixed a race condition where `useAuth()` could return stale user data after an action that modifies the `User` entity (by @okxint). ([#4343](https://github.com/wasp-lang/wasp/issues/4343))
+
 ### 🔧 Small improvements
 
 - Added a `wasp doctor` command that runs common sanity checks on your setup to check that Wasp can work correctly, and prints a report. ([#4283](https://github.com/wasp-lang/wasp/pull/4283))
+- `wasp deps` no longer shows internal Wasp packages in its output (by @okxint). ([#4342](https://github.com/wasp-lang/wasp/issues/4342))
 
 ## 0.24.0
 
