@@ -1,7 +1,7 @@
 {-# LANGUAGE TypeApplications #-}
 
 module Wasp.Generator.SdkGenerator.Server.OperationsGenerator
-  ( getServerOperationsImportPath,
+  ( serverOperationIndexJsFileInSdkRootDir,
     genOperations,
   )
 where
@@ -10,7 +10,7 @@ import Data.Aeson (object, (.=))
 import qualified Data.Aeson as Aeson
 import Data.List (nub)
 import Data.Maybe (fromMaybe)
-import StrongPath (Dir', File', Path, Path', Posix, Rel, reldir, reldirP, relfile, relfileP, (</>))
+import StrongPath (Dir', File', Path', Rel, castRel, reldir, relfile, (</>))
 import Wasp.AppSpec (AppSpec)
 import qualified Wasp.AppSpec as AS
 import qualified Wasp.AppSpec.Action as AS.Action
@@ -22,21 +22,19 @@ import Wasp.Generator.Common (makeJsonWithEntityData)
 import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Common
-  ( SdkTemplatesDir,
+  ( SdkRootDir,
+    SdkTemplatesDir,
     getOperationTypeName,
-    makeSdkImportPath,
     mkTmplFdWithData,
   )
 import Wasp.Generator.SdkGenerator.JsImport (extOperationImportToImportJson)
 import Wasp.Util (toUpperFirst)
 
--- | This function should match the `exports` path from the SDK's package.json.
-getServerOperationsImportPath :: AS.Operation.Operation -> Path Posix (Rel r) File'
-getServerOperationsImportPath = \operation ->
-  makeSdkImportPath $
-    [reldirP|server/operations|] </> case operation of
-      (AS.Operation.QueryOp _ _) -> [relfileP|queries|]
-      (AS.Operation.ActionOp _ _) -> [relfileP|actions|]
+serverOperationIndexJsFileInSdkRootDir :: AS.Operation.Operation -> Path' (Rel SdkRootDir) File'
+serverOperationIndexJsFileInSdkRootDir operation =
+  serverOpsDirInSdkRootDir </> case operation of
+    (AS.Operation.QueryOp _ _) -> [relfile|queries/index.js|]
+    (AS.Operation.ActionOp _ _) -> [relfile|actions/index.js|]
 
 genOperations :: AppSpec -> Generator [FileDraft]
 genOperations spec =
@@ -169,4 +167,7 @@ getOperationTmplData isAuthEnabledGlobally operation =
     ]
 
 serverOpsDirInSdkTemplatesDir :: Path' (Rel SdkTemplatesDir) Dir'
-serverOpsDirInSdkTemplatesDir = [reldir|server/operations|]
+serverOpsDirInSdkTemplatesDir = castRel serverOpsDirInSdkRootDir
+
+serverOpsDirInSdkRootDir :: Path' (Rel SdkRootDir) Dir'
+serverOpsDirInSdkRootDir = [reldir|server/operations|]

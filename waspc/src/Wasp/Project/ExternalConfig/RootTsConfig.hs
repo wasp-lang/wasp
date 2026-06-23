@@ -12,7 +12,7 @@ import StrongPath (Abs, Dir, File, Path', Rel, fromRelFile)
 import qualified System.FilePath as FP
 import Validation (Validation (..))
 import qualified Wasp.ExternalConfig.TsConfig as T
-import Wasp.Project.Common (CompileError, RootTsConfigFile, TsConfigPaths (..), WaspProjectDir, tsConfigPathsInWaspTsProjects)
+import Wasp.Project.Common (CompileError, RootTsConfigFile, TsConfigPaths (..), WaspProjectDir, tsConfigPaths)
 import Wasp.Project.ExternalConfig.TsConfig (parseAndValidateTsConfigFile)
 import qualified Wasp.Validator as V
 
@@ -34,8 +34,8 @@ rootTsConfigValidator =
   where
     requiredReferences :: [String]
     requiredReferences =
-      [ fromRelFile tsConfigPathsInWaspTsProjects.srcTsConfig,
-        fromRelFile $ fromJust tsConfigPathsInWaspTsProjects.waspTsConfig
+      [ fromRelFile tsConfigPaths.srcTsConfig,
+        fromRelFile $ fromJust tsConfigPaths.waspTsConfig
       ]
 
     makeReferenceIncludedValidator :: String -> V.Validator [T.TsConfigReference]

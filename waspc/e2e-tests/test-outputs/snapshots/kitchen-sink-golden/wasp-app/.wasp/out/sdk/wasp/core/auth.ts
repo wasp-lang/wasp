@@ -1,6 +1,6 @@
-import { getSessionAndUserFromBearerToken } from 'wasp/auth/session'
-import { createInvalidCredentialsError } from 'wasp/auth/utils'
-import { defineHandler } from 'wasp/server/utils'
+import { getSessionAndUserFromBearerToken } from '../auth/session.js'
+import { createInvalidCredentialsError } from '../auth/utils.js'
+import { defineHandler } from '../server/utils.js'
 
 /**
  * Auth middleware

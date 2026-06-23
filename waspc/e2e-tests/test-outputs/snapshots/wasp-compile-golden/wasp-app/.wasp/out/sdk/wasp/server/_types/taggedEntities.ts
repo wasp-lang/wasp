@@ -6,7 +6,7 @@
 import { 
   type Entity, 
   type EntityName,
-} from 'wasp/entities'
+} from '../../entities/index.js'
 
 
 export type _Entity = 

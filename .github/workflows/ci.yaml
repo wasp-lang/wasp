@@ -10,7 +10,6 @@ on:
 
   workflow_call:
     inputs:
-      &inputs # This is a YAML "anchor", lets us reuse this same block below
       override-npm-package-version:
         description: >
           If set, overrides the version of npm packages to publish.
@@ -20,67 +19,84 @@ on:
         type: string
 
   workflow_dispatch:
-    inputs: *inputs # This is a YAML "alias", reuses the block defined above
+    inputs:
+      override-npm-package-version:
+        description: >
+          If set, overrides the version of npm packages to publish.
+          Useful for publishing an RC version.
+          Leading 'v' will be stripped if present.
+        required: false
+        type: string
 
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
 
+# This is a kind of meta-workflow that calls other workflows. It is used to
+# orchestrate the CI process. We ignore the zizmor warnings since this workflow
+# will call other workflows that each have their own permissions and secrets
+# defined, so we don't want to define them here. Each workflow is also checked
+# by zizmor separately, so it is moderately safe to ignore the warnings here.
+
 jobs:
-  deploy-test:
+  deploy-test: # zizmor: ignore[excessive-permissions]
     needs: waspc-build
     uses: ./.github/workflows/ci-deploy-test.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  examples-test:
+  examples-test: # zizmor: ignore[excessive-permissions]
     needs: waspc-build
     uses: ./.github/workflows/ci-examples-test.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  formatting:
+  formatting: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-formatting.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  starters-test:
+  starters-test: # zizmor: ignore[excessive-permissions]
     needs: waspc-build
     uses: ./.github/workflows/ci-starters-test.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  tsspec-test:
+  tsspec-test: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-tsspec-test.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  libs-test:
+  libs-test: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-libs-test.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  packages-test:
+  packages-test: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-packages-test.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  waspc-build:
+  waspc-build: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-waspc-build.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
 
-  npm-package-build:
+  npm-package-build: # zizmor: ignore[excessive-permissions]
     needs: waspc-build
     uses: ./.github/workflows/ci-npm-package-build.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
       build-outputs-json: ${{ toJson(needs.waspc-build.outputs) }}
       override-npm-package-version: ${{ inputs.override-npm-package-version }}
 
-  npm-package-publish:
+  npm-package-publish: # zizmor: ignore[excessive-permissions]
     needs: npm-package-build
     uses: ./.github/workflows/ci-npm-package-publish.yaml
 
-  npm-package-test:
+  npm-package-test: # zizmor: ignore[excessive-permissions]
     needs: [npm-package-publish, waspc-build]
     uses: ./.github/workflows/ci-npm-package-test.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
     with:
       data-files-list: ${{ needs.waspc-build.outputs.data_files_list }}
 
-  waspc-test:
+  waspc-test: # zizmor: ignore[excessive-permissions]
     uses: ./.github/workflows/ci-waspc-test.yaml
-    secrets: inherit
+    secrets: inherit # zizmor: ignore[secrets-inherit]
+
+  actions-check: # zizmor: ignore[excessive-permissions]
+    uses: ./.github/workflows/ci-actions-check.yaml
+    secrets: inherit # zizmor: ignore[secrets-inherit]

@@ -26,7 +26,7 @@ import Wasp.Generator.FileDraft (FileDraft)
 import Wasp.Generator.Monad (Generator)
 import Wasp.Generator.SdkGenerator.Server.JobGenerator
   ( getImportJsonForJobDefinition,
-    getJobExecutorImportPath,
+    getJobExecutorSdkPackageImportPath,
   )
 import Wasp.Generator.ServerGenerator.Common
   ( ServerTemplatesDir,
@@ -48,7 +48,7 @@ genRegisterJob (jobName, job) =
     ( Just $
         object
           [ "jobPerformFn" .= jobPerformFn,
-            "jobExecutorImportPath" .= SP.fromRelFileP (getJobExecutorImportPath (J.executor job)),
+            "jobExecutorImportPath" .= SP.fromRelFileP (getJobExecutorSdkPackageImportPath (J.executor job)),
             "jobDefinition" .= getImportJsonForJobDefinition jobName
           ]
     )

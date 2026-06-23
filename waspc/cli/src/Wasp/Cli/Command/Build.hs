@@ -29,13 +29,12 @@ import Wasp.Project.Common
     CompileWarning,
     WaspProjectDir,
     generatedAppDirInWaspProjectDir,
-    getTsConfigPathsForWaspProject,
     packageLockJsonInWaspProjectDir,
     srcDirInWaspProjectDir,
     srcTsConfig,
+    tsConfigPaths,
     userPackageJsonInWaspProjectDir,
   )
-import Wasp.Project.WaspFile (findWaspFile)
 import Wasp.Util.IO (copyDirectory, copyFile, doesDirectoryExist, removeDirectory)
 import Wasp.Util.Json (updateJsonFile)
 
@@ -48,9 +47,9 @@ import Wasp.Util.Json (updateJsonFile)
 -- Very similar to 'compile'.
 build :: Command ()
 build = do
-  ValidNodeAndNpm <- require
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
+  ValidNodeAndNpm <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 
@@ -82,8 +81,7 @@ build = do
       "Your wasp project has been successfully built! Check it out in the " ++ fromRelDir generatedAppDirInWaspProjectDir ++ " directory."
   where
     prepareFilesNecessaryForDockerBuild waspProjectDir buildDir = runExceptT $ do
-      waspFilePath <- ExceptT $ findWaspFile waspProjectDir
-      let srcTsConfigPath = srcTsConfig $ getTsConfigPathsForWaspProject waspFilePath
+      let srcTsConfigPath = srcTsConfig tsConfigPaths
 
       -- Until we implement the solution described in https://github.com/wasp-lang/wasp/issues/1769,
       -- we're copying all files and folders necessary for Docker build into the .wasp/out directory.

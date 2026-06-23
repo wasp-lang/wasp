@@ -51,7 +51,6 @@ import Wasp.NodePackageFFI (InstallablePackage (WaspSpecPackage), tryGettingInst
 import qualified Wasp.Project.BuildType as BuildType
 import Wasp.Project.Common (WaspProjectDir)
 import qualified Wasp.Project.Common as Project.Common
-import Wasp.Project.WaspFile (isWaspTsProject)
 import Wasp.Util.Terminal (styleCode)
 import qualified Wasp.Version as WV
 
@@ -105,17 +104,16 @@ instance Requirable ValidNodeAndNpm where
       NodeVersion.VersionCheckSuccess -> return ValidNodeAndNpm
 
 -- | Require that the @wasp.sh/spec package is available in node_modules and that
--- its version matches this CLI's version (for TS projects). For DSL projects,
--- this check always passes.
+-- its version matches this CLI's version.
 data WaspSpecAvailable = WaspSpecAvailable deriving (Typeable)
 
 instance Requirable WaspSpecAvailable where
   checkRequirement = do
     InWaspProject waspProjectDir <- require
-    isTsProject <- liftIO $ isWaspTsProject waspProjectDir
-    when isTsProject $ do
-      ValidNodeAndNpm <- require
-      ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
+    -- Reading the wasp spec runs Node.js (via the FFI), so it requires Node.js
+    -- and npm to be present.
+    ValidNodeAndNpm <- require
+    ensureInstalledWaspSpecMatchesCliVersion waspProjectDir
     return WaspSpecAvailable
     where
       ensureInstalledWaspSpecMatchesCliVersion waspProjectDir =

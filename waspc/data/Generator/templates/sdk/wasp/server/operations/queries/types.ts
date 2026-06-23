@@ -13,7 +13,7 @@ import {
   type AuthenticatedQueryDefinition,
   {=/ shouldImportAuthenticatedOperation =}
   type Payload,
-} from 'wasp/server/_types'
+} from '../../_types/index.js'
 
 {=# operations =}
 // PUBLIC API

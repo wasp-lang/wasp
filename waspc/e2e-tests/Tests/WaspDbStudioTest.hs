@@ -25,4 +25,4 @@ waspDbStudioTest =
     ]
   where
     waspCliDbStudioFails :: ShellCommand
-    waspCliDbStudioFails = "! wasp-cli db studio"
+    waspCliDbStudioFails = "! $WASP_CLI_CMD db studio"
