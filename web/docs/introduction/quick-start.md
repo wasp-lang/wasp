@@ -150,6 +150,10 @@ If you need it, we recommend using [nvm](https://github.com/nvm-sh/nvm) for mana
     :::caution
     If you are using WSL2, make sure that your Wasp project is not on the Windows file system, but instead on the Linux file system. Otherwise, Wasp won't be able to detect file changes, due to the [issue in WSL2](https://github.com/microsoft/WSL/issues/4739).
     :::
+
+    :::tip VSCode on WSL
+    If you use VSCode to edit your Wasp project, install the [WSL extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-wsl). Without it, VSCode's TypeScript and Wasp language support may not pick up files in the WSL2 Linux file system, leading to confusing red squiggles on every import. Open the project from WSL with `code .` after installing the extension so VSCode knows to run the language server inside WSL.
+    :::
   </TabItem>
 
   <TabItem value="source">
