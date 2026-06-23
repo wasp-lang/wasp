@@ -1,6 +1,5 @@
-import { exec } from "child_process";
-
-import { createLogger } from "./logging.js";
+import { exec } from "node:child_process";
+import { createLogger } from "./logging.ts";
 
 export async function checkDependencies() {
   const logger = createLogger("check-dependencies");

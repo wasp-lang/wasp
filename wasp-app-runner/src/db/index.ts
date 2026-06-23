@@ -1,13 +1,14 @@
-import type { DockerImageName, PathToApp } from "../args.js";
-import type { AppName } from "../waspCli.js";
-import { setupPostgres } from "./postgres.js";
-import { setupSqlite } from "./sqlite.js";
-import type { SetupDbResult } from "./types.js";
+import type { DockerImageName, PathToApp } from "../args.ts";
+import type { AppName } from "../waspCli.ts";
+import { setupPostgres } from "./postgres.ts";
+import { setupSqlite } from "./sqlite.ts";
+import type { SetupDbResult } from "./types.ts";
 
-export enum DbType {
-  Sqlite = "sqlite",
-  Postgres = "postgres",
-}
+export const DbType = {
+  Sqlite: "sqlite",
+  Postgres: "postgres",
+} as const;
+export type DbType = (typeof DbType)[keyof typeof DbType];
 
 export function setupDb({
   appName,

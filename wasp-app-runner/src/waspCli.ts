@@ -1,11 +1,10 @@
 import { stripVTControlCharacters } from "node:util";
 import semver, { type SemVer } from "semver";
-
-import type { PathToApp, WaspCliCmd } from "./args.js";
-import { DbType } from "./db/index.js";
-import { createLogger } from "./logging.js";
-import { spawnAndCollectOutput, spawnWithLog } from "./process.js";
-import type { Branded, EnvVars } from "./types.js";
+import type { PathToApp, WaspCliCmd } from "./args.ts";
+import { DbType } from "./db/index.ts";
+import { createLogger } from "./logging.ts";
+import { spawnAndCollectOutput, spawnWithLog } from "./process.ts";
+import type { Branded, EnvVars } from "./types.ts";
 
 export type AppName = Branded<string, "AppName">;
 export type WaspVersion = Branded<SemVer, "WaspVersion">;

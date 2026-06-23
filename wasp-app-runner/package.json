@@ -12,12 +12,11 @@
   "author": "Wasp Team <info@wasp-lang.dev> (https://wasp.sh)",
   "license": "MIT",
   "bin": {
-    "run-wasp-app": "bin/index.js"
+    "run-wasp-app": "src/bin.ts"
   },
   "scripts": {
-    "build": "tsc",
-    "prepack": "npm run build",
-    "start": "npm run build && node ./bin/index.js"
+    "check": "tsc",
+    "prepack": "npm run check"
   },
   "dependencies": {
     "@commander-js/extra-typings": "^13.1.0",
@@ -28,8 +27,8 @@
     "semver": "^7.7.3"
   },
   "devDependencies": {
-    "@types/node": "^22.15.12",
+    "@types/node": "^24.13.2",
     "@types/semver": "^7.7.1",
-    "typescript": "^5.8.3"
+    "typescript": "^6.0.3"
   }
 }

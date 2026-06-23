@@ -1,22 +1,20 @@
-// Based on https://www.totaltypescript.com/tsconfig-cheat-sheet
 {
+  "include": ["src"],
   "compilerOptions": {
-    "esModuleInterop": true,
-    "skipLibCheck": true,
-    "target": "es2022",
+    "allowImportingTsExtensions": true,
     "allowJs": true,
-    "resolveJsonModule": true,
-    "moduleDetection": "force",
+    "erasableSyntaxOnly": true,
     "isolatedModules": true,
-    "strict": true,
+    "lib": ["es2025"],
+    "noEmit": true,
     "noUncheckedIndexedAccess": true,
-    "moduleResolution": "NodeNext",
-    "module": "NodeNext",
+    "resolveJsonModule": true,
     "rootDir": "src",
-    "outDir": "dist",
-    // "declaration": true,
-    // "sourceMap": true,
-    "lib": ["es2022"]
-  },
-  "include": ["src"]
+    "skipLibCheck": true,
+    "strict": true,
+    "target": "es2025",
+    "types": ["node/"],
+    "verbatimModuleSyntax": true,
+    "module": "node20"
+  }
 }

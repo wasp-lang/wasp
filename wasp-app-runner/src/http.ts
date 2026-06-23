@@ -1,5 +1,5 @@
 import pRetry from "p-retry";
-import { createLogger } from "./logging.js";
+import { createLogger } from "./logging.ts";
 
 export async function waitUntilAppReady({
   port,

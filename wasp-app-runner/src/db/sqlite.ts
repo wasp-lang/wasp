@@ -1,4 +1,4 @@
-import type { SetupDbResult } from "./types.js";
+import type { SetupDbResult } from "./types.ts";
 
 export const setupSqlite = async (): Promise<SetupDbResult> => {
   // No need to do anything special for SQLite, just return

@@ -1,10 +1,10 @@
-import * as path from "path";
-import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
-import { DbType, setupDb } from "../db/index.js";
-import { doesFileExist } from "../files.js";
-import { startLocalSmtpServer } from "../smtp.js";
-import { EnvVars } from "../types.js";
-import { type AppName, waspBuild, waspBuildStart } from "../waspCli.js";
+import * as path from "node:path";
+import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.ts";
+import { DbType, setupDb } from "../db/index.ts";
+import { doesFileExist } from "../files.ts";
+import { startLocalSmtpServer } from "../smtp.ts";
+import type { EnvVars } from "../types.ts";
+import { type AppName, waspBuild, waspBuildStart } from "../waspCli.ts";
 
 export async function startAppInBuildMode({
   waspCliCmd,

@@ -1,18 +1,18 @@
-import { readdir } from "fs/promises";
+import { readdir } from "node:fs/promises";
 import {
   parseArgs,
   type DockerImageName,
   type Mode,
   type PathToApp,
   type WaspCliCmd,
-} from "./args.js";
-import { startAppInBuildMode } from "./build/index.js";
-import { DbType } from "./db/index.js";
-import { defaultPostgresDbImage } from "./db/postgres.js";
-import { checkDependencies } from "./dependencies.js";
-import { startAppInDevMode } from "./dev/index.js";
-import { createLogger } from "./logging.js";
-import { waspInfo, waspInstall } from "./waspCli.js";
+} from "./args.ts";
+import { startAppInBuildMode } from "./build/index.ts";
+import { DbType } from "./db/index.ts";
+import { defaultPostgresDbImage } from "./db/postgres.ts";
+import { checkDependencies } from "./dependencies.ts";
+import { startAppInDevMode } from "./dev/index.ts";
+import { createLogger } from "./logging.ts";
+import { waspInfo, waspInstall } from "./waspCli.ts";
 
 const logger = createLogger("main");
 

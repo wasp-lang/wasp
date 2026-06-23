@@ -1,6 +1,6 @@
-import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.js";
-import { DbType, setupDb } from "../db/index.js";
-import { type AppName, waspMigrateDb, waspStart } from "../waspCli.js";
+import type { DockerImageName, PathToApp, WaspCliCmd } from "../args.ts";
+import { DbType, setupDb } from "../db/index.ts";
+import { type AppName, waspMigrateDb, waspStart } from "../waspCli.ts";
 
 export async function startAppInDevMode({
   waspCliCmd,

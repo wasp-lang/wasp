@@ -1,7 +1,7 @@
-import type { DockerImageName } from "./args.js";
-import { pullDockerImage } from "./docker.js";
-import { createLogger } from "./logging.js";
-import { spawnWithLog } from "./process.js";
+import type { DockerImageName } from "./args.ts";
+import { pullDockerImage } from "./docker.ts";
+import { createLogger } from "./logging.ts";
+import { spawnWithLog } from "./process.ts";
 
 const mailcrabImage = "marlonb/mailcrab:latest" as DockerImageName;
 

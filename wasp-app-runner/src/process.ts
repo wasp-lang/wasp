@@ -1,7 +1,7 @@
-import { ChildProcess, spawn } from "child_process";
+import { ChildProcess, spawn } from "node:child_process";
 import readline from "readline";
-import { createLogger } from "./logging.js";
-import type { EnvVars } from "./types.js";
+import { createLogger } from "./logging.ts";
+import type { EnvVars } from "./types.ts";
 
 type SpawnOptions = {
   name: string;

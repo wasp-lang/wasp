@@ -1,9 +1,9 @@
-import { createHash } from "crypto";
-import type { DockerImageName, PathToApp } from "./args.js";
-import { createLogger } from "./logging.js";
-import { spawnWithLog } from "./process.js";
-import { Branded } from "./types.js";
-import type { AppName } from "./waspCli.js";
+import { createHash } from "node:crypto";
+import type { DockerImageName, PathToApp } from "./args.ts";
+import { createLogger } from "./logging.ts";
+import { spawnWithLog } from "./process.ts";
+import type { Branded } from "./types.ts";
+import type { AppName } from "./waspCli.ts";
 
 export type DbContainerName = Branded<string, "ContainerName">;
 

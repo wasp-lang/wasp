@@ -1,7 +1,7 @@
 import { Argument, program } from "@commander-js/extra-typings";
 import packageJson from "../package.json" with { type: "json" };
-import { defaultPostgresDbImage } from "./db/postgres.js";
-import { Branded } from "./types.js";
+import { defaultPostgresDbImage } from "./db/postgres.ts";
+import type { Branded } from "./types.ts";
 
 export type Mode = "dev" | "build";
 export type PathToApp = Branded<string, "PathToApp">;

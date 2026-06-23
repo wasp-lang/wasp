@@ -1,14 +1,14 @@
-import type { DockerImageName, PathToApp } from "../args.js";
+import type { DockerImageName, PathToApp } from "../args.ts";
 import {
-  DbContainerName,
+  type DbContainerName,
   createAppSpecificDbContainerName,
   pullDockerImage,
-} from "../docker.js";
-import { createLogger } from "../logging.js";
-import { spawnAndCollectOutput } from "../process.js";
-import { Branded } from "../types.js";
-import type { AppName } from "../waspCli.js";
-import type { SetupDbResult } from "./types.js";
+} from "../docker.ts";
+import { createLogger } from "../logging.ts";
+import { spawnAndCollectOutput } from "../process.ts";
+import type { Branded } from "../types.ts";
+import type { AppName } from "../waspCli.ts";
+import type { SetupDbResult } from "./types.ts";
 
 export const defaultPostgresDbImage = "postgres:18" as DockerImageName;
 
