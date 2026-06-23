@@ -73,6 +73,7 @@ function toRoute(htmlFileRelPath: string): string {
     htmlFileRelPath
       .replace(/\\/g, "/")
       .replace(/\.html$/, "")
+      // "YYYY/MM/DD" → "YYYY-MM-DD"
       .replace(/(\d{4})\/(\d{2})\/(\d{2})/g, "$1-$2-$3")
   );
 }
