@@ -16,7 +16,7 @@ import StrongPath (Abs, Dir, Path', castRel, fromRelDir, (</>))
 import Wasp.Cli.Command (Command, CommandError (..))
 import Wasp.Cli.Command.Compile (compileIOWithOptions, printCompilationResult)
 import Wasp.Cli.Command.Message (cliSendMessageC)
-import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), WaspSpecAvailable (WaspSpecAvailable), require)
+import Wasp.Cli.Command.Require (InWaspProject (InWaspProject), ValidNodeAndNpm (ValidNodeAndNpm), WaspSpecAvailable (WaspSpecAvailable), require)
 import Wasp.Cli.Message (cliSendMessage)
 import Wasp.CompileOptions (CompileOptions (..))
 import Wasp.Generator.Common (GeneratedAppDir)
@@ -49,6 +49,7 @@ build :: Command ()
 build = do
   InWaspProject waspProjectDir <- require
   WaspSpecAvailable <- require
+  ValidNodeAndNpm <- require
 
   let buildDir = waspProjectDir </> generatedAppDirInWaspProjectDir
 

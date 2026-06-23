@@ -3,7 +3,7 @@ module Main where
 import Control.Concurrent (threadDelay)
 import qualified Control.Concurrent.Async as Async
 import qualified Control.Exception as E
-import Control.Monad (unless, void)
+import Control.Monad (void)
 import Data.Char (isSpace)
 import Data.List (intercalate)
 import Main.Utf8 (withUtf8)
@@ -38,10 +38,7 @@ import Wasp.Cli.Command.Studio (studio)
 import qualified Wasp.Cli.Command.Telemetry as Telemetry
 import Wasp.Cli.Command.Test (test)
 import Wasp.Cli.Command.Uninstall (uninstall)
-import Wasp.Cli.Message (cliSendMessage)
 import Wasp.Cli.Terminal (title)
-import qualified Wasp.Message as Message
-import qualified Wasp.Node.Version as NodeVersion
 import Wasp.Util (indent)
 import Wasp.Util.InstallMethod (getInstallationCommand)
 import qualified Wasp.Util.Terminal as Term
@@ -76,19 +73,6 @@ main = withUtf8 . (`E.catch` handleInternalErrors) $ do
         _unknownCommand -> Command.Call.Unknown args
 
   telemetryThread <- Async.async $ runCommand $ Telemetry.considerSendingData commandCall
-
-  -- Before calling any command, check that the node requirement is met. Node is
-  -- not needed for every command, but checking for every command was decided
-  -- to be more robust than trying to only check for commands that require it.
-  -- See https://github.com/wasp-lang/wasp/issues/1134#issuecomment-1554065668
-  -- We skip the check for `wasp doctor`, which reports the Node/npm status itself
-  -- and must run even when the requirement isn't met.
-  unless (commandCall == Command.Call.Doctor) $
-    NodeVersion.checkUserNodeAndNpmMeetWaspRequirements >>= \case
-      NodeVersion.VersionCheckFail errorMsg -> do
-        cliSendMessage $ Message.Failure "Node/NPM requirement not met" errorMsg
-        exitFailure
-      NodeVersion.VersionCheckSuccess -> pure ()
 
   setDefaultCliEnvVars
 
